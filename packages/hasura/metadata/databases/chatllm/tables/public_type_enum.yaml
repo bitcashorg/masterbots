@@ -1,0 +1,3 @@
+table:
+  name: type_enum
+  schema: public

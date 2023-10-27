@@ -1,0 +1,1 @@
+CREATE TABLE "public"."prompt" ("prompt_id" integer NOT NULL, "chatbot_id" integer NOT NULL, "content" text NOT NULL, "type" text NOT NULL, PRIMARY KEY ("prompt_id") , FOREIGN KEY ("chatbot_id") REFERENCES "public"."chatbot"("chatbot_id") ON UPDATE restrict ON DELETE restrict, UNIQUE ("prompt_id"));

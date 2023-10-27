@@ -1,0 +1,1 @@
+drop schema "public" cascade;

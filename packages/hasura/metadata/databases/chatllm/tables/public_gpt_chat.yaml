@@ -1,0 +1,3 @@
+table:
+  name: gpt_chat
+  schema: public

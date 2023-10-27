@@ -1,0 +1,3 @@
+table:
+  name: default_complexity_enum
+  schema: public
