@@ -1,0 +1,3 @@
+table:
+  name: prompt_type_enum
+  schema: public

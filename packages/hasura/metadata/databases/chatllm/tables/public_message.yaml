@@ -1,0 +1,7 @@
+table:
+  name: message
+  schema: public
+object_relationships:
+  - name: message_type_enum
+    using:
+      foreign_key_constraint_on: type

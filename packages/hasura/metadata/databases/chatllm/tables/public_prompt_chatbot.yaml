@@ -1,0 +1,10 @@
+table:
+  name: prompt_chatbot
+  schema: public
+object_relationships:
+  - name: chatbot
+    using:
+      foreign_key_constraint_on: chabot_id
+  - name: prompt
+    using:
+      foreign_key_constraint_on: prompt_id
