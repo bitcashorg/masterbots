@@ -1,0 +1,1 @@
+CREATE TABLE "public"."chatbot" ("chatbot_id" serial NOT NULL, "name" text NOT NULL, "description" text, "category" text NOT NULL, "avatar" text, "created_by" text NOT NULL, "default_tone" text NOT NULL, "default_length" text NOT NULL, "default_type" text NOT NULL, "default_complexity" text NOT NULL, PRIMARY KEY ("chatbot_id") , UNIQUE ("chatbot_id"), UNIQUE ("name"));
