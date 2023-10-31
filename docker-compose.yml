@@ -3,6 +3,8 @@ version: '3.8'
 services:
   database:
     image: postgres:14.9
+    env_file:
+      - .env
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -16,6 +18,8 @@ services:
       - "8080:8080"
     depends_on:
       - database
+    env_file:
+      - .env
     environment:
       HASURA_GRAPHQL_DATABASE_URL: ${HASURA_GRAPHQL_DATABASE_URL}
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
@@ -26,4 +30,6 @@ services:
 
 volumes:
   pgdata:
+
+
 

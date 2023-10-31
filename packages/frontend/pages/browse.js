@@ -27,6 +27,7 @@ function Browse() {
     const [chatbots, setChatbots] = useState([]);
     const [selectedChatbot, setSelectedChatbot] = useState(null);
     const [messages, setMessages] = useState([]);
+    const [selectedThread, setSelectedThread] = useState(null);
 
     useEffect(() => {
         const GET_CATEGORIES = `
