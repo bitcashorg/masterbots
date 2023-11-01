@@ -1,1 +1,0 @@
-drop schema "users" cascade;

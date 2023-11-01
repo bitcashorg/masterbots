@@ -1,2 +1,0 @@
-CREATE TABLE "public"."messages" ("id" uuid NOT NULL DEFAULT gen_random_uuid(), "user_id" uuid NOT NULL, "chatbot_id" uuid NOT NULL, "message" text NOT NULL, "type" Text NOT NULL, "timestamp" timestamptz NOT NULL DEFAULT now(), PRIMARY KEY ("id") , FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON UPDATE restrict ON DELETE restrict, FOREIGN KEY ("chatbot_id") REFERENCES "public"."chatbots"("id") ON UPDATE restrict ON DELETE restrict, UNIQUE ("id"));
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
