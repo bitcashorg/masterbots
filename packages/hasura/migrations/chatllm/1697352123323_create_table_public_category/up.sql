@@ -1,1 +1,0 @@
-CREATE TABLE "public"."category" ("category_id" serial NOT NULL, "name" text NOT NULL, PRIMARY KEY ("category_id") , UNIQUE ("category_id"), UNIQUE ("name"));COMMENT ON TABLE "public"."category" IS E'Table to store different categories for chatbots.';
