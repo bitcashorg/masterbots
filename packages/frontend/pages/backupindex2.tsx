@@ -173,14 +173,6 @@ type User = {
     profile_picture?: string; 
 };
 
-type Thread = {
-    thread_id: number;
-    chatbot_id: number;
-    user_id: number;
-    created_at: Date;
-    updated_at: Date; 
-};
-
 const defaultChatbot: Chatbot = {
     chatbot_id: 0,
     name: 'Default Bot',
@@ -198,21 +190,12 @@ const defaultUser: User = {
     //date_joined: new Date(),
 };
 
-const defaultThread: Thread = {
-    thread_id: 0,
-    chatbot_id: 0,
-    user_id: 0,
-    created_at: new Date(),
-    updated_at: new Date(), 
-};
-
 function Chat() {    
     const [messages, setMessages] = useState<any[]>([]); // Consider using a type for messages as well
-    const [threads, setThreads] = useState<any[]>([]); 
-    const [selectedThread, setSelectedThread] = useState<Thread | null>(defaultThread);
+    const [selectedChatbot, setSelectedChatbot] = useState<Chatbot | null>(defaultChatbot);
     const [chatHistory, setChatHistory] = useState<any[]>([]);
     const [chatbots, setChatbots] = useState<Chatbot[]>([]);
-    const [selectedChatbot, setSelectedChatbot] = useState<Chatbot | null>(defaultChatbot);
+    const [users, setUsers] = useState<User[]>([]); // Initialize with an empty array of users
     const [selectedUser, setSelectedUser] = useState<User | null>(defaultUser); 
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
@@ -299,32 +282,73 @@ function Chat() {
     }, []);
 
     useEffect(() => {
-        async function fetchAuthenticatedUser() {
-            console.log("Starting to fetch authenticated user...");
+        async function fetchUsers() {
+            console.log("Starting to fetch users...");
     
             try {
-                // For now, mock the user data
-                const authenticatedUser = {
-                    ...defaultUser,
-                    // Any other properties you might want to set for testing
-                };
+                console.log("Sending request to /api/users...");
+                const response = await fetch('/api/users', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: `
+                        query {
+                            user {
+                                user_id
+                                username
+                                email
+                                password
+                            }
+                        }
+                        `,
+                    }),
+                });
     
-                console.log("Using mocked authenticated user:", authenticatedUser);
+                console.log("Received response from /api/users.");
     
-                setSelectedUser(authenticatedUser);  // set the mocked user as the selected user
+                const data = await response.json();
+
+                console.log("Parsed response JSON:", data);
+    
+                if (!validateData(data, expectedUserSchema)) {
+                    console.warn("Data does not match the expected schema."); // Added logging
+                    throw new Error('Data does not match expected format');
+                }
+    
+                if (!response.ok) {
+                    console.warn(`Received non-ok response. Status: ${response.status}`);  // Added logging
+                    throw new Error("Network response was not ok");
+                }
+    
+                // Handle missing data fields by merging with default values
+                const processedUsers = data.data.user.map((user: User) => {
+                    return {
+                        ...defaultUser,
+                        ...user,
+                    };
+                });
+                
+                
+    
+                console.log("Processed users after merging with default values:", processedUsers);  // Added logging
+    
+                setUsers(processedUsers);
+                setSelectedUser(processedUsers[0]);  // default to the first user
                 setLoading(false);
     
-                console.log("Updated user state with the mocked authenticated user.");
+                console.log("Updated users state, and set the first user as the selected user.");
     
             } catch (err) {
-                console.error("Error setting authenticated user:", err);
-                setError("Failed to load user.");
+                console.error("Error fetching users:", err);
+                setError("Failed to load users.");
                 setLoading(false);
             }
         }
     
-        console.log("useEffect triggered, invoking fetchAuthenticatedUser.");
-        fetchAuthenticatedUser();
+        console.log("useEffect triggered, invoking fetchUsers.");
+        fetchUsers();
     }, []);
     
         
@@ -339,112 +363,75 @@ function Chat() {
         botInfo.name = selectedChatbot.name;  // Assuming the selectedChatbot has a name property
     }
 
-    // Define the GraphQL mutation for fetching or creating a new thread
-    const FETCH_OR_CREATE_THREAD = `
-        mutation FetchOrCreateThread($userId: Int!, $chatbotId: Int!) {
-            insert_Thread_one(
-                object: {
-                    user_id: $userId,
-                    chatbot_id: $chatbotId
+    const fetchChatHistory = async (userId: number, chatbotId: number) => {
+        console.log(`Initiating fetchChatHistory for userId: ${userId} and chatbotId: ${chatbotId}`);
+    
+        try {
+            console.log("Sending request to /api/messages...");
+    
+            const response = await fetch('/api/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
                 },
-                on_conflict: {
-                    constraint: Thread_pkey,
-                    update_columns: [updated_at]
-                }
-            ) {
-                thread_id
-                }
-        }
-    `;
-
-    const fetchThread = async (userId: number, chatbotId: number) => {
-    const endpoint = "/api/threads";  // using relative endpoint as this would be on the same domain
-
-    try {
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                query: FETCH_OR_CREATE_THREAD,
-                variables: {
-                    userId,
-                    chatbotId
-                }
-            }),
-        });
-
-        const data = await response.json();
-
-        // Error handling in case of GraphQL error
-        if (data.errors) {
-            throw new Error(data.errors[0].message);
-    }
-
-        // Return the thread_id
-        return data.data.insert_Thread_one.thread_id;
-
+                body: JSON.stringify({
+                    query: `
+                    query GetChatHistory($userId: Int!, $chatbotId: Int!) {
+                        message(where: {sender_id: {_in: [$userId, $chatbotId]}, receiver_id: {_in: [$userId, $chatbotId]}}) {
+                            message_id
+                            content
+                            sender_id
+                            receiver_id
+                            type
+                            created_at
+                        }
+                    }
+                    `,
+                    variables: {
+                        userId: userId,
+                        chatbotId: chatbotId
+                    }
+                })
+            });
+    
+            console.log("Received response from /api/messages.");
+    
+            if (!response.ok) {
+                console.warn(`Received non-ok response. Status: ${response.status}`);
+                throw new Error(`Network response was not ok. Status: ${response.status}`);
+            }
+    
+            const data = await response.json();
+            console.log("Parsed response JSON:", data);
+    
+            // Sort messages by timestamp if it exists
+            const sortedMessages = data.data.message.sort((a: any, b: any) => 
+                new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+            );
+    
+            console.log("Sorted messages by timestamp:", sortedMessages);
+    
+            setChatHistory(sortedMessages);
+            console.log("Updated chat history state.");
+    
         } catch (error) {
-        console.error("Failed to fetch or create thread:", error);
-        throw error;
+            if (error instanceof Error) {
+                console.error("Error fetching chat history:", error.message);
+            } else {
+                console.error("Error fetching chat history:", error);
+            }
         }
     };
-
-    // Define the GraphQL query to fetch chat history
-    const FETCH_CHAT_HISTORY = `
-    query fetchChatHistory($threadId: Int!) {
-        message(where: { thread_id: { _eq: $threadId } }, order_by: { created_at: asc }) {
-            content
-            type
-            created_at
-        }
-    }
-    `;
-
-    const fetchChatHistory = async (threadId: number) => {
-    const endpoint = "/api/messages";  // using relative endpoint as this would be on the same domain
-
-    try {
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                query: FETCH_CHAT_HISTORY,
-                variables: {
-                    threadId
-                }
-            }),
-        });
-
-        const data = await response.json();
-
-        // Error handling in case of GraphQL error
-        if (data.errors) {
-            throw new Error(data.errors[0].message);
-        }
-
-        // Return the chat history
-        return data.data.Message;
-
-    } catch (error) {
-    console.error("Failed to fetch chat history:", error);
-    throw error;
-    }
-    };
-
     
     useEffect(() => {
         console.log("useEffect triggered by changes in selectedChatbot or selectedUser.");
-        if (selectedChatbot && selectedUser && selectedThread) {
+        if (selectedChatbot && selectedUser) {
             console.log(`Selected chatbot: ${selectedChatbot.chatbot_id}, Selected user: ${selectedUser.user_id}`);
-            fetchChatHistory(selectedThread.thread_id);
+            fetchChatHistory(selectedUser.user_id, selectedChatbot.chatbot_id);
         } else {
             console.warn("Either selectedChatbot or selectedUser is undefined. Not fetching chat history.");
         }
-    }, [selectedChatbot, selectedUser, selectedThread]);
+    }, [selectedChatbot, selectedUser]);
     
 
     const handleSendMessage = async (content: string) => {
@@ -465,13 +452,15 @@ function Chat() {
         // Prepare the user's message data
         const userMessageData = {
             content: content,
-            thread_id: selectedThread?.thread_id,
+            sender_id: selectedUser.user_id, // Replace with appropriate user ID
+            receiver_id: selectedChatbot.chatbot_id,
             type: 'user'
         };
 
         const optimisticUserMessage = {
             content: content,
-            thread_id: selectedThread,
+            sender_id: selectedUser.user_id,
+            receiver_id: selectedChatbot.chatbot_id,
             type: 'user',
             // you can generate a temporary ID or use Date.now() or any unique value
             message_id: Date.now()  
@@ -488,8 +477,8 @@ function Chat() {
             },
             body: JSON.stringify({
                 query: `
-                mutation InsertMessage($content: String!, $thread_id: Int!, $type: String! ) {
-                    insert_message_one(object: {content: $content, thread_id: $thread_id, type: $type}) {
+                mutation InsertMessage($content: String!, $sender_id: Int!, $receiver_id: Int!, $type: String! ) {
+                    insert_message_one(object: {content: $content, sender_id: $sender_id, receiver_id: $receiver_id, type: $type}) {
                         message_id
                     }
                 }
@@ -538,14 +527,18 @@ function Chat() {
 
         const botMessageData = {
             content: data.message,
-            thread_id: selectedThread?.thread_id,  
+            sender_id: selectedChatbot.chatbot_id,  
+            receiver_id: selectedUser.user_id, 
             type: 'chatbot',
+            related_message_id: userMessageId
         };
 
         const optimisticBotMessage = {
             content: data.message,
-            thread_id: selectedThread?.thread_id,  
+            sender_id: selectedChatbot.chatbot_id,
+            receiver_id: selectedUser.user_id,
             type: 'chatbot',
+            related_message_id: userMessageId,
             message_id: Date.now() + 1  // Another temporary unique ID
         };
         setChatHistory(prevChat => [...prevChat, optimisticBotMessage]);
@@ -559,8 +552,8 @@ function Chat() {
             },
             body: JSON.stringify({
                 query: `
-                mutation InsertBotMessage($content: String!, $thread_id: Int!, $type: String!) {
-                    insert_message_one(object: {content: $content, thread_id: $thread_id, type: $type}) {
+                mutation InsertBotMessage($content: String!, $sender_id: Int!, $receiver_id: Int!, $type: String!, $related_message_id: Int! ) {
+                    insert_message_one(object: {content: $content, sender_id: $sender_id, receiver_id: $receiver_id, type: $type, related_message_id: $related_message_id}) {
                         message_id
                     }
                 }

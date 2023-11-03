@@ -25,3 +25,24 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+/* Add custom styles below */
+
+.highlighted-style {
+  background-color: rgba(66, 153, 225, 0.5); /* semi-transparent blue background */
+  border: 2px solid rgba(66, 153, 225, 1); /* solid blue border */
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.regular-style {
+  background-color: rgba(233, 236, 239, 0.5); /* light gray background */
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  transition: background-color 0.3s ease; /* smooth transition effect */
+
+  /* Optional: change background color on hover */
+  &:hover {
+    background-color: rgba(226, 232, 240, 0.7);
+  }
+}
