@@ -26,11 +26,13 @@ interface Chatbot {
 interface ChatbotListProps {
     chatbots: Chatbot[];
     onSelect: (bot: Chatbot) => void;
+    selectedChatbot: Chatbot | null;
     loading?: boolean;
     error?: string | null;
 }
 
-const ChatbotList: FC<ChatbotListProps> = ({ chatbots = [], onSelect, loading = false, error = null }) => {
+const ChatbotList: FC<ChatbotListProps> = ({ chatbots = [], onSelect, selectedChatbot, loading = false, error = null }) => {
+
     const handleBotSelect = useCallback(
         (bot: Chatbot) => {
             onSelect(bot);
@@ -44,7 +46,11 @@ const ChatbotList: FC<ChatbotListProps> = ({ chatbots = [], onSelect, loading = 
             {error && <p>{error}</p>}
             {!loading && chatbots.length > 0 ? (
                 chatbots.map((bot) => (
-                    <div key={bot.chatbot_id} className="flex items-center cursor-pointer" onClick={() => handleBotSelect(bot)}>
+                    <div
+                        key={bot.chatbot_id}
+                        className={`flex items-center cursor-pointer ${selectedChatbot && bot.chatbot_id === selectedChatbot.chatbot_id ? 'highlighted-style' : 'regular-style'}`}
+                        onClick={() => handleBotSelect(bot)}
+                    >
                         <div className="relative w-8 h-8 rounded-full mr-2">
                             <Image src={bot.avatar || '/path/to/default/avatar.png'} alt={bot.name} layout="fill" objectFit="cover" className="rounded-full" />
                         </div>
@@ -59,5 +65,3 @@ const ChatbotList: FC<ChatbotListProps> = ({ chatbots = [], onSelect, loading = 
 }
 
 export default ChatbotList;
-
-
