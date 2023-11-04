@@ -5,3 +5,6 @@ object_relationships:
   - name: message_type_enum
     using:
       foreign_key_constraint_on: type
+  - name: thread
+    using:
+      foreign_key_constraint_on: thread_id
