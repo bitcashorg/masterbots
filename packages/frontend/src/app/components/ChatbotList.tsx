@@ -52,7 +52,13 @@ const ChatbotList: FC<ChatbotListProps> = ({ chatbots = [], onSelect, selectedCh
                         onClick={() => handleBotSelect(bot)}
                     >
                         <div className="relative w-8 h-8 rounded-full mr-2">
-                            <Image src={bot.avatar || '/path/to/default/avatar.png'} alt={bot.name} layout="fill" objectFit="cover" className="rounded-full" />
+                        <Image 
+                            src={bot.avatar || '/path/to/default/avatar.png'} 
+                            alt={bot.name} 
+                            width={100} // replace with your desired width
+                            height={100} // replace with your desired height
+                            className="rounded-full object-cover"
+                        />
                         </div>
                         <span>{bot.name}</span>
                     </div>
