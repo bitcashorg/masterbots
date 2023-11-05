@@ -5,9 +5,9 @@ import Image from 'next/image';
 export type MessageType = {
     message_id: number;
     content: string;
-    sender_id: number;
-    receiver_id: number;
+    thread_id: number | null; // Make thread_id nullable as per schema
     type: 'chatbot' | 'user';
+    created_at?: Date; // Add created_at field which is nullable
 };
 
 export type BotType = {
@@ -22,7 +22,7 @@ interface ChatMessageProps {
 
 function ChatMessage({ message, bot }: ChatMessageProps) {
     if (!message || !message.type) {
-        return null;  // render nothing if there's no message or no type in message
+        return null;  // Render nothing if there's no message or no type in message
     }
 
     const isBotMessage = message.type === 'chatbot';
@@ -34,10 +34,20 @@ function ChatMessage({ message, bot }: ChatMessageProps) {
                     <Image src={bot.avatar} alt={bot.name || 'Bot'} layout="fill" className="rounded-full" />
                 </div>
             )}
-            <p className="inline-block">{message.content}</p>
+            <div>
+                <p className="inline-block">{message.content}</p>
+                {/* Optionally display the time the message was created */}
+                {message.created_at && (
+                    <span className="text-xs text-gray-500 pl-2">
+                        {new Date(message.created_at).toLocaleTimeString()}
+                    </span>
+                )}
+            </div>
         </div>
     );
+    
 }
 
 export default ChatMessage;
+
 
