@@ -58,6 +58,7 @@ function Browse() {
             const GET_CHATBOTS_BY_CATEGORY = `
             query GetChatbotsByCategory($categoryName: String!) {
                 chatbot(where: {categories: {category: {name: {_eq: $categoryName}}}}) {
+                    chatbot_id
                     name
                 }
             }            
@@ -76,52 +77,23 @@ function Browse() {
             });
         }
     }, [selectedCategory]);
+    
 
     useEffect(() => {
-        if (selectedChatbot) {
-            const GET_CHATBOT_ID = `
-                query GetChatbotIdByName($chatbotName: String!) {
-                    chatbot(where: {name: {_eq: $chatbotName}}) {
-                        chatbot_id
-                    }
-                }
-            `;
-    
+        if (selectedChatbot && typeof selectedChatbot.chatbot_id !== 'undefined') {
             const GET_MESSAGES_BY_CHATBOT = `
                 query GetMessagesByChatbot($chatbotId: Int!) {
-                message(where: {
-                    _or: [
-                        {_and: [
-                            {sender_id: {_eq: $chatbotId}},
-                            {type: {_eq: "chatbot"}}
-                        ]},
-                        {_and: [
-                            {receiver_id: {_eq: $chatbotId}},
-                            {type: {_eq: "user"}}
-                        ]}
-                    ]
-                }) {
+                message(where: {thread: {chatbot_id: {_eq: $chatbotId}}}, order_by: {created_at: desc}) {
                     message_id
                     content
-                    sender_id
-                    receiver_id
                     type
                     created_at
+                    thread_id
                 }
             }
             
             `;
-    
-            fetchAPI("messages", GET_CHATBOT_ID, { chatbotName: selectedChatbot })
-            .then(data => {
-                const chatbotId = data?.chatbot?.[0]?.chatbot_id;
-                if (chatbotId) {
-                    return fetchAPI("messages", GET_MESSAGES_BY_CHATBOT, { chatbotId });
-                } else {
-                    console.error("Chatbot ID not found for:", selectedChatbot);
-                    return Promise.reject("Chatbot ID not found");
-                }
-            })
+            fetchAPI("messages", GET_MESSAGES_BY_CHATBOT, { chatbotId: selectedChatbot.chatbot_id })
             .then(data => {
                 if (data && data.message) {
                     console.log("Messages Data for Chatbot:", data);
@@ -131,10 +103,11 @@ function Browse() {
                 }
             })
             .catch(error => {
-                console.error(`Error fetching data for chatbot '${selectedChatbot}':`, error);
+                console.error(`Error fetching messages for chatbot '${selectedChatbot.name}':`, error);
             });
-    }
-}, [selectedChatbot]);
+        }
+    }, [selectedChatbot]);
+    
 
     return (
         <div>
@@ -154,12 +127,12 @@ function Browse() {
                 <section className="mb-4">
                     {chatbots.map(chatbot => (
                         <div
-                            onClick={() => setSelectedChatbot(chatbot.name)}
-                            className="border p-4 hover:shadow-lg transition-shadow cursor-pointer"
-                            key={chatbot.name}
+                        onClick={() => setSelectedChatbot(chatbot)}
+                        className="border p-4 hover:shadow-lg transition-shadow cursor-pointer"
+                        key={chatbot.chatbot_id} // use chatbot_id for key if possible
                         >
-                            {chatbot.name}
-                        </div>
+                        {chatbot.name}
+                    </div>
                     ))}
                 </section>
             )}
@@ -168,18 +141,30 @@ function Browse() {
                 <section className="mb-4">
                     {messages.map((message, index) => (
                         <div
-                            onClick={() => setSelectedThread(message.message_id)}
+                            onClick={() => setSelectedThread(message.thread_id)}
                             className="border p-4 hover:bg-gray-100 transition-colors cursor-pointer truncate"
-                            key={index}
+                            key={message.message_id}
                         >
-                            {message.content}
+                            {message.content} ({new Date(message.created_at).toLocaleString()})
                         </div>
                     ))}
                 </section>
+            )}
+
+            {selectedThread && (
+                <div className="mt-4">
+                    <h3 className="mb-3">Selected Thread Messages:</h3>
+                    {messages.filter(msg => msg.thread_id === selectedThread).map(filteredMessage => (
+                        <div className="border p-4 hover:bg-gray-100 transition-colors" key={filteredMessage.message_id}>
+                            {filteredMessage.content}
+                        </div>
+                    ))}
+                </div>
             )}
         </div>
     );
 }
 
 export default Browse;
+
 
