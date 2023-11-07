@@ -28,6 +28,8 @@ function Browse() {
     const [selectedChatbot, setSelectedChatbot] = useState(null);
     const [messages, setMessages] = useState([]);
     const [selectedThread, setSelectedThread] = useState(null);
+    const [threads, setThreads] = useState([]);
+
 
     useEffect(() => {
         const GET_CATEGORIES = `
@@ -81,23 +83,36 @@ function Browse() {
 
     useEffect(() => {
         if (selectedChatbot && typeof selectedChatbot.chatbot_id !== 'undefined') {
+            console.log(`Fetching messages for chatbot ID: ${selectedChatbot.chatbot_id}`); // Log chatbot ID being queried
             const GET_MESSAGES_BY_CHATBOT = `
                 query GetMessagesByChatbot($chatbotId: Int!) {
-                message(where: {thread: {chatbot_id: {_eq: $chatbotId}}}, order_by: {created_at: desc}) {
-                    message_id
-                    content
-                    type
-                    created_at
-                    thread_id
+                    message(where: {thread: {chatbot_id: {_eq: $chatbotId}}}, order_by: {created_at: asc}) {
+                        message_id
+                        content
+                        type
+                        created_at
+                        thread_id
+                    }
                 }
-            }
-            
             `;
             fetchAPI("messages", GET_MESSAGES_BY_CHATBOT, { chatbotId: selectedChatbot.chatbot_id })
             .then(data => {
+                console.log('API response data:', data); // Log the data received from the API
                 if (data && data.message) {
                     console.log("Messages Data for Chatbot:", data);
                     setMessages(data.message);
+                    // Create a threads array with the first message as the label
+                    const newThreads = data.message.reduce((acc, message) => {
+                        const threadIndex = acc.findIndex(t => t.thread_id === message.thread_id);
+                        if (threadIndex === -1) {
+                            acc.push({ thread_id: message.thread_id, label: message.content, messages: [message] });
+                        } else {
+                            acc[threadIndex].messages.push(message);
+                        }
+                        return acc;
+                    }, []);
+                    console.log('Constructed threads:', newThreads); // Log the threads array constructed
+                    setThreads(newThreads);
                 } else {
                     console.error("Unexpected messages data format for chatbot:", data);
                 }
@@ -107,6 +122,15 @@ function Browse() {
             });
         }
     }, [selectedChatbot]);
+
+    // Log the state when it's updated
+    useEffect(() => {
+        console.log('Threads updated:', threads);
+    }, [threads]);
+
+    useEffect(() => {
+        console.log('Selected thread updated:', selectedThread);
+    }, [selectedThread]);
     
 
     return (
@@ -139,15 +163,19 @@ function Browse() {
 
             {selectedChatbot && (
                 <section className="mb-4">
-                    {messages.map((message, index) => (
-                        <div
-                            onClick={() => setSelectedThread(message.thread_id)}
-                            className="border p-4 hover:bg-gray-100 transition-colors cursor-pointer truncate"
-                            key={message.message_id}
-                        >
-                            {message.content} ({new Date(message.created_at).toLocaleString()})
-                        </div>
-                    ))}
+                    {threads.length > 0 ? (
+                        threads.map((thread) => (
+                            <div
+                                onClick={() => setSelectedThread(thread.thread_id)}
+                                className="border p-4 hover:shadow-lg transition-shadow cursor-pointer"
+                                key={thread.thread_id}
+                            >
+                                {thread.label} ({new Date(thread.messages[0].created_at).toLocaleString()})
+                            </div>
+                        ))
+                    ) : (
+                        <p>No threads found for selected chatbot.</p> // Provide feedback when no threads are found
+                    )}
                 </section>
             )}
 

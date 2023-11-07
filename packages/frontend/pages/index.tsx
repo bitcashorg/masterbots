@@ -188,6 +188,16 @@ type BotInfoType = {
     name?: string;
   };
 
+  // Define a type for a chat message
+type ChatMessage = {
+    content: string;
+    created_at: string; // assuming created_at is a string; adjust type if necessary
+    type: 'user' | 'chatbot'; // Adjust types according to your actual use case
+  };
+  
+  // Define a type for the array of chat messages
+type ChatHistory = ChatMessage[];
+
 const defaultChatbot: Chatbot = {
     chatbot_id: 1,
     name: 'HealthBot',
@@ -253,7 +263,7 @@ function Chat() {
                                         name
                                     }
                                 }
-                                prompts(where: { prompt: { prompt_type_enum: { value: { _eq: "prompt" } } } }) {
+                                prompts: prompts(where: { prompt: { prompt_type_enum: { value: { _eq: "prompt" } } } }) {
                                     prompt {
                                         content
                                     }
@@ -555,21 +565,37 @@ useEffect(() => {
         return;
     }
 
+    function getUserMessages(chatHistory: ChatHistory): string {
+        const userMessages = chatHistory
+          .filter((message: ChatMessage) => message.type === 'user')
+          .map((userMessage: ChatMessage) => userMessage.content);
+      
+        return userMessages.join('\n');
+      }
+      
+      // Sample usage:
+      // Assume chatHistory is the array you've shown in the console log image
+      
+    console.log(content); // This will print all user messages combined in one string, each separated by a newline
+      
     // Continue with the rest of the logic to fetch chatbot response and save it
     const apiURL = "/api/openai";
     const chatbotInstruction = selectedChatbot.instructions?.[0]?.prompt?.content || "";
     const chatbotPrompt = selectedChatbot.prompts?.[0]?.prompt?.content || "";
-    const featureSettings = [
-        selectedChatbot.default_tone,
-        selectedChatbot.default_length,
-        selectedChatbot.default_type,
-        selectedChatbot.default_complexity
-    ].join(" ");
-    const combinedPrompt = `${chatbotInstruction} ${chatbotPrompt} [${featureSettings}] ${content}`;
+    const chatbotContext = getUserMessages(chatHistory);
+    const featureSettings = `Your response tone will be ${selectedChatbot.default_tone}. ` +
+    `Your response length will be ${selectedChatbot.default_length}. ` +
+    `Your response format will be ${selectedChatbot.default_type}. ` +
+    `Your response complexity level will be ${selectedChatbot.default_complexity}.`;
+
+    const combinedPrompt = `${chatbotPrompt} ${chatbotInstruction} [${featureSettings}] ${chatbotContext} ${content}`;
     const botResponseData = {
         botId: selectedChatbot.chatbot_id,
         prompt: combinedPrompt
     };
+
+    console.log("Chatbot prompt:", chatbotPrompt)
+    console.log("Combined prompt:", combinedPrompt)
 
     try {
         const response = await fetch(apiURL, {
