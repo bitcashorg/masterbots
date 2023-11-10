@@ -36,12 +36,12 @@ function ChatMessage({ message, bot }: ChatMessageProps) {
             )}
             <div>
                 <p className="inline-block">{message.content}</p>
-                {/* Optionally display the time the message was created */}
+                {/* Optionally display the time the message was created 
                 {message.created_at && (
                     <span className="text-xs text-gray-500 pl-2">
                         {new Date(message.created_at).toLocaleTimeString()}
                     </span>
-                )}
+                )}*/}
             </div>
         </div>
     );

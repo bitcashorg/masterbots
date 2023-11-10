@@ -198,6 +198,10 @@ type ChatMessage = {
   // Define a type for the array of chat messages
 type ChatHistory = ChatMessage[];
 
+interface Category {
+    name: string;
+  }
+
 const defaultChatbot: Chatbot = {
     chatbot_id: 1,
     name: 'HealthBot',
@@ -225,6 +229,8 @@ const defaultThread: Thread = {
 
 function Chat() {    
     //const [messages, setMessages] = useState<any[]>([]); // Consider using a type for messages as well
+    const [categories, setCategories] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState(null);
     const [threads, setThreads] = useState<any[]>([]); 
     const [selectedThread, setSelectedThread] = useState<Thread | null>(defaultThread);
     const [chatHistory, setChatHistory] = useState<any[]>([]);
@@ -236,6 +242,39 @@ function Chat() {
     const [error, setError] = useState<string | null>(null);
 
 
+    useEffect(() => {
+        const fetchCategories = async () => {
+          const CATEGORIES_ENDPOINT = "/api/categories"; 
+          try {
+            const response = await fetch(CATEGORIES_ENDPOINT, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                query: `
+                  query GetCategories {
+                    category {
+                      name
+                    }
+                  }
+                `
+              })
+            });
+            const data = await response.json();
+            if (data && data.data && data.data.category) {
+                setCategories(data.data.category.map((cat: Category) => cat.name));
+            } else {
+                console.error("Unexpected categories data format:", data);
+            }
+          } catch (error) {
+            console.error("Failed to fetch categories:", error);
+          }
+        };
+    
+        fetchCategories();
+    }, []);
+    
     useEffect(() => {
         async function fetchChatbots() {
             console.log("Starting to fetch chatbots...");  // Added logging
@@ -661,40 +700,55 @@ useEffect(() => {
       };
           
 
-    return (
-        <div className="p-4 bg-gray-200 min-h-screen">
+      return (
+        <div className="flex min-h-screen">
+          {/* Side Panel for Chatbot List */}
+          <div className="w-1/8 bg-gray-200 p-4">
+            <ChatbotList
+              chatbots={chatbots}
+              onSelect={(chatbot) => {
+                setSelectedChatbot(chatbot);  // Set the selected chatbot
+                setChatHistory([]);           // Clear the chat history
+                setSelectedThread(null);      // Deselect any selected thread
+              }}
+              selectedChatbot={selectedChatbot}
+              loading={loading}
+              error={error}
+            />
+          </div>
+      
+          {/* Main Content Area */}
+          <div className="w-7/8 p-4 bg-gray-200">
             <div className="container mx-auto bg-white p-4 rounded shadow">
-                <ChatbotList 
-                    chatbots={chatbots} 
-                    onSelect={(chatbot) => {
-                        setSelectedChatbot(chatbot);  // Set the selected chatbot
-                        setChatHistory([]);           // Clear the chat history
-                    }}
-                    
-                    selectedChatbot={selectedChatbot}  // Pass the selected chatbot to the list for highlighting
-                    loading={loading} 
-                    error={error} 
+              {/* Conditionally render ThreadList if a chatbot is selected */}
+              {selectedChatbot && (
+                <ThreadList
+                  threads={threads}
+                  selectedThread={selectedThread ? selectedThread.thread_id : null}
+                  onSelectThread={handleSelectThread}
+                  chatHistory={chatHistory}
+                  // Assume you have a function to format the date and the first message
+                  // formatThreadLabel could be a function that returns the string label for the thread
                 />
-                {selectedThread && (
-                    <ThreadList
-                        threads={threads} // your threads state
-                        selectedThread={selectedThread ? selectedThread.thread_id : null} // Use a conditional check to ensure you pass a number or null
-                        onSelectThread={handleSelectThread}
-                        chatHistory={chatHistory} // your chatHistory state
-                    />
-                )}
-
-                {error && <p className="text-red-500">{error}</p>}
-                {selectedChatbot && <ChatInput onSend={handleSendMessage} />}
-                {
-                selectedUser && selectedChatbot && selectedThread &&
-                <NewChatButton onStartNewChat={() => createThread(selectedUser.user_id, selectedChatbot.chatbot_id)} />
-                }
-
-
+              )}
+      
+              {/* Display error if any */}
+              {error && <p className="text-red-500">{error}</p>}
+      
+              {/* ChatInput and NewChatButton only if a thread is selected */}
+              {selectedUser && selectedChatbot && selectedThread && (
+                <>
+                  <ChatInput onSend={handleSendMessage} />
+                  <NewChatButton onStartNewChat={() => createThread(selectedUser.user_id, selectedChatbot.chatbot_id)} />
+                </>
+              )}
+      
+              
             </div>
+          </div>
         </div>
-    );
+      );
+      
     
     
 }
