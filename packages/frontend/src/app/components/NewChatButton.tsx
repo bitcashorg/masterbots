@@ -7,7 +7,7 @@ type NewChatButtonProps = {
 
 const NewChatButton: React.FC<NewChatButtonProps> = ({ onStartNewChat }) => {
   return (
-    <button className="btn-new-chat" onClick={onStartNewChat}>
+    <button className="btn-new-chat" onClick={onStartNewChat} >
       + New Chat
     </button>
   );

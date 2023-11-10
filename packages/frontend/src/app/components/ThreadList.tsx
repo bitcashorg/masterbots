@@ -9,8 +9,10 @@ interface ThreadListProps {
   chatHistory: MessageType[];
 }
 
+// Updated ThreadType with a 'thread_title' property
 interface ThreadType {
   thread_id: number;
+  thread_title: string; // Assuming the first message is the thread title
   // ... other properties you need
 }
 

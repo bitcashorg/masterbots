@@ -1,35 +1,69 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const HASURA_ADMIN_SECRET = process.env.HASURA_ADMIN_SECRET;
 const HASURA_ENDPOINT = process.env.HASURA_ENDPOINT;
 
+interface Category {
+  category_id: number;
+  name: string;
+}
+
+interface Chatbot {
+  chatbot_id: number;
+  name: string;
+}
+
+interface Message {
+  message_id: number;
+  content: string;
+  type: string;
+  created_at: string;
+  thread_id: number;
+}
+
+interface Thread {
+  thread_id: number;
+  label: string;
+  messages: Message[];
+}
+
 const headers = {
-    'Content-Type': 'application/json',
-    'x-hasura-admin-secret': HASURA_ADMIN_SECRET
+  'Content-Type': 'application/json',
+  'x-hasura-admin-secret': HASURA_ADMIN_SECRET || ''
 };
 
-function fetchAPI(endpoint, query, variables = {}) {
-    return fetch(`/api/${endpoint}`, {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify({
-            query: query,
-            variables: variables
-        })
+function fetchAPI(endpoint: string, query: string, variables: Record<string, unknown> = {}): Promise<any> {
+  return fetch(`api/${endpoint}`, {
+    method: 'POST',
+    headers: headers,
+    body: JSON.stringify({
+      query,
+      variables
     })
-    .then(res => res.json())
-    .then(data => data.data);
+  })
+  .then(res => res.json())
+  .then(data => data.data);
 }
 
 function Browse() {
-    const [categories, setCategories] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState(null);
-    const [chatbots, setChatbots] = useState([]);
-    const [selectedChatbot, setSelectedChatbot] = useState(null);
-    const [messages, setMessages] = useState([]);
-    const [selectedThread, setSelectedThread] = useState(null);
-    const [threads, setThreads] = useState([]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [chatbots, setChatbots] = useState<Chatbot[]>([]);
+  const [selectedChatbot, setSelectedChatbot] = useState<Chatbot | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [selectedThread, setSelectedThread] = useState<number | null>(null);
+  const [threads, setThreads] = useState<Thread[]>([]);
 
+  const toggleThread = (threadId: number) => {
+    if (selectedThread === threadId) {
+      setSelectedThread(null);
+      setMessages([]);
+    } else {
+      setSelectedThread(threadId);
+      const threadMessages = threads.find(thread => thread.thread_id === threadId)?.messages || [];
+      setMessages(threadMessages);
+    }
+  };
 
     useEffect(() => {
         const GET_CATEGORIES = `
@@ -42,16 +76,16 @@ function Browse() {
     
         fetchAPI("categories", GET_CATEGORIES).then(data => {
             if (data && data.category) {
-                console.log("Categories Data:", data);
-                setCategories(data.category.map(cat => cat.name));
+              console.log("Categories Data:", data);
+              setCategories(data.category.map((cat: Category) => cat.name));
             } else {
-                console.error("Unexpected categories data format:", data);
+              console.error("Unexpected categories data format:", data);
             }
-        })
-        .catch(error => {
+          })
+          .catch(error => {
             console.error("Error fetching categories:", error.message);
             console.error("Error stack:", error.stack);
-        });
+          });
 
     }, []);
 
@@ -102,7 +136,7 @@ function Browse() {
                     console.log("Messages Data for Chatbot:", data);
                     setMessages(data.message);
                     // Create a threads array with the first message as the label
-                    const newThreads = data.message.reduce((acc, message) => {
+                    const newThreads = data.message.reduce((acc: Thread[], message: Message) => {
                         const threadIndex = acc.findIndex(t => t.thread_id === message.thread_id);
                         if (threadIndex === -1) {
                             acc.push({ thread_id: message.thread_id, label: message.content, messages: [message] });
@@ -165,29 +199,33 @@ function Browse() {
                 <section className="mb-4">
                     {threads.length > 0 ? (
                         threads.map((thread) => (
-                            <div
-                                onClick={() => setSelectedThread(thread.thread_id)}
-                                className="border p-4 hover:shadow-lg transition-shadow cursor-pointer"
-                                key={thread.thread_id}
-                            >
-                                {thread.label} ({new Date(thread.messages[0].created_at).toLocaleString()})
+                            <div key={thread.thread_id}>
+                                <div
+                                    onClick={() => toggleThread(thread.thread_id)}
+                                    className="border p-4 hover:shadow-lg transition-shadow cursor-pointer"
+                                >
+                                {thread.label} ({new Date(thread.messages[0].created_at).toLocaleDateString('en-US', {
+                                                            month: '2-digit',
+                                                            day: '2-digit',
+                                                            year: '2-digit'
+                                                        })})                                
+                                </div>
+                                {selectedThread === thread.thread_id && (
+                                    <div className="mt-4">
+                                        <h3 className="mb-3">Thread Messages:</h3>
+                                        {thread.messages.map(message => (
+                                            <div className="border p-4 hover:bg-gray-100 transition-colors" key={message.message_id}>
+                                                {message.content}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         ))
                     ) : (
                         <p>No threads found for selected chatbot.</p> // Provide feedback when no threads are found
                     )}
                 </section>
-            )}
-
-            {selectedThread && (
-                <div className="mt-4">
-                    <h3 className="mb-3">Selected Thread Messages:</h3>
-                    {messages.filter(msg => msg.thread_id === selectedThread).map(filteredMessage => (
-                        <div className="border p-4 hover:bg-gray-100 transition-colors" key={filteredMessage.message_id}>
-                            {filteredMessage.content}
-                        </div>
-                    ))}
-                </div>
             )}
         </div>
     );
