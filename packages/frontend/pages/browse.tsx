@@ -204,11 +204,7 @@ function Browse() {
                                     onClick={() => toggleThread(thread.thread_id)}
                                     className="border p-4 hover:shadow-lg transition-shadow cursor-pointer"
                                 >
-                                {thread.label} ({new Date(thread.messages[0].created_at).toLocaleDateString('en-US', {
-                                                            month: '2-digit',
-                                                            day: '2-digit',
-                                                            year: '2-digit'
-                                                        })})                                
+                                {thread.label}                             
                                 </div>
                                 {selectedThread === thread.thread_id && (
                                     <div className="mt-4">
