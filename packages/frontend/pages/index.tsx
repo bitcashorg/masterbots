@@ -621,13 +621,13 @@ useEffect(() => {
     const apiURL = "/api/openai";
     const chatbotInstruction = selectedChatbot.instructions?.[0]?.prompt?.content || "";
     const chatbotPrompt = selectedChatbot.prompts?.[0]?.prompt?.content || "";
-    const chatbotContext = getUserMessages(chatHistory);
+    const chatbotContext = `First, respond to the following questions and requests in one introductory sentence: [${getUserMessages(chatHistory)}]. Then elaborate on this final question:`;
     const featureSettings = `Your response tone will be ${selectedChatbot.default_tone}. ` +
     `Your response length will be ${selectedChatbot.default_length}. ` +
     `Your response format will be ${selectedChatbot.default_type}. ` +
     `Your response complexity level will be ${selectedChatbot.default_complexity}.`;
 
-    const combinedPrompt = `${chatbotPrompt} ${chatbotInstruction} [${featureSettings}] ${chatbotContext} ${content}`;
+    const combinedPrompt = `${chatbotPrompt} ${chatbotInstruction} ${chatbotContext} ${content}[${featureSettings}]`;
     const botResponseData = {
         botId: selectedChatbot.chatbot_id,
         prompt: combinedPrompt
