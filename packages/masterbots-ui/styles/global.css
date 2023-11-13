@@ -1,0 +1,254 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@tailwind variants;
+
+@layer base {
+  :root {
+    --background: #fafafa;
+    --foreground: #101529;
+
+    --muted: #eaf0f7;
+    --muted-foreground: #6f7a8d;
+
+    --popover: #ffffff;
+    --popover-foreground: #101529;
+
+    --border: #dfe6ed;
+    --input: #dfe6ed;
+
+    --card: #ffffff;
+    --card-foreground: #101529;
+
+    --primary: #29e0ad;
+    --primary-foreground: #fff;
+
+    --secondary: #0f121f;
+    --secondary-foreground: #fff;
+
+    --accent: #eaf0f7;
+    --accent-foreground: #101529;
+
+    --destructive: #f34040;
+    --destructive-foreground: #fff;
+
+    --lightBlack: #0f121f99;
+    --gray: #cccccc;
+    --darkGray: #787878;
+    --shallowPink: #fdf3f2;
+
+    --ring: #a8b3c3;
+
+    --radius: 16px;
+  }
+
+  .dark {
+    --background: #070b1f;
+    --foreground: #eaeff3;
+
+    --muted: #101529;
+    --muted-foreground: #6f7a8d;
+
+    --accent: #1c2136;
+    --accent-foreground: #e9f1f8;
+
+    --popover: #070b1f;
+    --popover-foreground: #a8b3c3;
+
+    --border: #1c2136;
+    --input: #1c2136;
+
+    --card: #070b1f;
+    --card-foreground: #eaeff3;
+
+    --primary: #e9f1f8;
+    --primary-foreground: #020408;
+
+    --secondary: #101529;
+    --secondary-foreground: #e9e9e9;
+
+    --destructive: #ff5050;
+    --destructive-foreground: #e9f1f8;
+
+    --ring: #1c2136;
+    --radius: 16px;
+  }
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    @apply border-border leading-regular tracking-thicker;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  *:not(input):not(textarea) {
+    user-select: none;
+  }
+
+  *,
+  *:before,
+  *:after {
+    box-sizing: border-box;
+    font-family: "Mulish", sans-serif;
+
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    -moz-tab-highlight-color: rgba(0, 0, 0, 0);
+    -o-tab-highlight-color: rgba(0, 0, 0, 0);
+
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h1,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Mulish", sans-serif;
+  }
+
+  h1 {
+    @apply text-3xl font-bold;
+  }
+  h2 {
+    @apply text-2xl font-bold;
+  }
+  h3 {
+    @apply text-xl font-bold;
+  }
+  h4 {
+    @apply text-lg font-bold;
+  }
+  h5 {
+    @apply text-base font-bold;
+  }
+  h6 {
+    @apply text-sm font-bold;
+  }
+
+  html,
+  body,
+  #root,
+  :root {
+    background: var(--background);
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    font-size: calc(1.15rem * ((100vw - 300px) / 600));
+    /* base for fluidy - 14px */
+  }
+
+  label {
+    padding: 0.3em;
+    display: inline-block;
+  }
+
+  main {
+    @apply flex w-full flex-col items-center justify-center bg-background;
+  }
+
+  .dots-bars-2 {
+    margin-top: 16px;
+    width: 40px;
+    height: 18px;
+    --c: linear-gradient(currentColor 0 0);
+    --r1: radial-gradient(farthest-side at bottom, currentColor 93%, #0000);
+    --r2: radial-gradient(farthest-side at top, currentColor 93%, #0000);
+    background: var(--c), var(--r1), var(--r2), var(--c), var(--r1), var(--r2),
+      var(--c), var(--r1), var(--r2);
+    background-repeat: no-repeat;
+    animation: db2 1s infinite alternate;
+  }
+
+  .gg-clipboard {
+    box-sizing: border-box;
+    position: relative;
+    display: inline-block;
+    transform: scale(0.55);
+    width: 18px;
+    height: 18px;
+    border: 2px solid;
+    border-radius: 2px;
+    top: 2px;
+    left: 2px;
+  }
+  .gg-clipboard::after,
+  .gg-clipboard::before {
+    content: "";
+    display: inline-block;
+    box-sizing: border-box;
+    position: absolute;
+    border-radius: 2px;
+    width: 10px;
+    left: 2px;
+  }
+  .gg-clipboard::before {
+    border: 2px solid;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    top: -2px;
+    height: 6px;
+  }
+  .gg-clipboard::after {
+    height: 2px;
+    background: currentColor;
+    box-shadow: 0 -4px 0 0;
+    bottom: 2px;
+  }
+
+  @media screen and (min-width: 500px) {
+    body {
+      position: relative;
+      width: 500px;
+      margin: 0 auto;
+    }
+    html,
+    body,
+    #root,
+    :root {
+      font-size: 1rem;
+      background: #14182e;
+    }
+  }
+
+  @keyframes db2 {
+    0%,
+    25% {
+      background-size: 8px 0, 8px 4px, 8px 4px, 8px 0, 8px 4px, 8px 4px, 8px 0,
+        8px 4px, 8px 4px;
+      background-position: 0 50%, 0 calc(50% - 2px), 0 calc(50% + 2px), 50% 50%,
+        50% calc(50% - 2px), 50% calc(50% + 2px), 100% 50%, 100% calc(50% - 2px),
+        100% calc(50% + 2px);
+    }
+    50% {
+      background-size: 8px 100%, 8px 4px, 8px 4px, 8px 0, 8px 4px, 8px 4px,
+        8px 0, 8px 4px, 8px 4px;
+      background-position: 0 50%, 0 calc(0% - 2px), 0 calc(100% + 2px), 50% 50%,
+        50% calc(50% - 2px), 50% calc(50% + 2px), 100% 50%, 100% calc(50% - 2px),
+        100% calc(50% + 2px);
+    }
+    75% {
+      background-size: 8px 100%, 8px 4px, 8px 4px, 8px 100%, 8px 4px, 8px 4px,
+        8px 0, 8px 4px, 8px 4px;
+      background-position: 0 50%, 0 calc(0% - 2px), 0 calc(100% + 2px), 50% 50%,
+        50% calc(0% - 2px), 50% calc(100% + 2px), 100% 50%, 100% calc(50% - 2px),
+        100% calc(50% + 2px);
+    }
+    95%,
+    100% {
+      background-size: 8px 100%, 8px 4px, 8px 4px, 8px 100%, 8px 4px, 8px 4px,
+        8px 100%, 8px 4px, 8px 4px;
+      background-position: 0 50%, 0 calc(0% - 2px), 0 calc(100% + 2px), 50% 50%,
+        50% calc(0% - 2px), 50% calc(100% + 2px), 100% 50%, 100% calc(0% - 2px),
+        100% calc(100% + 2px);
+    }
+  }
+}

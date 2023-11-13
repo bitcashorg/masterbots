@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  masterbots-postgres:
+    image: postgres:14.9
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}    
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  masterbots-graphql:
+    image: hasura/graphql-engine:v2.34.0
+    ports:
+      - "${HASURA_GRAPHQL_SERVER_PORT}:${HASURA_GRAPHQL_SERVER_PORT}"
+    depends_on:
+      - masterbots-postgres
+    environment:
+      # https://hasura.io/docs/1.0/graphql/core/deployment/graphql-engine-flags/reference.html
+      HASURA_GRAPHQL_DATABASE_URL: ${HASURA_GRAPHQL_DATABASE_URL}
+      HASURA_GRAPHQL_MIGRATIONS_SERVER_TIMEOUT: 100
+      HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_ADMIN_SECRET}
+      HASURA_GRAPHQL_SERVER_PORT: ${HASURA_GRAPHQL_SERVER_PORT}
+      HASURA_GRAPHQL_DEV_MODE: "true"
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
+      HASURA_GRAPHQL_CORS_DOMAIN: "*"
+      # CUSTOM_REMOTE_SCHEMA_URL: ${CUSTOM_REMOTE_SCHEMA_URL}
+      HASURA_GRAPHQL_ENABLE_REMOTE_SCHEMA_PERMISSIONS: "false"
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: "anonymous"
+      HASURA_GRAPHQL_JWT_SECRET: ${HASURA_GRAPHQL_JWT_SECRET}
+      # HASURA_GRAPHQL_MIGRATIONS_DIRECTORY: ${HASURA_GRAPHQL_MIGRATIONS_DIRECTORY}
+      # HASURA_GRAPHQL_METADATA_DIRECTORY: ${HASURA_GRAPHQL_METADATA_DIRECTORY}
+
+
+# Add other services like Vespa as needed
+
+volumes:
+  pgdata:

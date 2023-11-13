@@ -6,7 +6,7 @@
   "license": "MIT",
   "private": true,
   "workspaces": [
-    "frontend",
-    "hasura"
+    "apps/*",
+    "packages/*"
   ]
 }

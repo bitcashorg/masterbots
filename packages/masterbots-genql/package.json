@@ -1,0 +1,37 @@
+{
+  "name": "masterbots-genql",
+  "version": "0.0.1",
+  "private": true,
+  "description": "masterbots genql",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "gen": "yarn gen-prod && yarn gen-test",
+    "gen-prod": "./scripts/prod.sh",
+    "gen-test": "./scripts/test.sh",
+    "gen-local": "./scripts/local.sh",
+    "prod": "genql --endpoint https://api.masterbots.org/v1/graphql --output ./generated -H 'content-type: application/json' -H 'x-hasura-admin-secret: detinmarindedopingue'",
+    "test": "genql --endpoint https://masterbots-hasura-dev-ymrgicuyta-uc.a.run.app/v1/graphql --output ./generated -H 'content-type: application/json' -H 'x-hasura-admin-secret: detinmarindedopingue'",
+    "local": "genql --endpoint http://localhost:3303/v1/graphql --output ./generated -H 'content-type: application/json' -H 'x-hasura-admin-secret: lfg'",
+    "build": "tsup src/index.ts --format esm,cjs --dts --external react",
+    "dev": "tsup src/index.ts --format esm,cjs --watch --dts --external react",
+    "lint": "eslint \"src/**/*.ts*\"",
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
+  },
+  "author": "masterbots.org",
+  "license": "ISC",
+  "dependencies": {
+    "@genql/runtime": "^2.10.0",
+    "graphql": "^16.6.0"
+  },
+  "devDependencies": {
+    "@genql/cli": "^6.0.0",
+    "genql": "^2.0.1",
+    "tsconfig": "*",
+    "tsup": "^6.7.0",
+    "typescript": "^5.1.3",
+    "prettier-config": "*",
+    "masterbots-env": "*"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "include": ["**/*.ts", "**/*.tsx", "tsup.config.ts"],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    /* Path config */
+    "baseUrl": ".",
+    "paths": {
+      "~/src/*": ["./*"]
+    },
+    /* Bundler mode */
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": false,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "allowSyntheticDefaultImports": true,
+  }
+}

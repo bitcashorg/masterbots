@@ -1,0 +1,34 @@
+{
+  "name": "masterbots-db",
+  "private": true,
+  "version": "1.0.1",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/**"
+  ],
+  "scripts": {
+    "build": "prisma generate && tsup src/index.ts --format esm,cjs --dts --external node",
+    "dev": "tsup src/index.ts --format esm,cjs --watch --dts --external node",
+    "clean": "rimraf .turbo node_modules dist",
+    "lint": "eslint \"src/**/*.ts\"",
+    "format": "prisma format",
+    "studio": "prisma studio",
+    "generate": "prisma db pull && prisma generate"
+  },
+  "dependencies": {
+    "@prisma/client": "^4.16.1"
+  },
+  "devDependencies": {
+    "config": "*",
+    "eslint-config": "*",
+    "prisma": "^4.16.1",
+    "rimraf": "^5.0.1",
+    "tsconfig": "*",
+    "tsup": "^7.1.0",
+    "tsx": "^3.12.7",
+    "typescript": "^5.1.6"
+  }
+}

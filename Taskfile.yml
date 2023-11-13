@@ -1,0 +1,76 @@
+version: "3"
+
+dotenv: [".env"]
+silent: true
+
+tasks:
+
+  console:
+    cmds:
+      - hasura console --endpoint $HASURA_ENDPOINT --admin-secret $HASURA_ADMIN_SECRET --project $MASTERBOTS_HASURA
+
+  console-local:
+    cmds:
+      - hasura console --endpoint $MASTERBOTS_HASURA_ENDPOINT --admin-secret $BITCASH_HASURA_GRAPHQL_ADMIN_SECRET --project $MASTERBOTS_HASURA
+
+  boot:
+    cmds:
+      - docker-compose -f docker.compose.yml up -d --build masterbots-postgres
+      - sleep 30
+      - docker-compose -f docker.compose.yml up -d --build
+      - echo "Waiting 1 minutes for postgres and hasura to start ..."
+      - sleep 60
+      - task full-migrate
+
+  hard-boot:
+    cmds:
+      - docker-compose -f docker.compose.yml down -v
+      - docker-compose -f docker.compose.yml build --no-cache masterbots-postgres
+      - docker-compose -f docker.compose.yml up -d --force-recreate masterbots-postgres
+      - sleep 30
+      - docker-compose -f docker.compose.yml build --no-cache
+      - docker-compose -f docker.compose.yml up -d --force-recreate
+      - echo "Waiting 1 minutes for postgres and hasura to start ..."
+      - sleep 60
+      - task full-migrate
+
+  reboot:
+    cmds:
+      - task down
+      - task boot
+
+  hard-reboot:
+    cmds:
+      - task down
+      - task hard-boot
+
+  seed:
+    cmds:
+      - hasura seeds apply --endpoint $HASURA_ENDPOINT --admin-secret $HASURA_ADMIN_SECRET --project $MASTERBOTS_HASURA
+
+  up:
+    cmds:
+      - docker-compose -f docker.compose.yml up -d --build
+
+  down:
+    cmds:
+      - docker-compose -f docker.compose.yml down -v --remove-orphans
+
+  migrate:
+    cmds:
+      - hasura migrate apply --endpoint $HASURA_ENDPOINT --admin-secret $HASURA_ADMIN_SECRET --project $MASTERBOTS_HASURA
+      - hasura metadata apply --endpoint $HASURA_ENDPOINT --admin-secret $HASURA_ADMIN_SECRET --project $MASTERBOTS_HASURA
+
+  full-migrate:
+    cmds:
+      - hasura migrate apply --endpoint $HASURA_ENDPOINT --admin-secret $HASURA_ADMIN_SECRET --project $MASTERBOTS_HASURA
+      - hasura metadata apply --endpoint $HASURA_ENDPOINT --admin-secret $HASURA_ADMIN_SECRET --project $MASTERBOTS_HASURA
+      - hasura seed apply --endpoint $HASURA_ENDPOINT --admin-secret $HASURA_ADMIN_SECRET --project $MASTERBOTS_HASURA
+
+  reload:
+    cmds:
+      - task down
+      - docker-compose -f docker.compose.yml up -d postgres
+      - sleep 5
+      - docker-compose -f docker.compose.yml up -d --build
+      - docker-compose -f docker.compose.yml logs -f hasura

@@ -1,0 +1,24 @@
+{
+  "name": "masterbots-env",
+  "version": "0.0.1",
+  "private": true,
+  "description": "masterbots environment data",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --external react",
+    "dev": "tsup src/index.ts --format esm,cjs --watch --dts --external react",
+    "lint": "eslint \"src/**/*.ts*\"",
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
+  },
+  "author": "bitcash.org",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "prettier-config": "*",
+    "tsconfig": "*",
+    "tsup": "^6.7.0",
+    "typescript": "^5.1.3"
+  }
+}
