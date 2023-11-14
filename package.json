@@ -8,5 +8,12 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "type": "module",
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
 }

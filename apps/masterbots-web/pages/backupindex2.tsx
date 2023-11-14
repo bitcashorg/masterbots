@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import ChatMessage, { MessageType, BotType } from '../src/app/components/ChatMessage';
-import ChatInput from '../src/app/components/ChatInput';
-import ChatbotList from '../src/app/components/ChatbotList';
+import ChatMessage, { MessageType, BotType } from '~/components/ChatMessage';
+import ChatInput from '~/components/ChatInput';
+import ChatbotList from '~/components/ChatbotList';
 
-type SchemaValue = 
-    'string' | 
-    'number' | 
-    'date' | 
-    'optionalString' | 
-    'optionalNumber' | 
-    'optionalDate' | 
-    SchemaObject | 
+type SchemaValue =
+    'string' |
+    'number' |
+    'date' |
+    'optionalString' |
+    'optionalNumber' |
+    'optionalDate' |
+    SchemaObject |
     SchemaArray;
 
 type SchemaObject = { [key: string]: SchemaValue };
@@ -107,7 +107,7 @@ function validateData(data: any, schema: SchemaObject): boolean {
         const actualType = typeof data[key];
 
         if (typeof expectedType === 'string') {
-            switch(expectedType) {
+            switch (expectedType) {
                 case 'string':
                 case 'number':
                 case 'optionalString':
@@ -167,10 +167,10 @@ type User = {
     user_id: number;
     username: string;
     email: string;
-    password: string; 
+    password: string;
     //date_joined: Date;
     //last_login?: Date; 
-    profile_picture?: string; 
+    profile_picture?: string;
 };
 
 const defaultChatbot: Chatbot = {
@@ -190,13 +190,13 @@ const defaultUser: User = {
     //date_joined: new Date(),
 };
 
-function Chat() {    
+function Chat() {
     const [messages, setMessages] = useState<any[]>([]); // Consider using a type for messages as well
     const [selectedChatbot, setSelectedChatbot] = useState<Chatbot | null>(defaultChatbot);
     const [chatHistory, setChatHistory] = useState<any[]>([]);
     const [chatbots, setChatbots] = useState<Chatbot[]>([]);
     const [users, setUsers] = useState<User[]>([]); // Initialize with an empty array of users
-    const [selectedUser, setSelectedUser] = useState<User | null>(defaultUser); 
+    const [selectedUser, setSelectedUser] = useState<User | null>(defaultUser);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -266,7 +266,7 @@ function Chat() {
                         instructions: chatbot.instructions || []
                     };
                 });
-                
+
 
                 setChatbots(processedChatbots);
                 setSelectedChatbot(processedChatbots[0]);  // default to the first chatbot
@@ -277,14 +277,14 @@ function Chat() {
                 setLoading(false);
             }
         }
-    
+
         fetchChatbots();
     }, []);
 
     useEffect(() => {
         async function fetchUsers() {
             console.log("Starting to fetch users...");
-    
+
             try {
                 console.log("Sending request to /api/users...");
                 const response = await fetch('/api/users', {
@@ -305,23 +305,23 @@ function Chat() {
                         `,
                     }),
                 });
-    
+
                 console.log("Received response from /api/users.");
-    
+
                 const data = await response.json();
 
                 console.log("Parsed response JSON:", data);
-    
+
                 if (!validateData(data, expectedUserSchema)) {
                     console.warn("Data does not match the expected schema."); // Added logging
                     throw new Error('Data does not match expected format');
                 }
-    
+
                 if (!response.ok) {
                     console.warn(`Received non-ok response. Status: ${response.status}`);  // Added logging
                     throw new Error("Network response was not ok");
                 }
-    
+
                 // Handle missing data fields by merging with default values
                 const processedUsers = data.data.user.map((user: User) => {
                     return {
@@ -329,35 +329,35 @@ function Chat() {
                         ...user,
                     };
                 });
-                
-                
-    
+
+
+
                 console.log("Processed users after merging with default values:", processedUsers);  // Added logging
-    
+
                 setUsers(processedUsers);
                 setSelectedUser(processedUsers[0]);  // default to the first user
                 setLoading(false);
-    
+
                 console.log("Updated users state, and set the first user as the selected user.");
-    
+
             } catch (err) {
                 console.error("Error fetching users:", err);
                 setError("Failed to load users.");
                 setLoading(false);
             }
         }
-    
+
         console.log("useEffect triggered, invoking fetchUsers.");
         fetchUsers();
     }, []);
-    
-        
+
+
 
     let botInfo: BotType = {
         avatar: undefined,
         name: undefined
     };
-    
+
     if (selectedChatbot) {
         botInfo.avatar = selectedChatbot.avatar;  // Assuming the selectedChatbot has an avatar property
         botInfo.name = selectedChatbot.name;  // Assuming the selectedChatbot has a name property
@@ -365,10 +365,10 @@ function Chat() {
 
     const fetchChatHistory = async (userId: number, chatbotId: number) => {
         console.log(`Initiating fetchChatHistory for userId: ${userId} and chatbotId: ${chatbotId}`);
-    
+
         try {
             console.log("Sending request to /api/messages...");
-    
+
             const response = await fetch('/api/messages', {
                 method: 'POST',
                 headers: {
@@ -393,27 +393,27 @@ function Chat() {
                     }
                 })
             });
-    
+
             console.log("Received response from /api/messages.");
-    
+
             if (!response.ok) {
                 console.warn(`Received non-ok response. Status: ${response.status}`);
                 throw new Error(`Network response was not ok. Status: ${response.status}`);
             }
-    
+
             const data = await response.json();
             console.log("Parsed response JSON:", data);
-    
+
             // Sort messages by timestamp if it exists
-            const sortedMessages = data.data.message.sort((a: any, b: any) => 
+            const sortedMessages = data.data.message.sort((a: any, b: any) =>
                 new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
             );
-    
+
             console.log("Sorted messages by timestamp:", sortedMessages);
-    
+
             setChatHistory(sortedMessages);
             console.log("Updated chat history state.");
-    
+
         } catch (error) {
             if (error instanceof Error) {
                 console.error("Error fetching chat history:", error.message);
@@ -422,7 +422,7 @@ function Chat() {
             }
         }
     };
-    
+
     useEffect(() => {
         console.log("useEffect triggered by changes in selectedChatbot or selectedUser.");
         if (selectedChatbot && selectedUser) {
@@ -432,11 +432,11 @@ function Chat() {
             console.warn("Either selectedChatbot or selectedUser is undefined. Not fetching chat history.");
         }
     }, [selectedChatbot, selectedUser]);
-    
+
 
     const handleSendMessage = async (content: string) => {
         console.log("Sending message:", content);
-    
+
         if (!selectedChatbot) {
             console.error("No chatbot selected");
             return;
@@ -446,9 +446,9 @@ function Chat() {
             console.error("No user selected");
             return;
         }
-    
+
         const MESSAGE_ENDPOINT = "/api/messages";
-    
+
         // Prepare the user's message data
         const userMessageData = {
             content: content,
@@ -463,131 +463,131 @@ function Chat() {
             receiver_id: selectedChatbot.chatbot_id,
             type: 'user',
             // you can generate a temporary ID or use Date.now() or any unique value
-            message_id: Date.now()  
+            message_id: Date.now()
         };
         setChatHistory([...chatHistory, optimisticUserMessage]);
-        
-    // Insert the user's message to Hasura and retrieve its message_id
-    let userMessageId;
-    try {
-        const response = await fetch(MESSAGE_ENDPOINT, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                query: `
+
+        // Insert the user's message to Hasura and retrieve its message_id
+        let userMessageId;
+        try {
+            const response = await fetch(MESSAGE_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    query: `
                 mutation InsertMessage($content: String!, $sender_id: Int!, $receiver_id: Int!, $type: String! ) {
                     insert_message_one(object: {content: $content, sender_id: $sender_id, receiver_id: $receiver_id, type: $type}) {
                         message_id
                     }
                 }
                 `,
-                variables: userMessageData
-            })
-        });
-        const data = await response.json();
-        userMessageId = data.data.insert_message_one.message_id;
-    } catch (error) {
-        console.error("Failed to insert user's message:", error);
-        return;
-    }
-
-    // Continue with the rest of the logic to fetch chatbot response and save it
-    const apiURL = "/api/openai";
-    const chatbotInstruction = selectedChatbot.instructions?.[0]?.prompt?.content || "";
-    const chatbotPrompt = selectedChatbot.prompts?.[0]?.prompt?.content || "";
-    const featureSettings = [
-        selectedChatbot.default_tone,
-        selectedChatbot.default_length,
-        selectedChatbot.default_type,
-        selectedChatbot.default_complexity
-    ].join(" ");
-    const combinedPrompt = `${chatbotInstruction} ${chatbotPrompt} [${featureSettings}] ${content}`;
-    const botResponseData = {
-        botId: selectedChatbot.chatbot_id,
-        prompt: combinedPrompt
-    };
-
-    try {
-        const response = await fetch(apiURL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(botResponseData)
-        });
-
-        if (!response.ok) {
-            throw new Error(`Network response was not ok. Status: ${response.status}`);
+                    variables: userMessageData
+                })
+            });
+            const data = await response.json();
+            userMessageId = data.data.insert_message_one.message_id;
+        } catch (error) {
+            console.error("Failed to insert user's message:", error);
+            return;
         }
 
-        const data = await response.json();
-        console.log("Bot's response data:", data);
-
-        const botMessageData = {
-            content: data.message,
-            sender_id: selectedChatbot.chatbot_id,  
-            receiver_id: selectedUser.user_id, 
-            type: 'chatbot',
-            related_message_id: userMessageId
+        // Continue with the rest of the logic to fetch chatbot response and save it
+        const apiURL = "/api/openai";
+        const chatbotInstruction = selectedChatbot.instructions?.[0]?.prompt?.content || "";
+        const chatbotPrompt = selectedChatbot.prompts?.[0]?.prompt?.content || "";
+        const featureSettings = [
+            selectedChatbot.default_tone,
+            selectedChatbot.default_length,
+            selectedChatbot.default_type,
+            selectedChatbot.default_complexity
+        ].join(" ");
+        const combinedPrompt = `${chatbotInstruction} ${chatbotPrompt} [${featureSettings}] ${content}`;
+        const botResponseData = {
+            botId: selectedChatbot.chatbot_id,
+            prompt: combinedPrompt
         };
 
-        const optimisticBotMessage = {
-            content: data.message,
-            sender_id: selectedChatbot.chatbot_id,
-            receiver_id: selectedUser.user_id,
-            type: 'chatbot',
-            related_message_id: userMessageId,
-            message_id: Date.now() + 1  // Another temporary unique ID
-        };
-        setChatHistory(prevChat => [...prevChat, optimisticBotMessage]);
+        try {
+            const response = await fetch(apiURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(botResponseData)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Network response was not ok. Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log("Bot's response data:", data);
+
+            const botMessageData = {
+                content: data.message,
+                sender_id: selectedChatbot.chatbot_id,
+                receiver_id: selectedUser.user_id,
+                type: 'chatbot',
+                related_message_id: userMessageId
+            };
+
+            const optimisticBotMessage = {
+                content: data.message,
+                sender_id: selectedChatbot.chatbot_id,
+                receiver_id: selectedUser.user_id,
+                type: 'chatbot',
+                related_message_id: userMessageId,
+                message_id: Date.now() + 1  // Another temporary unique ID
+            };
+            setChatHistory(prevChat => [...prevChat, optimisticBotMessage]);
 
 
-        // Insert the bot's message and link it to user's message with related_message_id
-        await fetch(MESSAGE_ENDPOINT, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                query: `
+            // Insert the bot's message and link it to user's message with related_message_id
+            await fetch(MESSAGE_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    query: `
                 mutation InsertBotMessage($content: String!, $sender_id: Int!, $receiver_id: Int!, $type: String!, $related_message_id: Int! ) {
                     insert_message_one(object: {content: $content, sender_id: $sender_id, receiver_id: $receiver_id, type: $type, related_message_id: $related_message_id}) {
                         message_id
                     }
                 }
                 `,
-                variables: botMessageData
-            })
-        });
-    } catch (error) {
-        console.error("Error in fetching or saving chatbot's response:", error);
-    }
-};
+                    variables: botMessageData
+                })
+            });
+        } catch (error) {
+            console.error("Error in fetching or saving chatbot's response:", error);
+        }
+    };
 
     console.log("Rendering Chat component with state: ", { messages, selectedChatbot, chatbots, loading, error });  // Added logging for the render state
-    
+
     return (
         <div className="p-4 bg-gray-200 min-h-screen">
             <div className="container mx-auto bg-white p-4 rounded shadow">
-                <ChatbotList 
-                    chatbots={chatbots} 
+                <ChatbotList
+                    chatbots={chatbots}
                     onSelect={(chatbot) => {
                         setSelectedChatbot(chatbot);  // Set the selected chatbot
                         setChatHistory([]);           // Clear the chat history
                     }}
-                    
+
                     selectedChatbot={selectedChatbot}  // Pass the selected chatbot to the list for highlighting
-                    loading={loading} 
-                    error={error} 
+                    loading={loading}
+                    error={error}
                 />
                 <div className="chat-messages mt-4">
                     {/* Render chat history messages */}
                     {chatHistory.map((message) => (
                         <ChatMessage key={message.message_id} message={message} bot={chatbots.find(b => b.chatbot_id === message.sender_id || b.chatbot_id === message.receiver_id)} />
                     ))}
-        
+
                     {/* Render existing messages */}
                     {messages.map((msg, idx) => (
                         <ChatMessage key={msg.botId + idx} message={msg} bot={chatbots.find(b => b.chatbot_id === msg.botId)} />
@@ -598,8 +598,8 @@ function Chat() {
             </div>
         </div>
     );
-    
-    
+
+
 }
 
 export default Chat;

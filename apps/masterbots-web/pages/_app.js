@@ -1,6 +1,6 @@
 // pages/_app.js
-import '../src/app/globals.css';
-import NavBar from '../src/app/components/NavBar';
+import '~/styles/globals.css';
+import NavBar from '~/components/NavBar';
 
 
 function MyApp({ Component, pageProps }) {

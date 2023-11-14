@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import ChatInput from '../src/app/components/ChatInput';
-import ChatbotList from '../src/app/components/ChatbotList';
-import NewChatButton from '../src/app/components/NewChatButton'; 
-import ThreadList from '../src/app/components/ThreadList';
+import ChatInput from '~/components/ChatInput';
+import ChatbotList from '~/components/ChatbotList';
+import NewChatButton from '~/components/NewChatButton';
+import ThreadList from '~/components/ThreadList';
 
 
-type SchemaValue = 
-    'string' | 
-    'number' | 
-    'date' | 
-    'optionalString' | 
-    'optionalNumber' | 
-    'optionalDate' | 
-    SchemaObject | 
+type SchemaValue =
+    'string' |
+    'number' |
+    'date' |
+    'optionalString' |
+    'optionalNumber' |
+    'optionalDate' |
+    SchemaObject |
     SchemaArray;
 
 type SchemaObject = { [key: string]: SchemaValue };
@@ -109,7 +109,7 @@ function validateData(data: any, schema: SchemaObject): boolean {
         const actualType = typeof data[key];
 
         if (typeof expectedType === 'string') {
-            switch(expectedType) {
+            switch (expectedType) {
                 case 'string':
                 case 'number':
                 case 'optionalString':
@@ -169,10 +169,10 @@ type User = {
     user_id: number;
     username: string;
     email: string;
-    password: string; 
+    password: string;
     //date_joined: Date;
     //last_login?: Date; 
-    profile_picture?: string; 
+    profile_picture?: string;
 };
 
 type Thread = {
@@ -180,27 +180,27 @@ type Thread = {
     chatbot_id: number;
     user_id: number;
     created_at: Date;
-    updated_at: Date; 
+    updated_at: Date;
 };
 
 type BotInfoType = {
     avatar?: string; // This can be 'string | undefined' if you prefer
     name?: string;
-  };
+};
 
-  // Define a type for a chat message
+// Define a type for a chat message
 type ChatMessage = {
     content: string;
     created_at: string; // assuming created_at is a string; adjust type if necessary
     type: 'user' | 'chatbot'; // Adjust types according to your actual use case
-  };
-  
-  // Define a type for the array of chat messages
+};
+
+// Define a type for the array of chat messages
 type ChatHistory = ChatMessage[];
 
 interface Category {
     name: string;
-  }
+}
 
 const defaultChatbot: Chatbot = {
     chatbot_id: 1,
@@ -224,19 +224,19 @@ const defaultThread: Thread = {
     chatbot_id: 1,
     user_id: 2,
     created_at: new Date(),
-    updated_at: new Date(), 
+    updated_at: new Date(),
 };
 
-function Chat() {    
+function Chat() {
     //const [messages, setMessages] = useState<any[]>([]); // Consider using a type for messages as well
     const [categories, setCategories] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null);
-    const [threads, setThreads] = useState<any[]>([]); 
+    const [threads, setThreads] = useState<any[]>([]);
     const [selectedThread, setSelectedThread] = useState<Thread | null>(defaultThread);
     const [chatHistory, setChatHistory] = useState<any[]>([]);
     const [chatbots, setChatbots] = useState<Chatbot[]>([]);
     const [selectedChatbot, setSelectedChatbot] = useState<Chatbot | null>(defaultChatbot);
-    const [selectedUser, setSelectedUser] = useState<User | null>(defaultUser); 
+    const [selectedUser, setSelectedUser] = useState<User | null>(defaultUser);
     const [botInfo, setBotInfo] = useState<BotInfoType>({});
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
@@ -244,37 +244,37 @@ function Chat() {
 
     useEffect(() => {
         const fetchCategories = async () => {
-          const CATEGORIES_ENDPOINT = "/api/categories"; 
-          try {
-            const response = await fetch(CATEGORIES_ENDPOINT, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                query: `
+            const CATEGORIES_ENDPOINT = "/api/categories";
+            try {
+                const response = await fetch(CATEGORIES_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: `
                   query GetCategories {
                     category {
                       name
                     }
                   }
                 `
-              })
-            });
-            const data = await response.json();
-            if (data && data.data && data.data.category) {
-                setCategories(data.data.category.map((cat: Category) => cat.name));
-            } else {
-                console.error("Unexpected categories data format:", data);
+                    })
+                });
+                const data = await response.json();
+                if (data && data.data && data.data.category) {
+                    setCategories(data.data.category.map((cat: Category) => cat.name));
+                } else {
+                    console.error("Unexpected categories data format:", data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch categories:", error);
             }
-          } catch (error) {
-            console.error("Failed to fetch categories:", error);
-          }
         };
-    
+
         fetchCategories();
     }, []);
-    
+
     useEffect(() => {
         async function fetchChatbots() {
             console.log("Starting to fetch chatbots...");  // Added logging
@@ -340,7 +340,7 @@ function Chat() {
                         instructions: chatbot.instructions || []
                     };
                 });
-                
+
 
                 setChatbots(processedChatbots);
                 setSelectedChatbot(processedChatbots[0]);  // default to the first chatbot
@@ -351,79 +351,79 @@ function Chat() {
                 setLoading(false);
             }
         }
-    
+
         fetchChatbots();
     }, []);
 
     useEffect(() => {
         async function fetchAuthenticatedUser() {
             console.log("Starting to fetch authenticated user...");
-    
+
             try {
                 // For now, mock the user data
                 const authenticatedUser = {
                     ...defaultUser,
                     // Any other properties you might want to set for testing
                 };
-    
+
                 console.log("Using mocked authenticated user:", authenticatedUser);
-    
+
                 setSelectedUser(authenticatedUser);  // set the mocked user as the selected user
                 setLoading(false);
-    
+
                 console.log("Updated user state with the mocked authenticated user.");
-    
+
             } catch (err) {
                 console.error("Error setting authenticated user:", err);
                 setError("Failed to load user.");
                 setLoading(false);
             }
         }
-    
+
         console.log("useEffect triggered, invoking fetchAuthenticatedUser.");
         fetchAuthenticatedUser();
     }, []);
-    
+
     useEffect(() => {
         const fetchThreads = async (chatbotId: number, userId: number) => {
-          const THREAD_ENDPOINT = "/api/threads"; 
-          try {
-            const response = await fetch(THREAD_ENDPOINT, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                query: `
+            const THREAD_ENDPOINT = "/api/threads";
+            try {
+                const response = await fetch(THREAD_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: `
                   query GetThreads($chatbotId: Int!, $userId: Int!) {
                     thread(where: {chatbot_id: {_eq: $chatbotId}, user_id: {_eq: $userId}}) {
                       thread_id
                     }
                   }
                 `,
-                variables: { chatbotId, userId }
-              })
-            });
-            const data = await response.json();
-            setThreads(data.data.thread);
-          } catch (error) {
-            console.error("Failed to fetch threads:", error);
-          }
+                        variables: { chatbotId, userId }
+                    })
+                });
+                const data = await response.json();
+                setThreads(data.data.thread);
+            } catch (error) {
+                console.error("Failed to fetch threads:", error);
+            }
         };
-    
+
         if (selectedChatbot && selectedUser) {
             fetchThreads(selectedChatbot.chatbot_id, selectedUser.user_id);
         }
-    }, [selectedChatbot, selectedUser]);   
-    
+    }, [selectedChatbot, selectedUser]);
+
 
     useEffect(() => {
-      if (selectedChatbot) {
-        setBotInfo({
-          avatar: selectedChatbot.avatar, // Make sure avatar can be string | undefined
-          name: selectedChatbot.name
-        });
-      }
+        if (selectedChatbot) {
+            setBotInfo({
+                avatar: selectedChatbot.avatar, // Make sure avatar can be string | undefined
+                name: selectedChatbot.name
+            });
+        }
     }, [selectedChatbot]);
 
     const createThread = async (userId: number, chatbotId: number) => {
@@ -443,51 +443,51 @@ function Chat() {
           }
         }
         `;
-      
+
         if (!userId || !chatbotId) return;
-      
+
         try {
-          const response = await fetch("/api/threads", {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              query: CREATE_THREAD,
-              variables: {
-                userId: userId,
-                chatbotId: chatbotId
-              }
-            }),
-          });
-      
-          const data = await response.json();
-          if (data.errors) {
-            throw new Error(data.errors[0].message);
-          }
-          // Assuming the insert_thread_one returns an object with a thread_id, 
-          // you should update the threads state with the new thread
-          // Use the spread operator (...) to create a new array containing the existing threads and the new thread
-          setThreads([...threads, data.data.insert_thread_one]);
-      
-          // Set the new thread as the selected thread
-          setSelectedThread(data.data.insert_thread_one);
+            const response = await fetch("/api/threads", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    query: CREATE_THREAD,
+                    variables: {
+                        userId: userId,
+                        chatbotId: chatbotId
+                    }
+                }),
+            });
+
+            const data = await response.json();
+            if (data.errors) {
+                throw new Error(data.errors[0].message);
+            }
+            // Assuming the insert_thread_one returns an object with a thread_id, 
+            // you should update the threads state with the new thread
+            // Use the spread operator (...) to create a new array containing the existing threads and the new thread
+            setThreads([...threads, data.data.insert_thread_one]);
+
+            // Set the new thread as the selected thread
+            setSelectedThread(data.data.insert_thread_one);
         } catch (error) {
-          console.error("Failed to create thread:", error);
+            console.error("Failed to create thread:", error);
         }
-      };
-      
+    };
+
     // Fetch chat history
-useEffect(() => {
-    if (!selectedThread?.thread_id) {
-        console.log("No thread selected. Skipping fetch chat history.");
-        return; // Do not run if thread_id is not set
-    }
+    useEffect(() => {
+        if (!selectedThread?.thread_id) {
+            console.log("No thread selected. Skipping fetch chat history.");
+            return; // Do not run if thread_id is not set
+        }
 
-    console.log(`Fetching chat history for thread_id: ${selectedThread.thread_id}`);
+        console.log(`Fetching chat history for thread_id: ${selectedThread.thread_id}`);
 
-    const fetchChatHistory = async () => {
-        const FETCH_CHAT_HISTORY = `
+        const fetchChatHistory = async () => {
+            const FETCH_CHAT_HISTORY = `
             query FetchChatHistory($threadId: Int!) {
             message(where: { thread_id: { _eq: $threadId } }, order_by: { created_at: asc }) {
                 content
@@ -497,46 +497,46 @@ useEffect(() => {
             }
         `;
 
-        const requestBody = {
-            query: FETCH_CHAT_HISTORY,
-            variables: {
-                threadId: selectedThread.thread_id,
+            const requestBody = {
+                query: FETCH_CHAT_HISTORY,
+                variables: {
+                    threadId: selectedThread.thread_id,
+                }
+            };
+
+            console.log("Request payload for fetching chat history:", requestBody);
+
+            try {
+                const response = await fetch("/api/messages", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody),
+                });
+
+                console.log("Raw API response:", response);
+
+                const data = await response.json();
+                console.log("Parsed API response data:", data);
+
+                if (data.errors) {
+                    throw new Error(data.errors[0].message);
+                }
+
+                // Assuming you have a state setter for setting chat history
+                setChatHistory(data.data.message);
+                console.log("Chat history set with data:", data.data.message);
+            } catch (error) {
+                console.error("Failed to fetch chat history:", error);
             }
         };
 
-        console.log("Request payload for fetching chat history:", requestBody);
+        fetchChatHistory();
+    }, [selectedThread]); // This effect runs when selectedThread changes
 
-        try {
-            const response = await fetch("/api/messages", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(requestBody),
-            });
 
-            console.log("Raw API response:", response);
 
-            const data = await response.json();
-            console.log("Parsed API response data:", data);
-
-            if (data.errors) {
-                throw new Error(data.errors[0].message);
-            }
-
-            // Assuming you have a state setter for setting chat history
-            setChatHistory(data.data.message);
-            console.log("Chat history set with data:", data.data.message);
-        } catch (error) {
-            console.error("Failed to fetch chat history:", error);
-        }
-    };
-
-    fetchChatHistory();
-}, [selectedThread]); // This effect runs when selectedThread changes
-
-  
-  
     useEffect(() => {
         console.log("useEffect triggered by changes in selectedChatbot or selectedUser.");
         if (selectedChatbot && selectedUser && selectedThread) {
@@ -545,11 +545,11 @@ useEffect(() => {
             console.warn("Either selectedChatbot or selectedUser or selectedThread is undefined. Not fetching chat history.");
         }
     }, [selectedChatbot, selectedUser, selectedThread]);
-    
+
 
     const handleSendMessage = async (content: string) => {
         console.log("Sending message:", content);
-    
+
         if (!selectedChatbot) {
             console.error("No chatbot selected");
             return;
@@ -559,9 +559,9 @@ useEffect(() => {
             console.error("No user selected");
             return;
         }
-    
+
         const MESSAGE_ENDPOINT = "/api/messages";
-    
+
         // Prepare the user's message data
         const userMessageData = {
             content: content,
@@ -574,183 +574,183 @@ useEffect(() => {
             thread_id: selectedThread,
             type: 'user',
             // you can generate a temporary ID or use Date.now() or any unique value
-            message_id: Date.now()  
+            message_id: Date.now()
         };
         setChatHistory([...chatHistory, optimisticUserMessage]);
-        
-    // Insert the user's message to Hasura and retrieve its message_id
-    let userMessageId;
-    try {
-        const response = await fetch(MESSAGE_ENDPOINT, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                query: `
+
+        // Insert the user's message to Hasura and retrieve its message_id
+        let userMessageId;
+        try {
+            const response = await fetch(MESSAGE_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    query: `
                 mutation InsertMessage($content: String!, $thread_id: Int!, $type: String! ) {
                     insert_message_one(object: {content: $content, thread_id: $thread_id, type: $type}) {
                         message_id
                     }
                 }
                 `,
-                variables: userMessageData
-            })
-        });
-        const data = await response.json();
-        userMessageId = data.data.insert_message_one.message_id;
-    } catch (error) {
-        console.error("Failed to insert user's message:", error);
-        return;
-    }
-
-    function getUserMessages(chatHistory: ChatHistory): string {
-        const userMessages = chatHistory
-          .filter((message: ChatMessage) => message.type === 'user')
-          .map((userMessage: ChatMessage) => userMessage.content);
-      
-        return userMessages.join('\n');
-      }
-      
-      // Sample usage:
-      // Assume chatHistory is the array you've shown in the console log image
-      
-    console.log(content); // This will print all user messages combined in one string, each separated by a newline
-      
-    // Continue with the rest of the logic to fetch chatbot response and save it
-    const apiURL = "/api/openai";
-    const chatbotInstruction = selectedChatbot.instructions?.[0]?.prompt?.content || "";
-    const chatbotPrompt = selectedChatbot.prompts?.[0]?.prompt?.content || "";
-    const chatbotContext = `First, respond to the following questions and requests in one introductory sentence: [${getUserMessages(chatHistory)}]. Then elaborate on this final question:`;
-    const featureSettings = `Your response tone will be ${selectedChatbot.default_tone}. ` +
-    `Your response length will be ${selectedChatbot.default_length}. ` +
-    `Your response format will be ${selectedChatbot.default_type}. ` +
-    `Your response complexity level will be ${selectedChatbot.default_complexity}.`;
-
-    const combinedPrompt = `${chatbotPrompt} ${chatbotInstruction} ${chatbotContext} ${content}[${featureSettings}]`;
-    const botResponseData = {
-        botId: selectedChatbot.chatbot_id,
-        prompt: combinedPrompt
-    };
-
-    console.log("Chatbot prompt:", chatbotPrompt)
-    console.log("Combined prompt:", combinedPrompt)
-
-    try {
-        const response = await fetch(apiURL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(botResponseData)
-        });
-
-        if (!response.ok) {
-            throw new Error(`Network response was not ok. Status: ${response.status}`);
+                    variables: userMessageData
+                })
+            });
+            const data = await response.json();
+            userMessageId = data.data.insert_message_one.message_id;
+        } catch (error) {
+            console.error("Failed to insert user's message:", error);
+            return;
         }
 
-        const data = await response.json();
-        console.log("Bot's response data:", data);
+        function getUserMessages(chatHistory: ChatHistory): string {
+            const userMessages = chatHistory
+                .filter((message: ChatMessage) => message.type === 'user')
+                .map((userMessage: ChatMessage) => userMessage.content);
 
-        const botMessageData = {
-            content: data.message,
-            thread_id: selectedThread?.thread_id,  
-            type: 'chatbot',
+            return userMessages.join('\n');
+        }
+
+        // Sample usage:
+        // Assume chatHistory is the array you've shown in the console log image
+
+        console.log(content); // This will print all user messages combined in one string, each separated by a newline
+
+        // Continue with the rest of the logic to fetch chatbot response and save it
+        const apiURL = "/api/openai";
+        const chatbotInstruction = selectedChatbot.instructions?.[0]?.prompt?.content || "";
+        const chatbotPrompt = selectedChatbot.prompts?.[0]?.prompt?.content || "";
+        const chatbotContext = `First, respond to the following questions and requests in one introductory sentence: [${getUserMessages(chatHistory)}]. Then elaborate on this final question:`;
+        const featureSettings = `Your response tone will be ${selectedChatbot.default_tone}. ` +
+            `Your response length will be ${selectedChatbot.default_length}. ` +
+            `Your response format will be ${selectedChatbot.default_type}. ` +
+            `Your response complexity level will be ${selectedChatbot.default_complexity}.`;
+
+        const combinedPrompt = `${chatbotPrompt} ${chatbotInstruction} ${chatbotContext} ${content}[${featureSettings}]`;
+        const botResponseData = {
+            botId: selectedChatbot.chatbot_id,
+            prompt: combinedPrompt
         };
 
-        const optimisticBotMessage = {
-            content: data.message,
-            thread_id: selectedThread?.thread_id,  
-            type: 'chatbot',
-            message_id: Date.now() + 1  // Another temporary unique ID
-        };
-        setChatHistory(prevChat => [...prevChat, optimisticBotMessage]);
+        console.log("Chatbot prompt:", chatbotPrompt)
+        console.log("Combined prompt:", combinedPrompt)
+
+        try {
+            const response = await fetch(apiURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(botResponseData)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Network response was not ok. Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log("Bot's response data:", data);
+
+            const botMessageData = {
+                content: data.message,
+                thread_id: selectedThread?.thread_id,
+                type: 'chatbot',
+            };
+
+            const optimisticBotMessage = {
+                content: data.message,
+                thread_id: selectedThread?.thread_id,
+                type: 'chatbot',
+                message_id: Date.now() + 1  // Another temporary unique ID
+            };
+            setChatHistory(prevChat => [...prevChat, optimisticBotMessage]);
 
 
-        // Insert the bot's message and link it to user's message with related_message_id
-        await fetch(MESSAGE_ENDPOINT, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                query: `
+            // Insert the bot's message and link it to user's message with related_message_id
+            await fetch(MESSAGE_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    query: `
                 mutation InsertBotMessage($content: String!, $thread_id: Int!, $type: String!) {
                     insert_message_one(object: {content: $content, thread_id: $thread_id, type: $type}) {
                         message_id
                     }
                 }
                 `,
-                variables: botMessageData
-            })
-        });
-    } catch (error) {
-        console.error("Error in fetching or saving chatbot's response:", error);
-    }
-};
+                    variables: botMessageData
+                })
+            });
+        } catch (error) {
+            console.error("Error in fetching or saving chatbot's response:", error);
+        }
+    };
 
     console.log("Rendering Chat component with state: ", { chatHistory, selectedChatbot, chatbots, loading, error });  // Added logging for the render state
-    
+
     const handleSelectThread = (thread_id: number) => {
         // Find the thread by thread_id
         const thread = threads.find(t => t.thread_id === thread_id);
         // If thread is found, set it as the selected thread, this will trigger the useEffect
         // Otherwise, set selectedThread to null which will reset the state and clear the chat history
         setSelectedThread(thread || null);
-      };
-          
+    };
 
-      return (
+
+    return (
         <div className="flex min-h-screen">
-          {/* Side Panel for Chatbot List */}
-          <div className="w-1/8 bg-gray-200 p-4">
-            <ChatbotList
-              chatbots={chatbots}
-              onSelect={(chatbot) => {
-                setSelectedChatbot(chatbot);  // Set the selected chatbot
-                setChatHistory([]);           // Clear the chat history
-                setSelectedThread(null);      // Deselect any selected thread
-              }}
-              selectedChatbot={selectedChatbot}
-              loading={loading}
-              error={error}
-            />
-          </div>
-      
-          {/* Main Content Area */}
-          <div className="w-7/8 p-4 bg-gray-200">
-            <div className="container mx-auto bg-white p-4 rounded shadow">
-              {/* Conditionally render ThreadList if a chatbot is selected */}
-              {selectedChatbot && (
-                <ThreadList
-                  threads={threads}
-                  selectedThread={selectedThread ? selectedThread.thread_id : null}
-                  onSelectThread={handleSelectThread}
-                  chatHistory={chatHistory}
-                  // Assume you have a function to format the date and the first message
-                  // formatThreadLabel could be a function that returns the string label for the thread
+            {/* Side Panel for Chatbot List */}
+            <div className="w-1/8 bg-gray-200 p-4">
+                <ChatbotList
+                    chatbots={chatbots}
+                    onSelect={(chatbot) => {
+                        setSelectedChatbot(chatbot);  // Set the selected chatbot
+                        setChatHistory([]);           // Clear the chat history
+                        setSelectedThread(null);      // Deselect any selected thread
+                    }}
+                    selectedChatbot={selectedChatbot}
+                    loading={loading}
+                    error={error}
                 />
-              )}
-      
-              {/* Display error if any */}
-              {error && <p className="text-red-500">{error}</p>}
-      
-              {/* ChatInput and NewChatButton only if a thread is selected */}
-              {selectedUser && selectedChatbot && selectedThread && (
-                <>
-                  <ChatInput onSend={handleSendMessage} />
-                  <NewChatButton onStartNewChat={() => createThread(selectedUser.user_id, selectedChatbot.chatbot_id)} />
-                </>
-              )}
-      
-              
             </div>
-          </div>
+
+            {/* Main Content Area */}
+            <div className="w-7/8 p-4 bg-gray-200">
+                <div className="container mx-auto bg-white p-4 rounded shadow">
+                    {/* Conditionally render ThreadList if a chatbot is selected */}
+                    {selectedChatbot && (
+                        <ThreadList
+                            threads={threads}
+                            selectedThread={selectedThread ? selectedThread.thread_id : null}
+                            onSelectThread={handleSelectThread}
+                            chatHistory={chatHistory}
+                        // Assume you have a function to format the date and the first message
+                        // formatThreadLabel could be a function that returns the string label for the thread
+                        />
+                    )}
+
+                    {/* Display error if any */}
+                    {error && <p className="text-red-500">{error}</p>}
+
+                    {/* ChatInput and NewChatButton only if a thread is selected */}
+                    {selectedUser && selectedChatbot && selectedThread && (
+                        <>
+                            <ChatInput onSend={handleSendMessage} />
+                            <NewChatButton onStartNewChat={() => createThread(selectedUser.user_id, selectedChatbot.chatbot_id)} />
+                        </>
+                    )}
+
+
+                </div>
+            </div>
         </div>
-      );
-      
-    
-    
+    );
+
+
+
 }
 
 export default Chat;
