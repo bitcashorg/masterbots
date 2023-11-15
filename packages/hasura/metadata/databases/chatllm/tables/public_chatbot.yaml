@@ -16,6 +16,13 @@ array_relationships:
         table:
           name: prompt_chatbot
           schema: public
+  - name: threads
+    using:
+      foreign_key_constraint_on:
+        column: chatbot_id
+        table:
+          name: thread
+          schema: public
   - name: user_chatbot_preferences
     using:
       foreign_key_constraint_on:
