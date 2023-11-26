@@ -1,20 +1,21 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { Button, Text } from 'react-native';
 
-export default function Page() {
+import { Stack } from 'expo-router';
+import { useState } from 'react';
+
+
+export default function Home() {
+  const [count, setCount] = useState(0);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <>
+      <Stack.Screen
+        options={{
+          headerRight: () => <Button onPress={() => setCount(c => c + 1)} title="Update count" />,
+        }}
+      />
+      <Text>Welcome to Master Bots</Text>
+      <Text>Count: {count}</Text>
+    </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
