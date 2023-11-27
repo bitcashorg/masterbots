@@ -42,7 +42,7 @@ Setting up in your local machine:
 - Install bun <https://bun.sh/docs/installation#macos-and-linux>
 - On root folder or to the app that you want to run and execute `bun i # bun install` and then run a script from a `package.json` by executing `bun {script} # bun dev`
 
-bun use similar name convention on functions and options as yarn
+> TIP: bun use similar name convention on functions and options as yarn
 
 #### Deploying only Hasura (see `.env.sample` for reference)
 
