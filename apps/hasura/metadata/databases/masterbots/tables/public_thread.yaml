@@ -1,0 +1,29 @@
+table:
+  name: thread
+  schema: public
+object_relationships:
+  - name: chatbot
+    using:
+      foreign_key_constraint_on: chatbot_id
+  - name: user
+    using:
+      foreign_key_constraint_on: user_id
+array_relationships:
+  - name: messages
+    using:
+      foreign_key_constraint_on:
+        column: thread_id
+        table:
+          name: message
+          schema: public
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - chatbot_id
+        - thread_id
+        - user_id
+        - created_at
+        - updated_at
+      filter: {}
+    comment: ""
