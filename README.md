@@ -32,6 +32,7 @@ https://trello.com/b/GDCm18zN/masterbots-chatbot-aggregator-development-board
 - Hasura Cli https://hasura.io/docs/latest/hasura-cli/overview.
 - Bun package manager https://bun.sh 
 - [Docker](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/)
+- Task manager https://taskfile.dev
 
 ## Running in your local machine:
 

@@ -1,32 +1,44 @@
 version: '3.8'
 
 services:
-  database:
-    image: postgres:14.9
-    env_file:
-      - .env
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}      
+  masterbots-postgres:
+    container_name: masterbots-postgres
+    image: postgres:14.5
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - masterbots-pgdata:/var/lib/postgresql/data_bitcash
+    ports:
+      - "5433:5433"
+    environment:
+      PGPORT: 5433
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: masterbots
 
-  graphql:
-    image: hasura/graphql-engine:v2.34.0
+  hasura:
+    container_name: masterbots-hasura
+    build: ./apps/hasura
+    image: masterbots-hasura:local
+    image: hasura/graphql-engine:latest
     ports:
       - "8080:8080"
     depends_on:
-      - database
+      - masterbots-postgres
     env_file:
       - .env
     environment:
-      HASURA_GRAPHQL_DATABASE_URL: ${HASURA_GRAPHQL_DATABASE_URL}
+      HASURA_GRAPHQL_DATABASE_URL: postgres://user:pass@masterbots-postgres:5433/masterbots?sslmode=disable
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
-      HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_ADMIN_SECRET}
+      HASURA_GRAPHQL_ADMIN_SECRET: lfg
+      HASURA_GRAPHQL_MIGRATIONS_SERVER_TIMEOUT: 100
+      HASURA_GRAPHQL_SERVER_PORT: 8080
+      HASURA_GRAPHQL_DEV_MODE: "true"
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
+      HASURA_GRAPHQL_CORS_DOMAIN: "*"
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: "anonymous"
 
 volumes:
-  pgdata:
+  masterbots-pgdata:
 
 
 
