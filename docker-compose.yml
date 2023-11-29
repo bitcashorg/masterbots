@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  masterbots-postgres:
+  database:
     container_name: masterbots-postgres
     image: postgres:14.5
     volumes:
@@ -17,16 +17,16 @@ services:
   hasura:
     container_name: masterbots-hasura
     build: ./apps/hasura
-    image: masterbots-hasura:local
-    image: hasura/graphql-engine:latest
     ports:
       - "8080:8080"
     depends_on:
-      - masterbots-postgres
+      - database
+    links:
+      - database
     env_file:
       - .env
     environment:
-      HASURA_GRAPHQL_DATABASE_URL: postgres://user:pass@masterbots-postgres:5433/masterbots?sslmode=disable
+      HASURA_GRAPHQL_DATABASE_URL: "postgres://user:pass@database:5433/masterbots?sslmode=disable" 
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
       HASURA_GRAPHQL_ADMIN_SECRET: lfg
       HASURA_GRAPHQL_MIGRATIONS_SERVER_TIMEOUT: 100

@@ -10,9 +10,11 @@ tasks:
 
   boot:
     cmds:
-      - docker-compose up -d --build
-      - echo "Waiting 60s for postgres and hasura to start ..."
-      - sleep 60
+      - docker-compose up -d --build database
+      - sleep 10
+      - docker-compose up -d --build hasura
+      - echo "Waiting 30s for postgres and hasura to start ..."
+      - sleep 30
       - task migrate
 
   reboot:
