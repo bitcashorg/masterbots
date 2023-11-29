@@ -26,28 +26,30 @@ Contributors will earn platform credits that can be sold for cash.
 Here is our public Trello board: 
 https://trello.com/b/GDCm18zN/masterbots-chatbot-aggregator-development-board
 
-Setting up in your local machine:
-<ol>
-<li>Install Hasura, Postgres, Docker, Nextjs (use yarn)</li>
-<li>Set up .env and .env.local files (see .env.sample)</li>
-<li>Set up Docker with hasura-graphql & postgres db. </li>
-</ol>
+## Requirements
 
-In hasura folder (set up .env.local file - see .env_sample):<br>
-cd packages/hasura<br>
-hasura init --endpoint http://localhost:8080<br>
-hasura migrate apply<br>
-hasura metadata apply<br>
-hasura seed apply<br>
+- NodeJS. We recommend [nvm](https://github.com/nvm-sh/nvm) for version switching.
+- Hasura Cli https://hasura.io/docs/latest/hasura-cli/overview.
+- Bun package manager https://bun.sh 
+- [Docker](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/)
+
+## Running in your local machine:
+
 
 In root folder (set up .env.local file - see .env_sample):<br>
 run docker-compose up -d<br>
 
 In frontend folder (set up .env.local file - see .env_sample):<br>
-cd packages/frontend<br>
+cd apps/frontend<br>
 yarn build<br>
 yarn dev<br>
 
-**Robots lovingly delivered by Robohash.org and images created by Zikri Kader** 
+In hasura folder (set up .env.local file - see .env_sample):<br>
+cd apps/hasura<br>
+hasura init --endpoint http://localhost:8080<br>
+hasura migrate apply<br>
+hasura metadata apply<br>
+hasura seed apply<br>
+
 
 
