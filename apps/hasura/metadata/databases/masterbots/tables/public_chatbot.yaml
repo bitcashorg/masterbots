@@ -1,0 +1,60 @@
+table:
+  name: chatbot
+  schema: public
+object_relationships:
+  - name: default_complexity_enum
+    using:
+      foreign_key_constraint_on: default_complexity
+  - name: default_length_enum
+    using:
+      foreign_key_constraint_on: default_length
+  - name: default_tone_enum
+    using:
+      foreign_key_constraint_on: default_tone
+  - name: default_type_enum
+    using:
+      foreign_key_constraint_on: default_type
+array_relationships:
+  - name: chatbot_categories
+    using:
+      foreign_key_constraint_on:
+        column: chatbot_id
+        table:
+          name: chatbot_category
+          schema: public
+  - name: gpt_chats
+    using:
+      foreign_key_constraint_on:
+        column: chatbot_id
+        table:
+          name: gpt_chat
+          schema: public
+  - name: prompt_chatbots
+    using:
+      foreign_key_constraint_on:
+        column: chabot_id
+        table:
+          name: prompt_chatbot
+          schema: public
+  - name: user_chatbot_preferences
+    using:
+      foreign_key_constraint_on:
+        column: chatbot_id
+        table:
+          name: user_chatbot_preference
+          schema: public
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - chatbot_id
+        - avatar
+        - created_by
+        - default_complexity
+        - default_length
+        - default_tone
+        - default_type
+        - description
+        - name
+      filter: {}
+    comment: ""

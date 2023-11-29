@@ -13,3 +13,13 @@ array_relationships:
         table:
           name: prompt_chatbot
           schema: public
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - prompt_id
+        - content
+        - prompt_name
+        - type
+      filter: {}
+    comment: ""

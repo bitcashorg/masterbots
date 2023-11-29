@@ -2,10 +2,18 @@ table:
   name: category
   schema: public
 array_relationships:
-  - name: chatbots
+  - name: chatbot_categories
     using:
       foreign_key_constraint_on:
         column: category_id
         table:
           name: chatbot_category
           schema: public
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - category_id
+        - name
+      filter: {}
+    comment: ""
