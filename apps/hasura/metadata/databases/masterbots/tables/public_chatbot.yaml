@@ -15,7 +15,7 @@ object_relationships:
     using:
       foreign_key_constraint_on: default_type
 array_relationships:
-  - name: chatbot_categories
+  - name: categories
     using:
       foreign_key_constraint_on:
         column: chatbot_id
@@ -29,7 +29,7 @@ array_relationships:
         table:
           name: gpt_chat
           schema: public
-  - name: prompt_chatbots
+  - name: prompts
     using:
       foreign_key_constraint_on:
         column: chabot_id

@@ -2,7 +2,7 @@ table:
   name: category
   schema: public
 array_relationships:
-  - name: chatbot_categories
+  - name: chatbots
     using:
       foreign_key_constraint_on:
         column: category_id
