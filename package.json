@@ -1,12 +1,11 @@
 {
-  "name": "masterbots-monorepo",
+  "name": "masterbots",
   "version": "1.0.0",
   "description": "Monorepo for Masterbots application",
   "author": "Jun Dam <jun@bitcash.org>",
   "license": "MIT",
   "private": true,
   "workspaces": [
-    "frontend",
-    "hasura"
+    "apps/*"
   ]
 }

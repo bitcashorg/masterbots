@@ -25,9 +25,6 @@ services:
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
       HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_ADMIN_SECRET}
 
-
-# Add other services like Vespa as needed
-
 volumes:
   pgdata:
 
