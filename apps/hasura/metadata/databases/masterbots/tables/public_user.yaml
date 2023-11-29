@@ -1,0 +1,31 @@
+table:
+  name: user
+  schema: public
+array_relationships:
+  - name: gpt_chats
+    using:
+      foreign_key_constraint_on:
+        column: added_by
+        table:
+          name: gpt_chat
+          schema: public
+  - name: user_chatbot_preferences
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: user_chatbot_preference
+          schema: public
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - user_id
+        - email
+        - password
+        - profile_picture
+        - username
+        - date_joined
+        - last_login
+      filter: {}
+    comment: ""

@@ -1,0 +1,18 @@
+table:
+  name: prompt_type_enum
+  schema: public
+array_relationships:
+  - name: prompts
+    using:
+      foreign_key_constraint_on:
+        column: type
+        table:
+          name: prompt
+          schema: public
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - value
+      filter: {}
+    comment: ""

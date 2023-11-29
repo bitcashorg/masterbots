@@ -1,0 +1,20 @@
+table:
+  name: message
+  schema: public
+object_relationships:
+  - name: message_type_enum
+    using:
+      foreign_key_constraint_on: type
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - message_id
+        - receiver_id
+        - related_message_id
+        - sender_id
+        - content
+        - type
+        - created_at
+      filter: {}
+    comment: ""
