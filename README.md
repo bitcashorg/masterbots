@@ -32,24 +32,28 @@ https://trello.com/b/GDCm18zN/masterbots-chatbot-aggregator-development-board
 - Hasura Cli https://hasura.io/docs/latest/hasura-cli/overview.
 - Bun package manager https://bun.sh 
 - [Docker](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/)
+- Task manager https://taskfile.dev
 
-## Running in your local machine:
+## Running the Backend:
 
+In root folder, create an .env file based of .env_sample and the use `task` to execute the following commands to operate Hasura locally.
 
-In root folder (set up .env.local file - see .env_sample):<br>
-run docker-compose up -d<br>
+- **boot**: Boots up the database and Hasura services, with a delay to ensure proper startup, followed by running migrations.
+- **reboot**: Shuts down and then restarts the services.
+- **seed**: Applies seed data to the Hasura project.
+- **console**: Launches the Hasura console for the specified project.
+- **migrate**: Applies database migrations and updates Hasura metadata. 
+- **reload**: Restarts the Postgres service, then all services, and tails the Hasura logs.
+- **up**: Starts all services defined in the Docker Compose file with a build.
+- **down**: Shuts down all services and removes any orphaned containers.
+
+## Running the Frontend
 
 In frontend folder (set up .env.local file - see .env_sample):<br>
-cd apps/frontend<br>
-yarn build<br>
-yarn dev<br>
 
-In hasura folder (set up .env.local file - see .env_sample):<br>
-cd apps/hasura<br>
-hasura init --endpoint http://localhost:8080<br>
-hasura migrate apply<br>
-hasura metadata apply<br>
-hasura seed apply<br>
+cd apps/frontend<br>
+bun run build<br>
+bun run dev<br>
 
 
 
