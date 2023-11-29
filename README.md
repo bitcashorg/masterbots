@@ -34,7 +34,21 @@ https://trello.com/b/GDCm18zN/masterbots-chatbot-aggregator-development-board
 - [Docker](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/)
 - Task manager https://taskfile.dev
 
-## Running in your local machine:
+## Running the Backend:
+
+Use `task` to execute the following commands to operate Hasura locally.
+
+- **boot**: Boots up the database and Hasura services, with a delay to ensure proper startup, followed by running migrations.
+- **reboot**: Shuts down and then restarts the services.
+- **seed**: Applies seed data to the Hasura project.
+- **console**: Launches the Hasura console for the specified project.
+- **migrate**: Applies database migrations and updates Hasura metadata. 
+- **reload**: Restarts the Postgres service, then all services, and tails the Hasura logs.
+- **up**: Starts all services defined in the Docker Compose file with a build.
+- **down**: Shuts down all services and removes any orphaned containers.
+
+
+
 
 
 In root folder (set up .env.local file - see .env_sample):<br>
