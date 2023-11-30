@@ -40,11 +40,11 @@ const expectedChatbotSchema: SchemaObject = {
             name: "string",
             avatar: "string",
             description: "string",
-            created_by: "string",
-            default_tone: "string",
-            default_length: "string",
-            default_type: "string",
-            default_complexity: "string",
+            createdBy: "string",
+            defaultTone: "string",
+            defaultLength: "string",
+            defaultType: "string",
+            defaultComplexity: "string",
             categories: [{
                 category: {
                     name: "string"
@@ -154,10 +154,10 @@ type Chatbot = {
     name: string;
     description?: string;
     avatar?: string;
-    default_tone: string;
-    default_length: string;
-    default_type: string;
-    default_complexity: string;
+    defaultTone: string;
+    defaultLength: string;
+    defaultType: string;
+    defaultComplexity: string;
     categories?: { category: { name: string } }[];
     prompts?: { prompt: { content: string } }[];
     instructions?: { prompt: { content: string } }[];
@@ -176,10 +176,10 @@ type User = {
 const defaultChatbot: Chatbot = {
     chatbot_id: 0,
     name: 'Default Bot',
-    default_tone: 'neutral',
-    default_length: 'concise',
-    default_type: 'bullet_points',
-    default_complexity: 'adult',
+    defaultTone: 'neutral',
+    defaultLength: 'concise',
+    defaultType: 'bullet_points',
+    defaultComplexity: 'adult',
 };
 
 const defaultUser: User = {
@@ -218,22 +218,22 @@ function Chat() {
                                 name
                                 avatar
                                 description
-                                created_by
-                                default_tone
-                                default_length
-                                default_type
-                                default_complexity
+                                createdBy
+                                defaultTone
+                                defaultLength
+                                defaultType
+                                defaultComplexity
                                 categories {
                                     category {
                                         name
                                     }
                                 }
-                                prompts(where: { prompt: { prompt_type_enum: { value: { _eq: "prompt" } } } }) {
+                                prompts(where: { prompt: { type:  { _eq: "prompt" }  } }) {
                                     prompt {
                                         content
                                     }
                                 }
-                                instructions: prompts(where: { prompt: { prompt_type_enum: { value: { _eq: "instruction" } } } }) {
+                                instructions: prompts(where: { prompt: { type: { value: { _eq: "instruction" } } } }) {
                                     prompt {
                                         content
                                     }
@@ -383,7 +383,7 @@ function Chat() {
                             sender_id
                             receiver_id
                             type
-                            created_at
+                            createdAt
                         }
                     }
                     `,
@@ -498,10 +498,10 @@ function Chat() {
     const chatbotInstruction = selectedChatbot.instructions?.[0]?.prompt?.content || "";
     const chatbotPrompt = selectedChatbot.prompts?.[0]?.prompt?.content || "";
     const featureSettings = [
-        selectedChatbot.default_tone,
-        selectedChatbot.default_length,
-        selectedChatbot.default_type,
-        selectedChatbot.default_complexity
+        selectedChatbot.defaultTone,
+        selectedChatbot.defaultLength,
+        selectedChatbot.defaultType,
+        selectedChatbot.defaultComplexity
     ].join(" ");
     const combinedPrompt = `${chatbotInstruction} ${chatbotPrompt} [${featureSettings}] ${content}`;
     const botResponseData = {
@@ -569,8 +569,8 @@ function Chat() {
     console.log("Rendering Chat component with state: ", { messages, selectedChatbot, chatbots, loading, error });  // Added logging for the render state
     
     return (
-        <div className="p-4 bg-gray-200 min-h-screen">
-            <div className="container mx-auto bg-white p-4 rounded shadow">
+        <div className="min-h-screen p-4 bg-gray-200">
+            <div className="container p-4 mx-auto bg-white rounded shadow">
                 <ChatbotList 
                     chatbots={chatbots} 
                     onSelect={(chatbot) => {
@@ -582,7 +582,7 @@ function Chat() {
                     loading={loading} 
                     error={error} 
                 />
-                <div className="chat-messages mt-4">
+                <div className="mt-4 chat-messages">
                     {/* Render chat history messages */}
                     {chatHistory.map((message) => (
                         <ChatMessage key={message.message_id} message={message} bot={chatbots.find(b => b.chatbot_id === message.sender_id || b.chatbot_id === message.receiver_id)} />

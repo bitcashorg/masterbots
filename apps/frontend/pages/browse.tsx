@@ -17,7 +17,7 @@ interface Message {
   message_id: number;
   content: string;
   type: string;
-  created_at: string;
+  createdAt: string;
   thread_id: number;
 }
 
@@ -120,11 +120,11 @@ function Browse() {
             console.log(`Fetching messages for chatbot ID: ${selectedChatbot.chatbot_id}`); // Log chatbot ID being queried
             const GET_MESSAGES_BY_CHATBOT = `
                 query GetMessagesByChatbot($chatbotId: Int!) {
-                    message(where: {thread: {chatbot_id: {_eq: $chatbotId}}}, order_by: {created_at: asc}) {
+                    message(where: {thread: {chatbot_id: {_eq: $chatbotId}}}, orderBy: {createdAt: 'ASC'}) {
                         message_id
                         content
                         type
-                        created_at
+                        createdAt
                         thread_id
                     }
                 }
