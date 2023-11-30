@@ -24,13 +24,13 @@ type SchemaArray = SchemaValue[];
 const expectedUserSchema: SchemaObject = {
     data: {
         user: [{
-            user_id: "number",
+            userId: "number",
             username: "string",
             email: "string",
             password: "string",
             //date_joined: "date",
-            last_login: "optionalDate",
-            profile_picture: "optionalString",
+            lastLogin: "optionalDate",
+            profilePicture: "optionalString",
         }]
     }
 };
@@ -38,15 +38,15 @@ const expectedUserSchema: SchemaObject = {
 const expectedChatbotSchema: SchemaObject = {
     data: {
         chatbot: [{
-            chatbot_id: "number",  // Updated from "number" to "string"
+            chatbotId: "number",  // Updated from "number" to "string"
             name: "string",
             avatar: "string",
             description: "string",
-            created_by: "string",
-            default_tone: "string",
-            default_length: "string",
-            default_type: "string",
-            default_complexity: "string",
+            createdBy: "string",
+            defaultTone: "string",
+            defaultLength: "string",
+            defaultType: "string",
+            defaultComplexity: "string",
             categories: [{
                 category: {
                     name: "string"
@@ -152,35 +152,35 @@ function validateData(data: any, schema: SchemaObject): boolean {
 
 
 type Chatbot = {
-    chatbot_id: number;
+    chatbotId: number;
     name: string;
     description?: string;
     avatar?: string;
-    default_tone: string;
-    default_length: string;
-    default_type: string;
-    default_complexity: string;
+    defaultTone: string;
+    defaultLength: string;
+    defaultType: string;
+    defaultComplexity: string;
     categories?: { category: { name: string } }[];
     prompts?: { prompt: { content: string } }[];
     instructions?: { prompt: { content: string } }[];
 };
 
 type User = {
-    user_id: number;
+    userId: number;
     username: string;
     email: string;
     password: string; 
     //date_joined: Date;
     //last_login?: Date; 
-    profile_picture?: string; 
+    profilePicture?: string; 
 };
 
 type Thread = {
-    thread_id: number;
-    chatbot_id: number;
-    user_id: number;
-    created_at: Date;
-    updated_at: Date; 
+    threadId: number;
+    chatbotId: number;
+    userId: number;
+    createdAt: Date;
+    updatedAt: Date; 
 };
 
 type BotInfoType = {
@@ -191,7 +191,7 @@ type BotInfoType = {
   // Define a type for a chat message
 type ChatMessage = {
     content: string;
-    created_at: string; // assuming created_at is a string; adjust type if necessary
+    createdAt: string; // assuming created_at is a string; adjust type if necessary
     type: 'user' | 'chatbot'; // Adjust types according to your actual use case
   };
   
@@ -203,16 +203,16 @@ interface Category {
   }
 
 const defaultChatbot: Chatbot = {
-    chatbot_id: 1,
+    chatbotId: 1,
     name: 'HealthBot',
-    default_tone: 'professional',
-    default_length: 'clear_and_succinct',
-    default_type: 'bullet_points',
-    default_complexity: 'adult',
+    defaultTone: 'professional',
+    defaultLength: 'clear_and_succinct',
+    defaultType: 'bullet_points',
+    defaultComplexity: 'adult',
 };
 
 const defaultUser: User = {
-    user_id: 2,
+    userId: 2,
     username: 'DefaultUser123',
     email: 'default@email.com',
     password: 'defaultPassword',
@@ -220,11 +220,11 @@ const defaultUser: User = {
 };
 
 const defaultThread: Thread = {
-    thread_id: 58,
-    chatbot_id: 1,
-    user_id: 2,
-    created_at: new Date(),
-    updated_at: new Date(), 
+    threadId: 58,
+    chatbotId: 1,
+    userId: 2,
+    createdAt: new Date(),
+    updatedAt: new Date(), 
 };
 
 function Chat() {    
@@ -288,7 +288,7 @@ function Chat() {
                         query: `
                         query {
                             chatbot {
-                                chatbot_id
+                                chatbotId
                                 name
                                 avatar
                                 description
@@ -396,8 +396,8 @@ function Chat() {
               body: JSON.stringify({
                 query: `
                   query GetThreads($chatbotId: Int!, $userId: Int!) {
-                    thread(where: {chatbot_id: {_eq: $chatbotId}, user_id: {_eq: $userId}}) {
-                      thread_id
+                    thread(where: {chatbotId: {_eq: $chatbotId}, userId: {_eq: $userId}}) {
+                      threadId
                     }
                   }
                 `,
@@ -412,7 +412,7 @@ function Chat() {
         };
     
         if (selectedChatbot && selectedUser) {
-            fetchThreads(selectedChatbot.chatbot_id, selectedUser.user_id);
+            fetchThreads(selectedChatbot.chatbotId, selectedUser.userId);
         }
     }, [selectedChatbot, selectedUser]);   
     
@@ -431,15 +431,15 @@ function Chat() {
         mutation CreateThread($userId: Int!, $chatbotId: Int!) {
           insert_thread_one(
             object: {
-              user_id: $userId,
-              chatbot_id: $chatbotId
+              userId: $userId,
+              chatbotId: $chatbotId
             },
             on_conflict: {
               constraint: thread_pkey,
               update_columns: [updated_at]
             }
           ) {
-            thread_id
+            threadId
           }
         }
         `;
@@ -465,7 +465,7 @@ function Chat() {
           if (data.errors) {
             throw new Error(data.errors[0].message);
           }
-          // Assuming the insert_thread_one returns an object with a thread_id, 
+          // Assuming the insert_thread_one returns an object with a threadId, 
           // you should update the threads state with the new thread
           // Use the spread operator (...) to create a new array containing the existing threads and the new thread
           setThreads([...threads, data.data.insert_thread_one]);
@@ -479,17 +479,17 @@ function Chat() {
       
     // Fetch chat history
 useEffect(() => {
-    if (!selectedThread?.thread_id) {
+    if (!selectedThread?.threadId) {
         console.log("No thread selected. Skipping fetch chat history.");
-        return; // Do not run if thread_id is not set
+        return; // Do not run if threadId is not set
     }
 
-    console.log(`Fetching chat history for thread_id: ${selectedThread.thread_id}`);
+    console.log(`Fetching chat history for threadId: ${selectedThread.threadId}`);
 
     const fetchChatHistory = async () => {
         const FETCH_CHAT_HISTORY = `
             query FetchChatHistory($threadId: Int!) {
-            message(where: { thread_id: { _eq: $threadId } }, order_by: { created_at: asc }) {
+            message(where: { threadId: { _eq: $threadId } }, order_by: { created_at: asc }) {
                 content
                 type
                 created_at
@@ -500,7 +500,7 @@ useEffect(() => {
         const requestBody = {
             query: FETCH_CHAT_HISTORY,
             variables: {
-                threadId: selectedThread.thread_id,
+                threadId: selectedThread.threadId,
             }
         };
 
@@ -540,7 +540,7 @@ useEffect(() => {
     useEffect(() => {
         console.log("useEffect triggered by changes in selectedChatbot or selectedUser.");
         if (selectedChatbot && selectedUser && selectedThread) {
-            console.log(`Selected chatbot: ${selectedChatbot.chatbot_id}, Selected user: ${selectedUser.user_id}, Selected thread: ${selectedThread.thread_id}`);
+            console.log(`Selected chatbot: ${selectedChatbot.chatbotId}, Selected user: ${selectedUser.userId}, Selected thread: ${selectedThread.threadId}`);
         } else {
             console.warn("Either selectedChatbot or selectedUser or selectedThread is undefined. Not fetching chat history.");
         }
@@ -565,20 +565,20 @@ useEffect(() => {
         // Prepare the user's message data
         const userMessageData = {
             content: content,
-            thread_id: selectedThread?.thread_id,
+            threadId: selectedThread?.threadId,
             type: 'user'
         };
 
         const optimisticUserMessage = {
             content: content,
-            thread_id: selectedThread,
+            threadId: selectedThread,
             type: 'user',
             // you can generate a temporary ID or use Date.now() or any unique value
-            message_id: Date.now()  
+            messageId: Date.now()  
         };
         setChatHistory([...chatHistory, optimisticUserMessage]);
         
-    // Insert the user's message to Hasura and retrieve its message_id
+    // Insert the user's message to Hasura and retrieve its messageId
     let userMessageId;
     try {
         const response = await fetch(MESSAGE_ENDPOINT, {
@@ -588,9 +588,9 @@ useEffect(() => {
             },
             body: JSON.stringify({
                 query: `
-                mutation InsertMessage($content: String!, $thread_id: Int!, $type: String! ) {
-                    insert_message_one(object: {content: $content, thread_id: $thread_id, type: $type}) {
-                        message_id
+                mutation InsertMessage($content: String!, $threadId: Int!, $type: String! ) {
+                    insert_message_one(object: {content: $content, threadId: $threadId, type: $type}) {
+                        messageId
                     }
                 }
                 `,
@@ -598,7 +598,7 @@ useEffect(() => {
             })
         });
         const data = await response.json();
-        userMessageId = data.data.insert_message_one.message_id;
+        userMessageId = data.data.insert_message_one.messageId;
     } catch (error) {
         console.error("Failed to insert user's message:", error);
         return;
@@ -629,7 +629,7 @@ useEffect(() => {
 
     const combinedPrompt = `${chatbotPrompt} ${chatbotInstruction} ${chatbotContext} ${content}[${featureSettings}]`;
     const botResponseData = {
-        botId: selectedChatbot.chatbot_id,
+        botId: selectedChatbot.chatbotId,
         prompt: combinedPrompt
     };
 
@@ -654,20 +654,20 @@ useEffect(() => {
 
         const botMessageData = {
             content: data.message,
-            thread_id: selectedThread?.thread_id,  
+            threadId: selectedThread?.threadId,  
             type: 'chatbot',
         };
 
         const optimisticBotMessage = {
             content: data.message,
-            thread_id: selectedThread?.thread_id,  
+            threadId: selectedThread?.threadId,  
             type: 'chatbot',
-            message_id: Date.now() + 1  // Another temporary unique ID
+            messageId: Date.now() + 1  // Another temporary unique ID
         };
         setChatHistory(prevChat => [...prevChat, optimisticBotMessage]);
 
 
-        // Insert the bot's message and link it to user's message with related_message_id
+        // Insert the bot's message and link it to user's message with related_messageId
         await fetch(MESSAGE_ENDPOINT, {
             method: 'POST',
             headers: {
@@ -675,9 +675,9 @@ useEffect(() => {
             },
             body: JSON.stringify({
                 query: `
-                mutation InsertBotMessage($content: String!, $thread_id: Int!, $type: String!) {
-                    insert_message_one(object: {content: $content, thread_id: $thread_id, type: $type}) {
-                        message_id
+                mutation InsertBotMessage($content: String!, $threadId: Int!, $type: String!) {
+                    insert_message_one(object: {content: $content, threadId: $threadId, type: $type}) {
+                        messageId
                     }
                 }
                 `,
@@ -691,9 +691,9 @@ useEffect(() => {
 
     console.log("Rendering Chat component with state: ", { chatHistory, selectedChatbot, chatbots, loading, error });  // Added logging for the render state
     
-    const handleSelectThread = (thread_id: number) => {
-        // Find the thread by thread_id
-        const thread = threads.find(t => t.thread_id === thread_id);
+    const handleSelectThread = (threadId: number) => {
+        // Find the thread by threadId
+        const thread = threads.find(t => t.threadId === threadId);
         // If thread is found, set it as the selected thread, this will trigger the useEffect
         // Otherwise, set selectedThread to null which will reset the state and clear the chat history
         setSelectedThread(thread || null);
@@ -703,7 +703,7 @@ useEffect(() => {
       return (
         <div className="flex min-h-screen">
           {/* Side Panel for Chatbot List */}
-          <div className="w-1/8 bg-gray-200 p-4">
+          <div className="p-4 bg-gray-200 w-1/8">
             <ChatbotList
               chatbots={chatbots}
               onSelect={(chatbot) => {
@@ -718,13 +718,13 @@ useEffect(() => {
           </div>
       
           {/* Main Content Area */}
-          <div className="w-7/8 p-4 bg-gray-200">
-            <div className="container mx-auto bg-white p-4 rounded shadow">
+          <div className="p-4 bg-gray-200 w-7/8">
+            <div className="container p-4 mx-auto bg-white rounded shadow">
               {/* Conditionally render ThreadList if a chatbot is selected */}
               {selectedChatbot && (
                 <ThreadList
                   threads={threads}
-                  selectedThread={selectedThread ? selectedThread.thread_id : null}
+                  selectedThread={selectedThread ? selectedThread.threadId : null}
                   onSelectThread={handleSelectThread}
                   chatHistory={chatHistory}
                   // Assume you have a function to format the date and the first message
@@ -739,7 +739,7 @@ useEffect(() => {
               {selectedUser && selectedChatbot && selectedThread && (
                 <>
                   <ChatInput onSend={handleSendMessage} />
-                  <NewChatButton onStartNewChat={() => createThread(selectedUser.user_id, selectedChatbot.chatbot_id)} />
+                  <NewChatButton onStartNewChat={() => createThread(selectedUser.userId, selectedChatbot.chatbotId)} />
                 </>
               )}
       

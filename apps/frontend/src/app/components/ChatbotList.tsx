@@ -10,14 +10,14 @@ interface Prompt {
 }
 
 interface Chatbot {
-    chatbot_id: number;
+    chatbotId: number;
     name: string;
     avatar?: string;
     description?: string;
-    default_tone: string;
-    default_length: string;
-    default_type: string;
-    default_complexity: string;
+    defaultTone: string;
+    defaultLength: string;
+    defaultType: string;
+    defaultComplexity: string;
     categories?: { category: Category }[];
     prompts?: { prompt: Prompt }[];
     instructions?: { prompt: Prompt }[];
@@ -47,17 +47,17 @@ const ChatbotList: FC<ChatbotListProps> = ({ chatbots = [], onSelect, selectedCh
             {!loading && chatbots.length > 0 ? (
                 chatbots.map((bot) => (
                     <div
-                        key={bot.chatbot_id}
-                        className={`flex items-center cursor-pointer ${selectedChatbot && bot.chatbot_id === selectedChatbot.chatbot_id ? 'highlighted-style' : 'regular-style'}`}
+                        key={bot.chatbotId}
+                        className={`flex items-center cursor-pointer ${selectedChatbot && bot.chatbotId === selectedChatbot.chatbotId ? 'highlighted-style' : 'regular-style'}`}
                         onClick={() => handleBotSelect(bot)}
                     >
-                        <div className="relative w-8 h-8 rounded-full mr-2">
+                        <div className="relative w-8 h-8 mr-2 rounded-full">
                         <Image 
                             src={bot.avatar || '/path/to/default/avatar.png'} 
                             alt={bot.name} 
                             width={100} // replace with your desired width
                             height={100} // replace with your desired height
-                            className="rounded-full object-cover"
+                            className="object-cover rounded-full"
                         />
                         </div>
                         <span>{bot.name}</span>
