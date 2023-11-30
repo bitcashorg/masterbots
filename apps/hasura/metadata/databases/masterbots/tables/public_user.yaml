@@ -2,7 +2,14 @@ table:
   name: user
   schema: public
 array_relationships:
-  - name: gpt_chats
+  - name: chatbotPreferences
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: user_chatbot_preference
+          schema: public
+  - name: chats
     using:
       foreign_key_constraint_on:
         column: added_by
@@ -15,13 +22,6 @@ array_relationships:
         column: user_id
         table:
           name: thread
-          schema: public
-  - name: user_chatbot_preferences
-    using:
-      foreign_key_constraint_on:
-        column: user_id
-        table:
-          name: user_chatbot_preference
           schema: public
 select_permissions:
   - role: anonymous

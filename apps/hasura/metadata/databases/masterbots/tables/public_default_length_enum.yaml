@@ -1,21 +1,6 @@
 table:
   name: default_length_enum
   schema: public
-array_relationships:
-  - name: chatbots
-    using:
-      foreign_key_constraint_on:
-        column: default_length
-        table:
-          name: chatbot
-          schema: public
-  - name: user_chatbot_preferences
-    using:
-      foreign_key_constraint_on:
-        column: preferred_length
-        table:
-          name: user_chatbot_preference
-          schema: public
 select_permissions:
   - role: anonymous
     permission:
