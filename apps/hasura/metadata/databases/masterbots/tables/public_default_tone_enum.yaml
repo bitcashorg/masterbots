@@ -1,21 +1,6 @@
 table:
   name: default_tone_enum
   schema: public
-array_relationships:
-  - name: chatbots
-    using:
-      foreign_key_constraint_on:
-        column: default_tone
-        table:
-          name: chatbot
-          schema: public
-  - name: user_chatbot_preferences
-    using:
-      foreign_key_constraint_on:
-        column: preferred_tone
-        table:
-          name: user_chatbot_preference
-          schema: public
 select_permissions:
   - role: anonymous
     permission:

@@ -1,19 +1,6 @@
 table:
   name: chatbot
   schema: public
-object_relationships:
-  - name: default_complexity_enum
-    using:
-      foreign_key_constraint_on: default_complexity
-  - name: default_length_enum
-    using:
-      foreign_key_constraint_on: default_length
-  - name: default_tone_enum
-    using:
-      foreign_key_constraint_on: default_tone
-  - name: default_type_enum
-    using:
-      foreign_key_constraint_on: default_type
 array_relationships:
   - name: categories
     using:
@@ -22,7 +9,7 @@ array_relationships:
         table:
           name: chatbot_category
           schema: public
-  - name: gpt_chats
+  - name: chats
     using:
       foreign_key_constraint_on:
         column: chatbot_id

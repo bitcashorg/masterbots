@@ -5,18 +5,6 @@ object_relationships:
   - name: chatbot
     using:
       foreign_key_constraint_on: chatbot_id
-  - name: default_complexity_enum
-    using:
-      foreign_key_constraint_on: preferred_complexity
-  - name: default_length_enum
-    using:
-      foreign_key_constraint_on: preferred_length
-  - name: default_tone_enum
-    using:
-      foreign_key_constraint_on: preferred_tone
-  - name: default_type_enum
-    using:
-      foreign_key_constraint_on: preferred_type
   - name: user
     using:
       foreign_key_constraint_on: user_id
