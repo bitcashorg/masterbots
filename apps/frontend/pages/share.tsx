@@ -15,18 +15,18 @@ const categories = [
 ];
 
 type User = {
-  user_id: number;
+  userId: number;
   username: string;
   email: string;
   password: string; 
   //date_joined: Date;
   //last_login?: Date; 
-  profile_picture?: string; 
+  profilePicture?: string; 
 };
 
 
 const defaultUser: User = {
-  user_id: 1,
+  userId: 1,
   username: 'merivercap',
   email: 'jun@bitcash.org',
   password: 'defaultPassword',
@@ -46,7 +46,7 @@ function Share() {
     mutation InsertGPTChat($chatbot_name: String!, $conversation_link: String!, $added_by: Int!) {
       insert_gpt_chat(objects: {chatbot_name: $chatbot_name, conversation_link: $conversation_link, added_by: $added_by}) {
         returning {
-          gpt_chat_id
+          gpt_chatId
         }
       }
     }
@@ -63,7 +63,7 @@ function Share() {
         variables: {
           chatbot_name: gptVersion,         
           conversation_link: threadURL,     
-          added_by: defaultUser.user_id
+          added_by: defaultUser.userId
         }
       })
     });
@@ -87,16 +87,16 @@ function Share() {
 };
 
 return (
-    <div className="container mx-auto p-4">
-      <section className="mb-4 bg-gray-100 p-4 rounded-md">
-        <h2 className="text-xl mb-4">Share your GPT chats!</h2>
+    <div className="container p-4 mx-auto">
+      <section className="p-4 mb-4 bg-gray-100 rounded-md">
+        <h2 className="mb-4 text-xl">Share your GPT chats!</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block mb-2">Category:</label>
             <select 
               value={shareCategory}
               onChange={e => setShareCategory(e.target.value)}
-              className="border p-2 w-full">
+              className="w-full p-2 border">
               {categories.map(category => (
                 <option key={category} value={category}>{category}</option>
               ))}
@@ -108,7 +108,7 @@ return (
             <select 
               value={gptVersion}
               onChange={e => setGptVersion(e.target.value)}
-              className="border p-2 w-full">
+              className="w-full p-2 border">
               {GPT_VERSIONS.map(version => (
                 <option key={version} value={version}>{version}</option>
               ))}
@@ -121,14 +121,14 @@ return (
               type="url"
               value={threadURL}
               onChange={e => setThreadURL(e.target.value)}
-              className="border p-2 w-full"
+              className="w-full p-2 border"
               required
             />
           </div>
 
           <button 
             type="submit" 
-            className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 transition-colors">
+            className="px-4 py-2 text-white transition-colors bg-blue-500 hover:bg-blue-600">
             Share Chat
           </button>
         </form>
