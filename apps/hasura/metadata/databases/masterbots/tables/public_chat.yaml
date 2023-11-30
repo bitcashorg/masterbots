@@ -1,5 +1,5 @@
 table:
-  name: gpt_chat
+  name: chat
   schema: public
 object_relationships:
   - name: chatbot

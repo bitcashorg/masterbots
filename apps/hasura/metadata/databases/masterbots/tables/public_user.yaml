@@ -2,19 +2,19 @@ table:
   name: user
   schema: public
 array_relationships:
-  - name: chatbotPreferences
-    using:
-      foreign_key_constraint_on:
-        column: user_id
-        table:
-          name: user_chatbot_preference
-          schema: public
   - name: chats
     using:
       foreign_key_constraint_on:
         column: added_by
         table:
-          name: gpt_chat
+          name: chat
+          schema: public
+  - name: preferences
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: preference
           schema: public
   - name: threads
     using:

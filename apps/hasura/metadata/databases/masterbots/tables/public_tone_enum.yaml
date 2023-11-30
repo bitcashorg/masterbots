@@ -1,0 +1,10 @@
+table:
+  name: tone_enum
+  schema: public
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - value
+      filter: {}
+    comment: ""
