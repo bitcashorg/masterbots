@@ -11,15 +11,15 @@ interface ThreadListProps {
 
 // Updated ThreadType with a 'thread_title' property
 interface ThreadType {
-  thread_id: number;
+  threadId: number;
   thread_title: string; // Assuming the first message is the thread title
   // ... other properties you need
 }
 
 interface MessageType {
-  thread_id: number | null;
-  message_id: number;
-  created_at: Date;
+  threadId: number | null;
+  messageId: number;
+  createdAt: Date;
   content: string;
   type: 'chatbot' | 'user';
   // ... other properties you need
@@ -49,26 +49,26 @@ const ThreadList: React.FC<ThreadListProps> = ({
   return (
     <div className="thread-list">
       {threads.map((thread, threadIndex) => {
-        const isThreadSelected = thread.thread_id === selectedThread;
+        const isThreadSelected = thread.threadId === selectedThread;
 
-        // Generate a unique key for each thread. The combination of threadIndex and thread_id ensures uniqueness
-        const threadKey = `thread-${thread.thread_id}-${threadIndex}`;
+        // Generate a unique key for each thread. The combination of threadIndex and threadId ensures uniqueness
+        const threadKey = `thread-${thread.threadId}-${threadIndex}`;
 
-        console.log(`Rendering thread ${thread.thread_id}, selected: ${isThreadSelected}`);
+        console.log(`Rendering thread ${thread.threadId}, selected: ${isThreadSelected}`);
 
         return (
           <div
             key={threadKey}
             className={`thread-item ${isThreadSelected ? 'selected' : ''}`}
-            onClick={() => selectThread(thread.thread_id)}
+            onClick={() => selectThread(thread.threadId)}
           >
-            <div className="thread-title">Thread {thread.thread_id}</div>
+            <div className="thread-title">Thread {thread.threadId}</div>
             {isThreadSelected &&
                 chatHistory
-                    .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+                    .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
                     .map((message, messageIndex) => {
-                      // Use both message_id and messageIndex to ensure the key is unique
-                      const messageKey = `message-${message.message_id}-${messageIndex}`;
+                      // Use both messageId and messageIndex to ensure the key is unique
+                      const messageKey = `message-${message.messageId}-${messageIndex}`;
                       return (
                         <ChatMessage key={messageKey} message={message} />
                       );
