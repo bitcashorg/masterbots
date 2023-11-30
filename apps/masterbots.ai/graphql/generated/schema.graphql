@@ -1,0 +1,3474 @@
+schema {
+  query: query_root
+  subscription: subscription_root
+}
+
+"""whether this query should be cached (Hasura Cloud only)"""
+directive @cached(
+  """measured in seconds"""
+  ttl: Int! = 60
+
+  """refresh the cache entry"""
+  refresh: Boolean! = false
+) on QUERY
+
+"""
+Boolean expression to compare columns of type "Boolean". All fields are combined with logical 'AND'.
+"""
+input BooleanComparisonExp {
+  _eq: Boolean
+  _gt: Boolean
+  _gte: Boolean
+  _in: [Boolean!]
+  _isNull: Boolean
+  _lt: Boolean
+  _lte: Boolean
+  _neq: Boolean
+  _nin: [Boolean!]
+}
+
+"""Table to store different categories for chatbots."""
+type Category {
+  categoryId: Int!
+
+  """An array relationship"""
+  chatbots(
+    """distinct select on columns"""
+    distinctOn: [ChatbotCategorySelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotCategoryOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotCategoryBoolExp
+  ): [ChatbotCategory!]!
+  name: String!
+}
+
+"""
+Boolean expression to filter rows from the table "category". All fields are combined with a logical 'AND'.
+"""
+input CategoryBoolExp {
+  _and: [CategoryBoolExp!]
+  _not: CategoryBoolExp
+  _or: [CategoryBoolExp!]
+  categoryId: IntComparisonExp
+  chatbots: ChatbotCategoryBoolExp
+  name: StringComparisonExp
+}
+
+"""Ordering options when selecting data from "category"."""
+input CategoryOrderBy {
+  categoryId: OrderBy
+  chatbotsAggregate: ChatbotCategoryAggregateOrderBy
+  name: OrderBy
+}
+
+"""
+select columns of table "category"
+"""
+enum CategorySelectColumn {
+  """column name"""
+  categoryId
+
+  """column name"""
+  name
+}
+
+"""
+Streaming cursor of the table "category"
+"""
+input CategoryStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: CategoryStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input CategoryStreamCursorValueInput {
+  categoryId: Int
+  name: String
+}
+
+"""
+Table storing information about chatbots, their characteristics, and default settings.
+"""
+type Chatbot {
+  avatar: String
+
+  """An array relationship"""
+  categories(
+    """distinct select on columns"""
+    distinctOn: [ChatbotCategorySelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotCategoryOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotCategoryBoolExp
+  ): [ChatbotCategory!]!
+  chatbotId: Int!
+  createdBy: String!
+  defaultComplexity: String!
+  defaultLength: String!
+  defaultTone: String!
+  defaultType: String!
+
+  """An object relationship"""
+  default_complexity_enum: DefaultComplexityEnum!
+
+  """An object relationship"""
+  default_length_enum: DefaultLengthEnum!
+
+  """An object relationship"""
+  default_tone_enum: DefaultToneEnum!
+
+  """An object relationship"""
+  default_type_enum: DefaultTypeEnum!
+  description: String
+
+  """An array relationship"""
+  gpt_chats(
+    """distinct select on columns"""
+    distinctOn: [GptChatSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [GptChatOrderBy!]
+
+    """filter the rows returned"""
+    where: GptChatBoolExp
+  ): [GptChat!]!
+  name: String!
+
+  """An array relationship"""
+  prompts(
+    """distinct select on columns"""
+    distinctOn: [PromptChatbotSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [PromptChatbotOrderBy!]
+
+    """filter the rows returned"""
+    where: PromptChatbotBoolExp
+  ): [PromptChatbot!]!
+
+  """An array relationship"""
+  user_chatbot_preferences(
+    """distinct select on columns"""
+    distinctOn: [UserChatbotPreferenceSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [UserChatbotPreferenceOrderBy!]
+
+    """filter the rows returned"""
+    where: UserChatbotPreferenceBoolExp
+  ): [UserChatbotPreference!]!
+}
+
+"""
+order by aggregate values of table "chatbot"
+"""
+input ChatbotAggregateOrderBy {
+  avg: ChatbotAvgOrderBy
+  count: OrderBy
+  max: ChatbotMaxOrderBy
+  min: ChatbotMinOrderBy
+  stddev: ChatbotStddevOrderBy
+  stddevPop: ChatbotStddevPopOrderBy
+  stddevSamp: ChatbotStddevSampOrderBy
+  sum: ChatbotSumOrderBy
+  varPop: ChatbotVarPopOrderBy
+  varSamp: ChatbotVarSampOrderBy
+  variance: ChatbotVarianceOrderBy
+}
+
+"""
+order by avg() on columns of table "chatbot"
+"""
+input ChatbotAvgOrderBy {
+  chatbotId: OrderBy
+}
+
+"""
+Boolean expression to filter rows from the table "chatbot". All fields are combined with a logical 'AND'.
+"""
+input ChatbotBoolExp {
+  _and: [ChatbotBoolExp!]
+  _not: ChatbotBoolExp
+  _or: [ChatbotBoolExp!]
+  avatar: StringComparisonExp
+  categories: ChatbotCategoryBoolExp
+  chatbotId: IntComparisonExp
+  createdBy: StringComparisonExp
+  defaultComplexity: StringComparisonExp
+  defaultLength: StringComparisonExp
+  defaultTone: StringComparisonExp
+  defaultType: StringComparisonExp
+  default_complexity_enum: DefaultComplexityEnumBoolExp
+  default_length_enum: DefaultLengthEnumBoolExp
+  default_tone_enum: DefaultToneEnumBoolExp
+  default_type_enum: DefaultTypeEnumBoolExp
+  description: StringComparisonExp
+  gpt_chats: GptChatBoolExp
+  name: StringComparisonExp
+  prompts: PromptChatbotBoolExp
+  user_chatbot_preferences: UserChatbotPreferenceBoolExp
+}
+
+"""
+Junction table to manage the many-to-many relationships between chatbots and their categories.
+"""
+type ChatbotCategory {
+  """An object relationship"""
+  category: Category!
+  categoryId: Int!
+
+  """An object relationship"""
+  chatbot: Chatbot!
+  chatbotId: Int!
+}
+
+"""
+order by aggregate values of table "chatbot_category"
+"""
+input ChatbotCategoryAggregateOrderBy {
+  avg: ChatbotCategoryAvgOrderBy
+  count: OrderBy
+  max: ChatbotCategoryMaxOrderBy
+  min: ChatbotCategoryMinOrderBy
+  stddev: ChatbotCategoryStddevOrderBy
+  stddevPop: ChatbotCategoryStddevPopOrderBy
+  stddevSamp: ChatbotCategoryStddevSampOrderBy
+  sum: ChatbotCategorySumOrderBy
+  varPop: ChatbotCategoryVarPopOrderBy
+  varSamp: ChatbotCategoryVarSampOrderBy
+  variance: ChatbotCategoryVarianceOrderBy
+}
+
+"""
+order by avg() on columns of table "chatbot_category"
+"""
+input ChatbotCategoryAvgOrderBy {
+  categoryId: OrderBy
+  chatbotId: OrderBy
+}
+
+"""
+Boolean expression to filter rows from the table "chatbot_category". All fields are combined with a logical 'AND'.
+"""
+input ChatbotCategoryBoolExp {
+  _and: [ChatbotCategoryBoolExp!]
+  _not: ChatbotCategoryBoolExp
+  _or: [ChatbotCategoryBoolExp!]
+  category: CategoryBoolExp
+  categoryId: IntComparisonExp
+  chatbot: ChatbotBoolExp
+  chatbotId: IntComparisonExp
+}
+
+"""
+order by max() on columns of table "chatbot_category"
+"""
+input ChatbotCategoryMaxOrderBy {
+  categoryId: OrderBy
+  chatbotId: OrderBy
+}
+
+"""
+order by min() on columns of table "chatbot_category"
+"""
+input ChatbotCategoryMinOrderBy {
+  categoryId: OrderBy
+  chatbotId: OrderBy
+}
+
+"""Ordering options when selecting data from "chatbot_category"."""
+input ChatbotCategoryOrderBy {
+  category: CategoryOrderBy
+  categoryId: OrderBy
+  chatbot: ChatbotOrderBy
+  chatbotId: OrderBy
+}
+
+"""
+select columns of table "chatbot_category"
+"""
+enum ChatbotCategorySelectColumn {
+  """column name"""
+  categoryId
+
+  """column name"""
+  chatbotId
+}
+
+"""
+order by stddev() on columns of table "chatbot_category"
+"""
+input ChatbotCategoryStddevOrderBy {
+  categoryId: OrderBy
+  chatbotId: OrderBy
+}
+
+"""
+order by stddevPop() on columns of table "chatbot_category"
+"""
+input ChatbotCategoryStddevPopOrderBy {
+  categoryId: OrderBy
+  chatbotId: OrderBy
+}
+
+"""
+order by stddevSamp() on columns of table "chatbot_category"
+"""
+input ChatbotCategoryStddevSampOrderBy {
+  categoryId: OrderBy
+  chatbotId: OrderBy
+}
+
+"""
+Streaming cursor of the table "chatbot_category"
+"""
+input ChatbotCategoryStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: ChatbotCategoryStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input ChatbotCategoryStreamCursorValueInput {
+  categoryId: Int
+  chatbotId: Int
+}
+
+"""
+order by sum() on columns of table "chatbot_category"
+"""
+input ChatbotCategorySumOrderBy {
+  categoryId: OrderBy
+  chatbotId: OrderBy
+}
+
+"""
+order by varPop() on columns of table "chatbot_category"
+"""
+input ChatbotCategoryVarPopOrderBy {
+  categoryId: OrderBy
+  chatbotId: OrderBy
+}
+
+"""
+order by varSamp() on columns of table "chatbot_category"
+"""
+input ChatbotCategoryVarSampOrderBy {
+  categoryId: OrderBy
+  chatbotId: OrderBy
+}
+
+"""
+order by variance() on columns of table "chatbot_category"
+"""
+input ChatbotCategoryVarianceOrderBy {
+  categoryId: OrderBy
+  chatbotId: OrderBy
+}
+
+"""
+order by max() on columns of table "chatbot"
+"""
+input ChatbotMaxOrderBy {
+  avatar: OrderBy
+  chatbotId: OrderBy
+  createdBy: OrderBy
+  defaultComplexity: OrderBy
+  defaultLength: OrderBy
+  defaultTone: OrderBy
+  defaultType: OrderBy
+  description: OrderBy
+  name: OrderBy
+}
+
+"""
+order by min() on columns of table "chatbot"
+"""
+input ChatbotMinOrderBy {
+  avatar: OrderBy
+  chatbotId: OrderBy
+  createdBy: OrderBy
+  defaultComplexity: OrderBy
+  defaultLength: OrderBy
+  defaultTone: OrderBy
+  defaultType: OrderBy
+  description: OrderBy
+  name: OrderBy
+}
+
+"""Ordering options when selecting data from "chatbot"."""
+input ChatbotOrderBy {
+  avatar: OrderBy
+  categoriesAggregate: ChatbotCategoryAggregateOrderBy
+  chatbotId: OrderBy
+  createdBy: OrderBy
+  defaultComplexity: OrderBy
+  defaultLength: OrderBy
+  defaultTone: OrderBy
+  defaultType: OrderBy
+  default_complexity_enum: DefaultComplexityEnumOrderBy
+  default_length_enum: DefaultLengthEnumOrderBy
+  default_tone_enum: DefaultToneEnumOrderBy
+  default_type_enum: DefaultTypeEnumOrderBy
+  description: OrderBy
+  gpt_chatsAggregate: GptChatAggregateOrderBy
+  name: OrderBy
+  promptsAggregate: PromptChatbotAggregateOrderBy
+  user_chatbot_preferencesAggregate: UserChatbotPreferenceAggregateOrderBy
+}
+
+"""
+select columns of table "chatbot"
+"""
+enum ChatbotSelectColumn {
+  """column name"""
+  avatar
+
+  """column name"""
+  chatbotId
+
+  """column name"""
+  createdBy
+
+  """column name"""
+  defaultComplexity
+
+  """column name"""
+  defaultLength
+
+  """column name"""
+  defaultTone
+
+  """column name"""
+  defaultType
+
+  """column name"""
+  description
+
+  """column name"""
+  name
+}
+
+"""
+order by stddev() on columns of table "chatbot"
+"""
+input ChatbotStddevOrderBy {
+  chatbotId: OrderBy
+}
+
+"""
+order by stddevPop() on columns of table "chatbot"
+"""
+input ChatbotStddevPopOrderBy {
+  chatbotId: OrderBy
+}
+
+"""
+order by stddevSamp() on columns of table "chatbot"
+"""
+input ChatbotStddevSampOrderBy {
+  chatbotId: OrderBy
+}
+
+"""
+Streaming cursor of the table "chatbot"
+"""
+input ChatbotStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: ChatbotStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input ChatbotStreamCursorValueInput {
+  avatar: String
+  chatbotId: Int
+  createdBy: String
+  defaultComplexity: String
+  defaultLength: String
+  defaultTone: String
+  defaultType: String
+  description: String
+  name: String
+}
+
+"""
+order by sum() on columns of table "chatbot"
+"""
+input ChatbotSumOrderBy {
+  chatbotId: OrderBy
+}
+
+"""
+order by varPop() on columns of table "chatbot"
+"""
+input ChatbotVarPopOrderBy {
+  chatbotId: OrderBy
+}
+
+"""
+order by varSamp() on columns of table "chatbot"
+"""
+input ChatbotVarSampOrderBy {
+  chatbotId: OrderBy
+}
+
+"""
+order by variance() on columns of table "chatbot"
+"""
+input ChatbotVarianceOrderBy {
+  chatbotId: OrderBy
+}
+
+"""ordering argument of a cursor"""
+enum CursorOrdering {
+  """ascending ordering of the cursor"""
+  ASC
+
+  """descending ordering of the cursor"""
+  DESC
+}
+
+"""
+columns and relationships of "default_complexity_enum"
+"""
+type DefaultComplexityEnum {
+  """An array relationship"""
+  chatbots(
+    """distinct select on columns"""
+    distinctOn: [ChatbotSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotBoolExp
+  ): [Chatbot!]!
+
+  """An array relationship"""
+  user_chatbot_preferences(
+    """distinct select on columns"""
+    distinctOn: [UserChatbotPreferenceSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [UserChatbotPreferenceOrderBy!]
+
+    """filter the rows returned"""
+    where: UserChatbotPreferenceBoolExp
+  ): [UserChatbotPreference!]!
+  value: String!
+}
+
+"""
+Boolean expression to filter rows from the table "default_complexity_enum". All fields are combined with a logical 'AND'.
+"""
+input DefaultComplexityEnumBoolExp {
+  _and: [DefaultComplexityEnumBoolExp!]
+  _not: DefaultComplexityEnumBoolExp
+  _or: [DefaultComplexityEnumBoolExp!]
+  chatbots: ChatbotBoolExp
+  user_chatbot_preferences: UserChatbotPreferenceBoolExp
+  value: StringComparisonExp
+}
+
+"""Ordering options when selecting data from "default_complexity_enum"."""
+input DefaultComplexityEnumOrderBy {
+  chatbotsAggregate: ChatbotAggregateOrderBy
+  user_chatbot_preferencesAggregate: UserChatbotPreferenceAggregateOrderBy
+  value: OrderBy
+}
+
+"""
+select columns of table "default_complexity_enum"
+"""
+enum DefaultComplexityEnumSelectColumn {
+  """column name"""
+  value
+}
+
+"""
+Streaming cursor of the table "default_complexity_enum"
+"""
+input DefaultComplexityEnumStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: DefaultComplexityEnumStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input DefaultComplexityEnumStreamCursorValueInput {
+  value: String
+}
+
+"""
+columns and relationships of "default_length_enum"
+"""
+type DefaultLengthEnum {
+  """An array relationship"""
+  chatbots(
+    """distinct select on columns"""
+    distinctOn: [ChatbotSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotBoolExp
+  ): [Chatbot!]!
+
+  """An array relationship"""
+  user_chatbot_preferences(
+    """distinct select on columns"""
+    distinctOn: [UserChatbotPreferenceSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [UserChatbotPreferenceOrderBy!]
+
+    """filter the rows returned"""
+    where: UserChatbotPreferenceBoolExp
+  ): [UserChatbotPreference!]!
+  value: String!
+}
+
+"""
+Boolean expression to filter rows from the table "default_length_enum". All fields are combined with a logical 'AND'.
+"""
+input DefaultLengthEnumBoolExp {
+  _and: [DefaultLengthEnumBoolExp!]
+  _not: DefaultLengthEnumBoolExp
+  _or: [DefaultLengthEnumBoolExp!]
+  chatbots: ChatbotBoolExp
+  user_chatbot_preferences: UserChatbotPreferenceBoolExp
+  value: StringComparisonExp
+}
+
+"""Ordering options when selecting data from "default_length_enum"."""
+input DefaultLengthEnumOrderBy {
+  chatbotsAggregate: ChatbotAggregateOrderBy
+  user_chatbot_preferencesAggregate: UserChatbotPreferenceAggregateOrderBy
+  value: OrderBy
+}
+
+"""
+select columns of table "default_length_enum"
+"""
+enum DefaultLengthEnumSelectColumn {
+  """column name"""
+  value
+}
+
+"""
+Streaming cursor of the table "default_length_enum"
+"""
+input DefaultLengthEnumStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: DefaultLengthEnumStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input DefaultLengthEnumStreamCursorValueInput {
+  value: String
+}
+
+"""
+columns and relationships of "default_tone_enum"
+"""
+type DefaultToneEnum {
+  """An array relationship"""
+  chatbots(
+    """distinct select on columns"""
+    distinctOn: [ChatbotSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotBoolExp
+  ): [Chatbot!]!
+
+  """An array relationship"""
+  user_chatbot_preferences(
+    """distinct select on columns"""
+    distinctOn: [UserChatbotPreferenceSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [UserChatbotPreferenceOrderBy!]
+
+    """filter the rows returned"""
+    where: UserChatbotPreferenceBoolExp
+  ): [UserChatbotPreference!]!
+  value: String!
+}
+
+"""
+Boolean expression to filter rows from the table "default_tone_enum". All fields are combined with a logical 'AND'.
+"""
+input DefaultToneEnumBoolExp {
+  _and: [DefaultToneEnumBoolExp!]
+  _not: DefaultToneEnumBoolExp
+  _or: [DefaultToneEnumBoolExp!]
+  chatbots: ChatbotBoolExp
+  user_chatbot_preferences: UserChatbotPreferenceBoolExp
+  value: StringComparisonExp
+}
+
+"""Ordering options when selecting data from "default_tone_enum"."""
+input DefaultToneEnumOrderBy {
+  chatbotsAggregate: ChatbotAggregateOrderBy
+  user_chatbot_preferencesAggregate: UserChatbotPreferenceAggregateOrderBy
+  value: OrderBy
+}
+
+"""
+select columns of table "default_tone_enum"
+"""
+enum DefaultToneEnumSelectColumn {
+  """column name"""
+  value
+}
+
+"""
+Streaming cursor of the table "default_tone_enum"
+"""
+input DefaultToneEnumStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: DefaultToneEnumStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input DefaultToneEnumStreamCursorValueInput {
+  value: String
+}
+
+"""
+columns and relationships of "default_type_enum"
+"""
+type DefaultTypeEnum {
+  """An array relationship"""
+  chatbots(
+    """distinct select on columns"""
+    distinctOn: [ChatbotSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotBoolExp
+  ): [Chatbot!]!
+
+  """An array relationship"""
+  user_chatbot_preferences(
+    """distinct select on columns"""
+    distinctOn: [UserChatbotPreferenceSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [UserChatbotPreferenceOrderBy!]
+
+    """filter the rows returned"""
+    where: UserChatbotPreferenceBoolExp
+  ): [UserChatbotPreference!]!
+  value: String!
+}
+
+"""
+Boolean expression to filter rows from the table "default_type_enum". All fields are combined with a logical 'AND'.
+"""
+input DefaultTypeEnumBoolExp {
+  _and: [DefaultTypeEnumBoolExp!]
+  _not: DefaultTypeEnumBoolExp
+  _or: [DefaultTypeEnumBoolExp!]
+  chatbots: ChatbotBoolExp
+  user_chatbot_preferences: UserChatbotPreferenceBoolExp
+  value: StringComparisonExp
+}
+
+"""Ordering options when selecting data from "default_type_enum"."""
+input DefaultTypeEnumOrderBy {
+  chatbotsAggregate: ChatbotAggregateOrderBy
+  user_chatbot_preferencesAggregate: UserChatbotPreferenceAggregateOrderBy
+  value: OrderBy
+}
+
+"""
+select columns of table "default_type_enum"
+"""
+enum DefaultTypeEnumSelectColumn {
+  """column name"""
+  value
+}
+
+"""
+Streaming cursor of the table "default_type_enum"
+"""
+input DefaultTypeEnumStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: DefaultTypeEnumStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input DefaultTypeEnumStreamCursorValueInput {
+  value: String
+}
+
+"""
+Table to store links to GPT chat conversations and associate them with a specific GPT chatbot and the user who added the link.
+"""
+type GptChat {
+  addedBy: Int!
+
+  """An object relationship"""
+  chatbot: Chatbot!
+  chatbotId: Int!
+  conversationLink: String!
+  gptChatId: Int!
+
+  """An object relationship"""
+  user: User!
+}
+
+"""
+order by aggregate values of table "gpt_chat"
+"""
+input GptChatAggregateOrderBy {
+  avg: GptChatAvgOrderBy
+  count: OrderBy
+  max: GptChatMaxOrderBy
+  min: GptChatMinOrderBy
+  stddev: GptChatStddevOrderBy
+  stddevPop: GptChatStddevPopOrderBy
+  stddevSamp: GptChatStddevSampOrderBy
+  sum: GptChatSumOrderBy
+  varPop: GptChatVarPopOrderBy
+  varSamp: GptChatVarSampOrderBy
+  variance: GptChatVarianceOrderBy
+}
+
+"""
+order by avg() on columns of table "gpt_chat"
+"""
+input GptChatAvgOrderBy {
+  addedBy: OrderBy
+  chatbotId: OrderBy
+  gptChatId: OrderBy
+}
+
+"""
+Boolean expression to filter rows from the table "gpt_chat". All fields are combined with a logical 'AND'.
+"""
+input GptChatBoolExp {
+  _and: [GptChatBoolExp!]
+  _not: GptChatBoolExp
+  _or: [GptChatBoolExp!]
+  addedBy: IntComparisonExp
+  chatbot: ChatbotBoolExp
+  chatbotId: IntComparisonExp
+  conversationLink: StringComparisonExp
+  gptChatId: IntComparisonExp
+  user: UserBoolExp
+}
+
+"""
+order by max() on columns of table "gpt_chat"
+"""
+input GptChatMaxOrderBy {
+  addedBy: OrderBy
+  chatbotId: OrderBy
+  conversationLink: OrderBy
+  gptChatId: OrderBy
+}
+
+"""
+order by min() on columns of table "gpt_chat"
+"""
+input GptChatMinOrderBy {
+  addedBy: OrderBy
+  chatbotId: OrderBy
+  conversationLink: OrderBy
+  gptChatId: OrderBy
+}
+
+"""Ordering options when selecting data from "gpt_chat"."""
+input GptChatOrderBy {
+  addedBy: OrderBy
+  chatbot: ChatbotOrderBy
+  chatbotId: OrderBy
+  conversationLink: OrderBy
+  gptChatId: OrderBy
+  user: UserOrderBy
+}
+
+"""
+select columns of table "gpt_chat"
+"""
+enum GptChatSelectColumn {
+  """column name"""
+  addedBy
+
+  """column name"""
+  chatbotId
+
+  """column name"""
+  conversationLink
+
+  """column name"""
+  gptChatId
+}
+
+"""
+order by stddev() on columns of table "gpt_chat"
+"""
+input GptChatStddevOrderBy {
+  addedBy: OrderBy
+  chatbotId: OrderBy
+  gptChatId: OrderBy
+}
+
+"""
+order by stddevPop() on columns of table "gpt_chat"
+"""
+input GptChatStddevPopOrderBy {
+  addedBy: OrderBy
+  chatbotId: OrderBy
+  gptChatId: OrderBy
+}
+
+"""
+order by stddevSamp() on columns of table "gpt_chat"
+"""
+input GptChatStddevSampOrderBy {
+  addedBy: OrderBy
+  chatbotId: OrderBy
+  gptChatId: OrderBy
+}
+
+"""
+Streaming cursor of the table "gpt_chat"
+"""
+input GptChatStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: GptChatStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input GptChatStreamCursorValueInput {
+  addedBy: Int
+  chatbotId: Int
+  conversationLink: String
+  gptChatId: Int
+}
+
+"""
+order by sum() on columns of table "gpt_chat"
+"""
+input GptChatSumOrderBy {
+  addedBy: OrderBy
+  chatbotId: OrderBy
+  gptChatId: OrderBy
+}
+
+"""
+order by varPop() on columns of table "gpt_chat"
+"""
+input GptChatVarPopOrderBy {
+  addedBy: OrderBy
+  chatbotId: OrderBy
+  gptChatId: OrderBy
+}
+
+"""
+order by varSamp() on columns of table "gpt_chat"
+"""
+input GptChatVarSampOrderBy {
+  addedBy: OrderBy
+  chatbotId: OrderBy
+  gptChatId: OrderBy
+}
+
+"""
+order by variance() on columns of table "gpt_chat"
+"""
+input GptChatVarianceOrderBy {
+  addedBy: OrderBy
+  chatbotId: OrderBy
+  gptChatId: OrderBy
+}
+
+"""
+Boolean expression to compare columns of type "Int". All fields are combined with logical 'AND'.
+"""
+input IntComparisonExp {
+  _eq: Int
+  _gt: Int
+  _gte: Int
+  _in: [Int!]
+  _isNull: Boolean
+  _lt: Int
+  _lte: Int
+  _neq: Int
+  _nin: [Int!]
+}
+
+"""This table stores the messages exchanged between users and chatbots."""
+type Message {
+  content: String!
+  createdAt: timestamptz
+  messageId: Int!
+
+  """An object relationship"""
+  message_type_enum: MessageTypeEnum!
+  relatedMessageId: Int
+
+  """An object relationship"""
+  thread: Thread
+  threadId: Int
+  type: String!
+}
+
+"""
+order by aggregate values of table "message"
+"""
+input MessageAggregateOrderBy {
+  avg: MessageAvgOrderBy
+  count: OrderBy
+  max: MessageMaxOrderBy
+  min: MessageMinOrderBy
+  stddev: MessageStddevOrderBy
+  stddevPop: MessageStddevPopOrderBy
+  stddevSamp: MessageStddevSampOrderBy
+  sum: MessageSumOrderBy
+  varPop: MessageVarPopOrderBy
+  varSamp: MessageVarSampOrderBy
+  variance: MessageVarianceOrderBy
+}
+
+"""
+order by avg() on columns of table "message"
+"""
+input MessageAvgOrderBy {
+  messageId: OrderBy
+  relatedMessageId: OrderBy
+  threadId: OrderBy
+}
+
+"""
+Boolean expression to filter rows from the table "message". All fields are combined with a logical 'AND'.
+"""
+input MessageBoolExp {
+  _and: [MessageBoolExp!]
+  _not: MessageBoolExp
+  _or: [MessageBoolExp!]
+  content: StringComparisonExp
+  createdAt: TimestamptzComparisonExp
+  messageId: IntComparisonExp
+  message_type_enum: MessageTypeEnumBoolExp
+  relatedMessageId: IntComparisonExp
+  thread: ThreadBoolExp
+  threadId: IntComparisonExp
+  type: StringComparisonExp
+}
+
+"""
+order by max() on columns of table "message"
+"""
+input MessageMaxOrderBy {
+  content: OrderBy
+  createdAt: OrderBy
+  messageId: OrderBy
+  relatedMessageId: OrderBy
+  threadId: OrderBy
+  type: OrderBy
+}
+
+"""
+order by min() on columns of table "message"
+"""
+input MessageMinOrderBy {
+  content: OrderBy
+  createdAt: OrderBy
+  messageId: OrderBy
+  relatedMessageId: OrderBy
+  threadId: OrderBy
+  type: OrderBy
+}
+
+"""Ordering options when selecting data from "message"."""
+input MessageOrderBy {
+  content: OrderBy
+  createdAt: OrderBy
+  messageId: OrderBy
+  message_type_enum: MessageTypeEnumOrderBy
+  relatedMessageId: OrderBy
+  thread: ThreadOrderBy
+  threadId: OrderBy
+  type: OrderBy
+}
+
+"""
+select columns of table "message"
+"""
+enum MessageSelectColumn {
+  """column name"""
+  content
+
+  """column name"""
+  createdAt
+
+  """column name"""
+  messageId
+
+  """column name"""
+  relatedMessageId
+
+  """column name"""
+  threadId
+
+  """column name"""
+  type
+}
+
+"""
+order by stddev() on columns of table "message"
+"""
+input MessageStddevOrderBy {
+  messageId: OrderBy
+  relatedMessageId: OrderBy
+  threadId: OrderBy
+}
+
+"""
+order by stddevPop() on columns of table "message"
+"""
+input MessageStddevPopOrderBy {
+  messageId: OrderBy
+  relatedMessageId: OrderBy
+  threadId: OrderBy
+}
+
+"""
+order by stddevSamp() on columns of table "message"
+"""
+input MessageStddevSampOrderBy {
+  messageId: OrderBy
+  relatedMessageId: OrderBy
+  threadId: OrderBy
+}
+
+"""
+Streaming cursor of the table "message"
+"""
+input MessageStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: MessageStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input MessageStreamCursorValueInput {
+  content: String
+  createdAt: timestamptz
+  messageId: Int
+  relatedMessageId: Int
+  threadId: Int
+  type: String
+}
+
+"""
+order by sum() on columns of table "message"
+"""
+input MessageSumOrderBy {
+  messageId: OrderBy
+  relatedMessageId: OrderBy
+  threadId: OrderBy
+}
+
+"""
+columns and relationships of "message_type_enum"
+"""
+type MessageTypeEnum {
+  """An array relationship"""
+  messages(
+    """distinct select on columns"""
+    distinctOn: [MessageSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [MessageOrderBy!]
+
+    """filter the rows returned"""
+    where: MessageBoolExp
+  ): [Message!]!
+  value: String!
+}
+
+"""
+Boolean expression to filter rows from the table "message_type_enum". All fields are combined with a logical 'AND'.
+"""
+input MessageTypeEnumBoolExp {
+  _and: [MessageTypeEnumBoolExp!]
+  _not: MessageTypeEnumBoolExp
+  _or: [MessageTypeEnumBoolExp!]
+  messages: MessageBoolExp
+  value: StringComparisonExp
+}
+
+"""Ordering options when selecting data from "message_type_enum"."""
+input MessageTypeEnumOrderBy {
+  messagesAggregate: MessageAggregateOrderBy
+  value: OrderBy
+}
+
+"""
+select columns of table "message_type_enum"
+"""
+enum MessageTypeEnumSelectColumn {
+  """column name"""
+  value
+}
+
+"""
+Streaming cursor of the table "message_type_enum"
+"""
+input MessageTypeEnumStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: MessageTypeEnumStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input MessageTypeEnumStreamCursorValueInput {
+  value: String
+}
+
+"""
+order by varPop() on columns of table "message"
+"""
+input MessageVarPopOrderBy {
+  messageId: OrderBy
+  relatedMessageId: OrderBy
+  threadId: OrderBy
+}
+
+"""
+order by varSamp() on columns of table "message"
+"""
+input MessageVarSampOrderBy {
+  messageId: OrderBy
+  relatedMessageId: OrderBy
+  threadId: OrderBy
+}
+
+"""
+order by variance() on columns of table "message"
+"""
+input MessageVarianceOrderBy {
+  messageId: OrderBy
+  relatedMessageId: OrderBy
+  threadId: OrderBy
+}
+
+"""column ordering options"""
+enum OrderBy {
+  """in ascending order, nulls last"""
+  ASC
+
+  """in ascending order, nulls first"""
+  ASC_NULLS_FIRST
+
+  """in ascending order, nulls last"""
+  ASC_NULLS_LAST
+
+  """in descending order, nulls first"""
+  DESC
+
+  """in descending order, nulls first"""
+  DESC_NULLS_FIRST
+
+  """in descending order, nulls last"""
+  DESC_NULLS_LAST
+}
+
+"""
+columns and relationships of "prompt"
+"""
+type Prompt {
+  content: String!
+  promptId: Int!
+  promptName: String
+
+  """An array relationship"""
+  prompt_chatbots(
+    """distinct select on columns"""
+    distinctOn: [PromptChatbotSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [PromptChatbotOrderBy!]
+
+    """filter the rows returned"""
+    where: PromptChatbotBoolExp
+  ): [PromptChatbot!]!
+
+  """An object relationship"""
+  prompt_type_enum: PromptTypeEnum!
+  type: String!
+}
+
+"""
+order by aggregate values of table "prompt"
+"""
+input PromptAggregateOrderBy {
+  avg: PromptAvgOrderBy
+  count: OrderBy
+  max: PromptMaxOrderBy
+  min: PromptMinOrderBy
+  stddev: PromptStddevOrderBy
+  stddevPop: PromptStddevPopOrderBy
+  stddevSamp: PromptStddevSampOrderBy
+  sum: PromptSumOrderBy
+  varPop: PromptVarPopOrderBy
+  varSamp: PromptVarSampOrderBy
+  variance: PromptVarianceOrderBy
+}
+
+"""
+order by avg() on columns of table "prompt"
+"""
+input PromptAvgOrderBy {
+  promptId: OrderBy
+}
+
+"""
+Boolean expression to filter rows from the table "prompt". All fields are combined with a logical 'AND'.
+"""
+input PromptBoolExp {
+  _and: [PromptBoolExp!]
+  _not: PromptBoolExp
+  _or: [PromptBoolExp!]
+  content: StringComparisonExp
+  promptId: IntComparisonExp
+  promptName: StringComparisonExp
+  prompt_chatbots: PromptChatbotBoolExp
+  prompt_type_enum: PromptTypeEnumBoolExp
+  type: StringComparisonExp
+}
+
+"""Junction table for prompts/instructions and chatbots."""
+type PromptChatbot {
+  chabotId: Int!
+
+  """An object relationship"""
+  chatbot: Chatbot!
+
+  """An object relationship"""
+  prompt: Prompt!
+  promptId: Int!
+}
+
+"""
+order by aggregate values of table "prompt_chatbot"
+"""
+input PromptChatbotAggregateOrderBy {
+  avg: PromptChatbotAvgOrderBy
+  count: OrderBy
+  max: PromptChatbotMaxOrderBy
+  min: PromptChatbotMinOrderBy
+  stddev: PromptChatbotStddevOrderBy
+  stddevPop: PromptChatbotStddevPopOrderBy
+  stddevSamp: PromptChatbotStddevSampOrderBy
+  sum: PromptChatbotSumOrderBy
+  varPop: PromptChatbotVarPopOrderBy
+  varSamp: PromptChatbotVarSampOrderBy
+  variance: PromptChatbotVarianceOrderBy
+}
+
+"""
+order by avg() on columns of table "prompt_chatbot"
+"""
+input PromptChatbotAvgOrderBy {
+  chabotId: OrderBy
+  promptId: OrderBy
+}
+
+"""
+Boolean expression to filter rows from the table "prompt_chatbot". All fields are combined with a logical 'AND'.
+"""
+input PromptChatbotBoolExp {
+  _and: [PromptChatbotBoolExp!]
+  _not: PromptChatbotBoolExp
+  _or: [PromptChatbotBoolExp!]
+  chabotId: IntComparisonExp
+  chatbot: ChatbotBoolExp
+  prompt: PromptBoolExp
+  promptId: IntComparisonExp
+}
+
+"""
+order by max() on columns of table "prompt_chatbot"
+"""
+input PromptChatbotMaxOrderBy {
+  chabotId: OrderBy
+  promptId: OrderBy
+}
+
+"""
+order by min() on columns of table "prompt_chatbot"
+"""
+input PromptChatbotMinOrderBy {
+  chabotId: OrderBy
+  promptId: OrderBy
+}
+
+"""Ordering options when selecting data from "prompt_chatbot"."""
+input PromptChatbotOrderBy {
+  chabotId: OrderBy
+  chatbot: ChatbotOrderBy
+  prompt: PromptOrderBy
+  promptId: OrderBy
+}
+
+"""
+select columns of table "prompt_chatbot"
+"""
+enum PromptChatbotSelectColumn {
+  """column name"""
+  chabotId
+
+  """column name"""
+  promptId
+}
+
+"""
+order by stddev() on columns of table "prompt_chatbot"
+"""
+input PromptChatbotStddevOrderBy {
+  chabotId: OrderBy
+  promptId: OrderBy
+}
+
+"""
+order by stddevPop() on columns of table "prompt_chatbot"
+"""
+input PromptChatbotStddevPopOrderBy {
+  chabotId: OrderBy
+  promptId: OrderBy
+}
+
+"""
+order by stddevSamp() on columns of table "prompt_chatbot"
+"""
+input PromptChatbotStddevSampOrderBy {
+  chabotId: OrderBy
+  promptId: OrderBy
+}
+
+"""
+Streaming cursor of the table "prompt_chatbot"
+"""
+input PromptChatbotStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: PromptChatbotStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input PromptChatbotStreamCursorValueInput {
+  chabotId: Int
+  promptId: Int
+}
+
+"""
+order by sum() on columns of table "prompt_chatbot"
+"""
+input PromptChatbotSumOrderBy {
+  chabotId: OrderBy
+  promptId: OrderBy
+}
+
+"""
+order by varPop() on columns of table "prompt_chatbot"
+"""
+input PromptChatbotVarPopOrderBy {
+  chabotId: OrderBy
+  promptId: OrderBy
+}
+
+"""
+order by varSamp() on columns of table "prompt_chatbot"
+"""
+input PromptChatbotVarSampOrderBy {
+  chabotId: OrderBy
+  promptId: OrderBy
+}
+
+"""
+order by variance() on columns of table "prompt_chatbot"
+"""
+input PromptChatbotVarianceOrderBy {
+  chabotId: OrderBy
+  promptId: OrderBy
+}
+
+"""
+order by max() on columns of table "prompt"
+"""
+input PromptMaxOrderBy {
+  content: OrderBy
+  promptId: OrderBy
+  promptName: OrderBy
+  type: OrderBy
+}
+
+"""
+order by min() on columns of table "prompt"
+"""
+input PromptMinOrderBy {
+  content: OrderBy
+  promptId: OrderBy
+  promptName: OrderBy
+  type: OrderBy
+}
+
+"""Ordering options when selecting data from "prompt"."""
+input PromptOrderBy {
+  content: OrderBy
+  promptId: OrderBy
+  promptName: OrderBy
+  prompt_chatbotsAggregate: PromptChatbotAggregateOrderBy
+  prompt_type_enum: PromptTypeEnumOrderBy
+  type: OrderBy
+}
+
+"""
+select columns of table "prompt"
+"""
+enum PromptSelectColumn {
+  """column name"""
+  content
+
+  """column name"""
+  promptId
+
+  """column name"""
+  promptName
+
+  """column name"""
+  type
+}
+
+"""
+order by stddev() on columns of table "prompt"
+"""
+input PromptStddevOrderBy {
+  promptId: OrderBy
+}
+
+"""
+order by stddevPop() on columns of table "prompt"
+"""
+input PromptStddevPopOrderBy {
+  promptId: OrderBy
+}
+
+"""
+order by stddevSamp() on columns of table "prompt"
+"""
+input PromptStddevSampOrderBy {
+  promptId: OrderBy
+}
+
+"""
+Streaming cursor of the table "prompt"
+"""
+input PromptStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: PromptStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input PromptStreamCursorValueInput {
+  content: String
+  promptId: Int
+  promptName: String
+  type: String
+}
+
+"""
+order by sum() on columns of table "prompt"
+"""
+input PromptSumOrderBy {
+  promptId: OrderBy
+}
+
+"""
+columns and relationships of "prompt_type_enum"
+"""
+type PromptTypeEnum {
+  """An array relationship"""
+  prompts(
+    """distinct select on columns"""
+    distinctOn: [PromptSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [PromptOrderBy!]
+
+    """filter the rows returned"""
+    where: PromptBoolExp
+  ): [Prompt!]!
+  value: String!
+}
+
+"""
+Boolean expression to filter rows from the table "prompt_type_enum". All fields are combined with a logical 'AND'.
+"""
+input PromptTypeEnumBoolExp {
+  _and: [PromptTypeEnumBoolExp!]
+  _not: PromptTypeEnumBoolExp
+  _or: [PromptTypeEnumBoolExp!]
+  prompts: PromptBoolExp
+  value: StringComparisonExp
+}
+
+"""Ordering options when selecting data from "prompt_type_enum"."""
+input PromptTypeEnumOrderBy {
+  promptsAggregate: PromptAggregateOrderBy
+  value: OrderBy
+}
+
+"""
+select columns of table "prompt_type_enum"
+"""
+enum PromptTypeEnumSelectColumn {
+  """column name"""
+  value
+}
+
+"""
+Streaming cursor of the table "prompt_type_enum"
+"""
+input PromptTypeEnumStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: PromptTypeEnumStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input PromptTypeEnumStreamCursorValueInput {
+  value: String
+}
+
+"""
+order by varPop() on columns of table "prompt"
+"""
+input PromptVarPopOrderBy {
+  promptId: OrderBy
+}
+
+"""
+order by varSamp() on columns of table "prompt"
+"""
+input PromptVarSampOrderBy {
+  promptId: OrderBy
+}
+
+"""
+order by variance() on columns of table "prompt"
+"""
+input PromptVarianceOrderBy {
+  promptId: OrderBy
+}
+
+"""
+Boolean expression to compare columns of type "String". All fields are combined with logical 'AND'.
+"""
+input StringComparisonExp {
+  _eq: String
+  _gt: String
+  _gte: String
+
+  """does the column match the given case-insensitive pattern"""
+  _ilike: String
+  _in: [String!]
+
+  """
+  does the column match the given POSIX regular expression, case insensitive
+  """
+  _iregex: String
+  _isNull: Boolean
+
+  """does the column match the given pattern"""
+  _like: String
+  _lt: String
+  _lte: String
+  _neq: String
+
+  """does the column NOT match the given case-insensitive pattern"""
+  _nilike: String
+  _nin: [String!]
+
+  """
+  does the column NOT match the given POSIX regular expression, case insensitive
+  """
+  _niregex: String
+
+  """does the column NOT match the given pattern"""
+  _nlike: String
+
+  """
+  does the column NOT match the given POSIX regular expression, case sensitive
+  """
+  _nregex: String
+
+  """does the column NOT match the given SQL regular expression"""
+  _nsimilar: String
+
+  """
+  does the column match the given POSIX regular expression, case sensitive
+  """
+  _regex: String
+
+  """does the column match the given SQL regular expression"""
+  _similar: String
+}
+
+"""
+columns and relationships of "thread"
+"""
+type Thread {
+  """An object relationship"""
+  chatbot: Chatbot!
+  chatbotId: Int!
+  createdAt: timestamptz!
+
+  """An array relationship"""
+  messages(
+    """distinct select on columns"""
+    distinctOn: [MessageSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [MessageOrderBy!]
+
+    """filter the rows returned"""
+    where: MessageBoolExp
+  ): [Message!]!
+  threadId: Int!
+  updatedAt: timestamptz!
+
+  """An object relationship"""
+  user: User!
+  userId: Int!
+}
+
+"""
+order by aggregate values of table "thread"
+"""
+input ThreadAggregateOrderBy {
+  avg: ThreadAvgOrderBy
+  count: OrderBy
+  max: ThreadMaxOrderBy
+  min: ThreadMinOrderBy
+  stddev: ThreadStddevOrderBy
+  stddevPop: ThreadStddevPopOrderBy
+  stddevSamp: ThreadStddevSampOrderBy
+  sum: ThreadSumOrderBy
+  varPop: ThreadVarPopOrderBy
+  varSamp: ThreadVarSampOrderBy
+  variance: ThreadVarianceOrderBy
+}
+
+"""
+order by avg() on columns of table "thread"
+"""
+input ThreadAvgOrderBy {
+  chatbotId: OrderBy
+  threadId: OrderBy
+  userId: OrderBy
+}
+
+"""
+Boolean expression to filter rows from the table "thread". All fields are combined with a logical 'AND'.
+"""
+input ThreadBoolExp {
+  _and: [ThreadBoolExp!]
+  _not: ThreadBoolExp
+  _or: [ThreadBoolExp!]
+  chatbot: ChatbotBoolExp
+  chatbotId: IntComparisonExp
+  createdAt: TimestamptzComparisonExp
+  messages: MessageBoolExp
+  threadId: IntComparisonExp
+  updatedAt: TimestamptzComparisonExp
+  user: UserBoolExp
+  userId: IntComparisonExp
+}
+
+"""
+order by max() on columns of table "thread"
+"""
+input ThreadMaxOrderBy {
+  chatbotId: OrderBy
+  createdAt: OrderBy
+  threadId: OrderBy
+  updatedAt: OrderBy
+  userId: OrderBy
+}
+
+"""
+order by min() on columns of table "thread"
+"""
+input ThreadMinOrderBy {
+  chatbotId: OrderBy
+  createdAt: OrderBy
+  threadId: OrderBy
+  updatedAt: OrderBy
+  userId: OrderBy
+}
+
+"""Ordering options when selecting data from "thread"."""
+input ThreadOrderBy {
+  chatbot: ChatbotOrderBy
+  chatbotId: OrderBy
+  createdAt: OrderBy
+  messagesAggregate: MessageAggregateOrderBy
+  threadId: OrderBy
+  updatedAt: OrderBy
+  user: UserOrderBy
+  userId: OrderBy
+}
+
+"""
+select columns of table "thread"
+"""
+enum ThreadSelectColumn {
+  """column name"""
+  chatbotId
+
+  """column name"""
+  createdAt
+
+  """column name"""
+  threadId
+
+  """column name"""
+  updatedAt
+
+  """column name"""
+  userId
+}
+
+"""
+order by stddev() on columns of table "thread"
+"""
+input ThreadStddevOrderBy {
+  chatbotId: OrderBy
+  threadId: OrderBy
+  userId: OrderBy
+}
+
+"""
+order by stddevPop() on columns of table "thread"
+"""
+input ThreadStddevPopOrderBy {
+  chatbotId: OrderBy
+  threadId: OrderBy
+  userId: OrderBy
+}
+
+"""
+order by stddevSamp() on columns of table "thread"
+"""
+input ThreadStddevSampOrderBy {
+  chatbotId: OrderBy
+  threadId: OrderBy
+  userId: OrderBy
+}
+
+"""
+Streaming cursor of the table "thread"
+"""
+input ThreadStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: ThreadStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input ThreadStreamCursorValueInput {
+  chatbotId: Int
+  createdAt: timestamptz
+  threadId: Int
+  updatedAt: timestamptz
+  userId: Int
+}
+
+"""
+order by sum() on columns of table "thread"
+"""
+input ThreadSumOrderBy {
+  chatbotId: OrderBy
+  threadId: OrderBy
+  userId: OrderBy
+}
+
+"""
+order by varPop() on columns of table "thread"
+"""
+input ThreadVarPopOrderBy {
+  chatbotId: OrderBy
+  threadId: OrderBy
+  userId: OrderBy
+}
+
+"""
+order by varSamp() on columns of table "thread"
+"""
+input ThreadVarSampOrderBy {
+  chatbotId: OrderBy
+  threadId: OrderBy
+  userId: OrderBy
+}
+
+"""
+order by variance() on columns of table "thread"
+"""
+input ThreadVarianceOrderBy {
+  chatbotId: OrderBy
+  threadId: OrderBy
+  userId: OrderBy
+}
+
+"""
+Boolean expression to compare columns of type "timestamptz". All fields are combined with logical 'AND'.
+"""
+input TimestamptzComparisonExp {
+  _eq: timestamptz
+  _gt: timestamptz
+  _gte: timestamptz
+  _in: [timestamptz!]
+  _isNull: Boolean
+  _lt: timestamptz
+  _lte: timestamptz
+  _neq: timestamptz
+  _nin: [timestamptz!]
+}
+
+"""Table storing information about registered users."""
+type User {
+  dateJoined: timestamptz!
+  email: String!
+
+  """An array relationship"""
+  gpt_chats(
+    """distinct select on columns"""
+    distinctOn: [GptChatSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [GptChatOrderBy!]
+
+    """filter the rows returned"""
+    where: GptChatBoolExp
+  ): [GptChat!]!
+  lastLogin: timestamptz
+  password: String!
+  profilePicture: String
+
+  """An array relationship"""
+  threads(
+    """distinct select on columns"""
+    distinctOn: [ThreadSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ThreadOrderBy!]
+
+    """filter the rows returned"""
+    where: ThreadBoolExp
+  ): [Thread!]!
+  userId: Int!
+
+  """An array relationship"""
+  user_chatbot_preferences(
+    """distinct select on columns"""
+    distinctOn: [UserChatbotPreferenceSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [UserChatbotPreferenceOrderBy!]
+
+    """filter the rows returned"""
+    where: UserChatbotPreferenceBoolExp
+  ): [UserChatbotPreference!]!
+  username: String!
+}
+
+"""
+Boolean expression to filter rows from the table "user". All fields are combined with a logical 'AND'.
+"""
+input UserBoolExp {
+  _and: [UserBoolExp!]
+  _not: UserBoolExp
+  _or: [UserBoolExp!]
+  dateJoined: TimestamptzComparisonExp
+  email: StringComparisonExp
+  gpt_chats: GptChatBoolExp
+  lastLogin: TimestamptzComparisonExp
+  password: StringComparisonExp
+  profilePicture: StringComparisonExp
+  threads: ThreadBoolExp
+  userId: IntComparisonExp
+  user_chatbot_preferences: UserChatbotPreferenceBoolExp
+  username: StringComparisonExp
+}
+
+"""
+This table stores user-specific preferences for quick access when they interact with a chatbot.
+"""
+type UserChatbotPreference {
+  """An object relationship"""
+  chatbot: Chatbot!
+  chatbotId: Int!
+
+  """An object relationship"""
+  default_complexity_enum: DefaultComplexityEnum!
+
+  """An object relationship"""
+  default_length_enum: DefaultLengthEnum!
+
+  """An object relationship"""
+  default_tone_enum: DefaultToneEnum!
+
+  """An object relationship"""
+  default_type_enum: DefaultTypeEnum!
+  favorite: Boolean
+  preferenceId: Int!
+  preferredComplexity: String!
+  preferredLength: String!
+  preferredTone: String!
+  preferredType: String!
+
+  """An object relationship"""
+  user: User!
+  userId: Int!
+}
+
+"""
+order by aggregate values of table "user_chatbot_preference"
+"""
+input UserChatbotPreferenceAggregateOrderBy {
+  avg: UserChatbotPreferenceAvgOrderBy
+  count: OrderBy
+  max: UserChatbotPreferenceMaxOrderBy
+  min: UserChatbotPreferenceMinOrderBy
+  stddev: UserChatbotPreferenceStddevOrderBy
+  stddevPop: UserChatbotPreferenceStddevPopOrderBy
+  stddevSamp: UserChatbotPreferenceStddevSampOrderBy
+  sum: UserChatbotPreferenceSumOrderBy
+  varPop: UserChatbotPreferenceVarPopOrderBy
+  varSamp: UserChatbotPreferenceVarSampOrderBy
+  variance: UserChatbotPreferenceVarianceOrderBy
+}
+
+"""
+order by avg() on columns of table "user_chatbot_preference"
+"""
+input UserChatbotPreferenceAvgOrderBy {
+  chatbotId: OrderBy
+  preferenceId: OrderBy
+  userId: OrderBy
+}
+
+"""
+Boolean expression to filter rows from the table "user_chatbot_preference". All fields are combined with a logical 'AND'.
+"""
+input UserChatbotPreferenceBoolExp {
+  _and: [UserChatbotPreferenceBoolExp!]
+  _not: UserChatbotPreferenceBoolExp
+  _or: [UserChatbotPreferenceBoolExp!]
+  chatbot: ChatbotBoolExp
+  chatbotId: IntComparisonExp
+  default_complexity_enum: DefaultComplexityEnumBoolExp
+  default_length_enum: DefaultLengthEnumBoolExp
+  default_tone_enum: DefaultToneEnumBoolExp
+  default_type_enum: DefaultTypeEnumBoolExp
+  favorite: BooleanComparisonExp
+  preferenceId: IntComparisonExp
+  preferredComplexity: StringComparisonExp
+  preferredLength: StringComparisonExp
+  preferredTone: StringComparisonExp
+  preferredType: StringComparisonExp
+  user: UserBoolExp
+  userId: IntComparisonExp
+}
+
+"""
+order by max() on columns of table "user_chatbot_preference"
+"""
+input UserChatbotPreferenceMaxOrderBy {
+  chatbotId: OrderBy
+  preferenceId: OrderBy
+  preferredComplexity: OrderBy
+  preferredLength: OrderBy
+  preferredTone: OrderBy
+  preferredType: OrderBy
+  userId: OrderBy
+}
+
+"""
+order by min() on columns of table "user_chatbot_preference"
+"""
+input UserChatbotPreferenceMinOrderBy {
+  chatbotId: OrderBy
+  preferenceId: OrderBy
+  preferredComplexity: OrderBy
+  preferredLength: OrderBy
+  preferredTone: OrderBy
+  preferredType: OrderBy
+  userId: OrderBy
+}
+
+"""Ordering options when selecting data from "user_chatbot_preference"."""
+input UserChatbotPreferenceOrderBy {
+  chatbot: ChatbotOrderBy
+  chatbotId: OrderBy
+  default_complexity_enum: DefaultComplexityEnumOrderBy
+  default_length_enum: DefaultLengthEnumOrderBy
+  default_tone_enum: DefaultToneEnumOrderBy
+  default_type_enum: DefaultTypeEnumOrderBy
+  favorite: OrderBy
+  preferenceId: OrderBy
+  preferredComplexity: OrderBy
+  preferredLength: OrderBy
+  preferredTone: OrderBy
+  preferredType: OrderBy
+  user: UserOrderBy
+  userId: OrderBy
+}
+
+"""
+select columns of table "user_chatbot_preference"
+"""
+enum UserChatbotPreferenceSelectColumn {
+  """column name"""
+  chatbotId
+
+  """column name"""
+  favorite
+
+  """column name"""
+  preferenceId
+
+  """column name"""
+  preferredComplexity
+
+  """column name"""
+  preferredLength
+
+  """column name"""
+  preferredTone
+
+  """column name"""
+  preferredType
+
+  """column name"""
+  userId
+}
+
+"""
+order by stddev() on columns of table "user_chatbot_preference"
+"""
+input UserChatbotPreferenceStddevOrderBy {
+  chatbotId: OrderBy
+  preferenceId: OrderBy
+  userId: OrderBy
+}
+
+"""
+order by stddevPop() on columns of table "user_chatbot_preference"
+"""
+input UserChatbotPreferenceStddevPopOrderBy {
+  chatbotId: OrderBy
+  preferenceId: OrderBy
+  userId: OrderBy
+}
+
+"""
+order by stddevSamp() on columns of table "user_chatbot_preference"
+"""
+input UserChatbotPreferenceStddevSampOrderBy {
+  chatbotId: OrderBy
+  preferenceId: OrderBy
+  userId: OrderBy
+}
+
+"""
+Streaming cursor of the table "user_chatbot_preference"
+"""
+input UserChatbotPreferenceStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: UserChatbotPreferenceStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input UserChatbotPreferenceStreamCursorValueInput {
+  chatbotId: Int
+  favorite: Boolean
+  preferenceId: Int
+  preferredComplexity: String
+  preferredLength: String
+  preferredTone: String
+  preferredType: String
+  userId: Int
+}
+
+"""
+order by sum() on columns of table "user_chatbot_preference"
+"""
+input UserChatbotPreferenceSumOrderBy {
+  chatbotId: OrderBy
+  preferenceId: OrderBy
+  userId: OrderBy
+}
+
+"""
+order by varPop() on columns of table "user_chatbot_preference"
+"""
+input UserChatbotPreferenceVarPopOrderBy {
+  chatbotId: OrderBy
+  preferenceId: OrderBy
+  userId: OrderBy
+}
+
+"""
+order by varSamp() on columns of table "user_chatbot_preference"
+"""
+input UserChatbotPreferenceVarSampOrderBy {
+  chatbotId: OrderBy
+  preferenceId: OrderBy
+  userId: OrderBy
+}
+
+"""
+order by variance() on columns of table "user_chatbot_preference"
+"""
+input UserChatbotPreferenceVarianceOrderBy {
+  chatbotId: OrderBy
+  preferenceId: OrderBy
+  userId: OrderBy
+}
+
+"""Ordering options when selecting data from "user"."""
+input UserOrderBy {
+  dateJoined: OrderBy
+  email: OrderBy
+  gpt_chatsAggregate: GptChatAggregateOrderBy
+  lastLogin: OrderBy
+  password: OrderBy
+  profilePicture: OrderBy
+  threadsAggregate: ThreadAggregateOrderBy
+  userId: OrderBy
+  user_chatbot_preferencesAggregate: UserChatbotPreferenceAggregateOrderBy
+  username: OrderBy
+}
+
+"""
+select columns of table "user"
+"""
+enum UserSelectColumn {
+  """column name"""
+  dateJoined
+
+  """column name"""
+  email
+
+  """column name"""
+  lastLogin
+
+  """column name"""
+  password
+
+  """column name"""
+  profilePicture
+
+  """column name"""
+  userId
+
+  """column name"""
+  username
+}
+
+"""
+Streaming cursor of the table "user"
+"""
+input UserStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: UserStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input UserStreamCursorValueInput {
+  dateJoined: timestamptz
+  email: String
+  lastLogin: timestamptz
+  password: String
+  profilePicture: String
+  userId: Int
+  username: String
+}
+
+type query_root {
+  """
+  fetch data from the table: "category"
+  """
+  category(
+    """distinct select on columns"""
+    distinctOn: [CategorySelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [CategoryOrderBy!]
+
+    """filter the rows returned"""
+    where: CategoryBoolExp
+  ): [Category!]!
+
+  """fetch data from the table: "category" using primary key columns"""
+  categoryByPk(categoryId: Int!): Category
+
+  """
+  fetch data from the table: "chatbot"
+  """
+  chatbot(
+    """distinct select on columns"""
+    distinctOn: [ChatbotSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotBoolExp
+  ): [Chatbot!]!
+
+  """fetch data from the table: "chatbot" using primary key columns"""
+  chatbotByPk(chatbotId: Int!): Chatbot
+
+  """
+  fetch data from the table: "chatbot_category"
+  """
+  chatbotCategory(
+    """distinct select on columns"""
+    distinctOn: [ChatbotCategorySelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotCategoryOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotCategoryBoolExp
+  ): [ChatbotCategory!]!
+
+  """
+  fetch data from the table: "chatbot_category" using primary key columns
+  """
+  chatbotCategoryByPk(categoryId: Int!, chatbotId: Int!): ChatbotCategory
+
+  """
+  fetch data from the table: "default_complexity_enum"
+  """
+  defaultComplexityEnum(
+    """distinct select on columns"""
+    distinctOn: [DefaultComplexityEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [DefaultComplexityEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: DefaultComplexityEnumBoolExp
+  ): [DefaultComplexityEnum!]!
+
+  """
+  fetch data from the table: "default_complexity_enum" using primary key columns
+  """
+  defaultComplexityEnumByPk(value: String!): DefaultComplexityEnum
+
+  """
+  fetch data from the table: "default_length_enum"
+  """
+  defaultLengthEnum(
+    """distinct select on columns"""
+    distinctOn: [DefaultLengthEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [DefaultLengthEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: DefaultLengthEnumBoolExp
+  ): [DefaultLengthEnum!]!
+
+  """
+  fetch data from the table: "default_length_enum" using primary key columns
+  """
+  defaultLengthEnumByPk(value: String!): DefaultLengthEnum
+
+  """
+  fetch data from the table: "default_tone_enum"
+  """
+  defaultToneEnum(
+    """distinct select on columns"""
+    distinctOn: [DefaultToneEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [DefaultToneEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: DefaultToneEnumBoolExp
+  ): [DefaultToneEnum!]!
+
+  """
+  fetch data from the table: "default_tone_enum" using primary key columns
+  """
+  defaultToneEnumByPk(value: String!): DefaultToneEnum
+
+  """
+  fetch data from the table: "default_type_enum"
+  """
+  defaultTypeEnum(
+    """distinct select on columns"""
+    distinctOn: [DefaultTypeEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [DefaultTypeEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: DefaultTypeEnumBoolExp
+  ): [DefaultTypeEnum!]!
+
+  """
+  fetch data from the table: "default_type_enum" using primary key columns
+  """
+  defaultTypeEnumByPk(value: String!): DefaultTypeEnum
+
+  """
+  fetch data from the table: "gpt_chat"
+  """
+  gptChat(
+    """distinct select on columns"""
+    distinctOn: [GptChatSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [GptChatOrderBy!]
+
+    """filter the rows returned"""
+    where: GptChatBoolExp
+  ): [GptChat!]!
+
+  """fetch data from the table: "gpt_chat" using primary key columns"""
+  gptChatByPk(gptChatId: Int!): GptChat
+
+  """
+  fetch data from the table: "message"
+  """
+  message(
+    """distinct select on columns"""
+    distinctOn: [MessageSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [MessageOrderBy!]
+
+    """filter the rows returned"""
+    where: MessageBoolExp
+  ): [Message!]!
+
+  """fetch data from the table: "message" using primary key columns"""
+  messageByPk(messageId: Int!): Message
+
+  """
+  fetch data from the table: "message_type_enum"
+  """
+  messageTypeEnum(
+    """distinct select on columns"""
+    distinctOn: [MessageTypeEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [MessageTypeEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: MessageTypeEnumBoolExp
+  ): [MessageTypeEnum!]!
+
+  """
+  fetch data from the table: "message_type_enum" using primary key columns
+  """
+  messageTypeEnumByPk(value: String!): MessageTypeEnum
+
+  """
+  fetch data from the table: "prompt"
+  """
+  prompt(
+    """distinct select on columns"""
+    distinctOn: [PromptSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [PromptOrderBy!]
+
+    """filter the rows returned"""
+    where: PromptBoolExp
+  ): [Prompt!]!
+
+  """fetch data from the table: "prompt" using primary key columns"""
+  promptByPk(promptId: Int!): Prompt
+
+  """
+  fetch data from the table: "prompt_chatbot"
+  """
+  promptChatbot(
+    """distinct select on columns"""
+    distinctOn: [PromptChatbotSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [PromptChatbotOrderBy!]
+
+    """filter the rows returned"""
+    where: PromptChatbotBoolExp
+  ): [PromptChatbot!]!
+
+  """fetch data from the table: "prompt_chatbot" using primary key columns"""
+  promptChatbotByPk(chabotId: Int!, promptId: Int!): PromptChatbot
+
+  """
+  fetch data from the table: "prompt_type_enum"
+  """
+  promptTypeEnum(
+    """distinct select on columns"""
+    distinctOn: [PromptTypeEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [PromptTypeEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: PromptTypeEnumBoolExp
+  ): [PromptTypeEnum!]!
+
+  """
+  fetch data from the table: "prompt_type_enum" using primary key columns
+  """
+  promptTypeEnumByPk(value: String!): PromptTypeEnum
+
+  """
+  fetch data from the table: "thread"
+  """
+  thread(
+    """distinct select on columns"""
+    distinctOn: [ThreadSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ThreadOrderBy!]
+
+    """filter the rows returned"""
+    where: ThreadBoolExp
+  ): [Thread!]!
+
+  """fetch data from the table: "thread" using primary key columns"""
+  threadByPk(threadId: Int!): Thread
+
+  """
+  fetch data from the table: "user"
+  """
+  user(
+    """distinct select on columns"""
+    distinctOn: [UserSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [UserOrderBy!]
+
+    """filter the rows returned"""
+    where: UserBoolExp
+  ): [User!]!
+
+  """fetch data from the table: "user" using primary key columns"""
+  userByPk(userId: Int!): User
+
+  """
+  fetch data from the table: "user_chatbot_preference"
+  """
+  userChatbotPreference(
+    """distinct select on columns"""
+    distinctOn: [UserChatbotPreferenceSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [UserChatbotPreferenceOrderBy!]
+
+    """filter the rows returned"""
+    where: UserChatbotPreferenceBoolExp
+  ): [UserChatbotPreference!]!
+
+  """
+  fetch data from the table: "user_chatbot_preference" using primary key columns
+  """
+  userChatbotPreferenceByPk(preferenceId: Int!): UserChatbotPreference
+}
+
+type subscription_root {
+  """
+  fetch data from the table: "category"
+  """
+  category(
+    """distinct select on columns"""
+    distinctOn: [CategorySelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [CategoryOrderBy!]
+
+    """filter the rows returned"""
+    where: CategoryBoolExp
+  ): [Category!]!
+
+  """fetch data from the table: "category" using primary key columns"""
+  categoryByPk(categoryId: Int!): Category
+
+  """
+  fetch data from the table in a streaming manner: "category"
+  """
+  categoryStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [CategoryStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: CategoryBoolExp
+  ): [Category!]!
+
+  """
+  fetch data from the table: "chatbot"
+  """
+  chatbot(
+    """distinct select on columns"""
+    distinctOn: [ChatbotSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotBoolExp
+  ): [Chatbot!]!
+
+  """fetch data from the table: "chatbot" using primary key columns"""
+  chatbotByPk(chatbotId: Int!): Chatbot
+
+  """
+  fetch data from the table: "chatbot_category"
+  """
+  chatbotCategory(
+    """distinct select on columns"""
+    distinctOn: [ChatbotCategorySelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotCategoryOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotCategoryBoolExp
+  ): [ChatbotCategory!]!
+
+  """
+  fetch data from the table: "chatbot_category" using primary key columns
+  """
+  chatbotCategoryByPk(categoryId: Int!, chatbotId: Int!): ChatbotCategory
+
+  """
+  fetch data from the table in a streaming manner: "chatbot_category"
+  """
+  chatbotCategoryStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [ChatbotCategoryStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: ChatbotCategoryBoolExp
+  ): [ChatbotCategory!]!
+
+  """
+  fetch data from the table in a streaming manner: "chatbot"
+  """
+  chatbotStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [ChatbotStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: ChatbotBoolExp
+  ): [Chatbot!]!
+
+  """
+  fetch data from the table: "default_complexity_enum"
+  """
+  defaultComplexityEnum(
+    """distinct select on columns"""
+    distinctOn: [DefaultComplexityEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [DefaultComplexityEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: DefaultComplexityEnumBoolExp
+  ): [DefaultComplexityEnum!]!
+
+  """
+  fetch data from the table: "default_complexity_enum" using primary key columns
+  """
+  defaultComplexityEnumByPk(value: String!): DefaultComplexityEnum
+
+  """
+  fetch data from the table in a streaming manner: "default_complexity_enum"
+  """
+  defaultComplexityEnumStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [DefaultComplexityEnumStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: DefaultComplexityEnumBoolExp
+  ): [DefaultComplexityEnum!]!
+
+  """
+  fetch data from the table: "default_length_enum"
+  """
+  defaultLengthEnum(
+    """distinct select on columns"""
+    distinctOn: [DefaultLengthEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [DefaultLengthEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: DefaultLengthEnumBoolExp
+  ): [DefaultLengthEnum!]!
+
+  """
+  fetch data from the table: "default_length_enum" using primary key columns
+  """
+  defaultLengthEnumByPk(value: String!): DefaultLengthEnum
+
+  """
+  fetch data from the table in a streaming manner: "default_length_enum"
+  """
+  defaultLengthEnumStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [DefaultLengthEnumStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: DefaultLengthEnumBoolExp
+  ): [DefaultLengthEnum!]!
+
+  """
+  fetch data from the table: "default_tone_enum"
+  """
+  defaultToneEnum(
+    """distinct select on columns"""
+    distinctOn: [DefaultToneEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [DefaultToneEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: DefaultToneEnumBoolExp
+  ): [DefaultToneEnum!]!
+
+  """
+  fetch data from the table: "default_tone_enum" using primary key columns
+  """
+  defaultToneEnumByPk(value: String!): DefaultToneEnum
+
+  """
+  fetch data from the table in a streaming manner: "default_tone_enum"
+  """
+  defaultToneEnumStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [DefaultToneEnumStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: DefaultToneEnumBoolExp
+  ): [DefaultToneEnum!]!
+
+  """
+  fetch data from the table: "default_type_enum"
+  """
+  defaultTypeEnum(
+    """distinct select on columns"""
+    distinctOn: [DefaultTypeEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [DefaultTypeEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: DefaultTypeEnumBoolExp
+  ): [DefaultTypeEnum!]!
+
+  """
+  fetch data from the table: "default_type_enum" using primary key columns
+  """
+  defaultTypeEnumByPk(value: String!): DefaultTypeEnum
+
+  """
+  fetch data from the table in a streaming manner: "default_type_enum"
+  """
+  defaultTypeEnumStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [DefaultTypeEnumStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: DefaultTypeEnumBoolExp
+  ): [DefaultTypeEnum!]!
+
+  """
+  fetch data from the table: "gpt_chat"
+  """
+  gptChat(
+    """distinct select on columns"""
+    distinctOn: [GptChatSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [GptChatOrderBy!]
+
+    """filter the rows returned"""
+    where: GptChatBoolExp
+  ): [GptChat!]!
+
+  """fetch data from the table: "gpt_chat" using primary key columns"""
+  gptChatByPk(gptChatId: Int!): GptChat
+
+  """
+  fetch data from the table in a streaming manner: "gpt_chat"
+  """
+  gptChatStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [GptChatStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: GptChatBoolExp
+  ): [GptChat!]!
+
+  """
+  fetch data from the table: "message"
+  """
+  message(
+    """distinct select on columns"""
+    distinctOn: [MessageSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [MessageOrderBy!]
+
+    """filter the rows returned"""
+    where: MessageBoolExp
+  ): [Message!]!
+
+  """fetch data from the table: "message" using primary key columns"""
+  messageByPk(messageId: Int!): Message
+
+  """
+  fetch data from the table in a streaming manner: "message"
+  """
+  messageStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [MessageStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: MessageBoolExp
+  ): [Message!]!
+
+  """
+  fetch data from the table: "message_type_enum"
+  """
+  messageTypeEnum(
+    """distinct select on columns"""
+    distinctOn: [MessageTypeEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [MessageTypeEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: MessageTypeEnumBoolExp
+  ): [MessageTypeEnum!]!
+
+  """
+  fetch data from the table: "message_type_enum" using primary key columns
+  """
+  messageTypeEnumByPk(value: String!): MessageTypeEnum
+
+  """
+  fetch data from the table in a streaming manner: "message_type_enum"
+  """
+  messageTypeEnumStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [MessageTypeEnumStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: MessageTypeEnumBoolExp
+  ): [MessageTypeEnum!]!
+
+  """
+  fetch data from the table: "prompt"
+  """
+  prompt(
+    """distinct select on columns"""
+    distinctOn: [PromptSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [PromptOrderBy!]
+
+    """filter the rows returned"""
+    where: PromptBoolExp
+  ): [Prompt!]!
+
+  """fetch data from the table: "prompt" using primary key columns"""
+  promptByPk(promptId: Int!): Prompt
+
+  """
+  fetch data from the table: "prompt_chatbot"
+  """
+  promptChatbot(
+    """distinct select on columns"""
+    distinctOn: [PromptChatbotSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [PromptChatbotOrderBy!]
+
+    """filter the rows returned"""
+    where: PromptChatbotBoolExp
+  ): [PromptChatbot!]!
+
+  """fetch data from the table: "prompt_chatbot" using primary key columns"""
+  promptChatbotByPk(chabotId: Int!, promptId: Int!): PromptChatbot
+
+  """
+  fetch data from the table in a streaming manner: "prompt_chatbot"
+  """
+  promptChatbotStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [PromptChatbotStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: PromptChatbotBoolExp
+  ): [PromptChatbot!]!
+
+  """
+  fetch data from the table in a streaming manner: "prompt"
+  """
+  promptStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [PromptStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: PromptBoolExp
+  ): [Prompt!]!
+
+  """
+  fetch data from the table: "prompt_type_enum"
+  """
+  promptTypeEnum(
+    """distinct select on columns"""
+    distinctOn: [PromptTypeEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [PromptTypeEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: PromptTypeEnumBoolExp
+  ): [PromptTypeEnum!]!
+
+  """
+  fetch data from the table: "prompt_type_enum" using primary key columns
+  """
+  promptTypeEnumByPk(value: String!): PromptTypeEnum
+
+  """
+  fetch data from the table in a streaming manner: "prompt_type_enum"
+  """
+  promptTypeEnumStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [PromptTypeEnumStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: PromptTypeEnumBoolExp
+  ): [PromptTypeEnum!]!
+
+  """
+  fetch data from the table: "thread"
+  """
+  thread(
+    """distinct select on columns"""
+    distinctOn: [ThreadSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ThreadOrderBy!]
+
+    """filter the rows returned"""
+    where: ThreadBoolExp
+  ): [Thread!]!
+
+  """fetch data from the table: "thread" using primary key columns"""
+  threadByPk(threadId: Int!): Thread
+
+  """
+  fetch data from the table in a streaming manner: "thread"
+  """
+  threadStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [ThreadStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: ThreadBoolExp
+  ): [Thread!]!
+
+  """
+  fetch data from the table: "user"
+  """
+  user(
+    """distinct select on columns"""
+    distinctOn: [UserSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [UserOrderBy!]
+
+    """filter the rows returned"""
+    where: UserBoolExp
+  ): [User!]!
+
+  """fetch data from the table: "user" using primary key columns"""
+  userByPk(userId: Int!): User
+
+  """
+  fetch data from the table: "user_chatbot_preference"
+  """
+  userChatbotPreference(
+    """distinct select on columns"""
+    distinctOn: [UserChatbotPreferenceSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [UserChatbotPreferenceOrderBy!]
+
+    """filter the rows returned"""
+    where: UserChatbotPreferenceBoolExp
+  ): [UserChatbotPreference!]!
+
+  """
+  fetch data from the table: "user_chatbot_preference" using primary key columns
+  """
+  userChatbotPreferenceByPk(preferenceId: Int!): UserChatbotPreference
+
+  """
+  fetch data from the table in a streaming manner: "user_chatbot_preference"
+  """
+  userChatbotPreferenceStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [UserChatbotPreferenceStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: UserChatbotPreferenceBoolExp
+  ): [UserChatbotPreference!]!
+
+  """
+  fetch data from the table in a streaming manner: "user"
+  """
+  userStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [UserStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: UserBoolExp
+  ): [User!]!
+}
+
+scalar timestamptz
