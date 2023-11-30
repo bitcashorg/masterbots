@@ -36,7 +36,7 @@ const expectedUserSchema: SchemaObject = {
 const expectedChatbotSchema: SchemaObject = {
     data: {
         chatbot: [{
-            chatbot_id: "number",  // Updated from "number" to "string"
+            chatbotId: "number",  // Updated from "number" to "string"
             name: "string",
             avatar: "string",
             description: "string",
@@ -150,7 +150,7 @@ function validateData(data: any, schema: SchemaObject): boolean {
 
 
 type Chatbot = {
-    chatbot_id: number;
+    chatbotId: number;
     name: string;
     description?: string;
     avatar?: string;
@@ -174,7 +174,7 @@ type User = {
 };
 
 const defaultChatbot: Chatbot = {
-    chatbot_id: 0,
+    chatbotId: 0,
     name: 'Default Bot',
     defaultTone: 'neutral',
     defaultLength: 'concise',
@@ -214,7 +214,7 @@ function Chat() {
                         query: `
                         query {
                             chatbot {
-                                chatbot_id
+                                chatbotId
                                 name
                                 avatar
                                 description
@@ -426,8 +426,8 @@ function Chat() {
     useEffect(() => {
         console.log("useEffect triggered by changes in selectedChatbot or selectedUser.");
         if (selectedChatbot && selectedUser) {
-            console.log(`Selected chatbot: ${selectedChatbot.chatbot_id}, Selected user: ${selectedUser.user_id}`);
-            fetchChatHistory(selectedUser.user_id, selectedChatbot.chatbot_id);
+            console.log(`Selected chatbot: ${selectedChatbot.chatbotId}, Selected user: ${selectedUser.user_id}`);
+            fetchChatHistory(selectedUser.user_id, selectedChatbot.chatbotId);
         } else {
             console.warn("Either selectedChatbot or selectedUser is undefined. Not fetching chat history.");
         }
@@ -453,14 +453,14 @@ function Chat() {
         const userMessageData = {
             content: content,
             sender_id: selectedUser.user_id, // Replace with appropriate user ID
-            receiver_id: selectedChatbot.chatbot_id,
+            receiver_id: selectedChatbot.chatbotId,
             type: 'user'
         };
 
         const optimisticUserMessage = {
             content: content,
             sender_id: selectedUser.user_id,
-            receiver_id: selectedChatbot.chatbot_id,
+            receiver_id: selectedChatbot.chatbotId,
             type: 'user',
             // you can generate a temporary ID or use Date.now() or any unique value
             message_id: Date.now()  
@@ -505,7 +505,7 @@ function Chat() {
     ].join(" ");
     const combinedPrompt = `${chatbotInstruction} ${chatbotPrompt} [${featureSettings}] ${content}`;
     const botResponseData = {
-        botId: selectedChatbot.chatbot_id,
+        botId: selectedChatbot.chatbotId,
         prompt: combinedPrompt
     };
 
@@ -527,7 +527,7 @@ function Chat() {
 
         const botMessageData = {
             content: data.message,
-            sender_id: selectedChatbot.chatbot_id,  
+            sender_id: selectedChatbot.chatbotId,  
             receiver_id: selectedUser.user_id, 
             type: 'chatbot',
             related_message_id: userMessageId
@@ -535,7 +535,7 @@ function Chat() {
 
         const optimisticBotMessage = {
             content: data.message,
-            sender_id: selectedChatbot.chatbot_id,
+            sender_id: selectedChatbot.chatbotId,
             receiver_id: selectedUser.user_id,
             type: 'chatbot',
             related_message_id: userMessageId,
@@ -585,12 +585,12 @@ function Chat() {
                 <div className="mt-4 chat-messages">
                     {/* Render chat history messages */}
                     {chatHistory.map((message) => (
-                        <ChatMessage key={message.message_id} message={message} bot={chatbots.find(b => b.chatbot_id === message.sender_id || b.chatbot_id === message.receiver_id)} />
+                        <ChatMessage key={message.message_id} message={message} bot={chatbots.find(b => b.chatbotId === message.sender_id || b.chatbotId === message.receiver_id)} />
                     ))}
         
                     {/* Render existing messages */}
                     {messages.map((msg, idx) => (
-                        <ChatMessage key={msg.botId + idx} message={msg} bot={chatbots.find(b => b.chatbot_id === msg.botId)} />
+                        <ChatMessage key={msg.botId + idx} message={msg} bot={chatbots.find(b => b.chatbotId === msg.botId)} />
                     ))}
                 </div>
                 {error && <p className="text-red-500">{error}</p>}
