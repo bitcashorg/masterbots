@@ -2,7 +2,7 @@ table:
   name: prompt
   schema: public
 array_relationships:
-  - name: prompt_chatbots
+  - name: chatbots
     using:
       foreign_key_constraint_on:
         column: prompt_id

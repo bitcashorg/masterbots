@@ -191,7 +191,7 @@ type BotInfoType = {
   // Define a type for a chat message
 type ChatMessage = {
     content: string;
-    createdAt: string; // assuming created_at is a string; adjust type if necessary
+    createdAt: string; // assuming createdAt is a string; adjust type if necessary
     type: 'user' | 'chatbot'; // Adjust types according to your actual use case
   };
   
@@ -286,34 +286,34 @@ function Chat() {
                     },
                     body: JSON.stringify({
                         query: `
-                        query {
-                            chatbot {
-                                chatbotId
-                                name
-                                avatar
-                                description
-                                created_by
-                                default_tone
-                                default_length
-                                default_type
-                                default_complexity
-                                categories {
+                            query {
+                                chatbot {
+                                    chatbotId
+                                    name
+                                    avatar
+                                    description
+                                    createdBy
+                                    defaultTone
+                                    defaultLength
+                                    defaultType
+                                    defaultComplexity
+                                    categories {
                                     category {
                                         name
                                     }
-                                }
-                                prompts: prompts(where: { prompt: { prompt_type_enum: { value: { _eq: "prompt" } } } }) {
+                                    }
+                                    prompts: prompts(where: { prompt: { type:  { _eq: "prompt" }  } }) {
                                     prompt {
                                         content
                                     }
-                                }
-                                instructions: prompts(where: { prompt: { prompt_type_enum: { value: { _eq: "instruction" } } } }) {
+                                    }
+                                    instructions: prompts(where: { prompt: { type: { _eq: "instruction" } } }) {
                                     prompt {
                                         content
+                                    }
                                     }
                                 }
                             }
-                        }
                         
                         `,
                     }),
@@ -489,10 +489,10 @@ useEffect(() => {
     const fetchChatHistory = async () => {
         const FETCH_CHAT_HISTORY = `
             query FetchChatHistory($threadId: Int!) {
-            message(where: { threadId: { _eq: $threadId } }, order_by: { created_at: asc }) {
+            message(where: { threadId: { _eq: $threadId } }, orderBy: { createdAt: 'ASC' }) {
                 content
                 type
-                created_at
+                createdAt
             }
             }
         `;
@@ -622,10 +622,10 @@ useEffect(() => {
     const chatbotInstruction = selectedChatbot.instructions?.[0]?.prompt?.content || "";
     const chatbotPrompt = selectedChatbot.prompts?.[0]?.prompt?.content || "";
     const chatbotContext = `First, use the following questions and requests to create the introductory clause for the answer to the final question: [${getUserMessages(chatHistory)}]. Then elaborate on this final question:`;
-    const featureSettings = `Your response tone will be ${selectedChatbot.default_tone}. ` +
-    `Your response length will be ${selectedChatbot.default_length}. ` +
-    `Your response format will be ${selectedChatbot.default_type}. ` +
-    `Your response complexity level will be ${selectedChatbot.default_complexity}.`;
+    const featureSettings = `Your response tone will be ${selectedChatbot.defaultTone}. ` +
+    `Your response length will be ${selectedChatbot.defaultLength}. ` +
+    `Your response format will be ${selectedChatbot.defaultType}. ` +
+    `Your response complexity level will be ${selectedChatbot.defaultComplexity}.`;
 
     const combinedPrompt = `${chatbotPrompt} ${chatbotInstruction} ${chatbotContext} ${content}[${featureSettings}]`;
     const botResponseData = {
