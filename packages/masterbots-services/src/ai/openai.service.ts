@@ -1,11 +1,6 @@
 import fetch from 'isomorphic-unfetch';
 import { serverEnv } from 'masterbots-lib/constants';
 
-// TODO: playground.masterbots.ai -> to backlog
-// - model config
-// - testing model config
-// - a place to test/experiment with the model
-
 export async function updateOpenAiConversation(
   callback: (response: string, done?: boolean) => any,
   prompt: string,
@@ -50,10 +45,11 @@ export async function updateOpenAiConversation(
 
             if (done) {
               console.log('Stream complete');
+
+              // If stream is done, we can end the connection
               callback(str, true);
               return;
             }
-            // Process the chunk (str) here. Be aware that this may not be a complete JSON message.
 
             callback(str);
             // Read the next chunk
@@ -64,7 +60,8 @@ export async function updateOpenAiConversation(
           });
       }
 
-      push(); // Start reading the stream
+      // Start reading the stream
+      push();
     });
   } catch (error) {
     console.error('openai.service::createNewPlayground::ERROR', error);
