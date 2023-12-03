@@ -1,12 +1,12 @@
 declare const platform: {
-    userAgent: string;
+    userAgent: any;
     isBrowser: boolean;
     isNode: boolean;
     isPhone: boolean;
     isIpad: boolean;
     isMobile: boolean;
     isPhantom: boolean;
-    solana: false | undefined;
+    solana: any;
 };
 
 export { platform };

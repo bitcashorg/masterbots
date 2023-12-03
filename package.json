@@ -15,5 +15,9 @@
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "ai": "^2.2.27",
+    "openai-edge": "^1.2.2"
   }
 }

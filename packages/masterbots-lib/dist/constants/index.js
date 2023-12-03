@@ -17,21 +17,34 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// src/logger/index.ts
-var logger_exports = {};
-__export(logger_exports, {
-  logger: () => logger
+// src/constants/index.ts
+var constants_exports = {};
+__export(constants_exports, {
+  openAiConfig: () => openAiConfig,
+  serverEnv: () => serverEnv
 });
-module.exports = __toCommonJS(logger_exports);
+module.exports = __toCommonJS(constants_exports);
 
-// src/logger/logger.lib.ts
-var debug = true;
-var logger = {
-  log: (message, ...optionalParams) => debug && console.log(message, ...optionalParams),
-  info: (message, ...optionalParams) => debug && console.info(message, ...optionalParams),
-  error: (message, ...optionalParams) => debug && console.log(message, ...optionalParams)
+// src/constants/openai.constants.ts
+var openAiConfig = {};
+
+// src/constants/server.constants.ts
+var serverEnv = {
+  cloudinary: {
+    secret: process.env.CLOUDINARY_API_SECRET || ""
+  },
+  openai: {
+    secret: process.env.OPENAI_API_SECRET || ""
+  },
+  sentry: {
+    secret: ""
+  },
+  api: {
+    baseUrl: process.env.URL || "http://localhost:3000"
+  }
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  logger
+  openAiConfig,
+  serverEnv
 });
