@@ -30,7 +30,7 @@ https://trello.com/b/GDCm18zN/masterbots-chatbot-aggregator-development-board
 
 - NodeJS. We recommend [nvm](https://github.com/nvm-sh/nvm) for version switching.
 - Hasura Cli https://hasura.io/docs/latest/hasura-cli/overview.
-- Bun package manager https://bun.sh 
+- pnpm package manager https://pnpm.io/
 - [Docker](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/)
 - Task manager https://taskfile.dev
 
@@ -49,11 +49,14 @@ In root folder, create an .env file based of .env_sample and the use `task` to e
 
 ## Running the Frontend
 
-In frontend folder (set up .env.local file - see .env_sample):<br>
+In frontend folder (set up .env.local file - see .env_sample):
 
-cd apps/frontend<br>
-bun run build<br>
-bun run dev<br>
+```
+pnpm install
+turbo run dev --scope="masterbots.ai" 
+# for running legacy ui
+turbo run dev --scope="frontend"
+```
 
 
 
