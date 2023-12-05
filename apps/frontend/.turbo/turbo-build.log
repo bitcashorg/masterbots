@@ -1,7 +1,4 @@
-
-> frontend@0.1.0 build /Users/gaboesquivel/Code/masterbots/apps/frontend
-> next build
-
+$ next build
    Creating an optimized production build ...
  ✓ Compiled successfully
    Linting and checking validity of types ...
@@ -9,12 +6,12 @@
    Generating static pages (0/7) ...
    Generating static pages (1/7) 
 Rendering Chat component with state:  {
-  chatHistory: [],
+  messages: [],
   selectedChatbot: {
-    chatbotId: 1,
-    name: 'HealthBot',
-    defaultTone: 'professional',
-    defaultLength: 'clear_and_succinct',
+    chatbotId: 0,
+    name: 'Default Bot',
+    defaultTone: 'neutral',
+    defaultLength: 'concise',
     defaultType: 'bullet_points',
     defaultComplexity: 'adult'
   },
@@ -23,12 +20,12 @@ Rendering Chat component with state:  {
   error: null
 }
 Rendering Chat component with state:  {
-  messages: [],
+  chatHistory: [],
   selectedChatbot: {
-    chatbotId: 0,
-    name: 'Default Bot',
-    defaultTone: 'neutral',
-    defaultLength: 'concise',
+    chatbotId: 1,
+    name: 'HealthBot',
+    defaultTone: 'professional',
+    defaultLength: 'clear_and_succinct',
     defaultType: 'bullet_points',
     defaultComplexity: 'adult'
   },
@@ -49,23 +46,23 @@ Chat History: []
 
 Route (pages)                              Size     First Load JS
 ┌ ○ /                                      4.47 kB        90.6 kB
-├   /_app                                  0 B            86.1 kB
-├ ○ /404                                   182 B          86.3 kB
-├ λ /api/categories                        0 B            86.1 kB
-├ λ /api/chatbots                          0 B            86.1 kB
-├ λ /api/gptchats                          0 B            86.1 kB
-├ λ /api/messages                          0 B            86.1 kB
-├ λ /api/openai                            0 B            86.1 kB
-├ λ /api/threads                           0 B            86.1 kB
-├ λ /api/users                             0 B            86.1 kB
-├ ○ /backupindex2                          3.73 kB        89.8 kB
-├ ○ /browse                                2.23 kB        88.3 kB
-└ ○ /share                                 1.08 kB        87.2 kB
+├   /_app                                  0 B            86.2 kB
+├ ○ /404                                   180 B          86.3 kB
+├ λ /api/categories                        0 B            86.2 kB
+├ λ /api/chatbots                          0 B            86.2 kB
+├ λ /api/gptchats                          0 B            86.2 kB
+├ λ /api/messages                          0 B            86.2 kB
+├ λ /api/openai                            0 B            86.2 kB
+├ λ /api/threads                           0 B            86.2 kB
+├ λ /api/users                             0 B            86.2 kB
+├ ○ /backupindex2                          3.73 kB        89.9 kB
+├ ○ /browse                                2.41 kB        88.6 kB
+└ ○ /share                                 1.07 kB        87.2 kB
 + First Load JS shared by all              88.2 kB
-  ├ chunks/framework-d97908ad50a9c7a8.js   45.3 kB
-  ├ chunks/main-d2ba1dc438a841af.js        32.8 kB
-  ├ chunks/pages/_app-40205a36aea9b756.js  6.46 kB
-  ├ chunks/webpack-4de2e54d9ac2e655.js     1.54 kB
+  ├ chunks/framework-7fc5cfd7868ed6bd.js   45.3 kB
+  ├ chunks/main-a3e1a5708e597135.js        32.8 kB
+  ├ chunks/pages/_app-72605c17c3e6d240.js  6.45 kB
+  ├ chunks/webpack-2bfa209c2fc018d5.js     1.61 kB
   └ css/940cda0b49e4cba4.css               2.06 kB
 
 λ  (Server)  server-side renders at runtime (uses getInitialProps or getServerSideProps)

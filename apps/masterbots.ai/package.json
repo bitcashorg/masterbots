@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "masterbots.ai",
+  "name": "masterbots",
   "scripts": {
     "dev": "next dev --turbo",
     "build": "next build",
