@@ -434,9 +434,9 @@ function Chat() {
               userId: $userId,
               chatbotId: $chatbotId
             },
-            on_conflict: {
+            onConflict: {
               constraint: thread_pkey,
-              update_columns: [updated_at]
+              updateColumns: [updatedAt]
             }
           ) {
             threadId

@@ -378,7 +378,7 @@ function Chat() {
                     query: `
                     query GetChatHistory($userId: Int!, $chatbotId: Int!) {
                         message(where: {sender_id: {_in: [$userId, $chatbotId]}, receiver_id: {_in: [$userId, $chatbotId]}}) {
-                            message_id
+                            messageId
                             content
                             sender_id
                             receiver_id
@@ -463,11 +463,11 @@ function Chat() {
             receiver_id: selectedChatbot.chatbotId,
             type: 'user',
             // you can generate a temporary ID or use Date.now() or any unique value
-            message_id: Date.now()  
+            messageId: Date.now()  
         };
         setChatHistory([...chatHistory, optimisticUserMessage]);
         
-    // Insert the user's message to Hasura and retrieve its message_id
+    // Insert the user's message to Hasura and retrieve its messageId
     let userMessageId;
     try {
         const response = await fetch(MESSAGE_ENDPOINT, {
@@ -478,8 +478,8 @@ function Chat() {
             body: JSON.stringify({
                 query: `
                 mutation InsertMessage($content: String!, $sender_id: Int!, $receiver_id: Int!, $type: String! ) {
-                    insertMessageOne(object: {content: $content, sender_id: $sender_id, receiver_id: $receiver_id, type: $type}) {
-                        message_id
+                    insertMessageOne(object: {content: $content, type: $type}) {
+                        messageId
                     }
                 }
                 `,
@@ -487,7 +487,7 @@ function Chat() {
             })
         });
         const data = await response.json();
-        userMessageId = data.data.insertMessageOne.message_id;
+        userMessageId = data.data.insertMessageOne.messageId;
     } catch (error) {
         console.error("Failed to insert user's message:", error);
         return;
@@ -530,7 +530,7 @@ function Chat() {
             sender_id: selectedChatbot.chatbotId,  
             receiver_id: selectedUser.user_id, 
             type: 'chatbot',
-            related_message_id: userMessageId
+            related_messageId: userMessageId
         };
 
         const optimisticBotMessage = {
@@ -538,13 +538,13 @@ function Chat() {
             sender_id: selectedChatbot.chatbotId,
             receiver_id: selectedUser.user_id,
             type: 'chatbot',
-            related_message_id: userMessageId,
-            message_id: Date.now() + 1  // Another temporary unique ID
+            related_messageId: userMessageId,
+            messageId: Date.now() + 1  // Another temporary unique ID
         };
         setChatHistory(prevChat => [...prevChat, optimisticBotMessage]);
 
 
-        // Insert the bot's message and link it to user's message with related_message_id
+        // Insert the bot's message and link it to user's message with related_messageId
         await fetch(MESSAGE_ENDPOINT, {
             method: 'POST',
             headers: {
@@ -552,9 +552,9 @@ function Chat() {
             },
             body: JSON.stringify({
                 query: `
-                mutation InsertBotMessage($content: String!, $sender_id: Int!, $receiver_id: Int!, $type: String!, $related_message_id: Int! ) {
-                    insertMessageOne(object: {content: $content, sender_id: $sender_id, receiver_id: $receiver_id, type: $type, related_message_id: $related_message_id}) {
-                        message_id
+                mutation InsertBotMessage($content: String!, $sender_id: Int!, $receiver_id: Int!, $type: String!, $related_messageId: Int! ) {
+                    insertMessageOne(object: {content: $content, sender_id: $sender_id, receiver_id: $receiver_id, type: $type, related_messageId: $related_messageId}) {
+                        messageId
                     }
                 }
                 `,
@@ -585,7 +585,7 @@ function Chat() {
                 <div className="mt-4 chat-messages">
                     {/* Render chat history messages */}
                     {chatHistory.map((message) => (
-                        <ChatMessage key={message.message_id} message={message} bot={chatbots.find(b => b.chatbotId === message.sender_id || b.chatbotId === message.receiver_id)} />
+                        <ChatMessage key={message.messageId} message={message} bot={chatbots.find(b => b.chatbotId === message.sender_id || b.chatbotId === message.receiver_id)} />
                     ))}
         
                     {/* Render existing messages */}
