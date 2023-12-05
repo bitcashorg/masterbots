@@ -478,7 +478,7 @@ function Chat() {
             body: JSON.stringify({
                 query: `
                 mutation InsertMessage($content: String!, $sender_id: Int!, $receiver_id: Int!, $type: String! ) {
-                    insert_message_one(object: {content: $content, sender_id: $sender_id, receiver_id: $receiver_id, type: $type}) {
+                    insertMessageOne(object: {content: $content, sender_id: $sender_id, receiver_id: $receiver_id, type: $type}) {
                         message_id
                     }
                 }
@@ -487,7 +487,7 @@ function Chat() {
             })
         });
         const data = await response.json();
-        userMessageId = data.data.insert_message_one.message_id;
+        userMessageId = data.data.insertMessageOne.message_id;
     } catch (error) {
         console.error("Failed to insert user's message:", error);
         return;
@@ -553,7 +553,7 @@ function Chat() {
             body: JSON.stringify({
                 query: `
                 mutation InsertBotMessage($content: String!, $sender_id: Int!, $receiver_id: Int!, $type: String!, $related_message_id: Int! ) {
-                    insert_message_one(object: {content: $content, sender_id: $sender_id, receiver_id: $receiver_id, type: $type, related_message_id: $related_message_id}) {
+                    insertMessageOne(object: {content: $content, sender_id: $sender_id, receiver_id: $receiver_id, type: $type, related_message_id: $related_message_id}) {
                         message_id
                     }
                 }

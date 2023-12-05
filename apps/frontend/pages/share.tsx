@@ -44,7 +44,7 @@ function Share() {
     e.preventDefault();
     const mutation = `
     mutation InsertGPTChat($chatbot_name: String!, $conversation_link: String!, $added_by: Int!) {
-      insert_gpt_chat(objects: {chatbot_name: $chatbot_name, conversation_link: $conversation_link, added_by: $added_by}) {
+      insertChat(objects: {chatbot_name: $chatbot_name, conversation_link: $conversation_link, added_by: $added_by}) {
         returning {
           gpt_chatId
         }
