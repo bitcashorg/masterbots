@@ -429,7 +429,7 @@ function Chat() {
     const createThread = async (userId: number, chatbotId: number) => {
         const CREATE_THREAD = `
         mutation CreateThread($userId: Int!, $chatbotId: Int!) {
-          insert_thread_one(
+          insertThreadOne(
             object: {
               userId: $userId,
               chatbotId: $chatbotId
@@ -465,13 +465,13 @@ function Chat() {
           if (data.errors) {
             throw new Error(data.errors[0].message);
           }
-          // Assuming the insert_thread_one returns an object with a threadId, 
+          // Assuming the insertThreadOne returns an object with a threadId, 
           // you should update the threads state with the new thread
           // Use the spread operator (...) to create a new array containing the existing threads and the new thread
-          setThreads([...threads, data.data.insert_thread_one]);
+          setThreads([...threads, data.data.insertThreadOne]);
       
           // Set the new thread as the selected thread
-          setSelectedThread(data.data.insert_thread_one);
+          setSelectedThread(data.data.insertThreadOne);
         } catch (error) {
           console.error("Failed to create thread:", error);
         }
@@ -589,7 +589,7 @@ useEffect(() => {
             body: JSON.stringify({
                 query: `
                 mutation InsertMessage($content: String!, $threadId: Int!, $type: String! ) {
-                    insert_message_one(object: {content: $content, threadId: $threadId, type: $type}) {
+                    insertMessageOne(object: {content: $content, threadId: $threadId, type: $type}) {
                         messageId
                     }
                 }
@@ -598,7 +598,7 @@ useEffect(() => {
             })
         });
         const data = await response.json();
-        userMessageId = data.data.insert_message_one.messageId;
+        userMessageId = data.data.insertMessageOne.messageId;
     } catch (error) {
         console.error("Failed to insert user's message:", error);
         return;
@@ -676,7 +676,7 @@ useEffect(() => {
             body: JSON.stringify({
                 query: `
                 mutation InsertBotMessage($content: String!, $threadId: Int!, $type: String!) {
-                    insert_message_one(object: {content: $content, threadId: $threadId, type: $type}) {
+                    insertMessageOne(object: {content: $content, threadId: $threadId, type: $type}) {
                         messageId
                     }
                 }

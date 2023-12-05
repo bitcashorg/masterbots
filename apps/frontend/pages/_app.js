@@ -1,17 +1,22 @@
 // pages/_app.js
 import '../src/app/globals.css';
 import NavBar from '../src/app/components/NavBar';
-
+import Image from 'next/image'
 
 function MyApp({ Component, pageProps }) {
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-900">
+    <div className="min-h-screen text-gray-900 bg-gray-100">
       {/* Navigation */}
       <NavBar />
 
       {/* Logo */}
-      <div className="text-center py-4">
-        <img src="/images/masterbotslogo.png" alt="Logo" className="mx-auto" style={{ maxWidth: '100%', height: 'auto' }} />
+      <div className="relative w-full py-4 text-center bg-red-900" style={{height: 200}}>
+          <Image
+            src="/images/masterbotslogo.png"
+            fill={true}
+            alt="Masterbots Logo"
+            style={{maxWidth: 726}}
+          />
       </div>
       
       {/* Page Content */}
