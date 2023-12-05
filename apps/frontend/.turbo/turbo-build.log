@@ -9,12 +9,12 @@
    Generating static pages (0/7) ...
    Generating static pages (1/7) 
 Rendering Chat component with state:  {
-  chatHistory: [],
+  messages: [],
   selectedChatbot: {
-    chatbotId: 1,
-    name: 'HealthBot',
-    defaultTone: 'professional',
-    defaultLength: 'clear_and_succinct',
+    chatbotId: 0,
+    name: 'Default Bot',
+    defaultTone: 'neutral',
+    defaultLength: 'concise',
     defaultType: 'bullet_points',
     defaultComplexity: 'adult'
   },
@@ -23,12 +23,12 @@ Rendering Chat component with state:  {
   error: null
 }
 Rendering Chat component with state:  {
-  messages: [],
+  chatHistory: [],
   selectedChatbot: {
-    chatbotId: 0,
-    name: 'Default Bot',
-    defaultTone: 'neutral',
-    defaultLength: 'concise',
+    chatbotId: 1,
+    name: 'HealthBot',
+    defaultTone: 'professional',
+    defaultLength: 'clear_and_succinct',
     defaultType: 'bullet_points',
     defaultComplexity: 'adult'
   },
