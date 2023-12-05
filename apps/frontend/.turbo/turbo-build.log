@@ -6,20 +6,6 @@ $ next build
    Generating static pages (0/7) ...
    Generating static pages (1/7) 
 Rendering Chat component with state:  {
-  messages: [],
-  selectedChatbot: {
-    chatbotId: 0,
-    name: 'Default Bot',
-    defaultTone: 'neutral',
-    defaultLength: 'concise',
-    defaultType: 'bullet_points',
-    defaultComplexity: 'adult'
-  },
-  chatbots: [],
-  loading: true,
-  error: null
-}
-Rendering Chat component with state:  {
   chatHistory: [],
   selectedChatbot: {
     chatbotId: 1,
@@ -37,6 +23,20 @@ ThreadList Rendered
 Current threads: []
 Selected Thread ID: 58
 Chat History: []
+Rendering Chat component with state:  {
+  messages: [],
+  selectedChatbot: {
+    chatbotId: 0,
+    name: 'Default Bot',
+    defaultTone: 'neutral',
+    defaultLength: 'concise',
+    defaultType: 'bullet_points',
+    defaultComplexity: 'adult'
+  },
+  chatbots: [],
+  loading: true,
+  error: null
+}
    Generating static pages (3/7) 
    Generating static pages (5/7) 
  ✓ Generating static pages (7/7) 
