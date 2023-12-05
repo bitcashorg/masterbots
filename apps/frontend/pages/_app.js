@@ -10,7 +10,7 @@ function MyApp({ Component, pageProps }) {
       <NavBar />
 
       {/* Logo */}
-      <div className="relative w-full py-4 text-center bg-red-900" style={{height: 200}}>
+      <div className="relative w-full py-4 bg-red-900 text-c enter" style={{height: 200}}>
           <Image
             src="/images/masterbotslogo.png"
             fill={true}
