@@ -8,31 +8,6 @@ import { TailwindIndicator } from '@/components/tailwind-indicator'
 import { Providers } from '@/components/providers'
 import { Header } from '@/components/header'
 
-export const metadata = {
-  metadataBase: new URL(`https://${process.env.VERCEL_URL}`),
-  title: {
-    default: 'Masterbots',
-    template: `%s - Masterbots`
-  },
-  description: 'Specialized AI chatbots',
-  icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon-16x16.png',
-    apple: '/apple-touch-icon.png'
-  }
-}
-
-export const viewport = {
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: 'white' },
-    { media: '(prefers-color-scheme: dark)', color: 'black' }
-  ]
-}
-
-interface RootLayoutProps {
-  children: React.ReactNode
-}
-
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
@@ -60,4 +35,29 @@ export default function RootLayout({ children }: RootLayoutProps) {
       </body>
     </html>
   )
+}
+
+export const metadata = {
+  metadataBase: new URL(`https://${process.env.VERCEL_URL}`),
+  title: {
+    default: 'Masterbots',
+    template: `%s - Masterbots`
+  },
+  description: 'Specialized AI chatbots',
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon-16x16.png',
+    apple: '/apple-touch-icon.png'
+  }
+}
+
+export const viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: 'white' },
+    { media: '(prefers-color-scheme: dark)', color: 'black' }
+  ]
+}
+
+interface RootLayoutProps {
+  children: React.ReactNode
 }
