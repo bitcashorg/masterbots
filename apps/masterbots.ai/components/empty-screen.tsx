@@ -21,23 +21,16 @@ const exampleMessages = [
 
 export function EmptyScreen({ setInput }: Pick<UseChatHelpers, 'setInput'>) {
   return (
-    <div className="mx-auto max-w-2xl px-4">
-      <div className="rounded-lg border bg-background p-8">
+    <div className="max-w-2xl px-4 mx-auto">
+      <div className="p-8 border rounded-lg bg-background">
         <h1 className="mb-2 text-lg font-semibold">
-          Welcome to Next.js AI Chatbot!
+          Welcome to Masterbots AI Chatbots!
         </h1>
-        <p className="mb-2 leading-normal text-muted-foreground">
-          This is an open source AI chatbot app template built with{' '}
-          <ExternalLink href="https://nextjs.org">Next.js</ExternalLink> and{' '}
-          <ExternalLink href="https://vercel.com/storage/kv">
-            Vercel KV
-          </ExternalLink>
-          .
-        </p>
         <p className="leading-normal text-muted-foreground">
+          Pick an specialized agent on the right top selector. <br />
           You can start a conversation here or try the following examples:
         </p>
-        <div className="mt-4 flex flex-col items-start space-y-2">
+        <div className="flex flex-col items-start mt-4 space-y-2">
           {exampleMessages.map((message, index) => (
             <Button
               key={index}
