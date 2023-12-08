@@ -484,6 +484,7 @@ useEffect(() => {
         console.log("No thread selected. Skipping fetch chat history.");
         return; // Do not run if threadId is not set
     }
+    setChatHistory([]);
 
     console.log(`Fetching chat history for threadId: ${selectedThread.threadId}`);
 
@@ -693,7 +694,6 @@ useEffect(() => {
     console.log("Rendering Chat component with state: ", { chatHistory, selectedChatbot, chatbots, loading, error });  // Added logging for the render state
     
     const handleSelectThread = (threadId: number) => {
-        setChatHistory([]);
         // Find the thread by threadId
         const thread = threads.find(t => t.threadId === threadId);
         // If thread is found, set it as the selected thread, this will trigger the useEffect
