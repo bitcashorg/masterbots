@@ -63,7 +63,8 @@ const ThreadList: React.FC<ThreadListProps> = ({
             onClick={() => selectThread(thread.threadId)}
           >
             <div className="thread-title">Thread {thread.threadId}</div>
-            {isThreadSelected &&
+            <div className='flex flex-col gap-5 text-black whitespace-pre-line dark:text-white'>
+              {isThreadSelected &&
                 chatHistory
                     .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
                     .map((message, messageIndex) => {
@@ -73,7 +74,8 @@ const ThreadList: React.FC<ThreadListProps> = ({
                         <ChatMessage key={messageKey} message={message} />
                       );
                     })
-            }
+              }
+            </div> 
           </div>
         );
       })}
