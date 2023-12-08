@@ -427,6 +427,7 @@ function Chat() {
     }, [selectedChatbot]);
 
     const createThread = async (userId: number, chatbotId: number) => {
+        setChatHistory([]);
         const CREATE_THREAD = `
         mutation CreateThread($userId: Int!, $chatbotId: Int!) {
           insertThreadOne(
@@ -483,17 +484,18 @@ useEffect(() => {
         console.log("No thread selected. Skipping fetch chat history.");
         return; // Do not run if threadId is not set
     }
+    setChatHistory([]);
 
     console.log(`Fetching chat history for threadId: ${selectedThread.threadId}`);
 
     const fetchChatHistory = async () => {
         const FETCH_CHAT_HISTORY = `
             query FetchChatHistory($threadId: Int!) {
-            message(where: { threadId: { _eq: $threadId } }, orderBy: { createdAt: 'ASC' }) {
-                content
-                type
-                createdAt
-            }
+                message(where: { threadId: { _eq: $threadId } }, orderBy: { createdAt: ASC }) {
+                    content
+                    type
+                    createdAt
+                }
             }
         `;
 

@@ -26,7 +26,7 @@ const ChatInput: FC<ChatInputProps> = ({ onSend }) => {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="Type a message..."
-                className="border p-2 rounded w-full"
+                className="border p-2 rounded w-full text-black"
                 onKeyDown={handleKeyDown}
             />
             <button onClick={handleSend} className="mt-2 bg-blue-500 text-white p-2 rounded">
