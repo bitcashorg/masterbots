@@ -28,7 +28,7 @@ function ChatMessage({ message, bot }: ChatMessageProps) {
     const isBotMessage = message.type === 'chatbot';
 
     return (
-        <div className={`flex shadow-lg shadow-slate-200/50 dark:slate-800/50 ${isBotMessage ?
+        <div className={`flex p-4 shadow-lg shadow-slate-200/10 dark:slate-800/50 ${isBotMessage ?
         'bg-slate-100/80 dark:bg-slate-700/80'
         : 'bg-slate-300/80 dark:bg-slate-900/80'}`}>
             {isBotMessage && bot && bot.avatar && (
