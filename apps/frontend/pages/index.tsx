@@ -427,6 +427,7 @@ function Chat() {
     }, [selectedChatbot]);
 
     const createThread = async (userId: number, chatbotId: number) => {
+        setChatHistory([]);
         const CREATE_THREAD = `
         mutation CreateThread($userId: Int!, $chatbotId: Int!) {
           insertThreadOne(
@@ -489,11 +490,11 @@ useEffect(() => {
     const fetchChatHistory = async () => {
         const FETCH_CHAT_HISTORY = `
             query FetchChatHistory($threadId: Int!) {
-            message(where: { threadId: { _eq: $threadId } }, orderBy: { createdAt: 'ASC' }) {
-                content
-                type
-                createdAt
-            }
+                message(where: { threadId: { _eq: $threadId } }, orderBy: { createdAt: ASC }) {
+                    content
+                    type
+                    createdAt
+                }
             }
         `;
 
@@ -692,6 +693,7 @@ useEffect(() => {
     console.log("Rendering Chat component with state: ", { chatHistory, selectedChatbot, chatbots, loading, error });  // Added logging for the render state
     
     const handleSelectThread = (threadId: number) => {
+        setChatHistory([]);
         // Find the thread by threadId
         const thread = threads.find(t => t.threadId === threadId);
         // If thread is found, set it as the selected thread, this will trigger the useEffect
