@@ -13,6 +13,7 @@ interface ThreadListProps {
 interface ThreadType {
   threadId: number;
   thread_title: string; // Assuming the first message is the thread title
+  messages:  MessageType[];
   // ... other properties you need
 }
 
@@ -62,7 +63,7 @@ const ThreadList: React.FC<ThreadListProps> = ({
             className={`thread-item ${isThreadSelected ? 'selected' : ''}`}
             onClick={() => selectThread(thread.threadId)}
           >
-            <div className="thread-title">Thread {thread.threadId}</div>
+            <h2 className="thread-title cursor-pointer">{thread.messages[0]?.content ? thread.messages[0].content : 'New Thread'}</h2>
             <div className='flex flex-col gap-5 text-black whitespace-pre-line dark:text-white'>
               {isThreadSelected &&
                 chatHistory
