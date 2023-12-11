@@ -398,6 +398,9 @@ function Chat() {
                   query GetThreads($chatbotId: Int!, $userId: Int!) {
                     thread(where: {chatbotId: {_eq: $chatbotId}, userId: {_eq: $userId}}) {
                       threadId
+                      messages(limit: 1, orderBy: {createdAt: ASC}) {
+                        content
+                      }
                     }
                   }
                 `,
