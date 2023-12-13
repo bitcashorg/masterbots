@@ -7,7 +7,7 @@ export type MessageType = {
     content: string;
     threadId: number | null; // Make threadId nullable as per schema
     type: 'chatbot' | 'user';
-    created_at?: Date; // Add created_at field which is nullable
+    createdAt?: Date; // Add created_at field which is nullable
 };
 
 export type BotType = {
