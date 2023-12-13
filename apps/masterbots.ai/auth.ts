@@ -1,5 +1,7 @@
 import NextAuth, { type DefaultSession } from 'next-auth'
+import { HasuraAdapter } from 'next-auth-hasura-adapter'
 import Google from 'next-auth/providers/google'
+import * as jsonwebtoken from 'jsonwebtoken'
 
 export const {
   handlers: { GET, POST },
@@ -11,18 +13,45 @@ export const {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET
     })
   ],
-  callbacks: {
-    jwt({ token, profile }) {
-      if (profile) {
-        console.log('google profile', profile)
-        token.id = profile.id
-        token.image = profile.avatar_url || profile.picture
-      }
-      return token
+  adapter: HasuraAdapter({
+    endpoint: process.env.HASURA_PROJECT_ENDPOINT!,
+    adminSecret: process.env.HASURA_ADMIN_SECRET!
+  }),
+  // Use JWT strategy so we can forward them to Hasura
+  session: { strategy: 'jwt' },
+  // Encode and decode your JWT with the HS256 algorithm
+  jwt: {
+    encode: ({ secret, token }) => {
+      const encodedToken = jsonwebtoken.sign(token!, secret, {
+        algorithm: 'HS256'
+      })
+      return encodedToken
     },
-    session: ({ session, token }) => {
-      if (session?.user && token?.id) {
-        session.user.id = String(token.id)
+    decode: async ({ secret, token }) => {
+      const decodedToken = jsonwebtoken.verify(token!, secret, {
+        algorithms: ['HS256']
+      })
+      return decodedToken as jsonwebtoken.JwtPayload
+    }
+  },
+  callbacks: {
+    // Add the required Hasura claims
+    // https://hasura.io/docs/latest/graphql/core/auth/authentication/jwt/#the-spec
+    async jwt({ token }) {
+      return {
+        ...token,
+        'https://hasura.io/jwt/claims': {
+          'x-hasura-allowed-roles': ['user'],
+          'x-hasura-default-role': 'user',
+          'x-hasura-role': 'user',
+          'x-hasura-user-id': token.sub
+        }
+      }
+    },
+    // Add user ID to the session
+    session: async ({ session, token }) => {
+      if (session?.user) {
+        session.user.id = token.sub!
       }
       return session
     },
