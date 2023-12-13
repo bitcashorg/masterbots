@@ -1,0 +1,26 @@
+{
+  "name": "masterbots-genql",
+  "version": "0.0.1",
+  "private": true,
+  "description": "masterbots genql",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "gen": "pnpm run gen-test",
+    "gen-prod": "./scripts/prod.sh",
+    "gen-test": "./scripts/test.sh",
+    "gen-local": "./scripts/local.sh",
+    "lint": "eslint \"src/**/*.ts*\""
+  },
+  "author": "masterbots.org",
+  "license": "ISC",
+  "dependencies": {
+    "@genql/runtime": "^2.10.0",
+    "graphql": "^16.6.0"
+  },
+  "devDependencies": {
+    "@genql/cli": "^6.0.0",
+    "genql": "^2.0.1",
+    "typescript": "^5.1.3"
+  }
+}
