@@ -2,7 +2,7 @@
   "name": "mb-env",
   "version": "0.0.1",
   "private": true,
-  "description": "bitcash environment data",
+  "description": "masterbots environment data",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "scripts": {},
@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {},
   "devDependencies": {
-    "tsconfig": "*",
+    "tsconfig": "workspace:*",
     "typescript": "^5.1.3"
   }
 }
