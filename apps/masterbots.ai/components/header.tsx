@@ -22,9 +22,7 @@ async function UserOrLogin() {
           <SidebarToggle />
         </>
       ) : (
-        <Link href="/" target="_blank" rel="nofollow">
-          Masterbots
-        </Link>
+        <Link href="/">Masterbots</Link>
       )}
       <div className="flex items-center">
         <IconSeparator className="w-6 h-6 text-muted-foreground/50" />
@@ -32,7 +30,7 @@ async function UserOrLogin() {
           <UserMenu user={session.user} />
         ) : (
           <Button variant="link" asChild className="-ml-2">
-            <Link href="/sign-in?callbackUrl=/">Login</Link>
+            <Link href="/sign-in">Login</Link>
           </Button>
         )}
       </div>
