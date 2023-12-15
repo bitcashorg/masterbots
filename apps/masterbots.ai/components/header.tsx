@@ -10,6 +10,34 @@ import { SidebarMobile } from './sidebar-mobile'
 import { SidebarToggle } from './sidebar-toggle'
 import { ChatHistory } from './chat-history'
 
+// https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating
+
+export async function Header() {
+  return (
+    <header className="sticky top-0 z-50 flex items-center justify-between w-full h-16 px-4 border-b shrink-0 bg-gradient-to-b from-background/10 via-background/50 to-background/80 backdrop-blur-xl">
+      <div className="flex items-center">
+        <HeaderLink href="/" text="Masterbots" />
+        <IconSeparator className="w-6 h-6 text-muted-foreground/50" />
+        <HeaderLink href="/" text="Chat" />
+        <HeaderLink href="/browse" text="Browse" />
+      </div>
+      <div className="flex items-center justify-end space-x-2">
+        <React.Suspense fallback={<div className="flex-1 overflow-auto" />}>
+          <UserOrLogin />
+        </React.Suspense>
+      </div>
+    </header>
+  )
+}
+
+function HeaderLink({ href, text }: { href: string; text: string }) {
+  return (
+    <Button variant="link" asChild className="-ml-2">
+      <Link href={href}>{text}</Link>
+    </Button>
+  )
+}
+
 async function UserOrLogin() {
   const session = await auth()
   return (
@@ -21,11 +49,8 @@ async function UserOrLogin() {
           </SidebarMobile>
           <SidebarToggle />
         </>
-      ) : (
-        <Link href="/">Masterbots</Link>
-      )}
+      ) : null}
       <div className="flex items-center">
-        <IconSeparator className="w-6 h-6 text-muted-foreground/50" />
         {session?.user ? (
           <UserMenu user={session.user} />
         ) : (
@@ -35,18 +60,5 @@ async function UserOrLogin() {
         )}
       </div>
     </>
-  )
-}
-
-export function Header() {
-  return (
-    <header className="sticky top-0 z-50 flex items-center justify-between w-full h-16 px-4 border-b shrink-0 bg-gradient-to-b from-background/10 via-background/50 to-background/80 backdrop-blur-xl">
-      <div className="flex items-center">
-        <React.Suspense fallback={<div className="flex-1 overflow-auto" />}>
-          <UserOrLogin />
-        </React.Suspense>
-      </div>
-      <div className="flex items-center justify-end space-x-2"></div>
-    </header>
   )
 }
