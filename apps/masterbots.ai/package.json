@@ -13,6 +13,7 @@
     "format:check": "prettier --check \"{app,lib,components}**/*.{ts,tsx,mdx}\" --cache"
   },
   "dependencies": {
+    "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-alert-dialog": "^1.0.5",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-dropdown-menu": "^2.0.6",
@@ -31,6 +32,8 @@
     "focus-trap-react": "^10.2.3",
     "framer-motion": "^10.16.12",
     "geist": "^1.1.0",
+    "lucide-react": "^0.297.0",
+    "mb-genql": "workspace:*",
     "mb-lib": "workspace:*",
     "mb-types": "workspace:*",
     "nanoid": "^5.0.3",
@@ -46,8 +49,7 @@
     "react-syntax-highlighter": "^15.5.0",
     "react-textarea-autosize": "^8.5.3",
     "remark-gfm": "^3.0.1",
-    "remark-math": "^5.1.1",
-    "mb-genql": "workspace:*"
+    "remark-math": "^5.1.1"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.10",
