@@ -1,4 +1,4 @@
-import { Category, createMbClient, everything } from 'mb-genql'
+import { Category, Chatbot, createMbClient, everything } from 'mb-genql'
 
 const client = createMbClient({
   adminSecret: process.env.HASURA_ADMIN_SECRET,
@@ -11,4 +11,12 @@ export async function getCategories() {
   })
 
   return category as Category[]
+}
+
+export async function getChatbots() {
+  const { chatbot } = await client.query({
+    chatbot: everything
+  })
+
+  return chatbot as Chatbot[]
 }

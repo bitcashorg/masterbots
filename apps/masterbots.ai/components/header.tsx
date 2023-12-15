@@ -42,14 +42,14 @@ async function UserOrLogin() {
   const session = await auth()
   return (
     <>
-      {session?.user ? (
+      {/* {session?.user ? (
         <>
           <SidebarMobile>
             <ChatHistory userId={session.user.id} />
           </SidebarMobile>
           <SidebarToggle />
         </>
-      ) : null}
+      ) : null} */}
       <div className="flex items-center">
         {session?.user ? (
           <UserMenu user={session.user} />
