@@ -35,7 +35,7 @@ export interface Client {
 
 export const createClient = function (options?: ClientOptions): Client {
   return createClientOriginal({
-    url: 'http://localhost:3303/v1/graphql',
+    url: 'https://dev-api.masterbots.ai/v1/graphql',
 
     ...options,
     queryRoot: typeMap.Query!,

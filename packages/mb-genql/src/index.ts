@@ -1,12 +1,12 @@
 import { createClient } from '../generated'
 import { GraphqlOperation } from '@genql/runtime'
-import { endpoints, BitcashEnv } from 'masterbots-env'
+import { endpoints, MbEnv } from 'mb-env'
 import { createClient as createWsClient } from 'graphql-ws'
 
 export * from '../generated'
 
 // Server side client
-export function createBitcashClient({ config, jwt, env }: GraphQLSdkProps = {}) {
+export function createMbClient({ config, jwt, env, adminSecret }: GraphQLSdkProps = {}) {
   const { subscribe } = createWsClient({
     url: endpoints[env || 'prod'].replace('http', 'ws'),
   })
@@ -17,6 +17,7 @@ export function createBitcashClient({ config, jwt, env }: GraphQLSdkProps = {}) 
         Accept: 'application/json',
         'Content-Type': 'application/json',
         ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
+        ...(adminSecret ? { 'x-hasura-admin-secret': adminSecret } : {}),
       }
 
       console.log(
@@ -46,10 +47,11 @@ export function createBitcashClient({ config, jwt, env }: GraphQLSdkProps = {}) 
   }
 }
 
-export type BitcashClient = ReturnType<typeof createBitcashClient>
+export type MbClient = ReturnType<typeof createMbClient>
 
 type GraphQLSdkProps = {
   config?: RequestInit
   jwt?: string
-  env?: BitcashEnv
+  env?: MbEnv
+  adminSecret?: string
 }
