@@ -31,6 +31,8 @@
     "focus-trap-react": "^10.2.3",
     "framer-motion": "^10.16.12",
     "geist": "^1.1.0",
+    "mb-lib": "workspace:*",
+    "mb-types": "workspace:*",
     "nanoid": "^5.0.3",
     "next": "14.0.4-canary.17",
     "next-auth": "5.0.0-beta.3",

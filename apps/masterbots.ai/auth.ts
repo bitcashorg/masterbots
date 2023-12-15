@@ -1,5 +1,6 @@
 import NextAuth, { type DefaultSession } from 'next-auth'
 import Google from 'next-auth/providers/google'
+import { JwtSecret, getToken } from 'mb-lib'
 
 export const {
   handlers: { GET, POST },
@@ -20,10 +21,25 @@ export const {
       }
       return token
     },
-    session: ({ session, token }) => {
+    session: async ({ session, token }) => {
       if (session?.user && token?.id) {
         session.user.id = String(token.id)
       }
+      // const hasuraJwt = await getToken({
+      //   user: { account: token.sub!, role: 'user' },
+      //   jwtSecret: {
+      //     type: 'HS256',
+      //     key: '5152fa850c02dc222631cca898ed1485821a70912a6e3649c49076912daa3b62182ba013315915d64f402ddfbb8b58eb5bd11ba225136a6af45bbae07ca872f4',
+      //     issuer: 'hasura-auth'
+      //   } as JwtSecret
+      // })
+
+      // console.log({ hasuraJwt })
+      // const dbUser  = {
+      //   account: token.sub!,
+      //   hasuraJwt
+      // }
+      // session.user = dbUser
       return session
     },
     authorized({ auth }) {
