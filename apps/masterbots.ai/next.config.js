@@ -10,6 +10,18 @@ module.exports = {
         hostname: 'avatars.githubusercontent.com',
         port: '',
         pathname: '**'
+      },
+      {
+        protocol: 'https',
+        hostname: '*.googleusercontent.com',
+        port: '',
+        pathname: '**'
+      },
+      {
+        protocol: 'https',
+        hostname: 'robohash.org',
+        port: '',
+        pathname: '**'
       }
     ]
   },

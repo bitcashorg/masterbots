@@ -31,6 +31,8 @@
     "focus-trap-react": "^10.2.3",
     "framer-motion": "^10.16.12",
     "geist": "^1.1.0",
+    "mb-lib": "workspace:*",
+    "mb-types": "workspace:*",
     "nanoid": "^5.0.3",
     "next": "14.0.4-canary.17",
     "next-auth": "5.0.0-beta.3",
@@ -44,7 +46,8 @@
     "react-syntax-highlighter": "^15.5.0",
     "react-textarea-autosize": "^8.5.3",
     "remark-gfm": "^3.0.1",
-    "remark-math": "^5.1.1"
+    "remark-math": "^5.1.1",
+    "mb-genql": "workspace:*"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.10",
