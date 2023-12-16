@@ -12,7 +12,7 @@ export default function SidebarLink({ bot }: { bot: Chatbot }) {
       href={`/${bot.name.toLowerCase()}`}
       className={cn(
         'flex items-center mb-2 py-3 cursor-pointer',
-        bot.name.toLowerCase().trim() === chatbot.trim() && 'bg-slate-800'
+        bot?.name.toLowerCase().trim() === chatbot?.trim() && 'bg-slate-800'
       )}
     >
       <Image
