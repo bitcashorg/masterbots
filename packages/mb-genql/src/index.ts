@@ -1,12 +1,12 @@
-import { createClient } from '../generated'
+import { Client, createClient } from '../generated'
 import { GraphqlOperation } from '@genql/runtime'
 import { endpoints, MbEnv } from 'mb-env'
-import { createClient as createWsClient } from 'graphql-ws'
+import { createClient as createWsClient, Client as WsClient } from 'graphql-ws'
 
 export * from '../generated'
 
 // Server side client
-export function createMbClient({ config, jwt, env, adminSecret }: GraphQLSdkProps = {}) {
+export function createMbClient({ config, jwt, env, adminSecret, debug }: GraphQLSdkProps = {}): MbClient {
   const { subscribe } = createWsClient({
     url: endpoints[env || 'prod'].replace('http', 'ws'),
   })
@@ -20,7 +20,7 @@ export function createMbClient({ config, jwt, env, adminSecret }: GraphQLSdkProp
         ...(adminSecret ? { 'x-hasura-admin-secret': adminSecret } : {}),
       }
 
-      console.log(
+      debug && console.log(
         '\n ==> GraphQL Query : \n',
         JSON.stringify((operation as GraphqlOperation).query.replaceAll('"', ''))
       )
@@ -47,11 +47,14 @@ export function createMbClient({ config, jwt, env, adminSecret }: GraphQLSdkProp
   }
 }
 
-export type MbClient = ReturnType<typeof createMbClient>
+export interface MbClient extends Client {
+  subscribe: WsClient["subscribe"]
+}
 
 type GraphQLSdkProps = {
   config?: RequestInit
   jwt?: string
   env?: MbEnv
   adminSecret?: string
+  debug?: boolean
 }
