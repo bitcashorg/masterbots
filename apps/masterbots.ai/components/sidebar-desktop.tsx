@@ -1,9 +1,8 @@
 import { Sidebar } from '@/components/sidebar'
-
 import { auth } from '@/auth'
-import { ChatHistory } from '@/components/chat-history'
+// import { ChatHistory } from '@/components/chat-history'
 import { getChatbots } from '@/services/db'
-import Image from 'next/image'
+import SidebarLink from './sidebar-link'
 
 export async function SidebarDesktop() {
   const session = await auth()
@@ -15,22 +14,15 @@ export async function SidebarDesktop() {
       {/* @ts-ignore */}
       <ul className="p-5">
         {chatbots.map((bot, key) => (
-          <li key={key} className="flex items-center pb-5 cursor-pointer">
-            <Image
-              src={bot.avatar || '/path/to/default/avatar.png'}
-              alt={bot.name}
-              width={50} // replace with your desired width
-              height={50} // replace with your desired height
-              className="object-cover rounded-full"
-            />
-            <span className="pl-3">{bot.name}</span>
+          <li key={key}>
+            <SidebarLink bot={bot} />
           </li>
         ))}
       </ul>
 
-      <h3>Chat history</h3>
+      {/* <h3>Chat history</h3>
 
-      <ChatHistory userId={session.user.id} />
+      <ChatHistory userId={session.user.id} /> */}
     </Sidebar>
   )
 }

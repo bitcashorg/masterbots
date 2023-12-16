@@ -21,9 +21,22 @@ export async function getChatbots() {
   return chatbot as Chatbot[]
 }
 
-export async function getThreads() {
+export async function getThreads({
+  chatbotName
+}: { chatbotName?: string } = {}) {
   const { thread } = await client.query({
-    thread: { messages: everything, ...everything }
+    thread: {
+      messages: everything,
+      ...everything,
+      __args: {
+        limit: 30,
+        ...(chatbotName
+          ? {
+              where: { chatbot: { name: { _eq: chatbotName } } }
+            }
+          : {})
+      }
+    }
   })
 
   return thread as Thread[]
