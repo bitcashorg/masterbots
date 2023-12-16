@@ -11,7 +11,7 @@ import { ChatScrollAnchor } from '@/components/chat-scroll-anchor'
 import { toast } from 'react-hot-toast'
 import { usePathname, useRouter } from 'next/navigation'
 
-export function Chat({ id, initialMessages, className }: ChatProps) {
+export function Chat({ id, initialMessages, className, bot }: ChatProps) {
   const router = useRouter()
   const path = usePathname()
 
@@ -43,7 +43,7 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
             <ChatScrollAnchor trackVisibility={isLoading} />
           </>
         ) : (
-          <EmptyScreen setInput={setInput} />
+          <EmptyScreen setInput={setInput} bot={bot} />
         )}
       </div>
       <ChatPanel
@@ -63,4 +63,5 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
 export interface ChatProps extends React.ComponentProps<'div'> {
   initialMessages?: Message[]
   id?: string
+  bot: string
 }
