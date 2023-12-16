@@ -7,7 +7,6 @@ import { useParams } from 'next/navigation'
 
 export default function SidebarLink({ bot }: { bot: Chatbot }) {
   const { chatbot } = useParams<{ chatbot: string }>()
-  console.log('chatbot', chatbot)
   return (
     <Link
       href={`/${bot.name.toLowerCase()}`}
