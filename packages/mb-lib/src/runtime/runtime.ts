@@ -7,8 +7,6 @@ export const platform = (() => {
   const isPhone = /(iPhone|iPod)/i.test(userAgent)
   const isIpad = /(iPad)/i.test(userAgent)
   const isMobile = isPhone || isAndroid
-  const solana = isBrowser && _.get(window, 'solana')
-  const isPhantom = isBrowser && _.has(window, 'solana.isPhantom')
 
   return {
     userAgent,
@@ -17,7 +15,5 @@ export const platform = (() => {
     isPhone,
     isIpad,
     isMobile,
-    isPhantom,
-    solana,
   }
 })()

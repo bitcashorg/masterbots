@@ -6,7 +6,7 @@ silent: true
 tasks:
   console:
     cmds:
-      - hasura console --project $MASTERBOTS_HASURA
+      - hasura console --project apps/hasura 
 
   boot:
     cmds:
@@ -24,7 +24,7 @@ tasks:
 
   seed:
     cmds:
-      - hasura seeds apply --project $MASTERBOTS_HASURA
+      - hasura seeds apply --project apps/hasura 
 
   up:
     cmds:
@@ -36,8 +36,8 @@ tasks:
 
   migrate:
     cmds:
-      - hasura migrate apply --project $MASTERBOTS_HASURA
-      - hasura metadata apply --project $MASTERBOTS_HASURA
+      - hasura migrate apply --project apps/hasura 
+      - hasura metadata apply --project apps/hasura 
 
   reload:
     cmds:
