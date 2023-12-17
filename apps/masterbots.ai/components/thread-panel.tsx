@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/select'
 import { botNames } from '@/lib/bots-names'
 import { getThreads } from '@/services/db'
-import Link from 'next/link'
+import MbChat from './mb-chat'
 
 export default async function ThreadPanel({
   chatbot,
@@ -27,6 +27,7 @@ export default async function ThreadPanel({
 
   return (
     <div className="flex flex-col">
+      <MbChat bot={'HealthBot'} />
       <div className="flex justify-between px-10 py-5">
         <Input
           placeholder={`Search your chats with ${
@@ -36,14 +37,8 @@ export default async function ThreadPanel({
         />
         <SortBySelect />
         <DateRangePicker />
-        {chatbot ? (
-          <Link href={`/${chatbot}/chat`}>
-            <Button className="w-[170px]">
-              Chat with {botNames.get(chatbot)}
-            </Button>
-          </Link>
-        ) : null}
       </div>
+
       <div className="flex px-10 py-5">
         <ThreadList threads={threads} />
       </div>
