@@ -27,7 +27,7 @@ export default async function ThreadPanel({
 
   return (
     <div className="flex flex-col">
-      <MbChat />
+      <MbChat bot={'HealthBot'} />
       <div className="flex justify-between px-10 py-5">
         <Input
           placeholder={`Search your chats with ${

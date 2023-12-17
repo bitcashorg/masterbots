@@ -1,8 +1,7 @@
 'use client'
 
-import { nanoid } from '@/lib/utils'
 import { ChatPanel } from './chat-panel'
-import { Message, useChat } from 'ai/react/dist'
+import { useChat, type Message } from 'ai/react'
 import { usePathname, useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 
