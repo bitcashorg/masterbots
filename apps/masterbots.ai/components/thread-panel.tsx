@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/select'
 import { botNames } from '@/lib/bots-names'
 import { getThreads } from '@/services/db'
-import MbChat from './mb-chat'
 
 export default async function ThreadPanel({
   chatbot,
@@ -26,8 +25,7 @@ export default async function ThreadPanel({
   )
 
   return (
-    <div className="flex flex-col">
-      <MbChat bot={'HealthBot'} />
+    <div className="flex flex-col pb-[150px]">
       <div className="flex justify-between px-10 py-5">
         <Input
           placeholder={`Search your chats with ${
