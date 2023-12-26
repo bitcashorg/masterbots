@@ -1,24 +1,22 @@
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger
-} from '@/components/ui/accordion'
+import { Separator } from '@/components/ui/separator'
 import { Thread } from 'mb-genql'
+import Link from 'next/link'
 
 export default function ThreadList({ threads }: { threads: Thread[] }) {
   return (
-    <Accordion type="single" collapsible className="w-full">
+    <ul className="w-full">
       {threads.map((thread, key) => (
-        <AccordionItem value={`item-${key}`} key={key}>
-          <AccordionTrigger>
+        <li key={key}>
+          <Link
+            href={`/chat/${thread.threadId}`}
+            className="flex items-center h-12"
+          >
             {thread.messages[0]?.content.substring(0, 100) || 'wat'}
-          </AccordionTrigger>
-          <AccordionContent>
-            {thread.messages[1]?.content || 'wat'}
-          </AccordionContent>
-        </AccordionItem>
+          </Link>
+
+          <Separator />
+        </li>
       ))}
-    </Accordion>
+    </ul>
   )
 }

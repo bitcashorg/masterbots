@@ -1,4 +1,11 @@
-import { Category, Chatbot, Thread, createMbClient, everything } from 'mb-genql'
+import {
+  Category,
+  Chatbot,
+  Message,
+  Thread,
+  createMbClient,
+  everything
+} from 'mb-genql'
 
 const client = createMbClient({
   adminSecret: process.env.HASURA_ADMIN_SECRET,
@@ -40,4 +47,18 @@ export async function getThreads({
   })
 
   return thread as Thread[]
+}
+
+export async function getThread({ threadId }: { threadId: number }) {
+  const { thread } = await client.query({
+    thread: {
+      messages: everything,
+      ...everything,
+      __args: {
+        where: { threadId: { _eq: threadId } }
+      }
+    }
+  })
+
+  return thread[0] as Thread
 }
