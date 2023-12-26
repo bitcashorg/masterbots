@@ -1856,13 +1856,12 @@ input LengthEnumUpdates {
 type Message {
   content: String!
   createdAt: timestamptz
-  messageId: Int!
-  relatedMessageId: Int
+  messageId: uuid!
+  role: String!
 
   """An object relationship"""
   thread: Thread
-  threadId: Int
-  type: String!
+  threadId: uuid
 }
 
 """
@@ -1881,34 +1880,18 @@ input MessageAggregateBoolExp {
 aggregate fields of "message"
 """
 type MessageAggregateFields {
-  avg: MessageAvgFields
   count(columns: [MessageSelectColumn!], distinct: Boolean): Int!
   max: MessageMaxFields
   min: MessageMinFields
-  stddev: MessageStddevFields
-  stddevPop: MessageStddevPopFields
-  stddevSamp: MessageStddevSampFields
-  sum: MessageSumFields
-  varPop: MessageVarPopFields
-  varSamp: MessageVarSampFields
-  variance: MessageVarianceFields
 }
 
 """
 order by aggregate values of table "message"
 """
 input MessageAggregateOrderBy {
-  avg: MessageAvgOrderBy
   count: OrderBy
   max: MessageMaxOrderBy
   min: MessageMinOrderBy
-  stddev: MessageStddevOrderBy
-  stddevPop: MessageStddevPopOrderBy
-  stddevSamp: MessageStddevSampOrderBy
-  sum: MessageSumOrderBy
-  varPop: MessageVarPopOrderBy
-  varSamp: MessageVarSampOrderBy
-  variance: MessageVarianceOrderBy
 }
 
 """
@@ -1921,22 +1904,6 @@ input MessageArrRelInsertInput {
   onConflict: MessageOnConflict
 }
 
-"""aggregate avg on columns"""
-type MessageAvgFields {
-  messageId: Float
-  relatedMessageId: Float
-  threadId: Float
-}
-
-"""
-order by avg() on columns of table "message"
-"""
-input MessageAvgOrderBy {
-  messageId: OrderBy
-  relatedMessageId: OrderBy
-  threadId: OrderBy
-}
-
 """
 Boolean expression to filter rows from the table "message". All fields are combined with a logical 'AND'.
 """
@@ -1946,11 +1913,10 @@ input MessageBoolExp {
   _or: [MessageBoolExp!]
   content: StringComparisonExp
   createdAt: TimestamptzComparisonExp
-  messageId: IntComparisonExp
-  relatedMessageId: IntComparisonExp
+  messageId: UuidComparisonExp
+  role: StringComparisonExp
   thread: ThreadBoolExp
-  threadId: IntComparisonExp
-  type: StringComparisonExp
+  threadId: UuidComparisonExp
 }
 
 """
@@ -1960,16 +1926,12 @@ enum MessageConstraint {
   """
   unique or primary key constraint on columns "message_id"
   """
-  message_pkey
-}
+  message_id_key
 
-"""
-input type for incrementing numeric columns in table "message"
-"""
-input MessageIncInput {
-  messageId: Int
-  relatedMessageId: Int
-  threadId: Int
+  """
+  unique or primary key constraint on columns "message_id"
+  """
+  message_pkey
 }
 
 """
@@ -1978,21 +1940,19 @@ input type for inserting data into table "message"
 input MessageInsertInput {
   content: String
   createdAt: timestamptz
-  messageId: Int
-  relatedMessageId: Int
+  messageId: uuid
+  role: String
   thread: ThreadObjRelInsertInput
-  threadId: Int
-  type: String
+  threadId: uuid
 }
 
 """aggregate max on columns"""
 type MessageMaxFields {
   content: String
   createdAt: timestamptz
-  messageId: Int
-  relatedMessageId: Int
-  threadId: Int
-  type: String
+  messageId: uuid
+  role: String
+  threadId: uuid
 }
 
 """
@@ -2002,19 +1962,17 @@ input MessageMaxOrderBy {
   content: OrderBy
   createdAt: OrderBy
   messageId: OrderBy
-  relatedMessageId: OrderBy
+  role: OrderBy
   threadId: OrderBy
-  type: OrderBy
 }
 
 """aggregate min on columns"""
 type MessageMinFields {
   content: String
   createdAt: timestamptz
-  messageId: Int
-  relatedMessageId: Int
-  threadId: Int
-  type: String
+  messageId: uuid
+  role: String
+  threadId: uuid
 }
 
 """
@@ -2024,9 +1982,8 @@ input MessageMinOrderBy {
   content: OrderBy
   createdAt: OrderBy
   messageId: OrderBy
-  relatedMessageId: OrderBy
+  role: OrderBy
   threadId: OrderBy
-  type: OrderBy
 }
 
 """
@@ -2054,15 +2011,14 @@ input MessageOrderBy {
   content: OrderBy
   createdAt: OrderBy
   messageId: OrderBy
-  relatedMessageId: OrderBy
+  role: OrderBy
   thread: ThreadOrderBy
   threadId: OrderBy
-  type: OrderBy
 }
 
 """primary key columns input for table: message"""
 input MessagePkColumnsInput {
-  messageId: Int!
+  messageId: uuid!
 }
 
 """
@@ -2079,13 +2035,10 @@ enum MessageSelectColumn {
   messageId
 
   """column name"""
-  relatedMessageId
+  role
 
   """column name"""
   threadId
-
-  """column name"""
-  type
 }
 
 """
@@ -2094,58 +2047,9 @@ input type for updating data in table "message"
 input MessageSetInput {
   content: String
   createdAt: timestamptz
-  messageId: Int
-  relatedMessageId: Int
-  threadId: Int
-  type: String
-}
-
-"""aggregate stddev on columns"""
-type MessageStddevFields {
-  messageId: Float
-  relatedMessageId: Float
-  threadId: Float
-}
-
-"""
-order by stddev() on columns of table "message"
-"""
-input MessageStddevOrderBy {
-  messageId: OrderBy
-  relatedMessageId: OrderBy
-  threadId: OrderBy
-}
-
-"""aggregate stddevPop on columns"""
-type MessageStddevPopFields {
-  messageId: Float
-  relatedMessageId: Float
-  threadId: Float
-}
-
-"""
-order by stddevPop() on columns of table "message"
-"""
-input MessageStddevPopOrderBy {
-  messageId: OrderBy
-  relatedMessageId: OrderBy
-  threadId: OrderBy
-}
-
-"""aggregate stddevSamp on columns"""
-type MessageStddevSampFields {
-  messageId: Float
-  relatedMessageId: Float
-  threadId: Float
-}
-
-"""
-order by stddevSamp() on columns of table "message"
-"""
-input MessageStddevSampOrderBy {
-  messageId: OrderBy
-  relatedMessageId: OrderBy
-  threadId: OrderBy
+  messageId: uuid
+  role: String
+  threadId: uuid
 }
 
 """
@@ -2163,26 +2067,9 @@ input MessageStreamCursorInput {
 input MessageStreamCursorValueInput {
   content: String
   createdAt: timestamptz
-  messageId: Int
-  relatedMessageId: Int
-  threadId: Int
-  type: String
-}
-
-"""aggregate sum on columns"""
-type MessageSumFields {
-  messageId: Int
-  relatedMessageId: Int
-  threadId: Int
-}
-
-"""
-order by sum() on columns of table "message"
-"""
-input MessageSumOrderBy {
-  messageId: OrderBy
-  relatedMessageId: OrderBy
-  threadId: OrderBy
+  messageId: uuid
+  role: String
+  threadId: uuid
 }
 
 """
@@ -2337,72 +2224,18 @@ enum MessageUpdateColumn {
   messageId
 
   """column name"""
-  relatedMessageId
+  role
 
   """column name"""
   threadId
-
-  """column name"""
-  type
 }
 
 input MessageUpdates {
-  """increments the numeric columns with given value of the filtered values"""
-  _inc: MessageIncInput
-
   """sets the columns of the filtered rows to the given values"""
   _set: MessageSetInput
 
   """filter the rows which have to be updated"""
   where: MessageBoolExp!
-}
-
-"""aggregate varPop on columns"""
-type MessageVarPopFields {
-  messageId: Float
-  relatedMessageId: Float
-  threadId: Float
-}
-
-"""
-order by varPop() on columns of table "message"
-"""
-input MessageVarPopOrderBy {
-  messageId: OrderBy
-  relatedMessageId: OrderBy
-  threadId: OrderBy
-}
-
-"""aggregate varSamp on columns"""
-type MessageVarSampFields {
-  messageId: Float
-  relatedMessageId: Float
-  threadId: Float
-}
-
-"""
-order by varSamp() on columns of table "message"
-"""
-input MessageVarSampOrderBy {
-  messageId: OrderBy
-  relatedMessageId: OrderBy
-  threadId: OrderBy
-}
-
-"""aggregate variance on columns"""
-type MessageVarianceFields {
-  messageId: Float
-  relatedMessageId: Float
-  threadId: Float
-}
-
-"""
-order by variance() on columns of table "message"
-"""
-input MessageVarianceOrderBy {
-  messageId: OrderBy
-  relatedMessageId: OrderBy
-  threadId: OrderBy
 }
 
 """column ordering options"""
@@ -3913,7 +3746,7 @@ type Thread {
     """filter the rows returned"""
     where: MessageBoolExp
   ): MessageAggregate!
-  threadId: Int!
+  threadId: uuid!
   updatedAt: timestamptz!
 
   """An object relationship"""
@@ -3980,7 +3813,6 @@ input ThreadArrRelInsertInput {
 """aggregate avg on columns"""
 type ThreadAvgFields {
   chatbotId: Float
-  threadId: Float
   userId: Float
 }
 
@@ -3989,7 +3821,6 @@ order by avg() on columns of table "thread"
 """
 input ThreadAvgOrderBy {
   chatbotId: OrderBy
-  threadId: OrderBy
   userId: OrderBy
 }
 
@@ -4005,7 +3836,7 @@ input ThreadBoolExp {
   createdAt: TimestamptzComparisonExp
   messages: MessageBoolExp
   messagesAggregate: MessageAggregateBoolExp
-  threadId: IntComparisonExp
+  threadId: UuidComparisonExp
   updatedAt: TimestamptzComparisonExp
   user: UserBoolExp
   userId: IntComparisonExp
@@ -4018,6 +3849,11 @@ enum ThreadConstraint {
   """
   unique or primary key constraint on columns "thread_id"
   """
+  thread_id_key
+
+  """
+  unique or primary key constraint on columns "thread_id"
+  """
   thread_pkey
 }
 
@@ -4026,7 +3862,6 @@ input type for incrementing numeric columns in table "thread"
 """
 input ThreadIncInput {
   chatbotId: Int
-  threadId: Int
   userId: Int
 }
 
@@ -4038,7 +3873,7 @@ input ThreadInsertInput {
   chatbotId: Int
   createdAt: timestamptz
   messages: MessageArrRelInsertInput
-  threadId: Int
+  threadId: uuid
   updatedAt: timestamptz
   user: UserObjRelInsertInput
   userId: Int
@@ -4048,7 +3883,7 @@ input ThreadInsertInput {
 type ThreadMaxFields {
   chatbotId: Int
   createdAt: timestamptz
-  threadId: Int
+  threadId: uuid
   updatedAt: timestamptz
   userId: Int
 }
@@ -4068,7 +3903,7 @@ input ThreadMaxOrderBy {
 type ThreadMinFields {
   chatbotId: Int
   createdAt: timestamptz
-  threadId: Int
+  threadId: uuid
   updatedAt: timestamptz
   userId: Int
 }
@@ -4128,7 +3963,7 @@ input ThreadOrderBy {
 
 """primary key columns input for table: thread"""
 input ThreadPkColumnsInput {
-  threadId: Int!
+  threadId: uuid!
 }
 
 """
@@ -4157,7 +3992,7 @@ input type for updating data in table "thread"
 input ThreadSetInput {
   chatbotId: Int
   createdAt: timestamptz
-  threadId: Int
+  threadId: uuid
   updatedAt: timestamptz
   userId: Int
 }
@@ -4165,7 +4000,6 @@ input ThreadSetInput {
 """aggregate stddev on columns"""
 type ThreadStddevFields {
   chatbotId: Float
-  threadId: Float
   userId: Float
 }
 
@@ -4174,14 +4008,12 @@ order by stddev() on columns of table "thread"
 """
 input ThreadStddevOrderBy {
   chatbotId: OrderBy
-  threadId: OrderBy
   userId: OrderBy
 }
 
 """aggregate stddevPop on columns"""
 type ThreadStddevPopFields {
   chatbotId: Float
-  threadId: Float
   userId: Float
 }
 
@@ -4190,14 +4022,12 @@ order by stddevPop() on columns of table "thread"
 """
 input ThreadStddevPopOrderBy {
   chatbotId: OrderBy
-  threadId: OrderBy
   userId: OrderBy
 }
 
 """aggregate stddevSamp on columns"""
 type ThreadStddevSampFields {
   chatbotId: Float
-  threadId: Float
   userId: Float
 }
 
@@ -4206,7 +4036,6 @@ order by stddevSamp() on columns of table "thread"
 """
 input ThreadStddevSampOrderBy {
   chatbotId: OrderBy
-  threadId: OrderBy
   userId: OrderBy
 }
 
@@ -4225,7 +4054,7 @@ input ThreadStreamCursorInput {
 input ThreadStreamCursorValueInput {
   chatbotId: Int
   createdAt: timestamptz
-  threadId: Int
+  threadId: uuid
   updatedAt: timestamptz
   userId: Int
 }
@@ -4233,7 +4062,6 @@ input ThreadStreamCursorValueInput {
 """aggregate sum on columns"""
 type ThreadSumFields {
   chatbotId: Int
-  threadId: Int
   userId: Int
 }
 
@@ -4242,7 +4070,6 @@ order by sum() on columns of table "thread"
 """
 input ThreadSumOrderBy {
   chatbotId: OrderBy
-  threadId: OrderBy
   userId: OrderBy
 }
 
@@ -4280,7 +4107,6 @@ input ThreadUpdates {
 """aggregate varPop on columns"""
 type ThreadVarPopFields {
   chatbotId: Float
-  threadId: Float
   userId: Float
 }
 
@@ -4289,14 +4115,12 @@ order by varPop() on columns of table "thread"
 """
 input ThreadVarPopOrderBy {
   chatbotId: OrderBy
-  threadId: OrderBy
   userId: OrderBy
 }
 
 """aggregate varSamp on columns"""
 type ThreadVarSampFields {
   chatbotId: Float
-  threadId: Float
   userId: Float
 }
 
@@ -4305,14 +4129,12 @@ order by varSamp() on columns of table "thread"
 """
 input ThreadVarSampOrderBy {
   chatbotId: OrderBy
-  threadId: OrderBy
   userId: OrderBy
 }
 
 """aggregate variance on columns"""
 type ThreadVarianceFields {
   chatbotId: Float
-  threadId: Float
   userId: Float
 }
 
@@ -4321,7 +4143,6 @@ order by variance() on columns of table "thread"
 """
 input ThreadVarianceOrderBy {
   chatbotId: OrderBy
-  threadId: OrderBy
   userId: OrderBy
 }
 
@@ -5033,6 +4854,21 @@ type UserVarianceFields {
   userId: Float
 }
 
+"""
+Boolean expression to compare columns of type "uuid". All fields are combined with logical 'AND'.
+"""
+input UuidComparisonExp {
+  _eq: uuid
+  _gt: uuid
+  _gte: uuid
+  _in: [uuid!]
+  _isNull: Boolean
+  _lt: uuid
+  _lte: uuid
+  _neq: uuid
+  _nin: [uuid!]
+}
+
 input chatAggregateBoolExpCount {
   arguments: [ChatSelectColumn!]
   distinct: Boolean
@@ -5145,7 +4981,7 @@ type mutation_root {
   """
   delete single row from the table: "message"
   """
-  deleteMessageByPk(messageId: Int!): Message
+  deleteMessageByPk(messageId: uuid!): Message
 
   """
   delete data from the table: "message_type_enum"
@@ -5223,7 +5059,7 @@ type mutation_root {
   """
   delete single row from the table: "thread"
   """
-  deleteThreadByPk(threadId: Int!): Thread
+  deleteThreadByPk(threadId: uuid!): Thread
 
   """
   delete data from the table: "tone_enum"
@@ -5812,9 +5648,6 @@ type mutation_root {
   update data of the table: "message"
   """
   updateMessage(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: MessageIncInput
-
     """sets the columns of the filtered rows to the given values"""
     _set: MessageSetInput
 
@@ -5826,9 +5659,6 @@ type mutation_root {
   update single row of the table: "message"
   """
   updateMessageByPk(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: MessageIncInput
-
     """sets the columns of the filtered rows to the given values"""
     _set: MessageSetInput
     pkColumns: MessagePkColumnsInput!
@@ -6462,7 +6292,7 @@ type query_root {
   ): MessageAggregate!
 
   """fetch data from the table: "message" using primary key columns"""
-  messageByPk(messageId: Int!): Message
+  messageByPk(messageId: uuid!): Message
 
   """
   fetch data from the table: "message_type_enum"
@@ -6724,7 +6554,7 @@ type query_root {
   ): ThreadAggregate!
 
   """fetch data from the table: "thread" using primary key columns"""
-  threadByPk(threadId: Int!): Thread
+  threadByPk(threadId: uuid!): Thread
 
   """
   fetch data from the table: "tone_enum"
@@ -7242,7 +7072,7 @@ type subscription_root {
   ): MessageAggregate!
 
   """fetch data from the table: "message" using primary key columns"""
-  messageByPk(messageId: Int!): Message
+  messageByPk(messageId: uuid!): Message
 
   """
   fetch data from the table in a streaming manner: "message"
@@ -7588,7 +7418,7 @@ type subscription_root {
   ): ThreadAggregate!
 
   """fetch data from the table: "thread" using primary key columns"""
-  threadByPk(threadId: Int!): Thread
+  threadByPk(threadId: uuid!): Thread
 
   """
   fetch data from the table in a streaming manner: "thread"
@@ -7784,3 +7614,5 @@ input threadAggregateBoolExpCount {
 }
 
 scalar timestamptz
+
+scalar uuid

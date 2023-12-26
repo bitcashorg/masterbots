@@ -9,6 +9,7 @@ export type Scalars = {
     Int: number,
     String: string,
     timestamptz: any,
+    uuid: any,
 }
 
 
@@ -731,12 +732,11 @@ export type LengthEnumUpdateColumn = 'value'
 export interface Message {
     content: Scalars['String']
     createdAt: (Scalars['timestamptz'] | null)
-    messageId: Scalars['Int']
-    relatedMessageId: (Scalars['Int'] | null)
+    messageId: Scalars['uuid']
+    role: Scalars['String']
     /** An object relationship */
     thread: (Thread | null)
-    threadId: (Scalars['Int'] | null)
-    type: Scalars['String']
+    threadId: (Scalars['uuid'] | null)
     __typename: 'Message'
 }
 
@@ -751,42 +751,24 @@ export interface MessageAggregate {
 
 /** aggregate fields of "message" */
 export interface MessageAggregateFields {
-    avg: (MessageAvgFields | null)
     count: Scalars['Int']
     max: (MessageMaxFields | null)
     min: (MessageMinFields | null)
-    stddev: (MessageStddevFields | null)
-    stddevPop: (MessageStddevPopFields | null)
-    stddevSamp: (MessageStddevSampFields | null)
-    sum: (MessageSumFields | null)
-    varPop: (MessageVarPopFields | null)
-    varSamp: (MessageVarSampFields | null)
-    variance: (MessageVarianceFields | null)
     __typename: 'MessageAggregateFields'
 }
 
 
-/** aggregate avg on columns */
-export interface MessageAvgFields {
-    messageId: (Scalars['Float'] | null)
-    relatedMessageId: (Scalars['Float'] | null)
-    threadId: (Scalars['Float'] | null)
-    __typename: 'MessageAvgFields'
-}
-
-
 /** unique or primary key constraints on table "message" */
-export type MessageConstraint = 'message_pkey'
+export type MessageConstraint = 'message_id_key' | 'message_pkey'
 
 
 /** aggregate max on columns */
 export interface MessageMaxFields {
     content: (Scalars['String'] | null)
     createdAt: (Scalars['timestamptz'] | null)
-    messageId: (Scalars['Int'] | null)
-    relatedMessageId: (Scalars['Int'] | null)
-    threadId: (Scalars['Int'] | null)
-    type: (Scalars['String'] | null)
+    messageId: (Scalars['uuid'] | null)
+    role: (Scalars['String'] | null)
+    threadId: (Scalars['uuid'] | null)
     __typename: 'MessageMaxFields'
 }
 
@@ -795,10 +777,9 @@ export interface MessageMaxFields {
 export interface MessageMinFields {
     content: (Scalars['String'] | null)
     createdAt: (Scalars['timestamptz'] | null)
-    messageId: (Scalars['Int'] | null)
-    relatedMessageId: (Scalars['Int'] | null)
-    threadId: (Scalars['Int'] | null)
-    type: (Scalars['String'] | null)
+    messageId: (Scalars['uuid'] | null)
+    role: (Scalars['String'] | null)
+    threadId: (Scalars['uuid'] | null)
     __typename: 'MessageMinFields'
 }
 
@@ -814,43 +795,7 @@ export interface MessageMutationResponse {
 
 
 /** select columns of table "message" */
-export type MessageSelectColumn = 'content' | 'createdAt' | 'messageId' | 'relatedMessageId' | 'threadId' | 'type'
-
-
-/** aggregate stddev on columns */
-export interface MessageStddevFields {
-    messageId: (Scalars['Float'] | null)
-    relatedMessageId: (Scalars['Float'] | null)
-    threadId: (Scalars['Float'] | null)
-    __typename: 'MessageStddevFields'
-}
-
-
-/** aggregate stddevPop on columns */
-export interface MessageStddevPopFields {
-    messageId: (Scalars['Float'] | null)
-    relatedMessageId: (Scalars['Float'] | null)
-    threadId: (Scalars['Float'] | null)
-    __typename: 'MessageStddevPopFields'
-}
-
-
-/** aggregate stddevSamp on columns */
-export interface MessageStddevSampFields {
-    messageId: (Scalars['Float'] | null)
-    relatedMessageId: (Scalars['Float'] | null)
-    threadId: (Scalars['Float'] | null)
-    __typename: 'MessageStddevSampFields'
-}
-
-
-/** aggregate sum on columns */
-export interface MessageSumFields {
-    messageId: (Scalars['Int'] | null)
-    relatedMessageId: (Scalars['Int'] | null)
-    threadId: (Scalars['Int'] | null)
-    __typename: 'MessageSumFields'
-}
+export type MessageSelectColumn = 'content' | 'createdAt' | 'messageId' | 'role' | 'threadId'
 
 
 /** columns and relationships of "message_type_enum" */
@@ -914,34 +859,7 @@ export type MessageTypeEnumUpdateColumn = 'value'
 
 
 /** update columns of table "message" */
-export type MessageUpdateColumn = 'content' | 'createdAt' | 'messageId' | 'relatedMessageId' | 'threadId' | 'type'
-
-
-/** aggregate varPop on columns */
-export interface MessageVarPopFields {
-    messageId: (Scalars['Float'] | null)
-    relatedMessageId: (Scalars['Float'] | null)
-    threadId: (Scalars['Float'] | null)
-    __typename: 'MessageVarPopFields'
-}
-
-
-/** aggregate varSamp on columns */
-export interface MessageVarSampFields {
-    messageId: (Scalars['Float'] | null)
-    relatedMessageId: (Scalars['Float'] | null)
-    threadId: (Scalars['Float'] | null)
-    __typename: 'MessageVarSampFields'
-}
-
-
-/** aggregate variance on columns */
-export interface MessageVarianceFields {
-    messageId: (Scalars['Float'] | null)
-    relatedMessageId: (Scalars['Float'] | null)
-    threadId: (Scalars['Float'] | null)
-    __typename: 'MessageVarianceFields'
-}
+export type MessageUpdateColumn = 'content' | 'createdAt' | 'messageId' | 'role' | 'threadId'
 
 
 /** column ordering options */
@@ -1469,7 +1387,7 @@ export interface Thread {
     messages: Message[]
     /** An aggregate relationship */
     messagesAggregate: MessageAggregate
-    threadId: Scalars['Int']
+    threadId: Scalars['uuid']
     updatedAt: Scalars['timestamptz']
     /** An object relationship */
     user: User
@@ -1506,21 +1424,20 @@ export interface ThreadAggregateFields {
 /** aggregate avg on columns */
 export interface ThreadAvgFields {
     chatbotId: (Scalars['Float'] | null)
-    threadId: (Scalars['Float'] | null)
     userId: (Scalars['Float'] | null)
     __typename: 'ThreadAvgFields'
 }
 
 
 /** unique or primary key constraints on table "thread" */
-export type ThreadConstraint = 'thread_pkey'
+export type ThreadConstraint = 'thread_id_key' | 'thread_pkey'
 
 
 /** aggregate max on columns */
 export interface ThreadMaxFields {
     chatbotId: (Scalars['Int'] | null)
     createdAt: (Scalars['timestamptz'] | null)
-    threadId: (Scalars['Int'] | null)
+    threadId: (Scalars['uuid'] | null)
     updatedAt: (Scalars['timestamptz'] | null)
     userId: (Scalars['Int'] | null)
     __typename: 'ThreadMaxFields'
@@ -1531,7 +1448,7 @@ export interface ThreadMaxFields {
 export interface ThreadMinFields {
     chatbotId: (Scalars['Int'] | null)
     createdAt: (Scalars['timestamptz'] | null)
-    threadId: (Scalars['Int'] | null)
+    threadId: (Scalars['uuid'] | null)
     updatedAt: (Scalars['timestamptz'] | null)
     userId: (Scalars['Int'] | null)
     __typename: 'ThreadMinFields'
@@ -1555,7 +1472,6 @@ export type ThreadSelectColumn = 'chatbotId' | 'createdAt' | 'threadId' | 'updat
 /** aggregate stddev on columns */
 export interface ThreadStddevFields {
     chatbotId: (Scalars['Float'] | null)
-    threadId: (Scalars['Float'] | null)
     userId: (Scalars['Float'] | null)
     __typename: 'ThreadStddevFields'
 }
@@ -1564,7 +1480,6 @@ export interface ThreadStddevFields {
 /** aggregate stddevPop on columns */
 export interface ThreadStddevPopFields {
     chatbotId: (Scalars['Float'] | null)
-    threadId: (Scalars['Float'] | null)
     userId: (Scalars['Float'] | null)
     __typename: 'ThreadStddevPopFields'
 }
@@ -1573,7 +1488,6 @@ export interface ThreadStddevPopFields {
 /** aggregate stddevSamp on columns */
 export interface ThreadStddevSampFields {
     chatbotId: (Scalars['Float'] | null)
-    threadId: (Scalars['Float'] | null)
     userId: (Scalars['Float'] | null)
     __typename: 'ThreadStddevSampFields'
 }
@@ -1582,7 +1496,6 @@ export interface ThreadStddevSampFields {
 /** aggregate sum on columns */
 export interface ThreadSumFields {
     chatbotId: (Scalars['Int'] | null)
-    threadId: (Scalars['Int'] | null)
     userId: (Scalars['Int'] | null)
     __typename: 'ThreadSumFields'
 }
@@ -1595,7 +1508,6 @@ export type ThreadUpdateColumn = 'chatbotId' | 'createdAt' | 'threadId' | 'updat
 /** aggregate varPop on columns */
 export interface ThreadVarPopFields {
     chatbotId: (Scalars['Float'] | null)
-    threadId: (Scalars['Float'] | null)
     userId: (Scalars['Float'] | null)
     __typename: 'ThreadVarPopFields'
 }
@@ -1604,7 +1516,6 @@ export interface ThreadVarPopFields {
 /** aggregate varSamp on columns */
 export interface ThreadVarSampFields {
     chatbotId: (Scalars['Float'] | null)
-    threadId: (Scalars['Float'] | null)
     userId: (Scalars['Float'] | null)
     __typename: 'ThreadVarSampFields'
 }
@@ -1613,7 +1524,6 @@ export interface ThreadVarSampFields {
 /** aggregate variance on columns */
 export interface ThreadVarianceFields {
     chatbotId: (Scalars['Float'] | null)
-    threadId: (Scalars['Float'] | null)
     userId: (Scalars['Float'] | null)
     __typename: 'ThreadVarianceFields'
 }
@@ -3591,11 +3501,10 @@ export interface MessageGenqlSelection{
     content?: boolean | number
     createdAt?: boolean | number
     messageId?: boolean | number
-    relatedMessageId?: boolean | number
+    role?: boolean | number
     /** An object relationship */
     thread?: ThreadGenqlSelection
     threadId?: boolean | number
-    type?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
@@ -3614,24 +3523,16 @@ export interface MessageAggregateBoolExp {count?: (messageAggregateBoolExpCount 
 
 /** aggregate fields of "message" */
 export interface MessageAggregateFieldsGenqlSelection{
-    avg?: MessageAvgFieldsGenqlSelection
     count?: { __args: {columns?: (MessageSelectColumn[] | null), distinct?: (Scalars['Boolean'] | null)} } | boolean | number
     max?: MessageMaxFieldsGenqlSelection
     min?: MessageMinFieldsGenqlSelection
-    stddev?: MessageStddevFieldsGenqlSelection
-    stddevPop?: MessageStddevPopFieldsGenqlSelection
-    stddevSamp?: MessageStddevSampFieldsGenqlSelection
-    sum?: MessageSumFieldsGenqlSelection
-    varPop?: MessageVarPopFieldsGenqlSelection
-    varSamp?: MessageVarSampFieldsGenqlSelection
-    variance?: MessageVarianceFieldsGenqlSelection
     __typename?: boolean | number
     __scalar?: boolean | number
 }
 
 
 /** order by aggregate values of table "message" */
-export interface MessageAggregateOrderBy {avg?: (MessageAvgOrderBy | null),count?: (OrderBy | null),max?: (MessageMaxOrderBy | null),min?: (MessageMinOrderBy | null),stddev?: (MessageStddevOrderBy | null),stddevPop?: (MessageStddevPopOrderBy | null),stddevSamp?: (MessageStddevSampOrderBy | null),sum?: (MessageSumOrderBy | null),varPop?: (MessageVarPopOrderBy | null),varSamp?: (MessageVarSampOrderBy | null),variance?: (MessageVarianceOrderBy | null)}
+export interface MessageAggregateOrderBy {count?: (OrderBy | null),max?: (MessageMaxOrderBy | null),min?: (MessageMinOrderBy | null)}
 
 
 /** input type for inserting array relation for remote table "message" */
@@ -3640,30 +3541,12 @@ export interface MessageArrRelInsertInput {data: MessageInsertInput[],
 onConflict?: (MessageOnConflict | null)}
 
 
-/** aggregate avg on columns */
-export interface MessageAvgFieldsGenqlSelection{
-    messageId?: boolean | number
-    relatedMessageId?: boolean | number
-    threadId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by avg() on columns of table "message" */
-export interface MessageAvgOrderBy {messageId?: (OrderBy | null),relatedMessageId?: (OrderBy | null),threadId?: (OrderBy | null)}
-
-
 /** Boolean expression to filter rows from the table "message". All fields are combined with a logical 'AND'. */
-export interface MessageBoolExp {_and?: (MessageBoolExp[] | null),_not?: (MessageBoolExp | null),_or?: (MessageBoolExp[] | null),content?: (StringComparisonExp | null),createdAt?: (TimestamptzComparisonExp | null),messageId?: (IntComparisonExp | null),relatedMessageId?: (IntComparisonExp | null),thread?: (ThreadBoolExp | null),threadId?: (IntComparisonExp | null),type?: (StringComparisonExp | null)}
-
-
-/** input type for incrementing numeric columns in table "message" */
-export interface MessageIncInput {messageId?: (Scalars['Int'] | null),relatedMessageId?: (Scalars['Int'] | null),threadId?: (Scalars['Int'] | null)}
+export interface MessageBoolExp {_and?: (MessageBoolExp[] | null),_not?: (MessageBoolExp | null),_or?: (MessageBoolExp[] | null),content?: (StringComparisonExp | null),createdAt?: (TimestamptzComparisonExp | null),messageId?: (UuidComparisonExp | null),role?: (StringComparisonExp | null),thread?: (ThreadBoolExp | null),threadId?: (UuidComparisonExp | null)}
 
 
 /** input type for inserting data into table "message" */
-export interface MessageInsertInput {content?: (Scalars['String'] | null),createdAt?: (Scalars['timestamptz'] | null),messageId?: (Scalars['Int'] | null),relatedMessageId?: (Scalars['Int'] | null),thread?: (ThreadObjRelInsertInput | null),threadId?: (Scalars['Int'] | null),type?: (Scalars['String'] | null)}
+export interface MessageInsertInput {content?: (Scalars['String'] | null),createdAt?: (Scalars['timestamptz'] | null),messageId?: (Scalars['uuid'] | null),role?: (Scalars['String'] | null),thread?: (ThreadObjRelInsertInput | null),threadId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate max on columns */
@@ -3671,16 +3554,15 @@ export interface MessageMaxFieldsGenqlSelection{
     content?: boolean | number
     createdAt?: boolean | number
     messageId?: boolean | number
-    relatedMessageId?: boolean | number
+    role?: boolean | number
     threadId?: boolean | number
-    type?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
 
 
 /** order by max() on columns of table "message" */
-export interface MessageMaxOrderBy {content?: (OrderBy | null),createdAt?: (OrderBy | null),messageId?: (OrderBy | null),relatedMessageId?: (OrderBy | null),threadId?: (OrderBy | null),type?: (OrderBy | null)}
+export interface MessageMaxOrderBy {content?: (OrderBy | null),createdAt?: (OrderBy | null),messageId?: (OrderBy | null),role?: (OrderBy | null),threadId?: (OrderBy | null)}
 
 
 /** aggregate min on columns */
@@ -3688,16 +3570,15 @@ export interface MessageMinFieldsGenqlSelection{
     content?: boolean | number
     createdAt?: boolean | number
     messageId?: boolean | number
-    relatedMessageId?: boolean | number
+    role?: boolean | number
     threadId?: boolean | number
-    type?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
 
 
 /** order by min() on columns of table "message" */
-export interface MessageMinOrderBy {content?: (OrderBy | null),createdAt?: (OrderBy | null),messageId?: (OrderBy | null),relatedMessageId?: (OrderBy | null),threadId?: (OrderBy | null),type?: (OrderBy | null)}
+export interface MessageMinOrderBy {content?: (OrderBy | null),createdAt?: (OrderBy | null),messageId?: (OrderBy | null),role?: (OrderBy | null),threadId?: (OrderBy | null)}
 
 
 /** response of any mutation on the table "message" */
@@ -3716,57 +3597,15 @@ export interface MessageOnConflict {constraint: MessageConstraint,updateColumns?
 
 
 /** Ordering options when selecting data from "message". */
-export interface MessageOrderBy {content?: (OrderBy | null),createdAt?: (OrderBy | null),messageId?: (OrderBy | null),relatedMessageId?: (OrderBy | null),thread?: (ThreadOrderBy | null),threadId?: (OrderBy | null),type?: (OrderBy | null)}
+export interface MessageOrderBy {content?: (OrderBy | null),createdAt?: (OrderBy | null),messageId?: (OrderBy | null),role?: (OrderBy | null),thread?: (ThreadOrderBy | null),threadId?: (OrderBy | null)}
 
 
 /** primary key columns input for table: message */
-export interface MessagePkColumnsInput {messageId: Scalars['Int']}
+export interface MessagePkColumnsInput {messageId: Scalars['uuid']}
 
 
 /** input type for updating data in table "message" */
-export interface MessageSetInput {content?: (Scalars['String'] | null),createdAt?: (Scalars['timestamptz'] | null),messageId?: (Scalars['Int'] | null),relatedMessageId?: (Scalars['Int'] | null),threadId?: (Scalars['Int'] | null),type?: (Scalars['String'] | null)}
-
-
-/** aggregate stddev on columns */
-export interface MessageStddevFieldsGenqlSelection{
-    messageId?: boolean | number
-    relatedMessageId?: boolean | number
-    threadId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by stddev() on columns of table "message" */
-export interface MessageStddevOrderBy {messageId?: (OrderBy | null),relatedMessageId?: (OrderBy | null),threadId?: (OrderBy | null)}
-
-
-/** aggregate stddevPop on columns */
-export interface MessageStddevPopFieldsGenqlSelection{
-    messageId?: boolean | number
-    relatedMessageId?: boolean | number
-    threadId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by stddevPop() on columns of table "message" */
-export interface MessageStddevPopOrderBy {messageId?: (OrderBy | null),relatedMessageId?: (OrderBy | null),threadId?: (OrderBy | null)}
-
-
-/** aggregate stddevSamp on columns */
-export interface MessageStddevSampFieldsGenqlSelection{
-    messageId?: boolean | number
-    relatedMessageId?: boolean | number
-    threadId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by stddevSamp() on columns of table "message" */
-export interface MessageStddevSampOrderBy {messageId?: (OrderBy | null),relatedMessageId?: (OrderBy | null),threadId?: (OrderBy | null)}
+export interface MessageSetInput {content?: (Scalars['String'] | null),createdAt?: (Scalars['timestamptz'] | null),messageId?: (Scalars['uuid'] | null),role?: (Scalars['String'] | null),threadId?: (Scalars['uuid'] | null)}
 
 
 /** Streaming cursor of the table "message" */
@@ -3778,21 +3617,7 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface MessageStreamCursorValueInput {content?: (Scalars['String'] | null),createdAt?: (Scalars['timestamptz'] | null),messageId?: (Scalars['Int'] | null),relatedMessageId?: (Scalars['Int'] | null),threadId?: (Scalars['Int'] | null),type?: (Scalars['String'] | null)}
-
-
-/** aggregate sum on columns */
-export interface MessageSumFieldsGenqlSelection{
-    messageId?: boolean | number
-    relatedMessageId?: boolean | number
-    threadId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by sum() on columns of table "message" */
-export interface MessageSumOrderBy {messageId?: (OrderBy | null),relatedMessageId?: (OrderBy | null),threadId?: (OrderBy | null)}
+export interface MessageStreamCursorValueInput {content?: (Scalars['String'] | null),createdAt?: (Scalars['timestamptz'] | null),messageId?: (Scalars['uuid'] | null),role?: (Scalars['String'] | null),threadId?: (Scalars['uuid'] | null)}
 
 
 /** columns and relationships of "message_type_enum" */
@@ -3891,54 +3716,10 @@ _set?: (MessageTypeEnumSetInput | null),
 where: MessageTypeEnumBoolExp}
 
 export interface MessageUpdates {
-/** increments the numeric columns with given value of the filtered values */
-_inc?: (MessageIncInput | null),
 /** sets the columns of the filtered rows to the given values */
 _set?: (MessageSetInput | null),
 /** filter the rows which have to be updated */
 where: MessageBoolExp}
-
-
-/** aggregate varPop on columns */
-export interface MessageVarPopFieldsGenqlSelection{
-    messageId?: boolean | number
-    relatedMessageId?: boolean | number
-    threadId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by varPop() on columns of table "message" */
-export interface MessageVarPopOrderBy {messageId?: (OrderBy | null),relatedMessageId?: (OrderBy | null),threadId?: (OrderBy | null)}
-
-
-/** aggregate varSamp on columns */
-export interface MessageVarSampFieldsGenqlSelection{
-    messageId?: boolean | number
-    relatedMessageId?: boolean | number
-    threadId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by varSamp() on columns of table "message" */
-export interface MessageVarSampOrderBy {messageId?: (OrderBy | null),relatedMessageId?: (OrderBy | null),threadId?: (OrderBy | null)}
-
-
-/** aggregate variance on columns */
-export interface MessageVarianceFieldsGenqlSelection{
-    messageId?: boolean | number
-    relatedMessageId?: boolean | number
-    threadId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by variance() on columns of table "message" */
-export interface MessageVarianceOrderBy {messageId?: (OrderBy | null),relatedMessageId?: (OrderBy | null),threadId?: (OrderBy | null)}
 
 
 /** This table stores user-specific preferences for quick access when they interact with a chatbot. */
@@ -4938,7 +4719,6 @@ onConflict?: (ThreadOnConflict | null)}
 /** aggregate avg on columns */
 export interface ThreadAvgFieldsGenqlSelection{
     chatbotId?: boolean | number
-    threadId?: boolean | number
     userId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -4946,19 +4726,19 @@ export interface ThreadAvgFieldsGenqlSelection{
 
 
 /** order by avg() on columns of table "thread" */
-export interface ThreadAvgOrderBy {chatbotId?: (OrderBy | null),threadId?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadAvgOrderBy {chatbotId?: (OrderBy | null),userId?: (OrderBy | null)}
 
 
 /** Boolean expression to filter rows from the table "thread". All fields are combined with a logical 'AND'. */
-export interface ThreadBoolExp {_and?: (ThreadBoolExp[] | null),_not?: (ThreadBoolExp | null),_or?: (ThreadBoolExp[] | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),createdAt?: (TimestamptzComparisonExp | null),messages?: (MessageBoolExp | null),messagesAggregate?: (MessageAggregateBoolExp | null),threadId?: (IntComparisonExp | null),updatedAt?: (TimestamptzComparisonExp | null),user?: (UserBoolExp | null),userId?: (IntComparisonExp | null)}
+export interface ThreadBoolExp {_and?: (ThreadBoolExp[] | null),_not?: (ThreadBoolExp | null),_or?: (ThreadBoolExp[] | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),createdAt?: (TimestamptzComparisonExp | null),messages?: (MessageBoolExp | null),messagesAggregate?: (MessageAggregateBoolExp | null),threadId?: (UuidComparisonExp | null),updatedAt?: (TimestamptzComparisonExp | null),user?: (UserBoolExp | null),userId?: (IntComparisonExp | null)}
 
 
 /** input type for incrementing numeric columns in table "thread" */
-export interface ThreadIncInput {chatbotId?: (Scalars['Int'] | null),threadId?: (Scalars['Int'] | null),userId?: (Scalars['Int'] | null)}
+export interface ThreadIncInput {chatbotId?: (Scalars['Int'] | null),userId?: (Scalars['Int'] | null)}
 
 
 /** input type for inserting data into table "thread" */
-export interface ThreadInsertInput {chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),messages?: (MessageArrRelInsertInput | null),threadId?: (Scalars['Int'] | null),updatedAt?: (Scalars['timestamptz'] | null),user?: (UserObjRelInsertInput | null),userId?: (Scalars['Int'] | null)}
+export interface ThreadInsertInput {chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),messages?: (MessageArrRelInsertInput | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),user?: (UserObjRelInsertInput | null),userId?: (Scalars['Int'] | null)}
 
 
 /** aggregate max on columns */
@@ -5019,17 +4799,16 @@ export interface ThreadOrderBy {chatbot?: (ChatbotOrderBy | null),chatbotId?: (O
 
 
 /** primary key columns input for table: thread */
-export interface ThreadPkColumnsInput {threadId: Scalars['Int']}
+export interface ThreadPkColumnsInput {threadId: Scalars['uuid']}
 
 
 /** input type for updating data in table "thread" */
-export interface ThreadSetInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),threadId?: (Scalars['Int'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['Int'] | null)}
+export interface ThreadSetInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['Int'] | null)}
 
 
 /** aggregate stddev on columns */
 export interface ThreadStddevFieldsGenqlSelection{
     chatbotId?: boolean | number
-    threadId?: boolean | number
     userId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -5037,13 +4816,12 @@ export interface ThreadStddevFieldsGenqlSelection{
 
 
 /** order by stddev() on columns of table "thread" */
-export interface ThreadStddevOrderBy {chatbotId?: (OrderBy | null),threadId?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadStddevOrderBy {chatbotId?: (OrderBy | null),userId?: (OrderBy | null)}
 
 
 /** aggregate stddevPop on columns */
 export interface ThreadStddevPopFieldsGenqlSelection{
     chatbotId?: boolean | number
-    threadId?: boolean | number
     userId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -5051,13 +4829,12 @@ export interface ThreadStddevPopFieldsGenqlSelection{
 
 
 /** order by stddevPop() on columns of table "thread" */
-export interface ThreadStddevPopOrderBy {chatbotId?: (OrderBy | null),threadId?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadStddevPopOrderBy {chatbotId?: (OrderBy | null),userId?: (OrderBy | null)}
 
 
 /** aggregate stddevSamp on columns */
 export interface ThreadStddevSampFieldsGenqlSelection{
     chatbotId?: boolean | number
-    threadId?: boolean | number
     userId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -5065,7 +4842,7 @@ export interface ThreadStddevSampFieldsGenqlSelection{
 
 
 /** order by stddevSamp() on columns of table "thread" */
-export interface ThreadStddevSampOrderBy {chatbotId?: (OrderBy | null),threadId?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadStddevSampOrderBy {chatbotId?: (OrderBy | null),userId?: (OrderBy | null)}
 
 
 /** Streaming cursor of the table "thread" */
@@ -5077,13 +4854,12 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface ThreadStreamCursorValueInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),threadId?: (Scalars['Int'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['Int'] | null)}
+export interface ThreadStreamCursorValueInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['Int'] | null)}
 
 
 /** aggregate sum on columns */
 export interface ThreadSumFieldsGenqlSelection{
     chatbotId?: boolean | number
-    threadId?: boolean | number
     userId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -5091,7 +4867,7 @@ export interface ThreadSumFieldsGenqlSelection{
 
 
 /** order by sum() on columns of table "thread" */
-export interface ThreadSumOrderBy {chatbotId?: (OrderBy | null),threadId?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadSumOrderBy {chatbotId?: (OrderBy | null),userId?: (OrderBy | null)}
 
 export interface ThreadUpdates {
 /** increments the numeric columns with given value of the filtered values */
@@ -5105,7 +4881,6 @@ where: ThreadBoolExp}
 /** aggregate varPop on columns */
 export interface ThreadVarPopFieldsGenqlSelection{
     chatbotId?: boolean | number
-    threadId?: boolean | number
     userId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -5113,13 +4888,12 @@ export interface ThreadVarPopFieldsGenqlSelection{
 
 
 /** order by varPop() on columns of table "thread" */
-export interface ThreadVarPopOrderBy {chatbotId?: (OrderBy | null),threadId?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadVarPopOrderBy {chatbotId?: (OrderBy | null),userId?: (OrderBy | null)}
 
 
 /** aggregate varSamp on columns */
 export interface ThreadVarSampFieldsGenqlSelection{
     chatbotId?: boolean | number
-    threadId?: boolean | number
     userId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -5127,13 +4901,12 @@ export interface ThreadVarSampFieldsGenqlSelection{
 
 
 /** order by varSamp() on columns of table "thread" */
-export interface ThreadVarSampOrderBy {chatbotId?: (OrderBy | null),threadId?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadVarSampOrderBy {chatbotId?: (OrderBy | null),userId?: (OrderBy | null)}
 
 
 /** aggregate variance on columns */
 export interface ThreadVarianceFieldsGenqlSelection{
     chatbotId?: boolean | number
-    threadId?: boolean | number
     userId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -5141,7 +4914,7 @@ export interface ThreadVarianceFieldsGenqlSelection{
 
 
 /** order by variance() on columns of table "thread" */
-export interface ThreadVarianceOrderBy {chatbotId?: (OrderBy | null),threadId?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadVarianceOrderBy {chatbotId?: (OrderBy | null),userId?: (OrderBy | null)}
 
 
 /** Boolean expression to compare columns of type "timestamptz". All fields are combined with logical 'AND'. */
@@ -5609,6 +5382,10 @@ export interface UserVarianceFieldsGenqlSelection{
     __scalar?: boolean | number
 }
 
+
+/** Boolean expression to compare columns of type "uuid". All fields are combined with logical 'AND'. */
+export interface UuidComparisonExp {_eq?: (Scalars['uuid'] | null),_gt?: (Scalars['uuid'] | null),_gte?: (Scalars['uuid'] | null),_in?: (Scalars['uuid'][] | null),_isNull?: (Scalars['Boolean'] | null),_lt?: (Scalars['uuid'] | null),_lte?: (Scalars['uuid'] | null),_neq?: (Scalars['uuid'] | null),_nin?: (Scalars['uuid'][] | null)}
+
 export interface chatAggregateBoolExpCount {arguments?: (ChatSelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (ChatBoolExp | null),predicate: IntComparisonExp}
 
 export interface chatbotCategoryAggregateBoolExpCount {arguments?: (ChatbotCategorySelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (ChatbotCategoryBoolExp | null),predicate: IntComparisonExp}
@@ -5659,7 +5436,7 @@ export interface mutation_rootGenqlSelection{
     /** filter the rows which have to be deleted */
     where: MessageBoolExp} })
     /** delete single row from the table: "message" */
-    deleteMessageByPk?: (MessageGenqlSelection & { __args: {messageId: Scalars['Int']} })
+    deleteMessageByPk?: (MessageGenqlSelection & { __args: {messageId: Scalars['uuid']} })
     /** delete data from the table: "message_type_enum" */
     deleteMessageTypeEnum?: (MessageTypeEnumMutationResponseGenqlSelection & { __args: {
     /** filter the rows which have to be deleted */
@@ -5695,7 +5472,7 @@ export interface mutation_rootGenqlSelection{
     /** filter the rows which have to be deleted */
     where: ThreadBoolExp} })
     /** delete single row from the table: "thread" */
-    deleteThreadByPk?: (ThreadGenqlSelection & { __args: {threadId: Scalars['Int']} })
+    deleteThreadByPk?: (ThreadGenqlSelection & { __args: {threadId: Scalars['uuid']} })
     /** delete data from the table: "tone_enum" */
     deleteToneEnum?: (ToneEnumMutationResponseGenqlSelection & { __args: {
     /** filter the rows which have to be deleted */
@@ -6008,16 +5785,12 @@ export interface mutation_rootGenqlSelection{
     updates: LengthEnumUpdates[]} })
     /** update data of the table: "message" */
     updateMessage?: (MessageMutationResponseGenqlSelection & { __args: {
-    /** increments the numeric columns with given value of the filtered values */
-    _inc?: (MessageIncInput | null), 
     /** sets the columns of the filtered rows to the given values */
     _set?: (MessageSetInput | null), 
     /** filter the rows which have to be updated */
     where: MessageBoolExp} })
     /** update single row of the table: "message" */
     updateMessageByPk?: (MessageGenqlSelection & { __args: {
-    /** increments the numeric columns with given value of the filtered values */
-    _inc?: (MessageIncInput | null), 
     /** sets the columns of the filtered rows to the given values */
     _set?: (MessageSetInput | null), pkColumns: MessagePkColumnsInput} })
     /** update multiples rows of table: "message" */
@@ -6366,7 +6139,7 @@ export interface query_rootGenqlSelection{
     /** filter the rows returned */
     where?: (MessageBoolExp | null)} })
     /** fetch data from the table: "message" using primary key columns */
-    messageByPk?: (MessageGenqlSelection & { __args: {messageId: Scalars['Int']} })
+    messageByPk?: (MessageGenqlSelection & { __args: {messageId: Scalars['uuid']} })
     /** fetch data from the table: "message_type_enum" */
     messageTypeEnum?: (MessageTypeEnumGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -6522,7 +6295,7 @@ export interface query_rootGenqlSelection{
     /** filter the rows returned */
     where?: (ThreadBoolExp | null)} })
     /** fetch data from the table: "thread" using primary key columns */
-    threadByPk?: (ThreadGenqlSelection & { __args: {threadId: Scalars['Int']} })
+    threadByPk?: (ThreadGenqlSelection & { __args: {threadId: Scalars['uuid']} })
     /** fetch data from the table: "tone_enum" */
     toneEnum?: (ToneEnumGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -6835,7 +6608,7 @@ export interface subscription_rootGenqlSelection{
     /** filter the rows returned */
     where?: (MessageBoolExp | null)} })
     /** fetch data from the table: "message" using primary key columns */
-    messageByPk?: (MessageGenqlSelection & { __args: {messageId: Scalars['Int']} })
+    messageByPk?: (MessageGenqlSelection & { __args: {messageId: Scalars['uuid']} })
     /** fetch data from the table in a streaming manner: "message" */
     messageStream?: (MessageGenqlSelection & { __args: {
     /** maximum number of rows returned in a single batch */
@@ -7039,7 +6812,7 @@ export interface subscription_rootGenqlSelection{
     /** filter the rows returned */
     where?: (ThreadBoolExp | null)} })
     /** fetch data from the table: "thread" using primary key columns */
-    threadByPk?: (ThreadGenqlSelection & { __args: {threadId: Scalars['Int']} })
+    threadByPk?: (ThreadGenqlSelection & { __args: {threadId: Scalars['uuid']} })
     /** fetch data from the table in a streaming manner: "thread" */
     threadStream?: (ThreadGenqlSelection & { __args: {
     /** maximum number of rows returned in a single batch */
@@ -7729,14 +7502,6 @@ export type SubscriptionGenqlSelection = subscription_rootGenqlSelection
     
 
 
-    const MessageAvgFields_possibleTypes: string[] = ['MessageAvgFields']
-    export const isMessageAvgFields = (obj?: { __typename?: any } | null): obj is MessageAvgFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isMessageAvgFields"')
-      return MessageAvgFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
     const MessageMaxFields_possibleTypes: string[] = ['MessageMaxFields']
     export const isMessageMaxFields = (obj?: { __typename?: any } | null): obj is MessageMaxFields => {
       if (!obj?.__typename) throw new Error('__typename is missing in "isMessageMaxFields"')
@@ -7757,38 +7522,6 @@ export type SubscriptionGenqlSelection = subscription_rootGenqlSelection
     export const isMessageMutationResponse = (obj?: { __typename?: any } | null): obj is MessageMutationResponse => {
       if (!obj?.__typename) throw new Error('__typename is missing in "isMessageMutationResponse"')
       return MessageMutationResponse_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const MessageStddevFields_possibleTypes: string[] = ['MessageStddevFields']
-    export const isMessageStddevFields = (obj?: { __typename?: any } | null): obj is MessageStddevFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isMessageStddevFields"')
-      return MessageStddevFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const MessageStddevPopFields_possibleTypes: string[] = ['MessageStddevPopFields']
-    export const isMessageStddevPopFields = (obj?: { __typename?: any } | null): obj is MessageStddevPopFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isMessageStddevPopFields"')
-      return MessageStddevPopFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const MessageStddevSampFields_possibleTypes: string[] = ['MessageStddevSampFields']
-    export const isMessageStddevSampFields = (obj?: { __typename?: any } | null): obj is MessageStddevSampFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isMessageStddevSampFields"')
-      return MessageStddevSampFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const MessageSumFields_possibleTypes: string[] = ['MessageSumFields']
-    export const isMessageSumFields = (obj?: { __typename?: any } | null): obj is MessageSumFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isMessageSumFields"')
-      return MessageSumFields_possibleTypes.includes(obj.__typename)
     }
     
 
@@ -7837,30 +7570,6 @@ export type SubscriptionGenqlSelection = subscription_rootGenqlSelection
     export const isMessageTypeEnumMutationResponse = (obj?: { __typename?: any } | null): obj is MessageTypeEnumMutationResponse => {
       if (!obj?.__typename) throw new Error('__typename is missing in "isMessageTypeEnumMutationResponse"')
       return MessageTypeEnumMutationResponse_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const MessageVarPopFields_possibleTypes: string[] = ['MessageVarPopFields']
-    export const isMessageVarPopFields = (obj?: { __typename?: any } | null): obj is MessageVarPopFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isMessageVarPopFields"')
-      return MessageVarPopFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const MessageVarSampFields_possibleTypes: string[] = ['MessageVarSampFields']
-    export const isMessageVarSampFields = (obj?: { __typename?: any } | null): obj is MessageVarSampFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isMessageVarSampFields"')
-      return MessageVarSampFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const MessageVarianceFields_possibleTypes: string[] = ['MessageVarianceFields']
-    export const isMessageVarianceFields = (obj?: { __typename?: any } | null): obj is MessageVarianceFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isMessageVarianceFields"')
-      return MessageVarianceFields_possibleTypes.includes(obj.__typename)
     }
     
 
@@ -8699,6 +8408,7 @@ export const enumLengthEnumUpdateColumn = {
 }
 
 export const enumMessageConstraint = {
+   message_id_key: 'message_id_key' as const,
    message_pkey: 'message_pkey' as const
 }
 
@@ -8706,9 +8416,8 @@ export const enumMessageSelectColumn = {
    content: 'content' as const,
    createdAt: 'createdAt' as const,
    messageId: 'messageId' as const,
-   relatedMessageId: 'relatedMessageId' as const,
-   threadId: 'threadId' as const,
-   type: 'type' as const
+   role: 'role' as const,
+   threadId: 'threadId' as const
 }
 
 export const enumMessageTypeEnumConstraint = {
@@ -8727,9 +8436,8 @@ export const enumMessageUpdateColumn = {
    content: 'content' as const,
    createdAt: 'createdAt' as const,
    messageId: 'messageId' as const,
-   relatedMessageId: 'relatedMessageId' as const,
-   threadId: 'threadId' as const,
-   type: 'type' as const
+   role: 'role' as const,
+   threadId: 'threadId' as const
 }
 
 export const enumOrderBy = {
@@ -8822,6 +8530,7 @@ export const enumPromptUpdateColumn = {
 }
 
 export const enumThreadConstraint = {
+   thread_id_key: 'thread_id_key' as const,
    thread_pkey: 'thread_pkey' as const
 }
 
