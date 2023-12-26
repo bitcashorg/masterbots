@@ -21,9 +21,9 @@ select_permissions:
     permission:
       columns:
         - chatbot_id
-        - thread_id
-        - user_id
         - created_at
+        - thread_id
         - updated_at
+        - user_id
       filter: {}
     comment: ""
