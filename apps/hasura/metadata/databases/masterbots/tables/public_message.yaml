@@ -13,6 +13,6 @@ select_permissions:
         - created_at
         - message_id
         - thread_id
-        - type
+        - role
       filter: {}
     comment: ""
