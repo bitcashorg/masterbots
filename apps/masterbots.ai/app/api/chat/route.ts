@@ -48,7 +48,7 @@ export async function POST(req: Request) {
           ...messages,
           {
             content: completion,
-            role: 'system'
+            role: 'assistant'
           }
         ]
       }
