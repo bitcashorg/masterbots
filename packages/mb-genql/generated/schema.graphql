@@ -1855,7 +1855,7 @@ input LengthEnumUpdates {
 """This table stores the messages exchanged between users and chatbots."""
 type Message {
   content: String!
-  createdAt: timestamptz
+  createdAt: timestamptz!
   messageId: uuid!
   role: String!
 
