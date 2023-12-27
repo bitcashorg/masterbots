@@ -62,6 +62,7 @@ export function Chat({ id, initialMessages, className, bot }: ChatProps) {
 
 export interface ChatProps extends React.ComponentProps<'div'> {
   initialMessages?: Message[]
+  systemPrompts?: Message[]
   id?: string
   bot: string
 }

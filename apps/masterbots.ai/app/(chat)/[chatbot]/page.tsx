@@ -1,4 +1,5 @@
 import ThreadPanel from '@/components/thread-panel'
+import MbChat from '@/components/mb-chat'
 
 export default function BotThreadsPage({
   params,
@@ -7,5 +8,10 @@ export default function BotThreadsPage({
   params: { chatbot: string }
   searchParams: { [key: string]: string | string[] | undefined }
 }) {
-  return <ThreadPanel chatbot={params.chatbot} search={searchParams} />
+  return (
+    <div>
+      <ThreadPanel chatbot={params.chatbot} search={searchParams} />{' '}
+      <MbChat bot={'HealthBot'} />
+    </div>
+  )
 }
