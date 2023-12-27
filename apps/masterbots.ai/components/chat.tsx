@@ -79,7 +79,11 @@ First, think about the following questions and requests: [${allMessages
           m =>
             `"${
               m.content.includes('Your response tone will be')
-                ? extractBetweenMarkers(m.content, 'ANSWER =', '---')
+                ? extractBetweenMarkers(
+                    m.content,
+                    'Then answer this question:',
+                    '---'
+                  )
                 : m.content
             }",`
         )}]. Then answer this question: ${userMessage.content} --- 
