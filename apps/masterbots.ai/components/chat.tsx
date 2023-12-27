@@ -2,7 +2,7 @@
 
 import { useChat, type Message, CreateMessage } from 'ai/react'
 
-import { cn } from '@/lib/utils'
+import { cn, extractBetweenMarkers } from '@/lib/utils'
 import { ChatList } from '@/components/chat-list'
 import { ChatPanel } from '@/components/chat-panel'
 import { EmptyScreen } from '@/components/empty-screen'
@@ -21,7 +21,7 @@ export function Chat({ id, initialMessages, className, chatbot }: ChatProps) {
 
   const { messages, append, reload, stop, isLoading, input, setInput } =
     useChat({
-      // we remove previous assistant response to get better responses thru
+      // we remove previous assistant responses to get better responses thru
       // our prompting strategy
       initialMessages: initialMessages?.filter(m => m.role !== 'assistant'),
       id,
@@ -45,7 +45,7 @@ export function Chat({ id, initialMessages, className, chatbot }: ChatProps) {
   // we merge past assistant and user messages for ui only
   // we remove system prompts from ui
   const allMessages = uniq(
-    initialMessages?.concat(messages).filter(m => m.role !== 'system')
+    initialMessages?.concat(messages) //.filter(m => m.role !== 'assistant')
   )
   // console.log('initial messages', initialMessages)
   // console.log('messages', messages)
@@ -56,22 +56,34 @@ export function Chat({ id, initialMessages, className, chatbot }: ChatProps) {
     userMessage: Message | CreateMessage,
     chatRequestOptions?: ChatRequestOptions
   ) => {
-    console.log('userMessage.content', userMessage.content)
     return append({
       id: nanoid(),
       role: 'user',
-      content:
-        `First, use the following questions and requests to create the introductory clause for the answer to the final user question: [${allMessages
-          .filter(m => m.role === 'user')
-          .map(m => {
-            return `"${m.content}",`
-          })
-          .slice(0, -1)}]. Then elaborate on the user question:` +
-        `[QuestionBegins] "${userMessage.content}" [QuestionEnds]` +
-        `Your response tone will be ${chatbot.defaultTone}. ` +
-        `Your response length will be ${chatbot.defaultLength}. ` +
-        `Your response format will be ${chatbot.defaultType}. ` +
-        `Your response complexity level will be ${chatbot.defaultComplexity}.`
+      content: `
+${chatbot.prompts.map(({ prompt }) => {
+  return `
+  
+  ${prompt.content}
+  `
+})}
+
+
+Your response tone will be ${chatbot.defaultTone}.
+Your response length will be ${chatbot.defaultLength}.
+Your response format will be ${chatbot.defaultType}.
+Your response complexity level will be ${chatbot.defaultComplexity}.
+
+First, think about the following questions and requests: [${allMessages
+        .filter(m => m.role === 'user')
+        .map(
+          m =>
+            `"${
+              m.content.includes('Your response tone will be')
+                ? extractBetweenMarkers(m.content, 'ANSWER =', '---')
+                : m.content
+            }",`
+        )}]. Then answer this question: ${userMessage.content} --- 
+`
     })
   }
 
