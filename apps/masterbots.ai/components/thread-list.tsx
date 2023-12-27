@@ -8,10 +8,14 @@ export default function ThreadList({ threads }: { threads: Thread[] }) {
       {threads.map((thread, key) => (
         <li key={key}>
           <Link
-            href={`/chat/${thread.threadId}`}
+            href={`/${thread.chatbot.name.trim().toLowerCase()}/${
+              thread.threadId
+            }`}
             className="flex items-center h-12"
           >
-            {thread.messages[0]?.content.substring(0, 100) || 'wat'}
+            {thread.messages
+              .filter(m => m.role === 'user')[0]
+              ?.content.substring(0, 100) || 'wat'}
           </Link>
 
           <Separator />

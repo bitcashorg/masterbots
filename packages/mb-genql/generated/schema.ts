@@ -731,7 +731,7 @@ export type LengthEnumUpdateColumn = 'value'
 /** This table stores the messages exchanged between users and chatbots. */
 export interface Message {
     content: Scalars['String']
-    createdAt: (Scalars['timestamptz'] | null)
+    createdAt: Scalars['timestamptz']
     messageId: Scalars['uuid']
     role: Scalars['String']
     /** An object relationship */
