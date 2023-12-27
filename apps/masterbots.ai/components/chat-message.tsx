@@ -16,16 +16,20 @@ export interface ChatMessageProps {
 }
 
 export function ChatMessage({ message, ...props }: ChatMessageProps) {
-  const cleanMessage: Message = !message.content.includes('[QuestionBegins]')
-    ? message
-    : {
-        ...message,
-        content: extractBetweenMarkers(
-          message.content,
-          '[QuestionBegins] "',
-          '" [QuestionEnds]'
-        )
-      }
+  // const cleanMessage: Message = !message.content.includes('[QuestionBegins]')
+  //   ? message
+  //   : {
+  //       ...message,
+  //       content: extractBetweenMarkers(
+  //         message.content,
+  //         '[QuestionBegins] "',
+  //         '" [QuestionEnds]'
+  //       )
+  //     }
+
+  const cleanMessage = message
+
+  console.log(message.content)
   return (
     <div
       className={cn('group relative mb-4 flex items-start md:-ml-12')}
@@ -87,23 +91,4 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
       </div>
     </div>
   )
-}
-
-function extractBetweenMarkers(
-  str: string,
-  startMarker: string,
-  endMarker: string
-): string {
-  let startIndex = str.indexOf(startMarker)
-  let endIndex = str.indexOf(endMarker)
-
-  if (startIndex === -1 || endIndex === -1 || startIndex >= endIndex) {
-    // Markers not found or in the wrong order
-    return ''
-  }
-
-  // Adjust the startIndex to get the text after the startMarker
-  startIndex += startMarker.length
-
-  return str.substring(startIndex, endIndex).trim() || ''
 }

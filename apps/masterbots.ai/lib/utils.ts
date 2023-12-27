@@ -41,3 +41,22 @@ export function formatDate(input: string | number | Date): string {
     year: 'numeric'
   })
 }
+
+export function extractBetweenMarkers(
+  str: string,
+  startMarker: string,
+  endMarker: string
+): string {
+  let startIndex = str.indexOf(startMarker)
+  let endIndex = str.indexOf(endMarker)
+
+  if (startIndex === -1 || endIndex === -1 || startIndex >= endIndex) {
+    // Markers not found or in the wrong order
+    return ''
+  }
+
+  // Adjust the startIndex to get the text after the startMarker
+  startIndex += startMarker.length
+
+  return str.substring(startIndex, endIndex).trim() || ''
+}
