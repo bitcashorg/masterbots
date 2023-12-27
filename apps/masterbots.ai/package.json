@@ -36,6 +36,7 @@
     "focus-trap-react": "^10.2.3",
     "framer-motion": "^10.16.12",
     "geist": "^1.1.0",
+    "lodash": "^4.17.21",
     "lucide-react": "^0.297.0",
     "mb-genql": "workspace:*",
     "mb-lib": "workspace:*",
@@ -58,6 +59,7 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.10",
+    "@types/lodash": "^4.14.195",
     "@types/node": "^20.10.0",
     "@types/react": "^18.2.38",
     "@types/react-dom": "^18.2.17",

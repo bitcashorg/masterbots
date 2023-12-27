@@ -1,5 +1,5 @@
 // Inspired by Chatbot-UI and modified to fit the needs of this project
-// @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Chat/ChatMessage.tsx
+// @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Chat/ChatcleanMessage.tsx
 
 import { Message } from 'ai'
 import remarkGfm from 'remark-gfm'
@@ -16,6 +16,16 @@ export interface ChatMessageProps {
 }
 
 export function ChatMessage({ message, ...props }: ChatMessageProps) {
+  const cleanMessage: Message = !message.content.includes('[QuestionBegins]')
+    ? message
+    : {
+        ...message,
+        content: extractBetweenMarkers(
+          message.content,
+          '[QuestionBegins] "',
+          '" [QuestionEnds]'
+        )
+      }
   return (
     <div
       className={cn('group relative mb-4 flex items-start md:-ml-12')}
@@ -24,12 +34,12 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
       <div
         className={cn(
           'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-md border shadow',
-          message.role === 'user'
+          cleanMessage.role === 'user'
             ? 'bg-background'
             : 'bg-primary text-primary-foreground'
         )}
       >
-        {message.role === 'user' ? <IconUser /> : <IconOpenAI />}
+        {cleanMessage.role === 'user' ? <IconUser /> : <IconOpenAI />}
       </div>
       <div className="flex-1 px-1 ml-4 space-y-2 overflow-hidden">
         <MemoizedReactMarkdown
@@ -71,10 +81,29 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
             }
           }}
         >
-          {message.content}
+          {cleanMessage.content}
         </MemoizedReactMarkdown>
         <ChatMessageActions message={message} />
       </div>
     </div>
   )
+}
+
+function extractBetweenMarkers(
+  str: string,
+  startMarker: string,
+  endMarker: string
+): string {
+  let startIndex = str.indexOf(startMarker)
+  let endIndex = str.indexOf(endMarker)
+
+  if (startIndex === -1 || endIndex === -1 || startIndex >= endIndex) {
+    // Markers not found or in the wrong order
+    return ''
+  }
+
+  // Adjust the startIndex to get the text after the startMarker
+  startIndex += startMarker.length
+
+  return str.substring(startIndex, endIndex).trim() || ''
 }

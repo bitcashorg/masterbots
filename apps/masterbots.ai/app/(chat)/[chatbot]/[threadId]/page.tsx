@@ -43,7 +43,7 @@ export default async function ChatPage({ params }: ChatPageProps) {
     <Chat
       id={nanoid()}
       initialMessages={initialMessages}
-      bot={params.chatbot}
+      chatbot={thread.chatbot}
     />
   )
 }
