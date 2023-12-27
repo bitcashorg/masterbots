@@ -23,7 +23,7 @@ export function Chat({ id, initialMessages, className, chatbot }: ChatProps) {
     useChat({
       // we remove previous assistant responses to get better responses thru
       // our prompting strategy
-      initialMessages: initialMessages?.filter(m => m.role !== 'assistant'),
+      initialMessages: initialMessages?.filter(m => m.role === 'system'),
       id,
       body: {
         id
@@ -60,19 +60,6 @@ export function Chat({ id, initialMessages, className, chatbot }: ChatProps) {
       id: nanoid(),
       role: 'user',
       content: `
-${chatbot.prompts.map(({ prompt }) => {
-  return `
-  
-  ${prompt.content}
-  `
-})}
-
-
-Your response tone will be ${chatbot.defaultTone}.
-Your response length will be ${chatbot.defaultLength}.
-Your response format will be ${chatbot.defaultType}.
-Your response complexity level will be ${chatbot.defaultComplexity}.
-
 First, think about the following questions and requests: [${allMessages
         .filter(m => m.role === 'user')
         .map(
@@ -94,17 +81,17 @@ First, think about the following questions and requests: [${allMessages
   return (
     <>
       <div className={cn('pb-[200px] pt-4 md:pt-10', className)}>
-        {messages.length ? (
-          <>
-            <ChatList messages={allMessages} />
-            <ChatScrollAnchor trackVisibility={isLoading} />
-          </>
-        ) : (
+        {/* {messages.length ? ( */}
+        <>
+          <ChatList messages={allMessages} />
+          <ChatScrollAnchor trackVisibility={isLoading} />
+        </>
+        {/* ) : (
           <EmptyScreen
             setInput={setInput}
             bot={chatbot.name.trim().toLowerCase()}
           />
-        )}
+        )} */}
       </div>
       <ChatPanel
         id={id}
