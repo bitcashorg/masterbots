@@ -65,15 +65,11 @@ First, think about the following questions and requests: [${allMessages
         .map(
           m =>
             `"${
-              m.content.includes('Your response tone will be')
-                ? extractBetweenMarkers(
-                    m.content,
-                    'Then answer this question:',
-                    '---'
-                  )
+              m.content.includes('Then answer this question:')
+                ? extractBetweenMarkers(m.content, 'Then answer this question:')
                 : m.content
             }",`
-        )}]. Then answer this question: ${userMessage.content} --- 
+        )}].  Then answer this question: ${userMessage.content} 
 `
     })
   }

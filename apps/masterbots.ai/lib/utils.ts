@@ -45,13 +45,17 @@ export function formatDate(input: string | number | Date): string {
 export function extractBetweenMarkers(
   str: string,
   startMarker: string,
-  endMarker: string
+  endMarker?: string // endMarker is now optional
 ): string {
   let startIndex = str.indexOf(startMarker)
-  let endIndex = str.indexOf(endMarker)
+  let endIndex = endMarker ? str.indexOf(endMarker) : str.length
 
-  if (startIndex === -1 || endIndex === -1 || startIndex >= endIndex) {
-    // Markers not found or in the wrong order
+  if (
+    startIndex === -1 ||
+    (endMarker && endIndex === -1) ||
+    startIndex >= endIndex
+  ) {
+    // Start marker not found or end marker (if provided) not found or in the wrong order
     return ''
   }
 
