@@ -30,13 +30,11 @@ export function Chat({
         id: threadId
       },
       onResponse(response) {
-        console.log('RESPONSE')
         if (response.status === 401) {
           toast.error(response.statusText)
         }
       },
       async onFinish(message: Message) {
-        console.log('FINISH')
         await saveNewMessage({
           role: 'assistant',
           threadId,
