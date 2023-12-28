@@ -1,4 +1,11 @@
-import { Category, Chatbot, Thread, createMbClient, everything } from 'mb-genql'
+import {
+  Category,
+  Chatbot,
+  Thread,
+  User,
+  createMbClient,
+  everything
+} from 'mb-genql'
 
 const client = createMbClient({
   // TODO: implement auth and remove this admin secret
@@ -96,8 +103,9 @@ export async function upsertUser(object: {
   email: string
   profilePicture: string
   username: string
+  password: string
 }) {
-  client.mutation({
+  const { insertUserOne } = await client.mutation({
     insertUserOne: {
       __args: {
         object,
@@ -106,10 +114,11 @@ export async function upsertUser(object: {
           updateColumns: ['profilePicture']
         }
       },
-      email: true,
-      profilePicture: true
+      ...everything
     }
   })
+
+  return insertUserOne as User
 }
 
 export async function createThread({

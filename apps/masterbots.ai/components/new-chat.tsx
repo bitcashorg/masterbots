@@ -1,6 +1,5 @@
 'use client'
 
-import { useNewMessage } from '@/lib/hooks/use-new-message'
 import { ChatPanel } from './chat-panel'
 import { useChat, type Message, CreateMessage } from 'ai/react'
 import toast from 'react-hot-toast'
@@ -14,7 +13,6 @@ export default function NewChat({
   initialMessages,
   chatbot
 }: NewChatProps) {
-  const { setNewChat } = useNewMessage()
   const router = useRouter()
   const { messages, reload, stop, input, setInput, append } = useChat({
     initialMessages,
@@ -54,10 +52,6 @@ export default function NewChat({
       scroll: false
     })
     router.refresh()
-    await setNewChat({
-      chatId: id
-    })
-
     return null
   }
 
