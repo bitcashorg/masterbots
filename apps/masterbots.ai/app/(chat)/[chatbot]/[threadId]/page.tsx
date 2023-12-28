@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
 import { Chat } from '@/components/chat'
 import { getThread } from '@/services/db'
-import { nanoid } from '@/lib/utils'
 import { Message } from 'ai/react'
 
 export default async function ChatPage({ params }: ChatPageProps) {
@@ -14,6 +13,7 @@ export default async function ChatPage({ params }: ChatPageProps) {
 
   if (!session) redirect(`/sign-in?next=/${params.threadId}/${params.threadId}`)
 
+  // NOTE: maybe this should be on actions.ts
   // format all chatbot prompts as chatgpt 'system' messages
   const chatbotSystemPrompts: Message[] = thread.chatbot.prompts.map(
     ({ prompt }) => ({
@@ -26,7 +26,7 @@ export default async function ChatPage({ params }: ChatPageProps) {
 
   const userPreferencesPrompts: Message[] = [
     {
-      id: nanoid(),
+      id: thread.threadId,
       role: 'system',
       content:
         `Your response tone will be ${thread.chatbot.defaultTone}. ` +
@@ -54,7 +54,7 @@ export default async function ChatPage({ params }: ChatPageProps) {
   // and we pass our system prompts along with assistant and user messages from our db.
   return (
     <Chat
-      id={nanoid()}
+      id={thread.threadId}
       initialMessages={initialMessages}
       chatbot={thread.chatbot}
       threadId={params.threadId}

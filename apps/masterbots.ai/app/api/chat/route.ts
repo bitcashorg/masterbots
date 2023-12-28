@@ -52,9 +52,6 @@ export async function POST(req: Request) {
           }
         ]
       }
-
-      // TODO: persist thread
-      console.log(payload)
     }
   })
 

@@ -24,7 +24,7 @@ export const {
       return token
     },
     session: async ({ session, token }) => {
-      console.log(token)
+      // console.log(token)
       if (session?.user && token?.id) {
         session.user.id = String(token.id)
       }
