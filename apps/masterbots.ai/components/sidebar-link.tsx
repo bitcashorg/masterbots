@@ -14,6 +14,7 @@ export default function SidebarLink({ bot }: { bot: Chatbot }) {
         'flex items-center mb-2 py-3 cursor-pointer',
         bot?.name.toLowerCase().trim() === chatbot?.trim() && 'bg-slate-800'
       )}
+      shallow={true}
     >
       <Image
         src={bot.avatar || '/path/to/default/avatar.png'}

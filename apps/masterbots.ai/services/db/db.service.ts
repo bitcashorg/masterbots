@@ -2,9 +2,9 @@ import { Category, Chatbot, Thread, createMbClient, everything } from 'mb-genql'
 
 const client = createMbClient({
   // TODO: implement auth and remove this admin secret
-  adminSecret: 'lfg', //'7916dce3ec9736725aa46ee1f99b8bb8',
+  adminSecret: '7916dce3ec9736725aa46ee1f99b8bb8',
   debug: process.env.DEBUG === 'true',
-  env: 'local'
+  env: 'test'
 })
 
 export async function getCategories() {
@@ -137,10 +137,12 @@ export async function createThread({
 
 export async function getChatbot({
   chatbotId,
-  chatbotName
+  chatbotName,
+  threads
 }: {
   chatbotId?: number
   chatbotName?: string
+  threads?: boolean
 }) {
   if (!chatbotId && !chatbotName)
     throw new Error('You need to pass chatbotId or chatbotName')
@@ -153,7 +155,20 @@ export async function getChatbot({
       ...everything,
       prompts: {
         prompt: everything
-      }
+      },
+      ...(threads
+        ? {
+            threads: {
+              ...everything,
+              messages: {
+                ...everything,
+                __args: {
+                  orderBy: [{ createdAt: 'ASC' }]
+                }
+              }
+            }
+          }
+        : {})
     }
   })
 

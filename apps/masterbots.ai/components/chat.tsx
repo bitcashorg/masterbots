@@ -5,20 +5,16 @@ import { useChat, type Message, CreateMessage } from 'ai/react'
 import { cn, extractBetweenMarkers } from '@/lib/utils'
 import { ChatList } from '@/components/chat-list'
 import { ChatPanel } from '@/components/chat-panel'
-import { EmptyScreen } from '@/components/empty-screen'
 import { ChatScrollAnchor } from '@/components/chat-scroll-anchor'
 
 import { toast } from 'react-hot-toast'
-import { uniq } from 'lodash'
+import { uniqBy } from 'lodash'
 import { ChatRequestOptions } from 'ai'
-import { nanoid } from 'nanoid'
 import { Chatbot } from 'mb-genql'
-import { saveNewMessage } from '@/services/db'
-import { useNewMessage } from '@/lib/hooks/use-new-message'
-import { useEffect, useRef } from 'react'
+import { createThread, saveNewMessage } from '@/services/db'
+import { useRouter, useParams } from 'next/navigation'
 
 export function Chat({
-  id,
   initialMessages,
   className,
   chatbot,
@@ -29,9 +25,9 @@ export function Chat({
       // we remove previous assistant responses to get better responses thru
       // our prompting strategy
       initialMessages: initialMessages?.filter(m => m.role === 'system'),
-      id,
+      id: threadId,
       body: {
-        id
+        id: threadId
       },
       onResponse(response) {
         console.log('RESPONSE')
@@ -48,11 +44,15 @@ export function Chat({
         })
       }
     })
+  const router = useRouter()
+  const params = useParams<{ chatbotName: string; threadId: string }>()
+  const isNewChat = Boolean(!params.threadId)
 
   // we merge past assistant and user messages for ui only
   // we remove system prompts from ui
-  const allMessages = uniq(
-    initialMessages?.concat(messages) //.filter(m => m.role !== 'assistant')
+  const allMessages = uniqBy(
+    initialMessages?.concat(messages),
+    'content' //.filter(m => m.role !== 'assistant')
   )
 
   // we extend append function to add our system prompts
@@ -60,37 +60,47 @@ export function Chat({
     userMessage: Message | CreateMessage,
     chatRequestOptions?: ChatRequestOptions
   ) => {
+    if (isNewChat) {
+      await createThread({
+        threadId,
+        chatbotId: chatbot.chatbotId
+      })
+      router.push(`/${chatbot.name.trim().toLowerCase()}/${threadId}`, {
+        shallow: true,
+        scroll: false
+      })
+      router.refresh()
+    }
+
     await saveNewMessage({
       role: 'user',
       threadId,
       content: userMessage.content
     })
-    return append({
-      id: nanoid(),
-      role: 'user',
-      content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
-        allMessages
-      )}].  Then answer this question: ${userMessage.content}`
-    })
+
+    return append(
+      isNewChat
+        ? userMessage
+        : {
+            ...userMessage,
+            content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
+              allMessages
+            )}].  Then answer this question: ${userMessage.content}`
+          }
+    )
   }
 
   return (
     <>
-      <div className={cn('pb-[200px] pt-4 md:pt-10', className)}>
-        {/* {messages.length ? ( */}
-        <>
+      {!isNewChat ? (
+        <div className={cn('pb-[200px] pt-4 md:pt-10', className)}>
           <ChatList messages={allMessages} />
           <ChatScrollAnchor trackVisibility={isLoading} />
-        </>
-        {/* ) : (
-          <EmptyScreen
-            setInput={setInput}
-            bot={chatbot.name.trim().toLowerCase()}
-          />
-        )} */}
-      </div>
+        </div>
+      ) : null}
+
       <ChatPanel
-        id={id}
+        id={threadId}
         isLoading={isLoading}
         stop={stop}
         append={appendWithMbContextPrompts}
@@ -99,7 +109,12 @@ export function Chat({
         input={input}
         setInput={setInput}
         chatbot={chatbot}
-        placeholder={`Send new message to ${chatbot.name}`}
+        placeholder={
+          isNewChat
+            ? `Start a new chat with ${chatbot.name}`
+            : `Send new message to ${chatbot.name}`
+        }
+        showReload={!isNewChat}
       />
     </>
   )
@@ -107,9 +122,9 @@ export function Chat({
 
 export interface ChatProps extends React.ComponentProps<'div'> {
   initialMessages?: Message[]
-  id?: string
   chatbot: Chatbot
   threadId: string
+  newThread?: boolean
 }
 
 function getAllUserMessagesAsStringArray(allMessages: Message[]) {
