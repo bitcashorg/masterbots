@@ -13,6 +13,7 @@ import { ChatRequestOptions } from 'ai'
 import { Chatbot } from 'mb-genql'
 import { createThread, saveNewMessage } from '@/services/db'
 import { useRouter, useParams } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 
 export function Chat({
   initialMessages,
@@ -20,6 +21,8 @@ export function Chat({
   chatbot,
   threadId
 }: ChatProps) {
+  const { data: session, status } = useSession()
+  console.log('SESSION ', session)
   const { messages, append, reload, stop, isLoading, input, setInput } =
     useChat({
       // we remove previous assistant responses to get better responses thru
@@ -59,6 +62,8 @@ export function Chat({
     chatRequestOptions?: ChatRequestOptions
   ) => {
     if (isNewChat) {
+      if (status !== 'authenticated') throw new Error('Unauthenticated User')
+
       await createThread({
         threadId,
         chatbotId: chatbot.chatbotId
