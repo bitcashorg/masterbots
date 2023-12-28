@@ -54,7 +54,6 @@ export default async function ChatPage({ params }: ChatPageProps) {
   // and we pass our system prompts along with assistant and user messages from our db.
   return (
     <Chat
-      id={thread.threadId}
       initialMessages={initialMessages}
       chatbot={thread.chatbot}
       threadId={params.threadId}

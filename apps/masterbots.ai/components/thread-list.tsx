@@ -12,6 +12,7 @@ export default function ThreadList({ threads }: { threads: Thread[] }) {
               thread.threadId
             }`}
             className="flex items-center h-12"
+            shallow={true}
           >
             {thread.messages
               .filter(m => m.role === 'user')[0]

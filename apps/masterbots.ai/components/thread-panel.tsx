@@ -12,18 +12,16 @@ import {
 } from '@/components/ui/select'
 import { botNames } from '@/lib/bots-names'
 import { getThreads } from '@/services/db'
+import { Thread } from 'mb-genql'
 
 export default async function ThreadPanel({
   chatbot,
-  search
+  threads
 }: {
   chatbot?: string
+  threads: Thread[]
   search?: { [key: string]: string | string[] | undefined }
-} = {}) {
-  const threads = await getThreads(
-    chatbot ? { chatbotName: botNames.get(chatbot) } : {}
-  )
-
+}) {
   return (
     <div className="flex flex-col pb-[150px]">
       <div className="flex justify-between px-10 py-5">

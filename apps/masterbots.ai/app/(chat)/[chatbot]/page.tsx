@@ -1,10 +1,10 @@
 import ThreadPanel from '@/components/thread-panel'
-import NewChat from '@/components/new-chat'
-import { getChatbot } from '@/services/db'
+import { getChatbot, getThreads } from '@/services/db'
 import { botNames } from '@/lib/bots-names'
 import { nanoid } from 'nanoid'
 import { Message } from 'ai'
 import crypto from 'crypto'
+import { Chat } from '@/components/chat'
 
 export default async function BotThreadsPage({
   params,
@@ -19,7 +19,11 @@ export default async function BotThreadsPage({
   if (!chatbot)
     throw new Error(`Chatbot ${botNames.get(params.chatbot)} not found`)
 
-  const chatId = crypto.randomUUID()
+  const threads = await getThreads({
+    chatbotName: botNames.get(params.chatbot)
+  })
+
+  const newThreadId = crypto.randomUUID()
 
   // format all chatbot prompts as chatgpt 'system' messages
   const chatbotSystemPrompts: Message[] = chatbot.prompts.map(({ prompt }) => ({
@@ -49,11 +53,15 @@ export default async function BotThreadsPage({
 
   return (
     <div>
-      <ThreadPanel chatbot={params.chatbot} search={searchParams} />{' '}
-      <NewChat
-        chatbot={chatbot}
-        id={chatId}
+      <ThreadPanel
+        threads={threads}
+        chatbot={params.chatbot}
+        search={searchParams}
+      />{' '}
+      <Chat
         initialMessages={initialMessages}
+        chatbot={chatbot}
+        threadId={newThreadId}
       />
     </div>
   )
