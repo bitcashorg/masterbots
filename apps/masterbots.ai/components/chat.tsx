@@ -14,8 +14,15 @@ import { uniq } from 'lodash'
 import { ChatRequestOptions } from 'ai'
 import { nanoid } from 'nanoid'
 import { Chatbot } from 'mb-genql'
+import { saveNewMessage } from '@/services/db'
 
-export function Chat({ id, initialMessages, className, chatbot }: ChatProps) {
+export function Chat({
+  id,
+  initialMessages,
+  className,
+  chatbot,
+  threadId
+}: ChatProps) {
   const router = useRouter()
   const path = usePathname()
 
@@ -33,7 +40,12 @@ export function Chat({ id, initialMessages, className, chatbot }: ChatProps) {
           toast.error(response.statusText)
         }
       },
-      onFinish() {
+      async onFinish(message: Message) {
+        await saveNewMessage({
+          role: 'assistant',
+          threadId,
+          content: message.content
+        })
         if (!path.includes('chat')) {
           // NOTE: interesting approach to routing
           // router.push(`/chat/${id}`, { shallow: true, scroll: false })
@@ -47,30 +59,23 @@ export function Chat({ id, initialMessages, className, chatbot }: ChatProps) {
   const allMessages = uniq(
     initialMessages?.concat(messages) //.filter(m => m.role !== 'assistant')
   )
-  // console.log('initial messages', initialMessages)
-  // console.log('messages', messages)
-  // console.log('all messages', allMessages)
 
   // we extend append function to add our system prompts
   const appendWithMbContextPrompts = async (
     userMessage: Message | CreateMessage,
     chatRequestOptions?: ChatRequestOptions
   ) => {
+    await saveNewMessage({
+      role: 'user',
+      threadId,
+      content: userMessage.content
+    })
     return append({
       id: nanoid(),
       role: 'user',
-      content: `
-First, think about the following questions and requests: [${allMessages
-        .filter(m => m.role === 'user')
-        .map(
-          m =>
-            `"${
-              m.content.includes('Then answer this question:')
-                ? extractBetweenMarkers(m.content, 'Then answer this question:')
-                : m.content
-            }",`
-        )}].  Then answer this question: ${userMessage.content} 
-`
+      content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
+        allMessages
+      )}].  Then answer this question: ${userMessage.content}`
     })
   }
 
@@ -107,4 +112,13 @@ export interface ChatProps extends React.ComponentProps<'div'> {
   initialMessages?: Message[]
   id?: string
   chatbot: Chatbot
+  threadId: string
+}
+
+function getAllUserMessagesAsStringArray(allMessages: Message[]) {
+  const userMessages = allMessages.filter(m => m.role === 'user')
+  const cleanMessages = userMessages.map(m =>
+    extractBetweenMarkers(m.content, 'Then answer this question:')
+  )
+  return cleanMessages.join(', ')
 }

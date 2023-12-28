@@ -1,9 +1,17 @@
-import { Category, Chatbot, Thread, createMbClient, everything } from 'mb-genql'
+import {
+  Category,
+  Chatbot,
+  Message,
+  Thread,
+  createMbClient,
+  everything
+} from 'mb-genql'
 
 const client = createMbClient({
-  adminSecret: process.env.HASURA_ADMIN_SECRET,
+  // TODO: implement auth and remove this admin secret
+  adminSecret: 'lfg', //'7916dce3ec9736725aa46ee1f99b8bb8',
   debug: process.env.DEBUG === 'true',
-  env: 'test'
+  env: 'local'
 })
 
 export async function getCategories() {
@@ -51,7 +59,7 @@ export async function getThreads({
   return thread as Thread[]
 }
 
-export async function getThread({ threadId }: { threadId: number }) {
+export async function getThread({ threadId }: { threadId: string }) {
   const { thread } = await client.query({
     thread: {
       chatbot: {
@@ -74,4 +82,21 @@ export async function getThread({ threadId }: { threadId: number }) {
   })
 
   return thread[0] as Thread
+}
+
+export async function saveNewMessage(message: SaveNewMessageParams) {
+  const response = await client.mutation({
+    insertMessageOne: {
+      __args: {
+        object: message
+      },
+      ...everything
+    }
+  })
+}
+
+interface SaveNewMessageParams {
+  content: string
+  role: 'user' | 'assistant'
+  threadId: string
 }

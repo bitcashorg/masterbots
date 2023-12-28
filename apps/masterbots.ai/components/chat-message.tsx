@@ -29,7 +29,6 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
 
   const cleanMessage = message
 
-  console.log(message.content)
   return (
     <div
       className={cn('group relative mb-4 flex items-start md:-ml-12')}
