@@ -9,9 +9,9 @@ import {
 
 const client = createMbClient({
   // TODO: implement auth and remove this admin secret
-  adminSecret: 'lfg', //'7916dce3ec9736725aa46ee1f99b8bb8',
+  adminSecret: '7916dce3ec9736725aa46ee1f99b8bb8',
   debug: process.env.DEBUG === 'true',
-  env: 'local'
+  env: 'test'
 })
 
 export async function getCategories() {
