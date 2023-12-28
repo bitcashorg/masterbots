@@ -84,19 +84,37 @@ export async function getThread({ threadId }: { threadId: string }) {
   return thread[0] as Thread
 }
 
-export async function saveNewMessage(message: SaveNewMessageParams) {
+export async function saveNewMessage(object: {
+  content: string
+  role: 'user' | 'assistant'
+  threadId: string
+}) {
   const response = await client.mutation({
     insertMessageOne: {
       __args: {
-        object: message
+        object
       },
       ...everything
     }
   })
 }
 
-interface SaveNewMessageParams {
-  content: string
-  role: 'user' | 'assistant'
-  threadId: string
+export async function upsertUser(object: {
+  email: string
+  profilePicture: string
+  username: string
+}) {
+  client.mutation({
+    insertUserOne: {
+      __args: {
+        object,
+        onConflict: {
+          constraint: 'user_email_key',
+          updateColumns: ['profilePicture']
+        }
+      },
+      email: true,
+      profilePicture: true
+    }
+  })
 }

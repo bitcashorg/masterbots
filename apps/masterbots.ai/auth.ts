@@ -1,6 +1,8 @@
 import NextAuth, { type DefaultSession } from 'next-auth'
 import Google from 'next-auth/providers/google'
 import { JwtSecret, getToken } from 'mb-lib'
+import { upsertUser } from './services/db'
+import { nanoid } from './lib/utils'
 
 export const {
   handlers: { GET, POST },
@@ -22,9 +24,17 @@ export const {
       return token
     },
     session: async ({ session, token }) => {
+      console.log(token)
       if (session?.user && token?.id) {
         session.user.id = String(token.id)
       }
+
+      // await upsertUser({
+      //   email: token.email!,
+      //   profilePicture: token.image as string,
+      //   username: token.name?.replace(/\s/g, '_') || nanoid()
+      // })
+
       // const hasuraJwt = await getToken({
       //   user: { account: token.sub!, role: 'user' },
       //   jwtSecret: {
