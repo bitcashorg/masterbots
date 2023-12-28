@@ -57,13 +57,14 @@ export default async function ChatPage({ params }: ChatPageProps) {
       id={nanoid()}
       initialMessages={initialMessages}
       chatbot={thread.chatbot}
+      threadId={params.threadId}
     />
   )
 }
 
 export interface ChatPageProps {
   params: {
-    threadId: number
+    threadId: string
     chatbot: string
   }
 }
