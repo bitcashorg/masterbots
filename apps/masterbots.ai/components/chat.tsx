@@ -15,6 +15,8 @@ import { ChatRequestOptions } from 'ai'
 import { nanoid } from 'nanoid'
 import { Chatbot } from 'mb-genql'
 import { saveNewMessage } from '@/services/db'
+import { useNewMessage } from '@/lib/hooks/use-new-message'
+import { useEffect } from 'react'
 
 export function Chat({
   id,
@@ -25,12 +27,24 @@ export function Chat({
 }: ChatProps) {
   const router = useRouter()
   const path = usePathname()
+  const { message, setNewMessage } = useNewMessage()
 
   const { messages, append, reload, stop, isLoading, input, setInput } =
     useChat({
       // we remove previous assistant responses to get better responses thru
       // our prompting strategy
-      initialMessages: initialMessages?.filter(m => m.role === 'system'),
+      initialMessages: initialMessages
+        ?.filter(m => m.role === 'system')
+        .concat(
+          message
+            ? ([
+                {
+                  role: 'user',
+                  content: message
+                }
+              ] as Message[])
+            : []
+        ),
       id,
       body: {
         id
@@ -39,6 +53,10 @@ export function Chat({
         if (response.status === 401) {
           toast.error(response.statusText)
         }
+
+        // reset new message state
+        // NOTE: maybe move to first render of MbChat
+        setNewMessage({ message: '', bot: '' })
       },
       async onFinish(message: Message) {
         await saveNewMessage({

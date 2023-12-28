@@ -23,6 +23,9 @@ importers:
 
   apps/masterbots.ai:
     dependencies:
+      '@blockmatic/hooks-utils':
+        specifier: ^3.0.0
+        version: 3.0.0(react@18.2.0)
       '@radix-ui/react-accordion':
         specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@18.2.17)(@types/react@18.2.38)(react-dom@18.2.0)(react@18.2.0)
@@ -349,6 +352,14 @@ packages:
       '@babel/helper-string-parser': 7.23.4
       '@babel/helper-validator-identifier': 7.22.20
       to-fast-properties: 2.0.0
+    dev: false
+
+  /@blockmatic/hooks-utils@3.0.0(react@18.2.0):
+    resolution: {integrity: sha512-cn2s46/xl0zMhnsVl9qk29aOqdJAtnBfNN/4xqwlROlv4GLF3XSuRM+8p71DOvz1/r/ipv/ffnFJT7HkAxmPpw==}
+    peerDependencies:
+      react: ^18.x
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /@emotion/is-prop-valid@0.8.8:

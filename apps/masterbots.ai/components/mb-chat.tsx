@@ -1,9 +1,10 @@
 'use client'
 
+import { useNewMessage } from '@/lib/hooks/use-new-message'
 import { ChatPanel } from './chat-panel'
-import { useChat, type Message } from 'ai/react'
-import { usePathname, useRouter } from 'next/navigation'
+import { useChat, type Message, CreateMessage } from 'ai/react'
 import toast from 'react-hot-toast'
+import { ChatRequestOptions } from 'ai'
 
 export default function MbChat({
   id,
@@ -11,33 +12,39 @@ export default function MbChat({
   className,
   bot
 }: MBChatProps) {
-  const router = useRouter()
-  const path = usePathname()
-  const { messages, append, reload, stop, isLoading, input, setInput } =
-    useChat({
-      initialMessages,
-      id,
-      body: {
-        id
-      },
-      onResponse(response) {
-        if (response.status === 401) {
-          toast.error(response.statusText)
-        }
-      },
-      onFinish() {
-        if (!path.includes('chat')) {
-          //router.push(`/chat/${id}`, { shallow: true, scroll: false })
-          //router.refresh()
-        }
+  const { setNewMessage } = useNewMessage()
+  const { messages, reload, stop, input, setInput } = useChat({
+    initialMessages,
+    id,
+    body: {
+      id
+    },
+    onResponse(response) {
+      if (response.status === 401) {
+        toast.error(response.statusText)
       }
-    })
+    },
+    onFinish() {
+      console.log(messages)
+      // router.push(`/chat/${id}`, { shallow: true, scroll: false })
+      // router.refresh()
+    }
+  })
+
+  const appendToNewChat = async (
+    userMessage: Message | CreateMessage,
+    chatRequestOptions?: ChatRequestOptions
+  ) => {
+    await setNewMessage({ message: userMessage.content, bot })
+
+    return null
+  }
   return (
     <ChatPanel
       id={id}
-      isLoading={isLoading}
+      isLoading={false}
       stop={stop}
-      append={append}
+      append={appendToNewChat}
       reload={reload}
       messages={messages}
       input={input}
