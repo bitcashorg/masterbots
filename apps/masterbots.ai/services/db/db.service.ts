@@ -118,3 +118,15 @@ export async function upsertUser(object: {
     }
   })
 }
+
+export async function createThread({ chatbotId }: { chatbotId: number }) {
+  const { insertThreadOne } = await client.mutation({
+    insertThreadOne: {
+      __args: {
+        object: { chatbotId, userId: 1 }
+      },
+      threadId: true
+    }
+  })
+  return insertThreadOne?.threadId
+}
