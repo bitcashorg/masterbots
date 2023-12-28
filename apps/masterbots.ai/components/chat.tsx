@@ -9,14 +9,13 @@ import { EmptyScreen } from '@/components/empty-screen'
 import { ChatScrollAnchor } from '@/components/chat-scroll-anchor'
 
 import { toast } from 'react-hot-toast'
-import { usePathname, useRouter } from 'next/navigation'
 import { uniq } from 'lodash'
 import { ChatRequestOptions } from 'ai'
 import { nanoid } from 'nanoid'
 import { Chatbot } from 'mb-genql'
 import { saveNewMessage } from '@/services/db'
 import { useNewMessage } from '@/lib/hooks/use-new-message'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 export function Chat({
   id,
@@ -25,50 +24,28 @@ export function Chat({
   chatbot,
   threadId
 }: ChatProps) {
-  const router = useRouter()
-  const path = usePathname()
-  const { message, setNewMessage } = useNewMessage()
-
   const { messages, append, reload, stop, isLoading, input, setInput } =
     useChat({
       // we remove previous assistant responses to get better responses thru
       // our prompting strategy
-      initialMessages: initialMessages
-        ?.filter(m => m.role === 'system')
-        .concat(
-          message
-            ? ([
-                {
-                  role: 'user',
-                  content: message
-                }
-              ] as Message[])
-            : []
-        ),
+      initialMessages: initialMessages?.filter(m => m.role === 'system'),
       id,
       body: {
         id
       },
       onResponse(response) {
+        console.log('RESPONSE')
         if (response.status === 401) {
           toast.error(response.statusText)
         }
-
-        // reset new message state
-        // NOTE: maybe move to first render of MbChat
-        setNewMessage({ message: '', bot: '' })
       },
       async onFinish(message: Message) {
+        console.log('FINISH')
         await saveNewMessage({
           role: 'assistant',
           threadId,
           content: message.content
         })
-        if (!path.includes('chat')) {
-          // NOTE: interesting approach to routing
-          // router.push(`/chat/${id}`, { shallow: true, scroll: false })
-          // router.refresh()
-        }
       }
     })
 
@@ -121,6 +98,8 @@ export function Chat({
         messages={allMessages}
         input={input}
         setInput={setInput}
+        chatbot={chatbot}
+        placeholder={`Send new message to ${chatbot.name}`}
       />
     </>
   )

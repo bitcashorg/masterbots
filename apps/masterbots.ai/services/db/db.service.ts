@@ -1,17 +1,10 @@
-import {
-  Category,
-  Chatbot,
-  Message,
-  Thread,
-  createMbClient,
-  everything
-} from 'mb-genql'
+import { Category, Chatbot, Thread, createMbClient, everything } from 'mb-genql'
 
 const client = createMbClient({
   // TODO: implement auth and remove this admin secret
-  adminSecret: '7916dce3ec9736725aa46ee1f99b8bb8',
+  adminSecret: 'lfg', //'7916dce3ec9736725aa46ee1f99b8bb8',
   debug: process.env.DEBUG === 'true',
-  env: 'test'
+  env: 'local'
 })
 
 export async function getCategories() {
@@ -119,14 +112,50 @@ export async function upsertUser(object: {
   })
 }
 
-export async function createThread({ chatbotId }: { chatbotId: number }) {
+export async function createThread({
+  chatbotId,
+  threadId
+}: {
+  chatbotId: number
+  threadId: string
+}) {
+  console.log('createThread', {
+    chatbotId,
+    threadId
+  })
   const { insertThreadOne } = await client.mutation({
     insertThreadOne: {
       __args: {
-        object: { chatbotId, userId: 1 }
+        object: { threadId, chatbotId, userId: 1 }
       },
       threadId: true
     }
   })
+  console.log('RESULT', insertThreadOne)
   return insertThreadOne?.threadId
+}
+
+export async function getChatbot({
+  chatbotId,
+  chatbotName
+}: {
+  chatbotId?: number
+  chatbotName?: string
+}) {
+  if (!chatbotId && !chatbotName)
+    throw new Error('You need to pass chatbotId or chatbotName')
+
+  const { chatbot } = await client.query({
+    chatbot: {
+      __args: {
+        where: { name: { _eq: chatbotName } }
+      },
+      ...everything,
+      prompts: {
+        prompt: everything
+      }
+    }
+  })
+
+  return chatbot[0] as Chatbot
 }
