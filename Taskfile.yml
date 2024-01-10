@@ -4,6 +4,8 @@ dotenv: [".env"]
 silent: true
 
 tasks:
+  app:
+    -  turbo run dev --scope="masterbots.ai"
   console:
     cmds:
       - hasura console --project apps/hasura 
