@@ -27,12 +27,11 @@ select_permissions:
   - role: anonymous
     permission:
       columns:
-        - user_id
+        - date_joined
         - email
+        - last_login
         - password
         - profile_picture
         - username
-        - date_joined
-        - last_login
       filter: {}
     comment: ""

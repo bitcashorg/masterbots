@@ -24,6 +24,5 @@ select_permissions:
         - created_at
         - thread_id
         - updated_at
-        - user_id
       filter: {}
     comment: ""
