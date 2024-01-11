@@ -8,3 +8,8 @@ select_permissions:
         - value
       filter: {}
     comment: ""
+  - role: user
+    permission:
+      columns: []
+      filter: {}
+    comment: ""

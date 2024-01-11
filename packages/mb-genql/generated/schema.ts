@@ -146,14 +146,14 @@ export interface CategoryVarianceFields {
 
 /** Table to store links to GPT chat conversations and associate them with a specific GPT chatbot and the user who added the link. */
 export interface Chat {
-    addedBy: Scalars['Int']
+    addedBy: (Scalars['uuid'] | null)
     chatId: Scalars['Int']
     /** An object relationship */
     chatbot: Chatbot
     chatbotId: Scalars['Int']
     conversationLink: Scalars['String']
     /** An object relationship */
-    user: User
+    user: (User | null)
     __typename: 'Chat'
 }
 
@@ -185,7 +185,6 @@ export interface ChatAggregateFields {
 
 /** aggregate avg on columns */
 export interface ChatAvgFields {
-    addedBy: (Scalars['Float'] | null)
     chatId: (Scalars['Float'] | null)
     chatbotId: (Scalars['Float'] | null)
     __typename: 'ChatAvgFields'
@@ -198,7 +197,7 @@ export type ChatConstraint = 'gpt_chat_conversation_link_key' | 'gpt_chat_pkey'
 
 /** aggregate max on columns */
 export interface ChatMaxFields {
-    addedBy: (Scalars['Int'] | null)
+    addedBy: (Scalars['uuid'] | null)
     chatId: (Scalars['Int'] | null)
     chatbotId: (Scalars['Int'] | null)
     conversationLink: (Scalars['String'] | null)
@@ -208,7 +207,7 @@ export interface ChatMaxFields {
 
 /** aggregate min on columns */
 export interface ChatMinFields {
-    addedBy: (Scalars['Int'] | null)
+    addedBy: (Scalars['uuid'] | null)
     chatId: (Scalars['Int'] | null)
     chatbotId: (Scalars['Int'] | null)
     conversationLink: (Scalars['String'] | null)
@@ -232,7 +231,6 @@ export type ChatSelectColumn = 'addedBy' | 'chatId' | 'chatbotId' | 'conversatio
 
 /** aggregate stddev on columns */
 export interface ChatStddevFields {
-    addedBy: (Scalars['Float'] | null)
     chatId: (Scalars['Float'] | null)
     chatbotId: (Scalars['Float'] | null)
     __typename: 'ChatStddevFields'
@@ -241,7 +239,6 @@ export interface ChatStddevFields {
 
 /** aggregate stddevPop on columns */
 export interface ChatStddevPopFields {
-    addedBy: (Scalars['Float'] | null)
     chatId: (Scalars['Float'] | null)
     chatbotId: (Scalars['Float'] | null)
     __typename: 'ChatStddevPopFields'
@@ -250,7 +247,6 @@ export interface ChatStddevPopFields {
 
 /** aggregate stddevSamp on columns */
 export interface ChatStddevSampFields {
-    addedBy: (Scalars['Float'] | null)
     chatId: (Scalars['Float'] | null)
     chatbotId: (Scalars['Float'] | null)
     __typename: 'ChatStddevSampFields'
@@ -259,7 +255,6 @@ export interface ChatStddevSampFields {
 
 /** aggregate sum on columns */
 export interface ChatSumFields {
-    addedBy: (Scalars['Int'] | null)
     chatId: (Scalars['Int'] | null)
     chatbotId: (Scalars['Int'] | null)
     __typename: 'ChatSumFields'
@@ -272,7 +267,6 @@ export type ChatUpdateColumn = 'addedBy' | 'chatId' | 'chatbotId' | 'conversatio
 
 /** aggregate varPop on columns */
 export interface ChatVarPopFields {
-    addedBy: (Scalars['Float'] | null)
     chatId: (Scalars['Float'] | null)
     chatbotId: (Scalars['Float'] | null)
     __typename: 'ChatVarPopFields'
@@ -281,7 +275,6 @@ export interface ChatVarPopFields {
 
 /** aggregate varSamp on columns */
 export interface ChatVarSampFields {
-    addedBy: (Scalars['Float'] | null)
     chatId: (Scalars['Float'] | null)
     chatbotId: (Scalars['Float'] | null)
     __typename: 'ChatVarSampFields'
@@ -290,7 +283,6 @@ export interface ChatVarSampFields {
 
 /** aggregate variance on columns */
 export interface ChatVarianceFields {
-    addedBy: (Scalars['Float'] | null)
     chatId: (Scalars['Float'] | null)
     chatbotId: (Scalars['Float'] | null)
     __typename: 'ChatVarianceFields'
@@ -877,9 +869,7 @@ export interface Preference {
     preferredLength: Scalars['String']
     preferredTone: Scalars['String']
     preferredType: Scalars['String']
-    /** An object relationship */
-    user: User
-    userId: Scalars['Int']
+    userId: (Scalars['uuid'] | null)
     __typename: 'Preference'
 }
 
@@ -913,13 +903,12 @@ export interface PreferenceAggregateFields {
 export interface PreferenceAvgFields {
     chatbotId: (Scalars['Float'] | null)
     preferenceId: (Scalars['Float'] | null)
-    userId: (Scalars['Float'] | null)
     __typename: 'PreferenceAvgFields'
 }
 
 
 /** unique or primary key constraints on table "preference" */
-export type PreferenceConstraint = 'user_chatbot_preference_pkey' | 'user_chatbot_preference_user_id_chatbot_id_key'
+export type PreferenceConstraint = 'user_chatbot_preference_pkey'
 
 
 /** aggregate max on columns */
@@ -930,7 +919,7 @@ export interface PreferenceMaxFields {
     preferredLength: (Scalars['String'] | null)
     preferredTone: (Scalars['String'] | null)
     preferredType: (Scalars['String'] | null)
-    userId: (Scalars['Int'] | null)
+    userId: (Scalars['uuid'] | null)
     __typename: 'PreferenceMaxFields'
 }
 
@@ -943,7 +932,7 @@ export interface PreferenceMinFields {
     preferredLength: (Scalars['String'] | null)
     preferredTone: (Scalars['String'] | null)
     preferredType: (Scalars['String'] | null)
-    userId: (Scalars['Int'] | null)
+    userId: (Scalars['uuid'] | null)
     __typename: 'PreferenceMinFields'
 }
 
@@ -974,7 +963,6 @@ export type PreferenceSelectColumnPreferenceAggregateBoolExpBool_orArgumentsColu
 export interface PreferenceStddevFields {
     chatbotId: (Scalars['Float'] | null)
     preferenceId: (Scalars['Float'] | null)
-    userId: (Scalars['Float'] | null)
     __typename: 'PreferenceStddevFields'
 }
 
@@ -983,7 +971,6 @@ export interface PreferenceStddevFields {
 export interface PreferenceStddevPopFields {
     chatbotId: (Scalars['Float'] | null)
     preferenceId: (Scalars['Float'] | null)
-    userId: (Scalars['Float'] | null)
     __typename: 'PreferenceStddevPopFields'
 }
 
@@ -992,7 +979,6 @@ export interface PreferenceStddevPopFields {
 export interface PreferenceStddevSampFields {
     chatbotId: (Scalars['Float'] | null)
     preferenceId: (Scalars['Float'] | null)
-    userId: (Scalars['Float'] | null)
     __typename: 'PreferenceStddevSampFields'
 }
 
@@ -1001,7 +987,6 @@ export interface PreferenceStddevSampFields {
 export interface PreferenceSumFields {
     chatbotId: (Scalars['Int'] | null)
     preferenceId: (Scalars['Int'] | null)
-    userId: (Scalars['Int'] | null)
     __typename: 'PreferenceSumFields'
 }
 
@@ -1014,7 +999,6 @@ export type PreferenceUpdateColumn = 'chatbotId' | 'favorite' | 'preferenceId' |
 export interface PreferenceVarPopFields {
     chatbotId: (Scalars['Float'] | null)
     preferenceId: (Scalars['Float'] | null)
-    userId: (Scalars['Float'] | null)
     __typename: 'PreferenceVarPopFields'
 }
 
@@ -1023,7 +1007,6 @@ export interface PreferenceVarPopFields {
 export interface PreferenceVarSampFields {
     chatbotId: (Scalars['Float'] | null)
     preferenceId: (Scalars['Float'] | null)
-    userId: (Scalars['Float'] | null)
     __typename: 'PreferenceVarSampFields'
 }
 
@@ -1032,7 +1015,6 @@ export interface PreferenceVarSampFields {
 export interface PreferenceVarianceFields {
     chatbotId: (Scalars['Float'] | null)
     preferenceId: (Scalars['Float'] | null)
-    userId: (Scalars['Float'] | null)
     __typename: 'PreferenceVarianceFields'
 }
 
@@ -1390,8 +1372,8 @@ export interface Thread {
     threadId: Scalars['uuid']
     updatedAt: Scalars['timestamptz']
     /** An object relationship */
-    user: User
-    userId: Scalars['Int']
+    user: (User | null)
+    userId: (Scalars['uuid'] | null)
     __typename: 'Thread'
 }
 
@@ -1424,7 +1406,6 @@ export interface ThreadAggregateFields {
 /** aggregate avg on columns */
 export interface ThreadAvgFields {
     chatbotId: (Scalars['Float'] | null)
-    userId: (Scalars['Float'] | null)
     __typename: 'ThreadAvgFields'
 }
 
@@ -1439,7 +1420,7 @@ export interface ThreadMaxFields {
     createdAt: (Scalars['timestamptz'] | null)
     threadId: (Scalars['uuid'] | null)
     updatedAt: (Scalars['timestamptz'] | null)
-    userId: (Scalars['Int'] | null)
+    userId: (Scalars['uuid'] | null)
     __typename: 'ThreadMaxFields'
 }
 
@@ -1450,7 +1431,7 @@ export interface ThreadMinFields {
     createdAt: (Scalars['timestamptz'] | null)
     threadId: (Scalars['uuid'] | null)
     updatedAt: (Scalars['timestamptz'] | null)
-    userId: (Scalars['Int'] | null)
+    userId: (Scalars['uuid'] | null)
     __typename: 'ThreadMinFields'
 }
 
@@ -1472,7 +1453,6 @@ export type ThreadSelectColumn = 'chatbotId' | 'createdAt' | 'threadId' | 'updat
 /** aggregate stddev on columns */
 export interface ThreadStddevFields {
     chatbotId: (Scalars['Float'] | null)
-    userId: (Scalars['Float'] | null)
     __typename: 'ThreadStddevFields'
 }
 
@@ -1480,7 +1460,6 @@ export interface ThreadStddevFields {
 /** aggregate stddevPop on columns */
 export interface ThreadStddevPopFields {
     chatbotId: (Scalars['Float'] | null)
-    userId: (Scalars['Float'] | null)
     __typename: 'ThreadStddevPopFields'
 }
 
@@ -1488,7 +1467,6 @@ export interface ThreadStddevPopFields {
 /** aggregate stddevSamp on columns */
 export interface ThreadStddevSampFields {
     chatbotId: (Scalars['Float'] | null)
-    userId: (Scalars['Float'] | null)
     __typename: 'ThreadStddevSampFields'
 }
 
@@ -1496,7 +1474,6 @@ export interface ThreadStddevSampFields {
 /** aggregate sum on columns */
 export interface ThreadSumFields {
     chatbotId: (Scalars['Int'] | null)
-    userId: (Scalars['Int'] | null)
     __typename: 'ThreadSumFields'
 }
 
@@ -1508,7 +1485,6 @@ export type ThreadUpdateColumn = 'chatbotId' | 'createdAt' | 'threadId' | 'updat
 /** aggregate varPop on columns */
 export interface ThreadVarPopFields {
     chatbotId: (Scalars['Float'] | null)
-    userId: (Scalars['Float'] | null)
     __typename: 'ThreadVarPopFields'
 }
 
@@ -1516,7 +1492,6 @@ export interface ThreadVarPopFields {
 /** aggregate varSamp on columns */
 export interface ThreadVarSampFields {
     chatbotId: (Scalars['Float'] | null)
-    userId: (Scalars['Float'] | null)
     __typename: 'ThreadVarSampFields'
 }
 
@@ -1524,7 +1499,6 @@ export interface ThreadVarSampFields {
 /** aggregate variance on columns */
 export interface ThreadVarianceFields {
     chatbotId: (Scalars['Float'] | null)
-    userId: (Scalars['Float'] | null)
     __typename: 'ThreadVarianceFields'
 }
 
@@ -1668,7 +1642,7 @@ export interface User {
     threads: Thread[]
     /** An aggregate relationship */
     threadsAggregate: ThreadAggregate
-    userId: Scalars['Int']
+    userId: Scalars['uuid']
     username: Scalars['String']
     __typename: 'User'
 }
@@ -1684,25 +1658,10 @@ export interface UserAggregate {
 
 /** aggregate fields of "user" */
 export interface UserAggregateFields {
-    avg: (UserAvgFields | null)
     count: Scalars['Int']
     max: (UserMaxFields | null)
     min: (UserMinFields | null)
-    stddev: (UserStddevFields | null)
-    stddevPop: (UserStddevPopFields | null)
-    stddevSamp: (UserStddevSampFields | null)
-    sum: (UserSumFields | null)
-    varPop: (UserVarPopFields | null)
-    varSamp: (UserVarSampFields | null)
-    variance: (UserVarianceFields | null)
     __typename: 'UserAggregateFields'
-}
-
-
-/** aggregate avg on columns */
-export interface UserAvgFields {
-    userId: (Scalars['Float'] | null)
-    __typename: 'UserAvgFields'
 }
 
 
@@ -1717,7 +1676,7 @@ export interface UserMaxFields {
     lastLogin: (Scalars['timestamptz'] | null)
     password: (Scalars['String'] | null)
     profilePicture: (Scalars['String'] | null)
-    userId: (Scalars['Int'] | null)
+    userId: (Scalars['uuid'] | null)
     username: (Scalars['String'] | null)
     __typename: 'UserMaxFields'
 }
@@ -1730,7 +1689,7 @@ export interface UserMinFields {
     lastLogin: (Scalars['timestamptz'] | null)
     password: (Scalars['String'] | null)
     profilePicture: (Scalars['String'] | null)
-    userId: (Scalars['Int'] | null)
+    userId: (Scalars['uuid'] | null)
     username: (Scalars['String'] | null)
     __typename: 'UserMinFields'
 }
@@ -1750,57 +1709,8 @@ export interface UserMutationResponse {
 export type UserSelectColumn = 'dateJoined' | 'email' | 'lastLogin' | 'password' | 'profilePicture' | 'userId' | 'username'
 
 
-/** aggregate stddev on columns */
-export interface UserStddevFields {
-    userId: (Scalars['Float'] | null)
-    __typename: 'UserStddevFields'
-}
-
-
-/** aggregate stddevPop on columns */
-export interface UserStddevPopFields {
-    userId: (Scalars['Float'] | null)
-    __typename: 'UserStddevPopFields'
-}
-
-
-/** aggregate stddevSamp on columns */
-export interface UserStddevSampFields {
-    userId: (Scalars['Float'] | null)
-    __typename: 'UserStddevSampFields'
-}
-
-
-/** aggregate sum on columns */
-export interface UserSumFields {
-    userId: (Scalars['Int'] | null)
-    __typename: 'UserSumFields'
-}
-
-
 /** update columns of table "user" */
 export type UserUpdateColumn = 'dateJoined' | 'email' | 'lastLogin' | 'password' | 'profilePicture' | 'userId' | 'username'
-
-
-/** aggregate varPop on columns */
-export interface UserVarPopFields {
-    userId: (Scalars['Float'] | null)
-    __typename: 'UserVarPopFields'
-}
-
-
-/** aggregate varSamp on columns */
-export interface UserVarSampFields {
-    userId: (Scalars['Float'] | null)
-    __typename: 'UserVarSampFields'
-}
-
-
-/** aggregate variance on columns */
-export interface UserVarianceFields {
-    userId: (Scalars['Float'] | null)
-    __typename: 'UserVarianceFields'
-}
 
 
 /** mutation root */
@@ -2536,7 +2446,6 @@ onConflict?: (ChatOnConflict | null)}
 
 /** aggregate avg on columns */
 export interface ChatAvgFieldsGenqlSelection{
-    addedBy?: boolean | number
     chatId?: boolean | number
     chatbotId?: boolean | number
     __typename?: boolean | number
@@ -2545,19 +2454,19 @@ export interface ChatAvgFieldsGenqlSelection{
 
 
 /** order by avg() on columns of table "chat" */
-export interface ChatAvgOrderBy {addedBy?: (OrderBy | null),chatId?: (OrderBy | null),chatbotId?: (OrderBy | null)}
+export interface ChatAvgOrderBy {chatId?: (OrderBy | null),chatbotId?: (OrderBy | null)}
 
 
 /** Boolean expression to filter rows from the table "chat". All fields are combined with a logical 'AND'. */
-export interface ChatBoolExp {_and?: (ChatBoolExp[] | null),_not?: (ChatBoolExp | null),_or?: (ChatBoolExp[] | null),addedBy?: (IntComparisonExp | null),chatId?: (IntComparisonExp | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),conversationLink?: (StringComparisonExp | null),user?: (UserBoolExp | null)}
+export interface ChatBoolExp {_and?: (ChatBoolExp[] | null),_not?: (ChatBoolExp | null),_or?: (ChatBoolExp[] | null),addedBy?: (UuidComparisonExp | null),chatId?: (IntComparisonExp | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),conversationLink?: (StringComparisonExp | null),user?: (UserBoolExp | null)}
 
 
 /** input type for incrementing numeric columns in table "chat" */
-export interface ChatIncInput {addedBy?: (Scalars['Int'] | null),chatId?: (Scalars['Int'] | null),chatbotId?: (Scalars['Int'] | null)}
+export interface ChatIncInput {chatId?: (Scalars['Int'] | null),chatbotId?: (Scalars['Int'] | null)}
 
 
 /** input type for inserting data into table "chat" */
-export interface ChatInsertInput {addedBy?: (Scalars['Int'] | null),chatId?: (Scalars['Int'] | null),chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),conversationLink?: (Scalars['String'] | null),user?: (UserObjRelInsertInput | null)}
+export interface ChatInsertInput {addedBy?: (Scalars['uuid'] | null),chatId?: (Scalars['Int'] | null),chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),conversationLink?: (Scalars['String'] | null),user?: (UserObjRelInsertInput | null)}
 
 
 /** aggregate max on columns */
@@ -2614,12 +2523,11 @@ export interface ChatPkColumnsInput {chatId: Scalars['Int']}
 
 
 /** input type for updating data in table "chat" */
-export interface ChatSetInput {addedBy?: (Scalars['Int'] | null),chatId?: (Scalars['Int'] | null),chatbotId?: (Scalars['Int'] | null),conversationLink?: (Scalars['String'] | null)}
+export interface ChatSetInput {addedBy?: (Scalars['uuid'] | null),chatId?: (Scalars['Int'] | null),chatbotId?: (Scalars['Int'] | null),conversationLink?: (Scalars['String'] | null)}
 
 
 /** aggregate stddev on columns */
 export interface ChatStddevFieldsGenqlSelection{
-    addedBy?: boolean | number
     chatId?: boolean | number
     chatbotId?: boolean | number
     __typename?: boolean | number
@@ -2628,12 +2536,11 @@ export interface ChatStddevFieldsGenqlSelection{
 
 
 /** order by stddev() on columns of table "chat" */
-export interface ChatStddevOrderBy {addedBy?: (OrderBy | null),chatId?: (OrderBy | null),chatbotId?: (OrderBy | null)}
+export interface ChatStddevOrderBy {chatId?: (OrderBy | null),chatbotId?: (OrderBy | null)}
 
 
 /** aggregate stddevPop on columns */
 export interface ChatStddevPopFieldsGenqlSelection{
-    addedBy?: boolean | number
     chatId?: boolean | number
     chatbotId?: boolean | number
     __typename?: boolean | number
@@ -2642,12 +2549,11 @@ export interface ChatStddevPopFieldsGenqlSelection{
 
 
 /** order by stddevPop() on columns of table "chat" */
-export interface ChatStddevPopOrderBy {addedBy?: (OrderBy | null),chatId?: (OrderBy | null),chatbotId?: (OrderBy | null)}
+export interface ChatStddevPopOrderBy {chatId?: (OrderBy | null),chatbotId?: (OrderBy | null)}
 
 
 /** aggregate stddevSamp on columns */
 export interface ChatStddevSampFieldsGenqlSelection{
-    addedBy?: boolean | number
     chatId?: boolean | number
     chatbotId?: boolean | number
     __typename?: boolean | number
@@ -2656,7 +2562,7 @@ export interface ChatStddevSampFieldsGenqlSelection{
 
 
 /** order by stddevSamp() on columns of table "chat" */
-export interface ChatStddevSampOrderBy {addedBy?: (OrderBy | null),chatId?: (OrderBy | null),chatbotId?: (OrderBy | null)}
+export interface ChatStddevSampOrderBy {chatId?: (OrderBy | null),chatbotId?: (OrderBy | null)}
 
 
 /** Streaming cursor of the table "chat" */
@@ -2668,12 +2574,11 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface ChatStreamCursorValueInput {addedBy?: (Scalars['Int'] | null),chatId?: (Scalars['Int'] | null),chatbotId?: (Scalars['Int'] | null),conversationLink?: (Scalars['String'] | null)}
+export interface ChatStreamCursorValueInput {addedBy?: (Scalars['uuid'] | null),chatId?: (Scalars['Int'] | null),chatbotId?: (Scalars['Int'] | null),conversationLink?: (Scalars['String'] | null)}
 
 
 /** aggregate sum on columns */
 export interface ChatSumFieldsGenqlSelection{
-    addedBy?: boolean | number
     chatId?: boolean | number
     chatbotId?: boolean | number
     __typename?: boolean | number
@@ -2682,7 +2587,7 @@ export interface ChatSumFieldsGenqlSelection{
 
 
 /** order by sum() on columns of table "chat" */
-export interface ChatSumOrderBy {addedBy?: (OrderBy | null),chatId?: (OrderBy | null),chatbotId?: (OrderBy | null)}
+export interface ChatSumOrderBy {chatId?: (OrderBy | null),chatbotId?: (OrderBy | null)}
 
 export interface ChatUpdates {
 /** increments the numeric columns with given value of the filtered values */
@@ -2695,7 +2600,6 @@ where: ChatBoolExp}
 
 /** aggregate varPop on columns */
 export interface ChatVarPopFieldsGenqlSelection{
-    addedBy?: boolean | number
     chatId?: boolean | number
     chatbotId?: boolean | number
     __typename?: boolean | number
@@ -2704,12 +2608,11 @@ export interface ChatVarPopFieldsGenqlSelection{
 
 
 /** order by varPop() on columns of table "chat" */
-export interface ChatVarPopOrderBy {addedBy?: (OrderBy | null),chatId?: (OrderBy | null),chatbotId?: (OrderBy | null)}
+export interface ChatVarPopOrderBy {chatId?: (OrderBy | null),chatbotId?: (OrderBy | null)}
 
 
 /** aggregate varSamp on columns */
 export interface ChatVarSampFieldsGenqlSelection{
-    addedBy?: boolean | number
     chatId?: boolean | number
     chatbotId?: boolean | number
     __typename?: boolean | number
@@ -2718,12 +2621,11 @@ export interface ChatVarSampFieldsGenqlSelection{
 
 
 /** order by varSamp() on columns of table "chat" */
-export interface ChatVarSampOrderBy {addedBy?: (OrderBy | null),chatId?: (OrderBy | null),chatbotId?: (OrderBy | null)}
+export interface ChatVarSampOrderBy {chatId?: (OrderBy | null),chatbotId?: (OrderBy | null)}
 
 
 /** aggregate variance on columns */
 export interface ChatVarianceFieldsGenqlSelection{
-    addedBy?: boolean | number
     chatId?: boolean | number
     chatbotId?: boolean | number
     __typename?: boolean | number
@@ -2732,7 +2634,7 @@ export interface ChatVarianceFieldsGenqlSelection{
 
 
 /** order by variance() on columns of table "chat" */
-export interface ChatVarianceOrderBy {addedBy?: (OrderBy | null),chatId?: (OrderBy | null),chatbotId?: (OrderBy | null)}
+export interface ChatVarianceOrderBy {chatId?: (OrderBy | null),chatbotId?: (OrderBy | null)}
 
 
 /** Table storing information about chatbots, their characteristics, and default settings. */
@@ -3733,8 +3635,6 @@ export interface PreferenceGenqlSelection{
     preferredLength?: boolean | number
     preferredTone?: boolean | number
     preferredType?: boolean | number
-    /** An object relationship */
-    user?: UserGenqlSelection
     userId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -3784,26 +3684,25 @@ onConflict?: (PreferenceOnConflict | null)}
 export interface PreferenceAvgFieldsGenqlSelection{
     chatbotId?: boolean | number
     preferenceId?: boolean | number
-    userId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
 
 
 /** order by avg() on columns of table "preference" */
-export interface PreferenceAvgOrderBy {chatbotId?: (OrderBy | null),preferenceId?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface PreferenceAvgOrderBy {chatbotId?: (OrderBy | null),preferenceId?: (OrderBy | null)}
 
 
 /** Boolean expression to filter rows from the table "preference". All fields are combined with a logical 'AND'. */
-export interface PreferenceBoolExp {_and?: (PreferenceBoolExp[] | null),_not?: (PreferenceBoolExp | null),_or?: (PreferenceBoolExp[] | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),favorite?: (BooleanComparisonExp | null),preferenceId?: (IntComparisonExp | null),preferredComplexity?: (StringComparisonExp | null),preferredLength?: (StringComparisonExp | null),preferredTone?: (StringComparisonExp | null),preferredType?: (StringComparisonExp | null),user?: (UserBoolExp | null),userId?: (IntComparisonExp | null)}
+export interface PreferenceBoolExp {_and?: (PreferenceBoolExp[] | null),_not?: (PreferenceBoolExp | null),_or?: (PreferenceBoolExp[] | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),favorite?: (BooleanComparisonExp | null),preferenceId?: (IntComparisonExp | null),preferredComplexity?: (StringComparisonExp | null),preferredLength?: (StringComparisonExp | null),preferredTone?: (StringComparisonExp | null),preferredType?: (StringComparisonExp | null),userId?: (UuidComparisonExp | null)}
 
 
 /** input type for incrementing numeric columns in table "preference" */
-export interface PreferenceIncInput {chatbotId?: (Scalars['Int'] | null),preferenceId?: (Scalars['Int'] | null),userId?: (Scalars['Int'] | null)}
+export interface PreferenceIncInput {chatbotId?: (Scalars['Int'] | null),preferenceId?: (Scalars['Int'] | null)}
 
 
 /** input type for inserting data into table "preference" */
-export interface PreferenceInsertInput {chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),favorite?: (Scalars['Boolean'] | null),preferenceId?: (Scalars['Int'] | null),preferredComplexity?: (Scalars['String'] | null),preferredLength?: (Scalars['String'] | null),preferredTone?: (Scalars['String'] | null),preferredType?: (Scalars['String'] | null),user?: (UserObjRelInsertInput | null),userId?: (Scalars['Int'] | null)}
+export interface PreferenceInsertInput {chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),favorite?: (Scalars['Boolean'] | null),preferenceId?: (Scalars['Int'] | null),preferredComplexity?: (Scalars['String'] | null),preferredLength?: (Scalars['String'] | null),preferredTone?: (Scalars['String'] | null),preferredType?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate max on columns */
@@ -3858,7 +3757,7 @@ export interface PreferenceOnConflict {constraint: PreferenceConstraint,updateCo
 
 
 /** Ordering options when selecting data from "preference". */
-export interface PreferenceOrderBy {chatbot?: (ChatbotOrderBy | null),chatbotId?: (OrderBy | null),favorite?: (OrderBy | null),preferenceId?: (OrderBy | null),preferredComplexity?: (OrderBy | null),preferredLength?: (OrderBy | null),preferredTone?: (OrderBy | null),preferredType?: (OrderBy | null),user?: (UserOrderBy | null),userId?: (OrderBy | null)}
+export interface PreferenceOrderBy {chatbot?: (ChatbotOrderBy | null),chatbotId?: (OrderBy | null),favorite?: (OrderBy | null),preferenceId?: (OrderBy | null),preferredComplexity?: (OrderBy | null),preferredLength?: (OrderBy | null),preferredTone?: (OrderBy | null),preferredType?: (OrderBy | null),userId?: (OrderBy | null)}
 
 
 /** primary key columns input for table: preference */
@@ -3866,49 +3765,46 @@ export interface PreferencePkColumnsInput {preferenceId: Scalars['Int']}
 
 
 /** input type for updating data in table "preference" */
-export interface PreferenceSetInput {chatbotId?: (Scalars['Int'] | null),favorite?: (Scalars['Boolean'] | null),preferenceId?: (Scalars['Int'] | null),preferredComplexity?: (Scalars['String'] | null),preferredLength?: (Scalars['String'] | null),preferredTone?: (Scalars['String'] | null),preferredType?: (Scalars['String'] | null),userId?: (Scalars['Int'] | null)}
+export interface PreferenceSetInput {chatbotId?: (Scalars['Int'] | null),favorite?: (Scalars['Boolean'] | null),preferenceId?: (Scalars['Int'] | null),preferredComplexity?: (Scalars['String'] | null),preferredLength?: (Scalars['String'] | null),preferredTone?: (Scalars['String'] | null),preferredType?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate stddev on columns */
 export interface PreferenceStddevFieldsGenqlSelection{
     chatbotId?: boolean | number
     preferenceId?: boolean | number
-    userId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
 
 
 /** order by stddev() on columns of table "preference" */
-export interface PreferenceStddevOrderBy {chatbotId?: (OrderBy | null),preferenceId?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface PreferenceStddevOrderBy {chatbotId?: (OrderBy | null),preferenceId?: (OrderBy | null)}
 
 
 /** aggregate stddevPop on columns */
 export interface PreferenceStddevPopFieldsGenqlSelection{
     chatbotId?: boolean | number
     preferenceId?: boolean | number
-    userId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
 
 
 /** order by stddevPop() on columns of table "preference" */
-export interface PreferenceStddevPopOrderBy {chatbotId?: (OrderBy | null),preferenceId?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface PreferenceStddevPopOrderBy {chatbotId?: (OrderBy | null),preferenceId?: (OrderBy | null)}
 
 
 /** aggregate stddevSamp on columns */
 export interface PreferenceStddevSampFieldsGenqlSelection{
     chatbotId?: boolean | number
     preferenceId?: boolean | number
-    userId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
 
 
 /** order by stddevSamp() on columns of table "preference" */
-export interface PreferenceStddevSampOrderBy {chatbotId?: (OrderBy | null),preferenceId?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface PreferenceStddevSampOrderBy {chatbotId?: (OrderBy | null),preferenceId?: (OrderBy | null)}
 
 
 /** Streaming cursor of the table "preference" */
@@ -3920,21 +3816,20 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface PreferenceStreamCursorValueInput {chatbotId?: (Scalars['Int'] | null),favorite?: (Scalars['Boolean'] | null),preferenceId?: (Scalars['Int'] | null),preferredComplexity?: (Scalars['String'] | null),preferredLength?: (Scalars['String'] | null),preferredTone?: (Scalars['String'] | null),preferredType?: (Scalars['String'] | null),userId?: (Scalars['Int'] | null)}
+export interface PreferenceStreamCursorValueInput {chatbotId?: (Scalars['Int'] | null),favorite?: (Scalars['Boolean'] | null),preferenceId?: (Scalars['Int'] | null),preferredComplexity?: (Scalars['String'] | null),preferredLength?: (Scalars['String'] | null),preferredTone?: (Scalars['String'] | null),preferredType?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate sum on columns */
 export interface PreferenceSumFieldsGenqlSelection{
     chatbotId?: boolean | number
     preferenceId?: boolean | number
-    userId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
 
 
 /** order by sum() on columns of table "preference" */
-export interface PreferenceSumOrderBy {chatbotId?: (OrderBy | null),preferenceId?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface PreferenceSumOrderBy {chatbotId?: (OrderBy | null),preferenceId?: (OrderBy | null)}
 
 export interface PreferenceUpdates {
 /** increments the numeric columns with given value of the filtered values */
@@ -3949,42 +3844,39 @@ where: PreferenceBoolExp}
 export interface PreferenceVarPopFieldsGenqlSelection{
     chatbotId?: boolean | number
     preferenceId?: boolean | number
-    userId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
 
 
 /** order by varPop() on columns of table "preference" */
-export interface PreferenceVarPopOrderBy {chatbotId?: (OrderBy | null),preferenceId?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface PreferenceVarPopOrderBy {chatbotId?: (OrderBy | null),preferenceId?: (OrderBy | null)}
 
 
 /** aggregate varSamp on columns */
 export interface PreferenceVarSampFieldsGenqlSelection{
     chatbotId?: boolean | number
     preferenceId?: boolean | number
-    userId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
 
 
 /** order by varSamp() on columns of table "preference" */
-export interface PreferenceVarSampOrderBy {chatbotId?: (OrderBy | null),preferenceId?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface PreferenceVarSampOrderBy {chatbotId?: (OrderBy | null),preferenceId?: (OrderBy | null)}
 
 
 /** aggregate variance on columns */
 export interface PreferenceVarianceFieldsGenqlSelection{
     chatbotId?: boolean | number
     preferenceId?: boolean | number
-    userId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
 
 
 /** order by variance() on columns of table "preference" */
-export interface PreferenceVarianceOrderBy {chatbotId?: (OrderBy | null),preferenceId?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface PreferenceVarianceOrderBy {chatbotId?: (OrderBy | null),preferenceId?: (OrderBy | null)}
 
 
 /** columns and relationships of "prompt" */
@@ -4719,26 +4611,25 @@ onConflict?: (ThreadOnConflict | null)}
 /** aggregate avg on columns */
 export interface ThreadAvgFieldsGenqlSelection{
     chatbotId?: boolean | number
-    userId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
 
 
 /** order by avg() on columns of table "thread" */
-export interface ThreadAvgOrderBy {chatbotId?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadAvgOrderBy {chatbotId?: (OrderBy | null)}
 
 
 /** Boolean expression to filter rows from the table "thread". All fields are combined with a logical 'AND'. */
-export interface ThreadBoolExp {_and?: (ThreadBoolExp[] | null),_not?: (ThreadBoolExp | null),_or?: (ThreadBoolExp[] | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),createdAt?: (TimestamptzComparisonExp | null),messages?: (MessageBoolExp | null),messagesAggregate?: (MessageAggregateBoolExp | null),threadId?: (UuidComparisonExp | null),updatedAt?: (TimestamptzComparisonExp | null),user?: (UserBoolExp | null),userId?: (IntComparisonExp | null)}
+export interface ThreadBoolExp {_and?: (ThreadBoolExp[] | null),_not?: (ThreadBoolExp | null),_or?: (ThreadBoolExp[] | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),createdAt?: (TimestamptzComparisonExp | null),messages?: (MessageBoolExp | null),messagesAggregate?: (MessageAggregateBoolExp | null),threadId?: (UuidComparisonExp | null),updatedAt?: (TimestamptzComparisonExp | null),user?: (UserBoolExp | null),userId?: (UuidComparisonExp | null)}
 
 
 /** input type for incrementing numeric columns in table "thread" */
-export interface ThreadIncInput {chatbotId?: (Scalars['Int'] | null),userId?: (Scalars['Int'] | null)}
+export interface ThreadIncInput {chatbotId?: (Scalars['Int'] | null)}
 
 
 /** input type for inserting data into table "thread" */
-export interface ThreadInsertInput {chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),messages?: (MessageArrRelInsertInput | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),user?: (UserObjRelInsertInput | null),userId?: (Scalars['Int'] | null)}
+export interface ThreadInsertInput {chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),messages?: (MessageArrRelInsertInput | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),user?: (UserObjRelInsertInput | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate max on columns */
@@ -4803,46 +4694,43 @@ export interface ThreadPkColumnsInput {threadId: Scalars['uuid']}
 
 
 /** input type for updating data in table "thread" */
-export interface ThreadSetInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['Int'] | null)}
+export interface ThreadSetInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate stddev on columns */
 export interface ThreadStddevFieldsGenqlSelection{
     chatbotId?: boolean | number
-    userId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
 
 
 /** order by stddev() on columns of table "thread" */
-export interface ThreadStddevOrderBy {chatbotId?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadStddevOrderBy {chatbotId?: (OrderBy | null)}
 
 
 /** aggregate stddevPop on columns */
 export interface ThreadStddevPopFieldsGenqlSelection{
     chatbotId?: boolean | number
-    userId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
 
 
 /** order by stddevPop() on columns of table "thread" */
-export interface ThreadStddevPopOrderBy {chatbotId?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadStddevPopOrderBy {chatbotId?: (OrderBy | null)}
 
 
 /** aggregate stddevSamp on columns */
 export interface ThreadStddevSampFieldsGenqlSelection{
     chatbotId?: boolean | number
-    userId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
 
 
 /** order by stddevSamp() on columns of table "thread" */
-export interface ThreadStddevSampOrderBy {chatbotId?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadStddevSampOrderBy {chatbotId?: (OrderBy | null)}
 
 
 /** Streaming cursor of the table "thread" */
@@ -4854,20 +4742,19 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface ThreadStreamCursorValueInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['Int'] | null)}
+export interface ThreadStreamCursorValueInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate sum on columns */
 export interface ThreadSumFieldsGenqlSelection{
     chatbotId?: boolean | number
-    userId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
 
 
 /** order by sum() on columns of table "thread" */
-export interface ThreadSumOrderBy {chatbotId?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadSumOrderBy {chatbotId?: (OrderBy | null)}
 
 export interface ThreadUpdates {
 /** increments the numeric columns with given value of the filtered values */
@@ -4881,40 +4768,37 @@ where: ThreadBoolExp}
 /** aggregate varPop on columns */
 export interface ThreadVarPopFieldsGenqlSelection{
     chatbotId?: boolean | number
-    userId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
 
 
 /** order by varPop() on columns of table "thread" */
-export interface ThreadVarPopOrderBy {chatbotId?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadVarPopOrderBy {chatbotId?: (OrderBy | null)}
 
 
 /** aggregate varSamp on columns */
 export interface ThreadVarSampFieldsGenqlSelection{
     chatbotId?: boolean | number
-    userId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
 
 
 /** order by varSamp() on columns of table "thread" */
-export interface ThreadVarSampOrderBy {chatbotId?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadVarSampOrderBy {chatbotId?: (OrderBy | null)}
 
 
 /** aggregate variance on columns */
 export interface ThreadVarianceFieldsGenqlSelection{
     chatbotId?: boolean | number
-    userId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
 
 
 /** order by variance() on columns of table "thread" */
-export interface ThreadVarianceOrderBy {chatbotId?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadVarianceOrderBy {chatbotId?: (OrderBy | null)}
 
 
 /** Boolean expression to compare columns of type "timestamptz". All fields are combined with logical 'AND'. */
@@ -5210,40 +5094,20 @@ export interface UserAggregateGenqlSelection{
 
 /** aggregate fields of "user" */
 export interface UserAggregateFieldsGenqlSelection{
-    avg?: UserAvgFieldsGenqlSelection
     count?: { __args: {columns?: (UserSelectColumn[] | null), distinct?: (Scalars['Boolean'] | null)} } | boolean | number
     max?: UserMaxFieldsGenqlSelection
     min?: UserMinFieldsGenqlSelection
-    stddev?: UserStddevFieldsGenqlSelection
-    stddevPop?: UserStddevPopFieldsGenqlSelection
-    stddevSamp?: UserStddevSampFieldsGenqlSelection
-    sum?: UserSumFieldsGenqlSelection
-    varPop?: UserVarPopFieldsGenqlSelection
-    varSamp?: UserVarSampFieldsGenqlSelection
-    variance?: UserVarianceFieldsGenqlSelection
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** aggregate avg on columns */
-export interface UserAvgFieldsGenqlSelection{
-    userId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
 
 
 /** Boolean expression to filter rows from the table "user". All fields are combined with a logical 'AND'. */
-export interface UserBoolExp {_and?: (UserBoolExp[] | null),_not?: (UserBoolExp | null),_or?: (UserBoolExp[] | null),chats?: (ChatBoolExp | null),chatsAggregate?: (ChatAggregateBoolExp | null),dateJoined?: (TimestamptzComparisonExp | null),email?: (StringComparisonExp | null),lastLogin?: (TimestamptzComparisonExp | null),password?: (StringComparisonExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),profilePicture?: (StringComparisonExp | null),threads?: (ThreadBoolExp | null),threadsAggregate?: (ThreadAggregateBoolExp | null),userId?: (IntComparisonExp | null),username?: (StringComparisonExp | null)}
-
-
-/** input type for incrementing numeric columns in table "user" */
-export interface UserIncInput {userId?: (Scalars['Int'] | null)}
+export interface UserBoolExp {_and?: (UserBoolExp[] | null),_not?: (UserBoolExp | null),_or?: (UserBoolExp[] | null),chats?: (ChatBoolExp | null),chatsAggregate?: (ChatAggregateBoolExp | null),dateJoined?: (TimestamptzComparisonExp | null),email?: (StringComparisonExp | null),lastLogin?: (TimestamptzComparisonExp | null),password?: (StringComparisonExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),profilePicture?: (StringComparisonExp | null),threads?: (ThreadBoolExp | null),threadsAggregate?: (ThreadAggregateBoolExp | null),userId?: (UuidComparisonExp | null),username?: (StringComparisonExp | null)}
 
 
 /** input type for inserting data into table "user" */
-export interface UserInsertInput {chats?: (ChatArrRelInsertInput | null),dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),preferences?: (PreferenceArrRelInsertInput | null),profilePicture?: (Scalars['String'] | null),threads?: (ThreadArrRelInsertInput | null),userId?: (Scalars['Int'] | null),username?: (Scalars['String'] | null)}
+export interface UserInsertInput {chats?: (ChatArrRelInsertInput | null),dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),preferences?: (PreferenceArrRelInsertInput | null),profilePicture?: (Scalars['String'] | null),threads?: (ThreadArrRelInsertInput | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
 
 
 /** aggregate max on columns */
@@ -5300,35 +5164,11 @@ export interface UserOrderBy {chatsAggregate?: (ChatAggregateOrderBy | null),dat
 
 
 /** primary key columns input for table: user */
-export interface UserPkColumnsInput {userId: Scalars['Int']}
+export interface UserPkColumnsInput {userId: Scalars['uuid']}
 
 
 /** input type for updating data in table "user" */
-export interface UserSetInput {dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),userId?: (Scalars['Int'] | null),username?: (Scalars['String'] | null)}
-
-
-/** aggregate stddev on columns */
-export interface UserStddevFieldsGenqlSelection{
-    userId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** aggregate stddevPop on columns */
-export interface UserStddevPopFieldsGenqlSelection{
-    userId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** aggregate stddevSamp on columns */
-export interface UserStddevSampFieldsGenqlSelection{
-    userId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
+export interface UserSetInput {dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
 
 
 /** Streaming cursor of the table "user" */
@@ -5340,47 +5180,13 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface UserStreamCursorValueInput {dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),userId?: (Scalars['Int'] | null),username?: (Scalars['String'] | null)}
-
-
-/** aggregate sum on columns */
-export interface UserSumFieldsGenqlSelection{
-    userId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
+export interface UserStreamCursorValueInput {dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
 
 export interface UserUpdates {
-/** increments the numeric columns with given value of the filtered values */
-_inc?: (UserIncInput | null),
 /** sets the columns of the filtered rows to the given values */
 _set?: (UserSetInput | null),
 /** filter the rows which have to be updated */
 where: UserBoolExp}
-
-
-/** aggregate varPop on columns */
-export interface UserVarPopFieldsGenqlSelection{
-    userId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** aggregate varSamp on columns */
-export interface UserVarSampFieldsGenqlSelection{
-    userId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** aggregate variance on columns */
-export interface UserVarianceFieldsGenqlSelection{
-    userId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
 
 
 /** Boolean expression to compare columns of type "uuid". All fields are combined with logical 'AND'. */
@@ -5490,7 +5296,7 @@ export interface mutation_rootGenqlSelection{
     /** filter the rows which have to be deleted */
     where: UserBoolExp} })
     /** delete single row from the table: "user" */
-    deleteUserByPk?: (UserGenqlSelection & { __args: {userId: Scalars['Int']} })
+    deleteUserByPk?: (UserGenqlSelection & { __args: {userId: Scalars['uuid']} })
     /** insert data into the table: "category" */
     insertCategory?: (CategoryMutationResponseGenqlSelection & { __args: {
     /** the rows to be inserted */
@@ -5927,16 +5733,12 @@ export interface mutation_rootGenqlSelection{
     updates: TypeEnumUpdates[]} })
     /** update data of the table: "user" */
     updateUser?: (UserMutationResponseGenqlSelection & { __args: {
-    /** increments the numeric columns with given value of the filtered values */
-    _inc?: (UserIncInput | null), 
     /** sets the columns of the filtered rows to the given values */
     _set?: (UserSetInput | null), 
     /** filter the rows which have to be updated */
     where: UserBoolExp} })
     /** update single row of the table: "user" */
     updateUserByPk?: (UserGenqlSelection & { __args: {
-    /** increments the numeric columns with given value of the filtered values */
-    _inc?: (UserIncInput | null), 
     /** sets the columns of the filtered rows to the given values */
     _set?: (UserSetInput | null), pkColumns: UserPkColumnsInput} })
     /** update multiples rows of table: "user" */
@@ -6373,7 +6175,7 @@ export interface query_rootGenqlSelection{
     /** filter the rows returned */
     where?: (UserBoolExp | null)} })
     /** fetch data from the table: "user" using primary key columns */
-    userByPk?: (UserGenqlSelection & { __args: {userId: Scalars['Int']} })
+    userByPk?: (UserGenqlSelection & { __args: {userId: Scalars['uuid']} })
     __typename?: boolean | number
     __scalar?: boolean | number
 }
@@ -6914,7 +6716,7 @@ export interface subscription_rootGenqlSelection{
     /** filter the rows returned */
     where?: (UserBoolExp | null)} })
     /** fetch data from the table: "user" using primary key columns */
-    userByPk?: (UserGenqlSelection & { __args: {userId: Scalars['Int']} })
+    userByPk?: (UserGenqlSelection & { __args: {userId: Scalars['uuid']} })
     /** fetch data from the table in a streaming manner: "user" */
     userStream?: (UserGenqlSelection & { __args: {
     /** maximum number of rows returned in a single batch */
@@ -8190,14 +7992,6 @@ export type SubscriptionGenqlSelection = subscription_rootGenqlSelection
     
 
 
-    const UserAvgFields_possibleTypes: string[] = ['UserAvgFields']
-    export const isUserAvgFields = (obj?: { __typename?: any } | null): obj is UserAvgFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isUserAvgFields"')
-      return UserAvgFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
     const UserMaxFields_possibleTypes: string[] = ['UserMaxFields']
     export const isUserMaxFields = (obj?: { __typename?: any } | null): obj is UserMaxFields => {
       if (!obj?.__typename) throw new Error('__typename is missing in "isUserMaxFields"')
@@ -8218,62 +8012,6 @@ export type SubscriptionGenqlSelection = subscription_rootGenqlSelection
     export const isUserMutationResponse = (obj?: { __typename?: any } | null): obj is UserMutationResponse => {
       if (!obj?.__typename) throw new Error('__typename is missing in "isUserMutationResponse"')
       return UserMutationResponse_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const UserStddevFields_possibleTypes: string[] = ['UserStddevFields']
-    export const isUserStddevFields = (obj?: { __typename?: any } | null): obj is UserStddevFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isUserStddevFields"')
-      return UserStddevFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const UserStddevPopFields_possibleTypes: string[] = ['UserStddevPopFields']
-    export const isUserStddevPopFields = (obj?: { __typename?: any } | null): obj is UserStddevPopFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isUserStddevPopFields"')
-      return UserStddevPopFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const UserStddevSampFields_possibleTypes: string[] = ['UserStddevSampFields']
-    export const isUserStddevSampFields = (obj?: { __typename?: any } | null): obj is UserStddevSampFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isUserStddevSampFields"')
-      return UserStddevSampFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const UserSumFields_possibleTypes: string[] = ['UserSumFields']
-    export const isUserSumFields = (obj?: { __typename?: any } | null): obj is UserSumFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isUserSumFields"')
-      return UserSumFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const UserVarPopFields_possibleTypes: string[] = ['UserVarPopFields']
-    export const isUserVarPopFields = (obj?: { __typename?: any } | null): obj is UserVarPopFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isUserVarPopFields"')
-      return UserVarPopFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const UserVarSampFields_possibleTypes: string[] = ['UserVarSampFields']
-    export const isUserVarSampFields = (obj?: { __typename?: any } | null): obj is UserVarSampFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isUserVarSampFields"')
-      return UserVarSampFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const UserVarianceFields_possibleTypes: string[] = ['UserVarianceFields']
-    export const isUserVarianceFields = (obj?: { __typename?: any } | null): obj is UserVarianceFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isUserVarianceFields"')
-      return UserVarianceFields_possibleTypes.includes(obj.__typename)
     }
     
 
@@ -8450,8 +8188,7 @@ export const enumOrderBy = {
 }
 
 export const enumPreferenceConstraint = {
-   user_chatbot_preference_pkey: 'user_chatbot_preference_pkey' as const,
-   user_chatbot_preference_user_id_chatbot_id_key: 'user_chatbot_preference_user_id_chatbot_id_key' as const
+   user_chatbot_preference_pkey: 'user_chatbot_preference_pkey' as const
 }
 
 export const enumPreferenceSelectColumn = {

@@ -5,16 +5,34 @@ object_relationships:
   - name: chatbot
     using:
       foreign_key_constraint_on: chatbot_id
-select_permissions:
-  - role: anonymous
+insert_permissions:
+  - role: user
     permission:
+      check:
+        user_id:
+          _eq: X-Hasura-User-Id
       columns:
         - chatbot_id
         - favorite
+        - preferred_complexity
+        - preferred_length
+        - preferred_tone
+        - preferred_type
+        - user_id
+    comment: ""
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - favorite
+        - chatbot_id
         - preference_id
         - preferred_complexity
         - preferred_length
         - preferred_tone
         - preferred_type
-      filter: {}
+        - user_id
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
     comment: ""

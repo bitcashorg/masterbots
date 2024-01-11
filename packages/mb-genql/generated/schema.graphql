@@ -295,7 +295,7 @@ type CategoryVarianceFields {
 Table to store links to GPT chat conversations and associate them with a specific GPT chatbot and the user who added the link.
 """
 type Chat {
-  addedBy: Int!
+  addedBy: uuid
   chatId: Int!
 
   """An object relationship"""
@@ -304,7 +304,7 @@ type Chat {
   conversationLink: String!
 
   """An object relationship"""
-  user: User!
+  user: User
 }
 
 """
@@ -365,7 +365,6 @@ input ChatArrRelInsertInput {
 
 """aggregate avg on columns"""
 type ChatAvgFields {
-  addedBy: Float
   chatId: Float
   chatbotId: Float
 }
@@ -374,7 +373,6 @@ type ChatAvgFields {
 order by avg() on columns of table "chat"
 """
 input ChatAvgOrderBy {
-  addedBy: OrderBy
   chatId: OrderBy
   chatbotId: OrderBy
 }
@@ -386,7 +384,7 @@ input ChatBoolExp {
   _and: [ChatBoolExp!]
   _not: ChatBoolExp
   _or: [ChatBoolExp!]
-  addedBy: IntComparisonExp
+  addedBy: UuidComparisonExp
   chatId: IntComparisonExp
   chatbot: ChatbotBoolExp
   chatbotId: IntComparisonExp
@@ -413,7 +411,6 @@ enum ChatConstraint {
 input type for incrementing numeric columns in table "chat"
 """
 input ChatIncInput {
-  addedBy: Int
   chatId: Int
   chatbotId: Int
 }
@@ -422,7 +419,7 @@ input ChatIncInput {
 input type for inserting data into table "chat"
 """
 input ChatInsertInput {
-  addedBy: Int
+  addedBy: uuid
   chatId: Int
   chatbot: ChatbotObjRelInsertInput
   chatbotId: Int
@@ -432,7 +429,7 @@ input ChatInsertInput {
 
 """aggregate max on columns"""
 type ChatMaxFields {
-  addedBy: Int
+  addedBy: uuid
   chatId: Int
   chatbotId: Int
   conversationLink: String
@@ -450,7 +447,7 @@ input ChatMaxOrderBy {
 
 """aggregate min on columns"""
 type ChatMinFields {
-  addedBy: Int
+  addedBy: uuid
   chatId: Int
   chatbotId: Int
   conversationLink: String
@@ -522,7 +519,7 @@ enum ChatSelectColumn {
 input type for updating data in table "chat"
 """
 input ChatSetInput {
-  addedBy: Int
+  addedBy: uuid
   chatId: Int
   chatbotId: Int
   conversationLink: String
@@ -530,7 +527,6 @@ input ChatSetInput {
 
 """aggregate stddev on columns"""
 type ChatStddevFields {
-  addedBy: Float
   chatId: Float
   chatbotId: Float
 }
@@ -539,14 +535,12 @@ type ChatStddevFields {
 order by stddev() on columns of table "chat"
 """
 input ChatStddevOrderBy {
-  addedBy: OrderBy
   chatId: OrderBy
   chatbotId: OrderBy
 }
 
 """aggregate stddevPop on columns"""
 type ChatStddevPopFields {
-  addedBy: Float
   chatId: Float
   chatbotId: Float
 }
@@ -555,14 +549,12 @@ type ChatStddevPopFields {
 order by stddevPop() on columns of table "chat"
 """
 input ChatStddevPopOrderBy {
-  addedBy: OrderBy
   chatId: OrderBy
   chatbotId: OrderBy
 }
 
 """aggregate stddevSamp on columns"""
 type ChatStddevSampFields {
-  addedBy: Float
   chatId: Float
   chatbotId: Float
 }
@@ -571,7 +563,6 @@ type ChatStddevSampFields {
 order by stddevSamp() on columns of table "chat"
 """
 input ChatStddevSampOrderBy {
-  addedBy: OrderBy
   chatId: OrderBy
   chatbotId: OrderBy
 }
@@ -589,7 +580,7 @@ input ChatStreamCursorInput {
 
 """Initial value of the column from where the streaming should start"""
 input ChatStreamCursorValueInput {
-  addedBy: Int
+  addedBy: uuid
   chatId: Int
   chatbotId: Int
   conversationLink: String
@@ -597,7 +588,6 @@ input ChatStreamCursorValueInput {
 
 """aggregate sum on columns"""
 type ChatSumFields {
-  addedBy: Int
   chatId: Int
   chatbotId: Int
 }
@@ -606,7 +596,6 @@ type ChatSumFields {
 order by sum() on columns of table "chat"
 """
 input ChatSumOrderBy {
-  addedBy: OrderBy
   chatId: OrderBy
   chatbotId: OrderBy
 }
@@ -641,7 +630,6 @@ input ChatUpdates {
 
 """aggregate varPop on columns"""
 type ChatVarPopFields {
-  addedBy: Float
   chatId: Float
   chatbotId: Float
 }
@@ -650,14 +638,12 @@ type ChatVarPopFields {
 order by varPop() on columns of table "chat"
 """
 input ChatVarPopOrderBy {
-  addedBy: OrderBy
   chatId: OrderBy
   chatbotId: OrderBy
 }
 
 """aggregate varSamp on columns"""
 type ChatVarSampFields {
-  addedBy: Float
   chatId: Float
   chatbotId: Float
 }
@@ -666,14 +652,12 @@ type ChatVarSampFields {
 order by varSamp() on columns of table "chat"
 """
 input ChatVarSampOrderBy {
-  addedBy: OrderBy
   chatId: OrderBy
   chatbotId: OrderBy
 }
 
 """aggregate variance on columns"""
 type ChatVarianceFields {
-  addedBy: Float
   chatId: Float
   chatbotId: Float
 }
@@ -682,7 +666,6 @@ type ChatVarianceFields {
 order by variance() on columns of table "chat"
 """
 input ChatVarianceOrderBy {
-  addedBy: OrderBy
   chatId: OrderBy
   chatbotId: OrderBy
 }
@@ -2272,10 +2255,7 @@ type Preference {
   preferredLength: String!
   preferredTone: String!
   preferredType: String!
-
-  """An object relationship"""
-  user: User!
-  userId: Int!
+  userId: uuid
 }
 
 """
@@ -2340,7 +2320,6 @@ input PreferenceArrRelInsertInput {
 type PreferenceAvgFields {
   chatbotId: Float
   preferenceId: Float
-  userId: Float
 }
 
 """
@@ -2349,7 +2328,6 @@ order by avg() on columns of table "preference"
 input PreferenceAvgOrderBy {
   chatbotId: OrderBy
   preferenceId: OrderBy
-  userId: OrderBy
 }
 
 """
@@ -2367,8 +2345,7 @@ input PreferenceBoolExp {
   preferredLength: StringComparisonExp
   preferredTone: StringComparisonExp
   preferredType: StringComparisonExp
-  user: UserBoolExp
-  userId: IntComparisonExp
+  userId: UuidComparisonExp
 }
 
 """
@@ -2379,11 +2356,6 @@ enum PreferenceConstraint {
   unique or primary key constraint on columns "preference_id"
   """
   user_chatbot_preference_pkey
-
-  """
-  unique or primary key constraint on columns "user_id", "chatbot_id"
-  """
-  user_chatbot_preference_user_id_chatbot_id_key
 }
 
 """
@@ -2392,7 +2364,6 @@ input type for incrementing numeric columns in table "preference"
 input PreferenceIncInput {
   chatbotId: Int
   preferenceId: Int
-  userId: Int
 }
 
 """
@@ -2407,8 +2378,7 @@ input PreferenceInsertInput {
   preferredLength: String
   preferredTone: String
   preferredType: String
-  user: UserObjRelInsertInput
-  userId: Int
+  userId: uuid
 }
 
 """aggregate max on columns"""
@@ -2419,7 +2389,7 @@ type PreferenceMaxFields {
   preferredLength: String
   preferredTone: String
   preferredType: String
-  userId: Int
+  userId: uuid
 }
 
 """
@@ -2443,7 +2413,7 @@ type PreferenceMinFields {
   preferredLength: String
   preferredTone: String
   preferredType: String
-  userId: Int
+  userId: uuid
 }
 
 """
@@ -2489,7 +2459,6 @@ input PreferenceOrderBy {
   preferredLength: OrderBy
   preferredTone: OrderBy
   preferredType: OrderBy
-  user: UserOrderBy
   userId: OrderBy
 }
 
@@ -2554,14 +2523,13 @@ input PreferenceSetInput {
   preferredLength: String
   preferredTone: String
   preferredType: String
-  userId: Int
+  userId: uuid
 }
 
 """aggregate stddev on columns"""
 type PreferenceStddevFields {
   chatbotId: Float
   preferenceId: Float
-  userId: Float
 }
 
 """
@@ -2570,14 +2538,12 @@ order by stddev() on columns of table "preference"
 input PreferenceStddevOrderBy {
   chatbotId: OrderBy
   preferenceId: OrderBy
-  userId: OrderBy
 }
 
 """aggregate stddevPop on columns"""
 type PreferenceStddevPopFields {
   chatbotId: Float
   preferenceId: Float
-  userId: Float
 }
 
 """
@@ -2586,14 +2552,12 @@ order by stddevPop() on columns of table "preference"
 input PreferenceStddevPopOrderBy {
   chatbotId: OrderBy
   preferenceId: OrderBy
-  userId: OrderBy
 }
 
 """aggregate stddevSamp on columns"""
 type PreferenceStddevSampFields {
   chatbotId: Float
   preferenceId: Float
-  userId: Float
 }
 
 """
@@ -2602,7 +2566,6 @@ order by stddevSamp() on columns of table "preference"
 input PreferenceStddevSampOrderBy {
   chatbotId: OrderBy
   preferenceId: OrderBy
-  userId: OrderBy
 }
 
 """
@@ -2625,14 +2588,13 @@ input PreferenceStreamCursorValueInput {
   preferredLength: String
   preferredTone: String
   preferredType: String
-  userId: Int
+  userId: uuid
 }
 
 """aggregate sum on columns"""
 type PreferenceSumFields {
   chatbotId: Int
   preferenceId: Int
-  userId: Int
 }
 
 """
@@ -2641,7 +2603,6 @@ order by sum() on columns of table "preference"
 input PreferenceSumOrderBy {
   chatbotId: OrderBy
   preferenceId: OrderBy
-  userId: OrderBy
 }
 
 """
@@ -2688,7 +2649,6 @@ input PreferenceUpdates {
 type PreferenceVarPopFields {
   chatbotId: Float
   preferenceId: Float
-  userId: Float
 }
 
 """
@@ -2697,14 +2657,12 @@ order by varPop() on columns of table "preference"
 input PreferenceVarPopOrderBy {
   chatbotId: OrderBy
   preferenceId: OrderBy
-  userId: OrderBy
 }
 
 """aggregate varSamp on columns"""
 type PreferenceVarSampFields {
   chatbotId: Float
   preferenceId: Float
-  userId: Float
 }
 
 """
@@ -2713,14 +2671,12 @@ order by varSamp() on columns of table "preference"
 input PreferenceVarSampOrderBy {
   chatbotId: OrderBy
   preferenceId: OrderBy
-  userId: OrderBy
 }
 
 """aggregate variance on columns"""
 type PreferenceVarianceFields {
   chatbotId: Float
   preferenceId: Float
-  userId: Float
 }
 
 """
@@ -2729,7 +2685,6 @@ order by variance() on columns of table "preference"
 input PreferenceVarianceOrderBy {
   chatbotId: OrderBy
   preferenceId: OrderBy
-  userId: OrderBy
 }
 
 """
@@ -3750,8 +3705,8 @@ type Thread {
   updatedAt: timestamptz!
 
   """An object relationship"""
-  user: User!
-  userId: Int!
+  user: User
+  userId: uuid
 }
 
 """
@@ -3813,7 +3768,6 @@ input ThreadArrRelInsertInput {
 """aggregate avg on columns"""
 type ThreadAvgFields {
   chatbotId: Float
-  userId: Float
 }
 
 """
@@ -3821,7 +3775,6 @@ order by avg() on columns of table "thread"
 """
 input ThreadAvgOrderBy {
   chatbotId: OrderBy
-  userId: OrderBy
 }
 
 """
@@ -3839,7 +3792,7 @@ input ThreadBoolExp {
   threadId: UuidComparisonExp
   updatedAt: TimestamptzComparisonExp
   user: UserBoolExp
-  userId: IntComparisonExp
+  userId: UuidComparisonExp
 }
 
 """
@@ -3862,7 +3815,6 @@ input type for incrementing numeric columns in table "thread"
 """
 input ThreadIncInput {
   chatbotId: Int
-  userId: Int
 }
 
 """
@@ -3876,7 +3828,7 @@ input ThreadInsertInput {
   threadId: uuid
   updatedAt: timestamptz
   user: UserObjRelInsertInput
-  userId: Int
+  userId: uuid
 }
 
 """aggregate max on columns"""
@@ -3885,7 +3837,7 @@ type ThreadMaxFields {
   createdAt: timestamptz
   threadId: uuid
   updatedAt: timestamptz
-  userId: Int
+  userId: uuid
 }
 
 """
@@ -3905,7 +3857,7 @@ type ThreadMinFields {
   createdAt: timestamptz
   threadId: uuid
   updatedAt: timestamptz
-  userId: Int
+  userId: uuid
 }
 
 """
@@ -3994,13 +3946,12 @@ input ThreadSetInput {
   createdAt: timestamptz
   threadId: uuid
   updatedAt: timestamptz
-  userId: Int
+  userId: uuid
 }
 
 """aggregate stddev on columns"""
 type ThreadStddevFields {
   chatbotId: Float
-  userId: Float
 }
 
 """
@@ -4008,13 +3959,11 @@ order by stddev() on columns of table "thread"
 """
 input ThreadStddevOrderBy {
   chatbotId: OrderBy
-  userId: OrderBy
 }
 
 """aggregate stddevPop on columns"""
 type ThreadStddevPopFields {
   chatbotId: Float
-  userId: Float
 }
 
 """
@@ -4022,13 +3971,11 @@ order by stddevPop() on columns of table "thread"
 """
 input ThreadStddevPopOrderBy {
   chatbotId: OrderBy
-  userId: OrderBy
 }
 
 """aggregate stddevSamp on columns"""
 type ThreadStddevSampFields {
   chatbotId: Float
-  userId: Float
 }
 
 """
@@ -4036,7 +3983,6 @@ order by stddevSamp() on columns of table "thread"
 """
 input ThreadStddevSampOrderBy {
   chatbotId: OrderBy
-  userId: OrderBy
 }
 
 """
@@ -4056,13 +4002,12 @@ input ThreadStreamCursorValueInput {
   createdAt: timestamptz
   threadId: uuid
   updatedAt: timestamptz
-  userId: Int
+  userId: uuid
 }
 
 """aggregate sum on columns"""
 type ThreadSumFields {
   chatbotId: Int
-  userId: Int
 }
 
 """
@@ -4070,7 +4015,6 @@ order by sum() on columns of table "thread"
 """
 input ThreadSumOrderBy {
   chatbotId: OrderBy
-  userId: OrderBy
 }
 
 """
@@ -4107,7 +4051,6 @@ input ThreadUpdates {
 """aggregate varPop on columns"""
 type ThreadVarPopFields {
   chatbotId: Float
-  userId: Float
 }
 
 """
@@ -4115,13 +4058,11 @@ order by varPop() on columns of table "thread"
 """
 input ThreadVarPopOrderBy {
   chatbotId: OrderBy
-  userId: OrderBy
 }
 
 """aggregate varSamp on columns"""
 type ThreadVarSampFields {
   chatbotId: Float
-  userId: Float
 }
 
 """
@@ -4129,13 +4070,11 @@ order by varSamp() on columns of table "thread"
 """
 input ThreadVarSampOrderBy {
   chatbotId: OrderBy
-  userId: OrderBy
 }
 
 """aggregate variance on columns"""
 type ThreadVarianceFields {
   chatbotId: Float
-  userId: Float
 }
 
 """
@@ -4143,7 +4082,6 @@ order by variance() on columns of table "thread"
 """
 input ThreadVarianceOrderBy {
   chatbotId: OrderBy
-  userId: OrderBy
 }
 
 """
@@ -4551,7 +4489,7 @@ type User {
     """filter the rows returned"""
     where: ThreadBoolExp
   ): ThreadAggregate!
-  userId: Int!
+  userId: uuid!
   username: String!
 }
 
@@ -4567,22 +4505,9 @@ type UserAggregate {
 aggregate fields of "user"
 """
 type UserAggregateFields {
-  avg: UserAvgFields
   count(columns: [UserSelectColumn!], distinct: Boolean): Int!
   max: UserMaxFields
   min: UserMinFields
-  stddev: UserStddevFields
-  stddevPop: UserStddevPopFields
-  stddevSamp: UserStddevSampFields
-  sum: UserSumFields
-  varPop: UserVarPopFields
-  varSamp: UserVarSampFields
-  variance: UserVarianceFields
-}
-
-"""aggregate avg on columns"""
-type UserAvgFields {
-  userId: Float
 }
 
 """
@@ -4603,7 +4528,7 @@ input UserBoolExp {
   profilePicture: StringComparisonExp
   threads: ThreadBoolExp
   threadsAggregate: ThreadAggregateBoolExp
-  userId: IntComparisonExp
+  userId: UuidComparisonExp
   username: StringComparisonExp
 }
 
@@ -4628,13 +4553,6 @@ enum UserConstraint {
 }
 
 """
-input type for incrementing numeric columns in table "user"
-"""
-input UserIncInput {
-  userId: Int
-}
-
-"""
 input type for inserting data into table "user"
 """
 input UserInsertInput {
@@ -4646,7 +4564,7 @@ input UserInsertInput {
   preferences: PreferenceArrRelInsertInput
   profilePicture: String
   threads: ThreadArrRelInsertInput
-  userId: Int
+  userId: uuid
   username: String
 }
 
@@ -4657,7 +4575,7 @@ type UserMaxFields {
   lastLogin: timestamptz
   password: String
   profilePicture: String
-  userId: Int
+  userId: uuid
   username: String
 }
 
@@ -4668,7 +4586,7 @@ type UserMinFields {
   lastLogin: timestamptz
   password: String
   profilePicture: String
-  userId: Int
+  userId: uuid
   username: String
 }
 
@@ -4718,7 +4636,7 @@ input UserOrderBy {
 
 """primary key columns input for table: user"""
 input UserPkColumnsInput {
-  userId: Int!
+  userId: uuid!
 }
 
 """
@@ -4756,23 +4674,8 @@ input UserSetInput {
   lastLogin: timestamptz
   password: String
   profilePicture: String
-  userId: Int
+  userId: uuid
   username: String
-}
-
-"""aggregate stddev on columns"""
-type UserStddevFields {
-  userId: Float
-}
-
-"""aggregate stddevPop on columns"""
-type UserStddevPopFields {
-  userId: Float
-}
-
-"""aggregate stddevSamp on columns"""
-type UserStddevSampFields {
-  userId: Float
 }
 
 """
@@ -4793,13 +4696,8 @@ input UserStreamCursorValueInput {
   lastLogin: timestamptz
   password: String
   profilePicture: String
-  userId: Int
+  userId: uuid
   username: String
-}
-
-"""aggregate sum on columns"""
-type UserSumFields {
-  userId: Int
 }
 
 """
@@ -4829,29 +4727,11 @@ enum UserUpdateColumn {
 }
 
 input UserUpdates {
-  """increments the numeric columns with given value of the filtered values"""
-  _inc: UserIncInput
-
   """sets the columns of the filtered rows to the given values"""
   _set: UserSetInput
 
   """filter the rows which have to be updated"""
   where: UserBoolExp!
-}
-
-"""aggregate varPop on columns"""
-type UserVarPopFields {
-  userId: Float
-}
-
-"""aggregate varSamp on columns"""
-type UserVarSampFields {
-  userId: Float
-}
-
-"""aggregate variance on columns"""
-type UserVarianceFields {
-  userId: Float
 }
 
 """
@@ -5098,7 +4978,7 @@ type mutation_root {
   """
   delete single row from the table: "user"
   """
-  deleteUserByPk(userId: Int!): User
+  deleteUserByPk(userId: uuid!): User
 
   """
   insert data into the table: "category"
@@ -5924,9 +5804,6 @@ type mutation_root {
   update data of the table: "user"
   """
   updateUser(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: UserIncInput
-
     """sets the columns of the filtered rows to the given values"""
     _set: UserSetInput
 
@@ -5938,9 +5815,6 @@ type mutation_root {
   update single row of the table: "user"
   """
   updateUserByPk(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: UserIncInput
-
     """sets the columns of the filtered rows to the given values"""
     _set: UserSetInput
     pkColumns: UserPkColumnsInput!
@@ -6683,7 +6557,7 @@ type query_root {
   ): UserAggregate!
 
   """fetch data from the table: "user" using primary key columns"""
-  userByPk(userId: Int!): User
+  userByPk(userId: uuid!): User
 }
 
 type subscription_root {
@@ -7589,7 +7463,7 @@ type subscription_root {
   ): UserAggregate!
 
   """fetch data from the table: "user" using primary key columns"""
-  userByPk(userId: Int!): User
+  userByPk(userId: uuid!): User
 
   """
   fetch data from the table in a streaming manner: "user"

@@ -24,14 +24,16 @@ array_relationships:
           name: thread
           schema: public
 select_permissions:
-  - role: anonymous
+  - role: user
     permission:
       columns:
         - date_joined
         - email
         - last_login
-        - password
         - profile_picture
+        - user_id
         - username
-      filter: {}
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
     comment: ""

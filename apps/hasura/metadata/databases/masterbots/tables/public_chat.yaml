@@ -12,8 +12,18 @@ select_permissions:
   - role: anonymous
     permission:
       columns:
-        - chat_id
         - chatbot_id
+        - chat_id
         - conversation_link
+        - added_by
+      filter: {}
+    comment: ""
+  - role: user
+    permission:
+      columns:
+        - chatbot_id
+        - chat_id
+        - conversation_link
+        - added_by
       filter: {}
     comment: ""
