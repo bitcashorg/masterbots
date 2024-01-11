@@ -6,7 +6,7 @@ import toast from 'react-hot-toast'
 import { ChatRequestOptions } from 'ai'
 import { Chatbot } from 'mb-genql'
 import { useRouter } from 'next/navigation'
-import { createThread, saveNewMessage } from '@/services/db'
+import { createThread, saveNewMessage } from '@/services/hasura'
 
 export default function NewChat({
   id,

@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 
 import { auth } from '@/auth'
 import { Chat } from '@/components/chat'
-import { getThread } from '@/services/db'
+import { getThread } from '@/services/hasura'
 import { Message } from 'ai/react'
 
 export default async function ChatPage({ params }: ChatPageProps) {

@@ -39,6 +39,7 @@
     "geist": "^1.1.0",
     "lodash": "^4.17.21",
     "lucide-react": "^0.297.0",
+    "mb-env": "workspace:*",
     "mb-genql": "workspace:*",
     "mb-lib": "workspace:*",
     "mb-types": "workspace:*",

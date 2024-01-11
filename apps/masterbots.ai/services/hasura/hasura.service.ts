@@ -6,13 +6,25 @@ import {
   createMbClient,
   everything
 } from 'mb-genql'
+import {
+  CreateThreadParams,
+  GetChatbotParams,
+  GetHasuraClientParams,
+  GetThreadParams,
+  GetThreadsParams,
+  SaveNewMessageParams,
+  UpsertUserParams
+} from './hasura.service.type'
+import { validateMbEnv } from 'mb-env'
 
-const client = createMbClient({
-  // TODO: implement auth and remove this admin secret
-  adminSecret: '7916dce3ec9736725aa46ee1f99b8bb8',
-  debug: process.env.DEBUG === 'true',
-  env: 'test'
-})
+function getHasuraClient({ jwt, adminSecret }: GetHasuraClientParams) {
+  return createMbClient({
+    jwt,
+    adminSecret,
+    debug: process.env.DEBUG === 'true',
+    env: validateMbEnv(process.env.APP_ENV)
+  })
+}
 
 export async function getCategories() {
   const { category } = await client.query({
@@ -30,9 +42,8 @@ export async function getChatbots() {
   return chatbot as Chatbot[]
 }
 
-export async function getThreads({
-  chatbotName
-}: { chatbotName?: string } = {}) {
+export async function getThreads({ chatbotName, jwt }: GetThreadsParams) {
+  const client = getHasuraClient({ jwt })
   const { thread } = await client.query({
     thread: {
       chatbot: everything,
@@ -40,7 +51,7 @@ export async function getThreads({
         ...everything,
         __args: {
           orderBy: [{ createdAt: 'DESC' }],
-          where: { role: { _eq: 'user' } }
+          where: { role: { _eq: 'user' }, userId: { _eq: 'user' } }
         }
       },
       ...everything,
@@ -59,7 +70,8 @@ export async function getThreads({
   return thread as Thread[]
 }
 
-export async function getThread({ threadId }: { threadId: string }) {
+export async function getThread({ threadId, jwt }: GetThreadParams) {
+  const client = getHasuraClient({ jwt })
   const { thread } = await client.query({
     thread: {
       chatbot: {
@@ -84,12 +96,9 @@ export async function getThread({ threadId }: { threadId: string }) {
   return thread[0] as Thread
 }
 
-export async function saveNewMessage(object: {
-  content: string
-  role: 'user' | 'assistant'
-  threadId: string
-}) {
-  const response = await client.mutation({
+export async function saveNewMessage({ jwt, ...object }: SaveNewMessageParams) {
+  const client = getHasuraClient({ jwt })
+  await client.mutation({
     insertMessageOne: {
       __args: {
         object
@@ -99,12 +108,8 @@ export async function saveNewMessage(object: {
   })
 }
 
-export async function upsertUser(object: {
-  email: string
-  profilePicture: string
-  username: string
-  password: string
-}) {
+export async function upsertUser({ adminSecret, ...object }: UpsertUserParams) {
+  const client = getHasuraClient({ adminSecret })
   const { insertUserOne } = await client.mutation({
     insertUserOne: {
       __args: {
@@ -123,15 +128,10 @@ export async function upsertUser(object: {
 
 export async function createThread({
   chatbotId,
-  threadId
-}: {
-  chatbotId: number
-  threadId: string
-}) {
-  console.log('createThread', {
-    chatbotId,
-    threadId
-  })
+  threadId,
+  jwt
+}: CreateThreadParams) {
+  const client = getHasuraClient({ jwt })
   const { insertThreadOne } = await client.mutation({
     insertThreadOne: {
       __args: {
@@ -140,22 +140,18 @@ export async function createThread({
       threadId: true
     }
   })
-  console.log('RESULT', insertThreadOne)
   return insertThreadOne?.threadId
 }
 
 export async function getChatbot({
   chatbotId,
   chatbotName,
-  threads
-}: {
-  chatbotId?: number
-  chatbotName?: string
-  threads?: boolean
-}) {
+  threads,
+  jwt
+}: GetChatbotParams) {
   if (!chatbotId && !chatbotName)
     throw new Error('You need to pass chatbotId or chatbotName')
-
+  const client = getHasuraClient({ jwt })
   const { chatbot } = await client.query({
     chatbot: {
       __args: {

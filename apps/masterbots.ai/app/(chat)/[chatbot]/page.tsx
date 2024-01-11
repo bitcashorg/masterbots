@@ -1,10 +1,11 @@
 import ThreadPanel from '@/components/thread-panel'
-import { getChatbot, getThreads } from '@/services/db'
+import { getChatbot, getThreads } from '@/services/hasura'
 import { botNames } from '@/lib/bots-names'
 import { nanoid } from 'nanoid'
 import { Message } from 'ai'
 import crypto from 'crypto'
 import { Chat } from '@/components/chat'
+import { useSession } from 'next-auth/react'
 
 export default async function BotThreadsPage({
   params,
@@ -13,14 +14,18 @@ export default async function BotThreadsPage({
   params: { chatbot: string }
   searchParams: { [key: string]: string | string[] | undefined }
 }) {
+  const { data: session } = useSession()
   const chatbot = await getChatbot({
     chatbotName: botNames.get(params.chatbot)
   })
   if (!chatbot)
     throw new Error(`Chatbot ${botNames.get(params.chatbot)} not found`)
 
+  // session will always be defined
   const threads = await getThreads({
-    chatbotName: botNames.get(params.chatbot)
+    chatbotName: botNames.get(params.chatbot),
+    jwt: session!.user.hasuraJwt,
+    userId: session!.user.id
   })
 
   const newThreadId = crypto.randomUUID()

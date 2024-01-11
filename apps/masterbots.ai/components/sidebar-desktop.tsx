@@ -1,7 +1,7 @@
 import { Sidebar } from '@/components/sidebar'
 import { auth } from '@/auth'
 // import { ChatHistory } from '@/components/chat-history'
-import { getChatbots } from '@/services/db'
+import { getChatbots } from '@/services/hasura'
 import SidebarLink from './sidebar-link'
 
 export async function SidebarDesktop() {

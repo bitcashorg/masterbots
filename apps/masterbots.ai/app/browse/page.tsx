@@ -1,4 +1,4 @@
-import { getCategories } from '@/services/db'
+import { getCategories } from '@/services/hasura'
 import { Input } from '@/components/ui/input'
 
 export const revalidate = 3600 // revalidate the data at most every hour
