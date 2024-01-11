@@ -1,7 +1,7 @@
 
 import { JwtData } from 'mb-types';
 import { generateHasuraClaims } from '../hasura';
-import { TokenLibGetTokenParams, TokenLibRefreshTokenParams } from './jwt.type';
+import { JwtSecret, TokenLibGetTokenParams, TokenLibRefreshTokenParams } from './jwt.type';
 import { SignJWT, jwtVerify} from 'jose';
 
 export async function sign(payload: JwtData, secret: string): Promise<string> {
@@ -69,4 +69,30 @@ export const getToken = async ({ user, jwtSecret, jwtExpiration = 86400 }: Token
     console.log('getTokenSession Error', error)
     throw new Error('Cannot generate token')
   }
+}
+
+export function validateJwtSecret(envVariable: string | undefined): JwtSecret {
+  if (!envVariable) {
+    throw new Error('AUTH_SECRET is not defined');
+  }
+
+  let secret: JwtSecret;
+  try {
+    secret = JSON.parse(envVariable);
+  } catch (error) {
+    throw new Error('AUTH_SECRET is not a valid JSON');
+  }
+
+  // Add more specific validations as needed
+  if (typeof secret.type !== 'string' || !['HS256', 'HS238', 'HS512', 'RS256', 'RS384', 'RS512', 'Ed25519'].includes(secret.type)) {
+    throw new Error('Invalid type in AUTH_SECRET');
+  }
+  if (typeof secret.key !== 'string' || secret.key.length === 0) {
+    throw new Error('Invalid or missing key in AUTH_SECRET');
+  }
+  if (typeof secret.claims_namespace !== 'string' || secret.claims_namespace.length === 0) {
+    throw new Error('Invalid or missing claims_namespace in AUTH_SECRET');
+  }
+
+  return secret;
 }

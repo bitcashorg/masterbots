@@ -8,6 +8,7 @@
   "scripts": {},
   "dependencies": {
     "jose": "^5.1.3",
+    "lodash": "^4.17.21",
     "mb-types": "workspace:*"
   },
   "devDependencies": {

@@ -101,6 +101,9 @@ importers:
       lucide-react:
         specifier: ^0.297.0
         version: 0.297.0(react@18.2.0)
+      mb-env:
+        specifier: workspace:*
+        version: link:../../packages/mb-env
       mb-genql:
         specifier: workspace:*
         version: link:../../packages/mb-genql
@@ -253,6 +256,9 @@ importers:
       jose:
         specifier: ^5.1.3
         version: 5.1.3
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
       mb-types:
         specifier: workspace:*
         version: link:../mb-types

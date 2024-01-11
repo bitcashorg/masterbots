@@ -11,7 +11,7 @@ import { toast } from 'react-hot-toast'
 import { uniqBy } from 'lodash'
 import { ChatRequestOptions } from 'ai'
 import { Chatbot } from 'mb-genql'
-import { createThread, saveNewMessage } from '@/services/db'
+import { createThread, saveNewMessage } from '@/services/hasura'
 import { useRouter, useParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 

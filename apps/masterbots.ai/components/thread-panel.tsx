@@ -11,7 +11,7 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { botNames } from '@/lib/bots-names'
-import { getThreads } from '@/services/db'
+import { getThreads } from '@/services/hasura'
 import { Thread } from 'mb-genql'
 
 export default async function ThreadPanel({
