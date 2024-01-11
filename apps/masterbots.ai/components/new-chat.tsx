@@ -7,6 +7,7 @@ import { ChatRequestOptions } from 'ai'
 import { Chatbot } from 'mb-genql'
 import { useRouter } from 'next/navigation'
 import { createThread, saveNewMessage } from '@/services/hasura'
+import { useSession } from 'next-auth/react'
 
 export default function NewChat({
   id,
@@ -14,6 +15,7 @@ export default function NewChat({
   chatbot
 }: NewChatProps) {
   const router = useRouter()
+  const { data: session } = useSession()
   const { messages, reload, stop, input, setInput, append } = useChat({
     initialMessages,
     id,
@@ -36,7 +38,9 @@ export default function NewChat({
   ) => {
     const threadId = await createThread({
       threadId: id,
-      chatbotId: chatbot.chatbotId
+      chatbotId: chatbot.chatbotId,
+      jwt: session!.user.hasuraJwt,
+      userId: session!.user.id
     })
 
     // we do not await to make transition to chat url faster
@@ -44,7 +48,9 @@ export default function NewChat({
     saveNewMessage({
       role: 'user',
       threadId,
-      content: userMessage.content
+      content: userMessage.content,
+      jwt: session!.user.hasuraJwt,
+      userId: session!.user.id
     })
 
     router.push(`/${chatbot.name.trim().toLowerCase()}/${threadId}`, {

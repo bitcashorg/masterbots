@@ -17,12 +17,14 @@ export const {
   callbacks: {
     session: async ({ session, token }) => {
       if (!token?.id) throw new Error('Login Error')
-
+      const adminSecret = process.env.HASURA_ADMIN_SECRET
+      if (adminSecret) throw new Error('Admin Secret not found')
       const dbUser = await upsertUser({
         email: token.email!,
         profilePicture: (token.avatar_url || token.picture || '') as string,
         username: token.name?.replace(/\s/g, '_') || nanoid(),
-        password: nanoid()
+        password: nanoid(),
+        adminSecret: adminSecret as string
       })
 
       if (!dbUser) throw new Error('Login Error')

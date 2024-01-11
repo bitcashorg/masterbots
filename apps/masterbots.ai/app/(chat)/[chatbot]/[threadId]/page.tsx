@@ -7,7 +7,10 @@ import { Message } from 'ai/react'
 
 export default async function ChatPage({ params }: ChatPageProps) {
   const session = await auth()
-  const thread = await getThread({ threadId: params.threadId })
+  const thread = await getThread({
+    threadId: params.threadId,
+    jwt: session!.user.hasuraJwt
+  })
 
   //TODO: handle threadId not found
 

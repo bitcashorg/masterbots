@@ -21,8 +21,7 @@ export function Chat({
   chatbot,
   threadId
 }: ChatProps) {
-  const { data: session, status } = useSession()
-  console.log('SESSION ', session)
+  const { data: session } = useSession()
   const { messages, append, reload, stop, isLoading, input, setInput } =
     useChat({
       // we remove previous assistant responses to get better responses thru
@@ -41,7 +40,9 @@ export function Chat({
         await saveNewMessage({
           role: 'assistant',
           threadId,
-          content: message.content
+          content: message.content,
+          jwt: session!.user.hasuraJwt,
+          userId: session!.user.id
         })
       }
     })
@@ -66,7 +67,9 @@ export function Chat({
 
       await createThread({
         threadId,
-        chatbotId: chatbot.chatbotId
+        chatbotId: chatbot.chatbotId,
+        jwt: session!.user.hasuraJwt,
+        userId: session!.user.id
       })
       router.push(`/${chatbot.name.trim().toLowerCase()}/${threadId}`, {
         shallow: true,
@@ -78,7 +81,9 @@ export function Chat({
     await saveNewMessage({
       role: 'user',
       threadId,
-      content: userMessage.content
+      content: userMessage.content,
+      jwt: session!.user.hasuraJwt,
+      userId: session!.user.id
     })
 
     return append(
