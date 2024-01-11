@@ -16,3 +16,10 @@ select_permissions:
         - chatbot_id
       filter: {}
     comment: ""
+  - role: user
+    permission:
+      columns:
+        - category_id
+        - chatbot_id
+      filter: {}
+    comment: ""

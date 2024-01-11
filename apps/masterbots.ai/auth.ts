@@ -15,38 +15,57 @@ export const {
     })
   ],
   callbacks: {
-    session: async ({ session, token }) => {
-      if (!token?.id) throw new Error('Login Error')
+    async signIn({ profile, user }) {
+      if (!profile) return false
+
       const adminSecret = process.env.HASURA_ADMIN_SECRET
       if (adminSecret) throw new Error('Admin Secret not found')
+
+      console.log('upsert user')
       const dbUser = await upsertUser({
-        email: token.email!,
-        profilePicture: (token.avatar_url || token.picture || '') as string,
-        username: token.name?.replace(/\s/g, '_') || nanoid(),
+        email: user.email!,
+        profilePicture: user.image || '',
+        username: user.name?.replace(/\s/g, '_') || nanoid(),
         password: nanoid(),
         adminSecret: adminSecret as string
       })
 
+      console.log('dbuser', dbUser)
       if (!dbUser) throw new Error('Login Error')
 
       const hasuraJwt = await getToken({
-        user: { account: token.sub!, role: 'user' },
+        user: { account: dbUser.userId, role: 'user' },
         jwtSecret: validateJwtSecret(process.env.AUTH_SECRET)
       })
 
       if (!hasuraJwt) throw new Error('Login Error')
 
-      session.user = {
+      user.id = dbUser.userId.toString()
+      user.image = dbUser.profilePicture || ''
+      // user.hasuraJwt = hasuraJwt
+
+      console.log('user values', {
         id: dbUser.userId.toString(),
         image: dbUser.profilePicture || '',
         hasuraJwt
-      }
+      })
+
+      return true
+    },
+    async jwt({ token, user, profile }) {
+      console.log('jwt callback', { token, user, profile })
+      // if (user) {
+      //   token.userId = user.id
+      //   token.image = user.image
+      //   // Add other token adjustments here
+      // }
+
+      return token
+    },
+    session: async ({ session, token }) => {
+      console.log('session callback', token)
 
       return session
-    },
-    async signIn({ profile }) {
-      if (!profile) return false
-      return false
     },
     authorized({ auth }) {
       return !!auth?.user // this ensures there is a logged in user for -every- request

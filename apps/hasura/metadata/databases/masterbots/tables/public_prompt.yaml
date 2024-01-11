@@ -19,3 +19,12 @@ select_permissions:
         - type
       filter: {}
     comment: ""
+  - role: user
+    permission:
+      columns:
+        - prompt_id
+        - content
+        - prompt_name
+        - type
+      filter: {}
+    comment: ""

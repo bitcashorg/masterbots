@@ -16,3 +16,10 @@ select_permissions:
         - prompt_id
       filter: {}
     comment: ""
+  - role: user
+    permission:
+      columns:
+        - chabot_id
+        - prompt_id
+      filter: {}
+    comment: ""
