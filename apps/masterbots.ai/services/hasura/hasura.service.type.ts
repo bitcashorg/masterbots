@@ -35,6 +35,7 @@ export interface UpsertUserParams {
 export interface CreateThreadParams extends HasuraServiceParams {
   chatbotId: number
   threadId: string
+  userId: string
 }
 
 export interface GetChatbotParams extends HasuraServiceParams {

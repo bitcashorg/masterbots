@@ -6,6 +6,7 @@ import { Message } from 'ai'
 import crypto from 'crypto'
 import { Chat } from '@/components/chat'
 import { useSession } from 'next-auth/react'
+import { auth } from '@/auth'
 
 export default async function BotThreadsPage({
   params,
@@ -14,9 +15,10 @@ export default async function BotThreadsPage({
   params: { chatbot: string }
   searchParams: { [key: string]: string | string[] | undefined }
 }) {
-  const { data: session } = useSession()
+  const session = await auth()
   const chatbot = await getChatbot({
-    chatbotName: botNames.get(params.chatbot)
+    chatbotName: botNames.get(params.chatbot),
+    jwt: session!.user.hasuraJwt
   })
   if (!chatbot)
     throw new Error(`Chatbot ${botNames.get(params.chatbot)} not found`)
