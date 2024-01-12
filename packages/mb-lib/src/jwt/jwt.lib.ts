@@ -90,7 +90,7 @@ export function validateJwtSecret(envVariable: string | undefined): JwtSecret {
   if (typeof secret.key !== 'string' || secret.key.length === 0) {
     throw new Error('Invalid or missing key in AUTH_SECRET');
   }
-  if (typeof secret.claims_namespace !== 'string' || secret.claims_namespace.length === 0) {
+  if (secret.claims_namespace && (typeof secret.claims_namespace !== 'string' || secret.claims_namespace.length === 0)) {
     throw new Error('Invalid or missing claims_namespace in AUTH_SECRET');
   }
 

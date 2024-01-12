@@ -15,55 +15,53 @@ export const {
     })
   ],
   callbacks: {
-    async signIn({ profile, user }) {
+    signIn: async ({ profile, user }) => {
       if (!profile) return false
-
-      const adminSecret = process.env.HASURA_ADMIN_SECRET
-      if (adminSecret) throw new Error('Admin Secret not found')
-
-      console.log('upsert user')
-      const dbUser = await upsertUser({
-        email: user.email!,
-        profilePicture: user.image || '',
-        username: user.name?.replace(/\s/g, '_') || nanoid(),
-        password: nanoid(),
-        adminSecret: adminSecret as string
-      })
-
-      console.log('dbuser', dbUser)
-      if (!dbUser) throw new Error('Login Error')
-
-      const hasuraJwt = await getToken({
-        user: { account: dbUser.userId, role: 'user' },
-        jwtSecret: validateJwtSecret(process.env.AUTH_SECRET)
-      })
-
-      if (!hasuraJwt) throw new Error('Login Error')
-
-      user.id = dbUser.userId.toString()
-      user.image = dbUser.profilePicture || ''
-      // user.hasuraJwt = hasuraJwt
-
-      console.log('user values', {
-        id: dbUser.userId.toString(),
-        image: dbUser.profilePicture || '',
-        hasuraJwt
-      })
-
       return true
     },
-    async jwt({ token, user, profile }) {
-      console.log('jwt callback', { token, user, profile })
-      // if (user) {
-      //   token.userId = user.id
-      //   token.image = user.image
-      //   // Add other token adjustments here
-      // }
+    jwt: async ({ token, user, profile }) => {
+      console.log('========== >jwt callback', { token, user, profile })
+
+      // profile is passed on the first call on login
+      if (profile) {
+        const adminSecret = process.env.HASURA_ADMIN_SECRET
+        if (!adminSecret) throw new Error('Admin Secret not found')
+
+        const dbUser = await upsertUser({
+          email: profile.email!,
+          profilePicture: profile.picture || '',
+          username: profile.name?.replace(/\s/g, '_') || nanoid(),
+          password: nanoid(),
+          adminSecret: adminSecret as string
+        })
+
+        console.log('dbuser', dbUser)
+        if (!dbUser) throw new Error('Login Error')
+
+        const hasuraJwt = await getToken({
+          user: {
+            account: dbUser.userId,
+            role: 'user'
+          },
+          jwtSecret: validateJwtSecret(process.env.AUTH_SECRET)
+        })
+
+        if (!hasuraJwt) throw new Error('Login Error')
+
+        token.hasuraJwt = hasuraJwt
+        token.userId = dbUser.userId
+      }
 
       return token
     },
     session: async ({ session, token }) => {
       console.log('session callback', token)
+
+      session.user = {
+        id: token.userId as string,
+        image: token.picture as string,
+        hasuraJwt: token.hasuraJwt as string
+      }
 
       return session
     },
