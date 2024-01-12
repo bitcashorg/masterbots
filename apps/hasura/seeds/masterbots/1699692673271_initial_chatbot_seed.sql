@@ -28,7 +28,7 @@ VALUES (3,
 
 INSERT INTO public.chatbot (chatbot_id, name, description, avatar, created_by, default_tone, default_length, default_type, default_complexity)
 VALUES (2,
-        'MoneyBot ',
+        'MoneyBot',
         'MoneyBot assists people in finance & investments.  This includes: personal finance advice, stock market insights and predictions, cryptocurrency, and retirement planning',
         'https://robohash.org/MoneyBot',
         'merivercap',

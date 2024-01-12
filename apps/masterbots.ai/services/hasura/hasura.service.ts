@@ -44,7 +44,16 @@ export async function getChatbots() {
   return chatbot as Chatbot[]
 }
 
-export async function getThreads({ chatbotName, jwt }: GetThreadsParams) {
+export async function getThreads({
+  chatbotName,
+  jwt,
+  userId
+}: GetThreadsParams) {
+  console.log('GET THREADS', {
+    chatbotName,
+    jwt,
+    userId
+  })
   const client = getHasuraClient({ jwt })
   const { thread } = await client.query({
     thread: {
@@ -53,11 +62,12 @@ export async function getThreads({ chatbotName, jwt }: GetThreadsParams) {
         ...everything,
         __args: {
           orderBy: [{ createdAt: 'DESC' }],
-          where: { role: { _eq: 'user' }, userId: { _eq: 'user' } }
+          where: { role: { _eq: 'user' } }
         }
       },
       ...everything,
       __args: {
+        where: { userId: { _eq: userId } },
         orderBy: [{ createdAt: 'DESC' }],
         limit: 30,
         ...(chatbotName
