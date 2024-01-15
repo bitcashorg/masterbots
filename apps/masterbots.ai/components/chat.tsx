@@ -41,8 +41,7 @@ export function Chat({
           role: 'assistant',
           threadId,
           content: message.content,
-          jwt: session!.user.hasuraJwt,
-          userId: session!.user.id
+          jwt: session!.user.hasuraJwt
         })
       }
     })
@@ -54,8 +53,8 @@ export function Chat({
   // we remove system prompts from ui
   const allMessages = uniqBy(
     initialMessages?.concat(messages),
-    'content' //.filter(m => m.role !== 'assistant')
-  )
+    'content'
+  ).filter(m => m.role !== 'system')
 
   // we extend append function to add our system prompts
   const appendWithMbContextPrompts = async (
@@ -63,7 +62,7 @@ export function Chat({
     chatRequestOptions?: ChatRequestOptions
   ) => {
     if (isNewChat) {
-      if (status !== 'authenticated') throw new Error('Unauthenticated User')
+      // if (status !== 'authenticated') throw new Error('Unauthenticated User')
 
       await createThread({
         threadId,
@@ -82,8 +81,7 @@ export function Chat({
       role: 'user',
       threadId,
       content: userMessage.content,
-      jwt: session!.user.hasuraJwt,
-      userId: session!.user.id
+      jwt: session!.user.hasuraJwt
     })
 
     return append(

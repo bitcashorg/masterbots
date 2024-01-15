@@ -18,11 +18,12 @@ import {
 import { validateMbEnv } from 'mb-env'
 
 function getHasuraClient({ jwt, adminSecret }: GetHasuraClientParams) {
+  console.log('JWT', jwt)
   return createMbClient({
     jwt,
     adminSecret,
     debug: process.env.DEBUG === 'true',
-    env: validateMbEnv(process.env.APP_ENV)
+    env: validateMbEnv(process.env.NEXT_PUBLIC_APP_ENV)
   })
 }
 
@@ -49,12 +50,8 @@ export async function getThreads({
   jwt,
   userId
 }: GetThreadsParams) {
-  console.log('GET THREADS', {
-    chatbotName,
-    jwt,
-    userId
-  })
   const client = getHasuraClient({ jwt })
+
   const { thread } = await client.query({
     thread: {
       chatbot: everything,
@@ -67,14 +64,18 @@ export async function getThreads({
       },
       ...everything,
       __args: {
-        where: { userId: { _eq: userId } },
         orderBy: [{ createdAt: 'DESC' }],
         limit: 30,
         ...(chatbotName
           ? {
-              where: { chatbot: { name: { _eq: chatbotName } } }
+              where: {
+                chatbot: { name: { _eq: chatbotName } },
+                ...(userId ? { userId: { _eq: userId } } : {})
+              }
             }
-          : {})
+          : userId
+            ? { userId: { _eq: userId } }
+            : {})
       }
     }
   })
@@ -141,17 +142,20 @@ export async function upsertUser({ adminSecret, ...object }: UpsertUserParams) {
 export async function createThread({
   chatbotId,
   threadId,
-  jwt
+  jwt,
+  userId
 }: CreateThreadParams) {
+  console.log('CREATING THREAD ...', { chatbotId, threadId, jwt, userId })
   const client = getHasuraClient({ jwt })
   const { insertThreadOne } = await client.mutation({
     insertThreadOne: {
       __args: {
-        object: { threadId, chatbotId, userId: 1 }
+        object: { threadId, chatbotId, userId }
       },
       threadId: true
     }
   })
+  console.log('THREAD CREATED', insertThreadOne?.threadId)
   return insertThreadOne?.threadId
 }
 

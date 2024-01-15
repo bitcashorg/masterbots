@@ -17,7 +17,6 @@ export interface GetThreadParams extends HasuraServiceParams {
 }
 
 export interface SaveNewMessageParams extends HasuraServiceParams {
-  userId: string
   content: string
   role: 'user' | 'assistant'
   threadId: string
