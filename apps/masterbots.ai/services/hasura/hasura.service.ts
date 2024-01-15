@@ -74,7 +74,7 @@ export async function getThreads({
               }
             }
           : userId
-            ? { userId: { _eq: userId } }
+            ? { where: { userId: { _eq: userId } } }
             : {})
       }
     }
