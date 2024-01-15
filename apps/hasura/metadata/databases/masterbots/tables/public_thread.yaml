@@ -16,6 +16,17 @@ array_relationships:
         table:
           name: message
           schema: public
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        user_id:
+          _eq: X-Hasura-User-Id
+      columns:
+        - chatbot_id
+        - thread_id
+        - user_id
+    comment: ""
 select_permissions:
   - role: anonymous
     permission:

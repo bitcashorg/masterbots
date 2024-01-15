@@ -16,18 +16,7 @@ export interface ChatMessageProps {
 }
 
 export function ChatMessage({ message, ...props }: ChatMessageProps) {
-  // const cleanMessage: Message = !message.content.includes('[QuestionBegins]')
-  //   ? message
-  //   : {
-  //       ...message,
-  //       content: extractBetweenMarkers(
-  //         message.content,
-  //         '[QuestionBegins] "',
-  //         '" [QuestionEnds]'
-  //       )
-  //     }
-
-  const cleanMessage = message
+  const cleanMessage = { ...message, content: cleanPrompt(message.content) }
 
   return (
     <div
@@ -90,4 +79,16 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
       </div>
     </div>
   )
+}
+
+function cleanPrompt(str: string) {
+  const marker = '].  Then answer this question:'
+  const index = str.indexOf(marker)
+  let extracted = ''
+
+  if (index !== -1) {
+    extracted = str.substring(index + marker.length)
+  }
+  console.log('cleanPrompt', str, extracted, index)
+  return extracted || str
 }

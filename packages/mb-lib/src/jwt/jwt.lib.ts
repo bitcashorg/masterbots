@@ -8,7 +8,7 @@ export async function sign(payload: JwtData, secret: string): Promise<string> {
     const iat = Math.floor(Date.now() / 1000);
     const exp = iat + 60 * 60; // one hour
 
-    return new SignJWT({ payload })
+    return new SignJWT(payload)
         .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
         .setExpirationTime(exp)
         .setIssuedAt(iat)
@@ -56,12 +56,12 @@ export const getToken = async ({ user, jwtSecret, jwtExpiration = 86400 }: Token
 
     return sign(
       {
+        'https://hasura.io/jwt/claims': claims,
         user: {
           role: user.role,
           account: user.account,
           sessionId: 'unset',
         },
-        'https://hasura.io/jwt/claims': claims,
       },
       jwtSecret.key
     )

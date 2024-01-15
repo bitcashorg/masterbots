@@ -49,8 +49,7 @@ export default function NewChat({
       role: 'user',
       threadId,
       content: userMessage.content,
-      jwt: session!.user.hasuraJwt,
-      userId: session!.user.id
+      jwt: session!.user.hasuraJwt
     })
 
     router.push(`/${chatbot.name.trim().toLowerCase()}/${threadId}`, {

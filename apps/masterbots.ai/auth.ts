@@ -15,17 +15,19 @@ export const {
     })
   ],
   callbacks: {
-    signIn: async ({ profile, user }) => {
+    signIn: async ({ profile }) => {
       if (!profile) return false
       return true
     },
-    jwt: async ({ token, user, profile }) => {
-      console.log('========== >jwt callback', { token, user, profile })
+    jwt: async ({ token, profile }) => {
+      // console.log('========== >jwt callback', { token, profile })
 
       // profile is passed on the first call on login
       if (profile) {
-        const adminSecret = process.env.HASURA_ADMIN_SECRET
+        const adminSecret = process.env.HASURA_GRAPHQL_ADMIN_SECRET
         if (!adminSecret) throw new Error('Admin Secret not found')
+        const jwtSecret = process.env.HASURA_GRAPHQL_JWT_SECRET
+        if (!adminSecret) throw new Error('JWT Secret not found')
 
         const dbUser = await upsertUser({
           email: profile.email!,
@@ -35,7 +37,7 @@ export const {
           adminSecret: adminSecret as string
         })
 
-        console.log('dbuser', dbUser)
+        // console.log('dbuser', dbUser)
         if (!dbUser) throw new Error('Login Error')
 
         const hasuraJwt = await getToken({
@@ -43,7 +45,7 @@ export const {
             account: dbUser.userId,
             role: 'user'
           },
-          jwtSecret: validateJwtSecret(process.env.AUTH_SECRET)
+          jwtSecret: validateJwtSecret(jwtSecret)
         })
 
         if (!hasuraJwt) throw new Error('Login Error')
@@ -55,7 +57,7 @@ export const {
       return token
     },
     session: async ({ session, token }) => {
-      console.log('session callback', token)
+      // console.log('session callback', token)
 
       session.user = {
         id: token.userId as string,
