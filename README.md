@@ -49,13 +49,12 @@ In root folder, create an .env file based of .env_sample and the use `task` to e
 
 ## Running the Frontend
 
-In frontend folder (set up .env.local file - see .env_sample):
+In apps/masterbots.ai folder (set up .env file - see .env_sample):
 
 ```
 pnpm install
 turbo run dev --scope="masterbots.ai" 
-# for running legacy ui
-turbo run dev --scope="frontend"
+# task app will execute the same command
 ```
 
 
