@@ -52,7 +52,7 @@ In root folder, create an .env file based of .env_sample and the use `task` to e
 In apps/masterbots.ai folder (set up .env file - see .env_sample):
 
 ```
-pnpm install
+bun install
 turbo run dev --scope="masterbots.ai" 
 # task app will execute the same command
 ```
