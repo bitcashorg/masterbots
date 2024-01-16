@@ -73,7 +73,7 @@ export function SidebarActions({
       </div>
       <ChatShareDialog
         chat={chat}
-        shareChat={shareChat}
+        // shareChat={shareChat}
         open={shareDialogOpen}
         onOpenChange={setShareDialogOpen}
         onCopy={() => setShareDialogOpen(false)}
