@@ -10,7 +10,7 @@ steps:
         "gcr.io/$PROJECT_ID/$_PROJECT_NAME:latest",
         ".",
       ]
-    dir: "apps/dboard-hasura"
+    dir: "apps/hasura"
   # Push the container image to Container Registry
   - name: "gcr.io/cloud-builders/docker"
     args: ["push", "gcr.io/$PROJECT_ID/$_PROJECT_NAME"]
