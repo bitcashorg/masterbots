@@ -4,9 +4,15 @@ import { auth } from '@/auth'
 import { Chat } from '@/components/chat'
 import { getThread } from '@/services/hasura'
 import { Message } from 'ai/react'
+import { isTokenExpired } from 'mb-lib'
 
 export default async function ChatPage({ params }: ChatPageProps) {
   const session = await auth()
+  // NOTE: maybe we should use same expiration time
+  const jwt = session!.user.hasuraJwt
+  if (!jwt || isTokenExpired(jwt)) {
+    redirect(`/sign-in`)
+  }
   const thread = await getThread({
     threadId: params.threadId,
     jwt: session!.user.hasuraJwt
