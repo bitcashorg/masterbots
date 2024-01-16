@@ -21,5 +21,5 @@
     "apps/*",
     "packages/*"
   ],
-  "packageManager": "pnpm@8.6.6"
+  "packageManager": "bun@1.0.14"
 }
