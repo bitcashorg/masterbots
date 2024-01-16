@@ -7,6 +7,8 @@ import crypto from 'crypto'
 import { Chat } from '@/components/chat'
 import { useSession } from 'next-auth/react'
 import { auth } from '@/auth'
+import { redirect } from 'next/navigation'
+import { isTokenExpired } from 'mb-lib'
 
 export default async function BotThreadsPage({
   params,
@@ -16,6 +18,11 @@ export default async function BotThreadsPage({
   searchParams: { [key: string]: string | string[] | undefined }
 }) {
   const session = await auth()
+  // NOTE: maybe we should use same expiration time
+  const jwt = session!.user.hasuraJwt
+  if (!jwt || isTokenExpired(jwt)) {
+    redirect(`/sign-in`)
+  }
   const chatbot = await getChatbot({
     chatbotName: botNames.get(params.chatbot),
     jwt: session!.user.hasuraJwt

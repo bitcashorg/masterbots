@@ -18,7 +18,6 @@ import {
 import { validateMbEnv } from 'mb-env'
 
 function getHasuraClient({ jwt, adminSecret }: GetHasuraClientParams) {
-  console.log('JWT', jwt)
   return createMbClient({
     jwt,
     adminSecret,
@@ -58,7 +57,7 @@ export async function getThreads({
       messages: {
         ...everything,
         __args: {
-          orderBy: [{ createdAt: 'DESC' }],
+          orderBy: [{ createdAt: 'ASC' }],
           where: { role: { _eq: 'user' } }
         }
       },

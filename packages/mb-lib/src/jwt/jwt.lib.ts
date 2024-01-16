@@ -2,7 +2,8 @@
 import { JwtData } from 'mb-types';
 import { generateHasuraClaims } from '../hasura';
 import { JwtSecret, TokenLibGetTokenParams, TokenLibRefreshTokenParams } from './jwt.type';
-import { SignJWT, jwtVerify} from 'jose';
+import { SignJWT, jwtVerify, decodeJwt} from 'jose';
+import { getErrorMessage } from '../error';
 
 export async function sign(payload: JwtData, secret: string): Promise<string> {
     const iat = Math.floor(Date.now() / 1000);
@@ -95,4 +96,19 @@ export function validateJwtSecret(envVariable: string | undefined): JwtSecret {
   }
 
   return secret;
+}
+
+
+export function isTokenExpired(token:string) {
+  try {
+    const decodedToken = decodeJwt(token);
+
+    if (!decodedToken.exp)  throw new Error('Token does not have an expiration time.')
+
+    const currentUnixTime = Math.floor(Date.now() / 1000)
+    return decodedToken.exp < currentUnixTime;
+  } catch (error) {
+    console.error('Error checking token expiration:', getErrorMessage(error));
+    return true; // or handle the error as appropriate
+  }
 }

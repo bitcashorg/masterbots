@@ -28,7 +28,6 @@
     "@radix-ui/react-switch": "^1.0.3",
     "@radix-ui/react-tooltip": "^1.0.7",
     "@vercel/analytics": "^1.1.1",
-    "@vercel/kv": "^1.0.0",
     "@vercel/og": "^0.5.20",
     "ai": "^2.2.25",
     "class-variance-authority": "^0.7.0",
