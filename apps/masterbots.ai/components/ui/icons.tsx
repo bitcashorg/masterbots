@@ -442,6 +442,21 @@ function IconUsers({ className, ...props }: React.ComponentProps<'svg'>) {
   )
 }
 
+function IconCaretRight({ className, ...props }: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 8 15"
+      fill="none"
+      className={cn('h-4 w-4', className)}
+      {...props}
+    >
+      <path d="M0.764389 13.3924L6.85709 7.29973L0.764389 1.20703" strokeWidth="1.52318" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
+
 function IconExternalLink({
   className,
   ...props
@@ -477,6 +492,7 @@ function IconChevronUpDown({
 }
 
 export {
+  IconCaretRight,
   IconEdit,
   IconNextChat,
   IconOpenAI,
