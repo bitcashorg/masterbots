@@ -29,7 +29,15 @@ function getHasuraClient({ jwt, adminSecret }: GetHasuraClientParams) {
 export async function getCategories() {
   const client = getHasuraClient({})
   const { category } = await client.query({
-    category: everything
+    category: {
+      chatbots: {
+        chatbot: {
+          ...everything
+        },
+        ...everything
+      },
+      ...everything,
+    }
   })
 
   return category as Category[]
