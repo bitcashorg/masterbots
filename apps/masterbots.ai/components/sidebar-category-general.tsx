@@ -1,18 +1,17 @@
 import { auth } from '@/auth'
 // import { ChatHistory } from '@/components/chat-history'
-import { getChatbots } from '@/services/hasura'
+import { getCategories } from '@/services/hasura'
 import SidebarLink from './sidebar-link'
 
 export async function SidebarGeneralCategory() {
   const session = await auth()
   if (!session) return null
-  const chatbots = await getChatbots()
-
+  const categories = await getCategories()
   return (
     <ul>
-      {chatbots.map((bot, key) => (
+      {categories.map((category, key) => (
         <li key={key}>
-          <SidebarLink bot={bot} />
+          <SidebarLink category={category} />
         </li>
       ))}
     </ul>
