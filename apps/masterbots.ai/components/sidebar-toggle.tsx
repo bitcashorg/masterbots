@@ -12,8 +12,9 @@ export function SidebarToggle() {
   return (
     <Button
       variant="ghost"
-      className="-ml-2 hidden h-9 w-9 p-0 lg:flex"
-      onClick={() => {
+      className="-ml-2 flex h-9 w-9 p-0 lg:hidden"
+      onClick={(e) => {
+        e.stopPropagation()
         toggleSidebar()
       }}
     >
