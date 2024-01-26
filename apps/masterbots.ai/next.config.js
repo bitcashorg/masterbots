@@ -22,8 +22,27 @@ module.exports = {
         hostname: 'robohash.org',
         port: '',
         pathname: '**'
+      },
+      {
+        protocol: 'https',
+        hostname: 'api.dicebear.com',
+        port: '',
+        pathname: '**',
       }
     ]
+  },
+  async headers() {
+    return [
+      {
+        source: "/api/dicebear", // Adjust the source path based on your API route
+        headers: [
+          {
+            key: "Content-Type",
+            value: "image/svg+xml",
+          },
+        ],
+      },
+    ];
   },
   experimental: {
     ...(process.env.NODE_ENV === 'development'
