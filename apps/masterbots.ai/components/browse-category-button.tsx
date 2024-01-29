@@ -17,7 +17,7 @@ export function BrowseCategoryButton({
         (activeTab === null && category === 'all') ||
         (category !== 'all' && activeTab === category.categoryId)
           ? 'dark:text-white'
-          : 'dark:hover:text-white dark:text-[#F4F4F580]'
+          : 'dark:hover:text-white dark:text-[#F4F4F580] text-zinc-500 hover:text-black'
       } relative rounded-full px-3 py-1.5 text-sm font-medium  outline-sky-400 transition focus-visible:outline-2`}
       style={{
         WebkitTapHighlightColor: 'transparent'
