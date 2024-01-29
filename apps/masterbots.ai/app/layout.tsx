@@ -1,12 +1,11 @@
-import { Toaster } from 'react-hot-toast'
-import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
+import { GeistSans } from 'geist/font/sans'
+import { Toaster } from 'react-hot-toast'
 
 import '@/app/globals.css'
-import { cn } from '@/lib/utils'
-import { TailwindIndicator } from '@/components/tailwind-indicator'
-import { Providers } from '@/components/providers'
 import { Header } from '@/components/header'
+import { Providers } from '@/components/providers'
+import { cn } from '@/lib/utils'
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
@@ -18,6 +17,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
           GeistMono.variable
         )}
       >
+        { /* TODO: https://github.com/TheSGJ/nextjs-toploader/issues/66 */}
+        {/* <NextTopLoader color="#1ED761" initialPosition={0.20} /> */}
         <Toaster />
         <Providers
           attribute="class"
