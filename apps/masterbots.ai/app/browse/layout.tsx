@@ -8,9 +8,7 @@ export default async function BrowseLayout({ children }: BrowseLayoutProps) {
   return (
     <BrowseProvider>
       <div className="flex flex-col h-[calc(100vh-theme(spacing.16))] ">
-        <div className="max-w-[1024px] pb-10 mx-auto w-full overflow-auto group">
-          {children}
-        </div>
+        <div className="overflow-auto group scrollbar w-full">{children}</div>
       </div>
     </BrowseProvider>
   )
