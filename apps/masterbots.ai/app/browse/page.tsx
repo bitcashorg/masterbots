@@ -1,23 +1,30 @@
+import { auth } from '@/auth'
+import { isTokenExpired } from 'mb-lib'
+import { redirect } from 'next/navigation'
+import BrowseList from '@/components/browse-list'
+import { BrowseCategoryTabs } from '@/components/browse-category-tabs'
+import { BrowseSearchInput } from '@/components/browse-search-input'
+import { CategoryMainTabs } from '@/components/category-main-tabs'
 import { getCategories } from '@/services/hasura'
-import { Input } from '@/components/ui/input'
 
 export const revalidate = 3600 // revalidate the data at most every hour
 
 export default async function BrowsePage() {
+  const session = await auth()
   const categories = await getCategories()
-  return (
-    <div className="flex flex-col h-[calc(100vh-theme(spacing.16))] py-10">
-      <div className="flex justify-center w-full pb-10">
-        <Input placeholder="Search" className="max-w-[500px]" />
-      </div>
 
-      <div className="flex justify-center w-full">
-        {categories.map((category, key) => (
-          <span key={key} className="pl-8">
-            {category.name}
-          </span>
-        ))}
-      </div>
-    </div>
+  // NOTE: maybe we should use same expiration time
+  const jwt = session!.user.hasuraJwt
+  if (!jwt || isTokenExpired(jwt)) {
+    redirect(`/sign-in`)
+  }
+
+  return (
+    <>
+      <CategoryMainTabs />
+      <BrowseCategoryTabs categories={categories} />
+      <BrowseSearchInput />
+      <BrowseList />
+    </>
   )
 }
