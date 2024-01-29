@@ -53,17 +53,23 @@ export default function BrowseList() {
           justify-between py-4 font-medium transition-all "
             >
               {thread.user?.profilePicture ? (
-                <Image
-                  className="w-6 h-6 transition-opacity duration-300 rounded-full select-none ring-1 ring-zinc-100/10 hover:opacity-80"
-                  src={thread.user?.profilePicture}
-                  alt={thread.user?.username ?? 'Avatar'}
-                  height={48}
-                  width={48}
-                />
+                <div
+                  className={cn(
+                    'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full border shadow'
+                  )}
+                >
+                  <Image
+                    className="w-6 h-6 transition-opacity duration-300 rounded-full select-none hover:opacity-80"
+                    src={thread.user?.profilePicture}
+                    alt={thread.user?.username ?? 'Avatar'}
+                    height={48}
+                    width={48}
+                  />
+                </div>
               ) : (
                 <div
                   className={cn(
-                    'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-md border shadow',
+                    'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full border shadow',
                     'bg-background'
                   )}
                 >
