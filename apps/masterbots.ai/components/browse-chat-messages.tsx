@@ -127,15 +127,15 @@ export function BrowseChatMessages({
                 {user?.profilePicture ? (
                   <div
                     className={cn(
-                      'flex h-10 w-10 shrink-0 select-none items-center justify-center rounded-full border shadow'
+                      'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full border shadow'
                     )}
                   >
                     <Image
-                      className="h-8 w-8 transition-opacity duration-300 rounded-full select-none hover:opacity-80"
+                      className="h-6 w-6 transition-opacity duration-300 rounded-full select-none hover:opacity-80"
                       src={user?.profilePicture || ''}
                       alt={user?.username ?? 'Avatar'}
-                      height={48}
-                      width={48}
+                      height={32}
+                      width={32}
                     />
                   </div>
                 ) : (
