@@ -1,3 +1,4 @@
+import { Message } from 'mb-genql'
 import { clsx, type ClassValue } from 'clsx'
 import { customAlphabet } from 'nanoid'
 import { twMerge } from 'tailwind-merge'
@@ -66,4 +67,45 @@ export function extractBetweenMarkers(
   startIndex += startMarker.length
 
   return str.substring(startIndex, endIndex).trim()
+}
+
+// From browse-list.tsx
+export function createMessagePairs(messages: Message[]) {
+  const messagePairs = [];
+
+  for (let i = 0; i < messages.length; i++) {
+    const message = messages[i];
+
+    if (message.role === 'user') {
+      const userMessage = message;
+
+      const chatGptMessage = findNextAssistantMessage(messages, i + 1);
+      messagePairs.push({
+        userMessage,
+        chatGptMessage: chatGptMessage,
+      });
+    }
+  }
+
+  return messagePairs;
+};
+
+const findNextAssistantMessage = (messages: Message[], startIndex: number) => {
+  if (messages[startIndex]?.role === 'assistant') {
+    return {...messages[startIndex], content: cleanPrompt(messages[startIndex].content)};
+  }
+  return null;
+};
+
+// From chat-message.tsx
+export function cleanPrompt(str: string) {
+  const marker = '].  Then answer this question:'
+  const index = str.indexOf(marker)
+  let extracted = ''
+
+  if (index !== -1) {
+    extracted = str.substring(index + marker.length)
+  }
+  console.log('cleanPrompt', str, extracted, index)
+  return extracted || str
 }
