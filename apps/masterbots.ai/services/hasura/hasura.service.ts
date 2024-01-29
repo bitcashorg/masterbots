@@ -1,6 +1,7 @@
 import {
   Category,
   Chatbot,
+  Message,
   Thread,
   User,
   createMbClient,
@@ -36,7 +37,7 @@ export async function getCategories() {
         },
         ...everything
       },
-      ...everything,
+      ...everything
     }
   })
 
@@ -99,6 +100,10 @@ export async function getThread({ threadId, jwt }: GetThreadParams) {
         prompts: {
           prompt: everything
         }
+      },
+      user: {
+        username: true,
+        profilePicture: true
       },
       messages: {
         ...everything,
@@ -201,4 +206,69 @@ export async function getChatbot({
   })
 
   return chatbot[0] as Chatbot
+}
+
+export async function getBrowseThreads({
+  jwt,
+  userId,
+  categoryId,
+  keyword
+}: GetThreadsParams) {
+  const client = getHasuraClient({ jwt })
+
+  const { thread } = await client.query({
+    thread: {
+      chatbot: everything,
+      messages: {
+        ...everything,
+        __args: {
+          orderBy: [{ createdAt: 'ASC' }],
+          limit: 2,
+          ...(keyword
+            ? {
+                where: {
+                  _or: [
+                    {
+                      content: {
+                        _iregex: keyword
+                      }
+                    },
+                    {
+                      content: {
+                        _eq: keyword
+                      }
+                    }
+                  ]
+                }
+              }
+            : '')
+        }
+      },
+      user: {
+        username: true,
+        profilePicture: true
+      },
+      ...everything,
+      __args: {
+        orderBy: [{ createdAt: 'DESC' }],
+        where: {
+          userId: {
+            _eq: userId
+          },
+          ...(categoryId
+            ? {
+                chatbot: {
+                  categories: {
+                    categoryId: { _eq: categoryId }
+                  }
+                }
+              }
+            : {})
+        },
+        limit: 30
+      }
+    }
+  })
+
+  return thread as Thread[]
 }
