@@ -451,7 +451,7 @@ function IconCaretRight({ className, ...props }: React.ComponentProps<'svg'>) {
       className={cn('h-4 w-4', className)}
       {...props}
     >
-      <path d="M0.764389 13.3924L6.85709 7.29973L0.764389 1.20703" strokeWidth="1.52318" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M0.764389 13.3924L6.85709 7.29973L0.764389 1.20703" strokeWidth="1.52318" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }
@@ -491,8 +491,29 @@ function IconChevronUpDown({
   )
 }
 
+function IconChatSearch({
+  className,
+  ...props
+}: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      className={cn('h-4 w-4', className)}
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path d="M11.9999 2.40387C11.4008 2.41279 10.2707 2.43674 9.68461 2.47571C5.22273 2.77231 1.66862 6.37683 1.37617 10.902C1.31895 11.7875 1.31895 12.7047 1.37617 13.5902C1.48269 15.2383 2.21157 16.7643 3.06969 18.0528C3.56793 18.9549 3.2391 20.0808 2.72014 21.0642C2.34595 21.7733 2.15886 22.1279 2.30908 22.384C2.45931 22.6401 2.79486 22.6483 3.46597 22.6646C4.79316 22.697 5.68811 22.3206 6.39851 21.7968C6.80141 21.4997 7.00287 21.3512 7.14172 21.3341C7.28055 21.317 7.5538 21.4296 8.10019 21.6546C8.59127 21.8569 9.16147 21.9817 9.68461 22.0164C11.2038 22.1174 12.793 22.1177 14.3152 22.0164C18.7771 21.7199 22.3312 18.1153 22.6237 13.5902C22.6575 13.0668 22.6713 12.5323 22.6652 11.9999" stroke="#71717A" strokeOpacity="0.5" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M8.2666 15.2H15.7333M8.2666 9.86664H11.9999" stroke="#71717A" strokeOpacity="0.5" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M20.8158 6.95509L22.6666 8.79998M21.7828 4.62474C21.7828 2.80693 20.3092 1.33331 18.4914 1.33331C16.6735 1.33331 15.2 2.80693 15.2 4.62474C15.2 6.44255 16.6735 7.91617 18.4914 7.91617C20.3092 7.91617 21.7828 6.44255 21.7828 4.62474Z" stroke="#71717A" strokeOpacity="0.5" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+
 export {
   IconCaretRight,
+  IconChatSearch,
   IconEdit,
   IconNextChat,
   IconOpenAI,
