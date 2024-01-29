@@ -5,7 +5,7 @@ import { Message } from 'ai'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 
-import { cn } from '@/lib/utils'
+import { cleanPrompt, cn } from '@/lib/utils'
 import { CodeBlock } from '@/components/ui/codeblock'
 import { MemoizedReactMarkdown } from '@/components/markdown'
 import { IconOpenAI, IconUser } from '@/components/ui/icons'
@@ -81,14 +81,3 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
   )
 }
 
-function cleanPrompt(str: string) {
-  const marker = '].  Then answer this question:'
-  const index = str.indexOf(marker)
-  let extracted = ''
-
-  if (index !== -1) {
-    extracted = str.substring(index + marker.length)
-  }
-  console.log('cleanPrompt', str, extracted, index)
-  return extracted || str
-}
