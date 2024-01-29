@@ -97,6 +97,15 @@ export async function getThread({ threadId, jwt }: GetThreadParams) {
     thread: {
       chatbot: {
         ...everything,
+        categories: {
+          category: {
+            ...everything
+          },
+          ...everything
+        },
+        threads: {
+          threadId: true
+        },
         prompts: {
           prompt: everything
         }
