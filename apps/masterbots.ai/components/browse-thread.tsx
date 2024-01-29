@@ -18,17 +18,16 @@ export function BrowseThread({
   // we extend append function to add our system prompts
 
   return (
-    <div className={cn('pb-[200px] pt-4 md:pt-10', className)}>
-      <div className="max-w-2xl px-4 mx-auto">
-        {thread.messages?.length ? (
-          <BrowseChatMessages
-            user={thread?.user || undefined}
-            messages={thread.messages}
-          />
-        ) : (
-          ''
-        )}
-      </div>
+    <div className={cn('pb-[100px]', className)}>
+      {thread.messages?.length ? (
+        <BrowseChatMessages
+          chatbot={thread?.chatbot}
+          user={thread?.user || undefined}
+          messages={thread.messages}
+        />
+      ) : (
+        ''
+      )}
     </div>
   )
 }
