@@ -14,24 +14,24 @@ import { useCallback } from 'react'
 
 export interface ChatMessageProps {
   message: Message
-  sendMessageFromBullet: (message: string) => void;
+  sendMessageFromBullet?: (message: string) => void
 }
 
 function extractTextFromReactNode(node: React.ReactNode): string {
   if (typeof node === 'string') {
-    return node;
+    return node
   }
   
   if (typeof node === 'number') {
-    return node.toString();
+    return node.toString()
   }
 
   if (Array.isArray(node)) {
-    return node.map(extractTextFromReactNode).join('');
+    return node.map(extractTextFromReactNode).join('')
   }
 
   if (typeof node === 'object' && node !== null && 'props' in node) {
-    return extractTextFromReactNode(node.props.children);
+    return extractTextFromReactNode(node.props.children)
   }
 
   return '';
@@ -42,16 +42,16 @@ export function ChatMessage({ message, sendMessageFromBullet, ...props }: ChatMe
   const cleanMessage = { ...message, content: cleanPrompt(message.content) }
 
  function extractTextFromResponse(node: React.ReactNode): string {
-  const fullText = extractTextFromReactNode(node);
-  const textBeforeColon = fullText.split(':')[0].trim();
-  return textBeforeColon;
+  const fullText = extractTextFromReactNode(node)
+  const textBeforeColon = fullText.split(':')[0].trim()
+  return textBeforeColon
 }
 
 const handleBulletClick = useCallback((bulletContent: React.ReactNode) => {
-  const contentBeforeColon = extractTextFromResponse(bulletContent);
-  console.log('handleBulletClick content', contentBeforeColon);
-  sendMessageFromBullet(contentBeforeColon);
-}, [sendMessageFromBullet]); 
+  const contentBeforeColon = extractTextFromResponse(bulletContent)
+  sendMessageFromBullet ? sendMessageFromBullet(contentBeforeColon) : console.log('sendMessageFromBullet function not provided')
+}, [sendMessageFromBullet])
+
 
   return (
     <div
@@ -80,7 +80,7 @@ const handleBulletClick = useCallback((bulletContent: React.ReactNode) => {
               return (
                 <li>
                 <button onClick={() => handleBulletClick(children)}>
-                  {children}
+                 <p className='text-justify'>{children}</p> 
                 </button>
               </li>
               )
