@@ -71,31 +71,34 @@ export function extractBetweenMarkers(
 
 // From browse-list.tsx
 export function createMessagePairs(messages: Message[]) {
-  const messagePairs = [];
+  const messagePairs = []
 
   for (let i = 0; i < messages.length; i++) {
-    const message = messages[i];
+    const message = messages[i]
 
     if (message.role === 'user') {
-      const userMessage = message;
+      const userMessage = message
 
-      const chatGptMessage = findNextAssistantMessage(messages, i + 1);
+      const chatGptMessage = findNextAssistantMessage(messages, i + 1)
       messagePairs.push({
         userMessage,
-        chatGptMessage: chatGptMessage,
-      });
+        chatGptMessage: chatGptMessage
+      })
     }
   }
 
-  return messagePairs;
-};
+  return messagePairs
+}
 
 const findNextAssistantMessage = (messages: Message[], startIndex: number) => {
   if (messages[startIndex]?.role === 'assistant') {
-    return {...messages[startIndex], content: cleanPrompt(messages[startIndex].content)};
+    return {
+      ...messages[startIndex],
+      content: cleanPrompt(messages[startIndex].content)
+    }
   }
-  return null;
-};
+  return null
+}
 
 // From chat-message.tsx
 export function cleanPrompt(str: string) {
@@ -108,4 +111,20 @@ export function cleanPrompt(str: string) {
   }
   console.log('cleanPrompt', str, extracted, index)
   return extracted || str
+}
+
+export const readingTime = (messages: { content: string }[]) => {
+  let contentGroup: any = []
+
+  for (var i = 0; i <= messages?.length; i++) {
+    const paragraphGroup = messages[i]?.content?.match(/\\n/g)
+    if (paragraphGroup) contentGroup = [...contentGroup, ...paragraphGroup]
+  }
+
+  // calculate the content time
+  const text = contentGroup.join(' ')
+  const wpm = 225
+  const words = text.trim().split(/\s+/).length
+  const time = Math.ceil(words / wpm)
+  return time
 }
