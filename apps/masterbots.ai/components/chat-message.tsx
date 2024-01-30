@@ -10,13 +10,46 @@ import { CodeBlock } from '@/components/ui/codeblock'
 import { MemoizedReactMarkdown } from '@/components/markdown'
 import { IconOpenAI, IconUser } from '@/components/ui/icons'
 import { ChatMessageActions } from '@/components/chat-message-actions'
+import { useCallback } from 'react'
 
 export interface ChatMessageProps {
   message: Message
 }
 
+function extractTextFromReactNode(node: React.ReactNode): string {
+  if (typeof node === 'string') {
+    return node;
+  }
+  
+  if (typeof node === 'number') {
+    return node.toString();
+  }
+
+  if (Array.isArray(node)) {
+    return node.map(extractTextFromReactNode).join('');
+  }
+
+  if (typeof node === 'object' && node !== null && 'props' in node) {
+    return extractTextFromReactNode(node.props.children);
+  }
+
+  return '';
+}
+
+
 export function ChatMessage({ message, ...props }: ChatMessageProps) {
   const cleanMessage = { ...message, content: cleanPrompt(message.content) }
+
+ function extractTextFromResponse(node: React.ReactNode): string {
+  const fullText = extractTextFromReactNode(node);
+  const textBeforeColon = fullText.split(':')[0].trim();
+  return textBeforeColon;
+}
+
+const handleBulletClick = useCallback((bulletContent: React.ReactNode) => {
+  const contentBeforeColon = extractTextFromResponse(bulletContent);
+  console.log(`Tell me more about: ${contentBeforeColon}`);
+}, []);
 
   return (
     <div
@@ -25,7 +58,7 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
     >
       <div
         className={cn(
-          'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-md border shadow',
+          'flex size-8 shrink-0 select-none items-center justify-center rounded-md border shadow',
           cleanMessage.role === 'user'
             ? 'bg-background'
             : 'bg-primary text-primary-foreground'
@@ -40,6 +73,15 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
           components={{
             p({ children }) {
               return <p className="mb-2 last:mb-0">{children}</p>
+            },
+            li({ children }) {
+              return (
+                <li>
+                <button onClick={() => handleBulletClick(children)}>
+                  {children}
+                </button>
+              </li>
+              )
             },
             code({ node, inline, className, children, ...props }) {
               if (children.length) {
