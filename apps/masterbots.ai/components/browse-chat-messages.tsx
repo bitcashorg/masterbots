@@ -1,13 +1,7 @@
 // Inspired by Chatbot-UI and modified to fit the needs of this project
 // @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Chat/ChatcleanMessage.tsx
 
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger
-} from '@/components/ui/accordion'
-import { cn, createMessagePairs } from '@/lib/utils'
+import { cn, createMessagePairs, readingTime } from '@/lib/utils'
 import {
   IconChatMessage,
   IconDownVote,
@@ -22,6 +16,8 @@ import Image from 'next/image'
 import { BrowseChatMessage } from './browse-chat-message'
 import { Separator } from './ui/separator'
 import Link from 'next/link'
+import { Button } from './ui/button'
+import { BrowseAccordion } from './browse-accordion'
 
 type MessagePair = {
   userMessage: Message
@@ -63,13 +59,13 @@ export function BrowseChatMessages({
       >
         <div
           className="dark:bg-[#09090B] bg-white rounded-lg p-6 md:w-[600px]
-          flex flex-row gap-3 relative mx-auto"
+          flex flex-row gap-3 relative mx-auto font-mono"
         >
           <div className="w-2/3 flex flex-col gap-3">
             <div className="text-2xl font-black">{chatbot?.name}</div>
             <Separator className="bg-[#1E293B]" />
             <div className="text-xl font-semibold">
-              {chatbot?.categories[0].category.name}
+              {chatbot?.categories[0].category.name}.
             </div>
             <div className="text-base">
               <div className="font-medium">
@@ -81,10 +77,13 @@ export function BrowseChatMessages({
                   {chatbot?.threads.length ?? 1}
                 </span>
                 <div>
-                  Views: <span className="dark:text-[#71717A]">230</span>
+                  Views: <span className="dark:text-[#71717A]">0</span>
                 </div>
                 <div>
-                  Read time: <span className="dark:text-[#71717A]">7 min</span>
+                  Read time:{' '}
+                  <span className="dark:text-[#71717A]">
+                    {readingTime(messages)} min
+                  </span>
                 </div>
               </div>
             </div>
@@ -100,11 +99,18 @@ export function BrowseChatMessages({
               </Link>
               <div className="flex items-center gap-2">
                 <IconUpVote className="opacity-60 h-4" />
-                <span className="text-[#72C255]">1.2k</span>
+                <span className="text-[#72C255]">0</span>
                 <IconDownVote className="opacity-60 h-4" />
-                <span className="text-[#F42F53]">372</span>
-                <IconShare className="opacity-60 ml-2" />
-                <IconChatMessage className="opacity-60 ml-2" />
+                <span className="text-[#F42F53]">0</span>
+                <Button
+                  onClick={() => {
+                    console.log('Share action required')
+                  }}
+                  variant="ghost"
+                >
+                  <IconShare className="opacity-60" />
+                </Button>
+                <IconChatMessage className="opacity-60" />
               </div>
             </div>
           </div>
@@ -119,56 +125,52 @@ export function BrowseChatMessages({
           </div>
         </div>
       </div>
-      <div className="max-w-2xl px-4 mx-auto mt-2">
-        <Accordion type="multiple">
-          {pairs.map((pair: MessagePair, key) => (
-            <AccordionItem key={key} value={pair.userMessage.messageId}>
-              <AccordionTrigger className="hover:no-underline">
-                {user?.profilePicture ? (
-                  <div
-                    className={cn(
-                      'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full border shadow'
-                    )}
-                  >
-                    <Image
-                      className="h-6 w-6 transition-opacity duration-300 rounded-full select-none hover:opacity-80"
-                      src={user?.profilePicture || ''}
-                      alt={user?.username ?? 'Avatar'}
-                      height={32}
-                      width={32}
-                    />
-                  </div>
-                ) : (
-                  <div
-                    className={cn(
-                      'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full border shadow',
-                      'bg-background'
-                    )}
-                  >
-                    <IconUser />
-                  </div>
-                )}
-                <div className="flex-1 px-1 ml-4 space-y-2 text-left text-[1.25rem] relative">
-                  {pair.userMessage.content}
-                  {/* <span className="opacity-30 ml-4 font-normal">
+      <div className="max-w-2xl px-4 mx-auto mt-8 flex gap-y-4 flex-col">
+        {pairs.map((pair: MessagePair, key: number) => (
+          <BrowseAccordion defaultState key={key} className="border-none">
+            <div className="mx-4 flex">
+              {user?.profilePicture ? (
+                <div
+                  className={cn(
+                    'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full shadow bg-background'
+                  )}
+                >
+                  <Image
+                    className="h-4 w-4 transition-opacity duration-300 rounded-full select-none hover:opacity-80"
+                    src={user?.profilePicture || ''}
+                    alt={user?.username ?? 'Avatar'}
+                    height={32}
+                    width={32}
+                  />
+                </div>
+              ) : (
+                <div
+                  className={cn(
+                    'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full border shadow',
+                    'bg-background'
+                  )}
+                >
+                  <IconUser />
+                </div>
+              )}
+              <div className="flex-1 px-1 ml-4 space-y-2 text-left text-[1.25rem] relative">
+                {pair.userMessage.content}
+                {/* <span className="opacity-30 ml-4 font-normal">
                   by {user?.username.replace('_', ' ')}
                 </span> */}
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className="relative mt-4">
-                <div className="md:ml-12">
-                  {pair.chatGptMessage ? (
-                    <BrowseChatMessage
-                      message={convertMessage(pair.chatGptMessage)}
-                    />
-                  ) : (
-                    ''
-                  )}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
+              </div>
+            </div>
+            <div className="mr-4 ml-[calc(1rem+2px)]">
+              {pair.chatGptMessage ? (
+                <BrowseChatMessage
+                  message={convertMessage(pair.chatGptMessage)}
+                />
+              ) : (
+                ''
+              )}
+            </div>
+          </BrowseAccordion>
+        ))}
       </div>
     </div>
   )
