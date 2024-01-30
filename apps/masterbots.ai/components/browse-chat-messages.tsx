@@ -18,13 +18,14 @@ import { Separator } from './ui/separator'
 import Link from 'next/link'
 import { Button } from './ui/button'
 import { BrowseAccordion } from './browse-accordion'
+import { ChatMessageActions } from './chat-message-actions'
 
 type MessagePair = {
   userMessage: Message
   chatGptMessage: Message | null
 }
 
-function convertMessage(message: Message) {
+export function convertMessage(message: Message) {
   return {
     id: message.messageId,
     content: message.content,
@@ -128,7 +129,7 @@ export function BrowseChatMessages({
       <div className="max-w-2xl px-4 mx-auto mt-8 flex gap-y-4 flex-col">
         {pairs.map((pair: MessagePair, key: number) => (
           <BrowseAccordion defaultState key={key} className="border-none">
-            <div className="mx-4 flex">
+            <div className="mx-4 flex relative w-full">
               {user?.profilePicture ? (
                 <div
                   className={cn(
@@ -159,6 +160,7 @@ export function BrowseChatMessages({
                   by {user?.username.replace('_', ' ')}
                 </span> */}
               </div>
+              <ChatMessageActions message={convertMessage(pair.userMessage)} />
             </div>
             <div className="mr-4 ml-[calc(1rem+2px)]">
               {pair.chatGptMessage ? (

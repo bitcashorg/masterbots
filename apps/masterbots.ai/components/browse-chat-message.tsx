@@ -9,6 +9,8 @@ import { cleanPrompt, cn } from '@/lib/utils'
 import { CodeBlock } from '@/components/ui/codeblock'
 import { MemoizedReactMarkdown } from '@/components/markdown'
 import { IconOpenAI, IconUser } from '@/components/ui/icons'
+import { convertMessage } from './browse-chat-messages'
+import { ChatMessageActions } from './chat-message-actions'
 
 export interface ChatMessageProps {
   message: Message
@@ -71,6 +73,7 @@ export function BrowseChatMessage({ message, ...props }: ChatMessageProps) {
         >
           {cleanMessage.content}
         </MemoizedReactMarkdown>
+        <ChatMessageActions message={cleanMessage} />
       </div>
     </div>
   )

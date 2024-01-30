@@ -28,7 +28,9 @@ export const BrowseAccordion = ({
         className={`flex flex-1 items-center justify-between pb-4
         border-[rgb(30,41,59)]
         font-medium w-full ${
-          open ? ' border-b-[1px]' : 'hover:border-b-[1px]'
+          open
+            ? 'border-b-[1px]'
+            : 'hover:border-b-[1px] [&>div>div>button]:!hidden'
         }`}
       >
         {children[0]}
@@ -39,11 +41,11 @@ export const BrowseAccordion = ({
         )}
       </button>
       <div
-        className={`overflow-hidden text-sm transition-all
+        className={`text-sm transition-all
       ${
         open
           ? 'animate-accordion-down py-4 border-[1px] border-t-0 border-r-0 border-[rgb(30,41,59)]'
-          : 'animate-accordion-up h-0'
+          : 'overflow-hidden animate-accordion-up h-0'
       }`}
       >
         {children[1]}
