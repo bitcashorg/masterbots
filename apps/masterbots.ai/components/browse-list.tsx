@@ -44,9 +44,7 @@ export default function BrowseList() {
       {threads.map((thread: Thread, key) => (
         <Link href={`/browse/${thread.threadId}`} key={key}>
           <div
-            className={cn(
-              'hover:dark:bg-[rgb(30,41,59)] rounded-xl p-4 relative '
-            )}
+            className={cn('hover:bg-[rgb(30,41,59)] rounded-xl p-4 relative ')}
           >
             <div
               className="relative flex flex-1 items-center
