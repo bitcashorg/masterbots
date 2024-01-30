@@ -56,6 +56,12 @@ export function Chat({
     'content'
   ).filter(m => m.role !== 'system')
 
+  const sendMessageFromBullet = (bulletContent: string) => {
+    const fullMessage = `Tell me more about ${bulletContent}`
+    console.log('sendMessageFromBullet', fullMessage)
+    append({ content: fullMessage, role: 'user'});
+  }
+  
   // we extend append function to add our system prompts
   const appendWithMbContextPrompts = async (
     userMessage: Message | CreateMessage,
@@ -100,7 +106,7 @@ export function Chat({
     <>
       {!isNewChat ? (
         <div className={cn('pb-[200px] pt-4 md:pt-10', className)}>
-          <ChatList messages={allMessages} />
+          <ChatList messages={allMessages} sendMessageFromBullet={sendMessageFromBullet} />
           <ChatScrollAnchor trackVisibility={isLoading} />
         </div>
       ) : null}

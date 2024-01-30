@@ -14,6 +14,7 @@ import { useCallback } from 'react'
 
 export interface ChatMessageProps {
   message: Message
+  sendMessageFromBullet: (message: string) => void;
 }
 
 function extractTextFromReactNode(node: React.ReactNode): string {
@@ -37,7 +38,7 @@ function extractTextFromReactNode(node: React.ReactNode): string {
 }
 
 
-export function ChatMessage({ message, ...props }: ChatMessageProps) {
+export function ChatMessage({ message, sendMessageFromBullet, ...props }: ChatMessageProps) {
   const cleanMessage = { ...message, content: cleanPrompt(message.content) }
 
  function extractTextFromResponse(node: React.ReactNode): string {
@@ -48,8 +49,9 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
 
 const handleBulletClick = useCallback((bulletContent: React.ReactNode) => {
   const contentBeforeColon = extractTextFromResponse(bulletContent);
-  console.log(`Tell me more about: ${contentBeforeColon}`);
-}, []);
+  console.log('handleBulletClick content', contentBeforeColon);
+  sendMessageFromBullet(contentBeforeColon);
+}, [sendMessageFromBullet]); 
 
   return (
     <div
