@@ -6,11 +6,13 @@ interface ChatLayoutProps {
 
 export default async function ChatLayout({ children }: ChatLayoutProps) {
   return (
-    <div className="relative flex h-[calc(100vh_-_theme(spacing.16))] overflow-hidden">
+    <main className="relative flex h-[calc(100vh_-_theme(spacing.16))] overflow-hidden">
+      { /* TODO: https://github.com/TheSGJ/nextjs-toploader/issues/66 */}
+      {/* <NextTopLoader color="#1ED761" initialPosition={0.20} /> */}
       <ResponsiveSidebar />
-      <div className="group w-full overflow-auto pl-0 animate-in duration-300 ease-in-out lg:pl-[250px] xl:pl-[300px]">
+      <section className="group w-full overflow-auto pl-0 animate-in duration-300 ease-in-out lg:pl-[250px] xl:pl-[300px]">
         {children}
-      </div>
-    </div>
+      </section>
+    </main>
   )
 }

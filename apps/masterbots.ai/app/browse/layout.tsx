@@ -7,9 +7,11 @@ interface BrowseLayoutProps {
 export default async function BrowseLayout({ children }: BrowseLayoutProps) {
   return (
     <BrowseProvider>
-      <div className="flex flex-col h-[calc(100vh-theme(spacing.16))] ">
-        <div className="overflow-auto group scrollbar w-full">{children}</div>
-      </div>
+      { /* TODO: https://github.com/TheSGJ/nextjs-toploader/issues/66 */}
+      {/* <NextTopLoader color="#1ED761" initialPosition={0.20} /> */}
+      <main className="flex flex-col h-[calc(100vh-theme(spacing.16))] ">
+        <section className="overflow-auto group scrollbar w-full">{children}</section>
+      </main>
     </BrowseProvider>
   )
 }
