@@ -74,12 +74,11 @@ export function ChatMessage({ message, sendMessageFromBullet, ...props }: ChatMe
           remarkPlugins={[remarkGfm, remarkMath]}
           components={{
             p({ children }) {
-              return <p className="mb-2 last:mb-0">{children}</p>
+              return <p className="text-left whitespace-pre-line mb-2 last:mb-0">{children}</p>
             },
             li({ children }) {
               return (
-                // li p { text-align: left; }
-                <li className="[&_p]:text-left">
+                <li>
                   <button onClick={() => handleBulletClick(children)}>
                     {children}
                   </button>
