@@ -5,11 +5,11 @@ import { Message } from 'ai'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 
-import { cn } from '@/lib/utils'
-import { CodeBlock } from '@/components/ui/codeblock'
-import { MemoizedReactMarkdown } from '@/components/markdown'
-import { IconOpenAI, IconUser } from '@/components/ui/icons'
 import { ChatMessageActions } from '@/components/chat-message-actions'
+import { MemoizedReactMarkdown } from '@/components/markdown'
+import { CodeBlock } from '@/components/ui/codeblock'
+import { IconOpenAI, IconUser } from '@/components/ui/icons'
+import { cn } from '@/lib/utils'
 import { useCallback } from 'react'
 
 export interface ChatMessageProps {
@@ -21,7 +21,7 @@ function extractTextFromReactNode(node: React.ReactNode): string {
   if (typeof node === 'string') {
     return node
   }
-  
+
   if (typeof node === 'number') {
     return node.toString()
   }
@@ -41,16 +41,16 @@ function extractTextFromReactNode(node: React.ReactNode): string {
 export function ChatMessage({ message, sendMessageFromBullet, ...props }: ChatMessageProps) {
   const cleanMessage = { ...message, content: cleanPrompt(message.content) }
 
- function extractTextFromResponse(node: React.ReactNode): string {
-  const fullText = extractTextFromReactNode(node)
-  const textBeforeColon = fullText.split(':')[0].trim()
-  return textBeforeColon
-}
+  function extractTextFromResponse(node: React.ReactNode): string {
+    const fullText = extractTextFromReactNode(node)
+    const textBeforeColon = fullText.split(':')[0].trim()
+    return textBeforeColon
+  }
 
-const handleBulletClick = useCallback((bulletContent: React.ReactNode) => {
-  const contentBeforeColon = extractTextFromResponse(bulletContent)
-  sendMessageFromBullet ? sendMessageFromBullet(contentBeforeColon) : console.log('sendMessageFromBullet function not provided')
-}, [sendMessageFromBullet])
+  const handleBulletClick = useCallback((bulletContent: React.ReactNode) => {
+    const contentBeforeColon = extractTextFromResponse(bulletContent)
+    sendMessageFromBullet ? sendMessageFromBullet(contentBeforeColon) : console.log('sendMessageFromBullet function not provided')
+  }, [sendMessageFromBullet])
 
 
   return (
@@ -78,11 +78,12 @@ const handleBulletClick = useCallback((bulletContent: React.ReactNode) => {
             },
             li({ children }) {
               return (
-                <li>
-                <button onClick={() => handleBulletClick(children)}>
-                 <p className='text-justify'>{children}</p> 
-                </button>
-              </li>
+                // li p { text-align: left; }
+                <li className="[&_p]:text-left">
+                  <button onClick={() => handleBulletClick(children)}>
+                    {children}
+                  </button>
+                </li>
               )
             },
             code({ node, inline, className, children, ...props }) {
