@@ -37,3 +37,11 @@ select_permissions:
         user_id:
           _eq: X-Hasura-User-Id
     comment: ""
+  - role: anonymous
+    permission:
+      columns:
+        - email
+        - profile_picture
+        - username
+      filter: {}
+    comment: ""
