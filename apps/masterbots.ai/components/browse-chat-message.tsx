@@ -9,25 +9,23 @@ import { cleanPrompt, cn } from '@/lib/utils'
 import { CodeBlock } from '@/components/ui/codeblock'
 import { MemoizedReactMarkdown } from '@/components/markdown'
 import { IconOpenAI, IconUser } from '@/components/ui/icons'
-import { ChatMessageActions } from '@/components/chat-message-actions'
+import { convertMessage } from './browse-chat-messages'
+import { ChatMessageActions } from './chat-message-actions'
 
 export interface ChatMessageProps {
   message: Message
 }
 
-export function ChatMessage({ message, ...props }: ChatMessageProps) {
+export function BrowseChatMessage({ message, ...props }: ChatMessageProps) {
   const cleanMessage = { ...message, content: cleanPrompt(message.content) }
 
   return (
-    <div
-      className={cn('group relative mb-4 flex items-start md:-ml-12')}
-      {...props}
-    >
+    <div className={cn('group relative my-4 flex items-start')} {...props}>
       <div
         className={cn(
-          'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-md border shadow',
+          'flex h-8 w-8 shrink-0 select-none items-center justify-center border rounded-full shadow',
           cleanMessage.role === 'user'
-            ? 'bg-background'
+            ? 'bg-background '
             : 'bg-primary text-primary-foreground'
         )}
       >
@@ -75,9 +73,8 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
         >
           {cleanMessage.content}
         </MemoizedReactMarkdown>
-        <ChatMessageActions message={message} />
+        <ChatMessageActions message={cleanMessage} />
       </div>
     </div>
   )
 }
-

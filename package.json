@@ -21,5 +21,8 @@
     "apps/*",
     "packages/*"
   ],
-  "packageManager": "bun@1.0.14"
+  "packageManager": "bun@1.0.14",
+  "dependencies": {
+    "nextjs-toploader": "^1.6.4"
+  }
 }
