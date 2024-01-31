@@ -9,7 +9,6 @@ import { cn } from '@/lib/utils'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { IconUser, IconCaretRight } from './ui/icons'
 import { getBrowseThreads } from '@/services/hasura'
-import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { MemoizedReactMarkdown } from './markdown'
 import remarkGfm from 'remark-gfm'
@@ -17,15 +16,12 @@ import remarkMath from 'remark-math'
 import { CodeBlock } from './ui/codeblock'
 
 export default function BrowseList() {
-  const { data: session } = useSession()
   const { keyword, tab } = useBrowse()
 
   const [threads, setThreads] = React.useState<Thread[]>([])
 
   const fetchThreads = async (keyword: string, tab: number | null) => {
     const threads = await getBrowseThreads({
-      jwt: session!.user.hasuraJwt,
-      userId: session!.user.id,
       categoryId: tab,
       keyword
     })
@@ -33,11 +29,8 @@ export default function BrowseList() {
   }
 
   React.useEffect(() => {
-    if (session?.user) {
-      fetchThreads(keyword, tab)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [keyword, tab, session])
+    fetchThreads(keyword, tab)
+  }, [keyword, tab])
 
   return (
     <div className="w-full py-5">
@@ -57,11 +50,11 @@ export default function BrowseList() {
                   )}
                 >
                   <Image
-                    className="w-6 h-6 transition-opacity duration-300 rounded-full select-none hover:opacity-80"
+                    className="transition-opacity duration-300 rounded-full select-none hover:opacity-80"
                     src={thread.user?.profilePicture}
                     alt={thread.user?.username ?? 'Avatar'}
-                    height={48}
-                    width={48}
+                    height={32}
+                    width={32}
                   />
                 </div>
               ) : (

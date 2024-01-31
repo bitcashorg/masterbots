@@ -14,7 +14,8 @@ import {
   GetThreadParams,
   GetThreadsParams,
   SaveNewMessageParams,
-  UpsertUserParams
+  UpsertUserParams,
+  GetBrowseThreadsParams
 } from './hasura.service.type'
 import { validateMbEnv } from 'mb-env'
 
@@ -92,7 +93,8 @@ export async function getThreads({
 }
 
 export async function getThread({ threadId, jwt }: GetThreadParams) {
-  const client = getHasuraClient({ jwt })
+  let client = getHasuraClient({})
+  if (jwt) client = getHasuraClient({ jwt })
   const { thread } = await client.query({
     thread: {
       chatbot: {
@@ -218,12 +220,10 @@ export async function getChatbot({
 }
 
 export async function getBrowseThreads({
-  jwt,
-  userId,
   categoryId,
   keyword
-}: GetThreadsParams) {
-  const client = getHasuraClient({ jwt })
+}: GetBrowseThreadsParams) {
+  const client = getHasuraClient({})
 
   const { thread } = await client.query({
     thread: {
@@ -261,9 +261,6 @@ export async function getBrowseThreads({
       __args: {
         orderBy: [{ createdAt: 'DESC' }],
         where: {
-          userId: {
-            _eq: userId
-          },
           ...(categoryId
             ? {
                 chatbot: {

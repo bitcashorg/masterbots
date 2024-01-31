@@ -44,3 +44,8 @@ export interface GetChatbotParams extends HasuraServiceParams {
   chatbotName?: string
   threads?: boolean
 }
+
+export interface GetBrowseThreadsParams {
+  categoryId?: number | null
+  keyword?: string
+}

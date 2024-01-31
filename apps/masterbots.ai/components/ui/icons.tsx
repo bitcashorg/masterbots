@@ -596,8 +596,8 @@ function IconChatMessage({ className, ...props }: React.ComponentProps<'svg'>) {
         d="M2.91669 5.41675H4.58335"
         stroke="#71717A"
         stroke-width="0.833333"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   )
