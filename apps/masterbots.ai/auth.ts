@@ -52,6 +52,8 @@ export const {
 
         token.hasuraJwt = hasuraJwt
         token.userId = dbUser.userId
+        token.email = dbUser.email
+        token.name = dbUser.username.replace(/_/g, ' ')
       }
 
       return token
@@ -62,6 +64,8 @@ export const {
       session.user = {
         id: token.userId as string,
         image: token.picture as string,
+        name: token.name as string,
+        email: token.email as string,
         hasuraJwt: token.hasuraJwt as string
       }
 
@@ -81,6 +85,7 @@ declare module 'next-auth' {
     user: {
       id: string
       image: string
+      name: string
       hasuraJwt: string
     } & DefaultSession['user']
   }

@@ -10,6 +10,8 @@ export interface HasuraServiceParams {
 export interface GetThreadsParams extends HasuraServiceParams {
   chatbotName?: string
   userId: string
+  categoryId?: number | null
+  keyword?: string
 }
 
 export interface GetThreadParams extends HasuraServiceParams {
