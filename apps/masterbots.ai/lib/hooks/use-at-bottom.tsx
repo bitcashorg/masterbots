@@ -1,23 +1,39 @@
-import * as React from 'react'
+import { MotionValue } from 'framer-motion'
+import { useEffect, useState } from 'react'
 
-export function useAtBottom(offset = 0) {
-  const [isAtBottom, setIsAtBottom] = React.useState(false)
+interface Props {
+  ref: any
+  scrollY: MotionValue<number>
+}
 
-  React.useEffect(() => {
-    const handleScroll = () => {
-      setIsAtBottom(
-        window.innerHeight + window.scrollY >=
-          document.body.offsetHeight - offset
-      )
+export const useAtBottom = ({ ref, scrollY }: Props) => {
+  const [isAtBottom, setIsAtBottom] = useState(false)
+
+  useEffect(() => {
+    if (scrollY && ref.current) {
+      scrollY.clearListeners()
+      scrollY.on('change', () => {
+        setIsAtBottom(
+          scrollY.get() + 5 >
+            ref.current.scrollHeight - ref.current.offsetHeight &&
+            scrollY.get() > 0
+        )
+      })
     }
-
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    handleScroll()
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll)
+  }, [ref, scrollY])
+  useEffect(() => {
+    if (scrollY && ref.current) {
+      if (
+        scrollY.get() + 5 >
+          ref.current.scrollHeight - ref.current.offsetHeight &&
+        scrollY.get() === 0
+      ) {
+        setIsAtBottom(true)
+      }
     }
-  }, [offset])
+  }, [])
 
-  return isAtBottom
+  return {
+    isAtBottom
+  }
 }
