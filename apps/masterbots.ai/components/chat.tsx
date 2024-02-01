@@ -1,6 +1,7 @@
 'use client'
 
 import { useChat, type Message, CreateMessage } from 'ai/react'
+import { useScroll } from 'framer-motion'
 
 import { cn, extractBetweenMarkers } from '@/lib/utils'
 import { ChatList } from '@/components/chat-list'
@@ -14,6 +15,8 @@ import { Chatbot } from 'mb-genql'
 import { createThread, saveNewMessage } from '@/services/hasura'
 import { useRouter, useParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
+import { useAtBottom } from '@/lib/hooks/use-at-bottom'
+import React from 'react'
 
 export function Chat({
   initialMessages,
@@ -22,6 +25,7 @@ export function Chat({
   threadId
 }: ChatProps) {
   const { data: session } = useSession()
+  const containerRef = React.useRef<HTMLDivElement>()
   const { messages, append, reload, stop, isLoading, input, setInput } =
     useChat({
       // we remove previous assistant responses to get better responses thru
@@ -48,6 +52,51 @@ export function Chat({
   const router = useRouter()
   const params = useParams<{ chatbotName: string; threadId: string }>()
   const isNewChat = Boolean(!params.threadId)
+
+  const { scrollY } = useScroll({
+    container: containerRef as React.RefObject<HTMLElement>
+  })
+
+  const { isAtBottom } = useAtBottom({
+    ref: containerRef,
+    scrollY
+  })
+
+  // const scrollToBottom = () => {
+  //   if (containerRef.current) {
+  //     containerRef.current.scrollTop = containerRef.current.scrollHeight
+  //   }
+  // }
+
+  const scrollToBottom = () => {
+    if (containerRef.current) {
+      const element = containerRef.current
+      const targetScroll = element.scrollHeight - element.clientHeight
+      const duration = 500 // Set the duration of the animation in milliseconds
+
+      const startTime = performance.now()
+
+      const animateScroll = (currentTime: number) => {
+        const elapsed = currentTime - startTime
+
+        element.scrollTop = easeInOutQuad(elapsed, 0, targetScroll, duration)
+
+        if (elapsed < duration) {
+          requestAnimationFrame(animateScroll)
+        }
+      }
+
+      requestAnimationFrame(animateScroll)
+    }
+  }
+
+  // Easing function for smooth animation
+  const easeInOutQuad = (t: number, b: number, c: number, d: number) => {
+    t /= d / 2
+    if (t < 1) return (c / 2) * t * t + b
+    t--
+    return (-c / 2) * (t * (t - 2) - 1) + b
+  }
 
   // we merge past assistant and user messages for ui only
   // we remove system prompts from ui
@@ -99,13 +148,23 @@ export function Chat({
   return (
     <>
       {!isNewChat ? (
-        <div className={cn('pb-[200px] pt-4 md:pt-10', className)}>
+        <div
+          ref={containerRef as React.Ref<HTMLDivElement>}
+          className={cn(
+            'pb-[200px] pt-4 md:pt-10 h-full overflow-auto',
+            className
+          )}
+        >
           <ChatList messages={allMessages} />
-          <ChatScrollAnchor trackVisibility={isLoading} />
+          <ChatScrollAnchor
+            isAtBottom={isAtBottom}
+            trackVisibility={isLoading}
+          />
         </div>
       ) : null}
 
       <ChatPanel
+        scrollToBottom={scrollToBottom}
         id={threadId}
         isLoading={isLoading}
         stop={stop}
@@ -121,6 +180,7 @@ export function Chat({
             : `Send new message to ${chatbot.name}`
         }
         showReload={!isNewChat}
+        isAtBottom={isAtBottom}
       />
     </>
   )
