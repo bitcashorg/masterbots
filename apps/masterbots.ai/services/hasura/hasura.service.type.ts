@@ -12,6 +12,8 @@ export interface GetThreadsParams extends HasuraServiceParams {
   userId: string
   categoryId?: number | null
   keyword?: string
+  limit?: number
+  offset?: number
 }
 
 export interface GetThreadParams extends HasuraServiceParams {
@@ -48,4 +50,10 @@ export interface GetChatbotParams extends HasuraServiceParams {
 export interface GetBrowseThreadsParams {
   categoryId?: number | null
   keyword?: string
+}
+
+export interface GetChatbotsParams {
+  limit?: number
+  offset?: number
+  categoryId?: number
 }
