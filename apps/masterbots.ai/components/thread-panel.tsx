@@ -38,12 +38,6 @@ export default async function ThreadPanel({
       <div className="flex px-10 py-5">
         <ThreadList threads={threads} />
       </div>
-
-      <div className="flex justify-between px-10 py-5">
-        <Button variant="secondary">Previous</Button>
-        <span>pagination goes here</span>
-        <Button variant="secondary">Next</Button>
-      </div>
     </div>
   )
 }

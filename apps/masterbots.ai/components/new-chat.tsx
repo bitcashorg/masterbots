@@ -12,7 +12,8 @@ import { useSession } from 'next-auth/react'
 export default function NewChat({
   id,
   initialMessages,
-  chatbot
+  chatbot,
+  scrollToBottom
 }: NewChatProps) {
   const router = useRouter()
   const { data: session } = useSession()
@@ -62,6 +63,7 @@ export default function NewChat({
 
   return (
     <ChatPanel
+      scrollToBottom={scrollToBottom}
       id={id}
       isLoading={false}
       stop={stop}
@@ -81,4 +83,5 @@ export interface NewChatProps extends React.ComponentProps<'div'> {
   initialMessages?: Message[]
   id: string
   chatbot: Chatbot
+  scrollToBottom: () => void
 }
