@@ -5,16 +5,20 @@ import { ChatMessage } from '@/components/chat-message'
 
 export interface ChatList {
   messages: Message[]
+  sendMessageFromBullet?: (message: string) => void
 }
 
-export function ChatList({ messages }: ChatList) {
+export function ChatList({ messages, sendMessageFromBullet }: ChatList) {
   if (!messages.length) return null
 
   return (
     <div className="relative max-w-2xl px-4 mx-auto">
       {messages.map((message, index) => (
         <div key={index}>
-          <ChatMessage message={message} />
+          <ChatMessage
+            message={message}
+            sendMessageFromBullet={sendMessageFromBullet}
+          />
           {index < messages.length - 1 && (
             <Separator className="my-4 md:my-8" />
           )}
