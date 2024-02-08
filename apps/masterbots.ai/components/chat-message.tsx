@@ -34,22 +34,51 @@ function extractTextFromReactNode(node: React.ReactNode): string {
     return extractTextFromReactNode(node.props.children)
   }
 
-  return '';
+  return ''
 }
 
-export function ChatMessage({ message, sendMessageFromBullet, ...props }: ChatMessageProps) {
+export function ChatMessage({
+  message,
+  sendMessageFromBullet,
+  ...props
+}: ChatMessageProps) {
   const cleanMessage = { ...message, content: cleanPrompt(message.content) }
 
-  function extractTextFromResponse(node: React.ReactNode): string {
-    const fullText = extractTextFromReactNode(node)
-    const textBeforeColon = fullText.split(':')[0].trim()
-    return textBeforeColon
-  }
+  const ClickableText: React.FC<{
+    children: React.ReactNode
+    isListItem: boolean
+    sendMessageFromBullet?: (message: string) => void
+  }> = ({ children, isListItem, sendMessageFromBullet }) => {
+    const fullText: string = extractTextFromReactNode(children)
+    const regexPattern = isListItem ? /.*?[:.,](?:\s|$)/ : /.*?[.](?:\s|$)/
+    const match = fullText.match(regexPattern)
+    const clickableText = match ? match[0] : ''
+    const restText = match ? fullText.slice(match[0].length) : ''
 
-  const handleBulletClick = useCallback((bulletContent: React.ReactNode) => {
-    const contentBeforeColon = extractTextFromResponse(bulletContent)
-    sendMessageFromBullet ? sendMessageFromBullet(contentBeforeColon) : console.log('sendMessageFromBullet function not provided')
-  }, [sendMessageFromBullet])
+    const handleClick = () => {
+      if (sendMessageFromBullet && match) {
+        // Remueve los caracteres de puntuación al final y cualquier espacio adicional.
+        sendMessageFromBullet(clickableText.replace(/[:.,]\s*$/, ''))
+      }
+    }
+
+    // No renderizar el botón si no hay texto clickeable, como en los títulos.
+    if (!clickableText.trim()) {
+      return <>{fullText}</>
+    }
+
+    return (
+      <>
+        <span
+          className="text-blue-600 cursor-pointer hover:text-blue-800 hover:underline"
+          onClick={handleClick}
+        >
+          {clickableText}
+        </span>
+        {restText}
+      </>
+    )
+  }
 
   return (
     <div
@@ -71,15 +100,27 @@ export function ChatMessage({ message, sendMessageFromBullet, ...props }: ChatMe
           className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
           remarkPlugins={[remarkGfm, remarkMath]}
           components={{
-            p({ children }) {
-              return <p className="mb-2 text-left whitespace-pre-line last:mb-0">{children}</p>
-            },
-            li({ children }) {
+            p({ node, children }) {
               return (
-                <li>
-                  <button onClick={() => handleBulletClick(children)}>
+                <p className="mb-2 text-left whitespace-pre-line last:mb-0">
+                  <ClickableText
+                    isListItem={false}
+                    sendMessageFromBullet={sendMessageFromBullet}
+                  >
                     {children}
-                  </button>
+                  </ClickableText>
+                </p>
+              )
+            },
+            li({ node, children }) {
+              return (
+                <li className="list-disc">
+                  <ClickableText
+                    isListItem={true}
+                    sendMessageFromBullet={sendMessageFromBullet}
+                  >
+                    {children}
+                  </ClickableText>
                 </li>
               )
             },
@@ -122,4 +163,3 @@ export function ChatMessage({ message, sendMessageFromBullet, ...props }: ChatMe
     </div>
   )
 }
-
