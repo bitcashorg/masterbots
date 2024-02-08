@@ -10,7 +10,6 @@ import { CodeBlock } from '@/components/ui/codeblock'
 import { MemoizedReactMarkdown } from '@/components/markdown'
 import { IconOpenAI, IconUser } from '@/components/ui/icons'
 import { ChatMessageActions } from '@/components/chat-message-actions'
-import { useCallback } from 'react'
 
 export interface ChatMessageProps {
   message: Message
@@ -57,12 +56,9 @@ export function ChatMessage({
 
     const handleClick = () => {
       if (sendMessageFromBullet && match) {
-        // Remueve los caracteres de puntuación al final y cualquier espacio adicional.
         sendMessageFromBullet(clickableText.replace(/[:.,]\s*$/, ''))
       }
     }
-
-    // No renderizar el botón si no hay texto clickeable, como en los títulos.
     if (!clickableText.trim()) {
       return <>{fullText}</>
     }
