@@ -62,12 +62,6 @@ export function Chat({
     scrollY
   })
 
-  // const scrollToBottom = () => {
-  //   if (containerRef.current) {
-  //     containerRef.current.scrollTop = containerRef.current.scrollHeight
-  //   }
-  // }
-
   const scrollToBottom = () => {
     if (containerRef.current) {
       const element = containerRef.current
@@ -105,9 +99,8 @@ export function Chat({
     'content'
   ).filter(m => m.role !== 'system')
 
-  const sendMessageFromBullet = (bulletContent: string) => {
+  const sendMessageFromResponse = (bulletContent: string) => {
     const fullMessage = `Tell me more about ${bulletContent}`
-    console.log('sendMessageFromBullet', fullMessage)
     append({ content: fullMessage, role: 'user' })
   }
 
@@ -163,7 +156,7 @@ export function Chat({
         >
           <ChatList
             messages={allMessages}
-            sendMessageFromBullet={sendMessageFromBullet}
+            sendMessageFromResponse={sendMessageFromResponse}
           />
           <ChatScrollAnchor
             isAtBottom={isAtBottom}

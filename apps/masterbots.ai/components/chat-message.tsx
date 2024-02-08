@@ -4,7 +4,6 @@
 import { Message } from 'ai'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
-
 import { cleanPrompt, cn } from '@/lib/utils'
 import { CodeBlock } from '@/components/ui/codeblock'
 import { MemoizedReactMarkdown } from '@/components/markdown'
@@ -13,7 +12,7 @@ import { ChatMessageActions } from '@/components/chat-message-actions'
 
 export interface ChatMessageProps {
   message: Message
-  sendMessageFromBullet?: (message: string) => void
+  sendMessageFromResponse?: (message: string) => void
 }
 
 function extractTextFromReactNode(node: React.ReactNode): string {
@@ -38,7 +37,7 @@ function extractTextFromReactNode(node: React.ReactNode): string {
 
 export function ChatMessage({
   message,
-  sendMessageFromBullet,
+  sendMessageFromResponse,
   ...props
 }: ChatMessageProps) {
   const cleanMessage = { ...message, content: cleanPrompt(message.content) }
@@ -46,8 +45,8 @@ export function ChatMessage({
   const ClickableText: React.FC<{
     children: React.ReactNode
     isListItem: boolean
-    sendMessageFromBullet?: (message: string) => void
-  }> = ({ children, isListItem, sendMessageFromBullet }) => {
+    sendMessageFromResponse?: (message: string) => void
+  }> = ({ children, isListItem, sendMessageFromResponse }) => {
     const fullText: string = extractTextFromReactNode(children)
     const regexPattern = isListItem ? /.*?[:.,](?:\s|$)/ : /.*?[.](?:\s|$)/
     const match = fullText.match(regexPattern)
@@ -55,8 +54,8 @@ export function ChatMessage({
     const restText = match ? fullText.slice(match[0].length) : ''
 
     const handleClick = () => {
-      if (sendMessageFromBullet && match) {
-        sendMessageFromBullet(clickableText.replace(/[:.,]\s*$/, ''))
+      if (sendMessageFromResponse && match) {
+        sendMessageFromResponse(clickableText.replace(/[:.,]\s*$/, ''))
       }
     }
     if (!clickableText.trim()) {
@@ -101,7 +100,7 @@ export function ChatMessage({
                 <p className="mb-2 text-left whitespace-pre-line last:mb-0">
                   <ClickableText
                     isListItem={false}
-                    sendMessageFromBullet={sendMessageFromBullet}
+                    sendMessageFromResponse={sendMessageFromResponse}
                   >
                     {children}
                   </ClickableText>
@@ -113,7 +112,7 @@ export function ChatMessage({
                 <li className="list-disc">
                   <ClickableText
                     isListItem={true}
-                    sendMessageFromBullet={sendMessageFromBullet}
+                    sendMessageFromResponse={sendMessageFromResponse}
                   >
                     {children}
                   </ClickableText>
