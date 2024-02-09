@@ -4,7 +4,6 @@
 import { Message } from 'ai'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
-
 import { cleanPrompt, cn } from '@/lib/utils'
 import { CodeBlock } from '@/components/ui/codeblock'
 import { MemoizedReactMarkdown } from '@/components/markdown'
@@ -13,10 +12,68 @@ import { ChatMessageActions } from '@/components/chat-message-actions'
 
 export interface ChatMessageProps {
   message: Message
+  sendMessageFromResponse?: (message: string) => void
 }
 
-export function ChatMessage({ message, ...props }: ChatMessageProps) {
+function extractTextFromReactNode(node: React.ReactNode): string {
+  if (typeof node === 'string') {
+    return node
+  }
+
+  if (typeof node === 'number') {
+    return node.toString()
+  }
+
+  if (Array.isArray(node)) {
+    return node.map(extractTextFromReactNode).join('')
+  }
+
+  if (typeof node === 'object' && node !== null && 'props' in node) {
+    return extractTextFromReactNode(node.props.children)
+  }
+
+  return ''
+}
+
+export function ChatMessage({
+  message,
+  sendMessageFromResponse,
+  ...props
+}: ChatMessageProps) {
   const cleanMessage = { ...message, content: cleanPrompt(message.content) }
+
+  const ClickableText: React.FC<{
+    children: React.ReactNode
+    isListItem: boolean
+    sendMessageFromResponse?: (message: string) => void
+  }> = ({ children, isListItem, sendMessageFromResponse }) => {
+    const fullText: string = extractTextFromReactNode(children)
+    const regexPattern = isListItem ? /.*?[:.,](?:\s|$)/ : /.*?[.](?:\s|$)/
+    const match = fullText.match(regexPattern)
+    const clickableText = match ? match[0] : ''
+    const restText = match ? fullText.slice(match[0].length) : ''
+
+    const handleClick = () => {
+      if (sendMessageFromResponse && match) {
+        sendMessageFromResponse(clickableText.replace(/[:.,]\s*$/, ''))
+      }
+    }
+    if (!clickableText.trim()) {
+      return <>{fullText}</>
+    }
+
+    return (
+      <>
+        <span
+          className="text-blue-600 cursor-pointer hover:text-blue-800 hover:underline"
+          onClick={handleClick}
+        >
+          {clickableText}
+        </span>
+        {restText}
+      </>
+    )
+  }
 
   return (
     <div
@@ -25,7 +82,7 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
     >
       <div
         className={cn(
-          'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-md border shadow',
+          'flex size-8 w-8 shrink-0 select-none items-center justify-center rounded-md border shadow',
           cleanMessage.role === 'user'
             ? 'bg-background'
             : 'bg-primary text-primary-foreground'
@@ -38,8 +95,29 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
           className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
           remarkPlugins={[remarkGfm, remarkMath]}
           components={{
-            p({ children }) {
-              return <p className="mb-2 last:mb-0">{children}</p>
+            p({ node, children }) {
+              return (
+                <p className="mb-2 text-left whitespace-pre-line last:mb-0">
+                  <ClickableText
+                    isListItem={false}
+                    sendMessageFromResponse={sendMessageFromResponse}
+                  >
+                    {children}
+                  </ClickableText>
+                </p>
+              )
+            },
+            li({ node, children }) {
+              return (
+                <li className="list-disc">
+                  <ClickableText
+                    isListItem={true}
+                    sendMessageFromResponse={sendMessageFromResponse}
+                  >
+                    {children}
+                  </ClickableText>
+                </li>
+              )
             },
             code({ node, inline, className, children, ...props }) {
               if (children.length) {
@@ -80,4 +158,3 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
     </div>
   )
 }
-

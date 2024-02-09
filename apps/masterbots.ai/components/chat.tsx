@@ -62,12 +62,6 @@ export function Chat({
     scrollY
   })
 
-  // const scrollToBottom = () => {
-  //   if (containerRef.current) {
-  //     containerRef.current.scrollTop = containerRef.current.scrollHeight
-  //   }
-  // }
-
   const scrollToBottom = () => {
     if (containerRef.current) {
       const element = containerRef.current
@@ -104,6 +98,11 @@ export function Chat({
     initialMessages?.concat(messages),
     'content'
   ).filter(m => m.role !== 'system')
+
+  const sendMessageFromResponse = (bulletContent: string) => {
+    const fullMessage = `Tell me more about ${bulletContent}`
+    append({ content: fullMessage, role: 'user' })
+  }
 
   // we extend append function to add our system prompts
   const appendWithMbContextPrompts = async (
@@ -155,7 +154,10 @@ export function Chat({
             className
           )}
         >
-          <ChatList messages={allMessages} />
+          <ChatList
+            messages={allMessages}
+            sendMessageFromResponse={sendMessageFromResponse}
+          />
           <ChatScrollAnchor
             isAtBottom={isAtBottom}
             trackVisibility={isLoading}
