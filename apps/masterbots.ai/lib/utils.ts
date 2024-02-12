@@ -81,7 +81,7 @@ export function createMessagePairs(messages: Message[] | AIMessage[]) {
       const userMessage = message
       let chatGptMessages = []
       for (let j = i + 1; j < messages.length; j++) {
-        const chatGptMessage = findNextAssistantMessage(messages, i + 1)
+        const chatGptMessage = findNextAssistantMessage(messages, j)
         if (!chatGptMessage) {
           break
         } else {
