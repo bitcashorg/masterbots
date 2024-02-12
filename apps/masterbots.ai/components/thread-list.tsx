@@ -46,14 +46,12 @@ export default function ThreadList({
         limit: PAGE_SIZE,
         categoryId: activeCategory
       })
-      console.log('Threads', threads)
       setThreads(threads)
       setCount(threads.length)
     }
   }
 
   React.useEffect(() => {
-    console.log('activeCategory', activeCategory)
     handleCategoryChange()
   }, [activeCategory])
 

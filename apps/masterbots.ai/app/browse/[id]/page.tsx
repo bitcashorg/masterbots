@@ -3,6 +3,9 @@ import { botNames } from '@/lib/bots-names'
 import BrowseListItem from '@/components/browse-list-item'
 import { Thread } from 'mb-genql'
 import BrowseChatbotDetails from '@/components/browse-chatbot-details'
+import BrowseSpecificThreadList from '@/components/browse-specific-thread-list'
+
+const PAGE_SIZE = 50
 
 export default async function BotThreadsPage({
   params,
@@ -14,7 +17,8 @@ export default async function BotThreadsPage({
   let chatbot, threads
   if (searchParams?.type === 'user') {
     threads = await getBrowseThreads({
-      userName: params.id
+      userName: params.id,
+      limit: PAGE_SIZE
     })
   } else {
     chatbot = await getChatbot({
@@ -27,19 +31,27 @@ export default async function BotThreadsPage({
 
     // session will always be defined
     threads = await getBrowseThreads({
-      chatbotName: botNames.get(params.id)
+      chatbotName: botNames.get(params.id),
+      limit: PAGE_SIZE
     })
   }
 
   return (
     <div className="w-full py-5">
       {chatbot ? <BrowseChatbotDetails chatbot={chatbot} /> : ''}
-      <div className="max-w-2xl px-4 mx-auto mt-8 flex gap-y-4 flex-col">
-        {threads &&
-          threads.map((thread: Thread, key) => (
-            <BrowseListItem thread={thread} key={key} />
-          ))}
-      </div>
+      <BrowseSpecificThreadList
+        initialThreads={threads}
+        PAGE_SIZE={PAGE_SIZE}
+        query={
+          searchParams?.type === 'user'
+            ? {
+                userName: params.id
+              }
+            : {
+                chatbotName: botNames.get(params.id)
+              }
+        }
+      />
     </div>
   )
 }

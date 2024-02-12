@@ -6,10 +6,45 @@ import { Thread } from 'mb-genql'
 import { cn } from '@/lib/utils'
 import { IconCaretRight, IconOpenAI, IconUser } from './ui/icons'
 import { ShortMessage } from './short-message'
+import React from 'react'
 
-export default function BrowseListItem({ thread }: { thread: Thread }) {
+export default function BrowseListItem({
+  thread,
+  loadMore,
+  loading,
+  isLast,
+  hasMore
+}: {
+  thread: Thread
+  loadMore: () => void
+  loading: boolean
+  isLast: boolean
+  hasMore: boolean
+}) {
+  const threadRef = React.useRef<HTMLAnchorElement>(null)
+
+  React.useEffect(() => {
+    if (!threadRef.current) return
+    const observer = new IntersectionObserver(([entry]) => {
+      if (hasMore && isLast && entry.isIntersecting && !loading) {
+        const timeout = setTimeout(() => {
+          loadMore()
+          clearTimeout(timeout)
+        }, 150)
+
+        observer.unobserve(entry.target)
+      }
+    })
+
+    observer.observe(threadRef.current)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [threadRef.current, isLast, hasMore, loading, loadMore])
   return (
     <Link
+      ref={threadRef}
       href={`/browse/${thread.chatbot.name.toLowerCase()}/${thread.threadId}`}
     >
       <div className={cn('hover:bg-[rgb(30,41,59)] rounded-xl p-4 relative ')}>

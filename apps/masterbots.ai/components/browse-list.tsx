@@ -8,19 +8,24 @@ import { debounce } from 'lodash'
 import { Thread } from 'mb-genql'
 import BrowseListItem from './browse-list-item'
 
+const PAGE_SIZE = 50
+
 export default function BrowseList() {
   const { keyword, tab } = useBrowse()
 
   const [threads, setThreads] = React.useState<Thread[]>([])
   const [filteredThreads, setFilteredThreads] = React.useState<Thread[]>([])
+  const [loading, setLoading] = React.useState<boolean>(false)
+  const [count, setCount] = React.useState<number>(0)
 
   const fetchThreads = async (keyword: string, tab: number | null) => {
     const threads = await getBrowseThreads({
       categoryId: tab,
       keyword,
-      limit: 50,
+      limit: PAGE_SIZE
     })
     setThreads(threads)
+    setCount(threads.length)
   }
 
   const verifyKeyword = () => {
@@ -42,6 +47,21 @@ export default function BrowseList() {
     }
   }
 
+  const loadMore = async () => {
+    console.log('🟡 Loading More Content')
+    setLoading(true)
+
+    const moreThreads = await getBrowseThreads({
+      categoryId: tab,
+      offset: threads.length,
+      limit: PAGE_SIZE
+    })
+
+    setThreads(prevState => [...prevState, ...moreThreads])
+    setCount(moreThreads.length)
+    setLoading(false)
+  }
+
   React.useEffect(() => {
     fetchThreads('', tab)
   }, [tab])
@@ -53,7 +73,14 @@ export default function BrowseList() {
   return (
     <div className="w-full py-5">
       {filteredThreads.map((thread: Thread, key) => (
-        <BrowseListItem thread={thread} key={key} />
+        <BrowseListItem
+          thread={thread}
+          key={key}
+          loading={loading}
+          loadMore={loadMore}
+          hasMore={count === PAGE_SIZE}
+          isLast={key === filteredThreads.length - 1}
+        />
       ))}
     </div>
   )
