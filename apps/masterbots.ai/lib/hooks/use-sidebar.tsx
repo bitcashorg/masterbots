@@ -10,6 +10,8 @@ interface SidebarContext {
   isLoading: boolean
   tab: 'general' | 'work'
   changeTab: (cate: 'general' | 'work') => void
+  activeCategory: number | null
+  setActiveCategory: React.Dispatch<React.SetStateAction<number | null>>
 }
 
 const SidebarContext = React.createContext<SidebarContext | undefined>(
@@ -32,6 +34,9 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
   const [isSidebarOpen, setSidebarOpen] = React.useState(false)
   const [isLoading, setLoading] = React.useState(true)
   const [tab, setTab] = React.useState<'general' | 'work'>('general')
+  const [activeCategory, setActiveCategory] = React.useState<number | null>(
+    null
+  )
 
   React.useEffect(() => {
     const value = localStorage.getItem(LOCAL_STORAGE_KEY)
@@ -59,7 +64,15 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 
   return (
     <SidebarContext.Provider
-      value={{ isSidebarOpen, toggleSidebar, isLoading, tab, changeTab }}
+      value={{
+        isSidebarOpen,
+        toggleSidebar,
+        isLoading,
+        tab,
+        changeTab,
+        activeCategory,
+        setActiveCategory
+      }}
     >
       {children}
     </SidebarContext.Provider>
