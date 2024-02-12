@@ -1,14 +1,14 @@
 'use client'
-import React from 'react'
+import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { cn } from '@/lib/utils'
+import { getChatbots } from '@/services/hasura'
+import { motion } from 'framer-motion'
+import { Category, Chatbot, ChatbotCategory } from 'mb-genql'
 import Image from 'next/image'
 import Link from 'next/link'
-import { cn } from '@/lib/utils'
-import { Category, Chatbot, ChatbotCategory } from 'mb-genql'
 import { useParams } from 'next/navigation'
+import React from 'react'
 import { IconCaretRight } from './ui/icons'
-import { motion } from 'framer-motion'
-import { categoryAvatars } from '@/lib/categoris-avatars'
-import { getChatbots } from '@/services/hasura'
 
 const PAGE_SIZE = 20
 
@@ -25,7 +25,8 @@ export default function SidebarLink({ category }: { category: Category }) {
     chatbot: string
     threadId?: string
   }>()
-  const [isCollapsed, setIsCollapsed] = React.useState(false)
+  const { activeCategory, setActiveCategory } = useSidebar()
+
   const [activeChatbot, setActiveChatbot] = React.useState<Chatbot | null>(null)
 
   const [loading, setLoading] = React.useState<boolean>(false)
@@ -35,7 +36,6 @@ export default function SidebarLink({ category }: { category: Category }) {
   const [count, setCount] = React.useState<number>(category.chatbots.length)
 
   React.useEffect(() => {
-    setIsCollapsed(false)
     if (
       category.chatbots.length &&
       category.chatbots.filter(
@@ -54,7 +54,8 @@ export default function SidebarLink({ category }: { category: Category }) {
 
   const handleClickCategory = () => {
     if (!activeChatbot) {
-      setIsCollapsed(!isCollapsed)
+      if (activeCategory === category.categoryId) setActiveCategory(null)
+      else setActiveCategory(category.categoryId)
     }
   }
 
@@ -74,12 +75,14 @@ export default function SidebarLink({ category }: { category: Category }) {
 
   return (
     <div
-      className={`flex flex-col ${isCollapsed ? 'border-b-[1px] border-[#1E293B]' : ''}`}
+      className={cn('flex flex-col', { 'border-b-[1px] border-[#1E293B]': activeCategory === category.categoryId && !activeChatbot })}
     >
       <div
         className={cn(
           'flex',
-          isCollapsed && 'bg-[#1E293B]',
+          activeCategory === category.categoryId &&
+          !activeChatbot &&
+          'bg-[#1E293B]',
           activeChatbot && 'justify-center'
         )}
       >
@@ -91,29 +94,28 @@ export default function SidebarLink({ category }: { category: Category }) {
           )}
           onClick={handleClickCategory}
         >
-          <motion.div
+          {/* <motion.div
             className="overflow-hidden"
             animate={{
               width: activeChatbot ? '0' : 'auto'
             }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={
-                categoryAvatars.get(category.name) ||
-                '/path/to/default/avatar.png'
-              }
-              alt={category.name}
-              width={50} // replace with your desired width
-              height={50} // replace with your desired height
-              className="object-cover rounded-full"
-            />
-          </motion.div>
+          <img
+            src={
+              categoryAvatars.get(category.name) ||
+              '/path/to/default/avatar.png'
+            }
+            alt={category.name}
+            width={50} // replace with your desired width
+            height={50} // replace with your desired height
+            className="object-cover rounded-full"
+          />
+        </motion.div> */}
           <span className="pl-3">{category.name}</span>
           <IconCaretRight
             className={`transition duration-300 ease-in-out
           absolute
-          stroke-[#09090b] dark:stroke-[#FAFAFA] ${isCollapsed ? 'rotate-90 right-5 xl:right-5 lg:right-2' : activeChatbot ? 'rotate-180 right-0 scale-75' : 'right-5 xl:right-5 lg:right-2'}`}
+          stroke-[#09090b] dark:stroke-[#FAFAFA] ${activeCategory === category.categoryId && !activeChatbot ? 'rotate-90 right-5 xl:right-5 lg:right-2' : activeChatbot ? 'rotate-180 right-0 scale-75' : 'right-5 xl:right-5 lg:right-2'}`}
           />
         </Link>
         {activeChatbot ? (
@@ -137,7 +139,12 @@ export default function SidebarLink({ category }: { category: Category }) {
           ml-5 flex-col border-l-[1px] border-[#1E293B]"
           initial={{ height: 0 }}
           animate={{
-            height: isCollapsed && category.chatbots.length ? '' : '0px'
+            height:
+              activeCategory === category.categoryId &&
+                category.chatbots.length &&
+                !activeChatbot
+                ? ''
+                : '0px'
           }}
         >
           {chatbots.map((chatbot, key) => (
@@ -153,7 +160,7 @@ export default function SidebarLink({ category }: { category: Category }) {
           ))}
         </motion.div>
       }
-    </div>
+    </div >
   )
 }
 
@@ -202,7 +209,7 @@ function ChatbotComponent({
       className={cn(
         'flex items-center px-[20px] py-[12px]',
         chatbot.chatbotId === activeChatbot?.chatbotId &&
-          'dark:bg-slate-800 dark-slate-400'
+        'dark:bg-slate-800 dark-slate-400'
       )}
       key={chatbot.chatbotId}
     >

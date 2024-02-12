@@ -155,6 +155,7 @@ export function Chat({
           )}
         >
           <ChatList
+            chatbot={chatbot}
             messages={allMessages}
             sendMessageFromResponse={sendMessageFromResponse}
           />

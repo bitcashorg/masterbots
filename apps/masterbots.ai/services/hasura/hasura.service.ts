@@ -1,7 +1,7 @@
+import { validateMbEnv } from 'mb-env'
 import {
   Category,
   Chatbot,
-  Message,
   Thread,
   User,
   createMbClient,
@@ -9,16 +9,15 @@ import {
 } from 'mb-genql'
 import {
   CreateThreadParams,
+  GetBrowseThreadsParams,
   GetChatbotParams,
+  GetChatbotsParams,
   GetHasuraClientParams,
   GetThreadParams,
   GetThreadsParams,
   SaveNewMessageParams,
-  UpsertUserParams,
-  GetBrowseThreadsParams,
-  GetChatbotsParams
+  UpsertUserParams
 } from './hasura.service.type'
-import { validateMbEnv } from 'mb-env'
 
 function getHasuraClient({ jwt, adminSecret }: GetHasuraClientParams) {
   return createMbClient({
@@ -61,17 +60,17 @@ export async function getChatbots({
       limit: limit ? limit : 20,
       ...(offset
         ? {
-            offset
-          }
+          offset
+        }
         : {}),
       ...(categoryId
         ? {
-            where: {
-              categories: {
-                categoryId
-              }
+          where: {
+            categories: {
+              categoryId
             }
           }
+        }
         : {})
     }
   })
@@ -84,7 +83,8 @@ export async function getThreads({
   jwt,
   userId,
   limit,
-  offset
+  offset,
+  categoryId
 }: GetThreadsParams) {
   const client = getHasuraClient({ jwt })
 
@@ -104,16 +104,25 @@ export async function getThreads({
         limit: limit ? limit : 20,
         ...(offset
           ? {
-              offset
-            }
+            offset
+          }
           : {}),
-        ...(chatbotName
+        ...(chatbotName || categoryId
           ? {
-              where: {
-                chatbot: { name: { _eq: chatbotName } },
-                ...(userId ? { userId: { _eq: userId } } : {})
-              }
+            where: {
+              chatbot: {
+                ...(chatbotName
+                  ? {
+                    name: { _eq: chatbotName }
+                  }
+                  : {}),
+                ...(categoryId
+                  ? { categories: { categoryId: { _eq: categoryId } } }
+                  : {})
+              },
+              ...(userId ? { userId: { _eq: userId } } : {})
             }
+          }
           : userId
             ? { where: { userId: { _eq: userId } } }
             : {})
@@ -222,28 +231,35 @@ export async function getChatbot({
 }: GetChatbotParams) {
   if (!chatbotId && !chatbotName)
     throw new Error('You need to pass chatbotId or chatbotName')
-  const client = getHasuraClient({ jwt })
+  let client = getHasuraClient({})
+  if (jwt) client = getHasuraClient({ jwt })
   const { chatbot } = await client.query({
     chatbot: {
       __args: {
         where: { name: { _eq: chatbotName } }
       },
       ...everything,
+      categories: {
+        category: {
+          ...everything
+        },
+        ...everything
+      },
       prompts: {
         prompt: everything
       },
       ...(threads
         ? {
-            threads: {
+          threads: {
+            ...everything,
+            messages: {
               ...everything,
-              messages: {
-                ...everything,
-                __args: {
-                  orderBy: [{ createdAt: 'ASC' }]
-                }
+              __args: {
+                orderBy: [{ createdAt: 'ASC' }]
               }
             }
           }
+        }
         : {})
     }
   })
@@ -253,7 +269,12 @@ export async function getChatbot({
 
 export async function getBrowseThreads({
   categoryId,
-  keyword
+  keyword,
+  chatbotName,
+  userId,
+  limit,
+  offset,
+  userName
 }: GetBrowseThreadsParams) {
   const client = getHasuraClient({})
 
@@ -264,24 +285,25 @@ export async function getBrowseThreads({
         ...everything,
         __args: {
           orderBy: [{ createdAt: 'ASC' }],
+          // TODO: Test message limit to different values (or remove it) to see the performance and the dynamic search issue
           limit: 2,
           ...(keyword
             ? {
-                where: {
-                  _or: [
-                    {
-                      content: {
-                        _iregex: keyword
-                      }
-                    },
-                    {
-                      content: {
-                        _eq: keyword
-                      }
+              where: {
+                _or: [
+                  {
+                    content: {
+                      _iregex: keyword
                     }
-                  ]
-                }
+                  },
+                  {
+                    content: {
+                      _eq: keyword
+                    }
+                  }
+                ]
               }
+            }
             : '')
         }
       },
@@ -295,15 +317,39 @@ export async function getBrowseThreads({
         where: {
           ...(categoryId
             ? {
-                chatbot: {
-                  categories: {
-                    categoryId: { _eq: categoryId }
-                  }
+              chatbot: {
+                categories: {
+                  categoryId: { _eq: categoryId }
                 }
               }
+            }
+            : {}),
+          ...(chatbotName
+            ? {
+              chatbot: {
+                name: { _eq: chatbotName }
+              }
+            }
+            : {}),
+          ...(userId
+            ? {
+              userId: {
+                _eq: userId
+              }
+            }
+            : {}),
+          ...(userName
+            ? {
+              user: {
+                username: {
+                  _eq: userName
+                }
+              }
+            }
             : {})
         },
-        limit: 30
+        limit: limit || 30,
+        offset: offset || 0,
       }
     }
   })
