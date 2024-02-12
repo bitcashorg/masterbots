@@ -38,8 +38,8 @@ export function ChatList({
   return (
     <div className="relative max-w-2xl px-4 mx-auto">
       {pairs.map((pair: MessagePair, key: number) => (
-        <div>
-          <ChatAccordion defaultState key={key} className="border-none">
+        <div key={key}>
+          <ChatAccordion defaultState className="border-none">
             <ChatMessage
               actionRequired={false}
               chatbot={chatbot}
