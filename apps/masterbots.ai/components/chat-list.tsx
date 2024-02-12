@@ -23,7 +23,6 @@ export function ChatList({
   sendMessageFromResponse,
   chatbot
 }: ChatList) {
-  if (!messages.length) return null
   const [pairs, setPairs] = React.useState<MessagePair[]>([])
 
   React.useEffect(() => {
@@ -35,6 +34,7 @@ export function ChatList({
     } else setPairs([])
   }, [messages])
 
+  if (!messages.length) return null
   return (
     <div className="relative max-w-2xl px-4 mx-auto">
       {pairs.map((pair: MessagePair, key: number) => (
