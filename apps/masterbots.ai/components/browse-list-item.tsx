@@ -102,7 +102,7 @@ export default function BrowseListItem({
                 </Link>
               ) : (
                 <Link
-                  href={`/browse/${thread.user?.userId}`}
+                  href={`/browse/${encodeURIComponent(thread.user?.username ?? 'Default')}?type=user`}
                   title={thread.user?.username}
                   className={cn(
                     'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full border shadow',
