@@ -84,7 +84,8 @@ export async function getThreads({
   jwt,
   userId,
   limit,
-  offset
+  offset,
+  categoryId
 }: GetThreadsParams) {
   const client = getHasuraClient({ jwt })
 
@@ -107,10 +108,19 @@ export async function getThreads({
               offset
             }
           : {}),
-        ...(chatbotName
+        ...(chatbotName || categoryId
           ? {
               where: {
-                chatbot: { name: { _eq: chatbotName } },
+                chatbot: {
+                  ...(chatbotName
+                    ? {
+                        name: { _eq: chatbotName }
+                      }
+                    : {}),
+                  ...(categoryId
+                    ? { categories: { categoryId: { _eq: categoryId } } }
+                    : {})
+                },
                 ...(userId ? { userId: { _eq: userId } } : {})
               }
             }
@@ -229,6 +239,12 @@ export async function getChatbot({
         where: { name: { _eq: chatbotName } }
       },
       ...everything,
+      categories: {
+        category: {
+          ...everything
+        },
+        ...everything
+      },
       prompts: {
         prompt: everything
       },
@@ -253,7 +269,9 @@ export async function getChatbot({
 
 export async function getBrowseThreads({
   categoryId,
-  keyword
+  keyword,
+  chatbotName,
+  userId
 }: GetBrowseThreadsParams) {
   const client = getHasuraClient({})
 
@@ -299,6 +317,20 @@ export async function getBrowseThreads({
                   categories: {
                     categoryId: { _eq: categoryId }
                   }
+                }
+              }
+            : {}),
+          ...(chatbotName
+            ? {
+                chatbot: {
+                  name: { _eq: chatbotName }
+                }
+              }
+            : {}),
+          ...(userId
+            ? {
+                userId: {
+                  _eq: userId
                 }
               }
             : {})
