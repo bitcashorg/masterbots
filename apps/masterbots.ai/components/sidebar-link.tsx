@@ -1,15 +1,14 @@
 'use client'
-import React from 'react'
+import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { cn } from '@/lib/utils'
+import { getChatbots } from '@/services/hasura'
+import { motion } from 'framer-motion'
+import { Category, Chatbot, ChatbotCategory } from 'mb-genql'
 import Image from 'next/image'
 import Link from 'next/link'
-import { cn } from '@/lib/utils'
-import { Category, Chatbot, ChatbotCategory } from 'mb-genql'
 import { useParams } from 'next/navigation'
+import React from 'react'
 import { IconCaretRight } from './ui/icons'
-import { motion } from 'framer-motion'
-import { categoryAvatars } from '@/lib/categoris-avatars'
-import { getChatbots } from '@/services/hasura'
-import { useSidebar } from '@/lib/hooks/use-sidebar'
 
 const PAGE_SIZE = 20
 
@@ -76,14 +75,14 @@ export default function SidebarLink({ category }: { category: Category }) {
 
   return (
     <div
-      className={`flex flex-col ${activeCategory === category.categoryId && !activeChatbot ? 'border-b-[1px] border-[#1E293B]' : ''}`}
+      className={cn('flex flex-col', { 'border-b-[1px] border-[#1E293B]': activeCategory === category.categoryId && !activeChatbot })}
     >
       <div
         className={cn(
           'flex',
           activeCategory === category.categoryId &&
-            !activeChatbot &&
-            'bg-[#1E293B]',
+          !activeChatbot &&
+          'bg-[#1E293B]',
           activeChatbot && 'justify-center'
         )}
       >
@@ -95,24 +94,23 @@ export default function SidebarLink({ category }: { category: Category }) {
           )}
           onClick={handleClickCategory}
         >
-          <motion.div
+          {/* <motion.div
             className="overflow-hidden"
             animate={{
               width: activeChatbot ? '0' : 'auto'
             }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={
-                categoryAvatars.get(category.name) ||
-                '/path/to/default/avatar.png'
-              }
-              alt={category.name}
-              width={50} // replace with your desired width
-              height={50} // replace with your desired height
-              className="object-cover rounded-full"
-            />
-          </motion.div>
+          <img
+            src={
+              categoryAvatars.get(category.name) ||
+              '/path/to/default/avatar.png'
+            }
+            alt={category.name}
+            width={50} // replace with your desired width
+            height={50} // replace with your desired height
+            className="object-cover rounded-full"
+          />
+        </motion.div> */}
           <span className="pl-3">{category.name}</span>
           <IconCaretRight
             className={`transition duration-300 ease-in-out
@@ -143,8 +141,8 @@ export default function SidebarLink({ category }: { category: Category }) {
           animate={{
             height:
               activeCategory === category.categoryId &&
-              category.chatbots.length &&
-              !activeChatbot
+                category.chatbots.length &&
+                !activeChatbot
                 ? ''
                 : '0px'
           }}
@@ -162,7 +160,7 @@ export default function SidebarLink({ category }: { category: Category }) {
           ))}
         </motion.div>
       }
-    </div>
+    </div >
   )
 }
 
@@ -211,7 +209,7 @@ function ChatbotComponent({
       className={cn(
         'flex items-center px-[20px] py-[12px]',
         chatbot.chatbotId === activeChatbot?.chatbotId &&
-          'dark:bg-slate-800 dark-slate-400'
+        'dark:bg-slate-800 dark-slate-400'
       )}
       key={chatbot.chatbotId}
     >
