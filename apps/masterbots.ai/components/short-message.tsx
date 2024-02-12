@@ -1,8 +1,7 @@
-import { MemoizedReactMarkdown } from './markdown'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
+import { MemoizedReactMarkdown } from './markdown'
 import { CodeBlock } from './ui/codeblock'
-import { Thread } from 'mb-genql'
 
 export function ShortMessage({ content }: { content: string }) {
   return (
@@ -45,7 +44,7 @@ export function ShortMessage({ content }: { content: string }) {
         }
       }}
     >
-      {`${content.slice(0, 300)}${content.length >= 400 ? '...' : ''}`}
+      {`${content.slice(0, 240)}${content.length >= 240 ? '...' : ''}`}
     </MemoizedReactMarkdown>
   )
 }

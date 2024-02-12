@@ -1,43 +1,24 @@
 // Inspired by Chatbot-UI and modified to fit the needs of this project
 // @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Chat/ChatcleanMessage.tsx
 
+import { ClickableText } from '@/components/chat-clickable-text'
+import { ChatMessageActions } from '@/components/chat-message-actions'
+import { MemoizedReactMarkdown } from '@/components/markdown'
+import { CodeBlock } from '@/components/ui/codeblock'
+import { IconOpenAI, IconUser } from '@/components/ui/icons'
+import { cleanPrompt, cn } from '@/lib/utils'
 import { Message } from 'ai'
+import { Chatbot } from 'mb-genql'
+import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
-import { cleanPrompt, cn } from '@/lib/utils'
-import { CodeBlock } from '@/components/ui/codeblock'
-import { MemoizedReactMarkdown } from '@/components/markdown'
-import { IconOpenAI, IconUser } from '@/components/ui/icons'
-import { ChatMessageActions } from '@/components/chat-message-actions'
-import { Chatbot } from 'mb-genql'
-import { useSession } from 'next-auth/react'
 
 export interface ChatMessageProps {
   message: Message
   sendMessageFromResponse?: (message: string) => void
   chatbot?: Chatbot
   actionRequired?: boolean
-}
-
-function extractTextFromReactNode(node: React.ReactNode): string {
-  if (typeof node === 'string') {
-    return node
-  }
-
-  if (typeof node === 'number') {
-    return node.toString()
-  }
-
-  if (Array.isArray(node)) {
-    return node.map(extractTextFromReactNode).join('')
-  }
-
-  if (typeof node === 'object' && node !== null && 'props' in node) {
-    return extractTextFromReactNode(node.props.children)
-  }
-
-  return ''
 }
 
 export function ChatMessage({
@@ -50,47 +31,14 @@ export function ChatMessage({
   const cleanMessage = { ...message, content: cleanPrompt(message.content) }
   const { data: session } = useSession()
 
-  const ClickableText: React.FC<{
-    children: React.ReactNode
-    isListItem: boolean
-    sendMessageFromResponse?: (message: string) => void
-  }> = ({ children, isListItem, sendMessageFromResponse }) => {
-    const fullText: string = extractTextFromReactNode(children)
-    const regexPattern = isListItem ? /.*?[:.,](?:\s|$)/ : /.*?[.](?:\s|$)/
-    const match = fullText.match(regexPattern)
-    const clickableText = match ? match[0] : ''
-    const restText = match ? fullText.slice(match[0].length) : ''
-
-    const handleClick = () => {
-      if (sendMessageFromResponse && match) {
-        sendMessageFromResponse(clickableText.replace(/[:.,]\s*$/, ''))
-      }
-    }
-    if (!clickableText.trim()) {
-      return <>{fullText}</>
-    }
-
-    return (
-      <>
-        <span
-          className="text-blue-600 cursor-pointer hover:text-blue-800 hover:underline"
-          onClick={handleClick}
-        >
-          {clickableText}
-        </span>
-        {restText}
-      </>
-    )
-  }
-
   return (
     <div className={cn('group relative mb-4 flex items-start p-1')} {...props}>
       <div
         className={cn(
-          'flex size-8 w-8 shrink-0 select-none items-center justify-center rounded-md border shadow',
+          'flex size-8 w-8 shrink-0 select-none items-center justify-center border shadow rounded-full',
           cleanMessage.role === 'user'
-            ? 'bg-background'
-            : 'bg-primary text-primary-foreground'
+            ? 'bg-background dark:bg-primary-foreground'
+            : 'bg-primary text-primary-foreground dark:bg-background dark:text-primary-foreground'
         )}
       >
         {cleanMessage.role === 'user' ? (

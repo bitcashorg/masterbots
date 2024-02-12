@@ -42,6 +42,7 @@
     --scrollbar-thumb-hover: #0f121f;
     --scrollbar-thumb-border: rgba(0, 0, 0, 0);
 
+    --link: 208, 100%, 60%;
   }
 
   .dark {
@@ -80,7 +81,8 @@
     --scrollbar-thumb: #c4cfff4f;
     --scrollbar-thumb-hover: #2f46aa;
     --scrollbar-thumb-border: rgba(107, 107, 107, 0);
-  
+
+    --link: 208, 100%, 60%;
   }
 }
 
@@ -92,7 +94,6 @@
     @apply bg-background text-foreground;
   }
 }
-
 
 .scrollbar {
   overflow-x: hidden;
@@ -115,7 +116,6 @@
 .scrollbar::-webkit-scrollbar-thumb:hover {
   background: var(--scrollbar-thumb-hover);
 }
-
 
 @media screen and (min-width: 1024px) {
   .scrollbar::-webkit-scrollbar {
