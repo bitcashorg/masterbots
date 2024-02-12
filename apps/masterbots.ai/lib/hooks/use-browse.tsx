@@ -4,9 +4,10 @@ import * as React from 'react'
 
 
 interface BrowseContextProps {
+  privateSearch: boolean
   keyword: string
-  changeKeyword: (keyword: string) => void
   tab: null | number
+  changeKeyword: (keyword: string) => void
   changeTab: (tab: null | number) => void
 }
 
@@ -24,9 +25,10 @@ export function useBrowse() {
 
 interface BrowseProviderProps {
   children: React.ReactNode
+  privateSearch?: boolean
 }
 
-export function BrowseProvider({ children }: BrowseProviderProps) {
+export function BrowseProvider({ children, privateSearch = false }: BrowseProviderProps) {
   const [keyword, setKeyword] = React.useState('')
   const [tab, setTab] = React.useState<null | number>(null)
 
@@ -40,7 +42,7 @@ export function BrowseProvider({ children }: BrowseProviderProps) {
 
   return (
     <BrowseContext.Provider
-      value={{ changeKeyword, keyword, tab, changeTab }}
+      value={{ changeKeyword, keyword, tab, changeTab, privateSearch }}
     >
       {children}
     </BrowseContext.Provider>
