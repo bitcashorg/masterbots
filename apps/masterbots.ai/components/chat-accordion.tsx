@@ -5,7 +5,7 @@ import { ChevronDown } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
-export const BrowseAccordion = ({
+export const ChatAccordion = ({
   className,
   children,
   defaultState = false,
@@ -25,7 +25,7 @@ export const BrowseAccordion = ({
     <div className={cn('border-b', className)} {...props}>
       <button
         onClick={toggle}
-        className={`flex flex-1 items-center justify-between pb-4
+        className={`flex flex-1 justify-start flex-col pb-4 relative pr-4
         border-[rgb(30,41,59)]
         font-medium w-full ${
           open
@@ -34,11 +34,10 @@ export const BrowseAccordion = ({
         }`}
       >
         {children[0]}
-        {!open ? (
-          <ChevronDown className="-rotate-90 h-4 w-4 shrink-0 mr-4 transition-transform duration-200" />
-        ) : (
-          ''
-        )}
+        {!open && children[1]}
+        <ChevronDown
+          className={`${open ? '' : '-rotate-90'} absolute -right-2 h-4 w-4 shrink-0 mr-4 transition-transform duration-200 mt-2`}
+        />
       </button>
       <div
         className={`text-sm transition-all
@@ -48,7 +47,7 @@ export const BrowseAccordion = ({
           : 'overflow-hidden animate-accordion-up h-0'
       }`}
       >
-        {children[1]}
+        {children[2]}
       </div>
     </div>
   )

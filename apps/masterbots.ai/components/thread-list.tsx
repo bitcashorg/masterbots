@@ -6,6 +6,7 @@ import { Thread } from 'mb-genql'
 import Link from 'next/link'
 import { getThreads } from '@/services/hasura'
 import { useSession } from 'next-auth/react'
+import { useSidebar } from '@/lib/hooks/use-sidebar'
 
 const PAGE_SIZE = 20
 
@@ -15,7 +16,7 @@ export default function ThreadList({
   threads: Thread[]
 }) {
   const { data: session } = useSession()
-
+  const { activeCategory } = useSidebar()
   const [loading, setLoading] = React.useState<boolean>(false)
   const [threads, setThreads] = React.useState<Thread[]>(initialThreads)
   const [count, setCount] = React.useState<number>(initialThreads.length)
@@ -28,13 +29,31 @@ export default function ThreadList({
       jwt: session!.user.hasuraJwt,
       userId: session!.user.id,
       offset: threads.length,
-      limit: PAGE_SIZE
+      limit: PAGE_SIZE,
+      categoryId: activeCategory
     })
 
     setThreads(prevState => [...prevState, ...moreThreads])
     setCount(moreThreads.length)
     setLoading(false)
   }
+
+  const handleCategoryChange = async () => {
+    if (session?.user) {
+      const threads = await getThreads({
+        jwt: session!.user.hasuraJwt,
+        userId: session!.user.id,
+        limit: PAGE_SIZE,
+        categoryId: activeCategory
+      })
+      setThreads(threads)
+      setCount(threads.length)
+    }
+  }
+
+  React.useEffect(() => {
+    handleCategoryChange()
+  }, [activeCategory])
 
   return (
     <ul className="w-full">

@@ -4,19 +4,24 @@
 import { Message } from 'ai'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
-
+import Image from 'next/image'
 import { cleanPrompt, cn } from '@/lib/utils'
 import { CodeBlock } from '@/components/ui/codeblock'
 import { MemoizedReactMarkdown } from '@/components/markdown'
 import { IconOpenAI, IconUser } from '@/components/ui/icons'
-import { convertMessage } from './browse-chat-messages'
 import { ChatMessageActions } from './chat-message-actions'
+import { Chatbot } from 'mb-genql'
 
 export interface ChatMessageProps {
   message: Message
+  chatbot?: Chatbot
 }
 
-export function BrowseChatMessage({ message, ...props }: ChatMessageProps) {
+export function BrowseChatMessage({
+  message,
+  chatbot,
+  ...props
+}: ChatMessageProps) {
   const cleanMessage = { ...message, content: cleanPrompt(message.content) }
 
   return (
@@ -29,7 +34,25 @@ export function BrowseChatMessage({ message, ...props }: ChatMessageProps) {
             : 'bg-primary text-primary-foreground'
         )}
       >
-        {cleanMessage.role === 'user' ? <IconUser /> : <IconOpenAI />}
+        {cleanMessage.role === 'user' ? (
+          <IconUser />
+        ) : chatbot?.avatar ? (
+          <div
+            className={cn(
+              'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full border shadow'
+            )}
+          >
+            <Image
+              className="transition-opacity duration-300 rounded-full select-none hover:opacity-80"
+              src={chatbot?.avatar}
+              alt={chatbot?.name ?? 'BotAvatar'}
+              height={32}
+              width={32}
+            />
+          </div>
+        ) : (
+          <IconOpenAI />
+        )}
       </div>
       <div className="flex-1 px-1 ml-4 space-y-2 overflow-hidden">
         <MemoizedReactMarkdown
@@ -73,7 +96,7 @@ export function BrowseChatMessage({ message, ...props }: ChatMessageProps) {
         >
           {cleanMessage.content}
         </MemoizedReactMarkdown>
-        <ChatMessageActions message={cleanMessage} />
+        <ChatMessageActions className="md:!right-0" message={cleanMessage} />
       </div>
     </div>
   )

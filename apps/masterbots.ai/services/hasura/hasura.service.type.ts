@@ -50,6 +50,11 @@ export interface GetChatbotParams extends HasuraServiceParams {
 export interface GetBrowseThreadsParams {
   categoryId?: number | null
   keyword?: string
+  userId?: string
+  chatbotName?: string
+  userName?: string
+  limit?: number
+  offset?: number
 }
 
 export interface GetChatbotsParams {

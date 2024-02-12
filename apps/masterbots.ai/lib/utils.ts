@@ -1,3 +1,4 @@
+import { type Message as AIMessage } from 'ai/react'
 import { Message } from 'mb-genql'
 import { clsx, type ClassValue } from 'clsx'
 import { customAlphabet } from 'nanoid'
@@ -70,7 +71,7 @@ export function extractBetweenMarkers(
 }
 
 // From browse-list.tsx
-export function createMessagePairs(messages: Message[]) {
+export function createMessagePairs(messages: Message[] | AIMessage[]) {
   const messagePairs = []
 
   for (let i = 0; i < messages.length; i++) {
@@ -78,11 +79,19 @@ export function createMessagePairs(messages: Message[]) {
 
     if (message.role === 'user') {
       const userMessage = message
-
-      const chatGptMessage = findNextAssistantMessage(messages, i + 1)
+      let chatGptMessages = []
+      for (let j = i + 1; j < messages.length; j++) {
+        const chatGptMessage = findNextAssistantMessage(messages, i + 1)
+        if (!chatGptMessage) {
+          break
+        } else {
+          chatGptMessages.push(chatGptMessage)
+          continue
+        }
+      }
       messagePairs.push({
         userMessage,
-        chatGptMessage: chatGptMessage
+        chatGptMessage: chatGptMessages
       })
     }
   }
@@ -90,7 +99,10 @@ export function createMessagePairs(messages: Message[]) {
   return messagePairs
 }
 
-const findNextAssistantMessage = (messages: Message[], startIndex: number) => {
+const findNextAssistantMessage = (
+  messages: Message[] | AIMessage[],
+  startIndex: number
+) => {
   if (messages[startIndex]?.role === 'assistant') {
     return {
       ...messages[startIndex],
