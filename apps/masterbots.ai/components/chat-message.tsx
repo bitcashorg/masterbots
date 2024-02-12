@@ -2,6 +2,7 @@
 // @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Chat/ChatcleanMessage.tsx
 
 import { Message } from 'ai'
+import Image from 'next/image'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 import { cleanPrompt, cn } from '@/lib/utils'
@@ -9,10 +10,14 @@ import { CodeBlock } from '@/components/ui/codeblock'
 import { MemoizedReactMarkdown } from '@/components/markdown'
 import { IconOpenAI, IconUser } from '@/components/ui/icons'
 import { ChatMessageActions } from '@/components/chat-message-actions'
+import { Chatbot } from 'mb-genql'
+import { useSession } from 'next-auth/react'
 
 export interface ChatMessageProps {
   message: Message
   sendMessageFromResponse?: (message: string) => void
+  chatbot?: Chatbot
+  actionRequired?: boolean
 }
 
 function extractTextFromReactNode(node: React.ReactNode): string {
@@ -38,9 +43,12 @@ function extractTextFromReactNode(node: React.ReactNode): string {
 export function ChatMessage({
   message,
   sendMessageFromResponse,
+  chatbot,
+  actionRequired = true,
   ...props
 }: ChatMessageProps) {
   const cleanMessage = { ...message, content: cleanPrompt(message.content) }
+  const { data: session } = useSession()
 
   const ClickableText: React.FC<{
     children: React.ReactNode
@@ -88,7 +96,29 @@ export function ChatMessage({
             : 'bg-primary text-primary-foreground'
         )}
       >
-        {cleanMessage.role === 'user' ? <IconUser /> : <IconOpenAI />}
+        {cleanMessage.role === 'user' ? (
+          session?.user.image ? (
+            <Image
+              className="transition-opacity duration-300 rounded-full select-none hover:opacity-80"
+              src={session?.user.image}
+              alt={session?.user.name ?? 'UserName'}
+              height={32}
+              width={32}
+            />
+          ) : (
+            <IconUser />
+          )
+        ) : chatbot?.avatar ? (
+          <Image
+            className="transition-opacity duration-300 rounded-full select-none hover:opacity-80"
+            src={chatbot?.avatar}
+            alt={chatbot?.name ?? 'BotAvatar'}
+            height={32}
+            width={32}
+          />
+        ) : (
+          <IconOpenAI />
+        )}
       </div>
       <div className="flex-1 px-1 ml-4 space-y-2 overflow-hidden">
         <MemoizedReactMarkdown
@@ -153,7 +183,7 @@ export function ChatMessage({
         >
           {cleanMessage.content}
         </MemoizedReactMarkdown>
-        <ChatMessageActions message={message} />
+        {actionRequired ? <ChatMessageActions message={message} /> : ''}
       </div>
     </div>
   )
