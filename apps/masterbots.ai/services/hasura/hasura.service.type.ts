@@ -52,6 +52,7 @@ export interface GetBrowseThreadsParams {
   keyword?: string
   userId?: string
   chatbotName?: string
+  userName?: string
   limit?: number
   offset?: number
 }

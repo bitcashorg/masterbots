@@ -231,7 +231,8 @@ export async function getChatbot({
 }: GetChatbotParams) {
   if (!chatbotId && !chatbotName)
     throw new Error('You need to pass chatbotId or chatbotName')
-  const client = getHasuraClient({ jwt })
+  let client = getHasuraClient({})
+  if (jwt) client = getHasuraClient({ jwt })
   const { chatbot } = await client.query({
     chatbot: {
       __args: {
@@ -273,6 +274,7 @@ export async function getBrowseThreads({
   userId,
   limit,
   offset,
+  userName
 }: GetBrowseThreadsParams) {
   const client = getHasuraClient({})
 
@@ -333,6 +335,15 @@ export async function getBrowseThreads({
             ? {
               userId: {
                 _eq: userId
+              }
+            }
+            : {}),
+          ...(userName
+            ? {
+              user: {
+                username: {
+                  _eq: userName
+                }
               }
             }
             : {})
