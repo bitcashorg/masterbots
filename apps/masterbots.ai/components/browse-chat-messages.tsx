@@ -8,14 +8,13 @@ import * as AI from 'ai'
 import { Chatbot, Message, User } from 'mb-genql'
 import Image from 'next/image'
 import { BrowseChatMessage } from './browse-chat-message'
-import { Separator } from './ui/separator'
-import Link from 'next/link'
-import { BrowseAccordion } from './browse-accordion'
 import BrowseChatbotDetails from './browse-chatbot-details'
+import { ShortMessage } from './short-message'
+import { ChatAccordion } from './chat-accordion'
 
 export type MessagePair = {
   userMessage: Message
-  chatGptMessage: Message | null
+  chatGptMessage: Message[]
 }
 
 export function convertMessage(message: Message) {
@@ -52,8 +51,8 @@ export function BrowseChatMessages({
       <BrowseChatbotDetails chatbot={chatbot} />
       <div className="max-w-2xl px-4 mx-auto mt-8 flex gap-y-4 flex-col">
         {pairs.map((pair: MessagePair, key: number) => (
-          <BrowseAccordion defaultState key={key} className="border-none">
-            <div className="mx-4 flex relative w-full">
+          <ChatAccordion defaultState key={key} className="border-none">
+            <div className="mx-4 mb-2 flex relative w-full">
               {user?.profilePicture ? (
                 <div
                   className={cn(
@@ -85,17 +84,27 @@ export function BrowseChatMessages({
                 </span> */}
               </div>
             </div>
-            <div className="mr-4 ml-[calc(1rem+2px)]">
-              {pair.chatGptMessage ? (
-                <BrowseChatMessage
-                  chatbot={chatbot}
-                  message={convertMessage(pair.chatGptMessage)}
-                />
+            <div className="opacity-50 overflow-hidden text-sm">
+              {pair.chatGptMessage[0]?.content ? (
+                <div className="flex-1 px-1 ml-4 space-y-2 overflow-hidden text-left">
+                  <ShortMessage content={pair.chatGptMessage[0]?.content} />
+                </div>
               ) : (
                 ''
               )}
             </div>
-          </BrowseAccordion>
+            <div className="mr-4 ml-[calc(1rem+2px)] max-h-[75vh] scrollbar">
+              {pair.chatGptMessage.length > 0
+                ? pair.chatGptMessage.map((message, index) => (
+                    <BrowseChatMessage
+                      chatbot={chatbot}
+                      key={index}
+                      message={convertMessage(message)}
+                    />
+                  ))
+                : ''}
+            </div>
+          </ChatAccordion>
         ))}
       </div>
     </div>

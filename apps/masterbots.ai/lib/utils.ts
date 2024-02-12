@@ -79,11 +79,19 @@ export function createMessagePairs(messages: Message[] | AIMessage[]) {
 
     if (message.role === 'user') {
       const userMessage = message
-
-      const chatGptMessage = findNextAssistantMessage(messages, i + 1)
+      let chatGptMessages = []
+      for (let j = i + 1; j < messages.length; j++) {
+        const chatGptMessage = findNextAssistantMessage(messages, i + 1)
+        if (!chatGptMessage) {
+          break
+        } else {
+          chatGptMessages.push(chatGptMessage)
+          continue
+        }
+      }
       messagePairs.push({
         userMessage,
-        chatGptMessage: chatGptMessage
+        chatGptMessage: chatGptMessages
       })
     }
   }

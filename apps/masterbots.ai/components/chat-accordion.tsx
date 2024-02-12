@@ -25,24 +25,29 @@ export const ChatAccordion = ({
     <div className={cn('border-b', className)} {...props}>
       <button
         onClick={toggle}
-        className={`flex flex-1 items-center justify-between pb-4
+        className={`flex flex-1 justify-start flex-col pb-4 relative pr-4
         border-[rgb(30,41,59)]
-        font-medium w-full ${open ? '' : '[&>div>div>button]:!hidden'}`}
+        font-medium w-full ${
+          open
+            ? 'border-b-[1px]'
+            : 'hover:border-b-[1px] [&>div>div>button]:!hidden'
+        }`}
       >
         {children[0]}
+        {!open && children[1]}
         <ChevronDown
-          className={`${open ? '' : '-rotate-90'}  h-4 w-4 shrink-0 mr-4 transition-transform duration-200`}
+          className={`${open ? '' : '-rotate-90'} absolute -right-2 h-4 w-4 shrink-0 mr-4 transition-transform duration-200 mt-2`}
         />
       </button>
       <div
         className={`text-sm transition-all
       ${
         open
-          ? 'animate-accordion-down py-4'
+          ? 'animate-accordion-down py-4 border-[1px] border-t-0 border-r-0 border-[rgb(30,41,59)]'
           : 'overflow-hidden animate-accordion-up h-0'
       }`}
       >
-        {children[1]}
+        {children[2]}
       </div>
     </div>
   )

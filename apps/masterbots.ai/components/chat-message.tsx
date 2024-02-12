@@ -84,10 +84,7 @@ export function ChatMessage({
   }
 
   return (
-    <div
-      className={cn('group relative mb-4 flex items-start md:-ml-12')}
-      {...props}
-    >
+    <div className={cn('group relative mb-4 flex items-start p-1')} {...props}>
       <div
         className={cn(
           'flex size-8 w-8 shrink-0 select-none items-center justify-center rounded-md border shadow',
@@ -122,7 +119,7 @@ export function ChatMessage({
       </div>
       <div className="flex-1 px-1 ml-4 space-y-2 overflow-hidden">
         <MemoizedReactMarkdown
-          className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 max-h-[75vh] scrollbar"
+          className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
           remarkPlugins={[remarkGfm, remarkMath]}
           components={{
             p({ node, children }) {
@@ -183,7 +180,11 @@ export function ChatMessage({
         >
           {cleanMessage.content}
         </MemoizedReactMarkdown>
-        {actionRequired ? <ChatMessageActions message={message} /> : ''}
+        {actionRequired ? (
+          <ChatMessageActions className="md:!right-0" message={message} />
+        ) : (
+          ''
+        )}
       </div>
     </div>
   )

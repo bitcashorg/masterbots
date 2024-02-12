@@ -56,7 +56,7 @@ export function BrowseChatMessage({
       </div>
       <div className="flex-1 px-1 ml-4 space-y-2 overflow-hidden">
         <MemoizedReactMarkdown
-          className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 max-h-[75vh] scrollbar "
+          className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
           remarkPlugins={[remarkGfm, remarkMath]}
           components={{
             p({ children }) {
@@ -96,7 +96,7 @@ export function BrowseChatMessage({
         >
           {cleanMessage.content}
         </MemoizedReactMarkdown>
-        <ChatMessageActions message={cleanMessage} />
+        <ChatMessageActions className="md:!right-0" message={cleanMessage} />
       </div>
     </div>
   )
