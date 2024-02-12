@@ -51,7 +51,7 @@ export default function BrowseListItem({ thread }: { thread: Thread }) {
               by&nbsp;
               {thread.user?.profilePicture ? (
                 <Link
-                  href={`/browse/${thread?.userId}?type=user`}
+                  href={`/browse/${encodeURIComponent(thread?.user.username)}?type=user`}
                   title={thread.user?.username.replace('_', ' ')}
                   className={cn(
                     'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full border shadow'
