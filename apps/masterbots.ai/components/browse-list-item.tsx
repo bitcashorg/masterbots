@@ -47,7 +47,7 @@ export default function BrowseListItem({
       ref={threadRef}
       href={`/browse/${thread.chatbot.name.toLowerCase()}/${thread.threadId}`}
     >
-      <div className={cn('dark:hover:bg-[#1E293B] hover:bg-gray-300 rounded-xl p-4 relative ')}>
+      <div className={cn('dark:hover:bg-mirage hover:bg-gray-300 rounded-xl p-4 relative ')}>
         <div
           className="relative flex flex-1 items-center
   justify-between py-4 font-medium transition-all "
@@ -130,7 +130,7 @@ export default function BrowseListItem({
             ''
           )}
         </div>
-        <Separator className="dark:bg-[#1E293B] bg-gray-300 absolute bottom-0 w-[calc(100%-1.25rem)]" />
+        <Separator className="dark:bg-mirage bg-gray-300 absolute bottom-0 w-[calc(100%-1.25rem)]" />
       </div>
     </Link>
   )

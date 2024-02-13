@@ -26,7 +26,7 @@ export const ChatAccordion = ({
       <button
         onClick={toggle}
         className={`flex flex-1 justify-start flex-col pb-4 relative pr-4
-        dark:border-[#1E293B] border-gray-300
+        dark:border-mirage border-gray-300
         font-medium w-full ${open
             ? 'border-b-[1px]'
             : 'hover:border-b-[1px] [&>div>div>button]:!hidden'
@@ -41,7 +41,7 @@ export const ChatAccordion = ({
       <div
         className={`text-sm transition-all
       ${open
-            ? 'animate-accordion-down py-4 border-[1px] border-t-0 border-r-0 dark:border-[#1E293B] border-gray-300'
+            ? 'animate-accordion-down py-4 border-[1px] border-t-0 border-r-0 dark:border-mirage border-gray-300'
             : 'overflow-hidden animate-accordion-up h-0'
           }`}
       >

@@ -75,14 +75,14 @@ export default function SidebarLink({ category }: { category: Category }) {
 
   return (
     <div
-      className={cn('flex flex-col', { 'border-b-[1px] dark:border-[#1E293B] border-gray-300': activeCategory === category.categoryId && !activeChatbot })}
+      className={cn('flex flex-col', { 'border-b-[1px] dark:border-mirage border-gray-300': activeCategory === category.categoryId && !activeChatbot })}
     >
       <div
         className={cn(
           'transition-all flex',
           activeCategory === category.categoryId &&
           !activeChatbot &&
-          'dark:bg-[#1E293B] bg-gray-300',
+          'dark:bg-mirage bg-gray-300',
           activeChatbot && 'justify-center'
         )}
       >
@@ -139,7 +139,7 @@ export default function SidebarLink({ category }: { category: Category }) {
       {
         <motion.div
           className="overflow-hidden
-          ml-5 flex-col border-l-[1px] dark:border-[#1E293B] border-gray-300"
+          ml-5 flex-col border-l-[1px] dark:border-mirage border-gray-300"
           initial={{ height: 0 }}
           animate={{
             height:
