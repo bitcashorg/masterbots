@@ -4,14 +4,16 @@ export function ClickableText({ children, isListItem, sendMessageFromResponse }:
   sendMessageFromResponse?: (message: string) => void
 }) {
   const fullText: string = extractTextFromReactNode(children)
-  const regexPattern = isListItem ? /.*?[:.,](?:\s|$)/ : /.*?[.](?:\s|$)/
+  // * previous regexPattern = isListItem ? /.*?[:.,](?:\s|$)/ : /.*?[.](?:\s|$)/
+  // ? regExp breaks on the first : or . or , and return the first part of the matching string.
+  const regexPattern = /(.*?)([:.,])(?:\s|$)/g
   const match = fullText.match(regexPattern)
   const clickableText = match ? match[0] : ''
   const restText = match ? fullText.slice(match[0].length) : ''
 
   const handleClick = () => {
     if (sendMessageFromResponse && match) {
-      sendMessageFromResponse(clickableText.replace(/[:.,]\s*$/, ''))
+      sendMessageFromResponse(clickableText.replace(/(:|\.|\,)\s*$/, '').replace(/•\s/g, ''))
     }
   }
 

@@ -17,7 +17,7 @@ export function BrowseSearchInput() {
           }}
           placeholder="Search any chat with any Bot"
           className="max-w-[600px]"
-          aria-label="Search for a chatbot by thread content or title"
+
         />
         {keyword && (
           <Button

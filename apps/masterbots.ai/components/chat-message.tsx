@@ -73,12 +73,16 @@ export function ChatMessage({
             p({ node, children }) {
               return (
                 <p className="mb-2 text-left whitespace-pre-line last:mb-0">
-                  <ClickableText
-                    isListItem={false}
-                    sendMessageFromResponse={sendMessageFromResponse}
-                  >
-                    {children}
-                  </ClickableText>
+                  {cleanMessage.role === 'user'
+                    ? children
+                    : (
+                      <ClickableText
+                        isListItem={false}
+                        sendMessageFromResponse={sendMessageFromResponse}
+                      >
+                        {children}
+                      </ClickableText>
+                    )}
                 </p>
               )
             },
@@ -86,7 +90,7 @@ export function ChatMessage({
               return (
                 <li className="list-disc">
                   <ClickableText
-                    isListItem={true}
+                    isListItem
                     sendMessageFromResponse={sendMessageFromResponse}
                   >
                     {children}
