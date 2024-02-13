@@ -41,7 +41,7 @@ export function ChatSearchInput({ setThreads }: {
       setThreads(prevState => {
         // ? If there is no results on a search, we should keep the previous state
         // ? and if not, the threads previous state before the search will be lost.
-        previousThread.current = prevState.length ? prevState : previousThread.current
+        previousThread.current = !previousThread.current.length ? prevState : previousThread.current
         const previousThreadState = previousThread.current
 
         if (!keyword) {
