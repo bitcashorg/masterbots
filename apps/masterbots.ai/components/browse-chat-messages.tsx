@@ -1,16 +1,16 @@
 // Inspired by Chatbot-UI and modified to fit the needs of this project
 // @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Chat/ChatcleanMessage.tsx
 
-import { cn, createMessagePairs, readingTime } from '@/lib/utils'
 import { IconUser } from '@/components/ui/icons'
-import React from 'react'
+import { cn, createMessagePairs } from '@/lib/utils'
 import * as AI from 'ai'
 import { Chatbot, Message, User } from 'mb-genql'
 import Image from 'next/image'
+import React from 'react'
 import { BrowseChatMessage } from './browse-chat-message'
 import BrowseChatbotDetails from './browse-chatbot-details'
-import { ShortMessage } from './short-message'
 import { ChatAccordion } from './chat-accordion'
+import { ShortMessage } from './short-message'
 
 export type MessagePair = {
   userMessage: Message
@@ -52,6 +52,7 @@ export function BrowseChatMessages({
       <div className="max-w-2xl px-4 mx-auto mt-8 flex gap-y-4 flex-col">
         {pairs.map((pair: MessagePair, key: number) => (
           <ChatAccordion defaultState key={key} className="border-none">
+            {/* Thread Title */}
             <div className="mx-4 mb-2 flex relative w-full">
               {user?.profilePicture ? (
                 <div
@@ -84,6 +85,8 @@ export function BrowseChatMessages({
                 </span> */}
               </div>
             </div>
+
+            {/* Thread Description */}
             <div className="opacity-50 overflow-hidden text-sm">
               {pair.chatGptMessage[0]?.content ? (
                 <div className="flex-1 px-1 ml-4 space-y-2 overflow-hidden text-left">
@@ -93,15 +96,17 @@ export function BrowseChatMessages({
                 ''
               )}
             </div>
+
+            {/* Thread Content */}
             <div className="mr-4 ml-[calc(1rem+2px)] max-h-[75vh] scrollbar">
               {pair.chatGptMessage.length > 0
                 ? pair.chatGptMessage.map((message, index) => (
-                    <BrowseChatMessage
-                      chatbot={chatbot}
-                      key={index}
-                      message={convertMessage(message)}
-                    />
-                  ))
+                  <BrowseChatMessage
+                    chatbot={chatbot}
+                    key={index}
+                    message={convertMessage(message)}
+                  />
+                ))
                 : ''}
             </div>
           </ChatAccordion>

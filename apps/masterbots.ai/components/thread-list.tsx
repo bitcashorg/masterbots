@@ -1,60 +1,23 @@
 'use client'
 
-import React from 'react'
 import { Separator } from '@/components/ui/separator'
 import { Thread } from 'mb-genql'
 import Link from 'next/link'
-import { getThreads } from '@/services/hasura'
-import { useSession } from 'next-auth/react'
-import { useSidebar } from '@/lib/hooks/use-sidebar'
-
-const PAGE_SIZE = 20
+import React from 'react'
 
 export default function ThreadList({
-  threads: initialThreads
+  threads,
+  loading,
+  loadMore,
+  count,
+  pageSize,
 }: {
   threads: Thread[]
+  loading: boolean
+  count: number
+  pageSize: number
+  loadMore: () => void
 }) {
-  const { data: session } = useSession()
-  const { activeCategory } = useSidebar()
-  const [loading, setLoading] = React.useState<boolean>(false)
-  const [threads, setThreads] = React.useState<Thread[]>(initialThreads)
-  const [count, setCount] = React.useState<number>(initialThreads.length)
-
-  const loadMore = async () => {
-    console.log('🟡 Loading More Content')
-    setLoading(true)
-
-    const moreThreads = await getThreads({
-      jwt: session!.user.hasuraJwt,
-      userId: session!.user.id,
-      offset: threads.length,
-      limit: PAGE_SIZE,
-      categoryId: activeCategory
-    })
-
-    setThreads(prevState => [...prevState, ...moreThreads])
-    setCount(moreThreads.length)
-    setLoading(false)
-  }
-
-  const handleCategoryChange = async () => {
-    if (session?.user) {
-      const threads = await getThreads({
-        jwt: session!.user.hasuraJwt,
-        userId: session!.user.id,
-        limit: PAGE_SIZE,
-        categoryId: activeCategory
-      })
-      setThreads(threads)
-      setCount(threads.length)
-    }
-  }
-
-  React.useEffect(() => {
-    handleCategoryChange()
-  }, [activeCategory])
-
   return (
     <ul className="w-full">
       {threads.map((thread, key) => (
@@ -63,7 +26,7 @@ export default function ThreadList({
           thread={thread}
           loading={loading}
           loadMore={loadMore}
-          hasMore={count === PAGE_SIZE}
+          hasMore={count === pageSize}
           isLast={key === threads.length - 1}
         />
       ))}

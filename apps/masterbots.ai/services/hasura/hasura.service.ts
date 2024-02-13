@@ -48,6 +48,21 @@ export async function getCategories() {
   return category as Category[]
 }
 
+export async function getCategory({ categoryId }: { categoryId: number }) {
+  const client = getHasuraClient({})
+  const { category } = await client.query({
+    category: {
+      __args: {
+        where: { categoryId: { _eq: categoryId } }
+      },
+      name: true,
+      categoryId: true,
+    }
+  })
+
+  return category[0] as Category
+}
+
 export async function getChatbots({
   limit,
   offset,

@@ -5,8 +5,8 @@ import * as React from 'react'
 
 interface BrowseContextProps {
   keyword: string
-  changeKeyword: (keyword: string) => void
   tab: null | number
+  changeKeyword: (keyword: string) => void
   changeTab: (tab: null | number) => void
 }
 

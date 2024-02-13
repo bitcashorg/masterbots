@@ -75,24 +75,27 @@ export default function SidebarLink({ category }: { category: Category }) {
 
   return (
     <div
-      className={cn('flex flex-col', { 'border-b-[1px] border-[#1E293B]': activeCategory === category.categoryId && !activeChatbot })}
+      className={cn('flex flex-col', { 'border-b-[1px] dark:border-mirage border-gray-300': activeCategory === category.categoryId && !activeChatbot })}
     >
       <div
         className={cn(
-          'flex',
+          'transition-all flex',
           activeCategory === category.categoryId &&
           !activeChatbot &&
-          'bg-[#1E293B]',
+          'dark:bg-mirage bg-gray-300',
           activeChatbot && 'justify-center'
         )}
       >
         <Link
+          // TODO: Improve routing for user sharing
+          // href={`/${category.name.toLowerCase()}`}
           href="/"
           className={cn(
             'flex items-center pr-5 py-3 cursor-pointer relative origin-left transition-all ease-in-out duration-300',
             activeChatbot ? 'text-xs opacity-50' : 'grow pl-5'
           )}
           onClick={handleClickCategory}
+          shallow
         >
           {/* <motion.div
             className="overflow-hidden"
@@ -136,7 +139,7 @@ export default function SidebarLink({ category }: { category: Category }) {
       {
         <motion.div
           className="overflow-hidden
-          ml-5 flex-col border-l-[1px] border-[#1E293B]"
+          ml-5 flex-col border-l-[1px] dark:border-mirage border-gray-300"
           initial={{ height: 0 }}
           animate={{
             height:

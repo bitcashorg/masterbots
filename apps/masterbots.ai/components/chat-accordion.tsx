@@ -1,7 +1,7 @@
 'use client'
 
-import * as React from 'react'
 import { ChevronDown } from 'lucide-react'
+import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
@@ -26,12 +26,11 @@ export const ChatAccordion = ({
       <button
         onClick={toggle}
         className={`flex flex-1 justify-start flex-col pb-4 relative pr-4
-        border-[rgb(30,41,59)]
-        font-medium w-full ${
-          open
+        dark:border-mirage border-gray-300
+        font-medium w-full ${open
             ? 'border-b-[1px]'
             : 'hover:border-b-[1px] [&>div>div>button]:!hidden'
-        }`}
+          }`}
       >
         {children[0]}
         {!open && children[1]}
@@ -41,11 +40,10 @@ export const ChatAccordion = ({
       </button>
       <div
         className={`text-sm transition-all
-      ${
-        open
-          ? 'animate-accordion-down py-4 border-[1px] border-t-0 border-r-0 border-[rgb(30,41,59)]'
-          : 'overflow-hidden animate-accordion-up h-0'
-      }`}
+      ${open
+            ? 'animate-accordion-down py-4 border-[1px] border-t-0 border-r-0 dark:border-mirage border-gray-300'
+            : 'overflow-hidden animate-accordion-up h-0'
+          }`}
       >
         {children[2]}
       </div>

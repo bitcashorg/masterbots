@@ -1,7 +1,7 @@
-import Image from 'next/image'
-import { Separator } from './ui/separator'
 import { Chatbot } from 'mb-genql'
+import Image from 'next/image'
 import Link from 'next/link'
+import { Separator } from './ui/separator'
 
 export default function BrowseChatbotDetails({
   chatbot
@@ -9,14 +9,14 @@ export default function BrowseChatbotDetails({
   chatbot?: Chatbot
 }) {
   return (
-    <div className="relative bg-cover py-10 bg-gradient-to-l from-[#1E293B] via-[#2B5D91] to-[#388DE2]">
+    <div className="relative bg-cover py-10 bg-gradient-to-l from-mirage via-[#2B5D91] to-[#388DE2]">
       <div
         className="dark:bg-[#09090B] bg-white rounded-lg p-6 md:w-[600px]
       flex flex-row gap-3 relative mx-auto font-mono"
       >
         <div className="w-2/3 flex flex-col gap-3">
           <div className="text-2xl font-black">{chatbot?.name}</div>
-          <Separator className="bg-[#1E293B]" />
+          <Separator className="dark:bg-mirage bg-gray-300" />
           <div className="text-xl font-semibold">
             {chatbot?.categories[0].category.name}.
           </div>
@@ -26,7 +26,7 @@ export default function BrowseChatbotDetails({
             </div>
             <div className="font-light">
               Threads:{' '}
-              <span className="dark:text-[#71717A]">
+              <span className="text-[#71717A]">
                 {chatbot?.threads.length ?? 1}
               </span>
               {/* <div>
