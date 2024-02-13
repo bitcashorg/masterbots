@@ -87,12 +87,15 @@ export default function SidebarLink({ category }: { category: Category }) {
         )}
       >
         <Link
+          // TODO: Improve routing for user sharing
+          // href={`/${category.name.toLowerCase()}`}
           href="/"
           className={cn(
             'flex items-center pr-5 py-3 cursor-pointer relative origin-left transition-all ease-in-out duration-300',
             activeChatbot ? 'text-xs opacity-50' : 'grow pl-5'
           )}
           onClick={handleClickCategory}
+          shallow
         >
           {/* <motion.div
             className="overflow-hidden"
