@@ -1,14 +1,13 @@
+import { auth } from '@/auth'
+import { Chat } from '@/components/chat'
 import ThreadPanel from '@/components/thread-panel'
-import { getChatbot, getThreads } from '@/services/hasura'
 import { botNames } from '@/lib/bots-names'
-import { nanoid } from 'nanoid'
+import { getChatbot, getThreads } from '@/services/hasura'
 import { Message } from 'ai'
 import crypto from 'crypto'
-import { Chat } from '@/components/chat'
-import { useSession } from 'next-auth/react'
-import { auth } from '@/auth'
-import { redirect } from 'next/navigation'
 import { isTokenExpired } from 'mb-lib'
+import { nanoid } from 'nanoid'
+import { redirect } from 'next/navigation'
 
 export default async function BotThreadsPage({
   params,
@@ -69,7 +68,7 @@ export default async function BotThreadsPage({
     <div>
       <ThreadPanel
         threads={threads}
-        chatbot={params.chatbot}
+        chatbot={chatbot.name}
         search={searchParams}
       />{' '}
       <Chat

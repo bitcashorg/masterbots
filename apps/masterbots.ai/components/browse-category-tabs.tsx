@@ -1,9 +1,8 @@
 'use client'
 
-import * as React from 'react'
-import { Category } from 'mb-genql'
-import { BrowseCategoryButton } from './browse-category-button';
 import { useBrowse } from '@/lib/hooks/use-browse';
+import { Category } from 'mb-genql';
+import { BrowseCategoryButton } from './browse-category-button';
 
 export function BrowseCategoryTabs({
     categories,

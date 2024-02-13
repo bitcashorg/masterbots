@@ -1,22 +1,22 @@
 'use client'
 
-import { useChat, type Message, CreateMessage } from 'ai/react'
+import { CreateMessage, useChat, type Message } from 'ai/react'
 import { useScroll } from 'framer-motion'
 
-import { cn, extractBetweenMarkers } from '@/lib/utils'
 import { ChatList } from '@/components/chat-list'
 import { ChatPanel } from '@/components/chat-panel'
 import { ChatScrollAnchor } from '@/components/chat-scroll-anchor'
+import { cn, extractBetweenMarkers } from '@/lib/utils'
 
-import { toast } from 'react-hot-toast'
-import { uniqBy } from 'lodash'
-import { ChatRequestOptions } from 'ai'
-import { Chatbot } from 'mb-genql'
-import { createThread, saveNewMessage } from '@/services/hasura'
-import { useRouter, useParams } from 'next/navigation'
-import { useSession } from 'next-auth/react'
 import { useAtBottom } from '@/lib/hooks/use-at-bottom'
+import { createThread, saveNewMessage } from '@/services/hasura'
+import { ChatRequestOptions } from 'ai'
+import { uniqBy } from 'lodash'
+import { Chatbot } from 'mb-genql'
+import { useSession } from 'next-auth/react'
+import { useParams, useRouter } from 'next/navigation'
 import React from 'react'
+import { toast } from 'react-hot-toast'
 
 export function Chat({
   initialMessages,
@@ -136,11 +136,11 @@ export function Chat({
       isNewChat
         ? userMessage
         : {
-            ...userMessage,
-            content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
-              allMessages
-            )}].  Then answer this question: ${userMessage.content}`
-          }
+          ...userMessage,
+          content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
+            allMessages
+          )}].  Then answer this question: ${userMessage.content}`
+        }
     )
   }
 
