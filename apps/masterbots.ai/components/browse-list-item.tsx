@@ -1,12 +1,12 @@
 import Image from 'next/image'
 
 import { Separator } from '@/components/ui/separator'
-import Link from 'next/link'
-import { Thread } from 'mb-genql'
 import { cn } from '@/lib/utils'
-import { IconCaretRight, IconOpenAI, IconUser } from './ui/icons'
-import { ShortMessage } from './short-message'
+import { Thread } from 'mb-genql'
+import Link from 'next/link'
 import React from 'react'
+import { ShortMessage } from './short-message'
+import { IconCaretRight, IconOpenAI, IconUser } from './ui/icons'
 
 export default function BrowseListItem({
   thread,
@@ -47,7 +47,7 @@ export default function BrowseListItem({
       ref={threadRef}
       href={`/browse/${thread.chatbot.name.toLowerCase()}/${thread.threadId}`}
     >
-      <div className={cn('hover:bg-[rgb(30,41,59)] rounded-xl p-4 relative ')}>
+      <div className={cn('dark:hover:bg-[#1E293B] hover:bg-gray-300 rounded-xl p-4 relative ')}>
         <div
           className="relative flex flex-1 items-center
   justify-between py-4 font-medium transition-all "
@@ -122,7 +122,7 @@ export default function BrowseListItem({
         </div>
         <div className="opacity-50 overflow-hidden text-sm">
           {thread.messages[1]?.content &&
-          thread.messages[1]?.role !== 'user' ? (
+            thread.messages[1]?.role !== 'user' ? (
             <div className="flex-1 px-1 ml-4 space-y-2 overflow-hidden">
               <ShortMessage content={thread.messages[1]?.content} />
             </div>
@@ -130,7 +130,7 @@ export default function BrowseListItem({
             ''
           )}
         </div>
-        <Separator className="dark:bg-[#1E293B] absolute bottom-0 w-[calc(100%-1.25rem)]" />
+        <Separator className="dark:bg-[#1E293B] bg-gray-300 absolute bottom-0 w-[calc(100%-1.25rem)]" />
       </div>
     </Link>
   )

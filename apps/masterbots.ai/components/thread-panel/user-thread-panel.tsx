@@ -47,7 +47,11 @@ export default function UserThreadPanel({
         jwt: session!.user.hasuraJwt,
         userId: session!.user.id,
         limit: PAGE_SIZE,
-        categoryId: activeCategory
+        ...activeCategory ? {
+          categoryId: activeCategory
+        } : {
+          chatbotName: chatbot
+        }
       })
       setThreads(threads)
       setCount(threads.length)
@@ -56,7 +60,7 @@ export default function UserThreadPanel({
 
   React.useEffect(() => {
     handleCategoryChange()
-  }, [activeCategory])
+  }, [activeCategory, chatbot])
 
   return (
     <>
