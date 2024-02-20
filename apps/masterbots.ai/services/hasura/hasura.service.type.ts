@@ -62,3 +62,9 @@ export interface GetChatbotsParams {
   offset?: number
   categoryId?: number
 }
+
+export interface GetMessagesParams extends GetHasuraClientParams {
+  threadId: string
+  limit?: number
+  offset?: number
+}
