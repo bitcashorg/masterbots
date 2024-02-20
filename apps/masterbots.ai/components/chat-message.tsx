@@ -32,8 +32,8 @@ export function ChatMessage({
   const { data: session } = useSession()
 
   return (
-    <div className={cn('group relative mb-4 flex items-start p-1')} {...props}>
-      <div
+    <div className={cn('group relative flex items-start p-1')} {...props}>
+      {/* <div
         className={cn(
           'flex size-8 w-8 shrink-0 select-none items-center justify-center border shadow rounded-full',
           cleanMessage.role === 'user'
@@ -64,8 +64,8 @@ export function ChatMessage({
         ) : (
           <IconOpenAI />
         )}
-      </div>
-      <div className="flex-1 px-1 ml-4 space-y-2 overflow-hidden">
+      </div> */}
+      <div className="flex-1 pr-1 space-y-2 overflow-hidden">
         <MemoizedReactMarkdown
           className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
           remarkPlugins={[remarkGfm, remarkMath]}
@@ -73,16 +73,16 @@ export function ChatMessage({
             p({ node, children }) {
               return (
                 <p className="mb-2 text-left whitespace-pre-line last:mb-0">
-                  {cleanMessage.role === 'user'
-                    ? children
-                    : (
-                      <ClickableText
-                        isListItem={false}
-                        sendMessageFromResponse={sendMessageFromResponse}
-                      >
-                        {children}
-                      </ClickableText>
-                    )}
+                  {cleanMessage.role === 'user' ? (
+                    children
+                  ) : (
+                    <ClickableText
+                      isListItem={false}
+                      sendMessageFromResponse={sendMessageFromResponse}
+                    >
+                      {children}
+                    </ClickableText>
+                  )}
                 </p>
               )
             },

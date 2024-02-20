@@ -75,14 +75,17 @@ export default function SidebarLink({ category }: { category: Category }) {
 
   return (
     <div
-      className={cn('flex flex-col', { 'border-b-[1px] dark:border-mirage border-gray-300': activeCategory === category.categoryId && !activeChatbot })}
+      className={cn('flex flex-col', {
+        'border-b-[1px] dark:border-mirage border-gray-300':
+          activeCategory === category.categoryId && !activeChatbot
+      })}
     >
       <div
         className={cn(
           'transition-all flex',
           activeCategory === category.categoryId &&
-          !activeChatbot &&
-          'dark:bg-mirage bg-gray-300',
+            // !activeChatbot &&
+            'dark:bg-mirage bg-gray-300',
           activeChatbot && 'justify-center'
         )}
       >
@@ -144,8 +147,8 @@ export default function SidebarLink({ category }: { category: Category }) {
           animate={{
             height:
               activeCategory === category.categoryId &&
-                category.chatbots.length &&
-                !activeChatbot
+              category.chatbots.length &&
+              !activeChatbot
                 ? ''
                 : '0px'
           }}
@@ -163,7 +166,7 @@ export default function SidebarLink({ category }: { category: Category }) {
           ))}
         </motion.div>
       }
-    </div >
+    </div>
   )
 }
 
@@ -210,9 +213,9 @@ function ChatbotComponent({
       ref={chatbotRef}
       href={`/${chatbot.name.toLowerCase()}`}
       className={cn(
-        'flex items-center px-[20px] py-[12px]',
+        'flex items-center px-[20px] py-[12px] dark:hover:bg-mirage hover:bg-gray-300',
         chatbot.chatbotId === activeChatbot?.chatbotId &&
-        'dark:bg-slate-800 dark-slate-400'
+          'dark:bg-slate-800 dark-slate-400'
       )}
       key={chatbot.chatbotId}
     >
