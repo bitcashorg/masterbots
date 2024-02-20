@@ -5,12 +5,10 @@ import { ClickableText } from '@/components/chat-clickable-text'
 import { ChatMessageActions } from '@/components/chat-message-actions'
 import { MemoizedReactMarkdown } from '@/components/markdown'
 import { CodeBlock } from '@/components/ui/codeblock'
-import { IconOpenAI, IconUser } from '@/components/ui/icons'
 import { cleanPrompt, cn } from '@/lib/utils'
 import { Message } from 'ai'
 import { Chatbot } from 'mb-genql'
-import { useSession } from 'next-auth/react'
-import Image from 'next/image'
+
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 
@@ -29,43 +27,10 @@ export function ChatMessage({
   ...props
 }: ChatMessageProps) {
   const cleanMessage = { ...message, content: cleanPrompt(message.content) }
-  const { data: session } = useSession()
 
   return (
-    <div className={cn('group relative mb-4 flex items-start p-1')} {...props}>
-      <div
-        className={cn(
-          'flex size-8 w-8 shrink-0 select-none items-center justify-center border shadow rounded-full',
-          cleanMessage.role === 'user'
-            ? 'bg-background dark:bg-primary-foreground'
-            : 'bg-primary text-primary-foreground dark:bg-background dark:text-primary-foreground'
-        )}
-      >
-        {cleanMessage.role === 'user' ? (
-          session?.user.image ? (
-            <Image
-              className="transition-opacity duration-300 rounded-full select-none hover:opacity-80"
-              src={session?.user.image}
-              alt={session?.user.name ?? 'UserName'}
-              height={32}
-              width={32}
-            />
-          ) : (
-            <IconUser />
-          )
-        ) : chatbot?.avatar ? (
-          <Image
-            className="transition-opacity duration-300 rounded-full select-none hover:opacity-80"
-            src={chatbot?.avatar}
-            alt={chatbot?.name ?? 'BotAvatar'}
-            height={32}
-            width={32}
-          />
-        ) : (
-          <IconOpenAI />
-        )}
-      </div>
-      <div className="flex-1 px-1 ml-4 space-y-2 overflow-hidden">
+    <div className={cn('group relative flex items-start p-1')} {...props}>
+      <div className="flex-1 pr-1 space-y-2 overflow-hidden">
         <MemoizedReactMarkdown
           className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
           remarkPlugins={[remarkGfm, remarkMath]}
@@ -73,16 +38,16 @@ export function ChatMessage({
             p({ node, children }) {
               return (
                 <p className="mb-2 text-left whitespace-pre-line last:mb-0">
-                  {cleanMessage.role === 'user'
-                    ? children
-                    : (
-                      <ClickableText
-                        isListItem={false}
-                        sendMessageFromResponse={sendMessageFromResponse}
-                      >
-                        {children}
-                      </ClickableText>
-                    )}
+                  {cleanMessage.role === 'user' ? (
+                    children
+                  ) : (
+                    <ClickableText
+                      isListItem={false}
+                      sendMessageFromResponse={sendMessageFromResponse}
+                    >
+                      {children}
+                    </ClickableText>
+                  )}
                 </p>
               )
             },
