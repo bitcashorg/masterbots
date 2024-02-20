@@ -1,12 +1,15 @@
 import Image from 'next/image'
 
-import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
-import { Thread } from 'mb-genql'
+import { Message, Thread } from 'mb-genql'
 import Link from 'next/link'
 import React from 'react'
 import { ShortMessage } from './short-message'
-import { IconCaretRight, IconOpenAI, IconUser } from './ui/icons'
+import { IconOpenAI, IconUser } from './ui/icons'
+import { ChatAccordion } from './chat-accordion'
+import { BrowseChatMessageList } from './browse-chat-message-list'
+import { useRouter } from 'next/navigation'
+import { getMessages } from '@/services/hasura'
 
 export default function BrowseListItem({
   thread,
@@ -21,7 +24,9 @@ export default function BrowseListItem({
   isLast: boolean
   hasMore: boolean
 }) {
-  const threadRef = React.useRef<HTMLAnchorElement>(null)
+  const threadRef = React.useRef<HTMLDivElement>(null)
+  const router = useRouter()
+  const [messages, setMessages] = React.useState<Message[]>([])
 
   React.useEffect(() => {
     if (!threadRef.current) return
@@ -42,15 +47,36 @@ export default function BrowseListItem({
       observer.disconnect()
     }
   }, [threadRef.current, isLast, hasMore, loading, loadMore])
+
+  const fetchMessages = async () => {
+    if (!messages.length) {
+      const messages = await getMessages({ threadId: thread.threadId })
+      setMessages(messages)
+    }
+  }
+
+  const goToThread = () => {
+    router.push(
+      `/browse/${thread.chatbot.name.trim().toLowerCase()}/${thread.threadId}`
+    )
+    router.refresh()
+  }
+
   return (
-    <Link
-      ref={threadRef}
-      href={`/browse/${thread.chatbot.name.toLowerCase()}/${thread.threadId}`}
-    >
-      <div className={cn('dark:hover:bg-mirage hover:bg-gray-300 rounded-xl p-4 relative ')}>
+    <div ref={threadRef}>
+      <ChatAccordion
+        handleOpen={fetchMessages}
+        handleTrigger={goToThread}
+        className="border-none"
+        contentClass="!pt-0"
+        triggerClass="dark:hover:bg-mirage hover:bg-gray-300 !pr-0 hover:rounded-xl border-b-[1px] p-3 flex flex-col gap-[6px]"
+        arrowClass="mt-3"
+      >
+        {/* Thread Title */}
         <div
-          className="relative flex flex-1 items-center
-  justify-between py-4 font-medium transition-all "
+          className={cn(
+            'relative flex items-center font-normal text-sm transition-all w-full gap-4 pr-4'
+          )}
         >
           {thread.chatbot?.avatar ? (
             <Link
@@ -61,7 +87,7 @@ export default function BrowseListItem({
               )}
             >
               <Image
-                className="transition-opacity duration-300 rounded-full select-none hover:opacity-80"
+                className="transition-opacity duration-300 bg-background dark:bg-primary-foreground rounded-full select-none hover:opacity-80"
                 src={thread.chatbot?.avatar}
                 alt={thread.chatbot?.name ?? 'BotAvatar'}
                 height={32}
@@ -80,58 +106,61 @@ export default function BrowseListItem({
               <IconOpenAI />
             </Link>
           )}
-          <div className="flex-1 px-1 ml-4 space-y-2 text-left flex items-center">
-            {thread.messages[0]?.content}
-            <span className="ml-4 font-normal flex items-center">
-              by&nbsp;
-              {thread.user?.profilePicture ? (
-                <Link
-                  href={`/browse/${encodeURIComponent(thread?.user.username)}?type=user`}
-                  title={thread.user?.username.replace('_', ' ')}
-                  className={cn(
-                    'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full border shadow'
-                  )}
-                >
-                  <Image
-                    className="transition-opacity duration-300 rounded-full select-none hover:opacity-80"
-                    src={thread.user?.profilePicture}
-                    alt={thread.user?.username ?? 'Avatar'}
-                    height={32}
-                    width={32}
-                  />
-                </Link>
-              ) : (
-                <Link
-                  href={`/browse/${encodeURIComponent(thread.user?.username ?? 'Default')}?type=user`}
-                  title={thread.user?.username}
-                  className={cn(
-                    'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full border shadow',
-                    'bg-background'
-                  )}
-                >
-                  <IconUser />
-                </Link>
-              )}
-            </span>
+          <div className="flex items-center text-left gap-3">
+            <div className="flex-1 px-1 ">{thread.messages?.[0]?.content}</div>
+            <span className="opacity-50 text-[0.875rem]">by</span>
+            {thread.user?.profilePicture ? (
+              <Link
+                href={`/browse/${encodeURIComponent(thread?.user.username)}?type=user`}
+                title={thread.user?.username.replace('_', ' ')}
+                className={cn(
+                  'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full border shadow'
+                )}
+              >
+                <Image
+                  className="transition-opacity duration-300 rounded-full select-none hover:opacity-80"
+                  src={thread.user?.profilePicture}
+                  alt={thread.user?.username ?? 'Avatar'}
+                  height={32}
+                  width={32}
+                />
+              </Link>
+            ) : (
+              <Link
+                href={`/browse/${encodeURIComponent(thread.user?.username ?? 'Default')}?type=user`}
+                title={thread.user?.username}
+                className={cn(
+                  'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full border shadow',
+                  'bg-background'
+                )}
+              >
+                <IconUser />
+              </Link>
+            )}
           </div>
-          <IconCaretRight
-            className={`transition duration-300 ease-in-out
-        absolute
-      stroke-[#09090b] dark:stroke-[#FAFAFA] right-1`}
-          />
         </div>
-        <div className="opacity-50 overflow-hidden text-sm">
-          {thread.messages[1]?.content &&
-            thread.messages[1]?.role !== 'user' ? (
-            <div className="flex-1 px-1 ml-4 space-y-2 overflow-hidden">
-              <ShortMessage content={thread.messages[1]?.content} />
+
+        {/* Thread Description */}
+
+        <div className="opacity-50 overflow-hidden text-sm text-left">
+          {thread.messages?.[1]?.content &&
+          thread.messages?.[1]?.role !== 'user' ? (
+            <div className="flex-1 space-y-2 overflow-hidden">
+              <ShortMessage content={thread.messages?.[1]?.content} />
             </div>
           ) : (
             ''
           )}
         </div>
-        <Separator className="dark:bg-mirage bg-gray-300 absolute bottom-0 w-[calc(100%-1.25rem)]" />
-      </div>
-    </Link>
+
+        {/* Thread Content */}
+
+        <BrowseChatMessageList
+          chatbot={thread?.chatbot}
+          user={thread?.user || undefined}
+          messages={messages}
+        />
+      </ChatAccordion>
+    </div>
   )
 }
