@@ -17,20 +17,30 @@ import { useSession } from 'next-auth/react'
 import { useParams, useRouter } from 'next/navigation'
 import React from 'react'
 import { toast } from 'react-hot-toast'
+import { useThread } from '@/lib/hooks/use-thread'
 
 export function Chat({
   initialMessages,
   className,
   chatbot,
-  threadId
+  threadId,
+  isChatPage
 }: ChatProps) {
   const { data: session } = useSession()
+  const {
+    allMessages: threadAllMessages,
+    initialMessages: threadInitialMessages,
+    activeThread,
+    setActiveThread
+  } = useThread()
   const containerRef = React.useRef<HTMLDivElement>()
   const { messages, append, reload, stop, isLoading, input, setInput } =
     useChat({
       // we remove previous assistant responses to get better responses thru
       // our prompting strategy
-      initialMessages: initialMessages?.filter(m => m.role === 'system'),
+      initialMessages: threadInitialMessages.length
+        ? threadInitialMessages.filter(m => m.role === 'system')
+        : initialMessages?.filter(m => m.role === 'system'),
       id: threadId,
       body: {
         id: threadId
@@ -51,7 +61,7 @@ export function Chat({
     })
   const router = useRouter()
   const params = useParams<{ chatbotName: string; threadId: string }>()
-  const isNewChat = Boolean(!params.threadId)
+  const isNewChat = Boolean(!params.threadId && !activeThread)
 
   const { scrollY } = useScroll({
     container: containerRef as React.RefObject<HTMLElement>
@@ -94,10 +104,13 @@ export function Chat({
 
   // we merge past assistant and user messages for ui only
   // we remove system prompts from ui
-  const allMessages = uniqBy(
-    initialMessages?.concat(messages),
-    'content'
-  ).filter(m => m.role !== 'system')
+  const allMessages = threadAllMessages.length
+    ? uniqBy(threadAllMessages?.concat(messages), 'content').filter(
+        m => m.role !== 'system'
+      )
+    : uniqBy(initialMessages?.concat(messages), 'content').filter(
+        m => m.role !== 'system'
+      )
 
   const sendMessageFromResponse = (bulletContent: string) => {
     const fullMessage = `Tell me more about ${bulletContent}`
@@ -127,7 +140,7 @@ export function Chat({
 
     await saveNewMessage({
       role: 'user',
-      threadId,
+      threadId: activeThread?.threadId || threadId,
       content: userMessage.content,
       jwt: session!.user.hasuraJwt
     })
@@ -136,17 +149,25 @@ export function Chat({
       isNewChat
         ? userMessage
         : {
-          ...userMessage,
-          content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
-            allMessages
-          )}].  Then answer this question: ${userMessage.content}`
-        }
+            ...userMessage,
+            content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
+              allMessages
+            )}].  Then answer this question: ${userMessage.content}`
+          }
     )
   }
 
+  React.useEffect(() => {
+    return () => {
+      if (isChatPage) {
+        setActiveThread(null)
+      }
+    }
+  }, [])
+
   return (
     <>
-      {!isNewChat ? (
+      {!isNewChat && params?.threadId ? (
         <div
           ref={containerRef as React.Ref<HTMLDivElement>}
           className={cn(
@@ -168,7 +189,7 @@ export function Chat({
 
       <ChatPanel
         scrollToBottom={scrollToBottom}
-        id={threadId}
+        id={activeThread?.threadId || threadId}
         isLoading={isLoading}
         stop={stop}
         append={appendWithMbContextPrompts}
@@ -194,6 +215,7 @@ export interface ChatProps extends React.ComponentProps<'div'> {
   chatbot: Chatbot
   threadId: string
   newThread?: boolean
+  isChatPage?: boolean
 }
 
 function getAllUserMessagesAsStringArray(allMessages: Message[]) {

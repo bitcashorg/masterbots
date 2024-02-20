@@ -2,6 +2,7 @@ import { validateMbEnv } from 'mb-env'
 import {
   Category,
   Chatbot,
+  Message,
   Thread,
   User,
   createMbClient,
@@ -13,6 +14,7 @@ import {
   GetChatbotParams,
   GetChatbotsParams,
   GetHasuraClientParams,
+  GetMessagesParams,
   GetThreadParams,
   GetThreadsParams,
   SaveNewMessageParams,
@@ -56,7 +58,7 @@ export async function getCategory({ categoryId }: { categoryId: number }) {
         where: { categoryId: { _eq: categoryId } }
       },
       name: true,
-      categoryId: true,
+      categoryId: true
     }
   })
 
@@ -75,17 +77,17 @@ export async function getChatbots({
       limit: limit ? limit : 20,
       ...(offset
         ? {
-          offset
-        }
+            offset
+          }
         : {}),
       ...(categoryId
         ? {
-          where: {
-            categories: {
-              categoryId
+            where: {
+              categories: {
+                categoryId
+              }
             }
           }
-        }
         : {})
     }
   })
@@ -105,12 +107,26 @@ export async function getThreads({
 
   const { thread } = await client.query({
     thread: {
-      chatbot: everything,
+      chatbot: {
+        ...everything,
+        categories: {
+          category: {
+            ...everything
+          },
+          ...everything
+        },
+        threads: {
+          threadId: true
+        },
+        prompts: {
+          prompt: everything
+        }
+      },
       messages: {
         ...everything,
         __args: {
           orderBy: [{ createdAt: 'ASC' }],
-          where: { role: { _eq: 'user' } }
+          limit: 2
         }
       },
       ...everything,
@@ -119,25 +135,25 @@ export async function getThreads({
         limit: limit ? limit : 20,
         ...(offset
           ? {
-            offset
-          }
+              offset
+            }
           : {}),
         ...(chatbotName || categoryId
           ? {
-            where: {
-              chatbot: {
-                ...(chatbotName
-                  ? {
-                    name: { _eq: chatbotName }
-                  }
-                  : {}),
-                ...(categoryId
-                  ? { categories: { categoryId: { _eq: categoryId } } }
-                  : {})
-              },
-              ...(userId ? { userId: { _eq: userId } } : {})
+              where: {
+                chatbot: {
+                  ...(chatbotName
+                    ? {
+                        name: { _eq: chatbotName }
+                      }
+                    : {}),
+                  ...(categoryId
+                    ? { categories: { categoryId: { _eq: categoryId } } }
+                    : {})
+                },
+                ...(userId ? { userId: { _eq: userId } } : {})
+              }
             }
-          }
           : userId
             ? { where: { userId: { _eq: userId } } }
             : {})
@@ -265,16 +281,16 @@ export async function getChatbot({
       },
       ...(threads
         ? {
-          threads: {
-            ...everything,
-            messages: {
+            threads: {
               ...everything,
-              __args: {
-                orderBy: [{ createdAt: 'ASC' }]
+              messages: {
+                ...everything,
+                __args: {
+                  orderBy: [{ createdAt: 'ASC' }]
+                }
               }
             }
           }
-        }
         : {})
     }
   })
@@ -295,31 +311,41 @@ export async function getBrowseThreads({
 
   const { thread } = await client.query({
     thread: {
-      chatbot: everything,
+      chatbot: {
+        categories: {
+          category: {
+            ...everything
+          },
+          ...everything
+        },
+        threads: {
+          threadId: true
+        },
+        ...everything
+      },
       messages: {
         ...everything,
         __args: {
           orderBy: [{ createdAt: 'ASC' }],
-          // TODO: Test message limit to different values (or remove it) to see the performance and the dynamic search issue
-          limit: 2,
           ...(keyword
             ? {
-              where: {
-                _or: [
-                  {
-                    content: {
-                      _iregex: keyword
+                where: {
+                  _or: [
+                    {
+                      content: {
+                        _iregex: keyword
+                      }
+                    },
+                    {
+                      content: {
+                        _eq: keyword
+                      }
                     }
-                  },
-                  {
-                    content: {
-                      _eq: keyword
-                    }
-                  }
-                ]
+                  ]
+                }
               }
-            }
-            : '')
+            : ''),
+          limit: 2
         }
       },
       user: {
@@ -332,42 +358,72 @@ export async function getBrowseThreads({
         where: {
           ...(categoryId
             ? {
-              chatbot: {
-                categories: {
-                  categoryId: { _eq: categoryId }
+                chatbot: {
+                  categories: {
+                    categoryId: { _eq: categoryId }
+                  }
                 }
               }
-            }
             : {}),
           ...(chatbotName
             ? {
-              chatbot: {
-                name: { _eq: chatbotName }
+                chatbot: {
+                  name: { _eq: chatbotName }
+                }
               }
-            }
             : {}),
           ...(userId
             ? {
-              userId: {
-                _eq: userId
+                userId: {
+                  _eq: userId
+                }
               }
-            }
             : {}),
           ...(userName
             ? {
-              user: {
-                username: {
-                  _eq: userName
+                user: {
+                  username: {
+                    _eq: userName
+                  }
                 }
               }
-            }
             : {})
         },
         limit: limit || 30,
-        offset: offset || 0,
+        offset: offset || 0
       }
     }
   })
 
   return thread as Thread[]
+}
+
+export async function getMessages({
+  threadId,
+  limit,
+  offset,
+  jwt
+}: GetMessagesParams) {
+  let client = getHasuraClient({})
+  if (jwt) client = getHasuraClient({ jwt })
+  const { message } = await client.query({
+    message: {
+      ...everything,
+      __args: {
+        where: { threadId: { _eq: threadId } },
+        orderBy: [{ createdAt: 'ASC' }],
+        ...(limit
+          ? {
+              limit
+            }
+          : {}),
+        ...(offset
+          ? {
+              offset
+            }
+          : {})
+      }
+    }
+  })
+  return message as Message[]
 }

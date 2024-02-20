@@ -72,6 +72,7 @@ export default async function BotThreadsPage({
         search={searchParams}
       />{' '}
       <Chat
+        isChatPage
         initialMessages={initialMessages}
         chatbot={chatbot}
         threadId={newThreadId}

@@ -3,7 +3,6 @@
 import { cn, extractBetweenMarkers } from '@/lib/utils'
 
 import { BrowseChatMessages } from './browse-chat-messages'
-import { ChatScrollAnchor } from './chat-scroll-anchor'
 import { Thread } from 'mb-genql'
 
 export function BrowseThread({
@@ -23,7 +22,7 @@ export function BrowseThread({
         <BrowseChatMessages
           chatbot={thread?.chatbot}
           user={thread?.user || undefined}
-          messages={thread.messages}
+          threadId={thread.threadId}
         />
       ) : (
         ''

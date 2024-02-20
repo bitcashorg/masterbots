@@ -71,7 +71,7 @@ export default function BrowseList() {
   }, [keyword, threads])
 
   return (
-    <div className="w-full py-5">
+    <div className="w-full py-5 flex flex-col gap-3">
       {filteredThreads.map((thread: Thread, key) => (
         <BrowseListItem
           thread={thread}
