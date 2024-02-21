@@ -101,7 +101,7 @@ function ThreadComponent({
         className="border-none relative"
         contentClass="!pt-0"
         handleTrigger={goToThread}
-        triggerClass="gap-[0.375rem] px-4 py-3 hover:rounded-xl dark:border-mirage border-gray-300 border-b dark:hover:bg-mirage hover:bg-gray-300 sticky top-0 z-[1] bg-[#18181b]"
+        triggerClass="gap-[0.375rem] px-4 py-3 hover:rounded-xl dark:border-mirage border-gray-300 border-b dark:hover:bg-mirage hover:bg-gray-300 sticky top-0 z-[1] dark:bg-[#18181b] bg-[#f4f4f5]"
         arrowClass="right-1"
         thread={thread}
       >
