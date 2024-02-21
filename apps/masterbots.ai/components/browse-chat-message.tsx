@@ -68,7 +68,7 @@ export function BrowseChatMessage({
         >
           {cleanMessage.content}
         </MemoizedReactMarkdown>
-        <ChatMessageActions className="md:!right-0" message={cleanMessage} />
+        {/* <ChatMessageActions className="md:!right-0" message={cleanMessage} /> */}
       </div>
     </div>
   )

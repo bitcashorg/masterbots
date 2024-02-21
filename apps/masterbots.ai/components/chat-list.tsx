@@ -6,6 +6,7 @@ import { Chatbot } from 'mb-genql'
 import React from 'react'
 import { ChatAccordion } from './chat-accordion'
 import { ShortMessage } from './short-message'
+import { useThread } from '@/lib/hooks/use-thread'
 
 export interface ChatList {
   messages: Message[]
@@ -28,6 +29,7 @@ export function ChatList({
   isThread = true
 }: ChatList) {
   const [pairs, setPairs] = React.useState<MessagePair[]>([])
+  const { isNewResponse } = useThread()
 
   React.useEffect(() => {
     if (messages.length) {
@@ -44,9 +46,11 @@ export function ChatList({
       {pairs.map((pair: MessagePair, key: number) => (
         <div key={key}>
           <ChatAccordion
-            defaultState={key === 0}
-            className="border-none mb-4"
-            triggerClass={`dark:border-mirage border-gray-300 hover:rounded-xl border-b px-3 pt-3 dark:hover:bg-mirage hover:bg-gray-300 ${!isThread && key === 0 ? 'hidden' : ''}`}
+            defaultState={
+              key === 0 || (key === pairs.length - 1 && isNewResponse)
+            }
+            className={`border-none mb-4 ${isThread ? 'relative' : ''}`}
+            triggerClass={`dark:border-mirage border-gray-300 hover:rounded-xl border-b px-3 pt-3 dark:hover:bg-mirage hover:bg-gray-300 ${isThread ? 'sticky top-0 md:-top-10 z-[1] bg-[#18181b]' : ''} ${!isThread && key === 0 ? 'hidden' : ''}`}
             contentClass="!pb-0"
           >
             {/* Thread Title */}
@@ -81,6 +85,7 @@ export function ChatList({
               {pair.chatGptMessage.length > 0
                 ? pair.chatGptMessage.map((message, index) => (
                     <ChatMessage
+                      actionRequired={false}
                       key={index}
                       chatbot={chatbot}
                       message={message}

@@ -29,7 +29,8 @@ export const ChatAccordion = ({
   handleOpen?: () => void
   thread?: Thread | null
 }) => {
-  const { activeThread, setActiveThread } = useThread()
+  const { activeThread, setActiveThread, setIsNewResponse, isNewResponse } =
+    useThread()
   const [open, setOpen] = React.useState(defaultState)
   const toggle = () => {
     if (!open && handleOpen) {
@@ -41,6 +42,7 @@ export const ChatAccordion = ({
       setActiveThread(null)
     }
     setOpen(!open)
+    if (isNewResponse) setIsNewResponse(false)
   }
   React.useEffect(() => {
     if (
