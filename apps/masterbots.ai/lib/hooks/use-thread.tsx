@@ -2,7 +2,6 @@
 
 import { useChat } from 'ai/react'
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { getMessages, saveNewMessage } from '@/services/hasura'
 import { Message as AIMessage } from 'ai'
@@ -16,6 +15,8 @@ interface ThreadContext {
   allMessages: AIMessage[]
   initialMessages: AIMessage[]
   sendMessageFromResponse: (bulletContent: string) => void
+  isNewResponse: boolean
+  setIsNewResponse: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const ThreadContext = React.createContext<ThreadContext | undefined>(undefined)
@@ -37,6 +38,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
   const { data: session } = useSession()
 
   const [messagesFromDB, setMessagesFromDB] = React.useState<Message[]>([])
+  const [isNewResponse, setIsNewResponse] = React.useState<boolean>(false)
 
   const chatbotSystemPrompts: AIMessage[] =
     activeThread?.chatbot.prompts.map(({ prompt }) => ({
@@ -105,6 +107,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
 
   const sendMessageFromResponse = (bulletContent: string) => {
     const fullMessage = `Tell me more about ${bulletContent}`
+    setIsNewResponse(true)
     append({ content: fullMessage, role: 'user' })
   }
 
@@ -128,7 +131,9 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
         setActiveThread,
         allMessages,
         sendMessageFromResponse,
-        initialMessages
+        initialMessages,
+        isNewResponse,
+        setIsNewResponse
       }}
     >
       {children}
