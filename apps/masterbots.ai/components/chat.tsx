@@ -24,23 +24,25 @@ export function Chat({
   className,
   chatbot,
   threadId,
-  isChatPage
+  isChatPage,
+  isThreadView
 }: ChatProps) {
   const { data: session } = useSession()
   const {
     allMessages: threadAllMessages,
     initialMessages: threadInitialMessages,
     activeThread,
-    setActiveThread
+    setActiveThread,
+    setIsNewResponse
   } = useThread()
   const containerRef = React.useRef<HTMLDivElement>()
   const { messages, append, reload, stop, isLoading, input, setInput } =
     useChat({
       // we remove previous assistant responses to get better responses thru
       // our prompting strategy
-      initialMessages: threadInitialMessages.length
-        ? threadInitialMessages.filter(m => m.role === 'system')
-        : initialMessages?.filter(m => m.role === 'system'),
+      initialMessages: isThreadView
+        ? initialMessages?.filter(m => m.role === 'system')
+        : threadInitialMessages.filter(m => m.role === 'system'),
       id: threadId,
       body: {
         id: threadId
@@ -104,15 +106,16 @@ export function Chat({
 
   // we merge past assistant and user messages for ui only
   // we remove system prompts from ui
-  const allMessages = threadAllMessages.length
-    ? uniqBy(threadAllMessages?.concat(messages), 'content').filter(
+  const allMessages = isThreadView
+    ? uniqBy(initialMessages?.concat(messages), 'content').filter(
         m => m.role !== 'system'
       )
-    : uniqBy(initialMessages?.concat(messages), 'content').filter(
+    : uniqBy(threadAllMessages.concat(messages), 'content').filter(
         m => m.role !== 'system'
       )
 
   const sendMessageFromResponse = (bulletContent: string) => {
+    setIsNewResponse(true)
     const fullMessage = `Tell me more about ${bulletContent}`
     append({ content: fullMessage, role: 'user' })
   }
@@ -144,6 +147,8 @@ export function Chat({
       content: userMessage.content,
       jwt: session!.user.hasuraJwt
     })
+
+    setIsNewResponse(true)
 
     return append(
       isNewChat
@@ -216,6 +221,7 @@ export interface ChatProps extends React.ComponentProps<'div'> {
   threadId: string
   newThread?: boolean
   isChatPage?: boolean
+  isThreadView?: boolean
 }
 
 function getAllUserMessagesAsStringArray(allMessages: Message[]) {
