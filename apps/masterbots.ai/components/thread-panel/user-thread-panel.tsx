@@ -3,6 +3,7 @@
 import { ChatSearchInput } from '@/components/chat-search-input'
 import ThreadList from '@/components/thread-list'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useThread } from '@/lib/hooks/use-thread'
 import { getThreads } from '@/services/hasura'
 import { Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
@@ -12,13 +13,14 @@ const PAGE_SIZE = 20
 
 export default function UserThreadPanel({
   chatbot,
-  threads: initialThreads,
+  threads: initialThreads
 }: {
   chatbot?: string
   threads: Thread[]
   search?: { [key: string]: string | string[] | undefined }
 }) {
   const { data: session } = useSession()
+  const { activeThread, setActiveThread } = useThread()
   const { activeCategory } = useSidebar()
   const [loading, setLoading] = React.useState<boolean>(false)
   const [threads, setThreads] = React.useState<Thread[]>(initialThreads)
@@ -47,19 +49,36 @@ export default function UserThreadPanel({
         jwt: session!.user.hasuraJwt,
         userId: session!.user.id,
         limit: PAGE_SIZE,
-        ...activeCategory ? {
-          categoryId: activeCategory
-        } : {
-          chatbotName: chatbot
-        }
+        ...(activeCategory
+          ? {
+              categoryId: activeCategory
+            }
+          : {
+              chatbotName: chatbot
+            })
       })
       setThreads(threads)
       setCount(threads.length)
     }
   }
 
+  const handleThreadsChange = () => {
+    if (
+      activeThread &&
+      threads.filter(thread => thread.threadId === activeThread).length === 0
+    ) {
+      setActiveThread(null)
+    }
+  }
+
+  React.useEffect(() => {
+    handleThreadsChange()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [threads])
+
   React.useEffect(() => {
     handleCategoryChange()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeCategory, chatbot])
 
   return (
@@ -80,4 +99,3 @@ export default function UserThreadPanel({
     </>
   )
 }
-
