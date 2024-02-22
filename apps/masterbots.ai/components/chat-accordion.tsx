@@ -51,6 +51,8 @@ export const ChatAccordion = ({
       thread?.threadId !== activeThread?.threadId
     ) {
       setOpen(false)
+    } else if (activeThread === null && thread?.threadId) {
+      setOpen(false)
     }
   }, [activeThread, thread])
 
