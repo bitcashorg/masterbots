@@ -46,9 +46,10 @@ export const ChatAccordion = ({
   }
   React.useEffect(() => {
     if (
-      thread?.threadId &&
-      activeThread !== null &&
-      thread?.threadId !== activeThread?.threadId
+      (thread?.threadId &&
+        activeThread !== null &&
+        thread?.threadId !== activeThread?.threadId) ||
+      (activeThread === null && thread?.threadId)
     ) {
       setOpen(false)
     }

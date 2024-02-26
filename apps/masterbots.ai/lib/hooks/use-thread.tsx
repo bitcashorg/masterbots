@@ -8,6 +8,7 @@ import { Message as AIMessage } from 'ai'
 import { uniqBy } from 'lodash'
 import toast from 'react-hot-toast'
 import { Message, Thread } from 'mb-genql'
+import { getAllUserMessagesAsStringArray } from '@/components/chat'
 
 interface ThreadContext {
   activeThread: Thread | null
@@ -48,68 +49,100 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       createdAt: new Date()
     })) ?? []
 
-  const userPreferencesPrompts: AIMessage[] = [
-    {
-      id: activeThread?.threadId,
-      role: 'system',
-      content:
-        `Your response tone will be ${activeThread?.chatbot.defaultTone}. ` +
-        `Your response length will be ${activeThread?.chatbot.defaultLength}. ` +
-        `Your response format will be ${activeThread?.chatbot.defaultType}. ` +
-        `Your response complexity level will be ${activeThread?.chatbot.defaultComplexity}.`,
-      createdAt: new Date()
-    }
-  ]
+  const userPreferencesPrompts: AIMessage[] = activeThread
+    ? [
+        {
+          id: activeThread?.threadId,
+          role: 'system',
+          content:
+            `Your response tone will be ${activeThread?.chatbot.defaultTone}. ` +
+            `Your response length will be ${activeThread?.chatbot.defaultLength}. ` +
+            `Your response format will be ${activeThread?.chatbot.defaultType}. ` +
+            `Your response complexity level will be ${activeThread?.chatbot.defaultComplexity}.`,
+          createdAt: new Date()
+        }
+      ]
+    : []
 
   // format all user prompts and chatgpt 'assistant' messages
-  const userAndAssistantMessages: AIMessage[] = messagesFromDB.map(m => ({
-    id: m.messageId,
-    role: m.role as AIMessage['role'],
-    content: m.content,
-    createdAt: m.createdAt
-  }))
+  const userAndAssistantMessages: AIMessage[] = activeThread
+    ? messagesFromDB.map(m => ({
+        id: m.messageId,
+        role: m.role as AIMessage['role'],
+        content: m.content,
+        createdAt: m.createdAt
+      }))
+    : []
 
   // concatenate all message to pass it to chat component
   const initialMessages: AIMessage[] = chatbotSystemPrompts
     .concat(userPreferencesPrompts)
     .concat(userAndAssistantMessages)
 
-  const { messages, append, reload, stop, isLoading, input, setInput } =
-    useChat({
-      // we remove previous assistant responses to get better responses thru
-      // our prompting strategy
-      initialMessages: initialMessages?.filter(m => m.role === 'system'),
-      id: activeThread?.threadId,
-      body: {
-        id: activeThread?.threadId
-      },
-      onResponse(response) {
-        if (response.status === 401) {
-          toast.error(response.statusText)
-        }
-      },
-      async onFinish(message: AIMessage) {
-        await saveNewMessage({
-          role: 'assistant',
-          threadId: activeThread?.threadId,
-          content: message.content,
-          jwt: session!.user.hasuraJwt
-        })
+  const {
+    messages,
+    append,
+    reload,
+    stop,
+    isLoading,
+    input,
+    setInput,
+    setMessages
+  } = useChat({
+    // we remove previous assistant responses to get better responses thru
+    // our prompting strategy
+    initialMessages: initialMessages?.filter(m => m.role === 'system'),
+    id: activeThread?.threadId,
+    body: {
+      id: activeThread?.threadId
+    },
+    onResponse(response) {
+      if (response.status === 401) {
+        toast.error(response.statusText)
       }
-    })
+    },
+    async onFinish(message: AIMessage) {
+      await saveNewMessage({
+        role: 'assistant',
+        threadId: activeThread?.threadId,
+        content: message.content,
+        jwt: session!.user.hasuraJwt
+      })
+    }
+  })
 
   const fetchMessages = async () => {
     const messagesFromDB = await getMessages({
       threadId: activeThread?.threadId
     })
     setMessagesFromDB(messagesFromDB)
+    setMessages(chatbotSystemPrompts)
   }
 
-  const sendMessageFromResponse = (bulletContent: string) => {
-    const fullMessage = `Tell me more about ${bulletContent}`
-    setIsNewResponse(true)
-    append({ content: fullMessage, role: 'user' })
-  }
+  const allMessages = uniqBy(
+    initialMessages?.concat(messages),
+    'content'
+  ).filter(m => m.role !== 'system')
+
+  const sendMessageFromResponse = React.useCallback(
+    async (bulletContent: string) => {
+      const fullMessage = `Tell me more about ${bulletContent}`
+      setIsNewResponse(true)
+      await saveNewMessage({
+        role: 'user',
+        threadId: activeThread?.threadId,
+        content: fullMessage,
+        jwt: session!.user.hasuraJwt
+      })
+      append({
+        role: 'user',
+        content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
+          allMessages
+        )}].  Then answer this question: ${fullMessage}`
+      })
+    },
+    [activeThread?.threadId, allMessages, append, session]
+  )
 
   React.useEffect(() => {
     if (activeThread) {
@@ -117,26 +150,31 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     } else {
       setMessagesFromDB([])
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeThread])
 
-  const allMessages = uniqBy(
-    initialMessages?.concat(messages),
-    'content'
-  ).filter(m => m.role !== 'system')
+  const value = React.useMemo(
+    () => ({
+      activeThread,
+      setActiveThread,
+      allMessages,
+      sendMessageFromResponse,
+      initialMessages,
+      isNewResponse,
+      setIsNewResponse
+    }),
+    [
+      activeThread,
+      setActiveThread,
+      allMessages,
+      sendMessageFromResponse,
+      initialMessages,
+      isNewResponse,
+      setIsNewResponse
+    ]
+  )
 
   return (
-    <ThreadContext.Provider
-      value={{
-        activeThread,
-        setActiveThread,
-        allMessages,
-        sendMessageFromResponse,
-        initialMessages,
-        isNewResponse,
-        setIsNewResponse
-      }}
-    >
-      {children}
-    </ThreadContext.Provider>
+    <ThreadContext.Provider value={value}>{children}</ThreadContext.Provider>
   )
 }
