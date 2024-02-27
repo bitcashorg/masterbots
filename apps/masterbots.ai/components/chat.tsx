@@ -154,16 +154,16 @@ export function Chat({
       })
       router.refresh()
     }
-    if (activeThread?.threadId) {
-      router.push(
-        `/${activeThread?.chatbot.name.trim().toLowerCase()}/${activeThread?.threadId}`,
-        {
-          shallow: true,
-          scroll: false
-        }
-      )
-      router.refresh()
-    }
+    // if (activeThread?.threadId) {
+    //   router.push(
+    //     `/${activeThread?.chatbot.name.trim().toLowerCase()}/${activeThread?.threadId}`,
+    //     {
+    //       shallow: true,
+    //       scroll: false
+    //     }
+    //   )
+    //   router.refresh()
+    // }
     await saveNewMessage({
       role: 'user',
       threadId:

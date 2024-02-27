@@ -131,14 +131,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     async (bulletContent: string) => {
       const fullMessage = `Tell me more about ${bulletContent}`
       setIsNewResponse(true)
-      router.push(
-        `/${activeThread?.chatbot.name.trim().toLowerCase()}/${activeThread?.threadId}`,
-        {
-          shallow: true,
-          scroll: false
-        }
-      )
-      router.refresh()
+
       await saveNewMessage({
         role: 'user',
         threadId: activeThread?.threadId,
