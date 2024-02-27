@@ -42,16 +42,21 @@ export function ChatList({
 
   if (!messages.length) return null
   return (
-    <div className={`relative max-w-3xl px-4 mx-auto ${className || ''}`}>
+    <div
+      className={`relative max-w-3xl px-4 mx-auto ${className || ''} ${isThread ? 'flex flex-col gap-3' : ''}`}
+    >
       {pairs.map((pair: MessagePair, key: number) => (
         <div key={key}>
           <ChatAccordion
             defaultState={
               key === 0 || (key === pairs.length - 1 && isNewResponse)
             }
-            className={`border-none mb-4 ${isThread ? 'relative' : ''}`}
-            triggerClass={`dark:border-mirage border-gray-300 hover:rounded-xl border-b px-3 pt-3 dark:hover:bg-mirage hover:bg-gray-300 ${isThread ? 'sticky top-0 md:-top-10 z-[1] bg-[#18181b]' : ''} ${!isThread && key === 0 ? 'hidden' : ''}`}
+            className={`border-none ${isThread ? 'relative' : ''}`}
+            triggerClass={`dark:border-mirage border-gray-300 hover:rounded-xl !rounded-b-[0] border-b 
+            ${isThread ? 'sticky top-0 md:-top-10 z-[1] dark:bg-[#18181b] bg-[#f4f4f5] border-l-[0] px-3 [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-xl' : 'px-9 '}
+            py-[0.4375rem] dark:hover:bg-mirage hover:bg-gray-300 ${!isThread && key === 0 ? 'hidden' : ''}`}
             contentClass="!pb-0"
+            arrowClass={isThread ? 'top-4' : 'right-5 top-4'}
           >
             {/* Thread Title */}
             {!isThread && key === 0 ? (

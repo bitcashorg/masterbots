@@ -40,6 +40,7 @@ export function BrowseChatMessageList({
           defaultState
           key={key}
           className="border-none"
+          contentClass={`!pb-0 !border-l-[0] ${key === pairs.length - 1 ? '!border-b-[0]' : ''}`}
           triggerClass={`dark:border-mirage border-gray-300 border-b-[1px] py-[0.625rem] px-[2.125rem] gap-4 ${key === 0 && !isThread ? 'hidden' : ''}`}
           arrowClass="mt-[0.625rem] right-[0.625rem]"
         >

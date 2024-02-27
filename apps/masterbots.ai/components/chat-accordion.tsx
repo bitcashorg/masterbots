@@ -58,6 +58,7 @@ export const ChatAccordion = ({
   return (
     <div className={cn('border-b', className)} {...props}>
       <button
+        data-state={open ? 'open' : 'closed'}
         onClick={toggle}
         className={`flex flex-1 justify-start flex-col relative
         dark:border-mirage border-gray-300

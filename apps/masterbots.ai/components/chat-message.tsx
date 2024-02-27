@@ -37,7 +37,7 @@ export function ChatMessage({
           components={{
             p({ node, children }) {
               return (
-                <p className="mb-2 text-left whitespace-pre-line last:mb-0">
+                <p className="text-left whitespace-pre-line">
                   {cleanMessage.role === 'user' ? (
                     children
                   ) : (
