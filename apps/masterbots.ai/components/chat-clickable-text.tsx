@@ -1,4 +1,8 @@
-export function ClickableText({ children, isListItem, sendMessageFromResponse }: {
+export function ClickableText({
+  children,
+  isListItem,
+  sendMessageFromResponse
+}: {
   children: React.ReactNode
   isListItem: boolean
   sendMessageFromResponse?: (message: string) => void
@@ -13,10 +17,11 @@ export function ClickableText({ children, isListItem, sendMessageFromResponse }:
 
   const handleClick = () => {
     if (sendMessageFromResponse && match) {
-      sendMessageFromResponse(clickableText.replace(/(:|\.|\,)\s*$/, '').replace(/•\s/g, ''))
+      sendMessageFromResponse(
+        clickableText.replace(/(:|\.|\,)\s*$/, '').replace(/•\s/g, '')
+      )
     }
   }
-
 
   if (!clickableText.trim()) {
     return <>{fullText}</>
@@ -25,7 +30,7 @@ export function ClickableText({ children, isListItem, sendMessageFromResponse }:
   return (
     <>
       <span
-        className="text-link cursor-pointer font-bold hover:underline"
+        className="text-link cursor-pointer hover:underline"
         onClick={handleClick}
       >
         {clickableText}
