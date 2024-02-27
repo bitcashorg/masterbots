@@ -9,6 +9,7 @@ import { uniqBy } from 'lodash'
 import toast from 'react-hot-toast'
 import { Message, Thread } from 'mb-genql'
 import { getAllUserMessagesAsStringArray } from '@/components/chat'
+import { useRouter } from 'next/navigation'
 
 interface ThreadContext {
   activeThread: Thread | null
@@ -35,6 +36,8 @@ interface ThreadProviderProps {
 }
 
 export function ThreadProvider({ children }: ThreadProviderProps) {
+  const router = useRouter()
+
   const [activeThread, setActiveThread] = React.useState<Thread | null>(null)
   const { data: session } = useSession()
 
@@ -128,6 +131,14 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     async (bulletContent: string) => {
       const fullMessage = `Tell me more about ${bulletContent}`
       setIsNewResponse(true)
+      router.push(
+        `/${activeThread?.chatbot.name.trim().toLowerCase()}/${activeThread?.threadId}`,
+        {
+          shallow: true,
+          scroll: false
+        }
+      )
+      router.refresh()
       await saveNewMessage({
         role: 'user',
         threadId: activeThread?.threadId,
