@@ -51,11 +51,11 @@ export function ChatList({
             defaultState={
               key === 0 || (key === pairs.length - 1 && isNewResponse)
             }
-            className={`border-none ${isThread ? 'relative' : ''}`}
-            triggerClass={`dark:border-mirage border-gray-300 hover:rounded-xl !rounded-b-[0] border-b 
-            ${isThread ? 'sticky top-0 md:-top-10 z-[1] dark:bg-[#18181b] bg-[#f4f4f5] border-l-[0] px-3 [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-xl' : 'px-9 '}
+            className={` ${isThread ? 'relative' : ''}`}
+            triggerClass={`dark:border-b-mirage border-b-gray-300
+            ${isThread ? 'sticky top-0 md:-top-10 z-[1] dark:bg-[#18181b] bg-[#f4f4f5] !border-l-[transparent] px-3 [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]' : 'px-9 '}
             py-[0.4375rem] dark:hover:bg-mirage hover:bg-gray-300 ${!isThread && key === 0 ? 'hidden' : ''}`}
-            contentClass="!pb-0"
+            contentClass={`${!isThread && key === 0 ? '!border-[transparent]' : ''}`}
             arrowClass={isThread ? 'top-4' : 'right-5 top-4'}
           >
             {/* Thread Title */}
@@ -86,7 +86,11 @@ export function ChatList({
             )}
 
             {/* Thread Content */}
-            <div className="max-h-[75vh] scrollbar mx-[2.125rem] px-4 py-5 dark:border-mirage border-gray-300 border-x">
+            <div
+              className={`max-h-[75vh] scrollbar mx-[2.125rem] px-4 py-5
+            border-[transparent] dark:border-x-mirage border-x-gray-300 border
+            ${!isThread && key === 0 ? '!border-[transparent]' : ''}`}
+            >
               {pair.chatGptMessage.length > 0
                 ? pair.chatGptMessage.map((message, index) => (
                     <ChatMessage

@@ -98,13 +98,13 @@ function ThreadComponent({
   return (
     <li ref={threadRef}>
       <ChatAccordion
-        className="border-none relative"
-        contentClass="!py-0 !border-b-[0]"
+        className="relative"
+        contentClass="!pt-0 !border-b-[transparent]"
         // handleTrigger={goToThread}
-        triggerClass="gap-[0.375rem] px-[0.6875rem] py-3 hover:rounded-xl dark:border-mirage !rounded-b-[0]
-        border-gray-300 border-b
-        dark:hover:bg-mirage hover:bg-gray-300 sticky top-0 z-[1] dark:hover:bg-mirage hover:bg-gray-300 sticky top-0 z-[1] dark:bg-[#18181b] bg-[#f4f4f5]
-        [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-xl"
+        triggerClass="gap-[0.375rem] px-[0.6875rem] py-3
+        dark:border-b-mirage border-b-gray-300
+        sticky top-0 z-[1] dark:hover:bg-mirage hover:bg-gray-300 sticky top-0 z-[1] dark:bg-[#18181b] bg-[#f4f4f5]
+        [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]"
         arrowClass="-right-1 top-[1.125rem]"
         thread={thread}
       >
