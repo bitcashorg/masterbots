@@ -51,7 +51,7 @@ function ThreadComponent({
   hasMore: boolean
 }) {
   const threadRef = React.useRef<HTMLLIElement>(null)
-  const router = useRouter()
+  // const router = useRouter()
   const {
     allMessages,
     sendMessageFromResponse,
@@ -79,13 +79,13 @@ function ThreadComponent({
     }
   }, [threadRef.current, isLast, hasMore, loading, loadMore])
 
-  const goToThread = () => {
-    router.push(
-      `/${thread.chatbot.name.trim().toLowerCase()}/${thread.threadId}`
-    )
-    setActiveThread(null)
-    router.refresh()
-  }
+  // const goToThread = () => {
+  //   router.push(
+  //     `/${thread.chatbot.name.trim().toLowerCase()}/${thread.threadId}`
+  //   )
+  //   setActiveThread(null)
+  //   router.refresh()
+  // }
 
   React.useEffect(() => {
     return () => {
@@ -99,10 +99,13 @@ function ThreadComponent({
     <li ref={threadRef}>
       <ChatAccordion
         className="border-none relative"
-        contentClass="!pt-0"
-        handleTrigger={goToThread}
-        triggerClass="gap-[0.375rem] px-4 py-3 hover:rounded-xl dark:border-mirage border-gray-300 border-b dark:hover:bg-mirage hover:bg-gray-300 sticky top-0 z-[1] dark:bg-[#18181b] bg-[#f4f4f5]"
-        arrowClass="right-1"
+        contentClass="!py-0 !border-b-[0]"
+        // handleTrigger={goToThread}
+        triggerClass="gap-[0.375rem] px-[0.6875rem] py-3 hover:rounded-xl dark:border-mirage !rounded-b-[0]
+        border-gray-300 border-b
+        dark:hover:bg-mirage hover:bg-gray-300 sticky top-0 z-[1] dark:hover:bg-mirage hover:bg-gray-300 sticky top-0 z-[1] dark:bg-[#18181b] bg-[#f4f4f5]
+        [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-xl"
+        arrowClass="-right-1 top-[1.125rem]"
         thread={thread}
       >
         {/* Thread Title */}
