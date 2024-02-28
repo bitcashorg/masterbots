@@ -69,12 +69,12 @@ export default function BrowseListItem({
         // handleTrigger={goToThread}
         className="relative"
         contentClass="!pt-0"
-        triggerClass="dark:hover:bg-mirage hover:bg-gray-300 !pr-0
-        p-3 flex flex-col gap-[6px] 
+        triggerClass="dark:hover:bg-mirage hover:bg-gray-300 pl-[8px]
+        py-3 flex flex-col gap-[6px] 
         sticky top-0 z-[1]
         [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]
         dark:bg-[#18181b] bg-[#f4f4f5]"
-        arrowClass="mt-3"
+        arrowClass="mt-[10px]"
       >
         {/* Thread Title */}
         <div

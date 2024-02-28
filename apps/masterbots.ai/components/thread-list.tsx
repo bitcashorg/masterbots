@@ -101,7 +101,7 @@ function ThreadComponent({
         className="relative"
         contentClass="!pt-0 !border-b-[transparent]"
         // handleTrigger={goToThread}
-        triggerClass="gap-[0.375rem] px-[0.6875rem] py-3
+        triggerClass="gap-[0.375rem] py-3
         dark:border-b-mirage border-b-gray-300
         sticky top-0 z-[1] dark:hover:bg-mirage hover:bg-gray-300 sticky top-0 z-[1] dark:bg-[#18181b] bg-[#f4f4f5]
         [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]"
@@ -110,7 +110,7 @@ function ThreadComponent({
       >
         {/* Thread Title */}
 
-        <div className="">
+        <div className="px-[11px]">
           {thread.messages
             .filter(m => m.role === 'user')[0]
             ?.content.substring(0, 100) || 'wat'}
@@ -119,7 +119,7 @@ function ThreadComponent({
         {/* Thread Description */}
         <div className="opacity-50 overflow-hidden text-sm text-left">
           {thread.messages.filter(m => m.role !== 'user')?.[0]?.content ? (
-            <div className="flex-1 px-1 pb-3 space-y-2 overflow-hidden">
+            <div className="flex-1 px-[8px] pb-3 space-y-2 overflow-hidden">
               <ShortMessage
                 content={
                   thread.messages.filter(m => m.role !== 'user')[0].content
