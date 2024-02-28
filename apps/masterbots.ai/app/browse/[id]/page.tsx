@@ -1,8 +1,7 @@
 import { getChatbot, getBrowseThreads } from '@/services/hasura'
 import { botNames } from '@/lib/bots-names'
-import BrowseListItem from '@/components/browse-list-item'
-import { Thread } from 'mb-genql'
 import BrowseChatbotDetails from '@/components/browse-chatbot-details'
+import BrowseUserDetails from '@/components/browse-user-details'
 import BrowseSpecificThreadList from '@/components/browse-specific-thread-list'
 
 const PAGE_SIZE = 50
@@ -39,6 +38,11 @@ export default async function BotThreadsPage({
   return (
     <div className="w-full py-5">
       {chatbot ? <BrowseChatbotDetails chatbot={chatbot} /> : ''}
+      {searchParams?.type === 'user' ? (
+        <BrowseUserDetails user={threads?.[0].user} />
+      ) : (
+        ''
+      )}
       <BrowseSpecificThreadList
         initialThreads={threads}
         PAGE_SIZE={PAGE_SIZE}

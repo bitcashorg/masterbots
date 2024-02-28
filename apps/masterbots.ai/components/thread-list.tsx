@@ -51,7 +51,7 @@ function ThreadComponent({
   hasMore: boolean
 }) {
   const threadRef = React.useRef<HTMLLIElement>(null)
-  const router = useRouter()
+  // const router = useRouter()
   const {
     allMessages,
     sendMessageFromResponse,
@@ -79,13 +79,13 @@ function ThreadComponent({
     }
   }, [threadRef.current, isLast, hasMore, loading, loadMore])
 
-  const goToThread = () => {
-    router.push(
-      `/${thread.chatbot.name.trim().toLowerCase()}/${thread.threadId}`
-    )
-    setActiveThread(null)
-    router.refresh()
-  }
+  // const goToThread = () => {
+  //   router.push(
+  //     `/${thread.chatbot.name.trim().toLowerCase()}/${thread.threadId}`
+  //   )
+  //   setActiveThread(null)
+  //   router.refresh()
+  // }
 
   React.useEffect(() => {
     return () => {
@@ -98,16 +98,19 @@ function ThreadComponent({
   return (
     <li ref={threadRef}>
       <ChatAccordion
-        className="border-none relative"
-        contentClass="!pt-0"
-        handleTrigger={goToThread}
-        triggerClass="gap-[0.375rem] px-4 py-3 hover:rounded-xl dark:border-mirage border-gray-300 border-b dark:hover:bg-mirage hover:bg-gray-300 sticky top-0 z-[1] dark:bg-[#18181b] bg-[#f4f4f5]"
-        arrowClass="right-1"
+        className="relative"
+        contentClass="!pt-0 !border-b-[transparent]"
+        // handleTrigger={goToThread}
+        triggerClass="gap-[0.375rem] py-3
+        dark:border-b-mirage border-b-gray-300
+        sticky top-0 z-[1] dark:hover:bg-mirage hover:bg-gray-300 sticky top-0 z-[1] dark:bg-[#18181b] bg-[#f4f4f5]
+        [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]"
+        arrowClass="-right-1 top-[1.125rem]"
         thread={thread}
       >
         {/* Thread Title */}
 
-        <div className="">
+        <div className="px-[11px]">
           {thread.messages
             .filter(m => m.role === 'user')[0]
             ?.content.substring(0, 100) || 'wat'}
@@ -116,7 +119,7 @@ function ThreadComponent({
         {/* Thread Description */}
         <div className="opacity-50 overflow-hidden text-sm text-left">
           {thread.messages.filter(m => m.role !== 'user')?.[0]?.content ? (
-            <div className="flex-1 px-1 pb-3 space-y-2 overflow-hidden">
+            <div className="flex-1 px-[8px] pb-3 space-y-2 overflow-hidden">
               <ShortMessage
                 content={
                   thread.messages.filter(m => m.role !== 'user')[0].content

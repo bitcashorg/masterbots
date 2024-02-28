@@ -154,7 +154,16 @@ export function Chat({
       })
       router.refresh()
     }
-
+    // if (activeThread?.threadId) {
+    //   router.push(
+    //     `/${activeThread?.chatbot.name.trim().toLowerCase()}/${activeThread?.threadId}`,
+    //     {
+    //       shallow: true,
+    //       scroll: false
+    //     }
+    //   )
+    //   router.refresh()
+    // }
     await saveNewMessage({
       role: 'user',
       threadId:
@@ -212,8 +221,8 @@ export function Chat({
         chatbot={chatbot}
         placeholder={
           isNewChat
-            ? `Start a new chat with ${chatbot.name}`
-            : `Send new message to ${chatbot.name}`
+            ? `Start New Chat with ${chatbot.name}`
+            : `Continue This Chat with ${chatbot.name}`
         }
         showReload={!isNewChat}
         isAtBottom={isAtBottom}

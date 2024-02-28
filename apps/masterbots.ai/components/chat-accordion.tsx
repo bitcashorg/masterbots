@@ -56,15 +56,18 @@ export const ChatAccordion = ({
   }, [activeThread, thread])
 
   return (
-    <div className={cn('border-b', className)} {...props}>
+    <div className={className || ''} {...props}>
       <button
+        data-state={open ? 'open' : 'closed'}
         onClick={toggle}
         className={`flex flex-1 justify-start flex-col relative
-        dark:border-mirage border-gray-300
+        transition-all ease-in-out duration-200
+        border-[transparent] border
+        hover:rounded-t-[8px]
         font-medium w-full ${
           open
-            ? 'border-b-[1px]'
-            : 'hover:border-b-[1px] [&>div>div>button]:!hidden'
+            ? 'dark:border-b-mirage border-b-gray-300'
+            : 'dark:hover:border-b-mirage hover:border-b-gray-300 [&>div>div>button]:!hidden'
         } ${triggerClass || ''}`}
       >
         {children[0]}
@@ -82,11 +85,11 @@ export const ChatAccordion = ({
         />
       </button>
       <div
-        className={`text-sm transition-all
+        className={`text-sm transition-all border
       ${
         open
-          ? 'animate-accordion-down pb-4 border-[1px] border-t-0 border-r-0 dark:border-mirage border-gray-300'
-          : 'overflow-hidden animate-accordion-up h-0'
+          ? 'animate-accordion-down dark:border-mirage border-gray-300 !border-t-[transparent] !border-r-[transparent]'
+          : 'overflow-hidden animate-accordion-up h-0 border-[transparent]'
       } ${contentClass || ''}`}
       >
         {children[2]}
