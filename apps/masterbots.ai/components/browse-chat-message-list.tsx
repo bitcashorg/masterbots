@@ -39,9 +39,9 @@ export function BrowseChatMessageList({
         <ChatAccordion
           defaultState
           key={key}
-          className="border-none"
-          triggerClass={`dark:border-mirage border-gray-300 border-b-[1px] py-[0.625rem] px-[2.125rem] gap-4 ${key === 0 && !isThread ? 'hidden' : ''}`}
-          arrowClass="mt-[0.625rem] right-[0.625rem]"
+          contentClass={`!border-l-[transparent] ${key === pairs.length - 1 ? '!border-b-[transparent]' : ''}`}
+          triggerClass={`dark:border-b-mirage border-b-gray-300 py-[0.625rem] px-[47px] gap-4 ${key === 0 && !isThread ? 'hidden' : ''}`}
+          arrowClass="mt-[0.625rem] right-[calc(47px-1rem)] translate-x-[50%]"
         >
           {/* Thread Title */}
           {(key !== 0 || isThread) && (
@@ -89,7 +89,7 @@ export function BrowseChatMessageList({
           <></>
 
           {/* Thread Content */}
-          <div className="border-x-[1px] mx-9 py-5 max-h-[75vh] scrollbar dark:border-mirage border-gray-300">
+          <div className="border-x-[1px] mx-[46px] py-5 max-h-[75vh] scrollbar dark:border-mirage border-gray-300">
             {pair.chatGptMessage.length > 0
               ? pair.chatGptMessage.map((message, index) => (
                   <BrowseChatMessage

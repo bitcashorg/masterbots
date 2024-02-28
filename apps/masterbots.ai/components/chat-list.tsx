@@ -42,16 +42,21 @@ export function ChatList({
 
   if (!messages.length) return null
   return (
-    <div className={`relative max-w-3xl px-4 mx-auto ${className || ''}`}>
+    <div
+      className={`relative max-w-3xl px-4 mx-auto ${className || ''} ${isThread ? 'flex flex-col gap-3' : ''}`}
+    >
       {pairs.map((pair: MessagePair, key: number) => (
         <div key={key}>
           <ChatAccordion
             defaultState={
               key === 0 || (key === pairs.length - 1 && isNewResponse)
             }
-            className={`border-none mb-4 ${isThread ? 'relative' : ''}`}
-            triggerClass={`dark:border-mirage border-gray-300 hover:rounded-xl border-b px-3 pt-3 dark:hover:bg-mirage hover:bg-gray-300 ${isThread ? 'sticky top-0 md:-top-10 z-[1] bg-[#18181b]' : ''} ${!isThread && key === 0 ? 'hidden' : ''}`}
-            contentClass="!pb-0"
+            className={` ${isThread ? 'relative' : ''}`}
+            triggerClass={`dark:border-b-mirage border-b-gray-300
+            ${isThread ? 'sticky top-0 md:-top-10 z-[1] dark:bg-[#18181b] bg-[#f4f4f5] !border-l-[transparent] px-3 [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]' : 'px-[calc(47px-0.25rem)] '}
+            py-[0.4375rem] dark:hover:bg-mirage hover:bg-gray-300 ${!isThread && key === 0 ? 'hidden' : ''}`}
+            contentClass={`${!isThread && key === 0 ? '!border-[transparent]' : ''}`}
+            arrowClass={isThread ? 'top-4' : 'right-5 top-4'}
           >
             {/* Thread Title */}
             {!isThread && key === 0 ? (
@@ -81,7 +86,11 @@ export function ChatList({
             )}
 
             {/* Thread Content */}
-            <div className="max-h-[75vh] scrollbar mx-[2.125rem] px-4 py-5 dark:border-mirage border-gray-300 border-x">
+            <div
+              className={`max-h-[75vh] scrollbar mx-[46px] px-1 py-4
+            border-[transparent] dark:border-x-mirage border-x-gray-300 border
+            ${!isThread && key === 0 ? '!border-[transparent]' : ''}`}
+            >
               {pair.chatGptMessage.length > 0
                 ? pair.chatGptMessage.map((message, index) => (
                     <ChatMessage

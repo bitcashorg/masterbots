@@ -66,11 +66,16 @@ export default function BrowseListItem({
     <div ref={threadRef}>
       <ChatAccordion
         handleOpen={fetchMessages}
-        handleTrigger={goToThread}
-        className="border-none relative"
+        // handleTrigger={goToThread}
+        className="relative"
         contentClass="!pt-0"
-        triggerClass="dark:hover:bg-mirage hover:bg-gray-300 !pr-0 hover:rounded-xl border-b-[1px] p-3 flex flex-col gap-[6px] sticky top-0 z-[1] dark:bg-[#18181b] bg-[#f4f4f5]"
-        arrowClass="mt-3"
+        triggerClass="dark:hover:bg-mirage hover:bg-gray-300 pl-[8px]
+        py-3 flex flex-col gap-[6px] 
+        sticky top-0 z-[1]
+        dark:border-b-mirage border-b-gray-300
+        [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]
+        dark:bg-[#18181b] bg-[#f4f4f5]"
+        arrowClass="mt-[10px]"
       >
         {/* Thread Title */}
         <div

@@ -74,7 +74,7 @@ export default function NewChat({
       setInput={setInput}
       chatbot={chatbot}
       showReload={false}
-      placeholder={`Start a new chat with ${chatbot.name}`}
+      placeholder={`Start New Chat with ${chatbot.name}`}
     />
   )
 }
