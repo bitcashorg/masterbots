@@ -140,3 +140,32 @@ export const readingTime = (messages: { content: string }[]) => {
   const time = Math.ceil(words / wpm)
   return time
 }
+
+// Easing function for smooth animation
+export const easeInOutQuad = (t: number, b: number, c: number, d: number) => {
+  t /= d / 2
+  if (t < 1) return (c / 2) * t * t + b
+  t--
+  return (-c / 2) * (t * (t - 2) - 1) + b
+}
+
+export const scrollToBottomOfElement = (element?: HTMLElement) => {
+  if (element) {
+    const targetScroll = element.scrollHeight - element.clientHeight
+    const duration = 500 // Set the duration of the animation in milliseconds
+
+    const startTime = performance.now()
+
+    const animateScroll = (currentTime: number) => {
+      const elapsed = currentTime - startTime
+
+      element.scrollTop = easeInOutQuad(elapsed, 0, targetScroll, duration)
+
+      if (elapsed < duration) {
+        requestAnimationFrame(animateScroll)
+      }
+    }
+    requestAnimationFrame(animateScroll)
+  }
+  return
+}

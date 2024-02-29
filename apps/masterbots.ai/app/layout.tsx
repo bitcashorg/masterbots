@@ -17,7 +17,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           GeistMono.variable
         )}
       >
-        { /* TODO: https://github.com/TheSGJ/nextjs-toploader/issues/66 */}
+        {/* TODO: https://github.com/TheSGJ/nextjs-toploader/issues/66 */}
         {/* <NextTopLoader color="#1ED761" initialPosition={0.20} /> */}
         <Toaster />
         <Providers
