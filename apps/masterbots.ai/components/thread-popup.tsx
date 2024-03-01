@@ -16,66 +16,39 @@ export function ThreadPopup({ className }: { className?: string }) {
     initialMessages,
     allMessages,
     setIsOpenPopup,
-    sendMessageFromResponse,
-    isLoading
+    sendMessageFromResponse
   } = useThread()
   const onClose = () => {
     setIsOpenPopup(!isOpenPopup)
   }
-  const containerRef = useRef<HTMLDivElement>()
-
-  const { scrollY } = useScroll({
-    container: containerRef as React.RefObject<HTMLElement>
-  })
-
-  const { isAtBottom } = useAtBottom({
-    ref: containerRef,
-    scrollY
-  })
 
   const threadTitle = allMessages.filter(m => m.role === 'user')[0]?.content
-  const scrollToBottom = () => {
-    if (containerRef.current) {
-      const element = containerRef.current
-      scrollToBottomOfElement(element)
-    }
-  }
-
-  useEffect(() => {
-    if (isLoading && scrollY) {
-      const timeout = setTimeout(() => {
-        scrollToBottom()
-        clearTimeout(timeout)
-      }, 150)
-    }
-  }, [scrollY, isLoading])
+  const threadTitleChunks = threadTitle?.split(/\s/g) // ' '
+  const threadTitleHeading = threadTitleChunks?.slice(0, 32).join(' ')
+  const threadTitleSubHeading = threadTitleChunks?.slice(32).join(' ')
 
   return (
     <div
-      className={`h-full w-full sticky top-0 left-0 bottom-0
-      dark:bg-gray bg-none  ease-in-out duration-500 z-[51] transition-all
+      className={`h-auto w-full
+      dark:bg-[#27272A80] bg-[#F4F4F580] backdrop-blur-[4px]  ease-in-out duration-500 z-[9] transition-all py-[96px]
       ${isOpenPopup ? 'animate-fade-in' : 'hidden animate-fade-out'}`}
     >
-      <div className="h-full w-full relative dark:bg-[#27272A80] bg-[#27272A80]" />
       <div
         className={cn(
           className,
           `flex flex-col z-[10] rounded-lg duration-500 ease-in-out
-      absolute h-[90%] max-w-[1032px] w-[95%] top-[50%] left-[50%]  translate-x-[-50%] translate-y-[-50%] 
+      max-w-[1032px] w-[95%] mx-auto
       transition-opacity ${isOpenPopup ? 'animate-fade-in' : 'animate-fade-out'}`
         )}
       >
-        <div className="relative rounded-t-[8px] px-[32px] py-[20px] bg-[#1E293B]">
-          <div className="px-[11px]">
-            {threadTitle && threadTitle.length > 160
-              ? threadTitle?.substring(0, 160) + '...'
+        <div className="relative rounded-t-[8px] px-[32px] py-[20px] dark:bg-[#1E293B] bg-[#E4E4E7]">
+          <div>
+            {threadTitle && threadTitleChunks.length > 32
+              ? threadTitleHeading + '…'
               : threadTitle || 'wat'}
-            {threadTitle && threadTitle.length > 320 ? (
+            {threadTitleSubHeading ? (
               <div className="opacity-50 overflow-hidden text-sm text-left">
-                {threadTitle.substring(
-                  threadTitle.length - 160,
-                  threadTitle.length
-                )}
+                {threadTitleSubHeading}
               </div>
             ) : (
               ''
@@ -88,10 +61,7 @@ export function ThreadPopup({ className }: { className?: string }) {
             <IconClose />
           </button>
         </div>
-        <div
-          ref={containerRef as React.Ref<HTMLDivElement>}
-          className="flex flex-col dark:bg-[#18181B] bg-[white] pb-[200px] h-full scrollbar"
-        >
+        <div className="flex flex-col dark:bg-[#18181B] bg-[white] h-auto rounded-b-[8px]">
           {activeThread && (
             <ChatList
               className="max-w-[100%] !px-[32px] !mx-0"
@@ -107,12 +77,11 @@ export function ThreadPopup({ className }: { className?: string }) {
 
           {activeThread ? (
             <Chat
-              scrollToBottom={scrollToBottom}
-              isAtBottom={isAtBottom}
+              isPopup
               initialMessages={initialMessages}
               chatbot={activeThread?.chatbot}
               threadId={activeThread?.threadId}
-              chatPanelClassName="!pl-0"
+              chatPanelClassName="!pl-0 rounded-b-[8px] overflow-hidden !relative"
             />
           ) : (
             ''

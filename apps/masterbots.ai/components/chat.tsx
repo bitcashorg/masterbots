@@ -26,8 +26,7 @@ export function Chat({
   chatbot,
   threadId,
   chatPanelClassName,
-  scrollToBottom: scrollToBottomFromParent,
-  isAtBottom: isAtBottomFromParent
+  isPopup
 }: ChatProps) {
   const { data: session } = useSession()
   const {
@@ -37,7 +36,9 @@ export function Chat({
     setActiveThread,
     setIsNewResponse,
     setIsOpenPopup,
-    sectionRef
+    sectionRef,
+    isOpenPopup,
+    isLoading: isLoadingThread
   } = useThread()
   const containerRef = React.useRef<HTMLDivElement>()
 
@@ -85,9 +86,7 @@ export function Chat({
   })
 
   const scrollToBottom = () => {
-    if (!params.threadId && scrollToBottomFromParent) {
-      scrollToBottomFromParent()
-    } else if (
+    if (
       (params.threadId && containerRef.current) ||
       (!params.threadId && sectionRef.current)
     ) {
@@ -192,6 +191,15 @@ export function Chat({
     }
   }, [])
 
+  useEffect(() => {
+    if ((isLoadingThread || isLoading) && isOpenPopup && scrollY) {
+      const timeout = setTimeout(() => {
+        scrollToBottom()
+        clearTimeout(timeout)
+      }, 150)
+    }
+  }, [isLoadingThread, isLoading, isOpenPopup, scrollY])
+
   return (
     <>
       {params.threadId ? (
@@ -214,28 +222,28 @@ export function Chat({
         </div>
       ) : null}
 
-      <ChatPanel
-        className={chatPanelClassName}
-        scrollToBottom={scrollToBottom}
-        id={params.threadId || isNewChat ? threadId : activeThread?.threadId}
-        isLoading={isLoading}
-        stop={stop}
-        append={appendWithMbContextPrompts}
-        reload={reload}
-        messages={allMessages}
-        input={input}
-        setInput={setInput}
-        chatbot={chatbot}
-        placeholder={
-          isNewChat
-            ? `Start New Chat with ${chatbot.name}`
-            : `Continue This Chat with ${chatbot.name}`
-        }
-        showReload={!isNewChat}
-        isAtBottom={
-          scrollToBottomFromParent ? isAtBottomFromParent : isAtBottom
-        }
-      />
+      {((isOpenPopup && isPopup) || (!isOpenPopup && !isPopup)) && (
+        <ChatPanel
+          className={chatPanelClassName}
+          scrollToBottom={scrollToBottom}
+          id={params.threadId || isNewChat ? threadId : activeThread?.threadId}
+          isLoading={isLoading}
+          stop={stop}
+          append={appendWithMbContextPrompts}
+          reload={reload}
+          messages={allMessages}
+          input={input}
+          setInput={setInput}
+          chatbot={chatbot}
+          placeholder={
+            isNewChat
+              ? `Start New Chat with ${chatbot.name}`
+              : `Continue This Chat with ${chatbot.name}`
+          }
+          showReload={!isNewChat}
+          isAtBottom={isAtBottom}
+        />
+      )}
     </>
   )
 }
@@ -246,8 +254,7 @@ export interface ChatProps extends React.ComponentProps<'div'> {
   threadId: string
   newThread?: boolean
   chatPanelClassName?: string
-  scrollToBottom?: () => void
-  isAtBottom?: boolean
+  isPopup?: boolean
 }
 
 export function getAllUserMessagesAsStringArray(allMessages: Message[]) {
