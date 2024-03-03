@@ -20,9 +20,9 @@ export default async function IndexPage() {
   })
 
   return (
-    <div>
+    <>
       <ThreadPanel threads={threads} />
       <ChatThreadListPanel />
-    </div>
+    </>
   )
 }

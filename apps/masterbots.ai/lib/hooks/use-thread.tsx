@@ -3,14 +3,21 @@
 import { useChat } from 'ai/react'
 import { useSession } from 'next-auth/react'
 import * as React from 'react'
-import { getMessages, saveNewMessage } from '@/services/hasura'
+import {
+  getChatbots,
+  getChatbotsCount,
+  getMessages,
+  saveNewMessage
+} from '@/services/hasura'
 import { Message as AIMessage } from 'ai'
 import { uniqBy } from 'lodash'
 import toast from 'react-hot-toast'
-import { Message, Thread } from 'mb-genql'
+import { Chatbot, Message, Thread } from 'mb-genql'
 import { getAllUserMessagesAsStringArray } from '@/components/chat'
 import { useRouter } from 'next/navigation'
 import { useSidebar } from './use-sidebar'
+import { useScroll } from 'framer-motion'
+import { useAtBottom } from './use-at-bottom'
 
 interface ThreadContext {
   isOpenPopup: boolean
@@ -23,7 +30,10 @@ interface ThreadContext {
   isNewResponse: boolean
   setIsNewResponse: React.Dispatch<React.SetStateAction<boolean>>
   sectionRef: React.MutableRefObject<HTMLElement | undefined>
+  isAtBottom: boolean
   isLoading: boolean
+  randomChatbot: Chatbot | null
+  getRandomChatbot: () => void
 }
 
 const ThreadContext = React.createContext<ThreadContext | undefined>(undefined)
@@ -42,14 +52,15 @@ interface ThreadProviderProps {
 
 export function ThreadProvider({ children }: ThreadProviderProps) {
   const router = useRouter()
-  const sectionRef = React.useRef<HTMLElement>()
   const { activeCategory } = useSidebar()
   const [activeThread, setActiveThread] = React.useState<Thread | null>(null)
+  const sectionRef = React.useRef<HTMLElement>()
   const { data: session } = useSession()
 
   const [messagesFromDB, setMessagesFromDB] = React.useState<Message[]>([])
   const [isNewResponse, setIsNewResponse] = React.useState<boolean>(false)
   const [isOpenPopup, setIsOpenPopup] = React.useState<boolean>(false)
+  const [randomChatbot, setRandomChatbot] = React.useState<Chatbot | null>(null)
 
   const chatbotSystemPrompts: AIMessage[] =
     activeThread?.chatbot.prompts.map(({ prompt }) => ({
@@ -176,6 +187,40 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpenPopup])
 
+  const getRandomChatbot = React.useCallback(async () => {
+    if (activeThread === null && session?.user?.hasuraJwt) {
+      const chatbotsCount = await getChatbotsCount({
+        categoryId: activeCategory,
+        jwt: session!.user.hasuraJwt
+      })
+      const offset = Math.floor(Math.random() * chatbotsCount)
+      const chatbots = await getChatbots({
+        limit: 1,
+        offset,
+        categoryId: activeCategory
+      })
+
+      if (chatbots.length) {
+        setRandomChatbot(chatbots[0])
+      } else {
+        setRandomChatbot(null)
+      }
+    }
+  }, [activeCategory, activeThread, session])
+
+  React.useEffect(() => {
+    getRandomChatbot()
+  }, [getRandomChatbot])
+
+  const { scrollY } = useScroll({
+    container: sectionRef as React.RefObject<HTMLElement>
+  })
+
+  const { isAtBottom } = useAtBottom({
+    ref: sectionRef,
+    scrollY
+  })
+
   const value = React.useMemo(
     () => ({
       activeThread,
@@ -187,8 +232,11 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       setIsNewResponse,
       isOpenPopup,
       setIsOpenPopup,
-      sectionRef,
-      isLoading
+      isAtBottom,
+      isLoading,
+      randomChatbot,
+      getRandomChatbot,
+      sectionRef
     }),
     [
       activeThread,
@@ -200,8 +248,11 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       setIsNewResponse,
       isOpenPopup,
       setIsOpenPopup,
-      sectionRef,
-      isLoading
+      isAtBottom,
+      isLoading,
+      randomChatbot,
+      getRandomChatbot,
+      sectionRef
     ]
   )
 

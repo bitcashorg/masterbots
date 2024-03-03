@@ -72,23 +72,30 @@ export async function getChatbots({
 }: GetChatbotsParams) {
   const client = getHasuraClient({})
   const { chatbot } = await client.query({
-    chatbot: everything,
-    __args: {
-      limit: limit ? limit : 20,
-      ...(offset
-        ? {
-            offset
-          }
-        : {}),
-      ...(categoryId
-        ? {
-            where: {
-              categories: {
-                categoryId
+    chatbot: {
+      threads: {
+        threadId: true
+      },
+      ...everything,
+      __args: {
+        limit: limit ? limit : 20,
+        ...(offset
+          ? {
+              offset
+            }
+          : {}),
+        ...(categoryId
+          ? {
+              where: {
+                categories: {
+                  categoryId: {
+                    _eq: categoryId
+                  }
+                }
               }
             }
-          }
-        : {})
+          : {})
+      }
     }
   })
 
@@ -426,4 +433,34 @@ export async function getMessages({
     }
   })
   return message as Message[]
+}
+
+export async function getChatbotsCount({
+  categoryId,
+  jwt
+}: GetChatbotsParams & { jwt: string }) {
+  const client = getHasuraClient({ jwt })
+  const { chatbotAggregate } = await client.query({
+    chatbotAggregate: {
+      aggregate: {
+        count: true
+      },
+      __args: {
+        ...(categoryId
+          ? {
+              where: {
+                categories: {
+                  categoryId: {
+                    _eq: categoryId
+                  }
+                }
+              }
+            }
+          : {})
+      }
+    }
+  })
+  return chatbotAggregate.aggregate?.count
+    ? chatbotAggregate.aggregate.count
+    : 0
 }

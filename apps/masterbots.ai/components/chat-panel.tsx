@@ -8,6 +8,7 @@ import { IconRefresh, IconShare, IconStop } from '@/components/ui/icons'
 import { FooterText } from '@/components/footer'
 import { ChatShareDialog } from '@/components/chat-share-dialog'
 import { Chatbot } from 'mb-genql'
+import { cn } from '@/lib/utils'
 
 export interface ChatPanelProps
   extends Pick<
@@ -22,7 +23,7 @@ export interface ChatPanelProps
   > {
   id?: string
   title?: string
-  chatbot: Chatbot
+  chatbot?: Chatbot
   showReload?: boolean
   placeholder: string
   isAtBottom?: boolean
@@ -51,16 +52,17 @@ export function ChatPanel({
 
   return (
     <div
-      className={`z-[2] fixed inset-x-0 bottom-0 w-full
-    bg-gradient-to-b from-muted/30 from-0% to-muted/30 to-50% animate-in duration-300 ease-in-out dark:from-background/10 dark:from-10% dark:to-background/80
-    lg:pl-[250px] xl:pl-[300px] ${className || ''}`}
+      className={cn(
+        'z-[2] fixed inset-x-0 bottom-0 w-full bg-gradient-to-b from-muted/30 from-0% to-muted/30 to-50% animate-in duration-300 ease-in-out dark:from-background/10 dark:from-10% dark:to-background/80 lg:pl-[250px] xl:pl-[300px]',
+        className
+      )}
     >
       <ButtonScrollToBottom
         scrollToBottom={scrollToBottom}
         isAtBottom={isAtBottom}
       />
       <div className="mx-auto ">
-        {showReload ? (
+        {chatbot && showReload ? (
           <div className="flex items-center justify-center h-12">
             {isLoading ? (
               <Button
@@ -88,8 +90,8 @@ export function ChatPanel({
                         Share
                       </Button>
                       <ChatShareDialog
-                        open={shareDialogOpen}
-                        onOpenChange={setShareDialogOpen}
+                        // open={shareDialogOpen}
+                        // onOpenChange={setShareDialogOpen}
                         onCopy={() => setShareDialogOpen(false)}
                         // shareChat={(id:string)=>{}}
                         chat={{
@@ -114,6 +116,7 @@ export function ChatPanel({
                 role: 'user'
               })
             }}
+            disabled={!Boolean(chatbot)}
             input={input}
             setInput={setInput}
             isLoading={isLoading}
