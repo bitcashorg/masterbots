@@ -26,7 +26,9 @@ export function Chat({
   chatbot,
   threadId,
   chatPanelClassName,
-  isPopup
+  isPopup,
+  scrollToBottom: scrollToBottomOfPopup,
+  isAtBottom: isAtBottomOfPopup
 }: ChatProps) {
   const { data: session } = useSession()
   const {
@@ -36,9 +38,9 @@ export function Chat({
     setActiveThread,
     setIsNewResponse,
     setIsOpenPopup,
-    sectionRef,
     isOpenPopup,
-    isLoading: isLoadingThread
+    sectionRef,
+    isAtBottom: isAtBottomOfSection
   } = useThread()
   const containerRef = React.useRef<HTMLDivElement>()
 
@@ -75,13 +77,11 @@ export function Chat({
     })
 
   const { scrollY } = useScroll({
-    container: params.threadId
-      ? (containerRef as React.RefObject<HTMLElement>)
-      : (sectionRef as React.RefObject<HTMLElement>)
+    container: containerRef as React.RefObject<HTMLElement>
   })
 
   const { isAtBottom } = useAtBottom({
-    ref: params.threadId ? containerRef : sectionRef,
+    ref: containerRef,
     scrollY
   })
 
@@ -134,7 +134,7 @@ export function Chat({
     userMessage: Message | CreateMessage,
     chatRequestOptions?: ChatRequestOptions
   ) => {
-    if (isNewChat) {
+    if (isNewChat && chatbot) {
       // if (status !== 'authenticated') throw new Error('Unauthenticated User')
 
       await createThread({
@@ -189,16 +189,18 @@ export function Chat({
       setIsOpenPopup(false)
       setActiveThread(null)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
-    if ((isLoadingThread || isLoading) && isOpenPopup && scrollY) {
+    if (isLoading && isOpenPopup && scrollToBottomOfPopup) {
       const timeout = setTimeout(() => {
-        scrollToBottom()
+        scrollToBottomOfPopup()
         clearTimeout(timeout)
       }, 150)
     }
-  }, [isLoadingThread, isLoading, isOpenPopup, scrollY])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading, isOpenPopup])
 
   return (
     <>
@@ -216,7 +218,13 @@ export function Chat({
             sendMessageFromResponse={sendMessageFromResponse}
           />
           <ChatScrollAnchor
-            isAtBottom={isAtBottom}
+            isAtBottom={
+              params.threadId
+                ? isAtBottom
+                : isPopup
+                  ? Boolean(isAtBottomOfPopup)
+                  : isAtBottomOfSection
+            }
             trackVisibility={isLoading}
           />
         </div>
@@ -225,7 +233,11 @@ export function Chat({
       {((isOpenPopup && isPopup) || (!isOpenPopup && !isPopup)) && (
         <ChatPanel
           className={chatPanelClassName}
-          scrollToBottom={scrollToBottom}
+          scrollToBottom={
+            isOpenPopup && isPopup && scrollToBottomOfPopup
+              ? scrollToBottomOfPopup
+              : scrollToBottom
+          }
           id={params.threadId || isNewChat ? threadId : activeThread?.threadId}
           isLoading={isLoading}
           stop={stop}
@@ -236,12 +248,20 @@ export function Chat({
           setInput={setInput}
           chatbot={chatbot}
           placeholder={
-            isNewChat
-              ? `Start New Chat with ${chatbot.name}`
-              : `Continue This Chat with ${chatbot.name}`
+            chatbot
+              ? isNewChat
+                ? `Start New Chat with ${chatbot.name}`
+                : `Continue This Chat with ${chatbot.name}`
+              : ''
           }
           showReload={!isNewChat}
-          isAtBottom={isAtBottom}
+          isAtBottom={
+            params.threadId
+              ? isAtBottom
+              : isPopup
+                ? Boolean(isAtBottomOfPopup)
+                : isAtBottomOfSection
+          }
         />
       )}
     </>
@@ -250,11 +270,13 @@ export function Chat({
 
 export interface ChatProps extends React.ComponentProps<'div'> {
   initialMessages?: Message[]
-  chatbot: Chatbot
+  chatbot?: Chatbot
   threadId: string
   newThread?: boolean
   chatPanelClassName?: string
   isPopup?: boolean
+  scrollToBottom?: () => void
+  isAtBottom?: boolean
 }
 
 export function getAllUserMessagesAsStringArray(allMessages: Message[]) {
