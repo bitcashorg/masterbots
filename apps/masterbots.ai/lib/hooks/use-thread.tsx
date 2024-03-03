@@ -188,23 +188,22 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
   }, [isOpenPopup])
 
   const getRandomChatbot = React.useCallback(async () => {
-    if (activeThread === null && session?.user?.hasuraJwt) {
-      const chatbotsCount = await getChatbotsCount({
-        categoryId: activeCategory,
-        jwt: session!.user.hasuraJwt
-      })
-      const offset = Math.floor(Math.random() * chatbotsCount)
-      const chatbots = await getChatbots({
-        limit: 1,
-        offset,
-        categoryId: activeCategory
-      })
+    if (activeThread && !session?.user?.hasuraJwt) return
+    const chatbotsCount = await getChatbotsCount({
+      categoryId: activeCategory,
+      jwt: session!.user.hasuraJwt
+    })
+    const offset = Math.floor(Math.random() * chatbotsCount)
+    const chatbots = await getChatbots({
+      limit: 1,
+      offset,
+      categoryId: activeCategory
+    })
 
-      if (chatbots.length) {
-        setRandomChatbot(chatbots[0])
-      } else {
-        setRandomChatbot(null)
-      }
+    if (chatbots.length) {
+      setRandomChatbot(chatbots[0])
+    } else {
+      setRandomChatbot(null)
     }
   }, [activeCategory, activeThread, session])
 
