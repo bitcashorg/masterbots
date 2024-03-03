@@ -10,8 +10,11 @@ import toast from 'react-hot-toast'
 import { Message, Thread } from 'mb-genql'
 import { getAllUserMessagesAsStringArray } from '@/components/chat'
 import { useRouter } from 'next/navigation'
+import { useSidebar } from './use-sidebar'
 
 interface ThreadContext {
+  isOpenPopup: boolean
+  setIsOpenPopup: React.Dispatch<React.SetStateAction<boolean>>
   activeThread: Thread | null
   setActiveThread: React.Dispatch<React.SetStateAction<Thread | null>>
   allMessages: AIMessage[]
@@ -19,6 +22,8 @@ interface ThreadContext {
   sendMessageFromResponse: (bulletContent: string) => void
   isNewResponse: boolean
   setIsNewResponse: React.Dispatch<React.SetStateAction<boolean>>
+  sectionRef: React.MutableRefObject<HTMLElement | undefined>
+  isLoading: boolean
 }
 
 const ThreadContext = React.createContext<ThreadContext | undefined>(undefined)
@@ -37,12 +42,14 @@ interface ThreadProviderProps {
 
 export function ThreadProvider({ children }: ThreadProviderProps) {
   const router = useRouter()
-
+  const sectionRef = React.useRef<HTMLElement>()
+  const { activeCategory } = useSidebar()
   const [activeThread, setActiveThread] = React.useState<Thread | null>(null)
   const { data: session } = useSession()
 
   const [messagesFromDB, setMessagesFromDB] = React.useState<Message[]>([])
   const [isNewResponse, setIsNewResponse] = React.useState<boolean>(false)
+  const [isOpenPopup, setIsOpenPopup] = React.useState<boolean>(false)
 
   const chatbotSystemPrompts: AIMessage[] =
     activeThread?.chatbot.prompts.map(({ prompt }) => ({
@@ -131,7 +138,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     async (bulletContent: string) => {
       const fullMessage = `Tell me more about ${bulletContent}`
       setIsNewResponse(true)
-
+      setIsOpenPopup(true)
       await saveNewMessage({
         role: 'user',
         threadId: activeThread?.threadId,
@@ -157,6 +164,18 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeThread])
 
+  React.useEffect(() => {
+    if (
+      !isOpenPopup &&
+      activeThread &&
+      activeCategory &&
+      activeCategory !== activeThread.chatbot.categories[0].categoryId
+    ) {
+      setActiveThread(null)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpenPopup])
+
   const value = React.useMemo(
     () => ({
       activeThread,
@@ -165,7 +184,11 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       sendMessageFromResponse,
       initialMessages,
       isNewResponse,
-      setIsNewResponse
+      setIsNewResponse,
+      isOpenPopup,
+      setIsOpenPopup,
+      sectionRef,
+      isLoading
     }),
     [
       activeThread,
@@ -174,7 +197,11 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       sendMessageFromResponse,
       initialMessages,
       isNewResponse,
-      setIsNewResponse
+      setIsNewResponse,
+      isOpenPopup,
+      setIsOpenPopup,
+      sectionRef,
+      isLoading
     ]
   )
 

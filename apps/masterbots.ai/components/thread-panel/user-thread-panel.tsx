@@ -3,7 +3,6 @@
 import { ChatSearchInput } from '@/components/chat-search-input'
 import ThreadList from '@/components/thread-list'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
-import { useThread } from '@/lib/hooks/use-thread'
 import { getThreads } from '@/services/hasura'
 import { Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
@@ -20,7 +19,6 @@ export default function UserThreadPanel({
   search?: { [key: string]: string | string[] | undefined }
 }) {
   const { data: session } = useSession()
-  const { activeThread, setActiveThread } = useThread()
   const { activeCategory } = useSidebar()
   const [loading, setLoading] = React.useState<boolean>(false)
   const [threads, setThreads] = React.useState<Thread[]>(initialThreads)
@@ -61,20 +59,6 @@ export default function UserThreadPanel({
       setCount(threads.length)
     }
   }
-
-  const handleThreadsChange = () => {
-    if (
-      activeThread &&
-      threads.filter(thread => thread.threadId === activeThread).length === 0
-    ) {
-      setActiveThread(null)
-    }
-  }
-
-  React.useEffect(() => {
-    handleThreadsChange()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [threads])
 
   React.useEffect(() => {
     handleCategoryChange()
