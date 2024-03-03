@@ -5,7 +5,6 @@ import React from 'react'
 import { ShortMessage } from './short-message'
 import { ChatAccordion } from './chat-accordion'
 import { ChatList } from './chat-list'
-import { useRouter } from 'next/navigation'
 import { useThread } from '@/lib/hooks/use-thread'
 
 export default function ThreadList({
@@ -52,12 +51,7 @@ function ThreadComponent({
 }) {
   const threadRef = React.useRef<HTMLLIElement>(null)
   // const router = useRouter()
-  const {
-    allMessages,
-    sendMessageFromResponse,
-    setActiveThread,
-    activeThread
-  } = useThread()
+  const { allMessages, sendMessageFromResponse } = useThread()
   React.useEffect(() => {
     if (!threadRef.current) return
     const observer = new IntersectionObserver(([entry]) => {
@@ -78,22 +72,6 @@ function ThreadComponent({
       observer.disconnect()
     }
   }, [threadRef.current, isLast, hasMore, loading, loadMore])
-
-  // const goToThread = () => {
-  //   router.push(
-  //     `/${thread.chatbot.name.trim().toLowerCase()}/${thread.threadId}`
-  //   )
-  //   setActiveThread(null)
-  //   router.refresh()
-  // }
-
-  React.useEffect(() => {
-    return () => {
-      if (activeThread?.threadId === thread.threadId) {
-        setActiveThread(null)
-      }
-    }
-  }, [])
 
   return (
     <li ref={threadRef}>
