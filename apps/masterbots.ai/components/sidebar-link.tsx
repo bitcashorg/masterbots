@@ -52,6 +52,14 @@ export default function SidebarLink({ category }: { category: Category }) {
     }
   }, [category, chatbot, threadId])
 
+  React.useEffect(() => {
+    return () => {
+      setActiveChatbot(null)
+      setActiveCategory(null)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const handleClickCategory = () => {
     if (!activeChatbot) {
       if (activeCategory === category.categoryId) setActiveCategory(null)
