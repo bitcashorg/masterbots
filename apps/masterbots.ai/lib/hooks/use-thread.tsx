@@ -188,7 +188,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
   }, [isOpenPopup])
 
   const getRandomChatbot = React.useCallback(async () => {
-    if (activeThread && !session?.user?.hasuraJwt) return
+    if (activeThread || !session?.user?.hasuraJwt) return
     const chatbotsCount = await getChatbotsCount({
       categoryId: activeCategory,
       jwt: session!.user.hasuraJwt
