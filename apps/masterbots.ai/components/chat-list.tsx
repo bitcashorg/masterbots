@@ -61,7 +61,7 @@ export function ChatList({
             triggerClass={`dark:border-b-mirage border-b-gray-300
             ${isThread ? 'sticky top-0 md:-top-10 z-[1] dark:bg-[#18181b] bg-[#f4f4f5] !border-l-[transparent] px-3 [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]' : 'px-[calc(47px-0.25rem)] '}
             py-[0.4375rem] dark:hover:bg-mirage hover:bg-gray-300 ${!isThread && key === 0 ? 'hidden' : ''} ${chatTitleClass || ''}`}
-            contentClass={`${!isThread && key === 0 ? 'border-l-[transparent]' : ''}`}
+            contentClass="!border-l-[transparent]"
             arrowClass={`${isThread ? 'top-4' : 'right-5 top-4'} ${chatArrowClass || ''}`}
           >
             {/* Thread Title */}
@@ -93,7 +93,7 @@ export function ChatList({
 
             {/* Thread Content */}
             <div
-              className={`max-h-[75vh] scrollbar mx-[46px] px-1 py-4
+              className={`mx-[46px] px-1 py-4
             border-[transparent] dark:border-x-mirage border-x-gray-300 border
             ${!isThread && key === 0 ? '!border-[transparent]' : ''} ${chatContentClass || ''}`}
             >

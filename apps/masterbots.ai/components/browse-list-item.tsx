@@ -68,7 +68,7 @@ export default function BrowseListItem({
         handleOpen={fetchMessages}
         // handleTrigger={goToThread}
         className="relative"
-        contentClass="!pt-0"
+        contentClass="!pt-0 max-h-[70vh] scrollbar"
         triggerClass="dark:hover:bg-mirage hover:bg-gray-300 pl-[8px]
         py-3 flex flex-col gap-[6px] 
         sticky top-0 z-[1]
@@ -88,7 +88,7 @@ export default function BrowseListItem({
               href={`/browse/${thread.chatbot.name.toLowerCase()}`}
               title={thread.chatbot?.name}
               className={cn(
-                'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full border shadow'
+                'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow'
               )}
             >
               <Image
@@ -104,7 +104,7 @@ export default function BrowseListItem({
               href={`/browse/${thread.chatbot?.chatbotId}`}
               title={thread.chatbot?.name}
               className={cn(
-                'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full border shadow',
+                'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow',
                 'bg-primary text-primary-foreground'
               )}
             >
@@ -119,7 +119,7 @@ export default function BrowseListItem({
                 href={`/browse/${encodeURIComponent(thread?.user.username)}?type=user`}
                 title={thread.user?.username.replace('_', ' ')}
                 className={cn(
-                  'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full border shadow'
+                  'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow'
                 )}
               >
                 <Image
@@ -135,7 +135,7 @@ export default function BrowseListItem({
                 href={`/browse/${encodeURIComponent(thread.user?.username ?? 'Default')}?type=user`}
                 title={thread.user?.username}
                 className={cn(
-                  'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full border shadow',
+                  'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow',
                   'bg-background'
                 )}
               >
