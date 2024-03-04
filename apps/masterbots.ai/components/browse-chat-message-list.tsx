@@ -59,7 +59,7 @@ export function BrowseChatMessageList({
                   href={`/browse/${encodeURIComponent(user.username)}?type=user`}
                   title={user?.username.replace('_', ' ')}
                   className={cn(
-                    'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full border shadow'
+                    'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow'
                   )}
                 >
                   <Image
@@ -75,7 +75,7 @@ export function BrowseChatMessageList({
                   href={`/browse/${encodeURIComponent(user?.username ?? 'Default')}?type=user`}
                   title={user?.username}
                   className={cn(
-                    'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full border shadow',
+                    'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow',
                     'bg-background'
                   )}
                 >
@@ -89,7 +89,7 @@ export function BrowseChatMessageList({
           <></>
 
           {/* Thread Content */}
-          <div className="border-x-[1px] mx-[46px] py-5 max-h-[75vh] scrollbar dark:border-mirage border-gray-300">
+          <div className="border-x-[1px] mx-[46px] py-5 dark:border-mirage border-gray-300">
             {pair.chatGptMessage.length > 0
               ? pair.chatGptMessage.map((message, index) => (
                   <BrowseChatMessage
