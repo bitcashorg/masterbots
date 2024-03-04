@@ -98,10 +98,9 @@
 }
 
 .scrollbar {
-  overflow-x: hidden;
-  scrollbar-color: var(--scrollbar1) var(--scrollbar2);
-  scrollbar-width: thin;
+	overflow: auto;
 }
+
 .scrollbar::-webkit-scrollbar {
   width: 4px;
   height: 4px;
@@ -112,16 +111,26 @@
 }
 .scrollbar::-webkit-scrollbar-thumb {
   background: var(--scrollbar-thumb);
-  border-radius: 24px;
-  border: 2px solid var(--scrollbar-thumb-border);
+  border-radius: 2px;
 }
-.scrollbar::-webkit-scrollbar-thumb:hover {
+/* .scrollbar::-webkit-scrollbar-thumb:hover {
   background: var(--scrollbar-thumb-hover);
-}
+} */
 
 @media screen and (min-width: 1024px) {
   .scrollbar::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
   }
+}
+
+
+.scrollbar.small-thumb::-webkit-scrollbar-thumb {
+  border-left: 300px solid #f9f9fa;
+  border-right: 300px solid #f9f9fa;
+}
+
+.dark .scrollbar.small-thumb::-webkit-scrollbar-thumb {
+  border-left: 300px solid #18181b;
+  border-right: 300px solid #18181b;
 }

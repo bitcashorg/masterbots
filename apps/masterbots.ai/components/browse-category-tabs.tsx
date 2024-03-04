@@ -24,7 +24,7 @@ export function BrowseCategoryTabs({ categories }: { categories: Category[] }) {
   })
 
   return (
-    <div className="w-full py-[10px] my-3 !overflow-x-auto overflow-y-hidden whitespace-nowrap scrollbar">
+    <div className="w-full py-[10px] my-3 !overflow-x-auto overflow-y-hidden whitespace-nowrap scrollbar small-thumb">
       <BrowseCategoryButton
         id="browse-category-tab__null"
         onClick={() => setActiveTab(null)}
