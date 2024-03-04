@@ -77,7 +77,7 @@ function ThreadComponent({
     <li ref={threadRef}>
       <ChatAccordion
         className="relative"
-        contentClass="!pt-0 !border-b-[transparent]"
+        contentClass="!pt-0 !border-b-[transparent] max-h-[70vh] scrollbar"
         // handleTrigger={goToThread}
         triggerClass="gap-[0.375rem] py-3
         dark:border-b-mirage border-b-gray-300
