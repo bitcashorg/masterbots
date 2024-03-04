@@ -89,7 +89,7 @@ export function ThreadPopup({ className }: { className?: string }) {
           </button>
         </div>
         <div
-          className="flex flex-col dark:bg-[#18181B] bg-[white] h-auto rounded-b-[8px] scrollbar pb-[180px]"
+          className="flex flex-col dark:bg-[#18181B] bg-[white] grow rounded-b-[8px] scrollbar pb-[180px]"
           ref={popupContentRef as React.Ref<HTMLDivElement>}
         >
           {activeThread && (
@@ -99,7 +99,7 @@ export function ThreadPopup({ className }: { className?: string }) {
               chatbot={activeThread.chatbot}
               messages={allMessages}
               sendMessageFromResponse={sendMessageFromResponse}
-              chatContentClass="!border-[transparent] !py-[20px] !px-[16px] !mx-0 max-h-[none]"
+              chatContentClass="dark:!border-x-mirage !border-x-gray-300 !py-[20px] !px-[16px] !mx-0 max-h-[none] "
               chatTitleClass="!px-[11px]"
               chatArrowClass="!right-0 !mr-0"
             />
