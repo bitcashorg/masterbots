@@ -6,8 +6,8 @@ import { cn, scrollToBottomOfElement } from '@/lib/utils'
 import { Chat } from './chat'
 import { ChatList } from './chat-list'
 import { useEffect, useRef } from 'react'
-import { useScroll } from 'framer-motion'
 import { useAtBottom } from '@/lib/hooks/use-at-bottom'
+import { useScroll } from 'framer-motion'
 
 export function ThreadPopup({ className }: { className?: string }) {
   const {
@@ -16,11 +16,39 @@ export function ThreadPopup({ className }: { className?: string }) {
     initialMessages,
     allMessages,
     setIsOpenPopup,
-    sendMessageFromResponse
+    sendMessageFromResponse,
+    isLoading
   } = useThread()
   const onClose = () => {
     setIsOpenPopup(!isOpenPopup)
   }
+  const popupContentRef = useRef<HTMLDivElement>()
+
+  const { scrollY } = useScroll({
+    container: popupContentRef as React.RefObject<HTMLElement>
+  })
+
+  const { isAtBottom } = useAtBottom({
+    ref: popupContentRef,
+    scrollY
+  })
+
+  const scrollToBottom = () => {
+    if (popupContentRef.current) {
+      const element = popupContentRef.current
+      scrollToBottomOfElement(element)
+    }
+  }
+
+  useEffect(() => {
+    if (isLoading && isOpenPopup) {
+      const timeout = setTimeout(() => {
+        scrollToBottom()
+        clearTimeout(timeout)
+      }, 150)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading, isOpenPopup])
 
   const threadTitle = allMessages.filter(m => m.role === 'user')[0]?.content
   const threadTitleChunks = threadTitle?.split(/\s/g) // ' '
@@ -29,15 +57,14 @@ export function ThreadPopup({ className }: { className?: string }) {
 
   return (
     <div
-      className={`h-auto w-full
-      dark:bg-[#27272A80] bg-[#F4F4F580] backdrop-blur-[4px]  ease-in-out duration-500 z-[9] transition-all py-[96px]
-      ${isOpenPopup ? 'animate-fade-in' : 'hidden animate-fade-out'}`}
+      className={`size-full dark:bg-[#27272A80] relative flex justify-center items-center
+      bg-[#F4F4F580] backdrop-blur-[4px] ease-in-out duration-500 z-[9] transition-all ${isOpenPopup ? 'animate-fade-in' : 'hidden animate-fade-out'}`}
     >
       <div
         className={cn(
           className,
-          `flex flex-col z-[10] rounded-lg duration-500 ease-in-out
-      max-w-[1032px] w-[95%] mx-auto
+          `flex flex-col z-[10] rounded-lg duration-500 ease-in-out absolute h-[90%]
+      max-w-[1032px] w-[95%]
       transition-opacity ${isOpenPopup ? 'animate-fade-in' : 'animate-fade-out'}`
         )}
       >
@@ -61,7 +88,10 @@ export function ThreadPopup({ className }: { className?: string }) {
             <IconClose />
           </button>
         </div>
-        <div className="flex flex-col dark:bg-[#18181B] bg-[white] h-auto rounded-b-[8px]">
+        <div
+          className="flex flex-col dark:bg-[#18181B] bg-[white] h-auto rounded-b-[8px] scrollbar pb-[180px]"
+          ref={popupContentRef as React.Ref<HTMLDivElement>}
+        >
           {activeThread && (
             <ChatList
               className="max-w-[100%] !px-[32px] !mx-0"
@@ -69,7 +99,7 @@ export function ThreadPopup({ className }: { className?: string }) {
               chatbot={activeThread.chatbot}
               messages={allMessages}
               sendMessageFromResponse={sendMessageFromResponse}
-              chatContentClass="!border-[transparent] !py-[20px] !px-[16px] !mx-0"
+              chatContentClass="!border-[transparent] !py-[20px] !px-[16px] !mx-0 max-h-[none]"
               chatTitleClass="!px-[11px]"
               chatArrowClass="!right-0 !mr-0"
             />
@@ -81,7 +111,9 @@ export function ThreadPopup({ className }: { className?: string }) {
               initialMessages={initialMessages}
               chatbot={activeThread?.chatbot}
               threadId={activeThread?.threadId}
-              chatPanelClassName="!pl-0 rounded-b-[8px] overflow-hidden !relative"
+              chatPanelClassName="!pl-0 rounded-b-[8px] overflow-hidden !absolute"
+              scrollToBottom={scrollToBottom}
+              isAtBottom={isAtBottom}
             />
           ) : (
             ''
