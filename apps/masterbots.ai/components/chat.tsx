@@ -84,6 +84,15 @@ export function Chat({
     ref: containerRef,
     scrollY
   })
+  
+  // ? try to use this debounce function to scroll to bottom
+  let timeoutId: any
+  const debounceScrollToBottom = (element: HTMLElement | undefined) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      scrollToBottomOfElement(element);
+    }, 150); // Adjust delay as necessary
+  };
 
   const scrollToBottom = () => {
     if (
@@ -96,7 +105,7 @@ export function Chat({
       } else {
         element = containerRef.current
       }
-      scrollToBottomOfElement(element)
+      debounceScrollToBottom(element)
     }
   }
 
@@ -197,10 +206,10 @@ export function Chat({
       const timeout = setTimeout(() => {
         scrollToBottomOfPopup()
         clearTimeout(timeout)
-      }, 150)
+      }, 1000)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, isOpenPopup])
+  }, [isLoading, isOpenPopup, scrollToBottomOfPopup])
 
   return (
     <>
