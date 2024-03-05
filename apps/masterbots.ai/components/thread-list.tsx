@@ -1,16 +1,18 @@
 'use client'
 
-import { Separator } from '@/components/ui/separator'
 import { Thread } from 'mb-genql'
-import Link from 'next/link'
 import React from 'react'
+import { ShortMessage } from './short-message'
+import { ChatAccordion } from './chat-accordion'
+import { ChatList } from './chat-list'
+import { useThread } from '@/lib/hooks/use-thread'
 
 export default function ThreadList({
   threads,
   loading,
   loadMore,
   count,
-  pageSize,
+  pageSize
 }: {
   threads: Thread[]
   loading: boolean
@@ -19,7 +21,7 @@ export default function ThreadList({
   loadMore: () => void
 }) {
   return (
-    <ul className="w-full">
+    <ul className="w-full flex flex-col gap-3">
       {threads.map((thread, key) => (
         <ThreadComponent
           key={key}
@@ -48,7 +50,8 @@ function ThreadComponent({
   hasMore: boolean
 }) {
   const threadRef = React.useRef<HTMLLIElement>(null)
-
+  // const router = useRouter()
+  const { allMessages, sendMessageFromResponse } = useThread()
   React.useEffect(() => {
     if (!threadRef.current) return
     const observer = new IntersectionObserver(([entry]) => {
@@ -72,17 +75,49 @@ function ThreadComponent({
 
   return (
     <li ref={threadRef}>
-      <Link
-        href={`/${thread.chatbot.name.trim().toLowerCase()}/${thread.threadId}`}
-        className="flex items-center h-12"
-        shallow={true}
+      <ChatAccordion
+        className="relative"
+        contentClass="!pt-0 !border-b-[transparent] max-h-[70vh] scrollbar"
+        // handleTrigger={goToThread}
+        triggerClass="gap-[0.375rem] py-3
+        dark:border-b-mirage border-b-gray-300
+        sticky top-0 z-[1] dark:hover:bg-mirage hover:bg-gray-300 sticky top-0 z-[1] dark:bg-[#18181b] bg-[#f4f4f5]
+        [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]"
+        arrowClass="-right-1 top-[1.125rem]"
+        thread={thread}
       >
-        {thread.messages
-          .filter(m => m.role === 'user')[0]
-          ?.content.substring(0, 100) || 'wat'}
-      </Link>
+        {/* Thread Title */}
 
-      <Separator />
+        <div className="px-[11px]">
+          {thread.messages
+            .filter(m => m.role === 'user')[0]
+            ?.content.substring(0, 100) || 'wat'}
+        </div>
+
+        {/* Thread Description */}
+        <div className="opacity-50 overflow-hidden text-sm text-left">
+          {thread.messages.filter(m => m.role !== 'user')?.[0]?.content ? (
+            <div className="flex-1 px-[8px] pb-3 space-y-2 overflow-hidden">
+              <ShortMessage
+                content={
+                  thread.messages.filter(m => m.role !== 'user')[0].content
+                }
+              />
+            </div>
+          ) : (
+            ''
+          )}
+        </div>
+
+        {/* Thread Content */}
+        <ChatList
+          className="max-w-[100%] !px-0"
+          isThread={false}
+          chatbot={thread.chatbot}
+          messages={allMessages}
+          sendMessageFromResponse={sendMessageFromResponse}
+        />
+      </ChatAccordion>
     </li>
   )
 }

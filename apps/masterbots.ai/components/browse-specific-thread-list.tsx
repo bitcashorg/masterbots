@@ -35,7 +35,7 @@ export default function BrowseSpecificThreadList({
   }
 
   return (
-    <div className="max-w-2xl px-4 mx-auto mt-8 flex gap-y-4 flex-col">
+    <div className="max-w-[1024px] px-4 mx-auto mt-8 flex gap-y-4 flex-col">
       {threads.map((thread: Thread, key) => (
         <BrowseListItem
           thread={thread}

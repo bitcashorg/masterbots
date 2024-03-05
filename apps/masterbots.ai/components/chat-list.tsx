@@ -6,11 +6,17 @@ import { Chatbot } from 'mb-genql'
 import React from 'react'
 import { ChatAccordion } from './chat-accordion'
 import { ShortMessage } from './short-message'
+import { useThread } from '@/lib/hooks/use-thread'
 
 export interface ChatList {
   messages: Message[]
   sendMessageFromResponse?: (message: string) => void
   chatbot?: Chatbot
+  isThread?: boolean
+  className?: string
+  chatContentClass?: string
+  chatTitleClass?: string
+  chatArrowClass?: string
 }
 
 type MessagePair = {
@@ -19,11 +25,17 @@ type MessagePair = {
 }
 
 export function ChatList({
+  className,
   messages,
   sendMessageFromResponse,
-  chatbot
+  chatbot,
+  isThread = true,
+  chatContentClass,
+  chatTitleClass,
+  chatArrowClass
 }: ChatList) {
   const [pairs, setPairs] = React.useState<MessagePair[]>([])
+  const { isNewResponse } = useThread()
 
   React.useEffect(() => {
     if (messages.length) {
@@ -36,40 +48,65 @@ export function ChatList({
 
   if (!messages.length) return null
   return (
-    <div className="relative max-w-3xl px-4 mx-auto">
+    <div
+      className={`relative max-w-3xl px-4 mx-auto ${className || ''} ${isThread ? 'flex flex-col gap-3' : ''}`}
+    >
       {pairs.map((pair: MessagePair, key: number) => (
         <div key={key}>
-          <ChatAccordion defaultState={key === 0} className="border-none mb-4">
+          <ChatAccordion
+            defaultState={
+              key === 0 || (key === pairs.length - 1 && isNewResponse)
+            }
+            className={` ${isThread ? 'relative' : ''}`}
+            triggerClass={`dark:border-b-mirage border-b-gray-300
+            ${isThread ? 'sticky top-0 md:-top-10 z-[1] dark:bg-[#18181b] bg-[#f4f4f5] !border-l-[transparent] px-3 [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]' : 'px-[calc(47px-0.25rem)] '}
+            py-[0.4375rem] dark:hover:bg-mirage hover:bg-gray-300 ${!isThread && key === 0 ? 'hidden' : ''} ${chatTitleClass || ''}`}
+            contentClass="!border-l-[transparent]"
+            arrowClass={`${isThread ? 'top-4' : 'right-5 top-4'} ${chatArrowClass || ''}`}
+          >
             {/* Thread Title */}
-            <ChatMessage
-              actionRequired={false}
-              chatbot={chatbot}
-              message={pair.userMessage}
-              sendMessageFromResponse={sendMessageFromResponse}
-            />
+            {!isThread && key === 0 ? (
+              ''
+            ) : (
+              <ChatMessage
+                actionRequired={false}
+                chatbot={chatbot}
+                message={pair.userMessage}
+                sendMessageFromResponse={sendMessageFromResponse}
+              />
+            )}
 
             {/* Thread Description */}
-            <div className="opacity-50 overflow-hidden text-sm">
-              {pair.chatGptMessage[0]?.content ? (
-                <div className="flex-1 px-1 ml-4 space-y-2 overflow-hidden text-left">
-                  <ShortMessage content={pair.chatGptMessage[0]?.content} />
-                </div>
-              ) : (
-                ''
-              )}
-            </div>
+            {isThread ? (
+              <div className="opacity-50 pb-3 overflow-hidden text-sm mt-[0.375rem]">
+                {pair.chatGptMessage[0]?.content ? (
+                  <div className="flex-1 px-1 space-y-2 overflow-hidden text-left">
+                    <ShortMessage content={pair.chatGptMessage[0]?.content} />
+                  </div>
+                ) : (
+                  ''
+                )}
+              </div>
+            ) : (
+              <></>
+            )}
 
             {/* Thread Content */}
-            <div className="max-h-[75vh] scrollbar">
+            <div
+              className={`mx-[46px] px-1 py-4
+            border-[transparent] dark:border-x-mirage border-x-gray-300 border
+            ${!isThread && key === 0 ? '!border-[transparent]' : ''} ${chatContentClass || ''}`}
+            >
               {pair.chatGptMessage.length > 0
                 ? pair.chatGptMessage.map((message, index) => (
-                  <ChatMessage
-                    key={index}
-                    chatbot={chatbot}
-                    message={message}
-                    sendMessageFromResponse={sendMessageFromResponse}
-                  />
-                ))
+                    <ChatMessage
+                      actionRequired={false}
+                      key={index}
+                      chatbot={chatbot}
+                      message={message}
+                      sendMessageFromResponse={sendMessageFromResponse}
+                    />
+                  ))
                 : ''}
             </div>
           </ChatAccordion>

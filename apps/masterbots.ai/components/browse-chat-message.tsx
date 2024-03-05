@@ -26,37 +26,9 @@ export function BrowseChatMessage({
 
   return (
     <div className={cn('group relative my-4 flex items-start')} {...props}>
-      <div
-        className={cn(
-          'flex h-8 w-8 shrink-0 select-none items-center justify-center border rounded-full shadow',
-          cleanMessage.role === 'user'
-            ? 'bg-background '
-            : 'bg-primary text-primary-foreground'
-        )}
-      >
-        {cleanMessage.role === 'user' ? (
-          <IconUser />
-        ) : chatbot?.avatar ? (
-          <div
-            className={cn(
-              'flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full border shadow'
-            )}
-          >
-            <Image
-              className="transition-opacity duration-300 rounded-full select-none hover:opacity-80"
-              src={chatbot?.avatar}
-              alt={chatbot?.name ?? 'BotAvatar'}
-              height={32}
-              width={32}
-            />
-          </div>
-        ) : (
-          <IconOpenAI />
-        )}
-      </div>
       <div className="flex-1 px-1 ml-4 space-y-2 overflow-hidden">
         <MemoizedReactMarkdown
-          className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
+          className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 !max-w-5xl"
           remarkPlugins={[remarkGfm, remarkMath]}
           components={{
             p({ children }) {
@@ -96,7 +68,7 @@ export function BrowseChatMessage({
         >
           {cleanMessage.content}
         </MemoizedReactMarkdown>
-        <ChatMessageActions className="md:!right-0" message={cleanMessage} />
+        {/* <ChatMessageActions className="md:!right-0" message={cleanMessage} /> */}
       </div>
     </div>
   )

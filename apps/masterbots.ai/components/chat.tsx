@@ -6,34 +6,59 @@ import { useScroll } from 'framer-motion'
 import { ChatList } from '@/components/chat-list'
 import { ChatPanel } from '@/components/chat-panel'
 import { ChatScrollAnchor } from '@/components/chat-scroll-anchor'
-import { cn, extractBetweenMarkers } from '@/lib/utils'
+import { cn, extractBetweenMarkers, scrollToBottomOfElement } from '@/lib/utils'
 
 import { useAtBottom } from '@/lib/hooks/use-at-bottom'
-import { createThread, saveNewMessage } from '@/services/hasura'
+import { createThread, getThread, saveNewMessage } from '@/services/hasura'
 import { ChatRequestOptions } from 'ai'
 import { uniqBy } from 'lodash'
 import { Chatbot } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import { useParams, useRouter } from 'next/navigation'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { toast } from 'react-hot-toast'
+import { useThread } from '@/lib/hooks/use-thread'
+import { botNames } from '@/lib/bots-names'
 
 export function Chat({
   initialMessages,
   className,
   chatbot,
-  threadId
+  threadId,
+  chatPanelClassName,
+  isPopup,
+  scrollToBottom: scrollToBottomOfPopup,
+  isAtBottom: isAtBottomOfPopup
 }: ChatProps) {
   const { data: session } = useSession()
+  const {
+    allMessages: threadAllMessages,
+    initialMessages: threadInitialMessages,
+    activeThread,
+    setActiveThread,
+    setIsNewResponse,
+    setIsOpenPopup,
+    isOpenPopup,
+    sectionRef,
+    isAtBottom: isAtBottomOfSection
+  } = useThread()
   const containerRef = React.useRef<HTMLDivElement>()
+
+  const router = useRouter()
+  const params = useParams<{ chatbot: string; threadId: string }>()
+  const isNewChat = Boolean(!params.threadId && !activeThread)
+
   const { messages, append, reload, stop, isLoading, input, setInput } =
     useChat({
       // we remove previous assistant responses to get better responses thru
       // our prompting strategy
-      initialMessages: initialMessages?.filter(m => m.role === 'system'),
-      id: threadId,
+      initialMessages:
+        params.threadId || isNewChat
+          ? initialMessages?.filter(m => m.role === 'system')
+          : threadInitialMessages.filter(m => m.role === 'system'),
+      id: params.threadId || isNewChat ? threadId : activeThread?.threadId,
       body: {
-        id: threadId
+        id: params.threadId || isNewChat ? threadId : activeThread?.threadId
       },
       onResponse(response) {
         if (response.status === 401) {
@@ -43,15 +68,13 @@ export function Chat({
       async onFinish(message: Message) {
         await saveNewMessage({
           role: 'assistant',
-          threadId,
+          threadId:
+            params.threadId || isNewChat ? threadId : activeThread?.threadId,
           content: message.content,
           jwt: session!.user.hasuraJwt
         })
       }
     })
-  const router = useRouter()
-  const params = useParams<{ chatbotName: string; threadId: string }>()
-  const isNewChat = Boolean(!params.threadId)
 
   const { scrollY } = useScroll({
     container: containerRef as React.RefObject<HTMLElement>
@@ -63,45 +86,47 @@ export function Chat({
   })
 
   const scrollToBottom = () => {
-    if (containerRef.current) {
-      const element = containerRef.current
-      const targetScroll = element.scrollHeight - element.clientHeight
-      const duration = 500 // Set the duration of the animation in milliseconds
-
-      const startTime = performance.now()
-
-      const animateScroll = (currentTime: number) => {
-        const elapsed = currentTime - startTime
-
-        element.scrollTop = easeInOutQuad(elapsed, 0, targetScroll, duration)
-
-        if (elapsed < duration) {
-          requestAnimationFrame(animateScroll)
-        }
+    if (
+      (params.threadId && containerRef.current) ||
+      (!params.threadId && sectionRef.current)
+    ) {
+      let element: any
+      if (sectionRef.current) {
+        element = sectionRef.current
+      } else {
+        element = containerRef.current
       }
-
-      requestAnimationFrame(animateScroll)
+      scrollToBottomOfElement(element)
     }
-  }
-
-  // Easing function for smooth animation
-  const easeInOutQuad = (t: number, b: number, c: number, d: number) => {
-    t /= d / 2
-    if (t < 1) return (c / 2) * t * t + b
-    t--
-    return (-c / 2) * (t * (t - 2) - 1) + b
   }
 
   // we merge past assistant and user messages for ui only
   // we remove system prompts from ui
-  const allMessages = uniqBy(
-    initialMessages?.concat(messages),
-    'content'
-  ).filter(m => m.role !== 'system')
+  const allMessages =
+    params.threadId || isNewChat
+      ? uniqBy(initialMessages?.concat(messages), 'content').filter(
+          m => m.role !== 'system'
+        )
+      : uniqBy(threadAllMessages.concat(messages), 'content').filter(
+          m => m.role !== 'system'
+        )
 
-  const sendMessageFromResponse = (bulletContent: string) => {
+  const sendMessageFromResponse = async (bulletContent: string) => {
+    setIsNewResponse(true)
     const fullMessage = `Tell me more about ${bulletContent}`
-    append({ content: fullMessage, role: 'user' })
+    await saveNewMessage({
+      role: 'user',
+      threadId:
+        params.threadId || isNewChat ? threadId : activeThread?.threadId,
+      content: fullMessage,
+      jwt: session!.user.hasuraJwt
+    })
+    append({
+      role: 'user',
+      content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
+        allMessages
+      )}].  Then answer this question: ${fullMessage}`
+    })
   }
 
   // we extend append function to add our system prompts
@@ -109,7 +134,7 @@ export function Chat({
     userMessage: Message | CreateMessage,
     chatRequestOptions?: ChatRequestOptions
   ) => {
-    if (isNewChat) {
+    if (isNewChat && chatbot) {
       // if (status !== 'authenticated') throw new Error('Unauthenticated User')
 
       await createThread({
@@ -118,35 +143,68 @@ export function Chat({
         jwt: session!.user.hasuraJwt,
         userId: session!.user.id
       })
-      router.push(`/${chatbot.name.trim().toLowerCase()}/${threadId}`, {
-        shallow: true,
-        scroll: false
+      // router.push(`/${chatbot.name.trim().toLowerCase()}/${threadId}`, {
+      //   shallow: true,
+      //   scroll: false
+      // })
+      // router.refresh()
+      const thread = await getThread({
+        threadId,
+        jwt: session!.user.hasuraJwt
       })
-      router.refresh()
+      setActiveThread(thread)
+      setIsOpenPopup(true)
     }
-
+    if (activeThread?.threadId) {
+      setIsOpenPopup(true)
+    }
     await saveNewMessage({
       role: 'user',
-      threadId,
+      threadId:
+        params.threadId || isNewChat ? threadId : activeThread?.threadId,
       content: userMessage.content,
       jwt: session!.user.hasuraJwt
     })
+
+    setIsNewResponse(true)
 
     return append(
       isNewChat
         ? userMessage
         : {
-          ...userMessage,
-          content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
-            allMessages
-          )}].  Then answer this question: ${userMessage.content}`
-        }
+            ...userMessage,
+            content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
+              allMessages
+            )}].  Then answer this question: ${userMessage.content}`
+          }
     )
   }
 
+  useEffect(() => {
+    if (
+      params.chatbot &&
+      activeThread &&
+      botNames.get(params.chatbot) !== activeThread.chatbot.name
+    ) {
+      setIsOpenPopup(false)
+      setActiveThread(null)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    if (isLoading && isOpenPopup && scrollToBottomOfPopup) {
+      const timeout = setTimeout(() => {
+        scrollToBottomOfPopup()
+        clearTimeout(timeout)
+      }, 150)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading, isOpenPopup])
+
   return (
     <>
-      {!isNewChat ? (
+      {params.threadId ? (
         <div
           ref={containerRef as React.Ref<HTMLDivElement>}
           className={cn(
@@ -160,43 +218,68 @@ export function Chat({
             sendMessageFromResponse={sendMessageFromResponse}
           />
           <ChatScrollAnchor
-            isAtBottom={isAtBottom}
+            isAtBottom={
+              params.threadId
+                ? isAtBottom
+                : isPopup
+                  ? Boolean(isAtBottomOfPopup)
+                  : isAtBottomOfSection
+            }
             trackVisibility={isLoading}
           />
         </div>
       ) : null}
 
-      <ChatPanel
-        scrollToBottom={scrollToBottom}
-        id={threadId}
-        isLoading={isLoading}
-        stop={stop}
-        append={appendWithMbContextPrompts}
-        reload={reload}
-        messages={allMessages}
-        input={input}
-        setInput={setInput}
-        chatbot={chatbot}
-        placeholder={
-          isNewChat
-            ? `Start a new chat with ${chatbot.name}`
-            : `Send new message to ${chatbot.name}`
-        }
-        showReload={!isNewChat}
-        isAtBottom={isAtBottom}
-      />
+      {((isOpenPopup && isPopup) || (!isOpenPopup && !isPopup)) && (
+        <ChatPanel
+          className={chatPanelClassName}
+          scrollToBottom={
+            isOpenPopup && isPopup && scrollToBottomOfPopup
+              ? scrollToBottomOfPopup
+              : scrollToBottom
+          }
+          id={params.threadId || isNewChat ? threadId : activeThread?.threadId}
+          isLoading={isLoading}
+          stop={stop}
+          append={appendWithMbContextPrompts}
+          reload={reload}
+          messages={allMessages}
+          input={input}
+          setInput={setInput}
+          chatbot={chatbot}
+          placeholder={
+            chatbot
+              ? isNewChat
+                ? `Start New Chat with ${chatbot.name}`
+                : `Continue This Chat with ${chatbot.name}`
+              : ''
+          }
+          showReload={!isNewChat}
+          isAtBottom={
+            params.threadId
+              ? isAtBottom
+              : isPopup
+                ? Boolean(isAtBottomOfPopup)
+                : isAtBottomOfSection
+          }
+        />
+      )}
     </>
   )
 }
 
 export interface ChatProps extends React.ComponentProps<'div'> {
   initialMessages?: Message[]
-  chatbot: Chatbot
+  chatbot?: Chatbot
   threadId: string
   newThread?: boolean
+  chatPanelClassName?: string
+  isPopup?: boolean
+  scrollToBottom?: () => void
+  isAtBottom?: boolean
 }
 
-function getAllUserMessagesAsStringArray(allMessages: Message[]) {
+export function getAllUserMessagesAsStringArray(allMessages: Message[]) {
   const userMessages = allMessages.filter(m => m.role === 'user')
   const cleanMessages = userMessages.map(m =>
     extractBetweenMarkers(m.content, 'Then answer this question:')

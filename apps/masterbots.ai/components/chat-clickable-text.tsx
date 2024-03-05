@@ -1,22 +1,37 @@
-export function ClickableText({ children, isListItem, sendMessageFromResponse }: {
+export function ClickableText({
+  children,
+  isListItem,
+  sendMessageFromResponse
+}: {
   children: React.ReactNode
   isListItem: boolean
   sendMessageFromResponse?: (message: string) => void
 }) {
   const fullText: string = extractTextFromReactNode(children)
-  // * previous regexPattern = isListItem ? /.*?[:.,](?:\s|$)/ : /.*?[.](?:\s|$)/
-  // ? regExp breaks on the first : or . or , and return the first part of the matching string.
-  const regexPattern = /(.*?)([:.,])(?:\s|$)/g
-  const match = fullText.match(regexPattern)
-  const clickableText = match ? match[0] : ''
-  const restText = match ? fullText.slice(match[0].length) : ''
+  // ? This regex matches any variation of the unique key phrases followed by a colon and then captures the following sentence.
+  const uniquePattern =
+    /(?:Unique insight|Unique Tip|Unique, lesser-known solution):\s*([^.:]+[.])/i
 
-  const handleClick = () => {
-    if (sendMessageFromResponse && match) {
-      sendMessageFromResponse(clickableText.replace(/(:|\.|\,)\s*$/, '').replace(/•\s/g, ''))
-    }
+  const generalPattern = /(.*?)([:.,])(?:\s|$)/g
+  // First, check for the UNIQUE pattern
+  const uniqueMatch = fullText.match(uniquePattern)
+  let clickableText = uniqueMatch ? uniqueMatch[1] : ''
+  let restText = uniqueMatch
+    ? fullText.slice(fullText.indexOf(clickableText) + clickableText.length)
+    : fullText
+
+  // If the UNIQUE pattern isn't found, use the general pattern
+  if (!uniqueMatch) {
+    const match = fullText.match(generalPattern)
+    clickableText = match ? match[0] : ''
+    restText = match ? fullText.slice(match[0].length) : ''
   }
 
+  const handleClick = () => {
+    if (sendMessageFromResponse && clickableText) {
+      sendMessageFromResponse(clickableText.replace(/(:|\.|\,)\s*$/, ''))
+    }
+  }
 
   if (!clickableText.trim()) {
     return <>{fullText}</>
@@ -25,7 +40,7 @@ export function ClickableText({ children, isListItem, sendMessageFromResponse }:
   return (
     <>
       <span
-        className="text-link cursor-pointer font-bold hover:underline"
+        className="cursor-pointer text-link hover:underline"
         onClick={handleClick}
       >
         {clickableText}

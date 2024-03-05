@@ -17,6 +17,7 @@ export interface PromptProps
   onSubmit: (value: string) => void
   isLoading: boolean
   placeholder: string
+  disabled?: boolean
 }
 
 export function PromptForm({
@@ -24,7 +25,8 @@ export function PromptForm({
   input,
   setInput,
   isLoading,
-  placeholder
+  placeholder,
+  disabled
 }: PromptProps) {
   const { formRef, onKeyDown } = useEnterSubmit()
   const inputRef = React.useRef<HTMLTextAreaElement>(null)
@@ -37,9 +39,10 @@ export function PromptForm({
 
   return (
     <form
+      className="relative"
       onSubmit={async e => {
         e.preventDefault()
-        if (!input?.trim()) {
+        if (!input?.trim() || disabled) {
           return
         }
         setInput('')
@@ -58,7 +61,7 @@ export function PromptForm({
               }}
               className={cn(
                 buttonVariants({ size: 'sm', variant: 'outline' }),
-                'absolute left-0 top-4 h-8 w-8 rounded-full bg-background p-0 sm:left-4'
+                'absolute left-0 top-4 size-8 rounded-full bg-background p-0 sm:left-4'
               )}
             >
               <IconPlus />
@@ -76,6 +79,7 @@ export function PromptForm({
           onChange={e => setInput(e.target.value)}
           placeholder={placeholder}
           spellCheck={false}
+          disabled={disabled}
           className="min-h-[60px] w-full resize-none bg-transparent px-4 py-[1.3rem] focus-within:outline-none sm:text-sm"
         />
         <div className="absolute right-0 top-4 sm:right-4">
@@ -94,6 +98,11 @@ export function PromptForm({
           </Tooltip>
         </div>
       </div>
+      {disabled && (
+        <div className="backdrop-blur-[1px] font-semibold border border-[#27272A] rounded-[6px] absolute size-full top-0 left-0 flex justify-center items-center dark:bg-[#27272A80] text-2xl">
+          Select a bot to start a thread.
+        </div>
+      )}
     </form>
   )
 }
