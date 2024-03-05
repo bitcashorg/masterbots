@@ -44,7 +44,6 @@ export function Chat({
   } = useThread()
   const containerRef = React.useRef<HTMLDivElement>()
 
-  const router = useRouter()
   const params = useParams<{ chatbot: string; threadId: string }>()
   const isNewChat = Boolean(!params.threadId && !activeThread)
 
@@ -85,6 +84,16 @@ export function Chat({
     scrollY
   })
 
+  // ? saffer way to debounce scroll to bottom
+  let timeoutId: any
+  const debounceScrollToBottom = (element: HTMLElement | undefined) => {
+    clearTimeout(timeoutId)
+    timeoutId = setTimeout(() => {
+      scrollToBottomOfElement(element)
+      clearTimeout(timeoutId)
+    }, 150) //? Adjustable delay as necessary
+  }
+
   const scrollToBottom = () => {
     if (
       (params.threadId && containerRef.current) ||
@@ -96,7 +105,7 @@ export function Chat({
       } else {
         element = containerRef.current
       }
-      scrollToBottomOfElement(element)
+      debounceScrollToBottom(element)
     }
   }
 
@@ -135,19 +144,12 @@ export function Chat({
     chatRequestOptions?: ChatRequestOptions
   ) => {
     if (isNewChat && chatbot) {
-      // if (status !== 'authenticated') throw new Error('Unauthenticated User')
-
       await createThread({
         threadId,
         chatbotId: chatbot.chatbotId,
         jwt: session!.user.hasuraJwt,
         userId: session!.user.id
       })
-      // router.push(`/${chatbot.name.trim().toLowerCase()}/${threadId}`, {
-      //   shallow: true,
-      //   scroll: false
-      // })
-      // router.refresh()
       const thread = await getThread({
         threadId,
         jwt: session!.user.hasuraJwt
@@ -200,7 +202,7 @@ export function Chat({
       }, 150)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, isOpenPopup])
+  }, [isLoading, isOpenPopup, scrollToBottomOfPopup])
 
   return (
     <>
