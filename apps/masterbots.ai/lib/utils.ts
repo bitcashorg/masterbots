@@ -152,13 +152,18 @@ export const easeInOutQuad = (t: number, b: number, c: number, d: number) => {
 let animationFrameId: number
 export const scrollToBottomOfElement = (element?: HTMLElement) => {
   if (!element) return
-  const targetScroll = element.scrollHeight - element.clientHeight;
+  const targetScroll = element.scrollHeight - element.clientHeight
   const duration = 500
   const startTime = performance.now()
 
   const animateScroll = (currentTime: number) => {
     const elapsed = currentTime - startTime
-    const position = easeInOutQuad(elapsed, element.scrollTop, targetScroll - element.scrollTop, duration)
+    const position = easeInOutQuad(
+      elapsed,
+      element.scrollTop,
+      targetScroll - element.scrollTop,
+      duration
+    )
     element.scrollTop = position
 
     if (elapsed < duration) {
@@ -166,7 +171,7 @@ export const scrollToBottomOfElement = (element?: HTMLElement) => {
     } else {
       cancelAnimationFrame(animationFrameId)
     }
-  };
+  }
 
   animationFrameId = requestAnimationFrame(animateScroll)
 }

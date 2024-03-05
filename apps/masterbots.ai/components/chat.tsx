@@ -44,7 +44,6 @@ export function Chat({
   } = useThread()
   const containerRef = React.useRef<HTMLDivElement>()
 
-  const router = useRouter()
   const params = useParams<{ chatbot: string; threadId: string }>()
   const isNewChat = Boolean(!params.threadId && !activeThread)
 
@@ -84,15 +83,16 @@ export function Chat({
     ref: containerRef,
     scrollY
   })
-  
-  // ? try to use this debounce function to scroll to bottom
+
+  // ? saffer way to debounce scroll to bottom
   let timeoutId: any
   const debounceScrollToBottom = (element: HTMLElement | undefined) => {
-    clearTimeout(timeoutId);
+    clearTimeout(timeoutId)
     timeoutId = setTimeout(() => {
-      scrollToBottomOfElement(element);
-    }, 150); // Adjust delay as necessary
-  };
+      scrollToBottomOfElement(element)
+      clearTimeout(timeoutId)
+    }, 150) //? Adjustable delay as necessary
+  }
 
   const scrollToBottom = () => {
     if (
@@ -144,19 +144,12 @@ export function Chat({
     chatRequestOptions?: ChatRequestOptions
   ) => {
     if (isNewChat && chatbot) {
-      // if (status !== 'authenticated') throw new Error('Unauthenticated User')
-
       await createThread({
         threadId,
         chatbotId: chatbot.chatbotId,
         jwt: session!.user.hasuraJwt,
         userId: session!.user.id
       })
-      // router.push(`/${chatbot.name.trim().toLowerCase()}/${threadId}`, {
-      //   shallow: true,
-      //   scroll: false
-      // })
-      // router.refresh()
       const thread = await getThread({
         threadId,
         jwt: session!.user.hasuraJwt
