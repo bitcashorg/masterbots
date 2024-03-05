@@ -41,7 +41,8 @@ export default async function ChatPage({ params }: ChatPageProps) {
         `Your response tone will be ${thread.chatbot.defaultTone}. ` +
         `Your response length will be ${thread.chatbot.defaultLength}. ` +
         `Your response format will be ${thread.chatbot.defaultType}. ` +
-        `Your response complexity level will be ${thread.chatbot.defaultComplexity}.`,
+        `Your response complexity level will be ${thread.chatbot.defaultComplexity}.` +
+        'Your response will be generated in the same language as user input.',
       createdAt: new Date()
     }
   ]

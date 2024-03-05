@@ -5,11 +5,11 @@ import { IconUser } from '@/components/ui/icons'
 import { cn, createMessagePairs } from '@/lib/utils'
 import { Chatbot, Message, User } from 'mb-genql'
 import Image from 'next/image'
+import Link from 'next/link'
 import React from 'react'
 import { BrowseChatMessage } from './browse-chat-message'
-import { ChatAccordion } from './chat-accordion'
 import { MessagePair, convertMessage } from './browse-chat-messages'
-import Link from 'next/link'
+import { ChatAccordion } from './chat-accordion'
 
 export function BrowseChatMessageList({
   messages,
@@ -47,10 +47,10 @@ export function BrowseChatMessageList({
           {(key !== 0 || isThread) && (
             <div
               className={cn(
-                'relative flex items-center font-normal text-sm transition-all w-full gap-4 pr-4'
+                'relative flex items-center font-normal md:text-lg transition-all w-full gap-3 pr-4'
               )}
             >
-              <div className="text-sm font-medium">
+              <div className="font-medium">
                 {pair.userMessage.content}
               </div>
               <span className="opacity-50 text-[0.875rem]">by</span>
@@ -92,12 +92,12 @@ export function BrowseChatMessageList({
           <div className="border-x-[1px] mx-[46px] py-5 dark:border-mirage border-gray-300">
             {pair.chatGptMessage.length > 0
               ? pair.chatGptMessage.map((message, index) => (
-                  <BrowseChatMessage
-                    chatbot={chatbot}
-                    key={index}
-                    message={convertMessage(message)}
-                  />
-                ))
+                <BrowseChatMessage
+                  chatbot={chatbot}
+                  key={index}
+                  message={convertMessage(message)}
+                />
+              ))
               : ''}
           </div>
         </ChatAccordion>

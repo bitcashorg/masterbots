@@ -121,7 +121,7 @@ export function cleanPrompt(str: string) {
   if (index !== -1) {
     extracted = str.substring(index + marker.length)
   }
-  console.log('cleanPrompt', str, extracted, index)
+  // console.log('cleanPrompt', str, extracted, index)
   return extracted || str
 }
 
