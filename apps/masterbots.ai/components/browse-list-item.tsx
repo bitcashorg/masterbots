@@ -1,15 +1,15 @@
 import Image from 'next/image'
 
 import { cn } from '@/lib/utils'
+import { getMessages } from '@/services/hasura'
 import { Message, Thread } from 'mb-genql'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import React from 'react'
+import { BrowseChatMessageList } from './browse-chat-message-list'
+import { ChatAccordion } from './chat-accordion'
 import { ShortMessage } from './short-message'
 import { IconOpenAI, IconUser } from './ui/icons'
-import { ChatAccordion } from './chat-accordion'
-import { BrowseChatMessageList } from './browse-chat-message-list'
-import { useRouter } from 'next/navigation'
-import { getMessages } from '@/services/hasura'
 
 export default function BrowseListItem({
   thread,
@@ -80,7 +80,7 @@ export default function BrowseListItem({
         {/* Thread Title */}
         <div
           className={cn(
-            'relative flex items-center font-normal text-sm transition-all w-full gap-4 pr-4'
+            'relative flex items-center font-normal md:text-lg transition-all w-full gap-3 pr-4'
           )}
         >
           {thread.chatbot?.avatar ? (
@@ -149,7 +149,7 @@ export default function BrowseListItem({
 
         <div className="opacity-50 overflow-hidden text-sm text-left">
           {thread.messages?.[1]?.content &&
-          thread.messages?.[1]?.role !== 'user' ? (
+            thread.messages?.[1]?.role !== 'user' ? (
             <div className="flex-1 space-y-2 overflow-hidden">
               <ShortMessage content={thread.messages?.[1]?.content} />
             </div>
