@@ -153,7 +153,7 @@ let animationFrameId: number
 export const scrollToBottomOfElement = (element?: HTMLElement) => {
   if (!element) return
   const targetScroll = element.scrollHeight - element.clientHeight;
-  const duration = 1000
+  const duration = 500
   const startTime = performance.now()
 
   const animateScroll = (currentTime: number) => {

@@ -206,7 +206,7 @@ export function Chat({
       const timeout = setTimeout(() => {
         scrollToBottomOfPopup()
         clearTimeout(timeout)
-      }, 1000)
+      }, 150)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading, isOpenPopup, scrollToBottomOfPopup])
