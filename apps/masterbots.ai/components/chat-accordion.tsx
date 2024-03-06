@@ -87,7 +87,7 @@ export const ChatAccordion = ({
                 }
               }
             : {})}
-          className={`${open ? '' : '-rotate-90'} absolute -right-2 h-4 w-4 shrink-0 mr-4 transition-transform duration-200 ${arrowClass || ''}`}
+          className={`${open ? '' : '-rotate-90'} absolute -right-2 size-4 shrink-0 mr-4 transition-transform duration-200 ${arrowClass || ''}`}
         />
       </button>
       <div

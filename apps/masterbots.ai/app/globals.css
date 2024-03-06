@@ -137,7 +137,7 @@
 
 .truncate-title {
   display: block;
-  max-width: 75%;
+  max-width: 90%;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -145,7 +145,6 @@
 }
 
 .no-truncate {
-  max-width: 100%;
   white-space: normal;
   overflow: visible;
   text-overflow: clip;

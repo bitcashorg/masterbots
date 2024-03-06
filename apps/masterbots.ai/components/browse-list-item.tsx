@@ -119,13 +119,11 @@ export default function BrowseListItem({
               <IconOpenAI />
             </Link>
           )}
-          <div className="flex items-center gap-3 text-left">
-            <div className="flex-1 px-1">
-              <span
-                className={cn('truncate-title', {
+          <div className="w-[calc(100%-28px)] flex items-center gap-3 text-left">
+            <div className={cn('truncate-title px-1', {
                   'no-truncate': isAccordionOpen
-                })}
-              >
+                })}>
+              <span>
                 {thread.messages?.[0]?.content}
               </span>
             </div>
