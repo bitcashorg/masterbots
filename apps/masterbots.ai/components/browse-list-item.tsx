@@ -27,7 +27,7 @@ export default function BrowseListItem({
   const threadRef = React.useRef<HTMLDivElement>(null)
   const router = useRouter()
   const [messages, setMessages] = React.useState<Message[]>([])
-  // State to track if the accordion is open
+  // ! Move to custom hook and add it to the context useThread + useProvider @bran18
   const [isAccordionOpen, setIsAccordionOpen] = React.useState(false)
 
   React.useEffect(() => {

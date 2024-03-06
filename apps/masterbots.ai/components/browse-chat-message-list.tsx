@@ -50,7 +50,7 @@ export function BrowseChatMessageList({
                 'relative flex items-center font-normal md:text-lg transition-all w-full gap-3 pr-4'
               )}
             >
-              <div className={cn('truncate-title px-1')}>
+              <div className={cn('break-all px-1')}>
                 {pair.userMessage.content}
               </div>
               <span className="opacity-50 text-[0.875rem]">by</span>
