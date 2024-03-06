@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/tooltip'
 import { IconArrowElbow, IconPlus } from '@/components/ui/icons'
 import { useRouter } from 'next/navigation'
+import { useThread } from '@/lib/hooks/use-thread'
 
 export interface PromptProps
   extends Pick<UseChatHelpers, 'input' | 'setInput'> {
@@ -28,14 +29,24 @@ export function PromptForm({
   placeholder,
   disabled
 }: PromptProps) {
+  const { isOpenPopup } = useThread()
   const { formRef, onKeyDown } = useEnterSubmit()
   const inputRef = React.useRef<HTMLTextAreaElement>(null)
+  const [isFocused, setIsFocused] = React.useState(false)
   const router = useRouter()
   React.useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus()
     }
   }, [])
+
+  const handleTextareaFocus = () => {
+    setIsFocused(true)
+  }
+
+  const handleTextareaBlur = () => {
+    setIsFocused(false)
+  }
 
   return (
     <form
@@ -50,7 +61,10 @@ export function PromptForm({
       }}
       ref={formRef}
     >
-      <div className="relative flex flex-col w-full px-8 overflow-hidden max-h-60 grow bg-background sm:rounded-md sm:border sm:px-12">
+      <div
+        className={`relative flex flex-col w-full px-8 overflow-hidden max-h-60 grow bg-background sm:rounded-md sm:border sm:px-12
+      ${isOpenPopup && isFocused ? ' dark:border-mirage border-iron' : ''}`}
+      >
         <Tooltip>
           <TooltipTrigger asChild>
             <button
@@ -75,6 +89,8 @@ export function PromptForm({
           tabIndex={0}
           onKeyDown={onKeyDown}
           rows={1}
+          onFocus={handleTextareaFocus}
+          onBlur={handleTextareaBlur}
           value={input}
           onChange={e => setInput(e.target.value)}
           placeholder={placeholder}

@@ -1,5 +1,6 @@
 'use client'
 
+import { Chatbot } from 'mb-genql'
 import * as React from 'react'
 
 const LOCAL_STORAGE_KEY = 'sidebar'
@@ -11,7 +12,9 @@ interface SidebarContext {
   tab: 'general' | 'work'
   changeTab: (cate: 'general' | 'work') => void
   activeCategory: number | null
+  activeChatbot: Chatbot | null
   setActiveCategory: React.Dispatch<React.SetStateAction<number | null>>
+  setActiveChatbot: React.Dispatch<React.SetStateAction<Chatbot | null>>
 }
 
 const SidebarContext = React.createContext<SidebarContext | undefined>(
@@ -33,6 +36,7 @@ interface SidebarProviderProps {
 export function SidebarProvider({ children }: SidebarProviderProps) {
   const [isSidebarOpen, setSidebarOpen] = React.useState(false)
   const [isLoading, setLoading] = React.useState(true)
+  const [activeChatbot, setActiveChatbot] = React.useState<Chatbot | null>(null)
   const [tab, setTab] = React.useState<'general' | 'work'>('general')
   const [activeCategory, setActiveCategory] = React.useState<number | null>(
     null
@@ -71,7 +75,9 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
         tab,
         changeTab,
         activeCategory,
-        setActiveCategory
+        setActiveCategory,
+        activeChatbot,
+        setActiveChatbot
       }}
     >
       {children}
