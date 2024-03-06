@@ -119,7 +119,7 @@ export default function BrowseListItem({
               <IconOpenAI />
             </Link>
           )}
-          <div className="w-[calc(100%-28px)] flex items-center gap-3 text-left">
+          <div className="w-[calc(100%-64px)] m:w-[calc(100%-28px)] flex items-center gap-3 text-left">
             <div
               className={cn('truncate-title px-1', {
                 'no-truncate': isAccordionOpen
