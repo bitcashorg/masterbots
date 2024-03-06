@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { IconSeparator } from '@/components/ui/icons'
 import { UserMenu } from '@/components/user-menu'
 import { SidebarToggle } from './sidebar-toggle'
+import { isTokenExpired } from 'mb-lib'
 
 // https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating
 
@@ -15,7 +16,7 @@ export async function Header() {
       <div className="flex items-center">
         <SidebarToggle />
         <HeaderLink href="/" text="Masterbots" />
-        <IconSeparator className="w-6 h-6 text-muted-foreground/50" />
+        <IconSeparator className="size-6 text-muted-foreground/50" />
         <HeaderLink href="/" text="Chat" />
         <HeaderLink href="/browse" text="Browse" />
       </div>
@@ -41,7 +42,7 @@ async function UserOrLogin() {
   return (
     <>
       <div className="flex items-center">
-        {session?.user ? (
+        {session?.user && !isTokenExpired(session?.user?.hasuraJwt) ? (
           <UserMenu user={session.user} />
         ) : (
           <Button variant="link" asChild className="-ml-2">
