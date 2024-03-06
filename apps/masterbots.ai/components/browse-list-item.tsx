@@ -125,7 +125,7 @@ export default function BrowseListItem({
                 'no-truncate': isAccordionOpen
               })}
             >
-              <span>{thread.messages?.[0]?.content}</span>
+              {thread.messages?.[0]?.content}
             </div>
             <span className="opacity-50 text-[0.875rem]">by</span>
             {thread.user?.profilePicture ? (
