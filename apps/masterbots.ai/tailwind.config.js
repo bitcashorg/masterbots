@@ -27,6 +27,7 @@ module.exports = {
         foreground: 'hsl(var(--foreground))',
         link: 'hsl(var(--link))',
         mirage: 'hsl(var(--mirage))',
+        iron: 'hsl(var(--iron))',
         primary: {
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))'
