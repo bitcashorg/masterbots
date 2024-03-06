@@ -27,8 +27,8 @@ export default function BrowseListItem({
   const threadRef = React.useRef<HTMLDivElement>(null)
   const router = useRouter()
   const [messages, setMessages] = React.useState<Message[]>([])
-   // State to track if the accordion is open
-   const [isAccordionOpen, setIsAccordionOpen] = React.useState(false)
+  // State to track if the accordion is open
+  const [isAccordionOpen, setIsAccordionOpen] = React.useState(false)
 
   React.useEffect(() => {
     if (!threadRef.current) return
@@ -57,10 +57,10 @@ export default function BrowseListItem({
       setMessages(messages)
     }
   }
-    // Function to handle accordion close event
-    const handleAccordionToggle = (isOpen: boolean) => {
-      setIsAccordionOpen(isOpen);
-    }
+  // Function to handle accordion close event
+  const handleAccordionToggle = (isOpen: boolean) => {
+    setIsAccordionOpen(isOpen)
+  }
 
   const goToThread = () => {
     router.push(
