@@ -64,7 +64,7 @@ export function ThreadPopup({ className }: { className?: string }) {
         className={cn(
           className,
           `flex flex-col z-[10] rounded-lg duration-500 ease-in-out absolute h-[90%]
-      max-w-[1032px] w-[95%]
+      max-w-[1032px] w-[95%] dark:border-mirage border-iron border
       transition-opacity ${isOpenPopup ? 'animate-fade-in' : 'animate-fade-out'}`
         )}
       >

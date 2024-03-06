@@ -9,6 +9,7 @@ import { FooterText } from '@/components/footer'
 import { ChatShareDialog } from '@/components/chat-share-dialog'
 import { Chatbot } from 'mb-genql'
 import { cn } from '@/lib/utils'
+import { useThread } from '@/lib/hooks/use-thread'
 
 export interface ChatPanelProps
   extends Pick<
@@ -49,7 +50,7 @@ export function ChatPanel({
   className
 }: ChatPanelProps) {
   const [shareDialogOpen, setShareDialogOpen] = React.useState(false)
-
+  const { isOpenPopup } = useThread()
   return (
     <div
       className={cn(
@@ -107,7 +108,9 @@ export function ChatPanel({
             )}
           </div>
         ) : null}
-        <div className="px-4 py-2 space-y-4 border-t shadow-lg bg-background sm:border md:py-4">
+        <div
+          className={`px-4 py-2 space-y-4 border-t shadow-lg bg-background sm:border md:py-4 ${isOpenPopup ? 'dark:border-mirage border-iron' : ''}`}
+        >
           <PromptForm
             onSubmit={async value => {
               await append({
