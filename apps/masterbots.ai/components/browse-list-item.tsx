@@ -51,15 +51,15 @@ export default function BrowseListItem({
   }, [threadRef.current, isLast, hasMore, loading, loadMore])
 
   const fetchMessages = async () => {
-    setIsAccordionOpen(true) // Set the accordion to open
     if (!messages.length) {
       const messages = await getMessages({ threadId: thread.threadId })
       setMessages(messages)
     }
   }
-  // Function to handle accordion close event
-  const handleAccordionToggle = (isOpen: boolean) => {
-    setIsAccordionOpen(isOpen)
+
+  const handleAccordionToggle = () => {
+    setIsAccordionOpen(true)
+    fetchMessages()
   }
 
   const goToThread = () => {
@@ -120,12 +120,12 @@ export default function BrowseListItem({
             </Link>
           )}
           <div className="w-[calc(100%-28px)] flex items-center gap-3 text-left">
-            <div className={cn('truncate-title px-1', {
-                  'no-truncate': isAccordionOpen
-                })}>
-              <span>
-                {thread.messages?.[0]?.content}
-              </span>
+            <div
+              className={cn('truncate-title px-1', {
+                'no-truncate': isAccordionOpen
+              })}
+            >
+              <span>{thread.messages?.[0]?.content}</span>
             </div>
             <span className="opacity-50 text-[0.875rem]">by</span>
             {thread.user?.profilePicture ? (

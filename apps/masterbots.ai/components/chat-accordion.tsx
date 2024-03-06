@@ -34,22 +34,7 @@ export const ChatAccordion = ({
   const { activeThread, setActiveThread, setIsNewResponse, isNewResponse } =
     useThread()
   const [open, setOpen] = React.useState(defaultState)
-  const toggle = () => {
-    const newState = !open
-    if (!newState && handleOpen) {
-      handleOpen()
-    }
-    if (!newState && thread?.threadId) {
-      setActiveThread(thread)
-    } else if (thread?.threadId) {
-      setActiveThread(null)
-    }
-    setOpen(newState)
-    if (isNewResponse) setIsNewResponse(false)
-    if (onToggle) {
-      onToggle(newState)
-    }
-  }
+
   React.useEffect(() => {
     if (
       (thread?.threadId &&
@@ -60,6 +45,27 @@ export const ChatAccordion = ({
       setOpen(false)
     }
   }, [activeThread, thread])
+
+  React.useEffect(() => {
+    if (isOpen !== undefined) {
+      setOpen(isOpen)
+    }
+  }, [isOpen])
+
+  const toggle = () => {
+    const newState = !open
+    setOpen(newState)
+    if (onToggle) {
+      onToggle(newState)
+    }
+    if (!newState && handleOpen) {
+      handleOpen()
+    }
+    if (thread?.threadId) {
+      setActiveThread(newState ? thread : null)
+    }
+    if (isNewResponse) setIsNewResponse(false)
+  }
 
   return (
     <div className={className || ''} {...props}>
