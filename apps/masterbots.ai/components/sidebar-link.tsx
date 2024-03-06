@@ -25,9 +25,8 @@ export default function SidebarLink({ category }: { category: Category }) {
     chatbot: string
     threadId?: string
   }>()
-  const { activeCategory, setActiveCategory } = useSidebar()
-
-  const [activeChatbot, setActiveChatbot] = React.useState<Chatbot | null>(null)
+  const { activeCategory, setActiveCategory, activeChatbot, setActiveChatbot } =
+    useSidebar()
 
   const [loading, setLoading] = React.useState<boolean>(false)
   const [chatbots, setChatbots] = React.useState<Chatbot[]>(

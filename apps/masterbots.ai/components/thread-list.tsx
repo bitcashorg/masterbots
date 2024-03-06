@@ -1,11 +1,14 @@
 'use client'
 
+import Image from 'next/image'
 import { Thread } from 'mb-genql'
 import React from 'react'
 import { ShortMessage } from './short-message'
 import { ChatAccordion } from './chat-accordion'
 import { ChatList } from './chat-list'
 import { useThread } from '@/lib/hooks/use-thread'
+import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { cn } from '@/lib/utils'
 
 export default function ThreadList({
   threads,
@@ -52,6 +55,7 @@ function ThreadComponent({
   const threadRef = React.useRef<HTMLLIElement>(null)
   // const router = useRouter()
   const { allMessages, sendMessageFromResponse } = useThread()
+  const { activeChatbot } = useSidebar()
   React.useEffect(() => {
     if (!threadRef.current) return
     const observer = new IntersectionObserver(([entry]) => {
@@ -71,16 +75,16 @@ function ThreadComponent({
     return () => {
       observer.disconnect()
     }
-  }, [threadRef.current, isLast, hasMore, loading, loadMore])
+  }, [threadRef, isLast, hasMore, loading, loadMore])
 
   return (
     <li ref={threadRef}>
       <ChatAccordion
         className="relative"
-        contentClass="!pt-0 !border-b-[transparent] max-h-[70vh] scrollbar"
+        contentClass="!pt-0 !border-b-[3px] max-h-[70vh] scrollbar !border-l-[3px]"
         // handleTrigger={goToThread}
         triggerClass="gap-[0.375rem] py-3
-        dark:border-b-mirage border-b-gray-300
+        dark:border-b-mirage border-b-iron
         sticky top-0 z-[1] dark:hover:bg-mirage hover:bg-gray-300 sticky top-0 z-[1] dark:bg-[#18181b] bg-[#f4f4f5]
         [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]"
         arrowClass="-right-1 top-[1.125rem]"
@@ -88,7 +92,25 @@ function ThreadComponent({
       >
         {/* Thread Title */}
 
-        <div className="px-[11px]">
+        <div className="px-[11px] flex items-center w-full gap-3">
+          {activeChatbot === null && thread.chatbot?.avatar ? (
+            <div
+              className={cn(
+                'md:flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow hidden'
+              )}
+            >
+              <Image
+                className="transition-opacity duration-300 bg-background dark:bg-primary-foreground rounded-full select-none hover:opacity-80"
+                src={thread.chatbot?.avatar}
+                alt={thread.chatbot?.name ?? 'BotAvatar'}
+                height={32}
+                width={32}
+              />{' '}
+            </div>
+          ) : (
+            ''
+          )}
+
           {thread.messages
             .filter(m => m.role === 'user')[0]
             ?.content.substring(0, 100) || 'wat'}
