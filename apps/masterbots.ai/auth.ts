@@ -45,7 +45,8 @@ export const {
             account: dbUser.userId,
             role: 'user'
           },
-          jwtSecret: validateJwtSecret(jwtSecret)
+          jwtSecret: validateJwtSecret(jwtSecret),
+          jwtExpiration: Number(process.env.JWT_TOKEN_EXPIRATION)
         })
 
         if (!hasuraJwt) throw new Error('Login Error')
