@@ -27,6 +27,8 @@ export default function BrowseListItem({
   const threadRef = React.useRef<HTMLDivElement>(null)
   const router = useRouter()
   const [messages, setMessages] = React.useState<Message[]>([])
+   // State to track if the accordion is open
+   const [isAccordionOpen, setIsAccordionOpen] = React.useState(false)
 
   React.useEffect(() => {
     if (!threadRef.current) return
@@ -49,11 +51,16 @@ export default function BrowseListItem({
   }, [threadRef.current, isLast, hasMore, loading, loadMore])
 
   const fetchMessages = async () => {
+    setIsAccordionOpen(true) // Set the accordion to open
     if (!messages.length) {
       const messages = await getMessages({ threadId: thread.threadId })
       setMessages(messages)
     }
   }
+    // Function to handle accordion close event
+    const handleAccordionToggle = (isOpen: boolean) => {
+      setIsAccordionOpen(isOpen);
+    }
 
   const goToThread = () => {
     router.push(
@@ -66,6 +73,7 @@ export default function BrowseListItem({
     <div ref={threadRef}>
       <ChatAccordion
         handleOpen={fetchMessages}
+        onToggle={handleAccordionToggle}
         // handleTrigger={goToThread}
         className="relative"
         contentClass="!pt-0 max-h-[70vh] scrollbar"
@@ -92,7 +100,7 @@ export default function BrowseListItem({
               )}
             >
               <Image
-                className="transition-opacity duration-300 bg-background dark:bg-primary-foreground rounded-full select-none hover:opacity-80"
+                className="transition-opacity duration-300 rounded-full select-none bg-background dark:bg-primary-foreground hover:opacity-80"
                 src={thread.chatbot?.avatar}
                 alt={thread.chatbot?.name ?? 'BotAvatar'}
                 height={32}
@@ -111,8 +119,16 @@ export default function BrowseListItem({
               <IconOpenAI />
             </Link>
           )}
-          <div className="flex items-center text-left gap-3">
-            <div className="flex-1 px-1 ">{thread.messages?.[0]?.content}</div>
+          <div className="flex items-center gap-3 text-left">
+            <div className="flex-1 px-1">
+              <span
+                className={cn('truncate-title', {
+                  'no-truncate': isAccordionOpen
+                })}
+              >
+                {thread.messages?.[0]?.content}
+              </span>
+            </div>
             <span className="opacity-50 text-[0.875rem]">by</span>
             {thread.user?.profilePicture ? (
               <Link
@@ -147,9 +163,9 @@ export default function BrowseListItem({
 
         {/* Thread Description */}
 
-        <div className="opacity-50 overflow-hidden text-sm text-left">
+        <div className="overflow-hidden text-sm text-left opacity-50">
           {thread.messages?.[1]?.content &&
-            thread.messages?.[1]?.role !== 'user' ? (
+          thread.messages?.[1]?.role !== 'user' ? (
             <div className="flex-1 space-y-2 overflow-hidden">
               <ShortMessage content={thread.messages?.[1]?.content} />
             </div>

@@ -11,6 +11,8 @@ export const ChatAccordion = ({
   thread = null,
   className,
   children,
+  onToggle,
+  isOpen,
   defaultState = false,
   triggerClass,
   contentClass,
@@ -24,6 +26,8 @@ export const ChatAccordion = ({
   defaultState?: boolean
   triggerClass?: string
   contentClass?: string
+  onToggle?: (isOpen: boolean) => void
+  isOpen?: boolean
   arrowClass?: string
   handleTrigger?: () => void
   handleOpen?: () => void
@@ -33,16 +37,20 @@ export const ChatAccordion = ({
     useThread()
   const [open, setOpen] = React.useState(defaultState)
   const toggle = () => {
-    if (!open && handleOpen) {
+    const newState = !open
+    if (!newState && handleOpen) {
       handleOpen()
     }
-    if (!open && thread?.threadId) {
+    if (!newState && thread?.threadId) {
       setActiveThread(thread)
     } else if (thread?.threadId) {
       setActiveThread(null)
     }
-    setOpen(!open)
-    if (isNewResponse) setIsNewResponse(false)
+    setOpen(newState);
+    if (isNewResponse) setIsNewResponse(false);
+    if (onToggle) {
+      onToggle(newState)
+    }
   }
   React.useEffect(() => {
     if (
