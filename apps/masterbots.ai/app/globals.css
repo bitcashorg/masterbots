@@ -136,3 +136,18 @@
   border-left: 300px solid #18181b;
   border-right: 300px solid #18181b;
 }
+
+.truncate-title {
+  display: block;
+  max-width: 90%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  word-break: break-word;
+}
+
+.no-truncate {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
