@@ -2,8 +2,6 @@
 
 import { ChevronDown } from 'lucide-react'
 import * as React from 'react'
-
-import { cn } from '@/lib/utils'
 import { useThread } from '@/lib/hooks/use-thread'
 import { Thread } from 'mb-genql'
 
@@ -11,6 +9,8 @@ export const ChatAccordion = ({
   thread = null,
   className,
   children,
+  onToggle,
+  isOpen,
   defaultState = false,
   triggerClass,
   contentClass,
@@ -24,6 +24,8 @@ export const ChatAccordion = ({
   defaultState?: boolean
   triggerClass?: string
   contentClass?: string
+  onToggle?: (isOpen: boolean) => void
+  isOpen?: boolean
   arrowClass?: string
   handleTrigger?: () => void
   handleOpen?: () => void
@@ -32,18 +34,7 @@ export const ChatAccordion = ({
   const { activeThread, setActiveThread, setIsNewResponse, isNewResponse } =
     useThread()
   const [open, setOpen] = React.useState(defaultState)
-  const toggle = () => {
-    if (!open && handleOpen) {
-      handleOpen()
-    }
-    if (!open && thread?.threadId) {
-      setActiveThread(thread)
-    } else if (thread?.threadId) {
-      setActiveThread(null)
-    }
-    setOpen(!open)
-    if (isNewResponse) setIsNewResponse(false)
-  }
+
   React.useEffect(() => {
     if (
       (thread?.threadId &&
@@ -54,6 +45,27 @@ export const ChatAccordion = ({
       setOpen(false)
     }
   }, [activeThread, thread])
+
+  React.useEffect(() => {
+    if (isOpen !== undefined) {
+      setOpen(isOpen)
+    }
+  }, [isOpen])
+
+  const toggle = () => {
+    const newState = !open
+    setOpen(newState)
+    if (onToggle) {
+      onToggle(newState)
+    }
+    if (!newState && handleOpen) {
+      handleOpen()
+    }
+    if (thread?.threadId) {
+      setActiveThread(newState ? thread : null)
+    }
+    if (isNewResponse) setIsNewResponse(false)
+  }
 
   return (
     <div className={className || ''} {...props}>
@@ -81,7 +93,7 @@ export const ChatAccordion = ({
                 }
               }
             : {})}
-          className={`${open ? '' : '-rotate-90'} absolute -right-2 h-4 w-4 shrink-0 mr-4 transition-transform duration-200 ${arrowClass || ''}`}
+          className={`${open ? '' : '-rotate-90'} absolute -right-2 size-4 shrink-0 mr-4 transition-transform duration-200 ${arrowClass || ''}`}
         />
       </button>
       <div
