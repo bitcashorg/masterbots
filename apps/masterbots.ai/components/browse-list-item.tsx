@@ -62,10 +62,7 @@ export default function BrowseListItem({
   const handleAccordionToggle = () => {
     console.log('handleAccordionToggle called')
     toggleAccordion(thread.threadId)
-    if (openedAccordionId !== thread.threadId) {
-      console.log('Fetching messages for thread', thread.threadId)
-      fetchMessages()
-    }
+    fetchMessages()
   }
 
   const goToThread = () => {
@@ -78,7 +75,6 @@ export default function BrowseListItem({
   return (
     <div ref={threadRef}>
       <ChatAccordion
-        handleOpen={fetchMessages}
         onToggle={handleAccordionToggle}
         isOpen={openedAccordionId === thread.threadId}
         // handleTrigger={goToThread}

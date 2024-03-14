@@ -10,39 +10,44 @@ export const ChatAccordion = ({
   className,
   children,
   onToggle,
-  isOpen = false,
-  defaultState = false,
+  isOpen,
   triggerClass,
   contentClass,
   arrowClass,
-  handleOpen,
   handleTrigger,
   ...props
 }: {
   className?: string
   children: React.ReactNode[]
-  defaultState?: boolean
   triggerClass?: string
   contentClass?: string
   onToggle?: (isOpen: boolean) => void
   isOpen?: boolean
   arrowClass?: string
   handleTrigger?: () => void
-  handleOpen?: () => void
   thread?: Thread | null
 }) => {
-  const { setActiveThread, setIsNewResponse, isNewResponse } =
+  const { activeThread, setActiveThread, setIsNewResponse, isNewResponse } =
     useThread()
 
-  const toggle = () => {
-    const newState = !isOpen || defaultState
-    if (onToggle) {
-      console.log('Accordion toggle called, isOpen before toggle:', isOpen)
-      onToggle(!isOpen)
+  React.useEffect(() => {
+    if (
+      (thread?.threadId &&
+        activeThread !== null &&
+        thread?.threadId !== activeThread?.threadId) ||
+      (activeThread === null && thread?.threadId)
+    ) {
+      setActiveThread(thread)
+      console.log('Setting activeThread based on thread prop')
     }
-    if (!isOpen && handleOpen) {
-      console.log('handleOpen called due to accordion opening')
-      handleOpen()
+  }, [activeThread, setActiveThread, thread])
+
+  const toggle = () => {
+    const newState = !isOpen
+    console.log('Accordion toggle called, isOpen before toggle:', isOpen)
+    if (onToggle) {
+      console.log('Accordion toggle called, inside toggle:', isOpen)
+      onToggle(!isOpen)
     }
     if (thread?.threadId) {
       setActiveThread(newState ? thread : null)
@@ -51,16 +56,6 @@ export const ChatAccordion = ({
     if (isNewResponse) {
       setIsNewResponse(false)
       console.log('Setting isNewResponse to false')
-    }
-  }
-
-  const toggle2 = () => {
-    const newState = !isOpen
-    if (onToggle) {
-      onToggle(newState)
-    }
-    if (newState && handleOpen) {
-      handleOpen()
     }
   }
 
