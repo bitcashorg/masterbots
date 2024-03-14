@@ -33,6 +33,8 @@ export default function SidebarLink({ category }: { category: Category }) {
     convertChatbotCategory(category.chatbots)
   )
   const [count, setCount] = React.useState<number>(category.chatbots.length)
+  const [isChatbotOfThisCategory, setIsChatbotOfThisCategory] =
+    React.useState<boolean>(false)
 
   React.useEffect(() => {
     if (
@@ -46,10 +48,17 @@ export default function SidebarLink({ category }: { category: Category }) {
           c => c.chatbot.name.toLowerCase().trim() === chatbot?.trim()
         )[0].chatbot
       )
-    } else {
+      setActiveCategory(category.categoryId)
+    } else if (!chatbot) {
       setActiveChatbot(null)
     }
-  }, [category, chatbot, threadId])
+  }, [
+    category.categoryId,
+    category.chatbots,
+    chatbot,
+    setActiveCategory,
+    setActiveChatbot
+  ])
 
   React.useEffect(() => {
     return () => {
@@ -60,10 +69,8 @@ export default function SidebarLink({ category }: { category: Category }) {
   }, [])
 
   const handleClickCategory = () => {
-    if (!activeChatbot) {
-      if (activeCategory === category.categoryId) setActiveCategory(null)
-      else setActiveCategory(category.categoryId)
-    }
+    if (activeCategory === category.categoryId) setActiveCategory(null)
+    else setActiveCategory(category.categoryId)
   }
 
   const loadMore = async () => {
@@ -80,20 +87,32 @@ export default function SidebarLink({ category }: { category: Category }) {
     setLoading(false)
   }
 
+  React.useEffect(() => {
+    if (
+      activeChatbot &&
+      category.chatbots.length &&
+      category.chatbots.filter(c => c.chatbot.name === activeChatbot.name)
+        .length
+    ) {
+      setIsChatbotOfThisCategory(true)
+    } else {
+      setIsChatbotOfThisCategory(false)
+    }
+  }, [activeChatbot, category.categoryId, category.chatbots])
+
   return (
     <div
       className={cn('flex flex-col', {
         'border-b-[1px] dark:border-mirage border-gray-300':
-          activeCategory === category.categoryId && !activeChatbot
+          activeCategory === category.categoryId && !isChatbotOfThisCategory
       })}
     >
       <div
         className={cn(
           'transition-all flex',
           activeCategory === category.categoryId &&
-            // !activeChatbot &&
             'dark:bg-mirage bg-gray-300',
-          activeChatbot && 'justify-center'
+          isChatbotOfThisCategory && 'justify-center'
         )}
       >
         <Link
@@ -102,7 +121,7 @@ export default function SidebarLink({ category }: { category: Category }) {
           href="/"
           className={cn(
             'flex items-center pr-5 py-3 cursor-pointer relative origin-left transition-all ease-in-out duration-300',
-            activeChatbot ? 'text-xs opacity-50' : 'grow pl-5'
+            isChatbotOfThisCategory ? 'text-xs opacity-50' : 'grow pl-5'
           )}
           onClick={handleClickCategory}
           shallow
@@ -128,10 +147,10 @@ export default function SidebarLink({ category }: { category: Category }) {
           <IconCaretRight
             className={`transition duration-300 ease-in-out
           absolute
-          stroke-[#09090b] dark:stroke-[#FAFAFA] ${activeCategory === category.categoryId && !activeChatbot ? 'rotate-90 right-5 xl:right-5 lg:right-2' : activeChatbot ? 'rotate-180 right-0 scale-75' : 'right-5 xl:right-5 lg:right-2'}`}
+          stroke-[#09090b] dark:stroke-[#FAFAFA] ${activeCategory === category.categoryId && !isChatbotOfThisCategory ? 'rotate-90 right-5 xl:right-5 lg:right-2' : isChatbotOfThisCategory ? 'rotate-180 right-0 scale-75' : 'right-5 xl:right-5 lg:right-2'}`}
           />
         </Link>
-        {activeChatbot ? (
+        {isChatbotOfThisCategory && activeChatbot ? (
           <div className="flex items-center pl-2 py-3">
             <Image
               src={activeChatbot.avatar || '/path/to/default/avatar.png'}
@@ -155,7 +174,7 @@ export default function SidebarLink({ category }: { category: Category }) {
             height:
               activeCategory === category.categoryId &&
               category.chatbots.length &&
-              !activeChatbot
+              !isChatbotOfThisCategory
                 ? ''
                 : '0px'
           }}
@@ -168,7 +187,12 @@ export default function SidebarLink({ category }: { category: Category }) {
               isLast={key === chatbots.length - 1}
               chatbot={chatbot}
               key={chatbot.chatbotId}
-              activeChatbot={activeChatbot}
+              activeChatbot={
+                activeCategory === category.categoryId &&
+                isChatbotOfThisCategory
+                  ? activeChatbot
+                  : null
+              }
             />
           ))}
         </motion.div>
