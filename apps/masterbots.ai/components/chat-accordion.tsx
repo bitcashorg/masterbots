@@ -31,22 +31,36 @@ export const ChatAccordion = ({
   handleOpen?: () => void
   thread?: Thread | null
 }) => {
-  const { activeThread, setActiveThread, setIsNewResponse, isNewResponse } =
+  const { setActiveThread, setIsNewResponse, isNewResponse } =
     useThread()
 
   const toggle = () => {
     const newState = !isOpen || defaultState
     if (onToggle) {
+      console.log('Accordion toggle called, isOpen before toggle:', isOpen)
       onToggle(!isOpen)
     }
     if (!isOpen && handleOpen) {
+      console.log('handleOpen called due to accordion opening')
       handleOpen()
     }
     if (thread?.threadId) {
       setActiveThread(newState ? thread : null)
+      console.log('Setting activeThread based on new state')
     }
     if (isNewResponse) {
       setIsNewResponse(false)
+      console.log('Setting isNewResponse to false')
+    }
+  }
+
+  const toggle2 = () => {
+    const newState = !isOpen
+    if (onToggle) {
+      onToggle(newState)
+    }
+    if (newState && handleOpen) {
+      handleOpen()
     }
   }
 
@@ -66,7 +80,7 @@ export const ChatAccordion = ({
         } ${triggerClass || ''}`}
       >
         {children[0]}
-        {!open && children[1]}
+        {!isOpen && children[1]}
         <ChevronDown
           {...(handleTrigger
             ? {
@@ -80,12 +94,11 @@ export const ChatAccordion = ({
         />
       </button>
       <div
-        className={`text-sm transition-all border
-      ${
-        isOpen
-          ? 'animate-accordion-down dark:border-mirage border-gray-300 !border-t-[transparent] !border-r-[transparent]'
-          : 'overflow-hidden animate-accordion-up h-0 border-[transparent]'
-      } ${contentClass || ''}`}
+        className={`text-sm transition-all border ${
+          isOpen
+            ? 'animate-accordion-down dark:border-mirage border-gray-300 !border-t-[transparent] !border-r-[transparent]'
+            : 'overflow-hidden animate-accordion-up h-0 border-[transparent]'
+        } ${contentClass || ''}`}
       >
         {children[2]}
       </div>

@@ -48,18 +48,22 @@ export default function BrowseListItem({
     return () => {
       observer.disconnect()
     }
-  }, [threadRef.current, isLast, hasMore, loading, loadMore])
+  }, [isLast, hasMore, loading, loadMore])
 
   const fetchMessages = async () => {
+    console.log('Fetching messages for', thread.threadId)
     if (!messages.length) {
       const messages = await getMessages({ threadId: thread.threadId })
+      console.log('Messages fetched', messages)
       setMessages(messages)
     }
   }
 
   const handleAccordionToggle = () => {
+    console.log('handleAccordionToggle called')
     toggleAccordion(thread.threadId)
     if (openedAccordionId !== thread.threadId) {
+      console.log('Fetching messages for thread', thread.threadId)
       fetchMessages()
     }
   }
