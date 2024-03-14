@@ -10,7 +10,7 @@ export const ChatAccordion = ({
   className,
   children,
   onToggle,
-  isOpen,
+  isOpen = false,
   defaultState = false,
   triggerClass,
   contentClass,
@@ -33,51 +33,34 @@ export const ChatAccordion = ({
 }) => {
   const { activeThread, setActiveThread, setIsNewResponse, isNewResponse } =
     useThread()
-  const [open, setOpen] = React.useState(defaultState)
-
-  React.useEffect(() => {
-    if (
-      (thread?.threadId &&
-        activeThread !== null &&
-        thread?.threadId !== activeThread?.threadId) ||
-      (activeThread === null && thread?.threadId)
-    ) {
-      setOpen(false)
-    }
-  }, [activeThread, thread])
-
-  React.useEffect(() => {
-    if (isOpen !== undefined) {
-      setOpen(isOpen)
-    }
-  }, [isOpen])
 
   const toggle = () => {
-    const newState = !open
-    setOpen(newState)
+    const newState = !isOpen || defaultState
     if (onToggle) {
-      onToggle(newState)
+      onToggle(!isOpen)
     }
-    if (!newState && handleOpen) {
+    if (!isOpen && handleOpen) {
       handleOpen()
     }
     if (thread?.threadId) {
       setActiveThread(newState ? thread : null)
     }
-    if (isNewResponse) setIsNewResponse(false)
+    if (isNewResponse) {
+      setIsNewResponse(false)
+    }
   }
 
   return (
     <div className={className || ''} {...props}>
       <button
-        data-state={open ? 'open' : 'closed'}
+        data-state={isOpen ? 'open' : 'closed'}
         onClick={toggle}
         className={`flex flex-1 justify-start flex-col relative
         transition-all ease-in-out duration-200
         border-[transparent] border
         hover:rounded-t-[8px]
         font-medium w-full ${
-          open
+          isOpen
             ? 'dark:border-b-mirage border-b-gray-300'
             : 'dark:hover:border-b-mirage hover:border-b-gray-300 [&>div>div>button]:!hidden'
         } ${triggerClass || ''}`}
@@ -93,13 +76,13 @@ export const ChatAccordion = ({
                 }
               }
             : {})}
-          className={`${open ? '' : '-rotate-90'} absolute -right-2 size-4 shrink-0 mr-4 transition-transform duration-200 ${arrowClass || ''}`}
+          className={`${isOpen ? '' : '-rotate-90'} absolute -right-2 size-4 shrink-0 mr-4 transition-transform duration-200 ${arrowClass || ''}`}
         />
       </button>
       <div
         className={`text-sm transition-all border
       ${
-        open
+        isOpen
           ? 'animate-accordion-down dark:border-mirage border-gray-300 !border-t-[transparent] !border-r-[transparent]'
           : 'overflow-hidden animate-accordion-up h-0 border-[transparent]'
       } ${contentClass || ''}`}

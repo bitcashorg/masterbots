@@ -10,6 +10,7 @@ import { BrowseChatMessageList } from './browse-chat-message-list'
 import { ChatAccordion } from './chat-accordion'
 import { ShortMessage } from './short-message'
 import { IconOpenAI, IconUser } from './ui/icons'
+import { useAccordion } from '@/lib/hooks/use-accordion'
 
 export default function BrowseListItem({
   thread,
@@ -24,10 +25,10 @@ export default function BrowseListItem({
   isLast: boolean
   hasMore: boolean
 }) {
+  const { toggleAccordion, openedAccordionId } = useAccordion()
   const threadRef = React.useRef<HTMLDivElement>(null)
   const router = useRouter()
   const [messages, setMessages] = React.useState<Message[]>([])
-  const [isAccordionOpen, setIsAccordionOpen] = React.useState(false)
 
   React.useEffect(() => {
     if (!threadRef.current) return
@@ -57,8 +58,10 @@ export default function BrowseListItem({
   }
 
   const handleAccordionToggle = () => {
-    setIsAccordionOpen(true)
-    fetchMessages()
+    toggleAccordion(thread.threadId)
+    if (openedAccordionId !== thread.threadId) {
+      fetchMessages()
+    }
   }
 
   const goToThread = () => {
@@ -73,6 +76,7 @@ export default function BrowseListItem({
       <ChatAccordion
         handleOpen={fetchMessages}
         onToggle={handleAccordionToggle}
+        isOpen={openedAccordionId === thread.threadId}
         // handleTrigger={goToThread}
         className="relative"
         contentClass="!pt-0 max-h-[70vh] scrollbar"
@@ -121,7 +125,7 @@ export default function BrowseListItem({
           <div className="w-[calc(100%-64px)] m:w-[calc(100%-28px)] flex items-center gap-3 text-left">
             <div
               className={cn('truncate-title px-1', {
-                'no-truncate': isAccordionOpen
+                'no-truncate': openedAccordionId === thread.threadId
               })}
             >
               {thread.messages?.[0]?.content}
