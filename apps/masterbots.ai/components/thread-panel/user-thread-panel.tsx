@@ -102,11 +102,12 @@ export default function UserThreadPanel({
 
   useEffect(() => {
     if (
-      !threads ||
-      !threads.filter(t => t.threadId === activeThread?.threadId).length
-    ) {
-      setActiveThread(null)
-    }
+      threads &&
+      threads.filter(t => t.threadId === activeThread?.threadId).length
+    )
+      return
+    setActiveThread(null)
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [threads])
 

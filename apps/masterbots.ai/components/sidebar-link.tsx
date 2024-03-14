@@ -88,16 +88,13 @@ export default function SidebarLink({ category }: { category: Category }) {
   }
 
   React.useEffect(() => {
-    if (
+    const isBotOfThisCategory =
       activeChatbot &&
       category.chatbots.length &&
       category.chatbots.filter(c => c.chatbot.name === activeChatbot.name)
         .length
-    ) {
-      setIsChatbotOfThisCategory(true)
-    } else {
-      setIsChatbotOfThisCategory(false)
-    }
+
+    setIsChatbotOfThisCategory(Boolean(isBotOfThisCategory))
   }, [activeChatbot, category.categoryId, category.chatbots])
 
   return (
