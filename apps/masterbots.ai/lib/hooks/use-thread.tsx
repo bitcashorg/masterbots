@@ -18,6 +18,7 @@ import { useRouter } from 'next/navigation'
 import { useSidebar } from './use-sidebar'
 import { useScroll } from 'framer-motion'
 import { useAtBottom } from './use-at-bottom'
+import { AccordionProvider } from './use-accordion'
 
 interface ThreadContext {
   isOpenPopup: boolean
@@ -51,7 +52,6 @@ interface ThreadProviderProps {
 }
 
 export function ThreadProvider({ children }: ThreadProviderProps) {
-  const router = useRouter()
   const { activeCategory } = useSidebar()
   const [activeThread, setActiveThread] = React.useState<Thread | null>(null)
   const sectionRef = React.useRef<HTMLElement>()
@@ -256,6 +256,8 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
   )
 
   return (
-    <ThreadContext.Provider value={value}>{children}</ThreadContext.Provider>
+    <ThreadContext.Provider value={value}>
+      <AccordionProvider>{children}</AccordionProvider>
+    </ThreadContext.Provider>
   )
 }
