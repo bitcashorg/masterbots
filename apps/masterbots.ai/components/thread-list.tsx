@@ -54,7 +54,8 @@ function ThreadComponent({
 }) {
   const threadRef = React.useRef<HTMLLIElement>(null)
   // const router = useRouter()
-  const { allMessages, sendMessageFromResponse } = useThread()
+  const { allMessages, sendMessageFromResponse, isOpenPopup, activeThread } =
+    useThread()
   const { activeChatbot } = useSidebar()
   React.useEffect(() => {
     if (!threadRef.current) return
@@ -76,12 +77,27 @@ function ThreadComponent({
       observer.disconnect()
     }
   }, [threadRef, isLast, hasMore, loading, loadMore])
+  const scrollToTop = () => {
+    if (!threadRef.current) return
+    threadRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   const handleAccordionToggle = (isOpen: boolean) => {
-    if (!isOpen && threadRef.current) {
-      threadRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    if (!isOpen) {
+      scrollToTop()
     }
   }
+
+  React.useEffect(() => {
+    if (
+      !isOpenPopup &&
+      activeThread &&
+      activeThread.threadId === thread.threadId
+    )
+      scrollToTop()
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpenPopup])
 
   return (
     <li ref={threadRef}>
