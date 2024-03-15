@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { AccordionProvider } from '@/lib/hooks/use-accordion'
+
 
 interface BrowseContextProps {
   keyword: string
@@ -39,8 +39,10 @@ export function BrowseProvider({ children }: BrowseProviderProps) {
   }
 
   return (
-    <BrowseContext.Provider value={{ changeKeyword, keyword, tab, changeTab }}>
-      <AccordionProvider>{children}</AccordionProvider>
+    <BrowseContext.Provider
+      value={{ changeKeyword, keyword, tab, changeTab }}
+    >
+      {children}
     </BrowseContext.Provider>
   )
 }

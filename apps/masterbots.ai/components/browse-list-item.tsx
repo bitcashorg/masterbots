@@ -10,7 +10,6 @@ import { BrowseChatMessageList } from './browse-chat-message-list'
 import { ChatAccordion } from './chat-accordion'
 import { ShortMessage } from './short-message'
 import { IconOpenAI, IconUser } from './ui/icons'
-import { useAccordion } from '@/lib/hooks/use-accordion'
 
 export default function BrowseListItem({
   thread,
@@ -25,10 +24,11 @@ export default function BrowseListItem({
   isLast: boolean
   hasMore: boolean
 }) {
-  const { toggleAccordion, openedAccordionId } = useAccordion()
   const threadRef = React.useRef<HTMLDivElement>(null)
   const router = useRouter()
   const [messages, setMessages] = React.useState<Message[]>([])
+  // ! Move to custom hook and add it to the context useThread + useProvider @bran18
+  const [isAccordionOpen, setIsAccordionOpen] = React.useState(false)
 
   React.useEffect(() => {
     if (!threadRef.current) return
@@ -51,18 +51,19 @@ export default function BrowseListItem({
   }, [isLast, hasMore, loading, loadMore])
 
   const fetchMessages = async () => {
-    console.log('Fetching messages for', thread.threadId)
     if (!messages.length) {
       const messages = await getMessages({ threadId: thread.threadId })
-      console.log('Messages fetched', messages)
       setMessages(messages)
     }
   }
 
-  const handleAccordionToggle = () => {
-    console.log('handleAccordionToggle called')
-    toggleAccordion(thread.threadId)
-    fetchMessages()
+  const handleAccordionToggle = (isOpen: boolean) => {
+    setIsAccordionOpen(isOpen)
+    if (isOpen) {
+      fetchMessages()
+    } else if (threadRef.current) {
+      threadRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
   }
 
   const goToThread = () => {
@@ -76,7 +77,6 @@ export default function BrowseListItem({
     <div ref={threadRef}>
       <ChatAccordion
         onToggle={handleAccordionToggle}
-        isOpen={openedAccordionId === thread.threadId}
         // handleTrigger={goToThread}
         className="relative"
         contentClass="!pt-0 max-h-[70vh] scrollbar"
@@ -87,6 +87,7 @@ export default function BrowseListItem({
         [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]
         dark:bg-[#18181b] bg-[#f4f4f5]"
         arrowClass="mt-[10px]"
+        thread={thread}
       >
         {/* Thread Title */}
         <div
@@ -125,7 +126,7 @@ export default function BrowseListItem({
           <div className="w-[calc(100%-64px)] m:w-[calc(100%-28px)] flex items-center gap-3 text-left">
             <div
               className={cn('truncate-title px-1', {
-                'no-truncate': openedAccordionId === thread.threadId
+                'no-truncate': isAccordionOpen
               })}
             >
               {thread.messages?.[0]?.content}

@@ -68,6 +68,7 @@ export default function BrowseList() {
 
   React.useEffect(() => {
     verifyKeyword()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [keyword, threads])
 
   return (

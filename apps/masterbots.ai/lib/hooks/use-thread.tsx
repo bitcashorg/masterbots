@@ -18,7 +18,6 @@ import { useRouter } from 'next/navigation'
 import { useSidebar } from './use-sidebar'
 import { useScroll } from 'framer-motion'
 import { useAtBottom } from './use-at-bottom'
-import { AccordionProvider } from './use-accordion'
 
 interface ThreadContext {
   isOpenPopup: boolean
@@ -52,6 +51,7 @@ interface ThreadProviderProps {
 }
 
 export function ThreadProvider({ children }: ThreadProviderProps) {
+  const router = useRouter()
   const { activeCategory } = useSidebar()
   const [activeThread, setActiveThread] = React.useState<Thread | null>(null)
   const sectionRef = React.useRef<HTMLElement>()
@@ -63,7 +63,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
   const [randomChatbot, setRandomChatbot] = React.useState<Chatbot | null>(null)
 
   const chatbotSystemPrompts: AIMessage[] =
-    activeThread?.chatbot.prompts.map(({ prompt }) => ({
+    activeThread?.chatbot?.prompts?.map(({ prompt }) => ({
       id: prompt.promptId.toString(),
       role: 'system',
       content: prompt.content,
@@ -167,7 +167,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
   )
 
   React.useEffect(() => {
-    if (activeThread) {
+    if (activeThread?.chatbot?.prompts?.length) {
       fetchMessages()
     } else {
       setMessagesFromDB([])
@@ -256,8 +256,6 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
   )
 
   return (
-    <ThreadContext.Provider value={value}>
-      <AccordionProvider>{children}</AccordionProvider>
-    </ThreadContext.Provider>
+    <ThreadContext.Provider value={value}>{children}</ThreadContext.Provider>
   )
 }

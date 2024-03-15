@@ -77,9 +77,16 @@ function ThreadComponent({
     }
   }, [threadRef, isLast, hasMore, loading, loadMore])
 
+  const handleAccordionToggle = (isOpen: boolean) => {
+    if (!isOpen && threadRef.current) {
+      threadRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
+
   return (
     <li ref={threadRef}>
       <ChatAccordion
+        onToggle={handleAccordionToggle}
         className="relative"
         contentClass="!pt-0 !border-b-[3px] max-h-[70vh] scrollbar !border-l-[3px]"
         // handleTrigger={goToThread}
