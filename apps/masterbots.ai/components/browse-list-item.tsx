@@ -58,11 +58,13 @@ export default function BrowseListItem({
   }
 
   const handleAccordionToggle = (isOpen: boolean) => {
-    setIsAccordionOpen(isOpen)
+    setIsAccordionOpen(isOpen);
+    // When toggling accordion, it should scroll
+    // Use optional chaining to ensure scrollIntoView is called only if current is not null
+    threadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Should fetch messages only when opening thread.
     if (isOpen) {
-      fetchMessages()
-    } else if (threadRef.current) {
-      threadRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      fetchMessages();
     }
   }
 
