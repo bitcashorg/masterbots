@@ -7,7 +7,7 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { getChatbot, getThreads } from '@/services/hasura'
 import { Chatbot, Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
-import React from 'react'
+import React, { useEffect } from 'react'
 import ChatChatbotDetails from '../chat-chatbot-details'
 import { useParams } from 'next/navigation'
 import { botNames } from '@/lib/bots-names'
@@ -25,7 +25,8 @@ export default function UserThreadPanel({
   const params = useParams<{ chatbot: string; threadId: string }>()
   const { data: session } = useSession()
   const { activeCategory } = useSidebar()
-  const { randomChatbot, isOpenPopup } = useThread()
+  const { randomChatbot, isOpenPopup, activeThread, setActiveThread } =
+    useThread()
   const [loading, setLoading] = React.useState<boolean>(false)
   const [threads, setThreads] = React.useState<Thread[]>(initialThreads)
   const [count, setCount] = React.useState<number>(initialThreads.length)
@@ -98,6 +99,17 @@ export default function UserThreadPanel({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.chatbot, session])
+
+  useEffect(() => {
+    if (
+      threads &&
+      threads.filter(t => t.threadId === activeThread?.threadId).length
+    )
+      return
+    setActiveThread(null)
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [threads])
 
   return (
     <>
