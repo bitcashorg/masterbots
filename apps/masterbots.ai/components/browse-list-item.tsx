@@ -48,7 +48,7 @@ export default function BrowseListItem({
     return () => {
       observer.disconnect()
     }
-  }, [threadRef.current, isLast, hasMore, loading, loadMore])
+  }, [isLast, hasMore, loading, loadMore])
 
   const fetchMessages = async () => {
     if (!messages.length) {
@@ -57,9 +57,15 @@ export default function BrowseListItem({
     }
   }
 
-  const handleAccordionToggle = () => {
-    setIsAccordionOpen(true)
-    fetchMessages()
+  const handleAccordionToggle = (isOpen: boolean) => {
+    setIsAccordionOpen(isOpen);
+    // When toggling accordion, it should scroll
+    // Use optional chaining to ensure scrollIntoView is called only if current is not null
+    threadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Should fetch messages only when opening thread.
+    if (isOpen) {
+      fetchMessages();
+    }
   }
 
   const goToThread = () => {
@@ -72,7 +78,6 @@ export default function BrowseListItem({
   return (
     <div ref={threadRef}>
       <ChatAccordion
-        handleOpen={fetchMessages}
         onToggle={handleAccordionToggle}
         // handleTrigger={goToThread}
         className="relative"
@@ -84,6 +89,7 @@ export default function BrowseListItem({
         [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]
         dark:bg-[#18181b] bg-[#f4f4f5]"
         arrowClass="mt-[10px]"
+        thread={thread}
       >
         {/* Thread Title */}
         <div

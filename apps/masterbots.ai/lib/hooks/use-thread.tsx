@@ -63,7 +63,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
   const [randomChatbot, setRandomChatbot] = React.useState<Chatbot | null>(null)
 
   const chatbotSystemPrompts: AIMessage[] =
-    activeThread?.chatbot.prompts.map(({ prompt }) => ({
+    activeThread?.chatbot?.prompts?.map(({ prompt }) => ({
       id: prompt.promptId.toString(),
       role: 'system',
       content: prompt.content,
@@ -167,7 +167,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
   )
 
   React.useEffect(() => {
-    if (activeThread) {
+    if (activeThread?.chatbot?.prompts?.length) {
       fetchMessages()
     } else {
       setMessagesFromDB([])
