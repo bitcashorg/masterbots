@@ -24,7 +24,7 @@ export default function ThreadList({
   loadMore: () => void
 }) {
   return (
-    <ul className="w-full flex flex-col gap-3">
+    <ul className="flex flex-col w-full gap-3">
       {threads.map((thread, key) => (
         <ThreadComponent
           key={key}
@@ -54,7 +54,8 @@ function ThreadComponent({
 }) {
   const threadRef = React.useRef<HTMLLIElement>(null)
   // const router = useRouter()
-  const { allMessages, sendMessageFromResponse } = useThread()
+  const { allMessages, sendMessageFromResponse, isOpenPopup, activeThread } =
+    useThread()
   const { activeChatbot } = useSidebar()
   React.useEffect(() => {
     if (!threadRef.current) return
@@ -76,10 +77,31 @@ function ThreadComponent({
       observer.disconnect()
     }
   }, [threadRef, isLast, hasMore, loading, loadMore])
+  const scrollToTop = () => {
+    if (!threadRef.current) return
+    threadRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  const handleAccordionToggle = (isOpen: boolean) => {
+    // It should scroll when opening or closing the accordion
+    scrollToTop()
+  }
+
+  React.useEffect(() => {
+    if (
+      !isOpenPopup &&
+      activeThread &&
+      activeThread.threadId === thread.threadId
+    )
+      scrollToTop()
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpenPopup])
 
   return (
     <li ref={threadRef}>
       <ChatAccordion
+        onToggle={handleAccordionToggle}
         className="relative"
         contentClass="!pt-0 !border-b-[3px] max-h-[70vh] scrollbar !border-l-[3px]"
         // handleTrigger={goToThread}
@@ -100,7 +122,7 @@ function ThreadComponent({
               )}
             >
               <Image
-                className="transition-opacity duration-300 bg-background dark:bg-primary-foreground rounded-full select-none hover:opacity-80"
+                className="transition-opacity duration-300 rounded-full select-none bg-background dark:bg-primary-foreground hover:opacity-80"
                 src={thread.chatbot?.avatar}
                 alt={thread.chatbot?.name ?? 'BotAvatar'}
                 height={32}
@@ -117,7 +139,7 @@ function ThreadComponent({
         </div>
 
         {/* Thread Description */}
-        <div className="opacity-50 overflow-hidden text-sm text-left">
+        <div className="overflow-hidden text-sm text-left opacity-50">
           {thread.messages.filter(m => m.role !== 'user')?.[0]?.content ? (
             <div className="flex-1 px-[8px] pb-3 space-y-2 overflow-hidden">
               <ShortMessage
