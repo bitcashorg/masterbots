@@ -8,10 +8,12 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useEffect, useState } from 'react'
 import { getCategory, getThreads } from '@/services/hasura'
 import { useSession } from 'next-auth/react'
+import { useThread } from '@/lib/hooks/use-thread'
 
 export default function ChatChatbotDetails() {
   const { data: session } = useSession()
   const { activeCategory, activeChatbot } = useSidebar()
+  const { randomChatbot } = useThread()
   const [threadNum, setThreadNum] = useState<number>(0)
   const [categoryName, setCategoryName] = useState<string>('')
 
@@ -60,10 +62,10 @@ export default function ChatChatbotDetails() {
               {activeChatbot
                 ? categoryName
                 : activeCategory
-                  ? `You are on the ${categoryName}. Please select one of the bots on the sidebar to start a conversation.`
+                  ? `You are on the ${categoryName} category. Please select one of the bots on the sidebar to start a conversation.`
                   : 'Please select one of the categories and a bot on the sidebar to start a conversation.'}
             </div>
-            <div className="text-base pb-[8px]">
+            <div className="text-base gap-[8px] flex flex-col pb-[8px]">
               {activeChatbot && activeChatbot?.description ? (
                 <div className="font-medium">{activeChatbot.description}</div>
               ) : (
@@ -80,17 +82,15 @@ export default function ChatChatbotDetails() {
             </div>
           </div>
         </div>
-        {activeChatbot && (
-          <div className="size-24 absolute border-[4px] border-[#388DE2] right-0 top-0 translate-x-[25%] rounded-full translate-y-[-25%] dark:bg-[#131316] bg-white">
-            <Image
-              className="size-full transition-opacity duration-300 rounded-full select-none ring-1 ring-zinc-100/10 hover:opacity-80"
-              src={activeChatbot?.avatar || ''}
-              alt={activeChatbot?.avatar || 'ChatAvatar'}
-              height={108}
-              width={108}
-            />
-          </div>
-        )}
+        <div className="size-24 absolute border-[4px] border-[#388DE2] right-0 top-0 translate-x-[25%] rounded-full translate-y-[-25%] dark:bg-[#131316] bg-white">
+          <Image
+            className="size-full transition-opacity duration-300 rounded-full select-none ring-1 ring-zinc-100/10 hover:opacity-80"
+            src={activeChatbot?.avatar || randomChatbot?.avatar || ''}
+            alt={activeChatbot?.avatar || randomChatbot?.avatar || 'ChatAvatar'}
+            height={108}
+            width={108}
+          />
+        </div>
       </div>
     </div>
   )

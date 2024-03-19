@@ -32,6 +32,8 @@ interface ThreadContext {
   sectionRef: React.MutableRefObject<HTMLElement | undefined>
   isAtBottom: boolean
   isLoading: boolean
+  randomChatbot: Chatbot | null
+  getRandomChatbot: () => void
 }
 
 const ThreadContext = React.createContext<ThreadContext | undefined>(undefined)
@@ -58,6 +60,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
   const [messagesFromDB, setMessagesFromDB] = React.useState<Message[]>([])
   const [isNewResponse, setIsNewResponse] = React.useState<boolean>(false)
   const [isOpenPopup, setIsOpenPopup] = React.useState<boolean>(false)
+  const [randomChatbot, setRandomChatbot] = React.useState<Chatbot | null>(null)
 
   const chatbotSystemPrompts: AIMessage[] =
     activeThread?.chatbot?.prompts?.map(({ prompt }) => ({
@@ -184,6 +187,30 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpenPopup])
 
+  const getRandomChatbot = React.useCallback(async () => {
+    if (activeThread || !session?.user?.hasuraJwt) return
+    const chatbotsCount = await getChatbotsCount({
+      categoryId: activeCategory,
+      jwt: session!.user.hasuraJwt
+    })
+    const offset = Math.floor(Math.random() * chatbotsCount)
+    const chatbots = await getChatbots({
+      limit: 1,
+      offset,
+      categoryId: activeCategory
+    })
+
+    if (chatbots.length) {
+      setRandomChatbot(chatbots[0])
+    } else {
+      setRandomChatbot(null)
+    }
+  }, [activeCategory, activeThread, session])
+
+  React.useEffect(() => {
+    getRandomChatbot()
+  }, [getRandomChatbot])
+
   const { scrollY } = useScroll({
     container: sectionRef as React.RefObject<HTMLElement>
   })
@@ -206,7 +233,9 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       setIsOpenPopup,
       isAtBottom,
       isLoading,
-      sectionRef
+      sectionRef,
+      randomChatbot,
+      getRandomChatbot
     }),
     [
       activeThread,
@@ -220,7 +249,9 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       setIsOpenPopup,
       isAtBottom,
       isLoading,
-      sectionRef
+      sectionRef,
+      randomChatbot,
+      getRandomChatbot
     ]
   )
 
