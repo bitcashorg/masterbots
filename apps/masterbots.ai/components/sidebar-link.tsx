@@ -70,8 +70,10 @@ export default function SidebarLink({ category }: { category: Category }) {
   }, [])
 
   const handleClickCategory = () => {
-    if (activeCategory !== category.categoryId)
-      setActiveCategory(_prev => category.categoryId)
+    // Toggle category
+    if (activeCategory === category.categoryId && !activeChatbot)
+      setActiveCategory(_prev => null)
+    else setActiveCategory(_prev => category.categoryId)
   }
 
   const loadMore = async () => {
