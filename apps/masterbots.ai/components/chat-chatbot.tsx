@@ -18,7 +18,7 @@ export const ChatChatbot = ({
 
   useEffect(() => {
     if (isOpenPopup) return
-    setNewThreadId(crypto.randomUUID())
+    setNewThreadId(nanoid())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpenPopup])
 
