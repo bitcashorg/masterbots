@@ -29,10 +29,11 @@ export const botNames = new Map([
   ['techpulsebot', 'TechPulseBot'],
   ['codeguru', 'CodeGuru'],
   ['lingobot', 'LingoBot'],
+  ['studyprobot', 'StudyProBot'],
   ['budgetbot', 'BudgetBot'],
   ['debtzero', 'DebtZero'],
   ['wealthwizbot', 'WealthWizBot'],
   ['gymgenie', 'GymGenie'],
-  ['diedocbot', 'DieDocBot'],
-  ['acienthelbalbot', 'AncientHelbalBot'],
+  ['dietdocbot', 'DietDocBot'],
+  ['acientherbalbot', 'AncientHerbalBot'],
 ])
