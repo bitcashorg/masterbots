@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { Chat } from './chat'
 import { Message } from 'ai/react'
 import { useThread } from '@/lib/hooks/use-thread'
+import { nanoid } from 'nanoid'
 
 export const ChatChatbot = ({
   initialMessages,
@@ -14,7 +15,7 @@ export const ChatChatbot = ({
   chatbot?: Chatbot
 }) => {
   const { isOpenPopup } = useThread()
-  const [newThreadId, setNewThreadId] = useState<string>(crypto.randomUUID())
+  const [newThreadId, setNewThreadId] = useState<string>(nanoid())
 
   useEffect(() => {
     if (isOpenPopup) return
