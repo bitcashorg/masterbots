@@ -233,9 +233,9 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       setIsOpenPopup,
       isAtBottom,
       isLoading,
+      sectionRef,
       randomChatbot,
-      getRandomChatbot,
-      sectionRef
+      getRandomChatbot
     }),
     [
       activeThread,
@@ -249,9 +249,9 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       setIsOpenPopup,
       isAtBottom,
       isLoading,
+      sectionRef,
       randomChatbot,
-      getRandomChatbot,
-      sectionRef
+      getRandomChatbot
     ]
   )
 

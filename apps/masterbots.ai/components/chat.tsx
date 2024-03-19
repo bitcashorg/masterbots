@@ -19,6 +19,7 @@ import React, { useEffect } from 'react'
 import { toast } from 'react-hot-toast'
 import { useThread } from '@/lib/hooks/use-thread'
 import { botNames } from '@/lib/bots-names'
+import { useSidebar } from '@/lib/hooks/use-sidebar'
 
 export function Chat({
   initialMessages,
@@ -42,6 +43,7 @@ export function Chat({
     sectionRef,
     isAtBottom: isAtBottomOfSection
   } = useThread()
+  const { activeChatbot } = useSidebar()
   const containerRef = React.useRef<HTMLDivElement>()
 
   const params = useParams<{ chatbot: string; threadId: string }>()
@@ -234,7 +236,7 @@ export function Chat({
 
       {((isOpenPopup && isPopup) || (!isOpenPopup && !isPopup)) && (
         <ChatPanel
-          className={chatPanelClassName}
+          className={`${!activeThread && !activeChatbot ? 'hidden' : ''} ${chatPanelClassName}`}
           scrollToBottom={
             isOpenPopup && isPopup && scrollToBottomOfPopup
               ? scrollToBottomOfPopup

@@ -53,35 +53,6 @@ export function BrowseChatMessageList({
               <div className={cn('break-all px-1')}>
                 {pair.userMessage.content}
               </div>
-              <span className="opacity-50 text-[0.875rem]">by</span>
-              {user?.profilePicture ? (
-                <Link
-                  href={`/browse/${encodeURIComponent(user.username)}?type=user`}
-                  title={user?.username.replace('_', ' ')}
-                  className={cn(
-                    'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow'
-                  )}
-                >
-                  <Image
-                    className="transition-opacity duration-300 rounded-full select-none hover:opacity-80"
-                    src={user?.profilePicture}
-                    alt={user?.username ?? 'Avatar'}
-                    height={32}
-                    width={32}
-                  />
-                </Link>
-              ) : (
-                <Link
-                  href={`/browse/${encodeURIComponent(user?.username ?? 'Default')}?type=user`}
-                  title={user?.username}
-                  className={cn(
-                    'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow',
-                    'bg-background'
-                  )}
-                >
-                  <IconUser />
-                </Link>
-              )}
             </div>
           )}
 
@@ -92,12 +63,12 @@ export function BrowseChatMessageList({
           <div className="border-x-[1px] mx-[46px] py-5 dark:border-mirage border-gray-300">
             {pair.chatGptMessage.length > 0
               ? pair.chatGptMessage.map((message, index) => (
-                <BrowseChatMessage
-                  chatbot={chatbot}
-                  key={index}
-                  message={convertMessage(message)}
-                />
-              ))
+                  <BrowseChatMessage
+                    chatbot={chatbot}
+                    key={index}
+                    message={convertMessage(message)}
+                  />
+                ))
               : ''}
           </div>
         </ChatAccordion>

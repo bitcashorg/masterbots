@@ -24,15 +24,11 @@ export default function UserThreadPanel({
 }) {
   const params = useParams<{ chatbot: string; threadId: string }>()
   const { data: session } = useSession()
-  const { activeCategory } = useSidebar()
-  const { randomChatbot, isOpenPopup, activeThread, setActiveThread } =
-    useThread()
+  const { activeCategory, activeChatbot } = useSidebar()
+  const { isOpenPopup, activeThread, setActiveThread } = useThread()
   const [loading, setLoading] = React.useState<boolean>(false)
-  const [threads, setThreads] = React.useState<Thread[]>(initialThreads)
-  const [count, setCount] = React.useState<number>(initialThreads.length)
-  const [activeChatbot, setActvieChatbot] = React.useState<Chatbot | undefined>(
-    undefined
-  )
+  const [threads, setThreads] = React.useState<Thread[]>(initialThreads ?? [])
+  const [count, setCount] = React.useState<number>(initialThreads?.length ?? 0)
 
   const loadMore = async () => {
     console.log('🟡 Loading More Content')
@@ -43,11 +39,11 @@ export default function UserThreadPanel({
       userId: session!.user.id,
       offset: threads.length,
       limit: PAGE_SIZE,
-      categoryId: activeCategory
+      categoryId: activeCategory,
+      chatbotName: activeChatbot?.name
     })
-
-    setThreads(prevState => [...prevState, ...moreThreads])
-    setCount(moreThreads.length)
+    if (moreThreads) setThreads(prevState => [...prevState, ...moreThreads])
+    setCount(_prev => moreThreads.length ?? 0)
     setLoading(false)
   }
 
@@ -57,23 +53,18 @@ export default function UserThreadPanel({
         jwt: session!.user.hasuraJwt,
         userId: session!.user.id,
         limit: PAGE_SIZE,
-        ...(activeCategory
-          ? {
-              categoryId: activeCategory
-            }
-          : {
-              chatbotName: chatbot
-            })
+        categoryId: activeCategory,
+        chatbotName: activeChatbot?.name
       })
-      setThreads(threads)
-      setCount(threads.length)
+      setThreads(_prev => threads ?? [])
+      setCount(_prev => threads.length ?? 0)
     }
   }
 
   React.useEffect(() => {
     handleThreadsChange()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeCategory, chatbot, isOpenPopup])
+  }, [activeCategory, chatbot, isOpenPopup, activeChatbot])
 
   React.useEffect(() => {
     if (!isOpenPopup) {
@@ -81,24 +72,6 @@ export default function UserThreadPanel({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpenPopup])
-
-  const getActiveChatbot = async () => {
-    const chatbot = await getChatbot({
-      chatbotName: botNames.get(params.chatbot),
-      jwt: session!.user.hasuraJwt,
-      threads: true
-    })
-    setActvieChatbot(chatbot)
-  }
-
-  React.useEffect(() => {
-    if (params?.chatbot && session?.user?.hasuraJwt) {
-      getActiveChatbot()
-    } else {
-      setActvieChatbot(undefined)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.chatbot, session])
 
   useEffect(() => {
     if (
@@ -132,19 +105,7 @@ export default function UserThreadPanel({
       ) : (
         ''
       )}
-      {(!threads || threads.length === 0) &&
-        randomChatbot &&
-        !params?.chatbot && (
-          <ChatChatbotDetails
-            chatbot={randomChatbot}
-            isSelectedChatbot={false}
-          />
-        )}
-      {(!threads || threads.length === 0) &&
-        activeChatbot &&
-        params?.chatbot && (
-          <ChatChatbotDetails chatbot={activeChatbot} isSelectedChatbot />
-        )}
+      {(!threads || threads.length === 0) && <ChatChatbotDetails />}
     </>
   )
 }
