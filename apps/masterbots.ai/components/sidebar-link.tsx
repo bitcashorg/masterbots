@@ -44,13 +44,14 @@ export default function SidebarLink({ category }: { category: Category }) {
       ).length
     ) {
       setActiveChatbot(
-        category.chatbots.filter(
-          c => c.chatbot.name.toLowerCase().trim() === chatbot?.trim()
-        )[0].chatbot
+        _prev =>
+          category.chatbots.filter(
+            c => c.chatbot.name.toLowerCase().trim() === chatbot?.trim()
+          )[0].chatbot
       )
-      setActiveCategory(category.categoryId)
+      setActiveCategory(_prev => category.categoryId)
     } else if (!chatbot) {
-      setActiveChatbot(null)
+      setActiveChatbot(_prev => null)
     }
   }, [
     category.categoryId,
@@ -69,8 +70,8 @@ export default function SidebarLink({ category }: { category: Category }) {
   }, [])
 
   const handleClickCategory = () => {
-    if (activeCategory === category.categoryId) setActiveCategory(null)
-    else setActiveCategory(category.categoryId)
+    if (activeCategory !== category.categoryId)
+      setActiveCategory(_prev => category.categoryId)
   }
 
   const loadMore = async () => {
