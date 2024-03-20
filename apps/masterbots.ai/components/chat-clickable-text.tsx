@@ -9,8 +9,23 @@ export function ClickableText({
 }) {
   const fullText: string = extractTextFromReactNode(children)
   // ? This regex matches any variation of the unique key phrases followed by a colon and then captures the following sentence.
-  const uniquePattern =
-    /(?:Unique insight|Unique Tip|Unique, lesser-known solution|Unique Solution|Unique, lesser-known option|Unique Insight: Lesser-Known Solution|Unique Recommendation|Lesser-Known Gem|Unique, Lesser-Known Destination|For a UNIQUE, LESSER-KNOWN phrase):\s*([^.:]+[.])/i
+  const uniquePhrases = [
+    'Unique, lesser-known',
+    'Unique insight',
+    'Unique Tip',
+    'Unique, lesser-known solution',
+    'Unique Solution',
+    'Unique, lesser-known option',
+    'Unique Insight: Lesser-Known Solution',
+    'Unique Recommendation',
+    'Lesser-Known Gem',
+    'For a UNIQUE, LESSER-KNOWN phrase',
+    'Unique, Lesser-Known Destination'
+  ]
+  const uniquePattern = new RegExp(
+    `(?:${uniquePhrases.join('|')}):\\s*([^.:]+[.])`,
+    'i'
+  )
   const generalPattern = /(.*?)([:.,])(?:\s|$)/g
   // First, check for the UNIQUE pattern
   const uniqueMatch = fullText.match(uniquePattern)
