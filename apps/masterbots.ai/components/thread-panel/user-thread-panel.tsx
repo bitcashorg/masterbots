@@ -25,7 +25,8 @@ export default function UserThreadPanel({
   const params = useParams<{ chatbot: string; threadId: string }>()
   const { data: session } = useSession()
   const { activeCategory, activeChatbot } = useSidebar()
-  const { isOpenPopup, activeThread, setActiveThread } = useThread()
+  const { isOpenPopup, activeThread, setActiveThread, setIsOpenPopup } =
+    useThread()
   const [loading, setLoading] = React.useState<boolean>(false)
   const [threads, setThreads] = React.useState<Thread[]>(initialThreads ?? [])
   const [count, setCount] = React.useState<number>(initialThreads?.length ?? 0)
@@ -62,7 +63,11 @@ export default function UserThreadPanel({
   }
 
   React.useEffect(() => {
-    handleThreadsChange()
+    // Avoid making too many requests in a short period of time
+    const timeout = setTimeout(() => {
+      handleThreadsChange()
+      clearTimeout(timeout)
+    }, 150)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeCategory, chatbot, isOpenPopup, activeChatbot])
 
@@ -79,6 +84,7 @@ export default function UserThreadPanel({
       threads.filter(t => t.threadId === activeThread?.threadId).length
     )
       return
+    setIsOpenPopup(false)
     setActiveThread(null)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
