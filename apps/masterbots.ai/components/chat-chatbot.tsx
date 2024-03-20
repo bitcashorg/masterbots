@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react'
 import { Chat } from './chat'
 import { Message } from 'ai/react'
 import { useThread } from '@/lib/hooks/use-thread'
-import crypto from 'crypto'
 
 export const ChatChatbot = ({
   initialMessages,
