@@ -39,9 +39,9 @@ export const ChatAccordion = ({
   if (defaultState) {
     initialState = defaultState
   } else {
-    initialState = Boolean(
-      activeThread && thread && thread.threadId === activeThread.threadId
-    )
+    const { threadId: activeThreadId } = activeThread || {}
+    const { threadId } = thread || {}
+    initialState = activeThreadId && threadId === activeThreadId
   }
 
   const [open, setOpen] = React.useState(initialState)

@@ -66,7 +66,7 @@ export default function UserThreadPanel({
     // Avoid making too many requests in a short period of time
     const timeout = setTimeout(() => {
       handleThreadsChange()
-      clearTimeout(timeout)
+      return () => clearTimeout(timeout)
     }, 150)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeCategory, chatbot, isOpenPopup, activeChatbot])
