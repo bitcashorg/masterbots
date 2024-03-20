@@ -1,10 +1,9 @@
 import { auth } from '@/auth'
-import { Chat } from '@/components/chat'
+import { ChatChatbot } from '@/components/chat-chatbot'
 import ThreadPanel from '@/components/thread-panel'
 import { botNames } from '@/lib/bots-names'
 import { getChatbot, getThreads } from '@/services/hasura'
 import { Message } from 'ai'
-import crypto from 'crypto'
 import { isTokenExpired } from 'mb-lib'
 import { nanoid } from 'nanoid'
 import { redirect } from 'next/navigation'
@@ -35,8 +34,6 @@ export default async function BotThreadsPage({
     jwt: session!.user.hasuraJwt,
     userId: session!.user.id
   })
-
-  const newThreadId = crypto.randomUUID()
 
   // format all chatbot prompts as chatgpt 'system' messages
   const chatbotSystemPrompts: Message[] = chatbot.prompts.map(({ prompt }) => ({
@@ -72,11 +69,7 @@ export default async function BotThreadsPage({
         chatbot={chatbot.name}
         search={searchParams}
       />{' '}
-      <Chat
-        initialMessages={initialMessages}
-        chatbot={chatbot}
-        threadId={newThreadId}
-      />
+      <ChatChatbot initialMessages={initialMessages} chatbot={chatbot} />
     </div>
   )
 }
