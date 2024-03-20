@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { Chat } from './chat'
 import { Message } from 'ai/react'
 import { useThread } from '@/lib/hooks/use-thread'
-import { nanoid } from 'nanoid'
+import crypto from 'crypto'
 
 export const ChatChatbot = ({
   initialMessages,
@@ -15,11 +15,11 @@ export const ChatChatbot = ({
   chatbot?: Chatbot
 }) => {
   const { isOpenPopup } = useThread()
-  const [newThreadId, setNewThreadId] = useState<string>(nanoid())
+  const [newThreadId, setNewThreadId] = useState<string>(crypto.randomUUID())
 
   useEffect(() => {
     if (isOpenPopup) return
-    setNewThreadId(nanoid())
+    setNewThreadId(crypto.randomUUID())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpenPopup])
 
