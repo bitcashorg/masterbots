@@ -33,7 +33,18 @@ export const ChatAccordion = ({
 }) => {
   const { activeThread, setActiveThread, setIsNewResponse, isNewResponse } =
     useThread()
-  const [open, setOpen] = React.useState(defaultState)
+  // If the thread is the active, we keep the thread open
+  let initialState
+
+  if (defaultState) {
+    initialState = defaultState
+  } else {
+    const { threadId: activeThreadId } = activeThread || {}
+    const { threadId } = thread || {}
+    initialState = activeThreadId && threadId === activeThreadId
+  }
+
+  const [open, setOpen] = React.useState(initialState)
 
   React.useEffect(() => {
     if (
