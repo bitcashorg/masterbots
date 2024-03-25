@@ -12,11 +12,17 @@ export default async function BrowseLayout({ children }: BrowseLayoutProps) {
       <main className="flex flex-col h-[calc(100vh-theme(spacing.16))]">
         <section className="overflow-auto group scrollbar w-full">
           {children}
-          <footer className="flex justify-center items-center opacity-50 h-[64px] whitespace-break-spaces text-xs font-semibold font-['Geist_Mono']">
-            Robot avatars delivered by{' '}
-            <a href="https://robohash.org" target="_blank" rel="noreferrer" className="text-link hover:underline focus-within:underline">
+          <footer className="flex justify-center items-center opacity-50 h-[64px] ">
+            <span className="font-['Geist'] text-centerb  items-center font-normal text-[24px]  ">Robot avatars delivered by{' '}
+            <a href="https://robohash.org" target="_blank" rel="noreferrer" className="text-primary  underline focus-within:underline">
               robohash.org
             </a>
+            {' '}
+            {' • '}
+            <a href="/term-n-policies" target="_blank" rel="noreferrer" className="text-primary  underline focus-within:underline">
+            terms & policies
+            </a>
+            </span>
           </footer>
         </section>
       </main>
