@@ -4,7 +4,7 @@ interface TermPoliciesLayoutProps {
   children: React.ReactNode
 }
 
-export default async function TermPoliciesLayout({ children }: TermPoliciesLayoutProps) {
+export default function TermPoliciesLayout({ children }: TermPoliciesLayoutProps) {
   return (
       <main className="flex flex-col h-[calc(100vh-theme(spacing.16))]">
         <section className="overflow-auto group scrollbar w-full px-8 md:px-0">
