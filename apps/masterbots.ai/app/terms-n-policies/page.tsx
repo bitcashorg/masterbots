@@ -26,7 +26,7 @@ export default async function TermPoliciesPage() {
         <h2 className="text-xl font-bold mb-2">How We Use Your Information:</h2>
         <ul className="list-disc pl-6 mb-4">
             <li>To provide, maintain, and improve our services.</li>
-            <li>To publicize chat interactions, as per our platform's unique feature.</li>
+            <li>To publicize chat interactions, as per our platform&apos;s unique feature.</li>
             <li>To communicate with you, including sending updates, support, and administrative messages.</li>
             <li>For research and analytics to better understand how users interact with our chatbots and services.</li>
         </ul>
@@ -55,7 +55,7 @@ export default async function TermPoliciesPage() {
             personal information against unauthorized or unlawful processing and against accidental loss, destruction,
             or damage.</p>
 
-        <h2 className="text-xl font-bold mb-2">Children's Privacy</h2>
+        <h2 className="text-xl font-bold mb-2">Children&apos;s Privacy</h2>
         <p className="mb-4">Our service is not directed to individuals under the age of 13. We do not knowingly collect
             personal information from children under 13.</p>
 
@@ -70,8 +70,8 @@ export default async function TermPoliciesPage() {
 
             <h2 className="text-xl font-bold mb-2">Introduction</h2>
 
-        <p className="mb-4">Welcome to Masterbots.ai ("we," "us," "our"). By accessing our website, you agree to these Terms of Service
-            ("Terms"), our Privacy Policy, and all applicable laws and regulations governing the use of our platform. Our
+        <p className="mb-4">Welcome to Masterbots.ai (&quot;we,&quot;, &quot;us,&quot; &quot;our&quot;). By accessing our website, you agree to these Terms of Service
+            (&quot;Terms&quot;), our Privacy Policy, and all applicable laws and regulations governing the use of our platform. Our
             website aggregates AI chatbot conversations and publicizes these chats by default. We provide a platform for
             users to interact with various AI chatbots and share their interactions publicly on our site.</p>
 
@@ -108,7 +108,7 @@ export default async function TermPoliciesPage() {
             owner.</p>
 
         <h2 className="text-xl font-bold mb-2">Disclaimer of Warranties</h2>
-        <p className="mb-4">Our website is provided on an "AS IS" and "AS AVAILABLE" basis without warranties of any kind, either express
+        <p className="mb-4">Our website is provided on an &quot;AS IS&quot; and &quot;AS AVAILABLE&quot; basis without warranties of any kind, either express
             or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, or
             non-infringement.</p>
 
