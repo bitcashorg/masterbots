@@ -7,7 +7,7 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { getChatbot, getThreads } from '@/services/hasura'
 import { Chatbot, Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import ChatChatbotDetails from '../chat-chatbot-details'
 import { useParams } from 'next/navigation'
 import { botNames } from '@/lib/bots-names'
@@ -30,7 +30,7 @@ export default function UserThreadPanel({
   const [loading, setLoading] = React.useState<boolean>(false)
   const [threads, setThreads] = React.useState<Thread[]>(initialThreads ?? [])
   const [count, setCount] = React.useState<number>(initialThreads?.length ?? 0)
-
+  const fetchIdRef = useRef(0) // Store the fetchId in a ref
   const loadMore = async () => {
     console.log('🟡 Loading More Content')
     setLoading(true)
@@ -49,27 +49,29 @@ export default function UserThreadPanel({
   }
 
   const handleThreadsChange = async () => {
-    if (session?.user) {
-      const threads = await getThreads({
-        jwt: session!.user.hasuraJwt,
-        userId: session!.user.id,
-        limit: PAGE_SIZE,
-        categoryId: activeCategory,
-        chatbotName: activeChatbot?.name
-      })
+    if (!session?.user) return
+    const currentFetchId = Date.now() // Generate a unique identifier for the current fetch
+    fetchIdRef.current = currentFetchId
+    const threads = await getThreads({
+      jwt: session!.user.hasuraJwt,
+      userId: session!.user.id,
+      limit: PAGE_SIZE,
+      categoryId: activeCategory,
+      chatbotName: activeChatbot?.name
+    })
+
+    // Check if the fetchId matches the current fetchId stored in the ref
+    if (fetchIdRef.current === currentFetchId) {
+      // If it matches, update the threads state
       setThreads(_prev => threads ?? [])
       setCount(_prev => threads.length ?? 0)
     }
   }
 
   React.useEffect(() => {
-    // Avoid making too many requests in a short period of time
-    const timeout = setTimeout(() => {
-      handleThreadsChange()
-      return () => clearTimeout(timeout)
-    }, 150)
+    handleThreadsChange()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeCategory, chatbot, isOpenPopup, activeChatbot])
+  }, [activeCategory, activeChatbot])
 
   React.useEffect(() => {
     if (!isOpenPopup) {
