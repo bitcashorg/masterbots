@@ -13,8 +13,8 @@ export default async function BrowsePage() {
     <div className="max-w-[1024px] pb-10 mx-auto w-full">
       <CategoryMainTabs />
       <BrowseCategoryTabs categories={categories} />
-      <BrowseSearchInput />
-      <BrowseList />
+      <BrowseSearchInput /> 
+       <BrowseList />
     </div>
   )
 }
