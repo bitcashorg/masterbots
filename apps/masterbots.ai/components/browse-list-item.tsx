@@ -1,6 +1,6 @@
 import Image from 'next/image'
 
-import { cn } from '@/lib/utils'
+import { cn, sleep } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
 import { Message, Thread } from 'mb-genql'
 import Link from 'next/link'
@@ -57,15 +57,16 @@ export default function BrowseListItem({
     }
   }
 
-  const handleAccordionToggle = (isOpen: boolean) => {
-    setIsAccordionOpen(isOpen);
+  const handleAccordionToggle = async (isOpen: boolean) => {
+    if (isOpen) {
+      await fetchMessages()
+    }
     // When toggling accordion, it should scroll
     // Use optional chaining to ensure scrollIntoView is called only if current is not null
-    threadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    await sleep(300) // animation time
+    threadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    setIsAccordionOpen(isOpen)
     // Should fetch messages only when opening thread.
-    if (isOpen) {
-      fetchMessages();
-    }
   }
 
   const goToThread = () => {

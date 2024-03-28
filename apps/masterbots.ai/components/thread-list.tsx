@@ -8,7 +8,7 @@ import { ChatAccordion } from './chat-accordion'
 import { ChatList } from './chat-list'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
-import { cn } from '@/lib/utils'
+import { cn, sleep } from '@/lib/utils'
 
 export default function ThreadList({
   threads,
@@ -77,7 +77,8 @@ function ThreadComponent({
       observer.disconnect()
     }
   }, [threadRef, isLast, hasMore, loading, loadMore])
-  const scrollToTop = () => {
+  const scrollToTop = async () => {
+    await sleep(300) // animation time
     if (!threadRef.current) return
     threadRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
