@@ -749,10 +749,10 @@ type Chatbot {
     where: ChatBoolExp
   ): ChatAggregate!
   createdBy: String!
-  defaultComplexity: String!
-  defaultLength: String!
-  defaultTone: String!
-  defaultType: String!
+  defaultComplexity: String
+  defaultLength: String
+  defaultTone: String
+  defaultType: String
   description: String
   name: String!
 
@@ -3665,6 +3665,7 @@ type Thread {
   chatbot: Chatbot!
   chatbotId: Int!
   createdAt: timestamptz!
+  isPublic: Boolean
 
   """An array relationship"""
   messages(
@@ -3718,6 +3719,8 @@ type ThreadAggregate {
 }
 
 input ThreadAggregateBoolExp {
+  bool_and: threadAggregateBoolExpBool_and
+  bool_or: threadAggregateBoolExpBool_or
   count: threadAggregateBoolExpCount
 }
 
@@ -3787,6 +3790,7 @@ input ThreadBoolExp {
   chatbot: ChatbotBoolExp
   chatbotId: IntComparisonExp
   createdAt: TimestamptzComparisonExp
+  isPublic: BooleanComparisonExp
   messages: MessageBoolExp
   messagesAggregate: MessageAggregateBoolExp
   threadId: UuidComparisonExp
@@ -3824,6 +3828,7 @@ input ThreadInsertInput {
   chatbot: ChatbotObjRelInsertInput
   chatbotId: Int
   createdAt: timestamptz
+  isPublic: Boolean
   messages: MessageArrRelInsertInput
   threadId: uuid
   updatedAt: timestamptz
@@ -3906,6 +3911,7 @@ input ThreadOrderBy {
   chatbot: ChatbotOrderBy
   chatbotId: OrderBy
   createdAt: OrderBy
+  isPublic: OrderBy
   messagesAggregate: MessageAggregateOrderBy
   threadId: OrderBy
   updatedAt: OrderBy
@@ -3929,6 +3935,9 @@ enum ThreadSelectColumn {
   createdAt
 
   """column name"""
+  isPublic
+
+  """column name"""
   threadId
 
   """column name"""
@@ -3939,11 +3948,28 @@ enum ThreadSelectColumn {
 }
 
 """
+select "threadAggregateBoolExpBool_andArgumentsColumns" columns of table "thread"
+"""
+enum ThreadSelectColumnThreadAggregateBoolExpBool_andArgumentsColumns {
+  """column name"""
+  isPublic
+}
+
+"""
+select "threadAggregateBoolExpBool_orArgumentsColumns" columns of table "thread"
+"""
+enum ThreadSelectColumnThreadAggregateBoolExpBool_orArgumentsColumns {
+  """column name"""
+  isPublic
+}
+
+"""
 input type for updating data in table "thread"
 """
 input ThreadSetInput {
   chatbotId: Int
   createdAt: timestamptz
+  isPublic: Boolean
   threadId: uuid
   updatedAt: timestamptz
   userId: uuid
@@ -4000,6 +4026,7 @@ input ThreadStreamCursorInput {
 input ThreadStreamCursorValueInput {
   chatbotId: Int
   createdAt: timestamptz
+  isPublic: Boolean
   threadId: uuid
   updatedAt: timestamptz
   userId: uuid
@@ -4026,6 +4053,9 @@ enum ThreadUpdateColumn {
 
   """column name"""
   createdAt
+
+  """column name"""
+  isPublic
 
   """column name"""
   threadId
@@ -7478,6 +7508,20 @@ type subscription_root {
     """filter the rows returned"""
     where: UserBoolExp
   ): [User!]!
+}
+
+input threadAggregateBoolExpBool_and {
+  arguments: ThreadSelectColumnThreadAggregateBoolExpBool_andArgumentsColumns!
+  distinct: Boolean
+  filter: ThreadBoolExp
+  predicate: BooleanComparisonExp!
+}
+
+input threadAggregateBoolExpBool_or {
+  arguments: ThreadSelectColumnThreadAggregateBoolExpBool_orArgumentsColumns!
+  distinct: Boolean
+  filter: ThreadBoolExp
+  predicate: BooleanComparisonExp!
 }
 
 input threadAggregateBoolExpCount {

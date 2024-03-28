@@ -302,10 +302,10 @@ export interface Chatbot {
     /** An aggregate relationship */
     chatsAggregate: ChatAggregate
     createdBy: Scalars['String']
-    defaultComplexity: Scalars['String']
-    defaultLength: Scalars['String']
-    defaultTone: Scalars['String']
-    defaultType: Scalars['String']
+    defaultComplexity: (Scalars['String'] | null)
+    defaultLength: (Scalars['String'] | null)
+    defaultTone: (Scalars['String'] | null)
+    defaultType: (Scalars['String'] | null)
     description: (Scalars['String'] | null)
     name: Scalars['String']
     /** An array relationship */
@@ -1365,6 +1365,7 @@ export interface Thread {
     chatbot: Chatbot
     chatbotId: Scalars['Int']
     createdAt: Scalars['timestamptz']
+    isPublic: (Scalars['Boolean'] | null)
     /** An array relationship */
     messages: Message[]
     /** An aggregate relationship */
@@ -1447,7 +1448,15 @@ export interface ThreadMutationResponse {
 
 
 /** select columns of table "thread" */
-export type ThreadSelectColumn = 'chatbotId' | 'createdAt' | 'threadId' | 'updatedAt' | 'userId'
+export type ThreadSelectColumn = 'chatbotId' | 'createdAt' | 'isPublic' | 'threadId' | 'updatedAt' | 'userId'
+
+
+/** select "threadAggregateBoolExpBool_andArgumentsColumns" columns of table "thread" */
+export type ThreadSelectColumnThreadAggregateBoolExpBool_andArgumentsColumns = 'isPublic'
+
+
+/** select "threadAggregateBoolExpBool_orArgumentsColumns" columns of table "thread" */
+export type ThreadSelectColumnThreadAggregateBoolExpBool_orArgumentsColumns = 'isPublic'
 
 
 /** aggregate stddev on columns */
@@ -1479,7 +1488,7 @@ export interface ThreadSumFields {
 
 
 /** update columns of table "thread" */
-export type ThreadUpdateColumn = 'chatbotId' | 'createdAt' | 'threadId' | 'updatedAt' | 'userId'
+export type ThreadUpdateColumn = 'chatbotId' | 'createdAt' | 'isPublic' | 'threadId' | 'updatedAt' | 'userId'
 
 
 /** aggregate varPop on columns */
@@ -4535,6 +4544,7 @@ export interface ThreadGenqlSelection{
     chatbot?: ChatbotGenqlSelection
     chatbotId?: boolean | number
     createdAt?: boolean | number
+    isPublic?: boolean | number
     /** An array relationship */
     messages?: (MessageGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -4577,7 +4587,7 @@ export interface ThreadAggregateGenqlSelection{
     __scalar?: boolean | number
 }
 
-export interface ThreadAggregateBoolExp {count?: (threadAggregateBoolExpCount | null)}
+export interface ThreadAggregateBoolExp {bool_and?: (threadAggregateBoolExpBool_and | null),bool_or?: (threadAggregateBoolExpBool_or | null),count?: (threadAggregateBoolExpCount | null)}
 
 
 /** aggregate fields of "thread" */
@@ -4621,7 +4631,7 @@ export interface ThreadAvgOrderBy {chatbotId?: (OrderBy | null)}
 
 
 /** Boolean expression to filter rows from the table "thread". All fields are combined with a logical 'AND'. */
-export interface ThreadBoolExp {_and?: (ThreadBoolExp[] | null),_not?: (ThreadBoolExp | null),_or?: (ThreadBoolExp[] | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),createdAt?: (TimestamptzComparisonExp | null),messages?: (MessageBoolExp | null),messagesAggregate?: (MessageAggregateBoolExp | null),threadId?: (UuidComparisonExp | null),updatedAt?: (TimestamptzComparisonExp | null),user?: (UserBoolExp | null),userId?: (UuidComparisonExp | null)}
+export interface ThreadBoolExp {_and?: (ThreadBoolExp[] | null),_not?: (ThreadBoolExp | null),_or?: (ThreadBoolExp[] | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),createdAt?: (TimestamptzComparisonExp | null),isPublic?: (BooleanComparisonExp | null),messages?: (MessageBoolExp | null),messagesAggregate?: (MessageAggregateBoolExp | null),threadId?: (UuidComparisonExp | null),updatedAt?: (TimestamptzComparisonExp | null),user?: (UserBoolExp | null),userId?: (UuidComparisonExp | null)}
 
 
 /** input type for incrementing numeric columns in table "thread" */
@@ -4629,7 +4639,7 @@ export interface ThreadIncInput {chatbotId?: (Scalars['Int'] | null)}
 
 
 /** input type for inserting data into table "thread" */
-export interface ThreadInsertInput {chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),messages?: (MessageArrRelInsertInput | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),user?: (UserObjRelInsertInput | null),userId?: (Scalars['uuid'] | null)}
+export interface ThreadInsertInput {chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isPublic?: (Scalars['Boolean'] | null),messages?: (MessageArrRelInsertInput | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),user?: (UserObjRelInsertInput | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate max on columns */
@@ -4686,7 +4696,7 @@ export interface ThreadOnConflict {constraint: ThreadConstraint,updateColumns?: 
 
 
 /** Ordering options when selecting data from "thread". */
-export interface ThreadOrderBy {chatbot?: (ChatbotOrderBy | null),chatbotId?: (OrderBy | null),createdAt?: (OrderBy | null),messagesAggregate?: (MessageAggregateOrderBy | null),threadId?: (OrderBy | null),updatedAt?: (OrderBy | null),user?: (UserOrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadOrderBy {chatbot?: (ChatbotOrderBy | null),chatbotId?: (OrderBy | null),createdAt?: (OrderBy | null),isPublic?: (OrderBy | null),messagesAggregate?: (MessageAggregateOrderBy | null),threadId?: (OrderBy | null),updatedAt?: (OrderBy | null),user?: (UserOrderBy | null),userId?: (OrderBy | null)}
 
 
 /** primary key columns input for table: thread */
@@ -4694,7 +4704,7 @@ export interface ThreadPkColumnsInput {threadId: Scalars['uuid']}
 
 
 /** input type for updating data in table "thread" */
-export interface ThreadSetInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
+export interface ThreadSetInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isPublic?: (Scalars['Boolean'] | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate stddev on columns */
@@ -4742,7 +4752,7 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface ThreadStreamCursorValueInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
+export interface ThreadStreamCursorValueInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isPublic?: (Scalars['Boolean'] | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate sum on columns */
@@ -6729,6 +6739,10 @@ export interface subscription_rootGenqlSelection{
     __scalar?: boolean | number
 }
 
+export interface threadAggregateBoolExpBool_and {arguments: ThreadSelectColumnThreadAggregateBoolExpBool_andArgumentsColumns,distinct?: (Scalars['Boolean'] | null),filter?: (ThreadBoolExp | null),predicate: BooleanComparisonExp}
+
+export interface threadAggregateBoolExpBool_or {arguments: ThreadSelectColumnThreadAggregateBoolExpBool_orArgumentsColumns,distinct?: (Scalars['Boolean'] | null),filter?: (ThreadBoolExp | null),predicate: BooleanComparisonExp}
+
 export interface threadAggregateBoolExpCount {arguments?: (ThreadSelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (ThreadBoolExp | null),predicate: IntComparisonExp}
 
 export type QueryGenqlSelection = query_rootGenqlSelection
@@ -8274,14 +8288,24 @@ export const enumThreadConstraint = {
 export const enumThreadSelectColumn = {
    chatbotId: 'chatbotId' as const,
    createdAt: 'createdAt' as const,
+   isPublic: 'isPublic' as const,
    threadId: 'threadId' as const,
    updatedAt: 'updatedAt' as const,
    userId: 'userId' as const
 }
 
+export const enumThreadSelectColumnThreadAggregateBoolExpBoolAndArgumentsColumns = {
+   isPublic: 'isPublic' as const
+}
+
+export const enumThreadSelectColumnThreadAggregateBoolExpBoolOrArgumentsColumns = {
+   isPublic: 'isPublic' as const
+}
+
 export const enumThreadUpdateColumn = {
    chatbotId: 'chatbotId' as const,
    createdAt: 'createdAt' as const,
+   isPublic: 'isPublic' as const,
    threadId: 'threadId' as const,
    updatedAt: 'updatedAt' as const,
    userId: 'userId' as const

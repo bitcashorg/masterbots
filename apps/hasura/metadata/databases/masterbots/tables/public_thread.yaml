@@ -26,6 +26,7 @@ insert_permissions:
         - chatbot_id
         - thread_id
         - user_id
+        - is_public
     comment: ""
 select_permissions:
   - role: anonymous
@@ -36,6 +37,7 @@ select_permissions:
         - updated_at
         - thread_id
         - user_id
+        - is_public
       filter: {}
     comment: ""
   - role: user
@@ -46,5 +48,6 @@ select_permissions:
         - updated_at
         - thread_id
         - user_id
+        - is_public
       filter: {}
     comment: ""

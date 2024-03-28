@@ -9,5 +9,6 @@ export const categoryAvatars = new Map([
   ['Pop Culture & Media', 'https://robohash.org/CultureMedia'],
   ['Homecare', 'https://robohash.org/Homecare'],
   ['Career', 'https://robohash.org/Career'],
-  ['Legal', 'https://robohash.org/LEGAL']
+  ['Legal', 'https://robohash.org/LEGAL'],
+  ['Other', 'https://robohash.org/Other']
 ])
