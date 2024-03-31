@@ -1,19 +1,19 @@
+/* eslint-disable react/no-unescaped-entities */
 import React from 'react'
 
 import { cn } from '@/lib/utils'
-import { ExternalLink } from '@/components/external-link'
 
 export function FooterText({ className, ...props }: React.ComponentProps<'p'>) {
   return (
     <p
       className={cn(
-        'px-2 text-center text-xs leading-normal text-muted-foreground',
+        'dark:text-[#9CA3AF] px-2 text-center text-xs leading-normal text-muted-foreground',
         className
       )}
       {...props}
     >
-      Placeholder for tips like buying crypto in{' '}
-      <ExternalLink href="https://bitcash.org">Bitcash</ExternalLink>.
+      Masterbots isn't infallible; verify crucial facts. Responses are for
+      educational use, not legal, medical, financial or specialized advice.
     </p>
   )
 }
