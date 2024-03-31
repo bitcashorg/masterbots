@@ -7,7 +7,7 @@ export function FooterText({ className, ...props }: React.ComponentProps<'p'>) {
   return (
     <p
       className={cn(
-        'dark:text-[#9CA3AF] px-2 text-center text-xs leading-normal text-muted-foreground',
+        'dark:text-[#9CA3AF] px-2 text-center text-xs font-normal leading-normal text-muted-foreground',
         className
       )}
       {...props}
