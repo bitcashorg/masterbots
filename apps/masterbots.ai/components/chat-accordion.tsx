@@ -17,6 +17,7 @@ export const ChatAccordion = ({
   arrowClass,
   handleOpen,
   handleTrigger,
+
   ...props
 }: {
   className?: string
@@ -31,7 +32,7 @@ export const ChatAccordion = ({
   handleOpen?: () => void
   thread?: Thread | null
 }) => {
-  const { activeThread, setActiveThread, setIsNewResponse, isNewResponse } =
+  const { activeThread, setActiveThread, setIsNewResponse, isNewResponse, setIsOpenPopup, isOpenPopup } =
     useThread()
   // If the thread is the active, we keep the thread open
   let initialState
@@ -64,6 +65,7 @@ export const ChatAccordion = ({
   }, [isOpen])
 
   const toggle = () => {
+
     const newState = !open
     setOpen(newState)
     if (onToggle) {
