@@ -36,4 +36,5 @@ export const botNames = new Map([
   ['gymgenie', 'GymGenie'],
   ['dietdocbot', 'DietDocBot'],
   ['ancientherbalbot', 'AncientHerbalBot'],
+  ['blankbot', 'BlankBot']
 ])
