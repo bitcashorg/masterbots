@@ -66,9 +66,6 @@ export const ChatAccordion = ({
   const toggle = () => {
     const newState = !open
     setOpen(newState)
-    if (onToggle) {
-      onToggle(newState)
-    }
     if (!newState && handleOpen) {
       handleOpen()
     }
@@ -76,6 +73,9 @@ export const ChatAccordion = ({
       setActiveThread(newState ? thread : null)
     }
     if (isNewResponse) setIsNewResponse(false)
+    if (onToggle) {
+      onToggle(newState)
+    }
   }
 
   return (

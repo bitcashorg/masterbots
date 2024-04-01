@@ -175,3 +175,7 @@ export const scrollToBottomOfElement = (element?: HTMLElement) => {
 
   animationFrameId = requestAnimationFrame(animateScroll)
 }
+
+export async function sleep(time: number) {
+  return new Promise(resolve => setTimeout(resolve, time))
+}
