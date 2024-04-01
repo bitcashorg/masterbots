@@ -41,7 +41,8 @@ export default function NewChat({
       threadId: id,
       chatbotId: chatbot.chatbotId,
       jwt: session!.user.hasuraJwt,
-      userId: session!.user.id
+      userId: session!.user.id,
+      isPublic: chatbot?.name === 'BlankBot'
     })
 
     // we do not await to make transition to chat url faster
