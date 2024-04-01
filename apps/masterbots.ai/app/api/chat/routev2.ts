@@ -11,7 +11,7 @@ const SupportedModels = {
 }
 
 function createAiClient() {
-  const isProduction = process.env.SET_AI_MODEL === 'openai'
+  const isProduction = process.env.SET_AI_MODEL === 'openai' //TODO: Ask handler about this to check env variable for prod and dev
   if (isProduction) {
     return {
       client: new OpenAI({ apiKey: process.env.OPENAI_API_KEY }),
