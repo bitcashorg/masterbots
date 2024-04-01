@@ -86,7 +86,7 @@ function ThreadComponent({
   const handleAccordionToggle = (isOpen: boolean) => {
     // It should scroll when opening or closing the accordion
     scrollToTop()
-    setIsOpenPopup(isOpen ? true : false)
+    // setIsOpenPopup(isOpen ? true : false)
   }
 
   React.useEffect(() => {
