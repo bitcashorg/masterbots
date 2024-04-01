@@ -150,7 +150,8 @@ export function Chat({
         threadId,
         chatbotId: chatbot.chatbotId,
         jwt: session!.user.hasuraJwt,
-        userId: session!.user.id
+        userId: session!.user.id,
+        isPublic: activeChatbot?.name === 'BlankBot'
       })
       const thread = await getThread({
         threadId,
