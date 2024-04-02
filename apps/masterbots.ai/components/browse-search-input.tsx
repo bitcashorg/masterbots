@@ -9,7 +9,7 @@ import { useBrowse } from '@/lib/hooks/use-browse'
 export function BrowseSearchInput() {
   const { keyword, changeKeyword } = useBrowse()
   return (
-    <div className="flex flex-col items-center justify-center w-full py-10 dark:bg-[#09090B] bg-[#F4F4F5] rounded-lg gap-4">
+    <div className="flex flex-col items-center justify-center w-full pt-10 pb-4 dark:bg-[#09090B] bg-[#F4F4F5] rounded-lg gap-4">
       <div className="relative w-full max-w-[600px]">
         <Input
           value={keyword}
@@ -32,7 +32,7 @@ export function BrowseSearchInput() {
         )}
       </div>
       <div className="w-full text-center">
-        <p className="dark:text-[#83E56A] text-[#BE17E8] text-xs font-medium pt-2.5">
+        <p className="dark:text-[#83E56A] text-[#BE17E8] text-xs font-medium pt-4">
           Masterbots isn't infallible; verify crucial facts. Responses are for
           educational use, not legal, medical, financial or specialized advice.
         </p>
