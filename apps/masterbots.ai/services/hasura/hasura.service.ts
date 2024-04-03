@@ -497,3 +497,21 @@ export async function getChatbotsCount({
     ? chatbotAggregate.aggregate.count
     : 0
 }
+
+export async function getUserInfoFromBrowse(slug: string) {
+  const client = getHasuraClient({})
+  const { user } = await client.query({
+    user: {
+      username: true,
+      profilePicture: true,
+      __args: {
+        where: {
+          slug: {
+            _eq: slug
+          }
+        }
+      }
+    }
+  })
+  return user[0]
+}
