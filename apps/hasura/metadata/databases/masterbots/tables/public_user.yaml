@@ -40,6 +40,7 @@ select_permissions:
         - profile_picture
         - user_id
         - username
+        - slug
       filter:
         user_id:
           _eq: X-Hasura-User-Id
@@ -50,5 +51,6 @@ select_permissions:
         - email
         - profile_picture
         - username
+        - slug
       filter: {}
     comment: ""

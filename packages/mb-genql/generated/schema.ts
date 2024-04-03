@@ -301,12 +301,16 @@ export interface Chatbot {
     chats: Chat[]
     /** An aggregate relationship */
     chatsAggregate: ChatAggregate
+    /** An object relationship */
+    complexityEnum: (ComplexityEnum | null)
     createdBy: Scalars['String']
     defaultComplexity: (Scalars['String'] | null)
     defaultLength: (Scalars['String'] | null)
     defaultTone: (Scalars['String'] | null)
     defaultType: (Scalars['String'] | null)
     description: (Scalars['String'] | null)
+    /** An object relationship */
+    lengthEnum: (LengthEnum | null)
     name: Scalars['String']
     /** An array relationship */
     preferences: Preference[]
@@ -320,6 +324,10 @@ export interface Chatbot {
     threads: Thread[]
     /** An aggregate relationship */
     threadsAggregate: ThreadAggregate
+    /** An object relationship */
+    toneEnum: (ToneEnum | null)
+    /** An object relationship */
+    typeEnum: (TypeEnum | null)
     __typename: 'Chatbot'
 }
 
@@ -598,6 +606,14 @@ export interface ChatbotVarianceFields {
 
 /** columns and relationships of "complexity_enum" */
 export interface ComplexityEnum {
+    /** An array relationship */
+    chatbots: Chatbot[]
+    /** An aggregate relationship */
+    chatbotsAggregate: ChatbotAggregate
+    /** An array relationship */
+    preferences: Preference[]
+    /** An aggregate relationship */
+    preferencesAggregate: PreferenceAggregate
     value: Scalars['String']
     __typename: 'ComplexityEnum'
 }
@@ -662,6 +678,14 @@ export type CursorOrdering = 'ASC' | 'DESC'
 
 /** columns and relationships of "length_enum" */
 export interface LengthEnum {
+    /** An array relationship */
+    chatbots: Chatbot[]
+    /** An aggregate relationship */
+    chatbotsAggregate: ChatbotAggregate
+    /** An array relationship */
+    preferences: Preference[]
+    /** An aggregate relationship */
+    preferencesAggregate: PreferenceAggregate
     value: Scalars['String']
     __typename: 'LengthEnum'
 }
@@ -725,6 +749,8 @@ export interface Message {
     content: Scalars['String']
     createdAt: Scalars['timestamptz']
     messageId: Scalars['uuid']
+    /** An object relationship */
+    messageTypeEnum: MessageTypeEnum
     role: Scalars['String']
     /** An object relationship */
     thread: (Thread | null)
@@ -792,6 +818,10 @@ export type MessageSelectColumn = 'content' | 'createdAt' | 'messageId' | 'role'
 
 /** columns and relationships of "message_type_enum" */
 export interface MessageTypeEnum {
+    /** An array relationship */
+    messages: Message[]
+    /** An aggregate relationship */
+    messagesAggregate: MessageAggregate
     value: Scalars['String']
     __typename: 'MessageTypeEnum'
 }
@@ -863,12 +893,22 @@ export interface Preference {
     /** An object relationship */
     chatbot: Chatbot
     chatbotId: Scalars['Int']
+    /** An object relationship */
+    complexityEnum: ComplexityEnum
     favorite: (Scalars['Boolean'] | null)
+    /** An object relationship */
+    lengthEnum: LengthEnum
     preferenceId: Scalars['Int']
     preferredComplexity: Scalars['String']
     preferredLength: Scalars['String']
     preferredTone: Scalars['String']
     preferredType: Scalars['String']
+    /** An object relationship */
+    toneEnum: ToneEnum
+    /** An object relationship */
+    typeEnum: TypeEnum
+    /** An object relationship */
+    user: (User | null)
     userId: (Scalars['uuid'] | null)
     __typename: 'Preference'
 }
@@ -1028,7 +1068,13 @@ export interface Prompt {
     content: Scalars['String']
     promptId: Scalars['Int']
     promptName: (Scalars['String'] | null)
+    /** An object relationship */
+    promptTypeEnum: PromptTypeEnum
     type: Scalars['String']
+    /** An array relationship */
+    users: PromptUser[]
+    /** An aggregate relationship */
+    usersAggregate: PromptUserAggregate
     __typename: 'Prompt'
 }
 
@@ -1338,6 +1384,137 @@ export type PromptTypeEnumUpdateColumn = 'value'
 export type PromptUpdateColumn = 'content' | 'promptId' | 'promptName' | 'type'
 
 
+/** columns and relationships of "prompt_user" */
+export interface PromptUser {
+    /** An object relationship */
+    prompt: Prompt
+    promptId: Scalars['Int']
+    /** An object relationship */
+    user: User
+    userId: Scalars['uuid']
+    __typename: 'PromptUser'
+}
+
+
+/** aggregated selection of "prompt_user" */
+export interface PromptUserAggregate {
+    aggregate: (PromptUserAggregateFields | null)
+    nodes: PromptUser[]
+    __typename: 'PromptUserAggregate'
+}
+
+
+/** aggregate fields of "prompt_user" */
+export interface PromptUserAggregateFields {
+    avg: (PromptUserAvgFields | null)
+    count: Scalars['Int']
+    max: (PromptUserMaxFields | null)
+    min: (PromptUserMinFields | null)
+    stddev: (PromptUserStddevFields | null)
+    stddevPop: (PromptUserStddevPopFields | null)
+    stddevSamp: (PromptUserStddevSampFields | null)
+    sum: (PromptUserSumFields | null)
+    varPop: (PromptUserVarPopFields | null)
+    varSamp: (PromptUserVarSampFields | null)
+    variance: (PromptUserVarianceFields | null)
+    __typename: 'PromptUserAggregateFields'
+}
+
+
+/** aggregate avg on columns */
+export interface PromptUserAvgFields {
+    promptId: (Scalars['Float'] | null)
+    __typename: 'PromptUserAvgFields'
+}
+
+
+/** unique or primary key constraints on table "prompt_user" */
+export type PromptUserConstraint = 'prompt_user_pkey'
+
+
+/** aggregate max on columns */
+export interface PromptUserMaxFields {
+    promptId: (Scalars['Int'] | null)
+    userId: (Scalars['uuid'] | null)
+    __typename: 'PromptUserMaxFields'
+}
+
+
+/** aggregate min on columns */
+export interface PromptUserMinFields {
+    promptId: (Scalars['Int'] | null)
+    userId: (Scalars['uuid'] | null)
+    __typename: 'PromptUserMinFields'
+}
+
+
+/** response of any mutation on the table "prompt_user" */
+export interface PromptUserMutationResponse {
+    /** number of rows affected by the mutation */
+    affectedRows: Scalars['Int']
+    /** data from the rows affected by the mutation */
+    returning: PromptUser[]
+    __typename: 'PromptUserMutationResponse'
+}
+
+
+/** select columns of table "prompt_user" */
+export type PromptUserSelectColumn = 'promptId' | 'userId'
+
+
+/** aggregate stddev on columns */
+export interface PromptUserStddevFields {
+    promptId: (Scalars['Float'] | null)
+    __typename: 'PromptUserStddevFields'
+}
+
+
+/** aggregate stddevPop on columns */
+export interface PromptUserStddevPopFields {
+    promptId: (Scalars['Float'] | null)
+    __typename: 'PromptUserStddevPopFields'
+}
+
+
+/** aggregate stddevSamp on columns */
+export interface PromptUserStddevSampFields {
+    promptId: (Scalars['Float'] | null)
+    __typename: 'PromptUserStddevSampFields'
+}
+
+
+/** aggregate sum on columns */
+export interface PromptUserSumFields {
+    promptId: (Scalars['Int'] | null)
+    __typename: 'PromptUserSumFields'
+}
+
+
+/** update columns of table "prompt_user" */
+export type PromptUserUpdateColumn = 'promptId' | 'userId'
+
+
+/** aggregate varPop on columns */
+export interface PromptUserVarPopFields {
+    promptId: (Scalars['Float'] | null)
+    __typename: 'PromptUserVarPopFields'
+}
+
+
+/** aggregate varSamp on columns */
+export interface PromptUserVarSampFields {
+    promptId: (Scalars['Float'] | null)
+    __typename: 'PromptUserVarSampFields'
+}
+
+
+/** aggregate variance on columns */
+export interface PromptUserVarianceFields {
+    promptId: (Scalars['Float'] | null)
+    __typename: 'PromptUserVarianceFields'
+}
+
+
 /** aggregate varPop on columns */
 export interface PromptVarPopFields {
     promptId: (Scalars['Float'] | null)
@@ -1514,6 +1691,14 @@ export interface ThreadVarianceFields {
 
 /** columns and relationships of "tone_enum" */
 export interface ToneEnum {
+    /** An array relationship */
+    chatbots: Chatbot[]
+    /** An aggregate relationship */
+    chatbotsAggregate: ChatbotAggregate
+    /** An array relationship */
+    preferences: Preference[]
+    /** An aggregate relationship */
+    preferencesAggregate: PreferenceAggregate
     value: Scalars['String']
     __typename: 'ToneEnum'
 }
@@ -1574,6 +1759,14 @@ export type ToneEnumUpdateColumn = 'value'
 
 /** columns and relationships of "type_enum" */
 export interface TypeEnum {
+    /** An array relationship */
+    chatbots: Chatbot[]
+    /** An aggregate relationship */
+    chatbotsAggregate: ChatbotAggregate
+    /** An array relationship */
+    preferences: Preference[]
+    /** An aggregate relationship */
+    preferencesAggregate: PreferenceAggregate
     value: Scalars['String']
     __typename: 'TypeEnum'
 }
@@ -1648,6 +1841,11 @@ export interface User {
     preferencesAggregate: PreferenceAggregate
     profilePicture: (Scalars['String'] | null)
     /** An array relationship */
+    prompts: PromptUser[]
+    /** An aggregate relationship */
+    promptsAggregate: PromptUserAggregate
+    slug: (Scalars['String'] | null)
+    /** An array relationship */
     threads: Thread[]
     /** An aggregate relationship */
     threadsAggregate: ThreadAggregate
@@ -1685,6 +1883,7 @@ export interface UserMaxFields {
     lastLogin: (Scalars['timestamptz'] | null)
     password: (Scalars['String'] | null)
     profilePicture: (Scalars['String'] | null)
+    slug: (Scalars['String'] | null)
     userId: (Scalars['uuid'] | null)
     username: (Scalars['String'] | null)
     __typename: 'UserMaxFields'
@@ -1698,6 +1897,7 @@ export interface UserMinFields {
     lastLogin: (Scalars['timestamptz'] | null)
     password: (Scalars['String'] | null)
     profilePicture: (Scalars['String'] | null)
+    slug: (Scalars['String'] | null)
     userId: (Scalars['uuid'] | null)
     username: (Scalars['String'] | null)
     __typename: 'UserMinFields'
@@ -1715,11 +1915,11 @@ export interface UserMutationResponse {
 
 
 /** select columns of table "user" */
-export type UserSelectColumn = 'dateJoined' | 'email' | 'lastLogin' | 'password' | 'profilePicture' | 'userId' | 'username'
+export type UserSelectColumn = 'dateJoined' | 'email' | 'lastLogin' | 'password' | 'profilePicture' | 'slug' | 'userId' | 'username'
 
 
 /** update columns of table "user" */
-export type UserUpdateColumn = 'dateJoined' | 'email' | 'lastLogin' | 'password' | 'profilePicture' | 'userId' | 'username'
+export type UserUpdateColumn = 'dateJoined' | 'email' | 'lastLogin' | 'password' | 'profilePicture' | 'slug' | 'userId' | 'username'
 
 
 /** mutation root */
@@ -1772,6 +1972,10 @@ export interface mutation_root {
     deletePromptTypeEnum: (PromptTypeEnumMutationResponse | null)
     /** delete single row from the table: "prompt_type_enum" */
     deletePromptTypeEnumByPk: (PromptTypeEnum | null)
+    /** delete data from the table: "prompt_user" */
+    deletePromptUser: (PromptUserMutationResponse | null)
+    /** delete single row from the table: "prompt_user" */
+    deletePromptUserByPk: (PromptUser | null)
     /** delete data from the table: "thread" */
     deleteThread: (ThreadMutationResponse | null)
     /** delete single row from the table: "thread" */
@@ -1836,6 +2040,10 @@ export interface mutation_root {
     insertPromptTypeEnum: (PromptTypeEnumMutationResponse | null)
     /** insert a single row into the table: "prompt_type_enum" */
     insertPromptTypeEnumOne: (PromptTypeEnum | null)
+    /** insert data into the table: "prompt_user" */
+    insertPromptUser: (PromptUserMutationResponse | null)
+    /** insert a single row into the table: "prompt_user" */
+    insertPromptUserOne: (PromptUser | null)
     /** insert data into the table: "thread" */
     insertThread: (ThreadMutationResponse | null)
     /** insert a single row into the table: "thread" */
@@ -1924,6 +2132,12 @@ export interface mutation_root {
     updatePromptTypeEnumByPk: (PromptTypeEnum | null)
     /** update multiples rows of table: "prompt_type_enum" */
     updatePromptTypeEnumMany: ((PromptTypeEnumMutationResponse | null)[] | null)
+    /** update data of the table: "prompt_user" */
+    updatePromptUser: (PromptUserMutationResponse | null)
+    /** update single row of the table: "prompt_user" */
+    updatePromptUserByPk: (PromptUser | null)
+    /** update multiples rows of table: "prompt_user" */
+    updatePromptUserMany: ((PromptUserMutationResponse | null)[] | null)
     /** update data of the table: "thread" */
     updateThread: (ThreadMutationResponse | null)
     /** update single row of the table: "thread" */
@@ -2024,6 +2238,12 @@ export interface query_root {
     promptTypeEnumAggregate: PromptTypeEnumAggregate
     /** fetch data from the table: "prompt_type_enum" using primary key columns */
     promptTypeEnumByPk: (PromptTypeEnum | null)
+    /** fetch data from the table: "prompt_user" */
+    promptUser: PromptUser[]
+    /** fetch aggregated fields from the table: "prompt_user" */
+    promptUserAggregate: PromptUserAggregate
+    /** fetch data from the table: "prompt_user" using primary key columns */
+    promptUserByPk: (PromptUser | null)
     /** fetch data from the table: "thread" */
     thread: Thread[]
     /** fetch aggregated fields from the table: "thread" */
@@ -2148,6 +2368,14 @@ export interface subscription_root {
     promptTypeEnumByPk: (PromptTypeEnum | null)
     /** fetch data from the table in a streaming manner: "prompt_type_enum" */
     promptTypeEnumStream: PromptTypeEnum[]
+    /** fetch data from the table: "prompt_user" */
+    promptUser: PromptUser[]
+    /** fetch aggregated fields from the table: "prompt_user" */
+    promptUserAggregate: PromptUserAggregate
+    /** fetch data from the table: "prompt_user" using primary key columns */
+    promptUserByPk: (PromptUser | null)
+    /** fetch data from the table in a streaming manner: "prompt_user" */
+    promptUserStream: PromptUser[]
     /** fetch data from the table: "thread" */
     thread: Thread[]
     /** fetch aggregated fields from the table: "thread" */
@@ -2698,12 +2926,16 @@ export interface ChatbotGenqlSelection{
     orderBy?: (ChatOrderBy[] | null), 
     /** filter the rows returned */
     where?: (ChatBoolExp | null)} })
+    /** An object relationship */
+    complexityEnum?: ComplexityEnumGenqlSelection
     createdBy?: boolean | number
     defaultComplexity?: boolean | number
     defaultLength?: boolean | number
     defaultTone?: boolean | number
     defaultType?: boolean | number
     description?: boolean | number
+    /** An object relationship */
+    lengthEnum?: LengthEnumGenqlSelection
     name?: boolean | number
     /** An array relationship */
     preferences?: (PreferenceGenqlSelection & { __args?: {
@@ -2777,6 +3009,10 @@ export interface ChatbotGenqlSelection{
     orderBy?: (ThreadOrderBy[] | null), 
     /** filter the rows returned */
     where?: (ThreadBoolExp | null)} })
+    /** An object relationship */
+    toneEnum?: ToneEnumGenqlSelection
+    /** An object relationship */
+    typeEnum?: TypeEnumGenqlSelection
     __typename?: boolean | number
     __scalar?: boolean | number
 }
@@ -2789,6 +3025,8 @@ export interface ChatbotAggregateGenqlSelection{
     __typename?: boolean | number
     __scalar?: boolean | number
 }
+
+export interface ChatbotAggregateBoolExp {count?: (chatbotAggregateBoolExpCount | null)}
 
 
 /** aggregate fields of "chatbot" */
@@ -2809,6 +3047,16 @@ export interface ChatbotAggregateFieldsGenqlSelection{
 }
 
 
+/** order by aggregate values of table "chatbot" */
+export interface ChatbotAggregateOrderBy {avg?: (ChatbotAvgOrderBy | null),count?: (OrderBy | null),max?: (ChatbotMaxOrderBy | null),min?: (ChatbotMinOrderBy | null),stddev?: (ChatbotStddevOrderBy | null),stddevPop?: (ChatbotStddevPopOrderBy | null),stddevSamp?: (ChatbotStddevSampOrderBy | null),sum?: (ChatbotSumOrderBy | null),varPop?: (ChatbotVarPopOrderBy | null),varSamp?: (ChatbotVarSampOrderBy | null),variance?: (ChatbotVarianceOrderBy | null)}
+
+
+/** input type for inserting array relation for remote table "chatbot" */
+export interface ChatbotArrRelInsertInput {data: ChatbotInsertInput[],
+/** upsert condition */
+onConflict?: (ChatbotOnConflict | null)}
+
+
 /** aggregate avg on columns */
 export interface ChatbotAvgFieldsGenqlSelection{
     chatbotId?: boolean | number
@@ -2817,8 +3065,12 @@ export interface ChatbotAvgFieldsGenqlSelection{
 }
 
 
+/** order by avg() on columns of table "chatbot" */
+export interface ChatbotAvgOrderBy {chatbotId?: (OrderBy | null)}
+
+
 /** Boolean expression to filter rows from the table "chatbot". All fields are combined with a logical 'AND'. */
-export interface ChatbotBoolExp {_and?: (ChatbotBoolExp[] | null),_not?: (ChatbotBoolExp | null),_or?: (ChatbotBoolExp[] | null),avatar?: (StringComparisonExp | null),categories?: (ChatbotCategoryBoolExp | null),categoriesAggregate?: (ChatbotCategoryAggregateBoolExp | null),chatbotId?: (IntComparisonExp | null),chats?: (ChatBoolExp | null),chatsAggregate?: (ChatAggregateBoolExp | null),createdBy?: (StringComparisonExp | null),defaultComplexity?: (StringComparisonExp | null),defaultLength?: (StringComparisonExp | null),defaultTone?: (StringComparisonExp | null),defaultType?: (StringComparisonExp | null),description?: (StringComparisonExp | null),name?: (StringComparisonExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),prompts?: (PromptChatbotBoolExp | null),promptsAggregate?: (PromptChatbotAggregateBoolExp | null),threads?: (ThreadBoolExp | null),threadsAggregate?: (ThreadAggregateBoolExp | null)}
+export interface ChatbotBoolExp {_and?: (ChatbotBoolExp[] | null),_not?: (ChatbotBoolExp | null),_or?: (ChatbotBoolExp[] | null),avatar?: (StringComparisonExp | null),categories?: (ChatbotCategoryBoolExp | null),categoriesAggregate?: (ChatbotCategoryAggregateBoolExp | null),chatbotId?: (IntComparisonExp | null),chats?: (ChatBoolExp | null),chatsAggregate?: (ChatAggregateBoolExp | null),complexityEnum?: (ComplexityEnumBoolExp | null),createdBy?: (StringComparisonExp | null),defaultComplexity?: (StringComparisonExp | null),defaultLength?: (StringComparisonExp | null),defaultTone?: (StringComparisonExp | null),defaultType?: (StringComparisonExp | null),description?: (StringComparisonExp | null),lengthEnum?: (LengthEnumBoolExp | null),name?: (StringComparisonExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),prompts?: (PromptChatbotBoolExp | null),promptsAggregate?: (PromptChatbotAggregateBoolExp | null),threads?: (ThreadBoolExp | null),threadsAggregate?: (ThreadAggregateBoolExp | null),toneEnum?: (ToneEnumBoolExp | null),typeEnum?: (TypeEnumBoolExp | null)}
 
 
 /** Junction table to manage the many-to-many relationships between chatbots and their categories. */
@@ -3067,7 +3319,7 @@ export interface ChatbotIncInput {chatbotId?: (Scalars['Int'] | null)}
 
 
 /** input type for inserting data into table "chatbot" */
-export interface ChatbotInsertInput {avatar?: (Scalars['String'] | null),categories?: (ChatbotCategoryArrRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),chats?: (ChatArrRelInsertInput | null),createdBy?: (Scalars['String'] | null),defaultComplexity?: (Scalars['String'] | null),defaultLength?: (Scalars['String'] | null),defaultTone?: (Scalars['String'] | null),defaultType?: (Scalars['String'] | null),description?: (Scalars['String'] | null),name?: (Scalars['String'] | null),preferences?: (PreferenceArrRelInsertInput | null),prompts?: (PromptChatbotArrRelInsertInput | null),threads?: (ThreadArrRelInsertInput | null)}
+export interface ChatbotInsertInput {avatar?: (Scalars['String'] | null),categories?: (ChatbotCategoryArrRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),chats?: (ChatArrRelInsertInput | null),complexityEnum?: (ComplexityEnumObjRelInsertInput | null),createdBy?: (Scalars['String'] | null),defaultComplexity?: (Scalars['String'] | null),defaultLength?: (Scalars['String'] | null),defaultTone?: (Scalars['String'] | null),defaultType?: (Scalars['String'] | null),description?: (Scalars['String'] | null),lengthEnum?: (LengthEnumObjRelInsertInput | null),name?: (Scalars['String'] | null),preferences?: (PreferenceArrRelInsertInput | null),prompts?: (PromptChatbotArrRelInsertInput | null),threads?: (ThreadArrRelInsertInput | null),toneEnum?: (ToneEnumObjRelInsertInput | null),typeEnum?: (TypeEnumObjRelInsertInput | null)}
 
 
 /** aggregate max on columns */
@@ -3086,6 +3338,10 @@ export interface ChatbotMaxFieldsGenqlSelection{
 }
 
 
+/** order by max() on columns of table "chatbot" */
+export interface ChatbotMaxOrderBy {avatar?: (OrderBy | null),chatbotId?: (OrderBy | null),createdBy?: (OrderBy | null),defaultComplexity?: (OrderBy | null),defaultLength?: (OrderBy | null),defaultTone?: (OrderBy | null),defaultType?: (OrderBy | null),description?: (OrderBy | null),name?: (OrderBy | null)}
+
+
 /** aggregate min on columns */
 export interface ChatbotMinFieldsGenqlSelection{
     avatar?: boolean | number
@@ -3100,6 +3356,10 @@ export interface ChatbotMinFieldsGenqlSelection{
     __typename?: boolean | number
     __scalar?: boolean | number
 }
+
+
+/** order by min() on columns of table "chatbot" */
+export interface ChatbotMinOrderBy {avatar?: (OrderBy | null),chatbotId?: (OrderBy | null),createdBy?: (OrderBy | null),defaultComplexity?: (OrderBy | null),defaultLength?: (OrderBy | null),defaultTone?: (OrderBy | null),defaultType?: (OrderBy | null),description?: (OrderBy | null),name?: (OrderBy | null)}
 
 
 /** response of any mutation on the table "chatbot" */
@@ -3124,7 +3384,7 @@ export interface ChatbotOnConflict {constraint: ChatbotConstraint,updateColumns?
 
 
 /** Ordering options when selecting data from "chatbot". */
-export interface ChatbotOrderBy {avatar?: (OrderBy | null),categoriesAggregate?: (ChatbotCategoryAggregateOrderBy | null),chatbotId?: (OrderBy | null),chatsAggregate?: (ChatAggregateOrderBy | null),createdBy?: (OrderBy | null),defaultComplexity?: (OrderBy | null),defaultLength?: (OrderBy | null),defaultTone?: (OrderBy | null),defaultType?: (OrderBy | null),description?: (OrderBy | null),name?: (OrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),promptsAggregate?: (PromptChatbotAggregateOrderBy | null),threadsAggregate?: (ThreadAggregateOrderBy | null)}
+export interface ChatbotOrderBy {avatar?: (OrderBy | null),categoriesAggregate?: (ChatbotCategoryAggregateOrderBy | null),chatbotId?: (OrderBy | null),chatsAggregate?: (ChatAggregateOrderBy | null),complexityEnum?: (ComplexityEnumOrderBy | null),createdBy?: (OrderBy | null),defaultComplexity?: (OrderBy | null),defaultLength?: (OrderBy | null),defaultTone?: (OrderBy | null),defaultType?: (OrderBy | null),description?: (OrderBy | null),lengthEnum?: (LengthEnumOrderBy | null),name?: (OrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),promptsAggregate?: (PromptChatbotAggregateOrderBy | null),threadsAggregate?: (ThreadAggregateOrderBy | null),toneEnum?: (ToneEnumOrderBy | null),typeEnum?: (TypeEnumOrderBy | null)}
 
 
 /** primary key columns input for table: chatbot */
@@ -3143,6 +3403,10 @@ export interface ChatbotStddevFieldsGenqlSelection{
 }
 
 
+/** order by stddev() on columns of table "chatbot" */
+export interface ChatbotStddevOrderBy {chatbotId?: (OrderBy | null)}
+
+
 /** aggregate stddevPop on columns */
 export interface ChatbotStddevPopFieldsGenqlSelection{
     chatbotId?: boolean | number
@@ -3151,12 +3415,20 @@ export interface ChatbotStddevPopFieldsGenqlSelection{
 }
 
 
+/** order by stddevPop() on columns of table "chatbot" */
+export interface ChatbotStddevPopOrderBy {chatbotId?: (OrderBy | null)}
+
+
 /** aggregate stddevSamp on columns */
 export interface ChatbotStddevSampFieldsGenqlSelection{
     chatbotId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
+
+
+/** order by stddevSamp() on columns of table "chatbot" */
+export interface ChatbotStddevSampOrderBy {chatbotId?: (OrderBy | null)}
 
 
 /** Streaming cursor of the table "chatbot" */
@@ -3178,6 +3450,10 @@ export interface ChatbotSumFieldsGenqlSelection{
     __scalar?: boolean | number
 }
 
+
+/** order by sum() on columns of table "chatbot" */
+export interface ChatbotSumOrderBy {chatbotId?: (OrderBy | null)}
+
 export interface ChatbotUpdates {
 /** increments the numeric columns with given value of the filtered values */
 _inc?: (ChatbotIncInput | null),
@@ -3195,12 +3471,20 @@ export interface ChatbotVarPopFieldsGenqlSelection{
 }
 
 
+/** order by varPop() on columns of table "chatbot" */
+export interface ChatbotVarPopOrderBy {chatbotId?: (OrderBy | null)}
+
+
 /** aggregate varSamp on columns */
 export interface ChatbotVarSampFieldsGenqlSelection{
     chatbotId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
+
+
+/** order by varSamp() on columns of table "chatbot" */
+export interface ChatbotVarSampOrderBy {chatbotId?: (OrderBy | null)}
 
 
 /** aggregate variance on columns */
@@ -3211,8 +3495,60 @@ export interface ChatbotVarianceFieldsGenqlSelection{
 }
 
 
+/** order by variance() on columns of table "chatbot" */
+export interface ChatbotVarianceOrderBy {chatbotId?: (OrderBy | null)}
+
+
 /** columns and relationships of "complexity_enum" */
 export interface ComplexityEnumGenqlSelection{
+    /** An array relationship */
+    chatbots?: (ChatbotGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ChatbotSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ChatbotOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ChatbotBoolExp | null)} })
+    /** An aggregate relationship */
+    chatbotsAggregate?: (ChatbotAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ChatbotSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ChatbotOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ChatbotBoolExp | null)} })
+    /** An array relationship */
+    preferences?: (PreferenceGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (PreferenceSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (PreferenceOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (PreferenceBoolExp | null)} })
+    /** An aggregate relationship */
+    preferencesAggregate?: (PreferenceAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (PreferenceSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (PreferenceOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (PreferenceBoolExp | null)} })
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -3239,11 +3575,11 @@ export interface ComplexityEnumAggregateFieldsGenqlSelection{
 
 
 /** Boolean expression to filter rows from the table "complexity_enum". All fields are combined with a logical 'AND'. */
-export interface ComplexityEnumBoolExp {_and?: (ComplexityEnumBoolExp[] | null),_not?: (ComplexityEnumBoolExp | null),_or?: (ComplexityEnumBoolExp[] | null),value?: (StringComparisonExp | null)}
+export interface ComplexityEnumBoolExp {_and?: (ComplexityEnumBoolExp[] | null),_not?: (ComplexityEnumBoolExp | null),_or?: (ComplexityEnumBoolExp[] | null),chatbots?: (ChatbotBoolExp | null),chatbotsAggregate?: (ChatbotAggregateBoolExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),value?: (StringComparisonExp | null)}
 
 
 /** input type for inserting data into table "complexity_enum" */
-export interface ComplexityEnumInsertInput {value?: (Scalars['String'] | null)}
+export interface ComplexityEnumInsertInput {chatbots?: (ChatbotArrRelInsertInput | null),preferences?: (PreferenceArrRelInsertInput | null),value?: (Scalars['String'] | null)}
 
 
 /** aggregate max on columns */
@@ -3273,12 +3609,18 @@ export interface ComplexityEnumMutationResponseGenqlSelection{
 }
 
 
+/** input type for inserting object relation for remote table "complexity_enum" */
+export interface ComplexityEnumObjRelInsertInput {data: ComplexityEnumInsertInput,
+/** upsert condition */
+onConflict?: (ComplexityEnumOnConflict | null)}
+
+
 /** on_conflict condition type for table "complexity_enum" */
 export interface ComplexityEnumOnConflict {constraint: ComplexityEnumConstraint,updateColumns?: ComplexityEnumUpdateColumn[],where?: (ComplexityEnumBoolExp | null)}
 
 
 /** Ordering options when selecting data from "complexity_enum". */
-export interface ComplexityEnumOrderBy {value?: (OrderBy | null)}
+export interface ComplexityEnumOrderBy {chatbotsAggregate?: (ChatbotAggregateOrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),value?: (OrderBy | null)}
 
 
 /** primary key columns input for table: complexity_enum */
@@ -3313,6 +3655,54 @@ export interface IntComparisonExp {_eq?: (Scalars['Int'] | null),_gt?: (Scalars[
 
 /** columns and relationships of "length_enum" */
 export interface LengthEnumGenqlSelection{
+    /** An array relationship */
+    chatbots?: (ChatbotGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ChatbotSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ChatbotOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ChatbotBoolExp | null)} })
+    /** An aggregate relationship */
+    chatbotsAggregate?: (ChatbotAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ChatbotSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ChatbotOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ChatbotBoolExp | null)} })
+    /** An array relationship */
+    preferences?: (PreferenceGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (PreferenceSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (PreferenceOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (PreferenceBoolExp | null)} })
+    /** An aggregate relationship */
+    preferencesAggregate?: (PreferenceAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (PreferenceSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (PreferenceOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (PreferenceBoolExp | null)} })
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -3339,11 +3729,11 @@ export interface LengthEnumAggregateFieldsGenqlSelection{
 
 
 /** Boolean expression to filter rows from the table "length_enum". All fields are combined with a logical 'AND'. */
-export interface LengthEnumBoolExp {_and?: (LengthEnumBoolExp[] | null),_not?: (LengthEnumBoolExp | null),_or?: (LengthEnumBoolExp[] | null),value?: (StringComparisonExp | null)}
+export interface LengthEnumBoolExp {_and?: (LengthEnumBoolExp[] | null),_not?: (LengthEnumBoolExp | null),_or?: (LengthEnumBoolExp[] | null),chatbots?: (ChatbotBoolExp | null),chatbotsAggregate?: (ChatbotAggregateBoolExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),value?: (StringComparisonExp | null)}
 
 
 /** input type for inserting data into table "length_enum" */
-export interface LengthEnumInsertInput {value?: (Scalars['String'] | null)}
+export interface LengthEnumInsertInput {chatbots?: (ChatbotArrRelInsertInput | null),preferences?: (PreferenceArrRelInsertInput | null),value?: (Scalars['String'] | null)}
 
 
 /** aggregate max on columns */
@@ -3373,12 +3763,18 @@ export interface LengthEnumMutationResponseGenqlSelection{
 }
 
 
+/** input type for inserting object relation for remote table "length_enum" */
+export interface LengthEnumObjRelInsertInput {data: LengthEnumInsertInput,
+/** upsert condition */
+onConflict?: (LengthEnumOnConflict | null)}
+
+
 /** on_conflict condition type for table "length_enum" */
 export interface LengthEnumOnConflict {constraint: LengthEnumConstraint,updateColumns?: LengthEnumUpdateColumn[],where?: (LengthEnumBoolExp | null)}
 
 
 /** Ordering options when selecting data from "length_enum". */
-export interface LengthEnumOrderBy {value?: (OrderBy | null)}
+export interface LengthEnumOrderBy {chatbotsAggregate?: (ChatbotAggregateOrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),value?: (OrderBy | null)}
 
 
 /** primary key columns input for table: length_enum */
@@ -3412,6 +3808,8 @@ export interface MessageGenqlSelection{
     content?: boolean | number
     createdAt?: boolean | number
     messageId?: boolean | number
+    /** An object relationship */
+    messageTypeEnum?: MessageTypeEnumGenqlSelection
     role?: boolean | number
     /** An object relationship */
     thread?: ThreadGenqlSelection
@@ -3453,11 +3851,11 @@ onConflict?: (MessageOnConflict | null)}
 
 
 /** Boolean expression to filter rows from the table "message". All fields are combined with a logical 'AND'. */
-export interface MessageBoolExp {_and?: (MessageBoolExp[] | null),_not?: (MessageBoolExp | null),_or?: (MessageBoolExp[] | null),content?: (StringComparisonExp | null),createdAt?: (TimestamptzComparisonExp | null),messageId?: (UuidComparisonExp | null),role?: (StringComparisonExp | null),thread?: (ThreadBoolExp | null),threadId?: (UuidComparisonExp | null)}
+export interface MessageBoolExp {_and?: (MessageBoolExp[] | null),_not?: (MessageBoolExp | null),_or?: (MessageBoolExp[] | null),content?: (StringComparisonExp | null),createdAt?: (TimestamptzComparisonExp | null),messageId?: (UuidComparisonExp | null),messageTypeEnum?: (MessageTypeEnumBoolExp | null),role?: (StringComparisonExp | null),thread?: (ThreadBoolExp | null),threadId?: (UuidComparisonExp | null)}
 
 
 /** input type for inserting data into table "message" */
-export interface MessageInsertInput {content?: (Scalars['String'] | null),createdAt?: (Scalars['timestamptz'] | null),messageId?: (Scalars['uuid'] | null),role?: (Scalars['String'] | null),thread?: (ThreadObjRelInsertInput | null),threadId?: (Scalars['uuid'] | null)}
+export interface MessageInsertInput {content?: (Scalars['String'] | null),createdAt?: (Scalars['timestamptz'] | null),messageId?: (Scalars['uuid'] | null),messageTypeEnum?: (MessageTypeEnumObjRelInsertInput | null),role?: (Scalars['String'] | null),thread?: (ThreadObjRelInsertInput | null),threadId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate max on columns */
@@ -3508,7 +3906,7 @@ export interface MessageOnConflict {constraint: MessageConstraint,updateColumns?
 
 
 /** Ordering options when selecting data from "message". */
-export interface MessageOrderBy {content?: (OrderBy | null),createdAt?: (OrderBy | null),messageId?: (OrderBy | null),role?: (OrderBy | null),thread?: (ThreadOrderBy | null),threadId?: (OrderBy | null)}
+export interface MessageOrderBy {content?: (OrderBy | null),createdAt?: (OrderBy | null),messageId?: (OrderBy | null),messageTypeEnum?: (MessageTypeEnumOrderBy | null),role?: (OrderBy | null),thread?: (ThreadOrderBy | null),threadId?: (OrderBy | null)}
 
 
 /** primary key columns input for table: message */
@@ -3533,6 +3931,30 @@ export interface MessageStreamCursorValueInput {content?: (Scalars['String'] | n
 
 /** columns and relationships of "message_type_enum" */
 export interface MessageTypeEnumGenqlSelection{
+    /** An array relationship */
+    messages?: (MessageGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (MessageSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (MessageOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (MessageBoolExp | null)} })
+    /** An aggregate relationship */
+    messagesAggregate?: (MessageAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (MessageSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (MessageOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (MessageBoolExp | null)} })
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -3559,11 +3981,11 @@ export interface MessageTypeEnumAggregateFieldsGenqlSelection{
 
 
 /** Boolean expression to filter rows from the table "message_type_enum". All fields are combined with a logical 'AND'. */
-export interface MessageTypeEnumBoolExp {_and?: (MessageTypeEnumBoolExp[] | null),_not?: (MessageTypeEnumBoolExp | null),_or?: (MessageTypeEnumBoolExp[] | null),value?: (StringComparisonExp | null)}
+export interface MessageTypeEnumBoolExp {_and?: (MessageTypeEnumBoolExp[] | null),_not?: (MessageTypeEnumBoolExp | null),_or?: (MessageTypeEnumBoolExp[] | null),messages?: (MessageBoolExp | null),messagesAggregate?: (MessageAggregateBoolExp | null),value?: (StringComparisonExp | null)}
 
 
 /** input type for inserting data into table "message_type_enum" */
-export interface MessageTypeEnumInsertInput {value?: (Scalars['String'] | null)}
+export interface MessageTypeEnumInsertInput {messages?: (MessageArrRelInsertInput | null),value?: (Scalars['String'] | null)}
 
 
 /** aggregate max on columns */
@@ -3593,12 +4015,18 @@ export interface MessageTypeEnumMutationResponseGenqlSelection{
 }
 
 
+/** input type for inserting object relation for remote table "message_type_enum" */
+export interface MessageTypeEnumObjRelInsertInput {data: MessageTypeEnumInsertInput,
+/** upsert condition */
+onConflict?: (MessageTypeEnumOnConflict | null)}
+
+
 /** on_conflict condition type for table "message_type_enum" */
 export interface MessageTypeEnumOnConflict {constraint: MessageTypeEnumConstraint,updateColumns?: MessageTypeEnumUpdateColumn[],where?: (MessageTypeEnumBoolExp | null)}
 
 
 /** Ordering options when selecting data from "message_type_enum". */
-export interface MessageTypeEnumOrderBy {value?: (OrderBy | null)}
+export interface MessageTypeEnumOrderBy {messagesAggregate?: (MessageAggregateOrderBy | null),value?: (OrderBy | null)}
 
 
 /** primary key columns input for table: message_type_enum */
@@ -3638,12 +4066,22 @@ export interface PreferenceGenqlSelection{
     /** An object relationship */
     chatbot?: ChatbotGenqlSelection
     chatbotId?: boolean | number
+    /** An object relationship */
+    complexityEnum?: ComplexityEnumGenqlSelection
     favorite?: boolean | number
+    /** An object relationship */
+    lengthEnum?: LengthEnumGenqlSelection
     preferenceId?: boolean | number
     preferredComplexity?: boolean | number
     preferredLength?: boolean | number
     preferredTone?: boolean | number
     preferredType?: boolean | number
+    /** An object relationship */
+    toneEnum?: ToneEnumGenqlSelection
+    /** An object relationship */
+    typeEnum?: TypeEnumGenqlSelection
+    /** An object relationship */
+    user?: UserGenqlSelection
     userId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -3703,7 +4141,7 @@ export interface PreferenceAvgOrderBy {chatbotId?: (OrderBy | null),preferenceId
 
 
 /** Boolean expression to filter rows from the table "preference". All fields are combined with a logical 'AND'. */
-export interface PreferenceBoolExp {_and?: (PreferenceBoolExp[] | null),_not?: (PreferenceBoolExp | null),_or?: (PreferenceBoolExp[] | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),favorite?: (BooleanComparisonExp | null),preferenceId?: (IntComparisonExp | null),preferredComplexity?: (StringComparisonExp | null),preferredLength?: (StringComparisonExp | null),preferredTone?: (StringComparisonExp | null),preferredType?: (StringComparisonExp | null),userId?: (UuidComparisonExp | null)}
+export interface PreferenceBoolExp {_and?: (PreferenceBoolExp[] | null),_not?: (PreferenceBoolExp | null),_or?: (PreferenceBoolExp[] | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),complexityEnum?: (ComplexityEnumBoolExp | null),favorite?: (BooleanComparisonExp | null),lengthEnum?: (LengthEnumBoolExp | null),preferenceId?: (IntComparisonExp | null),preferredComplexity?: (StringComparisonExp | null),preferredLength?: (StringComparisonExp | null),preferredTone?: (StringComparisonExp | null),preferredType?: (StringComparisonExp | null),toneEnum?: (ToneEnumBoolExp | null),typeEnum?: (TypeEnumBoolExp | null),user?: (UserBoolExp | null),userId?: (UuidComparisonExp | null)}
 
 
 /** input type for incrementing numeric columns in table "preference" */
@@ -3711,7 +4149,7 @@ export interface PreferenceIncInput {chatbotId?: (Scalars['Int'] | null),prefere
 
 
 /** input type for inserting data into table "preference" */
-export interface PreferenceInsertInput {chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),favorite?: (Scalars['Boolean'] | null),preferenceId?: (Scalars['Int'] | null),preferredComplexity?: (Scalars['String'] | null),preferredLength?: (Scalars['String'] | null),preferredTone?: (Scalars['String'] | null),preferredType?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null)}
+export interface PreferenceInsertInput {chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),complexityEnum?: (ComplexityEnumObjRelInsertInput | null),favorite?: (Scalars['Boolean'] | null),lengthEnum?: (LengthEnumObjRelInsertInput | null),preferenceId?: (Scalars['Int'] | null),preferredComplexity?: (Scalars['String'] | null),preferredLength?: (Scalars['String'] | null),preferredTone?: (Scalars['String'] | null),preferredType?: (Scalars['String'] | null),toneEnum?: (ToneEnumObjRelInsertInput | null),typeEnum?: (TypeEnumObjRelInsertInput | null),user?: (UserObjRelInsertInput | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate max on columns */
@@ -3766,7 +4204,7 @@ export interface PreferenceOnConflict {constraint: PreferenceConstraint,updateCo
 
 
 /** Ordering options when selecting data from "preference". */
-export interface PreferenceOrderBy {chatbot?: (ChatbotOrderBy | null),chatbotId?: (OrderBy | null),favorite?: (OrderBy | null),preferenceId?: (OrderBy | null),preferredComplexity?: (OrderBy | null),preferredLength?: (OrderBy | null),preferredTone?: (OrderBy | null),preferredType?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface PreferenceOrderBy {chatbot?: (ChatbotOrderBy | null),chatbotId?: (OrderBy | null),complexityEnum?: (ComplexityEnumOrderBy | null),favorite?: (OrderBy | null),lengthEnum?: (LengthEnumOrderBy | null),preferenceId?: (OrderBy | null),preferredComplexity?: (OrderBy | null),preferredLength?: (OrderBy | null),preferredTone?: (OrderBy | null),preferredType?: (OrderBy | null),toneEnum?: (ToneEnumOrderBy | null),typeEnum?: (TypeEnumOrderBy | null),user?: (UserOrderBy | null),userId?: (OrderBy | null)}
 
 
 /** primary key columns input for table: preference */
@@ -3917,7 +4355,33 @@ export interface PromptGenqlSelection{
     content?: boolean | number
     promptId?: boolean | number
     promptName?: boolean | number
+    /** An object relationship */
+    promptTypeEnum?: PromptTypeEnumGenqlSelection
     type?: boolean | number
+    /** An array relationship */
+    users?: (PromptUserGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (PromptUserSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (PromptUserOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (PromptUserBoolExp | null)} })
+    /** An aggregate relationship */
+    usersAggregate?: (PromptUserAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (PromptUserSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (PromptUserOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (PromptUserBoolExp | null)} })
     __typename?: boolean | number
     __scalar?: boolean | number
 }
@@ -3975,7 +4439,7 @@ export interface PromptAvgOrderBy {promptId?: (OrderBy | null)}
 
 
 /** Boolean expression to filter rows from the table "prompt". All fields are combined with a logical 'AND'. */
-export interface PromptBoolExp {_and?: (PromptBoolExp[] | null),_not?: (PromptBoolExp | null),_or?: (PromptBoolExp[] | null),chatbots?: (PromptChatbotBoolExp | null),chatbotsAggregate?: (PromptChatbotAggregateBoolExp | null),content?: (StringComparisonExp | null),promptId?: (IntComparisonExp | null),promptName?: (StringComparisonExp | null),type?: (StringComparisonExp | null)}
+export interface PromptBoolExp {_and?: (PromptBoolExp[] | null),_not?: (PromptBoolExp | null),_or?: (PromptBoolExp[] | null),chatbots?: (PromptChatbotBoolExp | null),chatbotsAggregate?: (PromptChatbotAggregateBoolExp | null),content?: (StringComparisonExp | null),promptId?: (IntComparisonExp | null),promptName?: (StringComparisonExp | null),promptTypeEnum?: (PromptTypeEnumBoolExp | null),type?: (StringComparisonExp | null),users?: (PromptUserBoolExp | null),usersAggregate?: (PromptUserAggregateBoolExp | null)}
 
 
 /** Junction table for prompts/instructions and chatbots. */
@@ -4224,7 +4688,7 @@ export interface PromptIncInput {promptId?: (Scalars['Int'] | null)}
 
 
 /** input type for inserting data into table "prompt" */
-export interface PromptInsertInput {chatbots?: (PromptChatbotArrRelInsertInput | null),content?: (Scalars['String'] | null),promptId?: (Scalars['Int'] | null),promptName?: (Scalars['String'] | null),type?: (Scalars['String'] | null)}
+export interface PromptInsertInput {chatbots?: (PromptChatbotArrRelInsertInput | null),content?: (Scalars['String'] | null),promptId?: (Scalars['Int'] | null),promptName?: (Scalars['String'] | null),promptTypeEnum?: (PromptTypeEnumObjRelInsertInput | null),type?: (Scalars['String'] | null),users?: (PromptUserArrRelInsertInput | null)}
 
 
 /** aggregate max on columns */
@@ -4279,7 +4743,7 @@ export interface PromptOnConflict {constraint: PromptConstraint,updateColumns?: 
 
 
 /** Ordering options when selecting data from "prompt". */
-export interface PromptOrderBy {chatbotsAggregate?: (PromptChatbotAggregateOrderBy | null),content?: (OrderBy | null),promptId?: (OrderBy | null),promptName?: (OrderBy | null),type?: (OrderBy | null)}
+export interface PromptOrderBy {chatbotsAggregate?: (PromptChatbotAggregateOrderBy | null),content?: (OrderBy | null),promptId?: (OrderBy | null),promptName?: (OrderBy | null),promptTypeEnum?: (PromptTypeEnumOrderBy | null),type?: (OrderBy | null),usersAggregate?: (PromptUserAggregateOrderBy | null)}
 
 
 /** primary key columns input for table: prompt */
@@ -4436,6 +4900,12 @@ export interface PromptTypeEnumMutationResponseGenqlSelection{
 }
 
 
+/** input type for inserting object relation for remote table "prompt_type_enum" */
+export interface PromptTypeEnumObjRelInsertInput {data: PromptTypeEnumInsertInput,
+/** upsert condition */
+onConflict?: (PromptTypeEnumOnConflict | null)}
+
+
 /** on_conflict condition type for table "prompt_type_enum" */
 export interface PromptTypeEnumOnConflict {constraint: PromptTypeEnumConstraint,updateColumns?: PromptTypeEnumUpdateColumn[],where?: (PromptTypeEnumBoolExp | null)}
 
@@ -4476,6 +4946,239 @@ _inc?: (PromptIncInput | null),
 _set?: (PromptSetInput | null),
 /** filter the rows which have to be updated */
 where: PromptBoolExp}
+
+
+/** columns and relationships of "prompt_user" */
+export interface PromptUserGenqlSelection{
+    /** An object relationship */
+    prompt?: PromptGenqlSelection
+    promptId?: boolean | number
+    /** An object relationship */
+    user?: UserGenqlSelection
+    userId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregated selection of "prompt_user" */
+export interface PromptUserAggregateGenqlSelection{
+    aggregate?: PromptUserAggregateFieldsGenqlSelection
+    nodes?: PromptUserGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+export interface PromptUserAggregateBoolExp {count?: (promptUserAggregateBoolExpCount | null)}
+
+
+/** aggregate fields of "prompt_user" */
+export interface PromptUserAggregateFieldsGenqlSelection{
+    avg?: PromptUserAvgFieldsGenqlSelection
+    count?: { __args: {columns?: (PromptUserSelectColumn[] | null), distinct?: (Scalars['Boolean'] | null)} } | boolean | number
+    max?: PromptUserMaxFieldsGenqlSelection
+    min?: PromptUserMinFieldsGenqlSelection
+    stddev?: PromptUserStddevFieldsGenqlSelection
+    stddevPop?: PromptUserStddevPopFieldsGenqlSelection
+    stddevSamp?: PromptUserStddevSampFieldsGenqlSelection
+    sum?: PromptUserSumFieldsGenqlSelection
+    varPop?: PromptUserVarPopFieldsGenqlSelection
+    varSamp?: PromptUserVarSampFieldsGenqlSelection
+    variance?: PromptUserVarianceFieldsGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by aggregate values of table "prompt_user" */
+export interface PromptUserAggregateOrderBy {avg?: (PromptUserAvgOrderBy | null),count?: (OrderBy | null),max?: (PromptUserMaxOrderBy | null),min?: (PromptUserMinOrderBy | null),stddev?: (PromptUserStddevOrderBy | null),stddevPop?: (PromptUserStddevPopOrderBy | null),stddevSamp?: (PromptUserStddevSampOrderBy | null),sum?: (PromptUserSumOrderBy | null),varPop?: (PromptUserVarPopOrderBy | null),varSamp?: (PromptUserVarSampOrderBy | null),variance?: (PromptUserVarianceOrderBy | null)}
+
+
+/** input type for inserting array relation for remote table "prompt_user" */
+export interface PromptUserArrRelInsertInput {data: PromptUserInsertInput[],
+/** upsert condition */
+onConflict?: (PromptUserOnConflict | null)}
+
+
+/** aggregate avg on columns */
+export interface PromptUserAvgFieldsGenqlSelection{
+    promptId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by avg() on columns of table "prompt_user" */
+export interface PromptUserAvgOrderBy {promptId?: (OrderBy | null)}
+
+
+/** Boolean expression to filter rows from the table "prompt_user". All fields are combined with a logical 'AND'. */
+export interface PromptUserBoolExp {_and?: (PromptUserBoolExp[] | null),_not?: (PromptUserBoolExp | null),_or?: (PromptUserBoolExp[] | null),prompt?: (PromptBoolExp | null),promptId?: (IntComparisonExp | null),user?: (UserBoolExp | null),userId?: (UuidComparisonExp | null)}
+
+
+/** input type for incrementing numeric columns in table "prompt_user" */
+export interface PromptUserIncInput {promptId?: (Scalars['Int'] | null)}
+
+
+/** input type for inserting data into table "prompt_user" */
+export interface PromptUserInsertInput {prompt?: (PromptObjRelInsertInput | null),promptId?: (Scalars['Int'] | null),user?: (UserObjRelInsertInput | null),userId?: (Scalars['uuid'] | null)}
+
+
+/** aggregate max on columns */
+export interface PromptUserMaxFieldsGenqlSelection{
+    promptId?: boolean | number
+    userId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by max() on columns of table "prompt_user" */
+export interface PromptUserMaxOrderBy {promptId?: (OrderBy | null),userId?: (OrderBy | null)}
+
+
+/** aggregate min on columns */
+export interface PromptUserMinFieldsGenqlSelection{
+    promptId?: boolean | number
+    userId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by min() on columns of table "prompt_user" */
+export interface PromptUserMinOrderBy {promptId?: (OrderBy | null),userId?: (OrderBy | null)}
+
+
+/** response of any mutation on the table "prompt_user" */
+export interface PromptUserMutationResponseGenqlSelection{
+    /** number of rows affected by the mutation */
+    affectedRows?: boolean | number
+    /** data from the rows affected by the mutation */
+    returning?: PromptUserGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** on_conflict condition type for table "prompt_user" */
+export interface PromptUserOnConflict {constraint: PromptUserConstraint,updateColumns?: PromptUserUpdateColumn[],where?: (PromptUserBoolExp | null)}
+
+
+/** Ordering options when selecting data from "prompt_user". */
+export interface PromptUserOrderBy {prompt?: (PromptOrderBy | null),promptId?: (OrderBy | null),user?: (UserOrderBy | null),userId?: (OrderBy | null)}
+
+
+/** primary key columns input for table: prompt_user */
+export interface PromptUserPkColumnsInput {promptId: Scalars['Int'],userId: Scalars['uuid']}
+
+
+/** input type for updating data in table "prompt_user" */
+export interface PromptUserSetInput {promptId?: (Scalars['Int'] | null),userId?: (Scalars['uuid'] | null)}
+
+
+/** aggregate stddev on columns */
+export interface PromptUserStddevFieldsGenqlSelection{
+    promptId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by stddev() on columns of table "prompt_user" */
+export interface PromptUserStddevOrderBy {promptId?: (OrderBy | null)}
+
+
+/** aggregate stddevPop on columns */
+export interface PromptUserStddevPopFieldsGenqlSelection{
+    promptId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by stddevPop() on columns of table "prompt_user" */
+export interface PromptUserStddevPopOrderBy {promptId?: (OrderBy | null)}
+
+
+/** aggregate stddevSamp on columns */
+export interface PromptUserStddevSampFieldsGenqlSelection{
+    promptId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by stddevSamp() on columns of table "prompt_user" */
+export interface PromptUserStddevSampOrderBy {promptId?: (OrderBy | null)}
+
+
+/** Streaming cursor of the table "prompt_user" */
+export interface PromptUserStreamCursorInput {
+/** Stream column input with initial value */
+initialValue: PromptUserStreamCursorValueInput,
+/** cursor ordering */
+ordering?: (CursorOrdering | null)}
+
+
+/** Initial value of the column from where the streaming should start */
+export interface PromptUserStreamCursorValueInput {promptId?: (Scalars['Int'] | null),userId?: (Scalars['uuid'] | null)}
+
+
+/** aggregate sum on columns */
+export interface PromptUserSumFieldsGenqlSelection{
+    promptId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by sum() on columns of table "prompt_user" */
+export interface PromptUserSumOrderBy {promptId?: (OrderBy | null)}
+
+export interface PromptUserUpdates {
+/** increments the numeric columns with given value of the filtered values */
+_inc?: (PromptUserIncInput | null),
+/** sets the columns of the filtered rows to the given values */
+_set?: (PromptUserSetInput | null),
+/** filter the rows which have to be updated */
+where: PromptUserBoolExp}
+
+
+/** aggregate varPop on columns */
+export interface PromptUserVarPopFieldsGenqlSelection{
+    promptId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by varPop() on columns of table "prompt_user" */
+export interface PromptUserVarPopOrderBy {promptId?: (OrderBy | null)}
+
+
+/** aggregate varSamp on columns */
+export interface PromptUserVarSampFieldsGenqlSelection{
+    promptId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by varSamp() on columns of table "prompt_user" */
+export interface PromptUserVarSampOrderBy {promptId?: (OrderBy | null)}
+
+
+/** aggregate variance on columns */
+export interface PromptUserVarianceFieldsGenqlSelection{
+    promptId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by variance() on columns of table "prompt_user" */
+export interface PromptUserVarianceOrderBy {promptId?: (OrderBy | null)}
 
 
 /** aggregate varPop on columns */
@@ -4817,6 +5520,54 @@ export interface TimestamptzComparisonExp {_eq?: (Scalars['timestamptz'] | null)
 
 /** columns and relationships of "tone_enum" */
 export interface ToneEnumGenqlSelection{
+    /** An array relationship */
+    chatbots?: (ChatbotGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ChatbotSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ChatbotOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ChatbotBoolExp | null)} })
+    /** An aggregate relationship */
+    chatbotsAggregate?: (ChatbotAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ChatbotSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ChatbotOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ChatbotBoolExp | null)} })
+    /** An array relationship */
+    preferences?: (PreferenceGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (PreferenceSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (PreferenceOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (PreferenceBoolExp | null)} })
+    /** An aggregate relationship */
+    preferencesAggregate?: (PreferenceAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (PreferenceSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (PreferenceOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (PreferenceBoolExp | null)} })
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -4843,11 +5594,11 @@ export interface ToneEnumAggregateFieldsGenqlSelection{
 
 
 /** Boolean expression to filter rows from the table "tone_enum". All fields are combined with a logical 'AND'. */
-export interface ToneEnumBoolExp {_and?: (ToneEnumBoolExp[] | null),_not?: (ToneEnumBoolExp | null),_or?: (ToneEnumBoolExp[] | null),value?: (StringComparisonExp | null)}
+export interface ToneEnumBoolExp {_and?: (ToneEnumBoolExp[] | null),_not?: (ToneEnumBoolExp | null),_or?: (ToneEnumBoolExp[] | null),chatbots?: (ChatbotBoolExp | null),chatbotsAggregate?: (ChatbotAggregateBoolExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),value?: (StringComparisonExp | null)}
 
 
 /** input type for inserting data into table "tone_enum" */
-export interface ToneEnumInsertInput {value?: (Scalars['String'] | null)}
+export interface ToneEnumInsertInput {chatbots?: (ChatbotArrRelInsertInput | null),preferences?: (PreferenceArrRelInsertInput | null),value?: (Scalars['String'] | null)}
 
 
 /** aggregate max on columns */
@@ -4877,12 +5628,18 @@ export interface ToneEnumMutationResponseGenqlSelection{
 }
 
 
+/** input type for inserting object relation for remote table "tone_enum" */
+export interface ToneEnumObjRelInsertInput {data: ToneEnumInsertInput,
+/** upsert condition */
+onConflict?: (ToneEnumOnConflict | null)}
+
+
 /** on_conflict condition type for table "tone_enum" */
 export interface ToneEnumOnConflict {constraint: ToneEnumConstraint,updateColumns?: ToneEnumUpdateColumn[],where?: (ToneEnumBoolExp | null)}
 
 
 /** Ordering options when selecting data from "tone_enum". */
-export interface ToneEnumOrderBy {value?: (OrderBy | null)}
+export interface ToneEnumOrderBy {chatbotsAggregate?: (ChatbotAggregateOrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),value?: (OrderBy | null)}
 
 
 /** primary key columns input for table: tone_enum */
@@ -4913,6 +5670,54 @@ where: ToneEnumBoolExp}
 
 /** columns and relationships of "type_enum" */
 export interface TypeEnumGenqlSelection{
+    /** An array relationship */
+    chatbots?: (ChatbotGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ChatbotSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ChatbotOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ChatbotBoolExp | null)} })
+    /** An aggregate relationship */
+    chatbotsAggregate?: (ChatbotAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ChatbotSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ChatbotOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ChatbotBoolExp | null)} })
+    /** An array relationship */
+    preferences?: (PreferenceGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (PreferenceSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (PreferenceOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (PreferenceBoolExp | null)} })
+    /** An aggregate relationship */
+    preferencesAggregate?: (PreferenceAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (PreferenceSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (PreferenceOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (PreferenceBoolExp | null)} })
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -4939,11 +5744,11 @@ export interface TypeEnumAggregateFieldsGenqlSelection{
 
 
 /** Boolean expression to filter rows from the table "type_enum". All fields are combined with a logical 'AND'. */
-export interface TypeEnumBoolExp {_and?: (TypeEnumBoolExp[] | null),_not?: (TypeEnumBoolExp | null),_or?: (TypeEnumBoolExp[] | null),value?: (StringComparisonExp | null)}
+export interface TypeEnumBoolExp {_and?: (TypeEnumBoolExp[] | null),_not?: (TypeEnumBoolExp | null),_or?: (TypeEnumBoolExp[] | null),chatbots?: (ChatbotBoolExp | null),chatbotsAggregate?: (ChatbotAggregateBoolExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),value?: (StringComparisonExp | null)}
 
 
 /** input type for inserting data into table "type_enum" */
-export interface TypeEnumInsertInput {value?: (Scalars['String'] | null)}
+export interface TypeEnumInsertInput {chatbots?: (ChatbotArrRelInsertInput | null),preferences?: (PreferenceArrRelInsertInput | null),value?: (Scalars['String'] | null)}
 
 
 /** aggregate max on columns */
@@ -4973,12 +5778,18 @@ export interface TypeEnumMutationResponseGenqlSelection{
 }
 
 
+/** input type for inserting object relation for remote table "type_enum" */
+export interface TypeEnumObjRelInsertInput {data: TypeEnumInsertInput,
+/** upsert condition */
+onConflict?: (TypeEnumOnConflict | null)}
+
+
 /** on_conflict condition type for table "type_enum" */
 export interface TypeEnumOnConflict {constraint: TypeEnumConstraint,updateColumns?: TypeEnumUpdateColumn[],where?: (TypeEnumBoolExp | null)}
 
 
 /** Ordering options when selecting data from "type_enum". */
-export interface TypeEnumOrderBy {value?: (OrderBy | null)}
+export interface TypeEnumOrderBy {chatbotsAggregate?: (ChatbotAggregateOrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),value?: (OrderBy | null)}
 
 
 /** primary key columns input for table: type_enum */
@@ -5063,6 +5874,31 @@ export interface UserGenqlSelection{
     where?: (PreferenceBoolExp | null)} })
     profilePicture?: boolean | number
     /** An array relationship */
+    prompts?: (PromptUserGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (PromptUserSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (PromptUserOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (PromptUserBoolExp | null)} })
+    /** An aggregate relationship */
+    promptsAggregate?: (PromptUserAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (PromptUserSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (PromptUserOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (PromptUserBoolExp | null)} })
+    slug?: boolean | number
+    /** An array relationship */
     threads?: (ThreadGenqlSelection & { __args?: {
     /** distinct select on columns */
     distinctOn?: (ThreadSelectColumn[] | null), 
@@ -5113,11 +5949,11 @@ export interface UserAggregateFieldsGenqlSelection{
 
 
 /** Boolean expression to filter rows from the table "user". All fields are combined with a logical 'AND'. */
-export interface UserBoolExp {_and?: (UserBoolExp[] | null),_not?: (UserBoolExp | null),_or?: (UserBoolExp[] | null),chats?: (ChatBoolExp | null),chatsAggregate?: (ChatAggregateBoolExp | null),dateJoined?: (TimestamptzComparisonExp | null),email?: (StringComparisonExp | null),lastLogin?: (TimestamptzComparisonExp | null),password?: (StringComparisonExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),profilePicture?: (StringComparisonExp | null),threads?: (ThreadBoolExp | null),threadsAggregate?: (ThreadAggregateBoolExp | null),userId?: (UuidComparisonExp | null),username?: (StringComparisonExp | null)}
+export interface UserBoolExp {_and?: (UserBoolExp[] | null),_not?: (UserBoolExp | null),_or?: (UserBoolExp[] | null),chats?: (ChatBoolExp | null),chatsAggregate?: (ChatAggregateBoolExp | null),dateJoined?: (TimestamptzComparisonExp | null),email?: (StringComparisonExp | null),lastLogin?: (TimestamptzComparisonExp | null),password?: (StringComparisonExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),profilePicture?: (StringComparisonExp | null),prompts?: (PromptUserBoolExp | null),promptsAggregate?: (PromptUserAggregateBoolExp | null),slug?: (StringComparisonExp | null),threads?: (ThreadBoolExp | null),threadsAggregate?: (ThreadAggregateBoolExp | null),userId?: (UuidComparisonExp | null),username?: (StringComparisonExp | null)}
 
 
 /** input type for inserting data into table "user" */
-export interface UserInsertInput {chats?: (ChatArrRelInsertInput | null),dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),preferences?: (PreferenceArrRelInsertInput | null),profilePicture?: (Scalars['String'] | null),threads?: (ThreadArrRelInsertInput | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
+export interface UserInsertInput {chats?: (ChatArrRelInsertInput | null),dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),preferences?: (PreferenceArrRelInsertInput | null),profilePicture?: (Scalars['String'] | null),prompts?: (PromptUserArrRelInsertInput | null),slug?: (Scalars['String'] | null),threads?: (ThreadArrRelInsertInput | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
 
 
 /** aggregate max on columns */
@@ -5127,6 +5963,7 @@ export interface UserMaxFieldsGenqlSelection{
     lastLogin?: boolean | number
     password?: boolean | number
     profilePicture?: boolean | number
+    slug?: boolean | number
     userId?: boolean | number
     username?: boolean | number
     __typename?: boolean | number
@@ -5141,6 +5978,7 @@ export interface UserMinFieldsGenqlSelection{
     lastLogin?: boolean | number
     password?: boolean | number
     profilePicture?: boolean | number
+    slug?: boolean | number
     userId?: boolean | number
     username?: boolean | number
     __typename?: boolean | number
@@ -5170,7 +6008,7 @@ export interface UserOnConflict {constraint: UserConstraint,updateColumns?: User
 
 
 /** Ordering options when selecting data from "user". */
-export interface UserOrderBy {chatsAggregate?: (ChatAggregateOrderBy | null),dateJoined?: (OrderBy | null),email?: (OrderBy | null),lastLogin?: (OrderBy | null),password?: (OrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),profilePicture?: (OrderBy | null),threadsAggregate?: (ThreadAggregateOrderBy | null),userId?: (OrderBy | null),username?: (OrderBy | null)}
+export interface UserOrderBy {chatsAggregate?: (ChatAggregateOrderBy | null),dateJoined?: (OrderBy | null),email?: (OrderBy | null),lastLogin?: (OrderBy | null),password?: (OrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),profilePicture?: (OrderBy | null),promptsAggregate?: (PromptUserAggregateOrderBy | null),slug?: (OrderBy | null),threadsAggregate?: (ThreadAggregateOrderBy | null),userId?: (OrderBy | null),username?: (OrderBy | null)}
 
 
 /** primary key columns input for table: user */
@@ -5178,7 +6016,7 @@ export interface UserPkColumnsInput {userId: Scalars['uuid']}
 
 
 /** input type for updating data in table "user" */
-export interface UserSetInput {dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
+export interface UserSetInput {dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),slug?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
 
 
 /** Streaming cursor of the table "user" */
@@ -5190,7 +6028,7 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface UserStreamCursorValueInput {dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
+export interface UserStreamCursorValueInput {dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),slug?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
 
 export interface UserUpdates {
 /** sets the columns of the filtered rows to the given values */
@@ -5203,6 +6041,8 @@ where: UserBoolExp}
 export interface UuidComparisonExp {_eq?: (Scalars['uuid'] | null),_gt?: (Scalars['uuid'] | null),_gte?: (Scalars['uuid'] | null),_in?: (Scalars['uuid'][] | null),_isNull?: (Scalars['Boolean'] | null),_lt?: (Scalars['uuid'] | null),_lte?: (Scalars['uuid'] | null),_neq?: (Scalars['uuid'] | null),_nin?: (Scalars['uuid'][] | null)}
 
 export interface chatAggregateBoolExpCount {arguments?: (ChatSelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (ChatBoolExp | null),predicate: IntComparisonExp}
+
+export interface chatbotAggregateBoolExpCount {arguments?: (ChatbotSelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (ChatbotBoolExp | null),predicate: IntComparisonExp}
 
 export interface chatbotCategoryAggregateBoolExpCount {arguments?: (ChatbotCategorySelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (ChatbotCategoryBoolExp | null),predicate: IntComparisonExp}
 
@@ -5283,6 +6123,12 @@ export interface mutation_rootGenqlSelection{
     where: PromptTypeEnumBoolExp} })
     /** delete single row from the table: "prompt_type_enum" */
     deletePromptTypeEnumByPk?: (PromptTypeEnumGenqlSelection & { __args: {value: Scalars['String']} })
+    /** delete data from the table: "prompt_user" */
+    deletePromptUser?: (PromptUserMutationResponseGenqlSelection & { __args: {
+    /** filter the rows which have to be deleted */
+    where: PromptUserBoolExp} })
+    /** delete single row from the table: "prompt_user" */
+    deletePromptUserByPk?: (PromptUserGenqlSelection & { __args: {promptId: Scalars['Int'], userId: Scalars['uuid']} })
     /** delete data from the table: "thread" */
     deleteThread?: (ThreadMutationResponseGenqlSelection & { __args: {
     /** filter the rows which have to be deleted */
@@ -5451,6 +6297,18 @@ export interface mutation_rootGenqlSelection{
     object: PromptTypeEnumInsertInput, 
     /** upsert condition */
     onConflict?: (PromptTypeEnumOnConflict | null)} })
+    /** insert data into the table: "prompt_user" */
+    insertPromptUser?: (PromptUserMutationResponseGenqlSelection & { __args: {
+    /** the rows to be inserted */
+    objects: PromptUserInsertInput[], 
+    /** upsert condition */
+    onConflict?: (PromptUserOnConflict | null)} })
+    /** insert a single row into the table: "prompt_user" */
+    insertPromptUserOne?: (PromptUserGenqlSelection & { __args: {
+    /** the row to be inserted */
+    object: PromptUserInsertInput, 
+    /** upsert condition */
+    onConflict?: (PromptUserOnConflict | null)} })
     /** insert data into the table: "thread" */
     insertThread?: (ThreadMutationResponseGenqlSelection & { __args: {
     /** the rows to be inserted */
@@ -5695,6 +6553,24 @@ export interface mutation_rootGenqlSelection{
     updatePromptTypeEnumMany?: (PromptTypeEnumMutationResponseGenqlSelection & { __args: {
     /** updates to execute, in order */
     updates: PromptTypeEnumUpdates[]} })
+    /** update data of the table: "prompt_user" */
+    updatePromptUser?: (PromptUserMutationResponseGenqlSelection & { __args: {
+    /** increments the numeric columns with given value of the filtered values */
+    _inc?: (PromptUserIncInput | null), 
+    /** sets the columns of the filtered rows to the given values */
+    _set?: (PromptUserSetInput | null), 
+    /** filter the rows which have to be updated */
+    where: PromptUserBoolExp} })
+    /** update single row of the table: "prompt_user" */
+    updatePromptUserByPk?: (PromptUserGenqlSelection & { __args: {
+    /** increments the numeric columns with given value of the filtered values */
+    _inc?: (PromptUserIncInput | null), 
+    /** sets the columns of the filtered rows to the given values */
+    _set?: (PromptUserSetInput | null), pkColumns: PromptUserPkColumnsInput} })
+    /** update multiples rows of table: "prompt_user" */
+    updatePromptUserMany?: (PromptUserMutationResponseGenqlSelection & { __args: {
+    /** updates to execute, in order */
+    updates: PromptUserUpdates[]} })
     /** update data of the table: "thread" */
     updateThread?: (ThreadMutationResponseGenqlSelection & { __args: {
     /** increments the numeric columns with given value of the filtered values */
@@ -5768,6 +6644,8 @@ export interface preferenceAggregateBoolExpCount {arguments?: (PreferenceSelectC
 export interface promptAggregateBoolExpCount {arguments?: (PromptSelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (PromptBoolExp | null),predicate: IntComparisonExp}
 
 export interface promptChatbotAggregateBoolExpCount {arguments?: (PromptChatbotSelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (PromptChatbotBoolExp | null),predicate: IntComparisonExp}
+
+export interface promptUserAggregateBoolExpCount {arguments?: (PromptUserSelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (PromptUserBoolExp | null),predicate: IntComparisonExp}
 
 export interface query_rootGenqlSelection{
     /** fetch data from the table: "category" */
@@ -6082,6 +6960,32 @@ export interface query_rootGenqlSelection{
     where?: (PromptTypeEnumBoolExp | null)} })
     /** fetch data from the table: "prompt_type_enum" using primary key columns */
     promptTypeEnumByPk?: (PromptTypeEnumGenqlSelection & { __args: {value: Scalars['String']} })
+    /** fetch data from the table: "prompt_user" */
+    promptUser?: (PromptUserGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (PromptUserSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (PromptUserOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (PromptUserBoolExp | null)} })
+    /** fetch aggregated fields from the table: "prompt_user" */
+    promptUserAggregate?: (PromptUserAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (PromptUserSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (PromptUserOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (PromptUserBoolExp | null)} })
+    /** fetch data from the table: "prompt_user" using primary key columns */
+    promptUserByPk?: (PromptUserGenqlSelection & { __args: {promptId: Scalars['Int'], userId: Scalars['uuid']} })
     /** fetch data from the table: "thread" */
     thread?: (ThreadGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -6599,6 +7503,40 @@ export interface subscription_rootGenqlSelection{
     cursor: (PromptTypeEnumStreamCursorInput | null)[], 
     /** filter the rows returned */
     where?: (PromptTypeEnumBoolExp | null)} })
+    /** fetch data from the table: "prompt_user" */
+    promptUser?: (PromptUserGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (PromptUserSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (PromptUserOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (PromptUserBoolExp | null)} })
+    /** fetch aggregated fields from the table: "prompt_user" */
+    promptUserAggregate?: (PromptUserAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (PromptUserSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (PromptUserOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (PromptUserBoolExp | null)} })
+    /** fetch data from the table: "prompt_user" using primary key columns */
+    promptUserByPk?: (PromptUserGenqlSelection & { __args: {promptId: Scalars['Int'], userId: Scalars['uuid']} })
+    /** fetch data from the table in a streaming manner: "prompt_user" */
+    promptUserStream?: (PromptUserGenqlSelection & { __args: {
+    /** maximum number of rows returned in a single batch */
+    batchSize: Scalars['Int'], 
+    /** cursor to stream the results returned by the query */
+    cursor: (PromptUserStreamCursorInput | null)[], 
+    /** filter the rows returned */
+    where?: (PromptUserBoolExp | null)} })
     /** fetch data from the table: "thread" */
     thread?: (ThreadGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -7750,6 +8688,118 @@ export type SubscriptionGenqlSelection = subscription_rootGenqlSelection
     
 
 
+    const PromptUser_possibleTypes: string[] = ['PromptUser']
+    export const isPromptUser = (obj?: { __typename?: any } | null): obj is PromptUser => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isPromptUser"')
+      return PromptUser_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const PromptUserAggregate_possibleTypes: string[] = ['PromptUserAggregate']
+    export const isPromptUserAggregate = (obj?: { __typename?: any } | null): obj is PromptUserAggregate => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isPromptUserAggregate"')
+      return PromptUserAggregate_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const PromptUserAggregateFields_possibleTypes: string[] = ['PromptUserAggregateFields']
+    export const isPromptUserAggregateFields = (obj?: { __typename?: any } | null): obj is PromptUserAggregateFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isPromptUserAggregateFields"')
+      return PromptUserAggregateFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const PromptUserAvgFields_possibleTypes: string[] = ['PromptUserAvgFields']
+    export const isPromptUserAvgFields = (obj?: { __typename?: any } | null): obj is PromptUserAvgFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isPromptUserAvgFields"')
+      return PromptUserAvgFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const PromptUserMaxFields_possibleTypes: string[] = ['PromptUserMaxFields']
+    export const isPromptUserMaxFields = (obj?: { __typename?: any } | null): obj is PromptUserMaxFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isPromptUserMaxFields"')
+      return PromptUserMaxFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const PromptUserMinFields_possibleTypes: string[] = ['PromptUserMinFields']
+    export const isPromptUserMinFields = (obj?: { __typename?: any } | null): obj is PromptUserMinFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isPromptUserMinFields"')
+      return PromptUserMinFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const PromptUserMutationResponse_possibleTypes: string[] = ['PromptUserMutationResponse']
+    export const isPromptUserMutationResponse = (obj?: { __typename?: any } | null): obj is PromptUserMutationResponse => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isPromptUserMutationResponse"')
+      return PromptUserMutationResponse_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const PromptUserStddevFields_possibleTypes: string[] = ['PromptUserStddevFields']
+    export const isPromptUserStddevFields = (obj?: { __typename?: any } | null): obj is PromptUserStddevFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isPromptUserStddevFields"')
+      return PromptUserStddevFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const PromptUserStddevPopFields_possibleTypes: string[] = ['PromptUserStddevPopFields']
+    export const isPromptUserStddevPopFields = (obj?: { __typename?: any } | null): obj is PromptUserStddevPopFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isPromptUserStddevPopFields"')
+      return PromptUserStddevPopFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const PromptUserStddevSampFields_possibleTypes: string[] = ['PromptUserStddevSampFields']
+    export const isPromptUserStddevSampFields = (obj?: { __typename?: any } | null): obj is PromptUserStddevSampFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isPromptUserStddevSampFields"')
+      return PromptUserStddevSampFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const PromptUserSumFields_possibleTypes: string[] = ['PromptUserSumFields']
+    export const isPromptUserSumFields = (obj?: { __typename?: any } | null): obj is PromptUserSumFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isPromptUserSumFields"')
+      return PromptUserSumFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const PromptUserVarPopFields_possibleTypes: string[] = ['PromptUserVarPopFields']
+    export const isPromptUserVarPopFields = (obj?: { __typename?: any } | null): obj is PromptUserVarPopFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isPromptUserVarPopFields"')
+      return PromptUserVarPopFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const PromptUserVarSampFields_possibleTypes: string[] = ['PromptUserVarSampFields']
+    export const isPromptUserVarSampFields = (obj?: { __typename?: any } | null): obj is PromptUserVarSampFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isPromptUserVarSampFields"')
+      return PromptUserVarSampFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const PromptUserVarianceFields_possibleTypes: string[] = ['PromptUserVarianceFields']
+    export const isPromptUserVarianceFields = (obj?: { __typename?: any } | null): obj is PromptUserVarianceFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isPromptUserVarianceFields"')
+      return PromptUserVarianceFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
     const PromptVarPopFields_possibleTypes: string[] = ['PromptVarPopFields']
     export const isPromptVarPopFields = (obj?: { __typename?: any } | null): obj is PromptVarPopFields => {
       if (!obj?.__typename) throw new Error('__typename is missing in "isPromptVarPopFields"')
@@ -8280,6 +9330,20 @@ export const enumPromptUpdateColumn = {
    type: 'type' as const
 }
 
+export const enumPromptUserConstraint = {
+   prompt_user_pkey: 'prompt_user_pkey' as const
+}
+
+export const enumPromptUserSelectColumn = {
+   promptId: 'promptId' as const,
+   userId: 'userId' as const
+}
+
+export const enumPromptUserUpdateColumn = {
+   promptId: 'promptId' as const,
+   userId: 'userId' as const
+}
+
 export const enumThreadConstraint = {
    thread_id_key: 'thread_id_key' as const,
    thread_pkey: 'thread_pkey' as const
@@ -8347,6 +9411,7 @@ export const enumUserSelectColumn = {
    lastLogin: 'lastLogin' as const,
    password: 'password' as const,
    profilePicture: 'profilePicture' as const,
+   slug: 'slug' as const,
    userId: 'userId' as const,
    username: 'username' as const
 }
@@ -8357,6 +9422,7 @@ export const enumUserUpdateColumn = {
    lastLogin: 'lastLogin' as const,
    password: 'password' as const,
    profilePicture: 'profilePicture' as const,
+   slug: 'slug' as const,
    userId: 'userId' as const,
    username: 'username' as const
 }
