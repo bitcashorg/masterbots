@@ -136,7 +136,7 @@ export default function BrowseListItem({
             <span className="opacity-50 text-[0.875rem]">by</span>
             {thread.user?.profilePicture ? (
               <Link
-                href={`/browse/${encodeURIComponent(thread?.user.username)}?type=user`}
+                href={`/user/${encodeURIComponent(String(thread.user.slug))}`}
                 title={thread.user?.username.replace('_', ' ')}
                 className={cn(
                   'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow'
@@ -152,7 +152,7 @@ export default function BrowseListItem({
               </Link>
             ) : (
               <Link
-                href={`/browse/${encodeURIComponent(thread.user?.username ?? 'Default')}?type=user`}
+                href={`/user/${encodeURIComponent(String(thread.user?.slug))}`}
                 title={thread.user?.username}
                 className={cn(
                   'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow',
