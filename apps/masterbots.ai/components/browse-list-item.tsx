@@ -17,14 +17,14 @@ export default function BrowseListItem({
   loading,
   isLast,
   hasMore,
-  isShowUser = true
+  pageType = ''
 }: {
   thread: Thread
   loadMore: () => void
   loading: boolean
   isLast: boolean
   hasMore: boolean
-  isShowUser?: boolean
+  pageType?: string
 }) {
   const threadRef = React.useRef<HTMLDivElement>(null)
   const router = useRouter()
@@ -99,7 +99,7 @@ export default function BrowseListItem({
             'relative flex items-center font-normal md:text-lg transition-all w-full gap-3 pr-4'
           )}
         >
-          {thread.chatbot?.avatar ? (
+          {pageType !== 'bot' && thread.chatbot?.avatar ? (
             <Link
               href={`/b/${thread.chatbot.name.toLowerCase()}`}
               title={thread.chatbot?.name}
@@ -116,16 +116,18 @@ export default function BrowseListItem({
               />
             </Link>
           ) : (
-            <Link
-              href={`/b/${thread.chatbot?.name.toLowerCase()}`}
-              title={thread.chatbot?.name}
-              className={cn(
-                'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow',
-                'bg-primary text-primary-foreground'
-              )}
-            >
-              <IconOpenAI />
-            </Link>
+            pageType !== 'bot' && (
+              <Link
+                href={`/b/${thread.chatbot?.name.toLowerCase()}`}
+                title={thread.chatbot?.name}
+                className={cn(
+                  'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow',
+                  'bg-primary text-primary-foreground'
+                )}
+              >
+                <IconOpenAI />
+              </Link>
+            )
           )}
           <div className="w-[calc(100%-64px)] m:w-[calc(100%-28px)] flex items-center gap-3 text-left">
             <div
@@ -135,10 +137,10 @@ export default function BrowseListItem({
             >
               {thread.messages?.[0]?.content}
             </div>
-            {isShowUser && (
+            {pageType !== 'user' && (
               <span className="opacity-50 text-[0.875rem]">by</span>
             )}
-            {isShowUser && thread.user?.profilePicture ? (
+            {pageType !== 'user' && thread.user?.profilePicture ? (
               <Link
                 href={`/u/${encodeURIComponent(String(thread.user.slug))}`}
                 title={thread.user?.username.replace('_', ' ')}
@@ -155,7 +157,7 @@ export default function BrowseListItem({
                 />
               </Link>
             ) : (
-              isShowUser && (
+              pageType !== 'user' && (
                 <Link
                   href={`/u/${encodeURIComponent(String(thread.user?.slug))}`}
                   title={thread.user?.username}

@@ -34,6 +34,7 @@ export default async function BotThreadsPage({
         query={{
           chatbotName: botNames.get(params.id)
         }}
+        pageType="bot"
       />
     </div>
   )
