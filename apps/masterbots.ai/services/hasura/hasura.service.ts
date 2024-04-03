@@ -251,14 +251,14 @@ export async function upsertUser({
     }
     // Slug conflicts, append a number to make it unique
     slugCount++
-    slug = `${baseSlug}${slugCount}`
+    slug = `${baseSlug}${slugCount > 0 ? slugCount : ''}`
   }
 
   const { insertUserOne } = await client.mutation({
     insertUserOne: {
       __args: {
         object,
-        slug: slug,
+        slug,
         onConflict: {
           constraint: 'user_email_key',
           updateColumns: ['profilePicture']
