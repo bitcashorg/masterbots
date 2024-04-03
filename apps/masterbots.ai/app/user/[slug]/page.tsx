@@ -7,10 +7,10 @@ const PAGE_SIZE = 50
 export default async function BotThreadsPage({
   params
 }: {
-  params: { username: string }
+  params: { slug: string }
 }) {
   const threads = await getBrowseThreads({
-    userName: params.username,
+    slug: params.slug,
     limit: PAGE_SIZE
   })
   return (
@@ -20,7 +20,7 @@ export default async function BotThreadsPage({
         initialThreads={threads}
         PAGE_SIZE={PAGE_SIZE}
         query={{
-          userName: params.username
+          slug: params.slug
         }}
       />
     </div>

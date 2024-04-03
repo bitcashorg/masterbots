@@ -223,12 +223,42 @@ export async function saveNewMessage({ jwt, ...object }: SaveNewMessageParams) {
   })
 }
 
-export async function upsertUser({ adminSecret, ...object }: UpsertUserParams) {
+export async function upsertUser({
+  adminSecret,
+  username,
+  ...object
+}: UpsertUserParams) {
   const client = getHasuraClient({ adminSecret })
+
+  // Generate base slug from the user's name
+  let baseSlug = username.toLowerCase().replace(/\s+/g, '_')
+
+  // Check if the base slug conflicts with existing slugs
+  let slugCount = 0
+  let slug = baseSlug
+  while (true) {
+    const existingUser = await client.query({
+      user: {
+        __args: {
+          where: { slug: { _eq: slug } }
+        },
+        slug: true
+      }
+    })
+    if (!existingUser) {
+      // Found a unique slug
+      break
+    }
+    // Slug conflicts, append a number to make it unique
+    slugCount++
+    slug = `${baseSlug}${slugCount}`
+  }
+
   const { insertUserOne } = await client.mutation({
     insertUserOne: {
       __args: {
         object,
+        slug: slug,
         onConflict: {
           constraint: 'user_email_key',
           updateColumns: ['profilePicture']
@@ -313,7 +343,7 @@ export async function getBrowseThreads({
   userId,
   limit,
   offset,
-  userName
+  slug
 }: GetBrowseThreadsParams) {
   const client = getHasuraClient({})
 
@@ -358,7 +388,8 @@ export async function getBrowseThreads({
       },
       user: {
         username: true,
-        profilePicture: true
+        profilePicture: true,
+        slug: true
       },
       ...everything,
       __args: {
@@ -387,11 +418,11 @@ export async function getBrowseThreads({
                 }
               }
             : {}),
-          ...(userName
+          ...(slug
             ? {
                 user: {
-                  username: {
-                    _eq: userName
+                  slug: {
+                    _eq: slug
                   }
                 }
               }

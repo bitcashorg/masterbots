@@ -10,7 +10,7 @@ export default function BrowseChatbotDetails({ user }: { user?: User | null }) {
   const [threadNum, setThreadNum] = useState(0)
   const getThreadByUserName = async () => {
     const threads = await getBrowseThreads({
-      userName: user?.username
+      slug: user?.slug
     })
     setThreadNum(threads.length)
   }
@@ -35,9 +35,9 @@ export default function BrowseChatbotDetails({ user }: { user?: User | null }) {
             </div>
           </div>
         </div>
-        <div className="h-24 w-24 absolute border-[4px] border-[#388DE2] right-0 top-0 translate-x-[25%] rounded-full translate-y-[-25%] dark:bg-[#131316] bg-white">
+        <div className="size-24 absolute border-[4px] border-[#388DE2] right-0 top-0 translate-x-[25%] rounded-full translate-y-[-25%] dark:bg-[#131316] bg-white">
           <Image
-            className="h-full w-full transition-opacity duration-300 rounded-full select-none ring-1 ring-zinc-100/10 hover:opacity-80"
+            className="size-full transition-opacity duration-300 rounded-full select-none ring-1 ring-zinc-100/10 hover:opacity-80"
             src={user?.profilePicture || ''}
             alt={user?.username || 'UserAvatar'}
             height={96}
