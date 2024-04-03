@@ -16,13 +16,15 @@ export default function BrowseListItem({
   loadMore,
   loading,
   isLast,
-  hasMore
+  hasMore,
+  isShowUser = true
 }: {
   thread: Thread
   loadMore: () => void
   loading: boolean
   isLast: boolean
   hasMore: boolean
+  isShowUser?: boolean
 }) {
   const threadRef = React.useRef<HTMLDivElement>(null)
   const router = useRouter()
@@ -70,7 +72,7 @@ export default function BrowseListItem({
 
   const goToThread = () => {
     router.push(
-      `/browse/${thread.chatbot.name.trim().toLowerCase()}/${thread.threadId}`
+      `/b/${thread.chatbot.name.trim().toLowerCase()}/${thread.threadId}`
     )
     router.refresh()
   }
@@ -99,7 +101,7 @@ export default function BrowseListItem({
         >
           {thread.chatbot?.avatar ? (
             <Link
-              href={`/browse/${thread.chatbot.name.toLowerCase()}`}
+              href={`/b/${thread.chatbot.name.toLowerCase()}`}
               title={thread.chatbot?.name}
               className={cn(
                 'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow'
@@ -115,7 +117,7 @@ export default function BrowseListItem({
             </Link>
           ) : (
             <Link
-              href={`/browse/${thread.chatbot?.chatbotId}`}
+              href={`/b/${thread.chatbot?.name.toLowerCase()}`}
               title={thread.chatbot?.name}
               className={cn(
                 'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow',
@@ -133,10 +135,12 @@ export default function BrowseListItem({
             >
               {thread.messages?.[0]?.content}
             </div>
-            <span className="opacity-50 text-[0.875rem]">by</span>
-            {thread.user?.profilePicture ? (
+            {isShowUser && (
+              <span className="opacity-50 text-[0.875rem]">by</span>
+            )}
+            {isShowUser && thread.user?.profilePicture ? (
               <Link
-                href={`/user/${encodeURIComponent(String(thread.user.slug))}`}
+                href={`/u/${encodeURIComponent(String(thread.user.slug))}`}
                 title={thread.user?.username.replace('_', ' ')}
                 className={cn(
                   'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow'
@@ -151,16 +155,18 @@ export default function BrowseListItem({
                 />
               </Link>
             ) : (
-              <Link
-                href={`/user/${encodeURIComponent(String(thread.user?.slug))}`}
-                title={thread.user?.username}
-                className={cn(
-                  'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow',
-                  'bg-background'
-                )}
-              >
-                <IconUser />
-              </Link>
+              isShowUser && (
+                <Link
+                  href={`/u/${encodeURIComponent(String(thread.user?.slug))}`}
+                  title={thread.user?.username}
+                  className={cn(
+                    'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow',
+                    'bg-background'
+                  )}
+                >
+                  <IconUser />
+                </Link>
+              )
             )}
           </div>
         </div>

@@ -24,6 +24,7 @@ export default async function BotThreadsPage({
         query={{
           slug: params.slug
         }}
+        isShowUser={false}
       />
     </div>
   )
