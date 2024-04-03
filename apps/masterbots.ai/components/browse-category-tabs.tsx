@@ -5,7 +5,13 @@ import { Category } from 'mb-genql'
 import { BrowseCategoryButton } from './browse-category-button'
 import { useEffect } from 'react'
 
-export function BrowseCategoryTabs({ categories }: { categories: Category[] }) {
+export function BrowseCategoryTabs({
+  categories,
+  initialCategory = 'all'
+}: {
+  categories: Category[]
+  initialCategory?: string
+}) {
   const { tab: activeTab, changeTab: setActiveTab } = useBrowse()
   useEffect(() => {
     if (document) {
@@ -22,6 +28,21 @@ export function BrowseCategoryTabs({ categories }: { categories: Category[] }) {
       }
     }
   })
+
+  useEffect(() => {
+    if (initialCategory === 'all') {
+      setActiveTab(null)
+    } else {
+      setActiveTab(
+        categories.filter(
+          c =>
+            c.name.toLowerCase().replace(/\s+/g, '_').replace(/\&/g, 'n') ===
+            initialCategory
+        )[0].categoryId
+      )
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialCategory])
 
   return (
     <div className="w-full py-[10px] my-3 !overflow-x-auto overflow-y-hidden whitespace-nowrap scrollbar small-thumb">

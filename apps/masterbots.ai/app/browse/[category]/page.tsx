@@ -16,7 +16,10 @@ export default async function BrowseCategoryPage({
   return (
     <div className="max-w-[1024px] pb-10 mx-auto w-full">
       <CategoryMainTabs />
-      <BrowseCategoryTabs categories={categories} />
+      <BrowseCategoryTabs
+        initialCategory={params.category}
+        categories={categories}
+      />
       <BrowseSearchInput />
       <BrowseList />
     </div>
