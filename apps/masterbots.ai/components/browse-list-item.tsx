@@ -5,7 +5,7 @@ import { getMessages } from '@/services/hasura'
 import { Message, Thread } from 'mb-genql'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { BrowseChatMessageList } from './browse-chat-message-list'
 import { ChatAccordion } from './chat-accordion'
 import { ShortMessage } from './short-message'
@@ -51,14 +51,13 @@ export default function BrowseListItem({
   }, [isLast, hasMore, loading, loadMore])
 
   const fetchMessages = async () => {
-    if (!messages.length) {
-      const messages = await getMessages({ threadId: thread.threadId })
-      setMessages(messages)
-    }
+    const messages = await getMessages({ threadId: thread.threadId })
+    setMessages(_prev => messages)
   }
 
   const handleAccordionToggle = async (isOpen: boolean) => {
     if (isOpen) {
+      setMessages(_prev => [])
       await fetchMessages()
     }
     // When toggling accordion, it should scroll
