@@ -748,12 +748,18 @@ type Chatbot {
     """filter the rows returned"""
     where: ChatBoolExp
   ): ChatAggregate!
+
+  """An object relationship"""
+  complexityEnum: ComplexityEnum
   createdBy: String!
   defaultComplexity: String
   defaultLength: String
   defaultTone: String
   defaultType: String
   description: String
+
+  """An object relationship"""
+  lengthEnum: LengthEnum
   name: String!
 
   """An array relationship"""
@@ -863,6 +869,12 @@ type Chatbot {
     """filter the rows returned"""
     where: ThreadBoolExp
   ): ThreadAggregate!
+
+  """An object relationship"""
+  toneEnum: ToneEnum
+
+  """An object relationship"""
+  typeEnum: TypeEnum
 }
 
 """
@@ -871,6 +883,10 @@ aggregated selection of "chatbot"
 type ChatbotAggregate {
   aggregate: ChatbotAggregateFields
   nodes: [Chatbot!]!
+}
+
+input ChatbotAggregateBoolExp {
+  count: chatbotAggregateBoolExpCount
 }
 
 """
@@ -890,9 +906,43 @@ type ChatbotAggregateFields {
   variance: ChatbotVarianceFields
 }
 
+"""
+order by aggregate values of table "chatbot"
+"""
+input ChatbotAggregateOrderBy {
+  avg: ChatbotAvgOrderBy
+  count: OrderBy
+  max: ChatbotMaxOrderBy
+  min: ChatbotMinOrderBy
+  stddev: ChatbotStddevOrderBy
+  stddevPop: ChatbotStddevPopOrderBy
+  stddevSamp: ChatbotStddevSampOrderBy
+  sum: ChatbotSumOrderBy
+  varPop: ChatbotVarPopOrderBy
+  varSamp: ChatbotVarSampOrderBy
+  variance: ChatbotVarianceOrderBy
+}
+
+"""
+input type for inserting array relation for remote table "chatbot"
+"""
+input ChatbotArrRelInsertInput {
+  data: [ChatbotInsertInput!]!
+
+  """upsert condition"""
+  onConflict: ChatbotOnConflict
+}
+
 """aggregate avg on columns"""
 type ChatbotAvgFields {
   chatbotId: Float
+}
+
+"""
+order by avg() on columns of table "chatbot"
+"""
+input ChatbotAvgOrderBy {
+  chatbotId: OrderBy
 }
 
 """
@@ -908,12 +958,14 @@ input ChatbotBoolExp {
   chatbotId: IntComparisonExp
   chats: ChatBoolExp
   chatsAggregate: ChatAggregateBoolExp
+  complexityEnum: ComplexityEnumBoolExp
   createdBy: StringComparisonExp
   defaultComplexity: StringComparisonExp
   defaultLength: StringComparisonExp
   defaultTone: StringComparisonExp
   defaultType: StringComparisonExp
   description: StringComparisonExp
+  lengthEnum: LengthEnumBoolExp
   name: StringComparisonExp
   preferences: PreferenceBoolExp
   preferencesAggregate: PreferenceAggregateBoolExp
@@ -921,6 +973,8 @@ input ChatbotBoolExp {
   promptsAggregate: PromptChatbotAggregateBoolExp
   threads: ThreadBoolExp
   threadsAggregate: ThreadAggregateBoolExp
+  toneEnum: ToneEnumBoolExp
+  typeEnum: TypeEnumBoolExp
 }
 
 """
@@ -1295,16 +1349,20 @@ input ChatbotInsertInput {
   categories: ChatbotCategoryArrRelInsertInput
   chatbotId: Int
   chats: ChatArrRelInsertInput
+  complexityEnum: ComplexityEnumObjRelInsertInput
   createdBy: String
   defaultComplexity: String
   defaultLength: String
   defaultTone: String
   defaultType: String
   description: String
+  lengthEnum: LengthEnumObjRelInsertInput
   name: String
   preferences: PreferenceArrRelInsertInput
   prompts: PromptChatbotArrRelInsertInput
   threads: ThreadArrRelInsertInput
+  toneEnum: ToneEnumObjRelInsertInput
+  typeEnum: TypeEnumObjRelInsertInput
 }
 
 """aggregate max on columns"""
@@ -1320,6 +1378,21 @@ type ChatbotMaxFields {
   name: String
 }
 
+"""
+order by max() on columns of table "chatbot"
+"""
+input ChatbotMaxOrderBy {
+  avatar: OrderBy
+  chatbotId: OrderBy
+  createdBy: OrderBy
+  defaultComplexity: OrderBy
+  defaultLength: OrderBy
+  defaultTone: OrderBy
+  defaultType: OrderBy
+  description: OrderBy
+  name: OrderBy
+}
+
 """aggregate min on columns"""
 type ChatbotMinFields {
   avatar: String
@@ -1331,6 +1404,21 @@ type ChatbotMinFields {
   defaultType: String
   description: String
   name: String
+}
+
+"""
+order by min() on columns of table "chatbot"
+"""
+input ChatbotMinOrderBy {
+  avatar: OrderBy
+  chatbotId: OrderBy
+  createdBy: OrderBy
+  defaultComplexity: OrderBy
+  defaultLength: OrderBy
+  defaultTone: OrderBy
+  defaultType: OrderBy
+  description: OrderBy
+  name: OrderBy
 }
 
 """
@@ -1369,16 +1457,20 @@ input ChatbotOrderBy {
   categoriesAggregate: ChatbotCategoryAggregateOrderBy
   chatbotId: OrderBy
   chatsAggregate: ChatAggregateOrderBy
+  complexityEnum: ComplexityEnumOrderBy
   createdBy: OrderBy
   defaultComplexity: OrderBy
   defaultLength: OrderBy
   defaultTone: OrderBy
   defaultType: OrderBy
   description: OrderBy
+  lengthEnum: LengthEnumOrderBy
   name: OrderBy
   preferencesAggregate: PreferenceAggregateOrderBy
   promptsAggregate: PromptChatbotAggregateOrderBy
   threadsAggregate: ThreadAggregateOrderBy
+  toneEnum: ToneEnumOrderBy
+  typeEnum: TypeEnumOrderBy
 }
 
 """primary key columns input for table: chatbot"""
@@ -1438,14 +1530,35 @@ type ChatbotStddevFields {
   chatbotId: Float
 }
 
+"""
+order by stddev() on columns of table "chatbot"
+"""
+input ChatbotStddevOrderBy {
+  chatbotId: OrderBy
+}
+
 """aggregate stddevPop on columns"""
 type ChatbotStddevPopFields {
   chatbotId: Float
 }
 
+"""
+order by stddevPop() on columns of table "chatbot"
+"""
+input ChatbotStddevPopOrderBy {
+  chatbotId: OrderBy
+}
+
 """aggregate stddevSamp on columns"""
 type ChatbotStddevSampFields {
   chatbotId: Float
+}
+
+"""
+order by stddevSamp() on columns of table "chatbot"
+"""
+input ChatbotStddevSampOrderBy {
+  chatbotId: OrderBy
 }
 
 """
@@ -1475,6 +1588,13 @@ input ChatbotStreamCursorValueInput {
 """aggregate sum on columns"""
 type ChatbotSumFields {
   chatbotId: Int
+}
+
+"""
+order by sum() on columns of table "chatbot"
+"""
+input ChatbotSumOrderBy {
+  chatbotId: OrderBy
 }
 
 """
@@ -1525,9 +1645,23 @@ type ChatbotVarPopFields {
   chatbotId: Float
 }
 
+"""
+order by varPop() on columns of table "chatbot"
+"""
+input ChatbotVarPopOrderBy {
+  chatbotId: OrderBy
+}
+
 """aggregate varSamp on columns"""
 type ChatbotVarSampFields {
   chatbotId: Float
+}
+
+"""
+order by varSamp() on columns of table "chatbot"
+"""
+input ChatbotVarSampOrderBy {
+  chatbotId: OrderBy
 }
 
 """aggregate variance on columns"""
@@ -1536,9 +1670,87 @@ type ChatbotVarianceFields {
 }
 
 """
+order by variance() on columns of table "chatbot"
+"""
+input ChatbotVarianceOrderBy {
+  chatbotId: OrderBy
+}
+
+"""
 columns and relationships of "complexity_enum"
 """
 type ComplexityEnum {
+  """An array relationship"""
+  chatbots(
+    """distinct select on columns"""
+    distinctOn: [ChatbotSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotBoolExp
+  ): [Chatbot!]!
+
+  """An aggregate relationship"""
+  chatbotsAggregate(
+    """distinct select on columns"""
+    distinctOn: [ChatbotSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotBoolExp
+  ): ChatbotAggregate!
+
+  """An array relationship"""
+  preferences(
+    """distinct select on columns"""
+    distinctOn: [PreferenceSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [PreferenceOrderBy!]
+
+    """filter the rows returned"""
+    where: PreferenceBoolExp
+  ): [Preference!]!
+
+  """An aggregate relationship"""
+  preferencesAggregate(
+    """distinct select on columns"""
+    distinctOn: [PreferenceSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [PreferenceOrderBy!]
+
+    """filter the rows returned"""
+    where: PreferenceBoolExp
+  ): PreferenceAggregate!
   value: String!
 }
 
@@ -1566,6 +1778,10 @@ input ComplexityEnumBoolExp {
   _and: [ComplexityEnumBoolExp!]
   _not: ComplexityEnumBoolExp
   _or: [ComplexityEnumBoolExp!]
+  chatbots: ChatbotBoolExp
+  chatbotsAggregate: ChatbotAggregateBoolExp
+  preferences: PreferenceBoolExp
+  preferencesAggregate: PreferenceAggregateBoolExp
   value: StringComparisonExp
 }
 
@@ -1583,6 +1799,8 @@ enum ComplexityEnumConstraint {
 input type for inserting data into table "complexity_enum"
 """
 input ComplexityEnumInsertInput {
+  chatbots: ChatbotArrRelInsertInput
+  preferences: PreferenceArrRelInsertInput
   value: String
 }
 
@@ -1608,6 +1826,16 @@ type ComplexityEnumMutationResponse {
 }
 
 """
+input type for inserting object relation for remote table "complexity_enum"
+"""
+input ComplexityEnumObjRelInsertInput {
+  data: ComplexityEnumInsertInput!
+
+  """upsert condition"""
+  onConflict: ComplexityEnumOnConflict
+}
+
+"""
 on_conflict condition type for table "complexity_enum"
 """
 input ComplexityEnumOnConflict {
@@ -1618,6 +1846,8 @@ input ComplexityEnumOnConflict {
 
 """Ordering options when selecting data from "complexity_enum"."""
 input ComplexityEnumOrderBy {
+  chatbotsAggregate: ChatbotAggregateOrderBy
+  preferencesAggregate: PreferenceAggregateOrderBy
   value: OrderBy
 }
 
@@ -1701,6 +1931,77 @@ input IntComparisonExp {
 columns and relationships of "length_enum"
 """
 type LengthEnum {
+  """An array relationship"""
+  chatbots(
+    """distinct select on columns"""
+    distinctOn: [ChatbotSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotBoolExp
+  ): [Chatbot!]!
+
+  """An aggregate relationship"""
+  chatbotsAggregate(
+    """distinct select on columns"""
+    distinctOn: [ChatbotSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotBoolExp
+  ): ChatbotAggregate!
+
+  """An array relationship"""
+  preferences(
+    """distinct select on columns"""
+    distinctOn: [PreferenceSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [PreferenceOrderBy!]
+
+    """filter the rows returned"""
+    where: PreferenceBoolExp
+  ): [Preference!]!
+
+  """An aggregate relationship"""
+  preferencesAggregate(
+    """distinct select on columns"""
+    distinctOn: [PreferenceSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [PreferenceOrderBy!]
+
+    """filter the rows returned"""
+    where: PreferenceBoolExp
+  ): PreferenceAggregate!
   value: String!
 }
 
@@ -1728,6 +2029,10 @@ input LengthEnumBoolExp {
   _and: [LengthEnumBoolExp!]
   _not: LengthEnumBoolExp
   _or: [LengthEnumBoolExp!]
+  chatbots: ChatbotBoolExp
+  chatbotsAggregate: ChatbotAggregateBoolExp
+  preferences: PreferenceBoolExp
+  preferencesAggregate: PreferenceAggregateBoolExp
   value: StringComparisonExp
 }
 
@@ -1745,6 +2050,8 @@ enum LengthEnumConstraint {
 input type for inserting data into table "length_enum"
 """
 input LengthEnumInsertInput {
+  chatbots: ChatbotArrRelInsertInput
+  preferences: PreferenceArrRelInsertInput
   value: String
 }
 
@@ -1770,6 +2077,16 @@ type LengthEnumMutationResponse {
 }
 
 """
+input type for inserting object relation for remote table "length_enum"
+"""
+input LengthEnumObjRelInsertInput {
+  data: LengthEnumInsertInput!
+
+  """upsert condition"""
+  onConflict: LengthEnumOnConflict
+}
+
+"""
 on_conflict condition type for table "length_enum"
 """
 input LengthEnumOnConflict {
@@ -1780,6 +2097,8 @@ input LengthEnumOnConflict {
 
 """Ordering options when selecting data from "length_enum"."""
 input LengthEnumOrderBy {
+  chatbotsAggregate: ChatbotAggregateOrderBy
+  preferencesAggregate: PreferenceAggregateOrderBy
   value: OrderBy
 }
 
@@ -1840,6 +2159,9 @@ type Message {
   content: String!
   createdAt: timestamptz!
   messageId: uuid!
+
+  """An object relationship"""
+  messageTypeEnum: MessageTypeEnum!
   role: String!
 
   """An object relationship"""
@@ -1897,6 +2219,7 @@ input MessageBoolExp {
   content: StringComparisonExp
   createdAt: TimestamptzComparisonExp
   messageId: UuidComparisonExp
+  messageTypeEnum: MessageTypeEnumBoolExp
   role: StringComparisonExp
   thread: ThreadBoolExp
   threadId: UuidComparisonExp
@@ -1924,6 +2247,7 @@ input MessageInsertInput {
   content: String
   createdAt: timestamptz
   messageId: uuid
+  messageTypeEnum: MessageTypeEnumObjRelInsertInput
   role: String
   thread: ThreadObjRelInsertInput
   threadId: uuid
@@ -1994,6 +2318,7 @@ input MessageOrderBy {
   content: OrderBy
   createdAt: OrderBy
   messageId: OrderBy
+  messageTypeEnum: MessageTypeEnumOrderBy
   role: OrderBy
   thread: ThreadOrderBy
   threadId: OrderBy
@@ -2059,6 +2384,41 @@ input MessageStreamCursorValueInput {
 columns and relationships of "message_type_enum"
 """
 type MessageTypeEnum {
+  """An array relationship"""
+  messages(
+    """distinct select on columns"""
+    distinctOn: [MessageSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [MessageOrderBy!]
+
+    """filter the rows returned"""
+    where: MessageBoolExp
+  ): [Message!]!
+
+  """An aggregate relationship"""
+  messagesAggregate(
+    """distinct select on columns"""
+    distinctOn: [MessageSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [MessageOrderBy!]
+
+    """filter the rows returned"""
+    where: MessageBoolExp
+  ): MessageAggregate!
   value: String!
 }
 
@@ -2086,6 +2446,8 @@ input MessageTypeEnumBoolExp {
   _and: [MessageTypeEnumBoolExp!]
   _not: MessageTypeEnumBoolExp
   _or: [MessageTypeEnumBoolExp!]
+  messages: MessageBoolExp
+  messagesAggregate: MessageAggregateBoolExp
   value: StringComparisonExp
 }
 
@@ -2103,6 +2465,7 @@ enum MessageTypeEnumConstraint {
 input type for inserting data into table "message_type_enum"
 """
 input MessageTypeEnumInsertInput {
+  messages: MessageArrRelInsertInput
   value: String
 }
 
@@ -2128,6 +2491,16 @@ type MessageTypeEnumMutationResponse {
 }
 
 """
+input type for inserting object relation for remote table "message_type_enum"
+"""
+input MessageTypeEnumObjRelInsertInput {
+  data: MessageTypeEnumInsertInput!
+
+  """upsert condition"""
+  onConflict: MessageTypeEnumOnConflict
+}
+
+"""
 on_conflict condition type for table "message_type_enum"
 """
 input MessageTypeEnumOnConflict {
@@ -2138,6 +2511,7 @@ input MessageTypeEnumOnConflict {
 
 """Ordering options when selecting data from "message_type_enum"."""
 input MessageTypeEnumOrderBy {
+  messagesAggregate: MessageAggregateOrderBy
   value: OrderBy
 }
 
@@ -2249,12 +2623,27 @@ type Preference {
   """An object relationship"""
   chatbot: Chatbot!
   chatbotId: Int!
+
+  """An object relationship"""
+  complexityEnum: ComplexityEnum!
   favorite: Boolean
+
+  """An object relationship"""
+  lengthEnum: LengthEnum!
   preferenceId: Int!
   preferredComplexity: String!
   preferredLength: String!
   preferredTone: String!
   preferredType: String!
+
+  """An object relationship"""
+  toneEnum: ToneEnum!
+
+  """An object relationship"""
+  typeEnum: TypeEnum!
+
+  """An object relationship"""
+  user: User
   userId: uuid
 }
 
@@ -2339,12 +2728,17 @@ input PreferenceBoolExp {
   _or: [PreferenceBoolExp!]
   chatbot: ChatbotBoolExp
   chatbotId: IntComparisonExp
+  complexityEnum: ComplexityEnumBoolExp
   favorite: BooleanComparisonExp
+  lengthEnum: LengthEnumBoolExp
   preferenceId: IntComparisonExp
   preferredComplexity: StringComparisonExp
   preferredLength: StringComparisonExp
   preferredTone: StringComparisonExp
   preferredType: StringComparisonExp
+  toneEnum: ToneEnumBoolExp
+  typeEnum: TypeEnumBoolExp
+  user: UserBoolExp
   userId: UuidComparisonExp
 }
 
@@ -2372,12 +2766,17 @@ input type for inserting data into table "preference"
 input PreferenceInsertInput {
   chatbot: ChatbotObjRelInsertInput
   chatbotId: Int
+  complexityEnum: ComplexityEnumObjRelInsertInput
   favorite: Boolean
+  lengthEnum: LengthEnumObjRelInsertInput
   preferenceId: Int
   preferredComplexity: String
   preferredLength: String
   preferredTone: String
   preferredType: String
+  toneEnum: ToneEnumObjRelInsertInput
+  typeEnum: TypeEnumObjRelInsertInput
+  user: UserObjRelInsertInput
   userId: uuid
 }
 
@@ -2453,12 +2852,17 @@ input PreferenceOnConflict {
 input PreferenceOrderBy {
   chatbot: ChatbotOrderBy
   chatbotId: OrderBy
+  complexityEnum: ComplexityEnumOrderBy
   favorite: OrderBy
+  lengthEnum: LengthEnumOrderBy
   preferenceId: OrderBy
   preferredComplexity: OrderBy
   preferredLength: OrderBy
   preferredTone: OrderBy
   preferredType: OrderBy
+  toneEnum: ToneEnumOrderBy
+  typeEnum: TypeEnumOrderBy
+  user: UserOrderBy
   userId: OrderBy
 }
 
@@ -2729,7 +3133,46 @@ type Prompt {
   content: String!
   promptId: Int!
   promptName: String
+
+  """An object relationship"""
+  promptTypeEnum: PromptTypeEnum!
   type: String!
+
+  """An array relationship"""
+  users(
+    """distinct select on columns"""
+    distinctOn: [PromptUserSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [PromptUserOrderBy!]
+
+    """filter the rows returned"""
+    where: PromptUserBoolExp
+  ): [PromptUser!]!
+
+  """An aggregate relationship"""
+  usersAggregate(
+    """distinct select on columns"""
+    distinctOn: [PromptUserSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [PromptUserOrderBy!]
+
+    """filter the rows returned"""
+    where: PromptUserBoolExp
+  ): PromptUserAggregate!
 }
 
 """
@@ -2812,7 +3255,10 @@ input PromptBoolExp {
   content: StringComparisonExp
   promptId: IntComparisonExp
   promptName: StringComparisonExp
+  promptTypeEnum: PromptTypeEnumBoolExp
   type: StringComparisonExp
+  users: PromptUserBoolExp
+  usersAggregate: PromptUserAggregateBoolExp
 }
 
 """Junction table for prompts/instructions and chatbots."""
@@ -3186,7 +3632,9 @@ input PromptInsertInput {
   content: String
   promptId: Int
   promptName: String
+  promptTypeEnum: PromptTypeEnumObjRelInsertInput
   type: String
+  users: PromptUserArrRelInsertInput
 }
 
 """aggregate max on columns"""
@@ -3261,7 +3709,9 @@ input PromptOrderBy {
   content: OrderBy
   promptId: OrderBy
   promptName: OrderBy
+  promptTypeEnum: PromptTypeEnumOrderBy
   type: OrderBy
+  usersAggregate: PromptUserAggregateOrderBy
 }
 
 """primary key columns input for table: prompt"""
@@ -3474,6 +3924,16 @@ type PromptTypeEnumMutationResponse {
 }
 
 """
+input type for inserting object relation for remote table "prompt_type_enum"
+"""
+input PromptTypeEnumObjRelInsertInput {
+  data: PromptTypeEnumInsertInput!
+
+  """upsert condition"""
+  onConflict: PromptTypeEnumOnConflict
+}
+
+"""
 on_conflict condition type for table "prompt_type_enum"
 """
 input PromptTypeEnumOnConflict {
@@ -3566,6 +4026,331 @@ input PromptUpdates {
 
   """filter the rows which have to be updated"""
   where: PromptBoolExp!
+}
+
+"""
+columns and relationships of "prompt_user"
+"""
+type PromptUser {
+  """An object relationship"""
+  prompt: Prompt!
+  promptId: Int!
+
+  """An object relationship"""
+  user: User!
+  userId: uuid!
+}
+
+"""
+aggregated selection of "prompt_user"
+"""
+type PromptUserAggregate {
+  aggregate: PromptUserAggregateFields
+  nodes: [PromptUser!]!
+}
+
+input PromptUserAggregateBoolExp {
+  count: promptUserAggregateBoolExpCount
+}
+
+"""
+aggregate fields of "prompt_user"
+"""
+type PromptUserAggregateFields {
+  avg: PromptUserAvgFields
+  count(columns: [PromptUserSelectColumn!], distinct: Boolean): Int!
+  max: PromptUserMaxFields
+  min: PromptUserMinFields
+  stddev: PromptUserStddevFields
+  stddevPop: PromptUserStddevPopFields
+  stddevSamp: PromptUserStddevSampFields
+  sum: PromptUserSumFields
+  varPop: PromptUserVarPopFields
+  varSamp: PromptUserVarSampFields
+  variance: PromptUserVarianceFields
+}
+
+"""
+order by aggregate values of table "prompt_user"
+"""
+input PromptUserAggregateOrderBy {
+  avg: PromptUserAvgOrderBy
+  count: OrderBy
+  max: PromptUserMaxOrderBy
+  min: PromptUserMinOrderBy
+  stddev: PromptUserStddevOrderBy
+  stddevPop: PromptUserStddevPopOrderBy
+  stddevSamp: PromptUserStddevSampOrderBy
+  sum: PromptUserSumOrderBy
+  varPop: PromptUserVarPopOrderBy
+  varSamp: PromptUserVarSampOrderBy
+  variance: PromptUserVarianceOrderBy
+}
+
+"""
+input type for inserting array relation for remote table "prompt_user"
+"""
+input PromptUserArrRelInsertInput {
+  data: [PromptUserInsertInput!]!
+
+  """upsert condition"""
+  onConflict: PromptUserOnConflict
+}
+
+"""aggregate avg on columns"""
+type PromptUserAvgFields {
+  promptId: Float
+}
+
+"""
+order by avg() on columns of table "prompt_user"
+"""
+input PromptUserAvgOrderBy {
+  promptId: OrderBy
+}
+
+"""
+Boolean expression to filter rows from the table "prompt_user". All fields are combined with a logical 'AND'.
+"""
+input PromptUserBoolExp {
+  _and: [PromptUserBoolExp!]
+  _not: PromptUserBoolExp
+  _or: [PromptUserBoolExp!]
+  prompt: PromptBoolExp
+  promptId: IntComparisonExp
+  user: UserBoolExp
+  userId: UuidComparisonExp
+}
+
+"""
+unique or primary key constraints on table "prompt_user"
+"""
+enum PromptUserConstraint {
+  """
+  unique or primary key constraint on columns "user_id", "prompt_id"
+  """
+  prompt_user_pkey
+}
+
+"""
+input type for incrementing numeric columns in table "prompt_user"
+"""
+input PromptUserIncInput {
+  promptId: Int
+}
+
+"""
+input type for inserting data into table "prompt_user"
+"""
+input PromptUserInsertInput {
+  prompt: PromptObjRelInsertInput
+  promptId: Int
+  user: UserObjRelInsertInput
+  userId: uuid
+}
+
+"""aggregate max on columns"""
+type PromptUserMaxFields {
+  promptId: Int
+  userId: uuid
+}
+
+"""
+order by max() on columns of table "prompt_user"
+"""
+input PromptUserMaxOrderBy {
+  promptId: OrderBy
+  userId: OrderBy
+}
+
+"""aggregate min on columns"""
+type PromptUserMinFields {
+  promptId: Int
+  userId: uuid
+}
+
+"""
+order by min() on columns of table "prompt_user"
+"""
+input PromptUserMinOrderBy {
+  promptId: OrderBy
+  userId: OrderBy
+}
+
+"""
+response of any mutation on the table "prompt_user"
+"""
+type PromptUserMutationResponse {
+  """number of rows affected by the mutation"""
+  affectedRows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [PromptUser!]!
+}
+
+"""
+on_conflict condition type for table "prompt_user"
+"""
+input PromptUserOnConflict {
+  constraint: PromptUserConstraint!
+  updateColumns: [PromptUserUpdateColumn!]! = []
+  where: PromptUserBoolExp
+}
+
+"""Ordering options when selecting data from "prompt_user"."""
+input PromptUserOrderBy {
+  prompt: PromptOrderBy
+  promptId: OrderBy
+  user: UserOrderBy
+  userId: OrderBy
+}
+
+"""primary key columns input for table: prompt_user"""
+input PromptUserPkColumnsInput {
+  promptId: Int!
+  userId: uuid!
+}
+
+"""
+select columns of table "prompt_user"
+"""
+enum PromptUserSelectColumn {
+  """column name"""
+  promptId
+
+  """column name"""
+  userId
+}
+
+"""
+input type for updating data in table "prompt_user"
+"""
+input PromptUserSetInput {
+  promptId: Int
+  userId: uuid
+}
+
+"""aggregate stddev on columns"""
+type PromptUserStddevFields {
+  promptId: Float
+}
+
+"""
+order by stddev() on columns of table "prompt_user"
+"""
+input PromptUserStddevOrderBy {
+  promptId: OrderBy
+}
+
+"""aggregate stddevPop on columns"""
+type PromptUserStddevPopFields {
+  promptId: Float
+}
+
+"""
+order by stddevPop() on columns of table "prompt_user"
+"""
+input PromptUserStddevPopOrderBy {
+  promptId: OrderBy
+}
+
+"""aggregate stddevSamp on columns"""
+type PromptUserStddevSampFields {
+  promptId: Float
+}
+
+"""
+order by stddevSamp() on columns of table "prompt_user"
+"""
+input PromptUserStddevSampOrderBy {
+  promptId: OrderBy
+}
+
+"""
+Streaming cursor of the table "prompt_user"
+"""
+input PromptUserStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: PromptUserStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input PromptUserStreamCursorValueInput {
+  promptId: Int
+  userId: uuid
+}
+
+"""aggregate sum on columns"""
+type PromptUserSumFields {
+  promptId: Int
+}
+
+"""
+order by sum() on columns of table "prompt_user"
+"""
+input PromptUserSumOrderBy {
+  promptId: OrderBy
+}
+
+"""
+update columns of table "prompt_user"
+"""
+enum PromptUserUpdateColumn {
+  """column name"""
+  promptId
+
+  """column name"""
+  userId
+}
+
+input PromptUserUpdates {
+  """increments the numeric columns with given value of the filtered values"""
+  _inc: PromptUserIncInput
+
+  """sets the columns of the filtered rows to the given values"""
+  _set: PromptUserSetInput
+
+  """filter the rows which have to be updated"""
+  where: PromptUserBoolExp!
+}
+
+"""aggregate varPop on columns"""
+type PromptUserVarPopFields {
+  promptId: Float
+}
+
+"""
+order by varPop() on columns of table "prompt_user"
+"""
+input PromptUserVarPopOrderBy {
+  promptId: OrderBy
+}
+
+"""aggregate varSamp on columns"""
+type PromptUserVarSampFields {
+  promptId: Float
+}
+
+"""
+order by varSamp() on columns of table "prompt_user"
+"""
+input PromptUserVarSampOrderBy {
+  promptId: OrderBy
+}
+
+"""aggregate variance on columns"""
+type PromptUserVarianceFields {
+  promptId: Float
+}
+
+"""
+order by variance() on columns of table "prompt_user"
+"""
+input PromptUserVarianceOrderBy {
+  promptId: OrderBy
 }
 
 """aggregate varPop on columns"""
@@ -4133,6 +4918,77 @@ input TimestamptzComparisonExp {
 columns and relationships of "tone_enum"
 """
 type ToneEnum {
+  """An array relationship"""
+  chatbots(
+    """distinct select on columns"""
+    distinctOn: [ChatbotSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotBoolExp
+  ): [Chatbot!]!
+
+  """An aggregate relationship"""
+  chatbotsAggregate(
+    """distinct select on columns"""
+    distinctOn: [ChatbotSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotBoolExp
+  ): ChatbotAggregate!
+
+  """An array relationship"""
+  preferences(
+    """distinct select on columns"""
+    distinctOn: [PreferenceSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [PreferenceOrderBy!]
+
+    """filter the rows returned"""
+    where: PreferenceBoolExp
+  ): [Preference!]!
+
+  """An aggregate relationship"""
+  preferencesAggregate(
+    """distinct select on columns"""
+    distinctOn: [PreferenceSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [PreferenceOrderBy!]
+
+    """filter the rows returned"""
+    where: PreferenceBoolExp
+  ): PreferenceAggregate!
   value: String!
 }
 
@@ -4160,6 +5016,10 @@ input ToneEnumBoolExp {
   _and: [ToneEnumBoolExp!]
   _not: ToneEnumBoolExp
   _or: [ToneEnumBoolExp!]
+  chatbots: ChatbotBoolExp
+  chatbotsAggregate: ChatbotAggregateBoolExp
+  preferences: PreferenceBoolExp
+  preferencesAggregate: PreferenceAggregateBoolExp
   value: StringComparisonExp
 }
 
@@ -4177,6 +5037,8 @@ enum ToneEnumConstraint {
 input type for inserting data into table "tone_enum"
 """
 input ToneEnumInsertInput {
+  chatbots: ChatbotArrRelInsertInput
+  preferences: PreferenceArrRelInsertInput
   value: String
 }
 
@@ -4202,6 +5064,16 @@ type ToneEnumMutationResponse {
 }
 
 """
+input type for inserting object relation for remote table "tone_enum"
+"""
+input ToneEnumObjRelInsertInput {
+  data: ToneEnumInsertInput!
+
+  """upsert condition"""
+  onConflict: ToneEnumOnConflict
+}
+
+"""
 on_conflict condition type for table "tone_enum"
 """
 input ToneEnumOnConflict {
@@ -4212,6 +5084,8 @@ input ToneEnumOnConflict {
 
 """Ordering options when selecting data from "tone_enum"."""
 input ToneEnumOrderBy {
+  chatbotsAggregate: ChatbotAggregateOrderBy
+  preferencesAggregate: PreferenceAggregateOrderBy
   value: OrderBy
 }
 
@@ -4271,6 +5145,77 @@ input ToneEnumUpdates {
 columns and relationships of "type_enum"
 """
 type TypeEnum {
+  """An array relationship"""
+  chatbots(
+    """distinct select on columns"""
+    distinctOn: [ChatbotSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotBoolExp
+  ): [Chatbot!]!
+
+  """An aggregate relationship"""
+  chatbotsAggregate(
+    """distinct select on columns"""
+    distinctOn: [ChatbotSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotBoolExp
+  ): ChatbotAggregate!
+
+  """An array relationship"""
+  preferences(
+    """distinct select on columns"""
+    distinctOn: [PreferenceSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [PreferenceOrderBy!]
+
+    """filter the rows returned"""
+    where: PreferenceBoolExp
+  ): [Preference!]!
+
+  """An aggregate relationship"""
+  preferencesAggregate(
+    """distinct select on columns"""
+    distinctOn: [PreferenceSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [PreferenceOrderBy!]
+
+    """filter the rows returned"""
+    where: PreferenceBoolExp
+  ): PreferenceAggregate!
   value: String!
 }
 
@@ -4298,6 +5243,10 @@ input TypeEnumBoolExp {
   _and: [TypeEnumBoolExp!]
   _not: TypeEnumBoolExp
   _or: [TypeEnumBoolExp!]
+  chatbots: ChatbotBoolExp
+  chatbotsAggregate: ChatbotAggregateBoolExp
+  preferences: PreferenceBoolExp
+  preferencesAggregate: PreferenceAggregateBoolExp
   value: StringComparisonExp
 }
 
@@ -4315,6 +5264,8 @@ enum TypeEnumConstraint {
 input type for inserting data into table "type_enum"
 """
 input TypeEnumInsertInput {
+  chatbots: ChatbotArrRelInsertInput
+  preferences: PreferenceArrRelInsertInput
   value: String
 }
 
@@ -4340,6 +5291,16 @@ type TypeEnumMutationResponse {
 }
 
 """
+input type for inserting object relation for remote table "type_enum"
+"""
+input TypeEnumObjRelInsertInput {
+  data: TypeEnumInsertInput!
+
+  """upsert condition"""
+  onConflict: TypeEnumOnConflict
+}
+
+"""
 on_conflict condition type for table "type_enum"
 """
 input TypeEnumOnConflict {
@@ -4350,6 +5311,8 @@ input TypeEnumOnConflict {
 
 """Ordering options when selecting data from "type_enum"."""
 input TypeEnumOrderBy {
+  chatbotsAggregate: ChatbotAggregateOrderBy
+  preferencesAggregate: PreferenceAggregateOrderBy
   value: OrderBy
 }
 
@@ -4485,6 +5448,43 @@ type User {
   profilePicture: String
 
   """An array relationship"""
+  prompts(
+    """distinct select on columns"""
+    distinctOn: [PromptUserSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [PromptUserOrderBy!]
+
+    """filter the rows returned"""
+    where: PromptUserBoolExp
+  ): [PromptUser!]!
+
+  """An aggregate relationship"""
+  promptsAggregate(
+    """distinct select on columns"""
+    distinctOn: [PromptUserSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [PromptUserOrderBy!]
+
+    """filter the rows returned"""
+    where: PromptUserBoolExp
+  ): PromptUserAggregate!
+  slug: String
+
+  """An array relationship"""
   threads(
     """distinct select on columns"""
     distinctOn: [ThreadSelectColumn!]
@@ -4556,6 +5556,9 @@ input UserBoolExp {
   preferences: PreferenceBoolExp
   preferencesAggregate: PreferenceAggregateBoolExp
   profilePicture: StringComparisonExp
+  prompts: PromptUserBoolExp
+  promptsAggregate: PromptUserAggregateBoolExp
+  slug: StringComparisonExp
   threads: ThreadBoolExp
   threadsAggregate: ThreadAggregateBoolExp
   userId: UuidComparisonExp
@@ -4593,6 +5596,8 @@ input UserInsertInput {
   password: String
   preferences: PreferenceArrRelInsertInput
   profilePicture: String
+  prompts: PromptUserArrRelInsertInput
+  slug: String
   threads: ThreadArrRelInsertInput
   userId: uuid
   username: String
@@ -4605,6 +5610,7 @@ type UserMaxFields {
   lastLogin: timestamptz
   password: String
   profilePicture: String
+  slug: String
   userId: uuid
   username: String
 }
@@ -4616,6 +5622,7 @@ type UserMinFields {
   lastLogin: timestamptz
   password: String
   profilePicture: String
+  slug: String
   userId: uuid
   username: String
 }
@@ -4659,6 +5666,8 @@ input UserOrderBy {
   password: OrderBy
   preferencesAggregate: PreferenceAggregateOrderBy
   profilePicture: OrderBy
+  promptsAggregate: PromptUserAggregateOrderBy
+  slug: OrderBy
   threadsAggregate: ThreadAggregateOrderBy
   userId: OrderBy
   username: OrderBy
@@ -4689,6 +5698,9 @@ enum UserSelectColumn {
   profilePicture
 
   """column name"""
+  slug
+
+  """column name"""
   userId
 
   """column name"""
@@ -4704,6 +5716,7 @@ input UserSetInput {
   lastLogin: timestamptz
   password: String
   profilePicture: String
+  slug: String
   userId: uuid
   username: String
 }
@@ -4726,6 +5739,7 @@ input UserStreamCursorValueInput {
   lastLogin: timestamptz
   password: String
   profilePicture: String
+  slug: String
   userId: uuid
   username: String
 }
@@ -4748,6 +5762,9 @@ enum UserUpdateColumn {
 
   """column name"""
   profilePicture
+
+  """column name"""
+  slug
 
   """column name"""
   userId
@@ -4783,6 +5800,13 @@ input chatAggregateBoolExpCount {
   arguments: [ChatSelectColumn!]
   distinct: Boolean
   filter: ChatBoolExp
+  predicate: IntComparisonExp!
+}
+
+input chatbotAggregateBoolExpCount {
+  arguments: [ChatbotSelectColumn!]
+  distinct: Boolean
+  filter: ChatbotBoolExp
   predicate: IntComparisonExp!
 }
 
@@ -4957,6 +5981,19 @@ type mutation_root {
   delete single row from the table: "prompt_type_enum"
   """
   deletePromptTypeEnumByPk(value: String!): PromptTypeEnum
+
+  """
+  delete data from the table: "prompt_user"
+  """
+  deletePromptUser(
+    """filter the rows which have to be deleted"""
+    where: PromptUserBoolExp!
+  ): PromptUserMutationResponse
+
+  """
+  delete single row from the table: "prompt_user"
+  """
+  deletePromptUserByPk(promptId: Int!, userId: uuid!): PromptUser
 
   """
   delete data from the table: "thread"
@@ -5273,6 +6310,28 @@ type mutation_root {
     """upsert condition"""
     onConflict: PromptTypeEnumOnConflict
   ): PromptTypeEnum
+
+  """
+  insert data into the table: "prompt_user"
+  """
+  insertPromptUser(
+    """the rows to be inserted"""
+    objects: [PromptUserInsertInput!]!
+
+    """upsert condition"""
+    onConflict: PromptUserOnConflict
+  ): PromptUserMutationResponse
+
+  """
+  insert a single row into the table: "prompt_user"
+  """
+  insertPromptUserOne(
+    """the row to be inserted"""
+    object: PromptUserInsertInput!
+
+    """upsert condition"""
+    onConflict: PromptUserOnConflict
+  ): PromptUser
 
   """
   insert data into the table: "thread"
@@ -5741,6 +6800,40 @@ type mutation_root {
   ): [PromptTypeEnumMutationResponse]
 
   """
+  update data of the table: "prompt_user"
+  """
+  updatePromptUser(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: PromptUserIncInput
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: PromptUserSetInput
+
+    """filter the rows which have to be updated"""
+    where: PromptUserBoolExp!
+  ): PromptUserMutationResponse
+
+  """
+  update single row of the table: "prompt_user"
+  """
+  updatePromptUserByPk(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: PromptUserIncInput
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: PromptUserSetInput
+    pkColumns: PromptUserPkColumnsInput!
+  ): PromptUser
+
+  """
+  update multiples rows of table: "prompt_user"
+  """
+  updatePromptUserMany(
+    """updates to execute, in order"""
+    updates: [PromptUserUpdates!]!
+  ): [PromptUserMutationResponse]
+
+  """
   update data of the table: "thread"
   """
   updateThread(
@@ -5891,6 +6984,13 @@ input promptChatbotAggregateBoolExpCount {
   arguments: [PromptChatbotSelectColumn!]
   distinct: Boolean
   filter: PromptChatbotBoolExp
+  predicate: IntComparisonExp!
+}
+
+input promptUserAggregateBoolExpCount {
+  arguments: [PromptUserSelectColumn!]
+  distinct: Boolean
+  filter: PromptUserBoolExp
   predicate: IntComparisonExp!
 }
 
@@ -6416,6 +7516,49 @@ type query_root {
   fetch data from the table: "prompt_type_enum" using primary key columns
   """
   promptTypeEnumByPk(value: String!): PromptTypeEnum
+
+  """
+  fetch data from the table: "prompt_user"
+  """
+  promptUser(
+    """distinct select on columns"""
+    distinctOn: [PromptUserSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [PromptUserOrderBy!]
+
+    """filter the rows returned"""
+    where: PromptUserBoolExp
+  ): [PromptUser!]!
+
+  """
+  fetch aggregated fields from the table: "prompt_user"
+  """
+  promptUserAggregate(
+    """distinct select on columns"""
+    distinctOn: [PromptUserSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [PromptUserOrderBy!]
+
+    """filter the rows returned"""
+    where: PromptUserBoolExp
+  ): PromptUserAggregate!
+
+  """fetch data from the table: "prompt_user" using primary key columns"""
+  promptUserByPk(promptId: Int!, userId: uuid!): PromptUser
 
   """
   fetch data from the table: "thread"
@@ -7280,6 +8423,63 @@ type subscription_root {
     """filter the rows returned"""
     where: PromptTypeEnumBoolExp
   ): [PromptTypeEnum!]!
+
+  """
+  fetch data from the table: "prompt_user"
+  """
+  promptUser(
+    """distinct select on columns"""
+    distinctOn: [PromptUserSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [PromptUserOrderBy!]
+
+    """filter the rows returned"""
+    where: PromptUserBoolExp
+  ): [PromptUser!]!
+
+  """
+  fetch aggregated fields from the table: "prompt_user"
+  """
+  promptUserAggregate(
+    """distinct select on columns"""
+    distinctOn: [PromptUserSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [PromptUserOrderBy!]
+
+    """filter the rows returned"""
+    where: PromptUserBoolExp
+  ): PromptUserAggregate!
+
+  """fetch data from the table: "prompt_user" using primary key columns"""
+  promptUserByPk(promptId: Int!, userId: uuid!): PromptUser
+
+  """
+  fetch data from the table in a streaming manner: "prompt_user"
+  """
+  promptUserStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [PromptUserStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: PromptUserBoolExp
+  ): [PromptUser!]!
 
   """
   fetch data from the table: "thread"
