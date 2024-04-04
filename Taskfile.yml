@@ -44,7 +44,7 @@ tasks:
   reload:
     cmds:
       - task down
-      - docker-compose up -d postgres
+      - docker-compose up -d database
       - sleep 5
       - docker-compose up -d --build
       - docker-compose logs -f hasura
