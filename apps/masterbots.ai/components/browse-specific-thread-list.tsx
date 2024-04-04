@@ -9,11 +9,13 @@ import BrowseListItem from './browse-list-item'
 export default function BrowseSpecificThreadList({
   initialThreads,
   query,
-  PAGE_SIZE
+  PAGE_SIZE,
+  pageType = ''
 }: {
   query: { [key: string]: string | undefined }
   initialThreads: Thread[]
   PAGE_SIZE: number
+  pageType?: string
 }) {
   const [threads, setThreads] = React.useState<Thread[]>(initialThreads)
   const [loading, setLoading] = React.useState<boolean>(false)
@@ -38,6 +40,7 @@ export default function BrowseSpecificThreadList({
     <div className="max-w-[1024px] px-4 mx-auto mt-8 flex gap-y-4 flex-col">
       {threads.map((thread: Thread, key) => (
         <BrowseListItem
+          pageType={pageType}
           thread={thread}
           key={key}
           loading={loading}

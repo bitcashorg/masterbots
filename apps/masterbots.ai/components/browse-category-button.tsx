@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { Category } from 'mb-genql'
+import Link from 'next/link'
 
 export function BrowseCategoryButton({
   category,
@@ -13,7 +14,13 @@ export function BrowseCategoryButton({
   id: string
 }) {
   return (
-    <button
+    <Link
+      href={
+        category === 'all'
+          ? '/browse'
+          : `/browse/${category.name.toLowerCase().replace(/\s+/g, '_').replace(/\&/g, 'n')}`
+      }
+      shallow
       id={id}
       onClick={onClick}
       className={`${
@@ -35,6 +42,6 @@ export function BrowseCategoryButton({
         />
       )}
       {category === 'all' ? 'All' : category.name}
-    </button>
+    </Link>
   )
 }
