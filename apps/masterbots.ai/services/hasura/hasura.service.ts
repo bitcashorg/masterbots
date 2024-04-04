@@ -237,15 +237,16 @@ export async function upsertUser({
   let slugCount = 0
   let slug = baseSlug
   while (true) {
-    const existingUser = await client.query({
+    const { user } = await client.query({
       user: {
         __args: {
           where: { slug: { _eq: slug } }
         },
-        slug: true
+        slug: true,
+        email: true
       }
     })
-    if (!existingUser) {
+    if (!user?.length || user[0]?.email === object.email) {
       // Found a unique slug
       break
     }
@@ -253,12 +254,14 @@ export async function upsertUser({
     slugCount++
     slug = `${baseSlug}${slugCount > 0 ? slugCount : ''}`
   }
-
   const { insertUserOne } = await client.mutation({
     insertUserOne: {
       __args: {
-        object,
-        slug,
+        object: {
+          username,
+          slug,
+          ...object
+        },
         onConflict: {
           constraint: 'user_email_key',
           updateColumns: ['profilePicture']
