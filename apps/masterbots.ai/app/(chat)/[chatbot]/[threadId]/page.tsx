@@ -9,13 +9,13 @@ import { isTokenExpired } from 'mb-lib'
 export default async function ChatPage({ params }: ChatPageProps) {
   const session = await auth()
   // NOTE: maybe we should use same expiration time
-  const jwt = session!.user?.hasuraJwt
+  const jwt = session ? session.user?.hasuraJwt : null
   if (!jwt || isTokenExpired(jwt)) {
     redirect(`/sign-in`)
   }
   const thread = await getThread({
     threadId: params.threadId,
-    jwt: session!.user.hasuraJwt
+    jwt: session!.user?.hasuraJwt
   })
 
   //TODO: handle threadId not found

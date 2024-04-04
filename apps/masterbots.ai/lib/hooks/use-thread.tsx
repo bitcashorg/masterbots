@@ -72,27 +72,27 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
 
   const userPreferencesPrompts: AIMessage[] = activeThread
     ? [
-        {
-          id: activeThread?.threadId,
-          role: 'system',
-          content:
-            `Your response tone will be ${activeThread?.chatbot.defaultTone}. ` +
-            `Your response length will be ${activeThread?.chatbot.defaultLength}. ` +
-            `Your response format will be ${activeThread?.chatbot.defaultType}. ` +
-            `Your response complexity level will be ${activeThread?.chatbot.defaultComplexity}.`,
-          createdAt: new Date()
-        }
-      ]
+      {
+        id: activeThread?.threadId,
+        role: 'system',
+        content:
+          `Your response tone will be ${activeThread?.chatbot.defaultTone}. ` +
+          `Your response length will be ${activeThread?.chatbot.defaultLength}. ` +
+          `Your response format will be ${activeThread?.chatbot.defaultType}. ` +
+          `Your response complexity level will be ${activeThread?.chatbot.defaultComplexity}.`,
+        createdAt: new Date()
+      }
+    ]
     : []
 
   // format all user prompts and chatgpt 'assistant' messages
   const userAndAssistantMessages: AIMessage[] = activeThread
     ? messagesFromDB.map(m => ({
-        id: m.messageId,
-        role: m.role as AIMessage['role'],
-        content: m.content,
-        createdAt: m.createdAt
-      }))
+      id: m.messageId,
+      role: m.role as AIMessage['role'],
+      content: m.content,
+      createdAt: m.createdAt
+    }))
     : []
 
   // concatenate all message to pass it to chat component
@@ -127,7 +127,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
         role: 'assistant',
         threadId: activeThread?.threadId,
         content: message.content,
-        jwt: session!.user.hasuraJwt
+        jwt: session!.user?.hasuraJwt
       })
     }
   })
@@ -154,7 +154,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
         role: 'user',
         threadId: activeThread?.threadId,
         content: fullMessage,
-        jwt: session!.user.hasuraJwt
+        jwt: session!.user?.hasuraJwt
       })
       append({
         role: 'user',
@@ -187,11 +187,12 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpenPopup])
 
-  const getRandomChatbot = React.useCallback(async () => {
+  const getRandomChatbot = async () => {
+    console.log('session?.user?.hasuraJwt', session?.user?.hasuraJwt)
     if (activeThread || !session?.user?.hasuraJwt) return
     const chatbotsCount = await getChatbotsCount({
       categoryId: activeCategory,
-      jwt: session!.user.hasuraJwt
+      jwt: session!.user?.hasuraJwt
     })
     const offset = Math.floor(Math.random() * chatbotsCount)
     const chatbots = await getChatbots({
@@ -205,11 +206,11 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     } else {
       setRandomChatbot(null)
     }
-  }, [activeCategory, activeThread, session])
+  }
 
   React.useEffect(() => {
     getRandomChatbot()
-  }, [getRandomChatbot])
+  }, [activeCategory, activeThread, session])
 
   const { scrollY } = useScroll({
     container: sectionRef as React.RefObject<HTMLElement>

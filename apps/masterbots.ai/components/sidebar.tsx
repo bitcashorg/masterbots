@@ -26,12 +26,6 @@ export function Sidebar({ className, children }: SidebarProps) {
       <div className="overflow-y-auto scrollbar h-[calc(100%-113px)]">
         {children}
       </div>
-      <footer className="flex justify-center items-center opacity-50 h-[64px] whitespace-break-spaces text-xs font-semibold font-['Geist_Mono']">
-        Robot avatars delivered by{' '}
-        <a href="https://robohash.org" target="_blank" rel="noreferrer" className="text-link hover:underline focus-within:underline">
-          robohash.org
-        </a>
-      </footer>
     </aside>
   )
 }

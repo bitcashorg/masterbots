@@ -9,7 +9,7 @@ import { useBrowse } from '@/lib/hooks/use-browse'
 export function BrowseSearchInput() {
   const { keyword, changeKeyword } = useBrowse()
   return (
-    <div className="flex flex-col items-center justify-center w-full pt-10 pb-4 dark:bg-[#09090B] bg-[#F4F4F5] rounded-lg gap-4">
+    <div className="flex flex-col items-center justify-center w-full pt-10 pb-4 dark:bg-[#09090B] bg-[#F4F4F5] rounded-lg gap-4 px-4">
       <div className="relative w-full max-w-[600px]">
         <Input
           value={keyword}
@@ -17,7 +17,7 @@ export function BrowseSearchInput() {
             changeKeyword(e.target.value)
           }}
           placeholder="Search any chat with any Bot"
-          className="w-full"
+          className="w-full py-6"
         />
         {keyword && (
           <Button

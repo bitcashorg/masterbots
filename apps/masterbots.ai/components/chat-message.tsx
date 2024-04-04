@@ -32,7 +32,7 @@ export function ChatMessage({
     <div className={cn('group relative flex items-start p-1')} {...props}>
       <div className="flex-1 pr-1 space-y-2 overflow-hidden">
         <MemoizedReactMarkdown
-          className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
+          className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
           remarkPlugins={[remarkGfm, remarkMath]}
           components={{
             p({ node, children }) {

@@ -1,7 +1,7 @@
 import { type Message } from 'ai'
 
 import { ChatMessage } from '@/components/chat-message'
-import { createMessagePairs } from '@/lib/utils'
+import { cn, createMessagePairs } from '@/lib/utils'
 import { Chatbot } from 'mb-genql'
 import React from 'react'
 import { ChatAccordion } from './chat-accordion'
@@ -93,20 +93,22 @@ export function ChatList({
 
             {/* Thread Content */}
             <div
-              className={`mx-[46px] px-1 py-4
-            border-[transparent] dark:border-x-mirage border-x-gray-300 border
-            ${!isThread && key === 0 ? '!border-[transparent]' : ''} ${chatContentClass || ''}`}
+              className={cn(
+                'mx-4 md:mx-[46px] px-1 py-4 border-[transparent] dark:border-x-mirage border-x-gray-300 border',
+                { '!border-[transparent]': !isThread && key === 0 },
+                chatContentClass,
+              )}
             >
               {pair.chatGptMessage.length > 0
                 ? pair.chatGptMessage.map((message, index) => (
-                    <ChatMessage
-                      actionRequired={false}
-                      key={index}
-                      chatbot={chatbot}
-                      message={message}
-                      sendMessageFromResponse={sendMessageFromResponse}
-                    />
-                  ))
+                  <ChatMessage
+                    actionRequired={false}
+                    key={index}
+                    chatbot={chatbot}
+                    message={message}
+                    sendMessageFromResponse={sendMessageFromResponse}
+                  />
+                ))
                 : ''}
             </div>
           </ChatAccordion>
