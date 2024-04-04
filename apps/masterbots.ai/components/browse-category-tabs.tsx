@@ -38,7 +38,7 @@ export function BrowseCategoryTabs({
           c =>
             c.name.toLowerCase().replace(/\s+/g, '_').replace(/\&/g, 'n') ===
             initialCategory
-        )[0].categoryId
+        )[0]?.categoryId
       )
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
