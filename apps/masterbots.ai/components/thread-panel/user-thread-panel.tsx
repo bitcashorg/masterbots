@@ -36,7 +36,7 @@ export default function UserThreadPanel({
     setLoading(true)
 
     const moreThreads = await getThreads({
-      jwt: session!.user.hasuraJwt,
+      jwt: session!.user?.hasuraJwt,
       userId: session!.user.id,
       offset: threads.length,
       limit: PAGE_SIZE,
@@ -53,7 +53,7 @@ export default function UserThreadPanel({
     const currentFetchId = Date.now() // Generate a unique identifier for the current fetch
     fetchIdRef.current = currentFetchId
     const threads = await getThreads({
-      jwt: session!.user.hasuraJwt,
+      jwt: session!.user?.hasuraJwt,
       userId: session!.user.id,
       limit: PAGE_SIZE,
       categoryId: activeCategory,

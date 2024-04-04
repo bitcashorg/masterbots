@@ -17,13 +17,13 @@ export default async function BotThreadsPage({
 }) {
   const session = await auth()
   // NOTE: maybe we should use same expiration time
-  const jwt = session!.user?.hasuraJwt
+  const jwt = session ? session.user?.hasuraJwt : null
   if (!jwt || isTokenExpired(jwt)) {
     redirect(`/sign-in`)
   }
   const chatbot = await getChatbot({
     chatbotName: botNames.get(params.chatbot),
-    jwt: session!.user.hasuraJwt
+    jwt: session!.user?.hasuraJwt
   })
   if (!chatbot)
     throw new Error(`Chatbot ${botNames.get(params.chatbot)} not found`)
@@ -31,7 +31,7 @@ export default async function BotThreadsPage({
   // session will always be defined
   const threads = await getThreads({
     chatbotName: botNames.get(params.chatbot),
-    jwt: session!.user.hasuraJwt,
+    jwt: session!.user?.hasuraJwt,
     userId: session!.user.id
   })
 
