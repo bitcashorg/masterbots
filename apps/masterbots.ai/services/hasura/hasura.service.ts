@@ -81,19 +81,19 @@ export async function getChatbots({
         limit: limit ? limit : 20,
         ...(offset
           ? {
-              offset
-            }
+            offset
+          }
           : {}),
         ...(categoryId
           ? {
-              where: {
-                categories: {
-                  categoryId: {
-                    _eq: categoryId
-                  }
+            where: {
+              categories: {
+                categoryId: {
+                  _eq: categoryId
                 }
               }
             }
+          }
           : {})
       }
     }
@@ -142,25 +142,25 @@ export async function getThreads({
         limit: limit ? limit : 20,
         ...(offset
           ? {
-              offset
-            }
+            offset
+          }
           : {}),
         ...(chatbotName || categoryId
           ? {
-              where: {
-                chatbot: {
-                  ...(chatbotName
-                    ? {
-                        name: { _eq: chatbotName }
-                      }
-                    : {}),
-                  ...(categoryId
-                    ? { categories: { categoryId: { _eq: categoryId } } }
-                    : {})
-                },
-                ...(userId ? { userId: { _eq: userId } } : {})
-              }
+            where: {
+              chatbot: {
+                ...(chatbotName
+                  ? {
+                    name: { _eq: chatbotName }
+                  }
+                  : {}),
+                ...(categoryId
+                  ? { categories: { categoryId: { _eq: categoryId } } }
+                  : {})
+              },
+              ...(userId ? { userId: { _eq: userId } } : {})
             }
+          }
           : userId
             ? { where: { userId: { _eq: userId } } }
             : {})
@@ -246,7 +246,7 @@ export async function upsertUser({
         email: true
       }
     })
-    if (!user.length || user[0].email === object.email) {
+    if (!user?.length || user[0]?.email === object.email) {
       // Found a unique slug
       break
     }
@@ -320,16 +320,16 @@ export async function getChatbot({
       },
       ...(threads
         ? {
-            threads: {
+          threads: {
+            ...everything,
+            messages: {
               ...everything,
-              messages: {
-                ...everything,
-                __args: {
-                  orderBy: [{ createdAt: 'ASC' }]
-                }
+              __args: {
+                orderBy: [{ createdAt: 'ASC' }]
               }
             }
           }
+        }
         : {})
     }
   })
@@ -368,21 +368,21 @@ export async function getBrowseThreads({
           orderBy: [{ createdAt: 'ASC' }],
           ...(keyword
             ? {
-                where: {
-                  _or: [
-                    {
-                      content: {
-                        _iregex: keyword
-                      }
-                    },
-                    {
-                      content: {
-                        _eq: keyword
-                      }
+              where: {
+                _or: [
+                  {
+                    content: {
+                      _iregex: keyword
                     }
-                  ]
-                }
+                  },
+                  {
+                    content: {
+                      _eq: keyword
+                    }
+                  }
+                ]
               }
+            }
             : ''),
           limit: 2
         }
@@ -398,35 +398,35 @@ export async function getBrowseThreads({
         where: {
           ...(categoryId
             ? {
-                chatbot: {
-                  categories: {
-                    categoryId: { _eq: categoryId }
-                  }
+              chatbot: {
+                categories: {
+                  categoryId: { _eq: categoryId }
                 }
               }
+            }
             : {}),
           ...(chatbotName
             ? {
-                chatbot: {
-                  name: { _eq: chatbotName }
-                }
+              chatbot: {
+                name: { _eq: chatbotName }
               }
+            }
             : {}),
           ...(userId
             ? {
-                userId: {
-                  _eq: userId
-                }
+              userId: {
+                _eq: userId
               }
+            }
             : {}),
           ...(slug
             ? {
-                user: {
-                  slug: {
-                    _eq: slug
-                  }
+              user: {
+                slug: {
+                  _eq: slug
                 }
               }
+            }
             : {}),
           isPublic: { _eq: true }
         },
@@ -455,13 +455,13 @@ export async function getMessages({
         orderBy: [{ createdAt: 'ASC' }],
         ...(limit
           ? {
-              limit
-            }
+            limit
+          }
           : {}),
         ...(offset
           ? {
-              offset
-            }
+            offset
+          }
           : {})
       }
     }
@@ -482,14 +482,14 @@ export async function getChatbotsCount({
       __args: {
         ...(categoryId
           ? {
-              where: {
-                categories: {
-                  categoryId: {
-                    _eq: categoryId
-                  }
+            where: {
+              categories: {
+                categoryId: {
+                  _eq: categoryId
                 }
               }
             }
+          }
           : {})
       }
     }
