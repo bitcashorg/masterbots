@@ -17,7 +17,7 @@ export default async function BotThreadsPage({
 }) {
   const session = await auth()
   // NOTE: maybe we should use same expiration time
-  const jwt = session!.user.hasuraJwt
+  const jwt = session!.user?.hasuraJwt
   if (!jwt || isTokenExpired(jwt)) {
     redirect(`/sign-in`)
   }
