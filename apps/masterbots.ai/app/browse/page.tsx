@@ -10,11 +10,11 @@ export default async function BrowsePage() {
   const categories = await getCategories()
 
   return (
-    <div className="max-w-[1024px] pb-10 mx-auto w-full">
+    <div className="max-w-[1024px] px-4 pb-10 mx-auto w-full">
       <CategoryMainTabs />
       <BrowseCategoryTabs categories={categories} />
-      <BrowseSearchInput /> 
-       <BrowseList />
+      <BrowseSearchInput />
+      <BrowseList />
     </div>
   )
 }

@@ -8,12 +8,12 @@ interface ChatLayoutProps {
 
 export default async function ChatLayout({ children }: ChatLayoutProps) {
   return (
-    <main className="relative flex h-[calc(100vh_-_theme(spacing.16))] overflow-hidden">
+    <main className="relative flex flex-col h-[calc(100vh_-_theme(spacing.16))] overflow-hidden">
       {/* TODO: https://github.com/TheSGJ/nextjs-toploader/issues/66 */}
       {/* <NextTopLoader color="#1ED761" initialPosition={0.20} /> */}
       <ResponsiveSidebar />
       <ChatLayoutSection>{children}</ChatLayoutSection>
-      <div className="absolute max-w-[150px] top-0 right-0">
+      <div className="md:absolute max-w-[240px] text-center top-2 right-4 mx-auto">
         <FooterCT />
       </div>
     </main>

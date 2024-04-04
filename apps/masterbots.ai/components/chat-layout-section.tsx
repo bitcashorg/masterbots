@@ -13,7 +13,7 @@ export function ChatLayoutSection({ children }: { children: React.ReactNode }) {
       className="group w-full overflow-auto pl-0 animate-in duration-300 ease-in-out lg:ml-[250px] xl:ml-[300px] relative"
     >
       <div
-        className={`${isOpenPopup ? 'h-full overflow-hidden absolute z-[-1]' : ''}`}
+        className={`${isOpenPopup ? 'h-full overflow-hidden absolute z-[-1]' : 'flex flex-col items-center lg:w-[calc(100%-250px)] xl:w-[calc(100%-300px)]'}`}
       >
         {children}
       </div>

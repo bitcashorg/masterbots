@@ -63,13 +63,13 @@ export default async function BotThreadsPage({
   )
 
   return (
-    <div>
+    <>
       <ThreadPanel
         threads={threads}
         chatbot={chatbot.name}
         search={searchParams}
       />{' '}
       <ChatChatbot initialMessages={initialMessages} chatbot={chatbot} />
-    </div>
+    </>
   )
 }

@@ -95,12 +95,12 @@ export default function UserThreadPanel({
   return (
     <>
       {threads && threads.length > 0 ? (
-        <div className="flex flex-col pb-[150px]">
-          <div className="flex justify-between px-10 py-5">
+        <div className="flex lg:w-[calc(100%-250px)] xl:w-[calc(100%-300px)] flex-col pb-[150px]">
+          <div className="flex justify-between px-4 md:px-10 py-5 md:max-w-[calc(100%-100px)] 2xl:max-w-full">
             <ChatSearchInput setThreads={setThreads} />
           </div>
 
-          <div className="flex px-10 py-5">
+          <div className="flex px-4 md:px-10 py-5">
             <ThreadList
               threads={threads}
               loading={loading}
