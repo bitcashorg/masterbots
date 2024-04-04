@@ -72,7 +72,7 @@ export function Chat({
           threadId:
             params.threadId || isNewChat ? threadId : activeThread?.threadId,
           content: message.content,
-          jwt: session!.user.hasuraJwt
+          jwt: session!.user?.hasuraJwt
         })
       }
     })
@@ -116,11 +116,11 @@ export function Chat({
   const allMessages =
     params.threadId || isNewChat
       ? uniqBy(initialMessages?.concat(messages), 'content').filter(
-          m => m.role !== 'system'
-        )
+        m => m.role !== 'system'
+      )
       : uniqBy(threadAllMessages.concat(messages), 'content').filter(
-          m => m.role !== 'system'
-        )
+        m => m.role !== 'system'
+      )
 
   const sendMessageFromResponse = async (bulletContent: string) => {
     setIsNewResponse(true)
@@ -130,7 +130,7 @@ export function Chat({
       threadId:
         params.threadId || isNewChat ? threadId : activeThread?.threadId,
       content: fullMessage,
-      jwt: session!.user.hasuraJwt
+      jwt: session!.user?.hasuraJwt
     })
     append({
       role: 'user',
@@ -149,13 +149,13 @@ export function Chat({
       await createThread({
         threadId,
         chatbotId: chatbot.chatbotId,
-        jwt: session!.user.hasuraJwt,
+        jwt: session!.user?.hasuraJwt,
         userId: session!.user.id,
         isPublic: activeChatbot?.name === 'BlankBot'
       })
       const thread = await getThread({
         threadId,
-        jwt: session!.user.hasuraJwt
+        jwt: session!.user?.hasuraJwt
       })
       setActiveThread(thread)
       setIsOpenPopup(true)
@@ -168,7 +168,7 @@ export function Chat({
       threadId:
         params.threadId || isNewChat ? threadId : activeThread?.threadId,
       content: userMessage.content,
-      jwt: session!.user.hasuraJwt
+      jwt: session!.user?.hasuraJwt
     })
 
     setIsNewResponse(true)
@@ -177,11 +177,11 @@ export function Chat({
       isNewChat
         ? userMessage
         : {
-            ...userMessage,
-            content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
-              allMessages
-            )}].  Then answer this question: ${userMessage.content}`
-          }
+          ...userMessage,
+          content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
+            allMessages
+          )}].  Then answer this question: ${userMessage.content}`
+        }
     )
   }
 

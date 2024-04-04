@@ -40,7 +40,7 @@ export default function NewChat({
     const threadId = await createThread({
       threadId: id,
       chatbotId: chatbot.chatbotId,
-      jwt: session!.user.hasuraJwt,
+      jwt: session!.user?.hasuraJwt,
       userId: session!.user.id,
       isPublic: chatbot?.name === 'BlankBot'
     })
@@ -51,7 +51,7 @@ export default function NewChat({
       role: 'user',
       threadId,
       content: userMessage.content,
-      jwt: session!.user.hasuraJwt
+      jwt: session!.user?.hasuraJwt
     })
 
     router.push(`/${chatbot.name.trim().toLowerCase()}/${threadId}`, {
