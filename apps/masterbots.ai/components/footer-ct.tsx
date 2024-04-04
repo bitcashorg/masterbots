@@ -11,8 +11,8 @@ export default function FooterCT({ nonFooterTag }: { nonFooterTag?: boolean }) {
 
   return (
     <Footer>
-      <span className="font-['Geist_Mono'] text-centerb  items-center font-normal md:text-[12px]  text-md  ">Robot avatars delivered by{' '}
-        <a href="https://robohash.org" target="_blank" rel="noopener noreferrer" className="text-primary mr-2 underline focus-within:underline">
+      <span className="font-['Geist_Mono'] text-center items-center font-normal text-[12px]">Robot avatars delivered by{' '}
+        <a href="https://robohash.org" target="_blank" rel="noopener noreferrer" className="text-primary mr-2  underline focus-within:underline">
           robohash.org
         </a>
         {' • '}
