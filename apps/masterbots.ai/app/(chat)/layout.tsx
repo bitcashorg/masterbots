@@ -15,6 +15,9 @@ export default async function ChatLayout({ children }: ChatLayoutProps) {
       <ChatLayoutSection>
         {children}
       </ChatLayoutSection>
+      <div className="block lg:hidden">
+        <FooterCT />
+      </div>
     </main>
   )
 }
