@@ -13,7 +13,6 @@ import { uniqBy } from 'lodash'
 import toast from 'react-hot-toast'
 import { Chatbot, Message, Thread } from 'mb-genql'
 import { getAllUserMessagesAsStringArray } from '@/components/c/chat'
-import { useRouter } from 'next/navigation'
 import { useSidebar } from './use-sidebar'
 import { useScroll } from 'framer-motion'
 import { useAtBottom } from './use-at-bottom'
@@ -54,7 +53,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
   const { activeCategory } = useSidebar()
   const [activeThread, setActiveThread] = React.useState<Thread | null>(null)
   const sectionRef = React.useRef<HTMLElement>()
-  const { hasuraJwt } = useGlobalStore()
+  const { hasuraJwt, user } = useGlobalStore()
 
   const [messagesFromDB, setMessagesFromDB] = React.useState<Message[]>([])
   const [isNewResponse, setIsNewResponse] = React.useState<boolean>(false)
@@ -162,7 +161,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
         )}].  Then answer this question: ${fullMessage}`
       })
     },
-    [activeThread?.threadId, allMessages, append, session]
+    [activeThread?.threadId, allMessages, append, user]
   )
 
   React.useEffect(() => {
@@ -187,8 +186,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
   }, [isOpenPopup])
 
   const getRandomChatbot = async () => {
-    // console.log('session?.user?.hasuraJwt', session?.user?.hasuraJwt)
-    if (activeThread || !session?.user?.hasuraJwt) return
+    if (activeThread || !hasuraJwt) return
     const chatbotsCount = await getChatbotsCount({
       categoryId: activeCategory,
       jwt: hasuraJwt
@@ -209,7 +207,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
 
   React.useEffect(() => {
     getRandomChatbot()
-  }, [activeCategory, activeThread, session])
+  }, [activeCategory, activeThread, user])
 
   const { scrollY } = useScroll({
     container: sectionRef as React.RefObject<HTMLElement>

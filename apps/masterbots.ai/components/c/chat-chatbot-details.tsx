@@ -1,18 +1,16 @@
 'use client'
 
-import { Chatbot } from 'mb-genql'
 import Image from 'next/image'
-import Link from 'next/link'
 import { Separator } from '../ui/separator'
 import { useSidebar } from '@/hooks/use-sidebar'
 import { useEffect, useState } from 'react'
 import { getCategory, getThreads } from '@/services/hasura'
 
 import { useThread } from '@/hooks/use-thread'
-import { useSession } from '@/services/supabase'
+import { useGlobalStore } from '@/hooks/use-global-store'
 
 export default function ChatChatbotDetails() {
-  const { data: session } = useSession()
+  const { user, hasuraJwt } = useGlobalStore()
   const { activeCategory, activeChatbot } = useSidebar()
   const { randomChatbot } = useThread()
   const [threadNum, setThreadNum] = useState<number>(0)
@@ -21,9 +19,9 @@ export default function ChatChatbotDetails() {
   // Get the number of all threads
   const getThreadNum = async () => {
     const threads = await getThreads({
-      jwt: session!.user?.hasuraJwt,
+      jwt: hasuraJwt,
       categoryId: activeCategory,
-      userId: session!.user.id
+      userId: user!.id
     })
     setThreadNum(threads?.length ?? 0)
   }

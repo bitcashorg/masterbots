@@ -33,7 +33,7 @@ export default function UserThreadPanel({
 
     const moreThreads = await getThreads({
       jwt: hasuraJwt,
-      userId: user.id,
+      userId: user!.id,
       offset: threads.length,
       limit: PAGE_SIZE,
       categoryId: activeCategory,
@@ -45,12 +45,12 @@ export default function UserThreadPanel({
   }
 
   const handleThreadsChange = async () => {
-    if (!session?.user) return
+    if (!user) return
     const currentFetchId = Date.now() // Generate a unique identifier for the current fetch
     fetchIdRef.current = currentFetchId
     const threads = await getThreads({
       jwt: hasuraJwt,
-      userId: session!.user.id,
+      userId: user.id,
       limit: PAGE_SIZE,
       categoryId: activeCategory,
       chatbotName: activeChatbot?.name

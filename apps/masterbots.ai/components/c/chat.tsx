@@ -31,7 +31,7 @@ export function Chat({
   scrollToBottom: scrollToBottomOfPopup,
   isAtBottom: isAtBottomOfPopup
 }: ChatProps) {
-  const { hasuraJwt } = useGlobalStore()
+  const { hasuraJwt, user } = useGlobalStore()
   const {
     allMessages: threadAllMessages,
     initialMessages: threadInitialMessages,
@@ -150,7 +150,7 @@ export function Chat({
         threadId,
         chatbotId: chatbot.chatbotId,
         jwt: hasuraJwt,
-        userId: session!.user.id,
+        userId: user!.id,
         isPublic: activeChatbot?.name !== 'BlankBot'
       })
       const thread = await getThread({
