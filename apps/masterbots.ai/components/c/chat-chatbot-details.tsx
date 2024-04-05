@@ -4,12 +4,12 @@ import { Chatbot } from 'mb-genql'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Separator } from '../ui/separator'
-import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useSidebar } from '@/hooks/use-sidebar'
 import { useEffect, useState } from 'react'
 import { getCategory, getThreads } from '@/services/hasura'
 
-import { useThread } from '@/lib/hooks/use-thread'
-import { useSession } from '@/services/supabase/use-session'
+import { useThread } from '@/hooks/use-thread'
+import { useSession } from '@/services/supabase'
 
 export default function ChatChatbotDetails() {
   const { data: session } = useSession()

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import Textarea from 'react-textarea-autosize'
 import { UseChatHelpers } from 'ai/react'
-import { useEnterSubmit } from '@/lib/hooks/use-enter-submit'
+import { useEnterSubmit } from '@/hooks/use-enter-submit'
 import { cn } from '@/lib/utils'
 import { Button, buttonVariants } from '@/components/ui/button'
 import {
@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/tooltip'
 import { IconArrowElbow, IconPlus } from '@/components/ui/icons'
 import { useRouter } from 'next/navigation'
-import { useThread } from '@/lib/hooks/use-thread'
+import { useThread } from '@/hooks/use-thread'
 
 export interface PromptProps
   extends Pick<UseChatHelpers, 'input' | 'setInput'> {

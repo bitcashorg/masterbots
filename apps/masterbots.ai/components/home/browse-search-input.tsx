@@ -4,7 +4,7 @@
 import { Button } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
-import { useBrowse } from '@/lib/hooks/use-browse'
+import { useBrowse } from '@/hooks/use-browse'
 
 export function BrowseSearchInput() {
   const { keyword, changeKeyword } = useBrowse()

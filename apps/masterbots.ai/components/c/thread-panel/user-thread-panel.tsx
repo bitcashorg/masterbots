@@ -2,14 +2,13 @@
 
 import { ChatSearchInput } from '@/components/c/chat-search-input'
 import ThreadList from '@/components/thread-list'
-import { useSidebar } from '@/lib/hooks/use-sidebar'
-import { useThread } from '@/lib/hooks/use-thread'
+import { useSidebar } from '@/hooks/use-sidebar'
+import { useThread } from '@/hooks/use-thread'
 import { getThreads } from '@/services/hasura'
 import { Thread } from 'mb-genql'
-import { useSession } from 'next-auth/react'
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import ChatChatbotDetails from '../chat-chatbot-details'
-import { useParams } from 'next/navigation'
+import { useGlobalStore } from '@/hooks/use-global-store'
 
 const PAGE_SIZE = 20
 
@@ -20,21 +19,21 @@ export default function UserThreadPanel({
   threads: Thread[]
   search?: { [key: string]: string | string[] | undefined }
 }) {
-  const { data: session } = useSession()
   const { activeCategory, activeChatbot } = useSidebar()
   const { isOpenPopup, activeThread, setActiveThread, setIsOpenPopup } =
     useThread()
-  const [loading, setLoading] = React.useState<boolean>(false)
-  const [threads, setThreads] = React.useState<Thread[]>(initialThreads ?? [])
-  const [count, setCount] = React.useState<number>(initialThreads?.length ?? 0)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [threads, setThreads] = useState<Thread[]>(initialThreads ?? [])
+  const [count, setCount] = useState<number>(initialThreads?.length ?? 0)
+  const { hasuraJwt, user } = useGlobalStore()
   const fetchIdRef = useRef(0) // Store the fetchId in a ref
   const loadMore = async () => {
     console.log('🟡 Loading More Content')
     setLoading(true)
 
     const moreThreads = await getThreads({
-      jwt: session!.user?.hasuraJwt,
-      userId: session!.user.id,
+      jwt: hasuraJwt,
+      userId: user.id,
       offset: threads.length,
       limit: PAGE_SIZE,
       categoryId: activeCategory,
@@ -50,7 +49,7 @@ export default function UserThreadPanel({
     const currentFetchId = Date.now() // Generate a unique identifier for the current fetch
     fetchIdRef.current = currentFetchId
     const threads = await getThreads({
-      jwt: session!.user?.hasuraJwt,
+      jwt: hasuraJwt,
       userId: session!.user.id,
       limit: PAGE_SIZE,
       categoryId: activeCategory,
@@ -65,12 +64,12 @@ export default function UserThreadPanel({
     }
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     handleThreadsChange()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeCategory, activeChatbot])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isOpenPopup) {
       handleThreadsChange()
     }

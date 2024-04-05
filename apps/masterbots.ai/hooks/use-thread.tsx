@@ -1,7 +1,6 @@
 'use client'
 
 import { useChat } from 'ai/react'
-import { useSession } from 'next-auth/react'
 import * as React from 'react'
 import {
   getChatbots,
@@ -18,6 +17,7 @@ import { useRouter } from 'next/navigation'
 import { useSidebar } from './use-sidebar'
 import { useScroll } from 'framer-motion'
 import { useAtBottom } from './use-at-bottom'
+import { useGlobalStore } from './use-global-store'
 
 interface ThreadContext {
   isOpenPopup: boolean
@@ -51,11 +51,10 @@ interface ThreadProviderProps {
 }
 
 export function ThreadProvider({ children }: ThreadProviderProps) {
-  const router = useRouter()
   const { activeCategory } = useSidebar()
   const [activeThread, setActiveThread] = React.useState<Thread | null>(null)
   const sectionRef = React.useRef<HTMLElement>()
-  const { data: session } = useSession()
+  const { hasuraJwt } = useGlobalStore()
 
   const [messagesFromDB, setMessagesFromDB] = React.useState<Message[]>([])
   const [isNewResponse, setIsNewResponse] = React.useState<boolean>(false)
@@ -127,7 +126,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
         role: 'assistant',
         threadId: activeThread?.threadId,
         content: message.content,
-        jwt: session!.user?.hasuraJwt
+        jwt: hasuraJwt
       })
     }
   })
@@ -154,7 +153,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
         role: 'user',
         threadId: activeThread?.threadId,
         content: fullMessage,
-        jwt: session!.user?.hasuraJwt
+        jwt: hasuraJwt
       })
       append({
         role: 'user',
@@ -192,7 +191,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     if (activeThread || !session?.user?.hasuraJwt) return
     const chatbotsCount = await getChatbotsCount({
       categoryId: activeCategory,
-      jwt: session!.user?.hasuraJwt
+      jwt: hasuraJwt
     })
     const offset = Math.floor(Math.random() * chatbotsCount)
     const chatbots = await getChatbots({

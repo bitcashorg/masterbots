@@ -1,5 +1,5 @@
 'use client'
-import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useSidebar } from '@/hooks/use-sidebar'
 import { cn } from '@/lib/utils'
 import { getChatbots } from '@/services/hasura'
 import { motion } from 'framer-motion'
