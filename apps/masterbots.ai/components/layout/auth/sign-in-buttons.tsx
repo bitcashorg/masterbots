@@ -1,3 +1,6 @@
+'use client'
+
+import { Button } from '@/components/ui/button'
 import { useSupabaseClient } from '@/services/supabase'
 import Image from 'next/image'
 
@@ -23,38 +26,27 @@ export const SignInButtons = () => {
   }
 
   return (
-    <>
-      <a
-        className="flex items-center justify-center w-full py-2 mb-3 text-sm font-medium leading-snug text-white uppercase transition duration-150 ease-in-out rounded shadow-md px-7 hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg"
-        style={{ backgroundColor: '#3b5998' }}
-        onClick={loginWithGoogle}
-        role="button"
-      >
+    <div className="flex gap-5">
+      <Button onClick={loginWithGoogle} role="button">
         <Image
           className="pr-2"
           src="/images/google.svg"
           alt=""
-          style={{ height: '2rem' }}
-          width={35}
-          height={35}
+          width={25}
+          height={25}
         />
-        Continue with Google
-      </a>
-      <a
-        className="flex items-center justify-center w-full py-2 text-sm font-medium leading-snug text-white uppercase transition duration-150 ease-in-out rounded shadow-md px-7 hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg"
-        style={{ backgroundColor: '#55acee' }}
-        onClick={loginWithGitHub}
-        role="button"
-      >
+        Google
+      </Button>
+      <Button onClick={loginWithGitHub} role="button">
         <Image
           className="pr-2"
           src="/images/github.svg"
           alt=""
-          width={40}
-          height={40}
+          width={30}
+          height={30}
         />
-        Continue with GitHub
-      </a>
-    </>
+        GitHub
+      </Button>
+    </div>
   )
 }
