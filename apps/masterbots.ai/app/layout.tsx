@@ -3,8 +3,8 @@ import { GeistSans } from 'geist/font/sans'
 import { Toaster } from 'react-hot-toast'
 
 import '@/app/globals.css'
-import { Header } from '@/components/header'
-import { Providers } from '@/components/providers'
+import { Header } from '@/components/layout/header'
+import { Providers } from '@/components/layout/providers'
 import { cn } from '@/lib/utils'
 
 export default function RootLayout({ children }: RootLayoutProps) {
