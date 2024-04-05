@@ -8,9 +8,12 @@ import { Providers } from '@/components/layout/providers'
 import { cn } from '@/lib/utils'
 import { GlobalStoreProvider } from '@/hooks/use-global-store'
 import { cookies } from 'next/headers'
+import { getUserSession } from '@/services/supabase'
 
-export default function RootLayout({ children }: RootLayoutProps) {
-  const hasuraJwt = cookies().get('bgColor')?.value || ''
+export default async function RootLayout({ children }: RootLayoutProps) {
+  const { data } = await getUserSession()
+  const hasuraJwt = cookies().get('hasuraJwt')?.value || ''
+  const user = data.session?.user || null
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -21,7 +24,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         )}
       >
         <Toaster />
-        <GlobalStoreProvider hasuraJwt={hasuraJwt}>
+        <GlobalStoreProvider hasuraJwt={hasuraJwt} user={user}>
           <Providers
             attribute="class"
             defaultTheme="system"

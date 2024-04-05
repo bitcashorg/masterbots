@@ -1,5 +1,3 @@
-'use client'
-
 import Image from 'next/image'
 
 import { Button } from '@/components/ui/button'
@@ -11,14 +9,6 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { User } from '@supabase/auth-js'
-export interface UserMenuProps {
-  user: User
-}
-
-function getUserInitials(name: string) {
-  const [firstName, lastName] = name.split(' ')
-  return lastName ? `${firstName[0]}${lastName[0]}` : firstName.slice(0, 2)
-}
 
 export function UserMenu({ user }: UserMenuProps) {
   return (
@@ -55,4 +45,12 @@ export function UserMenu({ user }: UserMenuProps) {
       </DropdownMenu>
     </div>
   )
+}
+
+function getUserInitials(name: string) {
+  const [firstName, lastName] = name.split(' ')
+  return lastName ? `${firstName[0]}${lastName[0]}` : firstName.slice(0, 2)
+}
+export interface UserMenuProps {
+  user: User
 }

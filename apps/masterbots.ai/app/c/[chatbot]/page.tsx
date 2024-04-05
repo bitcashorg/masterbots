@@ -1,11 +1,12 @@
-import { auth } from '@/auth'
 import { ChatChatbot } from '@/components/c/chat-chatbot'
 import ThreadPanel from '@/components/c/thread-panel'
 import { botNames } from '@/lib/bots-names'
 import { getChatbot, getThreads } from '@/services/hasura'
+import { getUserSession } from '@/services/supabase'
 import { Message } from 'ai'
 import { isTokenExpired } from 'mb-lib'
 import { nanoid } from 'nanoid'
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 export default async function BotThreadsPage({
@@ -15,15 +16,15 @@ export default async function BotThreadsPage({
   params: { chatbot: string }
   searchParams: { [key: string]: string | string[] | undefined }
 }) {
-  const session = await auth()
+  const { data } = await getUserSession()
+  const jwt = cookies().get('hasuraJwt')?.value || ''
+  const user = data.session?.user
+
   // NOTE: maybe we should use same expiration time
-  const jwt = session ? session.user?.hasuraJwt : null
-  if (!jwt || isTokenExpired(jwt)) {
-    redirect(`/sign-in`)
-  }
+  if (!jwt || isTokenExpired(jwt) || !user) redirect(`/sign-in?next=/c`)
   const chatbot = await getChatbot({
     chatbotName: botNames.get(params.chatbot),
-    jwt: session!.user?.hasuraJwt
+    jwt
   })
   if (!chatbot)
     throw new Error(`Chatbot ${botNames.get(params.chatbot)} not found`)
@@ -31,8 +32,8 @@ export default async function BotThreadsPage({
   // session will always be defined
   const threads = await getThreads({
     chatbotName: botNames.get(params.chatbot),
-    jwt: session!.user?.hasuraJwt,
-    userId: session!.user.id
+    jwt,
+    userId: user.id
   })
 
   // format all chatbot prompts as chatgpt 'system' messages

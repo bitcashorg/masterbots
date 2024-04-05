@@ -1,3 +1,5 @@
+'use client'
+
 import React, { ReactNode, createContext, useContext } from 'react'
 import { useSetState } from 'react-use'
 import { User } from '@supabase/auth-js'
