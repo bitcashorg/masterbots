@@ -116,11 +116,11 @@ export function Chat({
   const allMessages =
     params.threadId || isNewChat
       ? uniqBy(initialMessages?.concat(messages), 'content').filter(
-        m => m.role !== 'system'
-      )
+          m => m.role !== 'system'
+        )
       : uniqBy(threadAllMessages.concat(messages), 'content').filter(
-        m => m.role !== 'system'
-      )
+          m => m.role !== 'system'
+        )
 
   const sendMessageFromResponse = async (bulletContent: string) => {
     setIsNewResponse(true)
@@ -151,7 +151,7 @@ export function Chat({
         chatbotId: chatbot.chatbotId,
         jwt: session!.user?.hasuraJwt,
         userId: session!.user.id,
-        isPublic: activeChatbot?.name === 'BlankBot'
+        isPublic: activeChatbot?.name !== 'BlankBot'
       })
       const thread = await getThread({
         threadId,
@@ -177,11 +177,11 @@ export function Chat({
       isNewChat
         ? userMessage
         : {
-          ...userMessage,
-          content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
-            allMessages
-          )}].  Then answer this question: ${userMessage.content}`
-        }
+            ...userMessage,
+            content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
+              allMessages
+            )}].  Then answer this question: ${userMessage.content}`
+          }
     )
   }
 
