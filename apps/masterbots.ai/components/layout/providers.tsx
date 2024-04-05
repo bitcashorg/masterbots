@@ -5,7 +5,6 @@ import { ThemeProvider as NextThemesProvider } from 'next-themes'
 import { ThemeProviderProps } from 'next-themes/dist/types'
 import { SidebarProvider } from '@/lib/hooks/use-sidebar'
 import { TooltipProvider } from '@/components/ui/tooltip'
-import { SessionProvider } from 'next-auth/react'
 import { ThreadProvider } from '@/lib/hooks/use-thread'
 
 export function Providers({ children, ...props }: ThemeProviderProps) {
@@ -13,9 +12,7 @@ export function Providers({ children, ...props }: ThemeProviderProps) {
     <NextThemesProvider {...props}>
       <SidebarProvider>
         <TooltipProvider>
-          <SessionProvider>
-            <ThreadProvider>{children}</ThreadProvider>
-          </SessionProvider>
+          <ThreadProvider>{children}</ThreadProvider>
         </TooltipProvider>
       </SidebarProvider>
     </NextThemesProvider>

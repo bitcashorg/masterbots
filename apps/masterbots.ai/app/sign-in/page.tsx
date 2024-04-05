@@ -1,5 +1,5 @@
-import { LoginButton } from '@/components/login-button'
 import Image from 'next/image'
+import { SignInButtons } from '@/components/layout/auth/sign-in-buttons'
 
 export default async function SignInPage() {
   return (
@@ -18,7 +18,7 @@ export default async function SignInPage() {
       </div>
 
       <div className="flex justify-center pt-10">
-        <LoginButton />
+        <SignInButtons />
       </div>
     </div>
   )
