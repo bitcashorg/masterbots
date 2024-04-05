@@ -12,3 +12,5 @@ steps:
   args: ['run', 'deploy', '$_PROJECT_NAME', '--image', 'gcr.io/$PROJECT_ID/$_PROJECT_NAME', '--region', 'us-central1']
 images:
 - gcr.io/$PROJECT_ID/$_PROJECT_NAME
+options:
+  logging: CLOUD_LOGGING_ONLY
