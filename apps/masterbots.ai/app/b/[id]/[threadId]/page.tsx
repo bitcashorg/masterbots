@@ -1,6 +1,6 @@
 import { getThread } from '@/services/hasura'
-import { BrowseThread } from '@/components/browse-thread'
-import { ChatPageProps } from '@/app/(chat)/[chatbot]/[threadId]/page'
+import { BrowseThread } from '@/components/home/browse-thread'
+import { ChatPageProps } from '@/app/c/[chatbot]/[threadId]/page'
 import PageProps from 'next/types'
 
 export default async function ChatPage({ params }: ChatPageProps) {
