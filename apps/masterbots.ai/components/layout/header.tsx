@@ -22,7 +22,7 @@ export async function Header() {
         <HeaderLink href="/" text="Masterbots" />
         <IconSeparator className="size-6 text-muted-foreground/50" />
         <HeaderLink href="/c" text="Chat" />
-        <HeaderLink href="/w" text="Work" />
+        <HeaderLink href="p" text="Pro" />
       </div>
       <div className="flex items-center justify-end space-x-2">
         {user && !isTokenExpired(jwt) ? (
