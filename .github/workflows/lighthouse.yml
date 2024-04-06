@@ -48,7 +48,6 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const manifest = ${{ toJSON(steps.lighthouse_audit.outputs.manifest) }};
-
             const links = ${{ toJSON(steps.lighthouse_audit.outputs.links) }};
             
             if (!manifest || Object.keys(manifest).length === 0) {
@@ -59,18 +58,18 @@ jobs:
             const formatResult = (res) => Math.round((res * 100));
             const score = (res) => (res >= 90 ? '🟢' : res >= 50 ? '🟠' : '🔴');
 
-            let comment
+            let comment = '';
+            
             Object.keys(manifest).forEach((page) => {
+              const pageLink = manifest[page].url;
               comment += `*Lighthouse ran on [${pageLink}](${pageLink})*\n\n`;
               comment += '| Category | Score |\n';
               comment += '| --- | --- |\n';
               const result = manifest[page].summary;
-              const pageLink = manifest[page].url;
               Object.keys(result).forEach((key) => {
                 const formattedScore = formatResult(result[key]);
                 comment += `| ${score(result[key])} ${key} | ${formattedScore} |\n`;
               });
-         
             });
 
             core.setOutput('comment', comment);
