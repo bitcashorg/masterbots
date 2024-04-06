@@ -36,10 +36,10 @@ jobs:
           urls: |
             "https://${{ steps.vercel_preview_url.outputs.preview_url }}"
             "https://${{ steps.vercel_preview_url.outputs.preview_url }}/b/moneybot"
-          # "https://${{ steps.vercel_preview_url.outputs.preview_url }}/u/slug-1"
-          # "https://${{ steps.vercel_preview_url.outputs.preview_url }}/p"
-          # "https://${{ steps.vercel_preview_url.outputs.preview_url }}/health"
-          # "https://${{ steps.vercel_preview_url.outputs.preview_url }}/health/a8103808-14a3-48ed-aa5a-9e490cfdcf0e"
+            "https://${{ steps.vercel_preview_url.outputs.preview_url }}/u/slug-1"
+            "https://${{ steps.vercel_preview_url.outputs.preview_url }}/p"
+            "https://${{ steps.vercel_preview_url.outputs.preview_url }}/health"
+            "https://${{ steps.vercel_preview_url.outputs.preview_url }}/health/a8103808-14a3-48ed-aa5a-9e490cfdcf0e"
           # budgetPath: '.github/lighthouse/budget.json'
           uploadArtifacts: true
           temporaryPublicStorage: true
@@ -55,11 +55,12 @@ jobs:
             const formatResult = (res) => Math.round((res * 100));
             const score = res => res >= 90 ? '🟢' : res >= 50 ? '🟠' : '🔴';
 
-            let comment = '⚡️ [Lighthouse report]'
+            let comment = '⚡️ Lighthouse report\n'
 
             manifest.forEach(result => {
               const pageLink = result.url;
-              comment += `\n\nLink: ${pageLink}\n`;
+              comment += `\nPage: ${pageLink}\n`;
+              comment += `Report ${links[pageLink]}\n`;
               comment += '| Category | Score |\n';
               comment += '| --- | --- |\n';
 
@@ -68,9 +69,7 @@ jobs:
               comment += `| ${score(result.summary.accessibility)} Accessibility | ${result.summary.accessibility} |\n`;
               comment += `| ${score(result.summary['best-practices'])} Best practices | ${result.summary['best-practices']} |\n`;
               comment += `| ${score(result.summary.seo)} SEO | ${result.summary.seo} |\n`;
-              comment += `| ${score(result.summary.pwa)} PWA | ${result.summary.pwa} |\n`;
-
-              comment += `Detailed report ${links[pageLink]}\n`;
+              comment += `| ${score(result.summary.pwa)} PWA | ${result.summary.pwa} |\n`; 
             });
 
             core.setOutput("comment", comment);
