@@ -44,7 +44,7 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            core.setOutput('comment', JSON.stringify(steps.lighthouse_audit.outputs, null, 2));
+            core.setOutput('comment', ${{ steps.vercel_preview_url.outputs.preview_url }});
       - name: Add comment to PR
         id: comment_to_pr
         uses: marocchino/sticky-pull-request-comment@v2.9.0
