@@ -33,7 +33,7 @@ export default function UserThreadPanel({
 
     const moreThreads = await getThreads({
       jwt: hasuraJwt,
-      userId: user!.id,
+      userId: user!.userId,
       offset: threads.length,
       limit: PAGE_SIZE,
       categoryId: activeCategory,
@@ -50,7 +50,7 @@ export default function UserThreadPanel({
     fetchIdRef.current = currentFetchId
     const threads = await getThreads({
       jwt: hasuraJwt,
-      userId: user.id,
+      userId: user.userId,
       limit: PAGE_SIZE,
       categoryId: activeCategory,
       chatbotName: activeChatbot?.name

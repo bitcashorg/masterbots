@@ -6,15 +6,13 @@ import { IconSeparator } from '@/components/ui/icons'
 import { UserMenu } from '@/components/user-menu'
 import { SidebarToggle } from '../c/sidebar/sidebar-toggle'
 import { isTokenExpired } from 'mb-lib'
-import { getUserSession } from '@/services/supabase'
+import { getUserProfile } from '@/services/supabase'
 import { cookies } from 'next/headers'
 
 // https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating
 
 export async function Header() {
-  const {
-    data: { user }
-  } = await getUserSession()
+  const user = await getUserProfile()
   const jwt = cookies().get('hasuraJwt')?.value || ''
 
   return (
@@ -28,10 +26,10 @@ export async function Header() {
       </div>
       <div className="flex items-center justify-end space-x-2">
         {user && !isTokenExpired(jwt) ? (
-          <UserMenu user={user} />
+          <UserMenu />
         ) : (
           <Button variant="link" asChild className="-ml-2">
-            <Link href="/sign-in">Login</Link>
+            <Link href="/auth/sign-in">Login</Link>
           </Button>
         )}
       </div>

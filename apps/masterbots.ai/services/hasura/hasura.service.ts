@@ -506,10 +506,35 @@ export async function getUserInfoFromBrowse(slug: string) {
     user: {
       username: true,
       profilePicture: true,
+      name: true,
       __args: {
         where: {
           slug: {
             _eq: slug
+          }
+        }
+      }
+    }
+  })
+  return user[0]
+}
+
+export async function getUser({
+  email,
+  adminSecret
+}: {
+  email: string
+  adminSecret: string
+}) {
+  const client = getHasuraClient({ adminSecret })
+  const { user } = await client.query({
+    user: {
+      ...everything,
+      name: true,
+      __args: {
+        where: {
+          email: {
+            _eq: email
           }
         }
       }

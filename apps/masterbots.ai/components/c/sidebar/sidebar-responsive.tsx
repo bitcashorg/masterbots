@@ -13,7 +13,7 @@ export async function ResponsiveSidebar() {
     >
       <SidebarGeneralCategory />
       {/* <h3>Chat history</h3>
-      <ChatHistory userId={session.user.id} /> */}
+      <ChatHistory userId={session.user.userId} /> */}
     </Sidebar>
   )
 }

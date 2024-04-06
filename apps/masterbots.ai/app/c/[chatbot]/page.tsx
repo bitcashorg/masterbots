@@ -2,7 +2,7 @@ import { ChatChatbot } from '@/components/c/chat-chatbot'
 import ThreadPanel from '@/components/c/thread-panel'
 import { botNames } from '@/lib/bots-names'
 import { getChatbot, getThreads } from '@/services/hasura'
-import { getUserSession } from '@/services/supabase'
+import { getUserProfile } from '@/services/supabase'
 import { Message } from 'ai'
 import { isTokenExpired } from 'mb-lib'
 import { nanoid } from 'nanoid'
@@ -16,13 +16,11 @@ export default async function BotThreadsPage({
   params: { chatbot: string }
   searchParams: { [key: string]: string | string[] | undefined }
 }) {
-  const {
-    data: { user }
-  } = await getUserSession()
+  const user = await getUserProfile()
   const jwt = cookies().get('hasuraJwt')?.value || ''
 
   // NOTE: maybe we should use same expiration time
-  if (!jwt || isTokenExpired(jwt) || !user) redirect(`/sign-in?next=/c`)
+  if (!jwt || isTokenExpired(jwt) || !user) redirect(`/auth/sign-in?next=/c`)
   const chatbot = await getChatbot({
     chatbotName: botNames.get(params.chatbot),
     jwt
@@ -34,7 +32,7 @@ export default async function BotThreadsPage({
   const threads = await getThreads({
     chatbotName: botNames.get(params.chatbot),
     jwt,
-    userId: user.id
+    userId: user.userId
   })
 
   // format all chatbot prompts as chatgpt 'system' messages

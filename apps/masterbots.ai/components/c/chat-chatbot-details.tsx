@@ -21,7 +21,7 @@ export default function ChatChatbotDetails() {
     const threads = await getThreads({
       jwt: hasuraJwt,
       categoryId: activeCategory,
-      userId: user!.id
+      userId: user!.userId
     })
     setThreadNum(threads?.length ?? 0)
   }

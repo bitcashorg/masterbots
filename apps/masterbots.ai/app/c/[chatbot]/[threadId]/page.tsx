@@ -4,19 +4,17 @@ import { Chat } from '@/components/c/chat'
 import { getThread } from '@/services/hasura'
 import { Message } from 'ai/react'
 import { isTokenExpired } from 'mb-lib'
-import { getUserSession } from '@/services/supabase'
+import { getUserProfile } from '@/services/supabase'
 import { cookies } from 'next/headers'
 
 export default async function ChatPage({ params }: ChatPageProps) {
-  const {
-    data: { user }
-  } = await getUserSession()
+  const user = await getUserProfile()
   const jwt = cookies().get('hasuraJwt')?.value || ''
 
   console.log({ jwt, expired: isTokenExpired(jwt), user })
   // NOTE: maybe we should use same expiration time
   if (!jwt || isTokenExpired(jwt) || !user)
-    redirect(`/sign-in?next=/${params.threadId}/${params.threadId}`)
+    redirect(`/auth/sign-in?next=/${params.threadId}/${params.threadId}`)
   const thread = await getThread({
     threadId: params.threadId
   })

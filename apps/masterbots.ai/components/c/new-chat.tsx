@@ -41,7 +41,7 @@ export default function NewChat({
       threadId: id,
       chatbotId: chatbot.chatbotId,
       jwt: hasuraJwt,
-      userId: user!.id,
+      userId: user!.userId,
       isPublic: chatbot?.name !== 'BlankBot'
     })
 

@@ -55,9 +55,11 @@ export async function GET(request: Request) {
     adminSecret: process.env.HASURA_GRAPHQL_ADMIN_SECRET || ''
   })
 
+  if (!userProfile) throw new Error('Login Error')
+
   const hasuraJwt = await getToken({
     user: {
-      account: user.id,
+      account: userProfile.userId,
       role: 'user'
     },
     jwtSecret: validateJwtSecret(jwtSecret),

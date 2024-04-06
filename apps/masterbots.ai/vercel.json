@@ -9,6 +9,11 @@
       "source": "/bot/:path",
       "destination": "/b/:path",
       "permanent": true
+    },
+    {
+      "source": "/sign-in",
+      "destination": "/auth/sign-in",
+      "permanent": true
     }
   ]
 }
