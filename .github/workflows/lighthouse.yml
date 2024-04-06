@@ -28,13 +28,13 @@ jobs:
           vercel_team_id: team_7PAgeqjbXkY6qdxNIEKLbVSC
       - name: Get URL
         run: echo "https://${{ steps.vercel_preview_url.outputs.preview_url }}"
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Audit preview URL with Lighthouse
         id: lighthouse_audit
         uses: treosh/lighthouse-ci-action@v3
         with:
           urls: |
-            ${{ steps.vercel_preview_url.outputs.vercel_preview_url }}
+            "https://${{ steps.vercel_preview_url.outputs.preview_url }}"
           uploadArtifacts: true
           temporaryPublicStorage: true
       - name: Format lighthouse score
