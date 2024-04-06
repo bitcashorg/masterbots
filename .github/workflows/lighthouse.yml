@@ -35,9 +35,9 @@ jobs:
         with:
           urls: |
             "https://${{ steps.vercel_preview_url.outputs.preview_url }}"
-            "https://${{ steps.vercel_preview_url.outputs.preview_url }}/b/moneybot"
-            "https://${{ steps.vercel_preview_url.outputs.preview_url }}/u/slug-1"
-            "https://${{ steps.vercel_preview_url.outputs.preview_url }}/p"
+            # "https://${{ steps.vercel_preview_url.outputs.preview_url }}/b/moneybot"
+            # "https://${{ steps.vercel_preview_url.outputs.preview_url }}/u/slug-1"
+            # "https://${{ steps.vercel_preview_url.outputs.preview_url }}/p"
           # budgetPath: '.github/lighthouse/budget.json'
           uploadArtifacts: true
           temporaryPublicStorage: true
@@ -72,7 +72,9 @@ jobs:
             #   });
             # });
 
-            core.setOutput('comment', steps.lighthouse_audit.outputs.links);
+            # core.setOutput('comment', comment);
+            core.setOutput('manifest', JSON.stringify(manifest));
+            core.setOutput('links', JSON.stringify(links));
       - name: Add comment to PR
         id: comment_to_pr
         uses: marocchino/sticky-pull-request-comment@v2.9.0
