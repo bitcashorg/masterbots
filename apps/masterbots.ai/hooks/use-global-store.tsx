@@ -2,7 +2,6 @@
 
 import React, { ReactNode, createContext, useContext } from 'react'
 import { useSetState } from 'react-use'
-import { User } from '@supabase/auth-js'
 
 // Create the context
 const GlobalStoreContext = createContext<GlobalStoreContextValue>({
@@ -11,7 +10,8 @@ const GlobalStoreContext = createContext<GlobalStoreContextValue>({
   user: {
     userId: '',
     username: '',
-    name: ''
+    name: '',
+    email: ''
   },
   setGlobalError: (errorMessage: string) => {}
 })
@@ -43,17 +43,20 @@ export function GlobalStoreProvider({
 type GlobalStoreProviderProps = {
   children: ReactNode
   hasuraJwt: string
-  user: User | null
+  user: UserProfile | null
 }
 
 // Define type for the context value
 type GlobalStoreContextValue = {
   errorMessage: string
   hasuraJwt: string
-  user: {
-    userId: string
-    username: string
-    name: string
-  } | null
+  user: UserProfile | null
   setGlobalError: (errorMessage: string) => void
+}
+
+export type UserProfile = {
+  userId: string
+  username: string
+  name: string
+  email: string
 }
