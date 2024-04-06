@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Add comment to PR
         id: loading_comment_to_pr
-        uses: marocchino/sticky-pull-request-comment@latest
+        uses: marocchino/sticky-pull-request-comment@v2.9.0
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           number: ${{ github.event.issue.number }}
@@ -36,7 +36,7 @@ jobs:
           temporaryPublicStorage: true
       - name: Format lighthouse score
         id: format_lighthouse_score
-        uses: actions/github-script@latest
+        uses: actions/github-script@v7.0.1
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -64,7 +64,7 @@ jobs:
              core.setOutput("comment", comment); 
       - name: Add comment to PR
         id: comment_to_pr
-        uses: marocchino/sticky-pull-request-comment@latest
+        uses: marocchino/sticky-pull-request-comment@v2.9.0
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           number: ${{ github.event.issue.number }}
