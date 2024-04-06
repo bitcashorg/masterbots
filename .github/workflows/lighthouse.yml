@@ -35,10 +35,6 @@ jobs:
         with:
           urls: |
             "https://${{ steps.vercel_preview_url.outputs.preview_url }}"
-            "https://${{ steps.vercel_preview_url.outputs.preview_url }}/b/moneybot"
-            "https://${{ steps.vercel_preview_url.outputs.preview_url }}/u/slug-1"
-            "https://${{ steps.vercel_preview_url.outputs.preview_url }}/p"
-            "https://${{ steps.vercel_preview_url.outputs.preview_url }}//health/
           # budgetPath: '.github/lighthouse/budget.json'
           uploadArtifacts: true
           temporaryPublicStorage: true
@@ -56,6 +52,8 @@ jobs:
 
             let comment = '⚡️ [Lighthouse report]'
 
+            comment += JSON.stringify('{ "links": ${{steps.lighthouse_audit.outputs.links}}, "manifest": ${{steps.lighthouse_audit.outputs.manifest}} }')
+
             manifest.forEach(result => {
               const pageLink = result.url;
               comment = `Link: ${pageLink}:\n`;
@@ -69,6 +67,8 @@ jobs:
               comment += `| ${score(result.summary.seo)} SEO | ${result.summary.seo} |\n`;
               comment += `| ${score(result.summary.pwa)} PWA | ${result.summary.pwa} |\n`;
             });
+
+
 
             core.setOutput("comment", comment);
       - name: Add comment to PR
