@@ -52,6 +52,8 @@ jobs:
 
             let comment = '⚡️ [Lighthouse report]'
 
+            comment += JSON.stringify('{ "links": ${{steps.lighthouse_audit.outputs.links}}, "manifest": ${{steps.lighthouse_audit.outputs.manifest}} }')
+
             manifest.forEach(result => {
               const pageLink = result.url;
               comment = `Link: ${pageLink}:\n`;
@@ -66,7 +68,7 @@ jobs:
               comment += `| ${score(result.summary.pwa)} PWA | ${result.summary.pwa} |\n`;
             });
 
-            comment += '\n*Lighthouse ran on ' + Object.keys(links)[0] + '*';
+
 
             core.setOutput("comment", comment);
       - name: Add comment to PR
