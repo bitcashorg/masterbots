@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { Chat } from '@/components/c/chat'
 import { getThread } from '@/services/hasura'
 import { Message } from 'ai/react'
-import { isTokenExpired } from 'mb-lib'
+import { isTokenExpired } from '@repo/mb-lib'
 import { getUserProfile } from '@/services/supabase'
 import { cookies } from 'next/headers'
 

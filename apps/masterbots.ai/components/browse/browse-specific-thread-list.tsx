@@ -3,7 +3,7 @@
 import React from 'react'
 
 import { getBrowseThreads } from '@/services/hasura'
-import { Thread } from 'mb-genql'
+import { Thread } from '@repo/mb-genql'
 import BrowseListItem from './browse-list-item'
 
 export default function BrowseSpecificThreadList({

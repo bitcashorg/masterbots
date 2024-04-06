@@ -7,7 +7,7 @@ import { ButtonScrollToBottom } from '@/components/button-scroll-to-bottom'
 import { IconRefresh, IconShare, IconStop } from '@/components/ui/icons'
 import { FooterText } from '@/components/layout/footer'
 import { ChatShareDialog } from '@/components/c/chat-share-dialog'
-import { Chatbot } from 'mb-genql'
+import { Chatbot } from '@repo/mb-genql'
 import { cn } from '@/lib/utils'
 import { useThread } from '@/hooks/use-thread'
 

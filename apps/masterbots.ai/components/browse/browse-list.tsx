@@ -5,7 +5,7 @@ import React from 'react'
 import { useBrowse } from '@/hooks/use-browse'
 import { getBrowseThreads } from '@/services/hasura'
 import { debounce } from 'lodash'
-import { Thread } from 'mb-genql'
+import { Thread } from '@repo/mb-genql'
 import BrowseListItem from './browse-list-item'
 
 const PAGE_SIZE = 50

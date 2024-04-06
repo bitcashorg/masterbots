@@ -1,2 +1,2 @@
-export * from './hasura.type'
-export * from './jwt.type'
+export * from "./hasura.type";
+export * from "./jwt.type";

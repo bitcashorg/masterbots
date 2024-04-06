@@ -1,6 +1,6 @@
 'use client'
 
-import { User } from 'mb-genql'
+import { User } from '@repo/mb-genql'
 import Image from 'next/image'
 import { Separator } from '../ui/separator'
 import { useEffect, useState } from 'react'

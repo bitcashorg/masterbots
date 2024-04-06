@@ -2,7 +2,7 @@
 // @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Chat/ChatcleanMessage.tsx
 
 import * as AI from 'ai'
-import { Chatbot, Message, User } from 'mb-genql'
+import { Chatbot, Message, User } from '@repo/mb-genql'
 import React from 'react'
 import BrowseChatbotDetails from './browse-chatbot-details'
 import { BrowseChatMessageList } from './browse-chat-message-list'

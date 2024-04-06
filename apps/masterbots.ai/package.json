@@ -30,6 +30,10 @@
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-switch": "^1.0.3",
     "@radix-ui/react-tooltip": "^1.0.7",
+    "@repo/mb-env": "workspace:*",
+    "@repo/mb-genql": "workspace:*",
+    "@repo/mb-lib": "workspace:*",
+    "@repo/mb-types": "workspace:*",
     "@supabase/ssr": "^0.1.0",
     "@vercel/analytics": "^1.1.1",
     "@vercel/og": "^0.5.20",
@@ -43,11 +47,7 @@
     "geist": "^1.1.0",
     "lodash": "^4.17.21",
     "lucide-react": "^0.297.0",
-    "mb-env": "workspace:*",
-    "mb-genql": "workspace:*",
-    "mb-lib": "workspace:*",
-    "mb-types": "workspace:*",
-    "nanoid": "^5.0.3",
+    "nanoid": "^3.0.0",
     "next": "latest",
     "next-themes": "^0.2.1",
     "openai": "^4.20.0",
@@ -61,7 +61,7 @@
     "react-syntax-highlighter": "^15.5.0",
     "react-textarea-autosize": "^8.5.3",
     "react-use": "^17.5.0",
-    "remark-gfm": "^3.0.1",
+    "remark-gfm": "^4.0.0",
     "remark-math": "^5.1.1",
     "zod": "^3.22.4"
   },
@@ -84,7 +84,8 @@
     "tailwind-merge": "^2.0.0",
     "tailwindcss": "^3.3.5",
     "tailwindcss-animate": "^1.0.7",
-    "typescript": "^5.3.2"
+    "typescript": "^5.3.2",
+    "@repo/tailwind-config": "workspace:*"
   },
   "packageManager": "pnpm@8.6.3"
 }

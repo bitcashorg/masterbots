@@ -1,5 +1,5 @@
 {
-  "name": "mb-env",
+  "name": "@repo/mb-env",
   "version": "0.0.1",
   "private": true,
   "description": "masterbots environment data",
@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {},
   "devDependencies": {
-    "tsconfig": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
     "typescript": "^5.1.3"
   }
 }

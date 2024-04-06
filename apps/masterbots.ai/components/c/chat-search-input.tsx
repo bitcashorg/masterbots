@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { useSidebar } from '@/hooks/use-sidebar'
 import { getCategory } from '@/services/hasura'
 import { debounce } from 'lodash'
-import { Thread } from 'mb-genql'
+import { Thread } from '@repo/mb-genql'
 import { useParams } from 'next/navigation'
 import React from 'react'
 

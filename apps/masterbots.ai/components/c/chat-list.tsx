@@ -2,7 +2,7 @@ import { type Message } from 'ai'
 
 import { ChatMessage } from '@/components/c/chat-message'
 import { cn, createMessagePairs } from '@/lib/utils'
-import { Chatbot } from 'mb-genql'
+import { Chatbot } from '@repo/mb-genql'
 import React from 'react'
 import { ChatAccordion } from './chat-accordion'
 import { ShortMessage } from '../short-message'

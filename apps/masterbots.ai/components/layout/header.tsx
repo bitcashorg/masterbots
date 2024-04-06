@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { IconSeparator } from '@/components/ui/icons'
 import { UserMenu } from '@/components/user-menu'
 import { SidebarToggle } from '../c/sidebar/sidebar-toggle'
-import { isTokenExpired } from 'mb-lib'
+import { isTokenExpired } from '@repo/mb-lib'
 import { getUserProfile } from '@/services/supabase'
 import { cookies } from 'next/headers'
 

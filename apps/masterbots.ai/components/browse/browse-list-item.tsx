@@ -2,7 +2,7 @@ import Image from 'next/image'
 
 import { cn, sleep } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
-import { Message, Thread } from 'mb-genql'
+import { Message, Thread } from '@repo/mb-genql'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React, { useEffect } from 'react'

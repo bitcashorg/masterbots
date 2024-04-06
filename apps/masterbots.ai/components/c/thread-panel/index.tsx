@@ -1,5 +1,5 @@
 import UserThreadPanel from '@/components/c/thread-panel/user-thread-panel'
-import { Thread } from 'mb-genql'
+import { Thread } from '@repo/mb-genql'
 
 export default async function ThreadPanel({
   chatbot,

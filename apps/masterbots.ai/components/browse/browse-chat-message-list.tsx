@@ -3,7 +3,7 @@
 
 import { IconUser } from '@/components/ui/icons'
 import { cn, createMessagePairs } from '@/lib/utils'
-import { Chatbot, Message, User } from 'mb-genql'
+import { Chatbot, Message, User } from '@repo/mb-genql'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'

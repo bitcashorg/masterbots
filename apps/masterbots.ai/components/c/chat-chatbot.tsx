@@ -1,6 +1,6 @@
 'use client'
 
-import { Chatbot } from 'mb-genql'
+import { Chatbot } from '@repo/mb-genql'
 import { useEffect, useState } from 'react'
 import { Chat } from './chat'
 import { Message } from 'ai/react'

@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { type CookieOptions, createServerClient } from '@supabase/ssr'
-import { getToken, validateJwtSecret } from 'mb-lib'
+import { getToken, validateJwtSecret } from '@repo/mb-lib'
 import { upsertUser } from '@/services/hasura'
 import { nanoid } from '@/lib/utils'
 

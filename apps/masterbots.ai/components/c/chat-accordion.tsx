@@ -3,7 +3,7 @@
 import { ChevronDown } from 'lucide-react'
 import * as React from 'react'
 import { useThread } from '@/hooks/use-thread'
-import { Thread } from 'mb-genql'
+import { Thread } from '@repo/mb-genql'
 
 export const ChatAccordion = ({
   thread = null,

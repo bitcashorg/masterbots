@@ -11,7 +11,7 @@ import {
 import { Message as AIMessage } from 'ai'
 import { uniqBy } from 'lodash'
 import toast from 'react-hot-toast'
-import { Chatbot, Message, Thread } from 'mb-genql'
+import { Chatbot, Message, Thread } from '@repo/mb-genql'
 import { getAllUserMessagesAsStringArray } from '@/components/c/chat'
 import { useSidebar } from './use-sidebar'
 import { useScroll } from 'framer-motion'

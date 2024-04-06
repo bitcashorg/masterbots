@@ -10,7 +10,7 @@ import { CodeBlock } from '@/components/ui/codeblock'
 import { MemoizedReactMarkdown } from '@/components/markdown'
 import { IconOpenAI, IconUser } from '@/components/ui/icons'
 import { ChatMessageActions } from '../c/chat-message-actions'
-import { Chatbot } from 'mb-genql'
+import { Chatbot } from '@repo/mb-genql'
 
 export interface ChatMessageProps {
   message: Message

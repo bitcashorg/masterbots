@@ -7,7 +7,7 @@ import { MemoizedReactMarkdown } from '@/components/markdown'
 import { CodeBlock } from '@/components/ui/codeblock'
 import { cleanPrompt, cn } from '@/lib/utils'
 import { Message } from 'ai'
-import { Chatbot } from 'mb-genql'
+import { Chatbot } from '@repo/mb-genql'
 
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'

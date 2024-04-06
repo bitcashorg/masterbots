@@ -5,6 +5,14 @@
   "author": "Jun Dam <jun@bitcash.org>",
   "license": "MIT",
   "private": true,
+  "packageManager": "bun@1.0.14",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "build": "turbo build --no-daemon",
     "dev": "turbo dev --no-daemon --parallel",
@@ -14,12 +22,24 @@
   "devDependencies": {
     "@types/node": "^20.4.1",
     "eslint": "^8.44.0",
-    "prettier": "^3.0.0",
-    "turbo": "latest"
+    "prettier": "^3.2.5",
+    "turbo": "latest",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
+    "typescript": "^5.4.4"
   },
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
-  "packageManager": "bun@1.0.14"
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "prettier --write"
+    ],
+    "*.{md,mdx,mjs,yml,yaml,css}": [
+      "prettier --write"
+    ],
+    "*.toml": [
+      "taplo format"
+    ],
+    "*.rs": [
+      "cargo fmt --"
+    ]
+  }
 }

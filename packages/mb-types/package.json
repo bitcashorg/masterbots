@@ -1,5 +1,5 @@
 {
-  "name": "mb-types",
+  "name": "@repo/mb-types",
   "private": true,
   "version": "0.0.0",
   "main": "./src/index.ts",

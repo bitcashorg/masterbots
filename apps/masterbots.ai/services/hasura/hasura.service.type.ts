@@ -1,4 +1,4 @@
-import { ChatbotOrderBy } from 'mb-genql'
+import { ChatbotOrderBy } from '@repo/mb-genql'
 
 export type GetHasuraClientParams = {
   jwt?: string

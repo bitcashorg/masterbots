@@ -1,7 +1,7 @@
 'use client'
 
 import { useBrowse } from '@/hooks/use-browse'
-import { Category } from 'mb-genql'
+import { Category } from '@repo/mb-genql'
 import { BrowseCategoryButton } from './browse-category-button'
 import { useEffect } from 'react'
 

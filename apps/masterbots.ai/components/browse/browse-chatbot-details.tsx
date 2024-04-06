@@ -1,4 +1,4 @@
-import { Chatbot } from 'mb-genql'
+import { Chatbot } from '@repo/mb-genql'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Separator } from '../ui/separator'

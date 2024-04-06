@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { Thread } from 'mb-genql'
+import { Thread } from '@repo/mb-genql'
 import React from 'react'
 import { ShortMessage } from '../short-message'
 import { ChatAccordion } from './chat-accordion'

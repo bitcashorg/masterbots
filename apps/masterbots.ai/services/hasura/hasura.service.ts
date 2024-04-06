@@ -1,4 +1,4 @@
-import { validateMbEnv } from 'mb-env'
+import { validateMbEnv } from '@repo/mb-env'
 import {
   Category,
   Chatbot,
@@ -7,7 +7,7 @@ import {
   User,
   createMbClient,
   everything
-} from 'mb-genql'
+} from '@repo/mb-genql'
 import {
   CreateThreadParams,
   GetBrowseThreadsParams,

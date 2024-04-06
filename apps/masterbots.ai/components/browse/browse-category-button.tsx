@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Category } from 'mb-genql'
+import { Category } from '@repo/mb-genql'
 import Link from 'next/link'
 
 export function BrowseCategoryButton({
