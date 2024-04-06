@@ -16,8 +16,7 @@ export default async function ChatPage({ params }: ChatPageProps) {
   if (!jwt || isTokenExpired(jwt) || !user)
     redirect(`/sign-in?next=/${params.threadId}/${params.threadId}`)
   const thread = await getThread({
-    threadId: params.threadId,
-    jwt
+    threadId: params.threadId
   })
 
   //TODO: handle threadId not found

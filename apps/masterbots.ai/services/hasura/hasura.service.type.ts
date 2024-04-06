@@ -18,7 +18,7 @@ export interface GetThreadsParams extends HasuraServiceParams {
   offset?: number
 }
 
-export interface GetThreadParams extends HasuraServiceParams {
+export interface GetThreadParams {
   threadId: string
 }
 

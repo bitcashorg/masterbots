@@ -35,9 +35,6 @@ jobs:
         with:
           urls: |
             "https://${{ steps.vercel_preview_url.outputs.preview_url }}"
-            # "https://${{ steps.vercel_preview_url.outputs.preview_url }}/b/moneybot"
-            # "https://${{ steps.vercel_preview_url.outputs.preview_url }}/u/slug-1"
-            # "https://${{ steps.vercel_preview_url.outputs.preview_url }}/p"
           # budgetPath: '.github/lighthouse/budget.json'
           uploadArtifacts: true
           temporaryPublicStorage: true
