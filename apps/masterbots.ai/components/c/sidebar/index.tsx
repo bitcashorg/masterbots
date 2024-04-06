@@ -2,8 +2,8 @@
 
 import * as React from 'react'
 
-import useClickOutside from '@/lib/hooks/use-click-outside'
-import { useSidebar } from '@/lib/hooks/use-sidebar'
+import useClickOutside from '@/hooks/use-click-outside'
+import { useSidebar } from '@/hooks/use-sidebar'
 import { cn } from '@/lib/utils'
 
 export interface SidebarProps extends React.ComponentProps<'div'> {}

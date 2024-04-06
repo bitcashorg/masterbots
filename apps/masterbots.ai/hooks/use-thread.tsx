@@ -1,7 +1,6 @@
 'use client'
 
 import { useChat } from 'ai/react'
-import { useSession } from 'next-auth/react'
 import * as React from 'react'
 import {
   getChatbots,
@@ -14,10 +13,10 @@ import { uniqBy } from 'lodash'
 import toast from 'react-hot-toast'
 import { Chatbot, Message, Thread } from 'mb-genql'
 import { getAllUserMessagesAsStringArray } from '@/components/c/chat'
-import { useRouter } from 'next/navigation'
 import { useSidebar } from './use-sidebar'
 import { useScroll } from 'framer-motion'
 import { useAtBottom } from './use-at-bottom'
+import { useGlobalStore } from './use-global-store'
 
 interface ThreadContext {
   isOpenPopup: boolean
@@ -51,11 +50,10 @@ interface ThreadProviderProps {
 }
 
 export function ThreadProvider({ children }: ThreadProviderProps) {
-  const router = useRouter()
   const { activeCategory } = useSidebar()
   const [activeThread, setActiveThread] = React.useState<Thread | null>(null)
   const sectionRef = React.useRef<HTMLElement>()
-  const { data: session } = useSession()
+  const { hasuraJwt, user } = useGlobalStore()
 
   const [messagesFromDB, setMessagesFromDB] = React.useState<Message[]>([])
   const [isNewResponse, setIsNewResponse] = React.useState<boolean>(false)
@@ -127,7 +125,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
         role: 'assistant',
         threadId: activeThread?.threadId,
         content: message.content,
-        jwt: session!.user?.hasuraJwt
+        jwt: hasuraJwt
       })
     }
   })
@@ -154,7 +152,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
         role: 'user',
         threadId: activeThread?.threadId,
         content: fullMessage,
-        jwt: session!.user?.hasuraJwt
+        jwt: hasuraJwt
       })
       append({
         role: 'user',
@@ -163,7 +161,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
         )}].  Then answer this question: ${fullMessage}`
       })
     },
-    [activeThread?.threadId, allMessages, append, session]
+    [activeThread?.threadId, allMessages, append, user]
   )
 
   React.useEffect(() => {
@@ -188,11 +186,10 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
   }, [isOpenPopup])
 
   const getRandomChatbot = async () => {
-    // console.log('session?.user?.hasuraJwt', session?.user?.hasuraJwt)
-    if (activeThread || !session?.user?.hasuraJwt) return
+    if (activeThread || !hasuraJwt) return
     const chatbotsCount = await getChatbotsCount({
       categoryId: activeCategory,
-      jwt: session!.user?.hasuraJwt
+      jwt: hasuraJwt
     })
     const offset = Math.floor(Math.random() * chatbotsCount)
     const chatbots = await getChatbots({
@@ -210,7 +207,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
 
   React.useEffect(() => {
     getRandomChatbot()
-  }, [activeCategory, activeThread, session])
+  }, [activeCategory, activeThread, user])
 
   const { scrollY } = useScroll({
     container: sectionRef as React.RefObject<HTMLElement>

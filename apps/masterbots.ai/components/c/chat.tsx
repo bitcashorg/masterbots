@@ -8,18 +8,18 @@ import { ChatPanel } from '@/components/c/chat-panel'
 import { ChatScrollAnchor } from '@/components/c/chat-scroll-anchor'
 import { cn, extractBetweenMarkers, scrollToBottomOfElement } from '@/lib/utils'
 
-import { useAtBottom } from '@/lib/hooks/use-at-bottom'
+import { useAtBottom } from '@/hooks/use-at-bottom'
 import { createThread, getThread, saveNewMessage } from '@/services/hasura'
 import { ChatRequestOptions } from 'ai'
 import { uniqBy } from 'lodash'
 import { Chatbot } from 'mb-genql'
-import { useSession } from 'next-auth/react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import React, { useEffect } from 'react'
 import { toast } from 'react-hot-toast'
-import { useThread } from '@/lib/hooks/use-thread'
+import { useThread } from '@/hooks/use-thread'
 import { botNames } from '@/lib/bots-names'
-import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useSidebar } from '@/hooks/use-sidebar'
+import { useGlobalStore } from '@/hooks/use-global-store'
 
 export function Chat({
   initialMessages,
@@ -31,7 +31,7 @@ export function Chat({
   scrollToBottom: scrollToBottomOfPopup,
   isAtBottom: isAtBottomOfPopup
 }: ChatProps) {
-  const { data: session } = useSession()
+  const { hasuraJwt, user } = useGlobalStore()
   const {
     allMessages: threadAllMessages,
     initialMessages: threadInitialMessages,
@@ -72,7 +72,7 @@ export function Chat({
           threadId:
             params.threadId || isNewChat ? threadId : activeThread?.threadId,
           content: message.content,
-          jwt: session!.user?.hasuraJwt
+          jwt: hasuraJwt
         })
       }
     })
@@ -130,7 +130,7 @@ export function Chat({
       threadId:
         params.threadId || isNewChat ? threadId : activeThread?.threadId,
       content: fullMessage,
-      jwt: session!.user?.hasuraJwt
+      jwt: hasuraJwt
     })
     append({
       role: 'user',
@@ -149,13 +149,13 @@ export function Chat({
       await createThread({
         threadId,
         chatbotId: chatbot.chatbotId,
-        jwt: session!.user?.hasuraJwt,
-        userId: session!.user.id,
+        jwt: hasuraJwt,
+        userId: user!.id,
         isPublic: activeChatbot?.name !== 'BlankBot'
       })
       const thread = await getThread({
         threadId,
-        jwt: session!.user?.hasuraJwt
+        jwt: hasuraJwt
       })
       setActiveThread(thread)
       setIsOpenPopup(true)
@@ -168,7 +168,7 @@ export function Chat({
       threadId:
         params.threadId || isNewChat ? threadId : activeThread?.threadId,
       content: userMessage.content,
-      jwt: session!.user?.hasuraJwt
+      jwt: hasuraJwt
     })
 
     setIsNewResponse(true)

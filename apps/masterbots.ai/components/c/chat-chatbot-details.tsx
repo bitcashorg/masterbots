@@ -1,17 +1,16 @@
 'use client'
 
-import { Chatbot } from 'mb-genql'
 import Image from 'next/image'
-import Link from 'next/link'
 import { Separator } from '../ui/separator'
-import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useSidebar } from '@/hooks/use-sidebar'
 import { useEffect, useState } from 'react'
 import { getCategory, getThreads } from '@/services/hasura'
-import { useSession } from 'next-auth/react'
-import { useThread } from '@/lib/hooks/use-thread'
+
+import { useThread } from '@/hooks/use-thread'
+import { useGlobalStore } from '@/hooks/use-global-store'
 
 export default function ChatChatbotDetails() {
-  const { data: session } = useSession()
+  const { user, hasuraJwt } = useGlobalStore()
   const { activeCategory, activeChatbot } = useSidebar()
   const { randomChatbot } = useThread()
   const [threadNum, setThreadNum] = useState<number>(0)
@@ -20,9 +19,9 @@ export default function ChatChatbotDetails() {
   // Get the number of all threads
   const getThreadNum = async () => {
     const threads = await getThreads({
-      jwt: session!.user?.hasuraJwt,
+      jwt: hasuraJwt,
       categoryId: activeCategory,
-      userId: session!.user.id
+      userId: user!.id
     })
     setThreadNum(threads?.length ?? 0)
   }
@@ -56,7 +55,7 @@ export default function ChatChatbotDetails() {
           <div className="text-2xl font-black">
             {activeChatbot ? activeChatbot?.name : 'Welcome to Masterbots!'}
           </div>
-          <Separator className="dark:bg-mirage bg-gray-300" />
+          <Separator className="bg-gray-300 dark:bg-mirage" />
           <div className="grow flex flex-col justify-between min-h-[137px]">
             <div className="text-xl font-semibold">
               {activeChatbot
@@ -84,7 +83,7 @@ export default function ChatChatbotDetails() {
         </div>
         <div className="size-24 absolute border-4 border-[#388DE2] right-0 top-0 translate-x-1/4 rounded-full -translate-y-1/4 dark:bg-[#131316] bg-white">
           <Image
-            className="size-full transition-opacity duration-300 rounded-full select-none ring-1 ring-zinc-100/10 hover:opacity-80"
+            className="transition-opacity duration-300 rounded-full select-none size-full ring-1 ring-zinc-100/10 hover:opacity-80"
             src={activeChatbot?.avatar || randomChatbot?.avatar || ''}
             alt={activeChatbot?.avatar || randomChatbot?.avatar || 'ChatAvatar'}
             height={108}

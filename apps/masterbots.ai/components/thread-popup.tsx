@@ -1,12 +1,12 @@
 'use client'
 
-import { useThread } from '@/lib/hooks/use-thread'
+import { useThread } from '@/hooks/use-thread'
 import { IconClose } from './ui/icons'
 import { cn, scrollToBottomOfElement } from '@/lib/utils'
 import { Chat } from './c/chat'
 import { ChatList } from './c/chat-list'
 import { useEffect, useRef } from 'react'
-import { useAtBottom } from '@/lib/hooks/use-at-bottom'
+import { useAtBottom } from '@/hooks/use-at-bottom'
 import { useScroll } from 'framer-motion'
 
 export function ThreadPopup({ className }: { className?: string }) {

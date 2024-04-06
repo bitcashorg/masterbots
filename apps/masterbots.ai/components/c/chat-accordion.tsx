@@ -2,7 +2,7 @@
 
 import { ChevronDown } from 'lucide-react'
 import * as React from 'react'
-import { useThread } from '@/lib/hooks/use-thread'
+import { useThread } from '@/hooks/use-thread'
 import { Thread } from 'mb-genql'
 
 export const ChatAccordion = ({
@@ -85,7 +85,7 @@ export const ChatAccordion = ({
         onClick={toggle}
         className={`flex flex-1 justify-start flex-col relative
         transition-all ease-in-out duration-200
-        border-[transparent] border
+        border-transparent border
         hover:rounded-t-[8px]
         font-medium w-full ${
           open
@@ -111,8 +111,8 @@ export const ChatAccordion = ({
         className={`text-sm transition-all border
       ${
         open
-          ? 'animate-accordion-down dark:border-mirage border-gray-300 !border-t-[transparent] !border-r-[transparent]'
-          : 'overflow-hidden animate-accordion-up h-0 border-[transparent]'
+          ? 'animate-accordion-down dark:border-mirage border-gray-300 !border-t-transparent !border-r-transparent'
+          : 'overflow-hidden animate-accordion-up h-0 border-transparent'
       } ${contentClass || ''}`}
       >
         {children[2]}

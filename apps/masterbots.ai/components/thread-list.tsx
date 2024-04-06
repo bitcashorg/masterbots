@@ -6,8 +6,8 @@ import React from 'react'
 import { ShortMessage } from './short-message'
 import { ChatAccordion } from './c/chat-accordion'
 import { ChatList } from './c/chat-list'
-import { useThread } from '@/lib/hooks/use-thread'
-import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useThread } from '@/hooks/use-thread'
+import { useSidebar } from '@/hooks/use-sidebar'
 import { cn, sleep } from '@/lib/utils'
 
 export default function ThreadList({

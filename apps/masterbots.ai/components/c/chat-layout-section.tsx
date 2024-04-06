@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { ThreadPopup } from '../thread-popup'
-import { useThread } from '@/lib/hooks/use-thread'
+import { useThread } from '@/hooks/use-thread'
 
 export function ChatLayoutSection({ children }: { children: React.ReactNode }) {
   const { sectionRef, isOpenPopup } = useThread()

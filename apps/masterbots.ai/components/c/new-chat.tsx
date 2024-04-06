@@ -7,7 +7,7 @@ import { ChatRequestOptions } from 'ai'
 import { Chatbot } from 'mb-genql'
 import { useRouter } from 'next/navigation'
 import { createThread, saveNewMessage } from '@/services/hasura'
-import { useSession } from 'next-auth/react'
+import { useGlobalStore } from '@/hooks/use-global-store'
 
 export default function NewChat({
   id,
@@ -16,7 +16,7 @@ export default function NewChat({
   scrollToBottom
 }: NewChatProps) {
   const router = useRouter()
-  const { data: session } = useSession()
+  const { hasuraJwt, user } = useGlobalStore()
   const { messages, reload, stop, input, setInput, append } = useChat({
     initialMessages,
     id,
@@ -40,8 +40,8 @@ export default function NewChat({
     const threadId = await createThread({
       threadId: id,
       chatbotId: chatbot.chatbotId,
-      jwt: session!.user?.hasuraJwt,
-      userId: session!.user.id,
+      jwt: hasuraJwt,
+      userId: user!.id,
       isPublic: chatbot?.name !== 'BlankBot'
     })
 
@@ -51,7 +51,7 @@ export default function NewChat({
       role: 'user',
       threadId,
       content: userMessage.content,
-      jwt: session!.user?.hasuraJwt
+      jwt: hasuraJwt
     })
 
     router.push(`/${chatbot.name.trim().toLowerCase()}/${threadId}`, {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useThread } from '@/lib/hooks/use-thread'
+import { useThread } from '@/hooks/use-thread'
 import { Chat } from './chat'
 
 export default function ChatThreadListPanel() {

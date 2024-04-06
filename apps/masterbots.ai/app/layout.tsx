@@ -6,8 +6,14 @@ import '@/app/globals.css'
 import { Header } from '@/components/layout/header'
 import { Providers } from '@/components/layout/providers'
 import { cn } from '@/lib/utils'
+import { GlobalStoreProvider } from '@/hooks/use-global-store'
+import { cookies } from 'next/headers'
+import { getUserSession } from '@/services/supabase'
 
-export default function RootLayout({ children }: RootLayoutProps) {
+export default async function RootLayout({ children }: RootLayoutProps) {
+  const { data } = await getUserSession()
+  const hasuraJwt = cookies().get('hasuraJwt')?.value || ''
+  const user = data.session?.user || null
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -17,21 +23,22 @@ export default function RootLayout({ children }: RootLayoutProps) {
           GeistMono.variable
         )}
       >
-        {/* TODO: https://github.com/TheSGJ/nextjs-toploader/issues/66 */}
-        {/* <NextTopLoader color="#1ED761" initialPosition={0.20} /> */}
         <Toaster />
-        <Providers
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <div className="flex flex-col min-h-screen">
-            <Header />
-            <main className="flex flex-col flex-1 bg-muted/50">{children}</main>
-          </div>
-          {/* <TailwindIndicator /> */}
-        </Providers>
+        <GlobalStoreProvider hasuraJwt={hasuraJwt} user={user}>
+          <Providers
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <div className="flex flex-col min-h-screen">
+              <Header />
+              <main className="flex flex-col flex-1 bg-muted/50">
+                {children}
+              </main>
+            </div>
+          </Providers>
+        </GlobalStoreProvider>
       </body>
     </html>
   )

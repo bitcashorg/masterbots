@@ -2,7 +2,7 @@
 
 import React from 'react'
 
-import { useBrowse } from '@/lib/hooks/use-browse'
+import { useBrowse } from '@/hooks/use-browse'
 import { getBrowseThreads } from '@/services/hasura'
 import { debounce } from 'lodash'
 import { Thread } from 'mb-genql'

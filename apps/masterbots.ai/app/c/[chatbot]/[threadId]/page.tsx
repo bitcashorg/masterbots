@@ -1,26 +1,26 @@
 import { redirect } from 'next/navigation'
 
-import { auth } from '@/auth'
 import { Chat } from '@/components/c/chat'
 import { getThread } from '@/services/hasura'
 import { Message } from 'ai/react'
 import { isTokenExpired } from 'mb-lib'
+import { getUserSession } from '@/services/supabase'
+import { cookies } from 'next/headers'
 
 export default async function ChatPage({ params }: ChatPageProps) {
-  const session = await auth()
+  const { data } = await getUserSession()
+  const jwt = cookies().get('hasuraJwt')?.value || ''
+  const user = data.session?.user
+
   // NOTE: maybe we should use same expiration time
-  const jwt = session ? session.user?.hasuraJwt : null
-  if (!jwt || isTokenExpired(jwt)) {
-    redirect(`/sign-in`)
-  }
+  if (!jwt || isTokenExpired(jwt) || !user)
+    redirect(`/sign-in?next=/${params.threadId}/${params.threadId}`)
   const thread = await getThread({
     threadId: params.threadId,
-    jwt: session!.user?.hasuraJwt
+    jwt
   })
 
   //TODO: handle threadId not found
-
-  if (!session) redirect(`/sign-in?next=/${params.threadId}/${params.threadId}`)
 
   // NOTE: maybe this should be on actions.ts
   // format all chatbot prompts as chatgpt 'system' messages

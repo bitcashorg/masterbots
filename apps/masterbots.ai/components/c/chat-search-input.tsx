@@ -4,19 +4,23 @@ import FooterCT from '@/components/footer-ct'
 import { Button } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
-import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useSidebar } from '@/hooks/use-sidebar'
 import { getCategory } from '@/services/hasura'
 import { debounce } from 'lodash'
 import { Thread } from 'mb-genql'
 import { useParams } from 'next/navigation'
 import React from 'react'
 
-export function ChatSearchInput({ setThreads }: {
+export function ChatSearchInput({
+  setThreads
+}: {
   setThreads: React.Dispatch<React.SetStateAction<Thread[]>>
 }) {
   const { chatbot } = useParams()
   const { activeCategory } = useSidebar()
-  const [searchPlaceholder, setSearchPlaceholder] = React.useState<string | null>(null)
+  const [searchPlaceholder, setSearchPlaceholder] = React.useState<
+    string | null
+  >(null)
   const [keyword, changeKeyword] = React.useState<string>('')
   const previousThread = React.useRef<Thread[]>([])
   const previousCategory = React.useRef<number | null>(null)
@@ -42,7 +46,9 @@ export function ChatSearchInput({ setThreads }: {
       setThreads(prevState => {
         // ? If there is no results on a search, we should keep the previous state
         // ? and if not, the threads previous state before the search will be lost.
-        previousThread.current = !previousThread.current.length ? prevState : previousThread.current
+        previousThread.current = !previousThread.current.length
+          ? prevState
+          : previousThread.current
         const previousThreadState = previousThread.current
 
         if (!keyword) {

@@ -4,7 +4,7 @@ import { Chatbot } from 'mb-genql'
 import { useEffect, useState } from 'react'
 import { Chat } from './chat'
 import { Message } from 'ai/react'
-import { useThread } from '@/lib/hooks/use-thread'
+import { useThread } from '@/hooks/use-thread'
 
 export const ChatChatbot = ({
   initialMessages,

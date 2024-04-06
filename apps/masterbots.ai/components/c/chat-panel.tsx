@@ -9,7 +9,7 @@ import { FooterText } from '@/components/layout/footer'
 import { ChatShareDialog } from '@/components/c/chat-share-dialog'
 import { Chatbot } from 'mb-genql'
 import { cn } from '@/lib/utils'
-import { useThread } from '@/lib/hooks/use-thread'
+import { useThread } from '@/hooks/use-thread'
 
 export interface ChatPanelProps
   extends Pick<

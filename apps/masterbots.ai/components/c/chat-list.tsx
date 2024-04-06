@@ -6,7 +6,7 @@ import { Chatbot } from 'mb-genql'
 import React from 'react'
 import { ChatAccordion } from './chat-accordion'
 import { ShortMessage } from '../short-message'
-import { useThread } from '@/lib/hooks/use-thread'
+import { useThread } from '@/hooks/use-thread'
 
 export interface ChatList {
   messages: Message[]
