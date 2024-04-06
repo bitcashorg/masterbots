@@ -11,7 +11,7 @@ import { cookies } from 'next/headers'
 
 export default async function RootLayout({ children }: RootLayoutProps) {
   const hasuraJwt = cookies().get('hasuraJwt')?.value || ''
-  let userProfile = cookies().get('userProfile')?.value || null
+  const userProfile = cookies().get('userProfile')?.value || null
 
   return (
     <html lang="en" suppressHydrationWarning>
