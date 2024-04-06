@@ -24,7 +24,8 @@ jobs:
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         with:
-          vercel_project_id: 'prj_k5bYwz7n5hAUFdrWE986D91RiMbW'
+          vercel_project_id: prj_k5bYwz7n5hAUFdrWE986D91RiMbW
+          vercel_team_id: team_7PAgeqjbXkY6qdxNIEKLbVSC
       - name: Get URL
         run: echo "https://${{ steps.vercel_preview_url.outputs.preview_url }}"
       - uses: actions/checkout@v2
