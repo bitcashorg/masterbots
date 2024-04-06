@@ -171,9 +171,8 @@ export async function getThreads({
   return thread as Thread[]
 }
 
-export async function getThread({ threadId, jwt }: GetThreadParams) {
+export async function getThread({ threadId }: GetThreadParams) {
   let client = getHasuraClient({})
-  if (jwt) client = getHasuraClient({ jwt })
   const { thread } = await client.query({
     thread: {
       chatbot: {

@@ -1,18 +1,10 @@
 import { getThread } from '@/services/hasura'
+import { BrowseThread } from '@/components/home/browse-thread'
+import { ChatPageProps } from '@/app/c/[chatbot]/[threadId]/page'
 
-export default async function ChatPage({ params }: ChatPageProps) {
+export default async function ThreadLandingPage({ params }: ChatPageProps) {
   const thread = await getThread({
     threadId: params.threadId
   })
-
-  //TODO: handle threadId not found
-
-  return <pre>{}</pre>
-}
-
-export interface ChatPageProps {
-  params: {
-    threadId: string
-    chatbot: string
-  }
+  return <BrowseThread thread={thread} />
 }

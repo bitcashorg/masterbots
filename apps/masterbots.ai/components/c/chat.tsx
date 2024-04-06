@@ -154,8 +154,7 @@ export function Chat({
         isPublic: activeChatbot?.name !== 'BlankBot'
       })
       const thread = await getThread({
-        threadId,
-        jwt: hasuraJwt
+        threadId
       })
       setActiveThread(thread)
       setIsOpenPopup(true)
