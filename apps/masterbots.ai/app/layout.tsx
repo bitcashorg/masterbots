@@ -11,9 +11,11 @@ import { cookies } from 'next/headers'
 import { getUserSession } from '@/services/supabase'
 
 export default async function RootLayout({ children }: RootLayoutProps) {
-  const { data } = await getUserSession()
+  const {
+    data: { user }
+  } = await getUserSession()
   const hasuraJwt = cookies().get('hasuraJwt')?.value || ''
-  const user = data.session?.user || null
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -24,7 +26,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         )}
       >
         <Toaster />
-        <GlobalStoreProvider hasuraJwt={hasuraJwt} user={user}>
+        <GlobalStoreProvider hasuraJwt={hasuraJwt} user={user || null}>
           <Providers
             attribute="class"
             defaultTheme="system"

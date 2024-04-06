@@ -7,9 +7,10 @@ import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 
 export default async function IndexPage() {
-  const { data } = await getUserSession()
+  const {
+    data: { user }
+  } = await getUserSession()
   const jwt = cookies().get('hasuraJwt')?.value || ''
-  const user = data.session?.user
 
   // NOTE: maybe we should use same expiration time
   if (!jwt || isTokenExpired(jwt) || !user) redirect(`/sign-in`)

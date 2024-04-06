@@ -16,9 +16,10 @@ export default async function BotThreadsPage({
   params: { chatbot: string }
   searchParams: { [key: string]: string | string[] | undefined }
 }) {
-  const { data } = await getUserSession()
+  const {
+    data: { user }
+  } = await getUserSession()
   const jwt = cookies().get('hasuraJwt')?.value || ''
-  const user = data.session?.user
 
   // NOTE: maybe we should use same expiration time
   if (!jwt || isTokenExpired(jwt) || !user) redirect(`/sign-in?next=/c`)

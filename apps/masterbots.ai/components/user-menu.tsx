@@ -1,5 +1,6 @@
-import Image from 'next/image'
+'use client'
 
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -9,8 +10,15 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { User } from '@supabase/auth-js'
+import { useSupabaseClient } from '@/services/supabase'
+import { useGlobalStore } from '@/hooks/use-global-store'
 
-export function UserMenu({ user }: UserMenuProps) {
+export function UserMenu() {
+  const supabase = useSupabaseClient()
+  const { user } = useGlobalStore()
+
+  const signout = () => supabase.auth.signOut()
+
   return (
     <div className="flex items-center justify-between">
       <DropdownMenu>
@@ -24,12 +32,12 @@ export function UserMenu({ user }: UserMenuProps) {
                 height={48}
                 width={48}
               />
-            ) : ( */}
-            <div className="flex items-center justify-center text-xs font-medium uppercase rounded-full select-none size-7 shrink-0 bg-muted/50 text-muted-foreground">
-              {/* {user?.name ? getUserInitials(user?.name) : null} */} User
-            </div>
+            ) : ( 
+             <div className="flex items-center justify-center text-xs font-medium uppercase rounded-full select-none size-7 shrink-0 bg-muted/50 text-muted-foreground">
+            {user?.name ? getUserInitials(user?.name) : null} 
+            </div> */}
 
-            <span className="ml-2">username</span>
+            <span className="ml-2"> {user?.email}</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent sideOffset={8} align="start" className="w-[180px]">
@@ -38,7 +46,7 @@ export function UserMenu({ user }: UserMenuProps) {
             <div className="text-xs text-zinc-500">email</div>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => {}} className="text-xs">
+          <DropdownMenuItem onClick={signout} className="text-xs">
             Log Out
           </DropdownMenuItem>
         </DropdownMenuContent>
