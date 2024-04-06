@@ -7,12 +7,7 @@ import { useSetState } from 'react-use'
 const GlobalStoreContext = createContext<GlobalStoreContextValue>({
   errorMessage: '',
   hasuraJwt: '',
-  user: {
-    userId: '',
-    username: '',
-    name: '',
-    email: ''
-  },
+  user: null,
   setGlobalError: (errorMessage: string) => {}
 })
 
@@ -59,4 +54,5 @@ export type UserProfile = {
   username: string
   name: string
   email: string
+  image: string
 }

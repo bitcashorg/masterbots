@@ -530,7 +530,6 @@ export async function getUser({
   const { user } = await client.query({
     user: {
       ...everything,
-      name: true,
       __args: {
         where: {
           email: {

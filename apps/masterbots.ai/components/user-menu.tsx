@@ -9,9 +9,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { User } from '@supabase/auth-js'
 import { useSupabaseClient } from '@/services/supabase'
-import { useGlobalStore } from '@/hooks/use-global-store'
+import { UserProfile, useGlobalStore } from '@/hooks/use-global-store'
 
 export function UserMenu() {
   const supabase = useSupabaseClient()
@@ -24,7 +23,7 @@ export function UserMenu() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="pl-0">
-            {/* {user.image ? (
+            {user?.image ? (
               <Image
                 className="transition-opacity duration-300 rounded-full select-none size-6 ring-1 ring-zinc-100/10 hover:opacity-80"
                 src={user?.image ? user.image : ''}
@@ -32,12 +31,13 @@ export function UserMenu() {
                 height={48}
                 width={48}
               />
-            ) : ( 
-             <div className="flex items-center justify-center text-xs font-medium uppercase rounded-full select-none size-7 shrink-0 bg-muted/50 text-muted-foreground">
-            {user?.name ? getUserInitials(user?.name) : null} 
-            </div> */}
+            ) : (
+              <div className="flex items-center justify-center text-xs font-medium uppercase rounded-full select-none size-7 shrink-0 bg-muted/50 text-muted-foreground">
+                {user?.name ? getUserInitials(user?.name) : null}
+              </div>
+            )}
 
-            <span className="ml-2"> {user?.email}</span>
+            <span className="ml-2"> {user?.username}</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent sideOffset={8} align="start" className="w-[180px]">
@@ -60,5 +60,5 @@ function getUserInitials(name: string) {
   return lastName ? `${firstName[0]}${lastName[0]}` : firstName.slice(0, 2)
 }
 export interface UserMenuProps {
-  user: User
+  user: UserProfile
 }

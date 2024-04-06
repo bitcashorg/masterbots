@@ -21,7 +21,8 @@ export async function getUserProfile(): Promise<UserProfile | null> {
       userId: userProfile.userId,
       username: userProfile.username,
       name: '',
-      email: userProfile.email
+      email: userProfile.email,
+      image: userProfile.profilePicture || ''
     }
   } catch (error) {
     console.log('GET USER PROFILE ERROR', error)
