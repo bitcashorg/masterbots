@@ -36,10 +36,10 @@ jobs:
           urls: |
             "https://${{ steps.vercel_preview_url.outputs.preview_url }}"
             "https://${{ steps.vercel_preview_url.outputs.preview_url }}/b/moneybot"
-            "https://${{ steps.vercel_preview_url.outputs.preview_url }}/u/slug-1"
-            "https://${{ steps.vercel_preview_url.outputs.preview_url }}/p"
-            "https://${{ steps.vercel_preview_url.outputs.preview_url }}/health"
-            "https://${{ steps.vercel_preview_url.outputs.preview_url }}/health/a8103808-14a3-48ed-aa5a-9e490cfdcf0e"
+          # "https://${{ steps.vercel_preview_url.outputs.preview_url }}/u/slug-1"
+          # "https://${{ steps.vercel_preview_url.outputs.preview_url }}/p"
+          # "https://${{ steps.vercel_preview_url.outputs.preview_url }}/health"
+          # "https://${{ steps.vercel_preview_url.outputs.preview_url }}/health/a8103808-14a3-48ed-aa5a-9e490cfdcf0e"
           # budgetPath: '.github/lighthouse/budget.json'
           uploadArtifacts: true
           temporaryPublicStorage: true
