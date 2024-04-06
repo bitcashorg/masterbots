@@ -66,8 +66,6 @@ jobs:
               comment += `| ${score(result.summary.pwa)} PWA | ${result.summary.pwa} |\n`;
             });
 
-            comment += '\n*Lighthouse ran on ' + Object.keys(links)[0] + '*';
-
             core.setOutput("comment", comment);
       - name: Add comment to PR
         id: comment_to_pr
