@@ -79,7 +79,7 @@ export async function GET(request: Request) {
     JSON.stringify({
       userId: userProfile.userId,
       username: userProfile.username,
-      name: userProfile
+      name: identity.identity_data?.name || ''
     }),
     {
       httpOnly: true,

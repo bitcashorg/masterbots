@@ -8,7 +8,11 @@ import { User } from '@supabase/auth-js'
 const GlobalStoreContext = createContext<GlobalStoreContextValue>({
   errorMessage: '',
   hasuraJwt: '',
-  user: null,
+  user: {
+    userId: '',
+    username: '',
+    name: ''
+  },
   setGlobalError: (errorMessage: string) => {}
 })
 
@@ -46,6 +50,10 @@ type GlobalStoreProviderProps = {
 type GlobalStoreContextValue = {
   errorMessage: string
   hasuraJwt: string
-  user: User | null
+  user: {
+    userId: string
+    username: string
+    name: string
+  } | null
   setGlobalError: (errorMessage: string) => void
 }
