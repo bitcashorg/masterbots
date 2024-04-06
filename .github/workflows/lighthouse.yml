@@ -18,13 +18,13 @@ jobs:
           header: lighthouse
           message: |
             Running Lighthouse audit...
-      - name: Vercel Token
-        run: echo "Token = ${{ secrets.VERCEL_TOKEN }}"
       - name: Capture Vercel preview URL
         id: vercel_preview_url
         uses: zentered/vercel-preview-url@v1.1.9
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        with:
+          vercel_project_id: 'prj_k5bYwz7n5hAUFdrWE986D91RiMbW'
       - name: Get URL
         run: echo "https://${{ steps.vercel_preview_url.outputs.preview_url }}"
       - uses: actions/checkout@v2
