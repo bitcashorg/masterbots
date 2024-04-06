@@ -53,7 +53,7 @@ jobs:
             let comment = '⚡️ [Lighthouse report]'
 
             manifest.forEach(result => {
-              const pageLink = manifest[page].url;
+              const pageLink = result.url;
               comment = `Link: ${pageLink}:\n`;
               comment += '| Category | Score |\n';
               comment += '| --- | --- |\n';
