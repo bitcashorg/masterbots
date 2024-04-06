@@ -13,6 +13,7 @@ export default async function ChatPage({ params }: ChatPageProps) {
   } = await getUserSession()
   const jwt = cookies().get('hasuraJwt')?.value || ''
 
+  console.log({ jwt, expired: isTokenExpired(jwt), user })
   // NOTE: maybe we should use same expiration time
   if (!jwt || isTokenExpired(jwt) || !user)
     redirect(`/sign-in?next=/${params.threadId}/${params.threadId}`)
