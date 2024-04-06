@@ -1,10 +1,10 @@
 'use client'
 
 import { useThread } from '@/hooks/use-thread'
-import { IconClose } from './ui/icons'
+import { IconClose } from '../ui/icons'
 import { cn, scrollToBottomOfElement } from '@/lib/utils'
-import { Chat } from './c/chat'
-import { ChatList } from './c/chat-list'
+import { Chat } from './chat'
+import { ChatList } from './chat-list'
 import { useEffect, useRef } from 'react'
 import { useAtBottom } from '@/hooks/use-at-bottom'
 import { useScroll } from 'framer-motion'
@@ -58,12 +58,12 @@ export function ThreadPopup({ className }: { className?: string }) {
   return (
     <div
       className={`size-full dark:bg-[#27272A80] lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)] flex justify-center items-center absolute top-0
-      bg-[#F4F4F580] backdrop-blur-[4px] ease-in-out duration-500 z-[9] transition-all ${isOpenPopup ? 'animate-fade-in' : 'hidden animate-fade-out'}`}
+      bg-[#F4F4F580] backdrop-blur-sm ease-in-out duration-500 z-[9] transition-all ${isOpenPopup ? 'animate-fade-in' : 'hidden animate-fade-out'}`}
     >
       <div
         className={cn(
           className,
-          `flex flex-col z-[10] rounded-lg duration-500 ease-in-out absolute h-[90%]
+          `flex flex-col z-10 rounded-lg duration-500 ease-in-out absolute h-[90%]
       max-w-[1032px] w-[95%] dark:border-mirage border-iron border
       transition-opacity ${isOpenPopup ? 'animate-fade-in' : 'animate-fade-out'}`
         )}
@@ -94,7 +94,7 @@ export function ThreadPopup({ className }: { className?: string }) {
         >
           {activeThread && (
             <ChatList
-              className="max-w-[100%] !px-[32px] !mx-0"
+              className="max-w-full !px-[32px] !mx-0"
               isThread={false}
               chatbot={activeThread.chatbot}
               messages={allMessages}

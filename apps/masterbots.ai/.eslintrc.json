@@ -6,10 +6,11 @@
     "prettier",
     "plugin:tailwindcss/recommended"
   ],
-  "plugins": ["tailwindcss"],
+  "plugins": ["tailwindcss", "import"],
   "rules": {
     "tailwindcss/no-custom-classname": "off",
-    "tailwindcss/classnames-order": "off"
+    "tailwindcss/classnames-order": "off",
+    "import/no-unused-modules": [1, { "unusedExports": true }]
   },
   "settings": {
     "tailwindcss": {
@@ -24,3 +25,7 @@
     }
   ]
 }
+
+// TODO: dead code detection
+
+// https://blog.logrocket.com/how-detect-dead-code-frontend-project/

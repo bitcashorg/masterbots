@@ -1,6 +1,6 @@
 'use client'
 
-import FooterCT from '@/components/footer-ct'
+import FooterCT from '@/components/layout/footer-ct'
 import { Button } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
@@ -78,7 +78,7 @@ export function ChatSearchInput({
         <Button
           type="reset"
           variant="ghost"
-          className="absolute px-3 right-0 top-1/2 transform -translate-y-1/2 cursor-pointer"
+          className="absolute right-0 px-3 -translate-y-1/2 cursor-pointer top-1/2"
           onClick={() => changeKeyword('')}
           aria-label="Clear search"
         >

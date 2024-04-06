@@ -1,10 +1,19 @@
 import { getThread } from '@/services/hasura'
-import { BrowseThread } from '@/components/home/browse-thread'
+import { BrowseThread } from '@/components/browse/browse-thread'
 import { ChatPageProps } from '@/app/c/[chatbot]/[threadId]/page'
+import Shortlink from '@/components/browse/shortlink-button'
 
 export default async function ThreadLandingPage({ params }: ChatPageProps) {
   const thread = await getThread({
     threadId: params.threadId
   })
-  return <BrowseThread thread={thread} />
+  return (
+    <>
+      <div>
+        <Shortlink />
+      </div>
+
+      <BrowseThread thread={thread} />
+    </>
+  )
 }

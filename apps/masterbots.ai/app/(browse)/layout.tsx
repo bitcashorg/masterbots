@@ -1,5 +1,5 @@
 import { BrowseProvider } from '@/hooks/use-browse'
-import FooterCT from '@/components/footer-ct'
+import FooterCT from '@/components/layout/footer-ct'
 
 interface BrowseLayoutProps {
   children: React.ReactNode

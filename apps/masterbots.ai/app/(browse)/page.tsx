@@ -1,6 +1,6 @@
-import BrowseList from '@/components/home/browse-list'
-import { BrowseCategoryTabs } from '@/components/home/browse-category-tabs'
-import { BrowseSearchInput } from '@/components/home/browse-search-input'
+import BrowseList from '@/components/browse/browse-list'
+import { BrowseCategoryTabs } from '@/components/browse/browse-category-tabs'
+import { BrowseSearchInput } from '@/components/browse/browse-search-input'
 import { getCategories } from '@/services/hasura'
 
 export const revalidate = 3600 // revalidate the data at most every hour

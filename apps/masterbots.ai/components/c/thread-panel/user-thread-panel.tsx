@@ -1,7 +1,7 @@
 'use client'
 
 import { ChatSearchInput } from '@/components/c/chat-search-input'
-import ThreadList from '@/components/thread-list'
+import ThreadList from '@/components/c/thread-list'
 import { useSidebar } from '@/hooks/use-sidebar'
 import { useThread } from '@/hooks/use-thread'
 import { getThreads } from '@/services/hasura'

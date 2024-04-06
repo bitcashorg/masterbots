@@ -3,9 +3,9 @@
 import Image from 'next/image'
 import { Thread } from 'mb-genql'
 import React from 'react'
-import { ShortMessage } from './short-message'
-import { ChatAccordion } from './c/chat-accordion'
-import { ChatList } from './c/chat-list'
+import { ShortMessage } from '../short-message'
+import { ChatAccordion } from './chat-accordion'
+import { ChatList } from './chat-list'
 import { useThread } from '@/hooks/use-thread'
 import { useSidebar } from '@/hooks/use-sidebar'
 import { cn, sleep } from '@/lib/utils'
@@ -156,7 +156,7 @@ function ThreadComponent({
 
         {/* Thread Content */}
         <ChatList
-          className="max-w-[100%] !px-0"
+          className="max-w-full !px-0"
           isThread={false}
           chatbot={thread.chatbot}
           messages={allMessages}

@@ -1,6 +1,6 @@
 import { ChatLayoutSection } from '@/components/c/chat-layout-section'
 import { ResponsiveSidebar } from '@/components/c/sidebar/sidebar-responsive'
-import FooterCT from '@/components/footer-ct'
+import FooterCT from '@/components/layout/footer-ct'
 
 interface ChatLayoutProps {
   children: React.ReactNode

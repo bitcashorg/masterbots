@@ -1,6 +1,6 @@
 import { getBrowseThreads, getUserInfoFromBrowse } from '@/services/hasura'
-import BrowseUserDetails from '@/components/home/browse-user-details'
-import BrowseSpecificThreadList from '@/components/home/browse-specific-thread-list'
+import BrowseUserDetails from '@/components/browse/browse-user-details'
+import BrowseSpecificThreadList from '@/components/browse/browse-specific-thread-list'
 
 const PAGE_SIZE = 50
 
