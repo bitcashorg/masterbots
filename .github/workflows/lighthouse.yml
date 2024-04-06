@@ -39,12 +39,36 @@ jobs:
           uploadArtifacts: true
           temporaryPublicStorage: true
       - name: Format lighthouse score
-        id: format_lighthouse_score
-        uses: actions/github-script@v7.0.1
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            core.setOutput('comment', ${{ steps.lighthouse_audit.outputs.manifest }} + ${{ steps.lighthouse_audit.outputs.links }});
+          id: format_lighthouse_score
+          uses: actions/github-script@v7.0.1
+          with:
+            github-token: ${{secrets.GITHUB_TOKEN}}
+            script: |
+              const manifest = ${{ steps.lighthouse_audit.outputs.manifest }};
+              const links = ${{ steps.lighthouse_audit.outputs.links }};
+
+              const formatResult = (res) => Math.round((res * 100));
+              const score = res => res >= 90 ? '🟢' : res >= 50 ? '🟠' : '🔴';
+
+              let comment = '⚡️ [Lighthouse report]'
+
+              manifest.forEach(result => {
+                const pageLink = manifest[page].url;
+                comment = `Link: ${pageLink}:\n`;
+                comment += '| Category | Score |\n';
+                comment += '| --- | --- |\n';
+
+                Object.keys(result.summary).forEach(key => result.summary[key] = formatResult(result.summary[key]));
+                comment += `| ${score(result.summary.performance)} Performance | ${result.summary.performance} |\n`;
+                comment += `| ${score(result.summary.accessibility)} Accessibility | ${result.summary.accessibility} |\n`;
+                comment += `| ${score(result.summary['best-practices'])} Best practices | ${result.summary['best-practices']} |\n`;
+                comment += `| ${score(result.summary.seo)} SEO | ${result.summary.seo} |\n`;
+                comment += `| ${score(result.summary.pwa)} PWA | ${result.summary.pwa} |\n`;
+              });
+
+              comment += '\n*Lighthouse ran on ' + Object.keys(links)[0] + '*';
+
+              core.setOutput("comment", comment);
       - name: Add comment to PR
         id: comment_to_pr
         uses: marocchino/sticky-pull-request-comment@v2.9.0
