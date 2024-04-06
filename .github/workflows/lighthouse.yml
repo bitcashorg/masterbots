@@ -69,6 +69,8 @@ jobs:
               comment += `| ${score(result.summary['best-practices'])} Best practices | ${result.summary['best-practices']} |\n`;
               comment += `| ${score(result.summary.seo)} SEO | ${result.summary.seo} |\n`;
               comment += `| ${score(result.summary.pwa)} PWA | ${result.summary.pwa} |\n`;
+
+              comment += `Detailed report ${steps.lighthouse_audit.outputs.links[pageLink]}\n`;
             });
 
             core.setOutput("comment", comment);
