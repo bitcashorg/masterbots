@@ -37,12 +37,13 @@ export async function GET(request: Request) {
       path: '/',
       sameSite: 'lax' //  sameSite policy
     })
+    console.log('Auth Callback')
 
     // Return the headers with cookies set
     return new Response(null, {
       status: 302,
-      statusText: 'Found'
-      // headers: { Location: `${origin}${next}` }
+      statusText: 'Found',
+      headers: { Location: `${origin}${next}` }
     })
   }
 
