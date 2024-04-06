@@ -61,7 +61,7 @@ jobs:
 
             manifest.forEach(result => {
               const pageLink = result.url;
-              comment = `Link: ${pageLink}:\n`;
+              comment += `Link: ${pageLink}:\n`;
               comment += '| Category | Score |\n';
               comment += '| --- | --- |\n';
 
