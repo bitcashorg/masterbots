@@ -7,7 +7,7 @@ import { useThread } from '@/hooks/use-thread'
 import { useSidebar } from '@/hooks/use-sidebar'
 import { cn, sleep } from '@/lib/utils'
 import { ShortMessage } from '../short-message'
-import { ChatAccordion } from './chat-accordion'
+import { ChatAccordion } from '../shared/chat-accordion'
 import { ChatList } from './chat-list'
 
 export default function ThreadList({

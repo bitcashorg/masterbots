@@ -1,7 +1,7 @@
 'use client'
 
 import type { Thread } from '@repo/mb-genql'
-import { cn, extractBetweenMarkers } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import { BrowseChatMessages } from './browse-chat-messages'
 
 export function BrowseThread({

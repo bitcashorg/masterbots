@@ -1,7 +1,7 @@
 import BrowseList from '@/components/browse/browse-list'
 import { BrowseCategoryTabs } from '@/components/browse/browse-category-tabs'
 import { BrowseSearchInput } from '@/components/browse/browse-search-input'
-import { getCategories } from '@/services/hasura'
+import { getBrowseThreads, getCategories } from '@/services/hasura'
 
 export const revalidate = 3600 // revalidate the data at most every hour
 
@@ -11,6 +11,17 @@ export default async function BrowseCategoryPage({
   params: { category: string }
 }) {
   const categories = await getCategories()
+  const categoryId = categories.find(
+    c =>
+      c.name.toLowerCase().replace(/\s+/g, '_').replace(/\&/g, 'n') ===
+      params.category
+  ).categoryId
+  if (!categoryId) throw new Error('Category id not foud')
+
+  const threads = await getBrowseThreads({
+    limit: 50,
+    categoryId
+  })
 
   return (
     <div className="w-full max-w-screen-lg pb-10 mx-auto">
@@ -19,7 +30,7 @@ export default async function BrowseCategoryPage({
         initialCategory={params.category}
       />
       <BrowseSearchInput />
-      <BrowseList />
+      <BrowseList initialThreads={threads} />
     </div>
   )
 }

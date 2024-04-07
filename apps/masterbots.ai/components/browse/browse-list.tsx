@@ -9,23 +9,13 @@ import BrowseListItem from './browse-list-item'
 
 const PAGE_SIZE = 50
 
-export default function BrowseList() {
+export default function BrowseList({ initialThreads }: BrowseListProps) {
   const { keyword, tab } = useBrowse()
-
-  const [threads, setThreads] = React.useState<Thread[]>([])
-  const [filteredThreads, setFilteredThreads] = React.useState<Thread[]>([])
+  const [threads, setThreads] = React.useState<Thread[]>(initialThreads)
+  const [filteredThreads, setFilteredThreads] =
+    React.useState<Thread[]>(initialThreads)
   const [loading, setLoading] = React.useState<boolean>(false)
-  const [count, setCount] = React.useState<number>(0)
-
-  const fetchThreads = async (keyword: string, tab: number | null) => {
-    const threads = await getBrowseThreads({
-      categoryId: tab,
-      keyword,
-      limit: PAGE_SIZE
-    })
-    setThreads(threads)
-    setCount(threads.length)
-  }
+  const [count, setCount] = React.useState<number>(initialThreads.length)
 
   const verifyKeyword = () => {
     if (!keyword) {
@@ -62,10 +52,6 @@ export default function BrowseList() {
   }
 
   React.useEffect(() => {
-    fetchThreads('', tab)
-  }, [tab])
-
-  React.useEffect(() => {
     verifyKeyword()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [keyword, threads])
@@ -84,4 +70,8 @@ export default function BrowseList() {
       ))}
     </div>
   )
+}
+
+type BrowseListProps = {
+  initialThreads: Thread[]
 }
