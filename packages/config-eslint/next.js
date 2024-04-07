@@ -83,7 +83,8 @@ module.exports = {
     "import/no-cycle": "warn",
     "no-useless-escape": "warn",
     "no-redeclare": "warn",
-    "no-extra-boolean-cast": "warn"
+    "no-extra-boolean-cast": "warn",
+    "@typescript-eslint/consistent-type-definitions": "warn"
   },
 };
 
