@@ -2,11 +2,9 @@
 // @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Chat/ChatcleanMessage.tsx
 
 import type { Chatbot, Message, User } from '@repo/mb-genql'
-import Image from 'next/image'
-import Link from 'next/link'
+
 import React from 'react'
 import { cn, createMessagePairs } from '@/lib/utils'
-import { IconUser } from '@/components/ui/icons'
 import { ChatAccordion } from '../shared/chat-accordion'
 import type { MessagePair } from './browse-chat-messages'
 import { convertMessage } from './browse-chat-messages'
