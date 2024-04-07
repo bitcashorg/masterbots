@@ -16,7 +16,7 @@ export function BrowseCategoryTabs({
   useEffect(() => {
     if (document) {
       const element = document.getElementById(
-        `browse-category-tab__${activeTab.toString()}`
+        `browse-category-tab__${activeTab?.toString()}`
       )
 
       if (element) {

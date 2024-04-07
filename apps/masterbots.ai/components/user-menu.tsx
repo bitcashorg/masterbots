@@ -38,7 +38,7 @@ export function UserMenu() {
               </div>
             )}
 
-            <span className="ml-2"> {user.username}</span>
+            <span className="ml-2"> {user?.username}</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-[180px]" sideOffset={8}>

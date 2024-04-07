@@ -37,7 +37,7 @@ export default function UserThreadPanel({
       offset: threads.length,
       limit: PAGE_SIZE,
       categoryId: activeCategory,
-      chatbotName: activeChatbot.name
+      chatbotName: activeChatbot?.name
     })
     if (moreThreads) setThreads(prevState => [...prevState, ...moreThreads])
     setCount(_prev => moreThreads.length ?? 0)
@@ -53,7 +53,7 @@ export default function UserThreadPanel({
       userId: user.userId,
       limit: PAGE_SIZE,
       categoryId: activeCategory,
-      chatbotName: activeChatbot.name
+      chatbotName: activeChatbot?.name
     })
 
     // Check if the fetchId matches the current fetchId stored in the ref
@@ -79,7 +79,7 @@ export default function UserThreadPanel({
   useEffect(() => {
     if (
       threads &&
-      threads.filter(t => t.threadId === activeThread.threadId).length
+      threads.filter(t => t.threadId === activeThread?.threadId).length
     )
       return
     setIsOpenPopup(false)

@@ -48,7 +48,7 @@ export function ChatAccordion({
 
   React.useEffect(() => {
     if (
-      (thread.threadId &&
+      (thread?.threadId &&
         activeThread !== null &&
         thread.threadId !== activeThread.threadId) ||
       (activeThread === null && thread.threadId)
