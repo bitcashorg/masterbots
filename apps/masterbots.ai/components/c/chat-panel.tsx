@@ -1,13 +1,12 @@
 import * as React from 'react'
 import { type UseChatHelpers } from 'ai/react'
-
+import { Chatbot } from '@repo/mb-genql'
 import { Button } from '@/components/ui/button'
 import { PromptForm } from '@/components/c/prompt-form'
 import { ButtonScrollToBottom } from '@/components/button-scroll-to-bottom'
 import { IconRefresh, IconShare, IconStop } from '@/components/ui/icons'
 import { FooterText } from '@/components/layout/footer'
 import { ChatShareDialog } from '@/components/c/chat-share-dialog'
-import { Chatbot } from '@repo/mb-genql'
 import { cn } from '@/lib/utils'
 import { useThread } from '@/hooks/use-thread'
 
@@ -59,33 +58,33 @@ export function ChatPanel({
       )}
     >
       <ButtonScrollToBottom
-        scrollToBottom={scrollToBottom}
         isAtBottom={isAtBottom}
+        scrollToBottom={scrollToBottom}
       />
       <div className="mx-auto ">
         {chatbot && showReload ? (
           <div className="flex items-center justify-center h-12">
             {isLoading ? (
               <Button
-                variant="outline"
-                onClick={() => stop()}
                 className="bg-background"
+                onClick={() => { stop(); }}
+                variant="outline"
               >
                 <IconStop className="mr-2" />
                 Stop generating
               </Button>
             ) : (
-              messages?.length >= 2 && (
+              messages.length >= 2 && (
                 <div className="flex space-x-2">
-                  <Button variant="outline" onClick={() => reload()}>
+                  <Button onClick={() => reload()} variant="outline">
                     <IconRefresh className="mr-2" />
                     Regenerate response
                   </Button>
                   {id && title ? (
                     <>
                       <Button
+                        onClick={() => { setShareDialogOpen(true); }}
                         variant="outline"
-                        onClick={() => setShareDialogOpen(true)}
                       >
                         <IconShare className="mr-2" />
                         Share
@@ -112,6 +111,9 @@ export function ChatPanel({
           className={`px-4 py-2 space-y-4 border-t shadow-lg bg-background sm:border md:py-4 ${isOpenPopup ? 'dark:border-mirage border-iron' : ''}`}
         >
           <PromptForm
+            disabled={!chatbot}
+            input={input}
+            isLoading={isLoading}
             onSubmit={async value => {
               await append({
                 id,
@@ -119,11 +121,8 @@ export function ChatPanel({
                 role: 'user'
               })
             }}
-            disabled={!Boolean(chatbot)}
-            input={input}
-            setInput={setInput}
-            isLoading={isLoading}
             placeholder={placeholder}
+            setInput={setInput}
           />
           <FooterText className="hidden sm:block" />
         </div>

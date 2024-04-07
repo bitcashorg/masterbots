@@ -1,11 +1,10 @@
 'use client'
 
 import React from 'react'
-
+import { debounce } from 'lodash'
+import type { Thread } from '@repo/mb-genql'
 import { useBrowse } from '@/hooks/use-browse'
 import { getBrowseThreads } from '@/services/hasura'
-import { debounce } from 'lodash'
-import { Thread } from '@repo/mb-genql'
 import BrowseListItem from './browse-list-item'
 
 const PAGE_SIZE = 50
@@ -75,12 +74,12 @@ export default function BrowseList() {
     <div className="w-full py-5 flex flex-col gap-3">
       {filteredThreads.map((thread: Thread, key) => (
         <BrowseListItem
-          thread={thread}
-          key={key}
-          loading={loading}
-          loadMore={loadMore}
           hasMore={count === PAGE_SIZE}
           isLast={key === filteredThreads.length - 1}
+          key={key}
+          loadMore={loadMore}
+          loading={loading}
+          thread={thread}
         />
       ))}
     </div>

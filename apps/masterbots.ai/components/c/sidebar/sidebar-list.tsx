@@ -1,7 +1,7 @@
+import { cache } from 'react'
 import { ClearHistory } from '@/components/clear-history'
 import { SidebarItems } from '@/components/c/sidebar/sidebar-items'
 import { ThemeToggle } from '@/components/theme-toggle'
-import { cache } from 'react'
 
 interface SidebarListProps {
   userId?: string
@@ -18,7 +18,7 @@ export async function SidebarList({ userId }: SidebarListProps) {
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
       <div className="flex-1 overflow-auto">
-        {chats?.length ? (
+        {chats.length ? (
           <div className="px-2 space-y-2">
             <SidebarItems chats={chats} />
           </div>

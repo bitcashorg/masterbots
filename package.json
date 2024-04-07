@@ -17,16 +17,18 @@
     "build": "turbo build --no-daemon",
     "dev": "turbo dev --no-daemon --parallel",
     "lint": "turbo lint --no-daemon",
+    "lint:fix": "turbo lint:fix --no-daemon",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
     "@types/node": "^20.4.1",
-    "eslint": "^8.44.0",
+    "@repo/tailwind-config": "workspace:*",
+    "@repo/eslint-config": "workspace:*",
     "prettier": "^3.2.5",
     "turbo": "latest",
     "husky": "^9.0.11",
     "lint-staged": "^15.2.2",
-    "typescript": "^5.4.4"
+    "typescript": "5.3.x"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

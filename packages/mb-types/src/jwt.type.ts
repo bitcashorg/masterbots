@@ -1,5 +1,5 @@
-import { HasuraClaims } from "./hasura.type";
 import { type JWTPayload } from "jose";
+import type { HasuraClaims } from "./hasura.type";
 
 export interface JwtUser {
   role: string;

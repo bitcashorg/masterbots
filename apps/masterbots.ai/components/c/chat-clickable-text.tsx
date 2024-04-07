@@ -28,7 +28,7 @@ export function ClickableText({
   )
   const generalPattern = /(.*?)([:.,])(?:\s|$)/g
   // First, check for the UNIQUE pattern
-  const uniqueMatch = fullText.match(uniquePattern)
+  const uniqueMatch = uniquePattern.exec(fullText)
   let clickableText = uniqueMatch ? uniqueMatch[1] : ''
   let restText = uniqueMatch
     ? fullText.slice(fullText.indexOf(clickableText) + clickableText.length)

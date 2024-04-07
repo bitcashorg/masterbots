@@ -1,4 +1,4 @@
-import { Chatbot } from '@repo/mb-genql'
+import type { Chatbot } from '@repo/mb-genql'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Separator } from '../ui/separator'
@@ -15,19 +15,19 @@ export default function BrowseChatbotDetails({
       flex flex-row gap-3 relative mx-auto font-mono"
       >
         <div className="w-2/3 flex flex-col gap-3">
-          <div className="text-2xl font-black">{chatbot?.name}</div>
+          <div className="text-2xl font-black">{chatbot.name}</div>
           <Separator className="dark:bg-mirage bg-gray-300" />
           <div className="text-xl font-semibold">
-            {chatbot?.categories[0].category.name}.
+            {chatbot.categories[0].category.name}.
           </div>
           <div className="text-base">
             <div className="font-medium">
-              {chatbot?.description ? <div>{chatbot?.description}</div> : ''}
+              {chatbot.description ? <div>{chatbot.description}</div> : ''}
             </div>
             <div className="font-light">
               Threads:{' '}
               <span className="text-[#71717A]">
-                {chatbot?.threads.length ?? 1}
+                {chatbot.threads.length ?? 1}
               </span>
               {/* <div>
               Views: <span className="dark:text-[#71717A]">0</span>
@@ -44,11 +44,11 @@ export default function BrowseChatbotDetails({
         <div className="w-1/3 relative flex items-end">
           <div className="flex flex-col text-xs items-center w-full gap-2">
             <Link
-              style={{ wordSpacing: '4px' }}
               className="text-[#388DE2]"
-              href={`/${chatbot?.name.toLowerCase()}`}
+              href={`/${chatbot.name.toLowerCase()}`}
+              style={{ wordSpacing: '4px' }}
             >
-              Chat with {chatbot?.name} &gt;
+              Chat with {chatbot.name} &gt;
             </Link>
             {/* <div className="flex items-center gap-2">
             <IconUpVote className="opacity-60 h-4" />
@@ -69,10 +69,10 @@ export default function BrowseChatbotDetails({
         </div>
         <div className="size-24 absolute border-4 border-[#388DE2] right-0 top-0 translate-x-1/4 rounded-full -translate-y-1/4 dark:bg-[#131316] bg-white">
           <Image
+            alt={chatbot.avatar || 'ChatAvatar'}
             className="size-full transition-opacity duration-300 rounded-full select-none ring-1 ring-zinc-100/10 hover:opacity-80"
-            src={chatbot?.avatar || ''}
-            alt={chatbot?.avatar || 'ChatAvatar'}
             height={96}
+            src={chatbot.avatar || ''}
             width={96}
           />
         </div>

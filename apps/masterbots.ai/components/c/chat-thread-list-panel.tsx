@@ -7,9 +7,9 @@ export default function ChatThreadListPanel() {
   const { initialMessages, activeThread } = useThread()
   return (
     <Chat
+      chatbot={activeThread.chatbot}
       initialMessages={initialMessages}
-      chatbot={activeThread?.chatbot}
-      threadId={activeThread?.threadId}
+      threadId={activeThread.threadId}
     />
   )
 }

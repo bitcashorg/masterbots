@@ -1,14 +1,14 @@
 // Inspired by Chatbot-UI and modified to fit the needs of this project
 // @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Chat/ChatcleanMessage.tsx
 
-import * as AI from 'ai'
-import { Chatbot, Message, User } from '@repo/mb-genql'
+import type * as AI from 'ai'
+import type { Chatbot, Message, User } from '@repo/mb-genql'
 import React from 'react'
+import { getMessages } from '@/services/hasura'
 import BrowseChatbotDetails from './browse-chatbot-details'
 import { BrowseChatMessageList } from './browse-chat-message-list'
-import { getMessages } from '@/services/hasura'
 
-export type MessagePair = {
+export interface MessagePair {
   userMessage: Message
   chatGptMessage: Message[]
 }
@@ -34,7 +34,7 @@ export function BrowseChatMessages({
   const [messages, setMessages] = React.useState<Message[]>([])
   const fetchMessages = async () => {
     if (threadId && !messages.length) {
-      const messages = await getMessages({ threadId: threadId })
+      const messages = await getMessages({ threadId })
       setMessages(messages)
     }
   }
@@ -47,10 +47,10 @@ export function BrowseChatMessages({
       <BrowseChatbotDetails chatbot={chatbot} />
       <div className="max-w-[1024px] px-4 mx-auto mt-8 flex gap-y-4 flex-col">
         <BrowseChatMessageList
-          user={user}
           chatbot={chatbot}
-          messages={messages}
           isThread
+          messages={messages}
+          user={user}
         />
       </div>
     </div>

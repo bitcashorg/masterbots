@@ -1,6 +1,6 @@
 import { type Message as AIMessage } from 'ai/react'
-import { Message } from '@repo/mb-genql'
-import { clsx, type ClassValue } from 'clsx'
+import type { Message } from '@repo/mb-genql'
+import { clsx, ClassValue } from 'clsx'
 import { customAlphabet } from 'nanoid'
 import { twMerge } from 'tailwind-merge'
 
@@ -50,7 +50,7 @@ export function extractBetweenMarkers(
   endMarker?: string // endMarker is now optional
 ): string {
   let startIndex = str.indexOf(startMarker)
-  let endIndex = endMarker
+  const endIndex = endMarker
     ? str.indexOf(endMarker, startIndex + startMarker.length)
     : str.length
 
@@ -79,7 +79,7 @@ export function createMessagePairs(messages: Message[] | AIMessage[]) {
 
     if (message.role === 'user') {
       const userMessage = message
-      let chatGptMessages = []
+      const chatGptMessages = []
       for (let j = i + 1; j < messages.length; j++) {
         const chatGptMessage = findNextAssistantMessage(messages, j)
         if (!chatGptMessage) {
@@ -103,7 +103,7 @@ const findNextAssistantMessage = (
   messages: Message[] | AIMessage[],
   startIndex: number
 ) => {
-  if (messages[startIndex]?.role === 'assistant') {
+  if (messages[startIndex].role === 'assistant') {
     return {
       ...messages[startIndex],
       content: cleanPrompt(messages[startIndex].content)
@@ -128,7 +128,7 @@ export function cleanPrompt(str: string) {
 export const readingTime = (messages: { content: string }[]) => {
   let contentGroup: any = []
 
-  for (var i = 0; i <= messages?.length; i++) {
+  for (let i = 0; i <= messages.length; i++) {
     const paragraphGroup = messages[i]?.content?.match(/\\n/g)
     if (paragraphGroup) contentGroup = [...contentGroup, ...paragraphGroup]
   }

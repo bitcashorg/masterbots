@@ -29,12 +29,12 @@ export default async function BotThreadsPage({
     <div className="w-full py-5">
       {chatbot ? <BrowseChatbotDetails chatbot={chatbot} /> : ''}
       <BrowseSpecificThreadList
-        initialThreads={threads}
         PAGE_SIZE={PAGE_SIZE}
+        initialThreads={threads}
+        pageType="bot"
         query={{
           chatbotName: botNames.get(params.id)
         }}
-        pageType="bot"
       />
     </div>
   )

@@ -1,7 +1,10 @@
-import { Client, createClient } from "../generated";
-import { GraphqlOperation } from "@genql/runtime";
-import { endpoints, MbEnv } from "@repo/mb-env";
-import { createClient as createWsClient, Client as WsClient } from "graphql-ws";
+import type { GraphqlOperation } from "@genql/runtime";
+import type { MbEnv } from "@repo/mb-env";
+import { endpoints } from "@repo/mb-env";
+import type { Client as WsClient } from "graphql-ws";
+import { createClient as createWsClient } from "graphql-ws";
+import { createClient } from "../generated";
+import type { Client } from "../generated";
 
 export * from "../generated";
 
@@ -60,10 +63,10 @@ export interface MbClient extends Client {
   subscribe: WsClient["subscribe"];
 }
 
-type GraphQLSdkProps = {
+interface GraphQLSdkProps {
   config?: RequestInit;
   jwt?: string;
   env?: MbEnv;
   adminSecret?: string;
   debug?: boolean;
-};
+}

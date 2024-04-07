@@ -3,10 +3,10 @@
 
 'use client'
 
-import { FC, memo } from 'react'
+import type { FC } from 'react'
+import { memo } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { coldarkDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
-
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
 import { IconCheck, IconCopy, IconDownload } from '@/components/ui/icons'
 import { Button } from '@/components/ui/button'
@@ -16,9 +16,7 @@ interface Props {
   value: string
 }
 
-interface languageMap {
-  [key: string]: string | undefined
-}
+type languageMap = Record<string, string | undefined>
 
 export const programmingLanguages: languageMap = {
   javascript: '.js',
@@ -98,19 +96,19 @@ const CodeBlock: FC<Props> = memo(({ language, value }) => {
         <span className="text-xs lowercase">{language}</span>
         <div className="flex items-center space-x-1">
           <Button
-            variant="ghost"
             className="hover:bg-zinc-800 focus-visible:ring-1 focus-visible:ring-slate-700 focus-visible:ring-offset-0"
             onClick={downloadAsFile}
             size="icon"
+            variant="ghost"
           >
             <IconDownload />
             <span className="sr-only">Download</span>
           </Button>
           <Button
-            variant="ghost"
-            size="icon"
             className="text-xs hover:bg-zinc-800 focus-visible:ring-1 focus-visible:ring-slate-700 focus-visible:ring-offset-0"
             onClick={onCopy}
+            size="icon"
+            variant="ghost"
           >
             {isCopied ? <IconCheck /> : <IconCopy />}
             <span className="sr-only">Copy code</span>
@@ -118,25 +116,25 @@ const CodeBlock: FC<Props> = memo(({ language, value }) => {
         </div>
       </div>
       <SyntaxHighlighter
-        language={language}
-        style={coldarkDark}
         PreTag="div"
-        showLineNumbers
-        customStyle={{
-          margin: 0,
-          width: '100%',
-          background: 'transparent',
-          padding: '1.5rem 1rem'
-        }}
-        lineNumberStyle={{
-          userSelect: 'none'
-        }}
         codeTagProps={{
           style: {
             fontSize: '0.9rem',
             fontFamily: 'var(--font-mono)'
           }
         }}
+        customStyle={{
+          margin: 0,
+          width: '100%',
+          background: 'transparent',
+          padding: '1.5rem 1rem'
+        }}
+        language={language}
+        lineNumberStyle={{
+          userSelect: 'none'
+        }}
+        showLineNumbers
+        style={coldarkDark}
       >
         {value}
       </SyntaxHighlighter>

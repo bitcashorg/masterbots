@@ -3,8 +3,7 @@
 import * as React from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-hot-toast'
-
-import { ServerActionResult } from '@/lib/types'
+import type { ServerActionResult } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import {
   AlertDialog,
@@ -33,10 +32,10 @@ export function ClearHistory({
   const router = useRouter()
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialog onOpenChange={setOpen} open={open}>
       <AlertDialogTrigger asChild>
-        <Button variant="ghost" disabled={!isEnabled || isPending}>
-          {isPending && <IconSpinner className="mr-2" />}
+        <Button disabled={!isEnabled || isPending} variant="ghost">
+          {isPending ? <IconSpinner className="mr-2" /> : null}
           Clear history
         </Button>
       </AlertDialogTrigger>
@@ -67,7 +66,7 @@ export function ClearHistory({
               })
             }}
           >
-            {isPending && <IconSpinner className="mr-2 animate-spin" />}
+            {isPending ? <IconSpinner className="mr-2 animate-spin" /> : null}
             Delete
           </AlertDialogAction>
         </AlertDialogFooter>

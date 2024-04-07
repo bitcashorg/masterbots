@@ -1,15 +1,15 @@
 'use client'
 
+import { debounce } from 'lodash'
+import type { Thread } from '@repo/mb-genql'
+import { useParams } from 'next/navigation'
+import React from 'react'
 import FooterCT from '@/components/layout/footer-ct'
 import { Button } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
 import { useSidebar } from '@/hooks/use-sidebar'
 import { getCategory } from '@/services/hasura'
-import { debounce } from 'lodash'
-import { Thread } from '@repo/mb-genql'
-import { useParams } from 'next/navigation'
-import React from 'react'
 
 export function ChatSearchInput({
   setThreads
@@ -67,24 +67,26 @@ export function ChatSearchInput({
   return (
     <div className="relative w-full max-w-[600px] mx-auto flex items-center justify-center">
       <Input
-        value={keyword}
+        className="max-w-[600px]"
         onChange={e => {
           changeKeyword(e.target.value)
         }}
         placeholder={`Search any chat with ${searchPlaceholder ? searchPlaceholder : 'any bot category'}`}
-        className="max-w-[600px]"
+        value={keyword}
       />
-      {keyword && (
+      {keyword ? (
         <Button
+          aria-label="Clear search"
+          className="absolute right-0 px-3 -translate-y-1/2 cursor-pointer top-1/2"
+          onClick={() => {
+            changeKeyword('')
+          }}
           type="reset"
           variant="ghost"
-          className="absolute right-0 px-3 -translate-y-1/2 cursor-pointer top-1/2"
-          onClick={() => changeKeyword('')}
-          aria-label="Clear search"
         >
           <IconClose className="!h-4 !w-4" />
         </Button>
-      )}
+      ) : null}
       <div className="hidden lg:block absolute max-w-[240px] text-center -top-4 -right-[256px] mx-auto">
         <FooterCT nonFooterTag />
       </div>

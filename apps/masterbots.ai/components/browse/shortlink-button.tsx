@@ -1,11 +1,11 @@
 'use client'
 
+import Link from 'next/link'
+import { useFormState, useFormStatus } from 'react-dom'
 import { CardContent } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import Link from 'next/link'
-import { useFormState, useFormStatus } from 'react-dom'
 import { shorten } from '@/app/actions'
 
 const initialState = {
@@ -22,11 +22,11 @@ export default function Shortlink() {
 
   return (
     <CardContent className="border-t border-gray-200 bg-gray-50">
-      <form className="space-y-4" action={formAction}>
+      <form action={formAction} className="space-y-4">
         <Input id="url" name="url" required type="hidden" value={url} />
         <SubmitButton />
       </form>
-      {state.shortLink && (
+      {state.shortLink ? (
         <div className="p-4 mt-4 bg-white border border-gray-200 rounded dark:border-gray-700">
           <p className="text-center text-blue-500 dark:text-blue-400">
             <Link href={state.shortLink}>
@@ -34,7 +34,7 @@ export default function Shortlink() {
             </Link>
           </p>
         </div>
-      )}
+      ) : null}
     </CardContent>
   )
 }
@@ -43,7 +43,7 @@ function SubmitButton() {
   const { pending } = useFormStatus()
 
   return (
-    <Button type="submit" className="w-full" aria-disabled={pending}>
+    <Button aria-disabled={pending} className="w-full" type="submit">
       {pending ? <LoadingCircle /> : 'copy shortlink'}
     </Button>
   )
@@ -54,8 +54,8 @@ function LoadingCircle() {
     <svg
       aria-hidden="true"
       className="w-4 h-4 text-gray-200 animate-spin fill-gray-600"
-      viewBox="0 0 100 101"
       fill="none"
+      viewBox="0 0 100 101"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path

@@ -1,10 +1,8 @@
 'use client'
 
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-
 import { Sidebar } from '@/components/c/sidebar'
 import { Button } from '@/components/ui/button'
-
 import { IconSidebar } from '@/components/ui/icons'
 
 interface SidebarMobileProps {
@@ -15,7 +13,7 @@ export function SidebarMobile({ children }: SidebarMobileProps) {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="ghost" className="-ml-2 flex size-9 p-0 lg:hidden">
+        <Button className="-ml-2 flex size-9 p-0 lg:hidden" variant="ghost">
           <IconSidebar className="size-6" />
           <span className="sr-only">Toggle Sidebar</span>
         </Button>

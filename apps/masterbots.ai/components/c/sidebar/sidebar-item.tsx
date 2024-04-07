@@ -1,12 +1,9 @@
 'use client'
 
 import * as React from 'react'
-
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-
 import { motion } from 'framer-motion'
-
 import { buttonVariants } from '@/components/ui/button'
 import { IconMessage, IconUsers } from '@/components/ui/icons'
 import {
@@ -31,11 +28,17 @@ export function SidebarItem({ index, chat, children }: SidebarItemProps) {
   const [newChatId, setNewChatId] = useLocalStorage('newChatId', null)
   const shouldAnimate = index === 0 && isActive && newChatId
 
-  if (!chat?.id) return null
+  if (!chat.id) return null
 
   return (
     <motion.div
+      animate={shouldAnimate ? 'animate' : undefined}
       className="relative h-8"
+      initial={shouldAnimate ? 'initial' : undefined}
+      transition={{
+        duration: 0.25,
+        ease: 'easeIn'
+      }}
       variants={{
         initial: {
           height: 0,
@@ -46,19 +49,13 @@ export function SidebarItem({ index, chat, children }: SidebarItemProps) {
           opacity: 1
         }
       }}
-      initial={shouldAnimate ? 'initial' : undefined}
-      animate={shouldAnimate ? 'animate' : undefined}
-      transition={{
-        duration: 0.25,
-        ease: 'easeIn'
-      }}
     >
       <div className="absolute left-2 top-1 flex size-6 items-center justify-center">
         {chat.sharePath ? (
           <Tooltip delayDuration={1000}>
             <TooltipTrigger
-              tabIndex={-1}
               className="focus:bg-muted focus:ring-1 focus:ring-ring"
+              tabIndex={-1}
             >
               <IconUsers className="mr-2" />
             </TooltipTrigger>
@@ -69,12 +66,12 @@ export function SidebarItem({ index, chat, children }: SidebarItemProps) {
         )}
       </div>
       <Link
-        href={chat.path}
         className={cn(
           buttonVariants({ variant: 'ghost' }),
           'group w-full px-8 transition-colors hover:bg-zinc-200/40 dark:hover:bg-zinc-300/10',
           isActive && 'bg-zinc-200 pr-16 font-semibold dark:bg-zinc-800'
         )}
+        href={chat.path}
       >
         <div
           className="relative max-h-5 flex-1 select-none overflow-hidden text-ellipsis break-all"
@@ -84,7 +81,20 @@ export function SidebarItem({ index, chat, children }: SidebarItemProps) {
             {shouldAnimate ? (
               chat.title.split('').map((character, index) => (
                 <motion.span
+                  animate={shouldAnimate ? 'animate' : undefined}
+                  initial={shouldAnimate ? 'initial' : undefined}
                   key={index}
+                  onAnimationComplete={() => {
+                    if (index === chat.title.length - 1) {
+                      setNewChatId(null)
+                    }
+                  }}
+                  transition={{
+                    duration: 0.25,
+                    ease: 'easeIn',
+                    delay: index * 0.05,
+                    staggerChildren: 0.05
+                  }}
                   variants={{
                     initial: {
                       opacity: 0,
@@ -93,19 +103,6 @@ export function SidebarItem({ index, chat, children }: SidebarItemProps) {
                     animate: {
                       opacity: 1,
                       x: 0
-                    }
-                  }}
-                  initial={shouldAnimate ? 'initial' : undefined}
-                  animate={shouldAnimate ? 'animate' : undefined}
-                  transition={{
-                    duration: 0.25,
-                    ease: 'easeIn',
-                    delay: index * 0.05,
-                    staggerChildren: 0.05
-                  }}
-                  onAnimationComplete={() => {
-                    if (index === chat.title.length - 1) {
-                      setNewChatId(null)
                     }
                   }}
                 >
@@ -118,7 +115,9 @@ export function SidebarItem({ index, chat, children }: SidebarItemProps) {
           </span>
         </div>
       </Link>
-      {isActive && <div className="absolute right-2 top-1">{children}</div>}
+      {isActive ? (
+        <div className="absolute right-2 top-1">{children}</div>
+      ) : null}
     </motion.div>
   )
 }

@@ -1,15 +1,14 @@
 import { redirect } from 'next/navigation'
-
+import type { Message } from 'ai/react'
+import { isTokenExpired } from '@repo/mb-lib'
+import { cookies } from 'next/headers'
 import { Chat } from '@/components/c/chat'
 import { getThread } from '@/services/hasura'
-import { Message } from 'ai/react'
-import { isTokenExpired } from '@repo/mb-lib'
 import { getUserProfile } from '@/services/supabase'
-import { cookies } from 'next/headers'
 
 export default async function ChatPage({ params }: ChatPageProps) {
   const user = await getUserProfile()
-  const jwt = cookies().get('hasuraJwt')?.value || ''
+  const jwt = cookies().get('hasuraJwt').value || ''
 
   console.log({ jwt, expired: isTokenExpired(jwt), user })
   // NOTE: maybe we should use same expiration time
@@ -63,8 +62,8 @@ export default async function ChatPage({ params }: ChatPageProps) {
   // and we pass our system prompts along with assistant and user messages from our db.
   return (
     <Chat
-      initialMessages={initialMessages}
       chatbot={thread.chatbot}
+      initialMessages={initialMessages}
       threadId={params.threadId}
     />
   )

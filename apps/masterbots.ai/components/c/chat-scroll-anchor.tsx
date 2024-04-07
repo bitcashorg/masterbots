@@ -20,11 +20,11 @@ export function ChatScrollAnchor({
 
   React.useEffect(() => {
     if (isAtBottom && trackVisibility && !inView) {
-      entry?.target.scrollIntoView({
+      entry.target.scrollIntoView({
         block: 'start'
       })
     }
   }, [inView, entry, isAtBottom, trackVisibility])
 
-  return <div ref={ref} className="h-px w-full" />
+  return <div className="h-px w-full" ref={ref} />
 }

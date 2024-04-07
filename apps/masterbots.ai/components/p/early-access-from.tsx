@@ -3,9 +3,9 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { z } from 'zod'
 import { Input } from '../ui/input'
 
 const schema = z.object({
@@ -62,15 +62,15 @@ export async function WorkEarlyAccessForm() {
         {interests.map((interest, index) => (
           <div key={index}>
             <Checkbox
+              checked={interest.checked}
               id={interest.name}
               name={interest.name}
               // ref={register}
               onChange={handleCheckboxChange}
-              checked={interest.checked}
             />
             <label
-              htmlFor={interest.name}
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              htmlFor={interest.name}
             >
               {interest.label}
             </label>
@@ -86,10 +86,8 @@ export async function WorkEarlyAccessForm() {
           />
         )}
       </div>
-      {formState.errors.otherText && <p>Please specify other interest</p>}
-      {formState.isSubmitted && formState.errors && !formState.isValid && (
-        <p>Please select at least one option</p>
-      )}
+      {formState.errors.otherText ? <p>Please specify other interest</p> : null}
+      {formState.isSubmitted && formState.errors && !formState.isValid ? <p>Please select at least one option</p> : null}
       <div className="flex justify-center pt-10">
         <Button type="submit">Get early access</Button>
       </div>
