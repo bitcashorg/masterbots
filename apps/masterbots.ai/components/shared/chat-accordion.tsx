@@ -58,24 +58,16 @@ export function ChatAccordion({
   }, [activeThread, thread])
 
   React.useEffect(() => {
-    if (isOpen !== undefined) {
-      setOpen(isOpen)
-    }
+    if (isOpen !== undefined) setOpen(isOpen)
   }, [isOpen])
 
   const toggle = () => {
     const newState = !open
     setOpen(newState)
-    if (!newState && handleOpen) {
-      handleOpen()
-    }
-    if (thread.threadId) {
-      setActiveThread(newState ? thread : null)
-    }
+    if (!newState && handleOpen) handleOpen()
+    if (thread.threadId) setActiveThread(newState ? thread : null)
     if (isNewResponse) setIsNewResponse(false)
-    if (onToggle) {
-      onToggle(newState)
-    }
+    if (onToggle) onToggle(newState)
   }
 
   return (
@@ -120,3 +112,16 @@ export function ChatAccordion({
     </div>
   )
 }
+
+// ;<Dialog>
+//   <DialogTrigger>Open</DialogTrigger>
+//   <DialogContent>
+//     <DialogHeader>
+//       <DialogTitle>Are you absolutely sure?</DialogTitle>
+//       <DialogDescription>
+//         This action cannot be undone. This will permanently delete your account
+//         and remove your data from our servers.
+//       </DialogDescription>
+//     </DialogHeader>
+//   </DialogContent>
+// </Dialog>

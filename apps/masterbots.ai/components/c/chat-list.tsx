@@ -5,7 +5,7 @@ import { ChatMessage } from '@/components/c/chat-message'
 import { cn, createMessagePairs } from '@/lib/utils'
 import { useThread } from '@/hooks/use-thread'
 import { ShortMessage } from '../short-message'
-import { ChatAccordion } from './chat-accordion'
+import { ChatAccordion } from '../shared/chat-accordion'
 
 export interface ChatList {
   messages: Message[]
