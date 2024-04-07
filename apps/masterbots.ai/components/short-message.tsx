@@ -7,7 +7,6 @@ export function ShortMessage({ content }: { content: string }) {
   return (
     <MemoizedReactMarkdown
       className="break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
-      remarkPlugins={[remarkGfm, remarkMath]}
       components={{
         p({ children }) {
           return <p className="mb-2 last:mb-0">{children}</p>
@@ -43,6 +42,7 @@ export function ShortMessage({ content }: { content: string }) {
           )
         }
       }}
+      remarkPlugins={[remarkGfm, remarkMath]}
     >
       {`${content.slice(0, 240)}${content.length >= 240 ? '...' : ''}`}
     </MemoizedReactMarkdown>

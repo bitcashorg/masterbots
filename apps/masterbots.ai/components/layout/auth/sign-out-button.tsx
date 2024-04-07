@@ -11,7 +11,7 @@ export default function SignOut() {
   }
 
   return (
-    <Button type="button" className="button-inverse" onClick={handleSignOut}>
+    <Button className="button-inverse" onClick={handleSignOut} type="button">
       Sign Out
     </Button>
   )

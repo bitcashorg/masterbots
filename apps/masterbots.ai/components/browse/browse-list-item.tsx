@@ -1,15 +1,14 @@
 import Image from 'next/image'
-
-import { cn, sleep } from '@/lib/utils'
-import { getMessages } from '@/services/hasura'
-import { Message, Thread } from 'mb-genql'
+import { Message, Thread } from '@repo/mb-genql'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import React, { useEffect } from 'react'
-import { BrowseChatMessageList } from './browse-chat-message-list'
+import React from 'react'
+import { cn, sleep } from '@/lib/utils'
+import { getMessages } from '@/services/hasura'
 import { ChatAccordion } from '../c/chat-accordion'
 import { ShortMessage } from '../short-message'
 import { IconOpenAI, IconUser } from '../ui/icons'
+import { BrowseChatMessageList } from './browse-chat-message-list'
 
 export default function BrowseListItem({
   thread,
@@ -65,7 +64,7 @@ export default function BrowseListItem({
     // When toggling accordion, it should scroll
     // Use optional chaining to ensure scrollIntoView is called only if current is not null
     await sleep(300) // animation time
-    threadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    threadRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
     setIsAccordionOpen(isOpen)
     // Should fetch messages only when opening thread.
   }
@@ -80,18 +79,18 @@ export default function BrowseListItem({
   return (
     <div ref={threadRef}>
       <ChatAccordion
-        onToggle={handleAccordionToggle}
-        // handleTrigger={goToThread}
-        className="relative"
+        arrowClass="mt-[10px]"
         contentClass="!pt-0 max-h-[70vh] scrollbar"
+        thread={thread}
         triggerClass="dark:hover:bg-mirage hover:bg-gray-300 pl-[8px]
         py-3 flex flex-col gap-[6px] 
         sticky top-0 z-[1]
         dark:border-b-mirage border-b-gray-300
         [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]
         dark:bg-[#18181b] bg-[#f4f4f5]"
-        arrowClass="mt-[10px]"
-        thread={thread}
+        onToggle={handleAccordionToggle}
+        // handleTrigger={goToThread}
+        className="relative"
       >
         {/* Thread Title */}
         <div
@@ -99,31 +98,31 @@ export default function BrowseListItem({
             'relative flex items-center font-normal md:text-lg transition-all w-full gap-3 pr-4'
           )}
         >
-          {pageType !== 'bot' && thread.chatbot?.avatar ? (
+          {pageType !== 'bot' && thread.chatbot.avatar ? (
             <Link
-              href={`/b/${thread.chatbot.name.toLowerCase()}`}
-              title={thread.chatbot?.name}
               className={cn(
                 'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow'
               )}
+              href={`/b/${thread.chatbot.name.toLowerCase()}`}
+              title={thread.chatbot.name}
             >
               <Image
+                alt={thread.chatbot.name ?? 'BotAvatar'}
                 className="transition-opacity duration-300 rounded-full select-none bg-background dark:bg-primary-foreground hover:opacity-80"
-                src={thread.chatbot?.avatar}
-                alt={thread.chatbot?.name ?? 'BotAvatar'}
                 height={32}
+                src={thread.chatbot.avatar}
                 width={32}
               />
             </Link>
           ) : (
             pageType !== 'bot' && (
               <Link
-                href={`/b/${thread.chatbot?.name.toLowerCase()}`}
-                title={thread.chatbot?.name}
                 className={cn(
                   'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow',
                   'bg-primary text-primary-foreground'
                 )}
+                href={`/b/${thread.chatbot.name.toLowerCase()}`}
+                title={thread.chatbot.name}
               >
                 <IconOpenAI />
               </Link>
@@ -135,36 +134,36 @@ export default function BrowseListItem({
                 'no-truncate': isAccordionOpen
               })}
             >
-              {thread.messages?.[0]?.content}
+              {thread.messages[0]?.content}
             </div>
             {pageType !== 'user' && (
               <span className="opacity-50 text-[0.875rem]">by</span>
             )}
-            {pageType !== 'user' && thread.user?.profilePicture ? (
+            {pageType !== 'user' && thread.user.profilePicture ? (
               <Link
-                href={`/u/${encodeURIComponent(String(thread.user.slug))}`}
-                title={thread.user?.username.replace('_', ' ')}
                 className={cn(
                   'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow'
                 )}
+                href={`/u/${encodeURIComponent(String(thread.user.slug))}`}
+                title={thread.user.username.replace('_', ' ')}
               >
                 <Image
+                  alt={thread.user.username ?? 'Avatar'}
                   className="transition-opacity duration-300 rounded-full select-none hover:opacity-80"
-                  src={thread.user?.profilePicture}
-                  alt={thread.user?.username ?? 'Avatar'}
                   height={32}
+                  src={thread.user.profilePicture}
                   width={32}
                 />
               </Link>
             ) : (
               pageType !== 'user' && (
                 <Link
-                  href={`/u/${encodeURIComponent(String(thread.user?.slug))}`}
-                  title={thread.user?.username}
                   className={cn(
                     'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow',
                     'bg-background'
                   )}
+                  href={`/u/${encodeURIComponent(String(thread.user.slug))}`}
+                  title={thread.user.username}
                 >
                   <IconUser />
                 </Link>
@@ -176,10 +175,10 @@ export default function BrowseListItem({
         {/* Thread Description */}
 
         <div className="overflow-hidden text-sm text-left opacity-50">
-          {thread.messages?.[1]?.content &&
-          thread.messages?.[1]?.role !== 'user' ? (
+          {thread.messages[1]?.content &&
+          thread.messages[1]?.role !== 'user' ? (
             <div className="flex-1 space-y-2 overflow-hidden">
-              <ShortMessage content={thread.messages?.[1]?.content} />
+              <ShortMessage content={thread.messages[1]?.content} />
             </div>
           ) : (
             ''
@@ -189,9 +188,9 @@ export default function BrowseListItem({
         {/* Thread Content */}
 
         <BrowseChatMessageList
-          chatbot={thread?.chatbot}
-          user={thread?.user || undefined}
+          chatbot={thread.chatbot}
           messages={messages}
+          user={thread.user || undefined}
         />
       </ChatAccordion>
     </div>

@@ -1,9 +1,9 @@
 'use client'
 
-import { useBrowse } from '@/hooks/use-browse'
-import { Category } from 'mb-genql'
-import { BrowseCategoryButton } from './browse-category-button'
+import type { Category } from '@repo/mb-genql'
 import { useEffect } from 'react'
+import { useBrowse } from '@/hooks/use-browse'
+import { BrowseCategoryButton } from './browse-category-button'
 
 export function BrowseCategoryTabs({
   categories,
@@ -47,18 +47,22 @@ export function BrowseCategoryTabs({
   return (
     <div className="w-full py-[10px] my-3 !overflow-x-auto overflow-y-hidden whitespace-nowrap scrollbar small-thumb">
       <BrowseCategoryButton
-        id="browse-category-tab__null"
-        onClick={() => setActiveTab(null)}
-        category="all"
         activeTab={activeTab}
+        category="all"
+        id="browse-category-tab__null"
+        onClick={() => {
+          setActiveTab(null)
+        }}
       />
       {categories.map((category, key) => (
         <BrowseCategoryButton
+          activeTab={activeTab}
+          category={category}
           id={`browse-category-tab__${category.categoryId}`}
           key={key}
-          onClick={() => setActiveTab(category.categoryId)}
-          category={category}
-          activeTab={activeTab}
+          onClick={() => {
+            setActiveTab(category.categoryId)
+          }}
         />
       ))}
     </div>

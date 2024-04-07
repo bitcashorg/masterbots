@@ -1,6 +1,7 @@
 import * as React from 'react'
 import Textarea from 'react-textarea-autosize'
-import { UseChatHelpers } from 'ai/react'
+import type { UseChatHelpers } from 'ai/react'
+import { useRouter } from 'next/navigation'
 import { useEnterSubmit } from '@/hooks/use-enter-submit'
 import { cn } from '@/lib/utils'
 import { Button, buttonVariants } from '@/components/ui/button'
@@ -10,7 +11,6 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip'
 import { IconArrowElbow, IconPlus } from '@/components/ui/icons'
-import { useRouter } from 'next/navigation'
 import { useThread } from '@/hooks/use-thread'
 
 export interface PromptProps
@@ -53,7 +53,7 @@ export function PromptForm({
       className="relative"
       onSubmit={async e => {
         e.preventDefault()
-        if (!input?.trim() || disabled) {
+        if (!input.trim() || disabled) {
           return
         }
         setInput('')
@@ -68,15 +68,15 @@ export function PromptForm({
         <Tooltip>
           <TooltipTrigger asChild>
             <button
+              className={cn(
+                buttonVariants({ size: 'sm', variant: 'outline' }),
+                'absolute left-0 top-4 size-8 rounded-full bg-background p-0 sm:left-4'
+              )}
               onClick={e => {
                 e.preventDefault()
                 router.refresh()
                 router.push('/')
               }}
-              className={cn(
-                buttonVariants({ size: 'sm', variant: 'outline' }),
-                'absolute left-0 top-4 size-8 rounded-full bg-background p-0 sm:left-4'
-              )}
             >
               <IconPlus />
               <span className="sr-only">New Chat</span>
@@ -85,26 +85,28 @@ export function PromptForm({
           <TooltipContent>New Chat</TooltipContent>
         </Tooltip>
         <Textarea
-          ref={inputRef}
-          tabIndex={0}
-          onKeyDown={onKeyDown}
-          rows={1}
-          onFocus={handleTextareaFocus}
-          onBlur={handleTextareaBlur}
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          placeholder={placeholder}
-          spellCheck={false}
-          disabled={disabled}
           className="min-h-[60px] w-full resize-none bg-transparent px-4 py-[1.3rem] focus-within:outline-none sm:text-sm"
+          disabled={disabled}
+          onBlur={handleTextareaBlur}
+          onChange={e => {
+            setInput(e.target.value)
+          }}
+          onFocus={handleTextareaFocus}
+          onKeyDown={onKeyDown}
+          placeholder={placeholder}
+          ref={inputRef}
+          rows={1}
+          spellCheck={false}
+          tabIndex={0}
+          value={input}
         />
         <div className="absolute right-0 top-4 sm:right-4">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                type="submit"
-                size="icon"
                 disabled={isLoading || input === ''}
+                size="icon"
+                type="submit"
               >
                 <IconArrowElbow />
                 <span className="sr-only">Send message</span>
@@ -114,11 +116,11 @@ export function PromptForm({
           </Tooltip>
         </div>
       </div>
-      {disabled && (
+      {disabled ? (
         <div className="backdrop-blur-[1px] font-semibold border border-[#27272A] rounded-[6px] absolute size-full top-0 left-0 flex justify-center items-center dark:bg-[#27272A80] text-2xl">
           Select a bot to start a thread.
         </div>
-      )}
+      ) : null}
     </form>
   )
 }

@@ -1,12 +1,11 @@
 import { type Message } from 'ai'
-
+import type { Chatbot } from '@repo/mb-genql'
+import React from 'react'
 import { ChatMessage } from '@/components/c/chat-message'
 import { cn, createMessagePairs } from '@/lib/utils'
-import { Chatbot } from 'mb-genql'
-import React from 'react'
-import { ChatAccordion } from './chat-accordion'
-import { ShortMessage } from '../short-message'
 import { useThread } from '@/hooks/use-thread'
+import { ShortMessage } from '../short-message'
+import { ChatAccordion } from './chat-accordion'
 
 export interface ChatList {
   messages: Message[]
@@ -19,7 +18,7 @@ export interface ChatList {
   chatArrowClass?: string
 }
 
-type MessagePair = {
+interface MessagePair {
   userMessage: Message
   chatGptMessage: Message[]
 }
@@ -54,15 +53,15 @@ export function ChatList({
       {pairs.map((pair: MessagePair, key: number) => (
         <div key={key}>
           <ChatAccordion
+            arrowClass={`${isThread ? 'top-4' : 'right-5 top-4'} ${chatArrowClass || ''}`}
+            className={` ${isThread ? 'relative' : ''}`}
+            contentClass="!border-l-[transparent]"
             defaultState={
               key === 0 || (key === pairs.length - 1 && isNewResponse)
             }
-            className={` ${isThread ? 'relative' : ''}`}
             triggerClass={`dark:border-b-mirage border-b-gray-300
             ${isThread ? 'sticky top-0 md:-top-10 z-[1] dark:bg-[#18181b] bg-[#f4f4f5] !border-l-[transparent] px-3 [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]' : 'px-[calc(47px-0.25rem)] '}
             py-[0.4375rem] dark:hover:bg-mirage hover:bg-gray-300 ${!isThread && key === 0 ? 'hidden' : ''} ${chatTitleClass || ''}`}
-            contentClass="!border-l-[transparent]"
-            arrowClass={`${isThread ? 'top-4' : 'right-5 top-4'} ${chatArrowClass || ''}`}
           >
             {/* Thread Title */}
             {!isThread && key === 0 ? (
@@ -103,8 +102,8 @@ export function ChatList({
                 ? pair.chatGptMessage.map((message, index) => (
                     <ChatMessage
                       actionRequired={false}
-                      key={index}
                       chatbot={chatbot}
+                      key={index}
                       message={message}
                       sendMessageFromResponse={sendMessageFromResponse}
                     />

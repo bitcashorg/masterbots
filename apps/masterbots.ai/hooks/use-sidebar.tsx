@@ -1,6 +1,6 @@
 'use client'
 
-import { Chatbot } from 'mb-genql'
+import { Chatbot } from '@repo/mb-genql'
 import * as React from 'react'
 
 const LOCAL_STORAGE_KEY = 'sidebar'

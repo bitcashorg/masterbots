@@ -1,16 +1,15 @@
 // Inspired by Chatbot-UI and modified to fit the needs of this project
 // @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Chat/ChatcleanMessage.tsx
 
+import type { Message } from 'ai'
+import type { Chatbot } from '@repo/mb-genql'
+import remarkGfm from 'remark-gfm'
+import remarkMath from 'remark-math'
 import { ClickableText } from '@/components/c/chat-clickable-text'
 import { ChatMessageActions } from '@/components/c/chat-message-actions'
 import { MemoizedReactMarkdown } from '@/components/markdown'
 import { CodeBlock } from '@/components/ui/codeblock'
 import { cleanPrompt, cn } from '@/lib/utils'
-import { Message } from 'ai'
-import { Chatbot } from 'mb-genql'
-
-import remarkGfm from 'remark-gfm'
-import remarkMath from 'remark-math'
 
 export interface ChatMessageProps {
   message: Message
@@ -33,7 +32,6 @@ export function ChatMessage({
       <div className="flex-1 pr-1 space-y-2 overflow-hidden">
         <MemoizedReactMarkdown
           className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
-          remarkPlugins={[remarkGfm, remarkMath]}
           components={{
             p({ node, children }) {
               return (
@@ -94,6 +92,7 @@ export function ChatMessage({
               )
             }
           }}
+          remarkPlugins={[remarkGfm, remarkMath]}
         >
           {cleanMessage.content}
         </MemoizedReactMarkdown>

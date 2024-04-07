@@ -1,4 +1,4 @@
-import { useRef, type RefObject } from 'react'
+import { useRef, RefObject } from 'react'
 
 export function useEnterSubmit(): {
   formRef: RefObject<HTMLFormElement>

@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { type CookieOptions, createServerClient } from '@supabase/ssr'
-import { getToken, validateJwtSecret } from 'mb-lib'
+import { getToken, validateJwtSecret } from '@repo/mb-lib'
 import { upsertUser } from '@/services/hasura'
 import { nanoid } from '@/lib/utils'
 
@@ -14,12 +14,12 @@ export async function GET(request: Request) {
 
   const cookieStore = cookies()
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     {
       cookies: {
         get(name: string) {
-          return cookieStore.get(name)?.value
+          return cookieStore.get(name).value
         },
         set(name: string, value: string, options: CookieOptions) {
           cookieStore.set({ name, value, ...options })
@@ -35,7 +35,7 @@ export async function GET(request: Request) {
     data: { user },
     error
   } = await supabase.auth.exchangeCodeForSession(code)
-  if (error || !user?.email) throw new Error('Login Error')
+  if (error || !user.email) throw new Error('Login Error')
 
   const adminSecret = process.env.HASURA_GRAPHQL_ADMIN_SECRET
   if (!adminSecret) throw new Error('Admin Secret not found')
@@ -47,10 +47,9 @@ export async function GET(request: Request) {
   if (!identity) throw new Error('Login Error')
   const userProfile = await upsertUser({
     email: user.email,
-    profilePicture: identity.identity_data?.picture,
+    profilePicture: identity.identity_data.picture,
     username:
-      identity.identity_data?.name.replace(/\s/g, '_').toLowerCase() ||
-      nanoid(),
+      identity.identity_data.name.replace(/\s/g, '_').toLowerCase() || nanoid(),
     password: nanoid(),
     adminSecret: process.env.HASURA_GRAPHQL_ADMIN_SECRET || ''
   })
@@ -81,7 +80,7 @@ export async function GET(request: Request) {
     JSON.stringify({
       userId: userProfile.userId,
       username: userProfile.username,
-      name: identity.identity_data?.name || '',
+      name: identity.identity_data.name || '',
       email: userProfile.email
     }),
     {

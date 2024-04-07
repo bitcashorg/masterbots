@@ -3,11 +3,11 @@ import { GeistSans } from 'geist/font/sans'
 import { Toaster } from 'react-hot-toast'
 
 import '@/app/globals.css'
+import { cookies } from 'next/headers'
 import { Header } from '@/components/layout/header'
 import { Providers } from '@/components/layout/providers'
 import { cn } from '@/lib/utils'
 import { GlobalStoreProvider } from '@/hooks/use-global-store'
-import { cookies } from 'next/headers'
 
 export default async function RootLayout({ children }: RootLayoutProps) {
   const hasuraJwt = cookies().get('hasuraJwt')?.value || ''
@@ -30,8 +30,8 @@ export default async function RootLayout({ children }: RootLayoutProps) {
           <Providers
             attribute="class"
             defaultTheme="system"
-            enableSystem
             disableTransitionOnChange
+            enableSystem
           >
             <div className="flex flex-col min-h-screen">
               <Header />

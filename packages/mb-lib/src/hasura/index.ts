@@ -1,1 +1,1 @@
-export * from './hasura.lib'
+export * from "./hasura.lib";

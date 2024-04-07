@@ -1,15 +1,16 @@
 // Inspired by Chatbot-UI and modified to fit the needs of this project
 // @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Chat/ChatcleanMessage.tsx
 
-import { IconUser } from '@/components/ui/icons'
-import { cn, createMessagePairs } from '@/lib/utils'
-import { Chatbot, Message, User } from 'mb-genql'
+import type { Chatbot, Message, User } from '@repo/mb-genql'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
-import { BrowseChatMessage } from './browse-chat-message'
-import { MessagePair, convertMessage } from './browse-chat-messages'
+import { cn, createMessagePairs } from '@/lib/utils'
+import { IconUser } from '@/components/ui/icons'
 import { ChatAccordion } from '../c/chat-accordion'
+import type { MessagePair } from './browse-chat-messages'
+import { convertMessage } from './browse-chat-messages'
+import { BrowseChatMessage } from './browse-chat-message'
 
 export function BrowseChatMessageList({
   messages,
@@ -37,14 +38,14 @@ export function BrowseChatMessageList({
     <div>
       {pairs.map((pair: MessagePair, key: number) => (
         <ChatAccordion
+          arrowClass="mt-[0.625rem] right-[calc(47px-1rem)] translate-x-[50%]"
+          contentClass={`!border-l-[transparent] ${key === pairs.length - 1 ? '!border-b-[transparent]' : ''}`}
           defaultState
           key={key}
-          contentClass={`!border-l-[transparent] ${key === pairs.length - 1 ? '!border-b-[transparent]' : ''}`}
           triggerClass={`dark:border-b-mirage border-b-gray-300 py-[0.625rem] px-[47px] gap-4 ${key === 0 && !isThread ? 'hidden' : ''}`}
-          arrowClass="mt-[0.625rem] right-[calc(47px-1rem)] translate-x-[50%]"
         >
           {/* Thread Title */}
-          {(key !== 0 || isThread) && (
+          {key !== 0 || isThread ? (
             <div
               className={cn(
                 'relative flex items-center font-normal md:text-lg transition-all w-full gap-3 pr-4'
@@ -54,7 +55,7 @@ export function BrowseChatMessageList({
                 {pair.userMessage.content}
               </div>
             </div>
-          )}
+          ) : null}
 
           {/* Thread Description */}
           <></>

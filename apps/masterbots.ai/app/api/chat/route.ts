@@ -1,6 +1,5 @@
 import { OpenAIStream, StreamingTextResponse } from 'ai'
 import OpenAI from 'openai'
-
 import { nanoid } from '@/lib/utils'
 
 export const runtime = 'edge'

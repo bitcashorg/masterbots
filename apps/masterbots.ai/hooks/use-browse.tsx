@@ -2,7 +2,6 @@
 
 import * as React from 'react'
 
-
 interface BrowseContextProps {
   keyword: string
   tab: null | number
@@ -39,9 +38,7 @@ export function BrowseProvider({ children }: BrowseProviderProps) {
   }
 
   return (
-    <BrowseContext.Provider
-      value={{ changeKeyword, keyword, tab, changeTab }}
-    >
+    <BrowseContext.Provider value={{ changeKeyword, keyword, tab, changeTab }}>
       {children}
     </BrowseContext.Provider>
   )

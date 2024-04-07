@@ -1,9 +1,8 @@
 'use client'
 
 import React from 'react'
-
+import type { Thread } from '@repo/mb-genql'
 import { getBrowseThreads } from '@/services/hasura'
-import { Thread } from 'mb-genql'
 import BrowseListItem from './browse-list-item'
 
 export default function BrowseSpecificThreadList({
@@ -12,7 +11,7 @@ export default function BrowseSpecificThreadList({
   PAGE_SIZE,
   pageType = ''
 }: {
-  query: { [key: string]: string | undefined }
+  query: Record<string, string | undefined>
   initialThreads: Thread[]
   PAGE_SIZE: number
   pageType?: string
@@ -40,13 +39,13 @@ export default function BrowseSpecificThreadList({
     <div className="max-w-[1024px] px-4 mx-auto mt-8 flex gap-y-4 flex-col">
       {threads.map((thread: Thread, key) => (
         <BrowseListItem
-          pageType={pageType}
-          thread={thread}
-          key={key}
-          loading={loading}
-          loadMore={loadMore}
           hasMore={count === PAGE_SIZE}
           isLast={key === threads.length - 1}
+          key={key}
+          loadMore={loadMore}
+          loading={loading}
+          pageType={pageType}
+          thread={thread}
         />
       ))}
     </div>

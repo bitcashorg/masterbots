@@ -1,23 +1,23 @@
+import type { Message } from 'ai'
+import { isTokenExpired } from '@repo/mb-lib'
+import { nanoid } from 'nanoid'
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
 import { ChatChatbot } from '@/components/c/chat-chatbot'
 import ThreadPanel from '@/components/c/thread-panel'
 import { botNames } from '@/lib/bots-names'
 import { getChatbot, getThreads } from '@/services/hasura'
 import { getUserProfile } from '@/services/supabase'
-import { Message } from 'ai'
-import { isTokenExpired } from 'mb-lib'
-import { nanoid } from 'nanoid'
-import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
 
 export default async function BotThreadsPage({
   params,
   searchParams
 }: {
   params: { chatbot: string }
-  searchParams: { [key: string]: string | string[] | undefined }
+  searchParams: Record<string, string | string[] | undefined>
 }) {
   const user = await getUserProfile()
-  const jwt = cookies().get('hasuraJwt')?.value || ''
+  const jwt = cookies().get('hasuraJwt').value || ''
 
   // NOTE: maybe we should use same expiration time
   if (!jwt || isTokenExpired(jwt) || !user) redirect(`/auth/sign-in?next=/c`)
@@ -65,11 +65,11 @@ export default async function BotThreadsPage({
   return (
     <>
       <ThreadPanel
-        threads={threads}
         chatbot={chatbot.name}
         search={searchParams}
+        threads={threads}
       />{' '}
-      <ChatChatbot initialMessages={initialMessages} chatbot={chatbot} />
+      <ChatChatbot chatbot={chatbot} initialMessages={initialMessages} />
     </>
   )
 }

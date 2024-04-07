@@ -1,6 +1,5 @@
 /* eslint-disable react/no-unescaped-entities */
 import React from 'react'
-
 import { cn } from '@/lib/utils'
 
 export function FooterText({ className, ...props }: React.ComponentProps<'p'>) {

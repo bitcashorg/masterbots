@@ -1,13 +1,12 @@
 'use client'
 
 import Image from 'next/image'
-import { Separator } from '../ui/separator'
-import { useSidebar } from '@/hooks/use-sidebar'
 import { useEffect, useState } from 'react'
+import { useSidebar } from '@/hooks/use-sidebar'
 import { getCategory, getThreads } from '@/services/hasura'
-
 import { useThread } from '@/hooks/use-thread'
 import { useGlobalStore } from '@/hooks/use-global-store'
+import { Separator } from '../ui/separator'
 
 export default function ChatChatbotDetails() {
   const { user, hasuraJwt } = useGlobalStore()
@@ -21,14 +20,14 @@ export default function ChatChatbotDetails() {
     const threads = await getThreads({
       jwt: hasuraJwt,
       categoryId: activeCategory,
-      userId: user!.userId
+      userId: user.userId
     })
-    setThreadNum(threads?.length ?? 0)
+    setThreadNum(threads.length ?? 0)
   }
 
   // Get active category name
   const getCategoryName = async () => {
-    const category = await getCategory({ categoryId: activeCategory as number })
+    const category = await getCategory({ categoryId: activeCategory })
     setCategoryName(category.name)
   }
 
@@ -53,7 +52,7 @@ export default function ChatChatbotDetails() {
       >
         <div className="w-[70%] flex flex-col gap-[10px] px-[24px] pt-[24px]">
           <div className="text-2xl font-black">
-            {activeChatbot ? activeChatbot?.name : 'Welcome to Masterbots!'}
+            {activeChatbot ? activeChatbot.name : 'Welcome to Masterbots!'}
           </div>
           <Separator className="bg-gray-300 dark:bg-mirage" />
           <div className="grow flex flex-col justify-between min-h-[137px]">
@@ -65,7 +64,7 @@ export default function ChatChatbotDetails() {
                   : 'Please select one of the categories and a bot on the sidebar to start a conversation.'}
             </div>
             <div className="text-base gap-[8px] flex flex-col pb-[8px]">
-              {activeChatbot && activeChatbot?.description ? (
+              {activeChatbot && activeChatbot.description ? (
                 <div className="font-medium">{activeChatbot.description}</div>
               ) : (
                 ''
@@ -74,7 +73,7 @@ export default function ChatChatbotDetails() {
                 Threads made:{' '}
                 <span className="text-[#71717A]">
                   {activeChatbot
-                    ? activeChatbot?.threads?.length ?? 0
+                    ? activeChatbot.threads.length ?? 0
                     : threadNum}
                 </span>
               </div>
@@ -83,10 +82,10 @@ export default function ChatChatbotDetails() {
         </div>
         <div className="size-24 absolute border-4 border-[#388DE2] right-0 top-0 translate-x-1/4 rounded-full -translate-y-1/4 dark:bg-[#131316] bg-white">
           <Image
+            alt={activeChatbot.avatar || randomChatbot.avatar || 'ChatAvatar'}
             className="transition-opacity duration-300 rounded-full select-none size-full ring-1 ring-zinc-100/10 hover:opacity-80"
-            src={activeChatbot?.avatar || randomChatbot?.avatar || ''}
-            alt={activeChatbot?.avatar || randomChatbot?.avatar || 'ChatAvatar'}
             height={108}
+            src={activeChatbot.avatar || randomChatbot.avatar || ''}
             width={108}
           />
         </div>

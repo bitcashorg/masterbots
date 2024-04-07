@@ -1,13 +1,13 @@
 'use client'
-import { useSidebar } from '@/hooks/use-sidebar'
-import { cn } from '@/lib/utils'
-import { getChatbots } from '@/services/hasura'
 import { motion } from 'framer-motion'
-import { Category, Chatbot, ChatbotCategory } from 'mb-genql'
+import type { Category, Chatbot, ChatbotCategory } from '@repo/mb-genql'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import React from 'react'
+import { getChatbots } from '@/services/hasura'
+import { cn } from '@/lib/utils'
+import { useSidebar } from '@/hooks/use-sidebar'
 import { IconCaretRight } from '../../ui/icons'
 
 const PAGE_SIZE = 20
@@ -22,7 +22,7 @@ function convertChatbotCategory(chatbotCategory: ChatbotCategory[]) {
 
 export default function SidebarLink({ category }: { category: Category }) {
   const { chatbot, threadId } = useParams<{
-    chatbot: string
+    chatbot?: string
     threadId?: string
   }>()
   const { activeCategory, setActiveCategory, activeChatbot, setActiveChatbot } =
@@ -46,7 +46,7 @@ export default function SidebarLink({ category }: { category: Category }) {
       setActiveChatbot(
         _prev =>
           category.chatbots.filter(
-            c => c.chatbot.name.toLowerCase().trim() === chatbot?.trim()
+            c => c.chatbot.name.toLowerCase().trim() === chatbot.trim()
           )[0].chatbot
       )
       setActiveCategory(_prev => category.categoryId)
@@ -118,11 +118,11 @@ export default function SidebarLink({ category }: { category: Category }) {
         <Link
           // TODO: Improve routing for user sharing
           // href={`/${category.name.toLowerCase()}`}
-          href="/"
           className={cn(
             'flex items-center pr-5 py-3 cursor-pointer relative origin-left transition-all ease-in-out duration-300',
             isChatbotOfThisCategory ? 'text-xs opacity-50' : 'grow pl-5'
           )}
+          href="/"
           onClick={handleClickCategory}
           shallow
         >
@@ -153,11 +153,11 @@ export default function SidebarLink({ category }: { category: Category }) {
         {isChatbotOfThisCategory && activeChatbot ? (
           <div className="flex items-center pl-2 py-3">
             <Image
-              src={activeChatbot.avatar || '/path/to/default/avatar.png'}
               alt={category.name}
-              width={32}
-              height={32}
               className="object-cover rounded-full"
+              height={32}
+              src={activeChatbot.avatar || '/path/to/default/avatar.png'}
+              width={32}
             />
             <span className="pl-3">{activeChatbot.name}</span>
           </div>
@@ -165,38 +165,35 @@ export default function SidebarLink({ category }: { category: Category }) {
           ''
         )}
       </div>
-      {
-        <motion.div
-          className="overflow-hidden
+      <motion.div
+        animate={{
+          height:
+            activeCategory === category.categoryId &&
+            category.chatbots.length &&
+            !isChatbotOfThisCategory
+              ? ''
+              : '0px'
+        }}
+        className="overflow-hidden
           ml-5 flex-col border-l-DEFAULT dark:border-mirage border-gray-300"
-          initial={{ height: 0 }}
-          animate={{
-            height:
-              activeCategory === category.categoryId &&
-              category.chatbots.length &&
-              !isChatbotOfThisCategory
-                ? ''
-                : '0px'
-          }}
-        >
-          {chatbots.map((chatbot, key) => (
-            <ChatbotComponent
-              loadMore={loadMore}
-              loading={loading}
-              hasMore={count === PAGE_SIZE}
-              isLast={key === chatbots.length - 1}
-              chatbot={chatbot}
-              key={chatbot.chatbotId}
-              activeChatbot={
-                activeCategory === category.categoryId &&
-                isChatbotOfThisCategory
-                  ? activeChatbot
-                  : null
-              }
-            />
-          ))}
-        </motion.div>
-      }
+        initial={{ height: 0 }}
+      >
+        {chatbots.map((chatbot, key) => (
+          <ChatbotComponent
+            activeChatbot={
+              activeCategory === category.categoryId && isChatbotOfThisCategory
+                ? activeChatbot
+                : null
+            }
+            chatbot={chatbot}
+            hasMore={count === PAGE_SIZE}
+            isLast={key === chatbots.length - 1}
+            key={chatbot?.chatbotId}
+            loadMore={loadMore}
+            loading={loading}
+          />
+        ))}
+      </motion.div>
     </div>
   )
 }
@@ -241,21 +238,21 @@ function ChatbotComponent({
 
   return (
     <Link
-      ref={chatbotRef}
-      href={`/${chatbot.name.toLowerCase()}`}
       className={cn(
         'flex items-center px-[20px] py-[12px] dark:hover:bg-mirage hover:bg-gray-300',
-        chatbot.chatbotId === activeChatbot?.chatbotId &&
+        chatbot?.chatbotId === activeChatbot?.chatbotId &&
           'dark:bg-slate-800 dark-slate-400'
       )}
+      href={`/${chatbot.name.toLowerCase()}`}
       key={chatbot.chatbotId}
+      ref={chatbotRef}
     >
       <Image
-        src={chatbot.avatar || '/path/to/default/avatar.png'}
         alt={chatbot.name}
-        width={30}
-        height={30}
         className="object-cover rounded-full"
+        height={30}
+        src={chatbot.avatar || '/path/to/default/avatar.png'}
+        width={30}
       />
       <span className="pl-3">{chatbot.name}</span>
     </Link>

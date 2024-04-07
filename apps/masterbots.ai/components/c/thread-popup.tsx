@@ -1,13 +1,13 @@
 'use client'
 
+import { useEffect, useRef } from 'react'
+import { useScroll } from 'framer-motion'
 import { useThread } from '@/hooks/use-thread'
-import { IconClose } from '../ui/icons'
 import { cn, scrollToBottomOfElement } from '@/lib/utils'
+import { useAtBottom } from '@/hooks/use-at-bottom'
+import { IconClose } from '../ui/icons'
 import { Chat } from './chat'
 import { ChatList } from './chat-list'
-import { useEffect, useRef } from 'react'
-import { useAtBottom } from '@/hooks/use-at-bottom'
-import { useScroll } from 'framer-motion'
 
 export function ThreadPopup({ className }: { className?: string }) {
   const {
@@ -47,13 +47,12 @@ export function ThreadPopup({ className }: { className?: string }) {
         clearTimeout(timeout)
       }, 150)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading, isOpenPopup])
 
   const threadTitle = allMessages.filter(m => m.role === 'user')[0]?.content
-  const threadTitleChunks = threadTitle?.split(/\s/g) // ' '
-  const threadTitleHeading = threadTitleChunks?.slice(0, 32).join(' ')
-  const threadTitleSubHeading = threadTitleChunks?.slice(32).join(' ')
+  const threadTitleChunks = threadTitle.split(/\s/g) // ' '
+  const threadTitleHeading = threadTitleChunks.slice(0, 32).join(' ')
+  const threadTitleSubHeading = threadTitleChunks.slice(32).join(' ')
 
   return (
     <div
@@ -71,7 +70,7 @@ export function ThreadPopup({ className }: { className?: string }) {
         <div className="relative rounded-t-[8px] px-[32px] py-[20px] dark:bg-[#1E293B] bg-[#E4E4E7]">
           <div>
             {threadTitle && threadTitleChunks.length > 32
-              ? threadTitleHeading + '…'
+              ? `${threadTitleHeading}…`
               : threadTitle || 'wat'}
             {threadTitleSubHeading ? (
               <div className="opacity-50 overflow-hidden text-sm text-left">
@@ -92,28 +91,28 @@ export function ThreadPopup({ className }: { className?: string }) {
           className="flex flex-col dark:bg-[#18181B] bg-[white] grow rounded-b-[8px] scrollbar pb-[180px]"
           ref={popupContentRef as React.Ref<HTMLDivElement>}
         >
-          {activeThread && (
+          {activeThread ? (
             <ChatList
-              className="max-w-full !px-[32px] !mx-0"
-              isThread={false}
-              chatbot={activeThread.chatbot}
-              messages={allMessages}
-              sendMessageFromResponse={sendMessageFromResponse}
+              chatArrowClass="!right-0 !mr-0"
               chatContentClass="dark:!border-x-mirage !border-x-gray-300 !py-[20px] !px-[16px] !mx-0 max-h-[none] "
               chatTitleClass="!px-[11px]"
-              chatArrowClass="!right-0 !mr-0"
+              chatbot={activeThread.chatbot}
+              className="max-w-full !px-[32px] !mx-0"
+              isThread={false}
+              messages={allMessages}
+              sendMessageFromResponse={sendMessageFromResponse}
             />
-          )}
+          ) : null}
 
           {activeThread ? (
             <Chat
-              isPopup
-              initialMessages={initialMessages}
-              chatbot={activeThread?.chatbot}
-              threadId={activeThread?.threadId}
               chatPanelClassName="!pl-0 rounded-b-[8px] overflow-hidden !absolute"
-              scrollToBottom={scrollToBottom}
+              chatbot={activeThread.chatbot}
+              initialMessages={initialMessages}
               isAtBottom={isAtBottom}
+              isPopup
+              scrollToBottom={scrollToBottom}
+              threadId={activeThread.threadId}
             />
           ) : (
             ''

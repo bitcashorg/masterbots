@@ -3,8 +3,7 @@
 import * as React from 'react'
 import { CalendarIcon } from '@radix-ui/react-icons'
 import { addDays, format } from 'date-fns'
-import { DateRange } from 'react-day-picker'
-
+import type { DateRange } from 'react-day-picker'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
@@ -27,15 +26,15 @@ export function DateRangePicker({
       <Popover>
         <PopoverTrigger asChild>
           <Button
-            id="date"
-            variant={'outline'}
             className={cn(
               'w-[260px] justify-start text-left font-normal',
               !date && 'text-muted-foreground'
             )}
+            id="date"
+            variant="outline"
           >
             <CalendarIcon className="mr-2 size-4" />
-            {date?.from ? (
+            {date.from ? (
               date.to ? (
                 <>
                   {format(date.from, 'LLL dd, y')} -{' '}
@@ -49,14 +48,14 @@ export function DateRangePicker({
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="end">
+        <PopoverContent align="end" className="w-auto p-0">
           <Calendar
+            defaultMonth={date.from}
             initialFocus
             mode="range"
-            defaultMonth={date?.from}
-            selected={date}
-            onSelect={setDate}
             numberOfMonths={2}
+            onSelect={setDate}
+            selected={date}
           />
         </PopoverContent>
       </Popover>

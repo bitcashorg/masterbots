@@ -1,21 +1,20 @@
 'use client'
 
-import { CreateMessage, useChat, type Message } from 'ai/react'
+import { useChat } from 'ai/react'
+import type { CreateMessage, Message } from 'ai/react'
 import { useScroll } from 'framer-motion'
-
+import type { ChatRequestOptions } from 'ai'
+import { uniqBy } from 'lodash'
+import type { Chatbot } from '@repo/mb-genql'
+import { useParams } from 'next/navigation'
+import React, { useEffect } from 'react'
+import { toast } from 'react-hot-toast'
 import { ChatList } from '@/components/c/chat-list'
 import { ChatPanel } from '@/components/c/chat-panel'
 import { ChatScrollAnchor } from '@/components/c/chat-scroll-anchor'
 import { cn, extractBetweenMarkers, scrollToBottomOfElement } from '@/lib/utils'
-
 import { useAtBottom } from '@/hooks/use-at-bottom'
 import { createThread, getThread, saveNewMessage } from '@/services/hasura'
-import { ChatRequestOptions } from 'ai'
-import { uniqBy } from 'lodash'
-import { Chatbot } from 'mb-genql'
-import { useParams } from 'next/navigation'
-import React, { useEffect } from 'react'
-import { toast } from 'react-hot-toast'
 import { useThread } from '@/hooks/use-thread'
 import { botNames } from '@/lib/bots-names'
 import { useSidebar } from '@/hooks/use-sidebar'
@@ -55,11 +54,11 @@ export function Chat({
       // our prompting strategy
       initialMessages:
         params.threadId || isNewChat
-          ? initialMessages?.filter(m => m.role === 'system')
+          ? initialMessages.filter(m => m.role === 'system')
           : threadInitialMessages.filter(m => m.role === 'system'),
-      id: params.threadId || isNewChat ? threadId : activeThread?.threadId,
+      id: params.threadId || isNewChat ? threadId : activeThread.threadId,
       body: {
-        id: params.threadId || isNewChat ? threadId : activeThread?.threadId
+        id: params.threadId || isNewChat ? threadId : activeThread.threadId
       },
       onResponse(response) {
         if (response.status === 401) {
@@ -70,7 +69,7 @@ export function Chat({
         await saveNewMessage({
           role: 'assistant',
           threadId:
-            params.threadId || isNewChat ? threadId : activeThread?.threadId,
+            params.threadId || isNewChat ? threadId : activeThread.threadId,
           content: message.content,
           jwt: hasuraJwt
         })
@@ -115,7 +114,7 @@ export function Chat({
   // we remove system prompts from ui
   const allMessages =
     params.threadId || isNewChat
-      ? uniqBy(initialMessages?.concat(messages), 'content').filter(
+      ? uniqBy(initialMessages.concat(messages), 'content').filter(
           m => m.role !== 'system'
         )
       : uniqBy(threadAllMessages.concat(messages), 'content').filter(
@@ -127,8 +126,7 @@ export function Chat({
     const fullMessage = `Tell me more about ${bulletContent}`
     await saveNewMessage({
       role: 'user',
-      threadId:
-        params.threadId || isNewChat ? threadId : activeThread?.threadId,
+      threadId: params.threadId || isNewChat ? threadId : activeThread.threadId,
       content: fullMessage,
       jwt: hasuraJwt
     })
@@ -150,8 +148,8 @@ export function Chat({
         threadId,
         chatbotId: chatbot.chatbotId,
         jwt: hasuraJwt,
-        userId: user!.userId,
-        isPublic: activeChatbot?.name !== 'BlankBot'
+        userId: user.userId,
+        isPublic: activeChatbot.name !== 'BlankBot'
       })
       const thread = await getThread({
         threadId
@@ -159,13 +157,12 @@ export function Chat({
       setActiveThread(thread)
       setIsOpenPopup(true)
     }
-    if (activeThread?.threadId) {
+    if (activeThread.threadId) {
       setIsOpenPopup(true)
     }
     await saveNewMessage({
       role: 'user',
-      threadId:
-        params.threadId || isNewChat ? threadId : activeThread?.threadId,
+      threadId: params.threadId || isNewChat ? threadId : activeThread.threadId,
       content: userMessage.content,
       jwt: hasuraJwt
     })
@@ -203,18 +200,17 @@ export function Chat({
         clearTimeout(timeout)
       }, 150)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading, isOpenPopup, scrollToBottomOfPopup])
 
   return (
     <>
       {params.threadId ? (
         <div
-          ref={containerRef as React.Ref<HTMLDivElement>}
           className={cn(
             'pb-[200px] pt-4 md:pt-10 h-full overflow-auto',
             className
           )}
+          ref={containerRef as React.Ref<HTMLDivElement>}
         >
           <ChatList
             chatbot={chatbot}
@@ -234,31 +230,13 @@ export function Chat({
         </div>
       ) : null}
 
-      {((isOpenPopup && isPopup) || (!isOpenPopup && !isPopup)) && (
+      {(isOpenPopup && isPopup) || (!isOpenPopup && !isPopup) ? (
         <ChatPanel
-          className={`${!activeThread && !activeChatbot ? 'hidden' : ''} ${chatPanelClassName}`}
-          scrollToBottom={
-            isOpenPopup && isPopup && scrollToBottomOfPopup
-              ? scrollToBottomOfPopup
-              : scrollToBottom
-          }
-          id={params.threadId || isNewChat ? threadId : activeThread?.threadId}
-          isLoading={isLoading}
-          stop={stop}
           append={appendWithMbContextPrompts}
-          reload={reload}
-          messages={allMessages}
-          input={input}
-          setInput={setInput}
           chatbot={chatbot}
-          placeholder={
-            chatbot
-              ? isNewChat
-                ? `Start New Chat with ${chatbot.name}`
-                : `Continue This Chat with ${chatbot.name}`
-              : ''
-          }
-          showReload={!isNewChat}
+          className={`${!activeThread && !activeChatbot ? 'hidden' : ''} ${chatPanelClassName}`}
+          id={params.threadId || isNewChat ? threadId : activeThread.threadId}
+          input={input}
           isAtBottom={
             params.threadId
               ? isAtBottom
@@ -266,8 +244,26 @@ export function Chat({
                 ? Boolean(isAtBottomOfPopup)
                 : isAtBottomOfSection
           }
+          isLoading={isLoading}
+          messages={allMessages}
+          placeholder={
+            chatbot
+              ? isNewChat
+                ? `Start New Chat with ${chatbot.name}`
+                : `Continue This Chat with ${chatbot.name}`
+              : ''
+          }
+          reload={reload}
+          scrollToBottom={
+            isOpenPopup && isPopup && scrollToBottomOfPopup
+              ? scrollToBottomOfPopup
+              : scrollToBottom
+          }
+          setInput={setInput}
+          showReload={!isNewChat}
+          stop={stop}
         />
-      )}
+      ) : null}
     </>
   )
 }

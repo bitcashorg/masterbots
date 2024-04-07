@@ -4,8 +4,7 @@ import * as React from 'react'
 import Link from 'next/link'
 import { type DialogProps } from '@radix-ui/react-dialog'
 import { toast } from 'react-hot-toast'
-
-import { ServerActionResult, type Chat } from '@/lib/types'
+import { ServerActionResult, Chat } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { badgeVariants } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -80,7 +79,7 @@ export function ChatShareDialog({
           <Button
             disabled={isSharePending}
             onClick={() => {
-              // @ts-ignore
+              // @ ts-expect-error
               startShareTransition(async () => {
                 // const result = await shareChat(chat.id)
                 // if (result && 'error' in result) {

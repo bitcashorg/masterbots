@@ -1,14 +1,14 @@
 'use client'
 
 import Image from 'next/image'
-import { Thread } from 'mb-genql'
+import { Thread } from '@repo/mb-genql'
 import React from 'react'
-import { ShortMessage } from '../short-message'
-import { ChatAccordion } from './chat-accordion'
-import { ChatList } from './chat-list'
 import { useThread } from '@/hooks/use-thread'
 import { useSidebar } from '@/hooks/use-sidebar'
 import { cn, sleep } from '@/lib/utils'
+import { ShortMessage } from '../short-message'
+import { ChatAccordion } from './chat-accordion'
+import { ChatList } from './chat-list'
 
 export default function ThreadList({
   threads,
@@ -27,12 +27,12 @@ export default function ThreadList({
     <ul className="flex flex-col w-full gap-3">
       {threads.map((thread, key) => (
         <ThreadComponent
-          key={key}
-          thread={thread}
-          loading={loading}
-          loadMore={loadMore}
           hasMore={count === pageSize}
           isLast={key === threads.length - 1}
+          key={key}
+          loadMore={loadMore}
+          loading={loading}
+          thread={thread}
         />
       ))}
     </ul>
@@ -102,31 +102,31 @@ function ThreadComponent({
   return (
     <li ref={threadRef}>
       <ChatAccordion
-        onToggle={handleAccordionToggle}
+        arrowClass="-right-1 top-[1.125rem]"
         className="relative"
+        onToggle={handleAccordionToggle}
+        thread={thread}
         contentClass="!pt-0 !border-b-[3px] max-h-[70vh] scrollbar !border-l-[3px]"
         // handleTrigger={goToThread}
         triggerClass="gap-[0.375rem] py-3
         dark:border-b-mirage border-b-iron
         sticky top-0 z-[1] dark:hover:bg-mirage hover:bg-gray-300 sticky top-0 z-[1] dark:bg-[#18181b] bg-[#f4f4f5]
         [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]"
-        arrowClass="-right-1 top-[1.125rem]"
-        thread={thread}
       >
         {/* Thread Title */}
 
         <div className="px-[11px] flex items-center w-full gap-3">
-          {activeChatbot === null && thread.chatbot?.avatar ? (
+          {activeChatbot === null && thread.chatbot.avatar ? (
             <div
               className={cn(
                 'md:flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow hidden'
               )}
             >
               <Image
+                alt={thread.chatbot.name ?? 'BotAvatar'}
                 className="transition-opacity duration-300 rounded-full select-none bg-background dark:bg-primary-foreground hover:opacity-80"
-                src={thread.chatbot?.avatar}
-                alt={thread.chatbot?.name ?? 'BotAvatar'}
                 height={32}
+                src={thread.chatbot.avatar}
                 width={32}
               />{' '}
             </div>
@@ -141,7 +141,7 @@ function ThreadComponent({
 
         {/* Thread Description */}
         <div className="overflow-hidden text-sm text-left opacity-50">
-          {thread.messages.filter(m => m.role !== 'user')?.[0]?.content ? (
+          {thread.messages.filter(m => m.role !== 'user')[0]?.content ? (
             <div className="flex-1 px-[8px] pb-3 space-y-2 overflow-hidden">
               <ShortMessage
                 content={
@@ -156,9 +156,9 @@ function ThreadComponent({
 
         {/* Thread Content */}
         <ChatList
+          chatbot={thread.chatbot}
           className="max-w-full !px-0"
           isThread={false}
-          chatbot={thread.chatbot}
           messages={allMessages}
           sendMessageFromResponse={sendMessageFromResponse}
         />

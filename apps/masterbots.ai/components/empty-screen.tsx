@@ -1,5 +1,4 @@
-import { UseChatHelpers } from 'ai/react'
-
+import type { UseChatHelpers } from 'ai/react'
 import { Button } from '@/components/ui/button'
 import { ExternalLink } from '@/components/external-link'
 import { IconArrowRight } from '@/components/ui/icons'
@@ -37,10 +36,12 @@ export function EmptyScreen({
         <div className="flex flex-col items-start mt-4 space-y-2">
           {exampleMessages.map((message, index) => (
             <Button
-              key={index}
-              variant="link"
               className="h-auto p-0 text-base"
-              onClick={() => setInput(message.message)}
+              key={index}
+              onClick={() => {
+                setInput(message.message)
+              }}
+              variant="link"
             >
               <IconArrowRight className="mr-2 text-muted-foreground" />
               {message.heading}

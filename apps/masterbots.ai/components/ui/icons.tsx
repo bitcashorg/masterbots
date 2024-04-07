@@ -1,7 +1,6 @@
 'use client'
 
 import * as React from 'react'
-
 import { cn } from '@/lib/utils'
 
 function IconNextChat({
@@ -13,20 +12,20 @@ function IconNextChat({
 
   return (
     <svg
-      viewBox="0 0 17 17"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
       className={cn('h-4 w-4', className)}
+      fill="none"
+      viewBox="0 0 17 17"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <defs>
         <linearGradient
+          gradientUnits="userSpaceOnUse"
           id={`gradient-${id}-1`}
           x1="10.6889"
-          y1="10.3556"
           x2="13.8445"
+          y1="10.3556"
           y2="14.2667"
-          gradientUnits="userSpaceOnUse"
         >
           <stop stopColor={inverted ? 'white' : 'black'} />
           <stop
@@ -36,12 +35,12 @@ function IconNextChat({
           />
         </linearGradient>
         <linearGradient
+          gradientUnits="userSpaceOnUse"
           id={`gradient-${id}-2`}
           x1="11.7555"
-          y1="4.8"
           x2="11.7376"
+          y1="4.8"
           y2="9.50002"
-          gradientUnits="userSpaceOnUse"
         >
           <stop stopColor={inverted ? 'white' : 'black'} />
           <stop
@@ -55,33 +54,33 @@ function IconNextChat({
         d="M1 16L2.58314 11.2506C1.83084 9.74642 1.63835 8.02363 2.04013 6.39052C2.4419 4.75741 3.41171 3.32057 4.776 2.33712C6.1403 1.35367 7.81003 0.887808 9.4864 1.02289C11.1628 1.15798 12.7364 1.8852 13.9256 3.07442C15.1148 4.26363 15.842 5.83723 15.9771 7.5136C16.1122 9.18997 15.6463 10.8597 14.6629 12.224C13.6794 13.5883 12.2426 14.5581 10.6095 14.9599C8.97637 15.3616 7.25358 15.1692 5.74942 14.4169L1 16Z"
         fill={inverted ? 'black' : 'white'}
         stroke={inverted ? 'black' : 'white'}
-        strokeWidth={2}
         strokeLinecap="round"
         strokeLinejoin="round"
+        strokeWidth={2}
       />
       <mask
+        height={16}
         id="mask0_91_2047"
-        style={{ maskType: 'alpha' }}
         maskUnits="userSpaceOnUse"
+        style={{ maskType: 'alpha' }}
+        width={16}
         x={1}
         y={0}
-        width={16}
-        height={16}
       >
-        <circle cx={9} cy={8} r={8} fill={inverted ? 'black' : 'white'} />
+        <circle cx={9} cy={8} fill={inverted ? 'black' : 'white'} r={8} />
       </mask>
       <g mask="url(#mask0_91_2047)">
-        <circle cx={9} cy={8} r={8} fill={inverted ? 'black' : 'white'} />
+        <circle cx={9} cy={8} fill={inverted ? 'black' : 'white'} r={8} />
         <path
           d="M14.2896 14.0018L7.146 4.8H5.80005V11.1973H6.87681V6.16743L13.4444 14.6529C13.7407 14.4545 14.0231 14.2369 14.2896 14.0018Z"
           fill={`url(#gradient-${id}-1)`}
         />
         <rect
+          fill={`url(#gradient-${id}-2)`}
+          height="6.4"
+          width="1.06667"
           x="11.2222"
           y="4.8"
-          width="1.06667"
-          height="6.4"
-          fill={`url(#gradient-${id}-2)`}
         />
       </g>
     </svg>
@@ -91,11 +90,11 @@ function IconNextChat({
 function IconOpenAI({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      fill="currentColor"
-      viewBox="0 0 24 24"
-      role="img"
-      xmlns="http://www.w3.org/2000/svg"
       className={cn('h-4 w-4', className)}
+      fill="currentColor"
+      role="img"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <title>OpenAI icon</title>
@@ -108,15 +107,15 @@ function IconVercel({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
       aria-label="Vercel logomark"
+      className={cn('h-4 w-4', className)}
       role="img"
       viewBox="0 0 74 64"
-      className={cn('h-4 w-4', className)}
       {...props}
     >
       <path
         d="M37.5896 0.25L74.5396 64.25H0.639648L37.5896 0.25Z"
         fill="currentColor"
-      ></path>
+      />
     </svg>
   )
 }
@@ -124,11 +123,11 @@ function IconVercel({ className, ...props }: React.ComponentProps<'svg'>) {
 function IconGitHub({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
+      className={cn('h-4 w-4', className)}
+      fill="currentColor"
       role="img"
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
-      fill="currentColor"
-      className={cn('h-4 w-4', className)}
       {...props}
     >
       <title>GitHub</title>
@@ -140,6 +139,8 @@ function IconGitHub({ className, ...props }: React.ComponentProps<'svg'>) {
 function IconSeparator({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
+      aria-hidden="true"
+      className={cn('h-4 w-4', className)}
       fill="none"
       shapeRendering="geometricPrecision"
       stroke="currentColor"
@@ -147,11 +148,9 @@ function IconSeparator({ className, ...props }: React.ComponentProps<'svg'>) {
       strokeLinejoin="round"
       strokeWidth="1"
       viewBox="0 0 24 24"
-      aria-hidden="true"
-      className={cn('h-4 w-4', className)}
       {...props}
     >
-      <path d="M16.88 3.549L7.12 20.451"></path>
+      <path d="M16.88 3.549L7.12 20.451" />
     </svg>
   )
 }
@@ -159,10 +158,10 @@ function IconSeparator({ className, ...props }: React.ComponentProps<'svg'>) {
 function IconArrowDown({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 256 256"
-      fill="currentColor"
       className={cn('h-4 w-4', className)}
+      fill="currentColor"
+      viewBox="0 0 256 256"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path d="m205.66 149.66-72 72a8 8 0 0 1-11.32 0l-72-72a8 8 0 0 1 11.32-11.32L120 196.69V40a8 8 0 0 1 16 0v156.69l58.34-58.35a8 8 0 0 1 11.32 11.32Z" />
@@ -173,10 +172,10 @@ function IconArrowDown({ className, ...props }: React.ComponentProps<'svg'>) {
 function IconArrowRight({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 256 256"
-      fill="currentColor"
       className={cn('h-4 w-4', className)}
+      fill="currentColor"
+      viewBox="0 0 256 256"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path d="m221.66 133.66-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32Z" />
@@ -187,10 +186,10 @@ function IconArrowRight({ className, ...props }: React.ComponentProps<'svg'>) {
 function IconUser({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 256 256"
-      fill="currentColor"
       className={cn('h-4 w-4', className)}
+      fill="currentColor"
+      viewBox="0 0 256 256"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path d="M230.92 212c-15.23-26.33-38.7-45.21-66.09-54.16a72 72 0 1 0-73.66 0c-27.39 8.94-50.86 27.82-66.09 54.16a8 8 0 1 0 13.85 8c18.84-32.56 52.14-52 89.07-52s70.23 19.44 89.07 52a8 8 0 1 0 13.85-8ZM72 96a56 56 0 1 1 56 56 56.06 56.06 0 0 1-56-56Z" />
@@ -201,10 +200,10 @@ function IconUser({ className, ...props }: React.ComponentProps<'svg'>) {
 function IconPlus({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 256 256"
-      fill="currentColor"
       className={cn('h-4 w-4', className)}
+      fill="currentColor"
+      viewBox="0 0 256 256"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path d="M224 128a8 8 0 0 1-8 8h-80v80a8 8 0 0 1-16 0v-80H40a8 8 0 0 1 0-16h80V40a8 8 0 0 1 16 0v80h80a8 8 0 0 1 8 8Z" />
@@ -215,10 +214,10 @@ function IconPlus({ className, ...props }: React.ComponentProps<'svg'>) {
 function IconArrowElbow({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 256 256"
-      fill="currentColor"
       className={cn('h-4 w-4', className)}
+      fill="currentColor"
+      viewBox="0 0 256 256"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path d="M200 32v144a8 8 0 0 1-8 8H67.31l34.35 34.34a8 8 0 0 1-11.32 11.32l-48-48a8 8 0 0 1 0-11.32l48-48a8 8 0 0 1 11.32 11.32L67.31 168H184V32a8 8 0 0 1 16 0Z" />
@@ -229,10 +228,10 @@ function IconArrowElbow({ className, ...props }: React.ComponentProps<'svg'>) {
 function IconSpinner({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 256 256"
-      fill="currentColor"
       className={cn('h-4 w-4 animate-spin', className)}
+      fill="currentColor"
+      viewBox="0 0 256 256"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path d="M232 128a104 104 0 0 1-208 0c0-41 23.81-78.36 60.66-95.27a8 8 0 0 1 6.68 14.54C60.15 61.59 40 93.27 40 128a88 88 0 0 0 176 0c0-34.73-20.15-66.41-51.34-80.73a8 8 0 0 1 6.68-14.54C208.19 49.64 232 87 232 128Z" />
@@ -243,10 +242,10 @@ function IconSpinner({ className, ...props }: React.ComponentProps<'svg'>) {
 function IconMessage({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 256 256"
-      fill="currentColor"
       className={cn('h-4 w-4', className)}
+      fill="currentColor"
+      viewBox="0 0 256 256"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path d="M216 48H40a16 16 0 0 0-16 16v160a15.84 15.84 0 0 0 9.25 14.5A16.05 16.05 0 0 0 40 240a15.89 15.89 0 0 0 10.25-3.78.69.69 0 0 0 .13-.11L82.5 208H216a16 16 0 0 0 16-16V64a16 16 0 0 0-16-16ZM40 224Zm176-32H82.5a16 16 0 0 0-10.3 3.75l-.12.11L40 224V64h176Z" />
@@ -257,10 +256,10 @@ function IconMessage({ className, ...props }: React.ComponentProps<'svg'>) {
 function IconTrash({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 256 256"
-      fill="currentColor"
       className={cn('h-4 w-4', className)}
+      fill="currentColor"
+      viewBox="0 0 256 256"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path d="M216 48h-40v-8a24 24 0 0 0-24-24h-48a24 24 0 0 0-24 24v8H40a8 8 0 0 0 0 16h8v144a16 16 0 0 0 16 16h128a16 16 0 0 0 16-16V64h8a8 8 0 0 0 0-16ZM96 40a8 8 0 0 1 8-8h48a8 8 0 0 1 8 8v8H96Zm96 168H64V64h128Zm-80-104v64a8 8 0 0 1-16 0v-64a8 8 0 0 1 16 0Zm48 0v64a8 8 0 0 1-16 0v-64a8 8 0 0 1 16 0Z" />
@@ -271,10 +270,10 @@ function IconTrash({ className, ...props }: React.ComponentProps<'svg'>) {
 function IconRefresh({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 256 256"
-      fill="currentColor"
       className={cn('h-4 w-4', className)}
+      fill="currentColor"
+      viewBox="0 0 256 256"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path d="M197.67 186.37a8 8 0 0 1 0 11.29C196.58 198.73 170.82 224 128 224c-37.39 0-64.53-22.4-80-39.85V208a8 8 0 0 1-16 0v-48a8 8 0 0 1 8-8h48a8 8 0 0 1 0 16H55.44C67.76 183.35 93 208 128 208c36 0 58.14-21.46 58.36-21.68a8 8 0 0 1 11.31.05ZM216 40a8 8 0 0 0-8 8v23.85C192.53 54.4 165.39 32 128 32c-42.82 0-68.58 25.27-69.66 26.34a8 8 0 0 0 11.3 11.34C69.86 69.46 92 48 128 48c35 0 60.24 24.65 72.56 40H168a8 8 0 0 0 0 16h48a8 8 0 0 0 8-8V48a8 8 0 0 0-8-8Z" />
@@ -285,10 +284,10 @@ function IconRefresh({ className, ...props }: React.ComponentProps<'svg'>) {
 function IconStop({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 256 256"
-      fill="currentColor"
       className={cn('h-4 w-4', className)}
+      fill="currentColor"
+      viewBox="0 0 256 256"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path d="M128 24a104 104 0 1 0 104 104A104.11 104.11 0 0 0 128 24Zm0 192a88 88 0 1 1 88-88 88.1 88.1 0 0 1-88 88Zm24-120h-48a8 8 0 0 0-8 8v48a8 8 0 0 0 8 8h48a8 8 0 0 0 8-8v-48a8 8 0 0 0-8-8Zm-8 48h-32v-32h32Z" />
@@ -299,10 +298,10 @@ function IconStop({ className, ...props }: React.ComponentProps<'svg'>) {
 function IconSidebar({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 256 256"
-      fill="currentColor"
       className={cn('h-4 w-4', className)}
+      fill="currentColor"
+      viewBox="0 0 256 256"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path d="M216 40H40a16 16 0 0 0-16 16v144a16 16 0 0 0 16 16h176a16 16 0 0 0 16-16V56a16 16 0 0 0-16-16ZM40 56h40v144H40Zm176 144H96V56h120v144Z" />
@@ -313,10 +312,10 @@ function IconSidebar({ className, ...props }: React.ComponentProps<'svg'>) {
 function IconMoon({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 256 256"
-      fill="currentColor"
       className={cn('h-4 w-4', className)}
+      fill="currentColor"
+      viewBox="0 0 256 256"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path d="M233.54 142.23a8 8 0 0 0-8-2 88.08 88.08 0 0 1-109.8-109.8 8 8 0 0 0-10-10 104.84 104.84 0 0 0-52.91 37A104 104 0 0 0 136 224a103.09 103.09 0 0 0 62.52-20.88 104.84 104.84 0 0 0 37-52.91 8 8 0 0 0-1.98-7.98Zm-44.64 48.11A88 88 0 0 1 65.66 67.11a89 89 0 0 1 31.4-26A106 106 0 0 0 96 56a104.11 104.11 0 0 0 104 104 106 106 0 0 0 14.92-1.06 89 89 0 0 1-26.02 31.4Z" />
@@ -327,10 +326,10 @@ function IconMoon({ className, ...props }: React.ComponentProps<'svg'>) {
 function IconSun({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 256 256"
-      fill="currentColor"
       className={cn('h-4 w-4', className)}
+      fill="currentColor"
+      viewBox="0 0 256 256"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path d="M120 40V16a8 8 0 0 1 16 0v24a8 8 0 0 1-16 0Zm72 88a64 64 0 1 1-64-64 64.07 64.07 0 0 1 64 64Zm-16 0a48 48 0 1 0-48 48 48.05 48.05 0 0 0 48-48ZM58.34 69.66a8 8 0 0 0 11.32-11.32l-16-16a8 8 0 0 0-11.32 11.32Zm0 116.68-16 16a8 8 0 0 0 11.32 11.32l16-16a8 8 0 0 0-11.32-11.32ZM192 72a8 8 0 0 0 5.66-2.34l16-16a8 8 0 0 0-11.32-11.32l-16 16A8 8 0 0 0 192 72Zm5.66 114.34a8 8 0 0 0-11.32 11.32l16 16a8 8 0 0 0 11.32-11.32ZM48 128a8 8 0 0 0-8-8H16a8 8 0 0 0 0 16h24a8 8 0 0 0 8-8Zm80 80a8 8 0 0 0-8 8v24a8 8 0 0 0 16 0v-24a8 8 0 0 0-8-8Zm112-88h-24a8 8 0 0 0 0 16h24a8 8 0 0 0 0-16Z" />
@@ -341,10 +340,10 @@ function IconSun({ className, ...props }: React.ComponentProps<'svg'>) {
 function IconCopy({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 256 256"
-      fill="currentColor"
       className={cn('h-4 w-4', className)}
+      fill="currentColor"
+      viewBox="0 0 256 256"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path d="M216 32H88a8 8 0 0 0-8 8v40H40a8 8 0 0 0-8 8v128a8 8 0 0 0 8 8h128a8 8 0 0 0 8-8v-40h40a8 8 0 0 0 8-8V40a8 8 0 0 0-8-8Zm-56 176H48V96h112Zm48-48h-32V88a8 8 0 0 0-8-8H96V48h112Z" />
@@ -355,10 +354,10 @@ function IconCopy({ className, ...props }: React.ComponentProps<'svg'>) {
 function IconCheck({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 256 256"
-      fill="currentColor"
       className={cn('h-4 w-4', className)}
+      fill="currentColor"
+      viewBox="0 0 256 256"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path d="m229.66 77.66-128 128a8 8 0 0 1-11.32 0l-56-56a8 8 0 0 1 11.32-11.32L96 188.69 218.34 66.34a8 8 0 0 1 11.32 11.32Z" />
@@ -369,10 +368,10 @@ function IconCheck({ className, ...props }: React.ComponentProps<'svg'>) {
 function IconDownload({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 256 256"
-      fill="currentColor"
       className={cn('h-4 w-4', className)}
+      fill="currentColor"
+      viewBox="0 0 256 256"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path d="M224 152v56a16 16 0 0 1-16 16H48a16 16 0 0 1-16-16v-56a8 8 0 0 1 16 0v56h160v-56a8 8 0 0 1 16 0Zm-101.66 5.66a8 8 0 0 0 11.32 0l40-40a8 8 0 0 0-11.32-11.32L136 132.69V40a8 8 0 0 0-16 0v92.69l-26.34-26.35a8 8 0 0 0-11.32 11.32Z" />
@@ -383,10 +382,10 @@ function IconDownload({ className, ...props }: React.ComponentProps<'svg'>) {
 function IconClose({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 256 256"
-      fill="currentColor"
       className={cn('h-4 w-4', className)}
+      fill="currentColor"
+      viewBox="0 0 256 256"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path d="M205.66 194.34a8 8 0 0 1-11.32 11.32L128 139.31l-66.34 66.35a8 8 0 0 1-11.32-11.32L116.69 128 50.34 61.66a8 8 0 0 1 11.32-11.32L128 116.69l66.34-66.35a8 8 0 0 1 11.32 11.32L139.31 128Z" />
@@ -397,18 +396,18 @@ function IconClose({ className, ...props }: React.ComponentProps<'svg'>) {
 function IconEdit({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
       className={cn('h-4 w-4', className)}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path
+        d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
         strokeLinecap="round"
         strokeLinejoin="round"
-        d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
       />
     </svg>
   )
@@ -417,10 +416,10 @@ function IconEdit({ className, ...props }: React.ComponentProps<'svg'>) {
 function IconShare({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="currentColor"
       className={cn('h-4 w-4', className)}
+      fill="currentColor"
       viewBox="0 0 9 7"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path
@@ -434,10 +433,10 @@ function IconShare({ className, ...props }: React.ComponentProps<'svg'>) {
 function IconUsers({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="currentColor"
       className={cn('h-4 w-4', className)}
+      fill="currentColor"
       viewBox="0 0 256 256"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path d="M117.25 157.92a60 60 0 1 0-66.5 0 95.83 95.83 0 0 0-47.22 37.71 8 8 0 1 0 13.4 8.74 80 80 0 0 1 134.14 0 8 8 0 0 0 13.4-8.74 95.83 95.83 0 0 0-47.22-37.71ZM40 108a44 44 0 1 1 44 44 44.05 44.05 0 0 1-44-44Zm210.14 98.7a8 8 0 0 1-11.07-2.33A79.83 79.83 0 0 0 172 168a8 8 0 0 1 0-16 44 44 0 1 0-16.34-84.87 8 8 0 1 1-5.94-14.85 60 60 0 0 1 55.53 105.64 95.83 95.83 0 0 1 47.22 37.71 8 8 0 0 1-2.33 11.07Z" />
@@ -448,17 +447,17 @@ function IconUsers({ className, ...props }: React.ComponentProps<'svg'>) {
 function IconCaretRight({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 8 15"
-      fill="none"
       className={cn('h-4 w-4', className)}
+      fill="none"
+      viewBox="0 0 8 15"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path
         d="M0.764389 13.3924L6.85709 7.29973L0.764389 1.20703"
-        strokeWidth="1.52318"
         strokeLinecap="round"
         strokeLinejoin="round"
+        strokeWidth="1.52318"
       />
     </svg>
   )
@@ -470,10 +469,10 @@ function IconExternalLink({
 }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="currentColor"
       className={cn('h-4 w-4', className)}
+      fill="currentColor"
       viewBox="0 0 256 256"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path d="M224 104a8 8 0 0 1-16 0V59.32l-66.33 66.34a8 8 0 0 1-11.32-11.32L196.68 48H152a8 8 0 0 1 0-16h64a8 8 0 0 1 8 8Zm-40 24a8 8 0 0 0-8 8v72H48V80h72a8 8 0 0 0 0-16H48a16 16 0 0 0-16 16v128a16 16 0 0 0 16 16h128a16 16 0 0 0 16-16v-72a8 8 0 0 0-8-8Z" />
@@ -487,10 +486,10 @@ function IconChevronUpDown({
 }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="currentColor"
       className={cn('h-4 w-4', className)}
+      fill="currentColor"
       viewBox="0 0 256 256"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path d="M181.66 170.34a8 8 0 0 1 0 11.32l-48 48a8 8 0 0 1-11.32 0l-48-48a8 8 0 0 1 11.32-11.32L128 212.69l42.34-42.35a8 8 0 0 1 11.32 0Zm-96-84.68L128 43.31l42.34 42.35a8 8 0 0 0 11.32-11.32l-48-48a8 8 0 0 0-11.32 0l-48 48a8 8 0 0 0 11.32 11.32Z" />
@@ -501,35 +500,35 @@ function IconChevronUpDown({
 function IconChatSearch({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
       className={cn('h-4 w-4', className)}
+      fill="none"
       viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path
         d="M11.9999 2.40387C11.4008 2.41279 10.2707 2.43674 9.68461 2.47571C5.22273 2.77231 1.66862 6.37683 1.37617 10.902C1.31895 11.7875 1.31895 12.7047 1.37617 13.5902C1.48269 15.2383 2.21157 16.7643 3.06969 18.0528C3.56793 18.9549 3.2391 20.0808 2.72014 21.0642C2.34595 21.7733 2.15886 22.1279 2.30908 22.384C2.45931 22.6401 2.79486 22.6483 3.46597 22.6646C4.79316 22.697 5.68811 22.3206 6.39851 21.7968C6.80141 21.4997 7.00287 21.3512 7.14172 21.3341C7.28055 21.317 7.5538 21.4296 8.10019 21.6546C8.59127 21.8569 9.16147 21.9817 9.68461 22.0164C11.2038 22.1174 12.793 22.1177 14.3152 22.0164C18.7771 21.7199 22.3312 18.1153 22.6237 13.5902C22.6575 13.0668 22.6713 12.5323 22.6652 11.9999"
         stroke="#71717A"
-        strokeOpacity="0.5"
-        strokeWidth="1.6"
         strokeLinecap="round"
         strokeLinejoin="round"
+        strokeOpacity="0.5"
+        strokeWidth="1.6"
       />
       <path
         d="M8.2666 15.2H15.7333M8.2666 9.86664H11.9999"
         stroke="#71717A"
-        strokeOpacity="0.5"
-        strokeWidth="1.6"
         strokeLinecap="round"
         strokeLinejoin="round"
+        strokeOpacity="0.5"
+        strokeWidth="1.6"
       />
       <path
         d="M20.8158 6.95509L22.6666 8.79998M21.7828 4.62474C21.7828 2.80693 20.3092 1.33331 18.4914 1.33331C16.6735 1.33331 15.2 2.80693 15.2 4.62474C15.2 6.44255 16.6735 7.91617 18.4914 7.91617C20.3092 7.91617 21.7828 6.44255 21.7828 4.62474Z"
         stroke="#71717A"
-        strokeOpacity="0.5"
-        strokeWidth="1.6"
         strokeLinecap="round"
         strokeLinejoin="round"
+        strokeOpacity="0.5"
+        strokeWidth="1.6"
       />
     </svg>
   )
@@ -538,10 +537,10 @@ function IconChatSearch({ className, ...props }: React.ComponentProps<'svg'>) {
 function IconUpVote({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
       className={cn('h-3 w-3', className)}
+      fill="none"
       viewBox="0 0 8 10"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path
@@ -555,10 +554,10 @@ function IconUpVote({ className, ...props }: React.ComponentProps<'svg'>) {
 function IconDownVote({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
       className={cn('h-3 w-3', className)}
+      fill="none"
       viewBox="0 0 8 10"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path
@@ -572,32 +571,32 @@ function IconDownVote({ className, ...props }: React.ComponentProps<'svg'>) {
 function IconChatMessage({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
       className={cn('h-4 w-4', className)}
+      fill="none"
       viewBox="0 0 10 10"
+      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path
         d="M4.99998 9.16671C7.30115 9.16671 9.16665 7.30121 9.16665 5.00004C9.16665 2.69885 7.30115 0.833374 4.99998 0.833374C2.69879 0.833374 0.833313 2.69885 0.833313 5.00004C0.833313 6.10962 1.26704 7.11792 1.9742 7.86462L1.13615 8.82108C1.01815 8.95575 1.11379 9.16671 1.29285 9.16671H4.99998Z"
         stroke="#71717A"
-        strokeWidth="0.833333"
         strokeLinecap="round"
         strokeLinejoin="round"
+        strokeWidth="0.833333"
       />
       <path
         d="M2.91669 3.75H7.08335"
         stroke="#71717A"
-        strokeWidth="0.833333"
         strokeLinecap="round"
         strokeLinejoin="round"
+        strokeWidth="0.833333"
       />
       <path
         d="M2.91669 5.41675H4.58335"
         stroke="#71717A"
-        stroke-width="0.833333"
         strokeLinecap="round"
         strokeLinejoin="round"
+        strokeWidth="0.833333"
       />
     </svg>
   )

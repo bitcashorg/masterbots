@@ -9,11 +9,11 @@ export default async function SignInPage() {
         style={{ height: 200 }}
       >
         <Image
-          src="/images/masterbotslogo.png"
-          fill={true}
           alt="Masterbots Logo"
-          style={{ maxWidth: 726 }}
           className="flex self-center"
+          fill
+          src="/images/masterbotslogo.png"
+          style={{ maxWidth: 726 }}
         />
       </div>
 

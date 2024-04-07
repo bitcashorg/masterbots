@@ -1,9 +1,15 @@
-import { HasuraClaims } from 'mb-types'
+import { HasuraClaims } from "@repo/mb-types";
 
-export function generateHasuraClaims({ account, role }: { account: string; role: string }) {
+export function generateHasuraClaims({
+  account,
+  role,
+}: {
+  account: string;
+  role: string;
+}) {
   return {
-    'x-hasura-allowed-roles': [...role.split(','), 'anonymous'],
-    'x-hasura-default-role': 'user',
-    'x-hasura-user-id': account,
-  } as HasuraClaims
+    "x-hasura-allowed-roles": [...role.split(","), "anonymous"],
+    "x-hasura-default-role": "user",
+    "x-hasura-user-id": account,
+  } as HasuraClaims;
 }

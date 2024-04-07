@@ -1,12 +1,11 @@
 'use client'
 
 import * as React from 'react'
-
 import useClickOutside from '@/hooks/use-click-outside'
 import { useSidebar } from '@/hooks/use-sidebar'
 import { cn } from '@/lib/utils'
 
-export interface SidebarProps extends React.ComponentProps<'div'> {}
+export type SidebarProps = React.ComponentProps<'div'>
 
 export function Sidebar({ className, children }: SidebarProps) {
   const { isSidebarOpen, isLoading, toggleSidebar } = useSidebar()
@@ -17,9 +16,9 @@ export function Sidebar({ className, children }: SidebarProps) {
   })
   return (
     <aside
-      ref={ref}
-      data-state={isSidebarOpen && !isLoading ? 'open' : 'closed'}
       className={cn(className, 'h-full flex-col dark:bg-zinc-950 z-[5000]')}
+      data-state={isSidebarOpen && !isLoading ? 'open' : 'closed'}
+      ref={ref}
     >
       <div className="overflow-y-auto scrollbar h-[calc(100%-113px)]">
         {children}

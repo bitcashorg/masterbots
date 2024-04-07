@@ -1,7 +1,7 @@
 'use client'
 
-import { Chat } from '@/lib/types'
 import { AnimatePresence, motion } from 'framer-motion'
+import type { Chat } from '@/lib/types'
 import { SidebarItem } from '@/components/c/sidebar/sidebar-item'
 
 interface SidebarItemsProps {
@@ -9,7 +9,7 @@ interface SidebarItemsProps {
 }
 
 export function SidebarItems({ chats }: SidebarItemsProps) {
-  if (!chats?.length) return null
+  if (!chats.length) return null
 
   return (
     <AnimatePresence>
@@ -17,13 +17,13 @@ export function SidebarItems({ chats }: SidebarItemsProps) {
         (chat, index) =>
           chat && (
             <motion.div
-              key={chat?.id}
               exit={{
                 opacity: 0,
                 height: 0
               }}
+              key={chat.id}
             >
-              <SidebarItem index={index} chat={chat}>
+              <SidebarItem chat={chat} index={index}>
                 <div />
               </SidebarItem>
             </motion.div>

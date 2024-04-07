@@ -1,4 +1,4 @@
-import { JwtData } from "mb-types";
+import { JwtData } from "@repo/mb-types";
 import { generateHasuraClaims } from "../hasura";
 import { JwtSecret, TokenLibGetTokenParams } from "./jwt.type";
 import { SignJWT, jwtVerify, decodeJwt } from "jose";
@@ -7,7 +7,7 @@ import { getErrorMessage } from "../error";
 export async function sign(
   payload: JwtData,
   secret: string,
-  jwtExpiration: number
+  jwtExpiration: number,
 ): Promise<string> {
   const iat = Math.floor(Date.now() / 1000);
   const exp = iat + jwtExpiration;
@@ -78,7 +78,7 @@ export const getToken = async ({
         },
       },
       jwtSecret.key,
-      jwtExpiration
+      jwtExpiration,
     );
   } catch (error) {
     console.log("getTokenSession Error", error);
@@ -102,7 +102,7 @@ export function validateJwtSecret(envVariable: string | undefined): JwtSecret {
   if (
     typeof secret.type !== "string" ||
     !["HS256", "HS238", "HS512", "RS256", "RS384", "RS512", "Ed25519"].includes(
-      secret.type
+      secret.type,
     )
   ) {
     throw new Error("Invalid type in AUTH_SECRET");

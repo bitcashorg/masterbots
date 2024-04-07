@@ -2,10 +2,10 @@
 
 import { ChevronDown } from 'lucide-react'
 import * as React from 'react'
+import type { Thread } from '@repo/mb-genql'
 import { useThread } from '@/hooks/use-thread'
-import { Thread } from 'mb-genql'
 
-export const ChatAccordion = ({
+export function ChatAccordion({
   thread = null,
   className,
   children,
@@ -30,7 +30,7 @@ export const ChatAccordion = ({
   handleTrigger?: () => void
   handleOpen?: () => void
   thread?: Thread | null
-}) => {
+}) {
   const { activeThread, setActiveThread, setIsNewResponse, isNewResponse } =
     useThread()
   // If the thread is the active, we keep the thread open
@@ -50,8 +50,8 @@ export const ChatAccordion = ({
     if (
       (thread?.threadId &&
         activeThread !== null &&
-        thread?.threadId !== activeThread?.threadId) ||
-      (activeThread === null && thread?.threadId)
+        thread.threadId !== activeThread.threadId) ||
+      (activeThread === null && thread.threadId)
     ) {
       setOpen(false)
     }
@@ -69,7 +69,7 @@ export const ChatAccordion = ({
     if (!newState && handleOpen) {
       handleOpen()
     }
-    if (thread?.threadId) {
+    if (thread.threadId) {
       setActiveThread(newState ? thread : null)
     }
     if (isNewResponse) setIsNewResponse(false)
@@ -81,8 +81,6 @@ export const ChatAccordion = ({
   return (
     <div className={className || ''} {...props}>
       <button
-        data-state={open ? 'open' : 'closed'}
-        onClick={toggle}
         className={`flex flex-1 justify-start flex-col relative
         transition-all ease-in-out duration-200
         border-transparent border
@@ -92,6 +90,8 @@ export const ChatAccordion = ({
             ? 'dark:border-b-mirage border-b-gray-300'
             : 'dark:hover:border-b-mirage hover:border-b-gray-300 [&>div>div>button]:!hidden'
         } ${triggerClass || ''}`}
+        data-state={open ? 'open' : 'closed'}
+        onClick={toggle}
       >
         {children[0]}
         {!open && children[1]}

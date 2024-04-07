@@ -15,16 +15,15 @@ export const useAtBottom = ({ ref, scrollY }: Props) => {
     scrollY.on('change', () => {
       setIsAtBottom(
         scrollY.get() + 5 >
-        ref.current.scrollHeight - ref.current.offsetHeight &&
-        scrollY.get() > 0
+          ref.current.scrollHeight - ref.current.offsetHeight &&
+          scrollY.get() > 0
       )
     })
   }, [ref, scrollY])
   useEffect(() => {
     if (!scrollY || !Boolean(ref.current)) return
     if (
-      scrollY.get() + 5 >
-      ref.current.scrollHeight - ref.current.offsetHeight &&
+      scrollY.get() + 5 > ref.current.scrollHeight - ref.current.offsetHeight &&
       scrollY.get() === 0
     ) {
       setIsAtBottom(true)

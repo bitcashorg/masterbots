@@ -1,13 +1,12 @@
 import * as React from 'react'
 import Link from 'next/link'
-
+import { isTokenExpired } from '@repo/mb-lib'
+import { cookies } from 'next/headers'
 import { Button } from '@/components/ui/button'
 import { IconSeparator } from '@/components/ui/icons'
 import { UserMenu } from '@/components/user-menu'
-import { SidebarToggle } from '../c/sidebar/sidebar-toggle'
-import { isTokenExpired } from 'mb-lib'
 import { getUserProfile } from '@/services/supabase'
-import { cookies } from 'next/headers'
+import { SidebarToggle } from '../c/sidebar/sidebar-toggle'
 
 // https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating
 
@@ -28,7 +27,7 @@ export async function Header() {
         {user && !isTokenExpired(jwt) ? (
           <UserMenu />
         ) : (
-          <Button variant="link" asChild className="-ml-2">
+          <Button asChild className="-ml-2" variant="link">
             <Link href="/auth/sign-in">Login</Link>
           </Button>
         )}
@@ -39,7 +38,7 @@ export async function Header() {
 
 function HeaderLink({ href, text }: { href: string; text: string }) {
   return (
-    <Button variant="link" asChild className="-ml-2">
+    <Button asChild className="-ml-2" variant="link">
       <Link href={href}>{text}</Link>
     </Button>
   )

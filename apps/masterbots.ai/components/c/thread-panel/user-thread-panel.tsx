@@ -1,14 +1,14 @@
 'use client'
 
+import type { Thread } from '@repo/mb-genql'
+import React, { useEffect, useRef, useState } from 'react'
 import { ChatSearchInput } from '@/components/c/chat-search-input'
 import ThreadList from '@/components/c/thread-list'
 import { useSidebar } from '@/hooks/use-sidebar'
 import { useThread } from '@/hooks/use-thread'
 import { getThreads } from '@/services/hasura'
-import { Thread } from 'mb-genql'
-import React, { useEffect, useRef, useState } from 'react'
-import ChatChatbotDetails from '../chat-chatbot-details'
 import { useGlobalStore } from '@/hooks/use-global-store'
+import ChatChatbotDetails from '../chat-chatbot-details'
 
 const PAGE_SIZE = 20
 
@@ -17,14 +17,14 @@ export default function UserThreadPanel({
 }: {
   chatbot?: string
   threads: Thread[]
-  search?: { [key: string]: string | string[] | undefined }
+  search?: Record<string, string | string[] | undefined>
 }) {
   const { activeCategory, activeChatbot } = useSidebar()
   const { isOpenPopup, activeThread, setActiveThread, setIsOpenPopup } =
     useThread()
   const [loading, setLoading] = useState<boolean>(false)
   const [threads, setThreads] = useState<Thread[]>(initialThreads ?? [])
-  const [count, setCount] = useState<number>(initialThreads?.length ?? 0)
+  const [count, setCount] = useState<number>(initialThreads.length ?? 0)
   const { hasuraJwt, user } = useGlobalStore()
   const fetchIdRef = useRef(0) // Store the fetchId in a ref
   const loadMore = async () => {
@@ -33,7 +33,7 @@ export default function UserThreadPanel({
 
     const moreThreads = await getThreads({
       jwt: hasuraJwt,
-      userId: user!.userId,
+      userId: user.userId,
       offset: threads.length,
       limit: PAGE_SIZE,
       categoryId: activeCategory,
@@ -98,11 +98,11 @@ export default function UserThreadPanel({
 
           <div className="flex px-4 py-5 md:px-10">
             <ThreadList
-              threads={threads}
-              loading={loading}
               count={count}
-              pageSize={PAGE_SIZE}
               loadMore={loadMore}
+              loading={loading}
+              pageSize={PAGE_SIZE}
+              threads={threads}
             />
           </div>
         </div>

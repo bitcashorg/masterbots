@@ -1,13 +1,14 @@
 'use client'
 
-import { ChatPanel } from './chat-panel'
-import { useChat, type Message, CreateMessage } from 'ai/react'
+import { useChat } from 'ai/react'
+import type { CreateMessage, Message } from 'ai/react'
 import toast from 'react-hot-toast'
-import { ChatRequestOptions } from 'ai'
-import { Chatbot } from 'mb-genql'
+import type { ChatRequestOptions } from 'ai'
+import type { Chatbot } from '@repo/mb-genql'
 import { useRouter } from 'next/navigation'
 import { createThread, saveNewMessage } from '@/services/hasura'
 import { useGlobalStore } from '@/hooks/use-global-store'
+import { ChatPanel } from './chat-panel'
 
 export default function NewChat({
   id,
@@ -41,8 +42,8 @@ export default function NewChat({
       threadId: id,
       chatbotId: chatbot.chatbotId,
       jwt: hasuraJwt,
-      userId: user!.userId,
-      isPublic: chatbot?.name !== 'BlankBot'
+      userId: user.userId,
+      isPublic: chatbot.name !== 'BlankBot'
     })
 
     // we do not await to make transition to chat url faster
@@ -63,18 +64,18 @@ export default function NewChat({
 
   return (
     <ChatPanel
-      scrollToBottom={scrollToBottom}
-      id={id}
-      isLoading={false}
-      stop={stop}
       append={appendToNewChat}
-      reload={reload}
-      messages={messages}
-      input={input}
-      setInput={setInput}
       chatbot={chatbot}
-      showReload={false}
+      id={id}
+      input={input}
+      isLoading={false}
+      messages={messages}
       placeholder={`Start New Chat with ${chatbot.name}`}
+      reload={reload}
+      scrollToBottom={scrollToBottom}
+      setInput={setInput}
+      showReload={false}
+      stop={stop}
     />
   )
 }

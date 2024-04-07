@@ -1,9 +1,8 @@
 'use client'
 
+import type { Thread } from '@repo/mb-genql'
 import { cn, extractBetweenMarkers } from '@/lib/utils'
-
 import { BrowseChatMessages } from './browse-chat-messages'
-import { Thread } from 'mb-genql'
 
 export function BrowseThread({
   thread,
@@ -18,11 +17,11 @@ export function BrowseThread({
 
   return (
     <div className={cn('pb-[100px]', className)}>
-      {thread.messages?.length ? (
+      {thread.messages.length ? (
         <BrowseChatMessages
-          chatbot={thread?.chatbot}
-          user={thread?.user || undefined}
+          chatbot={thread.chatbot}
           threadId={thread.threadId}
+          user={thread.user || undefined}
         />
       ) : (
         ''
