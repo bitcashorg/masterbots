@@ -3,7 +3,7 @@ import { type UseChatHelpers } from 'ai/react'
 import { Chatbot } from '@repo/mb-genql'
 import { Button } from '@/components/ui/button'
 import { PromptForm } from '@/components/c/prompt-form'
-import { ButtonScrollToBottom } from '@/components/button-scroll-to-bottom'
+import { ButtonScrollToBottom } from '@/components/c/button-scroll-to-bottom'
 import { IconRefresh, IconShare, IconStop } from '@/components/ui/icons'
 import { FooterText } from '@/components/layout/footer'
 import { ChatShareDialog } from '@/components/c/chat-share-dialog'
@@ -67,7 +67,9 @@ export function ChatPanel({
             {isLoading ? (
               <Button
                 className="bg-background"
-                onClick={() => { stop(); }}
+                onClick={() => {
+                  stop()
+                }}
                 variant="outline"
               >
                 <IconStop className="mr-2" />
@@ -83,7 +85,9 @@ export function ChatPanel({
                   {id && title ? (
                     <>
                       <Button
-                        onClick={() => { setShareDialogOpen(true); }}
+                        onClick={() => {
+                          setShareDialogOpen(true)
+                        }}
                         variant="outline"
                       >
                         <IconShare className="mr-2" />

@@ -36,7 +36,7 @@ export function BrowseCategoryTabs({
       setActiveTab(
         categories.filter(
           c =>
-            c.name.toLowerCase().replace(/\s+/g, '_').replace(/\&/g, 'n') ===
+            c.name.toLowerCase().replace(/\s+/g, '_').replace(/\&/g, '_') ===
             initialCategory
         )[0]?.categoryId
       )

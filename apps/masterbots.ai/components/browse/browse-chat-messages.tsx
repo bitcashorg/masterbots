@@ -5,7 +5,7 @@ import type * as AI from 'ai'
 import type { Chatbot, Message, User } from '@repo/mb-genql'
 import React from 'react'
 import { getMessages } from '@/services/hasura'
-import BrowseChatbotDetails from './browse-chatbot-details'
+import BrowseChatbotDetails from '../b/bot-details'
 import { BrowseChatMessageList } from './browse-chat-message-list'
 
 export interface MessagePair {

@@ -1,4 +1,4 @@
-import BrowseList from '@/components/browse/browse-list'
+import BrowseList from '@/components/shared/thread-dialog/thread-list'
 import { BrowseCategoryTabs } from '@/components/browse/browse-category-tabs'
 import { BrowseSearchInput } from '@/components/browse/browse-search-input'
 import { getBrowseThreads, getCategories } from '@/services/hasura'

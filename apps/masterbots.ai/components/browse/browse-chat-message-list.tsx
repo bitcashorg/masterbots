@@ -5,7 +5,7 @@ import type { Chatbot, Message, User } from '@repo/mb-genql'
 
 import React from 'react'
 import { cn, createMessagePairs } from '@/lib/utils'
-import { ChatAccordion } from '../shared/chat-accordion'
+import { ChatAccordion } from '../shared/thread-dialog/thread-accordion'
 import type { MessagePair } from './browse-chat-messages'
 import { convertMessage } from './browse-chat-messages'
 import { BrowseChatMessage } from './browse-chat-message'

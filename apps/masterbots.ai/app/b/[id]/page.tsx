@@ -1,7 +1,6 @@
 import { getChatbot, getBrowseThreads } from '@/services/hasura'
 import { botNames } from '@/lib/bots-names'
-import BrowseChatbotDetails from '@/components/browse/browse-chatbot-details'
-import BrowseSpecificThreadList from '@/components/browse/browse-specific-thread-list'
+import BotDetails from '@/components/b/bot-details'
 
 const PAGE_SIZE = 50
 
@@ -19,7 +18,6 @@ export default async function BotThreadsPage({
   })
   if (!chatbot) throw new Error(`Chatbot ${botNames.get(params.id)} not found`)
 
-  // session will always be defined
   threads = await getBrowseThreads({
     chatbotName: botNames.get(params.id),
     limit: PAGE_SIZE
@@ -27,15 +25,7 @@ export default async function BotThreadsPage({
 
   return (
     <div className="w-full py-5">
-      {chatbot ? <BrowseChatbotDetails chatbot={chatbot} /> : ''}
-      <BrowseSpecificThreadList
-        PAGE_SIZE={PAGE_SIZE}
-        initialThreads={threads}
-        pageType="bot"
-        query={{
-          chatbotName: botNames.get(params.id)
-        }}
-      />
+      <BotDetails chatbot={chatbot} />
     </div>
   )
 }

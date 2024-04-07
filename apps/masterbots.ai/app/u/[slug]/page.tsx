@@ -1,6 +1,5 @@
 import { getBrowseThreads, getUserInfoFromBrowse } from '@/services/hasura'
 import BrowseUserDetails from '@/components/browse/browse-user-details'
-import BrowseSpecificThreadList from '@/components/browse/browse-specific-thread-list'
 
 const PAGE_SIZE = 50
 
@@ -18,14 +17,6 @@ export default async function BotThreadsPage({
   return (
     <div className="w-full py-5">
       <BrowseUserDetails user={threads[0].user} />
-      <BrowseSpecificThreadList
-        PAGE_SIZE={PAGE_SIZE}
-        initialThreads={threads}
-        pageType="user"
-        query={{
-          slug: params.slug
-        }}
-      />
     </div>
   )
 }

@@ -24,7 +24,7 @@ export function BrowseCategoryLink({
       href={
         category === 'all'
           ? '/'
-          : `/${category.name.toLowerCase().replace(/\s+/g, '_').replace(/\&/g, 'n')}`
+          : `/${category.name.toLowerCase().replace(/\s+/g, '_').replace(/\&/g, '_')}`
       }
       id={id}
       onClick={onClick}

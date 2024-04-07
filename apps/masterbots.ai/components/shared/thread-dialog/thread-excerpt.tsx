@@ -1,7 +1,7 @@
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
-import { MemoizedReactMarkdown } from './markdown'
-import { CodeBlock } from './ui/codeblock'
+import { MemoizedReactMarkdown } from '../../markdown'
+import { CodeBlock } from '../../ui/codeblock'
 
 export function ShortMessage({ content }: { content: string }) {
   return (

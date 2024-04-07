@@ -4,8 +4,8 @@ import React from 'react'
 import { ChatMessage } from '@/components/c/chat-message'
 import { cn, createMessagePairs } from '@/lib/utils'
 import { useThread } from '@/hooks/use-thread'
-import { ShortMessage } from '../short-message'
-import { ChatAccordion } from '../shared/chat-accordion'
+import { ShortMessage } from '../shared/thread-dialog/thread-excerpt'
+import { ChatAccordion } from '../shared/thread-dialog/thread-accordion'
 
 export interface ChatList {
   messages: Message[]
