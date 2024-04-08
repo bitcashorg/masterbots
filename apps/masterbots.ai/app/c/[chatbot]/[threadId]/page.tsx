@@ -4,10 +4,15 @@ import { isTokenExpired } from '@repo/mb-lib'
 import { cookies } from 'next/headers'
 import { Chat } from '@/components/routes/c/chat'
 import { getThread } from '@/services/hasura'
-import { getUserProfile } from '@/services/supabase'
+import { createSupabaseServerClient } from '@/services/supabase'
 
 export default async function ChatPage({ params }: ChatPageProps) {
-  const user = await getUserProfile()
+  const supabase = await createSupabaseServerClient()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
+  if (!user || !user.email) throw new Error('user not found')
+
   const jwt = cookies().get('hasuraJwt').value || ''
 
   console.log({ jwt, expired: isTokenExpired(jwt), user })

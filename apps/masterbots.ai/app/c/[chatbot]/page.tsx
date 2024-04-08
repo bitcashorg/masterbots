@@ -6,8 +6,8 @@ import { redirect } from 'next/navigation'
 import { ChatChatbot } from '@/components/routes/c/chat-chatbot'
 import ThreadPanel from '@/components/routes/c/thread-panel'
 import { botNames } from '@/lib/bots-names'
-import { getChatbot, getThreads } from '@/services/hasura'
-import { getUserProfile } from '@/services/supabase'
+import { getChatbot, getThreads, getUser } from '@/services/hasura'
+import { createSupabaseServerClient } from '@/services/supabase'
 
 export default async function BotThreadsPage({
   params,
@@ -16,7 +16,17 @@ export default async function BotThreadsPage({
   params: { chatbot: string }
   searchParams: Record<string, string | string[] | undefined>
 }) {
-  const user = await getUserProfile()
+  const supabase = await createSupabaseServerClient()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
+  if (!user || !user.email) throw new Error('user not found')
+  const userProfile = await getUser({
+    email: user.email,
+    adminSecret: process.env.HASURA_GRAPHQL_ADMIN_SECRET || ''
+  })
+
+  if (!userProfile) throw new Error('user not found')
   const jwt = cookies().get('hasuraJwt').value || ''
 
   // NOTE: maybe we should use same expiration time
@@ -32,7 +42,7 @@ export default async function BotThreadsPage({
   const threads = await getThreads({
     chatbotName: botNames.get(params.chatbot),
     jwt,
-    userId: user.userId
+    userId: userProfile.userId
   })
 
   // format all chatbot prompts as chatgpt 'system' messages
