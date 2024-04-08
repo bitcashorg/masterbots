@@ -11,14 +11,15 @@ export default async function ChatPage({ params }: ChatPageProps) {
   const {
     data: { user }
   } = await supabase.auth.getUser()
-  if (!user || !user.email) redirect(`/auth/sign-in`)
-
+  if (!user || !user.email)
+    redirect(`/auth/sign-in?next=/${params.chatbot}/${params.threadId}`)
   const jwt = cookies().get('hasuraJwt')?.value || ''
 
   console.log({ jwt, expired: isTokenExpired(jwt), user })
   // NOTE: maybe we should use same expiration time
   if (!jwt || isTokenExpired(jwt) || !user)
-    redirect(`/auth/sign-in?next=/${params.threadId}/${params.threadId}`)
+    redirect(`/auth/sign-in?next=/${params.chatbot}/${params.threadId}`)
+
   const thread = await getThread({
     threadId: params.threadId
   })
