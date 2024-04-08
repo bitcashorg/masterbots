@@ -5,7 +5,7 @@ import { SidebarGeneralCategory } from './sidebar-category-general'
 export async function ResponsiveSidebar() {
   return (
     <Sidebar
-      className="peer absolute inset-y-0 z-30 border-r bg-muted
+      className="peer inset-y-0 z-30 border-r bg-muted
     transition-all
     -translate-x-full duration-500 ease-in-out
     data-[state=open]:translate-x-0 data-[state=closed]:lg:translate-x-0

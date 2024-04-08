@@ -1,13 +1,17 @@
-import type { Message } from 'ai'
+import { nanoid, type Message } from 'ai'
 import { isTokenExpired } from '@repo/mb-lib'
-import { nanoid } from 'nanoid'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { ChatChatbot } from '@/components/routes/c/chat-chatbot'
-import ThreadPanel from '@/components/routes/c/thread-panel'
 import { botNames } from '@/lib/bots-names'
-import { getChatbot, getThreads, getUser } from '@/services/hasura'
+import {
+  getBrowseThreads,
+  getChatbot,
+  getThreads,
+  getUser
+} from '@/services/hasura'
 import { createSupabaseServerClient } from '@/services/supabase'
+import ThreadList from '@/components/shared/thread-list'
+import NewChatInput from '@/components/routes/c/new-chat'
 
 export default async function BotThreadsPage({
   params,
@@ -40,9 +44,8 @@ export default async function BotThreadsPage({
     throw new Error(`Chatbot ${botNames.get(params.chatbot)} not found`)
 
   // session will always be defined
-  const threads = await getThreads({
+  const threads = await getBrowseThreads({
     chatbotName: botNames.get(params.chatbot),
-    jwt,
     userId: userProfile.userId
   })
 
@@ -75,12 +78,16 @@ export default async function BotThreadsPage({
 
   return (
     <>
-      {/* <ThreadPanel
-        chatbot={chatbot.name}
-        search={searchParams}
-        threads={threads}
-      />{' '} */}
-      <ChatChatbot chatbot={chatbot} initialMessages={initialMessages} />
+      <ThreadList
+        initialThreads={threads}
+        filter={{ slug: userProfile.slug, chatbotName: chatbot.name }}
+        chat={true}
+      />
+      <NewChatInput
+        chatbot={chatbot}
+        initialMessages={initialMessages}
+        id={crypto.randomUUID()}
+      />
     </>
   )
 }
