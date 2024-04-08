@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils'
 import Image from 'next/image'
 import Link from 'next/link'
+import { IconUser } from '../ui/icons'
 
 export function MbAvatar({ href, alt, src }: MbAvatarProp) {
   return (
@@ -11,13 +12,17 @@ export function MbAvatar({ href, alt, src }: MbAvatarProp) {
       href={href}
       title={alt}
     >
-      <Image
-        alt={alt}
-        className="transition-opacity duration-300 rounded-full select-none bg-background dark:bg-primary-foreground hover:opacity-80"
-        height={32}
-        src={src}
-        width={32}
-      />
+      {src ? (
+        <Image
+          alt={alt}
+          className="transition-opacity duration-300 rounded-full select-none bg-background dark:bg-primary-foreground hover:opacity-80"
+          src={src}
+          width={32}
+          height={32}
+        />
+      ) : (
+        <IconUser width={32} height={32} />
+      )}
     </Link>
   )
 }
@@ -25,5 +30,5 @@ export function MbAvatar({ href, alt, src }: MbAvatarProp) {
 interface MbAvatarProp {
   href: string
   alt: string
-  src: string
+  src?: string
 }

@@ -1,5 +1,3 @@
-import { type Message as AIMessage } from 'ai/react'
-import type { Message } from '@repo/mb-genql'
 import { clsx, ClassValue } from 'clsx'
 import { customAlphabet } from 'nanoid'
 import { twMerge } from 'tailwind-merge'
@@ -70,61 +68,6 @@ export function extractBetweenMarkers(
   return str.substring(startIndex, endIndex).trim()
 }
 
-// From browse-list.tsx
-export function createMessagePairs(messages: Message[] | AIMessage[]) {
-  const messagePairs = []
-
-  for (let i = 0; i < messages.length; i++) {
-    const message = messages[i]
-
-    if (message.role === 'user') {
-      const userMessage = message
-      const chatGptMessages = []
-      for (let j = i + 1; j < messages.length; j++) {
-        const chatGptMessage = findNextAssistantMessage(messages, j)
-        if (!chatGptMessage) {
-          break
-        } else {
-          chatGptMessages.push(chatGptMessage)
-          continue
-        }
-      }
-      messagePairs.push({
-        userMessage,
-        chatGptMessage: chatGptMessages
-      })
-    }
-  }
-
-  return messagePairs
-}
-
-const findNextAssistantMessage = (
-  messages: Message[] | AIMessage[],
-  startIndex: number
-) => {
-  if (messages[startIndex].role === 'assistant') {
-    return {
-      ...messages[startIndex],
-      content: cleanPrompt(messages[startIndex].content)
-    }
-  }
-  return null
-}
-
-// From chat-message.tsx
-export function cleanPrompt(str: string) {
-  const marker = '].  Then answer this question:'
-  const index = str.indexOf(marker)
-  let extracted = ''
-
-  if (index !== -1) {
-    extracted = str.substring(index + marker.length)
-  }
-  // console.log('cleanPrompt', str, extracted, index)
-  return extracted || str
-}
-
 export const readingTime = (messages: { content: string }[]) => {
   let contentGroup: any = []
 
@@ -139,41 +82,6 @@ export const readingTime = (messages: { content: string }[]) => {
   const words = text.trim().split(/\s+/).length
   const time = Math.ceil(words / wpm)
   return time
-}
-
-// Easing function for smooth animation
-export const easeInOutQuad = (t: number, b: number, c: number, d: number) => {
-  t /= d / 2
-  if (t < 1) return (c / 2) * t * t + b
-  t--
-  return (-c / 2) * (t * (t - 2) - 1) + b
-}
-
-let animationFrameId: number
-export const scrollToBottomOfElement = (element?: HTMLElement) => {
-  if (!element) return
-  const targetScroll = element.scrollHeight - element.clientHeight
-  const duration = 500
-  const startTime = performance.now()
-
-  const animateScroll = (currentTime: number) => {
-    const elapsed = currentTime - startTime
-    const position = easeInOutQuad(
-      elapsed,
-      element.scrollTop,
-      targetScroll - element.scrollTop,
-      duration
-    )
-    element.scrollTop = position
-
-    if (elapsed < duration) {
-      animationFrameId = requestAnimationFrame(animateScroll)
-    } else {
-      cancelAnimationFrame(animationFrameId)
-    }
-  }
-
-  animationFrameId = requestAnimationFrame(animateScroll)
 }
 
 export async function sleep(time: number) {

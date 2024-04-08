@@ -20,6 +20,7 @@ import {
   SaveNewMessageParams,
   UpsertUserParams
 } from './hasura.service.type'
+import { createMessagePairs } from '@/lib/threads'
 
 function getHasuraClient({ jwt, adminSecret }: GetHasuraClientParams) {
   return createMbClient({
@@ -540,4 +541,9 @@ export async function getUser({
     }
   })
   return user[0]
+}
+
+export async function getMessagePairs(threadId) {
+  const messages = await getMessages({ threadId })
+  return createMessagePairs(messages)
 }

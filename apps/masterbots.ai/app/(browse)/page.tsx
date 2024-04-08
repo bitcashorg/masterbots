@@ -1,6 +1,6 @@
-import BrowseList from '@/components/shared/thread-dialog/thread-list'
-import { BrowseCategoryTabs } from '@/components/browse/browse-category-tabs'
-import { BrowseSearchInput } from '@/components/browse/browse-search-input'
+import BrowseList from '@/components/shared/thread-list'
+import { BrowseCategoryTabs } from '@/components/routes/browse/browse-category-tabs'
+import { BrowseSearchInput } from '@/components/routes/browse/browse-search-input'
 import { getBrowseThreads, getCategories } from '@/services/hasura'
 
 export const revalidate = 3600 // revalidate the data at most every hour

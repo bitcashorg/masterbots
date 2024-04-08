@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { WorkEarlyAccessForm } from '@/components/p/early-access-from'
+import { WorkEarlyAccessForm } from '@/components/routes/p/early-access-from'
 
 export default function WorkPage() {
   return (

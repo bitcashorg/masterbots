@@ -4,9 +4,9 @@ import { isTokenExpired } from '@repo/mb-lib'
 import { cookies } from 'next/headers'
 import { Button } from '@/components/ui/button'
 import { IconSeparator } from '@/components/ui/icons'
-import { UserMenu } from '@/components/user-menu'
+import { UserMenu } from '@/components/layout/user-menu'
 import { getUserProfile } from '@/services/supabase'
-import { SidebarToggle } from '../c/sidebar/sidebar-toggle'
+import { SidebarToggle } from '../routes/c/sidebar/sidebar-toggle'
 
 // https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating
 

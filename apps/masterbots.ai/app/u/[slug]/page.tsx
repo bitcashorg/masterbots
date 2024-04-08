@@ -1,5 +1,5 @@
 import { getBrowseThreads, getUserInfoFromBrowse } from '@/services/hasura'
-import BrowseUserDetails from '@/components/browse/browse-user-details'
+import BrowseUserDetails from '@/components/routes/browse/browse-user-details'
 
 const PAGE_SIZE = 50
 

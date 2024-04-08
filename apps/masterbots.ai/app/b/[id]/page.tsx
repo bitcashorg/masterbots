@@ -1,6 +1,6 @@
 import { getChatbot, getBrowseThreads } from '@/services/hasura'
 import { botNames } from '@/lib/bots-names'
-import BotDetails from '@/components/b/bot-details'
+import BotDetails from '@/components/routes/b/bot-details'
 
 const PAGE_SIZE = 50
 
