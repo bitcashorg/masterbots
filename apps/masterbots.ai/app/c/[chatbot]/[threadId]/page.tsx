@@ -13,7 +13,7 @@ export default async function ChatPage({ params }: ChatPageProps) {
   } = await supabase.auth.getUser()
   if (!user || !user.email) throw new Error('user not found')
 
-  const jwt = cookies().get('hasuraJwt').value || ''
+  const jwt = cookies().get('hasuraJwt')?.value || ''
 
   console.log({ jwt, expired: isTokenExpired(jwt), user })
   // NOTE: maybe we should use same expiration time

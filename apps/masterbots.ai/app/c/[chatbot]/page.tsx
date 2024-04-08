@@ -27,7 +27,7 @@ export default async function BotThreadsPage({
   })
 
   if (!userProfile) throw new Error('user not found')
-  const jwt = cookies().get('hasuraJwt').value || ''
+  const jwt = cookies().get('hasuraJwt')?.value || ''
 
   // NOTE: maybe we should use same expiration time
   if (!jwt || isTokenExpired(jwt) || !user) redirect(`/auth/sign-in?next=/c`)
