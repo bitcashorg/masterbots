@@ -20,17 +20,18 @@ export default async function BotThreadsPage({
   const {
     data: { user }
   } = await supabase.auth.getUser()
-  if (!user || !user.email) throw new Error('user not found')
+  if (!user || !user.email) redirect(`/auth/sign-in?next=/${params.chatbot}`)
   const userProfile = await getUser({
     email: user.email,
     adminSecret: process.env.HASURA_GRAPHQL_ADMIN_SECRET || ''
   })
 
-  if (!userProfile) throw new Error('user not found')
+  if (!userProfile) redirect(`/auth/sign-in?next=/${params.chatbot}`)
   const jwt = cookies().get('hasuraJwt')?.value || ''
 
   // NOTE: maybe we should use same expiration time
-  if (!jwt || isTokenExpired(jwt) || !user) redirect(`/auth/sign-in?next=/c`)
+  if (!jwt || isTokenExpired(jwt))
+    redirect(`/auth/sign-in?next=/${params.chatbot}`)
   const chatbot = await getChatbot({
     chatbotName: botNames.get(params.chatbot),
     jwt
