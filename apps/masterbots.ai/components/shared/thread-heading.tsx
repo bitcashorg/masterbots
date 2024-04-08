@@ -1,6 +1,6 @@
 import { Thread } from '@repo/mb-genql'
 import { ShortMessage } from './thread-short-message'
-import { MbAvatar } from './mb-avatar'
+import { AccountAvatar } from './account-avatar'
 import { cn } from '@/lib/utils'
 
 export function ThreadHeading({
@@ -19,7 +19,7 @@ export function ThreadHeading({
           'relative flex items-center font-normal md:text-lg transition-all w-full gap-3 pr-4'
         )}
       >
-        <MbAvatar
+        <AccountAvatar
           alt={thread.chatbot.name}
           src={thread.chatbot.avatar}
           href={`/b/${thread.chatbot.name.toLowerCase()}`}
@@ -34,10 +34,10 @@ export function ThreadHeading({
 
           <span className="opacity-50 text-[0.875rem]">by</span>
 
-          <MbAvatar
+          <AccountAvatar
             alt={thread.user.username.replace('_', ' ')}
             src={thread.user.profilePicture || ''}
-            href={`/u/${encodeURIComponent(String(thread.user.slug))}`}
+            href={`/u/${thread.user.slug}`}
           />
         </div>
       </div>

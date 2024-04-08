@@ -1,8 +1,7 @@
 import { getChatbot, getBrowseThreads } from '@/services/hasura'
 import { botNames } from '@/lib/bots-names'
-import BotDetails from '@/components/routes/b/bot-details'
-
-const PAGE_SIZE = 50
+import ThreadList from '@/components/shared/thread-list'
+import AccountDetails from '@/components/shared/account-details'
 
 export default async function BotThreadsPage({
   params
@@ -20,12 +19,21 @@ export default async function BotThreadsPage({
 
   threads = await getBrowseThreads({
     chatbotName: botNames.get(params.id),
-    limit: PAGE_SIZE
+    limit: 50
   })
 
   return (
     <div className="w-full py-5">
-      <BotDetails chatbot={chatbot} />
+      <AccountDetails
+        href={`/b/${chatbot.name.toLowerCase()}`}
+        alt={chatbot.name}
+        chatbotName={chatbot.name}
+        avatar={chatbot.avatar}
+        description={chatbot.description}
+      />
+      <div className="container">
+        <ThreadList initialThreads={threads} />
+      </div>
     </div>
   )
 }

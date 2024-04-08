@@ -23,11 +23,7 @@ export function ThreadAccordion({
   clientFetch = false
 }: ThreadAccordionProps) {
   // initalMessages is coming from server ssr on load. the rest of messages on demand on mount
-  const {
-    data: pairs,
-    isLoading,
-    error
-  } = useQuery({
+  const { data: pairs, error } = useQuery({
     queryKey: [`messages-${thread.threadId}`],
     queryFn: () => getMessagePairs(thread.threadId),
     initialData: initialMessagePairs,
@@ -50,7 +46,8 @@ export function ThreadAccordion({
   if (error) return <div>There was an error loading thread messages</div>
 
   // if no initial message and still loading show loading message
-  if (!pairs?.length && isLoading) return <div>Loading thread messages ...</div>
+  // NOTE: its fast and transitions in. testing without this
+  if (!pairs?.length) return null
 
   console.log(pairs.map((_p, key) => `pair-${key}`))
   return (

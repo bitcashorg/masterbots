@@ -1,9 +1,7 @@
-import BrowseList from '@/components/shared/thread-list'
+import ThreadList from '@/components/shared/thread-list'
 import { BrowseCategoryTabs } from '@/components/routes/browse/browse-category-tabs'
 import { BrowseSearchInput } from '@/components/routes/browse/browse-search-input'
 import { getBrowseThreads, getCategories } from '@/services/hasura'
-
-export const revalidate = 3600 // revalidate the data at most every hour
 
 export default async function BrowsePage() {
   const categories = await getCategories()
@@ -15,7 +13,7 @@ export default async function BrowsePage() {
     <div className="w-full max-w-screen-lg px-4 pb-10 mx-auto">
       <BrowseCategoryTabs categories={categories} />
       <BrowseSearchInput />
-      <BrowseList initialThreads={threads} />
+      <ThreadList initialThreads={threads} />
     </div>
   )
 }

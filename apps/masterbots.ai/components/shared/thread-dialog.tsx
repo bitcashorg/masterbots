@@ -24,7 +24,7 @@ export function ThreadDialog({ thread }: ThreadDialogProps) {
 
       <DialogContent
         className={cn(
-          'max-w-[1000px] w-[80%] h-[90%] hide-buttons overflow-auto'
+          'max-w-[1400px] w-[80%] h-[90%] hide-buttons overflow-auto'
         )}
       >
         <ThreadAccordion thread={thread} clientFetch={true} />

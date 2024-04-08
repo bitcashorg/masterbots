@@ -507,7 +507,6 @@ export async function getUserInfoFromBrowse(slug: string) {
     user: {
       username: true,
       profilePicture: true,
-      name: true,
       __args: {
         where: {
           slug: {

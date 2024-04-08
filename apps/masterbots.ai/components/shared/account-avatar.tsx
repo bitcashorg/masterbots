@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { IconUser } from '../ui/icons'
 
-export function MbAvatar({ href, alt, src }: MbAvatarProp) {
+export function AccountAvatar({ href, alt, src, size = 32 }: MbAvatarProp) {
   return (
     <Link
       className={cn(
@@ -17,8 +17,8 @@ export function MbAvatar({ href, alt, src }: MbAvatarProp) {
           alt={alt}
           className="transition-opacity duration-300 rounded-full select-none bg-background dark:bg-primary-foreground hover:opacity-80"
           src={src}
-          width={32}
-          height={32}
+          width={size}
+          height={size}
         />
       ) : (
         <IconUser width={32} height={32} />
@@ -31,4 +31,5 @@ interface MbAvatarProp {
   href: string
   alt: string
   src?: string
+  size?: number
 }

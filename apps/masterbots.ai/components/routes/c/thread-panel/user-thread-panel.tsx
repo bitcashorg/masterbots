@@ -3,12 +3,13 @@
 import type { Thread } from '@repo/mb-genql'
 import React, { useEffect, useRef, useState } from 'react'
 import { ChatSearchInput } from '@/components/routes/c/chat-search-input'
-import ThreadList from '@/components/routes/c/thread-list'
+
 import { useSidebar } from '@/hooks/use-sidebar'
 import { useThread } from '@/hooks/use-thread'
 import { getThreads } from '@/services/hasura'
 import { useGlobalStore } from '@/hooks/use-global-store'
 import ChatChatbotDetails from '../chat-chatbot-details'
+import ThreadList from '../chat-thread-list'
 
 const PAGE_SIZE = 20
 
