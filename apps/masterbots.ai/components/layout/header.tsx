@@ -16,7 +16,7 @@ export async function Header() {
   const {
     data: { user }
   } = await supabase.auth.getUser()
-  if (!user || !user.email) throw new Error('user not found')
+
   const jwt = cookies().get('hasuraJwt')?.value || ''
 
   return (
