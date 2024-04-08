@@ -4,6 +4,7 @@ import { type CookieOptions, createServerClient } from '@supabase/ssr'
 import { getToken, validateJwtSecret } from '@repo/mb-lib'
 import { upsertUser } from '@/services/hasura'
 import { nanoid } from '@/lib/utils'
+import { createSupabaseServerClient } from '@/services/supabase'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
@@ -12,24 +13,7 @@ export async function GET(request: Request) {
   // if "next" is in param, use it as the redirect URL
   const next = searchParams.get('next') ?? '/'
 
-  const cookieStore = cookies()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name).value
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          cookieStore.set({ name, value, ...options })
-        },
-        remove(name: string, options: CookieOptions) {
-          cookieStore.delete({ name, ...options })
-        }
-      }
-    }
-  )
+  const supabase = await createSupabaseServerClient()
 
   const {
     data: { user },
