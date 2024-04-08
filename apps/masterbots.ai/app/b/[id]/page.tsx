@@ -16,9 +16,9 @@ export default async function BotThreadsPage({
     threads: true
   })
   if (!chatbot) throw new Error(`Chatbot ${botNames.get(params.id)} not found`)
-
+  const chatbotName = botNames.get(params.id)
   threads = await getBrowseThreads({
-    chatbotName: botNames.get(params.id),
+    chatbotName,
     limit: 50
   })
 
@@ -33,7 +33,7 @@ export default async function BotThreadsPage({
         threadNum={threads.length}
       />
       <div className="container">
-        <ThreadList initialThreads={threads} />
+        <ThreadList initialThreads={threads} filter={{ chatbotName }} />
       </div>
     </div>
   )

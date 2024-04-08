@@ -24,13 +24,13 @@ export default async function BrowseCategoryPage({
   })
 
   return (
-    <div className="w-full max-w-screen-lg pb-10 mx-auto">
+    <div className="w-full container pb-10 mx-auto">
       <BrowseCategoryTabs
         categories={categories}
         initialCategory={params.category}
       />
       <BrowseSearchInput />
-      <ThreadList initialThreads={threads} />
+      <ThreadList initialThreads={threads} filter={{ categoryId }} />
     </div>
   )
 }

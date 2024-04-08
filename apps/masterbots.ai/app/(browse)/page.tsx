@@ -8,12 +8,11 @@ export default async function BrowsePage() {
   const threads = await getBrowseThreads({
     limit: 50
   })
-
   return (
-    <div className="w-full max-w-screen-lg px-4 pb-10 mx-auto">
+    <div className="w-full container px-4 pb-10 mx-auto">
       <BrowseCategoryTabs categories={categories} />
       <BrowseSearchInput />
-      <ThreadList initialThreads={threads} />
+      <ThreadList initialThreads={threads} filter={{}} />
     </div>
   )
 }

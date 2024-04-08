@@ -23,7 +23,7 @@ export default async function BotThreadsPage({
         threadNum={threads.length} //TODO: get total number of thread. not the filter one
       />
       <div className="container">
-        <ThreadList initialThreads={threads} />
+        <ThreadList initialThreads={threads} filter={{ slug: params.slug }} />
       </div>
     </div>
   )

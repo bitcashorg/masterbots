@@ -7,8 +7,11 @@ import { useBrowse } from '@/hooks/use-browse'
 import { getBrowseThreads } from '@/services/hasura'
 import { ThreadDialog } from './thread-dialog'
 
-export default function ThreadList({ initialThreads }: ThreadListProps) {
-  const { keyword, tab } = useBrowse()
+export default function ThreadList({
+  initialThreads,
+  filter
+}: ThreadListProps) {
+  const { keyword } = useBrowse()
   const [threads, setThreads] = useState<Thread[]>(initialThreads)
   const [filteredThreads, setFilteredThreads] =
     useState<Thread[]>(initialThreads)
@@ -22,7 +25,7 @@ export default function ThreadList({ initialThreads }: ThreadListProps) {
     setLoading(true)
 
     const moreThreads = await getBrowseThreads({
-      categoryId: tab,
+      ...filter,
       offset: filteredThreads.length,
       limit: 50
     })
@@ -79,4 +82,10 @@ export default function ThreadList({ initialThreads }: ThreadListProps) {
 
 type ThreadListProps = {
   initialThreads: Thread[]
+  filter: {
+    categoryId?: number
+    userId?: string
+    chatbotName?: string
+    slug?: string
+  }
 }
