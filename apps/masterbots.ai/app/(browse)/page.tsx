@@ -9,7 +9,7 @@ export default async function BrowsePage() {
     limit: 50
   })
   return (
-    <div className="w-full container px-4 pb-10 mx-auto">
+    <div className="container">
       <BrowseCategoryTabs categories={categories} />
       <BrowseSearchInput />
       <ThreadList initialThreads={threads} filter={{}} />

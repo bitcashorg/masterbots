@@ -1,12 +1,19 @@
-import { getBrowseThreads, getUserInfoFromBrowse } from '@/services/hasura'
+import {
+  getBrowseThreads,
+  getCategories,
+  getUserInfoFromBrowse
+} from '@/services/hasura'
 import ThreadList from '@/components/shared/thread-list'
 import AccountDetails from '@/components/shared/account-details'
+import { BrowseCategoryTabs } from '@/components/routes/browse/browse-category-tabs'
+import { BrowseSearchInput } from '@/components/routes/browse/browse-search-input'
 
 export default async function BotThreadsPage({
   params
 }: {
   params: { slug: string }
 }) {
+  const categories = await getCategories()
   const user = await getUserInfoFromBrowse(params.slug)
   if (!user) return <div className="m-auto">No user found.</div>
   const threads = await getBrowseThreads({
@@ -14,7 +21,9 @@ export default async function BotThreadsPage({
     limit: 50
   })
   return (
-    <div className="w-full py-5">
+    <div className="container">
+      <BrowseCategoryTabs categories={categories} />
+      <BrowseSearchInput />
       <AccountDetails
         href={`/u/${params.slug}`}
         alt={user.username}

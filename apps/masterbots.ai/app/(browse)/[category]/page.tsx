@@ -24,7 +24,7 @@ export default async function BrowseCategoryPage({
   })
 
   return (
-    <div className="w-full container pb-10 mx-auto">
+    <div className="container">
       <BrowseCategoryTabs
         categories={categories}
         initialCategory={params.category}
