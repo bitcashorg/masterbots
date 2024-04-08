@@ -22,7 +22,7 @@ export default async function BotThreadsPage({
   const chatbotName = botNames.get(params.id)
   threads = await getBrowseThreads({
     chatbotName,
-    limit: 50
+    limit: 25
   })
 
   return (

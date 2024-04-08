@@ -19,7 +19,7 @@ export default async function BrowseCategoryPage({
   if (!categoryId) throw new Error('Category id not foud')
 
   const threads = await getBrowseThreads({
-    limit: 50,
+    limit: 25,
     categoryId
   })
 
