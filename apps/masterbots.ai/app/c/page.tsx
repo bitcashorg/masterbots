@@ -11,13 +11,14 @@ export default async function IndexPage() {
   const {
     data: { user }
   } = await supabase.auth.getUser()
-  if (!user || !user.email) throw new Error('user not found')
+  if (!user || !user.email) redirect(`/auth/sign-in`)
+
   const dbUserProfile = await getUser({
     email: user.email,
     adminSecret: process.env.HASURA_GRAPHQL_ADMIN_SECRET || ''
   })
 
-  if (!dbUserProfile) throw new Error('user not found')
+  if (!dbUserProfile) redirect(`/auth/sign-in`)
 
   const jwt = cookies().get('hasuraJwt').value || ''
 

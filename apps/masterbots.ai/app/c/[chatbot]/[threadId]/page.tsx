@@ -11,7 +11,7 @@ export default async function ChatPage({ params }: ChatPageProps) {
   const {
     data: { user }
   } = await supabase.auth.getUser()
-  if (!user || !user.email) throw new Error('user not found')
+  if (!user || !user.email) redirect(`/auth/sign-in`)
 
   const jwt = cookies().get('hasuraJwt')?.value || ''
 
