@@ -122,7 +122,7 @@ export default function SidebarLink({ category }: { category: Category }) {
             'flex items-center pr-5 py-3 cursor-pointer relative origin-left transition-all ease-in-out duration-300',
             isChatbotOfThisCategory ? 'text-xs opacity-50' : 'grow pl-5'
           )}
-          href="/"
+          href="/c"
           onClick={handleClickCategory}
           shallow
         >
@@ -243,7 +243,7 @@ function ChatbotComponent({
         chatbot?.chatbotId === activeChatbot?.chatbotId &&
           'dark:bg-slate-800 dark-slate-400'
       )}
-      href={`/${chatbot.name.toLowerCase()}`}
+      href={`/c/${chatbot.name.toLowerCase()}`}
       key={chatbot.chatbotId}
       ref={chatbotRef}
     >

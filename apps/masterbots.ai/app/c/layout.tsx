@@ -10,7 +10,7 @@ export default async function ChatLayout({ children }: ChatLayoutProps) {
   return (
     <main className="relative flex flex-col h-[calc(100vh_-_theme(spacing.16))] overflow-hidden">
       <ResponsiveSidebar />
-      {/* <ChatLayoutSection>{children}</ChatLayoutSection> */}
+      <ChatLayoutSection>{children}</ChatLayoutSection>
       <div className="block lg:hidden">
         <FooterCT />
       </div>
