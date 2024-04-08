@@ -11,6 +11,7 @@ export function AccountAvatar({ href, alt, src, size = 32 }: MbAvatarProp) {
       )}
       href={href}
       title={alt}
+      shallow={true}
     >
       {src ? (
         <Image

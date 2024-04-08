@@ -75,11 +75,11 @@ export default async function BotThreadsPage({
 
   return (
     <>
-      <ThreadPanel
+      {/* <ThreadPanel
         chatbot={chatbot.name}
         search={searchParams}
         threads={threads}
-      />{' '}
+      />{' '} */}
       <ChatChatbot chatbot={chatbot} initialMessages={initialMessages} />
     </>
   )
