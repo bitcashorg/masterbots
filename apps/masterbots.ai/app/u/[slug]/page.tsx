@@ -20,6 +20,7 @@ export default async function BotThreadsPage({
         alt={user.username}
         username={user.username}
         avatar={user.profilePicture || ''}
+        threadNum={threads.length} //TODO: get total number of thread. not the filter one
       />
       <div className="container">
         <ThreadList initialThreads={threads} />

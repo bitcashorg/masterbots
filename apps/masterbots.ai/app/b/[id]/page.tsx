@@ -30,6 +30,7 @@ export default async function BotThreadsPage({
         chatbotName={chatbot.name}
         avatar={chatbot.avatar}
         description={chatbot.description}
+        threadNum={threads.length}
       />
       <div className="container">
         <ThreadList initialThreads={threads} />
