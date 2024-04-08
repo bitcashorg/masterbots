@@ -6,7 +6,7 @@ import { IconClose } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
 import { useBrowse } from '@/hooks/use-browse'
 
-export function BrowseSearchInput() {
+export function BrowseInput() {
   const { keyword, changeKeyword } = useBrowse()
   return (
     <div className="flex flex-col items-center justify-center w-full pt-10 pb-4 dark:bg-[#09090B] bg-[#F4F4F5] rounded-lg gap-4 px-4">

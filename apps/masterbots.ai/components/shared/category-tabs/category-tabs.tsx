@@ -3,9 +3,9 @@
 import type { Category } from '@repo/mb-genql'
 import { useEffect } from 'react'
 import { useBrowse } from '@/hooks/use-browse'
-import { BrowseCategoryLink } from './browse-category-link'
+import { CategoryLink } from './category-link'
 
-export function BrowseCategoryTabs({
+export function CategoryTabs({
   categories,
   initialCategory = 'all'
 }: {
@@ -46,7 +46,7 @@ export function BrowseCategoryTabs({
 
   return (
     <div className="w-full py-[10px] my-3 !overflow-x-auto overflow-y-hidden whitespace-nowrap scrollbar small-thumb justify-between flex">
-      <BrowseCategoryLink
+      <CategoryLink
         activeTab={activeTab}
         category="all"
         id="browse-category-tab__null"
@@ -55,7 +55,7 @@ export function BrowseCategoryTabs({
         }}
       />
       {categories.map((category, key) => (
-        <BrowseCategoryLink
+        <CategoryLink
           activeTab={activeTab}
           category={category}
           id={`browse-category-tab__${category.categoryId}`}

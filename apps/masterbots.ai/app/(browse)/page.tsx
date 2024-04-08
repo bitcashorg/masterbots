@@ -1,6 +1,6 @@
 import ThreadList from '@/components/shared/thread-list'
-import { BrowseCategoryTabs } from '@/components/routes/browse/browse-category-tabs'
-import { BrowseSearchInput } from '@/components/routes/browse/browse-search-input'
+import { CategoryTabs } from '@/components/shared/category-tabs/category-tabs'
+import { BrowseInput } from '@/components/shared/browse-input'
 import { getBrowseThreads, getCategories } from '@/services/hasura'
 
 export default async function BrowsePage() {
@@ -10,8 +10,8 @@ export default async function BrowsePage() {
   })
   return (
     <div className="container">
-      <BrowseCategoryTabs categories={categories} />
-      <BrowseSearchInput />
+      <CategoryTabs categories={categories} />
+      <BrowseInput />
       <ThreadList initialThreads={threads} filter={{}} />
     </div>
   )

@@ -1,6 +1,6 @@
 import ThreadList from '@/components/shared/thread-list'
-import { BrowseCategoryTabs } from '@/components/routes/browse/browse-category-tabs'
-import { BrowseSearchInput } from '@/components/routes/browse/browse-search-input'
+import { CategoryTabs } from '@/components/shared/category-tabs/category-tabs'
+import { BrowseInput } from '@/components/shared/browse-input'
 import { getBrowseThreads, getCategories } from '@/services/hasura'
 
 export const revalidate = 3600 // revalidate the data at most every hour
@@ -25,11 +25,8 @@ export default async function BrowseCategoryPage({
 
   return (
     <div className="container">
-      <BrowseCategoryTabs
-        categories={categories}
-        initialCategory={params.category}
-      />
-      <BrowseSearchInput />
+      <CategoryTabs categories={categories} initialCategory={params.category} />
+      <BrowseInput />
       <ThreadList initialThreads={threads} filter={{ categoryId }} />
     </div>
   )

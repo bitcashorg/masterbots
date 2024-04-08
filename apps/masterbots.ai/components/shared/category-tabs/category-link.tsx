@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import type { Category } from '@repo/mb-genql'
 import Link from 'next/link'
 
-export function BrowseCategoryLink({
+export function CategoryLink({
   category,
   activeTab,
   onClick,

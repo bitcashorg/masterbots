@@ -2,8 +2,8 @@ import { getChatbot, getBrowseThreads, getCategories } from '@/services/hasura'
 import { botNames } from '@/lib/bots-names'
 import ThreadList from '@/components/shared/thread-list'
 import AccountDetails from '@/components/shared/account-details'
-import { BrowseCategoryTabs } from '@/components/routes/browse/browse-category-tabs'
-import { BrowseSearchInput } from '@/components/routes/browse/browse-search-input'
+import { CategoryTabs } from '@/components/shared/category-tabs/category-tabs'
+import { BrowseInput } from '@/components/shared/browse-input'
 
 export default async function BotThreadsPage({
   params
@@ -27,8 +27,8 @@ export default async function BotThreadsPage({
 
   return (
     <div className=" container">
-      <BrowseCategoryTabs categories={categories} />
-      <BrowseSearchInput />
+      <CategoryTabs categories={categories} />
+      <BrowseInput />
       <AccountDetails
         href={`/b/${chatbot.name.toLowerCase()}`}
         alt={chatbot.name}
