@@ -27,7 +27,7 @@ export default function ThreadList({
     const moreThreads = await getBrowseThreads({
       ...filter,
       offset: filteredThreads.length,
-      limit: 50
+      limit: 25
     })
 
     if (moreThreads.length === 0) setHasMore(false)
