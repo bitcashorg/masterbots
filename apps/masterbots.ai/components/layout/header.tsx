@@ -5,13 +5,18 @@ import { cookies } from 'next/headers'
 import { Button } from '@/components/ui/button'
 import { IconSeparator } from '@/components/ui/icons'
 import { UserMenu } from '@/components/layout/user-menu'
-import { getUserProfile } from '@/services/supabase'
+import { createSupabaseServerClient } from '@/services/supabase'
 import { SidebarToggle } from '../routes/c/sidebar/sidebar-toggle'
+import { getUser } from '@/services/hasura'
 
 // https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating
 
 export async function Header() {
-  const user = await getUserProfile()
+  const supabase = await createSupabaseServerClient()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
+  if (!user || !user.email) throw new Error('user not found')
   const jwt = cookies().get('hasuraJwt')?.value || ''
 
   return (
