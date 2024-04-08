@@ -61,22 +61,25 @@ export function ThreadAccordion({
           <AccordionItem value={`pair-${key}`} key={key}>
             <AccordionTrigger>
               {key ? (
-                p.userMessage.content
+                <div className="pl-12">{p.userMessage.content}</div>
               ) : (
                 <ThreadHeading
                   thread={thread}
                   question={p.userMessage.content}
+                  copy={true}
                 />
               )}
             </AccordionTrigger>
             <AccordionContent aria-expanded={true}>
-              {p.chatGptMessage.map((message, index) => (
-                <BrowseChatMessage
-                  chatbot={thread.chatbot}
-                  key={index}
-                  message={convertMessage(message)}
-                />
-              ))}
+              <div className="px-7">
+                {p.chatGptMessage.map((message, index) => (
+                  <BrowseChatMessage
+                    chatbot={thread.chatbot}
+                    key={index}
+                    message={convertMessage(message)}
+                  />
+                ))}
+              </div>
             </AccordionContent>
           </AccordionItem>
         )
