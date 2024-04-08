@@ -21,7 +21,7 @@ export function AccountAvatar({ href, alt, src, size = 32 }: MbAvatarProp) {
           height={size}
         />
       ) : (
-        <IconUser width={32} height={32} />
+        <IconUser width={size} height={size} />
       )}
     </Link>
   )
