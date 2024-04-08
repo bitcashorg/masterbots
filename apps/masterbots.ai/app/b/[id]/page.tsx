@@ -1,15 +1,16 @@
-import { getChatbot, getBrowseThreads } from '@/services/hasura'
+import { getChatbot, getBrowseThreads, getCategories } from '@/services/hasura'
 import { botNames } from '@/lib/bots-names'
-import BrowseChatbotDetails from '@/components/browse/browse-chatbot-details'
-import BrowseSpecificThreadList from '@/components/browse/browse-specific-thread-list'
-
-const PAGE_SIZE = 50
+import ThreadList from '@/components/shared/thread-list'
+import AccountDetails from '@/components/shared/account-details'
+import { CategoryTabs } from '@/components/shared/category-tabs/category-tabs'
+import { BrowseInput } from '@/components/shared/browse-input'
 
 export default async function BotThreadsPage({
   params
 }: {
   params: { id: string }
 }) {
+  const categories = await getCategories()
   let chatbot, threads
 
   chatbot = await getChatbot({
@@ -18,24 +19,27 @@ export default async function BotThreadsPage({
     threads: true
   })
   if (!chatbot) throw new Error(`Chatbot ${botNames.get(params.id)} not found`)
-
-  // session will always be defined
+  const chatbotName = botNames.get(params.id)
   threads = await getBrowseThreads({
-    chatbotName: botNames.get(params.id),
-    limit: PAGE_SIZE
+    chatbotName,
+    limit: 20
   })
 
   return (
-    <div className="w-full py-5">
-      {chatbot ? <BrowseChatbotDetails chatbot={chatbot} /> : ''}
-      <BrowseSpecificThreadList
-        PAGE_SIZE={PAGE_SIZE}
-        initialThreads={threads}
-        pageType="bot"
-        query={{
-          chatbotName: botNames.get(params.id)
-        }}
+    <div className=" container">
+      <CategoryTabs categories={categories} />
+      <BrowseInput />
+      <AccountDetails
+        href={`/b/${chatbot.name.toLowerCase()}`}
+        alt={chatbot.name}
+        chatbotName={chatbot.name}
+        avatar={chatbot.avatar}
+        description={chatbot.description}
+        threadNum={threads.length}
       />
+      <div className="container">
+        <ThreadList initialThreads={threads} filter={{ chatbotName }} />
+      </div>
     </div>
   )
 }

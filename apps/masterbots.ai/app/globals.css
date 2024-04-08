@@ -100,32 +100,21 @@
 }
 
 .scrollbar {
-	overflow: auto;
+  overflow: auto;
 }
 
 .scrollbar::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 1px;
+  height: 1px;
 }
 .scrollbar::-webkit-scrollbar-track,
 .scrollbar::-webkit-scrollbar-corner {
-  background: var(--scrollbar-track) !important;
+  background: var(--scrollbar-track);
 }
 .scrollbar::-webkit-scrollbar-thumb {
   background: var(--scrollbar-thumb);
   border-radius: 2px;
 }
-/* .scrollbar::-webkit-scrollbar-thumb:hover {
-  background: var(--scrollbar-thumb-hover);
-} */
-
-@media screen and (min-width: 1024px) {
-  .scrollbar::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-}
-
 
 .scrollbar.small-thumb::-webkit-scrollbar-thumb {
   border-left: 300px solid #f9f9fa;
@@ -150,4 +139,8 @@
   white-space: normal;
   overflow: visible;
   text-overflow: clip;
+}
+
+.hide-buttons > button {
+  display: none;
 }

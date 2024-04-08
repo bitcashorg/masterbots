@@ -9,9 +9,18 @@ import { Providers } from '@/components/layout/providers'
 import { cn } from '@/lib/utils'
 import { GlobalStoreProvider } from '@/hooks/use-global-store'
 
-export default async function RootLayout({ children }: RootLayoutProps) {
+async function getCookieData(): Promise<{ hasuraJwt; userProfile }> {
   const hasuraJwt = cookies().get('hasuraJwt')?.value || ''
   const userProfile = cookies().get('userProfile')?.value || null
+  return new Promise(resolve =>
+    setTimeout(() => {
+      resolve({ hasuraJwt, userProfile })
+    }, 1000)
+  )
+}
+
+export default async function RootLayout({ children }: RootLayoutProps) {
+  const { hasuraJwt, userProfile } = await getCookieData()
 
   return (
     <html lang="en" suppressHydrationWarning>

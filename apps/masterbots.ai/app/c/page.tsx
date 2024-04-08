@@ -1,8 +1,8 @@
 import { isTokenExpired } from '@repo/mb-lib'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
-import ChatThreadListPanel from '@/components/c/chat-thread-list-panel'
-import ThreadPanel from '@/components/c/thread-panel'
+import ChatThreadListPanel from '@/components/routes/c/chat-thread-list-panel'
+import ThreadPanel from '@/components/routes/c/thread-panel'
 import { getThreads } from '@/services/hasura'
 import { getUserProfile } from '@/services/supabase'
 

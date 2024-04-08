@@ -1,5 +1,5 @@
-import { ChatLayoutSection } from '@/components/c/chat-layout-section'
-import { ResponsiveSidebar } from '@/components/c/sidebar/sidebar-responsive'
+import { ChatLayoutSection } from '@/components/routes/c/chat-layout-section'
+import { ResponsiveSidebar } from '@/components/routes/c/sidebar/sidebar-responsive'
 import FooterCT from '@/components/layout/footer-ct'
 
 interface ChatLayoutProps {

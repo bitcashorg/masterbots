@@ -1,19 +1,25 @@
-import { getThread } from '@/services/hasura'
-import { BrowseThread } from '@/components/browse/browse-thread'
+import { getCategories, getMessagePairs, getThread } from '@/services/hasura'
+
 import type { ChatPageProps } from '@/app/c/[chatbot]/[threadId]/page'
-import Shortlink from '@/components/browse/shortlink-button'
+import { ThreadAccordion } from '@/components/shared/thread-accordion'
+import { CategoryTabs } from '@/components/shared/category-tabs/category-tabs'
+import { BrowseInput } from '@/components/shared/browse-input'
 
 export default async function ThreadLandingPage({ params }: ChatPageProps) {
+  const categories = await getCategories()
   const thread = await getThread({
     threadId: params.threadId
   })
-  return (
-    <>
-      <div>
-        <Shortlink />
-      </div>
+  const initialMessagePairs = await getMessagePairs(thread.threadId)
 
-      <BrowseThread thread={thread} />
-    </>
+  return (
+    <div className="container">
+      <CategoryTabs categories={categories} />
+      <BrowseInput />
+      <ThreadAccordion
+        thread={thread}
+        initialMessagePairs={initialMessagePairs}
+      />
+    </div>
   )
 }
