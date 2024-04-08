@@ -8,7 +8,8 @@ export function ThreadHeading({
   thread,
   response,
   question,
-  copy = false
+  copy = false,
+  chat = false
 }: ThreadHeadingProps) {
   return (
     <div
@@ -34,21 +35,23 @@ export function ThreadHeading({
             )}
           >
             {question}
-
-            <span className="opacity-50 text-[0.875rem]">by</span>
-
-            <AccountAvatar
-              alt={thread.user.username.replace('_', ' ')}
-              src={thread.user.profilePicture || ''}
-              href={`/u/${thread.user.slug}`}
-            />
+            {!chat ? (
+              <>
+                <span className="opacity-50 text-[0.875rem]">by</span>
+                <AccountAvatar
+                  alt={thread.user.username.replace('_', ' ')}
+                  src={thread.user.profilePicture || ''}
+                  href={`/u/${thread.user.slug}`}
+                />
+              </>
+            ) : null}
           </div>
         </div>
         {copy ? <Shortlink /> : null}
       </div>
 
       {response ? (
-        <div className="overflow-hidden text-sm text-left opacity-50 flex-1 space-y-2 mt-3">
+        <div className="overflow-hidden text-sm text-left opacity-50 flex-1 space-y-2 mt-3 mx-10">
           <ShortMessage content={response} />
         </div>
       ) : null}
@@ -61,4 +64,5 @@ interface ThreadHeadingProps {
   response?: string
   question: string
   copy?: boolean
+  chat?: boolean
 }

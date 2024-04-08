@@ -1,10 +1,10 @@
 import { isTokenExpired } from '@repo/mb-lib'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
-import ChatThreadListPanel from '@/components/routes/c/chat-thread-list-panel'
-import ThreadPanel from '@/components/routes/c/thread-panel'
-import { getThreads, getUser } from '@/services/hasura'
+import { getBrowseThreads, getUser } from '@/services/hasura'
 import { createSupabaseServerClient } from '@/services/supabase'
+import ThreadList from '@/components/shared/thread-list'
+import ChatThreadListPanel from '@/components/routes/c/chat-thread-list-panel'
 
 export default async function IndexPage() {
   const supabase = await createSupabaseServerClient()
@@ -25,14 +25,18 @@ export default async function IndexPage() {
   // NOTE: maybe we should use same expiration time
   if (!jwt || isTokenExpired(jwt) || !user) redirect(`/auth/sign-in`)
 
-  const threads = await getThreads({
-    jwt,
-    userId: dbUserProfile.userId
+  const threads = await getBrowseThreads({
+    slug: dbUserProfile.slug,
+    limit: 20
   })
 
   return (
     <>
-      <ThreadPanel threads={threads} />
+      <ThreadList
+        initialThreads={threads}
+        filter={{ slug: dbUserProfile.slug }}
+        chat={true}
+      />
       <ChatThreadListPanel />
     </>
   )

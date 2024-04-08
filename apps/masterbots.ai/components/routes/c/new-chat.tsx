@@ -8,14 +8,14 @@ import type { Chatbot } from '@repo/mb-genql'
 import { useRouter } from 'next/navigation'
 import { createThread, saveNewMessage } from '@/services/hasura'
 import { useGlobalStore } from '@/hooks/use-global-store'
-import { ChatPanel } from './chat-panel'
+import { ChatInput } from './chat-input'
 
-export default function NewChat({
+export default function NewChatInput({
   id,
   initialMessages,
   chatbot,
-  scrollToBottom
-}: NewChatProps) {
+  scrollToBottom = () => {}
+}: NewChatInputProps) {
   const router = useRouter()
   const { hasuraJwt, user } = useGlobalStore()
   const { messages, reload, stop, input, setInput, append } = useChat({
@@ -34,7 +34,7 @@ export default function NewChat({
     }
   })
 
-  const appendToNewChat = async (
+  const appendToNewChatInput = async (
     userMessage: Message | CreateMessage,
     chatRequestOptions?: ChatRequestOptions
   ) => {
@@ -63,8 +63,8 @@ export default function NewChat({
   }
 
   return (
-    <ChatPanel
-      append={appendToNewChat}
+    <ChatInput
+      append={appendToNewChatInput}
       chatbot={chatbot}
       id={id}
       input={input}
@@ -80,9 +80,9 @@ export default function NewChat({
   )
 }
 
-export interface NewChatProps extends React.ComponentProps<'div'> {
+export interface NewChatInputProps extends React.ComponentProps<'div'> {
   initialMessages?: Message[]
   id: string
   chatbot: Chatbot
-  scrollToBottom: () => void
+  scrollToBottom?: () => void
 }

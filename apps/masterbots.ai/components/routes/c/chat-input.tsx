@@ -10,7 +10,7 @@ import { ChatShareDialog } from '@/components/routes/c/chat-share-dialog'
 import { cn } from '@/lib/utils'
 import { useThread } from '@/hooks/use-thread'
 
-export interface ChatPanelProps
+export interface ChatInputProps
   extends Pick<
     UseChatHelpers,
     | 'append'
@@ -31,7 +31,7 @@ export interface ChatPanelProps
   className?: string
 }
 
-export function ChatPanel({
+export function ChatInput({
   id,
   title,
   isLoading,
@@ -47,7 +47,7 @@ export function ChatPanel({
   isAtBottom,
   scrollToBottom,
   className
-}: ChatPanelProps) {
+}: ChatInputProps) {
   const [shareDialogOpen, setShareDialogOpen] = React.useState(false)
   const { isOpenPopup } = useThread()
   return (

@@ -9,7 +9,8 @@ import { ThreadDialog } from './thread-dialog'
 
 export default function ThreadList({
   initialThreads,
-  filter
+  filter,
+  chat = false
 }: ThreadListProps) {
   const { keyword } = useBrowse()
   const [threads, setThreads] = useState<Thread[]>(initialThreads)
@@ -73,7 +74,7 @@ export default function ThreadList({
   return (
     <div className="w-full py-5 flex flex-col gap-8">
       {filteredThreads.map((thread: Thread, key) => (
-        <ThreadDialog key={key} thread={thread} />
+        <ThreadDialog key={key} thread={thread} chat={chat} />
       ))}
       <div ref={loadMoreRef} />
     </div>
@@ -82,6 +83,7 @@ export default function ThreadList({
 
 type ThreadListProps = {
   initialThreads: Thread[]
+  chat?: boolean
   filter: {
     categoryId?: number
     userId?: string

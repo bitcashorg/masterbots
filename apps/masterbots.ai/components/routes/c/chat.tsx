@@ -10,7 +10,6 @@ import { useParams } from 'next/navigation'
 import React, { useEffect } from 'react'
 import { toast } from 'react-hot-toast'
 import { ChatList } from '@/components/routes/c/chat-list'
-import { ChatPanel } from '@/components/routes/c/chat-panel'
 import { ChatScrollAnchor } from '@/components/routes/c/chat-scroll-anchor'
 import { cn, extractBetweenMarkers } from '@/lib/utils'
 import { useAtBottom } from '@/hooks/use-at-bottom'
@@ -20,6 +19,7 @@ import { botNames } from '@/lib/bots-names'
 import { useSidebar } from '@/hooks/use-sidebar'
 import { useGlobalStore } from '@/hooks/use-global-store'
 import { scrollToBottomOfElement } from '@/lib/animation'
+import { ChatInput } from './chat-input'
 
 export function Chat({
   initialMessages,
@@ -232,7 +232,7 @@ export function Chat({
       ) : null}
 
       {(isOpenPopup && isPopup) || (!isOpenPopup && !isPopup) ? (
-        <ChatPanel
+        <ChatInput
           append={appendWithMbContextPrompts}
           chatbot={chatbot}
           className={`${!activeThread && !activeChatbot ? 'hidden' : ''} ${chatPanelClassName}`}

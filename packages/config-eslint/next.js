@@ -84,7 +84,8 @@ module.exports = {
     "no-useless-escape": "warn",
     "no-redeclare": "warn",
     "no-extra-boolean-cast": "warn",
-    "@typescript-eslint/consistent-type-definitions": "warn"
+    "@typescript-eslint/consistent-type-definitions": "warn",
+    "@typescript-eslint/no-empty-function": "warn"
   },
 };
 
