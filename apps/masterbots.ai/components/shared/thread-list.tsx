@@ -7,10 +7,11 @@ import { useBrowse } from '@/hooks/use-browse'
 import { getBrowseThreads } from '@/services/hasura'
 import { ThreadDialog } from './thread-dialog'
 
-export default function ThreadList({
+export function ThreadList({
   initialThreads,
   filter,
-  chat = false
+  chat = false,
+  currentThread
 }: ThreadListProps) {
   const { keyword } = useBrowse()
   const [threads, setThreads] = useState<Thread[]>(initialThreads)
@@ -74,7 +75,12 @@ export default function ThreadList({
   return (
     <div className="w-full py-5 flex flex-col gap-8">
       {filteredThreads.map((thread: Thread, key) => (
-        <ThreadDialog key={key} thread={thread} chat={chat} />
+        <ThreadDialog
+          key={key}
+          thread={thread}
+          chat={chat}
+          defaultOpen={thread.threadId === currentThread?.threadId}
+        />
       ))}
       <div ref={loadMoreRef} />
     </div>
@@ -82,6 +88,7 @@ export default function ThreadList({
 }
 
 type ThreadListProps = {
+  currentThread?: Thread
   initialThreads: Thread[]
   chat?: boolean
   filter: {

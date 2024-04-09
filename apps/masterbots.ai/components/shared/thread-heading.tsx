@@ -26,7 +26,7 @@ export function ThreadHeading({
           <AccountAvatar
             alt={thread.chatbot.name}
             src={thread.chatbot.avatar}
-            href={`/b/${thread.chatbot.name.toLowerCase()}`}
+            href={`/${chat ? 'c' : 'b'}/${thread.chatbot.name.toLowerCase()}`}
           />
 
           <div

@@ -1,6 +1,7 @@
 import type * as AI from 'ai'
 import { Message } from '@repo/mb-genql'
 import { type Message as AIMessage } from 'ai/react'
+import { extractBetweenMarkers } from './utils'
 
 export function createMessagePairs(messages: Message[] | AIMessage[]) {
   const messagePairs: MessagePair[] = []
@@ -68,4 +69,14 @@ export function convertMessage(message: Message) {
     createAt: message.createdAt,
     role: message.role
   } as AI.Message
+}
+
+export function getAllUserMessagesAsStringArray(
+  allMessages: Message[] | AI.Message[]
+) {
+  const userMessages = allMessages.filter(m => m.role === 'user')
+  const cleanMessages = userMessages.map(m =>
+    extractBetweenMarkers(m.content, 'Then answer this question:')
+  )
+  return cleanMessages.join(', ')
 }

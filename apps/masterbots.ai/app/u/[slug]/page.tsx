@@ -3,7 +3,7 @@ import {
   getCategories,
   getUserInfoFromBrowse
 } from '@/services/hasura'
-import ThreadList from '@/components/shared/thread-list'
+import { ThreadList } from '@/components/shared/thread-list'
 import AccountDetails from '@/components/shared/account-details'
 import { CategoryTabs } from '@/components/shared/category-tabs/category-tabs'
 import { BrowseInput } from '@/components/shared/browse-input'

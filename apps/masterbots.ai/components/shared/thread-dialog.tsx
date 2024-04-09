@@ -10,14 +10,16 @@ import {
 import { ThreadAccordion } from './thread-accordion'
 import { ThreadHeading } from './thread-heading'
 import { cn } from '@/lib/utils'
-import ChatThreadListPanel from '../routes/c/chat-thread-list-panel'
+import { DialogProps } from '@radix-ui/react-dialog'
+import { NewChatInput } from '../routes/c/new-chat'
+import { convertMessage } from '@/lib/threads'
 
 export function ThreadDialog({ thread, chat }: ThreadDialogProps) {
   const firstQuestion =
     thread.messages.find(m => m.role === 'user')?.content || 'not found'
   const firstResponse =
     thread.messages.find(m => m.role === 'assistant')?.content || 'not found'
-
+  console.log({ chat })
   return (
     <Dialog>
       <DialogTrigger>
@@ -25,6 +27,7 @@ export function ThreadDialog({ thread, chat }: ThreadDialogProps) {
           thread={thread}
           question={firstQuestion}
           response={firstResponse}
+          chat={chat}
         />
       </DialogTrigger>
 
@@ -33,18 +36,23 @@ export function ThreadDialog({ thread, chat }: ThreadDialogProps) {
           'max-w-[1400px] w-[80%] h-[90%] hide-buttons overflow-auto'
         )}
       >
-        <ThreadAccordion thread={thread} clientFetch={true} />
-        {/* {chat ? ( */}
-        <DialogFooter>
-          <ChatThreadListPanel />
-        </DialogFooter>
-        {/* ) : null} */}
+        <ThreadAccordion thread={thread} clientFetch={true} chat={chat} />
+        {chat ? (
+          <DialogFooter className="bg-black">
+            <NewChatInput
+              chatbot={thread.chatbot}
+              initialMessages={thread.messages.map(convertMessage)}
+              id={thread.threadId}
+              dialog={true}
+            />
+          </DialogFooter>
+        ) : null}
       </DialogContent>
     </Dialog>
   )
 }
 
-interface ThreadDialogProps {
+interface ThreadDialogProps extends DialogProps {
   thread: Thread
   chat?: boolean
 }

@@ -3,8 +3,7 @@ import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { getBrowseThreads, getUser } from '@/services/hasura'
 import { createSupabaseServerClient } from '@/services/supabase'
-import ThreadList from '@/components/shared/thread-list'
-import ChatThreadListPanel from '@/components/routes/c/chat-thread-list-panel'
+import { ThreadList } from '@/components/shared/thread-list'
 
 export default async function IndexPage() {
   const supabase = await createSupabaseServerClient()
@@ -37,7 +36,6 @@ export default async function IndexPage() {
         filter={{ slug: dbUserProfile.slug }}
         chat={true}
       />
-      <ChatThreadListPanel />
     </>
   )
 }

@@ -20,7 +20,8 @@ import { BrowseChatMessage } from './thread-message'
 export function ThreadAccordion({
   thread,
   initialMessagePairs,
-  clientFetch = false
+  clientFetch = false,
+  chat = false
 }: ThreadAccordionProps) {
   // initalMessages is coming from server ssr on load. the rest of messages on demand on mount
   const { data: pairs, error } = useQuery({
@@ -34,7 +35,17 @@ export function ThreadAccordion({
   // update url when dialog opens and closes
   useEffect(() => {
     const initialUrl = location.href
-    const threadUrl = `/${thread.chatbot.categories[0].category.name.toLowerCase().replaceAll(' ', '_').replaceAll('&', '_')}/${thread.threadId}`
+    const dir = chat
+      ? 'c/' +
+        thread.chatbot.name
+          .toLowerCase()
+          .replaceAll(' ', '_')
+          .replaceAll('&', '_')
+      : thread.chatbot.categories[0].category.name
+          .toLowerCase()
+          .replaceAll(' ', '_')
+          .replaceAll('&', '_')
+    const threadUrl = `/${dir}/${thread.threadId}`
     console.log(`Updating URL to ${threadUrl}, initialUrl was ${initialUrl}`)
 
     window.history.pushState({}, '', threadUrl)
@@ -92,4 +103,5 @@ interface ThreadAccordionProps {
   thread: Thread
   initialMessagePairs?: MessagePair[]
   clientFetch?: boolean
+  chat?: boolean
 }

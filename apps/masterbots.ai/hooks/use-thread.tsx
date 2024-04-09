@@ -12,11 +12,12 @@ import { Message as AIMessage } from 'ai'
 import { uniqBy } from 'lodash'
 import toast from 'react-hot-toast'
 import { Chatbot, Message, Thread } from '@repo/mb-genql'
-import { getAllUserMessagesAsStringArray } from '@/components/routes/c/chat'
+
 import { useSidebar } from './use-sidebar'
 import { useScroll } from 'framer-motion'
 import { useAtBottom } from './use-at-bottom'
 import { useGlobalStore } from './use-global-store'
+import { getAllUserMessagesAsStringArray } from '@/lib/threads'
 
 interface ThreadContext {
   isOpenPopup: boolean

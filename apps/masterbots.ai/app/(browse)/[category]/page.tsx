@@ -1,4 +1,4 @@
-import ThreadList from '@/components/shared/thread-list'
+import { ThreadList } from '@/components/shared/thread-list'
 import { CategoryTabs } from '@/components/shared/category-tabs/category-tabs'
 import { BrowseInput } from '@/components/shared/browse-input'
 import { getBrowseThreads, getCategories } from '@/services/hasura'
