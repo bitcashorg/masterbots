@@ -14,6 +14,7 @@ import { useNewThread } from '@/hooks/use-new-thread'
 import { useChatbot } from '@/hooks/use-chatbot'
 import { useSetState } from 'react-use'
 import { PromptForm } from '../routes/c/prompt-form'
+import { redirect } from 'next/navigation'
 
 export function MbCmdK() {
   const [open, setOpen] = useState(false)
@@ -32,6 +33,17 @@ export function MbCmdK() {
       if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
         e.preventDefault()
         setOpen(open => !open)
+      }
+    }
+    document.addEventListener('keydown', down)
+    return () => document.removeEventListener('keydown', down)
+  })
+
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === 'b' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault()
+        redirect(`/c/techbot/`)
       }
     }
     document.addEventListener('keydown', down)
