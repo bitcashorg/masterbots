@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
-import { Database } from './database.types'
+import { Database } from './supa.types'
 
 export function getSupabaseBrowserClient() {
   return createBrowserClient<Database>(
