@@ -10,9 +10,22 @@ import {
   CommandSeparator
 } from '@/components/ui/command'
 import { useEffect, useState } from 'react'
+import { useNewThread } from '@/hooks/use-new-thread'
+import { useChatbot } from '@/hooks/use-chatbot'
+import { useSetState } from 'react-use'
+import { PromptForm } from '../routes/c/prompt-form'
 
 export function MbCmdK() {
   const [open, setOpen] = useState(false)
+  const [state, setState] = useSetState({
+    id: crypto.randomUUID()
+  })
+  const { chatbot, initialMessages } = useChatbot('techbot')
+  const { startNewThread, input, isLoading, setInput } = useNewThread({
+    id: state.id,
+    initialMessages,
+    chatbot
+  })
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -27,8 +40,28 @@ export function MbCmdK() {
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
-      <div className="min-w-[1200px]">
-        <CommandInput placeholder="Type a command or search..." />
+      <div
+        className={`px-4 py-2 space-y-4 border-t shadow-lg bg-background sm:border md:py-4 dark:border-mirage border-iron`}
+      >
+        {/* <CommandInput
+          placeholder="Type a command or search..."
+          onValueChange={setInput}
+        /> */}
+        <PromptForm
+          disabled={!chatbot}
+          input={input}
+          isLoading={isLoading}
+          onSubmit={async value => {
+            await startNewThread({
+              id: state.id,
+              content: value,
+              role: 'user'
+            })
+          }}
+          placeholder={'Chat with techbot'}
+          setInput={setInput}
+        />
+
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
           <CommandGroup heading="Suggestions">

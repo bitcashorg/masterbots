@@ -9,6 +9,7 @@ import { Providers } from '@/components/layout/providers'
 import { cn } from '@/lib/utils'
 import { GlobalStoreProvider } from '@/hooks/use-global-store'
 import dynamic from 'next/dynamic'
+import { getChatbots } from '@/services/hasura'
 
 async function getCookieData(): Promise<{ hasuraJwt; userProfile }> {
   const hasuraJwt = cookies().get('hasuraJwt')?.value || ''
@@ -26,7 +27,7 @@ const DynamicCmdK = dynamic(
 
 export default async function RootLayout({ children }: RootLayoutProps) {
   const { hasuraJwt, userProfile } = await getCookieData()
-
+  const chatbots = await getChatbots({ threads: false })
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -40,6 +41,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         <GlobalStoreProvider
           hasuraJwt={hasuraJwt}
           user={(userProfile && JSON.parse(userProfile)) || null}
+          chatbots={chatbots}
         >
           <Providers
             attribute="class"

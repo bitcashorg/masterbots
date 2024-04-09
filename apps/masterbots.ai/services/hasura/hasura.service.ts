@@ -69,13 +69,22 @@ export async function getCategory({ categoryId }: { categoryId: number }) {
 export async function getChatbots({
   limit,
   offset,
-  categoryId
+  categoryId,
+  threads = true
 }: GetChatbotsParams) {
   const client = getHasuraClient({})
   const { chatbot } = await client.query({
     chatbot: {
-      threads: {
-        threadId: true
+      ...(threads
+        ? {
+            threads: {
+              threadId: true
+            }
+          }
+        : {}),
+
+      prompts: {
+        prompt: everything
       },
       ...everything,
       __args: {

@@ -1,5 +1,6 @@
 'use client'
 
+import { Chatbot } from '@repo/mb-genql'
 import React, { ReactNode, createContext, useContext } from 'react'
 import { useSetState } from 'react-use'
 
@@ -8,7 +9,8 @@ const GlobalStoreContext = createContext<GlobalStoreContextValue>({
   errorMessage: '',
   hasuraJwt: '',
   user: null,
-  setGlobalError: (errorMessage: string) => {}
+  setGlobalError: (errorMessage: string) => {},
+  chatbots: []
 })
 
 // Custom hook to consume the context
@@ -18,12 +20,14 @@ export const useGlobalStore = () => useContext(GlobalStoreContext)
 export function GlobalStoreProvider({
   children,
   hasuraJwt,
-  user
+  user,
+  chatbots = []
 }: GlobalStoreProviderProps) {
   const [state, setState] = useSetState({
     errorMessage: '',
     hasuraJwt,
-    user
+    user,
+    chatbots: chatbots
   })
 
   const setGlobalError = (errorMessage: string) => setState({ errorMessage })
@@ -39,6 +43,7 @@ type GlobalStoreProviderProps = {
   children: ReactNode
   hasuraJwt: string
   user: UserProfile | null
+  chatbots: Chatbot[]
 }
 
 // Define type for the context value
@@ -47,6 +52,7 @@ type GlobalStoreContextValue = {
   hasuraJwt: string
   user: UserProfile | null
   setGlobalError: (errorMessage: string) => void
+  chatbots: Chatbot[]
 }
 
 export type UserProfile = {
