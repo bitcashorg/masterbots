@@ -78,6 +78,7 @@ export function ThreadAccordion({
                   thread={thread}
                   question={p.userMessage.content}
                   copy={true}
+                  chat={chat}
                 />
               )}
             </AccordionTrigger>

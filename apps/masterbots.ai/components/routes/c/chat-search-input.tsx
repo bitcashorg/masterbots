@@ -14,7 +14,7 @@ import { getCategory } from '@/services/hasura'
 export function ChatSearchInput({
   setThreads
 }: {
-  setThreads: React.Dispatch<React.SetStateAction<Thread[]>>
+  setThreads?: React.Dispatch<React.SetStateAction<Thread[]>>
 }) {
   const { chatbot } = useParams()
   const { activeCategory } = useSidebar()
@@ -43,24 +43,25 @@ export function ChatSearchInput({
 
   React.useEffect(() => {
     debounce(() => {
-      setThreads(prevState => {
-        // ? If there is no results on a search, we should keep the previous state
-        // ? and if not, the threads previous state before the search will be lost.
-        previousThread.current = !previousThread.current.length
-          ? prevState
-          : previousThread.current
-        const previousThreadState = previousThread.current
+      setThreads &&
+        setThreads(prevState => {
+          // ? If there is no results on a search, we should keep the previous state
+          // ? and if not, the threads previous state before the search will be lost.
+          previousThread.current = !previousThread.current.length
+            ? prevState
+            : previousThread.current
+          const previousThreadState = previousThread.current
 
-        if (!keyword) {
-          return previousThreadState
-        }
+          if (!keyword) {
+            return previousThreadState
+          }
 
-        return previousThreadState.filter((thread: Thread) =>
-          thread.messages[0]?.content
-            .toLowerCase()
-            .includes(keyword.toLowerCase())
-        )
-      })
+          return previousThreadState.filter((thread: Thread) =>
+            thread.messages[0]?.content
+              .toLowerCase()
+              .includes(keyword.toLowerCase())
+          )
+        })
     }, 230)()
   }, [keyword])
 

@@ -12,6 +12,7 @@ import {
 import { createSupabaseServerClient } from '@/services/supabase'
 import { ThreadList } from '@/components/shared/thread-list'
 import { NewChatInput } from '@/components/routes/c/new-chat'
+import { ChatSearchInput } from '@/components/routes/c/chat-search-input'
 
 export default async function ChatListPage({
   params,
@@ -81,9 +82,9 @@ export default async function ChatListPage({
     userPreferencesPrompts
   )
 
-  console.log('currentThread', currentThread)
   return (
     <>
+      {/* <ChatSearchInput /> */}
       <ThreadList
         initialThreads={threads}
         filter={{ slug: userProfile.slug, chatbotName: chatbot.name }}

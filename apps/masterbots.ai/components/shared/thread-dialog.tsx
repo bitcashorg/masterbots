@@ -14,12 +14,12 @@ import { DialogProps } from '@radix-ui/react-dialog'
 import { NewChatInput } from '../routes/c/new-chat'
 import { convertMessage } from '@/lib/threads'
 
-export function ThreadDialog({ thread, chat }: ThreadDialogProps) {
+export function ThreadDialog({ thread, chat = false }: ThreadDialogProps) {
   const firstQuestion =
     thread.messages.find(m => m.role === 'user')?.content || 'not found'
   const firstResponse =
     thread.messages.find(m => m.role === 'assistant')?.content || 'not found'
-  console.log({ chat })
+
   return (
     <Dialog>
       <DialogTrigger>
@@ -38,7 +38,7 @@ export function ThreadDialog({ thread, chat }: ThreadDialogProps) {
       >
         <ThreadAccordion thread={thread} clientFetch={true} chat={chat} />
         {chat ? (
-          <DialogFooter className="bg-black">
+          <DialogFooter>
             <NewChatInput
               chatbot={thread.chatbot}
               initialMessages={thread.messages.map(convertMessage)}

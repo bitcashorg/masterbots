@@ -14,7 +14,6 @@ export function NewChatInput({
   id,
   initialMessages,
   chatbot,
-  scrollToBottom = () => {},
   dialog = false
 }: NewChatInputProps) {
   const router = useRouter()
@@ -73,7 +72,6 @@ export function NewChatInput({
       messages={messages}
       placeholder={`Start New Chat with ${chatbot.name}`}
       reload={reload}
-      scrollToBottom={scrollToBottom}
       setInput={setInput}
       showReload={false}
       stop={stop}

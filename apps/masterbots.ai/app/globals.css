@@ -144,3 +144,7 @@
 .hide-buttons > button {
   display: none;
 }
+
+* {
+  outline: none;
+}

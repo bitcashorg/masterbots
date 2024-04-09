@@ -3,7 +3,6 @@ import { type UseChatHelpers } from 'ai/react'
 import { Chatbot } from '@repo/mb-genql'
 import { Button } from '@/components/ui/button'
 import { PromptForm } from '@/components/routes/c/prompt-form'
-import { ButtonScrollToBottom } from '@/components/routes/c/button-scroll-to-bottom'
 import { IconRefresh, IconShare, IconStop } from '@/components/ui/icons'
 import { FooterText } from '@/components/layout/footer'
 import { ChatShareDialog } from '@/components/routes/c/chat-share-dialog'
@@ -26,8 +25,6 @@ export interface ChatInputProps
   chatbot?: Chatbot
   showReload?: boolean
   placeholder: string
-  isAtBottom?: boolean
-  scrollToBottom: () => void
   className?: string
   dialog?: boolean
 }
@@ -45,8 +42,6 @@ export function ChatInputNew({
   chatbot,
   placeholder,
   showReload = true,
-  isAtBottom,
-  scrollToBottom,
   className,
   dialog = false
 }: ChatInputProps) {
@@ -57,13 +52,9 @@ export function ChatInputNew({
       className={cn(
         'z-[2] fixed inset-x-0 bottom-0 w-full bg-gradient-to-b from-muted/30 from-0% to-muted/30 to-50% animate-in duration-300 ease-in-out dark:from-background/10 dark:from-10% dark:to-background/80',
         className,
-        !dialog ?? 'lg:pl-[250px] xl:pl-[300px]'
+        dialog ? null : 'lg:pl-[250px] xl:pl-[300px]'
       )}
     >
-      <ButtonScrollToBottom
-        isAtBottom={isAtBottom}
-        scrollToBottom={scrollToBottom}
-      />
       <div className="mx-auto ">
         {chatbot && showReload ? (
           <div className="flex items-center justify-center h-12">

@@ -35,7 +35,7 @@ export function ThreadHeading({
             )}
           >
             {question}
-            {!chat ? (
+            {chat ? null : (
               <>
                 <span className="opacity-50 text-[0.875rem]">by</span>
                 <AccountAvatar
@@ -44,7 +44,7 @@ export function ThreadHeading({
                   href={`/u/${thread.user.slug}`}
                 />
               </>
-            ) : null}
+            )}
           </div>
         </div>
         {copy ? <Shortlink /> : null}
