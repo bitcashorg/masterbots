@@ -8,6 +8,7 @@ import { Header } from '@/components/layout/header'
 import { Providers } from '@/components/layout/providers'
 import { cn } from '@/lib/utils'
 import { GlobalStoreProvider } from '@/hooks/use-global-store'
+import dynamic from 'next/dynamic'
 
 async function getCookieData(): Promise<{ hasuraJwt; userProfile }> {
   const hasuraJwt = cookies().get('hasuraJwt')?.value || ''
@@ -18,6 +19,10 @@ async function getCookieData(): Promise<{ hasuraJwt; userProfile }> {
     }, 1000)
   )
 }
+const DynamicCmdK = dynamic(
+  () => import('@/components/layout/cmdk').then(mod => mod.MbCmdK),
+  { ssr: false }
+)
 
 export default async function RootLayout({ children }: RootLayoutProps) {
   const { hasuraJwt, userProfile } = await getCookieData()
@@ -48,6 +53,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                 {children}
               </main>
             </div>
+            <DynamicCmdK />
           </Providers>
         </GlobalStoreProvider>
       </body>

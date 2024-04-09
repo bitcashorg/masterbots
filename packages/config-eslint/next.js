@@ -87,7 +87,9 @@ module.exports = {
     "@typescript-eslint/consistent-type-definitions": "warn",
     "@typescript-eslint/no-empty-function": "warn",
     "react/no-unescaped-entities": "warn",
-    "@typescript-eslint/consistent-indexed-object-style": "warn"
+    "@typescript-eslint/consistent-indexed-object-style": "warn",
+    "react/no-unknown-property": "warn",
+    "@typescript-eslint/no-empty-interface": "warn"
   },
 };
 

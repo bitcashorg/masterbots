@@ -44,6 +44,7 @@
     "ai": "^2.2.25",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
+    "cmdk": "^1.0.0",
     "date-fns": "^2.30.0",
     "dub": "^0.10.0",
     "focus-trap-react": "^10.2.3",
