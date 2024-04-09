@@ -5,7 +5,7 @@ import { debounce } from 'lodash'
 import type { Thread } from '@repo/mb-genql'
 import { useBrowse } from '@/hooks/use-browse'
 import { getBrowseThreads } from '@/services/hasura'
-import { ThreadDialog } from './thread-dialog'
+import { ThreadDoubleAccordion } from './thread-double-accordion'
 
 export function ThreadList({
   initialThreads,
@@ -75,7 +75,7 @@ export function ThreadList({
   return (
     <div className="w-full py-5 flex flex-col gap-8">
       {filteredThreads.map((thread: Thread, key) => (
-        <ThreadDialog
+        <ThreadDoubleAccordion
           key={key}
           thread={thread}
           chat={chat}
