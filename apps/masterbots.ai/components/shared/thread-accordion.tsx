@@ -21,7 +21,8 @@ export function ThreadAccordion({
   thread,
   initialMessagePairs,
   clientFetch = false,
-  chat = false
+  chat = false,
+  showHeading = true
 }: ThreadAccordionProps) {
   // initalMessages is coming from server ssr on load. the rest of messages on demand on mount
   const { data: pairs, error } = useQuery({
@@ -70,18 +71,20 @@ export function ThreadAccordion({
       {pairs.map((p, key) => {
         return (
           <AccordionItem value={`pair-${key}`} key={key}>
-            <AccordionTrigger>
-              {key ? (
-                <div className="pl-12">{p.userMessage.content}</div>
-              ) : (
-                <ThreadHeading
-                  thread={thread}
-                  question={p.userMessage.content}
-                  copy={true}
-                  chat={chat}
-                />
-              )}
-            </AccordionTrigger>
+            {showHeading ? (
+              <AccordionTrigger>
+                {key ? (
+                  <div className="pl-12">{p.userMessage.content}</div>
+                ) : (
+                  <ThreadHeading
+                    thread={thread}
+                    question={p.userMessage.content}
+                    copy={true}
+                    chat={chat}
+                  />
+                )}
+              </AccordionTrigger>
+            ) : null}
             <AccordionContent aria-expanded={true}>
               <div className="px-7">
                 {p.chatGptMessage.map((message, index) => (
@@ -105,4 +108,5 @@ interface ThreadAccordionProps {
   initialMessagePairs?: MessagePair[]
   clientFetch?: boolean
   chat?: boolean
+  showHeading?: boolean
 }
