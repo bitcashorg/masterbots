@@ -82,7 +82,6 @@ export default async function ChatListPage({
     userPreferencesPrompts
   )
 
-  console.log('currentThread', currentThread)
   return (
     <>
       {/* <ChatSearchInput /> */}

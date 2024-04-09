@@ -25,8 +25,6 @@ export interface ChatInputProps
   chatbot?: Chatbot
   showReload?: boolean
   placeholder: string
-  isAtBottom?: boolean
-  scrollToBottom: () => void
   className?: string
   dialog?: boolean
 }
@@ -44,7 +42,6 @@ export function ChatInputNew({
   chatbot,
   placeholder,
   showReload = true,
-  isAtBottom,
   className,
   dialog = false
 }: ChatInputProps) {

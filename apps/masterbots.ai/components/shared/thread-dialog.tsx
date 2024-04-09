@@ -19,7 +19,7 @@ export function ThreadDialog({ thread, chat = false }: ThreadDialogProps) {
     thread.messages.find(m => m.role === 'user')?.content || 'not found'
   const firstResponse =
     thread.messages.find(m => m.role === 'assistant')?.content || 'not found'
-  console.log({ chat })
+
   return (
     <Dialog>
       <DialogTrigger>
