@@ -14,15 +14,19 @@ import { DialogProps } from '@radix-ui/react-dialog'
 import { NewChatInput } from '../routes/c/new-chat'
 import { convertMessage } from '@/lib/threads'
 
-export function ThreadDialog({ thread, chat = false }: ThreadDialogProps) {
+export function ThreadDialog({
+  thread,
+  chat = false,
+  defaultOpen = false
+}: ThreadDialogProps) {
   const firstQuestion =
     thread.messages.find(m => m.role === 'user')?.content || 'not found'
   const firstResponse =
     thread.messages.find(m => m.role === 'assistant')?.content || 'not found'
 
   return (
-    <Dialog>
-      <DialogTrigger>
+    <Dialog defaultOpen={defaultOpen}>
+      <DialogTrigger className="px-5 pt-5 bg-mirage">
         <ThreadHeading
           thread={thread}
           question={firstQuestion}
@@ -55,4 +59,5 @@ export function ThreadDialog({ thread, chat = false }: ThreadDialogProps) {
 interface ThreadDialogProps extends DialogProps {
   thread: Thread
   chat?: boolean
+  defaultOpen?: boolean
 }

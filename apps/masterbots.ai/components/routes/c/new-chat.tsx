@@ -18,6 +18,8 @@ export function NewChatInput({
 }: NewChatInputProps) {
   const router = useRouter()
   const { hasuraJwt, user } = useGlobalStore()
+
+  // use this hooks to start a chat on the ai/react context
   const { messages, reload, stop, input, setInput, append } = useChat({
     initialMessages,
     id,
@@ -55,7 +57,7 @@ export function NewChatInput({
       jwt: hasuraJwt
     })
 
-    router.push(`/${chatbot.name.trim().toLowerCase()}/${threadId}`, {
+    router.push(`/c/${chatbot.name.trim().toLowerCase()}/${threadId}`, {
       scroll: false
     })
     router.refresh()

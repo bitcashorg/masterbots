@@ -16,6 +16,7 @@ import { Thread } from '@repo/mb-genql'
 import { ThreadHeading } from './thread-heading'
 import { MessagePair, convertMessage } from '@/lib/threads'
 import { BrowseChatMessage } from './thread-message'
+import { cn } from '@/lib/utils'
 
 export function ThreadAccordion({
   thread,
@@ -72,7 +73,7 @@ export function ThreadAccordion({
         return (
           <AccordionItem value={`pair-${key}`} key={key}>
             {showHeading ? (
-              <AccordionTrigger>
+              <AccordionTrigger className={cn('bg-mirage')}>
                 {key ? (
                   <div className="pl-12">{p.userMessage.content}</div>
                 ) : (

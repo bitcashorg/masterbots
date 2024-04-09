@@ -6,12 +6,14 @@ import type { Thread } from '@repo/mb-genql'
 import { useBrowse } from '@/hooks/use-browse'
 import { getBrowseThreads } from '@/services/hasura'
 import { ThreadDoubleAccordion } from './thread-double-accordion'
+import { ThreadDialog } from './thread-dialog'
 
 export function ThreadList({
   initialThreads,
   filter,
   chat = false,
-  currentThread
+  currentThread,
+  dialog = false
 }: ThreadListProps) {
   const { keyword } = useBrowse()
   const [threads, setThreads] = useState<Thread[]>(initialThreads)
@@ -72,10 +74,12 @@ export function ThreadList({
     return () => observer.disconnect()
   }, [hasMore, loading, loadMore])
 
+  const ThreadComponent = dialog ? ThreadDialog : ThreadDoubleAccordion
+
   return (
     <div className="w-full py-5 flex flex-col gap-8">
       {filteredThreads.map((thread: Thread, key) => (
-        <ThreadDoubleAccordion
+        <ThreadComponent
           key={key}
           thread={thread}
           chat={chat}
@@ -91,6 +95,7 @@ type ThreadListProps = {
   currentThread?: Thread
   initialThreads: Thread[]
   chat?: boolean
+  dialog?: boolean
   filter: {
     categoryId?: number
     userId?: string

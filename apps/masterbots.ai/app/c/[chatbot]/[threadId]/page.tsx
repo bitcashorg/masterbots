@@ -58,7 +58,6 @@ export default async function ChatListPage({
     createdAt: new Date()
   }))
 
-  console.log({ params })
   const currentThread = params.threadId
     ? await getThread({ threadId: params.threadId })
     : null
@@ -90,6 +89,7 @@ export default async function ChatListPage({
         filter={{ slug: userProfile.slug, chatbotName: chatbot.name }}
         chat={true}
         currentThread={currentThread}
+        dialog={true}
       />
       <NewChatInput
         chatbot={chatbot}
