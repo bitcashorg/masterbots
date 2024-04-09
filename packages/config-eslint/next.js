@@ -85,7 +85,9 @@ module.exports = {
     "no-redeclare": "warn",
     "no-extra-boolean-cast": "warn",
     "@typescript-eslint/consistent-type-definitions": "warn",
-    "@typescript-eslint/no-empty-function": "warn"
+    "@typescript-eslint/no-empty-function": "warn",
+    "react/no-unescaped-entities": "warn",
+    "@typescript-eslint/consistent-indexed-object-style": "warn"
   },
 };
 
