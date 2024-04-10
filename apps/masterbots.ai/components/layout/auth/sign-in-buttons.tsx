@@ -9,24 +9,24 @@ export function SignInButtons({ hostname }: { hostname: string }) {
 
   const loginWithGitHub = () => {
     console.log({
-      redirectTo: `${hostname}/auth/callback`
+      redirectTo: `https://${hostname}/auth/callback`
     })
     supabase.auth.signInWithOAuth({
       provider: 'github',
       options: {
-        redirectTo: `${hostname}/auth/callback`
+        redirectTo: `https://${hostname}/auth/callback`
       }
     })
   }
 
   const loginWithGoogle = () => {
     console.log({
-      redirectTo: `${hostname}/auth/callback`
+      redirectTo: `https://${hostname}/auth/callback`
     })
     supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${hostname}/auth/callback`
+        redirectTo: `https://${hostname}/auth/callback`
       }
     })
   }
