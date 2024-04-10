@@ -6,7 +6,6 @@ export default async function SignInPage() {
   const headersList = headers()
   const hostname = headersList.get('x-forwarded-host')
 
-  console.log(hostname)
   return (
     <div className="flex flex-col h-[calc(100vh-theme(spacing.16))] items-center py-10">
       <div
