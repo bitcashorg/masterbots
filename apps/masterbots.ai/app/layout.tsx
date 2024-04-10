@@ -21,7 +21,7 @@ async function getCookieData(): Promise<{ hasuraJwt; userProfile }> {
   )
 }
 const DynamicCmdK = dynamic(
-  () => import('@/components/layout/cmdk').then(mod => mod.MbCmdK),
+  () => import('../components/layout/cmdk').then(mod => mod.MbCmdK),
   { ssr: false }
 )
 
