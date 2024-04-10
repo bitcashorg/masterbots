@@ -1,15 +1,12 @@
 import Image from 'next/image'
 import { SignInButtons } from '@/components/layout/auth/sign-in-buttons'
 import { headers } from 'next/headers'
-import { useEffect } from 'react'
 
 export default async function SignInPage() {
   const headersList = headers()
   const hostname = headersList.get('x-forwarded-host')
 
-  useEffect(() => {
-    alert('hostname', hostname)
-  }, [hostname])
+  console.log(hostname)
   return (
     <div className="flex flex-col h-[calc(100vh-theme(spacing.16))] items-center py-10">
       <div

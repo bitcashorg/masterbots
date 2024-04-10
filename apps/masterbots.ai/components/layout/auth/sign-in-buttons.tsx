@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { useSupabaseClient } from '@/services/supabase'
+import { useEffect } from 'react'
 
 export function SignInButtons({ hostname }: { hostname: string }) {
   const supabase = useSupabaseClient()
@@ -24,6 +25,10 @@ export function SignInButtons({ hostname }: { hostname: string }) {
       }
     })
   }
+
+  useEffect(() => {
+    alert(hostname)
+  }, [hostname])
 
   return (
     <div className="flex gap-5">
