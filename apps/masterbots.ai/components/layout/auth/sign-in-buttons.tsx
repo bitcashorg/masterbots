@@ -8,6 +8,9 @@ export function SignInButtons({ hostname }: { hostname: string }) {
   const supabase = useSupabaseClient()
 
   const loginWithGitHub = () => {
+    console.log({
+      redirectTo: `${hostname}/auth/callback`
+    })
     supabase.auth.signInWithOAuth({
       provider: 'github',
       options: {
@@ -17,6 +20,9 @@ export function SignInButtons({ hostname }: { hostname: string }) {
   }
 
   const loginWithGoogle = () => {
+    console.log({
+      redirectTo: `${hostname}/auth/callback`
+    })
     supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
