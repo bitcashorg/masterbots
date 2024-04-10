@@ -94,3 +94,5 @@ export function MbCmdK() {
     </CommandDialog>
   )
 }
+// use by Dynamic()
+export default MbCmdK

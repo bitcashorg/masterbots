@@ -20,10 +20,9 @@ async function getCookieData(): Promise<{ hasuraJwt; userProfile }> {
     }, 1000)
   )
 }
-const DynamicCmdK = dynamic(
-  () => import('../components/layout/cmdk').then(mod => mod.MbCmdK),
-  { ssr: false }
-)
+const DynamicCmdK = dynamic(() => import('../components/layout/cmdk'), {
+  ssr: false
+})
 
 export default async function RootLayout({ children }: RootLayoutProps) {
   const { hasuraJwt, userProfile } = await getCookieData()
