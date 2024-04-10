@@ -11,7 +11,7 @@ export function SignInButtons() {
     supabase.auth.signInWithOAuth({
       provider: 'github',
       options: {
-        redirectTo: `${location.origin}/auth/callback`
+        redirectTo: `${location.hostname}/auth/callback`
       }
     })
   }
@@ -20,7 +20,7 @@ export function SignInButtons() {
     supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${location.origin}/auth/callback`
+        redirectTo: `${location.hostname}/auth/callback`
       }
     })
   }
