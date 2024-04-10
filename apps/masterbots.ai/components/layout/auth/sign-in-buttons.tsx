@@ -3,9 +3,9 @@
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { useSupabaseClient } from '@/services/supabase'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 
-export function SignInButtons() {
+export function SignInButtons({ hostname }: { hostname: string }) {
   const supabase = useSupabaseClient()
   const router = useRouter()
 
@@ -13,7 +13,7 @@ export function SignInButtons() {
     supabase.auth.signInWithOAuth({
       provider: 'github',
       options: {
-        redirectTo: `${router.basePath}/auth/callback`
+        redirectTo: `${hostname}/auth/callback`
       }
     })
   }
@@ -22,7 +22,7 @@ export function SignInButtons() {
     supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${router.basePath}/auth/callback`
+        redirectTo: `${hostname}/auth/callback`
       }
     })
   }

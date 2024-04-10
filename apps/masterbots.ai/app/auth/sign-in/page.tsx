@@ -1,7 +1,10 @@
 import Image from 'next/image'
 import { SignInButtons } from '@/components/layout/auth/sign-in-buttons'
+import { headers } from 'next/headers'
 
 export default async function SignInPage() {
+  const headersList = headers()
+  const hostname = headersList.get('x-forwarded-host')
   return (
     <div className="flex flex-col h-[calc(100vh-theme(spacing.16))] items-center py-10">
       <div
@@ -18,7 +21,7 @@ export default async function SignInPage() {
       </div>
 
       <div className="flex justify-center pt-10">
-        <SignInButtons />
+        <SignInButtons hostname={hostname} />
       </div>
     </div>
   )
