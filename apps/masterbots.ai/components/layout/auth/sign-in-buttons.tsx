@@ -3,15 +3,17 @@
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { useSupabaseClient } from '@/services/supabase'
+import { useRouter } from 'next/router'
 
 export function SignInButtons() {
   const supabase = useSupabaseClient()
+  const router = useRouter()
 
   const loginWithGitHub = () => {
     supabase.auth.signInWithOAuth({
       provider: 'github',
       options: {
-        redirectTo: `${location.hostname}/auth/callback`
+        redirectTo: `${router.basePath}/auth/callback`
       }
     })
   }
@@ -20,7 +22,7 @@ export function SignInButtons() {
     supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${location.hostname}/auth/callback`
+        redirectTo: `${router.basePath}/auth/callback`
       }
     })
   }
