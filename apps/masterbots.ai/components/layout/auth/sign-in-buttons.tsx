@@ -6,28 +6,26 @@ import { useSupabaseClient } from '@/services/supabase'
 
 export function SignInButtons({ hostname }: { hostname: string }) {
   const supabase = useSupabaseClient()
+  const isLocalhost = hostname === 'localhost:3000'
+  const redirectTo = `${isLocalhost ? 'http' : 'https'}://${hostname}/auth/callback`
 
   const loginWithGitHub = () => {
     console.log({
-      redirectTo: `https://${hostname}/auth/callback`
+      redirectTo
     })
     supabase.auth.signInWithOAuth({
       provider: 'github',
-      options: {
-        redirectTo: `https://${hostname}/auth/callback`
-      }
+      options: { redirectTo }
     })
   }
 
   const loginWithGoogle = () => {
     console.log({
-      redirectTo: `https://${hostname}/auth/callback`
+      redirectTo
     })
     supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: {
-        redirectTo: `https://${hostname}/auth/callback`
-      }
+      options: { redirectTo }
     })
   }
 
