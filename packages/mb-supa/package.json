@@ -1,0 +1,18 @@
+{
+  "name": "@repo/mb-supa",
+  "version": "0.0.1",
+  "private": true,
+  "description": "supabase module for masterbots",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "bun run types",
+    "types": "supabase gen types typescript --project-id ipgwcdekxoxsjojvzrre > src/supa.types.ts"
+  },
+  "author": "bitcash.org",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*"
+  }
+}

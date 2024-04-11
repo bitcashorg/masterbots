@@ -3,11 +3,6 @@
 node_modules
 .turbo
 .DS_Store
-<<<<<<< HEAD
-__dev
-.vercel
-=======
 _dev
 .vercel
 __dev
->>>>>>> develop

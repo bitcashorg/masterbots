@@ -11,8 +11,7 @@
     "preview": "next build && next start",
     "type-check": "tsc --noEmit",
     "format:write": "prettier --write \"{app,lib,components}/**/*.{ts,tsx,mdx}\" --cache",
-    "format:check": "prettier --check \"{app,lib,components}**/*.{ts,tsx,mdx}\" --cache",
-    "types": "supabase gen types typescript --project-id ipgwcdekxoxsjojvzrre > services/supabase/supa.types.ts"
+    "format:check": "prettier --check \"{app,lib,components}**/*.{ts,tsx,mdx}\" --cache"
   },
   "dependencies": {
     "@blockmatic/hooks-utils": "^3.0.0",
