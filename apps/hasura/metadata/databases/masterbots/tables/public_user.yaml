@@ -1,0 +1,56 @@
+table:
+  name: user
+  schema: public
+array_relationships:
+  - name: chats
+    using:
+      foreign_key_constraint_on:
+        column: added_by
+        table:
+          name: chat
+          schema: public
+  - name: preferences
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: preference
+          schema: public
+  - name: threads
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: thread
+          schema: public
+  - name: prompts
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: prompt_user
+          schema: public
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - date_joined
+        - email
+        - last_login
+        - profile_picture
+        - user_id
+        - username
+        - slug
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+    comment: ""
+  - role: anonymous
+    permission:
+      columns:
+        - email
+        - profile_picture
+        - username
+        - slug
+      filter: {}
+    comment: ""

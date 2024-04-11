@@ -1,0 +1,42 @@
+table:
+  name: message
+  schema: public
+object_relationships:
+  - name: thread
+    using:
+      foreign_key_constraint_on: thread_id
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        thread:
+          user_id:
+            _eq: X-Hasura-User-Id
+      columns:
+        - content
+        - role
+        - created_at
+        - message_id
+        - thread_id
+    comment: ""
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - content
+        - created_at
+        - message_id
+        - thread_id
+        - role
+      filter: {}
+    comment: ""
+  - role: user
+    permission:
+      columns:
+        - content
+        - role
+        - created_at
+        - message_id
+        - thread_id
+      filter: {}
+    comment: ""

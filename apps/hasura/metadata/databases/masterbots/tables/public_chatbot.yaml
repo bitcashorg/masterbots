@@ -1,0 +1,69 @@
+table:
+  name: chatbot
+  schema: public
+array_relationships:
+  - name: categories
+    using:
+      foreign_key_constraint_on:
+        column: chatbot_id
+        table:
+          name: chatbot_category
+          schema: public
+  - name: chats
+    using:
+      foreign_key_constraint_on:
+        column: chatbot_id
+        table:
+          name: chat
+          schema: public
+  - name: preferences
+    using:
+      foreign_key_constraint_on:
+        column: chatbot_id
+        table:
+          name: preference
+          schema: public
+  - name: prompts
+    using:
+      foreign_key_constraint_on:
+        column: chabot_id
+        table:
+          name: prompt_chatbot
+          schema: public
+  - name: threads
+    using:
+      foreign_key_constraint_on:
+        column: chatbot_id
+        table:
+          name: thread
+          schema: public
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - chatbot_id
+        - avatar
+        - created_by
+        - default_complexity
+        - default_length
+        - default_tone
+        - default_type
+        - description
+        - name
+      filter: {}
+    comment: ""
+  - role: user
+    permission:
+      columns:
+        - chatbot_id
+        - avatar
+        - created_by
+        - default_complexity
+        - default_length
+        - default_tone
+        - default_type
+        - description
+        - name
+      filter: {}
+      allow_aggregations: true
+    comment: ""

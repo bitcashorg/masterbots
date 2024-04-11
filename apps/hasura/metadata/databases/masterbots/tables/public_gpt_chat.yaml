@@ -1,0 +1,20 @@
+table:
+  name: gpt_chat
+  schema: public
+object_relationships:
+  - name: chatbot
+    using:
+      foreign_key_constraint_on: chatbot_id
+  - name: user
+    using:
+      foreign_key_constraint_on: added_by
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - added_by
+        - chatbot_id
+        - chat_id
+        - conversation_link
+      filter: {}
+    comment: ""

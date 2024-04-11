@@ -1,0 +1,37 @@
+table:
+  name: prompt
+  schema: public
+array_relationships:
+  - name: chatbots
+    using:
+      foreign_key_constraint_on:
+        column: prompt_id
+        table:
+          name: prompt_chatbot
+          schema: public
+  - name: users
+    using:
+      foreign_key_constraint_on:
+        column: prompt_id
+        table:
+          name: prompt_user
+          schema: public
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - prompt_id
+        - content
+        - prompt_name
+        - type
+      filter: {}
+    comment: ""
+  - role: user
+    permission:
+      columns:
+        - prompt_id
+        - content
+        - prompt_name
+        - type
+      filter: {}
+    comment: ""

@@ -1,0 +1,10 @@
+table:
+  name: default_length_enum
+  schema: public
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - value
+      filter: {}
+    comment: ""
