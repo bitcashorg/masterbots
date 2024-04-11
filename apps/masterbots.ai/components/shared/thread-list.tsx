@@ -19,7 +19,7 @@ export function ThreadList({
   const searchParams = useSearchParams()
   const queryKey = [usePathname() + searchParams.get('query')]
   const loadMoreRef = useRef<HTMLDivElement>(null)
-  const threads = useQuery<Thread[]>({
+  const threads = useQuery({
     queryKey,
     queryFn: async () => {
       const searchFilter = {
@@ -58,7 +58,6 @@ export function ThreadList({
   // ThreadDialog and ThreadDoubleAccordion can be used interchangeably
   const ThreadComponent = dialog ? ThreadDialog : ThreadDoubleAccordion
 
-  console.log('ThreadList', queryKey)
   return (
     <div
       // use url queryKey as key for component to force rerender
@@ -66,7 +65,7 @@ export function ThreadList({
       key={queryKey[0]}
       className="flex flex-col w-full gap-8 py-5"
     >
-      {threads.map((thread: Thread, key) => (
+      {threads.data.map((thread: Thread, key) => (
         <ThreadComponent
           key={key}
           thread={thread}
