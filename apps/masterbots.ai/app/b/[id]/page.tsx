@@ -3,7 +3,7 @@ import { botNames } from '@/lib/bots-names'
 import { ThreadList } from '@/components/shared/thread-list'
 import AccountDetails from '@/components/shared/account-details'
 import { CategoryTabs } from '@/components/shared/category-tabs/category-tabs'
-import { BrowseInput } from '@/components/shared/browse-input'
+import { SearchInput } from '@/components/shared/search-input'
 
 export default async function BotThreadsPage({
   params
@@ -28,7 +28,7 @@ export default async function BotThreadsPage({
   return (
     <div className=" container">
       <CategoryTabs categories={categories} />
-      <BrowseInput />
+      <SearchInput />
       <AccountDetails
         href={`/b/${chatbot.name.toLowerCase()}`}
         alt={chatbot.name}

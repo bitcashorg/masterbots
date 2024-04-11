@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-hot-toast'
-import type { ServerActionResult } from '@/lib/types'
+import type { ServerActionResult } from '@/types/chat'
 import { Button } from '@/components/ui/button'
 import {
   AlertDialog,

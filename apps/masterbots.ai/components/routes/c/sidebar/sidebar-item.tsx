@@ -12,7 +12,7 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip'
 import { useLocalStorage } from '@/hooks/use-local-storage'
-import { type Chat } from '@/lib/types'
+import { type Chat } from '@/types/chat'
 import { cn } from '@/lib/utils'
 
 interface SidebarItemProps {

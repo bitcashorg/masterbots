@@ -350,13 +350,14 @@ export async function getChatbot({
 
 export async function getBrowseThreads({
   categoryId,
-  keyword,
+  query,
   chatbotName,
   userId,
   limit,
   offset,
   slug
 }: GetBrowseThreadsParams) {
+
   const client = getHasuraClient({})
 
   const { thread } = await client.query({
@@ -377,18 +378,18 @@ export async function getBrowseThreads({
         ...everything,
         __args: {
           orderBy: [{ createdAt: 'ASC' }],
-          ...(keyword
+          ...(query
             ? {
                 where: {
                   _or: [
                     {
                       content: {
-                        _iregex: keyword
+                        _iregex: query
                       }
                     },
                     {
                       content: {
-                        _eq: keyword
+                        _eq: query
                       }
                     }
                   ]

@@ -1,12 +1,12 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
-import { debounce } from 'lodash'
 import type { Thread } from '@repo/mb-genql'
-import { useBrowse } from '@/hooks/use-browse'
 import { getBrowseThreads } from '@/services/hasura'
 import { ThreadDoubleAccordion } from './thread-double-accordion'
 import { ThreadDialog } from './thread-dialog'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { GetBrowseThreadsParams } from '@/services/hasura/hasura.service.type'
 
 export function ThreadList({
   initialThreads,
@@ -15,13 +15,13 @@ export function ThreadList({
   currentThread,
   dialog = false
 }: ThreadListProps) {
-  const { keyword } = useBrowse()
   const [threads, setThreads] = useState<Thread[]>(initialThreads)
   const [filteredThreads, setFilteredThreads] =
     useState<Thread[]>(initialThreads)
   const [loading, setLoading] = useState<boolean>(false)
   const loadMoreRef = useRef<HTMLDivElement>(null)
   const [hasMore, setHasMore] = useState(true)
+  const searchParams = useSearchParams()
 
   // load more threads for the category
   const loadMore = async () => {
@@ -38,26 +38,6 @@ export function ThreadList({
     setThreads(prevState => [...prevState, ...moreThreads])
     setLoading(false)
   }
-
-  const verifyKeyword = () => {
-    if (!keyword) {
-      setFilteredThreads(threads)
-    } else {
-      debounce(() => {
-        setFilteredThreads(
-          threads.filter((thread: Thread) =>
-            thread.messages[0]?.content
-              .toLowerCase()
-              .includes(keyword.toLowerCase())
-          )
-        )
-      }, 230)()
-    }
-  }
-
-  useEffect(() => {
-    verifyKeyword()
-  }, [keyword, threads, verifyKeyword])
 
   // load mare item when it gets to the end
   useEffect(() => {
@@ -76,8 +56,12 @@ export function ThreadList({
 
   const ThreadComponent = dialog ? ThreadDialog : ThreadDoubleAccordion
 
+  console.log('ThreadList', searchParams.get('query'))
   return (
-    <div className="w-full py-5 flex flex-col gap-8">
+    <div
+      key={searchParams.get('query')}
+      className="flex flex-col w-full gap-8 py-5"
+    >
       {filteredThreads.map((thread: Thread, key) => (
         <ThreadComponent
           key={key}
@@ -96,10 +80,5 @@ type ThreadListProps = {
   initialThreads: Thread[]
   chat?: boolean
   dialog?: boolean
-  filter: {
-    categoryId?: number
-    userId?: string
-    chatbotName?: string
-    slug?: string
-  }
+  filter: GetBrowseThreadsParams
 }

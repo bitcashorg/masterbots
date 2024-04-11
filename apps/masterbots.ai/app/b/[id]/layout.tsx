@@ -1,4 +1,3 @@
-import { BrowseProvider } from '@/hooks/use-browse'
 import FooterCT from '@/components/layout/footer-ct'
 
 interface BrowseLayoutProps {
@@ -7,13 +6,11 @@ interface BrowseLayoutProps {
 
 export default async function BrowseLayout({ children }: BrowseLayoutProps) {
   return (
-    <BrowseProvider>
-      <main className="flex flex-col h-[calc(100vh-theme(spacing.16))]">
-        <section className="overflow-auto group scrollbar w-full">
-          {children}
-          <FooterCT />
-        </section>
-      </main>
-    </BrowseProvider>
+    <main className="flex flex-col h-[calc(100vh-theme(spacing.16))]">
+      <section className="overflow-auto group scrollbar w-full">
+        {children}
+        <FooterCT />
+      </section>
+    </main>
   )
 }

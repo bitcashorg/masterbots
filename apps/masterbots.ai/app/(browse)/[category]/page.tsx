@@ -1,33 +1,41 @@
 import { ThreadList } from '@/components/shared/thread-list'
 import { CategoryTabs } from '@/components/shared/category-tabs/category-tabs'
-import { BrowseInput } from '@/components/shared/browse-input'
+import { SearchInput } from '@/components/shared/search-input'
 import { getBrowseThreads, getCategories } from '@/services/hasura'
+import { toSlug } from '@repo/mb-lib'
+import { decodeQuery } from '@/lib/url'
 
-export const revalidate = 3600 // revalidate the data at most every hour
+// TODO: dicuss caching
+// export const revalidate = 3600 // revalidate the data at most every hour
 
-export default async function BrowseCategoryPage({
-  params
-}: {
-  params: { category: string }
-}) {
+export default async function CategoryPage({
+  params,
+  searchParams
+}: CategoryPageProps) {
   const categories = await getCategories()
   const categoryId = categories.find(
-    c =>
-      c.name.toLowerCase().replace(/\s+/g, '_').replace(/\&/g, '_') ===
-      params.category
+    c => toSlug(c.name) === params.category
   ).categoryId
-  if (!categoryId) throw new Error('Category id not foud')
+  if (!categoryId) throw new Error('Category not foud')
+
+  const query = searchParams.query ? decodeQuery(searchParams.query) : null
 
   const threads = await getBrowseThreads({
     limit: 20,
-    categoryId
+    categoryId,
+    query
   })
 
   return (
     <div className="container">
       <CategoryTabs categories={categories} initialCategory={params.category} />
-      <BrowseInput />
-      <ThreadList initialThreads={threads} filter={{ categoryId }} />
+      <SearchInput />
+      <ThreadList initialThreads={threads} filter={{ categoryId, query }} />
     </div>
   )
+}
+
+interface CategoryPageProps {
+  params: { category: string }
+  searchParams?: { query: string }
 }

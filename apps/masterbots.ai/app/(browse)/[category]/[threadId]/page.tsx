@@ -2,7 +2,7 @@ import { getCategories, getMessagePairs, getThread } from '@/services/hasura'
 
 import { ThreadAccordion } from '@/components/shared/thread-accordion'
 import { CategoryTabs } from '@/components/shared/category-tabs/category-tabs'
-import { BrowseInput } from '@/components/shared/browse-input'
+import { SearchInput } from '@/components/shared/search-input'
 
 export default async function ThreadPage({ params }: ThreadPageProps) {
   const categories = await getCategories()
@@ -14,7 +14,7 @@ export default async function ThreadPage({ params }: ThreadPageProps) {
   return (
     <div className="container">
       <CategoryTabs categories={categories} />
-      <BrowseInput />
+      <SearchInput />
       <ThreadAccordion
         thread={thread}
         initialMessagePairs={initialMessagePairs}
