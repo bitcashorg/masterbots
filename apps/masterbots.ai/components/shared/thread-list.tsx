@@ -42,7 +42,9 @@ export function ThreadList({
     if (!loadMoreRef.current) return
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting && !threads.isLoading) {
-        setTimeout(() => threads.refetch(), 150)
+        // NOTE: I think this is not required
+        // setTimeout(() => threads.refetch(), 150)
+        threads.refetch()
         observer.unobserve(entry.target)
       }
     })
@@ -65,9 +67,9 @@ export function ThreadList({
       key={queryKey[0]}
       className="flex flex-col w-full gap-8 py-5"
     >
-      {threads.data.map((thread: Thread, key) => (
+      {threads.data.map((thread: Thread) => (
         <ThreadComponent
-          key={key}
+          key={thread.threadId}
           thread={thread}
           chat={chat}
           defaultOpen={thread.threadId === currentThread?.threadId}
