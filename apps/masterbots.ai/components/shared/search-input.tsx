@@ -48,7 +48,7 @@ export function SearchInput() {
           placeholder="Search any chat with any Bot"
           value={query || ''}
         />
-        {query ? (
+        {/* {query ? (
           <Button
             aria-label="Clear query"
             className="absolute right-0 px-3 -translate-y-1/2 cursor-pointer top-1/2"
@@ -57,7 +57,7 @@ export function SearchInput() {
           >
             <IconClose className="!h-4 !w-4" />
           </Button>
-        ) : null}
+        ) : null} */}
       </div>
       <Button type="submit">Search</Button>
       <div className="w-full text-center">
