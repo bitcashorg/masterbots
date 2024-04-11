@@ -4,15 +4,16 @@ import { BrowseInput } from '@/components/shared/browse-input'
 import { getBrowseThreads, getCategories } from '@/services/hasura'
 
 export default async function BrowsePage() {
-  const categories = await getCategories()
-  const threads = await getBrowseThreads({
-    limit: 20
-  })
+  // const categories = await getCategories()
+  // const threads = await getBrowseThreads({
+  //   limit: 20
+  // })
   return (
     <div className="container">
-      <CategoryTabs categories={categories} />
+      HELLO
+      {/* <CategoryTabs categories={categories} />
       <BrowseInput />
-      <ThreadList initialThreads={threads} filter={{}} />
+      <ThreadList initialThreads={threads} filter={{}} /> */}
     </div>
   )
 }
