@@ -5,6 +5,7 @@ import { getBrowseThreads, getCategories } from '@/services/hasura'
 
 export default async function BrowsePage() {
   const categories = await getCategories()
+  console.log(categories)
   // const threads = await getBrowseThreads({
   //   limit: 20
   // })
