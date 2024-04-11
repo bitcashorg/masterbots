@@ -15,7 +15,7 @@ export default async function CategoryPage({
   const categories = await getCategories()
   const categoryId = categories.find(
     c => toSlug(c.name) === params.category
-  ).categoryId
+  )?.categoryId
   if (!categoryId) throw new Error('Category not foud')
 
   const query = searchParams.query ? decodeQuery(searchParams.query) : null

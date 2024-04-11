@@ -1,28 +1,18 @@
-/* eslint-disable react/no-unescaped-entities */
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { useRouter } from 'next/navigation'
 import { encodeQuery } from '@/lib/url'
 
 export function SearchInput() {
-  // const params = useSearchParams()
   const router = useRouter()
   const pathname = usePathname()
   const [query, setSearchQuery] = useState('')
-
-  // Sync the query state with the query URL query parameter
-  // useEffect(() => {
-  //   const searchQuery = params.get('query')
-  //   if (searchQuery !== query) {
-  //     setSearchQuery(searchQuery || '')
-  //   }
-  // }, [params])
 
   const handleSubmit = e => {
     e.preventDefault()
@@ -48,7 +38,7 @@ export function SearchInput() {
           placeholder="Search any chat with any Bot"
           value={query || ''}
         />
-        {/* {query ? (
+        {query ? (
           <Button
             aria-label="Clear query"
             className="absolute right-0 px-3 -translate-y-1/2 cursor-pointer top-1/2"
@@ -57,9 +47,9 @@ export function SearchInput() {
           >
             <IconClose className="!h-4 !w-4" />
           </Button>
-        ) : null} */}
+        ) : null}
       </div>
-      <Button type="submit">Search</Button>
+      {/* <Button type="submit">Search</Button> */}
       <div className="w-full text-center">
         <p className="dark:text-[#83E56A] text-[#BE17E8] text-xs font-medium pt-4">
           Masterbots isn't infallible; verify crucial facts. Responses are for

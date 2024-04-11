@@ -6,7 +6,6 @@ import { Card } from '@/components/ui/card'
 import { decodeQuery } from '@/lib/url'
 
 export default async function HomePage({ searchParams }: HomePageProps) {
-  console.log(searchParams.query)
   const categories = await getCategories()
   const query = searchParams.query ? decodeQuery(searchParams.query) : null
   const threads = await getBrowseThreads({
