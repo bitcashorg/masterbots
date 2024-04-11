@@ -18,10 +18,10 @@ export function ChatSearchInput({
 }) {
   const { chatbot } = useParams()
   const { activeCategory } = useSidebar()
-  const [searchPlaceholder, setSearchPlaceholder] = React.useState<
+  const [queryPlaceholder, setSearchPlaceholder] = React.useState<
     string | null
   >(null)
-  const [keyword, changeKeyword] = React.useState<string>('')
+  const [query, setKeyword] = React.useState<string>('')
   const previousThread = React.useRef<Thread[]>([])
   const previousCategory = React.useRef<number | null>(null)
 
@@ -45,42 +45,42 @@ export function ChatSearchInput({
     debounce(() => {
       setThreads &&
         setThreads(prevState => {
-          // ? If there is no results on a search, we should keep the previous state
-          // ? and if not, the threads previous state before the search will be lost.
+          // ? If there is no results on a query, we should keep the previous state
+          // ? and if not, the threads previous state before the query will be lost.
           previousThread.current = !previousThread.current.length
             ? prevState
             : previousThread.current
           const previousThreadState = previousThread.current
 
-          if (!keyword) {
+          if (!query) {
             return previousThreadState
           }
 
           return previousThreadState.filter((thread: Thread) =>
             thread.messages[0]?.content
               .toLowerCase()
-              .includes(keyword.toLowerCase())
+              .includes(query.toLowerCase())
           )
         })
     }, 230)()
-  }, [keyword])
+  }, [query])
 
   return (
     <div className="relative w-full max-w-[600px] mx-auto flex items-center justify-center">
       <Input
         className="max-w-[600px]"
         onChange={e => {
-          changeKeyword(e.target.value)
+          setKeyword(e.target.value)
         }}
-        placeholder={`Search any chat with ${searchPlaceholder ? searchPlaceholder : 'any bot category'}`}
-        value={keyword}
+        placeholder={`Search any chat with ${queryPlaceholder ? queryPlaceholder : 'any bot category'}`}
+        value={query}
       />
-      {keyword ? (
+      {query ? (
         <Button
-          aria-label="Clear search"
+          aria-label="Clear query"
           className="absolute right-0 px-3 -translate-y-1/2 cursor-pointer top-1/2"
           onClick={() => {
-            changeKeyword('')
+            setKeyword('')
           }}
           type="reset"
           variant="ghost"

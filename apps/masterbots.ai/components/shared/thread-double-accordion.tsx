@@ -12,7 +12,6 @@ import {
   AccordionTrigger
 } from '@/components/ui/accordion'
 import { useSetState } from 'react-use'
-import { useEffect } from 'react'
 
 export function ThreadDoubleAccordion({
   thread,

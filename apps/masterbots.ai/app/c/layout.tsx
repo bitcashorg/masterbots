@@ -1,6 +1,5 @@
 import { ResponsiveSidebar } from '@/components/routes/c/sidebar/sidebar-responsive'
 import FooterCT from '@/components/layout/footer-ct'
-import { BrowseProvider } from '@/hooks/use-browse'
 
 interface ChatLayoutProps {
   children: React.ReactNode
@@ -8,16 +7,14 @@ interface ChatLayoutProps {
 
 export default async function ChatLayout({ children }: ChatLayoutProps) {
   return (
-    <BrowseProvider>
-      <main className="relative flex flex-row h-[calc(100vh_-_theme(spacing.16))] overflow-hidden">
-        <ResponsiveSidebar />
-        <div className="mx-5 flex grow w-full">
-          {children}
-          <div className="block lg:hidden">
-            <FooterCT />
-          </div>
+    <main className="relative flex flex-row h-[calc(100vh_-_theme(spacing.16))] overflow-hidden">
+      <ResponsiveSidebar />
+      <div className="mx-5 flex grow w-full">
+        {children}
+        <div className="block lg:hidden">
+          <FooterCT />
         </div>
-      </main>
-    </BrowseProvider>
+      </div>
+    </main>
   )
 }
