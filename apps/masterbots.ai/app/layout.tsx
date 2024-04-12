@@ -12,8 +12,8 @@ import { GlobalStoreProvider } from '@/hooks/use-global-store'
 import { getChatbots } from '@/services/hasura'
 
 async function getCookieData(): Promise<{ hasuraJwt; userProfile }> {
-  const hasuraJwt = cookies().get('hasuraJwt').value || ''
-  const userProfile = cookies().get('userProfile').value || null
+  const hasuraJwt = cookies().get('hasuraJwt')?.value || ''
+  const userProfile = cookies().get('userProfile')?.value || null
   return new Promise(resolve =>
     setTimeout(() => {
       resolve({ hasuraJwt, userProfile })

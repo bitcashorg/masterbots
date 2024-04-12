@@ -22,12 +22,12 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     <div className="container">
       <CategoryTabs categories={categories} />
       <SearchInput />
-      <div>Your query: {query}</div>
+      {/* <div>Your query: {query}</div>
       <ul>
         {threads.map(t => (
-          <li key={t.threadId}>{t.messages[0].content}</li>
+          <li key={t.threadId}>{t.messages[0]?.content || 'not found'}</li>
         ))}
-      </ul>
+      </ul> */}
 
       {threads.length ? (
         <ThreadList

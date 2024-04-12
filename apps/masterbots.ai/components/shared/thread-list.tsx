@@ -2,12 +2,12 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import type { Thread } from '@repo/mb-genql'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import { uniq, flatten } from 'lodash'
 import { GetBrowseThreadsParams } from '@/services/hasura/hasura.service.type'
 import { getBrowseThreads } from '@/services/hasura'
-import { useGlobalStore } from '@/hooks/use-global-store'
+// import { useGlobalStore } from '@/hooks/use-global-store'
 import { ThreadDialog } from './thread-dialog'
 import { ThreadDoubleAccordion } from './thread-double-accordion'
 
@@ -18,8 +18,8 @@ export function ThreadList({
   currentThread,
   dialog = false
 }: ThreadListProps) {
-  const globalStore = useGlobalStore()
-  const queryKey = [usePathname(), globalStore.query]
+  // const globalStore = useGlobalStore()
+  const queryKey = [usePathname(), 'globalStore.query']
   const loadMoreRef = useRef<HTMLDivElement>(null)
   const queryClient = useQueryClient()
   const [showSkeleton, setShowSkeleton] = useState(false)
@@ -96,7 +96,7 @@ export function ThreadList({
         threads.map((thread: Thread) => (
           <ThreadComponent
             chat={chat}
-            defaultOpen={thread.threadId === currentThread.threadId}
+            defaultOpen={thread.threadId === currentThread?.threadId}
             key={thread.threadId}
             thread={thread}
           />

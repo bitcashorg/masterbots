@@ -17,11 +17,11 @@ export async function Header() {
     data: { user }
   } = await supabase.auth.getUser()
 
-  const jwt = cookies().get('hasuraJwt').value || ''
+  const jwt = cookies().get('hasuraJwt')?.value || ''
 
   return (
     <header className="sticky top-0 z-50 w-full border-b shrink-0 bg-gradient-to-b from-background/10 via-background/50 to-background/80 backdrop-blur-xl">
-      <div className="flex items-center justify-between px-4 h-16">
+      <div className="flex items-center justify-between h-16 px-4">
         <div className="flex items-center ">
           <SidebarToggle />
           <HeaderLink href="/" text="Masterbots" />
