@@ -87,7 +87,7 @@ export function ThreadList({
         setShowSkeleton(false)
       })
     })
-  }, [queryKey, setLastQueryKey, lastQueryKey, setShowSkeleton])
+  }, [ga, setLastQueryKey, lastQueryKey, setShowSkeleton])
 
   return (
     <div className="flex flex-col w-full gap-8 py-5" key={queryKey[0]}>
