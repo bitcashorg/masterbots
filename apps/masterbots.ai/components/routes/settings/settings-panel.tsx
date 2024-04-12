@@ -1,6 +1,5 @@
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-
 import { Card } from '@/components/ui/card'
 
 export function SettingsPanel() {
@@ -43,9 +42,7 @@ interface FormField {
 }
 
 // Define a type for form data
-interface FormData {
-  [key: string]: FormField
-}
+type FormData = Record<string, FormField>;
 
 // Sample form data
 const formData: FormData = {

@@ -1,5 +1,8 @@
 'use client'
 
+import { useEffect, useState } from 'react'
+import { useSetState } from 'react-use'
+import { redirect } from 'next/navigation'
 import {
   CommandInput,
   CommandList,
@@ -9,12 +12,9 @@ import {
   CommandGroup,
   CommandSeparator
 } from '@/components/ui/command'
-import { useEffect, useState } from 'react'
 import { useNewThread } from '@/hooks/use-new-thread'
 import { useChatbot } from '@/hooks/use-chatbot'
-import { useSetState } from 'react-use'
 import { PromptForm } from '../routes/c/prompt-form'
-import { redirect } from 'next/navigation'
 
 export function MbCmdK() {
   const [open, setOpen] = useState(false)
@@ -36,7 +36,7 @@ export function MbCmdK() {
       }
     }
     document.addEventListener('keydown', down)
-    return () => document.removeEventListener('keydown', down)
+    return () => { document.removeEventListener('keydown', down); }
   })
 
   useEffect(() => {
@@ -47,13 +47,13 @@ export function MbCmdK() {
       }
     }
     document.addEventListener('keydown', down)
-    return () => document.removeEventListener('keydown', down)
+    return () => { document.removeEventListener('keydown', down); }
   })
 
   return (
-    <CommandDialog open={open} onOpenChange={setOpen}>
+    <CommandDialog onOpenChange={setOpen} open={open}>
       <div
-        className={`px-4 py-2 space-y-4 border-t shadow-lg bg-background sm:border md:py-4 dark:border-mirage border-iron`}
+        className="px-4 py-2 space-y-4 border-t shadow-lg bg-background sm:border md:py-4 dark:border-mirage border-iron"
       >
         {/* <CommandInput
           placeholder="Type a command or search..."
@@ -70,7 +70,7 @@ export function MbCmdK() {
               role: 'user'
             })
           }}
-          placeholder={'Chat with techbot'}
+          placeholder="Chat with techbot"
           setInput={setInput}
         />
 

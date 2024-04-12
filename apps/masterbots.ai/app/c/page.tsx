@@ -10,7 +10,7 @@ export default async function IndexPage() {
   const {
     data: { user }
   } = await supabase.auth.getUser()
-  if (!user || !user.email) redirect(`/auth/sign-in`)
+  if (!user.email) redirect(`/auth/sign-in`)
 
   const dbUserProfile = await getUser({
     email: user.email,
@@ -30,12 +30,10 @@ export default async function IndexPage() {
   })
 
   return (
-    <>
-      <ThreadList
-        initialThreads={threads}
+    <ThreadList
+        chat
         filter={{ slug: dbUserProfile.slug }}
-        chat={true}
+        initialThreads={threads}
       />
-    </>
   )
 }

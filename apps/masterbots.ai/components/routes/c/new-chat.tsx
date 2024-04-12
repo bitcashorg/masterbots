@@ -2,8 +2,8 @@
 
 import type { Message } from 'ai/react'
 import type { Chatbot } from '@repo/mb-genql'
-import { ChatInputNew } from './chat-input-new'
 import { useNewThread } from '@/hooks/use-new-thread'
+import { ChatInputNew } from './chat-input-new'
 
 export function NewChatInput({
   id,
@@ -18,6 +18,7 @@ export function NewChatInput({
     <ChatInputNew
       append={startNewThread}
       chatbot={chatbot}
+      dialog={dialog}
       id={id}
       input={input}
       isLoading={false}
@@ -27,7 +28,6 @@ export function NewChatInput({
       setInput={setInput}
       showReload={false}
       stop={stop}
-      dialog={dialog}
     />
   )
 }

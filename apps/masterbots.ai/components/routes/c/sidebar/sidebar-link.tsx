@@ -4,7 +4,7 @@ import type { Category, Chatbot, ChatbotCategory } from '@repo/mb-genql'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import React from 'react'
+import React, { useState } from 'react'
 import { getChatbots } from '@/services/hasura'
 import { cn } from '@/lib/utils'
 import { useSidebar } from '@/hooks/use-sidebar'
@@ -28,19 +28,19 @@ export default function SidebarLink({ category }: { category: Category }) {
   const { activeCategory, setActiveCategory, activeChatbot, setActiveChatbot } =
     useSidebar()
 
-  const [loading, setLoading] = React.useState<boolean>(false)
-  const [chatbots, setChatbots] = React.useState<Chatbot[]>(
+  const [loading, setLoading] = useState<boolean>(false)
+  const [chatbots, setChatbots] = useState<Chatbot[]>(
     convertChatbotCategory(category.chatbots)
   )
-  const [count, setCount] = React.useState<number>(category.chatbots.length)
+  const [count, setCount] = useState<number>(category.chatbots.length)
   const [isChatbotOfThisCategory, setIsChatbotOfThisCategory] =
-    React.useState<boolean>(false)
+    useState<boolean>(false)
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (
       category.chatbots.length &&
       category.chatbots.filter(
-        c => c.chatbot.name.toLowerCase().trim() === chatbot?.trim()
+        c => c.chatbot.name.toLowerCase().trim() === chatbot.trim()
       ).length
     ) {
       setActiveChatbot(
@@ -61,7 +61,7 @@ export default function SidebarLink({ category }: { category: Category }) {
     setActiveChatbot
   ])
 
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
       setActiveChatbot(null)
       setActiveCategory(null)
@@ -90,7 +90,7 @@ export default function SidebarLink({ category }: { category: Category }) {
     setLoading(false)
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     const isBotOfThisCategory =
       activeChatbot &&
       category.chatbots.length &&
@@ -151,7 +151,7 @@ export default function SidebarLink({ category }: { category: Category }) {
           />
         </Link>
         {isChatbotOfThisCategory && activeChatbot ? (
-          <div className="flex items-center pl-2 py-3">
+          <div className="flex items-center py-3 pl-2">
             <Image
               alt={category.name}
               className="object-cover rounded-full"
@@ -174,8 +174,7 @@ export default function SidebarLink({ category }: { category: Category }) {
               ? ''
               : '0px'
         }}
-        className="overflow-hidden
-          ml-5 flex-col border-l-DEFAULT dark:border-mirage border-gray-300"
+        className="flex-col ml-5 overflow-hidden border-gray-300 border-l-DEFAULT dark:border-mirage"
         initial={{ height: 0 }}
       >
         {chatbots.map((chatbot, key) => (
@@ -188,7 +187,7 @@ export default function SidebarLink({ category }: { category: Category }) {
             chatbot={chatbot}
             hasMore={count === PAGE_SIZE}
             isLast={key === chatbots.length - 1}
-            key={chatbot?.chatbotId}
+            key={chatbot.chatbotId}
             loadMore={loadMore}
             loading={loading}
           />
@@ -213,9 +212,9 @@ function ChatbotComponent({
   hasMore: boolean
   activeChatbot: Chatbot | null
 }) {
-  const chatbotRef = React.useRef<HTMLAnchorElement>(null)
+  const chatbotRef = useRef<HTMLAnchorElement>(null)
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!chatbotRef.current) return
     const observer = new IntersectionObserver(([entry]) => {
       if (hasMore && isLast && entry.isIntersecting && !loading) {
@@ -240,7 +239,7 @@ function ChatbotComponent({
     <Link
       className={cn(
         'flex items-center px-[20px] py-[12px] dark:hover:bg-mirage hover:bg-gray-300',
-        chatbot?.chatbotId === activeChatbot?.chatbotId &&
+        chatbot.chatbotId === activeChatbot.chatbotId &&
           'dark:bg-slate-800 dark-slate-400'
       )}
       href={`/c/${chatbot.name.toLowerCase()}`}

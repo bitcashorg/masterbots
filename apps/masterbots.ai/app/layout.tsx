@@ -4,16 +4,16 @@ import { Toaster } from 'react-hot-toast'
 
 import '@/app/globals.css'
 import { cookies } from 'next/headers'
+import dynamic from 'next/dynamic'
 import { Header } from '@/components/layout/header'
 import { Providers } from '@/components/layout/providers'
 import { cn } from '@/lib/utils'
 import { GlobalStoreProvider } from '@/hooks/use-global-store'
-import dynamic from 'next/dynamic'
 import { getChatbots } from '@/services/hasura'
 
 async function getCookieData(): Promise<{ hasuraJwt; userProfile }> {
-  const hasuraJwt = cookies().get('hasuraJwt')?.value || ''
-  const userProfile = cookies().get('userProfile')?.value || null
+  const hasuraJwt = cookies().get('hasuraJwt').value || ''
+  const userProfile = cookies().get('userProfile').value || null
   return new Promise(resolve =>
     setTimeout(() => {
       resolve({ hasuraJwt, userProfile })
@@ -38,9 +38,9 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       >
         <Toaster />
         <GlobalStoreProvider
+          chatbots={chatbots}
           hasuraJwt={hasuraJwt}
           user={(userProfile && JSON.parse(userProfile)) || null}
-          chatbots={chatbots}
         >
           <Providers
             attribute="class"

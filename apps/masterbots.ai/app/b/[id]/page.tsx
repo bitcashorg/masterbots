@@ -30,15 +30,15 @@ export default async function BotThreadsPage({
       <CategoryTabs categories={categories} />
       <SearchInput />
       <AccountDetails
-        href={`/b/${chatbot.name.toLowerCase()}`}
         alt={chatbot.name}
-        chatbotName={chatbot.name}
         avatar={chatbot.avatar}
+        chatbotName={chatbot.name}
         description={chatbot.description}
+        href={`/b/${chatbot.name.toLowerCase()}`}
         threadNum={threads.length}
       />
       <div className="container">
-        <ThreadList initialThreads={threads} filter={{ chatbotName }} />
+        <ThreadList filter={{ chatbotName }} initialThreads={threads} />
       </div>
     </div>
   )

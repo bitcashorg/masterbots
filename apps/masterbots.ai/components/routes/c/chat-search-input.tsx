@@ -3,7 +3,7 @@
 import { debounce } from 'lodash'
 import type { Thread } from '@repo/mb-genql'
 import { useParams } from 'next/navigation'
-import React from 'react'
+import React, { useState } from 'react'
 import FooterCT from '@/components/layout/footer-ct'
 import { Button } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
@@ -18,10 +18,8 @@ export function ChatSearchInput({
 }) {
   const { chatbot } = useParams()
   const { activeCategory } = useSidebar()
-  const [queryPlaceholder, setSearchPlaceholder] = React.useState<
-    string | null
-  >(null)
-  const [query, setKeyword] = React.useState<string>('')
+  const [queryPlaceholder, setSearchPlaceholder] = useState<string | null>(null)
+  const [query, setKeyword] = useState<string>('')
   const previousThread = React.useRef<Thread[]>([])
   const previousCategory = React.useRef<number | null>(null)
 

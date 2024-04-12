@@ -16,17 +16,25 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     offset: (page - 1) * limit,
     query
   })
+  console.log('Server query', query)
+
   return (
     <div className="container">
       <CategoryTabs categories={categories} />
       <SearchInput />
+      <div>Your query: {query}</div>
+      <ul>
+        {threads.map(t => (
+          <li key={t.threadId}>{t.messages[0].content}</li>
+        ))}
+      </ul>
 
-      {threads?.length ? (
+      {threads.length ? (
         <ThreadList
-          initialThreads={threads}
           filter={{
             query
           }}
+          initialThreads={threads}
         />
       ) : (
         <Card>no results</Card>

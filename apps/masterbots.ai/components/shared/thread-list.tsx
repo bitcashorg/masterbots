@@ -2,13 +2,14 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import type { Thread } from '@repo/mb-genql'
-import { getBrowseThreads } from '@/services/hasura'
-import { ThreadDoubleAccordion } from './thread-double-accordion'
-import { ThreadDialog } from './thread-dialog'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { GetBrowseThreadsParams } from '@/services/hasura/hasura.service.type'
-import { useInfiniteQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import { uniq, flatten } from 'lodash'
+import { GetBrowseThreadsParams } from '@/services/hasura/hasura.service.type'
+import { getBrowseThreads } from '@/services/hasura'
+import { useGlobalStore } from '@/hooks/use-global-store'
+import { ThreadDialog } from './thread-dialog'
+import { ThreadDoubleAccordion } from './thread-double-accordion'
 
 export function ThreadList({
   initialThreads,
@@ -17,9 +18,12 @@ export function ThreadList({
   currentThread,
   dialog = false
 }: ThreadListProps) {
-  const params = useSearchParams()
-  const queryKey = [usePathname(), params.get('query')]
+  const globalStore = useGlobalStore()
+  const queryKey = [usePathname(), globalStore.query]
   const loadMoreRef = useRef<HTMLDivElement>(null)
+  const queryClient = useQueryClient()
+  const [showSkeleton, setShowSkeleton] = useState(false)
+  const [lastQueryKey, setLastQueryKey] = useState(queryKey)
 
   const { isFetchingNextPage, fetchNextPage, data } = useInfiniteQuery({
     queryKey,
@@ -56,23 +60,47 @@ export function ThreadList({
       // always unsubscribe on component unmount
       observer.disconnect()
     }
-  }, [isFetchingNextPage])
+  }, [isFetchingNextPage, fetchNextPage])
 
   // ThreadDialog and ThreadDoubleAccordion can be used interchangeably
   const ThreadComponent = dialog ? ThreadDialog : ThreadDoubleAccordion
 
   const threads = uniq(flatten(data.pages))
 
+  useEffect(() => {
+    const queryKeyString = JSON.stringify(queryKey)
+    const lastQueryKeyString = JSON.stringify(lastQueryKey)
+    console.log(
+      queryKeyString === lastQueryKeyString,
+      queryKeyString,
+      lastQueryKeyString
+    )
+    if (queryKeyString === lastQueryKeyString) return
+    console.log('queryKey changed, resetting query client ...')
+    // Invalidate and refetch the query to reset state
+    // we need this cos nextjs wont hydrate this client component, only src
+    setShowSkeleton(true)
+    setLastQueryKey(queryKey)
+
+    queryClient.invalidateQueries({ queryKey }).then(() => {
+      queryClient.refetchQueries({ queryKey }).then(() => {
+        setShowSkeleton(false)
+      })
+    })
+  }, [queryKey, setLastQueryKey, lastQueryKey, setShowSkeleton])
+
   return (
-    <div className="flex flex-col w-full gap-8 py-5">
-      {threads.map((thread: Thread) => (
-        <ThreadComponent
-          key={thread.threadId}
-          thread={thread}
-          chat={chat}
-          defaultOpen={thread.threadId === currentThread?.threadId}
-        />
-      ))}
+    <div className="flex flex-col w-full gap-8 py-5" key={queryKey[0]}>
+      {showSkeleton ? ' Loading ...' : ''}
+      {!showSkeleton &&
+        threads.map((thread: Thread) => (
+          <ThreadComponent
+            chat={chat}
+            defaultOpen={thread.threadId === currentThread.threadId}
+            key={thread.threadId}
+            thread={thread}
+          />
+        ))}
       <div ref={loadMoreRef}>
         {isFetchingNextPage ? 'loading more results ...' : ''}
       </div>
@@ -80,7 +108,7 @@ export function ThreadList({
   )
 }
 
-type ThreadListProps = {
+interface ThreadListProps {
   currentThread?: Thread
   initialThreads: Thread[]
   chat?: boolean

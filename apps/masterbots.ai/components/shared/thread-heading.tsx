@@ -1,7 +1,7 @@
 import { Thread } from '@repo/mb-genql'
+import { cn } from '@/lib/utils'
 import { ShortMessage } from './thread-short-message'
 import { AccountAvatar } from './account-avatar'
-import { cn } from '@/lib/utils'
 import Shortlink from './copy-shortlink'
 
 export function ThreadHeading({
@@ -21,8 +21,8 @@ export function ThreadHeading({
         <div className="flex grow gap-3">
           <AccountAvatar
             alt={thread.chatbot.name}
-            src={thread.chatbot.avatar}
             href={`/${chat ? 'c' : 'b'}/${thread.chatbot.name.toLowerCase()}`}
+            src={thread.chatbot.avatar}
           />
 
           <div
@@ -36,8 +36,8 @@ export function ThreadHeading({
                 <span className="opacity-50 text-[0.875rem]">by</span>
                 <AccountAvatar
                   alt={thread.user.username.replace('_', ' ')}
-                  src={thread.user.profilePicture || ''}
                   href={`/u/${thread.user.slug}`}
+                  src={thread.user.profilePicture || ''}
                 />
               </>
             )}

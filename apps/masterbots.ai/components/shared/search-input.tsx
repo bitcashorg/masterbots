@@ -1,51 +1,45 @@
 'use client'
 
-import { useEffect, useState, useTransition } from 'react'
-
-import { Button } from '@/components/ui/button'
+import { useState, useTransition } from 'react'
+import { usePathname , useRouter } from 'next/navigation'
 import { IconClose } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
-import { usePathname } from 'next/navigation'
-import { useRouter } from 'next/navigation'
-import { encodeQuery, decodeQuery } from '@/lib/url'
-import { useSearchParam } from 'react-use'
+import { encodeQuery } from '@/lib/url'
+import { useGlobalStore } from '@/hooks/use-global-store'
 
 export function SearchInput() {
   const router = useRouter()
   const pathname = usePathname()
-  const urlQuery = useSearchParam('query')
-  const [query, setSearchQuery] = useState(urlQuery)
-  const [isPending, startTransition] = useTransition()
+  const { setGlobalQuery, ...global } = useGlobalStore()
+  const [query, setQuery] = useState(global.query)
+  const [_isPending, startTransition] = useTransition()
 
   const replaceUrl = () => {
     const searchParams = new URLSearchParams(window.location.search)
     if (query) {
-      searchParams.set('query', query)
+      searchParams.set('query', encodeQuery(query))
     } else {
       console.log('delete')
       searchParams.delete('query')
     }
     searchParams.delete('page')
 
-    startTransition(() => {
-      console.log(`start transition to ${pathname}?${searchParams.toString()}`)
-      router.replace(`${pathname}?${searchParams.toString()}`)
-    })
+    // startTransition(() => {
+    //   console.log(`start transition to ${pathname}?${searchParams.toString()}`)
+    //   router.push(`${pathname}?${searchParams.toString()}`)
+    // })
   }
 
   const handleSubmit = e => {
     e.preventDefault()
+    setGlobalQuery(encodeQuery(query))
     replaceUrl()
   }
 
   const clearQuery = () => {
-    setSearchQuery('')
+    setQuery('')
+    setGlobalQuery('')
   }
-
-  // useEffect(() => {
-  //   const decodedQuery = decodeQuery(urlQuery || '')
-  //   if (decodedQuery !== query) setSearchQuery(decodedQuery)
-  // }, [urlQuery])
 
   return (
     <form
@@ -64,11 +58,11 @@ export function SearchInput() {
         <div className="w-full bg-black gradient-input">
           <Input
             className="bg-black border "
-            type="text"
             onChange={e => {
-              setSearchQuery(e.target.value)
+              setQuery(e.target.value)
             }}
             placeholder="Search answers on all categories"
+            type="text"
             value={query || ''}
           />
           {/* <span></span> */}
