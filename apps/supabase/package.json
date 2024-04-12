@@ -1,5 +1,5 @@
 {
-  "name": "@repo/mb-supa",
+  "name": "@repo/supabase",
   "version": "0.0.1",
   "private": true,
   "description": "supabase module for masterbots",

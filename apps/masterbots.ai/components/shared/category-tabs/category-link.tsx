@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import type { Category } from '@repo/mb-genql'
 import Link from 'next/link'
-import { toSlug } from '@repo/mb-lib'
+import { toSlug } from '@/lib/url'
 
 export function CategoryLink({
   category,

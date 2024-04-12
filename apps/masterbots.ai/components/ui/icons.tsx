@@ -382,7 +382,6 @@ function IconDownload({ className, ...props }: React.ComponentProps<'svg'>) {
 function IconClose({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
-      className={cn('h-4 w-4', className)}
       fill="currentColor"
       viewBox="0 0 256 256"
       xmlns="http://www.w3.org/2000/svg"

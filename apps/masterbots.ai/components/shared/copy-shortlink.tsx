@@ -1,7 +1,7 @@
 'use client'
 
-import { shorten } from '@/app/actions'
 import { CopyIcon } from 'lucide-react'
+import { shorten } from '@/app/actions'
 
 export default function Shortlink() {
   const url = window.location.href.replace(
@@ -18,11 +18,11 @@ export default function Shortlink() {
     const { shortLink } = await shorten({}, formData)
     navigator.clipboard
       .writeText(shortLink)
-      .then(() => console.log('Shortlink copied to clipboard'))
+      .then(() => { console.log('Shortlink copied to clipboard'); })
       .catch(error =>
-        console.error('Error copying shortlink to clipboard: ', error)
+        { console.error('Error copying shortlink to clipboard: ', error); }
       )
   }
 
-  return <CopyIcon size={15} onClick={handleIconClick} className="pointer" />
+  return <CopyIcon className="pointer" onClick={handleIconClick} size={15} />
 }

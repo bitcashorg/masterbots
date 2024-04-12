@@ -1,6 +1,7 @@
 'use client'
 
 import { Chatbot } from '@repo/mb-genql'
+import { useSearchParams } from 'next/navigation'
 import React, { ReactNode, createContext, useContext } from 'react'
 import { useSetState } from 'react-use'
 
@@ -9,8 +10,10 @@ const GlobalStoreContext = createContext<GlobalStoreContextValue>({
   errorMessage: '',
   hasuraJwt: '',
   user: null,
+  chatbots: [],
+  query: '',
   setGlobalError: (errorMessage: string) => {},
-  chatbots: []
+  setGlobalQuery: (query: string) => {}
 })
 
 // Custom hook to consume the context
@@ -23,17 +26,22 @@ export function GlobalStoreProvider({
   user,
   chatbots = []
 }: GlobalStoreProviderProps) {
+  const searchParams = useSearchParams()
   const [state, setState] = useSetState({
     errorMessage: '',
     hasuraJwt,
     user,
+    query: searchParams.get('query'),
     chatbots: chatbots
   })
 
   const setGlobalError = (errorMessage: string) => setState({ errorMessage })
+  const setGlobalQuery = (query: string) => setState({ query })
 
   return (
-    <GlobalStoreContext.Provider value={{ ...state, setGlobalError }}>
+    <GlobalStoreContext.Provider
+      value={{ ...state, setGlobalError, setGlobalQuery }}
+    >
       {children}
     </GlobalStoreContext.Provider>
   )
@@ -52,7 +60,9 @@ type GlobalStoreContextValue = {
   hasuraJwt: string
   user: UserProfile | null
   setGlobalError: (errorMessage: string) => void
+  setGlobalQuery: (query: string) => void
   chatbots: Chatbot[]
+  query: string
 }
 
 export type UserProfile = {

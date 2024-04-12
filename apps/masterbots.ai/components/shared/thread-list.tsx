@@ -2,14 +2,14 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import type { Thread } from '@repo/mb-genql'
-import { getBrowseThreads } from '@/services/hasura'
-import { ThreadDoubleAccordion } from './thread-double-accordion'
-import { ThreadDialog } from './thread-dialog'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { usePathname } from 'next/navigation'
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
+import { uniq, flatten } from 'lodash'
 import { GetBrowseThreadsParams } from '@/services/hasura/hasura.service.type'
-import { useQuery } from '@tanstack/react-query'
-import { uniq } from 'lodash'
-import { useAsyncFn } from 'react-use'
+import { getBrowseThreads } from '@/services/hasura'
+// import { useGlobalStore } from '@/hooks/use-global-store'
+import { ThreadDialog } from './thread-dialog'
+import { ThreadDoubleAccordion } from './thread-double-accordion'
 
 export function ThreadList({
   initialThreads,
@@ -18,42 +18,37 @@ export function ThreadList({
   currentThread,
   dialog = false
 }: ThreadListProps) {
-  const params = useSearchParams()
-  const [threads, setThreads] = useState(initialThreads)
-
+  // const globalStore = useGlobalStore()
+  const queryKey = [usePathname(), 'globalStore.query']
   const loadMoreRef = useRef<HTMLDivElement>(null)
-  const [moreThreads, fetchMoreThreads] = useAsyncFn(() => {
-    const searchFilter = {
-      ...filter,
-      offset: threads.length,
-      limit: 5
-    }
-    console.log(
-      `🛜 Loading More Content for ${JSON.stringify(searchFilter)}, current thread count ${threads.length}`
-    )
-    return getBrowseThreads(searchFilter)
-  }, [filter, threads])
+  const queryClient = useQueryClient()
+  const [showSkeleton, setShowSkeleton] = useState(false)
+  const [lastQueryKey, setLastQueryKey] = useState(queryKey)
 
-  // add more threads as they come in
-  useEffect(() => {
-    console.log('we got more threads', moreThreads.value?.length)
-    moreThreads.value?.length &&
-      setThreads(prev =>
-        uniq(prev.concat(moreThreads.value)).filter(v => v != undefined)
-      )
-  }, [moreThreads])
+  const { isFetchingNextPage, fetchNextPage, data } = useInfiniteQuery({
+    queryKey,
+    queryFn: async props => {
+      return getBrowseThreads({
+        ...filter,
+        offset: props.pageParam * 20,
+        limit: 20
+      })
+    },
+    initialData: { pages: [initialThreads], pageParams: [1] },
+    initialPageParam: 2,
+    getNextPageParam: (_a, _b, lastPageParam) => {
+      return lastPageParam + 1
+    },
+    enabled: false
+  })
 
   // load mare item when it gets to the end
   useEffect(() => {
     if (!loadMoreRef.current) return
     const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && !moreThreads.loading) {
-        console.log(' intersection !')
-        // NOTE: I think this is not required
-
+      if (entry.isIntersecting && !isFetchingNextPage) {
         setTimeout(() => {
-          console.log('go fetch more')
-          fetchMoreThreads()
+          fetchNextPage()
         }, 150)
         observer.unobserve(entry.target)
       }
@@ -65,43 +60,55 @@ export function ThreadList({
       // always unsubscribe on component unmount
       observer.disconnect()
     }
-  }, [moreThreads.loading])
-
-  // update threads if server props are updated
-  useEffect(() => {
-    console.log('initial threads changed', initialThreads)
-    setThreads(initialThreads)
-  }, [initialThreads])
+  }, [isFetchingNextPage, fetchNextPage])
 
   // ThreadDialog and ThreadDoubleAccordion can be used interchangeably
   const ThreadComponent = dialog ? ThreadDialog : ThreadDoubleAccordion
 
-  // useQuery format. we want to use useInfiniteScroll
-  const queryKey = [
-    usePathname() + params.get('query') + JSON.stringify(filter)
-  ]
+  const threads = uniq(flatten(data.pages))
+
+  useEffect(() => {
+    const queryKeyString = JSON.stringify(queryKey)
+    const lastQueryKeyString = JSON.stringify(lastQueryKey)
+    console.log(
+      queryKeyString === lastQueryKeyString,
+      queryKeyString,
+      lastQueryKeyString
+    )
+    if (queryKeyString === lastQueryKeyString) return
+    console.log('queryKey changed, resetting query client ...')
+    // Invalidate and refetch the query to reset state
+    // we need this cos nextjs wont hydrate this client component, only src
+    setShowSkeleton(true)
+    setLastQueryKey(queryKey)
+
+    queryClient.invalidateQueries({ queryKey }).then(() => {
+      queryClient.refetchQueries({ queryKey }).then(() => {
+        setShowSkeleton(false)
+      })
+    })
+  }, [queryKey, setLastQueryKey, lastQueryKey, setShowSkeleton])
 
   return (
-    <div
-      // use url queryKey as key for component to force rerender
-      // I'm debuggin ssr results hydration issues
-      key={queryKey[0]}
-      className="flex flex-col w-full gap-8 py-5"
-    >
-      {threads.map((thread: Thread) => (
-        <ThreadComponent
-          key={thread.threadId}
-          thread={thread}
-          chat={chat}
-          defaultOpen={thread.threadId === currentThread?.threadId}
-        />
-      ))}
-      <div ref={loadMoreRef} />
+    <div className="flex flex-col w-full gap-8 py-5" key={queryKey[0]}>
+      {showSkeleton ? ' Loading ...' : ''}
+      {!showSkeleton &&
+        threads.map((thread: Thread) => (
+          <ThreadComponent
+            chat={chat}
+            defaultOpen={thread.threadId === currentThread?.threadId}
+            key={thread.threadId}
+            thread={thread}
+          />
+        ))}
+      <div ref={loadMoreRef}>
+        {isFetchingNextPage ? 'loading more results ...' : ''}
+      </div>
     </div>
   )
 }
 
-type ThreadListProps = {
+interface ThreadListProps {
   currentThread?: Thread
   initialThreads: Thread[]
   chat?: boolean

@@ -1,6 +1,6 @@
 import Image from 'next/image'
-import { SignInButtons } from '@/components/layout/auth/sign-in-buttons'
 import { headers } from 'next/headers'
+import { SignInButtons } from '@/components/layout/auth/sign-in-buttons'
 
 export default async function SignInPage() {
   const headersList = headers()

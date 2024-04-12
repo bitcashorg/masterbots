@@ -148,3 +148,38 @@
 * {
   outline: none;
 }
+
+/* Reset */
+:root {
+  font-size: 16px;
+}
+
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+}
+
+* {
+  font: inherit;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* Input specific styles */
+.gradient-input {
+  position: relative; /* Set to relative for proper positioning of child elements */
+  background: linear-gradient(
+    21deg,
+    #10abff,
+    #1beabd
+  ); /* Gradient background */
+  padding: 2px; /* Padding around the input for border effect */
+  display: inline-block; /* Default display to inline for inline fields */
+  border-radius: 9999em; /* Circular border radius */
+
+  > input {
+    border-radius: inherit;
+  }
+}

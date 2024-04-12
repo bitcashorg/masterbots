@@ -1,13 +1,13 @@
+import { cookies } from 'next/headers'
+import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import AccountDetails from '@/components/shared/account-details'
 import { UserProfile } from '@/hooks/use-global-store'
 import { getBrowseThreads, getUserInfoFromBrowse } from '@/services/hasura'
 import { createSupabaseServerClient } from '@/services/supabase'
-import { cookies } from 'next/headers'
-import Link from 'next/link'
-import { redirect } from 'next/navigation'
 
 async function getCookieData(): Promise<{ userProfile: UserProfile }> {
-  const userProfile = cookies().get('userProfile')?.value || null
+  const userProfile = cookies().get('userProfile').value || null
   return new Promise(resolve =>
     setTimeout(() => {
       resolve({ userProfile: JSON.parse(userProfile) as UserProfile })
@@ -22,7 +22,7 @@ export default async function SettingsLayout({
   const {
     data: { user }
   } = await supabase.auth.getUser()
-  if (!user || !user.email) redirect(`/auth/sign-in`)
+  if (!user.email) redirect(`/auth/sign-in`)
   const { userProfile } = await getCookieData()
 
   const threads = await getBrowseThreads({

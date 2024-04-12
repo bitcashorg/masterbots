@@ -25,14 +25,14 @@ export default async function ChatListPage({
   const {
     data: { user }
   } = await supabase.auth.getUser()
-  if (!user || !user.email) redirect(`/auth/sign-in?next=/c/${params.chatbot}`)
+  if (!user.email) redirect(`/auth/sign-in?next=/c/${params.chatbot}`)
   const userProfile = await getUser({
     email: user.email,
     adminSecret: process.env.HASURA_GRAPHQL_ADMIN_SECRET || ''
   })
 
   if (!userProfile) redirect(`/auth/sign-in?next=/c/${params.chatbot}`)
-  const jwt = cookies().get('hasuraJwt')?.value || ''
+  const jwt = cookies().get('hasuraJwt').value || ''
 
   // NOTE: maybe we should use same expiration time
   if (!jwt || isTokenExpired(jwt))
@@ -85,16 +85,16 @@ export default async function ChatListPage({
     <>
       {/* <ChatSearchInput /> */}
       <ThreadList
-        initialThreads={threads}
-        filter={{ slug: userProfile.slug, chatbotName: chatbot.name }}
-        chat={true}
+        chat
         currentThread={currentThread}
-        dialog={true}
+        dialog
+        filter={{ slug: userProfile.slug, chatbotName: chatbot.name }}
+        initialThreads={threads}
       />
       <NewChatInput
         chatbot={chatbot}
-        initialMessages={initialMessages}
         id={crypto.randomUUID()}
+        initialMessages={initialMessages}
       />
     </>
   )

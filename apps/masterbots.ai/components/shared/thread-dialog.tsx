@@ -1,18 +1,18 @@
 'use client'
 
 import type { Thread } from '@repo/mb-genql'
+import { DialogProps } from '@radix-ui/react-dialog'
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogTrigger
 } from '@/components/ui/dialog'
+import { cn } from '@/lib/utils'
+import { convertMessage } from '@/lib/threads'
+import { NewChatInput } from '../routes/c/new-chat'
 import { ThreadAccordion } from './thread-accordion'
 import { ThreadHeading } from './thread-heading'
-import { cn } from '@/lib/utils'
-import { DialogProps } from '@radix-ui/react-dialog'
-import { NewChatInput } from '../routes/c/new-chat'
-import { convertMessage } from '@/lib/threads'
 
 export function ThreadDialog({
   thread,
@@ -20,18 +20,18 @@ export function ThreadDialog({
   defaultOpen = false
 }: ThreadDialogProps) {
   const firstQuestion =
-    thread.messages.find(m => m.role === 'user')?.content || 'not found'
+    thread.messages.find(m => m.role === 'user').content || 'not found'
   const firstResponse =
-    thread.messages.find(m => m.role === 'assistant')?.content || 'not found'
+    thread.messages.find(m => m.role === 'assistant').content || 'not found'
 
   return (
     <Dialog defaultOpen={defaultOpen}>
       <DialogTrigger className="px-5 pt-5 bg-mirage">
         <ThreadHeading
-          thread={thread}
+          chat={chat}
           question={firstQuestion}
           response={firstResponse}
-          chat={chat}
+          thread={thread}
         />
       </DialogTrigger>
 
@@ -40,14 +40,14 @@ export function ThreadDialog({
           'max-w-[1400px] w-[80%] h-[90%] hide-buttons overflow-auto'
         )}
       >
-        <ThreadAccordion thread={thread} clientFetch={true} chat={chat} />
+        <ThreadAccordion chat={chat} clientFetch thread={thread} />
         {chat ? (
           <DialogFooter>
             <NewChatInput
               chatbot={thread.chatbot}
-              initialMessages={thread.messages.map(convertMessage)}
+              dialog
               id={thread.threadId}
-              dialog={true}
+              initialMessages={thread.messages.map(convertMessage)}
             />
           </DialogFooter>
         ) : null}

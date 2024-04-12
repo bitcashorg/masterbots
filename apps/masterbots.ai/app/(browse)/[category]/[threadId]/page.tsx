@@ -1,5 +1,4 @@
 import { getCategories, getMessagePairs, getThread } from '@/services/hasura'
-
 import { ThreadAccordion } from '@/components/shared/thread-accordion'
 import { CategoryTabs } from '@/components/shared/category-tabs/category-tabs'
 import { SearchInput } from '@/components/shared/search-input'
@@ -16,8 +15,8 @@ export default async function ThreadPage({ params }: ThreadPageProps) {
       <CategoryTabs categories={categories} />
       <SearchInput />
       <ThreadAccordion
-        thread={thread}
         initialMessagePairs={initialMessagePairs}
+        thread={thread}
       />
     </div>
   )

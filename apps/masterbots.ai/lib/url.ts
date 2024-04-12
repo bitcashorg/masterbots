@@ -6,7 +6,7 @@ export const SlugSchema: ZodSchema<string> = z.string()
   .regex(/^[a-z0-9]+[a-z0-9+_-]*[a-z0-9]+$/, "Invalid slug format.")
 
 // Function to convert a username into a slug
-export const toSlug = (username: string, separator: string): string => {
+export const toSlug = (username: string, separator = "_"): string => {
   return username
     .toLowerCase()
     .replace(/&/g, 'n')
@@ -15,9 +15,10 @@ export const toSlug = (username: string, separator: string): string => {
 }
 
 // Function to simulate converting a slug back to a username
-export const fromSlug = (slug: string, separator: string): string => {
+export const fromSlug = (slug: string, separator = '_'): string => {
   return slug
     .replace(new RegExp(`[${separator}]+`, 'g'), ' ')
+    .replace(/_and_/g, ' & ')
     .replace(/_/g, '&')
 }
 

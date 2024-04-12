@@ -1,22 +1,20 @@
 'use client'
 
 import { useEffect } from 'react'
-
-import { getMessagePairs } from '@/services/hasura'
-
 import { useQuery } from '@tanstack/react-query'
+import { Thread } from '@repo/mb-genql'
+import { getMessagePairs } from '@/services/hasura'
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger
 } from '@/components/ui/accordion'
-
-import { Thread } from '@repo/mb-genql'
-import { ThreadHeading } from './thread-heading'
 import { MessagePair, convertMessage } from '@/lib/threads'
-import { BrowseChatMessage } from './thread-message'
 import { cn } from '@/lib/utils'
+import { toSlug } from '@/lib/url'
+import { ThreadHeading } from './thread-heading'
+import { BrowseChatMessage } from './thread-message'
 
 export function ThreadAccordion({
   thread,
@@ -35,19 +33,35 @@ export function ThreadAccordion({
     enabled: clientFetch
   })
 
+  // update url when dialog opens and closes
+  useEffect(() => {
+    const initialUrl = location.href
+    const dir =
+      `c/${ 
+      toSlug(
+        chat ? thread.chatbot.name : thread.chatbot.categories[0].category.name
+      )}`
+
+    const threadUrl = `/${dir}/${thread.threadId}`
+    console.log(`Updating URL to ${threadUrl}, initialUrl was ${initialUrl}`)
+
+    window.history.pushState({}, '', threadUrl)
+    return () => {
+      window.history.pushState({}, '', initialUrl)
+    }
+  })
 
   if (error) return <div>There was an error loading thread messages</div>
 
   // if no initial message and still loading show loading message
   // NOTE: its fast and transitions in. testing without this
-  if (!pairs?.length) return null
+  if (!pairs.length) return null
 
-  console.log(pairs.map((_p, key) => `pair-${key}`))
   return (
     <Accordion
-      type="multiple"
       className="w-full flex flex-col gap-3"
       defaultValue={['pair-0', 'pair-1', 'pair-2']}
+      type="multiple"
     >
       {pairs.map((p, key) => {
         return (

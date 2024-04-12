@@ -1,4 +1,3 @@
-export * from "./text";
 export * from "./error";
 export * from "./hasura";
 export * from "./jwt";
