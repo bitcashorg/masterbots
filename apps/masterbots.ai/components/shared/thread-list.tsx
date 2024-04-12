@@ -26,7 +26,7 @@ export function ThreadList({
     const searchFilter = {
       ...filter,
       offset: threads.length,
-      limit: 25
+      limit: 5
     }
     console.log(
       `🛜 Loading More Content for ${JSON.stringify(searchFilter)}, current thread count ${threads.length}`
@@ -36,9 +36,11 @@ export function ThreadList({
 
   // add more threads as they come in
   useEffect(() => {
-    setThreads(prev =>
-      uniq(prev.concat(moreThreads.value)).filter(v => v != undefined)
-    )
+    console.log('we got more threads', moreThreads.value?.length)
+    moreThreads.value?.length &&
+      setThreads(prev =>
+        uniq(prev.concat(moreThreads.value)).filter(v => v != undefined)
+      )
   }, [moreThreads])
 
   // load mare item when it gets to the end
@@ -65,20 +67,25 @@ export function ThreadList({
     }
   }, [moreThreads.loading])
 
+  // update threads if server props are updated
+  useEffect(() => {
+    console.log('initial threads changed', initialThreads)
+    setThreads(initialThreads)
+  }, [initialThreads])
+
   // ThreadDialog and ThreadDoubleAccordion can be used interchangeably
   const ThreadComponent = dialog ? ThreadDialog : ThreadDoubleAccordion
 
   // useQuery format. we want to use useInfiniteScroll
   const queryKey = [
-    usePathname() + params.get('query'),
-    { ...filter, offset: threads.length }
+    usePathname() + params.get('query') + JSON.stringify(filter)
   ]
 
   return (
     <div
       // use url queryKey as key for component to force rerender
       // I'm debuggin ssr results hydration issues
-      key={JSON.stringify(queryKey)}
+      key={queryKey[0]}
       className="flex flex-col w-full gap-8 py-5"
     >
       {threads.map((thread: Thread) => (

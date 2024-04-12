@@ -1,13 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { useRouter } from 'next/navigation'
-import { decodeQuery, encodeQuery } from '@/lib/url'
+import { encodeQuery, decodeQuery } from '@/lib/url'
 import { useSearchParam } from 'react-use'
 
 export function SearchInput() {
@@ -21,7 +21,16 @@ export function SearchInput() {
     router.refresh()
     router.push(`${pathname}?query=${encodeQuery(query)}`)
     router.refresh()
+    setTimeout(() => {
+      console.log('refreshing')
+      router.refresh()
+    }, 1500)
   }
+
+  useEffect(() => {
+    const decodedQuery = decodeQuery(urlQuery || '')
+    if (decodedQuery !== query) setSearchQuery(decodedQuery)
+  }, [urlQuery])
 
   return (
     <form

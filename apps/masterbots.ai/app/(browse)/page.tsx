@@ -12,7 +12,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     limit: 20,
     query
   })
-
+  console.log(query)
   return (
     <div className="container">
       <CategoryTabs categories={categories} />
