@@ -12,26 +12,73 @@ import {
   AccordionTrigger
 } from '@/components/ui/accordion'
 import { useSetState } from 'react-use'
+import { useEffect, useRef } from 'react'
+import { useThread } from '@/hooks/use-thread'
+let initialUrl = null
 
 export function ThreadDoubleAccordion({
   thread,
   chat = false
 }: ThreadDoubleAccordionProps) {
+  const {activeThread, setActiveThread} = useThread()
   const [state, setState] = useSetState({
     isOpen: false,
     firstQuestion:
       thread.messages.find(m => m.role === 'user')?.content || 'not found',
     firstResponse:
-      thread.messages.find(m => m.role === 'assistant')?.content || 'not found'
+      thread.messages.find(m => m.role === 'assistant')?.content || 'not found',
+      value: []
   })
+
+  useEffect(() => {
+    if (initialUrl) return
+    initialUrl = location.href
+  })
+
+  useEffect(() => {
+    if (activeThread === thread || !state.isOpen)  return
+    setState({isOpen: false, value: []})
+  }, [activeThread])
+
+  useEffect(() => {
+    if (activeThread !== thread || state.isOpen) return
+    setState({isOpen: true, value: [`pair-${thread.threadId}`]})
+  }, [])
+
+  const toggleAccordion = (v: string[]) => {
+    const isOpen = Boolean(v[0] === `pair-${thread.threadId}`)
+    setState({ isOpen, value: v })
+    if (isOpen) {
+      if (!activeThread) initialUrl = location.href
+      setActiveThread(thread)
+      const dir = chat
+        ? 'c/' +
+          thread.chatbot.name
+            .toLowerCase()
+            .replaceAll(' ', '_')
+            .replaceAll('&', 'n')
+        : thread.chatbot.categories[0].category.name
+            .toLowerCase()
+            .replaceAll(' ', '_')
+            .replaceAll('&', 'n')
+      const threadUrl = `/${dir}/${thread.threadId}`
+      console.log(`Updating URL to ${threadUrl}, initialUrl was ${initialUrl}`)
+  
+      window.history.pushState({}, '', threadUrl)
+    } else {
+      setActiveThread(null) 
+      window.history.pushState({}, '', initialUrl)
+    }
+  }
 
   return (
     <Accordion
       type="multiple"
       className="w-full"
-      onValueChange={v => setState({ isOpen: v[0] === 'pair-1' })}
+      value={state.value}
+      onValueChange={v => toggleAccordion(v)}
     >
-      <AccordionItem value="pair-1">
+      <AccordionItem value={`pair-${thread.threadId}`}>
         <AccordionTrigger
           className={cn('hover:bg-mirage px-5', state.isOpen && 'bg-mirage')}
         >
