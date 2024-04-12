@@ -50,8 +50,6 @@ export function MbCmdK() {
     return () => document.removeEventListener('keydown', down)
   })
 
-  console.log('debugging ...')
-
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
       <div

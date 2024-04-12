@@ -7,7 +7,9 @@ const config: Pick<Config, 'content' | 'presets'> = {
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}'
   ],
-  presets: [sharedConfig]
+  presets: [sharedConfig],
+
+
 }
 
 export default config

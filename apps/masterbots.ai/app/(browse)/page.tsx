@@ -8,11 +8,14 @@ import { decodeQuery } from '@/lib/url'
 export default async function HomePage({ searchParams }: HomePageProps) {
   const categories = await getCategories()
   const query = searchParams.query ? decodeQuery(searchParams.query) : null
+  const limit = searchParams.limit ? parseInt(searchParams.limit) : 20
+  const page = searchParams.page ? parseInt(searchParams.page) : 1
+
   const threads = await getBrowseThreads({
-    limit: 20,
+    limit,
+    offset: (page - 1) * limit,
     query
   })
-  console.log(query)
   return (
     <div className="container">
       <CategoryTabs categories={categories} />
@@ -33,5 +36,5 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 }
 
 interface HomePageProps {
-  searchParams?: { query: string }
+  searchParams?: { query: string; page: string; limit: string }
 }

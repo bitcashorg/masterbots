@@ -87,6 +87,9 @@ const config: Omit<Config, "content"> = {
         "fade-in": "fade-in 0.5s ease-out",
         "fade-out": "fade-out 0.5s ease-out",
       },
+      backgroundColor: {
+        'black-alpha': 'rgba(9, 9, 11, 0.5)' // Custom color with alpha
+      }
     },
   },
   plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
