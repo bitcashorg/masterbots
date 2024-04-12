@@ -5,23 +5,22 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
-import { usePathname } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
-import { encodeQuery } from '@/lib/url'
+import { decodeQuery, encodeQuery } from '@/lib/url'
+import { useSearchParam } from 'react-use'
 
 export function SearchInput() {
   const router = useRouter()
   const pathname = usePathname()
-  const [query, setSearchQuery] = useState('')
+  const urlQuery = useSearchParam('query')
+  const [query, setSearchQuery] = useState(urlQuery)
 
   const handleSubmit = e => {
     e.preventDefault()
     router.refresh()
     router.push(`${pathname}?query=${encodeQuery(query)}`)
     router.refresh()
-
-    // TODO: fix hydration. possible solution could dom key ref linked to search
-    //       search is happening, it hits the server, but hydration not occuring,
   }
 
   return (
