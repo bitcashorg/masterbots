@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -16,8 +17,16 @@ import { useGlobalStore } from '@/hooks/use-global-store'
 export function UserMenu() {
   const supabase = useSupabaseClient()
   const { user } = useGlobalStore()
+  const router = useRouter()
 
-  const signout = () => supabase.auth.signOut()
+  const signout = async () => {
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      console.error('ERROR:', error)
+    }
+    router.push('/')
+    router.refresh()
+  }
 
   return (
     <div className="flex items-center justify-between">
