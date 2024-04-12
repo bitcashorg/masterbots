@@ -25,6 +25,10 @@ export function SearchInput() {
       console.log('refreshing')
       router.refresh()
     }, 1500)
+    setTimeout(() => {
+      console.log('refreshing')
+      router.refresh()
+    }, 2500)
   }
 
   useEffect(() => {
