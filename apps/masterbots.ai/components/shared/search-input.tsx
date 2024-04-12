@@ -1,18 +1,16 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { usePathname , useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { IconClose } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
 import { encodeQuery } from '@/lib/url'
 import { useGlobalStore } from '@/hooks/use-global-store'
 
 export function SearchInput() {
-  const router = useRouter()
   const pathname = usePathname()
   const { setGlobalQuery, ...global } = useGlobalStore()
   const [query, setQuery] = useState(global.query)
-  const [_isPending, startTransition] = useTransition()
 
   const replaceUrl = () => {
     const searchParams = new URLSearchParams(window.location.search)
@@ -24,10 +22,9 @@ export function SearchInput() {
     }
     searchParams.delete('page')
 
-    // startTransition(() => {
-    //   console.log(`start transition to ${pathname}?${searchParams.toString()}`)
-    //   router.push(`${pathname}?${searchParams.toString()}`)
-    // })
+    history.pushState({}, undefined, `${pathname}?${searchParams.toString()}`)
+    // SSR wont work as Next is not updating the client component intial props on ThreadList
+    // ThreadList listes to changes on global store query state
   }
 
   const handleSubmit = e => {
