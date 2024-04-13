@@ -11,7 +11,7 @@ export const toSlug = (username: string, separator = "_"): string => {
     .toLowerCase()
     .replace(/&/g, '_')
     .replace(/ & /g, '_')
-    .replace(/[^a-z0-9_]/g, separator)
+    .replace(/[^a-z0-9_+-]/g, separator)
 }
 
 // Function to simulate converting a slug back to a username
