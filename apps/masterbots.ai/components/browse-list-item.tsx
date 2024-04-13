@@ -75,7 +75,7 @@ export default function BrowseListItem({
       window.history.pushState(
         {},
         '',
-        `/browse/${thread.chatbot.categories[0].category.name.replace(/\s+/g, '_').replace(/\&/g, 'n').toLowerCase()}/${thread.threadId}`
+        `/${thread.chatbot.categories[0].category.name.replace(/\s+/g, '_').replace(/\&/g, 'n').toLowerCase()}/${thread.threadId}`
       )
       setMessages(_prev => [])
       await fetchMessages()

@@ -17,8 +17,8 @@ export function BrowseCategoryButton({
     <Link
       href={
         category === 'all'
-          ? '/browse'
-          : `/browse/${category.name.toLowerCase().replace(/\s+/g, '_').replace(/\&/g, 'n')}`
+          ? '/'
+          : `/${category.name.toLowerCase().replace(/\s+/g, '_').replace(/\&/g, 'n')}`
       }
       shallow
       id={id}
