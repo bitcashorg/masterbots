@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Thread } from '@repo/mb-genql'
 import { getMessagePairs } from '@/services/hasura'
@@ -15,8 +15,9 @@ import { cn } from '@/lib/utils'
 import { toSlug } from '@/lib/url'
 import { ThreadHeading } from './thread-heading'
 import { BrowseChatMessage } from './thread-message'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { clone } from 'lodash'
+import { threadId } from 'worker_threads'
 
 export function ThreadAccordion({
   thread,
@@ -48,29 +49,23 @@ export function ThreadAccordion({
   // use cases: when using ThreadDialog and DoubleThreadAccordion
   // we want this logic here on central place
   useEffect(() => {
-    // clone pathname instead of ref to keep initialValue
-    const initialPathname = clone(pathname)
-    // base path changes based on chat prop
-    // if chat true redirects to /c/{thredId} for chatting experience
-    // else defaults to public url /{category}/{threadId}
-    console.log(toSlug(thread.chatbot.categories[0]?.category?.name))
-    const dir = chat
-      ? `/c/${toSlug(thread.chatbot.name)}`
-      : `/${toSlug(thread.chatbot.categories[0]?.category?.name)}`
-    const threadUrl = `${dir}/${thread.threadId}`
-    console.log({ threadUrl, initialPathname })
-    // not necessary to update if already the same a
-    // eg. in thread landing pages /{category}/{threadId}
-    if (threadUrl === initialPathname) return
-    console.log(
-      `Updating URL to ${threadUrl}, initialUrl was ${initialPathname}`
-    )
+    const url = new URL(window.location.href)
+    url.searchParams.set('threadId', thread.threadId)
+    window.history.pushState({}, '', url.href)
 
-    // window.history.pushState({}, '', threadUrl)
-    return () => {
-      // window.history.pushState({}, '', initialPathname)
+    // hack to delete threadId after initial render
+    // TODO: remove on next middleware
+    if (pathname.includes(thread.threadId)) {
+      url.searchParams.delete('threadId')
+      window.history.pushState({}, '', url.pathname + url.search)
     }
-  })
+    // Cleanup function to remove the query parameter on unmount
+    return () => {
+      const url = new URL(window.location.href)
+      url.searchParams.delete('threadId')
+      window.history.pushState({}, '', url.pathname + url.search)
+    }
+  }, [thread.threadId, pathname])
 
   if (error) return <div>There was an error loading thread messages</div>
 
