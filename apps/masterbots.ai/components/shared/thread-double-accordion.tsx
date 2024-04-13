@@ -14,6 +14,7 @@ import { useEffect, useRef } from 'react'
 import { useThread } from '@/hooks/use-thread'
 import { ThreadHeading } from './thread-heading'
 import { ThreadAccordion } from './thread-accordion'
+import { toSlug } from '@/lib/url'
 let initialUrl = null
 
 export function ThreadDoubleAccordion({
@@ -52,15 +53,8 @@ export function ThreadDoubleAccordion({
       if (!activeThread) initialUrl = location.href
       setActiveThread(thread)
       const dir = chat
-        ? 'c/' +
-          thread.chatbot.name
-            .toLowerCase()
-            .replaceAll(' ', '_')
-            .replaceAll('&', 'n')
-        : thread.chatbot.categories[0].category.name
-            .toLowerCase()
-            .replaceAll(' ', '_')
-            .replaceAll('&', 'n')
+        ? `/c/${toSlug(thread.chatbot.name)}`
+        : toSlug(thread.chatbot.categories[0].category.name)
       const threadUrl = `/${dir}/${thread.threadId}`
       console.log(`Updating URL to ${threadUrl}, initialUrl was ${initialUrl}`)
 
