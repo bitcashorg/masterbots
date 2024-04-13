@@ -9,7 +9,7 @@ import {
   DialogTrigger
 } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
-import { convertMessage } from '@/lib/threads'
+import { convertMessage, createMessagePairs } from '@/lib/threads'
 import { NewChatInput } from '../routes/c/new-chat'
 import { ThreadAccordion } from './thread-accordion'
 import { ThreadHeading } from './thread-heading'
@@ -40,7 +40,12 @@ export function ThreadDialog({
           'max-w-[1400px] w-[80%] h-[90%] hide-buttons overflow-auto'
         )}
       >
-        <ThreadAccordion chat={chat} clientFetch thread={thread} />
+        <ThreadAccordion
+          chat={chat}
+          clientFetch
+          thread={thread}
+          initialMessagePairs={createMessagePairs(thread.messages)}
+        />
         {chat ? (
           <DialogFooter>
             <NewChatInput

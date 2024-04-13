@@ -12,11 +12,12 @@ import {
 } from '@/components/ui/accordion'
 import { ThreadAccordion } from './thread-accordion'
 import { ThreadHeading } from './thread-heading'
+import { createMessagePairs } from '@/lib/threads'
 
-export function ThreadDoubleAccordion({
+export function ThreadListAccordion({
   thread,
   chat = false
-}: ThreadDoubleAccordionProps) {
+}: ThreadListAccordionProps) {
   const [state, setState] = useSetState({
     isOpen: false,
     firstQuestion:
@@ -28,9 +29,12 @@ export function ThreadDoubleAccordion({
   return (
     <Accordion
       className="w-full"
-      onValueChange={v => { setState({ isOpen: v[0] === 'pair-1' }); }}
+      onValueChange={v => {
+        setState({ isOpen: v[0] === 'pair-1' })
+      }}
       type="multiple"
     >
+      {/* Frist level question and excerpt visible  on lists */}
       <AccordionItem value="pair-1">
         <AccordionTrigger
           className={cn('hover:bg-mirage px-5', state.isOpen && 'bg-mirage')}
@@ -44,20 +48,26 @@ export function ThreadDoubleAccordion({
           />
         </AccordionTrigger>
 
+        {/* TODO: we need to slide down the content */}
         <AccordionContent className={cn('pl-14')}>
-          <ThreadAccordion
-            chat={chat}
-            clientFetch
-            showHeading={false}
-            thread={thread}
-          />
+          {/* Secod level accordion with follow up questions
+             showHeading must be false as we already have in screen on AccordionTrigger above */}
+          <div className="overflow-y-scroll scrollbar srcoll-smooth max-h-[500px]">
+            <ThreadAccordion
+              chat={chat}
+              clientFetch
+              showHeading={false}
+              thread={thread}
+              initialMessagePairs={createMessagePairs(thread.messages)}
+            />
+          </div>
         </AccordionContent>
       </AccordionItem>
     </Accordion>
   )
 }
 
-interface ThreadDoubleAccordionProps extends DialogProps {
+interface ThreadListAccordionProps extends DialogProps {
   thread: Thread
   chat?: boolean
 }

@@ -12,9 +12,10 @@ export default async function CategoryPage({
   searchParams
 }: CategoryPageProps) {
   const categories = await getCategories()
+  console.log(params.category)
   const categoryId = categories.find(
     c => toSlug(c.name) === params.category
-  ).categoryId
+  )?.categoryId
   if (!categoryId) throw new Error('Category not foud')
 
   const query = searchParams.query ? decodeQuery(searchParams.query) : null

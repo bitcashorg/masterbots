@@ -9,7 +9,7 @@ import { GetBrowseThreadsParams } from '@/services/hasura/hasura.service.type'
 import { getBrowseThreads } from '@/services/hasura'
 // import { useGlobalStore } from '@/hooks/use-global-store'
 import { ThreadDialog } from './thread-dialog'
-import { ThreadDoubleAccordion } from './thread-double-accordion'
+import { ThreadListAccordion } from './thread-list-accordion'
 
 export function ThreadList({
   initialThreads,
@@ -62,8 +62,8 @@ export function ThreadList({
     }
   }, [isFetchingNextPage, fetchNextPage])
 
-  // ThreadDialog and ThreadDoubleAccordion can be used interchangeably
-  const ThreadComponent = dialog ? ThreadDialog : ThreadDoubleAccordion
+  // ThreadDialog and ThreadListAccordion can be used interchangeably
+  const ThreadComponent = dialog ? ThreadDialog : ThreadListAccordion
 
   const threads = uniq(flatten(data.pages))
 
