@@ -1,6 +1,6 @@
 import Image from 'next/image'
 
-import { cn, sleep } from '@/lib/utils'
+import { cn, sleep, toSlug } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
 import { Message, Thread } from 'mb-genql'
 import Link from 'next/link'
@@ -75,7 +75,7 @@ export default function BrowseListItem({
       window.history.pushState(
         {},
         '',
-        `/${thread.chatbot.categories[0].category.name.replace(/\s+/g, '_').replace(/\&/g, 'n').toLowerCase()}/${thread.threadId}`
+        `/${toSlug(thread.chatbot.categories[0].category.name)}/${thread.threadId}`
       )
       setMessages(_prev => [])
       await fetchMessages()
