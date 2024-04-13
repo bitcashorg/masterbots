@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 
-const path = require('path')
+const path = require('node:path')
 
 module.exports = {
   images: {
@@ -27,22 +27,22 @@ module.exports = {
         protocol: 'https',
         hostname: 'api.dicebear.com',
         port: '',
-        pathname: '**',
+        pathname: '**'
       }
     ]
   },
   async headers() {
     return [
       {
-        source: "/api/dicebear", // Adjust the source path based on your API route
+        source: '/api/dicebear', // Adjust the source path based on your API route
         headers: [
           {
-            key: "Content-Type",
-            value: "image/svg+xml",
-          },
-        ],
-      },
-    ];
+            key: 'Content-Type',
+            value: 'image/svg+xml'
+          }
+        ]
+      }
+    ]
   },
   experimental: {
     ...(process.env.NODE_ENV === 'development'

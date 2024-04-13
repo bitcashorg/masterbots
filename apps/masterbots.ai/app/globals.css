@@ -104,8 +104,8 @@
 }
 
 .scrollbar::-webkit-scrollbar {
-  width: 1px;
-  height: 1px;
+  width: 4px;
+  height: 4px;
 }
 .scrollbar::-webkit-scrollbar-track,
 .scrollbar::-webkit-scrollbar-corner {

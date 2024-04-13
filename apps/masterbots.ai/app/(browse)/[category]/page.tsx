@@ -3,6 +3,7 @@ import { CategoryTabs } from '@/components/shared/category-tabs/category-tabs'
 import { SearchInput } from '@/components/shared/search-input'
 import { getBrowseThreads, getCategories } from '@/services/hasura'
 import { decodeQuery, toSlug } from '@/lib/url'
+import { permanentRedirect } from 'next/navigation'
 
 // TODO: dicuss caching
 // export const revalidate = 3600 // revalidate the data at most every hour
@@ -11,10 +12,13 @@ export default async function CategoryPage({
   params,
   searchParams
 }: CategoryPageProps) {
+  if (searchParams.threadId)
+    permanentRedirect(`${params.category}/${searchParams.threadId}`)
   const categories = await getCategories()
+  console.log(params.category)
   const categoryId = categories.find(
     c => toSlug(c.name) === params.category
-  ).categoryId
+  )?.categoryId
   if (!categoryId) throw new Error('Category not foud')
 
   const query = searchParams.query ? decodeQuery(searchParams.query) : null
@@ -48,5 +52,10 @@ export default async function CategoryPage({
 
 interface CategoryPageProps {
   params: { category: string }
-  searchParams?: { query: string; page: string; limit: string }
+  searchParams?: {
+    query: string
+    page: string
+    limit: string
+    threadId: string
+  }
 }

@@ -15,80 +15,123 @@ import { cn } from '@/lib/utils'
 import { toSlug } from '@/lib/url'
 import { ThreadHeading } from './thread-heading'
 import { BrowseChatMessage } from './thread-message'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { clone } from 'lodash'
+import { threadId } from 'worker_threads'
 
 export function ThreadAccordion({
   thread,
   initialMessagePairs,
   clientFetch = false,
   chat = false,
+  // disable automatic client fetch by default
+  // ThreadList sets this to true to load the rest of messages inside ThreadDialog or ThreadListAccordion
+  // ThreadList only receives the first question and answer
   showHeading = true
 }: ThreadAccordionProps) {
-  // initalMessages is coming from server ssr on load. the rest of messages on demand on mount
+  const pathname = usePathname()
+
   const { data: pairs, error } = useQuery({
     queryKey: [`messages-${thread.threadId}`],
     queryFn: () => getMessagePairs(thread.threadId),
     initialData: initialMessagePairs,
+    networkMode: 'always',
     refetchOnMount: true,
     enabled: clientFetch
   })
 
-  // update url when dialog opens and closes
-  useEffect(() => {
-    const initialUrl = location.href
-    const dir =
-      `c/${ 
-      toSlug(
-        chat ? thread.chatbot.name : thread.chatbot.categories[0].category.name
-      )}`
-
-    const threadUrl = `/${dir}/${thread.threadId}`
-    console.log(`Updating URL to ${threadUrl}, initialUrl was ${initialUrl}`)
-
-    window.history.pushState({}, '', threadUrl)
-    return () => {
-      window.history.pushState({}, '', initialUrl)
-    }
+  console.log({
+    initialMessagePairs,
+    pairs
   })
+
+  // update url when thread accordion opens and closes
+  // use cases: when using ThreadDialog and DoubleThreadAccordion
+  // we want this logic here on central place
+  useEffect(() => {
+    const url = new URL(window.location.href)
+    url.searchParams.set('threadId', thread.threadId)
+    window.history.pushState({}, '', url.href)
+
+    // hack to delete threadId after initial render
+    // TODO: remove on next middleware
+    if (pathname.includes(thread.threadId)) {
+      url.searchParams.delete('threadId')
+      window.history.pushState({}, '', url.pathname + url.search)
+    }
+    // Cleanup function to remove the query parameter on unmount
+    return () => {
+      const url = new URL(window.location.href)
+      url.searchParams.delete('threadId')
+      window.history.pushState({}, '', url.pathname + url.search)
+    }
+  }, [thread.threadId, pathname])
 
   if (error) return <div>There was an error loading thread messages</div>
 
-  // if no initial message and still loading show loading message
-  // NOTE: its fast and transitions in. testing without this
-  if (!pairs.length) return null
-
   return (
     <Accordion
-      className="w-full"
+      className={cn('w-full border border-solid border-mirage scroll')}
       defaultValue={['pair-0', 'pair-1', 'pair-2']}
       type="multiple"
+      key={`accordion-${JSON.stringify(pairs)}`}
     >
       {pairs.map((p, key) => {
+        const isFirst = key === 0
+        console.log(key, p)
         return (
-          <AccordionItem key={key} value={`pair-${key}`}>
-            {showHeading ? (
-              <AccordionTrigger className={cn('bg-mirage')}>
-                {key ? (
-                  <div className="pl-12">{p.userMessage.content}</div>
-                ) : (
+          <AccordionItem
+            key={`accordion-item-${thread.threadId}-pair-${key}`}
+            value={`pair-${key}`}
+          >
+            {
+              // is not the frist question we return follow question style
+              !isFirst ? (
+                <AccordionTrigger
+                  className={cn('px-5 border-y border-solid border-mirage')}
+                >
+                  <div className="pl-12 md:text-lg">
+                    {p.userMessage.content}
+                  </div>
+                </AccordionTrigger>
+              ) : null
+            }
+
+            {
+              // when using ThreadAccordion inside ThreadDialog or ThreadListAccordion we want
+              // to control heading and hide and ThreadAccordion and ThreadDialog show the ThreadHeading already
+              // when using ThreadAccordion in thread landing page /{category}/{threadId} showHeading must be true
+              // ThreadHeading is the the big one with the user avatar, ThreadDialog or ThreadListAccordion is hidden
+              showHeading && isFirst ? (
+                <AccordionTrigger
+                  className={cn(
+                    'px-5',
+                    isFirst
+                      ? 'bg-mirage'
+                      : 'border-y border-solid border-mirage'
+                  )}
+                >
                   <ThreadHeading
                     chat={chat}
                     copy
                     question={p.userMessage.content}
                     thread={thread}
                   />
-                )}
-              </AccordionTrigger>
-            ) : null}
-            <AccordionContent aria-expanded>
-              <div className="px-7">
-                {p.chatGptMessage.map((message, index) => (
-                  <BrowseChatMessage
-                    chatbot={thread.chatbot}
-                    key={index}
-                    message={convertMessage(message)}
-                  />
-                ))}
-              </div>
+                </AccordionTrigger>
+              ) : null
+            }
+
+            <AccordionContent
+              aria-expanded
+              className={cn('mx-8 border-x border-solid border-mirage')}
+            >
+              {p.chatGptMessage.map(message => (
+                <BrowseChatMessage
+                  chatbot={thread.chatbot}
+                  key={`message-${message.messageId}`}
+                  message={convertMessage(message)}
+                />
+              ))}
             </AccordionContent>
           </AccordionItem>
         )
@@ -99,7 +142,7 @@ export function ThreadAccordion({
 
 interface ThreadAccordionProps {
   thread: Thread
-  initialMessagePairs?: MessagePair[]
+  initialMessagePairs: MessagePair[]
   clientFetch?: boolean
   chat?: boolean
   showHeading?: boolean

@@ -20,7 +20,7 @@ export function BrowseChatMessage({
   const cleanMessage = { ...message, content: cleanPrompt(message.content) }
 
   return (
-    <div className={cn('group relative my-4 flex items-start')} {...props}>
+    <div className={cn('group relative pt-4 flex items-start')} {...props}>
       <div className="flex-1 px-1 md:ml-4 space-y-2 overflow-hidden">
         <MemoizedReactMarkdown
           className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 !max-w-5xl"
