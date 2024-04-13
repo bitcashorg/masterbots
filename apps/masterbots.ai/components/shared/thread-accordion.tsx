@@ -23,7 +23,6 @@ export function ThreadAccordion({
   chat = false,
   showHeading = true
 }: ThreadAccordionProps) {
-
   // initalMessages is coming from server ssr on load. the rest of messages on demand on mount
   const { data: pairs, error } = useQuery({
     queryKey: [`messages-${thread.threadId}`],
@@ -33,29 +32,29 @@ export function ThreadAccordion({
     enabled: clientFetch
   })
 
-  // update url when dialog opens and closes
-  useEffect(() => {
-    const initialUrl = location.href
-    const dir =
-      `c/${ 
-      toSlug(
-        chat ? thread.chatbot.name : thread.chatbot.categories[0].category.name
-      )}`
+  // // update url when dialog opens and closes
+  // useEffect(() => {
+  //   const initialUrl = location.href
+  //   const dir =
+  //     `c/${
+  //     toSlug(
+  //       chat ? thread.chatbot.name : thread.chatbot.categories[0].category.name
+  //     )}`
 
-    const threadUrl = `/${dir}/${thread.threadId}`
-    console.log(`Updating URL to ${threadUrl}, initialUrl was ${initialUrl}`)
+  //   const threadUrl = `/${dir}/${thread.threadId}`
+  //   console.log(`Updating URL to ${threadUrl}, initialUrl was ${initialUrl}`)
 
-    window.history.pushState({}, '', threadUrl)
-    return () => {
-      window.history.pushState({}, '', initialUrl)
-    }
-  })
+  //   window.history.pushState({}, '', threadUrl)
+  //   return () => {
+  //     window.history.pushState({}, '', initialUrl)
+  //   }
+  // })
 
   if (error) return <div>There was an error loading thread messages</div>
 
   // if no initial message and still loading show loading message
   // NOTE: its fast and transitions in. testing without this
-  if (!pairs.length) return null
+  if (!pairs?.length) return null
 
   return (
     <Accordion
@@ -66,11 +65,11 @@ export function ThreadAccordion({
       {pairs.map((p, key) => {
         return (
           <AccordionItem value={`pair-${key}`} key={key}>
-            { key ? (
+            {key ? (
               <AccordionTrigger className={cn('bg-mirage')}>
-                  <div className="pl-12">{p.userMessage.content}</div>
+                <div className="pl-12">{p.userMessage.content}</div>
               </AccordionTrigger>
-            ) : showHeading && key === 0 ? 
+            ) : showHeading && key === 0 ? (
               <AccordionTrigger className={cn('bg-mirage')}>
                 <ThreadHeading
                   thread={thread}
@@ -78,8 +77,8 @@ export function ThreadAccordion({
                   copy={true}
                   chat={chat}
                 />
-                </AccordionTrigger>
-            : null}
+              </AccordionTrigger>
+            ) : null}
             <AccordionContent aria-expanded={true}>
               <div className="px-7">
                 {p.chatGptMessage.map((message, index) => (
