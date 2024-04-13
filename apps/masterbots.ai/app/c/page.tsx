@@ -11,7 +11,6 @@ export default async function IndexPage() {
     data: { user }
   } = await supabase.auth.getUser()
 
-  console.log(user)
   if (!user?.email) redirect(`/auth/sign-in`)
 
   const dbUserProfile = await getUser({

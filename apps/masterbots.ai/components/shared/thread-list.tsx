@@ -44,7 +44,9 @@ export function ThreadList({
 
   // load mare item when it gets to the end
   useEffect(() => {
-    if (!loadMoreRef.current) return
+    // if no initial threads passed dont try to load more
+    // TODO: get thread count from server db query
+    if (!loadMoreRef.current || !initialThreads?.length) return
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting && !isFetchingNextPage) {
         setTimeout(() => {
@@ -91,6 +93,7 @@ export function ThreadList({
 
   return (
     <div className="flex flex-col w-full gap-8 py-5" key={queryKey[0]}>
+      {!threads.length ? <div>No threads founds</div> : null}
       {showSkeleton ? ' Loading ...' : ''}
       {!showSkeleton &&
         threads.map((thread: Thread) => (

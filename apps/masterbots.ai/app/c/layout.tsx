@@ -21,7 +21,7 @@ export default async function ChatLayout({ children }: ChatLayoutProps) {
     <main className="relative flex flex-row h-[calc(100vh_-_theme(spacing.16))] overflow-hidden">
       <ResponsiveSidebar />
       <div className="mx-5 flex grow w-full">
-        {/* {children} */}
+        {children}
         <div className="block lg:hidden">
           <FooterCT />
         </div>
