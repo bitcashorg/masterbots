@@ -10,7 +10,9 @@ export default async function IndexPage() {
   const {
     data: { user }
   } = await supabase.auth.getUser()
-  if (!user.email) redirect(`/auth/sign-in`)
+
+  console.log(user)
+  if (!user?.email) redirect(`/auth/sign-in`)
 
   const dbUserProfile = await getUser({
     email: user.email,
@@ -22,7 +24,7 @@ export default async function IndexPage() {
   const jwt = cookies().get('hasuraJwt').value || ''
 
   // NOTE: maybe we should use same expiration time
-  if (!jwt || isTokenExpired(jwt) || !user) redirect(`/auth/sign-in`)
+  if (!jwt || isTokenExpired(jwt)) redirect(`/auth/sign-in`)
 
   const threads = await getBrowseThreads({
     slug: dbUserProfile.slug,
@@ -31,9 +33,9 @@ export default async function IndexPage() {
 
   return (
     <ThreadList
-        chat
-        filter={{ slug: dbUserProfile.slug }}
-        initialThreads={threads}
-      />
+      chat
+      filter={{ slug: dbUserProfile.slug }}
+      initialThreads={threads}
+    />
   )
 }

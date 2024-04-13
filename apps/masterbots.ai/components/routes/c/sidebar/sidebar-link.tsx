@@ -2,13 +2,14 @@
 import { motion } from 'framer-motion'
 import type { Category, Chatbot, ChatbotCategory } from '@repo/mb-genql'
 import Image from 'next/image'
-import Link from 'next/link'
+
 import { useParams } from 'next/navigation'
 import React, { useEffect, useRef, useState } from 'react'
 import { getChatbots } from '@/services/hasura'
 import { cn } from '@/lib/utils'
 import { useSidebar } from '@/hooks/use-sidebar'
 import { IconCaretRight } from '../../../ui/icons'
+import Link from 'next/link'
 
 const PAGE_SIZE = 20
 
@@ -40,7 +41,7 @@ export default function SidebarLink({ category }: { category: Category }) {
     if (
       category.chatbots.length &&
       category.chatbots.filter(
-        c => c.chatbot.name.toLowerCase().trim() === chatbot.trim()
+        c => c.chatbot.name.toLowerCase().trim() === chatbot?.trim()
       ).length
     ) {
       setActiveChatbot(
@@ -94,7 +95,7 @@ export default function SidebarLink({ category }: { category: Category }) {
     const isBotOfThisCategory =
       activeChatbot &&
       category.chatbots.length &&
-      category.chatbots.filter(c => c.chatbot.name === activeChatbot.name)
+      category.chatbots.filter(c => c.chatbot.name === activeChatbot?.name)
         .length
 
     setIsChatbotOfThisCategory(Boolean(isBotOfThisCategory))
@@ -239,7 +240,7 @@ function ChatbotComponent({
     <Link
       className={cn(
         'flex items-center px-[20px] py-[12px] dark:hover:bg-mirage hover:bg-gray-300',
-        chatbot.chatbotId === activeChatbot.chatbotId &&
+        chatbot.chatbotId === activeChatbot?.chatbotId &&
           'dark:bg-slate-800 dark-slate-400'
       )}
       href={`/c/${chatbot.name.toLowerCase()}`}
