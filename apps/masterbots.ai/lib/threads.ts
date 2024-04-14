@@ -82,6 +82,6 @@ export function getAllUserMessagesAsStringArray(
   return cleanMessages.join(', ')
 }
 
-export function getThreadLink({chat=false, thread}:{chat:boolean, thread: Thread}){
+export function getThreadLink({chat=false, thread}:{chat?:boolean, thread: Thread}){
  return chat ? `/c/${toSlug(thread.chatbot.name)}/${thread.threadId}` : `/${toSlug(thread.chatbot.categories[0]?.category.name)}/${thread.threadId}`
 }
