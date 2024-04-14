@@ -10,6 +10,7 @@ import { Providers } from '@/components/layout/providers'
 import { cn } from '@/lib/utils'
 import { GlobalStoreProvider } from '@/hooks/use-global-store'
 import { getChatbots } from '@/services/hasura'
+import { Metadata } from 'next/types'
 
 async function getCookieData(): Promise<{ hasuraJwt; userProfile }> {
   const hasuraJwt = cookies().get('hasuraJwt')?.value || ''
@@ -62,25 +63,57 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   )
 }
 
-export const metadata = {
-  metadataBase: new URL(`https://${process.env.VERCEL_URL}`),
-  title: {
-    default: 'Masterbots',
-    template: `%s - Masterbots`
-  },
-  description: 'Specialized AI chatbots',
-  icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon-16x16.png',
-    apple: '/apple-touch-icon.png'
-  }
-}
-
 export const viewport = {
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: 'white' },
     { media: '(prefers-color-scheme: dark)', color: 'black' }
   ]
+}
+
+const siteUrl = `https://${process.env.VERCEL_URL}`
+
+export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: 'Masterbots',
+    template: `%s - Masterbots`
+  },
+  description:
+    'Elevating AI Beyond ChatGPT: Specialized Chatbots, Social Sharing and User-Friendly Innovation',
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: siteUrl,
+    siteName: 'Masterbots',
+    images: [
+      {
+        url: `${siteUrl}/images/masterbots.png`,
+        width: 1232,
+        height: 928,
+        alt: 'Masterbots'
+      }
+    ]
+  },
+  twitter: {
+    title: 'Masterbots',
+    description:
+      'Elevating AI Beyond ChatGPT: Specialized Chatbots, Social Sharing and User-Friendly Innovation',
+    site: '@masterbotsai',
+    card: 'summary_large_image',
+    images: [
+      {
+        url: `${siteUrl}/images/masterbots.png`,
+        width: 1232,
+        height: 928,
+        alt: 'Masterbots'
+      }
+    ]
+  },
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon-300x300.png',
+    apple: '/apple-touch-icon.png'
+  }
 }
 
 interface RootLayoutProps {
