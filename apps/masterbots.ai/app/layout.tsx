@@ -6,6 +6,7 @@ import '@/app/globals.css'
 import { Header } from '@/components/header'
 import { Providers } from '@/components/providers'
 import { cn } from '@/lib/utils'
+import { Metadata } from 'next'
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
@@ -37,16 +38,44 @@ export default function RootLayout({ children }: RootLayoutProps) {
   )
 }
 
-export const metadata = {
+export const metadata: Metadata = {
   metadataBase: new URL(`https://${process.env.VERCEL_URL}`),
   title: {
     default: 'Masterbots',
     template: `%s - Masterbots`
   },
-  description: 'Specialized AI chatbots',
+  description: 'Elevating AI Beyond ChatGPT: Specialized Chatbots, Social Sharing and User-Friendly Innovation',
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://masterbots.ai',
+    siteName: 'Masterbots',
+    images: [
+      {
+        url: 'https://masterbots.ai/images/masterbots.png',
+        width: 1232,
+        height: 928,
+        alt: 'Masterbots'
+      }
+    ]
+  },
+  twitter: {
+    title: 'Masterbots',
+    description: 'Elevating AI Beyond ChatGPT: Specialized Chatbots, Social Sharing and User-Friendly Innovation',
+    site: '@masterbotsai',
+    card: 'summary_large_image',
+    images: [
+      {
+        url: 'https://masterbots.ai/images/masterbots.png',
+        width: 1232,
+        height: 928,
+        alt: 'Masterbots'
+      }
+    ]
+  },
   icons: {
     icon: '/favicon.ico',
-    shortcut: '/favicon-16x16.png',
+    shortcut: '/favicon-300x300.png',
     apple: '/apple-touch-icon.png'
   }
 }
