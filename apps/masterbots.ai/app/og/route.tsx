@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
             alignItems: 'flex-start',
             justifyContent: 'flex-start',
             backgroundColor: '#17171b',
-            padding: '20px'
+            padding: '40px'
             // fontFamily: GeistMono.className
           }}
         >
