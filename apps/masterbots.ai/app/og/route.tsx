@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
           flexDirection: 'column',
           alignItems: 'flex-start',
           justifyContent: 'center',
-          background: `linear-gradient(rgba(17, 15, 15, 0.5), rgba(17, 15, 15, 0.5)), url('/images/masterbots.png') no-repeat center center / cover`
+          background: `url('/images/masterbots.png') no-repeat center center / cover`
         }}
       >
         <div
