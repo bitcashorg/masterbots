@@ -21,9 +21,9 @@ export function ThreadListAccordion({
   const [state, setState] = useSetState({
     isOpen: false,
     firstQuestion:
-      thread.messages.find(m => m.role === 'user').content || 'not found',
+      thread.messages.find(m => m.role === 'user')?.content || 'not found',
     firstResponse:
-      thread.messages.find(m => m.role === 'assistant').content || 'not found'
+      thread.messages.find(m => m.role === 'assistant')?.content || 'not found'
   })
 
   return (

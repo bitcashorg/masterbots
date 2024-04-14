@@ -3,13 +3,12 @@
 import type { Message } from 'ai/react'
 import type { Chatbot } from '@repo/mb-genql'
 import { useNewThread } from '@/hooks/use-new-thread'
-import { ChatInputNew } from './chat-input-new'
+import { ChatInputNew } from '../../routes/c/chat-input-new'
 
 export function NewChatInput({
   id,
   initialMessages,
-  chatbot,
-  dialog = false
+  chatbot
 }: NewChatInputProps) {
   const { messages, reload, stop, input, setInput, startNewThread } =
     useNewThread({ id, initialMessages, chatbot })
@@ -18,7 +17,6 @@ export function NewChatInput({
     <ChatInputNew
       append={startNewThread}
       chatbot={chatbot}
-      dialog={dialog}
       id={id}
       input={input}
       isLoading={false}
@@ -37,5 +35,4 @@ export interface NewChatInputProps extends React.ComponentProps<'div'> {
   id: string
   chatbot: Chatbot
   scrollToBottom?: () => void
-  dialog?: boolean
 }

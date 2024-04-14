@@ -4,14 +4,12 @@ import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { useSidebar } from '@/hooks/use-sidebar'
 import { getCategory, getThreads } from '@/services/hasura'
-import { useThread } from '@/hooks/use-thread'
 import { useGlobalStore } from '@/hooks/use-global-store'
 import { Separator } from '../../ui/separator'
 
 export default function ChatChatbotDetails() {
   const { user, hasuraJwt } = useGlobalStore()
   const { activeCategory, activeChatbot } = useSidebar()
-  const { randomChatbot } = useThread()
   const [threadNum, setThreadNum] = useState<number>(0)
   const [categoryName, setCategoryName] = useState<string>('')
 
@@ -82,10 +80,10 @@ export default function ChatChatbotDetails() {
         </div>
         <div className="size-24 absolute border-4 border-[#388DE2] right-0 top-0 translate-x-1/4 rounded-full -translate-y-1/4 dark:bg-[#131316] bg-white">
           <Image
-            alt={activeChatbot.avatar || randomChatbot.avatar || 'ChatAvatar'}
+            alt={activeChatbot.avatar || 'ChatAvatar'}
             className="transition-opacity duration-300 rounded-full select-none size-full ring-1 ring-zinc-100/10 hover:opacity-80"
             height={108}
-            src={activeChatbot.avatar || randomChatbot.avatar || ''}
+            src={activeChatbot.avatar || ''}
             width={108}
           />
         </div>

@@ -2,15 +2,9 @@
 
 import type { Thread } from '@repo/mb-genql'
 import { DialogProps } from '@radix-ui/react-dialog'
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogTrigger
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
-import { convertMessage, createMessagePairs } from '@/lib/threads'
-import { NewChatInput } from '../routes/c/new-chat'
+import { createMessagePairs } from '@/lib/threads'
 import { ThreadAccordion } from './thread-accordion'
 import { ThreadHeading } from './thread-heading'
 
@@ -20,9 +14,9 @@ export function ThreadDialog({
   defaultOpen = false
 }: ThreadDialogProps) {
   const firstQuestion =
-    thread.messages.find(m => m.role === 'user').content || 'not found'
+    thread.messages.find(m => m.role === 'user')?.content || 'not found'
   const firstResponse =
-    thread.messages.find(m => m.role === 'assistant').content || 'not found'
+    thread.messages.find(m => m.role === 'assistant')?.content || 'not found'
 
   return (
     <Dialog defaultOpen={defaultOpen}>
@@ -46,16 +40,6 @@ export function ThreadDialog({
           thread={thread}
           initialMessagePairs={createMessagePairs(thread.messages)}
         />
-        {chat ? (
-          <DialogFooter>
-            <NewChatInput
-              chatbot={thread.chatbot}
-              dialog
-              id={thread.threadId}
-              initialMessages={thread.messages.map(convertMessage)}
-            />
-          </DialogFooter>
-        ) : null}
       </DialogContent>
     </Dialog>
   )

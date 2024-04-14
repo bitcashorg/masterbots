@@ -10,12 +10,13 @@ import { getBrowseThreads } from '@/services/hasura'
 // import { useGlobalStore } from '@/hooks/use-global-store'
 import { ThreadDialog } from './thread-dialog'
 import { ThreadListAccordion } from './thread-list-accordion'
+import { ThreadListChatItem } from './thread-list-chat-item'
 
+const limit = 20
 export function ThreadList({
   initialThreads,
   filter,
   chat = false,
-  currentThread,
   dialog = false
 }: ThreadListProps) {
   // const globalStore = useGlobalStore()
@@ -30,8 +31,8 @@ export function ThreadList({
     queryFn: async props => {
       return getBrowseThreads({
         ...filter,
-        offset: props.pageParam * 20,
-        limit: 20
+        offset: props.pageParam * limit,
+        limit
       })
     },
     initialData: { pages: [initialThreads], pageParams: [1] },
@@ -44,9 +45,9 @@ export function ThreadList({
 
   // load mare item when it gets to the end
   useEffect(() => {
-    // if no initial threads passed dont try to load more
+    // only load add observer if we get at least iquals to limit on initialThreads
     // TODO: get thread count from server db query
-    if (!loadMoreRef.current || !initialThreads?.length) return
+    if (!loadMoreRef.current || initialThreads.length < limit) return
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting && !isFetchingNextPage) {
         setTimeout(() => {
@@ -63,11 +64,6 @@ export function ThreadList({
       observer.disconnect()
     }
   }, [isFetchingNextPage, fetchNextPage])
-
-  // ThreadDialog and ThreadListAccordion can be used interchangeably
-  const ThreadComponent = dialog ? ThreadDialog : ThreadListAccordion
-
-  const threads = uniq(flatten(data.pages))
 
   useEffect(() => {
     const queryKeyString = JSON.stringify(queryKey)
@@ -91,6 +87,18 @@ export function ThreadList({
     })
   }, [queryKey, setLastQueryKey, lastQueryKey, setShowSkeleton])
 
+  // ThreadList can displays the rigth list item based on the context
+  // ThreadListChatItem is next shallow link for chat ui lists
+  // ThreadDialog is user preference
+  // ThreadListAccordion is the defualt public list item
+  const ThreadComponent = chat
+    ? ThreadListChatItem
+    : dialog
+      ? ThreadDialog
+      : ThreadListAccordion
+
+  const threads = uniq(flatten(data.pages))
+
   return (
     <div className="flex flex-col w-full gap-8 py-5" key={queryKey[0]}>
       {!threads.length ? <div>No threads founds</div> : null}
@@ -99,7 +107,7 @@ export function ThreadList({
         threads.map((thread: Thread) => (
           <ThreadComponent
             chat={chat}
-            defaultOpen={thread.threadId === currentThread?.threadId}
+            defaultOpen={false} // we can have one open by default
             key={thread.threadId}
             thread={thread}
           />
@@ -112,7 +120,6 @@ export function ThreadList({
 }
 
 interface ThreadListProps {
-  currentThread?: Thread
   initialThreads: Thread[]
   chat?: boolean
   dialog?: boolean

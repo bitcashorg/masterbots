@@ -6,7 +6,6 @@ import type { ThemeProviderProps } from 'next-themes/dist/types'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { SidebarProvider } from '@/hooks/use-sidebar'
 import { TooltipProvider } from '@/components/ui/tooltip'
-import { ThreadProvider } from '@/hooks/use-thread'
 
 const queryClient = new QueryClient()
 
@@ -15,9 +14,7 @@ export function Providers({ children, ...props }: ThemeProviderProps) {
     <NextThemesProvider {...props}>
       <QueryClientProvider client={queryClient}>
         <SidebarProvider>
-          <TooltipProvider>
-            <ThreadProvider>{children}</ThreadProvider>
-          </TooltipProvider>
+          <TooltipProvider>{children}</TooltipProvider>
         </SidebarProvider>
       </QueryClientProvider>
     </NextThemesProvider>

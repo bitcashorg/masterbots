@@ -6,24 +6,25 @@ import { createSupabaseServerClient } from '@/services/supabase'
 import { ThreadList } from '@/components/shared/thread-list'
 
 export default async function IndexPage() {
+  const redirectTo = `/auth/sign-in?next=/c`
   const supabase = await createSupabaseServerClient()
   const {
     data: { user }
   } = await supabase.auth.getUser()
 
-  if (!user?.email) redirect(`/auth/sign-in`)
+  if (!user?.email) redirect(redirectTo)
 
   const dbUserProfile = await getUser({
     email: user.email,
     adminSecret: process.env.HASURA_GRAPHQL_ADMIN_SECRET || ''
   })
 
-  if (!dbUserProfile) redirect(`/auth/sign-in`)
+  if (!dbUserProfile) redirect(redirectTo)
 
   const jwt = cookies().get('hasuraJwt').value || ''
 
   // NOTE: maybe we should use same expiration time
-  if (!jwt || isTokenExpired(jwt)) redirect(`/auth/sign-in`)
+  if (!jwt || isTokenExpired(jwt)) redirect(redirectTo)
 
   const threads = await getBrowseThreads({
     slug: dbUserProfile.slug,

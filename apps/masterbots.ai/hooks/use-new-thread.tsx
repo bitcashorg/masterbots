@@ -6,6 +6,7 @@ import type { Chatbot } from '@repo/mb-genql'
 import { useRouter } from 'next/navigation'
 import { createThread, saveNewMessage } from '@/services/hasura'
 import { useGlobalStore } from '@/hooks/use-global-store'
+import { toSlug } from '@/lib/url'
 
 export function useNewThread({
   id,
@@ -35,7 +36,8 @@ export function useNewThread({
 
   const startNewThread = async (
     userMessage: Message | CreateMessage,
-    chatRequestOptions?: ChatRequestOptions
+    chatRequestOptions?: ChatRequestOptions,
+    startThreadOptions: StartThreadOptions = { redirect: true }
   ) => {
     if (!user?.userId) {
       alert('You must login to use chat!')
@@ -58,9 +60,10 @@ export function useNewThread({
       jwt: hasuraJwt
     })
 
-    router.push(`/c/${chatbot.name.trim().toLowerCase()}/${threadId}`, {
-      scroll: false
-    })
+    startThreadOptions.redirect &&
+      router.push(`/c/${toSlug(chatbot.name)}/${threadId}`, {
+        scroll: false
+      })
     router.refresh()
     return response
   }
@@ -73,4 +76,8 @@ export interface UseNewThreadParams {
   id: string
   chatbot: Chatbot
   isPublic?: boolean
+}
+
+export interface StartThreadOptions {
+  redirect: boolean
 }
