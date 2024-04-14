@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
           flexDirection: 'column',
           alignItems: 'flex-start',
           justifyContent: 'center',
-          background: `url('/images/masterbots.png') no-repeat center center / cover`
+          background: '#110f0f'
         }}
       >
         <div
