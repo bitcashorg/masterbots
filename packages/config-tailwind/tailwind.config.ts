@@ -80,6 +80,11 @@ const config: Omit<Config, "content"> = {
           },
           to: { opacity: 0 },
         },
+        spin: {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+               spin: 'spin 1s linear infinite'
+        }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",

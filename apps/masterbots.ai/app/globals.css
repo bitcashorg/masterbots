@@ -45,6 +45,12 @@
     --link: 208, 100%, 60%;
     --mirage: 217, 33%, 17%;
     --iron: 240, 6%, 90%;
+
+    --mb-gradient: linear-gradient(
+      21deg,
+      rgba(16, 171, 255, 0.7),
+      rgba(27, 234, 189, 0.6)
+    );
   }
 
   .dark {
@@ -170,11 +176,7 @@
 /* Input specific styles */
 .gradient-input {
   position: relative; /* Set to relative for proper positioning of child elements */
-  background: linear-gradient(
-    21deg,
-    #10abff,
-    #1beabd
-  ); /* Gradient background */
+  background: var(--mb-gradient);
   padding: 2px; /* Padding around the input for border effect */
   display: inline-block; /* Default display to inline for inline fields */
   border-radius: 9999em; /* Circular border radius */
