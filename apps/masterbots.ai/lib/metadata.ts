@@ -19,7 +19,7 @@ export async function generateMbMetadata({
     title: firstQuestion,
     publishedAt: thread.updatedAt, // format(thread.updatedAt, 'MMMM dd, yyyy'),
     summary: firstResponse,
-    image: `https://alpha.masterbots.ai/og?title=${encodeURIComponent(firstQuestion)}`,
+    image: `https://alpha.masterbots.ai/og?threadId=${thread.threadId}`,
     pathname: getThreadLink({thread:thread, chat:false})
   } 
 
