@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import type { ElementType } from 'react'
 
 export default function FooterCT({ nonFooterTag }: { nonFooterTag?: boolean }) {
@@ -24,13 +25,13 @@ export default function FooterCT({ nonFooterTag }: { nonFooterTag?: boolean }) {
         >
           robohash.org
         </a>
-        {' • '}
-        <a
+        <Link
+          shallow
           className="text-primary underline focus-within:underline"
-          href="/terms-n-policies"
+          href="/terms"
         >
           terms & policies
-        </a>
+        </Link>
       </span>
     </Footer>
   )
