@@ -27,6 +27,7 @@ export async function generateMbMetadata({
     title:data.title,
     description:data.summary,
     openGraph: {
+      locale: 'en_US',
       title:data.title,
       description:data.summary,
       type: 'article',
@@ -41,6 +42,7 @@ export async function generateMbMetadata({
     twitter: {
       card: 'summary_large_image',
       title:data.title,
+      site: '@masterbotsai',
       description:data.summary,
       images: [data.image],
     },
