@@ -27,10 +27,10 @@ export function MbCmdK() {
   const [state, setState] = useSetState({
     id: crypto.randomUUID(),
     showChat: false,
-    newMessage: '',
-    thread: null as Thread | null
+    newMessage: ''
   })
   const { chatbot, initialMessages } = useChatbot('techbot')
+  console.log(chatbot)
   const { startNewThread, input, isLoading, setInput } = useNewThread({
     id: state.id,
     initialMessages,
@@ -73,8 +73,8 @@ export function MbCmdK() {
     }
   })
 
-  if (state.thread)
-    return <MbChat thread={thread} initialMessages={initialMessages} />
+  if (thread.data)
+    return <MbChat thread={thread.data} initialMessages={initialMessages} />
 
   return (
     <CommandDialog
