@@ -50,7 +50,7 @@
     "framer-motion": "^10.16.12",
     "geist": "^1.1.0",
     "lodash": "^4.17.21",
-    "lucide-react": "^0.297.0",
+    "lucide-react": "latest",
     "nanoid": "^3.0.0",
     "next": "latest",
     "next-themes": "^0.2.1",
