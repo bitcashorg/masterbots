@@ -34,7 +34,21 @@ https://trello.com/b/GDCm18zN/masterbots-chatbot-aggregator-development-board
 - [Docker](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/)
 - Task manager https://taskfile.dev
 
-## Running the Backend:
+## Teck Stack
+
+- Supabase
+- Vercel AI SDK
+- OpenAI
+- Next 14 App Router and actions
+- Shadcn & Radix
+- Lodash, react-query, react-use, lucide-react
+- Zod validations
+
+Always use these APIs before writting custom javascript.
+
+## Running the Hasura:
+
+_deprecaated in favor of supabse, in the process of removing it_
 
 In root folder, create an .env file based of .env_sample and the use `task` to execute the following commands to operate Hasura locally.
 
@@ -53,6 +67,7 @@ In apps/masterbots.ai folder (set up .env file - see .env_sample):
 
 ```
 bun install
-turbo run dev --scope="masterbots.ai"
-# task app will execute the same command
+turbo run dev --scope="masterbots.ai" 
+# or
+cd apps/masterbots.ai && bun dev
 ```
