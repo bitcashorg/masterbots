@@ -25,7 +25,6 @@ export interface ChatInputProps
   showReload?: boolean
   placeholder: string
   className?: string
-  showSubmitButton: boolean
 }
 
 export function ChatInputNew({
