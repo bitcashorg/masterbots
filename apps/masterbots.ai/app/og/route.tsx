@@ -13,8 +13,6 @@ export async function GET(req: NextRequest) {
     const { searchParams } = req.nextUrl
     const threadId = searchParams.get('threadId')
     const thread = await getThread({ threadId })
-
-    console.log('THREEEAD', thread?.chatbot)
     const question =
       thread.messages.find(m => m.role === 'user')?.content || 'not found'
     // You may need to convert GeistMono or fetch it as ArrayBuffer if needed
