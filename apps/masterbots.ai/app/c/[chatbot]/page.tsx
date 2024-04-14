@@ -69,7 +69,7 @@ export default async function ChatListPage({
   )
 
   return (
-    <>
+    <div className="w-full flex flex-col justify-between h-full">
       {/* <ChatSearchInput /> */}
       <ThreadList
         chat={true}
@@ -81,6 +81,6 @@ export default async function ChatListPage({
         id={crypto.randomUUID()}
         initialMessages={initialMessages}
       />
-    </>
+    </div>
   )
 }
