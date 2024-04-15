@@ -55,7 +55,7 @@ export default function NewChat({
     })
 
     router.push(`/${chatbot.name.trim().toLowerCase()}/${threadId}`, {
-      shallow: true,
+      // shallow: true,
       scroll: false
     })
     router.refresh()

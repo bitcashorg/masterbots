@@ -6,7 +6,7 @@ import { getCategories } from '@/services/hasura'
 
 export const revalidate = 3600 // revalidate the data at most every hour
 
-export default async function BrowsePage() {
+export default async function HomePage() {
   const categories = await getCategories()
 
   return (
