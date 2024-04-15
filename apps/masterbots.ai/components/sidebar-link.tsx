@@ -118,7 +118,7 @@ export default function SidebarLink({ category }: { category: Category }) {
         <Link
           // TODO: Improve routing for user sharing
           // href={`/${category.name.toLowerCase()}`}
-          href="/"
+          href="/chat"
           className={cn(
             'flex items-center pr-5 py-3 cursor-pointer relative origin-left transition-all ease-in-out duration-300',
             isChatbotOfThisCategory ? 'text-xs opacity-50' : 'grow pl-5'
@@ -168,7 +168,7 @@ export default function SidebarLink({ category }: { category: Category }) {
       {
         <motion.div
           className="overflow-hidden
-          ml-5 flex-col border-l-[1px] dark:border-mirage border-gray-300"
+          ml-5 flex-col border-l-DEFAULT dark:border-mirage border-gray-300"
           initial={{ height: 0 }}
           animate={{
             height:
@@ -242,7 +242,7 @@ function ChatbotComponent({
   return (
     <Link
       ref={chatbotRef}
-      href={`/${chatbot.name.toLowerCase()}`}
+      href={`/chat/${chatbot.name.toLowerCase()}`}
       className={cn(
         'flex items-center px-[20px] py-[12px] dark:hover:bg-mirage hover:bg-gray-300',
         chatbot.chatbotId === activeChatbot?.chatbotId &&
