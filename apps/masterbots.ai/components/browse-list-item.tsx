@@ -1,3 +1,5 @@
+'use client'
+
 import Image from 'next/image'
 
 import { cn, sleep, toSlug } from '@/lib/utils'
@@ -13,7 +15,7 @@ import { IconOpenAI, IconUser } from './ui/icons'
 import { useBrowse } from '@/lib/hooks/use-browse'
 let initialUrl: string | null = null
 
-export default function BrowseListItem({
+export default function PreBrowseListItem({
   thread,
   loadMore,
   loading,

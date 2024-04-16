@@ -4,7 +4,7 @@ import React from 'react'
 
 import { getBrowseThreads } from '@/services/hasura'
 import { Thread } from 'mb-genql'
-import BrowseListItem from './browse-list-item'
+import { BrowseListItem } from '@/components/disable-ssr'
 
 export default function BrowseSpecificThreadList({
   initialThreads,

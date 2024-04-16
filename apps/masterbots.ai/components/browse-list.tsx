@@ -6,7 +6,7 @@ import { useBrowse } from '@/lib/hooks/use-browse'
 import { getBrowseThreads } from '@/services/hasura'
 import { debounce } from 'lodash'
 import { Thread } from 'mb-genql'
-import BrowseListItem from './browse-list-item'
+import { BrowseListItem } from '@/components/disable-ssr'
 
 const PAGE_SIZE = 50
 
