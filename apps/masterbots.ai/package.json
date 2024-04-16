@@ -43,7 +43,7 @@
     "mb-lib": "workspace:*",
     "mb-types": "workspace:*",
     "nanoid": "^5.0.3",
-    "next": "14.0.4-canary.17",
+    "next": "14.2.1",
     "next-auth": "5.0.0-beta.3",
     "next-themes": "^0.2.1",
     "openai": "^4.20.0",
