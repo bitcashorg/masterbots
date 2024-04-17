@@ -3,7 +3,6 @@
 import * as React from 'react'
 
 import { useSidebar } from '@/lib/hooks/use-sidebar'
-import { ModalComingSoon } from './modal-coming-soon'
 
 export function CategoryMainTabs() {
   const { tab, changeTab } = useSidebar()
@@ -11,12 +10,6 @@ export function CategoryMainTabs() {
 
   return (
     <>
-      <ModalComingSoon
-        isOpen={isOpen}
-        onClose={() => {
-          setIsOpen(false)
-        }}
-      />
       <div className="w-full flex">
         <button
           onClick={() => {
