@@ -7,7 +7,7 @@
   "types": "./src/index.ts",
   "scripts": {
     "build": "bun run types",
-    "types": "supabase gen types typescript --project-id looshfsrgycjbksiahfo > src/supa.types.ts",
+    "types": "supabase gen types typescript --project-id oqoagtdbtvkiimqrzpoq > src/supa.types.ts",
     "schemas": "supabase-to-zod --input src/supa.types.ts --output src/supa.schemas.ts"
   },
   "author": "bitcash.org",
