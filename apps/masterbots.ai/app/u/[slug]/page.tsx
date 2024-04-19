@@ -32,7 +32,7 @@ export default async function BotThreadsPage({
         username={user.username}
       />
       <div className="container">
-        <ThreadList filter={{ slug: params.slug }} initialThreads={threads} />
+        <ThreadList initialThreads={threads} />
       </div>
     </div>
   )

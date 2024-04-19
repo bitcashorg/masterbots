@@ -31,11 +31,5 @@ export default async function IndexPage() {
     limit: 20
   })
 
-  return (
-    <ThreadList
-      chat
-      filter={{ slug: dbUserProfile.slug }}
-      initialThreads={threads}
-    />
-  )
+  return <ThreadList chat initialThreads={threads} />
 }

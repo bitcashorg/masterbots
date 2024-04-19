@@ -36,12 +36,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       </ul> */}
 
       {threads.length ? (
-        <ThreadList
-          filter={{
-            query
-          }}
-          initialThreads={threads}
-        />
+        <ThreadList initialThreads={threads} />
       ) : (
         <Card>no results</Card>
       )}

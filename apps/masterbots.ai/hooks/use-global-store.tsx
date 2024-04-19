@@ -11,9 +11,7 @@ const GlobalStoreContext = createContext<GlobalStoreContextValue>({
   hasuraJwt: '',
   user: null,
   chatbots: [],
-  query: '',
-  setGlobalError: (errorMessage: string) => {},
-  setGlobalQuery: (query: string) => {}
+  setGlobalError: (errorMessage: string) => {}
 })
 
 // Custom hook to consume the context
@@ -36,12 +34,9 @@ export function GlobalStoreProvider({
   })
 
   const setGlobalError = (errorMessage: string) => setState({ errorMessage })
-  const setGlobalQuery = (query: string) => setState({ query })
 
   return (
-    <GlobalStoreContext.Provider
-      value={{ ...state, setGlobalError, setGlobalQuery }}
-    >
+    <GlobalStoreContext.Provider value={{ ...state, setGlobalError }}>
       {children}
     </GlobalStoreContext.Provider>
   )
@@ -60,9 +55,7 @@ type GlobalStoreContextValue = {
   hasuraJwt: string
   user: UserProfile | null
   setGlobalError: (errorMessage: string) => void
-  setGlobalQuery: (query: string) => void
   chatbots: Chatbot[]
-  query: string
 }
 
 export type UserProfile = {

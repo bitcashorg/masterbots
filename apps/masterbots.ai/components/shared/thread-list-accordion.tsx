@@ -29,9 +29,7 @@ export function ThreadListAccordion({
   return (
     <Accordion
       className="w-full"
-      onValueChange={v => {
-        setState({ isOpen: v[0] === 'pair-1' })
-      }}
+      onValueChange={v => setState({ isOpen: v[0] === 'pair-1' })}
       type="multiple"
     >
       {/* Frist level question and excerpt visible  on lists */}

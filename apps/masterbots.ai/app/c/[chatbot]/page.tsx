@@ -71,11 +71,7 @@ export default async function ChatListPage({
   return (
     <div className="w-full flex flex-col justify-between h-full">
       {/* <ChatSearchInput /> */}
-      <ThreadList
-        chat={true}
-        filter={{ slug: userProfile.slug, chatbotName: chatbot.name }}
-        initialThreads={threads}
-      />
+      <ThreadList chat={true} initialThreads={threads} />
       <NewChatInput
         chatbot={chatbot}
         id={crypto.randomUUID()}

@@ -45,7 +45,7 @@ export default async function CategoryPage({
     <div className="container">
       <CategoryTabs categories={categories} initialCategory={params.category} />
       <SearchInput />
-      <ThreadList filter={{ categoryId, query }} initialThreads={threads} />
+      <ThreadList initialThreads={threads} />
     </div>
   )
 }
