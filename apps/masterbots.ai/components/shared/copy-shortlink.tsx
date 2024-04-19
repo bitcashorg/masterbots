@@ -1,28 +1,45 @@
 'use client'
 
+import { Check, CopyIcon, LoaderCircle } from 'lucide-react'
 import { shorten } from '@/app/actions'
-import { CopyIcon } from 'lucide-react'
+import { useAsyncFn } from 'react-use'
+import { cn } from '@/lib/utils'
 
 export default function Shortlink() {
+  // for local dev
   const url = window.location.href.replace(
     'http://localhost:3000',
-    'https://dev.masterbots.ai'
+    'https://alpha.masterbots.ai'
   )
+
+  const [shortlink, getShortlink] = useAsyncFn(async () => {
+    const formData = new FormData()
+    formData.set('url', url)
+    const { shortLink } = await shorten({}, formData)
+    return navigator.clipboard.writeText(shortLink).then(() => shortLink)
+  })
 
   const handleIconClick = async (e: any) => {
     // Stop propagation to prevent form submission when clicking on the icon
     e.preventDefault()
     e.stopPropagation()
-    const formData = new FormData()
-    formData.set('url', url)
-    const { shortLink } = await shorten({}, formData)
-    navigator.clipboard
-      .writeText(shortLink)
-      .then(() => console.log('Shortlink copied to clipboard'))
-      .catch(error =>
-        console.error('Error copying shortlink to clipboard: ', error)
-      )
+    getShortlink()
   }
 
-  return <CopyIcon size={15} onClick={handleIconClick} className="pointer" />
+  const Icon = shortlink.value
+    ? Check
+    : shortlink.loading
+      ? LoaderCircle
+      : CopyIcon
+
+  return (
+    <Icon
+      className={cn(
+        'pointer transition-all',
+        shortlink.loading && 'animate-spin'
+      )}
+      onClick={handleIconClick}
+      size={15}
+    />
+  )
 }

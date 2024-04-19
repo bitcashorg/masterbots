@@ -1,57 +1,74 @@
 'use client'
 
-import { useState } from 'react'
-
-import { Button } from '@/components/ui/button'
+import { useState, useTransition } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 import { IconClose } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
-import { usePathname } from 'next/navigation'
-import { useRouter } from 'next/navigation'
 import { encodeQuery } from '@/lib/url'
+import { useGlobalStore } from '@/hooks/use-global-store'
 
 export function SearchInput() {
-  const router = useRouter()
   const pathname = usePathname()
-  const [query, setSearchQuery] = useState('')
+  const { setGlobalQuery, ...global } = useGlobalStore()
+  const [query, setQuery] = useState(global.query)
+
+  const replaceUrl = () => {
+    const searchParams = new URLSearchParams(window.location.search)
+    if (query) {
+      searchParams.set('query', encodeQuery(query))
+    } else {
+      console.log('delete')
+      searchParams.delete('query')
+    }
+    searchParams.delete('page')
+
+    history.pushState({}, undefined, `${pathname}?${searchParams.toString()}`)
+    // SSR wont work as Next is not updating the client component intial props on ThreadList
+    // ThreadList listes to changes on global store query state
+  }
 
   const handleSubmit = e => {
     e.preventDefault()
-    router.refresh()
-    router.push(`${pathname}?query=${encodeQuery(query)}`)
-    router.refresh()
+    setGlobalQuery(encodeQuery(query))
+    replaceUrl()
+  }
 
-    // TODO: fix hydration. possible solution could dom key ref linked to search
-    //       search is happening, it hits the server, but hydration not occuring,
+  const clearQuery = () => {
+    setQuery('')
+    setGlobalQuery('')
   }
 
   return (
     <form
-      className="flex flex-col items-center justify-center w-full pt-10 pb-8 mb-4 dark:bg-[#09090B] bg-[#F4F4F5] rounded-lg gap-4 px-4"
+      className="flex flex-col items-center justify-center w-full pt-10 pb-8 mb-4 dark:bg-black-alpha bg-[#F4F4F5] rounded-lg gap-4 px-4"
       onSubmit={handleSubmit}
     >
       <div className="relative w-full max-w-[600px]">
-        <Input
-          className="w-full py-6"
-          onChange={e => {
-            setSearchQuery(e.target.value)
-          }}
-          placeholder="Search any chat with any Bot"
-          value={query || ''}
-        />
         {query ? (
-          <Button
-            aria-label="Clear query"
-            className="absolute right-0 px-3 -translate-y-1/2 cursor-pointer top-1/2"
-            type="submit"
-            variant="ghost"
+          <div
+            className="absolute z-10 cursor-pointer right-4 top-[12px] text-[#1beabd]"
+            onClick={clearQuery}
           >
-            <IconClose className="!h-4 !w-4" />
-          </Button>
+            <IconClose height={15} width={15} />
+          </div>
         ) : null}
+        <div className="w-full bg-black gradient-input">
+          <Input
+            className="bg-black border "
+            onChange={e => {
+              setQuery(e.target.value)
+            }}
+            placeholder="Search answers on all categories"
+            type="text"
+            value={query || ''}
+          />
+          {/* <span></span> */}
+        </div>
       </div>
       {/* <Button type="submit">Search</Button> */}
       <div className="w-full text-center">
-        <p className="dark:text-[#83E56A] text-[#BE17E8] text-xs font-medium pt-4">
+        {/* Removing this momentarily to discuss dark:text-[#83E56A] text-[#BE17E8] font-medium */}
+        <p className="pt-4 text-xs font-light text-neutral-500 ">
           Masterbots isn't infallible; verify crucial facts. Responses are for
           educational use, not legal, medical, financial or specialized advice.
         </p>

@@ -45,6 +45,12 @@
     --link: 208, 100%, 60%;
     --mirage: 217, 33%, 17%;
     --iron: 240, 6%, 90%;
+
+    --mb-gradient: linear-gradient(
+      21deg,
+      rgba(16, 171, 255, 0.7),
+      rgba(27, 234, 189, 0.6)
+    );
   }
 
   .dark {
@@ -104,8 +110,8 @@
 }
 
 .scrollbar::-webkit-scrollbar {
-  width: 1px;
-  height: 1px;
+  width: 4px;
+  height: 4px;
 }
 .scrollbar::-webkit-scrollbar-track,
 .scrollbar::-webkit-scrollbar-corner {
@@ -147,4 +153,35 @@
 
 * {
   outline: none;
+}
+
+/* Reset */
+:root {
+  font-size: 16px;
+}
+
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+}
+
+* {
+  font: inherit;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* Input specific styles */
+.gradient-input {
+  position: relative; /* Set to relative for proper positioning of child elements */
+  background: var(--mb-gradient);
+  padding: 2px; /* Padding around the input for border effect */
+  display: inline-block; /* Default display to inline for inline fields */
+  border-radius: 9999em; /* Circular border radius */
+
+  > input {
+    border-radius: inherit;
+  }
 }

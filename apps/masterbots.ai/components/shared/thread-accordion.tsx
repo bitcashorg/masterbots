@@ -1,112 +1,150 @@
 'use client'
 
 import { useEffect } from 'react'
-
-import { getMessagePairs } from '@/services/hasura'
-
 import { useQuery } from '@tanstack/react-query'
+import { Thread } from '@repo/mb-genql'
+import { getMessagePairs } from '@/services/hasura'
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger
 } from '@/components/ui/accordion'
-
-import { Thread } from '@repo/mb-genql'
-import { ThreadHeading } from './thread-heading'
 import { MessagePair, convertMessage } from '@/lib/threads'
-import { BrowseChatMessage } from './thread-message'
 import { cn } from '@/lib/utils'
+import { ThreadHeading } from './thread-heading'
+import { BrowseChatMessage } from './thread-message'
+import { usePathname, useRouter } from 'next/navigation'
+import { toSlug } from '@/lib/url'
 
 export function ThreadAccordion({
   thread,
   initialMessagePairs,
   clientFetch = false,
   chat = false,
+  // disable automatic client fetch by default
+  // ThreadList sets this to true to load the rest of messages inside ThreadDialog or ThreadListAccordion
+  // ThreadList only receives the first question and answer
   showHeading = true
 }: ThreadAccordionProps) {
-  // initalMessages is coming from server ssr on load. the rest of messages on demand on mount
+  const pathname = usePathname()
+  const router = useRouter()
+
   const { data: pairs, error } = useQuery({
     queryKey: [`messages-${thread.threadId}`],
     queryFn: () => getMessagePairs(thread.threadId),
     initialData: initialMessagePairs,
+    networkMode: 'always',
     refetchOnMount: true,
     enabled: clientFetch
   })
 
-  // update url when dialog opens and closes
+  // update url when thread accordion opens and closes
+  // use cases: when using ThreadDialog and ThreadListAccordion
+  // we want this logic here on central place
   useEffect(() => {
-    const initialUrl = location.href
-    const dir = chat
-      ? 'c/' +
-        thread.chatbot.name
-          .toLowerCase()
-          .replaceAll(' ', '_')
-          .replaceAll('&', '_')
-      : thread.chatbot.categories[0].category.name
-          .toLowerCase()
-          .replaceAll(' ', '_')
-          .replaceAll('&', '_')
-    const threadUrl = `/${dir}/${thread.threadId}`
-    console.log(`Updating URL to ${threadUrl}, initialUrl was ${initialUrl}`)
+    const url = new URL(window.location.href)
+    url.searchParams.set('threadId', thread.threadId)
 
-    window.history.pushState({}, '', threadUrl)
-    return () => {
-      window.history.pushState({}, '', initialUrl)
+    // chat uses different url
+    if (chat) {
+      router.push(`/c/${toSlug(thread.chatbot.name)}/${thread.threadId}`)
+    } else {
+      window.history.pushState({}, '', url.href)
     }
-  })
+
+    // hack to delete threadId after initial render
+    // TODO: remove params on next middleware
+    if (pathname.includes(thread.threadId)) {
+      url.searchParams.delete('threadId')
+      window.history.pushState({}, '', url.pathname + url.search)
+    }
+    // Cleanup function to remove the query parameter on unmount
+    return () => {
+      const url = new URL(window.location.href)
+      url.searchParams.delete('threadId')
+      window.history.pushState({}, '', url.pathname + url.search)
+    }
+  }, [thread.threadId, pathname])
 
   if (error) return <div>There was an error loading thread messages</div>
 
-  // if no initial message and still loading show loading message
-  // NOTE: its fast and transitions in. testing without this
-  if (!pairs?.length) return null
-
-  console.log(pairs.map((_p, key) => `pair-${key}`))
   return (
-    <Accordion
-      type="multiple"
-      className="w-full"
-      defaultValue={['pair-0', 'pair-1', 'pair-2']}
-    >
-      {pairs.map((p, key) => {
-        return (
-          <AccordionItem value={`pair-${key}`} key={key}>
-            {showHeading ? (
-              <AccordionTrigger className={cn('bg-mirage')}>
-                {key ? (
-                  <div className="pl-12">{p.userMessage.content}</div>
-                ) : (
-                  <ThreadHeading
-                    thread={thread}
-                    question={p.userMessage.content}
-                    copy={true}
-                    chat={chat}
-                  />
-                )}
-              </AccordionTrigger>
-            ) : null}
-            <AccordionContent aria-expanded={true}>
-              <div className="px-7">
-                {p.chatGptMessage.map((message, index) => (
+    <div className="flex w-full">
+      <Accordion
+        className={cn('w-full border border-solid border-mirage scroll')}
+        defaultValue={['pair-0', 'pair-1', 'pair-2']}
+        type="multiple"
+        key={`accordion-${JSON.stringify(pairs)}`}
+      >
+        {pairs.map((p, key) => {
+          const isFirst = key === 0
+          console.log(key, p)
+          return (
+            <AccordionItem
+              key={`accordion-item-${thread.threadId}-pair-${key}`}
+              value={`pair-${key}`}
+            >
+              {
+                // is not the frist question we return follow question style
+                !isFirst ? (
+                  <AccordionTrigger
+                    className={cn('px-5 border-y border-solid border-mirage')}
+                  >
+                    <div className="pl-12 md:text-lg">
+                      {p.userMessage.content}
+                    </div>
+                  </AccordionTrigger>
+                ) : null
+              }
+
+              {
+                // when using ThreadAccordion inside ThreadDialog or ThreadListAccordion we want
+                // to control heading and hide and ThreadAccordion and ThreadDialog show the ThreadHeading already
+                // when using ThreadAccordion in thread landing page /{category}/{threadId} showHeading must be true
+                // ThreadHeading is the the big one with the user avatar, ThreadDialog or ThreadListAccordion is hidden
+                showHeading && isFirst ? (
+                  <AccordionTrigger
+                    className={cn(
+                      'px-5',
+                      isFirst
+                        ? 'bg-mirage'
+                        : 'border-y border-solid border-mirage'
+                    )}
+                  >
+                    <ThreadHeading
+                      chat={chat}
+                      copy
+                      question={p.userMessage.content}
+                      thread={thread}
+                    />
+                  </AccordionTrigger>
+                ) : null
+              }
+
+              <AccordionContent
+                aria-expanded
+                className={cn('mx-8 border-x border-solid border-mirage')}
+              >
+                {p.chatGptMessage.map(message => (
                   <BrowseChatMessage
                     chatbot={thread.chatbot}
-                    key={index}
+                    key={`message-${message.messageId}`}
                     message={convertMessage(message)}
                   />
                 ))}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        )
-      })}
-    </Accordion>
+              </AccordionContent>
+            </AccordionItem>
+          )
+        })}
+      </Accordion>
+    </div>
   )
 }
 
 interface ThreadAccordionProps {
   thread: Thread
-  initialMessagePairs?: MessagePair[]
+  initialMessagePairs: MessagePair[]
   clientFetch?: boolean
   chat?: boolean
   showHeading?: boolean

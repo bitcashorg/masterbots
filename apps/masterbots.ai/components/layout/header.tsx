@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button'
 import { IconSeparator } from '@/components/ui/icons'
 import { UserMenu } from '@/components/layout/user-menu'
 import { createSupabaseServerClient } from '@/services/supabase'
-import { SidebarToggle } from '../routes/c/sidebar/sidebar-toggle'
 import { getUser } from '@/services/hasura'
+import { SidebarToggle } from '../routes/c/sidebar/sidebar-toggle'
 
 // https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating
 
@@ -21,7 +21,7 @@ export async function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b shrink-0 bg-gradient-to-b from-background/10 via-background/50 to-background/80 backdrop-blur-xl">
-      <div className="flex items-center justify-between px-4 h-16">
+      <div className="flex items-center justify-between h-16 px-4">
         <div className="flex items-center ">
           <SidebarToggle />
           <HeaderLink href="/" text="Masterbots" />

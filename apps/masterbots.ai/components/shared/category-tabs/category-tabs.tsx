@@ -1,7 +1,6 @@
 'use client'
 
 import type { Category } from '@repo/mb-genql'
-
 import { CategoryLink } from './category-link'
 
 export function CategoryTabs({

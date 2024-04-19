@@ -1,10 +1,10 @@
+import { cookies } from 'next/headers'
+import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import AccountDetails from '@/components/shared/account-details'
 import { UserProfile } from '@/hooks/use-global-store'
 import { getBrowseThreads, getUserInfoFromBrowse } from '@/services/hasura'
 import { createSupabaseServerClient } from '@/services/supabase'
-import { cookies } from 'next/headers'
-import Link from 'next/link'
-import { redirect } from 'next/navigation'
 
 export default async function OssLayout({ children }: OssLayoutProps) {
   return (

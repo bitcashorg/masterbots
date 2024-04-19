@@ -25,14 +25,14 @@ export default async function BotThreadsPage({
       <CategoryTabs categories={categories} />
       <SearchInput />
       <AccountDetails
-        href={`/u/${params.slug}`}
         alt={user.username}
-        username={user.username}
         avatar={user.profilePicture || ''}
+        href={`/u/${params.slug}`}
         threadNum={threads.length} //TODO: get total number of thread. not the filter one
+        username={user.username}
       />
       <div className="container">
-        <ThreadList initialThreads={threads} filter={{ slug: params.slug }} />
+        <ThreadList filter={{ slug: params.slug }} initialThreads={threads} />
       </div>
     </div>
   )

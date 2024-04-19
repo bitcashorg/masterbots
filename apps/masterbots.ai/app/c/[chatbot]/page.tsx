@@ -1,3 +1,86 @@
-import ChatListPage from './[threadId]/page'
+import { nanoid, type Message } from 'ai'
+import { isTokenExpired } from '@repo/mb-lib'
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
+import { botNames } from '@/lib/bots-names'
+import { getBrowseThreads, getChatbot, getUser } from '@/services/hasura'
+import { createSupabaseServerClient } from '@/services/supabase'
+import { ThreadList } from '@/components/shared/thread-list'
+import { NewChatInput } from '@/components/shared/chat/chat-input'
 
-export default ChatListPage
+export default async function ChatListPage({
+  params
+}: {
+  params: { chatbot: string }
+}) {
+  const redirectTo = `/auth/sign-in?next=/c/${params.chatbot}`
+  const supabase = await createSupabaseServerClient()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
+  if (!user.email) redirect(redirectTo)
+
+  const userProfile = await getUser({
+    email: user.email,
+    adminSecret: process.env.HASURA_GRAPHQL_ADMIN_SECRET || ''
+  })
+  if (!userProfile) redirect(redirectTo)
+
+  const jwt = cookies().get('hasuraJwt').value || ''
+  if (!jwt || isTokenExpired(jwt)) redirect(redirectTo)
+
+  const chatbot = await getChatbot({
+    chatbotName: botNames.get(params.chatbot),
+    jwt
+  })
+
+  if (!chatbot) redirect('/c')
+
+  // session will always be defined
+  const threads = await getBrowseThreads({
+    chatbotName: botNames.get(params.chatbot),
+    userId: userProfile.userId
+  })
+
+  // format all chatbot prompts as chatgpt 'system' messages
+  const chatbotSystemPrompts: Message[] = chatbot.prompts.map(({ prompt }) => ({
+    id: prompt.promptId.toString(),
+    role: 'system',
+    content: prompt.content,
+    createdAt: new Date()
+  }))
+  const userPreferencesPrompts: Message[] = [
+    {
+      id: nanoid(),
+      role: 'system',
+      content:
+        `Your response tone will be ${chatbot.defaultTone}. ` +
+        `Your response length will be ${chatbot.defaultLength}. ` +
+        `Your response format will be ${chatbot.defaultType}. ` +
+        `Your response complexity level will be ${chatbot.defaultComplexity}.` +
+        'Your response will be generated in the same language as user input.',
+      createdAt: new Date()
+    }
+  ]
+
+  // concatenate all message to pass it to chat component
+  const initialMessages: Message[] = chatbotSystemPrompts.concat(
+    userPreferencesPrompts
+  )
+
+  return (
+    <div className="w-full flex flex-col justify-between h-full">
+      {/* <ChatSearchInput /> */}
+      <ThreadList
+        chat={true}
+        filter={{ slug: userProfile.slug, chatbotName: chatbot.name }}
+        initialThreads={threads}
+      />
+      <NewChatInput
+        chatbot={chatbot}
+        id={crypto.randomUUID()}
+        initialMessages={initialMessages}
+      />
+    </div>
+  )
+}

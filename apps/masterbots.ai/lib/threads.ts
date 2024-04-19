@@ -1,7 +1,8 @@
 import type * as AI from 'ai'
-import { Message } from '@repo/mb-genql'
+import { Message, Thread } from '@repo/mb-genql'
 import { type Message as AIMessage } from 'ai/react'
 import { extractBetweenMarkers } from './utils'
+import { toSlug } from './url'
 
 export function createMessagePairs(messages: Message[] | AIMessage[]) {
   const messagePairs: MessagePair[] = []
@@ -79,4 +80,8 @@ export function getAllUserMessagesAsStringArray(
     extractBetweenMarkers(m.content, 'Then answer this question:')
   )
   return cleanMessages.join(', ')
+}
+
+export function getThreadLink({chat=false, thread}:{chat?:boolean, thread: Thread}){
+ return chat ? `/c/${toSlug(thread.chatbot.name)}/${thread.threadId}` : `/${toSlug(thread.chatbot.categories[0]?.category.name)}/${thread.threadId}}`
 }
