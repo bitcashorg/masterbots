@@ -1,6 +1,6 @@
 'use server'
 
-import Dub from 'dub'
+import { Dub } from 'dub'
 
 const dub = new Dub({
   projectSlug: 'bitcash'
@@ -16,13 +16,14 @@ export async function shorten(_prevState: any, formData: any) {
       }
     }
 
-    const { shortLink } = await dub.links.create({
+    const resp = await dub.links.create({
       url,
       domain: 'mbots.to'
     })
 
+    console.log('🤌🏻 dub response', resp)
     return {
-      shortLink
+      shortLink: ''
     }
   } catch (error) {
     console.log('ERROR', error)
