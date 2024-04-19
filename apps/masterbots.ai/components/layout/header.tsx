@@ -26,7 +26,7 @@ export async function Header() {
           <SidebarToggle />
           <HeaderLink href="/" text="Masterbots" />
           <IconSeparator className="size-6 text-muted-foreground/50" />
-          <HeaderLink href="/c" text="Chat" />
+          <HeaderLink href="https://masterbots.ai/chat" text="Chat" />
           <HeaderLink href="/p" text="Pro" />
         </div>
         <div className="flex items-center justify-end space-x-2">
@@ -34,7 +34,7 @@ export async function Header() {
             <UserMenu />
           ) : (
             <Button asChild className="-ml-2" variant="link">
-              <Link href="/auth/sign-in">Login</Link>
+              <Link href="https://masterbots.ai/auth/sign-in">Login</Link>
             </Button>
           )}
         </div>
