@@ -11,6 +11,7 @@ import { getBrowseThreads } from '@/services/hasura'
 import { ThreadDialog } from './thread-dialog'
 import { ThreadListAccordion } from './thread-list-accordion'
 import { ThreadListChatItem } from './thread-list-chat-item'
+import { useGlobalStore } from '@/hooks/use-global-store'
 
 const limit = 20
 export function ThreadList({
@@ -19,29 +20,36 @@ export function ThreadList({
   chat = false,
   dialog = false
 }: ThreadListProps) {
-  // const globalStore = useGlobalStore()
-  const queryKey = [usePathname(), 'globalStore.query']
+  const { query } = useGlobalStore()
   const loadMoreRef = useRef<HTMLDivElement>(null)
   const queryClient = useQueryClient()
   const [showSkeleton, setShowSkeleton] = useState(false)
-  const [lastQueryKey, setLastQueryKey] = useState(queryKey)
 
-  const { isFetchingNextPage, fetchNextPage, data } = useInfiniteQuery({
-    queryKey,
-    queryFn: async props => {
-      return getBrowseThreads({
-        ...filter,
-        offset: props.pageParam * limit,
-        limit
-      })
-    },
-    initialData: { pages: [initialThreads], pageParams: [1] },
-    initialPageParam: 2,
-    getNextPageParam: (_a, _b, lastPageParam) => {
-      return lastPageParam + 1
-    },
-    enabled: false
-  })
+  const queryKey = [usePathname(), query]
+  const [lastQueryKey, setLastQueryKey] = useState(queryKey)
+  const { isFetchingNextPage, fetchNextPage, data, refetch } = useInfiniteQuery(
+    {
+      queryKey,
+      queryFn: async props => {
+        return getBrowseThreads({
+          ...filter,
+          offset: props.pageParam * limit,
+          limit,
+          query
+        })
+      },
+      initialData: { pages: [initialThreads], pageParams: [1] },
+      initialPageParam: 2,
+      getNextPageParam: (_a, _b, lastPageParam) => {
+        return lastPageParam + 1
+      },
+      enabled: false
+    }
+  )
+
+  useEffect(() => {
+    refetch()
+  }, [refetch, query])
 
   // load mare item when it gets to the end
   // TODO: read count from database
@@ -84,9 +92,10 @@ export function ThreadList({
     queryClient.invalidateQueries({ queryKey }).then(() => {
       queryClient.refetchQueries({ queryKey }).then(() => {
         setShowSkeleton(false)
+        refetch()
       })
     })
-  }, [queryKey, setLastQueryKey, lastQueryKey, setShowSkeleton])
+  }, [queryKey, setLastQueryKey, lastQueryKey, setShowSkeleton, refetch])
 
   // ThreadList can displays the rigth list item based on the context
   // ThreadListChatItem is next shallow link for chat ui lists

@@ -9,26 +9,29 @@ import { useGlobalStore } from '@/hooks/use-global-store'
 
 export function SearchInput() {
   const pathname = usePathname()
+  // const router = useRouter()
   const { setGlobalQuery, ...global } = useGlobalStore()
   const [query, setQuery] = useState(global.query)
 
   const replaceUrl = () => {
+    // Encoding the query and managing search parameters
     const searchParams = new URLSearchParams(window.location.search)
-    if (query) {
-      searchParams.set('query', encodeQuery(query))
-    } else {
-      console.log('delete')
-      searchParams.delete('query')
-    }
-    searchParams.delete('page')
+    if (!query) searchParams.delete('query')
+    searchParams.delete('page') // Always remove 'page' param to reset pagination or similar
 
-    history.pushState({}, undefined, `${pathname}?${searchParams.toString()}`)
-    // SSR wont work as Next is not updating the client component intial props on ThreadList
-    // ThreadList listes to changes on global store query state
+    //TODO: find out how to fix client component refresh issue
+    //      in the meantime I'll use client global store
+    //      update url for history navigation and reload support
+    history.pushState({}, undefined, `${pathname}?query=${encodeQuery(query)}`)
+
+    // const href = `${pathname}?${searchParams.toString()}`
+    // router.replace(href)
+    // router.refresh()
   }
 
   const handleSubmit = e => {
     e.preventDefault()
+    // ThreadList listens to changes on global store query state
     setGlobalQuery(encodeQuery(query))
     replaceUrl()
   }

@@ -357,7 +357,6 @@ export async function getBrowseThreads({
   offset,
   slug
 }: GetBrowseThreadsParams) {
-
   const client = getHasuraClient({})
 
   const { thread } = await client.query({

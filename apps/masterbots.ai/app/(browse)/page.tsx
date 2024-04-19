@@ -28,7 +28,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   return (
     <div className="container">
       <CategoryTabs categories={categories} />
-      {/* <SearchInput /> */}
+      <SearchInput />
       {/* <div>Your query: {query}</div>
       <ul>
         {threads.map(t => (
