@@ -44,26 +44,27 @@ export function ThreadList({
   })
 
   // load mare item when it gets to the end
-  // useEffect(() => {
-  //   // only load add observer if we get at least iquals to limit on initialThreads
-  //   // TODO: get thread count from server db query
-  //   if (!loadMoreRef.current || initialThreads.length < limit) return
-  //   const observer = new IntersectionObserver(([entry]) => {
-  //     if (entry.isIntersecting && !isFetchingNextPage) {
-  //       setTimeout(() => {
-  //         fetchNextPage()
-  //       }, 150)
-  //       observer.unobserve(entry.target)
-  //     }
-  //   })
+  // TODO: read count from database
+  useEffect(() => {
+    // only load add observer if we get at least iquals to limit on initialThreads
+    // TODO: get thread count from server db query
+    if (!loadMoreRef.current || initialThreads.length < limit) return
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !isFetchingNextPage) {
+        setTimeout(() => {
+          fetchNextPage()
+        }, 150)
+        observer.unobserve(entry.target)
+      }
+    })
 
-  //   observer.observe(loadMoreRef.current)
+    observer.observe(loadMoreRef.current)
 
-  //   return () => {
-  //     // always unsubscribe on component unmount
-  //     observer.disconnect()
-  //   }
-  // }, [isFetchingNextPage, fetchNextPage])
+    return () => {
+      // always unsubscribe on component unmount
+      observer.disconnect()
+    }
+  }, [isFetchingNextPage, fetchNextPage])
 
   useEffect(() => {
     const queryKeyString = JSON.stringify(queryKey)

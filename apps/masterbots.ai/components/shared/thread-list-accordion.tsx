@@ -53,13 +53,13 @@ export function ThreadListAccordion({
           {/* Secod level accordion with follow up questions
              showHeading must be false as we already have in screen on AccordionTrigger above */}
           <div className="overflow-y-scroll scrollbar srcoll-smooth max-h-[500px]">
-            {/* <ThreadAccordion
+            <ThreadAccordion
               chat={chat}
               clientFetch
               showHeading={false}
               thread={thread}
               initialMessagePairs={createMessagePairs(thread.messages)}
-            /> */}
+            />
           </div>
         </AccordionContent>
       </AccordionItem>
