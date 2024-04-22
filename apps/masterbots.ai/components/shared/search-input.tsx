@@ -5,7 +5,7 @@ import { IconClose } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
 import { ChangeEvent } from 'react'
 import { encodeQuery } from '@/lib/url'
-import { useDebouncedCallback } from 'use-debounce'
+import { useDebounce, useDebouncedCallback } from 'use-debounce'
 
 export function SearchInput() {
   const pathname = usePathname()
@@ -18,9 +18,16 @@ export function SearchInput() {
     const queryParam = encodeQuery(query)
     // Encoding the query and managing search parameters
     const params = new URLSearchParams(searchParams)
-    query ? params.set('query', queryParam) : params.delete('query')
-    router.replace(`${pathname}?query=${encodeQuery(queryParam)}`)
-  }, 2000)
+    if (query) {
+      params.set('query', encodeQuery(queryParam))
+      console.log('params.get query', params.get('query'))
+      router.replace(`${pathname}?query=${encodeQuery(queryParam)}`)
+    } else {
+      params.delete('query')
+      router.replace(pathname)
+    }
+    router.refresh()
+  }, 200)
 
   return (
     <div className="flex flex-col items-center justify-center w-full pt-10 pb-8 mb-4 dark:bg-black-alpha bg-[#F4F4F5] rounded-lg gap-4 px-4">

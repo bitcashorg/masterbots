@@ -24,6 +24,7 @@ export function ThreadList({
         <div>No threads founds</div>
       ) : (
         initialThreads.map((thread: Thread) => (
+          // <div>{thread.messages[0]?.content}</div>
           <ThreadComponent
             chat={chat}
             defaultOpen={false} // we can have one open by default

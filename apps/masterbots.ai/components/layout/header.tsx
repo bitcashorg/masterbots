@@ -10,7 +10,6 @@ import { getUser } from '@/services/hasura'
 import { SidebarToggle } from '../routes/c/sidebar/sidebar-toggle'
 
 // https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating
-
 export async function Header() {
   const supabase = await createSupabaseServerClient()
   const {
@@ -33,7 +32,7 @@ export async function Header() {
           {user && !isTokenExpired(jwt) ? (
             <UserMenu />
           ) : (
-            <Button asChild className="-ml-2" variant="link">
+            <Button asChild className="ml-2" variant="link">
               <Link href="https://masterbots.ai/auth/sign-in">Login</Link>
             </Button>
           )}

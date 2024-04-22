@@ -1,8 +1,5 @@
-'use client'
-
 import type { Thread } from '@repo/mb-genql'
 import { DialogProps } from '@radix-ui/react-dialog'
-import { useSetState } from 'react-use'
 import { cn } from '@/lib/utils'
 import {
   Accordion,
@@ -18,30 +15,27 @@ export function ThreadListAccordion({
   thread,
   chat = false
 }: ThreadListAccordionProps) {
-  const [state, setState] = useSetState({
-    isOpen: false,
-    firstQuestion:
-      thread.messages.find(m => m.role === 'user')?.content || 'not found',
-    firstResponse:
-      thread.messages.find(m => m.role === 'assistant')?.content || 'not found'
-  })
-
+  const firstQuestion =
+    thread.messages.find(m => m.role === 'user')?.content || 'not found'
+  const firstResponse =
+    thread.messages.find(m => m.role === 'assistant')?.content || 'not found'
+  const isOpen = false
   return (
     <Accordion
       className="w-full"
-      onValueChange={v => setState({ isOpen: v[0] === 'pair-1' })}
+      // onValueChange={v => setState({ isOpen: v[0] === 'pair-1' })}
       type="multiple"
     >
       {/* Frist level question and excerpt visible  on lists */}
       <AccordionItem value="pair-1">
         <AccordionTrigger
-          className={cn('hover:bg-mirage px-5', state.isOpen && 'bg-mirage')}
+          className={cn('hover:bg-mirage px-5', isOpen && 'bg-mirage')}
         >
           <ThreadHeading
             chat={chat}
-            copy={state.isOpen}
-            question={state.firstQuestion}
-            response={state.isOpen ? '' : state.firstResponse}
+            copy={isOpen}
+            question={firstQuestion}
+            response={isOpen ? '' : firstResponse}
             thread={thread}
           />
         </AccordionTrigger>
