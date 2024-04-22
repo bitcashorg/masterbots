@@ -1,7 +1,9 @@
 'use server'
 
 import { createSupabaseServerClient } from '@/services/supabase'
+import { getErrorMessage } from '@repo/mb-lib'
 import { Dub } from 'dub'
+import { objectToCamel } from 'ts-case-convert'
 
 const dub = new Dub({
   projectSlug: 'bitcash'
@@ -47,22 +49,42 @@ export async function getThreads(formData: FormData) {
   const supabase = await createSupabaseServerClient()
   const query = formData.get('query')
 
-  let supaQuery = supabase.from('thread').select(
-    `
+  const threadsQuery = supabase
+    .from('thread')
+    .select(
+      `
       *,
       message (
-        * order(created_at desc)
+        * 
       )
     `
-  )
+    )
+    .range(0, 20)
+  const { data, error } = await threadsQuery
+  if (error) throw new Error(getErrorMessage(error))
 
-  if (query) {
-    supaQuery = supaQuery
-      .filter('message.role', 'neq', 'system')
-      .textSearch('message.content', query.toString())
-  }
+  // Filter to get the first assistant and user message
+  const filteredData = objectToCamel(data).map(thread => {
+    const firstAssistantMessage = thread.message.find(
+      msg => msg.role === 'assistant'
+    )
+    const firstUserMessage = thread.message.find(msg => msg.role === 'user')
+    return {
+      ...thread,
+      // new props in response for easier reference
+      firstUserMessage,
+      firstAssistantMessage,
+      // for backward campat with current code
+      message: [firstUserMessage, firstAssistantMessage].filter(Boolean), // Removes undefined entries
+      messageCount: thread.message.length
+    }
+  })
 
-  const { data, error } = await supaQuery
-
-  return error ? null : data
+  return error ? null : filteredData
 }
+
+// if (query) {
+//   supaQuery = supaQuery
+//     .filter('message.role', 'neq', 'system')
+//     .textSearch('message.content', query.toString())
+// }
