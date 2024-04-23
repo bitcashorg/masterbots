@@ -23,6 +23,7 @@
   ],
   "packageManager": "bun@1.0.14",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.20.6",
     "nextjs-toploader": "^1.6.4"
   }
 }
