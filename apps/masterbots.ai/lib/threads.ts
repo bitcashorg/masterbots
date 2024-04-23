@@ -1,7 +1,7 @@
 import type * as AI from 'ai'
 import { toSlug } from './url'
-import { FilteredThread } from '@/app/actions'
 import { objectToCamel } from 'ts-case-convert'
+import { MB } from '@repo/supabase'
 
 export function createMessagePairs(messages: AI.Message[]) {
   const messagePairs: MessagePair[] = []
@@ -67,11 +67,11 @@ export function getThreadLink({
   thread
 }: {
   chat?: boolean
-  thread: FilteredThread
+  thread: MB.ThreadFull
 }) {
   return chat
     ? `/c/${toSlug(thread.chatbot.name)}/${thread.threadId}`
-    : `/${toSlug(thread.category[0].name)}/${thread.threadId}}`
+    : `/${toSlug(thread.chatbot.categories[0].name)}/${thread.threadId}}`
 }
 
 export function getFirstMessages(messages: MessageData[]) {

@@ -1,7 +1,7 @@
+import { MB } from '@repo/supabase'
 import { ThreadDialog } from './thread-dialog'
 import { ThreadListAccordion } from './thread-list-accordion'
 import { ThreadListChatItem } from './thread-list-chat-item'
-import { FilteredThreads } from '@/app/actions'
 
 export function ThreadList({
   initialThreads,
@@ -24,7 +24,6 @@ export function ThreadList({
         <div>No threads founds</div>
       ) : (
         initialThreads.map(thread => (
-          // <div>{thread.messages[0]?.content}</div>
           <ThreadComponent
             chat={chat}
             defaultOpen={false} // we can have one open by default
@@ -38,7 +37,7 @@ export function ThreadList({
 }
 
 interface ThreadListProps {
-  initialThreads: FilteredThreads
+  initialThreads: MB.ThreadFull[]
   chat?: boolean
   dialog?: boolean
 }

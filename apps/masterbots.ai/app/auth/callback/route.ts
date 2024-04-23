@@ -49,7 +49,7 @@ export async function GET(request: Request) {
     }),
     {
       httpOnly: true,
-      maxAge: Number(process.env.JWT_TOKEN_EXPIRATION),
+      maxAge: 2630016,
       path: '/',
       sameSite: 'lax' //  sameSite policy
     }

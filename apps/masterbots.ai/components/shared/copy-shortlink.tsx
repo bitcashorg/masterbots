@@ -1,9 +1,9 @@
 'use client'
 
 import { Check, CopyIcon, LoaderCircle } from 'lucide-react'
-import { shorten } from '@/app/actions'
 import { useAsyncFn } from 'react-use'
 import { cn } from '@/lib/utils'
+import { shorten } from '@/services/dub'
 
 export default function Shortlink() {
   // for local dev

@@ -6,7 +6,8 @@ import { cn } from '@/lib/utils'
 import { createMessagePairs } from '@/lib/threads'
 import { ThreadAccordion } from './thread-accordion'
 import { ThreadHeading } from './thread-heading'
-import { FilteredThread } from '@/app/actions'
+import { MB } from '@repo/supabase'
+
 
 export function ThreadDialog({
   thread,
@@ -42,7 +43,7 @@ export function ThreadDialog({
 }
 
 interface ThreadDialogProps extends DialogProps {
-  thread: FilteredThread
+  thread: MB.ThreadFull
   chat?: boolean
   defaultOpen?: boolean
 }

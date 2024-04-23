@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
               <p
                 style={{ color: '#ef4444', fontSize: '18px', marginTop: '0px' }}
               >
-                {thread.category[0].name}
+                {thread.chatbot.categories[0].name}
               </p>
             </div>
             {thread.chatbot.avatar ? (

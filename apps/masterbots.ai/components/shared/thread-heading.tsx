@@ -3,7 +3,7 @@ import { ShortMessage } from './thread-short-message'
 import { AccountAvatar } from './account-avatar'
 import Shortlink from './copy-shortlink'
 import { toSlug } from '@/lib/url'
-import { FilteredThread } from '@/app/actions'
+import { MB } from '@repo/supabase'
 
 export function ThreadHeading({
   thread,
@@ -57,7 +57,7 @@ export function ThreadHeading({
 }
 
 interface ThreadHeadingProps {
-  thread: FilteredThread
+  thread: MB.ThreadFull
   response?: string
   question: string
   copy?: boolean

@@ -10,7 +10,6 @@ import { ThreadAccordion } from './thread-accordion'
 import { ThreadHeading } from './thread-heading'
 import { createMessagePairs } from '@/lib/threads'
 import type { MB } from '@repo/supabase'
-import { FilteredThread } from '@/app/actions'
 
 export function ThreadListAccordion({
   thread,
@@ -57,6 +56,6 @@ export function ThreadListAccordion({
 }
 
 interface ThreadListAccordionProps extends DialogProps {
-  thread: FilteredThread
+  thread: MB.ThreadFull
   chat?: boolean
 }

@@ -14,7 +14,8 @@ import { ThreadHeading } from './thread-heading'
 import { BrowseChatMessage } from './thread-message'
 import { usePathname, useRouter } from 'next/navigation'
 import { toSlug } from '@/lib/url'
-import { FilteredThread, getMessagePairs } from '@/app/actions'
+import {  getMessagePairs } from '@/app/actions'
+import { MB } from '@repo/supabase'
 
 export function ThreadAccordion({
   thread,
@@ -141,7 +142,7 @@ export function ThreadAccordion({
 }
 
 interface ThreadAccordionProps {
-  thread: FilteredThread
+  thread: MB.ThreadFull
   initialMessagePairs: MessagePair[]
   clientFetch?: boolean
   chat?: boolean

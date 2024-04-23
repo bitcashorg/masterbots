@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils'
 import { ThreadHeading } from './thread-heading'
 import Link from 'next/link'
 import { getThreadLink } from '@/lib/threads'
-import { FilteredThread } from '@/app/actions'
+import { MB } from '@repo/supabase'
 
 export function ThreadListChatItem({ thread }: ThreadListChatItemProps) {
   return (
@@ -22,7 +22,7 @@ export function ThreadListChatItem({ thread }: ThreadListChatItemProps) {
 }
 
 interface ThreadListChatItemProps {
-  thread: FilteredThread
+  thread: MB.ThreadFull
   chat?: boolean
   defaultOpen?: boolean
 }
