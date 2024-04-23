@@ -25,7 +25,7 @@ export default async function CategoryPage({
   const limit = searchParams.limit ? parseInt(searchParams.limit) : 20
   const page = searchParams.page ? parseInt(searchParams.page) : 1
 
-  const threads = await getThreads({ query })
+  const threads = await getThreads()
 
   // Extract users and total number of users from the result
   // const users = result.users.items
