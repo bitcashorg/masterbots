@@ -1,15 +1,9 @@
-import { cookies } from 'next/headers'
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
-import AccountDetails from '@/components/shared/account-details'
-import { UserProfile } from '@/hooks/use-global-store'
-import { getBrowseThreads, getUserInfoFromBrowse } from '@/services/hasura'
-import { createSupabaseServerClient } from '@/services/supabase'
 
 export default async function OssLayout({ children }: OssLayoutProps) {
   return (
-    <main className="flex flex-col min-h-screen container">
-      <div className="py-12 px-6">
+    <main className="container flex flex-col min-h-screen">
+      <div className="px-6 py-12">
         <div className="space-y-0.5 mb-10 pb-10 border-b-[1px] dark:border-mirage border-gray-300">
           <h1 className="text-2xl font-bold tracking-tight">
             Open Source Manifest
@@ -36,7 +30,7 @@ export default async function OssLayout({ children }: OssLayoutProps) {
               </div>
             </nav>
           </div>
-          <div className="flew grow space-y-6">{children}</div>
+          <div className="space-y-6 flew grow">{children}</div>
         </div>
       </div>
     </main>

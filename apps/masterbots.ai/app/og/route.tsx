@@ -3,8 +3,8 @@
 import { ImageResponse } from '@vercel/og'
 import { NextRequest } from 'next/server'
 import { GeistMono } from 'geist/font/mono' // Import the GeistMono font
-import { getThread } from '@/services/hasura'
 import '@/app/globals.css'
+import { getThread } from '../actions'
 
 export const runtime = 'edge'
 
@@ -13,8 +13,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = req.nextUrl
     const threadId = searchParams.get('threadId')
     const thread = await getThread({ threadId })
-    const question =
-      thread.messages.find(m => m.role === 'user')?.content || 'not found'
+
     // You may need to convert GeistMono or fetch it as ArrayBuffer if needed
     // const font = GeistMono; // Assuming GeistMono can be directly used, modify as needed
 
@@ -58,11 +57,13 @@ export async function GET(req: NextRequest) {
               >
                 {thread.chatbot.name}
               </p>
-              <h1 style={{ fontSize: '68px', color: 'white' }}>{question}</h1>
+              <h1 style={{ fontSize: '68px', color: 'white' }}>
+                {thread.firstUserMessage.content}
+              </h1>
               <p
                 style={{ color: '#ef4444', fontSize: '18px', marginTop: '0px' }}
               >
-                {thread.chatbot.categories[0]?.category.name}
+                {thread.category[0].name}
               </p>
             </div>
             {thread.chatbot.avatar ? (

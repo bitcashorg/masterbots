@@ -9,25 +9,26 @@ import { Header } from '@/components/layout/header'
 import { Providers } from '@/components/layout/providers'
 import { cn } from '@/lib/utils'
 import { GlobalStoreProvider } from '@/hooks/use-global-store'
-import { getChatbots } from '@/services/hasura'
 import { Metadata } from 'next/types'
+import { createSupabaseServerClient } from '@/services/supabase'
+import { objectToCamel } from 'ts-case-convert'
 
-async function getCookieData(): Promise<{ hasuraJwt; userProfile }> {
-  const hasuraJwt = cookies().get('hasuraJwt')?.value || ''
+async function getCookieData(): Promise<{ userProfile }> {
   const userProfile = cookies().get('userProfile')?.value || null
   return new Promise(resolve =>
     setTimeout(() => {
-      resolve({ hasuraJwt, userProfile })
+      resolve({ userProfile })
     }, 1000)
   )
 }
+
 const DynamicCmdK = dynamic(() => import('../components/layout/cmdk'), {
   ssr: false
 })
 
 export default async function RootLayout({ children }: RootLayoutProps) {
-  const { hasuraJwt, userProfile } = await getCookieData()
-  const chatbots = await getChatbots({ threads: false })
+  const { userProfile } = await getCookieData()
+  const { chatbots, categories } = await getGlobalData()
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -39,8 +40,8 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       >
         <Toaster />
         <GlobalStoreProvider
-          chatbots={chatbots}
-          hasuraJwt={hasuraJwt}
+          chatbots={[]}
+          categories={categories}
           user={(userProfile && JSON.parse(userProfile)) || null}
         >
           <Providers
@@ -61,6 +62,15 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       </body>
     </html>
   )
+}
+
+async function getGlobalData() {
+  const supabase = await createSupabaseServerClient()
+
+  const categories = await supabase.from('category').select()
+  const chatbot = await supabase.from('chatbot').select(`*, prompt(*)`)
+
+  return objectToCamel({ categories: categories.data, chatbots: chatbot.data })
 }
 
 export const viewport = {
@@ -115,7 +125,6 @@ export const metadata: Metadata = {
     apple: '/apple-touch-icon.png'
   }
 }
-
 interface RootLayoutProps {
   children: React.ReactNode
 }

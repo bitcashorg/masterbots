@@ -1,4 +1,3 @@
-import type { Thread } from '@repo/mb-genql'
 import { DialogProps } from '@radix-ui/react-dialog'
 import { cn } from '@/lib/utils'
 import {
@@ -10,15 +9,13 @@ import {
 import { ThreadAccordion } from './thread-accordion'
 import { ThreadHeading } from './thread-heading'
 import { createMessagePairs } from '@/lib/threads'
+import type { MB } from '@repo/supabase'
+import { FilteredThread } from '@/app/actions'
 
 export function ThreadListAccordion({
   thread,
   chat = false
 }: ThreadListAccordionProps) {
-  const firstQuestion =
-    thread.messages.find(m => m.role === 'user')?.content || 'not found'
-  const firstResponse =
-    thread.messages.find(m => m.role === 'assistant')?.content || 'not found'
   const isOpen = false
   return (
     <Accordion
@@ -34,8 +31,8 @@ export function ThreadListAccordion({
           <ThreadHeading
             chat={chat}
             copy={isOpen}
-            question={firstQuestion}
-            response={isOpen ? '' : firstResponse}
+            question={thread.firstUserMessage.content}
+            response={isOpen ? '' : thread.firstAssistantMessage.content}
             thread={thread}
           />
         </AccordionTrigger>
@@ -50,7 +47,7 @@ export function ThreadListAccordion({
               clientFetch
               showHeading={false}
               thread={thread}
-              initialMessagePairs={createMessagePairs(thread.messages)}
+              initialMessagePairs={[]}
             />
           </div>
         </AccordionContent>
@@ -60,6 +57,6 @@ export function ThreadListAccordion({
 }
 
 interface ThreadListAccordionProps extends DialogProps {
-  thread: Thread
+  thread: FilteredThread
   chat?: boolean
 }

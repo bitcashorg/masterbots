@@ -1,3 +1,5 @@
+
+// TODO: review this, since we are now using the middleware strategy
 export const platform = (() => {
   const isBrowser = typeof window !== "undefined";
   const userAgent = isBrowser ? window.navigator.userAgent : "";

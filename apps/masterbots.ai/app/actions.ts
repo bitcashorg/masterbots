@@ -1,9 +1,12 @@
 'use server'
-
 import { createSupabaseServerClient } from '@/services/supabase'
 import { getErrorMessage } from '@repo/mb-lib'
 import { Dub } from 'dub'
 import { objectToCamel } from 'ts-case-convert'
+import type { MB } from '@repo/supabase'
+import type * as AI from 'ai'
+import { omit } from 'lodash'
+import { getFirstMessages } from '@/lib/threads'
 
 const dub = new Dub({
   projectSlug: 'bitcash'
@@ -45,37 +48,30 @@ export async function shorten(_prevState: any, formData: any) {
  Conditional Query Construction: The filter and text search are only applied if there's a non-empty searchQuery.
  This ensures that all messages, including those with a 'system' role, are returned if there is no search criterion.
 */
-export async function getThreads(formData: FormData) {
-  const supabase = await createSupabaseServerClient()
-  const query = formData.get('query')
 
-  const threadsQuery = supabase
-    .from('thread')
-    .select(
-      `
-      *,
-      message (
-        * 
-      )
-    `
-    )
-    .range(0, 20)
+const threadFilter = `
+  *,
+  message (id,content,role,created_at),
+  chatbot (chatbot_id,name,avatar,promtps(*)),
+  category (*),
+  user (user_id,username,avatar)
+`
+
+export async function getThreads({ query }: { query?: string }) {
+  const supabase = await createSupabaseServerClient()
+
+  // important to select only the data you need
+  const threadsQuery = supabase.from('thread').select(threadFilter).range(0, 20)
   const { data, error } = await threadsQuery
   if (error) throw new Error(getErrorMessage(error))
 
   // Filter to get the first assistant and user message
   const filteredData = objectToCamel(data).map(thread => {
-    const firstAssistantMessage = thread.message.find(
-      msg => msg.role === 'assistant'
-    )
-    const firstUserMessage = thread.message.find(msg => msg.role === 'user')
     return {
-      ...thread,
-      // new props in response for easier reference
-      firstUserMessage,
-      firstAssistantMessage,
-      // for backward campat with current code
-      message: [firstUserMessage, firstAssistantMessage].filter(Boolean), // Removes undefined entries
+      // we only return question and frist answer on collection queries
+      // full list of messages are queries when viewing individual threads only
+      ...omit(thread, 'message'),
+      ...getFirstMessages(thread.message),
       messageCount: thread.message.length
     }
   })
@@ -83,8 +79,30 @@ export async function getThreads(formData: FormData) {
   return error ? null : filteredData
 }
 
+// NOTE: for now we prefer inference, but we can also enforce the return types
+//      there's a reliability argument for it
+export type FilteredThreads = Awaited<ReturnType<typeof getThreads>>
+export type FilteredThread = Awaited<ReturnType<typeof getThreads>>[0]
+
 // if (query) {
 //   supaQuery = supaQuery
 //     .filter('message.role', 'neq', 'system')
 //     .textSearch('message.content', query.toString())
 // }
+
+export async function getMessagePairs(threadId: string) {
+  console.log('get message pairs for', threadId)
+  return [] as MB.MessagePair[]
+}
+
+export async function getThread({
+  threadId
+}: {
+  threadId: string
+}): Promise<FilteredThread> {
+  const supabase = await createSupabaseServerClient()
+  const { data, error } = await supabase.from('thread').select(threadFilter)
+  if (error) return null
+
+  return objectToCamel(data) as unknown as FilteredThread
+}

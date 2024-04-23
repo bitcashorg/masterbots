@@ -1,10 +1,10 @@
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
-import { type CookieOptions, createServerClient } from '@supabase/ssr'
-import { getToken, validateJwtSecret } from '@repo/mb-lib'
-import { upsertUser } from '@/services/hasura'
 import { nanoid } from '@/lib/utils'
 import { createSupabaseServerClient } from '@/services/supabase'
+import { generateUsername } from '@/lib/username'
+import { getErrorMessage } from '@repo/mb-lib'
+import { objectToCamel } from 'ts-case-convert'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
@@ -21,51 +21,31 @@ export async function GET(request: Request) {
   } = await supabase.auth.exchangeCodeForSession(code)
   if (error || !user.email) throw new Error('Login Error')
 
-  const adminSecret = process.env.HASURA_GRAPHQL_ADMIN_SECRET
-  if (!adminSecret) throw new Error('Admin Secret not found')
-  const jwtSecret = process.env.HASURA_GRAPHQL_JWT_SECRET
-  if (!jwtSecret) throw new Error('JWT Secret not found')
-
   const identity = user.identities && user.identities[0]
 
   if (!identity) throw new Error('Login Error')
-  const userProfile = await upsertUser({
-    email: user.email,
-    profilePicture: identity.identity_data.picture,
-    username:
-      identity.identity_data.name.replace(/\s/g, '_').toLowerCase() || nanoid(),
-    password: nanoid(),
-    adminSecret: process.env.HASURA_GRAPHQL_ADMIN_SECRET || ''
-  })
+  const dbUser = await supabase
+    .from('user')
+    .insert({
+      email: user.email,
+      avatar: identity.identity_data.picture,
+      name: identity.identity_data.name,
+      username: generateUsername(identity.identity_data.name),
+      password: nanoid()
+    })
+    .select()
+    .single()
 
-  if (!userProfile) throw new Error('Login Error')
+  if (dbUser.error) throw new Error(getErrorMessage(dbUser.error))
 
-  const hasuraJwt = await getToken({
-    user: {
-      account: userProfile.userId,
-      role: 'user'
-    },
-    jwtSecret: validateJwtSecret(jwtSecret),
-    jwtExpiration: Number(process.env.JWT_TOKEN_EXPIRATION)
-  })
-
-  if (!hasuraJwt) throw new Error('Login Error')
-
-  // Set the hasuraJwt as a cookie
+  // TODO: review if this is really needed
   const cookieHeaders = cookies()
-  cookieHeaders.set('hasuraJwt', hasuraJwt, {
-    httpOnly: true,
-    maxAge: Number(process.env.JWT_TOKEN_EXPIRATION),
-    path: '/',
-    sameSite: 'lax' //  sameSite policy
-  })
   cookieHeaders.set(
     'userProfile',
     JSON.stringify({
-      userId: userProfile.userId,
-      username: userProfile.username,
-      name: identity.identity_data.name || '',
-      email: userProfile.email
+      userId: dbUser.data.user_id,
+      username: dbUser.data.username,
+      name: dbUser.data.name
     }),
     {
       httpOnly: true,

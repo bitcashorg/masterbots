@@ -1,7 +1,7 @@
-import type { Thread } from '@repo/mb-genql'
 import { ThreadDialog } from './thread-dialog'
 import { ThreadListAccordion } from './thread-list-accordion'
 import { ThreadListChatItem } from './thread-list-chat-item'
+import { FilteredThreads } from '@/app/actions'
 
 export function ThreadList({
   initialThreads,
@@ -23,7 +23,7 @@ export function ThreadList({
       {!initialThreads.length ? (
         <div>No threads founds</div>
       ) : (
-        initialThreads.map((thread: Thread) => (
+        initialThreads.map(thread => (
           // <div>{thread.messages[0]?.content}</div>
           <ThreadComponent
             chat={chat}
@@ -38,7 +38,7 @@ export function ThreadList({
 }
 
 interface ThreadListProps {
-  initialThreads: Thread[]
+  initialThreads: FilteredThreads
   chat?: boolean
   dialog?: boolean
 }

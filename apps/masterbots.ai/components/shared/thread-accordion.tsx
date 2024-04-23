@@ -2,20 +2,19 @@
 
 import { useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Thread } from '@repo/mb-genql'
-import { getMessagePairs } from '@/services/hasura'
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger
 } from '@/components/ui/accordion'
-import { MessagePair, convertMessage } from '@/lib/threads'
+import { MessagePair } from '@/lib/threads'
 import { cn } from '@/lib/utils'
 import { ThreadHeading } from './thread-heading'
 import { BrowseChatMessage } from './thread-message'
 import { usePathname, useRouter } from 'next/navigation'
 import { toSlug } from '@/lib/url'
+import { FilteredThread, getMessagePairs } from '@/app/actions'
 
 export function ThreadAccordion({
   thread,
@@ -33,7 +32,7 @@ export function ThreadAccordion({
   const { data: pairs, error } = useQuery({
     queryKey: [`messages-${thread.threadId}`],
     queryFn: () => getMessagePairs(thread.threadId),
-    initialData: initialMessagePairs,
+    initialData: [], //initialMessagePairs,
     networkMode: 'always',
     refetchOnMount: true,
     enabled: clientFetch
@@ -91,9 +90,7 @@ export function ThreadAccordion({
                   <AccordionTrigger
                     className={cn('px-5 border-y border-solid border-mirage')}
                   >
-                    <div className="pl-12 md:text-lg">
-                      {p.userMessage.content}
-                    </div>
+                    <div className="pl-12 md:text-lg">{p.question.content}</div>
                   </AccordionTrigger>
                 ) : null
               }
@@ -115,7 +112,7 @@ export function ThreadAccordion({
                     <ThreadHeading
                       chat={chat}
                       copy
-                      question={p.userMessage.content}
+                      question={p.question.content}
                       thread={thread}
                     />
                   </AccordionTrigger>
@@ -126,13 +123,14 @@ export function ThreadAccordion({
                 aria-expanded
                 className={cn('mx-8 border-x border-solid border-mirage')}
               >
-                {p.chatGptMessage.map(message => (
+                <div>content</div>
+                {/* {p.chatGptMessage.map(message => (
                   <BrowseChatMessage
                     chatbot={thread.chatbot}
                     key={`message-${message.messageId}`}
                     message={convertMessage(message)}
                   />
-                ))}
+                ))} */}
               </AccordionContent>
             </AccordionItem>
           )
@@ -143,7 +141,7 @@ export function ThreadAccordion({
 }
 
 interface ThreadAccordionProps {
-  thread: Thread
+  thread: FilteredThread
   initialMessagePairs: MessagePair[]
   clientFetch?: boolean
   chat?: boolean
