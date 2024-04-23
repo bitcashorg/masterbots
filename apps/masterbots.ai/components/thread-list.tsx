@@ -54,7 +54,7 @@ function ThreadComponent({
 }) {
   const threadRef = React.useRef<HTMLLIElement>(null)
   // const router = useRouter()
-  const { allMessages, sendMessageFromResponse, isOpenPopup, activeThread } =
+  const { allMessages, sendMessageFromResponse, isOpenPopup, activeThread, setIsOpenPopup } =
     useThread()
   const { activeChatbot } = useSidebar()
   React.useEffect(() => {
@@ -86,6 +86,7 @@ function ThreadComponent({
   const handleAccordionToggle = (isOpen: boolean) => {
     // It should scroll when opening or closing the accordion
     scrollToTop()
+    // setIsOpenPopup(isOpen ? true : false)
   }
 
   React.useEffect(() => {

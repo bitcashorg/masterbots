@@ -17,10 +17,15 @@ export function ThreadPopup({ className }: { className?: string }) {
     allMessages,
     setIsOpenPopup,
     sendMessageFromResponse,
-    isLoading
+    isLoading,
+    setActiveThread
   } = useThread()
+  
   const onClose = () => {
     setIsOpenPopup(!isOpenPopup)
+    if (activeThread?.threadId) {
+      setActiveThread(null)
+    }
   }
   const popupContentRef = useRef<HTMLDivElement>()
 
