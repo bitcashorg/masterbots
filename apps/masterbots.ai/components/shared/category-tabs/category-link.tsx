@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { toSlug } from '@/lib/url'
+import { toSlug } from '@/lib/url-params'
 
 export function CategoryLink({
   category,

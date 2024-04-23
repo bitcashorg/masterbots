@@ -2,7 +2,7 @@ import { ThreadList } from '@/components/shared/thread-list'
 import { CategoryTabs } from '@/components/shared/category-tabs/category-tabs'
 import { SearchInput } from '@/components/shared/search-input'
 import { Card } from '@/components/ui/card'
-import { decodeQuery } from '@/lib/url'
+import { decodeQuery } from '@/lib/url-params'
 import { getThreads } from '../actions'
 
 export default async function HomePage({ searchParams }: HomePageProps) {

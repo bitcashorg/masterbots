@@ -3,7 +3,7 @@ import { ThreadList } from '@/components/shared/thread-list'
 import AccountDetails from '@/components/shared/account-details'
 import { CategoryTabs } from '@/components/shared/category-tabs/category-tabs'
 import { SearchInput } from '@/components/shared/search-input'
-import { toSlug } from '@/lib/url'
+import { toSlug } from '@/lib/url-params'
 
 export default async function BotThreadsPage({
   params

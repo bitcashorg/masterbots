@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils'
 import { ThreadHeading } from './thread-heading'
 import { BrowseChatMessage } from './thread-message'
 import { usePathname, useRouter } from 'next/navigation'
-import { toSlug } from '@/lib/url'
+import { toSlug } from '@/lib/url-params'
 import {  getMessagePairs } from '@/app/actions'
 import { MB } from '@repo/supabase'
 

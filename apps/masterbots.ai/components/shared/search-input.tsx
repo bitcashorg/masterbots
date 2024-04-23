@@ -4,7 +4,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { IconClose } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
 import { ChangeEvent } from 'react'
-import { encodeQuery } from '@/lib/url'
+import { encodeQuery } from '@/lib/url-params'
 import { useDebounce, useDebouncedCallback } from 'use-debounce'
 
 export function SearchInput() {

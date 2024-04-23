@@ -1,5 +1,5 @@
 import type * as AI from 'ai'
-import { toSlug } from './url'
+import { toSlug } from './url-params'
 import { objectToCamel } from 'ts-case-convert'
 import { MB } from '@repo/supabase'
 
@@ -44,7 +44,6 @@ const findNextAssistantMessage = (
   return null
 }
 
-// From chat-message.tsx
 export function cleanPrompt(str: string) {
   const marker = '].  Then answer this question:'
   const index = str.indexOf(marker)
@@ -57,10 +56,7 @@ export function cleanPrompt(str: string) {
   return extracted || str
 }
 
-export interface MessagePair {
-  userMessage: AI.Message
-  chatGptMessage: AI.Message
-}
+
 
 export function getThreadLink({
   chat = false,
@@ -89,10 +85,17 @@ export function getFirstMessages(messages: MessageData[]) {
   }
 }
 
+
+// TODO: move to mb.types
 // this is the only message data we want to query from the server
 interface MessageData {
   id: string
   content: string
   role: string
   createdAt: string
+}
+
+export interface MessagePair {
+  userMessage: AI.Message
+  chatGptMessage: AI.Message
 }
