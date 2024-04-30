@@ -10,6 +10,11 @@ export default function BrowseChatbotDetails({
 }) {
   return (
     <div className="relative bg-cover py-10 bg-gradient-to-l from-mirage via-[#2B5D91] to-[#388DE2]">
+      <div className="flex flex-row gap-3 relative mx-auto md:w-[600px]">
+        <a className="text-['24px'] font-normal" href="/">
+          &lt; Back to browse
+        </a>
+      </div>
       <div
         className="dark:bg-[#09090B] bg-white rounded-lg p-6 md:w-[600px]
       flex flex-row gap-3 relative mx-auto font-mono"
