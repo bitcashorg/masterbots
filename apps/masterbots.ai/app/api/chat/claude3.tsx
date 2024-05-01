@@ -18,7 +18,7 @@ export async function POST(req: Request) {
       messages, model, stream: true, max_tokens: 300
     });
 
-    const stream = createResponseStream('Anthropic', response, json, messages);
+    const stream = createResponseStream('Anthropic', response, json, messages)
     return new StreamingTextResponse(stream)
   } catch (error) {
     console.error('Failed to process request:', error)
