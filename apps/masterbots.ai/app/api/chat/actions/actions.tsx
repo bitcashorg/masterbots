@@ -1,43 +1,52 @@
-'use server'
+'use server';
 
-import OpenAI from 'openai'
-import Anthropic from '@anthropic-ai/sdk'
-import { AIModels } from './models'
-import { nanoid } from '@/lib/utils'
-import { AnthropicStream, OpenAIStream } from 'ai'
+import OpenAI from 'openai';
+import Anthropic from '@anthropic-ai/sdk';
+import { OpenAIStream, AnthropicStream } from 'ai';
+import { AIModels } from './models';
+import { nanoid } from '@/lib/utils';
 
 export function initializeOpenAI(apiKey: string): OpenAI {
-  return new OpenAI({ apiKey })
+  return new OpenAI({ apiKey });
 }
 
 export function initializeAnthropic(apiKey: string): Anthropic {
-  return new Anthropic({ apiKey })
+  return new Anthropic({ apiKey });
+}
+
+export function initializePerplexity(apiKey: string): OpenAI {
+  return new OpenAI({
+    apiKey,
+    baseURL: 'https://api.perplexity.ai'
+  });
 }
 
 export function validateModel(model: AIModels) {
   if (!Object.values(AIModels).includes(model)) {
-    throw new Error('Unsupported model specified')
+    throw new Error('Unsupported model specified');
   }
 }
 
 export function createResponseStream(
-  clientType: string,
-  response: any, // TODO specifying a more detailed type than `any`
-  json: any, // TODO specifying a more detailed type than `any`
-  messages: any[] // TODO specifying a more detailed type for messages
+  clientType: 'OpenAI' | 'Anthropic' | 'Perplexity',
+  response: any,
+  json: any,
+  messages: any[]
 ) {
-  if (clientType === 'OpenAI') {
-    return OpenAIStream(response, {
-      async onCompletion(completion: any) {
-        // TODO specifying a more detailed type for completion
-        const payload = createPayload(json, messages, completion)
-        //?  Implement what to do with the payload, e.g., logging or database storage
-      }
-    })
-  } else if (clientType === 'Anthropic') {
-    return AnthropicStream(response)
-  } else {
-    throw new Error('Unsupported client type')
+  switch (clientType) {
+    case 'OpenAI':
+      return OpenAIStream(response, {
+        async onCompletion(completion: any) {
+          const payload = createPayload(json, messages, completion);
+          // Implement what to do with the payload, e.g., logging or database storage
+        }
+      });
+    case 'Anthropic':
+      return AnthropicStream(response);
+    case 'Perplexity':
+      return OpenAIStream(response); // Assuming similar streaming response handling as OpenAI
+    default:
+      throw new Error('Unsupported client model type');
   }
 }
 
@@ -46,10 +55,10 @@ export function createPayload(
   messages: { content: string }[],
   completion: any
 ) {
-  const title = messages[0]?.content.substring(0, 100)
-  const id = json.id ?? nanoid()
-  const createdAt = Date.now()
-  const path = `/chat/${id}`
+  const title = messages[0]?.content.substring(0, 100);
+  const id = json.id ?? nanoid();
+  const createdAt = Date.now();
+  const path = `/chat/${id}`;
   return {
     id,
     title,
@@ -63,5 +72,5 @@ export function createPayload(
         role: 'assistant'
       }
     ]
-  }
+  };
 }
