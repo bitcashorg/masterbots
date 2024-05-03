@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Separator } from '../ui/separator'
+import { cn } from '@/lib/utils'
 
 export default function AccountDetails({
   alt,
@@ -17,7 +18,12 @@ export default function AccountDetails({
 
   return (
     <div className="flex bg-cover py-10 bg-gradient-to-l from-mirage via-[#2B5D91] to-[#388DE2]">
-      <div className="dark:bg-[#09090B] bg-white rounded-lg p-6 max-w-[600px] flex flex-column gap-3 relative mx-auto font-mono min-w-[700px] min-h-[300px]">
+      <div
+        className={cn(
+          'dark:bg-[#09090B] bg-white rounded-lg p-6 max-w-[600px] flex flex-column gap-3 relative mx-auto font-mono min-w-[700px]',
+          chatbotName ? 'min-h-[300px]' : ''
+        )}
+      >
         <div className="flex size-24 absolute border-4 border-[#388DE2] right-0 top-0 translate-x-1/4 rounded-full -translate-y-1/4 dark:bg-[#131316] bg-white">
           <Image
             alt={username || chatbotName}
@@ -34,12 +40,13 @@ export default function AccountDetails({
           </div>
           <Separator className="flex dark:bg-mirage bg-gray-300" />
           <div className="flex text-xl font-semibold">{category}</div>
-          <div className="flex text-base grow">
-            <div className="flex font-medium">
-              {description ? <div className="flex">{description}</div> : ''}
+          {description && (
+            <div className="flex text-base grow">
+              <div className="flex font-medium">
+                <div className="flex">{description}</div>
+              </div>
             </div>
-          </div>
-
+          )}
           <div className="flex justify-between">
             <div className="font-light">
               Threads: <span className=" text-[#71717A]">{threadNum ?? 0}</span>

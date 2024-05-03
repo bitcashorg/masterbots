@@ -16,7 +16,9 @@ import { createMessagePairs } from '@/lib/threads'
 
 export function ThreadListAccordion({
   thread,
-  chat = false
+  chat = false,
+  isUser = false,
+  isBot = false
 }: ThreadListAccordionProps) {
   const [state, setState] = useSetState({
     isOpen: false,
@@ -35,10 +37,16 @@ export function ThreadListAccordion({
       type="multiple"
     >
       {/* Frist level question and excerpt visible  on lists */}
-      <AccordionItem className="border-b-mirage border-solid relative" value="pair-1">
+      <AccordionItem
+        className="border-b-mirage border-solid relative"
+        value="pair-1"
+      >
         <AccordionTrigger
           isSticky
-          className={cn('hover:bg-mirage px-2 border border-[transparent] dark:border-b-mirage border-b-gray-300 rounded-t-lg', state.isOpen && 'bg-mirage')}
+          className={cn(
+            'hover:bg-mirage px-2 border border-[transparent] dark:border-b-mirage border-b-gray-300 rounded-t-lg',
+            state.isOpen && 'bg-mirage'
+          )}
         >
           <ThreadHeading
             chat={chat}
@@ -46,6 +54,8 @@ export function ThreadListAccordion({
             question={state.firstQuestion}
             response={state.isOpen ? '' : state.firstResponse}
             thread={thread}
+            {...(isBot ? { isBot } : {})}
+            {...(isUser ? { isUser } : {})}
           />
         </AccordionTrigger>
 
@@ -60,7 +70,7 @@ export function ThreadListAccordion({
               showHeading={false}
               thread={thread}
               initialMessagePairs={createMessagePairs(thread.messages)}
-              className='border-r-[transparent]'
+              className="border-r-[transparent]"
             />
           </div>
         </AccordionContent>
@@ -72,4 +82,6 @@ export function ThreadListAccordion({
 interface ThreadListAccordionProps extends DialogProps {
   thread: Thread
   chat?: boolean
+  isBot?: boolean
+  isUser?: boolean
 }
