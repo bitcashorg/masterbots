@@ -25,7 +25,8 @@ export function ThreadAccordion({
   // disable automatic client fetch by default
   // ThreadList sets this to true to load the rest of messages inside ThreadDialog or ThreadListAccordion
   // ThreadList only receives the first question and answer
-  showHeading = true
+  showHeading = true,
+  className = ''
 }: ThreadAccordionProps) {
   const pathname = usePathname()
   const router = useRouter()
@@ -72,7 +73,7 @@ export function ThreadAccordion({
   return (
     <div className="flex w-full">
       <Accordion
-        className={cn('w-full border border-solid border-mirage scroll')}
+        className={cn('w-full border border-solid border-mirage scroll', className)}
         defaultValue={['pair-0', 'pair-1', 'pair-2']}
         type="multiple"
         key={`accordion-${JSON.stringify(pairs)}`}
@@ -89,9 +90,9 @@ export function ThreadAccordion({
                 // is not the frist question we return follow question style
                 !isFirst ? (
                   <AccordionTrigger
-                    className={cn('px-5 border-y border-solid border-mirage')}
+                    className={cn('pl-5 pr-[47px] border-y border-solid border-mirage')}
                   >
-                    <div className="pl-12 md:text-lg">
+                    <div className="pl-[27px] md:text-lg">
                       {p.userMessage.content}
                     </div>
                   </AccordionTrigger>
@@ -124,7 +125,7 @@ export function ThreadAccordion({
 
               <AccordionContent
                 aria-expanded
-                className={cn('mx-8 border-x border-solid border-mirage')}
+                className={cn('mx-[46px] border-x border-solid border-mirage')}
               >
                 {p.chatGptMessage.map(message => (
                   <BrowseChatMessage
@@ -148,4 +149,5 @@ interface ThreadAccordionProps {
   clientFetch?: boolean
   chat?: boolean
   showHeading?: boolean
+  className?: string 
 }
