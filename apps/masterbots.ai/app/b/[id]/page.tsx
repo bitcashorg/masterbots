@@ -1,9 +1,13 @@
-import { getChatbot, getBrowseThreads, getCategories } from '@/services/hasura'
+import {
+  getChatbot,
+  getBrowseThreads
+  // getCategories
+} from '@/services/hasura'
 import { botNames } from '@/lib/bots-names'
 import { ThreadList } from '@/components/shared/thread-list'
 import AccountDetails from '@/components/shared/account-details'
-import { CategoryTabs } from '@/components/shared/category-tabs/category-tabs'
-import { SearchInput } from '@/components/shared/search-input'
+// import { CategoryTabs } from '@/components/shared/category-tabs/category-tabs'
+// import { SearchInput } from '@/components/shared/search-input'
 import { toSlug } from '@/lib/url'
 
 export default async function BotThreadsPage({
@@ -11,7 +15,7 @@ export default async function BotThreadsPage({
 }: {
   params: { id: string }
 }) {
-  const categories = await getCategories()
+  // const categories = await getCategories()
   let chatbot, threads
 
   chatbot = await getChatbot({
@@ -28,9 +32,9 @@ export default async function BotThreadsPage({
 
   console.log(chatbot.categories)
   return (
-    <div className=" container">
-      <CategoryTabs categories={categories} />
-      <SearchInput />
+    <div>
+      {/* <CategoryTabs categories={categories} /> */}
+      {/* <SearchInput /> */}
       <AccountDetails
         alt={chatbot.name}
         avatar={chatbot.avatar}
@@ -41,7 +45,7 @@ export default async function BotThreadsPage({
         category={chatbot.categories[0]?.category.name}
       />
       <div className="container">
-        <ThreadList filter={{ chatbotName }} initialThreads={threads} />
+        <ThreadList isBot filter={{ chatbotName }} initialThreads={threads} />
       </div>
     </div>
   )

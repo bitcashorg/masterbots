@@ -18,7 +18,9 @@ export function ThreadList({
   initialThreads,
   filter,
   chat = false,
-  dialog = false
+  dialog = false,
+  isUser = false,
+  isBot = false
 }: ThreadListProps) {
   const { query } = useGlobalStore()
   const loadMoreRef = useRef<HTMLDivElement>(null)
@@ -120,6 +122,8 @@ export function ThreadList({
             defaultOpen={false} // we can have one open by default
             key={thread.threadId}
             thread={thread}
+            {...(isBot ? { isBot } : {})}
+            {...(isUser ? { isUser } : {})}
           />
         ))}
       <div ref={loadMoreRef}>
@@ -134,4 +138,6 @@ interface ThreadListProps {
   chat?: boolean
   dialog?: boolean
   filter: GetBrowseThreadsParams
+  isUser?: boolean
+  isBot?: boolean
 }

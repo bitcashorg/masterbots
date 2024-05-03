@@ -10,7 +10,9 @@ export function ThreadHeading({
   response,
   question,
   copy = false,
-  chat = false
+  chat = false,
+  isUser = false,
+  isBot = false
 }: ThreadHeadingProps) {
   return (
     <div className={cn(`flex flex-col font-medium w-full`)}>
@@ -20,11 +22,13 @@ export function ThreadHeading({
         )}
       >
         <div className="flex grow gap-3">
-          <AccountAvatar
-            alt={thread.chatbot.name}
-            href={`/${chat ? 'c' : 'b'}/${toSlug(thread.chatbot.name)}`}
-            src={thread.chatbot.avatar}
-          />
+          {!isBot && (
+            <AccountAvatar
+              alt={thread.chatbot.name}
+              href={`/${chat ? 'c' : 'b'}/${toSlug(thread.chatbot.name)}`}
+              src={thread.chatbot.avatar}
+            />
+          )}
 
           <div
             className={cn(
@@ -32,16 +36,18 @@ export function ThreadHeading({
             )}
           >
             {question}
-            {chat ? null : (
-              <>
-                <span className="opacity-50 text-[0.875rem]">by</span>
-                <AccountAvatar
-                  alt={thread.user.username}
-                  href={`/u/${thread.user.slug}`}
-                  src={thread.user.profilePicture || ''}
-                />
-              </>
-            )}
+            {chat
+              ? null
+              : !isUser && (
+                  <>
+                    <span className="opacity-50 text-[0.875rem]">by</span>
+                    <AccountAvatar
+                      alt={thread.user.username}
+                      href={`/u/${thread.user.slug}`}
+                      src={thread.user.profilePicture || ''}
+                    />
+                  </>
+                )}
           </div>
         </div>
         {copy ? <Shortlink /> : null}
@@ -62,4 +68,6 @@ interface ThreadHeadingProps {
   question: string
   copy?: boolean
   chat?: boolean
+  isBot?: boolean
+  isUser?: boolean
 }
