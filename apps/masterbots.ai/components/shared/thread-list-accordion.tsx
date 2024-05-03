@@ -35,9 +35,9 @@ export function ThreadListAccordion({
       type="multiple"
     >
       {/* Frist level question and excerpt visible  on lists */}
-      <AccordionItem value="pair-1">
+      <AccordionItem className="border-b-mirage border-solid" value="pair-1">
         <AccordionTrigger
-          className={cn('hover:bg-mirage px-5', state.isOpen && 'bg-mirage')}
+          className={cn('hover:bg-mirage px-2 border border-[transparent] dark:border-b-mirage border-b-gray-300 rounded-t-lg', state.isOpen && 'bg-mirage')}
         >
           <ThreadHeading
             chat={chat}
@@ -49,7 +49,7 @@ export function ThreadListAccordion({
         </AccordionTrigger>
 
         {/* TODO: we need to slide down the content */}
-        <AccordionContent className={cn('pl-14')}>
+        <AccordionContent>
           {/* Secod level accordion with follow up questions
              showHeading must be false as we already have in screen on AccordionTrigger above */}
           <div className="overflow-y-scroll scrollbar srcoll-smooth max-h-[500px]">
@@ -59,6 +59,7 @@ export function ThreadListAccordion({
               showHeading={false}
               thread={thread}
               initialMessagePairs={createMessagePairs(thread.messages)}
+              className='border-r-[transparent]'
             />
           </div>
         </AccordionContent>
