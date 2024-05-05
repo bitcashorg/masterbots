@@ -11,8 +11,23 @@ export default function BrowseChatbotDetails({
   return (
     <div className="relative bg-cover py-10 bg-gradient-to-l from-mirage via-[#2B5D91] to-[#388DE2]">
       <div className="flex flex-row gap-3 relative mx-auto md:w-[600px]">
-        <a className="text-['24px'] font-normal" href="/">
-          &lt; Back to browse
+        <a className="flex items-center space-x-1" href="/">
+          <svg
+            width="11"
+            height="12"
+            viewBox="0 0 11 12"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M7.09973 2.15008L3.24979 6.00003L7.09973 9.84998"
+              stroke="#FAFAFA"
+              stroke-width="0.962486"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>{' '}
+           <span className="text-['24px'] font-normal">Back to browse</span> 
         </a>
       </div>
       <div
