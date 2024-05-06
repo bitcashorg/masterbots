@@ -7,7 +7,6 @@ export default function Error({
 }: {
   error: Error & { digest?: string }
 }) {
-  console.log('Error:', error.message)
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
@@ -21,7 +20,7 @@ export default function Error({
         />
       </div>
       <h1 className="text-3xl font-bold  mb-4">Oops! Page Not Found</h1>
-      <p className=" text-center mb-4">{error.message}.</p>
+      <p className=" text-center mb-4">{error.message}</p>
       <Link href="/" className='flex items-center space-x-1'>
         <svg
           width="11"
