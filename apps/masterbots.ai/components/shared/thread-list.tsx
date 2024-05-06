@@ -35,7 +35,7 @@ export function ThreadList({
       queryFn: async props => {
         return getBrowseThreads({
           ...filter,
-          offset: props.pageParam * limit,
+          offset: (props.pageParam - 1) * limit,
           limit,
           query
         })
@@ -58,7 +58,11 @@ export function ThreadList({
   useEffect(() => {
     // only load add observer if we get at least iquals to limit on initialThreads
     // TODO: get thread count from server db query
-    if (!loadMoreRef.current || initialThreads.length < limit) return
+    if (
+      !loadMoreRef.current ||
+      data.pages[data.pages.length - 1].length < limit
+    )
+      return
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting && !isFetchingNextPage) {
         setTimeout(() => {
