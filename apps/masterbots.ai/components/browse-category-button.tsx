@@ -1,3 +1,4 @@
+import { toSlug } from '@/lib/utils'
 import { motion } from 'framer-motion'
 import { Category } from 'mb-genql'
 import Link from 'next/link'
@@ -17,8 +18,8 @@ export function BrowseCategoryButton({
     <Link
       href={
         category === 'all'
-          ? '/browse'
-          : `/browse/${category.name.toLowerCase().replace(/\s+/g, '_').replace(/\&/g, 'n')}`
+          ? '/'
+          : `/${toSlug(category.name)}`
       }
       shallow
       id={id}

@@ -49,7 +49,7 @@ export default function ChatChatbotDetails() {
   return (
     <div className="h-[calc(100vh-196px)] flex items-center justify-center">
       <div
-        className="dark:bg-[#09090B] bg-white rounded-lg md:w-[600px]
+        className="dark:bg-[#09090B] bg-white rounded-lg md:w-[600px] w-[85%]
       flex flex-col gap-[10px] relative font-mono"
       >
         <div className="w-[70%] flex flex-col gap-[10px] px-[24px] pt-[24px]">
