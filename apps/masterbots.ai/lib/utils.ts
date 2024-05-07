@@ -179,3 +179,12 @@ export const scrollToBottomOfElement = (element?: HTMLElement) => {
 export async function sleep(time: number) {
   return new Promise(resolve => setTimeout(resolve, time))
 }
+
+
+// Function to convert a name into a slug
+export const toSlug = (name: string): string => {
+  return name
+    .toLowerCase()
+    .replace(/&/g, 'n')
+    .replace(/\s+/g, '_')
+}

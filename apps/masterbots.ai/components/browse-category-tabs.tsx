@@ -4,6 +4,7 @@ import { useBrowse } from '@/lib/hooks/use-browse'
 import { Category } from 'mb-genql'
 import { BrowseCategoryButton } from './browse-category-button'
 import { useEffect } from 'react'
+import { toSlug } from '@/lib/utils'
 
 export function BrowseCategoryTabs({
   categories,
@@ -36,7 +37,7 @@ export function BrowseCategoryTabs({
       setActiveTab(
         categories.filter(
           c =>
-            c.name.toLowerCase().replace(/\s+/g, '_').replace(/\&/g, 'n') ===
+            toSlug(c.name) ===
             initialCategory
         )[0]?.categoryId
       )

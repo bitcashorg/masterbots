@@ -12,7 +12,7 @@ export default async function SignInPage() {
           src="/images/masterbotslogo.png"
           fill={true}
           alt="Masterbots Logo"
-          style={{ maxWidth: 726 }}
+          style={{ maxWidth: 726, objectFit: 'contain' }}
           className="flex self-center"
         />
       </div>

@@ -1,6 +1,6 @@
 import Image from 'next/image'
 
-import { cn, sleep } from '@/lib/utils'
+import { cn, sleep, toSlug } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
 import { Message, Thread } from 'mb-genql'
 import Link from 'next/link'
@@ -10,6 +10,8 @@ import { BrowseChatMessageList } from './browse-chat-message-list'
 import { ChatAccordion } from './chat-accordion'
 import { ShortMessage } from './short-message'
 import { IconOpenAI, IconUser } from './ui/icons'
+import { useBrowse } from '@/lib/hooks/use-browse'
+let initialUrl: string | null = null
 
 export default function BrowseListItem({
   thread,
@@ -31,6 +33,17 @@ export default function BrowseListItem({
   const [messages, setMessages] = React.useState<Message[]>([])
   // ! Move to custom hook and add it to the context useThread + useProvider @bran18
   const [isAccordionOpen, setIsAccordionOpen] = React.useState(false)
+
+  const { tab } = useBrowse()
+
+  React.useEffect(() => {
+    if (initialUrl) return
+    initialUrl = location.href
+  })
+
+  React.useEffect(() => {
+    initialUrl = location.href
+  }, [tab])
 
   React.useEffect(() => {
     if (!threadRef.current) return
@@ -59,8 +72,15 @@ export default function BrowseListItem({
 
   const handleAccordionToggle = async (isOpen: boolean) => {
     if (isOpen) {
+      window.history.pushState(
+        {},
+        '',
+        `/${toSlug(thread.chatbot.categories[0].category.name)}/${thread.threadId}`
+      )
       setMessages(_prev => [])
       await fetchMessages()
+    } else {
+      window.history.pushState({}, '', initialUrl)
     }
     // When toggling accordion, it should scroll
     // Use optional chaining to ensure scrollIntoView is called only if current is not null
