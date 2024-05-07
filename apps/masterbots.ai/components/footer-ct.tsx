@@ -1,11 +1,12 @@
+import { cn } from "@/lib/utils"
 import { ElementType } from "react"
 
-export default function FooterCT({ nonFooterTag }: { nonFooterTag?: boolean }) {
+export default function FooterCT({ nonFooterTag, fixed }: { nonFooterTag?: boolean, fixed?: boolean }) {
   const Footer: ElementType = ({ children }) => nonFooterTag ?
-    <div className="min-h-[64px] whitespace-break-spaces text-xs font-semibold font-['Geist_Mono'] flex justify-center items-center opacity-50">
+    <div className={cn("min-h-[58px] whitespace-break-spaces text-xs font-semibold font-['Geist_Mono'] flex justify-center items-center opacity-50", fixed && 'opacity-100 fixed w-full z-[99999] bottom-0 bg-accent')}>
       {children}
     </div> :
-    <footer className="min-h-[64px] whitespace-break-spaces text-xs font-semibold font-['Geist_Mono'] flex justify-center items-center opacity-50">
+    <footer className={cn("min-h-[58px] whitespace-break-spaces text-xs font-semibold font-['Geist_Mono'] flex justify-center items-center opacity-50", fixed && 'opacity-100 fixed w-full z-[99999] bottom-0 bg-accent')}>
       {children}
     </footer>
 
@@ -16,7 +17,7 @@ export default function FooterCT({ nonFooterTag }: { nonFooterTag?: boolean }) {
           robohash.org
         </a>
         {' • '}
-        <a href="/terms-n-policies" className="text-primary underline focus-within:underline">
+        <a href="/terms" className="text-primary underline focus-within:underline">
           terms & policies
         </a>
       </span>
