@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils'
 import { GlobalStoreProvider } from '@/hooks/use-global-store'
 import { getChatbots } from '@/services/hasura'
 import { Metadata } from 'next/types'
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 async function getCookieData(): Promise<{ hasuraJwt; userProfile }> {
   const hasuraJwt = cookies().get('hasuraJwt')?.value || ''
@@ -58,6 +59,9 @@ export default async function RootLayout({ children }: RootLayoutProps) {
             <DynamicCmdK />
           </Providers>
         </GlobalStoreProvider>
+
+        <GoogleAnalytics gaId="G-78N0Z7NPQJ" />
+
       </body>
     </html>
   )

@@ -13,7 +13,6 @@ export function CategoryTabs({
   initialCategory?: string
 }) {
   useEffect(() => {
-    console.log('TopETH', initialCategory)
     if (document) {
       const element = document.getElementById(
         `browse-category-tab__${
