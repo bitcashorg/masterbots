@@ -7,5 +7,7 @@ export default async function ChatPage({ params }: ChatPageProps) {
     threadId: params.threadId,
     jwt: ''
   })
+
+
   return <BrowseThread thread={thread} />
 }
