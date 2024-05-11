@@ -11,7 +11,7 @@ export const runtime = 'edge'
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = req.nextUrl
-    const threadId = searchParams.get('threadId')
+    const threadId = searchParams.get('threadId');
     const thread = await getThread({ threadId })
     const question =
       thread.messages.find(m => m.role === 'user')?.content || 'not found'
@@ -23,12 +23,8 @@ export async function GET(req: NextRequest) {
     let theme = 'light'
     if (typeof window !== 'undefined') {
       theme = localStorage.getItem('theme') || 'dark'
-
-      console.log('theme', theme)
     }
-
     const isLightTheme = theme === 'light'
-
     return new ImageResponse(
       (
         <div
