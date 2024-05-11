@@ -20,12 +20,12 @@ export async function GET(req: NextRequest) {
     const username = thread.user?.username
     const user_avatar = thread.user?.profilePicture || ''
 
-     // get theme from local storage 
-
 
      let theme = 'light'
      if (typeof window !== 'undefined') {
         theme = localStorage.getItem('theme') || 'dark'
+
+        console.log('theme', theme)
      }
 
 
