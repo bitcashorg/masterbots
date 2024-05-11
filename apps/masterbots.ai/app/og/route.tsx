@@ -20,7 +20,17 @@ export async function GET(req: NextRequest) {
     const username = thread.user?.username
     const user_avatar = thread.user?.profilePicture || ''
 
-    console.log(thread.user)
+     // get theme from local storage 
+
+
+     let theme = 'light'
+     if (typeof window !== 'undefined') {
+        theme = localStorage.getItem('theme') || 'dark'
+     }
+
+
+     const isLightTheme = theme === 'light';
+
     return new ImageResponse(
       (
         <div
@@ -30,19 +40,12 @@ export async function GET(req: NextRequest) {
             display: 'flex',
             alignItems: 'flex-start',
             justifyContent: 'flex-start',
-            backgroundColor: '#17171b',
-            padding: '40px'
+            backgroundColor: isLightTheme ? '#ffff': '#17171b',
+            padding: '40px',
+            color: isLightTheme ?  '#17171b' : '#ffff'
           }}
         >
-          {/* <div style={{ display: "flex", position:'absolute'}}>
-            <svg width="1000" height="630" viewBox="0 0 1000 630" fill="none" >
-<path d="M1000 -184H0V816H1000V-184Z" fill="#18181B"/>
-</svg>
-
-
-
-
-            </div> */}
+        
           <div
             style={{
               position: 'absolute',
@@ -55,16 +58,16 @@ export async function GET(req: NextRequest) {
           >
             <svg width="100%" height="100%" viewBox="0 0 1200 630" fill="none">
               <g clip-path="url(#clip0_1009_12)">
-                <path d="M1111 -184H111V816H1111V-184Z" fill="#18181B" />
+                <path d="M1111 -184H111V816H1111V-184Z" fill={isLightTheme ? '#FFFFFF' : '#18181B'}  />
                 <path
                   d="M311 56H-64V431H311V56Z"
-                  stroke="#09090B"
+                  stroke={isLightTheme ? '#FFFFFF' : '#18181B'} 
                   stroke-opacity="0.5"
                   stroke-width="12.5"
                 />
                 <path
                   d="M286 81H-39V406H286V81Z"
-                  stroke="#09090B"
+                  stroke={isLightTheme ? '#FFFFFF' : '#18181B'} 
                   stroke-opacity="0.5"
                   stroke-width="12.5"
                 />
@@ -419,10 +422,10 @@ export async function GET(req: NextRequest) {
                   y2="3.6827e-05"
                   gradientUnits="userSpaceOnUse"
                 >
-                  <stop stop-color="#18181B" />
+                  <stop stop-color={isLightTheme ? '#FFFFFF' : '#18181B'}  />
                   <stop
                     offset="0.513001"
-                    stop-color="#18181B"
+                    stop-color={isLightTheme ? '#FFFFFF' : '#18181B'} 
                     stop-opacity="0"
                   />
                 </linearGradient>
@@ -454,7 +457,7 @@ export async function GET(req: NextRequest) {
                   fontWeight: 'bold',
                   marginBottom: '0px',
                   fontSize: 32,
-                  color: 'white'
+                  color: isLightTheme ? '#17171b' : '#ffff'
                 }}
               >
                 {thread.chatbot.name}
@@ -469,7 +472,7 @@ export async function GET(req: NextRequest) {
                 style={{
                   fontSize: '64px',
                   lineHeight: '75px',
-                  color: 'white',
+                     color: isLightTheme ? '#17171b' : '#ffff',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   display: '-webkit-box',
@@ -483,7 +486,7 @@ export async function GET(req: NextRequest) {
               <p
                 style={{
                   fontSize: '24px',
-                  color: 'white',
+                     color: isLightTheme ? '#17171b' : '#ffff',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   display: '-webkit-box',
@@ -514,7 +517,7 @@ export async function GET(req: NextRequest) {
                 />
                 <p
                   style={{
-                    color: 'white',
+                       color: isLightTheme ? '#17171b' : '#ffff',
                     fontSize: '34px',
                     marginLeft: '15px',
                     marginTop: '40px',
@@ -933,3 +936,7 @@ export async function GET(req: NextRequest) {
     })
   }
 }
+function useTheme() {
+    throw new Error('Function not implemented.')
+}
+
