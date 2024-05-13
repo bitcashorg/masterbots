@@ -24,8 +24,8 @@ export default async function ChatLayout({ children }: ChatLayoutProps) {
         // <div className="border border-green-500 border-dashed w-[300px]"></div>
       }
 
-      <div className="mx-5 flex grow w-full">
-        {children}
+      <div className="mx-5 flex flex-col grow w-full">
+        <div className="grow">{children}</div>
         <div className="block lg:hidden">
           <FooterCT />
         </div>
