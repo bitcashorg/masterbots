@@ -46,11 +46,9 @@
     --mirage: 217, 33%, 17%;
     --iron: 240, 6%, 90%;
 
-    --mb-gradient: linear-gradient(
-      21deg,
-      rgba(16, 171, 255, 0.7),
-      rgba(27, 234, 189, 0.6)
-    );
+    --mb-gradient: linear-gradient(21deg,
+        rgba(16, 171, 255, 0.7),
+        rgba(27, 234, 189, 0.6));
   }
 
   .dark {
@@ -100,8 +98,13 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
+  }
+
+  .fluid-container {
+    @apply max-w-[1024px] px-4 pb-10 mx-auto w-full;
   }
 }
 
@@ -113,10 +116,12 @@
   width: 4px;
   height: 4px;
 }
+
 .scrollbar::-webkit-scrollbar-track,
 .scrollbar::-webkit-scrollbar-corner {
   background: var(--scrollbar-track);
 }
+
 .scrollbar::-webkit-scrollbar-thumb {
   background: var(--scrollbar-thumb);
   border-radius: 2px;
@@ -147,7 +152,7 @@
   text-overflow: clip;
 }
 
-.hide-buttons > button {
+.hide-buttons>button {
   display: none;
 }
 
@@ -175,13 +180,17 @@
 
 /* Input specific styles */
 .gradient-input {
-  position: relative; /* Set to relative for proper positioning of child elements */
+  position: relative;
+  /* Set to relative for proper positioning of child elements */
   background: var(--mb-gradient);
-  padding: 2px; /* Padding around the input for border effect */
-  display: inline-block; /* Default display to inline for inline fields */
-  border-radius: 9999em; /* Circular border radius */
+  padding: 2px;
+  /* Padding around the input for border effect */
+  display: inline-block;
+  /* Default display to inline for inline fields */
+  border-radius: 9999em;
+  /* Circular border radius */
 
-  > input {
+  >input {
     border-radius: inherit;
   }
 }
