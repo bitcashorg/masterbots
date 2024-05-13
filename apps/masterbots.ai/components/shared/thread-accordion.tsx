@@ -63,8 +63,10 @@ export function ThreadAccordion({
     // Cleanup function to remove the query parameter on unmount
     return () => {
       const url = new URL(window.location.href)
-      url.searchParams.delete('threadId')
-      window.history.pushState({}, '', url.pathname + url.search)
+      if (url.searchParams.get('threadId') === thread.threadId) {
+        url.searchParams.delete('threadId')
+        window.history.pushState({}, '', url.pathname + url.search)
+      }
     }
   }, [thread.threadId, pathname])
 
