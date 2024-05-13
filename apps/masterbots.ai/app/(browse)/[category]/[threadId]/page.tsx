@@ -13,7 +13,7 @@ export default async function ThreadPage({ params }: ThreadPageProps) {
   const initialMessagePairs = await getMessagePairs(thread.threadId)
 
   return (
-    <div className="container">
+    <div className="fluid-container">
       <CategoryTabs categories={categories} />
       <SearchInput />
       <ThreadAccordion

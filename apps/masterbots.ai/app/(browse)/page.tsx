@@ -23,10 +23,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     offset: (page - 1) * limit,
     query
   })
-  console.log('Thereads', threads.length)
+  console.log('Threads', threads.length)
 
   return (
-    <div className="container">
+    <div className="fluid-container">
       <CategoryTabs categories={categories} />
       <SearchInput />
       {/* <div>Your query: {query}</div>

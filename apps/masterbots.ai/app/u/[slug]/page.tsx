@@ -31,7 +31,7 @@ export default async function BotThreadsPage({
         threadNum={threads.length} //TODO: get total number of thread. not the filter one
         username={user.username}
       />
-      <div className="container">
+      <div className="fluid-container">
         <ThreadList
           isUser
           filter={{ slug: params.slug }}

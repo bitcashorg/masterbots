@@ -44,7 +44,7 @@ export default async function BotThreadsPage({
         threadNum={threads.length}
         category={chatbot.categories[0]?.category.name}
       />
-      <div className="container">
+      <div className="fluid-container">
         <ThreadList isBot filter={{ chatbotName }} initialThreads={threads} />
       </div>
     </div>
