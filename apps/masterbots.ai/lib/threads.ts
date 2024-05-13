@@ -91,5 +91,5 @@ export function getThreadLink({
 }) {
   return chat
     ? `/c/${toSlug(thread.chatbot.name)}/${thread.threadId}`
-    : `/${toSlug(thread.chatbot.categories[0]?.category.name)}/${thread.threadId}}`
+    : `/${toSlug(thread.chatbot.categories[0]?.category.name)}/${thread.threadId}`
 }
