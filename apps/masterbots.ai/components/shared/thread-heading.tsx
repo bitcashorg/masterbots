@@ -54,7 +54,9 @@ export function ThreadHeading({
       </div>
 
       {response ? (
-        <div className="overflow-hidden text-sm text-left opacity-50 flex-1 space-y-2 mt-3 mx-10">
+        <div
+          className={`overflow-hidden text-sm text-left opacity-50 flex-1 space-y-2 mt-3 ${isBot ? '' : 'mx-10'}`}
+        >
           <ShortMessage content={response} />
         </div>
       ) : null}
