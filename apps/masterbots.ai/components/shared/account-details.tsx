@@ -20,7 +20,7 @@ export default function AccountDetails({
     <div className="flex bg-cover py-10 bg-gradient-to-l from-mirage via-[#2B5D91] to-[#388DE2]">
       <div
         className={cn(
-          'dark:bg-[#09090B] bg-white rounded-lg p-6 max-w-[600px] flex flex-column gap-3 relative mx-auto font-mono min-w-[700px]',
+          'dark:bg-[#09090B] bg-white rounded-lg p-6 max-w-[600px] flex flex-column gap-3 relative mx-auto font-mono md:min-w-[700px] md:w-full w-[85%]',
           chatbotName ? 'min-h-[300px]' : ''
         )}
       >

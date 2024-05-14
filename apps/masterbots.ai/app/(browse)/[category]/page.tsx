@@ -42,7 +42,7 @@ export default async function CategoryPage({
   // const hasPreviousPage = page > 1
 
   return (
-    <div className="container">
+    <div className="fluid-container">
       <CategoryTabs categories={categories} initialCategory={params.category} />
       <SearchInput />
       <ThreadList filter={{ categoryId, query }} initialThreads={threads} />

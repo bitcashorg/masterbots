@@ -9,7 +9,8 @@ export async function ResponsiveSidebar() {
     transition-all
     -translate-x-full duration-500 ease-in-out
     data-[state=open]:translate-x-0 data-[state=closed]:lg:translate-x-0
-    w-[300px] lg:w-[250px] xl:w-[300px]"
+    w-[300px] lg:w-[250px] xl:w-[300px]
+    lg:static absolute"
     >
       <SidebarGeneralCategory />
       {/* <h3>Chat history</h3>

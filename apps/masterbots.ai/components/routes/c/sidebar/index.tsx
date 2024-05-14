@@ -20,9 +20,7 @@ export function Sidebar({ className, children }: SidebarProps) {
       data-state={isSidebarOpen && !isLoading ? 'open' : 'closed'}
       ref={ref}
     >
-      <div className="overflow-y-auto scrollbar h-[calc(100%-113px)]">
-        {children}
-      </div>
+      <div className="overflow-y-auto scrollbar h-full">{children}</div>
     </aside>
   )
 }

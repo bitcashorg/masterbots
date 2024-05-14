@@ -55,18 +55,16 @@ export function SearchInput() {
             <IconClose height={15} width={15} />
           </div>
         ) : null}
-        <div className="w-full bg-black gradient-input">
           <Input
-            className="bg-black border "
+            className="w-full py-6 border-solid"
             onChange={e => {
               setQuery(e.target.value)
             }}
-            placeholder="Search answers on all categories"
+            placeholder="Search any chat with any Bot"
             type="text"
             value={query || ''}
           />
           {/* <span></span> */}
-        </div>
       </div>
       {/* <Button type="submit">Search</Button> */}
       <div className="w-full text-center">
