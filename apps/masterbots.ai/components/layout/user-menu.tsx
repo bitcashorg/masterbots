@@ -38,13 +38,16 @@ export function UserMenu() {
               </div>
             )}
 
-            <span className="ml-2"> {user.username}</span>
+            <span className="ml-2 truncate-title w-[calc(100vw-325px)]">
+              {' '}
+              {user.username}
+            </span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-[180px]" sideOffset={8}>
           <DropdownMenuItem className="flex-col items-start">
-            <div className="text-xs font-medium">name</div>
-            <div className="text-xs text-zinc-500">email</div>
+            <div className="text-xs font-medium">{user.username}</div>
+            <div className="text-xs text-zinc-500">{user.email}</div>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem className="text-xs" onClick={signout}>
