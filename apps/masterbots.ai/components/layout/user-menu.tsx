@@ -38,8 +38,7 @@ export function UserMenu() {
               </div>
             )}
 
-            <span className="ml-2 truncate-title w-[calc(100vw-325px)]">
-              {' '}
+            <span className="ml-2 truncate-title w-[calc(100vw-325px)] !max-w-min">
               {user.username}
             </span>
           </Button>
