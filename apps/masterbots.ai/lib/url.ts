@@ -15,13 +15,7 @@ export const toSlug = (username: string, separator = '_'): string => {
     .replace(/[^a-z0-9_+-]/g, separator)
 }
 
-// Function to simulate converting a slug back to a username
-export const fromSlug = (slug: string, separator = '_'): string => {
-  return slug
-    .replace(new RegExp(`[${separator}]+`, 'g'), ' ')
-    .replace(/_and_/g, ' & ')
-    .replace(/_/g, '&')
-}
+
 
 //Encodes a string for use in a URL, replacing spaces with the '+' character.
 export const encodeQuery = (input: string): string => {
