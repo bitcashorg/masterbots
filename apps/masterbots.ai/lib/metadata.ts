@@ -1,6 +1,5 @@
 import { getThread } from '@/services/hasura'
 import type { Metadata } from 'next'
-import { format } from 'date-fns'
 import { getThreadLink } from './threads'
 
 export async function generateMbMetadata({

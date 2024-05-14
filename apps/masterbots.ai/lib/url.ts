@@ -10,7 +10,7 @@ export const SlugSchema: ZodSchema<string> = z
 export const toSlug = (username: string, separator = '_'): string => {
   return username
     .toLowerCase()
-    .replace(/ & /g, '_and_')
+    .replace(/ & /g, '_n_')
     .replace(/&/g, '_')
     .replace(/[^a-z0-9_+-]/g, separator)
 }
