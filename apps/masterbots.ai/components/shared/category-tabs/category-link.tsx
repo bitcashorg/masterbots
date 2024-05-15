@@ -1,13 +1,12 @@
 import { motion } from 'framer-motion'
-import type { Category } from '@repo/mb-genql'
 import Link from 'next/link'
-import { toSlug } from '@/lib/url'
+import { toSlug } from '@/lib/url-params'
 
 export function CategoryLink({
   category,
   id
 }: {
-  category: Category | 'all'
+  category: string | 'all'
   id: string
 }) {
   return (
@@ -17,7 +16,7 @@ export function CategoryLink({
           ? 'dark:text-white'
           : 'dark:hover:text-white dark:text-[#F4F4F580] text-zinc-500 hover:text-black'
       } relative rounded-full px-3 py-1.5 text-sm font-medium  outline-sky-400 transition focus-visible:outline-2`}
-      href={category === 'all' ? '/' : `/${toSlug(category.name)}`}
+      href={category === 'all' ? '/' : `/${toSlug(category)}`}
       id={id}
       shallow
       style={{
@@ -32,7 +31,7 @@ export function CategoryLink({
           transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
         />
       )} */}
-      {category === 'all' ? 'All' : category.name}
+      {category === 'all' ? 'All' : category}
     </Link>
   )
 }

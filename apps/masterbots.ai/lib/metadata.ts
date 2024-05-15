@@ -1,50 +1,43 @@
-import { getThread } from '@/services/hasura';
-import type { Metadata } from 'next';
-import { format } from 'date-fns';
-import { getThreadLink } from './threads';
+import type { Metadata } from 'next'
+import { getThreadLink } from './threads'
+import { getThread } from '@/app/actions'
 
 export async function generateMbMetadata({
-  params,
+  params
 }): Promise<Metadata | undefined> {
-  const thread = await getThread({threadId: params.threadId})
+  const thread = await getThread({ threadId: params.threadId })
   if (!thread) return
 
-
-   const firstQuestion=
-      thread.messages.find(m => m.role === 'user')?.content || 'not found'
-    const firstResponse =
-      thread.messages.find(m => m.role === 'assistant')?.content || 'not found'
-
   const data = {
-    title: firstQuestion,
+    title: thread.firstUserMessage.content,
     publishedAt: thread.updatedAt, // format(thread.updatedAt, 'MMMM dd, yyyy'),
-    summary: firstResponse,
+    summary: thread.firstAssistantMessage.content,
     image: `https://alpha.masterbots.ai/og?threadId=${thread.threadId}`,
-    pathname: getThreadLink({thread:thread, chat:false})
-  } 
+    pathname: getThreadLink({ thread: thread, chat: false })
+  }
 
   return {
-    title:data.title,
-    description:data.summary,
+    title: data.title,
+    description: data.summary,
     openGraph: {
       locale: 'en_US',
-      title:data.title,
-      description:data.summary,
+      title: data.title,
+      description: data.summary,
       type: 'article',
       publishedTime: data.publishedAt,
       url: `https://alpha.masterbots.ai/${data.pathname}`,
       images: [
         {
-          url: data.image,
-        },
-      ],
+          url: data.image
+        }
+      ]
     },
     twitter: {
       card: 'summary_large_image',
-      title:data.title,
+      title: data.title,
       site: '@masterbotsai',
-      description:data.summary,
-      images: [data.image],
-    },
-  };
+      description: data.summary,
+      images: [data.image]
+    }
+  }
 }

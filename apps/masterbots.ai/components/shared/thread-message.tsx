@@ -1,15 +1,15 @@
 import type { Message } from 'ai'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
-import type { Chatbot } from '@repo/mb-genql'
 import { cn } from '@/lib/utils'
 import { CodeBlock } from '@/components/ui/codeblock'
 import { MemoizedReactMarkdown } from '@/components/shared/markdown'
 import { cleanPrompt } from '@/lib/threads'
+import type { MB } from '@repo/supabase'
 
 export interface ChatMessageProps {
   message: Message
-  chatbot?: Chatbot
+  chatbot?: MB.Chatbot
 }
 
 export function BrowseChatMessage({
@@ -21,7 +21,7 @@ export function BrowseChatMessage({
 
   return (
     <div className={cn('group relative pt-4 flex items-start')} {...props}>
-      <div className="flex-1 px-1 md:ml-4 space-y-2 overflow-hidden">
+      <div className="flex-1 px-1 space-y-2 overflow-hidden md:ml-4">
         <MemoizedReactMarkdown
           className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 !max-w-5xl"
           components={{

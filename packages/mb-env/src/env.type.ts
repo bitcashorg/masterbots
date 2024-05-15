@@ -1,4 +1,4 @@
-const validEnvs = ["prod", "test", "local"] as const;
+const validEnvs = ["prod", "test", "local", "search"] as const;
 
 export type MbEnv = (typeof validEnvs)[number];
 

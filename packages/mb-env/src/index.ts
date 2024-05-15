@@ -1,2 +1,2 @@
-export * from "./endpoints.env";
+export * from "./supabase.env";
 export * from "./env.type";

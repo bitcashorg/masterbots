@@ -1,13 +1,13 @@
 'use client'
 
-import type { Category } from '@repo/mb-genql'
+import { MB } from '@repo/supabase'
 import { CategoryLink } from './category-link'
 
 export function CategoryTabs({
   categories,
   initialCategory = 'all'
 }: {
-  categories: Category[]
+  categories: MB.Category[]
   initialCategory?: string
 }) {
   return (
@@ -15,7 +15,7 @@ export function CategoryTabs({
       <CategoryLink category="all" id="browse-category-tab__null" />
       {categories.map((category, key) => (
         <CategoryLink
-          category={category}
+          category={category.name}
           id={`browse-category-tab__${category.categoryId}`}
           key={key}
         />

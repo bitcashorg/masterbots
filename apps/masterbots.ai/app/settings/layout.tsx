@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import AccountDetails from '@/components/shared/account-details'
 import { UserProfile } from '@/hooks/use-global-store'
-import { getBrowseThreads, getUserInfoFromBrowse } from '@/services/hasura'
 import { createSupabaseServerClient } from '@/services/supabase'
 
 async function getCookieData(): Promise<{ userProfile: UserProfile }> {
@@ -25,12 +24,8 @@ export default async function SettingsLayout({
   if (!user.email) redirect(`/auth/sign-in`)
   const { userProfile } = await getCookieData()
 
-  const threads = await getBrowseThreads({
-    userId: userProfile.userId,
-    limit: 20
-  })
   return (
-    <main className="flex flex-col min-h-screen container">
+    <main className="container flex flex-col min-h-screen">
       {/* <AccountDetails
         href={`/u/${userProfile.username}`}
         alt={userProfile.username}
@@ -38,7 +33,7 @@ export default async function SettingsLayout({
         avatar={userProfile.image || ''}
         threadNum={threads.length} //TODO: get total number of thread. not the filter one
       /> */}
-      <div className="py-12 px-6">
+      <div className="px-6 py-12">
         <div className="space-y-0.5 mb-10 pb-10 border-b-[1px] dark:border-mirage border-gray-300">
           <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
           <p className="text-muted-foreground">
@@ -65,7 +60,7 @@ export default async function SettingsLayout({
               </div>
             </nav>
           </div>
-          <div className="flew grow space-y-6">{children}</div>
+          <div className="space-y-6 flew grow">{children}</div>
         </div>
       </div>
     </main>

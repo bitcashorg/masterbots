@@ -1,17 +1,10 @@
-'use client'
-
-import type { Thread } from '@repo/mb-genql'
 import { cn } from '@/lib/utils'
 import { ThreadHeading } from './thread-heading'
 import Link from 'next/link'
 import { getThreadLink } from '@/lib/threads'
+import { MB } from '@repo/supabase'
 
 export function ThreadListChatItem({ thread }: ThreadListChatItemProps) {
-  const firstQuestion =
-    thread.messages.find(m => m.role === 'user')?.content || 'not found'
-  const firstResponse =
-    thread.messages.find(m => m.role === 'assistant')?.content || 'not found'
-
   return (
     <Link
       shallow
@@ -20,8 +13,8 @@ export function ThreadListChatItem({ thread }: ThreadListChatItemProps) {
     >
       <ThreadHeading
         chat
-        question={firstQuestion}
-        response={firstResponse}
+        question={thread.firstUserMessage.content}
+        response={thread.firstAssistantMessage.content}
         thread={thread}
       />
     </Link>
@@ -29,7 +22,7 @@ export function ThreadListChatItem({ thread }: ThreadListChatItemProps) {
 }
 
 interface ThreadListChatItemProps {
-  thread: Thread
+  thread: MB.ThreadFull
   chat?: boolean
   defaultOpen?: boolean
 }

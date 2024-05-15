@@ -183,21 +183,21 @@ export type Database = {
         Row: {
           content: string
           created_at: string
-          message_id: string
+          id: string
           role: string
           thread_id: string | null
         }
         Insert: {
           content: string
           created_at?: string
-          message_id?: string
+          id?: string
           role: string
           thread_id?: string | null
         }
         Update: {
           content?: string
           created_at?: string
-          message_id?: string
+          id?: string
           role?: string
           thread_id?: string | null
         }
@@ -475,32 +475,32 @@ export type Database = {
       }
       user: {
         Row: {
+          avatar: string | null
           date_joined: string
           email: string
           last_login: string | null
+          name: string | null
           password: string
-          profile_picture: string | null
-          slug: string
           user_id: string
           username: string
         }
         Insert: {
+          avatar?: string | null
           date_joined?: string
           email: string
           last_login?: string | null
+          name?: string | null
           password: string
-          profile_picture?: string | null
-          slug: string
           user_id?: string
           username: string
         }
         Update: {
+          avatar?: string | null
           date_joined?: string
           email?: string
           last_login?: string | null
+          name?: string | null
           password?: string
-          profile_picture?: string | null
-          slug?: string
           user_id?: string
           username?: string
         }

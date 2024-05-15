@@ -1,15 +1,9 @@
 import * as React from 'react'
 import Link from 'next/link'
-import { isTokenExpired } from '@repo/mb-lib'
-import { cookies } from 'next/headers'
 import { Button } from '@/components/ui/button'
 import { IconSeparator } from '@/components/ui/icons'
 import { UserMenu } from '@/components/layout/user-menu'
 import { createSupabaseServerClient } from '@/services/supabase'
-import { getUser } from '@/services/hasura'
-import { SidebarToggle } from '../routes/c/sidebar/sidebar-toggle'
-
-// https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating
 
 export async function Header() {
   const supabase = await createSupabaseServerClient()
@@ -17,23 +11,20 @@ export async function Header() {
     data: { user }
   } = await supabase.auth.getUser()
 
-  const jwt = cookies().get('hasuraJwt')?.value || ''
-
   return (
     <header className="sticky top-0 z-50 w-full border-b shrink-0 bg-gradient-to-b from-background/10 via-background/50 to-background/80 backdrop-blur-xl">
       <div className="flex items-center justify-between h-16 px-4">
         <div className="flex items-center ">
-          <SidebarToggle />
           <HeaderLink href="/" text="Masterbots" />
           <IconSeparator className="size-6 text-muted-foreground/50" />
           <HeaderLink href="https://masterbots.ai/chat" text="Chat" />
           <HeaderLink href="/p" text="Pro" />
         </div>
         <div className="flex items-center justify-end space-x-2">
-          {user && !isTokenExpired(jwt) ? (
+          {user ? (
             <UserMenu />
           ) : (
-            <Button asChild className="-ml-2" variant="link">
+            <Button asChild className="ml-2" variant="link">
               <Link href="https://masterbots.ai/auth/sign-in">Login</Link>
             </Button>
           )}

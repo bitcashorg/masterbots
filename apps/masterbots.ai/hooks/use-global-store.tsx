@@ -1,19 +1,14 @@
 'use client'
 
-import { Chatbot } from '@repo/mb-genql'
-import { useSearchParams } from 'next/navigation'
 import React, { ReactNode, createContext, useContext } from 'react'
 import { useSetState } from 'react-use'
+import type { MB } from '@repo/supabase'
 
 // Create the context
 const GlobalStoreContext = createContext<GlobalStoreContextValue>({
-  errorMessage: '',
-  hasuraJwt: '',
   user: null,
   chatbots: [],
-  query: '',
-  setGlobalError: (errorMessage: string) => {},
-  setGlobalQuery: (query: string) => {}
+  categories: []
 })
 
 // Custom hook to consume the context
@@ -22,47 +17,35 @@ export const useGlobalStore = () => useContext(GlobalStoreContext)
 // Provider component to wrap your application and provide the context
 export function GlobalStoreProvider({
   children,
-  hasuraJwt,
   user,
-  chatbots = []
+  chatbots = [],
+  categories = []
 }: GlobalStoreProviderProps) {
-  const searchParams = useSearchParams()
   const [state, setState] = useSetState({
-    errorMessage: '',
-    hasuraJwt,
     user,
-    query: searchParams.get('query'),
-    chatbots: chatbots
+    chatbots,
+    categories
   })
 
-  const setGlobalError = (errorMessage: string) => setState({ errorMessage })
-  const setGlobalQuery = (query: string) => setState({ query })
-
   return (
-    <GlobalStoreContext.Provider
-      value={{ ...state, setGlobalError, setGlobalQuery }}
-    >
+    <GlobalStoreContext.Provider value={{ ...state }}>
       {children}
     </GlobalStoreContext.Provider>
   )
 }
 
 type GlobalStoreProviderProps = {
-  children: ReactNode
-  hasuraJwt: string
   user: UserProfile | null
-  chatbots: Chatbot[]
+  children: ReactNode
+  chatbots: MB.ChatbotWithPrompts[]
+  categories: MB.Category[]
 }
 
 // Define type for the context value
 type GlobalStoreContextValue = {
-  errorMessage: string
-  hasuraJwt: string
   user: UserProfile | null
-  setGlobalError: (errorMessage: string) => void
-  setGlobalQuery: (query: string) => void
-  chatbots: Chatbot[]
-  query: string
+  chatbots: MB.ChatbotWithPrompts[]
+  categories: MB.Category[]
 }
 
 export type UserProfile = {

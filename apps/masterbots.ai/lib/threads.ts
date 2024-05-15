@@ -1,10 +1,9 @@
 import type * as AI from 'ai'
-import { Message, Thread } from '@repo/mb-genql'
-import { type Message as AIMessage } from 'ai/react'
-import { extractBetweenMarkers } from './utils'
-import { toSlug } from './url'
+import { toSlug } from './url-params'
+import { objectToCamel } from 'ts-case-convert'
+import { MB } from '@repo/supabase'
 
-export function createMessagePairs(messages: Message[] | AIMessage[]) {
+export function createMessagePairs(messages: AI.Message[]) {
   const messagePairs: MessagePair[] = []
 
   for (let i = 0; i < messages.length; i++) {
@@ -12,7 +11,7 @@ export function createMessagePairs(messages: Message[] | AIMessage[]) {
 
     if (message.role === 'user') {
       const userMessage = message
-      const chatGptMessages = []
+      const chatGptMessages: AI.Message[] = []
       for (let j = i + 1; j < messages.length; j++) {
         const chatGptMessage = findNextAssistantMessage(messages, j)
         if (!chatGptMessage) {
@@ -22,10 +21,10 @@ export function createMessagePairs(messages: Message[] | AIMessage[]) {
           continue
         }
       }
-      messagePairs.push({
-        userMessage,
-        chatGptMessage: chatGptMessages
-      })
+      // messagePairs.push({
+      //   userMessage,
+      //   chatGptMessage: []  //chatGptMessages
+      // })
     }
   }
 
@@ -33,19 +32,18 @@ export function createMessagePairs(messages: Message[] | AIMessage[]) {
 }
 
 const findNextAssistantMessage = (
-  messages: Message[] | AIMessage[],
+  messages: AI.Message[],
   startIndex: number
 ) => {
   if (messages[startIndex].role === 'assistant') {
     return {
       ...messages[startIndex],
       content: cleanPrompt(messages[startIndex].content)
-    }
+    } as AI.Message
   }
   return null
 }
 
-// From chat-message.tsx
 export function cleanPrompt(str: string) {
   const marker = '].  Then answer this question:'
   const index = str.indexOf(marker)
@@ -58,38 +56,46 @@ export function cleanPrompt(str: string) {
   return extracted || str
 }
 
-export interface MessagePair {
-  userMessage: Message | AI.Message
-  chatGptMessage: Message[]
-}
 
-export function convertMessage(message: Message) {
-  return {
-    id: message.messageId,
-    content: message.content,
-    createAt: message.createdAt,
-    role: message.role
-  } as AI.Message
-}
-
-export function getAllUserMessagesAsStringArray(
-  allMessages: Message[] | AI.Message[]
-) {
-  const userMessages = allMessages.filter(m => m.role === 'user')
-  const cleanMessages = userMessages.map(m =>
-    extractBetweenMarkers(m.content, 'Then answer this question:')
-  )
-  return cleanMessages.join(', ')
-}
 
 export function getThreadLink({
   chat = false,
   thread
 }: {
   chat?: boolean
-  thread: Thread
+  thread: MB.ThreadFull
 }) {
   return chat
     ? `/c/${toSlug(thread.chatbot.name)}/${thread.threadId}`
-    : `/${toSlug(thread.chatbot.categories[0]?.category.name)}/${thread.threadId}}`
+    : `/${toSlug(thread.chatbot.categories[0].name)}/${thread.threadId}}`
+}
+
+export function getFirstMessages(messages: MessageData[]) {
+  // get question and answer
+  const firstAssistantMessage = objectToCamel(
+    messages.find(msg => msg.role === 'assistant')
+  ) as unknown as AI.Message
+  const firstUserMessage = objectToCamel(
+    messages.find(msg => msg.role === 'user')
+  ) as unknown as AI.Message
+
+  return {
+    firstUserMessage,
+    firstAssistantMessage
+  }
+}
+
+
+// TODO: move to mb.types
+// this is the only message data we want to query from the server
+interface MessageData {
+  id: string
+  content: string
+  role: string
+  createdAt: string
+}
+
+export interface MessagePair {
+  userMessage: AI.Message
+  chatGptMessage: AI.Message
 }
