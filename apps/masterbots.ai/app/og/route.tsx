@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = req.nextUrl
     const threadId = searchParams.get('threadId');
-    const thread = await getThread({ threadId })
+    const thread = await getThread({ threadId,jwt: "" }, )
     const question =
       thread.messages.find(m => m.role === 'user')?.content || 'not found'
     const answer =
