@@ -4,6 +4,8 @@ import { getThreadLink } from './threads'
 
 export async function generateMbMetadata({
   params
+}: {
+  params: any;
 }): Promise<Metadata | undefined> {
   const threadId = params?.threadId
   const thread = await getThread({ threadId, jwt: '' })
