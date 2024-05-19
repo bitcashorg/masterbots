@@ -1,8 +1,6 @@
 import { Camelize } from "camelize-ts";
 import { Tables } from "./supa.types";
 import type * as AI from "ai";
-
-// TODO:  move this to packages/mb-types
 export namespace MB {
   export type Message = Camelize<Tables<"message">>;
   export type Chatbot = Camelize<Tables<"chatbot">>;

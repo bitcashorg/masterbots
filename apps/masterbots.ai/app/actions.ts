@@ -30,7 +30,6 @@ export async function getThreads({
     .from('thread')
     .select(ThreadFullFilter)
     .eq('chatbot.chatbot_category.category.category_id', categoryId)
-    .select('*')
 
   // if (categoryId) {
   // threadsQuery = threadsQuery.eq(
