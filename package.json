@@ -1,8 +1,8 @@
 {
   "name": "masterbots",
   "version": "1.0.0",
-  "description": "Monorepo for Masterbots application",
-  "author": "Jun Dam <jun@bitcash.org>",
+  "description": "Masterbots AI Monorepo",
+  "author": "bitcash.org",
   "license": "MIT",
   "private": true,
   "packageManager": "bun@1.0.14",

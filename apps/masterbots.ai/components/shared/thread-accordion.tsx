@@ -10,7 +10,6 @@ import {
   AccordionItem,
   AccordionTrigger
 } from '@/components/ui/accordion'
-import { MessagePair } from '@/lib/threads'
 import { cn } from '@/lib/utils'
 import { toSlug } from '@/lib/url-params'
 import { getMessagePairs } from '@/app/actions'
@@ -33,7 +32,7 @@ export function ThreadAccordion({
   const { data: pairs, error } = useQuery({
     queryKey: [`messages-${thread.threadId}`],
     queryFn: () => getMessagePairs(thread.threadId),
-    initialData: [], //initialMessagePairs,
+    initialData: initialMessagePairs,
     networkMode: 'always',
     refetchOnMount: true,
     enabled: clientFetch
@@ -53,8 +52,8 @@ export function ThreadAccordion({
       window.history.pushState({}, '', url.href)
     }
 
-    // hack to delete threadId after initial render
-    // TODO: remove params on next middleware
+    // delete threadId after initial render
+    // TODO: remove params on middleware
     if (pathname.includes(thread.threadId)) {
       url.searchParams.delete('threadId')
       window.history.pushState({}, '', url.pathname + url.search)
@@ -143,8 +142,8 @@ export function ThreadAccordion({
 
 interface ThreadAccordionProps {
   thread: MB.ThreadFull
-  initialMessagePairs: MessagePair[]
-  clientFetch?: boolean
+  initialMessagePairs: MB.MessagePair[]
+  clientFetch?: boolean //TODO: wen why?
   chat?: boolean
   showHeading?: boolean
 }
