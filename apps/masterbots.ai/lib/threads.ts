@@ -69,6 +69,7 @@ export function getThreadLink({
 }
 
 export function getFirstMessages(messages: MessageData[]) {
+  // console.log('getFirstMessages', messages.length)
   // get question and answer
   const firstAssistantMessage = objectToCamel(
     messages.find(msg => msg.role === 'assistant')

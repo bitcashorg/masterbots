@@ -12,7 +12,7 @@ export function CategoryLink({
 }) {
   const pathname = usePathname()
   const slug = toSlug(category)
-  const isHome = pathname === ''
+  const isHome = pathname === '/'
   const active = (isHome && category === 'all') || pathname === `/${slug}`
   return (
     <Link

@@ -15,23 +15,24 @@ export function ThreadListAccordion({
   thread,
   chat = false
 }: ThreadListAccordionProps) {
-  const isOpen = false
   return (
     <Accordion
       className="w-full"
+      // NOTE: we want to avoid use client on ThreadList components
       // onValueChange={v => setState({ isOpen: v[0] === 'pair-1' })}
       type="multiple"
     >
       {/* Frist level question and excerpt visible  on lists */}
       <AccordionItem value="pair-1">
         <AccordionTrigger
-          className={cn('hover:bg-mirage px-5', isOpen && 'bg-mirage')}
+          className={cn('hover:bg-mirage px-5')}
+          // isOpen && 'bg-mirage'
         >
           <ThreadHeading
             chat={chat}
-            copy={isOpen}
+            // copy={isOpen}
             question={thread.firstUserMessage.content}
-            response={isOpen ? '' : thread.firstAssistantMessage.content}
+            response={thread.firstAssistantMessage.content}
             thread={thread}
           />
         </AccordionTrigger>
