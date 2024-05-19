@@ -57,11 +57,15 @@ export function cleanPrompt(str: string) {
 
 export function getThreadLink({
   chat = false,
+  param = false,
   thread
 }: {
   chat?: boolean
+  param?: boolean
   thread: MB.ThreadFull
 }) {
+  if (param)
+    return `/${toSlug(thread.chatbot.categories[0].name)}?threadId=${thread.threadId}}`
   return chat
     ? `/c/${toSlug(thread.chatbot.name)}/${thread.threadId}`
     : `/${toSlug(thread.chatbot.categories[0].name)}/${thread.threadId}}`

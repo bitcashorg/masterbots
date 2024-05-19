@@ -7,9 +7,10 @@ import {
   AccordionItem,
   AccordionTrigger
 } from '@/components/ui/accordion'
-import { createMessagePairs } from '@/lib/threads'
+import { createMessagePairs, getThreadLink } from '@/lib/threads'
 import { ThreadAccordion } from './thread-accordion'
 import { ThreadHeading } from './thread-heading'
+import Link from 'next/link'
 
 export function ThreadListAccordion({
   thread,
@@ -24,6 +25,7 @@ export function ThreadListAccordion({
     >
       {/* Frist level question and excerpt visible  on lists */}
       <AccordionItem value="pair-1">
+        {/* <Link shallow href={getThreadLink({ thread, param: true })}> */}
         <AccordionTrigger
           className={cn('hover:bg-mirage px-5')}
           // isOpen && 'bg-mirage'
@@ -36,6 +38,7 @@ export function ThreadListAccordion({
             thread={thread}
           />
         </AccordionTrigger>
+        {/* </Link> */}
 
         {/* TODO: we need to slide down the content */}
         <AccordionContent className={cn('pl-14')}>
