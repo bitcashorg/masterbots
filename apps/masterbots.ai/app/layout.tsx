@@ -5,13 +5,13 @@ import { Toaster } from 'react-hot-toast'
 import '@/app/globals.css'
 import { cookies } from 'next/headers'
 import dynamic from 'next/dynamic'
+import { Metadata } from 'next/types'
+import { objectToCamel } from 'ts-case-convert'
 import { Header } from '@/components/layout/header'
 import { Providers } from '@/components/layout/providers'
 import { cn } from '@/lib/utils'
 import { GlobalStoreProvider } from '@/hooks/use-global-store'
-import { Metadata } from 'next/types'
 import { createSupabaseServerClient } from '@/services/supabase'
-import { objectToCamel } from 'ts-case-convert'
 
 async function getCookieData(): Promise<{ userProfile }> {
   const userProfile = cookies().get('userProfile')?.value || null
@@ -40,8 +40,8 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       >
         <Toaster />
         <GlobalStoreProvider
-          chatbots={[]}
           categories={categories}
+          chatbots={[]}
           user={(userProfile && JSON.parse(userProfile)) || null}
         >
           <Providers

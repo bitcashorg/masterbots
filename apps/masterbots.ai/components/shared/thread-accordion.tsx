@@ -2,6 +2,8 @@
 
 import { useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { usePathname, useRouter } from 'next/navigation'
+import { MB } from '@repo/supabase'
 import {
   Accordion,
   AccordionContent,
@@ -10,12 +12,10 @@ import {
 } from '@/components/ui/accordion'
 import { MessagePair } from '@/lib/threads'
 import { cn } from '@/lib/utils'
+import { toSlug } from '@/lib/url-params'
+import { getMessagePairs } from '@/app/actions'
 import { ThreadHeading } from './thread-heading'
 import { BrowseChatMessage } from './thread-message'
-import { usePathname, useRouter } from 'next/navigation'
-import { toSlug } from '@/lib/url-params'
-import {  getMessagePairs } from '@/app/actions'
-import { MB } from '@repo/supabase'
 
 export function ThreadAccordion({
   thread,
@@ -74,8 +74,8 @@ export function ThreadAccordion({
       <Accordion
         className={cn('w-full border border-solid border-mirage scroll')}
         defaultValue={['pair-0', 'pair-1', 'pair-2']}
-        type="multiple"
         key={`accordion-${JSON.stringify(pairs)}`}
+        type="multiple"
       >
         {pairs.map((p, key) => {
           const isFirst = key === 0

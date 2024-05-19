@@ -1,7 +1,7 @@
 import type * as AI from 'ai'
-import { toSlug } from './url-params'
 import { objectToCamel } from 'ts-case-convert'
 import { MB } from '@repo/supabase'
+import { toSlug } from './url-params'
 
 export function createMessagePairs(messages: AI.Message[]) {
   const messagePairs: MessagePair[] = []
@@ -56,8 +56,6 @@ export function cleanPrompt(str: string) {
   return extracted || str
 }
 
-
-
 export function getThreadLink({
   chat = false,
   thread
@@ -84,7 +82,6 @@ export function getFirstMessages(messages: MessageData[]) {
     firstAssistantMessage
   }
 }
-
 
 // TODO: move to mb.types
 // this is the only message data we want to query from the server

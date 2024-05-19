@@ -6,7 +6,6 @@ const dub = new Dub({
   projectSlug: 'bitcash'
 })
 
-
 export async function shorten(_prevState: any, formData: any) {
   try {
     const url = formData.get('url')

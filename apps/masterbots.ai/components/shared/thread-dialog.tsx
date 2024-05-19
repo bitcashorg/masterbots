@@ -1,13 +1,12 @@
 'use client'
 
 import { DialogProps } from '@radix-ui/react-dialog'
+import { MB } from '@repo/supabase'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import { createMessagePairs } from '@/lib/threads'
 import { ThreadAccordion } from './thread-accordion'
 import { ThreadHeading } from './thread-heading'
-import { MB } from '@repo/supabase'
-
 
 export function ThreadDialog({
   thread,

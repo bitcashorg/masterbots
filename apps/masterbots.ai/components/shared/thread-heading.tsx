@@ -1,9 +1,9 @@
+import { MB } from '@repo/supabase'
 import { cn } from '@/lib/utils'
+import { toSlug } from '@/lib/url-params'
 import { ShortMessage } from './thread-short-message'
 import { AccountAvatar } from './account-avatar'
 import Shortlink from './copy-shortlink'
-import { toSlug } from '@/lib/url-params'
-import { MB } from '@repo/supabase'
 
 export function ThreadHeading({
   thread,

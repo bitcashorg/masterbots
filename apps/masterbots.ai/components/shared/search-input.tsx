@@ -1,11 +1,11 @@
 'use client'
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { ChangeEvent } from 'react'
+import { useDebounce, useDebouncedCallback } from 'use-debounce'
 import { IconClose } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
-import { ChangeEvent } from 'react'
 import { encodeQuery } from '@/lib/url-params'
-import { useDebounce, useDebouncedCallback } from 'use-debounce'
 
 export function SearchInput() {
   const pathname = usePathname()
@@ -43,12 +43,12 @@ export function SearchInput() {
         <div className="w-full bg-black gradient-input">
           <Input
             className="bg-black border "
+            defaultValue={urlQuery}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
               updateUrl(e.target.value)
             }}
             placeholder="Search answers on all categories"
             type="text"
-            defaultValue={urlQuery}
           />
         </div>
       </div>

@@ -50,6 +50,7 @@ Contributors will earn platform credits that can be sold for cash.
 ### Backend & APIs
 
 - **Supabase & pgVector**
+
   - Authentication and real-time subscriptions.
   - **Advanced Vector Search**: Utilizing pgVector for enhanced query capabilities, crucial for AI-driven searches and data relations in large datasets.
 
@@ -61,6 +62,7 @@ Contributors will earn platform credits that can be sold for cash.
 ### Frontend & Design
 
 - **Next.js 14**
+
   - Efficient routing with App Router.
   - Server-side data fetching with the Actions framework.
   - [Learn more about Next.js](https://nextjs.org/docs/routing/introduction)
@@ -74,11 +76,11 @@ Contributors will earn platform credits that can be sold for cash.
 ### DevOps and Tools
 
 - **Turbo Monorepo**
+
   - Optimizes build performance through dependency management and caching.
   - Supports scalable architectures with cohesive component organization.
- 
 
- - [Learn more about Turbo Monorepo](https://turborepo.org/)
+- [Learn more about Turbo Monorepo](https://turborepo.org/)
 
 - **Lighthouse CI**
   - Automated performance metrics for web apps, integrating with CI/CD pipelines.
@@ -88,6 +90,7 @@ Contributors will earn platform credits that can be sold for cash.
 ### Prototyping
 
 - **v0.dev**
+
   - Real-time collaboration tools for quick prototyping.
   - [Learn more about v0.dev](https://v0.dev/)
 
@@ -98,6 +101,7 @@ Contributors will earn platform credits that can be sold for cash.
 ### Animation
 
 - **Framer Motion for React**
+
   - Animation tools designed for React applications.
   - [Learn more about Framer Motion](https://www.framer.com/motion/)
 

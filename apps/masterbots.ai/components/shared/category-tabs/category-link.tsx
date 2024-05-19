@@ -1,6 +1,7 @@
-import { motion } from 'framer-motion'
+'use client'
 import Link from 'next/link'
 import { toSlug } from '@/lib/url-params'
+import { usePathname } from 'next/navigation'
 
 export function CategoryLink({
   category,
@@ -9,14 +10,18 @@ export function CategoryLink({
   category: string | 'all'
   id: string
 }) {
+  const pathname = usePathname()
+  const slug = toSlug(category)
+  const isHome = pathname === ''
+  const active = (isHome && category === 'all') || pathname === `/${slug}`
   return (
     <Link
       className={`${
-        category === 'all'
+        active
           ? 'dark:text-white'
           : 'dark:hover:text-white dark:text-[#F4F4F580] text-zinc-500 hover:text-black'
       } relative rounded-full px-3 py-1.5 text-sm font-medium  outline-sky-400 transition focus-visible:outline-2`}
-      href={category === 'all' ? '/' : `/${toSlug(category)}`}
+      href={category === 'all' ? '/' : `/${slug}`}
       id={id}
       shallow
       style={{

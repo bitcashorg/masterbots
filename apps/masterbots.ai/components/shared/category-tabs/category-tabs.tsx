@@ -1,5 +1,3 @@
-'use client'
-
 import { MB } from '@repo/supabase'
 import { CategoryLink } from './category-link'
 

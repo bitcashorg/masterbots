@@ -1,6 +1,4 @@
 import { ThreadList } from '@/components/shared/thread-list'
-import { CategoryTabs } from '@/components/shared/category-tabs/category-tabs'
-import { SearchInput } from '@/components/shared/search-input'
 import { Card } from '@/components/ui/card'
 import { decodeQuery } from '@/lib/url-params'
 import { getThreads, getThreadsLike } from '../actions'
@@ -10,13 +8,11 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const limit = searchParams.limit ? parseInt(searchParams.limit) : 20
   const page = searchParams.page ? parseInt(searchParams.page) : 1
   // console.log({ query, limit, page })
-  const threads = await (query? getThreadsLike({ query }) : getThreads())
+  const threads = await (query ? getThreadsLike({ query }) : getThreads())
 
   console.log(' ==============  THREADS  ==============  ')
   return (
-    <div className="container">
-      <CategoryTabs categories={[]} />
-      <SearchInput />
+    <div>
       {/* <div>Your query: {query}</div>
       <ul>
         {threads.map(t => (

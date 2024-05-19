@@ -1,10 +1,10 @@
+import { objectToCamel } from 'ts-case-convert'
+import { omit } from 'lodash'
 import { ThreadList } from '@/components/shared/thread-list'
 import AccountDetails from '@/components/shared/account-details'
 import { CategoryTabs } from '@/components/shared/category-tabs/category-tabs'
 import { SearchInput } from '@/components/shared/search-input'
 import { createSupabaseServerClient } from '@/services/supabase'
-import { objectToCamel } from 'ts-case-convert'
-import { omit } from 'lodash'
 
 async function getUserWithThreads(username: string) {
   const supabase = await createSupabaseServerClient()

@@ -81,10 +81,10 @@ const config: Omit<Config, "content"> = {
           to: { opacity: 0 },
         },
         spin: {
-          '0%': { transform: 'rotate(0deg)' },
-          '100%': { transform: 'rotate(360deg)' },
-               spin: 'spin 1s linear infinite'
-        }
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
+          spin: "spin 1s linear infinite",
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -93,8 +93,8 @@ const config: Omit<Config, "content"> = {
         "fade-out": "fade-out 0.5s ease-out",
       },
       backgroundColor: {
-        'black-alpha': 'rgba(9, 9, 11, 0.5)' // Custom color with alpha
-      }
+        "black-alpha": "rgba(9, 9, 11, 0.5)", // Custom color with alpha
+      },
     },
   },
   plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],

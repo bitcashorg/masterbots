@@ -12,9 +12,7 @@ export default async function ThreadPage({ params }: ThreadPageProps) {
   // const initialMessagePairs = await getMessagePairs(thread.threadId)
 
   return (
-    <div className="container">
-      <CategoryTabs categories={[]} />
-      <SearchInput />
+    <div>
       {/* <ThreadAccordion
         initialMessagePairs={[]}
         thread={thread}
