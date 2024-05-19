@@ -2,21 +2,8 @@
 
 import { objectToCamel } from 'ts-case-convert'
 import type { MB } from '@repo/supabase'
-import { omit, uniq } from 'lodash'
+import { uniq } from 'lodash'
 import { createSupabaseServerClient } from '@/services/supabase'
-import { getFirstMessages } from '@/lib/threads'
-
-// TODO: move complex queries to postgres funciton, maybe even ts gen works
-
-// Shared ThreadFull like filter for supabase queries
-// It ensure you get the data you need to construct the ThreadFull object
-// Important to select only the data you need, nothing more
-const ThreadFullFilter = `
-  *,
-  message (id,content,role,created_at),
-  chatbot (chatbot_id,name,avatar,prompt(*), chatbot_category(category(*))),
-  user (user_id,username,avatar)
-` as const
 
 export async function getThreads({
   categoryId
@@ -26,26 +13,20 @@ export async function getThreads({
   console.log('getThreads categoryId', categoryId)
   const supabase = await createSupabaseServerClient()
 
-  let threadsQuery = supabase
-    .from('thread')
-    .select(ThreadFullFilter)
-    .eq('chatbot.chatbot_category.category.category_id', categoryId)
+  let threadsQuery = supabase.from('thread_full').select('*')
 
   // if (categoryId) {
-  // threadsQuery = threadsQuery.eq(
-  //   'chatbot.chatbot_category.category.categoryId',
-  //   categoryId
-  // )
+  //   threadsQuery = threadsQuery.contains('chatbot->categories', [
+  //     { category_id: categoryId }
+  //   ])
   // }
 
-  const { data, error, count } = await threadsQuery.range(30, 39)
-  console.log('🤌🏻', count)
+  const { data, error } = await threadsQuery.range(0, 19)
+  console.log('🤌🏻', data)
 
   if (error) return []
-  const filteredData = data.filter(
-    thread => thread.message && thread.message.length > 0
-  )
-  return filteredData.map(createThreadFull)
+
+  return data.map(createThreadFull)
 }
 
 export async function getThread({
@@ -55,24 +36,23 @@ export async function getThread({
 }): Promise<MB.ThreadFull | null> {
   const supabase = await createSupabaseServerClient()
   const { data, error } = await supabase
-    .from('thread')
-    .select(ThreadFullFilter)
+    .from('thread_full')
+    .select('*')
     .eq('thread_id', threadId)
+  // const message = await supabase
+  //   .from('message')
+  //   .select('*')
+  //   .eq('thread_id', threadId)
   if (error) return null
+  // data.messages = message.data
   return createThreadFull(data)
 }
 
 // transfer supabase query data into ThreadFull object
 function createThreadFull(threadData: any, messageCount = 0) {
+  // console.log('THREAD DATA', threadData)
   return objectToCamel({
-    // we only return question and frist answer on collection queries
-    // full list of messages are queries when viewing individual threads only
-    ...omit(threadData, 'message', 'chatbot'),
-    ...getFirstMessages(threadData.message),
-    chatbot: {
-      ...omit(threadData.chatbot, 'chatbot_category'),
-      catogories: threadData.chatbot.chatbot_category.category
-    },
+    ...threadData,
     messageCount
   }) as unknown as MB.ThreadFull
 }
@@ -97,8 +77,8 @@ export async function getThreadsLike({ query }: { query?: string }) {
 
   // Fetch threads that have these message IDs
   const threadsQuery = supabase
-    .from('thread')
-    .select(ThreadFullFilter)
+    .from('thread_full')
+    .select('*')
     // TODO: verify slicing doesnt affect priority
     .in('thread_id', threadIds.slice(0, 20))
 
@@ -138,8 +118,8 @@ export async function searchThreads({
 
   // Now fetch threads that have these messages
   const threadsQuery = supabase
-    .from('thread')
-    .select(ThreadFullFilter, { count: 'exact' })
+    .from('thread_full')
+    .select('*', { count: 'exact' })
     .in('thread_id', ids.slice(0, 20))
 
   const { data, error, count } = await threadsQuery

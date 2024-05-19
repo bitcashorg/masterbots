@@ -13,8 +13,8 @@ export function ThreadListChatItem({ thread }: ThreadListChatItemProps) {
     >
       <ThreadHeading
         chat
-        question={thread.firstUserMessage.content}
-        response={thread.firstAssistantMessage.content}
+        question={thread.firstMessage.content}
+        response={thread.firstAnswer.content}
         thread={thread}
       />
     </Link>

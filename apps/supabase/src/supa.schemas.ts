@@ -14,6 +14,39 @@ export const jsonSchema: z.ZodSchema<Json> = z.lazy(() =>
     .nullable(),
 );
 
+export const accountRowSchema = z.object({
+  avatar: z.string().nullable(),
+  date_joined: z.string(),
+  email: z.string(),
+  last_login: z.string().nullable(),
+  name: z.string().nullable(),
+  password: z.string(),
+  user_id: z.string(),
+  username: z.string(),
+});
+
+export const accountInsertSchema = z.object({
+  avatar: z.string().optional().nullable(),
+  date_joined: z.string().optional(),
+  email: z.string(),
+  last_login: z.string().optional().nullable(),
+  name: z.string().optional().nullable(),
+  password: z.string(),
+  user_id: z.string().optional(),
+  username: z.string(),
+});
+
+export const accountUpdateSchema = z.object({
+  avatar: z.string().optional().nullable(),
+  date_joined: z.string().optional(),
+  email: z.string().optional(),
+  last_login: z.string().optional().nullable(),
+  name: z.string().optional().nullable(),
+  password: z.string().optional(),
+  user_id: z.string().optional(),
+  username: z.string().optional(),
+});
+
 export const categoryRowSchema = z.object({
   category_id: z.number(),
   name: z.string(),
@@ -216,17 +249,17 @@ export const promptUpdateSchema = z.object({
 });
 
 export const promptChatbotRowSchema = z.object({
-  chabot_id: z.number(),
+  chatbot_id: z.number(),
   prompt_id: z.number(),
 });
 
 export const promptChatbotInsertSchema = z.object({
-  chabot_id: z.number(),
+  chatbot_id: z.number(),
   prompt_id: z.number(),
 });
 
 export const promptChatbotUpdateSchema = z.object({
-  chabot_id: z.number().optional(),
+  chatbot_id: z.number().optional(),
   prompt_id: z.number().optional(),
 });
 
@@ -308,35 +341,10 @@ export const typeEnumUpdateSchema = z.object({
   value: z.string().optional(),
 });
 
-export const userRowSchema = z.object({
-  avatar: z.string().nullable(),
-  date_joined: z.string(),
-  email: z.string(),
-  last_login: z.string().nullable(),
-  name: z.string().nullable(),
-  password: z.string(),
-  user_id: z.string(),
-  username: z.string(),
-});
-
-export const userInsertSchema = z.object({
-  avatar: z.string().optional().nullable(),
-  date_joined: z.string().optional(),
-  email: z.string(),
-  last_login: z.string().optional().nullable(),
-  name: z.string().optional().nullable(),
-  password: z.string(),
-  user_id: z.string().optional(),
-  username: z.string(),
-});
-
-export const userUpdateSchema = z.object({
-  avatar: z.string().optional().nullable(),
-  date_joined: z.string().optional(),
-  email: z.string().optional(),
-  last_login: z.string().optional().nullable(),
-  name: z.string().optional().nullable(),
-  password: z.string().optional(),
-  user_id: z.string().optional(),
-  username: z.string().optional(),
+export const threadFullRowSchema = z.object({
+  account: jsonSchema.nullable(),
+  chatbot: jsonSchema.nullable(),
+  first_answer: jsonSchema.nullable(),
+  first_message: jsonSchema.nullable(),
+  thread_id: z.string().nullable(),
 });

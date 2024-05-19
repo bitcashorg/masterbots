@@ -36,9 +36,9 @@ export function ThreadHeading({
               <>
                 <span className="opacity-50 text-[0.875rem]">by</span>
                 <AccountAvatar
-                  alt={thread.user.username}
-                  href={`/u/${thread.user.username}`}
-                  src={thread.user.avatar}
+                  alt={thread.account.username}
+                  href={`/u/${thread.account.username}`}
+                  src={thread.account.avatar}
                 />
               </>
             )}

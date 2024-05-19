@@ -6,7 +6,7 @@ export namespace MB {
   export type Chatbot = Camelize<Tables<"chatbot">>;
   export type Category = Camelize<Tables<"category">>;
   export type Prompt = Camelize<Tables<"prompt">>;
-  export type User = Camelize<Tables<"user">>;
+  export type Account = Camelize<Tables<"account">>;
   export type ChatbotWithPrompts = Chatbot & { prompts: Prompt[] };
   export type MessagePair = {
     question: AI.Message & { role: "user" };
@@ -14,8 +14,8 @@ export namespace MB {
   };
   export type Thread = Camelize<Tables<"thread">>;
   export type ThreadWithQuestion = Thread & {
-    firstUserMessage: AI.Message;
-    firstAssistantMessage: AI.Message;
+    firstMessage: AI.Message;
+    firstAnswer: AI.Message;
     messageCount: number;
   };
   export type ThreadFull = ThreadWithQuestion & {
@@ -24,6 +24,6 @@ export namespace MB {
       categories: Category[];
       prompts: Prompt[];
     };
-    user: Pick<User, "userId" | "username" | "avatar">;
+    account: Pick<Account, "userId" | "username" | "avatar">;
   };
 }

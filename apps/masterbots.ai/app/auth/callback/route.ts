@@ -25,7 +25,7 @@ export async function GET(request: Request) {
 
   if (!identity) throw new Error('Login Error')
   const dbUser = await supabase
-    .from('user')
+    .from('account')
     .insert({
       email: user.email,
       avatar: identity.identity_data.picture,

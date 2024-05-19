@@ -18,8 +18,8 @@ export function ThreadDialog({
       <DialogTrigger className="px-5 pt-5 bg-mirage">
         <ThreadHeading
           chat={chat}
-          question={thread.firstUserMessage.content}
-          response={thread.firstAssistantMessage.content}
+          question={thread.firstMessage.content}
+          response={thread.firstAnswer.content}
           thread={thread}
         />
       </DialogTrigger>

@@ -9,7 +9,7 @@ import { createSupabaseServerClient } from '@/services/supabase'
 async function getUserWithThreads(username: string) {
   const supabase = await createSupabaseServerClient()
   const { data, error } = await supabase
-    .from('user')
+    .from('account')
     .select(`*, thread(*, message (id,content,role,created_at))`)
     .eq('username', username)
     .single()

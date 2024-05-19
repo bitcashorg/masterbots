@@ -9,9 +9,9 @@ export async function generateMbMetadata({
   if (!thread) return
 
   const data = {
-    title: thread.firstUserMessage.content,
+    title: thread.firstMessage.content,
     publishedAt: thread.updatedAt, // format(thread.updatedAt, 'MMMM dd, yyyy'),
-    summary: thread.firstAssistantMessage.content,
+    summary: thread.firstAnswer.content,
     image: `https://alpha.masterbots.ai/og?threadId=${thread.threadId}`,
     pathname: getThreadLink({ thread, chat: false })
   }

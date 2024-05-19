@@ -9,6 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      account: {
+        Row: {
+          avatar: string | null
+          date_joined: string
+          email: string
+          last_login: string | null
+          name: string | null
+          password: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          avatar?: string | null
+          date_joined?: string
+          email: string
+          last_login?: string | null
+          name?: string | null
+          password: string
+          user_id?: string
+          username: string
+        }
+        Update: {
+          avatar?: string | null
+          date_joined?: string
+          email?: string
+          last_login?: string | null
+          name?: string | null
+          password?: string
+          user_id?: string
+          username?: string
+        }
+        Relationships: []
+      }
       category: {
         Row: {
           category_id: number
@@ -48,7 +81,7 @@ export type Database = {
             foreignKeyName: "gpt_chat_added_by_fkey"
             columns: ["added_by"]
             isOneToOne: false
-            referencedRelation: "user"
+            referencedRelation: "account"
             referencedColumns: ["user_id"]
           },
           {
@@ -210,6 +243,13 @@ export type Database = {
             referencedColumns: ["thread_id"]
           },
           {
+            foreignKeyName: "message_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "thread_full"
+            referencedColumns: ["thread_id"]
+          },
+          {
             foreignKeyName: "message_type_fkey"
             columns: ["role"]
             isOneToOne: false
@@ -301,7 +341,7 @@ export type Database = {
             foreignKeyName: "user_chatbot_preference_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "user"
+            referencedRelation: "account"
             referencedColumns: ["user_id"]
           },
         ]
@@ -337,21 +377,21 @@ export type Database = {
       }
       prompt_chatbot: {
         Row: {
-          chabot_id: number
+          chatbot_id: number
           prompt_id: number
         }
         Insert: {
-          chabot_id: number
+          chatbot_id: number
           prompt_id: number
         }
         Update: {
-          chabot_id?: number
+          chatbot_id?: number
           prompt_id?: number
         }
         Relationships: [
           {
-            foreignKeyName: "prompt_chatbot_chabot_id_fkey"
-            columns: ["chabot_id"]
+            foreignKeyName: "prompt_chatbot_chatbot_id_fkey"
+            columns: ["chatbot_id"]
             isOneToOne: false
             referencedRelation: "chatbot"
             referencedColumns: ["chatbot_id"]
@@ -402,7 +442,7 @@ export type Database = {
             foreignKeyName: "prompt_user_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "user"
+            referencedRelation: "account"
             referencedColumns: ["user_id"]
           },
         ]
@@ -444,7 +484,7 @@ export type Database = {
             foreignKeyName: "thread_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "user"
+            referencedRelation: "account"
             referencedColumns: ["user_id"]
           },
         ]
@@ -473,42 +513,18 @@ export type Database = {
         }
         Relationships: []
       }
-      user: {
+    }
+    Views: {
+      thread_full: {
         Row: {
-          avatar: string | null
-          date_joined: string
-          email: string
-          last_login: string | null
-          name: string | null
-          password: string
-          user_id: string
-          username: string
-        }
-        Insert: {
-          avatar?: string | null
-          date_joined?: string
-          email: string
-          last_login?: string | null
-          name?: string | null
-          password: string
-          user_id?: string
-          username: string
-        }
-        Update: {
-          avatar?: string | null
-          date_joined?: string
-          email?: string
-          last_login?: string | null
-          name?: string | null
-          password?: string
-          user_id?: string
-          username?: string
+          account: Json | null
+          chatbot: Json | null
+          first_answer: Json | null
+          first_message: Json | null
+          thread_id: string | null
         }
         Relationships: []
       }
-    }
-    Views: {
-      [_ in never]: never
     }
     Functions: {
       [_ in never]: never

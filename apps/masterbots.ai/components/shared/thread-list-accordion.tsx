@@ -31,8 +31,8 @@ export function ThreadListAccordion({
           <ThreadHeading
             chat={chat}
             // copy={isOpen}
-            question={thread.firstUserMessage.content}
-            response={thread.firstAssistantMessage.content}
+            question={thread.firstMessage.content}
+            response={thread.firstAnswer.content}
             thread={thread}
           />
         </AccordionTrigger>

@@ -58,7 +58,7 @@ export async function GET(req: NextRequest) {
                 {thread.chatbot.name}
               </p>
               <h1 style={{ fontSize: '68px', color: 'white' }}>
-                {thread.firstUserMessage.content}
+                {thread.firstMessage.content}
               </h1>
               <p
                 style={{ color: '#ef4444', fontSize: '18px', marginTop: '0px' }}
