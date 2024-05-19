@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
-import { getThreadLink } from './threads'
 import { getThread } from '@/app/actions'
+import { getThreadLink } from './threads'
 
 export async function generateMbMetadata({
   params
@@ -13,7 +13,7 @@ export async function generateMbMetadata({
     publishedAt: thread.updatedAt, // format(thread.updatedAt, 'MMMM dd, yyyy'),
     summary: thread.firstAssistantMessage.content,
     image: `https://alpha.masterbots.ai/og?threadId=${thread.threadId}`,
-    pathname: getThreadLink({ thread: thread, chat: false })
+    pathname: getThreadLink({ thread, chat: false })
   }
 
   return {

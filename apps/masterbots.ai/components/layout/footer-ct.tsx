@@ -26,9 +26,9 @@ export default function FooterCT({ nonFooterTag }: { nonFooterTag?: boolean }) {
           robohash.org
         </a>
         <Link
-          shallow
           className="text-primary underline focus-within:underline"
           href="/terms"
+          shallow
         >
           terms & policies
         </Link>

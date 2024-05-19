@@ -1,11 +1,11 @@
 import type { Message } from 'ai'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
+import type { MB } from '@repo/supabase'
 import { cn } from '@/lib/utils'
 import { CodeBlock } from '@/components/ui/codeblock'
 import { MemoizedReactMarkdown } from '@/components/shared/markdown'
 import { cleanPrompt } from '@/lib/threads'
-import type { MB } from '@repo/supabase'
 
 export interface ChatMessageProps {
   message: Message

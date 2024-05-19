@@ -1,15 +1,15 @@
-import { cn } from '@/lib/utils'
-import { ThreadHeading } from './thread-heading'
 import Link from 'next/link'
-import { getThreadLink } from '@/lib/threads'
 import { MB } from '@repo/supabase'
+import { cn } from '@/lib/utils'
+import { getThreadLink } from '@/lib/threads'
+import { ThreadHeading } from './thread-heading'
 
 export function ThreadListChatItem({ thread }: ThreadListChatItemProps) {
   return (
     <Link
-      shallow
-      href={getThreadLink({ thread, chat: true })}
       className={cn('hover:bg-mirage px-5')}
+      href={getThreadLink({ thread, chat: true })}
+      shallow
     >
       <ThreadHeading
         chat

@@ -1,10 +1,10 @@
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
+import { getErrorMessage } from '@repo/mb-lib'
+import { objectToCamel } from 'ts-case-convert'
 import { nanoid } from '@/lib/utils'
 import { createSupabaseServerClient } from '@/services/supabase'
 import { generateUsername } from '@/lib/username'
-import { getErrorMessage } from '@repo/mb-lib'
-import { objectToCamel } from 'ts-case-convert'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)

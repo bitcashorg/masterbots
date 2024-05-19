@@ -1,4 +1,5 @@
 import { DialogProps } from '@radix-ui/react-dialog'
+import type { MB } from '@repo/supabase'
 import { cn } from '@/lib/utils'
 import {
   Accordion,
@@ -6,10 +7,9 @@ import {
   AccordionItem,
   AccordionTrigger
 } from '@/components/ui/accordion'
+import { createMessagePairs } from '@/lib/threads'
 import { ThreadAccordion } from './thread-accordion'
 import { ThreadHeading } from './thread-heading'
-import { createMessagePairs } from '@/lib/threads'
-import type { MB } from '@repo/supabase'
 
 export function ThreadListAccordion({
   thread,
@@ -44,9 +44,9 @@ export function ThreadListAccordion({
             <ThreadAccordion
               chat={chat}
               clientFetch
+              initialMessagePairs={[]}
               showHeading={false}
               thread={thread}
-              initialMessagePairs={[]}
             />
           </div>
         </AccordionContent>

@@ -1,8 +1,8 @@
+import { permanentRedirect } from 'next/navigation'
 import { ThreadList } from '@/components/shared/thread-list'
 import { CategoryTabs } from '@/components/shared/category-tabs/category-tabs'
 import { SearchInput } from '@/components/shared/search-input'
 import { decodeQuery, toSlug } from '@/lib/url-params'
-import { permanentRedirect } from 'next/navigation'
 import { getThreads } from '@/app/actions'
 
 // TODO: dicuss caching
