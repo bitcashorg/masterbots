@@ -8,18 +8,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const limit = searchParams.limit ? parseInt(searchParams.limit) : 20
   const page = searchParams.page ? parseInt(searchParams.page) : 1
   // console.log({ query, limit, page })
-  const threads = await (query ? getThreadsLike({ query }) : getThreads())
+  const threads = await (query ? getThreadsLike({ query }) : getThreads({}))
 
-  console.log(' ==============  THREADS  ==============  ')
   return (
     <div>
-      {/* <div>Your query: {query}</div>
-      <ul>
-        {threads.map(t => (
-          <li key={t.threadId}>{t.message[0]?.content || 'not found'}</li>
-        ))}
-      </ul> */}
-
       {threads.length ? (
         <ThreadList initialThreads={threads} />
       ) : (

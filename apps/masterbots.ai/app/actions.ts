@@ -18,12 +18,26 @@ const ThreadFullFilter = `
   user (user_id,username,avatar)
 ` as const
 
-export async function getThreads(): Promise<MB.ThreadFull[]> {
+export async function getThreads({
+  categoryId
+}: {
+  categoryId?: number
+}): Promise<MB.ThreadFull[]> {
+  console.log('getThreads categoryId', categoryId)
   const supabase = await createSupabaseServerClient()
 
-  const threadsQuery = supabase
+  let threadsQuery = supabase
     .from('thread')
-    .select(ThreadFullFilter, { count: 'exact' })
+    .select(ThreadFullFilter)
+    .eq('chatbot.chatbot_category.category.category_id', categoryId)
+    .select('*')
+
+  // if (categoryId) {
+  // threadsQuery = threadsQuery.eq(
+  //   'chatbot.chatbot_category.category.categoryId',
+  //   categoryId
+  // )
+  // }
 
   const { data, error, count } = await threadsQuery.range(30, 39)
   console.log('🤌🏻', count)
