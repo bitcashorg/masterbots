@@ -54,12 +54,7 @@ export async function getThread({
     .select('*')
     .eq('thread_id', threadId)
 
-  if (error) {
-    console.log('error', error)
-    return null
-  }
-
-  console.log('DATA', data)
+  if (error) return null
 
   return createThreadFull(data[0])
 }

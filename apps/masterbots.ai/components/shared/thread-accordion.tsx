@@ -79,7 +79,7 @@ export function ThreadAccordion({
       >
         {pairs.map((p, key) => {
           const isFirst = key === 0
-          console.log(key, p)
+          // console.log(key, p)
           return (
             <AccordionItem
               key={`accordion-item-${thread.threadId}-pair-${key}`}

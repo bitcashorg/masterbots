@@ -10,9 +10,6 @@ export function SignInButtons({ hostname }: { hostname: string }) {
   const redirectTo = `${isLocalhost ? 'http' : 'https'}://${hostname}/auth/callback`
 
   const loginWithGitHub = () => {
-    console.log({
-      redirectTo
-    })
     supabase.auth.signInWithOAuth({
       provider: 'github',
       options: { redirectTo }
@@ -20,9 +17,6 @@ export function SignInButtons({ hostname }: { hostname: string }) {
   }
 
   const loginWithGoogle = () => {
-    console.log({
-      redirectTo
-    })
     supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo }
