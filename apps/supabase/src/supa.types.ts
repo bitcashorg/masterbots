@@ -518,6 +518,7 @@ export type Database = {
       thread_full: {
         Row: {
           account: Json | null
+          category_ids: Json | null
           chatbot: Json | null
           first_answer: Json | null
           first_message: Json | null

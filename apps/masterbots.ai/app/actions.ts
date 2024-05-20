@@ -25,11 +25,9 @@ export async function getThreads({
     .from('thread_full')
     .select('*', { count: 'exact' })
 
-  // if (categoryId) {
-  //   threadsQuery = threadsQuery.contains('chatbot->categories', [
-  //     { category_id: categoryId }
-  //   ])
-  // }
+  if (categoryId) {
+    threadsQuery = threadsQuery.contains('category_ids', categoryId.toString())
+  }
 
   const { data, error, count } = await threadsQuery.range(from, to)
 
