@@ -8,7 +8,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const limit = searchParams.limit ? parseInt(searchParams.limit) : 20
   const page = searchParams.page ? parseInt(searchParams.page) : 1
   // console.log({ query, limit, page })
-  const threads = await getThreads({})
+  const threads = await getThreads({page})
 
   return (
     <div>

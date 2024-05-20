@@ -2,6 +2,7 @@ import { MB } from '@repo/supabase'
 import { ThreadDialog } from './thread-dialog'
 import { ThreadListAccordion } from './thread-list-accordion'
 import { ThreadListChatItem } from './thread-list-chat-item'
+import { ThreadListReload } from './thread-list-reload'
 
 export function ThreadList({
   initialThreads,
@@ -32,6 +33,7 @@ export function ThreadList({
           />
         ))
       )}
+      <ThreadListReload />
     </div>
   )
 }
