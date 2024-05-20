@@ -4,6 +4,8 @@ import { objectToCamel } from 'ts-case-convert'
 import type { MB } from '@repo/supabase'
 import { createSupabaseServerClient } from '@/services/supabase'
 import { createMessagePairs } from '@/lib/threads'
+import { getErrorMessage } from '@repo/mb-lib'
+import { appConfig } from '@/lib/config'
 
 export async function getThreads({
   categoryId,
@@ -11,15 +13,17 @@ export async function getThreads({
 }: {
   categoryId?: number
   page?: number
-}): Promise<MB.ThreadFull[]> {
+}): Promise<GetThreadsResult> {
   const supabase = await createSupabaseServerClient()
-  const itemsPerPage = 20
-  const from = (page - 1) * itemsPerPage
-  const to = from + itemsPerPage - 1
+  const limit = appConfig.limit
+  const from = (page - 1) * limit
+  const to = from + limit - 1
 
   console.log('page ', page, ' from ', from, ' to ', to)
 
-  let threadsQuery = supabase.from('thread_full').select('*')
+  let threadsQuery = supabase
+    .from('thread_full')
+    .select('*', { count: 'exact' })
 
   // if (categoryId) {
   //   threadsQuery = threadsQuery.contains('chatbot->categories', [
@@ -27,11 +31,18 @@ export async function getThreads({
   //   ])
   // }
 
-  const { data, error } = await threadsQuery.range(from, to)
+  const { data, error, count } = await threadsQuery.range(from, to)
 
-  if (error) return []
+  if (error) return { data: [], error: getErrorMessage(error) }
 
-  return data.map(createThreadFull)
+  return {
+    data: data.map(createThreadFull),
+    meta: {
+      count,
+      pages: Math.ceil(count / limit),
+      limit
+    }
+  }
 }
 
 export async function getThread({
@@ -81,4 +92,19 @@ function createThreadFull(threadData: any, messageCount = 0) {
     ...threadData,
     messageCount
   }) as unknown as MB.ThreadFull
+}
+
+interface ActionResult {
+  error?: string
+  data?: any
+  meta?: {
+    count: number
+    pages: number
+    limit: number
+  }
+  success?: boolean
+}
+
+interface GetThreadsResult extends ActionResult {
+  data: MB.ThreadFull[]
 }

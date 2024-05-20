@@ -4,5 +4,6 @@ const env = validateMbEnv(process.env.NEXT_PUBLIC_APP_ENV || 'test')
 
 export const appConfig = {
   env,
-  supabase: supabase[env]
+  supabase: supabase[env],
+  limit: 20
 } as const

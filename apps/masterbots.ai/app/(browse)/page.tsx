@@ -14,9 +14,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const query = searchParams.query ? decodeQuery(searchParams.query) : null
   const limit = searchParams.limit ? parseInt(searchParams.limit) : 20
   const page = searchParams.page ? parseInt(searchParams.page) : 1
-  // console.log({ query, limit, page })
-  const threads = await getThreads({page})
 
+  const { data: threads, meta } = await getThreads({ page })
+  console.log(meta)
   return (
     <div>
       {threads.length ? (
