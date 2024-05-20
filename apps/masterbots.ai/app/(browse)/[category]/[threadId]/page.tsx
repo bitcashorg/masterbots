@@ -1,5 +1,5 @@
-import { ThreadAccordion } from '@/components/shared/thread-accordion'
 import { getMessagePairs, getThread } from '@/app/actions'
+import { ThreadAccordionServer } from '@/components/shared/thread-accordion.server'
 
 export { generateMbMetadata as generateMetadata } from '@/lib/metadata'
 
@@ -8,14 +8,9 @@ export default async function ThreadPage({ params }: ThreadPageProps) {
     threadId: params.threadId
   })
 
-  const initialMessagePairs = await getMessagePairs(thread.threadId)
+  const messagePairs = await getMessagePairs(thread.threadId)
 
-  return (
-    <ThreadAccordion
-      initialMessagePairs={initialMessagePairs}
-      thread={thread}
-    />
-  )
+  return <ThreadAccordionServer messagePairs={messagePairs} thread={thread} />
 }
 
 export interface ThreadPageProps {

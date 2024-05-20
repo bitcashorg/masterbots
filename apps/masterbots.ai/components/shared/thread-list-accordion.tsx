@@ -7,7 +7,7 @@ import {
   AccordionItem,
   AccordionTrigger
 } from '@/components/ui/accordion'
-import { ThreadAccordion } from './thread-accordion'
+import { ThreadAccordionClient } from './thread-accordion.client'
 import { ThreadHeading } from './thread-heading'
 import { createMessagePairs } from '@/lib/threads'
 
@@ -30,18 +30,16 @@ export function ThreadListAccordion({
           />
         </AccordionTrigger>
 
-        <AccordionContent className={cn('pl-14')}>
+        <AccordionContent>
           {/* Secod level accordion with follow up questions
              showHeading must be false as we already have in screen on AccordionTrigger above */}
           <div className="overflow-y-scroll scrollbar srcoll-smooth max-h-[500px]">
-            <ThreadAccordion
+            <ThreadAccordionClient
               chat={chat}
-              clientFetch
               initialMessagePairs={createMessagePairs([
                 thread.firstMessage,
                 thread.firstAnswer
               ])}
-              showHeading={false}
               thread={thread}
             />
           </div>

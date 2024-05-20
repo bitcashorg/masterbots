@@ -6,13 +6,13 @@ import { cn } from '@/lib/utils'
 import { shorten } from '@/services/dub'
 
 export default function Shortlink() {
-  // for local dev
-  const url = window.location.href.replace(
-    'http://localhost:3000',
-    'https://alpha.masterbots.ai'
-  )
-
   const [shortlink, getShortlink] = useAsyncFn(async () => {
+    // for local dev
+    const url = window.location.href.replace(
+      'http://localhost:3000',
+      'https://alpha.masterbots.ai'
+    )
+
     const formData = new FormData()
     formData.set('url', url)
     const { shortLink } = await shorten({}, formData)
