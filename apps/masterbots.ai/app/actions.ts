@@ -6,11 +6,18 @@ import { createSupabaseServerClient } from '@/services/supabase'
 import { createMessagePairs } from '@/lib/threads'
 
 export async function getThreads({
-  categoryId
+  categoryId,
+  page = 1
 }: {
   categoryId?: number
+  page?: number
 }): Promise<MB.ThreadFull[]> {
   const supabase = await createSupabaseServerClient()
+  const itemsPerPage = 20
+  const from = (page - 1) * itemsPerPage
+  const to = from + itemsPerPage - 1
+
+  console.log('page ', page, ' from ', from, ' to ', to)
 
   let threadsQuery = supabase.from('thread_full').select('*')
 
@@ -20,7 +27,7 @@ export async function getThreads({
   //   ])
   // }
 
-  const { data, error } = await threadsQuery.range(0, 19)
+  const { data, error } = await threadsQuery.range(from, to)
 
   if (error) return []
 
