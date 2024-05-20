@@ -1,6 +1,7 @@
 import type * as AI from 'ai'
 import { MB } from '@repo/supabase'
 import { toSlug } from './url-params'
+import { extractBetweenMarkers } from '@/lib/utils'
 
 export function createMessagePairs(messages: AI.Message[]): MB.MessagePair[] {
   const messagePairs: MB.MessagePair[] = []
@@ -41,19 +42,38 @@ export function cleanPrompt(str: string) {
   return extracted || str
 }
 
+export interface MessagePair {
+  userMessage: MB.Message | AI.Message
+  chatGptMessage: MB.Message[]
+}
+
+export function convertMessage(message: MB.Message) {
+  return {
+    id: message.messageId,
+    content: message.content,
+    createAt: message.createdAt,
+    role: message.role
+  } as AI.Message
+}
+
+export function getAllUserMessagesAsStringArray(
+  allMessages: MB.Message[] | AI.Message[]
+) {
+  const userMessages = allMessages.filter(m => m.role === 'user')
+  const cleanMessages = userMessages.map(m =>
+    extractBetweenMarkers(m.content, 'Then answer this question:')
+  )
+  return cleanMessages.join(', ')
+}
+
 export function getThreadLink({
   chat = false,
-  param = false,
   thread
 }: {
   chat?: boolean
-  param?: boolean
-  thread: MB.ThreadFull
+  thread: MB.Thread
 }) {
-  console.log('getThreadLink', thread.chatbot?.categories)
-  if (param)
-    return `/${toSlug(thread.chatbot.categories[0].name)}?threadId=${thread.threadId.trim()}`
   return chat
-    ? `/c/${toSlug(thread.chatbot.name)}/${thread.threadId.trim()}`
-    : `/${toSlug(thread.chatbot.categories[0].name)}/${thread.threadId.trim()}`
+    ? `/c/${toSlug(thread.chatbot.name)}/${thread.threadId}`
+    : `/${toSlug(thread.chatbot.categories[0]?.category.name)}/${thread.threadId}}`
 }
