@@ -7,6 +7,7 @@ export default async function ThreadPage({ params }: ThreadPageProps) {
   const thread = await getThread({
     threadId: params.threadId
   })
+
   const initialMessagePairs = await getMessagePairs(thread.threadId)
 
   return (

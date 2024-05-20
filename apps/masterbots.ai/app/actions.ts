@@ -45,9 +45,14 @@ export async function getThread({
     .select('*')
     .eq('thread_id', threadId)
 
-  if (error) return null
+  if (error) {
+    console.log('error', error)
+    return null
+  }
 
-  return createThreadFull(data)
+  console.log('DATA', data)
+
+  return createThreadFull(data[0])
 }
 
 export async function getCategories(): Promise<MB.Category[] | null> {

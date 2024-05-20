@@ -1,7 +1,6 @@
 import type { Message } from 'ai'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
-import type { MB } from '@repo/supabase'
 import { cn } from '@/lib/utils'
 import { CodeBlock } from '@/components/ui/codeblock'
 import { MemoizedReactMarkdown } from '@/components/shared/markdown'
@@ -9,14 +8,9 @@ import { cleanPrompt } from '@/lib/threads'
 
 export interface ChatMessageProps {
   message: Message
-  chatbot?: MB.Chatbot
 }
 
-export function BrowseChatMessage({
-  message,
-  chatbot,
-  ...props
-}: ChatMessageProps) {
+export function BrowseChatMessage({ message, ...props }: ChatMessageProps) {
   const cleanMessage = { ...message, content: cleanPrompt(message.content) }
 
   return (
@@ -63,7 +57,6 @@ export function BrowseChatMessage({
         >
           {cleanMessage.content}
         </MemoizedReactMarkdown>
-        {/* <ChatMessageActions className="md:!right-0" message={cleanMessage} /> */}
       </div>
     </div>
   )

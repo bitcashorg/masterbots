@@ -2,45 +2,31 @@ import type * as AI from 'ai'
 import { MB } from '@repo/supabase'
 import { toSlug } from './url-params'
 
-export function createMessagePairs(messages: AI.Message[]) {
+export function createMessagePairs(messages: AI.Message[]): MB.MessagePair[] {
   const messagePairs: MB.MessagePair[] = []
 
   for (let i = 0; i < messages.length; i++) {
-    const message = messages[i]
+    const userMessage = messages[i]
 
-    if (message.role === 'user') {
-      const userMessage = message
-      const chatGptMessages: AI.Message[] = []
+    if (userMessage.role === 'user') {
+      let assistantMessage: AI.Message | null = null
+
       for (let j = i + 1; j < messages.length; j++) {
-        const chatGptMessage = findNextAssistantMessage(messages, j)
-        if (!chatGptMessage) {
-          break
-        } else {
-          chatGptMessages.push(chatGptMessage)
-          continue
+        if (messages[j].role === 'assistant') {
+          assistantMessage = messages[j]
+          i = j // Move the outer loop index to the position after the assistant message
+          break // Break the inner loop to continue with the next user message
         }
       }
-      // messagePairs.push({
-      //   userMessage,
-      //   chatGptMessage: []  //chatGptMessages
-      // })
+
+      messagePairs.push({
+        question: userMessage as AI.Message & { role: 'user' },
+        answer: assistantMessage as (AI.Message & { role: 'assistant' }) | null
+      })
     }
   }
 
   return messagePairs
-}
-
-const findNextAssistantMessage = (
-  messages: AI.Message[],
-  startIndex: number
-) => {
-  if (messages[startIndex].role === 'assistant') {
-    return {
-      ...messages[startIndex],
-      content: cleanPrompt(messages[startIndex].content)
-    } as AI.Message
-  }
-  return null
 }
 
 export function cleanPrompt(str: string) {
@@ -64,9 +50,10 @@ export function getThreadLink({
   param?: boolean
   thread: MB.ThreadFull
 }) {
+  console.log('getThreadLink', thread.chatbot?.categories)
   if (param)
-    return `/${toSlug(thread.chatbot.categories[0].name)}?threadId=${thread.threadId}}`
+    return `/${toSlug(thread.chatbot.categories[0].name)}?threadId=${thread.threadId.trim()}`
   return chat
-    ? `/c/${toSlug(thread.chatbot.name)}/${thread.threadId}`
-    : `/${toSlug(thread.chatbot.categories[0].name)}/${thread.threadId}}`
+    ? `/c/${toSlug(thread.chatbot.name)}/${thread.threadId.trim()}`
+    : `/${toSlug(thread.chatbot.categories[0].name)}/${thread.threadId.trim()}`
 }

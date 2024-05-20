@@ -19,6 +19,7 @@ import { BrowseChatMessage } from './thread-message'
 export function ThreadAccordion({
   thread,
   initialMessagePairs,
+  // client fetch in lists, ssr in detail page, split into client component and non client
   clientFetch = false,
   chat = false,
   // disable automatic client fetch by default
@@ -123,14 +124,14 @@ export function ThreadAccordion({
                 aria-expanded
                 className={cn('mx-8 border-x border-solid border-mirage')}
               >
-                <div>content</div>
-                {/* {p.chatGptMessage.map(message => (
+                {p.answer ? (
                   <BrowseChatMessage
-                    chatbot={thread.chatbot}
-                    key={`message-${message.messageId}`}
-                    message={convertMessage(message)}
+                    key={`message-${p.answer.id}`}
+                    message={p.answer}
                   />
-                ))} */}
+                ) : (
+                  'assistant answer not found'
+                )}
               </AccordionContent>
             </AccordionItem>
           )

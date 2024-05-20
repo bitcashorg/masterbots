@@ -47,7 +47,7 @@ export function ThreadHeading({
         {copy ? <Shortlink /> : null}
       </div>
 
-      <ShortMessage content={response} />
+      {response ? <ShortMessage content={response} /> : null}
     </div>
   )
 }
