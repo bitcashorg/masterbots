@@ -1,6 +1,6 @@
-import { getThread } from '@/services/hasura'
 import type { Metadata } from 'next'
 import { getThreadLink } from './threads'
+import { getThread } from '@/app/actions';
 
 export async function generateMbMetadata({
   params
@@ -8,13 +8,11 @@ export async function generateMbMetadata({
   params: any;
 }): Promise<Metadata | undefined> {
   const threadId = params?.threadId
-  const thread = await getThread({ threadId, jwt: '' })
+  const thread = await getThread({ threadId })
   if (!thread) return
 
-  const firstQuestion =
-    thread.messages.find(m => m.role === 'user')?.content || 'not found'
-  const firstResponse =
-    thread.messages.find(m => m.role === 'assistant')?.content || 'not found'
+  const firstQuestion = thread.firstMessage.content || 'not found'
+  const firstResponse = thread.firstAnswer.content || 'not found'
 
   const data = {
     title: firstQuestion,
