@@ -19,7 +19,7 @@ export interface GetThreadsParams extends HasuraServiceParams {
 }
 
 export interface GetThreadParams extends HasuraServiceParams {
-  threadId: string
+  threadId: string | null
 }
 
 export interface SaveNewMessageParams extends HasuraServiceParams {
