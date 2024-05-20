@@ -47,11 +47,7 @@ export function ThreadHeading({
         {copy ? <Shortlink /> : null}
       </div>
 
-      {response ? (
-        <div className="flex-1 mx-10 mt-3 space-y-2 overflow-hidden text-sm text-left opacity-50">
-          <ShortMessage content={response} />
-        </div>
-      ) : null}
+      <ShortMessage content={response} />
     </div>
   )
 }

@@ -3,7 +3,7 @@ import { MB } from '@repo/supabase'
 import { toSlug } from './url-params'
 
 export function createMessagePairs(messages: AI.Message[]) {
-  const messagePairs: MessagePair[] = []
+  const messagePairs: MB.MessagePair[] = []
 
   for (let i = 0; i < messages.length; i++) {
     const message = messages[i]
@@ -69,17 +69,4 @@ export function getThreadLink({
   return chat
     ? `/c/${toSlug(thread.chatbot.name)}/${thread.threadId}`
     : `/${toSlug(thread.chatbot.categories[0].name)}/${thread.threadId}}`
-}
-
-// TODO: move to mb.types
-interface MessageData {
-  id: string
-  content: string
-  role: string
-  createdAt: string
-}
-
-export interface MessagePair {
-  userMessage: AI.Message
-  chatGptMessage: AI.Message
 }

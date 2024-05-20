@@ -1,8 +1,9 @@
 'use server'
-
+import type * as AI from 'ai'
 import { objectToCamel } from 'ts-case-convert'
 import type { MB } from '@repo/supabase'
 import { createSupabaseServerClient } from '@/services/supabase'
+import { createMessagePairs } from '@/lib/threads'
 
 export async function getThreads({
   categoryId
@@ -57,7 +58,14 @@ export async function getCategories(): Promise<MB.Category[] | null> {
 
 export async function getMessagePairs(threadId: string) {
   console.log('get message pairs for', threadId)
-  return [] as MB.MessagePair[]
+  const supabase = await createSupabaseServerClient()
+  const { data, error } = await supabase
+    .from('message')
+    .select('*')
+    .eq('thread_id', threadId)
+  if (error) return null
+
+  return createMessagePairs(data as AI.Message[])
 }
 
 // ================= utils =================

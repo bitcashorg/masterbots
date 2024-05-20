@@ -7,28 +7,19 @@ import {
   AccordionItem,
   AccordionTrigger
 } from '@/components/ui/accordion'
-import { createMessagePairs, getThreadLink } from '@/lib/threads'
 import { ThreadAccordion } from './thread-accordion'
 import { ThreadHeading } from './thread-heading'
-import Link from 'next/link'
+import { createMessagePairs } from '@/lib/threads'
 
 export function ThreadListAccordion({
   thread,
   chat = false
 }: ThreadListAccordionProps) {
   return (
-    <Accordion
-      className="w-full"
-      // NOTE: we want to avoid use client on ThreadList components
-      // onValueChange={v => setState({ isOpen: v[0] === 'pair-1' })}
-      type="multiple"
-    >
-      {/* Frist level question and excerpt visible  on lists */}
+    <Accordion className="w-full" type="multiple">
       <AccordionItem value="pair-1">
-        {/* <Link shallow href={getThreadLink({ thread, param: true })}> */}
         <AccordionTrigger
-          className={cn('hover:bg-mirage px-5')}
-          // isOpen && 'bg-mirage'
+          className={cn('hover:bg-mirage px-5 data-[state=open]:bg-mirage')}
         >
           <ThreadHeading
             chat={chat}
@@ -38,9 +29,7 @@ export function ThreadListAccordion({
             thread={thread}
           />
         </AccordionTrigger>
-        {/* </Link> */}
 
-        {/* TODO: we need to slide down the content */}
         <AccordionContent className={cn('pl-14')}>
           {/* Secod level accordion with follow up questions
              showHeading must be false as we already have in screen on AccordionTrigger above */}
@@ -48,7 +37,10 @@ export function ThreadListAccordion({
             <ThreadAccordion
               chat={chat}
               clientFetch
-              initialMessagePairs={[]}
+              initialMessagePairs={createMessagePairs([
+                thread.firstMessage,
+                thread.firstAnswer
+              ])}
               showHeading={false}
               thread={thread}
             />
