@@ -16,7 +16,7 @@ export function ThreadHeading({
     <div className={cn(`flex flex-col font-medium w-full`)}>
       <div
         className={cn(
-          'flex items-center font-normal md:text-lg transition-all w-full gap-3 pr-4 justify-between '
+          'flex items-center font-normal md:text-lg transition-all w-full gap-3 pr-4 justify-between'
         )}
       >
         <div className="flex gap-3 grow">

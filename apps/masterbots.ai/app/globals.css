@@ -185,3 +185,8 @@
     border-radius: inherit;
   }
 }
+
+/* Accordion Trigger  */
+[data-state='open'] .shortmessage {
+  @apply hidden;
+}

@@ -39,12 +39,9 @@ export async function getThread({
     .from('thread_full')
     .select('*')
     .eq('thread_id', threadId)
-  // const message = await supabase
-  //   .from('message')
-  //   .select('*')
-  //   .eq('thread_id', threadId)
+
   if (error) return null
-  // data.messages = message.data
+
   return createThreadFull(data)
 }
 
@@ -69,10 +66,7 @@ export async function getMessagePairs(threadId: string) {
 }
 
 // ================= utils =================
-
-// transfer supabase query data into ThreadFull object
 function createThreadFull(threadData: any, messageCount = 0) {
-  // console.log('THREAD DATA', threadData)
   return objectToCamel({
     ...threadData,
     messageCount

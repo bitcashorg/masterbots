@@ -5,7 +5,7 @@ import { MemoizedReactMarkdown } from './markdown'
 
 export function ShortMessage({ content }: { content: string }) {
   return (
-    <div className="flex-1 mx-10 mt-3 space-y-2 overflow-hidden text-sm text-left opacity-50">
+    <div className="shortmessage flex-1 mx-10 mt-3 space-y-2 overflow-hidden text-sm text-left opacity-50">
       <MemoizedReactMarkdown
         className="break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
         components={{
