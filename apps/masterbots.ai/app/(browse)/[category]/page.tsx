@@ -15,7 +15,7 @@ export default async function CategoryPage({
   if (searchParams.threadId)
     permanentRedirect(`${params.category}/${searchParams.threadId}`)
   const categories = await getCategories()
-  console.log(params.category)
+
   const categoryId = categories.find(
     c => toSlug(c.name) === params.category
   )?.categoryId

@@ -10,7 +10,6 @@ export async function getThreads({
 }: {
   categoryId?: number
 }): Promise<MB.ThreadFull[]> {
-  console.log('getThreads categoryId', categoryId)
   const supabase = await createSupabaseServerClient()
 
   let threadsQuery = supabase.from('thread_full').select('*')
@@ -22,7 +21,6 @@ export async function getThreads({
   // }
 
   const { data, error } = await threadsQuery.range(0, 19)
-  console.log('🤌🏻', data)
 
   if (error) return []
 
