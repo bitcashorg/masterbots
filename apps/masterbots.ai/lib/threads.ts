@@ -1,7 +1,7 @@
-import type * as AI from 'ai'
-import { MB } from '@repo/supabase'
-import { toSlug } from './url-params'
 import { extractBetweenMarkers } from '@/lib/utils'
+import { MB } from '@repo/supabase'
+import type * as AI from 'ai'
+import { toSlug } from './url-params'
 
 export function createMessagePairs(messages: AI.Message[]): MB.MessagePair[] {
   const messagePairs: MB.MessagePair[] = []
@@ -49,7 +49,7 @@ export interface MessagePair {
 
 export function convertMessage(message: MB.Message) {
   return {
-    id: message.messageId,
+    id: message.id,
     content: message.content,
     createAt: message.createdAt,
     role: message.role

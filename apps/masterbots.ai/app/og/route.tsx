@@ -1,15 +1,15 @@
+import { getThread } from '@/app/actions'
+import '@/app/globals.css'
+import OgImage from '@/components/og-image'
 import { ImageResponse } from '@vercel/og'
 import { NextRequest } from 'next/server'
-import '@/app/globals.css'
-import { getThread } from '@/app/actions'
-import OgImage from '@/components/og-image'
 export const runtime = 'edge'
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = req.nextUrl
     const threadId = searchParams.get('threadId');
-    const thread = await getThread({ threadId },)
+    const thread = await getThread({ threadId })
     const question = thread.firstMessage.content
     const answer = thread.firstAnswer.content
     const username = thread.account?.username
