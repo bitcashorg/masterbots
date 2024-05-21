@@ -1,8 +1,13 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
 
+// ! This component is not necessary to be split this way, only functionality.
+// ! Though functionality looks correct, this causes an error in the app, a infinite loop very easy
+// ! I suggest to only split the code in the same file, or use a different approach to split the code.
+// * Search params might look fine but if an user goes (or saves) a link with a page number, it will be lost the first items that are on smaller page number
+// * E.g.: If I go to /?page=2, I will lose the first items that are on page 1... This is not a good user experience
 export function ThreadListReload() {
   const params = useSearchParams()
   const router = useRouter()

@@ -1,20 +1,19 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { usePathname, useRouter } from 'next/navigation'
-import { MB } from '@repo/supabase'
+import { getMessagePairs } from '@/app/actions'
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger
 } from '@/components/ui/accordion'
-import { cn } from '@/lib/utils'
-import { getMessagePairs } from '@/app/actions'
-import { ThreadHeading } from './thread-heading'
-import { BrowseChatMessage } from './thread-message'
 import { getThreadLink } from '@/lib/threads'
+import { cn } from '@/lib/utils'
+import { MB } from '@repo/supabase'
+import { useQuery } from '@tanstack/react-query'
+import { usePathname, useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+import { BrowseChatMessage } from './thread-message'
 
 export function ThreadAccordionClient({
   thread,
@@ -56,7 +55,7 @@ export function ThreadAccordionClient({
   return (
     <div className="flex w-full">
       <Accordion
-        className={cn('w-full border border-solid border-mirage scroll')}
+        className={cn('w-full border border-solid border-mirage scroll border-r-[transparent]')}
         defaultValue={['pair-0', 'pair-1', 'pair-2']}
         key={`accordion-${JSON.stringify(pairs)}`}
         type="multiple"

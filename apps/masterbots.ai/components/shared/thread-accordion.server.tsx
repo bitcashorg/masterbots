@@ -1,4 +1,3 @@
-import { MB } from '@repo/supabase'
 import {
   Accordion,
   AccordionContent,
@@ -6,6 +5,7 @@ import {
   AccordionTrigger
 } from '@/components/ui/accordion'
 import { cn } from '@/lib/utils'
+import { MB } from '@repo/supabase'
 import { ThreadHeading } from './thread-heading'
 import { BrowseChatMessage } from './thread-message'
 
@@ -16,7 +16,7 @@ export function ThreadAccordionServer({
   return (
     <div className="flex w-full">
       <Accordion
-        className={cn('w-full border border-solid border-mirage scroll')}
+        className={cn('w-full border border-solid border-mirage scroll border-r-[transparent]')}
         defaultValue={['pair-0', 'pair-1', 'pair-2']}
         type="multiple"
       >
