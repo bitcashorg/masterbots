@@ -1,12 +1,12 @@
 import { getThreads } from '@/app/actions'
 import { MB } from '@repo/supabase'
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
+import { flatten, uniq } from 'lodash'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { ThreadDialog } from './thread-dialog'
 import { ThreadListAccordion } from './thread-list-accordion'
 import { ThreadListChatItem } from './thread-list-chat-item'
-import { ThreadListReload } from './thread-list-reload'
 
 const limit = 20
 export function ThreadList({
@@ -105,22 +105,30 @@ export function ThreadList({
     : dialog
       ? ThreadDialog
       : ThreadListAccordion
+  const threads = uniq(flatten(data.pages))
 
   return (
     <div className="flex flex-col w-full gap-8 py-5">
-      {!initialThreads.length ? (
-        <div>No threads founds</div>
-      ) : (
-        initialThreads.map(thread => (
+      {!threads.length ? <div>No threads founds</div> : null}
+      {showSkeleton ? ' Loading ...' : ''}
+      {!showSkeleton &&
+        threads.map((thread: MB.ThreadFull) => (
           <ThreadComponent
             chat={chat}
             defaultOpen={false} // we can have one open by default
             key={thread.threadId}
             thread={thread}
+            {...(isBot ? { isBot } : {})}
+            {...(isUser ? { isUser } : {})}
           />
-        ))
-      )}
-      <ThreadListReload />
+        ))}
+      <div ref={loadMoreRef} className="min-h-10">
+        {isFetchingNextPage && (
+          <div className='flex justify-center items-center h-10'>
+            <div className='animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-gray-900' />
+          </div>
+        )}
+      </div>
     </div>
   )
 }
