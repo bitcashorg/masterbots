@@ -1,19 +1,25 @@
 import type { Metadata } from 'next'
-import { getThread } from '@/app/actions'
 import { getThreadLink } from './threads'
+import { getThread } from '@/app/actions';
 
 export async function generateMbMetadata({
   params
+}: {
+  params: any;
 }): Promise<Metadata | undefined> {
-  const thread = await getThread({ threadId: params.threadId })
+  const threadId = params?.threadId
+  const thread = await getThread({ threadId })
   if (!thread) return
 
+  const firstQuestion = thread.firstMessage.content || 'not found'
+  const firstResponse = thread.firstAnswer.content || 'not found'
+
   const data = {
-    title: thread.firstMessage.content,
+    title: firstQuestion,
     publishedAt: thread.updatedAt, // format(thread.updatedAt, 'MMMM dd, yyyy'),
-    summary: thread.firstAnswer.content,
-    image: `https://alpha.masterbots.ai/og?threadId=${thread.threadId}`,
-    pathname: getThreadLink({ thread, chat: false })
+    summary: firstResponse,
+    image: `${process.env.VERCEL_URL}/og?threadId=${thread.threadId}`,
+    pathname: getThreadLink({ thread: thread, chat: false })
   }
 
   return {
@@ -25,7 +31,7 @@ export async function generateMbMetadata({
       description: data.summary,
       type: 'article',
       publishedTime: data.publishedAt,
-      url: `https://alpha.masterbots.ai/${data.pathname}`,
+      url: `${process.env.VERCEL_URL}${data.pathname}`,
       images: [
         {
           url: data.image
