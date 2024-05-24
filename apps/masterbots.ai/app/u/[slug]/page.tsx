@@ -18,14 +18,14 @@ export default async function BotThreadsPage({
   return (
     <div className="w-full py-5">
       <BrowseUserDetails user={threads?.[0].user} />
-      {/* <BrowseSpecificThreadList
+      <BrowseSpecificThreadList
         initialThreads={threads}
         PAGE_SIZE={PAGE_SIZE}
         query={{
           slug: params.slug
         }}
         pageType="user"
-      /> */}
+      />
     </div>
   )
 }
