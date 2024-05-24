@@ -20,7 +20,7 @@ export async function generateMbMetadata({
     title: firstQuestion,
     publishedAt: thread.updatedAt, // format(thread.updatedAt, 'MMMM dd, yyyy'),
     summary: firstResponse,
-    image: `${process.env.VERCEL_URL}/og?threadId=${thread.threadId}`,
+    image: `${process.env.VERCEL_URL}/api/og?threadId=${thread.threadId}`,
     pathname: getThreadLink({ thread: thread, chat: false })
   }
 
