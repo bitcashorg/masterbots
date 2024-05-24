@@ -9,6 +9,8 @@ interface OgImageProps {
 }
 export default function OgImage({ thread, question, answer, username, user_avatar, isLightTheme}: OgImageProps) {
 
+  console.log([user_avatar])
+
     return (
         <div
           style={{
@@ -92,17 +94,42 @@ export default function OgImage({ thread, question, answer, username, user_avata
                   marginTop: '20px'
                 }}
               >
-                <img
-                  alt=""
-                  style={{
-                    objectFit: 'cover',
-                    width: '50px',
-                    height: '50px',
-                    borderRadius: '50%',
-                    border: '2px solid #388DE2'
-                  }}
-                  src={user_avatar}
-                />
+                {user_avatar ? (
+                  <img
+                    alt=""
+                    style={{
+                      objectFit: 'cover',
+                      width: '50px',
+                      height: '50px',
+                      borderRadius: '50%',
+                      border: '2px solid #388DE2'
+                    }}
+                    src={user_avatar}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: '70px',
+                      height: '70px',
+                      borderRadius: '50%',
+                      backgroundColor: '#388DE2',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <p
+                      style={{
+                        color: isLightTheme ? '#17171b' : '#ffff',
+                        fontSize: '34px',
+                        textTransform: 'lowercase'
+                      }}
+                    >
+                      {username?.charAt(0)}
+                    </p>
+                  </div>
+                )
+                }
                 <p
                   style={{
                     color: isLightTheme ? '#17171b' : '#ffff',
