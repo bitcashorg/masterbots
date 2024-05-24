@@ -8,9 +8,6 @@ interface OgImageProps {
     isLightTheme: boolean
 }
 export default function OgImage({ thread, question, answer, username, user_avatar, isLightTheme}: OgImageProps) {
-
-  console.log([user_avatar])
-
     return (
         <div
           style={{
