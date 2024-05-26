@@ -153,39 +153,76 @@
 }
 
 
+
+/* Define the custom property */
 @property --bg-angle {
   inherits: false;
-  initial-value: 0deg;
+  initial-value: 200deg;
   syntax: "<angle>";
 }
 
+/* Define the keyframes for the spin animation */
 @keyframes spin {
   to {
     --bg-angle: 360deg;
   }
 }
 
-
+/* Outer container for gradient border */
 .border-gradient {
-  animation: spin 2.5s infinite linear paused;
-  background:
-    linear-gradient(
-        to bottom,
-        oklch(0.1 0.2 240 / 0.95),
-        oklch(0.1 0.2 240 / 0.95)
-      )
-      padding-box, /* ends at inner border edges */
-    conic-gradient(
-        from var(--bg-angle) in oklch longer hue,
-        oklch(0.85 0.37 0) 0 0
-      )
-      border-box; /* extends to outer border edges */
-  border: 6px solid transparent;
-  &:hover {
-    animation-play-state: running;
-  }
+  position: relative;
+  border-radius: 14px;
+  padding: 6px; /* Adjust this based on the border thickness */
+  background: transparent; /* Hide border by default */
 }
 
-.border-gradient{
+.border-gradient::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   border-radius: 14px;
+  padding: 6px; /* Match the padding to ensure the gradient is at the border */
+  background:
+    conic-gradient(
+      from var(--bg-angle),
+      rgba(131, 229, 106, 0.1) 10%, 
+      rgba(131, 229, 106, 0.5) 50%, 
+      #83E56A 73.3%
+    );
+  animation: spin 2.5s infinite linear paused;
+  z-index: 1;
+  display: none; /* Hide by default */
 }
+
+.border-gradient:hover::before,
+.border-gradient input[type="radio"]:checked ~ .inner-content::before {
+  display: block; /* Show on hover or when radio is selected */
+}
+
+.border-gradient:hover::before {
+  animation-play-state: running;
+}
+
+/* Inner container for content and background image */
+.inner-content {
+  border-radius: 14px;
+  overflow: hidden;
+  background: url('/free_plan_bg.png') center/cover no-repeat;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+}
+
+/* To handle the radio button selection */
+.border-gradient input[type="radio"] {
+  display: none;
+}
+
+.border-gradient input[type="radio"]:checked ~ .inner-content::before {
+  display: block; /* Show the gradient when radio button is checked */
+}
+
