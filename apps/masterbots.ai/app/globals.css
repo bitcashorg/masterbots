@@ -172,8 +172,16 @@
 .border-gradient {
   position: relative;
   border-radius: 14px;
-  padding: 6px; /* Adjust this based on the border thickness */
+  padding: 0px; /* Adjust this based on the border thickness */
   background: transparent; /* Hide border by default */
+  cursor: pointer;
+  border: 4px solid black;
+}
+
+.border-gradient:hover,
+.border-gradient.selected {
+  padding: 6px; /* Add padding on hover or when selected */
+  border-color: transparent; /* Change border to transparent */
 }
 
 .border-gradient::before {
@@ -195,34 +203,29 @@
   animation: spin 2.5s infinite linear paused;
   z-index: 1;
   display: none; /* Hide by default */
-}
 
-.border-gradient:hover::before,
-.border-gradient input[type="radio"]:checked ~ .inner-content::before {
-  display: block; /* Show on hover or when radio is selected */
 }
 
 .border-gradient:hover::before {
+  display: block; /* Show on hover */
   animation-play-state: running;
 }
 
-/* Inner container for content and background image */
+.border-gradient.selected::before {
+  display: block;
+  animation-play-state: running;
+}
+
 .inner-content {
-  border-radius: 14px;
+  border-radius: 10px;
   overflow: hidden;
-  background: url('/free_plan_bg.png') center/cover no-repeat;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
   position: relative;
   width: 100%;
   height: 100%;
   z-index: 2;
 }
 
-/* To handle the radio button selection */
-.border-gradient input[type="radio"] {
-  display: none;
-}
-
-.border-gradient input[type="radio"]:checked ~ .inner-content::before {
-  display: block; /* Show the gradient when radio button is checked */
-}
 

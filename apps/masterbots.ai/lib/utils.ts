@@ -188,3 +188,34 @@ export const toSlug = (name: string): string => {
     .replace(/&/g, 'n')
     .replace(/\s+/g, '_')
 }
+
+export interface Plan {
+  id: string
+  duration: string
+  price: number
+  features: string[],
+  features_title: string
+}
+
+export const plans = [
+  {
+    id: 'monthly',
+    duration: 'monthly',
+    price: 4.50,
+    features_title: 'Everything from <strong>Free</strong> plan plus:',
+    features: [
+      'Access to our Professional tools'
+    ]
+  },
+  {
+    id: 'yearly',
+    duration: 'yearly',
+    price: 3.99,
+    features_title: 'Everything from <strong>Monthly</strong> plan plus: ',
+    features: [
+      '11% of discount every month.',
+      'Access to pre-release content to chat with.'
+    ]
+  }
+]
+

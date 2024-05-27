@@ -14,7 +14,7 @@ export default async function HomePage() {
       {/* <BrowseCategoryTabs categories={categories} />
       <BrowseSearchInput />
       <BrowseList /> */}
-
+     
       <Plans />
     </div>
   )
