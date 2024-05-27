@@ -603,6 +603,17 @@ function IconChatMessage({ className, ...props }: React.ComponentProps<'svg'>) {
   )
 }
 
+function IconChevronAngleRight ({
+  className,
+  ...props
+}: React.ComponentProps<'svg'>) {
+  return (
+<svg className={cn('h-4 w-4', className)} viewBox="0 0 8 15" {...props}>
+<path d="M5.14279 14.5372L11.2355 8.44446L5.14279 2.35176" stroke="#FAFAFA" stroke-width="1.52318" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+  )
+}
+
 // function IconShare({ className, ...props }: React.ComponentProps<'svg'>) {
 //   return (
 //     <svg
@@ -652,5 +663,6 @@ export {
   IconShare,
   IconUsers,
   IconExternalLink,
-  IconChevronUpDown
+  IconChevronUpDown,
+  IconChevronAngleRight
 }

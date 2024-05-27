@@ -2,6 +2,7 @@
 import React, { useState } from 'react'
 import PlanCard from './plan-card'
 import { plans } from '../lib/utils'
+import { IconChevronAngleRight } from './ui/icons'
 export function Plans() {
   const [selectedPlan, setSelectedPlan] = useState('')
 
@@ -70,8 +71,9 @@ export function Plans() {
             }
         </div>
         <div>
-              <a href="#" className="text-[16px]">
-                      I have a <strong>Referral Code</strong>
+              <a href="#" className="text-[16px] flex items-center">
+                      I have a&nbsp;<strong> Referral Code</strong>
+                      <IconChevronAngleRight className="w-4 h-4 " />
                 </a>
         </div>
       </div>
