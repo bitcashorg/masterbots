@@ -21,7 +21,7 @@ const copyToClipboard = async () => {
     )
     console.log("result:")
     if (error) throw new Error(`Error generating link: ${error}`)
-    else if (!data) throw new Error('No data received from link generation')
+    if (!data) throw new Error('No data received from link generation')
     navigator.clipboard.writeText(data.shortLink)
     setStatus('copied')
     const timer = setTimeout(() => setStatus('default'), 5000)
