@@ -1,13 +1,16 @@
+import React from 'react'
 import { Chatbot } from 'mb-genql'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Separator } from './ui/separator'
+import ShareLink from './thread-user-actions'
 
 export default function BrowseChatbotDetails({
   chatbot
 }: {
   chatbot?: Chatbot
 }) {
+
   return (
     <div className="relative bg-cover py-10 bg-gradient-to-l from-mirage via-[#2B5D91] to-[#388DE2]">
       <div className="flex flex-row gap-3 relative mx-auto md:w-[600px]">
@@ -26,8 +29,8 @@ export default function BrowseChatbotDetails({
               stroke-linecap="round"
               stroke-linejoin="round"
             />
-          </svg>{' '}
-           <span className="text-['24px'] font-normal">Back to browse</span> 
+          </svg>
+           <span className="text-['24px'] font-normal">Back to browse</span>
         </a>
       </div>
       <div
@@ -49,20 +52,12 @@ export default function BrowseChatbotDetails({
               <span className="text-[#71717A]">
                 {chatbot?.threads.length ?? 1}
               </span>
-              {/* <div>
-              Views: <span className="dark:text-[#71717A]">0</span>
-            </div> */}
-              {/* <div>
-              Read time:{' '}
-              <span className="dark:text-[#71717A]">
-                {readingTime(messages)} min
-              </span>
-            </div> */}
+            
             </div>
           </div>
         </div>
         <div className="w-1/3 relative flex items-end">
-          <div className="flex flex-col text-xs items-center w-full gap-2">
+          <div className="flex flex-col text-xs items-end w-full gap-2">
             <Link
               style={{ wordSpacing: '4px' }}
               className="text-[#388DE2]"
@@ -70,32 +65,25 @@ export default function BrowseChatbotDetails({
             >
               Chat with {chatbot?.name} &gt;
             </Link>
-            {/* <div className="flex items-center gap-2">
-            <IconUpVote className="opacity-60 h-4" />
-            <span className="text-[#72C255]">0</span>
-            <IconDownVote className="opacity-60 h-4" />
-            <span className="text-[#F42F53]">0</span>
-            <Button
-              onClick={() => {
-                console.log('Share action required')
-              }}
-              variant="ghost"
-            >
-              <IconShare className="opacity-60" />
-            </Button>
-            <IconChatMessage className="opacity-60" />
-          </div> */}
+            <div className="flex gap-4">
+              {/* <IconUpVote className="opacity-60 h-4" />
+                <span className="text-[#72C255]">1.2k</span>
+              <IconDownVote className="opacity-60 h-4" />
+                <span className="text-[#F42F53]">375</span> */}             
+               {/* <span className="text-[#FAFAFA]">17</span>               */}
+          </div>
           </div>
         </div>
-        <div className="h-24 w-24 absolute border-[4px] border-[#388DE2] right-0 top-0 translate-x-[25%] rounded-full translate-y-[-25%] dark:bg-[#131316] bg-white">
+        <div className="size-24 absolute border-4 border-[#388DE2] right-0 top-0 translate-x-1/4 rounded-full -translate-y-1/4 dark:bg-[#131316] bg-white">
           <Image
-            className="h-full w-full transition-opacity duration-300 rounded-full select-none ring-1 ring-zinc-100/10 hover:opacity-80"
+            className="size-full transition-opacity duration-300 rounded-full select-none ring-1 ring-zinc-100/10 hover:opacity-80"
             src={chatbot?.avatar || ''}
-            alt={chatbot?.avatar || 'ChatAvatar'}
+            alt={chatbot?.avatar ? `Avatar of ${chatbot?.name}` : 'Default Avatar'}
             height={96}
             width={96}
           />
         </div>
+        <ShareLink/>
       </div>
     </div>
   )
