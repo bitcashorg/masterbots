@@ -3,7 +3,7 @@ import { Chatbot } from 'mb-genql'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Separator } from './ui/separator'
-import Suspense from './thread-user-actions'
+import ShareLink from './thread-user-actions'
 
 export default function BrowseChatbotDetails({
   chatbot
@@ -83,7 +83,7 @@ export default function BrowseChatbotDetails({
             width={96}
           />
         </div>
-        <Suspense/>
+        <ShareLink/>
       </div>
     </div>
   )
