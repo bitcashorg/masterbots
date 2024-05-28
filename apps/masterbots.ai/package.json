@@ -30,6 +30,7 @@
     "@vercel/analytics": "^1.1.1",
     "@vercel/og": "^0.5.20",
     "ai": "^2.2.25",
+    "axios": "^1.7.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "date-fns": "^2.30.0",
@@ -58,6 +59,7 @@
     "react-use": "^17.5.0",
     "remark-gfm": "^3.0.1",
     "remark-math": "^5.1.1",
+    "resend": "^3.2.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
