@@ -5,5 +5,5 @@ export enum AIModels {
   Claude3 = 'claude-3-haiku-20240307',
   llama3_8b = 'llama3-8b-8192',
   llama3_7b = 'llama3-70b-8192',
-  Wordware = 'wordware-ai'
+  WordWare = 'wordware-ai'
 }
