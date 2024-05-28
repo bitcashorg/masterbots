@@ -8,7 +8,8 @@ const openai = initializeOpenAI(process.env.OPENAI_API_KEY as string)
 export async function POST(req: Request) {
   try {
     const json = await req.json()
-    const { messages, model = AIModels.Default, previewToken } = json
+    const { messages, model = AIModels.Default , previewToken } = json
+    
     if (previewToken) {
       openai.apiKey = previewToken
     }
