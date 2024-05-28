@@ -43,6 +43,11 @@ export async function createResponseStream(
   req?: Request
 ) {
   const { model, messages, previewToken } = json
+  let responseStream: ReadableStream
+
+  // ? OpenAI, Anthropic, and Perplexity use the same response format
+  // ? WordWare uses a different response format
+  // TODO: Implement the response stream for WordWare (streamText) if applicable
   switch (clientType) {
     case 'OpenAI':
       const openai = initializeOpenAI(process.env.OPENAI_API_KEY as string)
@@ -52,12 +57,13 @@ export async function createResponseStream(
       const openAiRes = await openai.chat.completions.create({
         model, messages, temperature: 0.7, stream: true
       })
-      return OpenAIStream(openAiRes, {
+      responseStream = OpenAIStream(openAiRes, {
         async onCompletion(completion: any) {
           const payload = createPayload(json, messages, completion)
           // Implement what to do with the payload, e.g., logging or database storage
         }
       })
+      break
     case 'Anthropic':
       const anthropic = initializeAnthropic(process.env.ANTHROPIC_API_KEY as string)
 
@@ -66,16 +72,24 @@ export async function createResponseStream(
       const anthropicRes = await anthropic.messages.create({
         model, messages, max_tokens: 300, stream: true
       })
-      return AnthropicStream(anthropicRes)
+      responseStream = AnthropicStream(anthropicRes)
+      break
     case 'Perplexity':
       const perplexity = initializePerplexity(process.env.PERPLEXITY_API_KEY as string)
 
       if (previewToken) perplexity.apiKey = previewToken
 
       const perplexityRes = await perplexity.chat.completions.create({
-        model, messages, temperature: 0.7, stream: true
+        model,
+        messages,
+        stream: true,
+        max_tokens: 1000,
+        temperature: 0.5,
+        top_p: 1,
+        frequency_penalty: 1
       })
-      return OpenAIStream(perplexityRes) // Perplexity uses the same response format as OpenAI
+      responseStream = OpenAIStream(perplexityRes) // Perplexity uses the same response format as OpenAI
+      break
     case 'WordWare':
       // Implement WordWare response stream
       // return handleWordWareRequest(req as Request)
@@ -92,9 +106,11 @@ export async function createResponseStream(
       }
 
       const output = await createWordWareResponseStream(reader)
-      const responseStream = stringToStream(output)
-      return new StreamingTextResponse(responseStream)
+      responseStream = stringToStream(output)
+      break
     default:
       throw new Error('Unsupported client model type')
   }
+
+  return new StreamingTextResponse(responseStream)
 }

@@ -2,7 +2,6 @@ import { createResponseStream } from '@/app/api/chat/actions/actions';
 import { getModelClientType } from '@/lib/ai';
 import OpenAI from 'openai';
 
-
 export const runtime = 'edge'
 
 const openai = new OpenAI({
@@ -23,14 +22,6 @@ export async function POST(req: Request) {
   // }
 
   const clientModel = getModelClientType(model)
-  if (previewToken) openai.apiKey = previewToken
-
-  // const res = await openai.chat.completions.create({
-  //   model: 'gpt-3.5-turbo',
-  //   messages,
-  //   temperature: 0.7,
-  //   stream: true
-  // })
 
   // ? this condition is for test only. When moving to Ai SDK 3.1, 
   // ? It will be all together in the createResponseStream function
