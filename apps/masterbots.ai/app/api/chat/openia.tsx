@@ -1,20 +1,18 @@
+import { createResponseStream } from '@/app/api/chat/actions/actions'
 import { StreamingTextResponse } from 'ai'
-import { initializeOpenAI, validateModel, createResponseStream } from '@/app/api/chat/actions/actions'
 import { AIModels } from './actions/models'
 
 export const runtime = 'edge'
-const openai = initializeOpenAI(process.env.OPENAI_API_KEY as string)
 
 export async function POST(req: Request) {
   try {
     const json = await req.json()
-    const { messages, model = AIModels.Default , previewToken } = json
-    
+    const { messages, model = AIModels.Default, previewToken } = json
+
     if (previewToken) {
       openai.apiKey = previewToken
     }
 
-    validateModel(model)
     const res = await openai.chat.completions.create({
       model, messages, temperature: 0.7, stream: true
     })

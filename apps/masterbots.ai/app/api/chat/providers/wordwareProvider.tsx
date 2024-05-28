@@ -5,6 +5,7 @@ export class WordWareClient {
     this.apiKey = apiKey
   }
 
+  // TODO: Ask Robert Chandler about this method, it is throwing an Auth error
   async describePrompt(promptId: string) {
     const response = await fetch(
       `https://app.wordware.ai/api/prompt/${promptId}/describe`,

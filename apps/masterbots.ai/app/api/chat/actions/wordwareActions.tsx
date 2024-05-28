@@ -1,6 +1,6 @@
-import { WordWareClient } from '../providers/wordwareProvider'
-import { AIModels } from './models'
-import { StreamingTextResponse } from 'ai' // from 'ai' package
+import { StreamingTextResponse } from 'ai'; // from 'ai' package
+import { WordWareClient } from '../providers/wordwareProvider';
+import { AIModels } from './models';
 
 //TODO: Test ifStreamingTextResponse (https://sdk.vercel.ai/docs/reference/stream-helpers/streaming-text-response) works for wordware
 
@@ -14,7 +14,7 @@ export function validateModel(model: AIModels) {
   }
 }
 
-function stringToStream(text: string): ReadableStream {
+export function stringToStream(text: string): ReadableStream {
   return new ReadableStream({
     start(controller) {
       controller.enqueue(new TextEncoder().encode(text))
@@ -23,11 +23,8 @@ function stringToStream(text: string): ReadableStream {
   })
 }
 
-export async function createResponseStream(
-  clientType: string,
+export async function createWordWareResponseStream(
   reader: ReadableStreamDefaultReader<Uint8Array>,
-  json: any,
-  messages: any[]
 ) {
   const decoder = new TextDecoder()
   let buffer: string[] = []
@@ -68,11 +65,8 @@ export async function handleWordWareRequest(req: Request): Promise<Response> {
       throw new Error('Failed to obtain reader from response.')
     }
 
-    const output = await createResponseStream(
-      'WordWare',
+    const output = await createWordWareResponseStream(
       reader,
-      json,
-      messages
     )
     const responseStream = stringToStream(output)
     return new StreamingTextResponse(responseStream)

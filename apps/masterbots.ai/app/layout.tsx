@@ -7,6 +7,7 @@ import { Header } from '@/components/header'
 import { Providers } from '@/components/providers'
 import { cn } from '@/lib/utils'
 import { Metadata } from 'next'
+import NextTopLoader from 'nextjs-toploader'
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
@@ -18,8 +19,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           GeistMono.variable
         )}
       >
-        {/* TODO: https://github.com/TheSGJ/nextjs-toploader/issues/66 */}
-        {/* <NextTopLoader color="#1ED761" initialPosition={0.20} /> */}
+        <NextTopLoader color="#1ED761" initialPosition={0.20} />
         <Toaster />
         <Providers
           attribute="class"

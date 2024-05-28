@@ -1,6 +1,6 @@
 import { type Message as AIMessage } from 'ai/react'
-import { Message } from 'mb-genql'
 import { clsx, type ClassValue } from 'clsx'
+import { Message } from 'mb-genql'
 import { customAlphabet } from 'nanoid'
 import { twMerge } from 'tailwind-merge'
 

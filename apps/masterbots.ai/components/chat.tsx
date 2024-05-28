@@ -8,19 +8,20 @@ import { ChatPanel } from '@/components/chat-panel'
 import { ChatScrollAnchor } from '@/components/chat-scroll-anchor'
 import { cn, extractBetweenMarkers, scrollToBottomOfElement } from '@/lib/utils'
 
+import { AIModels } from '@/app/api/chat/actions/models'
+import { getModelClientType } from '@/lib/ai'
+import { botNames } from '@/lib/bots-names'
 import { useAtBottom } from '@/lib/hooks/use-at-bottom'
+import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useThread } from '@/lib/hooks/use-thread'
 import { createThread, getThread, saveNewMessage } from '@/services/hasura'
 import { ChatRequestOptions } from 'ai'
 import { uniqBy } from 'lodash'
 import { Chatbot } from 'mb-genql'
 import { useSession } from 'next-auth/react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
-import { useThread } from '@/lib/hooks/use-thread'
-import { botNames } from '@/lib/bots-names'
-import { useSidebar } from '@/lib/hooks/use-sidebar'
-import { AIModels } from '@/app/api/chat/actions/models'
 
 export function Chat({
   initialMessages,
@@ -51,6 +52,13 @@ export function Chat({
   const isNewChat = Boolean(!params.threadId && !activeThread)
   const [selectedModel, setSelectedModel] = useState(AIModels.Default) //? Default model for OpenAI
 
+  let clientType = ''
+  try {
+    clientType = getModelClientType(selectedModel)
+  } catch (error) {
+    toast.error('Failed to get the Ai client. Please reload and try again.')
+  }
+
   const { messages, append, reload, stop, isLoading, input, setInput } =
     useChat({
       // we remove previous assistant responses to get better responses thru
@@ -61,7 +69,9 @@ export function Chat({
           : threadInitialMessages.filter(m => m.role === 'system'),
       id: params.threadId || isNewChat ? threadId : activeThread?.threadId,
       body: {
-        id: params.threadId || isNewChat ? threadId : activeThread?.threadId
+        id: params.threadId || isNewChat ? threadId : activeThread?.threadId,
+        model: selectedModel,
+        clientType,
       },
       onResponse(response) {
         if (response.status === 401) {
@@ -118,11 +128,11 @@ export function Chat({
   const allMessages =
     params.threadId || isNewChat
       ? uniqBy(initialMessages?.concat(messages), 'content').filter(
-          m => m.role !== 'system'
-        )
+        m => m.role !== 'system'
+      )
       : uniqBy(threadAllMessages.concat(messages), 'content').filter(
-          m => m.role !== 'system'
-        )
+        m => m.role !== 'system'
+      )
 
   const sendMessageFromResponse = async (bulletContent: string) => {
     setIsNewResponse(true)
@@ -179,11 +189,11 @@ export function Chat({
       isNewChat
         ? userMessage
         : {
-            ...userMessage,
-            content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
-              allMessages
-            )}].  Then answer this question: ${userMessage.content}`
-          }
+          ...userMessage,
+          content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
+            allMessages
+          )}].  Then answer this question: ${userMessage.content}`
+        }
     )
   }
 

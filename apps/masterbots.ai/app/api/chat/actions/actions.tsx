@@ -1,10 +1,10 @@
 'use server'
 
-import OpenAI from 'openai'
+import { createWordWareResponseStream, initializeWordWare, stringToStream } from '@/app/api/chat/actions/wordwareActions'
+import { createPayload } from '@/lib/ai'
 import Anthropic from '@anthropic-ai/sdk'
-import { OpenAIStream, AnthropicStream } from 'ai'
-import { AIModels } from './models'
-import { nanoid } from '@/lib/utils'
+import { AnthropicStream, OpenAIStream, StreamingTextResponse } from 'ai'
+import OpenAI from 'openai'
 
 /** DEV notes for actions.tsx:
  * Initializes an OpenAI | Anthropic | Perplexity client with a given API key.
@@ -35,56 +35,66 @@ export function initializePerplexity(apiKey: string): OpenAI {
   })
 }
 
-export function validateModel(model: AIModels) {
-  if (!Object.values(AIModels).includes(model)) {
-    throw new Error('Unsupported model specified')
-  }
-}
-
-export function createResponseStream(
+export async function createResponseStream(
   clientType: 'OpenAI' | 'Anthropic' | 'Perplexity' | 'WordWare',
-  response: any, //! Improve type after testing with our models
+  // response: any, //! Improve type after testing with our models
   json: any, //! Improve type after testing with our models
-  messages: any[] //! Improve type after testing with our models
+  // messages: any[] //! Improve type after testing with our models
+  req?: Request
 ) {
+  const { model, messages, previewToken } = json
   switch (clientType) {
     case 'OpenAI':
-      return OpenAIStream(response, {
+      const openai = initializeOpenAI(process.env.OPENAI_API_KEY as string)
+
+      if (previewToken) openai.apiKey = previewToken
+
+      const openAiRes = await openai.chat.completions.create({
+        model, messages, temperature: 0.7, stream: true
+      })
+      return OpenAIStream(openAiRes, {
         async onCompletion(completion: any) {
           const payload = createPayload(json, messages, completion)
           // Implement what to do with the payload, e.g., logging or database storage
         }
       })
     case 'Anthropic':
-      return AnthropicStream(response)
+      const anthropic = initializeAnthropic(process.env.ANTHROPIC_API_KEY as string)
+
+      if (previewToken) anthropic.apiKey = previewToken
+
+      const anthropicRes = await anthropic.messages.create({
+        model, messages, max_tokens: 300, stream: true
+      })
+      return AnthropicStream(anthropicRes)
     case 'Perplexity':
-      return OpenAIStream(response) // Perplexity uses the same response format as OpenAI
+      const perplexity = initializePerplexity(process.env.PERPLEXITY_API_KEY as string)
+
+      if (previewToken) perplexity.apiKey = previewToken
+
+      const perplexityRes = await perplexity.chat.completions.create({
+        model, messages, temperature: 0.7, stream: true
+      })
+      return OpenAIStream(perplexityRes) // Perplexity uses the same response format as OpenAI
+    case 'WordWare':
+      // Implement WordWare response stream
+      // return handleWordWareRequest(req as Request)
+
+      const wordware = initializeWordWare(process.env.WORDWARE_API_KEY as string)
+      // ? Optionally override the API key with a preview token if provided
+      if (previewToken) wordware.apiKey = previewToken
+
+      // * YOUR_PROMPT_ID is the ID of the prompt you want to run
+      const reader = await wordware.runPrompt('8ed63d1d-5ccb-4059-897d-d63d3c54cd85', { messages })
+
+      if (!reader) {
+        throw new Error('Failed to obtain reader from response.')
+      }
+
+      const output = await createWordWareResponseStream(reader)
+      const responseStream = stringToStream(output)
+      return new StreamingTextResponse(responseStream)
     default:
       throw new Error('Unsupported client model type')
-  }
-}
-
-export function createPayload(
-  json: { id: string },
-  messages: { content: string }[],
-  completion: any
-) {
-  const title = messages[0]?.content.substring(0, 100)
-  const id = json.id ?? nanoid()
-  const createdAt = Date.now()
-  const path = `/chat/${id}`
-  return {
-    id,
-    title,
-    userId: 1,
-    createdAt,
-    path,
-    messages: [
-      ...messages,
-      {
-        content: completion,
-        role: 'assistant'
-      }
-    ]
   }
 }

@@ -1,13 +1,13 @@
 'use client'
 
-import { ChatPanel } from './chat-panel'
-import { useChat, type Message, CreateMessage } from 'ai/react'
-import toast from 'react-hot-toast'
-import { ChatRequestOptions } from 'ai'
-import { Chatbot } from 'mb-genql'
-import { useRouter } from 'next/navigation'
 import { createThread, saveNewMessage } from '@/services/hasura'
+import { ChatRequestOptions } from 'ai'
+import { CreateMessage, useChat, type Message } from 'ai/react'
+import { Chatbot } from 'mb-genql'
 import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import toast from 'react-hot-toast'
+import { ChatPanel } from './chat-panel'
 
 export default function NewChat({
   id,
