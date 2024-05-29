@@ -15,3 +15,4 @@
 - "!include public_tone_enum.yaml"
 - "!include public_type_enum.yaml"
 - "!include public_user.yaml"
+- "!include public_referral.yaml"
