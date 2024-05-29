@@ -1,23 +1,36 @@
 'use server'
 
-import { createWordWareResponseStream, initializeWordWare, stringToStream } from '@/app/api/chat/actions/wordwareActions'
+import {
+  createWordWareResponseStream,
+  initializeWordWare,
+  stringToStream
+} from '@/app/api/chat/actions/wordwareActions'
 import { createPayload } from '@/lib/ai'
 import Anthropic from '@anthropic-ai/sdk'
 import { AnthropicStream, OpenAIStream, StreamingTextResponse } from 'ai'
 import OpenAI from 'openai'
 
-/** DEV notes for actions.tsx:
- * Initializes an OpenAI | Anthropic | Perplexity client with a given API key.
- * @param {string} apiKey - The API key for accessing IA services.
- * @returns {OpenAI or Anthropic } An instance of the model client.
- * validateModel - Validates the model specified.
- * @throws {Error} If the model is not supported.
- * createResponseStream - Creates a response stream based on the client type.
- * @param {string} clientType - The type of client to create a response stream for.
- * @param {any} response - The response object from the client.
- * @param {any} json - The JSON object from the request.
- * @param {any[]} messages - The messages from the request.
- * createPayload - Creates a payload object from the JSON, messages, and completion.
+/**
+ * DEV notes for actions.tsx:
+ * This module initializes clients for various AI services (OpenAI, Anthropic, Perplexity, WordWare)
+ * and handles creating response streams for AI interactions based on the client type.
+ *
+ * Functions:
+ * - initializeOpenAI(apiKey): Initializes an OpenAI client with a given API key.
+ * - initializeAnthropic(apiKey): Initializes an Anthropic client with a given API key.
+ * - initializePerplexity(apiKey): Initializes a Perplexity client with a given API key.
+ * - createResponseStream(clientType, json, req): Creates a response stream based on the AI client type.
+ *   Each AI service might use a different approach to streaming responses based on their API and capabilities.
+ *   This function abstracts those differences providing a uniform API for the server.
+ *
+ * @param {string} apiKey - The API key for accessing AI services.
+ * @returns {OpenAI | Anthropic | OpenAI} An instance of the model client.
+ * @throws {Error} If the model or API client type is not supported.
+ * @param {string} clientType - The type of AI client to create a response stream for.
+ * @param {any} json - The JSON object from the request, expected to contain model, messages, and optionally a previewToken.
+ * @param {Request} [req] - The request object, used optionally for some AI clients like WordWare.
+ *
+ * createPayload - Utility function that creates a structured payload from the JSON input, chat messages, and AI completion.
  */
 
 export function initializeOpenAI(apiKey: string): OpenAI {
@@ -37,9 +50,7 @@ export function initializePerplexity(apiKey: string): OpenAI {
 
 export async function createResponseStream(
   clientType: 'OpenAI' | 'Anthropic' | 'Perplexity' | 'WordWare',
-  // response: any, //! Improve type after testing with our models
   json: any, //! Improve type after testing with our models
-  // messages: any[] //! Improve type after testing with our models
   req?: Request
 ) {
   const { model, messages, previewToken } = json
@@ -55,7 +66,10 @@ export async function createResponseStream(
       if (previewToken) openai.apiKey = previewToken
 
       const openAiRes = await openai.chat.completions.create({
-        model, messages, temperature: 0.7, stream: true
+        model,
+        messages,
+        temperature: 0.7,
+        stream: true
       })
       responseStream = OpenAIStream(openAiRes, {
         async onCompletion(completion: any) {
@@ -65,17 +79,24 @@ export async function createResponseStream(
       })
       break
     case 'Anthropic':
-      const anthropic = initializeAnthropic(process.env.ANTHROPIC_API_KEY as string)
+      const anthropic = initializeAnthropic(
+        process.env.ANTHROPIC_API_KEY as string
+      )
 
       if (previewToken) anthropic.apiKey = previewToken
 
       const anthropicRes = await anthropic.messages.create({
-        model, messages, max_tokens: 300, stream: true
+        model,
+        messages,
+        max_tokens: 300,
+        stream: true
       })
       responseStream = AnthropicStream(anthropicRes)
       break
     case 'Perplexity':
-      const perplexity = initializePerplexity(process.env.PERPLEXITY_API_KEY as string)
+      const perplexity = initializePerplexity(
+        process.env.PERPLEXITY_API_KEY as string
+      )
 
       if (previewToken) perplexity.apiKey = previewToken
 
@@ -94,12 +115,17 @@ export async function createResponseStream(
       // Implement WordWare response stream
       // return handleWordWareRequest(req as Request)
 
-      const wordware = initializeWordWare(process.env.WORDWARE_API_KEY as string)
+      const wordware = initializeWordWare(
+        process.env.WORDWARE_API_KEY as string
+      )
       // ? Optionally override the API key with a preview token if provided
       if (previewToken) wordware.apiKey = previewToken
 
       // * YOUR_PROMPT_ID is the ID of the prompt you want to run
-      const reader = await wordware.runPrompt('8ed63d1d-5ccb-4059-897d-d63d3c54cd85', { messages })
+      const reader = await wordware.runPrompt(
+        '8ed63d1d-5ccb-4059-897d-d63d3c54cd85',
+        { messages }
+      )
 
       if (!reader) {
         throw new Error('Failed to obtain reader from response.')

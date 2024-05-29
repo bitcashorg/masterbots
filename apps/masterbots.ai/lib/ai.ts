@@ -1,5 +1,5 @@
-import { AIModels } from "@/app/api/chat/actions/models"
-import { nanoid } from "nanoid"
+import { AIModels } from '@/app/api/chat/actions/models'
+import { nanoid } from 'nanoid'
 
 export function getModelClientType(model: AIModels) {
   switch (model) {
