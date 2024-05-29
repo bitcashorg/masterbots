@@ -20,6 +20,7 @@ export default function PlanCard({ selectedPlan, handlePlanChange, plan}: PlanCa
           onChange={handlePlanChange}
           checked={selectedPlan === plan.duration}
           className="hidden"
+          required
         />
         <label htmlFor={plan.duration} className="w-full h-full justify-center items-center flex">
           <div className="flex flex-col  inner-content dark:bg-[url(/paid_plan_bg.png)] bg-[url(/paid_plan_bg_light.png)] my-auto p-5"

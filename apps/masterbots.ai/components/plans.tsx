@@ -2,17 +2,31 @@
 import React, { useState } from 'react'
 import PlanCard from './plan-card'
 import { plans } from '../lib/utils'
-import { IconChevronAngleRight } from './ui/icons'
-export function Plans() {
-  const [selectedPlan, setSelectedPlan] = useState('')
+import Link from 'next/link'
+type PlansPros = {
+  next: () => void
+  prev: () => void
+  close: () => void,
+}
+export function Plans({ close }: PlansPros) {
+  const [selectedPlan, setSelectedPlan] = useState('free')
 
-  const handlePlanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+const handlePlanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedPlan(e.target.value)
-    console.log(e.target.value)
   }
 
+const handleSubscription = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    const plan = formData.get('plan')
+    if(plan === 'free') {
+      alert('Please select a paid plan to use this feature')
+      return
+    }
+    close()
+  }
   return (
-    <form className="flex flex-col  w-full ">
+    <form className="flex flex-col  w-full " onSubmit={handleSubscription}>
       <div className="text-center pt-2">
         <span className="font-bold text-[16px]">
           Subscribe using{' '}
@@ -32,6 +46,7 @@ export function Plans() {
             onChange={handlePlanChange}
             checked={selectedPlan === 'free'}
             className="hidden"
+            required
           />
           <label htmlFor="free" className="block w-full h-full ">
             <div
@@ -97,10 +112,10 @@ export function Plans() {
         
       </div>
 
-      <div className='dark:bg-black border  border-t-black bg-white p-5 flex justify-center space-x-4'>
-          <button type='button' className='text-black dark:text-white font-bold border border-b-black'>
+      <div className='dark:bg-black border  border-t-black bg-white p-5 flex justify-center items-center space-x-4'>
+          <Link href='/chat' className='text-black dark:text-white font-bold  text-center'>
             Maybe Later
-          </button>
+          </Link>
           <button  type='submit'  className='dark:bg-white  bg-black text-white dark:text-black rounded-full font-bold py-2 px-4'>
             Subscribe Now
           </button>
