@@ -175,6 +175,9 @@
   padding: 0px; /* Adjust this based on the border thickness */
   background: transparent; /* Hide border by default */
   cursor: pointer;
+  border: 4px solid #E4E4E7;
+}
+.dark .border-gradient {
   border: 4px solid black;
 }
 
@@ -194,16 +197,26 @@
   border-radius: 14px;
   padding: 6px; /* Match the padding to ensure the gradient is at the border */
   background:
-    conic-gradient(
-      from var(--bg-angle),
-      rgba(131, 229, 106, 0.1) 10%, 
-      rgba(131, 229, 106, 0.5) 50%, 
-      #83E56A 73.3%
-    );
+  conic-gradient(
+    from var(--bg-angle),
+    rgba(190, 23, 232, 0.8) 10%,
+    rgba(190, 23, 232, 0.3) 50%,
+    rgba(187, 6, 232, 0.5) 73.3%
+  );
   animation: spin 2.5s infinite linear paused;
   z-index: 1;
   display: none; /* Hide by default */
 
+}
+
+.dark .border-gradient::before{
+  background:
+  conic-gradient(
+    from var(--bg-angle),
+    rgba(131, 229, 106, 0.1) 10%, 
+    rgba(131, 229, 106, 0.5) 50%, 
+    #83E56A 73.3%
+  );
 }
 
 .border-gradient:hover::before {

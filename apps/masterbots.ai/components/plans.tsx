@@ -12,13 +12,14 @@ export function Plans() {
   }
 
   return (
-    <div className="flex flex-col  w-full">
-      <div className="text-center">
+    <form className="flex flex-col  w-full ">
+      <div className="text-center pt-2">
         <span className="font-bold text-[16px]">
-          Subscribe using <span className="text-[#635BFF]">Stripe</span>{' '}
+          Subscribe using{' '}
+          <span className="dark:text-[#635BFF]  text-[#635BFF]">Stripe</span>{' '}
         </span>
       </div>
-      <div className="flex flex-col w-full mt-4 space-y-3 ">
+      <div className="flex flex-col w-full space-y-3 p-5 ">
         <div
           className={`border-gradient w-full h-[135px]  ${selectedPlan === 'free' ? 'selected' : ''}`}
           id="free-plan"
@@ -33,14 +34,15 @@ export function Plans() {
             className="hidden"
           />
           <label htmlFor="free" className="block w-full h-full ">
-            <div className="flex justify-between items-center inner-content  my-auto p-5"
-            style={{backgroundImage: 'url(/free_plan_bg.png)' }}
+            <div
+              className="flex justify-between items-center inner-content  dark:bg-[url(/free_plan_bg.png)] bg-[url(/free_plan_bg_light.png)] my-auto p-5"
+              // style={{backgroundImage: 'url(/free_plan_bg.png)' }}
             >
               <div className="flex flex-col space-y-2">
-                <span className="font-bold text-[13px] text-[#83E56A]">
+                <span className="font-bold text-[13px] dark:text-[#83E56A]  text-[#BE17E8]">
                   PURCHASED
                 </span>
-                <div className="text-white space-y-1">
+                <div className="dark:text-white  text-black space-y-1">
                   <p>
                     With the <strong>Free</strong> plan you obtain:
                   </p>
@@ -52,31 +54,57 @@ export function Plans() {
               </div>
               <div className="flex flex-col justify-end items-end">
                 <span
-                  className={`h-3 w-3 rounded-full`}
-                  style={{
-                    backgroundColor:
-                      selectedPlan === 'free' ? '#83E56A' : '#93abd3'
-                  }}
+                  className={`h-3 w-3 rounded-full ${selectedPlan === 'free' ? 'dark:bg-green-500 bg-[#BE17E8] ' : 'dark:bg-gray-500  bg-gray-300'}`}
                 ></span>
-                <h3 className="text-white text-[36px] font-bold">Free</h3>
+                <h3 className="dark:text-white  text-black text-[36px] font-bold">
+                  Free
+                </h3>
               </div>
             </div>
           </label>
         </div>
         <div className="flex space-x-3">
-            {
-                plans.map((plan) => (
-                    <PlanCard selectedPlan={selectedPlan} handlePlanChange={handlePlanChange} plan={plan} />
-                ))
-            }
+          {plans.map(plan => (
+            <PlanCard
+              selectedPlan={selectedPlan}
+              handlePlanChange={handlePlanChange}
+              plan={plan}
+            />
+          ))}
         </div>
         <div>
-              <a href="#" className="text-[16px] flex items-center">
-                      I have a&nbsp;<strong> Referral Code</strong>
-                      <IconChevronAngleRight className="w-4 h-4 " />
-                </a>
+          <a href="#" className="text-[16px] flex items-center space-x-2">
+            <span>
+              I have a&nbsp;<strong> Referral Code</strong>{' '}
+            </span>
+            <svg
+              width="8"
+              height="15"
+              viewBox="0 0 8 15"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M1.14282 13.537L7.23552 7.44426L1.14282 1.35156"
+                stroke="#09090B"
+                stroke-width="1.52318"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </a>
         </div>
+        
       </div>
-    </div>
+
+      <div className='dark:bg-black border  border-t-black bg-white p-5 flex justify-center space-x-4'>
+          <button type='button' className='text-black dark:text-white font-bold border border-b-black'>
+            Maybe Later
+          </button>
+          <button  type='submit'  className='dark:bg-white  bg-black text-white dark:text-black rounded-full font-bold py-2 px-4'>
+            Subscribe Now
+          </button>
+      </div>
+    </form>
   )
 }

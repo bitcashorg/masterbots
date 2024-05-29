@@ -22,6 +22,7 @@ export default function Subscription() {
         prev={Prev}
         steps={steps}
         dialogRef={dialogRef}
+        headerTitle='Masterbots Subscription plans'
       />
     </div>
   )

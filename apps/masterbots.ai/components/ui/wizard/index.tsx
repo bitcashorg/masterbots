@@ -19,7 +19,8 @@ interface DialogWizardProps {
   next: () => void
   prev: () => void
   close: () => void,
-  dialogOpen: boolean
+  dialogOpen: boolean,
+ headerTitle: string
 }
 const animationStepProps = {
   initial: { opacity: 0, x: 200 },
@@ -35,39 +36,14 @@ const DialogWizard: React.FC<DialogWizardProps> = ({
   next,
   prev,
   close,
-  dialogOpen
+  dialogOpen,
+  headerTitle
 }) => {
   return (
-    // <div className="fixed inset-0 flex items-center justify-center z-50">
-    // <div className="fixed inset-0 bg-[#27272A80]"></div>
-    //  <dialog
-    //     ref={dialogRef}
-    //     className="rounded-lg shadow-lg p-6 w-11/12 max-w-2xl"
-    //   >
-    //      <AnimatePresence mode="popLayout" initial>
-    
-    //     {error ? (
-    //       <motion.div key="wizard-error-container" {...animationStepProps}>
-    //         <div>{error}</div>
-    //       </motion.div>
-    //     ) : (
-    //       steps?.map((step, index) => (
-    //         <motion.div key={step.name} {...animationStepProps}>
-    //          <div key={index} >
-    //            <step.component next={next} prev={prev}  close={close} />
-    //          </div>
-
-    //         </motion.div>
-    //       ))
-    //     )}
-
-    // </AnimatePresence>
-    //   </dialog>
-    // </div>
-
     <AnimatePresence>
       {dialogOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
+           
           <motion.div
             key="overlay"
             initial={{ opacity: 0 }}
@@ -79,15 +55,19 @@ const DialogWizard: React.FC<DialogWizardProps> = ({
             key="dialog"
             ref={dialogRef}
             {...animationStepProps}
-            className="rounded-lg shadow-lg p-6 w-11/12 max-w-2xl z-50"
+            className="rounded-lg shadow-lg  w-11/12 max-w-2xl z-50 bg-gray-100 dark:bg-[#27272A]  border border-black"
           >
+             <div className='flex justify-between items-center dark:bg-[#1E293B] bg-gray-200 dark:text-white text-black px-5 '>
+                 <h3 className='font-medium text-[24px] capitalize'>{headerTitle}</h3>
+                  <button onClick={close}>  <span className='text-[44px] '>&times;</span> </button> 
+            </div>
          {error ? (
           <motion.div key="wizard-error-container" {...animationStepProps}>
             <div>{error}</div>
           </motion.div>
         ) : (
           steps?.map((step, index) => (
-            <motion.div key={step.name} {...animationStepProps}>
+            <motion.div  key={step.name} {...animationStepProps}>
              <div key={index} >
                <step.component next={next} prev={prev}  close={close} />
              </div>
