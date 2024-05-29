@@ -23,9 +23,10 @@ export default async function IndexPage() {
 
   return (
     <>
-       <Subscription />
+      
       <ThreadPanel threads={threads} />
       <ChatThreadListPanel />
+      <Subscription />
       
     </>
   )

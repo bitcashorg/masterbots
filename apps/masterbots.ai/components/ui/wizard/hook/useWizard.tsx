@@ -8,6 +8,7 @@ interface UseWizardReturn {
   close: () => void;
   dialogRef: MutableRefObject<HTMLDialogElement | null>;
   isDialogOpen: boolean;
+ goTo: (index: number) => void;
 }
 
 export const useWizard = (stepsLength: number, showModal: boolean): UseWizardReturn => {
@@ -52,6 +53,8 @@ export const useWizard = (stepsLength: number, showModal: boolean): UseWizardRet
     setIsDialogOpen(false);
   };
 
+
+  const goTo = (index: number) => setCurrentStep(index)
   return {
     currentStep,
     Next,
@@ -59,6 +62,7 @@ export const useWizard = (stepsLength: number, showModal: boolean): UseWizardRet
     open,
     close,
     dialogRef,
-    isDialogOpen 
+    isDialogOpen,
+    goTo
   };
 };
