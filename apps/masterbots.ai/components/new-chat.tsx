@@ -89,8 +89,10 @@ export default function NewChat({
       chatbot={chatbot}
       showReload={false}
       placeholder={`Start New Chat with ${chatbot.name}`}
-      selectedModel={AIModels.Default}
-    />
+      selectedModel={AIModels.Default} 
+      onModelChange={function (model: AIModels): void {
+        throw new Error('Function not implemented.')
+      } } />
   )
 }
 

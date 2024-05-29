@@ -33,15 +33,15 @@ import OpenAI from 'openai'
  * createPayload - Utility function that creates a structured payload from the JSON input, chat messages, and AI completion.
  */
 
-export function initializeOpenAI(apiKey: string): OpenAI {
+export async function initializeOpenAI(apiKey: string) {
   return new OpenAI({ apiKey })
 }
 
-export function initializeAnthropic(apiKey: string): Anthropic {
+export async function initializeAnthropic(apiKey: string) {
   return new Anthropic({ apiKey })
 }
 
-export function initializePerplexity(apiKey: string): OpenAI {
+export async function initializePerplexity(apiKey: string) {
   return new OpenAI({
     apiKey,
     baseURL: 'https://api.perplexity.ai'
@@ -61,7 +61,7 @@ export async function createResponseStream(
   // TODO: Implement the response stream for WordWare (streamText) if applicable
   switch (clientType) {
     case 'OpenAI':
-      const openai = initializeOpenAI(process.env.OPENAI_API_KEY as string)
+      const openai = await initializeOpenAI(process.env.OPENAI_API_KEY as string)
 
       if (previewToken) openai.apiKey = previewToken
 
@@ -79,7 +79,7 @@ export async function createResponseStream(
       })
       break
     case 'Anthropic':
-      const anthropic = initializeAnthropic(
+      const anthropic = await initializeAnthropic(
         process.env.ANTHROPIC_API_KEY as string
       )
 
@@ -94,7 +94,7 @@ export async function createResponseStream(
       responseStream = AnthropicStream(anthropicRes)
       break
     case 'Perplexity':
-      const perplexity = initializePerplexity(
+      const perplexity = await initializePerplexity(
         process.env.PERPLEXITY_API_KEY as string
       )
 
