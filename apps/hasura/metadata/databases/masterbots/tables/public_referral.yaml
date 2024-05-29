@@ -5,6 +5,6 @@ table:
     - name: user
       using:
         foreign_key_constraint_on: user_id
-    - name: referral
+    - name: referrer
       using:
         foreign_key_constraint_on: referrer_id
