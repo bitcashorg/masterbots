@@ -8,7 +8,6 @@ import { UserMenu } from '@/components/user-menu'
 import { SidebarToggle } from './sidebar-toggle'
 import { isTokenExpired } from 'mb-lib'
 
-// https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating
 
 export async function Header() {
   return (
@@ -19,6 +18,7 @@ export async function Header() {
         <IconSeparator className="size-6 text-muted-foreground/50" />
         <HeaderLink href="/chat" text="Chat" />
         <HeaderLink href="/" text="Browse" />
+        <HeaderLink href="/pro" text="Pro" />
       </div>
       <div className="flex items-center justify-end space-x-2">
         <React.Suspense fallback={<div className="flex-1 overflow-auto" />}>
