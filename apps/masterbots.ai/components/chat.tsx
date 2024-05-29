@@ -56,7 +56,8 @@ export function Chat({
   try {
     clientType = getModelClientType(selectedModel)
   } catch (error) {
-    toast.error('Failed to get the Ai client. Please reload and try again.')
+    toast.error(`Failed to get the Ai client. Please reload and try again.`)
+    console.error('Error retrieving AI client type:', error);
   }
 
   const { messages, append, reload, stop, isLoading, input, setInput } =
