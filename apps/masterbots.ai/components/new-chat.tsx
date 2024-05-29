@@ -8,6 +8,8 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { ChatPanel } from './chat-panel'
+import { AIModels } from '@/app/api/chat/actions/models'
+import { getModelClientType } from '@/lib/ai'
 
 export default function NewChat({
   id,
@@ -17,11 +19,22 @@ export default function NewChat({
 }: NewChatProps) {
   const router = useRouter()
   const { data: session } = useSession()
+
+  let clientType = ''
+  try {
+    clientType = getModelClientType(AIModels.Default)
+  } catch (error) {
+    toast.error(`Failed to get the Ai client. Please reload and try again.`)
+    console.error('Error retrieving AI client type:', error)
+  }
+
   const { messages, reload, stop, input, setInput, append } = useChat({
     initialMessages,
     id,
     body: {
-      id
+      id,
+      model: AIModels.Default,
+      clientType
     },
     onResponse(response) {
       if (response.status === 401) {
@@ -76,6 +89,7 @@ export default function NewChat({
       chatbot={chatbot}
       showReload={false}
       placeholder={`Start New Chat with ${chatbot.name}`}
+      selectedModel={AIModels.Default}
     />
   )
 }

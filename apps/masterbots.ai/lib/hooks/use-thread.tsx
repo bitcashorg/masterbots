@@ -18,6 +18,8 @@ import { useRouter } from 'next/navigation'
 import { useSidebar } from './use-sidebar'
 import { useScroll } from 'framer-motion'
 import { useAtBottom } from './use-at-bottom'
+import { AIModels } from '@/app/api/chat/actions/models'
+import { getModelClientType } from '@/lib/ai'
 
 interface ThreadContext {
   isOpenPopup: boolean
@@ -72,33 +74,41 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
 
   const userPreferencesPrompts: AIMessage[] = activeThread
     ? [
-      {
-        id: activeThread?.threadId,
-        role: 'system',
-        content:
-          `Your response tone will be ${activeThread?.chatbot.defaultTone}. ` +
-          `Your response length will be ${activeThread?.chatbot.defaultLength}. ` +
-          `Your response format will be ${activeThread?.chatbot.defaultType}. ` +
-          `Your response complexity level will be ${activeThread?.chatbot.defaultComplexity}.`,
-        createdAt: new Date()
-      }
-    ]
+        {
+          id: activeThread?.threadId,
+          role: 'system',
+          content:
+            `Your response tone will be ${activeThread?.chatbot.defaultTone}. ` +
+            `Your response length will be ${activeThread?.chatbot.defaultLength}. ` +
+            `Your response format will be ${activeThread?.chatbot.defaultType}. ` +
+            `Your response complexity level will be ${activeThread?.chatbot.defaultComplexity}.`,
+          createdAt: new Date()
+        }
+      ]
     : []
 
   // format all user prompts and chatgpt 'assistant' messages
   const userAndAssistantMessages: AIMessage[] = activeThread
     ? messagesFromDB.map(m => ({
-      id: m.messageId,
-      role: m.role as AIMessage['role'],
-      content: m.content,
-      createdAt: m.createdAt
-    }))
+        id: m.messageId,
+        role: m.role as AIMessage['role'],
+        content: m.content,
+        createdAt: m.createdAt
+      }))
     : []
 
   // concatenate all message to pass it to chat component
   const initialMessages: AIMessage[] = chatbotSystemPrompts
     .concat(userPreferencesPrompts)
     .concat(userAndAssistantMessages)
+
+  let clientType = ''
+  try {
+    clientType = getModelClientType(AIModels.Default)
+  } catch (error) {
+    toast.error(`Failed to get the Ai client. Please reload and try again.`)
+    console.error('Error retrieving AI client type:', error)
+  }
 
   const {
     messages,
@@ -115,7 +125,9 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     initialMessages: initialMessages?.filter(m => m.role === 'system'),
     id: activeThread?.threadId,
     body: {
-      id: activeThread?.threadId
+      id: activeThread?.threadId,
+      model: AIModels.Default,
+      clientType
     },
     onResponse(response) {
       if (response.status === 401) {
