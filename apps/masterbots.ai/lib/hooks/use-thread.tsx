@@ -1,8 +1,8 @@
 'use client'
 
-import { useChat } from 'ai/react'
-import { useSession } from 'next-auth/react'
-import * as React from 'react'
+import { AIModels } from '@/app/api/chat/actions/models'
+import { getAllUserMessagesAsStringArray } from '@/components/chat'
+import { getModelClientType } from '@/lib/ai'
 import {
   getChatbots,
   getChatbotsCount,
@@ -10,16 +10,16 @@ import {
   saveNewMessage
 } from '@/services/hasura'
 import { Message as AIMessage } from 'ai'
-import { uniqBy } from 'lodash'
-import toast from 'react-hot-toast'
-import { Chatbot, Message, Thread } from 'mb-genql'
-import { getAllUserMessagesAsStringArray } from '@/components/chat'
-import { useRouter } from 'next/navigation'
-import { useSidebar } from './use-sidebar'
+import { useChat } from 'ai/react'
 import { useScroll } from 'framer-motion'
+import { uniqBy } from 'lodash'
+import { Chatbot, Message, Thread } from 'mb-genql'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import * as React from 'react'
+import toast from 'react-hot-toast'
 import { useAtBottom } from './use-at-bottom'
-import { AIModels } from '@/app/api/chat/actions/models'
-import { getModelClientType } from '@/lib/ai'
+import { useSidebar } from './use-sidebar'
 
 interface ThreadContext {
   isOpenPopup: boolean
@@ -74,27 +74,27 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
 
   const userPreferencesPrompts: AIMessage[] = activeThread
     ? [
-        {
-          id: activeThread?.threadId,
-          role: 'system',
-          content:
-            `Your response tone will be ${activeThread?.chatbot.defaultTone}. ` +
-            `Your response length will be ${activeThread?.chatbot.defaultLength}. ` +
-            `Your response format will be ${activeThread?.chatbot.defaultType}. ` +
-            `Your response complexity level will be ${activeThread?.chatbot.defaultComplexity}.`,
-          createdAt: new Date()
-        }
-      ]
+      {
+        id: activeThread?.threadId,
+        role: 'system',
+        content:
+          `Your response tone will be ${activeThread?.chatbot.defaultTone}. ` +
+          `Your response length will be ${activeThread?.chatbot.defaultLength}. ` +
+          `Your response format will be ${activeThread?.chatbot.defaultType}. ` +
+          `Your response complexity level will be ${activeThread?.chatbot.defaultComplexity}.`,
+        createdAt: new Date()
+      }
+    ]
     : []
 
   // format all user prompts and chatgpt 'assistant' messages
   const userAndAssistantMessages: AIMessage[] = activeThread
     ? messagesFromDB.map(m => ({
-        id: m.messageId,
-        role: m.role as AIMessage['role'],
-        content: m.content,
-        createdAt: m.createdAt
-      }))
+      id: m.messageId,
+      role: m.role as AIMessage['role'],
+      content: m.content,
+      createdAt: m.createdAt
+    }))
     : []
 
   // concatenate all message to pass it to chat component
@@ -126,6 +126,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     id: activeThread?.threadId,
     body: {
       id: activeThread?.threadId,
+      // TODO: @Bran18 👀 lol
       model: AIModels.Default,
       clientType
     },

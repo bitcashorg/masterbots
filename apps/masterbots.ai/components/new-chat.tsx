@@ -1,5 +1,7 @@
 'use client'
 
+import { AIModels } from '@/app/api/chat/actions/models'
+import { getModelClientType } from '@/lib/ai'
 import { createThread, saveNewMessage } from '@/services/hasura'
 import { ChatRequestOptions } from 'ai'
 import { CreateMessage, useChat, type Message } from 'ai/react'
@@ -8,8 +10,6 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { ChatPanel } from './chat-panel'
-import { AIModels } from '@/app/api/chat/actions/models'
-import { getModelClientType } from '@/lib/ai'
 
 export default function NewChat({
   id,
@@ -33,6 +33,7 @@ export default function NewChat({
     id,
     body: {
       id,
+      // TODO: @Bran18 👀 lol
       model: AIModels.Default,
       clientType
     },
@@ -89,10 +90,10 @@ export default function NewChat({
       chatbot={chatbot}
       showReload={false}
       placeholder={`Start New Chat with ${chatbot.name}`}
-      selectedModel={AIModels.Default} 
+      selectedModel={AIModels.Default}
       onModelChange={function (model: AIModels): void {
         throw new Error('Function not implemented.')
-      } } />
+      }} />
   )
 }
 
