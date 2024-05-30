@@ -32,7 +32,7 @@ export default function PlanCard({ selectedPlan, handlePlanChange, plan}: PlanCa
             </div>
             <span
               className={`h-3 w-3 rounded-full ${selectedPlan === plan.duration ? 'dark:bg-green-500 bg-[#BE17E8] ' : 'dark:bg-gray-500  bg-gray-300'}`}
-            ></span>
+            />
           </div>
           <div className="dark:text-white  text-black space-y-1">
                 <p  dangerouslySetInnerHTML={{ __html:  plan.features_title }} />

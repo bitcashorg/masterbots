@@ -51,8 +51,7 @@ const handleSubscription = (e: React.FormEvent<HTMLFormElement>) => {
           <label htmlFor="free" className="block w-full h-full ">
             <div
               className="flex justify-between items-center inner-content  dark:bg-[url(/free_plan_bg.png)] bg-[url(/free_plan_bg_light.png)] my-auto p-5"
-              // style={{backgroundImage: 'url(/free_plan_bg.png)' }}
-            >
+           >
               <div className="flex flex-col space-y-2">
                 <span className="font-bold text-[13px] dark:text-[#83E56A]  text-[#BE17E8]">
                   PURCHASED
@@ -70,7 +69,7 @@ const handleSubscription = (e: React.FormEvent<HTMLFormElement>) => {
               <div className="flex flex-col justify-end items-end">
                 <span
                   className={`h-3 w-3 rounded-full ${selectedPlan === 'free' ? 'dark:bg-green-500 bg-[#BE17E8] ' : 'dark:bg-gray-500  bg-gray-300'}`}
-                ></span>
+               />
                 <h3 className="dark:text-white  text-black text-[36px] font-bold">
                   Free
                 </h3>

@@ -9,9 +9,8 @@ export default function Subscription() {
 
   useEffect(() => {
     open()
-  }, [])
+  }, [isDialogOpen])
 
-//   const Success 
 
   const steps: WizardStep[] = [{ component: Plans, name: 'Step 1' }]
 
