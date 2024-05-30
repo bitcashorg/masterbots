@@ -14,13 +14,13 @@ export interface WizardStep {
 
 interface DialogWizardProps {
   steps: WizardStep[]
-  dialogRef: any
+  dialogRef: React.RefObject<HTMLDialogElement>
   error?: string
   next: () => void
   prev: () => void
   close: () => void,
   dialogOpen: boolean,
- headerTitle: string
+  headerTitle: string
 }
 const animationStepProps = {
   initial: { opacity: 0, x: 200 },
@@ -59,16 +59,16 @@ const DialogWizard: React.FC<DialogWizardProps> = ({
           >
              <div className='flex justify-between items-center dark:bg-[#1E293B] bg-gray-200 dark:text-white text-black px-5 '>
                  <h3 className='font-medium text-[24px] capitalize'>{headerTitle}</h3>
-                  <button onClick={close}>  <span className='text-[44px] '>&times;</span> </button> 
+                  <button type='button' onClick={close}>  <span className='text-[44px] '>&times;</span> </button> 
             </div>
          {error ? (
           <motion.div key="wizard-error-container" {...animationStepProps}>
             <div>{error}</div>
           </motion.div>
         ) : (
-          steps?.map((step, index) => (
+          steps?.map((step) => (
             <motion.div  key={step.name} {...animationStepProps}>
-             <div key={index} >
+             <div key={step.name} >
                <step.component next={next} prev={prev}  close={close} />
              </div>
 

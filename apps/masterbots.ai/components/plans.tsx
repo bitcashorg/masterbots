@@ -78,8 +78,9 @@ const handleSubscription = (e: React.FormEvent<HTMLFormElement>) => {
           </label>
         </div>
         <div className="flex space-x-3">
-          {plans.map(plan => (
+          {plans.map((plan) => (
             <PlanCard
+              key={plan.id} 
               selectedPlan={selectedPlan}
               handlePlanChange={handlePlanChange}
               plan={plan}
@@ -87,7 +88,7 @@ const handleSubscription = (e: React.FormEvent<HTMLFormElement>) => {
           ))}
         </div>
         <div>
-          <a href="#" className="text-[16px] flex items-center space-x-2">
+          <a href="/referral" className="text-[16px] flex items-center space-x-2">
             <span>
               I have a&nbsp;<strong> Referral Code</strong>{' '}
             </span>

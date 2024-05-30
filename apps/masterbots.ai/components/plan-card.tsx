@@ -1,5 +1,5 @@
 
-import { Plan } from '../lib/utils'
+import type { Plan } from '../lib/utils'
 
 type PlanCardProps = {
     selectedPlan: string
@@ -39,7 +39,7 @@ export default function PlanCard({ selectedPlan, handlePlanChange, plan}: PlanCa
                
                 <ul className="list-disc pl-5">
                 { plan.features.map((feature, index) => (
-                    <li key={index}>{ feature }</li>
+                    <li key={`feature-${index}`}>{ feature }</li>
                 ))}
                 </ul>
               </div>

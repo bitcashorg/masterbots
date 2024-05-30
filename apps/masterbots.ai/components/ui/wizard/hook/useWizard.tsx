@@ -1,5 +1,6 @@
 'use client'
-import { useState, useRef, MutableRefObject, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import type { MutableRefObject } from 'react';
 interface UseWizardReturn {
   currentStep: number;
   Next: () => void;

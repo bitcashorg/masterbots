@@ -1,5 +1,6 @@
 'use client'
-import DialogWizard, { WizardStep } from '@/components/ui/wizard'
+import DialogWizard from '@/components/ui/wizard'
+import type { WizardStep } from '@/components/ui/wizard'
 import { useWizard } from '@/components/ui/wizard/hook'
 import { useEffect } from 'react'
 import { Plans } from './plans'
