@@ -8,8 +8,6 @@ import { ChatPanel } from '@/components/chat-panel'
 import { ChatScrollAnchor } from '@/components/chat-scroll-anchor'
 import { cn, extractBetweenMarkers, scrollToBottomOfElement } from '@/lib/utils'
 
-import { AIModels } from '@/app/api/chat/actions/models'
-import { getModelClientType } from '@/lib/ai'
 import { botNames } from '@/lib/bots-names'
 import { useAtBottom } from '@/lib/hooks/use-at-bottom'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
@@ -20,8 +18,9 @@ import { uniqBy } from 'lodash'
 import { Chatbot } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import { useParams } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { toast } from 'react-hot-toast'
+import {useModel} from '@/lib/hooks/use-model';
 
 export function Chat({
   initialMessages,
@@ -50,16 +49,7 @@ export function Chat({
 
   const params = useParams<{ chatbot: string; threadId: string }>()
   const isNewChat = Boolean(!params.threadId && !activeThread)
-  const [selectedModel, setSelectedModel] = useState(AIModels.Default) //? Default model for OpenAI
-
-  let clientType = ''
-  try {
-    clientType = getModelClientType(selectedModel)
-  } catch (error) {
-    toast.error(`Failed to get the Ai client. Please reload and try again.`)
-    console.error('Error retrieving AI client type:', error);
-  }
-
+  const { selectedModel, clientType } = useModel() 
   const { messages, append, reload, stop, isLoading, input, setInput } =
     useChat({
       // we remove previous assistant responses to get better responses thru
@@ -280,8 +270,6 @@ export function Chat({
                 ? Boolean(isAtBottomOfPopup)
                 : isAtBottomOfSection
           }
-          selectedModel={selectedModel}
-          onModelChange={setSelectedModel}
         />
       )}
     </>

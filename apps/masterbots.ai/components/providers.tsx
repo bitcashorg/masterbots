@@ -7,6 +7,7 @@ import { SidebarProvider } from '@/lib/hooks/use-sidebar'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { SessionProvider } from 'next-auth/react'
 import { ThreadProvider } from '@/lib/hooks/use-thread'
+import { ModelProvider } from '@/lib/hooks/use-model'
 
 export function Providers({ children, ...props }: ThemeProviderProps) {
   return (
@@ -14,7 +15,9 @@ export function Providers({ children, ...props }: ThemeProviderProps) {
       <SidebarProvider>
         <TooltipProvider>
           <SessionProvider>
-            <ThreadProvider>{children}</ThreadProvider>
+            <ModelProvider>
+              <ThreadProvider>{children}</ThreadProvider>
+            </ModelProvider>
           </SessionProvider>
         </TooltipProvider>
       </SidebarProvider>

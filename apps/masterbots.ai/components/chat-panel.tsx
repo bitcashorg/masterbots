@@ -1,7 +1,6 @@
 import { type UseChatHelpers } from 'ai/react'
 import * as React from 'react'
 
-import { AIModels } from '@/app/api/chat/actions/models'
 import { ButtonScrollToBottom } from '@/components/button-scroll-to-bottom'
 import { ChatShareDialog } from '@/components/chat-share-dialog'
 import { FooterText } from '@/components/footer'
@@ -31,8 +30,6 @@ export interface ChatPanelProps
   isAtBottom?: boolean
   scrollToBottom: () => void
   className?: string
-  selectedModel: AIModels
-  onModelChange: (model: AIModels) => void
 }
 
 export function ChatPanel({
@@ -50,9 +47,7 @@ export function ChatPanel({
   showReload = true,
   isAtBottom,
   scrollToBottom,
-  className,
-  selectedModel,
-  onModelChange
+  className
 }: ChatPanelProps) {
   const [shareDialogOpen, setShareDialogOpen] = React.useState(false)
   const { isOpenPopup } = useThread()
@@ -67,16 +62,6 @@ export function ChatPanel({
         scrollToBottom={scrollToBottom}
         isAtBottom={isAtBottom}
       />
-      <select
-        value={selectedModel}
-        onChange={e => onModelChange(e.target.value as AIModels)}
-      >
-        {Object.values(AIModels).map(model => (
-          <option key={model} value={model}>
-            {model}
-          </option>
-        ))}
-      </select>
       <div className="mx-auto ">
         {chatbot && showReload ? (
           <div className="flex items-center justify-center h-12">
