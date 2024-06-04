@@ -100,7 +100,7 @@
 }
 
 .scrollbar {
-	overflow: auto;
+  overflow: auto;
 }
 
 .scrollbar::-webkit-scrollbar {
@@ -125,7 +125,6 @@
     height: 8px;
   }
 }
-
 
 .scrollbar.small-thumb::-webkit-scrollbar-thumb {
   border-left: 300px solid #f9f9fa;
@@ -153,38 +152,55 @@
 }
 
 
-
-/* Define the custom property */
 @property --bg-angle {
   inherits: false;
-  initial-value: 200deg;
-  syntax: "<angle>";
+  initial-value: 0deg;
+  syntax: '<angle>';
 }
 
-/* Define the keyframes for the spin animation */
 @keyframes spin {
   to {
     --bg-angle: 360deg;
   }
 }
 
-/* Outer container for gradient border */
 .border-gradient {
   position: relative;
-  border-radius: 14px;
-  padding: 0px; /* Adjust this based on the border thickness */
-  background: transparent; /* Hide border by default */
+  border-radius: 14px; /* Ensuring border-radius is applied */
+  background: transparent;
   cursor: pointer;
-  border: 4px solid #E4E4E7;
+  border: double 6px transparent;
+  background-image: 
+    linear-gradient(white, white), /* Inner background */
+    linear-gradient(
+      180deg,
+      rgba(113, 113, 122, 0.1) 0%,
+      rgba(113, 113, 122, 0.5) 50%,
+      rgba(113, 113, 122, 0.564706) 100%
+    );;
+  background-origin: border-box;
+  background-clip: content-box, border-box;
+  display: inline-block;
 }
+
 .dark .border-gradient {
-  border: 4px solid black;
+
+  background-image: 
+  linear-gradient(rgb(46, 44, 44), rgb(46, 44, 44)), /* Inner background */
+  linear-gradient(
+    180deg,
+    rgba(9, 9, 11, 0.1),
+    rgba(9, 9, 11, 0.5),
+    rgba(9, 9, 11, 0.8)
+  );
+  
 }
 
 .border-gradient:hover,
 .border-gradient.selected {
-  padding: 6px; /* Add padding on hover or when selected */
-  border-color: transparent; /* Change border to transparent */
+  padding: 6px;
+  border: 0px solid;
+  border-image: transparent;
 }
 
 .border-gradient::before {
@@ -194,33 +210,31 @@
   left: 0;
   right: 0;
   bottom: 0;
-  border-radius: 14px;
-  padding: 6px; /* Match the padding to ensure the gradient is at the border */
-  background:
-  conic-gradient(
+  border-radius: 14px; /* Ensuring border-radius is applied */
+  padding: 1px;
+  background: conic-gradient(
     from var(--bg-angle),
     rgba(190, 23, 232, 0.8) 10%,
     rgba(190, 23, 232, 0.3) 50%,
     rgba(187, 6, 232, 0.5) 73.3%
   );
-  animation: spin 2.5s infinite linear paused;
+  animation: spin 3.5s infinite linear;
   z-index: 1;
-  display: none; /* Hide by default */
-
+  display: none;
 }
 
-.dark .border-gradient::before{
-  background:
-  conic-gradient(
+.dark .border-gradient::before {
+  border-radius: 14px; /* Ensuring border-radius is applied */
+  background: conic-gradient(
     from var(--bg-angle),
-    rgba(131, 229, 106, 0.1) 10%, 
-    rgba(131, 229, 106, 0.5) 50%, 
-    #83E56A 73.3%
+    rgba(131, 229, 106, 0.1) 10%,
+    rgba(131, 229, 106, 0.5) 50%,
+    #83e56a 73.3%
   );
 }
 
 .border-gradient:hover::before {
-  display: block; /* Show on hover */
+  display: block;
   animation-play-state: running;
 }
 
@@ -240,5 +254,3 @@
   height: 100%;
   z-index: 2;
 }
-
-

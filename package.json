@@ -23,6 +23,7 @@
   ],
   "packageManager": "bun@1.0.14",
   "dependencies": {
+    "lottie-react": "^2.4.0",
     "nextjs-toploader": "^1.6.4"
   }
 }

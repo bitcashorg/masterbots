@@ -7,8 +7,9 @@ type PlansPros = {
   next: () => void
   prev: () => void
   close: () => void,
+  goTo: (index: number) => void
 }
-export function Plans({ close }: PlansPros) {
+export function Plans({ close, goTo , next}: PlansPros) {
   const [selectedPlan, setSelectedPlan] = useState('free')
 
 const handlePlanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -23,7 +24,7 @@ const handleSubscription = (e: React.FormEvent<HTMLFormElement>) => {
       alert('Please select a paid plan to use this feature')
       return
     }
-    close()
+    next()
   }
   return (
     <form className="flex flex-col  w-full " onSubmit={handleSubscription}>
