@@ -6,6 +6,7 @@ import { useEffect } from 'react'
 import { Plans } from './plans'
 import { SuccessContent } from './succes-content'
 import { ErrorContent } from './error-content'
+import { LoadingState } from './loading-state'
 
 export default function Subscription() {
   const {
@@ -21,11 +22,12 @@ export default function Subscription() {
 
   useEffect(() => {
     open()
-    goTo(2)
+    goTo(1)
   }, [isDialogOpen])
 
   const steps: WizardStep[] = [
     { component: Plans, name: 'Plans' },
+    { component: LoadingState, name: 'Loading' },
     { component: SuccessContent, name: 'Success' },
     { component: ErrorContent, name: 'Error' }
   ]

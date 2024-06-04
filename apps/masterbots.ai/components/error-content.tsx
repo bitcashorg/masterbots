@@ -1,11 +1,11 @@
 import Lottie from "lottie-react";
-import ErrorAnim from "@/lib/animations/failed-red.json";
+import ErrorAnim from "@/lib/animations/loading-error.json";
 export function ErrorContent() {
     return(
         <div
         className="flex flex-col w-full justify-center items-center inner-content  dark:bg-[url(/success-bg-dark.png)] bg-[url(/success-bg.png)] my-auto "
      >  
-            <div className="w-[240px] h-[240px]">
+            <div className="w-[240px] h-[240px] bg-red-400">
                 <Lottie animationData={ErrorAnim}  />
              </div>
             <div className="flex flex-col w-[300px] text-black dark:text-white text-center">
@@ -15,7 +15,7 @@ export function ErrorContent() {
 
             <div className='dark:bg-black border mt-5 w-full border-t-black bg-white p-5 flex justify-center items-center space-x-4'>
                 <button  type='submit'  className='dark:bg-white  bg-black text-white dark:text-black rounded-full font-bold py-2 px-6 min-w-[10rem]'>
-                    Close
+                    Retry
                 </button>
             </div>
         
