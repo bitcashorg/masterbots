@@ -48,7 +48,7 @@ export function createPayload(
   }
 }
 
-export function setStreamerPayload(model: AiClientType, payload: ChatCompletionMessageParam[]) {
+export function setStreamerPayload(model: AiClientType, payload: ChatCompletionMessageParam[] | MessageParam[]) {
   switch (model) {
     case 'WordWare':
       // TODO: create WordWare payload

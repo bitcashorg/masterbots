@@ -53,7 +53,7 @@ export async function initializePerplexity(apiKey: string) {
 
 export async function createResponseStream(
   clientType: AiClientType,
-  json: JSONResponseStream, //! Improve type after testing with our models
+  json: JSONResponseStream,
   req?: Request
 ) {
   const { model, messages: rawMessages, previewToken } = json
@@ -89,8 +89,8 @@ export async function createResponseStream(
       const anthropicRes = await anthropic.messages.create({
         model,
         messages: messages as MessageParam[],
+        stream: true,
         max_tokens: 300,
-        stream: true
       })
       // TODO: Analyze improvements to the response stream, to update MB DB at onCompletion 
       responseStream = AnthropicStream(anthropicRes)
