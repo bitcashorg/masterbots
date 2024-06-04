@@ -3,20 +3,31 @@ import DialogWizard from '@/components/ui/wizard'
 import type { WizardStep } from '@/components/ui/wizard'
 import { useWizard } from '@/components/ui/wizard/hook'
 import { useEffect } from 'react'
-import { Plans } from './plans';
-import  { SubscriptionSuccess } from './subscription-succes';
+import { Plans } from './plans'
+import { SuccessContent } from './succes-content'
+import { ErrorContent } from './error-content'
 
 export default function Subscription() {
-  const { open, dialogRef, close, Next, Prev, isDialogOpen, goTo,currentStep } = useWizard(2, true)
+  const {
+    open,
+    dialogRef,
+    close,
+    Next,
+    Prev,
+    isDialogOpen,
+    goTo,
+    currentStep
+  } = useWizard(2, true)
 
   useEffect(() => {
     open()
-    goTo(1)
+    goTo(2)
   }, [isDialogOpen])
 
   const steps: WizardStep[] = [
-    { component: Plans, name: 'Step 1' },
-    { component: SubscriptionSuccess, name: 'Step 2' }
+    { component: Plans, name: 'Plans' },
+    { component: SuccessContent, name: 'Success' },
+    { component: ErrorContent, name: 'Error' }
   ]
 
   return (
@@ -30,7 +41,7 @@ export default function Subscription() {
         steps={steps}
         dialogRef={dialogRef}
         currentStep={currentStep}
-        headerTitle='Masterbots Subscription plans'
+        headerTitle="Masterbots Subscription plans"
       />
     </div>
   )
