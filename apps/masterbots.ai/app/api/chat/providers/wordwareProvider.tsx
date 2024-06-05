@@ -5,7 +5,6 @@ export class WordWareClient {
     this.apiKey = apiKey
   }
 
-  // TODO: Ask Robert Chandler about this method, it is throwing an Auth error
   async describePrompt(promptId: string) {
     const response = await fetch(
       `https://app.wordware.ai/api/prompt/${promptId}/describe`,
@@ -35,7 +34,7 @@ export class WordWareClient {
       }
     )
     if (!response.ok) {
-      throw new Error(`Failed to run prompt: ${response.statusText}`)
+      throw new Error(`Failed to run wordware prompt: ${response.statusText}`)
     }
 
     return response.body?.getReader()

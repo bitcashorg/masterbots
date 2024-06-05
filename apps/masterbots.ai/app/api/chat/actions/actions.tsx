@@ -127,9 +127,8 @@ export async function createResponseStream(
       if (previewToken) wordware.apiKey = previewToken
 
       // * YOUR_PROMPT_ID is the ID of the prompt you want to run
-      const reader = await wordware.runPrompt(
-        '8ed63d1d-5ccb-4059-897d-d63d3c54cd85',
-        { messages }
+      const reader = await wordware.describePrompt(
+        '4be4423f-62b6-42e7-a60d-ed84688347e3',
       )
 
       if (!reader) {
