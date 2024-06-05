@@ -8,7 +8,7 @@ import { SuccessContent } from './succes-content'
 import { ErrorContent } from './error-content'
 import { LoadingState } from './loading-state'
 import { Checkout } from './checkout'
-
+import { PaymentInformation } from './payment-information'
 export default function Subscription() {
   const {
     open,
@@ -28,6 +28,7 @@ export default function Subscription() {
 
   const steps: WizardStep[] = [
     { component: Plans, name: 'Plans' },
+    { component: PaymentInformation, name: 'Payment' },
     { component: Checkout, name: 'Checkout' },
     { component: LoadingState, name: 'Loading' },
     { component: SuccessContent, name: 'Success' },

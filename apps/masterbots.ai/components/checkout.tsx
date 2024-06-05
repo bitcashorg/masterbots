@@ -2,7 +2,7 @@ import { IconHelp, IconCreditCard} from '@/components/ui/icons'
 export function Checkout() {
   return (
     <div className="h-full w-full  dark:bg-[#18181B]  bg-[#F4F4F5]">
-        <div className='max-w-[24rem]  mx-auto'>
+     <div className='max-w-[24rem]  mx-auto'>
       <div className="text-center pt-2 text-gray-600 ">
         <span className="font-bold text-[16px] ">
           Subscribe using{' '}

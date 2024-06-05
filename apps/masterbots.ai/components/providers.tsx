@@ -7,17 +7,20 @@ import { SidebarProvider } from '@/lib/hooks/use-sidebar'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { SessionProvider } from 'next-auth/react'
 import { ThreadProvider } from '@/lib/hooks/use-thread'
+import { PaymentProvider } from '@/lib/hooks/use-payment'
 
 export function Providers({ children, ...props }: ThemeProviderProps) {
   return (
     <NextThemesProvider {...props}>
+      <PaymentProvider>
       <SidebarProvider>
         <TooltipProvider>
           <SessionProvider>
             <ThreadProvider>{children}</ThreadProvider>
           </SessionProvider>
         </TooltipProvider>
-      </SidebarProvider>
+       </SidebarProvider>
+      </PaymentProvider>
     </NextThemesProvider>
   )
 }
