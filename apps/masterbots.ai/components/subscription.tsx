@@ -7,6 +7,7 @@ import { Plans } from './plans'
 import { SuccessContent } from './succes-content'
 import { ErrorContent } from './error-content'
 import { LoadingState } from './loading-state'
+import { Checkout } from './checkout'
 
 export default function Subscription() {
   const {
@@ -27,6 +28,7 @@ export default function Subscription() {
 
   const steps: WizardStep[] = [
     { component: Plans, name: 'Plans' },
+    { component: Checkout, name: 'Checkout' },
     { component: LoadingState, name: 'Loading' },
     { component: SuccessContent, name: 'Success' },
     { component: ErrorContent, name: 'Error' }

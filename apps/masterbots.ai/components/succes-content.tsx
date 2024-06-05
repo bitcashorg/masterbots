@@ -6,7 +6,7 @@ export function SuccessContent() {
         className="flex flex-col w-full justify-center items-center inner-content  dark:bg-[url(/success-bg-dark.png)] bg-[url(/success-bg.png)] my-auto "
      >  
             <div className="w-[240px] h-[240px]">
-                <Lottie animationData={SuccessAnim}  />
+                <Lottie animationData={SuccessAnim}   />
              </div>
             <div className="flex flex-col w-[300px] text-black dark:text-white text-center">
                  <h2 className="font-medium text-[24px] ">Successfully subscribed to Masterbots Pro!</h2>
