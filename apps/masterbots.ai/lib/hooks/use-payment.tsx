@@ -18,6 +18,13 @@ interface PaymentContextProps {
     hasuraJwt: string
   }
   handleSetUser: (user: any) => void
+  handleSetLoading: (loading: boolean) => void
+  handleSetConfirmationToken: (confirmationToken: string | undefined) => void
+  confirmationToken: string 
+  handleSetStripe: (stripe: any) => void
+  handleSetElements: (elements: any) => void
+  stripe: any
+  elements: any
 }
 
 const PaymentContext = createContext<PaymentContextProps | undefined>(undefined)
@@ -45,11 +52,18 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
     name: '',
     email: '',
     hasuraJwt: ''
-  
   })
-
- 
-
+  const [confirmationToken, setConfirmationToken] = useState<any>("")
+  const [stripe, setStripe] = useState<any>(null)
+  const [elements, setElements] = useState<any>(null)
+  
+  
+  const handleSetConfirmationToken = (token: string | undefined ) => {
+    setConfirmationToken(token)
+  }
+  const handleSetLoading = (loading: boolean) => {
+    setLoading(loading)
+  }
   const handlePlan = (plan: any) => {
     setPlan(plan)
   }
@@ -66,10 +80,23 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
   const handleSetUser = (user: any) => {
     setUser(user)
   }
+  const handleSetStripe = (stripe: any) => {
+    setStripe(stripe)
+  }
+  const handleSetElements = (elements: any) => {
+    setElements(elements)
+  }
 
   return (
     <PaymentContext.Provider
       value={{
+        stripe,
+        elements,
+        handleSetStripe,
+        handleSetElements,
+        handleSetConfirmationToken,
+        confirmationToken,
+        handleSetLoading,
         user,
         handleSetUser,
         card,

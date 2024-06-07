@@ -18,12 +18,23 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Create a new customer
-    const customer = await stripe.customers.create({
+     // Search for an existing customer by email
+     const customers = await stripe.customers.list({
       email,
-      name,
+      limit: 1,
     });
 
+    let customer;
+    if (customers.data.length > 0) {
+      // Use the existing customer
+      customer = customers.data[0];
+    } else {
+      // Create a new customer
+      customer = await stripe.customers.create({
+        email,
+        name,
+      });
+    }
     // Create a subscription with the provided plan ID and trial period
     const subscription = await stripe.subscriptions.create({
       customer: customer.id,
@@ -51,10 +62,11 @@ export async function POST(req: NextRequest) {
       });
     }
   
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating subscription:', error);
-    return new Response(JSON.stringify({ error: error?.raw?.message }), {
-      status: error?.statusCode || 500,
+    const stripeError = error.raw || error;
+    return new Response(JSON.stringify({ error: stripeError.message }), {
+      status: stripeError.statusCode || 500,
       headers: { 'Content-Type': 'application/json' },
     });
   }

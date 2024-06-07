@@ -4,16 +4,25 @@ import { PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import { usePayment } from "@/lib/hooks/use-payment";
 import { WizardStepProps } from "@/components/ui/wizard";
 
-export function PaymentInformation({ goTo, prev, next} :WizardStepProps){
+export function PaymentInformation({ goTo, prev, next}:WizardStepProps){
   const [isLoading, setIsLoading] = useState(false)
   const stripe = useStripe();
   const elements = useElements();
-  const { handleSetCard, handleSetError } = usePayment();
+  const { 
+    handleSetCard, 
+    handleSetError, 
+    handleSetConfirmationToken,
+    handleSetStripe,
+    handleSetElements
+   } = usePayment();
 
   const handlePaymentSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!stripe || !elements) {
-      return new Error('Stripe.js  and Element has not loaded');
+      setIsLoading(false);
+      handleSetError("Stripe.js  and Element has not loaded")
+      goTo(5);
+      return;
     }
     setIsLoading(true);
     const {error: submitError} = await elements.submit();
@@ -42,7 +51,10 @@ export function PaymentInformation({ goTo, prev, next} :WizardStepProps){
 
     const cardData = confirmationToken?.payment_method_preview.card;
     handleSetCard(cardData);
+    handleSetConfirmationToken(confirmationToken?.id);
     setIsLoading(false);
+    handleSetStripe(stripe);
+    handleSetElements(elements);
     next();
   };
 
