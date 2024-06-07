@@ -8,8 +8,9 @@ import { SuccessContent } from './succes-content'
 import { ErrorContent } from './error-content'
 import { LoadingState } from './loading-state'
 import { Checkout } from './checkout'
-import { PaymentInformation } from './payment-information'
-export default function Subscription() {
+import { WrappedPaymentInformation } from './payment-information'
+import { usePayment } from '@/lib/hooks/use-payment'
+export default function Subscription({user}: {user: any}) {
   const {
     open,
     dialogRef,
@@ -19,16 +20,17 @@ export default function Subscription() {
     isDialogOpen,
     goTo,
     currentStep
-  } = useWizard(2, true)
+  } = useWizard(6, true)
 
+  const { handleSetUser } = usePayment()
+  handleSetUser(user)
   useEffect(() => {
     open()
-    goTo(1)
   }, [isDialogOpen])
 
   const steps: WizardStep[] = [
     { component: Plans, name: 'Plans' },
-    { component: PaymentInformation, name: 'Payment' },
+    { component: WrappedPaymentInformation, name: 'Payment' },
     { component: Checkout, name: 'Checkout' },
     { component: LoadingState, name: 'Loading' },
     { component: SuccessContent, name: 'Success' },

@@ -10,11 +10,13 @@ interface UseWizardReturn {
   dialogRef: MutableRefObject<HTMLDialogElement | null>;
   isDialogOpen: boolean;
   goTo: (index: number) => void;
+  lastStep: number;
 }
 
 export const useWizard = (stepsLength: number, showModal: boolean): UseWizardReturn => {
 
   const [currentStep, setCurrentStep] = useState(0);
+  const [lastStep, setLastStep] = useState(currentStep - 1)
   const [isDialogOpen, setIsDialogOpen] = useState(showModal);
   const dialogRef = useRef<HTMLDialogElement | null>(null);
 
@@ -31,6 +33,7 @@ export const useWizard = (stepsLength: number, showModal: boolean): UseWizardRet
 
   const Next = () => {
     if (currentStep < stepsLength - 1) {
+      setLastStep(currentStep)
       setCurrentStep((prevStep) => {
         const newStep = prevStep + 1;
         return newStep;
@@ -38,11 +41,11 @@ export const useWizard = (stepsLength: number, showModal: boolean): UseWizardRet
     } else {
       dialogRef.current?.close();
     }
-    
   };
 
   const Prev = () => {
     if (currentStep > 0) {
+      setLastStep(currentStep)
       setCurrentStep(currentStep - 1);
     }
   };
@@ -58,7 +61,10 @@ export const useWizard = (stepsLength: number, showModal: boolean): UseWizardRet
   };
 
 
-  const goTo = (index: number) => setCurrentStep(index)
+  const goTo = (index: number) => {
+    setLastStep(currentStep)
+    setCurrentStep(index)
+  }
   
   return {
     currentStep,
@@ -68,6 +74,7 @@ export const useWizard = (stepsLength: number, showModal: boolean): UseWizardRet
     close,
     dialogRef,
     isDialogOpen,
-    goTo
+    goTo,
+    lastStep
   };
 };

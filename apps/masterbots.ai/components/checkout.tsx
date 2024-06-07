@@ -19,7 +19,6 @@ export function Checkout() {
         <div className="flex  space-x-3 items-center bg-white dark:bg-[#1E293B] p-3">
             <IconCreditCard className="text-white fill-black dark:fill-white"  />
           <span>
-            {' '}
             Subscribing with card ending with <strong>****4242</strong>
           </span>
         </div>

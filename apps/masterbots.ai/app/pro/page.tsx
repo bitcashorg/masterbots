@@ -12,6 +12,7 @@ export default async function IndexPage() {
 
   // NOTE: maybe we should use same expiration time
   const jwt = session?.user?.hasuraJwt
+
   if (!jwt || isTokenExpired(jwt)) {
     redirect(`/sign-in`)
   }
@@ -23,10 +24,9 @@ export default async function IndexPage() {
 
   return (
     <>
-      
       <ThreadPanel threads={threads} />
       <ChatThreadListPanel />
-      <Subscription />
+      <Subscription user={session.user} />
       
     </>
   )

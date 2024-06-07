@@ -19,6 +19,7 @@ export function Providers({ children, ...props }: ThemeProviderProps) {
             <ThreadProvider>{children}</ThreadProvider>
           </SessionProvider>
         </TooltipProvider>
+        
        </SidebarProvider>
       </PaymentProvider>
     </NextThemesProvider>

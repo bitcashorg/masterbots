@@ -1,30 +1,97 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import PlanCard from './plan-card'
-import { plans } from '../lib/utils'
+import { auth } from '@/auth'
 import Link from 'next/link'
+import { usePayment } from '../lib/hooks/use-payment'
 type PlansPros = {
   next: () => void
   prev: () => void
   close: () => void,
   goTo: (index: number) => void
 }
-export function Plans({ close, goTo , next}: PlansPros) {
-  const [selectedPlan, setSelectedPlan] = useState('free')
+export  function Plans({ next }: PlansPros) {
+  const { handlePlan, handlePaymentIntent, paymentIntent, plan, user} = usePayment()
+  const [selectedPlan, setSelectedPlan] = useState(plan?.duration || 'free')
+  const [isLoading, setIsLoading] = useState(false)
+  const [plans, setPlans] = useState<any[]>([])
+
 
 const handlePlanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedPlan(e.target.value)
   }
 
-const handleSubscription = (e: React.FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+
+        const response = await fetch('/api/payment/plans', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        // remove the free plan with plan.unit_amount === 0
+        data.plans = data.plans.filter((plan: any) => plan.unit_amount !== 0);
+        // show the plans in ascending order
+        data.plans.sort((a: any, b: any) => b.unit_amount - a.unit_amount);
+        setPlans(data.plans);
+       
+      } catch (error) {
+        console.error('Error fetching plans:', error);
+      } finally {
+       // setLoading(false); // Ensure loading is set to false after fetching data
+      }
+    };
+
+    fetchPlans();
+  }
+  , [])
+  const handleSubscription = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    setIsLoading(true)
     const formData = new FormData(e.currentTarget)
     const plan = formData.get('plan')
+    const paymentPlan = plans.find((p) => p.recurring.interval === plan)
     if(plan === 'free') {
       alert('Please select a paid plan to use this feature')
+      setIsLoading(false)
       return
     }
+    handlePlan(paymentPlan)
+
+    if(!paymentIntent){
+    const data = {
+      planId: paymentPlan?.id,
+      trialPeriodDays: paymentPlan?.recurring?.trial_period_days || 0,
+      automatic_payment_methods: {
+        enabled: true,
+      },
+      email: user.email,
+      name: user.name,
+
+    }
+    const response = await fetch('/api/payment/intent', {
+      method: 'POST',
+      headers: {
+      'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+  });
+
+   const json = await response.json();
+    if(json){
+      handlePaymentIntent(json.client_secret)
+    }
+  }
     next()
+   
   }
   return (
     <form className="flex flex-col  w-full " onSubmit={handleSubscription}>
@@ -79,14 +146,18 @@ const handleSubscription = (e: React.FormEvent<HTMLFormElement>) => {
           </label>
         </div>
         <div className="flex space-x-3">
-          {plans.map((plan) => (
-            <PlanCard
-              key={plan.id} 
-              selectedPlan={selectedPlan}
-              handlePlanChange={handlePlanChange}
-              plan={plan}
-            />
-          ))}
+        {plans.length > 0 ? (
+        plans.map((plan) => (
+          <PlanCard
+            key={plan.id}
+            selectedPlan={selectedPlan}
+            handlePlanChange={handlePlanChange}
+            plan={plan}
+          />
+        ))
+      ) : (
+        <div>No plans available</div>
+      )}
         </div>
         <div>
           <a href="/referral" className="text-[16px] flex items-center space-x-2">
@@ -117,8 +188,8 @@ const handleSubscription = (e: React.FormEvent<HTMLFormElement>) => {
           <Link href='/chat' className='text-black dark:text-white font-bold  text-center'>
             Maybe Later
           </Link>
-          <button  type='submit'  className='dark:bg-white  bg-black text-white dark:text-black rounded-full font-bold py-2 px-4'>
-            Subscribe Now
+          <button  type="submit" disabled={isLoading}  className={`dark:bg-white  bg-black text-white dark:text-black rounded-full font-bold py-2 px-4 ${isLoading ? 'opacity-50' : ''}`}>
+               Subscribe Now  
           </button>
       </div>
     </form>

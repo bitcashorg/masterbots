@@ -254,3 +254,12 @@
   height: 100%;
   z-index: 2;
 }
+
+/* // black when it's dark mode and white when it's light mode  */
+ .p-FieldLabel.Label{
+  color: green !important;
+}
+
+.Tab, .Label, .input{
+  display: none;
+}

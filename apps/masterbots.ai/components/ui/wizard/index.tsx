@@ -6,6 +6,9 @@ export interface WizardStepProps {
   prev: () => void
   close: () => void
   goTo: (index: number) => void
+  lastStep: number
+  currentStep: number
+  
 }
 
 export interface WizardStep {
@@ -24,6 +27,7 @@ interface DialogWizardProps {
   headerTitle: string,
   goTo: (index: number) => void,
   currentStep?: number
+  lastStep?: number
 }
 const animationStepProps = {
   initial: { opacity: 0, x: 200 },
@@ -42,7 +46,8 @@ const DialogWizard: React.FC<DialogWizardProps> = ({
   dialogOpen,
   headerTitle,
   goTo,
-  currentStep = 0
+  currentStep = 0,
+  lastStep = 0
 }) => {
   return (
     <AnimatePresence>
@@ -77,7 +82,10 @@ const DialogWizard: React.FC<DialogWizardProps> = ({
             .map((step) => (
               <motion.div key={step.name} {...animationStepProps}>
                 <div>
-                  <step.component next={next} prev={prev} close={close} goTo={goTo} />
+                  <step.component next={next} prev={prev} close={close} 
+                  goTo={goTo} currentStep={currentStep} 
+                  lastStep={lastStep}
+                  />
                 </div>
               </motion.div>
             ))
