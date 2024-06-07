@@ -1,6 +1,6 @@
 
 import { auth } from '@/auth'
-import ChatThreadListPanel from '@/components/chat-thread-list-panel'
+import ChatThreadListPanel from '@/components/chat/chat-thread-list-panel'
 import ThreadPanel from '@/components/thread-panel'
 import { getThreads } from '@/services/hasura'
 import { isTokenExpired } from 'mb-lib'
