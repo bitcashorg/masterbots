@@ -9,7 +9,7 @@ interface PaymentContextProps {
   handleSetCard: (card: any) => void
   handlePaymentIntent: (paymentIntent: any) => void
   handleSetError: (error: any) => void
-  paymentIntent: string
+  paymentIntent: any
   user: {
     id: string
     image: string
@@ -21,10 +21,9 @@ interface PaymentContextProps {
   handleSetLoading: (loading: boolean) => void
   handleSetConfirmationToken: (confirmationToken: string | undefined) => void
   confirmationToken: string 
-  handleSetStripe: (stripe: any) => void
-  handleSetElements: (elements: any) => void
-  stripe: any
-  elements: any
+  secret: string
+  handleSetSecret: (secret: string) => void
+  handleDeleteCustomer: (email: string) => Promise<any>
 }
 
 const PaymentContext = createContext<PaymentContextProps | undefined>(undefined)
@@ -54,8 +53,7 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
     hasuraJwt: ''
   })
   const [confirmationToken, setConfirmationToken] = useState<any>("")
-  const [stripe, setStripe] = useState<any>(null)
-  const [elements, setElements] = useState<any>(null)
+  const [secret, setSecret] = useState<string>("")
   
   
   const handleSetConfirmationToken = (token: string | undefined ) => {
@@ -80,20 +78,29 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
   const handleSetUser = (user: any) => {
     setUser(user)
   }
-  const handleSetStripe = (stripe: any) => {
-    setStripe(stripe)
+  
+  const handleSetSecret = (secret: string) => {
+    setSecret(secret)
   }
-  const handleSetElements = (elements: any) => {
-    setElements(elements)
+
+  const handleDeleteCustomer = async (email: string) => {
+    const response = await fetch('/api/payment/intent', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
+    return response.json();
   }
+
 
   return (
     <PaymentContext.Provider
       value={{
-        stripe,
-        elements,
-        handleSetStripe,
-        handleSetElements,
+        handleDeleteCustomer,
+        secret,
+        handleSetSecret,
         handleSetConfirmationToken,
         confirmationToken,
         handleSetLoading,

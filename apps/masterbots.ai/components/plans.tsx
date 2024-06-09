@@ -1,7 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import PlanCard from './plan-card'
-import { auth } from '@/auth'
 import Link from 'next/link'
 import { usePayment } from '../lib/hooks/use-payment'
 type PlansPros = {
@@ -11,9 +10,8 @@ type PlansPros = {
   goTo: (index: number) => void
 }
 export  function Plans({ next }: PlansPros) {
-  const { handlePlan, handlePaymentIntent, paymentIntent, plan, user} = usePayment()
+  const { handlePlan,handleSetSecret,secret,  plan, user,loading, handleSetLoading} = usePayment()
   const [selectedPlan, setSelectedPlan] = useState(plan?.duration || 'free')
-  const [isLoading, setIsLoading] = useState(false)
   const [plans, setPlans] = useState<any[]>([])
 
 
@@ -37,7 +35,7 @@ const handlePlanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         }
 
         const data = await response.json();
-        // remove the free plan with plan.unit_amount === 0
+        // remove the free plan from the list
         data.plans = data.plans.filter((plan: any) => plan.unit_amount !== 0);
         // show the plans in ascending order
         data.plans.sort((a: any, b: any) => b.unit_amount - a.unit_amount);
@@ -53,20 +51,22 @@ const handlePlanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     fetchPlans();
   }
   , [])
+
+  
   const handleSubscription = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setIsLoading(true)
+    handleSetLoading(true)
     const formData = new FormData(e.currentTarget)
     const plan = formData.get('plan')
     const paymentPlan = plans.find((p) => p.recurring.interval === plan)
     if(plan === 'free') {
       alert('Please select a paid plan to use this feature')
-      setIsLoading(false)
+      handleSetLoading(false)
       return
     }
     handlePlan(paymentPlan)
 
-    if(!paymentIntent){
+    if(!secret){
     const data = {
       planId: paymentPlan?.id,
       trialPeriodDays: paymentPlan?.recurring?.trial_period_days || 0,
@@ -87,10 +87,11 @@ const handlePlanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
    const json = await response.json();
     if(json){
-      handlePaymentIntent(json.client_secret)
+      handleSetSecret(json.client_secret)
     }
   }
     next()
+  handleSetLoading(false)
    
   }
   return (
@@ -188,7 +189,7 @@ const handlePlanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
           <Link href='/chat' className='text-black dark:text-white font-bold  text-center'>
             Maybe Later
           </Link>
-          <button  type="submit" disabled={isLoading}  className={`dark:bg-white  bg-black text-white dark:text-black rounded-full font-bold py-2 px-4 ${isLoading ? 'opacity-50' : ''}`}>
+          <button  type="submit" disabled={loading}  className={`dark:bg-white  bg-black text-white dark:text-black rounded-full font-bold py-2 px-4 ${loading ? 'opacity-50' : ''}`}>
                Subscribe Now  
           </button>
       </div>

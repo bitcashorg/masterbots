@@ -5,16 +5,16 @@ import  type { WizardStepProps } from "./ui/wizard";
 
 export function ErrorContent({ lastStep, goTo, currentStep}: WizardStepProps) {
     const { error } = usePayment()
-
     const Retry = () => {
-        console.log({ lastStep, currentStep})
+        console.log({lastStep})
         goTo(lastStep)
     }
+
     return(
         <div
         className="flex flex-col w-full justify-center items-center inner-content  dark:bg-[url(/success-bg-dark.png)] bg-[url(/success-bg.png)] my-auto "
      >  
-            <div className="w-[240px] h-[240px] bg-red-400">
+            <div className="w-[240px] h-[240px] ">
                 <Lottie animationData={ErrorAnim}  />
              </div>
             <div className="flex flex-col w-[300px] text-black dark:text-white text-center">

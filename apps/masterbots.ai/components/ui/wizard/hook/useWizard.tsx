@@ -1,6 +1,8 @@
 'use client'
 import { useState, useRef, useEffect } from 'react';
 import type { MutableRefObject } from 'react';
+import { usePayment } from '@/lib/hooks/use-payment';
+import type { WizardStep } from '../index';
 interface UseWizardReturn {
   currentStep: number;
   Next: () => void;
@@ -13,13 +15,12 @@ interface UseWizardReturn {
   lastStep: number;
 }
 
-export const useWizard = (stepsLength: number, showModal: boolean): UseWizardReturn => {
+export const useWizard = (steps: WizardStep[], showModal: boolean): UseWizardReturn => {
 
   const [currentStep, setCurrentStep] = useState(0);
-  const [lastStep, setLastStep] = useState(currentStep - 1)
+  const [lastStep, setLastStep] = useState(0)
   const [isDialogOpen, setIsDialogOpen] = useState(showModal);
   const dialogRef = useRef<HTMLDialogElement | null>(null);
-
 
   useEffect(() => {
     const dialogNode = dialogRef.current
@@ -31,13 +32,12 @@ export const useWizard = (stepsLength: number, showModal: boolean): UseWizardRet
   }, [isDialogOpen])
 
 
+
+
   const Next = () => {
-    if (currentStep < stepsLength - 1) {
-      setLastStep(currentStep)
-      setCurrentStep((prevStep) => {
-        const newStep = prevStep + 1;
-        return newStep;
-      });
+    if (currentStep < steps.length - 1) {
+      setLastStep(currentStep);
+      setCurrentStep((prevStep) => prevStep + 1);
     } else {
       dialogRef.current?.close();
     }
@@ -46,9 +46,14 @@ export const useWizard = (stepsLength: number, showModal: boolean): UseWizardRet
   const Prev = () => {
     if (currentStep > 0) {
       setLastStep(currentStep)
-      setCurrentStep(currentStep - 1);
+      setCurrentStep((prevStep) => prevStep - 1);
     }
   };
+
+  const goTo = (index: number) => {
+    setLastStep(currentStep)
+    setCurrentStep(index)
+  }
 
   const open = () => {
     dialogRef.current?.showModal();
@@ -61,10 +66,7 @@ export const useWizard = (stepsLength: number, showModal: boolean): UseWizardRet
   };
 
 
-  const goTo = (index: number) => {
-    setLastStep(currentStep)
-    setCurrentStep(index)
-  }
+  
   
   return {
     currentStep,

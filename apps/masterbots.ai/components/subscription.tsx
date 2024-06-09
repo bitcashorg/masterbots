@@ -10,23 +10,12 @@ import { LoadingState } from './loading-state'
 import { Checkout } from './checkout'
 import { WrappedPaymentInformation } from './payment-information'
 import { usePayment } from '@/lib/hooks/use-payment'
+import { useRouter } from 'next/navigation'
 export default function Subscription({user}: {user: any}) {
-  const {
-    open,
-    dialogRef,
-    close,
-    Next,
-    Prev,
-    isDialogOpen,
-    goTo,
-    currentStep
-  } = useWizard(6, true)
 
-  const { handleSetUser } = usePayment()
+  const router = useRouter();
+  const { handleSetUser, handleDeleteCustomer} = usePayment()
   handleSetUser(user)
-  useEffect(() => {
-    open()
-  }, [isDialogOpen])
 
   const steps: WizardStep[] = [
     { component: Plans, name: 'Plans' },
@@ -36,18 +25,16 @@ export default function Subscription({user}: {user: any}) {
     { component: SuccessContent, name: 'Success' },
     { component: ErrorContent, name: 'Error' }
   ]
-
+  const handleCloseWizard = async () => {
+    const del = await handleDeleteCustomer(user.email)
+    if(del) return router.push('/chat'); 
+  }
   return (
     <div className="flex items-center justify-center h-screen">
       <DialogWizard
-        goTo={goTo}
-        dialogOpen={isDialogOpen}
-        close={close}
-        next={Next}
-        prev={Prev}
+        handleCloseWizard={handleCloseWizard}
+        dialogOpen={true}
         steps={steps}
-        dialogRef={dialogRef}
-        currentStep={currentStep}
         headerTitle="Masterbots Subscription plans"
       />
     </div>

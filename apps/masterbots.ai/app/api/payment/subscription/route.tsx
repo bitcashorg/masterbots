@@ -21,7 +21,9 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId)
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId, {
+      expand: ['charges.data.payment_method'],
+    });
 
     if (!paymentIntent) {
       return new Response(
@@ -62,6 +64,12 @@ export async function GET(req: NextRequest) {
         expand: ['items.data.plan', 'customer'] // Expand the plan details
       }
     )
+
+
+    // Extract the card details from the payment method
+    // const charge = paymentIntent.metadata; ;
+    // const card = charge.payment_method_details[0][0].;
+
 
     return new Response(JSON.stringify(subscription), {
       status: 200,

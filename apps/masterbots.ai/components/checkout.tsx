@@ -4,6 +4,7 @@ import type { WizardStepProps } from './ui/wizard';
 import { useElements, useStripe, Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { useEffect, useState } from 'react';
+import { StripeElement } from './stripe-element';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
@@ -12,10 +13,9 @@ export function InnerCheckout({ prev, goTo }: WizardStepProps) {
   const price = (plan.unit_amount / 100).toFixed(2);
   const stripe = useStripe();
   const elements = useElements();
-  const { handleSetError, confirmationToken, loading, handleSetLoading, paymentIntent } = usePayment();
+  const { handleSetError, confirmationToken, loading, handleSetLoading, secret, handlePaymentIntent } = usePayment();
   const [mounted, setMounted] = useState(false);
-  const secret = paymentIntent;
-
+ 
   useEffect(() => {
     if (stripe && elements) {
       setMounted(true);
@@ -57,6 +57,7 @@ export function InnerCheckout({ prev, goTo }: WizardStepProps) {
         return;
       } else {
         console.log({ paymentIntent })
+        handlePaymentIntent(paymentIntent);
         handleSetLoading(false);
         goTo(4);
       }
@@ -143,7 +144,6 @@ export function InnerCheckout({ prev, goTo }: WizardStepProps) {
             <span>${price}</span>
           </div>
         </div>
-        {/* <PaymentElement /> */}
       </div>
       <div className="dark:bg-black border border-t-black bg-white p-5 flex justify-center items-center space-x-10">
         <button
@@ -168,14 +168,10 @@ export function InnerCheckout({ prev, goTo }: WizardStepProps) {
 
 
 export function Checkout({ goTo, prev, next, close, lastStep, currentStep }: WizardStepProps) {
-  const { paymentIntent } = usePayment();
-  const options = {
-    clientSecret: paymentIntent,
-  };
-
+ 
   return (
-    <Elements stripe={stripePromise} options={options}>
+    <StripeElement>
       <InnerCheckout goTo={goTo} prev={prev} next={next} close={close} lastStep={lastStep} currentStep={currentStep} />
-    </Elements>
+    </StripeElement>
   );
 }

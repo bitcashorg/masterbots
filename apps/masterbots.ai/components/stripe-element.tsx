@@ -11,7 +11,7 @@ interface StripeElementProps {
 }
 
 export function StripeElement({ children }: StripeElementProps) {
-  const { paymentIntent } = usePayment()
+  const { secret } = usePayment()
   const [theme, setTheme] = useState<'night' | 'stripe' | 'flat'>('stripe');
 
   useEffect(() => {
@@ -24,7 +24,7 @@ export function StripeElement({ children }: StripeElementProps) {
   }, []);
   
   const options = {
-    clientSecret: paymentIntent,
+    clientSecret: secret,
     appearance: {
       theme: theme,
     },

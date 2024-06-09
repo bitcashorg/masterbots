@@ -1,6 +1,9 @@
 import Lottie from "lottie-react";
 import SuccessAnim from "@/lib/animations/success-green.json";
+import { usePayment } from "@/lib/hooks/use-payment";
 export function SuccessContent() {
+
+    const { paymentIntent } = usePayment()
     return(
         <div
         className="flex flex-col w-full justify-center items-center inner-content  dark:bg-[url(/success-bg-dark.png)] bg-[url(/success-bg.png)] my-auto "
@@ -11,7 +14,7 @@ export function SuccessContent() {
             <div className="flex flex-col w-[300px] text-black dark:text-white text-center">
                  <h2 className="font-medium text-[24px] ">Successfully subscribed to Masterbots Pro!</h2>
                  <span>We will send your receipt via email. </span>
-                 <span className="text-[#71717A]">Your subscription id is: <br/>1234-abcd-12ab-2345</span>
+                 <span className="text-[#71717A]">Your subscription payment intent id is: <br/>{paymentIntent?.id}</span>
             </div>
 
             <div className='dark:bg-black border mt-5  w-full border-t-black bg-white p-5 flex justify-center items-center space-x-4'>

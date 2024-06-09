@@ -1,5 +1,7 @@
 'use client'
 import { AnimatePresence, motion } from 'framer-motion'
+import { useWizard } from './hook/useWizard'
+import { useEffect } from 'react'
 
 export interface WizardStepProps {
   next: () => void
@@ -18,16 +20,10 @@ export interface WizardStep {
 
 interface DialogWizardProps {
   steps: WizardStep[]
-  dialogRef: React.RefObject<HTMLDialogElement>
   error?: string
-  next: () => void
-  prev: () => void
-  close: () => void,
   dialogOpen: boolean,
   headerTitle: string,
-  goTo: (index: number) => void,
-  currentStep?: number
-  lastStep?: number
+  handleCloseWizard: () => void
 }
 const animationStepProps = {
   initial: { opacity: 0, x: 200 },
@@ -38,17 +34,23 @@ const animationStepProps = {
 
 const DialogWizard: React.FC<DialogWizardProps> = ({
   steps,
-  dialogRef,
   error,
-  next,
-  prev,
-  close,
   dialogOpen,
   headerTitle,
-  goTo,
-  currentStep = 0,
-  lastStep = 0
+  handleCloseWizard
 }) => {
+
+  const {
+    dialogRef,
+    close,
+    Next,
+    Prev,
+    goTo,
+    lastStep,
+    currentStep
+  } = useWizard(steps, dialogOpen)
+   
+
   return (
     <AnimatePresence>
       {dialogOpen && (
@@ -69,20 +71,20 @@ const DialogWizard: React.FC<DialogWizardProps> = ({
           >
              <div className='flex justify-between items-center dark:bg-[#1E293B] bg-gray-200 dark:text-white text-black px-5 '>
                  <h3 className='font-medium text-[24px] capitalize'>{headerTitle}</h3>
-                  <button type='button' onClick={close}>  <span className='text-[44px] '>&times;</span> </button> 
+                  <button type='button' onClick={() => handleCloseWizard()}>  <span className='text-[44px] '>&times;</span> </button> 
             </div>
          {error ? (
           <motion.div key="wizard-error-container" {...animationStepProps}>
             <div>{error}</div>
           </motion.div>
         ) : (
-          // check for the currentStep and render the component accordingly 
+          
             steps
             ?.filter((_, index) => index === currentStep)
             .map((step) => (
               <motion.div key={step.name} {...animationStepProps}>
                 <div>
-                  <step.component next={next} prev={prev} close={close} 
+                  <step.component next={Next} prev={Prev} close={close} 
                   goTo={goTo} currentStep={currentStep} 
                   lastStep={lastStep}
                   />
@@ -91,6 +93,7 @@ const DialogWizard: React.FC<DialogWizardProps> = ({
             ))
           
         )}
+        
           </motion.dialog>
         </div>
         )}

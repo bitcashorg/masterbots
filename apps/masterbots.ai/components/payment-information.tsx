@@ -12,8 +12,6 @@ export function PaymentInformation({ goTo, prev, next}:WizardStepProps){
     handleSetCard, 
     handleSetError, 
     handleSetConfirmationToken,
-    handleSetStripe,
-    handleSetElements
    } = usePayment();
 
   const handlePaymentSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -53,8 +51,6 @@ export function PaymentInformation({ goTo, prev, next}:WizardStepProps){
     handleSetCard(cardData);
     handleSetConfirmationToken(confirmationToken?.id);
     setIsLoading(false);
-    handleSetStripe(stripe);
-    handleSetElements(elements);
     next();
   };
 
