@@ -7,7 +7,7 @@ interface ReceiptProps {
     intentid: string;
   }
   
-  const Receipt: React.FC<ReceiptProps> = ({ intentid }) => {
+  export const Receipt: React.FC<ReceiptProps> = ({ intentid }) => {
     const [data, setData] = useState<any>(null);
     useEffect(() => {
         const fetchPayment = async () => {
