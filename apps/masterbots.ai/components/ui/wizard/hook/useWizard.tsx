@@ -26,9 +26,10 @@ export const useWizard = (steps: WizardStep[], showModal: boolean): UseWizardRet
     const dialogNode = dialogRef.current
     if (isDialogOpen && !dialogNode?.open) {
       dialogNode?.showModal()
-    } else {
+    } else if (!isDialogOpen && dialogNode?.open) {
       dialogNode?.close()
     }
+    // console.log({ dialogNode })
   }, [isDialogOpen])
 
 
