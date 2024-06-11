@@ -1,7 +1,6 @@
 'use client'
 import DialogWizard from '@/components/ui/wizard'
 import type { WizardStep } from '@/components/ui/wizard'
-import { useWizard } from '@/components/ui/wizard/hook'
 import { useEffect } from 'react'
 import { Plans } from './plans'
 import { SuccessContent } from './succes-content'
@@ -11,6 +10,8 @@ import { Checkout } from './checkout'
 import { WrappedPaymentInformation } from './payment-information'
 import { usePayment } from '@/lib/hooks/use-payment'
 import { useRouter, usePathname } from 'next/navigation'
+
+
 export default function Subscription({user}: {user: any}) {
 
   const router = useRouter();

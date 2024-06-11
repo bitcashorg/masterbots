@@ -133,7 +133,7 @@ export function InnerCheckout({ prev, goTo }: WizardStepProps) {
               <span className="font-normal text-[11px]">
                 *calculated by country regulations.
               </span>
-              <a href="#" className="text-blue-400 text-[11px]">
+              <a href="/terms" className="text-blue-400 text-[11px]">
                 Terms and Conditions.
               </a>
             </div>
