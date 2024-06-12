@@ -9,22 +9,20 @@ import { LoadingState } from './loading-state'
 import { Checkout } from './checkout'
 import { WrappedPaymentInformation } from './payment-information'
 import { usePayment } from '@/lib/hooks/use-payment'
-import {  usePathname } from 'next/navigation'
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation'
 
-export default function Subscription({user}: {user: any}) {
-
-  const { handleSetUser, handleDeleteCustomer} = usePayment()
+export default function Subscription({ user }: { user: any }) {
+  const { handleSetUser, handleDeleteCustomer } = usePayment()
   handleSetUser(user)
 
-  const router = useRouter();
+  const router = useRouter()
   const pathname = usePathname()
 
   useEffect(() => {
     if (pathname !== '/c/p/payment') {
-      router.replace('/c/p/payment',  { shallow: true })
+      window.history.pushState({}, '', `/c/p/payment`)
     }
-  }, [router])
+  }, [pathname])
 
   const steps: WizardStep[] = [
     { component: Plans, name: 'Plans' },
@@ -37,9 +35,8 @@ export default function Subscription({user}: {user: any}) {
 
   const handleCloseWizard = async () => {
     const del = await handleDeleteCustomer(user.email)
-    if(del) return router.push('/chat'); 
+    if (del) return router.push('/chat')
   }
-
 
   return (
     <div className="flex items-center justify-center  ">

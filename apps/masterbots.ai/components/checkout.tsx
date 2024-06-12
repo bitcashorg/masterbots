@@ -57,8 +57,8 @@ export function InnerCheckout({ prev, goTo }: WizardStepProps) {
         return;
       } else {
         handlePaymentIntent(paymentIntent);
-        handleSetLoading(false);
-        router.replace(`/c/p/payment/${paymentIntent.id}`,  { shallow: true })
+        handleSetLoading(false);   
+         window.history.pushState({}, '', `/c/p/payment/${paymentIntent.id}`)
         goTo(4);
       }
     } catch (error: any) {

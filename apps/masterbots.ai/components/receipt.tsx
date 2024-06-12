@@ -96,7 +96,7 @@ export const Receipt: React.FC<ReceiptProps> = ({ intentid }) => {
               </span>
             </div>
             <h2 className="font-bold text-[32px]">${price}</h2>
-            {/* {card && ( */}
+            {card && (
             <div className="flex space-x-3 items-center bg-white dark:bg-[#1E293B] p-3">
               <IconCreditCard className="text-white fill-black dark:fill-white" />
               <div className="flex flex-col">
@@ -105,12 +105,12 @@ export const Receipt: React.FC<ReceiptProps> = ({ intentid }) => {
                   Dear<strong>{subscription?.customer?.name}</strong>,{' '}
                 </span>
                 <span>
-                  Subscribing with card ending with{' '}
+                You subscribed with the card{' '}
                   <strong>****{card.last4}</strong>
                 </span>
               </div>
             </div>
-            {/* )} */}
+             )} 
           </div>
           <div className="w-full mt-5">
             <div className="flex justify-between">
