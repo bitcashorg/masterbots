@@ -1,74 +1,76 @@
-import { IconHelp, IconCreditCard } from '@/components/ui/icons';
-import { usePayment } from '@/lib/hooks/use-payment';
-import type { WizardStepProps } from './ui/wizard';
-import { useElements, useStripe, Elements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
-import { useEffect, useState } from 'react';
-import { StripeElement } from './stripe-element';
-import { useRouter } from 'next/navigation';
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
+import { IconHelp, IconCreditCard } from '@/components/ui/icons'
+import { usePayment } from '@/lib/hooks/use-payment'
+import type { WizardStepProps } from './ui/wizard'
+import { useElements, useStripe, Elements } from '@stripe/react-stripe-js'
+import { useEffect, useState } from 'react'
+import { StripeElement } from './stripe-element'
 
 export function InnerCheckout({ prev, goTo }: WizardStepProps) {
-  const { card, plan} = usePayment();
-  const price = (plan.unit_amount / 100).toFixed(2);
-  const stripe = useStripe();
-  const elements = useElements();
-  const { handleSetError, confirmationToken, loading, handleSetLoading, secret, handlePaymentIntent } = usePayment();
-  const [mounted, setMounted] = useState(false);
-  const router = useRouter();
+  const { card, plan } = usePayment()
+  const price = (plan.unit_amount / 100).toFixed(2)
+  const stripe = useStripe()
+  const elements = useElements()
+  const {
+    handleSetError,
+    confirmationToken,
+    loading,
+    handleSetLoading,
+    secret,
+    handlePaymentIntent
+  } = usePayment()
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     if (stripe && elements) {
-      setMounted(true);
+      setMounted(true)
     }
-  }, [stripe, elements]);
+  }, [stripe, elements])
 
   function getCurrentOrTargetDate() {
-    const today = new Date();
+    const today = new Date()
     return today.toLocaleDateString('en-US', {
       month: 'long',
-      day: 'numeric',
-    });
+      day: 'numeric'
+    })
   }
 
   const submit = async () => {
     try {
-      handleSetLoading(true);
+      handleSetLoading(true)
       if (!stripe || !elements) {
-        handleSetLoading(false);
-        handleSetError('Stripe.js and Elements have not loaded');
-        goTo(5);
-        return;
+        handleSetLoading(false)
+        handleSetError('Stripe.js and Elements have not loaded')
+        goTo(5)
+        return
       }
 
       const { error, paymentIntent } = await stripe.confirmPayment({
         clientSecret: secret,
         confirmParams: {
-          confirmation_token: confirmationToken,
+          confirmation_token: confirmationToken
         },
-        redirect: "if_required"
-      });
+        redirect: 'if_required'
+      })
 
       if (error) {
-        console.error('Error creating payment intent:', error);
-        handleSetLoading(false);
-        handleSetError(error.message);
-        goTo(5);
-        return;
-      } 
-      
-        handlePaymentIntent(paymentIntent);
-        handleSetLoading(false);   
-         window.history.pushState({}, '', `/c/p/payment/${paymentIntent.id}`)
-        goTo(4);
-      
+        console.error('Error creating payment intent:', error)
+        handleSetLoading(false)
+        handleSetError(error.message)
+        goTo(5)
+        return
+      }
+
+      handlePaymentIntent(paymentIntent)
+      handleSetLoading(false)
+      window.history.pushState({}, '', `/c/p/payment/${paymentIntent.id}`)
+      goTo(4)
     } catch (error: any) {
-      console.error('Error creating payment intent:', error);
-      handleSetLoading(false);
-      handleSetError(error?.message);
-      goTo(5);
+      console.error('Error creating payment intent:', error)
+      handleSetLoading(false)
+      handleSetError(error?.message)
+      goTo(5)
     }
-  };
+  }
 
   return (
     <div className="h-full w-full dark:bg-[#18181B] bg-[#F4F4F5]">
@@ -148,12 +150,14 @@ export function InnerCheckout({ prev, goTo }: WizardStepProps) {
       </div>
       <div className="dark:bg-black border border-t-black bg-white p-5 flex justify-center items-center space-x-10">
         <button
+          type="button"
           onClick={() => prev()}
           className="text-black dark:text-white font-bold hover:border-b border-black pb-2 text-center"
         >
           Go Back
         </button>
         <button
+          type="button"
           disabled={loading}
           onClick={submit}
           className={`dark:bg-white bg-black text-white dark:text-black rounded-full font-bold py-2 px-4 ${
@@ -164,15 +168,27 @@ export function InnerCheckout({ prev, goTo }: WizardStepProps) {
         </button>
       </div>
     </div>
-  );
+  )
 }
 
-
-export function Checkout({ goTo, prev, next, close, lastStep, currentStep }: WizardStepProps) {
- 
+export function Checkout({
+  goTo,
+  prev,
+  next,
+  close,
+  lastStep,
+  currentStep
+}: WizardStepProps) {
   return (
     <StripeElement>
-      <InnerCheckout goTo={goTo} prev={prev} next={next} close={close} lastStep={lastStep} currentStep={currentStep} />
+      <InnerCheckout
+        goTo={goTo}
+        prev={prev}
+        next={next}
+        close={close}
+        lastStep={lastStep}
+        currentStep={currentStep}
+      />
     </StripeElement>
-  );
+  )
 }
