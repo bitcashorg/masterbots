@@ -1,7 +1,6 @@
 'use client'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useWizard } from './hook/useWizard'
-import { useEffect } from 'react'
 
 export interface WizardStepProps {
   next: () => void
@@ -10,19 +9,18 @@ export interface WizardStepProps {
   goTo: (index: number) => void
   lastStep: number
   currentStep: number
-  
 }
 
 export interface WizardStep {
   name: string
-  component: React.ComponentType<WizardStepProps>;
+  component: React.ComponentType<WizardStepProps>
 }
 
 interface DialogWizardProps {
   steps: WizardStep[]
   error?: string
-  dialogOpen: boolean,
-  headerTitle: string,
+  dialogOpen: boolean
+  headerTitle: string
   handleCloseWizard: () => void
 }
 const animationStepProps = {
@@ -39,25 +37,13 @@ const DialogWizard: React.FC<DialogWizardProps> = ({
   headerTitle,
   handleCloseWizard
 }) => {
+  const { dialogRef, close, Next, Prev, goTo, lastStep, currentStep } =
+    useWizard(steps, dialogOpen)
 
-  const {
-    dialogRef,
-    close,
-    Next,
-    Prev,
-    goTo,
-    lastStep,
-    currentStep
-  } = useWizard(steps, dialogOpen)
-   
-
-
- 
   return (
     <AnimatePresence>
       {dialogOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
-           
           <motion.div
             key="overlay"
             initial={{ opacity: 0 }}
@@ -71,35 +57,40 @@ const DialogWizard: React.FC<DialogWizardProps> = ({
             {...animationStepProps}
             className="rounded-lg shadow-lg  w-11/12 max-w-2xl z-50 bg-gray-100 dark:bg-[#27272A]  border border-black"
           >
-             <div className='flex justify-between items-center dark:bg-[#1E293B] bg-gray-200 dark:text-white text-black px-5 '>
-                 <h3 className='font-medium text-[24px] capitalize'>{headerTitle}</h3>
-                  <button type='button' onClick={() => handleCloseWizard()}>  <span className='text-[44px] '>&times;</span> </button> 
+            <div className="flex justify-between items-center dark:bg-[#1E293B] bg-gray-200 dark:text-white text-black px-5 ">
+              <h3 className="font-medium text-[24px] capitalize">
+                {headerTitle}
+              </h3>
+              <button type="button" onClick={() => handleCloseWizard()}>
+                {' '}
+                <span className="text-[44px] ">&times;</span>{' '}
+              </button>
             </div>
-         {error ? (
-          <motion.div key="wizard-error-container" {...animationStepProps}>
-            <div>{error}</div>
-          </motion.div>
-        ) : (
-          
-            steps
-            ?.filter((_, index) => index === currentStep)
-            .map((step) => (
-              <motion.div key={step.name} {...animationStepProps}>
-                <div>
-                  <step.component next={Next} prev={Prev} close={close} 
-                  goTo={goTo} currentStep={currentStep} 
-                  lastStep={lastStep}
-                  />
-                </div>
+            {error ? (
+              <motion.div key="wizard-error-container" {...animationStepProps}>
+                <div>{error}</div>
               </motion.div>
-            ))
-          
-        )}
-        
+            ) : (
+              steps
+                ?.filter((_, index) => index === currentStep)
+                .map(step => (
+                  <motion.div key={step.name} {...animationStepProps}>
+                    <div>
+                      <step.component
+                        next={Next}
+                        prev={Prev}
+                        close={close}
+                        goTo={goTo}
+                        currentStep={currentStep}
+                        lastStep={lastStep}
+                      />
+                    </div>
+                  </motion.div>
+                ))
+            )}
           </motion.dialog>
         </div>
-        )}
-     
+      )}
     </AnimatePresence>
   )
 }

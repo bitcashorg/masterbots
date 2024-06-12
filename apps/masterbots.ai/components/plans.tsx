@@ -31,7 +31,7 @@ export function Plans({ next }: PlansPros) {
 
   const handleCloseWizard = async () => {
     const del = await handleDeleteCustomer(user.email)
-    if(del) return router.push('/chat'); 
+    if (del) return router.push('/chat')
   }
 
   useEffect(() => {
@@ -56,9 +56,7 @@ export function Plans({ next }: PlansPros) {
         setPlans(data.plans)
       } catch (error) {
         console.error('Error fetching plans:', error)
-      } finally {
-        // setLoading(false); // Ensure loading is set to false after fetching data
-      }
+      } 
     }
 
     fetchPlans()
@@ -196,8 +194,8 @@ export function Plans({ next }: PlansPros) {
 
       <div className="dark:bg-black border  border-t-black bg-white p-5 flex justify-center items-center space-x-4">
         <button
-        type='button'
-        onClick={handleCloseWizard}
+          type="button"
+          onClick={handleCloseWizard}
           className="text-black dark:text-white font-bold  text-center"
         >
           Maybe Later

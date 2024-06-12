@@ -148,7 +148,7 @@ export const Receipt: React.FC<ReceiptProps> = ({ intentid }) => {
                 <span className="font-normal text-[11px]">
                   *calculated by country regulations.
                 </span>
-                <a href="#" className="text-blue-400 text-[11px]">
+                <a href="/term" className="text-blue-400 text-[11px]">
                   Terms and Conditions.
                 </a>
               </div>

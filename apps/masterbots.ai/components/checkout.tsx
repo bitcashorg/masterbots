@@ -55,12 +55,13 @@ export function InnerCheckout({ prev, goTo }: WizardStepProps) {
         handleSetError(error.message);
         goTo(5);
         return;
-      } else {
+      } 
+      
         handlePaymentIntent(paymentIntent);
         handleSetLoading(false);   
          window.history.pushState({}, '', `/c/p/payment/${paymentIntent.id}`)
         goTo(4);
-      }
+      
     } catch (error: any) {
       console.error('Error creating payment intent:', error);
       handleSetLoading(false);

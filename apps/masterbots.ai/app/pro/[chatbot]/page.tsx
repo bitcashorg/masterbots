@@ -35,7 +35,7 @@ export default async function BotThreadsPage({
 
   // session will always be defined
 
-  const userId = session?.user.id
+  const userId = session?.user?.id
   if (!userId) {
     throw new Error('User ID is missing.')
   }

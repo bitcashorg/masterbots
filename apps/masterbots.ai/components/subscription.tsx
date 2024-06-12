@@ -11,7 +11,7 @@ import { WrappedPaymentInformation } from './payment-information'
 import { usePayment } from '@/lib/hooks/use-payment'
 import { usePathname, useRouter } from 'next/navigation'
 
-export default function Subscription({ user }: { user: any }) {
+export default function Subscription({ user }: { user: { email: string } }) {
   const { handleSetUser, handleDeleteCustomer } = usePayment()
   const [openDialog, setOpenDialog] = useState(false)
   handleSetUser(user)

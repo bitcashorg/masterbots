@@ -129,7 +129,7 @@ export async function DELETE(req: NextRequest) {
 
   } catch (error: any) {
     console.error('Error deleting customer or subscriptions:', error);
-    const stripeError = error.raw || error;
+    const stripeError = error?.raw || error;
     return new Response(JSON.stringify({ error: stripeError.message }), {
       status: stripeError.statusCode || 500,
       headers: { 'Content-Type': 'application/json' },
