@@ -11,7 +11,7 @@ import { WrappedPaymentInformation } from './payment-information'
 import { usePayment } from '@/lib/hooks/use-payment'
 import { usePathname, useRouter } from 'next/navigation'
 
-export default function Subscription({ user }: { user: { email: string } }) {
+export default function Subscription({ user }: { user: { email: string; } }) {
   const { handleSetUser, handleDeleteCustomer } = usePayment()
   const [openDialog, setOpenDialog] = useState(false)
   handleSetUser(user)
@@ -29,7 +29,7 @@ export default function Subscription({ user }: { user: { email: string } }) {
   ]
 
   const handleCloseWizard = async () => {
-    const del = await handleDeleteCustomer(user.email)
+    const del = await handleDeleteCustomer(user?.email)
     if (del) return router.push('/chat')
   }
 
@@ -58,7 +58,7 @@ export default function Subscription({ user }: { user: { email: string } }) {
 
   useEffect(() => {
     CheckIfCustomerHasActiveSub();
-  }, []);
+  }, [openDialog]);
 
   return (
     <div className="flex items-center justify-center  ">

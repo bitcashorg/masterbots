@@ -14,19 +14,24 @@ export default async function IndexPage() {
   const jwt = session?.user?.hasuraJwt
 
   if (!jwt || isTokenExpired(jwt)) {
-    redirect(`/sign-in`)
+    redirect('/sign-in')
   }
 
   const threads = await getThreads({
     jwt,
     userId: session!.user.id
   })
+
+
+  const user = {
+    email: session.user.email || ''
+  }
  
   return (
     <>
       <ThreadPanel threads={threads} />
       <ChatThreadListPanel />
-      <Subscription user={session.user} />
+      <Subscription user={user} />
       
     </>
   )

@@ -10,6 +10,18 @@ type PlansPros = {
   close: () => void
   goTo: (index: number) => void
 }
+type PlanList = {
+  id: string
+  product: {
+    name: string
+    description: string
+  }
+  unit_amount: number
+  recurring: {
+    interval: string
+    trial_period_days: number
+  }
+}
 export function Plans({ next }: PlansPros) {
   const {
     handlePlan,
@@ -21,8 +33,9 @@ export function Plans({ next }: PlansPros) {
     handleSetLoading,
     handleDeleteCustomer
   } = usePayment()
+
   const [selectedPlan, setSelectedPlan] = useState(plan?.duration || 'free')
-  const [plans, setPlans] = useState<any[]>([])
+  const [plans, setPlans] = useState<PlanList[]>([])
   const router = useRouter()
 
   const handlePlanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
