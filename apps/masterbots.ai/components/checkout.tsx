@@ -5,7 +5,7 @@ import { useElements, useStripe, Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { useEffect, useState } from 'react';
 import { StripeElement } from './stripe-element';
-
+import { useRouter } from 'next/router';
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
 export function InnerCheckout({ prev, goTo }: WizardStepProps) {
@@ -15,7 +15,8 @@ export function InnerCheckout({ prev, goTo }: WizardStepProps) {
   const elements = useElements();
   const { handleSetError, confirmationToken, loading, handleSetLoading, secret, handlePaymentIntent } = usePayment();
   const [mounted, setMounted] = useState(false);
- 
+  const router = useRouter();
+
   useEffect(() => {
     if (stripe && elements) {
       setMounted(true);
@@ -56,9 +57,9 @@ export function InnerCheckout({ prev, goTo }: WizardStepProps) {
         goTo(5);
         return;
       } else {
-        console.log({ paymentIntent })
         handlePaymentIntent(paymentIntent);
         handleSetLoading(false);
+        router.replace(`/c/p/payment/${paymentIntent.id}`, undefined, { shallow: true })
         goTo(4);
       }
     } catch (error: any) {

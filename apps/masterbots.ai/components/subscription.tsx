@@ -9,19 +9,20 @@ import { LoadingState } from './loading-state'
 import { Checkout } from './checkout'
 import { WrappedPaymentInformation } from './payment-information'
 import { usePayment } from '@/lib/hooks/use-payment'
-import { useRouter, usePathname } from 'next/navigation'
-
+import {  usePathname } from 'next/navigation'
+import { useRouter } from 'next/router';
 
 export default function Subscription({user}: {user: any}) {
 
-  const router = useRouter();
-  const pathname = usePathname()
   const { handleSetUser, handleDeleteCustomer, secret} = usePayment()
   handleSetUser(user)
 
+  const router = useRouter();
+  const pathname = usePathname()
+
   useEffect(() => {
     if (pathname !== '/c/p/payment') {
-      router.replace('/c/p/payment', { shallow: true })
+      router.replace('/c/p/payment', undefined, { shallow: true })
     }
   }, [router])
 
