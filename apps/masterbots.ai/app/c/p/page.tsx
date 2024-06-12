@@ -13,7 +13,10 @@ export default async function IndexPage() {
   if (!jwt || isTokenExpired(jwt)) {
     redirect(`/sign-in`)
   }
+  const user = {
+    email: session.user.email || ''
+  }
   return (
-      <Subscription user={session.user} />
+      <Subscription user={user} />
   )
 }

@@ -50,8 +50,8 @@ export default function Subscription({ user }: { user: { email: string; } }) {
     }
     if (!data.active) {
       setOpenDialog(true)
-      if (pathname !== '/c/p/payment') {
-        window.history.pushState({}, '', `/c/p/payment`)
+      if (pathname !== '/c/p') {
+        window.history.pushState({}, '', `/c/p`)
       }
     }
   }
