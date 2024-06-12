@@ -7,7 +7,7 @@ import { StripeElement } from './stripe-element'
 
 export function InnerCheckout({ prev, goTo }: WizardStepProps) {
   const { card, plan } = usePayment()
-  const price = (plan.unit_amount / 100).toFixed(2)
+  const price = (plan.unit_amount ? plan.unit_amount / 100 : 0).toFixed(2);
   const stripe = useStripe()
   const elements = useElements()
   const {

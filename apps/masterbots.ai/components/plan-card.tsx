@@ -10,8 +10,7 @@ export default function PlanCard({
   plan
 }: PlanCardProps) {
   const duration = plan.unit_amount === 0 ? 'free' : plan.recurring.interval
-  const price = (plan.unit_amount / 100).toFixed(1)
-
+  const price = (plan.unit_amount ? plan.unit_amount / 100 : 0).toFixed(1)
   return (
     <div
       className={`border-gradient  w-full h-[275px] ${selectedPlan === duration ? 'selected' : ''}`}

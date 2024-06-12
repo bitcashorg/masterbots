@@ -174,6 +174,7 @@ export function Plans({ next }: PlansPros) {
               I have a&nbsp;<strong> Referral Code</strong>{' '}
             </span>
             <svg
+              aria-label="Arrow"
               width="8"
               height="15"
               viewBox="0 0 8 15"
