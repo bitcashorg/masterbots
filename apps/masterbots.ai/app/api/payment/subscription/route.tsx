@@ -1,11 +1,11 @@
 import type { NextRequest } from 'next/server'
 import Stripe from 'stripe'
 
-// Initialize Stripe with your secret key
 const stripe = new Stripe(process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY || '', {
   apiVersion: '2024-04-10'
 })
 
+// # Get Subscription Details by Payment Intent ID
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
@@ -90,3 +90,65 @@ export async function GET(req: NextRequest) {
     })
   }
 }
+
+// Use PUT to check if a customer has an active subscription or not by email address 
+export async function PUT(req: NextRequest) {
+  try {
+   const { email } = await req.json()
+    if (!email) {
+      return new Response(
+        JSON.stringify({ error: 'Email is required' }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      )
+    }
+
+    // Search for an existing customer by email
+    const customers = await stripe.customers.list({
+      email,
+      limit: 1
+    })
+
+    let customer
+    if (customers.data.length > 0) {
+      // Use the existing customer
+      customer = customers.data[0]
+    } else {
+      return new Response(
+        JSON.stringify({ error: 'Customer not found' }),
+        {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      )
+    }
+
+    const subscriptions = await stripe.subscriptions.list({
+      customer: customer.id,
+      status: 'active',
+      limit: 1
+    })
+
+    if (subscriptions.data.length > 0) {
+      return new Response(JSON.stringify({ active: true }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+    } else {
+      return new Response(JSON.stringify({ active: false }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      })
+    }
+  } catch (error: any) {
+    console.error('Error checking subscription:', error)
+    const stripeError = error?.raw || error
+    return new Response(JSON.stringify({ error: stripeError?.message }), {
+      status: stripeError?.statusCode || 500,
+      headers: { 'Content-Type': 'application/json' }
+    })
+  }
+}
+

@@ -1,7 +1,7 @@
 'use client'
 import DialogWizard from '@/components/ui/wizard'
 import type { WizardStep } from '@/components/ui/wizard'
-import { useEffect } from 'react'
+import { use, useEffect, useState } from 'react'
 import { Plans } from './plans'
 import { SuccessContent } from './succes-content'
 import { ErrorContent } from './error-content'
@@ -13,16 +13,11 @@ import { usePathname, useRouter } from 'next/navigation'
 
 export default function Subscription({ user }: { user: any }) {
   const { handleSetUser, handleDeleteCustomer } = usePayment()
+  const [openDialog, setOpenDialog] = useState(false)
   handleSetUser(user)
 
   const router = useRouter()
   const pathname = usePathname()
-
-  useEffect(() => {
-    if (pathname !== '/c/p/payment') {
-      window.history.pushState({}, '', `/c/p/payment`)
-    }
-  }, [pathname])
 
   const steps: WizardStep[] = [
     { component: Plans, name: 'Plans' },
@@ -38,11 +33,38 @@ export default function Subscription({ user }: { user: any }) {
     if (del) return router.push('/chat')
   }
 
+
+  async function CheckIfCustomerHasActiveSub(){
+  
+    const response = await fetch('/api/payment/subscription', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email: user.email }),
+    });
+    const data = await response.json();
+    if (data.error) {
+      console.error(data.error);
+      return;
+    }
+    if (!data.active) {
+      setOpenDialog(true)
+      if (pathname !== '/c/p/payment') {
+        window.history.pushState({}, '', `/c/p/payment`)
+      }
+    }
+  }
+
+  useEffect(() => {
+    CheckIfCustomerHasActiveSub();
+  }, []);
+
   return (
     <div className="flex items-center justify-center  ">
       <DialogWizard
         handleCloseWizard={() => handleCloseWizard()}
-        dialogOpen={true}
+        dialogOpen={openDialog}
         steps={steps}
         headerTitle="Masterbots Subscription plans"
       />

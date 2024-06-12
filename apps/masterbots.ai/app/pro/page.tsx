@@ -21,7 +21,7 @@ export default async function IndexPage() {
     jwt,
     userId: session!.user.id
   })
-
+ 
   return (
     <>
       <ThreadPanel threads={threads} />

@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// delete any intent that exist on the customer account and customer account itself 
+// # This is useful when you want to delete a customer and cancel all their subscriptions at once only if they have no active subscriptions 
 export async function DELETE(req: NextRequest) {
   try {
     const { email } = await req.json();
