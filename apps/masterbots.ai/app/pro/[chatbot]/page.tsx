@@ -18,22 +18,28 @@ export default async function BotThreadsPage({
   const session = await auth()
   // NOTE: maybe we should use same expiration time
   const jwt = session ? session.user?.hasuraJwt : null
-  if (!jwt || isTokenExpired(jwt)) {
+  if (!jwt) {
+    throw new Error('Session JWT is missing.')
+  }
+  if (isTokenExpired(jwt)) {
     redirect(`/sign-in`)
   }
-  const chatbot = await getChatbot({
-    chatbotName: botNames.get(params.chatbot),
-    jwt: session!.user?.hasuraJwt
-  })
+  const chatbotName = botNames.get(params.chatbot)
+  if (!chatbotName) {
+    throw new Error(`Chatbot name for ${params.chatbot} not found`)
+  }
+  const chatbot = await getChatbot({ chatbotName, jwt })
+
   if (!chatbot)
     throw new Error(`Chatbot ${botNames.get(params.chatbot)} not found`)
 
   // session will always be defined
-  const threads = await getThreads({
-    chatbotName: botNames.get(params.chatbot),
-    jwt: session!.user?.hasuraJwt,
-    userId: session!.user.id
-  })
+
+  const userId = session?.user.id
+  if (!userId) {
+    throw new Error('User ID is missing.')
+  }
+  const threads = await getThreads({ chatbotName, jwt, userId })
 
   // format all chatbot prompts as chatgpt 'system' messages
   const chatbotSystemPrompts: Message[] = chatbot.prompts.map(({ prompt }) => ({
