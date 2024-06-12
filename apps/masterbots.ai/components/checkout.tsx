@@ -5,7 +5,7 @@ import { useElements, useStripe, Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { useEffect, useState } from 'react';
 import { StripeElement } from './stripe-element';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
 export function InnerCheckout({ prev, goTo }: WizardStepProps) {
@@ -26,7 +26,6 @@ export function InnerCheckout({ prev, goTo }: WizardStepProps) {
   function getCurrentOrTargetDate() {
     const today = new Date();
     return today.toLocaleDateString('en-US', {
-      year: 'numeric',
       month: 'long',
       day: 'numeric',
     });
@@ -59,7 +58,7 @@ export function InnerCheckout({ prev, goTo }: WizardStepProps) {
       } else {
         handlePaymentIntent(paymentIntent);
         handleSetLoading(false);
-        router.replace(`/c/p/payment/${paymentIntent.id}`, undefined, { shallow: true })
+        router.replace(`/c/p/payment/${paymentIntent.id}`,  { shallow: true })
         goTo(4);
       }
     } catch (error: any) {

@@ -60,19 +60,19 @@ export const Receipt: React.FC<ReceiptProps> = ({ intentid }) => {
   }, [])
 
   function getDate(timestamp: number) {
-    let date;
+    let date
     if (timestamp === 0) {
-      date = new Date();
+      date = new Date()
     } else {
-      date = new Date(timestamp * 1000);
+      date = new Date(timestamp * 1000)
     }
-    const options: Intl.DateTimeFormatOptions = { 
-      month: 'long', 
+    const options: Intl.DateTimeFormatOptions = {
+      month: 'long',
       day: 'numeric'
-    };
-    const dateString = date.toLocaleString('en-US', options);
-  
-    return dateString;
+    }
+    const dateString = date.toLocaleString('en-US', options)
+
+    return dateString
   }
 
   const plan = subscription.plan
@@ -90,7 +90,7 @@ export const Receipt: React.FC<ReceiptProps> = ({ intentid }) => {
           <div className="text-left mt-5">
             <div className="w-40 leading-[14.88px]">
               <span className="text-[12px] font-bold text-[#71717A] w-10">
-                Pay Paid The{' '}
+                You Paid The{' '}
                 <span className="capitalize">{plan.interval + 'ly'}</span> Plan
                 Subscription
               </span>
@@ -120,8 +120,8 @@ export const Receipt: React.FC<ReceiptProps> = ({ intentid }) => {
                   <strong>{plan?.product?.name}</strong> subscription*
                 </span>
                 <span className="text-[#71717A] font-normal text-[11px]">
-                  *charged once every  {' '}
-                 <strong>  {getDate(subscription.current_period_start)}</strong>
+                  *charged once every{' '}
+                  <strong> {getDate(subscription.current_period_start)}</strong>
                 </span>
               </div>
               <span>${price}</span>

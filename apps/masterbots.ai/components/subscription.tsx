@@ -10,11 +10,11 @@ import { Checkout } from './checkout'
 import { WrappedPaymentInformation } from './payment-information'
 import { usePayment } from '@/lib/hooks/use-payment'
 import {  usePathname } from 'next/navigation'
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 export default function Subscription({user}: {user: any}) {
 
-  const { handleSetUser, handleDeleteCustomer, secret} = usePayment()
+  const { handleSetUser, handleDeleteCustomer} = usePayment()
   handleSetUser(user)
 
   const router = useRouter();
@@ -22,7 +22,7 @@ export default function Subscription({user}: {user: any}) {
 
   useEffect(() => {
     if (pathname !== '/c/p/payment') {
-      router.replace('/c/p/payment', undefined, { shallow: true })
+      router.replace('/c/p/payment',  { shallow: true })
     }
   }, [router])
 
@@ -34,19 +34,17 @@ export default function Subscription({user}: {user: any}) {
     { component: SuccessContent, name: 'Success' },
     { component: ErrorContent, name: 'Error' }
   ]
+
   const handleCloseWizard = async () => {
-    console.log({secret})
-    if(secret) {
     const del = await handleDeleteCustomer(user.email)
     if(del) return router.push('/chat'); 
-    }
-    router.push('/chat')
- 
   }
+
+
   return (
     <div className="flex items-center justify-center  ">
       <DialogWizard
-        handleCloseWizard={handleCloseWizard}
+        handleCloseWizard={() => handleCloseWizard()}
         dialogOpen={true}
         steps={steps}
         headerTitle="Masterbots Subscription plans"
