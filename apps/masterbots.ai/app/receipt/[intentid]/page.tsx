@@ -5,7 +5,7 @@ export default async function IndexPage(props: any) {
 
     return (
         <div className="flex justify-center items-center">
-        <Receipt intentid={intentid} />
+           <Receipt intentid={intentid} />
         </div>
     )
     }

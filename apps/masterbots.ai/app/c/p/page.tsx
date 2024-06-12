@@ -1,5 +1,8 @@
 
 import { auth } from '@/auth'
+import ChatThreadListPanel from '@/components/chat-thread-list-panel'
+import ThreadPanel from '@/components/thread-panel'
+import { getThreads } from '@/services/hasura'
 import { isTokenExpired } from 'mb-lib'
 import { redirect } from 'next/navigation'
 import Subscription from '@/components/subscription'
@@ -11,12 +14,25 @@ export default async function IndexPage() {
   const jwt = session?.user?.hasuraJwt
 
   if (!jwt || isTokenExpired(jwt)) {
-    redirect(`/sign-in`)
+    redirect('/sign-in')
   }
+
+  const threads = await getThreads({
+    jwt,
+    userId: session!.user.id
+  })
+
+
   const user = {
     email: session.user.email || ''
   }
+ 
   return (
+    <>
+      <ThreadPanel threads={threads} />
+      <ChatThreadListPanel />
       <Subscription user={user} />
+      
+    </>
   )
 }

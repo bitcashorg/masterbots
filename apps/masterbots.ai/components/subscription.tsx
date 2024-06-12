@@ -49,10 +49,7 @@ export default function Subscription({ user }: { user: { email: string; } }) {
       return;
     }
     if (!data.active) {
-      setOpenDialog(true)
-      if (pathname !== '/c/p') {
-        window.history.pushState({}, '', `/c/p`)
-      }
+      setOpenDialog(true);
     }
   }
 
