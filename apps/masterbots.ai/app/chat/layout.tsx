@@ -1,4 +1,4 @@
-import { ChatLayoutSection } from '@/components/chat-layout-section'
+import { ChatLayoutSection } from '@/components/chat/chat-layout-section'
 import { ResponsiveSidebar } from '@/components/sidebar-responsive'
 import FooterCT from '@/components/footer-ct'
 import NextTopLoader from 'nextjs-toploader'

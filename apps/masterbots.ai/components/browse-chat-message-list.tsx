@@ -1,19 +1,15 @@
 // Inspired by Chatbot-UI and modified to fit the needs of this project
 // @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Chat/ChatcleanMessage.tsx
 
-import { IconUser } from '@/components/ui/icons'
 import { cn, createMessagePairs } from '@/lib/utils'
 import { Chatbot, Message, User } from 'mb-genql'
-import Image from 'next/image'
-import Link from 'next/link'
-import React from 'react'
 import { BrowseChatMessage } from './browse-chat-message'
 import { MessagePair, convertMessage } from './browse-chat-messages'
-import { ChatAccordion } from './chat-accordion'
+import { ChatAccordion } from './chat/chat-accordion'
+import React from 'react'
 
 export function BrowseChatMessageList({
   messages,
-  user,
   chatbot,
   isThread = false
 }: {

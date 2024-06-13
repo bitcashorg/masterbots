@@ -36,7 +36,7 @@ const models = [
   { label: 'WordWare', value: AIModels.WordWare, logo: <IconWordware /> }
 ]
 
-export function Combobox() {
+export function ChatCombobox() {
   const { selectedModel, changeModel } = useModel()
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState(selectedModel as string)

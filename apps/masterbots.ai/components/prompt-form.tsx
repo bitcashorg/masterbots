@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/tooltip'
 import { IconArrowElbow } from '@/components/ui/icons'
 import { useThread } from '@/lib/hooks/use-thread'
-import { Combobox } from '@/components/chat-combobox'
+import {ChatCombobox} from '@/components/chat/chat-combobox'
 
 export interface PromptProps
   extends Pick<UseChatHelpers, 'input' | 'setInput'> {
@@ -63,7 +63,7 @@ export function PromptForm({
         className={`relative flex flex-col w-full px-8 overflow-hidden max-h-60 grow bg-background sm:rounded-md sm:border sm:px-12
       ${isOpenPopup && isFocused ? ' dark:border-mirage border-iron' : ''}`}
       >
-        <Combobox />
+        <ChatCombobox />
         <Textarea
           ref={inputRef}
           tabIndex={0}

@@ -3,9 +3,9 @@
 import { CreateMessage, useChat, type Message } from 'ai/react'
 import { useScroll } from 'framer-motion'
 
-import { ChatList } from '@/components/chat-list'
-import { ChatPanel } from '@/components/chat-panel'
-import { ChatScrollAnchor } from '@/components/chat-scroll-anchor'
+import { ChatList } from './chat-list'
+import { ChatPanel } from './chat-panel'
+import { ChatScrollAnchor } from './chat-scroll-anchor'
 import { cn, extractBetweenMarkers, scrollToBottomOfElement } from '@/lib/utils'
 
 import { useAtBottom } from '@/lib/hooks/use-at-bottom'

@@ -1,6 +1,6 @@
 'use client'
 
-import { getAllUserMessagesAsStringArray } from '@/components/chat'
+import { getAllUserMessagesAsStringArray } from '@/components/chat/chat'
 import {
   getChatbots,
   getChatbotsCount,
