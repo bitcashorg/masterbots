@@ -73,7 +73,8 @@ export function ChatCombobox() {
                   value={model.value}
                   onSelect={currentValue => {
                     {
-                      process.env.NEXT_PUBLIC_APP_ENV != 'prod'
+                      // This check is to prevent the feature from running in production
+                      process.env.NEXT_PUBLIC_APP_ENV !== 'prod'
                         ? (setValue(currentValue === value ? '' : currentValue), changeModel(currentValue as AIModels))
                         : ''
                     }
