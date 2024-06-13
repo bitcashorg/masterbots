@@ -73,9 +73,9 @@ export function ChatCombobox() {
                   value={model.value}
                   onSelect={currentValue => {
                     {
-                      true //TODO checking by subscription type (pro or non-pro)
+                      process.env.NEXT_PUBLIC_APP_ENV != 'prod'
                         ? (setValue(currentValue === value ? '' : currentValue), changeModel(currentValue as AIModels))
-                        : '' // TODO display pro subscripton modal here
+                        : ''
                     }
                     setOpen(false)
                   }}
