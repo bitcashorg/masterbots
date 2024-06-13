@@ -8,6 +8,7 @@ import { Chatbot } from 'mb-genql'
 import { useRouter } from 'next/navigation'
 import { createThread, saveNewMessage } from '@/services/hasura'
 import { useSession } from 'next-auth/react'
+import { useModel } from '@/lib/hooks/use-model'
 
 export default function NewChat({
   id,
@@ -17,11 +18,14 @@ export default function NewChat({
 }: NewChatProps) {
   const router = useRouter()
   const { data: session } = useSession()
+  const { selectedModel, clientType } = useModel()
   const { messages, reload, stop, input, setInput, append } = useChat({
     initialMessages,
     id,
     body: {
-      id
+      id,
+      model: selectedModel,
+      clientType
     },
     onResponse(response) {
       if (response.status === 401) {

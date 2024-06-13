@@ -14,12 +14,13 @@ import { ChatRequestOptions } from 'ai'
 import { uniqBy } from 'lodash'
 import { Chatbot } from 'mb-genql'
 import { useSession } from 'next-auth/react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import React, { useEffect } from 'react'
 import { toast } from 'react-hot-toast'
 import { useThread } from '@/lib/hooks/use-thread'
 import { botNames } from '@/lib/bots-names'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useModel } from '@/lib/hooks/use-model'
 
 export function Chat({
   initialMessages,
@@ -48,6 +49,7 @@ export function Chat({
 
   const params = useParams<{ chatbot: string; threadId: string }>()
   const isNewChat = Boolean(!params.threadId && !activeThread)
+  const { selectedModel, clientType } = useModel()
 
   const { messages, append, reload, stop, isLoading, input, setInput } =
     useChat({
@@ -59,7 +61,9 @@ export function Chat({
           : threadInitialMessages.filter(m => m.role === 'system'),
       id: params.threadId || isNewChat ? threadId : activeThread?.threadId,
       body: {
-        id: params.threadId || isNewChat ? threadId : activeThread?.threadId
+        id: params.threadId || isNewChat ? threadId : activeThread?.threadId,
+        model: selectedModel,
+        clientType
       },
       onResponse(response) {
         if (response.status === 401) {
