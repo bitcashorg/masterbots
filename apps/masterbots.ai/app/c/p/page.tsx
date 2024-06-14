@@ -24,7 +24,8 @@ export default async function IndexPage() {
 
 
   const user = {
-    email: session.user.email || ''
+    email: session.user.email || '',
+    name: session.user.name || '',
   }
  
   return (

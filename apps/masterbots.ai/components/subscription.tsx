@@ -9,15 +9,14 @@ import { LoadingState } from './loading-state'
 import { Checkout } from './checkout'
 import { WrappedPaymentInformation } from './payment-information'
 import { usePayment } from '@/lib/hooks/use-payment'
-import { usePathname, useRouter } from 'next/navigation'
+import {  useRouter } from 'next/navigation'
 
-export default function Subscription({ user }: { user: { email: string; } }) {
+export default function Subscription({ user }: { user: { email: string; name:string } }) {
   const { handleSetUser, handleDeleteCustomer } = usePayment()
-  const [openDialog, setOpenDialog] = useState(true)
+  const [openDialog, setOpenDialog] = useState(false)
   handleSetUser(user)
 
   const router = useRouter()
-  const pathname = usePathname()
 
   const steps: WizardStep[] = [
     { component: Plans, name: 'Plans' },

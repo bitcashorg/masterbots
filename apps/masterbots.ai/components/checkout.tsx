@@ -93,7 +93,7 @@ export function InnerCheckout({ prev, goTo }: WizardStepProps) {
           <h2 className="font-bold text-[32px]">${price}</h2>
           {card && (
             <div className="flex space-x-3 items-center bg-white dark:bg-[#1E293B] p-3">
-              <IconCreditCard className="text-white fill-black dark:fill-white" />
+              <IconCreditCard className=" fill-black dark:fill-white" />
               <span>
                 Subscribing with card ending with{' '}
                 <strong>****{card.last4}</strong>

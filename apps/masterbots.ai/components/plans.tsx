@@ -21,7 +21,7 @@ type PlanList = {
     trial_period_days: number
   }
 }
-export function Plans({ next }: PlansPros) {
+export function Plans({ next, goTo }: PlansPros) {
   const {
     handlePlan,
     handleSetSecret,
@@ -30,7 +30,8 @@ export function Plans({ next }: PlansPros) {
     user,
     loading,
     handleSetLoading,
-    handleDeleteCustomer
+    handleDeleteCustomer,
+    handleSetError
   } = usePayment()
 
   const [selectedPlan, setSelectedPlan] = useState(plan?.duration || 'free')
@@ -87,7 +88,8 @@ export function Plans({ next }: PlansPros) {
     }
     handlePlan(paymentPlan)
 
-    if (!secret) {
+    if (secret === '') {
+     
       const data = {
         planId: paymentPlan?.id,
         trialPeriodDays: paymentPlan?.recurring?.trial_period_days || 0,
@@ -97,6 +99,7 @@ export function Plans({ next }: PlansPros) {
         email: user.email,
         name: user.name
       }
+
       const response = await fetch('/api/payment/intent', {
         method: 'POST',
         headers: {
@@ -104,17 +107,22 @@ export function Plans({ next }: PlansPros) {
         },
         body: JSON.stringify(data)
       })
-
-      const {error, json} = await response.json()
-      if (json) {
-        handleSetSecret(json.client_secret)
+      const { error, client_secret } = await response.json()
+      if (client_secret) {
+        handleSetSecret(client_secret)
+        next()
       }
       if(error){
-        console.log({error})
+        handleSetError(error)
+        goTo(5)
       }
+
+      handleSetLoading(false)
+    }else{
+       next()
+       handleSetLoading(false)
     }
-    next()
-    handleSetLoading(false)
+   
   }
   return (
     <form className="flex flex-col  w-full " onSubmit={handleSubscription}>
