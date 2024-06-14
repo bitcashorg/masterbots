@@ -1,7 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import PlanCard from './plan-card'
-import Link from 'next/link'
 import { usePayment } from '../lib/hooks/use-payment'
 import { useRouter } from 'next/navigation'
 type PlansPros = {
@@ -106,9 +105,12 @@ export function Plans({ next }: PlansPros) {
         body: JSON.stringify(data)
       })
 
-      const json = await response.json()
+      const {error, json} = await response.json()
       if (json) {
         handleSetSecret(json.client_secret)
+      }
+      if(error){
+        console.log({error})
       }
     }
     next()

@@ -62,7 +62,7 @@ export function InnerCheckout({ prev, goTo }: WizardStepProps) {
 
       handlePaymentIntent(paymentIntent)
       handleSetLoading(false)
-      window.history.pushState({}, '', `/receipt/${paymentIntent.id}`)
+      window.history.pushState({}, '', `/u/s/subs/${paymentIntent.id}`)
       goTo(4)
     } catch (error: any) {
       console.error('Error creating payment intent:', error)
