@@ -19,6 +19,8 @@ export default async function IndexPage() {
     userId: session!.user.id
   })
 
+ 
+
   return (
     <>
       <ThreadPanel threads={threads} />
