@@ -752,26 +752,28 @@ function IconCreditCard({ className, ...props }: React.ComponentProps<'svg'>) {
   )
 }
 
-function IconArrowRightNoFill({ className, ...props }: React.ComponentProps<'svg'>) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      className={cn('h-4 w-4', className)}
-      viewBox="0 0 24 24"
-      {...props}
-      aria-label="Arrow  Right No Fill"
-    >
-      <path
-        d="M1.14282 13.537L7.23552 7.44426L1.14282 1.35156"
-        stroke="#09090B"
-        strokeWidth="1.52318"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
+
+
+  function IconArrowRightNoFill({ className, ...props }: React.ComponentProps<'svg'>) {
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        className={cn('h-4 w-4', className)}
+        viewBox="0 0 24 24"
+        {...props}
+        aria-label="Arrow"
+      >
+         <path
+         d="M1.14282 13.537L7.23552 7.44426L1.14282 1.35156"
+         stroke="#09090B"
+         stroke-width="1.52318"
+         stroke-linecap="round"
+         stroke-linejoin="round"
+       />
+      </svg>
+    )
+  }
 
 export {
   IconArrowDown, IconArrowElbow, IconArrowRight, IconArrowRightNoFill, IconCaretRight, IconChatMessage, IconChatSearch, IconCheck, IconChevronAngleRight, IconChevronUpDown, IconClose, IconCopy, IconCreditCard, IconDownload, IconDownVote, IconEdit, IconExternalLink, IconGitHub, IconHelp, IconMessage, IconMoon, IconNextChat,
