@@ -55,12 +55,7 @@ export async function POST(req: NextRequest) {
         headers: { 'Content-Type': 'application/json' },
       });
     
-    } else {
-      return new Response(JSON.stringify({ error:'Payment intent not found on the latest invoice' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
+    } 
   
   } catch (error: any) {
     console.error('Error creating subscription:', error);
