@@ -32,22 +32,24 @@ export default async function IndexPage(props: any) {
             profilePicture: session?.user.image
         } as unknown as User;
       }
+
+      const UserInfo = () => (
+          user ? <BrowseUserDetails user={user} /> : null
+        );
+
+        const SubscriptionHeader = () => (
+          <div className="text-center w-full dark:bg-[#09090B] bg-white py-5 ">
+            <h2 className="text-[36px] font-bold">
+              Masterbots Pro <br/> Subscription
+            </h2>
+          </div>
+        );
      
     return (
         <div className="flex flex-col w-full">
-            {
-                user ? (
-                  <BrowseUserDetails user={user} />  
-                )
-                : null
-            }
-            <div className="text-center w-full dark:bg-[#09090B]  bg-white py-5 ">
-                <h2 className="text-[36px] font-bold">
-                Masterbots Pro <br/> Subscription
-                </h2>
-            </div>
-            
-           <Receipt intentid={intentid} />
+            <UserInfo />
+            <SubscriptionHeader />
+            <Receipt intentid={intentid} />
         </div>
     )
     }
