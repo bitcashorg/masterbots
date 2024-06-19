@@ -608,7 +608,7 @@ function IconChevronAngleRight ({
   ...props
 }: React.ComponentProps<'svg'>) {
   return (
-<svg className={cn('h-4 w-4', className)} viewBox="0 0 8 15" {...props}>
+<svg className={cn('h-4 w-4', className)} viewBox="0 0 8 15" {...props} aria-label="Arrow">
 <path d="M5.14279 14.5372L11.2355 8.44446L5.14279 2.35176" stroke="#FAFAFA" stroke-width="1.52318" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
   )
@@ -702,6 +702,27 @@ function IconChevronAngleRight ({
     )
   }
 
+  function IconArrowRightNoFill({ className, ...props }: React.ComponentProps<'svg'>) {
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        className={cn('h-4 w-4', className)}
+        viewBox="0 0 24 24"
+        {...props}
+        aria-label="Arrow"
+      >
+         <path
+         d="M1.14282 13.537L7.23552 7.44426L1.14282 1.35156"
+         stroke="#09090B"
+         stroke-width="1.52318"
+         stroke-linecap="round"
+         stroke-linejoin="round"
+       />
+      </svg>
+    )
+  }
+
 export {
   IconChatMessage,
   IconDownVote,
@@ -737,5 +758,6 @@ export {
   IconChevronUpDown,
   IconChevronAngleRight,
   IconHelp,
-  IconCreditCard
+  IconCreditCard,
+  IconArrowRightNoFill
 }

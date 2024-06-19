@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react'
 import PlanCard from './plan-card'
 import { usePayment } from '../lib/hooks/use-payment'
 import { useRouter } from 'next/navigation'
+import { IconArrowRightNoFill } from '../components/ui/icons';
+
 type PlansPros = {
   next: () => void
   prev: () => void
@@ -196,22 +198,7 @@ export function Plans({ next, goTo }: PlansPros) {
             <span>
               I have a&nbsp;<strong> Referral Code</strong>{' '}
             </span>
-            <svg
-              aria-label="Arrow"
-              width="8"
-              height="15"
-              viewBox="0 0 8 15"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M1.14282 13.537L7.23552 7.44426L1.14282 1.35156"
-                stroke="#09090B"
-                stroke-width="1.52318"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
+            <IconArrowRightNoFill className="mt-2 w-5 h-5"  />
           </a>
         </div>
       </div>

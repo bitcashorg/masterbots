@@ -13,7 +13,7 @@ import {  useRouter } from 'next/navigation'
 
 export default function Subscription({ user }: { user: { email: string; name:string } }) {
   const { handleSetUser, handleDeleteCustomer } = usePayment()
-  const [openDialog, setOpenDialog] = useState(false)
+  const [openDialog, setOpenDialog] = useState(true)
   handleSetUser(user)
 
   const router = useRouter()
