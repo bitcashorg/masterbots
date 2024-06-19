@@ -57,11 +57,13 @@ export async function POST(req: NextRequest) {
     
     } 
   
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating subscription:', error);
-    const stripeError = error.raw || error;
-    return new Response(JSON.stringify({ error: stripeError.message }), {
-      status: stripeError.statusCode || 500,
+    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+    const statusCode = error instanceof Error && (error as any).raw?.statusCode ? (error as any).raw.statusCode : 500;
+  
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      status: statusCode,
       headers: { 'Content-Type': 'application/json' },
     });
   }
@@ -122,11 +124,13 @@ export async function DELETE(req: NextRequest) {
       headers: { 'Content-Type': 'application/json' },
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error deleting customer or subscriptions:', error);
-    const stripeError = error?.raw || error;
-    return new Response(JSON.stringify({ error: stripeError.message }), {
-      status: stripeError.statusCode || 500,
+    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+    const statusCode = error instanceof Error && (error as any).raw?.statusCode ? (error as any).raw.statusCode : 500;
+  
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      status: statusCode,
       headers: { 'Content-Type': 'application/json' },
     });
   }
