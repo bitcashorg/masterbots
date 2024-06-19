@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-
+import { formatSystemPrompts } from '@/lib/actions'
 import { auth } from '@/auth'
 import { Chat } from '@/components/chat'
 import { getThread } from '@/services/hasura'
@@ -24,15 +24,7 @@ export default async function ChatPage({ params }: ChatPageProps) {
 
   // NOTE: maybe this should be on actions.ts
   // format all chatbot prompts as chatgpt 'system' messages
-  const chatbotSystemPrompts: Message[] = thread.chatbot.prompts.map(
-    ({ prompt }) => ({
-      id: prompt.promptId.toString(),
-      role: 'system',
-      content: prompt.content,
-      createdAt: new Date()
-    })
-  )
-
+  const chatbotSystemPrompts: Message[] = formatSystemPrompts(thread.chatbot.prompts)
   const userPreferencesPrompts: Message[] = [
     {
       id: thread.threadId,
