@@ -77,7 +77,27 @@ export function Plans({ next, goTo }: PlansPros) {
     fetchPlans()
   }, [])
 
-  const handleSubscription = async (e: React.FormEvent<HTMLFormElement>) => {
+  const  handleSubscription = async (plan: any) => {
+    const response = await fetch('/api/payment/intent', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(plan)
+    })
+    const { error, client_secret } = await response.json()
+    if (client_secret) {
+      handleSetSecret(client_secret)
+      next()
+    }
+    if(error){
+      handleSetError(error)
+      goTo(5)
+    }
+  }
+
+  
+  const submitSubscription = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     handleSetLoading(true)
     const formData = new FormData(e.currentTarget)
@@ -90,8 +110,7 @@ export function Plans({ next, goTo }: PlansPros) {
     }
     handlePlan(paymentPlan)
 
-    if (secret === '') {
-     
+    if (secret === '') {  
       const data = {
         planId: paymentPlan?.id,
         trialPeriodDays: paymentPlan?.recurring?.trial_period_days || 0,
@@ -101,24 +120,7 @@ export function Plans({ next, goTo }: PlansPros) {
         email: user.email,
         name: user.name
       }
-
-      const response = await fetch('/api/payment/intent', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      })
-      const { error, client_secret } = await response.json()
-      if (client_secret) {
-        handleSetSecret(client_secret)
-        next()
-      }
-      if(error){
-        handleSetError(error)
-        goTo(5)
-      }
-
+      await handleSubscription(data)
       handleSetLoading(false)
     }else{
        next()
@@ -127,7 +129,7 @@ export function Plans({ next, goTo }: PlansPros) {
    
   }
   return (
-    <form className="flex flex-col  w-full " onSubmit={handleSubscription}>
+    <form className="flex flex-col  w-full " onSubmit={submitSubscription}>
       <div className="text-center pt-2">
         <span className="font-bold text-[16px]">
           Subscribe using{' '}
