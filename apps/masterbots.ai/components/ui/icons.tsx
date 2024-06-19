@@ -608,7 +608,7 @@ function IconChevronAngleRight ({
   ...props
 }: React.ComponentProps<'svg'>) {
   return (
-<svg className={cn('h-4 w-4', className)} viewBox="0 0 8 15" {...props} aria-label="Arrow">
+<svg className={cn('h-4 w-4', className)} viewBox="0 0 8 15" {...props} aria-label="Chevron Angle Right">
 <path d="M5.14279 14.5372L11.2355 8.44446L5.14279 2.35176" stroke="#FAFAFA" stroke-width="1.52318" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
   )
@@ -638,6 +638,7 @@ function IconChevronAngleRight ({
         className={cn('h-4 w-4', className)}
         viewBox="0 0 24 24"
         {...props}
+        aria-label="Help"
       >
                 <g clip-path="url(#clip0_1268_1560)">
                   <path
@@ -676,6 +677,7 @@ function IconChevronAngleRight ({
         viewBox="0 0 64 64" 
         enable-background="new 0 0 64 64"
         {...props}
+        aria-label="Credit Card"
       >
        
               <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -710,7 +712,7 @@ function IconChevronAngleRight ({
         className={cn('h-4 w-4', className)}
         viewBox="0 0 24 24"
         {...props}
-        aria-label="Arrow"
+        aria-label="Arrow  Right No Fill"
       >
          <path
          d="M1.14282 13.537L7.23552 7.44426L1.14282 1.35156"

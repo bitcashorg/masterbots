@@ -115,6 +115,7 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
     }
     catch (error) {
       console.error('Error deleting customer:', error)
+      throw new Error('Failed to delete customer. Please try again.');
     }
   }
 

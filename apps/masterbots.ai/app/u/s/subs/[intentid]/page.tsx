@@ -7,7 +7,14 @@ import { redirect } from "next/navigation";
 import { User } from 'mb-genql'
 import { getBrowseThreads } from "@/services/hasura";
 
-export default async function IndexPage(props: any) {
+
+interface IndexPageProps {
+    params: {
+      intentid: string;
+    };
+  }
+  
+export default async function IndexPage(props:IndexPageProps) {
     const { params:{ intentid } } = props
 
 
@@ -30,7 +37,7 @@ export default async function IndexPage(props: any) {
             username: session?.user.name,
             email: session?.user.email,
             profilePicture: session?.user.image
-        } as unknown as User;
+        } as  User;
       }
 
       const UserInfo = () => (
