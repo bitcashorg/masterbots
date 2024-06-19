@@ -23,6 +23,7 @@ export function InnerCheckout({ prev, goTo }: WizardStepProps) {
   useEffect(() => {
     if (stripe && elements) {
       setMounted(true)
+      console.log('Stripe.js and Elements have loaded.')
     }
   }, [stripe, elements])
 
@@ -40,7 +41,6 @@ export function InnerCheckout({ prev, goTo }: WizardStepProps) {
       if (!stripe || !elements) {
         handleSetLoading(false)
         handleSetError('Stripe.js and Elements have not loaded')
-        goTo(5)
         return
       }
 
@@ -56,7 +56,6 @@ export function InnerCheckout({ prev, goTo }: WizardStepProps) {
         console.error('Error creating payment intent:', error)
         handleSetLoading(false)
         handleSetError(error.message)
-        goTo(5)
         return
       }
 
@@ -68,7 +67,6 @@ export function InnerCheckout({ prev, goTo }: WizardStepProps) {
       console.error('Error creating payment intent:', error)
       handleSetLoading(false)
       handleSetError(error?.message)
-      goTo(5)
     }
   }
 

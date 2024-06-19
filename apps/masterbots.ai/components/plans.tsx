@@ -34,7 +34,9 @@ export function Plans({ next, goTo }: PlansPros) {
     loading,
     handleSetLoading,
     handleDeleteCustomer,
-    handleSetError
+    handleSetError,
+    handleSetStripePublicKey,
+    handleSetStripeSecret
   } = usePayment()
 
   const [selectedPlan, setSelectedPlan] = useState(plan?.duration || 'free')
@@ -66,6 +68,8 @@ export function Plans({ next, goTo }: PlansPros) {
 
         const data = await response.json()
         // remove the free plan from the list
+        handleSetStripePublicKey(data.stripe_publishable)
+        handleSetStripeSecret(data.stripe_secret)
         data.plans = data.plans.filter((plan: any) => plan.unit_amount !== 0)
         // show the plans in ascending order
         data.plans.sort((a: any, b: any) => b.unit_amount - a.unit_amount)
@@ -93,7 +97,6 @@ export function Plans({ next, goTo }: PlansPros) {
     }
     if(error){
       handleSetError(error)
-      goTo(5)
     }
   }
 

@@ -1,33 +1,41 @@
-import React,{useState} from 'react';
+import React,{useEffect, useState} from 'react';
 import { StripeElement } from "./stripe-element";
 import { PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { usePayment } from "@/lib/hooks/use-payment";
 import { WizardStepProps } from "@/components/ui/wizard";
 
-export function PaymentInformation({ goTo, prev, next}:WizardStepProps){
-  const [isLoading, setIsLoading] = useState(false)
+export function PaymentInformation({  prev, next}:WizardStepProps){
+ 
   const stripe = useStripe();
   const elements = useElements();
   const { 
     handleSetCard, 
     handleSetError, 
     handleSetConfirmationToken,
+    loading:isLoading,
+    handleSetLoading,
+    user
    } = usePayment();
+
+   
+   useEffect(() => {
+    if (stripe && elements) {
+      console.log('Stripe.js and Elements have loaded.')
+    }
+  }, [stripe, elements])
 
   const handlePaymentSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!stripe || !elements) {
-      setIsLoading(false);
+      handleSetLoading(false);
       handleSetError("Stripe.js  and Element has not loaded")
-      goTo(5);
       return;
     }
-    setIsLoading(true);
+    handleSetLoading(true);
     const {error: submitError} = await elements.submit();
     if (submitError) {
-      setIsLoading(false);
+      handleSetLoading(false);
       handleSetError(submitError.message)
-      goTo(5);
     }
     
     const {error, confirmationToken} = await stripe.createConfirmationToken({
@@ -35,22 +43,21 @@ export function PaymentInformation({ goTo, prev, next}:WizardStepProps){
       params: {
         payment_method_data: {
           billing_details: {
-            name: 'Jenny Rosen',
+            name: user.name,
           }
         }
       }
     });
 
     if (error) {
-      setIsLoading(false);
+      handleSetLoading(false);
       handleSetError(error.message)
-      goTo(5);
     }
 
     const cardData = confirmationToken?.payment_method_preview.card;
     handleSetCard(cardData);
     handleSetConfirmationToken(confirmationToken?.id);
-    setIsLoading(false);
+    handleSetLoading(false);
     next();
   };
 

@@ -3,17 +3,17 @@ import { loadStripe } from '@stripe/stripe-js'
 import { usePayment } from '@/lib/hooks/use-payment'
 import React, { useEffect, useState } from 'react'
 
-const stripePromise = loadStripe(
-  process.env.STRIPE_PUBLISHABLE_KEY || ''
-)
+
 interface StripeElementProps {
   children: React.ReactNode
 }
 
 export function StripeElement({ children }: StripeElementProps) {
-  const { secret } = usePayment()
+  const { secret, stripe_public_key} = usePayment()
   const [theme, setTheme] = useState<'night' | 'stripe' | 'flat'>('stripe');
-
+  const stripePromise = loadStripe(
+    stripe_public_key || ''
+  )
   useEffect(() => {
     const storedTheme = localStorage.getItem('theme');
     if (storedTheme === 'dark') {

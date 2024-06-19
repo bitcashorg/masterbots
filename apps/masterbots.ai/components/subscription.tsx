@@ -22,9 +22,7 @@ export default function Subscription({ user }: { user: { email: string; name:str
     { component: Plans, name: 'Plans' },
     { component: WrappedPaymentInformation, name: 'Payment' },
     { component: Checkout, name: 'Checkout' },
-    { component: LoadingState, name: 'Loading' },
     { component: SuccessContent, name: 'Success' },
-    { component: ErrorContent, name: 'Error' }
   ]
 
   const handleCloseWizard = async () => {

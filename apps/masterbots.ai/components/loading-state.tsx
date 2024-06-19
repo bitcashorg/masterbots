@@ -13,11 +13,11 @@ export function LoadingState() {
 payment</h2>
             </div>
 
-            <div className='dark:bg-black border mt-5 w-full border-t-black bg-white p-5 flex justify-center items-center space-x-4'>
+            {/* <div className='dark:bg-black border mt-5 w-full border-t-black bg-white p-5 flex justify-center items-center space-x-4'>
                 <button  type='submit'  className=' bg-gray-400 text-white dark:text-black rounded-full font-bold py-2 px-6 min-w-[10rem]'>
                 Paying subscription
                 </button>
-            </div>
+            </div> */}
         
     </div>
     )

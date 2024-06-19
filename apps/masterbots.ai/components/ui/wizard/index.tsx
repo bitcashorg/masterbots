@@ -1,6 +1,9 @@
 'use client'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useWizard } from './hook/useWizard'
+import { ErrorContent } from '@/components/error-content'
+import { LoadingState } from '@/components/loading-state'
+import { usePayment } from '@/lib/hooks/use-payment'
 
 export interface WizardStepProps {
   next: () => void
@@ -32,13 +35,44 @@ const animationStepProps = {
 
 const DialogWizard: React.FC<DialogWizardProps> = ({
   steps,
-  error,
   dialogOpen,
   headerTitle,
   handleCloseWizard
 }) => {
   const { dialogRef, close, Next, Prev, goTo, lastStep, currentStep } =
     useWizard(steps, dialogOpen)
+
+    const { error, loading } = usePayment()
+
+    // a function to check if there is an error  display ErrorContent, loading state or the steps component     
+
+    const Content = () => {
+      if (error && error !== '') {
+        console.log(currentStep)
+        return <ErrorContent />
+      }
+
+      if(loading){
+        return <LoadingState />
+      }
+      
+        return steps
+          ?.filter((_, index) => index === currentStep)
+          .map(step => (
+            <motion.div key={step.name} {...animationStepProps}>
+              <div>
+                <step.component
+                  next={Next}
+                  prev={Prev}
+                  close={close}
+                  goTo={goTo}
+                  currentStep={currentStep}
+                  lastStep={lastStep}
+                />
+              </div>
+            </motion.div>
+          ))    
+    }
 
   return (
     <AnimatePresence>
@@ -66,7 +100,7 @@ const DialogWizard: React.FC<DialogWizardProps> = ({
                 <span className="text-[44px] ">&times;</span>{' '}
               </button>
             </div>
-            {error ? (
+            {/* {error ? (
               <motion.div key="wizard-error-container" {...animationStepProps}>
                 <div>{error}</div>
               </motion.div>
@@ -87,7 +121,9 @@ const DialogWizard: React.FC<DialogWizardProps> = ({
                     </div>
                   </motion.div>
                 ))
-            )}
+            )} */}
+
+            <Content />
           </motion.dialog>
         </div>
       )}

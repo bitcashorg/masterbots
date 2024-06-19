@@ -1,15 +1,13 @@
 import Lottie from "lottie-react";
 import ErrorAnim from "@/lib/animations/loading-error.json";
 import { usePayment } from "@/lib/hooks/use-payment";
-import  type { WizardStepProps } from "./ui/wizard";
 
-export function ErrorContent({ lastStep, goTo, currentStep}: WizardStepProps) {
-    const { error } = usePayment()
+export function ErrorContent() {
+    const { error, handleSetError} = usePayment()
+
     const Retry = () => {
-        console.log({lastStep})
-        goTo(lastStep)
+        handleSetError('')
     }
-
     return(
         <div
         className="flex flex-col w-full justify-center items-center inner-content  dark:bg-[url(/success-bg-dark.png)] bg-[url(/success-bg.png)] my-auto "

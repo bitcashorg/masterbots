@@ -42,6 +42,10 @@ interface PaymentContextProps {
   secret: string
   handleSetSecret: (secret: string) => void
   handleDeleteCustomer: (email: string) => Promise<any>
+  stripe_secret: string
+  handleSetStripeSecret: (stripe_secret: string) => void
+  stripe_public_key: string
+  handleSetStripePublicKey: (stripe_public_key: string) => void
 }
 
 const PaymentContext = createContext<PaymentContextProps | undefined>(undefined)
@@ -72,6 +76,8 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
   })
   const [confirmationToken, setConfirmationToken] = useState<any>("")
   const [secret, setSecret] = useState<string>("")
+  const [stripe_secret, setStripeSecret] = useState<string>('')
+  const [stripe_public_key, setStripePublicKey] = useState<string>('')
   
   
   const handleSetConfirmationToken = (token: string | undefined ) => {
@@ -119,10 +125,21 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
     }
   }
 
+  const handleSetStripeSecret = (stripe_secret: string) => {
+    setStripeSecret(stripe_secret)
+  }
+  const handleSetStripePublicKey = (stripe_public_key: string) => {
+    setStripePublicKey(stripe_public_key)
+  }
+
 
   return (
     <PaymentContext.Provider
       value={{
+        handleSetStripeSecret,
+        handleSetStripePublicKey,
+        stripe_secret,
+        stripe_public_key,
         handleDeleteCustomer,
         secret,
         handleSetSecret,
