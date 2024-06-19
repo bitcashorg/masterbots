@@ -4,7 +4,7 @@ import { usePayment } from '@/lib/hooks/use-payment'
 import React, { useEffect, useState } from 'react'
 
 const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''
+  process.env.STRIPE_PUBLISHABLE_KEY || ''
 )
 interface StripeElementProps {
   children: React.ReactNode
