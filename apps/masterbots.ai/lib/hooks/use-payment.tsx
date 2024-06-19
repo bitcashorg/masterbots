@@ -1,12 +1,30 @@
 import React, { createContext, useState } from 'react'
 
+type CardProps = {
+  last4: string
+} | undefined
+type planProps = {
+  id: string
+  product: {
+    name: string
+    description: string
+  }
+  unit_amount: number
+  recurring: {
+    interval: string
+    trial_period_days: number
+  }
+  duration: string
+} | undefined
+  
+
 interface PaymentContextProps {
-  card: any
+  card: CardProps | null
   loading: boolean
   error: any
-  plan: any
-  handlePlan: (plan: any) => void
-  handleSetCard: (card: any) => void
+  plan: planProps  | null
+  handlePlan: (plan: planProps) => void
+  handleSetCard: (card: CardProps) => void
   handlePaymentIntent: (paymentIntent: any) => void
   handleSetError: (error: any) => void
   paymentIntent: any
@@ -34,7 +52,7 @@ interface PaymentProviderProps {
 export function usePayment() {
   const context = React.useContext(PaymentContext)
   if (!context) {
-    throw new Error('useSidebarContext must be used within a SidebarProvider')
+    throw new Error('usePayment must be used within a PaymentProvider')
   }
   return context
 }
@@ -84,14 +102,20 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
   }
 
   const handleDeleteCustomer = async (email: string) => {
-    const response = await fetch('/api/payment/intent', {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email }),
-    });
-    return response.json();
+    try {
+      const response = await fetch('/api/payment/intent', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+      const data = await response.json();
+      return data;
+    }
+    catch (error) {
+      console.error('Error deleting customer:', error)
+    }
   }
 
 

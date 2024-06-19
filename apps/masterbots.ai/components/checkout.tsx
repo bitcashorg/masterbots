@@ -7,7 +7,7 @@ import { StripeElement } from './stripe-element'
 
 export function InnerCheckout({ prev, goTo }: WizardStepProps) {
   const { card, plan } = usePayment()
-  const price = (plan.unit_amount ? plan.unit_amount / 100 : 0).toFixed(2);
+  const price = (plan?.unit_amount ? plan?.unit_amount / 100 : 0).toFixed(2);
   const stripe = useStripe()
   const elements = useElements()
   const {
@@ -85,7 +85,7 @@ export function InnerCheckout({ prev, goTo }: WizardStepProps) {
             <span className="text-[12px] font-bold text-[#71717A] w-10">
               Pay The{' '}
               <span className="capitalize">
-                {plan.recurring.interval + 'ly'}
+                {plan?.recurring.interval + 'ly'}
               </span>{' '}
               Plan Subscription
             </span>
@@ -106,7 +106,7 @@ export function InnerCheckout({ prev, goTo }: WizardStepProps) {
             <div className="flex flex-col">
               <span>
                 {' '}
-                <strong>{plan.product.name}</strong> subscription*
+                <strong>{plan?.product.name}</strong> subscription*
               </span>
               <span className="text-[#71717A] font-normal text-[11px]">
                 *charged once every {getCurrentOrTargetDate()}

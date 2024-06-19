@@ -21,7 +21,8 @@ type PlanList = {
   recurring: {
     interval: string
     trial_period_days: number
-  }
+  },
+  duration: string
 }
 export function Plans({ next, goTo }: PlansPros) {
   const {
