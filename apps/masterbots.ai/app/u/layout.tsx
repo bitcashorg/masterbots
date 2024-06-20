@@ -11,7 +11,7 @@ export default async function BrowseLayout({ children }: BrowseLayoutProps) {
     <BrowseProvider>
       <NextTopLoader color="#1ED761" initialPosition={0.20} />
       <main className="flex flex-col h-[calc(100vh-theme(spacing.16))]">
-        <section className="overflow-auto group scrollbar w-full">
+        <section className="w-full overflow-auto group scrollbar">
           {children}
           <FooterCT />
         </section>
