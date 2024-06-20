@@ -6,7 +6,7 @@ import { PromptForm } from '@/components/prompt-form'
 import { ButtonScrollToBottom } from '@/components/button-scroll-to-bottom'
 import { IconRefresh, IconShare, IconStop } from '@/components/ui/icons'
 import { FooterText } from '@/components/footer'
-import { ChatShareDialog } from '@/components/chat-share-dialog'
+import { ChatShareDialog } from './chat-share-dialog'
 import { Chatbot } from 'mb-genql'
 import { cn } from '@/lib/utils'
 import { useThread } from '@/lib/hooks/use-thread'
@@ -76,7 +76,7 @@ export function ChatPanel({
               </Button>
             ) : (
               messages?.length >= 2 && (
-                <div className="flex space-x-2">
+                <div className="flex space-x-2 bg-inherit">
                   <Button variant="outline" onClick={() => reload()}>
                     <IconRefresh className="mr-2" />
                     Regenerate response

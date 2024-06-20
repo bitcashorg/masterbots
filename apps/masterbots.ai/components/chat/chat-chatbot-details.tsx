@@ -3,7 +3,7 @@
 import { Chatbot } from 'mb-genql'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Separator } from './ui/separator'
+import { Separator } from '../ui/separator'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useEffect, useState } from 'react'
 import { getCategory, getThreads } from '@/services/hasura'
@@ -56,7 +56,7 @@ export default function ChatChatbotDetails() {
           <div className="text-2xl font-black">
             {activeChatbot ? activeChatbot?.name : 'Welcome to Masterbots!'}
           </div>
-          <Separator className="dark:bg-mirage bg-gray-300" />
+          <Separator className="bg-gray-300 dark:bg-mirage" />
           <div className="grow flex flex-col justify-between min-h-[137px]">
             <div className="text-xl font-semibold">
               {activeChatbot
@@ -84,7 +84,7 @@ export default function ChatChatbotDetails() {
         </div>
         <div className="size-24 absolute border-[4px] border-[#388DE2] right-0 top-0 translate-x-[25%] rounded-full translate-y-[-25%] dark:bg-[#131316] bg-white">
           <Image
-            className="size-full transition-opacity duration-300 rounded-full select-none ring-1 ring-zinc-100/10 hover:opacity-80"
+            className="transition-opacity duration-300 rounded-full select-none size-full ring-1 ring-zinc-100/10 hover:opacity-80"
             src={activeChatbot?.avatar || randomChatbot?.avatar || ''}
             alt={activeChatbot?.avatar || randomChatbot?.avatar || 'ChatAvatar'}
             height={108}

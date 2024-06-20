@@ -3,8 +3,8 @@
 import { useThread } from '@/lib/hooks/use-thread'
 import { IconClose } from './ui/icons'
 import { cn, scrollToBottomOfElement } from '@/lib/utils'
-import { Chat } from './chat'
-import { ChatList } from './chat-list'
+import { Chat } from '@/components/chat/chat'
+import { ChatList } from '@/components/chat/chat-list'
 import { useEffect, useRef } from 'react'
 import { useAtBottom } from '@/lib/hooks/use-at-bottom'
 import { useScroll } from 'framer-motion'
@@ -79,7 +79,7 @@ export function ThreadPopup({ className }: { className?: string }) {
               ? threadTitleHeading + '…'
               : threadTitle || 'wat'}
             {threadTitleSubHeading ? (
-              <div className="opacity-50 overflow-hidden text-sm text-left">
+              <div className="overflow-hidden text-sm text-left opacity-50">
                 {threadTitleSubHeading}
               </div>
             ) : (

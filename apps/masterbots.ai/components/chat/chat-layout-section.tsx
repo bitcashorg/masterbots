@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { ThreadPopup } from './thread-popup'
+import { ThreadPopup } from '../thread-popup'
 import { useThread } from '@/lib/hooks/use-thread'
 
 export function ChatLayoutSection({ children }: { children: React.ReactNode }) {

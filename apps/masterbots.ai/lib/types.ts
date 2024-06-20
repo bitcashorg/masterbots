@@ -1,4 +1,5 @@
 import { type Message } from 'ai'
+import { ChatCompletionMessageParam } from 'openai/resources'
 
 export interface Chat extends Record<string, any> {
   id: string
@@ -13,6 +14,16 @@ export interface Chat extends Record<string, any> {
 export type ServerActionResult<Result> = Promise<
   | Result
   | {
-      error: string
-    }
+    error: string
+  }
 >
+
+export type JSONResponseStream = {
+  id: string
+  model: string
+  messages: ChatCompletionMessageParam[]
+  previewToken: string
+}
+
+export type AiClientType = 'OpenAI' | 'Anthropic' | 'Perplexity' | 'WordWare'
+
