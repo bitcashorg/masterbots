@@ -4,12 +4,9 @@
 import { Message } from 'ai'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
-import Image from 'next/image'
 import { cleanPrompt, cn } from '@/lib/utils'
 import { CodeBlock } from '@/components/ui/codeblock'
 import { MemoizedReactMarkdown } from '@/components/markdown'
-import { IconOpenAI, IconUser } from '@/components/ui/icons'
-import { ChatMessageActions } from './chat-message-actions'
 import { Chatbot } from 'mb-genql'
 
 export interface ChatMessageProps {
@@ -26,7 +23,7 @@ export function BrowseChatMessage({
 
   return (
     <div className={cn('group relative my-4 flex items-start')} {...props}>
-      <div className="flex-1 px-1 md:ml-4 space-y-2 overflow-hidden">
+      <div className="flex-1 px-1 space-y-2 overflow-hidden md:ml-4">
         <MemoizedReactMarkdown
           className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 !max-w-5xl"
           remarkPlugins={[remarkGfm, remarkMath]}

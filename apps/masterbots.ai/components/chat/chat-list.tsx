@@ -1,11 +1,11 @@
 import { type Message } from 'ai'
 
-import { ChatMessage } from '@/components/chat-message'
+import { ChatMessage } from './chat-message'
 import { cn, createMessagePairs } from '@/lib/utils'
 import { Chatbot } from 'mb-genql'
 import React from 'react'
 import { ChatAccordion } from './chat-accordion'
-import { ShortMessage } from './short-message'
+import { ShortMessage } from '../short-message'
 import { useThread } from '@/lib/hooks/use-thread'
 
 export interface ChatList {

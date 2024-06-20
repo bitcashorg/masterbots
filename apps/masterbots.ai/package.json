@@ -13,6 +13,7 @@
     "format:check": "prettier --check \"{app,lib,components}**/*.{ts,tsx,mdx}\" --cache"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.20.6",
     "@blockmatic/hooks-utils": "^3.0.0",
     "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-alert-dialog": "^1.0.5",
@@ -33,6 +34,7 @@
     "axios": "^1.7.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
+    "cmdk": "^1.0.0",
     "date-fns": "^2.30.0",
     "focus-trap-react": "^10.2.3",
     "framer-motion": "^10.16.12",
@@ -44,9 +46,10 @@
     "mb-lib": "workspace:*",
     "mb-types": "workspace:*",
     "nanoid": "^5.0.3",
-    "next": "14.0.4-canary.17",
+    "next": "14.2.3",
     "next-auth": "5.0.0-beta.3",
     "next-themes": "^0.2.1",
+    "nextjs-toploader": "^1.6.12",
     "openai": "^4.20.0",
     "react": "^18.2.0",
     "react-day-picker": "^8.9.1",

@@ -1,8 +1,8 @@
 // Inspired by Chatbot-UI and modified to fit the needs of this project
 // @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Chat/ChatcleanMessage.tsx
 
-import { ClickableText } from '@/components/chat-clickable-text'
-import { ChatMessageActions } from '@/components/chat-message-actions'
+import { ClickableText } from './chat-clickable-text'
+import { ChatMessageActions } from '@/components/chat/chat-message-actions'
 import { MemoizedReactMarkdown } from '@/components/markdown'
 import { CodeBlock } from '@/components/ui/codeblock'
 import { cleanPrompt, cn } from '@/lib/utils'
