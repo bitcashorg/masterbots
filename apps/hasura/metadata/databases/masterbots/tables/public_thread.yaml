@@ -27,6 +27,7 @@ insert_permissions:
         - thread_id
         - user_id
         - is_public
+        - model
     comment: ""
 select_permissions:
   - role: anonymous
@@ -38,6 +39,7 @@ select_permissions:
         - thread_id
         - user_id
         - is_public
+        - model
       filter: {}
     comment: ""
   - role: user
@@ -49,5 +51,6 @@ select_permissions:
         - thread_id
         - user_id
         - is_public
+        - model
       filter: {}
     comment: ""

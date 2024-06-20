@@ -1,0 +1,18 @@
+table:
+  name: models
+  schema: public
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - model_name
+        - model_value
+      filter: {}
+    comment: ""
+  - role: user
+    permission:
+      columns:
+        - model_name
+        - model_value
+      filter: {}
+    comment: ""
