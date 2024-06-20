@@ -42,6 +42,7 @@ type Card = {
 export const Receipt: React.FC<ReceiptProps> = ({ intentid }) => {
   const [subscription, setSubscription] = useState<Subscription>(initialState)
   const [card, setCard] = useState<Card>({ last4: '' })
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchPayment = async () => {
@@ -57,6 +58,7 @@ export const Receipt: React.FC<ReceiptProps> = ({ intentid }) => {
       const responseData = await response.json()
       setSubscription(responseData.subscription)
       setCard(responseData.card.card)
+      setLoading(false)
     }
     fetchPayment()
   }, [])
@@ -82,7 +84,9 @@ export const Receipt: React.FC<ReceiptProps> = ({ intentid }) => {
 
   return (
     plan && (
-      <div className="h-full w-full dark:bg-[#18181B] bg-[#F4F4F5]">
+      <div className={`h-full w-full dark:bg-[#18181B] bg-[#F4F4F5]   ${ loading ? 'opacity-10' : ''}`}
+
+      >
         <div className="max-w-[24rem] mx-auto">
           <div className="text-left pt-2 text-black dark:text-white flex flex-col">
             <span className="font-bold text-[24px] uppercase">Receipt</span>

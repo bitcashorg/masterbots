@@ -1,7 +1,6 @@
 'use client'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useWizard } from './hook/useWizard'
-import { ErrorContent } from '@/components/error-content'
 import { LoadingState } from '@/components/loading-state'
 import { usePayment } from '@/lib/hooks/use-payment'
 
@@ -25,7 +24,7 @@ interface DialogWizardProps {
   dialogOpen: boolean
   headerTitle: string
   handleCloseWizard: () => void
-  errorComponent?: React.ElementType
+  errorComponent?: React.ComponentType
 }
 const animationStepProps = {
   initial: { opacity: 0, x: 200 },
@@ -43,16 +42,23 @@ const DialogWizard: React.FC<DialogWizardProps> = ({
 }) => {
   const { dialogRef, close, Next, Prev, goTo, lastStep, currentStep } =
     useWizard(steps, dialogOpen)
-
     const { error, loading } = usePayment()
-    // const ErrorComponent = errorComponent
 
-    // a function to check if there is an error  display ErrorContent, loading state or the steps component     
+
+    const defaultErrorComponent = () =>  {
+      return(
+        <div>{error}</div>
+      )
+    }
+    const ErrorComponent = errorComponent || defaultErrorComponent
 
     const Content = () => {
       if (error && error !== '' ) {
-        console.log(currentStep)
-        return <ErrorContent />
+        return (
+          <motion.div key="wizard-error-container" {...animationStepProps}>
+            <ErrorComponent />
+        </motion.div>
+        )
       }
 
       if(loading){
