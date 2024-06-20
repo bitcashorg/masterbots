@@ -1,18 +1,17 @@
 'use client'
 import DialogWizard from '@/components/ui/wizard'
 import type { WizardStep } from '@/components/ui/wizard'
-import { use, useEffect, useState } from 'react'
+import {  useEffect, useState } from 'react'
 import { Plans } from './plans'
 import { SuccessContent } from './succes-content'
 import { ErrorContent } from './error-content'
-import { LoadingState } from './loading-state'
 import { Checkout } from './checkout'
 import { WrappedPaymentInformation } from './payment-information'
 import { usePayment } from '@/lib/hooks/use-payment'
 import {  useRouter } from 'next/navigation'
 
 export default function Subscription({ user }: { user: { email: string; name:string } }) {
-  const { handleSetUser, handleDeleteCustomer } = usePayment()
+  const { handleSetUser, handleDeleteCustomer, handleSetLoading, handleSetError} = usePayment()
   const [openDialog, setOpenDialog] = useState(true)
   handleSetUser(user)
 
@@ -27,6 +26,8 @@ export default function Subscription({ user }: { user: { email: string; name:str
 
   const handleCloseWizard = async () => {
     const del = await handleDeleteCustomer(user?.email)
+    handleSetLoading(false)
+    handleSetError('')
     if (del) return router.push('/chat')
   }
 
@@ -61,6 +62,7 @@ export default function Subscription({ user }: { user: { email: string; name:str
         dialogOpen={openDialog}
         steps={steps}
         headerTitle="Masterbots Subscription plans"
+        // errorComponent={<ErrorContent />}
       />
     </div>
   )

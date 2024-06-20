@@ -1,57 +1,52 @@
-import React,{useEffect, useState} from 'react';
+import React,{useState} from 'react';
 import { StripeElement } from "./stripe-element";
 import { PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { usePayment } from "@/lib/hooks/use-payment";
 import { WizardStepProps } from "@/components/ui/wizard";
 
 export function PaymentInformation({  prev, next}:WizardStepProps){
- 
   const stripe = useStripe();
   const elements = useElements();
+  const [isLoading, handleSetLoading] = useState(false);
   const { 
     handleSetCard, 
     handleSetError, 
     handleSetConfirmationToken,
-    loading:isLoading,
-    handleSetLoading,
     user
    } = usePayment();
 
-   
-   useEffect(() => {
-    if (stripe && elements) {
-      console.log('Stripe.js and Elements have loaded.')
-    }
-  }, [stripe, elements])
-
   const handlePaymentSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    handleSetLoading(true);
     if (!stripe || !elements) {
       handleSetLoading(false);
       handleSetError("Stripe.js  and Element has not loaded")
+      
       return;
     }
-    handleSetLoading(true);
     const {error: submitError} = await elements.submit();
     if (submitError) {
       handleSetLoading(false);
       handleSetError(submitError.message)
+      
     }
-    
+
     const {error, confirmationToken} = await stripe.createConfirmationToken({
-      elements,
-      params: {
+       elements,
+       params: {
         payment_method_data: {
           billing_details: {
-            name: user.name,
-          }
-        }
-      }
-    });
+            email: user.email,
+          },
+        },
+      },
 
+    });
     if (error) {
       handleSetLoading(false);
-      handleSetError(error.message)
+      handleSetError(error.message)   
+      return;
     }
 
     const cardData = confirmationToken?.payment_method_preview.card;
@@ -95,7 +90,7 @@ export function PaymentInformation({  prev, next}:WizardStepProps){
   );
 }
 
-// Wrap your PaymentInformation component with Elements
+
 export function WrappedPaymentInformation({ goTo, prev, next, close, lastStep, currentStep }:WizardStepProps){
 
   return (

@@ -5,7 +5,7 @@ import { useElements, useStripe, Elements } from '@stripe/react-stripe-js'
 import { useEffect, useState } from 'react'
 import { StripeElement } from './stripe-element'
 
-export function InnerCheckout({ prev, goTo }: WizardStepProps) {
+export function InnerCheckout({ prev, next }: WizardStepProps) {
   const { card, plan } = usePayment()
   const price = (plan?.unit_amount ? plan?.unit_amount / 100 : 0).toFixed(2);
   const stripe = useStripe()
@@ -13,12 +13,11 @@ export function InnerCheckout({ prev, goTo }: WizardStepProps) {
   const {
     handleSetError,
     confirmationToken,
-    loading,
-    handleSetLoading,
     secret,
     handlePaymentIntent
   } = usePayment()
   const [mounted, setMounted] = useState(false)
+  const [loading, handleSetLoading] = useState(false)
 
   useEffect(() => {
     if (stripe && elements) {
@@ -62,7 +61,7 @@ export function InnerCheckout({ prev, goTo }: WizardStepProps) {
       handlePaymentIntent(paymentIntent)
       handleSetLoading(false)
       window.history.pushState({}, '', `/u/s/subs/${paymentIntent.id}`)
-      goTo(4)
+      next()
     } catch (error: any) {
       console.error('Error creating payment intent:', error)
       handleSetLoading(false)

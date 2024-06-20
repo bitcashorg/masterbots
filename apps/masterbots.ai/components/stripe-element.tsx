@@ -14,6 +14,7 @@ export function StripeElement({ children }: StripeElementProps) {
   const stripePromise = loadStripe(
     stripe_public_key || ''
   )
+
   useEffect(() => {
     const storedTheme = localStorage.getItem('theme');
     if (storedTheme === 'dark') {

@@ -25,6 +25,7 @@ interface DialogWizardProps {
   dialogOpen: boolean
   headerTitle: string
   handleCloseWizard: () => void
+  errorComponent?: React.ElementType
 }
 const animationStepProps = {
   initial: { opacity: 0, x: 200 },
@@ -37,17 +38,19 @@ const DialogWizard: React.FC<DialogWizardProps> = ({
   steps,
   dialogOpen,
   headerTitle,
-  handleCloseWizard
+  handleCloseWizard,
+  errorComponent
 }) => {
   const { dialogRef, close, Next, Prev, goTo, lastStep, currentStep } =
     useWizard(steps, dialogOpen)
 
     const { error, loading } = usePayment()
+    // const ErrorComponent = errorComponent
 
     // a function to check if there is an error  display ErrorContent, loading state or the steps component     
 
     const Content = () => {
-      if (error && error !== '') {
+      if (error && error !== '' ) {
         console.log(currentStep)
         return <ErrorContent />
       }
