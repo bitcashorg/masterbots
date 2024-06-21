@@ -26,7 +26,7 @@
     --secondary-foreground: 240 5.9% 10%;
 
     --accent: 240 4.8% 95.9%;
-    --accent-foreground: ;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
@@ -45,6 +45,9 @@
     --link: 208, 100%, 60%;
     --mirage: 217, 33%, 17%;
     --iron: 240, 6%, 90%;
+
+    --tertiary: 120, 100%, 65%;
+    --tertiary-foreground: 0 0% 98%;
   }
 
   .dark {
@@ -87,6 +90,9 @@
     --link: 208, 100%, 60%;
     --mirage: 217, 33%, 17%;
     --iron: 240, 6%, 90%;
+
+    --tertiary: 120, 100%, 65%;
+    --tertiary-foreground: 0 0% 98%;
   }
 }
 
@@ -151,7 +157,6 @@
   text-overflow: clip;
 }
 
-
 @property --bg-angle {
   inherits: false;
   initial-value: 0deg;
@@ -170,35 +175,35 @@
   background: transparent;
   cursor: pointer;
   border: double 6px transparent;
-  background-image: 
-    linear-gradient(white, white), /* Inner background */
-    linear-gradient(
-      180deg,
-      rgba(113, 113, 122, 0.1) 0%,
-      rgba(113, 113, 122, 0.5) 50%,
-      rgba(113, 113, 122, 0.564706) 100%
-    );;
+  background-image:
+    linear-gradient(white, white),
+    /* Inner background */
+      linear-gradient(
+        180deg,
+        rgba(113, 113, 122, 0.1) 0%,
+        rgba(113, 113, 122, 0.5) 50%,
+        rgba(113, 113, 122, 0.564706) 100%
+      );
   background-origin: border-box;
   background-clip: content-box, border-box;
   display: inline-block;
 }
 
 .dark .border-gradient {
-
-  background-image: 
-  linear-gradient(rgb(46, 44, 44), rgb(46, 44, 44)), /* Inner background */
-  linear-gradient(
-    180deg,
-    rgba(9, 9, 11, 0.1),
-    rgba(9, 9, 11, 0.5),
-    rgba(9, 9, 11, 0.8)
-  );
-  
+  background-image:
+    linear-gradient(rgb(46, 44, 44), rgb(46, 44, 44)),
+    /* Inner background */
+      linear-gradient(
+        180deg,
+        rgba(9, 9, 11, 0.1),
+        rgba(9, 9, 11, 0.5),
+        rgba(9, 9, 11, 0.8)
+      );
 }
 
 .border-gradient:hover,
 .border-gradient.selected {
-  padding: 6px;
+  padding: 5px;
   border: 0px solid;
   border-image: transparent;
 }
@@ -214,9 +219,10 @@
   padding: 1px;
   background: conic-gradient(
     from var(--bg-angle),
-    rgba(190, 23, 232, 0.8) 10%,
-    rgba(190, 23, 232, 0.3) 50%,
-    rgba(187, 6, 232, 0.5) 73.3%
+    rgba(190, 23, 232, 0.15) 10%,
+    rgba(190, 23, 232, 0.5) 42.333%,
+    rgba(187, 6, 232, 1) 66.666%,
+    rgba(190, 23, 232, 0.15) 100%
   );
   animation: spin 3.5s infinite linear;
   z-index: 1;
@@ -227,9 +233,10 @@
   border-radius: 14px; /* Ensuring border-radius is applied */
   background: conic-gradient(
     from var(--bg-angle),
-    rgba(131, 229, 106, 0.1) 10%,
-    rgba(131, 229, 106, 0.5) 50%,
-    #83e56a 73.3%
+    rgba(131, 229, 106, 0.15) 10%,
+    rgba(131, 229, 106, 0.5) 42.333%,
+    rgba(131, 229, 106, 1) 66.666%,
+    rgba(131, 229, 106, 0.15) 100%
   );
 }
 
@@ -256,10 +263,12 @@
 }
 
 /* // black when it's dark mode and white when it's light mode  */
- .p-FieldLabel.Label{
+.p-FieldLabel.Label {
   color: green !important;
 }
 
-.Tab, .Label, .input{
+.Tab,
+.Label,
+.input {
   display: none;
 }

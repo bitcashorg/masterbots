@@ -595,7 +595,7 @@ function IconChatMessage({ className, ...props }: React.ComponentProps<'svg'>) {
       <path
         d="M2.91669 5.41675H4.58335"
         stroke="#71717A"
-        stroke-width="0.833333"
+        strokeWidth="0.833333"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -603,14 +603,14 @@ function IconChatMessage({ className, ...props }: React.ComponentProps<'svg'>) {
   )
 }
 
-function IconChevronAngleRight ({
+function IconChevronAngleRight({
   className,
   ...props
 }: React.ComponentProps<'svg'>) {
   return (
-<svg className={cn('h-4 w-4', className)} viewBox="0 0 8 15" {...props} aria-label="Chevron Angle Right">
-<path d="M5.14279 14.5372L11.2355 8.44446L5.14279 2.35176" stroke="#FAFAFA" stroke-width="1.52318" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
+    <svg className={cn('h-4 w-4', className)} viewBox="0 0 8 15" {...props} aria-label="Chevron Angle Right">
+      <path d="M5.14279 14.5372L11.2355 8.44446L5.14279 2.35176" stroke="#FAFAFA" strokeWidth="1.52318" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   )
 }
 
@@ -630,136 +630,103 @@ function IconChevronAngleRight ({
 //     </svg>
 //   )
 // }
-  function IconHelp({ className, ...props }: React.ComponentProps<'svg'>) {
-    return (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        className={cn('h-4 w-4', className)}
-        viewBox="0 0 24 24"
-        {...props}
-        aria-label="Help"
-      >
-                <g clip-path="url(#clip0_1268_1560)">
-                  <path
-                    d="M6 0.6875C5.04818 0.6875 4.11773 0.969748 3.32632 1.49855C2.53491 2.02736 1.91808 2.77897 1.55383 3.65834C1.18959 4.53771 1.09428 5.50534 1.27997 6.43887C1.46566 7.37241 1.92401 8.22991 2.59705 8.90295C3.27009 9.57599 4.1276 10.0343 5.06113 10.22C5.99466 10.4057 6.9623 10.3104 7.84167 9.94617C8.72104 9.58192 9.47265 8.96509 10.0014 8.17368C10.5303 7.38227 10.8125 6.45182 10.8125 5.5C10.8125 4.22365 10.3055 2.99957 9.40295 2.09705C8.50043 1.19453 7.27636 0.6875 6 0.6875ZM6 9.625C5.18415 9.625 4.38663 9.38307 3.70828 8.92981C3.02992 8.47655 2.50121 7.83231 2.189 7.07857C1.87679 6.32482 1.7951 5.49542 1.95426 4.69525C2.11343 3.89508 2.50629 3.16008 3.08319 2.58318C3.66008 2.00629 4.39508 1.61342 5.19525 1.45426C5.99543 1.2951 6.82483 1.37679 7.57857 1.689C8.33232 2.00121 8.97655 2.52992 9.42981 3.20827C9.88307 3.88663 10.125 4.68415 10.125 5.5C10.125 6.59402 9.6904 7.64323 8.91682 8.41682C8.14323 9.1904 7.09402 9.625 6 9.625Z"
-                    fill="#388DE2"
-                  />
-                  <path
-                    d="M6 8.59375C6.28477 8.59375 6.51562 8.3629 6.51562 8.07812C6.51562 7.79335 6.28477 7.5625 6 7.5625C5.71523 7.5625 5.48438 7.79335 5.48438 8.07812C5.48438 8.3629 5.71523 8.59375 6 8.59375Z"
-                    fill="#388DE2"
-                  />
-                  <path
-                    d="M6.34375 2.75H5.82813C5.62486 2.74955 5.42351 2.78925 5.23563 2.86683C5.04775 2.94441 4.87704 3.05833 4.73331 3.20206C4.58958 3.34579 4.47566 3.5165 4.39808 3.70438C4.3205 3.89226 4.2808 4.09361 4.28125 4.29688V4.46875H4.96875V4.29688C4.96875 4.06896 5.05929 3.85037 5.22046 3.68921C5.38162 3.52804 5.60021 3.4375 5.82813 3.4375H6.34375C6.57167 3.4375 6.79026 3.52804 6.95142 3.68921C7.11259 3.85037 7.20313 4.06896 7.20313 4.29688C7.20313 4.5248 7.11259 4.74338 6.95142 4.90455C6.79026 5.06571 6.57167 5.15625 6.34375 5.15625H5.65625V6.70313H6.34375V5.84375C6.75401 5.84375 7.14746 5.68078 7.43756 5.39068C7.72765 5.10059 7.89063 4.70714 7.89063 4.29688C7.89063 3.88662 7.72765 3.49317 7.43756 3.20307C7.14746 2.91298 6.75401 2.75 6.34375 2.75Z"
-                    fill="#388DE2"
-                  />
-                </g>
-                <defs>
-                  <clipPath id="clip0_1268_1560">
-                    <rect
-                      width="11"
-                      height="11"
-                      fill="white"
-                      transform="translate(0.5)"
-                    />
-                  </clipPath>
-                </defs>
-              
-      </svg>
-    )
-  }
+function IconHelp({ className, ...props }: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      className={cn('h-4 w-4', className)}
+      viewBox="0 0 24 24"
+      {...props}
+      aria-label="Help"
+    >
+      <g clip-path="url(#clip0_1268_1560)">
+        <path
+          d="M6 0.6875C5.04818 0.6875 4.11773 0.969748 3.32632 1.49855C2.53491 2.02736 1.91808 2.77897 1.55383 3.65834C1.18959 4.53771 1.09428 5.50534 1.27997 6.43887C1.46566 7.37241 1.92401 8.22991 2.59705 8.90295C3.27009 9.57599 4.1276 10.0343 5.06113 10.22C5.99466 10.4057 6.9623 10.3104 7.84167 9.94617C8.72104 9.58192 9.47265 8.96509 10.0014 8.17368C10.5303 7.38227 10.8125 6.45182 10.8125 5.5C10.8125 4.22365 10.3055 2.99957 9.40295 2.09705C8.50043 1.19453 7.27636 0.6875 6 0.6875ZM6 9.625C5.18415 9.625 4.38663 9.38307 3.70828 8.92981C3.02992 8.47655 2.50121 7.83231 2.189 7.07857C1.87679 6.32482 1.7951 5.49542 1.95426 4.69525C2.11343 3.89508 2.50629 3.16008 3.08319 2.58318C3.66008 2.00629 4.39508 1.61342 5.19525 1.45426C5.99543 1.2951 6.82483 1.37679 7.57857 1.689C8.33232 2.00121 8.97655 2.52992 9.42981 3.20827C9.88307 3.88663 10.125 4.68415 10.125 5.5C10.125 6.59402 9.6904 7.64323 8.91682 8.41682C8.14323 9.1904 7.09402 9.625 6 9.625Z"
+          fill="#388DE2"
+        />
+        <path
+          d="M6 8.59375C6.28477 8.59375 6.51562 8.3629 6.51562 8.07812C6.51562 7.79335 6.28477 7.5625 6 7.5625C5.71523 7.5625 5.48438 7.79335 5.48438 8.07812C5.48438 8.3629 5.71523 8.59375 6 8.59375Z"
+          fill="#388DE2"
+        />
+        <path
+          d="M6.34375 2.75H5.82813C5.62486 2.74955 5.42351 2.78925 5.23563 2.86683C5.04775 2.94441 4.87704 3.05833 4.73331 3.20206C4.58958 3.34579 4.47566 3.5165 4.39808 3.70438C4.3205 3.89226 4.2808 4.09361 4.28125 4.29688V4.46875H4.96875V4.29688C4.96875 4.06896 5.05929 3.85037 5.22046 3.68921C5.38162 3.52804 5.60021 3.4375 5.82813 3.4375H6.34375C6.57167 3.4375 6.79026 3.52804 6.95142 3.68921C7.11259 3.85037 7.20313 4.06896 7.20313 4.29688C7.20313 4.5248 7.11259 4.74338 6.95142 4.90455C6.79026 5.06571 6.57167 5.15625 6.34375 5.15625H5.65625V6.70313H6.34375V5.84375C6.75401 5.84375 7.14746 5.68078 7.43756 5.39068C7.72765 5.10059 7.89063 4.70714 7.89063 4.29688C7.89063 3.88662 7.72765 3.49317 7.43756 3.20307C7.14746 2.91298 6.75401 2.75 6.34375 2.75Z"
+          fill="#388DE2"
+        />
+      </g>
+      <defs>
+        <clipPath id="clip0_1268_1560">
+          <rect
+            width="11"
+            height="11"
+            fill="white"
+            transform="translate(0.5)"
+          />
+        </clipPath>
+      </defs>
 
-  function IconCreditCard({ className, ...props }: React.ComponentProps<'svg'>) {
-    return (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className={cn('h-4 w-4', className)}
-        viewBox="0 0 64 64" 
-        enable-background="new 0 0 64 64"
-        {...props}
-        aria-label="Credit Card"
-      >
-       
-              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-              <g
-                id="SVGRepo_tracerCarrier"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></g>
-              <g id="SVGRepo_iconCarrier">
-                {' '}
-                <g>
-                  {' '}
-                  <path
-                    fill="currentColor"
-                    d="M0,32v20c0,2.211,1.789,4,4,4h56c2.211,0,4-1.789,4-4V32H0z M24,44h-8c-2.211,0-4-1.789-4-4s1.789-4,4-4h8 c2.211,0,4,1.789,4,4S26.211,44,24,44z"
-                  ></path>{' '}
-                  <path
-                    fill="currentColor"
-                    d="M64,24V12c0-2.211-1.789-4-4-4H4c-2.211,0-4,1.789-4,4v12H64z"
-                  ></path>{' '}
-                </g>{' '}
-              </g>
-            </svg>
-    )
-  }
+    </svg>
+  )
+}
 
-  function IconArrowRightNoFill({ className, ...props }: React.ComponentProps<'svg'>) {
-    return (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        className={cn('h-4 w-4', className)}
-        viewBox="0 0 24 24"
-        {...props}
-        aria-label="Arrow  Right No Fill"
-      >
-         <path
-         d="M1.14282 13.537L7.23552 7.44426L1.14282 1.35156"
-         stroke="#09090B"
-         stroke-width="1.52318"
-         stroke-linecap="round"
-         stroke-linejoin="round"
-       />
-      </svg>
-    )
-  }
+function IconCreditCard({ className, ...props }: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn('h-4 w-4', className)}
+      viewBox="0 0 64 64"
+      enable-background="new 0 0 64 64"
+      {...props}
+      aria-label="Credit Card"
+    >
+
+      <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+      <g
+        id="SVGRepo_tracerCarrier"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      ></g>
+      <g id="SVGRepo_iconCarrier">
+        {' '}
+        <g>
+          {' '}
+          <path
+            fill="currentColor"
+            d="M0,32v20c0,2.211,1.789,4,4,4h56c2.211,0,4-1.789,4-4V32H0z M24,44h-8c-2.211,0-4-1.789-4-4s1.789-4,4-4h8 c2.211,0,4,1.789,4,4S26.211,44,24,44z"
+          ></path>{' '}
+          <path
+            fill="currentColor"
+            d="M64,24V12c0-2.211-1.789-4-4-4H4c-2.211,0-4,1.789-4,4v12H64z"
+          ></path>{' '}
+        </g>{' '}
+      </g>
+    </svg>
+  )
+}
+
+function IconArrowRightNoFill({ className, ...props }: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      className={cn('h-4 w-4', className)}
+      viewBox="0 0 24 24"
+      {...props}
+      aria-label="Arrow  Right No Fill"
+    >
+      <path
+        d="M1.14282 13.537L7.23552 7.44426L1.14282 1.35156"
+        stroke="#09090B"
+        strokeWidth="1.52318"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
 
 export {
-  IconChatMessage,
-  IconDownVote,
-  IconUpVote,
-  IconCaretRight,
-  IconChatSearch,
-  IconEdit,
-  IconNextChat,
-  IconOpenAI,
-  IconVercel,
-  IconGitHub,
-  IconSeparator,
-  IconArrowDown,
-  IconArrowRight,
-  IconUser,
-  IconPlus,
-  IconArrowElbow,
-  IconSpinner,
-  IconMessage,
-  IconTrash,
-  IconRefresh,
-  IconStop,
-  IconSidebar,
-  IconMoon,
-  IconSun,
-  IconCopy,
-  IconCheck,
-  IconDownload,
-  IconClose,
-  IconShare,
-  IconUsers,
-  IconExternalLink,
-  IconChevronUpDown,
-  IconChevronAngleRight,
-  IconHelp,
-  IconCreditCard,
-  IconArrowRightNoFill
+  IconArrowDown, IconArrowElbow, IconArrowRight, IconArrowRightNoFill, IconCaretRight, IconChatMessage, IconChatSearch, IconCheck, IconChevronAngleRight, IconChevronUpDown, IconClose, IconCopy, IconCreditCard, IconDownload, IconDownVote, IconEdit, IconExternalLink, IconGitHub, IconHelp, IconMessage, IconMoon, IconNextChat,
+  IconOpenAI, IconPlus, IconRefresh, IconSeparator, IconShare, IconSidebar, IconSpinner, IconStop, IconSun, IconTrash, IconUpVote, IconUser, IconUsers, IconVercel
 }
+

@@ -1,29 +1,13 @@
-'use client'
-import React, { useEffect, useState } from 'react'
-import PlanCard from './plan-card'
-import { usePayment } from '../lib/hooks/use-payment'
+import { getSubscriptionPlans } from '@/app/actions'
+import { PlansPros } from '@/lib/types'
 import { useRouter } from 'next/navigation'
-import { IconArrowRightNoFill } from '../components/ui/icons';
+import React, { useState } from 'react'
+import { useAsync } from 'react-use'
+import { IconArrowRightNoFill } from '../components/ui/icons'
+import { usePayment } from '../lib/hooks/use-payment'
+import { cn } from '../lib/utils'
+import PlanCard from './plan-card'
 
-type PlansPros = {
-  next: () => void
-  prev: () => void
-  close: () => void
-  goTo: (index: number) => void
-}
-type PlanList = {
-  id: string
-  product: {
-    name: string
-    description: string
-  }
-  unit_amount: number
-  recurring: {
-    interval: string
-    trial_period_days: number
-  },
-  duration: string
-}
 export function Plans({ next, goTo }: PlansPros) {
   const {
     handlePlan,
@@ -40,8 +24,13 @@ export function Plans({ next, goTo }: PlansPros) {
   } = usePayment()
 
   const [selectedPlan, setSelectedPlan] = useState(plan?.duration || 'free')
-  const [plans, setPlans] = useState<PlanList[]>([])
   const router = useRouter()
+  const { value: plans, loading: loadingPlans } = useAsync(async () =>
+    await getSubscriptionPlans({
+      handleSetStripePublicKey,
+      handleSetStripeSecret,
+    })
+  )
 
   const handlePlanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedPlan(e.target.value)
@@ -52,37 +41,7 @@ export function Plans({ next, goTo }: PlansPros) {
     if (del) return router.push('/chat')
   }
 
-  useEffect(() => {
-    const fetchPlans = async () => {
-      try {
-        const response = await fetch('/api/payment/plans', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        })
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-
-        const data = await response.json()
-        // remove the free plan from the list
-        handleSetStripePublicKey(data.stripe_publishable)
-        handleSetStripeSecret(data.stripe_secret)
-        data.plans = data.plans.filter((plan: any) => plan.unit_amount !== 0)
-        // show the plans in ascending order
-        data.plans.sort((a: any, b: any) => b.unit_amount - a.unit_amount)
-        setPlans(data.plans)
-      } catch (error) {
-        console.error('Error fetching plans:', error)
-      } 
-    }
-
-    fetchPlans()
-  }, [])
-
-  const  handleSubscription = async (plan: any) => {
+  const handleSubscription = async (plan: any) => {
     const response = await fetch('/api/payment/intent', {
       method: 'POST',
       headers: {
@@ -95,18 +54,17 @@ export function Plans({ next, goTo }: PlansPros) {
       handleSetSecret(client_secret)
       next()
     }
-    if(error){
+    if (error) {
       handleSetError(error)
     }
   }
 
-  
   const submitSubscription = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     handleSetLoading(true)
     const formData = new FormData(e.currentTarget)
     const plan = formData.get('plan')
-    const paymentPlan = plans.find(p => p.recurring.interval === plan)
+    const paymentPlan = plans?.find(p => p.recurring.interval === plan)
     if (plan === 'free') {
       alert('Please select a paid plan to use this feature')
       handleSetLoading(false)
@@ -114,7 +72,7 @@ export function Plans({ next, goTo }: PlansPros) {
     }
     handlePlan(paymentPlan)
 
-    if (secret === '') {  
+    if (!secret) {
       const data = {
         planId: paymentPlan?.id,
         trialPeriodDays: paymentPlan?.recurring?.trial_period_days || 0,
@@ -126,25 +84,36 @@ export function Plans({ next, goTo }: PlansPros) {
       }
       await handleSubscription(data)
       handleSetLoading(false)
-    }else{
-       next()
-       handleSetLoading(false)
+    } else {
+      next()
+      handleSetLoading(false)
     }
-   
   }
+
   return (
-    <form className="flex flex-col  w-full " onSubmit={submitSubscription}>
+    <form className="flex flex-col w-full min-h-[480px]" onSubmit={submitSubscription}>
       <div className="text-center pt-2">
         <span className="font-bold text-[16px]">
           Subscribe using{' '}
           <span className="dark:text-[#635BFF]  text-[#635BFF]">Stripe</span>{' '}
         </span>
       </div>
-      <div className="flex flex-col w-full space-y-3 p-5 ">
+      <div className="flex flex-col size-full space-y-3 p-5">
         <div
-          className={`border-gradient w-full h-[135px]  ${selectedPlan === 'free' ? 'selected' : ''}`}
+          className={cn(
+            'border-gradient w-full h-[135px] [&>_div]:hover:bg-tertiary',
+            {
+              'selected': selectedPlan === 'free'
+            }
+          )}
           id="free-plan"
         >
+          <div className={cn(
+            'transition-all size-[calc(100%_-_10px)] absolute top-[5px] left-[5px] rounded-[11px] bg-transparent',
+            {
+              'bg-tertiary': selectedPlan === 'free'
+            }
+          )} />
           <input
             type="radio"
             id="free"
@@ -156,12 +125,13 @@ export function Plans({ next, goTo }: PlansPros) {
             required
           />
           <label htmlFor="free" className="block w-full h-full ">
-            <div className="flex justify-between items-center inner-content  dark:bg-[url(/free_plan_bg.png)] bg-[url(/free_plan_bg_light.png)] my-auto p-5">
-              <div className="flex flex-col space-y-2">
-                <span className="font-bold text-[13px] dark:text-[#83E56A]  text-[#BE17E8]">
+            <div className="flex justify-between items-center inner-content dark:bg-[url(/free_plan_bg.png)] bg-[url(/free_plan_bg_light.png)] my-auto p-5">
+              <div className="flex flex-col space-y-2 h-full">
+                {/* // ! @sheriffjimoh -- This must be dynamic. To read user current plan and tag it as "PURCHASED" */}
+                <span className="absolute top-0 leading-7 font-black text-[13px] text-tertiary">
                   PURCHASED
                 </span>
-                <div className="dark:text-white  text-black space-y-1">
+                <div className="mt-auto space-y-1">
                   <p>
                     With the <strong>Free</strong> plan you obtain:
                   </p>
@@ -173,7 +143,10 @@ export function Plans({ next, goTo }: PlansPros) {
               </div>
               <div className="flex flex-col justify-end items-end">
                 <span
-                  className={`h-3 w-3 rounded-full ${selectedPlan === 'free' ? 'dark:bg-green-500 bg-[#BE17E8] ' : 'dark:bg-gray-500  bg-gray-300'}`}
+                  className={cn(
+                    'h-3.5 w-3.5 rounded-full border-[3px] border-border/80',
+                    selectedPlan === 'free' ? 'bg-tertiary' : 'bg-mirage'
+                  )}
                 />
                 <h3 className="dark:text-white  text-black text-[36px] font-bold">
                   Free
@@ -183,8 +156,8 @@ export function Plans({ next, goTo }: PlansPros) {
           </label>
         </div>
         <div className="flex space-x-3">
-          {plans.length > 0 ? (
-            plans.map(plan => (
+          {plans && plans.length && (
+            plans.filter(plan => plan.active).sort((a, b) => a.created - b.created).map(plan => (
               <PlanCard
                 key={plan.id}
                 selectedPlan={selectedPlan}
@@ -192,24 +165,31 @@ export function Plans({ next, goTo }: PlansPros) {
                 plan={plan}
               />
             ))
-          ) : (
+          )}
+          {(loadingPlans && !plans) && (
+            <>
+              <div className="w-full h-[274px] bg-muted-foreground/20 rounded-2xl animate-pulse" />
+              <div className="w-full h-[274px] bg-muted-foreground/20 rounded-2xl animate-pulse" />
+            </>
+          )}
+          {(!plans && !loadingPlans) || (plans && !plans.length && !loadingPlans) && (
             <div>No plans available</div>
           )}
         </div>
         <div>
           <a
-            href="/referral"
+            href="#referral"
             className="text-[16px] flex items-center space-x-2"
           >
             <span>
               I have a&nbsp;<strong> Referral Code</strong>{' '}
             </span>
-            <IconArrowRightNoFill className="mt-2 w-5 h-5"  />
+            <IconArrowRightNoFill className="mt-2 w-5 h-5" />
           </a>
         </div>
       </div>
 
-      <div className="dark:bg-black border  border-t-black bg-white p-5 flex justify-center items-center space-x-4">
+      <div className="dark:bg-black border-t border-t-black bg-white p-5 flex justify-center items-center space-x-4">
         <button
           type="button"
           onClick={handleCloseWizard}

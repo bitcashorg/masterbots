@@ -1,28 +1,31 @@
 'use client'
-import DialogWizard from '@/components/ui/wizard'
+
+import { checkIfCustomerHasActiveSub } from '@/app/actions'
+import { ErrorContent } from '@/components/error-content'
 import type { WizardStep } from '@/components/ui/wizard'
-import {  useEffect, useState } from 'react'
-import { Plans } from './plans'
-import { SuccessContent } from './succes-content'
-import { ErrorContent } from './error-content'
+import DialogWizard from '@/components/ui/wizard'
+import { usePayment } from '@/lib/hooks/use-payment'
+import { useRouter } from 'next/navigation'
+import { useAsync } from 'react-use'
 import { Checkout } from './checkout'
 import { WrappedPaymentInformation } from './payment-information'
-import { usePayment } from '@/lib/hooks/use-payment'
-import {  useRouter } from 'next/navigation'
+import { Plans } from './plans'
+import { SuccessContent } from './succes-content'
 
-export default function Subscription({ user }: { user: { email: string; name:string } }) {
-  const { handleSetUser, handleDeleteCustomer, handleSetLoading, handleSetError} = usePayment()
-  const [openDialog, setOpenDialog] = useState(true)
-  handleSetUser(user)
+const steps: WizardStep[] = [
+  { component: Plans, name: 'Plans' },
+  { component: WrappedPaymentInformation, name: 'Payment' },
+  { component: Checkout, name: 'Checkout' },
+  { component: SuccessContent, name: 'Success' },
+]
 
+export default function Subscription({ user }: { user: { email: string; name: string } }) {
   const router = useRouter()
-
-  const steps: WizardStep[] = [
-    { component: Plans, name: 'Plans' },
-    { component: WrappedPaymentInformation, name: 'Payment' },
-    { component: Checkout, name: 'Checkout' },
-    { component: SuccessContent, name: 'Success' },
-  ]
+  const { handleSetUser, handleDeleteCustomer, handleSetLoading, handleSetError } = usePayment()
+  const { value: openDialog } = useAsync(async () =>
+    await checkIfCustomerHasActiveSub(user.email)
+  )
+  handleSetUser(user)
 
   const handleCloseWizard = async () => {
     const del = await handleDeleteCustomer(user?.email)
@@ -31,38 +34,14 @@ export default function Subscription({ user }: { user: { email: string; name:str
     if (del) return router.push('/chat')
   }
 
-
-  async function CheckIfCustomerHasActiveSub(){
-  
-    const response = await fetch('/api/payment/subscription', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email: user.email }),
-    });
-    const data = await response.json();
-    if (data.error) {
-      console.error(data.error);
-      return;
-    }
-    if (!data.active) {
-      setOpenDialog(true);
-    }
-  }
-
-  useEffect(() => {
-    CheckIfCustomerHasActiveSub();
-  }, [openDialog]);
-
   return (
-    <div className="flex items-center justify-center  ">
+    <div className="flex items-center justify-center">
       <DialogWizard
-        handleCloseWizard={() => handleCloseWizard()}
-        dialogOpen={openDialog}
+        handleCloseWizard={handleCloseWizard}
+        dialogOpen={Boolean(openDialog)}
         steps={steps}
         headerTitle="Masterbots Subscription plans"
-        // errorComponent={<ErrorContent />}
+        errorComponent={<ErrorContent />}
       />
     </div>
   )

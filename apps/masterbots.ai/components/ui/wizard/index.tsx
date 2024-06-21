@@ -1,8 +1,8 @@
-'use client'
-import { AnimatePresence, motion } from 'framer-motion'
-import { useWizard } from './hook/useWizard'
 import { LoadingState } from '@/components/loading-state'
 import { usePayment } from '@/lib/hooks/use-payment'
+import { AnimatePresence, motion } from 'framer-motion'
+import React from 'react'
+import { useWizard } from './hook/useWizard'
 
 export interface WizardStepProps {
   next: () => void
@@ -24,7 +24,7 @@ interface DialogWizardProps {
   dialogOpen: boolean
   headerTitle: string
   handleCloseWizard: () => void
-  errorComponent?: React.ComponentType
+  errorComponent?: JSX.Element
 }
 const animationStepProps = {
   initial: { opacity: 0, x: 200 },
@@ -40,48 +40,7 @@ const DialogWizard: React.FC<DialogWizardProps> = ({
   handleCloseWizard,
   errorComponent
 }) => {
-  const { dialogRef, close, Next, Prev, goTo, lastStep, currentStep } =
-    useWizard(steps, dialogOpen)
-    const { error, loading } = usePayment()
-
-
-    const defaultErrorComponent = () =>  {
-      return(
-        <div>{error}</div>
-      )
-    }
-    const ErrorComponent = errorComponent || defaultErrorComponent
-
-    const Content = () => {
-      if (error && error !== '' ) {
-        return (
-          <motion.div key="wizard-error-container" {...animationStepProps}>
-            <ErrorComponent />
-        </motion.div>
-        )
-      }
-
-      if(loading){
-        return <LoadingState />
-      }
-      
-        return steps
-          ?.filter((_, index) => index === currentStep)
-          .map(step => (
-            <motion.div key={step.name} {...animationStepProps}>
-              <div>
-                <step.component
-                  next={Next}
-                  prev={Prev}
-                  close={close}
-                  goTo={goTo}
-                  currentStep={currentStep}
-                  lastStep={lastStep}
-                />
-              </div>
-            </motion.div>
-          ))    
-    }
+  const { dialogRef } = useWizard(steps, dialogOpen)
 
   return (
     <AnimatePresence>
@@ -97,8 +56,9 @@ const DialogWizard: React.FC<DialogWizardProps> = ({
           <motion.dialog
             key="dialog"
             ref={dialogRef}
+            open={dialogOpen}
             {...animationStepProps}
-            className="rounded-lg shadow-lg  w-11/12 max-w-2xl z-50 bg-gray-100 dark:bg-[#27272A]  border border-black"
+            className="rounded-lg shadow-lg min-h-[540px] w-11/12 max-w-2xl z-50 bg-gray-100 dark:bg-[#27272A]  border border-black"
           >
             <div className="flex justify-between items-center dark:bg-[#1E293B] bg-gray-200 dark:text-white text-black px-5 ">
               <h3 className="font-medium text-[24px] capitalize">
@@ -131,13 +91,57 @@ const DialogWizard: React.FC<DialogWizardProps> = ({
                   </motion.div>
                 ))
             )} */}
-
-            <Content />
+            <Content
+              errorComponent={errorComponent}
+              steps={steps}
+              dialogOpen={dialogOpen}
+            />
           </motion.dialog>
         </div>
       )}
     </AnimatePresence>
   )
+}
+
+function Content({ errorComponent, steps, dialogOpen }: { errorComponent?: JSX.Element, steps: WizardStep[], dialogOpen: boolean }) {
+  const { error, loading } = usePayment()
+  const { close, Next, Prev, goTo, lastStep, currentStep } = useWizard(steps, dialogOpen)
+  const defaultErrorComponent = () => (
+    <div>{error}</div>
+  )
+  const ErrorComponent = (() => errorComponent) || defaultErrorComponent
+
+  if (error && error !== '') {
+    return (
+      <motion.div
+        key="wizard-error-container"
+        {...animationStepProps}
+      >
+        <ErrorComponent />
+      </motion.div>
+    )
+  }
+
+  if (loading) return <LoadingState />
+
+  return steps
+    ?.filter((_, index) => index === currentStep)
+    .map(step => (
+      <motion.div
+        key={step.name}
+        className="min-h-[480px]"
+        {...animationStepProps}
+      >
+        <step.component
+          next={Next}
+          prev={Prev}
+          close={close}
+          goTo={goTo}
+          currentStep={currentStep}
+          lastStep={lastStep}
+        />
+      </motion.div>
+    ))
 }
 
 export default DialogWizard

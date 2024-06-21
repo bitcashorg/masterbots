@@ -1,29 +1,19 @@
+'use client'
+
+import { StripePlan } from '@/lib/types'
 import React, { createContext, useState } from 'react'
 
 type CardProps = {
   last4: string
 } | undefined
-type planProps = {
-  id: string
-  product: {
-    name: string
-    description: string
-  }
-  unit_amount: number
-  recurring: {
-    interval: string
-    trial_period_days: number
-  }
-  duration: string
-} | undefined
-  
+
 
 interface PaymentContextProps {
   card: CardProps | null
   loading: boolean
   error: any
-  plan: planProps  | null
-  handlePlan: (plan: planProps) => void
+  plan: StripePlan | null | undefined
+  handlePlan: (plan: StripePlan | undefined) => void
   handleSetCard: (card: CardProps) => void
   handlePaymentIntent: (paymentIntent: any) => void
   handleSetError: (error: any) => void
@@ -38,7 +28,7 @@ interface PaymentContextProps {
   handleSetUser: (user: any) => void
   handleSetLoading: (loading: boolean) => void
   handleSetConfirmationToken: (confirmationToken: string | undefined) => void
-  confirmationToken: string 
+  confirmationToken: string
   secret: string
   handleSetSecret: (secret: string) => void
   handleDeleteCustomer: (email: string) => Promise<any>
@@ -78,9 +68,9 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
   const [secret, setSecret] = useState<string>("")
   const [stripe_secret, setStripeSecret] = useState<string>('')
   const [stripe_public_key, setStripePublicKey] = useState<string>('')
-  
-  
-  const handleSetConfirmationToken = (token: string | undefined ) => {
+
+
+  const handleSetConfirmationToken = (token: string | undefined) => {
     setConfirmationToken(token)
   }
   const handleSetLoading = (loading: boolean) => {
@@ -102,7 +92,7 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
   const handleSetUser = (user: any) => {
     setUser(user)
   }
-  
+
   const handleSetSecret = (secret: string) => {
     setSecret(secret)
   }
@@ -136,27 +126,29 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
   return (
     <PaymentContext.Provider
       value={{
+        plan,
+        card,
+        user,
+        error,
+        secret,
+        loading,
+        paymentIntent,
+        confirmationToken,
+        // ! @sheriffjimoh -- change to camelCase
+        stripe_secret,
+        // ! @sheriffjimoh -- change to camelCase
+        stripe_public_key,
+        handlePlan,
+        handleSetUser,
+        handleSetCard,
+        handleSetError,
+        handleSetSecret,
+        handleSetLoading,
+        handlePaymentIntent,
+        handleDeleteCustomer,
         handleSetStripeSecret,
         handleSetStripePublicKey,
-        stripe_secret,
-        stripe_public_key,
-        handleDeleteCustomer,
-        secret,
-        handleSetSecret,
         handleSetConfirmationToken,
-        confirmationToken,
-        handleSetLoading,
-        user,
-        handleSetUser,
-        card,
-        loading,
-        error,
-        plan,
-        handlePlan,
-        handleSetCard,
-        handlePaymentIntent,
-        paymentIntent,
-        handleSetError
       }}
     >
       {children}

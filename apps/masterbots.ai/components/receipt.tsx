@@ -1,7 +1,7 @@
 'use client'
 
-import { IconCreditCard, IconHelp } from './ui/icons'
 import React, { useEffect, useState } from 'react'
+import { IconCreditCard, IconHelp } from './ui/icons'
 
 interface ReceiptProps {
   intentid: string
@@ -63,6 +63,7 @@ export const Receipt: React.FC<ReceiptProps> = ({ intentid }) => {
     fetchPayment()
   }, [])
 
+  // ! @sheriffjimoh -- move this as a utility function
   function getDate(timestamp: number) {
     let date
     if (timestamp === 0) {
@@ -78,13 +79,13 @@ export const Receipt: React.FC<ReceiptProps> = ({ intentid }) => {
 
     return dateString
   }
-
+  console.log('subscription', subscription)
   const plan = subscription.plan
   const price = (plan?.amount / 100).toFixed(2)
 
   return (
     plan && (
-      <div className={`h-full w-full dark:bg-[#18181B] bg-[#F4F4F5]   ${ loading ? 'opacity-10' : ''}`}
+      <div className={`h-full w-full dark:bg-[#18181B] bg-[#F4F4F5]   ${loading ? 'opacity-10' : ''}`}
 
       >
         <div className="max-w-[24rem] mx-auto">
@@ -95,35 +96,35 @@ export const Receipt: React.FC<ReceiptProps> = ({ intentid }) => {
           </div>
           <div className="text-left mt-5">
             <div className='flex justify-between'>
-            <div className="w-40 leading-[14.88px]">
-              <span className="text-[12px] font-bold text-[#71717A] w-10">
-                You Paid The{' '}
-                <span className="capitalize">{plan.interval + 'ly'}</span> Plan
-                Subscription
-              </span>
-            </div>
+              <div className="w-40 leading-[14.88px]">
+                <span className="text-[12px] font-bold text-[#71717A] w-10">
+                  You Paid The{' '}
+                  <span className="capitalize">{plan.interval + 'ly'}</span> Plan
+                  Subscription
+                </span>
+              </div>
               <div>
                 <span className="text-[20px] font-bold text-[#71717A] w-10">
                   Status: {subscription.status}
                 </span>
-            </div>
+              </div>
             </div>
             <h2 className="font-bold text-[32px]">${price}</h2>
             {card && (
-            <div className="flex space-x-3 items-center bg-white dark:bg-[#1E293B] p-3">
-              <IconCreditCard className=" fill-black dark:fill-white" />
-              <div className="flex flex-col">
-                <span>
-                  {' '}
-                  Dear<strong>{subscription?.customer?.name}</strong>,{' '}
-                </span>
-                <span>
-                You subscribed with the card{' '}
-                  <strong>****{card.last4}</strong>
-                </span>
+              <div className="flex space-x-3 items-center bg-white dark:bg-[#1E293B] p-3">
+                <IconCreditCard className=" fill-black dark:fill-white" />
+                <div className="flex flex-col">
+                  <span>
+                    {' '}
+                    Dear<strong>{subscription?.customer?.name}</strong>,{' '}
+                  </span>
+                  <span>
+                    You subscribed with the card{' '}
+                    <strong>****{card.last4}</strong>
+                  </span>
+                </div>
               </div>
-            </div>
-             )} 
+            )}
           </div>
           <div className="w-full mt-5">
             <div className="flex justify-between">

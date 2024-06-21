@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server'
-import Stripe from 'stripe'
+import { Stripe } from 'stripe'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2024-04-10'
@@ -95,7 +95,7 @@ export async function GET(req: NextRequest) {
 // Use PUT to check if a customer has an active subscription or not by email address 
 export async function PUT(req: NextRequest) {
   try {
-   const { email } = await req.json()
+    const { email } = await req.json()
     if (!email) {
       return new Response(
         JSON.stringify({ error: 'Email is required' }),

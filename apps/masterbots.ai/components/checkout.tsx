@@ -1,12 +1,12 @@
-import { IconHelp, IconCreditCard } from '@/components/ui/icons'
+import { IconCreditCard, IconHelp } from '@/components/ui/icons'
 import { usePayment } from '@/lib/hooks/use-payment'
-import type { WizardStepProps } from './ui/wizard'
-import { useElements, useStripe, Elements } from '@stripe/react-stripe-js'
+import { useElements, useStripe } from '@stripe/react-stripe-js'
 import { useEffect, useState } from 'react'
 import { StripeElement } from './stripe-element'
+import type { WizardStepProps } from './ui/wizard'
 
 export function InnerCheckout({ prev, next }: WizardStepProps) {
-  const { card, plan } = usePayment()
+  const { card, plan, loading, handleSetLoading } = usePayment()
   const price = (plan?.unit_amount ? plan?.unit_amount / 100 : 0).toFixed(2);
   const stripe = useStripe()
   const elements = useElements()
@@ -17,7 +17,6 @@ export function InnerCheckout({ prev, next }: WizardStepProps) {
     handlePaymentIntent
   } = usePayment()
   const [mounted, setMounted] = useState(false)
-  const [loading, handleSetLoading] = useState(false)
 
   useEffect(() => {
     if (stripe && elements) {
@@ -109,17 +108,19 @@ export function InnerCheckout({ prev, next }: WizardStepProps) {
                 *charged once every {getCurrentOrTargetDate()}
               </span>
             </div>
-            <span>${price}</span>
+            <span>${4.49 * 12}</span>
           </div>
-          <div className="flex justify-between text-gray-400 mt-3">
-            <span>
-              {' '}
-              <strong>Year Plan</strong> subscription discount
-            </span>
-            <span>-$0.00</span>
-          </div>
+          {plan?.product.name.toLowerCase().includes('year') && (
+            <div className="flex justify-between text-gray-400 mt-3">
+              <span>
+                {' '}
+                <strong>Year Plan</strong> subscription discount
+              </span>
+              <span>-${((4.49 * 12) - Number(price)).toFixed(2)}</span>
+            </div>
+          )}
           <div className="flex justify-between mt-5 pb-4 border-b">
-            <span className="font-bold"> Subtotal</span>
+            <span className="font-bold">Subtotal</span>
             <span>${price}</span>
           </div>
           <div className="flex justify-between mt-3 pb-4 border-b">
@@ -157,9 +158,8 @@ export function InnerCheckout({ prev, next }: WizardStepProps) {
           type="button"
           disabled={loading}
           onClick={submit}
-          className={`dark:bg-white bg-black text-white dark:text-black rounded-full font-bold py-2 px-4 ${
-            loading ? 'opacity-50' : ''
-          }`}
+          className={`dark:bg-white bg-black text-white dark:text-black rounded-full font-bold py-2 px-4 ${loading ? 'opacity-50' : ''
+            }`}
         >
           Pay Subscription
         </button>

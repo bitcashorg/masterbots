@@ -22,12 +22,12 @@ export default function BrowseChatbotDetails({
             <path
               d="M7.09973 2.15008L3.24979 6.00003L7.09973 9.84998"
               stroke="#FAFAFA"
-              stroke-width="0.962486"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              strokeWidth="0.962486"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             />
           </svg>{' '}
-           <span className="text-['24px'] font-normal">Back to browse</span> 
+          <span className="text-['24px'] font-normal">Back to browse</span>
         </a>
       </div>
       <div
