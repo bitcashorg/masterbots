@@ -1,5 +1,5 @@
 import { auth } from '@/auth'
-import { ChatChatbot } from '@/components/chat-chatbot'
+import { ChatChatbot } from '@/components/chat/chat-chatbot'
 import ThreadPanel from '@/components/thread-panel'
 import { botNames } from '@/lib/bots-names'
 import { getChatbot, getThreads } from '@/services/hasura'

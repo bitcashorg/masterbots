@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { formatSystemPrompts } from '@/lib/actions'
 import { auth } from '@/auth'
-import { Chat } from '@/components/chat'
+import { Chat } from '@/components/chat/chat'
 import { getThread } from '@/services/hasura'
 import { Message } from 'ai/react'
 import { isTokenExpired } from 'mb-lib'
