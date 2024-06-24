@@ -12,7 +12,7 @@ export default function PlanCard({
   return (
     <div
       className={cn(
-        'border-gradient w-full h-[275px] dark:[&>_div]:hover:bg-tertiary     [&>_div]:hover:tertiarylight',
+        'border-gradient w-full h-[275px] dark:[&>_div]:hover:bg-tertiary ',
         {
           'selected': selectedPlan === duration
         },
@@ -22,7 +22,7 @@ export default function PlanCard({
       <div className={cn(
         'transition-all size-[calc(100%_-_10px)] absolute top-[5px] left-[5px] rounded-[11px] bg-transparent',
         {
-          'dark:bg-tertiary bg-tertiarylight': selectedPlan === duration
+          'bg-tertiary': selectedPlan === duration
         }
       )} />
       <input
@@ -53,7 +53,7 @@ export default function PlanCard({
             <span
               className={cn(
                 'h-3.5 w-3.5 rounded-full border-[3px] border-border/80',
-                selectedPlan === duration ? 'dark:bg-tertiary   bg-tertiarylight' : 'bg-mirage'
+                selectedPlan === duration ? 'bg-tertiary ' : 'bg-mirage'
               )}
             />
           </div>

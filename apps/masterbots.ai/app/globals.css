@@ -46,12 +46,11 @@
     --mirage: 217, 33%, 17%;
     --iron: 240, 6%, 90%;
 
-    --tertiary: 120, 100%, 65%;
+    --tertiary:  288, 82%, 50%;
     --tertiary-foreground: 0 0% 98%;
-    --tertiary-light: 288, 82%, 50%;
-    --tertiary-light-foreground: 0 0% 98%;
 
   }
+
 
   .dark {
     --background: 240 10% 3.9%;

@@ -111,7 +111,7 @@ export function Plans({ next, goTo }: PlansPros) {
           <div className={cn(
             'transition-all size-[calc(100%_-_10px)] absolute top-[5px] left-[5px] rounded-[11px] bg-transparent',
             {
-              'dark:bg-tertiary  bg-tertiarylight': selectedPlan === 'free'
+              'bg-tertiary ': selectedPlan === 'free'
             }
           )} />
           <input
@@ -128,7 +128,7 @@ export function Plans({ next, goTo }: PlansPros) {
             <div className="flex justify-between items-center inner-content dark:bg-[url(/free_plan_bg.png)] bg-[url(/free_plan_bg_light.png)] my-auto p-5">
               <div className="flex flex-col space-y-2 h-full">
                 {/* // ! @sheriffjimoh -- This must be dynamic. To read user current plan and tag it as "PURCHASED" */}
-                <span className="absolute top-0 leading-7 font-black text-[13px] dark:text-tertiary text-tertiarylight">
+                <span className="absolute top-0 leading-7 font-black text-[13px] text-tertiary ">
                   PURCHASED
                 </span>
                 <div className="mt-auto space-y-1">
@@ -145,7 +145,7 @@ export function Plans({ next, goTo }: PlansPros) {
                 <span
                   className={cn(
                     'h-3.5 w-3.5 rounded-full border-[3px] border-border/80',
-                    selectedPlan === 'free' ? 'dark:bg-tertiary bg-tertiarylight' : 'bg-mirage'
+                    selectedPlan === 'free' ? 'bg-tertiary ' : 'bg-mirage'
                   )}
                 />
                 <h3 className="dark:text-white  text-black text-[36px] font-bold">

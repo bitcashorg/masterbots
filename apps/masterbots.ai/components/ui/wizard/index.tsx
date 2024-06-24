@@ -69,28 +69,6 @@ const DialogWizard: React.FC<DialogWizardProps> = ({
                 <span className="text-[44px] ">&times;</span>{' '}
               </button>
             </div>
-            {/* {error ? (
-              <motion.div key="wizard-error-container" {...animationStepProps}>
-                <div>{error}</div>
-              </motion.div>
-            ) : (
-              steps
-                ?.filter((_, index) => index === currentStep)
-                .map(step => (
-                  <motion.div key={step.name} {...animationStepProps}>
-                    <div>
-                      <step.component
-                        next={Next}
-                        prev={Prev}
-                        close={close}
-                        goTo={goTo}
-                        currentStep={currentStep}
-                        lastStep={lastStep}
-                      />
-                    </div>
-                  </motion.div>
-                ))
-            )} */}
             <Content
               errorComponent={errorComponent}
               steps={steps}
