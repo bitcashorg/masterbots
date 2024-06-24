@@ -64,16 +64,16 @@ export default async function TermPoliciesPage() {
 
           <h2 className="text-md font-bold mb-2 uppercase">Additional Fees</h2>
         <p className="mb-4">Please be aware that any additional fees incurred due to country-specific regulations are also managed by Stripe. 
-        These fees are determined by Stripe's pricing and fee structure, which includes factors such as currency conversion fees, international card transaction fees, and other applicable charges. For more detailed information about Stripe's pricing and fees,
+        These fees are determined by Stripe&apos;s pricing and fee structure, which includes factors such as currency conversion fees, international card transaction fees, and other applicable charges. For more detailed information about Stripe&apos;s pricing and fees,
          please refer to their official <a className="underline" href="https://stripe.com/resources/more/payment-gateway-fees#:~:text=Stripe's%20payment%20gateway%20fees,-Here's%20a%20list&text=Transaction%20fees%3A%20Stripe%20charges%202.9,if%20currency%20conversion%20is%20necessary.">Pricing and Fees Guide</a> .</p>
 
         <h2 className="text-md font-bold mb-2 uppercase">DISCLAIMER</h2>
-        <p className="mb-4">We are not responsible for any additional fees imposed by country regulations or Stripe's pricing policies. All transactions are subject to the terms and conditions set forth by Stripe. By using our services,
-         you agree to comply with Stripe's payment terms and policies. </p>
+        <p className="mb-4">We are not responsible for any additional fees imposed by country regulations or Stripe&apos;s pricing policies. All transactions are subject to the terms and conditions set forth by Stripe. By using our services,
+         you agree to comply with Stripe&apos;s payment terms and policies. </p>
 
          <h2 className="text-md font-bold mb-2 uppercase">USER RESPONSIBILITIES</h2>
          <p className="mb-4">As a user, it is your responsibility to ensure that your payment information is accurate and up-to-date.
-          Any disputes regarding additional fees should be directed to Stripe's support team for resolution. 
+          Any disputes regarding additional fees should be directed to Stripe&apos;s support team for resolution. 
           For further details, please refer to our <a className="underline" href="/faq">FAQ page</a>  for general information about product subscriptions and country-specific regulations</p>
 
 
