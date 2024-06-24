@@ -22,10 +22,10 @@ export async function checkIfCustomerHasActiveSub(email: string) {
 }
 
 export async function getSubscriptionPlans({
-  handleSetStripePublicKey,
+  handleSetStripePublishKey,
   handleSetStripeSecret
 }: {
-  handleSetStripePublicKey: (key: string) => void
+  handleSetStripePublishKey: (key: string) => void
   handleSetStripeSecret: (key: string) => void
 }) {
   let plans: PlanList[] = []
@@ -44,13 +44,13 @@ export async function getSubscriptionPlans({
 
     const data: {
       plans: PlanList[],
-      stripe_secret: string,
+      stripeSecret: string,
       stripe_publishable: string
       error?: string
     } = await response.json()
     // remove the free plan from the list
-    handleSetStripePublicKey(data.stripe_publishable)
-    handleSetStripeSecret(data.stripe_secret)
+    handleSetStripePublishKey(data.stripe_publishable)
+    handleSetStripeSecret(data.stripeSecret)
 
     data.plans = data.plans.filter((plan: any) => plan.unit_amount !== 0)
     // show the plans in ascending order

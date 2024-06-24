@@ -19,7 +19,7 @@ export function Plans({ next, goTo }: PlansPros) {
     handleSetLoading,
     handleDeleteCustomer,
     handleSetError,
-    handleSetStripePublicKey,
+    handleSetStripePublishKey,
     handleSetStripeSecret
   } = usePayment()
 
@@ -27,7 +27,7 @@ export function Plans({ next, goTo }: PlansPros) {
   const router = useRouter()
   const { value: plans, loading: loadingPlans } = useAsync(async () =>
     await getSubscriptionPlans({
-      handleSetStripePublicKey,
+      handleSetStripePublishKey,
       handleSetStripeSecret,
     })
   )
@@ -95,13 +95,13 @@ export function Plans({ next, goTo }: PlansPros) {
       <div className="text-center pt-2">
         <span className="font-bold text-[16px]">
           Subscribe using{' '}
-          <span className="dark:text-[#635BFF]  text-[#635BFF]">Stripe</span>{' '}
+          <span className="dark:text-[#635BFF]  text-[#625af5]">Stripe</span>{' '}
         </span>
       </div>
       <div className="flex flex-col size-full space-y-3 p-5">
         <div
           className={cn(
-            'border-gradient w-full h-[135px] [&>_div]:hover:bg-tertiary',
+            'border-gradient w-full h-[135px] dark:[&>_div]:hover:bg-tertiary',
             {
               'selected': selectedPlan === 'free'
             }
@@ -111,7 +111,7 @@ export function Plans({ next, goTo }: PlansPros) {
           <div className={cn(
             'transition-all size-[calc(100%_-_10px)] absolute top-[5px] left-[5px] rounded-[11px] bg-transparent',
             {
-              'bg-tertiary': selectedPlan === 'free'
+              'dark:bg-tertiary  bg-tertiarylight': selectedPlan === 'free'
             }
           )} />
           <input
@@ -128,7 +128,7 @@ export function Plans({ next, goTo }: PlansPros) {
             <div className="flex justify-between items-center inner-content dark:bg-[url(/free_plan_bg.png)] bg-[url(/free_plan_bg_light.png)] my-auto p-5">
               <div className="flex flex-col space-y-2 h-full">
                 {/* // ! @sheriffjimoh -- This must be dynamic. To read user current plan and tag it as "PURCHASED" */}
-                <span className="absolute top-0 leading-7 font-black text-[13px] text-tertiary">
+                <span className="absolute top-0 leading-7 font-black text-[13px] dark:text-tertiary text-tertiarylight">
                   PURCHASED
                 </span>
                 <div className="mt-auto space-y-1">
@@ -145,7 +145,7 @@ export function Plans({ next, goTo }: PlansPros) {
                 <span
                   className={cn(
                     'h-3.5 w-3.5 rounded-full border-[3px] border-border/80',
-                    selectedPlan === 'free' ? 'bg-tertiary' : 'bg-mirage'
+                    selectedPlan === 'free' ? 'dark:bg-tertiary bg-tertiarylight' : 'bg-mirage'
                   )}
                 />
                 <h3 className="dark:text-white  text-black text-[36px] font-bold">

@@ -9,10 +9,10 @@ interface StripeElementProps {
 }
 
 export function StripeElement({ children }: StripeElementProps) {
-  const { secret, stripe_public_key } = usePayment()
+  const { secret, stripePublishkey } = usePayment()
   const [theme, setTheme] = useState<'night' | 'stripe' | 'flat'>('stripe');
   const stripePromise = loadStripe(
-    stripe_public_key || ''
+    stripePublishkey || ''
   )
 
   useEffect(() => {

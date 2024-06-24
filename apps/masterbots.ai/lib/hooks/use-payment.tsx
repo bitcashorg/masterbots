@@ -32,10 +32,10 @@ interface PaymentContextProps {
   secret: string
   handleSetSecret: (secret: string) => void
   handleDeleteCustomer: (email: string) => Promise<any>
-  stripe_secret: string
-  handleSetStripeSecret: (stripe_secret: string) => void
-  stripe_public_key: string
-  handleSetStripePublicKey: (stripe_public_key: string) => void
+  stripeSecret: string
+  handleSetStripeSecret: (stripeSecret: string) => void
+  stripePublishkey: string
+  handleSetStripePublishKey: (stripePublishkey: string) => void
 }
 
 const PaymentContext = createContext<PaymentContextProps | undefined>(undefined)
@@ -66,8 +66,8 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
   })
   const [confirmationToken, setConfirmationToken] = useState<any>("")
   const [secret, setSecret] = useState<string>("")
-  const [stripe_secret, setStripeSecret] = useState<string>('')
-  const [stripe_public_key, setStripePublicKey] = useState<string>('')
+  const [stripeSecret, setStripeSecret] = useState<string>('')
+  const [stripePublishkey, setStripePublishKey] = useState<string>('')
 
 
   const handleSetConfirmationToken = (token: string | undefined) => {
@@ -115,11 +115,11 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
     }
   }
 
-  const handleSetStripeSecret = (stripe_secret: string) => {
-    setStripeSecret(stripe_secret)
+  const handleSetStripeSecret = (stripeSecret: string) => {
+    setStripeSecret(stripeSecret)
   }
-  const handleSetStripePublicKey = (stripe_public_key: string) => {
-    setStripePublicKey(stripe_public_key)
+  const handleSetStripePublishKey = (stripePublishkey: string) => {
+    setStripePublishKey(stripePublishkey)
   }
 
 
@@ -134,10 +134,8 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
         loading,
         paymentIntent,
         confirmationToken,
-        // ! @sheriffjimoh -- change to camelCase
-        stripe_secret,
-        // ! @sheriffjimoh -- change to camelCase
-        stripe_public_key,
+        stripeSecret,
+        stripePublishkey,
         handlePlan,
         handleSetUser,
         handleSetCard,
@@ -147,7 +145,7 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
         handlePaymentIntent,
         handleDeleteCustomer,
         handleSetStripeSecret,
-        handleSetStripePublicKey,
+        handleSetStripePublishKey,
         handleSetConfirmationToken,
       }}
     >

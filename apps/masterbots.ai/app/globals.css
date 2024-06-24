@@ -48,6 +48,9 @@
 
     --tertiary: 120, 100%, 65%;
     --tertiary-foreground: 0 0% 98%;
+    --tertiary-light: 288, 82%, 50%;
+    --tertiary-light-foreground: 0 0% 98%;
+
   }
 
   .dark {
@@ -177,7 +180,6 @@
   border: double 6px transparent;
   background-image:
     linear-gradient(white, white),
-    /* Inner background */
       linear-gradient(
         180deg,
         rgba(113, 113, 122, 0.1) 0%,
@@ -191,7 +193,7 @@
 
 .dark .border-gradient {
   background-image:
-    linear-gradient(rgb(46, 44, 44), rgb(46, 44, 44)),
+    linear-gradient(rgb(47, 45, 45), rgb(46, 44, 44)),
     /* Inner background */
       linear-gradient(
         180deg,
