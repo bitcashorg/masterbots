@@ -1,4 +1,6 @@
 import Stripe from 'stripe'
+import { type Message } from 'ai'
+import { ChatCompletionMessageParam } from 'openai/resources'
 
 export interface Chat extends Record<string, any> {
   id: string
@@ -24,12 +26,6 @@ export type PromptProps = {
   }
 }
 
-export type Message = {
-  id: string,
-  role: "function" | "system" | "user" | "data" | "assistant" | "tool",
-  content: string,
-  createdAt: Date,
-}
 
 // ? Stripe components types
 
@@ -63,3 +59,13 @@ export type PlansPros = {
 }
 
 export type PlanList = StripePlan
+
+
+export type JSONResponseStream = {
+  id: string
+  model: string
+  messages: ChatCompletionMessageParam[]
+  previewToken: string
+}
+
+export type AiClientType = 'OpenAI' | 'Anthropic' | 'Perplexity' | 'WordWare'
