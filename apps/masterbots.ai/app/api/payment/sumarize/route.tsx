@@ -1,5 +1,12 @@
 import type { NextRequest } from 'next/server'
-const stripe = require('stripe')(process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY);
+
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+
+ if (!stripeSecretKey) {
+  throw new Error('Stripe secret key is not set.');
+}
+
+const stripe = require('stripe')(stripeSecretKey);
 export const runtime = 'edge'
 
 export async function POST(req: NextRequest) {

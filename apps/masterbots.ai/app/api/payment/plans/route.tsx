@@ -1,9 +1,14 @@
 import Stripe from 'stripe';
 
 // Initialize Stripe with your secret key
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-04-10',
-});
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+
+if (!stripeSecretKey) {
+  throw new Error('Stripe secret key is not set.');
+}
+const stripe = new Stripe(stripeSecretKey|| '', {
+  apiVersion: '2024-04-10'
+})
 
 export async function GET() {
   try {
