@@ -776,9 +776,10 @@ function IconCreditCard({ className, ...props }: React.ComponentProps<'svg'>) {
   }
 
 export {
-  IconArrowDown,
-  IconClaude,
+  IconArrowDown, 
   IconArrowElbow, IconArrowRight, IconArrowRightNoFill, IconCaretRight, IconChatMessage, IconChatSearch, IconCheck, IconChevronAngleRight, IconChevronUpDown, IconClose, IconCopy, IconCreditCard, IconDownload, IconDownVote, IconEdit, IconExternalLink, IconGitHub, IconHelp, IconMessage, IconMoon, IconNextChat,
-  IconOpenAI, IconPlus, IconRefresh, IconSeparator, IconShare, IconSidebar, IconSpinner, IconStop, IconSun, IconTrash, IconUpVote, IconUser, IconUsers, IconVercel
+  IconOpenAI, IconPlus, IconRefresh, IconSeparator, IconShare, IconSidebar, IconSpinner, IconStop, IconSun, IconTrash, IconUpVote, IconUser, IconUsers, IconVercel, IconClaude,
+  IconLlama,
+  IconWordware
 }
 
