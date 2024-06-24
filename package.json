@@ -25,6 +25,7 @@
   "dependencies": {
     "@stripe/react-stripe-js": "^2.7.1",
     "@stripe/stripe-js": "^3.5.0",
+    "axios": "^1.7.2",
     "lottie-react": "^2.4.0",
     "nextjs-toploader": "^1.6.4",
     "stripe": "^15.9.0"
