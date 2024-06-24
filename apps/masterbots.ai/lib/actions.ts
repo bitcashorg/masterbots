@@ -1,4 +1,5 @@
-import { Message, PromptProps } from "@/lib/types";
+import {  PromptProps } from "@/lib/types";
+import { type Message } from 'ai'
 
 export function formatSystemPrompts(prompts: PromptProps[]): Message[] {
   return prompts.map(({ prompt }) => ({
