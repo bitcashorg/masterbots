@@ -221,3 +221,20 @@ export const plans = [
   }
 ]
 
+
+
+export function getDate(timestamp: number) {
+  let date
+  if (timestamp === 0) {
+    date = new Date()
+  } else {
+    date = new Date(timestamp * 1000)
+  }
+  const options: Intl.DateTimeFormatOptions = {
+    month: 'long',
+    day: 'numeric'
+  }
+  const dateString = date.toLocaleString('en-US', options)
+
+  return dateString
+}

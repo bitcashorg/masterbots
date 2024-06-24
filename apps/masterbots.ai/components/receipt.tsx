@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { IconCreditCard, IconHelp } from './ui/icons'
+import { getDate } from '../lib/utils'
 
 interface ReceiptProps {
   intentid: string
@@ -62,24 +63,7 @@ export const Receipt: React.FC<ReceiptProps> = ({ intentid }) => {
     }
     fetchPayment()
   }, [])
-
-  // ! @sheriffjimoh -- move this as a utility function
-  function getDate(timestamp: number) {
-    let date
-    if (timestamp === 0) {
-      date = new Date()
-    } else {
-      date = new Date(timestamp * 1000)
-    }
-    const options: Intl.DateTimeFormatOptions = {
-      month: 'long',
-      day: 'numeric'
-    }
-    const dateString = date.toLocaleString('en-US', options)
-
-    return dateString
-  }
-  console.log('subscription', subscription)
+  
   const plan = subscription.plan
   const price = (plan?.amount / 100).toFixed(2)
 

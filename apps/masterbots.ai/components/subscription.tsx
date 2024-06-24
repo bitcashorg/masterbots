@@ -34,6 +34,7 @@ export default function Subscription({ user }: { user: { email: string; name: st
     if (del) return router.push('/chat')
   }
 
+
   return (
     <div className="flex items-center justify-center">
       <DialogWizard

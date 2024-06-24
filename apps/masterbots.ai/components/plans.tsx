@@ -157,7 +157,7 @@ export function Plans({ next, goTo }: PlansPros) {
         </div>
         <div className="flex space-x-3">
           {plans && plans.length && (
-            plans.filter(plan => plan.active).sort((a, b) => a.created - b.created).map(plan => (
+            plans?.filter(plan => plan.active).sort((a, b) => a.created - b.created).map(plan => (
               <PlanCard
                 key={plan.id}
                 selectedPlan={selectedPlan}
