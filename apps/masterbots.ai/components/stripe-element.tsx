@@ -11,14 +11,14 @@ interface StripeElementProps {
 export function StripeElement({ children }: StripeElementProps) {
   const { secret, stripePublishkey } = usePayment()
   const [theme, setTheme] = useState<'night' | 'stripe' | 'flat'>('stripe');
-  const stripePromise = loadStripe(
+  const stripeLoader = loadStripe(
     stripePublishkey || ''
   )
 
   useEffect(() => {
     const preferredTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'night' : 'stripe';
     setTheme(preferredTheme);
-  }, [theme]);
+  }, []);
 
   const options = {
     clientSecret: secret,
@@ -28,7 +28,7 @@ export function StripeElement({ children }: StripeElementProps) {
     },
   };
   return (
-    <Elements stripe={stripePromise} options={options}>
+    <Elements stripe={stripeLoader} options={options}>
       {children}
     </Elements>
   )
