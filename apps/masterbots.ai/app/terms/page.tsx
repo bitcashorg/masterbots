@@ -57,19 +57,61 @@ export default async function TermPoliciesPage() {
 
          <h2 className="text-2xl font-bold mb-5 uppercase">SUBSCRIPTION PAYMENT TERMS</h2>
 
-        <h2 className="text-md font-bold mb-2 uppercase">Payment Management</h2>
-        <p className="mb-4">The payment process for our services is managed by Stripe, a leading online payment processing platform.
-         We only store subscription identification details necessary to track active subscriptions for future reference.
-          We do not store any payment data on our servers. All payment information is securely managed by Stripe.</p>
+        <h2 className="text-md font-bold mb-2 uppercase">SUBSCRIPTION MANAGEMENT</h2>
+        <p className="mb-4">At Masterbots, we offer both monthly and yearly subscription plans to enhance your experience with our domain-specific AI-driven chatbots. Here’s how we manage your subscription and billing:</p>
+        <ul className="list-disc pl-6 mb-4">
+            <li><strong>No Card Information Storage: </strong>We prioritize your security and privacy. 
+                Masterbots does not store any of your card information on our servers. Instead, we securely 
+                manage all payment processes through Stripe, a leading online payment processing platform.
+             </li>
+             <li><strong>Stripe Payment Profile:</strong>To manage your subscription, we request your Stripe payment profile. 
+             This allows us to retrieve your subscription data and status without directly handling your payment information.
+             </li>
+             <li> <strong>Viewing and Updating Your Subscription: </strong>You can view and update your subscription details, 
+             including checking your billing history, by visiting your subscription management page. 
+             Simply navigate to your profile subscriptions page. Here, 
+             you’ll find all the necessary information regarding your current subscription plan, billing history, 
+             and any updates you may need to make. </li>
+      </ul>
 
-          <h2 className="text-md font-bold mb-2 uppercase">Additional Fees</h2>
-        <p className="mb-4">Please be aware that any additional fees incurred due to country-specific regulations are also managed by Stripe. 
-        These fees are determined by Stripe&apos;s pricing and fee structure, which includes factors such as currency conversion fees, international card transaction fees, and other applicable charges. For more detailed information about Stripe&apos;s pricing and fees,
-         please refer to their official <a className="underline" href="https://stripe.com/resources/more/payment-gateway-fees#:~:text=Stripe's%20payment%20gateway%20fees,-Here's%20a%20list&text=Transaction%20fees%3A%20Stripe%20charges%202.9,if%20currency%20conversion%20is%20necessary.">Pricing and Fees Guide</a> .</p>
 
-        <h2 className="text-md font-bold mb-2 uppercase">DISCLAIMER</h2>
-        <p className="mb-4">We are not responsible for any additional fees imposed by country regulations or Stripe&apos;s pricing policies. All transactions are subject to the terms and conditions set forth by Stripe. By using our services,
-         you agree to comply with Stripe&apos;s payment terms and policies. </p>
+
+          <h2 className="text-md font-bold mb-2 uppercase">SUBSCRIPTION PLANS</h2>
+          <ul className="list-disc pl-6 mb-4">
+            <li><strong> Monthly and Yearly Options:</strong>
+            We offer both monthly and yearly subscription plans to cater to your needs. 
+            You can choose the plan that best suits your preferences and enjoy uninterrupted access to our services.
+            </li>
+          </ul>
+
+          <h2 className="text-md font-bold mb-2 uppercase">SECURITY AND PRIVACY</h2>
+          <ul className="list-disc pl-6 mb-4">
+            <li><strong> Data Security:</strong>
+            Your privacy is of utmost importance to us. By utilizing Stripe for payment processing, 
+            we ensure that your financial information is handled with the highest level of security and compliance.
+            </li>
+            <li>
+               <strong>Privacy Assurance:</strong>
+               Your email and subscription details are used solely for authentication and managing your subscription.
+                We do not share this information publicly.
+
+            </li>
+          </ul>
+
+          <h2 className="text-md font-bold mb-2 uppercase">Additional Fees MANAGED BY STRIPE</h2>
+          <p className="mb-4">Please be aware that additional fees may apply due to country-specific regulations or other factors managed by Stripe. 
+          These fees are determined by Stripe&apos;s pricing structure, which includes:</p>
+          <ul className="list-disc pl-6 mb-4">
+            <li>
+                <strong>Transaction Fees:</strong> Stripe charges a standard fee for each successful card transaction.</li>
+            <li><strong>Currency Conversion Fees:</strong> If your transaction involves currency conversion, additional fees may apply.</li>
+            <li><strong>International Card Fees: </strong>Using an international card may incur extra charges.</li>
+        </ul>
+        <p className="mb-4">We are not responsible for any additional fees imposed by country regulations or Stripe&apos;s pricing policies. All transactions are subject to the terms and conditions set forth by Stripe. By using our services, you agree to comply with Stripe&apos;s payment terms and policies.
+        </p>
+
+           
+ 
 
          <h2 className="text-md font-bold mb-2 uppercase">USER RESPONSIBILITIES</h2>
          <p className="mb-4">As a user, it is your responsibility to ensure that your payment information is accurate and up-to-date.
@@ -148,7 +190,7 @@ export default async function TermPoliciesPage() {
             to any principles of conflicts of law.</p>
 
         <h2 className="text-xl font-bold mb-2 uppercase">Contact Us</h2>
-        <p className="mb-4">For any questions or concerns regarding these Terms, please contact us at contact@masterbots.ai</p>
+        <p className="mb-4">For any questions or concerns regarding these Terms, please contact us at <a className="underline" href="mailto:contact@masterbots.ai"> contact@masterbots.ai</a></p>
    
 
         {/* <!-- Additional sections and content can be added similarly --> */}
