@@ -2,8 +2,13 @@ import SuccessAnim from "@/lib/animations/success-green.json";
 import { usePayment } from "@/lib/hooks/use-payment";
 import Lottie from "lottie-react";
 import Link from "next/link";
-export function SuccessContent() {
+import type { WizardStepProps } from './ui/wizard'
+export function SuccessContent({ close }: WizardStepProps ) {
   const { paymentIntent } = usePayment()
+
+  const handleClose = () => {
+    close()
+  }
 
   return (
     <div
@@ -20,7 +25,10 @@ export function SuccessContent() {
       </div>
 
       <div className='dark:bg-black border mt-5  w-full border-t-black bg-white p-5 flex justify-center items-center space-x-4'>
-        <button type='submit' className='dark:bg-white  bg-black text-white dark:text-black rounded-full font-bold py-2 px-6 min-w-[10rem]'>
+        <button 
+         onClick={handleClose}
+         type='button' 
+         className='dark:bg-white  bg-black text-white dark:text-black rounded-full font-bold py-2 px-6 min-w-[10rem]'>
           Close
         </button>
       </div>
