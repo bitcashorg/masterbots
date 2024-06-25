@@ -16,7 +16,7 @@ export function SuccessContent() {
         <h2 className="font-medium text-[24px] ">Successfully subscribed to Masterbots Pro!</h2>
         <span>We will send your receipt via email. </span>
         <span>AND </span>
-        <span className="text-[#71717A]"> You can <Link target="_blank" href={`/u/s/subs/${paymentIntent.id}`} className="text-blue-600">view receipt online</Link> </span>
+        <span className="text-[#71717A]"> You can <Link target="_blank" rel="noopener noreferrer" href={`/u/s/subs/${paymentIntent.id}`} className="text-blue-600">view receipt online</Link> </span>
       </div>
 
       <div className='dark:bg-black border mt-5  w-full border-t-black bg-white p-5 flex justify-center items-center space-x-4'>
