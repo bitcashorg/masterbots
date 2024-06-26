@@ -9,6 +9,9 @@ export default function PlanCard({
   const duration = plan.unit_amount === 0 ? 'free' : plan.recurring.interval
   const price = (plan.unit_amount ? plan.unit_amount / 100 : 0).toFixed(2)
 
+  const bg_dark = duration === 'year' ? 'dark:bg-[url(/paid_plan_bg_yearly.png)]' : 'dark:bg-[url(/paid_plan_bg.png)]';
+  const bg_light = duration === 'year' ? 'bg-[url(/paid_plan_bg_light_yearly.png)]' : 'bg-[url(/paid_plan_bg_light.png)]';
+
   return (
     <div
       className={cn(
@@ -39,7 +42,7 @@ export default function PlanCard({
         htmlFor={duration}
         className="w-full h-full justify-center items-center flex"
       >
-        <div className="flex flex-col  inner-content dark:bg-[url(/paid_plan_bg.png)] bg-[url(/paid_plan_bg_light.png)] my-auto p-5">
+        <div className={`flex flex-col  inner-content ${bg_dark} ${bg_light} my-auto p-5`}>
           <div className="flex justify-between w-full">
             <div>
               <span className="text-muted-foreground font-extrabold text-[16px] capitalize">

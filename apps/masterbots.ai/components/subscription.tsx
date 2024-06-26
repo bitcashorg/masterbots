@@ -22,6 +22,7 @@ const steps: WizardStep[] = [
 export default function Subscription({ user }: { user: { email: string; name: string } }) {
   const router = useRouter()
   const { handleSetUser, handleDeleteCustomer, handleSetLoading, handleSetError } = usePayment()
+
   const { value: openDialog } = useAsync(async () =>
     await checkIfCustomerHasActiveSub(user.email)
   )

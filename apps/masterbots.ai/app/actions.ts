@@ -1,6 +1,7 @@
 import { PlanList } from "@/lib/types";
 
 export async function checkIfCustomerHasActiveSub(email: string) {
+
   const response = await fetch('/api/payment/subscription', {
     method: 'PUT',
     headers: {
@@ -8,11 +9,12 @@ export async function checkIfCustomerHasActiveSub(email: string) {
     },
     body: JSON.stringify({ email }),
   });
+
   const data: {
     error?: string;
     active: boolean;
   } = await response.json();
-
+  
   if (data.error) {
     console.error('Error while checking customer data: ', data.error);
     return true;
