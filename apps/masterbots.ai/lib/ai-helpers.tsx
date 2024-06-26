@@ -21,8 +21,7 @@ export function getModelClientType(model: AIModels) {
   }
 }
 
-//? Create a payload to create a new data row on DB
-
+//* Creates a normal base payload for the chat message
 export function createPayload(
   json: { id: string },
   messages: { content: string }[],
@@ -48,6 +47,7 @@ export function createPayload(
   }
 }
 
+//* function ensuring that the payload is correctly formatted for each client type that needs manipulation before sending to the API and if manipulation is not required we retur playload without any modification
 export function setStreamerPayload(
   model: AiClientType,
   payload: ChatCompletionMessageParam[] | MessageParam[]
