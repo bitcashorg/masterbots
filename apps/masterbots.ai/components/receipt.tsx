@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from 'react'
 import { IconCreditCard, IconHelp } from './ui/icons'
 import { getDate } from '../lib/utils'
+import { fetchPayment } from '@/app/actions'
+import { useAsync } from 'react-use'
 
 interface ReceiptProps {
   intentid: string
@@ -17,9 +19,9 @@ type Subscription = {
     interval: string
     product: {
       name: string
-    },
+    }
   }
-  current_period_start: number,
+  current_period_start: number
   status: string
 }
 
@@ -37,40 +39,21 @@ const initialState = {
   current_period_start: 0,
   status: ''
 }
-type Card = {
-  last4: string
-}
-export const Receipt: React.FC<ReceiptProps> = ({ intentid }) => {
-  const [subscription, setSubscription] = useState<Subscription>(initialState)
-  const [card, setCard] = useState<Card>({ last4: '' })
-  const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    const fetchPayment = async () => {
-      const response = await fetch(
-        `/api/payment/subscription?paymentIntentId=${intentid}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      )
-      const responseData = await response.json()
-      setSubscription(responseData.subscription)
-      setCard(responseData.card.card)
-      setLoading(false)
-    }
-    fetchPayment()
-  }, [])
-  
+export const Receipt: React.FC<ReceiptProps> = ({ intentid }) => {
+  const { value: data, loading } = useAsync(
+    async () => await fetchPayment(intentid)
+  )
+
+  const subscription = data?.subscription || initialState
+  const card = data?.card || { last4: '' }
   const plan = subscription.plan
   const price = (plan?.amount / 100).toFixed(2)
 
   return (
     plan && (
-      <div className={`h-full w-full dark:bg-[#18181B] bg-[#F4F4F5]   ${loading ? 'opacity-10' : ''}`}
-
+      <div
+        className={`h-full w-full dark:bg-[#18181B] bg-[#F4F4F5]   ${loading ? 'opacity-10' : ''}`}
       >
         <div className="max-w-[24rem] mx-auto">
           <div className="text-left pt-2 text-black dark:text-white flex flex-col">
@@ -79,12 +62,12 @@ export const Receipt: React.FC<ReceiptProps> = ({ intentid }) => {
             <span className="font-medium text-[16px]">{intentid}</span>
           </div>
           <div className="text-left mt-5">
-            <div className='flex justify-between'>
+            <div className="flex justify-between">
               <div className="w-40 leading-[14.88px]">
                 <span className="text-[12px] font-bold text-[#71717A] w-10">
                   You Paid The{' '}
-                  <span className="capitalize">{plan.interval + 'ly'}</span> Plan
-                  Subscription
+                  <span className="capitalize">{plan.interval + 'ly'}</span>{' '}
+                  Plan Subscription
                 </span>
               </div>
               <div>

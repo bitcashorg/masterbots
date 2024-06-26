@@ -69,3 +69,38 @@ export type JSONResponseStream = {
 }
 
 export type AiClientType = 'OpenAI' | 'Anthropic' | 'Perplexity' | 'WordWare'
+
+
+
+export type Subscription = {
+  customer: {
+    name: string
+  }
+  plan: {
+    amount: number
+    interval: string
+    product: {
+      name: string
+    },
+  }
+  current_period_start: number,
+  status: string
+}
+
+export type Card = {
+  last4: string
+}
+export const initialStateSubscription = {
+  customer: {
+    name: ''
+  },
+  plan: {
+    amount: 0,
+    interval: '',
+    product: {
+      name: ''
+    }
+  },
+  current_period_start: 0,
+  status: ''
+}

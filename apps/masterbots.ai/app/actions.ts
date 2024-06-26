@@ -1,26 +1,30 @@
-import { PlanList } from "@/lib/types";
+import {
+  PlanList,
+  Subscription,
+  Card,
+  initialStateSubscription
+} from '@/lib/types'
 
 export async function checkIfCustomerHasActiveSub(email: string) {
-
   const response = await fetch('/api/payment/subscription', {
     method: 'PUT',
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ email }),
-  });
+    body: JSON.stringify({ email })
+  })
 
   const data: {
-    error?: string;
-    active: boolean;
-  } = await response.json();
-  
+    error?: string
+    active: boolean
+  } = await response.json()
+
   if (data.error) {
-    console.error('Error while checking customer data: ', data.error);
-    return true;
+    console.error('Error while checking customer data: ', data.error)
+    return true
   }
 
-  return Boolean(!data.active);
+  return Boolean(!data.active)
 }
 
 export async function getSubscriptionPlans({
@@ -45,8 +49,8 @@ export async function getSubscriptionPlans({
     }
 
     const data: {
-      plans: PlanList[],
-      stripeSecret: string,
+      plans: PlanList[]
+      stripeSecret: string
       stripe_publishable: string
       error?: string
     } = await response.json()
@@ -64,4 +68,34 @@ export async function getSubscriptionPlans({
   }
 
   return plans
+}
+
+export const fetchPayment = async (intentid: string) => {
+  let subscription: Subscription = initialStateSubscription
+  let card: Card = { last4: '' }
+
+  try {
+    const response = await fetch(
+      `/api/payment/subscription?paymentIntentId=${intentid}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    const data: {
+      subscription: Subscription
+      card: { card: Card }
+    } = await response.json()
+
+    subscription = data.subscription
+    card = data.card.card
+  } catch (error) {
+    console.error('Error fetching plans:', error)
+  }
+  return { subscription, card }
 }

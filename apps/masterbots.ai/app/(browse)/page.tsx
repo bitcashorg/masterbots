@@ -10,22 +10,9 @@ export default async function HomePage() {
 
   return (
     <div className="max-w-[1024px] px-4 pb-10 mx-auto w-full">
-      {/* <BrowseCategoryTabs categories={categories} />
+      <BrowseCategoryTabs categories={categories} />
       <BrowseSearchInput />
-      <BrowseList /> */}
-     
-      <Dialog>
-       
-      <DialogTrigger>
-        <button>Open Dialog</button>
-      </DialogTrigger>
-      <DialogContent onClick={()=> alert("clikc")}>
-        <p>Dialog content</p>
-        <DialogClose asChild>
-          <button>Close Dialog</button>
-        </DialogClose>
-      </DialogContent>
-      </Dialog>
+      <BrowseList />
     </div>
   )
 }
