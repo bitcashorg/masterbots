@@ -4,6 +4,7 @@ import { useElements, useStripe } from '@stripe/react-stripe-js'
 import { useEffect, useState } from 'react'
 import { StripeElement } from './stripe-element'
 import type { WizardStepProps } from './ui/wizard'
+import { getCurrentOrTargetDate } from '@/lib/utils'
 
 export function InnerCheckout({ prev, next }: WizardStepProps) {
   const { card, plan, loading, handleSetLoading } = usePayment()
@@ -25,14 +26,7 @@ export function InnerCheckout({ prev, next }: WizardStepProps) {
     }
   }, [stripe, elements])
 
-  function getCurrentOrTargetDate() {
-    const today = new Date()
-    return today.toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric'
-    })
-  }
-
+ 
   const submit = async () => {
     try {
       handleSetLoading(true)

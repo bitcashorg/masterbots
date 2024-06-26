@@ -238,3 +238,12 @@ export function getDate(timestamp: number) {
 
   return dateString
 }
+
+
+export function getCurrentOrTargetDate() {
+  const today = new Date()
+  return today.toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric'
+  })
+}
