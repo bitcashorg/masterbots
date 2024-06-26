@@ -27,7 +27,7 @@ export function SuccessContent({ close }: WizardStepProps ) {
       <div className='dark:bg-black border mt-5  w-full border-t-black bg-white p-5 flex justify-center items-center space-x-4'>
         <button 
          onClick={handleClose}
-         type='button' 
+         type='button' aria-label='Close'
          className='dark:bg-white  bg-black text-white dark:text-black rounded-full font-bold py-2 px-6 min-w-[10rem]'>
           Close
         </button>
