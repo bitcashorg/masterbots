@@ -49,7 +49,7 @@ export async function initializeAnthropic(apiKey: string) {
 }
 
 export async function initializePerplexity(apiKey: string) {
-  if (!process.env.PERPLEXITY_API_KEY) {
+  if (!process.env.LLAMA_API_KEY) {
     throw new Error(
       'PERPLEXITY_API_KEY is not defined in environment variables'
     )
