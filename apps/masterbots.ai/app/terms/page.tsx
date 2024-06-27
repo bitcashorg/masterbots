@@ -132,7 +132,7 @@ export default async function TermPoliciesPage() {
             <a className="underline" href="mailto:contact@masterbots.ai"> contact@masterbots.ai</a></p>
 
 
-         <h2 className="text-xl font-bold mb-2 uppercase">Introduction</h2>
+         {/* <h2 className="text-xl font-bold mb-2 uppercase">Introduction</h2>
 
         <p className="mb-4">Welcome to Masterbots.ai (&quot;we,&quot;, &quot;us,&quot; &quot;our&quot;). By accessing our website, you agree to these Terms of Service
             (&quot;Terms&quot;), our Privacy Policy, and all applicable laws and regulations governing the use of our platform. Our
@@ -191,7 +191,7 @@ export default async function TermPoliciesPage() {
 
         <h2 className="text-xl font-bold mb-2 uppercase">Contact Us</h2>
         <p className="mb-4">For any questions or concerns regarding these Terms, please contact us at <a className="underline" href="mailto:contact@masterbots.ai"> contact@masterbots.ai</a></p>
-   
+    */}
 
         {/* <!-- Additional sections and content can be added similarly --> */}
 
