@@ -58,7 +58,7 @@ export function PaymentInformation({ prev, next }: WizardStepProps) {
 
 
   return (
-    <form className="w-full dark:bg-[#18181B] bg-[#F4F4F5]" onSubmit={handlePaymentSubmit}>
+    <form className="w-full dark:bg-[#18181B] bg-[#F4F4F5] h-full" onSubmit={handlePaymentSubmit}>
       <div className="max-w-[24rem] mx-auto">
         <div className="text-center pt-2 text-gray-600">
           <span className="font-bold text-[16px]">
