@@ -1,8 +1,14 @@
 import { LoadingState } from '@/components/loading-state'
 import { usePayment } from '@/lib/hooks/use-payment'
-import { AnimatePresence, motion } from 'framer-motion'
+import {  motion } from 'framer-motion'
 import React from 'react'
 import { useWizard } from './hook/useWizard'
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogHeader
+} from '@/components/ui/dialog'
 
 export interface WizardStepProps {
   next: () => void
@@ -40,44 +46,23 @@ const DialogWizard: React.FC<DialogWizardProps> = ({
   handleCloseWizard,
   errorComponent
 }) => {
-  const { dialogRef } = useWizard(steps, dialogOpen)
-
+ 
   return (
-    <AnimatePresence>
-      {dialogOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <motion.div
-            key="overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-[#27272A80]"
-          />
-          <motion.dialog
-            key="dialog"
-            ref={dialogRef}
-            open={dialogOpen}
-            {...animationStepProps}
-            className="rounded-lg shadow-lg min-h-[540px] w-11/12 max-w-2xl z-50 bg-gray-100 dark:bg-[#27272A]  border border-black"
-          >
-            <div className="flex justify-between items-center dark:bg-[#1E293B] bg-gray-200 dark:text-white text-black px-5 ">
-              <h3 className="font-medium text-[24px] capitalize">
-                {headerTitle}
-              </h3>
-              <button type="button" onClick={() => handleCloseWizard()}>
-                {' '}
-                <span className="text-[44px] ">&times;</span>{' '}
-              </button>
-            </div>
-            <Content
-              errorComponent={errorComponent}
-              steps={steps}
-              dialogOpen={dialogOpen}
-            />
-          </motion.dialog>
-        </div>
-      )}
-    </AnimatePresence>
+    <Dialog open={dialogOpen} onOpenChange={handleCloseWizard}>
+      <DialogContent
+        className="rounded-lg shadow-lg min-h-[540px] w-11/12 p-0 max-w-2xl z-50 bg-gray-100 dark:bg-[#27272A]  border border-black"
+      >
+        <DialogHeader className="flex justify-between items-center dark:bg-[#1E293B] bg-gray-200 dark:text-white text-black p-5">
+        <DialogTitle>{headerTitle}</DialogTitle>
+        </DialogHeader>
+        <Content
+          errorComponent={errorComponent}
+          steps={steps}
+          dialogOpen={dialogOpen}
+
+        />
+      </DialogContent>
+    </Dialog>
   )
 }
 
