@@ -10,7 +10,7 @@ export default function Error({
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
-      <div className="w-80 h-80 md:w-96 md:h-96 relative">
+      <div className="relative w-80 h-80 md:w-96 md:h-96">
         <Image
           src="/images/404.png"
           alt="404 Not Found"
@@ -19,6 +19,7 @@ export default function Error({
           className="w-full h-full"
         />
       </div>
+
       <h1 className="text-3xl font-bold  mb-4">Oops! Page Not Found</h1>
       <p className=" text-center mb-4 max-w-[480px]">{error.message}</p>
       <Link href="/" className='flex items-center space-x-1'>

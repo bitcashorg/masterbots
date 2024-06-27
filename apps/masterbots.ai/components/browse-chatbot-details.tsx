@@ -37,9 +37,9 @@ export default function BrowseChatbotDetails({
         className="dark:bg-[#09090B] bg-white rounded-lg p-6 md:w-[600px]
       flex flex-row gap-3 relative mx-auto font-mono"
       >
-        <div className="w-2/3 flex flex-col gap-3">
+        <div className="flex flex-col w-2/3 gap-3">
           <div className="text-2xl font-black">{chatbot?.name}</div>
-          <Separator className="dark:bg-mirage bg-gray-300" />
+          <Separator className="bg-gray-300 dark:bg-mirage" />
           <div className="text-xl font-semibold">
             {chatbot?.categories[0].category.name}.
           </div>
@@ -56,8 +56,8 @@ export default function BrowseChatbotDetails({
             </div>
           </div>
         </div>
-        <div className="w-1/3 relative flex items-end">
-          <div className="flex flex-col text-xs items-end w-full gap-2">
+        <div className="relative flex items-end w-1/3">
+          <div className="flex flex-col items-end w-full gap-2 text-xs">
             <Link
               style={{ wordSpacing: '4px' }}
               className="text-[#388DE2]"
@@ -66,9 +66,9 @@ export default function BrowseChatbotDetails({
               Chat with {chatbot?.name} &gt;
             </Link>
             <div className="flex gap-4">
-              {/* <IconUpVote className="opacity-60 h-4" />
+              {/* <IconUpVote className="h-4 opacity-60" />
                 <span className="text-[#72C255]">1.2k</span>
-              <IconDownVote className="opacity-60 h-4" />
+              <IconDownVote className="h-4 opacity-60" />
                 <span className="text-[#F42F53]">375</span> */}             
                {/* <span className="text-[#FAFAFA]">17</span>               */}
           </div>
@@ -76,7 +76,7 @@ export default function BrowseChatbotDetails({
         </div>
         <div className="size-24 absolute border-4 border-[#388DE2] right-0 top-0 translate-x-1/4 rounded-full -translate-y-1/4 dark:bg-[#131316] bg-white">
           <Image
-            className="size-full transition-opacity duration-300 rounded-full select-none ring-1 ring-zinc-100/10 hover:opacity-80"
+            className="transition-opacity duration-300 rounded-full select-none size-full ring-1 ring-zinc-100/10 hover:opacity-80"
             src={chatbot?.avatar || ''}
             alt={chatbot?.avatar ? `Avatar of ${chatbot?.name}` : 'Default Avatar'}
             height={96}
