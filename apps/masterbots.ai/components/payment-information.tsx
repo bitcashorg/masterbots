@@ -3,6 +3,7 @@ import { usePayment } from "@/lib/hooks/use-payment";
 import { PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import React, { useState } from 'react';
 import { StripeElement } from "./stripe-element";
+import { cn } from '@/lib/utils'
 
 export function PaymentInformation({ prev, next }: WizardStepProps) {
   const stripe = useStripe();
@@ -72,7 +73,7 @@ export function PaymentInformation({ prev, next }: WizardStepProps) {
 
       <div className="dark:bg-black border-t border-t-black bg-white p-5 flex justify-center items-center space-x-10">
         <button
-          onClick={() => prev()}
+         onClick={prev}
           type="button"
           className="text-black dark:text-white font-bold hover:border-b border-black pb-2 text-center"
         >
@@ -81,7 +82,7 @@ export function PaymentInformation({ prev, next }: WizardStepProps) {
         <button
           disabled={isLoading}
           type="submit"
-          className={`dark:bg-white bg-black text-white dark:text-black rounded-full font-bold py-2 px-4 ${isLoading ? 'opacity-50' : ''}`}
+          className={cn('dark:bg-white bg-black text-white dark:text-black rounded-full font-bold py-2 px-4', { 'opacity-50': isLoading })}
         >
           Checkout
         </button>

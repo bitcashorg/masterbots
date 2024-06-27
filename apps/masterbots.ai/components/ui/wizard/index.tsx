@@ -50,7 +50,7 @@ const DialogWizard: React.FC<DialogWizardProps> = ({
   return (
     <Dialog open={dialogOpen} onOpenChange={handleCloseWizard}>
       <DialogContent
-        className="rounded-sm shadow-lg min-h-[540px] w-11/12 p-0 max-w-2xl z-50 bg-gray-100 dark:bg-[#27272A]  border border-black"
+        className="rounded-sm min-h-[540px] w-11/12 p-0 max-w-2xl z-50 bg-gray-100 dark:bg-[#27272A]  border border-black"
       >
         <DialogHeader className="flex justify-between mb-0 items-center dark:bg-[#1E293B] bg-gray-200 dark:text-white text-black p-5 pb-10">
            <DialogTitle>{headerTitle}</DialogTitle>
