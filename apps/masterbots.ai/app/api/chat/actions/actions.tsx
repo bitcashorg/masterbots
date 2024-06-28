@@ -28,21 +28,32 @@ import { ChatCompletionMessageParam } from 'openai/resources'
  * @param {any} json - The JSON object from the request, expected to contain model, messages, and optionally a previewToken.
  * @param {Request} [req] - The request object, used optionally for some AI clients like WordWare.
  *
- * createPayload - Utility function that creates a structured payload from the JSON input, chat messages, and AI completion.
+ * setStreamerPayload - Designed to modify the structure of the messages payload based on the type of AI client being used and the requirements of the API.
  */
 
 // ? OpenAI, Anthropic, and Perplexity use the same response format
 // TODO: Analyze improvements to the response stream, to update MB DB at onCompletion
 
 export async function initializeOpenAI(apiKey: string) {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error('OPENAI_API_KEY is not defined in environment variables')
+  }
   return new OpenAI({ apiKey })
 }
 
 export async function initializeAnthropic(apiKey: string) {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    throw new Error('ANTHROPIC_API_KEY is not defined in environment variables')
+  }
   return new Anthropic({ apiKey })
 }
 
 export async function initializePerplexity(apiKey: string) {
+  if (!process.env.LLAMA_API_KEY) {
+    throw new Error(
+      'PERPLEXITY_API_KEY is not defined in environment variables'
+    )
+  }
   return new OpenAI({
     apiKey,
     baseURL: 'https://api.perplexity.ai'
