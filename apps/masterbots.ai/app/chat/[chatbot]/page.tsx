@@ -7,6 +7,7 @@ import { Message } from 'ai'
 import { isTokenExpired } from 'mb-lib'
 import { nanoid } from 'nanoid'
 import { redirect } from 'next/navigation'
+import { formatSystemPrompts } from '@/lib/actions'
 
 export default async function BotThreadsPage({
   params,
@@ -36,13 +37,7 @@ export default async function BotThreadsPage({
   })
 
   // format all chatbot prompts as chatgpt 'system' messages
-  const chatbotSystemPrompts: Message[] = chatbot.prompts.map(({ prompt }) => ({
-    id: prompt.promptId.toString(),
-    role: 'system',
-    content: prompt.content,
-    createdAt: new Date()
-  }))
-
+  const chatbotSystemPrompts: Message[] = formatSystemPrompts(chatbot.prompts)
   const userPreferencesPrompts: Message[] = [
     {
       id: nanoid(),

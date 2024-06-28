@@ -1,6 +1,7 @@
 import { LoginButton } from '@/components/login-button'
 import Image from 'next/image'
 
+
 export default async function SignInPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-theme(spacing.16))] items-center py-10">
@@ -15,6 +16,7 @@ export default async function SignInPage() {
           style={{ maxWidth: 726, objectFit: 'contain' }}
           className="flex self-center"
         />
+
       </div>
 
       <div className="flex justify-center pt-10">

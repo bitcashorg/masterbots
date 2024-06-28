@@ -181,10 +181,69 @@ export async function sleep(time: number) {
 }
 
 
+
+
 // Function to convert a name into a slug
 export const toSlug = (name: string): string => {
   return name
     .toLowerCase()
     .replace(/&/g, 'n')
     .replace(/\s+/g, '_')
+}
+
+export interface Plan {
+  id: string
+  duration: string
+  price: number
+  features: string[],
+  features_title: string
+}
+
+export const plans = [
+  {
+    id: 'monthly',
+    duration: 'monthly',
+    price: 4.50,
+    features_title: 'Everything from <strong>Free</strong> plan plus:',
+    features: [
+      'Access to our Professional tools'
+    ]
+  },
+  {
+    id: 'yearly',
+    duration: 'yearly',
+    price: 3.99,
+    features_title: 'Everything from <strong>Monthly</strong> plan plus: ',
+    features: [
+      '11% of discount every month.',
+      'Access to pre-release content to chat with.'
+    ]
+  }
+]
+
+
+
+export function getDate(timestamp: number) {
+  let date
+  if (timestamp === 0) {
+    date = new Date()
+  } else {
+    date = new Date(timestamp * 1000)
+  }
+  const options: Intl.DateTimeFormatOptions = {
+    month: 'long',
+    day: 'numeric'
+  }
+  const dateString = date.toLocaleString('en-US', options)
+
+  return dateString
+}
+
+
+export function getCurrentOrTargetDate() {
+  const today = new Date()
+  return today.toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric'
+  })
 }

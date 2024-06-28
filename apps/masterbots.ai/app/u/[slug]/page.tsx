@@ -11,6 +11,7 @@ export default async function BotThreadsPage({
 }) {
   const user = await getUserInfoFromBrowse(params.slug)
   if (!user) return <div className="m-auto">No user found.</div>
+  
   const threads = await getBrowseThreads({
     slug: params.slug,
     limit: PAGE_SIZE

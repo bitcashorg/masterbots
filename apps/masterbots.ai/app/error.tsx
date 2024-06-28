@@ -1,6 +1,6 @@
-'use client' 
-import Link from 'next/link'
+'use client'
 import Image from 'next/image'
+import Link from 'next/link'
 
 export default function Error({
   error
@@ -19,8 +19,9 @@ export default function Error({
           className="w-full h-full"
         />
       </div>
-      <h1 className="mb-4 text-3xl font-bold">Oops! Page Not Found</h1>
-      <p className="mb-4 text-center ">{error.message}</p>
+
+      <h1 className="text-3xl font-bold  mb-4">Oops! Page Not Found</h1>
+      <p className=" text-center mb-4 max-w-[480px]">{error.message}</p>
       <Link href="/" className='flex items-center space-x-1'>
         <svg
           width="11"
@@ -38,7 +39,7 @@ export default function Error({
           />
         </svg>{' '}
         <span >Return Home</span>
-        
+
       </Link>
     </div>
   )
