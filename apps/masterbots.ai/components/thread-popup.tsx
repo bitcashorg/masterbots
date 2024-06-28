@@ -62,7 +62,7 @@ export function ThreadPopup({ className }: { className?: string }) {
 
   return (
     <div
-      className={`size-full dark:bg-[#27272A80] lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)] flex justify-center items-center absolute top-0
+      className={`size-full dark:bg-[#27272A80] lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)] flex justify-center items-center fixed top-0
       bg-[#F4F4F580] backdrop-blur-[4px] ease-in-out duration-500 z-[9] transition-all ${isOpenPopup ? 'animate-fade-in' : 'hidden animate-fade-out'}`}
     >
       <div

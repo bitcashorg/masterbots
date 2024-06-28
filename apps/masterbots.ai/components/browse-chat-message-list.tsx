@@ -56,7 +56,7 @@ export function BrowseChatMessageList({
           <></>
 
           {/* Thread Content */}
-          <div className="border-x-[1px] mx-6 md:mx-[46px] py-5 dark:border-mirage border-gray-300">
+          <div className="border-x-[1px] ml-6 mr-0 md:mx-[46px] py-5 dark:border-mirage border-gray-300">
             {pair.chatGptMessage.length > 0
               ? pair.chatGptMessage.map((message, index) => (
                 <BrowseChatMessage
