@@ -29,8 +29,8 @@ export default function BrowseChatbotDetails({
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-          </svg>
-           <span className="text-['24px'] font-normal">Back to browse</span>
+          </svg>{' '}
+          <span className="text-['24px'] font-normal">Back to browse</span>
         </a>
       </div>
       <div
