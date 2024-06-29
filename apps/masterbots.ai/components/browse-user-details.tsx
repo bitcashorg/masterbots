@@ -25,7 +25,7 @@ export default function BrowseChatbotDetails({ user }: { user?: User | null }) {
       >
         <div className="w-2/3 flex flex-col gap-3">
           <div className="text-2xl font-black">
-            {user?.username.replace('_', ' ')}
+            {user?.username?.replace('_', ' ')}
           </div>
           <Separator className="dark:bg-mirage bg-gray-300" />
 
