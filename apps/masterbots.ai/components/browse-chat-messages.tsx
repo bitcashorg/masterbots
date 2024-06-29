@@ -45,7 +45,7 @@ export function BrowseChatMessages({
   return (
     <div className="w-full">
       <BrowseChatbotDetails chatbot={chatbot} />
-      <div className="max-w-[1024px] px-4 mx-auto mt-8 flex gap-y-4 flex-col">
+      <div className="max-w-screen-lg px-4 mx-auto mt-8 flex gap-y-4 flex-col">
         <BrowseChatMessageList
           user={user}
           chatbot={chatbot}

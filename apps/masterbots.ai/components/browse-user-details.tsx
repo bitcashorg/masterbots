@@ -35,7 +35,7 @@ export default function BrowseChatbotDetails({ user }: { user?: User | null }) {
             </div>
           </div>
         </div>
-        <div className="size-24 absolute border-[4px] border-[#388DE2] right-0 top-0 translate-x-[25%] rounded-full translate-y-[-25%] dark:bg-[#131316] bg-white">
+        <div className="size-24 absolute border-4 border-[#388DE2] right-0 top-0 translate-x-1/4 rounded-full translate-y-1/4 dark:bg-[#131316] bg-white">
           <Image
             className="size-full transition-opacity duration-300 rounded-full select-none ring-1 ring-zinc-100/10 hover:opacity-80"
             src={user?.profilePicture || ''}

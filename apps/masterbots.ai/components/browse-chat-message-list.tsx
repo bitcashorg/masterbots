@@ -46,17 +46,16 @@ export function BrowseChatMessageList({
                 'relative flex items-center font-normal md:text-lg transition-all w-full gap-3 pr-4'
               )}
             >
-              <div className={cn('break-all px-1')}>
+              <div className={cn('break-all px-1 text-left')}>
                 {pair.userMessage.content}
               </div>
             </div>
           )}
 
           {/* Thread Description */}
-          <></>
 
           {/* Thread Content */}
-          <div className="border-x-DEFAULT ml-6 mr-0 md:mx-[46px] py-5 dark:border-mirage border-gray-300">
+          <div className="border-x-DEFAULT ml-6 mr-0 md:mx-[46px] py-5 dark:border-mirage border-gray-300 text-left">
             {pair.chatGptMessage.length > 0
               ? pair.chatGptMessage.map((message, index) => (
                 <BrowseChatMessage
