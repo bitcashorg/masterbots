@@ -106,7 +106,7 @@ export default function BrowseListItem({
         contentClass="!pt-0 max-h-[70vh] scrollbar"
         triggerClass="dark:hover:bg-mirage hover:bg-gray-300 pl-[8px]
         py-3 flex flex-col gap-[6px] 
-        sticky top-0 z-[1]
+        sticky sm:top-0 top-[55px] z-[1]
         dark:border-b-mirage border-b-gray-300
         [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]
         dark:bg-[#18181b] bg-[#f4f4f5]"
@@ -152,7 +152,7 @@ export default function BrowseListItem({
           <div className="w-[calc(100%-64px)] m:w-[calc(100%-28px)] flex items-center gap-3 text-left">
             <div
               className={cn('truncate-title px-1', {
-                'no-truncate': isAccordionOpen
+                'no-truncate max-h-40 !overflow-y-auto sm:max-h-none sm:overflow-visible': isAccordionOpen
               })}
             >
               {thread.messages?.[0]?.content}

@@ -10,13 +10,13 @@ export default function Error({
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
-      <div className="relative w-80 h-80 md:w-96 md:h-96">
+      <div className="relative size-80 md:size-96">
         <Image
           src="/images/404.png"
           alt="404 Not Found"
           layout="fill"
           objectFit="contain"
-          className="w-full h-full"
+          className="size-full"
         />
       </div>
 

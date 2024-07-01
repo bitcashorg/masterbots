@@ -94,7 +94,7 @@ export function ChatList({
             {/* Thread Content */}
             <div
               className={cn(
-                'mx-4 md:mx-[46px] px-1 py-4 border-[transparent] dark:border-x-mirage border-x-gray-300 border',
+                'mx-4 md:mx-[46px] px-1 py-4 border-transparent dark:border-x-mirage border-x-gray-300 border',
                 { '!border-[transparent]': !isThread && key === 0 },
                 chatContentClass,
               )}

@@ -38,7 +38,7 @@ export function BrowseCategoryButton({
         (category !== 'all' && activeTab === category.categoryId)) && (
         <motion.span
           layoutId="bubble"
-          className="absolute inset-0 z-10 bg-transparent border-b-[2px] border-[#388DE2]"
+          className="absolute inset-0 z-10 bg-transparent border-b-2 border-[#388DE2]"
           transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
         />
       )}

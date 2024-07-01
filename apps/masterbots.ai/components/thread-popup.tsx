@@ -62,13 +62,13 @@ export function ThreadPopup({ className }: { className?: string }) {
 
   return (
     <div
-      className={`size-full dark:bg-[#27272A80] lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)] flex justify-center items-center absolute top-0
-      bg-[#F4F4F580] backdrop-blur-[4px] ease-in-out duration-500 z-[9] transition-all ${isOpenPopup ? 'animate-fade-in' : 'hidden animate-fade-out'}`}
+      className={`size-full dark:bg-[#27272A80] lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)] flex justify-center items-center fixed top-0
+      bg-[#F4F4F580] backdrop-blur-sm ease-in-out duration-500 z-[9] transition-all ${isOpenPopup ? 'animate-fade-in' : 'hidden animate-fade-out'}`}
     >
       <div
         className={cn(
           className,
-          `flex flex-col z-[10] rounded-lg duration-500 ease-in-out absolute h-[90%]
+          `flex flex-col z-10 rounded-lg duration-500 ease-in-out absolute h-[90%]
       max-w-[1032px] w-[95%] dark:border-mirage border-iron border
       transition-opacity ${isOpenPopup ? 'animate-fade-in' : 'animate-fade-out'}`
         )}
@@ -87,7 +87,8 @@ export function ThreadPopup({ className }: { className?: string }) {
             )}
           </div>
           <button
-            className="absolute right-[32px] top-[50%] translate-y-[-50%] "
+            type='button'
+            className="absolute right-[32px] top-1/2 translate-y-1/2 "
             onClick={onClose}
           >
             <IconClose />
@@ -99,7 +100,7 @@ export function ThreadPopup({ className }: { className?: string }) {
         >
           {activeThread && (
             <ChatList
-              className="max-w-[100%] !px-[32px] !mx-0"
+              className="max-w-full !px-[32px] !mx-0"
               isThread={false}
               chatbot={activeThread.chatbot}
               messages={allMessages}
