@@ -87,6 +87,7 @@ export function ThreadPopup({ className }: { className?: string }) {
             )}
           </div>
           <button
+            type='button'
             className="absolute right-[32px] top-1/2 translate-y-1/2 "
             onClick={onClose}
           >
