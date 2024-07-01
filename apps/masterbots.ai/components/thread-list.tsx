@@ -157,7 +157,7 @@ function ThreadComponent({
 
         {/* Thread Content */}
         <ChatList
-          className="max-w-[100%] !px-0"
+          className="max-w-full !px-0"
           isThread={false}
           chatbot={thread.chatbot}
           messages={allMessages}

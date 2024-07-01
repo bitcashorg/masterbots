@@ -63,8 +63,8 @@ export function InnerCheckout({ prev, next }: WizardStepProps) {
   }
 
   return (
-    <div className="h-full w-full dark:bg-[#18181B] bg-[#F4F4F5]">
-      <div className="max-w-[24rem] mx-auto">
+    <div className="size-full dark:bg-[#18181B] bg-[#F4F4F5]">
+      <div className="max-w-96 mx-auto">
         <div className="text-center pt-2 text-gray-600">
           <span className="font-bold text-[16px]">
             Subscribe using <span className="text-[#837de6]">Stripe</span>{' '}
@@ -123,7 +123,7 @@ export function InnerCheckout({ prev, next }: WizardStepProps) {
                 <span>
                   <strong>Additional Fees* </strong>
                 </span>
-                <IconHelp className="mt-4 w-7 h-7" />
+                <IconHelp className="mt-4 size-7" />
               </div>
               <span className="font-normal text-[11px]">
                 *calculated by country regulations.
