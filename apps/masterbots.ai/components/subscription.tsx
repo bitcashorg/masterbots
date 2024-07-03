@@ -32,9 +32,8 @@ export default function Subscription({ user }: { user: { email: string; name: st
     const del = await handleDeleteCustomer(user?.email)
     handleSetLoading(false)
     handleSetError('')
-    if (del) return router.push('/chat')
+    if (del) return router.push('/c')
   }
-
 
   return (
     <div className="flex items-center justify-center">
