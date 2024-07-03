@@ -18,7 +18,7 @@ export async function Header() {
         </React.Suspense>
         <HeaderLink href="/" text="Masterbots" />
         <IconSeparator className="size-6 text-muted-foreground/50" />
-        <HeaderLink href="/chat" text="Chat" />
+        <HeaderLink href="/c" text="Chat" />
         <HeaderLink href="/" text="Browse" />
         <HeaderLink href="/c/p" text="Pro" />
       </div>
