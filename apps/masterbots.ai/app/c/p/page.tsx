@@ -1,4 +1,3 @@
-
 import { auth } from '@/auth'
 import ChatThreadListPanel from '@/components/chat/chat-thread-list-panel'
 import ThreadPanel from '@/components/thread-panel'
@@ -22,18 +21,16 @@ export default async function IndexPage() {
     userId: session!.user.id
   })
 
-
   const user = {
     email: session.user.email || '',
-    name: session.user.name || '',
+    name: session.user.name || ''
   }
- 
+
   return (
     <>
       <ThreadPanel threads={threads} />
       <ChatThreadListPanel />
       <Subscription user={user} />
-      
     </>
   )
 }
