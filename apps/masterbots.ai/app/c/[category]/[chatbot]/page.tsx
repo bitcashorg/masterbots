@@ -5,7 +5,12 @@ import { auth } from '@/auth'
 import { isTokenExpired } from 'mb-lib'
 
 export default async function ChatPage({ params }: ChatPageProps) {
-  const session = await auth()
+  let session = null
+  try {
+    session = await auth()
+  } catch (error) {
+    console.error('Failed to authenticate user:', error)
+  }
   // NOTE: maybe we should use same expiration time
   const jwt = session ? session.user?.hasuraJwt : null
   if (!jwt) {
