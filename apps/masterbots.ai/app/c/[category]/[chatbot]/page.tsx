@@ -24,7 +24,12 @@ export default async function ChatPage({ params }: ChatPageProps) {
   if (!chatbotName) {
     throw new Error(`Chatbot name for ${params.chatbot} not found`)
   }
-  const chatbot = await getChatbot({ chatbotName, jwt })
+  let chatbot = null
+  try {
+    chatbot = await getChatbot({ chatbotName, jwt })
+  } catch (error) {
+    console.error('Failed to fetch chatbot:', error)
+  }
   return (
     <div className="max-w-screen-lg pb-10 mx-auto w-full">
       /c/{category}/{chatbotName}
