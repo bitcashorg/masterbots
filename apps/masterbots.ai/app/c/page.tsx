@@ -2,9 +2,10 @@ import BrowseList from '@/components/browse-list'
 import { BrowseCategoryTabs } from '@/components/browse-category-tabs'
 import { BrowseSearchInput } from '@/components/browse-search-input'
 import { getCategories } from '@/services/hasura'
+import { Category } from 'mb-genql'
 
 export default async function HomePage() {
-  let categories = []
+  let categories: Category[] = []
   try {
     categories = await getCategories()
   } catch (error) {
