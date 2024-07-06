@@ -101,7 +101,7 @@ export function Plans({ next, goTo }: PlansPros) {
       <div className="flex flex-col size-full space-y-3 p-5">
         <div
           className={cn(
-            'border-gradient w-full h-[135px] z-0 dark:[&>_div]:hover:bg-tertiary',
+            'border-gradient w-full md:h-[135px] z-0 dark:[&>_div]:hover:bg-tertiary',
             {
               'selected': selectedPlan === 'free'
             }
