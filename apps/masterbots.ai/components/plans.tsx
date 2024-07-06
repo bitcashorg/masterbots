@@ -101,7 +101,7 @@ export function Plans({ next, goTo }: PlansPros) {
       <div className="flex flex-col size-full space-y-3 p-5">
         <div
           className={cn(
-            'border-gradient w-full h-[135px] dark:[&>_div]:hover:bg-tertiary',
+            'border-gradient w-full h-[135px] z-0 dark:[&>_div]:hover:bg-tertiary',
             {
               'selected': selectedPlan === 'free'
             }
@@ -155,7 +155,7 @@ export function Plans({ next, goTo }: PlansPros) {
             </div>
           </label>
         </div>
-        <div className="flex space-x-3">
+        <div className="flex md:space-x-3   md:flex-row  flex-col space-y-3 md:space-y-0">
           {plans && plans.length && (
             plans?.filter(plan => plan.active).sort((a, b) => a.created - b.created).map(plan => (
               <PlanCard
