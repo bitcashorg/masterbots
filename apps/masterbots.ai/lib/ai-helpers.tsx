@@ -87,3 +87,20 @@ export async function fetchPromptDescription(promptId: string): Promise<any> {
 
   return data
 }
+
+export async function runWordwarePrompt(promptId: string, inputs: any): Promise<any> {
+  const response = await fetch(`/api/wordware/run`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ promptId, inputs }),
+  });
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || 'Failed to run prompt');
+  }
+
+  return data;
+}
