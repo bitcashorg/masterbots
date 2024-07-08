@@ -71,3 +71,19 @@ export function setStreamerPayload(
       return payload
   }
 }
+
+//* funtion to ONLY fetch the prompt description from the wordware API
+export async function fetchPromptDescription(promptId: string): Promise<any> {
+  if (!promptId) {
+    throw new Error('Prompt ID is required')
+  }
+
+  const response = await fetch(`/api/wordware/describe?promptId=${promptId}`)
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(data.error || 'Failed to fetch prompt description')
+  }
+
+  return data
+}
