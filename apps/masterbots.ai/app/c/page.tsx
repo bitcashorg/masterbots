@@ -3,6 +3,8 @@ import { BrowseCategoryTabs } from '@/components/browse-category-tabs'
 import { BrowseSearchInput } from '@/components/browse-search-input'
 import { getCategories } from '@/services/hasura'
 import { Category } from 'mb-genql'
+import { Metadata } from 'next'
+import { generateMetadataFromSEO } from '@/lib/metadata'
 
 export default async function HomePage() {
   let categories: Category[] = []
@@ -19,4 +21,16 @@ export default async function HomePage() {
       <BrowseList />
     </div>
   )
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const seoData = {
+    title: 'Chat page',
+    description: 'Chat page',
+    ogType: 'website',
+    ogImageUrl: '',
+    twitterCard: 'summary'
+  }
+
+  return generateMetadataFromSEO(seoData)
 }

@@ -180,22 +180,16 @@ export async function sleep(time: number) {
   return new Promise(resolve => setTimeout(resolve, time))
 }
 
-
-
-
 // Function to convert a name into a slug
 export const toSlug = (name: string): string => {
-  return name
-    .toLowerCase()
-    .replace(/&/g, 'n')
-    .replace(/\s+/g, '_')
+  return name.toLowerCase().replace(/&/g, 'n').replace(/\s+/g, '_')
 }
 
 export interface Plan {
   id: string
   duration: string
   price: number
-  features: string[],
+  features: string[]
   features_title: string
 }
 
@@ -203,11 +197,9 @@ export const plans = [
   {
     id: 'monthly',
     duration: 'monthly',
-    price: 4.50,
+    price: 4.5,
     features_title: 'Everything from <strong>Free</strong> plan plus:',
-    features: [
-      'Access to our Professional tools'
-    ]
+    features: ['Access to our Professional tools']
   },
   {
     id: 'yearly',
@@ -220,8 +212,6 @@ export const plans = [
     ]
   }
 ]
-
-
 
 export function getDate(timestamp: number) {
   let date
@@ -239,11 +229,19 @@ export function getDate(timestamp: number) {
   return dateString
 }
 
-
 export function getCurrentOrTargetDate() {
   const today = new Date()
   return today.toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric'
   })
+}
+
+export function getKeyByValue(map: any, searchValue: string) {
+  for (let [key, value] of map.entries()) {
+    if (value === searchValue) {
+      return key
+    }
+  }
+  return null // Return null if the value is not found
 }
