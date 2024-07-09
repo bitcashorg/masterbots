@@ -24,9 +24,6 @@
   "packageManager": "bun@1.0.14",
   "dependencies": {
     "axios": "^1.7.2",
-    "nanoid": "latest",
-    "next": "latest",
-    "nextjs-toploader": "^1.6.4",
-    "postcss": "latest"
+    "nextjs-toploader": "^1.6.4"
   }
 }

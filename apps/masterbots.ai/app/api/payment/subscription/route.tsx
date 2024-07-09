@@ -99,6 +99,8 @@ export async function GET(req: NextRequest) {
   }
 }
 
+
+
 // Use PUT to check if a customer has an active subscription or not by email address 
 export async function PUT(req: NextRequest) {
   try {
