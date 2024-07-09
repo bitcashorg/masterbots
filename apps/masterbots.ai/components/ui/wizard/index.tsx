@@ -48,7 +48,7 @@ const DialogWizard: React.FC<DialogWizardProps> = ({
 }) => {
   return (
     <Dialog open={dialogOpen} onOpenChange={handleCloseWizard}>
-      <DialogContent className="rounded-sm max-h-screen md:min-h-[540px]   w-full md:w-11/12 p-0 md:max-w-2xl z-50 bg-gray-100 dark:bg-[#27272A] border border-black overflow-y-scroll">
+      <DialogContent className="rounded-sm max-h-screen md:min-h-[540px]   w-full md:w-11/12 p-0 md:max-w-2xl z-50 bg-gray-100 dark:bg-[#27272A] border border-iron dark:border-mirage overflow-y-auto">
         <DialogHeader className="sticky top-0 flex z-50 md:max-h-auto max-h-20 justify-between mb-0 items-center dark:bg-[#1E293B] bg-gray-200 dark:text-white text-black p-5 pb-10">
           <DialogTitle>{headerTitle}</DialogTitle>
         </DialogHeader>
