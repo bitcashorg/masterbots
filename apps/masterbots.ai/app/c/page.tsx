@@ -1,25 +1,32 @@
-import BrowseList from '@/components/browse-list'
-import { BrowseCategoryTabs } from '@/components/browse-category-tabs'
-import { BrowseSearchInput } from '@/components/browse-search-input'
-import { getCategories } from '@/services/hasura'
-import { Category } from 'mb-genql'
+import { auth } from '@/auth'
+import ChatThreadListPanel from '@/components/chat/chat-thread-list-panel'
+import ThreadPanel from '@/components/thread-panel'
+import { getThreads } from '@/services/hasura'
+import { isTokenExpired } from 'mb-lib'
+import { redirect } from 'next/navigation'
 import { Metadata } from 'next'
 import { generateMetadataFromSEO } from '@/lib/metadata'
 
-export default async function HomePage() {
-  let categories: Category[] = []
-  try {
-    categories = await getCategories()
-  } catch (error) {
-    console.error('Failed to fetch categories:', error)
+export default async function IndexPage() {
+  const session = await auth()
+
+  // NOTE: maybe we should use same expiration time
+  const jwt = session?.user?.hasuraJwt
+
+  if (!jwt || isTokenExpired(jwt)) {
+    redirect('/sign-in')
   }
 
+  const threads = await getThreads({
+    jwt,
+    userId: session!.user.id
+  })
+
   return (
-    <div className="max-w-screen-lg px-4 pb-10 mx-auto w-full">
-      <BrowseCategoryTabs categories={categories} />
-      <BrowseSearchInput />
-      <BrowseList />
-    </div>
+    <>
+      <ThreadPanel threads={threads} />
+      <ChatThreadListPanel />
+    </>
   )
 }
 

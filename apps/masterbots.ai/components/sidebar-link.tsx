@@ -117,9 +117,7 @@ export default function SidebarLink({ category }: { category: Category }) {
         )}
       >
         <Link
-          // TODO: Improve routing for user sharing
-          // href={`/${category.name.toLowerCase()}`}
-          href="/c/p"
+          href={`/c/${toSlug(category.name)}`}
           className={cn(
             'flex items-center pr-5 py-3 cursor-pointer relative origin-left transition-all ease-in-out duration-300',
             isChatbotOfThisCategory ? 'text-xs opacity-50' : 'grow pl-5'
@@ -246,8 +244,7 @@ function ChatbotComponent({
   return (
     <Link
       ref={chatbotRef}
-      // TODO: update expertise parameter
-      href={`/c/p/${toSlug(category.name)}/expertise/${chatbot.name.toLowerCase()}`}
+      href={`/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`}
       className={cn(
         'flex items-center px-[20px] py-[12px] dark:hover:bg-mirage hover:bg-gray-300',
         chatbot.chatbotId === activeChatbot?.chatbotId &&
