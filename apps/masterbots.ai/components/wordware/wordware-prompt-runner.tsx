@@ -1,6 +1,5 @@
 'use client'
 
-import React from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -17,6 +16,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { ToastAction } from '@/components/ui/toast'
 import { useToast } from '@/components/ui/use-toast'
+import React from 'react'
 import { fetchPromptDescription, runWordwarePrompt } from '@/lib/ai-helpers'
 import { Textarea } from '../ui/textarea'
 
@@ -32,7 +32,7 @@ const FormSchema = z.object({
 export function PromptRunner() {
   const { toast } = useToast()
   const [description, setDescription] = React.useState<null | any>(null)
-  const [result, setResult] = React.useState<null | any>(null)
+  const [result, setResult] = React.useState<string | null>(null)
   const [error, setError] = React.useState('')
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -78,19 +78,26 @@ export function PromptRunner() {
 
     try {
       const parsedInputs = JSON.parse(form.getValues('inputs'))
-      const result = await runWordwarePrompt(description.id, parsedInputs)
-      setResult(result)
+      const inputs: { [key: string]: any } = {}
+
+      description.inputs.forEach((input: { label: string | number }) => {
+        if (parsedInputs[input.label]) {
+          inputs[input.label] = parsedInputs[input.label]
+        }
+      })
+
+      const result = await runWordwarePrompt(description.id, inputs)
+      setResult(result) // This sets the result state
       toast({
         title: 'Prompt Result:',
         description: (
           <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4 overflow-x-auto">
-            <code className="text-white">
-              {JSON.stringify(result, null, 2)}
-            </code>
+            <code className="text-white">{result}</code>
           </pre>
         )
       })
     } catch (err) {
+      console.error('Run error:', err)
       setError('Failed to run prompt')
       toast({
         title: 'Error',
@@ -127,7 +134,10 @@ export function PromptRunner() {
               <FormItem>
                 <FormLabel>Inputs (JSON)</FormLabel>
                 <FormControl>
-                  <Textarea placeholder='{"key": "value"}' {...field} />
+                  <Textarea
+                    placeholder='{"URL": "https://example.com"}'
+                    {...field}
+                  />
                 </FormControl>
                 <FormDescription>
                   Please enter the inputs as a JSON string.
@@ -141,7 +151,7 @@ export function PromptRunner() {
       </Form>
       {description && (
         <>
-          <div className="p-4 mt-4 overflow-x-auto bg-gray-100 rounded">
+          <div className="p-4 mt-4 overflow-x-auto rounded bg-black-100">
             <pre className="break-words whitespace-pre-wrap">
               {JSON.stringify(description, null, 2)}
             </pre>
@@ -150,10 +160,8 @@ export function PromptRunner() {
             Run Prompt
           </Button>
           {result && (
-            <div className="p-4 mt-4 overflow-x-auto bg-gray-100 rounded">
-              <pre className="break-words whitespace-pre-wrap">
-                {JSON.stringify(result, null, 2)}
-              </pre>
+            <div className="p-4 mt-4 overflow-x-auto rounded bg-black-100">
+              <pre className="break-words whitespace-pre-wrap">{result}</pre>
             </div>
           )}
         </>

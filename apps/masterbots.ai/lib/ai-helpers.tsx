@@ -1,36 +1,35 @@
-import { AIModels } from '@/app/api/chat/models/models'
-import { AiClientType } from '@/lib/types'
-import { MessageParam } from '@anthropic-ai/sdk/resources'
-import { nanoid } from 'nanoid'
-import { ChatCompletionMessageParam } from 'openai/resources'
+import { AIModels } from '@/app/api/chat/models/models';
+import { AiClientType } from '@/lib/types';
+import { MessageParam } from '@anthropic-ai/sdk/resources';
+import { nanoid } from 'nanoid';
+import { ChatCompletionMessageParam } from 'openai/resources';
 
 export function getModelClientType(model: AIModels) {
   switch (model) {
     case AIModels.GPT4:
     case AIModels.Default:
-      return 'OpenAI'
+      return 'OpenAI';
     case AIModels.Claude3:
-      return 'Anthropic'
+      return 'Anthropic';
     case AIModels.llama3_7b:
     case AIModels.llama3_8b:
-      return 'Perplexity'
+      return 'Perplexity';
     case AIModels.WordWare:
-      return 'WordWare'
+      return 'WordWare';
     default:
-      throw new Error('Unsupported model specified')
+      throw new Error('Unsupported model specified');
   }
 }
 
-//* Creates a normal base payload for the chat message
 export function createPayload(
   json: { id: string },
   messages: { content: string }[],
   completion: any
 ) {
-  const title = messages[0]?.content.substring(0, 100)
-  const id = json.id ?? nanoid()
-  const createdAt = Date.now()
-  const path = `/chat/${id}`
+  const title = messages[0]?.content.substring(0, 100);
+  const id = json.id ?? nanoid();
+  const createdAt = Date.now();
+  const path = `/chat/${id}`;
   return {
     id,
     title,
@@ -44,17 +43,16 @@ export function createPayload(
         role: 'assistant'
       }
     ]
-  }
+  };
 }
 
-//* function ensuring that the payload is correctly formatted for each client type that needs manipulation before sending to the API and if manipulation is not required we retur playload without any modification
 export function setStreamerPayload(
   model: AiClientType,
   payload: ChatCompletionMessageParam[] | MessageParam[]
 ) {
   switch (model) {
     case 'WordWare':
-      return payload
+      return payload;
     case 'Anthropic':
       return payload.map(
         (message, index) =>
@@ -64,15 +62,14 @@ export function setStreamerPayload(
               : message.role.replace('system', 'assistant'),
             content: message.content
           }) as MessageParam
-      )
+      );
     case 'OpenAI':
     case 'Perplexity':
     default:
-      return payload
+      return payload;
   }
 }
 
-//* funtion to ONLY fetch the prompt description from the wordware API
 export async function fetchPromptDescription(promptId: string): Promise<any> {
   if (!promptId) {
     throw new Error('Prompt ID is required')
@@ -88,19 +85,38 @@ export async function fetchPromptDescription(promptId: string): Promise<any> {
   return data
 }
 
-export async function runWordwarePrompt(promptId: string, inputs: any): Promise<any> {
+export async function runWordwarePrompt(promptId: string, inputs: any): Promise<string> {
   const response = await fetch(`/api/wordware/run`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ promptId, inputs }),
+    body: JSON.stringify({ promptId, inputs })
   });
-  const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.error || 'Failed to run prompt');
+    const errorData = await response.json()
+    throw new Error(errorData.error || 'Failed to run prompt')
   }
 
-  return data;
+  const reader = response.body?.getReader()
+  const decoder = new TextDecoder('utf-8')
+  let result = ''
+  let readerDone = false
+
+  try {
+    while (!readerDone) {
+      const { done, value } = await (reader?.read() as Promise<ReadableStreamReadResult<Uint8Array>>)
+      readerDone = done
+      if (value) {
+        result += decoder.decode(value, {stream: true});
+      }
+    }
+    result += decoder.decode()
+  } finally {
+    reader?.releaseLock()
+  }
+
+  console.log('Final Result:', result)
+  return result
 }
