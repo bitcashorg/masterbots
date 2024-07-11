@@ -7,7 +7,11 @@ import ChatThreadListPanel from '@/components/chat/chat-thread-list-panel'
 import ThreadPanel from '@/components/thread-panel'
 import { redirect } from 'next/navigation'
 
-export default async function ChatCategoryPage() {
+export default async function ChatCategoryPage({
+  params
+}: {
+  params: { category: string }
+}) {
   const session = await auth()
 
   // NOTE: maybe we should use same expiration time
@@ -17,9 +21,15 @@ export default async function ChatCategoryPage() {
     redirect('/sign-in')
   }
 
+  const categories = await getCategories()
+  const category = categories.find(
+    category => toSlug(category.name) === params.category
+  )
+
   const threads = await getThreads({
     jwt,
-    userId: session!.user.id
+    userId: session!.user.id,
+    categoryId: category?.categoryId
   })
 
   return (
