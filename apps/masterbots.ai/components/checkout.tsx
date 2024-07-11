@@ -102,9 +102,9 @@ export function InnerCheckout({ prev, next }: WizardStepProps) {
                 *charged once every {getCurrentOrTargetDate()}
               </span>
             </div>
-            <span>${4.49 * 12}</span>
+            <span>${ plan?.product?.name?.toLowerCase().includes('year') ? (4.49 * 12) : price }</span>
           </div>
-          {plan?.product.name.toLowerCase().includes('year') && (
+          {plan?.product?.name?.toLowerCase().includes('year') && (
             <div className="flex justify-between text-gray-400 mt-3">
               <span>
                 {' '}
