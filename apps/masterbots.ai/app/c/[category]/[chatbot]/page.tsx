@@ -8,36 +8,45 @@ import { isTokenExpired } from 'mb-lib'
 import { nanoid } from 'nanoid'
 import { redirect } from 'next/navigation'
 import { formatSystemPrompts } from '@/lib/actions'
+import { generateMetadataFromSEO } from '@/lib/metadata'
+import { Metadata } from 'next'
 
 export default async function BotThreadsPage({
   params,
   searchParams
 }: {
-  params: { chatbot: string }
+  params: { category: string; chatbot: string }
   searchParams: { [key: string]: string | string[] | undefined }
 }) {
   const session = await auth()
   // NOTE: maybe we should use same expiration time
   const jwt = session ? session.user?.hasuraJwt : null
-  if (!jwt || isTokenExpired(jwt)) {
+  if (!jwt) {
+    throw new Error('Session JWT is missing.')
+  }
+  if (isTokenExpired(jwt)) {
     redirect(`/sign-in`)
   }
-  const chatbot = await getChatbot({
-    chatbotName: botNames.get(params.chatbot),
-    jwt: session!.user?.hasuraJwt
-  })
+  const chatbotName = botNames.get(params.chatbot)
+  if (!chatbotName) {
+    throw new Error(`Chatbot name for ${params.chatbot} not found`)
+  }
+  const chatbot = await getChatbot({ chatbotName, jwt })
+
   if (!chatbot)
     throw new Error(`Chatbot ${botNames.get(params.chatbot)} not found`)
 
   // session will always be defined
-  const threads = await getThreads({
-    chatbotName: botNames.get(params.chatbot),
-    jwt: session!.user?.hasuraJwt,
-    userId: session!.user.id
-  })
+
+  const userId = session?.user?.id
+  if (!userId) {
+    throw new Error('User ID is missing.')
+  }
+  const threads = await getThreads({ chatbotName, jwt, userId })
 
   // format all chatbot prompts as chatgpt 'system' messages
   const chatbotSystemPrompts: Message[] = formatSystemPrompts(chatbot.prompts)
+
   const userPreferencesPrompts: Message[] = [
     {
       id: nanoid(),
@@ -47,7 +56,7 @@ export default async function BotThreadsPage({
         `Your response length will be ${chatbot.defaultLength}. ` +
         `Your response format will be ${chatbot.defaultType}. ` +
         `Your response complexity level will be ${chatbot.defaultComplexity}.` +
-        'Your response will be generated in the same language as user input.',
+        `Your response will be generated in the same language as user input.`,
       createdAt: new Date()
     }
   ]
@@ -67,4 +76,30 @@ export default async function BotThreadsPage({
       <ChatChatbot initialMessages={initialMessages} chatbot={chatbot} />
     </>
   )
+}
+
+export async function generateMetadata({
+  params
+}: {
+  params: { chatbot: string }
+}): Promise<Metadata> {
+  const chatbotName = botNames.get(params.chatbot)
+
+  const seoData = {
+    title: chatbotName || '',
+    description: chatbotName || '',
+    ogType: 'website',
+    ogImageUrl: '',
+    twitterCard: 'summary'
+  }
+
+  return generateMetadataFromSEO(seoData)
+}
+
+export interface ChatPageProps {
+  params: {
+    category: string
+    chatbot: string
+    threadId: string
+  }
 }

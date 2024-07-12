@@ -34,9 +34,8 @@ export default function Subscription({ user }: { user: { email: string; name: st
     handleSetLoading(false)
     handleSetError('')
     if (!openDialog) return router.push('/c/p')
-    if (del) return router.push('/chat')
+    if (del) return router.push('/c')
   }
-
 
   return (
     <div className="flex items-center justify-center">

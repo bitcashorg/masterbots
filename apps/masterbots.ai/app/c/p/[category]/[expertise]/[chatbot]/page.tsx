@@ -9,11 +9,11 @@ import { nanoid } from 'nanoid'
 import { redirect } from 'next/navigation'
 import { formatSystemPrompts } from '@/lib/actions'
 
-export default async function BotThreadsPage({
+export default async function BrowseProBotPage({
   params,
   searchParams
 }: {
-  params: { chatbot: string }
+  params: { category: string; expertise: string; chatbot: string }
   searchParams: { [key: string]: string | string[] | undefined }
 }) {
   const session = await auth()
@@ -44,7 +44,7 @@ export default async function BotThreadsPage({
 
   // format all chatbot prompts as chatgpt 'system' messages
   const chatbotSystemPrompts: Message[] = formatSystemPrompts(chatbot.prompts)
-  
+
   const userPreferencesPrompts: Message[] = [
     {
       id: nanoid(),

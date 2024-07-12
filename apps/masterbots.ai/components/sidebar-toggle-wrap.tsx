@@ -6,7 +6,7 @@ import { SidebarToggle } from './sidebar-toggle'
 function SidebarToggleWrap() {
   const pathname = usePathname()
 
-  if (pathname !== '/chat') {
+  if (pathname !== '/c') {
     return null
   }
 

@@ -2,6 +2,8 @@ import { getChatbot, getBrowseThreads } from '@/services/hasura'
 import { botNames } from '@/lib/bots-names'
 import BrowseChatbotDetails from '@/components/browse-chatbot-details'
 import BrowseSpecificThreadList from '@/components/browse-specific-thread-list'
+import { Metadata } from 'next'
+import { generateMetadataFromSEO } from '@/lib/metadata'
 
 const PAGE_SIZE = 50
 
@@ -38,4 +40,26 @@ export default async function BotThreadsPage({
       />
     </div>
   )
+}
+
+export async function generateMetadata({
+  params
+}: {
+  params: { id: string }
+}): Promise<Metadata> {
+  const chatbot = await getChatbot({
+    chatbotName: botNames.get(params.id),
+    jwt: '',
+    threads: true
+  })
+
+  const seoData = {
+    title: chatbot?.name || '',
+    description: chatbot?.description || '',
+    ogType: 'website',
+    ogImageUrl: chatbot?.avatar || '',
+    twitterCard: 'summary_large_image'
+  }
+
+  return generateMetadataFromSEO(seoData)
 }

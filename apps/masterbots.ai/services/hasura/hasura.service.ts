@@ -76,6 +76,9 @@ export async function getChatbots({
       threads: {
         threadId: true
       },
+      categories: {
+        categoryId: true
+      },
       ...everything,
       __args: {
         limit: limit ? limit : 20,
@@ -517,4 +520,37 @@ export async function getUserInfoFromBrowse(slug: string) {
     }
   })
   return user[0]
+}
+
+export async function getThreadsWithoutJWT() {
+  const client = getHasuraClient({})
+  const { thread } = await client.query({
+    thread: {
+      chatbot: {
+        ...everything
+      },
+      categories: {
+        category: {
+          ...everything
+        },
+        ...everything
+      },
+      ...everything,
+      __args: {
+        orderBy: [{ createdAt: 'DESC' }]
+      }
+    }
+  })
+
+  return thread as Thread[]
+}
+
+export async function getUsers() {
+  const client = getHasuraClient({})
+  const { user } = await client.query({
+    user: {
+      slug: true
+    }
+  })
+  return user as User[]
 }
