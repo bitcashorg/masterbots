@@ -1,6 +1,8 @@
 import { getBrowseThreads, getUserInfoFromBrowse } from '@/services/hasura'
 import BrowseUserDetails from '@/components/browse-user-details'
 import BrowseSpecificThreadList from '@/components/browse-specific-thread-list'
+import { Metadata } from 'next'
+import { generateMetadataFromSEO } from '@/lib/metadata'
 
 const PAGE_SIZE = 50
 
@@ -11,7 +13,7 @@ export default async function BotThreadsPage({
 }) {
   const user = await getUserInfoFromBrowse(params.slug)
   if (!user) return <div className="m-auto">No user found.</div>
-  
+
   const threads = await getBrowseThreads({
     slug: params.slug,
     limit: PAGE_SIZE
@@ -29,4 +31,22 @@ export default async function BotThreadsPage({
       />
     </div>
   )
+}
+
+export async function generateMetadata({
+  params
+}: {
+  params: { slug: string }
+}): Promise<Metadata> {
+  const user = await getUserInfoFromBrowse(params.slug)
+
+  const seoData = {
+    title: user?.username || '',
+    description: user?.username || '',
+    ogType: 'website',
+    ogImageUrl: user?.profilePicture || '',
+    twitterCard: 'summary_large_image'
+  }
+
+  return generateMetadataFromSEO(seoData)
 }

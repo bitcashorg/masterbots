@@ -9,6 +9,7 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import React from 'react'
 import { IconCaretRight } from './ui/icons'
+import { toSlug } from 'mb-lib'
 
 const PAGE_SIZE = 20
 
@@ -116,9 +117,7 @@ export default function SidebarLink({ category }: { category: Category }) {
         )}
       >
         <Link
-          // TODO: Improve routing for user sharing
-          // href={`/${category.name.toLowerCase()}`}
-          href="/chat"
+          href={`/c/${toSlug(category.name)}`}
           className={cn(
             'flex items-center pr-5 py-3 cursor-pointer relative origin-left transition-all ease-in-out duration-300',
             isChatbotOfThisCategory ? 'text-xs opacity-50' : 'grow pl-5'
@@ -193,6 +192,7 @@ export default function SidebarLink({ category }: { category: Category }) {
                   ? activeChatbot
                   : null
               }
+              category={category}
             />
           ))}
         </motion.div>
@@ -207,7 +207,8 @@ function ChatbotComponent({
   loading,
   isLast,
   hasMore,
-  activeChatbot
+  activeChatbot,
+  category
 }: {
   chatbot: Chatbot
   loadMore: () => void
@@ -215,6 +216,7 @@ function ChatbotComponent({
   isLast: boolean
   hasMore: boolean
   activeChatbot: Chatbot | null
+  category: Category
 }) {
   const chatbotRef = React.useRef<HTMLAnchorElement>(null)
 
@@ -242,7 +244,7 @@ function ChatbotComponent({
   return (
     <Link
       ref={chatbotRef}
-      href={`/chat/${chatbot.name.toLowerCase()}`}
+      href={`/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`}
       className={cn(
         'flex items-center px-[20px] py-[12px] dark:hover:bg-mirage hover:bg-gray-300',
         chatbot.chatbotId === activeChatbot?.chatbotId &&

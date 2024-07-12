@@ -10,11 +10,9 @@ interface ChatLayoutProps {
 export default async function ChatLayout({ children }: ChatLayoutProps) {
   return (
     <main className="relative flex flex-col h-[calc(100vh_-_theme(spacing.16))] overflow-hidden">
-      <NextTopLoader color="#1ED761" initialPosition={0.20} />
+      <NextTopLoader color="#1ED761" initialPosition={0.2} />
       <ResponsiveSidebar />
-      <ChatLayoutSection>
-        {children}
-      </ChatLayoutSection>
+      <ChatLayoutSection>{children}</ChatLayoutSection>
       <div className="block lg:hidden">
         <FooterCT />
       </div>

@@ -10,7 +10,6 @@ export default function BrowseChatbotDetails({
 }: {
   chatbot?: Chatbot
 }) {
-
   return (
     <div className="relative bg-cover py-10 bg-gradient-to-l from-mirage via-[#2B5D91] to-[#388DE2]">
       <div className="flex flex-row gap-3 relative mx-auto md:w-[600px]">
@@ -52,7 +51,6 @@ export default function BrowseChatbotDetails({
               <span className="text-[#71717A]">
                 {chatbot?.threads.length ?? 1}
               </span>
-            
             </div>
           </div>
         </div>
@@ -61,7 +59,7 @@ export default function BrowseChatbotDetails({
             <Link
               style={{ wordSpacing: '4px' }}
               className="text-[#388DE2]"
-              href={`/${chatbot?.name.toLowerCase()}`}
+              href={`/b/${chatbot?.name.toLowerCase()}`}
             >
               Chat with {chatbot?.name} &gt;
             </Link>
@@ -69,9 +67,9 @@ export default function BrowseChatbotDetails({
               {/* <IconUpVote className="h-4 opacity-60" />
                 <span className="text-[#72C255]">1.2k</span>
               <IconDownVote className="h-4 opacity-60" />
-                <span className="text-[#F42F53]">375</span> */}             
-               {/* <span className="text-[#FAFAFA]">17</span>               */}
-          </div>
+                <span className="text-[#F42F53]">375</span> */}
+              {/* <span className="text-[#FAFAFA]">17</span>               */}
+            </div>
           </div>
         </div>
         <div className="size-24 absolute border-4 border-[#388DE2] right-0 top-0 translate-x-1/4 rounded-full -translate-y-1/4 dark:bg-[#131316] bg-white">
@@ -83,7 +81,7 @@ export default function BrowseChatbotDetails({
             width={96}
           />
         </div>
-        <ShareLink/>
+        <ShareLink />
       </div>
     </div>
   )

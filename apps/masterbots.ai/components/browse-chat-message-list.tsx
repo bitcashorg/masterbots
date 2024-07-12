@@ -58,12 +58,12 @@ export function BrowseChatMessageList({
           <div className="border-x-DEFAULT ml-6 mr-0 md:mx-[46px] py-5 dark:border-mirage border-gray-300 text-left">
             {pair.chatGptMessage.length > 0
               ? pair.chatGptMessage.map((message, index) => (
-                <BrowseChatMessage
-                  chatbot={chatbot}
-                  key={index}
-                  message={convertMessage(message)}
-                />
-              ))
+                  <BrowseChatMessage
+                    chatbot={chatbot}
+                    key={index}
+                    message={convertMessage(message)}
+                  />
+                ))
               : ''}
           </div>
         </ChatAccordion>

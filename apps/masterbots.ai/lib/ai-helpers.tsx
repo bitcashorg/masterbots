@@ -30,7 +30,7 @@ export function createPayload(
   const title = messages[0]?.content.substring(0, 100)
   const id = json.id ?? nanoid()
   const createdAt = Date.now()
-  const path = `/chat/${id}`
+  const path = `/c/${id}`
   return {
     id,
     title,
