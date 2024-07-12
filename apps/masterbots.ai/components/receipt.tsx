@@ -105,15 +105,17 @@ export const Receipt: React.FC<ReceiptProps> = ({ intentid }) => {
                   <strong> {getDate(subscription.current_period_start)}</strong>
                 </span>
               </div>
-              <span>${price}</span>
+              <span>$ { plan.interval === 'year' ? (4.49 * 12) : price }</span>
             </div>
+            {plan.interval === 'year' && (
             <div className="flex justify-between text-gray-400 mt-3">
               <span>
                 {' '}
                 <strong>Year Plan</strong> subscription discount
               </span>
-              <span>-$0.00</span>
+              <span>-${((4.49 * 12) - Number(price)).toFixed(2)}</span>
             </div>
+          )}
             <div className="flex justify-between mt-5 pb-4 border-b">
               <span className="font-bold"> Subtotal</span>
               <span>${price}</span>

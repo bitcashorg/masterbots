@@ -1,6 +1,6 @@
 import { LoadingState } from '@/components/loading-state'
 import { usePayment } from '@/lib/hooks/use-payment'
-import {  motion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import React from 'react'
 import { useWizard } from './hook/useWizard'
 import {
@@ -46,40 +46,44 @@ const DialogWizard: React.FC<DialogWizardProps> = ({
   handleCloseWizard,
   errorComponent
 }) => {
- 
   return (
     <Dialog open={dialogOpen} onOpenChange={handleCloseWizard}>
-      <DialogContent
-        className="rounded-sm min-h-[540px] w-11/12 p-0 max-w-2xl z-50 bg-gray-100 dark:bg-[#27272A]  border border-black"
-      >
-        <DialogHeader className="flex justify-between mb-0 items-center dark:bg-[#1E293B] bg-gray-200 dark:text-white text-black p-5 pb-10">
-           <DialogTitle>{headerTitle}</DialogTitle>
+      <DialogContent className="rounded-sm max-h-screen md:min-h-[540px]   w-full md:w-11/12 p-0 md:max-w-2xl z-50 bg-gray-100 dark:bg-[#27272A] border border-iron dark:border-mirage overflow-y-auto">
+        <DialogHeader className="sticky top-0 flex z-50 md:max-h-auto max-h-20 justify-between mb-0 items-center dark:bg-[#1E293B] bg-gray-200 dark:text-white text-black p-5 pb-10">
+          <DialogTitle>{headerTitle}</DialogTitle>
         </DialogHeader>
-        <Content
-          errorComponent={errorComponent}
-          steps={steps}
-          dialogOpen={dialogOpen}
-
-        />
+        <div className="">
+          <Content
+            errorComponent={errorComponent}
+            steps={steps}
+            dialogOpen={dialogOpen}
+          />
+        </div>
       </DialogContent>
     </Dialog>
   )
 }
 
-function Content({ errorComponent, steps, dialogOpen }: { errorComponent?: JSX.Element, steps: WizardStep[], dialogOpen: boolean }) {
+function Content({
+  errorComponent,
+  steps,
+  dialogOpen
+}: {
+  errorComponent?: JSX.Element
+  steps: WizardStep[]
+  dialogOpen: boolean
+}) {
   const { error, loading } = usePayment()
-  const { close, Next, Prev, goTo, lastStep, currentStep } = useWizard(steps, dialogOpen)
-  const defaultErrorComponent = () => (
-    <div>{error}</div>
+  const { close, Next, Prev, goTo, lastStep, currentStep } = useWizard(
+    steps,
+    dialogOpen
   )
+  const defaultErrorComponent = () => <div>{error}</div>
   const ErrorComponent = (() => errorComponent) || defaultErrorComponent
 
   if (error && error !== '') {
     return (
-      <motion.div
-        key="wizard-error-container"
-        {...animationStepProps}
-      >
+      <motion.div key="wizard-error-container" {...animationStepProps}>
         <ErrorComponent />
       </motion.div>
     )

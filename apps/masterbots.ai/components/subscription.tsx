@@ -29,9 +29,11 @@ export default function Subscription({ user }: { user: { email: string; name: st
   handleSetUser(user)
 
   const handleCloseWizard = async () => {
+
     const del = await handleDeleteCustomer(user?.email)
     handleSetLoading(false)
     handleSetError('')
+    if (!openDialog) return router.push('/c/p')
     if (del) return router.push('/c')
   }
 

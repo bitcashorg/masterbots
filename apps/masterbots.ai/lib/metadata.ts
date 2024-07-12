@@ -75,9 +75,10 @@ export async function generateMbMetadata({
     title: firstQuestion,
     publishedAt: thread.updatedAt, // format(thread.updatedAt, 'MMMM dd, yyyy'),
     summary: firstResponse,
-    image: `${process.env.VERCEL_URL}/api/og?threadId=${thread.threadId}`,
+    image: `${process.env.BASE_URL}/api/og?threadId=${thread.threadId}`,
     pathname: getThreadLink({ thread: thread, chat: false })
   }
+
 
   return {
     title: data.title,
@@ -88,7 +89,7 @@ export async function generateMbMetadata({
       description: data.summary,
       type: 'article',
       publishedTime: data.publishedAt,
-      url: `${process.env.VERCEL_URL}${data.pathname}`,
+      url:process.env.BASE_URL+data.pathname,
       images: [
         {
           url: data.image
