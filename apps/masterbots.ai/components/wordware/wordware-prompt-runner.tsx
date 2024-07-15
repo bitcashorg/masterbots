@@ -20,10 +20,15 @@ import React from 'react'
 import { fetchPromptDescription, runWordwarePrompt } from '@/lib/ai-helpers'
 import { Textarea } from '../ui/textarea'
 
-const FormSchema = z.object({
+// Schema for fetching the description
+const DescriptionSchema = z.object({
   promptId: z.string().min(1, {
     message: 'Prompt ID is required.'
-  }),
+  })
+})
+
+// Schema for running the prompt
+const RunSchema = DescriptionSchema.extend({
   inputs: z.string().min(1, {
     message: 'Inputs are required.'
   })
@@ -35,15 +40,15 @@ export function PromptRunner() {
   const [result, setResult] = React.useState<string | null>(null)
   const [error, setError] = React.useState('')
 
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
+  const form = useForm<z.infer<typeof DescriptionSchema | typeof RunSchema>>({
+    resolver: zodResolver(description ? RunSchema : DescriptionSchema),
     defaultValues: {
       promptId: '',
       inputs: ''
     }
   })
 
-  const onSubmit = async (data: z.infer<typeof FormSchema>) => {
+  const onSubmit = async (data: z.infer<typeof DescriptionSchema>) => {
     try {
       const description = await fetchPromptDescription(data.promptId)
       setDescription(description)
@@ -86,8 +91,14 @@ export function PromptRunner() {
         }
       })
 
-      const result = await runWordwarePrompt(description.id, inputs)
-      setResult(result) // This sets the result state
+      setResult(null) // Clear previous result
+      await runWordwarePrompt(description.id, inputs, chunk => {
+        // Process each chunk received in real-time
+        if (chunk.value?.type === 'chunk' && chunk.value?.value) {
+          setResult(prev => (prev || '') + chunk.value.value)
+        }
+      })
+
       toast({
         title: 'Prompt Result:',
         description: (
@@ -127,26 +138,7 @@ export function PromptRunner() {
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="inputs"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Inputs (JSON)</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder='{"URL": "https://example.com"}'
-                    {...field}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Please enter the inputs as a JSON string.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button type="submit">Fetch Description</Button>
+          {!description && <Button type="submit">Fetch Description</Button>}
         </form>
       </Form>
       {description && (
@@ -156,9 +148,30 @@ export function PromptRunner() {
               {JSON.stringify(description, null, 2)}
             </pre>
           </div>
-          <Button onClick={onRun} className="mt-4">
-            Run Prompt
-          </Button>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onRun)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="inputs"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Inputs (JSON)</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder='{"URL": "https://example.com"}'
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Please enter the inputs as a JSON string.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit">Run Prompt</Button>
+            </form>
+          </Form>
           {result && (
             <div className="p-4 mt-4 overflow-x-auto rounded bg-black-100">
               <pre className="break-words whitespace-pre-wrap">{result}</pre>
