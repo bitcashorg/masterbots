@@ -98,7 +98,7 @@ export function Plans({ next, goTo }: PlansPros) {
           <span className="dark:text-[#635BFF]  text-[#625af5]">Stripe</span>{' '}
         </span>
       </div>
-      <div className="flex flex-col size-full space-y-3 p-5">
+      <div className="flex flex-col size-full justify-center space-y-3 px-5">
         <div
           className={cn(
             'border-gradient w-full md:h-[135px] z-0 dark:[&>_div]:hover:bg-tertiary',
