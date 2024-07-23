@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<!-- saved from url=(0137)https://js.stripe.com/v2/channel.html?stripe_xdm_e=https%3A%2F%2Flooka.com&stripe_xdm_c=default768777&stripe_xdm_p=1#__stripe_transport__ -->
+<html><div id="in-page-channel-node-id" data-channel-name="in_page_channel_v40LhO"></div><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Stripe Internal Communication Channel</title>
+<script>
+if ('postMessage' in window) {
+  var stripeTrack = function(type) {
+    var timestamp = Math.round(new Date().getTime() / 1000);
+    var report = (new Image()).src = "https://q.stripe.com?event=stripejs-error&type=" +
+      encodeURIComponent(type) +
+      "&timestamp=" + timestamp +
+      "&payment_user_agent=channel.html";
+  };
+
+  if (window.parent === window) {
+    stripeTrack('ChannelParentError');
+    window.Stripe = {earlyError: true};
+  }
+  else {
+    window.onload = function() {
+      var matches = window.location.search.match(/(\?|&)stripe_xdm_e=([^&]+)/);
+      if (matches && matches.length >= 3) {
+        var outerdomain = decodeURIComponent(matches[2]);
+        try {
+          window.parent.postMessage('stripe:ack', outerdomain);
+        }
+        catch(e) {
+          stripeTrack('ChannelAckError-' + e.toString());
+        }
+      }
+      else {
+        stripeTrack('ChannelUrlError');
+      }
+    }
+  }
+}
+</script>
+</head>
+<body data-new-gr-c-s-check-loaded="14.1188.0" data-gr-ext-installed="">
+<script src="./saved_resource"></script>
+
+
+</body><grammarly-desktop-integration data-grammarly-shadow-root="true"><template shadowrootmode="open"><style>
+      div.grammarly-desktop-integration {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select:none;
+        user-select:none;
+      }
+
+      div.grammarly-desktop-integration:before {
+        content: attr(data-content);
+      }
+    </style><div aria-label="grammarly-integration" role="group" tabindex="-1" class="grammarly-desktop-integration" data-content="{&quot;mode&quot;:&quot;full&quot;,&quot;isActive&quot;:true,&quot;isUserDisabled&quot;:false}"></div></template></grammarly-desktop-integration></html>
