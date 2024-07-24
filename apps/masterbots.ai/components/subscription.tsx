@@ -29,7 +29,6 @@ export default function Subscription({ user }: { user: { email: string; name: st
   handleSetUser(user)
 
   const handleCloseWizard = async () => {
-     
     if ( typeof paymentIntent === 'object' && paymentIntent !== "") return router.push('/c/p')
     const del = await handleDeleteCustomer(user?.email)
     handleSetLoading(false)

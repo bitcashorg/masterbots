@@ -92,7 +92,7 @@ export function Plans({ next, goTo }: PlansPros) {
 
   return (
     <form className="flex flex-col w-full min-h-[480px]" onSubmit={submitSubscription}>
-      <div className="text-center pt-2 md:mb-0  mb-3">
+      <div className="text-center pt-2   mb-3">
         <span className="font-bold text-[16px]">
           Subscribe using{' '}
           <span className="dark:text-[#635BFF]  text-[#625af5]">Stripe</span>{' '}
