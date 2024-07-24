@@ -17,6 +17,7 @@ export function InnerCheckout({ prev, next }: WizardStepProps) {
     secret,
     handlePaymentIntent
   } = usePayment()
+  
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -45,7 +46,7 @@ export function InnerCheckout({ prev, next }: WizardStepProps) {
       })
 
       if (error) {
-        console.error('Error creating payment intent:', error)
+        console.error('Error confirm payment intent:', error)
         handleSetLoading(false)
         handleSetError(error.message)
         return
@@ -56,7 +57,7 @@ export function InnerCheckout({ prev, next }: WizardStepProps) {
       window.history.pushState({}, '', `/u/s/subs/${paymentIntent.id}`)
       next()
     } catch (error: any) {
-      console.error('Error creating payment intent:', error)
+      console.error('Error confirm payment intent:', error)
       handleSetLoading(false)
       handleSetError(error?.message)
     }
