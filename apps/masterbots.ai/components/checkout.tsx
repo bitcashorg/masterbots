@@ -70,7 +70,7 @@ export function InnerCheckout({ prev, next }: WizardStepProps) {
             Subscribe using <span className="text-[#837de6]">Stripe</span>{' '}
           </span>
         </div>
-        <div className="text-left mt-5">
+        <div className="text-left mt-5  md:pr-0 pr-10">
           <div className="w-40 leading-[14.88px]">
             <span className="text-[12px] font-bold text-[#71717A] w-10">
               Pay The{' '}
@@ -91,7 +91,7 @@ export function InnerCheckout({ prev, next }: WizardStepProps) {
             </div>
           )}
         </div>
-        <div className="w-full mt-5">
+        <div className="w-full mt-5 md:pr-0 pr-10">
           <div className="flex justify-between">
             <div className="flex flex-col">
               <span>

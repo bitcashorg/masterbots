@@ -15,7 +15,7 @@ export default function PlanCard({
   return (
     <div
       className={cn(
-        'border-gradient w-full h-[275px] dark:[&>_div]:hover:bg-tertiary ',
+        'border-gradient md:w-full w-[340px] h-[275px] dark:[&>_div]:hover:bg-tertiary ',
         {
           'selected': selectedPlan === duration
         },
