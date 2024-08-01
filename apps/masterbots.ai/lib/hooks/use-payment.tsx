@@ -39,6 +39,7 @@ interface PaymentContextProps {
 }
 
 const PaymentContext = createContext<PaymentContextProps | undefined>(undefined)
+
 interface PaymentProviderProps {
   children: React.ReactNode
 }
