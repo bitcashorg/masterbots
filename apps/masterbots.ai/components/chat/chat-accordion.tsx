@@ -85,7 +85,9 @@ export const ChatAccordion = ({
       <button
         data-state={open ? 'open' : 'closed'}
         onClick={() => {
-          if (!disabled) toggle()
+          if (!disabled) {
+            toggle()
+          }
         }}
         className={`flex flex-1 justify-start flex-col relative
         transition-all ease-in-out duration-200
