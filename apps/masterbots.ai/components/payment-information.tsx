@@ -66,7 +66,7 @@ export function PaymentInformation({ prev, next }: WizardStepProps) {
             Subscribe using <span className="text-[#837de6]">Stripe</span>{' '}
           </span>
         </div>
-        <div className="min-h-[480px] w-full flex items-center justify-center [&_div]:w-full">
+        <div className="min-h-[480px] w-full max-w-[360px] flex items-center justify-center [&_div]:w-full mb-5">
           <PaymentElement />
         </div>
       </div>

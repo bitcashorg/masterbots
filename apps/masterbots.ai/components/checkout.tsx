@@ -17,6 +17,7 @@ export function InnerCheckout({ prev, next }: WizardStepProps) {
     secret,
     handlePaymentIntent
   } = usePayment()
+  
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -45,7 +46,7 @@ export function InnerCheckout({ prev, next }: WizardStepProps) {
       })
 
       if (error) {
-        console.error('Error creating payment intent:', error)
+        console.error('Error confirm payment intent:', error)
         handleSetLoading(false)
         handleSetError(error.message)
         return
@@ -56,7 +57,7 @@ export function InnerCheckout({ prev, next }: WizardStepProps) {
       window.history.pushState({}, '', `/u/s/subs/${paymentIntent.id}`)
       next()
     } catch (error: any) {
-      console.error('Error creating payment intent:', error)
+      console.error('Error confirm payment intent:', error)
       handleSetLoading(false)
       handleSetError(error?.message)
     }
@@ -70,7 +71,7 @@ export function InnerCheckout({ prev, next }: WizardStepProps) {
             Subscribe using <span className="text-[#837de6]">Stripe</span>{' '}
           </span>
         </div>
-        <div className="text-left mt-5">
+        <div className="text-left mt-5  md:pr-0 pr-10">
           <div className="w-40 leading-[14.88px]">
             <span className="text-[12px] font-bold text-[#71717A] w-10">
               Pay The{' '}
@@ -91,7 +92,7 @@ export function InnerCheckout({ prev, next }: WizardStepProps) {
             </div>
           )}
         </div>
-        <div className="w-full mt-5">
+        <div className="w-full mt-5 md:pr-0 pr-10">
           <div className="flex justify-between">
             <div className="flex flex-col">
               <span>

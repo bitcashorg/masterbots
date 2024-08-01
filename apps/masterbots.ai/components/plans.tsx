@@ -92,16 +92,16 @@ export function Plans({ next, goTo }: PlansPros) {
 
   return (
     <form className="flex flex-col w-full min-h-[480px]" onSubmit={submitSubscription}>
-      <div className="text-center pt-2">
+      <div className="text-center pt-2   mb-3">
         <span className="font-bold text-[16px]">
           Subscribe using{' '}
           <span className="dark:text-[#635BFF]  text-[#625af5]">Stripe</span>{' '}
         </span>
       </div>
-      <div className="flex flex-col size-full space-y-3 p-5">
+      <div className="flex flex-col size-full justify-center space-y-3 px-4">
         <div
           className={cn(
-            'border-gradient w-full md:h-[135px] z-0 dark:[&>_div]:hover:bg-tertiary',
+            'border-gradient w-[340px] md:w-full md:h-[135px] z-0 dark:[&>_div]:hover:bg-tertiary',
             {
               'selected': selectedPlan === 'free'
             }
@@ -176,10 +176,10 @@ export function Plans({ next, goTo }: PlansPros) {
             <div>No plans available</div>
           )}
         </div>
-        <div>
+        <div >
           <a
             href="#referral"
-            className="text-[16px] flex items-center space-x-2"
+            className="text-[16px] flex items-center space-x-2 mb-5"
           >
             <span>
               I have a&nbsp;<strong> Referral Code</strong>{' '}
