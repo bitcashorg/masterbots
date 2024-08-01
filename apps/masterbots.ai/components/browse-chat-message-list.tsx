@@ -35,8 +35,10 @@ export function BrowseChatMessageList({
         <ChatAccordion
           defaultState
           key={key}
+          isOpen={key !== 0}
+          disabled={key === 0}
           contentClass={`!border-l-[transparent] ${key === pairs.length - 1 ? '!border-b-[transparent]' : ''}`}
-          triggerClass={`dark:border-b-mirage border-b-gray-300 py-[0.625rem] px-[47px] gap-4 ${key === 0 && !isThread ? 'hidden' : ''}`}
+          triggerClass="dark:border-b-mirage border-b-gray-300 py-[0.625rem] px-[47px] gap-4"
           arrowClass="mt-[0.625rem] right-[calc(47px-1rem)] translate-x-[50%]"
         >
           {/* Thread Title */}
