@@ -17,6 +17,7 @@ export const ChatAccordion = ({
   arrowClass,
   handleOpen,
   handleTrigger,
+  disabled = false,
   ...props
 }: {
   className?: string
@@ -30,6 +31,7 @@ export const ChatAccordion = ({
   handleTrigger?: () => void
   handleOpen?: () => void
   thread?: Thread | null
+  disabled?: boolean
 }) => {
   const { activeThread, setActiveThread, setIsNewResponse, isNewResponse } =
     useThread()
@@ -82,7 +84,9 @@ export const ChatAccordion = ({
     <div className={className || ''} {...props}>
       <button
         data-state={open ? 'open' : 'closed'}
-        onClick={toggle}
+        onClick={() => {
+          if (!disabled) toggle()
+        }}
         className={`flex flex-1 justify-start flex-col relative
         transition-all ease-in-out duration-200
         border-transparent border
@@ -104,7 +108,7 @@ export const ChatAccordion = ({
                 }
               }
             : {})}
-          className={`${open ? '' : '-rotate-90'} absolute -right-2 size-4 shrink-0 mr-4 transition-transform duration-200 ${arrowClass || ''}`}
+          className={`${open ? '' : '-rotate-90'} absolute -right-2 size-4 shrink-0 mr-4 transition-transform duration-200 ${arrowClass || ''} ${disabled ? 'hidden' : ''}`}
         />
       </button>
       <div
