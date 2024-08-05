@@ -23,8 +23,10 @@
   ],
   "packageManager": "bun@1.0.14",
   "dependencies": {
+    "@ai-sdk/provider": "^0.0.14",
+    "@ai-sdk/provider-utils": "^1.0.5",
+    "ai": "^3.2.40",
     "axios": "^1.7.2",
     "nextjs-toploader": "^1.6.4"
-   
   }
 }
