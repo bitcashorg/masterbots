@@ -91,6 +91,7 @@ update_permissions:
     permission:
       columns:
         - get_free_month
+        - last_login
         - password
         - pro_user_subscription_id
         - profile_picture
