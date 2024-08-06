@@ -1,15 +1,15 @@
-import { auth } from '@/auth'
 import { ChatChatbot } from '@/components/chat/chat-chatbot'
 import ThreadPanel from '@/components/thread-panel'
+import { formatSystemPrompts } from '@/lib/actions'
 import { botNames } from '@/lib/bots-names'
+import { generateMetadataFromSEO } from '@/lib/metadata'
 import { getChatbot, getThreads } from '@/services/hasura'
 import { Message } from 'ai'
 import { isTokenExpired } from 'mb-lib'
 import { nanoid } from 'nanoid'
-import { redirect } from 'next/navigation'
-import { formatSystemPrompts } from '@/lib/actions'
-import { generateMetadataFromSEO } from '@/lib/metadata'
 import { Metadata } from 'next'
+import { getServerSession } from 'next-auth'
+import { redirect } from 'next/navigation'
 
 export default async function BotThreadsPage({
   params,
@@ -18,7 +18,7 @@ export default async function BotThreadsPage({
   params: { category: string; chatbot: string }
   searchParams: { [key: string]: string | string[] | undefined }
 }) {
-  const session = await auth()
+  const session = await getServerSession()
   // NOTE: maybe we should use same expiration time
   const jwt = session ? session.user?.hasuraJwt : null
   if (!jwt) {

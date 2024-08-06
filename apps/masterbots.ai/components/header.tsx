@@ -1,12 +1,12 @@
-import * as React from 'react'
 import Link from 'next/link'
+import * as React from 'react'
 
-import { auth } from '@/auth'
 import { Button } from '@/components/ui/button'
 import { IconSeparator } from '@/components/ui/icons'
 import { UserMenu } from '@/components/user-menu'
-import SidebarToggleWrap from './sidebar-toggle-wrap'
 import { isTokenExpired } from 'mb-lib'
+import { getServerSession } from 'next-auth'
+import SidebarToggleWrap from './sidebar-toggle-wrap'
 
 
 export async function Header() {
@@ -40,11 +40,11 @@ function HeaderLink({ href, text }: { href: string; text: string }) {
 }
 
 async function UserOrLogin() {
-  const session = await auth()
+  const session = await getServerSession()
   return (
     <>
       <div className="flex items-center">
-        {session?.user && !isTokenExpired(session?.user?.hasuraJwt) ? (
+        {session?.user && !isTokenExpired(session?.user?.hasuraJWT) ? (
           <UserMenu user={session.user} />
         ) : (
           <Button variant="link" asChild className="-ml-2">

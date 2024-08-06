@@ -1,15 +1,15 @@
-import { auth } from '@/auth'
 import ChatThreadListPanel from '@/components/chat/chat-thread-list-panel'
+import Subscription from '@/components/subscription'
 import ThreadPanel from '@/components/thread-panel'
+import { generateMetadataFromSEO } from '@/lib/metadata'
 import { getThreads } from '@/services/hasura'
 import { isTokenExpired } from 'mb-lib'
-import { redirect } from 'next/navigation'
-import Subscription from '@/components/subscription'
 import { Metadata } from 'next'
-import { generateMetadataFromSEO } from '@/lib/metadata'
+import { getServerSession } from 'next-auth'
+import { redirect } from 'next/navigation'
 
 export default async function IndexPage() {
-  const session = await auth()
+  const session = await getServerSession()
 
   // NOTE: maybe we should use same expiration time
   const jwt = session?.user?.hasuraJwt

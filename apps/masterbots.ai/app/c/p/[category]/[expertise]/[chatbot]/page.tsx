@@ -1,13 +1,13 @@
-import { auth } from '@/auth'
 import { ChatChatbot } from '@/components/chat/chat-chatbot'
 import ThreadPanel from '@/components/thread-panel'
+import { formatSystemPrompts } from '@/lib/actions'
 import { botNames } from '@/lib/bots-names'
 import { getChatbot, getThreads } from '@/services/hasura'
 import { Message } from 'ai'
 import { isTokenExpired } from 'mb-lib'
 import { nanoid } from 'nanoid'
+import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
-import { formatSystemPrompts } from '@/lib/actions'
 
 export default async function BrowseProBotPage({
   params,
@@ -16,7 +16,7 @@ export default async function BrowseProBotPage({
   params: { category: string; expertise: string; chatbot: string }
   searchParams: { [key: string]: string | string[] | undefined }
 }) {
-  const session = await auth()
+  const session = await getServerSession()
   // NOTE: maybe we should use same expiration time
   const jwt = session ? session.user?.hasuraJwt : null
   if (!jwt) {

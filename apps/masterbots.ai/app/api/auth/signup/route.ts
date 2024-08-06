@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcrypt'
 import { createMbClient } from 'mb-genql'
+import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
   const { email, password } = await req.json()
@@ -16,14 +16,12 @@ export async function POST(req: NextRequest) {
 
   // Check if user already exists
   const { user } = await client.query({
-    user: [
-      {
-        where: { email: { _eq: email } }
+    user: {
+      __args: {
+        where: { email: email }
       },
-      {
-        user_id: true
-      }
-    ]
+      userId: true
+    }
   })
 
   if (user && user.length > 0) {
@@ -35,21 +33,19 @@ export async function POST(req: NextRequest) {
 
   // Insert new user
   try {
-    const { insert_user_one } = await client.mutation({
-      insert_user_one: [
-        {
+    const { insertUserOne } = await client.mutation({
+      insertUserOne: {
+        __args: {
           object: {
             email: email,
             password: hashedPassword
           }
         },
-        {
-          user_id: true
-        }
-      ]
+        userId: true
+      }
     })
 
-    if (insert_user_one) {
+    if (insertUserOne) {
       return NextResponse.json(
         { message: 'User created successfully' },
         { status: 201 }
