@@ -4,6 +4,8 @@ import { getToken, validateJwtSecret } from 'mb-lib'
 import { upsertUser } from './services/hasura'
 import { nanoid } from './lib/utils'
 
+//? old way
+
 export const {
   handlers: { GET, POST },
   auth
