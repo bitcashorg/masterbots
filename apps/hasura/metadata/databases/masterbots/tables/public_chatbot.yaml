@@ -1,6 +1,19 @@
 table:
   name: chatbot
   schema: public
+object_relationships:
+  - name: complexityEnum
+    using:
+      foreign_key_constraint_on: default_complexity
+  - name: lengthEnum
+    using:
+      foreign_key_constraint_on: default_length
+  - name: toneEnum
+    using:
+      foreign_key_constraint_on: default_tone
+  - name: typeEnum
+    using:
+      foreign_key_constraint_on: default_type
 array_relationships:
   - name: categories
     using:

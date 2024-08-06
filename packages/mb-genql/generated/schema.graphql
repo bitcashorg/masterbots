@@ -2595,6 +2595,238 @@ input MessageUpdates {
   where: MessageBoolExp!
 }
 
+"""
+columns and relationships of "models_enum"
+"""
+type ModelsEnum {
+  name: String!
+
+  """An array relationship"""
+  threads(
+    """distinct select on columns"""
+    distinctOn: [ThreadSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ThreadOrderBy!]
+
+    """filter the rows returned"""
+    where: ThreadBoolExp
+  ): [Thread!]!
+
+  """An aggregate relationship"""
+  threadsAggregate(
+    """distinct select on columns"""
+    distinctOn: [ThreadSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ThreadOrderBy!]
+
+    """filter the rows returned"""
+    where: ThreadBoolExp
+  ): ThreadAggregate!
+  value: String
+}
+
+"""
+aggregated selection of "models_enum"
+"""
+type ModelsEnumAggregate {
+  aggregate: ModelsEnumAggregateFields
+  nodes: [ModelsEnum!]!
+}
+
+"""
+aggregate fields of "models_enum"
+"""
+type ModelsEnumAggregateFields {
+  count(columns: [ModelsEnumSelectColumn!], distinct: Boolean): Int!
+  max: ModelsEnumMaxFields
+  min: ModelsEnumMinFields
+}
+
+"""
+Boolean expression to filter rows from the table "models_enum". All fields are combined with a logical 'AND'.
+"""
+input ModelsEnumBoolExp {
+  _and: [ModelsEnumBoolExp!]
+  _not: ModelsEnumBoolExp
+  _or: [ModelsEnumBoolExp!]
+  name: StringComparisonExp
+  threads: ThreadBoolExp
+  threadsAggregate: ThreadAggregateBoolExp
+  value: StringComparisonExp
+}
+
+"""
+unique or primary key constraints on table "models_enum"
+"""
+enum ModelsEnumConstraint {
+  """
+  unique or primary key constraint on columns "name"
+  """
+  models_enum_name_key
+
+  """
+  unique or primary key constraint on columns "name"
+  """
+  models_enum_pkey
+}
+
+enum ModelsEnumEnum {
+  """claude3_haiku"""
+  ANTHROPIC
+
+  """gpt-4o-mini"""
+  OPENAI
+
+  """llama3_7B"""
+  PERPLEXITY
+
+  """wordware"""
+  WORDWARE
+}
+
+"""
+Boolean expression to compare columns of type "ModelsEnumEnum". All fields are combined with logical 'AND'.
+"""
+input ModelsEnumEnumComparisonExp {
+  _eq: ModelsEnumEnum
+  _in: [ModelsEnumEnum!]
+  _isNull: Boolean
+  _neq: ModelsEnumEnum
+  _nin: [ModelsEnumEnum!]
+}
+
+"""
+input type for inserting data into table "models_enum"
+"""
+input ModelsEnumInsertInput {
+  name: String
+  threads: ThreadArrRelInsertInput
+  value: String
+}
+
+"""aggregate max on columns"""
+type ModelsEnumMaxFields {
+  name: String
+  value: String
+}
+
+"""aggregate min on columns"""
+type ModelsEnumMinFields {
+  name: String
+  value: String
+}
+
+"""
+response of any mutation on the table "models_enum"
+"""
+type ModelsEnumMutationResponse {
+  """number of rows affected by the mutation"""
+  affectedRows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [ModelsEnum!]!
+}
+
+"""
+input type for inserting object relation for remote table "models_enum"
+"""
+input ModelsEnumObjRelInsertInput {
+  data: ModelsEnumInsertInput!
+
+  """upsert condition"""
+  onConflict: ModelsEnumOnConflict
+}
+
+"""
+on_conflict condition type for table "models_enum"
+"""
+input ModelsEnumOnConflict {
+  constraint: ModelsEnumConstraint!
+  updateColumns: [ModelsEnumUpdateColumn!]! = []
+  where: ModelsEnumBoolExp
+}
+
+"""Ordering options when selecting data from "models_enum"."""
+input ModelsEnumOrderBy {
+  name: OrderBy
+  threadsAggregate: ThreadAggregateOrderBy
+  value: OrderBy
+}
+
+"""primary key columns input for table: models_enum"""
+input ModelsEnumPkColumnsInput {
+  name: String!
+}
+
+"""
+select columns of table "models_enum"
+"""
+enum ModelsEnumSelectColumn {
+  """column name"""
+  name
+
+  """column name"""
+  value
+}
+
+"""
+input type for updating data in table "models_enum"
+"""
+input ModelsEnumSetInput {
+  name: String
+  value: String
+}
+
+"""
+Streaming cursor of the table "models_enum"
+"""
+input ModelsEnumStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: ModelsEnumStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input ModelsEnumStreamCursorValueInput {
+  name: String
+  value: String
+}
+
+"""
+update columns of table "models_enum"
+"""
+enum ModelsEnumUpdateColumn {
+  """column name"""
+  name
+
+  """column name"""
+  value
+}
+
+input ModelsEnumUpdates {
+  """sets the columns of the filtered rows to the given values"""
+  _set: ModelsEnumSetInput
+
+  """filter the rows which have to be updated"""
+  where: ModelsEnumBoolExp!
+}
+
 """column ordering options"""
 enum OrderBy {
   """in ascending order, nulls last"""
@@ -4390,6 +4622,225 @@ input PromptVarianceOrderBy {
 }
 
 """
+columns and relationships of "referral"
+"""
+type Referral {
+  referralCode: String!
+  referrerId: uuid!
+
+  """An object relationship"""
+  user: User!
+
+  """An object relationship"""
+  userByUserId: User!
+  userId: uuid!
+}
+
+"""
+aggregated selection of "referral"
+"""
+type ReferralAggregate {
+  aggregate: ReferralAggregateFields
+  nodes: [Referral!]!
+}
+
+input ReferralAggregateBoolExp {
+  count: referralAggregateBoolExpCount
+}
+
+"""
+aggregate fields of "referral"
+"""
+type ReferralAggregateFields {
+  count(columns: [ReferralSelectColumn!], distinct: Boolean): Int!
+  max: ReferralMaxFields
+  min: ReferralMinFields
+}
+
+"""
+order by aggregate values of table "referral"
+"""
+input ReferralAggregateOrderBy {
+  count: OrderBy
+  max: ReferralMaxOrderBy
+  min: ReferralMinOrderBy
+}
+
+"""
+input type for inserting array relation for remote table "referral"
+"""
+input ReferralArrRelInsertInput {
+  data: [ReferralInsertInput!]!
+
+  """upsert condition"""
+  onConflict: ReferralOnConflict
+}
+
+"""
+Boolean expression to filter rows from the table "referral". All fields are combined with a logical 'AND'.
+"""
+input ReferralBoolExp {
+  _and: [ReferralBoolExp!]
+  _not: ReferralBoolExp
+  _or: [ReferralBoolExp!]
+  referralCode: StringComparisonExp
+  referrerId: UuidComparisonExp
+  user: UserBoolExp
+  userByUserId: UserBoolExp
+  userId: UuidComparisonExp
+}
+
+"""
+unique or primary key constraints on table "referral"
+"""
+enum ReferralConstraint {
+  """
+  unique or primary key constraint on columns "referral_code"
+  """
+  referral_pkey
+}
+
+"""
+input type for inserting data into table "referral"
+"""
+input ReferralInsertInput {
+  referralCode: String
+  referrerId: uuid
+  user: UserObjRelInsertInput
+  userByUserId: UserObjRelInsertInput
+  userId: uuid
+}
+
+"""aggregate max on columns"""
+type ReferralMaxFields {
+  referralCode: String
+  referrerId: uuid
+  userId: uuid
+}
+
+"""
+order by max() on columns of table "referral"
+"""
+input ReferralMaxOrderBy {
+  referralCode: OrderBy
+  referrerId: OrderBy
+  userId: OrderBy
+}
+
+"""aggregate min on columns"""
+type ReferralMinFields {
+  referralCode: String
+  referrerId: uuid
+  userId: uuid
+}
+
+"""
+order by min() on columns of table "referral"
+"""
+input ReferralMinOrderBy {
+  referralCode: OrderBy
+  referrerId: OrderBy
+  userId: OrderBy
+}
+
+"""
+response of any mutation on the table "referral"
+"""
+type ReferralMutationResponse {
+  """number of rows affected by the mutation"""
+  affectedRows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [Referral!]!
+}
+
+"""
+on_conflict condition type for table "referral"
+"""
+input ReferralOnConflict {
+  constraint: ReferralConstraint!
+  updateColumns: [ReferralUpdateColumn!]! = []
+  where: ReferralBoolExp
+}
+
+"""Ordering options when selecting data from "referral"."""
+input ReferralOrderBy {
+  referralCode: OrderBy
+  referrerId: OrderBy
+  user: UserOrderBy
+  userByUserId: UserOrderBy
+  userId: OrderBy
+}
+
+"""primary key columns input for table: referral"""
+input ReferralPkColumnsInput {
+  referralCode: String!
+}
+
+"""
+select columns of table "referral"
+"""
+enum ReferralSelectColumn {
+  """column name"""
+  referralCode
+
+  """column name"""
+  referrerId
+
+  """column name"""
+  userId
+}
+
+"""
+input type for updating data in table "referral"
+"""
+input ReferralSetInput {
+  referralCode: String
+  referrerId: uuid
+  userId: uuid
+}
+
+"""
+Streaming cursor of the table "referral"
+"""
+input ReferralStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: ReferralStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input ReferralStreamCursorValueInput {
+  referralCode: String
+  referrerId: uuid
+  userId: uuid
+}
+
+"""
+update columns of table "referral"
+"""
+enum ReferralUpdateColumn {
+  """column name"""
+  referralCode
+
+  """column name"""
+  referrerId
+
+  """column name"""
+  userId
+}
+
+input ReferralUpdates {
+  """sets the columns of the filtered rows to the given values"""
+  _set: ReferralSetInput
+
+  """filter the rows which have to be updated"""
+  where: ReferralBoolExp!
+}
+
+"""
 Boolean expression to compare columns of type "String". All fields are combined with logical 'AND'.
 """
 input StringComparisonExp {
@@ -4487,6 +4938,10 @@ type Thread {
     """filter the rows returned"""
     where: MessageBoolExp
   ): MessageAggregate!
+  model: ModelsEnumEnum!
+
+  """An object relationship"""
+  modelsEnum: ModelsEnum!
   threadId: uuid!
   updatedAt: timestamptz!
 
@@ -4578,6 +5033,8 @@ input ThreadBoolExp {
   isPublic: BooleanComparisonExp
   messages: MessageBoolExp
   messagesAggregate: MessageAggregateBoolExp
+  model: ModelsEnumEnumComparisonExp
+  modelsEnum: ModelsEnumBoolExp
   threadId: UuidComparisonExp
   updatedAt: TimestamptzComparisonExp
   user: UserBoolExp
@@ -4615,6 +5072,8 @@ input ThreadInsertInput {
   createdAt: timestamptz
   isPublic: Boolean
   messages: MessageArrRelInsertInput
+  model: ModelsEnumEnum
+  modelsEnum: ModelsEnumObjRelInsertInput
   threadId: uuid
   updatedAt: timestamptz
   user: UserObjRelInsertInput
@@ -4698,6 +5157,8 @@ input ThreadOrderBy {
   createdAt: OrderBy
   isPublic: OrderBy
   messagesAggregate: MessageAggregateOrderBy
+  model: OrderBy
+  modelsEnum: ModelsEnumOrderBy
   threadId: OrderBy
   updatedAt: OrderBy
   user: UserOrderBy
@@ -4721,6 +5182,9 @@ enum ThreadSelectColumn {
 
   """column name"""
   isPublic
+
+  """column name"""
+  model
 
   """column name"""
   threadId
@@ -4755,6 +5219,7 @@ input ThreadSetInput {
   chatbotId: Int
   createdAt: timestamptz
   isPublic: Boolean
+  model: ModelsEnumEnum
   threadId: uuid
   updatedAt: timestamptz
   userId: uuid
@@ -4812,6 +5277,7 @@ input ThreadStreamCursorValueInput {
   chatbotId: Int
   createdAt: timestamptz
   isPublic: Boolean
+  model: ModelsEnumEnum
   threadId: uuid
   updatedAt: timestamptz
   userId: uuid
@@ -4841,6 +5307,9 @@ enum ThreadUpdateColumn {
 
   """column name"""
   isPublic
+
+  """column name"""
+  model
 
   """column name"""
   threadId
@@ -5407,6 +5876,8 @@ type User {
   ): ChatAggregate!
   dateJoined: timestamptz!
   email: String!
+  getFreeMonth: Boolean
+  isBlocked: Boolean
   lastLogin: timestamptz
   password: String!
 
@@ -5445,6 +5916,7 @@ type User {
     """filter the rows returned"""
     where: PreferenceBoolExp
   ): PreferenceAggregate!
+  proUserSubscriptionId: String!
   profilePicture: String
 
   """An array relationship"""
@@ -5482,7 +5954,79 @@ type User {
     """filter the rows returned"""
     where: PromptUserBoolExp
   ): PromptUserAggregate!
-  slug: String
+
+  """An array relationship"""
+  referrals(
+    """distinct select on columns"""
+    distinctOn: [ReferralSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ReferralOrderBy!]
+
+    """filter the rows returned"""
+    where: ReferralBoolExp
+  ): [Referral!]!
+
+  """An aggregate relationship"""
+  referralsAggregate(
+    """distinct select on columns"""
+    distinctOn: [ReferralSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ReferralOrderBy!]
+
+    """filter the rows returned"""
+    where: ReferralBoolExp
+  ): ReferralAggregate!
+
+  """An array relationship"""
+  referralsByUserId(
+    """distinct select on columns"""
+    distinctOn: [ReferralSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ReferralOrderBy!]
+
+    """filter the rows returned"""
+    where: ReferralBoolExp
+  ): [Referral!]!
+
+  """An aggregate relationship"""
+  referralsByUserIdAggregate(
+    """distinct select on columns"""
+    distinctOn: [ReferralSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ReferralOrderBy!]
+
+    """filter the rows returned"""
+    where: ReferralBoolExp
+  ): ReferralAggregate!
+  slug: String!
 
   """An array relationship"""
   threads(
@@ -5551,13 +6095,20 @@ input UserBoolExp {
   chatsAggregate: ChatAggregateBoolExp
   dateJoined: TimestamptzComparisonExp
   email: StringComparisonExp
+  getFreeMonth: BooleanComparisonExp
+  isBlocked: BooleanComparisonExp
   lastLogin: TimestamptzComparisonExp
   password: StringComparisonExp
   preferences: PreferenceBoolExp
   preferencesAggregate: PreferenceAggregateBoolExp
+  proUserSubscriptionId: StringComparisonExp
   profilePicture: StringComparisonExp
   prompts: PromptUserBoolExp
   promptsAggregate: PromptUserAggregateBoolExp
+  referrals: ReferralBoolExp
+  referralsAggregate: ReferralAggregateBoolExp
+  referralsByUserId: ReferralBoolExp
+  referralsByUserIdAggregate: ReferralAggregateBoolExp
   slug: StringComparisonExp
   threads: ThreadBoolExp
   threadsAggregate: ThreadAggregateBoolExp
@@ -5569,6 +6120,11 @@ input UserBoolExp {
 unique or primary key constraints on table "user"
 """
 enum UserConstraint {
+  """
+  unique or primary key constraint on columns "slug"
+  """
+  unique_slug
+
   """
   unique or primary key constraint on columns "email"
   """
@@ -5592,11 +6148,16 @@ input UserInsertInput {
   chats: ChatArrRelInsertInput
   dateJoined: timestamptz
   email: String
+  getFreeMonth: Boolean
+  isBlocked: Boolean
   lastLogin: timestamptz
   password: String
   preferences: PreferenceArrRelInsertInput
+  proUserSubscriptionId: String
   profilePicture: String
   prompts: PromptUserArrRelInsertInput
+  referrals: ReferralArrRelInsertInput
+  referralsByUserId: ReferralArrRelInsertInput
   slug: String
   threads: ThreadArrRelInsertInput
   userId: uuid
@@ -5609,6 +6170,7 @@ type UserMaxFields {
   email: String
   lastLogin: timestamptz
   password: String
+  proUserSubscriptionId: String
   profilePicture: String
   slug: String
   userId: uuid
@@ -5621,6 +6183,7 @@ type UserMinFields {
   email: String
   lastLogin: timestamptz
   password: String
+  proUserSubscriptionId: String
   profilePicture: String
   slug: String
   userId: uuid
@@ -5662,11 +6225,16 @@ input UserOrderBy {
   chatsAggregate: ChatAggregateOrderBy
   dateJoined: OrderBy
   email: OrderBy
+  getFreeMonth: OrderBy
+  isBlocked: OrderBy
   lastLogin: OrderBy
   password: OrderBy
   preferencesAggregate: PreferenceAggregateOrderBy
+  proUserSubscriptionId: OrderBy
   profilePicture: OrderBy
   promptsAggregate: PromptUserAggregateOrderBy
+  referralsAggregate: ReferralAggregateOrderBy
+  referralsByUserIdAggregate: ReferralAggregateOrderBy
   slug: OrderBy
   threadsAggregate: ThreadAggregateOrderBy
   userId: OrderBy
@@ -5689,10 +6257,19 @@ enum UserSelectColumn {
   email
 
   """column name"""
+  getFreeMonth
+
+  """column name"""
+  isBlocked
+
+  """column name"""
   lastLogin
 
   """column name"""
   password
+
+  """column name"""
+  proUserSubscriptionId
 
   """column name"""
   profilePicture
@@ -5713,8 +6290,11 @@ input type for updating data in table "user"
 input UserSetInput {
   dateJoined: timestamptz
   email: String
+  getFreeMonth: Boolean
+  isBlocked: Boolean
   lastLogin: timestamptz
   password: String
+  proUserSubscriptionId: String
   profilePicture: String
   slug: String
   userId: uuid
@@ -5736,8 +6316,11 @@ input UserStreamCursorInput {
 input UserStreamCursorValueInput {
   dateJoined: timestamptz
   email: String
+  getFreeMonth: Boolean
+  isBlocked: Boolean
   lastLogin: timestamptz
   password: String
+  proUserSubscriptionId: String
   profilePicture: String
   slug: String
   userId: uuid
@@ -5755,10 +6338,19 @@ enum UserUpdateColumn {
   email
 
   """column name"""
+  getFreeMonth
+
+  """column name"""
+  isBlocked
+
+  """column name"""
   lastLogin
 
   """column name"""
   password
+
+  """column name"""
+  proUserSubscriptionId
 
   """column name"""
   profilePicture
@@ -5931,6 +6523,19 @@ type mutation_root {
   deleteMessageTypeEnumByPk(value: String!): MessageTypeEnum
 
   """
+  delete data from the table: "models_enum"
+  """
+  deleteModelsEnum(
+    """filter the rows which have to be deleted"""
+    where: ModelsEnumBoolExp!
+  ): ModelsEnumMutationResponse
+
+  """
+  delete single row from the table: "models_enum"
+  """
+  deleteModelsEnumByPk(name: String!): ModelsEnum
+
+  """
   delete data from the table: "preference"
   """
   deletePreference(
@@ -5994,6 +6599,19 @@ type mutation_root {
   delete single row from the table: "prompt_user"
   """
   deletePromptUserByPk(promptId: Int!, userId: uuid!): PromptUser
+
+  """
+  delete data from the table: "referral"
+  """
+  deleteReferral(
+    """filter the rows which have to be deleted"""
+    where: ReferralBoolExp!
+  ): ReferralMutationResponse
+
+  """
+  delete single row from the table: "referral"
+  """
+  deleteReferralByPk(referralCode: String!): Referral
 
   """
   delete data from the table: "thread"
@@ -6224,6 +6842,28 @@ type mutation_root {
   ): MessageTypeEnum
 
   """
+  insert data into the table: "models_enum"
+  """
+  insertModelsEnum(
+    """the rows to be inserted"""
+    objects: [ModelsEnumInsertInput!]!
+
+    """upsert condition"""
+    onConflict: ModelsEnumOnConflict
+  ): ModelsEnumMutationResponse
+
+  """
+  insert a single row into the table: "models_enum"
+  """
+  insertModelsEnumOne(
+    """the row to be inserted"""
+    object: ModelsEnumInsertInput!
+
+    """upsert condition"""
+    onConflict: ModelsEnumOnConflict
+  ): ModelsEnum
+
+  """
   insert data into the table: "preference"
   """
   insertPreference(
@@ -6332,6 +6972,28 @@ type mutation_root {
     """upsert condition"""
     onConflict: PromptUserOnConflict
   ): PromptUser
+
+  """
+  insert data into the table: "referral"
+  """
+  insertReferral(
+    """the rows to be inserted"""
+    objects: [ReferralInsertInput!]!
+
+    """upsert condition"""
+    onConflict: ReferralOnConflict
+  ): ReferralMutationResponse
+
+  """
+  insert a single row into the table: "referral"
+  """
+  insertReferralOne(
+    """the row to be inserted"""
+    object: ReferralInsertInput!
+
+    """upsert condition"""
+    onConflict: ReferralOnConflict
+  ): Referral
 
   """
   insert data into the table: "thread"
@@ -6670,6 +7332,34 @@ type mutation_root {
   ): [MessageTypeEnumMutationResponse]
 
   """
+  update data of the table: "models_enum"
+  """
+  updateModelsEnum(
+    """sets the columns of the filtered rows to the given values"""
+    _set: ModelsEnumSetInput
+
+    """filter the rows which have to be updated"""
+    where: ModelsEnumBoolExp!
+  ): ModelsEnumMutationResponse
+
+  """
+  update single row of the table: "models_enum"
+  """
+  updateModelsEnumByPk(
+    """sets the columns of the filtered rows to the given values"""
+    _set: ModelsEnumSetInput
+    pkColumns: ModelsEnumPkColumnsInput!
+  ): ModelsEnum
+
+  """
+  update multiples rows of table: "models_enum"
+  """
+  updateModelsEnumMany(
+    """updates to execute, in order"""
+    updates: [ModelsEnumUpdates!]!
+  ): [ModelsEnumMutationResponse]
+
+  """
   update data of the table: "preference"
   """
   updatePreference(
@@ -6832,6 +7522,34 @@ type mutation_root {
     """updates to execute, in order"""
     updates: [PromptUserUpdates!]!
   ): [PromptUserMutationResponse]
+
+  """
+  update data of the table: "referral"
+  """
+  updateReferral(
+    """sets the columns of the filtered rows to the given values"""
+    _set: ReferralSetInput
+
+    """filter the rows which have to be updated"""
+    where: ReferralBoolExp!
+  ): ReferralMutationResponse
+
+  """
+  update single row of the table: "referral"
+  """
+  updateReferralByPk(
+    """sets the columns of the filtered rows to the given values"""
+    _set: ReferralSetInput
+    pkColumns: ReferralPkColumnsInput!
+  ): Referral
+
+  """
+  update multiples rows of table: "referral"
+  """
+  updateReferralMany(
+    """updates to execute, in order"""
+    updates: [ReferralUpdates!]!
+  ): [ReferralMutationResponse]
 
   """
   update data of the table: "thread"
@@ -7344,6 +8062,49 @@ type query_root {
   messageTypeEnumByPk(value: String!): MessageTypeEnum
 
   """
+  fetch data from the table: "models_enum"
+  """
+  modelsEnum(
+    """distinct select on columns"""
+    distinctOn: [ModelsEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ModelsEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: ModelsEnumBoolExp
+  ): [ModelsEnum!]!
+
+  """
+  fetch aggregated fields from the table: "models_enum"
+  """
+  modelsEnumAggregate(
+    """distinct select on columns"""
+    distinctOn: [ModelsEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ModelsEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: ModelsEnumBoolExp
+  ): ModelsEnumAggregate!
+
+  """fetch data from the table: "models_enum" using primary key columns"""
+  modelsEnumByPk(name: String!): ModelsEnum
+
+  """
   fetch data from the table: "preference"
   """
   preference(
@@ -7561,6 +8322,49 @@ type query_root {
   promptUserByPk(promptId: Int!, userId: uuid!): PromptUser
 
   """
+  fetch data from the table: "referral"
+  """
+  referral(
+    """distinct select on columns"""
+    distinctOn: [ReferralSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ReferralOrderBy!]
+
+    """filter the rows returned"""
+    where: ReferralBoolExp
+  ): [Referral!]!
+
+  """
+  fetch aggregated fields from the table: "referral"
+  """
+  referralAggregate(
+    """distinct select on columns"""
+    distinctOn: [ReferralSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ReferralOrderBy!]
+
+    """filter the rows returned"""
+    where: ReferralBoolExp
+  ): ReferralAggregate!
+
+  """fetch data from the table: "referral" using primary key columns"""
+  referralByPk(referralCode: String!): Referral
+
+  """
   fetch data from the table: "thread"
   """
   thread(
@@ -7731,6 +8535,13 @@ type query_root {
 
   """fetch data from the table: "user" using primary key columns"""
   userByPk(userId: uuid!): User
+}
+
+input referralAggregateBoolExpCount {
+  arguments: [ReferralSelectColumn!]
+  distinct: Boolean
+  filter: ReferralBoolExp
+  predicate: IntComparisonExp!
 }
 
 type subscription_root {
@@ -8195,6 +9006,63 @@ type subscription_root {
   ): [MessageTypeEnum!]!
 
   """
+  fetch data from the table: "models_enum"
+  """
+  modelsEnum(
+    """distinct select on columns"""
+    distinctOn: [ModelsEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ModelsEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: ModelsEnumBoolExp
+  ): [ModelsEnum!]!
+
+  """
+  fetch aggregated fields from the table: "models_enum"
+  """
+  modelsEnumAggregate(
+    """distinct select on columns"""
+    distinctOn: [ModelsEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ModelsEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: ModelsEnumBoolExp
+  ): ModelsEnumAggregate!
+
+  """fetch data from the table: "models_enum" using primary key columns"""
+  modelsEnumByPk(name: String!): ModelsEnum
+
+  """
+  fetch data from the table in a streaming manner: "models_enum"
+  """
+  modelsEnumStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [ModelsEnumStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: ModelsEnumBoolExp
+  ): [ModelsEnum!]!
+
+  """
   fetch data from the table: "preference"
   """
   preference(
@@ -8480,6 +9348,63 @@ type subscription_root {
     """filter the rows returned"""
     where: PromptUserBoolExp
   ): [PromptUser!]!
+
+  """
+  fetch data from the table: "referral"
+  """
+  referral(
+    """distinct select on columns"""
+    distinctOn: [ReferralSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ReferralOrderBy!]
+
+    """filter the rows returned"""
+    where: ReferralBoolExp
+  ): [Referral!]!
+
+  """
+  fetch aggregated fields from the table: "referral"
+  """
+  referralAggregate(
+    """distinct select on columns"""
+    distinctOn: [ReferralSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ReferralOrderBy!]
+
+    """filter the rows returned"""
+    where: ReferralBoolExp
+  ): ReferralAggregate!
+
+  """fetch data from the table: "referral" using primary key columns"""
+  referralByPk(referralCode: String!): Referral
+
+  """
+  fetch data from the table in a streaming manner: "referral"
+  """
+  referralStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [ReferralStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: ReferralBoolExp
+  ): [Referral!]!
 
   """
   fetch data from the table: "thread"
