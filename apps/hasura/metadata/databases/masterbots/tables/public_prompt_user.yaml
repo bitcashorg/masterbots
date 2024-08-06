@@ -1,30 +1,10 @@
 table:
-  schema: public
   name: prompt_user
-  object_relationships:
-    - name: user
-      using:
-        foreign_key_constraint_on: user_id
-    - name: prompt
-      using:
-        foreign_key_constraint_on: prompt_id
-  insert_permissions:
-    - role: user
-      permission:
-        columns:
-          - user_id
-          - prompt_id
-      check: {}
-  select_permissions:
-    - role: anonymous
-      permission:
-        columns:
-          - user_id
-          - prompt_id
-      filter: {}
-    - role: user
-      permission:
-        columns:
-          - user_id
-          - prompt_id
-      filter: {}
+  schema: public
+object_relationships:
+  - name: prompt
+    using:
+      foreign_key_constraint_on: prompt_id
+  - name: user
+    using:
+      foreign_key_constraint_on: user_id

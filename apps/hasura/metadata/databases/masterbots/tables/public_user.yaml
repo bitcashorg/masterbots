@@ -16,13 +16,6 @@ array_relationships:
         table:
           name: preference
           schema: public
-  - name: threads
-    using:
-      foreign_key_constraint_on:
-        column: user_id
-        table:
-          name: thread
-          schema: public
   - name: prompts
     using:
       foreign_key_constraint_on:
@@ -30,7 +23,52 @@ array_relationships:
         table:
           name: prompt_user
           schema: public
+  - name: referrals
+    using:
+      foreign_key_constraint_on:
+        column: referrer_id
+        table:
+          name: referral
+          schema: public
+  - name: referralsByUserId
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: referral
+          schema: public
+  - name: threads
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: thread
+          schema: public
+insert_permissions:
+  - role: user
+    permission:
+      check: {}
+      columns:
+        - email
+        - get_free_month
+        - is_blocked
+        - last_login
+        - password
+        - pro_user_subscription_id
+        - profile_picture
+        - slug
+        - username
+    comment: ""
 select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - email
+        - profile_picture
+        - username
+        - slug
+      filter: {}
+    comment: ""
   - role: user
     permission:
       columns:
@@ -48,12 +86,16 @@ select_permissions:
         user_id:
           _eq: X-Hasura-User-Id
     comment: ""
-  - role: anonymous
+update_permissions:
+  - role: user
     permission:
       columns:
-        - email
+        - get_free_month
+        - password
+        - pro_user_subscription_id
         - profile_picture
-        - username
-        - slug
-      filter: {}
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+      check: null
     comment: ""

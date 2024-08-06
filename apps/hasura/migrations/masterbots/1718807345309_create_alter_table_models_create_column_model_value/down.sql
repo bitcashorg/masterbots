@@ -1,1 +1,0 @@
-DROP COLUMN IF EXISTS model_value;
