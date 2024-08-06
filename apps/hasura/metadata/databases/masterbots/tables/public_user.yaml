@@ -63,10 +63,14 @@ select_permissions:
   - role: anonymous
     permission:
       columns:
+        - date_joined
         - email
+        - last_login
+        - pro_user_subscription_id
         - profile_picture
-        - username
         - slug
+        - user_id
+        - username
       filter: {}
     comment: ""
   - role: user
@@ -74,14 +78,14 @@ select_permissions:
       columns:
         - date_joined
         - email
-        - last_login
-        - profile_picture
-        - user_id
-        - username
-        - slug
         - get_free_month
         - is_blocked
+        - last_login
         - pro_user_subscription_id
+        - profile_picture
+        - slug
+        - user_id
+        - username
       filter:
         user_id:
           _eq: X-Hasura-User-Id
