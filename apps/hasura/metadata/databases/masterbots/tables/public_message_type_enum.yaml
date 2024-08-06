@@ -1,6 +1,14 @@
 table:
   name: message_type_enum
   schema: public
+array_relationships:
+  - name: messages
+    using:
+      foreign_key_constraint_on:
+        column: role
+        table:
+          name: message
+          schema: public
 select_permissions:
   - role: anonymous
     permission:

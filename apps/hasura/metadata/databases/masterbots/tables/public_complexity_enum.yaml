@@ -1,6 +1,21 @@
 table:
   name: complexity_enum
   schema: public
+array_relationships:
+  - name: chatbots
+    using:
+      foreign_key_constraint_on:
+        column: default_complexity
+        table:
+          name: chatbot
+          schema: public
+  - name: preferences
+    using:
+      foreign_key_constraint_on:
+        column: preferred_complexity
+        table:
+          name: preference
+          schema: public
 select_permissions:
   - role: anonymous
     permission:
