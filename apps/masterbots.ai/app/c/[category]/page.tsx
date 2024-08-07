@@ -18,7 +18,7 @@ export default async function ChatCategoryPage({
   const jwt = session?.user?.hasuraJwt
 
   if (!jwt || isTokenExpired(jwt)) {
-    redirect('/sign-in')
+    redirect('/auth/signing')
   }
 
   const categories = await getCategories()

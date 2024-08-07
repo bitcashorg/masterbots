@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import SignInForm from '@/components/login/signin-form'
+import SignInForm from '@/components/auth/signin-form'
 
 export default function SignInPage() {
   return (
@@ -27,7 +27,7 @@ export default function SignInPage() {
         <div className="space-y-4">
           <div className="text-sm text-center text-muted-foreground">
             Don&apos;t have an account?{' '}
-            <Link href="#" className="underline" prefetch={false}>
+            <Link href="/auth/signup" className="underline" prefetch={false}>
               Sign up
             </Link>
           </div>

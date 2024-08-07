@@ -1,6 +1,8 @@
 import Stripe from 'stripe'
 import { type Message } from 'ai'
 import { ChatCompletionMessageParam } from 'openai/resources'
+import 'next-auth'
+import { DefaultSession } from 'next-auth'
 
 export interface Chat extends Record<string, any> {
   id: string
@@ -103,4 +105,14 @@ export const initialStateSubscription = {
   },
   current_period_start: 0,
   status: ''
+}
+
+declare module 'next-auth' {
+  interface Session {
+    user: {
+      id: string
+      email: string
+      hasuraJwt: string
+    } & DefaultSession['user']
+  }
 }

@@ -14,7 +14,7 @@ export default async function IndexPage() {
   const jwt = session?.user?.hasuraJwt
 
   if (!jwt || isTokenExpired(jwt)) {
-    redirect('/sign-in')
+    redirect('/auth/signing')
   }
 
   const threads = await getThreads({

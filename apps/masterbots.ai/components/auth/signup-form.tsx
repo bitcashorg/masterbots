@@ -1,31 +1,30 @@
 'use client'
 
-import { Fragment, useState } from 'react'
-import { signIn } from 'next-auth/react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { LoginButton } from '@/components/login-button'
 
-export default function SignInForm() {
+export default function SignUpForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const result = await signIn('credentials', {
-      email,
-      password,
-      redirect: false
+    const response = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
     })
 
-    if (result?.error) {
-      // Handle error (show message to user)
-      console.error(result.error)
+    if (response.ok) {
+      router.push('/auth/signin') // Redirect to sign in page on success
     } else {
-      router.push('/dashboard') // Redirect to dashboard on success
+      const data = await response.json()
+      // Handle error (show message to user)
     }
   }
 
@@ -53,12 +52,8 @@ export default function SignInForm() {
         />
       </div>
       <Button type="submit" className="w-full">
-        Sign In
+        Sign Up
       </Button>
-      <div className='space-y-2 text-center'>
-      <p className='text-muted-foreground'>or</p>
-      </div>
-      <LoginButton className="w-full" />
     </form>
   )
 }

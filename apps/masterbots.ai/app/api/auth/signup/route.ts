@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   const { user } = await client.query({
     user: {
       __args: {
-        where: { email: email }
+        where: { email }
       },
       userId: true
     }
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
       insertUserOne: {
         __args: {
           object: {
-            email: email,
+            email,
             password: hashedPassword
           }
         },
