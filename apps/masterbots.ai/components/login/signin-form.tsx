@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Label } from '@/components/ui/label'
@@ -55,6 +55,9 @@ export default function SignInForm() {
       <Button type="submit" className="w-full">
         Sign In
       </Button>
+      <div className='space-y-2 text-center'>
+      <p className='text-muted-foreground'>or</p>
+      </div>
       <LoginButton className="w-full" />
     </form>
   )
