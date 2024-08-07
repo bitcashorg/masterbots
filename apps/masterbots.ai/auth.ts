@@ -1,4 +1,3 @@
-// import bcrypt from 'bcrypt'
 import bcrypt from 'bcryptjs'
 import { createMbClient } from 'mb-genql'
 import {
@@ -20,7 +19,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null
+          throw new Error('Missing email or password')
         }
 
         const client = createMbClient({ env: 'prod' }) // Adjust environment as needed
@@ -39,13 +38,18 @@ export const authOptions: NextAuthOptions = {
         console.log('user', user)
 
         if (!user || user.length === 0) {
-          return null
+          throw new Error(
+            'User authentication failed: Invalid or empty user data'
+          )
         }
 
-        const isValid = await bcrypt.compare(credentials.password, user[0].password)
+        const isValid = await bcrypt.compare(
+          credentials.password,
+          user[0].password
+        )
 
         if (!isValid) {
-          return null
+          throw new Error('User authentication failed: Invalid password')
         }
 
         return { id: user[0].userId, email: user[0].email }

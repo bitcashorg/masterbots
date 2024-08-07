@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { LoginButton } from '@/components/login-button'
 
 export default function SignUpForm() {
   const [email, setEmail] = useState('')
@@ -24,7 +23,7 @@ export default function SignUpForm() {
       router.push('/auth/signin') // Redirect to sign in page on success
     } else {
       const data = await response.json()
-      // Handle error (show message to user)
+      console.error(data.error)
     }
   }
 

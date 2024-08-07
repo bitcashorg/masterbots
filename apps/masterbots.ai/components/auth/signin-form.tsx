@@ -22,7 +22,6 @@ export default function SignInForm() {
     })
 
     if (result?.error) {
-      // Handle error (show message to user)
       console.error(result.error)
     } else {
       router.push('/') // Redirect to home on success
