@@ -9,6 +9,7 @@ import { NextAuthOptions, getServerSession } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import Google from 'next-auth/providers/google'
 import { getToken, validateJwtSecret } from 'mb-lib'
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -35,18 +36,12 @@ export const authOptions: NextAuthOptions = {
             password: true
           }
         })
-        console.log('user', user)
 
         if (!user || user.length === 0) {
-          throw new Error(
-            'User authentication failed: Invalid or empty user data'
-          )
+          throw new Error('User authentication failed: Invalid or empty user data')
         }
 
-        const isValid = await bcrypt.compare(
-          credentials.password,
-          user[0].password
-        )
+        const isValid = await bcrypt.compare(credentials.password, user[0].password)
 
         if (!isValid) {
           throw new Error('User authentication failed: Invalid password')
@@ -61,7 +56,7 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, profile }) {
       if (user) {
         token.id = user.id
         token.email = user.email
@@ -84,13 +79,20 @@ export const authOptions: NextAuthOptions = {
         token.hasuraJwt = hasuraJwt
       }
 
+      if (profile) {
+        token.name = profile.name
+        token.image = profile.image
+      }
+
       return token
     },
     async session({ session, token }) {
       session.user = {
         id: token.id as string,
         email: token.email as string,
-        hasuraJwt: token.hasuraJwt as string
+        hasuraJwt: token.hasuraJwt as string,
+        name: token.name as string,
+        image: token.image as string
       }
 
       return session

@@ -44,7 +44,7 @@ async function UserOrLogin() {
   return (
     <>
       <div className="flex items-center">
-        {session?.user && !isTokenExpired(session?.user?.hasuraJwt) ? (
+        {session?.user && !isTokenExpired(session.user.hasuraJwt) ? (
           <UserMenu user={session.user} />
         ) : (
           <Button variant="link" asChild className="-ml-2">
