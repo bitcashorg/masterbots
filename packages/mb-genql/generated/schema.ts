@@ -891,7 +891,7 @@ export interface ModelsEnum {
     threads: Thread[]
     /** An aggregate relationship */
     threadsAggregate: ThreadAggregate
-    value: (Scalars['String'] | null)
+    value: Scalars['String']
     __typename: 'ModelsEnum'
 }
 
@@ -914,7 +914,7 @@ export interface ModelsEnumAggregateFields {
 
 
 /** unique or primary key constraints on table "models_enum" */
-export type ModelsEnumConstraint = 'models_enum_name_key' | 'models_enum_pkey'
+export type ModelsEnumConstraint = 'models_enum_pkey' | 'models_enum_value_key'
 
 export type ModelsEnumEnum = 'ANTHROPIC' | 'OPENAI' | 'PERPLEXITY' | 'WORDWARE'
 
@@ -10051,8 +10051,8 @@ export const enumMessageUpdateColumn = {
 }
 
 export const enumModelsEnumConstraint = {
-   models_enum_name_key: 'models_enum_name_key' as const,
-   models_enum_pkey: 'models_enum_pkey' as const
+   models_enum_pkey: 'models_enum_pkey' as const,
+   models_enum_value_key: 'models_enum_value_key' as const
 }
 
 export const enumModelsEnumEnum = {

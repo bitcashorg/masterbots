@@ -12,13 +12,18 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  const client = createMbClient({ env: 'prod' }) // Adjust environment as needed
+  // TODO: Use drizzle instead for admin actions...
+  const client = createMbClient({ env: 'local', adminSecret: 'lfg' }) // Adjust environment as needed
 
   // Check if user already exists
   const { user } = await client.query({
     user: {
       __args: {
-        where: { email }
+        where: {
+          email: {
+            _eq: email
+          }
+        }
       },
       userId: true
     }
@@ -38,10 +43,14 @@ export async function POST(req: NextRequest) {
         __args: {
           object: {
             email,
+            // TODO: autogenerate username from email if not filled.
+            username: email.split('@')[0],
+            slug: email.split('@')[0].toLowerCase().replace(/\+/g, '_'),
             password: hashedPassword
           }
         },
         userId: true
+
       }
     })
 

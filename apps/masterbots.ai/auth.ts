@@ -23,7 +23,8 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Missing email or password')
         }
 
-        const client = createMbClient({ env: 'prod' }) // Adjust environment as needed
+        // TODO: Use drizzle instead for admin actions...
+        const client = createMbClient({ env: 'local', adminSecret: 'lfg' }) // Adjust environment as needed
 
         // Check if user exists
         const { user } = await client.query({
