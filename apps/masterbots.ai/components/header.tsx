@@ -6,8 +6,8 @@ import { IconSeparator } from '@/components/ui/icons'
 import { UserMenu } from '@/components/user-menu'
 import { isTokenExpired } from 'mb-lib'
 import { getServerSession } from 'next-auth'
+import { authOptions } from '@/auth'
 import SidebarToggleWrap from './sidebar-toggle-wrap'
-
 
 export async function Header() {
   return (
@@ -40,18 +40,38 @@ function HeaderLink({ href, text }: { href: string; text: string }) {
 }
 
 async function UserOrLogin() {
-  const session = await getServerSession()
+  try {
+    const session = await getServerSession(authOptions)
+
+    if (session?.user) {
+      if (!session.user.hasuraJwt) {
+        console.error('Hasura JWT is missing from the session')
+        return <LoginButton />
+      }
+
+      if (isTokenExpired(session.user.hasuraJwt)) {
+        console.warn('Hasura JWT has expired')
+
+        // * Refresh token if needed
+        //* session.user.hasuraJwt = await refreshTokenFunction();
+
+        return <LoginButton />
+      }
+
+      return <UserMenu user={session.user} />
+    } else {
+      return <LoginButton />
+    }
+  } catch (error) {
+    console.error('Error fetching session:', error)
+    return <LoginButton />
+  }
+}
+
+function LoginButton() {
   return (
-    <>
-      <div className="flex items-center">
-        {session?.user && !isTokenExpired(session.user.hasuraJwt) ? (
-          <UserMenu user={session.user} />
-        ) : (
-          <Button variant="link" asChild className="-ml-2">
-            <Link href="/auth/signing">Login</Link>
-          </Button>
-        )}
-      </div>
-    </>
+    <Button variant="link" asChild className="-ml-2">
+      <Link href="/auth/signin">Login</Link>
+    </Button>
   )
 }

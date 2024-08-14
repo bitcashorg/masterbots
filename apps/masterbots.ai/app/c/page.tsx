@@ -6,15 +6,16 @@ import { isTokenExpired } from 'mb-lib'
 import { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
+import { authOptions } from '@/auth'
 
 export default async function IndexPage() {
-  const session = await getServerSession()
+  const session = await getServerSession(authOptions)
 
   // NOTE: maybe we should use same expiration time
   const jwt = session?.user?.hasuraJwt
 
   if (!jwt || isTokenExpired(jwt)) {
-    redirect('/auth/signing')
+    redirect('/auth/signin')
   }
 
   const threads = await getThreads({

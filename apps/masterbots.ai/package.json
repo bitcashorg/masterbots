@@ -39,6 +39,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "cmdk": "^1.0.0",
+    "cookies-next": "^4.2.1",
     "date-fns": "^2.30.0",
     "focus-trap-react": "^10.2.3",
     "framer-motion": "^10.16.12",

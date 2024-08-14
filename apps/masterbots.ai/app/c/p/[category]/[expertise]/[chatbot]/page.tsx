@@ -8,6 +8,7 @@ import { isTokenExpired } from 'mb-lib'
 import { nanoid } from 'nanoid'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
+import {authOptions} from '@/auth';
 
 export default async function BrowseProBotPage({
   params,
@@ -16,14 +17,14 @@ export default async function BrowseProBotPage({
   params: { category: string; expertise: string; chatbot: string }
   searchParams: { [key: string]: string | string[] | undefined }
 }) {
-  const session = await getServerSession()
+  const session = await getServerSession(authOptions)
   // NOTE: maybe we should use same expiration time
   const jwt = session ? session.user?.hasuraJwt : null
   if (!jwt) {
     throw new Error('Session JWT is missing.')
   }
   if (isTokenExpired(jwt)) {
-    redirect(`/auth/signing`)
+    redirect(`/auth/signin`)
   }
   const chatbotName = botNames.get(params.chatbot)
   if (!chatbotName) {
