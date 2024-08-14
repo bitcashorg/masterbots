@@ -13,8 +13,11 @@ export default function SignInForm() {
   const [password, setPassword] = useState('')
   const router = useRouter()
 
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setErrorMessage(null)
     const result = await signIn('credentials', {
       email,
       password,
@@ -22,14 +25,15 @@ export default function SignInForm() {
     })
 
     if (result?.error) {
-      console.error(result.error)
+      setErrorMessage('Invalid email or password. Please try again')
     } else {
-      router.push('/') // Redirect to home on success
+      router.push('/')
     }
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {errorMessage && <div className="text-red-600">{errorMessage}</div>}
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input
@@ -54,8 +58,8 @@ export default function SignInForm() {
       <Button type="submit" className="w-full">
         Sign In
       </Button>
-      <div className='space-y-2 text-center'>
-      <p className='text-muted-foreground'>Or</p>
+      <div className="space-y-2 text-center">
+        <p className="text-muted-foreground">Or</p>
       </div>
       <LoginButton className="w-full" />
     </form>
