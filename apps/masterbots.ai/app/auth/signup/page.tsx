@@ -1,8 +1,7 @@
-import { LoginButton } from '@/components/login-button'
 import Image from 'next/image'
+import SignUpForm from '@/components/auth/signup-form'
 
-
-export default async function SignInPage() {
+export default function SignUpPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-theme(spacing.16))] items-center py-10">
       <div
@@ -16,11 +15,14 @@ export default async function SignInPage() {
           style={{ maxWidth: 726, objectFit: 'contain' }}
           className="flex self-center"
         />
-
       </div>
-
-      <div className="flex justify-center pt-10">
-        <LoginButton />
+      <div className="max-w-md mx-auto space-y-6">
+        <div className="space-y-2 text-center">
+          <p className="text-muted-foreground">
+            Enter your email and password to create your account.
+          </p>
+        </div>
+        <SignUpForm />
       </div>
     </div>
   )
