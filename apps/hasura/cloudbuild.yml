@@ -27,5 +27,7 @@ steps:
         "--region",
         "us-central1",
       ]
+options:
+  defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET
 images:
   - gcr.io/$PROJECT_ID/$_PROJECT_NAME
