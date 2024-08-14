@@ -8,7 +8,7 @@ export async function POST(req: Request) {
   const { model } = json
 
   // TODO: Check this (user session). Users should have their session up to 30-days.
-  // const userId = (await auth())?.user.id
+  // const userId = (await getServerSession())?.user.id
 
   // if (!userId) {
   //   return new Response('Unauthorized', {

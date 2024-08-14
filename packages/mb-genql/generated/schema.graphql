@@ -2636,7 +2636,7 @@ type ModelsEnum {
     """filter the rows returned"""
     where: ThreadBoolExp
   ): ThreadAggregate!
-  value: String
+  value: String!
 }
 
 """
@@ -2676,12 +2676,12 @@ enum ModelsEnumConstraint {
   """
   unique or primary key constraint on columns "name"
   """
-  models_enum_name_key
+  models_enum_pkey
 
   """
-  unique or primary key constraint on columns "name"
+  unique or primary key constraint on columns "value"
   """
-  models_enum_pkey
+  models_enum_value_key
 }
 
 enum ModelsEnumEnum {

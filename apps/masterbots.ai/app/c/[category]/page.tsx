@@ -1,24 +1,25 @@
+import ChatThreadListPanel from '@/components/chat/chat-thread-list-panel'
+import ThreadPanel from '@/components/thread-panel'
+import { generateMetadataFromSEO } from '@/lib/metadata'
 import { getCategories, getThreads } from '@/services/hasura'
 import { isTokenExpired, toSlug } from 'mb-lib'
 import { Metadata } from 'next'
-import { generateMetadataFromSEO } from '@/lib/metadata'
-import { auth } from '@/auth'
-import ChatThreadListPanel from '@/components/chat/chat-thread-list-panel'
-import ThreadPanel from '@/components/thread-panel'
+import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
+import {authOptions} from '@/auth';
 
 export default async function ChatCategoryPage({
   params
 }: {
   params: { category: string }
 }) {
-  const session = await auth()
+  const session = await getServerSession(authOptions)
 
   // NOTE: maybe we should use same expiration time
   const jwt = session?.user?.hasuraJwt
 
   if (!jwt || isTokenExpired(jwt)) {
-    redirect('/sign-in')
+    redirect('/auth/signin')
   }
 
   const categories = await getCategories()

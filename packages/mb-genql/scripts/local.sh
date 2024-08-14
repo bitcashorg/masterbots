@@ -7,7 +7,7 @@ echo "genql --endpoint $MB_LOCAL_API \
 -H 'content-type: application/json' \
 -H 'x-hasura-admin-secret: $MB_LOCAL_API_ADMIN_SECRET'" && \
 
-genql --endpoint $MB_LOCAL_API \
+npx genql --endpoint $MB_LOCAL_API \
 --output ./generated \
 -H 'content-type: application/json' \
 -H 'x-hasura-admin-secret: $MB_LOCAL_API_ADMIN_SECRET'

@@ -23,6 +23,7 @@
   ],
   "packageManager": "bun@1.0.14",
   "dependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "axios": "^1.7.2",
     "nextjs-toploader": "^1.6.4"
   }

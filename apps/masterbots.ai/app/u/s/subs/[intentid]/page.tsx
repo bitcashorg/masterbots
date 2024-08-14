@@ -1,13 +1,14 @@
-import { auth } from '@/auth'
 import BrowseUserDetails from '@/components/browse-user-details'
 import { Receipt } from '@/components/receipt'
 import { isTokenExpired } from 'mb-lib'
 import { redirect } from 'next/navigation'
 
-import { User } from 'mb-genql'
-import { getBrowseThreads } from '@/services/hasura'
-import { Metadata } from 'next'
 import { generateMetadataFromSEO } from '@/lib/metadata'
+import { getBrowseThreads } from '@/services/hasura'
+import { User } from 'mb-genql'
+import { Metadata } from 'next'
+import { getServerSession } from 'next-auth'
+import {authOptions} from '@/auth';
 
 interface IndexPageProps {
   params: {
@@ -20,11 +21,11 @@ export default async function IndexPage(props: IndexPageProps) {
     params: { intentid }
   } = props
 
-  const session = await auth()
+  const session = await getServerSession(authOptions)
   // NOTE: maybe we should use same expiration time
   const jwt = session?.user?.hasuraJwt
   if (!jwt || isTokenExpired(jwt)) {
-    redirect(`/sign-in`)
+    redirect(`/auth/signin`)
   }
 
   const threads = await getBrowseThreads({

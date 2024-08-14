@@ -2,6 +2,7 @@ import { getThread } from '@/services/hasura'
 import type { Metadata } from 'next'
 import { getThreadLink } from './threads'
 import { headers } from 'next/headers'
+import { Thread } from 'mb-genql'
 
 type OgType =
   | 'website'
@@ -62,23 +63,34 @@ export async function generateMbMetadata({
 }: {
   params: any
 }): Promise<Metadata | undefined> {
-  const threadId = params?.threadId
-  const thread = await getThread({ threadId, jwt: '' })
-  if (!thread) return
-
-  const firstQuestion =
-    thread.messages.find(m => m.role === 'user')?.content || 'not found'
-  const firstResponse =
-    thread.messages.find(m => m.role === 'assistant')?.content || 'not found'
-
-  const data = {
-    title: firstQuestion,
-    publishedAt: thread.updatedAt, // format(thread.updatedAt, 'MMMM dd, yyyy'),
-    summary: firstResponse,
-    image: `${process.env.BASE_URL}/api/og?threadId=${thread.threadId}`,
-    pathname: getThreadLink({ thread: thread, chat: false })
+  let thread: Thread | undefined
+  let data = {
+    title: 'not found',
+    publishedAt: new Date().toISOString(),
+    summary: 'not found',
+    image: `${process.env.BASE_URL}/api/og?threadId=1`,
+    pathname: '#',
   }
 
+  try {
+    const threadId = params?.threadId
+    thread = await getThread({ threadId, jwt: '' })
+
+    const firstQuestion =
+      thread?.messages.find(m => m.role === 'user')?.content || 'not found'
+    const firstResponse =
+      thread?.messages.find(m => m.role === 'assistant')?.content || 'not found'
+
+    data = {
+      title: firstQuestion,
+      publishedAt: thread?.updatedAt, // format(thread?.updatedAt, 'MMMM dd, yyyy'),
+      summary: firstResponse,
+      image: `${process.env.BASE_URL}/api/og?threadId=${thread?.threadId}`,
+      pathname: getThreadLink({ thread, chat: false })
+    }
+  } catch (error) {
+    console.error('Error in getThread', error)
+  }
 
   return {
     title: data.title,
@@ -89,7 +101,7 @@ export async function generateMbMetadata({
       description: data.summary,
       type: 'article',
       publishedTime: data.publishedAt,
-      url:process.env.BASE_URL+data.pathname,
+      url: process.env.BASE_URL + data.pathname,
       images: [
         {
           url: data.image

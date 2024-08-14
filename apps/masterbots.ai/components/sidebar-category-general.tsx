@@ -1,10 +1,10 @@
-import { auth } from '@/auth'
 // import { ChatHistory } from '@/components/chat-history'
 import { getCategories } from '@/services/hasura'
+import { getServerSession } from 'next-auth'
 import SidebarLink from './sidebar-link'
 
 export async function SidebarGeneralCategory() {
-  const session = await auth()
+  const session = await getServerSession()
   if (!session) return null
   const categories = await getCategories()
   return (

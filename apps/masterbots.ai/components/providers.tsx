@@ -13,15 +13,15 @@ export function Providers({ children, ...props }: ThemeProviderProps) {
   return (
     <NextThemesProvider {...props}>
       <ModelProvider>
-      <PaymentProvider>
-        <SidebarProvider>
-          <TooltipProvider>
-            <SessionProvider>
-              <ThreadProvider>{children}</ThreadProvider>
-            </SessionProvider>
-          </TooltipProvider>
-        </SidebarProvider>
-      </PaymentProvider>
+        <PaymentProvider>
+          <SidebarProvider>
+            <TooltipProvider>
+              <SessionProvider>
+                <ThreadProvider>{children}</ThreadProvider>
+              </SessionProvider>
+            </TooltipProvider>
+          </SidebarProvider>
+        </PaymentProvider>
       </ModelProvider>
     </NextThemesProvider>
   )

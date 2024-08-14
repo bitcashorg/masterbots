@@ -1,12 +1,12 @@
 import { type Message } from 'ai'
 
-import { ChatMessage } from './chat-message'
+import { useThread } from '@/lib/hooks/use-thread'
 import { cn, createMessagePairs } from '@/lib/utils'
 import { Chatbot } from 'mb-genql'
 import React from 'react'
-import { ChatAccordion } from './chat-accordion'
 import { ShortMessage } from '../short-message'
-import { useThread } from '@/lib/hooks/use-thread'
+import { ChatAccordion } from './chat-accordion'
+import { ChatMessage } from './chat-message'
 
 export interface ChatList {
   messages: Message[]
@@ -35,7 +35,7 @@ export function ChatList({
   chatArrowClass
 }: ChatList) {
   const [pairs, setPairs] = React.useState<MessagePair[]>([])
-  const { isNewResponse } = useThread()
+  const { isNewResponse, isLoadingMessages } = useThread()
 
   React.useEffect(() => {
     if (messages.length) {
@@ -99,6 +99,14 @@ export function ChatList({
                 chatContentClass,
               )}
             >
+              {/* TODO: place a better loader */}
+              {isLoadingMessages ? (
+                <div className="flex justify-center items-center w-full h-12">
+                  <div className="transition-all w-6 h-6 border-2 border-t-[2px] rounded-full border-x-gray-300 animate-spin"></div>
+                </div>
+              ) : (
+                ''
+              )}
               {pair.chatGptMessage.length > 0
                 ? pair.chatGptMessage.map((message, index) => (
                   <ChatMessage

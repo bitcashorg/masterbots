@@ -11,6 +11,9 @@ export function createMbClient({ config, jwt, env, adminSecret, debug }: GraphQL
     url: endpoints[env || 'prod'].replace('http', 'ws'),
   })
 
+  console.log('endpoints', endpoints)
+  console.log('endpoints[env]', endpoints[env || 'prod'])
+
   const client = createClient({
     fetcher: async (operation: any) => {
       const headers = {
