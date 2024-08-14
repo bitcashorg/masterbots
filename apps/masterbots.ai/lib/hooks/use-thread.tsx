@@ -1,6 +1,7 @@
 'use client'
 
 import { getAllUserMessagesAsStringArray } from '@/components/chat/chat'
+import { useModel } from '@/lib/hooks/use-model'
 import {
   getChatbots,
   getChatbotsCount,
@@ -18,10 +19,10 @@ import * as React from 'react'
 import toast from 'react-hot-toast'
 import { useAtBottom } from './use-at-bottom'
 import { useSidebar } from './use-sidebar'
-import { useModel } from '@/lib/hooks/use-model'
 
 interface ThreadContext {
   isOpenPopup: boolean
+  isLoadingMessages: boolean
   setIsOpenPopup: React.Dispatch<React.SetStateAction<boolean>>
   activeThread: Thread | null
   setActiveThread: React.Dispatch<React.SetStateAction<Thread | null>>
@@ -59,10 +60,12 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
   const { data: session } = useSession()
   const { selectedModel, clientType } = useModel()
 
+  // ! TODO: refactor this to use { useSetState } from 'react-use' 
   const [messagesFromDB, setMessagesFromDB] = React.useState<Message[]>([])
   const [isNewResponse, setIsNewResponse] = React.useState<boolean>(false)
   const [isOpenPopup, setIsOpenPopup] = React.useState<boolean>(false)
   const [randomChatbot, setRandomChatbot] = React.useState<Chatbot | null>(null)
+  const [isLoadingMessages, setIsLoadingMessages] = React.useState(false)
 
   const chatbotSystemPrompts: AIMessage[] =
     activeThread?.chatbot?.prompts?.map(({ prompt }) => ({
@@ -74,27 +77,27 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
 
   const userPreferencesPrompts: AIMessage[] = activeThread
     ? [
-        {
-          id: activeThread?.threadId,
-          role: 'system',
-          content:
-            `Your response tone will be ${activeThread?.chatbot.defaultTone}. ` +
-            `Your response length will be ${activeThread?.chatbot.defaultLength}. ` +
-            `Your response format will be ${activeThread?.chatbot.defaultType}. ` +
-            `Your response complexity level will be ${activeThread?.chatbot.defaultComplexity}.`,
-          createdAt: new Date()
-        }
-      ]
+      {
+        id: activeThread?.threadId,
+        role: 'system',
+        content:
+          `Your response tone will be ${activeThread?.chatbot.defaultTone}. ` +
+          `Your response length will be ${activeThread?.chatbot.defaultLength}. ` +
+          `Your response format will be ${activeThread?.chatbot.defaultType}. ` +
+          `Your response complexity level will be ${activeThread?.chatbot.defaultComplexity}.`,
+        createdAt: new Date()
+      }
+    ]
     : []
 
   // format all user prompts and chatgpt 'assistant' messages
   const userAndAssistantMessages: AIMessage[] = activeThread
     ? messagesFromDB.map(m => ({
-        id: m.messageId,
-        role: m.role as AIMessage['role'],
-        content: m.content,
-        createdAt: m.createdAt
-      }))
+      id: m.messageId,
+      role: m.role as AIMessage['role'],
+      content: m.content,
+      createdAt: m.createdAt
+    }))
     : []
 
   // concatenate all message to pass it to chat component
@@ -137,11 +140,19 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
   })
 
   const fetchMessages = async () => {
-    const messagesFromDB = await getMessages({
-      threadId: activeThread?.threadId
-    })
-    setMessagesFromDB(messagesFromDB)
-    setMessages(chatbotSystemPrompts)
+    setIsLoadingMessages(true)
+    try {
+      const messagesFromDB = await getMessages({
+        threadId: activeThread?.threadId
+      })
+      setMessagesFromDB(messagesFromDB)
+      setMessages(chatbotSystemPrompts)
+    } catch (error) {
+      console.error('Error fetching messages:', error)
+      toast.error('Failed to load messages. Please try again.')
+    } finally {
+      setIsLoadingMessages(false)
+    }
   }
 
   const allMessages = uniqBy(
@@ -171,7 +182,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
   )
 
   React.useEffect(() => {
-    if (activeThread?.chatbot?.prompts?.length) {
+    if (activeThread?.chatbot?.prompts?.length || activeThread?.chatbot?.name === 'BlankBot') {
       fetchMessages()
     } else {
       setMessagesFromDB([])
@@ -227,6 +238,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
 
   const value = React.useMemo(
     () => ({
+      isLoadingMessages,
       activeThread,
       setActiveThread,
       allMessages,
@@ -243,6 +255,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       getRandomChatbot
     }),
     [
+      isLoadingMessages,
       activeThread,
       setActiveThread,
       allMessages,
