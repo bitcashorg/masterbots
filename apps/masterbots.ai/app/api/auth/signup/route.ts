@@ -1,6 +1,6 @@
 import bcryptjs from 'bcryptjs'
-import { createMbClient } from 'mb-genql'
 import { NextRequest, NextResponse } from 'next/server'
+import { getHasuraClient } from 'mb-lib'
 
 export async function POST(req: NextRequest) {
   const { email, password } = await req.json()
@@ -12,8 +12,8 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  // TODO: Use drizzle instead for admin actions...
-  const client = createMbClient({ env: 'local', adminSecret: 'lfg' })
+  //* Initialize the Hasura client for interacting with the database based on the environment
+  const client = getHasuraClient()
 
   //* Checks if user already exists
   const { user } = await client.query({
