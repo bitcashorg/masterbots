@@ -33,6 +33,7 @@ https://trello.com/b/GDCm18zN/masterbots-chatbot-aggregator-development-board
 - pnpm package manager https://pnpm.io/
 - [Docker](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/)
 - Task manager https://taskfile.dev
+- Bun https://bun.sh/
 
 ## Running the Backend:
 
