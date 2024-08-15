@@ -1,5 +1,4 @@
 import bcrypt from 'bcryptjs'
-import { createMbClient } from 'mb-genql'
 import {
   GetServerSidePropsContext,
   NextApiRequest,
@@ -8,7 +7,7 @@ import {
 import { NextAuthOptions, getServerSession } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import Google from 'next-auth/providers/google'
-import { getToken, validateJwtSecret, verify } from 'mb-lib'
+import { getToken, validateJwtSecret, verify, getHasuraClient } from 'mb-lib'
 import { setCookie } from 'cookies-next'
 
 //* NextAuth configuration strategy with multiprovider options
@@ -26,9 +25,8 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Missing email or password')
         }
 
-        //* Initialize the Hasura client for interacting with the database
-        const client = createMbClient({ env: 'local', adminSecret: 'lfg' }) // Adjust environment as needed
-
+        //* Initialize the Hasura client for interacting with the database based on the environment
+        const client = getHasuraClient()
         try {
           const { user } = await client.query({
             user: {
