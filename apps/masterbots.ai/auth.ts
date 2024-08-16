@@ -137,10 +137,9 @@ export const authOptions: NextAuthOptions = {
       session.user.hasuraJwt = token.hasuraJwt as string
 
       console.log(
-        'Session created with Hasura JWT:',
+        'Session created with Hasura JWT 🗝️: ',
         session.user.hasuraJwt ? 'Present' : 'Missing'
       )
-      console.log('Session user 🤵 ', session.user)
 
       return session
     },
