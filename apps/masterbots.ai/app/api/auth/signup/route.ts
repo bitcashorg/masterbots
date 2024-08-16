@@ -1,9 +1,10 @@
+import { generateUsername } from '@/lib/username'
 import bcryptjs from 'bcryptjs'
+import { getHasuraClient, toSlug } from 'mb-lib'
 import { NextRequest, NextResponse } from 'next/server'
-import { getHasuraClient } from 'mb-lib'
 
 export async function POST(req: NextRequest) {
-  const { email, password } = await req.json()
+  const { email, password, username } = await req.json()
 
   if (!email || !password) {
     return NextResponse.json(
@@ -20,17 +21,31 @@ export async function POST(req: NextRequest) {
     user: {
       __args: {
         where: {
-          email: {
-            _eq: email
-          }
+          _or: [
+            {
+              email: {
+                _eq: email
+              }
+            },
+            {
+              username: {
+                _eq: username
+              }
+            }
+          ]
+
         }
       },
-      userId: true
+      username: true,
+      email: true
     }
   })
 
-  if (user && user.length > 0) {
-    return NextResponse.json({ error: 'User already exists' }, { status: 409 })
+  if (user.length && user[0].username === username) {
+    return NextResponse.json({ error: 'Username is already taken' }, { status: 409 })
+  }
+  if (user.length && user[0].email === email) {
+    return NextResponse.json({ error: 'Email is already registered' }, { status: 409 })
   }
 
   //* Hash password before storing using bcrypt (salted hash)
@@ -39,18 +54,39 @@ export async function POST(req: NextRequest) {
 
   //* Insert new user into the database with hashed password
   try {
+    let foundFreeUsername = false
+    let newUsername = generateUsername(username)
+
+    while (!foundFreeUsername) {
+      const { user } = await client.query({
+        user: {
+          __args: {
+            where: {
+              username: {
+                _eq: newUsername
+              }
+            }
+          },
+          username: true
+        }
+      })
+
+      if (!user.length) {
+        foundFreeUsername = true
+      } else {
+        newUsername = generateUsername(username)
+      }
+    }
+
     const { insertUserOne } = await client.mutation({
       insertUserOne: {
         __args: {
           object: {
             email,
-            // TODO: autogenerate username from email if not filled.
-            username: email.split('@')[0],
-            slug: email
-              .split('@')[0]
-              .toLowerCase()
-              .replace(/[^a-z0-9]/g, '_'),
-            password: hashedPassword
+            username: newUsername,
+            slug: toSlug(newUsername),
+            password: hashedPassword,
+            profilePicture: 'https://robohash.org/' + newUsername + '?set=set3'
           }
         },
         userId: true

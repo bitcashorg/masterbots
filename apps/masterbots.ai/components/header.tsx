@@ -1,10 +1,11 @@
 import Link from 'next/link'
 import * as React from 'react'
 
+import { UserLogin } from '@/components/auth/user-login'
 import { Button } from '@/components/ui/button'
 import { IconSeparator } from '@/components/ui/icons'
+import { appConfig } from 'mb-env'
 import SidebarToggleWrap from './sidebar-toggle-wrap'
-import { UserLogin } from '@/components/auth/user-login'
 
 export function Header() {
   return (
@@ -13,11 +14,13 @@ export function Header() {
         <React.Suspense fallback={null}>
           <SidebarToggleWrap />
         </React.Suspense>
-        <HeaderLink href="/" text="Masterbots" />
+        <HeaderLink href="/" text="MB" />
         <IconSeparator className="size-6 text-muted-foreground/50" />
         <HeaderLink href="/c" text="Chat" />
         <HeaderLink href="/" text="Browse" />
-        <HeaderLink href="/c/p" text="Pro" />
+        {!appConfig.devMode && (
+          <HeaderLink href="/c/p" text="Pro" />
+        )}
       </div>
       <div className="flex items-center justify-end space-x-2">
         <React.Suspense fallback={<div className="flex-1 overflow-auto" />}>

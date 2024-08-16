@@ -1,8 +1,8 @@
 'use client'
 
-import Image from 'next/image'
 import { type Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
+import Image from 'next/image'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -23,18 +23,19 @@ function getUserInitials(name: string) {
 }
 
 export function UserMenu({ user }: UserMenuProps) {
+  console.log('user', user)
   return (
     <div className="flex items-center justify-between">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="pl-0">
+          <Button variant="ghost" className="pl-0 rounded-full">
             {user?.image ? (
               <Image
-                className="size-6 transition-opacity duration-300 rounded-full select-none ring-1 ring-zinc-100/10 hover:opacity-80"
+                className="size-8 bg-foreground/10 transition-opacity duration-300 rounded-full select-none ring-1 ring-zinc-100/10 hover:opacity-80"
                 src={user?.image ? user.image : ''}
                 alt={user.name ?? 'Avatar'}
-                height={48}
-                width={48}
+                height={32}
+                width={32}
               />
             ) : (
               <div className="flex items-center justify-center text-xs font-medium uppercase rounded-full select-none size-7 shrink-0 bg-muted/50 text-muted-foreground">

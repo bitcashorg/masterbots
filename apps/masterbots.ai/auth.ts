@@ -1,4 +1,6 @@
 import bcrypt from 'bcryptjs'
+import { setCookie } from 'cookies-next'
+import { getHasuraClient, getToken, validateJwtSecret, verify } from 'mb-lib'
 import {
   GetServerSidePropsContext,
   NextApiRequest,
@@ -7,8 +9,6 @@ import {
 import { NextAuthOptions, getServerSession } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import Google from 'next-auth/providers/google'
-import { getToken, validateJwtSecret, verify, getHasuraClient } from 'mb-lib'
-import { setCookie } from 'cookies-next'
 
 //* NextAuth configuration strategy with multiprovider options
 export const authOptions: NextAuthOptions = {
@@ -35,7 +35,9 @@ export const authOptions: NextAuthOptions = {
               },
               userId: true,
               email: true,
-              password: true
+              password: true,
+              username: true,
+              profilePicture: true
             }
           })
 
@@ -58,7 +60,7 @@ export const authOptions: NextAuthOptions = {
           }
           console.log('User authenticated successfully')
           //* Return user details to be attached to the token
-          return { id: user[0].userId, email: user[0].email }
+          return { id: user[0].userId, email: user[0].email, name: user[0].username, image: user[0].profilePicture }
         } catch (error) {
           throw new Error('Authentication failed')
         }
@@ -78,6 +80,8 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id
         token.email = user.email
+        token.name = user.name
+        token.image = user.image
 
         //* Validate and prepare the JWT secret for signing tokens
         const jwtSecret = validateJwtSecret(
@@ -126,16 +130,17 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       //* Attach the user details and JWT to the session object
-      session.user = {
-        id: token.id as string,
-        email: token.email as string,
-        hasuraJwt: token.hasuraJwt as string
-      }
+      session.user.id = token.id as string
+      session.user.email = token.email as string
+      session.user.name = token.name as string
+      session.user.image = token.image as string
+      session.user.hasuraJwt = token.hasuraJwt as string
 
       console.log(
         'Session created with Hasura JWT:',
         session.user.hasuraJwt ? 'Present' : 'Missing'
       )
+      console.log('Session user 🤵 ', session.user)
 
       return session
     },
