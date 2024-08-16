@@ -11,7 +11,7 @@ interface ChatLayoutProps {
 
 export default async function ChatLayout({ children }: ChatLayoutProps) {
   if (!appConfig.devMode) {
-    console.error('Dev Mode is disabled. No access to this page')
+    console.error('Navigation to Pro is disabled. No access to this page')
     redirect('/')
   }
 

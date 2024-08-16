@@ -18,7 +18,7 @@ export function Header() {
         <IconSeparator className="size-6 text-muted-foreground/50" />
         <HeaderLink href="/c" text="Chat" />
         <HeaderLink href="/" text="Browse" />
-        {!appConfig.devMode && (
+        {appConfig.devMode && (
           <HeaderLink href="/c/p" text="Pro" />
         )}
       </div>
