@@ -1,7 +1,7 @@
-import { Client, createClient } from '../generated'
 import { GraphqlOperation } from '@genql/runtime'
-import { endpoints, MbEnv } from 'mb-env'
 import { createClient as createWsClient, Client as WsClient } from 'graphql-ws'
+import { endpoints, MbEnv } from 'mb-env'
+import { Client, createClient } from '../generated'
 
 export * from '../generated'
 
@@ -10,9 +10,6 @@ export function createMbClient({ config, jwt, env, adminSecret, debug }: GraphQL
   const { subscribe } = createWsClient({
     url: endpoints[env || 'prod'].replace('http', 'ws'),
   })
-
-  console.log('endpoints', endpoints)
-  console.log('endpoints[env]', endpoints[env || 'prod'])
 
   const client = createClient({
     fetcher: async (operation: any) => {

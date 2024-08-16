@@ -1,6 +1,6 @@
 import { type Message as AIMessage } from 'ai/react'
-import { Message } from 'mb-genql'
 import { clsx, type ClassValue } from 'clsx'
+import { Message } from 'mb-genql'
 import { customAlphabet } from 'nanoid'
 import { twMerge } from 'tailwind-merge'
 
@@ -178,11 +178,6 @@ export const scrollToBottomOfElement = (element?: HTMLElement) => {
 
 export async function sleep(time: number) {
   return new Promise(resolve => setTimeout(resolve, time))
-}
-
-// Function to convert a name into a slug
-export const toSlug = (name: string): string => {
-  return name.toLowerCase().replace(/&/g, 'n').replace(/\s+/g, '_')
 }
 
 export interface Plan {

@@ -1,22 +1,25 @@
 'use client'
 
-import { useState } from 'react'
+import { LoginButton } from '@/components/login-button'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { appConfig } from 'mb-env'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { LoginButton } from '@/components/login-button'
+import { useState } from 'react'
 
 export default function SignInForm() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const router = useRouter()
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    const form = new FormData(e.currentTarget as HTMLFormElement)
+    const email = form.get('email') as string
+    const password = form.get('password') as string
+
     setErrorMessage(null)
     const result = await signIn('credentials', {
       email,
@@ -35,33 +38,37 @@ export default function SignInForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       {errorMessage && <div className="text-red-600">{errorMessage}</div>}
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email" variant="required">Email</Label>
         <Input
           id="email"
+          name="email"
           type="email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
           placeholder="m@example.com"
           required
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password" variant="required">Password</Label>
         <Input
           id="password"
+          name="password"
           type="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
           required
         />
       </div>
       <Button type="submit" className="w-full">
         Sign In
       </Button>
-      <div className="space-y-2 text-center">
-        <p className="text-muted-foreground">Or</p>
-      </div>
-      <LoginButton className="w-full" />
+      {appConfig.enableAuth.google && (
+        <>
+          <div className="flex w-full items-center gap-4 my-2 text-center">
+            <hr className="w-full" />
+            <b className="text-muted-foreground">or</b>
+            <hr className="w-full" />
+          </div>
+          <LoginButton className="w-full" />
+        </>
+      )}
     </form>
   )
 }

@@ -1,6 +1,5 @@
 'use client'
 
-import FooterCT from '@/components/footer-ct'
 import { Button } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
@@ -79,9 +78,6 @@ export function ChatSearchInput({ setThreads }: {
           <IconClose className="!h-4 !w-4" />
         </Button>
       )}
-      <div className="hidden lg:block absolute max-w-[240px] text-center -top-4 -right-[256px] mx-auto">
-        <FooterCT nonFooterTag />
-      </div>
     </div>
   )
 }
