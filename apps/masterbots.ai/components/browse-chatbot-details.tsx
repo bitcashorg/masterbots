@@ -1,9 +1,8 @@
-import React from 'react'
 import { Chatbot } from 'mb-genql'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Separator } from './ui/separator'
 import ShareLink from './thread-user-actions'
+import { Separator } from './ui/separator'
 
 export default function BrowseChatbotDetails({
   chatbot
