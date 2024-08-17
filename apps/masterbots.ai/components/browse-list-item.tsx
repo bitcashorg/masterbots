@@ -1,16 +1,17 @@
 import Image from 'next/image'
 
-import { cn, sleep, toSlug } from '@/lib/utils'
+import { ChatAccordion } from '@/components/chat/chat-accordion'
+import { useBrowse } from '@/lib/hooks/use-browse'
+import { cn, sleep } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
 import { Message, Thread } from 'mb-genql'
+import { toSlug } from 'mb-lib'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { BrowseChatMessageList } from './browse-chat-message-list'
-import { ChatAccordion } from './chat-accordion'
 import { ShortMessage } from './short-message'
 import { IconOpenAI, IconUser } from './ui/icons'
-import { useBrowse } from '@/lib/hooks/use-browse'
 let initialUrl: string | null = null
 
 export default function BrowseListItem({
@@ -106,7 +107,7 @@ export default function BrowseListItem({
         contentClass="!pt-0 max-h-[70vh] scrollbar"
         triggerClass="dark:hover:bg-mirage hover:bg-gray-300 pl-[8px]
         py-3 flex flex-col gap-[6px] 
-        sticky top-0 z-[1]
+        sticky sm:top-0 top-[55px] z-[1]
         dark:border-b-mirage border-b-gray-300
         [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]
         dark:bg-[#18181b] bg-[#f4f4f5]"
@@ -152,7 +153,7 @@ export default function BrowseListItem({
           <div className="w-[calc(100%-64px)] m:w-[calc(100%-28px)] flex items-center gap-3 text-left">
             <div
               className={cn('truncate-title px-1', {
-                'no-truncate': isAccordionOpen
+                'no-truncate max-h-40 !overflow-y-auto sm:max-h-none sm:overflow-visible': isAccordionOpen
               })}
             >
               {thread.messages?.[0]?.content}
@@ -197,7 +198,7 @@ export default function BrowseListItem({
 
         <div className="overflow-hidden text-sm text-left opacity-50">
           {thread.messages?.[1]?.content &&
-          thread.messages?.[1]?.role !== 'user' ? (
+            thread.messages?.[1]?.role !== 'user' ? (
             <div className="flex-1 space-y-2 overflow-hidden">
               <ShortMessage content={thread.messages?.[1]?.content} />
             </div>

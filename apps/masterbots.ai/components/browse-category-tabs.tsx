@@ -2,9 +2,9 @@
 
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { Category } from 'mb-genql'
-import { BrowseCategoryButton } from './browse-category-button'
+import { toSlug } from 'mb-lib'
 import { useEffect } from 'react'
-import { toSlug } from '@/lib/utils'
+import { BrowseCategoryButton } from './browse-category-button'
 
 export function BrowseCategoryTabs({
   categories,

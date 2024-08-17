@@ -884,6 +884,75 @@ export type MessageTypeEnumUpdateColumn = 'value'
 export type MessageUpdateColumn = 'content' | 'createdAt' | 'messageId' | 'role' | 'threadId'
 
 
+/** columns and relationships of "models_enum" */
+export interface ModelsEnum {
+    name: Scalars['String']
+    /** An array relationship */
+    threads: Thread[]
+    /** An aggregate relationship */
+    threadsAggregate: ThreadAggregate
+    value: Scalars['String']
+    __typename: 'ModelsEnum'
+}
+
+
+/** aggregated selection of "models_enum" */
+export interface ModelsEnumAggregate {
+    aggregate: (ModelsEnumAggregateFields | null)
+    nodes: ModelsEnum[]
+    __typename: 'ModelsEnumAggregate'
+}
+
+
+/** aggregate fields of "models_enum" */
+export interface ModelsEnumAggregateFields {
+    count: Scalars['Int']
+    max: (ModelsEnumMaxFields | null)
+    min: (ModelsEnumMinFields | null)
+    __typename: 'ModelsEnumAggregateFields'
+}
+
+
+/** unique or primary key constraints on table "models_enum" */
+export type ModelsEnumConstraint = 'models_enum_pkey' | 'models_enum_value_key'
+
+export type ModelsEnumEnum = 'ANTHROPIC' | 'OPENAI' | 'PERPLEXITY' | 'WORDWARE'
+
+
+/** aggregate max on columns */
+export interface ModelsEnumMaxFields {
+    name: (Scalars['String'] | null)
+    value: (Scalars['String'] | null)
+    __typename: 'ModelsEnumMaxFields'
+}
+
+
+/** aggregate min on columns */
+export interface ModelsEnumMinFields {
+    name: (Scalars['String'] | null)
+    value: (Scalars['String'] | null)
+    __typename: 'ModelsEnumMinFields'
+}
+
+
+/** response of any mutation on the table "models_enum" */
+export interface ModelsEnumMutationResponse {
+    /** number of rows affected by the mutation */
+    affectedRows: Scalars['Int']
+    /** data from the rows affected by the mutation */
+    returning: ModelsEnum[]
+    __typename: 'ModelsEnumMutationResponse'
+}
+
+
+/** select columns of table "models_enum" */
+export type ModelsEnumSelectColumn = 'name' | 'value'
+
+
+/** update columns of table "models_enum" */
+export type ModelsEnumUpdateColumn = 'name' | 'value'
+
+
 /** column ordering options */
 export type OrderBy = 'ASC' | 'ASC_NULLS_FIRST' | 'ASC_NULLS_LAST' | 'DESC' | 'DESC_NULLS_FIRST' | 'DESC_NULLS_LAST'
 
@@ -1536,6 +1605,76 @@ export interface PromptVarianceFields {
 }
 
 
+/** columns and relationships of "referral" */
+export interface Referral {
+    referralCode: Scalars['String']
+    referrerId: Scalars['uuid']
+    /** An object relationship */
+    user: User
+    /** An object relationship */
+    userByUserId: User
+    userId: Scalars['uuid']
+    __typename: 'Referral'
+}
+
+
+/** aggregated selection of "referral" */
+export interface ReferralAggregate {
+    aggregate: (ReferralAggregateFields | null)
+    nodes: Referral[]
+    __typename: 'ReferralAggregate'
+}
+
+
+/** aggregate fields of "referral" */
+export interface ReferralAggregateFields {
+    count: Scalars['Int']
+    max: (ReferralMaxFields | null)
+    min: (ReferralMinFields | null)
+    __typename: 'ReferralAggregateFields'
+}
+
+
+/** unique or primary key constraints on table "referral" */
+export type ReferralConstraint = 'referral_pkey'
+
+
+/** aggregate max on columns */
+export interface ReferralMaxFields {
+    referralCode: (Scalars['String'] | null)
+    referrerId: (Scalars['uuid'] | null)
+    userId: (Scalars['uuid'] | null)
+    __typename: 'ReferralMaxFields'
+}
+
+
+/** aggregate min on columns */
+export interface ReferralMinFields {
+    referralCode: (Scalars['String'] | null)
+    referrerId: (Scalars['uuid'] | null)
+    userId: (Scalars['uuid'] | null)
+    __typename: 'ReferralMinFields'
+}
+
+
+/** response of any mutation on the table "referral" */
+export interface ReferralMutationResponse {
+    /** number of rows affected by the mutation */
+    affectedRows: Scalars['Int']
+    /** data from the rows affected by the mutation */
+    returning: Referral[]
+    __typename: 'ReferralMutationResponse'
+}
+
+
+/** select columns of table "referral" */
+export type ReferralSelectColumn = 'referralCode' | 'referrerId' | 'userId'
+
+
+/** update columns of table "referral" */
+export type ReferralUpdateColumn = 'referralCode' | 'referrerId' | 'userId'
+
+
 /** columns and relationships of "thread" */
 export interface Thread {
     /** An object relationship */
@@ -1547,6 +1686,9 @@ export interface Thread {
     messages: Message[]
     /** An aggregate relationship */
     messagesAggregate: MessageAggregate
+    model: ModelsEnumEnum
+    /** An object relationship */
+    modelsEnum: ModelsEnum
     threadId: Scalars['uuid']
     updatedAt: Scalars['timestamptz']
     /** An object relationship */
@@ -1625,7 +1767,7 @@ export interface ThreadMutationResponse {
 
 
 /** select columns of table "thread" */
-export type ThreadSelectColumn = 'chatbotId' | 'createdAt' | 'isPublic' | 'threadId' | 'updatedAt' | 'userId'
+export type ThreadSelectColumn = 'chatbotId' | 'createdAt' | 'isPublic' | 'model' | 'threadId' | 'updatedAt' | 'userId'
 
 
 /** select "threadAggregateBoolExpBool_andArgumentsColumns" columns of table "thread" */
@@ -1665,7 +1807,7 @@ export interface ThreadSumFields {
 
 
 /** update columns of table "thread" */
-export type ThreadUpdateColumn = 'chatbotId' | 'createdAt' | 'isPublic' | 'threadId' | 'updatedAt' | 'userId'
+export type ThreadUpdateColumn = 'chatbotId' | 'createdAt' | 'isPublic' | 'model' | 'threadId' | 'updatedAt' | 'userId'
 
 
 /** aggregate varPop on columns */
@@ -1833,18 +1975,29 @@ export interface User {
     chatsAggregate: ChatAggregate
     dateJoined: Scalars['timestamptz']
     email: Scalars['String']
+    getFreeMonth: (Scalars['Boolean'] | null)
+    isBlocked: (Scalars['Boolean'] | null)
     lastLogin: (Scalars['timestamptz'] | null)
     password: Scalars['String']
     /** An array relationship */
     preferences: Preference[]
     /** An aggregate relationship */
     preferencesAggregate: PreferenceAggregate
+    proUserSubscriptionId: Scalars['String']
     profilePicture: (Scalars['String'] | null)
     /** An array relationship */
     prompts: PromptUser[]
     /** An aggregate relationship */
     promptsAggregate: PromptUserAggregate
-    slug: (Scalars['String'] | null)
+    /** An array relationship */
+    referrals: Referral[]
+    /** An aggregate relationship */
+    referralsAggregate: ReferralAggregate
+    /** An array relationship */
+    referralsByUserId: Referral[]
+    /** An aggregate relationship */
+    referralsByUserIdAggregate: ReferralAggregate
+    slug: Scalars['String']
     /** An array relationship */
     threads: Thread[]
     /** An aggregate relationship */
@@ -1873,7 +2026,7 @@ export interface UserAggregateFields {
 
 
 /** unique or primary key constraints on table "user" */
-export type UserConstraint = 'user_email_key' | 'user_pkey' | 'user_username_key'
+export type UserConstraint = 'unique_slug' | 'user_email_key' | 'user_pkey' | 'user_username_key'
 
 
 /** aggregate max on columns */
@@ -1882,6 +2035,7 @@ export interface UserMaxFields {
     email: (Scalars['String'] | null)
     lastLogin: (Scalars['timestamptz'] | null)
     password: (Scalars['String'] | null)
+    proUserSubscriptionId: (Scalars['String'] | null)
     profilePicture: (Scalars['String'] | null)
     slug: (Scalars['String'] | null)
     userId: (Scalars['uuid'] | null)
@@ -1896,6 +2050,7 @@ export interface UserMinFields {
     email: (Scalars['String'] | null)
     lastLogin: (Scalars['timestamptz'] | null)
     password: (Scalars['String'] | null)
+    proUserSubscriptionId: (Scalars['String'] | null)
     profilePicture: (Scalars['String'] | null)
     slug: (Scalars['String'] | null)
     userId: (Scalars['uuid'] | null)
@@ -1915,11 +2070,11 @@ export interface UserMutationResponse {
 
 
 /** select columns of table "user" */
-export type UserSelectColumn = 'dateJoined' | 'email' | 'lastLogin' | 'password' | 'profilePicture' | 'slug' | 'userId' | 'username'
+export type UserSelectColumn = 'dateJoined' | 'email' | 'getFreeMonth' | 'isBlocked' | 'lastLogin' | 'password' | 'proUserSubscriptionId' | 'profilePicture' | 'slug' | 'userId' | 'username'
 
 
 /** update columns of table "user" */
-export type UserUpdateColumn = 'dateJoined' | 'email' | 'lastLogin' | 'password' | 'profilePicture' | 'slug' | 'userId' | 'username'
+export type UserUpdateColumn = 'dateJoined' | 'email' | 'getFreeMonth' | 'isBlocked' | 'lastLogin' | 'password' | 'proUserSubscriptionId' | 'profilePicture' | 'slug' | 'userId' | 'username'
 
 
 /** mutation root */
@@ -1956,6 +2111,10 @@ export interface mutation_root {
     deleteMessageTypeEnum: (MessageTypeEnumMutationResponse | null)
     /** delete single row from the table: "message_type_enum" */
     deleteMessageTypeEnumByPk: (MessageTypeEnum | null)
+    /** delete data from the table: "models_enum" */
+    deleteModelsEnum: (ModelsEnumMutationResponse | null)
+    /** delete single row from the table: "models_enum" */
+    deleteModelsEnumByPk: (ModelsEnum | null)
     /** delete data from the table: "preference" */
     deletePreference: (PreferenceMutationResponse | null)
     /** delete single row from the table: "preference" */
@@ -1976,6 +2135,10 @@ export interface mutation_root {
     deletePromptUser: (PromptUserMutationResponse | null)
     /** delete single row from the table: "prompt_user" */
     deletePromptUserByPk: (PromptUser | null)
+    /** delete data from the table: "referral" */
+    deleteReferral: (ReferralMutationResponse | null)
+    /** delete single row from the table: "referral" */
+    deleteReferralByPk: (Referral | null)
     /** delete data from the table: "thread" */
     deleteThread: (ThreadMutationResponse | null)
     /** delete single row from the table: "thread" */
@@ -2024,6 +2187,10 @@ export interface mutation_root {
     insertMessageTypeEnum: (MessageTypeEnumMutationResponse | null)
     /** insert a single row into the table: "message_type_enum" */
     insertMessageTypeEnumOne: (MessageTypeEnum | null)
+    /** insert data into the table: "models_enum" */
+    insertModelsEnum: (ModelsEnumMutationResponse | null)
+    /** insert a single row into the table: "models_enum" */
+    insertModelsEnumOne: (ModelsEnum | null)
     /** insert data into the table: "preference" */
     insertPreference: (PreferenceMutationResponse | null)
     /** insert a single row into the table: "preference" */
@@ -2044,6 +2211,10 @@ export interface mutation_root {
     insertPromptUser: (PromptUserMutationResponse | null)
     /** insert a single row into the table: "prompt_user" */
     insertPromptUserOne: (PromptUser | null)
+    /** insert data into the table: "referral" */
+    insertReferral: (ReferralMutationResponse | null)
+    /** insert a single row into the table: "referral" */
+    insertReferralOne: (Referral | null)
     /** insert data into the table: "thread" */
     insertThread: (ThreadMutationResponse | null)
     /** insert a single row into the table: "thread" */
@@ -2108,6 +2279,12 @@ export interface mutation_root {
     updateMessageTypeEnumByPk: (MessageTypeEnum | null)
     /** update multiples rows of table: "message_type_enum" */
     updateMessageTypeEnumMany: ((MessageTypeEnumMutationResponse | null)[] | null)
+    /** update data of the table: "models_enum" */
+    updateModelsEnum: (ModelsEnumMutationResponse | null)
+    /** update single row of the table: "models_enum" */
+    updateModelsEnumByPk: (ModelsEnum | null)
+    /** update multiples rows of table: "models_enum" */
+    updateModelsEnumMany: ((ModelsEnumMutationResponse | null)[] | null)
     /** update data of the table: "preference" */
     updatePreference: (PreferenceMutationResponse | null)
     /** update single row of the table: "preference" */
@@ -2138,6 +2315,12 @@ export interface mutation_root {
     updatePromptUserByPk: (PromptUser | null)
     /** update multiples rows of table: "prompt_user" */
     updatePromptUserMany: ((PromptUserMutationResponse | null)[] | null)
+    /** update data of the table: "referral" */
+    updateReferral: (ReferralMutationResponse | null)
+    /** update single row of the table: "referral" */
+    updateReferralByPk: (Referral | null)
+    /** update multiples rows of table: "referral" */
+    updateReferralMany: ((ReferralMutationResponse | null)[] | null)
     /** update data of the table: "thread" */
     updateThread: (ThreadMutationResponse | null)
     /** update single row of the table: "thread" */
@@ -2214,6 +2397,12 @@ export interface query_root {
     messageTypeEnumAggregate: MessageTypeEnumAggregate
     /** fetch data from the table: "message_type_enum" using primary key columns */
     messageTypeEnumByPk: (MessageTypeEnum | null)
+    /** fetch data from the table: "models_enum" */
+    modelsEnum: ModelsEnum[]
+    /** fetch aggregated fields from the table: "models_enum" */
+    modelsEnumAggregate: ModelsEnumAggregate
+    /** fetch data from the table: "models_enum" using primary key columns */
+    modelsEnumByPk: (ModelsEnum | null)
     /** fetch data from the table: "preference" */
     preference: Preference[]
     /** fetch aggregated fields from the table: "preference" */
@@ -2244,6 +2433,12 @@ export interface query_root {
     promptUserAggregate: PromptUserAggregate
     /** fetch data from the table: "prompt_user" using primary key columns */
     promptUserByPk: (PromptUser | null)
+    /** fetch data from the table: "referral" */
+    referral: Referral[]
+    /** fetch aggregated fields from the table: "referral" */
+    referralAggregate: ReferralAggregate
+    /** fetch data from the table: "referral" using primary key columns */
+    referralByPk: (Referral | null)
     /** fetch data from the table: "thread" */
     thread: Thread[]
     /** fetch aggregated fields from the table: "thread" */
@@ -2336,6 +2531,14 @@ export interface subscription_root {
     messageTypeEnumByPk: (MessageTypeEnum | null)
     /** fetch data from the table in a streaming manner: "message_type_enum" */
     messageTypeEnumStream: MessageTypeEnum[]
+    /** fetch data from the table: "models_enum" */
+    modelsEnum: ModelsEnum[]
+    /** fetch aggregated fields from the table: "models_enum" */
+    modelsEnumAggregate: ModelsEnumAggregate
+    /** fetch data from the table: "models_enum" using primary key columns */
+    modelsEnumByPk: (ModelsEnum | null)
+    /** fetch data from the table in a streaming manner: "models_enum" */
+    modelsEnumStream: ModelsEnum[]
     /** fetch data from the table: "preference" */
     preference: Preference[]
     /** fetch aggregated fields from the table: "preference" */
@@ -2376,6 +2579,14 @@ export interface subscription_root {
     promptUserByPk: (PromptUser | null)
     /** fetch data from the table in a streaming manner: "prompt_user" */
     promptUserStream: PromptUser[]
+    /** fetch data from the table: "referral" */
+    referral: Referral[]
+    /** fetch aggregated fields from the table: "referral" */
+    referralAggregate: ReferralAggregate
+    /** fetch data from the table: "referral" using primary key columns */
+    referralByPk: (Referral | null)
+    /** fetch data from the table in a streaming manner: "referral" */
+    referralStream: Referral[]
     /** fetch data from the table: "thread" */
     thread: Thread[]
     /** fetch aggregated fields from the table: "thread" */
@@ -4061,6 +4272,139 @@ _set?: (MessageSetInput | null),
 where: MessageBoolExp}
 
 
+/** columns and relationships of "models_enum" */
+export interface ModelsEnumGenqlSelection{
+    name?: boolean | number
+    /** An array relationship */
+    threads?: (ThreadGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ThreadSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ThreadOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ThreadBoolExp | null)} })
+    /** An aggregate relationship */
+    threadsAggregate?: (ThreadAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ThreadSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ThreadOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ThreadBoolExp | null)} })
+    value?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregated selection of "models_enum" */
+export interface ModelsEnumAggregateGenqlSelection{
+    aggregate?: ModelsEnumAggregateFieldsGenqlSelection
+    nodes?: ModelsEnumGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregate fields of "models_enum" */
+export interface ModelsEnumAggregateFieldsGenqlSelection{
+    count?: { __args: {columns?: (ModelsEnumSelectColumn[] | null), distinct?: (Scalars['Boolean'] | null)} } | boolean | number
+    max?: ModelsEnumMaxFieldsGenqlSelection
+    min?: ModelsEnumMinFieldsGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** Boolean expression to filter rows from the table "models_enum". All fields are combined with a logical 'AND'. */
+export interface ModelsEnumBoolExp {_and?: (ModelsEnumBoolExp[] | null),_not?: (ModelsEnumBoolExp | null),_or?: (ModelsEnumBoolExp[] | null),name?: (StringComparisonExp | null),threads?: (ThreadBoolExp | null),threadsAggregate?: (ThreadAggregateBoolExp | null),value?: (StringComparisonExp | null)}
+
+
+/** Boolean expression to compare columns of type "ModelsEnumEnum". All fields are combined with logical 'AND'. */
+export interface ModelsEnumEnumComparisonExp {_eq?: (ModelsEnumEnum | null),_in?: (ModelsEnumEnum[] | null),_isNull?: (Scalars['Boolean'] | null),_neq?: (ModelsEnumEnum | null),_nin?: (ModelsEnumEnum[] | null)}
+
+
+/** input type for inserting data into table "models_enum" */
+export interface ModelsEnumInsertInput {name?: (Scalars['String'] | null),threads?: (ThreadArrRelInsertInput | null),value?: (Scalars['String'] | null)}
+
+
+/** aggregate max on columns */
+export interface ModelsEnumMaxFieldsGenqlSelection{
+    name?: boolean | number
+    value?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregate min on columns */
+export interface ModelsEnumMinFieldsGenqlSelection{
+    name?: boolean | number
+    value?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** response of any mutation on the table "models_enum" */
+export interface ModelsEnumMutationResponseGenqlSelection{
+    /** number of rows affected by the mutation */
+    affectedRows?: boolean | number
+    /** data from the rows affected by the mutation */
+    returning?: ModelsEnumGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** input type for inserting object relation for remote table "models_enum" */
+export interface ModelsEnumObjRelInsertInput {data: ModelsEnumInsertInput,
+/** upsert condition */
+onConflict?: (ModelsEnumOnConflict | null)}
+
+
+/** on_conflict condition type for table "models_enum" */
+export interface ModelsEnumOnConflict {constraint: ModelsEnumConstraint,updateColumns?: ModelsEnumUpdateColumn[],where?: (ModelsEnumBoolExp | null)}
+
+
+/** Ordering options when selecting data from "models_enum". */
+export interface ModelsEnumOrderBy {name?: (OrderBy | null),threadsAggregate?: (ThreadAggregateOrderBy | null),value?: (OrderBy | null)}
+
+
+/** primary key columns input for table: models_enum */
+export interface ModelsEnumPkColumnsInput {name: Scalars['String']}
+
+
+/** input type for updating data in table "models_enum" */
+export interface ModelsEnumSetInput {name?: (Scalars['String'] | null),value?: (Scalars['String'] | null)}
+
+
+/** Streaming cursor of the table "models_enum" */
+export interface ModelsEnumStreamCursorInput {
+/** Stream column input with initial value */
+initialValue: ModelsEnumStreamCursorValueInput,
+/** cursor ordering */
+ordering?: (CursorOrdering | null)}
+
+
+/** Initial value of the column from where the streaming should start */
+export interface ModelsEnumStreamCursorValueInput {name?: (Scalars['String'] | null),value?: (Scalars['String'] | null)}
+
+export interface ModelsEnumUpdates {
+/** sets the columns of the filtered rows to the given values */
+_set?: (ModelsEnumSetInput | null),
+/** filter the rows which have to be updated */
+where: ModelsEnumBoolExp}
+
+
 /** This table stores user-specific preferences for quick access when they interact with a chatbot. */
 export interface PreferenceGenqlSelection{
     /** An object relationship */
@@ -5217,6 +5561,132 @@ export interface PromptVarianceFieldsGenqlSelection{
 export interface PromptVarianceOrderBy {promptId?: (OrderBy | null)}
 
 
+/** columns and relationships of "referral" */
+export interface ReferralGenqlSelection{
+    referralCode?: boolean | number
+    referrerId?: boolean | number
+    /** An object relationship */
+    user?: UserGenqlSelection
+    /** An object relationship */
+    userByUserId?: UserGenqlSelection
+    userId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregated selection of "referral" */
+export interface ReferralAggregateGenqlSelection{
+    aggregate?: ReferralAggregateFieldsGenqlSelection
+    nodes?: ReferralGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+export interface ReferralAggregateBoolExp {count?: (referralAggregateBoolExpCount | null)}
+
+
+/** aggregate fields of "referral" */
+export interface ReferralAggregateFieldsGenqlSelection{
+    count?: { __args: {columns?: (ReferralSelectColumn[] | null), distinct?: (Scalars['Boolean'] | null)} } | boolean | number
+    max?: ReferralMaxFieldsGenqlSelection
+    min?: ReferralMinFieldsGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by aggregate values of table "referral" */
+export interface ReferralAggregateOrderBy {count?: (OrderBy | null),max?: (ReferralMaxOrderBy | null),min?: (ReferralMinOrderBy | null)}
+
+
+/** input type for inserting array relation for remote table "referral" */
+export interface ReferralArrRelInsertInput {data: ReferralInsertInput[],
+/** upsert condition */
+onConflict?: (ReferralOnConflict | null)}
+
+
+/** Boolean expression to filter rows from the table "referral". All fields are combined with a logical 'AND'. */
+export interface ReferralBoolExp {_and?: (ReferralBoolExp[] | null),_not?: (ReferralBoolExp | null),_or?: (ReferralBoolExp[] | null),referralCode?: (StringComparisonExp | null),referrerId?: (UuidComparisonExp | null),user?: (UserBoolExp | null),userByUserId?: (UserBoolExp | null),userId?: (UuidComparisonExp | null)}
+
+
+/** input type for inserting data into table "referral" */
+export interface ReferralInsertInput {referralCode?: (Scalars['String'] | null),referrerId?: (Scalars['uuid'] | null),user?: (UserObjRelInsertInput | null),userByUserId?: (UserObjRelInsertInput | null),userId?: (Scalars['uuid'] | null)}
+
+
+/** aggregate max on columns */
+export interface ReferralMaxFieldsGenqlSelection{
+    referralCode?: boolean | number
+    referrerId?: boolean | number
+    userId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by max() on columns of table "referral" */
+export interface ReferralMaxOrderBy {referralCode?: (OrderBy | null),referrerId?: (OrderBy | null),userId?: (OrderBy | null)}
+
+
+/** aggregate min on columns */
+export interface ReferralMinFieldsGenqlSelection{
+    referralCode?: boolean | number
+    referrerId?: boolean | number
+    userId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by min() on columns of table "referral" */
+export interface ReferralMinOrderBy {referralCode?: (OrderBy | null),referrerId?: (OrderBy | null),userId?: (OrderBy | null)}
+
+
+/** response of any mutation on the table "referral" */
+export interface ReferralMutationResponseGenqlSelection{
+    /** number of rows affected by the mutation */
+    affectedRows?: boolean | number
+    /** data from the rows affected by the mutation */
+    returning?: ReferralGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** on_conflict condition type for table "referral" */
+export interface ReferralOnConflict {constraint: ReferralConstraint,updateColumns?: ReferralUpdateColumn[],where?: (ReferralBoolExp | null)}
+
+
+/** Ordering options when selecting data from "referral". */
+export interface ReferralOrderBy {referralCode?: (OrderBy | null),referrerId?: (OrderBy | null),user?: (UserOrderBy | null),userByUserId?: (UserOrderBy | null),userId?: (OrderBy | null)}
+
+
+/** primary key columns input for table: referral */
+export interface ReferralPkColumnsInput {referralCode: Scalars['String']}
+
+
+/** input type for updating data in table "referral" */
+export interface ReferralSetInput {referralCode?: (Scalars['String'] | null),referrerId?: (Scalars['uuid'] | null),userId?: (Scalars['uuid'] | null)}
+
+
+/** Streaming cursor of the table "referral" */
+export interface ReferralStreamCursorInput {
+/** Stream column input with initial value */
+initialValue: ReferralStreamCursorValueInput,
+/** cursor ordering */
+ordering?: (CursorOrdering | null)}
+
+
+/** Initial value of the column from where the streaming should start */
+export interface ReferralStreamCursorValueInput {referralCode?: (Scalars['String'] | null),referrerId?: (Scalars['uuid'] | null),userId?: (Scalars['uuid'] | null)}
+
+export interface ReferralUpdates {
+/** sets the columns of the filtered rows to the given values */
+_set?: (ReferralSetInput | null),
+/** filter the rows which have to be updated */
+where: ReferralBoolExp}
+
+
 /** Boolean expression to compare columns of type "String". All fields are combined with logical 'AND'. */
 export interface StringComparisonExp {_eq?: (Scalars['String'] | null),_gt?: (Scalars['String'] | null),_gte?: (Scalars['String'] | null),
 /** does the column match the given case-insensitive pattern */
@@ -5272,6 +5742,9 @@ export interface ThreadGenqlSelection{
     orderBy?: (MessageOrderBy[] | null), 
     /** filter the rows returned */
     where?: (MessageBoolExp | null)} })
+    model?: boolean | number
+    /** An object relationship */
+    modelsEnum?: ModelsEnumGenqlSelection
     threadId?: boolean | number
     updatedAt?: boolean | number
     /** An object relationship */
@@ -5334,7 +5807,7 @@ export interface ThreadAvgOrderBy {chatbotId?: (OrderBy | null)}
 
 
 /** Boolean expression to filter rows from the table "thread". All fields are combined with a logical 'AND'. */
-export interface ThreadBoolExp {_and?: (ThreadBoolExp[] | null),_not?: (ThreadBoolExp | null),_or?: (ThreadBoolExp[] | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),createdAt?: (TimestamptzComparisonExp | null),isPublic?: (BooleanComparisonExp | null),messages?: (MessageBoolExp | null),messagesAggregate?: (MessageAggregateBoolExp | null),threadId?: (UuidComparisonExp | null),updatedAt?: (TimestamptzComparisonExp | null),user?: (UserBoolExp | null),userId?: (UuidComparisonExp | null)}
+export interface ThreadBoolExp {_and?: (ThreadBoolExp[] | null),_not?: (ThreadBoolExp | null),_or?: (ThreadBoolExp[] | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),createdAt?: (TimestamptzComparisonExp | null),isPublic?: (BooleanComparisonExp | null),messages?: (MessageBoolExp | null),messagesAggregate?: (MessageAggregateBoolExp | null),model?: (ModelsEnumEnumComparisonExp | null),modelsEnum?: (ModelsEnumBoolExp | null),threadId?: (UuidComparisonExp | null),updatedAt?: (TimestamptzComparisonExp | null),user?: (UserBoolExp | null),userId?: (UuidComparisonExp | null)}
 
 
 /** input type for incrementing numeric columns in table "thread" */
@@ -5342,7 +5815,7 @@ export interface ThreadIncInput {chatbotId?: (Scalars['Int'] | null)}
 
 
 /** input type for inserting data into table "thread" */
-export interface ThreadInsertInput {chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isPublic?: (Scalars['Boolean'] | null),messages?: (MessageArrRelInsertInput | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),user?: (UserObjRelInsertInput | null),userId?: (Scalars['uuid'] | null)}
+export interface ThreadInsertInput {chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isPublic?: (Scalars['Boolean'] | null),messages?: (MessageArrRelInsertInput | null),model?: (ModelsEnumEnum | null),modelsEnum?: (ModelsEnumObjRelInsertInput | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),user?: (UserObjRelInsertInput | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate max on columns */
@@ -5399,7 +5872,7 @@ export interface ThreadOnConflict {constraint: ThreadConstraint,updateColumns?: 
 
 
 /** Ordering options when selecting data from "thread". */
-export interface ThreadOrderBy {chatbot?: (ChatbotOrderBy | null),chatbotId?: (OrderBy | null),createdAt?: (OrderBy | null),isPublic?: (OrderBy | null),messagesAggregate?: (MessageAggregateOrderBy | null),threadId?: (OrderBy | null),updatedAt?: (OrderBy | null),user?: (UserOrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadOrderBy {chatbot?: (ChatbotOrderBy | null),chatbotId?: (OrderBy | null),createdAt?: (OrderBy | null),isPublic?: (OrderBy | null),messagesAggregate?: (MessageAggregateOrderBy | null),model?: (OrderBy | null),modelsEnum?: (ModelsEnumOrderBy | null),threadId?: (OrderBy | null),updatedAt?: (OrderBy | null),user?: (UserOrderBy | null),userId?: (OrderBy | null)}
 
 
 /** primary key columns input for table: thread */
@@ -5407,7 +5880,7 @@ export interface ThreadPkColumnsInput {threadId: Scalars['uuid']}
 
 
 /** input type for updating data in table "thread" */
-export interface ThreadSetInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isPublic?: (Scalars['Boolean'] | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
+export interface ThreadSetInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isPublic?: (Scalars['Boolean'] | null),model?: (ModelsEnumEnum | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate stddev on columns */
@@ -5455,7 +5928,7 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface ThreadStreamCursorValueInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isPublic?: (Scalars['Boolean'] | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
+export interface ThreadStreamCursorValueInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isPublic?: (Scalars['Boolean'] | null),model?: (ModelsEnumEnum | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate sum on columns */
@@ -5846,6 +6319,8 @@ export interface UserGenqlSelection{
     where?: (ChatBoolExp | null)} })
     dateJoined?: boolean | number
     email?: boolean | number
+    getFreeMonth?: boolean | number
+    isBlocked?: boolean | number
     lastLogin?: boolean | number
     password?: boolean | number
     /** An array relationship */
@@ -5872,6 +6347,7 @@ export interface UserGenqlSelection{
     orderBy?: (PreferenceOrderBy[] | null), 
     /** filter the rows returned */
     where?: (PreferenceBoolExp | null)} })
+    proUserSubscriptionId?: boolean | number
     profilePicture?: boolean | number
     /** An array relationship */
     prompts?: (PromptUserGenqlSelection & { __args?: {
@@ -5897,6 +6373,54 @@ export interface UserGenqlSelection{
     orderBy?: (PromptUserOrderBy[] | null), 
     /** filter the rows returned */
     where?: (PromptUserBoolExp | null)} })
+    /** An array relationship */
+    referrals?: (ReferralGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ReferralSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ReferralOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ReferralBoolExp | null)} })
+    /** An aggregate relationship */
+    referralsAggregate?: (ReferralAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ReferralSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ReferralOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ReferralBoolExp | null)} })
+    /** An array relationship */
+    referralsByUserId?: (ReferralGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ReferralSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ReferralOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ReferralBoolExp | null)} })
+    /** An aggregate relationship */
+    referralsByUserIdAggregate?: (ReferralAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ReferralSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ReferralOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ReferralBoolExp | null)} })
     slug?: boolean | number
     /** An array relationship */
     threads?: (ThreadGenqlSelection & { __args?: {
@@ -5949,11 +6473,11 @@ export interface UserAggregateFieldsGenqlSelection{
 
 
 /** Boolean expression to filter rows from the table "user". All fields are combined with a logical 'AND'. */
-export interface UserBoolExp {_and?: (UserBoolExp[] | null),_not?: (UserBoolExp | null),_or?: (UserBoolExp[] | null),chats?: (ChatBoolExp | null),chatsAggregate?: (ChatAggregateBoolExp | null),dateJoined?: (TimestamptzComparisonExp | null),email?: (StringComparisonExp | null),lastLogin?: (TimestamptzComparisonExp | null),password?: (StringComparisonExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),profilePicture?: (StringComparisonExp | null),prompts?: (PromptUserBoolExp | null),promptsAggregate?: (PromptUserAggregateBoolExp | null),slug?: (StringComparisonExp | null),threads?: (ThreadBoolExp | null),threadsAggregate?: (ThreadAggregateBoolExp | null),userId?: (UuidComparisonExp | null),username?: (StringComparisonExp | null)}
+export interface UserBoolExp {_and?: (UserBoolExp[] | null),_not?: (UserBoolExp | null),_or?: (UserBoolExp[] | null),chats?: (ChatBoolExp | null),chatsAggregate?: (ChatAggregateBoolExp | null),dateJoined?: (TimestamptzComparisonExp | null),email?: (StringComparisonExp | null),getFreeMonth?: (BooleanComparisonExp | null),isBlocked?: (BooleanComparisonExp | null),lastLogin?: (TimestamptzComparisonExp | null),password?: (StringComparisonExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),proUserSubscriptionId?: (StringComparisonExp | null),profilePicture?: (StringComparisonExp | null),prompts?: (PromptUserBoolExp | null),promptsAggregate?: (PromptUserAggregateBoolExp | null),referrals?: (ReferralBoolExp | null),referralsAggregate?: (ReferralAggregateBoolExp | null),referralsByUserId?: (ReferralBoolExp | null),referralsByUserIdAggregate?: (ReferralAggregateBoolExp | null),slug?: (StringComparisonExp | null),threads?: (ThreadBoolExp | null),threadsAggregate?: (ThreadAggregateBoolExp | null),userId?: (UuidComparisonExp | null),username?: (StringComparisonExp | null)}
 
 
 /** input type for inserting data into table "user" */
-export interface UserInsertInput {chats?: (ChatArrRelInsertInput | null),dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),preferences?: (PreferenceArrRelInsertInput | null),profilePicture?: (Scalars['String'] | null),prompts?: (PromptUserArrRelInsertInput | null),slug?: (Scalars['String'] | null),threads?: (ThreadArrRelInsertInput | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
+export interface UserInsertInput {chats?: (ChatArrRelInsertInput | null),dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),preferences?: (PreferenceArrRelInsertInput | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),prompts?: (PromptUserArrRelInsertInput | null),referrals?: (ReferralArrRelInsertInput | null),referralsByUserId?: (ReferralArrRelInsertInput | null),slug?: (Scalars['String'] | null),threads?: (ThreadArrRelInsertInput | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
 
 
 /** aggregate max on columns */
@@ -5962,6 +6486,7 @@ export interface UserMaxFieldsGenqlSelection{
     email?: boolean | number
     lastLogin?: boolean | number
     password?: boolean | number
+    proUserSubscriptionId?: boolean | number
     profilePicture?: boolean | number
     slug?: boolean | number
     userId?: boolean | number
@@ -5977,6 +6502,7 @@ export interface UserMinFieldsGenqlSelection{
     email?: boolean | number
     lastLogin?: boolean | number
     password?: boolean | number
+    proUserSubscriptionId?: boolean | number
     profilePicture?: boolean | number
     slug?: boolean | number
     userId?: boolean | number
@@ -6008,7 +6534,7 @@ export interface UserOnConflict {constraint: UserConstraint,updateColumns?: User
 
 
 /** Ordering options when selecting data from "user". */
-export interface UserOrderBy {chatsAggregate?: (ChatAggregateOrderBy | null),dateJoined?: (OrderBy | null),email?: (OrderBy | null),lastLogin?: (OrderBy | null),password?: (OrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),profilePicture?: (OrderBy | null),promptsAggregate?: (PromptUserAggregateOrderBy | null),slug?: (OrderBy | null),threadsAggregate?: (ThreadAggregateOrderBy | null),userId?: (OrderBy | null),username?: (OrderBy | null)}
+export interface UserOrderBy {chatsAggregate?: (ChatAggregateOrderBy | null),dateJoined?: (OrderBy | null),email?: (OrderBy | null),getFreeMonth?: (OrderBy | null),isBlocked?: (OrderBy | null),lastLogin?: (OrderBy | null),password?: (OrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),proUserSubscriptionId?: (OrderBy | null),profilePicture?: (OrderBy | null),promptsAggregate?: (PromptUserAggregateOrderBy | null),referralsAggregate?: (ReferralAggregateOrderBy | null),referralsByUserIdAggregate?: (ReferralAggregateOrderBy | null),slug?: (OrderBy | null),threadsAggregate?: (ThreadAggregateOrderBy | null),userId?: (OrderBy | null),username?: (OrderBy | null)}
 
 
 /** primary key columns input for table: user */
@@ -6016,7 +6542,7 @@ export interface UserPkColumnsInput {userId: Scalars['uuid']}
 
 
 /** input type for updating data in table "user" */
-export interface UserSetInput {dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),slug?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
+export interface UserSetInput {dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),slug?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
 
 
 /** Streaming cursor of the table "user" */
@@ -6028,7 +6554,7 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface UserStreamCursorValueInput {dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),slug?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
+export interface UserStreamCursorValueInput {dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),slug?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
 
 export interface UserUpdates {
 /** sets the columns of the filtered rows to the given values */
@@ -6099,6 +6625,12 @@ export interface mutation_rootGenqlSelection{
     where: MessageTypeEnumBoolExp} })
     /** delete single row from the table: "message_type_enum" */
     deleteMessageTypeEnumByPk?: (MessageTypeEnumGenqlSelection & { __args: {value: Scalars['String']} })
+    /** delete data from the table: "models_enum" */
+    deleteModelsEnum?: (ModelsEnumMutationResponseGenqlSelection & { __args: {
+    /** filter the rows which have to be deleted */
+    where: ModelsEnumBoolExp} })
+    /** delete single row from the table: "models_enum" */
+    deleteModelsEnumByPk?: (ModelsEnumGenqlSelection & { __args: {name: Scalars['String']} })
     /** delete data from the table: "preference" */
     deletePreference?: (PreferenceMutationResponseGenqlSelection & { __args: {
     /** filter the rows which have to be deleted */
@@ -6129,6 +6661,12 @@ export interface mutation_rootGenqlSelection{
     where: PromptUserBoolExp} })
     /** delete single row from the table: "prompt_user" */
     deletePromptUserByPk?: (PromptUserGenqlSelection & { __args: {promptId: Scalars['Int'], userId: Scalars['uuid']} })
+    /** delete data from the table: "referral" */
+    deleteReferral?: (ReferralMutationResponseGenqlSelection & { __args: {
+    /** filter the rows which have to be deleted */
+    where: ReferralBoolExp} })
+    /** delete single row from the table: "referral" */
+    deleteReferralByPk?: (ReferralGenqlSelection & { __args: {referralCode: Scalars['String']} })
     /** delete data from the table: "thread" */
     deleteThread?: (ThreadMutationResponseGenqlSelection & { __args: {
     /** filter the rows which have to be deleted */
@@ -6249,6 +6787,18 @@ export interface mutation_rootGenqlSelection{
     object: MessageTypeEnumInsertInput, 
     /** upsert condition */
     onConflict?: (MessageTypeEnumOnConflict | null)} })
+    /** insert data into the table: "models_enum" */
+    insertModelsEnum?: (ModelsEnumMutationResponseGenqlSelection & { __args: {
+    /** the rows to be inserted */
+    objects: ModelsEnumInsertInput[], 
+    /** upsert condition */
+    onConflict?: (ModelsEnumOnConflict | null)} })
+    /** insert a single row into the table: "models_enum" */
+    insertModelsEnumOne?: (ModelsEnumGenqlSelection & { __args: {
+    /** the row to be inserted */
+    object: ModelsEnumInsertInput, 
+    /** upsert condition */
+    onConflict?: (ModelsEnumOnConflict | null)} })
     /** insert data into the table: "preference" */
     insertPreference?: (PreferenceMutationResponseGenqlSelection & { __args: {
     /** the rows to be inserted */
@@ -6309,6 +6859,18 @@ export interface mutation_rootGenqlSelection{
     object: PromptUserInsertInput, 
     /** upsert condition */
     onConflict?: (PromptUserOnConflict | null)} })
+    /** insert data into the table: "referral" */
+    insertReferral?: (ReferralMutationResponseGenqlSelection & { __args: {
+    /** the rows to be inserted */
+    objects: ReferralInsertInput[], 
+    /** upsert condition */
+    onConflict?: (ReferralOnConflict | null)} })
+    /** insert a single row into the table: "referral" */
+    insertReferralOne?: (ReferralGenqlSelection & { __args: {
+    /** the row to be inserted */
+    object: ReferralInsertInput, 
+    /** upsert condition */
+    onConflict?: (ReferralOnConflict | null)} })
     /** insert data into the table: "thread" */
     insertThread?: (ThreadMutationResponseGenqlSelection & { __args: {
     /** the rows to be inserted */
@@ -6485,6 +7047,20 @@ export interface mutation_rootGenqlSelection{
     updateMessageTypeEnumMany?: (MessageTypeEnumMutationResponseGenqlSelection & { __args: {
     /** updates to execute, in order */
     updates: MessageTypeEnumUpdates[]} })
+    /** update data of the table: "models_enum" */
+    updateModelsEnum?: (ModelsEnumMutationResponseGenqlSelection & { __args: {
+    /** sets the columns of the filtered rows to the given values */
+    _set?: (ModelsEnumSetInput | null), 
+    /** filter the rows which have to be updated */
+    where: ModelsEnumBoolExp} })
+    /** update single row of the table: "models_enum" */
+    updateModelsEnumByPk?: (ModelsEnumGenqlSelection & { __args: {
+    /** sets the columns of the filtered rows to the given values */
+    _set?: (ModelsEnumSetInput | null), pkColumns: ModelsEnumPkColumnsInput} })
+    /** update multiples rows of table: "models_enum" */
+    updateModelsEnumMany?: (ModelsEnumMutationResponseGenqlSelection & { __args: {
+    /** updates to execute, in order */
+    updates: ModelsEnumUpdates[]} })
     /** update data of the table: "preference" */
     updatePreference?: (PreferenceMutationResponseGenqlSelection & { __args: {
     /** increments the numeric columns with given value of the filtered values */
@@ -6571,6 +7147,20 @@ export interface mutation_rootGenqlSelection{
     updatePromptUserMany?: (PromptUserMutationResponseGenqlSelection & { __args: {
     /** updates to execute, in order */
     updates: PromptUserUpdates[]} })
+    /** update data of the table: "referral" */
+    updateReferral?: (ReferralMutationResponseGenqlSelection & { __args: {
+    /** sets the columns of the filtered rows to the given values */
+    _set?: (ReferralSetInput | null), 
+    /** filter the rows which have to be updated */
+    where: ReferralBoolExp} })
+    /** update single row of the table: "referral" */
+    updateReferralByPk?: (ReferralGenqlSelection & { __args: {
+    /** sets the columns of the filtered rows to the given values */
+    _set?: (ReferralSetInput | null), pkColumns: ReferralPkColumnsInput} })
+    /** update multiples rows of table: "referral" */
+    updateReferralMany?: (ReferralMutationResponseGenqlSelection & { __args: {
+    /** updates to execute, in order */
+    updates: ReferralUpdates[]} })
     /** update data of the table: "thread" */
     updateThread?: (ThreadMutationResponseGenqlSelection & { __args: {
     /** increments the numeric columns with given value of the filtered values */
@@ -6856,6 +7446,32 @@ export interface query_rootGenqlSelection{
     where?: (MessageTypeEnumBoolExp | null)} })
     /** fetch data from the table: "message_type_enum" using primary key columns */
     messageTypeEnumByPk?: (MessageTypeEnumGenqlSelection & { __args: {value: Scalars['String']} })
+    /** fetch data from the table: "models_enum" */
+    modelsEnum?: (ModelsEnumGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ModelsEnumSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ModelsEnumOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ModelsEnumBoolExp | null)} })
+    /** fetch aggregated fields from the table: "models_enum" */
+    modelsEnumAggregate?: (ModelsEnumAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ModelsEnumSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ModelsEnumOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ModelsEnumBoolExp | null)} })
+    /** fetch data from the table: "models_enum" using primary key columns */
+    modelsEnumByPk?: (ModelsEnumGenqlSelection & { __args: {name: Scalars['String']} })
     /** fetch data from the table: "preference" */
     preference?: (PreferenceGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -6986,6 +7602,32 @@ export interface query_rootGenqlSelection{
     where?: (PromptUserBoolExp | null)} })
     /** fetch data from the table: "prompt_user" using primary key columns */
     promptUserByPk?: (PromptUserGenqlSelection & { __args: {promptId: Scalars['Int'], userId: Scalars['uuid']} })
+    /** fetch data from the table: "referral" */
+    referral?: (ReferralGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ReferralSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ReferralOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ReferralBoolExp | null)} })
+    /** fetch aggregated fields from the table: "referral" */
+    referralAggregate?: (ReferralAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ReferralSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ReferralOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ReferralBoolExp | null)} })
+    /** fetch data from the table: "referral" using primary key columns */
+    referralByPk?: (ReferralGenqlSelection & { __args: {referralCode: Scalars['String']} })
     /** fetch data from the table: "thread" */
     thread?: (ThreadGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -7093,6 +7735,8 @@ export interface query_rootGenqlSelection{
     __typename?: boolean | number
     __scalar?: boolean | number
 }
+
+export interface referralAggregateBoolExpCount {arguments?: (ReferralSelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (ReferralBoolExp | null),predicate: IntComparisonExp}
 
 export interface subscription_rootGenqlSelection{
     /** fetch data from the table: "category" */
@@ -7367,6 +8011,40 @@ export interface subscription_rootGenqlSelection{
     cursor: (MessageTypeEnumStreamCursorInput | null)[], 
     /** filter the rows returned */
     where?: (MessageTypeEnumBoolExp | null)} })
+    /** fetch data from the table: "models_enum" */
+    modelsEnum?: (ModelsEnumGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ModelsEnumSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ModelsEnumOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ModelsEnumBoolExp | null)} })
+    /** fetch aggregated fields from the table: "models_enum" */
+    modelsEnumAggregate?: (ModelsEnumAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ModelsEnumSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ModelsEnumOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ModelsEnumBoolExp | null)} })
+    /** fetch data from the table: "models_enum" using primary key columns */
+    modelsEnumByPk?: (ModelsEnumGenqlSelection & { __args: {name: Scalars['String']} })
+    /** fetch data from the table in a streaming manner: "models_enum" */
+    modelsEnumStream?: (ModelsEnumGenqlSelection & { __args: {
+    /** maximum number of rows returned in a single batch */
+    batchSize: Scalars['Int'], 
+    /** cursor to stream the results returned by the query */
+    cursor: (ModelsEnumStreamCursorInput | null)[], 
+    /** filter the rows returned */
+    where?: (ModelsEnumBoolExp | null)} })
     /** fetch data from the table: "preference" */
     preference?: (PreferenceGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -7537,6 +8215,40 @@ export interface subscription_rootGenqlSelection{
     cursor: (PromptUserStreamCursorInput | null)[], 
     /** filter the rows returned */
     where?: (PromptUserBoolExp | null)} })
+    /** fetch data from the table: "referral" */
+    referral?: (ReferralGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ReferralSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ReferralOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ReferralBoolExp | null)} })
+    /** fetch aggregated fields from the table: "referral" */
+    referralAggregate?: (ReferralAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ReferralSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ReferralOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ReferralBoolExp | null)} })
+    /** fetch data from the table: "referral" using primary key columns */
+    referralByPk?: (ReferralGenqlSelection & { __args: {referralCode: Scalars['String']} })
+    /** fetch data from the table in a streaming manner: "referral" */
+    referralStream?: (ReferralGenqlSelection & { __args: {
+    /** maximum number of rows returned in a single batch */
+    batchSize: Scalars['Int'], 
+    /** cursor to stream the results returned by the query */
+    cursor: (ReferralStreamCursorInput | null)[], 
+    /** filter the rows returned */
+    where?: (ReferralBoolExp | null)} })
     /** fetch data from the table: "thread" */
     thread?: (ThreadGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -8328,6 +9040,54 @@ export type SubscriptionGenqlSelection = subscription_rootGenqlSelection
     
 
 
+    const ModelsEnum_possibleTypes: string[] = ['ModelsEnum']
+    export const isModelsEnum = (obj?: { __typename?: any } | null): obj is ModelsEnum => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isModelsEnum"')
+      return ModelsEnum_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const ModelsEnumAggregate_possibleTypes: string[] = ['ModelsEnumAggregate']
+    export const isModelsEnumAggregate = (obj?: { __typename?: any } | null): obj is ModelsEnumAggregate => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isModelsEnumAggregate"')
+      return ModelsEnumAggregate_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const ModelsEnumAggregateFields_possibleTypes: string[] = ['ModelsEnumAggregateFields']
+    export const isModelsEnumAggregateFields = (obj?: { __typename?: any } | null): obj is ModelsEnumAggregateFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isModelsEnumAggregateFields"')
+      return ModelsEnumAggregateFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const ModelsEnumMaxFields_possibleTypes: string[] = ['ModelsEnumMaxFields']
+    export const isModelsEnumMaxFields = (obj?: { __typename?: any } | null): obj is ModelsEnumMaxFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isModelsEnumMaxFields"')
+      return ModelsEnumMaxFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const ModelsEnumMinFields_possibleTypes: string[] = ['ModelsEnumMinFields']
+    export const isModelsEnumMinFields = (obj?: { __typename?: any } | null): obj is ModelsEnumMinFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isModelsEnumMinFields"')
+      return ModelsEnumMinFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const ModelsEnumMutationResponse_possibleTypes: string[] = ['ModelsEnumMutationResponse']
+    export const isModelsEnumMutationResponse = (obj?: { __typename?: any } | null): obj is ModelsEnumMutationResponse => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isModelsEnumMutationResponse"')
+      return ModelsEnumMutationResponse_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
     const Preference_possibleTypes: string[] = ['Preference']
     export const isPreference = (obj?: { __typename?: any } | null): obj is Preference => {
       if (!obj?.__typename) throw new Error('__typename is missing in "isPreference"')
@@ -8824,6 +9584,54 @@ export type SubscriptionGenqlSelection = subscription_rootGenqlSelection
     
 
 
+    const Referral_possibleTypes: string[] = ['Referral']
+    export const isReferral = (obj?: { __typename?: any } | null): obj is Referral => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isReferral"')
+      return Referral_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const ReferralAggregate_possibleTypes: string[] = ['ReferralAggregate']
+    export const isReferralAggregate = (obj?: { __typename?: any } | null): obj is ReferralAggregate => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isReferralAggregate"')
+      return ReferralAggregate_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const ReferralAggregateFields_possibleTypes: string[] = ['ReferralAggregateFields']
+    export const isReferralAggregateFields = (obj?: { __typename?: any } | null): obj is ReferralAggregateFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isReferralAggregateFields"')
+      return ReferralAggregateFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const ReferralMaxFields_possibleTypes: string[] = ['ReferralMaxFields']
+    export const isReferralMaxFields = (obj?: { __typename?: any } | null): obj is ReferralMaxFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isReferralMaxFields"')
+      return ReferralMaxFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const ReferralMinFields_possibleTypes: string[] = ['ReferralMinFields']
+    export const isReferralMinFields = (obj?: { __typename?: any } | null): obj is ReferralMinFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isReferralMinFields"')
+      return ReferralMinFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const ReferralMutationResponse_possibleTypes: string[] = ['ReferralMutationResponse']
+    export const isReferralMutationResponse = (obj?: { __typename?: any } | null): obj is ReferralMutationResponse => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isReferralMutationResponse"')
+      return ReferralMutationResponse_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
     const Thread_possibleTypes: string[] = ['Thread']
     export const isThread = (obj?: { __typename?: any } | null): obj is Thread => {
       if (!obj?.__typename) throw new Error('__typename is missing in "isThread"')
@@ -9242,6 +10050,28 @@ export const enumMessageUpdateColumn = {
    threadId: 'threadId' as const
 }
 
+export const enumModelsEnumConstraint = {
+   models_enum_pkey: 'models_enum_pkey' as const,
+   models_enum_value_key: 'models_enum_value_key' as const
+}
+
+export const enumModelsEnumEnum = {
+   ANTHROPIC: 'ANTHROPIC' as const,
+   OPENAI: 'OPENAI' as const,
+   PERPLEXITY: 'PERPLEXITY' as const,
+   WORDWARE: 'WORDWARE' as const
+}
+
+export const enumModelsEnumSelectColumn = {
+   name: 'name' as const,
+   value: 'value' as const
+}
+
+export const enumModelsEnumUpdateColumn = {
+   name: 'name' as const,
+   value: 'value' as const
+}
+
 export const enumOrderBy = {
    ASC: 'ASC' as const,
    ASC_NULLS_FIRST: 'ASC_NULLS_FIRST' as const,
@@ -9344,6 +10174,22 @@ export const enumPromptUserUpdateColumn = {
    userId: 'userId' as const
 }
 
+export const enumReferralConstraint = {
+   referral_pkey: 'referral_pkey' as const
+}
+
+export const enumReferralSelectColumn = {
+   referralCode: 'referralCode' as const,
+   referrerId: 'referrerId' as const,
+   userId: 'userId' as const
+}
+
+export const enumReferralUpdateColumn = {
+   referralCode: 'referralCode' as const,
+   referrerId: 'referrerId' as const,
+   userId: 'userId' as const
+}
+
 export const enumThreadConstraint = {
    thread_id_key: 'thread_id_key' as const,
    thread_pkey: 'thread_pkey' as const
@@ -9353,6 +10199,7 @@ export const enumThreadSelectColumn = {
    chatbotId: 'chatbotId' as const,
    createdAt: 'createdAt' as const,
    isPublic: 'isPublic' as const,
+   model: 'model' as const,
    threadId: 'threadId' as const,
    updatedAt: 'updatedAt' as const,
    userId: 'userId' as const
@@ -9370,6 +10217,7 @@ export const enumThreadUpdateColumn = {
    chatbotId: 'chatbotId' as const,
    createdAt: 'createdAt' as const,
    isPublic: 'isPublic' as const,
+   model: 'model' as const,
    threadId: 'threadId' as const,
    updatedAt: 'updatedAt' as const,
    userId: 'userId' as const
@@ -9400,6 +10248,7 @@ export const enumTypeEnumUpdateColumn = {
 }
 
 export const enumUserConstraint = {
+   unique_slug: 'unique_slug' as const,
    user_email_key: 'user_email_key' as const,
    user_pkey: 'user_pkey' as const,
    user_username_key: 'user_username_key' as const
@@ -9408,8 +10257,11 @@ export const enumUserConstraint = {
 export const enumUserSelectColumn = {
    dateJoined: 'dateJoined' as const,
    email: 'email' as const,
+   getFreeMonth: 'getFreeMonth' as const,
+   isBlocked: 'isBlocked' as const,
    lastLogin: 'lastLogin' as const,
    password: 'password' as const,
+   proUserSubscriptionId: 'proUserSubscriptionId' as const,
    profilePicture: 'profilePicture' as const,
    slug: 'slug' as const,
    userId: 'userId' as const,
@@ -9419,8 +10271,11 @@ export const enumUserSelectColumn = {
 export const enumUserUpdateColumn = {
    dateJoined: 'dateJoined' as const,
    email: 'email' as const,
+   getFreeMonth: 'getFreeMonth' as const,
+   isBlocked: 'isBlocked' as const,
    lastLogin: 'lastLogin' as const,
    password: 'password' as const,
+   proUserSubscriptionId: 'proUserSubscriptionId' as const,
    profilePicture: 'profilePicture' as const,
    slug: 'slug' as const,
    userId: 'userId' as const,

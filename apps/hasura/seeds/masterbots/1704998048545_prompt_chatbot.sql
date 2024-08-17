@@ -1,4 +1,5 @@
 SET check_function_bodies = false;
+
 INSERT INTO public.prompt_chatbot (prompt_id, chabot_id) VALUES (1, 1);
 INSERT INTO public.prompt_chatbot (prompt_id, chabot_id) VALUES (1, 2);
 INSERT INTO public.prompt_chatbot (prompt_id, chabot_id) VALUES (1, 3);

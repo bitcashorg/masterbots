@@ -10,7 +10,8 @@ export function toSlug(str: string): string {
     return "";
   }
   s = s.toLowerCase().trim();
-  s = s.replace(/ & /g, " and ");
+  s = s.replace(/ & /g, "_n_");
+  s = s.replace(/&/g, "n");
   s = s.replace(/[ ]+/g, "-");
   s = s.replace(/[-]+/g, "-");
   s = s.replace(/[^a-z0-9-]+/g, "");

@@ -1,6 +1,6 @@
-import { toSlug } from '@/lib/utils'
 import { motion } from 'framer-motion'
 import { Category } from 'mb-genql'
+import { toSlug } from 'mb-lib'
 import Link from 'next/link'
 
 export function BrowseCategoryButton({
@@ -24,24 +24,23 @@ export function BrowseCategoryButton({
       shallow
       id={id}
       onClick={onClick}
-      className={`${
-        (activeTab === null && category === 'all') ||
-        (category !== 'all' && activeTab === category.categoryId)
+      className={`${(activeTab === null && category === 'all') ||
+          (category !== 'all' && activeTab === category.categoryId)
           ? 'dark:text-white'
           : 'dark:hover:text-white dark:text-[#F4F4F580] text-zinc-500 hover:text-black'
-      } relative rounded-full px-3 py-1.5 text-sm font-medium  outline-sky-400 transition focus-visible:outline-2`}
+        } relative rounded-full px-3 py-1.5 text-sm font-medium  outline-sky-400 transition focus-visible:outline-2`}
       style={{
         WebkitTapHighlightColor: 'transparent'
       }}
     >
       {((activeTab === null && category === 'all') ||
         (category !== 'all' && activeTab === category.categoryId)) && (
-        <motion.span
-          layoutId="bubble"
-          className="absolute inset-0 z-10 bg-transparent border-b-[2px] border-[#388DE2]"
-          transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
-        />
-      )}
+          <motion.span
+            layoutId="bubble"
+            className="absolute inset-0 z-10 bg-transparent border-b-2 border-[#388DE2]"
+            transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+          />
+        )}
       {category === 'all' ? 'All' : category.name}
     </Link>
   )

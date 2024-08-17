@@ -1,6 +1,6 @@
 import { type Message as AIMessage } from 'ai/react'
-import { Message } from 'mb-genql'
 import { clsx, type ClassValue } from 'clsx'
+import { Message } from 'mb-genql'
 import { customAlphabet } from 'nanoid'
 import { twMerge } from 'tailwind-merge'
 
@@ -180,11 +180,63 @@ export async function sleep(time: number) {
   return new Promise(resolve => setTimeout(resolve, time))
 }
 
+export interface Plan {
+  id: string
+  duration: string
+  price: number
+  features: string[]
+  features_title: string
+}
 
-// Function to convert a name into a slug
-export const toSlug = (name: string): string => {
-  return name
-    .toLowerCase()
-    .replace(/&/g, 'n')
-    .replace(/\s+/g, '_')
+export const plans = [
+  {
+    id: 'monthly',
+    duration: 'monthly',
+    price: 4.5,
+    features_title: 'Everything from <strong>Free</strong> plan plus:',
+    features: ['Access to our Professional tools']
+  },
+  {
+    id: 'yearly',
+    duration: 'yearly',
+    price: 3.99,
+    features_title: 'Everything from <strong>Monthly</strong> plan plus: ',
+    features: [
+      '11% of discount every month.',
+      'Access to pre-release content to chat with.'
+    ]
+  }
+]
+
+export function getDate(timestamp: number) {
+  let date
+  if (timestamp === 0) {
+    date = new Date()
+  } else {
+    date = new Date(timestamp * 1000)
+  }
+  const options: Intl.DateTimeFormatOptions = {
+    month: 'long',
+    day: 'numeric'
+  }
+  const dateString = date.toLocaleString('en-US', options)
+
+  return dateString
+}
+
+export function getCurrentOrTargetDate() {
+  const today = new Date()
+  return today.toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric'
+  })
+}
+
+export function getKeyByValue(map: any, searchValue: string) {
+  for (let [key, value] of map.entries()) {
+    if (value === searchValue) {
+      return key
+    }
+  }
+  return null // Return null if the value is not found
 }
