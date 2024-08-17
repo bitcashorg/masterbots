@@ -1,16 +1,17 @@
 import Image from 'next/image'
 
-import { cn, sleep, toSlug } from '@/lib/utils'
+import { ChatAccordion } from '@/components/chat/chat-accordion'
+import { useBrowse } from '@/lib/hooks/use-browse'
+import { cn, sleep } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
 import { Message, Thread } from 'mb-genql'
+import { toSlug } from 'mb-lib'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { BrowseChatMessageList } from './browse-chat-message-list'
-import { ChatAccordion } from '@/components/chat/chat-accordion'
 import { ShortMessage } from './short-message'
 import { IconOpenAI, IconUser } from './ui/icons'
-import { useBrowse } from '@/lib/hooks/use-browse'
 let initialUrl: string | null = null
 
 export default function BrowseListItem({
@@ -197,7 +198,7 @@ export default function BrowseListItem({
 
         <div className="overflow-hidden text-sm text-left opacity-50">
           {thread.messages?.[1]?.content &&
-          thread.messages?.[1]?.role !== 'user' ? (
+            thread.messages?.[1]?.role !== 'user' ? (
             <div className="flex-1 space-y-2 overflow-hidden">
               <ShortMessage content={thread.messages?.[1]?.content} />
             </div>

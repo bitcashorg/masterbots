@@ -1,7 +1,7 @@
 import type * as AI from 'ai'
 import { Message, Thread } from 'mb-genql'
+import { toSlug } from 'mb-lib'
 import { extractBetweenMarkers } from './utils'
-import { toSlug } from './url'
 
 
 
