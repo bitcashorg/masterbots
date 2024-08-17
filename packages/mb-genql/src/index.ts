@@ -1,7 +1,7 @@
-import { Client, createClient } from '../generated'
 import { GraphqlOperation } from '@genql/runtime'
-import { endpoints, MbEnv } from 'mb-env'
 import { createClient as createWsClient, Client as WsClient } from 'graphql-ws'
+import { endpoints, MbEnv } from 'mb-env'
+import { Client, createClient } from '../generated'
 
 export * from '../generated'
 

@@ -12,13 +12,13 @@ export function SidebarToggle() {
   return (
     <Button
       variant="ghost"
-      className="-ml-2 flex h-9 w-9 p-0 lg:hidden"
+      className="-ml-2 flex size-9 p-0 lg:hidden"
       onClick={(e) => {
         e.stopPropagation()
         toggleSidebar()
       }}
     >
-      <IconSidebar className="h-6 w-6" />
+      <IconSidebar className="size-6" />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   )

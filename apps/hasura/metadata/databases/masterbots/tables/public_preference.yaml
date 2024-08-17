@@ -5,6 +5,21 @@ object_relationships:
   - name: chatbot
     using:
       foreign_key_constraint_on: chatbot_id
+  - name: complexityEnum
+    using:
+      foreign_key_constraint_on: preferred_complexity
+  - name: lengthEnum
+    using:
+      foreign_key_constraint_on: preferred_length
+  - name: toneEnum
+    using:
+      foreign_key_constraint_on: preferred_tone
+  - name: typeEnum
+    using:
+      foreign_key_constraint_on: preferred_type
+  - name: user
+    using:
+      foreign_key_constraint_on: user_id
 insert_permissions:
   - role: user
     permission:

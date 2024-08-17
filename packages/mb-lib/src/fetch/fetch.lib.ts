@@ -1,3 +1,5 @@
+// ! fetchJson not working: TypeError: FetchError Not Found
+// TODO: Fix for better error handling
 export async function fetchJson<JSON = unknown>(
   input: RequestInfo,
   init?: RequestInit,

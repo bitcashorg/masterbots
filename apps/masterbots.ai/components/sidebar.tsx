@@ -2,6 +2,8 @@
 
 import * as React from 'react'
 
+import FooterCT from '@/components/footer-ct'
+import { SidebarFooter } from '@/components/sidebar-footer'
 import useClickOutside from '@/lib/hooks/use-click-outside'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn } from '@/lib/utils'
@@ -24,6 +26,9 @@ export function Sidebar({ className, children }: SidebarProps) {
       <div className="overflow-y-auto scrollbar h-[calc(100%-113px)]">
         {children}
       </div>
+      <SidebarFooter>
+        <FooterCT />
+      </SidebarFooter>
     </aside>
   )
 }

@@ -1,93 +1,165 @@
-import NextAuth, { type DefaultSession } from 'next-auth'
+import bcrypt from 'bcryptjs'
+import { setCookie } from 'cookies-next'
+import { getHasuraClient, getToken, validateJwtSecret, verify } from 'mb-lib'
+import {
+  GetServerSidePropsContext,
+  NextApiRequest,
+  NextApiResponse
+} from 'next'
+import { NextAuthOptions, getServerSession } from 'next-auth'
+import CredentialsProvider from 'next-auth/providers/credentials'
 import Google from 'next-auth/providers/google'
-import { getToken, validateJwtSecret } from 'mb-lib'
-import { upsertUser } from './services/hasura'
-import { nanoid } from './lib/utils'
 
-export const {
-  handlers: { GET, POST },
-  auth
-} = NextAuth({
+//* NextAuth configuration strategy with multiprovider options
+export const authOptions: NextAuthOptions = {
   providers: [
+    //* Credentials provider for email and password login
+    CredentialsProvider({
+      name: 'Credentials',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' }
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error('Missing email or password')
+        }
+
+        //* Initialize the Hasura client for interacting with the database based on the environment
+        const client = getHasuraClient()
+        try {
+          const { user } = await client.query({
+            user: {
+              __args: {
+                where: { email: { _eq: credentials.email } }
+              },
+              userId: true,
+              email: true,
+              password: true,
+              username: true,
+              profilePicture: true
+            }
+          })
+
+          if (!user || user.length === 0) {
+            console.error(
+              'User authentication failed: Invalid or empty user data'
+            )
+            throw new Error('Invalid credentials')
+          }
+
+          //* Verify the password using bcrypt (hash comparison)
+          const isValid = bcrypt.compareSync(
+            credentials.password,
+            user[0].password
+          )
+
+          if (!isValid) {
+            console.error('User authentication failed: Invalid password')
+            throw new Error('Invalid credentials')
+          }
+          console.log('User authenticated successfully')
+          //* Return user details to be attached to the token
+          return { id: user[0].userId, email: user[0].email, name: user[0].username, image: user[0].profilePicture }
+        } catch (error) {
+          throw new Error('Authentication failed')
+        }
+      }
+    }),
+    //* Google provider for Google login
     Google({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET
+      clientId: process.env.GOOGLE_CLIENT_ID || '',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || ''
     })
   ],
+  session: {
+    strategy: 'jwt' //* NextAuth V > 4 needs to specify the session strategy
+  },
   callbacks: {
-    signIn: async ({ profile }) => {
-      if (!profile) return false
-      return true
-    },
-    jwt: async ({ token, profile }) => {
-      // console.log('========== >jwt callback', { token, profile })
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id
+        token.email = user.email
+        token.name = user.name
+        token.image = user.image
 
-      // profile is passed on the first call on login
-      if (profile) {
-        const adminSecret = process.env.HASURA_GRAPHQL_ADMIN_SECRET
-        if (!adminSecret) throw new Error('Admin Secret not found')
-        const jwtSecret = process.env.HASURA_GRAPHQL_JWT_SECRET
-        if (!adminSecret) throw new Error('JWT Secret not found')
+        //* Validate and prepare the JWT secret for signing tokens
+        const jwtSecret = validateJwtSecret(
+          process.env.HASURA_GRAPHQL_JWT_SECRET
+        )
+        if (!jwtSecret) {
+          throw new Error('Secret not found')
+        }
 
-        const dbUser = await upsertUser({
-          email: profile.email!,
-          profilePicture: profile.picture || '',
-          username: profile.name?.replace(/\s/g, '_') || nanoid(),
-          password: nanoid(),
-          adminSecret: adminSecret as string
-        })
+        try {
+          //* Generate a JWT for Hasura with custom claims
+          const hasuraJwt = await getToken({
+            user: {
+              account: user.id,
+              role: 'user'
+            },
+            jwtSecret,
+            jwtExpiration: Number(process.env.JWT_TOKEN_EXPIRATION)
+          })
 
-        // console.log('dbuser', dbUser)
-        if (!dbUser) throw new Error('Login Error')
+          if (!hasuraJwt) {
+            console.error('Failed to generate Hasura JWT')
+            throw new Error('Login Error')
+          }
 
-        const hasuraJwt = await getToken({
-          user: {
-            account: dbUser.userId,
-            role: 'user'
-          },
-          jwtSecret: validateJwtSecret(jwtSecret),
-          jwtExpiration: Number(process.env.JWT_TOKEN_EXPIRATION)
-        })
+          //* Verify the generated JWT to ensure it's valid
+          await verify(hasuraJwt, jwtSecret.key)
 
-        if (!hasuraJwt) throw new Error('Login Error')
+          token.hasuraJwt = hasuraJwt
+          console.log('Hasura JWT generated and verified successfully')
 
-        token.hasuraJwt = hasuraJwt
-        token.userId = dbUser.userId
-        token.email = dbUser.email
-        token.name = dbUser.username.replace(/_/g, ' ')
+          //* Store the JWT in a cookie for client-side access
+          setCookie('token', hasuraJwt, {
+            maxAge: Number(process.env.JWT_TOKEN_EXPIRATION),
+            httpOnly: true, // Secure the cookie to HTTP only
+            secure: process.env.NODE_ENV === 'production', //* Optional secure flag for production
+            sameSite: 'strict' //! Prevent CSRF attacks
+          })
+        } catch (error) {
+          console.error('Error generating or verifying Hasura JWT:', error)
+          throw error
+        }
       }
 
       return token
     },
-    session: async ({ session, token }) => {
-      // console.log('session callback', token)
+    async session({ session, token }) {
+      //* Attach the user details and JWT to the session object
+      session.user.id = token.id as string
+      session.user.email = token.email as string
+      session.user.name = token.name as string
+      session.user.image = token.image as string
+      session.user.hasuraJwt = token.hasuraJwt as string
 
-      session.user = {
-        id: token.userId as string,
-        image: token.picture as string,
-        name: token.name as string,
-        email: token.email as string,
-        hasuraJwt: token.hasuraJwt as string
-      }
+      console.log(
+        'Session created with Hasura JWT 🗝️: ',
+        session.user.hasuraJwt ? 'Present' : 'Missing'
+      )
 
       return session
     },
-    authorized({ auth }) {
-      return !!auth?.user // this ensures there is a logged in user for -every- request
+    // @ts-ignore
+    async authorized({ auth }) {
+      return !!auth?.user
     }
   },
   pages: {
-    signIn: '/sign-in' // overrides the next-auth default signin page https://authjs.dev/guides/basics/pages
-  }
-})
+    signIn: '/auth/signin' //* Custom sign-in page
+  },
+  debug: process.env.NODE_ENV === 'development' //! Enable detailed logging in development mode
+}
 
-declare module 'next-auth' {
-  interface Session {
-    user: {
-      id: string
-      image: string
-      name: string
-      hasuraJwt: string
-    } & DefaultSession['user']
-  }
+//* Helper function to retrieve the session in server-side contexts
+export function auth(
+  ...args:
+    | [GetServerSidePropsContext['req'], GetServerSidePropsContext['res']]
+    | [NextApiRequest, NextApiResponse]
+    | []
+) {
+  return getServerSession(...args, authOptions)
 }

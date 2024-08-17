@@ -1,0 +1,27 @@
+table:
+  name: models_enum
+  schema: public
+is_enum: true
+array_relationships:
+  - name: threads
+    using:
+      foreign_key_constraint_on:
+        column: model
+        table:
+          name: thread
+          schema: public
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - name
+        - value
+      filter: {}
+    comment: ""
+  - role: user
+    permission:
+      columns:
+        - name
+        - value
+      filter: {}
+    comment: ""

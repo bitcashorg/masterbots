@@ -6,10 +6,13 @@ silent: true
 tasks:
   app:
     -  turbo run dev --scope="masterbots.ai"
+
+  # [After Migrating] Run the hasura backend console (highly recommended for changes)
   console:
     cmds:
       - hasura console --project apps/hasura 
 
+  # [First Step When First Boot] Run the hasura backend (docker desktop must be started first)
   boot:
     cmds:
       - docker-compose up -d --build database
@@ -19,28 +22,34 @@ tasks:
       - sleep 30
       - task migrate
 
+  # Reboot the hasura backend
   reboot:
     cmds:
       - task down
       - task boot
 
+  # [AFTER applying metadata & migrations] Apply the hasura seeds
   seed:
     cmds:
       - hasura seeds apply --project apps/hasura 
 
+  # Turns on the hasura backend (docker desktop must be started first)
   up:
     cmds:
       - docker-compose up -d --build
 
+  # Turns off the hasura backend
   down:
     cmds:
       - docker-compose down -v --remove-orphans
 
+  # Apply the hasura migrations
   migrate:
     cmds:
       - hasura migrate apply --project apps/hasura 
       - hasura metadata apply --project apps/hasura 
 
+  # Reset the hasura backend by going from down, to up, to migrate, to seed
   reload:
     cmds:
       - task down

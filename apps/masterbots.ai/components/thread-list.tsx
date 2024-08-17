@@ -1,14 +1,14 @@
 'use client'
 
-import Image from 'next/image'
+import { ChatAccordion } from '@/components/chat/chat-accordion'
+import { ChatList } from '@/components/chat/chat-list'
+import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useThread } from '@/lib/hooks/use-thread'
+import { cn, sleep } from '@/lib/utils'
 import { Thread } from 'mb-genql'
+import Image from 'next/image'
 import React from 'react'
 import { ShortMessage } from './short-message'
-import { ChatAccordion } from './chat-accordion'
-import { ChatList } from './chat-list'
-import { useThread } from '@/lib/hooks/use-thread'
-import { useSidebar } from '@/lib/hooks/use-sidebar'
-import { cn, sleep } from '@/lib/utils'
 
 export default function ThreadList({
   threads,
@@ -23,6 +23,7 @@ export default function ThreadList({
   pageSize: number
   loadMore: () => void
 }) {
+  console.log('threads', threads)
   return (
     <ul className="flex flex-col w-full gap-3">
       {threads.map((thread, key) => (
@@ -99,7 +100,7 @@ function ThreadComponent({
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpenPopup])
-
+  console.log('thread', thread)
   return (
     <li ref={threadRef}>
       <ChatAccordion
@@ -157,7 +158,7 @@ function ThreadComponent({
 
         {/* Thread Content */}
         <ChatList
-          className="max-w-[100%] !px-0"
+          className="max-w-full !px-0"
           isThread={false}
           chatbot={thread.chatbot}
           messages={allMessages}

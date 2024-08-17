@@ -33,6 +33,7 @@ https://trello.com/b/GDCm18zN/masterbots-chatbot-aggregator-development-board
 - pnpm package manager https://pnpm.io/
 - [Docker](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/)
 - Task manager https://taskfile.dev
+- Bun https://bun.sh/
 
 ## Running the Backend:
 
@@ -56,5 +57,7 @@ bun install
 turbo run dev --scope="masterbots.ai" 
 # task app will execute the same command
 ```
+## Site Map Diagram
 
+![Masterbots Site Map](https://www.mermaidchart.com/raw/4b1761c6-e3fd-4e0b-8efb-aed6b3ff89ef?theme=light&version=v0.1&format=svg)
 

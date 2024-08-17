@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { IconShare, IconSpinner, IconTrash } from '@/components/ui/icons'
-import { ChatShareDialog } from '@/components/chat-share-dialog'
+import { ChatShareDialog } from '@/components/chat/chat-share-dialog'
 import {
   Tooltip,
   TooltipContent,
@@ -47,7 +47,7 @@ export function SidebarActions({
           <TooltipTrigger asChild>
             <Button
               variant="ghost"
-              className="w-6 h-6 p-0 hover:bg-background"
+              className="size-6 p-0 hover:bg-background"
               onClick={() => setShareDialogOpen(true)}
             >
               <IconShare />
@@ -60,7 +60,7 @@ export function SidebarActions({
           <TooltipTrigger asChild>
             <Button
               variant="ghost"
-              className="w-6 h-6 p-0 hover:bg-background"
+              className="size-6 p-0 hover:bg-background"
               disabled={isRemovePending}
               onClick={() => setDeleteDialogOpen(true)}
             >
