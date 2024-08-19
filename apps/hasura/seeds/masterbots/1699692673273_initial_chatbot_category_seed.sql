@@ -1,4 +1,5 @@
 SET check_function_bodies = false;
+
 INSERT INTO public.chatbot_category (chatbot_id, category_id) VALUES (1, 1);
 INSERT INTO public.chatbot_category (chatbot_id, category_id) VALUES (2, 2);
 INSERT INTO public.chatbot_category (chatbot_id, category_id) VALUES (3, 3);

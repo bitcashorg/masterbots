@@ -11,7 +11,8 @@ VALUES (1,
         'professional',
         'clear_and_succinct',
         'bullet_points',
-        'adult');
+        'adult')
+ON CONFLICT (chatbot_name_key) DO NOTHING;
 
 
 INSERT INTO public.chatbot (chatbot_id, name, description, avatar, created_by, default_tone, default_length, default_type, default_complexity)
@@ -23,7 +24,8 @@ VALUES (3,
         'neutral',
         'clear_and_succinct',
         'bullet_points',
-        'adult');
+        'adult')
+ON CONFLICT (chatbot_name_key) DO NOTHING;
 
 
 INSERT INTO public.chatbot (chatbot_id, name, description, avatar, created_by, default_tone, default_length, default_type, default_complexity)
@@ -35,7 +37,8 @@ VALUES (2,
         'professional',
         'clear_and_succinct',
         'bullet_points',
-        'adult');
+        'adult')
+ON CONFLICT (chatbot_name_key) DO NOTHING;
 
 
 INSERT INTO public.chatbot (chatbot_id, name, description, avatar, created_by, default_tone, default_length, default_type, default_complexity)
@@ -47,7 +50,8 @@ VALUES (6,
         'neutral',
         'clear_and_succinct',
         'step_by_step',
-        'adult');
+        'adult')
+ON CONFLICT (chatbot_name_key) DO NOTHING;
 
 
 INSERT INTO public.chatbot (chatbot_id, name, description, avatar, created_by, default_tone, default_length, default_type, default_complexity)
@@ -59,7 +63,8 @@ VALUES (7,
         'neutral',
         'clear_and_succinct',
         'step_by_step',
-        'adult');
+        'adult')
+ON CONFLICT (chatbot_name_key) DO NOTHING;
 
 
 INSERT INTO public.chatbot (chatbot_id, name, description, avatar, created_by, default_tone, default_length, default_type, default_complexity)
@@ -71,7 +76,8 @@ VALUES (8,
         'friendly',
         'clear_and_succinct',
         'narrative',
-        'adult');
+        'adult')
+ON CONFLICT (chatbot_name_key) DO NOTHING;
 
 
 INSERT INTO public.chatbot (chatbot_id, name, description, avatar, created_by, default_tone, default_length, default_type, default_complexity)
@@ -83,7 +89,8 @@ VALUES (9,
         'friendly',
         'clear_and_succinct',
         'narrative',
-        'adult');
+        'adult')
+ON CONFLICT (chatbot_name_key) DO NOTHING;
 
 
 INSERT INTO public.chatbot (chatbot_id, name, description, avatar, created_by, default_tone, default_length, default_type, default_complexity)
@@ -95,7 +102,8 @@ VALUES (10,
         'neutral',
         'clear_and_succinct',
         'bullet_points',
-        'adult');
+        'adult')
+ON CONFLICT (chatbot_name_key) DO NOTHING;
 
 
 INSERT INTO public.chatbot (chatbot_id, name, description, avatar, created_by, default_tone, default_length, default_type, default_complexity)
@@ -107,7 +115,8 @@ VALUES (11,
         'friendly',
         'clear_and_succinct',
         'step_by_step',
-        'adult');
+        'adult')
+ON CONFLICT (chatbot_name_key) DO NOTHING;
 
 
 INSERT INTO public.chatbot (chatbot_id, name, description, avatar, created_by, default_tone, default_length, default_type, default_complexity)
@@ -119,8 +128,7 @@ VALUES (12,
         'professional',
         'clear_and_succinct',
         'bullet_points',
-        'adult');
-
+        'adult')
+ON CONFLICT (chatbot_name_key) DO NOTHING;
 
 SELECT pg_catalog.setval('public.chatbot_chatbot_id_seq', 12, true);
-

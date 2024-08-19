@@ -1,4 +1,5 @@
 SET check_function_bodies = false;
+
 INSERT INTO public.thread (created_at, updated_at, chatbot_id, thread_id, user_id) VALUES ('2023-11-10 07:27:56.13014+00', '2023-11-10 07:27:56.13014+00', 1, 'bb58b27b-478c-4e74-b97b-2aadf87b9e3d', '9e252762-a8d7-414b-9d32-600f9634f432');
 INSERT INTO public.thread (created_at, updated_at, chatbot_id, thread_id, user_id) VALUES ('2023-11-10 07:29:12.329525+00', '2023-11-10 07:29:12.329525+00', 1, '3b492d75-3b20-4357-bffa-c7a67d47e661', '9e252762-a8d7-414b-9d32-600f9634f432');
 INSERT INTO public.thread (created_at, updated_at, chatbot_id, thread_id, user_id) VALUES ('2023-11-10 07:30:03.360801+00', '2023-11-10 07:30:03.360801+00', 1, '6d76cca0-3c76-404e-a9f7-84ceaf3ee3ab', '9e252762-a8d7-414b-9d32-600f9634f432');
