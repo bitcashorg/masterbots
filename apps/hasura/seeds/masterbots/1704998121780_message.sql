@@ -563,7 +563,8 @@ One lesser-known solution related to the theory of relativity comes from the con
    - Gravitational time dilation occurs due to the influence of gravity on the passage of time.
    - Clocks closer to massive objects experience time at a slower rate compared to clocks further away.
    - This effect has been experimentally confirmed, such as through the use of atomic clocks placed at different altitudes.
-   - Understanding and accounting for gravitational time dilation is crucial for precise measurements in GPS systems and other technologies that rely on accurate timekeeping.', 'assistant', '2023-11-11 06:39:22.856108+00', '4b1e5c7b-8a30-4590-8d43-4a6905c51967', 'c60b903f-3722-456c-a21b-4d9b1fa29532');
+   - Understanding and accounting for gravitational time dilation is crucial for precise measurements in GPS systems and other technologies that rely on accurate timekeeping.', 'assistant', '2023-11-11 06:39:22.856108+00', '4b1e5c7b-8a30-4590-8d43-4a6905c51967', 'c60b903f-3722-456c-a21b-4d9b1fa29532')
+;
 INSERT INTO public.message (content, role, created_at, message_id, thread_id) VALUES ('How can I find remote work positions in customer service?', 'user', '2023-11-11 06:36:29.373743+00', '07a866f2-b830-4d0a-9e6b-8d5bd3cdc5f6', '1a6ad436-659e-4897-98c8-4a4c42bbf5f0');
 INSERT INTO public.message (content, role, created_at, message_id, thread_id) VALUES ('Can you explain the theory of relativity?', 'user', '2023-11-11 06:38:22.645+00', '1308e7d8-cf00-42ed-958d-dd383e6c2b61', 'c60b903f-3722-456c-a21b-4d9b1fa29532');
 INSERT INTO public.message (content, role, created_at, message_id, thread_id) VALUES ('What are the most recent discoveries in quantum physics?', 'user', '2023-11-11 06:40:14.177336+00', '1cfd234f-86d4-4ae0-8198-752be89a480a', '6ce4d51c-5113-45e6-95f5-cdc3cdb28c13');
