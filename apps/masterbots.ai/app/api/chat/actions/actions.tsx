@@ -3,10 +3,17 @@
 import { setStreamerPayload } from '@/lib/ai-helpers'
 import { AiClientType, JSONResponseStream } from '@/lib/types'
 import Anthropic from '@anthropic-ai/sdk'
-import { MessageParam } from '@anthropic-ai/sdk/resources'
+import {
+  ImageBlockParam,
+  MessageParam,
+  TextBlockParam
+} from '@anthropic-ai/sdk/resources'
 import { AnthropicStream, OpenAIStream, StreamingTextResponse } from 'ai'
 import OpenAI from 'openai'
-import { ChatCompletionMessageParam } from 'openai/resources'
+import {
+  ChatCompletionContentPart,
+  ChatCompletionMessageParam
+} from 'openai/resources'
 
 /**
  * DEV notes for actions.tsx:
@@ -32,7 +39,37 @@ import { ChatCompletionMessageParam } from 'openai/resources'
  */
 
 // ? OpenAI, Anthropic, and Perplexity use the same response format
-// TODO: Analyze improvements to the response stream, to update MB DB at onCompletion
+
+//* Extract string content from various response types
+function extractStringContent(
+  content:
+    | string
+    | null
+    | ChatCompletionContentPart[]
+    | (TextBlockParam | ImageBlockParam)[]
+): string {
+  if (content === null) {
+    return ''
+  }
+  if (typeof content === 'string') {
+    return content
+  } else if (Array.isArray(content)) {
+    return content
+      .map(item => {
+        if (typeof item === 'string') {
+          return item
+        } else if ('text' in item) {
+          return item.text
+        } else if ('content' in item && typeof item.content === 'string') {
+          return item.content
+        }
+        return ''
+      })
+      .join(' ')
+      .trim()
+  }
+  return ''
+}
 
 export async function initializeOpenAI(apiKey: string) {
   if (!process.env.OPENAI_API_KEY) {
@@ -66,9 +103,93 @@ export async function createResponseStream(
   req?: Request
 ) {
   const { model, messages: rawMessages, previewToken } = json
-  const messages = setStreamerPayload(clientType, rawMessages)
+  let messages = setStreamerPayload(clientType, rawMessages)
+
+  //* Checks if this is a new thread (first message)
+  if (messages.length === 1 && messages[0].role === 'user') {
+    const initialMessage = messages[0].content
+
+    const titleImprovementPrompt = `
+      Improve the following text by fixing any spelling errors and improving punctuation.
+      Keep the essence and length of the text intact, making it more readable and professional.
+      Return only the improved text without any additional explanation.
+
+      Original text: "${initialMessage}"
+
+      Improved text:
+    `
+
+    let improvedTitle: string = ''
+
+    //* Improves the first message to serve as a title
+    try {
+      switch (clientType) {
+        case 'OpenAI': {
+          const openai = await initializeOpenAI(
+            process.env.OPENAI_API_KEY as string
+          )
+          if (previewToken) openai.apiKey = previewToken
+
+          const titleResponse = await openai.chat.completions.create({
+            model: 'gpt-3.5-turbo',
+            messages: [{ role: 'user', content: titleImprovementPrompt }],
+            temperature: 0.3,
+            max_tokens: 60,
+            stream: false
+          })
+          improvedTitle = extractStringContent(
+            titleResponse.choices[0]?.message?.content ?? null
+          )
+          break
+        }
+        case 'Anthropic': {
+          const anthropic = await initializeAnthropic(
+            process.env.ANTHROPIC_API_KEY as string
+          )
+          if (previewToken) anthropic.apiKey = previewToken
+
+          const titleResponse = await anthropic.messages.create({
+            model: 'claude-3-haiku-20240307',
+            messages: [{ role: 'user', content: titleImprovementPrompt }],
+            max_tokens: 60,
+            temperature: 0.3
+          })
+          improvedTitle = extractStringContent(titleResponse.content[0].text)
+          break
+        }
+        case 'Perplexity': {
+          const perplexity = await initializePerplexity(
+            process.env.PERPLEXITY_API_KEY as string
+          )
+          if (previewToken) perplexity.apiKey = previewToken
+
+          const titleResponse = await perplexity.chat.completions.create({
+            model: 'sonar-small-chat',
+            messages: [{ role: 'user', content: titleImprovementPrompt }],
+            max_tokens: 60,
+            temperature: 0.3
+          })
+          improvedTitle = extractStringContent(
+            titleResponse.choices[0]?.message?.content ?? null
+          )
+          break
+        }
+        default: {
+          throw new Error('Unsupported client model type')
+        }
+      }
+    } catch (error) {
+      console.error('Error improving title:', error)
+      improvedTitle = extractStringContent(initialMessage)
+    }
+
+    //* Updates the first message with the improved title
+    messages[0].content = improvedTitle || extractStringContent(initialMessage)
+  }
+
   let responseStream: ReadableStream
 
+  //* Process the main chat request
   switch (clientType) {
     case 'OpenAI': {
       const openai = await initializeOpenAI(
