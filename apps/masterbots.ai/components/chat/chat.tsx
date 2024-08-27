@@ -21,6 +21,8 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { botNames } from '@/lib/bots-names'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useModel } from '@/lib/hooks/use-model'
+import { improveTitle } from '@/app/api/chat/actions/actions'
+import { AiClientType } from '@/lib/types'
 
 export function Chat({
   initialMessages,
@@ -52,34 +54,32 @@ export function Chat({
   const { selectedModel, clientType } = useModel()
 
   const { messages, append, reload, stop, isLoading, input, setInput } =
-    useChat({
-      // we remove previous assistant responses to get better responses thru
-      // our prompting strategy
-      initialMessages:
-        params.threadId || isNewChat
-          ? initialMessages?.filter(m => m.role === 'system')
-          : threadInitialMessages.filter(m => m.role === 'system'),
+  useChat({
+    initialMessages:
+      params.threadId || isNewChat
+        ? initialMessages?.filter(m => m.role === 'system')
+        : threadInitialMessages.filter(m => m.role === 'system'),
+    id: params.threadId || isNewChat ? threadId : activeThread?.threadId,
+    body: {
       id: params.threadId || isNewChat ? threadId : activeThread?.threadId,
-      body: {
-        id: params.threadId || isNewChat ? threadId : activeThread?.threadId,
-        model: selectedModel,
-        clientType
-      },
-      onResponse(response) {
-        if (response.status === 401) {
-          toast.error(response.statusText)
-        }
-      },
-      async onFinish(message: Message) {
-        await saveNewMessage({
-          role: 'assistant',
-          threadId:
-            params.threadId || isNewChat ? threadId : activeThread?.threadId,
-          content: message.content,
-          jwt: session!.user?.hasuraJwt
-        })
+      model: selectedModel,
+      clientType
+    },
+    onResponse(response) {
+      if (response.status === 401) {
+        toast.error(response.statusText)
       }
-    })
+    },
+    async onFinish(message: Message) {
+      await saveNewMessage({
+        role: 'assistant',
+        threadId:
+          params.threadId || isNewChat ? threadId : activeThread?.threadId,
+        content: message.content,
+        jwt: session!.user?.hasuraJwt
+      })
+    }
+  })
 
   const { scrollY } = useScroll({
     container: containerRef as React.RefObject<HTMLElement>
@@ -149,7 +149,16 @@ export function Chat({
     userMessage: Message | CreateMessage,
     chatRequestOptions?: ChatRequestOptions
   ) => {
+    let improvedMessage = userMessage.content
+
     if (isNewChat && chatbot) {
+      try {
+        improvedMessage = await improveTitle(userMessage.content, clientType as AiClientType, selectedModel)
+      } catch (error) {
+        console.error('Error improving title:', error)
+        // Fall back to original message if improvement fails
+      }
+
       await createThread({
         threadId,
         chatbotId: chatbot.chatbotId,
@@ -171,7 +180,7 @@ export function Chat({
       role: 'user',
       threadId:
         params.threadId || isNewChat ? threadId : activeThread?.threadId,
-      content: userMessage.content,
+      content: improvedMessage,
       jwt: session!.user?.hasuraJwt
     })
 
@@ -179,12 +188,12 @@ export function Chat({
 
     return append(
       isNewChat
-        ? userMessage
+        ? { ...userMessage, content: improvedMessage }
         : {
             ...userMessage,
             content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
               allMessages
-            )}].  Then answer this question: ${userMessage.content}`
+            )}].  Then answer this question: ${improvedMessage}`
           }
     )
   }
