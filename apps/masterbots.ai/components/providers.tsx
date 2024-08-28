@@ -8,6 +8,7 @@ import { SessionProvider } from 'next-auth/react'
 import { ThemeProvider as NextThemesProvider } from 'next-themes'
 import { ThemeProviderProps } from 'next-themes/dist/types'
 import { ModelProvider } from '@/lib/hooks/use-model'
+import {TranslationProvider} from '@/lib/hooks/use-translation';
 
 export function Providers({ children, ...props }: ThemeProviderProps) {
   return (
@@ -17,7 +18,9 @@ export function Providers({ children, ...props }: ThemeProviderProps) {
           <SidebarProvider>
             <TooltipProvider>
               <SessionProvider>
+                <TranslationProvider>
                 <ThreadProvider>{children}</ThreadProvider>
+                </TranslationProvider>
               </SessionProvider>
             </TooltipProvider>
           </SidebarProvider>

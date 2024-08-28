@@ -8,9 +8,12 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
-import { IconArrowElbow } from '@/components/ui/icons'
+import { IconArrowElbow, IconTranslate } from '@/components/ui/icons'
 import { useThread } from '@/lib/hooks/use-thread'
-import {ChatCombobox} from '@/components/chat/chat-combobox'
+import { ChatCombobox } from '@/components/chat/chat-combobox'
+import { translate } from '@/app/api/chat/actions/actions'
+import { AiClientType } from '@/lib/types'
+import {useModel} from '@/lib/hooks/use-model';
 
 export interface PromptProps
   extends Pick<UseChatHelpers, 'input' | 'setInput'> {
@@ -18,6 +21,7 @@ export interface PromptProps
   isLoading: boolean
   placeholder: string
   disabled?: boolean
+  translateToSpanish: boolean
 }
 
 export function PromptForm({
@@ -26,12 +30,16 @@ export function PromptForm({
   setInput,
   isLoading,
   placeholder,
-  disabled
+  disabled,
+  translateToSpanish
 }: PromptProps) {
   const { isOpenPopup } = useThread()
   const { formRef, onKeyDown } = useEnterSubmit()
   const inputRef = React.useRef<HTMLTextAreaElement>(null)
   const [isFocused, setIsFocused] = React.useState(false)
+  const { selectedModel, clientType } = useModel()
+
+
   React.useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus()
@@ -55,7 +63,16 @@ export function PromptForm({
           return
         }
         setInput('')
-        await onSubmit(input)
+        let processedInput = input
+        if (translateToSpanish) {
+          processedInput = await translate(
+            input,
+            'Spanish',
+            clientType as AiClientType,
+            selectedModel
+          )
+        }
+        await onSubmit(processedInput)
       }}
       ref={formRef}
     >
@@ -78,7 +95,17 @@ export function PromptForm({
           disabled={disabled}
           className="min-h-[60px] w-full resize-none bg-transparent px-4 py-[1.3rem] focus-within:outline-none sm:text-sm"
         />
-        <div className="absolute right-0 top-4 sm:right-4">
+        <div className="absolute right-0 flex items-center space-x-2 top-4 sm:right-4">
+          {translateToSpanish && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="p-2 bg-green-100 rounded-full dark:bg-green-900">
+                  <IconTranslate className="w-5 h-5 text-green-600 dark:text-green-400" />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>Spanish translation active</TooltipContent>
+            </Tooltip>
+          )}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button

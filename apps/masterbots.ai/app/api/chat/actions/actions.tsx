@@ -86,41 +86,78 @@ export async function improveTitle(
     Improved text:
   `
 
-  let improvedTitle: string = content
+  return await processWithAI(titleImprovementPrompt, clientType, model)
+}
+
+export async function translate(
+  content: string,
+  targetLanguage: string,
+  clientType: AiClientType,
+  model: string
+) {
+  const translationAndImprovementPrompt = `
+    Translate the following text from english to ${targetLanguage}, then improve it by fixing any spelling errors and improving punctuation.
+    Keep the essence and length of the text intact, making it more readable and professional in ${targetLanguage}.
+    Return only the improved translated text without any additional explanation.
+
+    Original text: ${content}
+
+    Improved translated text:
+  `
+
+  return await processWithAI(translationAndImprovementPrompt, clientType, model)
+}
+
+async function processWithAI(
+  prompt: string,
+  clientType: AiClientType,
+  model: string
+): Promise<string> {
+  let result: string = ''
 
   try {
     switch (clientType) {
       case 'OpenAI': {
-        const openai = await initializeOpenAI(process.env.OPENAI_API_KEY as string)
-        const titleResponse = await openai.chat.completions.create({
+        const openai = await initializeOpenAI(
+          process.env.OPENAI_API_KEY as string
+        )
+        const response = await openai.chat.completions.create({
           model,
-          messages: [{ role: 'user', content: titleImprovementPrompt }],
+          messages: [{ role: 'user', content: prompt }],
           temperature: 0.3,
-          max_tokens: 60,
+          max_tokens: 1000
         })
-        improvedTitle = extractStringContent(titleResponse.choices[0]?.message?.content ?? null)
+        result = extractStringContent(
+          response.choices[0]?.message?.content ?? null
+        )
         break
       }
       case 'Anthropic': {
-        const anthropic = await initializeAnthropic(process.env.ANTHROPIC_API_KEY as string)
-        const titleResponse = await anthropic.messages.create({
+        const anthropic = await initializeAnthropic(
+          process.env.ANTHROPIC_API_KEY as string
+        )
+        const response = await anthropic.messages.create({
           model,
-          messages: [{ role: 'user', content: titleImprovementPrompt }],
-          max_tokens: 60,
+          messages: [{ role: 'user', content: prompt }],
+          max_tokens: 1000,
           temperature: 0.3
         })
-        improvedTitle = extractStringContent(titleResponse.content[0].text)
+        result = extractStringContent(response.content[0].text)
         break
       }
       case 'Perplexity': {
-        const perplexity = await initializePerplexity(process.env.PERPLEXITY_API_KEY as string)
-        const titleResponse = await perplexity.chat.completions.create({
+        const perplexity = await initializePerplexity(
+          process.env.PERPLEXITY_API_KEY as string
+        )
+        const response = await perplexity.chat.completions.create({
           model,
-          messages: [{ role: 'user', content: titleImprovementPrompt }],
-          max_tokens: 60,
+          messages: [{ role: 'user', content: prompt }],
+          max_tokens: 1000,
           temperature: 0.3
         })
-        improvedTitle = extractStringContent(titleResponse.choices[0]?.message?.content ?? null)
+        result = extractStringContent(
+          response.choices[0]?.message?.content ?? null
+        )
         break
       }
       default: {
@@ -128,10 +165,10 @@ export async function improveTitle(
       }
     }
   } catch (error) {
-    console.error('Error improving title:', error)
+    console.error('Error processing text:', error)
   }
 
-  return improvedTitle
+  return result || prompt.split('Original text: ')[1].split('"')[1] // fallback to original text if processing fails
 }
 
 export async function createResponseStream(

@@ -1,15 +1,12 @@
 import * as React from 'react'
 import { type UseChatHelpers } from 'ai/react'
-
-import { Button } from '@/components/ui/button'
 import { PromptForm } from '@/components/prompt-form'
 import { ButtonScrollToBottom } from '@/components/button-scroll-to-bottom'
-import { IconRefresh, IconShare, IconStop } from '@/components/ui/icons'
-import { FooterText } from '@/components/footer'
-import { ChatShareDialog } from './chat-share-dialog'
 import { Chatbot } from 'mb-genql'
 import { cn } from '@/lib/utils'
 import { useThread } from '@/lib/hooks/use-thread'
+import { ChatPanelHeader } from '@/components/chat-panel-header'
+import { useTranslation } from '@/lib/hooks/use-translation'
 
 export interface ChatPanelProps
   extends Pick<
@@ -30,6 +27,8 @@ export interface ChatPanelProps
   isAtBottom?: boolean
   scrollToBottom: () => void
   className?: string
+  translateToSpanish?: boolean
+  setTranslateToSpanish?: (value: boolean) => void
 }
 
 export function ChatPanel({
@@ -49,8 +48,9 @@ export function ChatPanel({
   scrollToBottom,
   className
 }: ChatPanelProps) {
-  const [shareDialogOpen, setShareDialogOpen] = React.useState(false)
   const { isOpenPopup } = useThread()
+  const { translateToSpanish, setTranslateToSpanish } = useTranslation()
+
   return (
     <div
       className={cn(
@@ -62,72 +62,38 @@ export function ChatPanel({
         scrollToBottom={scrollToBottom}
         isAtBottom={isAtBottom}
       />
-      <div className="mx-auto ">
-        {chatbot && showReload ? (
-          <div className="flex items-center justify-center h-12">
-            {isLoading ? (
-              <Button
-                variant="outline"
-                onClick={() => stop()}
-                className="bg-background"
-              >
-                <IconStop className="mr-2" />
-                Stop generating
-              </Button>
-            ) : (
-              messages?.length >= 2 && (
-                <div className="flex space-x-2 bg-inherit">
-                  <Button variant="outline" onClick={() => reload()}>
-                    <IconRefresh className="mr-2" />
-                    Regenerate response
-                  </Button>
-                  {id && title ? (
-                    <>
-                      <Button
-                        variant="outline"
-                        onClick={() => setShareDialogOpen(true)}
-                      >
-                        <IconShare className="mr-2" />
-                        Share
-                      </Button>
-                      <ChatShareDialog
-                        // open={shareDialogOpen}
-                        // onOpenChange={setShareDialogOpen}
-                        onCopy={() => setShareDialogOpen(false)}
-                        // shareChat={(id:string)=>{}}
-                        chat={{
-                          id,
-                          title,
-                          messages
-                        }}
-                      />
-                    </>
-                  ) : null}
-                </div>
-              )
-            )}
-          </div>
-        ) : null}
-        <div
-          className={`px-4 py-2 space-y-4 border-t shadow-lg bg-background sm:border md:py-4 ${isOpenPopup ? 'dark:border-mirage border-iron' : ''}`}
-        >
-          <PromptForm
-            onSubmit={async value => {
-              await append({
-                id,
-                content: value,
-                role: 'user'
-              })
-            }}
-            disabled={!Boolean(chatbot)}
-            input={input}
-            setInput={setInput}
-            isLoading={isLoading}
-            placeholder={placeholder}
-          />
-          <FooterText className="hidden sm:block" />
-        </div>
+      <div
+        className={`px-4 py-2 space-y-4 border-t shadow-lg bg-background sm:border md:py-4 ${
+          isOpenPopup ? 'dark:border-mirage border-iron' : ''
+        }`}
+      >
+        <PromptForm
+          onSubmit={async value => {
+            await append({
+              id,
+              content: value,
+              role: 'user'
+            })
+          }}
+          disabled={!Boolean(chatbot)}
+          input={input}
+          setInput={setInput}
+          isLoading={isLoading}
+          placeholder={placeholder}
+          translateToSpanish={translateToSpanish}
+        />
       </div>
+      <ChatPanelHeader
+        id={id}
+        title={title}
+        isLoading={isLoading}
+        stop={stop}
+        reload={reload}
+        messages={messages}
+        showReload={showReload}
+        translateToSpanish={translateToSpanish}
+        setTranslateToSpanish={setTranslateToSpanish}
+      />
     </div>
   )
 }

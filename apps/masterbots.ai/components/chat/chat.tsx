@@ -21,8 +21,9 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { botNames } from '@/lib/bots-names'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useModel } from '@/lib/hooks/use-model'
-import { improveTitle } from '@/app/api/chat/actions/actions'
+import { improveTitle, translate } from '@/app/api/chat/actions/actions'
 import { AiClientType } from '@/lib/types'
+import { useTranslation } from '@/lib/hooks/use-translation'
 
 export function Chat({
   initialMessages,
@@ -48,38 +49,38 @@ export function Chat({
   } = useThread()
   const { activeChatbot } = useSidebar()
   const containerRef = React.useRef<HTMLDivElement>()
-
   const params = useParams<{ chatbot: string; threadId: string }>()
   const isNewChat = Boolean(!params.threadId && !activeThread)
   const { selectedModel, clientType } = useModel()
+  const { translateToSpanish, setTranslateToSpanish } = useTranslation()
 
   const { messages, append, reload, stop, isLoading, input, setInput } =
-  useChat({
-    initialMessages:
-      params.threadId || isNewChat
-        ? initialMessages?.filter(m => m.role === 'system')
-        : threadInitialMessages.filter(m => m.role === 'system'),
-    id: params.threadId || isNewChat ? threadId : activeThread?.threadId,
-    body: {
+    useChat({
+      initialMessages:
+        params.threadId || isNewChat
+          ? initialMessages?.filter(m => m.role === 'system')
+          : threadInitialMessages.filter(m => m.role === 'system'),
       id: params.threadId || isNewChat ? threadId : activeThread?.threadId,
-      model: selectedModel,
-      clientType
-    },
-    onResponse(response) {
-      if (response.status === 401) {
-        toast.error(response.statusText)
+      body: {
+        id: params.threadId || isNewChat ? threadId : activeThread?.threadId,
+        model: selectedModel,
+        clientType
+      },
+      onResponse(response) {
+        if (response.status === 401) {
+          toast.error(response.statusText)
+        }
+      },
+      async onFinish(message: Message) {
+        await saveNewMessage({
+          role: 'assistant',
+          threadId:
+            params.threadId || isNewChat ? threadId : activeThread?.threadId,
+          content: message.content,
+          jwt: session!.user?.hasuraJwt
+        })
       }
-    },
-    async onFinish(message: Message) {
-      await saveNewMessage({
-        role: 'assistant',
-        threadId:
-          params.threadId || isNewChat ? threadId : activeThread?.threadId,
-        content: message.content,
-        jwt: session!.user?.hasuraJwt
-      })
-    }
-  })
+    })
 
   const { scrollY } = useScroll({
     container: containerRef as React.RefObject<HTMLElement>
@@ -149,16 +150,28 @@ export function Chat({
     userMessage: Message | CreateMessage,
     chatRequestOptions?: ChatRequestOptions
   ) => {
-    let improvedMessage = userMessage.content
+    let processedMessage = userMessage.content
 
     if (isNewChat && chatbot) {
       try {
-        improvedMessage = await improveTitle(userMessage.content, clientType as AiClientType, selectedModel)
+        if (translateToSpanish) {
+          processedMessage = await translate(
+            userMessage.content,
+            'Spanish',
+            clientType as AiClientType,
+            selectedModel
+          )
+        } else {
+          processedMessage = await improveTitle(
+            userMessage.content,
+            clientType as AiClientType,
+            selectedModel
+          )
+        }
       } catch (error) {
-        console.error('Error improving title:', error)
-        // Fall back to original message if improvement fails
+        console.error('Error processing message:', error)
+        // Fall back to original message if processing fails
       }
-
       await createThread({
         threadId,
         chatbotId: chatbot.chatbotId,
@@ -180,20 +193,30 @@ export function Chat({
       role: 'user',
       threadId:
         params.threadId || isNewChat ? threadId : activeThread?.threadId,
-      content: improvedMessage,
+      content: processedMessage,
       jwt: session!.user?.hasuraJwt
     })
 
     setIsNewResponse(true)
 
+    let finalMessage = processedMessage
+    if (translateToSpanish && !isNewChat) {
+      finalMessage = await translate(
+        processedMessage,
+        'Spanish',
+        clientType as AiClientType,
+        selectedModel
+      )
+    }
+
     return append(
       isNewChat
-        ? { ...userMessage, content: improvedMessage }
+        ? { ...userMessage, content: finalMessage }
         : {
             ...userMessage,
             content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
               allMessages
-            )}].  Then answer this question: ${improvedMessage}`
+            )}].  Then answer this question: ${finalMessage}`
           }
     )
   }
@@ -280,6 +303,8 @@ export function Chat({
                 ? Boolean(isAtBottomOfPopup)
                 : isAtBottomOfSection
           }
+          translateToSpanish={translateToSpanish}
+          setTranslateToSpanish={setTranslateToSpanish}
         />
       )}
     </>
@@ -295,6 +320,8 @@ export interface ChatProps extends React.ComponentProps<'div'> {
   isPopup?: boolean
   scrollToBottom?: () => void
   isAtBottom?: boolean
+  translateToSpanish: boolean
+  setTranslateToSpanish: (value: boolean) => void
 }
 
 export function getAllUserMessagesAsStringArray(allMessages: Message[]) {
