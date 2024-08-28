@@ -81,7 +81,7 @@ export async function improveTitle(
     Keep the essence and length of the text intact, making it more readable and professional.
     Return only the improved text without any additional explanation.
 
-    Original text: "${content}"
+    Original text: ${content}
 
     Improved text:
   `
