@@ -3,12 +3,19 @@
 import { CreateMessage, useChat, type Message } from 'ai/react'
 import { useScroll } from 'framer-motion'
 
+import { cn, extractBetweenMarkers, scrollToBottomOfElement } from '@/lib/utils'
 import { ChatList } from './chat-list'
 import { ChatPanel } from './chat-panel'
 import { ChatScrollAnchor } from './chat-scroll-anchor'
-import { cn, extractBetweenMarkers, scrollToBottomOfElement } from '@/lib/utils'
 
+import { improveTitle, translate } from '@/app/api/chat/actions/actions'
+import { botNames } from '@/lib/bots-names'
 import { useAtBottom } from '@/lib/hooks/use-at-bottom'
+import { useModel } from '@/lib/hooks/use-model'
+import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useThread } from '@/lib/hooks/use-thread'
+import { useTranslation } from '@/lib/hooks/use-translation'
+import { AiClientType } from '@/lib/types'
 import { createThread, getThread, saveNewMessage } from '@/services/hasura'
 import { ChatRequestOptions } from 'ai'
 import { uniqBy } from 'lodash'
@@ -17,13 +24,6 @@ import { useSession } from 'next-auth/react'
 import { useParams } from 'next/navigation'
 import React, { useEffect } from 'react'
 import { toast } from 'react-hot-toast'
-import { useThread } from '@/lib/hooks/use-thread'
-import { botNames } from '@/lib/bots-names'
-import { useSidebar } from '@/lib/hooks/use-sidebar'
-import { useModel } from '@/lib/hooks/use-model'
-import { improveTitle, translate } from '@/app/api/chat/actions/actions'
-import { AiClientType } from '@/lib/types'
-import { useTranslation } from '@/lib/hooks/use-translation'
 
 export function Chat({
   initialMessages,
@@ -121,11 +121,11 @@ export function Chat({
   const allMessages =
     params.threadId || isNewChat
       ? uniqBy(initialMessages?.concat(messages), 'content').filter(
-          m => m.role !== 'system'
-        )
+        m => m.role !== 'system'
+      )
       : uniqBy(threadAllMessages.concat(messages), 'content').filter(
-          m => m.role !== 'system'
-        )
+        m => m.role !== 'system'
+      )
 
   const sendMessageFromResponse = async (bulletContent: string) => {
     setIsNewResponse(true)
@@ -154,16 +154,17 @@ export function Chat({
 
     if (isNewChat && chatbot) {
       try {
+        processedMessage = await improveTitle(
+          userMessage.content,
+          clientType as AiClientType,
+          selectedModel
+        )
+
         if (translateToSpanish) {
           processedMessage = await translate(
-            userMessage.content,
+            // ? we use the improved title as the prompt
+            processedMessage,
             'Spanish',
-            clientType as AiClientType,
-            selectedModel
-          )
-        } else {
-          processedMessage = await improveTitle(
-            userMessage.content,
             clientType as AiClientType,
             selectedModel
           )
@@ -213,11 +214,11 @@ export function Chat({
       isNewChat
         ? { ...userMessage, content: finalMessage }
         : {
-            ...userMessage,
-            content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
-              allMessages
-            )}].  Then answer this question: ${finalMessage}`
-          }
+          ...userMessage,
+          content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
+            allMessages
+          )}].  Then answer this question: ${finalMessage}`
+        }
     )
   }
 
