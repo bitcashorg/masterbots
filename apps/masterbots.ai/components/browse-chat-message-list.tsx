@@ -35,7 +35,7 @@ export function BrowseChatMessageList({
         <ChatAccordion
           defaultState
           key={key}
-          isOpen={key !== 0}
+          isOpen={key == 0}
           disabled={key === 0}
           contentClass={`!border-l-[transparent] ${key === pairs.length - 1 ? '!border-b-[transparent]' : ''}`}
           triggerClass="dark:border-b-mirage border-b-gray-300 py-[0.625rem] px-[47px] gap-4"
@@ -55,6 +55,7 @@ export function BrowseChatMessageList({
           )}
 
           {/* Thread Description */}
+          <div />
 
           {/* Thread Content */}
           <div className="border-x-DEFAULT ml-6 mr-0 md:mx-[46px] py-5 dark:border-mirage border-gray-300 text-left">
