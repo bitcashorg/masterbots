@@ -58,6 +58,7 @@ export default async function BotThreadsPage({
         `Your response format will be ${chatbot.defaultType}. ` +
         `Your response complexity level will be ${chatbot.defaultComplexity}.` +
         `Your response will be generated in the same language as user input.`,
+
       createdAt: new Date()
     }
   ]

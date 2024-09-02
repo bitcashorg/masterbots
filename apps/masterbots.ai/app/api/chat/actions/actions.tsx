@@ -95,16 +95,18 @@ export async function translate(
   clientType: AiClientType,
   model: string
 ) {
-  const translationAndImprovementPrompt = `
-    Translate the following text from english to ${targetLanguage}, then improve it by fixing any spelling errors and improving punctuation.
-    Keep the essence and length of the text intact, making it more readable and professional in ${targetLanguage}.
-    Return only the improved translated text without any additional explanation.
+  const translationAndImprovementPrompt = `From now on, please strictly follow the instructions step-by-step:
+1. Only provide the output in step 6.
+2. Correct the spelling, grammar and format of the following question in the original language: ${content}.
+3. Translate the question to English, but do not output anything.
+4. Answer the question in English, but do not output anything.
+5. Translate the answer in the original language.
+6. Provide the correct question and answer in the original language following format below: 
 
-    Original text: ${content}
+Question: {question}
 
-    Improved translated text:
+Answer: {answer}
   `
-
   return await processWithAI(translationAndImprovementPrompt, clientType, model)
 }
 
@@ -123,13 +125,16 @@ async function processWithAI(
         )
         const response = await openai.chat.completions.create({
           model,
-          messages: [{ role: 'user', content: prompt }],
+          messages: [{ role: 'system', content: prompt }],
           temperature: 0.3,
           max_tokens: 1000
         })
+        console.log('OPENAI REFACTORED RESPONSE Before:', response.choices[0]?.message?.content ?? null)
         result = extractStringContent(
           response.choices[0]?.message?.content ?? null
         )
+        console.log('OPENAI REFACTORED RESPONSE After:', result)
+
         break
       }
       case 'Anthropic': {
