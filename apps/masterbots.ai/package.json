@@ -13,7 +13,9 @@
     "format:check": "prettier --check \"{app,lib,components}**/*.{ts,tsx,mdx}\" --cache"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.20.6",
+    "@ai-sdk/anthropic": "^0.0.48",
+    "@ai-sdk/openai": "^0.0.54",
+    "@anthropic-ai/sdk": "0.27.1",
     "@auth/core": "^0.34.2",
     "@blockmatic/hooks-utils": "^3.0.0",
     "@radix-ui/react-accordion": "^1.1.2",
@@ -33,7 +35,7 @@
     "@stripe/stripe-js": "^3.5.0",
     "@vercel/analytics": "^1.1.1",
     "@vercel/og": "^0.5.20",
-    "ai": "^2.2.25",
+    "ai": "3.1",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
