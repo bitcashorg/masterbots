@@ -28,8 +28,10 @@ import { useModel } from '@/lib/hooks/use-model'
 import { AIModels } from '@/app/api/chat/models/models'
 
 const models = [
-  { label: 'GPT-3.5', value: AIModels.Default, logo: <IconOpenAI /> },
-  { label: 'GPT-4.5', value: AIModels.GPT4, logo: <IconOpenAI /> },
+  { label: 'GPT-4o', value: AIModels.Default, logo: <IconOpenAI /> },
+
+  
+  { label: 'GPT-4', value: AIModels.GPT4, logo: <IconOpenAI /> },
   { label: 'Claude3', value: AIModels.Claude3, logo: <IconClaude /> },
   { label: 'llama3_8', value: AIModels.llama3_8b, logo: <IconLlama /> },
   { label: 'llama3_7', value: AIModels.llama3_7b, logo: <IconLlama /> },
