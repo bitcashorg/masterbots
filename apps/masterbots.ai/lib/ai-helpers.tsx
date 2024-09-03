@@ -74,16 +74,9 @@ export function setStreamerPayload(
 
 //* Convert an array of messages into the CoreMessage format
 export function convertToCoreMessages(messages: ChatCompletionMessageParam[]): CoreMessage[] {
-  return messages.map(msg => {
-    switch (msg.role) {
-      case 'system':
-        return { role: 'system', content: msg.content as string };
-      case 'user':
-        return { role: 'user', content: msg.content as string };
-      case 'assistant':
-        return { role: 'assistant', content: msg.content as string };
-      default:
-        throw new Error(`Unsupported message role: ${msg.role}`);
-    }
-  });
+  return messages.map(msg => 
+    msg.role.match(/(user|system|assistant)/)
+      ? { role: msg.role as 'user' | 'system' | 'assistant', content: msg.content as string }
+      : (() => { throw new Error(`Unsupported message role: ${msg.role}`) })()
+  )
 }
