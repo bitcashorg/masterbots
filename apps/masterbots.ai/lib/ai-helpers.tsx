@@ -1,7 +1,7 @@
 import { AIModels } from '@/app/api/chat/models/models';
 import { AiClientType } from '@/lib/types';
 import { MessageParam } from '@anthropic-ai/sdk/resources';
-import { generateId } from 'ai'; // Replace nanoid with generateId
+import {generateId, CoreMessage} from 'ai'; //* Replacing nanoid with generateId
 import { ChatCompletionMessageParam } from 'openai/resources';
 
 export function getModelClientType(model: AIModels) {
@@ -21,13 +21,14 @@ export function getModelClientType(model: AIModels) {
   }
 }
 
+//* Generate a payload for a new thread
 export function createPayload(
   json: { id: string },
   messages: { content: string }[],
   completion: any
 ) {
   const title = messages[0]?.content.substring(0, 100);
-  const id = json.id ?? generateId(); // Use generateId instead of nanoid
+  const id = json.id ?? generateId();
   const createdAt = Date.now();
   const path = `/c/${id}`;
   return {
@@ -46,6 +47,7 @@ export function createPayload(
   };
 }
 
+//* Manipulates payloads to match format of the streamText function
 export function setStreamerPayload(
   model: AiClientType,
   payload: ChatCompletionMessageParam[] | MessageParam[]
@@ -68,4 +70,20 @@ export function setStreamerPayload(
     default:
       return payload;
   }
+}
+
+//* Convert an array of messages into the CoreMessage format
+export function convertToCoreMessages(messages: ChatCompletionMessageParam[]): CoreMessage[] {
+  return messages.map(msg => {
+    switch (msg.role) {
+      case 'system':
+        return { role: 'system', content: msg.content as string };
+      case 'user':
+        return { role: 'user', content: msg.content as string };
+      case 'assistant':
+        return { role: 'assistant', content: msg.content as string };
+      default:
+        throw new Error(`Unsupported message role: ${msg.role}`);
+    }
+  });
 }

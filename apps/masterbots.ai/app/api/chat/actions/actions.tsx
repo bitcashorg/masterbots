@@ -1,24 +1,20 @@
-import { streamText, CoreMessage } from 'ai';
+import { streamText } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 import { AiClientType, JSONResponseStream } from '@/lib/types';
-import Anthropic from '@anthropic-ai/sdk';
-import { MessageParam } from '@anthropic-ai/sdk/resources';
 import { ChatCompletionMessageParam } from 'openai/resources';
-import { setStreamerPayload } from '@/lib/ai-helpers';
+import { convertToCoreMessages, setStreamerPayload } from '@/lib/ai-helpers';
+import { createAnthropic } from '@ai-sdk/anthropic';
 
-// Initialize OpenAI provider
 const openai = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  compatibility: 'strict', // Using strict mode for OpenAI API
+  compatibility: 'strict',
 });
 
-export async function initializeAnthropic(apiKey: string) {
-  if (!apiKey) {
-    throw new Error('ANTHROPIC_API_KEY is not defined in environment variables');
-  }
-  return new Anthropic({ apiKey });
-}
+const anthropic = createAnthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+});
 
+//* Perplexity API uses openai-sdk with compatible mode and a different base URL
 export async function initializePerplexity(apiKey: string) {
   if (!apiKey) {
     throw new Error('PERPLEXITY_API_KEY is not defined in environment variables');
@@ -26,25 +22,11 @@ export async function initializePerplexity(apiKey: string) {
   return createOpenAI({
     apiKey,
     baseURL: 'https://api.perplexity.ai',
-    compatibility: 'compatible', // Using compatible mode for third-party provider
+    compatibility: 'compatible',
   });
 }
 
-function convertToCoreMessages(messages: ChatCompletionMessageParam[]): CoreMessage[] {
-  return messages.map(msg => {
-    switch (msg.role) {
-      case 'system':
-        return { role: 'system', content: msg.content as string };
-      case 'user':
-        return { role: 'user', content: msg.content as string };
-      case 'assistant':
-        return { role: 'assistant', content: msg.content as string };
-      default:
-        throw new Error(`Unsupported message role: ${msg.role}`);
-    }
-  });
-}
-
+//* Create a response stream based on the client model type
 export async function createResponseStream(
   clientType: AiClientType,
   json: JSONResponseStream,
@@ -66,17 +48,15 @@ export async function createResponseStream(
         return response.toDataStreamResponse();
       }
       case 'Anthropic': {
-        const anthropic = await initializeAnthropic(previewToken || process.env.ANTHROPIC_API_KEY as string);
-        // Note: We need to implement Anthropic streaming using the AI SDK
-        // This is a placeholder and needs to be updated
-        const response = await anthropic.messages.create({
-          model,
-          messages: messages as MessageParam[],
-          stream: true,
-          max_tokens: 300
+        const anthropicModel = anthropic(model, { cacheControl: true });
+        const coreMessages = convertToCoreMessages(messages as ChatCompletionMessageParam[]);
+        const response = await streamText({
+          model: anthropicModel,
+          messages: coreMessages,
+          temperature: 0.7,
+          maxTokens: 300,
         });
-        // This is a placeholder and needs to be properly implemented
-        return new Response(response as any);
+        return response.toDataStreamResponse();
       }
       case 'Perplexity': {
         const perplexity = await initializePerplexity(previewToken || process.env.PERPLEXITY_API_KEY as string);
