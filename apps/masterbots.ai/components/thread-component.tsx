@@ -2,7 +2,6 @@
 
 import { ChatAccordion } from '@/components/chat/chat-accordion'
 import { ChatList } from '@/components/chat/chat-list'
-import { useThread } from '@/lib/hooks/use-thread'
 import { sleep } from '@/lib/utils'
 import { Thread } from 'mb-genql'
 import { ShortMessage } from './short-message'
@@ -23,7 +22,6 @@ export default function ThreadComponent({
     hasMore: boolean
 }) {
     const threadRef = React.useRef<HTMLLIElement>(null)
-
     React.useEffect(() => {
         if (!threadRef.current) return
         const observer = new IntersectionObserver(([entry]) => {

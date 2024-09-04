@@ -9,6 +9,8 @@ import { ChatAccordion } from './chat-accordion'
 import { ChatMessage } from './chat-message'
 
 export interface ChatList {
+  messages?: Message[]
+  sendMessageFn?: (message: string) => void
   chatbot?: Chatbot
   isThread?: boolean
   className?: string
@@ -24,6 +26,8 @@ type MessagePair = {
 
 export function ChatList({
   className,
+  messages = [],
+  sendMessageFn,
   chatbot,
   isThread = true,
   chatContentClass,
@@ -34,15 +38,16 @@ export function ChatList({
   const { isNewResponse, isLoadingMessages, allMessages, sendMessageFromResponse } = useThread()
 
   React.useEffect(() => {
-    if (allMessages.length) {
+    const messageList = messages.length > 0 ? messages : allMessages
+    if (messageList.length) {
       const prePairs: MessagePair[] = createMessagePairs(
-        allMessages
+        messageList
       ) as MessagePair[]
       setPairs(prePairs)
     } else setPairs([])
-  }, [allMessages])
+  }, [messages, allMessages])
 
-  if (!allMessages.length) return null
+  if (!messages.length && allMessages) return null
   return (
     <div
       className={`relative max-w-3xl px-4 mx-auto ${className || ''} ${isThread ? 'flex flex-col gap-3' : ''}`}
@@ -68,7 +73,7 @@ export function ChatList({
                 actionRequired={false}
                 chatbot={chatbot}
                 message={pair.userMessage}
-                sendMessageFromResponse={sendMessageFromResponse}
+                sendMessageFromResponse={sendMessageFn ? sendMessageFn : sendMessageFromResponse}
               />
             )}
 
@@ -110,7 +115,7 @@ export function ChatList({
                     key={index}
                     chatbot={chatbot}
                     message={message}
-                    sendMessageFromResponse={sendMessageFromResponse}
+                    sendMessageFromResponse={sendMessageFn ? sendMessageFn : sendMessageFromResponse}
                   />
                 ))
                 : ''}
