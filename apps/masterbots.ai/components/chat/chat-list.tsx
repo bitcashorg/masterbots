@@ -9,8 +9,6 @@ import { ChatAccordion } from './chat-accordion'
 import { ChatMessage } from './chat-message'
 
 export interface ChatList {
-  messages: Message[]
-  sendMessageFromResponse?: (message: string) => void
   chatbot?: Chatbot
   isThread?: boolean
   className?: string
@@ -26,8 +24,6 @@ type MessagePair = {
 
 export function ChatList({
   className,
-  messages,
-  sendMessageFromResponse,
   chatbot,
   isThread = true,
   chatContentClass,
@@ -35,18 +31,18 @@ export function ChatList({
   chatArrowClass
 }: ChatList) {
   const [pairs, setPairs] = React.useState<MessagePair[]>([])
-  const { isNewResponse, isLoadingMessages } = useThread()
+  const { isNewResponse, isLoadingMessages, allMessages, sendMessageFromResponse } = useThread()
 
   React.useEffect(() => {
-    if (messages.length) {
+    if (allMessages.length) {
       const prePairs: MessagePair[] = createMessagePairs(
-        messages
+        allMessages
       ) as MessagePair[]
       setPairs(prePairs)
     } else setPairs([])
-  }, [messages])
+  }, [allMessages])
 
-  if (!messages.length) return null
+  if (!allMessages.length) return null
   return (
     <div
       className={`relative max-w-3xl px-4 mx-auto ${className || ''} ${isThread ? 'flex flex-col gap-3' : ''}`}

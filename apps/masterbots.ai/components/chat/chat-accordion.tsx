@@ -33,7 +33,7 @@ export const ChatAccordion = ({
   thread?: Thread | null
   disabled?: boolean
 }) => {
-  const { activeThread, setActiveThread, setIsNewResponse, isNewResponse } =
+  const { activeThread, setActiveThread, setIsNewResponse, isNewResponse, isOpenPopup } =
     useThread()
   // If the thread is the active, we keep the thread open
   let initialState
@@ -47,6 +47,9 @@ export const ChatAccordion = ({
   }
 
   const [open, setOpen] = React.useState(initialState)
+
+  console.log("initialState", initialState)
+  console.log("open", open)
 
   React.useEffect(() => {
     if (
@@ -80,36 +83,47 @@ export const ChatAccordion = ({
     }
   }
 
+  React.useEffect(() => {
+    if (
+        !isOpenPopup &&
+        activeThread &&
+        activeThread.threadId === thread?.threadId
+    )
+      toggle()
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [isOpenPopup])
+
   return (
-    <div className={className || ''} {...props}>
+    <div className={className || ''} id={`thread-${thread?.threadId}`}  {...props}>
       {!disabled && (
-        <button
-          data-state={open ? 'open' : 'closed'}
-          onClick={toggle}
-          className={`flex flex-1 justify-start flex-col relative
-        transition-all ease-in-out duration-200
-        border-transparent border
-        hover:rounded-t-[8px]
-        font-medium w-full ${
-          open
-            ? 'dark:border-b-mirage border-b-gray-300'
-            : 'dark:hover:border-b-mirage hover:border-b-gray-300 [&>div>div>button]:!hidden'
-        } ${triggerClass || ''}`}
-        >
-          {children[0]}
-          {!open && children[1]}
-          <ChevronDown
-            {...(handleTrigger
-              ? {
-                  onClick: e => {
-                    e.stopPropagation()
-                    handleTrigger()
+          <button
+            data-state={open ? 'open' : 'closed'}
+            onClick={toggle}
+            className={`flex flex-1 justify-start flex-col relative
+          transition-all ease-in-out duration-200
+          border-transparent border
+          hover:rounded-t-[8px]
+          font-medium w-full ${
+            open
+              ? 'dark:border-b-mirage border-b-gray-300'
+              : 'dark:hover:border-b-mirage hover:border-b-gray-300 [&>div>div>button]:!hidden'
+          } ${triggerClass || ''}`}
+          >
+            {children[0]}
+            {!open && children[1]}
+            <ChevronDown
+              {...(handleTrigger
+                ? {
+                    onClick: e => {
+                      e.stopPropagation()
+                      handleTrigger()
+                    }
                   }
-                }
-              : {})}
-            className={`${open ? '' : '-rotate-90'} absolute -right-2 size-4 shrink-0 mr-4 transition-transform duration-200 ${arrowClass || ''} ${disabled ? 'hidden' : ''}`}
-          />
-        </button>
+                : {})}
+              className={`${open ? '' : '-rotate-90'} absolute -right-2 size-4 shrink-0 mr-4 transition-transform duration-200 ${arrowClass || ''} ${disabled ? 'hidden' : ''}`}
+            />
+          </button>
       )}
       {open && (
         <div
