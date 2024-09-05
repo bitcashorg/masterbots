@@ -562,7 +562,7 @@ export async function UpdateThreadVisibility({
 }: {
   threadId: string
   isPublic: boolean
-  jwt: string
+  jwt: string | undefined
 }) {
   const client = getHasuraClient({ jwt })
   await client.mutation({

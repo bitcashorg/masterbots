@@ -1,14 +1,17 @@
 import * as Switch from '@radix-ui/react-switch';
 import { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react'; // Importing the icons from lucide-react
+import { UpdateThreadVisibility } from '@/services/hasura';
+import { useSession } from 'next-auth/react'
 
-export  function CustomSwitch() {
+export  function CustomSwitch({ threadId }: { threadId: string }) {   
   const [isChecked, setIsChecked] = useState(false);
+  const session = useSession()
+  const jwt = session?.data?.user?.hasuraJwt
 
-  const handleSwitchChange = (checked: boolean | ((prevState: boolean) => boolean)) => {
+  const handleSwitchChange = async (checked: boolean) => {
     setIsChecked(checked);
-    // Custom function to handle the switch change can be added here
-    console.log('Switch value:', checked);
+    await UpdateThreadVisibility({ isPublic: checked, threadId, jwt });
   };
 
   return (

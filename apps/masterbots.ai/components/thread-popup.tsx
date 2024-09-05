@@ -10,6 +10,7 @@ import { useAtBottom } from '@/lib/hooks/use-at-bottom'
 import { useScroll } from 'framer-motion'
 import { CustomSwitch } from "@/components/ui/custom-switch"
 
+
 export function ThreadPopup({ className }: { className?: string }) {
   const {
     isOpenPopup,
@@ -90,7 +91,7 @@ export function ThreadPopup({ className }: { className?: string }) {
     </div>
 
     <div className="flex items-center">
-      <CustomSwitch />
+      <CustomSwitch threadId={activeThread?.threadId} />
       <button
         type="button"
         className="ml-2"
