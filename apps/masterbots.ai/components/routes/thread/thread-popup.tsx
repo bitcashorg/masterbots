@@ -10,6 +10,7 @@ import { useAtBottom } from '@/lib/hooks/use-at-bottom'
 import { useScroll } from 'framer-motion'
 import { CustomSwitch } from "@/components/ui/custom-switch"
 
+
 export function ThreadPopup({ className }: { className?: string }) {
   const {
     isOpenPopup,
