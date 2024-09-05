@@ -8,6 +8,7 @@ import { ChatList } from '@/components/chat/chat-list'
 import { useEffect, useRef } from 'react'
 import { useAtBottom } from '@/lib/hooks/use-at-bottom'
 import { useScroll } from 'framer-motion'
+import { CustomSwitch } from "@/components/ui/custom-switch"
 
 export function ThreadPopup({ className }: { className?: string }) {
   const {
@@ -73,27 +74,34 @@ export function ThreadPopup({ className }: { className?: string }) {
       transition-opacity ${isOpenPopup ? 'animate-fade-in' : 'animate-fade-out'}`
         )}
       >
-        <div className="relative rounded-t-[8px] px-[32px] py-[20px] dark:bg-[#1E293B] bg-[#E4E4E7]">
-          <div>
-            {threadTitle && threadTitleChunks.length > 32
-              ? threadTitleHeading + '…'
-              : threadTitle || 'wat'}
-            {threadTitleSubHeading ? (
-              <div className="overflow-hidden text-sm text-left opacity-50">
-                {threadTitleSubHeading}
-              </div>
-            ) : (
-              ''
-            )}
-          </div>
-          <button
-            type='button'
-            className="absolute right-[32px] top-1/2 translate-y-1/2 "
-            onClick={onClose}
-          >
-            <IconClose />
-          </button>
+         <div className="relative rounded-t-[8px] px-[32px] py-[20px] dark:bg-[#1E293B] bg-[#E4E4E7]">
+  <div className="flex items-center justify-between">
+    <div className="flex items-center">
+      <span>
+        {threadTitle && threadTitleChunks.length > 32
+          ? threadTitleHeading + '…'
+          : threadTitle || 'wat'}
+      </span>
+      {threadTitleSubHeading && (
+        <div className="ml-2 overflow-hidden text-sm opacity-50">
+          {threadTitleSubHeading}
         </div>
+      )}
+    </div>
+
+    <div className="flex items-center">
+      <CustomSwitch />
+      <button
+        type="button"
+        className="ml-2"
+        onClick={onClose}
+      >
+        <IconClose />
+      </button>
+    </div>
+  </div>
+</div>
+
         <div
           className="flex flex-col dark:bg-[#18181B] bg-[white] grow rounded-b-[8px] scrollbar pb-[180px]"
           ref={popupContentRef as React.Ref<HTMLDivElement>}

@@ -23,7 +23,6 @@ export default function ThreadList({
   pageSize: number
   loadMore: () => void
 }) {
-  console.log('threads', threads)
   return (
     <ul className="flex flex-col w-full gap-3">
       {threads.map((thread, key) => (
@@ -100,7 +99,6 @@ function ThreadComponent({
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpenPopup])
-  console.log('thread', thread)
   return (
     <li ref={threadRef}>
       <ChatAccordion

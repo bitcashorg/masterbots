@@ -554,3 +554,23 @@ export async function getUsers() {
   })
   return user as User[]
 }
+
+export async function UpdateThreadVisibility({
+  threadId,
+  isPublic,
+  jwt
+}: {
+  threadId: string
+  isPublic: boolean
+  jwt: string
+}) {
+  const client = getHasuraClient({ jwt })
+  await client.mutation({
+    updateThreadByPk: {
+      __args: {
+        pkColumns: { threadId },
+        _set: { isPublic }
+      }
+    }
+  })
+}

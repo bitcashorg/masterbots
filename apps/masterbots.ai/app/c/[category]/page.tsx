@@ -5,7 +5,7 @@ import { getCategories, getThreads } from '@/services/hasura'
 import { isTokenExpired, toSlug } from 'mb-lib'
 import { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
-import { redirect } from 'next/navigation'
+import { redirect } from 'next/navigation' 
 import {authOptions} from '@/auth';
 
 export default async function ChatCategoryPage({
