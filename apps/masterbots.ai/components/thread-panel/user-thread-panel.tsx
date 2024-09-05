@@ -10,8 +10,6 @@ import { useSession } from 'next-auth/react'
 import React, { useCallback, useEffect, useRef } from 'react'
 import ChatChatbotDetails from '@/components/chat/chat-chatbot-details'
 import { useParams } from 'next/navigation'
-import { botNames } from '@/lib/bots-names'
-
 
 const PAGE_SIZE = 20
 
