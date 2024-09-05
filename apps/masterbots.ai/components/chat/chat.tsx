@@ -1,6 +1,6 @@
 'use client'
 
-import { CreateMessage, useChat, type Message } from 'ai/react'
+import { Message, useChat } from 'ai/react'
 import { useScroll } from 'framer-motion'
 
 import { ChatList } from './chat-list'
@@ -10,7 +10,7 @@ import { cn, extractBetweenMarkers, scrollToBottomOfElement } from '@/lib/utils'
 
 import { useAtBottom } from '@/lib/hooks/use-at-bottom'
 import { createThread, getThread, saveNewMessage } from '@/services/hasura'
-import { ChatRequestOptions } from 'ai'
+import { ChatRequestOptions, CreateMessage } from 'ai'
 import { uniqBy } from 'lodash'
 import { Chatbot } from 'mb-genql'
 import { useSession } from 'next-auth/react'
@@ -52,34 +52,34 @@ export function Chat({
   const { selectedModel, clientType } = useModel()
 
   const { messages, append, reload, stop, isLoading, input, setInput } =
-    useChat({
-      // we remove previous assistant responses to get better responses thru
-      // our prompting strategy
-      initialMessages:
-        params.threadId || isNewChat
-          ? initialMessages?.filter(m => m.role === 'system')
-          : threadInitialMessages.filter(m => m.role === 'system'),
+  
+  useChat({
+    initialMessages:
+      params.threadId || isNewChat
+        ? initialMessages?.filter(m => m.role === 'system')
+        : threadInitialMessages.filter(m => m.role === 'system'),
+    id: params.threadId || isNewChat ? threadId : activeThread?.threadId,
+    body: {
       id: params.threadId || isNewChat ? threadId : activeThread?.threadId,
-      body: {
-        id: params.threadId || isNewChat ? threadId : activeThread?.threadId,
-        model: selectedModel,
-        clientType
-      },
-      onResponse(response) {
-        if (response.status === 401) {
-          toast.error(response.statusText)
-        }
-      },
-      async onFinish(message: Message) {
-        await saveNewMessage({
-          role: 'assistant',
-          threadId:
-            params.threadId || isNewChat ? threadId : activeThread?.threadId,
-          content: message.content,
-          jwt: session!.user?.hasuraJwt
-        })
+      model: selectedModel,
+      clientType
+    },
+    onResponse(response) {
+      if (response.status === 401) {
+        toast.error(response.statusText)
       }
-    })
+    },
+    onFinish(message) {
+      saveNewMessage({
+        role: 'assistant',
+        threadId:
+          params.threadId || isNewChat ? threadId : activeThread?.threadId,
+        content: message.content,
+        jwt: session!.user?.hasuraJwt
+      })
+    }
+  })
+ 
 
   const { scrollY } = useScroll({
     container: containerRef as React.RefObject<HTMLElement>

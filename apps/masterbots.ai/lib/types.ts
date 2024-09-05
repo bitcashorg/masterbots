@@ -1,5 +1,5 @@
 import Stripe from 'stripe'
-import { type Message } from 'ai'
+import { CoreMessage, type Message } from 'ai'
 import { ChatCompletionMessageParam } from 'openai/resources'
 import 'next-auth'
 import { DefaultSession } from 'next-auth'
@@ -62,18 +62,6 @@ export type PlansPros = {
 
 export type PlanList = StripePlan
 
-
-export type JSONResponseStream = {
-  id: string
-  model: string
-  messages: ChatCompletionMessageParam[]
-  previewToken: string
-}
-
-export type AiClientType = 'OpenAI' | 'Anthropic' | 'Perplexity' | 'WordWare'
-
-
-
 export type Subscription = {
   customer: {
     name: string
@@ -105,6 +93,30 @@ export const initialStateSubscription = {
   },
   current_period_start: 0,
   status: ''
+}
+
+//? AI SDK related types
+
+export type AiClientType = 'OpenAI' | 'Anthropic' | 'Perplexity' | 'WordWare'
+
+export type JSONResponseStream = {
+  id: string
+  model: string
+  messages: ChatCompletionMessageParam[]
+  previewToken: string
+  stream?: boolean
+  temperature?: number
+  maxTokens?: number
+}
+
+//? New type for streamText function parameters if needed
+export type StreamTextParams = {
+  model: any //? Replace 'any' with the correct type from the SDK if available
+  messages: CoreMessage[]
+  temperature?: number
+  maxTokens?: number
+  topP?: number
+  frequencyPenalty?: number
 }
 
 declare module 'next-auth' {
