@@ -11,7 +11,6 @@ import React, { useCallback, useEffect, useRef } from 'react'
 import ChatChatbotDetails from '@/components/chat/chat-chatbot-details'
 import { useParams } from 'next/navigation'
 
-
 const PAGE_SIZE = 20
 
 export default function UserThreadPanel({
