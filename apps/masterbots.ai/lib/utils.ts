@@ -180,13 +180,6 @@ export async function sleep(time: number) {
   return new Promise(resolve => setTimeout(resolve, time))
 }
 
-export interface Plan {
-  id: string
-  duration: string
-  price: number
-  features: string[]
-  features_title: string
-}
 
 export const plans = [
   {
