@@ -104,7 +104,7 @@ export function ThreadPopup({ className }: { className?: string }) {
               isThread={false}
               chatbot={activeThread.chatbot}
               messages={allMessages}
-              sendMessageFromResponse={sendMessageFromResponse}
+              sendMessageFn={sendMessageFromResponse}
               chatContentClass="dark:!border-x-mirage !border-x-gray-300 !py-[20px] !px-[16px] !mx-0 max-h-[none] "
               chatTitleClass="!px-[11px]"
               chatArrowClass="!right-0 !mr-0"

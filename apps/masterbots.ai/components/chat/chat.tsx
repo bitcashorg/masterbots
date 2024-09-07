@@ -224,7 +224,7 @@ export function Chat({
           <ChatList
             chatbot={chatbot}
             messages={allMessages}
-            sendMessageFromResponse={sendMessageFromResponse}
+            sendMessageFn={sendMessageFromResponse}
           />
           <ChatScrollAnchor
             isAtBottom={

@@ -9,8 +9,8 @@ import { ChatAccordion } from './chat-accordion'
 import { ChatMessage } from './chat-message'
 
 export interface ChatList {
-  messages: Message[]
-  sendMessageFromResponse?: (message: string) => void
+  messages?: Message[]
+  sendMessageFn?: (message: string) => void
   chatbot?: Chatbot
   isThread?: boolean
   className?: string
@@ -26,8 +26,8 @@ type MessagePair = {
 
 export function ChatList({
   className,
-  messages,
-  sendMessageFromResponse,
+  messages = [],
+  sendMessageFn,
   chatbot,
   isThread = true,
   chatContentClass,
@@ -35,18 +35,19 @@ export function ChatList({
   chatArrowClass
 }: ChatList) {
   const [pairs, setPairs] = React.useState<MessagePair[]>([])
-  const { isNewResponse, isLoadingMessages } = useThread()
+  const { isNewResponse, isLoadingMessages, allMessages, sendMessageFromResponse } = useThread()
 
   React.useEffect(() => {
-    if (messages.length) {
+    const messageList = messages.length > 0 ? messages : allMessages
+    if (messageList.length) {
       const prePairs: MessagePair[] = createMessagePairs(
-        messages
+        messageList
       ) as MessagePair[]
       setPairs(prePairs)
     } else setPairs([])
-  }, [messages])
+  }, [messages, allMessages])
 
-  if (!messages.length) return null
+  if (!messages.length && allMessages) return null
   return (
     <div
       className={`relative max-w-3xl px-4 mx-auto ${className || ''} ${isThread ? 'flex flex-col gap-3' : ''}`}
@@ -72,7 +73,7 @@ export function ChatList({
                 actionRequired={false}
                 chatbot={chatbot}
                 message={pair.userMessage}
-                sendMessageFromResponse={sendMessageFromResponse}
+                sendMessageFromResponse={sendMessageFn ? sendMessageFn : sendMessageFromResponse}
               />
             )}
 
@@ -114,7 +115,7 @@ export function ChatList({
                     key={index}
                     chatbot={chatbot}
                     message={message}
-                    sendMessageFromResponse={sendMessageFromResponse}
+                    sendMessageFromResponse={sendMessageFn ? sendMessageFn : sendMessageFromResponse}
                   />
                 ))
                 : ''}
