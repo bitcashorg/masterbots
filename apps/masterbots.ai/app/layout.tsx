@@ -3,8 +3,8 @@ import { GeistSans } from 'geist/font/sans'
 import { Toaster } from 'react-hot-toast'
 
 import '@/app/globals.css'
-import { Header } from '@/components/header'
-import { Providers } from '@/components/providers'
+import { Header } from '@/components/layout/header/header'
+import { Providers } from '@/components/layout/providers'
 import { cn } from '@/lib/utils'
 import { Metadata } from 'next'
 
@@ -44,7 +44,8 @@ export const metadata: Metadata = {
     default: 'Masterbots',
     template: `%s - Masterbots`
   },
-  description: 'Elevating AI Beyond ChatGPT: Specialized Chatbots, Social Sharing and User-Friendly Innovation',
+  description:
+    'Elevating AI Beyond ChatGPT: Specialized Chatbots, Social Sharing and User-Friendly Innovation',
   openGraph: {
     type: 'website',
     locale: 'en_US',
@@ -61,7 +62,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     title: 'Masterbots',
-    description: 'Elevating AI Beyond ChatGPT: Specialized Chatbots, Social Sharing and User-Friendly Innovation',
+    description:
+      'Elevating AI Beyond ChatGPT: Specialized Chatbots, Social Sharing and User-Friendly Innovation',
     site: '@masterbotsai',
     card: 'summary_large_image',
     images: [

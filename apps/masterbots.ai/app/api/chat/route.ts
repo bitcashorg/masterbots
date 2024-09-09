@@ -1,5 +1,5 @@
 import { createResponseStream } from '@/app/api/chat/actions/actions'
-import { getModelClientType } from '@/lib/ai-helpers'
+import { getModelClientType } from '@/lib/helpers/ai-helpers'
 import { NextResponse } from 'next/server'
 
 export const runtime = 'edge'

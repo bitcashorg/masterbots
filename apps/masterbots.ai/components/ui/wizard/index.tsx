@@ -1,4 +1,4 @@
-import { LoadingState } from '@/components/loading-state'
+import { LoadingState } from '@/components/shared/loading-state'
 import { usePayment } from '@/lib/hooks/use-payment'
 import { motion } from 'framer-motion'
 import React from 'react'

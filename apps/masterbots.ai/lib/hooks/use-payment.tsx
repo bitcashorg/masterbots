@@ -1,12 +1,13 @@
 'use client'
 
-import { StripePlan } from '@/lib/types'
+import { StripePlan } from '@/types/types'
 import React, { createContext, useState } from 'react'
 
-type CardProps = {
-  last4: string
-} | undefined
-
+type CardProps =
+  | {
+      last4: string
+    }
+  | undefined
 
 interface PaymentContextProps {
   card: CardProps | null
@@ -57,7 +58,7 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
   const [loading, setLoading] = useState(false)
   const [plan, setPlan] = useState(null)
   const [error, setError] = useState('')
-  const [paymentIntent, setPaymentIntent] = useState("")
+  const [paymentIntent, setPaymentIntent] = useState('')
   const [user, setUser] = useState({
     id: '',
     image: '',
@@ -65,11 +66,10 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
     email: '',
     hasuraJwt: ''
   })
-  const [confirmationToken, setConfirmationToken] = useState<any>("")
-  const [secret, setSecret] = useState<string>("")
+  const [confirmationToken, setConfirmationToken] = useState<any>('')
+  const [secret, setSecret] = useState<string>('')
   const [stripeSecret, setStripeSecret] = useState<string>('')
   const [stripePublishkey, setStripePublishKey] = useState<string>('')
-
 
   const handleSetConfirmationToken = (token: string | undefined) => {
     setConfirmationToken(token)
@@ -103,16 +103,15 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
       const response = await fetch('/api/payment/intent', {
         method: 'DELETE',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ email }),
-      });
-      const data = await response.json();
-      return data;
-    }
-    catch (error) {
+        body: JSON.stringify({ email })
+      })
+      const data = await response.json()
+      return data
+    } catch (error) {
       console.error('Error deleting customer:', error)
-      throw new Error('Failed to delete customer. Please try again.');
+      throw new Error('Failed to delete customer. Please try again.')
     }
   }
 
@@ -122,7 +121,6 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
   const handleSetStripePublishKey = (stripePublishkey: string) => {
     setStripePublishKey(stripePublishkey)
   }
-
 
   return (
     <PaymentContext.Provider
@@ -147,7 +145,7 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
         handleDeleteCustomer,
         handleSetStripeSecret,
         handleSetStripePublishKey,
-        handleSetConfirmationToken,
+        handleSetConfirmationToken
       }}
     >
       {children}
