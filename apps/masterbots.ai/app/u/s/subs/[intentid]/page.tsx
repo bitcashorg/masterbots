@@ -1,5 +1,5 @@
-import BrowseUserDetails from '@/components/browse-user-details'
-import { Receipt } from '@/components/receipt'
+import BrowseUserDetails from '@/components/routes/browse/browse-user-details'
+import { Receipt } from '@/components/routes/subscription/receipt'
 import { isTokenExpired } from 'mb-lib'
 import { redirect } from 'next/navigation'
 
@@ -8,7 +8,7 @@ import { getBrowseThreads } from '@/services/hasura'
 import { User } from 'mb-genql'
 import { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
-import {authOptions} from '@/auth';
+import { authOptions } from '@/auth'
 
 interface IndexPageProps {
   params: {

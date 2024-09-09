@@ -1,6 +1,6 @@
 import { getBrowseThreads, getUserInfoFromBrowse } from '@/services/hasura'
-import BrowseUserDetails from '@/components/browse-user-details'
-import BrowseSpecificThreadList from '@/components/browse-specific-thread-list'
+import BrowseUserDetails from '@/components/routes/browse/browse-user-details'
+import BrowseSpecificThreadList from '@/components/routes/browse/browse-specific-thread-list'
 import { Metadata } from 'next'
 import { generateMetadataFromSEO } from '@/lib/metadata'
 

@@ -1,8 +1,8 @@
 import { streamText } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
-import { AiClientType, JSONResponseStream } from '@/lib/types';
+import { AiClientType, JSONResponseStream } from '@/types/types';
 import { ChatCompletionMessageParam } from 'openai/resources';
-import { convertToCoreMessages, setStreamerPayload } from '@/lib/ai-helpers';
+import { convertToCoreMessages, setStreamerPayload } from '@/lib/helpers/ai-helpers';
 import { createAnthropic } from '@ai-sdk/anthropic';
 
 const openai = createOpenAI({

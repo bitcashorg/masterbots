@@ -2,7 +2,7 @@
 
 import { AIModels } from '@/app/api/chat/models/models'
 import * as React from 'react'
-import { getModelClientType } from '@/lib/ai-helpers'
+import { getModelClientType } from '@/lib/helpers/ai-helpers'
 
 interface ModelContextProps {
   selectedModel: AIModels

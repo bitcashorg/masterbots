@@ -1,6 +1,6 @@
-import BrowseList from '@/components/browse-list'
-import { BrowseCategoryTabs } from '@/components/browse-category-tabs'
-import { BrowseSearchInput } from '@/components/browse-search-input'
+import BrowseList from '@/components/routes/browse/browse-list'
+import { BrowseCategoryTabs } from '@/components/routes/browse/browse-category-tabs'
+import { BrowseSearchInput } from '@/components/routes/browse/browse-search-input'
 import { getCategories } from '@/services/hasura'
 import { toSlug } from 'mb-lib'
 import { Metadata } from 'next'
@@ -14,7 +14,7 @@ export default async function BrowseCategoryPage({
   const categories = await getCategories()
 
   return (
-    <div className="max-w-screen-lg pb-10 mx-auto w-full">
+    <div className="w-full max-w-screen-lg pb-10 mx-auto">
       <BrowseCategoryTabs
         initialCategory={params.category}
         categories={categories}
