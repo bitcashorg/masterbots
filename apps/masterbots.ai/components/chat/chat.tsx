@@ -53,8 +53,6 @@ export function Chat({
 
   const { messages, append, reload, stop, isLoading, input, setInput } =
     useChat({
-      // we remove previous assistant responses to get better responses thru
-      // our prompting strategy
       initialMessages:
         params.threadId || isNewChat
           ? initialMessages?.filter(m => m.role === 'system')
@@ -70,8 +68,8 @@ export function Chat({
           toast.error(response.statusText)
         }
       },
-      async onFinish(message: Message) {
-        await saveNewMessage({
+      onFinish(message) {
+        saveNewMessage({
           role: 'assistant',
           threadId:
             params.threadId || isNewChat ? threadId : activeThread?.threadId,

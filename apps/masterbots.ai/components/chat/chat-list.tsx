@@ -44,9 +44,9 @@ export function ChatList({
       ) as MessagePair[]
       setPairs(prePairs)
     } else setPairs([])
-  }, [messages, allMessages])
+  }, [messages])
 
-  if (!messages.length && allMessages) return null
+  if (!messages.length) return null
   return (
     <div
       className={`relative max-w-3xl px-4 mx-auto ${className || ''} ${isThread ? 'flex flex-col gap-3' : ''}`}
