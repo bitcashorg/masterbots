@@ -570,7 +570,9 @@ export async function UpdateThreadVisibility({
       __args: {
         pkColumns: { threadId },
         _set: { isPublic }
-      }
+      },
+      threadId: true,
+      isPublic: true
     }
   })
 }
