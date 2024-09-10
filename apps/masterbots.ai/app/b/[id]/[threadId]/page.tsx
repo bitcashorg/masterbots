@@ -1,5 +1,5 @@
 import { getThread } from '@/services/hasura'
-import { BrowseThread } from '@/components/browse-thread'
+import { BrowseThread } from '@/components/routes/browse/browse-thread'
 import { ChatPageProps } from '@/app/c/[category]/[chatbot]/page'
 
 export { generateMbMetadata as generateMetadata } from '@/lib/metadata'

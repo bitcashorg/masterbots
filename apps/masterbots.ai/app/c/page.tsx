@@ -1,5 +1,5 @@
-import ChatThreadListPanel from '@/components/chat/chat-thread-list-panel'
-import ThreadPanel from '@/components/thread-panel'
+import ChatThreadListPanel from '@/components/routes/chat/chat-thread-list-panel'
+import ThreadPanel from '@/components/routes/thread/thread-panel'
 import { generateMetadataFromSEO } from '@/lib/metadata'
 import { getThreads } from '@/services/hasura'
 import { isTokenExpired } from 'mb-lib'

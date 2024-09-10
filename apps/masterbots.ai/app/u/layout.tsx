@@ -1,4 +1,4 @@
-import FooterCT from '@/components/footer-ct';
+import FooterCT from '@/components/layout/footer/footer-ct';
 import { BrowseProvider } from '@/lib/hooks/use-browse';
 import NextTopLoader from 'nextjs-toploader';
 

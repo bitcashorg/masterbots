@@ -1,5 +1,5 @@
-import { ChatChatbot } from '@/components/chat/chat-chatbot'
-import ThreadPanel from '@/components/thread-panel'
+import { ChatChatbot } from '@/components/routes/chat/chat-chatbot'
+import ThreadPanel from '@/components/routes/thread/thread-panel'
 import { formatSystemPrompts } from '@/lib/actions'
 import { botNames } from '@/lib/bots-names'
 import { generateMetadataFromSEO } from '@/lib/metadata'
@@ -10,7 +10,7 @@ import { nanoid } from 'nanoid'
 import { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
-import {authOptions} from '@/auth';
+import { authOptions } from '@/auth'
 
 export default async function BotThreadsPage({
   params,

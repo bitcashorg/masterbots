@@ -3,7 +3,7 @@ import {
   Subscription,
   Card,
   initialStateSubscription
-} from '@/lib/types'
+} from '@/types/types'
 
 export async function checkIfCustomerHasActiveSub(email: string) {
   const response = await fetch('/api/payment/subscription', {

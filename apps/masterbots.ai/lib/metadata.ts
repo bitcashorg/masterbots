@@ -1,6 +1,6 @@
 import { getThread } from '@/services/hasura'
 import type { Metadata } from 'next'
-import { getThreadLink } from './threads'
+import { getThreadLink } from '@/lib/threads'
 import { headers } from 'next/headers'
 import { Thread } from 'mb-genql'
 
