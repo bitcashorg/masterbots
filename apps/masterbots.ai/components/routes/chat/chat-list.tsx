@@ -34,19 +34,36 @@ export function ChatList({
   chatArrowClass
 }: ChatList) {
   const [pairs, setPairs] = React.useState<MessagePair[]>([])
-  const { isNewResponse, isLoadingMessages, allMessages, sendMessageFromResponse } = useThread()
+  const {
+    isNewResponse,
+    isLoadingMessages,
+    allMessages,
+    sendMessageFromResponse
+  } = useThread()
 
   React.useEffect(() => {
     const messageList = messages.length > 0 ? messages : allMessages
+    // *Prevent unnecessary updates: only set pairs if the new message list is different
     if (messageList.length) {
       const prePairs: MessagePair[] = createMessagePairs(
         messageList
       ) as MessagePair[]
-      setPairs(prePairs)
-    } else setPairs([])
-  }, [messages])
+      // * Compare the current pairs with the new ones to avoid unnecessary updates
+      setPairs(prevPairs => {
+        const prevString = JSON.stringify(prevPairs)
+        const newString = JSON.stringify(prePairs)
+        if (prevString !== newString) {
+          return prePairs
+        }
+        return prevPairs
+      })
+    } else {
+      setPairs([])
+    }
+  }, [messages, allMessages])
 
-  if (!messages.length) return null
+  if (messages.length === 0 && allMessages.length === 0) return null
+
   return (
     <div
       className={`relative max-w-3xl px-4 mx-auto ${className || ''} ${isThread ? 'flex flex-col gap-3' : ''}`}
@@ -72,7 +89,9 @@ export function ChatList({
                 actionRequired={false}
                 chatbot={chatbot}
                 message={pair.userMessage}
-                sendMessageFromResponse={sendMessageFn ? sendMessageFn : sendMessageFromResponse}
+                sendMessageFromResponse={
+                  sendMessageFn ? sendMessageFn : sendMessageFromResponse
+                }
               />
             )}
 
@@ -96,7 +115,7 @@ export function ChatList({
               className={cn(
                 'mx-4 md:mx-[46px] px-1 py-4 border-transparent dark:border-x-mirage border-x-gray-300 border',
                 { '!border-[transparent]': !isThread && key === 0 },
-                chatContentClass,
+                chatContentClass
               )}
             >
               {/* TODO: place a better loader */}
@@ -109,14 +128,16 @@ export function ChatList({
               )}
               {pair.chatGptMessage.length > 0
                 ? pair.chatGptMessage.map((message, index) => (
-                  <ChatMessage
-                    actionRequired={false}
-                    key={index}
-                    chatbot={chatbot}
-                    message={message}
-                    sendMessageFromResponse={sendMessageFn ? sendMessageFn : sendMessageFromResponse}
-                  />
-                ))
+                    <ChatMessage
+                      actionRequired={false}
+                      key={index}
+                      chatbot={chatbot}
+                      message={message}
+                      sendMessageFromResponse={
+                        sendMessageFn ? sendMessageFn : sendMessageFromResponse
+                      }
+                    />
+                  ))
                 : ''}
             </div>
           </ChatAccordion>
