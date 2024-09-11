@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import {FilterInput} from '@/components/shared/filter-input';
+import { FilterInput } from '@/components/layout/sidebar/sidebar-filter-input'
 
 export function SidebarHeader() {
 
