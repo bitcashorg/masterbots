@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
-import { IconFilter, IconX } from '@/components/ui/icons'
+import { IconFilter, IconClose } from '@/components/ui/icons'
 
 interface SidebarHeaderProps extends React.ComponentProps<'div'> {}
 
@@ -15,8 +15,9 @@ export function SidebarHeader({ className, ...props }: SidebarHeaderProps) {
     setFilterValue,
     isFilterMode,
     setIsFilterMode,
-    selectedChats,
-    setSelectedChats
+    selectedCategories,
+    selectedChatbots,
+    selectedChats
   } = useSidebar()
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,15 +26,13 @@ export function SidebarHeader({ className, ...props }: SidebarHeaderProps) {
 
   const handleFilterModeToggle = () => {
     setIsFilterMode(prev => !prev)
-    if (isFilterMode) {
-      // Clear selections when exiting filter mode
-      setSelectedChats([])
-    }
   }
 
   const handleClearFilter = () => {
     setFilterValue('')
   }
+
+  const totalSelectedItems = selectedCategories.length + selectedChatbots.length + selectedChats.length
 
   return (
     <div
@@ -44,7 +43,7 @@ export function SidebarHeader({ className, ...props }: SidebarHeaderProps) {
         <div className="relative flex-grow">
           <Input
             type="text"
-            placeholder="Filter chats..."
+            placeholder="Filter items..."
             value={filterValue}
             onChange={handleFilterChange}
             className="pr-8"
@@ -52,10 +51,10 @@ export function SidebarHeader({ className, ...props }: SidebarHeaderProps) {
           {filterValue && (
             <button
               onClick={handleClearFilter}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="absolute -translate-y-1/2 right-2 top-1/2 text-muted-foreground hover:text-foreground"
               aria-label="Clear filter"
             >
-              <IconX className="h-4 w-4" />
+              <IconClose className="w-4 h-4" />
             </button>
           )}
         </div>
@@ -65,13 +64,13 @@ export function SidebarHeader({ className, ...props }: SidebarHeaderProps) {
           size="sm"
           className="whitespace-nowrap"
         >
-          <IconFilter className="mr-2 h-4 w-4" />
+          <IconFilter className="w-4 h-4 mr-2" />
           {isFilterMode ? 'Exit Filter' : 'Enter Filter'}
         </Button>
       </div>
-      {isFilterMode && selectedChats.length > 0 && (
+      {isFilterMode && totalSelectedItems > 0 && (
         <div className="text-sm text-muted-foreground">
-          {selectedChats.length} chat{selectedChats.length !== 1 ? 's' : ''} selected
+          {totalSelectedItems} item{totalSelectedItems !== 1 ? 's' : ''} selected
         </div>
       )}
     </div>

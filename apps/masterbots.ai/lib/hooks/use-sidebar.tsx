@@ -27,7 +27,9 @@ interface SidebarContext {
   setSelectedChats: React.Dispatch<React.SetStateAction<string[]>>
 }
 
-const SidebarContext = React.createContext<SidebarContext | undefined>(undefined)
+const SidebarContext = React.createContext<SidebarContext | undefined>(
+  undefined
+)
 
 export function useSidebar() {
   const context = React.useContext(SidebarContext)
@@ -46,10 +48,14 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
   const [isLoading, setLoading] = React.useState(true)
   const [activeChatbot, setActiveChatbot] = React.useState<Chatbot | null>(null)
   const [tab, setTab] = React.useState<'general' | 'work'>('general')
-  const [activeCategory, setActiveCategory] = React.useState<number | null>(null)
+  const [activeCategory, setActiveCategory] = React.useState<number | null>(
+    null
+  )
   const [isFilterMode, setIsFilterMode] = React.useState(false)
   const [filterValue, setFilterValue] = React.useState('')
-  const [selectedCategories, setSelectedCategories] = React.useState<number[]>([])
+  const [selectedCategories, setSelectedCategories] = React.useState<number[]>(
+    []
+  )
   const [selectedChatbots, setSelectedChatbots] = React.useState<string[]>([])
   const [selectedChats, setSelectedChats] = React.useState<string[]>([])
 
