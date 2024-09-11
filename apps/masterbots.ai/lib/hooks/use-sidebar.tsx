@@ -15,11 +15,19 @@ interface SidebarContext {
   activeChatbot: Chatbot | null
   setActiveCategory: React.Dispatch<React.SetStateAction<number | null>>
   setActiveChatbot: React.Dispatch<React.SetStateAction<Chatbot | null>>
+  isFilterMode: boolean
+  setIsFilterMode: React.Dispatch<React.SetStateAction<boolean>>
+  filterValue: string
+  setFilterValue: React.Dispatch<React.SetStateAction<string>>
+  selectedCategories: number[]
+  setSelectedCategories: React.Dispatch<React.SetStateAction<number[]>>
+  selectedChatbots: string[]
+  setSelectedChatbots: React.Dispatch<React.SetStateAction<string[]>>
+  selectedChats: string[]
+  setSelectedChats: React.Dispatch<React.SetStateAction<string[]>>
 }
 
-const SidebarContext = React.createContext<SidebarContext | undefined>(
-  undefined
-)
+const SidebarContext = React.createContext<SidebarContext | undefined>(undefined)
 
 export function useSidebar() {
   const context = React.useContext(SidebarContext)
@@ -38,9 +46,12 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
   const [isLoading, setLoading] = React.useState(true)
   const [activeChatbot, setActiveChatbot] = React.useState<Chatbot | null>(null)
   const [tab, setTab] = React.useState<'general' | 'work'>('general')
-  const [activeCategory, setActiveCategory] = React.useState<number | null>(
-    null
-  )
+  const [activeCategory, setActiveCategory] = React.useState<number | null>(null)
+  const [isFilterMode, setIsFilterMode] = React.useState(false)
+  const [filterValue, setFilterValue] = React.useState('')
+  const [selectedCategories, setSelectedCategories] = React.useState<number[]>([])
+  const [selectedChatbots, setSelectedChatbots] = React.useState<string[]>([])
+  const [selectedChats, setSelectedChats] = React.useState<string[]>([])
 
   React.useEffect(() => {
     const value = localStorage.getItem(LOCAL_STORAGE_KEY)
@@ -77,7 +88,17 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
         activeCategory,
         setActiveCategory,
         activeChatbot,
-        setActiveChatbot
+        setActiveChatbot,
+        isFilterMode,
+        setIsFilterMode,
+        filterValue,
+        setFilterValue,
+        selectedCategories,
+        setSelectedCategories,
+        selectedChatbots,
+        setSelectedChatbots,
+        selectedChats,
+        setSelectedChats
       }}
     >
       {children}
