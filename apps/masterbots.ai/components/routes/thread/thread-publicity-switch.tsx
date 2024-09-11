@@ -14,11 +14,11 @@ export  function ThreadPublicitySwitch({ threadId }: { threadId: string }) {
     >
       <Switch.Thumb
       title={isPublic ? 'Make public' : 'Make Private'}
-       className={cn('w-[30px] h-[30px] bg-gray-100 dark:bg-gray-800 rounded-full transform transition-transform duration-100 ease-in-out', isPublic ? 'translate-x-[24px]' : '')}
+       className={cn('w-[28px] h-[28px] pr-4 bg-gray-100 dark:bg-gray-800 rounded-full transform transition-transform duration-100 ease-in-out', isPublic ? 'translate-x-[24px]' : '')}
       />
       <div className="absolute left-0 right-0 flex justify-between items-center w-full h-full px-[4px]">
-        <Eye className={cn('w-[18px] h-[18px] transition-opacity duration-300', isPublic ? 'text-gray-400' : 'text-gray-200')} />
-        <EyeOff className={cn('w-[18px] h-[18px]  transition-opacity duration-300', !isPublic ? 'text-gray-400' : 'text-gray-200')} />
+        <Eye className={cn('w-[15px] h-[15px] transition-opacity duration-300', isPublic ? 'text-gray-400' : 'text-gray-200')} />
+        <EyeOff className={cn('w-[15px] h-[15px]  transition-opacity duration-300', !isPublic ? 'text-gray-400' : 'text-gray-200')} />
       </div>
     </Switch.Root>
   );
