@@ -19,11 +19,16 @@ export function Sidebar({ className }: React.ComponentProps<'div'>) {
       <SidebarToggle />
       <aside
         data-state={isSidebarOpen ? 'open' : 'closed'}
-        className={cn(className, 'h-full flex flex-col dark:bg-zinc-950 z-[5000]')}
+        className={cn(
+          className,
+          'h-full flex flex-col dark:bg-zinc-950 z-[5000]'
+        )}
       >
-        <SidebarHeader />
-        <div className="flex-grow overflow-y-auto scrollbar">
-          <SidebarCategoryGeneral />
+        <div className="overflow-y-auto scrollbar h-[calc(100%-113px)]">
+          <SidebarHeader />
+          <div className="flex-grow p-4 overflow-y-auto scrollbar">
+            <SidebarCategoryGeneral />
+          </div>
         </div>
         <SidebarFooter>
           <FooterCT />

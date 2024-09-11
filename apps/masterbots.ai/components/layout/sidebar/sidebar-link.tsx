@@ -7,29 +7,44 @@ import { Category, Chatbot } from 'mb-genql'
 import Image from 'next/image'
 import Link from 'next/link'
 import { IconCaretRight } from '@/components/ui/icons'
+import { Checkbox } from "@/components/ui/checkbox"
 import { toSlug } from 'mb-lib'
 
 interface SidebarLinkProps {
   category: Category
+  isFilterMode: boolean
 }
 
-export default function SidebarLink({ category }: SidebarLinkProps) {
+export default function SidebarLink({ category, isFilterMode }: SidebarLinkProps) {
   const {
     activeCategory,
     setActiveCategory,
     activeChatbot,
     setActiveChatbot,
-    isFilterMode,
+    selectedCategories,
+    setSelectedCategories,
   } = useSidebar()
 
   const [isExpanded, setIsExpanded] = useState(false)
 
-  const handleClickCategory = useCallback(() => {
-    setIsExpanded(prev => !prev)
-    setActiveCategory(prev => prev === category.categoryId ? null : category.categoryId)
-  }, [category.categoryId, setActiveCategory])
+  const handleClickCategory = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (!isFilterMode) {
+      setIsExpanded(prev => !prev)
+      setActiveCategory(prev => prev === category.categoryId ? null : category.categoryId)
+    }
+  }, [category.categoryId, setActiveCategory, isFilterMode])
+
+  const handleCheckboxChange = useCallback((checked: boolean) => {
+    setSelectedCategories(prev => 
+      checked
+        ? [...prev, category.categoryId]
+        : prev.filter(id => id !== category.categoryId)
+    )
+  }, [category.categoryId, setSelectedCategories])
 
   const isActive = activeCategory === category.categoryId
+  const isSelected = selectedCategories.includes(category.categoryId)
 
   return (
     <div className={cn('flex flex-col mb-2')}>
@@ -40,11 +55,19 @@ export default function SidebarLink({ category }: SidebarLinkProps) {
         )}
         onClick={handleClickCategory}
       >
+        {isFilterMode && (
+          <Checkbox
+            checked={isSelected}
+            onCheckedChange={handleCheckboxChange}
+            onClick={(e) => e.stopPropagation()}
+            className="mr-2"
+          />
+        )}
         <span className="flex-grow">{category.name}</span>
         <IconCaretRight
           className={cn(
-            'transition-transform duration-300',
-            isExpanded && 'rotate-90'
+            'transition-transform duration-300  stroke-[#09090b] dark:stroke-[#FAFAFA]',
+            isExpanded || isFilterMode && 'rotate-90'
           )}
         />
       </div>
@@ -57,6 +80,7 @@ export default function SidebarLink({ category }: SidebarLinkProps) {
               category={category}
               isActive={chatbotCategory.chatbot.chatbotId === activeChatbot?.chatbotId}
               setActiveChatbot={setActiveChatbot}
+              isFilterMode={isFilterMode}
             />
           ))}
         </div>
@@ -70,21 +94,25 @@ interface ChatbotComponentProps {
   category: Category
   isActive: boolean
   setActiveChatbot: React.Dispatch<React.SetStateAction<Chatbot | null>>
+  isFilterMode: boolean
 }
 
 const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function ChatbotComponent({
   chatbot,
   category,
   isActive,
-  setActiveChatbot
+  setActiveChatbot,
+  isFilterMode
 }) {
   const handleChatbotClick = useCallback(() => {
-    setActiveChatbot(chatbot)
-  }, [chatbot, setActiveChatbot])
+    if (!isFilterMode) {
+      setActiveChatbot(chatbot)
+    }
+  }, [chatbot, setActiveChatbot, isFilterMode])
 
   return (
     <Link
-      href={`/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`}
+      href={isFilterMode ? '#' : `/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`}
       className={cn(
         'flex items-center p-2 w-full',
         isActive && 'bg-blue-100 dark:bg-blue-900',

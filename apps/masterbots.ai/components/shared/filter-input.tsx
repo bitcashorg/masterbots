@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { IconSearch, IconFilter, IconX } from '@/components/ui/icons'
+import { IconChatSearch, IconFilter, IconClose } from '@/components/ui/icons'
 import { cn } from '@/lib/utils'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 
@@ -36,20 +36,20 @@ export function FilterInput({ className }: FilterInputProps) {
       <div className="relative flex-1">
         <Input
           type="text"
-          placeholder="Filter bots..."
+          placeholder="Search..."
           value={filterValue}
           onChange={handleInputChange}
           className="pr-12"
           aria-label="Filter bots"
         />
-        <IconSearch className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <IconChatSearch className="absolute -translate-y-1/2 right-2 top-1/2 text-muted-foreground" />
         {filterValue && (
           <button
             onClick={handleClearFilter}
-            className="absolute right-8 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300"
+            className="absolute -translate-y-1/2 right-8 top-1/2 text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300"
             aria-label="Clear filter"
           >
-            <IconX className="h-4 w-4" />
+            <IconClose className="w-4 h-4" />
           </button>
         )}
       </div>
@@ -59,7 +59,7 @@ export function FilterInput({ className }: FilterInputProps) {
         onClick={handleFilterModeToggle}
         aria-label="Toggle filter mode"
       >
-        <IconFilter className={cn('h-4 w-4', isFilterMode && 'text-white')} />
+        <IconFilter className={cn('size-4', isFilterMode && 'text-white')} />
       </Button>
     </div>
   )

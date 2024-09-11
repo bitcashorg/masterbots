@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { getCategories } from '@/services/hasura'
 import SidebarLink from '@/components/layout/sidebar/sidebar-link'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
@@ -9,7 +9,7 @@ import { Category } from 'mb-genql'
 export function SidebarCategoryGeneral() {
   const [categories, setCategories] = useState<Category[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const { filterValue } = useSidebar()
+  const { filterValue, isFilterMode } = useSidebar()
 
   useEffect(() => {
     async function fetchCategories() {
@@ -25,7 +25,7 @@ export function SidebarCategoryGeneral() {
     fetchCategories()
   }, [])
 
-  const filteredCategories = React.useMemo(() => 
+  const filteredCategories = useMemo(() => 
     categories.filter(category =>
       category.name.toLowerCase().includes(filterValue.toLowerCase()) ||
       category.chatbots.some(chatbot => 
@@ -42,7 +42,7 @@ export function SidebarCategoryGeneral() {
     <ul className="space-y-2">
       {filteredCategories.map((category) => (
         <li key={category.categoryId}>
-          <SidebarLink category={category} />
+          <SidebarLink category={category} isFilterMode={isFilterMode} />
         </li>
       ))}
     </ul>
