@@ -17,7 +17,6 @@ export default function ThreadList({
   pageSize: number
   loadMore: () => void
 }) {
-  console.log('threads', threads)
   return (
     <ul className="flex flex-col w-full gap-3">
       {threads.map((thread, key) => (

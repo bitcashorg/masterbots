@@ -11,7 +11,8 @@ export  function CustomSwitch({ threadId }: { threadId: string }) {
 
   const handleSwitchChange = async (checked: boolean) => {
     setIsChecked(checked);
-    await UpdateThreadVisibility({ isPublic: checked, threadId, jwt });
+    console.log({ checked })
+    await UpdateThreadVisibility({ isPublic: !checked, threadId, jwt });
   };
 
   return (
