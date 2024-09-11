@@ -558,21 +558,26 @@ export async function getUsers() {
 export async function UpdateThreadVisibility({
   threadId,
   isPublic,
-  jwt
+  jwt,
 }: {
-  threadId: string
-  isPublic: boolean
-  jwt: string | undefined
-}) {
-  const client = getHasuraClient({ jwt })
-  await client.mutation({
-    updateThreadByPk: {
-      __args: {
-        pkColumns: { threadId },
-        _set: { isPublic }
-      },
-      threadId: true,
-      isPublic: true
-    }
-  })
+  threadId: string;
+  isPublic: boolean;
+  jwt: string | undefined;
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    const client = getHasuraClient({ jwt })
+    await client.mutation({
+      updateThreadByPk: {
+        __args: {
+          pkColumns: { threadId },
+          _set: { isPublic }
+        },
+        threadId: true,
+        isPublic: true
+      }
+    })
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: (error as Error).message };
+  }
 }

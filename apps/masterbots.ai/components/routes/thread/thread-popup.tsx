@@ -8,7 +8,7 @@ import { ChatList } from '@/components/routes/chat/chat-list'
 import { useEffect, useRef } from 'react'
 import { useAtBottom } from '@/lib/hooks/use-at-bottom'
 import { useScroll } from 'framer-motion'
-import { CustomSwitch } from "@/components/ui/custom-switch"
+import { ThreadPublicitySwitch } from "./thread-publicity-switch"
 
 export function ThreadPopup({ className }: { className?: string }) {
   const {
@@ -90,7 +90,7 @@ export function ThreadPopup({ className }: { className?: string }) {
     </div>
 
     <div className="flex items-center">
-      <CustomSwitch threadId={activeThread?.threadId} />
+      <ThreadPublicitySwitch threadId={activeThread?.threadId} />
       <button
         type="button"
         className="ml-2"
