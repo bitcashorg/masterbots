@@ -10,7 +10,8 @@ export function createMbClient({ config, jwt, env, adminSecret, debug }: GraphQL
   const { subscribe } = createWsClient({
     url: endpoints[env || 'prod'].replace('http', 'ws'),
   })
-
+   console.log('endpoints[env || prod]', endpoints[env || 'prod'])
+   console.log('.nev', env)
   const client = createClient({
     fetcher: async (operation: any) => {
       const headers = {
