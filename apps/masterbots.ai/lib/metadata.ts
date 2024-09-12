@@ -1,8 +1,8 @@
-import { getThread } from '@/services/hasura'
-import type { Metadata } from 'next'
 import { getThreadLink } from '@/lib/threads'
-import { headers } from 'next/headers'
+import { getThread } from '@/services/hasura'
 import { Thread } from 'mb-genql'
+import type { Metadata } from 'next'
+import { headers } from 'next/headers'
 
 type OgType =
   | 'website'
@@ -17,14 +17,12 @@ type OgType =
   | 'video.episode'
   | 'video.tv_show'
   | 'video.other'
-  | undefined
 
 type TwitterCard =
   | 'summary'
   | 'summary_large_image'
   | 'player'
   | 'app'
-  | undefined
 
 interface PageSEO {
   title: string

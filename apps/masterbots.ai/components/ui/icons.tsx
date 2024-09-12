@@ -656,8 +656,19 @@ function IconChevronAngleRight({
   ...props
 }: React.ComponentProps<'svg'>) {
   return (
-    <svg className={cn('h-4 w-4', className)} viewBox="0 0 8 15" {...props} aria-label="Chevron Angle Right">
-      <path d="M5.14279 14.5372L11.2355 8.44446L5.14279 2.35176" stroke="#FAFAFA" strokeWidth="1.52318" strokeLinecap="round" strokeLinejoin="round" />
+    <svg
+      className={cn('h-4 w-4', className)}
+      viewBox="0 0 8 15"
+      {...props}
+      aria-label="Chevron Angle Right"
+    >
+      <path
+        d="M5.14279 14.5372L11.2355 8.44446L5.14279 2.35176"
+        stroke="#FAFAFA"
+        strokeWidth="1.52318"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   )
 }
@@ -712,7 +723,6 @@ function IconHelp({ className, ...props }: React.ComponentProps<'svg'>) {
           />
         </clipPath>
       </defs>
-
     </svg>
   )
 }
@@ -727,7 +737,6 @@ function IconCreditCard({ className, ...props }: React.ComponentProps<'svg'>) {
       {...props}
       aria-label="Credit Card"
     >
-
       <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
       <g
         id="SVGRepo_tracerCarrier"
@@ -752,34 +761,86 @@ function IconCreditCard({ className, ...props }: React.ComponentProps<'svg'>) {
   )
 }
 
-
-
-  function IconArrowRightNoFill({ className, ...props }: React.ComponentProps<'svg'>) {
-    return (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        className={cn('h-4 w-4', className)}
-        viewBox="0 0 24 24"
-        {...props}
-        aria-label="Arrow"
-      >
-         <path
-         d="M1.14282 13.537L7.23552 7.44426L1.14282 1.35156"
-         stroke="#09090B"
-         stroke-width="1.52318"
-         stroke-linecap="round"
-         stroke-linejoin="round"
-       />
-      </svg>
-    )
-  }
-
-export {
-  IconArrowDown, 
-  IconArrowElbow, IconArrowRight, IconArrowRightNoFill, IconCaretRight, IconChatMessage, IconChatSearch, IconCheck, IconChevronAngleRight, IconChevronUpDown, IconClose, IconCopy, IconCreditCard, IconDownload, IconDownVote, IconEdit, IconExternalLink, IconGitHub, IconHelp, IconMessage, IconMoon, IconNextChat,
-  IconOpenAI, IconPlus, IconRefresh, IconSeparator, IconShare, IconSidebar, IconSpinner, IconStop, IconSun, IconTrash, IconUpVote, IconUser, IconUsers, IconVercel, IconClaude,
-  IconLlama,
-  IconWordware
+function IconArrowRightNoFill({
+  className,
+  ...props
+}: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      className={cn('h-4 w-4', className)}
+      viewBox="0 0 24 24"
+      {...props}
+      aria-label="Arrow"
+    >
+      <path
+        d="M1.14282 13.537L7.23552 7.44426L1.14282 1.35156"
+        stroke="#09090B"
+        stroke-width="1.52318"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  )
 }
 
+function IconFilter({ className, ...props }: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      className={cn('h-4 w-4', className)}
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path
+        d="M9.58954 9.09588L3.93725 3.86703C3.60333 3.55813 3.8219 3 4.27679 3H19.7232C20.1781 3 20.3967 3.55813 20.0628 3.86703L14.4105 9.09588C14.3082 9.19052 14.25 9.32356 14.25 9.46292V20.451C14.25 20.9363 13.6281 21.1371 13.3444 20.7433L9.84436 15.8866C9.78301 15.8015 9.75 15.6992 9.75 15.5943V9.46292C9.75 9.32356 9.69184 9.19052 9.58954 9.09588Z"
+        stroke="grey"
+      />
+    </svg>
+  )
+}
+
+export {
+  IconArrowDown,
+  IconArrowElbow,
+  IconArrowRight,
+  IconArrowRightNoFill,
+  IconCaretRight,
+  IconChatMessage,
+  IconChatSearch,
+  IconCheck,
+  IconChevronAngleRight,
+  IconChevronUpDown,
+  IconClose,
+  IconCopy,
+  IconCreditCard,
+  IconDownload,
+  IconDownVote,
+  IconEdit,
+  IconExternalLink,
+  IconGitHub,
+  IconHelp,
+  IconMessage,
+  IconMoon,
+  IconNextChat,
+  IconOpenAI,
+  IconPlus,
+  IconRefresh,
+  IconSeparator,
+  IconShare,
+  IconSidebar,
+  IconSpinner,
+  IconStop,
+  IconSun,
+  IconTrash,
+  IconUpVote,
+  IconUser,
+  IconUsers,
+  IconVercel,
+  IconClaude,
+  IconLlama,
+  IconWordware,
+  IconFilter
+}
