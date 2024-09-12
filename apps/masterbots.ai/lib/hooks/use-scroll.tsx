@@ -1,18 +1,28 @@
 import { useCallback, useEffect, useState, RefObject } from 'react'
 
-interface UseSmoothScrollOptions {
+interface UseScrollOptions {
   containerRef: RefObject<HTMLElement>
+  threadRef: RefObject<HTMLElement>
   isNewContent: boolean
+  hasMore: boolean
+  isLast: boolean
+  loading: boolean
+  loadMore: () => void
   rootMargin?: string
   threshold?: number
 }
 
 export function useScroll({
   containerRef,
+  threadRef,
   isNewContent,
+  hasMore,
+  isLast,
+  loading,
+  loadMore,
   rootMargin = '0px 0px 100px 0px',
   threshold = 0.1
-}: UseSmoothScrollOptions) {
+}: UseScrollOptions) {
   const [isNearBottom, setIsNearBottom] = useState(false)
 
   const smoothScrollToBottom = useCallback(() => {
@@ -21,13 +31,20 @@ export function useScroll({
       const height = containerRef.current.clientHeight
       const maxScrollTop = scrollHeight - height
 
-      //? Two-phase scroll
+      // ? Two-phase scroll
       containerRef.current.scrollTop = maxScrollTop - 1 // ? First scroll to near bottom
       requestAnimationFrame(() => {
         containerRef.current!.scrollTop = maxScrollTop // ? Then scroll to actual bottom
       })
     }
   }, [containerRef])
+
+  const scrollToTop = useCallback(async () => {
+    await new Promise(resolve => setTimeout(resolve, 300)) // animation time
+    if (threadRef.current) {
+      threadRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [threadRef])
 
   useEffect(() => {
     if (containerRef.current) {
@@ -60,5 +77,27 @@ export function useScroll({
     }
   }, [isNewContent, isNearBottom, smoothScrollToBottom])
 
-  return { isNearBottom, smoothScrollToBottom }
+  useEffect(() => {
+    if (!threadRef.current) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (hasMore && isLast && entry.isIntersecting && !loading) {
+          loadMore()
+        }
+      },
+      {
+        root: null,
+        rootMargin: '100px',
+        threshold: 0.1
+      }
+    )
+
+    observer.observe(threadRef.current)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [threadRef, isLast, hasMore, loading, loadMore])
+
+  return { isNearBottom, smoothScrollToBottom, scrollToTop }
 }

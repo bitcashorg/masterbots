@@ -53,7 +53,12 @@ export function ChatList({
 
   useScroll({
     containerRef: effectiveContainerRef,
-    isNewContent: isNewResponse
+    threadRef: effectiveContainerRef,
+    isNewContent: isNewResponse,
+    hasMore: false,
+    isLast: true,
+    loading: isLoadingMessages,
+    loadMore: () => {}
   })
 
   React.useEffect(() => {
@@ -135,7 +140,7 @@ export function ChatList({
               {/* TODO: place a better loader */}
               {isLoadingMessages ? (
                 <div className="flex items-center justify-center w-full h-12">
-                  <div className="transition-all w-6 h-6 border-2 border-t-[2px] rounded-full border-x-gray-300 animate-spin"></div>
+                  <div className="transition-all w-6 h-6 border-2 border-t-[2px] rounded-full border-x-gray-300 animate-spin" />
                 </div>
               ) : (
                 ''

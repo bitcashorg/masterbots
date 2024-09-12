@@ -2,11 +2,10 @@
 
 import { ChatAccordion } from '@/components/routes/chat/chat-accordion'
 import { ChatList } from '@/components/routes/chat/chat-list'
-import { sleep } from '@/lib/utils'
 import { Thread } from 'mb-genql'
 import { ShortMessage } from '@/components/shared/short-message'
 import { ChatbotAvatar } from '@/components/shared/chatbot-avatar'
-import React, { useEffect, useRef } from 'react'
+import React, { useRef } from 'react'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useScroll } from '@/lib/hooks/use-scroll'
 
@@ -27,38 +26,17 @@ export default function ThreadComponent({
   const contentRef = useRef<HTMLDivElement>(null)
   const { allMessages, isNewResponse } = useThread()
 
-  const { isNearBottom } = useScroll({
+  const { isNearBottom, scrollToTop } = useScroll({
     containerRef: contentRef,
-    isNewContent: isNewResponse
+    threadRef,
+    isNewContent: isNewResponse,
+    hasMore,
+    isLast,
+    loading,
+    loadMore
   })
 
-  useEffect(() => {
-    if (!threadRef.current) return
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (hasMore && isLast && entry.isIntersecting && !loading) {
-          loadMore()
-        }
-      },
-      {
-        root: null,
-        rootMargin: '100px',
-        threshold: 0.1
-      }
-    )
-
-    observer.observe(threadRef.current)
-
-    return () => {
-      observer.disconnect()
-    }
-  }, [threadRef, isLast, hasMore, loading, loadMore])
-
-  const scrollToTop = async () => {
-    await sleep(300) // animation time
-    if (!threadRef.current) return
-    threadRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
+  console.log('isNearBottom 🖐️', isNearBottom)
 
   return (
     <li ref={threadRef}>
