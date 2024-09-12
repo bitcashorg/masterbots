@@ -25,6 +25,7 @@ interface SidebarContext {
   setSelectedChatbots: React.Dispatch<React.SetStateAction<number[]>>
   selectedChats: string[]
   setSelectedChats: React.Dispatch<React.SetStateAction<string[]>>
+  toggleChatbotSelection: (chatbotId: number) => void
 }
 
 const SidebarContext = React.createContext<SidebarContext | undefined>(
@@ -77,6 +78,14 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
     })
   }
 
+  const toggleChatbotSelection = React.useCallback((chatbotId: number) => {
+    setSelectedChatbots(prev =>
+      prev.includes(chatbotId)
+        ? prev.filter(id => id !== chatbotId)
+        : [...prev, chatbotId]
+    )
+  }, [])
+
   const changeTab = (cate: 'general' | 'work') => {
     setTab(cate)
   }
@@ -106,7 +115,8 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
         selectedChatbots,
         setSelectedChatbots,
         selectedChats,
-        setSelectedChats
+        setSelectedChats,
+        toggleChatbotSelection,
       }}
     >
       {children}

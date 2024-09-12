@@ -25,7 +25,6 @@ export default function SidebarLink({ category, isFilterMode }: SidebarLinkProps
     selectedChatbots,
     setSelectedCategories,
   } = useSidebar()
-
   const [isExpanded, setIsExpanded] = useState(false)
 
   const handleClickCategory = useCallback((e: React.MouseEvent) => {
@@ -68,7 +67,7 @@ export default function SidebarLink({ category, isFilterMode }: SidebarLinkProps
         <IconCaretRight
           className={cn(
             'transition-transform duration-300  stroke-[#09090b] dark:stroke-[#FAFAFA]',
-            isExpanded || isFilterMode && 'rotate-90'
+            isExpanded || isFilterMode ? 'rotate-90' : 'rotate-0'
           )}
         />
       </div>
@@ -105,7 +104,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
   setActiveChatbot,
   isFilterMode
 }) {
-  const { selectedChatbots, setSelectedChatbots } = useSidebar()
+  const { selectedChatbots, toggleChatbotSelection } = useSidebar()
 
   const handleChatbotClick = useCallback((e: React.MouseEvent) => {
     if (isFilterMode) e.preventDefault()
@@ -114,13 +113,11 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
 
   const isSelected = selectedChatbots.includes(chatbot.chatbotId)
 
-  const handleCheckboxChange = useCallback((checked: boolean) => {
-    setSelectedChatbots(prev =>
-      checked
-        ? [...prev, chatbot.chatbotId]
-        : prev.filter(id => id !== chatbot.chatbotId)
-    )
+  const handleCheckboxChange = useCallback(() => {
+    toggleChatbotSelection(chatbot.chatbotId)
   }, [chatbot.chatbotId])
+
+  if (!isFilterMode && !isSelected) return null
 
   return isFilterMode ? (
     <div
