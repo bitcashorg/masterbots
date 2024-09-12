@@ -1,8 +1,10 @@
+'use client'
+
+import React, { useEffect, useRef, useCallback } from 'react'
 import { type Message } from 'ai'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn, createMessagePairs } from '@/lib/utils'
 import { Chatbot } from 'mb-genql'
-import React from 'react'
 import { ShortMessage } from '@/components/shared/short-message'
 import { ChatAccordion } from '@/components/routes/chat/chat-accordion'
 import { ChatMessage } from '@/components/routes/chat/chat-message'
@@ -16,6 +18,8 @@ export interface ChatList {
   chatContentClass?: string
   chatTitleClass?: string
   chatArrowClass?: string
+  containerRef?: React.RefObject<HTMLDivElement>
+  isNearBottom?: boolean
 }
 
 type MessagePair = {
@@ -31,7 +35,9 @@ export function ChatList({
   isThread = true,
   chatContentClass,
   chatTitleClass,
-  chatArrowClass
+  chatArrowClass,
+  containerRef,
+  isNearBottom
 }: ChatList) {
   const [pairs, setPairs] = React.useState<MessagePair[]>([])
   const {
@@ -40,15 +46,30 @@ export function ChatList({
     allMessages,
     sendMessageFromResponse
   } = useThread()
+  const localContainerRef = useRef<HTMLDivElement>(null)
 
-  React.useEffect(() => {
+  const effectiveContainerRef = containerRef || localContainerRef
+
+  const smoothScrollToBottom = useCallback(() => {
+    if (effectiveContainerRef.current) {
+      const scrollHeight = effectiveContainerRef.current.scrollHeight
+      const height = effectiveContainerRef.current.clientHeight
+      const maxScrollTop = scrollHeight - height
+
+      // ? Two-phase scroll
+      effectiveContainerRef.current.scrollTop = maxScrollTop - 1 // ? First scroll to near bottom
+      requestAnimationFrame(() => {
+        effectiveContainerRef.current!.scrollTop = maxScrollTop // ? Then scroll to actual bottom
+      })
+    }
+  }, [effectiveContainerRef])
+
+  useEffect(() => {
     const messageList = messages.length > 0 ? messages : allMessages
-    // *Prevent unnecessary updates: only set pairs if the new message list is different
     if (messageList.length) {
       const prePairs: MessagePair[] = createMessagePairs(
         messageList
       ) as MessagePair[]
-      // * Compare the current pairs with the new ones to avoid unnecessary updates
       setPairs(prevPairs => {
         const prevString = JSON.stringify(prevPairs)
         const newString = JSON.stringify(prePairs)
@@ -62,10 +83,17 @@ export function ChatList({
     }
   }, [messages, allMessages])
 
+  useEffect(() => {
+    if (isNewResponse && isNearBottom) {
+      smoothScrollToBottom()
+    }
+  }, [isNewResponse, isNearBottom, smoothScrollToBottom])
+
   if (messages.length === 0 && allMessages.length === 0) return null
 
   return (
     <div
+      ref={effectiveContainerRef}
       className={`relative max-w-3xl px-4 mx-auto ${className || ''} ${isThread ? 'flex flex-col gap-3' : ''}`}
     >
       {pairs.map((pair: MessagePair, key: number) => (
