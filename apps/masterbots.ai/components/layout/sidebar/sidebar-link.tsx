@@ -1,222 +1,168 @@
 'use client'
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import { Checkbox } from "@/components/ui/checkbox"
+import { IconCaretRight } from '@/components/ui/icons'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn } from '@/lib/utils'
-import { getChatbots } from '@/services/hasura'
-import { motion } from 'framer-motion'
-import { Category, Chatbot, ChatbotCategory } from 'mb-genql'
+import { Category, Chatbot } from 'mb-genql'
+import { toSlug } from 'mb-lib'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
-import { IconCaretRight } from '@/components/ui/icons'
-import { toSlug } from 'mb-lib'
-import { Checkbox } from '@/components/shared/checkbox'
+import React, { useCallback, useState } from 'react'
 
-const PAGE_SIZE = 20
-
-function convertChatbotCategory(chatbotCategory: ChatbotCategory[]): Chatbot[] {
-  return chatbotCategory.map(c => c.chatbot)
+interface SidebarLinkProps {
+  category: Category
+  isFilterMode: boolean
 }
 
-export default function SidebarLink({ category }: { category: Category }) {
-  const { chatbot } = useParams<{ chatbot: string }>()
+export default function SidebarLink({ category, isFilterMode }: SidebarLinkProps) {
   const {
     activeCategory,
     setActiveCategory,
     activeChatbot,
     setActiveChatbot,
-    isFilterMode,
-    filterValue,
     selectedCategories,
-    setSelectedCategories,
     selectedChatbots,
-    setSelectedChatbots
+    setSelectedCategories,
   } = useSidebar()
 
   const [isExpanded, setIsExpanded] = useState(false)
-  const [chatbots, setChatbots] = useState<Chatbot[]>(convertChatbotCategory(category.chatbots))
-  const [loading, setLoading] = useState<boolean>(false)
-  const [count, setCount] = useState<number>(category.chatbots.length)
 
-  const isCategorySelected = selectedCategories.includes(category.categoryId)
-
-  useEffect(() => {
-    const matchedChatbot = category.chatbots.find(c => c.chatbot.name.toLowerCase().trim() === chatbot?.trim())
-    if (matchedChatbot) {
-      setActiveChatbot(matchedChatbot.chatbot)
-      setActiveCategory(category.categoryId)
-    } else if (!chatbot) {
-      setActiveChatbot(null)
-    }
-  }, [category.categoryId, category.chatbots, chatbot, setActiveCategory, setActiveChatbot])
-
-  useEffect(() => {
-    return () => {
-      setActiveChatbot(null)
-      setActiveCategory(null)
-    }
-  }, [setActiveChatbot, setActiveCategory])
-
-  const handleClickCategory = useCallback(() => {
-    if (isFilterMode) {
-      setSelectedCategories(prev =>
-        prev.includes(category.categoryId)
-          ? prev.filter(id => id !== category.categoryId)
-          : [...prev, category.categoryId]
-      )
-    } else {
+  const handleClickCategory = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (!isFilterMode) {
       setIsExpanded(prev => !prev)
       setActiveCategory(prev => prev === category.categoryId ? null : category.categoryId)
     }
-  }, [isFilterMode, category.categoryId, setSelectedCategories, setActiveCategory])
+  }, [category.categoryId, setActiveCategory, isFilterMode])
 
-  const loadMore = useCallback(async () => {
-    setLoading(true)
-    try {
-      const moreChatbots = await getChatbots({
-        offset: chatbots.length,
-        limit: PAGE_SIZE
-      })
-      setChatbots(prevState => [...prevState, ...moreChatbots])
-      setCount(moreChatbots.length)
-    } catch (error) {
-      console.error('Error loading more chatbots:', error)
-    } finally {
-      setLoading(false)
-    }
-  }, [chatbots.length])
+  const handleCheckboxChange = useCallback((checked: boolean) => {
+    setSelectedCategories(prev =>
+      checked
+        ? [...prev, category.categoryId]
+        : prev.filter(id => id !== category.categoryId)
+    )
+  }, [category.categoryId, setSelectedCategories])
 
-  const filteredChatbots = useMemo(() => 
-    chatbots.filter(chatbot => 
-      chatbot.name.toLowerCase().includes(filterValue.toLowerCase())
-    ),
-    [chatbots, filterValue]
-  )
-
-  const visibleChatbots = useMemo(() => 
-    isFilterMode ? filteredChatbots : filteredChatbots.filter(chatbot => selectedChatbots.includes(chatbot.chatbotId)),
-    [isFilterMode, filteredChatbots, selectedChatbots]
-  )
-
-  if (!isFilterMode && !isCategorySelected) return null
-  if (visibleChatbots.length === 0 && !isFilterMode) return null
+  const isActive = activeCategory === category.categoryId
+  const isSelected = selectedCategories.includes(category.categoryId)
 
   return (
     <div className={cn('flex flex-col mb-2')}>
       <div
         className={cn(
           'flex items-center p-2 cursor-pointer',
-          isExpanded && 'bg-gray-200 dark:bg-mirage'
+          isActive && 'bg-gray-200 dark:bg-mirage'
         )}
         onClick={handleClickCategory}
       >
         {isFilterMode && (
           <Checkbox
-            checked={isCategorySelected}
-            onCheckedChange={() => {}}
-            className="mr-2"
+            checked={isSelected}
+            onCheckedChange={handleCheckboxChange}
             onClick={(e) => e.stopPropagation()}
+            className="mr-2"
           />
         )}
         <span className="flex-grow">{category.name}</span>
         <IconCaretRight
           className={cn(
-            'transition-transform duration-300',
-            isExpanded && 'rotate-90'
+            'transition-transform duration-300  stroke-[#09090b] dark:stroke-[#FAFAFA]',
+            isExpanded || isFilterMode && 'rotate-90'
           )}
         />
       </div>
-      <motion.div
-        initial={{ height: 0 }}
-        animate={{ height: isExpanded ? 'auto' : 0 }}
-        transition={{ duration: 0.3 }}
-        className="overflow-hidden ml-4"
-      >
-        {visibleChatbots.map((chatbot) => (
-          <ChatbotComponent
-            key={chatbot.chatbotId}
-            chatbot={chatbot}
-            category={category}
-            isFilterMode={isFilterMode}
-            isSelected={selectedChatbots.includes(chatbot.chatbotId)}
-            onSelect={() => {
-              setSelectedChatbots(prev =>
-                prev.includes(chatbot.chatbotId)
-                  ? prev.filter(id => id !== chatbot.chatbotId)
-                  : [...prev, chatbot.chatbotId]
-              )
-            }}
-            isActive={chatbot.chatbotId === activeChatbot?.chatbotId}
-          />
-        ))}
-        {!isFilterMode && count === PAGE_SIZE && (
-          <button
-            onClick={loadMore}
-            disabled={loading}
-            className="w-full p-2 text-sm text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
-          >
-            {loading ? 'Loading...' : 'Load more'}
-          </button>
-        )}
-      </motion.div>
+      {(isExpanded || isFilterMode) && (
+        <div className="ml-4">
+          {category.chatbots.map((chatbotCategory) => (
+            <ChatbotComponent
+              key={chatbotCategory.chatbot.chatbotId}
+              chatbot={chatbotCategory.chatbot}
+              category={category}
+              isActive={chatbotCategory.chatbot.chatbotId === activeChatbot?.chatbotId}
+              setActiveChatbot={setActiveChatbot}
+              isFilterMode={isFilterMode}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
 
-const ChatbotComponent = React.memo(function ChatbotComponent({
-  chatbot,
-  category,
-  isFilterMode,
-  isSelected,
-  onSelect,
-  isActive
-}: {
+interface ChatbotComponentProps {
   chatbot: Chatbot
   category: Category
-  isFilterMode: boolean
-  isSelected: boolean
-  onSelect: () => void
   isActive: boolean
+  setActiveChatbot: React.Dispatch<React.SetStateAction<Chatbot | null>>
+  isFilterMode: boolean
+}
+
+const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function ChatbotComponent({
+  chatbot,
+  category,
+  isActive,
+  setActiveChatbot,
+  isFilterMode
 }) {
-  return (
+  const { selectedChatbots, setSelectedChatbots } = useSidebar()
+
+  const handleChatbotClick = useCallback((e: React.MouseEvent) => {
+    if (isFilterMode) e.preventDefault()
+    else setActiveChatbot(chatbot)
+  }, [chatbot, setActiveChatbot, isFilterMode])
+
+  const isSelected = selectedChatbots.includes(chatbot.chatbotId)
+
+  const handleCheckboxChange = useCallback((checked: boolean) => {
+    setSelectedChatbots(prev =>
+      checked
+        ? [...prev, chatbot.chatbotId]
+        : prev.filter(id => id !== chatbot.chatbotId)
+    )
+  }, [chatbot.chatbotId])
+
+  return isFilterMode ? (
     <div
       className={cn(
-        'flex items-center p-2',
+        'flex items-center p-2 w-full',
         isActive && 'bg-blue-100 dark:bg-blue-900',
-        !isFilterMode && 'hover:bg-gray-100 dark:hover:bg-gray-800'
+        'hover:bg-gray-100 dark:hover:bg-gray-800'
       )}
     >
-      {isFilterMode ? (
-        <Checkbox
-          checked={isSelected}
-          onCheckedChange={onSelect}
-          className="mr-2"
-        />
-      ) : (
-        <Link href={`/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`} className="flex items-center w-full">
-          <Image
-            src={chatbot.avatar || '/path/to/default/avatar.png'}
-            alt={chatbot.name}
-            width={24}
-            height={24}
-            className="rounded-full mr-2"
-          />
-          <span>{chatbot.name}</span>
-        </Link>
-      )}
-      {isFilterMode && (
-        <>
-          <Image
-            src={chatbot.avatar || '/path/to/default/avatar.png'}
-            alt={chatbot.name}
-            width={24}
-            height={24}
-            className="rounded-full mr-2"
-          />
-          <span>{chatbot.name}</span>
-        </>
-      )}
+      <Checkbox
+        checked={isSelected}
+        onCheckedChange={handleCheckboxChange}
+        onClick={(e) => e.stopPropagation()}
+        className="mr-2"
+      />
+      <Image
+        src={chatbot.avatar || '/path/to/default/avatar.png'}
+        alt={chatbot.name}
+        width={24}
+        height={24}
+        className="mr-2 rounded-full"
+      />
+      <span>{chatbot.name}</span>
     </div>
+  ) : (
+    <Link
+      href={isFilterMode ? '#' : `/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`}
+      className={cn(
+        'flex items-center p-2 w-full',
+        isActive && 'bg-blue-100 dark:bg-blue-900',
+        'hover:bg-gray-100 dark:hover:bg-gray-800'
+      )}
+      onClick={handleChatbotClick}
+    >
+      <Image
+        src={chatbot.avatar || '/path/to/default/avatar.png'}
+        alt={chatbot.name}
+        width={24}
+        height={24}
+        className="mr-2 rounded-full"
+      />
+      <span>{chatbot.name}</span>
+    </Link>
   )
 })

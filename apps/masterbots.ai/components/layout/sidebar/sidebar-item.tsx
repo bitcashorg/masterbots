@@ -12,10 +12,8 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip'
 import { useLocalStorage } from '@/lib/hooks/use-local-storage'
-import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { type Chat } from '@/types/types'
 import { cn } from '@/lib/utils'
-import { Checkbox } from '@/components/shared/checkbox'
 
 interface SidebarItemProps {
   index: number
@@ -25,29 +23,12 @@ interface SidebarItemProps {
 
 export function SidebarItem({ index, chat, children }: SidebarItemProps) {
   const pathname = usePathname()
-  const {
-    isFilterMode,
-    filterValue,
-    selectedChats,
-    setSelectedChats
-  } = useSidebar()
 
   const isActive = pathname === chat.path
   const [newChatId, setNewChatId] = useLocalStorage('newChatId', null)
   const shouldAnimate = index === 0 && isActive && newChatId
-  const isSelected = selectedChats.includes(chat.id)
-
-  const handleSelectChat = React.useCallback(() => {
-    setSelectedChats(prev =>
-      prev.includes(chat.id)
-        ? prev.filter(id => id !== chat.id)
-        : [...prev, chat.id]
-    )
-  }, [chat.id, setSelectedChats])
 
   if (!chat?.id) return null
-  if (!chat.title.toLowerCase().includes(filterValue.toLowerCase())) return null
-  if (!isFilterMode && !isSelected) return null
 
   return (
     <motion.div
@@ -70,13 +51,7 @@ export function SidebarItem({ index, chat, children }: SidebarItemProps) {
       }}
     >
       <div className="absolute flex items-center justify-center left-2 top-1 size-6">
-        {isFilterMode ? (
-          <Checkbox
-            checked={isSelected}
-            onCheckedChange={handleSelectChat}
-            className="mr-2"
-          />
-        ) : chat.sharePath ? (
+        {chat.sharePath ? (
           <Tooltip delayDuration={1000}>
             <TooltipTrigger
               tabIndex={-1}
@@ -91,8 +66,7 @@ export function SidebarItem({ index, chat, children }: SidebarItemProps) {
         )}
       </div>
       <Link
-        href={isFilterMode ? '#' : chat.path}
-        onClick={isFilterMode ? (e) => e.preventDefault() : undefined}
+        href={chat.path}
         className={cn(
           buttonVariants({ variant: 'ghost' }),
           'group w-full px-8 transition-colors hover:bg-zinc-200/40 dark:hover:bg-zinc-300/10',
@@ -141,7 +115,7 @@ export function SidebarItem({ index, chat, children }: SidebarItemProps) {
           </span>
         </div>
       </Link>
-      {isActive && !isFilterMode && <div className="absolute right-2 top-1">{children}</div>}
+      {isActive && <div className="absolute right-2 top-1">{children}</div>}
     </motion.div>
   )
 }
