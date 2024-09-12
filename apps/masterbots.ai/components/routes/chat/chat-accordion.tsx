@@ -35,6 +35,7 @@ export const ChatAccordion = ({
 }) => {
   const { activeThread, setActiveThread, setIsNewResponse, isNewResponse, isOpenPopup } =
     useThread()
+
   // If the thread is the active, we keep the thread open
   let initialState
 
@@ -47,9 +48,6 @@ export const ChatAccordion = ({
   }
 
   const [open, setOpen] = React.useState(initialState)
-
-  console.log("initialState", initialState)
-  console.log("open", open)
 
   React.useEffect(() => {
     if (
@@ -68,31 +66,33 @@ export const ChatAccordion = ({
     }
   }, [isOpen])
 
-  const toggle = () => {
-    const newState = !open
-    setOpen(newState)
-    if (!newState && handleOpen) {
-      handleOpen()
-    }
-    if (thread?.threadId) {
-      setActiveThread(newState ? thread : null)
-    }
-    if (isNewResponse) setIsNewResponse(false)
-    if (onToggle) {
-      onToggle(newState)
-    }
-  }
+  const toggle = React.useCallback(() => {
+    setOpen((prevOpen: any) => {
+      const newState = !prevOpen
+      if (!newState && handleOpen) {
+        handleOpen()
+      }
+      if (thread?.threadId) {
+        setActiveThread(newState ? thread : null)
+      }
+      if (isNewResponse) setIsNewResponse(false)
+      if (onToggle) {
+        onToggle(newState)
+      }
+      return newState
+    })
+  }, [handleOpen, thread, isNewResponse, setIsNewResponse, onToggle, setActiveThread])
 
   React.useEffect(() => {
     if (
-        !isOpenPopup &&
-        activeThread &&
-        activeThread.threadId === thread?.threadId
-    )
+      !isOpenPopup &&
+      activeThread &&
+      activeThread.threadId === thread?.threadId &&
+      !open // ? This condition to prevent unnecessary toggles
+    ) {
       toggle()
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [isOpenPopup])
+    }
+  }, [isOpenPopup, activeThread, thread, open, toggle])
 
   return (
     <div className={className || ''} id={`thread-${thread?.threadId}`}  {...props}>
