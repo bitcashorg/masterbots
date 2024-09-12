@@ -4,10 +4,10 @@ import { ChatAccordion } from '@/components/routes/chat/chat-accordion'
 import { ChatList } from '@/components/routes/chat/chat-list'
 import { ChatbotAvatar } from '@/components/shared/chatbot-avatar'
 import { ShortMessage } from '@/components/shared/short-message'
-import { sleep } from '@/lib/utils'
-import { Thread } from 'mb-genql'
-import React from 'react'
+import { useScroll } from '@/lib/hooks/use-scroll'
 import { useThread } from '@/lib/hooks/use-thread'
+import { Thread } from 'mb-genql'
+import { useRef } from 'react'
 
 export default function ThreadComponent({
   thread,
@@ -22,34 +22,21 @@ export default function ThreadComponent({
   isLast: boolean
   hasMore: boolean
 }) {
-  const threadRef = React.useRef<HTMLLIElement>(null)
-  const { allMessages } = useThread()
+  const threadRef = useRef<HTMLLIElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const { allMessages, isNewResponse } = useThread()
 
-  React.useEffect(() => {
-    if (!threadRef.current) return
-    const observer = new IntersectionObserver(([entry]) => {
-      if (hasMore && isLast && entry.isIntersecting && !loading) {
-        const timeout = setTimeout(() => {
-          console.log('loading more content')
-          loadMore()
-          clearTimeout(timeout)
-        }, 150)
+  const { isNearBottom, scrollToTop } = useScroll({
+    containerRef: contentRef,
+    threadRef,
+    isNewContent: isNewResponse,
+    hasMore,
+    isLast,
+    loading,
+    loadMore
+  })
 
-        observer.unobserve(entry.target)
-      }
-    })
-
-    observer.observe(threadRef.current)
-
-    return () => {
-      observer.disconnect()
-    }
-  }, [threadRef, isLast, hasMore, loading, loadMore])
-  const scrollToTop = async () => {
-    await sleep(300) // animation time
-    if (!threadRef.current) return
-    threadRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
+  console.log('isNearBottom 🖐️', isNearBottom)
 
   return (
     <li ref={threadRef}>
@@ -57,20 +44,17 @@ export default function ThreadComponent({
         onToggle={scrollToTop}
         className="relative"
         contentClass="!pt-0 !border-b-[3px] max-h-[70vh] scrollbar !border-l-[3px]"
-        // handleTrigger={goToThread}
         triggerClass="gap-[0.375rem] py-3
-          dark:border-b-mirage border-b-iron
-          sticky top-0 z-[1] dark:hover:bg-mirage hover:bg-gray-300 sticky top-0 z-[1] dark:bg-[#18181b] bg-[#f4f4f5]
-          [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]"
+        dark:border-b-mirage border-b-iron
+        sticky top-0 z-[1] dark:hover:bg-mirage hover:bg-gray-300 sticky top-0 z-[1] dark:bg-[#18181b] bg-[#f4f4f5]
+        [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]"
         arrowClass="-right-1 top-[1.125rem]"
         thread={thread}
       >
 
         {/* Thread Title */}
-
         <div className="px-[11px] flex items-center w-full gap-3">
           <ChatbotAvatar thread={thread} />
-
           {thread.messages
             .filter(m => m.role === 'user')[0]
             ?.content.substring(0, 100) || 'wat'}
@@ -92,12 +76,19 @@ export default function ThreadComponent({
         </div>
 
         {/* Thread Content */}
-        <ChatList
-          className="max-w-full !px-0"
-          isThread={false}
-          chatbot={thread.chatbot}
-          messages={allMessages}
-        />
+        <div
+          ref={contentRef}
+          className="overflow-y-auto max-h-[calc(70vh-100px)]"
+        >
+          <ChatList
+            className="max-w-full !px-0"
+            isThread={false}
+            chatbot={thread.chatbot}
+            messages={allMessages}
+            containerRef={contentRef}
+            isNearBottom={isNearBottom}
+          />
+        </div>
       </ChatAccordion>
     </li>
   )
