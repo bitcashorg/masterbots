@@ -1,6 +1,6 @@
-import { Sidebar } from '@/components/layout/sidebar/sidebar'
+import { Sidebar } from '@/components/layout/sidebar/sidebar';
 // import { ChatHistory } from '@/components/chat-history'
-import { SidebarGeneralCategory } from '@/components/layout/sidebar/sidebar-category-general'
+import { SidebarGeneralCategory } from '@/components/layout/sidebar/sidebar-category-general';
 
 export async function ResponsiveSidebar() {
 
