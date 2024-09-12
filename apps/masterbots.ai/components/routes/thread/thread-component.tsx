@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import { ChatAccordion } from '@/components/routes/chat/chat-accordion'
 import { ChatList } from '@/components/routes/chat/chat-list'
@@ -7,6 +7,7 @@ import { ShortMessage } from '@/components/shared/short-message'
 import { sleep } from '@/lib/utils'
 import { Thread } from 'mb-genql'
 import React from 'react'
+import { useThread } from '@/lib/hooks/use-thread'
 
 export default function ThreadComponent({
   thread,
@@ -22,6 +23,8 @@ export default function ThreadComponent({
   hasMore: boolean
 }) {
   const threadRef = React.useRef<HTMLLIElement>(null)
+  const { allMessages } = useThread()
+
   React.useEffect(() => {
     if (!threadRef.current) return
     const observer = new IntersectionObserver(([entry]) => {
@@ -50,7 +53,6 @@ export default function ThreadComponent({
 
   return (
     <li ref={threadRef}>
-
       <ChatAccordion
         onToggle={scrollToTop}
         className="relative"
@@ -94,6 +96,7 @@ export default function ThreadComponent({
           className="max-w-full !px-0"
           isThread={false}
           chatbot={thread.chatbot}
+          messages={allMessages}
         />
       </ChatAccordion>
     </li>
