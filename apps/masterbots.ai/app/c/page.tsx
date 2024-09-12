@@ -1,3 +1,4 @@
+import { authOptions } from '@/auth'
 import ChatThreadListPanel from '@/components/routes/chat/chat-thread-list-panel'
 import ThreadPanel from '@/components/routes/thread/thread-panel'
 import { generateMetadataFromSEO } from '@/lib/metadata'
@@ -6,7 +7,6 @@ import { isTokenExpired } from 'mb-lib'
 import { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
-import { authOptions } from '@/auth'
 
 export default async function IndexPage() {
   const session = await getServerSession(authOptions)
@@ -34,7 +34,7 @@ export default async function IndexPage() {
 export async function generateMetadata(): Promise<Metadata> {
   const seoData = {
     title: 'Chat page',
-    description: 'Chat page',
+    description: 'Welcome to the chatbot page. Interact with our AI-powered chatbot and get answers to your questions.',
     ogType: 'website',
     ogImageUrl: '',
     twitterCard: 'summary'
