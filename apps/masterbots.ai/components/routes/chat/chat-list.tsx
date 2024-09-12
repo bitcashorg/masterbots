@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useRef, useCallback } from 'react'
+import React, { useRef } from 'react'
 import { type Message } from 'ai'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn, createMessagePairs } from '@/lib/utils'
@@ -8,6 +8,7 @@ import { Chatbot } from 'mb-genql'
 import { ShortMessage } from '@/components/shared/short-message'
 import { ChatAccordion } from '@/components/routes/chat/chat-accordion'
 import { ChatMessage } from '@/components/routes/chat/chat-message'
+import { useScroll } from '@/lib/hooks/use-scroll'
 
 export interface ChatList {
   messages?: Message[]
@@ -50,21 +51,12 @@ export function ChatList({
 
   const effectiveContainerRef = containerRef || localContainerRef
 
-  const smoothScrollToBottom = useCallback(() => {
-    if (effectiveContainerRef.current) {
-      const scrollHeight = effectiveContainerRef.current.scrollHeight
-      const height = effectiveContainerRef.current.clientHeight
-      const maxScrollTop = scrollHeight - height
+  useScroll({
+    containerRef: effectiveContainerRef,
+    isNewContent: isNewResponse
+  })
 
-      // ? Two-phase scroll
-      effectiveContainerRef.current.scrollTop = maxScrollTop - 1 // ? First scroll to near bottom
-      requestAnimationFrame(() => {
-        effectiveContainerRef.current!.scrollTop = maxScrollTop // ? Then scroll to actual bottom
-      })
-    }
-  }, [effectiveContainerRef])
-
-  useEffect(() => {
+  React.useEffect(() => {
     const messageList = messages.length > 0 ? messages : allMessages
     if (messageList.length) {
       const prePairs: MessagePair[] = createMessagePairs(
@@ -83,12 +75,6 @@ export function ChatList({
     }
   }, [messages, allMessages])
 
-  useEffect(() => {
-    if (isNewResponse && isNearBottom) {
-      smoothScrollToBottom()
-    }
-  }, [isNewResponse, isNearBottom, smoothScrollToBottom])
-
   if (messages.length === 0 && allMessages.length === 0) return null
 
   return (
@@ -104,8 +90,8 @@ export function ChatList({
             }
             className={` ${isThread ? 'relative' : ''}`}
             triggerClass={`dark:border-b-mirage border-b-gray-300
-            ${isThread ? 'sticky top-0 md:-top-10 z-[1] dark:bg-[#18181b] bg-[#f4f4f5] !border-l-[transparent] px-3 [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]' : 'px-[calc(47px-0.25rem)] '}
-            py-[0.4375rem] dark:hover:bg-mirage hover:bg-gray-300 ${!isThread && key === 0 ? 'hidden' : ''} ${chatTitleClass || ''}`}
+          ${isThread ? 'sticky top-0 md:-top-10 z-[1] dark:bg-[#18181b] bg-[#f4f4f5] !border-l-[transparent] px-3 [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]' : 'px-[calc(47px-0.25rem)] '}
+          py-[0.4375rem] dark:hover:bg-mirage hover:bg-gray-300 ${!isThread && key === 0 ? 'hidden' : ''} ${chatTitleClass || ''}`}
             contentClass="!border-l-[transparent]"
             arrowClass={`${isThread ? 'top-4' : 'right-5 top-4'} ${chatArrowClass || ''}`}
           >
