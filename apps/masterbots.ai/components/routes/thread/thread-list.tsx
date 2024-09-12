@@ -1,8 +1,8 @@
 'use client'
 
-import { Thread } from 'mb-genql'
-import React from 'react'
 import ThreadComponent from '@/components/routes/thread/thread-component'
+import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { Thread } from 'mb-genql'
 
 export default function ThreadList({
   threads,
@@ -17,10 +17,20 @@ export default function ThreadList({
   pageSize: number
   loadMore: () => void
 }) {
-  console.log('threads', threads)
+  const { selectedCategories, selectedChatbots } = useSidebar()
+
+  const filteredThreads = threads.filter(thread =>
+    !(
+      selectedCategories.length && !selectedCategories.includes(thread.chatbot.categories[0].categoryId)
+      || selectedChatbots.length && !selectedChatbots.includes(thread.chatbotId)
+    )
+  )
+
+  console.log('filteredThreads 😁', filteredThreads)
+
   return (
     <ul className="flex flex-col w-full gap-3">
-      {threads.map((thread, key) => (
+      {filteredThreads.map((thread, key) => (
         <ThreadComponent
           key={key}
           thread={thread}

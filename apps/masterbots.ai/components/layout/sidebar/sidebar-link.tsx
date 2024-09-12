@@ -1,265 +1,165 @@
 'use client'
 
+import { Checkbox } from "@/components/ui/checkbox"
+import { IconCaretRight } from '@/components/ui/icons'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn } from '@/lib/utils'
-import { getChatbots } from '@/services/hasura'
-import { motion } from 'framer-motion'
-import { Category, Chatbot, ChatbotCategory } from 'mb-genql'
+import { Category, Chatbot } from 'mb-genql'
+import { toSlug } from 'mb-lib'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
-import React from 'react'
-import { IconCaretRight } from '@/components/ui/icons'
-import { toSlug } from 'mb-lib'
+import React, { useCallback, useState } from 'react'
 
-const PAGE_SIZE = 20
-
-function convertChatbotCategory(chatbotCategory: ChatbotCategory[]) {
-  const chatbots: Chatbot[] = []
-  chatbotCategory.map(c => {
-    chatbots.push(c.chatbot)
-  })
-  return chatbots
+interface SidebarLinkProps {
+  category: Category
+  isFilterMode: boolean
 }
 
-export default function SidebarLink({ category }: { category: Category }) {
-  const { chatbot, threadId } = useParams<{
-    chatbot: string
-    threadId?: string
-  }>()
-  const { activeCategory, setActiveCategory, activeChatbot, setActiveChatbot } =
-    useSidebar()
-
-  const [loading, setLoading] = React.useState<boolean>(false)
-  const [chatbots, setChatbots] = React.useState<Chatbot[]>(
-    convertChatbotCategory(category.chatbots)
-  )
-  const [count, setCount] = React.useState<number>(category.chatbots.length)
-  const [isChatbotOfThisCategory, setIsChatbotOfThisCategory] =
-    React.useState<boolean>(false)
-
-  React.useEffect(() => {
-    if (
-      category.chatbots.length &&
-      category.chatbots.filter(
-        c => c.chatbot.name.toLowerCase().trim() === chatbot?.trim()
-      ).length
-    ) {
-      setActiveChatbot(
-        _prev =>
-          category.chatbots.filter(
-            c => c.chatbot.name.toLowerCase().trim() === chatbot?.trim()
-          )[0].chatbot
-      )
-      setActiveCategory(_prev => category.categoryId)
-    } else if (!chatbot) {
-      setActiveChatbot(_prev => null)
-    }
-  }, [
-    category.categoryId,
-    category.chatbots,
-    chatbot,
+export default function SidebarLink({ category, isFilterMode }: SidebarLinkProps) {
+  const {
+    activeCategory,
     setActiveCategory,
-    setActiveChatbot
-  ])
+    activeChatbot,
+    setActiveChatbot,
+    selectedCategories,
+    selectedChatbots,
+    setSelectedCategories,
+  } = useSidebar()
+  const [isExpanded, setIsExpanded] = useState(false)
 
-  React.useEffect(() => {
-    return () => {
-      setActiveChatbot(null)
-      setActiveCategory(null)
+  const handleClickCategory = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (!isFilterMode) {
+      setIsExpanded(prev => !prev)
+      setActiveCategory(prev => prev === category.categoryId ? null : category.categoryId)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [category.categoryId, setActiveCategory, isFilterMode])
 
-  const handleClickCategory = () => {
-    // Toggle category
-    if (activeCategory === category.categoryId && !activeChatbot)
-      setActiveCategory(_prev => null)
-    else setActiveCategory(_prev => category.categoryId)
-  }
+  const handleCheckboxChange = useCallback((checked: boolean) => {
+    setSelectedCategories(prev =>
+      checked
+        ? [...prev, category.categoryId]
+        : prev.filter(id => id !== category.categoryId)
+    )
+  }, [category.categoryId, setSelectedCategories])
 
-  const loadMore = async () => {
-    console.log('🟡 Loading More Content')
-    setLoading(true)
-
-    const moreChatbots = await getChatbots({
-      offset: chatbots.length,
-      limit: PAGE_SIZE
-    })
-
-    setChatbots(prevState => [...prevState, ...moreChatbots])
-    setCount(moreChatbots.length)
-    setLoading(false)
-  }
-
-  React.useEffect(() => {
-    const isBotOfThisCategory =
-      activeChatbot &&
-      category.chatbots.length &&
-      category.chatbots.filter(c => c.chatbot.name === activeChatbot.name)
-        .length
-
-    setIsChatbotOfThisCategory(Boolean(isBotOfThisCategory))
-  }, [activeChatbot, category.categoryId, category.chatbots])
+  const isActive = activeCategory === category.categoryId
+  const isSelected = selectedCategories.includes(category.categoryId)
 
   return (
-    <div
-      className={cn('flex flex-col', {
-        'border-b-[1px] dark:border-mirage border-gray-300':
-          activeCategory === category.categoryId && !isChatbotOfThisCategory
-      })}
-    >
+    <div className={cn('flex flex-col mb-2')}>
       <div
         className={cn(
-          'transition-all flex',
-          activeCategory === category.categoryId &&
-            'dark:bg-mirage bg-gray-300',
-          isChatbotOfThisCategory && 'justify-center'
+          'flex items-center p-2 cursor-pointer',
+          isActive && 'bg-gray-200 dark:bg-mirage'
         )}
+        onClick={handleClickCategory}
       >
-        <Link
-          href={`/c/${toSlug(category.name)}`}
-          className={cn(
-            'flex items-center pr-5 py-3 cursor-pointer relative origin-left transition-all ease-in-out duration-300',
-            isChatbotOfThisCategory ? 'text-xs opacity-50' : 'grow pl-5'
-          )}
-          onClick={handleClickCategory}
-          shallow
-        >
-          {/* <motion.div
-            className="overflow-hidden"
-            animate={{
-              width: activeChatbot ? '0' : 'auto'
-            }}
-          >
-          <img
-            src={
-              categoryAvatars.get(category.name) ||
-              '/path/to/default/avatar.png'
-            }
-            alt={category.name}
-            width={50} // replace with your desired width
-            height={50} // replace with your desired height
-            className="object-cover rounded-full"
+        {isFilterMode && (
+          <Checkbox
+            checked={isSelected}
+            onCheckedChange={handleCheckboxChange}
+            onClick={(e) => e.stopPropagation()}
+            className="mr-2"
           />
-        </motion.div> */}
-          <span className="pl-3">{category.name}</span>
-          <IconCaretRight
-            className={`transition duration-300 ease-in-out
-          absolute
-          stroke-[#09090b] dark:stroke-[#FAFAFA] ${activeCategory === category.categoryId && !isChatbotOfThisCategory ? 'rotate-90 right-5 xl:right-5 lg:right-2' : isChatbotOfThisCategory ? 'rotate-180 right-0 scale-75' : 'right-5 xl:right-5 lg:right-2'}`}
-          />
-        </Link>
-        {isChatbotOfThisCategory && activeChatbot ? (
-          <div className="flex items-center py-3 pl-2">
-            <Image
-              src={activeChatbot.avatar || '/path/to/default/avatar.png'}
-              alt={category.name}
-              width={32}
-              height={32}
-              className="object-cover rounded-full"
-            />
-            <span className="pl-3">{activeChatbot.name}</span>
-          </div>
-        ) : (
-          ''
         )}
+        <span className="flex-grow">{category.name}</span>
+        <IconCaretRight
+          className={cn(
+            'transition-transform duration-300  stroke-[#09090b] dark:stroke-[#FAFAFA]',
+            isExpanded || isFilterMode ? 'rotate-90' : 'rotate-0'
+          )}
+        />
       </div>
-      {
-        <motion.div
-          className="flex-col ml-5 overflow-hidden border-gray-300 border-l-DEFAULT dark:border-mirage"
-          initial={{ height: 0 }}
-          animate={{
-            height:
-              activeCategory === category.categoryId &&
-              category.chatbots.length &&
-              !isChatbotOfThisCategory
-                ? ''
-                : '0px'
-          }}
-        >
-          {chatbots.map((chatbot, key) => (
+      {(isExpanded || isFilterMode) && (
+        <div className="ml-4">
+          {category.chatbots.map((chatbotCategory) => (
             <ChatbotComponent
-              loadMore={loadMore}
-              loading={loading}
-              hasMore={count === PAGE_SIZE}
-              isLast={key === chatbots.length - 1}
-              chatbot={chatbot}
-              key={chatbot.chatbotId}
-              activeChatbot={
-                activeCategory === category.categoryId &&
-                isChatbotOfThisCategory
-                  ? activeChatbot
-                  : null
-              }
+              key={chatbotCategory.chatbot.chatbotId}
+              chatbot={chatbotCategory.chatbot}
               category={category}
+              isActive={chatbotCategory.chatbot.chatbotId === activeChatbot?.chatbotId}
+              setActiveChatbot={setActiveChatbot}
+              isFilterMode={isFilterMode}
             />
           ))}
-        </motion.div>
-      }
+        </div>
+      )}
     </div>
   )
 }
 
-function ChatbotComponent({
-  chatbot,
-  loadMore,
-  loading,
-  isLast,
-  hasMore,
-  activeChatbot,
-  category
-}: {
+interface ChatbotComponentProps {
   chatbot: Chatbot
-  loadMore: () => void
-  loading: boolean
-  isLast: boolean
-  hasMore: boolean
-  activeChatbot: Chatbot | null
   category: Category
+  isActive: boolean
+  setActiveChatbot: React.Dispatch<React.SetStateAction<Chatbot | null>>
+  isFilterMode: boolean
+}
+
+const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function ChatbotComponent({
+  chatbot,
+  category,
+  isActive,
+  setActiveChatbot,
+  isFilterMode
 }) {
-  const chatbotRef = React.useRef<HTMLAnchorElement>(null)
+  const { selectedChatbots, toggleChatbotSelection } = useSidebar()
 
-  React.useEffect(() => {
-    if (!chatbotRef.current) return
-    const observer = new IntersectionObserver(([entry]) => {
-      if (hasMore && isLast && entry.isIntersecting && !loading) {
-        const timeout = setTimeout(() => {
-          console.log('loading more content')
-          loadMore()
-          clearTimeout(timeout)
-        }, 150)
+  const handleChatbotClick = useCallback((e: React.MouseEvent) => {
+    if (isFilterMode) e.preventDefault()
+    else setActiveChatbot(chatbot)
+  }, [chatbot, setActiveChatbot, isFilterMode])
 
-        observer.unobserve(entry.target)
-      }
-    })
+  const isSelected = selectedChatbots.includes(chatbot.chatbotId)
 
-    observer.observe(chatbotRef.current)
+  const handleCheckboxChange = useCallback(() => {
+    toggleChatbotSelection(chatbot.chatbotId)
+  }, [chatbot.chatbotId])
 
-    return () => {
-      observer.disconnect()
-    }
-  }, [chatbotRef.current, isLast, hasMore, loading, loadMore])
+  if (!isFilterMode && !isSelected) return null
 
-  return (
-    <Link
-      ref={chatbotRef}
-      href={`/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`}
+  return isFilterMode ? (
+    <div
       className={cn(
-        'flex items-center px-[20px] py-[12px] dark:hover:bg-mirage hover:bg-gray-300',
-        chatbot.chatbotId === activeChatbot?.chatbotId &&
-          'dark:bg-slate-800 dark-slate-400'
+        'flex items-center p-2 w-full',
+        isActive && 'bg-blue-100 dark:bg-blue-900',
+        'hover:bg-gray-100 dark:hover:bg-gray-800'
       )}
-      key={chatbot.chatbotId}
+    >
+      <Checkbox
+        checked={isSelected}
+        onCheckedChange={handleCheckboxChange}
+        onClick={(e) => e.stopPropagation()}
+        className="mr-2"
+      />
+      <Image
+        src={chatbot.avatar || '/path/to/default/avatar.png'}
+        alt={chatbot.name}
+        width={24}
+        height={24}
+        className="mr-2 rounded-full"
+      />
+      <span>{chatbot.name}</span>
+    </div>
+  ) : (
+    <Link
+      href={isFilterMode ? '#' : `/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`}
+      className={cn(
+        'flex items-center p-2 w-full',
+        isActive && 'bg-blue-100 dark:bg-blue-900',
+        'hover:bg-gray-100 dark:hover:bg-gray-800'
+      )}
+      onClick={handleChatbotClick}
     >
       <Image
         src={chatbot.avatar || '/path/to/default/avatar.png'}
         alt={chatbot.name}
-        width={30}
-        height={30}
-        className="object-cover rounded-full"
+        width={24}
+        height={24}
+        className="mr-2 rounded-full"
       />
-      <span className="pl-3">{chatbot.name}</span>
+      <span>{chatbot.name}</span>
     </Link>
   )
-}
+})

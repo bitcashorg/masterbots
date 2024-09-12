@@ -2,12 +2,12 @@
 
 import { ChatAccordion } from '@/components/routes/chat/chat-accordion'
 import { ChatList } from '@/components/routes/chat/chat-list'
-import { Thread } from 'mb-genql'
-import { ShortMessage } from '@/components/shared/short-message'
 import { ChatbotAvatar } from '@/components/shared/chatbot-avatar'
-import React, { useRef } from 'react'
-import { useThread } from '@/lib/hooks/use-thread'
+import { ShortMessage } from '@/components/shared/short-message'
 import { useScroll } from '@/lib/hooks/use-scroll'
+import { useThread } from '@/lib/hooks/use-thread'
+import { Thread } from 'mb-genql'
+import { useRef } from 'react'
 
 export default function ThreadComponent({
   thread,
@@ -51,6 +51,7 @@ export default function ThreadComponent({
         arrowClass="-right-1 top-[1.125rem]"
         thread={thread}
       >
+
         {/* Thread Title */}
         <div className="px-[11px] flex items-center w-full gap-3">
           <ChatbotAvatar thread={thread} />
