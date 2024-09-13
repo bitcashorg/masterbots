@@ -1,0 +1,2 @@
+CREATE TABLE "public"."example" ("example_id" uuid NOT NULL DEFAULT gen_random_uuid(), "prompt" text NOT NULL, "response" text NOT NULL, "domain" varchar NOT NULL, "category" varchar NOT NULL, "subcategory" varchar NOT NULL, "tags" uuid[] NOT NULL, "metadata" jsonb NOT NULL, "added" timestamptz NOT NULL DEFAULT now(), PRIMARY KEY ("example_id") , FOREIGN KEY ("domain", "category", "subcategory") REFERENCES "public"."subcategory_enum"("domain", "category", "name") ON UPDATE restrict ON DELETE restrict);
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
