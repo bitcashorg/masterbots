@@ -133,8 +133,7 @@ function createImprovementPrompt(content: string): string {
 
       Original text: "${content}"
 
-      Improved text:
-    `
+      Improved text:`
 }
 
 // * This function retries the AI improvement process if the first attempt fails
