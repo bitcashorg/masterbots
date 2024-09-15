@@ -39,7 +39,6 @@ services:
       HASURA_GRAPHQL_EXPERIMENTAL_FEATURES: naming_convention
       HASURA_GRAPHQL_DEFAULT_NAMING_CONVENTION: graphql-default
       HASURA_GRAPHQL_JWT_SECRET: '{"type":"HS256", "key":"xx52fa850c02dc222631cca898ed1485821a70912a6e3649c49076912daa3b62182ba013315915d64f402ddfbb8b58eb5bd11ba225136a6af45bbae07ca872f4"}'
-
 volumes:
   masterbots-pgdata:
 
