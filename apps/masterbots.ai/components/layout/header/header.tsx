@@ -2,10 +2,10 @@ import Link from 'next/link'
 import * as React from 'react'
 
 import { UserLogin } from '@/components/auth/user-login'
+import SidebarToggleWrap from '@/components/layout/sidebar/sidebar-toggle-wrap'
 import { Button } from '@/components/ui/button'
 import { IconSeparator } from '@/components/ui/icons'
 import { appConfig } from 'mb-env'
-import SidebarToggleWrap from '@/components/layout/sidebar/sidebar-toggle-wrap'
 
 export function Header() {
   return (
