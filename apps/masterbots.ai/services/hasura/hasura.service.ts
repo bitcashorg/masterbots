@@ -114,7 +114,7 @@ export async function getThreads({
   categoryId
 }: GetThreadsParams) {
   const client = getHasuraClient({ jwt })
-
+  
   const { thread } = await client.query({
     thread: {
       chatbot: {

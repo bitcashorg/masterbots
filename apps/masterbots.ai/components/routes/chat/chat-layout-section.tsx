@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation'
 import * as React from 'react'
 
 export function ChatLayoutSection({ children }: { children: React.ReactNode }) {
-  const { sectionRef, isOpenPopup } = useThread()c
+  const { sectionRef, isOpenPopup } = useThread()
   const path = usePathname()
   const isBrowse = !path.includes('/c')
 
