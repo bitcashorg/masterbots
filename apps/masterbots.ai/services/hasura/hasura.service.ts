@@ -114,7 +114,7 @@ export async function getThreads({
   categoryId
 }: GetThreadsParams) {
   const client = getHasuraClient({ jwt })
-  
+
   const { thread } = await client.query({
     thread: {
       chatbot: {
@@ -344,8 +344,10 @@ export async function getChatbot({
 
 export async function getBrowseThreads({
   categoryId,
+  categoriesId,
   keyword,
   chatbotName,
+  chatbotsId,
   userId,
   limit,
   offset,
@@ -410,10 +412,26 @@ export async function getBrowseThreads({
               }
             }
             : {}),
+          ...(categoriesId
+            ? {
+              chatbot: {
+                categories: {
+                  categoryId: { _in: categoriesId }
+                }
+              }
+            }
+            : {}),
           ...(chatbotName
             ? {
               chatbot: {
                 name: { _eq: chatbotName }
+              }
+            }
+            : {}),
+          ...(chatbotsId
+            ? {
+              chatbot: {
+                chatbotsId: { _in: chatbotsId }
               }
             }
             : {}),
@@ -438,7 +456,7 @@ export async function getBrowseThreads({
         limit: limit || 30,
         offset: offset || 0
       }
-    }
+    },
   })
 
   return thread as Thread[]

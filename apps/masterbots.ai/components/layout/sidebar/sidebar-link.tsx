@@ -118,7 +118,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
   }, [chatbot.chatbotId])
 
   if (!isFilterMode && !isSelected) return null
-
+  const isBrowse = true
   return isFilterMode ? (
     <div
       className={cn(
@@ -144,7 +144,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
     </div>
   ) : (
     <Link
-      href={isFilterMode ? '#' : `/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`}
+      href={`${isBrowse ? '/' : '/c'}/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`}
       className={cn(
         'flex items-center p-2 w-full',
         isActive && 'bg-blue-100 dark:bg-blue-900',
