@@ -1,14 +1,9 @@
-import { Sidebar } from '@/components/layout/sidebar/sidebar'
 import BrowseList from '@/components/routes/browse/browse-list'
 import { BrowseSearchInput } from '@/components/routes/browse/browse-search-input'
-import { getCategories } from '@/services/hasura'
 
 export default async function HomePage() {
-  const categories = await getCategories()
-
   return (
-    <div className="flex w-full max-w-screen-lg px-4 pb-10 mx-auto">
-      <Sidebar />
+    <div className="flex flex-col gap-5 pt-5 w-full max-w-screen-lg px-4 pb-10 mx-auto">
       {/* <BrowseCategoryTabs categories={categories} /> */}
       <BrowseSearchInput />
       <BrowseList />
