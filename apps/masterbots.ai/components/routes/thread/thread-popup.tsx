@@ -1,13 +1,13 @@
 'use client'
 
-import { useThread } from '@/lib/hooks/use-thread'
-import { IconClose } from '@/components/ui/icons'
-import { cn, scrollToBottomOfElement } from '@/lib/utils'
 import { Chat } from '@/components/routes/chat/chat'
 import { ChatList } from '@/components/routes/chat/chat-list'
-import { useEffect, useRef } from 'react'
+import { IconClose } from '@/components/ui/icons'
 import { useAtBottom } from '@/lib/hooks/use-at-bottom'
+import { useThread } from '@/lib/hooks/use-thread'
+import { cn, scrollToBottomOfElement } from '@/lib/utils'
 import { useScroll } from 'framer-motion'
+import { useEffect, useRef } from 'react'
 import { ThreadPublicitySwitch } from "./thread-publicity-switch"
 
 export function ThreadPopup({ className }: { className?: string }) {
@@ -21,7 +21,7 @@ export function ThreadPopup({ className }: { className?: string }) {
     isLoading,
     setActiveThread
   } = useThread()
-  
+
   const onClose = () => {
     setIsOpenPopup(!isOpenPopup)
     if (activeThread?.threadId) {
@@ -63,44 +63,46 @@ export function ThreadPopup({ className }: { className?: string }) {
 
   return (
     <div
-      className={`size-full dark:bg-[#27272A80] lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)] flex justify-center items-center fixed top-0
-      bg-[#F4F4F580] backdrop-blur-sm ease-in-out duration-500 z-[9] transition-all ${isOpenPopup ? 'animate-fade-in' : 'hidden animate-fade-out'}`}
+      className={cn(
+        'size-full dark:bg-[#27272A80] lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)] flex justify-center items-center fixed top-[4rem] h-[calc(100vh-4rem)] bg-[#F4F4F580] backdrop-blur-sm ease-in-out duration-500 z-[9] transition-all',
+        isOpenPopup ? 'animate-fade-in' : 'hidden animate-fade-out'
+      )}
     >
       <div
         className={cn(
           className,
-          `flex flex-col z-10 rounded-lg duration-500 ease-in-out absolute h-[90%]
+          `flex flex-col z-10 rounded-lg duration-500 ease-in-out fixed h-full max-h-[90%]
       max-w-[1032px] w-[95%] dark:border-mirage border-iron border
       transition-opacity ${isOpenPopup ? 'animate-fade-in' : 'animate-fade-out'}`
         )}
       >
-         <div className="relative rounded-t-[8px] px-[32px] py-[20px] dark:bg-[#1E293B] bg-[#E4E4E7]">
-  <div className="flex items-center justify-between">
-    <div className="flex items-center">
-      <span>
-        {threadTitle && threadTitleChunks.length > 32
-          ? threadTitleHeading + '…'
-          : threadTitle || 'wat'}
-      </span>
-      {threadTitleSubHeading && (
-        <div className="ml-2 overflow-hidden text-sm opacity-50">
-          {threadTitleSubHeading}
-        </div>
-      )}
-    </div>
+        <div className="relative rounded-t-[8px] px-[32px] py-[20px] dark:bg-[#1E293B] bg-[#E4E4E7]">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <span>
+                {threadTitle && threadTitleChunks.length > 32
+                  ? threadTitleHeading + '…'
+                  : threadTitle || 'wat'}
+              </span>
+              {threadTitleSubHeading && (
+                <div className="ml-2 overflow-hidden text-sm opacity-50">
+                  {threadTitleSubHeading}
+                </div>
+              )}
+            </div>
 
-    <div className="flex items-center">
-      <ThreadPublicitySwitch threadId={activeThread?.threadId} />
-      <button
-        type="button"
-        className="ml-2"
-        onClick={onClose}
-      >
-        <IconClose />
-      </button>
-    </div>
-  </div>
-</div>
+            <div className="flex items-center">
+              <ThreadPublicitySwitch threadId={activeThread?.threadId} />
+              <button
+                type="button"
+                className="ml-2"
+                onClick={onClose}
+              >
+                <IconClose />
+              </button>
+            </div>
+          </div>
+        </div>
 
         <div
           className="flex flex-col dark:bg-[#18181B] bg-[white] grow rounded-b-[8px] scrollbar pb-[180px]"
