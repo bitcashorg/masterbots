@@ -460,7 +460,7 @@ export async function getBrowseThreads({
     },
   })
 
-  return thread.filter(t => t.isApproved) as Thread[]
+  return thread as Thread[]
 }
 
 export async function getMessages({
