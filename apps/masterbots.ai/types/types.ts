@@ -1,5 +1,5 @@
 import Stripe from 'stripe'
-import { CoreMessage, type Message } from 'ai'
+import {  type Message } from 'ai'
 import { ChatCompletionMessageParam } from 'openai/resources'
 import 'next-auth'
 import { DefaultSession } from 'next-auth'
@@ -95,7 +95,17 @@ export const initialStateSubscription = {
   status: ''
 }
 
+
 // * AI SDK related types
+
+export type CoreMessage = {
+  id: string
+  content: string
+  user: {
+    id: string
+    name: string
+  }
+}
 
 export type AiClientType = 'OpenAI' | 'Anthropic' | 'Perplexity' | 'WordWare'
 

@@ -1,14 +1,14 @@
 'use client'
 
-import React, { useRef } from 'react'
-import { type Message } from 'ai'
-import { useThread } from '@/lib/hooks/use-thread'
-import { cn, createMessagePairs } from '@/lib/utils'
-import { Chatbot } from 'mb-genql'
-import { ShortMessage } from '@/components/shared/short-message'
 import { ChatAccordion } from '@/components/routes/chat/chat-accordion'
 import { ChatMessage } from '@/components/routes/chat/chat-message'
+import { ShortMessage } from '@/components/shared/short-message'
 import { useScroll } from '@/lib/hooks/use-scroll'
+import { useThread } from '@/lib/hooks/use-thread'
+import { cn, createMessagePairs } from '@/lib/utils'
+import { type Message } from 'ai'
+import { Chatbot } from 'mb-genql'
+import React, { useRef } from 'react'
 
 export interface ChatList {
   messages?: Message[]
@@ -58,11 +58,12 @@ export function ChatList({
     hasMore: false,
     isLast: true,
     loading: isLoadingMessages,
-    loadMore: () => {}
+    loadMore: () => { }
   })
 
   React.useEffect(() => {
     const messageList = messages.length > 0 ? messages : allMessages
+    // *Prevent unnecessary updates: only set pairs if the new message list is different
     if (messageList.length) {
       const prePairs: MessagePair[] = createMessagePairs(
         messageList
@@ -147,16 +148,16 @@ export function ChatList({
               )}
               {pair.chatGptMessage.length > 0
                 ? pair.chatGptMessage.map((message, index) => (
-                    <ChatMessage
-                      actionRequired={false}
-                      key={index}
-                      chatbot={chatbot}
-                      message={message}
-                      sendMessageFromResponse={
-                        sendMessageFn ? sendMessageFn : sendMessageFromResponse
-                      }
-                    />
-                  ))
+                  <ChatMessage
+                    actionRequired={false}
+                    key={index}
+                    chatbot={chatbot}
+                    message={message}
+                    sendMessageFromResponse={
+                      sendMessageFn ? sendMessageFn : sendMessageFromResponse
+                    }
+                  />
+                ))
                 : ''}
             </div>
           </ChatAccordion>

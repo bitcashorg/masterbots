@@ -1,8 +1,8 @@
 'use client'
 
-import * as React from 'react'
 import { ThreadPopup } from '@/components/routes/thread/thread-popup'
 import { useThread } from '@/lib/hooks/use-thread'
+import * as React from 'react'
 
 export function ChatLayoutSection({ children }: { children: React.ReactNode }) {
   const { sectionRef, isOpenPopup } = useThread()
@@ -16,9 +16,9 @@ export function ChatLayoutSection({ children }: { children: React.ReactNode }) {
         className="flex flex-col items-center lg:w-[calc(100%-250px)] xl:w-[calc(100%-300px)]"
       >
         {children}
+        {isOpenPopup ? <ThreadPopup /> : ''}
       </div>
 
-      {isOpenPopup ? <ThreadPopup /> : ''}
     </section>
   )
 }
