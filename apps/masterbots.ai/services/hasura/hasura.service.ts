@@ -114,7 +114,7 @@ export async function getThreads({
   categoryId
 }: GetThreadsParams) {
   const client = getHasuraClient({ jwt })
-
+  
   const { thread } = await client.query({
     thread: {
       chatbot: {
@@ -553,4 +553,31 @@ export async function getUsers() {
     }
   })
   return user as User[]
+}
+
+export async function UpdateThreadVisibility({
+  threadId,
+  isPublic,
+  jwt,
+}: {
+  threadId: string;
+  isPublic: boolean;
+  jwt: string | undefined;
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    const client = getHasuraClient({ jwt })
+    await client.mutation({
+      updateThreadByPk: {
+        __args: {
+          pkColumns: { threadId },
+          _set: { isPublic }
+        },
+        threadId: true,
+        isPublic: true
+      }
+    })
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: (error as Error).message };
+  }
 }

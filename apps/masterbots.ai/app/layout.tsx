@@ -30,7 +30,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         >
           <div className="flex flex-col min-h-screen">
             <Header />
-            <main className="flex flex-col flex-1 bg-muted/50">{children}</main>
+            <main className="relative flex flex-col flex-1 bg-muted/50">{children}</main>
           </div>
           {/* <TailwindIndicator /> */}
           <GoogleAnalytics gaId="G-N135BF99HS" />
