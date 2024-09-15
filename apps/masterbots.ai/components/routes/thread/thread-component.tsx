@@ -36,8 +36,6 @@ export default function ThreadComponent({
     loadMore
   })
 
-  console.log('isNearBottom 🖐️', isNearBottom)
-
   return (
     <li ref={threadRef}>
       <ChatAccordion

@@ -1,13 +1,12 @@
 'use client'
 
-import React from 'react'
-import { useSidebar } from '@/lib/hooks/use-sidebar'
-import { SidebarHeader } from '@/components/layout/sidebar/sidebar-header'
-import { SidebarFooter } from '@/components/layout/sidebar/sidebar-footer'
-import { SidebarCategoryGeneral } from '@/components/layout/sidebar/sidebar-category-general'
 import FooterCT from '@/components/layout/footer/footer-ct'
-import { SidebarToggle } from '@/components/layout/sidebar/sidebar-toggle'
+import { SidebarCategoryGeneral } from '@/components/layout/sidebar/sidebar-category-general'
+import { SidebarFooter } from '@/components/layout/sidebar/sidebar-footer'
+import { SidebarHeader } from '@/components/layout/sidebar/sidebar-header'
+import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn } from '@/lib/utils'
+import React from 'react'
 
 export function Sidebar({ className }: React.ComponentProps<'div'>) {
   const { isSidebarOpen, isLoading } = useSidebar()
@@ -16,7 +15,6 @@ export function Sidebar({ className }: React.ComponentProps<'div'>) {
 
   return (
     <>
-      <SidebarToggle />
       <aside
         data-state={isSidebarOpen ? 'open' : 'closed'}
         className={cn(

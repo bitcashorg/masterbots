@@ -1,12 +1,12 @@
 'use client';
 
-import { usePathname } from 'next/navigation'
-import { SidebarToggle } from '@/components/layout/sidebar/sidebar-toggle'
+import { SidebarToggle } from '@/components/layout/sidebar/sidebar-toggle';
+import { usePathname } from 'next/navigation';
 
 function SidebarToggleWrap() {
   const pathname = usePathname()
 
-  if (pathname !== '/c') {
+  if (!pathname.includes('/c')) {
     return null
   }
 
