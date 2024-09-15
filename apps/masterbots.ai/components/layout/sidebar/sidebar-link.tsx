@@ -113,8 +113,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
 }) {
   const { selectedChatbots, toggleChatbotSelection } = useSidebar()
   const pathname = usePathname()
-  console.log('pathname 😀', pathname)
-  const isBrowse = true
+  const isBrowse = !pathname.includes('/c')
 
   const handleChatbotClick = useCallback((e: React.MouseEvent) => {
     if (isFilterMode) e.preventDefault()
