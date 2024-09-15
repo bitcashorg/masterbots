@@ -19,6 +19,9 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { botNames } from '@/lib/bots-names'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useModel } from '@/lib/hooks/use-model'
+import { AiClientType } from '@/types/types'
+import { improveMessage } from '@/app/api/chat/actions/actions'
+
 
 export function Chat({
   initialMessages,
@@ -145,6 +148,27 @@ export function Chat({
     userMessage: Message | CreateMessage,
     chatRequestOptions?: ChatRequestOptions
   ) => {
+    let processedMessage = userMessage.content
+
+    console.log('Original message:', processedMessage)
+
+    try {
+      console.log('Original message:', userMessage.content)
+      processedMessage = await improveMessage(
+        userMessage.content,
+        clientType as AiClientType,
+        selectedModel
+      )
+      console.log('Refined message:', processedMessage)
+      if (processedMessage === userMessage.content) {
+        console.warn('Message was not improved by AI. Using original message.')
+      }
+    } catch (error) {
+      console.error('Error processing message:', error)
+      // Fall back to original message if processing fails
+      processedMessage = userMessage.content
+    }
+
     if (isNewChat && chatbot) {
       await createThread({
         threadId,
@@ -163,11 +187,12 @@ export function Chat({
     if (activeThread?.threadId) {
       setIsOpenPopup(true)
     }
+
     await saveNewMessage({
       role: 'user',
       threadId:
         params.threadId || isNewChat ? threadId : activeThread?.threadId,
-      content: userMessage.content,
+      content: processedMessage,
       jwt: session!.user?.hasuraJwt
     })
 
@@ -175,12 +200,12 @@ export function Chat({
 
     return append(
       isNewChat
-        ? userMessage
+        ? { ...userMessage, content: processedMessage }
         : {
             ...userMessage,
             content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
               allMessages
-            )}].  Then answer this question: ${userMessage.content}`
+            )}].  Then answer this question: ${processedMessage}`
           }
     )
   }
