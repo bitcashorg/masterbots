@@ -38,11 +38,12 @@ select_permissions:
       columns:
         - chatbot_id
         - created_at
-        - updated_at
-        - thread_id
-        - user_id
+        - is_approved
         - is_public
         - model
+        - thread_id
+        - updated_at
+        - user_id
       filter: {}
     comment: ""
   - role: user
@@ -50,11 +51,12 @@ select_permissions:
       columns:
         - chatbot_id
         - created_at
-        - updated_at
-        - thread_id
-        - user_id
+        - is_approved
         - is_public
         - model
+        - thread_id
+        - updated_at
+        - user_id
       filter: {}
     comment: ""
 update_permissions:
