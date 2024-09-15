@@ -27,8 +27,7 @@ services:
       - .env
     environment:
       # ? LOCAL
-      HASURA_GRAPHQL_DATABASE_URL: "postgresql://postgres.jahuoqyjkphnqvfpfbsf:[YOUR-PASSWORD]@aws-0-us-west-1.pooler.supabase.com:6543/postgres"
-      # HASURA_GRAPHQL_DATABASE_URL: "postgres://user:pass@database:5433/masterbots?sslmode=disable"
+      HASURA_GRAPHQL_DATABASE_URL: "postgres://user:pass@database:5433/masterbots?sslmode=disable"
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
       HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET}
       HASURA_GRAPHQL_MIGRATIONS_SERVER_TIMEOUT: 100
