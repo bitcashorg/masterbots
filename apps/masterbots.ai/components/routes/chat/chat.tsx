@@ -19,8 +19,9 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { botNames } from '@/lib/bots-names'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useModel } from '@/lib/hooks/use-model'
-import { improveMessage } from '@/lib/helpers/ai-helpers'
 import { AiClientType } from '@/types/types'
+import { improveMessage } from '@/app/api/chat/actions/actions'
+
 
 export function Chat({
   initialMessages,
