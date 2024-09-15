@@ -19,9 +19,18 @@ export default function BrowseList() {
   const [count, setCount] = React.useState<number>(0)
   const { selectedCategories, selectedChatbots } = useSidebar()
 
-  const fetchThreads = async (keyword: string, categoriesId: number[] | null) => {
+  const fetchThreads = async ({
+    categoriesId,
+    chatbotsId,
+    keyword
+  }: {
+    categoriesId: number[]
+    chatbotsId: number[]
+    keyword: string
+  }) => {
     const threads = await getBrowseThreads({
       categoriesId,
+      chatbotsId,
       keyword,
       limit: PAGE_SIZE
     })
@@ -64,8 +73,8 @@ export default function BrowseList() {
   }
 
   React.useEffect(() => {
-    fetchThreads(keyword, selectedCategories)
-  }, [selectedCategories.length])
+    fetchThreads({ keyword, categoriesId: selectedCategories, chatbotsId: selectedChatbots })
+  }, [selectedCategories.length, selectedChatbots.length])
 
   React.useEffect(() => {
     verifyKeyword()
