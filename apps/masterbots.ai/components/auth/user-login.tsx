@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { UserMenu } from '@/components/user-menu'
+import { UserMenu } from '@/components/layout/header/user-menu'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { isTokenExpired } from 'mb-lib'

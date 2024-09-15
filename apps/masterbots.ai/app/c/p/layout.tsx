@@ -1,5 +1,5 @@
-import { ChatLayoutSection } from '@/components/chat/chat-layout-section'
-import FooterCT from '@/components/footer-ct'
+import { ChatLayoutSection } from '@/components/routes/chat/chat-layout-section'
+import FooterCT from '@/components/layout/footer/footer-ct'
 import { appConfig } from 'mb-env'
 import { redirect } from 'next/navigation'
 import NextTopLoader from 'nextjs-toploader'

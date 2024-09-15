@@ -1,5 +1,5 @@
 import { BrowseProvider } from '@/lib/hooks/use-browse'
-import FooterCT from '@/components/footer-ct'
+import FooterCT from '@/components/layout/footer/footer-ct'
 import NextTopLoader from 'nextjs-toploader'
 
 interface BrowseLayoutProps {
