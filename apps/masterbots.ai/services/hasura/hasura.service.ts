@@ -431,7 +431,7 @@ export async function getBrowseThreads({
           ...(chatbotsId
             ? {
               chatbot: {
-                chatbotsId: { _in: chatbotsId }
+                chatbotId: { _in: chatbotsId }
               }
             }
             : {}),
