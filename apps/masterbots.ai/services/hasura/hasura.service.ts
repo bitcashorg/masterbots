@@ -114,7 +114,7 @@ export async function getThreads({
   categoryId
 }: GetThreadsParams) {
   const client = getHasuraClient({ jwt })
-  
+
   const { thread } = await client.query({
     thread: {
       chatbot: {
@@ -344,8 +344,10 @@ export async function getChatbot({
 
 export async function getBrowseThreads({
   categoryId,
+  categoriesId,
   keyword,
   chatbotName,
+  chatbotsId,
   userId,
   limit,
   offset,
@@ -355,6 +357,63 @@ export async function getBrowseThreads({
 
   const { thread } = await client.query({
     thread: {
+      __args: {
+        orderBy: [{ createdAt: 'DESC' }],
+        where: {
+          ...(categoryId
+            ? {
+              chatbot: {
+                categories: {
+                  categoryId: { _eq: categoryId }
+                }
+              }
+            }
+            : {}),
+          ...(categoriesId
+            ? {
+              chatbot: {
+                categories: {
+                  categoryId: { _in: categoriesId }
+                }
+              }
+            }
+            : {}),
+          ...(chatbotName
+            ? {
+              chatbot: {
+                name: { _eq: chatbotName }
+              }
+            }
+            : {}),
+          ...(chatbotsId
+            ? {
+              chatbot: {
+                chatbotId: { _in: chatbotsId }
+              }
+            }
+            : {}),
+          ...(userId
+            ? {
+              userId: {
+                _eq: userId
+              }
+            }
+            : {}),
+          ...(slug
+            ? {
+              user: {
+                slug: {
+                  _eq: slug
+                }
+              }
+            }
+            : {}),
+          isPublic: { _eq: true },
+          isApproved: { _eq: true },
+        },
+        limit: limit || 30,
+        offset: offset || 0
+      },
       chatbot: {
         categories: {
           category: {
@@ -398,47 +457,7 @@ export async function getBrowseThreads({
         slug: true
       },
       ...everything,
-      __args: {
-        orderBy: [{ createdAt: 'DESC' }],
-        where: {
-          ...(categoryId
-            ? {
-              chatbot: {
-                categories: {
-                  categoryId: { _eq: categoryId }
-                }
-              }
-            }
-            : {}),
-          ...(chatbotName
-            ? {
-              chatbot: {
-                name: { _eq: chatbotName }
-              }
-            }
-            : {}),
-          ...(userId
-            ? {
-              userId: {
-                _eq: userId
-              }
-            }
-            : {}),
-          ...(slug
-            ? {
-              user: {
-                slug: {
-                  _eq: slug
-                }
-              }
-            }
-            : {}),
-          isPublic: { _eq: true }
-        },
-        limit: limit || 30,
-        offset: offset || 0
-      }
-    }
+    },
   })
 
   return thread as Thread[]

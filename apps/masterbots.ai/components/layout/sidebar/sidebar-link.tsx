@@ -8,6 +8,7 @@ import { Category, Chatbot } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import Image from 'next/image'
 import Link from 'next/link'
+import { usePathname } from "next/navigation"
 import React, { useCallback, useState } from 'react'
 
 interface SidebarLinkProps {
@@ -24,6 +25,7 @@ export default function SidebarLink({ category, isFilterMode }: SidebarLinkProps
     selectedCategories,
     selectedChatbots,
     setSelectedCategories,
+    setSelectedChatbots,
   } = useSidebar()
   const [isExpanded, setIsExpanded] = useState(false)
 
@@ -41,7 +43,12 @@ export default function SidebarLink({ category, isFilterMode }: SidebarLinkProps
         ? [...prev, category.categoryId]
         : prev.filter(id => id !== category.categoryId)
     )
-  }, [category.categoryId, setSelectedCategories])
+    setSelectedChatbots(prev =>
+      checked
+        ? [...prev, ...category.chatbots.map(chatbot => chatbot.chatbot.chatbotId)]
+        : prev.filter(id => !category.chatbots.some(chatbot => chatbot.chatbot.chatbotId === id))
+    )
+  }, [category.categoryId, category.chatbots])
 
   const isActive = activeCategory === category.categoryId
   const isSelected = selectedCategories.includes(category.categoryId)
@@ -105,6 +112,8 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
   isFilterMode
 }) {
   const { selectedChatbots, toggleChatbotSelection } = useSidebar()
+  const pathname = usePathname()
+  const isBrowse = !pathname.includes('/c')
 
   const handleChatbotClick = useCallback((e: React.MouseEvent) => {
     if (isFilterMode) e.preventDefault()
@@ -119,7 +128,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
 
   if (!isFilterMode && !isSelected) return null
 
-  return isFilterMode ? (
+  return isFilterMode || isBrowse ? (
     <div
       className={cn(
         'flex items-center p-2 w-full',
@@ -127,12 +136,14 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
         'hover:bg-gray-100 dark:hover:bg-gray-800'
       )}
     >
-      <Checkbox
-        checked={isSelected}
-        onCheckedChange={handleCheckboxChange}
-        onClick={(e) => e.stopPropagation()}
-        className="mr-2"
-      />
+      {isFilterMode && (
+        <Checkbox
+          checked={isSelected}
+          onCheckedChange={handleCheckboxChange}
+          onClick={(e) => e.stopPropagation()}
+          className="mr-2"
+        />
+      )}
       <Image
         src={chatbot.avatar || '/path/to/default/avatar.png'}
         alt={chatbot.name}
@@ -144,7 +155,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
     </div>
   ) : (
     <Link
-      href={isFilterMode ? '#' : `/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`}
+      href={`/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`}
       className={cn(
         'flex items-center p-2 w-full',
         isActive && 'bg-blue-100 dark:bg-blue-900',
