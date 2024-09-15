@@ -26,8 +26,6 @@ export default function ThreadList({
     )
   )
 
-  console.log('filteredThreads 😁', filteredThreads)
-
   return (
     <ul className="flex flex-col w-full gap-3">
       {filteredThreads.map((thread, key) => (
