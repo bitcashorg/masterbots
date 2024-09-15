@@ -6,7 +6,9 @@ import '@/app/globals.css'
 import { Header } from '@/components/layout/header/header'
 import { Providers } from '@/components/layout/providers'
 import { cn } from '@/lib/utils'
+import { GoogleAnalytics } from '@next/third-parties/google'
 import { Metadata } from 'next'
+import NextTopLoader from 'nextjs-toploader'
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
@@ -18,8 +20,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           GeistMono.variable
         )}
       >
-        {/* TODO: https://github.com/TheSGJ/nextjs-toploader/issues/66 */}
-        {/* <NextTopLoader color="#1ED761" initialPosition={0.20} /> */}
+        <NextTopLoader color="#1ED761" initialPosition={0.20} />
         <Toaster />
         <Providers
           attribute="class"
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             <main className="flex flex-col flex-1 bg-muted/50">{children}</main>
           </div>
           {/* <TailwindIndicator /> */}
+          <GoogleAnalytics gaId="G-N135BF99HS" />
         </Providers>
       </body>
     </html>
@@ -79,6 +81,9 @@ export const metadata: Metadata = {
     icon: '/favicon.ico',
     shortcut: '/favicon-300x300.png',
     apple: '/apple-touch-icon.png'
+  },
+  other: {
+    'google-site-verification': 'By9aM0DbPDDO9qa7Y3zNwDFyYuSPslVzje76EVOCcY0'
   }
 }
 
