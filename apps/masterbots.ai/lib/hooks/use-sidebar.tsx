@@ -1,12 +1,15 @@
 'use client'
 
-import { Chatbot } from 'mb-genql'
+import { getCategories } from '@/services/hasura'
+import { Category, Chatbot } from 'mb-genql'
 import * as React from 'react'
+import { useAsync } from 'react-use'
 
 const LOCAL_STORAGE_KEY = 'sidebar'
 
 interface SidebarContext {
   isSidebarOpen: boolean
+  filteredCategories: Category[]
   toggleSidebar: (toggle?: boolean) => void
   isLoading: boolean
   tab: 'general' | 'work'
@@ -45,6 +48,20 @@ interface SidebarProviderProps {
 }
 
 export function SidebarProvider({ children }: SidebarProviderProps) {
+  const [selectedCategories, setSelectedCategories] = React.useState<number[]>([])
+  const [selectedChatbots, setSelectedChatbots] = React.useState<number[]>([])
+  const { value: categories, loading, error } = useAsync(async () => {
+    const categories = await getCategories()
+    const categoriesObj = {
+      categoriesChatbots: categories || [],
+      categoriesId: categories.map(category => category.categoryId),
+      chatbotsId: categories?.flatMap(category => category.chatbots.map(chatbot => chatbot.chatbotId)),
+    }
+
+    setSelectedCategories(categoriesObj.categoriesId)
+    setSelectedChatbots(categoriesObj.chatbotsId)
+    return categoriesObj
+  }, [])
   const [isSidebarOpen, setSidebarOpen] = React.useState(false)
   const [isLoading, setLoading] = React.useState(true)
   const [activeChatbot, setActiveChatbot] = React.useState<Chatbot | null>(null)
@@ -54,12 +71,6 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
   )
   const [isFilterMode, setIsFilterMode] = React.useState(false)
   const [filterValue, setFilterValue] = React.useState('')
-  const [selectedCategories, setSelectedCategories] = React.useState<number[]>(
-    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-  )
-  const [selectedChatbots, setSelectedChatbots] = React.useState<number[]>([
-    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42
-  ])
   const [selectedChats, setSelectedChats] = React.useState<string[]>([])
 
   React.useEffect(() => {
@@ -84,11 +95,41 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
         ? prev.filter(id => id !== chatbotId)
         : [...prev, chatbotId]
     )
+    setSelectedCategories(prev =>
+      categories?.categoriesChatbots
+        .filter(category => category.chatbots.some(chatbot => chatbot.chatbotId === chatbotId))
+        .map(category => category.categoryId)
+        .filter(id => !prev.includes(id))
+        .length
+        ? [...prev, ...categories?.categoriesChatbots
+          .filter(category => category.chatbots.some(chatbot => chatbot.chatbotId === chatbotId))
+          .map(category => category.categoryId)]
+        : prev.filter(id => !categories?.categoriesChatbots
+          .filter(category => category.chatbots.some(chatbot => chatbot.chatbotId === chatbotId))
+          .map(category => category.categoryId)
+          .includes(id)
+        )
+    )
   }, [])
 
   const changeTab = (cate: 'general' | 'work') => {
     setTab(cate)
   }
+
+  const filteredCategories = React.useMemo(() => {
+    const categoriesChatbots = categories?.categoriesChatbots || []
+
+    return isFilterMode
+      ? categoriesChatbots
+      : categoriesChatbots.filter(category =>
+        category.name.toLowerCase().includes(filterValue.toLowerCase()) ||
+        category.chatbots.some(chatbot =>
+          chatbot.chatbot.name.toLowerCase().includes(filterValue.toLowerCase())
+        )
+      )
+        .filter(category => selectedCategories.includes(category.categoryId))
+        .filter(category => category.chatbots.some(chatbot => selectedChatbots.includes(chatbot.chatbotId)))
+  }, [selectedChatbots.length, selectedCategories.length, filterValue, isFilterMode])
 
   if (isLoading) {
     return null
@@ -102,6 +143,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
         isLoading,
         tab,
         changeTab,
+        filteredCategories,
         activeCategory,
         setActiveCategory,
         activeChatbot,
