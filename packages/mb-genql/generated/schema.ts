@@ -1681,6 +1681,7 @@ export interface Thread {
     chatbot: Chatbot
     chatbotId: Scalars['Int']
     createdAt: Scalars['timestamptz']
+    isApproved: (Scalars['Boolean'] | null)
     isPublic: (Scalars['Boolean'] | null)
     /** An array relationship */
     messages: Message[]
@@ -1767,15 +1768,15 @@ export interface ThreadMutationResponse {
 
 
 /** select columns of table "thread" */
-export type ThreadSelectColumn = 'chatbotId' | 'createdAt' | 'isPublic' | 'model' | 'threadId' | 'updatedAt' | 'userId'
+export type ThreadSelectColumn = 'chatbotId' | 'createdAt' | 'isApproved' | 'isPublic' | 'model' | 'threadId' | 'updatedAt' | 'userId'
 
 
 /** select "threadAggregateBoolExpBool_andArgumentsColumns" columns of table "thread" */
-export type ThreadSelectColumnThreadAggregateBoolExpBool_andArgumentsColumns = 'isPublic'
+export type ThreadSelectColumnThreadAggregateBoolExpBool_andArgumentsColumns = 'isApproved' | 'isPublic'
 
 
 /** select "threadAggregateBoolExpBool_orArgumentsColumns" columns of table "thread" */
-export type ThreadSelectColumnThreadAggregateBoolExpBool_orArgumentsColumns = 'isPublic'
+export type ThreadSelectColumnThreadAggregateBoolExpBool_orArgumentsColumns = 'isApproved' | 'isPublic'
 
 
 /** aggregate stddev on columns */
@@ -1807,7 +1808,7 @@ export interface ThreadSumFields {
 
 
 /** update columns of table "thread" */
-export type ThreadUpdateColumn = 'chatbotId' | 'createdAt' | 'isPublic' | 'model' | 'threadId' | 'updatedAt' | 'userId'
+export type ThreadUpdateColumn = 'chatbotId' | 'createdAt' | 'isApproved' | 'isPublic' | 'model' | 'threadId' | 'updatedAt' | 'userId'
 
 
 /** aggregate varPop on columns */
@@ -5717,6 +5718,7 @@ export interface ThreadGenqlSelection{
     chatbot?: ChatbotGenqlSelection
     chatbotId?: boolean | number
     createdAt?: boolean | number
+    isApproved?: boolean | number
     isPublic?: boolean | number
     /** An array relationship */
     messages?: (MessageGenqlSelection & { __args?: {
@@ -5807,7 +5809,7 @@ export interface ThreadAvgOrderBy {chatbotId?: (OrderBy | null)}
 
 
 /** Boolean expression to filter rows from the table "thread". All fields are combined with a logical 'AND'. */
-export interface ThreadBoolExp {_and?: (ThreadBoolExp[] | null),_not?: (ThreadBoolExp | null),_or?: (ThreadBoolExp[] | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),createdAt?: (TimestamptzComparisonExp | null),isPublic?: (BooleanComparisonExp | null),messages?: (MessageBoolExp | null),messagesAggregate?: (MessageAggregateBoolExp | null),model?: (ModelsEnumEnumComparisonExp | null),modelsEnum?: (ModelsEnumBoolExp | null),threadId?: (UuidComparisonExp | null),updatedAt?: (TimestamptzComparisonExp | null),user?: (UserBoolExp | null),userId?: (UuidComparisonExp | null)}
+export interface ThreadBoolExp {_and?: (ThreadBoolExp[] | null),_not?: (ThreadBoolExp | null),_or?: (ThreadBoolExp[] | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),createdAt?: (TimestamptzComparisonExp | null),isApproved?: (BooleanComparisonExp | null),isPublic?: (BooleanComparisonExp | null),messages?: (MessageBoolExp | null),messagesAggregate?: (MessageAggregateBoolExp | null),model?: (ModelsEnumEnumComparisonExp | null),modelsEnum?: (ModelsEnumBoolExp | null),threadId?: (UuidComparisonExp | null),updatedAt?: (TimestamptzComparisonExp | null),user?: (UserBoolExp | null),userId?: (UuidComparisonExp | null)}
 
 
 /** input type for incrementing numeric columns in table "thread" */
@@ -5815,7 +5817,7 @@ export interface ThreadIncInput {chatbotId?: (Scalars['Int'] | null)}
 
 
 /** input type for inserting data into table "thread" */
-export interface ThreadInsertInput {chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isPublic?: (Scalars['Boolean'] | null),messages?: (MessageArrRelInsertInput | null),model?: (ModelsEnumEnum | null),modelsEnum?: (ModelsEnumObjRelInsertInput | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),user?: (UserObjRelInsertInput | null),userId?: (Scalars['uuid'] | null)}
+export interface ThreadInsertInput {chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isApproved?: (Scalars['Boolean'] | null),isPublic?: (Scalars['Boolean'] | null),messages?: (MessageArrRelInsertInput | null),model?: (ModelsEnumEnum | null),modelsEnum?: (ModelsEnumObjRelInsertInput | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),user?: (UserObjRelInsertInput | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate max on columns */
@@ -5872,7 +5874,7 @@ export interface ThreadOnConflict {constraint: ThreadConstraint,updateColumns?: 
 
 
 /** Ordering options when selecting data from "thread". */
-export interface ThreadOrderBy {chatbot?: (ChatbotOrderBy | null),chatbotId?: (OrderBy | null),createdAt?: (OrderBy | null),isPublic?: (OrderBy | null),messagesAggregate?: (MessageAggregateOrderBy | null),model?: (OrderBy | null),modelsEnum?: (ModelsEnumOrderBy | null),threadId?: (OrderBy | null),updatedAt?: (OrderBy | null),user?: (UserOrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadOrderBy {chatbot?: (ChatbotOrderBy | null),chatbotId?: (OrderBy | null),createdAt?: (OrderBy | null),isApproved?: (OrderBy | null),isPublic?: (OrderBy | null),messagesAggregate?: (MessageAggregateOrderBy | null),model?: (OrderBy | null),modelsEnum?: (ModelsEnumOrderBy | null),threadId?: (OrderBy | null),updatedAt?: (OrderBy | null),user?: (UserOrderBy | null),userId?: (OrderBy | null)}
 
 
 /** primary key columns input for table: thread */
@@ -5880,7 +5882,7 @@ export interface ThreadPkColumnsInput {threadId: Scalars['uuid']}
 
 
 /** input type for updating data in table "thread" */
-export interface ThreadSetInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isPublic?: (Scalars['Boolean'] | null),model?: (ModelsEnumEnum | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
+export interface ThreadSetInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isApproved?: (Scalars['Boolean'] | null),isPublic?: (Scalars['Boolean'] | null),model?: (ModelsEnumEnum | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate stddev on columns */
@@ -5928,7 +5930,7 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface ThreadStreamCursorValueInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isPublic?: (Scalars['Boolean'] | null),model?: (ModelsEnumEnum | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
+export interface ThreadStreamCursorValueInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isApproved?: (Scalars['Boolean'] | null),isPublic?: (Scalars['Boolean'] | null),model?: (ModelsEnumEnum | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate sum on columns */
@@ -10198,6 +10200,7 @@ export const enumThreadConstraint = {
 export const enumThreadSelectColumn = {
    chatbotId: 'chatbotId' as const,
    createdAt: 'createdAt' as const,
+   isApproved: 'isApproved' as const,
    isPublic: 'isPublic' as const,
    model: 'model' as const,
    threadId: 'threadId' as const,
@@ -10206,16 +10209,19 @@ export const enumThreadSelectColumn = {
 }
 
 export const enumThreadSelectColumnThreadAggregateBoolExpBoolAndArgumentsColumns = {
+   isApproved: 'isApproved' as const,
    isPublic: 'isPublic' as const
 }
 
 export const enumThreadSelectColumnThreadAggregateBoolExpBoolOrArgumentsColumns = {
+   isApproved: 'isApproved' as const,
    isPublic: 'isPublic' as const
 }
 
 export const enumThreadUpdateColumn = {
    chatbotId: 'chatbotId' as const,
    createdAt: 'createdAt' as const,
+   isApproved: 'isApproved' as const,
    isPublic: 'isPublic' as const,
    model: 'model' as const,
    threadId: 'threadId' as const,
