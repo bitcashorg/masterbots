@@ -15,6 +15,17 @@ interface SidebarContext {
   activeChatbot: Chatbot | null
   setActiveCategory: React.Dispatch<React.SetStateAction<number | null>>
   setActiveChatbot: React.Dispatch<React.SetStateAction<Chatbot | null>>
+  isFilterMode: boolean
+  setIsFilterMode: React.Dispatch<React.SetStateAction<boolean>>
+  filterValue: string
+  setFilterValue: React.Dispatch<React.SetStateAction<string>>
+  selectedCategories: number[]
+  setSelectedCategories: React.Dispatch<React.SetStateAction<number[]>>
+  selectedChatbots: number[]
+  setSelectedChatbots: React.Dispatch<React.SetStateAction<number[]>>
+  selectedChats: string[]
+  setSelectedChats: React.Dispatch<React.SetStateAction<string[]>>
+  toggleChatbotSelection: (chatbotId: number) => void
 }
 
 const SidebarContext = React.createContext<SidebarContext | undefined>(
@@ -41,6 +52,15 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
   const [activeCategory, setActiveCategory] = React.useState<number | null>(
     null
   )
+  const [isFilterMode, setIsFilterMode] = React.useState(false)
+  const [filterValue, setFilterValue] = React.useState('')
+  const [selectedCategories, setSelectedCategories] = React.useState<number[]>(
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+  )
+  const [selectedChatbots, setSelectedChatbots] = React.useState<number[]>([
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42
+  ])
+  const [selectedChats, setSelectedChats] = React.useState<string[]>([])
 
   React.useEffect(() => {
     const value = localStorage.getItem(LOCAL_STORAGE_KEY)
@@ -57,6 +77,14 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
       return newState
     })
   }
+
+  const toggleChatbotSelection = React.useCallback((chatbotId: number) => {
+    setSelectedChatbots(prev =>
+      prev.includes(chatbotId)
+        ? prev.filter(id => id !== chatbotId)
+        : [...prev, chatbotId]
+    )
+  }, [])
 
   const changeTab = (cate: 'general' | 'work') => {
     setTab(cate)
@@ -77,7 +105,18 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
         activeCategory,
         setActiveCategory,
         activeChatbot,
-        setActiveChatbot
+        setActiveChatbot,
+        isFilterMode,
+        setIsFilterMode,
+        filterValue,
+        setFilterValue,
+        selectedCategories,
+        setSelectedCategories,
+        selectedChatbots,
+        setSelectedChatbots,
+        selectedChats,
+        setSelectedChats,
+        toggleChatbotSelection,
       }}
     >
       {children}

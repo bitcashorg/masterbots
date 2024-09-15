@@ -1,5 +1,6 @@
-import { ChatChatbot } from '@/components/chat/chat-chatbot'
-import ThreadPanel from '@/components/thread-panel'
+import { authOptions } from '@/auth'
+import { ChatChatbot } from '@/components/routes/chat/chat-chatbot'
+import ThreadPanel from '@/components/routes/thread/thread-panel'
 import { formatSystemPrompts } from '@/lib/actions'
 import { botNames } from '@/lib/bots-names'
 import { generateMetadataFromSEO } from '@/lib/metadata'
@@ -10,7 +11,6 @@ import { nanoid } from 'nanoid'
 import { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
-import {authOptions} from '@/auth';
 
 export default async function BotThreadsPage({
   params,
@@ -85,12 +85,13 @@ export async function generateMetadata({
   params: { chatbot: string }
 }): Promise<Metadata> {
   const chatbotName = botNames.get(params.chatbot)
+  const chatbot = await getChatbot({ chatbotName, jwt: '' })
 
   const seoData = {
     title: chatbotName || '',
-    description: chatbotName || '',
+    description: chatbot.description || '',
     ogType: 'website',
-    ogImageUrl: '',
+    ogImageUrl: chatbot.avatar || '',
     twitterCard: 'summary'
   }
 

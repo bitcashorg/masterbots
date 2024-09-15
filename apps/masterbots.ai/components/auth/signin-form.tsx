@@ -1,6 +1,6 @@
 'use client'
 
-import { LoginButton } from '@/components/login-button'
+import { LoginButton } from '@/components/shared/login-button'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -61,7 +61,7 @@ export default function SignInForm() {
       </Button>
       {appConfig.enableAuth.google && (
         <>
-          <div className="flex w-full items-center gap-4 my-2 text-center">
+          <div className="flex items-center w-full gap-4 my-2 text-center">
             <hr className="w-full" />
             <b className="text-muted-foreground">or</b>
             <hr className="w-full" />

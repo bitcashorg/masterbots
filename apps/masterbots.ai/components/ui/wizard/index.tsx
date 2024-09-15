@@ -1,14 +1,14 @@
-import { LoadingState } from '@/components/loading-state'
+import { LoadingState } from '@/components/shared/loading-state'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog'
 import { usePayment } from '@/lib/hooks/use-payment'
 import { motion } from 'framer-motion'
 import React from 'react'
 import { useWizard } from './hook/useWizard'
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogHeader
-} from '@/components/ui/dialog'
 
 export interface WizardStepProps {
   next: () => void
@@ -79,7 +79,7 @@ function Content({
     dialogOpen
   )
   const defaultErrorComponent = () => <div>{error}</div>
-  const ErrorComponent = (() => errorComponent) || defaultErrorComponent
+  const ErrorComponent = errorComponent ? () => errorComponent : defaultErrorComponent
 
   if (error && error !== '') {
     return (

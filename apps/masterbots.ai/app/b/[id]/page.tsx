@@ -1,7 +1,7 @@
 import { getChatbot, getBrowseThreads } from '@/services/hasura'
 import { botNames } from '@/lib/bots-names'
-import BrowseChatbotDetails from '@/components/browse-chatbot-details'
-import BrowseSpecificThreadList from '@/components/browse-specific-thread-list'
+import BrowseChatbotDetails from '@/components/routes/browse/browse-chatbot-details'
+import BrowseSpecificThreadList from '@/components/routes/browse/browse-specific-thread-list'
 import { Metadata } from 'next'
 import { generateMetadataFromSEO } from '@/lib/metadata'
 
