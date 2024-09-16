@@ -5,8 +5,8 @@ import { getCategories, getThreads } from '@/services/hasura'
 import { isTokenExpired, toSlug } from 'mb-lib'
 import { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
-import { redirect } from 'next/navigation' 
-import {authOptions} from '@/auth';
+import { redirect } from 'next/navigation'
+import { authOptions } from '@/auth'
 
 export default async function ChatCategoryPage({
   params
@@ -53,7 +53,8 @@ export async function generateMetadata({
 
   const seoData = {
     title: category?.name || '',
-    description: category?.name || '',
+    description:
+      'Please select one of the categories and a bot on the sidebar to start a conversation.',
     ogType: 'website',
     ogImageUrl: '',
     twitterCard: 'summary'
