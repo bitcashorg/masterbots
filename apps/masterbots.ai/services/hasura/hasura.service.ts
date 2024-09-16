@@ -357,49 +357,6 @@ export async function getBrowseThreads({
 
   const { thread } = await client.query({
     thread: {
-      chatbot: {
-        categories: {
-          category: {
-            ...everything
-          },
-          ...everything
-        },
-        threads: {
-          threadId: true
-        },
-        ...everything
-      },
-      messages: {
-        ...everything,
-        __args: {
-          orderBy: [{ createdAt: 'ASC' }],
-          ...(keyword
-            ? {
-              where: {
-                _or: [
-                  {
-                    content: {
-                      _iregex: keyword
-                    }
-                  },
-                  {
-                    content: {
-                      _eq: keyword
-                    }
-                  }
-                ]
-              }
-            }
-            : ''),
-          limit: 2
-        }
-      },
-      user: {
-        username: true,
-        profilePicture: true,
-        slug: true
-      },
-      ...everything,
       __args: {
         orderBy: [{ createdAt: 'DESC' }],
         where: {
@@ -456,7 +413,50 @@ export async function getBrowseThreads({
         },
         limit: limit || 30,
         offset: offset || 0
-      }
+      },
+      chatbot: {
+        categories: {
+          category: {
+            ...everything
+          },
+          ...everything
+        },
+        threads: {
+          threadId: true
+        },
+        ...everything
+      },
+      messages: {
+        ...everything,
+        __args: {
+          orderBy: [{ createdAt: 'ASC' }],
+          ...(keyword
+            ? {
+              where: {
+                _or: [
+                  {
+                    content: {
+                      _iregex: keyword
+                    }
+                  },
+                  {
+                    content: {
+                      _eq: keyword
+                    }
+                  }
+                ]
+              }
+            }
+            : ''),
+          limit: 2
+        }
+      },
+      user: {
+        username: true,
+        profilePicture: true,
+        slug: true
+      },
+      ...everything,
     },
   })
 
