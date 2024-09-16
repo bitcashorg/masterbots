@@ -17,7 +17,6 @@ export function ChatLayoutSection({ children }: { children: React.ReactNode }) {
     >
       <div className="flex flex-col pt-5 w-full gap-10 max-w-screen-lg mx-auto">
         {children}
-
       </div>
 
       {isOpenPopup ? <ThreadPopup /> : ''}
