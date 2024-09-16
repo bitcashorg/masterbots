@@ -34,7 +34,8 @@ export default async function IndexPage() {
 export async function generateMetadata(): Promise<Metadata> {
   const seoData = {
     title: 'Chat page',
-    description: 'Welcome to the chatbot page. Interact with our AI-powered chatbot and get answers to your questions.',
+    description:
+      'Welcome to the chatbot page. Interact with our AI-powered chatbot and get answers to your questions.',
     ogType: 'website',
     ogImageUrl: '',
     twitterCard: 'summary'
