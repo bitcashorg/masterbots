@@ -1,6 +1,6 @@
-import { ImageResponse } from '@vercel/og'
-//import { ImageResponse } from 'next/og'
+//import { ImageResponse } from '@vercel/og'
 // generates the image with error ↑
+import { ImageResponse } from 'next/og'
 import { NextRequest } from 'next/server'
 import { getThread } from '@/services/hasura'
 import '@/app/globals.css'
