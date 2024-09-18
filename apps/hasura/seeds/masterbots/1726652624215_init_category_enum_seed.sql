@@ -1,0 +1,11 @@
+SET check_function_bodies = false;
+INSERT INTO public.category_enum (name, domain, added) VALUES ('Cellular & Molecular Health', 'Natural Health', '2024-09-18 05:55:47.174016+00');
+INSERT INTO public.category_enum (name, domain, added) VALUES ('Systemic Balance & Regulation', 'Natural Health', '2024-09-18 05:55:47.174016+00');
+INSERT INTO public.category_enum (name, domain, added) VALUES ('Mind-Body Integration', 'Natural Health', '2024-09-18 05:55:47.174016+00');
+INSERT INTO public.category_enum (name, domain, added) VALUES ('Environmental Interaction', 'Natural Health', '2024-09-18 05:55:47.174016+00');
+INSERT INTO public.category_enum (name, domain, added) VALUES ('Chronobiology & Rhythms', 'Natural Health', '2024-09-18 05:55:47.174016+00');
+INSERT INTO public.category_enum (name, domain, added) VALUES ('Nutritional Optimization', 'Natural Health', '2024-09-18 05:55:47.174016+00');
+INSERT INTO public.category_enum (name, domain, added) VALUES ('Physical Modalities', 'Natural Health', '2024-09-18 05:55:47.174016+00');
+INSERT INTO public.category_enum (name, domain, added) VALUES ('Botanical & Supplemental Support', 'Natural Health', '2024-09-18 05:55:47.174016+00');
+INSERT INTO public.category_enum (name, domain, added) VALUES ('Lifestyle Optimization', 'Natural Health', '2024-09-18 05:55:47.174016+00');
+INSERT INTO public.category_enum (name, domain, added) VALUES ('Preventive & Longevity Strategies', 'Natural Health', '2024-09-18 05:55:47.174016+00');
