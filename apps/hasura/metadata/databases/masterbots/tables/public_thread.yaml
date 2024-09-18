@@ -38,11 +38,12 @@ select_permissions:
       columns:
         - chatbot_id
         - created_at
-        - updated_at
-        - thread_id
-        - user_id
+        - is_approved
         - is_public
         - model
+        - thread_id
+        - updated_at
+        - user_id
       filter: {}
     comment: ""
   - role: user
@@ -50,10 +51,23 @@ select_permissions:
       columns:
         - chatbot_id
         - created_at
-        - updated_at
-        - thread_id
-        - user_id
+        - is_approved
         - is_public
         - model
+        - thread_id
+        - updated_at
+        - user_id
       filter: {}
+    comment: ""
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - chatbot_id
+        - is_public
+        - model
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+      check: null
     comment: ""

@@ -1,4 +1,3 @@
-import { ChatbotOrderBy } from 'mb-genql'
 
 export type GetHasuraClientParams = {
   jwt?: string
@@ -52,9 +51,11 @@ export interface GetChatbotParams extends HasuraServiceParams {
 
 export interface GetBrowseThreadsParams {
   categoryId?: number | null
+  categoriesId?: number[] | null
   keyword?: string
   userId?: string
   chatbotName?: string
+  chatbotsId?: number[]
   slug?: string | null
   limit?: number
   offset?: number

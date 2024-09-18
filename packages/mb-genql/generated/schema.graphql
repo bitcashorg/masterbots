@@ -3593,7 +3593,7 @@ unique or primary key constraints on table "prompt_chatbot"
 """
 enum PromptChatbotConstraint {
   """
-  unique or primary key constraint on columns "chabot_id", "prompt_id"
+  unique or primary key constraint on columns "prompt_id", "chabot_id"
   """
   prompt_chatbot_pkey
 }
@@ -4901,6 +4901,7 @@ type Thread {
   chatbot: Chatbot!
   chatbotId: Int!
   createdAt: timestamptz!
+  isApproved: Boolean
   isPublic: Boolean
 
   """An array relationship"""
@@ -5030,6 +5031,7 @@ input ThreadBoolExp {
   chatbot: ChatbotBoolExp
   chatbotId: IntComparisonExp
   createdAt: TimestamptzComparisonExp
+  isApproved: BooleanComparisonExp
   isPublic: BooleanComparisonExp
   messages: MessageBoolExp
   messagesAggregate: MessageAggregateBoolExp
@@ -5070,6 +5072,7 @@ input ThreadInsertInput {
   chatbot: ChatbotObjRelInsertInput
   chatbotId: Int
   createdAt: timestamptz
+  isApproved: Boolean
   isPublic: Boolean
   messages: MessageArrRelInsertInput
   model: ModelsEnumEnum
@@ -5155,6 +5158,7 @@ input ThreadOrderBy {
   chatbot: ChatbotOrderBy
   chatbotId: OrderBy
   createdAt: OrderBy
+  isApproved: OrderBy
   isPublic: OrderBy
   messagesAggregate: MessageAggregateOrderBy
   model: OrderBy
@@ -5181,6 +5185,9 @@ enum ThreadSelectColumn {
   createdAt
 
   """column name"""
+  isApproved
+
+  """column name"""
   isPublic
 
   """column name"""
@@ -5201,6 +5208,9 @@ select "threadAggregateBoolExpBool_andArgumentsColumns" columns of table "thread
 """
 enum ThreadSelectColumnThreadAggregateBoolExpBool_andArgumentsColumns {
   """column name"""
+  isApproved
+
+  """column name"""
   isPublic
 }
 
@@ -5208,6 +5218,9 @@ enum ThreadSelectColumnThreadAggregateBoolExpBool_andArgumentsColumns {
 select "threadAggregateBoolExpBool_orArgumentsColumns" columns of table "thread"
 """
 enum ThreadSelectColumnThreadAggregateBoolExpBool_orArgumentsColumns {
+  """column name"""
+  isApproved
+
   """column name"""
   isPublic
 }
@@ -5218,6 +5231,7 @@ input type for updating data in table "thread"
 input ThreadSetInput {
   chatbotId: Int
   createdAt: timestamptz
+  isApproved: Boolean
   isPublic: Boolean
   model: ModelsEnumEnum
   threadId: uuid
@@ -5276,6 +5290,7 @@ input ThreadStreamCursorInput {
 input ThreadStreamCursorValueInput {
   chatbotId: Int
   createdAt: timestamptz
+  isApproved: Boolean
   isPublic: Boolean
   model: ModelsEnumEnum
   threadId: uuid
@@ -5304,6 +5319,9 @@ enum ThreadUpdateColumn {
 
   """column name"""
   createdAt
+
+  """column name"""
+  isApproved
 
   """column name"""
   isPublic

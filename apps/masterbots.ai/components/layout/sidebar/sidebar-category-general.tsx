@@ -1,17 +1,18 @@
-// import { ChatHistory } from '@/components/chat-history'
-import { getCategories } from '@/services/hasura'
-import { getServerSession } from 'next-auth'
-import SidebarLink from '@/components/layout/sidebar/sidebar-link'
+'use client'
 
-export async function SidebarGeneralCategory() {
-  const session = await getServerSession()
-  if (!session) return null
-  const categories = await getCategories()
+import SidebarLink from '@/components/layout/sidebar/sidebar-link'
+import { useSidebar } from '@/lib/hooks/use-sidebar'
+
+export function SidebarCategoryGeneral() {
+  const { filteredCategories, selectedCategories, isFilterMode } = useSidebar()
+
+  if (!filteredCategories.length) return <div className="p-4 text-center">No matching categories found</div>
+
   return (
-    <ul>
-      {categories.map((category, key) => (
-        <li key={key}>
-          <SidebarLink category={category} />
+    <ul className="space-y-2">
+      {filteredCategories.map((category) => (
+        <li key={category.categoryId}>
+          <SidebarLink category={category} isFilterMode={isFilterMode} />
         </li>
       ))}
     </ul>

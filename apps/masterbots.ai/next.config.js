@@ -4,6 +4,8 @@ const path = require('path')
 
 module.exports = {
   images: {
+    // ? Allowing SVGs to be used as images from trusted sources
+    dangerouslyAllowSVG: true,
     remotePatterns: [
       {
         protocol: 'https',

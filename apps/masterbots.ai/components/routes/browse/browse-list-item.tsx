@@ -91,12 +91,12 @@ export default function BrowseListItem({
     // Should fetch messages only when opening thread.
   }
 
-  const goToThread = () => {
-    router.push(
-      `/b/${thread.chatbot.name.trim().toLowerCase()}/${thread.threadId}`
-    )
-    router.refresh()
+  const goToBotPage = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    router.push(`/b/${thread.chatbot.name.trim().toLowerCase()}/${thread.threadId}`)
   }
+
 
   return (
     <div ref={threadRef}>
@@ -121,12 +121,12 @@ export default function BrowseListItem({
           )}
         >
           {pageType !== 'bot' && thread.chatbot?.avatar ? (
-            <Link
-              href={`/b/${thread.chatbot.name.toLowerCase()}`}
-              title={thread.chatbot?.name}
-              className={cn(
-                'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow'
-              )}
+            <div
+            onClick={goToBotPage}
+            title={thread.chatbot?.name}
+            className={cn(
+              'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow cursor-pointer'
+            )}
             >
               <Image
                 className="transition-opacity duration-300 rounded-full select-none bg-background dark:bg-primary-foreground hover:opacity-80"
@@ -135,19 +135,19 @@ export default function BrowseListItem({
                 height={32}
                 width={32}
               />
-            </Link>
+            </div>
           ) : (
             pageType !== 'bot' && (
-              <Link
-                href={`/b/${thread.chatbot?.name.toLowerCase()}`}
+              <div
+                onClick={goToBotPage}
                 title={thread.chatbot?.name}
                 className={cn(
-                  'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow',
+                  'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow cursor-pointer',
                   'bg-primary text-primary-foreground'
                 )}
               >
                 <IconOpenAI />
-              </Link>
+              </div>
             )
           )}
           <div className="w-[calc(100%-64px)] m:w-[calc(100%-28px)] flex items-center gap-3 text-left">

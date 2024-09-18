@@ -1,5 +1,6 @@
 'use client'
 
+import ChatChatbotDetails from '@/components/routes/chat/chat-chatbot-details'
 import { ChatSearchInput } from '@/components/routes/chat/chat-search-input'
 import ThreadList from '@/components/routes/thread/thread-list'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
@@ -7,9 +8,8 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { getThreads } from '@/services/hasura'
 import { Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
-import React, { useEffect, useRef } from 'react'
-import ChatChatbotDetails from '@/components/routes/chat/chat-chatbot-details'
 import { useParams } from 'next/navigation'
+import React, { useEffect, useRef } from 'react'
 
 const PAGE_SIZE = 20
 
@@ -94,7 +94,7 @@ export default function UserThreadPanel({
   return (
     <>
       {threads && threads.length > 0 ? (
-        <div className="flex lg:w-[calc(100%-250px)] xl:w-[calc(100%-300px)] flex-col pb-[150px]">
+        <>
           <div className="flex justify-between px-4 md:px-10 py-5 lg:max-w-[calc(100%-100px)] 2xl:max-w-full">
             <ChatSearchInput setThreads={setThreads} />
           </div>
@@ -108,7 +108,7 @@ export default function UserThreadPanel({
               loadMore={loadMore}
             />
           </div>
-        </div>
+        </>
       ) : (
         ''
       )}

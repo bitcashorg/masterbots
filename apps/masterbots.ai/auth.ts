@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs'
 import { setCookie } from 'cookies-next'
-import { getHasuraClient, getToken, validateJwtSecret, verify } from 'mb-lib'
+import { getHasuraClient, getToken, toSlug, validateJwtSecret, verify } from 'mb-lib'
 import {
   GetServerSidePropsContext,
   NextApiRequest,
@@ -76,12 +76,13 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt' //* NextAuth V > 4 needs to specify the session strategy
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
-        token.id = user.id
-        token.email = user.email
-        token.name = user.name
-        token.image = user.image
+        token.id = user.id;
+        token.email = user.email;
+        token.name = user.name;
+        token.image = user.image;
+        token.provider = account?.provider || 'credentials';
 
         //* Validate and prepare the JWT secret for signing tokens
         const jwtSecret = validateJwtSecret(
@@ -146,7 +147,52 @@ export const authOptions: NextAuthOptions = {
     // @ts-ignore
     async authorized({ auth }) {
       return !!auth?.user
-    }
+    },
+    async signIn({ user, account }) {
+      if (account?.provider === 'google') {
+        const client = getHasuraClient();
+
+        let signedUser;
+
+        // Check if user exists, if not, create a new user
+        const { user: currentUser } = await client.query({
+          user: {
+            __args: {
+              where: { email: { _eq: user.email } }
+            },
+            userId: true
+          }
+        })
+
+        signedUser = currentUser
+
+        if (!signedUser || signedUser.length === 0) {
+          const slug = toSlug(user.name as string)
+          // Create new user in your database
+          const { insertUserOne: newUser } = await client.mutation({
+            insertUserOne: {
+              __args: {
+                object: {
+                  slug,
+                  email: user.email,
+                  username: user.name,
+                  profilePicture: user.image,
+                  // You might want to generate a random password here
+                  password: bcrypt.hashSync(Math.random().toString(36).slice(-8), 10)
+                }
+              },
+              userId: true
+            }
+          })
+
+          signedUser = [newUser]
+        }
+
+        user.id = signedUser[0]?.userId || user.id
+      }
+
+      return true
+    },
   },
   pages: {
     signIn: '/auth/signin' //* Custom sign-in page

@@ -53,7 +53,8 @@ export async function generateMetadata({
 
   const seoData = {
     title: category?.name || '',
-    description: category?.name || '',
+    description:
+      'Please select one of the categories and a bot on the sidebar to start a conversation.',
     ogType: 'website',
     ogImageUrl: '',
     twitterCard: 'summary'

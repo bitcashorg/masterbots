@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
             username: newUsername,
             slug: toSlug(newUsername),
             password: hashedPassword,
-            profilePicture: 'https://robohash.org/' + newUsername + '?set=set3'
+            profilePicture: 'https://api.dicebear.com/9.x/identicon/svg?seed=' + newUsername
           }
         },
         userId: true

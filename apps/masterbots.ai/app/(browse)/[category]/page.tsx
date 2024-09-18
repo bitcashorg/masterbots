@@ -37,7 +37,8 @@ export async function generateMetadata({
 
   const seoData = {
     title: category?.name || '',
-    description: category?.name || '',
+    description:
+      'Browse our collection of chatbots and find the one that suits your needs.',
     ogType: 'website',
     ogImageUrl: '',
     twitterCard: 'summary'

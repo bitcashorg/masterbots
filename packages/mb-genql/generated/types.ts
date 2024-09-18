@@ -6920,6 +6920,9 @@ export default {
             "createdAt": [
                 580
             ],
+            "isApproved": [
+                0
+            ],
             "isPublic": [
                 0
             ],
@@ -7145,6 +7148,9 @@ export default {
             "createdAt": [
                 507
             ],
+            "isApproved": [
+                1
+            ],
             "isPublic": [
                 1
             ],
@@ -7194,6 +7200,9 @@ export default {
             ],
             "createdAt": [
                 580
+            ],
+            "isApproved": [
+                0
             ],
             "isPublic": [
                 0
@@ -7349,6 +7358,9 @@ export default {
             "createdAt": [
                 256
             ],
+            "isApproved": [
+                256
+            ],
             "isPublic": [
                 256
             ],
@@ -7394,6 +7406,9 @@ export default {
             ],
             "createdAt": [
                 580
+            ],
+            "isApproved": [
+                0
             ],
             "isPublic": [
                 0
@@ -7479,6 +7494,9 @@ export default {
             ],
             "createdAt": [
                 580
+            ],
+            "isApproved": [
+                0
             ],
             "isPublic": [
                 0

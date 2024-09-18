@@ -1,11 +1,12 @@
 'use client'
 
-import React from 'react'
+import BrowseListItem from '@/components/routes/browse/browse-list-item'
 import { useBrowse } from '@/lib/hooks/use-browse'
+import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { getBrowseThreads } from '@/services/hasura'
 import { debounce } from 'lodash'
 import { Thread } from 'mb-genql'
-import BrowseListItem from '@/components/routes/browse/browse-list-item'
+import React from 'react'
 
 const PAGE_SIZE = 50
 
@@ -16,10 +17,20 @@ export default function BrowseList() {
   const [filteredThreads, setFilteredThreads] = React.useState<Thread[]>([])
   const [loading, setLoading] = React.useState<boolean>(false)
   const [count, setCount] = React.useState<number>(0)
+  const { selectedCategories, selectedChatbots } = useSidebar()
 
-  const fetchThreads = async (keyword: string, tab: number | null) => {
+  const fetchThreads = async ({
+    categoriesId,
+    chatbotsId,
+    keyword
+  }: {
+    categoriesId: number[]
+    chatbotsId: number[]
+    keyword: string
+  }) => {
     const threads = await getBrowseThreads({
-      categoryId: tab,
+      categoriesId,
+      chatbotsId,
       keyword,
       limit: PAGE_SIZE
     })
@@ -33,7 +44,7 @@ export default function BrowseList() {
     } else {
       debounce(() => {
         // TODO: Improve thread messages architecture to implement dynamic search to show only the thread title (first message on thread)
-        // fetchThreads(keyword, tab)
+        // fetchThreads(keyword, selectedCategories)
         setFilteredThreads(
           threads.filter((thread: Thread) =>
             thread.messages[0]?.content
@@ -51,7 +62,7 @@ export default function BrowseList() {
     setLoading(true)
 
     const moreThreads = await getBrowseThreads({
-      categoryId: tab,
+      categoriesId: selectedCategories,
       offset: threads.length,
       limit: PAGE_SIZE
     })
@@ -62,8 +73,8 @@ export default function BrowseList() {
   }
 
   React.useEffect(() => {
-    fetchThreads('', tab)
-  }, [tab])
+    fetchThreads({ keyword, categoriesId: selectedCategories, chatbotsId: selectedChatbots })
+  }, [selectedCategories.length, selectedChatbots.length])
 
   React.useEffect(() => {
     verifyKeyword()

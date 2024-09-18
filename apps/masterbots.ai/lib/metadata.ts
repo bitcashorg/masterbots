@@ -1,8 +1,8 @@
-import { getThread } from '@/services/hasura'
-import type { Metadata } from 'next'
 import { getThreadLink } from '@/lib/threads'
-import { headers } from 'next/headers'
+import { getThread } from '@/services/hasura'
 import { Thread } from 'mb-genql'
+import type { Metadata } from 'next'
+import { headers } from 'next/headers'
 
 type OgType =
   | 'website'
@@ -17,14 +17,8 @@ type OgType =
   | 'video.episode'
   | 'video.tv_show'
   | 'video.other'
-  | undefined
 
-type TwitterCard =
-  | 'summary'
-  | 'summary_large_image'
-  | 'player'
-  | 'app'
-  | undefined
+type TwitterCard = 'summary' | 'summary_large_image' | 'player' | 'app'
 
 interface PageSEO {
   title: string
@@ -38,6 +32,8 @@ export const generateMetadataFromSEO = (pageSeo: PageSEO): Metadata => {
   const headersList = headers()
   const pathname = headersList.get('x-invoke-path') || ''
   const currentUrl = process.env.VERCEL_URL + pathname
+  const ogImageUrlDefault = '/masterbots_og.png'
+
   return {
     title: pageSeo.title || '',
     description: pageSeo.description || '',
@@ -46,14 +42,16 @@ export const generateMetadataFromSEO = (pageSeo: PageSEO): Metadata => {
       title: pageSeo.title,
       description: pageSeo.description,
       url: currentUrl,
-      images: pageSeo.ogImageUrl ? [{ url: pageSeo.ogImageUrl }] : []
+      images: pageSeo.ogImageUrl
+        ? [{ url: pageSeo.ogImageUrl }]
+        : [ogImageUrlDefault]
     },
     twitter: {
       card: pageSeo.twitterCard as TwitterCard,
       site: currentUrl,
       title: pageSeo.title,
       description: pageSeo.description,
-      images: pageSeo.ogImageUrl ? [pageSeo.ogImageUrl] : []
+      images: pageSeo.ogImageUrl ? [pageSeo.ogImageUrl] : [ogImageUrlDefault]
     }
   }
 }
@@ -69,7 +67,7 @@ export async function generateMbMetadata({
     publishedAt: new Date().toISOString(),
     summary: 'not found',
     image: `${process.env.BASE_URL}/api/og?threadId=1`,
-    pathname: '#',
+    pathname: '#'
   }
 
   try {
