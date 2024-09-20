@@ -9,7 +9,7 @@ import {
   setStreamerPayload
 } from '@/lib/helpers/ai-helpers'
 import { createAnthropic } from '@ai-sdk/anthropic'
-import {AIModels} from '@/app/api/chat/models/models';
+import { AIModels } from '@/app/api/chat/models/models'
 
 //* this function is used to create a client for the OpenAI API
 const initializeOpenAI = createOpenAI({
@@ -34,8 +34,6 @@ export async function initializePerplexity(apiKey: string) {
     compatibility: 'compatible'
   })
 }
-
-
 
 // * This function improves the message using the AI
 export async function improveMessage(
@@ -69,18 +67,27 @@ export async function improveMessage(
 // * This function creates the prompt for the AI improvement process
 function createImprovementPrompt(content: string): string {
   return `
-    You are an expert grammar and spelling AI assistant skilled in understanding and correcting human typing errors. Your task is to improve the following text by:
-      1. Correcting all spelling errors
-      2. Fixing any grammar issues
-      3. Improving and correcting punctuation where necessary
-      4. Guessing the intended words if there are obvious typos
+  You are an expert polyglot, grammar, and spelling AI assistant skilled in understanding and correcting spelling and typing errors across multiple languages. 
+  Your task is to improve the following original text: ${content}
 
-      Please maintain the original meaning and intent of the message. 
-      Return only the improved text without any explanations or additional content.
+  Follow these steps:
 
-      Original text: "${content}"
+  1. Determine the original language of the provided text.
+  2. For clear typos in common words, guess the intended words. However, if the input is ambiguous or seems intentionally unconventional, preserve it as is.
+  3. Correct obvious spelling errors and address clear grammar issues.
+  4. Improve and correct punctuation where necessary, but only when it's clearly incorrect.
+  5. If the text is not in English, translate it to English for internal processing, but do not output the translation.
+  6. If there's a question, answer it in English, then translate the answer back to the original language, maintaining the original style and tone.
+  7. Provide the final improved text in the grammatically corrected original language, preserving the original meaning and intent.
 
-      Improved text:`
+  Important: 
+  - Be conservative in your corrections. If a word or phrase is unclear and not close to a common term in the identified language, leave it as is.
+  - For very short inputs or single words, be especially cautious about making changes unless the correction is absolutely certain.
+  - Maintain the original structure and formatting of the input as much as possible.
+
+  Provide only the corrected and improved text without any additional explanation.
+
+  Improved text:`
 }
 
 // * This function retries the AI improvement process if the first attempt fails
@@ -181,7 +188,8 @@ async function readStreamResponse(body: ReadableStream): Promise<string> {
 function cleanResult(result: string): string {
   return result
     .replace(/[\\\"\/]/g, '')
-    .replace(/\s+/g, ' ')
+    .replace(/\s+/g, ' ') // Replace multiple spaces with a single space
+    .replace(/\s+([.,!?;:])/g, '$1') // Remove spaces before punctuation
     .trim()
 }
 
@@ -202,7 +210,6 @@ function handleImprovementError(
   console.error('Error in improvement process:', error)
   return originalContent
 }
-
 
 //* Create a response stream based on the client model type
 
