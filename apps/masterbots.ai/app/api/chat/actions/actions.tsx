@@ -1,15 +1,15 @@
 'use server'
 
-import { streamText } from 'ai'
-import { createOpenAI } from '@ai-sdk/openai'
-import { AiClientType, JSONResponseStream } from '@/types/types'
-import { ChatCompletionMessageParam } from 'openai/resources'
+import { AIModels } from '@/app/api/chat/models/models'
 import {
   convertToCoreMessages,
   setStreamerPayload
 } from '@/lib/helpers/ai-helpers'
+import { AiClientType, JSONResponseStream } from '@/types/types'
 import { createAnthropic } from '@ai-sdk/anthropic'
-import {AIModels} from '@/app/api/chat/models/models';
+import { createOpenAI } from '@ai-sdk/openai'
+import { streamText } from 'ai'
+import { ChatCompletionMessageParam } from 'openai/resources'
 
 //* this function is used to create a client for the OpenAI API
 const initializeOpenAI = createOpenAI({
@@ -68,19 +68,26 @@ export async function improveMessage(
 
 // * This function creates the prompt for the AI improvement process
 function createImprovementPrompt(content: string): string {
-  return `
-    You are an expert grammar and spelling AI assistant skilled in understanding and correcting human typing errors. Your task is to improve the following text by:
-      1. Correcting all spelling errors
-      2. Fixing any grammar issues
-      3. Improving and correcting punctuation where necessary
-      4. Guessing the intended words if there are obvious typos
+  return `Improve the following text by fixing any spelling errors and improving punctuation.
+    Keep the essence and length of the text intact, making it more readable and professional.
+    Return only the improved text without any additional explanation.
+    
+    Original text: ${content}
+    
+    Improved text:`
+  // return `
+  //   You are an expert grammar and spelling AI assistant skilled in understanding and correcting human typing errors. Your task is to improve the following text by:
+  //     1. Correcting all spelling errors
+  //     2. Fixing any grammar issues
+  //     3. Improving and correcting punctuation where necessary
+  //     4. Guessing the intended words if there are obvious typos
 
-      Please maintain the original meaning and intent of the message. 
-      Return only the improved text without any explanations or additional content.
+  //     Please maintain the original meaning and intent of the message. 
+  //     Return only the improved text without any explanations or additional content.
 
-      Original text: "${content}"
+  //     Original text: "${content}"
 
-      Improved text:`
+  //     Improved text:`
 }
 
 // * This function retries the AI improvement process if the first attempt fails
