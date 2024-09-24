@@ -9,8 +9,7 @@ import { useBrowse } from '@/lib/hooks/use-browse'
 export function BrowseSearchInput() {
   const { keyword, changeKeyword } = useBrowse()
   return (
-    <div className="flex flex-col items-center justify-center w-full pt-10 pb-4 dark:bg-[#09090B] bg-[#f5f5f4] rounded-lg gap-4 px-4">
-      <div className="relative w-full max-w-[600px]">
+      <div className="relative w-full max-w-[600px] mx-auto flex items-center justify-center pt-5">
         <Input
           value={keyword}
           onChange={e => {
@@ -31,11 +30,5 @@ export function BrowseSearchInput() {
           </Button>
         )}
       </div>
-      <div className="w-full text-center">
-        <p className="dark:text-[#83E56A] text-[#BE17E8] text-xs font-medium pt-4">
-        Masterbots isn't infallible; verify crucial facts. Nonprofessional advice.
-        </p>
-      </div>
-    </div>
   )
 }
