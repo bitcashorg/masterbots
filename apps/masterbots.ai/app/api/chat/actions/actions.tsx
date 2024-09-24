@@ -76,16 +76,12 @@ function createImprovementPrompt(content: string): string {
   2. For clear typos in common words, guess the intended words. However, if the input is ambiguous or seems intentionally unconventional, preserve it as is.
   3. Correct obvious spelling errors and address clear grammar issues.
   4. Improve and correct punctuation where necessary, but only when it's clearly incorrect.
-  5. If the text is not in English, translate it to English for internal processing, but do not output the translation.
-  6. If there's a question, answer it in English, then translate the answer back to the original language, maintaining the original style and tone.
-  7. Provide the final improved text in the grammatically corrected original language, preserving the original meaning and intent.
+  5. Provide the final improved text in the grammatically corrected original language, preserving the original meaning and intent.
 
   Important: 
-  - Be conservative in your corrections. If a word or phrase is unclear and not close to a common term in the identified language, leave it as is.
   - For very short inputs or single words, be especially cautious about making changes unless the correction is absolutely certain.
   - Maintain the original structure and formatting of the input as much as possible.
-
-  Provide only the corrected and improved text without any additional explanation.
+  - Provide only the corrected and improved text without any additional explanation.
 
   Improved text:`
 }
@@ -178,7 +174,7 @@ async function readStreamResponse(body: ReadableStream): Promise<string> {
   for (const part of parts) {
     const match = part.match(/^0:"(.*)"$/)
     if (match) {
-      result += match[1] + ' '
+      result += match[1]
     }
   }
 
@@ -187,10 +183,11 @@ async function readStreamResponse(body: ReadableStream): Promise<string> {
 
 function cleanResult(result: string): string {
   return result
-    .replace(/[\\\"\/]/g, '')
+    .trim() // First, trim leading and trailing whitespace
+    .replace(/[\\\"\/]/g, '') // Remove backslashes and quotes
     .replace(/\s+/g, ' ') // Replace multiple spaces with a single space
-    .replace(/\s+([.,!?;:])/g, '$1') // Remove spaces before punctuation
-    .trim()
+    .replace(/\s+([.,!?;:])(?!\.\.\.)/g, '$1') // Remove spaces before punctuation, except for ellipsis
+    .replace(/\s*\.\s*\.\s*\./g, '...') // Clean up ellipsis
 }
 
 function isInvalidResult(result: string, originalContent: string): boolean {
@@ -212,7 +209,6 @@ function handleImprovementError(
 }
 
 //* Create a response stream based on the client model type
-
 export async function createResponseStream(
   clientType: AiClientType,
   json: JSONResponseStream,
@@ -233,7 +229,7 @@ export async function createResponseStream(
         const response = await streamText({
           model: openaiModel,
           messages: coreMessages,
-          temperature: 0.3
+          temperature: 0.4
         })
         responseStream = response.toDataStreamResponse().body as ReadableStream
         break

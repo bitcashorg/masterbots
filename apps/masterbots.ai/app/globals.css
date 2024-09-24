@@ -263,6 +263,27 @@
   z-index: 2;
 }
 
+.layout-footer {
+  width: 100%;
+  overflow: auto;
+  animation: animate-in 300ms ease-in-out;
+  position: relative;
+  padding: 1rem;
+
+  @media (min-width: 768px) {
+    padding: 2.5rem;
+  }
+
+  @media (min-width: 1024px) {
+    width: calc(100% - 250px);
+    margin-left: 250px;
+  }
+
+  @media (min-width: 1280px) {
+    width: calc(100% - 300px);
+    margin-left: 300px;
+  }
+}
 /* // black when it's dark mode and white when it's light mode  */
 .p-FieldLabel.Label {
   color: green !important;
