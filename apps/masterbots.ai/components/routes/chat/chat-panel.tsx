@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { type UseChatHelpers } from 'ai/react'
 import { PromptForm } from '@/components/routes/chat/prompt-form'
-import { FooterText } from '@/components/layout/footer/footer'
 import { Chatbot } from 'mb-genql'
 import { cn } from '@/lib/utils'
 import { useThread } from '@/lib/hooks/use-thread'
@@ -82,8 +81,6 @@ export function ChatPanel({
             isLoading={isLoading}
             placeholder={placeholder}
           />
-
-          <FooterText className="hidden sm:block" />
         </div>
       </div>
     </div>
