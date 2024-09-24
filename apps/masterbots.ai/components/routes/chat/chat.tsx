@@ -127,7 +127,8 @@ export function Chat({
 
   const sendMessageFromResponse = async (bulletContent: string) => {
     setIsNewResponse(true)
-    const fullMessage = `Tell me more about ${bulletContent}`
+    const fullMessage = bulletContent
+
     await saveNewMessage({
       role: 'user',
       threadId:
@@ -135,14 +136,15 @@ export function Chat({
       content: fullMessage,
       jwt: session!.user?.hasuraJwt
     })
+
     append({
       role: 'user',
-      content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
+      content: `Context: We've been discussing the following topics: [${getAllUserMessagesAsStringArray(
         allMessages
-      )}].  Then answer this question: ${fullMessage}`
+      )}]. Now, I'd like to focus on or get more information about the following point: ${fullMessage}
+      please provide a detailed response, elaborating on this specific point within the context of our previous discussion. If it's a question, answer it; if it's a statement, provide more information or analysis about it.`
     })
   }
-
   // we extend append function to add our system prompts
   const appendWithMbContextPrompts = async (
     userMessage: Message | CreateMessage,
