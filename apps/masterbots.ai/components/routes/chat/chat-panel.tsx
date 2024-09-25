@@ -1,14 +1,10 @@
 import * as React from 'react'
 import { type UseChatHelpers } from 'ai/react'
-import { Button } from '@/components/ui/button'
 import { PromptForm } from '@/components/routes/chat/prompt-form'
-import { ButtonScrollToBottom } from '@/components/shared/button-scroll-to-bottom'
-import { IconRefresh, IconShare, IconStop } from '@/components/ui/icons'
-import { FooterText } from '@/components/layout/footer/footer'
-import { ChatShareDialog } from '@/components/routes/chat/chat-share-dialog'
 import { Chatbot } from 'mb-genql'
 import { cn } from '@/lib/utils'
 import { useThread } from '@/lib/hooks/use-thread'
+import { ChatPanelHeader } from '@/components/routes/chat/chat-panel-header'
 
 export interface ChatPanelProps
   extends Pick<
@@ -48,7 +44,6 @@ export function ChatPanel({
   scrollToBottom,
   className
 }: ChatPanelProps) {
-  const [shareDialogOpen, setShareDialogOpen] = React.useState(false)
   const { isOpenPopup } = useThread()
   return (
     <div
@@ -57,56 +52,18 @@ export function ChatPanel({
         className
       )}
     >
-      <ButtonScrollToBottom
-        scrollToBottom={scrollToBottom}
-        isAtBottom={isAtBottom}
-      />
       <div className="mx-auto ">
-        {chatbot && showReload ? (
-          <div className="flex items-center justify-center h-12">
-            {isLoading ? (
-              <Button
-                variant="outline"
-                onClick={() => stop()}
-                className="bg-background"
-              >
-                <IconStop className="mr-2" />
-                Stop generating
-              </Button>
-            ) : (
-              messages?.length >= 2 && (
-                <div className="flex space-x-2 bg-inherit">
-                  <Button variant="outline" onClick={() => reload()}>
-                    <IconRefresh className="mr-2" />
-                    Regenerate response
-                  </Button>
-                  {id && title ? (
-                    <>
-                      <Button
-                        variant="outline"
-                        onClick={() => setShareDialogOpen(true)}
-                      >
-                        <IconShare className="mr-2" />
-                        Share
-                      </Button>
-                      <ChatShareDialog
-                        // open={shareDialogOpen}
-                        // onOpenChange={setShareDialogOpen}
-                        onCopy={() => setShareDialogOpen(false)}
-                        // shareChat={(id:string)=>{}}
-                        chat={{
-                          id,
-                          title,
-                          messages
-                        }}
-                      />
-                    </>
-                  ) : null}
-                </div>
-              )
-            )}
-          </div>
-        ) : null}
+        <ChatPanelHeader
+          id={id}
+          title={title}
+          isLoading={isLoading}
+          stop={stop}
+          reload={reload}
+          messages={messages}
+          showReload={showReload}
+          scrollToBottom={scrollToBottom}
+          isAtBottom={isAtBottom}
+        />
         <div
           className={`px-4 py-2 space-y-4 border-t shadow-lg bg-background sm:border md:py-4 ${isOpenPopup ? 'dark:border-mirage border-iron' : ''}`}
         >
@@ -124,7 +81,6 @@ export function ChatPanel({
             isLoading={isLoading}
             placeholder={placeholder}
           />
-          <FooterText className="hidden sm:block" />
         </div>
       </div>
     </div>
