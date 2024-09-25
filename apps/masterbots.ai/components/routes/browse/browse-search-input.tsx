@@ -9,15 +9,14 @@ import { useBrowse } from '@/lib/hooks/use-browse'
 export function BrowseSearchInput() {
   const { keyword, changeKeyword } = useBrowse()
   return (
-    <div className="flex flex-col items-center justify-center w-full pt-10 pb-4 dark:bg-[#09090B] bg-[#F4F4F5] rounded-lg gap-4 px-4">
-      <div className="relative w-full max-w-[600px]">
+      <div className="relative w-full max-w-[600px] mx-auto flex items-center justify-center pt-5">
         <Input
           value={keyword}
           onChange={e => {
             changeKeyword(e.target.value)
           }}
           placeholder="Search any chat with any Bot"
-          className="w-full py-6"
+          className="w-full py-6 bg-white dark:bg-[#343434] text-sm font-medium rounded-lg shadow-sm"
         />
         {keyword && (
           <Button
@@ -31,12 +30,5 @@ export function BrowseSearchInput() {
           </Button>
         )}
       </div>
-      <div className="w-full text-center">
-        <p className="dark:text-[#83E56A] text-[#BE17E8] text-xs font-medium pt-4">
-          Masterbots isn't infallible; verify crucial facts. Responses are for
-          educational use, not legal, medical, financial or specialized advice.
-        </p>
-      </div>
-    </div>
   )
 }

@@ -65,13 +65,13 @@ export function ChatSearchInput({ setThreads }: {
           changeKeyword(e.target.value)
         }}
         placeholder={`Search any chat with ${searchPlaceholder ? searchPlaceholder : 'any bot category'}`}
-        className="max-w-[600px]"
+        className="max-w-[600px]  bg-white dark:bg-[#343434] text-sm font-medium rounded-lg shadow-sm w-full py-6"
       />
       {keyword && (
         <Button
           type="reset"
           variant="ghost"
-          className="absolute px-3 right-0 top-1/2 transform -translate-y-1/2 cursor-pointer"
+          className="absolute right-0 px-3 transform -translate-y-1/2 cursor-pointer top-1/2"
           onClick={() => changeKeyword('')}
           aria-label="Clear search"
         >

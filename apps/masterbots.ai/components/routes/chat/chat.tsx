@@ -125,23 +125,23 @@ export function Chat({
           m => m.role !== 'system'
         )
 
-  const sendMessageFromResponse = async (bulletContent: string) => {
-    setIsNewResponse(true)
-    const fullMessage = `Tell me more about ${bulletContent}`
-    await saveNewMessage({
-      role: 'user',
-      threadId:
-        params.threadId || isNewChat ? threadId : activeThread?.threadId,
-      content: fullMessage,
-      jwt: session!.user?.hasuraJwt
-    })
-    append({
-      role: 'user',
-      content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
-        allMessages
-      )}].  Then answer this question: ${fullMessage}`
-    })
-  }
+        const sendMessageFromResponse = async (bulletContent: string) => {
+          setIsNewResponse(true)
+          const fullMessage = bulletContent
+          await saveNewMessage({
+            role: 'user',
+            threadId:
+              params.threadId || isNewChat ? threadId : activeThread?.threadId,
+            content: fullMessage,
+            jwt: session!.user?.hasuraJwt
+          })
+          append({
+            role: 'user',
+            content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
+              allMessages
+            )}].  Then answer this question: ${fullMessage}`
+          })
+        }
 
   // we extend append function to add our system prompts
   const appendWithMbContextPrompts = async (
