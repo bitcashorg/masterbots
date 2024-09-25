@@ -175,8 +175,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
         role: 'user',
         content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
           allMessages
-        )}]. Now, I'd like to focus on or get more information about the following point: ${fullMessage}
-      please provide a detailed response, elaborating on this specific point within the context of our previous discussion. If it's a question, answer it; if it's a statement, provide more information or analysis about it.`
+        )}].  Then answer this question: ${fullMessage}`
       })
     },
     [activeThread?.threadId, allMessages, append, session]
