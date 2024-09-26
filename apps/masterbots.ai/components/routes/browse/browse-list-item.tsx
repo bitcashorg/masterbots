@@ -12,6 +12,9 @@ import React from 'react'
 import { BrowseChatMessageList } from '@/components/routes/browse/browse-chat-message-list'
 import { ShortMessage } from '@/components/shared/short-message'
 import { IconOpenAI, IconUser } from '@/components/ui/icons'
+import { Button } from '@/components/ui/button'
+import { icons } from 'lucide-react'
+
 let initialUrl: string | null = null
 
 export default function BrowseListItem({
@@ -97,6 +100,13 @@ export default function BrowseListItem({
     router.push(`/b/${thread.chatbot.name.trim().toLowerCase()}/${thread.threadId}`)
   }
 
+  const goToProfile = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (thread.user?.slug) {
+      router.push(`/u/${thread.user.slug}/t`)
+    }
+  }
 
   return (
     <div ref={threadRef}>
@@ -121,12 +131,11 @@ export default function BrowseListItem({
           )}
         >
           {pageType !== 'bot' && thread.chatbot?.avatar ? (
-            <div
+            <Button
             onClick={goToBotPage}
             title={thread.chatbot?.name}
-            className={cn(
-              'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow cursor-pointer'
-            )}
+            variant="icon"
+            size="icon"
             >
               <Image
                 className="transition-opacity duration-300 rounded-full select-none bg-background dark:bg-primary-foreground hover:opacity-80"
@@ -135,19 +144,17 @@ export default function BrowseListItem({
                 height={32}
                 width={32}
               />
-            </div>
+            </Button>
           ) : (
             pageType !== 'bot' && (
-              <div
+              <Button
                 onClick={goToBotPage}
                 title={thread.chatbot?.name}
-                className={cn(
-                  'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow cursor-pointer',
-                  'bg-primary text-primary-foreground'
-                )}
+                variant="icon"
+                size="icon"
               >
                 <IconOpenAI />
-              </div>
+              </Button>
             )
           )}
           <div className="w-[calc(100%-64px)] m:w-[calc(100%-28px)] flex items-center gap-3 text-left">
@@ -161,13 +168,13 @@ export default function BrowseListItem({
             {pageType !== 'user' && (
               <span className="opacity-50 text-[0.875rem]">by</span>
             )}
+            <div>
             {pageType !== 'user' && thread.user?.profilePicture ? (
-              <Link
-                href={`/u/${encodeURIComponent(String(thread.user.slug))}`}
-                title={thread.user?.username.replace('_', ' ')}
-                className={cn(
-                  'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow'
-                )}
+              <Button
+               onClick={goToProfile}
+               title={thread.user?.username.replace('_', ' ')}
+               variant="icon"
+               size="icon"
               >
                 <Image
                   className="transition-opacity duration-300 rounded-full select-none hover:opacity-80"
@@ -176,21 +183,20 @@ export default function BrowseListItem({
                   height={32}
                   width={32}
                 />
-              </Link>
+              </Button>
             ) : (
               pageType !== 'user' && (
-                <Link
-                  href={`/u/${encodeURIComponent(String(thread.user?.slug))}`}
-                  title={thread.user?.username}
-                  className={cn(
-                    'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow',
-                    'bg-background'
-                  )}
+                <Button
+                 onClick={goToProfile}
+                 title={thread.user?.username}
+                 variant="icon"
+                 size="icon"
                 >
                   <IconUser />
-                </Link>
+                </Button>
               )
             )}
+            </div>
           </div>
         </div>
 
