@@ -97,7 +97,7 @@ export default function BrowseListItem({
   const goToBotPage = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    router.push(`/b/${thread.chatbot.name.trim().toLowerCase()}/${thread.threadId}`)
+    router.push(`/b/${thread.chatbot.name.trim().toLowerCase()}`)
   }
 
   const goToProfile = (e: React.MouseEvent) => {
