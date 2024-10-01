@@ -1,5 +1,5 @@
-import { StreamingTextResponse, streamText } from 'ai';
-import { wordwareModel } from './models/wordwareModel';
+import {streamText} from 'ai';
+import { wordwareModel } from '@/app/api/wordware/models/wordwareModel';
 
 export const runtime = 'edge';
 
@@ -12,12 +12,12 @@ export async function POST(req: Request) {
   }
 
   try {
-    const stream = streamText({
-      model: wordwareModel(API_KEY),
+    const result = await streamText({
+      model: wordwareModel(API_KEY) as any,
       messages: [{ role: 'user', content: JSON.stringify({ promptId, inputs }) }],
     });
 
-    return new StreamingTextResponse(stream);
+    return result.toDataStreamResponse();
   } catch (error) {
     console.error('Error in Wordware API route:', error);
     return new Response('Error processing your request', { status: 500 });
