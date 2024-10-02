@@ -91,18 +91,15 @@ export function convertToCoreMessages(
 
 // * This function initializes the WordWare model with describe call
 export async function fetchPromptDetails(promptId: string) {
-  const API_KEY = process.env.NEXT_PUBLIC_WORDWARE_API_KEY;
-  
-  if (!API_KEY) {
-    throw new Error('Wordware API key is not set');
+  if (!promptId) {
+    throw new Error('Prompt ID is required')
   }
 
-  const response = await fetch(`https://app.wordware.ai/api/prompt/${promptId}/describe`, {
-    headers: { 'Authorization': `Bearer ${API_KEY}` },
-  });
-
+  const response = await fetch(`/api/wordware/describe?promptId=${promptId}`)
+  
   if (!response.ok) {
-    throw new Error('Failed to fetch prompt details');
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to fetch prompt details');
   }
 
   return response.json();
