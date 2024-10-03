@@ -33,7 +33,8 @@ export async function GET(request: Request) {
     const contentType = response.headers.get('content-type')
     if (contentType && contentType.indexOf('application/json') !== -1) {
       const data = await response.json()
-      return NextResponse.json(data)
+      const data = await response.json()
+      return NextResponse.json(data, { status: response.status })
     } else {
       const text = await response.text()
       return NextResponse.json(
