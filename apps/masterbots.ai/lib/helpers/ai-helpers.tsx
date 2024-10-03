@@ -3,7 +3,6 @@ import { AiClientType } from '@/types/types'
 import { MessageParam } from '@anthropic-ai/sdk/resources'
 import { generateId, CoreMessage } from 'ai'
 import { ChatCompletionMessageParam } from 'openai/resources'
-import { createResponseStream } from '@/app/api/chat/actions/actions'
 
 // * This function gets the model client type
 export function getModelClientType(model: AIModels) {
@@ -88,4 +87,20 @@ export function convertToCoreMessages(
           throw new Error(`Unsupported message role: ${msg.role}`)
         })()
   )
+}
+
+// * This function initializes the WordWare model with describe call
+export async function fetchPromptDetails(promptId: string) {
+  if (!promptId) {
+    throw new Error('Prompt ID is required')
+  }
+
+  const response = await fetch(`/api/wordware/describe?promptId=${promptId}`)
+  
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to fetch prompt details');
+  }
+
+  return response.json();
 }
