@@ -6,8 +6,9 @@ export async function GET(request: Request) {
   const apiKey = process.env.WORDWARE_API_KEY
 
   if (!apiKey) {
+    console.error('Wordware API key is not set')
     return NextResponse.json(
-      { error: 'Wordware API key is not set' },
+      { error: 'Internal server error' },
       { status: 500 }
     )
   }
