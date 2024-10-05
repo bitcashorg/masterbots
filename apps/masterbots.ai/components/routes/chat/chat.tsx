@@ -1,26 +1,28 @@
 'use client'
 
-import { Message, useChat } from 'ai/react'
-import { useScroll } from 'framer-motion'
+import { runWordWarePrompt } from '@/app/actions'
+import { improveMessage } from '@/app/api/chat/actions/actions'
 import { ChatList } from '@/components/routes/chat/chat-list'
 import { ChatPanel } from '@/components/routes/chat/chat-panel'
 import { ChatScrollAnchor } from '@/components/routes/chat/chat-scroll-anchor'
-import { cn, extractBetweenMarkers, scrollToBottomOfElement } from '@/lib/utils'
+import { botNames } from '@/lib/bots-names'
+import { labelMakerMockedRawData } from '@/lib/helpers/ai-helpers'
 import { useAtBottom } from '@/lib/hooks/use-at-bottom'
+import { useModel } from '@/lib/hooks/use-model'
+import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useThread } from '@/lib/hooks/use-thread'
+import { cn, extractBetweenMarkers, scrollToBottomOfElement } from '@/lib/utils'
 import { createThread, getThread, saveNewMessage } from '@/services/hasura'
+import { AiClientType } from '@/types/types'
 import { ChatRequestOptions, CreateMessage } from 'ai'
+import { Message, useChat } from 'ai/react'
+import { useScroll } from 'framer-motion'
 import { uniqBy } from 'lodash'
 import { Chatbot } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import { useParams } from 'next/navigation'
 import React, { useEffect } from 'react'
 import { toast } from 'react-hot-toast'
-import { useThread } from '@/lib/hooks/use-thread'
-import { botNames } from '@/lib/bots-names'
-import { useSidebar } from '@/lib/hooks/use-sidebar'
-import { useModel } from '@/lib/hooks/use-model'
-import { AiClientType } from '@/types/types'
-import { improveMessage } from '@/app/api/chat/actions/actions'
 
 
 export function Chat({
@@ -119,29 +121,29 @@ export function Chat({
   const allMessages =
     params.threadId || isNewChat
       ? uniqBy(initialMessages?.concat(messages), 'content').filter(
-          m => m.role !== 'system'
-        )
+        m => m.role !== 'system'
+      )
       : uniqBy(threadAllMessages.concat(messages), 'content').filter(
-          m => m.role !== 'system'
-        )
+        m => m.role !== 'system'
+      )
 
-        const sendMessageFromResponse = async (bulletContent: string) => {
-          setIsNewResponse(true)
-          const fullMessage = bulletContent
-          await saveNewMessage({
-            role: 'user',
-            threadId:
-              params.threadId || isNewChat ? threadId : activeThread?.threadId,
-            content: fullMessage,
-            jwt: session!.user?.hasuraJwt
-          })
-          append({
-            role: 'user',
-            content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
-              allMessages
-            )}].  Then answer this question: ${fullMessage}`
-          })
-        }
+  const sendMessageFromResponse = async (bulletContent: string) => {
+    setIsNewResponse(true)
+    const fullMessage = bulletContent
+    await saveNewMessage({
+      role: 'user',
+      threadId:
+        params.threadId || isNewChat ? threadId : activeThread?.threadId,
+      content: fullMessage,
+      jwt: session!.user?.hasuraJwt
+    })
+    append({
+      role: 'user',
+      content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
+        allMessages
+      )}].  Then answer this question: ${fullMessage}`
+    })
+  }
 
   // we extend append function to add our system prompts
   const appendWithMbContextPrompts = async (
@@ -152,6 +154,7 @@ export function Chat({
 
     console.log('Original message:', processedMessage)
 
+    // * Cleaning the user question (thread title) with AI
     try {
       console.log('Original message:', userMessage.content)
       processedMessage = await improveMessage(
@@ -160,6 +163,7 @@ export function Chat({
         selectedModel
       )
       console.log('Refined message:', processedMessage)
+
       if (processedMessage === userMessage.content) {
         console.warn('Message was not improved by AI. Using original message.')
       }
@@ -168,6 +172,52 @@ export function Chat({
       // Fall back to original message if processing fails
       processedMessage = userMessage.content
     }
+
+
+    // ? Future response: We will use the AI to detect the language of the message and translate it to English if it's not already in English. We will use a pattern from the Ai to know the original language of the refined message and the refined message in English.
+    // TODO: ...
+    // const [ogProcessedMsgLang, processedMsgEnglish] = processedMessage.split(/{{(.*?)}}/g).filter(Boolean)
+    const [ogProcessedMsgLang, processedMsgEnglish] = '{{La cerveza me hace bien?}}{{Is beer good to me?}}'.split(/{{(.*?)}}/g).filter(Boolean)
+
+    console.log('Original message language:', ogProcessedMsgLang)
+    // ! If this one returns as undefined, it means the message was already in English. Fallback always to the ogProcessedMsgLang
+    console.log('Refined message language (Ai usage only):', processedMsgEnglish)
+
+    // * Getting the user labelling the thread from ICL (categories, sub-category, etc.)
+    // TODO: ...
+    const getICLExamplesResponse = await new Promise((resolve) => {
+      const timeout = setTimeout(() => {
+        // Domain => chatbot?.categories[0].category.name
+        resolve({ rawData: labelMakerMockedRawData })
+        clearTimeout(timeout)
+      }, 240)
+    }) as { rawData: any }
+
+    // * Getting the user labelling the thread (categories, sub-category, etc.)
+    const { fullResponse, parsed, error } = await runWordWarePrompt({
+      promptId: '9ac34a9b-dc65-406c-ace3-d13ae15087f4',
+      inputs: {
+        rawData: getICLExamplesResponse?.rawData,
+        question: processedMsgEnglish || ogProcessedMsgLang,
+        domain: chatbot?.categories[0].category.name,
+      }
+    })
+    console.log('Full responses from runWordWarePrompt:', { fullResponse, parsed, error })
+
+    // * Connecting to the ICL to send the user labelling the thread and rawData (examples) to the ICL 
+    // TODO: ...
+    const postICLResponse = await new Promise((resolve) => {
+      const timeout = setTimeout(() => {
+        // processedMsgEnglish
+        // parsed
+        // chatbot?.categories[0].category.name
+        resolve({ parsed, question: processedMsgEnglish || ogProcessedMsgLang, domain: chatbot?.categories[0].category.name as string, bot: chatbot?.name as string })
+        clearTimeout(timeout)
+      }, 700)
+    }) as { parsed: any, question: string, domain: string, bot: string }
+
+    // * Her we do something with the response from the ICL and attach it to the chat context the required fields and values for future ICL usage.
+    console.log('Full responses from postICLResponse:', postICLResponse)
 
     if (isNewChat && chatbot) {
       await createThread({
@@ -202,11 +252,11 @@ export function Chat({
       isNewChat
         ? { ...userMessage, content: processedMessage }
         : {
-            ...userMessage,
-            content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
-              allMessages
-            )}].  Then answer this question: ${processedMessage}`
-          }
+          ...userMessage,
+          content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
+            allMessages
+          )}].  Then answer this question: ${processedMessage}`
+        }
     )
   }
 

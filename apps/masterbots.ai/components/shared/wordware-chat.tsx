@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
+import { getPromptDetails, runWordWarePrompt } from '@/app/actions'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -12,6 +12,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import React, { useRef, useState } from 'react'
 
 interface PromptInput {
   id: string
@@ -39,32 +40,15 @@ export function WordwareChat() {
   const [parsedResult, setParsedResult] = useState<string>('')
 
   const fetchPromptDetails = async () => {
-    if (promptId) {
-      try {
-        setFetchError(null)
-        const response = await fetch(
-          `/api/wordware/describe?promptId=${promptId}`
-        )
-        const data = await response.json()
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to fetch prompt details')
-        }
-        setPromptDetails(data)
-        setInputs(
-          data.inputs.reduce(
-            (acc: any, input: { label: any }) => ({
-              ...acc,
-              [input.label]: ''
-            }),
-            {}
-          )
-        )
-      } catch (error) {
-        console.error('Error fetching prompt details:', error)
-        setFetchError('An error occurred while fetching prompt details')
-        setPromptDetails(null)
-      }
+    const { data, error, inputs } = await getPromptDetails(promptId)
+
+    if (error) {
+      setFetchError(error)
+      return
     }
+
+    setPromptDetails(data)
+    setInputs(inputs)
   }
 
   const handleInputChange = (
@@ -78,33 +62,15 @@ export function WordwareChat() {
     setRunResult('')
     setParsedResult('')
     try {
-      const response = await fetch('/api/wordware/run', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ promptId, inputs })
-      })
+      const { fullResponse, parsed, error } = await runWordWarePrompt({ promptId, inputs })
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
+      console.log('Full responses from runWordWarePrompt:', { fullResponse, parsed, error })
 
-      const reader = response.body?.getReader()
-      if (!reader) {
-        throw new Error('No reader available')
-      }
-
-      let fullResponse = ''
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        const chunk = new TextDecoder().decode(value)
-        fullResponse += chunk
+      if (error || !fullResponse || !parsed) {
+        throw new Error(error || 'Failed to run WordWare prompt.')
       }
 
       setRunResult(fullResponse)
-      const parsed = parseWordwareResponse(fullResponse)
       setParsedResult(parsed)
     } catch (error) {
       console.error('Error running prompt:', error)
@@ -112,33 +78,6 @@ export function WordwareChat() {
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const parseWordwareResponse = (response: string): string => {
-    const lines = response.split('\n')
-    let output = ''
-    let currentSection = ''
-
-    lines.forEach(line => {
-      try {
-        const parsed = JSON.parse(line)
-        if (parsed.type === 'chunk' && parsed.value.type === 'chunk') {
-          output += parsed.value.value
-        } else if (parsed.type === 'prompt' && parsed.state === 'complete') {
-          const promptOutput = parsed.output
-          for (const key in promptOutput) {
-            if (typeof promptOutput[key] === 'string') {
-              currentSection = promptOutput[key]
-              output += `\n${currentSection}\n`
-            }
-          }
-        }
-      } catch (e) {
-        // Ignoring parsing errors for invalid JSON lines
-      }
-    })
-
-    return output.trim()
   }
 
   const handleClear = () => {
@@ -244,4 +183,31 @@ export function WordwareChat() {
       )}
     </div>
   )
+}
+
+export function parseWordwareResponse(response: string): string {
+  const lines = response.split('\n')
+  let output = ''
+  let currentSection = ''
+
+  lines.forEach(line => {
+    try {
+      const parsed = JSON.parse(line)
+      if (parsed.type === 'chunk' && parsed.value.type === 'chunk') {
+        output += parsed.value.value
+      } else if (parsed.type === 'prompt' && parsed.state === 'complete') {
+        const promptOutput = parsed.output
+        for (const key in promptOutput) {
+          if (typeof promptOutput[key] === 'string') {
+            currentSection = promptOutput[key]
+            output += `\n${currentSection}\n`
+          }
+        }
+      }
+    } catch (e) {
+      // Ignoring parsing errors for invalid JSON lines
+    }
+  })
+
+  return output.trim()
 }
