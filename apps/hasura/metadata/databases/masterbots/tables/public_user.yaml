@@ -44,6 +44,13 @@ array_relationships:
         table:
           name: thread
           schema: public
+  - name: userTokens
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: user_token
+          schema: public
 insert_permissions:
   - role: user
     permission:
@@ -56,8 +63,6 @@ insert_permissions:
         - password
         - pro_user_subscription_id
         - profile_picture
-        - resetToken
-        - resetTokenExpiry
         - slug
         - username
     comment: ""
@@ -85,8 +90,6 @@ select_permissions:
         - last_login
         - pro_user_subscription_id
         - profile_picture
-        - resetToken
-        - resetTokenExpiry
         - slug
         - user_id
         - username
@@ -103,8 +106,6 @@ update_permissions:
         - password
         - pro_user_subscription_id
         - profile_picture
-        - resetToken
-        - resetTokenExpiry
       filter:
         user_id:
           _eq: X-Hasura-User-Id

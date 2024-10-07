@@ -1832,6 +1832,73 @@ export interface ThreadVarianceFields {
 }
 
 
+/** Tokens OTP for reset password and activate account  */
+export interface Token {
+    token: Scalars['String']
+    tokenExpiry: Scalars['timestamptz']
+    /** An array relationship */
+    userTokens: UserToken[]
+    /** An aggregate relationship */
+    userTokensAggregate: UserTokenAggregate
+    __typename: 'Token'
+}
+
+
+/** aggregated selection of "token" */
+export interface TokenAggregate {
+    aggregate: (TokenAggregateFields | null)
+    nodes: Token[]
+    __typename: 'TokenAggregate'
+}
+
+
+/** aggregate fields of "token" */
+export interface TokenAggregateFields {
+    count: Scalars['Int']
+    max: (TokenMaxFields | null)
+    min: (TokenMinFields | null)
+    __typename: 'TokenAggregateFields'
+}
+
+
+/** unique or primary key constraints on table "token" */
+export type TokenConstraint = 'token_pkey'
+
+
+/** aggregate max on columns */
+export interface TokenMaxFields {
+    token: (Scalars['String'] | null)
+    tokenExpiry: (Scalars['timestamptz'] | null)
+    __typename: 'TokenMaxFields'
+}
+
+
+/** aggregate min on columns */
+export interface TokenMinFields {
+    token: (Scalars['String'] | null)
+    tokenExpiry: (Scalars['timestamptz'] | null)
+    __typename: 'TokenMinFields'
+}
+
+
+/** response of any mutation on the table "token" */
+export interface TokenMutationResponse {
+    /** number of rows affected by the mutation */
+    affectedRows: Scalars['Int']
+    /** data from the rows affected by the mutation */
+    returning: Token[]
+    __typename: 'TokenMutationResponse'
+}
+
+
+/** select columns of table "token" */
+export type TokenSelectColumn = 'token' | 'tokenExpiry'
+
+
+/** update columns of table "token" */
+export type TokenUpdateColumn = 'token' | 'tokenExpiry'
+
+
 /** columns and relationships of "tone_enum" */
 export interface ToneEnum {
     /** An array relationship */
@@ -1978,6 +2045,7 @@ export interface User {
     email: Scalars['String']
     getFreeMonth: (Scalars['Boolean'] | null)
     isBlocked: (Scalars['Boolean'] | null)
+    isVerified: (Scalars['Boolean'] | null)
     lastLogin: (Scalars['timestamptz'] | null)
     password: Scalars['String']
     /** An array relationship */
@@ -2004,6 +2072,10 @@ export interface User {
     /** An aggregate relationship */
     threadsAggregate: ThreadAggregate
     userId: Scalars['uuid']
+    /** An array relationship */
+    userTokens: UserToken[]
+    /** An aggregate relationship */
+    userTokensAggregate: UserTokenAggregate
     username: Scalars['String']
     __typename: 'User'
 }
@@ -2071,11 +2143,78 @@ export interface UserMutationResponse {
 
 
 /** select columns of table "user" */
-export type UserSelectColumn = 'dateJoined' | 'email' | 'getFreeMonth' | 'isBlocked' | 'lastLogin' | 'password' | 'proUserSubscriptionId' | 'profilePicture' | 'slug' | 'userId' | 'username'
+export type UserSelectColumn = 'dateJoined' | 'email' | 'getFreeMonth' | 'isBlocked' | 'isVerified' | 'lastLogin' | 'password' | 'proUserSubscriptionId' | 'profilePicture' | 'slug' | 'userId' | 'username'
+
+
+/** user <> token relationship OTP (reset password/activate account)  */
+export interface UserToken {
+    token: Scalars['String']
+    /** An object relationship */
+    tokenByToken: Token
+    /** An object relationship */
+    user: User
+    userId: Scalars['uuid']
+    __typename: 'UserToken'
+}
+
+
+/** aggregated selection of "user_token" */
+export interface UserTokenAggregate {
+    aggregate: (UserTokenAggregateFields | null)
+    nodes: UserToken[]
+    __typename: 'UserTokenAggregate'
+}
+
+
+/** aggregate fields of "user_token" */
+export interface UserTokenAggregateFields {
+    count: Scalars['Int']
+    max: (UserTokenMaxFields | null)
+    min: (UserTokenMinFields | null)
+    __typename: 'UserTokenAggregateFields'
+}
+
+
+/** unique or primary key constraints on table "user_token" */
+export type UserTokenConstraint = 'user_token_pkey'
+
+
+/** aggregate max on columns */
+export interface UserTokenMaxFields {
+    token: (Scalars['String'] | null)
+    userId: (Scalars['uuid'] | null)
+    __typename: 'UserTokenMaxFields'
+}
+
+
+/** aggregate min on columns */
+export interface UserTokenMinFields {
+    token: (Scalars['String'] | null)
+    userId: (Scalars['uuid'] | null)
+    __typename: 'UserTokenMinFields'
+}
+
+
+/** response of any mutation on the table "user_token" */
+export interface UserTokenMutationResponse {
+    /** number of rows affected by the mutation */
+    affectedRows: Scalars['Int']
+    /** data from the rows affected by the mutation */
+    returning: UserToken[]
+    __typename: 'UserTokenMutationResponse'
+}
+
+
+/** select columns of table "user_token" */
+export type UserTokenSelectColumn = 'token' | 'userId'
+
+
+/** update columns of table "user_token" */
+export type UserTokenUpdateColumn = 'token' | 'userId'
 
 
 /** update columns of table "user" */
-export type UserUpdateColumn = 'dateJoined' | 'email' | 'getFreeMonth' | 'isBlocked' | 'lastLogin' | 'password' | 'proUserSubscriptionId' | 'profilePicture' | 'slug' | 'userId' | 'username'
+export type UserUpdateColumn = 'dateJoined' | 'email' | 'getFreeMonth' | 'isBlocked' | 'isVerified' | 'lastLogin' | 'password' | 'proUserSubscriptionId' | 'profilePicture' | 'slug' | 'userId' | 'username'
 
 
 /** mutation root */
@@ -2144,6 +2283,10 @@ export interface mutation_root {
     deleteThread: (ThreadMutationResponse | null)
     /** delete single row from the table: "thread" */
     deleteThreadByPk: (Thread | null)
+    /** delete data from the table: "token" */
+    deleteToken: (TokenMutationResponse | null)
+    /** delete single row from the table: "token" */
+    deleteTokenByPk: (Token | null)
     /** delete data from the table: "tone_enum" */
     deleteToneEnum: (ToneEnumMutationResponse | null)
     /** delete single row from the table: "tone_enum" */
@@ -2156,6 +2299,10 @@ export interface mutation_root {
     deleteUser: (UserMutationResponse | null)
     /** delete single row from the table: "user" */
     deleteUserByPk: (User | null)
+    /** delete data from the table: "user_token" */
+    deleteUserToken: (UserTokenMutationResponse | null)
+    /** delete single row from the table: "user_token" */
+    deleteUserTokenByPk: (UserToken | null)
     /** insert data into the table: "category" */
     insertCategory: (CategoryMutationResponse | null)
     /** insert a single row into the table: "category" */
@@ -2220,6 +2367,10 @@ export interface mutation_root {
     insertThread: (ThreadMutationResponse | null)
     /** insert a single row into the table: "thread" */
     insertThreadOne: (Thread | null)
+    /** insert data into the table: "token" */
+    insertToken: (TokenMutationResponse | null)
+    /** insert a single row into the table: "token" */
+    insertTokenOne: (Token | null)
     /** insert data into the table: "tone_enum" */
     insertToneEnum: (ToneEnumMutationResponse | null)
     /** insert a single row into the table: "tone_enum" */
@@ -2232,6 +2383,10 @@ export interface mutation_root {
     insertUser: (UserMutationResponse | null)
     /** insert a single row into the table: "user" */
     insertUserOne: (User | null)
+    /** insert data into the table: "user_token" */
+    insertUserToken: (UserTokenMutationResponse | null)
+    /** insert a single row into the table: "user_token" */
+    insertUserTokenOne: (UserToken | null)
     /** update data of the table: "category" */
     updateCategory: (CategoryMutationResponse | null)
     /** update single row of the table: "category" */
@@ -2328,6 +2483,12 @@ export interface mutation_root {
     updateThreadByPk: (Thread | null)
     /** update multiples rows of table: "thread" */
     updateThreadMany: ((ThreadMutationResponse | null)[] | null)
+    /** update data of the table: "token" */
+    updateToken: (TokenMutationResponse | null)
+    /** update single row of the table: "token" */
+    updateTokenByPk: (Token | null)
+    /** update multiples rows of table: "token" */
+    updateTokenMany: ((TokenMutationResponse | null)[] | null)
     /** update data of the table: "tone_enum" */
     updateToneEnum: (ToneEnumMutationResponse | null)
     /** update single row of the table: "tone_enum" */
@@ -2346,6 +2507,12 @@ export interface mutation_root {
     updateUserByPk: (User | null)
     /** update multiples rows of table: "user" */
     updateUserMany: ((UserMutationResponse | null)[] | null)
+    /** update data of the table: "user_token" */
+    updateUserToken: (UserTokenMutationResponse | null)
+    /** update single row of the table: "user_token" */
+    updateUserTokenByPk: (UserToken | null)
+    /** update multiples rows of table: "user_token" */
+    updateUserTokenMany: ((UserTokenMutationResponse | null)[] | null)
     __typename: 'mutation_root'
 }
 
@@ -2446,6 +2613,12 @@ export interface query_root {
     threadAggregate: ThreadAggregate
     /** fetch data from the table: "thread" using primary key columns */
     threadByPk: (Thread | null)
+    /** fetch data from the table: "token" */
+    token: Token[]
+    /** fetch aggregated fields from the table: "token" */
+    tokenAggregate: TokenAggregate
+    /** fetch data from the table: "token" using primary key columns */
+    tokenByPk: (Token | null)
     /** fetch data from the table: "tone_enum" */
     toneEnum: ToneEnum[]
     /** fetch aggregated fields from the table: "tone_enum" */
@@ -2464,6 +2637,12 @@ export interface query_root {
     userAggregate: UserAggregate
     /** fetch data from the table: "user" using primary key columns */
     userByPk: (User | null)
+    /** fetch data from the table: "user_token" */
+    userToken: UserToken[]
+    /** fetch aggregated fields from the table: "user_token" */
+    userTokenAggregate: UserTokenAggregate
+    /** fetch data from the table: "user_token" using primary key columns */
+    userTokenByPk: (UserToken | null)
     __typename: 'query_root'
 }
 
@@ -2596,6 +2775,14 @@ export interface subscription_root {
     threadByPk: (Thread | null)
     /** fetch data from the table in a streaming manner: "thread" */
     threadStream: Thread[]
+    /** fetch data from the table: "token" */
+    token: Token[]
+    /** fetch aggregated fields from the table: "token" */
+    tokenAggregate: TokenAggregate
+    /** fetch data from the table: "token" using primary key columns */
+    tokenByPk: (Token | null)
+    /** fetch data from the table in a streaming manner: "token" */
+    tokenStream: Token[]
     /** fetch data from the table: "tone_enum" */
     toneEnum: ToneEnum[]
     /** fetch aggregated fields from the table: "tone_enum" */
@@ -2620,6 +2807,14 @@ export interface subscription_root {
     userByPk: (User | null)
     /** fetch data from the table in a streaming manner: "user" */
     userStream: User[]
+    /** fetch data from the table: "user_token" */
+    userToken: UserToken[]
+    /** fetch aggregated fields from the table: "user_token" */
+    userTokenAggregate: UserTokenAggregate
+    /** fetch data from the table: "user_token" using primary key columns */
+    userTokenByPk: (UserToken | null)
+    /** fetch data from the table in a streaming manner: "user_token" */
+    userTokenStream: UserToken[]
     __typename: 'subscription_root'
 }
 
@@ -5993,6 +6188,135 @@ export interface ThreadVarianceOrderBy {chatbotId?: (OrderBy | null)}
 export interface TimestamptzComparisonExp {_eq?: (Scalars['timestamptz'] | null),_gt?: (Scalars['timestamptz'] | null),_gte?: (Scalars['timestamptz'] | null),_in?: (Scalars['timestamptz'][] | null),_isNull?: (Scalars['Boolean'] | null),_lt?: (Scalars['timestamptz'] | null),_lte?: (Scalars['timestamptz'] | null),_neq?: (Scalars['timestamptz'] | null),_nin?: (Scalars['timestamptz'][] | null)}
 
 
+/** Tokens OTP for reset password and activate account  */
+export interface TokenGenqlSelection{
+    token?: boolean | number
+    tokenExpiry?: boolean | number
+    /** An array relationship */
+    userTokens?: (UserTokenGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (UserTokenSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (UserTokenOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (UserTokenBoolExp | null)} })
+    /** An aggregate relationship */
+    userTokensAggregate?: (UserTokenAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (UserTokenSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (UserTokenOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (UserTokenBoolExp | null)} })
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregated selection of "token" */
+export interface TokenAggregateGenqlSelection{
+    aggregate?: TokenAggregateFieldsGenqlSelection
+    nodes?: TokenGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregate fields of "token" */
+export interface TokenAggregateFieldsGenqlSelection{
+    count?: { __args: {columns?: (TokenSelectColumn[] | null), distinct?: (Scalars['Boolean'] | null)} } | boolean | number
+    max?: TokenMaxFieldsGenqlSelection
+    min?: TokenMinFieldsGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** Boolean expression to filter rows from the table "token". All fields are combined with a logical 'AND'. */
+export interface TokenBoolExp {_and?: (TokenBoolExp[] | null),_not?: (TokenBoolExp | null),_or?: (TokenBoolExp[] | null),token?: (StringComparisonExp | null),tokenExpiry?: (TimestamptzComparisonExp | null),userTokens?: (UserTokenBoolExp | null),userTokensAggregate?: (UserTokenAggregateBoolExp | null)}
+
+
+/** input type for inserting data into table "token" */
+export interface TokenInsertInput {token?: (Scalars['String'] | null),tokenExpiry?: (Scalars['timestamptz'] | null),userTokens?: (UserTokenArrRelInsertInput | null)}
+
+
+/** aggregate max on columns */
+export interface TokenMaxFieldsGenqlSelection{
+    token?: boolean | number
+    tokenExpiry?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregate min on columns */
+export interface TokenMinFieldsGenqlSelection{
+    token?: boolean | number
+    tokenExpiry?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** response of any mutation on the table "token" */
+export interface TokenMutationResponseGenqlSelection{
+    /** number of rows affected by the mutation */
+    affectedRows?: boolean | number
+    /** data from the rows affected by the mutation */
+    returning?: TokenGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** input type for inserting object relation for remote table "token" */
+export interface TokenObjRelInsertInput {data: TokenInsertInput,
+/** upsert condition */
+onConflict?: (TokenOnConflict | null)}
+
+
+/** on_conflict condition type for table "token" */
+export interface TokenOnConflict {constraint: TokenConstraint,updateColumns?: TokenUpdateColumn[],where?: (TokenBoolExp | null)}
+
+
+/** Ordering options when selecting data from "token". */
+export interface TokenOrderBy {token?: (OrderBy | null),tokenExpiry?: (OrderBy | null),userTokensAggregate?: (UserTokenAggregateOrderBy | null)}
+
+
+/** primary key columns input for table: token */
+export interface TokenPkColumnsInput {token: Scalars['String']}
+
+
+/** input type for updating data in table "token" */
+export interface TokenSetInput {token?: (Scalars['String'] | null),tokenExpiry?: (Scalars['timestamptz'] | null)}
+
+
+/** Streaming cursor of the table "token" */
+export interface TokenStreamCursorInput {
+/** Stream column input with initial value */
+initialValue: TokenStreamCursorValueInput,
+/** cursor ordering */
+ordering?: (CursorOrdering | null)}
+
+
+/** Initial value of the column from where the streaming should start */
+export interface TokenStreamCursorValueInput {token?: (Scalars['String'] | null),tokenExpiry?: (Scalars['timestamptz'] | null)}
+
+export interface TokenUpdates {
+/** sets the columns of the filtered rows to the given values */
+_set?: (TokenSetInput | null),
+/** filter the rows which have to be updated */
+where: TokenBoolExp}
+
+
 /** columns and relationships of "tone_enum" */
 export interface ToneEnumGenqlSelection{
     /** An array relationship */
@@ -6323,6 +6647,7 @@ export interface UserGenqlSelection{
     email?: boolean | number
     getFreeMonth?: boolean | number
     isBlocked?: boolean | number
+    isVerified?: boolean | number
     lastLogin?: boolean | number
     password?: boolean | number
     /** An array relationship */
@@ -6449,6 +6774,30 @@ export interface UserGenqlSelection{
     /** filter the rows returned */
     where?: (ThreadBoolExp | null)} })
     userId?: boolean | number
+    /** An array relationship */
+    userTokens?: (UserTokenGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (UserTokenSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (UserTokenOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (UserTokenBoolExp | null)} })
+    /** An aggregate relationship */
+    userTokensAggregate?: (UserTokenAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (UserTokenSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (UserTokenOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (UserTokenBoolExp | null)} })
     username?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -6475,11 +6824,11 @@ export interface UserAggregateFieldsGenqlSelection{
 
 
 /** Boolean expression to filter rows from the table "user". All fields are combined with a logical 'AND'. */
-export interface UserBoolExp {_and?: (UserBoolExp[] | null),_not?: (UserBoolExp | null),_or?: (UserBoolExp[] | null),chats?: (ChatBoolExp | null),chatsAggregate?: (ChatAggregateBoolExp | null),dateJoined?: (TimestamptzComparisonExp | null),email?: (StringComparisonExp | null),getFreeMonth?: (BooleanComparisonExp | null),isBlocked?: (BooleanComparisonExp | null),lastLogin?: (TimestamptzComparisonExp | null),password?: (StringComparisonExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),proUserSubscriptionId?: (StringComparisonExp | null),profilePicture?: (StringComparisonExp | null),prompts?: (PromptUserBoolExp | null),promptsAggregate?: (PromptUserAggregateBoolExp | null),referrals?: (ReferralBoolExp | null),referralsAggregate?: (ReferralAggregateBoolExp | null),referralsByUserId?: (ReferralBoolExp | null),referralsByUserIdAggregate?: (ReferralAggregateBoolExp | null),slug?: (StringComparisonExp | null),threads?: (ThreadBoolExp | null),threadsAggregate?: (ThreadAggregateBoolExp | null),userId?: (UuidComparisonExp | null),username?: (StringComparisonExp | null)}
+export interface UserBoolExp {_and?: (UserBoolExp[] | null),_not?: (UserBoolExp | null),_or?: (UserBoolExp[] | null),chats?: (ChatBoolExp | null),chatsAggregate?: (ChatAggregateBoolExp | null),dateJoined?: (TimestamptzComparisonExp | null),email?: (StringComparisonExp | null),getFreeMonth?: (BooleanComparisonExp | null),isBlocked?: (BooleanComparisonExp | null),isVerified?: (BooleanComparisonExp | null),lastLogin?: (TimestamptzComparisonExp | null),password?: (StringComparisonExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),proUserSubscriptionId?: (StringComparisonExp | null),profilePicture?: (StringComparisonExp | null),prompts?: (PromptUserBoolExp | null),promptsAggregate?: (PromptUserAggregateBoolExp | null),referrals?: (ReferralBoolExp | null),referralsAggregate?: (ReferralAggregateBoolExp | null),referralsByUserId?: (ReferralBoolExp | null),referralsByUserIdAggregate?: (ReferralAggregateBoolExp | null),slug?: (StringComparisonExp | null),threads?: (ThreadBoolExp | null),threadsAggregate?: (ThreadAggregateBoolExp | null),userId?: (UuidComparisonExp | null),userTokens?: (UserTokenBoolExp | null),userTokensAggregate?: (UserTokenAggregateBoolExp | null),username?: (StringComparisonExp | null)}
 
 
 /** input type for inserting data into table "user" */
-export interface UserInsertInput {chats?: (ChatArrRelInsertInput | null),dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),preferences?: (PreferenceArrRelInsertInput | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),prompts?: (PromptUserArrRelInsertInput | null),referrals?: (ReferralArrRelInsertInput | null),referralsByUserId?: (ReferralArrRelInsertInput | null),slug?: (Scalars['String'] | null),threads?: (ThreadArrRelInsertInput | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
+export interface UserInsertInput {chats?: (ChatArrRelInsertInput | null),dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isVerified?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),preferences?: (PreferenceArrRelInsertInput | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),prompts?: (PromptUserArrRelInsertInput | null),referrals?: (ReferralArrRelInsertInput | null),referralsByUserId?: (ReferralArrRelInsertInput | null),slug?: (Scalars['String'] | null),threads?: (ThreadArrRelInsertInput | null),userId?: (Scalars['uuid'] | null),userTokens?: (UserTokenArrRelInsertInput | null),username?: (Scalars['String'] | null)}
 
 
 /** aggregate max on columns */
@@ -6536,7 +6885,7 @@ export interface UserOnConflict {constraint: UserConstraint,updateColumns?: User
 
 
 /** Ordering options when selecting data from "user". */
-export interface UserOrderBy {chatsAggregate?: (ChatAggregateOrderBy | null),dateJoined?: (OrderBy | null),email?: (OrderBy | null),getFreeMonth?: (OrderBy | null),isBlocked?: (OrderBy | null),lastLogin?: (OrderBy | null),password?: (OrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),proUserSubscriptionId?: (OrderBy | null),profilePicture?: (OrderBy | null),promptsAggregate?: (PromptUserAggregateOrderBy | null),referralsAggregate?: (ReferralAggregateOrderBy | null),referralsByUserIdAggregate?: (ReferralAggregateOrderBy | null),slug?: (OrderBy | null),threadsAggregate?: (ThreadAggregateOrderBy | null),userId?: (OrderBy | null),username?: (OrderBy | null)}
+export interface UserOrderBy {chatsAggregate?: (ChatAggregateOrderBy | null),dateJoined?: (OrderBy | null),email?: (OrderBy | null),getFreeMonth?: (OrderBy | null),isBlocked?: (OrderBy | null),isVerified?: (OrderBy | null),lastLogin?: (OrderBy | null),password?: (OrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),proUserSubscriptionId?: (OrderBy | null),profilePicture?: (OrderBy | null),promptsAggregate?: (PromptUserAggregateOrderBy | null),referralsAggregate?: (ReferralAggregateOrderBy | null),referralsByUserIdAggregate?: (ReferralAggregateOrderBy | null),slug?: (OrderBy | null),threadsAggregate?: (ThreadAggregateOrderBy | null),userId?: (OrderBy | null),userTokensAggregate?: (UserTokenAggregateOrderBy | null),username?: (OrderBy | null)}
 
 
 /** primary key columns input for table: user */
@@ -6544,7 +6893,7 @@ export interface UserPkColumnsInput {userId: Scalars['uuid']}
 
 
 /** input type for updating data in table "user" */
-export interface UserSetInput {dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),slug?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
+export interface UserSetInput {dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isVerified?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),slug?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
 
 
 /** Streaming cursor of the table "user" */
@@ -6556,7 +6905,130 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface UserStreamCursorValueInput {dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),slug?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
+export interface UserStreamCursorValueInput {dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isVerified?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),slug?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
+
+
+/** user <> token relationship OTP (reset password/activate account)  */
+export interface UserTokenGenqlSelection{
+    token?: boolean | number
+    /** An object relationship */
+    tokenByToken?: TokenGenqlSelection
+    /** An object relationship */
+    user?: UserGenqlSelection
+    userId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregated selection of "user_token" */
+export interface UserTokenAggregateGenqlSelection{
+    aggregate?: UserTokenAggregateFieldsGenqlSelection
+    nodes?: UserTokenGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+export interface UserTokenAggregateBoolExp {count?: (userTokenAggregateBoolExpCount | null)}
+
+
+/** aggregate fields of "user_token" */
+export interface UserTokenAggregateFieldsGenqlSelection{
+    count?: { __args: {columns?: (UserTokenSelectColumn[] | null), distinct?: (Scalars['Boolean'] | null)} } | boolean | number
+    max?: UserTokenMaxFieldsGenqlSelection
+    min?: UserTokenMinFieldsGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by aggregate values of table "user_token" */
+export interface UserTokenAggregateOrderBy {count?: (OrderBy | null),max?: (UserTokenMaxOrderBy | null),min?: (UserTokenMinOrderBy | null)}
+
+
+/** input type for inserting array relation for remote table "user_token" */
+export interface UserTokenArrRelInsertInput {data: UserTokenInsertInput[],
+/** upsert condition */
+onConflict?: (UserTokenOnConflict | null)}
+
+
+/** Boolean expression to filter rows from the table "user_token". All fields are combined with a logical 'AND'. */
+export interface UserTokenBoolExp {_and?: (UserTokenBoolExp[] | null),_not?: (UserTokenBoolExp | null),_or?: (UserTokenBoolExp[] | null),token?: (StringComparisonExp | null),tokenByToken?: (TokenBoolExp | null),user?: (UserBoolExp | null),userId?: (UuidComparisonExp | null)}
+
+
+/** input type for inserting data into table "user_token" */
+export interface UserTokenInsertInput {token?: (Scalars['String'] | null),tokenByToken?: (TokenObjRelInsertInput | null),user?: (UserObjRelInsertInput | null),userId?: (Scalars['uuid'] | null)}
+
+
+/** aggregate max on columns */
+export interface UserTokenMaxFieldsGenqlSelection{
+    token?: boolean | number
+    userId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by max() on columns of table "user_token" */
+export interface UserTokenMaxOrderBy {token?: (OrderBy | null),userId?: (OrderBy | null)}
+
+
+/** aggregate min on columns */
+export interface UserTokenMinFieldsGenqlSelection{
+    token?: boolean | number
+    userId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by min() on columns of table "user_token" */
+export interface UserTokenMinOrderBy {token?: (OrderBy | null),userId?: (OrderBy | null)}
+
+
+/** response of any mutation on the table "user_token" */
+export interface UserTokenMutationResponseGenqlSelection{
+    /** number of rows affected by the mutation */
+    affectedRows?: boolean | number
+    /** data from the rows affected by the mutation */
+    returning?: UserTokenGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** on_conflict condition type for table "user_token" */
+export interface UserTokenOnConflict {constraint: UserTokenConstraint,updateColumns?: UserTokenUpdateColumn[],where?: (UserTokenBoolExp | null)}
+
+
+/** Ordering options when selecting data from "user_token". */
+export interface UserTokenOrderBy {token?: (OrderBy | null),tokenByToken?: (TokenOrderBy | null),user?: (UserOrderBy | null),userId?: (OrderBy | null)}
+
+
+/** primary key columns input for table: user_token */
+export interface UserTokenPkColumnsInput {token: Scalars['String'],userId: Scalars['uuid']}
+
+
+/** input type for updating data in table "user_token" */
+export interface UserTokenSetInput {token?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null)}
+
+
+/** Streaming cursor of the table "user_token" */
+export interface UserTokenStreamCursorInput {
+/** Stream column input with initial value */
+initialValue: UserTokenStreamCursorValueInput,
+/** cursor ordering */
+ordering?: (CursorOrdering | null)}
+
+
+/** Initial value of the column from where the streaming should start */
+export interface UserTokenStreamCursorValueInput {token?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null)}
+
+export interface UserTokenUpdates {
+/** sets the columns of the filtered rows to the given values */
+_set?: (UserTokenSetInput | null),
+/** filter the rows which have to be updated */
+where: UserTokenBoolExp}
 
 export interface UserUpdates {
 /** sets the columns of the filtered rows to the given values */
@@ -6675,6 +7147,12 @@ export interface mutation_rootGenqlSelection{
     where: ThreadBoolExp} })
     /** delete single row from the table: "thread" */
     deleteThreadByPk?: (ThreadGenqlSelection & { __args: {threadId: Scalars['uuid']} })
+    /** delete data from the table: "token" */
+    deleteToken?: (TokenMutationResponseGenqlSelection & { __args: {
+    /** filter the rows which have to be deleted */
+    where: TokenBoolExp} })
+    /** delete single row from the table: "token" */
+    deleteTokenByPk?: (TokenGenqlSelection & { __args: {token: Scalars['String']} })
     /** delete data from the table: "tone_enum" */
     deleteToneEnum?: (ToneEnumMutationResponseGenqlSelection & { __args: {
     /** filter the rows which have to be deleted */
@@ -6693,6 +7171,12 @@ export interface mutation_rootGenqlSelection{
     where: UserBoolExp} })
     /** delete single row from the table: "user" */
     deleteUserByPk?: (UserGenqlSelection & { __args: {userId: Scalars['uuid']} })
+    /** delete data from the table: "user_token" */
+    deleteUserToken?: (UserTokenMutationResponseGenqlSelection & { __args: {
+    /** filter the rows which have to be deleted */
+    where: UserTokenBoolExp} })
+    /** delete single row from the table: "user_token" */
+    deleteUserTokenByPk?: (UserTokenGenqlSelection & { __args: {token: Scalars['String'], userId: Scalars['uuid']} })
     /** insert data into the table: "category" */
     insertCategory?: (CategoryMutationResponseGenqlSelection & { __args: {
     /** the rows to be inserted */
@@ -6885,6 +7369,18 @@ export interface mutation_rootGenqlSelection{
     object: ThreadInsertInput, 
     /** upsert condition */
     onConflict?: (ThreadOnConflict | null)} })
+    /** insert data into the table: "token" */
+    insertToken?: (TokenMutationResponseGenqlSelection & { __args: {
+    /** the rows to be inserted */
+    objects: TokenInsertInput[], 
+    /** upsert condition */
+    onConflict?: (TokenOnConflict | null)} })
+    /** insert a single row into the table: "token" */
+    insertTokenOne?: (TokenGenqlSelection & { __args: {
+    /** the row to be inserted */
+    object: TokenInsertInput, 
+    /** upsert condition */
+    onConflict?: (TokenOnConflict | null)} })
     /** insert data into the table: "tone_enum" */
     insertToneEnum?: (ToneEnumMutationResponseGenqlSelection & { __args: {
     /** the rows to be inserted */
@@ -6921,6 +7417,18 @@ export interface mutation_rootGenqlSelection{
     object: UserInsertInput, 
     /** upsert condition */
     onConflict?: (UserOnConflict | null)} })
+    /** insert data into the table: "user_token" */
+    insertUserToken?: (UserTokenMutationResponseGenqlSelection & { __args: {
+    /** the rows to be inserted */
+    objects: UserTokenInsertInput[], 
+    /** upsert condition */
+    onConflict?: (UserTokenOnConflict | null)} })
+    /** insert a single row into the table: "user_token" */
+    insertUserTokenOne?: (UserTokenGenqlSelection & { __args: {
+    /** the row to be inserted */
+    object: UserTokenInsertInput, 
+    /** upsert condition */
+    onConflict?: (UserTokenOnConflict | null)} })
     /** update data of the table: "category" */
     updateCategory?: (CategoryMutationResponseGenqlSelection & { __args: {
     /** increments the numeric columns with given value of the filtered values */
@@ -7181,6 +7689,20 @@ export interface mutation_rootGenqlSelection{
     updateThreadMany?: (ThreadMutationResponseGenqlSelection & { __args: {
     /** updates to execute, in order */
     updates: ThreadUpdates[]} })
+    /** update data of the table: "token" */
+    updateToken?: (TokenMutationResponseGenqlSelection & { __args: {
+    /** sets the columns of the filtered rows to the given values */
+    _set?: (TokenSetInput | null), 
+    /** filter the rows which have to be updated */
+    where: TokenBoolExp} })
+    /** update single row of the table: "token" */
+    updateTokenByPk?: (TokenGenqlSelection & { __args: {
+    /** sets the columns of the filtered rows to the given values */
+    _set?: (TokenSetInput | null), pkColumns: TokenPkColumnsInput} })
+    /** update multiples rows of table: "token" */
+    updateTokenMany?: (TokenMutationResponseGenqlSelection & { __args: {
+    /** updates to execute, in order */
+    updates: TokenUpdates[]} })
     /** update data of the table: "tone_enum" */
     updateToneEnum?: (ToneEnumMutationResponseGenqlSelection & { __args: {
     /** sets the columns of the filtered rows to the given values */
@@ -7223,6 +7745,20 @@ export interface mutation_rootGenqlSelection{
     updateUserMany?: (UserMutationResponseGenqlSelection & { __args: {
     /** updates to execute, in order */
     updates: UserUpdates[]} })
+    /** update data of the table: "user_token" */
+    updateUserToken?: (UserTokenMutationResponseGenqlSelection & { __args: {
+    /** sets the columns of the filtered rows to the given values */
+    _set?: (UserTokenSetInput | null), 
+    /** filter the rows which have to be updated */
+    where: UserTokenBoolExp} })
+    /** update single row of the table: "user_token" */
+    updateUserTokenByPk?: (UserTokenGenqlSelection & { __args: {
+    /** sets the columns of the filtered rows to the given values */
+    _set?: (UserTokenSetInput | null), pkColumns: UserTokenPkColumnsInput} })
+    /** update multiples rows of table: "user_token" */
+    updateUserTokenMany?: (UserTokenMutationResponseGenqlSelection & { __args: {
+    /** updates to execute, in order */
+    updates: UserTokenUpdates[]} })
     __typename?: boolean | number
     __scalar?: boolean | number
 }
@@ -7656,6 +8192,32 @@ export interface query_rootGenqlSelection{
     where?: (ThreadBoolExp | null)} })
     /** fetch data from the table: "thread" using primary key columns */
     threadByPk?: (ThreadGenqlSelection & { __args: {threadId: Scalars['uuid']} })
+    /** fetch data from the table: "token" */
+    token?: (TokenGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (TokenSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (TokenOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (TokenBoolExp | null)} })
+    /** fetch aggregated fields from the table: "token" */
+    tokenAggregate?: (TokenAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (TokenSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (TokenOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (TokenBoolExp | null)} })
+    /** fetch data from the table: "token" using primary key columns */
+    tokenByPk?: (TokenGenqlSelection & { __args: {token: Scalars['String']} })
     /** fetch data from the table: "tone_enum" */
     toneEnum?: (ToneEnumGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -7734,6 +8296,32 @@ export interface query_rootGenqlSelection{
     where?: (UserBoolExp | null)} })
     /** fetch data from the table: "user" using primary key columns */
     userByPk?: (UserGenqlSelection & { __args: {userId: Scalars['uuid']} })
+    /** fetch data from the table: "user_token" */
+    userToken?: (UserTokenGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (UserTokenSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (UserTokenOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (UserTokenBoolExp | null)} })
+    /** fetch aggregated fields from the table: "user_token" */
+    userTokenAggregate?: (UserTokenAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (UserTokenSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (UserTokenOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (UserTokenBoolExp | null)} })
+    /** fetch data from the table: "user_token" using primary key columns */
+    userTokenByPk?: (UserTokenGenqlSelection & { __args: {token: Scalars['String'], userId: Scalars['uuid']} })
     __typename?: boolean | number
     __scalar?: boolean | number
 }
@@ -8285,6 +8873,40 @@ export interface subscription_rootGenqlSelection{
     cursor: (ThreadStreamCursorInput | null)[], 
     /** filter the rows returned */
     where?: (ThreadBoolExp | null)} })
+    /** fetch data from the table: "token" */
+    token?: (TokenGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (TokenSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (TokenOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (TokenBoolExp | null)} })
+    /** fetch aggregated fields from the table: "token" */
+    tokenAggregate?: (TokenAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (TokenSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (TokenOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (TokenBoolExp | null)} })
+    /** fetch data from the table: "token" using primary key columns */
+    tokenByPk?: (TokenGenqlSelection & { __args: {token: Scalars['String']} })
+    /** fetch data from the table in a streaming manner: "token" */
+    tokenStream?: (TokenGenqlSelection & { __args: {
+    /** maximum number of rows returned in a single batch */
+    batchSize: Scalars['Int'], 
+    /** cursor to stream the results returned by the query */
+    cursor: (TokenStreamCursorInput | null)[], 
+    /** filter the rows returned */
+    where?: (TokenBoolExp | null)} })
     /** fetch data from the table: "tone_enum" */
     toneEnum?: (ToneEnumGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -8387,6 +9009,40 @@ export interface subscription_rootGenqlSelection{
     cursor: (UserStreamCursorInput | null)[], 
     /** filter the rows returned */
     where?: (UserBoolExp | null)} })
+    /** fetch data from the table: "user_token" */
+    userToken?: (UserTokenGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (UserTokenSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (UserTokenOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (UserTokenBoolExp | null)} })
+    /** fetch aggregated fields from the table: "user_token" */
+    userTokenAggregate?: (UserTokenAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (UserTokenSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (UserTokenOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (UserTokenBoolExp | null)} })
+    /** fetch data from the table: "user_token" using primary key columns */
+    userTokenByPk?: (UserTokenGenqlSelection & { __args: {token: Scalars['String'], userId: Scalars['uuid']} })
+    /** fetch data from the table in a streaming manner: "user_token" */
+    userTokenStream?: (UserTokenGenqlSelection & { __args: {
+    /** maximum number of rows returned in a single batch */
+    batchSize: Scalars['Int'], 
+    /** cursor to stream the results returned by the query */
+    cursor: (UserTokenStreamCursorInput | null)[], 
+    /** filter the rows returned */
+    where?: (UserTokenBoolExp | null)} })
     __typename?: boolean | number
     __scalar?: boolean | number
 }
@@ -8396,6 +9052,8 @@ export interface threadAggregateBoolExpBool_and {arguments: ThreadSelectColumnTh
 export interface threadAggregateBoolExpBool_or {arguments: ThreadSelectColumnThreadAggregateBoolExpBool_orArgumentsColumns,distinct?: (Scalars['Boolean'] | null),filter?: (ThreadBoolExp | null),predicate: BooleanComparisonExp}
 
 export interface threadAggregateBoolExpCount {arguments?: (ThreadSelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (ThreadBoolExp | null),predicate: IntComparisonExp}
+
+export interface userTokenAggregateBoolExpCount {arguments?: (UserTokenSelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (UserTokenBoolExp | null),predicate: IntComparisonExp}
 
 export type QueryGenqlSelection = query_rootGenqlSelection
 export type MutationGenqlSelection = mutation_rootGenqlSelection
@@ -9746,6 +10404,54 @@ export type SubscriptionGenqlSelection = subscription_rootGenqlSelection
     
 
 
+    const Token_possibleTypes: string[] = ['Token']
+    export const isToken = (obj?: { __typename?: any } | null): obj is Token => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isToken"')
+      return Token_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const TokenAggregate_possibleTypes: string[] = ['TokenAggregate']
+    export const isTokenAggregate = (obj?: { __typename?: any } | null): obj is TokenAggregate => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isTokenAggregate"')
+      return TokenAggregate_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const TokenAggregateFields_possibleTypes: string[] = ['TokenAggregateFields']
+    export const isTokenAggregateFields = (obj?: { __typename?: any } | null): obj is TokenAggregateFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isTokenAggregateFields"')
+      return TokenAggregateFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const TokenMaxFields_possibleTypes: string[] = ['TokenMaxFields']
+    export const isTokenMaxFields = (obj?: { __typename?: any } | null): obj is TokenMaxFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isTokenMaxFields"')
+      return TokenMaxFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const TokenMinFields_possibleTypes: string[] = ['TokenMinFields']
+    export const isTokenMinFields = (obj?: { __typename?: any } | null): obj is TokenMinFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isTokenMinFields"')
+      return TokenMinFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const TokenMutationResponse_possibleTypes: string[] = ['TokenMutationResponse']
+    export const isTokenMutationResponse = (obj?: { __typename?: any } | null): obj is TokenMutationResponse => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isTokenMutationResponse"')
+      return TokenMutationResponse_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
     const ToneEnum_possibleTypes: string[] = ['ToneEnum']
     export const isToneEnum = (obj?: { __typename?: any } | null): obj is ToneEnum => {
       if (!obj?.__typename) throw new Error('__typename is missing in "isToneEnum"')
@@ -9886,6 +10592,54 @@ export type SubscriptionGenqlSelection = subscription_rootGenqlSelection
     export const isUserMutationResponse = (obj?: { __typename?: any } | null): obj is UserMutationResponse => {
       if (!obj?.__typename) throw new Error('__typename is missing in "isUserMutationResponse"')
       return UserMutationResponse_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const UserToken_possibleTypes: string[] = ['UserToken']
+    export const isUserToken = (obj?: { __typename?: any } | null): obj is UserToken => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isUserToken"')
+      return UserToken_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const UserTokenAggregate_possibleTypes: string[] = ['UserTokenAggregate']
+    export const isUserTokenAggregate = (obj?: { __typename?: any } | null): obj is UserTokenAggregate => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isUserTokenAggregate"')
+      return UserTokenAggregate_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const UserTokenAggregateFields_possibleTypes: string[] = ['UserTokenAggregateFields']
+    export const isUserTokenAggregateFields = (obj?: { __typename?: any } | null): obj is UserTokenAggregateFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isUserTokenAggregateFields"')
+      return UserTokenAggregateFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const UserTokenMaxFields_possibleTypes: string[] = ['UserTokenMaxFields']
+    export const isUserTokenMaxFields = (obj?: { __typename?: any } | null): obj is UserTokenMaxFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isUserTokenMaxFields"')
+      return UserTokenMaxFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const UserTokenMinFields_possibleTypes: string[] = ['UserTokenMinFields']
+    export const isUserTokenMinFields = (obj?: { __typename?: any } | null): obj is UserTokenMinFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isUserTokenMinFields"')
+      return UserTokenMinFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const UserTokenMutationResponse_possibleTypes: string[] = ['UserTokenMutationResponse']
+    export const isUserTokenMutationResponse = (obj?: { __typename?: any } | null): obj is UserTokenMutationResponse => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isUserTokenMutationResponse"')
+      return UserTokenMutationResponse_possibleTypes.includes(obj.__typename)
     }
     
 
@@ -10229,6 +10983,20 @@ export const enumThreadUpdateColumn = {
    userId: 'userId' as const
 }
 
+export const enumTokenConstraint = {
+   token_pkey: 'token_pkey' as const
+}
+
+export const enumTokenSelectColumn = {
+   token: 'token' as const,
+   tokenExpiry: 'tokenExpiry' as const
+}
+
+export const enumTokenUpdateColumn = {
+   token: 'token' as const,
+   tokenExpiry: 'tokenExpiry' as const
+}
+
 export const enumToneEnumConstraint = {
    default_tone_enum_pkey: 'default_tone_enum_pkey' as const
 }
@@ -10265,6 +11033,7 @@ export const enumUserSelectColumn = {
    email: 'email' as const,
    getFreeMonth: 'getFreeMonth' as const,
    isBlocked: 'isBlocked' as const,
+   isVerified: 'isVerified' as const,
    lastLogin: 'lastLogin' as const,
    password: 'password' as const,
    proUserSubscriptionId: 'proUserSubscriptionId' as const,
@@ -10274,11 +11043,26 @@ export const enumUserSelectColumn = {
    username: 'username' as const
 }
 
+export const enumUserTokenConstraint = {
+   user_token_pkey: 'user_token_pkey' as const
+}
+
+export const enumUserTokenSelectColumn = {
+   token: 'token' as const,
+   userId: 'userId' as const
+}
+
+export const enumUserTokenUpdateColumn = {
+   token: 'token' as const,
+   userId: 'userId' as const
+}
+
 export const enumUserUpdateColumn = {
    dateJoined: 'dateJoined' as const,
    email: 'email' as const,
    getFreeMonth: 'getFreeMonth' as const,
    isBlocked: 'isBlocked' as const,
+   isVerified: 'isVerified' as const,
    lastLogin: 'lastLogin' as const,
    password: 'password' as const,
    proUserSubscriptionId: 'proUserSubscriptionId' as const,
