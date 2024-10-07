@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { appConfig } from 'mb-env'
 import { signIn } from 'next-auth/react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
@@ -38,7 +39,9 @@ export default function SignInForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       {errorMessage && <div className="text-red-600">{errorMessage}</div>}
       <div className="space-y-2">
-        <Label htmlFor="email" variant="required">Email</Label>
+        <Label htmlFor="email" variant="required">
+          Email
+        </Label>
         <Input
           id="email"
           name="email"
@@ -48,17 +51,20 @@ export default function SignInForm() {
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="password" variant="required">Password</Label>
-        <Input
-          id="password"
-          name="password"
-          type="password"
-          required
-        />
+        <Label htmlFor="password" variant="required">
+          Password
+        </Label>
+        <Input id="password" name="password" type="password" required />
       </div>
       <Button type="submit" className="w-full">
         Sign In
       </Button>
+      <Link
+        href="/auth/forgot-password"
+        className="flex justify-end mt-6 text-sm text-purple-700 hover:underline"
+      >
+        Forgot Password?
+      </Link>
       {appConfig.enableAuth.google && (
         <>
           <div className="flex items-center w-full gap-4 my-2 text-center">
