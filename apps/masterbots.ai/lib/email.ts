@@ -1,8 +1,15 @@
 import { createTransport } from 'nodemailer'
 
+
 const transporter = createTransport({
-  // Email Configuration
-})
+  // Configure your email service here
+  // For example, using Gmail:
+  // service: 'gmail',
+  // auth: {
+  //   user: process.env.EMAIL_USER,
+  //   pass: process.env.EMAIL_PASS
+  // }
+  })
 
 export async function sendPasswordResetEmail(
   email: string,
