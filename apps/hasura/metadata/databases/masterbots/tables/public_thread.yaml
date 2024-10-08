@@ -60,6 +60,16 @@ select_permissions:
       filter: {}
     comment: ""
 update_permissions:
+  - role: moderator
+    permission:
+      columns:
+        - is_approved
+        - is_blocked
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+      check: null
+    comment: ""
   - role: user
     permission:
       columns:
