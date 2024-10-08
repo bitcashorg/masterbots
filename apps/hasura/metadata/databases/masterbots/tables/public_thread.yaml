@@ -65,11 +65,9 @@ update_permissions:
       columns:
         - is_approved
         - is_blocked
-      filter:
-        user_id:
-          _eq: X-Hasura-User-Id
-      check: null
-    comment: ""
+      filter: {}
+      check: {}
+    comment: Allows moderators to approve or block any thread
   - role: user
     permission:
       columns:
