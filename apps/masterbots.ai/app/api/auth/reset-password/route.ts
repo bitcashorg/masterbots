@@ -14,60 +14,100 @@ export async function POST(req: NextRequest) {
 
   const client = getHasuraClient()
 
-  // * Finds user with the reset token
-  const { user } = await client.query({
-    user: {
-      __args: {
-        where: {
-          resetToken: {
-            _eq: token
-          },
-          resetTokenExpiry: {
-            _gt: new Date().toISOString()
-          }
-        }
-      },
-      userId: true
-    }
-  })
-
-  if (!user.length) {
-    return NextResponse.json(
-      { error: 'Invalid or expired reset token' },
-      { status: 400 }
-    )
-  }
-
-  // * Hash the new password
-  const salt = await bcryptjs.genSalt(10)
-  const hashedPassword = await bcryptjs.hash(password, salt)
-
-  // * Updates the user's password and clear the reset token
   try {
-    await client.mutation({
-      updateUser: {
+    // * Finds token and associated user
+    const { userToken } = await client.query({
+      userToken: {
         __args: {
           where: {
-            userId: {
-              _eq: user[0].userId
+            token: { _eq: token },
+            tokenByToken: {
+              tokenExpiry: { _gt: new Date().toISOString() }
             }
           },
-          _set: {
-            password: hashedPassword,
-            resetToken: null,
-            resetTokenExpiry: null
-          }
+          limit: 1
         },
-        affected_rows: true
+        token: true,
+        userId: true,
+        tokenByToken: {
+          tokenExpiry: true
+        },
+        user: {
+          userId: true
+        }
       }
     })
 
-    return NextResponse.json(
-      { message: 'Password reset successful' },
-      { status: 200 }
-    )
+    if (!userToken || !userToken[0]) {
+      return NextResponse.json(
+        { error: 'Invalid or expired reset token' },
+        { status: 400 }
+      )
+    }
+
+    const userId = userToken[0].userId
+
+    // * Hash the new password
+    const salt = await bcryptjs.genSalt(10)
+    const hashedPassword = await bcryptjs.hash(password, salt)
+
+    // * Update the user's password
+    const updateUserResult = await client.mutation({
+      updateUser: {
+        __args: {
+          where: {
+            userId: { _eq: userId }
+          },
+          _set: {
+            password: hashedPassword
+          }
+        },
+        affectedRows: true,
+        returning: {
+          userId: true
+        }
+      }
+    })
+
+    // * Deletes the used token
+    const deleteTokenResult = await client.mutation({
+      deleteUserToken: {
+        __args: {
+          where: {
+            token: { _eq: token }
+          }
+        },
+        affectedRows: true,
+        returning: {
+          token: true
+        }
+      }
+    })
+
+    const isUpdateSuccessful =
+      (updateUserResult?.updateUser?.affectedRows ?? 0) > 0
+    const isDeleteSuccessful =
+      (deleteTokenResult?.deleteUserToken?.affectedRows ?? 0) > 0
+
+    if (isUpdateSuccessful && isDeleteSuccessful) {
+      return NextResponse.json(
+        { message: 'Password reset successful' },
+        { status: 200 }
+      )
+    } else {
+      console.error('Unexpected result:', {
+        updateUserResult,
+        deleteTokenResult,
+        isUpdateSuccessful,
+        isDeleteSuccessful
+      })
+      throw new Error('Failed to update user password or delete token')
+    }
   } catch (error) {
     console.error('Error resetting password:', error)
-    return NextResponse.json({ error: 'An error occurred' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'An error occurred while resetting the password' },
+      { status: 500 }
+    )
   }
 }

@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
 
   const client = getHasuraClient()
 
-  // * Check if user exists
+  // * Checks if user exists
   const { user } = await client.query({
     user: {
       __args: {
@@ -37,28 +37,48 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  // * Generate reset token
+  // * Generates reset token
   const resetToken = crypto.randomBytes(32).toString('hex')
-  const resetTokenExpiry = new Date(Date.now() + 3600000) //* 1 hour from activation
+  const resetTokenExpiry = new Date(Date.now() + 3600000) // 1 hour from now
 
-  // * Store reset token in the database
   try {
-    await client.mutation({
-      updateUser: {
+    const result = await client.mutation({
+      insertToken: {
         __args: {
-          where: {
-            email: {
-              _eq: email
+          objects: [
+            {
+              token: resetToken,
+              tokenExpiry: resetTokenExpiry
             }
-          },
-          _set: {
-            resetToken,
-            resetTokenExpiry
-          }
+          ]
         },
-        affected_rows: true
+        returning: {
+          token: true,
+          tokenExpiry: true
+        }
+      },
+      insertUserToken: {
+        __args: {
+          objects: [
+            {
+              userId: user[0].userId,
+              token: resetToken
+            }
+          ]
+        },
+        returning: {
+          userId: true,
+          token: true
+        }
       }
     })
+
+    if (
+      !result.insertToken?.returning.length ||
+      !result.insertUserToken?.returning.length
+    ) {
+      throw new Error('Failed to insert token')
+    }
 
     // * Send password reset email
     await sendPasswordResetEmail(email, resetToken)
@@ -69,6 +89,9 @@ export async function POST(req: NextRequest) {
     )
   } catch (error) {
     console.error('Error initiating password reset:', error)
-    return NextResponse.json({ error: 'An error occurred' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'An error occurred while sending the reset email' },
+      { status: 500 }
+    )
   }
 }

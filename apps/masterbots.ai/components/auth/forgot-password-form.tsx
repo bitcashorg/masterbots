@@ -1,28 +1,39 @@
 'use client'
 
+import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import React, { useState } from 'react'
-import toast from 'react-hot-toast'
+import { toast } from 'react-hot-toast'
 
 export default function ForgotPasswordForm() {
   const [email, setEmail] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsLoading(true)
 
-    const response = await fetch('/api/auth/forgot-password', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email })
-    })
+    try {
+      const response = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      })
 
-    if (response.ok) {
-      toast.success('Password reset email sent')
-    } else {
       const data = await response.json()
-      toast.error(`Failed to send reset email: ${data.error}`)
+
+      if (response.ok) {
+        toast.success(data.message)
+        setEmail('')
+      } else {
+        toast.error(data.error || 'An error occurred')
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      toast.error('An unexpected error occurred')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -34,12 +45,12 @@ export default function ForgotPasswordForm() {
           id="email"
           type="email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={e => setEmail(e.target.value)}
           required
         />
       </div>
-      <Button type="submit" className="w-full">
-        Send Reset Email
+      <Button type="submit" className="w-full" disabled={isLoading}>
+        {isLoading ? 'Sending...' : 'Send Reset Email'}
       </Button>
     </form>
   )
