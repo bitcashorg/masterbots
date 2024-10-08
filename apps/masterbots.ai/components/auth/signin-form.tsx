@@ -61,7 +61,7 @@ export default function SignInForm() {
       </Button>
       <Link
         href="/auth/forgot-password"
-        className="flex justify-end mt-6 text-sm text-purple-700 hover:underline"
+        className="flex justify-end mt-6 text-sm text-fuchsia-800 hover:underline"
       >
         Forgot Password?
       </Link>

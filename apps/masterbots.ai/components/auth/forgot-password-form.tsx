@@ -5,13 +5,22 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from 'react-hot-toast'
+import { validateEmail } from '@/lib/utils'
 
 export default function ForgotPasswordForm() {
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [emailError, setEmailError] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setEmailError('')
+
+    if (!validateEmail(email)) {
+      setEmailError('Please enter a valid email address')
+      return
+    }
+
     setIsLoading(true)
 
     try {
@@ -45,9 +54,13 @@ export default function ForgotPasswordForm() {
           id="email"
           type="email"
           value={email}
-          onChange={e => setEmail(e.target.value)}
+          onChange={e => {
+            setEmail(e.target.value)
+            if (emailError) setEmailError('')
+          }}
           required
         />
+        {emailError && <p className="text-sm text-red-500">{emailError}</p>}
       </div>
       <Button type="submit" className="w-full" disabled={isLoading}>
         {isLoading ? 'Sending...' : 'Send Reset Email'}

@@ -7,7 +7,6 @@ function getAppUrl(): string {
       return 'https://masterbots.ai'
     case 'test':
       return 'https://dev.masterbots.ai'
-    case 'local':
     default:
       return 'http://localhost:3000'
   }
@@ -90,7 +89,6 @@ export async function sendPasswordResetEmail(
     console.log(`Password reset email sent to ${email}`)
   } catch (error) {
     console.error('Error sending password reset email:', error)
-    throw new Error('Failed to send password reset email')
   }
 }
 

@@ -4,7 +4,6 @@ import bcryptjs from 'bcryptjs'
 
 export async function POST(req: NextRequest) {
   const { token, password } = await req.json()
-
   if (!token || !password) {
     return NextResponse.json(
       { error: 'Token and password are required' },
@@ -95,12 +94,7 @@ export async function POST(req: NextRequest) {
         { status: 200 }
       )
     } else {
-      console.error('Unexpected result:', {
-        updateUserResult,
-        deleteTokenResult,
-        isUpdateSuccessful,
-        isDeleteSuccessful
-      })
+      console.error('Unexpected result')
       throw new Error('Failed to update user password or delete token')
     }
   } catch (error) {
