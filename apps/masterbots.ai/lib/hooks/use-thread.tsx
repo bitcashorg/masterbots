@@ -36,6 +36,8 @@ interface ThreadContext {
   isLoading: boolean
   randomChatbot: Chatbot | null
   getRandomChatbot: () => void
+  isAdminMode: boolean
+  handleToggleAdminMode: () => void
 }
 
 const ThreadContext = React.createContext<ThreadContext | undefined>(undefined)
@@ -59,6 +61,8 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
   const sectionRef = React.useRef<HTMLElement>()
   const { data: session } = useSession()
   const { selectedModel, clientType } = useModel()
+  const [isAdminMode, setIsAdminMode] = React.useState<boolean>(false);
+
 
   // ! TODO: refactor this to use { useSetState } from 'react-use'
   const [messagesFromDB, setMessagesFromDB] = React.useState<Message[]>([])
@@ -238,6 +242,9 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     ref: sectionRef,
     scrollY
   })
+  const  handleToggleAdminMode = () => {
+    setIsAdminMode(!isAdminMode);
+  }
 
   const value = React.useMemo(
     () => ({
@@ -255,7 +262,9 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       isLoading,
       sectionRef,
       randomChatbot,
-      getRandomChatbot
+      getRandomChatbot,
+      isAdminMode,
+      handleToggleAdminMode
     }),
     [
       isLoadingMessages,
@@ -272,7 +281,9 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       isLoading,
       sectionRef,
       randomChatbot,
-      getRandomChatbot
+      getRandomChatbot,
+      isAdminMode,
+      handleToggleAdminMode
     ]
   )
 
