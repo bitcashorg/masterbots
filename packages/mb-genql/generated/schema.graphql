@@ -5401,6 +5401,206 @@ input TimestamptzComparisonExp {
   _nin: [timestamptz!]
 }
 
+"""Tokens OTP for reset password and activate account """
+type Token {
+  token: String!
+  tokenExpiry: timestamptz!
+
+  """An array relationship"""
+  userTokens(
+    """distinct select on columns"""
+    distinctOn: [UserTokenSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [UserTokenOrderBy!]
+
+    """filter the rows returned"""
+    where: UserTokenBoolExp
+  ): [UserToken!]!
+
+  """An aggregate relationship"""
+  userTokensAggregate(
+    """distinct select on columns"""
+    distinctOn: [UserTokenSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [UserTokenOrderBy!]
+
+    """filter the rows returned"""
+    where: UserTokenBoolExp
+  ): UserTokenAggregate!
+}
+
+"""
+aggregated selection of "token"
+"""
+type TokenAggregate {
+  aggregate: TokenAggregateFields
+  nodes: [Token!]!
+}
+
+"""
+aggregate fields of "token"
+"""
+type TokenAggregateFields {
+  count(columns: [TokenSelectColumn!], distinct: Boolean): Int!
+  max: TokenMaxFields
+  min: TokenMinFields
+}
+
+"""
+Boolean expression to filter rows from the table "token". All fields are combined with a logical 'AND'.
+"""
+input TokenBoolExp {
+  _and: [TokenBoolExp!]
+  _not: TokenBoolExp
+  _or: [TokenBoolExp!]
+  token: StringComparisonExp
+  tokenExpiry: TimestamptzComparisonExp
+  userTokens: UserTokenBoolExp
+  userTokensAggregate: UserTokenAggregateBoolExp
+}
+
+"""
+unique or primary key constraints on table "token"
+"""
+enum TokenConstraint {
+  """
+  unique or primary key constraint on columns "token"
+  """
+  token_pkey
+}
+
+"""
+input type for inserting data into table "token"
+"""
+input TokenInsertInput {
+  token: String
+  tokenExpiry: timestamptz
+  userTokens: UserTokenArrRelInsertInput
+}
+
+"""aggregate max on columns"""
+type TokenMaxFields {
+  token: String
+  tokenExpiry: timestamptz
+}
+
+"""aggregate min on columns"""
+type TokenMinFields {
+  token: String
+  tokenExpiry: timestamptz
+}
+
+"""
+response of any mutation on the table "token"
+"""
+type TokenMutationResponse {
+  """number of rows affected by the mutation"""
+  affectedRows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [Token!]!
+}
+
+"""
+input type for inserting object relation for remote table "token"
+"""
+input TokenObjRelInsertInput {
+  data: TokenInsertInput!
+
+  """upsert condition"""
+  onConflict: TokenOnConflict
+}
+
+"""
+on_conflict condition type for table "token"
+"""
+input TokenOnConflict {
+  constraint: TokenConstraint!
+  updateColumns: [TokenUpdateColumn!]! = []
+  where: TokenBoolExp
+}
+
+"""Ordering options when selecting data from "token"."""
+input TokenOrderBy {
+  token: OrderBy
+  tokenExpiry: OrderBy
+  userTokensAggregate: UserTokenAggregateOrderBy
+}
+
+"""primary key columns input for table: token"""
+input TokenPkColumnsInput {
+  token: String!
+}
+
+"""
+select columns of table "token"
+"""
+enum TokenSelectColumn {
+  """column name"""
+  token
+
+  """column name"""
+  tokenExpiry
+}
+
+"""
+input type for updating data in table "token"
+"""
+input TokenSetInput {
+  token: String
+  tokenExpiry: timestamptz
+}
+
+"""
+Streaming cursor of the table "token"
+"""
+input TokenStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: TokenStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input TokenStreamCursorValueInput {
+  token: String
+  tokenExpiry: timestamptz
+}
+
+"""
+update columns of table "token"
+"""
+enum TokenUpdateColumn {
+  """column name"""
+  token
+
+  """column name"""
+  tokenExpiry
+}
+
+input TokenUpdates {
+  """sets the columns of the filtered rows to the given values"""
+  _set: TokenSetInput
+
+  """filter the rows which have to be updated"""
+  where: TokenBoolExp!
+}
+
 """
 columns and relationships of "tone_enum"
 """
@@ -5896,6 +6096,7 @@ type User {
   email: String!
   getFreeMonth: Boolean
   isBlocked: Boolean
+  isVerified: Boolean
   lastLogin: timestamptz
   password: String!
 
@@ -6082,6 +6283,42 @@ type User {
     where: ThreadBoolExp
   ): ThreadAggregate!
   userId: uuid!
+
+  """An array relationship"""
+  userTokens(
+    """distinct select on columns"""
+    distinctOn: [UserTokenSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [UserTokenOrderBy!]
+
+    """filter the rows returned"""
+    where: UserTokenBoolExp
+  ): [UserToken!]!
+
+  """An aggregate relationship"""
+  userTokensAggregate(
+    """distinct select on columns"""
+    distinctOn: [UserTokenSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [UserTokenOrderBy!]
+
+    """filter the rows returned"""
+    where: UserTokenBoolExp
+  ): UserTokenAggregate!
   username: String!
 }
 
@@ -6115,6 +6352,7 @@ input UserBoolExp {
   email: StringComparisonExp
   getFreeMonth: BooleanComparisonExp
   isBlocked: BooleanComparisonExp
+  isVerified: BooleanComparisonExp
   lastLogin: TimestamptzComparisonExp
   password: StringComparisonExp
   preferences: PreferenceBoolExp
@@ -6131,6 +6369,8 @@ input UserBoolExp {
   threads: ThreadBoolExp
   threadsAggregate: ThreadAggregateBoolExp
   userId: UuidComparisonExp
+  userTokens: UserTokenBoolExp
+  userTokensAggregate: UserTokenAggregateBoolExp
   username: StringComparisonExp
 }
 
@@ -6168,6 +6408,7 @@ input UserInsertInput {
   email: String
   getFreeMonth: Boolean
   isBlocked: Boolean
+  isVerified: Boolean
   lastLogin: timestamptz
   password: String
   preferences: PreferenceArrRelInsertInput
@@ -6179,6 +6420,7 @@ input UserInsertInput {
   slug: String
   threads: ThreadArrRelInsertInput
   userId: uuid
+  userTokens: UserTokenArrRelInsertInput
   username: String
 }
 
@@ -6245,6 +6487,7 @@ input UserOrderBy {
   email: OrderBy
   getFreeMonth: OrderBy
   isBlocked: OrderBy
+  isVerified: OrderBy
   lastLogin: OrderBy
   password: OrderBy
   preferencesAggregate: PreferenceAggregateOrderBy
@@ -6256,6 +6499,7 @@ input UserOrderBy {
   slug: OrderBy
   threadsAggregate: ThreadAggregateOrderBy
   userId: OrderBy
+  userTokensAggregate: UserTokenAggregateOrderBy
   username: OrderBy
 }
 
@@ -6279,6 +6523,9 @@ enum UserSelectColumn {
 
   """column name"""
   isBlocked
+
+  """column name"""
+  isVerified
 
   """column name"""
   lastLogin
@@ -6310,6 +6557,7 @@ input UserSetInput {
   email: String
   getFreeMonth: Boolean
   isBlocked: Boolean
+  isVerified: Boolean
   lastLogin: timestamptz
   password: String
   proUserSubscriptionId: String
@@ -6336,6 +6584,7 @@ input UserStreamCursorValueInput {
   email: String
   getFreeMonth: Boolean
   isBlocked: Boolean
+  isVerified: Boolean
   lastLogin: timestamptz
   password: String
   proUserSubscriptionId: String
@@ -6343,6 +6592,208 @@ input UserStreamCursorValueInput {
   slug: String
   userId: uuid
   username: String
+}
+
+"""user <> token relationship OTP (reset password/activate account) """
+type UserToken {
+  token: String!
+
+  """An object relationship"""
+  tokenByToken: Token!
+
+  """An object relationship"""
+  user: User!
+  userId: uuid!
+}
+
+"""
+aggregated selection of "user_token"
+"""
+type UserTokenAggregate {
+  aggregate: UserTokenAggregateFields
+  nodes: [UserToken!]!
+}
+
+input UserTokenAggregateBoolExp {
+  count: userTokenAggregateBoolExpCount
+}
+
+"""
+aggregate fields of "user_token"
+"""
+type UserTokenAggregateFields {
+  count(columns: [UserTokenSelectColumn!], distinct: Boolean): Int!
+  max: UserTokenMaxFields
+  min: UserTokenMinFields
+}
+
+"""
+order by aggregate values of table "user_token"
+"""
+input UserTokenAggregateOrderBy {
+  count: OrderBy
+  max: UserTokenMaxOrderBy
+  min: UserTokenMinOrderBy
+}
+
+"""
+input type for inserting array relation for remote table "user_token"
+"""
+input UserTokenArrRelInsertInput {
+  data: [UserTokenInsertInput!]!
+
+  """upsert condition"""
+  onConflict: UserTokenOnConflict
+}
+
+"""
+Boolean expression to filter rows from the table "user_token". All fields are combined with a logical 'AND'.
+"""
+input UserTokenBoolExp {
+  _and: [UserTokenBoolExp!]
+  _not: UserTokenBoolExp
+  _or: [UserTokenBoolExp!]
+  token: StringComparisonExp
+  tokenByToken: TokenBoolExp
+  user: UserBoolExp
+  userId: UuidComparisonExp
+}
+
+"""
+unique or primary key constraints on table "user_token"
+"""
+enum UserTokenConstraint {
+  """
+  unique or primary key constraint on columns "user_id", "token"
+  """
+  user_token_pkey
+}
+
+"""
+input type for inserting data into table "user_token"
+"""
+input UserTokenInsertInput {
+  token: String
+  tokenByToken: TokenObjRelInsertInput
+  user: UserObjRelInsertInput
+  userId: uuid
+}
+
+"""aggregate max on columns"""
+type UserTokenMaxFields {
+  token: String
+  userId: uuid
+}
+
+"""
+order by max() on columns of table "user_token"
+"""
+input UserTokenMaxOrderBy {
+  token: OrderBy
+  userId: OrderBy
+}
+
+"""aggregate min on columns"""
+type UserTokenMinFields {
+  token: String
+  userId: uuid
+}
+
+"""
+order by min() on columns of table "user_token"
+"""
+input UserTokenMinOrderBy {
+  token: OrderBy
+  userId: OrderBy
+}
+
+"""
+response of any mutation on the table "user_token"
+"""
+type UserTokenMutationResponse {
+  """number of rows affected by the mutation"""
+  affectedRows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [UserToken!]!
+}
+
+"""
+on_conflict condition type for table "user_token"
+"""
+input UserTokenOnConflict {
+  constraint: UserTokenConstraint!
+  updateColumns: [UserTokenUpdateColumn!]! = []
+  where: UserTokenBoolExp
+}
+
+"""Ordering options when selecting data from "user_token"."""
+input UserTokenOrderBy {
+  token: OrderBy
+  tokenByToken: TokenOrderBy
+  user: UserOrderBy
+  userId: OrderBy
+}
+
+"""primary key columns input for table: user_token"""
+input UserTokenPkColumnsInput {
+  token: String!
+  userId: uuid!
+}
+
+"""
+select columns of table "user_token"
+"""
+enum UserTokenSelectColumn {
+  """column name"""
+  token
+
+  """column name"""
+  userId
+}
+
+"""
+input type for updating data in table "user_token"
+"""
+input UserTokenSetInput {
+  token: String
+  userId: uuid
+}
+
+"""
+Streaming cursor of the table "user_token"
+"""
+input UserTokenStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: UserTokenStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input UserTokenStreamCursorValueInput {
+  token: String
+  userId: uuid
+}
+
+"""
+update columns of table "user_token"
+"""
+enum UserTokenUpdateColumn {
+  """column name"""
+  token
+
+  """column name"""
+  userId
+}
+
+input UserTokenUpdates {
+  """sets the columns of the filtered rows to the given values"""
+  _set: UserTokenSetInput
+
+  """filter the rows which have to be updated"""
+  where: UserTokenBoolExp!
 }
 
 """
@@ -6360,6 +6811,9 @@ enum UserUpdateColumn {
 
   """column name"""
   isBlocked
+
+  """column name"""
+  isVerified
 
   """column name"""
   lastLogin
@@ -6645,6 +7099,19 @@ type mutation_root {
   deleteThreadByPk(threadId: uuid!): Thread
 
   """
+  delete data from the table: "token"
+  """
+  deleteToken(
+    """filter the rows which have to be deleted"""
+    where: TokenBoolExp!
+  ): TokenMutationResponse
+
+  """
+  delete single row from the table: "token"
+  """
+  deleteTokenByPk(token: String!): Token
+
+  """
   delete data from the table: "tone_enum"
   """
   deleteToneEnum(
@@ -6682,6 +7149,19 @@ type mutation_root {
   delete single row from the table: "user"
   """
   deleteUserByPk(userId: uuid!): User
+
+  """
+  delete data from the table: "user_token"
+  """
+  deleteUserToken(
+    """filter the rows which have to be deleted"""
+    where: UserTokenBoolExp!
+  ): UserTokenMutationResponse
+
+  """
+  delete single row from the table: "user_token"
+  """
+  deleteUserTokenByPk(token: String!, userId: uuid!): UserToken
 
   """
   insert data into the table: "category"
@@ -7036,6 +7516,28 @@ type mutation_root {
   ): Thread
 
   """
+  insert data into the table: "token"
+  """
+  insertToken(
+    """the rows to be inserted"""
+    objects: [TokenInsertInput!]!
+
+    """upsert condition"""
+    onConflict: TokenOnConflict
+  ): TokenMutationResponse
+
+  """
+  insert a single row into the table: "token"
+  """
+  insertTokenOne(
+    """the row to be inserted"""
+    object: TokenInsertInput!
+
+    """upsert condition"""
+    onConflict: TokenOnConflict
+  ): Token
+
+  """
   insert data into the table: "tone_enum"
   """
   insertToneEnum(
@@ -7100,6 +7602,28 @@ type mutation_root {
     """upsert condition"""
     onConflict: UserOnConflict
   ): User
+
+  """
+  insert data into the table: "user_token"
+  """
+  insertUserToken(
+    """the rows to be inserted"""
+    objects: [UserTokenInsertInput!]!
+
+    """upsert condition"""
+    onConflict: UserTokenOnConflict
+  ): UserTokenMutationResponse
+
+  """
+  insert a single row into the table: "user_token"
+  """
+  insertUserTokenOne(
+    """the row to be inserted"""
+    object: UserTokenInsertInput!
+
+    """upsert condition"""
+    onConflict: UserTokenOnConflict
+  ): UserToken
 
   """
   update data of the table: "category"
@@ -7604,6 +8128,34 @@ type mutation_root {
   ): [ThreadMutationResponse]
 
   """
+  update data of the table: "token"
+  """
+  updateToken(
+    """sets the columns of the filtered rows to the given values"""
+    _set: TokenSetInput
+
+    """filter the rows which have to be updated"""
+    where: TokenBoolExp!
+  ): TokenMutationResponse
+
+  """
+  update single row of the table: "token"
+  """
+  updateTokenByPk(
+    """sets the columns of the filtered rows to the given values"""
+    _set: TokenSetInput
+    pkColumns: TokenPkColumnsInput!
+  ): Token
+
+  """
+  update multiples rows of table: "token"
+  """
+  updateTokenMany(
+    """updates to execute, in order"""
+    updates: [TokenUpdates!]!
+  ): [TokenMutationResponse]
+
+  """
   update data of the table: "tone_enum"
   """
   updateToneEnum(
@@ -7686,6 +8238,34 @@ type mutation_root {
     """updates to execute, in order"""
     updates: [UserUpdates!]!
   ): [UserMutationResponse]
+
+  """
+  update data of the table: "user_token"
+  """
+  updateUserToken(
+    """sets the columns of the filtered rows to the given values"""
+    _set: UserTokenSetInput
+
+    """filter the rows which have to be updated"""
+    where: UserTokenBoolExp!
+  ): UserTokenMutationResponse
+
+  """
+  update single row of the table: "user_token"
+  """
+  updateUserTokenByPk(
+    """sets the columns of the filtered rows to the given values"""
+    _set: UserTokenSetInput
+    pkColumns: UserTokenPkColumnsInput!
+  ): UserToken
+
+  """
+  update multiples rows of table: "user_token"
+  """
+  updateUserTokenMany(
+    """updates to execute, in order"""
+    updates: [UserTokenUpdates!]!
+  ): [UserTokenMutationResponse]
 }
 
 input preferenceAggregateBoolExpBool_and {
@@ -8426,6 +9006,49 @@ type query_root {
   threadByPk(threadId: uuid!): Thread
 
   """
+  fetch data from the table: "token"
+  """
+  token(
+    """distinct select on columns"""
+    distinctOn: [TokenSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [TokenOrderBy!]
+
+    """filter the rows returned"""
+    where: TokenBoolExp
+  ): [Token!]!
+
+  """
+  fetch aggregated fields from the table: "token"
+  """
+  tokenAggregate(
+    """distinct select on columns"""
+    distinctOn: [TokenSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [TokenOrderBy!]
+
+    """filter the rows returned"""
+    where: TokenBoolExp
+  ): TokenAggregate!
+
+  """fetch data from the table: "token" using primary key columns"""
+  tokenByPk(token: String!): Token
+
+  """
   fetch data from the table: "tone_enum"
   """
   toneEnum(
@@ -8553,6 +9176,49 @@ type query_root {
 
   """fetch data from the table: "user" using primary key columns"""
   userByPk(userId: uuid!): User
+
+  """
+  fetch data from the table: "user_token"
+  """
+  userToken(
+    """distinct select on columns"""
+    distinctOn: [UserTokenSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [UserTokenOrderBy!]
+
+    """filter the rows returned"""
+    where: UserTokenBoolExp
+  ): [UserToken!]!
+
+  """
+  fetch aggregated fields from the table: "user_token"
+  """
+  userTokenAggregate(
+    """distinct select on columns"""
+    distinctOn: [UserTokenSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [UserTokenOrderBy!]
+
+    """filter the rows returned"""
+    where: UserTokenBoolExp
+  ): UserTokenAggregate!
+
+  """fetch data from the table: "user_token" using primary key columns"""
+  userTokenByPk(token: String!, userId: uuid!): UserToken
 }
 
 input referralAggregateBoolExpCount {
@@ -9482,6 +10148,63 @@ type subscription_root {
   ): [Thread!]!
 
   """
+  fetch data from the table: "token"
+  """
+  token(
+    """distinct select on columns"""
+    distinctOn: [TokenSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [TokenOrderBy!]
+
+    """filter the rows returned"""
+    where: TokenBoolExp
+  ): [Token!]!
+
+  """
+  fetch aggregated fields from the table: "token"
+  """
+  tokenAggregate(
+    """distinct select on columns"""
+    distinctOn: [TokenSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [TokenOrderBy!]
+
+    """filter the rows returned"""
+    where: TokenBoolExp
+  ): TokenAggregate!
+
+  """fetch data from the table: "token" using primary key columns"""
+  tokenByPk(token: String!): Token
+
+  """
+  fetch data from the table in a streaming manner: "token"
+  """
+  tokenStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [TokenStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: TokenBoolExp
+  ): [Token!]!
+
+  """
   fetch data from the table: "tone_enum"
   """
   toneEnum(
@@ -9651,6 +10374,63 @@ type subscription_root {
     """filter the rows returned"""
     where: UserBoolExp
   ): [User!]!
+
+  """
+  fetch data from the table: "user_token"
+  """
+  userToken(
+    """distinct select on columns"""
+    distinctOn: [UserTokenSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [UserTokenOrderBy!]
+
+    """filter the rows returned"""
+    where: UserTokenBoolExp
+  ): [UserToken!]!
+
+  """
+  fetch aggregated fields from the table: "user_token"
+  """
+  userTokenAggregate(
+    """distinct select on columns"""
+    distinctOn: [UserTokenSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [UserTokenOrderBy!]
+
+    """filter the rows returned"""
+    where: UserTokenBoolExp
+  ): UserTokenAggregate!
+
+  """fetch data from the table: "user_token" using primary key columns"""
+  userTokenByPk(token: String!, userId: uuid!): UserToken
+
+  """
+  fetch data from the table in a streaming manner: "user_token"
+  """
+  userTokenStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [UserTokenStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: UserTokenBoolExp
+  ): [UserToken!]!
 }
 
 input threadAggregateBoolExpBool_and {
@@ -9675,5 +10455,12 @@ input threadAggregateBoolExpCount {
 }
 
 scalar timestamptz
+
+input userTokenAggregateBoolExpCount {
+  arguments: [UserTokenSelectColumn!]
+  distinct: Boolean
+  filter: UserTokenBoolExp
+  predicate: IntComparisonExp!
+}
 
 scalar uuid
