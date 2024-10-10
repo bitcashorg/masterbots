@@ -233,3 +233,9 @@ export function getKeyByValue(map: any, searchValue: string) {
   }
   return null // Return null if the value is not found
 }
+
+
+export const validateEmail = (email: string) => {
+  const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+  return re.test(email)
+}

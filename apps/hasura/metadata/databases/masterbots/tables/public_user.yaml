@@ -44,6 +44,13 @@ array_relationships:
         table:
           name: thread
           schema: public
+  - name: userTokens
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: user_token
+          schema: public
 insert_permissions:
   - role: user
     permission:

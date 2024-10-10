@@ -68,8 +68,14 @@ export default {
         550,
         559,
         563,
-        580,
-        581
+        569,
+        578,
+        589,
+        599,
+        603,
+        605,
+        622,
+        624
     ],
     "types": {
         "Boolean": {},
@@ -462,7 +468,7 @@ export default {
         },
         "Chat": {
             "addedBy": [
-                581
+                624
             ],
             "chatId": [
                 172
@@ -477,7 +483,7 @@ export default {
                 462
             ],
             "user": [
-                546
+                565
             ],
             "__typename": [
                 462
@@ -496,7 +502,7 @@ export default {
         },
         "ChatAggregateBoolExp": {
             "count": [
-                566
+                608
             ],
             "__typename": [
                 462
@@ -631,7 +637,7 @@ export default {
                 38
             ],
             "addedBy": [
-                565
+                607
             ],
             "chatId": [
                 173
@@ -646,7 +652,7 @@ export default {
                 463
             ],
             "user": [
-                549
+                568
             ],
             "__typename": [
                 462
@@ -666,7 +672,7 @@ export default {
         },
         "ChatInsertInput": {
             "addedBy": [
-                581
+                624
             ],
             "chatId": [
                 172
@@ -681,7 +687,7 @@ export default {
                 462
             ],
             "user": [
-                555
+                574
             ],
             "__typename": [
                 462
@@ -689,7 +695,7 @@ export default {
         },
         "ChatMaxFields": {
             "addedBy": [
-                581
+                624
             ],
             "chatId": [
                 172
@@ -723,7 +729,7 @@ export default {
         },
         "ChatMinFields": {
             "addedBy": [
-                581
+                624
             ],
             "chatId": [
                 172
@@ -797,7 +803,7 @@ export default {
                 256
             ],
             "user": [
-                557
+                576
             ],
             "__typename": [
                 462
@@ -814,7 +820,7 @@ export default {
         "ChatSelectColumn": {},
         "ChatSetInput": {
             "addedBy": [
-                581
+                624
             ],
             "chatId": [
                 172
@@ -908,7 +914,7 @@ export default {
         },
         "ChatStreamCursorValueInput": {
             "addedBy": [
-                581
+                624
             ],
             "chatId": [
                 172
@@ -1281,10 +1287,10 @@ export default {
                 }
             ],
             "toneEnum": [
-                508
+                527
             ],
             "typeEnum": [
-                527
+                546
             ],
             "__typename": [
                 462
@@ -1303,7 +1309,7 @@ export default {
         },
         "ChatbotAggregateBoolExp": {
             "count": [
-                567
+                609
             ],
             "__typename": [
                 462
@@ -1495,10 +1501,10 @@ export default {
                 466
             ],
             "toneEnum": [
-                511
+                530
             ],
             "typeEnum": [
-                530
+                549
             ],
             "__typename": [
                 462
@@ -1534,7 +1540,7 @@ export default {
         },
         "ChatbotCategoryAggregateBoolExp": {
             "count": [
-                568
+                610
             ],
             "__typename": [
                 462
@@ -2072,10 +2078,10 @@ export default {
                 469
             ],
             "toneEnum": [
-                517
+                536
             ],
             "typeEnum": [
-                536
+                555
             ],
             "__typename": [
                 462
@@ -2295,10 +2301,10 @@ export default {
                 468
             ],
             "toneEnum": [
-                519
+                538
             ],
             "typeEnum": [
-                538
+                557
             ],
             "__typename": [
                 462
@@ -3131,10 +3137,10 @@ export default {
                 462
             ],
             "createdAt": [
-                580
+                622
             ],
             "messageId": [
-                581
+                624
             ],
             "messageTypeEnum": [
                 214
@@ -3146,7 +3152,7 @@ export default {
                 464
             ],
             "threadId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -3165,7 +3171,7 @@ export default {
         },
         "MessageAggregateBoolExp": {
             "count": [
-                569
+                611
             ],
             "__typename": [
                 462
@@ -3236,7 +3242,7 @@ export default {
                 507
             ],
             "messageId": [
-                565
+                607
             ],
             "messageTypeEnum": [
                 217
@@ -3248,7 +3254,7 @@ export default {
                 472
             ],
             "threadId": [
-                565
+                607
             ],
             "__typename": [
                 462
@@ -3260,10 +3266,10 @@ export default {
                 462
             ],
             "createdAt": [
-                580
+                622
             ],
             "messageId": [
-                581
+                624
             ],
             "messageTypeEnum": [
                 223
@@ -3275,7 +3281,7 @@ export default {
                 481
             ],
             "threadId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -3286,16 +3292,16 @@ export default {
                 462
             ],
             "createdAt": [
-                580
+                622
             ],
             "messageId": [
-                581
+                624
             ],
             "role": [
                 462
             ],
             "threadId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -3326,16 +3332,16 @@ export default {
                 462
             ],
             "createdAt": [
-                580
+                622
             ],
             "messageId": [
-                581
+                624
             ],
             "role": [
                 462
             ],
             "threadId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -3414,7 +3420,7 @@ export default {
         },
         "MessagePkColumnsInput": {
             "messageId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -3426,16 +3432,16 @@ export default {
                 462
             ],
             "createdAt": [
-                580
+                622
             ],
             "messageId": [
-                581
+                624
             ],
             "role": [
                 462
             ],
             "threadId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -3457,16 +3463,16 @@ export default {
                 462
             ],
             "createdAt": [
-                580
+                622
             ],
             "messageId": [
-                581
+                624
             ],
             "role": [
                 462
             ],
             "threadId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -4026,16 +4032,16 @@ export default {
                 462
             ],
             "toneEnum": [
-                508
-            ],
-            "typeEnum": [
                 527
             ],
-            "user": [
+            "typeEnum": [
                 546
             ],
+            "user": [
+                565
+            ],
             "userId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -4054,13 +4060,13 @@ export default {
         },
         "PreferenceAggregateBoolExp": {
             "bool_and": [
-                570
+                612
             ],
             "bool_or": [
-                571
+                613
             ],
             "count": [
-                572
+                614
             ],
             "__typename": [
                 462
@@ -4225,16 +4231,16 @@ export default {
                 463
             ],
             "toneEnum": [
-                511
-            ],
-            "typeEnum": [
                 530
             ],
-            "user": [
+            "typeEnum": [
                 549
             ],
+            "user": [
+                568
+            ],
             "userId": [
-                565
+                607
             ],
             "__typename": [
                 462
@@ -4284,16 +4290,16 @@ export default {
                 462
             ],
             "toneEnum": [
-                517
-            ],
-            "typeEnum": [
                 536
             ],
-            "user": [
+            "typeEnum": [
                 555
             ],
+            "user": [
+                574
+            ],
             "userId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -4319,7 +4325,7 @@ export default {
                 462
             ],
             "userId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -4371,7 +4377,7 @@ export default {
                 462
             ],
             "userId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -4460,13 +4466,13 @@ export default {
                 256
             ],
             "toneEnum": [
-                519
-            ],
-            "typeEnum": [
                 538
             ],
-            "user": [
+            "typeEnum": [
                 557
+            ],
+            "user": [
+                576
             ],
             "userId": [
                 256
@@ -4509,7 +4515,7 @@ export default {
                 462
             ],
             "userId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -4615,7 +4621,7 @@ export default {
                 462
             ],
             "userId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -4845,7 +4851,7 @@ export default {
         },
         "PromptAggregateBoolExp": {
             "count": [
-                573
+                615
             ],
             "__typename": [
                 462
@@ -5034,7 +5040,7 @@ export default {
         },
         "PromptChatbotAggregateBoolExp": {
             "count": [
-                574
+                616
             ],
             "__typename": [
                 462
@@ -6051,10 +6057,10 @@ export default {
                 172
             ],
             "user": [
-                546
+                565
             ],
             "userId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -6073,7 +6079,7 @@ export default {
         },
         "PromptUserAggregateBoolExp": {
             "count": [
-                575
+                617
             ],
             "__typename": [
                 462
@@ -6208,10 +6214,10 @@ export default {
                 173
             ],
             "user": [
-                549
+                568
             ],
             "userId": [
-                565
+                607
             ],
             "__typename": [
                 462
@@ -6234,10 +6240,10 @@ export default {
                 172
             ],
             "user": [
-                555
+                574
             ],
             "userId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -6248,7 +6254,7 @@ export default {
                 172
             ],
             "userId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -6270,7 +6276,7 @@ export default {
                 172
             ],
             "userId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -6320,7 +6326,7 @@ export default {
                 256
             ],
             "user": [
-                557
+                576
             ],
             "userId": [
                 256
@@ -6334,7 +6340,7 @@ export default {
                 172
             ],
             "userId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -6346,7 +6352,7 @@ export default {
                 172
             ],
             "userId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -6416,7 +6422,7 @@ export default {
                 172
             ],
             "userId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -6554,16 +6560,16 @@ export default {
                 462
             ],
             "referrerId": [
-                581
+                624
             ],
             "user": [
-                546
+                565
             ],
             "userByUserId": [
-                546
+                565
             ],
             "userId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -6582,7 +6588,7 @@ export default {
         },
         "ReferralAggregateBoolExp": {
             "count": [
-                576
+                618
             ],
             "__typename": [
                 462
@@ -6650,16 +6656,16 @@ export default {
                 463
             ],
             "referrerId": [
-                565
+                607
             ],
             "user": [
-                549
+                568
             ],
             "userByUserId": [
-                549
+                568
             ],
             "userId": [
-                565
+                607
             ],
             "__typename": [
                 462
@@ -6671,16 +6677,16 @@ export default {
                 462
             ],
             "referrerId": [
-                581
+                624
             ],
             "user": [
-                555
+                574
             ],
             "userByUserId": [
-                555
+                574
             ],
             "userId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -6691,10 +6697,10 @@ export default {
                 462
             ],
             "referrerId": [
-                581
+                624
             ],
             "userId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -6719,10 +6725,10 @@ export default {
                 462
             ],
             "referrerId": [
-                581
+                624
             ],
             "userId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -6775,10 +6781,10 @@ export default {
                 256
             ],
             "user": [
-                557
+                576
             ],
             "userByUserId": [
-                557
+                576
             ],
             "userId": [
                 256
@@ -6801,10 +6807,10 @@ export default {
                 462
             ],
             "referrerId": [
-                581
+                624
             ],
             "userId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -6826,10 +6832,10 @@ export default {
                 462
             ],
             "referrerId": [
-                581
+                624
             ],
             "userId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -6918,7 +6924,7 @@ export default {
                 172
             ],
             "createdAt": [
-                580
+                622
             ],
             "isApproved": [
                 0
@@ -6977,16 +6983,16 @@ export default {
                 235
             ],
             "threadId": [
-                581
+                624
             ],
             "updatedAt": [
-                580
+                622
             ],
             "user": [
-                546
+                565
             ],
             "userId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -7005,13 +7011,13 @@ export default {
         },
         "ThreadAggregateBoolExp": {
             "bool_and": [
-                577
+                619
             ],
             "bool_or": [
-                578
+                620
             ],
             "count": [
-                579
+                621
             ],
             "__typename": [
                 462
@@ -7167,16 +7173,16 @@ export default {
                 238
             ],
             "threadId": [
-                565
+                607
             ],
             "updatedAt": [
                 507
             ],
             "user": [
-                549
+                568
             ],
             "userId": [
-                565
+                607
             ],
             "__typename": [
                 462
@@ -7199,7 +7205,7 @@ export default {
                 172
             ],
             "createdAt": [
-                580
+                622
             ],
             "isApproved": [
                 0
@@ -7217,16 +7223,16 @@ export default {
                 246
             ],
             "threadId": [
-                581
+                624
             ],
             "updatedAt": [
-                580
+                622
             ],
             "user": [
-                555
+                574
             ],
             "userId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -7237,16 +7243,16 @@ export default {
                 172
             ],
             "createdAt": [
-                580
+                622
             ],
             "threadId": [
-                581
+                624
             ],
             "updatedAt": [
-                580
+                622
             ],
             "userId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -7277,16 +7283,16 @@ export default {
                 172
             ],
             "createdAt": [
-                580
+                622
             ],
             "threadId": [
-                581
+                624
             ],
             "updatedAt": [
-                580
+                622
             ],
             "userId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -7380,7 +7386,7 @@ export default {
                 256
             ],
             "user": [
-                557
+                576
             ],
             "userId": [
                 256
@@ -7391,7 +7397,7 @@ export default {
         },
         "ThreadPkColumnsInput": {
             "threadId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -7405,7 +7411,7 @@ export default {
                 172
             ],
             "createdAt": [
-                580
+                622
             ],
             "isApproved": [
                 0
@@ -7417,13 +7423,13 @@ export default {
                 240
             ],
             "threadId": [
-                581
+                624
             ],
             "updatedAt": [
-                580
+                622
             ],
             "userId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -7493,7 +7499,7 @@ export default {
                 172
             ],
             "createdAt": [
-                580
+                622
             ],
             "isApproved": [
                 0
@@ -7505,13 +7511,13 @@ export default {
                 240
             ],
             "threadId": [
-                581
+                624
             ],
             "updatedAt": [
-                580
+                622
             ],
             "userId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -7598,31 +7604,287 @@ export default {
         },
         "TimestamptzComparisonExp": {
             "_eq": [
-                580
+                622
             ],
             "_gt": [
-                580
+                622
             ],
             "_gte": [
-                580
+                622
             ],
             "_in": [
-                580
+                622
             ],
             "_isNull": [
                 0
             ],
             "_lt": [
-                580
+                622
             ],
             "_lte": [
-                580
+                622
             ],
             "_neq": [
-                580
+                622
             ],
             "_nin": [
-                580
+                622
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "Token": {
+            "token": [
+                462
+            ],
+            "tokenExpiry": [
+                622
+            ],
+            "userTokens": [
+                582,
+                {
+                    "distinctOn": [
+                        599,
+                        "[UserTokenSelectColumn!]"
+                    ],
+                    "limit": [
+                        172
+                    ],
+                    "offset": [
+                        172
+                    ],
+                    "orderBy": [
+                        597,
+                        "[UserTokenOrderBy!]"
+                    ],
+                    "where": [
+                        588
+                    ]
+                }
+            ],
+            "userTokensAggregate": [
+                583,
+                {
+                    "distinctOn": [
+                        599,
+                        "[UserTokenSelectColumn!]"
+                    ],
+                    "limit": [
+                        172
+                    ],
+                    "offset": [
+                        172
+                    ],
+                    "orderBy": [
+                        597,
+                        "[UserTokenOrderBy!]"
+                    ],
+                    "where": [
+                        588
+                    ]
+                }
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "TokenAggregate": {
+            "aggregate": [
+                510
+            ],
+            "nodes": [
+                508
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "TokenAggregateFields": {
+            "count": [
+                172,
+                {
+                    "columns": [
+                        521,
+                        "[TokenSelectColumn!]"
+                    ],
+                    "distinct": [
+                        0
+                    ]
+                }
+            ],
+            "max": [
+                514
+            ],
+            "min": [
+                515
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "TokenBoolExp": {
+            "_and": [
+                511
+            ],
+            "_not": [
+                511
+            ],
+            "_or": [
+                511
+            ],
+            "token": [
+                463
+            ],
+            "tokenExpiry": [
+                507
+            ],
+            "userTokens": [
+                588
+            ],
+            "userTokensAggregate": [
+                584
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "TokenConstraint": {},
+        "TokenInsertInput": {
+            "token": [
+                462
+            ],
+            "tokenExpiry": [
+                622
+            ],
+            "userTokens": [
+                587
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "TokenMaxFields": {
+            "token": [
+                462
+            ],
+            "tokenExpiry": [
+                622
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "TokenMinFields": {
+            "token": [
+                462
+            ],
+            "tokenExpiry": [
+                622
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "TokenMutationResponse": {
+            "affectedRows": [
+                172
+            ],
+            "returning": [
+                508
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "TokenObjRelInsertInput": {
+            "data": [
+                513
+            ],
+            "onConflict": [
+                518
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "TokenOnConflict": {
+            "constraint": [
+                512
+            ],
+            "updateColumns": [
+                525
+            ],
+            "where": [
+                511
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "TokenOrderBy": {
+            "token": [
+                256
+            ],
+            "tokenExpiry": [
+                256
+            ],
+            "userTokensAggregate": [
+                586
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "TokenPkColumnsInput": {
+            "token": [
+                462
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "TokenSelectColumn": {},
+        "TokenSetInput": {
+            "token": [
+                462
+            ],
+            "tokenExpiry": [
+                622
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "TokenStreamCursorInput": {
+            "initialValue": [
+                524
+            ],
+            "ordering": [
+                170
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "TokenStreamCursorValueInput": {
+            "token": [
+                462
+            ],
+            "tokenExpiry": [
+                622
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "TokenUpdateColumn": {},
+        "TokenUpdates": {
+            "_set": [
+                522
+            ],
+            "where": [
+                511
             ],
             "__typename": [
                 462
@@ -7726,10 +7988,10 @@ export default {
         },
         "ToneEnumAggregate": {
             "aggregate": [
-                510
+                529
             ],
             "nodes": [
-                508
+                527
             ],
             "__typename": [
                 462
@@ -7740,7 +8002,7 @@ export default {
                 172,
                 {
                     "columns": [
-                        521,
+                        540,
                         "[ToneEnumSelectColumn!]"
                     ],
                     "distinct": [
@@ -7749,10 +8011,10 @@ export default {
                 }
             ],
             "max": [
-                514
+                533
             ],
             "min": [
-                515
+                534
             ],
             "__typename": [
                 462
@@ -7760,13 +8022,13 @@ export default {
         },
         "ToneEnumBoolExp": {
             "_and": [
-                511
+                530
             ],
             "_not": [
-                511
+                530
             ],
             "_or": [
-                511
+                530
             ],
             "chatbots": [
                 78
@@ -7823,7 +8085,7 @@ export default {
                 172
             ],
             "returning": [
-                508
+                527
             ],
             "__typename": [
                 462
@@ -7831,10 +8093,10 @@ export default {
         },
         "ToneEnumObjRelInsertInput": {
             "data": [
-                513
+                532
             ],
             "onConflict": [
-                518
+                537
             ],
             "__typename": [
                 462
@@ -7842,13 +8104,13 @@ export default {
         },
         "ToneEnumOnConflict": {
             "constraint": [
-                512
+                531
             ],
             "updateColumns": [
-                525
+                544
             ],
             "where": [
-                511
+                530
             ],
             "__typename": [
                 462
@@ -7887,7 +8149,7 @@ export default {
         },
         "ToneEnumStreamCursorInput": {
             "initialValue": [
-                524
+                543
             ],
             "ordering": [
                 170
@@ -7907,10 +8169,10 @@ export default {
         "ToneEnumUpdateColumn": {},
         "ToneEnumUpdates": {
             "_set": [
-                522
+                541
             ],
             "where": [
-                511
+                530
             ],
             "__typename": [
                 462
@@ -8014,10 +8276,10 @@ export default {
         },
         "TypeEnumAggregate": {
             "aggregate": [
-                529
+                548
             ],
             "nodes": [
-                527
+                546
             ],
             "__typename": [
                 462
@@ -8028,7 +8290,7 @@ export default {
                 172,
                 {
                     "columns": [
-                        540,
+                        559,
                         "[TypeEnumSelectColumn!]"
                     ],
                     "distinct": [
@@ -8037,10 +8299,10 @@ export default {
                 }
             ],
             "max": [
-                533
+                552
             ],
             "min": [
-                534
+                553
             ],
             "__typename": [
                 462
@@ -8048,13 +8310,13 @@ export default {
         },
         "TypeEnumBoolExp": {
             "_and": [
-                530
+                549
             ],
             "_not": [
-                530
+                549
             ],
             "_or": [
-                530
+                549
             ],
             "chatbots": [
                 78
@@ -8111,7 +8373,7 @@ export default {
                 172
             ],
             "returning": [
-                527
+                546
             ],
             "__typename": [
                 462
@@ -8119,10 +8381,10 @@ export default {
         },
         "TypeEnumObjRelInsertInput": {
             "data": [
-                532
+                551
             ],
             "onConflict": [
-                537
+                556
             ],
             "__typename": [
                 462
@@ -8130,13 +8392,13 @@ export default {
         },
         "TypeEnumOnConflict": {
             "constraint": [
-                531
+                550
             ],
             "updateColumns": [
-                544
+                563
             ],
             "where": [
-                530
+                549
             ],
             "__typename": [
                 462
@@ -8175,7 +8437,7 @@ export default {
         },
         "TypeEnumStreamCursorInput": {
             "initialValue": [
-                543
+                562
             ],
             "ordering": [
                 170
@@ -8195,10 +8457,10 @@ export default {
         "TypeEnumUpdateColumn": {},
         "TypeEnumUpdates": {
             "_set": [
-                541
+                560
             ],
             "where": [
-                530
+                549
             ],
             "__typename": [
                 462
@@ -8250,7 +8512,7 @@ export default {
                 }
             ],
             "dateJoined": [
-                580
+                622
             ],
             "email": [
                 462
@@ -8261,8 +8523,11 @@ export default {
             "isBlocked": [
                 0
             ],
+            "isVerified": [
+                0
+            ],
             "lastLogin": [
-                580
+                622
             ],
             "password": [
                 462
@@ -8497,7 +8762,51 @@ export default {
                 }
             ],
             "userId": [
-                581
+                624
+            ],
+            "userTokens": [
+                582,
+                {
+                    "distinctOn": [
+                        599,
+                        "[UserTokenSelectColumn!]"
+                    ],
+                    "limit": [
+                        172
+                    ],
+                    "offset": [
+                        172
+                    ],
+                    "orderBy": [
+                        597,
+                        "[UserTokenOrderBy!]"
+                    ],
+                    "where": [
+                        588
+                    ]
+                }
+            ],
+            "userTokensAggregate": [
+                583,
+                {
+                    "distinctOn": [
+                        599,
+                        "[UserTokenSelectColumn!]"
+                    ],
+                    "limit": [
+                        172
+                    ],
+                    "offset": [
+                        172
+                    ],
+                    "orderBy": [
+                        597,
+                        "[UserTokenOrderBy!]"
+                    ],
+                    "where": [
+                        588
+                    ]
+                }
             ],
             "username": [
                 462
@@ -8508,10 +8817,10 @@ export default {
         },
         "UserAggregate": {
             "aggregate": [
-                548
+                567
             ],
             "nodes": [
-                546
+                565
             ],
             "__typename": [
                 462
@@ -8522,7 +8831,7 @@ export default {
                 172,
                 {
                     "columns": [
-                        559,
+                        578,
                         "[UserSelectColumn!]"
                     ],
                     "distinct": [
@@ -8531,10 +8840,10 @@ export default {
                 }
             ],
             "max": [
-                552
+                571
             ],
             "min": [
-                553
+                572
             ],
             "__typename": [
                 462
@@ -8542,13 +8851,13 @@ export default {
         },
         "UserBoolExp": {
             "_and": [
-                549
+                568
             ],
             "_not": [
-                549
+                568
             ],
             "_or": [
-                549
+                568
             ],
             "chats": [
                 38
@@ -8566,6 +8875,9 @@ export default {
                 1
             ],
             "isBlocked": [
+                1
+            ],
+            "isVerified": [
                 1
             ],
             "lastLogin": [
@@ -8614,7 +8926,13 @@ export default {
                 466
             ],
             "userId": [
-                565
+                607
+            ],
+            "userTokens": [
+                588
+            ],
+            "userTokensAggregate": [
+                584
             ],
             "username": [
                 463
@@ -8629,7 +8947,7 @@ export default {
                 35
             ],
             "dateJoined": [
-                580
+                622
             ],
             "email": [
                 462
@@ -8640,8 +8958,11 @@ export default {
             "isBlocked": [
                 0
             ],
+            "isVerified": [
+                0
+            ],
             "lastLogin": [
-                580
+                622
             ],
             "password": [
                 462
@@ -8671,7 +8992,10 @@ export default {
                 469
             ],
             "userId": [
-                581
+                624
+            ],
+            "userTokens": [
+                587
             ],
             "username": [
                 462
@@ -8682,13 +9006,13 @@ export default {
         },
         "UserMaxFields": {
             "dateJoined": [
-                580
+                622
             ],
             "email": [
                 462
             ],
             "lastLogin": [
-                580
+                622
             ],
             "password": [
                 462
@@ -8703,7 +9027,7 @@ export default {
                 462
             ],
             "userId": [
-                581
+                624
             ],
             "username": [
                 462
@@ -8714,13 +9038,13 @@ export default {
         },
         "UserMinFields": {
             "dateJoined": [
-                580
+                622
             ],
             "email": [
                 462
             ],
             "lastLogin": [
-                580
+                622
             ],
             "password": [
                 462
@@ -8735,7 +9059,7 @@ export default {
                 462
             ],
             "userId": [
-                581
+                624
             ],
             "username": [
                 462
@@ -8749,7 +9073,7 @@ export default {
                 172
             ],
             "returning": [
-                546
+                565
             ],
             "__typename": [
                 462
@@ -8757,10 +9081,10 @@ export default {
         },
         "UserObjRelInsertInput": {
             "data": [
-                551
+                570
             ],
             "onConflict": [
-                556
+                575
             ],
             "__typename": [
                 462
@@ -8768,13 +9092,13 @@ export default {
         },
         "UserOnConflict": {
             "constraint": [
-                550
+                569
             ],
             "updateColumns": [
-                563
+                605
             ],
             "where": [
-                549
+                568
             ],
             "__typename": [
                 462
@@ -8794,6 +9118,9 @@ export default {
                 256
             ],
             "isBlocked": [
+                256
+            ],
+            "isVerified": [
                 256
             ],
             "lastLogin": [
@@ -8829,6 +9156,9 @@ export default {
             "userId": [
                 256
             ],
+            "userTokensAggregate": [
+                586
+            ],
             "username": [
                 256
             ],
@@ -8838,7 +9168,7 @@ export default {
         },
         "UserPkColumnsInput": {
             "userId": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -8847,7 +9177,7 @@ export default {
         "UserSelectColumn": {},
         "UserSetInput": {
             "dateJoined": [
-                580
+                622
             ],
             "email": [
                 462
@@ -8858,8 +9188,11 @@ export default {
             "isBlocked": [
                 0
             ],
+            "isVerified": [
+                0
+            ],
             "lastLogin": [
-                580
+                622
             ],
             "password": [
                 462
@@ -8874,7 +9207,7 @@ export default {
                 462
             ],
             "userId": [
-                581
+                624
             ],
             "username": [
                 462
@@ -8885,7 +9218,7 @@ export default {
         },
         "UserStreamCursorInput": {
             "initialValue": [
-                562
+                581
             ],
             "ordering": [
                 170
@@ -8896,7 +9229,7 @@ export default {
         },
         "UserStreamCursorValueInput": {
             "dateJoined": [
-                580
+                622
             ],
             "email": [
                 462
@@ -8907,8 +9240,11 @@ export default {
             "isBlocked": [
                 0
             ],
+            "isVerified": [
+                0
+            ],
             "lastLogin": [
-                580
+                622
             ],
             "password": [
                 462
@@ -8923,7 +9259,7 @@ export default {
                 462
             ],
             "userId": [
-                581
+                624
             ],
             "username": [
                 462
@@ -8932,13 +9268,284 @@ export default {
                 462
             ]
         },
+        "UserToken": {
+            "token": [
+                462
+            ],
+            "tokenByToken": [
+                508
+            ],
+            "user": [
+                565
+            ],
+            "userId": [
+                624
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "UserTokenAggregate": {
+            "aggregate": [
+                585
+            ],
+            "nodes": [
+                582
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "UserTokenAggregateBoolExp": {
+            "count": [
+                623
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "UserTokenAggregateFields": {
+            "count": [
+                172,
+                {
+                    "columns": [
+                        599,
+                        "[UserTokenSelectColumn!]"
+                    ],
+                    "distinct": [
+                        0
+                    ]
+                }
+            ],
+            "max": [
+                591
+            ],
+            "min": [
+                593
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "UserTokenAggregateOrderBy": {
+            "count": [
+                256
+            ],
+            "max": [
+                592
+            ],
+            "min": [
+                594
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "UserTokenArrRelInsertInput": {
+            "data": [
+                590
+            ],
+            "onConflict": [
+                596
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "UserTokenBoolExp": {
+            "_and": [
+                588
+            ],
+            "_not": [
+                588
+            ],
+            "_or": [
+                588
+            ],
+            "token": [
+                463
+            ],
+            "tokenByToken": [
+                511
+            ],
+            "user": [
+                568
+            ],
+            "userId": [
+                607
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "UserTokenConstraint": {},
+        "UserTokenInsertInput": {
+            "token": [
+                462
+            ],
+            "tokenByToken": [
+                517
+            ],
+            "user": [
+                574
+            ],
+            "userId": [
+                624
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "UserTokenMaxFields": {
+            "token": [
+                462
+            ],
+            "userId": [
+                624
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "UserTokenMaxOrderBy": {
+            "token": [
+                256
+            ],
+            "userId": [
+                256
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "UserTokenMinFields": {
+            "token": [
+                462
+            ],
+            "userId": [
+                624
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "UserTokenMinOrderBy": {
+            "token": [
+                256
+            ],
+            "userId": [
+                256
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "UserTokenMutationResponse": {
+            "affectedRows": [
+                172
+            ],
+            "returning": [
+                582
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "UserTokenOnConflict": {
+            "constraint": [
+                589
+            ],
+            "updateColumns": [
+                603
+            ],
+            "where": [
+                588
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "UserTokenOrderBy": {
+            "token": [
+                256
+            ],
+            "tokenByToken": [
+                519
+            ],
+            "user": [
+                576
+            ],
+            "userId": [
+                256
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "UserTokenPkColumnsInput": {
+            "token": [
+                462
+            ],
+            "userId": [
+                624
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "UserTokenSelectColumn": {},
+        "UserTokenSetInput": {
+            "token": [
+                462
+            ],
+            "userId": [
+                624
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "UserTokenStreamCursorInput": {
+            "initialValue": [
+                602
+            ],
+            "ordering": [
+                170
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "UserTokenStreamCursorValueInput": {
+            "token": [
+                462
+            ],
+            "userId": [
+                624
+            ],
+            "__typename": [
+                462
+            ]
+        },
+        "UserTokenUpdateColumn": {},
+        "UserTokenUpdates": {
+            "_set": [
+                600
+            ],
+            "where": [
+                588
+            ],
+            "__typename": [
+                462
+            ]
+        },
         "UserUpdateColumn": {},
         "UserUpdates": {
             "_set": [
-                560
+                579
             ],
             "where": [
-                549
+                568
             ],
             "__typename": [
                 462
@@ -8946,31 +9553,31 @@ export default {
         },
         "UuidComparisonExp": {
             "_eq": [
-                581
+                624
             ],
             "_gt": [
-                581
+                624
             ],
             "_gte": [
-                581
+                624
             ],
             "_in": [
-                581
+                624
             ],
             "_isNull": [
                 0
             ],
             "_lt": [
-                581
+                624
             ],
             "_lte": [
-                581
+                624
             ],
             "_neq": [
-                581
+                624
             ],
             "_nin": [
-                581
+                624
             ],
             "__typename": [
                 462
@@ -9215,6 +9822,23 @@ export default {
             ]
         },
         "timestamptz": {},
+        "userTokenAggregateBoolExpCount": {
+            "arguments": [
+                599
+            ],
+            "distinct": [
+                0
+            ],
+            "filter": [
+                588
+            ],
+            "predicate": [
+                173
+            ],
+            "__typename": [
+                462
+            ]
+        },
         "uuid": {},
         "Query": {
             "category": [
@@ -9587,7 +10211,7 @@ export default {
                 193,
                 {
                     "messageId": [
-                        581,
+                        624,
                         "uuid!"
                     ]
                 }
@@ -9966,7 +10590,7 @@ export default {
                         "Int!"
                     ],
                     "userId": [
-                        581,
+                        624,
                         "uuid!"
                     ]
                 }
@@ -10072,17 +10696,17 @@ export default {
                 464,
                 {
                     "threadId": [
-                        581,
+                        624,
                         "uuid!"
                     ]
                 }
             ],
-            "toneEnum": [
+            "token": [
                 508,
                 {
                     "distinctOn": [
                         521,
-                        "[ToneEnumSelectColumn!]"
+                        "[TokenSelectColumn!]"
                     ],
                     "limit": [
                         172
@@ -10092,19 +10716,19 @@ export default {
                     ],
                     "orderBy": [
                         519,
-                        "[ToneEnumOrderBy!]"
+                        "[TokenOrderBy!]"
                     ],
                     "where": [
                         511
                     ]
                 }
             ],
-            "toneEnumAggregate": [
+            "tokenAggregate": [
                 509,
                 {
                     "distinctOn": [
                         521,
-                        "[ToneEnumSelectColumn!]"
+                        "[TokenSelectColumn!]"
                     ],
                     "limit": [
                         172
@@ -10114,15 +10738,68 @@ export default {
                     ],
                     "orderBy": [
                         519,
-                        "[ToneEnumOrderBy!]"
+                        "[TokenOrderBy!]"
                     ],
                     "where": [
                         511
                     ]
                 }
             ],
-            "toneEnumByPk": [
+            "tokenByPk": [
                 508,
+                {
+                    "token": [
+                        462,
+                        "String!"
+                    ]
+                }
+            ],
+            "toneEnum": [
+                527,
+                {
+                    "distinctOn": [
+                        540,
+                        "[ToneEnumSelectColumn!]"
+                    ],
+                    "limit": [
+                        172
+                    ],
+                    "offset": [
+                        172
+                    ],
+                    "orderBy": [
+                        538,
+                        "[ToneEnumOrderBy!]"
+                    ],
+                    "where": [
+                        530
+                    ]
+                }
+            ],
+            "toneEnumAggregate": [
+                528,
+                {
+                    "distinctOn": [
+                        540,
+                        "[ToneEnumSelectColumn!]"
+                    ],
+                    "limit": [
+                        172
+                    ],
+                    "offset": [
+                        172
+                    ],
+                    "orderBy": [
+                        538,
+                        "[ToneEnumOrderBy!]"
+                    ],
+                    "where": [
+                        530
+                    ]
+                }
+            ],
+            "toneEnumByPk": [
+                527,
                 {
                     "value": [
                         462,
@@ -10131,10 +10808,10 @@ export default {
                 }
             ],
             "typeEnum": [
-                527,
+                546,
                 {
                     "distinctOn": [
-                        540,
+                        559,
                         "[TypeEnumSelectColumn!]"
                     ],
                     "limit": [
@@ -10144,19 +10821,19 @@ export default {
                         172
                     ],
                     "orderBy": [
-                        538,
+                        557,
                         "[TypeEnumOrderBy!]"
                     ],
                     "where": [
-                        530
+                        549
                     ]
                 }
             ],
             "typeEnumAggregate": [
-                528,
+                547,
                 {
                     "distinctOn": [
-                        540,
+                        559,
                         "[TypeEnumSelectColumn!]"
                     ],
                     "limit": [
@@ -10166,16 +10843,16 @@ export default {
                         172
                     ],
                     "orderBy": [
-                        538,
+                        557,
                         "[TypeEnumOrderBy!]"
                     ],
                     "where": [
-                        530
+                        549
                     ]
                 }
             ],
             "typeEnumByPk": [
-                527,
+                546,
                 {
                     "value": [
                         462,
@@ -10184,10 +10861,10 @@ export default {
                 }
             ],
             "user": [
-                546,
+                565,
                 {
                     "distinctOn": [
-                        559,
+                        578,
                         "[UserSelectColumn!]"
                     ],
                     "limit": [
@@ -10197,19 +10874,19 @@ export default {
                         172
                     ],
                     "orderBy": [
-                        557,
+                        576,
                         "[UserOrderBy!]"
                     ],
                     "where": [
-                        549
+                        568
                     ]
                 }
             ],
             "userAggregate": [
-                547,
+                566,
                 {
                     "distinctOn": [
-                        559,
+                        578,
                         "[UserSelectColumn!]"
                     ],
                     "limit": [
@@ -10219,19 +10896,76 @@ export default {
                         172
                     ],
                     "orderBy": [
-                        557,
+                        576,
                         "[UserOrderBy!]"
                     ],
                     "where": [
-                        549
+                        568
                     ]
                 }
             ],
             "userByPk": [
-                546,
+                565,
                 {
                     "userId": [
-                        581,
+                        624,
+                        "uuid!"
+                    ]
+                }
+            ],
+            "userToken": [
+                582,
+                {
+                    "distinctOn": [
+                        599,
+                        "[UserTokenSelectColumn!]"
+                    ],
+                    "limit": [
+                        172
+                    ],
+                    "offset": [
+                        172
+                    ],
+                    "orderBy": [
+                        597,
+                        "[UserTokenOrderBy!]"
+                    ],
+                    "where": [
+                        588
+                    ]
+                }
+            ],
+            "userTokenAggregate": [
+                583,
+                {
+                    "distinctOn": [
+                        599,
+                        "[UserTokenSelectColumn!]"
+                    ],
+                    "limit": [
+                        172
+                    ],
+                    "offset": [
+                        172
+                    ],
+                    "orderBy": [
+                        597,
+                        "[UserTokenOrderBy!]"
+                    ],
+                    "where": [
+                        588
+                    ]
+                }
+            ],
+            "userTokenByPk": [
+                582,
+                {
+                    "token": [
+                        462,
+                        "String!"
+                    ],
+                    "userId": [
+                        624,
                         "uuid!"
                     ]
                 }
@@ -10366,7 +11100,7 @@ export default {
                 193,
                 {
                     "messageId": [
-                        581,
+                        624,
                         "uuid!"
                     ]
                 }
@@ -10500,7 +11234,7 @@ export default {
                         "Int!"
                     ],
                     "userId": [
-                        581,
+                        624,
                         "uuid!"
                     ]
                 }
@@ -10536,39 +11270,39 @@ export default {
                 464,
                 {
                     "threadId": [
-                        581,
+                        624,
                         "uuid!"
                     ]
                 }
             ],
-            "deleteToneEnum": [
+            "deleteToken": [
                 516,
                 {
                     "where": [
                         511,
-                        "ToneEnumBoolExp!"
+                        "TokenBoolExp!"
                     ]
                 }
             ],
-            "deleteToneEnumByPk": [
+            "deleteTokenByPk": [
                 508,
                 {
-                    "value": [
+                    "token": [
                         462,
                         "String!"
                     ]
                 }
             ],
-            "deleteTypeEnum": [
+            "deleteToneEnum": [
                 535,
                 {
                     "where": [
                         530,
-                        "TypeEnumBoolExp!"
+                        "ToneEnumBoolExp!"
                     ]
                 }
             ],
-            "deleteTypeEnumByPk": [
+            "deleteToneEnumByPk": [
                 527,
                 {
                     "value": [
@@ -10577,20 +11311,60 @@ export default {
                     ]
                 }
             ],
-            "deleteUser": [
+            "deleteTypeEnum": [
                 554,
                 {
                     "where": [
                         549,
+                        "TypeEnumBoolExp!"
+                    ]
+                }
+            ],
+            "deleteTypeEnumByPk": [
+                546,
+                {
+                    "value": [
+                        462,
+                        "String!"
+                    ]
+                }
+            ],
+            "deleteUser": [
+                573,
+                {
+                    "where": [
+                        568,
                         "UserBoolExp!"
                     ]
                 }
             ],
             "deleteUserByPk": [
-                546,
+                565,
                 {
                     "userId": [
-                        581,
+                        624,
+                        "uuid!"
+                    ]
+                }
+            ],
+            "deleteUserToken": [
+                595,
+                {
+                    "where": [
+                        588,
+                        "UserTokenBoolExp!"
+                    ]
+                }
+            ],
+            "deleteUserTokenByPk": [
+                582,
+                {
+                    "token": [
+                        462,
+                        "String!"
+                    ],
+                    "userId": [
+                        624,
                         "uuid!"
                     ]
                 }
@@ -10979,75 +11753,123 @@ export default {
                     ]
                 }
             ],
-            "insertToneEnum": [
+            "insertToken": [
                 516,
                 {
                     "objects": [
                         513,
-                        "[ToneEnumInsertInput!]!"
+                        "[TokenInsertInput!]!"
                     ],
                     "onConflict": [
                         518
                     ]
                 }
             ],
-            "insertToneEnumOne": [
+            "insertTokenOne": [
                 508,
                 {
                     "object": [
                         513,
-                        "ToneEnumInsertInput!"
+                        "TokenInsertInput!"
                     ],
                     "onConflict": [
                         518
                     ]
                 }
             ],
-            "insertTypeEnum": [
+            "insertToneEnum": [
                 535,
                 {
                     "objects": [
                         532,
-                        "[TypeEnumInsertInput!]!"
+                        "[ToneEnumInsertInput!]!"
                     ],
                     "onConflict": [
                         537
                     ]
                 }
             ],
-            "insertTypeEnumOne": [
+            "insertToneEnumOne": [
                 527,
                 {
                     "object": [
                         532,
-                        "TypeEnumInsertInput!"
+                        "ToneEnumInsertInput!"
                     ],
                     "onConflict": [
                         537
                     ]
                 }
             ],
-            "insertUser": [
+            "insertTypeEnum": [
                 554,
                 {
                     "objects": [
                         551,
-                        "[UserInsertInput!]!"
+                        "[TypeEnumInsertInput!]!"
                     ],
                     "onConflict": [
                         556
                     ]
                 }
             ],
-            "insertUserOne": [
+            "insertTypeEnumOne": [
                 546,
                 {
                     "object": [
                         551,
-                        "UserInsertInput!"
+                        "TypeEnumInsertInput!"
                     ],
                     "onConflict": [
                         556
+                    ]
+                }
+            ],
+            "insertUser": [
+                573,
+                {
+                    "objects": [
+                        570,
+                        "[UserInsertInput!]!"
+                    ],
+                    "onConflict": [
+                        575
+                    ]
+                }
+            ],
+            "insertUserOne": [
+                565,
+                {
+                    "object": [
+                        570,
+                        "UserInsertInput!"
+                    ],
+                    "onConflict": [
+                        575
+                    ]
+                }
+            ],
+            "insertUserToken": [
+                595,
+                {
+                    "objects": [
+                        590,
+                        "[UserTokenInsertInput!]!"
+                    ],
+                    "onConflict": [
+                        596
+                    ]
+                }
+            ],
+            "insertUserTokenOne": [
+                582,
+                {
+                    "object": [
+                        590,
+                        "UserTokenInsertInput!"
+                    ],
+                    "onConflict": [
+                        596
                     ]
                 }
             ],
@@ -11633,7 +12455,7 @@ export default {
                     ]
                 }
             ],
-            "updateToneEnum": [
+            "updateToken": [
                 516,
                 {
                     "_set": [
@@ -11641,11 +12463,11 @@ export default {
                     ],
                     "where": [
                         511,
-                        "ToneEnumBoolExp!"
+                        "TokenBoolExp!"
                     ]
                 }
             ],
-            "updateToneEnumByPk": [
+            "updateTokenByPk": [
                 508,
                 {
                     "_set": [
@@ -11653,20 +12475,20 @@ export default {
                     ],
                     "pkColumns": [
                         520,
-                        "ToneEnumPkColumnsInput!"
+                        "TokenPkColumnsInput!"
                     ]
                 }
             ],
-            "updateToneEnumMany": [
+            "updateTokenMany": [
                 516,
                 {
                     "updates": [
                         526,
-                        "[ToneEnumUpdates!]!"
+                        "[TokenUpdates!]!"
                     ]
                 }
             ],
-            "updateTypeEnum": [
+            "updateToneEnum": [
                 535,
                 {
                     "_set": [
@@ -11674,11 +12496,11 @@ export default {
                     ],
                     "where": [
                         530,
-                        "TypeEnumBoolExp!"
+                        "ToneEnumBoolExp!"
                     ]
                 }
             ],
-            "updateTypeEnumByPk": [
+            "updateToneEnumByPk": [
                 527,
                 {
                     "_set": [
@@ -11686,20 +12508,20 @@ export default {
                     ],
                     "pkColumns": [
                         539,
-                        "TypeEnumPkColumnsInput!"
+                        "ToneEnumPkColumnsInput!"
                     ]
                 }
             ],
-            "updateTypeEnumMany": [
+            "updateToneEnumMany": [
                 535,
                 {
                     "updates": [
                         545,
-                        "[TypeEnumUpdates!]!"
+                        "[ToneEnumUpdates!]!"
                     ]
                 }
             ],
-            "updateUser": [
+            "updateTypeEnum": [
                 554,
                 {
                     "_set": [
@@ -11707,11 +12529,11 @@ export default {
                     ],
                     "where": [
                         549,
-                        "UserBoolExp!"
+                        "TypeEnumBoolExp!"
                     ]
                 }
             ],
-            "updateUserByPk": [
+            "updateTypeEnumByPk": [
                 546,
                 {
                     "_set": [
@@ -11719,16 +12541,82 @@ export default {
                     ],
                     "pkColumns": [
                         558,
+                        "TypeEnumPkColumnsInput!"
+                    ]
+                }
+            ],
+            "updateTypeEnumMany": [
+                554,
+                {
+                    "updates": [
+                        564,
+                        "[TypeEnumUpdates!]!"
+                    ]
+                }
+            ],
+            "updateUser": [
+                573,
+                {
+                    "_set": [
+                        579
+                    ],
+                    "where": [
+                        568,
+                        "UserBoolExp!"
+                    ]
+                }
+            ],
+            "updateUserByPk": [
+                565,
+                {
+                    "_set": [
+                        579
+                    ],
+                    "pkColumns": [
+                        577,
                         "UserPkColumnsInput!"
                     ]
                 }
             ],
             "updateUserMany": [
-                554,
+                573,
                 {
                     "updates": [
-                        564,
+                        606,
                         "[UserUpdates!]!"
+                    ]
+                }
+            ],
+            "updateUserToken": [
+                595,
+                {
+                    "_set": [
+                        600
+                    ],
+                    "where": [
+                        588,
+                        "UserTokenBoolExp!"
+                    ]
+                }
+            ],
+            "updateUserTokenByPk": [
+                582,
+                {
+                    "_set": [
+                        600
+                    ],
+                    "pkColumns": [
+                        598,
+                        "UserTokenPkColumnsInput!"
+                    ]
+                }
+            ],
+            "updateUserTokenMany": [
+                595,
+                {
+                    "updates": [
+                        604,
+                        "[UserTokenUpdates!]!"
                     ]
                 }
             ],
@@ -12203,7 +13091,7 @@ export default {
                 193,
                 {
                     "messageId": [
-                        581,
+                        624,
                         "uuid!"
                     ]
                 }
@@ -12694,7 +13582,7 @@ export default {
                         "Int!"
                     ],
                     "userId": [
-                        581,
+                        624,
                         "uuid!"
                     ]
                 }
@@ -12832,7 +13720,7 @@ export default {
                 464,
                 {
                     "threadId": [
-                        581,
+                        624,
                         "uuid!"
                     ]
                 }
@@ -12853,12 +13741,12 @@ export default {
                     ]
                 }
             ],
-            "toneEnum": [
+            "token": [
                 508,
                 {
                     "distinctOn": [
                         521,
-                        "[ToneEnumSelectColumn!]"
+                        "[TokenSelectColumn!]"
                     ],
                     "limit": [
                         172
@@ -12868,19 +13756,19 @@ export default {
                     ],
                     "orderBy": [
                         519,
-                        "[ToneEnumOrderBy!]"
+                        "[TokenOrderBy!]"
                     ],
                     "where": [
                         511
                     ]
                 }
             ],
-            "toneEnumAggregate": [
+            "tokenAggregate": [
                 509,
                 {
                     "distinctOn": [
                         521,
-                        "[ToneEnumSelectColumn!]"
+                        "[TokenSelectColumn!]"
                     ],
                     "limit": [
                         172
@@ -12890,23 +13778,23 @@ export default {
                     ],
                     "orderBy": [
                         519,
-                        "[ToneEnumOrderBy!]"
+                        "[TokenOrderBy!]"
                     ],
                     "where": [
                         511
                     ]
                 }
             ],
-            "toneEnumByPk": [
+            "tokenByPk": [
                 508,
                 {
-                    "value": [
+                    "token": [
                         462,
                         "String!"
                     ]
                 }
             ],
-            "toneEnumStream": [
+            "tokenStream": [
                 508,
                 {
                     "batchSize": [
@@ -12915,19 +13803,19 @@ export default {
                     ],
                     "cursor": [
                         523,
-                        "[ToneEnumStreamCursorInput]!"
+                        "[TokenStreamCursorInput]!"
                     ],
                     "where": [
                         511
                     ]
                 }
             ],
-            "typeEnum": [
+            "toneEnum": [
                 527,
                 {
                     "distinctOn": [
                         540,
-                        "[TypeEnumSelectColumn!]"
+                        "[ToneEnumSelectColumn!]"
                     ],
                     "limit": [
                         172
@@ -12937,19 +13825,19 @@ export default {
                     ],
                     "orderBy": [
                         538,
-                        "[TypeEnumOrderBy!]"
+                        "[ToneEnumOrderBy!]"
                     ],
                     "where": [
                         530
                     ]
                 }
             ],
-            "typeEnumAggregate": [
+            "toneEnumAggregate": [
                 528,
                 {
                     "distinctOn": [
                         540,
-                        "[TypeEnumSelectColumn!]"
+                        "[ToneEnumSelectColumn!]"
                     ],
                     "limit": [
                         172
@@ -12959,14 +13847,14 @@ export default {
                     ],
                     "orderBy": [
                         538,
-                        "[TypeEnumOrderBy!]"
+                        "[ToneEnumOrderBy!]"
                     ],
                     "where": [
                         530
                     ]
                 }
             ],
-            "typeEnumByPk": [
+            "toneEnumByPk": [
                 527,
                 {
                     "value": [
@@ -12975,7 +13863,7 @@ export default {
                     ]
                 }
             ],
-            "typeEnumStream": [
+            "toneEnumStream": [
                 527,
                 {
                     "batchSize": [
@@ -12984,19 +13872,19 @@ export default {
                     ],
                     "cursor": [
                         542,
-                        "[TypeEnumStreamCursorInput]!"
+                        "[ToneEnumStreamCursorInput]!"
                     ],
                     "where": [
                         530
                     ]
                 }
             ],
-            "user": [
+            "typeEnum": [
                 546,
                 {
                     "distinctOn": [
                         559,
-                        "[UserSelectColumn!]"
+                        "[TypeEnumSelectColumn!]"
                     ],
                     "limit": [
                         172
@@ -13006,19 +13894,19 @@ export default {
                     ],
                     "orderBy": [
                         557,
-                        "[UserOrderBy!]"
+                        "[TypeEnumOrderBy!]"
                     ],
                     "where": [
                         549
                     ]
                 }
             ],
-            "userAggregate": [
+            "typeEnumAggregate": [
                 547,
                 {
                     "distinctOn": [
                         559,
-                        "[UserSelectColumn!]"
+                        "[TypeEnumSelectColumn!]"
                     ],
                     "limit": [
                         172
@@ -13028,23 +13916,23 @@ export default {
                     ],
                     "orderBy": [
                         557,
-                        "[UserOrderBy!]"
+                        "[TypeEnumOrderBy!]"
                     ],
                     "where": [
                         549
                     ]
                 }
             ],
-            "userByPk": [
+            "typeEnumByPk": [
                 546,
                 {
-                    "userId": [
-                        581,
-                        "uuid!"
+                    "value": [
+                        462,
+                        "String!"
                     ]
                 }
             ],
-            "userStream": [
+            "typeEnumStream": [
                 546,
                 {
                     "batchSize": [
@@ -13053,10 +13941,152 @@ export default {
                     ],
                     "cursor": [
                         561,
-                        "[UserStreamCursorInput]!"
+                        "[TypeEnumStreamCursorInput]!"
                     ],
                     "where": [
                         549
+                    ]
+                }
+            ],
+            "user": [
+                565,
+                {
+                    "distinctOn": [
+                        578,
+                        "[UserSelectColumn!]"
+                    ],
+                    "limit": [
+                        172
+                    ],
+                    "offset": [
+                        172
+                    ],
+                    "orderBy": [
+                        576,
+                        "[UserOrderBy!]"
+                    ],
+                    "where": [
+                        568
+                    ]
+                }
+            ],
+            "userAggregate": [
+                566,
+                {
+                    "distinctOn": [
+                        578,
+                        "[UserSelectColumn!]"
+                    ],
+                    "limit": [
+                        172
+                    ],
+                    "offset": [
+                        172
+                    ],
+                    "orderBy": [
+                        576,
+                        "[UserOrderBy!]"
+                    ],
+                    "where": [
+                        568
+                    ]
+                }
+            ],
+            "userByPk": [
+                565,
+                {
+                    "userId": [
+                        624,
+                        "uuid!"
+                    ]
+                }
+            ],
+            "userStream": [
+                565,
+                {
+                    "batchSize": [
+                        172,
+                        "Int!"
+                    ],
+                    "cursor": [
+                        580,
+                        "[UserStreamCursorInput]!"
+                    ],
+                    "where": [
+                        568
+                    ]
+                }
+            ],
+            "userToken": [
+                582,
+                {
+                    "distinctOn": [
+                        599,
+                        "[UserTokenSelectColumn!]"
+                    ],
+                    "limit": [
+                        172
+                    ],
+                    "offset": [
+                        172
+                    ],
+                    "orderBy": [
+                        597,
+                        "[UserTokenOrderBy!]"
+                    ],
+                    "where": [
+                        588
+                    ]
+                }
+            ],
+            "userTokenAggregate": [
+                583,
+                {
+                    "distinctOn": [
+                        599,
+                        "[UserTokenSelectColumn!]"
+                    ],
+                    "limit": [
+                        172
+                    ],
+                    "offset": [
+                        172
+                    ],
+                    "orderBy": [
+                        597,
+                        "[UserTokenOrderBy!]"
+                    ],
+                    "where": [
+                        588
+                    ]
+                }
+            ],
+            "userTokenByPk": [
+                582,
+                {
+                    "token": [
+                        462,
+                        "String!"
+                    ],
+                    "userId": [
+                        624,
+                        "uuid!"
+                    ]
+                }
+            ],
+            "userTokenStream": [
+                582,
+                {
+                    "batchSize": [
+                        172,
+                        "Int!"
+                    ],
+                    "cursor": [
+                        601,
+                        "[UserTokenStreamCursorInput]!"
+                    ],
+                    "where": [
+                        588
                     ]
                 }
             ],
