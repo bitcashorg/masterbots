@@ -87,7 +87,7 @@ export function ChatList({
     <div
       ref={effectiveContainerRef}
       className={`relative max-w-3xl px-4 mx-auto ${className || ''} ${isThread ? 'flex flex-col gap-3' : ''}`}
-    >
+    >      
       {pairs.map((pair: MessagePair, key: number) => (
         <div key={key}>
           <ChatAccordion

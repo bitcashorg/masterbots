@@ -188,6 +188,16 @@ export function Chat({
       setIsOpenPopup(true)
     }
 
+    let originalMessage = await saveNewMessage({
+      role: 'user', 
+      threadId: 
+        params.threadId || isNewChat ? threadId : activeThread?.threadId, 
+      content: userMessage.content, 
+      jwt: session!.user?.hasuraJwt
+    })
+
+    console.log('Original message:', originalMessage)
+
     await saveNewMessage({
       role: 'user',
       threadId:
