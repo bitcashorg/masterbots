@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -9,38 +9,53 @@ import { useRouter } from 'next/navigation'
 import PasswordStrengthMeter from '@/components/shared/password-strength-meter'
 import { isPasswordStrong } from '@/lib/password'
 import { Eye, EyeOff } from 'lucide-react'
+import { useSetState } from 'react-use'
+
+interface FormState {
+  password: string
+  confirmPassword: string
+  isLoading: boolean
+  passwordError: string
+  showPassword: boolean
+  showConfirmPassword: boolean
+}
 
 export default function ResetPasswordForm({ token }: { token: string }) {
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [passwordError, setPasswordError] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [state, setState] = useSetState<FormState>({
+    password: '',
+    confirmPassword: '',
+    isLoading: false,
+    passwordError: '',
+    showPassword: false,
+    showConfirmPassword: false
+  })
+
   const router = useRouter()
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newPassword = e.target.value
-    setPassword(newPassword)
-    setPasswordError('')
-    if (newPassword && !isPasswordStrong(newPassword)) {
-      setPasswordError('Password is not strong enough')
-    }
+    setState({
+      password: newPassword,
+      passwordError:
+        newPassword && !isPasswordStrong(newPassword)
+          ? 'Password is not strong enough'
+          : ''
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
+    setState({ isLoading: true })
 
-    if (!isPasswordStrong(password)) {
+    if (!isPasswordStrong(state.password)) {
       toast.error('Please choose a stronger password')
-      setIsLoading(false)
+      setState({ isLoading: false })
       return
     }
 
-    if (password !== confirmPassword) {
+    if (state.password !== state.confirmPassword) {
       toast.error('Passwords do not match')
-      setIsLoading(false)
+      setState({ isLoading: false })
       return
     }
 
@@ -48,7 +63,7 @@ export default function ResetPasswordForm({ token }: { token: string }) {
       const response = await fetch('/api/auth/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, password })
+        body: JSON.stringify({ token, password: state.password })
       })
 
       const data = await response.json()
@@ -63,7 +78,7 @@ export default function ResetPasswordForm({ token }: { token: string }) {
       console.error('Error:', error)
       toast.error('An unexpected error occurred')
     } finally {
-      setIsLoading(false)
+      setState({ isLoading: false })
     }
   }
 
@@ -74,8 +89,8 @@ export default function ResetPasswordForm({ token }: { token: string }) {
         <div className="relative">
           <Input
             id="password"
-            type={showPassword ? "text" : "password"}
-            value={password}
+            type={state.showPassword ? 'text' : 'password'}
+            value={state.password}
             onChange={handlePasswordChange}
             required
             minLength={8}
@@ -83,38 +98,50 @@ export default function ResetPasswordForm({ token }: { token: string }) {
           />
           <button
             type="button"
-            onClick={() => setShowPassword(!showPassword)}
+            onClick={() => setState({ showPassword: !state.showPassword })}
             className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
           >
-            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            {state.showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
         </div>
-        <PasswordStrengthMeter password={password} />
-        {passwordError && <p className="text-xs text-red-500">{passwordError}</p>}
+        <PasswordStrengthMeter password={state.password} />
+        {state.passwordError && (
+          <p className="text-xs text-red-500">{state.passwordError}</p>
+        )}
       </div>
       <div className="space-y-2">
         <Label htmlFor="confirmPassword">Confirm New Password</Label>
         <div className="relative">
           <Input
             id="confirmPassword"
-            type={showConfirmPassword ? "text" : "password"}
-            value={confirmPassword}
-            onChange={e => setConfirmPassword(e.target.value)}
+            type={state.showConfirmPassword ? 'text' : 'password'}
+            value={state.confirmPassword}
+            onChange={e => setState({ confirmPassword: e.target.value })}
             required
             minLength={8}
             className="pr-10"
           />
           <button
             type="button"
-            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            onClick={() =>
+              setState({ showConfirmPassword: !state.showConfirmPassword })
+            }
             className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
           >
-            {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            {state.showConfirmPassword ? (
+              <EyeOff size={20} />
+            ) : (
+              <Eye size={20} />
+            )}
           </button>
         </div>
       </div>
-      <Button type="submit" className="w-full" disabled={isLoading || !!passwordError}>
-        {isLoading ? 'Resetting...' : 'Reset Password'}
+      <Button
+        type="submit"
+        className="w-full"
+        disabled={state.isLoading || !!state.passwordError}
+      >
+        {state.isLoading ? 'Resetting...' : 'Reset Password'}
       </Button>
     </form>
   )
