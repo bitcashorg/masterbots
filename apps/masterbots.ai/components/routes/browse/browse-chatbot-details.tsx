@@ -3,12 +3,20 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Separator } from '@/components/ui/separator'
 import ShareLink from '@/components/routes/thread/thread-user-actions'
+import { toSlug } from 'mb-lib'
 
 export default function BrowseChatbotDetails({
   chatbot
 }: {
   chatbot?: Chatbot
 }) {
+
+  if (!chatbot?.categories?.length) {
+    return <div>No chatbot data available</div>
+  }
+  const primaryCategory = chatbot.categories[0].category
+  const botUrl = `/c/${toSlug(primaryCategory.name)}/${chatbot.name.toLowerCase()}`
+
   return (
     <div className="relative bg-cover py-10 bg-gradient-to-l from-mirage via-[#2B5D91] to-[#388DE2]">
       <div className="flex flex-row gap-3 relative mx-auto md:w-[600px]">
@@ -58,7 +66,7 @@ export default function BrowseChatbotDetails({
             <Link
               style={{ wordSpacing: '4px' }}
               className="text-[#388DE2]"
-              href={`/b/${chatbot?.name.toLowerCase()}`}
+              href={botUrl}
             >
               Chat with {chatbot?.name} &gt;
             </Link>

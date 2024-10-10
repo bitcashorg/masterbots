@@ -91,6 +91,13 @@ select_permissions:
           _eq: X-Hasura-User-Id
     comment: ""
 update_permissions:
+  - role: moderator
+    permission:
+      columns:
+        - is_blocked
+      filter: {}
+      check: null
+    comment: Allows moderators to block any user
   - role: user
     permission:
       columns:

@@ -1,18 +1,38 @@
 /* eslint-disable react/no-unescaped-entities */
 import React from 'react'
 import { cn } from '@/lib/utils'
+import Link from 'next/link'
 
-export function FooterText({ className, ...props }: React.ComponentProps<'p'>) {
+export function FooterText({ className, ...props }: React.ComponentProps<'div'>) {
   return (
-    <p
+    <div
       className={cn(
-        'dark:text-[#9CA3AF] px-2 text-center text-xs font-normal leading-normal text-muted-foreground',
+        'flex items-center justify-between px-4 py-2 text-center text-sm text-muted-foreground dark:text-[#9CA3AF]',
         className
       )}
       {...props}
     >
-      Masterbots isn't infallible; verify crucial facts. Responses are for
-      educational use, not legal, medical, financial or specialized advice.
-    </p>
+      <span>
+        Masterbots isn't infallible; verify crucial facts. Nonprofessional advice.
+      </span>
+      <span className='px-1'>
+        Robot avatars by{' '}
+        <a 
+          href="https://robohash.org" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="underline hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+        >
+          robohash.org
+        </a>
+        {' • '}
+        <Link 
+          href="/terms" 
+          className="underline hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+        >
+          terms & policies
+        </Link>
+      </span>
+    </div>
   )
 }

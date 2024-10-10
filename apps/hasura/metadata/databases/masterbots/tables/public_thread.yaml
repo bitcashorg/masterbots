@@ -60,6 +60,14 @@ select_permissions:
       filter: {}
     comment: ""
 update_permissions:
+  - role: moderator
+    permission:
+      columns:
+        - is_approved
+        - is_blocked
+      filter: {}
+      check: {}
+    comment: Allows moderators to approve or block any thread
   - role: user
     permission:
       columns:

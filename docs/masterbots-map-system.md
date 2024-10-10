@@ -1,4 +1,4 @@
-# MasterBots System Diagram - Main DB + ICL (Metadata DB) v1.0a
+# MasterBots System Diagram - Main DB + ICL (Metadata DB) v1.1a
 
 ```mermaid
 graph TB
@@ -7,42 +7,43 @@ graph TB
     LangProcessor --> |3. Translate to English| RequestAnalyzer[Request Analyzer]
     
     subgraph "Request Analysis"
-        RequestAnalyzer --> |4. Analyze request| TaskIdentifier[Task Identifier]
-        TaskIdentifier --> |5. Identify required tools| ToolSelector[Tool Selector]
-        ToolSelector --> |6. Select appropriate bots| BotSelector[Bot Selector]
+        RequestAnalyzer --> |4. Analyze request| CategoryIdentifier[Category Identifier]
+        RequestAnalyzer --> |5. Analyze request| ToolSelector[Tool Selector]
+        CategoryIdentifier --> |6. Identify categories| ICLSystem[(ICL System)]
+        ToolSelector --> |7. Identify required tools| ToolSet[Tool Set]
     end
     
-    subgraph "Vector Search"
-        BotSelector --> |7. Search for examples| VectorDB[(Vector Database)]
-        VectorDB --> |8. Return relevant examples| ExampleMatcher[Example Matcher]
+    subgraph "ICL System"
+        ICLSystem --> |Store/Retrieve| Examples[Examples]
+        ICLSystem --> |Store/Retrieve| Domain[Domain]
+        ICLSystem --> |Store/Retrieve| Category[Category]
+        ICLSystem --> |Store/Retrieve| SubCategory[Sub-Category]
+        ICLSystem --> |Store/Retrieve| Tags[Tags]
+    end
+    
+    subgraph "ICL and Tool Selection"
+        ICLSystem --> |8. Provide relevant examples| ExampleMatcher[Example Matcher]
+        ToolSet --> |9. Select appropriate tools| TaskExecutor[Task Executor]
     end
     
     subgraph "Task Execution"
-        ExampleMatcher --> |9. Provide context| TaskExecutor[Task Executor]
-        TaskExecutor --> |10. Execute task| Bots[Bot Network]
-        Bots --> |11. Return results| ResultAggregator[Result Aggregator]
+        ExampleMatcher --> |10. Provide context| TaskExecutor
+        TaskExecutor --> |11. Execute task| SelectedDomainBot[Selected Domain Bot]
+        SelectedDomainBot --> |12. Return results| ResultAggregator[Result Aggregator]
     end
     
-    ResultAggregator --> |12. Compile results| ResponseGenerator[Response Generator]
-    ResponseGenerator --> |13. Translate to user language| LangProcessor
-    LangProcessor --> |14. Send response| UI
-    UI --> |15. Display results| User
+    ResultAggregator --> |13. Compile results| ResponseGenerator[Response Generator]
+    ResponseGenerator --> |14. Translate to user language| LangProcessor
+    LangProcessor --> |15. Send response| UI
+    UI --> |16. Display results| User
     
     subgraph "Data Storage"
         MainDB[(Main Database)]
-        MainDB --> |Store/Retrieve| Bots
+        MainDB --> |Store/Retrieve| SelectedDomainBot
         MainDB --> |Store/Retrieve| User
-        MainDB --> |Store/Retrieve| VectorDB
+        MainDB --> |Store/Retrieve| ICLSystem
     end
     
-    subgraph "Metadata"
-        MetadataDB[(Metadata DB)]
-        MetadataDB --> |Provide| Domain[Domain]
-        MetadataDB --> |Provide| Category[Category]
-        MetadataDB --> |Provide| SubCategory[Sub-Category]
-        MetadataDB --> |Provide| Tags[Tags]
-    end
-    
-    VectorDB -.-> |Filter by| MetadataDB
-    TaskIdentifier -.-> |Use| MetadataDB
+    ICLSystem -.-> |Filter by| CategoryIdentifier
+    ToolSet -.-> |Inform| TaskExecutor
 ```

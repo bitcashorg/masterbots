@@ -162,7 +162,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
 
   const sendMessageFromResponse = React.useCallback(
     async (bulletContent: string) => {
-      const fullMessage = `Tell me more about ${bulletContent}`
+      const fullMessage = bulletContent
       setIsNewResponse(true)
       setIsOpenPopup(true)
       await saveNewMessage({
