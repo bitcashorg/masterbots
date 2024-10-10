@@ -8,6 +8,7 @@ import { useScroll } from '@/lib/hooks/use-scroll'
 import { useThread } from '@/lib/hooks/use-thread'
 import { Thread } from 'mb-genql'
 import { useRef } from 'react'
+import { AdminModeApprove } from '../chat/admin-mode-approve'
 
 export default function ThreadComponent({
   thread,
@@ -24,7 +25,7 @@ export default function ThreadComponent({
 }) {
   const threadRef = useRef<HTMLLIElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
-  const { allMessages, isNewResponse } = useThread()
+  const { allMessages, isNewResponse, isAdminMode } = useThread()
 
   const { isNearBottom, scrollToTop } = useScroll({
     containerRef: contentRef,
@@ -86,8 +87,14 @@ export default function ThreadComponent({
             containerRef={contentRef}
             isNearBottom={isNearBottom}
           />
+         
         </div>
+        
       </ChatAccordion>
+       {/* Admin Mode Approve */}
+       {isAdminMode && (
+      <AdminModeApprove />
+      )}
     </li>
   )
 }

@@ -1,4 +1,5 @@
 import { authOptions } from '@/auth'
+import { AdminModeToggle } from '@/components/routes/chat/admin-mode-toggle'
 import ChatThreadListPanel from '@/components/routes/chat/chat-thread-list-panel'
 import ThreadPanel from '@/components/routes/thread/thread-panel'
 import { generateMetadataFromSEO } from '@/lib/metadata'
@@ -25,6 +26,9 @@ export default async function IndexPage() {
 
   return (
     <>
+     <div className='flex justify-center'>
+         <AdminModeToggle />
+      </div>
       <ThreadPanel threads={threads} />
       <ChatThreadListPanel />
     </>
