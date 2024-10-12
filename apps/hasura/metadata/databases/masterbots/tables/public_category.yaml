@@ -17,6 +17,13 @@ select_permissions:
         - name
       filter: {}
     comment: ""
+  - role: moderator
+    permission:
+      columns:
+        - category_id
+        - name
+      filter: {}
+    comment: ""
   - role: user
     permission:
       columns:

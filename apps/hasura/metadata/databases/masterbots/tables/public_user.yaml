@@ -45,6 +45,20 @@ array_relationships:
           name: thread
           schema: public
 insert_permissions:
+  - role: moderator
+    permission:
+      check: {}
+      columns:
+        - date_joined
+        - email
+        - is_blocked
+        - last_login
+        - pro_user_subscription_id
+        - profile_picture
+        - slug
+        - user_id
+        - username
+    comment: ""
   - role: user
     permission:
       check: {}
@@ -65,6 +79,21 @@ select_permissions:
       columns:
         - date_joined
         - email
+        - last_login
+        - pro_user_subscription_id
+        - profile_picture
+        - slug
+        - user_id
+        - username
+      filter: {}
+    comment: ""
+  - role: moderator
+    permission:
+      columns:
+        - date_joined
+        - email
+        - get_free_month
+        - is_blocked
         - last_login
         - pro_user_subscription_id
         - profile_picture

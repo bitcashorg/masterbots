@@ -18,6 +18,15 @@ select_permissions:
         - added_by
       filter: {}
     comment: ""
+  - role: moderator
+    permission:
+      columns:
+        - chatbot_id
+        - chat_id
+        - conversation_link
+        - added_by
+      filter: {}
+    comment: ""
   - role: user
     permission:
       columns:

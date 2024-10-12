@@ -65,6 +65,20 @@ select_permissions:
         - name
       filter: {}
     comment: ""
+  - role: moderator
+    permission:
+      columns:
+        - chatbot_id
+        - avatar
+        - created_by
+        - default_complexity
+        - default_length
+        - default_tone
+        - default_type
+        - description
+        - name
+      filter: {}
+    comment: ""
   - role: user
     permission:
       columns:
