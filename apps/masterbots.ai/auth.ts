@@ -55,10 +55,10 @@ export const authOptions: NextAuthOptions = {
             credentials.password,
             user[0].password
           )
-          // if (!isValid) {
-          //   console.error('User authentication failed: Invalid password')
-          //   throw new Error('Invalid credentials')
-          // }
+          if (!isValid) {
+            console.error('User authentication failed: Invalid password')
+            throw new Error('Invalid credentials')
+          }
           console.log('User authenticated successfully')
           //* Return user details to be attached to the token
           return { id: user[0].userId, email: user[0].email, name: user[0].username, image: user[0].profilePicture, role: ensureString(user[0].role, 'user')  }
@@ -79,7 +79,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user, account }) {
       if (user) {
-
+        //* Add user role to the token when signing in with Google
         if(account?.provider === 'google'){
           const email = user.email;
           const userRoleResult = await getUserRoleByEmail({ email });

@@ -49,15 +49,18 @@ insert_permissions:
     permission:
       check: {}
       columns:
-        - date_joined
-        - email
+        - get_free_month
         - is_blocked
-        - last_login
-        - pro_user_subscription_id
+        - email
+        - password
         - profile_picture
+        - pro_user_subscription_id
         - slug
-        - user_id
         - username
+        - date_joined
+        - last_login
+        - role
+        - user_id
     comment: ""
   - role: user
     permission:
@@ -97,6 +100,7 @@ select_permissions:
         - last_login
         - pro_user_subscription_id
         - profile_picture
+        - role
         - slug
         - user_id
         - username

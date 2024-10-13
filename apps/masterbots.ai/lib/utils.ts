@@ -239,4 +239,5 @@ export type RoleTypes = 'user' | 'moderator' | 'admin'
 
 export function isAdminRole(role: RoleTypes){
     if(role === 'user' ) return false;
+    return true;
 }

@@ -8,7 +8,6 @@ const { isAdminMode, handleToggleAdminMode } = useThread();
 
   const toggleAdminMode = () => {
       handleToggleAdminMode()
-      console.log({ isAdminMode })
   };
 
   return (

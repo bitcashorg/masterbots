@@ -23,6 +23,7 @@ select_permissions:
         - category_id
         - name
       filter: {}
+      allow_aggregations: true
     comment: ""
   - role: user
     permission:

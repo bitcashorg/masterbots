@@ -26,6 +26,7 @@ select_permissions:
         - conversation_link
         - added_by
       filter: {}
+      allow_aggregations: true
     comment: ""
   - role: user
     permission:

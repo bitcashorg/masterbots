@@ -2,7 +2,7 @@ import React from 'react';
 import { ShieldCheck } from 'lucide-react';
 import { useThread } from '@/lib/hooks/use-thread';
 
-export const AdminModeApprove = (threadId:any) => {
+export const AdminModeApprove = ({threadId }:{threadId : string}) => {
    const { adminApproveThread } = useThread();
 
    const approveThread = () => {

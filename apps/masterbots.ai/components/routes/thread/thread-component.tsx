@@ -36,6 +36,8 @@ export default function ThreadComponent({
     loading,
     loadMore
   })
+
+  const threadId = thread.threadId
   return (
     <li ref={threadRef}>
       <ChatAccordion
@@ -92,7 +94,7 @@ export default function ThreadComponent({
       </ChatAccordion>
        {/* Admin Mode Approve */}
        {isAdminMode && !thread.isApproved && (
-         <AdminModeApprove threadId={thread.threadId} />
+         <AdminModeApprove threadId={threadId} />
       )}
     </li>
   )
