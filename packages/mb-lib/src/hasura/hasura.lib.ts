@@ -10,8 +10,8 @@ export function generateHasuraClaims({
   role: string;
 }) {
   return {
-    "x-hasura-allowed-roles": [...role.split(","), "anonymous"],
-    "x-hasura-default-role": "user",
+    "x-hasura-allowed-roles":[...new Set([...role.split(","), "anonymous", "moderator"])],
+    "x-hasura-default-role": role,
     "x-hasura-user-id": account,
   } as HasuraClaims;
 }

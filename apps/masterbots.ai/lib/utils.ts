@@ -233,3 +233,10 @@ export function getKeyByValue(map: any, searchValue: string) {
   }
   return null // Return null if the value is not found
 }
+
+export type RoleTypes = 'user' | 'moderator' | 'admin'
+
+
+export function isAdminRole(role: RoleTypes){
+    if(role === 'user' ) return false;
+}

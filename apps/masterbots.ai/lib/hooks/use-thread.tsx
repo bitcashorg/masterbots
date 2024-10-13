@@ -6,7 +6,8 @@ import {
   getChatbots,
   getChatbotsCount,
   getMessages,
-  saveNewMessage
+  saveNewMessage,
+  approveThread
 } from '@/services/hasura'
 import { Message as AIMessage } from 'ai'
 import { useChat } from 'ai/react'
@@ -38,6 +39,7 @@ interface ThreadContext {
   getRandomChatbot: () => void
   isAdminMode: boolean
   handleToggleAdminMode: () => void
+  adminApproveThread: (threadId: string) => void
 }
 
 const ThreadContext = React.createContext<ThreadContext | undefined>(undefined)
@@ -246,6 +248,18 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     setIsAdminMode(!isAdminMode);
   }
 
+  const adminApproveThread = async (threadId: string) => {
+    try {
+      await approveThread({
+        threadId,
+        jwt: session!.user?.hasuraJwt
+      })
+    } catch (error) {
+      console.error('Error approving thread:', error)
+      toast.error('Failed to approve thread. Please try again.')
+    }
+  }
+
   const value = React.useMemo(
     () => ({
       isLoadingMessages,
@@ -264,7 +278,8 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       randomChatbot,
       getRandomChatbot,
       isAdminMode,
-      handleToggleAdminMode
+      handleToggleAdminMode,
+      adminApproveThread
     }),
     [
       isLoadingMessages,
@@ -283,7 +298,8 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       randomChatbot,
       getRandomChatbot,
       isAdminMode,
-      handleToggleAdminMode
+      handleToggleAdminMode,
+      adminApproveThread
     ]
   )
 

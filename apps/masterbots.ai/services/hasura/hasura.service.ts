@@ -139,6 +139,8 @@ export async function getThreads({
           limit: 2
         }
       },
+      isApproved:true,
+      isPublic:true,
       ...everything,
       __args: {
         orderBy: [{ createdAt: 'DESC' }],
@@ -599,4 +601,47 @@ export async function UpdateThreadVisibility({
   } catch (error) {
     return { success: false, error: (error as Error).message };
   }
+}
+
+export async function approveThread({
+  threadId,
+  jwt,
+}: {
+  threadId: string;
+  jwt: string | undefined;
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    const client = getHasuraClient({ jwt })
+    await client.mutation({
+      updateThreadByPk: {
+        __args: {
+          pkColumns: { threadId },
+          _set: { isApproved: true}
+        },
+        threadId: true,
+        isApproved: true
+      }
+    })
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: (error as Error).message };
+  }
+} 
+
+// get user role by email 
+export async function getUserRoleByEmail({ email } : { email: string | null | undefined}){
+    try{
+      const client = getHasuraClient({})
+      const { user } = await client.query({
+        user: {
+          __args: {
+            where: { email: { _eq: email } }
+          },
+          role:true
+        }
+      })
+      return user as User[]
+    }catch (error) {
+        return {  error: (error as Error).message };
+      }
 }

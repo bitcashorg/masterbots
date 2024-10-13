@@ -2005,6 +2005,7 @@ export interface User {
     threadsAggregate: ThreadAggregate
     userId: Scalars['uuid']
     username: Scalars['String']
+    role: Scalars['String']
     __typename: 'User'
 }
 
