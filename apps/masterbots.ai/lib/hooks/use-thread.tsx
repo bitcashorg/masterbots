@@ -250,9 +250,13 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
 
   const adminApproveThread = async (threadId: string) => {
     try {
+        if (!session || !session.user?.hasuraJwt) {
+           toast.error('User session not found. Please log in again.');
+           return;
+        }
       await approveThread({
         threadId,
-        jwt: session!.user?.hasuraJwt
+        jwt: session.user?.hasuraJwt
       })
       toast.success('Thread approved successfully.')
     } catch (error) {

@@ -82,16 +82,15 @@ export const authOptions: NextAuthOptions = {
         //* Add user role to the token when signing in with Google
         if(account?.provider === 'google'){
           const email = user.email;
-          const userRoleResult = await getUserRoleByEmail({ email });
-          
-          if (Array.isArray(userRoleResult)) {
-            token.role = userRoleResult[0]?.role || 'user';
+          const userRoleResult = await getUserRoleByEmail({ email });   
+          if (userRoleResult.users.length > 0) {
+            token.role = userRoleResult.users[0]?.role || 'user';
           } else {
             console.error('Error fetching user role:', userRoleResult.error);
-            token.role = 'user'; // Default to 'user' in case of error
+            token.role = 'user'; // Default to 'user' if no user found or in case of error
           }
         }else{
-          token.role = user.role;
+          token.role = user.role; // use this for other providers
         }
 
         token.id = user.id;

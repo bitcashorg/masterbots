@@ -624,7 +624,8 @@ export async function approveThread({
     })
     return { success: true };
   } catch (error) {
-    return { success: false, error: (error as Error).message };
+    console.error('Error approving thread:', error);
+    return { success: false, error: 'Failed to approve the thread.' };
   }
 } 
 
@@ -640,8 +641,9 @@ export async function getUserRoleByEmail({ email } : { email: string | null | un
           role:true
         }
       })
-      return user as User[]
+      return { users: user as User[] }
     }catch (error) {
-        return {  error: (error as Error).message };
+      console.error('Error fetching user role by email:', error);
+      return { users: [], error: 'Failed to fetch user role.' };
       }
 }
