@@ -14,6 +14,8 @@
 - "!include public_prompt_user.yaml"
 - "!include public_referral.yaml"
 - "!include public_thread.yaml"
+- "!include public_token.yaml"
 - "!include public_tone_enum.yaml"
 - "!include public_type_enum.yaml"
 - "!include public_user.yaml"
+- "!include public_user_token.yaml"
