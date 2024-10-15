@@ -1,15 +1,15 @@
 'use server'
 
-import { streamText } from 'ai'
-import { createOpenAI } from '@ai-sdk/openai'
-import { AiClientType, JSONResponseStream } from '@/types/types'
-import { ChatCompletionMessageParam } from 'openai/resources'
+import { AIModels } from '@/app/api/chat/models/models'
 import {
   convertToCoreMessages,
   setStreamerPayload
 } from '@/lib/helpers/ai-helpers'
+import { AiClientType, JSONResponseStream } from '@/types/types'
 import { createAnthropic } from '@ai-sdk/anthropic'
-import { AIModels } from '@/app/api/chat/models/models'
+import { createOpenAI } from '@ai-sdk/openai'
+import { streamText } from 'ai'
+import { ChatCompletionMessageParam } from 'openai/resources'
 
 //* this function is used to create a client for the OpenAI API
 const initializeOpenAI = createOpenAI({
@@ -66,24 +66,30 @@ export async function improveMessage(
 
 // * This function creates the prompt for the AI improvement process
 function createImprovementPrompt(content: string): string {
-  return `
-  You are an expert polyglot, grammar, and spelling AI assistant skilled in understanding and correcting spelling and typing errors across multiple languages. 
-  Your task is to improve the following original text: ${content}
+  return `You are an expert polyglot, grammar, and spelling AI assistant skilled in understanding and correcting spelling and typing errors across multiple languages. Your task is to improve the following original text: ${content}
 
   Follow these steps:
 
-  1. Determine the original language of the provided text.
-  2. For clear typos in common words, guess the intended words. However, if the input is ambiguous or seems intentionally unconventional, preserve it as is.
-  3. Correct obvious spelling errors and address clear grammar issues.
-  4. Improve and correct punctuation where necessary, but only when it's clearly incorrect.
-  5. Provide the final improved text in the grammatically corrected original language, preserving the original meaning and intent.
+  1. Identify the original language of the provided text.
+  2. Correct clear typos in common words based on the intended meaning. If the input is ambiguous or appears to be intentionally unconventional, preserve it as is.
+  3. Correct spelling errors and fix obvious grammar issues while keeping the original tone and meaning.
+  4. Adjust punctuation where needed, but only when it's clearly incorrect or missing.
+  5. Provide the final corrected text in the original language, ensuring it retains the intended meaning and structure.
 
-  Important: 
-  - For very short inputs or single words, be especially cautious about making changes unless the correction is absolutely certain.
+  **Important Guidelines:**
+  - For very short inputs or single words, avoid making changes unless the correction is absolutely certain.
   - Maintain the original structure and formatting of the input as much as possible.
-  - Provide only the corrected and improved text without any additional explanation.
+  - Output only the corrected and improved text, without any additional explanations.
+  - Provide both the original and translated question (if applicable).
 
-  Improved text:`
+  ## Example: ##
+
+  {
+    "language": "es",
+    "originalText": "Q restaurant puede recomendar en zona de San Francisco, CA?",
+    "improvedText": "¿Qué restaurante puedes recomendar en la zona de San Francisco, CA?",
+    "translatedText": "What restaurant can you recommend in the area of San Francisco, CA?"
+  }`
 }
 
 // * This function retries the AI improvement process if the first attempt fails
@@ -182,6 +188,14 @@ async function readStreamResponse(body: ReadableStream): Promise<string> {
 }
 
 function cleanResult(result: string): string {
+  console.log('Raw result:', result)
+
+  try {
+    return JSON.parse(result.trim())
+  } catch (error) {
+    console.error(error)
+  }
+
   return result
     .trim() // First, trim leading and trailing whitespace
     .replace(/[\\\"\/]/g, '') // Remove backslashes and quotes
