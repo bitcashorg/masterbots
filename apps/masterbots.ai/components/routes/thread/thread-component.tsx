@@ -38,6 +38,7 @@ export default function ThreadComponent({
   })
 
   const threadId = thread.threadId
+  console.log('threadId', threadId)
   return (
     <li ref={threadRef}>
       <ChatAccordion

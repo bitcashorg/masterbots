@@ -259,6 +259,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
         jwt: session.user?.hasuraJwt
       })
       toast.success('Thread approved successfully.')
+      window.location.reload();
     } catch (error) {
       console.error('Error approving thread:', error)
       toast.error('Failed to approve thread. Please try again.')
