@@ -7,7 +7,7 @@ interface AdminModeApproveProps {
    threadId: string;
  }
 
-export const AdminModeApprove = ({threadId }: AdminModeApproveProps) => {
+export function AdminModeApprove({threadId }: AdminModeApproveProps) {
    const { adminApproveThread } = useThread();
    const [isLoading, setIsLoading] = useState(false);
    const [error, setError] = useState<string | null>(null);
