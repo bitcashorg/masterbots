@@ -2077,6 +2077,7 @@ export interface User {
     /** An aggregate relationship */
     userTokensAggregate: UserTokenAggregate
     username: Scalars['String']
+    role: Scalars['String']
     __typename: 'User'
 }
 
