@@ -150,6 +150,7 @@ export function Chat({
     userMessage: Message | CreateMessage,
     chatRequestOptions?: ChatRequestOptions
   ) => {
+    // ! Loading: processing your request... 'processing'
     let processedMessage = userMessage.content
 
     console.log('Original message:', processedMessage)
@@ -173,15 +174,21 @@ export function Chat({
       processedMessage = userMessage.content
     }
 
+    // ! Loading: getting the the information right... 'digesting'
 
     // ? Future response: We will use the AI to detect the language of the message and translate it to English if it's not already in English. We will use a pattern from the Ai to know the original language of the refined message and the refined message in English.
     // TODO: ...
-    // const [ogProcessedMsgLang, processedMsgEnglish] = processedMessage.split(/{{(.*?)}}/g).filter(Boolean)
-    const [ogProcessedMsgLang, processedMsgEnglish] = '{{La cerveza me hace bien?}}{{Is beer good to me?}}'.split(/{{(.*?)}}/g).filter(Boolean)
+    const { language, originalText, improvedText, translatedText } = {
+      language: 'en',
+      originalText: processedMessage,
+      improvedText: processedMessage,
+      translatedText: processedMessage
+    }
 
-    console.log('Original message language:', ogProcessedMsgLang)
+    console.log('Original message language:', language)
+    console.log('Original message language:', originalText, translatedText)
     // ! If this one returns as undefined, it means the message was already in English. Fallback always to the ogProcessedMsgLang
-    console.log('Refined message language (Ai usage only):', processedMsgEnglish)
+    console.log('Refined message language (Ai usage only):', improvedText)
 
     // * Getting the user labelling the thread from ICL (categories, sub-category, etc.)
     // TODO: ...
@@ -193,16 +200,20 @@ export function Chat({
       }, 240)
     }) as { rawData: any }
 
+    // ! Loading: Generating awesome stuff for you... 'generating'
+
     // * Getting the user labelling the thread (categories, sub-category, etc.)
     const { fullResponse, parsed, error } = await runWordWarePrompt({
       promptId: '9ac34a9b-dc65-406c-ace3-d13ae15087f4',
       inputs: {
         rawData: getICLExamplesResponse?.rawData,
-        question: processedMsgEnglish || ogProcessedMsgLang,
+        question: translatedText || improvedText,
         domain: chatbot?.categories[0].category.name,
       }
     })
     console.log('Full responses from runWordWarePrompt:', { fullResponse, parsed, error })
+
+    // ! Loading: Polishing Ai request... 'polishing'
 
     // * Connecting to the ICL to send the user labelling the thread and rawData (examples) to the ICL 
     // TODO: ...
@@ -211,13 +222,15 @@ export function Chat({
         // processedMsgEnglish
         // parsed
         // chatbot?.categories[0].category.name
-        resolve({ parsed, question: processedMsgEnglish || ogProcessedMsgLang, domain: chatbot?.categories[0].category.name as string, bot: chatbot?.name as string })
+        resolve({ parsed, question: translatedText || improvedText, domain: chatbot?.categories[0].category.name as string, bot: chatbot?.name as string })
         clearTimeout(timeout)
       }, 700)
     }) as { parsed: any, question: string, domain: string, bot: string }
 
     // * Her we do something with the response from the ICL and attach it to the chat context the required fields and values for future ICL usage.
     console.log('Full responses from postICLResponse:', postICLResponse)
+
+    // ! Loading: Now I have the information you need... 'ready'
 
     if (isNewChat && chatbot) {
       await createThread({
@@ -258,6 +271,7 @@ export function Chat({
           )}].  Then answer this question: ${processedMessage}`
         }
     )
+    // ! Loading: Here is the information you need... 'finish'
   }
 
   useEffect(() => {
