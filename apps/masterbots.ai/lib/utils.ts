@@ -237,9 +237,8 @@ export function getKeyByValue(map: any, searchValue: string) {
 export type RoleTypes = 'user' | 'moderator' | 'admin'
 
 
-export function isAdminRole(role: RoleTypes){
-    if(role === 'user' ) return false;
-    return true;
+export function isAdminOrModeratorRole(role: RoleTypes){
+  return role === 'admin' || role === 'moderator'
 }
 export const validateEmail = (email: string) => {
   const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/

@@ -4,7 +4,7 @@ import { ShieldCheck, ShieldX } from 'lucide-react';
 import  { useThread } from '@/lib/hooks/use-thread';
 import { Button } from '@/components/ui/button';
 
-export const AdminModeToggle = () => {
+export function AdminModeToggle(){
 const { isAdminMode, handleToggleAdminMode } = useThread();
 
   return (

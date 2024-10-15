@@ -644,6 +644,6 @@ export async function getUserRoleByEmail({ email } : { email: string | null | un
       return { users: user as User[] }
     }catch (error) {
       console.error('Error fetching user role by email:', error);
-      return { users: [], error: 'Failed to fetch user role.' };
+      return {  users: [],  error: 'Failed to fetch user role by email.' };
       }
 }

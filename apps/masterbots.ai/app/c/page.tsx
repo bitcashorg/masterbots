@@ -8,7 +8,7 @@ import { decodeToken, isTokenExpired, validateJwtSecret } from 'mb-lib'
 import { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
-import { isAdminRole , RoleTypes} from  '@/lib/utils'
+import { isAdminOrModeratorRole , RoleTypes} from  '@/lib/utils'
 
 export default async function IndexPage() {
   const session = await getServerSession(authOptions)
@@ -29,7 +29,7 @@ export default async function IndexPage() {
   return (
     <>
     {
-     isAdminRole(role) && (
+     isAdminOrModeratorRole(role) && (
           <div className='flex justify-center'>
            <AdminModeToggle />
          </div>

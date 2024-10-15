@@ -28,6 +28,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         //* Initialize the Hasura client for interacting with the database based on the environment
+
         const client = getHasuraClient()
         try {
           const { user } = await client.query({
@@ -61,7 +62,7 @@ export const authOptions: NextAuthOptions = {
           }
           console.log('User authenticated successfully')
           //* Return user details to be attached to the token
-          return { id: user[0].userId, email: user[0].email, name: user[0].username, image: user[0].profilePicture, role: ensureString(user[0].role, 'user')  }
+          return { id: user[0].userId, email: user[0].email, name: user[0].username, image: user[0].profilePicture, role: user[0].role || 'user'   }
         } catch (error) {
           throw new Error('Authentication failed')
         }
@@ -90,7 +91,7 @@ export const authOptions: NextAuthOptions = {
             token.role = 'user'; // Default to 'user' if no user found or in case of error
           }
         }else{
-          token.role = user.role; // use this for other providers
+          token.role = user.role; // use this for other 
         }
 
         token.id = user.id;
@@ -214,12 +215,6 @@ export const authOptions: NextAuthOptions = {
     signIn: '/auth/signin' //* Custom sign-in page
   },
   debug: process.env.NODE_ENV === 'development' //! Enable detailed logging in development mode
-}
-function ensureString(value: unknown, defaultValue: string): string {
-  if (typeof value === 'string') {
-    return value
-  }
-  return defaultValue
 }
 
 
