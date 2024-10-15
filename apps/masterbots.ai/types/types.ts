@@ -2,7 +2,7 @@ import Stripe from 'stripe'
 import {  type Message } from 'ai'
 import { ChatCompletionMessageParam } from 'openai/resources'
 import 'next-auth'
-import { DefaultSession } from 'next-auth'
+import { DefaultSession, DefaultUser } from 'next-auth'
 
 // * Chat types
 export interface Chat extends Record<string, any> {
@@ -136,7 +136,23 @@ declare module 'next-auth' {
       id: string
       email: string
       hasuraJwt: string
+      role?: string
     } & DefaultSession['user']
+  }
+
+
+  interface User extends DefaultUser {
+    role: string
+  }
+
+  interface JWT {
+    id: string
+    email: string
+    name: string
+    image?: string
+    role?: string
+    provider: string
+    hasuraJwt?: string
   }
 }
 

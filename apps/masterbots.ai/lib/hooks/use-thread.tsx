@@ -6,7 +6,8 @@ import {
   getChatbots,
   getChatbotsCount,
   getMessages,
-  saveNewMessage
+  saveNewMessage,
+  approveThread
 } from '@/services/hasura'
 import { Message as AIMessage } from 'ai'
 import { useChat } from 'ai/react'
@@ -36,6 +37,9 @@ interface ThreadContext {
   isLoading: boolean
   randomChatbot: Chatbot | null
   getRandomChatbot: () => void
+  isAdminMode: boolean
+  handleToggleAdminMode: () => void
+  adminApproveThread: (threadId: string) => void
 }
 
 const ThreadContext = React.createContext<ThreadContext | undefined>(undefined)
@@ -59,6 +63,8 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
   const sectionRef = React.useRef<HTMLElement>()
   const { data: session } = useSession()
   const { selectedModel, clientType } = useModel()
+  const [isAdminMode, setIsAdminMode] = React.useState<boolean>(false);
+
 
   // ! TODO: refactor this to use { useSetState } from 'react-use'
   const [messagesFromDB, setMessagesFromDB] = React.useState<Message[]>([])
@@ -238,6 +244,27 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     ref: sectionRef,
     scrollY
   })
+  const  handleToggleAdminMode = () => {
+    setIsAdminMode(!isAdminMode);
+  }
+
+  const adminApproveThread = async (threadId: string) => {
+    try {
+        if (!session || !session.user?.hasuraJwt) {
+           toast.error('User session not found. Please log in again.');
+           return;
+        }
+      await approveThread({
+        threadId,
+        jwt: session.user?.hasuraJwt
+      })
+      toast.success('Thread approved successfully.')
+      window.location.reload();
+    } catch (error) {
+      console.error('Error approving thread:', error)
+      toast.error('Failed to approve thread. Please try again.')
+    }
+  }
 
   const value = React.useMemo(
     () => ({
@@ -255,7 +282,10 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       isLoading,
       sectionRef,
       randomChatbot,
-      getRandomChatbot
+      getRandomChatbot,
+      isAdminMode,
+      handleToggleAdminMode,
+      adminApproveThread
     }),
     [
       isLoadingMessages,
@@ -272,7 +302,10 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       isLoading,
       sectionRef,
       randomChatbot,
-      getRandomChatbot
+      getRandomChatbot,
+      isAdminMode,
+      handleToggleAdminMode,
+      adminApproveThread
     ]
   )
 
