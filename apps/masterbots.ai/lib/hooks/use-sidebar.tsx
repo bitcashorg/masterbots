@@ -93,8 +93,9 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 
   const pathname = usePathname()
   React.useEffect(() => {
+    if (!pathname || !categories) return
     const pathParts = pathname.split('/')
-    if (pathParts.length >= 4 && pathParts[1] === 'c') {
+    if (categories && pathParts.length >= 4 && pathParts[1] === 'c') {
       const categorySlug = pathParts[2]
       const chatbotName = pathParts[3]
       
@@ -109,6 +110,8 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
         )
         if (chatbot) {
           setActiveChatbot(chatbot.chatbot)
+        } else {
+          setActiveChatbot(null)
         }
       }
     }
