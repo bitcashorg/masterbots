@@ -4,13 +4,13 @@ import { cn } from '@/lib/utils';
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility';
 
 export  function ThreadPublicitySwitch({ threadId }: { threadId: string }) {   
-  const { isPublic, toggleVisibility } = useThreadVisibility(threadId);
+  const { isPublic, toggleVisibility } = useThreadVisibility();
  
   return (
     <Switch.Root
       className="relative inline-flex items-center h-[24px] w-[48px] bg-gray-300 dark:bg-gray-600 rounded-full"
       checked={isPublic}
-      onCheckedChange={toggleVisibility}
+      onCheckedChange={() => toggleVisibility(!isPublic, threadId)}
     >
       <Switch.Thumb
       title={isPublic ? 'Make public' : 'Make Private'}

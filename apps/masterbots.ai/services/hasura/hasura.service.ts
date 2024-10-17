@@ -585,6 +585,8 @@ export async function UpdateThreadVisibility({
   isPublic: boolean;
   jwt: string | undefined;
 }): Promise<{ success: boolean; error?: string }> {
+
+  console.log({ isPublic })
   try {
     const client = getHasuraClient({ jwt })
     await client.mutation({
@@ -647,3 +649,23 @@ export async function getUserRoleByEmail({ email } : { email: string | null | un
       return {  users: [],  error: 'Failed to fetch user role by email.' };
       }
 }
+
+
+export async function getThreadById({ threadId, obj} : { threadId: string | null | undefined, obj: any}){
+    try{
+      const client = getHasuraClient({})
+      const { threadByPk } = await client.query({
+        threadByPk: {
+          __args: {
+             threadId
+          },
+          ...obj
+        }
+      });
+      return { threadByPk:  threadByPk  as Thread }
+    }catch (error) {
+      console.error('Error fetching thread by threadId:', error);
+      return {  threadByPk: {},  error: 'Failed to fetch thread by threadId.' };
+    }
+}
+
