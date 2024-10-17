@@ -9,6 +9,7 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { Thread } from 'mb-genql'
 import { useRef } from 'react'
 import { AdminModeApprove } from '../chat/admin-mode-approve'
+import { ChatOptions } from '../chat/chat-options'
 
 export default function ThreadComponent({
   thread,
@@ -53,11 +54,17 @@ export default function ThreadComponent({
       >
 
         {/* Thread Title */}
-        <div className="px-[11px] flex items-center w-full gap-3">
+        <div className="px-[11px] flex justify-between items-center w-full gap-3">
           <ChatbotAvatar thread={thread} />
           {thread.messages
             .filter(m => m.role === 'user')[0]
             ?.content.substring(0, 100) || 'wat'}
+
+          {/* Thread Options */}
+
+           <div className='px-4'>
+                 <ChatOptions threadId={threadId} />
+           </div>
         </div>
 
         {/* Thread Description */}
