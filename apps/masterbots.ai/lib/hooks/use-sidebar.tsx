@@ -1,5 +1,7 @@
 'use client'
 
+import { usePathname } from 'next/navigation'
+import { toSlug } from 'mb-lib'
 import { getCategories } from '@/services/hasura'
 import { Category, Chatbot } from 'mb-genql'
 import * as React from 'react'
@@ -88,6 +90,29 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
       return newState
     })
   }
+
+  const pathname = usePathname()
+  React.useEffect(() => {
+    const pathParts = pathname.split('/')
+    if (pathParts.length >= 4 && pathParts[1] === 'c') {
+      const categorySlug = pathParts[2]
+      const chatbotName = pathParts[3]
+      
+      const category = categories?.categoriesChatbots.find(
+        cat => toSlug(cat.name) === categorySlug
+      )
+      
+      if (category) {
+        setActiveCategory(category.categoryId)
+        const chatbot = category.chatbots.find(
+          c => c.chatbot.name.toLowerCase() === chatbotName
+        )
+        if (chatbot) {
+          setActiveChatbot(chatbot.chatbot)
+        }
+      }
+    }
+  }, [pathname, categories])
 
   const toggleChatbotSelection = React.useCallback((chatbotId: number) => {
     setSelectedChatbots(prev =>

@@ -70,7 +70,7 @@ export default function SidebarLink({ category, isFilterMode }: SidebarLinkProps
             className="mr-2"
           />
         )}
-        <span className="flex-grow">{category.name}</span>
+        <span className="grow">{category.name}</span>
         <IconCaretRight
           className={cn(
             'transition-transform duration-300  stroke-[#09090b] dark:stroke-[#FAFAFA]',
