@@ -456,6 +456,8 @@ export async function getBrowseThreads({
         profilePicture: true,
         slug: true
       },
+      isApproved:true,
+      isPublic:true,
       ...everything,
     },
   })

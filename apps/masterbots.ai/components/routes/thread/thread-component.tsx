@@ -64,7 +64,7 @@ export default function ThreadComponent({
 
           {/* Thread Options */}
            <div className='px-4'>
-                 <ChatOptions threadId={threadId} thread={thread} />
+                 <ChatOptions threadId={threadId} thread={thread}  isBrowse={false}/>
            </div>
         </div>
 

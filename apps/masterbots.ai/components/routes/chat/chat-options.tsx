@@ -22,9 +22,10 @@ import { ShareButton } from './share-button'
 interface ChatOptionsProps {
   threadId: string
   thread: Thread
+  isBrowse: boolean
 }
 
-export function ChatOptions({ threadId, thread }: ChatOptionsProps) {
+export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
   const { toggleVisibility, isSameUser, initiateDeleteThread} = useThreadVisibility()
   const isUser = isSameUser(thread)
   const title =  thread?.messages[0]?.content;
@@ -36,23 +37,30 @@ export function ChatOptions({ threadId, thread }: ChatOptionsProps) {
         initiateDeleteThread(threadId);
      }
 }
+
+console.log('thread', thread)
      
   return (
     <div className="flex  items-center space-x-3 pt-[3px]">
-      <div className="flex  items-center space-x-3">
-        <div>
-          {thread?.isApproved ? (
-            <Verified className="w-4 h-4 bg-[#388DE2]  text-white rounded-full" />
-          ) : (
-            <Verified className="w-4 h-4 text-gray-400" />
-          )}
-        </div>
-        <div className="bg-gray-200 rounded-full px-2 ">
-          <span className="text-xs">
-            {thread?.isPublic ? 'Public' : 'Private'}
-          </span>
-        </div>
-      </div>
+        {
+            !isBrowse && (
+                <div className="flex  items-center space-x-3">
+                <div>
+                  {thread?.isApproved ? (
+                    <Verified className="w-4 h-4 bg-[#388DE2]  text-white rounded-full" />
+                  ) : (
+                    <Verified className="w-4 h-4 text-gray-400" />
+                  )}
+                </div>
+                <div className="bg-gray-200 rounded-full px-2 ">
+                  <span className="text-xs">
+                    {thread?.isPublic ? 'Public' : 'Private'}
+                  </span>
+                </div>
+              </div>
+            )
+        }
+    
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <MoreVertical className="w-4 h-4" />
