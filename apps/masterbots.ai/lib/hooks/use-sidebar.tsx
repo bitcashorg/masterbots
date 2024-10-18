@@ -30,6 +30,8 @@ interface SidebarContext {
   setSelectedChatbots: React.Dispatch<React.SetStateAction<number[]>>
   selectedChats: string[]
   setSelectedChats: React.Dispatch<React.SetStateAction<string[]>>
+  expandedCategories: number[];
+  setExpandedCategories: React.Dispatch<React.SetStateAction<number[]>>;
   toggleChatbotSelection: (chatbotId: number) => void
 }
 
@@ -74,6 +76,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
   const [isFilterMode, setIsFilterMode] = React.useState(false)
   const [filterValue, setFilterValue] = React.useState('')
   const [selectedChats, setSelectedChats] = React.useState<string[]>([])
+  const [expandedCategories, setExpandedCategories] = React.useState<number[]>([])
 
   React.useEffect(() => {
     const value = localStorage.getItem(LOCAL_STORAGE_KEY)
@@ -105,6 +108,9 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
       
       if (category) {
         setActiveCategory(category.categoryId)
+        setExpandedCategories(prev => 
+          prev.includes(category.categoryId) ? prev : [...prev, category.categoryId]
+        )
         const chatbot = category.chatbots.find(
           c => c.chatbot.name.toLowerCase() === chatbotName
         )
@@ -187,6 +193,8 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
         selectedChats,
         setSelectedChats,
         toggleChatbotSelection,
+        expandedCategories,
+        setExpandedCategories,
       }}
     >
       {children}

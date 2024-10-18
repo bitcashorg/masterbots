@@ -26,16 +26,22 @@ export default function SidebarLink({ category, isFilterMode }: SidebarLinkProps
     selectedChatbots,
     setSelectedCategories,
     setSelectedChatbots,
+    expandedCategories,
+    setExpandedCategories,
   } = useSidebar()
-  const [isExpanded, setIsExpanded] = useState(false)
+  const isExpanded = expandedCategories.includes(category.categoryId)
 
   const handleClickCategory = useCallback((e: React.MouseEvent) => {
     e.stopPropagation()
     if (!isFilterMode) {
-      setIsExpanded(prev => !prev)
-      setActiveCategory(prev => prev === category.categoryId ? null : category.categoryId)
-    }
-  }, [category.categoryId, setActiveCategory, isFilterMode])
+      setExpandedCategories(prev => 
+        prev.includes(category.categoryId)
+        ? prev.filter(id => id !== category.categoryId)
+        : [...prev, category.categoryId]
+    )
+    setActiveCategory(prev => prev === category.categoryId ? null : category.categoryId)
+  }
+  }, [category.categoryId, setActiveCategory, setExpandedCategories, isFilterMode])
 
   const handleCheckboxChange = useCallback((checked: boolean) => {
     setSelectedCategories(prev =>
