@@ -9,7 +9,6 @@ import { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 import { isAdminOrModeratorRole , RoleTypes} from  '@/lib/utils'
-
 export default async function IndexPage() {
   const session = await getServerSession(authOptions)
 
@@ -20,11 +19,6 @@ export default async function IndexPage() {
     redirect('/auth/signin')
   }
 
-
-  const threads = await getThreads({
-    jwt,
-    userId: session!.user.id
-  })
   const role = session.user.role as RoleTypes;
   return (
     <>
@@ -35,8 +29,7 @@ export default async function IndexPage() {
          </div>
       )
     }
-   
-      <ThreadPanel threads={threads} />
+      <ThreadPanel  />
       <ChatThreadListPanel />
     </>
   )

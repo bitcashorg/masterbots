@@ -10,7 +10,7 @@ export  function ThreadPublicitySwitch({ threadId }: { threadId: string }) {
     <Switch.Root
       className="relative inline-flex items-center h-[24px] w-[48px] bg-gray-300 dark:bg-gray-600 rounded-full"
       checked={isPublic}
-      onCheckedChange={() => toggleVisibility(!isPublic, threadId)}
+      onCheckedChange={() => toggleVisibility(!isPublic, threadId)} 
     >
       <Switch.Thumb
       title={isPublic ? 'Make public' : 'Make Private'}

@@ -286,7 +286,6 @@ export async function createThread({
   userId,
   isPublic = true
 }: CreateThreadParams) {
-  // console.log('CREATING THREAD ...', { chatbotId, threadId, jwt, userId })
   const client = getHasuraClient({ jwt })
   const { insertThreadOne } = await client.mutation({
     insertThreadOne: {
@@ -296,7 +295,6 @@ export async function createThread({
       threadId: true
     }
   })
-  // console.log('THREAD CREATED', insertThreadOne?.threadId)
   return insertThreadOne?.threadId
 }
 
@@ -585,8 +583,6 @@ export async function UpdateThreadVisibility({
   isPublic: boolean;
   jwt: string | undefined;
 }): Promise<{ success: boolean; error?: string }> {
-
-  console.log({ isPublic })
   try {
     const client = getHasuraClient({ jwt })
     await client.mutation({
@@ -631,7 +627,6 @@ export async function approveThread({
   }
 } 
 
-// get user role by email 
 export async function getUserRoleByEmail({ email } : { email: string | null | undefined}){
     try{
       const client = getHasuraClient({})
@@ -650,22 +645,64 @@ export async function getUserRoleByEmail({ email } : { email: string | null | un
       }
 }
 
-
-export async function getThreadById({ threadId, obj} : { threadId: string | null | undefined, obj: any}){
-    try{
-      const client = getHasuraClient({})
-      const { threadByPk } = await client.query({
-        threadByPk: {
-          __args: {
-             threadId
-          },
-          ...obj
-        }
-      });
-      return { threadByPk:  threadByPk  as Thread }
-    }catch (error) {
-      console.error('Error fetching thread by threadId:', error);
-      return {  threadByPk: {},  error: 'Failed to fetch thread by threadId.' };
-    }
+export async function deleteThread({ threadId, jwt, userId }: { threadId: string, jwt: string | undefined, userId: string | undefined }){
+  try {
+    const client = getHasuraClient({ jwt })
+    await client.mutation({
+      deleteThreadByPk: {
+        __args: {
+          threadId: { threadId },
+        },
+        where: { userId: { _eq: userId } },
+        threadId: true
+      }
+    })
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting thread:', error);
+    return { success: false, error: 'Failed to delete the thread.' };
+  }
 }
 
+
+
+// get all threads that are not approved 
+export async function getUnapprovedThreads() {
+  const client = getHasuraClient({})
+  const { thread } = await client.query({
+    thread: {
+      __args: {
+        where: { isApproved: { _eq: false } },
+        orderBy: [{ createdAt: 'DESC' }],
+        limit: 20
+      },
+      chatbot: {
+        ...everything,
+        categories: {
+          category: {
+            ...everything
+          },
+          ...everything
+        },
+        threads: {
+          threadId: true
+        },
+        prompts: {
+          prompt: everything
+        }
+      },
+      messages: {
+        ...everything,
+        __args: {
+          orderBy: [{ createdAt: 'ASC' }],
+          limit: 2
+        }
+      },
+      isApproved:true,
+      isPublic:true,
+      ...everything,
+    }
+  })
+
+  return thread as Thread[]
+}
