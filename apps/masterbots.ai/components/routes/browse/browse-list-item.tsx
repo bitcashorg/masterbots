@@ -166,8 +166,7 @@ export default function BrowseListItem({
               })}
             >
               {thread.messages?.[0]?.content}
-              {/* .length > 70 ?  thread.messages?.[0]?.content.substring(0,70) + '...' : thread.messages?.[0]?.content} */}
-            </div>
+           </div>
             {pageType !== 'user' && (
               <span className="opacity-50 text-[0.875rem]">by</span>
             )}
@@ -212,7 +211,7 @@ export default function BrowseListItem({
 
         {/* Thread Description */}
 
-        {/* <div className="overflow-hidden text-sm text-left opacity-50">
+        <div className="overflow-hidden text-sm text-left opacity-50">
           {thread.messages?.[1]?.content &&
             thread.messages?.[1]?.role !== 'user' ? (
             <div className="flex-1 space-y-2 overflow-hidden">
@@ -221,7 +220,7 @@ export default function BrowseListItem({
           ) : (
             ''
           )}
-        </div> */}
+        </div>
 
         {/* Thread Content */}
 
