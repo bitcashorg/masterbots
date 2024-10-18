@@ -6,7 +6,6 @@ import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { Thread } from 'mb-genql'
 
 export default function ThreadList({
-  threads: propsThreads,
   loading,
   loadMore,
   count,

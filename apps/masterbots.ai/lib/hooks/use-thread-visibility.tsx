@@ -84,7 +84,10 @@ export function ThreadVisibilityProvider({ children }: ThreadVisibilityProviderP
 
   const initiateDeleteThread = async (threadId: string) => {
     try {
-      if (!session?.data?.user?.id) return;
+      if (!session?.data?.user?.id || !jwt) {
+           toast.error('User session not found. Please log in again.');
+          return;   
+      };
       await deleteThread({
         threadId,
         jwt,
