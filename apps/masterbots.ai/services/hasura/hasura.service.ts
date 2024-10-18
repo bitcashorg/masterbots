@@ -286,7 +286,6 @@ export async function createThread({
   userId,
   isPublic = true
 }: CreateThreadParams) {
-  // console.log('CREATING THREAD ...', { chatbotId, threadId, jwt, userId })
   const client = getHasuraClient({ jwt })
   const { insertThreadOne } = await client.mutation({
     insertThreadOne: {
@@ -296,7 +295,6 @@ export async function createThread({
       threadId: true
     }
   })
-  // console.log('THREAD CREATED', insertThreadOne?.threadId)
   return insertThreadOne?.threadId
 }
 
@@ -458,6 +456,8 @@ export async function getBrowseThreads({
         profilePicture: true,
         slug: true
       },
+      isApproved:true,
+      isPublic:true,
       ...everything,
     },
   })
@@ -629,7 +629,6 @@ export async function approveThread({
   }
 } 
 
-// get user role by email 
 export async function getUserRoleByEmail({ email } : { email: string | null | undefined}){
     try{
       const client = getHasuraClient({})
@@ -646,4 +645,68 @@ export async function getUserRoleByEmail({ email } : { email: string | null | un
       console.error('Error fetching user role by email:', error);
       return {  users: [],  error: 'Failed to fetch user role by email.' };
       }
+}
+
+export async function deleteThread({ threadId, jwt, userId }: { threadId: string, jwt: string | undefined, userId: string | undefined }){
+  try {
+    const client = getHasuraClient({ jwt })
+    await client.mutation({
+      deleteThread: {
+         __args: {
+           where: {
+             threadId: { _eq: threadId },
+             userId: { _eq: userId }
+           }
+         },
+         affectedRows: true
+       }
+    })
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting thread:', error);
+    return { success: false, error: 'Failed to delete the thread.' };
+  }
+}
+
+
+
+// get all threads that are not approved 
+export async function getUnapprovedThreads() {
+  const client = getHasuraClient({})
+  const { thread } = await client.query({
+    thread: {
+      __args: {
+        where: { isApproved: { _eq: false } },
+        orderBy: [{ createdAt: 'DESC' }],
+        limit: 20
+      },
+      chatbot: {
+        ...everything,
+        categories: {
+          category: {
+            ...everything
+          },
+          ...everything
+        },
+        threads: {
+          threadId: true
+        },
+        prompts: {
+          prompt: everything
+        }
+      },
+      messages: {
+        ...everything,
+        __args: {
+          orderBy: [{ createdAt: 'ASC' }],
+          limit: 2
+        }
+      },
+      isApproved:true,
+      isPublic:true,
+      ...everything,
+    }
+  })
+
+  return thread as Thread[]
 }

@@ -1,13 +1,14 @@
+"use client"
 import UserThreadPanel from '@/components/routes/thread/user-thread-panel'
 import { Thread } from 'mb-genql'
 
-export default async function ThreadPanel({
+export default  function ThreadPanel({
   chatbot,
-  threads
+  threads=[]
 }: {
   chatbot?: string
   threads: Thread[]
   search?: { [key: string]: string | string[] | undefined }
 }) {
-  return <UserThreadPanel chatbot={chatbot} threads={threads} />
+  return <UserThreadPanel chatbot={chatbot}  threads={threads} />
 }
