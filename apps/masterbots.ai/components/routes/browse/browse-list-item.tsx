@@ -168,8 +168,9 @@ export default function BrowseListItem({
               {thread.messages?.[0]?.content}
            </div>
             {pageType !== 'user' && (
-              <span className="opacity-50 text-[0.875rem]">by</span>
+              <span className="opacity-50 text-[0.875rem]"> by  </span>
             )}
+
             <div>
             {pageType !== 'user' && thread.user?.profilePicture ? (
               <Button

@@ -37,9 +37,6 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
         initiateDeleteThread(threadId);
      }
 }
-
-console.log('thread', thread)
-     
   return (
     <div className="flex  items-center space-x-3 pt-[3px]">
         {
