@@ -1,66 +1,67 @@
-'use server'
+"use server";
 
-import { AIModels } from '@/app/api/chat/models/models'
+import { AIModels } from "@/app/api/chat/models/models";
 import {
   convertToCoreMessages,
-  setStreamerPayload
-} from '@/lib/helpers/ai-helpers'
-import { AiClientType, JSONResponseStream } from '@/types/types'
-import { createAnthropic } from '@ai-sdk/anthropic'
-import { createOpenAI } from '@ai-sdk/openai'
-import { streamText } from 'ai'
-import { ChatCompletionMessageParam } from 'openai/resources'
+  setStreamerPayload,
+} from "@/lib/helpers/ai-helpers";
+import { fetchChatbotMetadata } from "@/services/hasura";
+import type { AiClientType, ChatbotMetadataHeaders, JSONResponseStream } from "@/types/types";
+import { createAnthropic } from "@ai-sdk/anthropic";
+import { createOpenAI } from "@ai-sdk/openai";
+import { streamText } from "ai";
+import type { ChatCompletionMessageParam } from "openai/resources";
 
 //* this function is used to create a client for the OpenAI API
 const initializeOpenAI = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  compatibility: 'strict'
-})
+  compatibility: "strict",
+});
 
 const initializeAnthropic = createAnthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY
-})
+  apiKey: process.env.ANTHROPIC_API_KEY,
+});
 
 //* Perplexity API uses openai-sdk with compatible mode and a different base URL
 export async function initializePerplexity(apiKey: string) {
   if (!apiKey) {
     throw new Error(
-      'PERPLEXITY_API_KEY is not defined in environment variables'
-    )
+      "PERPLEXITY_API_KEY is not defined in environment variables",
+    );
   }
   return createOpenAI({
     apiKey,
-    baseURL: 'https://api.perplexity.ai',
-    compatibility: 'compatible'
-  })
+    baseURL: "https://api.perplexity.ai",
+    compatibility: "compatible",
+  });
 }
 
 // * This function improves the message using the AI
 export async function improveMessage(
   content: string,
   clientType: AiClientType,
-  model: string
+  model: string,
 ): Promise<string> {
-  const messageImprovementPrompt = createImprovementPrompt(content)
+  const messageImprovementPrompt = createImprovementPrompt(content);
 
   try {
     const result = await processWithAI(
       messageImprovementPrompt,
       clientType,
-      model
-    )
-    const cleanedResult = cleanResult(result)
+      model,
+    );
+    const cleanedResult = cleanResult(result);
 
     if (isInvalidResult(cleanedResult, content)) {
       console.warn(
-        'AI did not modify the text or returned invalid result. Attempting with a more explicit prompt.'
-      )
-      return await retryImprovement(content, clientType, model)
+        "AI did not modify the text or returned invalid result. Attempting with a more explicit prompt.",
+      );
+      return await retryImprovement(content, clientType, model);
     }
 
-    return cleanedResult
+    return cleanedResult;
   } catch (error) {
-    return handleImprovementError(error, content, clientType, model)
+    return handleImprovementError(error, content, clientType, model);
   }
 }
 
@@ -82,21 +83,16 @@ function createImprovementPrompt(content: string): string {
   - Output only the corrected and improved text, without any additional explanations.
   - Provide both the original and translated question (if applicable).
 
-  ## Example: ##
+  ## Example: (Only new lines inside stringify object strings) ##
 
-  {
-    "language": "es",
-    "originalText": "Q restaurant puede recomendar en zona de San Francisco, CA?",
-    "improvedText": "¿Qué restaurante puedes recomendar en la zona de San Francisco, CA?",
-    "translatedText": "What restaurant can you recommend in the area of San Francisco, CA?"
-  }`
+  {"language":"es","originalText":"Q restaurant puede recomendar en zona de San Francisco, CA?","improvedText":"¿Qué restaurante puedes recomendar en la zona de San Francisco, CA?","translatedText":"What restaurant can you recommend in the area of San Francisco, CA?"}`;
 }
 
 // * This function retries the AI improvement process if the first attempt fails
 async function retryImprovement(
   content: string,
   clientType: AiClientType,
-  model: string
+  model: string,
 ): Promise<string> {
   const retryPrompt = `
     You are a highly skilled AI assistant specializing in grammar and spelling corrections. Your task is to thoroughly enhance the following text by:
@@ -109,174 +105,203 @@ async function retryImprovement(
     Please return only the improved text without any explanations, additional content, or alterations to the original message structure.
 
     Original text: "${content}"
-  `
+  `;
 
   try {
-    const result = await processWithAI(retryPrompt, clientType, model)
-    const cleanedResult = cleanResult(result)
+    const result = await processWithAI(retryPrompt, clientType, model);
+    const cleanedResult = cleanResult(result);
 
     if (isInvalidResult(cleanedResult, content)) {
       console.warn(
-        'Retry failed to improve the text. Returning original content.'
-      )
-      return content
+        "Retry failed to improve the text. Returning original content.",
+      );
+      return content;
     }
 
-    return cleanedResult
+    return cleanedResult;
   } catch (error) {
-    return handleImprovementError(error, content)
+    return handleImprovementError(error, content);
   }
+}
+
+export async function subtractChatbotMetadataLabels(metadataHeaders: ChatbotMetadataHeaders, userPrompt: string, clientType: AiClientType) {
+  const chatbotMetadata = await fetchChatbotMetadata(metadataHeaders);
+
+  if (!chatbotMetadata) {
+    console.error('Chatbot metadata not found. Generating response without them.');
+    return [];
+  }
+
+  const prompt =
+    // biome-ignore lint/style/useTemplate: <explanation>
+    `You are a top software development expert with extensive knowledge in the field of ${metadataHeaders.domain}. Your sole purpose is to label the following question "${userPrompt}" with the appropriate categories, sub-categories and tags as an array of strings. There are the available categories, sub-categories and tags:` +
+    chatbotMetadata.questions +
+    chatbotMetadata.categories +
+    chatbotMetadata.subCategories +
+    chatbotMetadata.tags +
+    `
+    ## Output Example: 
+
+    {
+      "categories": ['Technology'],
+      "subCategories": ['Software Development'],
+      "tags": ['Java', 'Python', 'C++']
+    }`;
+
+  const response = await processWithAI(prompt, clientType, AIModels.Default);
+
+  return chatbotMetadata;
 }
 
 // * This function process the AI response and return the cleaned result
 async function processWithAI(
   prompt: string,
   clientType: AiClientType,
-  model: string
+  model: string,
 ): Promise<string> {
   try {
     const messages = [
-      { role: 'user', content: prompt }
-    ] as ChatCompletionMessageParam[]
-    const processedMessages = setStreamerPayload(clientType, messages)
+      { role: "user", content: prompt },
+    ] as ChatCompletionMessageParam[];
+    const processedMessages = setStreamerPayload(clientType, messages);
 
     const response = await createResponseStream(clientType, {
       model: AIModels.Default,
-      messages: processedMessages
-    } as any)
+      messages: processedMessages,
+    } as any);
 
     if (!response.body) {
-      throw new Error('Response body is null')
+      throw new Error("Response body is null");
     }
 
     if (response.status !== 200) {
-      const errorText = await response.text()
+      const errorText = await response.text();
       throw new Error(
-        `API responded with status ${response.status}: ${errorText}`
-      )
+        `API responded with status ${response.status}: ${errorText}`,
+      );
     }
 
-    const result = await readStreamResponse(response.body)
-    return cleanResult(result)
+    const result = await readStreamResponse(response.body);
+    return cleanResult(result);
   } catch (error) {
-    console.error('Error in processWithAI:', error)
-    throw error
+    console.error("Error in processWithAI:", error);
+    throw error;
   }
 }
 
 // * This function reads the AI response and return the cleaned result
 async function readStreamResponse(body: ReadableStream): Promise<string> {
-  const reader = body.getReader()
-  let accumulatedResult = ''
+  const reader = body.getReader();
+  let accumulatedResult = "";
   while (true) {
-    const { done, value } = await reader.read()
-    if (done) break
-    const chunk = new TextDecoder().decode(value)
-    accumulatedResult += chunk
+    const { done, value } = await reader.read();
+    if (done) break;
+    const chunk = new TextDecoder().decode(value);
+    accumulatedResult += chunk;
   }
 
-  let result = ''
-  const parts = accumulatedResult.split('\n')
+  let result = "";
+  const parts = accumulatedResult.split("\n");
   for (const part of parts) {
-    const match = part.match(/^0:"(.*)"$/)
+    const match = part.match(/^0:"(.*)"$/);
     if (match) {
-      result += match[1]
+      result += match[1];
     }
   }
 
-  return result
+  return result;
 }
 
 function cleanResult(result: string): string {
-  return result.trim().replace(/\n/g, '')
+  return result.trim().replace(/\n/g, "");
 }
 
 function isInvalidResult(result: string, originalContent: string): boolean {
   return (
     !result ||
-    result.includes('Original message:') ||
+    result.includes("Original message:") ||
     result.toLowerCase() === originalContent.toLowerCase()
-  )
+  );
 }
 
 function handleImprovementError(
   error: any,
   originalContent: string,
   clientType?: AiClientType,
-  model?: string
+  model?: string,
 ): string {
-  console.error('Error in improvement process:', error)
-  return originalContent
+  console.error("Error in improvement process:", error);
+  return originalContent;
 }
 
 //* Create a response stream based on the client model type
 export async function createResponseStream(
   clientType: AiClientType,
   json: JSONResponseStream,
-  req?: Request
+  req?: Request,
 ) {
-  const { model, messages: rawMessages, previewToken } = json
-  const messages = setStreamerPayload(clientType, rawMessages)
+  const { model, messages: rawMessages, previewToken } = json;
+  const messages = setStreamerPayload(clientType, rawMessages);
 
   try {
-    let responseStream: ReadableStream
+    let responseStream: ReadableStream;
 
     switch (clientType) {
-      case 'OpenAI': {
-        const openaiModel = initializeOpenAI(model)
+      case "OpenAI": {
+        const openaiModel = initializeOpenAI(model);
         const coreMessages = convertToCoreMessages(
-          messages as ChatCompletionMessageParam[]
-        )
+          messages as ChatCompletionMessageParam[],
+        );
         const response = await streamText({
           model: openaiModel,
           messages: coreMessages,
-          temperature: 0.4
-        })
-        responseStream = response.toDataStreamResponse().body as ReadableStream
-        break
+          temperature: 0.4,
+        });
+        responseStream = response.toDataStreamResponse().body as ReadableStream;
+        break;
       }
-      case 'Anthropic': {
+      case "Anthropic": {
         const anthropicModel = initializeAnthropic(model, {
-          cacheControl: true
-        })
+          cacheControl: true,
+        });
         const coreMessages = convertToCoreMessages(
-          messages as ChatCompletionMessageParam[]
-        )
+          messages as ChatCompletionMessageParam[],
+        );
         const response = await streamText({
           model: anthropicModel,
           messages: coreMessages,
           temperature: 0.3,
-          maxTokens: 300
-        })
-        responseStream = response.toDataStreamResponse().body as ReadableStream
-        break
+          maxTokens: 300,
+        });
+        responseStream = response.toDataStreamResponse().body as ReadableStream;
+        break;
       }
-      case 'Perplexity': {
+      case "Perplexity": {
         const perplexity = await initializePerplexity(
-          previewToken || (process.env.PERPLEXITY_API_KEY as string)
-        )
-        const perplexityModel = perplexity(model)
+          previewToken || (process.env.PERPLEXITY_API_KEY as string),
+        );
+        const perplexityModel = perplexity(model);
         const coreMessages = convertToCoreMessages(
-          messages as ChatCompletionMessageParam[]
-        )
+          messages as ChatCompletionMessageParam[],
+        );
         const response = await streamText({
           model: perplexityModel,
           messages: coreMessages,
           temperature: 0.3,
-          maxTokens: 1000
-        })
-        responseStream = response.toDataStreamResponse().body as ReadableStream
-        break
+          maxTokens: 1000,
+        });
+        responseStream = response.toDataStreamResponse().body as ReadableStream;
+        break;
       }
       default:
-        throw new Error('Unsupported client type')
+        throw new Error("Unsupported client type");
     }
 
     return new Response(responseStream, {
-      headers: { 'Content-Type': 'text/event-stream' }
-    })
+      headers: { "Content-Type": "text/event-stream" },
+    });
   } catch (error) {
-    console.error('Error in createResponseStream:', error)
-    throw error
+    console.error("Error in createResponseStream:", error);
+    throw error;
   }
 }

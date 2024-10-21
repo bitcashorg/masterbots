@@ -1,14 +1,16 @@
+import type { ChatbotMetadataHeaders } from '@/types/types'
 import { validateMbEnv } from 'mb-env'
 import {
-  Category,
-  Chatbot,
-  Message,
-  Thread,
-  User,
+  type Category,
+  type Chatbot,
+  type LabelChatbotCategory,
+  type Message,
+  type Thread,
+  type User,
   createMbClient,
   everything
 } from 'mb-genql'
-import {
+import type {
   CreateThreadParams,
   GetBrowseThreadsParams,
   GetChatbotParams,
@@ -84,19 +86,19 @@ export async function getChatbots({
         limit: limit ? limit : 20,
         ...(offset
           ? {
-            offset
-          }
+              offset
+            }
           : {}),
         ...(categoryId
           ? {
-            where: {
-              categories: {
-                categoryId: {
-                  _eq: categoryId
+              where: {
+                categories: {
+                  categoryId: {
+                    _eq: categoryId
+                  }
                 }
               }
             }
-          }
           : {})
       }
     }
@@ -145,25 +147,25 @@ export async function getThreads({
         limit: limit ? limit : 20,
         ...(offset
           ? {
-            offset
-          }
+              offset
+            }
           : {}),
         ...(chatbotName || categoryId
           ? {
-            where: {
-              chatbot: {
-                ...(chatbotName
-                  ? {
-                    name: { _eq: chatbotName }
-                  }
-                  : {}),
-                ...(categoryId
-                  ? { categories: { categoryId: { _eq: categoryId } } }
-                  : {})
-              },
-              ...(userId ? { userId: { _eq: userId } } : {})
+              where: {
+                chatbot: {
+                  ...(chatbotName
+                    ? {
+                        name: { _eq: chatbotName }
+                      }
+                    : {}),
+                  ...(categoryId
+                    ? { categories: { categoryId: { _eq: categoryId } } }
+                    : {})
+                },
+                ...(userId ? { userId: { _eq: userId } } : {})
+              }
             }
-          }
           : userId
             ? { where: { userId: { _eq: userId } } }
             : {})
@@ -234,7 +236,7 @@ export async function upsertUser({
   const client = getHasuraClient({ adminSecret })
 
   // Generate base slug from the user's name
-  let baseSlug = username.toLowerCase().replace(/\s+/g, '_')
+  const baseSlug = username.toLowerCase().replace(/\s+/g, '_')
 
   // Check if the base slug conflicts with existing slugs
   let slugCount = 0
@@ -325,16 +327,16 @@ export async function getChatbot({
       },
       ...(threads
         ? {
-          threads: {
-            ...everything,
-            messages: {
+            threads: {
               ...everything,
-              __args: {
-                orderBy: [{ createdAt: 'ASC' }]
+              messages: {
+                ...everything,
+                __args: {
+                  orderBy: [{ createdAt: 'ASC' }]
+                }
               }
             }
           }
-        }
         : {})
     }
   })
@@ -362,54 +364,54 @@ export async function getBrowseThreads({
         where: {
           ...(categoryId
             ? {
-              chatbot: {
-                categories: {
-                  categoryId: { _eq: categoryId }
+                chatbot: {
+                  categories: {
+                    categoryId: { _eq: categoryId }
+                  }
                 }
               }
-            }
             : {}),
           ...(categoriesId
             ? {
-              chatbot: {
-                categories: {
-                  categoryId: { _in: categoriesId }
+                chatbot: {
+                  categories: {
+                    categoryId: { _in: categoriesId }
+                  }
                 }
               }
-            }
             : {}),
           ...(chatbotName
             ? {
-              chatbot: {
-                name: { _eq: chatbotName }
+                chatbot: {
+                  name: { _eq: chatbotName }
+                }
               }
-            }
             : {}),
           ...(chatbotsId
             ? {
-              chatbot: {
-                chatbotId: { _in: chatbotsId }
+                chatbot: {
+                  chatbotId: { _in: chatbotsId }
+                }
               }
-            }
             : {}),
           ...(userId
             ? {
-              userId: {
-                _eq: userId
+                userId: {
+                  _eq: userId
+                }
               }
-            }
             : {}),
           ...(slug
             ? {
-              user: {
-                slug: {
-                  _eq: slug
+                user: {
+                  slug: {
+                    _eq: slug
+                  }
                 }
               }
-            }
             : {}),
           isPublic: { _eq: true },
-          isApproved: { _eq: true },
+          isApproved: { _eq: true }
         },
         limit: limit || 30,
         offset: offset || 0
@@ -432,21 +434,21 @@ export async function getBrowseThreads({
           orderBy: [{ createdAt: 'ASC' }],
           ...(keyword
             ? {
-              where: {
-                _or: [
-                  {
-                    content: {
-                      _iregex: keyword
+                where: {
+                  _or: [
+                    {
+                      content: {
+                        _iregex: keyword
+                      }
+                    },
+                    {
+                      content: {
+                        _eq: keyword
+                      }
                     }
-                  },
-                  {
-                    content: {
-                      _eq: keyword
-                    }
-                  }
-                ]
+                  ]
+                }
               }
-            }
             : ''),
           limit: 2
         }
@@ -456,8 +458,8 @@ export async function getBrowseThreads({
         profilePicture: true,
         slug: true
       },
-      ...everything,
-    },
+      ...everything
+    }
   })
 
   return thread as Thread[]
@@ -479,13 +481,13 @@ export async function getMessages({
         orderBy: [{ createdAt: 'ASC' }],
         ...(limit
           ? {
-            limit
-          }
+              limit
+            }
           : {}),
         ...(offset
           ? {
-            offset
-          }
+              offset
+            }
           : {})
       }
     }
@@ -506,14 +508,14 @@ export async function getChatbotsCount({
       __args: {
         ...(categoryId
           ? {
-            where: {
-              categories: {
-                categoryId: {
-                  _eq: categoryId
+              where: {
+                categories: {
+                  categoryId: {
+                    _eq: categoryId
+                  }
                 }
               }
             }
-          }
           : {})
       }
     }
@@ -577,11 +579,11 @@ export async function getUsers() {
 export async function UpdateThreadVisibility({
   threadId,
   isPublic,
-  jwt,
+  jwt
 }: {
-  threadId: string;
-  isPublic: boolean;
-  jwt: string | undefined;
+  threadId: string
+  isPublic: boolean
+  jwt: string | undefined
 }): Promise<{ success: boolean; error?: string }> {
   try {
     const client = getHasuraClient({ jwt })
@@ -595,8 +597,43 @@ export async function UpdateThreadVisibility({
         isPublic: true
       }
     })
-    return { success: true };
+    return { success: true }
   } catch (error) {
-    return { success: false, error: (error as Error).message };
+    return { success: false, error: (error as Error).message }
+  }
+}
+
+export type ReturnFetchChatbotMetadata = Pick<
+  LabelChatbotCategory['label'],
+  'questions' | 'categories' | 'subCategories' | 'tags'
+> | null
+
+export async function fetchChatbotMetadata({
+  chatbot,
+  domain
+}: ChatbotMetadataHeaders): Promise<ReturnFetchChatbotMetadata> {
+  try {
+    const client = getHasuraClient({})
+    const { labelChatbotCategory: chatbotMetadata } = await client.query({
+      labelChatbotCategory: {
+        __args: {
+          where: {
+            chatbotId: { _eq: chatbot },
+            domainId: { _eq: domain }
+          }
+        },
+        label: {
+          questions: true,
+          categories: true,
+          subCategories: true,
+          tags: true
+        }
+      }
+    })
+
+    return chatbotMetadata[0].label as LabelChatbotCategory['label']
+  } catch (error) {
+    console.error('Error fetching chatbot metadata:', error)
+    return null
   }
 }
