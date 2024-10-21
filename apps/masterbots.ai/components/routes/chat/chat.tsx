@@ -174,16 +174,9 @@ export function Chat({
       processedMessage = userMessage.content
     }
 
+    const { language, originalText, improvedText, translatedText } = JSON.parse(processedMessage)
     // ! Loading: getting the the information right... 'digesting'
 
-    // ? Future response: We will use the AI to detect the language of the message and translate it to English if it's not already in English. We will use a pattern from the Ai to know the original language of the refined message and the refined message in English.
-    // TODO: ...
-    const { language, originalText, improvedText, translatedText } = {
-      language: 'en',
-      originalText: processedMessage,
-      improvedText: processedMessage,
-      translatedText: processedMessage
-    }
 
     console.log('Original message language:', language)
     console.log('Original message language:', originalText, translatedText)

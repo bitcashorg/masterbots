@@ -1,0 +1,11 @@
+table:
+  name: label
+  schema: public
+array_relationships:
+  - name: metadataLabels
+    using:
+      foreign_key_constraint_on:
+        column: label_id
+        table:
+          name: label_chatbot_category
+          schema: public

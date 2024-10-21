@@ -1,0 +1,13 @@
+table:
+  name: label_chatbot_category
+  schema: public
+object_relationships:
+  - name: category
+    using:
+      foreign_key_constraint_on: category_id
+  - name: chatbot
+    using:
+      foreign_key_constraint_on: chatbot_id
+  - name: label
+    using:
+      foreign_key_constraint_on: label_id

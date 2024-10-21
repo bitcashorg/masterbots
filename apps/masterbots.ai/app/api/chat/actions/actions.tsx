@@ -188,20 +188,7 @@ async function readStreamResponse(body: ReadableStream): Promise<string> {
 }
 
 function cleanResult(result: string): string {
-  console.log('Raw result:', result)
-
-  try {
-    return JSON.parse(result.trim())
-  } catch (error) {
-    console.error(error)
-  }
-
-  return result
-    .trim() // First, trim leading and trailing whitespace
-    .replace(/[\\\"\/]/g, '') // Remove backslashes and quotes
-    .replace(/\s+/g, ' ') // Replace multiple spaces with a single space
-    .replace(/\s+([.,!?;:])(?!\.\.\.)/g, '$1') // Remove spaces before punctuation, except for ellipsis
-    .replace(/\s*\.\s*\.\s*\./g, '...') // Clean up ellipsis
+  return result.trim().replace(/\n/g, '')
 }
 
 function isInvalidResult(result: string, originalContent: string): boolean {

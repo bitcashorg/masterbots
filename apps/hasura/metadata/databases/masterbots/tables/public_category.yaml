@@ -9,6 +9,13 @@ array_relationships:
         table:
           name: chatbot_category
           schema: public
+  - name: metadataLabels
+    using:
+      foreign_key_constraint_on:
+        column: category_id
+        table:
+          name: label_chatbot_category
+          schema: public
 select_permissions:
   - role: anonymous
     permission:
