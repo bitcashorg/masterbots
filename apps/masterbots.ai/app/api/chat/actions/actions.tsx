@@ -1,12 +1,13 @@
 "use server";
 
 import { AIModels } from "@/app/api/chat/models/models";
+import { createChatbotMetadataPrompt, createImprovementPrompt, setDefaultPrompt } from "@/lib/constants/prompts";
 import {
   convertToCoreMessages,
   setStreamerPayload,
 } from "@/lib/helpers/ai-helpers";
 import { fetchChatbotMetadata } from "@/services/hasura";
-import type { AiClientType, ChatbotMetadataHeaders, JSONResponseStream } from "@/types/types";
+import type { AiClientType, ChatbotMetadataHeaders, CleanPromptResult, JSONResponseStream } from "@/types/types";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
@@ -41,7 +42,7 @@ export async function improveMessage(
   content: string,
   clientType: AiClientType,
   model: string,
-): Promise<string> {
+): Promise<CleanPromptResult> {
   const messageImprovementPrompt = createImprovementPrompt(content);
 
   try {
@@ -52,75 +53,17 @@ export async function improveMessage(
     );
     const cleanedResult = cleanResult(result);
 
-    if (isInvalidResult(cleanedResult, content)) {
+    if (isInvalidResult(cleanedResult.translatedText || cleanedResult.improvedText, content)) {
       console.warn(
-        "AI did not modify the text or returned invalid result. Attempting with a more explicit prompt.",
+        "AI did not modify the text or returned invalid result. Recursively executing improved prompt.",
       );
-      return await retryImprovement(content, clientType, model);
+      return await improveMessage(content, clientType, model);
     }
 
     return cleanedResult;
   } catch (error) {
-    return handleImprovementError(error, content, clientType, model);
-  }
-}
-
-// * This function creates the prompt for the AI improvement process
-function createImprovementPrompt(content: string): string {
-  return `You are an expert polyglot, grammar, and spelling AI assistant skilled in understanding and correcting spelling and typing errors across multiple languages. Your task is to improve the following original text: ${content}
-
-  Follow these steps:
-
-  1. Identify the original language of the provided text.
-  2. Correct clear typos in common words based on the intended meaning. If the input is ambiguous or appears to be intentionally unconventional, preserve it as is.
-  3. Correct spelling errors and fix obvious grammar issues while keeping the original tone and meaning.
-  4. Adjust punctuation where needed, but only when it's clearly incorrect or missing.
-  5. Provide the final corrected text in the original language, ensuring it retains the intended meaning and structure.
-
-  **Important Guidelines:**
-  - For very short inputs or single words, avoid making changes unless the correction is absolutely certain.
-  - Maintain the original structure and formatting of the input as much as possible.
-  - Output only the corrected and improved text, without any additional explanations.
-  - Provide both the original and translated question (if applicable).
-
-  ## Example: (Only new lines inside stringify object strings) ##
-
-  {"language":"es","originalText":"Q restaurant puede recomendar en zona de San Francisco, CA?","improvedText":"¿Qué restaurante puedes recomendar en la zona de San Francisco, CA?","translatedText":"What restaurant can you recommend in the area of San Francisco, CA?"}`;
-}
-
-// * This function retries the AI improvement process if the first attempt fails
-async function retryImprovement(
-  content: string,
-  clientType: AiClientType,
-  model: string,
-): Promise<string> {
-  const retryPrompt = `
-    You are a highly skilled AI assistant specializing in grammar and spelling corrections. Your task is to thoroughly enhance the following text by:
-    1. Correcting all spelling errors with precision
-    2. Fixing any grammatical issues to ensure clarity and correctness
-    3. Improving punctuation for better readability and flow
-    4. Inferring the intended words in case of obvious typos
-
-    It is crucial to maintain the original meaning and intent of the message. 
-    Please return only the improved text without any explanations, additional content, or alterations to the original message structure.
-
-    Original text: "${content}"
-  `;
-
-  try {
-    const result = await processWithAI(retryPrompt, clientType, model);
-    const cleanedResult = cleanResult(result);
-
-    if (isInvalidResult(cleanedResult, content)) {
-      console.warn(
-        "Retry failed to improve the text. Returning original content.",
-      );
-      return content;
-    }
-
-    return cleanedResult;
-  } catch (error) {
-    return handleImprovementError(error, content);
+    const originalText = handleImprovementError(error, content, clientType, model)
+    return setDefaultPrompt(originalText);
   }
 }
 
@@ -129,28 +72,13 @@ export async function subtractChatbotMetadataLabels(metadataHeaders: ChatbotMeta
 
   if (!chatbotMetadata) {
     console.error('Chatbot metadata not found. Generating response without them.');
-    return [];
+    return setDefaultPrompt(userPrompt);
   }
 
-  const prompt =
-    // biome-ignore lint/style/useTemplate: <explanation>
-    `You are a top software development expert with extensive knowledge in the field of ${metadataHeaders.domain}. Your sole purpose is to label the following question "${userPrompt}" with the appropriate categories, sub-categories and tags as an array of strings. There are the available categories, sub-categories and tags:` +
-    chatbotMetadata.questions +
-    chatbotMetadata.categories +
-    chatbotMetadata.subCategories +
-    chatbotMetadata.tags +
-    `
-    ## Output Example: 
-
-    {
-      "categories": ['Technology'],
-      "subCategories": ['Software Development'],
-      "tags": ['Java', 'Python', 'C++']
-    }`;
-
+  const prompt = createChatbotMetadataPrompt(metadataHeaders, chatbotMetadata, userPrompt);
   const response = await processWithAI(prompt, clientType, AIModels.Default);
 
-  return chatbotMetadata;
+  return cleanResult(response);
 }
 
 // * This function process the AI response and return the cleaned result
@@ -177,12 +105,12 @@ async function processWithAI(
     if (response.status !== 200) {
       const errorText = await response.text();
       throw new Error(
-        `API responded with status ${response.status}: ${errorText}`,
+        `API responded with status ${response.status}: ${errorText} `,
       );
     }
 
     const result = await readStreamResponse(response.body);
-    return cleanResult(result);
+    return result;
   } catch (error) {
     console.error("Error in processWithAI:", error);
     throw error;
@@ -212,8 +140,10 @@ async function readStreamResponse(body: ReadableStream): Promise<string> {
   return result;
 }
 
-function cleanResult(result: string): string {
-  return result.trim().replace(/\n/g, "");
+function cleanResult(result: string): CleanPromptResult {
+  const cleanedResult = result.trim().replace(/\{\n/g, '{').replace(/\n\}/g, '}').replace(/\\"/g, '"');
+  // * Using template string to avoid parsing errors with ' and " special characters...
+  return JSON.parse(`${cleanedResult} `);
 }
 
 function isInvalidResult(result: string, originalContent: string): boolean {
@@ -305,3 +235,40 @@ export async function createResponseStream(
     throw error;
   }
 }
+
+// * This function retries the AI improvement process if the first attempt fails
+// Keeping prompt for reference
+// async function retryImprovement(
+//   content: string,
+//   clientType: AiClientType,
+//   model: string,
+// ): Promise<string> {
+//   const retryPrompt = `
+//     You are a highly skilled AI assistant specializing in grammar and spelling corrections. Your task is to thoroughly enhance the following text by:
+//     1. Correcting all spelling errors with precision
+//     2. Fixing any grammatical issues to ensure clarity and correctness
+//     3. Improving punctuation for better readability and flow
+//     4. Inferring the intended words in case of obvious typos
+
+//     It is crucial to maintain the original meaning and intent of the message. 
+//     Please return only the improved text without any explanations, additional content, or alterations to the original message structure.
+
+//     Original text: "${content}"
+//   `;
+
+//   try {
+//     const result = await processWithAI(retryPrompt, clientType, model);
+//     const cleanedResult = cleanResult(result);
+
+//     if (isInvalidResult(cleanedResult, content)) {
+//       console.warn(
+//         "Retry failed to improve the text. Returning original content.",
+//       );
+//       return content;
+//     }
+
+//     return cleanedResult;
+//   } catch (error) {
+//     return handleImprovementError(error, content);
+//   }
+// }

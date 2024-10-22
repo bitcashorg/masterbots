@@ -131,8 +131,8 @@ export const processLogEntry = (logEntry: StreamEntry) => {
 
 // ! This is for CodeGuru, to test ICL. Any other test with different bot might get confused due to the context of these examples and labelling.
 export const labelMakerMockedRawData = {
-  chatbot: 'CodeGuru',
-  domain: 'Technology',
+  chatbot: "CodeGuru",
+  domain: "Technology",
   questions: `
   ## Top 50 Common Questions:
 
@@ -370,4 +370,4 @@ export const labelMakerMockedRawData = {
     - **IoT Device Management**: #iotmanagement #iotdeployment #deviceManagement #mqtt #remotemanagement
     - **Hybrid Cloud-Edge Models**: #hybridcloud #edgecloud #distributedcloud #cloudedgeintegration #cloudtosensor
   `,
-}
+};

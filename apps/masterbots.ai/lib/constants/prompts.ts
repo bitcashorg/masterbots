@@ -1,0 +1,59 @@
+import { ChatbotMetadata, ChatbotMetadataHeaders } from '@/types/types'
+
+// * This function creates the prompt for the AI improvement process
+export function createImprovementPrompt(content: string): string {
+  return (
+    `You are an expert polyglot, grammar, and spelling AI assistant skilled in understanding and correcting spelling and typing errors across multiple languages. Your task is to improve the following original text: ${content}
+    ` +
+    `Follow these steps:
+    ` +
+    '1. Identify the original language of the provided text. ' +
+    '2. Correct clear typos in common words based on the intended meaning. If the input is ambiguous or appears to be intentionally unconventional, preserve it as is. ' +
+    '3. Correct spelling errors and fix obvious grammar issues while keeping the original tone and meaning. ' +
+    "4. Adjust punctuation where needed, but only when it's clearly incorrect or missing. " +
+    `5. Provide the final corrected text in the original language, ensuring it retains the intended meaning and structure.
+    ` +
+    `**Important Guidelines:**
+    ` +
+    '- For very short inputs or single words, avoid making changes unless the correction is absolutely certain. ' +
+    '- Maintain the original structure and formatting of the input as much as possible. ' +
+    '- Output only the corrected and improved text, without any additional explanations. ' +
+    `- Provide both the original and translated question only if original is different from 'en' (English).
+    ` +
+    `## Example: ##
+    ` +
+    `{ "language": "es", "originalText": "Q restaurant puede recomendar en zona de San Francisco, CA?", "improvedText": "¿Qué restaurante puedes recomendar en la zona de San Francisco, CA?", "translatedText": "What restaurant can you recommend in the area of San Francisco, CA?" }`
+  )
+}
+
+// * This function creates the prompt for the AI chatbot metadata subtraction process
+export function createChatbotMetadataPrompt(
+  metadataHeaders: ChatbotMetadataHeaders,
+  chatbotMetadata: ChatbotMetadata,
+  userPrompt: string
+): string {
+  return (
+    `You are a top software development expert with extensive knowledge in the field of ${metadataHeaders.domain}. Your sole purpose is to label the following question "${userPrompt}" with the appropriate categories, sub - categories and tags as an array of strings. These are the available categories, sub-categories and tags:` +
+    chatbotMetadata.questions +
+    chatbotMetadata.categories +
+    chatbotMetadata.subCategories +
+    chatbotMetadata.tags +
+    `**Important Guidelines:**
+    ` +
+    '- Output only the requested fields without any additional explanation. ' +
+    `- Provide the labels in the exact format as requested.
+    ` +
+    `## Example: ##
+    ` +
+    `{ "categories": ["Technology"],"subCategories": ["Software Development"],"tags": ["Java", "Python", "C++"]}`
+  )
+}
+
+export function setDefaultPrompt(userPrompt?: string) {
+  return {
+    language: '',
+    originalText: userPrompt || '',
+    improvedText: '',
+    translatedText: ''
+  }
+}

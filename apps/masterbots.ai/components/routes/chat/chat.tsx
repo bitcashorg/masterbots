@@ -8,22 +8,22 @@ import { ChatList } from "@/components/routes/chat/chat-list";
 import { ChatPanel } from "@/components/routes/chat/chat-panel";
 import { ChatScrollAnchor } from "@/components/routes/chat/chat-scroll-anchor";
 import { botNames } from "@/lib/bots-names";
+import { setDefaultPrompt } from "@/lib/constants/prompts";
 import { useAtBottom } from "@/lib/hooks/use-at-bottom";
 import { useModel } from "@/lib/hooks/use-model";
 import { useSidebar } from "@/lib/hooks/use-sidebar";
 import { useThread } from "@/lib/hooks/use-thread";
+import { getAllUserMessagesAsStringArray } from '@/lib/threads';
 import {
   cn,
-  extractBetweenMarkers,
-  scrollToBottomOfElement,
+  scrollToBottomOfElement
 } from "@/lib/utils";
 import { createThread, getThread, saveNewMessage } from "@/services/hasura";
-import type { AiClientType } from "@/types/types";
+import type { AiClientType, ChatLoadingState, ChatProps } from "@/types/types";
 import type { ChatRequestOptions, CreateMessage } from "ai";
 import { type Message, useChat } from "ai/react";
 import { useScroll } from "framer-motion";
 import { uniqBy } from "lodash";
-import type { Chatbot } from "mb-genql";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import React, { useEffect } from "react";
@@ -44,6 +44,7 @@ export function Chat({
     allMessages: threadAllMessages,
     initialMessages: threadInitialMessages,
     activeThread,
+    sendMessageFromResponse,
     setActiveThread,
     setIsNewResponse,
     setIsOpenPopup,
@@ -57,6 +58,7 @@ export function Chat({
   const params = useParams<{ chatbot: string; threadId: string }>();
   const isNewChat = Boolean(!params.threadId && !activeThread);
   const { selectedModel, clientType } = useModel();
+  const [loadingState, setLoadingState] = React.useState<ChatLoadingState>();
 
   const { messages, append, reload, stop, isLoading, input, setInput } =
     useChat({
@@ -131,114 +133,93 @@ export function Chat({
         (m) => m.role !== "system",
       );
 
-  const sendMessageFromResponse = async (bulletContent: string) => {
-    setIsNewResponse(true);
-    const fullMessage = bulletContent;
-    await saveNewMessage({
-      role: "user",
-      threadId:
-        params.threadId || isNewChat ? threadId : activeThread?.threadId,
-      content: fullMessage,
-      jwt: session!.user?.hasuraJwt,
-    });
-    append({
-      role: "user",
-      content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
-        allMessages,
-      )}].  Then answer this question: ${fullMessage}`,
-    });
-  };
-
   // we extend append function to add our system prompts
   const appendWithMbContextPrompts = async (
     userMessage: Message | CreateMessage,
     chatRequestOptions?: ChatRequestOptions,
   ) => {
-    // ! Loading: processing your request... 'processing'
-    let processedMessage = userMessage.content;
+    if (!session?.user || !chatbot) {
+      console.error('User is not logged in or session expired.');
+      toast.error('Failed to start conversation. Please reload and try again.');
+      return;
+    }
 
-    console.log("Original message:", processedMessage);
+    // * Loading: processing your request... 'processing'
+    setLoadingState("processing");
+
+    let processedMessage = setDefaultPrompt(userMessage.content);
 
     // * Cleaning the user question (thread title) with AI
     try {
-      console.log("Original message:", userMessage.content);
+      console.log("Original message: ", processedMessage);
       processedMessage = await improveMessage(
         userMessage.content,
         clientType as AiClientType,
         selectedModel,
       );
 
-      if (processedMessage === userMessage.content) {
+      if (processedMessage.improvedText === userMessage.content) {
         console.warn("Message was not improved by AI. Using original message.");
       }
     } catch (error) {
       console.error("Error processing message:", error);
-      // Fall back to original message if processing fails
-      processedMessage = userMessage.content;
     }
 
-    const cleanedMessage = processedMessage.trim().replace(/(\\n|\\)/g, '');
-    console.log('CleanedMessage:', cleanedMessage);
-    const { language, originalText, improvedText, translatedText } = JSON.parse(`${cleanedMessage}`);
-    // ! Loading: getting the the information right... 'digesting'
+    const { language, originalText, improvedText, translatedText } = processedMessage;
+    const userContent = translatedText || improvedText || originalText;
+    // * Loading: getting the the information right... 'digesting'
+    setLoadingState("digesting");
 
-    console.log("Original message language:", language);
-    console.log("Original message language:", originalText, translatedText);
-    // ! If this one returns as undefined, it means the message was already in English. Fallback always to the ogProcessedMsgLang
-    console.log("Refined message language (Ai usage only):", improvedText);
+    console.log("Processed Message: ", processedMessage);
 
     // ! Loading: Generating awesome stuff for you... 'generating'
+    setLoadingState("generating");
 
-    if (chatbot) {
-      // * Getting the user labelling the thread from ICL (categories, sub-category, etc.)
-      // * Getting the user labelling the thread (categories, sub-category, etc.)
-      const response =
-        await subtractChatbotMetadataLabels(
-          {
-            domain: chatbot?.categories[0].categoryId,
-            chatbot: chatbot?.chatbotId,
-          },
-          translatedText || improvedText,
-          clientType as AiClientType,
-        );
-      console.log("Full responses from subtractChatbotMetadataLabels:", response);
-    }
+    // * Getting the user labelling the thread (categories, sub-category, etc.)
+    const chatMetadata =
+      await subtractChatbotMetadataLabels(
+        {
+          domain: chatbot?.categories[0].categoryId,
+          chatbot: chatbot?.chatbotId,
+        },
+        userContent,
+        clientType as AiClientType,
+      );
+    console.log("Full responses from subtractChatbotMetadataLabels:", chatMetadata);
 
-    // ! Loading: Polishing Ai request... 'polishing'
+    // * Loading: Polishing Ai request... 'polishing'
+    setLoadingState("polishing");
 
-    // * Connecting to the ICL to send the user labelling the thread and rawData (examples) to the ICL
+    // ! Connecting to the ICL to send the user labelling the thread and rawData (examples) to the ICL
     // TODO: ...
     const postICLResponse = (await new Promise((resolve) => {
       const timeout = setTimeout(() => {
-        // processedMsgEnglish
-        // parsed
-        // chatbot?.categories[0].category.name
         resolve({
-          parsed,
-          question: translatedText || improvedText,
+          parsed: chatMetadata,
+          question: userContent,
           domain: chatbot?.categories[0].category.name as string,
-          bot: chatbot?.name as string,
+          chatbot: chatbot?.name as string,
         });
         clearTimeout(timeout);
       }, 700);
-    })) as { parsed: any; question: string; domain: string; bot: string };
-
-    // * Her we do something with the response from the ICL and attach it to the chat context the required fields and values for future ICL usage.
+    })) as { parsed: any; question: string; domain: string; chatbot: string };
+    // ! Her we do something with the response from the ICL and attach it to the chat context the required fields and values for future ICL usage.
     console.log("Full responses from postICLResponse:", postICLResponse);
 
-    // ! Loading: Now I have the information you need... 'ready'
+    // * Loading: Now I have the information you need... 'ready'
+    setLoadingState("ready");
 
     if (isNewChat && chatbot) {
       await createThread({
         threadId,
         chatbotId: chatbot.chatbotId,
-        jwt: session!.user?.hasuraJwt,
-        userId: session!.user.id,
+        jwt: session.user?.hasuraJwt,
+        userId: session.user.id,
         isPublic: activeChatbot?.name !== "BlankBot",
       });
       const thread = await getThread({
         threadId,
-        jwt: session!.user?.hasuraJwt,
+        jwt: session.user?.hasuraJwt,
       });
       setActiveThread(thread);
       setIsOpenPopup(true);
@@ -251,23 +232,28 @@ export function Chat({
       role: "user",
       threadId:
         params.threadId || isNewChat ? threadId : activeThread?.threadId,
-      content: processedMessage,
-      jwt: session!.user?.hasuraJwt,
+      content: userContent,
+      jwt: session.user?.hasuraJwt,
     });
 
     setIsNewResponse(true);
 
     return append(
       isNewChat
-        ? { ...userMessage, content: processedMessage }
+        ? { ...userMessage, content: userContent }
         : {
           ...userMessage,
           content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
             allMessages,
-          )}].  Then answer this question: ${processedMessage}`,
+          )}].  Then answer this question: ${userContent}`,
         },
-    );
-    // ! Loading: Here is the information you need... 'finish'
+    ).then((response) => {
+      // * Loading: Here is the information you need... 'finish'
+      setLoadingState("finished");
+      // scrollToBottom();
+
+      return response;
+    });
   };
 
   useEffect(() => {
@@ -291,6 +277,13 @@ export function Chat({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading, isOpenPopup, scrollToBottomOfPopup]);
+
+  useEffect(() => {
+    if (!isLoading && loadingState) {
+      setLoadingState(undefined);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading]);
 
   return (
     <>
@@ -320,6 +313,19 @@ export function Chat({
         </div>
       ) : null}
 
+      {/* // * Testing loadingState for chat stages */}
+      {(loadingState && !isLoading) && (
+        <div className="fixed bottom-0 right-0 z-50 p-4 drop-shadow-lg">
+          <div className="flex gap-4 items-center justify-between">
+            <div className="flex items-center space-x-1">
+              <div className="size-2 bg-primary rounded-full animate-pulse" />
+              <div className="size-2 bg-primary rounded-full animate-pulse" />
+              <div className="size-2 bg-primary rounded-full animate-pulse" />
+            </div>
+            <div className="text-sm text-primary font-bold">{loadingState}</div>
+          </div>
+        </div>
+      )}
       {((isOpenPopup && isPopup) || (!isOpenPopup && !isPopup)) && (
         <ChatPanel
           className={`${!activeThread && !activeChatbot ? "hidden" : ""} ${chatPanelClassName}`}
@@ -358,21 +364,3 @@ export function Chat({
   );
 }
 
-export interface ChatProps extends React.ComponentProps<"div"> {
-  initialMessages?: Message[];
-  chatbot?: Chatbot;
-  threadId: string;
-  newThread?: boolean;
-  chatPanelClassName?: string;
-  isPopup?: boolean;
-  scrollToBottom?: () => void;
-  isAtBottom?: boolean;
-}
-
-export function getAllUserMessagesAsStringArray(allMessages: Message[]) {
-  const userMessages = allMessages.filter((m) => m.role === "user");
-  const cleanMessages = userMessages.map((m) =>
-    extractBetweenMarkers(m.content, "Then answer this question:"),
-  );
-  return cleanMessages.join(", ");
-}

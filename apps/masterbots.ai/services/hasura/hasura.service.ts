@@ -1,4 +1,7 @@
-import type { ChatbotMetadataHeaders } from '@/types/types'
+import type {
+  ChatbotMetadataHeaders,
+  ReturnFetchChatbotMetadata
+} from '@/types/types'
 import { validateMbEnv } from 'mb-env'
 import {
   type Category,
@@ -603,11 +606,6 @@ export async function UpdateThreadVisibility({
   }
 }
 
-export type ReturnFetchChatbotMetadata = Pick<
-  LabelChatbotCategory['label'],
-  'questions' | 'categories' | 'subCategories' | 'tags'
-> | null
-
 export async function fetchChatbotMetadata({
   chatbot,
   domain
@@ -619,7 +617,7 @@ export async function fetchChatbotMetadata({
         __args: {
           where: {
             chatbotId: { _eq: chatbot },
-            domainId: { _eq: domain }
+            categoryId: { _eq: domain }
           }
         },
         label: {
