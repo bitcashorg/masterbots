@@ -16,7 +16,12 @@ import { useThread } from "@/lib/hooks/use-thread";
 import { getAllUserMessagesAsStringArray } from "@/lib/threads";
 import { cn, scrollToBottomOfElement } from "@/lib/utils";
 import { createThread, getThread, saveNewMessage } from "@/services/hasura";
-import type { AiClientType, ChatLoadingState, ChatProps, CleanPromptResult } from "@/types/types";
+import type {
+  AiClientType,
+  ChatLoadingState,
+  ChatProps,
+  CleanPromptResult,
+} from "@/types/types";
 import type { ChatRequestOptions, CreateMessage } from "ai";
 import { type Message, useChat } from "ai/react";
 import { useScroll } from "framer-motion";
@@ -144,7 +149,9 @@ export function Chat({
     // * Loading: processing your request... 'processing'
     setLoadingState("processing");
 
-    let processedMessage: CleanPromptResult = setDefaultPrompt(userMessage.content);
+    let processedMessage: CleanPromptResult = setDefaultPrompt(
+      userMessage.content,
+    );
 
     // * Cleaning the user question (thread title) with AI
     try {
@@ -155,7 +162,10 @@ export function Chat({
         selectedModel,
       );
 
-      if (processedMessage.improved || processedMessage.improvedText === userMessage.content) {
+      if (
+        processedMessage.improved ||
+        processedMessage.improvedText === userMessage.content
+      ) {
         console.warn("Message was not improved by AI. Using original message.");
       }
     } catch (error) {
@@ -250,7 +260,12 @@ export function Chat({
     ).then((response) => {
       // * Loading: Here is the information you need... 'finish'
       setLoadingState("finished");
-      // scrollToBottom();
+
+      const timeout = setTimeout(() => {
+        scrollToBottom();
+        setLoadingState(undefined);
+        clearTimeout(timeout);
+      }, 750);
 
       return response;
     });
@@ -287,10 +302,10 @@ export function Chat({
 
   return (
     <>
-      {params.threadId ? (
+      {params.threadId && (
         <div
           ref={containerRef as React.Ref<HTMLDivElement>}
-          class={cn("pb-[200px] pt-4 md:pt-10 h-full overflow-auto", className)}
+          className={cn("pb-[200px] pt-4 md:pt-10 h-full overflow-auto", className)}
         >
           <ChatList
             chatbot={chatbot}
@@ -308,55 +323,41 @@ export function Chat({
             trackVisibility={isLoading}
           />
         </div>
-      ) : null}
-
-      {/* // * Testing loadingState for chat stages */}
-      {loadingState && isLoading && (
-        <div class="fixed bottom-0 right-0 z-50 p-4 drop-shadow-lg">
-          <div class="flex gap-4 items-center justify-between">
-            <div class="flex items-center space-x-1">
-              <div class="size-2 bg-primary rounded-full animate-pulse" />
-              <div class="size-2 bg-primary rounded-full animate-pulse" />
-              <div class="size-2 bg-primary rounded-full animate-pulse" />
-            </div>
-            <div class="text-sm text-primary font-bold">{loadingState}</div>
-          </div>
-        </div>
       )}
-      {((isOpenPopup && isPopup) || (!isOpenPopup && !isPopup)) && (
-        <ChatPanel
-          class={`${!activeThread && !activeChatbot ? "hidden" : ""} ${chatPanelClassName}`}
-          scrollToBottom={
-            isOpenPopup && isPopup && scrollToBottomOfPopup
-              ? scrollToBottomOfPopup
-              : scrollToBottom
-          }
-          id={params.threadId || isNewChat ? threadId : activeThread?.threadId}
-          isLoading={isLoading}
-          stop={stop}
-          append={appendWithMbContextPrompts}
-          reload={reload}
-          messages={allMessages}
-          input={input}
-          setInput={setInput}
-          chatbot={chatbot}
-          placeholder={
-            chatbot
-              ? isNewChat
-                ? `Start New Chat with ${chatbot.name}`
-                : `Continue This Chat with ${chatbot.name}`
-              : ""
-          }
-          showReload={!isNewChat}
-          isAtBottom={
-            params.threadId
-              ? isAtBottom
-              : isPopup
-                ? Boolean(isAtBottomOfPopup)
-                : isAtBottomOfSection
-          }
-        />
-      )}
+      <ChatPanel
+        // biome-ignore lint/suspicious/noReactSpecificProps: <explanation>
+        className={`${activeThread || activeChatbot ? "" : "hidden"} ${chatPanelClassName}`}
+        scrollToBottom={
+          isOpenPopup && isPopup && scrollToBottomOfPopup
+            ? scrollToBottomOfPopup
+            : scrollToBottom
+        }
+        id={params.threadId || isNewChat ? threadId : activeThread?.threadId}
+        isLoading={isLoading}
+        loadingState={loadingState}
+        stop={stop}
+        append={appendWithMbContextPrompts}
+        reload={reload}
+        messages={allMessages}
+        input={input}
+        setInput={setInput}
+        chatbot={chatbot}
+        placeholder={
+          chatbot
+            ? isNewChat
+              ? `Start New Chat with ${chatbot.name}`
+              : `Continue This Chat with ${chatbot.name}`
+            : ""
+        }
+        showReload={!isNewChat}
+        isAtBottom={
+          params.threadId
+            ? isAtBottom
+            : isPopup
+              ? Boolean(isAtBottomOfPopup)
+              : isAtBottomOfSection
+        }
+      />
     </>
   );
 }

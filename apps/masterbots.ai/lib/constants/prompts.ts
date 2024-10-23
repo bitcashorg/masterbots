@@ -1,3 +1,6 @@
+// ? The prompts are written with string concatenation and some string interpolation (when has dynamic data) for DX purposes.
+// ? Having the described above, the prompts are easy to read and understand, and the code is clean and maintainable.
+
 import { nanoid } from '@/lib/utils'
 import type { ChatbotMetadata, ChatbotMetadataHeaders } from '@/types/types'
 import type { Message } from 'ai'
@@ -59,7 +62,7 @@ export function createBotConfigurationPrompt(chatbot: Chatbot) {
     `Your response length will be ${chatbot.defaultLength}. ` +
     `Your response format will be ${chatbot.defaultType}. ` +
     `Your response complexity level will be ${chatbot.defaultComplexity}. ` +
-    `Your response will be generated in the same language as user input.`
+    'Your response will be generated in the same language as user input.'
   )
 }
 
