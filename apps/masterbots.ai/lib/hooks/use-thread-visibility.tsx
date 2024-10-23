@@ -2,7 +2,7 @@
 import React , { useEffect, useState } from 'react';
 import { getThreads, UpdateThreadVisibility, deleteThread, approveThread, getUnapprovedThreads } from '@/services/hasura';
 import { useSession } from 'next-auth/react';
-import { Thread } from 'mb-genql';
+import type { Thread } from 'mb-genql';
 import toast from 'react-hot-toast';
 
 
@@ -97,7 +97,7 @@ export function ThreadVisibilityProvider({ children }: ThreadVisibilityProviderP
       console.error('Error deleting thread:', error);
     }
   }
-  const LoadUnapprovedThreads = async () => {
+  const loadUnapprovedThreads = async () => {
     try {
       if (!jwt) {
            toast.error('Authentication required');
@@ -112,7 +112,7 @@ export function ThreadVisibilityProvider({ children }: ThreadVisibilityProviderP
 
   const  handleToggleAdminMode =  async() => {
     if(!isAdminMode){
-      await LoadUnapprovedThreads();
+      await loadUnapprovedThreads();
     }else{
       await getThreadForUser();
     }
@@ -131,7 +131,7 @@ export function ThreadVisibilityProvider({ children }: ThreadVisibilityProviderP
         jwt
       })
       toast.success('Thread approved successfully.')
-      await  LoadUnapprovedThreads();
+      await  loadUnapprovedThreads();
     } catch (error) {
       console.error('Error approving thread:', error)
       toast.error('Failed to approve thread. Please try again.')
