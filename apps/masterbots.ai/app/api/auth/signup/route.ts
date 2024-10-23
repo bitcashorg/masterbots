@@ -1,7 +1,7 @@
 import { generateUsername } from '@/lib/username'
 import bcryptjs from 'bcryptjs'
 import { getHasuraClient, toSlug } from 'mb-lib'
-import { NextRequest, NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
   const { email, password, username } = await req.json()
@@ -98,6 +98,7 @@ export async function POST(req: NextRequest) {
         { message: 'User created successfully', userId: insertUserOne.userId },
         { status: 201 }
       )
+    // biome-ignore lint/style/noUselessElse: <explanation>
     } else {
       return NextResponse.json(
         { error: 'Failed to create user' },
