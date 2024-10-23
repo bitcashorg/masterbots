@@ -27,7 +27,12 @@ export default function UserThreadPanel({
   const { isOpenPopup, activeThread, setActiveThread, setIsOpenPopup } = useThread()
   const [loading, setLoading] = React.useState<boolean>(false)
   const { threads: hookThreads } = useThreadVisibility()
-  const finalThreads = initialThreads ?? hookThreads
+
+  const finalThreads = React.useMemo(
+    () => initialThreads ?? hookThreads,
+    [initialThreads, hookThreads]
+  )
+  // const finalThreads = initialThreads ?? hookThreads
   const [threads, setThreads] = React.useState<Thread[]>(finalThreads ?? [])
   const [count, setCount] = React.useState<number>(finalThreads?.length ?? 0)
   

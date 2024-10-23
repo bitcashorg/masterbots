@@ -99,7 +99,11 @@ export function ThreadVisibilityProvider({ children }: ThreadVisibilityProviderP
   }
   const LoadUnapprovedThreads = async () => {
     try {
-      const unapprovedThreads = await getUnapprovedThreads();
+      if (!jwt) {
+           toast.error('Authentication required');
+           return;
+         }
+      const unapprovedThreads = await getUnapprovedThreads({ jwt });
       setThreads(unapprovedThreads);
     } catch (error) {
       console.error('Error fetching unapproved threads:', error);

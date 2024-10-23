@@ -15,10 +15,9 @@ import {
 } from 'lucide-react'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import React, { useState } from 'react'
-import { Thread } from 'mb-genql'
+import type { Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import { ShareButton } from './share-button'
-// import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle } from '@radix-ui/react-alert-dialog'
 import { AlertDialogFooter, AlertDialogHeader , AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { IconSpinner } from '@/components/ui/icons'
 
@@ -35,6 +34,14 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
   const text = thread?.messages[1]?.content.substring(0, 100);
   const url = `/${toSlug(thread.chatbot.categories[0].category.name)}/${thread.threadId}`
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+
+
+  const handleDelete = async () => {
+     setIsDeleting(true);
+     await initiateDeleteThread(threadId);
+     setIsDeleting(false);
+     };
 
 const AlertDialogue = ({ deleteDialogOpen} :{ deleteDialogOpen: boolean}) => (
   <AlertDialog open={deleteDialogOpen}>
@@ -54,9 +61,9 @@ const AlertDialogue = ({ deleteDialogOpen} :{ deleteDialogOpen: boolean}) => (
         Cancel
       </AlertDialogCancel>
       <AlertDialogAction
-      onClick={() => initiateDeleteThread(threadId)}
+      onClick={handleDelete}
       >
-       <IconSpinner className="mr-2 animate-spin" />
+      {isDeleting && <IconSpinner className="mr-2 animate-spin" />}
         Delete
       </AlertDialogAction>
     </AlertDialogFooter>

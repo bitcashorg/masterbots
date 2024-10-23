@@ -684,6 +684,10 @@ export async function getUserRoleByEmail({ email } : { email: string | null | un
 
 export async function deleteThread({ threadId, jwt, userId }: { threadId: string, jwt: string | undefined, userId: string | undefined }){
   try {
+
+    if (!jwt) {
+         throw new Error('Authentication required for thread deletion');
+      }
     const client = getHasuraClient({ jwt })
     await client.mutation({
       deleteThread: {
@@ -706,8 +710,11 @@ export async function deleteThread({ threadId, jwt, userId }: { threadId: string
 
 
 // get all threads that are not approved 
-export async function getUnapprovedThreads() {
-  const client = getHasuraClient({})
+export async function getUnapprovedThreads({ jwt }: { jwt: string }) {
+  if (!jwt) {
+     throw new Error('Authentication required to access unapproved threads');
+   }
+  const client = getHasuraClient({ jwt })
   const { thread } = await client.query({
     thread: {
       __args: {
