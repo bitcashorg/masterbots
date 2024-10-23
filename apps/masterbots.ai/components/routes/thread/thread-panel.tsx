@@ -5,7 +5,7 @@ export default  function ThreadPanel({
   chatbot,
   threads
 }: {
-  chatbot?: string
+  chatbot: string
   threads?: Thread[]
   search?: { [key: string]: string | string[] | undefined }
 }) {
