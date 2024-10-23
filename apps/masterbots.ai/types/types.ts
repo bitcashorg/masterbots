@@ -176,7 +176,22 @@ declare module 'next-auth' {
       id: string
       email: string
       hasuraJwt: string
+      role?: string
     } & DefaultSession['user']
+  }
+
+  interface User extends DefaultUser {
+    role: string
+  }
+
+  interface JWT {
+    id: string
+    email: string
+    name: string
+    image?: string
+    role?: string
+    provider: string
+    hasuraJwt?: string
   }
 }
 

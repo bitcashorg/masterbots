@@ -298,10 +298,6 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       sectionRef,
       randomChatbot,
       sendMessageFromResponse,
-      getRandomChatbot,
-      setActiveThread,
-      setIsNewResponse,
-      setIsOpenPopup,
     ],
   );
 

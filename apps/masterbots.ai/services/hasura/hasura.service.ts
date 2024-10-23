@@ -144,6 +144,8 @@ export async function getThreads({
           limit: 2
         }
       },
+      isApproved:true,
+      isPublic:true,
       ...everything,
       __args: {
         orderBy: [{ createdAt: 'DESC' }],
@@ -634,4 +636,49 @@ export async function fetchChatbotMetadata({
     console.error('Error fetching chatbot metadata:', error)
     return null
   }
+}
+
+export async function approveThread({
+  threadId,
+  jwt,
+}: {
+  threadId: string;
+  jwt: string | undefined;
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    const client = getHasuraClient({ jwt })
+    await client.mutation({
+      updateThreadByPk: {
+        __args: {
+          pkColumns: { threadId },
+          _set: { isApproved: true}
+        },
+        threadId: true,
+        isApproved: true
+      }
+    })
+    return { success: true };
+  } catch (error) {
+    console.error('Error approving thread:', error);
+    return { success: false, error: 'Failed to approve the thread.' };
+  }
+} 
+
+// get user role by email 
+export async function getUserRoleByEmail({ email } : { email: string | null | undefined}){
+    try{
+      const client = getHasuraClient({})
+      const { user } = await client.query({
+        user: {
+          __args: {
+            where: { email: { _eq: email } }
+          },
+          role:true
+        }
+      })
+      return { users: user as User[] }
+    }catch (error) {
+      console.error('Error fetching user role by email:', error);
+      return {  users: [],  error: 'Failed to fetch user role by email.' };
+      }
 }
