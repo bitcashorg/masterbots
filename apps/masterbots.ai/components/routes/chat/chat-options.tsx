@@ -11,7 +11,7 @@ import {
   EyeOff,
   MoreVertical,
   Trash,
-  Verified
+  BadgeCheck
 } from 'lucide-react'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import React from 'react'
@@ -44,9 +44,9 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
                 <div className="flex  items-center space-x-3">
                 <div>
                   {thread?.isApproved ? (
-                    <Verified className="w-4 h-4 bg-[#388DE2]  text-white rounded-full" />
+                    <BadgeCheck className="w-4 h-4 bg-[#388DE2]  text-white rounded-full" />
                   ) : (
-                    <Verified className="w-4 h-4 text-gray-400" />
+                    <BadgeCheck className="w-4 h-4 text-gray-400" />
                   )}
                 </div>
                 <div className="bg-gray-200 rounded-full px-2 ">
