@@ -3,10 +3,8 @@ import { getHasuraClient } from 'mb-lib'
 import { sendEmailVerification } from '@/lib/email'
 import crypto from 'node:crypto'
 
-export const config = {
-  runtime: 'edge',
-  regions: ['iad1']
-}
+// * Add explicit runtime configuration
+export const runtime = 'edge'
 
 export async function GET() {
   const client = getHasuraClient()
