@@ -67,6 +67,42 @@ type Category {
     """filter the rows returned"""
     where: ChatbotCategoryBoolExp
   ): ChatbotCategoryAggregate!
+
+  """An array relationship"""
+  metadataLabels(
+    """distinct select on columns"""
+    distinctOn: [LabelChatbotCategorySelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [LabelChatbotCategoryOrderBy!]
+
+    """filter the rows returned"""
+    where: LabelChatbotCategoryBoolExp
+  ): [LabelChatbotCategory!]!
+
+  """An aggregate relationship"""
+  metadataLabelsAggregate(
+    """distinct select on columns"""
+    distinctOn: [LabelChatbotCategorySelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [LabelChatbotCategoryOrderBy!]
+
+    """filter the rows returned"""
+    where: LabelChatbotCategoryBoolExp
+  ): LabelChatbotCategoryAggregate!
   name: String!
 }
 
@@ -110,6 +146,8 @@ input CategoryBoolExp {
   categoryId: IntComparisonExp
   chatbots: ChatbotCategoryBoolExp
   chatbotsAggregate: ChatbotCategoryAggregateBoolExp
+  metadataLabels: LabelChatbotCategoryBoolExp
+  metadataLabelsAggregate: LabelChatbotCategoryAggregateBoolExp
   name: StringComparisonExp
 }
 
@@ -141,6 +179,7 @@ input type for inserting data into table "category"
 input CategoryInsertInput {
   categoryId: Int
   chatbots: ChatbotCategoryArrRelInsertInput
+  metadataLabels: LabelChatbotCategoryArrRelInsertInput
   name: String
 }
 
@@ -190,6 +229,7 @@ input CategoryOnConflict {
 input CategoryOrderBy {
   categoryId: OrderBy
   chatbotsAggregate: ChatbotCategoryAggregateOrderBy
+  metadataLabelsAggregate: LabelChatbotCategoryAggregateOrderBy
   name: OrderBy
 }
 
@@ -760,6 +800,42 @@ type Chatbot {
 
   """An object relationship"""
   lengthEnum: LengthEnum
+
+  """An array relationship"""
+  metadataLabels(
+    """distinct select on columns"""
+    distinctOn: [LabelChatbotCategorySelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [LabelChatbotCategoryOrderBy!]
+
+    """filter the rows returned"""
+    where: LabelChatbotCategoryBoolExp
+  ): [LabelChatbotCategory!]!
+
+  """An aggregate relationship"""
+  metadataLabelsAggregate(
+    """distinct select on columns"""
+    distinctOn: [LabelChatbotCategorySelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [LabelChatbotCategoryOrderBy!]
+
+    """filter the rows returned"""
+    where: LabelChatbotCategoryBoolExp
+  ): LabelChatbotCategoryAggregate!
   name: String!
 
   """An array relationship"""
@@ -966,6 +1042,8 @@ input ChatbotBoolExp {
   defaultType: StringComparisonExp
   description: StringComparisonExp
   lengthEnum: LengthEnumBoolExp
+  metadataLabels: LabelChatbotCategoryBoolExp
+  metadataLabelsAggregate: LabelChatbotCategoryAggregateBoolExp
   name: StringComparisonExp
   preferences: PreferenceBoolExp
   preferencesAggregate: PreferenceAggregateBoolExp
@@ -1357,6 +1435,7 @@ input ChatbotInsertInput {
   defaultType: String
   description: String
   lengthEnum: LengthEnumObjRelInsertInput
+  metadataLabels: LabelChatbotCategoryArrRelInsertInput
   name: String
   preferences: PreferenceArrRelInsertInput
   prompts: PromptChatbotArrRelInsertInput
@@ -1465,6 +1544,7 @@ input ChatbotOrderBy {
   defaultType: OrderBy
   description: OrderBy
   lengthEnum: LengthEnumOrderBy
+  metadataLabelsAggregate: LabelChatbotCategoryAggregateOrderBy
   name: OrderBy
   preferencesAggregate: PreferenceAggregateOrderBy
   promptsAggregate: PromptChatbotAggregateOrderBy
@@ -1925,6 +2005,705 @@ input IntComparisonExp {
   _lte: Int
   _neq: Int
   _nin: [Int!]
+}
+
+"""Labels for chatbots (e.g.: domain, category, sub-category, tags """
+type Label {
+  advancedLabels: Boolean!
+  categories: String!
+  labelId: Int!
+
+  """An array relationship"""
+  metadataLabels(
+    """distinct select on columns"""
+    distinctOn: [LabelChatbotCategorySelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [LabelChatbotCategoryOrderBy!]
+
+    """filter the rows returned"""
+    where: LabelChatbotCategoryBoolExp
+  ): [LabelChatbotCategory!]!
+
+  """An aggregate relationship"""
+  metadataLabelsAggregate(
+    """distinct select on columns"""
+    distinctOn: [LabelChatbotCategorySelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [LabelChatbotCategoryOrderBy!]
+
+    """filter the rows returned"""
+    where: LabelChatbotCategoryBoolExp
+  ): LabelChatbotCategoryAggregate!
+  questions: String!
+  subCategories: String!
+  tags: String!
+}
+
+"""
+aggregated selection of "label"
+"""
+type LabelAggregate {
+  aggregate: LabelAggregateFields
+  nodes: [Label!]!
+}
+
+"""
+aggregate fields of "label"
+"""
+type LabelAggregateFields {
+  avg: LabelAvgFields
+  count(columns: [LabelSelectColumn!], distinct: Boolean): Int!
+  max: LabelMaxFields
+  min: LabelMinFields
+  stddev: LabelStddevFields
+  stddevPop: LabelStddevPopFields
+  stddevSamp: LabelStddevSampFields
+  sum: LabelSumFields
+  varPop: LabelVarPopFields
+  varSamp: LabelVarSampFields
+  variance: LabelVarianceFields
+}
+
+"""aggregate avg on columns"""
+type LabelAvgFields {
+  labelId: Float
+}
+
+"""
+Boolean expression to filter rows from the table "label". All fields are combined with a logical 'AND'.
+"""
+input LabelBoolExp {
+  _and: [LabelBoolExp!]
+  _not: LabelBoolExp
+  _or: [LabelBoolExp!]
+  advancedLabels: BooleanComparisonExp
+  categories: StringComparisonExp
+  labelId: IntComparisonExp
+  metadataLabels: LabelChatbotCategoryBoolExp
+  metadataLabelsAggregate: LabelChatbotCategoryAggregateBoolExp
+  questions: StringComparisonExp
+  subCategories: StringComparisonExp
+  tags: StringComparisonExp
+}
+
+"""
+Junction table to connect between Label, Chatbot and Categories tables.
+"""
+type LabelChatbotCategory {
+  """An object relationship"""
+  category: Category!
+  categoryId: Int!
+
+  """An object relationship"""
+  chatbot: Chatbot!
+  chatbotId: Int!
+
+  """An object relationship"""
+  label: Label!
+  labelId: Int!
+}
+
+"""
+aggregated selection of "label_chatbot_category"
+"""
+type LabelChatbotCategoryAggregate {
+  aggregate: LabelChatbotCategoryAggregateFields
+  nodes: [LabelChatbotCategory!]!
+}
+
+input LabelChatbotCategoryAggregateBoolExp {
+  count: labelChatbotCategoryAggregateBoolExpCount
+}
+
+"""
+aggregate fields of "label_chatbot_category"
+"""
+type LabelChatbotCategoryAggregateFields {
+  avg: LabelChatbotCategoryAvgFields
+  count(columns: [LabelChatbotCategorySelectColumn!], distinct: Boolean): Int!
+  max: LabelChatbotCategoryMaxFields
+  min: LabelChatbotCategoryMinFields
+  stddev: LabelChatbotCategoryStddevFields
+  stddevPop: LabelChatbotCategoryStddevPopFields
+  stddevSamp: LabelChatbotCategoryStddevSampFields
+  sum: LabelChatbotCategorySumFields
+  varPop: LabelChatbotCategoryVarPopFields
+  varSamp: LabelChatbotCategoryVarSampFields
+  variance: LabelChatbotCategoryVarianceFields
+}
+
+"""
+order by aggregate values of table "label_chatbot_category"
+"""
+input LabelChatbotCategoryAggregateOrderBy {
+  avg: LabelChatbotCategoryAvgOrderBy
+  count: OrderBy
+  max: LabelChatbotCategoryMaxOrderBy
+  min: LabelChatbotCategoryMinOrderBy
+  stddev: LabelChatbotCategoryStddevOrderBy
+  stddevPop: LabelChatbotCategoryStddevPopOrderBy
+  stddevSamp: LabelChatbotCategoryStddevSampOrderBy
+  sum: LabelChatbotCategorySumOrderBy
+  varPop: LabelChatbotCategoryVarPopOrderBy
+  varSamp: LabelChatbotCategoryVarSampOrderBy
+  variance: LabelChatbotCategoryVarianceOrderBy
+}
+
+"""
+input type for inserting array relation for remote table "label_chatbot_category"
+"""
+input LabelChatbotCategoryArrRelInsertInput {
+  data: [LabelChatbotCategoryInsertInput!]!
+
+  """upsert condition"""
+  onConflict: LabelChatbotCategoryOnConflict
+}
+
+"""aggregate avg on columns"""
+type LabelChatbotCategoryAvgFields {
+  categoryId: Float
+  chatbotId: Float
+  labelId: Float
+}
+
+"""
+order by avg() on columns of table "label_chatbot_category"
+"""
+input LabelChatbotCategoryAvgOrderBy {
+  categoryId: OrderBy
+  chatbotId: OrderBy
+  labelId: OrderBy
+}
+
+"""
+Boolean expression to filter rows from the table "label_chatbot_category". All fields are combined with a logical 'AND'.
+"""
+input LabelChatbotCategoryBoolExp {
+  _and: [LabelChatbotCategoryBoolExp!]
+  _not: LabelChatbotCategoryBoolExp
+  _or: [LabelChatbotCategoryBoolExp!]
+  category: CategoryBoolExp
+  categoryId: IntComparisonExp
+  chatbot: ChatbotBoolExp
+  chatbotId: IntComparisonExp
+  label: LabelBoolExp
+  labelId: IntComparisonExp
+}
+
+"""
+unique or primary key constraints on table "label_chatbot_category"
+"""
+enum LabelChatbotCategoryConstraint {
+  """
+  unique or primary key constraint on columns "label_id", "category_id", "chatbot_id"
+  """
+  label_chatbot_category_pkey
+}
+
+"""
+input type for incrementing numeric columns in table "label_chatbot_category"
+"""
+input LabelChatbotCategoryIncInput {
+  categoryId: Int
+  chatbotId: Int
+  labelId: Int
+}
+
+"""
+input type for inserting data into table "label_chatbot_category"
+"""
+input LabelChatbotCategoryInsertInput {
+  category: CategoryObjRelInsertInput
+  categoryId: Int
+  chatbot: ChatbotObjRelInsertInput
+  chatbotId: Int
+  label: LabelObjRelInsertInput
+  labelId: Int
+}
+
+"""aggregate max on columns"""
+type LabelChatbotCategoryMaxFields {
+  categoryId: Int
+  chatbotId: Int
+  labelId: Int
+}
+
+"""
+order by max() on columns of table "label_chatbot_category"
+"""
+input LabelChatbotCategoryMaxOrderBy {
+  categoryId: OrderBy
+  chatbotId: OrderBy
+  labelId: OrderBy
+}
+
+"""aggregate min on columns"""
+type LabelChatbotCategoryMinFields {
+  categoryId: Int
+  chatbotId: Int
+  labelId: Int
+}
+
+"""
+order by min() on columns of table "label_chatbot_category"
+"""
+input LabelChatbotCategoryMinOrderBy {
+  categoryId: OrderBy
+  chatbotId: OrderBy
+  labelId: OrderBy
+}
+
+"""
+response of any mutation on the table "label_chatbot_category"
+"""
+type LabelChatbotCategoryMutationResponse {
+  """number of rows affected by the mutation"""
+  affectedRows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [LabelChatbotCategory!]!
+}
+
+"""
+on_conflict condition type for table "label_chatbot_category"
+"""
+input LabelChatbotCategoryOnConflict {
+  constraint: LabelChatbotCategoryConstraint!
+  updateColumns: [LabelChatbotCategoryUpdateColumn!]! = []
+  where: LabelChatbotCategoryBoolExp
+}
+
+"""Ordering options when selecting data from "label_chatbot_category"."""
+input LabelChatbotCategoryOrderBy {
+  category: CategoryOrderBy
+  categoryId: OrderBy
+  chatbot: ChatbotOrderBy
+  chatbotId: OrderBy
+  label: LabelOrderBy
+  labelId: OrderBy
+}
+
+"""primary key columns input for table: label_chatbot_category"""
+input LabelChatbotCategoryPkColumnsInput {
+  categoryId: Int!
+  chatbotId: Int!
+  labelId: Int!
+}
+
+"""
+select columns of table "label_chatbot_category"
+"""
+enum LabelChatbotCategorySelectColumn {
+  """column name"""
+  categoryId
+
+  """column name"""
+  chatbotId
+
+  """column name"""
+  labelId
+}
+
+"""
+input type for updating data in table "label_chatbot_category"
+"""
+input LabelChatbotCategorySetInput {
+  categoryId: Int
+  chatbotId: Int
+  labelId: Int
+}
+
+"""aggregate stddev on columns"""
+type LabelChatbotCategoryStddevFields {
+  categoryId: Float
+  chatbotId: Float
+  labelId: Float
+}
+
+"""
+order by stddev() on columns of table "label_chatbot_category"
+"""
+input LabelChatbotCategoryStddevOrderBy {
+  categoryId: OrderBy
+  chatbotId: OrderBy
+  labelId: OrderBy
+}
+
+"""aggregate stddevPop on columns"""
+type LabelChatbotCategoryStddevPopFields {
+  categoryId: Float
+  chatbotId: Float
+  labelId: Float
+}
+
+"""
+order by stddevPop() on columns of table "label_chatbot_category"
+"""
+input LabelChatbotCategoryStddevPopOrderBy {
+  categoryId: OrderBy
+  chatbotId: OrderBy
+  labelId: OrderBy
+}
+
+"""aggregate stddevSamp on columns"""
+type LabelChatbotCategoryStddevSampFields {
+  categoryId: Float
+  chatbotId: Float
+  labelId: Float
+}
+
+"""
+order by stddevSamp() on columns of table "label_chatbot_category"
+"""
+input LabelChatbotCategoryStddevSampOrderBy {
+  categoryId: OrderBy
+  chatbotId: OrderBy
+  labelId: OrderBy
+}
+
+"""
+Streaming cursor of the table "label_chatbot_category"
+"""
+input LabelChatbotCategoryStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: LabelChatbotCategoryStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input LabelChatbotCategoryStreamCursorValueInput {
+  categoryId: Int
+  chatbotId: Int
+  labelId: Int
+}
+
+"""aggregate sum on columns"""
+type LabelChatbotCategorySumFields {
+  categoryId: Int
+  chatbotId: Int
+  labelId: Int
+}
+
+"""
+order by sum() on columns of table "label_chatbot_category"
+"""
+input LabelChatbotCategorySumOrderBy {
+  categoryId: OrderBy
+  chatbotId: OrderBy
+  labelId: OrderBy
+}
+
+"""
+update columns of table "label_chatbot_category"
+"""
+enum LabelChatbotCategoryUpdateColumn {
+  """column name"""
+  categoryId
+
+  """column name"""
+  chatbotId
+
+  """column name"""
+  labelId
+}
+
+input LabelChatbotCategoryUpdates {
+  """increments the numeric columns with given value of the filtered values"""
+  _inc: LabelChatbotCategoryIncInput
+
+  """sets the columns of the filtered rows to the given values"""
+  _set: LabelChatbotCategorySetInput
+
+  """filter the rows which have to be updated"""
+  where: LabelChatbotCategoryBoolExp!
+}
+
+"""aggregate varPop on columns"""
+type LabelChatbotCategoryVarPopFields {
+  categoryId: Float
+  chatbotId: Float
+  labelId: Float
+}
+
+"""
+order by varPop() on columns of table "label_chatbot_category"
+"""
+input LabelChatbotCategoryVarPopOrderBy {
+  categoryId: OrderBy
+  chatbotId: OrderBy
+  labelId: OrderBy
+}
+
+"""aggregate varSamp on columns"""
+type LabelChatbotCategoryVarSampFields {
+  categoryId: Float
+  chatbotId: Float
+  labelId: Float
+}
+
+"""
+order by varSamp() on columns of table "label_chatbot_category"
+"""
+input LabelChatbotCategoryVarSampOrderBy {
+  categoryId: OrderBy
+  chatbotId: OrderBy
+  labelId: OrderBy
+}
+
+"""aggregate variance on columns"""
+type LabelChatbotCategoryVarianceFields {
+  categoryId: Float
+  chatbotId: Float
+  labelId: Float
+}
+
+"""
+order by variance() on columns of table "label_chatbot_category"
+"""
+input LabelChatbotCategoryVarianceOrderBy {
+  categoryId: OrderBy
+  chatbotId: OrderBy
+  labelId: OrderBy
+}
+
+"""
+unique or primary key constraints on table "label"
+"""
+enum LabelConstraint {
+  """
+  unique or primary key constraint on columns "label_id"
+  """
+  label_label_id_key
+
+  """
+  unique or primary key constraint on columns "label_id"
+  """
+  label_pkey
+}
+
+"""
+input type for incrementing numeric columns in table "label"
+"""
+input LabelIncInput {
+  labelId: Int
+}
+
+"""
+input type for inserting data into table "label"
+"""
+input LabelInsertInput {
+  advancedLabels: Boolean
+  categories: String
+  labelId: Int
+  metadataLabels: LabelChatbotCategoryArrRelInsertInput
+  questions: String
+  subCategories: String
+  tags: String
+}
+
+"""aggregate max on columns"""
+type LabelMaxFields {
+  categories: String
+  labelId: Int
+  questions: String
+  subCategories: String
+  tags: String
+}
+
+"""aggregate min on columns"""
+type LabelMinFields {
+  categories: String
+  labelId: Int
+  questions: String
+  subCategories: String
+  tags: String
+}
+
+"""
+response of any mutation on the table "label"
+"""
+type LabelMutationResponse {
+  """number of rows affected by the mutation"""
+  affectedRows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [Label!]!
+}
+
+"""
+input type for inserting object relation for remote table "label"
+"""
+input LabelObjRelInsertInput {
+  data: LabelInsertInput!
+
+  """upsert condition"""
+  onConflict: LabelOnConflict
+}
+
+"""
+on_conflict condition type for table "label"
+"""
+input LabelOnConflict {
+  constraint: LabelConstraint!
+  updateColumns: [LabelUpdateColumn!]! = []
+  where: LabelBoolExp
+}
+
+"""Ordering options when selecting data from "label"."""
+input LabelOrderBy {
+  advancedLabels: OrderBy
+  categories: OrderBy
+  labelId: OrderBy
+  metadataLabelsAggregate: LabelChatbotCategoryAggregateOrderBy
+  questions: OrderBy
+  subCategories: OrderBy
+  tags: OrderBy
+}
+
+"""primary key columns input for table: label"""
+input LabelPkColumnsInput {
+  labelId: Int!
+}
+
+"""
+select columns of table "label"
+"""
+enum LabelSelectColumn {
+  """column name"""
+  advancedLabels
+
+  """column name"""
+  categories
+
+  """column name"""
+  labelId
+
+  """column name"""
+  questions
+
+  """column name"""
+  subCategories
+
+  """column name"""
+  tags
+}
+
+"""
+input type for updating data in table "label"
+"""
+input LabelSetInput {
+  advancedLabels: Boolean
+  categories: String
+  labelId: Int
+  questions: String
+  subCategories: String
+  tags: String
+}
+
+"""aggregate stddev on columns"""
+type LabelStddevFields {
+  labelId: Float
+}
+
+"""aggregate stddevPop on columns"""
+type LabelStddevPopFields {
+  labelId: Float
+}
+
+"""aggregate stddevSamp on columns"""
+type LabelStddevSampFields {
+  labelId: Float
+}
+
+"""
+Streaming cursor of the table "label"
+"""
+input LabelStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: LabelStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input LabelStreamCursorValueInput {
+  advancedLabels: Boolean
+  categories: String
+  labelId: Int
+  questions: String
+  subCategories: String
+  tags: String
+}
+
+"""aggregate sum on columns"""
+type LabelSumFields {
+  labelId: Int
+}
+
+"""
+update columns of table "label"
+"""
+enum LabelUpdateColumn {
+  """column name"""
+  advancedLabels
+
+  """column name"""
+  categories
+
+  """column name"""
+  labelId
+
+  """column name"""
+  questions
+
+  """column name"""
+  subCategories
+
+  """column name"""
+  tags
+}
+
+input LabelUpdates {
+  """increments the numeric columns with given value of the filtered values"""
+  _inc: LabelIncInput
+
+  """sets the columns of the filtered rows to the given values"""
+  _set: LabelSetInput
+
+  """filter the rows which have to be updated"""
+  where: LabelBoolExp!
+}
+
+"""aggregate varPop on columns"""
+type LabelVarPopFields {
+  labelId: Float
+}
+
+"""aggregate varSamp on columns"""
+type LabelVarSampFields {
+  labelId: Float
+}
+
+"""aggregate variance on columns"""
+type LabelVarianceFields {
+  labelId: Float
 }
 
 """
@@ -4902,6 +5681,7 @@ type Thread {
   chatbotId: Int!
   createdAt: timestamptz!
   isApproved: Boolean
+  isBlocked: Boolean
   isPublic: Boolean
 
   """An array relationship"""
@@ -5032,6 +5812,7 @@ input ThreadBoolExp {
   chatbotId: IntComparisonExp
   createdAt: TimestamptzComparisonExp
   isApproved: BooleanComparisonExp
+  isBlocked: BooleanComparisonExp
   isPublic: BooleanComparisonExp
   messages: MessageBoolExp
   messagesAggregate: MessageAggregateBoolExp
@@ -5073,6 +5854,7 @@ input ThreadInsertInput {
   chatbotId: Int
   createdAt: timestamptz
   isApproved: Boolean
+  isBlocked: Boolean
   isPublic: Boolean
   messages: MessageArrRelInsertInput
   model: ModelsEnumEnum
@@ -5159,6 +5941,7 @@ input ThreadOrderBy {
   chatbotId: OrderBy
   createdAt: OrderBy
   isApproved: OrderBy
+  isBlocked: OrderBy
   isPublic: OrderBy
   messagesAggregate: MessageAggregateOrderBy
   model: OrderBy
@@ -5188,6 +5971,9 @@ enum ThreadSelectColumn {
   isApproved
 
   """column name"""
+  isBlocked
+
+  """column name"""
   isPublic
 
   """column name"""
@@ -5211,6 +5997,9 @@ enum ThreadSelectColumnThreadAggregateBoolExpBool_andArgumentsColumns {
   isApproved
 
   """column name"""
+  isBlocked
+
+  """column name"""
   isPublic
 }
 
@@ -5220,6 +6009,9 @@ select "threadAggregateBoolExpBool_orArgumentsColumns" columns of table "thread"
 enum ThreadSelectColumnThreadAggregateBoolExpBool_orArgumentsColumns {
   """column name"""
   isApproved
+
+  """column name"""
+  isBlocked
 
   """column name"""
   isPublic
@@ -5232,6 +6024,7 @@ input ThreadSetInput {
   chatbotId: Int
   createdAt: timestamptz
   isApproved: Boolean
+  isBlocked: Boolean
   isPublic: Boolean
   model: ModelsEnumEnum
   threadId: uuid
@@ -5291,6 +6084,7 @@ input ThreadStreamCursorValueInput {
   chatbotId: Int
   createdAt: timestamptz
   isApproved: Boolean
+  isBlocked: Boolean
   isPublic: Boolean
   model: ModelsEnumEnum
   threadId: uuid
@@ -5322,6 +6116,9 @@ enum ThreadUpdateColumn {
 
   """column name"""
   isApproved
+
+  """column name"""
+  isBlocked
 
   """column name"""
   isPublic
@@ -6881,6 +7678,13 @@ input chatbotCategoryAggregateBoolExpCount {
   predicate: IntComparisonExp!
 }
 
+input labelChatbotCategoryAggregateBoolExpCount {
+  arguments: [LabelChatbotCategorySelectColumn!]
+  distinct: Boolean
+  filter: LabelChatbotCategoryBoolExp
+  predicate: IntComparisonExp!
+}
+
 input messageAggregateBoolExpCount {
   arguments: [MessageSelectColumn!]
   distinct: Boolean
@@ -6954,6 +7758,32 @@ type mutation_root {
   delete single row from the table: "complexity_enum"
   """
   deleteComplexityEnumByPk(value: String!): ComplexityEnum
+
+  """
+  delete data from the table: "label"
+  """
+  deleteLabel(
+    """filter the rows which have to be deleted"""
+    where: LabelBoolExp!
+  ): LabelMutationResponse
+
+  """
+  delete single row from the table: "label"
+  """
+  deleteLabelByPk(labelId: Int!): Label
+
+  """
+  delete data from the table: "label_chatbot_category"
+  """
+  deleteLabelChatbotCategory(
+    """filter the rows which have to be deleted"""
+    where: LabelChatbotCategoryBoolExp!
+  ): LabelChatbotCategoryMutationResponse
+
+  """
+  delete single row from the table: "label_chatbot_category"
+  """
+  deleteLabelChatbotCategoryByPk(categoryId: Int!, chatbotId: Int!, labelId: Int!): LabelChatbotCategory
 
   """
   delete data from the table: "length_enum"
@@ -7272,6 +8102,50 @@ type mutation_root {
     """upsert condition"""
     onConflict: ComplexityEnumOnConflict
   ): ComplexityEnum
+
+  """
+  insert data into the table: "label"
+  """
+  insertLabel(
+    """the rows to be inserted"""
+    objects: [LabelInsertInput!]!
+
+    """upsert condition"""
+    onConflict: LabelOnConflict
+  ): LabelMutationResponse
+
+  """
+  insert data into the table: "label_chatbot_category"
+  """
+  insertLabelChatbotCategory(
+    """the rows to be inserted"""
+    objects: [LabelChatbotCategoryInsertInput!]!
+
+    """upsert condition"""
+    onConflict: LabelChatbotCategoryOnConflict
+  ): LabelChatbotCategoryMutationResponse
+
+  """
+  insert a single row into the table: "label_chatbot_category"
+  """
+  insertLabelChatbotCategoryOne(
+    """the row to be inserted"""
+    object: LabelChatbotCategoryInsertInput!
+
+    """upsert condition"""
+    onConflict: LabelChatbotCategoryOnConflict
+  ): LabelChatbotCategory
+
+  """
+  insert a single row into the table: "label"
+  """
+  insertLabelOne(
+    """the row to be inserted"""
+    object: LabelInsertInput!
+
+    """upsert condition"""
+    onConflict: LabelOnConflict
+  ): Label
 
   """
   insert data into the table: "length_enum"
@@ -7788,6 +8662,74 @@ type mutation_root {
     """updates to execute, in order"""
     updates: [ComplexityEnumUpdates!]!
   ): [ComplexityEnumMutationResponse]
+
+  """
+  update data of the table: "label"
+  """
+  updateLabel(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: LabelIncInput
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: LabelSetInput
+
+    """filter the rows which have to be updated"""
+    where: LabelBoolExp!
+  ): LabelMutationResponse
+
+  """
+  update single row of the table: "label"
+  """
+  updateLabelByPk(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: LabelIncInput
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: LabelSetInput
+    pkColumns: LabelPkColumnsInput!
+  ): Label
+
+  """
+  update data of the table: "label_chatbot_category"
+  """
+  updateLabelChatbotCategory(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: LabelChatbotCategoryIncInput
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: LabelChatbotCategorySetInput
+
+    """filter the rows which have to be updated"""
+    where: LabelChatbotCategoryBoolExp!
+  ): LabelChatbotCategoryMutationResponse
+
+  """
+  update single row of the table: "label_chatbot_category"
+  """
+  updateLabelChatbotCategoryByPk(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: LabelChatbotCategoryIncInput
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: LabelChatbotCategorySetInput
+    pkColumns: LabelChatbotCategoryPkColumnsInput!
+  ): LabelChatbotCategory
+
+  """
+  update multiples rows of table: "label_chatbot_category"
+  """
+  updateLabelChatbotCategoryMany(
+    """updates to execute, in order"""
+    updates: [LabelChatbotCategoryUpdates!]!
+  ): [LabelChatbotCategoryMutationResponse]
+
+  """
+  update multiples rows of table: "label"
+  """
+  updateLabelMany(
+    """updates to execute, in order"""
+    updates: [LabelUpdates!]!
+  ): [LabelMutationResponse]
 
   """
   update data of the table: "length_enum"
@@ -8527,6 +9469,94 @@ type query_root {
 
   """fetch data from the table: "complexity_enum" using primary key columns"""
   complexityEnumByPk(value: String!): ComplexityEnum
+
+  """
+  fetch data from the table: "label"
+  """
+  label(
+    """distinct select on columns"""
+    distinctOn: [LabelSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [LabelOrderBy!]
+
+    """filter the rows returned"""
+    where: LabelBoolExp
+  ): [Label!]!
+
+  """
+  fetch aggregated fields from the table: "label"
+  """
+  labelAggregate(
+    """distinct select on columns"""
+    distinctOn: [LabelSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [LabelOrderBy!]
+
+    """filter the rows returned"""
+    where: LabelBoolExp
+  ): LabelAggregate!
+
+  """fetch data from the table: "label" using primary key columns"""
+  labelByPk(labelId: Int!): Label
+
+  """
+  fetch data from the table: "label_chatbot_category"
+  """
+  labelChatbotCategory(
+    """distinct select on columns"""
+    distinctOn: [LabelChatbotCategorySelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [LabelChatbotCategoryOrderBy!]
+
+    """filter the rows returned"""
+    where: LabelChatbotCategoryBoolExp
+  ): [LabelChatbotCategory!]!
+
+  """
+  fetch aggregated fields from the table: "label_chatbot_category"
+  """
+  labelChatbotCategoryAggregate(
+    """distinct select on columns"""
+    distinctOn: [LabelChatbotCategorySelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [LabelChatbotCategoryOrderBy!]
+
+    """filter the rows returned"""
+    where: LabelChatbotCategoryBoolExp
+  ): LabelChatbotCategoryAggregate!
+
+  """
+  fetch data from the table: "label_chatbot_category" using primary key columns
+  """
+  labelChatbotCategoryByPk(categoryId: Int!, chatbotId: Int!, labelId: Int!): LabelChatbotCategory
 
   """
   fetch data from the table: "length_enum"
@@ -9515,6 +10545,122 @@ type subscription_root {
     """filter the rows returned"""
     where: ComplexityEnumBoolExp
   ): [ComplexityEnum!]!
+
+  """
+  fetch data from the table: "label"
+  """
+  label(
+    """distinct select on columns"""
+    distinctOn: [LabelSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [LabelOrderBy!]
+
+    """filter the rows returned"""
+    where: LabelBoolExp
+  ): [Label!]!
+
+  """
+  fetch aggregated fields from the table: "label"
+  """
+  labelAggregate(
+    """distinct select on columns"""
+    distinctOn: [LabelSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [LabelOrderBy!]
+
+    """filter the rows returned"""
+    where: LabelBoolExp
+  ): LabelAggregate!
+
+  """fetch data from the table: "label" using primary key columns"""
+  labelByPk(labelId: Int!): Label
+
+  """
+  fetch data from the table: "label_chatbot_category"
+  """
+  labelChatbotCategory(
+    """distinct select on columns"""
+    distinctOn: [LabelChatbotCategorySelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [LabelChatbotCategoryOrderBy!]
+
+    """filter the rows returned"""
+    where: LabelChatbotCategoryBoolExp
+  ): [LabelChatbotCategory!]!
+
+  """
+  fetch aggregated fields from the table: "label_chatbot_category"
+  """
+  labelChatbotCategoryAggregate(
+    """distinct select on columns"""
+    distinctOn: [LabelChatbotCategorySelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [LabelChatbotCategoryOrderBy!]
+
+    """filter the rows returned"""
+    where: LabelChatbotCategoryBoolExp
+  ): LabelChatbotCategoryAggregate!
+
+  """
+  fetch data from the table: "label_chatbot_category" using primary key columns
+  """
+  labelChatbotCategoryByPk(categoryId: Int!, chatbotId: Int!, labelId: Int!): LabelChatbotCategory
+
+  """
+  fetch data from the table in a streaming manner: "label_chatbot_category"
+  """
+  labelChatbotCategoryStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [LabelChatbotCategoryStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: LabelChatbotCategoryBoolExp
+  ): [LabelChatbotCategory!]!
+
+  """
+  fetch data from the table in a streaming manner: "label"
+  """
+  labelStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [LabelStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: LabelBoolExp
+  ): [Label!]!
 
   """
   fetch data from the table: "length_enum"

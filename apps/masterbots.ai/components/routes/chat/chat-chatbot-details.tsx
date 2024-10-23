@@ -1,12 +1,12 @@
 'use client'
 
-import Image from 'next/image'
 import { Separator } from '@/components/ui/separator'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
-import { useEffect, useState } from 'react'
+import { useThread } from '@/lib/hooks/use-thread'
 import { getCategory, getThreads } from '@/services/hasura'
 import { useSession } from 'next-auth/react'
-import { useThread } from '@/lib/hooks/use-thread'
+import Image from 'next/image'
+import { useEffect, useState } from 'react'
 
 export default function ChatChatbotDetails() {
   const { data: session } = useSession()
@@ -17,10 +17,12 @@ export default function ChatChatbotDetails() {
 
   // * Get the number of all threads
   const getThreadNum = async () => {
+    if (!session?.user) return
+
     const threads = await getThreads({
-      jwt: session!.user?.hasuraJwt,
+      jwt: session.user?.hasuraJwt,
       categoryId: activeCategory,
-      userId: session!.user.id
+      userId: session.user.id
     })
     setThreadNum(threads?.length ?? 0)
   }
@@ -42,7 +44,7 @@ export default function ChatChatbotDetails() {
       getCategoryName()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeCategory, activeChatbot])
+  }, [activeCategory, activeChatbot, session?.user])
 
   return (
     <div className="h-[calc(100vh-196px)] flex items-center justify-center">

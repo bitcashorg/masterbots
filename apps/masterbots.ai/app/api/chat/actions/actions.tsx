@@ -1,295 +1,305 @@
-'use server'
+"use server";
 
-import { AIModels } from '@/app/api/chat/models/models'
+import { AIModels } from "@/app/api/chat/models/models";
+import {
+  createChatbotMetadataPrompt,
+  createImprovementPrompt,
+  setDefaultPrompt,
+} from "@/lib/constants/prompts";
 import {
   convertToCoreMessages,
-  setStreamerPayload
-} from '@/lib/helpers/ai-helpers'
-import { AiClientType, JSONResponseStream } from '@/types/types'
-import { createAnthropic } from '@ai-sdk/anthropic'
-import { createOpenAI } from '@ai-sdk/openai'
-import { streamText } from 'ai'
-import { ChatCompletionMessageParam } from 'openai/resources'
+  setStreamerPayload,
+} from "@/lib/helpers/ai-helpers";
+import { fetchChatbotMetadata } from "@/services/hasura";
+import type {
+  AiClientType,
+  ChatbotMetadataHeaders,
+  CleanPromptResult,
+  JSONResponseStream,
+} from "@/types/types";
+import { createAnthropic } from "@ai-sdk/anthropic";
+import { createOpenAI } from "@ai-sdk/openai";
+import { streamText } from "ai";
+import type { ChatCompletionMessageParam } from "openai/resources";
 
 //* this function is used to create a client for the OpenAI API
-const initializeOpenAI = createOpenAI({
+const initializeOpenAi = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  compatibility: 'strict'
-})
+  compatibility: "strict",
+});
 
 const initializeAnthropic = createAnthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY
-})
+  apiKey: process.env.ANTHROPIC_API_KEY,
+});
 
 //* Perplexity API uses openai-sdk with compatible mode and a different base URL
 export async function initializePerplexity(apiKey: string) {
   if (!apiKey) {
     throw new Error(
-      'PERPLEXITY_API_KEY is not defined in environment variables'
-    )
+      "PERPLEXITY_API_KEY is not defined in environment variables",
+    );
   }
-  return createOpenAI({
+  return await createOpenAI({
     apiKey,
-    baseURL: 'https://api.perplexity.ai',
-    compatibility: 'compatible'
-  })
+    baseURL: "https://api.perplexity.ai",
+    compatibility: "compatible",
+  });
 }
 
 // * This function improves the message using the AI
 export async function improveMessage(
   content: string,
   clientType: AiClientType,
-  model: string
-): Promise<string> {
-  const messageImprovementPrompt = createImprovementPrompt(content)
+  model: string,
+): Promise<CleanPromptResult> {
+  const messageImprovementPrompt = createImprovementPrompt(content);
 
   try {
-    const result = await processWithAI(
+    const result = await processWithAi(
       messageImprovementPrompt,
       clientType,
-      model
-    )
-    const cleanedResult = cleanResult(result)
+      model,
+    );
+    const cleanedResult = cleanResult(result);
 
-    if (isInvalidResult(cleanedResult, content)) {
+    if (
+      isInvalidResult(cleanedResult.translatedText || cleanedResult.improvedText, content) &&
+      cleanedResult.improved
+    ) {
       console.warn(
-        'AI did not modify the text or returned invalid result. Attempting with a more explicit prompt.'
-      )
-      return await retryImprovement(content, clientType, model)
+        "AI did not modify the text or returned invalid result. Recursively executing improved prompt.",
+      );
+      return await improveMessage(content, clientType, model);
     }
 
-    return cleanedResult
+    return cleanedResult;
   } catch (error) {
-    return handleImprovementError(error, content, clientType, model)
+    const originalText = handleImprovementError(
+      error,
+      content,
+      clientType,
+      model,
+    );
+    return setDefaultPrompt(originalText);
   }
 }
 
-// * This function creates the prompt for the AI improvement process
-function createImprovementPrompt(content: string): string {
-  return `You are an expert polyglot, grammar, and spelling AI assistant skilled in understanding and correcting spelling and typing errors across multiple languages. Your task is to improve the following original text: ${content}
-
-  Follow these steps:
-
-  1. Identify the original language of the provided text.
-  2. Correct clear typos in common words based on the intended meaning. If the input is ambiguous or appears to be intentionally unconventional, preserve it as is.
-  3. Correct spelling errors and fix obvious grammar issues while keeping the original tone and meaning.
-  4. Adjust punctuation where needed, but only when it's clearly incorrect or missing.
-  5. Provide the final corrected text in the original language, ensuring it retains the intended meaning and structure.
-
-  **Important Guidelines:**
-  - For very short inputs or single words, avoid making changes unless the correction is absolutely certain.
-  - Maintain the original structure and formatting of the input as much as possible.
-  - Output only the corrected and improved text, without any additional explanations.
-  - Provide both the original and translated question (if applicable).
-
-  ## Example: ##
-
-  {
-    "language": "es",
-    "originalText": "Q restaurant puede recomendar en zona de San Francisco, CA?",
-    "improvedText": "¿Qué restaurante puedes recomendar en la zona de San Francisco, CA?",
-    "translatedText": "What restaurant can you recommend in the area of San Francisco, CA?"
-  }`
-}
-
-// * This function retries the AI improvement process if the first attempt fails
-async function retryImprovement(
-  content: string,
+export async function subtractChatbotMetadataLabels(
+  metadataHeaders: ChatbotMetadataHeaders,
+  userPrompt: string,
   clientType: AiClientType,
-  model: string
-): Promise<string> {
-  const retryPrompt = `
-    You are a highly skilled AI assistant specializing in grammar and spelling corrections. Your task is to thoroughly enhance the following text by:
-    1. Correcting all spelling errors with precision
-    2. Fixing any grammatical issues to ensure clarity and correctness
-    3. Improving punctuation for better readability and flow
-    4. Inferring the intended words in case of obvious typos
+) {
+  const chatbotMetadata = await fetchChatbotMetadata(metadataHeaders);
 
-    It is crucial to maintain the original meaning and intent of the message. 
-    Please return only the improved text without any explanations, additional content, or alterations to the original message structure.
-
-    Original text: "${content}"
-  `
-
-  try {
-    const result = await processWithAI(retryPrompt, clientType, model)
-    const cleanedResult = cleanResult(result)
-
-    if (isInvalidResult(cleanedResult, content)) {
-      console.warn(
-        'Retry failed to improve the text. Returning original content.'
-      )
-      return content
-    }
-
-    return cleanedResult
-  } catch (error) {
-    return handleImprovementError(error, content)
+  if (!chatbotMetadata) {
+    console.error(
+      "Chatbot metadata not found. Generating response without them.",
+    );
+    return setDefaultPrompt(userPrompt);
   }
+
+  const prompt = createChatbotMetadataPrompt(
+    metadataHeaders,
+    chatbotMetadata,
+    userPrompt,
+  );
+  const response = await processWithAi(prompt, clientType, AIModels.Default);
+
+  return cleanResult(response);
 }
 
 // * This function process the AI response and return the cleaned result
-async function processWithAI(
+async function processWithAi(
   prompt: string,
   clientType: AiClientType,
-  model: string
+  model: string,
 ): Promise<string> {
   try {
     const messages = [
-      { role: 'user', content: prompt }
-    ] as ChatCompletionMessageParam[]
-    const processedMessages = setStreamerPayload(clientType, messages)
+      { role: "user", content: prompt },
+    ] as ChatCompletionMessageParam[];
+    const processedMessages = setStreamerPayload(clientType, messages);
 
     const response = await createResponseStream(clientType, {
       model: AIModels.Default,
-      messages: processedMessages
-    } as any)
+      messages: processedMessages,
+    } as any);
 
     if (!response.body) {
-      throw new Error('Response body is null')
+      throw new Error("Response body is null");
     }
 
     if (response.status !== 200) {
-      const errorText = await response.text()
+      const errorText = await response.text();
       throw new Error(
-        `API responded with status ${response.status}: ${errorText}`
-      )
+        `API responded with status ${response.status}: ${errorText} `,
+      );
     }
 
-    const result = await readStreamResponse(response.body)
-    return cleanResult(result)
+    const result = await readStreamResponse(response.body);
+    return result;
   } catch (error) {
-    console.error('Error in processWithAI:', error)
-    throw error
+    console.error("Error in processWithAI:", error);
+    throw error;
   }
 }
 
 // * This function reads the AI response and return the cleaned result
 async function readStreamResponse(body: ReadableStream): Promise<string> {
-  const reader = body.getReader()
-  let accumulatedResult = ''
+  const reader = body.getReader();
+  let accumulatedResult = "";
   while (true) {
-    const { done, value } = await reader.read()
-    if (done) break
-    const chunk = new TextDecoder().decode(value)
-    accumulatedResult += chunk
+    const { done, value } = await reader.read();
+    if (done) break;
+    const chunk = new TextDecoder().decode(value);
+    accumulatedResult += chunk;
   }
 
-  let result = ''
-  const parts = accumulatedResult.split('\n')
+  let result = "";
+  const parts = accumulatedResult.split("\n");
   for (const part of parts) {
-    const match = part.match(/^0:"(.*)"$/)
+    const match = part.match(/^0:"(.*)"$/);
     if (match) {
-      result += match[1]
+      result += match[1];
     }
   }
 
-  return result
+  return result;
 }
 
-function cleanResult(result: string): string {
-  console.log('Raw result:', result)
-
-  try {
-    return JSON.parse(result.trim())
-  } catch (error) {
-    console.error(error)
-  }
-
-  return result
-    .trim() // First, trim leading and trailing whitespace
-    .replace(/[\\\"\/]/g, '') // Remove backslashes and quotes
-    .replace(/\s+/g, ' ') // Replace multiple spaces with a single space
-    .replace(/\s+([.,!?;:])(?!\.\.\.)/g, '$1') // Remove spaces before punctuation, except for ellipsis
-    .replace(/\s*\.\s*\.\s*\./g, '...') // Clean up ellipsis
+function cleanResult(result: string): CleanPromptResult {
+  const cleanedResult = result
+    .trim()
+    .replace(/\{\n/g, "{")
+    .replace(/\n\}/g, "}")
+    .replace(/\\"/g, '"');
+  // * Using template string to avoid parsing errors with ' and " special characters...
+  return JSON.parse(`${cleanedResult} `);
 }
 
 function isInvalidResult(result: string, originalContent: string): boolean {
   return (
     !result ||
-    result.includes('Original message:') ||
+    result.includes("Original message:") ||
     result.toLowerCase() === originalContent.toLowerCase()
-  )
+  );
 }
 
 function handleImprovementError(
   error: any,
   originalContent: string,
   clientType?: AiClientType,
-  model?: string
+  model?: string,
 ): string {
-  console.error('Error in improvement process:', error)
-  return originalContent
+  console.error("Error in improvement process:", error);
+  return originalContent;
 }
 
 //* Create a response stream based on the client model type
 export async function createResponseStream(
   clientType: AiClientType,
   json: JSONResponseStream,
-  req?: Request
+  req?: Request,
 ) {
-  const { model, messages: rawMessages, previewToken } = json
-  const messages = setStreamerPayload(clientType, rawMessages)
+  const { model, messages: rawMessages, previewToken } = json;
+  const messages = setStreamerPayload(clientType, rawMessages);
 
   try {
-    let responseStream: ReadableStream
+    let responseStream: ReadableStream;
 
     switch (clientType) {
-      case 'OpenAI': {
-        const openaiModel = initializeOpenAI(model)
+      case "OpenAI": {
+        const openaiModel = initializeOpenAi(model);
         const coreMessages = convertToCoreMessages(
-          messages as ChatCompletionMessageParam[]
-        )
+          messages as ChatCompletionMessageParam[],
+        );
         const response = await streamText({
           model: openaiModel,
           messages: coreMessages,
-          temperature: 0.4
-        })
-        responseStream = response.toDataStreamResponse().body as ReadableStream
-        break
+          temperature: 0.4,
+        });
+        responseStream = response.toDataStreamResponse().body as ReadableStream;
+        break;
       }
-      case 'Anthropic': {
+      case "Anthropic": {
         const anthropicModel = initializeAnthropic(model, {
-          cacheControl: true
-        })
+          cacheControl: true,
+        });
         const coreMessages = convertToCoreMessages(
-          messages as ChatCompletionMessageParam[]
-        )
+          messages as ChatCompletionMessageParam[],
+        );
         const response = await streamText({
           model: anthropicModel,
           messages: coreMessages,
           temperature: 0.3,
-          maxTokens: 300
-        })
-        responseStream = response.toDataStreamResponse().body as ReadableStream
-        break
+          maxTokens: 300,
+        });
+        responseStream = response.toDataStreamResponse().body as ReadableStream;
+        break;
       }
-      case 'Perplexity': {
+      case "Perplexity": {
         const perplexity = await initializePerplexity(
-          previewToken || (process.env.PERPLEXITY_API_KEY as string)
-        )
-        const perplexityModel = perplexity(model)
+          previewToken || (process.env.PERPLEXITY_API_KEY as string),
+        );
+        const perplexityModel = perplexity(model);
         const coreMessages = convertToCoreMessages(
-          messages as ChatCompletionMessageParam[]
-        )
+          messages as ChatCompletionMessageParam[],
+        );
         const response = await streamText({
           model: perplexityModel,
           messages: coreMessages,
           temperature: 0.3,
-          maxTokens: 1000
-        })
-        responseStream = response.toDataStreamResponse().body as ReadableStream
-        break
+          maxTokens: 1000,
+        });
+        responseStream = response.toDataStreamResponse().body as ReadableStream;
+        break;
       }
       default:
-        throw new Error('Unsupported client type')
+        throw new Error("Unsupported client type");
     }
 
     return new Response(responseStream, {
-      headers: { 'Content-Type': 'text/event-stream' }
-    })
+      headers: { "Content-Type": "text/event-stream" },
+    });
   } catch (error) {
-    console.error('Error in createResponseStream:', error)
-    throw error
+    console.error("Error in createResponseStream:", error);
+    throw error;
   }
 }
+
+// * This function retries the AI improvement process if the first attempt fails
+// Keeping prompt for reference
+// async function retryImprovement(
+//   content: string,
+//   clientType: AiClientType,
+//   model: string,
+// ): Promise<string> {
+//   const retryPrompt = `
+//     You are a highly skilled AI assistant specializing in grammar and spelling corrections. Your task is to thoroughly enhance the following text by:
+//     1. Correcting all spelling errors with precision
+//     2. Fixing any grammatical issues to ensure clarity and correctness
+//     3. Improving punctuation for better readability and flow
+//     4. Inferring the intended words in case of obvious typos
+
+//     It is crucial to maintain the original meaning and intent of the message.
+//     Please return only the improved text without any explanations, additional content, or alterations to the original message structure.
+
+//     Original text: "${content}"
+//   `;
+
+//   try {
+//     const result = await processWithAI(retryPrompt, clientType, model);
+//     const cleanedResult = cleanResult(result);
+
+//     if (isInvalidResult(cleanedResult, content)) {
+//       console.warn(
+//         "Retry failed to improve the text. Returning original content.",
+//       );
+//       return content;
+//     }
+
+//     return cleanedResult;
+//   } catch (error) {
+//     return handleImprovementError(error, content);
+//   }
+// }

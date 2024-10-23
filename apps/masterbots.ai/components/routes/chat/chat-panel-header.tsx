@@ -1,9 +1,9 @@
-// ChatPanelHeader.tsx
-import * as React from 'react'
-import { Button } from '@/components/ui/button'
-import { IconRefresh, IconShare, IconStop } from '@/components/ui/icons'
 import { ChatShareDialog } from '@/components/routes/chat/chat-share-dialog'
 import { ButtonScrollToBottom } from '@/components/shared/button-scroll-to-bottom'
+import { Button } from '@/components/ui/button'
+import { IconRefresh, IconShare, IconStop } from '@/components/ui/icons'
+// ChatPanelHeader.tsx
+import * as React from 'react'
 
 interface ChatPanelHeaderProps {
   id?: string
@@ -14,6 +14,7 @@ interface ChatPanelHeaderProps {
   messages: any[]
   showReload: boolean
   scrollToBottom: () => void
+  loadingState?: string
   isAtBottom?: boolean
 }
 
@@ -21,6 +22,7 @@ export function ChatPanelHeader({
   id,
   title,
   isLoading,
+  loadingState,
   stop,
   reload,
   messages,
@@ -35,10 +37,23 @@ export function ChatPanelHeader({
       {showReload && (
         <div className="flex items-center px-2 space-x-2">
           {isLoading ? (
-            <Button variant="outline" onClick={stop} className="bg-background">
-              <IconStop className="mr-2" />
-              Stop generating
-            </Button>
+            <>
+              {/* // * Testing loadingState for chat stages */}
+              {loadingState && (
+                <div className="flex gap-4 items-center justify-between">
+                  <div className="flex items-center space-x-1 drop-shadow-lg">
+                    <div className="size-2 bg-primary rounded-full animate-pulse" />
+                    <div className="size-2 bg-primary rounded-full animate-pulse" />
+                    <div className="size-2 bg-primary rounded-full animate-pulse" />
+                  </div>
+                  <p className="text-sm text-primary font-bold drop-shadow-lg">{loadingState}</p>
+                </div>
+              )}
+              <Button variant="outline" onClick={stop} className="bg-background">
+                <IconStop className="mr-2" />
+                Stop generating
+              </Button>
+            </>
           ) : (
             messages?.length >= 2 && (
               <>
@@ -70,7 +85,7 @@ export function ChatPanelHeader({
           )}
         </div>
       )}
-         <ButtonScrollToBottom
+      <ButtonScrollToBottom
         scrollToBottom={scrollToBottom}
         isAtBottom={isAtBottom}
       />
