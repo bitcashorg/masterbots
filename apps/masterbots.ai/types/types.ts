@@ -41,6 +41,7 @@ export type CleanPromptResult = {
   originalText: string
   improvedText: string
   translatedText: string
+  improved?: boolean
 }
 
 export type ServerActionResult<Result> = Promise<

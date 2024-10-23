@@ -13,7 +13,7 @@ export function createImprovementPrompt(content: string): string {
     '1. Identify the original language of the provided text. ' +
     '2. Correct clear typos in common words based on the intended meaning. If the input is ambiguous or appears to be intentionally unconventional, preserve it as is. ' +
     '3. Correct spelling errors and fix obvious grammar issues while keeping the original tone and meaning. ' +
-    "4. Adjust punctuation where needed, but only when it's clearly incorrect or missing. " +
+    `4. Adjust punctuation where needed, but only when it's clearly incorrect or missing. ` +
     `5. Provide the final corrected text in the original language, ensuring it retains the intended meaning and structure.
     ` +
     `**Important Guidelines:**
@@ -21,11 +21,12 @@ export function createImprovementPrompt(content: string): string {
     '- For very short inputs or single words, avoid making changes unless the correction is absolutely certain. ' +
     '- Maintain the original structure and formatting of the input as much as possible. ' +
     '- Output only the corrected and improved text, without any additional explanations. ' +
+    '- Include the flag whether the text was improved or not. ' +
     `- Provide both the original and translated question only if original is different from 'en' (English).
     ` +
     `## Example: ##
     ` +
-    `{ "language": "es", "originalText": "Q restaurant puede recomendar en zona de San Francisco, CA?", "improvedText": "¿Qué restaurante puedes recomendar en la zona de San Francisco, CA?", "translatedText": "What restaurant can you recommend in the area of San Francisco, CA?" }`
+    `{ "language": "es", "originalText": "Q restaurant puede recomendar en zona de San Francisco, CA?", "improvedText": "¿Qué restaurante puedes recomendar en la zona de San Francisco, CA?", "translatedText": "What restaurant can you recommend in the area of San Francisco, CA?", "improved": true }`
   )
 }
 
@@ -76,6 +77,7 @@ export function setDefaultPrompt(userPrompt?: string) {
     language: '',
     originalText: userPrompt || '',
     improvedText: '',
-    translatedText: ''
+    translatedText: '',
+    improved: undefined
   }
 }

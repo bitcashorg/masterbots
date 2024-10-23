@@ -63,10 +63,8 @@ export async function improveMessage(
     const cleanedResult = cleanResult(result);
 
     if (
-      isInvalidResult(
-        cleanedResult.translatedText || cleanedResult.improvedText,
-        content,
-      )
+      isInvalidResult(cleanedResult.translatedText || cleanedResult.improvedText, content) &&
+      cleanedResult.improved
     ) {
       console.warn(
         "AI did not modify the text or returned invalid result. Recursively executing improved prompt.",

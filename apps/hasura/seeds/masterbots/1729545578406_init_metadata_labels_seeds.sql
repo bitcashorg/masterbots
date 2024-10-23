@@ -12,7 +12,7 @@ INSERT INTO
   )
 VALUES
   (
-    E '
+    '
   ## Categories:
 
   a. Distributed Systems.
@@ -26,7 +26,7 @@ VALUES
   i. Containerization & Orchestration.
   j. Edge Computing & IoT.
   ',
-    E '
+    '
   ## Sub-categories: (Examples for each category)
 
   a. Distributed Systems:
@@ -98,8 +98,8 @@ VALUES
   - Security in Edge Computing
   - IoT Device Management
   - Hybrid Cloud-Edge Models
-',
-    E '
+  ',
+    '
   ## Tags: (Additional keywords for flexibility, examples include)
 
   - Latency
@@ -197,7 +197,7 @@ VALUES
   ',
     true,
     1,
-    E '
+    '
   ## Top 50 Common Questions:
 
   1. How can I optimize the performance of a large-scale distributed system?

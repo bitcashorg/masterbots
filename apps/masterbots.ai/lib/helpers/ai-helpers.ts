@@ -133,6 +133,7 @@ export const processLogEntry = (logEntry: StreamEntry) => {
 export const labelMakerMockedRawData = {
   chatbot: 'CodeGuru',
   domain: 'Technology',
+  advancedLabels: true,
   questions: `
   ## Top 50 Common Questions:
 

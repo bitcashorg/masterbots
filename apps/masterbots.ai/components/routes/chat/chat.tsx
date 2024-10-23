@@ -13,13 +13,10 @@ import { useAtBottom } from "@/lib/hooks/use-at-bottom";
 import { useModel } from "@/lib/hooks/use-model";
 import { useSidebar } from "@/lib/hooks/use-sidebar";
 import { useThread } from "@/lib/hooks/use-thread";
-import { getAllUserMessagesAsStringArray } from '@/lib/threads';
-import {
-  cn,
-  scrollToBottomOfElement
-} from "@/lib/utils";
+import { getAllUserMessagesAsStringArray } from "@/lib/threads";
+import { cn, scrollToBottomOfElement } from "@/lib/utils";
 import { createThread, getThread, saveNewMessage } from "@/services/hasura";
-import type { AiClientType, ChatLoadingState, ChatProps } from "@/types/types";
+import type { AiClientType, ChatLoadingState, ChatProps, CleanPromptResult } from "@/types/types";
 import type { ChatRequestOptions, CreateMessage } from "ai";
 import { type Message, useChat } from "ai/react";
 import { useScroll } from "framer-motion";
@@ -139,15 +136,15 @@ export function Chat({
     chatRequestOptions?: ChatRequestOptions,
   ) => {
     if (!session?.user || !chatbot) {
-      console.error('User is not logged in or session expired.');
-      toast.error('Failed to start conversation. Please reload and try again.');
+      console.error("User is not logged in or session expired.");
+      toast.error("Failed to start conversation. Please reload and try again.");
       return;
     }
 
     // * Loading: processing your request... 'processing'
     setLoadingState("processing");
 
-    let processedMessage = setDefaultPrompt(userMessage.content);
+    let processedMessage: CleanPromptResult = setDefaultPrompt(userMessage.content);
 
     // * Cleaning the user question (thread title) with AI
     try {
@@ -158,14 +155,15 @@ export function Chat({
         selectedModel,
       );
 
-      if (processedMessage.improvedText === userMessage.content) {
+      if (processedMessage.improved || processedMessage.improvedText === userMessage.content) {
         console.warn("Message was not improved by AI. Using original message.");
       }
     } catch (error) {
       console.error("Error processing message:", error);
     }
 
-    const { language, originalText, improvedText, translatedText } = processedMessage;
+    const { language, originalText, improvedText, translatedText } =
+      processedMessage;
     const userContent = translatedText || improvedText || originalText;
     // * Loading: getting the the information right... 'digesting'
     setLoadingState("digesting");
@@ -176,23 +174,25 @@ export function Chat({
     setLoadingState("generating");
 
     // * Getting the user labelling the thread (categories, sub-category, etc.)
-    const chatMetadata =
-      await subtractChatbotMetadataLabels(
-        {
-          domain: chatbot?.categories[0].categoryId,
-          chatbot: chatbot?.chatbotId,
-        },
-        userContent,
-        clientType as AiClientType,
-      );
-    console.log("Full responses from subtractChatbotMetadataLabels:", chatMetadata);
+    const chatMetadata = await subtractChatbotMetadataLabels(
+      {
+        domain: chatbot?.categories[0].categoryId,
+        chatbot: chatbot?.chatbotId,
+      },
+      userContent,
+      clientType as AiClientType,
+    );
+    console.log(
+      "Full responses from subtractChatbotMetadataLabels:",
+      chatMetadata,
+    );
 
     // * Loading: Polishing Ai request... 'polishing'
     setLoadingState("polishing");
 
     // ! Connecting to the ICL to send the user labelling the thread and rawData (examples) to the ICL
     // TODO: ...
-    const postICLResponse = (await new Promise((resolve) => {
+    const postIclResponse = (await new Promise((resolve) => {
       const timeout = setTimeout(() => {
         resolve({
           parsed: chatMetadata,
@@ -204,7 +204,7 @@ export function Chat({
       }, 700);
     })) as { parsed: any; question: string; domain: string; chatbot: string };
     // ! Her we do something with the response from the ICL and attach it to the chat context the required fields and values for future ICL usage.
-    console.log("Full responses from postICLResponse:", postICLResponse);
+    console.log("Full responses from postICLResponse:", postIclResponse);
 
     // * Loading: Now I have the information you need... 'ready'
     setLoadingState("ready");
@@ -290,10 +290,7 @@ export function Chat({
       {params.threadId ? (
         <div
           ref={containerRef as React.Ref<HTMLDivElement>}
-          className={cn(
-            "pb-[200px] pt-4 md:pt-10 h-full overflow-auto",
-            className,
-          )}
+          class={cn("pb-[200px] pt-4 md:pt-10 h-full overflow-auto", className)}
         >
           <ChatList
             chatbot={chatbot}
@@ -314,21 +311,21 @@ export function Chat({
       ) : null}
 
       {/* // * Testing loadingState for chat stages */}
-      {(loadingState && !isLoading) && (
-        <div className="fixed bottom-0 right-0 z-50 p-4 drop-shadow-lg">
-          <div className="flex gap-4 items-center justify-between">
-            <div className="flex items-center space-x-1">
-              <div className="size-2 bg-primary rounded-full animate-pulse" />
-              <div className="size-2 bg-primary rounded-full animate-pulse" />
-              <div className="size-2 bg-primary rounded-full animate-pulse" />
+      {loadingState && isLoading && (
+        <div class="fixed bottom-0 right-0 z-50 p-4 drop-shadow-lg">
+          <div class="flex gap-4 items-center justify-between">
+            <div class="flex items-center space-x-1">
+              <div class="size-2 bg-primary rounded-full animate-pulse" />
+              <div class="size-2 bg-primary rounded-full animate-pulse" />
+              <div class="size-2 bg-primary rounded-full animate-pulse" />
             </div>
-            <div className="text-sm text-primary font-bold">{loadingState}</div>
+            <div class="text-sm text-primary font-bold">{loadingState}</div>
           </div>
         </div>
       )}
       {((isOpenPopup && isPopup) || (!isOpenPopup && !isPopup)) && (
         <ChatPanel
-          className={`${!activeThread && !activeChatbot ? "hidden" : ""} ${chatPanelClassName}`}
+          class={`${!activeThread && !activeChatbot ? "hidden" : ""} ${chatPanelClassName}`}
           scrollToBottom={
             isOpenPopup && isPopup && scrollToBottomOfPopup
               ? scrollToBottomOfPopup
@@ -363,4 +360,3 @@ export function Chat({
     </>
   );
 }
-
