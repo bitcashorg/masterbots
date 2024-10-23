@@ -20,6 +20,7 @@ import { toSlug } from 'mb-lib'
 import { ShareButton } from './share-button'
 import { AlertDialogFooter, AlertDialogHeader , AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { IconSpinner } from '@/components/ui/icons'
+import toast from 'react-hot-toast';
 
 interface ChatOptionsProps {
   threadId: string
@@ -35,12 +36,21 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
   const url = `/${toSlug(thread.chatbot.categories[0].category.name)}/${thread.threadId}`
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  
 
 
-  const handleDelete = async () => {
+  const handleDelete = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.preventDefault();
      setIsDeleting(true);
-     await initiateDeleteThread(threadId);
+       const result =  await initiateDeleteThread(threadId);
+       if(result?.success){
+        toast.success(result.message)
+       }else{
+        toast.error(result?.message);
+       }
      setIsDeleting(false);
+     setIsDeleteOpen(false)
+     
      };
 
 const AlertDialogue = ({ deleteDialogOpen} :{ deleteDialogOpen: boolean}) => (
@@ -61,10 +71,14 @@ const AlertDialogue = ({ deleteDialogOpen} :{ deleteDialogOpen: boolean}) => (
         Cancel
       </AlertDialogCancel>
       <AlertDialogAction
-      onClick={handleDelete}
+      onClick={(e) => {
+        e.stopPropagation()
+        handleDelete(e)
+      }}
       >
-      {isDeleting && <IconSpinner className="mr-2 animate-spin" />}
+     
         Delete
+        {isDeleting && <span>....</span>}
       </AlertDialogAction>
     </AlertDialogFooter>
   </AlertDialogContent>

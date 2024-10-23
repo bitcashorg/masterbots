@@ -63,3 +63,15 @@ select_permissions:
         - thread_id
       filter: {}
     comment: ""
+delete_permissions:
+  - role: moderator
+    permission:
+      filter: {}
+    comment: ""
+  - role: user
+    permission:
+      filter:
+        thread:
+          user_id:
+            _eq: X-Hasura-User-Id
+    comment: ""

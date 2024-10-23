@@ -6,12 +6,19 @@ import type { Thread } from 'mb-genql';
 import toast from 'react-hot-toast';
 
 
+interface DeleteThreadResponse {
+  success: boolean;
+  message: string;
+  error: string | null;
+}
+
+
 interface ThreadVisibilityContextProps {
   isPublic: boolean;
   toggleVisibility: (newIsPublic: boolean, threadId: string) => void;
   threads: Thread[]
   isSameUser: (thread: Thread) => boolean,
-  initiateDeleteThread: (threadId: string) => void;
+  initiateDeleteThread: (threadId: string) => Promise<DeleteThreadResponse>;
   handleToggleAdminMode: () => void
   adminApproveThread: (threadId: string) => void
   isAdminMode: boolean
@@ -81,20 +88,43 @@ export function ThreadVisibilityProvider({ children }: ThreadVisibilityProviderP
   };
 
 
-  const initiateDeleteThread = async (threadId: string) => {
+  const initiateDeleteThread = async (threadId: string): Promise<DeleteThreadResponse> => {
+ 
     try {
       if (!session?.data?.user?.id || !jwt) {
-           toast.error('User session not found. Please log in again.');
-          return;   
+        return {
+          success: false,
+          message: 'User session not found',
+          error: 'User session not found. Please log in again.'
+        }; 
       };
-      await deleteThread({
+       const deleteT =   await deleteThread({
         threadId,
         jwt,
         userId: session?.data?.user.id
       });
-      await getThreadForUser();
+        await getThreadForUser();
+        if(deleteT.success){
+        return {
+          success: true,
+          message: 'Thread deleted successfully',
+          error: null
+        };
+      }
+
+      return {
+        success: false,
+        message: deleteT.error || 'Failed to delete thread',
+        error: deleteT.error || 'An unknown error occurred'
+      };
+     
     } catch (error) {
       console.error('Error deleting thread:', error);
+      return {
+        success: false,
+        message: 'Failed to delete thread',
+        error: error instanceof Error ? error.message : 'An unknown error occurred'
+      };
     }
   }
   const loadUnapprovedThreads = async () => {

@@ -688,18 +688,17 @@ export async function deleteThread({ threadId, jwt, userId }: { threadId: string
     if (!jwt) {
          throw new Error('Authentication required for thread deletion');
       }
+    
     const client = getHasuraClient({ jwt })
     await client.mutation({
-      deleteThread: {
-         __args: {
-           where: {
-             threadId: { _eq: threadId },
-             userId: { _eq: userId }
-           }
-         },
-         affectedRows: true
-       }
+      deleteThreadByPk: {
+        __args: {
+          threadId: threadId
+        },
+        threadId: true
+      }
     })
+
     return { success: true };
   } catch (error) {
     console.error('Error deleting thread:', error);
