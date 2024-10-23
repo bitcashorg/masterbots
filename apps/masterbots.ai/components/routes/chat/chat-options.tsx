@@ -76,9 +76,10 @@ const AlertDialogue = ({ deleteDialogOpen} :{ deleteDialogOpen: boolean}) => (
         handleDelete(e)
       }}
       >
-     
+       {
+        isDeleting && <IconSpinner className="w-4 h-4 animate-spin" />
+       }
         Delete
-        {isDeleting && <span>....</span>}
       </AlertDialogAction>
     </AlertDialogFooter>
   </AlertDialogContent>

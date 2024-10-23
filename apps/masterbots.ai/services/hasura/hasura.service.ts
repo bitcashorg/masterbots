@@ -691,12 +691,12 @@ export async function deleteThread({ threadId, jwt, userId }: { threadId: string
     
     const client = getHasuraClient({ jwt })
     await client.mutation({
-      deleteThreadByPk: {
+      deleteThread: {
         __args: {
-          threadId: threadId
-        },
-        threadId: true
-      }
+          where: { threadId: { _eq: threadId }, userId: { _eq: userId } }
+        }
+      },
+      affected_rows: true
     })
 
     return { success: true };
