@@ -1,4 +1,7 @@
-import { ChatbotMetadata, ChatbotMetadataHeaders } from '@/types/types'
+import { nanoid } from '@/lib/utils'
+import type { ChatbotMetadata, ChatbotMetadataHeaders } from '@/types/types'
+import type { Message } from 'ai'
+import type { Chatbot } from 'mb-genql'
 
 // * This function creates the prompt for the AI improvement process
 export function createImprovementPrompt(content: string): string {
@@ -47,6 +50,25 @@ export function createChatbotMetadataPrompt(
     ` +
     `{ "categories": ["Technology"],"subCategories": ["Software Development"],"tags": ["Java", "Python", "C++"]}`
   )
+}
+
+export function createBotConfigurationPrompt(chatbot: Chatbot) {
+  return (
+    `Your response tone will be ${chatbot.defaultTone}. ` +
+    `Your response length will be ${chatbot.defaultLength}. ` +
+    `Your response format will be ${chatbot.defaultType}. ` +
+    `Your response complexity level will be ${chatbot.defaultComplexity}. ` +
+    `Your response will be generated in the same language as user input.`
+  )
+}
+
+export function setDefaultUserPreferencesPrompt(chatbot: Chatbot): Message {
+  return {
+    id: nanoid(),
+    role: 'system',
+    content: createBotConfigurationPrompt(chatbot),
+    createdAt: new Date()
+  }
 }
 
 export function setDefaultPrompt(userPrompt?: string) {

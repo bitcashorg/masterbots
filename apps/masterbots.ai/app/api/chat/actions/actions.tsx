@@ -1,20 +1,29 @@
 "use server";
 
 import { AIModels } from "@/app/api/chat/models/models";
-import { createChatbotMetadataPrompt, createImprovementPrompt, setDefaultPrompt } from "@/lib/constants/prompts";
+import {
+  createChatbotMetadataPrompt,
+  createImprovementPrompt,
+  setDefaultPrompt,
+} from "@/lib/constants/prompts";
 import {
   convertToCoreMessages,
   setStreamerPayload,
 } from "@/lib/helpers/ai-helpers";
 import { fetchChatbotMetadata } from "@/services/hasura";
-import type { AiClientType, ChatbotMetadataHeaders, CleanPromptResult, JSONResponseStream } from "@/types/types";
+import type {
+  AiClientType,
+  ChatbotMetadataHeaders,
+  CleanPromptResult,
+  JSONResponseStream,
+} from "@/types/types";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
 import type { ChatCompletionMessageParam } from "openai/resources";
 
 //* this function is used to create a client for the OpenAI API
-const initializeOpenAI = createOpenAI({
+const initializeOpenAi = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
   compatibility: "strict",
 });
@@ -30,7 +39,7 @@ export async function initializePerplexity(apiKey: string) {
       "PERPLEXITY_API_KEY is not defined in environment variables",
     );
   }
-  return createOpenAI({
+  return await createOpenAI({
     apiKey,
     baseURL: "https://api.perplexity.ai",
     compatibility: "compatible",
@@ -46,14 +55,19 @@ export async function improveMessage(
   const messageImprovementPrompt = createImprovementPrompt(content);
 
   try {
-    const result = await processWithAI(
+    const result = await processWithAi(
       messageImprovementPrompt,
       clientType,
       model,
     );
     const cleanedResult = cleanResult(result);
 
-    if (isInvalidResult(cleanedResult.translatedText || cleanedResult.improvedText, content)) {
+    if (
+      isInvalidResult(
+        cleanedResult.translatedText || cleanedResult.improvedText,
+        content,
+      )
+    ) {
       console.warn(
         "AI did not modify the text or returned invalid result. Recursively executing improved prompt.",
       );
@@ -62,27 +76,42 @@ export async function improveMessage(
 
     return cleanedResult;
   } catch (error) {
-    const originalText = handleImprovementError(error, content, clientType, model)
+    const originalText = handleImprovementError(
+      error,
+      content,
+      clientType,
+      model,
+    );
     return setDefaultPrompt(originalText);
   }
 }
 
-export async function subtractChatbotMetadataLabels(metadataHeaders: ChatbotMetadataHeaders, userPrompt: string, clientType: AiClientType) {
+export async function subtractChatbotMetadataLabels(
+  metadataHeaders: ChatbotMetadataHeaders,
+  userPrompt: string,
+  clientType: AiClientType,
+) {
   const chatbotMetadata = await fetchChatbotMetadata(metadataHeaders);
 
   if (!chatbotMetadata) {
-    console.error('Chatbot metadata not found. Generating response without them.');
+    console.error(
+      "Chatbot metadata not found. Generating response without them.",
+    );
     return setDefaultPrompt(userPrompt);
   }
 
-  const prompt = createChatbotMetadataPrompt(metadataHeaders, chatbotMetadata, userPrompt);
-  const response = await processWithAI(prompt, clientType, AIModels.Default);
+  const prompt = createChatbotMetadataPrompt(
+    metadataHeaders,
+    chatbotMetadata,
+    userPrompt,
+  );
+  const response = await processWithAi(prompt, clientType, AIModels.Default);
 
   return cleanResult(response);
 }
 
 // * This function process the AI response and return the cleaned result
-async function processWithAI(
+async function processWithAi(
   prompt: string,
   clientType: AiClientType,
   model: string,
@@ -141,7 +170,11 @@ async function readStreamResponse(body: ReadableStream): Promise<string> {
 }
 
 function cleanResult(result: string): CleanPromptResult {
-  const cleanedResult = result.trim().replace(/\{\n/g, '{').replace(/\n\}/g, '}').replace(/\\"/g, '"');
+  const cleanedResult = result
+    .trim()
+    .replace(/\{\n/g, "{")
+    .replace(/\n\}/g, "}")
+    .replace(/\\"/g, '"');
   // * Using template string to avoid parsing errors with ' and " special characters...
   return JSON.parse(`${cleanedResult} `);
 }
@@ -178,7 +211,7 @@ export async function createResponseStream(
 
     switch (clientType) {
       case "OpenAI": {
-        const openaiModel = initializeOpenAI(model);
+        const openaiModel = initializeOpenAi(model);
         const coreMessages = convertToCoreMessages(
           messages as ChatCompletionMessageParam[],
         );
@@ -250,7 +283,7 @@ export async function createResponseStream(
 //     3. Improving punctuation for better readability and flow
 //     4. Inferring the intended words in case of obvious typos
 
-//     It is crucial to maintain the original meaning and intent of the message. 
+//     It is crucial to maintain the original meaning and intent of the message.
 //     Please return only the improved text without any explanations, additional content, or alterations to the original message structure.
 
 //     Original text: "${content}"
