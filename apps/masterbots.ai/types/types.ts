@@ -1,8 +1,9 @@
-import Stripe from 'stripe'
-import {  type Message } from 'ai'
-import { ChatCompletionMessageParam } from 'openai/resources'
+import type { Message } from 'ai'
+import type { Chatbot, LabelChatbotCategory } from 'mb-genql'
 import 'next-auth'
-import { DefaultSession, DefaultUser } from 'next-auth'
+import type { DefaultSession, DefaultUser } from 'next-auth'
+import type { ChatCompletionMessageParam } from 'openai/resources'
+import type Stripe from 'stripe'
 
 // * Chat types
 export interface Chat extends Record<string, any> {
@@ -13,6 +14,34 @@ export interface Chat extends Record<string, any> {
   path: string
   messages: Message[]
   sharePath?: string
+}
+
+export interface ChatProps extends React.ComponentProps<'div'> {
+  initialMessages?: Message[]
+  chatbot?: Chatbot
+  threadId: string
+  newThread?: boolean
+  chatPanelClassName?: string
+  isPopup?: boolean
+  scrollToBottom?: () => void
+  isAtBottom?: boolean
+}
+
+export type ChatLoadingState =
+  | 'processing'
+  | 'digesting'
+  | 'generating'
+  | 'idle'
+  | 'polishing'
+  | 'ready'
+  | 'finished'
+
+export type CleanPromptResult = {
+  language: string
+  originalText: string
+  improvedText: string
+  translatedText: string
+  improved?: boolean
 }
 
 export type ServerActionResult<Result> = Promise<
@@ -95,8 +124,19 @@ export const initialStateSubscription = {
   status: ''
 }
 
-
 // * AI SDK related types
+
+export type ChatbotMetadataHeaders = {
+  chatbot: number
+  domain: number
+}
+
+export type ChatbotMetadata = Pick<
+  LabelChatbotCategory['label'],
+  'questions' | 'categories' | 'subCategories' | 'tags'
+>
+
+export type ReturnFetchChatbotMetadata = ChatbotMetadata | null
 
 export type CoreMessage = {
   id: string
@@ -139,7 +179,6 @@ declare module 'next-auth' {
       role?: string
     } & DefaultSession['user']
   }
-
 
   interface User extends DefaultUser {
     role: string

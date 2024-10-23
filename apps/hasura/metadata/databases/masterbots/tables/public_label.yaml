@@ -1,18 +1,11 @@
 table:
-  name: category
+  name: label
   schema: public
 array_relationships:
-  - name: chatbots
-    using:
-      foreign_key_constraint_on:
-        column: category_id
-        table:
-          name: chatbot_category
-          schema: public
   - name: metadataLabels
     using:
       foreign_key_constraint_on:
-        column: category_id
+        column: label_id
         table:
           name: label_chatbot_category
           schema: public
@@ -20,22 +13,33 @@ select_permissions:
   - role: anonymous
     permission:
       columns:
-        - category_id
-        - name
+        - advanced_labels
+        - label_id
+        - categories
+        - questions
+        - sub_categories
+        - tags
       filter: {}
     comment: ""
   - role: moderator
     permission:
       columns:
-        - category_id
-        - name
+        - advanced_labels
+        - label_id
+        - categories
+        - questions
+        - sub_categories
+        - tags
       filter: {}
-      allow_aggregations: true
     comment: ""
   - role: user
     permission:
       columns:
-        - category_id
-        - name
+        - advanced_labels
+        - label_id
+        - categories
+        - questions
+        - sub_categories
+        - tags
       filter: {}
     comment: ""
