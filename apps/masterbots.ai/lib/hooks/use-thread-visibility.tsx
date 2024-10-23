@@ -1,5 +1,4 @@
 "use client"
-
 import React , { useEffect, useState } from 'react';
 import { getThreads, UpdateThreadVisibility, deleteThread, approveThread, getUnapprovedThreads } from '@/services/hasura';
 import { useSession } from 'next-auth/react';

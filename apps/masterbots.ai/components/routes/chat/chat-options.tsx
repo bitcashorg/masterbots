@@ -14,10 +14,13 @@ import {
   BadgeCheck
 } from 'lucide-react'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
-import React from 'react'
+import React, { useState } from 'react'
 import { Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import { ShareButton } from './share-button'
+// import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle } from '@radix-ui/react-alert-dialog'
+import { AlertDialogFooter, AlertDialogHeader , AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle } from '@/components/ui/alert-dialog'
+import { IconSpinner } from '@/components/ui/icons'
 
 interface ChatOptionsProps {
   threadId: string
@@ -31,14 +34,38 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
   const title =  thread?.messages[0]?.content;
   const text = thread?.messages[1]?.content.substring(0, 100);
   const url = `/${toSlug(thread.chatbot.categories[0].category.name)}/${thread.threadId}`
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
 
-  function deleteThread() {
-    if (confirm('Are you sure you want to delete this thread?')) {
-        initiateDeleteThread(threadId);
-     }
-}
+const AlertDialogue = ({ deleteDialogOpen} :{ deleteDialogOpen: boolean}) => (
+  <AlertDialog open={deleteDialogOpen}>
+  <AlertDialogContent>
+    <AlertDialogHeader>
+      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+      <AlertDialogDescription>
+        This will permanently delete your thread  and remove your
+        data from our servers.
+      </AlertDialogDescription>
+    </AlertDialogHeader>
+    <AlertDialogFooter>
+      <AlertDialogCancel onClick={(e) => {
+         e.stopPropagation()
+        setIsDeleteOpen(false)
+      }} >
+        Cancel
+      </AlertDialogCancel>
+      <AlertDialogAction
+      onClick={() => initiateDeleteThread(threadId)}
+      >
+       <IconSpinner className="mr-2 animate-spin" />
+        Delete
+      </AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+</AlertDialog>
+)
   return (
     <div className="flex  items-center space-x-3 pt-[3px]">
+      <AlertDialogue  deleteDialogOpen={isDeleteOpen}  />
         {
             !isBrowse && (
                 <div className="flex  items-center space-x-3">
@@ -59,7 +86,7 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
         }
     
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
+        <DropdownMenuTrigger  asChild>
           <MoreVertical className="w-4 h-4" />
         </DropdownMenuTrigger>
         <DropdownMenuContent
@@ -69,6 +96,7 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
         >
           {isUser && (
             <DropdownMenuItem
+             
               className="flex-col items-start"
               onSelect={event => event.preventDefault()}
             >
@@ -113,7 +141,7 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
                 className="text-red-400 flex justify-between w-full"
                 onClick={e => { 
                     e.stopPropagation()
-                    deleteThread()
+                    setIsDeleteOpen(true)
                 }}
               >
                 <Trash className="w-4 h-4" />
