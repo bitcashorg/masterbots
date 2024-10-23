@@ -1,8 +1,14 @@
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
 import SignInForm from '@/components/auth/signin-form'
+import { useSearchParams } from 'next/navigation'
 
 export default function SignInPage() {
+  const searchParams = useSearchParams()
+  const verified = searchParams.get('verified')
+
   return (
     <div className="flex flex-col h-[calc(100vh-theme(spacing.16))] items-center py-10">
       <div
@@ -18,6 +24,12 @@ export default function SignInPage() {
         />
       </div>
       <div className="max-w-md mx-auto space-y-6">
+        {verified && (
+          <div className="p-4 text-sm text-center text-green-800 rounded-lg bg-green-50 dark:bg-green-900/30 dark:text-green-200">
+            <p className="font-medium">Email verified successfully!</p>
+            <p>Please sign in to access your account.</p>
+          </div>
+        )}
         <div className="space-y-2 text-center">
           <p className="text-muted-foreground">
             Enter your email and password to access your account.

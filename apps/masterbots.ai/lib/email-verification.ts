@@ -1,5 +1,5 @@
 import { getHasuraClient } from 'mb-lib'
-import { sendEmailVerification } from './email'
+import { getAppUrl, sendEmailVerification } from './email'
 import crypto from 'node:crypto'
 
 export async function handleUnverifiedUsers() {
@@ -15,7 +15,7 @@ export async function handleUnverifiedUsers() {
         __args: {
           where: {
             isVerified: { _eq: false },
-            createdAt: { _lt: fifteenDaysAgo.toISOString() }
+            dateJoined: { _lt: fifteenDaysAgo.toISOString() }
           }
         },
         userId: true,
@@ -54,34 +54,39 @@ export async function sendVerificationEmail(email: string, userId: string) {
     const tokenExpiry = new Date()
     tokenExpiry.setDate(tokenExpiry.getDate() + 15) // 15 days expiry
 
-    // * Store verification token
-    await client.mutation({
-      insertToken: {
+    // * First create the token
+    const { insertTokenOne } = await client.mutation({
+      insertTokenOne: {
         __args: {
-          objects: [
-            {
-              token: verificationToken,
-              tokenExpiry: tokenExpiry.toISOString(),
-              type: 'email_verification'
-            }
-          ]
-        }
-      },
-      insertUserToken: {
-        __args: {
-          objects: [
-            {
-              userId,
-              token: verificationToken
-            }
-          ]
-        }
+          object: {
+            token: verificationToken,
+            tokenExpiry: tokenExpiry.toISOString()
+          }
+        },
+        token: true
       }
     })
 
-    // * Send verification email
-    const verificationUrl = `${process.env.BASE_URL}/auth/verify-email?token=${verificationToken}`
-    await sendEmailVerification(email, verificationUrl)
+    if (insertTokenOne) {
+      // * Then create the user-token relationship
+      await client.mutation({
+        insertUserTokenOne: {
+          __args: {
+            object: {
+              userId,
+              token: verificationToken
+            }
+          },
+          userId: true,
+          token: true
+        }
+      })
+
+      // * Send verification email
+      const baseUrl = getAppUrl()
+      const verificationUrl = `${baseUrl}/auth/verify?token=${verificationToken}`
+      await sendEmailVerification(email, verificationUrl)
+    }
 
     return true
   } catch (error) {

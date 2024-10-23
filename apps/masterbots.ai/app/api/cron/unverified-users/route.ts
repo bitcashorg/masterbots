@@ -40,45 +40,61 @@ export async function GET() {
     })
 
     // * Send reminder emails to users approaching the 15-day limit
-    for (const unverifiedUser of user) {
-      const verificationToken = crypto.randomBytes(32).toString('hex')
-      const tokenExpiry = new Date(now)
-      tokenExpiry.setDate(tokenExpiry.getDate() + 1) // 24-hour expiry for final reminder
+    const reminderResults = await Promise.allSettled(
+      user.map(async unverifiedUser => {
+        try {
+          const verificationToken = crypto.randomBytes(32).toString('hex')
+          const tokenExpiry = new Date(now)
+          tokenExpiry.setDate(tokenExpiry.getDate() + 1) // 24-hour expiry for final reminder
 
-      // * Creates new verification token
-      await client.mutation({
-        insertToken: {
-          __args: {
-            objects: [
-              {
-                token: verificationToken,
-                tokenExpiry: tokenExpiry.toISOString(),
-                type: 'email_verification'
+          // * First create the token
+          const { insertTokenOne } = await client.mutation({
+            insertTokenOne: {
+              __args: {
+                object: {
+                  token: verificationToken,
+                  tokenExpiry: tokenExpiry.toISOString()
+                }
+              },
+              token: true
+            }
+          })
+
+          if (insertTokenOne) {
+            // * create the user-token relationship
+            await client.mutation({
+              insertUserTokenOne: {
+                __args: {
+                  object: {
+                    userId: unverifiedUser.userId,
+                    token: verificationToken
+                  }
+                },
+                userId: true,
+                token: true
               }
-            ]
+            })
+
+            // * Send final reminder email
+            await sendEmailVerification(
+              unverifiedUser.email,
+              verificationToken,
+              'FINAL REMINDER: Verify your email or your account will be deleted tomorrow'
+            )
+
+            return { success: true, email: unverifiedUser.email }
           }
-        },
-        insertUserToken: {
-          __args: {
-            objects: [
-              {
-                userId: unverifiedUser.userId,
-                token: verificationToken
-              }
-            ]
-          }
+        } catch (error) {
+          console.error(
+            `Failed to process reminder for user ${unverifiedUser.email}:`,
+            error
+          )
+          return { success: false, email: unverifiedUser.email, error }
         }
       })
+    )
 
-      // * Sends final reminder email
-      await sendEmailVerification(
-        unverifiedUser.email,
-        verificationToken,
-        'FINAL REMINDER: Verify your email or your account will be deleted in 15 days'
-      )
-    }
-
-    //* Delete users who haven't verified after 15 days
+    // * Delete users who haven't verified after 15 days
     const { deleteUser } = await client.mutation({
       deleteUser: {
         __args: {
@@ -94,15 +110,43 @@ export async function GET() {
       }
     })
 
+    // * Clean up any expired tokens
+    await client.mutation({
+      deleteToken: {
+        __args: {
+          where: {
+            tokenExpiry: { _lt: now.toISOString() }
+          }
+        }
+      }
+    })
+
+    // * Process results
+    const successfulReminders = reminderResults.filter(
+      result => result.status === 'fulfilled' && result.value?.success
+    ).length
+    const failedReminders = reminderResults.filter(
+      result => result.status === 'rejected' || !result.value?.success
+    ).length
+
     return NextResponse.json({
       message: 'Cron job completed successfully',
-      remindersSent: user.length,
-      usersDeleted: deleteUser?.returning.length
+      remindersSent: {
+        successful: successfulReminders,
+        failed: failedReminders,
+        total: user.length
+      },
+      usersDeleted: deleteUser?.returning?.length || 0,
+      timestamp: now.toISOString()
     })
   } catch (error) {
     console.error('Error in unverified users cron job:', error)
     return NextResponse.json(
-      { error: 'Failed to process unverified users' },
+      {
+        error: 'Failed to process unverified users',
+        details: process.env.NODE_ENV === 'development' ? error : undefined,
+        timestamp: new Date().toISOString()
+      },
       { status: 500 }
     )
   }

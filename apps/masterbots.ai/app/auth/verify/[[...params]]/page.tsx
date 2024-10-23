@@ -17,39 +17,45 @@ export default function EmailVerificationPage() {
 
   useEffect(() => {
     if (!token) {
+      console.error('No token found in URL parameters')
       setVerificationStatus('error')
       setErrorMessage('No verification token found')
       return
     }
-
     const verifyEmail = async () => {
       try {
+        console.log('Attempting to verify email with token:', token)
         const response = await fetch('/api/auth/verify-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token })
         })
 
-        if (response.ok) {
+        const data = await response.json()
+
+       if (response.ok) {
+          console.log('Email verification successful:', data)
           setVerificationStatus('success')
           const timer = setInterval(() => {
             setTimeLeft(prev => {
               if (prev <= 1) {
                 clearInterval(timer)
-                router.push('/chat')
+                //* Redirect to signin for security reasons instead of chat
+                router.push('/auth/signin?verified=true')
               }
               return prev - 1
             })
           }, 1000)
 
           return () => clearInterval(timer)
-          // biome-ignore lint/style/noUselessElse: <explanation>
+        // biome-ignore lint/style/noUselessElse: <explanation>
         } else {
-          const data = await response.json()
+          console.error('Verification failed:', data)
           setVerificationStatus('error')
           setErrorMessage(data.error || 'Verification failed')
         }
       } catch (error) {
+        console.error('Error during verification:', error)
         setVerificationStatus('error')
         setErrorMessage('An error occurred during verification')
       }
@@ -72,7 +78,7 @@ export default function EmailVerificationPage() {
           <div className="text-center">
             <h2 className="mb-4 text-2xl font-bold">Email Verified!</h2>
             <p className="mb-4">Your email has been successfully verified.</p>
-            <p className="mb-4">Redirecting to chat in {timeLeft} seconds...</p>
+            <p className="mb-4">Redirecting to signin in {timeLeft} seconds...</p>
             <Button onClick={() => router.push('/chat')}>Go to Chat Now</Button>
           </div>
         )}

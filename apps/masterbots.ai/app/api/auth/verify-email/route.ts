@@ -1,10 +1,14 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { getHasuraClient } from 'mb-lib'
 
+// * Add explicit runtime configuration
+export const runtime = 'edge'
+
 export async function POST(req: NextRequest) {
   const { token } = await req.json()
 
   if (!token) {
+    console.error('No token provided in request')
     return NextResponse.json(
       { error: 'Verification token is required' },
       { status: 400 }
@@ -50,7 +54,7 @@ export async function POST(req: NextRequest) {
           },
           _set: {
             isVerified: true,
-            last_login: new Date().toISOString()
+            lastLogin: new Date().toISOString()
           }
         },
         returning: {
@@ -78,7 +82,7 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     )
   } catch (error) {
-    console.error('Error verifying email:', error)
+    console.error('Error in verify-email API route:', error)
     return NextResponse.json(
       { error: 'An error occurred while verifying email' },
       { status: 500 }

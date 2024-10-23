@@ -1,13 +1,13 @@
 import nodemailer from 'nodemailer'
 
-// This is the interface for the email template props
+// * This is the interface for the email template props
 interface EmailTemplateProps {
   url: string
   type: 'reset' | 'verify'
 }
 
 // * Get the app URL based on the environment for the password reset link
-function getAppUrl(): string {
+export function getAppUrl(): string {
   switch (process.env.NEXT_PUBLIC_APP_ENV) {
     case 'prod':
       return 'https://masterbots.ai'
@@ -186,7 +186,8 @@ export async function sendEmailVerification(
   verificationToken: string,
   subject = 'Verify Your Email Address - Masterbots'
 ) {
-  const verificationUrl = `${process.env.BASE_URL}/auth/verify-email?token=${verificationToken}`
+  const baseUrl = getAppUrl()
+  const verificationUrl = `${baseUrl}/auth/verify?token=${verificationToken}`
   const emailContent = getEmailTemplate({
     url: verificationUrl,
     type: 'verify'
