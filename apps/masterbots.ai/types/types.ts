@@ -1,7 +1,7 @@
 import type { Message } from 'ai'
 import type { Chatbot, LabelChatbotCategory } from 'mb-genql'
 import 'next-auth'
-import type { DefaultSession } from 'next-auth'
+import type { DefaultSession, DefaultUser } from 'next-auth'
 import type { ChatCompletionMessageParam } from 'openai/resources'
 import type Stripe from 'stripe'
 
