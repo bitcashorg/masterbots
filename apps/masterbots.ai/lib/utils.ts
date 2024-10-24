@@ -1,6 +1,7 @@
-import { type Message as AIMessage } from 'ai/react'
-import { clsx, type ClassValue } from 'clsx'
-import { Message } from 'mb-genql'
+import { cleanPrompt } from '@/lib/helpers/ai-helpers'
+import type { Message as AIMessage } from 'ai/react'
+import { type ClassValue, clsx } from 'clsx'
+import type { Message } from 'mb-genql'
 import { customAlphabet } from 'nanoid'
 import { twMerge } from 'tailwind-merge'
 
@@ -50,7 +51,7 @@ export function extractBetweenMarkers(
   endMarker?: string // endMarker is now optional
 ): string {
   let startIndex = str.indexOf(startMarker)
-  let endIndex = endMarker
+  const endIndex = endMarker
     ? str.indexOf(endMarker, startIndex + startMarker.length)
     : str.length
 
@@ -79,7 +80,7 @@ export function createMessagePairs(messages: Message[] | AIMessage[]) {
 
     if (message.role === 'user') {
       const userMessage = message
-      let chatGptMessages = []
+      const chatGptMessages = []
       for (let j = i + 1; j < messages.length; j++) {
         const chatGptMessage = findNextAssistantMessage(messages, j)
         if (!chatGptMessage) {
@@ -110,19 +111,6 @@ const findNextAssistantMessage = (
     }
   }
   return null
-}
-
-// From chat-message.tsx
-export function cleanPrompt(str: string) {
-  const marker = '].  Then answer this question:'
-  const index = str.indexOf(marker)
-  let extracted = ''
-
-  if (index !== -1) {
-    extracted = str.substring(index + marker.length)
-  }
-  // console.log('cleanPrompt', str, extracted, index)
-  return extracted || str
 }
 
 export const readingTime = (messages: { content: string }[]) => {
@@ -180,7 +168,6 @@ export async function sleep(time: number) {
   return new Promise(resolve => setTimeout(resolve, time))
 }
 
-
 export const plans = [
   {
     id: 'monthly',
@@ -226,7 +213,7 @@ export function getCurrentOrTargetDate() {
 }
 
 export function getKeyByValue(map: any, searchValue: string) {
-  for (let [key, value] of map.entries()) {
+  for (const [key, value] of map.entries()) {
     if (value === searchValue) {
       return key
     }
@@ -236,8 +223,7 @@ export function getKeyByValue(map: any, searchValue: string) {
 
 export type RoleTypes = 'user' | 'moderator' | 'admin'
 
-
-export function isAdminOrModeratorRole(role: RoleTypes){
+export function isAdminOrModeratorRole(role: RoleTypes) {
   return role === 'admin' || role === 'moderator'
 }
 export const validateEmail = (email: string) => {

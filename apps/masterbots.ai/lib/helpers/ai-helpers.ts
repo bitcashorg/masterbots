@@ -106,6 +106,18 @@ export async function fetchPromptDetails(promptId: string) {
   return response.json()
 }
 
+export function cleanPrompt(str: string) {
+  const marker = '].  Then answer this question:'
+  const index = str.indexOf(marker)
+  let extracted = ''
+
+  if (index !== -1) {
+    extracted = str.substring(index + marker.length)
+  }
+  // console.log('cleanPrompt', str, extracted, index)
+  return extracted || str
+}
+
 export const processLogEntry = (logEntry: StreamEntry) => {
   const { type, value } = logEntry
   if (type === 'chunk' && value.label) {

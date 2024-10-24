@@ -1,27 +1,26 @@
 'use client'
 
-import { setDefaultUserPreferencesPrompt } from '@/lib/constants/prompts'
-import { useAtBottom } from '@/lib/hooks/use-at-bottom'
-import { useModel } from '@/lib/hooks/use-model'
-import { useSidebar } from '@/lib/hooks/use-sidebar'
-import { getAllUserMessagesAsStringArray } from '@/lib/threads'
+import { followingQuestionsPrompt, setDefaultUserPreferencesPrompt } from '@/lib/constants/prompts';
+import { useAtBottom } from '@/lib/hooks/use-at-bottom';
+import { useModel } from '@/lib/hooks/use-model';
+import { useSidebar } from '@/lib/hooks/use-sidebar';
 import {
   approveThread,
   getChatbots,
   getChatbotsCount,
   getMessages,
   saveNewMessage,
-} from '@/services/hasura'
-import type { Message as AIMessage } from 'ai'
-import { useChat } from 'ai/react'
-import { useScroll } from 'framer-motion'
-import { uniqBy } from 'lodash'
-import type { Chatbot, Message, Thread } from 'mb-genql'
-import { useSession } from 'next-auth/react'
-import { useParams } from 'next/navigation'
-import * as React from 'react'
-import toast from 'react-hot-toast'
-import { useSetState } from 'react-use'
+} from '@/services/hasura';
+import type { Message as AIMessage } from 'ai';
+import { useChat } from 'ai/react';
+import { useScroll } from 'framer-motion';
+import { uniqBy } from 'lodash';
+import type { Chatbot, Message, Thread } from 'mb-genql';
+import { useSession } from 'next-auth/react';
+import { useParams } from 'next/navigation';
+import * as React from 'react';
+import toast from 'react-hot-toast';
+import { useSetState } from 'react-use';
 
 interface ThreadContext {
   isOpenPopup: boolean
@@ -172,9 +171,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       })
       append({
         role: 'user',
-        content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
-          allMessages,
-        )}].  Then answer this question: ${fullMessage}`,
+        content: followingQuestionsPrompt(fullMessage, allMessages),
       })
     },
     [activeThread?.threadId, allMessages, append, session],
