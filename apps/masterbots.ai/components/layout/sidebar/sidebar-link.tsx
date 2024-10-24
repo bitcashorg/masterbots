@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { Checkbox } from "@/components/ui/checkbox"
 import { IconCaretRight } from '@/components/ui/icons'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
@@ -17,6 +18,10 @@ interface SidebarLinkProps {
 }
 
 export default function SidebarLink({ category, isFilterMode }: SidebarLinkProps) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const isBrowse = !pathname.includes('/c')
+  
   const {
     activeCategory,
     setActiveCategory,
@@ -35,13 +40,20 @@ export default function SidebarLink({ category, isFilterMode }: SidebarLinkProps
     e.stopPropagation()
     if (!isFilterMode) {
       setExpandedCategories(prev => 
-        prev.includes(category.categoryId)
-        ? prev.filter(id => id !== category.categoryId)
-        : [...prev, category.categoryId]
-    )
-    setActiveCategory(prev => prev === category.categoryId ? null : category.categoryId)
-  }
-  }, [category.categoryId, setActiveCategory, setExpandedCategories, isFilterMode])
+        prev.includes(category.categoryId) 
+          ? [] 
+          : [category.categoryId]
+      )
+      setActiveCategory(prev => {
+        const newCategory = prev === category.categoryId ? null : category.categoryId
+        if (newCategory && isBrowse) {
+          setActiveChatbot(null)
+          router.push(`/c/${toSlug(category.name)}`)
+        }
+        return newCategory
+      })
+    }
+  }, [category.categoryId, category.name, setActiveCategory, setExpandedCategories, setActiveChatbot, router, isFilterMode, isBrowse])
 
   const handleCheckboxChange = useCallback((checked: boolean) => {
     setSelectedCategories(prev =>
@@ -59,45 +71,71 @@ export default function SidebarLink({ category, isFilterMode }: SidebarLinkProps
   const isActive = activeCategory === category.categoryId
   const isSelected = selectedCategories.includes(category.categoryId)
 
+  const categoryContent = (
+    <>
+      {isFilterMode && (
+        <Checkbox
+          checked={isSelected}
+          onCheckedChange={handleCheckboxChange}
+          onClick={(e) => e.stopPropagation()}
+          className="mr-2"
+        />
+      )}
+      <span className="grow">{category.name}</span>
+      <IconCaretRight
+        className={cn(
+          'transition-transform duration-300 stroke-[#09090b] dark:stroke-[#FAFAFA]',
+          isExpanded || isFilterMode ? 'rotate-90' : 'rotate-0'
+        )}
+      />
+    </>
+  )
+
+  const childrenContent = (isExpanded || isFilterMode) && (
+    <div className="ml-4">
+      {category.chatbots.map((chatbotCategory) => (
+        <ChatbotComponent
+          key={chatbotCategory.chatbot.chatbotId}
+          chatbot={chatbotCategory.chatbot}
+          category={category}
+          isActive={chatbotCategory.chatbot.chatbotId === activeChatbot?.chatbotId}
+          setActiveChatbot={setActiveChatbot}
+          isFilterMode={isFilterMode}
+        />
+      ))}
+    </div>
+  )
+
+  if (isBrowse || isFilterMode) {
+    return (
+      <div className={cn('flex flex-col mb-2')}>
+        <div
+          className={cn(
+            'flex items-center p-2 cursor-pointer',
+            isActive && 'bg-gray-200 dark:bg-mirage'
+          )}
+          onClick={handleClickCategory}
+        >
+          {categoryContent}
+        </div>
+        {childrenContent}
+      </div>
+    )
+  }
+
   return (
     <div className={cn('flex flex-col mb-2')}>
-      <div
+      <Link
+        href={`/c/${toSlug(category.name)}`}
         className={cn(
           'flex items-center p-2 cursor-pointer',
           isActive && 'bg-gray-200 dark:bg-mirage'
         )}
         onClick={handleClickCategory}
       >
-        {isFilterMode && (
-          <Checkbox
-            checked={isSelected}
-            onCheckedChange={handleCheckboxChange}
-            onClick={(e) => e.stopPropagation()}
-            className="mr-2"
-          />
-        )}
-        <span className="grow">{category.name}</span>
-        <IconCaretRight
-          className={cn(
-            'transition-transform duration-300  stroke-[#09090b] dark:stroke-[#FAFAFA]',
-            isExpanded || isFilterMode ? 'rotate-90' : 'rotate-0'
-          )}
-        />
-      </div>
-      {(isExpanded || isFilterMode) && (
-        <div className="ml-4">
-          {category.chatbots.map((chatbotCategory) => (
-            <ChatbotComponent
-              key={chatbotCategory.chatbot.chatbotId}
-              chatbot={chatbotCategory.chatbot}
-              category={category}
-              isActive={chatbotCategory.chatbot.chatbotId === activeChatbot?.chatbotId}
-              setActiveChatbot={setActiveChatbot}
-              isFilterMode={isFilterMode}
-            />
-          ))}
-        </div>
-      )}
+        {categoryContent}
+      </Link>
+      {childrenContent}
     </div>
   )
 }
