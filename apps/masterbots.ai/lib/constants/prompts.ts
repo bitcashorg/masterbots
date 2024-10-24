@@ -1,6 +1,7 @@
 // ? The prompts are written with string concatenation and some string interpolation (when has dynamic data) for DX purposes.
 // ? Having the described above, the prompts are easy to read and understand, and the code is clean and maintainable.
 
+import { getAllUserMessagesAsStringArray } from '@/lib/threads'
 import { nanoid } from '@/lib/utils'
 import type { ChatbotMetadata, ChatbotMetadataHeaders } from '@/types/types'
 import type { Message } from 'ai'
@@ -64,6 +65,15 @@ export function createBotConfigurationPrompt(chatbot: Chatbot) {
     `Your response complexity level will be ${chatbot.defaultComplexity}. ` +
     'Your response will be generated in the same language as user input.'
   )
+}
+
+export function followingQuestionsPrompt(
+  userContent: string,
+  allMessages: Message[]
+) {
+  return `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
+    allMessages
+  )}].  Then answer this question: ${userContent}`
 }
 
 export function setDefaultUserPreferencesPrompt(chatbot: Chatbot): Message {

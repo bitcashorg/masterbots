@@ -8,12 +8,11 @@ import { ChatList } from "@/components/routes/chat/chat-list";
 import { ChatPanel } from "@/components/routes/chat/chat-panel";
 import { ChatScrollAnchor } from "@/components/routes/chat/chat-scroll-anchor";
 import { botNames } from "@/lib/bots-names";
-import { setDefaultPrompt } from "@/lib/constants/prompts";
+import { followingQuestionsPrompt, setDefaultPrompt } from '@/lib/constants/prompts';
 import { useAtBottom } from "@/lib/hooks/use-at-bottom";
 import { useModel } from "@/lib/hooks/use-model";
 import { useSidebar } from "@/lib/hooks/use-sidebar";
 import { useThread } from "@/lib/hooks/use-thread";
-import { getAllUserMessagesAsStringArray } from "@/lib/threads";
 import { cn, scrollToBottomOfElement } from "@/lib/utils";
 import { createThread, getThread, saveNewMessage } from "@/services/hasura";
 import type {
@@ -161,6 +160,8 @@ export function Chat({
         clientType as AiClientType,
         selectedModel,
       );
+      // * Loading: getting the the information right... 'digesting'
+      setLoadingState("digesting");
 
       if (
         processedMessage.improved ||
@@ -175,8 +176,6 @@ export function Chat({
     const { language, originalText, improvedText, translatedText } =
       processedMessage;
     const userContent = translatedText || improvedText || originalText;
-    // * Loading: getting the the information right... 'digesting'
-    setLoadingState("digesting");
 
     console.log("Processed Message: ", processedMessage);
 
@@ -253,9 +252,7 @@ export function Chat({
         ? { ...userMessage, content: userContent }
         : {
           ...userMessage,
-          content: `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
-            allMessages,
-          )}].  Then answer this question: ${userContent}`,
+          content: followingQuestionsPrompt(userContent, allMessages),
         },
     ).then((response) => {
       // * Loading: Here is the information you need... 'finish'
