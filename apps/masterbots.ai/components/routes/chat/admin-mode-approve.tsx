@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { ShieldCheck } from 'lucide-react';
-import { useThread } from '@/lib/hooks/use-thread';
-
+import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility';
 
 interface AdminModeApproveProps {
    threadId: string;
  }
 
 export function AdminModeApprove({threadId }: AdminModeApproveProps) {
-   const { adminApproveThread } = useThread();
+   const { adminApproveThread } = useThreadVisibility();
    const [isLoading, setIsLoading] = useState(false);
    const [error, setError] = useState<string | null>(null);
 

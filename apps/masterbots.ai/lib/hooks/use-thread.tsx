@@ -5,7 +5,6 @@ import { useAtBottom } from '@/lib/hooks/use-at-bottom';
 import { useModel } from '@/lib/hooks/use-model';
 import { useSidebar } from '@/lib/hooks/use-sidebar';
 import {
-  approveThread,
   getChatbots,
   getChatbotsCount,
   getMessages,
@@ -39,8 +38,6 @@ interface ThreadContext {
   sendMessageFromResponse: (bulletContent: string) => void
   setIsNewResponse: React.Dispatch<React.SetStateAction<boolean>>
   getRandomChatbot: () => void
-  handleToggleAdminMode: () => void
-  adminApproveThread: (threadId: string) => void
 }
 
 const ThreadContext = React.createContext<ThreadContext | undefined>(undefined)
@@ -247,27 +244,6 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       isOpenPopup: typeof isOpen === 'function' ? isOpen(prev.isOpenPopup) : isOpen,
     }))
 
-  const handleToggleAdminMode = () => {
-    setState({ isAdminMode: !isAdminMode })
-  }
-
-  const adminApproveThread = async (threadId: string) => {
-    try {
-      if (!session || !session.user?.hasuraJwt) {
-        toast.error('User session not found. Please log in again.')
-        return
-      }
-      await approveThread({
-        threadId,
-        jwt: session.user?.hasuraJwt,
-      })
-      toast.success('Thread approved successfully.')
-      window.location.reload()
-    } catch (error) {
-      console.error('Error approving thread:', error)
-      toast.error('Failed to approve thread. Please try again.')
-    }
-  }
 
   const value = React.useMemo(
     () => ({
@@ -287,8 +263,6 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       setActiveThread,
       setIsNewResponse,
       setIsOpenPopup,
-      handleToggleAdminMode,
-      adminApproveThread,
     }),
     [
       isLoadingMessages,

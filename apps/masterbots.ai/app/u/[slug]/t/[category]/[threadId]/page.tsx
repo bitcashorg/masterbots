@@ -1,4 +1,4 @@
-import { ChatPageProps } from '@/app/c/[category]/[chatbot]/page'
+import { ChatPageProps } from '@/types/types'
 
 export default async function ChatPage({ params }: ChatPageProps) {
   return (

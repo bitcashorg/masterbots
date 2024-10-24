@@ -203,3 +203,13 @@ export interface Plan {
   features: string[]
   features_title: string
 }
+
+
+
+export interface ChatPageProps {
+  params: {
+    category: string;
+    chatbot?: string;
+    threadId: string;
+  };
+}

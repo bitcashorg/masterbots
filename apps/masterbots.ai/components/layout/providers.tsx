@@ -8,6 +8,7 @@ import { SessionProvider } from 'next-auth/react'
 import { ThemeProvider as NextThemesProvider } from 'next-themes'
 import { ThemeProviderProps } from 'next-themes/dist/types'
 import { ModelProvider } from '@/lib/hooks/use-model'
+import { ThreadVisibilityProvider } from '@/lib/hooks/use-thread-visibility'
 
 export function Providers({ children, ...props }: ThemeProviderProps) {
   return (
@@ -17,7 +18,9 @@ export function Providers({ children, ...props }: ThemeProviderProps) {
           <SidebarProvider>
             <TooltipProvider>
               <SessionProvider>
-                <ThreadProvider>{children}</ThreadProvider>
+                <ThreadProvider> 
+                  <ThreadVisibilityProvider> {children}</ThreadVisibilityProvider>
+                </ThreadProvider>
               </SessionProvider>
             </TooltipProvider>
           </SidebarProvider>
