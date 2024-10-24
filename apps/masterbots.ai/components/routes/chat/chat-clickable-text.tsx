@@ -43,7 +43,9 @@ export function ClickableText({
 
   const handleClick = () => {
     if (sendMessageFromResponse && clickableText) {
-      sendMessageFromResponse(clickableText.replace(/(:|\.|\,)\s*$/, ''))
+      // ? @brandon -- I am not 100% sure if this would be the best place to put it, but I found this is the only use case for this scenario.
+      sendMessageFromResponse(`Tell me more about ${clickableText.replace(/(:|\.|\,)\s*$/, '')}`)
+      // sendMessageFromResponse(clickableText.replace(/(:|\.|\,)\s*$/, ''))
     }
   }
 

@@ -4,7 +4,6 @@ import { BrowseSearchInput } from '@/components/routes/browse/browse-search-inpu
 export default async function HomePage() {
   return (
     <>
-      {/* <BrowseCategoryTabs categories={categories} /> */}
       <BrowseSearchInput />
       <BrowseList />
     </>

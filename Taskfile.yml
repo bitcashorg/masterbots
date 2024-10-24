@@ -4,27 +4,22 @@ dotenv: [".env"]
 silent: true
 
 tasks:
+  # Run the main app with Turbo repo
   app:
-    -  turbo run dev --scope="masterbots.ai"
+    cmds:
+      - turbo run dev --scope="masterbots.ai"
 
   # [After Migrating] Run the hasura backend console (highly recommended for changes)
   console:
     cmds:
-      - hasura console --project apps/hasura 
-
-  # [First Step When First Boot] Run the hasura backend (docker desktop must be started first)
-  boot-no-migrate:
-    cmds:
-      - docker-compose up -d --build database
-      - sleep 10
-      - docker-compose up -d --build hasura
+      - hasura console --project apps/hasura --admin-secret ${HASURA_GRAPHQL_ADMIN_SECRET}
 
   # [First Step When First Boot] Run the hasura backend (docker desktop must be started first)
   boot:
     cmds:
-      - docker-compose up -d --build database
+      - docker compose up -d --build database
       - sleep 10
-      - docker-compose up -d --build hasura
+      - docker compose up -d --build hasura
       - echo "Waiting 30s for postgres and hasura to start ..."
       - sleep 30
       - task migrate
@@ -38,29 +33,31 @@ tasks:
   # [AFTER applying metadata & migrations] Apply the hasura seeds
   seed:
     cmds:
-      - hasura seeds apply --project apps/hasura 
+      - hasura seeds apply --project apps/hasura --admin-secret ${HASURA_GRAPHQL_ADMIN_SECRET}
 
   # Turns on the hasura backend (docker desktop must be started first)
   up:
     cmds:
-      - docker-compose up -d --build
+      - docker compose up -d --build
 
   # Turns off the hasura backend
   down:
     cmds:
-      - docker-compose down -v --remove-orphans
+      - docker compose down -v --remove-orphans
 
   # Apply the hasura migrations
   migrate:
     cmds:
-      - hasura migrate apply --project apps/hasura 
-      - hasura metadata apply --project apps/hasura 
+      - hasura migrate apply --project apps/hasura --admin-secret ${HASURA_GRAPHQL_ADMIN_SECRET}
+      - hasura metadata apply --project apps/hasura --admin-secret ${HASURA_GRAPHQL_ADMIN_SECRET}
 
   # Reset the hasura backend by going from down, to up, to migrate, to seed
   reload:
     cmds:
       - task down
-      - docker-compose up -d postgres
+      - docker compose up -d postgres
       - sleep 5
-      - docker-compose up -d --build
-      - docker-compose logs -f hasura
+      - docker compose up -d --build
+      - docker compose logs -f hasura
+      - task migrate
+      - task seed

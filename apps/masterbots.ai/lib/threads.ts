@@ -1,20 +1,7 @@
-import type * as AI from 'ai'
-import { Message, Thread } from 'mb-genql'
-import { toSlug } from 'mb-lib'
 import { extractBetweenMarkers } from '@/lib/utils'
-
-// From chat-message.tsx
-export function cleanPrompt(str: string) {
-  const marker = '].  Then answer this question:'
-  const index = str.indexOf(marker)
-  let extracted = ''
-
-  if (index !== -1) {
-    extracted = str.substring(index + marker.length)
-  }
-  // console.log('cleanPrompt', str, extracted, index)
-  return extracted || str
-}
+import type * as AI from 'ai'
+import type { Message, Thread } from 'mb-genql'
+import { toSlug } from 'mb-lib'
 
 export interface MessagePair {
   userMessage: Message | AI.Message

@@ -1,24 +1,21 @@
 // Inspired by Chatbot-UI and modified to fit the needs of this project
 // @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Chat/ChatcleanMessage.tsx
 
-import { Message } from 'ai'
+import { MemoizedReactMarkdown } from '@/components/shared/markdown'
+import { CodeBlock } from '@/components/ui/codeblock'
+import { cleanPrompt } from '@/lib/helpers/ai-helpers'
+import { cn } from '@/lib/utils'
+import type { Message } from 'ai'
+import type { Chatbot } from 'mb-genql'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
-import { cleanPrompt, cn } from '@/lib/utils'
-import { CodeBlock } from '@/components/ui/codeblock'
-import { MemoizedReactMarkdown } from '@/components/shared/markdown'
-import { Chatbot } from 'mb-genql'
 
 export interface ChatMessageProps {
   message: Message
   chatbot?: Chatbot
 }
 
-export function BrowseChatMessage({
-  message,
-  chatbot,
-  ...props
-}: ChatMessageProps) {
+export function BrowseChatMessage({ message, chatbot, ...props }: ChatMessageProps) {
   const cleanMessage = { ...message, content: cleanPrompt(message.content) }
 
   return (
@@ -34,9 +31,7 @@ export function BrowseChatMessage({
             code({ node, inline, className, children, ...props }) {
               if (children.length) {
                 if (children[0] == '▍') {
-                  return (
-                    <span className="mt-1 cursor-default animate-pulse">▍</span>
-                  )
+                  return <span className="mt-1 cursor-default animate-pulse">▍</span>
                 }
 
                 children[0] = (children[0] as string).replace('`▍`', '▍')
@@ -60,7 +55,7 @@ export function BrowseChatMessage({
                   {...props}
                 />
               )
-            }
+            },
           }}
         >
           {cleanMessage.content}

@@ -23,6 +23,12 @@ select_permissions:
         - value
       filter: {}
     comment: ""
+  - role: moderator
+    permission:
+      columns:
+        - value
+      filter: {}
+    comment: ""
   - role: user
     permission:
       columns:

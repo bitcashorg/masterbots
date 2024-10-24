@@ -30,6 +30,15 @@ select_permissions:
         - type
       filter: {}
     comment: ""
+  - role: moderator
+    permission:
+      columns:
+        - prompt_id
+        - content
+        - prompt_name
+        - type
+      filter: {}
+    comment: ""
   - role: user
     permission:
       columns:

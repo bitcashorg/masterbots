@@ -1,13 +1,14 @@
 // Inspired by Chatbot-UI and modified to fit the needs of this project
 // @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Chat/ChatcleanMessage.tsx
 
-import { ClickableText } from './chat-clickable-text'
 import { ChatMessageActions } from '@/components/routes/chat/chat-message-actions'
 import { MemoizedReactMarkdown } from '@/components/shared/markdown'
 import { CodeBlock } from '@/components/ui/codeblock'
-import { cleanPrompt, cn } from '@/lib/utils'
-import { Message } from 'ai'
-import { Chatbot } from 'mb-genql'
+import { cleanPrompt } from '@/lib/helpers/ai-helpers'
+import { cn } from '@/lib/utils'
+import type { Message } from 'ai'
+import type { Chatbot } from 'mb-genql'
+import { ClickableText } from './chat-clickable-text'
 
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
@@ -54,10 +55,7 @@ export function ChatMessage({
             li({ node, children }) {
               return (
                 <li className="list-disc">
-                  <ClickableText
-                    isListItem
-                    sendMessageFromResponse={sendMessageFromResponse}
-                  >
+                  <ClickableText isListItem sendMessageFromResponse={sendMessageFromResponse}>
                     {children}
                   </ClickableText>
                 </li>
@@ -66,9 +64,7 @@ export function ChatMessage({
             code({ node, inline, className, children, ...props }) {
               if (children.length) {
                 if (children[0] == '▍') {
-                  return (
-                    <span className="mt-1 cursor-default animate-pulse">▍</span>
-                  )
+                  return <span className="mt-1 cursor-default animate-pulse">▍</span>
                 }
 
                 children[0] = (children[0] as string).replace('`▍`', '▍')
@@ -92,16 +88,12 @@ export function ChatMessage({
                   {...props}
                 />
               )
-            }
+            },
           }}
         >
           {cleanMessage.content}
         </MemoizedReactMarkdown>
-        {actionRequired ? (
-          <ChatMessageActions className="md:!right-0" message={message} />
-        ) : (
-          ''
-        )}
+        {actionRequired ? <ChatMessageActions className="md:!right-0" message={message} /> : ''}
       </div>
     </div>
   )

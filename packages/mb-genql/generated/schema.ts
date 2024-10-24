@@ -20,6 +20,10 @@ export interface Category {
     chatbots: ChatbotCategory[]
     /** An aggregate relationship */
     chatbotsAggregate: ChatbotCategoryAggregate
+    /** An array relationship */
+    metadataLabels: LabelChatbotCategory[]
+    /** An aggregate relationship */
+    metadataLabelsAggregate: LabelChatbotCategoryAggregate
     name: Scalars['String']
     __typename: 'Category'
 }
@@ -311,6 +315,10 @@ export interface Chatbot {
     description: (Scalars['String'] | null)
     /** An object relationship */
     lengthEnum: (LengthEnum | null)
+    /** An array relationship */
+    metadataLabels: LabelChatbotCategory[]
+    /** An aggregate relationship */
+    metadataLabelsAggregate: LabelChatbotCategoryAggregate
     name: Scalars['String']
     /** An array relationship */
     preferences: Preference[]
@@ -674,6 +682,299 @@ export type ComplexityEnumUpdateColumn = 'value'
 
 /** ordering argument of a cursor */
 export type CursorOrdering = 'ASC' | 'DESC'
+
+
+/** Labels for chatbots (e.g.: domain, category, sub-category, tags  */
+export interface Label {
+    advancedLabels: Scalars['Boolean']
+    categories: Scalars['String']
+    labelId: Scalars['Int']
+    /** An array relationship */
+    metadataLabels: LabelChatbotCategory[]
+    /** An aggregate relationship */
+    metadataLabelsAggregate: LabelChatbotCategoryAggregate
+    questions: Scalars['String']
+    subCategories: Scalars['String']
+    tags: Scalars['String']
+    __typename: 'Label'
+}
+
+
+/** aggregated selection of "label" */
+export interface LabelAggregate {
+    aggregate: (LabelAggregateFields | null)
+    nodes: Label[]
+    __typename: 'LabelAggregate'
+}
+
+
+/** aggregate fields of "label" */
+export interface LabelAggregateFields {
+    avg: (LabelAvgFields | null)
+    count: Scalars['Int']
+    max: (LabelMaxFields | null)
+    min: (LabelMinFields | null)
+    stddev: (LabelStddevFields | null)
+    stddevPop: (LabelStddevPopFields | null)
+    stddevSamp: (LabelStddevSampFields | null)
+    sum: (LabelSumFields | null)
+    varPop: (LabelVarPopFields | null)
+    varSamp: (LabelVarSampFields | null)
+    variance: (LabelVarianceFields | null)
+    __typename: 'LabelAggregateFields'
+}
+
+
+/** aggregate avg on columns */
+export interface LabelAvgFields {
+    labelId: (Scalars['Float'] | null)
+    __typename: 'LabelAvgFields'
+}
+
+
+/** Junction table to connect between Label, Chatbot and Categories tables. */
+export interface LabelChatbotCategory {
+    /** An object relationship */
+    category: Category
+    categoryId: Scalars['Int']
+    /** An object relationship */
+    chatbot: Chatbot
+    chatbotId: Scalars['Int']
+    /** An object relationship */
+    label: Label
+    labelId: Scalars['Int']
+    __typename: 'LabelChatbotCategory'
+}
+
+
+/** aggregated selection of "label_chatbot_category" */
+export interface LabelChatbotCategoryAggregate {
+    aggregate: (LabelChatbotCategoryAggregateFields | null)
+    nodes: LabelChatbotCategory[]
+    __typename: 'LabelChatbotCategoryAggregate'
+}
+
+
+/** aggregate fields of "label_chatbot_category" */
+export interface LabelChatbotCategoryAggregateFields {
+    avg: (LabelChatbotCategoryAvgFields | null)
+    count: Scalars['Int']
+    max: (LabelChatbotCategoryMaxFields | null)
+    min: (LabelChatbotCategoryMinFields | null)
+    stddev: (LabelChatbotCategoryStddevFields | null)
+    stddevPop: (LabelChatbotCategoryStddevPopFields | null)
+    stddevSamp: (LabelChatbotCategoryStddevSampFields | null)
+    sum: (LabelChatbotCategorySumFields | null)
+    varPop: (LabelChatbotCategoryVarPopFields | null)
+    varSamp: (LabelChatbotCategoryVarSampFields | null)
+    variance: (LabelChatbotCategoryVarianceFields | null)
+    __typename: 'LabelChatbotCategoryAggregateFields'
+}
+
+
+/** aggregate avg on columns */
+export interface LabelChatbotCategoryAvgFields {
+    categoryId: (Scalars['Float'] | null)
+    chatbotId: (Scalars['Float'] | null)
+    labelId: (Scalars['Float'] | null)
+    __typename: 'LabelChatbotCategoryAvgFields'
+}
+
+
+/** unique or primary key constraints on table "label_chatbot_category" */
+export type LabelChatbotCategoryConstraint = 'label_chatbot_category_pkey'
+
+
+/** aggregate max on columns */
+export interface LabelChatbotCategoryMaxFields {
+    categoryId: (Scalars['Int'] | null)
+    chatbotId: (Scalars['Int'] | null)
+    labelId: (Scalars['Int'] | null)
+    __typename: 'LabelChatbotCategoryMaxFields'
+}
+
+
+/** aggregate min on columns */
+export interface LabelChatbotCategoryMinFields {
+    categoryId: (Scalars['Int'] | null)
+    chatbotId: (Scalars['Int'] | null)
+    labelId: (Scalars['Int'] | null)
+    __typename: 'LabelChatbotCategoryMinFields'
+}
+
+
+/** response of any mutation on the table "label_chatbot_category" */
+export interface LabelChatbotCategoryMutationResponse {
+    /** number of rows affected by the mutation */
+    affectedRows: Scalars['Int']
+    /** data from the rows affected by the mutation */
+    returning: LabelChatbotCategory[]
+    __typename: 'LabelChatbotCategoryMutationResponse'
+}
+
+
+/** select columns of table "label_chatbot_category" */
+export type LabelChatbotCategorySelectColumn = 'categoryId' | 'chatbotId' | 'labelId'
+
+
+/** aggregate stddev on columns */
+export interface LabelChatbotCategoryStddevFields {
+    categoryId: (Scalars['Float'] | null)
+    chatbotId: (Scalars['Float'] | null)
+    labelId: (Scalars['Float'] | null)
+    __typename: 'LabelChatbotCategoryStddevFields'
+}
+
+
+/** aggregate stddevPop on columns */
+export interface LabelChatbotCategoryStddevPopFields {
+    categoryId: (Scalars['Float'] | null)
+    chatbotId: (Scalars['Float'] | null)
+    labelId: (Scalars['Float'] | null)
+    __typename: 'LabelChatbotCategoryStddevPopFields'
+}
+
+
+/** aggregate stddevSamp on columns */
+export interface LabelChatbotCategoryStddevSampFields {
+    categoryId: (Scalars['Float'] | null)
+    chatbotId: (Scalars['Float'] | null)
+    labelId: (Scalars['Float'] | null)
+    __typename: 'LabelChatbotCategoryStddevSampFields'
+}
+
+
+/** aggregate sum on columns */
+export interface LabelChatbotCategorySumFields {
+    categoryId: (Scalars['Int'] | null)
+    chatbotId: (Scalars['Int'] | null)
+    labelId: (Scalars['Int'] | null)
+    __typename: 'LabelChatbotCategorySumFields'
+}
+
+
+/** update columns of table "label_chatbot_category" */
+export type LabelChatbotCategoryUpdateColumn = 'categoryId' | 'chatbotId' | 'labelId'
+
+
+/** aggregate varPop on columns */
+export interface LabelChatbotCategoryVarPopFields {
+    categoryId: (Scalars['Float'] | null)
+    chatbotId: (Scalars['Float'] | null)
+    labelId: (Scalars['Float'] | null)
+    __typename: 'LabelChatbotCategoryVarPopFields'
+}
+
+
+/** aggregate varSamp on columns */
+export interface LabelChatbotCategoryVarSampFields {
+    categoryId: (Scalars['Float'] | null)
+    chatbotId: (Scalars['Float'] | null)
+    labelId: (Scalars['Float'] | null)
+    __typename: 'LabelChatbotCategoryVarSampFields'
+}
+
+
+/** aggregate variance on columns */
+export interface LabelChatbotCategoryVarianceFields {
+    categoryId: (Scalars['Float'] | null)
+    chatbotId: (Scalars['Float'] | null)
+    labelId: (Scalars['Float'] | null)
+    __typename: 'LabelChatbotCategoryVarianceFields'
+}
+
+
+/** unique or primary key constraints on table "label" */
+export type LabelConstraint = 'label_label_id_key' | 'label_pkey'
+
+
+/** aggregate max on columns */
+export interface LabelMaxFields {
+    categories: (Scalars['String'] | null)
+    labelId: (Scalars['Int'] | null)
+    questions: (Scalars['String'] | null)
+    subCategories: (Scalars['String'] | null)
+    tags: (Scalars['String'] | null)
+    __typename: 'LabelMaxFields'
+}
+
+
+/** aggregate min on columns */
+export interface LabelMinFields {
+    categories: (Scalars['String'] | null)
+    labelId: (Scalars['Int'] | null)
+    questions: (Scalars['String'] | null)
+    subCategories: (Scalars['String'] | null)
+    tags: (Scalars['String'] | null)
+    __typename: 'LabelMinFields'
+}
+
+
+/** response of any mutation on the table "label" */
+export interface LabelMutationResponse {
+    /** number of rows affected by the mutation */
+    affectedRows: Scalars['Int']
+    /** data from the rows affected by the mutation */
+    returning: Label[]
+    __typename: 'LabelMutationResponse'
+}
+
+
+/** select columns of table "label" */
+export type LabelSelectColumn = 'advancedLabels' | 'categories' | 'labelId' | 'questions' | 'subCategories' | 'tags'
+
+
+/** aggregate stddev on columns */
+export interface LabelStddevFields {
+    labelId: (Scalars['Float'] | null)
+    __typename: 'LabelStddevFields'
+}
+
+
+/** aggregate stddevPop on columns */
+export interface LabelStddevPopFields {
+    labelId: (Scalars['Float'] | null)
+    __typename: 'LabelStddevPopFields'
+}
+
+
+/** aggregate stddevSamp on columns */
+export interface LabelStddevSampFields {
+    labelId: (Scalars['Float'] | null)
+    __typename: 'LabelStddevSampFields'
+}
+
+
+/** aggregate sum on columns */
+export interface LabelSumFields {
+    labelId: (Scalars['Int'] | null)
+    __typename: 'LabelSumFields'
+}
+
+
+/** update columns of table "label" */
+export type LabelUpdateColumn = 'advancedLabels' | 'categories' | 'labelId' | 'questions' | 'subCategories' | 'tags'
+
+
+/** aggregate varPop on columns */
+export interface LabelVarPopFields {
+    labelId: (Scalars['Float'] | null)
+    __typename: 'LabelVarPopFields'
+}
+
+
+/** aggregate varSamp on columns */
+export interface LabelVarSampFields {
+    labelId: (Scalars['Float'] | null)
+    __typename: 'LabelVarSampFields'
+}
+
+
+/** aggregate variance on columns */
+export interface LabelVarianceFields {
+    labelId: (Scalars['Float'] | null)
+    __typename: 'LabelVarianceFields'
+}
 
 
 /** columns and relationships of "length_enum" */
@@ -1682,6 +1983,7 @@ export interface Thread {
     chatbotId: Scalars['Int']
     createdAt: Scalars['timestamptz']
     isApproved: (Scalars['Boolean'] | null)
+    isBlocked: (Scalars['Boolean'] | null)
     isPublic: (Scalars['Boolean'] | null)
     /** An array relationship */
     messages: Message[]
@@ -1768,15 +2070,15 @@ export interface ThreadMutationResponse {
 
 
 /** select columns of table "thread" */
-export type ThreadSelectColumn = 'chatbotId' | 'createdAt' | 'isApproved' | 'isPublic' | 'model' | 'threadId' | 'updatedAt' | 'userId'
+export type ThreadSelectColumn = 'chatbotId' | 'createdAt' | 'isApproved' | 'isBlocked' | 'isPublic' | 'model' | 'threadId' | 'updatedAt' | 'userId'
 
 
 /** select "threadAggregateBoolExpBool_andArgumentsColumns" columns of table "thread" */
-export type ThreadSelectColumnThreadAggregateBoolExpBool_andArgumentsColumns = 'isApproved' | 'isPublic'
+export type ThreadSelectColumnThreadAggregateBoolExpBool_andArgumentsColumns = 'isApproved' | 'isBlocked' | 'isPublic'
 
 
 /** select "threadAggregateBoolExpBool_orArgumentsColumns" columns of table "thread" */
-export type ThreadSelectColumnThreadAggregateBoolExpBool_orArgumentsColumns = 'isApproved' | 'isPublic'
+export type ThreadSelectColumnThreadAggregateBoolExpBool_orArgumentsColumns = 'isApproved' | 'isBlocked' | 'isPublic'
 
 
 /** aggregate stddev on columns */
@@ -1808,7 +2110,7 @@ export interface ThreadSumFields {
 
 
 /** update columns of table "thread" */
-export type ThreadUpdateColumn = 'chatbotId' | 'createdAt' | 'isApproved' | 'isPublic' | 'model' | 'threadId' | 'updatedAt' | 'userId'
+export type ThreadUpdateColumn = 'chatbotId' | 'createdAt' | 'isApproved' | 'isBlocked' | 'isPublic' | 'model' | 'threadId' | 'updatedAt' | 'userId'
 
 
 /** aggregate varPop on columns */
@@ -1830,6 +2132,73 @@ export interface ThreadVarianceFields {
     chatbotId: (Scalars['Float'] | null)
     __typename: 'ThreadVarianceFields'
 }
+
+
+/** Tokens OTP for reset password and activate account  */
+export interface Token {
+    token: Scalars['String']
+    tokenExpiry: Scalars['timestamptz']
+    /** An array relationship */
+    userTokens: UserToken[]
+    /** An aggregate relationship */
+    userTokensAggregate: UserTokenAggregate
+    __typename: 'Token'
+}
+
+
+/** aggregated selection of "token" */
+export interface TokenAggregate {
+    aggregate: (TokenAggregateFields | null)
+    nodes: Token[]
+    __typename: 'TokenAggregate'
+}
+
+
+/** aggregate fields of "token" */
+export interface TokenAggregateFields {
+    count: Scalars['Int']
+    max: (TokenMaxFields | null)
+    min: (TokenMinFields | null)
+    __typename: 'TokenAggregateFields'
+}
+
+
+/** unique or primary key constraints on table "token" */
+export type TokenConstraint = 'token_pkey'
+
+
+/** aggregate max on columns */
+export interface TokenMaxFields {
+    token: (Scalars['String'] | null)
+    tokenExpiry: (Scalars['timestamptz'] | null)
+    __typename: 'TokenMaxFields'
+}
+
+
+/** aggregate min on columns */
+export interface TokenMinFields {
+    token: (Scalars['String'] | null)
+    tokenExpiry: (Scalars['timestamptz'] | null)
+    __typename: 'TokenMinFields'
+}
+
+
+/** response of any mutation on the table "token" */
+export interface TokenMutationResponse {
+    /** number of rows affected by the mutation */
+    affectedRows: Scalars['Int']
+    /** data from the rows affected by the mutation */
+    returning: Token[]
+    __typename: 'TokenMutationResponse'
+}
+
+
+/** select columns of table "token" */
+export type TokenSelectColumn = 'token' | 'tokenExpiry'
+
+
+/** update columns of table "token" */
+export type TokenUpdateColumn = 'token' | 'tokenExpiry'
 
 
 /** columns and relationships of "tone_enum" */
@@ -1978,6 +2347,7 @@ export interface User {
     email: Scalars['String']
     getFreeMonth: (Scalars['Boolean'] | null)
     isBlocked: (Scalars['Boolean'] | null)
+    isVerified: (Scalars['Boolean'] | null)
     lastLogin: (Scalars['timestamptz'] | null)
     password: Scalars['String']
     /** An array relationship */
@@ -2004,7 +2374,12 @@ export interface User {
     /** An aggregate relationship */
     threadsAggregate: ThreadAggregate
     userId: Scalars['uuid']
+    /** An array relationship */
+    userTokens: UserToken[]
+    /** An aggregate relationship */
+    userTokensAggregate: UserTokenAggregate
     username: Scalars['String']
+    role: Scalars['String']
     __typename: 'User'
 }
 
@@ -2071,11 +2446,78 @@ export interface UserMutationResponse {
 
 
 /** select columns of table "user" */
-export type UserSelectColumn = 'dateJoined' | 'email' | 'getFreeMonth' | 'isBlocked' | 'lastLogin' | 'password' | 'proUserSubscriptionId' | 'profilePicture' | 'slug' | 'userId' | 'username'
+export type UserSelectColumn = 'dateJoined' | 'email' | 'getFreeMonth' | 'isBlocked' | 'isVerified' | 'lastLogin' | 'password' | 'proUserSubscriptionId' | 'profilePicture' | 'slug' | 'userId' | 'username'
+
+
+/** user <> token relationship OTP (reset password/activate account)  */
+export interface UserToken {
+    token: Scalars['String']
+    /** An object relationship */
+    tokenByToken: Token
+    /** An object relationship */
+    user: User
+    userId: Scalars['uuid']
+    __typename: 'UserToken'
+}
+
+
+/** aggregated selection of "user_token" */
+export interface UserTokenAggregate {
+    aggregate: (UserTokenAggregateFields | null)
+    nodes: UserToken[]
+    __typename: 'UserTokenAggregate'
+}
+
+
+/** aggregate fields of "user_token" */
+export interface UserTokenAggregateFields {
+    count: Scalars['Int']
+    max: (UserTokenMaxFields | null)
+    min: (UserTokenMinFields | null)
+    __typename: 'UserTokenAggregateFields'
+}
+
+
+/** unique or primary key constraints on table "user_token" */
+export type UserTokenConstraint = 'user_token_pkey'
+
+
+/** aggregate max on columns */
+export interface UserTokenMaxFields {
+    token: (Scalars['String'] | null)
+    userId: (Scalars['uuid'] | null)
+    __typename: 'UserTokenMaxFields'
+}
+
+
+/** aggregate min on columns */
+export interface UserTokenMinFields {
+    token: (Scalars['String'] | null)
+    userId: (Scalars['uuid'] | null)
+    __typename: 'UserTokenMinFields'
+}
+
+
+/** response of any mutation on the table "user_token" */
+export interface UserTokenMutationResponse {
+    /** number of rows affected by the mutation */
+    affectedRows: Scalars['Int']
+    /** data from the rows affected by the mutation */
+    returning: UserToken[]
+    __typename: 'UserTokenMutationResponse'
+}
+
+
+/** select columns of table "user_token" */
+export type UserTokenSelectColumn = 'token' | 'userId'
+
+
+/** update columns of table "user_token" */
+export type UserTokenUpdateColumn = 'token' | 'userId'
 
 
 /** update columns of table "user" */
-export type UserUpdateColumn = 'dateJoined' | 'email' | 'getFreeMonth' | 'isBlocked' | 'lastLogin' | 'password' | 'proUserSubscriptionId' | 'profilePicture' | 'slug' | 'userId' | 'username'
+export type UserUpdateColumn = 'dateJoined' | 'email' | 'getFreeMonth' | 'isBlocked' | 'isVerified' | 'lastLogin' | 'password' | 'proUserSubscriptionId' | 'profilePicture' | 'slug' | 'userId' | 'username'
 
 
 /** mutation root */
@@ -2100,6 +2542,14 @@ export interface mutation_root {
     deleteComplexityEnum: (ComplexityEnumMutationResponse | null)
     /** delete single row from the table: "complexity_enum" */
     deleteComplexityEnumByPk: (ComplexityEnum | null)
+    /** delete data from the table: "label" */
+    deleteLabel: (LabelMutationResponse | null)
+    /** delete single row from the table: "label" */
+    deleteLabelByPk: (Label | null)
+    /** delete data from the table: "label_chatbot_category" */
+    deleteLabelChatbotCategory: (LabelChatbotCategoryMutationResponse | null)
+    /** delete single row from the table: "label_chatbot_category" */
+    deleteLabelChatbotCategoryByPk: (LabelChatbotCategory | null)
     /** delete data from the table: "length_enum" */
     deleteLengthEnum: (LengthEnumMutationResponse | null)
     /** delete single row from the table: "length_enum" */
@@ -2144,6 +2594,10 @@ export interface mutation_root {
     deleteThread: (ThreadMutationResponse | null)
     /** delete single row from the table: "thread" */
     deleteThreadByPk: (Thread | null)
+    /** delete data from the table: "token" */
+    deleteToken: (TokenMutationResponse | null)
+    /** delete single row from the table: "token" */
+    deleteTokenByPk: (Token | null)
     /** delete data from the table: "tone_enum" */
     deleteToneEnum: (ToneEnumMutationResponse | null)
     /** delete single row from the table: "tone_enum" */
@@ -2156,6 +2610,10 @@ export interface mutation_root {
     deleteUser: (UserMutationResponse | null)
     /** delete single row from the table: "user" */
     deleteUserByPk: (User | null)
+    /** delete data from the table: "user_token" */
+    deleteUserToken: (UserTokenMutationResponse | null)
+    /** delete single row from the table: "user_token" */
+    deleteUserTokenByPk: (UserToken | null)
     /** insert data into the table: "category" */
     insertCategory: (CategoryMutationResponse | null)
     /** insert a single row into the table: "category" */
@@ -2176,6 +2634,14 @@ export interface mutation_root {
     insertComplexityEnum: (ComplexityEnumMutationResponse | null)
     /** insert a single row into the table: "complexity_enum" */
     insertComplexityEnumOne: (ComplexityEnum | null)
+    /** insert data into the table: "label" */
+    insertLabel: (LabelMutationResponse | null)
+    /** insert data into the table: "label_chatbot_category" */
+    insertLabelChatbotCategory: (LabelChatbotCategoryMutationResponse | null)
+    /** insert a single row into the table: "label_chatbot_category" */
+    insertLabelChatbotCategoryOne: (LabelChatbotCategory | null)
+    /** insert a single row into the table: "label" */
+    insertLabelOne: (Label | null)
     /** insert data into the table: "length_enum" */
     insertLengthEnum: (LengthEnumMutationResponse | null)
     /** insert a single row into the table: "length_enum" */
@@ -2220,6 +2686,10 @@ export interface mutation_root {
     insertThread: (ThreadMutationResponse | null)
     /** insert a single row into the table: "thread" */
     insertThreadOne: (Thread | null)
+    /** insert data into the table: "token" */
+    insertToken: (TokenMutationResponse | null)
+    /** insert a single row into the table: "token" */
+    insertTokenOne: (Token | null)
     /** insert data into the table: "tone_enum" */
     insertToneEnum: (ToneEnumMutationResponse | null)
     /** insert a single row into the table: "tone_enum" */
@@ -2232,6 +2702,10 @@ export interface mutation_root {
     insertUser: (UserMutationResponse | null)
     /** insert a single row into the table: "user" */
     insertUserOne: (User | null)
+    /** insert data into the table: "user_token" */
+    insertUserToken: (UserTokenMutationResponse | null)
+    /** insert a single row into the table: "user_token" */
+    insertUserTokenOne: (UserToken | null)
     /** update data of the table: "category" */
     updateCategory: (CategoryMutationResponse | null)
     /** update single row of the table: "category" */
@@ -2262,6 +2736,18 @@ export interface mutation_root {
     updateComplexityEnumByPk: (ComplexityEnum | null)
     /** update multiples rows of table: "complexity_enum" */
     updateComplexityEnumMany: ((ComplexityEnumMutationResponse | null)[] | null)
+    /** update data of the table: "label" */
+    updateLabel: (LabelMutationResponse | null)
+    /** update single row of the table: "label" */
+    updateLabelByPk: (Label | null)
+    /** update data of the table: "label_chatbot_category" */
+    updateLabelChatbotCategory: (LabelChatbotCategoryMutationResponse | null)
+    /** update single row of the table: "label_chatbot_category" */
+    updateLabelChatbotCategoryByPk: (LabelChatbotCategory | null)
+    /** update multiples rows of table: "label_chatbot_category" */
+    updateLabelChatbotCategoryMany: ((LabelChatbotCategoryMutationResponse | null)[] | null)
+    /** update multiples rows of table: "label" */
+    updateLabelMany: ((LabelMutationResponse | null)[] | null)
     /** update data of the table: "length_enum" */
     updateLengthEnum: (LengthEnumMutationResponse | null)
     /** update single row of the table: "length_enum" */
@@ -2328,6 +2814,12 @@ export interface mutation_root {
     updateThreadByPk: (Thread | null)
     /** update multiples rows of table: "thread" */
     updateThreadMany: ((ThreadMutationResponse | null)[] | null)
+    /** update data of the table: "token" */
+    updateToken: (TokenMutationResponse | null)
+    /** update single row of the table: "token" */
+    updateTokenByPk: (Token | null)
+    /** update multiples rows of table: "token" */
+    updateTokenMany: ((TokenMutationResponse | null)[] | null)
     /** update data of the table: "tone_enum" */
     updateToneEnum: (ToneEnumMutationResponse | null)
     /** update single row of the table: "tone_enum" */
@@ -2346,6 +2838,12 @@ export interface mutation_root {
     updateUserByPk: (User | null)
     /** update multiples rows of table: "user" */
     updateUserMany: ((UserMutationResponse | null)[] | null)
+    /** update data of the table: "user_token" */
+    updateUserToken: (UserTokenMutationResponse | null)
+    /** update single row of the table: "user_token" */
+    updateUserTokenByPk: (UserToken | null)
+    /** update multiples rows of table: "user_token" */
+    updateUserTokenMany: ((UserTokenMutationResponse | null)[] | null)
     __typename: 'mutation_root'
 }
 
@@ -2380,6 +2878,18 @@ export interface query_root {
     complexityEnumAggregate: ComplexityEnumAggregate
     /** fetch data from the table: "complexity_enum" using primary key columns */
     complexityEnumByPk: (ComplexityEnum | null)
+    /** fetch data from the table: "label" */
+    label: Label[]
+    /** fetch aggregated fields from the table: "label" */
+    labelAggregate: LabelAggregate
+    /** fetch data from the table: "label" using primary key columns */
+    labelByPk: (Label | null)
+    /** fetch data from the table: "label_chatbot_category" */
+    labelChatbotCategory: LabelChatbotCategory[]
+    /** fetch aggregated fields from the table: "label_chatbot_category" */
+    labelChatbotCategoryAggregate: LabelChatbotCategoryAggregate
+    /** fetch data from the table: "label_chatbot_category" using primary key columns */
+    labelChatbotCategoryByPk: (LabelChatbotCategory | null)
     /** fetch data from the table: "length_enum" */
     lengthEnum: LengthEnum[]
     /** fetch aggregated fields from the table: "length_enum" */
@@ -2446,6 +2956,12 @@ export interface query_root {
     threadAggregate: ThreadAggregate
     /** fetch data from the table: "thread" using primary key columns */
     threadByPk: (Thread | null)
+    /** fetch data from the table: "token" */
+    token: Token[]
+    /** fetch aggregated fields from the table: "token" */
+    tokenAggregate: TokenAggregate
+    /** fetch data from the table: "token" using primary key columns */
+    tokenByPk: (Token | null)
     /** fetch data from the table: "tone_enum" */
     toneEnum: ToneEnum[]
     /** fetch aggregated fields from the table: "tone_enum" */
@@ -2464,6 +2980,12 @@ export interface query_root {
     userAggregate: UserAggregate
     /** fetch data from the table: "user" using primary key columns */
     userByPk: (User | null)
+    /** fetch data from the table: "user_token" */
+    userToken: UserToken[]
+    /** fetch aggregated fields from the table: "user_token" */
+    userTokenAggregate: UserTokenAggregate
+    /** fetch data from the table: "user_token" using primary key columns */
+    userTokenByPk: (UserToken | null)
     __typename: 'query_root'
 }
 
@@ -2508,6 +3030,22 @@ export interface subscription_root {
     complexityEnumByPk: (ComplexityEnum | null)
     /** fetch data from the table in a streaming manner: "complexity_enum" */
     complexityEnumStream: ComplexityEnum[]
+    /** fetch data from the table: "label" */
+    label: Label[]
+    /** fetch aggregated fields from the table: "label" */
+    labelAggregate: LabelAggregate
+    /** fetch data from the table: "label" using primary key columns */
+    labelByPk: (Label | null)
+    /** fetch data from the table: "label_chatbot_category" */
+    labelChatbotCategory: LabelChatbotCategory[]
+    /** fetch aggregated fields from the table: "label_chatbot_category" */
+    labelChatbotCategoryAggregate: LabelChatbotCategoryAggregate
+    /** fetch data from the table: "label_chatbot_category" using primary key columns */
+    labelChatbotCategoryByPk: (LabelChatbotCategory | null)
+    /** fetch data from the table in a streaming manner: "label_chatbot_category" */
+    labelChatbotCategoryStream: LabelChatbotCategory[]
+    /** fetch data from the table in a streaming manner: "label" */
+    labelStream: Label[]
     /** fetch data from the table: "length_enum" */
     lengthEnum: LengthEnum[]
     /** fetch aggregated fields from the table: "length_enum" */
@@ -2596,6 +3134,14 @@ export interface subscription_root {
     threadByPk: (Thread | null)
     /** fetch data from the table in a streaming manner: "thread" */
     threadStream: Thread[]
+    /** fetch data from the table: "token" */
+    token: Token[]
+    /** fetch aggregated fields from the table: "token" */
+    tokenAggregate: TokenAggregate
+    /** fetch data from the table: "token" using primary key columns */
+    tokenByPk: (Token | null)
+    /** fetch data from the table in a streaming manner: "token" */
+    tokenStream: Token[]
     /** fetch data from the table: "tone_enum" */
     toneEnum: ToneEnum[]
     /** fetch aggregated fields from the table: "tone_enum" */
@@ -2620,6 +3166,14 @@ export interface subscription_root {
     userByPk: (User | null)
     /** fetch data from the table in a streaming manner: "user" */
     userStream: User[]
+    /** fetch data from the table: "user_token" */
+    userToken: UserToken[]
+    /** fetch aggregated fields from the table: "user_token" */
+    userTokenAggregate: UserTokenAggregate
+    /** fetch data from the table: "user_token" using primary key columns */
+    userTokenByPk: (UserToken | null)
+    /** fetch data from the table in a streaming manner: "user_token" */
+    userTokenStream: UserToken[]
     __typename: 'subscription_root'
 }
 
@@ -2659,6 +3213,30 @@ export interface CategoryGenqlSelection{
     orderBy?: (ChatbotCategoryOrderBy[] | null), 
     /** filter the rows returned */
     where?: (ChatbotCategoryBoolExp | null)} })
+    /** An array relationship */
+    metadataLabels?: (LabelChatbotCategoryGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (LabelChatbotCategorySelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (LabelChatbotCategoryOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (LabelChatbotCategoryBoolExp | null)} })
+    /** An aggregate relationship */
+    metadataLabelsAggregate?: (LabelChatbotCategoryAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (LabelChatbotCategorySelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (LabelChatbotCategoryOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (LabelChatbotCategoryBoolExp | null)} })
     name?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -2701,7 +3279,7 @@ export interface CategoryAvgFieldsGenqlSelection{
 
 
 /** Boolean expression to filter rows from the table "category". All fields are combined with a logical 'AND'. */
-export interface CategoryBoolExp {_and?: (CategoryBoolExp[] | null),_not?: (CategoryBoolExp | null),_or?: (CategoryBoolExp[] | null),categoryId?: (IntComparisonExp | null),chatbots?: (ChatbotCategoryBoolExp | null),chatbotsAggregate?: (ChatbotCategoryAggregateBoolExp | null),name?: (StringComparisonExp | null)}
+export interface CategoryBoolExp {_and?: (CategoryBoolExp[] | null),_not?: (CategoryBoolExp | null),_or?: (CategoryBoolExp[] | null),categoryId?: (IntComparisonExp | null),chatbots?: (ChatbotCategoryBoolExp | null),chatbotsAggregate?: (ChatbotCategoryAggregateBoolExp | null),metadataLabels?: (LabelChatbotCategoryBoolExp | null),metadataLabelsAggregate?: (LabelChatbotCategoryAggregateBoolExp | null),name?: (StringComparisonExp | null)}
 
 
 /** input type for incrementing numeric columns in table "category" */
@@ -2709,7 +3287,7 @@ export interface CategoryIncInput {categoryId?: (Scalars['Int'] | null)}
 
 
 /** input type for inserting data into table "category" */
-export interface CategoryInsertInput {categoryId?: (Scalars['Int'] | null),chatbots?: (ChatbotCategoryArrRelInsertInput | null),name?: (Scalars['String'] | null)}
+export interface CategoryInsertInput {categoryId?: (Scalars['Int'] | null),chatbots?: (ChatbotCategoryArrRelInsertInput | null),metadataLabels?: (LabelChatbotCategoryArrRelInsertInput | null),name?: (Scalars['String'] | null)}
 
 
 /** aggregate max on columns */
@@ -2752,7 +3330,7 @@ export interface CategoryOnConflict {constraint: CategoryConstraint,updateColumn
 
 
 /** Ordering options when selecting data from "category". */
-export interface CategoryOrderBy {categoryId?: (OrderBy | null),chatbotsAggregate?: (ChatbotCategoryAggregateOrderBy | null),name?: (OrderBy | null)}
+export interface CategoryOrderBy {categoryId?: (OrderBy | null),chatbotsAggregate?: (ChatbotCategoryAggregateOrderBy | null),metadataLabelsAggregate?: (LabelChatbotCategoryAggregateOrderBy | null),name?: (OrderBy | null)}
 
 
 /** primary key columns input for table: category */
@@ -3148,6 +3726,30 @@ export interface ChatbotGenqlSelection{
     description?: boolean | number
     /** An object relationship */
     lengthEnum?: LengthEnumGenqlSelection
+    /** An array relationship */
+    metadataLabels?: (LabelChatbotCategoryGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (LabelChatbotCategorySelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (LabelChatbotCategoryOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (LabelChatbotCategoryBoolExp | null)} })
+    /** An aggregate relationship */
+    metadataLabelsAggregate?: (LabelChatbotCategoryAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (LabelChatbotCategorySelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (LabelChatbotCategoryOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (LabelChatbotCategoryBoolExp | null)} })
     name?: boolean | number
     /** An array relationship */
     preferences?: (PreferenceGenqlSelection & { __args?: {
@@ -3282,7 +3884,7 @@ export interface ChatbotAvgOrderBy {chatbotId?: (OrderBy | null)}
 
 
 /** Boolean expression to filter rows from the table "chatbot". All fields are combined with a logical 'AND'. */
-export interface ChatbotBoolExp {_and?: (ChatbotBoolExp[] | null),_not?: (ChatbotBoolExp | null),_or?: (ChatbotBoolExp[] | null),avatar?: (StringComparisonExp | null),categories?: (ChatbotCategoryBoolExp | null),categoriesAggregate?: (ChatbotCategoryAggregateBoolExp | null),chatbotId?: (IntComparisonExp | null),chats?: (ChatBoolExp | null),chatsAggregate?: (ChatAggregateBoolExp | null),complexityEnum?: (ComplexityEnumBoolExp | null),createdBy?: (StringComparisonExp | null),defaultComplexity?: (StringComparisonExp | null),defaultLength?: (StringComparisonExp | null),defaultTone?: (StringComparisonExp | null),defaultType?: (StringComparisonExp | null),description?: (StringComparisonExp | null),lengthEnum?: (LengthEnumBoolExp | null),name?: (StringComparisonExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),prompts?: (PromptChatbotBoolExp | null),promptsAggregate?: (PromptChatbotAggregateBoolExp | null),threads?: (ThreadBoolExp | null),threadsAggregate?: (ThreadAggregateBoolExp | null),toneEnum?: (ToneEnumBoolExp | null),typeEnum?: (TypeEnumBoolExp | null)}
+export interface ChatbotBoolExp {_and?: (ChatbotBoolExp[] | null),_not?: (ChatbotBoolExp | null),_or?: (ChatbotBoolExp[] | null),avatar?: (StringComparisonExp | null),categories?: (ChatbotCategoryBoolExp | null),categoriesAggregate?: (ChatbotCategoryAggregateBoolExp | null),chatbotId?: (IntComparisonExp | null),chats?: (ChatBoolExp | null),chatsAggregate?: (ChatAggregateBoolExp | null),complexityEnum?: (ComplexityEnumBoolExp | null),createdBy?: (StringComparisonExp | null),defaultComplexity?: (StringComparisonExp | null),defaultLength?: (StringComparisonExp | null),defaultTone?: (StringComparisonExp | null),defaultType?: (StringComparisonExp | null),description?: (StringComparisonExp | null),lengthEnum?: (LengthEnumBoolExp | null),metadataLabels?: (LabelChatbotCategoryBoolExp | null),metadataLabelsAggregate?: (LabelChatbotCategoryAggregateBoolExp | null),name?: (StringComparisonExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),prompts?: (PromptChatbotBoolExp | null),promptsAggregate?: (PromptChatbotAggregateBoolExp | null),threads?: (ThreadBoolExp | null),threadsAggregate?: (ThreadAggregateBoolExp | null),toneEnum?: (ToneEnumBoolExp | null),typeEnum?: (TypeEnumBoolExp | null)}
 
 
 /** Junction table to manage the many-to-many relationships between chatbots and their categories. */
@@ -3531,7 +4133,7 @@ export interface ChatbotIncInput {chatbotId?: (Scalars['Int'] | null)}
 
 
 /** input type for inserting data into table "chatbot" */
-export interface ChatbotInsertInput {avatar?: (Scalars['String'] | null),categories?: (ChatbotCategoryArrRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),chats?: (ChatArrRelInsertInput | null),complexityEnum?: (ComplexityEnumObjRelInsertInput | null),createdBy?: (Scalars['String'] | null),defaultComplexity?: (Scalars['String'] | null),defaultLength?: (Scalars['String'] | null),defaultTone?: (Scalars['String'] | null),defaultType?: (Scalars['String'] | null),description?: (Scalars['String'] | null),lengthEnum?: (LengthEnumObjRelInsertInput | null),name?: (Scalars['String'] | null),preferences?: (PreferenceArrRelInsertInput | null),prompts?: (PromptChatbotArrRelInsertInput | null),threads?: (ThreadArrRelInsertInput | null),toneEnum?: (ToneEnumObjRelInsertInput | null),typeEnum?: (TypeEnumObjRelInsertInput | null)}
+export interface ChatbotInsertInput {avatar?: (Scalars['String'] | null),categories?: (ChatbotCategoryArrRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),chats?: (ChatArrRelInsertInput | null),complexityEnum?: (ComplexityEnumObjRelInsertInput | null),createdBy?: (Scalars['String'] | null),defaultComplexity?: (Scalars['String'] | null),defaultLength?: (Scalars['String'] | null),defaultTone?: (Scalars['String'] | null),defaultType?: (Scalars['String'] | null),description?: (Scalars['String'] | null),lengthEnum?: (LengthEnumObjRelInsertInput | null),metadataLabels?: (LabelChatbotCategoryArrRelInsertInput | null),name?: (Scalars['String'] | null),preferences?: (PreferenceArrRelInsertInput | null),prompts?: (PromptChatbotArrRelInsertInput | null),threads?: (ThreadArrRelInsertInput | null),toneEnum?: (ToneEnumObjRelInsertInput | null),typeEnum?: (TypeEnumObjRelInsertInput | null)}
 
 
 /** aggregate max on columns */
@@ -3596,7 +4198,7 @@ export interface ChatbotOnConflict {constraint: ChatbotConstraint,updateColumns?
 
 
 /** Ordering options when selecting data from "chatbot". */
-export interface ChatbotOrderBy {avatar?: (OrderBy | null),categoriesAggregate?: (ChatbotCategoryAggregateOrderBy | null),chatbotId?: (OrderBy | null),chatsAggregate?: (ChatAggregateOrderBy | null),complexityEnum?: (ComplexityEnumOrderBy | null),createdBy?: (OrderBy | null),defaultComplexity?: (OrderBy | null),defaultLength?: (OrderBy | null),defaultTone?: (OrderBy | null),defaultType?: (OrderBy | null),description?: (OrderBy | null),lengthEnum?: (LengthEnumOrderBy | null),name?: (OrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),promptsAggregate?: (PromptChatbotAggregateOrderBy | null),threadsAggregate?: (ThreadAggregateOrderBy | null),toneEnum?: (ToneEnumOrderBy | null),typeEnum?: (TypeEnumOrderBy | null)}
+export interface ChatbotOrderBy {avatar?: (OrderBy | null),categoriesAggregate?: (ChatbotCategoryAggregateOrderBy | null),chatbotId?: (OrderBy | null),chatsAggregate?: (ChatAggregateOrderBy | null),complexityEnum?: (ComplexityEnumOrderBy | null),createdBy?: (OrderBy | null),defaultComplexity?: (OrderBy | null),defaultLength?: (OrderBy | null),defaultTone?: (OrderBy | null),defaultType?: (OrderBy | null),description?: (OrderBy | null),lengthEnum?: (LengthEnumOrderBy | null),metadataLabelsAggregate?: (LabelChatbotCategoryAggregateOrderBy | null),name?: (OrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),promptsAggregate?: (PromptChatbotAggregateOrderBy | null),threadsAggregate?: (ThreadAggregateOrderBy | null),toneEnum?: (ToneEnumOrderBy | null),typeEnum?: (TypeEnumOrderBy | null)}
 
 
 /** primary key columns input for table: chatbot */
@@ -3863,6 +4465,477 @@ where: ComplexityEnumBoolExp}
 
 /** Boolean expression to compare columns of type "Int". All fields are combined with logical 'AND'. */
 export interface IntComparisonExp {_eq?: (Scalars['Int'] | null),_gt?: (Scalars['Int'] | null),_gte?: (Scalars['Int'] | null),_in?: (Scalars['Int'][] | null),_isNull?: (Scalars['Boolean'] | null),_lt?: (Scalars['Int'] | null),_lte?: (Scalars['Int'] | null),_neq?: (Scalars['Int'] | null),_nin?: (Scalars['Int'][] | null)}
+
+
+/** Labels for chatbots (e.g.: domain, category, sub-category, tags  */
+export interface LabelGenqlSelection{
+    advancedLabels?: boolean | number
+    categories?: boolean | number
+    labelId?: boolean | number
+    /** An array relationship */
+    metadataLabels?: (LabelChatbotCategoryGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (LabelChatbotCategorySelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (LabelChatbotCategoryOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (LabelChatbotCategoryBoolExp | null)} })
+    /** An aggregate relationship */
+    metadataLabelsAggregate?: (LabelChatbotCategoryAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (LabelChatbotCategorySelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (LabelChatbotCategoryOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (LabelChatbotCategoryBoolExp | null)} })
+    questions?: boolean | number
+    subCategories?: boolean | number
+    tags?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregated selection of "label" */
+export interface LabelAggregateGenqlSelection{
+    aggregate?: LabelAggregateFieldsGenqlSelection
+    nodes?: LabelGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregate fields of "label" */
+export interface LabelAggregateFieldsGenqlSelection{
+    avg?: LabelAvgFieldsGenqlSelection
+    count?: { __args: {columns?: (LabelSelectColumn[] | null), distinct?: (Scalars['Boolean'] | null)} } | boolean | number
+    max?: LabelMaxFieldsGenqlSelection
+    min?: LabelMinFieldsGenqlSelection
+    stddev?: LabelStddevFieldsGenqlSelection
+    stddevPop?: LabelStddevPopFieldsGenqlSelection
+    stddevSamp?: LabelStddevSampFieldsGenqlSelection
+    sum?: LabelSumFieldsGenqlSelection
+    varPop?: LabelVarPopFieldsGenqlSelection
+    varSamp?: LabelVarSampFieldsGenqlSelection
+    variance?: LabelVarianceFieldsGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregate avg on columns */
+export interface LabelAvgFieldsGenqlSelection{
+    labelId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** Boolean expression to filter rows from the table "label". All fields are combined with a logical 'AND'. */
+export interface LabelBoolExp {_and?: (LabelBoolExp[] | null),_not?: (LabelBoolExp | null),_or?: (LabelBoolExp[] | null),advancedLabels?: (BooleanComparisonExp | null),categories?: (StringComparisonExp | null),labelId?: (IntComparisonExp | null),metadataLabels?: (LabelChatbotCategoryBoolExp | null),metadataLabelsAggregate?: (LabelChatbotCategoryAggregateBoolExp | null),questions?: (StringComparisonExp | null),subCategories?: (StringComparisonExp | null),tags?: (StringComparisonExp | null)}
+
+
+/** Junction table to connect between Label, Chatbot and Categories tables. */
+export interface LabelChatbotCategoryGenqlSelection{
+    /** An object relationship */
+    category?: CategoryGenqlSelection
+    categoryId?: boolean | number
+    /** An object relationship */
+    chatbot?: ChatbotGenqlSelection
+    chatbotId?: boolean | number
+    /** An object relationship */
+    label?: LabelGenqlSelection
+    labelId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregated selection of "label_chatbot_category" */
+export interface LabelChatbotCategoryAggregateGenqlSelection{
+    aggregate?: LabelChatbotCategoryAggregateFieldsGenqlSelection
+    nodes?: LabelChatbotCategoryGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+export interface LabelChatbotCategoryAggregateBoolExp {count?: (labelChatbotCategoryAggregateBoolExpCount | null)}
+
+
+/** aggregate fields of "label_chatbot_category" */
+export interface LabelChatbotCategoryAggregateFieldsGenqlSelection{
+    avg?: LabelChatbotCategoryAvgFieldsGenqlSelection
+    count?: { __args: {columns?: (LabelChatbotCategorySelectColumn[] | null), distinct?: (Scalars['Boolean'] | null)} } | boolean | number
+    max?: LabelChatbotCategoryMaxFieldsGenqlSelection
+    min?: LabelChatbotCategoryMinFieldsGenqlSelection
+    stddev?: LabelChatbotCategoryStddevFieldsGenqlSelection
+    stddevPop?: LabelChatbotCategoryStddevPopFieldsGenqlSelection
+    stddevSamp?: LabelChatbotCategoryStddevSampFieldsGenqlSelection
+    sum?: LabelChatbotCategorySumFieldsGenqlSelection
+    varPop?: LabelChatbotCategoryVarPopFieldsGenqlSelection
+    varSamp?: LabelChatbotCategoryVarSampFieldsGenqlSelection
+    variance?: LabelChatbotCategoryVarianceFieldsGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by aggregate values of table "label_chatbot_category" */
+export interface LabelChatbotCategoryAggregateOrderBy {avg?: (LabelChatbotCategoryAvgOrderBy | null),count?: (OrderBy | null),max?: (LabelChatbotCategoryMaxOrderBy | null),min?: (LabelChatbotCategoryMinOrderBy | null),stddev?: (LabelChatbotCategoryStddevOrderBy | null),stddevPop?: (LabelChatbotCategoryStddevPopOrderBy | null),stddevSamp?: (LabelChatbotCategoryStddevSampOrderBy | null),sum?: (LabelChatbotCategorySumOrderBy | null),varPop?: (LabelChatbotCategoryVarPopOrderBy | null),varSamp?: (LabelChatbotCategoryVarSampOrderBy | null),variance?: (LabelChatbotCategoryVarianceOrderBy | null)}
+
+
+/** input type for inserting array relation for remote table "label_chatbot_category" */
+export interface LabelChatbotCategoryArrRelInsertInput {data: LabelChatbotCategoryInsertInput[],
+/** upsert condition */
+onConflict?: (LabelChatbotCategoryOnConflict | null)}
+
+
+/** aggregate avg on columns */
+export interface LabelChatbotCategoryAvgFieldsGenqlSelection{
+    categoryId?: boolean | number
+    chatbotId?: boolean | number
+    labelId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by avg() on columns of table "label_chatbot_category" */
+export interface LabelChatbotCategoryAvgOrderBy {categoryId?: (OrderBy | null),chatbotId?: (OrderBy | null),labelId?: (OrderBy | null)}
+
+
+/** Boolean expression to filter rows from the table "label_chatbot_category". All fields are combined with a logical 'AND'. */
+export interface LabelChatbotCategoryBoolExp {_and?: (LabelChatbotCategoryBoolExp[] | null),_not?: (LabelChatbotCategoryBoolExp | null),_or?: (LabelChatbotCategoryBoolExp[] | null),category?: (CategoryBoolExp | null),categoryId?: (IntComparisonExp | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),label?: (LabelBoolExp | null),labelId?: (IntComparisonExp | null)}
+
+
+/** input type for incrementing numeric columns in table "label_chatbot_category" */
+export interface LabelChatbotCategoryIncInput {categoryId?: (Scalars['Int'] | null),chatbotId?: (Scalars['Int'] | null),labelId?: (Scalars['Int'] | null)}
+
+
+/** input type for inserting data into table "label_chatbot_category" */
+export interface LabelChatbotCategoryInsertInput {category?: (CategoryObjRelInsertInput | null),categoryId?: (Scalars['Int'] | null),chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),label?: (LabelObjRelInsertInput | null),labelId?: (Scalars['Int'] | null)}
+
+
+/** aggregate max on columns */
+export interface LabelChatbotCategoryMaxFieldsGenqlSelection{
+    categoryId?: boolean | number
+    chatbotId?: boolean | number
+    labelId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by max() on columns of table "label_chatbot_category" */
+export interface LabelChatbotCategoryMaxOrderBy {categoryId?: (OrderBy | null),chatbotId?: (OrderBy | null),labelId?: (OrderBy | null)}
+
+
+/** aggregate min on columns */
+export interface LabelChatbotCategoryMinFieldsGenqlSelection{
+    categoryId?: boolean | number
+    chatbotId?: boolean | number
+    labelId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by min() on columns of table "label_chatbot_category" */
+export interface LabelChatbotCategoryMinOrderBy {categoryId?: (OrderBy | null),chatbotId?: (OrderBy | null),labelId?: (OrderBy | null)}
+
+
+/** response of any mutation on the table "label_chatbot_category" */
+export interface LabelChatbotCategoryMutationResponseGenqlSelection{
+    /** number of rows affected by the mutation */
+    affectedRows?: boolean | number
+    /** data from the rows affected by the mutation */
+    returning?: LabelChatbotCategoryGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** on_conflict condition type for table "label_chatbot_category" */
+export interface LabelChatbotCategoryOnConflict {constraint: LabelChatbotCategoryConstraint,updateColumns?: LabelChatbotCategoryUpdateColumn[],where?: (LabelChatbotCategoryBoolExp | null)}
+
+
+/** Ordering options when selecting data from "label_chatbot_category". */
+export interface LabelChatbotCategoryOrderBy {category?: (CategoryOrderBy | null),categoryId?: (OrderBy | null),chatbot?: (ChatbotOrderBy | null),chatbotId?: (OrderBy | null),label?: (LabelOrderBy | null),labelId?: (OrderBy | null)}
+
+
+/** primary key columns input for table: label_chatbot_category */
+export interface LabelChatbotCategoryPkColumnsInput {categoryId: Scalars['Int'],chatbotId: Scalars['Int'],labelId: Scalars['Int']}
+
+
+/** input type for updating data in table "label_chatbot_category" */
+export interface LabelChatbotCategorySetInput {categoryId?: (Scalars['Int'] | null),chatbotId?: (Scalars['Int'] | null),labelId?: (Scalars['Int'] | null)}
+
+
+/** aggregate stddev on columns */
+export interface LabelChatbotCategoryStddevFieldsGenqlSelection{
+    categoryId?: boolean | number
+    chatbotId?: boolean | number
+    labelId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by stddev() on columns of table "label_chatbot_category" */
+export interface LabelChatbotCategoryStddevOrderBy {categoryId?: (OrderBy | null),chatbotId?: (OrderBy | null),labelId?: (OrderBy | null)}
+
+
+/** aggregate stddevPop on columns */
+export interface LabelChatbotCategoryStddevPopFieldsGenqlSelection{
+    categoryId?: boolean | number
+    chatbotId?: boolean | number
+    labelId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by stddevPop() on columns of table "label_chatbot_category" */
+export interface LabelChatbotCategoryStddevPopOrderBy {categoryId?: (OrderBy | null),chatbotId?: (OrderBy | null),labelId?: (OrderBy | null)}
+
+
+/** aggregate stddevSamp on columns */
+export interface LabelChatbotCategoryStddevSampFieldsGenqlSelection{
+    categoryId?: boolean | number
+    chatbotId?: boolean | number
+    labelId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by stddevSamp() on columns of table "label_chatbot_category" */
+export interface LabelChatbotCategoryStddevSampOrderBy {categoryId?: (OrderBy | null),chatbotId?: (OrderBy | null),labelId?: (OrderBy | null)}
+
+
+/** Streaming cursor of the table "label_chatbot_category" */
+export interface LabelChatbotCategoryStreamCursorInput {
+/** Stream column input with initial value */
+initialValue: LabelChatbotCategoryStreamCursorValueInput,
+/** cursor ordering */
+ordering?: (CursorOrdering | null)}
+
+
+/** Initial value of the column from where the streaming should start */
+export interface LabelChatbotCategoryStreamCursorValueInput {categoryId?: (Scalars['Int'] | null),chatbotId?: (Scalars['Int'] | null),labelId?: (Scalars['Int'] | null)}
+
+
+/** aggregate sum on columns */
+export interface LabelChatbotCategorySumFieldsGenqlSelection{
+    categoryId?: boolean | number
+    chatbotId?: boolean | number
+    labelId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by sum() on columns of table "label_chatbot_category" */
+export interface LabelChatbotCategorySumOrderBy {categoryId?: (OrderBy | null),chatbotId?: (OrderBy | null),labelId?: (OrderBy | null)}
+
+export interface LabelChatbotCategoryUpdates {
+/** increments the numeric columns with given value of the filtered values */
+_inc?: (LabelChatbotCategoryIncInput | null),
+/** sets the columns of the filtered rows to the given values */
+_set?: (LabelChatbotCategorySetInput | null),
+/** filter the rows which have to be updated */
+where: LabelChatbotCategoryBoolExp}
+
+
+/** aggregate varPop on columns */
+export interface LabelChatbotCategoryVarPopFieldsGenqlSelection{
+    categoryId?: boolean | number
+    chatbotId?: boolean | number
+    labelId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by varPop() on columns of table "label_chatbot_category" */
+export interface LabelChatbotCategoryVarPopOrderBy {categoryId?: (OrderBy | null),chatbotId?: (OrderBy | null),labelId?: (OrderBy | null)}
+
+
+/** aggregate varSamp on columns */
+export interface LabelChatbotCategoryVarSampFieldsGenqlSelection{
+    categoryId?: boolean | number
+    chatbotId?: boolean | number
+    labelId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by varSamp() on columns of table "label_chatbot_category" */
+export interface LabelChatbotCategoryVarSampOrderBy {categoryId?: (OrderBy | null),chatbotId?: (OrderBy | null),labelId?: (OrderBy | null)}
+
+
+/** aggregate variance on columns */
+export interface LabelChatbotCategoryVarianceFieldsGenqlSelection{
+    categoryId?: boolean | number
+    chatbotId?: boolean | number
+    labelId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by variance() on columns of table "label_chatbot_category" */
+export interface LabelChatbotCategoryVarianceOrderBy {categoryId?: (OrderBy | null),chatbotId?: (OrderBy | null),labelId?: (OrderBy | null)}
+
+
+/** input type for incrementing numeric columns in table "label" */
+export interface LabelIncInput {labelId?: (Scalars['Int'] | null)}
+
+
+/** input type for inserting data into table "label" */
+export interface LabelInsertInput {advancedLabels?: (Scalars['Boolean'] | null),categories?: (Scalars['String'] | null),labelId?: (Scalars['Int'] | null),metadataLabels?: (LabelChatbotCategoryArrRelInsertInput | null),questions?: (Scalars['String'] | null),subCategories?: (Scalars['String'] | null),tags?: (Scalars['String'] | null)}
+
+
+/** aggregate max on columns */
+export interface LabelMaxFieldsGenqlSelection{
+    categories?: boolean | number
+    labelId?: boolean | number
+    questions?: boolean | number
+    subCategories?: boolean | number
+    tags?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregate min on columns */
+export interface LabelMinFieldsGenqlSelection{
+    categories?: boolean | number
+    labelId?: boolean | number
+    questions?: boolean | number
+    subCategories?: boolean | number
+    tags?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** response of any mutation on the table "label" */
+export interface LabelMutationResponseGenqlSelection{
+    /** number of rows affected by the mutation */
+    affectedRows?: boolean | number
+    /** data from the rows affected by the mutation */
+    returning?: LabelGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** input type for inserting object relation for remote table "label" */
+export interface LabelObjRelInsertInput {data: LabelInsertInput,
+/** upsert condition */
+onConflict?: (LabelOnConflict | null)}
+
+
+/** on_conflict condition type for table "label" */
+export interface LabelOnConflict {constraint: LabelConstraint,updateColumns?: LabelUpdateColumn[],where?: (LabelBoolExp | null)}
+
+
+/** Ordering options when selecting data from "label". */
+export interface LabelOrderBy {advancedLabels?: (OrderBy | null),categories?: (OrderBy | null),labelId?: (OrderBy | null),metadataLabelsAggregate?: (LabelChatbotCategoryAggregateOrderBy | null),questions?: (OrderBy | null),subCategories?: (OrderBy | null),tags?: (OrderBy | null)}
+
+
+/** primary key columns input for table: label */
+export interface LabelPkColumnsInput {labelId: Scalars['Int']}
+
+
+/** input type for updating data in table "label" */
+export interface LabelSetInput {advancedLabels?: (Scalars['Boolean'] | null),categories?: (Scalars['String'] | null),labelId?: (Scalars['Int'] | null),questions?: (Scalars['String'] | null),subCategories?: (Scalars['String'] | null),tags?: (Scalars['String'] | null)}
+
+
+/** aggregate stddev on columns */
+export interface LabelStddevFieldsGenqlSelection{
+    labelId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregate stddevPop on columns */
+export interface LabelStddevPopFieldsGenqlSelection{
+    labelId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregate stddevSamp on columns */
+export interface LabelStddevSampFieldsGenqlSelection{
+    labelId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** Streaming cursor of the table "label" */
+export interface LabelStreamCursorInput {
+/** Stream column input with initial value */
+initialValue: LabelStreamCursorValueInput,
+/** cursor ordering */
+ordering?: (CursorOrdering | null)}
+
+
+/** Initial value of the column from where the streaming should start */
+export interface LabelStreamCursorValueInput {advancedLabels?: (Scalars['Boolean'] | null),categories?: (Scalars['String'] | null),labelId?: (Scalars['Int'] | null),questions?: (Scalars['String'] | null),subCategories?: (Scalars['String'] | null),tags?: (Scalars['String'] | null)}
+
+
+/** aggregate sum on columns */
+export interface LabelSumFieldsGenqlSelection{
+    labelId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+export interface LabelUpdates {
+/** increments the numeric columns with given value of the filtered values */
+_inc?: (LabelIncInput | null),
+/** sets the columns of the filtered rows to the given values */
+_set?: (LabelSetInput | null),
+/** filter the rows which have to be updated */
+where: LabelBoolExp}
+
+
+/** aggregate varPop on columns */
+export interface LabelVarPopFieldsGenqlSelection{
+    labelId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregate varSamp on columns */
+export interface LabelVarSampFieldsGenqlSelection{
+    labelId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregate variance on columns */
+export interface LabelVarianceFieldsGenqlSelection{
+    labelId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
 
 
 /** columns and relationships of "length_enum" */
@@ -5719,6 +6792,7 @@ export interface ThreadGenqlSelection{
     chatbotId?: boolean | number
     createdAt?: boolean | number
     isApproved?: boolean | number
+    isBlocked?: boolean | number
     isPublic?: boolean | number
     /** An array relationship */
     messages?: (MessageGenqlSelection & { __args?: {
@@ -5809,7 +6883,7 @@ export interface ThreadAvgOrderBy {chatbotId?: (OrderBy | null)}
 
 
 /** Boolean expression to filter rows from the table "thread". All fields are combined with a logical 'AND'. */
-export interface ThreadBoolExp {_and?: (ThreadBoolExp[] | null),_not?: (ThreadBoolExp | null),_or?: (ThreadBoolExp[] | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),createdAt?: (TimestamptzComparisonExp | null),isApproved?: (BooleanComparisonExp | null),isPublic?: (BooleanComparisonExp | null),messages?: (MessageBoolExp | null),messagesAggregate?: (MessageAggregateBoolExp | null),model?: (ModelsEnumEnumComparisonExp | null),modelsEnum?: (ModelsEnumBoolExp | null),threadId?: (UuidComparisonExp | null),updatedAt?: (TimestamptzComparisonExp | null),user?: (UserBoolExp | null),userId?: (UuidComparisonExp | null)}
+export interface ThreadBoolExp {_and?: (ThreadBoolExp[] | null),_not?: (ThreadBoolExp | null),_or?: (ThreadBoolExp[] | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),createdAt?: (TimestamptzComparisonExp | null),isApproved?: (BooleanComparisonExp | null),isBlocked?: (BooleanComparisonExp | null),isPublic?: (BooleanComparisonExp | null),messages?: (MessageBoolExp | null),messagesAggregate?: (MessageAggregateBoolExp | null),model?: (ModelsEnumEnumComparisonExp | null),modelsEnum?: (ModelsEnumBoolExp | null),threadId?: (UuidComparisonExp | null),updatedAt?: (TimestamptzComparisonExp | null),user?: (UserBoolExp | null),userId?: (UuidComparisonExp | null)}
 
 
 /** input type for incrementing numeric columns in table "thread" */
@@ -5817,7 +6891,7 @@ export interface ThreadIncInput {chatbotId?: (Scalars['Int'] | null)}
 
 
 /** input type for inserting data into table "thread" */
-export interface ThreadInsertInput {chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isApproved?: (Scalars['Boolean'] | null),isPublic?: (Scalars['Boolean'] | null),messages?: (MessageArrRelInsertInput | null),model?: (ModelsEnumEnum | null),modelsEnum?: (ModelsEnumObjRelInsertInput | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),user?: (UserObjRelInsertInput | null),userId?: (Scalars['uuid'] | null)}
+export interface ThreadInsertInput {chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isApproved?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isPublic?: (Scalars['Boolean'] | null),messages?: (MessageArrRelInsertInput | null),model?: (ModelsEnumEnum | null),modelsEnum?: (ModelsEnumObjRelInsertInput | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),user?: (UserObjRelInsertInput | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate max on columns */
@@ -5874,7 +6948,7 @@ export interface ThreadOnConflict {constraint: ThreadConstraint,updateColumns?: 
 
 
 /** Ordering options when selecting data from "thread". */
-export interface ThreadOrderBy {chatbot?: (ChatbotOrderBy | null),chatbotId?: (OrderBy | null),createdAt?: (OrderBy | null),isApproved?: (OrderBy | null),isPublic?: (OrderBy | null),messagesAggregate?: (MessageAggregateOrderBy | null),model?: (OrderBy | null),modelsEnum?: (ModelsEnumOrderBy | null),threadId?: (OrderBy | null),updatedAt?: (OrderBy | null),user?: (UserOrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadOrderBy {chatbot?: (ChatbotOrderBy | null),chatbotId?: (OrderBy | null),createdAt?: (OrderBy | null),isApproved?: (OrderBy | null),isBlocked?: (OrderBy | null),isPublic?: (OrderBy | null),messagesAggregate?: (MessageAggregateOrderBy | null),model?: (OrderBy | null),modelsEnum?: (ModelsEnumOrderBy | null),threadId?: (OrderBy | null),updatedAt?: (OrderBy | null),user?: (UserOrderBy | null),userId?: (OrderBy | null)}
 
 
 /** primary key columns input for table: thread */
@@ -5882,7 +6956,7 @@ export interface ThreadPkColumnsInput {threadId: Scalars['uuid']}
 
 
 /** input type for updating data in table "thread" */
-export interface ThreadSetInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isApproved?: (Scalars['Boolean'] | null),isPublic?: (Scalars['Boolean'] | null),model?: (ModelsEnumEnum | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
+export interface ThreadSetInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isApproved?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isPublic?: (Scalars['Boolean'] | null),model?: (ModelsEnumEnum | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate stddev on columns */
@@ -5930,7 +7004,7 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface ThreadStreamCursorValueInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isApproved?: (Scalars['Boolean'] | null),isPublic?: (Scalars['Boolean'] | null),model?: (ModelsEnumEnum | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
+export interface ThreadStreamCursorValueInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isApproved?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isPublic?: (Scalars['Boolean'] | null),model?: (ModelsEnumEnum | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate sum on columns */
@@ -5991,6 +7065,135 @@ export interface ThreadVarianceOrderBy {chatbotId?: (OrderBy | null)}
 
 /** Boolean expression to compare columns of type "timestamptz". All fields are combined with logical 'AND'. */
 export interface TimestamptzComparisonExp {_eq?: (Scalars['timestamptz'] | null),_gt?: (Scalars['timestamptz'] | null),_gte?: (Scalars['timestamptz'] | null),_in?: (Scalars['timestamptz'][] | null),_isNull?: (Scalars['Boolean'] | null),_lt?: (Scalars['timestamptz'] | null),_lte?: (Scalars['timestamptz'] | null),_neq?: (Scalars['timestamptz'] | null),_nin?: (Scalars['timestamptz'][] | null)}
+
+
+/** Tokens OTP for reset password and activate account  */
+export interface TokenGenqlSelection{
+    token?: boolean | number
+    tokenExpiry?: boolean | number
+    /** An array relationship */
+    userTokens?: (UserTokenGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (UserTokenSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (UserTokenOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (UserTokenBoolExp | null)} })
+    /** An aggregate relationship */
+    userTokensAggregate?: (UserTokenAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (UserTokenSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (UserTokenOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (UserTokenBoolExp | null)} })
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregated selection of "token" */
+export interface TokenAggregateGenqlSelection{
+    aggregate?: TokenAggregateFieldsGenqlSelection
+    nodes?: TokenGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregate fields of "token" */
+export interface TokenAggregateFieldsGenqlSelection{
+    count?: { __args: {columns?: (TokenSelectColumn[] | null), distinct?: (Scalars['Boolean'] | null)} } | boolean | number
+    max?: TokenMaxFieldsGenqlSelection
+    min?: TokenMinFieldsGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** Boolean expression to filter rows from the table "token". All fields are combined with a logical 'AND'. */
+export interface TokenBoolExp {_and?: (TokenBoolExp[] | null),_not?: (TokenBoolExp | null),_or?: (TokenBoolExp[] | null),token?: (StringComparisonExp | null),tokenExpiry?: (TimestamptzComparisonExp | null),userTokens?: (UserTokenBoolExp | null),userTokensAggregate?: (UserTokenAggregateBoolExp | null)}
+
+
+/** input type for inserting data into table "token" */
+export interface TokenInsertInput {token?: (Scalars['String'] | null),tokenExpiry?: (Scalars['timestamptz'] | null),userTokens?: (UserTokenArrRelInsertInput | null)}
+
+
+/** aggregate max on columns */
+export interface TokenMaxFieldsGenqlSelection{
+    token?: boolean | number
+    tokenExpiry?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregate min on columns */
+export interface TokenMinFieldsGenqlSelection{
+    token?: boolean | number
+    tokenExpiry?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** response of any mutation on the table "token" */
+export interface TokenMutationResponseGenqlSelection{
+    /** number of rows affected by the mutation */
+    affectedRows?: boolean | number
+    /** data from the rows affected by the mutation */
+    returning?: TokenGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** input type for inserting object relation for remote table "token" */
+export interface TokenObjRelInsertInput {data: TokenInsertInput,
+/** upsert condition */
+onConflict?: (TokenOnConflict | null)}
+
+
+/** on_conflict condition type for table "token" */
+export interface TokenOnConflict {constraint: TokenConstraint,updateColumns?: TokenUpdateColumn[],where?: (TokenBoolExp | null)}
+
+
+/** Ordering options when selecting data from "token". */
+export interface TokenOrderBy {token?: (OrderBy | null),tokenExpiry?: (OrderBy | null),userTokensAggregate?: (UserTokenAggregateOrderBy | null)}
+
+
+/** primary key columns input for table: token */
+export interface TokenPkColumnsInput {token: Scalars['String']}
+
+
+/** input type for updating data in table "token" */
+export interface TokenSetInput {token?: (Scalars['String'] | null),tokenExpiry?: (Scalars['timestamptz'] | null)}
+
+
+/** Streaming cursor of the table "token" */
+export interface TokenStreamCursorInput {
+/** Stream column input with initial value */
+initialValue: TokenStreamCursorValueInput,
+/** cursor ordering */
+ordering?: (CursorOrdering | null)}
+
+
+/** Initial value of the column from where the streaming should start */
+export interface TokenStreamCursorValueInput {token?: (Scalars['String'] | null),tokenExpiry?: (Scalars['timestamptz'] | null)}
+
+export interface TokenUpdates {
+/** sets the columns of the filtered rows to the given values */
+_set?: (TokenSetInput | null),
+/** filter the rows which have to be updated */
+where: TokenBoolExp}
 
 
 /** columns and relationships of "tone_enum" */
@@ -6323,6 +7526,7 @@ export interface UserGenqlSelection{
     email?: boolean | number
     getFreeMonth?: boolean | number
     isBlocked?: boolean | number
+    isVerified?: boolean | number
     lastLogin?: boolean | number
     password?: boolean | number
     /** An array relationship */
@@ -6449,6 +7653,30 @@ export interface UserGenqlSelection{
     /** filter the rows returned */
     where?: (ThreadBoolExp | null)} })
     userId?: boolean | number
+    /** An array relationship */
+    userTokens?: (UserTokenGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (UserTokenSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (UserTokenOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (UserTokenBoolExp | null)} })
+    /** An aggregate relationship */
+    userTokensAggregate?: (UserTokenAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (UserTokenSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (UserTokenOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (UserTokenBoolExp | null)} })
     username?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -6475,11 +7703,11 @@ export interface UserAggregateFieldsGenqlSelection{
 
 
 /** Boolean expression to filter rows from the table "user". All fields are combined with a logical 'AND'. */
-export interface UserBoolExp {_and?: (UserBoolExp[] | null),_not?: (UserBoolExp | null),_or?: (UserBoolExp[] | null),chats?: (ChatBoolExp | null),chatsAggregate?: (ChatAggregateBoolExp | null),dateJoined?: (TimestamptzComparisonExp | null),email?: (StringComparisonExp | null),getFreeMonth?: (BooleanComparisonExp | null),isBlocked?: (BooleanComparisonExp | null),lastLogin?: (TimestamptzComparisonExp | null),password?: (StringComparisonExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),proUserSubscriptionId?: (StringComparisonExp | null),profilePicture?: (StringComparisonExp | null),prompts?: (PromptUserBoolExp | null),promptsAggregate?: (PromptUserAggregateBoolExp | null),referrals?: (ReferralBoolExp | null),referralsAggregate?: (ReferralAggregateBoolExp | null),referralsByUserId?: (ReferralBoolExp | null),referralsByUserIdAggregate?: (ReferralAggregateBoolExp | null),slug?: (StringComparisonExp | null),threads?: (ThreadBoolExp | null),threadsAggregate?: (ThreadAggregateBoolExp | null),userId?: (UuidComparisonExp | null),username?: (StringComparisonExp | null)}
+export interface UserBoolExp {_and?: (UserBoolExp[] | null),_not?: (UserBoolExp | null),_or?: (UserBoolExp[] | null),chats?: (ChatBoolExp | null),chatsAggregate?: (ChatAggregateBoolExp | null),dateJoined?: (TimestamptzComparisonExp | null),email?: (StringComparisonExp | null),getFreeMonth?: (BooleanComparisonExp | null),isBlocked?: (BooleanComparisonExp | null),isVerified?: (BooleanComparisonExp | null),lastLogin?: (TimestamptzComparisonExp | null),password?: (StringComparisonExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),proUserSubscriptionId?: (StringComparisonExp | null),profilePicture?: (StringComparisonExp | null),prompts?: (PromptUserBoolExp | null),promptsAggregate?: (PromptUserAggregateBoolExp | null),referrals?: (ReferralBoolExp | null),referralsAggregate?: (ReferralAggregateBoolExp | null),referralsByUserId?: (ReferralBoolExp | null),referralsByUserIdAggregate?: (ReferralAggregateBoolExp | null),slug?: (StringComparisonExp | null),threads?: (ThreadBoolExp | null),threadsAggregate?: (ThreadAggregateBoolExp | null),userId?: (UuidComparisonExp | null),userTokens?: (UserTokenBoolExp | null),userTokensAggregate?: (UserTokenAggregateBoolExp | null),username?: (StringComparisonExp | null)}
 
 
 /** input type for inserting data into table "user" */
-export interface UserInsertInput {chats?: (ChatArrRelInsertInput | null),dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),preferences?: (PreferenceArrRelInsertInput | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),prompts?: (PromptUserArrRelInsertInput | null),referrals?: (ReferralArrRelInsertInput | null),referralsByUserId?: (ReferralArrRelInsertInput | null),slug?: (Scalars['String'] | null),threads?: (ThreadArrRelInsertInput | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
+export interface UserInsertInput {chats?: (ChatArrRelInsertInput | null),dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isVerified?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),preferences?: (PreferenceArrRelInsertInput | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),prompts?: (PromptUserArrRelInsertInput | null),referrals?: (ReferralArrRelInsertInput | null),referralsByUserId?: (ReferralArrRelInsertInput | null),slug?: (Scalars['String'] | null),threads?: (ThreadArrRelInsertInput | null),userId?: (Scalars['uuid'] | null),userTokens?: (UserTokenArrRelInsertInput | null),username?: (Scalars['String'] | null)}
 
 
 /** aggregate max on columns */
@@ -6536,7 +7764,7 @@ export interface UserOnConflict {constraint: UserConstraint,updateColumns?: User
 
 
 /** Ordering options when selecting data from "user". */
-export interface UserOrderBy {chatsAggregate?: (ChatAggregateOrderBy | null),dateJoined?: (OrderBy | null),email?: (OrderBy | null),getFreeMonth?: (OrderBy | null),isBlocked?: (OrderBy | null),lastLogin?: (OrderBy | null),password?: (OrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),proUserSubscriptionId?: (OrderBy | null),profilePicture?: (OrderBy | null),promptsAggregate?: (PromptUserAggregateOrderBy | null),referralsAggregate?: (ReferralAggregateOrderBy | null),referralsByUserIdAggregate?: (ReferralAggregateOrderBy | null),slug?: (OrderBy | null),threadsAggregate?: (ThreadAggregateOrderBy | null),userId?: (OrderBy | null),username?: (OrderBy | null)}
+export interface UserOrderBy {chatsAggregate?: (ChatAggregateOrderBy | null),dateJoined?: (OrderBy | null),email?: (OrderBy | null),getFreeMonth?: (OrderBy | null),isBlocked?: (OrderBy | null),isVerified?: (OrderBy | null),lastLogin?: (OrderBy | null),password?: (OrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),proUserSubscriptionId?: (OrderBy | null),profilePicture?: (OrderBy | null),promptsAggregate?: (PromptUserAggregateOrderBy | null),referralsAggregate?: (ReferralAggregateOrderBy | null),referralsByUserIdAggregate?: (ReferralAggregateOrderBy | null),slug?: (OrderBy | null),threadsAggregate?: (ThreadAggregateOrderBy | null),userId?: (OrderBy | null),userTokensAggregate?: (UserTokenAggregateOrderBy | null),username?: (OrderBy | null)}
 
 
 /** primary key columns input for table: user */
@@ -6544,7 +7772,7 @@ export interface UserPkColumnsInput {userId: Scalars['uuid']}
 
 
 /** input type for updating data in table "user" */
-export interface UserSetInput {dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),slug?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
+export interface UserSetInput {dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isVerified?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),slug?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
 
 
 /** Streaming cursor of the table "user" */
@@ -6556,7 +7784,130 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface UserStreamCursorValueInput {dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),slug?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
+export interface UserStreamCursorValueInput {dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isVerified?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),slug?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
+
+
+/** user <> token relationship OTP (reset password/activate account)  */
+export interface UserTokenGenqlSelection{
+    token?: boolean | number
+    /** An object relationship */
+    tokenByToken?: TokenGenqlSelection
+    /** An object relationship */
+    user?: UserGenqlSelection
+    userId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregated selection of "user_token" */
+export interface UserTokenAggregateGenqlSelection{
+    aggregate?: UserTokenAggregateFieldsGenqlSelection
+    nodes?: UserTokenGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+export interface UserTokenAggregateBoolExp {count?: (userTokenAggregateBoolExpCount | null)}
+
+
+/** aggregate fields of "user_token" */
+export interface UserTokenAggregateFieldsGenqlSelection{
+    count?: { __args: {columns?: (UserTokenSelectColumn[] | null), distinct?: (Scalars['Boolean'] | null)} } | boolean | number
+    max?: UserTokenMaxFieldsGenqlSelection
+    min?: UserTokenMinFieldsGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by aggregate values of table "user_token" */
+export interface UserTokenAggregateOrderBy {count?: (OrderBy | null),max?: (UserTokenMaxOrderBy | null),min?: (UserTokenMinOrderBy | null)}
+
+
+/** input type for inserting array relation for remote table "user_token" */
+export interface UserTokenArrRelInsertInput {data: UserTokenInsertInput[],
+/** upsert condition */
+onConflict?: (UserTokenOnConflict | null)}
+
+
+/** Boolean expression to filter rows from the table "user_token". All fields are combined with a logical 'AND'. */
+export interface UserTokenBoolExp {_and?: (UserTokenBoolExp[] | null),_not?: (UserTokenBoolExp | null),_or?: (UserTokenBoolExp[] | null),token?: (StringComparisonExp | null),tokenByToken?: (TokenBoolExp | null),user?: (UserBoolExp | null),userId?: (UuidComparisonExp | null)}
+
+
+/** input type for inserting data into table "user_token" */
+export interface UserTokenInsertInput {token?: (Scalars['String'] | null),tokenByToken?: (TokenObjRelInsertInput | null),user?: (UserObjRelInsertInput | null),userId?: (Scalars['uuid'] | null)}
+
+
+/** aggregate max on columns */
+export interface UserTokenMaxFieldsGenqlSelection{
+    token?: boolean | number
+    userId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by max() on columns of table "user_token" */
+export interface UserTokenMaxOrderBy {token?: (OrderBy | null),userId?: (OrderBy | null)}
+
+
+/** aggregate min on columns */
+export interface UserTokenMinFieldsGenqlSelection{
+    token?: boolean | number
+    userId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by min() on columns of table "user_token" */
+export interface UserTokenMinOrderBy {token?: (OrderBy | null),userId?: (OrderBy | null)}
+
+
+/** response of any mutation on the table "user_token" */
+export interface UserTokenMutationResponseGenqlSelection{
+    /** number of rows affected by the mutation */
+    affectedRows?: boolean | number
+    /** data from the rows affected by the mutation */
+    returning?: UserTokenGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** on_conflict condition type for table "user_token" */
+export interface UserTokenOnConflict {constraint: UserTokenConstraint,updateColumns?: UserTokenUpdateColumn[],where?: (UserTokenBoolExp | null)}
+
+
+/** Ordering options when selecting data from "user_token". */
+export interface UserTokenOrderBy {token?: (OrderBy | null),tokenByToken?: (TokenOrderBy | null),user?: (UserOrderBy | null),userId?: (OrderBy | null)}
+
+
+/** primary key columns input for table: user_token */
+export interface UserTokenPkColumnsInput {token: Scalars['String'],userId: Scalars['uuid']}
+
+
+/** input type for updating data in table "user_token" */
+export interface UserTokenSetInput {token?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null)}
+
+
+/** Streaming cursor of the table "user_token" */
+export interface UserTokenStreamCursorInput {
+/** Stream column input with initial value */
+initialValue: UserTokenStreamCursorValueInput,
+/** cursor ordering */
+ordering?: (CursorOrdering | null)}
+
+
+/** Initial value of the column from where the streaming should start */
+export interface UserTokenStreamCursorValueInput {token?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null)}
+
+export interface UserTokenUpdates {
+/** sets the columns of the filtered rows to the given values */
+_set?: (UserTokenSetInput | null),
+/** filter the rows which have to be updated */
+where: UserTokenBoolExp}
 
 export interface UserUpdates {
 /** sets the columns of the filtered rows to the given values */
@@ -6573,6 +7924,8 @@ export interface chatAggregateBoolExpCount {arguments?: (ChatSelectColumn[] | nu
 export interface chatbotAggregateBoolExpCount {arguments?: (ChatbotSelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (ChatbotBoolExp | null),predicate: IntComparisonExp}
 
 export interface chatbotCategoryAggregateBoolExpCount {arguments?: (ChatbotCategorySelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (ChatbotCategoryBoolExp | null),predicate: IntComparisonExp}
+
+export interface labelChatbotCategoryAggregateBoolExpCount {arguments?: (LabelChatbotCategorySelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (LabelChatbotCategoryBoolExp | null),predicate: IntComparisonExp}
 
 export interface messageAggregateBoolExpCount {arguments?: (MessageSelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (MessageBoolExp | null),predicate: IntComparisonExp}
 
@@ -6609,6 +7962,18 @@ export interface mutation_rootGenqlSelection{
     where: ComplexityEnumBoolExp} })
     /** delete single row from the table: "complexity_enum" */
     deleteComplexityEnumByPk?: (ComplexityEnumGenqlSelection & { __args: {value: Scalars['String']} })
+    /** delete data from the table: "label" */
+    deleteLabel?: (LabelMutationResponseGenqlSelection & { __args: {
+    /** filter the rows which have to be deleted */
+    where: LabelBoolExp} })
+    /** delete single row from the table: "label" */
+    deleteLabelByPk?: (LabelGenqlSelection & { __args: {labelId: Scalars['Int']} })
+    /** delete data from the table: "label_chatbot_category" */
+    deleteLabelChatbotCategory?: (LabelChatbotCategoryMutationResponseGenqlSelection & { __args: {
+    /** filter the rows which have to be deleted */
+    where: LabelChatbotCategoryBoolExp} })
+    /** delete single row from the table: "label_chatbot_category" */
+    deleteLabelChatbotCategoryByPk?: (LabelChatbotCategoryGenqlSelection & { __args: {categoryId: Scalars['Int'], chatbotId: Scalars['Int'], labelId: Scalars['Int']} })
     /** delete data from the table: "length_enum" */
     deleteLengthEnum?: (LengthEnumMutationResponseGenqlSelection & { __args: {
     /** filter the rows which have to be deleted */
@@ -6675,6 +8040,12 @@ export interface mutation_rootGenqlSelection{
     where: ThreadBoolExp} })
     /** delete single row from the table: "thread" */
     deleteThreadByPk?: (ThreadGenqlSelection & { __args: {threadId: Scalars['uuid']} })
+    /** delete data from the table: "token" */
+    deleteToken?: (TokenMutationResponseGenqlSelection & { __args: {
+    /** filter the rows which have to be deleted */
+    where: TokenBoolExp} })
+    /** delete single row from the table: "token" */
+    deleteTokenByPk?: (TokenGenqlSelection & { __args: {token: Scalars['String']} })
     /** delete data from the table: "tone_enum" */
     deleteToneEnum?: (ToneEnumMutationResponseGenqlSelection & { __args: {
     /** filter the rows which have to be deleted */
@@ -6693,6 +8064,12 @@ export interface mutation_rootGenqlSelection{
     where: UserBoolExp} })
     /** delete single row from the table: "user" */
     deleteUserByPk?: (UserGenqlSelection & { __args: {userId: Scalars['uuid']} })
+    /** delete data from the table: "user_token" */
+    deleteUserToken?: (UserTokenMutationResponseGenqlSelection & { __args: {
+    /** filter the rows which have to be deleted */
+    where: UserTokenBoolExp} })
+    /** delete single row from the table: "user_token" */
+    deleteUserTokenByPk?: (UserTokenGenqlSelection & { __args: {token: Scalars['String'], userId: Scalars['uuid']} })
     /** insert data into the table: "category" */
     insertCategory?: (CategoryMutationResponseGenqlSelection & { __args: {
     /** the rows to be inserted */
@@ -6753,6 +8130,30 @@ export interface mutation_rootGenqlSelection{
     object: ComplexityEnumInsertInput, 
     /** upsert condition */
     onConflict?: (ComplexityEnumOnConflict | null)} })
+    /** insert data into the table: "label" */
+    insertLabel?: (LabelMutationResponseGenqlSelection & { __args: {
+    /** the rows to be inserted */
+    objects: LabelInsertInput[], 
+    /** upsert condition */
+    onConflict?: (LabelOnConflict | null)} })
+    /** insert data into the table: "label_chatbot_category" */
+    insertLabelChatbotCategory?: (LabelChatbotCategoryMutationResponseGenqlSelection & { __args: {
+    /** the rows to be inserted */
+    objects: LabelChatbotCategoryInsertInput[], 
+    /** upsert condition */
+    onConflict?: (LabelChatbotCategoryOnConflict | null)} })
+    /** insert a single row into the table: "label_chatbot_category" */
+    insertLabelChatbotCategoryOne?: (LabelChatbotCategoryGenqlSelection & { __args: {
+    /** the row to be inserted */
+    object: LabelChatbotCategoryInsertInput, 
+    /** upsert condition */
+    onConflict?: (LabelChatbotCategoryOnConflict | null)} })
+    /** insert a single row into the table: "label" */
+    insertLabelOne?: (LabelGenqlSelection & { __args: {
+    /** the row to be inserted */
+    object: LabelInsertInput, 
+    /** upsert condition */
+    onConflict?: (LabelOnConflict | null)} })
     /** insert data into the table: "length_enum" */
     insertLengthEnum?: (LengthEnumMutationResponseGenqlSelection & { __args: {
     /** the rows to be inserted */
@@ -6885,6 +8286,18 @@ export interface mutation_rootGenqlSelection{
     object: ThreadInsertInput, 
     /** upsert condition */
     onConflict?: (ThreadOnConflict | null)} })
+    /** insert data into the table: "token" */
+    insertToken?: (TokenMutationResponseGenqlSelection & { __args: {
+    /** the rows to be inserted */
+    objects: TokenInsertInput[], 
+    /** upsert condition */
+    onConflict?: (TokenOnConflict | null)} })
+    /** insert a single row into the table: "token" */
+    insertTokenOne?: (TokenGenqlSelection & { __args: {
+    /** the row to be inserted */
+    object: TokenInsertInput, 
+    /** upsert condition */
+    onConflict?: (TokenOnConflict | null)} })
     /** insert data into the table: "tone_enum" */
     insertToneEnum?: (ToneEnumMutationResponseGenqlSelection & { __args: {
     /** the rows to be inserted */
@@ -6921,6 +8334,18 @@ export interface mutation_rootGenqlSelection{
     object: UserInsertInput, 
     /** upsert condition */
     onConflict?: (UserOnConflict | null)} })
+    /** insert data into the table: "user_token" */
+    insertUserToken?: (UserTokenMutationResponseGenqlSelection & { __args: {
+    /** the rows to be inserted */
+    objects: UserTokenInsertInput[], 
+    /** upsert condition */
+    onConflict?: (UserTokenOnConflict | null)} })
+    /** insert a single row into the table: "user_token" */
+    insertUserTokenOne?: (UserTokenGenqlSelection & { __args: {
+    /** the row to be inserted */
+    object: UserTokenInsertInput, 
+    /** upsert condition */
+    onConflict?: (UserTokenOnConflict | null)} })
     /** update data of the table: "category" */
     updateCategory?: (CategoryMutationResponseGenqlSelection & { __args: {
     /** increments the numeric columns with given value of the filtered values */
@@ -7007,6 +8432,42 @@ export interface mutation_rootGenqlSelection{
     updateComplexityEnumMany?: (ComplexityEnumMutationResponseGenqlSelection & { __args: {
     /** updates to execute, in order */
     updates: ComplexityEnumUpdates[]} })
+    /** update data of the table: "label" */
+    updateLabel?: (LabelMutationResponseGenqlSelection & { __args: {
+    /** increments the numeric columns with given value of the filtered values */
+    _inc?: (LabelIncInput | null), 
+    /** sets the columns of the filtered rows to the given values */
+    _set?: (LabelSetInput | null), 
+    /** filter the rows which have to be updated */
+    where: LabelBoolExp} })
+    /** update single row of the table: "label" */
+    updateLabelByPk?: (LabelGenqlSelection & { __args: {
+    /** increments the numeric columns with given value of the filtered values */
+    _inc?: (LabelIncInput | null), 
+    /** sets the columns of the filtered rows to the given values */
+    _set?: (LabelSetInput | null), pkColumns: LabelPkColumnsInput} })
+    /** update data of the table: "label_chatbot_category" */
+    updateLabelChatbotCategory?: (LabelChatbotCategoryMutationResponseGenqlSelection & { __args: {
+    /** increments the numeric columns with given value of the filtered values */
+    _inc?: (LabelChatbotCategoryIncInput | null), 
+    /** sets the columns of the filtered rows to the given values */
+    _set?: (LabelChatbotCategorySetInput | null), 
+    /** filter the rows which have to be updated */
+    where: LabelChatbotCategoryBoolExp} })
+    /** update single row of the table: "label_chatbot_category" */
+    updateLabelChatbotCategoryByPk?: (LabelChatbotCategoryGenqlSelection & { __args: {
+    /** increments the numeric columns with given value of the filtered values */
+    _inc?: (LabelChatbotCategoryIncInput | null), 
+    /** sets the columns of the filtered rows to the given values */
+    _set?: (LabelChatbotCategorySetInput | null), pkColumns: LabelChatbotCategoryPkColumnsInput} })
+    /** update multiples rows of table: "label_chatbot_category" */
+    updateLabelChatbotCategoryMany?: (LabelChatbotCategoryMutationResponseGenqlSelection & { __args: {
+    /** updates to execute, in order */
+    updates: LabelChatbotCategoryUpdates[]} })
+    /** update multiples rows of table: "label" */
+    updateLabelMany?: (LabelMutationResponseGenqlSelection & { __args: {
+    /** updates to execute, in order */
+    updates: LabelUpdates[]} })
     /** update data of the table: "length_enum" */
     updateLengthEnum?: (LengthEnumMutationResponseGenqlSelection & { __args: {
     /** sets the columns of the filtered rows to the given values */
@@ -7181,6 +8642,20 @@ export interface mutation_rootGenqlSelection{
     updateThreadMany?: (ThreadMutationResponseGenqlSelection & { __args: {
     /** updates to execute, in order */
     updates: ThreadUpdates[]} })
+    /** update data of the table: "token" */
+    updateToken?: (TokenMutationResponseGenqlSelection & { __args: {
+    /** sets the columns of the filtered rows to the given values */
+    _set?: (TokenSetInput | null), 
+    /** filter the rows which have to be updated */
+    where: TokenBoolExp} })
+    /** update single row of the table: "token" */
+    updateTokenByPk?: (TokenGenqlSelection & { __args: {
+    /** sets the columns of the filtered rows to the given values */
+    _set?: (TokenSetInput | null), pkColumns: TokenPkColumnsInput} })
+    /** update multiples rows of table: "token" */
+    updateTokenMany?: (TokenMutationResponseGenqlSelection & { __args: {
+    /** updates to execute, in order */
+    updates: TokenUpdates[]} })
     /** update data of the table: "tone_enum" */
     updateToneEnum?: (ToneEnumMutationResponseGenqlSelection & { __args: {
     /** sets the columns of the filtered rows to the given values */
@@ -7223,6 +8698,20 @@ export interface mutation_rootGenqlSelection{
     updateUserMany?: (UserMutationResponseGenqlSelection & { __args: {
     /** updates to execute, in order */
     updates: UserUpdates[]} })
+    /** update data of the table: "user_token" */
+    updateUserToken?: (UserTokenMutationResponseGenqlSelection & { __args: {
+    /** sets the columns of the filtered rows to the given values */
+    _set?: (UserTokenSetInput | null), 
+    /** filter the rows which have to be updated */
+    where: UserTokenBoolExp} })
+    /** update single row of the table: "user_token" */
+    updateUserTokenByPk?: (UserTokenGenqlSelection & { __args: {
+    /** sets the columns of the filtered rows to the given values */
+    _set?: (UserTokenSetInput | null), pkColumns: UserTokenPkColumnsInput} })
+    /** update multiples rows of table: "user_token" */
+    updateUserTokenMany?: (UserTokenMutationResponseGenqlSelection & { __args: {
+    /** updates to execute, in order */
+    updates: UserTokenUpdates[]} })
     __typename?: boolean | number
     __scalar?: boolean | number
 }
@@ -7370,6 +8859,58 @@ export interface query_rootGenqlSelection{
     where?: (ComplexityEnumBoolExp | null)} })
     /** fetch data from the table: "complexity_enum" using primary key columns */
     complexityEnumByPk?: (ComplexityEnumGenqlSelection & { __args: {value: Scalars['String']} })
+    /** fetch data from the table: "label" */
+    label?: (LabelGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (LabelSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (LabelOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (LabelBoolExp | null)} })
+    /** fetch aggregated fields from the table: "label" */
+    labelAggregate?: (LabelAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (LabelSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (LabelOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (LabelBoolExp | null)} })
+    /** fetch data from the table: "label" using primary key columns */
+    labelByPk?: (LabelGenqlSelection & { __args: {labelId: Scalars['Int']} })
+    /** fetch data from the table: "label_chatbot_category" */
+    labelChatbotCategory?: (LabelChatbotCategoryGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (LabelChatbotCategorySelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (LabelChatbotCategoryOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (LabelChatbotCategoryBoolExp | null)} })
+    /** fetch aggregated fields from the table: "label_chatbot_category" */
+    labelChatbotCategoryAggregate?: (LabelChatbotCategoryAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (LabelChatbotCategorySelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (LabelChatbotCategoryOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (LabelChatbotCategoryBoolExp | null)} })
+    /** fetch data from the table: "label_chatbot_category" using primary key columns */
+    labelChatbotCategoryByPk?: (LabelChatbotCategoryGenqlSelection & { __args: {categoryId: Scalars['Int'], chatbotId: Scalars['Int'], labelId: Scalars['Int']} })
     /** fetch data from the table: "length_enum" */
     lengthEnum?: (LengthEnumGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -7656,6 +9197,32 @@ export interface query_rootGenqlSelection{
     where?: (ThreadBoolExp | null)} })
     /** fetch data from the table: "thread" using primary key columns */
     threadByPk?: (ThreadGenqlSelection & { __args: {threadId: Scalars['uuid']} })
+    /** fetch data from the table: "token" */
+    token?: (TokenGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (TokenSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (TokenOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (TokenBoolExp | null)} })
+    /** fetch aggregated fields from the table: "token" */
+    tokenAggregate?: (TokenAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (TokenSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (TokenOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (TokenBoolExp | null)} })
+    /** fetch data from the table: "token" using primary key columns */
+    tokenByPk?: (TokenGenqlSelection & { __args: {token: Scalars['String']} })
     /** fetch data from the table: "tone_enum" */
     toneEnum?: (ToneEnumGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -7734,6 +9301,32 @@ export interface query_rootGenqlSelection{
     where?: (UserBoolExp | null)} })
     /** fetch data from the table: "user" using primary key columns */
     userByPk?: (UserGenqlSelection & { __args: {userId: Scalars['uuid']} })
+    /** fetch data from the table: "user_token" */
+    userToken?: (UserTokenGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (UserTokenSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (UserTokenOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (UserTokenBoolExp | null)} })
+    /** fetch aggregated fields from the table: "user_token" */
+    userTokenAggregate?: (UserTokenAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (UserTokenSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (UserTokenOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (UserTokenBoolExp | null)} })
+    /** fetch data from the table: "user_token" using primary key columns */
+    userTokenByPk?: (UserTokenGenqlSelection & { __args: {token: Scalars['String'], userId: Scalars['uuid']} })
     __typename?: boolean | number
     __scalar?: boolean | number
 }
@@ -7911,6 +9504,74 @@ export interface subscription_rootGenqlSelection{
     cursor: (ComplexityEnumStreamCursorInput | null)[], 
     /** filter the rows returned */
     where?: (ComplexityEnumBoolExp | null)} })
+    /** fetch data from the table: "label" */
+    label?: (LabelGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (LabelSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (LabelOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (LabelBoolExp | null)} })
+    /** fetch aggregated fields from the table: "label" */
+    labelAggregate?: (LabelAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (LabelSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (LabelOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (LabelBoolExp | null)} })
+    /** fetch data from the table: "label" using primary key columns */
+    labelByPk?: (LabelGenqlSelection & { __args: {labelId: Scalars['Int']} })
+    /** fetch data from the table: "label_chatbot_category" */
+    labelChatbotCategory?: (LabelChatbotCategoryGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (LabelChatbotCategorySelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (LabelChatbotCategoryOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (LabelChatbotCategoryBoolExp | null)} })
+    /** fetch aggregated fields from the table: "label_chatbot_category" */
+    labelChatbotCategoryAggregate?: (LabelChatbotCategoryAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (LabelChatbotCategorySelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (LabelChatbotCategoryOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (LabelChatbotCategoryBoolExp | null)} })
+    /** fetch data from the table: "label_chatbot_category" using primary key columns */
+    labelChatbotCategoryByPk?: (LabelChatbotCategoryGenqlSelection & { __args: {categoryId: Scalars['Int'], chatbotId: Scalars['Int'], labelId: Scalars['Int']} })
+    /** fetch data from the table in a streaming manner: "label_chatbot_category" */
+    labelChatbotCategoryStream?: (LabelChatbotCategoryGenqlSelection & { __args: {
+    /** maximum number of rows returned in a single batch */
+    batchSize: Scalars['Int'], 
+    /** cursor to stream the results returned by the query */
+    cursor: (LabelChatbotCategoryStreamCursorInput | null)[], 
+    /** filter the rows returned */
+    where?: (LabelChatbotCategoryBoolExp | null)} })
+    /** fetch data from the table in a streaming manner: "label" */
+    labelStream?: (LabelGenqlSelection & { __args: {
+    /** maximum number of rows returned in a single batch */
+    batchSize: Scalars['Int'], 
+    /** cursor to stream the results returned by the query */
+    cursor: (LabelStreamCursorInput | null)[], 
+    /** filter the rows returned */
+    where?: (LabelBoolExp | null)} })
     /** fetch data from the table: "length_enum" */
     lengthEnum?: (LengthEnumGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -8285,6 +9946,40 @@ export interface subscription_rootGenqlSelection{
     cursor: (ThreadStreamCursorInput | null)[], 
     /** filter the rows returned */
     where?: (ThreadBoolExp | null)} })
+    /** fetch data from the table: "token" */
+    token?: (TokenGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (TokenSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (TokenOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (TokenBoolExp | null)} })
+    /** fetch aggregated fields from the table: "token" */
+    tokenAggregate?: (TokenAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (TokenSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (TokenOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (TokenBoolExp | null)} })
+    /** fetch data from the table: "token" using primary key columns */
+    tokenByPk?: (TokenGenqlSelection & { __args: {token: Scalars['String']} })
+    /** fetch data from the table in a streaming manner: "token" */
+    tokenStream?: (TokenGenqlSelection & { __args: {
+    /** maximum number of rows returned in a single batch */
+    batchSize: Scalars['Int'], 
+    /** cursor to stream the results returned by the query */
+    cursor: (TokenStreamCursorInput | null)[], 
+    /** filter the rows returned */
+    where?: (TokenBoolExp | null)} })
     /** fetch data from the table: "tone_enum" */
     toneEnum?: (ToneEnumGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -8387,6 +10082,40 @@ export interface subscription_rootGenqlSelection{
     cursor: (UserStreamCursorInput | null)[], 
     /** filter the rows returned */
     where?: (UserBoolExp | null)} })
+    /** fetch data from the table: "user_token" */
+    userToken?: (UserTokenGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (UserTokenSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (UserTokenOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (UserTokenBoolExp | null)} })
+    /** fetch aggregated fields from the table: "user_token" */
+    userTokenAggregate?: (UserTokenAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (UserTokenSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (UserTokenOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (UserTokenBoolExp | null)} })
+    /** fetch data from the table: "user_token" using primary key columns */
+    userTokenByPk?: (UserTokenGenqlSelection & { __args: {token: Scalars['String'], userId: Scalars['uuid']} })
+    /** fetch data from the table in a streaming manner: "user_token" */
+    userTokenStream?: (UserTokenGenqlSelection & { __args: {
+    /** maximum number of rows returned in a single batch */
+    batchSize: Scalars['Int'], 
+    /** cursor to stream the results returned by the query */
+    cursor: (UserTokenStreamCursorInput | null)[], 
+    /** filter the rows returned */
+    where?: (UserTokenBoolExp | null)} })
     __typename?: boolean | number
     __scalar?: boolean | number
 }
@@ -8396,6 +10125,8 @@ export interface threadAggregateBoolExpBool_and {arguments: ThreadSelectColumnTh
 export interface threadAggregateBoolExpBool_or {arguments: ThreadSelectColumnThreadAggregateBoolExpBool_orArgumentsColumns,distinct?: (Scalars['Boolean'] | null),filter?: (ThreadBoolExp | null),predicate: BooleanComparisonExp}
 
 export interface threadAggregateBoolExpCount {arguments?: (ThreadSelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (ThreadBoolExp | null),predicate: IntComparisonExp}
+
+export interface userTokenAggregateBoolExpCount {arguments?: (UserTokenSelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (UserTokenBoolExp | null),predicate: IntComparisonExp}
 
 export type QueryGenqlSelection = query_rootGenqlSelection
 export type MutationGenqlSelection = mutation_rootGenqlSelection
@@ -8894,6 +10625,230 @@ export type SubscriptionGenqlSelection = subscription_rootGenqlSelection
     export const isComplexityEnumMutationResponse = (obj?: { __typename?: any } | null): obj is ComplexityEnumMutationResponse => {
       if (!obj?.__typename) throw new Error('__typename is missing in "isComplexityEnumMutationResponse"')
       return ComplexityEnumMutationResponse_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const Label_possibleTypes: string[] = ['Label']
+    export const isLabel = (obj?: { __typename?: any } | null): obj is Label => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabel"')
+      return Label_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const LabelAggregate_possibleTypes: string[] = ['LabelAggregate']
+    export const isLabelAggregate = (obj?: { __typename?: any } | null): obj is LabelAggregate => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelAggregate"')
+      return LabelAggregate_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const LabelAggregateFields_possibleTypes: string[] = ['LabelAggregateFields']
+    export const isLabelAggregateFields = (obj?: { __typename?: any } | null): obj is LabelAggregateFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelAggregateFields"')
+      return LabelAggregateFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const LabelAvgFields_possibleTypes: string[] = ['LabelAvgFields']
+    export const isLabelAvgFields = (obj?: { __typename?: any } | null): obj is LabelAvgFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelAvgFields"')
+      return LabelAvgFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const LabelChatbotCategory_possibleTypes: string[] = ['LabelChatbotCategory']
+    export const isLabelChatbotCategory = (obj?: { __typename?: any } | null): obj is LabelChatbotCategory => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategory"')
+      return LabelChatbotCategory_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const LabelChatbotCategoryAggregate_possibleTypes: string[] = ['LabelChatbotCategoryAggregate']
+    export const isLabelChatbotCategoryAggregate = (obj?: { __typename?: any } | null): obj is LabelChatbotCategoryAggregate => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategoryAggregate"')
+      return LabelChatbotCategoryAggregate_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const LabelChatbotCategoryAggregateFields_possibleTypes: string[] = ['LabelChatbotCategoryAggregateFields']
+    export const isLabelChatbotCategoryAggregateFields = (obj?: { __typename?: any } | null): obj is LabelChatbotCategoryAggregateFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategoryAggregateFields"')
+      return LabelChatbotCategoryAggregateFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const LabelChatbotCategoryAvgFields_possibleTypes: string[] = ['LabelChatbotCategoryAvgFields']
+    export const isLabelChatbotCategoryAvgFields = (obj?: { __typename?: any } | null): obj is LabelChatbotCategoryAvgFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategoryAvgFields"')
+      return LabelChatbotCategoryAvgFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const LabelChatbotCategoryMaxFields_possibleTypes: string[] = ['LabelChatbotCategoryMaxFields']
+    export const isLabelChatbotCategoryMaxFields = (obj?: { __typename?: any } | null): obj is LabelChatbotCategoryMaxFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategoryMaxFields"')
+      return LabelChatbotCategoryMaxFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const LabelChatbotCategoryMinFields_possibleTypes: string[] = ['LabelChatbotCategoryMinFields']
+    export const isLabelChatbotCategoryMinFields = (obj?: { __typename?: any } | null): obj is LabelChatbotCategoryMinFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategoryMinFields"')
+      return LabelChatbotCategoryMinFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const LabelChatbotCategoryMutationResponse_possibleTypes: string[] = ['LabelChatbotCategoryMutationResponse']
+    export const isLabelChatbotCategoryMutationResponse = (obj?: { __typename?: any } | null): obj is LabelChatbotCategoryMutationResponse => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategoryMutationResponse"')
+      return LabelChatbotCategoryMutationResponse_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const LabelChatbotCategoryStddevFields_possibleTypes: string[] = ['LabelChatbotCategoryStddevFields']
+    export const isLabelChatbotCategoryStddevFields = (obj?: { __typename?: any } | null): obj is LabelChatbotCategoryStddevFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategoryStddevFields"')
+      return LabelChatbotCategoryStddevFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const LabelChatbotCategoryStddevPopFields_possibleTypes: string[] = ['LabelChatbotCategoryStddevPopFields']
+    export const isLabelChatbotCategoryStddevPopFields = (obj?: { __typename?: any } | null): obj is LabelChatbotCategoryStddevPopFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategoryStddevPopFields"')
+      return LabelChatbotCategoryStddevPopFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const LabelChatbotCategoryStddevSampFields_possibleTypes: string[] = ['LabelChatbotCategoryStddevSampFields']
+    export const isLabelChatbotCategoryStddevSampFields = (obj?: { __typename?: any } | null): obj is LabelChatbotCategoryStddevSampFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategoryStddevSampFields"')
+      return LabelChatbotCategoryStddevSampFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const LabelChatbotCategorySumFields_possibleTypes: string[] = ['LabelChatbotCategorySumFields']
+    export const isLabelChatbotCategorySumFields = (obj?: { __typename?: any } | null): obj is LabelChatbotCategorySumFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategorySumFields"')
+      return LabelChatbotCategorySumFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const LabelChatbotCategoryVarPopFields_possibleTypes: string[] = ['LabelChatbotCategoryVarPopFields']
+    export const isLabelChatbotCategoryVarPopFields = (obj?: { __typename?: any } | null): obj is LabelChatbotCategoryVarPopFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategoryVarPopFields"')
+      return LabelChatbotCategoryVarPopFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const LabelChatbotCategoryVarSampFields_possibleTypes: string[] = ['LabelChatbotCategoryVarSampFields']
+    export const isLabelChatbotCategoryVarSampFields = (obj?: { __typename?: any } | null): obj is LabelChatbotCategoryVarSampFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategoryVarSampFields"')
+      return LabelChatbotCategoryVarSampFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const LabelChatbotCategoryVarianceFields_possibleTypes: string[] = ['LabelChatbotCategoryVarianceFields']
+    export const isLabelChatbotCategoryVarianceFields = (obj?: { __typename?: any } | null): obj is LabelChatbotCategoryVarianceFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategoryVarianceFields"')
+      return LabelChatbotCategoryVarianceFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const LabelMaxFields_possibleTypes: string[] = ['LabelMaxFields']
+    export const isLabelMaxFields = (obj?: { __typename?: any } | null): obj is LabelMaxFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelMaxFields"')
+      return LabelMaxFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const LabelMinFields_possibleTypes: string[] = ['LabelMinFields']
+    export const isLabelMinFields = (obj?: { __typename?: any } | null): obj is LabelMinFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelMinFields"')
+      return LabelMinFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const LabelMutationResponse_possibleTypes: string[] = ['LabelMutationResponse']
+    export const isLabelMutationResponse = (obj?: { __typename?: any } | null): obj is LabelMutationResponse => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelMutationResponse"')
+      return LabelMutationResponse_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const LabelStddevFields_possibleTypes: string[] = ['LabelStddevFields']
+    export const isLabelStddevFields = (obj?: { __typename?: any } | null): obj is LabelStddevFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelStddevFields"')
+      return LabelStddevFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const LabelStddevPopFields_possibleTypes: string[] = ['LabelStddevPopFields']
+    export const isLabelStddevPopFields = (obj?: { __typename?: any } | null): obj is LabelStddevPopFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelStddevPopFields"')
+      return LabelStddevPopFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const LabelStddevSampFields_possibleTypes: string[] = ['LabelStddevSampFields']
+    export const isLabelStddevSampFields = (obj?: { __typename?: any } | null): obj is LabelStddevSampFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelStddevSampFields"')
+      return LabelStddevSampFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const LabelSumFields_possibleTypes: string[] = ['LabelSumFields']
+    export const isLabelSumFields = (obj?: { __typename?: any } | null): obj is LabelSumFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelSumFields"')
+      return LabelSumFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const LabelVarPopFields_possibleTypes: string[] = ['LabelVarPopFields']
+    export const isLabelVarPopFields = (obj?: { __typename?: any } | null): obj is LabelVarPopFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelVarPopFields"')
+      return LabelVarPopFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const LabelVarSampFields_possibleTypes: string[] = ['LabelVarSampFields']
+    export const isLabelVarSampFields = (obj?: { __typename?: any } | null): obj is LabelVarSampFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelVarSampFields"')
+      return LabelVarSampFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const LabelVarianceFields_possibleTypes: string[] = ['LabelVarianceFields']
+    export const isLabelVarianceFields = (obj?: { __typename?: any } | null): obj is LabelVarianceFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelVarianceFields"')
+      return LabelVarianceFields_possibleTypes.includes(obj.__typename)
     }
     
 
@@ -9746,6 +11701,54 @@ export type SubscriptionGenqlSelection = subscription_rootGenqlSelection
     
 
 
+    const Token_possibleTypes: string[] = ['Token']
+    export const isToken = (obj?: { __typename?: any } | null): obj is Token => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isToken"')
+      return Token_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const TokenAggregate_possibleTypes: string[] = ['TokenAggregate']
+    export const isTokenAggregate = (obj?: { __typename?: any } | null): obj is TokenAggregate => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isTokenAggregate"')
+      return TokenAggregate_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const TokenAggregateFields_possibleTypes: string[] = ['TokenAggregateFields']
+    export const isTokenAggregateFields = (obj?: { __typename?: any } | null): obj is TokenAggregateFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isTokenAggregateFields"')
+      return TokenAggregateFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const TokenMaxFields_possibleTypes: string[] = ['TokenMaxFields']
+    export const isTokenMaxFields = (obj?: { __typename?: any } | null): obj is TokenMaxFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isTokenMaxFields"')
+      return TokenMaxFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const TokenMinFields_possibleTypes: string[] = ['TokenMinFields']
+    export const isTokenMinFields = (obj?: { __typename?: any } | null): obj is TokenMinFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isTokenMinFields"')
+      return TokenMinFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const TokenMutationResponse_possibleTypes: string[] = ['TokenMutationResponse']
+    export const isTokenMutationResponse = (obj?: { __typename?: any } | null): obj is TokenMutationResponse => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isTokenMutationResponse"')
+      return TokenMutationResponse_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
     const ToneEnum_possibleTypes: string[] = ['ToneEnum']
     export const isToneEnum = (obj?: { __typename?: any } | null): obj is ToneEnum => {
       if (!obj?.__typename) throw new Error('__typename is missing in "isToneEnum"')
@@ -9890,6 +11893,54 @@ export type SubscriptionGenqlSelection = subscription_rootGenqlSelection
     
 
 
+    const UserToken_possibleTypes: string[] = ['UserToken']
+    export const isUserToken = (obj?: { __typename?: any } | null): obj is UserToken => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isUserToken"')
+      return UserToken_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const UserTokenAggregate_possibleTypes: string[] = ['UserTokenAggregate']
+    export const isUserTokenAggregate = (obj?: { __typename?: any } | null): obj is UserTokenAggregate => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isUserTokenAggregate"')
+      return UserTokenAggregate_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const UserTokenAggregateFields_possibleTypes: string[] = ['UserTokenAggregateFields']
+    export const isUserTokenAggregateFields = (obj?: { __typename?: any } | null): obj is UserTokenAggregateFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isUserTokenAggregateFields"')
+      return UserTokenAggregateFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const UserTokenMaxFields_possibleTypes: string[] = ['UserTokenMaxFields']
+    export const isUserTokenMaxFields = (obj?: { __typename?: any } | null): obj is UserTokenMaxFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isUserTokenMaxFields"')
+      return UserTokenMaxFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const UserTokenMinFields_possibleTypes: string[] = ['UserTokenMinFields']
+    export const isUserTokenMinFields = (obj?: { __typename?: any } | null): obj is UserTokenMinFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isUserTokenMinFields"')
+      return UserTokenMinFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const UserTokenMutationResponse_possibleTypes: string[] = ['UserTokenMutationResponse']
+    export const isUserTokenMutationResponse = (obj?: { __typename?: any } | null): obj is UserTokenMutationResponse => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isUserTokenMutationResponse"')
+      return UserTokenMutationResponse_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
     const mutation_root_possibleTypes: string[] = ['mutation_root']
     export const ismutation_root = (obj?: { __typename?: any } | null): obj is mutation_root => {
       if (!obj?.__typename) throw new Error('__typename is missing in "ismutation_root"')
@@ -10005,6 +12056,45 @@ export const enumComplexityEnumUpdateColumn = {
 export const enumCursorOrdering = {
    ASC: 'ASC' as const,
    DESC: 'DESC' as const
+}
+
+export const enumLabelChatbotCategoryConstraint = {
+   label_chatbot_category_pkey: 'label_chatbot_category_pkey' as const
+}
+
+export const enumLabelChatbotCategorySelectColumn = {
+   categoryId: 'categoryId' as const,
+   chatbotId: 'chatbotId' as const,
+   labelId: 'labelId' as const
+}
+
+export const enumLabelChatbotCategoryUpdateColumn = {
+   categoryId: 'categoryId' as const,
+   chatbotId: 'chatbotId' as const,
+   labelId: 'labelId' as const
+}
+
+export const enumLabelConstraint = {
+   label_label_id_key: 'label_label_id_key' as const,
+   label_pkey: 'label_pkey' as const
+}
+
+export const enumLabelSelectColumn = {
+   advancedLabels: 'advancedLabels' as const,
+   categories: 'categories' as const,
+   labelId: 'labelId' as const,
+   questions: 'questions' as const,
+   subCategories: 'subCategories' as const,
+   tags: 'tags' as const
+}
+
+export const enumLabelUpdateColumn = {
+   advancedLabels: 'advancedLabels' as const,
+   categories: 'categories' as const,
+   labelId: 'labelId' as const,
+   questions: 'questions' as const,
+   subCategories: 'subCategories' as const,
+   tags: 'tags' as const
 }
 
 export const enumLengthEnumConstraint = {
@@ -10201,6 +12291,7 @@ export const enumThreadSelectColumn = {
    chatbotId: 'chatbotId' as const,
    createdAt: 'createdAt' as const,
    isApproved: 'isApproved' as const,
+   isBlocked: 'isBlocked' as const,
    isPublic: 'isPublic' as const,
    model: 'model' as const,
    threadId: 'threadId' as const,
@@ -10210,11 +12301,13 @@ export const enumThreadSelectColumn = {
 
 export const enumThreadSelectColumnThreadAggregateBoolExpBoolAndArgumentsColumns = {
    isApproved: 'isApproved' as const,
+   isBlocked: 'isBlocked' as const,
    isPublic: 'isPublic' as const
 }
 
 export const enumThreadSelectColumnThreadAggregateBoolExpBoolOrArgumentsColumns = {
    isApproved: 'isApproved' as const,
+   isBlocked: 'isBlocked' as const,
    isPublic: 'isPublic' as const
 }
 
@@ -10222,11 +12315,26 @@ export const enumThreadUpdateColumn = {
    chatbotId: 'chatbotId' as const,
    createdAt: 'createdAt' as const,
    isApproved: 'isApproved' as const,
+   isBlocked: 'isBlocked' as const,
    isPublic: 'isPublic' as const,
    model: 'model' as const,
    threadId: 'threadId' as const,
    updatedAt: 'updatedAt' as const,
    userId: 'userId' as const
+}
+
+export const enumTokenConstraint = {
+   token_pkey: 'token_pkey' as const
+}
+
+export const enumTokenSelectColumn = {
+   token: 'token' as const,
+   tokenExpiry: 'tokenExpiry' as const
+}
+
+export const enumTokenUpdateColumn = {
+   token: 'token' as const,
+   tokenExpiry: 'tokenExpiry' as const
 }
 
 export const enumToneEnumConstraint = {
@@ -10265,6 +12373,7 @@ export const enumUserSelectColumn = {
    email: 'email' as const,
    getFreeMonth: 'getFreeMonth' as const,
    isBlocked: 'isBlocked' as const,
+   isVerified: 'isVerified' as const,
    lastLogin: 'lastLogin' as const,
    password: 'password' as const,
    proUserSubscriptionId: 'proUserSubscriptionId' as const,
@@ -10274,11 +12383,26 @@ export const enumUserSelectColumn = {
    username: 'username' as const
 }
 
+export const enumUserTokenConstraint = {
+   user_token_pkey: 'user_token_pkey' as const
+}
+
+export const enumUserTokenSelectColumn = {
+   token: 'token' as const,
+   userId: 'userId' as const
+}
+
+export const enumUserTokenUpdateColumn = {
+   token: 'token' as const,
+   userId: 'userId' as const
+}
+
 export const enumUserUpdateColumn = {
    dateJoined: 'dateJoined' as const,
    email: 'email' as const,
    getFreeMonth: 'getFreeMonth' as const,
    isBlocked: 'isBlocked' as const,
+   isVerified: 'isVerified' as const,
    lastLogin: 'lastLogin' as const,
    password: 'password' as const,
    proUserSubscriptionId: 'proUserSubscriptionId' as const,
