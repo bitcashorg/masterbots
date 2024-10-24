@@ -90,7 +90,7 @@ export async function generateMetadata({
 export interface ChatPageProps {
   params: {
     category: string;
-    chatbot: string;
+    chatbot?: string;
     threadId: string;
   };
 }
