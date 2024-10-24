@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Share2 } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 interface ShareButtonProps {
   title: string
@@ -17,14 +18,8 @@ export function ShareButton({ title, text, url }: ShareButtonProps) {
         console.log('Error sharing content:', error)
       }
     } else {
-      // Fallback for desktop
-      const dummy = document.createElement('input')
-      document.body.appendChild(dummy)
-      dummy.value = url
-      dummy.select()
-      document.execCommand('copy')
-      document.body.removeChild(dummy)
-      alert('Link copied to clipboard!')
+      await navigator.clipboard.writeText(url);
+      toast.success('Link copied to clipboard')
     }
   }
 

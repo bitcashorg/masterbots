@@ -4,7 +4,7 @@ import { ChatPageProps } from '@/app/c/[category]/[chatbot]/page'
 
 export { generateMbMetadata as generateMetadata } from '@/lib/metadata'
 
-export default async function ChatPage({ params }: ChatPageProps) {
+export default async function ChatPage({ params }: any) {
   const thread = await getThread({
     threadId: params.threadId,
     jwt: ''

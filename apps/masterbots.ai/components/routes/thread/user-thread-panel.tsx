@@ -32,7 +32,7 @@ export default function UserThreadPanel({
     () => initialThreads ?? hookThreads,
     [initialThreads, hookThreads]
   )
-  // const finalThreads = initialThreads ?? hookThreads
+  
   const [threads, setThreads] = React.useState<Thread[]>(finalThreads ?? [])
   const [count, setCount] = React.useState<number>(finalThreads?.length ?? 0)
   
