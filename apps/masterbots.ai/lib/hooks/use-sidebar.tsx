@@ -1,5 +1,7 @@
 'use client'
 
+import { usePathname } from 'next/navigation'
+import { toSlug } from 'mb-lib'
 import { getCategories } from '@/services/hasura'
 import { Category, Chatbot } from 'mb-genql'
 import * as React from 'react'
@@ -28,6 +30,8 @@ interface SidebarContext {
   setSelectedChatbots: React.Dispatch<React.SetStateAction<number[]>>
   selectedChats: string[]
   setSelectedChats: React.Dispatch<React.SetStateAction<string[]>>
+  expandedCategories: number[];
+  setExpandedCategories: React.Dispatch<React.SetStateAction<number[]>>;
   toggleChatbotSelection: (chatbotId: number) => void
 }
 
@@ -72,6 +76,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
   const [isFilterMode, setIsFilterMode] = React.useState(false)
   const [filterValue, setFilterValue] = React.useState('')
   const [selectedChats, setSelectedChats] = React.useState<string[]>([])
+  const [expandedCategories, setExpandedCategories] = React.useState<number[]>([])
 
   React.useEffect(() => {
     const value = localStorage.getItem(LOCAL_STORAGE_KEY)
@@ -88,6 +93,40 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
       return newState
     })
   }
+
+  const pathname = usePathname()
+  React.useEffect(() => {
+    if (!pathname || !categories) return
+    const pathParts = pathname.split('/')
+    
+    if (categories && pathParts[1] === 'c') {
+      const categorySlug = pathParts[2]
+      const chatbotName = pathParts[3] 
+      
+      const category = categories?.categoriesChatbots.find(
+        cat => toSlug(cat.name) === categorySlug
+      )
+      
+      if (category) {
+        setActiveCategory(category.categoryId)
+        setExpandedCategories([category.categoryId])
+        
+        if (chatbotName) {
+          const chatbot = category.chatbots.find(
+            c => c.chatbot.name.toLowerCase() === chatbotName
+          )
+          if (chatbot) {
+            setActiveChatbot(chatbot.chatbot)
+          } else {
+            setActiveChatbot(null)
+          }
+        } else {
+       
+          setActiveChatbot(null)
+        }
+      }
+    }
+  }, [pathname, categories])
 
   const toggleChatbotSelection = React.useCallback((chatbotId: number) => {
     setSelectedChatbots(prev =>
@@ -159,6 +198,8 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
         selectedChats,
         setSelectedChats,
         toggleChatbotSelection,
+        expandedCategories,
+        setExpandedCategories,
       }}
     >
       {children}
