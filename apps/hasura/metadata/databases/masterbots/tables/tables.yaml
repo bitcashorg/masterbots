@@ -24,3 +24,5 @@
 - "!include public_type_enum.yaml"
 - "!include public_user.yaml"
 - "!include public_user_token.yaml"
+- "!include public_example.yaml"
+- "!include public_domain_enum.yaml"
