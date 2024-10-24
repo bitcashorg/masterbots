@@ -87,10 +87,4 @@ export async function generateMetadata({
   return generateMetadataFromSEO(seoData);
 }
 
-export interface ChatPageProps {
-  params: {
-    category: string;
-    chatbot?: string;
-    threadId: string;
-  };
-}
+
