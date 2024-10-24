@@ -30,6 +30,8 @@ This template ships with OpenAI `gpt-4o-mini` as the default. However, thanks to
 
 You will need to use the environment variables [defined in `.env.example`](.env.example) to run Next.js AI Chatbot. It's recommended you use [Vercel Environment Variables](https://vercel.com/docs/projects/environment-variables) for this, but a `.env` file is all that is necessary.
 
+You also need to set the HASURA_GRAPHQL_LOCAL_ADMIN_SECRET in the masterbots.ai app, as well as NEXT_PUBLIC_APP_ENV to 'local'.
+
 > Note: You should not commit your `.env` file or it will expose secrets that will allow others to control access to your various OpenAI and authentication provider accounts.
 
 1. Install Vercel CLI: `npm i -g vercel`
