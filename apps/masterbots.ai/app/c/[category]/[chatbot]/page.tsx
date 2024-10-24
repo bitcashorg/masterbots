@@ -56,7 +56,6 @@ export default async function BotThreadsPage({
   const initialMessages: Message[] = chatbotSystemPrompts.concat(
     userPreferencesPrompts,
   );
-    console.log({ threads, chatbot, initialMessages, searchParams });
   return (
     <>
       <ThreadPanel
