@@ -79,7 +79,9 @@ export default function EmailVerificationPage() {
             <h2 className="mb-4 text-2xl font-bold">Email Verified!</h2>
             <p className="mb-4">Your email has been successfully verified.</p>
             <p className="mb-4">Redirecting to signin in {timeLeft} seconds...</p>
-            <Button onClick={() => router.push('/chat')}>Go to Chat Now</Button>
+            <Button onClick={() => router.push('/auth/signin')}>
+              Return to Sign In
+            </Button>
           </div>
         )}
 
@@ -87,9 +89,7 @@ export default function EmailVerificationPage() {
           <div className="text-center">
             <h2 className="mb-4 text-2xl font-bold">Verification Failed</h2>
             <p className="mb-4 text-red-500">{errorMessage}</p>
-            <Button onClick={() => router.push('/auth/signin')}>
-              Return to Sign In
-            </Button>
+            <Button onClick={() => router.push('/chat')}>Go to Chat Now</Button>
           </div>
         )}
       </Card>
