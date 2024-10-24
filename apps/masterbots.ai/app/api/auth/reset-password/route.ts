@@ -1,5 +1,5 @@
 import { getHasuraClient } from 'mb-lib'
-import { NextRequest, NextResponse } from 'next/server'
+import { type  NextRequest, NextResponse } from 'next/server'
 import bcryptjs from 'bcryptjs'
 
 export async function POST(req: NextRequest) {
@@ -93,6 +93,7 @@ export async function POST(req: NextRequest) {
         { message: 'Password reset successful' },
         { status: 200 }
       )
+    // biome-ignore lint/style/noUselessElse: <explanation>
     } else {
       console.error('Unexpected result')
       throw new Error('Failed to update user password or delete token')

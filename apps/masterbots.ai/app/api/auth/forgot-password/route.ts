@@ -1,6 +1,6 @@
 import { getHasuraClient } from 'mb-lib'
-import { NextRequest, NextResponse } from 'next/server'
-import crypto from 'crypto'
+import { type NextRequest, NextResponse } from 'next/server'
+import crypto from 'node:crypto'
 import { sendPasswordResetEmail } from '@/lib/email'
 
 export async function POST(req: NextRequest) {
