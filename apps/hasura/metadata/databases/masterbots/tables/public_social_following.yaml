@@ -1,0 +1,44 @@
+table:
+  name: social_following
+  schema: public
+insert_permissions:
+  - role: user
+    permission:
+      check: {}
+      columns:
+        - followee_id
+        - follower_id
+        - id
+    comment: ""
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - followee_id
+        - follower_id
+        - id
+      filter: {}
+    comment: ""
+  - role: user
+    permission:
+      columns:
+        - followee_id
+        - follower_id
+        - id
+      filter: {}
+    comment: ""
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - followee_id
+        - follower_id
+        - id
+      filter: {}
+      check: {}
+    comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter: {}
+    comment: ""
