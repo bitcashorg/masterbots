@@ -101,6 +101,8 @@ select_permissions:
   - role: anonymous
     permission:
       columns:
+        - followers
+        - following
         - date_joined
         - email
         - last_login
@@ -114,6 +116,8 @@ select_permissions:
   - role: moderator
     permission:
       columns:
+        - followers
+        - following
         - date_joined
         - email
         - get_free_month
@@ -130,6 +134,8 @@ select_permissions:
   - role: user
     permission:
       columns:
+        - followers
+        - following
         - date_joined
         - email
         - get_free_month
