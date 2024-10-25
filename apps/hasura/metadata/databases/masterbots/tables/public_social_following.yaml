@@ -1,22 +1,25 @@
 table:
   name: social_following
   schema: public
+object_relationships:
+  - name: user
+    using:
+      foreign_key_constraint_on: followee_id
+  - name: userByFollowerId
+    using:
+      foreign_key_constraint_on: follower_id
 insert_permissions:
   - role: user
     permission:
       check:
-        follower_id:
-          _eq: X-Hasura-User-Id
         _and:
+          - follower_id:
+              _eq: X-Hasura-User-Id
           - followee_id:
-            _neq: X-Hasura-User-Id
-      filter:
-        follower_id:
-          _eq: X-Hasura-User-Id
+              _neq: X-Hasura-User-Id
       columns:
         - followee_id
         - follower_id
-        - id
     comment: ""
 select_permissions:
   - role: user
@@ -24,7 +27,6 @@ select_permissions:
       columns:
         - followee_id
         - follower_id
-        - id
       filter:
         _or:
           - follower_id:
