@@ -4,7 +4,12 @@ table:
 insert_permissions:
   - role: user
     permission:
-      check: {}
+      check:
+        follower_id:
+          _eq: X-Hasura-User-Id
+      filter:
+        follower_id:
+          _eq: X-Hasura-User-Id
       columns:
         - followee_id
         - follower_id
