@@ -19,10 +19,12 @@ export function Header() {
         <IconSeparator className="size-6 text-muted-foreground/50" />
         <HeaderLink href="/c" text="Chat" />
         <HeaderLink href="/" text="Browse" />
-        <HeaderLink href="/wordware" text="Ww" />
 
         {appConfig.devMode && (
-          <HeaderLink href="/c/p" text="Pro" />
+          <>
+            <HeaderLink href="/wordware" text="Ww" />
+            <HeaderLink href="/c/p" text="Pro" />
+          </>
         )}
       </div>
       <div className="flex items-center justify-end space-x-2 gap-2">
