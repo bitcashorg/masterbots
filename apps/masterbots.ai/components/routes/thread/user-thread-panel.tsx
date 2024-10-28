@@ -1,4 +1,5 @@
 'use client'
+
 import ChatChatbotDetails from '@/components/routes/chat/chat-chatbot-details'
 import { ChatSearchInput } from '@/components/routes/chat/chat-search-input'
 import ThreadList from '@/components/routes/thread/thread-list'
@@ -6,7 +7,7 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { getThreads } from '@/services/hasura'
-import { Thread } from 'mb-genql'
+import type { Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import { useParams } from 'next/navigation'
 import React, { useEffect, useRef } from 'react'
@@ -15,7 +16,7 @@ const PAGE_SIZE = 20
 
 export default function UserThreadPanel({
   chatbot,
-  threads: initialThreads
+  threads: initialThreads,
 }: {
   chatbot?: string
   threads?: Thread[]
@@ -30,18 +31,16 @@ export default function UserThreadPanel({
 
   const finalThreads = React.useMemo(
     () => initialThreads ?? hookThreads,
-    [initialThreads, hookThreads]
+    [initialThreads, hookThreads],
   )
-  
+
   const [threads, setThreads] = React.useState<Thread[]>(finalThreads ?? [])
   const [count, setCount] = React.useState<number>(finalThreads?.length ?? 0)
-  
+
   React.useEffect(() => {
     setThreads(finalThreads)
     setCount(finalThreads?.length ?? 0)
-  }
-  , [finalThreads])
-
+  }, [finalThreads])
 
   const fetchIdRef = useRef(0) // Store the fetchId in a ref
   const loadMore = async () => {
@@ -54,10 +53,10 @@ export default function UserThreadPanel({
       offset: threads.length,
       limit: PAGE_SIZE,
       categoryId: activeCategory,
-      chatbotName: activeChatbot?.name
+      chatbotName: activeChatbot?.name,
     })
-    if (moreThreads) setThreads(prevState => [...prevState, ...moreThreads])
-    setCount(_prev => moreThreads.length ?? 0)
+    if (moreThreads) setThreads((prevState) => [...prevState, ...moreThreads])
+    setCount((_prev) => moreThreads.length ?? 0)
     setLoading(false)
   }
 
@@ -70,14 +69,14 @@ export default function UserThreadPanel({
       userId: session!.user.id,
       limit: PAGE_SIZE,
       categoryId: activeCategory,
-      chatbotName: activeChatbot?.name
+      chatbotName: activeChatbot?.name,
     })
 
     // Check if the fetchId matches the current fetchId stored in the ref
     if (fetchIdRef.current === currentFetchId) {
       // If it matches, update the threads state
-      setThreads(_prev => threads ?? [])
-      setCount(_prev => threads.length ?? 0)
+      setThreads((_prev) => threads ?? [])
+      setCount((_prev) => threads.length ?? 0)
     }
   }
 
@@ -94,11 +93,7 @@ export default function UserThreadPanel({
   }, [isOpenPopup])
 
   useEffect(() => {
-    if (
-      threads &&
-      threads.filter(t => t.threadId === activeThread?.threadId).length
-    )
-      return
+    if (threads && threads.filter((t) => t.threadId === activeThread?.threadId).length) return
     setIsOpenPopup(false)
     setActiveThread(null)
 
