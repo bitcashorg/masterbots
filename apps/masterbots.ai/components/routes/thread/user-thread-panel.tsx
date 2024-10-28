@@ -1,10 +1,10 @@
 'use client'
-
 import ChatChatbotDetails from '@/components/routes/chat/chat-chatbot-details'
 import { ChatSearchInput } from '@/components/routes/chat/chat-search-input'
 import ThreadList from '@/components/routes/thread/thread-list'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
+import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { getThreads } from '@/services/hasura'
 import { Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
@@ -18,17 +18,31 @@ export default function UserThreadPanel({
   threads: initialThreads
 }: {
   chatbot?: string
-  threads: Thread[]
+  threads?: Thread[]
   search?: { [key: string]: string | string[] | undefined }
 }) {
   const params = useParams<{ chatbot: string; threadId: string }>()
   const { data: session } = useSession()
   const { activeCategory, activeChatbot } = useSidebar()
-  const { isOpenPopup, activeThread, setActiveThread, setIsOpenPopup } =
-    useThread()
+  const { isOpenPopup, activeThread, setActiveThread, setIsOpenPopup } = useThread()
   const [loading, setLoading] = React.useState<boolean>(false)
-  const [threads, setThreads] = React.useState<Thread[]>(initialThreads ?? [])
-  const [count, setCount] = React.useState<number>(initialThreads?.length ?? 0)
+  const { threads: hookThreads } = useThreadVisibility()
+
+  const finalThreads = React.useMemo(
+    () => initialThreads ?? hookThreads,
+    [initialThreads, hookThreads]
+  )
+  
+  const [threads, setThreads] = React.useState<Thread[]>(finalThreads ?? [])
+  const [count, setCount] = React.useState<number>(finalThreads?.length ?? 0)
+  
+  React.useEffect(() => {
+    setThreads(finalThreads)
+    setCount(finalThreads?.length ?? 0)
+  }
+  , [finalThreads])
+
+
   const fetchIdRef = useRef(0) // Store the fetchId in a ref
   const loadMore = async () => {
     console.log('🟡 Loading More Content')
@@ -90,7 +104,6 @@ export default function UserThreadPanel({
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [threads])
-
   return (
     <>
       {threads && threads.length > 0 ? (

@@ -109,3 +109,14 @@ update_permissions:
           _eq: X-Hasura-User-Id
       check: null
     comment: ""
+delete_permissions:
+  - role: moderator
+    permission:
+      filter: {}
+    comment: ""
+  - role: user
+    permission:
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+    comment: ""

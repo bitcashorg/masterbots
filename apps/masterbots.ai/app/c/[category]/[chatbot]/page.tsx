@@ -56,7 +56,6 @@ export default async function BotThreadsPage({
   const initialMessages: Message[] = chatbotSystemPrompts.concat(
     userPreferencesPrompts,
   );
-
   return (
     <>
       <ThreadPanel
@@ -88,10 +87,4 @@ export async function generateMetadata({
   return generateMetadataFromSEO(seoData);
 }
 
-export interface ChatPageProps {
-  params: {
-    category: string;
-    chatbot: string;
-    threadId: string;
-  };
-}
+

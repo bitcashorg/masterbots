@@ -14,6 +14,7 @@ import { ShortMessage } from '@/components/shared/short-message'
 import { IconOpenAI, IconUser } from '@/components/ui/icons'
 import { Button } from '@/components/ui/button'
 import { icons } from 'lucide-react'
+import { ChatOptions } from '../chat/chat-options'
 
 let initialUrl: string | null = null
 
@@ -157,17 +158,19 @@ export default function BrowseListItem({
               </Button>
             )
           )}
-          <div className="w-[calc(100%-64px)] m:w-[calc(100%-28px)] flex items-center gap-3 text-left">
+          <div className="w-[calc(100%-64px)] m:w-[calc(100%-28px)] flex  justify-between items-center  gap-3 text-left ">
+           <div className='flex  w-[calc(100%-124px)] m:w-[calc(100%-58px)] '>
             <div
-              className={cn('truncate-title px-1', {
+              className={cn('truncate-title px-1  ', {
                 'no-truncate max-h-40 !overflow-y-auto sm:max-h-none sm:overflow-visible': isAccordionOpen
               })}
             >
               {thread.messages?.[0]?.content}
-            </div>
+           </div>
             {pageType !== 'user' && (
-              <span className="opacity-50 text-[0.875rem]">by</span>
+              <span className="opacity-50 text-[0.875rem]"> by  </span>
             )}
+
             <div>
             {pageType !== 'user' && thread.user?.profilePicture ? (
               <Button
@@ -197,7 +200,14 @@ export default function BrowseListItem({
               )
             )}
             </div>
+            </div>
+             {/* Thread Options */}
+           <div className='px-4'>
+                 <ChatOptions threadId={thread.threadId} thread={thread} isBrowse />
+           </div>
           </div>
+
+          
         </div>
 
         {/* Thread Description */}
