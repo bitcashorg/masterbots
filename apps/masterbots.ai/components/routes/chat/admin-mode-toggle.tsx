@@ -1,11 +1,11 @@
 'use client'
 import React from 'react';
 import { ShieldCheck, ShieldX } from 'lucide-react';
-import  { useThread } from '@/lib/hooks/use-thread';
 import { Button } from '@/components/ui/button';
+import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility';
 
 export function AdminModeToggle(){
-const { isAdminMode, handleToggleAdminMode } = useThread();
+const { isAdminMode, handleToggleAdminMode } = useThreadVisibility();
 
   return (
     <Button 

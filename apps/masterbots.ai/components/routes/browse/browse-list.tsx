@@ -1,5 +1,4 @@
 'use client'
-
 import BrowseListItem from '@/components/routes/browse/browse-list-item'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
@@ -80,7 +79,6 @@ export default function BrowseList() {
     verifyKeyword()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [keyword, threads])
-
   return (
     <div className="flex flex-col w-full gap-3 py-5">
       {filteredThreads.map((thread: Thread, key) => (
