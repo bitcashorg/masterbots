@@ -74,7 +74,7 @@ export async function GET() {
             await sendEmailVerification(
               unverifiedUser.email,
               verificationToken,
-              'FINAL REMINDER: Verify your email or your account will be deleted tomorrow'
+              'FINAL REMINDER: Verify your email or your account will be blocked tomorrow'
             )
 
             return { success: true, email: unverifiedUser.email }
@@ -89,13 +89,17 @@ export async function GET() {
       })
     )
 
-    // * Delete users who haven't verified after 15 days
-    const { deleteUser } = await client.mutation({
-      deleteUser: {
+    // * Block users who haven't verified after 15 days instead of deleting them
+    const { updateUser } = await client.mutation({
+      updateUser: {
         __args: {
           where: {
             isVerified: { _eq: false },
-            dateJoined: { _lt: fifteenDaysAgo.toISOString() }
+            dateJoined: { _lt: fifteenDaysAgo.toISOString() },
+            isBlocked: { _eq: false } // ? Only update users who aren't already blocked
+          },
+          _set: {
+            isBlocked: true
           }
         },
         returning: {
@@ -131,7 +135,7 @@ export async function GET() {
         failed: failedReminders,
         total: user.length
       },
-      usersDeleted: deleteUser?.returning?.length || 0,
+      usersBlocked: updateUser?.returning?.length || 0,
       timestamp: now.toISOString()
     })
   } catch (error) {
