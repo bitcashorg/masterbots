@@ -1,13 +1,12 @@
 "use client";
 
 import {
-  improveMessage,
-  subtractChatbotMetadataLabels,
+  improveMessage
 } from "@/app/api/chat/actions/actions";
 import { ChatList } from "@/components/routes/chat/chat-list";
 import { ChatPanel } from "@/components/routes/chat/chat-panel";
 import { ChatScrollAnchor } from "@/components/routes/chat/chat-scroll-anchor";
-import { botNames } from "@/lib/bots-names";
+import { botNames } from "@/lib/constants/bots-names";
 import { followingQuestionsPrompt, setDefaultPrompt } from '@/lib/constants/prompts';
 import { useAtBottom } from "@/lib/hooks/use-at-bottom";
 import { useModel } from "@/lib/hooks/use-model";
@@ -71,6 +70,10 @@ export function Chat({
       body: {
         id: params.threadId || isNewChat ? threadId : activeThread?.threadId,
         model: selectedModel,
+        chatbot: {
+          chatbotId: activeChatbot?.chatbotId,
+          categoryId: activeChatbot?.categories[0].categoryId,
+        },
         clientType,
       },
       onResponse(response) {
@@ -182,20 +185,6 @@ export function Chat({
     // ! Loading: Generating awesome stuff for you... 'generating'
     setLoadingState("generating");
 
-    // * Getting the user labelling the thread (categories, sub-category, etc.)
-    const chatMetadata = await subtractChatbotMetadataLabels(
-      {
-        domain: chatbot?.categories[0].categoryId,
-        chatbot: chatbot?.chatbotId,
-      },
-      userContent,
-      clientType as AiClientType,
-    );
-    console.log(
-      "Full responses from subtractChatbotMetadataLabels:",
-      chatMetadata,
-    );
-
     // * Loading: Polishing Ai request... 'polishing'
     setLoadingState("polishing");
 
@@ -204,7 +193,7 @@ export function Chat({
     const postIclResponse = (await new Promise((resolve) => {
       const timeout = setTimeout(() => {
         resolve({
-          parsed: chatMetadata,
+          parsed: {},
           question: userContent,
           domain: chatbot?.categories[0].category.name as string,
           chatbot: chatbot?.name as string,

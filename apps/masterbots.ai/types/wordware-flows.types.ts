@@ -6,6 +6,8 @@ export interface WordwareFlow {
     | 'SetBlogImages'
     | 'GenerateBlogArticle'
     | 'SetBlogOutlines'
+    | 'WebSearch'
+    | 'WebSonarSearch'
 }
 
 export interface WordwareFlowEntry {

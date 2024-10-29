@@ -20,5 +20,10 @@ export const wordwareFlows: WordwareFlow[] = [
     id: '82bc35f0-1542-4cf0-839b-06e622254417',
     type: 'generation',
     path: 'SetBlogOutlines'
+  },
+  {
+    id: '0ed65573-b939-40c4-b078-240d01fc19bf',
+    type: 'prompt',
+    path: 'WebSearch'
   }
-]
+] as const
