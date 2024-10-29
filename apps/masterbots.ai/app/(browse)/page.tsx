@@ -5,7 +5,7 @@ export default async function HomePage() {
   return (
     <>
       <BrowseSearchInput />
-      <BrowseList />
+      {/* <BrowseList /> */}
     </>
   )
 }

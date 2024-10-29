@@ -105,10 +105,9 @@ export default function BrowseListItem({
     e.preventDefault()
     e.stopPropagation()
     if (thread?.user?.slug) {
-      router.push(`/u/${thread.user.slug}/t`)
+      router.push(`/u/${thread?.user?.slug}/t`)
     }
   }
-  console.log( thread )
 
   return (
     <div ref={threadRef}>
@@ -182,8 +181,8 @@ export default function BrowseListItem({
               >
                 <Image
                   className="transition-opacity duration-300 rounded-full select-none hover:opacity-80"
-                  src={thread.user?.profilePicture}
-                  alt={thread.user?.username ?? 'Avatar'}
+                  src={thread?.user?.profilePicture}
+                  alt={thread?.user?.username ?? 'Avatar'}
                   height={32}
                   width={32}
                 />
@@ -192,7 +191,7 @@ export default function BrowseListItem({
               pageType !== 'user' && (
                 <Button
                  onClick={goToProfile}
-                 title={thread.user?.username}
+                 title={thread?.user?.username}
                  variant="icon"
                  size="icon"
                 >
@@ -203,9 +202,9 @@ export default function BrowseListItem({
             </div>
             </div>
              {/* Thread Options */}
-           <div className='px-4'>
+           {/* <div className='px-4'>
                  <ChatOptions threadId={thread.threadId} thread={thread} isBrowse />
-           </div>
+           </div> */}
           </div>
 
           
