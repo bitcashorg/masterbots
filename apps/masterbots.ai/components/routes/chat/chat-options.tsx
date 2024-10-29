@@ -95,10 +95,10 @@ const AlertDialogue = ({ deleteDialogOpen} :{ deleteDialogOpen: boolean}) => (
                   {thread?.isApproved ? (
                     <BadgeCheck className="w-4 h-4 bg-[#388DE2]  text-white rounded-full" />
                   ) : (
-                    <BadgeCheck className="w-4 h-4 text-gray-400" />
+                    <BadgeCheck className="w-4 h-4 text-gray-400 dark:text-gray-100 " />
                   )}
                 </div>
-                <div className="bg-gray-200 dark:bg-gray-500 rounded-full px-2 ">
+                <div className="bg-gray-200 dark:bg-gray-400 dark:text-gray-100  rounded-full px-2 ">
                   <span className="text-xs">
                     {thread?.isPublic ? 'Public' : 'Private'}
                   </span>
