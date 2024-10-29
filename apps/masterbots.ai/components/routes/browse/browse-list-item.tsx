@@ -109,6 +109,8 @@ export default function BrowseListItem({
     }
   }
 
+  console.log({ thread })
+
   return (
     <div ref={threadRef}>
       <ChatAccordion
