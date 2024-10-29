@@ -104,8 +104,8 @@ export default function BrowseListItem({
   const goToProfile = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (thread.user?.slug) {
-      router.push(`/u/${thread.user.slug}/t`)
+    if (thread?.user?.slug) {
+      router.push(`/u/${thread?.user?.slug}/t`)
     }
   }
 
@@ -172,17 +172,17 @@ export default function BrowseListItem({
             )}
 
             <div>
-            {pageType !== 'user' && thread.user?.profilePicture ? (
+            {pageType !== 'user' && thread?.user?.profilePicture ? (
               <Button
                onClick={goToProfile}
-               title={thread.user?.username.replace('_', ' ')}
+               title={thread?.user?.username.replace('_', ' ')}
                variant="icon"
                size="icon"
               >
                 <Image
                   className="transition-opacity duration-300 rounded-full select-none hover:opacity-80"
-                  src={thread.user?.profilePicture}
-                  alt={thread.user?.username ?? 'Avatar'}
+                  src={thread?.user?.profilePicture}
+                  alt={thread?.user?.username ?? 'Avatar'}
                   height={32}
                   width={32}
                 />
@@ -191,7 +191,7 @@ export default function BrowseListItem({
               pageType !== 'user' && (
                 <Button
                  onClick={goToProfile}
-                 title={thread.user?.username}
+                 title={thread?.user?.username}
                  variant="icon"
                  size="icon"
                 >

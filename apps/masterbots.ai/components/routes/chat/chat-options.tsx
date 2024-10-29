@@ -31,8 +31,6 @@ interface ChatOptionsProps {
 export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
   const { toggleVisibility, isSameUser, initiateDeleteThread} = useThreadVisibility()
   const isUser = isSameUser(thread)
-  const title =  thread?.messages[0]?.content;
-  const text = thread?.messages[1]?.content.substring(0, 100);
   const url = `/${toSlug(thread.chatbot.categories[0].category.name)}/${thread.threadId}`
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -95,10 +93,10 @@ const AlertDialogue = ({ deleteDialogOpen} :{ deleteDialogOpen: boolean}) => (
                   {thread?.isApproved ? (
                     <BadgeCheck className="w-4 h-4 bg-[#388DE2]  text-white rounded-full" />
                   ) : (
-                    <BadgeCheck className="w-4 h-4 text-gray-400" />
+                    <BadgeCheck className="w-4 h-4 text-gray-400 dark:text-gray-100 " />
                   )}
                 </div>
-                <div className="bg-gray-200 rounded-full px-2 ">
+                <div className="bg-gray-200 dark:bg-gray-400 dark:text-gray-100  rounded-full px-2 ">
                   <span className="text-xs">
                     {thread?.isPublic ? 'Public' : 'Private'}
                   </span>
@@ -149,7 +147,8 @@ const AlertDialogue = ({ deleteDialogOpen} :{ deleteDialogOpen: boolean}) => (
             className="flex-col items-start"
             onSelect={event => event.preventDefault()}
           >
-           <ShareButton title={title} text={text} url={url} />
+           <ShareButton  url={url} />
+           {/* <ShareLink /> */}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           {isUser && (
