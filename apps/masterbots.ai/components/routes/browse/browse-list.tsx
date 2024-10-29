@@ -79,6 +79,8 @@ export default function BrowseList() {
     verifyKeyword()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [keyword, threads])
+
+  console.log('🟢 Filtered Threads:', filteredThreads)
   return (
     <div className="flex flex-col w-full gap-3 py-5">
       {filteredThreads.map((thread: Thread, key) => (

@@ -109,8 +109,6 @@ export default function BrowseListItem({
     }
   }
 
-  console.log({ thread })
-
   return (
     <div ref={threadRef}>
       <ChatAccordion
@@ -204,9 +202,9 @@ export default function BrowseListItem({
             </div>
             </div>
              {/* Thread Options */}
-           {/* <div className='px-4'>
+           <div className='px-4'>
                  <ChatOptions threadId={thread.threadId} thread={thread} isBrowse />
-           </div> */}
+           </div>
           </div>
 
           
