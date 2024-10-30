@@ -9,7 +9,7 @@ array_relationships:
         table:
           name: chat
           schema: public
-  - name: followers
+ - name: followers
     using:
       foreign_key_constraint_on:
         column: followee_id
@@ -96,6 +96,56 @@ insert_permissions:
         - profile_picture
         - slug
         - username
+    comment: ""
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - date_joined
+        - email
+        - last_login
+        - pro_user_subscription_id
+        - profile_picture
+        - slug
+        - user_id
+        - username
+      filter: {}
+    comment: ""
+  - role: moderator
+    permission:
+      columns:
+        - date_joined
+        - email
+        - get_free_month
+        - is_blocked
+        - is_verified
+        - last_login
+        - pro_user_subscription_id
+        - profile_picture
+        - role
+        - slug
+        - user_id
+        - username
+      filter: {}
+    comment: ""
+  - role: user
+    permission:
+      columns:
+        - date_joined
+        - email
+        - get_free_month
+        - is_blocked
+        - is_verified
+        - last_login
+        - pro_user_subscription_id
+        - profile_picture
+        - role
+        - slug
+        - user_id
+        - username
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
     comment: ""
 update_permissions:
   - role: moderator
