@@ -16,16 +16,17 @@ export function Header() {
           <SidebarToggle />
         </React.Suspense>
         <HeaderLink href="/" text="MB" />
-        <IconSeparator className="size-6 text-muted-foreground/50" />
-        <HeaderLink href="/c" text="Chat" />
-        <HeaderLink href="/" text="Browse" />
+        <div className="hidden md:flex md:items-center">
+          <IconSeparator className="size-6 text-muted-foreground/50" />
+          <HeaderLink href="/c" text="Chat" />
 
-        {appConfig.devMode && (
-          <>
-            <HeaderLink href="/wordware" text="Ww" />
-            <HeaderLink href="/c/p" text="Pro" />
-          </>
-        )}
+          {appConfig.devMode && (
+            <>
+              <HeaderLink href="/wordware" text="Ww" />
+              <HeaderLink href="/c/p" text="Pro" />
+            </>
+          )}
+        </div>
       </div>
       <div className="flex items-center justify-end space-x-2 gap-2">
         <ThemeToggle />
