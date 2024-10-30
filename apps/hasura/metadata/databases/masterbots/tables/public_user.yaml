@@ -9,6 +9,20 @@ array_relationships:
         table:
           name: chat
           schema: public
+ - name: followers
+    using:
+      foreign_key_constraint_on:
+        column: followee_id
+        table:
+          name: social_following
+          schema: public
+  - name: following
+    using:
+      foreign_key_constraint_on:
+        column: follower_id
+        table:
+          name: social_following
+          schema: public
   - name: preferences
     using:
       foreign_key_constraint_on:
