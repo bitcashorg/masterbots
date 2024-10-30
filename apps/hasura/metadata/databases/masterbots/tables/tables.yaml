@@ -15,7 +15,6 @@
 - "!include public_prompt_type_enum.yaml"
 - "!include public_prompt_user.yaml"
 - "!include public_referral.yaml"
-- "!include public_social_following.yaml"
 - "!include public_thread.yaml"
 - "!include public_token.yaml"
 - "!include public_tone_enum.yaml"
