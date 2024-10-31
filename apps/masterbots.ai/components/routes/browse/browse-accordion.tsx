@@ -159,7 +159,6 @@ export function BrowseAccordion({
           (open
             ? 'z-10 my-8 scale-100'
             : 'scale-[0.98] my-1 hover:scale-[0.99]'),
-        // Solo aplicamos efectos disabled a threads principales
         !isNestedThread &&
           shouldBeDisabled &&
           !open &&
