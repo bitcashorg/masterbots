@@ -4,7 +4,7 @@ import { ChatAccordion } from '@/components/routes/chat/chat-accordion'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { cn, sleep } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
-import { Message, Thread } from 'mb-genql'
+import type { Message, Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -15,6 +15,7 @@ import { IconOpenAI, IconUser } from '@/components/ui/icons'
 import { Button } from '@/components/ui/button'
 import { icons } from 'lucide-react'
 import { ChatOptions } from '../chat/chat-options'
+import {BrowseAccordion} from '@/components/routes/browse/browse-accordion';
 
 let initialUrl: string | null = null
 
@@ -111,7 +112,7 @@ export default function BrowseListItem({
 
   return (
     <div ref={threadRef}>
-      <ChatAccordion
+      <BrowseAccordion
         onToggle={handleAccordionToggle}
         // handleTrigger={goToThread}
         className="relative"
@@ -230,7 +231,7 @@ export default function BrowseListItem({
           user={thread?.user || undefined}
           messages={messages}
         />
-      </ChatAccordion>
+      </BrowseAccordion>
     </div>
   )
 }
