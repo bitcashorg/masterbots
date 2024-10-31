@@ -1,10 +1,10 @@
 /* eslint-disable tailwindcss/migration-from-tailwind-2 */
 /**
  * BrowseAccordion Component
- * 
+ *
  * This component implements an accordion UI element that can expand and collapse to show or hide content.
  * It is designed to handle threads in a chat application, allowing users to view messages related to a specific thread.
- * 
+ *
  * Props:
  * - thread: The thread object associated with this accordion.
  * - className: Additional CSS classes for styling.
@@ -19,7 +19,7 @@
  * - handleTrigger: Callback for handling trigger actions.
  * - disabled: Disables the accordion if true.
  * - isNestedThread: Indicates if the accordion is part of a nested thread.
- * 
+ *
  * Key Features:
  * - State Management: Uses local state to manage the open/closed state of the accordion.
  * - Thread Management: Integrates with a custom hook to manage active threads and responses.
@@ -171,9 +171,12 @@ export function BrowseAccordion({
     >
       {!isNestedThread && open && (
         <>
-          <div className="absolute inset-0 -m-4 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 rounded-xl blur-xl" />
-          <div className="absolute inset-0 -m-1 opacity-50 rounded-xl bg-gradient-to-r from-blue-500/10 to-purple-500/10" />
-          <div className="absolute inset-0 border rounded-xl border-white/10 dark:border-white/5" />
+          {/* Background glow effect */}
+          <div className="absolute inset-0 -m-4 rounded-xl blur-xl bg-gradient-to-r dark:from-[#83E56A]/5 dark:via-[#83E56A]/10 dark:to-[#83E56A]/5 from-[#BE17E8]/5 via-[#BE17E8]/10 to-[#BE17E8]/5" />
+          {/* Additional subtle glow layer */}
+          <div className="absolute inset-0 -m-1 rounded-xl opacity-50 bg-gradient-to-r dark:from-[#83E56A]/10 dark:to-[#83E56A]/15 from-[#BE17E8]/10 to-[#BE17E8]/15" />
+          {/* Border glow */}
+          <div className="absolute inset-0 border rounded-xl dark:border-[#83E56A]/10 border-[#BE17E8]/10" />
         </>
       )}
 
