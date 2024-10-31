@@ -3,7 +3,6 @@
 import { type Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
 import Image from 'next/image'
-import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -12,7 +11,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { appConfig } from 'mb-env'
 
 export interface UserMenuProps {
   user: Session['user']
@@ -51,28 +49,6 @@ export function UserMenu({ user }: UserMenuProps) {
             <div className="text-xs text-zinc-500">{user?.email}</div>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          
-          <div className="md:hidden">
-            <DropdownMenuItem asChild>
-              <Link href="/c" className="text-xs">Chat</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/" className="text-xs">Browse</Link>
-            </DropdownMenuItem>
-            
-            {appConfig.devMode && (
-              <>
-                <DropdownMenuItem asChild>
-                  <Link href="/c/p" className="text-xs">Pro</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/wordware" className="text-xs">Wordware</Link>
-                </DropdownMenuItem>
-              </>
-            )}
-            <DropdownMenuSeparator />
-          </div>
-
           <DropdownMenuItem
             onClick={() =>
               signOut({
