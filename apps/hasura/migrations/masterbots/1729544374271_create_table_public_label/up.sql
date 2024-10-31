@@ -1,0 +1,1 @@
+CREATE TABLE "public"."label" ("id" serial NOT NULL, "categories" Text NOT NULL, "sub_categories" text NOT NULL, "tags" text NOT NULL, "advanced_labels" boolean NOT NULL DEFAULT false, PRIMARY KEY ("id") , UNIQUE ("id"));COMMENT ON TABLE "public"."label" IS E'Labels for chatbots (e.g.: domain, category, sub-category, tags ';

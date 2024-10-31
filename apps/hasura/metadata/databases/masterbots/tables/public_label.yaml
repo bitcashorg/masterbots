@@ -1,0 +1,45 @@
+table:
+  name: label
+  schema: public
+array_relationships:
+  - name: metadataLabels
+    using:
+      foreign_key_constraint_on:
+        column: label_id
+        table:
+          name: label_chatbot_category
+          schema: public
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - advanced_labels
+        - label_id
+        - categories
+        - questions
+        - sub_categories
+        - tags
+      filter: {}
+    comment: ""
+  - role: moderator
+    permission:
+      columns:
+        - advanced_labels
+        - label_id
+        - categories
+        - questions
+        - sub_categories
+        - tags
+      filter: {}
+    comment: ""
+  - role: user
+    permission:
+      columns:
+        - advanced_labels
+        - label_id
+        - categories
+        - questions
+        - sub_categories
+        - tags
+      filter: {}
+    comment: ""

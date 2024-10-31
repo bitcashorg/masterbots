@@ -1,6 +1,7 @@
 table:
   name: user
   schema: public
+
 array_relationships:
   - name: chats
     using:
@@ -9,6 +10,22 @@ array_relationships:
         table:
           name: chat
           schema: public
+  - name: followers
+    using:
+      foreign_key_constraint_on:
+        column: followee_id
+        table:
+          name: social_following
+          schema: public
+  
+  - name: following
+    using:
+      foreign_key_constraint_on:
+        column: follower_id
+        table:
+          name: social_following
+          schema: public
+  
   - name: preferences
     using:
       foreign_key_constraint_on:
@@ -16,6 +33,7 @@ array_relationships:
         table:
           name: preference
           schema: public
+  
   - name: prompts
     using:
       foreign_key_constraint_on:
@@ -23,6 +41,7 @@ array_relationships:
         table:
           name: prompt_user
           schema: public
+  
   - name: referrals
     using:
       foreign_key_constraint_on:
@@ -30,6 +49,7 @@ array_relationships:
         table:
           name: referral
           schema: public
+  
   - name: referralsByUserId
     using:
       foreign_key_constraint_on:
@@ -37,6 +57,7 @@ array_relationships:
         table:
           name: referral
           schema: public
+  
   - name: threads
     using:
       foreign_key_constraint_on:
@@ -44,7 +65,34 @@ array_relationships:
         table:
           name: thread
           schema: public
+  
+  - name: userTokens
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: user_token
+          schema: public
+
 insert_permissions:
+  - role: moderator
+    permission:
+      check: {}
+      columns:
+        - get_free_month
+        - is_blocked
+        - email
+        - password
+        - profile_picture
+        - pro_user_subscription_id
+        - slug
+        - username
+        - date_joined
+        - last_login
+        - role
+        - user_id
+    comment: ""
+  
   - role: user
     permission:
       check: {}
@@ -73,6 +121,23 @@ select_permissions:
         - username
       filter: {}
     comment: ""
+  - role: moderator
+    permission:
+      columns:
+        - date_joined
+        - email
+        - get_free_month
+        - is_blocked
+        - is_verified
+        - last_login
+        - pro_user_subscription_id
+        - profile_picture
+        - role
+        - slug
+        - user_id
+        - username
+      filter: {}
+    comment: ""
   - role: user
     permission:
       columns:
@@ -80,17 +145,27 @@ select_permissions:
         - email
         - get_free_month
         - is_blocked
+        - is_verified
         - last_login
         - pro_user_subscription_id
         - profile_picture
+        - role
         - slug
         - user_id
         - username
       filter:
         user_id:
           _eq: X-Hasura-User-Id
-    comment: ""
+    comment: ""   
 update_permissions:
+  - role: moderator
+    permission:
+      columns:
+        - is_blocked
+      filter: {}
+      check: null
+    comment: "Allows moderators to block any user"
+  
   - role: user
     permission:
       columns:

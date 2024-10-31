@@ -29,6 +29,13 @@ array_relationships:
         table:
           name: chat
           schema: public
+  - name: metadataLabels
+    using:
+      foreign_key_constraint_on:
+        column: chatbot_id
+        table:
+          name: label_chatbot_category
+          schema: public
   - name: preferences
     using:
       foreign_key_constraint_on:
@@ -64,6 +71,21 @@ select_permissions:
         - description
         - name
       filter: {}
+    comment: ""
+  - role: moderator
+    permission:
+      columns:
+        - chatbot_id
+        - avatar
+        - created_by
+        - default_complexity
+        - default_length
+        - default_tone
+        - default_type
+        - description
+        - name
+      filter: {}
+      allow_aggregations: true
     comment: ""
   - role: user
     permission:
