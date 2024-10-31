@@ -9,6 +9,16 @@ object_relationships:
     using:
       foreign_key_constraint_on: thread_id
 insert_permissions:
+  - role: moderator
+    permission:
+      check: {}
+      columns:
+        - content
+        - role
+        - created_at
+        - message_id
+        - thread_id
+    comment: ""
   - role: user
     permission:
       check:
@@ -33,6 +43,16 @@ select_permissions:
         - role
       filter: {}
     comment: ""
+  - role: moderator
+    permission:
+      columns:
+        - content
+        - role
+        - created_at
+        - message_id
+        - thread_id
+      filter: {}
+    comment: ""
   - role: user
     permission:
       columns:
@@ -42,4 +62,16 @@ select_permissions:
         - message_id
         - thread_id
       filter: {}
+    comment: ""
+delete_permissions:
+  - role: moderator
+    permission:
+      filter: {}
+    comment: ""
+  - role: user
+    permission:
+      filter:
+        thread:
+          user_id:
+            _eq: X-Hasura-User-Id
     comment: ""

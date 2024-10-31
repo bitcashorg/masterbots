@@ -41,7 +41,8 @@ export default async function IndexPage() {
 export async function generateMetadata(): Promise<Metadata> {
   const seoData = {
     title: 'Pro page',
-    description: 'Pro page',
+    description:
+      'Masterbots Subscription plans, Subscribe to our service and stay updated',
     ogType: 'website',
     ogImageUrl: '',
     twitterCard: 'summary'

@@ -1,25 +1,39 @@
+/* eslint-disable react/no-unescaped-entities */
 import { cn } from "@/lib/utils"
 import { ElementType } from "react"
+import Link from 'next/link';
 
 export default function FooterCT({ nonFooterTag, fixed }: { nonFooterTag?: boolean, fixed?: boolean }) {
   const Footer: ElementType = ({ children }) => nonFooterTag ?
-    <div className={cn("min-h-[58px] whitespace-break-spaces text-xs font-semibold font-['Geist_Mono'] flex justify-center items-center opacity-50", fixed && 'opacity-100 fixed w-full z-[99999] bottom-0 bg-accent')}>
+    <div className={cn("min-h-[58px] whitespace-break-spaces text-xs font-semibold font-['Geist_Mono'] flex justify-center items-center opacity-50" , fixed && 'opacity-100 fixed w-full z-[99999] bottom-0 bg-accent')}>
       {children}
     </div> :
-    <footer className={cn("min-h-[58px] whitespace-break-spaces text-xs font-semibold font-['Geist_Mono'] flex justify-center items-center opacity-50", fixed && 'opacity-100 fixed w-full z-[99999] bottom-0 bg-accent')}>
+    <footer className={cn("min-h-[58px] whitespace-break-spaces text-xs font-semibold font-['Geist_Mono'] flex justify-center items-center opacity-50 dark:text-[#83E56A] text-[#BE17E8]", fixed && 'opacity-100 fixed w-full z-[99999] bottom-0 bg-accent')}>
       {children}
     </footer>
 
   return (
     <Footer>
-      <span className="font-['Geist_Mono'] text-center items-center font-normal text-[12px]">Robot avatars delivered by{' '}
-        <a href="https://robohash.org" target="_blank" rel="noopener noreferrer" className="mr-2 underline text-primary focus-within:underline">
+         <span>
+        Masterbots isn't infallible; verify crucial facts. Not professional advice.
+      </span>
+      <span className='px-1'>
+        Robot avatars by{' '}
+        <a 
+          href="https://robohash.org" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="underline hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+        >
           robohash.org
         </a>
         {' • '}
-        <a href="/terms" className="underline text-primary focus-within:underline">
+        <Link 
+          href="/terms" 
+          className="underline hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+        >
           terms & policies
-        </a>
+        </Link>
       </span>
     </Footer>
   )

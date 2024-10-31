@@ -1,4 +1,4 @@
-import { z, ZodSchema } from 'zod'
+import { z, type ZodSchema } from 'zod'
 
 export const UsernameSchema: ZodSchema<string> = z.string()
   .min(11, { message: "Username must be at least 11 characters long." })
@@ -7,7 +7,7 @@ export const UsernameSchema: ZodSchema<string> = z.string()
 
 // Function to generate a random number as a string
 export const generateRandomNumber = (length: number): string => {
-  const randomNumber = Math.floor(Math.random() * Math.pow(10, length))
+  const randomNumber = Math.floor(Math.random() * 10 ** length)
   return randomNumber.toString().padStart(length, '0')
 }
 

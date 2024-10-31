@@ -1,14 +1,16 @@
 import bcrypt from 'bcryptjs'
 import { setCookie } from 'cookies-next'
-import { getHasuraClient, getToken, toSlug, validateJwtSecret, verify } from 'mb-lib'
+import { decodeToken, getHasuraClient, getToken, toSlug, validateJwtSecret, verify } from 'mb-lib'
 import {
   GetServerSidePropsContext,
   NextApiRequest,
   NextApiResponse
 } from 'next'
-import { NextAuthOptions, getServerSession } from 'next-auth'
+import { NextAuthOptions, getServerSession, User } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import Google from 'next-auth/providers/google'
+import { getUserRoleByEmail } from './services/hasura'
+
 
 //* NextAuth configuration strategy with multiprovider options
 export const authOptions: NextAuthOptions = {
@@ -20,12 +22,13 @@ export const authOptions: NextAuthOptions = {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' }
       },
-      async authorize(credentials) {
+      authorize: async (credentials): Promise<User | null> => {
         if (!credentials?.email || !credentials?.password) {
           throw new Error('Missing email or password')
         }
 
         //* Initialize the Hasura client for interacting with the database based on the environment
+
         const client = getHasuraClient()
         try {
           const { user } = await client.query({
@@ -37,10 +40,10 @@ export const authOptions: NextAuthOptions = {
               email: true,
               password: true,
               username: true,
-              profilePicture: true
+              profilePicture: true,
+              role:  true,
             }
           })
-
           if (!user || user.length === 0) {
             console.error(
               'User authentication failed: Invalid or empty user data'
@@ -53,14 +56,13 @@ export const authOptions: NextAuthOptions = {
             credentials.password,
             user[0].password
           )
-
           if (!isValid) {
             console.error('User authentication failed: Invalid password')
             throw new Error('Invalid credentials')
           }
           console.log('User authenticated successfully')
           //* Return user details to be attached to the token
-          return { id: user[0].userId, email: user[0].email, name: user[0].username, image: user[0].profilePicture }
+          return { id: user[0].userId, email: user[0].email, name: user[0].username, image: user[0].profilePicture, role: user[0].role || 'user'   }
         } catch (error) {
           throw new Error('Authentication failed')
         }
@@ -78,6 +80,20 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user, account }) {
       if (user) {
+        //* Add user role to the token when signing in with Google
+        if(account?.provider === 'google'){
+          const email = user.email;
+          const userRoleResult = await getUserRoleByEmail({ email });   
+          if (userRoleResult.users.length > 0) {
+            token.role = userRoleResult.users[0]?.role || 'user';
+          } else {
+            console.error('Error fetching user role:', userRoleResult.error);
+            token.role = 'user'; // Default to 'user' if no user found or in case of error
+          }
+        }else{
+          token.role = user.role; // use this for other 
+        }
+
         token.id = user.id;
         token.email = user.email;
         token.name = user.name;
@@ -91,13 +107,13 @@ export const authOptions: NextAuthOptions = {
         if (!jwtSecret) {
           throw new Error('Secret not found')
         }
-
+        
         try {
           //* Generate a JWT for Hasura with custom claims
           const hasuraJwt = await getToken({
             user: {
               account: user.id,
-              role: 'user'
+              role: token.role as string
             },
             jwtSecret,
             jwtExpiration: Number(process.env.JWT_TOKEN_EXPIRATION)
@@ -107,6 +123,7 @@ export const authOptions: NextAuthOptions = {
             console.error('Failed to generate Hasura JWT')
             throw new Error('Login Error')
           }
+
 
           //* Verify the generated JWT to ensure it's valid
           await verify(hasuraJwt, jwtSecret.key)
@@ -130,18 +147,18 @@ export const authOptions: NextAuthOptions = {
       return token
     },
     async session({ session, token }) {
-      //* Attach the user details and JWT to the session object
+      //* Attach the user details and JWT to the session object\
       session.user.id = token.id as string
       session.user.email = token.email as string
       session.user.name = token.name as string
       session.user.image = token.image as string
       session.user.hasuraJwt = token.hasuraJwt as string
+      session.user.role = token.role as string
 
       console.log(
         'Session created with Hasura JWT 🗝️: ',
         session.user.hasuraJwt ? 'Present' : 'Missing'
       )
-
       return session
     },
     // @ts-ignore
@@ -199,6 +216,7 @@ export const authOptions: NextAuthOptions = {
   },
   debug: process.env.NODE_ENV === 'development' //! Enable detailed logging in development mode
 }
+
 
 //* Helper function to retrieve the session in server-side contexts
 export function auth(

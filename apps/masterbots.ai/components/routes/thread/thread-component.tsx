@@ -8,6 +8,9 @@ import { useScroll } from '@/lib/hooks/use-scroll'
 import { useThread } from '@/lib/hooks/use-thread'
 import { Thread } from 'mb-genql'
 import { useRef } from 'react'
+import { AdminModeApprove } from '../chat/admin-mode-approve'
+import { ChatOptions } from '../chat/chat-options'
+import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 
 export default function ThreadComponent({
   thread,
@@ -25,6 +28,7 @@ export default function ThreadComponent({
   const threadRef = useRef<HTMLLIElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const { allMessages, isNewResponse } = useThread()
+  const { isAdminMode } = useThreadVisibility()
 
   const { isNearBottom, scrollToTop } = useScroll({
     containerRef: contentRef,
@@ -36,6 +40,7 @@ export default function ThreadComponent({
     loadMore
   })
 
+  const threadId = thread.threadId
   return (
     <li ref={threadRef}>
       <ChatAccordion
@@ -51,11 +56,16 @@ export default function ThreadComponent({
       >
 
         {/* Thread Title */}
-        <div className="px-[11px] flex items-center w-full gap-3">
+        <div className="px-[11px] flex justify-between items-center w-full gap-3">
           <ChatbotAvatar thread={thread} />
           {thread.messages
             .filter(m => m.role === 'user')[0]
             ?.content.substring(0, 100) || 'wat'}
+
+          {/* Thread Options */}
+           <div className='px-4'>
+                 <ChatOptions threadId={threadId} thread={thread}  isBrowse={false}/>
+           </div>
         </div>
 
         {/* Thread Description */}
@@ -86,8 +96,14 @@ export default function ThreadComponent({
             containerRef={contentRef}
             isNearBottom={isNearBottom}
           />
+         
         </div>
+        
       </ChatAccordion>
+       {/* Admin Mode Approve */}
+       {isAdminMode && !thread.isApproved && (
+         <AdminModeApprove threadId={threadId} />
+      )}
     </li>
   )
 }
