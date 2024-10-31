@@ -1,8 +1,27 @@
 'use client'
 
+/**
+ * BrowseSpecificThreadList Component
+ *
+ * This component displays a list of specific chat threads based on user queries.
+ * It allows users to view initial threads and load more threads as needed.
+ *
+ * Props:
+ * - initialThreads: An array of Thread objects representing the initial set of threads to display.
+ * - query: An object containing query parameters for fetching threads.
+ * - PAGE_SIZE: A number indicating the maximum number of threads to load at once.
+ * - pageType: An optional string to specify the type of page (e.g., 'bot', 'user').
+ *
+ * Key Features:
+ * - State Management: Manages the list of threads, loading state, and total count using React hooks.
+ * - Load More Functionality: Fetches additional threads when the user requests more content.
+ * - Responsive Design: Utilizes Tailwind CSS for styling and layout.
+ * - Integration with Services: Uses the `getBrowseThreads` service to fetch threads based on the query.
+ */
+
 import React from 'react'
 import { getBrowseThreads } from '@/services/hasura'
-import { Thread } from 'mb-genql'
+import type { Thread } from 'mb-genql'
 import BrowseListItem from '@/components/routes/browse/browse-list-item'
 
 export default function BrowseSpecificThreadList({

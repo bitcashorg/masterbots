@@ -1,10 +1,31 @@
 'use client'
+
+/**
+ * BrowseList Component
+ *
+ * This component displays a list of chat threads for browsing based on user-selected categories and keywords.
+ * It allows users to filter threads dynamically and load more content as they scroll.
+ *
+ * Key Features:
+ * - Dynamic Filtering: Filters threads based on the user's input keyword and selected categories.
+ * - Infinite Scrolling: Loads more threads when the user reaches the end of the list.
+ * - State Management: Manages loading states and thread counts using React hooks.
+ * - Responsive Design: Utilizes Tailwind CSS for styling and layout.
+ * - Integration with Custom Hooks: Uses `useBrowse` for browsing context and `useSidebar` for category selection.
+ *
+ * State Variables:
+ * - threads: An array of Thread objects representing the current list of threads.
+ * - filteredThreads: An array of Thread objects representing the filtered list based on the keyword.
+ * - loading: A boolean indicating if threads are currently being loaded.
+ * - count: A number representing the total number of threads fetched.
+ */
+
 import BrowseListItem from '@/components/routes/browse/browse-list-item'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { getBrowseThreads } from '@/services/hasura'
 import { debounce } from 'lodash'
-import { Thread } from 'mb-genql'
+import type { Thread } from 'mb-genql'
 import React from 'react'
 
 const PAGE_SIZE = 50
@@ -72,7 +93,11 @@ export default function BrowseList() {
   }
 
   React.useEffect(() => {
-    fetchThreads({ keyword, categoriesId: selectedCategories, chatbotsId: selectedChatbots })
+    fetchThreads({
+      keyword,
+      categoriesId: selectedCategories,
+      chatbotsId: selectedChatbots
+    })
   }, [selectedCategories.length, selectedChatbots.length])
 
   React.useEffect(() => {

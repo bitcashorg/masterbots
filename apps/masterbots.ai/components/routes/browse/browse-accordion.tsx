@@ -1,4 +1,34 @@
 /* eslint-disable tailwindcss/migration-from-tailwind-2 */
+/**
+ * BrowseAccordion Component
+ * 
+ * This component implements an accordion UI element that can expand and collapse to show or hide content.
+ * It is designed to handle threads in a chat application, allowing users to view messages related to a specific thread.
+ * 
+ * Props:
+ * - thread: The thread object associated with this accordion.
+ * - className: Additional CSS classes for styling.
+ * - children: React nodes to be rendered inside the accordion.
+ * - onToggle: Callback function triggered when the accordion is toggled.
+ * - isOpen: Controls the open state of the accordion.
+ * - defaultState: Initial open state of the accordion.
+ * - triggerClass: CSS classes for the trigger button.
+ * - contentClass: CSS classes for the content area.
+ * - arrowClass: CSS classes for the arrow icon.
+ * - handleOpen: Callback for handling open state changes.
+ * - handleTrigger: Callback for handling trigger actions.
+ * - disabled: Disables the accordion if true.
+ * - isNestedThread: Indicates if the accordion is part of a nested thread.
+ * 
+ * Key Features:
+ * - State Management: Uses local state to manage the open/closed state of the accordion.
+ * - Thread Management: Integrates with a custom hook to manage active threads and responses.
+ * - Accessibility: Implements ARIA attributes for better accessibility.
+ * - Smooth Scrolling: Scrolls to the accordion when opened for better user experience.
+ * - Dynamic Styling: Applies different styles based on the open state and whether the accordion is nested.
+ * - Conditional Rendering: Renders different UI elements based on the state and props.
+ */
+
 import React from 'react'
 import { ChevronDown } from 'lucide-react'
 import type { Thread } from 'mb-genql'

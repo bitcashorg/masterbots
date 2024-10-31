@@ -1,5 +1,20 @@
-// Inspired by Chatbot-UI and modified to fit the needs of this project
-// @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Chat/ChatcleanMessage.tsx
+/**
+ * BrowseChatMessageList Component
+ *
+ * This component displays a list of chat messages exchanged between the user and the chatbot.
+ * It organizes messages into pairs, allowing for a structured presentation of user and chatbot interactions.
+ *
+ * Props:
+ * - messages: An array of Message objects representing the chat messages.
+ * - chatbot: An optional Chatbot object containing details about the chatbot.
+ * - isThread: A boolean indicating if the messages are part of a thread (default is false).
+ *
+ * Key Features:
+ * - Message Pairing: Utilizes the `createMessagePairs` utility to pair user messages with corresponding chatbot responses.
+ * - Accordion Functionality: Each message pair is displayed within an accordion for better organization and readability.
+ * - Conditional Rendering: Displays the first message pair differently if it is part of a thread.
+ * - Responsive Design: Applies Tailwind CSS for styling and layout.
+ */
 
 import { cn, createMessagePairs } from '@/lib/utils'
 import type { Chatbot, Message, User } from 'mb-genql'
