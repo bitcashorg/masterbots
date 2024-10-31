@@ -14,7 +14,8 @@ import {
   BadgeCheck
 } from 'lucide-react'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
-import React, { useState } from 'react'
+import type React from 'react'
+import { useState } from 'react'
 import type { Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import { ShareButton } from './share-button'
@@ -35,8 +36,7 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   
-
-
+  // Handle thread deletion with loading state and toast notifications
   const handleDelete = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
      setIsDeleting(true);
@@ -51,6 +51,7 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
      
      };
 
+// Confirmation dialog component for thread deletion
 const AlertDialogue = ({ deleteDialogOpen} :{ deleteDialogOpen: boolean}) => (
   <AlertDialog open={deleteDialogOpen}>
   <AlertDialogContent>
@@ -86,9 +87,10 @@ const AlertDialogue = ({ deleteDialogOpen} :{ deleteDialogOpen: boolean}) => (
   return (
     <div className="flex  items-center space-x-3 pt-[3px]">
       <AlertDialogue  deleteDialogOpen={isDeleteOpen}  />
+        {/* Display approval badge and public/private status */}
         {
             !isBrowse && (
-                <div className="flex  items-center space-x-3">
+                <div className="flex items-center space-x-3">
                 <div>
                   {thread?.isApproved ? (
                     <BadgeCheck className="w-4 h-4 bg-[#388DE2]  text-white rounded-full" />
@@ -96,7 +98,7 @@ const AlertDialogue = ({ deleteDialogOpen} :{ deleteDialogOpen: boolean}) => (
                     <BadgeCheck className="w-4 h-4 text-gray-400 dark:text-gray-100 " />
                   )}
                 </div>
-                <div className="bg-gray-200 dark:bg-gray-400 dark:text-gray-100  rounded-full px-2 ">
+                <div className="px-2 bg-gray-200 rounded-full dark:bg-gray-400 dark:text-gray-100 ">
                   <span className="text-xs">
                     {thread?.isPublic ? 'Public' : 'Private'}
                   </span>
@@ -105,6 +107,7 @@ const AlertDialogue = ({ deleteDialogOpen} :{ deleteDialogOpen: boolean}) => (
             )
         }
     
+      {/* Dropdown menu for thread actions */}
       <DropdownMenu>
         <DropdownMenuTrigger  asChild>
           <MoreVertical className="w-4 h-4" />
@@ -114,6 +117,7 @@ const AlertDialogue = ({ deleteDialogOpen} :{ deleteDialogOpen: boolean}) => (
           align="end"
           className="w-[180px] px-0"
         >
+          {/* Toggle thread visibility option (only for thread owner) */}
           {isUser && (
             <DropdownMenuItem
              
@@ -143,6 +147,7 @@ const AlertDialogue = ({ deleteDialogOpen} :{ deleteDialogOpen: boolean}) => (
               </Button>
             </DropdownMenuItem>
           )}
+          {/* Share thread option */}
           <DropdownMenuItem
             className="flex-col items-start"
             onSelect={event => event.preventDefault()}
@@ -151,6 +156,7 @@ const AlertDialogue = ({ deleteDialogOpen} :{ deleteDialogOpen: boolean}) => (
            {/* <ShareLink /> */}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
+          {/* Delete thread option (only for thread owner) */}
           {isUser && (
             <DropdownMenuItem
               className="text-xs"
@@ -159,7 +165,7 @@ const AlertDialogue = ({ deleteDialogOpen} :{ deleteDialogOpen: boolean}) => (
               <Button
                 variant={'ghost'}
                 size={'sm'}
-                className="text-red-400 flex justify-between w-full"
+                className="flex justify-between w-full text-red-400"
                 onClick={e => { 
                     e.stopPropagation()
                     setIsDeleteOpen(true)

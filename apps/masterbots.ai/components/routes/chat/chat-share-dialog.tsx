@@ -1,9 +1,11 @@
 'use client'
 
+//* ChatShareDialog provides a dialog to share a chat link, allowing users to copy the link to the clipboard.
+
 import * as React from 'react'
-import { type DialogProps } from '@radix-ui/react-dialog'
+import type { DialogProps } from '@radix-ui/react-dialog'
 import { toast } from 'react-hot-toast'
-import { type Chat } from '@/types/types'
+import type { Chat } from '@/types/types'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -14,17 +16,16 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { IconSpinner } from '@/components/ui/icons'
-import { useCopyToClipboard } from '@/lib/hooks/use-copy-to-clipboard'
+import { useCopyToClipboard } from '@/lib/hooks/use-copy-to-copyclipboard'
 
 interface ChatShareDialogProps extends DialogProps {
-  chat: Pick<Chat, 'id' | 'title' | 'messages'>
+  chat: Pick<Chat, 'id' | 'title' | 'messages'>  // Chat details including ID, title, and messages for sharing
   // shareChat: (id: string) => ServerActionResult<Chat>
-  onCopy: () => void
+  onCopy: () => void  // Callback for after the link is copied
 }
 
 export function ChatShareDialog({
   chat,
-  // shareChat,
   onCopy,
   ...props
 }: ChatShareDialogProps) {
@@ -69,7 +70,7 @@ export function ChatShareDialog({
         <div className="p-4 space-y-1 text-sm border rounded-md">
           <div className="font-medium">{chat.title}</div>
           <div className="text-muted-foreground">
-            {chat.messages.length} messages
+            {chat.messages.length}
           </div>
         </div>
         <DialogFooter className="items-center">
@@ -78,12 +79,6 @@ export function ChatShareDialog({
             onClick={() => {
               // @ts-ignore
               startShareTransition(async () => {
-                // const result = await shareChat(chat.id)
-                // if (result && 'error' in result) {
-                //   toast.error(result.error)
-                //   return
-                // }
-                // copyShareLink(result)
               })
             }}
           >
