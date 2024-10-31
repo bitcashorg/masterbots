@@ -16,7 +16,7 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { IconSpinner } from '@/components/ui/icons'
-import { useCopyToClipboard } from '@/lib/hooks/use-copy-to-copyclipboard'
+import { useCopyToClipboard } from '@/lib/hooks/use-copy-to-clipboard'
 
 interface ChatShareDialogProps extends DialogProps {
   chat: Pick<Chat, 'id' | 'title' | 'messages'>  // Chat details including ID, title, and messages for sharing
