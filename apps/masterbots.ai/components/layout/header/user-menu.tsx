@@ -11,6 +11,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import Link from 'next/link'
+import { toSlug } from 'mb-lib'
 
 export interface UserMenuProps {
   user: Session['user']
@@ -47,6 +49,13 @@ export function UserMenu({ user }: UserMenuProps) {
           <DropdownMenuItem className="flex-col items-start">
             <div className="text-xs font-medium">{user?.name}</div>
             <div className="text-xs text-zinc-500">{user?.email}</div>
+          </DropdownMenuItem>
+          <DropdownMenuItem className="flex-col items-start">
+            <Link  href={`/p/${toSlug(user?.name || '')}`}
+              className="text-xs"
+            >
+              Profile
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
