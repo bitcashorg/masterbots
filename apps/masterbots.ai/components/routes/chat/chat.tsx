@@ -199,6 +199,10 @@ export function Chat({
     // * Loading: Polishing Ai request... 'polishing'
     setLoadingState("polishing");
 
+    // todo: add the logic for retrieving the relevant examples
+    // pull all the examples for the domain
+    // const domainExamples = await fetchDomainExamples(domain)
+
     // ! Connecting to the ICL to send the user labelling the thread and rawData (examples) to the ICL
     // TODO: ...
     const postIclResponse = (await new Promise((resolve) => {

@@ -1,6 +1,10 @@
 table:
   name: tag_enum
   schema: public
+object_relationships:
+  - name: domain_enum
+    using:
+      foreign_key_constraint_on: domain
 select_permissions:
   - role: anonymous
     permission:

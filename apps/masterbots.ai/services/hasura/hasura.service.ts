@@ -6,7 +6,7 @@ import { validateMbEnv } from 'mb-env'
 import {
   type Category,
   type Chatbot,
-  type LabelChatbotCategory,
+  type LabelChatbotCategoryDomain,
   type Message,
   type Thread,
   type User,
@@ -118,7 +118,9 @@ export async function getThreads({
   offset,
   categoryId
 }: GetThreadsParams) {
+  console.log('creating client')
   const client = getHasuraClient({ jwt })
+  console.log('created client')
 
   const { thread } = await client.query({
     thread: {
@@ -609,31 +611,83 @@ export async function UpdateThreadVisibility({
 }
 
 export async function fetchChatbotMetadata({
-  chatbot,
-  domain
+  chatbotID,
+  categoryID
 }: ChatbotMetadataHeaders): Promise<ReturnFetchChatbotMetadata> {
   try {
     const client = getHasuraClient({})
-    const { labelChatbotCategory: chatbotMetadata } = await client.query({
-      labelChatbotCategory: {
+    const { labelChatbotCategoryDomain: chatbotMetadata } = await client.query({
+      labelChatbotCategoryDomain: {
         __args: {
           where: {
-            chatbotId: { _eq: chatbot },
-            categoryId: { _eq: domain }
+            categoryId: { _eq: categoryID },
+            chatbotId: { _eq: chatbotID }
           }
         },
-        label: {
-          questions: true,
-          categories: true,
-          subCategories: true,
-          tags: true
+        domain_enum: {
+          name: true,
+          tags: {
+            name: true
+          },
+          categories: {
+            name: true,
+            subcategoryNames: {
+              name: true
+            }
+          }
         }
       }
-    })
+    });
 
-    return chatbotMetadata[0].label as LabelChatbotCategory['label']
+    // todo: is this returned with domain_enum key or not?
+    console.log('chatbotMetadata as retrieved:', chatbotMetadata)
+    
+    // Transform the data to create a dictionary of categories with subcategories as values
+    const transformedMetadata = chatbotMetadata.map(item => ({
+      domainName: item.domain_enum.name,
+      tags: item.domain_enum.tags.map(tag => tag.name),
+      categories: item.domain_enum.categories.reduce((acc, category) => {
+        acc[category.name] = category.subcategoryNames.map(subcat => subcat.name);
+        return acc;
+      }, {})
+    }));
+    
+    console.log(transformedMetadata);    
+
+    return transformedMetadata
   } catch (error) {
     console.error('Error fetching chatbot metadata:', error)
+    return null
+  }
+}
+
+export async function fetchDomainExamples({
+  domain,
+}) {
+  try {
+    const client = getHasuraClient({})
+    // todo: typescript
+    const { examples } = await client.query({
+      example: {
+        __args: {
+          where: {
+            domain: { _eq: domain },
+          }
+        },
+        category: true,
+        domain: true,
+        exampleId: true,
+        response: true,
+        subcategory: true,
+        tags: true        
+      }
+    });
+    
+    console.log(examples);    
+
+    return examples
+  } catch (error) {
+    console.error('Error fetching examples:', error)
     return null
   }
 }

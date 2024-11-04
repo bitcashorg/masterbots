@@ -116,6 +116,8 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
   const isBrowse = !pathname.includes('/c')
 
   const handleChatbotClick = useCallback((e: React.MouseEvent) => {
+    //todo: remove v
+    console.log('handleChatbotClick, isFilterMode:', isFilterMode, 'chatbot:', chatbot)
     if (isFilterMode) e.preventDefault()
     else setActiveChatbot(chatbot)
   }, [chatbot, setActiveChatbot, isFilterMode])
@@ -123,10 +125,14 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
   const isSelected = selectedChatbots.includes(chatbot.chatbotId)
 
   const handleCheckboxChange = useCallback(() => {
+    //todo: remove v
+    console.log('handleCheckboxChange, chatbot:', chatbot)
     toggleChatbotSelection(chatbot.chatbotId)
   }, [chatbot.chatbotId])
 
   if (!isFilterMode && !isSelected) return null
+
+  console.log('isFilterMode:', isFilterMode, 'isBrowse:', isBrowse) 
 
   return isFilterMode || isBrowse ? (
     <div
@@ -150,7 +156,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
         width={24}
         height={24}
         className="mr-2 rounded-full"
-      />
+      />      
       <span>{chatbot.name}</span>
     </div>
   ) : (

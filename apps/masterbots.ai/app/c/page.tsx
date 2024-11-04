@@ -11,14 +11,19 @@ import { redirect } from 'next/navigation'
 import { isAdminOrModeratorRole , RoleTypes} from  '@/lib/utils'
 
 export default async function IndexPage() {
+  console.error('test')
   const session = await getServerSession(authOptions)
 
   // NOTE: maybe we should use same expiration time
   const jwt = session?.user?.hasuraJwt
 
+  // todo: remove v
+  console.log('jwt', jwt)
+
   if (!jwt || isTokenExpired(jwt)) {
     redirect('/auth/signin')
   }
+  console.log('getting threads')
 
 
   const threads = await getThreads({

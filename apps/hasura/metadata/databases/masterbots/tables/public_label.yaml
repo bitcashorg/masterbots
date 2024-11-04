@@ -7,7 +7,7 @@ array_relationships:
       foreign_key_constraint_on:
         column: label_id
         table:
-          name: label_chatbot_category
+          name: label_chatbot_category_domain
           schema: public
 select_permissions:
   - role: anonymous

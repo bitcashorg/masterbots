@@ -73,6 +73,8 @@ INSERT INTO public.category VALUES (9, 'Homecare')
 ON CONFLICT (category_id) DO NOTHING;
 INSERT INTO public.category VALUES (10, 'Legal')
 ON CONFLICT (category_id) DO NOTHING;
+INSERT INTO public.category VALUES (11, 'Natural Health')
+ON CONFLICT (category_id) DO NOTHING;
 INSERT INTO public.category VALUES (13, 'Other')
 ON CONFLICT (category_id) DO NOTHING;
 
@@ -84,6 +86,8 @@ ON CONFLICT (name) DO NOTHING;
 INSERT INTO public.chatbot VALUES (2, 'MoneyBot', 'MoneyBot assists people in finance & investments.  This includes: personal finance advice, stock market insights and predictions, cryptocurrency, and retirement planning', 'https://robohash.org/MoneyBot', 'merivercap', 'professional', 'clear_and_succinct', 'bullet_points', 'adult')
 ON CONFLICT (name) DO NOTHING;
 INSERT INTO public.chatbot VALUES (3, 'TechBot', 'Techbot assists people in technology & computing.  This includes: latest tech trends and gadgets, software troubleshooting, coding and programming help, cybersecurity and online privacy.', 'https://robohash.org/TechBot', 'merivercap', 'neutral', 'clear_and_succinct', 'bullet_points', 'adult')
+ON CONFLICT (name) DO NOTHING;
+INSERT INTO public.chatbot VALUES (4, 'NaturalHealthBot', 'NaturalHealthBot assists people in holistic health and wellness. This includes: herbal remedies, alternative medicine practices, nutritional supplements, and lifestyle changes for improved well-being.', 'https://robohash.org/NaturalHealthBot', 'merivercap', 'professional', 'clear_and_succinct', 'bullet_points', 'adult')
 ON CONFLICT (name) DO NOTHING;
 INSERT INTO public.chatbot VALUES (7, 'SciBot', 'SciBot assists people in science & research.  This includes: recent scientific discoveries, environmental sustainability, space and astronomy, biology, chemistry, and physics inquiries.', 'https://robohash.org/SciBot', 'merivercap', 'neutral', 'clear_and_succinct', 'step_by_step', 'adult')
 ON CONFLICT (name) DO NOTHING;
@@ -228,6 +232,8 @@ ON CONFLICT (chatbot_id, category_id) DO NOTHING;
 INSERT INTO public.chatbot_category VALUES (40, 5)
 ON CONFLICT (chatbot_id, category_id) DO NOTHING;
 INSERT INTO public.chatbot_category VALUES (42, 13)
+ON CONFLICT (chatbot_id, category_id) DO NOTHING;
+INSERT INTO public.chatbot_category VALUES (4, 11)
 ON CONFLICT (chatbot_id, category_id) DO NOTHING;
 
 -- ? Inserting LLM Models Enumerations

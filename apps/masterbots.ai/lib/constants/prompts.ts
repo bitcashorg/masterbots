@@ -37,15 +37,15 @@ export function createImprovementPrompt(content: string): string {
 // * This function creates the prompt for the AI chatbot metadata subtraction process
 export function createChatbotMetadataPrompt(
   metadataHeaders: ChatbotMetadataHeaders,
-  chatbotMetadata: ChatbotMetadata,
+  chatbotMetadata,
   userPrompt: string
 ): string {
   return (
-    `You are a top software development expert with extensive knowledge in the field of ${metadataHeaders.domain}. Your sole purpose is to label the following question "${userPrompt}" with the appropriate categories, sub - categories and tags as an array of strings. These are the available categories, sub-categories and tags:` +
-    chatbotMetadata.questions +
-    chatbotMetadata.categories +
-    chatbotMetadata.subCategories +
-    chatbotMetadata.tags +
+    `You are a top software development expert with extensive knowledge in the field of ${chatbotMetadata.domain_enum.name}. Your sole purpose is to label the following question "${userPrompt}" with the appropriate categories, sub - categories and tags as an array of strings.`+
+    `These are the available categories and sub-categories: `+ 
+    chatbotMetadata.domain_enum.categories +
+    `These are the available tags:` +
+    chatbotMetadata.domain_enum.tags +
     `**Important Guidelines:**
     ` +
     '- Output only the requested fields without any additional explanation. ' +
@@ -53,7 +53,7 @@ export function createChatbotMetadataPrompt(
     ` +
     `## Example: ##
     ` +
-    `{ "categories": ["Technology"],"subCategories": ["Software Development"],"tags": ["Java", "Python", "C++"]}`
+    `{ "category": "Technology", "subCategory": "Software Development", "tags": ["Java", "Python", "C++"]}`
   )
 }
 

@@ -90,11 +90,14 @@ export async function subtractChatbotMetadataLabels(
   clientType: AiClientType,
 ) {
   const chatbotMetadata = await fetchChatbotMetadata(metadataHeaders);
+  
+
 
   if (!chatbotMetadata) {
     console.error(
       "Chatbot metadata not found. Generating response without them.",
     );
+    //todo: this will return something completely different than the main output
     return setDefaultPrompt(userPrompt);
   }
 
@@ -103,6 +106,8 @@ export async function subtractChatbotMetadataLabels(
     chatbotMetadata,
     userPrompt,
   );
+  //todo: add structured output
+  //todo: verify the cats, subcats, and tags are valid ones
   const response = await processWithAi(prompt, clientType, AIModels.Default);
 
   return cleanResult(response);
