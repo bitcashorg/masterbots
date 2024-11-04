@@ -50,6 +50,8 @@ In root folder, create an .env file based of .env_sample and the use `task` to e
 
 ## Running the Frontend
 
+make sure the HASURA_GRAPHQL_JWT_SECRET matches in the app .env and the docker-compose.yaml
+
 In apps/masterbots.ai folder (set up .env file - see .env_sample):
 
 ```

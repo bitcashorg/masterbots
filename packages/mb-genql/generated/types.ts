@@ -1,87 +1,38 @@
 export default {
     "scalars": [
         0,
-        7,
-        17,
-        25,
-        39,
-        50,
-        62,
-        88,
-        99,
-        111,
-        119,
-        131,
+        10,
+        14,
+        24,
+        45,
+        58,
+        71,
+        74,
+        78,
+        87,
+        90,
+        103,
+        114,
+        120,
+        129,
+        135,
+        140,
         143,
-        155,
-        164,
-        168,
-        170,
-        171,
+        147,
+        159,
         172,
+        182,
         188,
-        199,
-        211,
-        219,
-        229,
+        196,
+        206,
+        223,
         237,
-        246,
+        243,
+        249,
+        254,
         255,
-        259,
-        268,
-        278,
-        286,
-        295,
-        299,
-        301,
-        307,
-        308,
-        318,
-        322,
-        324,
-        334,
-        345,
-        346,
-        347,
-        359,
-        385,
-        396,
-        408,
-        416,
-        428,
-        444,
-        453,
-        457,
-        459,
-        470,
-        481,
-        493,
-        514,
-        524,
-        528,
-        530,
-        541,
-        553,
-        554,
-        555,
-        567,
-        580,
-        589,
-        593,
-        599,
-        608,
-        612,
-        618,
-        627,
-        631,
-        637,
-        646,
-        657,
-        667,
-        671,
-        673,
-        691,
-        693
+        256,
+        257
     ],
     "types": {
         "Boolean": {},
@@ -114,175 +65,144 @@ export default {
                 0
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "Category": {
             "categoryId": [
-                172
+                90
             ],
             "chatbots": [
-                79,
+                38,
                 {
                     "distinctOn": [
-                        99,
+                        45,
                         "[ChatbotCategorySelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        97,
+                        44,
                         "[ChatbotCategoryOrderBy!]"
                     ],
                     "where": [
-                        87
-                    ]
-                }
-            ],
-            "chatbotsAggregate": [
-                80,
-                {
-                    "distinctOn": [
-                        99,
-                        "[ChatbotCategorySelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        97,
-                        "[ChatbotCategoryOrderBy!]"
-                    ],
-                    "where": [
-                        87
+                        41
                     ]
                 }
             ],
             "metadataLabels": [
-                179,
+                96,
                 {
                     "distinctOn": [
-                        199,
-                        "[LabelChatbotCategorySelectColumn!]"
+                        103,
+                        "[LabelChatbotCategoryDomainSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        197,
-                        "[LabelChatbotCategoryOrderBy!]"
+                        102,
+                        "[LabelChatbotCategoryDomainOrderBy!]"
                     ],
                     "where": [
-                        187
-                    ]
-                }
-            ],
-            "metadataLabelsAggregate": [
-                180,
-                {
-                    "distinctOn": [
-                        199,
-                        "[LabelChatbotCategorySelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        197,
-                        "[LabelChatbotCategoryOrderBy!]"
-                    ],
-                    "where": [
-                        187
+                        99
                     ]
                 }
             ],
             "name": [
-                530
+                188
             ],
             "__typename": [
-                530
-            ]
-        },
-        "CategoryAggregate": {
-            "aggregate": [
-                4
-            ],
-            "nodes": [
-                2
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "CategoryAggregateFields": {
-            "avg": [
-                5
-            ],
-            "count": [
-                172,
-                {
-                    "columns": [
-                        17,
-                        "[CategorySelectColumn!]"
-                    ],
-                    "distinct": [
-                        0
-                    ]
-                }
-            ],
-            "max": [
-                10
-            ],
-            "min": [
-                11
-            ],
-            "stddev": [
-                19
-            ],
-            "stddevPop": [
-                20
-            ],
-            "stddevSamp": [
-                21
-            ],
-            "sum": [
-                24
-            ],
-            "varPop": [
-                27
-            ],
-            "varSamp": [
-                28
-            ],
-            "variance": [
-                29
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "CategoryAvgFields": {
-            "categoryId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "CategoryBoolExp": {
+            "_and": [
+                3
+            ],
+            "_not": [
+                3
+            ],
+            "_or": [
+                3
+            ],
+            "categoryId": [
+                91
+            ],
+            "chatbots": [
+                41
+            ],
+            "metadataLabels": [
+                99
+            ],
+            "name": [
+                189
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "CategoryEnum": {
+            "added": [
+                256
+            ],
+            "domain": [
+                188
+            ],
+            "domain_enum": [
+                75
+            ],
+            "name": [
+                188
+            ],
+            "subcategory_enums": [
+                190,
+                {
+                    "distinctOn": [
+                        196,
+                        "[SubcategoryEnumSelectColumn!]"
+                    ],
+                    "limit": [
+                        90
+                    ],
+                    "offset": [
+                        90
+                    ],
+                    "orderBy": [
+                        195,
+                        "[SubcategoryEnumOrderBy!]"
+                    ],
+                    "where": [
+                        192
+                    ]
+                }
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "CategoryEnumAggregateOrderBy": {
+            "count": [
+                147
+            ],
+            "max": [
+                7
+            ],
+            "min": [
+                8
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "CategoryEnumBoolExp": {
             "_and": [
                 6
             ],
@@ -292,1334 +212,672 @@ export default {
             "_or": [
                 6
             ],
-            "categoryId": [
-                173
+            "added": [
+                233
             ],
-            "chatbots": [
-                87
+            "domain": [
+                189
             ],
-            "chatbotsAggregate": [
-                81
-            ],
-            "metadataLabels": [
-                187
-            ],
-            "metadataLabelsAggregate": [
-                181
+            "domain_enum": [
+                76
             ],
             "name": [
-                531
+                189
+            ],
+            "subcategory_enums": [
+                192
             ],
             "__typename": [
-                530
+                188
             ]
         },
-        "CategoryConstraint": {},
-        "CategoryIncInput": {
-            "categoryId": [
-                172
+        "CategoryEnumMaxOrderBy": {
+            "added": [
+                147
             ],
-            "__typename": [
-                530
-            ]
-        },
-        "CategoryInsertInput": {
-            "categoryId": [
-                172
-            ],
-            "chatbots": [
-                84
-            ],
-            "metadataLabels": [
-                184
+            "domain": [
+                147
             ],
             "name": [
-                530
+                147
             ],
             "__typename": [
-                530
+                188
             ]
         },
-        "CategoryMaxFields": {
-            "categoryId": [
-                172
+        "CategoryEnumMinOrderBy": {
+            "added": [
+                147
+            ],
+            "domain": [
+                147
             ],
             "name": [
-                530
+                147
             ],
             "__typename": [
-                530
+                188
             ]
         },
-        "CategoryMinFields": {
-            "categoryId": [
-                172
+        "CategoryEnumOrderBy": {
+            "added": [
+                147
+            ],
+            "domain": [
+                147
+            ],
+            "domain_enum": [
+                77
             ],
             "name": [
-                530
+                147
+            ],
+            "subcategory_enumsAggregate": [
+                191
             ],
             "__typename": [
-                530
+                188
             ]
         },
-        "CategoryMutationResponse": {
-            "affectedRows": [
-                172
+        "CategoryEnumSelectColumn": {},
+        "CategoryEnumStreamCursorInput": {
+            "initialValue": [
+                12
             ],
-            "returning": [
-                2
+            "ordering": [
+                74
             ],
             "__typename": [
-                530
+                188
             ]
         },
-        "CategoryObjRelInsertInput": {
-            "data": [
-                9
+        "CategoryEnumStreamCursorValueInput": {
+            "added": [
+                256
             ],
-            "onConflict": [
-                14
+            "domain": [
+                188
             ],
-            "__typename": [
-                530
-            ]
-        },
-        "CategoryOnConflict": {
-            "constraint": [
-                7
-            ],
-            "updateColumns": [
-                25
-            ],
-            "where": [
-                6
+            "name": [
+                188
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "CategoryOrderBy": {
             "categoryId": [
-                324
+                147
             ],
             "chatbotsAggregate": [
-                83
+                39
             ],
             "metadataLabelsAggregate": [
-                183
+                97
             ],
             "name": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "CategoryPkColumnsInput": {
-            "categoryId": [
-                172
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "CategorySelectColumn": {},
-        "CategorySetInput": {
-            "categoryId": [
-                172
-            ],
-            "name": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "CategoryStddevFields": {
-            "categoryId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "CategoryStddevPopFields": {
-            "categoryId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "CategoryStddevSampFields": {
-            "categoryId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
         "CategoryStreamCursorInput": {
             "initialValue": [
-                23
+                16
             ],
             "ordering": [
-                170
+                74
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "CategoryStreamCursorValueInput": {
             "categoryId": [
-                172
+                90
             ],
             "name": [
-                530
+                188
             ],
             "__typename": [
-                530
-            ]
-        },
-        "CategorySumFields": {
-            "categoryId": [
-                172
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "CategoryUpdateColumn": {},
-        "CategoryUpdates": {
-            "_inc": [
-                8
-            ],
-            "_set": [
-                18
-            ],
-            "where": [
-                6
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "CategoryVarPopFields": {
-            "categoryId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "CategoryVarSampFields": {
-            "categoryId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "CategoryVarianceFields": {
-            "categoryId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "Chat": {
             "addedBy": [
-                693
+                257
             ],
             "chatId": [
-                172
+                90
             ],
             "chatbot": [
-                70
+                34
             ],
             "chatbotId": [
-                172
+                90
             ],
             "conversationLink": [
-                530
+                188
             ],
             "user": [
-                633
+                246
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ChatAggregate": {
-            "aggregate": [
-                33
-            ],
-            "nodes": [
-                30
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatAggregateBoolExp": {
-            "count": [
-                676
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatAggregateFields": {
-            "avg": [
-                36
-            ],
-            "count": [
-                172,
-                {
-                    "columns": [
-                        50,
-                        "[ChatSelectColumn!]"
-                    ],
-                    "distinct": [
-                        0
-                    ]
-                }
-            ],
-            "max": [
-                42
-            ],
-            "min": [
-                44
-            ],
-            "stddev": [
-                52
-            ],
-            "stddevPop": [
-                54
-            ],
-            "stddevSamp": [
-                56
-            ],
-            "sum": [
-                60
-            ],
-            "varPop": [
-                64
-            ],
-            "varSamp": [
-                66
-            ],
-            "variance": [
-                68
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ChatAggregateOrderBy": {
             "avg": [
-                37
+                19
             ],
             "count": [
-                324
+                147
             ],
             "max": [
-                43
+                21
             ],
             "min": [
-                45
+                22
             ],
             "stddev": [
-                53
+                25
             ],
             "stddevPop": [
-                55
+                26
             ],
             "stddevSamp": [
-                57
+                27
             ],
             "sum": [
+                30
+            ],
+            "varPop": [
+                31
+            ],
+            "varSamp": [
+                32
+            ],
+            "variance": [
+                33
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "ChatAvgOrderBy": {
+            "chatId": [
+                147
+            ],
+            "chatbotId": [
+                147
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "ChatBoolExp": {
+            "_and": [
+                20
+            ],
+            "_not": [
+                20
+            ],
+            "_or": [
+                20
+            ],
+            "addedBy": [
+                253
+            ],
+            "chatId": [
+                91
+            ],
+            "chatbot": [
+                37
+            ],
+            "chatbotId": [
+                91
+            ],
+            "conversationLink": [
+                189
+            ],
+            "user": [
+                247
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "ChatMaxOrderBy": {
+            "addedBy": [
+                147
+            ],
+            "chatId": [
+                147
+            ],
+            "chatbotId": [
+                147
+            ],
+            "conversationLink": [
+                147
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "ChatMinOrderBy": {
+            "addedBy": [
+                147
+            ],
+            "chatId": [
+                147
+            ],
+            "chatbotId": [
+                147
+            ],
+            "conversationLink": [
+                147
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "ChatOrderBy": {
+            "addedBy": [
+                147
+            ],
+            "chatId": [
+                147
+            ],
+            "chatbot": [
+                57
+            ],
+            "chatbotId": [
+                147
+            ],
+            "conversationLink": [
+                147
+            ],
+            "user": [
+                248
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "ChatSelectColumn": {},
+        "ChatStddevOrderBy": {
+            "chatId": [
+                147
+            ],
+            "chatbotId": [
+                147
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "ChatStddevPopOrderBy": {
+            "chatId": [
+                147
+            ],
+            "chatbotId": [
+                147
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "ChatStddevSampOrderBy": {
+            "chatId": [
+                147
+            ],
+            "chatbotId": [
+                147
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "ChatStreamCursorInput": {
+            "initialValue": [
+                29
+            ],
+            "ordering": [
+                74
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "ChatStreamCursorValueInput": {
+            "addedBy": [
+                257
+            ],
+            "chatId": [
+                90
+            ],
+            "chatbotId": [
+                90
+            ],
+            "conversationLink": [
+                188
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "ChatSumOrderBy": {
+            "chatId": [
+                147
+            ],
+            "chatbotId": [
+                147
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "ChatVarPopOrderBy": {
+            "chatId": [
+                147
+            ],
+            "chatbotId": [
+                147
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "ChatVarSampOrderBy": {
+            "chatId": [
+                147
+            ],
+            "chatbotId": [
+                147
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "ChatVarianceOrderBy": {
+            "chatId": [
+                147
+            ],
+            "chatbotId": [
+                147
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "Chatbot": {
+            "avatar": [
+                188
+            ],
+            "categories": [
+                38,
+                {
+                    "distinctOn": [
+                        45,
+                        "[ChatbotCategorySelectColumn!]"
+                    ],
+                    "limit": [
+                        90
+                    ],
+                    "offset": [
+                        90
+                    ],
+                    "orderBy": [
+                        44,
+                        "[ChatbotCategoryOrderBy!]"
+                    ],
+                    "where": [
+                        41
+                    ]
+                }
+            ],
+            "chatbotId": [
+                90
+            ],
+            "chats": [
+                17,
+                {
+                    "distinctOn": [
+                        24,
+                        "[ChatSelectColumn!]"
+                    ],
+                    "limit": [
+                        90
+                    ],
+                    "offset": [
+                        90
+                    ],
+                    "orderBy": [
+                        23,
+                        "[ChatOrderBy!]"
+                    ],
+                    "where": [
+                        20
+                    ]
+                }
+            ],
+            "complexityEnum": [
+                68
+            ],
+            "createdBy": [
+                188
+            ],
+            "defaultComplexity": [
+                188
+            ],
+            "defaultLength": [
+                188
+            ],
+            "defaultTone": [
+                188
+            ],
+            "defaultType": [
+                188
+            ],
+            "description": [
+                188
+            ],
+            "lengthEnum": [
+                117
+            ],
+            "metadataLabels": [
+                96,
+                {
+                    "distinctOn": [
+                        103,
+                        "[LabelChatbotCategoryDomainSelectColumn!]"
+                    ],
+                    "limit": [
+                        90
+                    ],
+                    "offset": [
+                        90
+                    ],
+                    "orderBy": [
+                        102,
+                        "[LabelChatbotCategoryDomainOrderBy!]"
+                    ],
+                    "where": [
+                        99
+                    ]
+                }
+            ],
+            "name": [
+                188
+            ],
+            "prompts": [
+                152,
+                {
+                    "distinctOn": [
+                        159,
+                        "[PromptChatbotSelectColumn!]"
+                    ],
+                    "limit": [
+                        90
+                    ],
+                    "offset": [
+                        90
+                    ],
+                    "orderBy": [
+                        158,
+                        "[PromptChatbotOrderBy!]"
+                    ],
+                    "where": [
+                        155
+                    ]
+                }
+            ],
+            "threads": [
+                216,
+                {
+                    "distinctOn": [
+                        223,
+                        "[ThreadSelectColumn!]"
+                    ],
+                    "limit": [
+                        90
+                    ],
+                    "offset": [
+                        90
+                    ],
+                    "orderBy": [
+                        222,
+                        "[ThreadOrderBy!]"
+                    ],
+                    "where": [
+                        219
+                    ]
+                }
+            ],
+            "toneEnum": [
+                234
+            ],
+            "typeEnum": [
+                240
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "ChatbotAggregateOrderBy": {
+            "avg": [
+                36
+            ],
+            "count": [
+                147
+            ],
+            "max": [
+                55
+            ],
+            "min": [
+                56
+            ],
+            "stddev": [
+                59
+            ],
+            "stddevPop": [
+                60
+            ],
+            "stddevSamp": [
                 61
+            ],
+            "sum": [
+                64
             ],
             "varPop": [
                 65
             ],
             "varSamp": [
+                66
+            ],
+            "variance": [
                 67
             ],
-            "variance": [
-                69
-            ],
             "__typename": [
-                530
-            ]
-        },
-        "ChatArrRelInsertInput": {
-            "data": [
-                41
-            ],
-            "onConflict": [
-                47
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatAvgFields": {
-            "chatId": [
-                171
-            ],
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatAvgOrderBy": {
-            "chatId": [
-                324
-            ],
-            "chatbotId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatBoolExp": {
-            "_and": [
-                38
-            ],
-            "_not": [
-                38
-            ],
-            "_or": [
-                38
-            ],
-            "addedBy": [
-                675
-            ],
-            "chatId": [
-                173
-            ],
-            "chatbot": [
-                78
-            ],
-            "chatbotId": [
-                173
-            ],
-            "conversationLink": [
-                531
-            ],
-            "user": [
-                636
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatConstraint": {},
-        "ChatIncInput": {
-            "chatId": [
-                172
-            ],
-            "chatbotId": [
-                172
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatInsertInput": {
-            "addedBy": [
-                693
-            ],
-            "chatId": [
-                172
-            ],
-            "chatbot": [
-                127
-            ],
-            "chatbotId": [
-                172
-            ],
-            "conversationLink": [
-                530
-            ],
-            "user": [
-                642
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatMaxFields": {
-            "addedBy": [
-                693
-            ],
-            "chatId": [
-                172
-            ],
-            "chatbotId": [
-                172
-            ],
-            "conversationLink": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatMaxOrderBy": {
-            "addedBy": [
-                324
-            ],
-            "chatId": [
-                324
-            ],
-            "chatbotId": [
-                324
-            ],
-            "conversationLink": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatMinFields": {
-            "addedBy": [
-                693
-            ],
-            "chatId": [
-                172
-            ],
-            "chatbotId": [
-                172
-            ],
-            "conversationLink": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatMinOrderBy": {
-            "addedBy": [
-                324
-            ],
-            "chatId": [
-                324
-            ],
-            "chatbotId": [
-                324
-            ],
-            "conversationLink": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatMutationResponse": {
-            "affectedRows": [
-                172
-            ],
-            "returning": [
-                30
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatOnConflict": {
-            "constraint": [
-                39
-            ],
-            "updateColumns": [
-                62
-            ],
-            "where": [
-                38
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatOrderBy": {
-            "addedBy": [
-                324
-            ],
-            "chatId": [
-                324
-            ],
-            "chatbot": [
-                129
-            ],
-            "chatbotId": [
-                324
-            ],
-            "conversationLink": [
-                324
-            ],
-            "user": [
-                644
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatPkColumnsInput": {
-            "chatId": [
-                172
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatSelectColumn": {},
-        "ChatSetInput": {
-            "addedBy": [
-                693
-            ],
-            "chatId": [
-                172
-            ],
-            "chatbotId": [
-                172
-            ],
-            "conversationLink": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatStddevFields": {
-            "chatId": [
-                171
-            ],
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatStddevOrderBy": {
-            "chatId": [
-                324
-            ],
-            "chatbotId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatStddevPopFields": {
-            "chatId": [
-                171
-            ],
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatStddevPopOrderBy": {
-            "chatId": [
-                324
-            ],
-            "chatbotId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatStddevSampFields": {
-            "chatId": [
-                171
-            ],
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatStddevSampOrderBy": {
-            "chatId": [
-                324
-            ],
-            "chatbotId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatStreamCursorInput": {
-            "initialValue": [
-                59
-            ],
-            "ordering": [
-                170
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatStreamCursorValueInput": {
-            "addedBy": [
-                693
-            ],
-            "chatId": [
-                172
-            ],
-            "chatbotId": [
-                172
-            ],
-            "conversationLink": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatSumFields": {
-            "chatId": [
-                172
-            ],
-            "chatbotId": [
-                172
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatSumOrderBy": {
-            "chatId": [
-                324
-            ],
-            "chatbotId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatUpdateColumn": {},
-        "ChatUpdates": {
-            "_inc": [
-                40
-            ],
-            "_set": [
-                51
-            ],
-            "where": [
-                38
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatVarPopFields": {
-            "chatId": [
-                171
-            ],
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatVarPopOrderBy": {
-            "chatId": [
-                324
-            ],
-            "chatbotId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatVarSampFields": {
-            "chatId": [
-                171
-            ],
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatVarSampOrderBy": {
-            "chatId": [
-                324
-            ],
-            "chatbotId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatVarianceFields": {
-            "chatId": [
-                171
-            ],
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatVarianceOrderBy": {
-            "chatId": [
-                324
-            ],
-            "chatbotId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "Chatbot": {
-            "avatar": [
-                530
-            ],
-            "categories": [
-                79,
-                {
-                    "distinctOn": [
-                        99,
-                        "[ChatbotCategorySelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        97,
-                        "[ChatbotCategoryOrderBy!]"
-                    ],
-                    "where": [
-                        87
-                    ]
-                }
-            ],
-            "categoriesAggregate": [
-                80,
-                {
-                    "distinctOn": [
-                        99,
-                        "[ChatbotCategorySelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        97,
-                        "[ChatbotCategoryOrderBy!]"
-                    ],
-                    "where": [
-                        87
-                    ]
-                }
-            ],
-            "chatbotId": [
-                172
-            ],
-            "chats": [
-                30,
-                {
-                    "distinctOn": [
-                        50,
-                        "[ChatSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        48,
-                        "[ChatOrderBy!]"
-                    ],
-                    "where": [
-                        38
-                    ]
-                }
-            ],
-            "chatsAggregate": [
-                31,
-                {
-                    "distinctOn": [
-                        50,
-                        "[ChatSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        48,
-                        "[ChatOrderBy!]"
-                    ],
-                    "where": [
-                        38
-                    ]
-                }
-            ],
-            "complexityEnum": [
-                151
-            ],
-            "createdBy": [
-                530
-            ],
-            "defaultComplexity": [
-                530
-            ],
-            "defaultLength": [
-                530
-            ],
-            "defaultTone": [
-                530
-            ],
-            "defaultType": [
-                530
-            ],
-            "description": [
-                530
-            ],
-            "lengthEnum": [
-                242
-            ],
-            "metadataLabels": [
-                179,
-                {
-                    "distinctOn": [
-                        199,
-                        "[LabelChatbotCategorySelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        197,
-                        "[LabelChatbotCategoryOrderBy!]"
-                    ],
-                    "where": [
-                        187
-                    ]
-                }
-            ],
-            "metadataLabelsAggregate": [
-                180,
-                {
-                    "distinctOn": [
-                        199,
-                        "[LabelChatbotCategorySelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        197,
-                        "[LabelChatbotCategoryOrderBy!]"
-                    ],
-                    "where": [
-                        187
-                    ]
-                }
-            ],
-            "name": [
-                530
-            ],
-            "preferences": [
-                325,
-                {
-                    "distinctOn": [
-                        345,
-                        "[PreferenceSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        343,
-                        "[PreferenceOrderBy!]"
-                    ],
-                    "where": [
-                        333
-                    ]
-                }
-            ],
-            "preferencesAggregate": [
-                326,
-                {
-                    "distinctOn": [
-                        345,
-                        "[PreferenceSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        343,
-                        "[PreferenceOrderBy!]"
-                    ],
-                    "where": [
-                        333
-                    ]
-                }
-            ],
-            "prompts": [
-                376,
-                {
-                    "distinctOn": [
-                        396,
-                        "[PromptChatbotSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        394,
-                        "[PromptChatbotOrderBy!]"
-                    ],
-                    "where": [
-                        384
-                    ]
-                }
-            ],
-            "promptsAggregate": [
-                377,
-                {
-                    "distinctOn": [
-                        396,
-                        "[PromptChatbotSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        394,
-                        "[PromptChatbotOrderBy!]"
-                    ],
-                    "where": [
-                        384
-                    ]
-                }
-            ],
-            "threads": [
-                532,
-                {
-                    "distinctOn": [
-                        553,
-                        "[ThreadSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        551,
-                        "[ThreadOrderBy!]"
-                    ],
-                    "where": [
-                        540
-                    ]
-                }
-            ],
-            "threadsAggregate": [
-                533,
-                {
-                    "distinctOn": [
-                        553,
-                        "[ThreadSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        551,
-                        "[ThreadOrderBy!]"
-                    ],
-                    "where": [
-                        540
-                    ]
-                }
-            ],
-            "toneEnum": [
-                595
-            ],
-            "typeEnum": [
-                614
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatbotAggregate": {
-            "aggregate": [
-                73
-            ],
-            "nodes": [
-                70
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatbotAggregateBoolExp": {
-            "count": [
-                677
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatbotAggregateFields": {
-            "avg": [
-                76
-            ],
-            "count": [
-                172,
-                {
-                    "columns": [
-                        131,
-                        "[ChatbotSelectColumn!]"
-                    ],
-                    "distinct": [
-                        0
-                    ]
-                }
-            ],
-            "max": [
-                122
-            ],
-            "min": [
-                124
-            ],
-            "stddev": [
-                133
-            ],
-            "stddevPop": [
-                135
-            ],
-            "stddevSamp": [
-                137
-            ],
-            "sum": [
-                141
-            ],
-            "varPop": [
-                145
-            ],
-            "varSamp": [
-                147
-            ],
-            "variance": [
-                149
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatbotAggregateOrderBy": {
-            "avg": [
-                77
-            ],
-            "count": [
-                324
-            ],
-            "max": [
-                123
-            ],
-            "min": [
-                125
-            ],
-            "stddev": [
-                134
-            ],
-            "stddevPop": [
-                136
-            ],
-            "stddevSamp": [
-                138
-            ],
-            "sum": [
-                142
-            ],
-            "varPop": [
-                146
-            ],
-            "varSamp": [
-                148
-            ],
-            "variance": [
-                150
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatbotArrRelInsertInput": {
-            "data": [
-                121
-            ],
-            "onConflict": [
-                128
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatbotAvgFields": {
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ChatbotAvgOrderBy": {
             "chatbotId": [
-                324
+                147
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "ChatbotBoolExp": {
             "_and": [
-                78
+                37
             ],
             "_not": [
-                78
+                37
             ],
             "_or": [
-                78
+                37
             ],
             "avatar": [
-                531
+                189
             ],
             "categories": [
-                87
-            ],
-            "categoriesAggregate": [
-                81
+                41
             ],
             "chatbotId": [
-                173
+                91
             ],
             "chats": [
-                38
-            ],
-            "chatsAggregate": [
-                32
+                20
             ],
             "complexityEnum": [
-                154
+                69
             ],
             "createdBy": [
-                531
+                189
             ],
             "defaultComplexity": [
-                531
+                189
             ],
             "defaultLength": [
-                531
+                189
             ],
             "defaultTone": [
-                531
+                189
             ],
             "defaultType": [
-                531
+                189
             ],
             "description": [
-                531
+                189
             ],
             "lengthEnum": [
-                245
+                118
             ],
             "metadataLabels": [
-                187
-            ],
-            "metadataLabelsAggregate": [
-                181
+                99
             ],
             "name": [
-                531
-            ],
-            "preferences": [
-                333
-            ],
-            "preferencesAggregate": [
-                327
+                189
             ],
             "prompts": [
-                384
-            ],
-            "promptsAggregate": [
-                378
+                155
             ],
             "threads": [
-                540
-            ],
-            "threadsAggregate": [
-                534
+                219
             ],
             "toneEnum": [
-                598
+                235
             ],
             "typeEnum": [
-                617
+                241
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "ChatbotCategory": {
@@ -1627,1339 +885,1010 @@ export default {
                 2
             ],
             "categoryId": [
-                172
+                90
             ],
             "chatbot": [
-                70
+                34
             ],
             "chatbotId": [
-                172
+                90
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ChatbotCategoryAggregate": {
-            "aggregate": [
-                82
-            ],
-            "nodes": [
-                79
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatbotCategoryAggregateBoolExp": {
-            "count": [
-                678
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatbotCategoryAggregateFields": {
-            "avg": [
-                85
-            ],
-            "count": [
-                172,
-                {
-                    "columns": [
-                        99,
-                        "[ChatbotCategorySelectColumn!]"
-                    ],
-                    "distinct": [
-                        0
-                    ]
-                }
-            ],
-            "max": [
-                91
-            ],
-            "min": [
-                93
-            ],
-            "stddev": [
-                101
-            ],
-            "stddevPop": [
-                103
-            ],
-            "stddevSamp": [
-                105
-            ],
-            "sum": [
-                109
-            ],
-            "varPop": [
-                113
-            ],
-            "varSamp": [
-                115
-            ],
-            "variance": [
-                117
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ChatbotCategoryAggregateOrderBy": {
             "avg": [
-                86
+                40
             ],
             "count": [
-                324
+                147
             ],
             "max": [
-                92
+                42
             ],
             "min": [
-                94
+                43
             ],
             "stddev": [
-                102
+                46
             ],
             "stddevPop": [
-                104
+                47
             ],
             "stddevSamp": [
-                106
+                48
             ],
             "sum": [
-                110
+                51
             ],
             "varPop": [
-                114
+                52
             ],
             "varSamp": [
-                116
+                53
             ],
             "variance": [
-                118
+                54
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ChatbotCategoryArrRelInsertInput": {
-            "data": [
-                90
-            ],
-            "onConflict": [
-                96
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatbotCategoryAvgFields": {
-            "categoryId": [
-                171
-            ],
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ChatbotCategoryAvgOrderBy": {
             "categoryId": [
-                324
+                147
             ],
             "chatbotId": [
-                324
+                147
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "ChatbotCategoryBoolExp": {
             "_and": [
-                87
+                41
             ],
             "_not": [
-                87
+                41
             ],
             "_or": [
-                87
+                41
             ],
             "category": [
-                6
+                3
             ],
             "categoryId": [
-                173
+                91
             ],
             "chatbot": [
-                78
+                37
             ],
             "chatbotId": [
-                173
+                91
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ChatbotCategoryConstraint": {},
-        "ChatbotCategoryIncInput": {
-            "categoryId": [
-                172
-            ],
-            "chatbotId": [
-                172
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatbotCategoryInsertInput": {
-            "category": [
-                13
-            ],
-            "categoryId": [
-                172
-            ],
-            "chatbot": [
-                127
-            ],
-            "chatbotId": [
-                172
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatbotCategoryMaxFields": {
-            "categoryId": [
-                172
-            ],
-            "chatbotId": [
-                172
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ChatbotCategoryMaxOrderBy": {
             "categoryId": [
-                324
+                147
             ],
             "chatbotId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ChatbotCategoryMinFields": {
-            "categoryId": [
-                172
-            ],
-            "chatbotId": [
-                172
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ChatbotCategoryMinOrderBy": {
             "categoryId": [
-                324
+                147
             ],
             "chatbotId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ChatbotCategoryMutationResponse": {
-            "affectedRows": [
-                172
-            ],
-            "returning": [
-                79
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatbotCategoryOnConflict": {
-            "constraint": [
-                88
-            ],
-            "updateColumns": [
-                111
-            ],
-            "where": [
-                87
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ChatbotCategoryOrderBy": {
             "category": [
-                15
+                13
             ],
             "categoryId": [
-                324
+                147
             ],
             "chatbot": [
-                129
+                57
             ],
             "chatbotId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ChatbotCategoryPkColumnsInput": {
-            "categoryId": [
-                172
-            ],
-            "chatbotId": [
-                172
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ChatbotCategorySelectColumn": {},
-        "ChatbotCategorySetInput": {
-            "categoryId": [
-                172
-            ],
-            "chatbotId": [
-                172
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatbotCategoryStddevFields": {
-            "categoryId": [
-                171
-            ],
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
         "ChatbotCategoryStddevOrderBy": {
             "categoryId": [
-                324
+                147
             ],
             "chatbotId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ChatbotCategoryStddevPopFields": {
-            "categoryId": [
-                171
-            ],
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ChatbotCategoryStddevPopOrderBy": {
             "categoryId": [
-                324
+                147
             ],
             "chatbotId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ChatbotCategoryStddevSampFields": {
-            "categoryId": [
-                171
-            ],
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ChatbotCategoryStddevSampOrderBy": {
             "categoryId": [
-                324
+                147
             ],
             "chatbotId": [
-                324
+                147
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "ChatbotCategoryStreamCursorInput": {
             "initialValue": [
-                108
+                50
             ],
             "ordering": [
-                170
+                74
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "ChatbotCategoryStreamCursorValueInput": {
             "categoryId": [
-                172
+                90
             ],
             "chatbotId": [
-                172
+                90
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ChatbotCategorySumFields": {
-            "categoryId": [
-                172
-            ],
-            "chatbotId": [
-                172
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ChatbotCategorySumOrderBy": {
             "categoryId": [
-                324
+                147
             ],
             "chatbotId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ChatbotCategoryUpdateColumn": {},
-        "ChatbotCategoryUpdates": {
-            "_inc": [
-                89
-            ],
-            "_set": [
-                100
-            ],
-            "where": [
-                87
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatbotCategoryVarPopFields": {
-            "categoryId": [
-                171
-            ],
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ChatbotCategoryVarPopOrderBy": {
             "categoryId": [
-                324
+                147
             ],
             "chatbotId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ChatbotCategoryVarSampFields": {
-            "categoryId": [
-                171
-            ],
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ChatbotCategoryVarSampOrderBy": {
             "categoryId": [
-                324
+                147
             ],
             "chatbotId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ChatbotCategoryVarianceFields": {
-            "categoryId": [
-                171
-            ],
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ChatbotCategoryVarianceOrderBy": {
             "categoryId": [
-                324
+                147
             ],
             "chatbotId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ChatbotConstraint": {},
-        "ChatbotIncInput": {
-            "chatbotId": [
-                172
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatbotInsertInput": {
-            "avatar": [
-                530
-            ],
-            "categories": [
-                84
-            ],
-            "chatbotId": [
-                172
-            ],
-            "chats": [
-                35
-            ],
-            "complexityEnum": [
-                160
-            ],
-            "createdBy": [
-                530
-            ],
-            "defaultComplexity": [
-                530
-            ],
-            "defaultLength": [
-                530
-            ],
-            "defaultTone": [
-                530
-            ],
-            "defaultType": [
-                530
-            ],
-            "description": [
-                530
-            ],
-            "lengthEnum": [
-                251
-            ],
-            "metadataLabels": [
-                184
-            ],
-            "name": [
-                530
-            ],
-            "preferences": [
-                330
-            ],
-            "prompts": [
-                381
-            ],
-            "threads": [
-                537
-            ],
-            "toneEnum": [
-                604
-            ],
-            "typeEnum": [
-                623
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatbotMaxFields": {
-            "avatar": [
-                530
-            ],
-            "chatbotId": [
-                172
-            ],
-            "createdBy": [
-                530
-            ],
-            "defaultComplexity": [
-                530
-            ],
-            "defaultLength": [
-                530
-            ],
-            "defaultTone": [
-                530
-            ],
-            "defaultType": [
-                530
-            ],
-            "description": [
-                530
-            ],
-            "name": [
-                530
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ChatbotMaxOrderBy": {
             "avatar": [
-                324
+                147
             ],
             "chatbotId": [
-                324
+                147
             ],
             "createdBy": [
-                324
+                147
             ],
             "defaultComplexity": [
-                324
+                147
             ],
             "defaultLength": [
-                324
+                147
             ],
             "defaultTone": [
-                324
+                147
             ],
             "defaultType": [
-                324
+                147
             ],
             "description": [
-                324
+                147
             ],
             "name": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ChatbotMinFields": {
-            "avatar": [
-                530
-            ],
-            "chatbotId": [
-                172
-            ],
-            "createdBy": [
-                530
-            ],
-            "defaultComplexity": [
-                530
-            ],
-            "defaultLength": [
-                530
-            ],
-            "defaultTone": [
-                530
-            ],
-            "defaultType": [
-                530
-            ],
-            "description": [
-                530
-            ],
-            "name": [
-                530
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ChatbotMinOrderBy": {
             "avatar": [
-                324
+                147
             ],
             "chatbotId": [
-                324
+                147
             ],
             "createdBy": [
-                324
+                147
             ],
             "defaultComplexity": [
-                324
+                147
             ],
             "defaultLength": [
-                324
+                147
             ],
             "defaultTone": [
-                324
+                147
             ],
             "defaultType": [
-                324
+                147
             ],
             "description": [
-                324
+                147
             ],
             "name": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ChatbotMutationResponse": {
-            "affectedRows": [
-                172
-            ],
-            "returning": [
-                70
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatbotObjRelInsertInput": {
-            "data": [
-                121
-            ],
-            "onConflict": [
-                128
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatbotOnConflict": {
-            "constraint": [
-                119
-            ],
-            "updateColumns": [
-                143
-            ],
-            "where": [
-                78
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ChatbotOrderBy": {
             "avatar": [
-                324
+                147
             ],
             "categoriesAggregate": [
-                83
+                39
             ],
             "chatbotId": [
-                324
+                147
             ],
             "chatsAggregate": [
-                34
+                18
             ],
             "complexityEnum": [
-                162
+                70
             ],
             "createdBy": [
-                324
+                147
             ],
             "defaultComplexity": [
-                324
+                147
             ],
             "defaultLength": [
-                324
+                147
             ],
             "defaultTone": [
-                324
+                147
             ],
             "defaultType": [
-                324
+                147
             ],
             "description": [
-                324
+                147
             ],
             "lengthEnum": [
-                253
+                119
             ],
             "metadataLabelsAggregate": [
-                183
+                97
             ],
             "name": [
-                324
-            ],
-            "preferencesAggregate": [
-                329
+                147
             ],
             "promptsAggregate": [
-                380
+                153
             ],
             "threadsAggregate": [
-                536
+                217
             ],
             "toneEnum": [
-                606
+                236
             ],
             "typeEnum": [
-                625
+                242
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ChatbotPkColumnsInput": {
-            "chatbotId": [
-                172
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ChatbotSelectColumn": {},
-        "ChatbotSetInput": {
-            "avatar": [
-                530
-            ],
-            "chatbotId": [
-                172
-            ],
-            "createdBy": [
-                530
-            ],
-            "defaultComplexity": [
-                530
-            ],
-            "defaultLength": [
-                530
-            ],
-            "defaultTone": [
-                530
-            ],
-            "defaultType": [
-                530
-            ],
-            "description": [
-                530
-            ],
-            "name": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatbotStddevFields": {
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
         "ChatbotStddevOrderBy": {
             "chatbotId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ChatbotStddevPopFields": {
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ChatbotStddevPopOrderBy": {
             "chatbotId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ChatbotStddevSampFields": {
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ChatbotStddevSampOrderBy": {
             "chatbotId": [
-                324
+                147
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "ChatbotStreamCursorInput": {
             "initialValue": [
-                140
+                63
             ],
             "ordering": [
-                170
+                74
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "ChatbotStreamCursorValueInput": {
             "avatar": [
-                530
+                188
             ],
             "chatbotId": [
-                172
+                90
             ],
             "createdBy": [
-                530
+                188
             ],
             "defaultComplexity": [
-                530
+                188
             ],
             "defaultLength": [
-                530
+                188
             ],
             "defaultTone": [
-                530
+                188
             ],
             "defaultType": [
-                530
+                188
             ],
             "description": [
-                530
+                188
             ],
             "name": [
-                530
+                188
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ChatbotSumFields": {
-            "chatbotId": [
-                172
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ChatbotSumOrderBy": {
             "chatbotId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ChatbotUpdateColumn": {},
-        "ChatbotUpdates": {
-            "_inc": [
-                120
-            ],
-            "_set": [
-                132
-            ],
-            "where": [
-                78
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ChatbotVarPopFields": {
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ChatbotVarPopOrderBy": {
             "chatbotId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ChatbotVarSampFields": {
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ChatbotVarSampOrderBy": {
             "chatbotId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ChatbotVarianceFields": {
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ChatbotVarianceOrderBy": {
             "chatbotId": [
-                324
+                147
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "ComplexityEnum": {
             "chatbots": [
-                70,
+                34,
                 {
                     "distinctOn": [
-                        131,
+                        58,
                         "[ChatbotSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        129,
+                        57,
                         "[ChatbotOrderBy!]"
                     ],
                     "where": [
-                        78
-                    ]
-                }
-            ],
-            "chatbotsAggregate": [
-                71,
-                {
-                    "distinctOn": [
-                        131,
-                        "[ChatbotSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        129,
-                        "[ChatbotOrderBy!]"
-                    ],
-                    "where": [
-                        78
-                    ]
-                }
-            ],
-            "preferences": [
-                325,
-                {
-                    "distinctOn": [
-                        345,
-                        "[PreferenceSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        343,
-                        "[PreferenceOrderBy!]"
-                    ],
-                    "where": [
-                        333
-                    ]
-                }
-            ],
-            "preferencesAggregate": [
-                326,
-                {
-                    "distinctOn": [
-                        345,
-                        "[PreferenceSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        343,
-                        "[PreferenceOrderBy!]"
-                    ],
-                    "where": [
-                        333
+                        37
                     ]
                 }
             ],
             "value": [
-                530
+                188
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ComplexityEnumAggregate": {
-            "aggregate": [
-                153
-            ],
-            "nodes": [
-                151
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ComplexityEnumAggregateFields": {
-            "count": [
-                172,
-                {
-                    "columns": [
-                        164,
-                        "[ComplexityEnumSelectColumn!]"
-                    ],
-                    "distinct": [
-                        0
-                    ]
-                }
-            ],
-            "max": [
-                157
-            ],
-            "min": [
-                158
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ComplexityEnumBoolExp": {
             "_and": [
-                154
+                69
             ],
             "_not": [
-                154
+                69
             ],
             "_or": [
-                154
+                69
             ],
             "chatbots": [
-                78
-            ],
-            "chatbotsAggregate": [
-                72
-            ],
-            "preferences": [
-                333
-            ],
-            "preferencesAggregate": [
-                327
+                37
             ],
             "value": [
-                531
+                189
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ComplexityEnumConstraint": {},
-        "ComplexityEnumInsertInput": {
-            "chatbots": [
-                75
-            ],
-            "preferences": [
-                330
-            ],
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ComplexityEnumMaxFields": {
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ComplexityEnumMinFields": {
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ComplexityEnumMutationResponse": {
-            "affectedRows": [
-                172
-            ],
-            "returning": [
-                151
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ComplexityEnumObjRelInsertInput": {
-            "data": [
-                156
-            ],
-            "onConflict": [
-                161
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ComplexityEnumOnConflict": {
-            "constraint": [
-                155
-            ],
-            "updateColumns": [
-                168
-            ],
-            "where": [
-                154
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ComplexityEnumOrderBy": {
             "chatbotsAggregate": [
-                74
-            ],
-            "preferencesAggregate": [
-                329
+                35
             ],
             "value": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ComplexityEnumPkColumnsInput": {
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ComplexityEnumSelectColumn": {},
-        "ComplexityEnumSetInput": {
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
         "ComplexityEnumStreamCursorInput": {
             "initialValue": [
-                167
+                73
             ],
             "ordering": [
-                170
+                74
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "ComplexityEnumStreamCursorValueInput": {
             "value": [
-                530
+                188
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ComplexityEnumUpdateColumn": {},
-        "ComplexityEnumUpdates": {
-            "_set": [
-                165
-            ],
-            "where": [
-                154
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "CursorOrdering": {},
-        "Float": {},
+        "DomainEnum": {
+            "added": [
+                256
+            ],
+            "category_enums": [
+                4,
+                {
+                    "distinctOn": [
+                        10,
+                        "[CategoryEnumSelectColumn!]"
+                    ],
+                    "limit": [
+                        90
+                    ],
+                    "offset": [
+                        90
+                    ],
+                    "orderBy": [
+                        9,
+                        "[CategoryEnumOrderBy!]"
+                    ],
+                    "where": [
+                        6
+                    ]
+                }
+            ],
+            "label_chatbot_category_domains": [
+                96,
+                {
+                    "distinctOn": [
+                        103,
+                        "[LabelChatbotCategoryDomainSelectColumn!]"
+                    ],
+                    "limit": [
+                        90
+                    ],
+                    "offset": [
+                        90
+                    ],
+                    "orderBy": [
+                        102,
+                        "[LabelChatbotCategoryDomainOrderBy!]"
+                    ],
+                    "where": [
+                        99
+                    ]
+                }
+            ],
+            "name": [
+                188
+            ],
+            "tag_enums": [
+                199,
+                {
+                    "distinctOn": [
+                        206,
+                        "[TagEnumSelectColumn!]"
+                    ],
+                    "limit": [
+                        90
+                    ],
+                    "offset": [
+                        90
+                    ],
+                    "orderBy": [
+                        205,
+                        "[TagEnumOrderBy!]"
+                    ],
+                    "where": [
+                        202
+                    ]
+                }
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "DomainEnumBoolExp": {
+            "_and": [
+                76
+            ],
+            "_not": [
+                76
+            ],
+            "_or": [
+                76
+            ],
+            "added": [
+                233
+            ],
+            "category_enums": [
+                6
+            ],
+            "label_chatbot_category_domains": [
+                99
+            ],
+            "name": [
+                189
+            ],
+            "tag_enums": [
+                202
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "DomainEnumOrderBy": {
+            "added": [
+                147
+            ],
+            "category_enumsAggregate": [
+                5
+            ],
+            "label_chatbot_category_domainsAggregate": [
+                97
+            ],
+            "name": [
+                147
+            ],
+            "tag_enumsAggregate": [
+                200
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "DomainEnumSelectColumn": {},
+        "DomainEnumStreamCursorInput": {
+            "initialValue": [
+                80
+            ],
+            "ordering": [
+                74
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "DomainEnumStreamCursorValueInput": {
+            "added": [
+                256
+            ],
+            "name": [
+                188
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "Example": {
+            "added": [
+                256
+            ],
+            "category": [
+                188
+            ],
+            "domain": [
+                188
+            ],
+            "exampleId": [
+                257
+            ],
+            "metadata": [
+                254,
+                {
+                    "path": [
+                        188
+                    ]
+                }
+            ],
+            "prompt": [
+                188
+            ],
+            "response": [
+                188
+            ],
+            "subcategory": [
+                188
+            ],
+            "subcategory_enum": [
+                190
+            ],
+            "tags": [
+                257
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "ExampleAggregateOrderBy": {
+            "count": [
+                147
+            ],
+            "max": [
+                84
+            ],
+            "min": [
+                85
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "ExampleBoolExp": {
+            "_and": [
+                83
+            ],
+            "_not": [
+                83
+            ],
+            "_or": [
+                83
+            ],
+            "added": [
+                233
+            ],
+            "category": [
+                189
+            ],
+            "domain": [
+                189
+            ],
+            "exampleId": [
+                253
+            ],
+            "metadata": [
+                93
+            ],
+            "prompt": [
+                189
+            ],
+            "response": [
+                189
+            ],
+            "subcategory": [
+                189
+            ],
+            "subcategory_enum": [
+                192
+            ],
+            "tags": [
+                252
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "ExampleMaxOrderBy": {
+            "added": [
+                147
+            ],
+            "category": [
+                147
+            ],
+            "domain": [
+                147
+            ],
+            "exampleId": [
+                147
+            ],
+            "prompt": [
+                147
+            ],
+            "response": [
+                147
+            ],
+            "subcategory": [
+                147
+            ],
+            "tags": [
+                147
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "ExampleMinOrderBy": {
+            "added": [
+                147
+            ],
+            "category": [
+                147
+            ],
+            "domain": [
+                147
+            ],
+            "exampleId": [
+                147
+            ],
+            "prompt": [
+                147
+            ],
+            "response": [
+                147
+            ],
+            "subcategory": [
+                147
+            ],
+            "tags": [
+                147
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "ExampleOrderBy": {
+            "added": [
+                147
+            ],
+            "category": [
+                147
+            ],
+            "domain": [
+                147
+            ],
+            "exampleId": [
+                147
+            ],
+            "metadata": [
+                147
+            ],
+            "prompt": [
+                147
+            ],
+            "response": [
+                147
+            ],
+            "subcategory": [
+                147
+            ],
+            "subcategory_enum": [
+                195
+            ],
+            "tags": [
+                147
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "ExampleSelectColumn": {},
+        "ExampleStreamCursorInput": {
+            "initialValue": [
+                89
+            ],
+            "ordering": [
+                74
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "ExampleStreamCursorValueInput": {
+            "added": [
+                256
+            ],
+            "category": [
+                188
+            ],
+            "domain": [
+                188
+            ],
+            "exampleId": [
+                257
+            ],
+            "metadata": [
+                254
+            ],
+            "prompt": [
+                188
+            ],
+            "response": [
+                188
+            ],
+            "subcategory": [
+                188
+            ],
+            "tags": [
+                257
+            ],
+            "__typename": [
+                188
+            ]
+        },
         "Int": {},
         "IntComparisonExp": {
             "_eq": [
-                172
+                90
             ],
             "_gt": [
-                172
+                90
             ],
             "_gte": [
-                172
+                90
             ],
             "_in": [
-                172
+                90
             ],
             "_isNull": [
                 0
             ],
             "_lt": [
-                172
+                90
             ],
             "_lte": [
-                172
+                90
             ],
             "_neq": [
-                172
+                90
             ],
             "_nin": [
-                172
+                90
             ],
             "__typename": [
-                530
+                188
+            ]
+        },
+        "JsonbCastExp": {
+            "String": [
+                189
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "JsonbComparisonExp": {
+            "_cast": [
+                92
+            ],
+            "_containedIn": [
+                254
+            ],
+            "_contains": [
+                254
+            ],
+            "_eq": [
+                254
+            ],
+            "_gt": [
+                254
+            ],
+            "_gte": [
+                254
+            ],
+            "_hasKey": [
+                188
+            ],
+            "_hasKeysAll": [
+                188
+            ],
+            "_hasKeysAny": [
+                188
+            ],
+            "_in": [
+                254
+            ],
+            "_isNull": [
+                0
+            ],
+            "_lt": [
+                254
+            ],
+            "_lte": [
+                254
+            ],
+            "_neq": [
+                254
+            ],
+            "_nin": [
+                254
+            ],
+            "__typename": [
+                188
             ]
         },
         "Label": {
@@ -2967,979 +1896,408 @@ export default {
                 0
             ],
             "categories": [
-                530
+                188
             ],
             "labelId": [
-                172
+                90
             ],
             "metadataLabels": [
-                179,
+                96,
                 {
                     "distinctOn": [
-                        199,
-                        "[LabelChatbotCategorySelectColumn!]"
+                        103,
+                        "[LabelChatbotCategoryDomainSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        197,
-                        "[LabelChatbotCategoryOrderBy!]"
+                        102,
+                        "[LabelChatbotCategoryDomainOrderBy!]"
                     ],
                     "where": [
-                        187
-                    ]
-                }
-            ],
-            "metadataLabelsAggregate": [
-                180,
-                {
-                    "distinctOn": [
-                        199,
-                        "[LabelChatbotCategorySelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        197,
-                        "[LabelChatbotCategoryOrderBy!]"
-                    ],
-                    "where": [
-                        187
+                        99
                     ]
                 }
             ],
             "questions": [
-                530
+                188
             ],
             "subCategories": [
-                530
+                188
             ],
             "tags": [
-                530
+                188
             ],
             "__typename": [
-                530
-            ]
-        },
-        "LabelAggregate": {
-            "aggregate": [
-                176
-            ],
-            "nodes": [
-                174
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelAggregateFields": {
-            "avg": [
-                177
-            ],
-            "count": [
-                172,
-                {
-                    "columns": [
-                        229,
-                        "[LabelSelectColumn!]"
-                    ],
-                    "distinct": [
-                        0
-                    ]
-                }
-            ],
-            "max": [
-                222
-            ],
-            "min": [
-                223
-            ],
-            "stddev": [
-                231
-            ],
-            "stddevPop": [
-                232
-            ],
-            "stddevSamp": [
-                233
-            ],
-            "sum": [
-                236
-            ],
-            "varPop": [
-                239
-            ],
-            "varSamp": [
-                240
-            ],
-            "variance": [
-                241
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelAvgFields": {
-            "labelId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "LabelBoolExp": {
             "_and": [
-                178
+                95
             ],
             "_not": [
-                178
+                95
             ],
             "_or": [
-                178
+                95
             ],
             "advancedLabels": [
                 1
             ],
             "categories": [
-                531
+                189
             ],
             "labelId": [
-                173
+                91
             ],
             "metadataLabels": [
-                187
-            ],
-            "metadataLabelsAggregate": [
-                181
+                99
             ],
             "questions": [
-                531
+                189
             ],
             "subCategories": [
-                531
+                189
             ],
             "tags": [
-                531
+                189
             ],
             "__typename": [
-                530
+                188
             ]
         },
-        "LabelChatbotCategory": {
+        "LabelChatbotCategoryDomain": {
             "category": [
                 2
             ],
             "categoryId": [
-                172
+                90
             ],
             "chatbot": [
-                70
+                34
             ],
             "chatbotId": [
-                172
+                90
+            ],
+            "domain_enum": [
+                75
             ],
             "label": [
-                174
+                94
             ],
             "labelId": [
-                172
+                90
             ],
             "__typename": [
-                530
+                188
             ]
         },
-        "LabelChatbotCategoryAggregate": {
-            "aggregate": [
-                182
-            ],
-            "nodes": [
-                179
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelChatbotCategoryAggregateBoolExp": {
-            "count": [
-                679
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelChatbotCategoryAggregateFields": {
+        "LabelChatbotCategoryDomainAggregateOrderBy": {
             "avg": [
-                185
+                98
             ],
             "count": [
-                172,
-                {
-                    "columns": [
-                        199,
-                        "[LabelChatbotCategorySelectColumn!]"
-                    ],
-                    "distinct": [
-                        0
-                    ]
-                }
+                147
             ],
             "max": [
-                191
+                100
             ],
             "min": [
-                193
+                101
             ],
             "stddev": [
-                201
+                104
             ],
             "stddevPop": [
-                203
+                105
             ],
             "stddevSamp": [
-                205
+                106
             ],
             "sum": [
-                209
+                109
             ],
             "varPop": [
-                213
+                110
             ],
             "varSamp": [
-                215
+                111
             ],
             "variance": [
-                217
+                112
             ],
             "__typename": [
-                530
+                188
             ]
         },
-        "LabelChatbotCategoryAggregateOrderBy": {
-            "avg": [
-                186
-            ],
-            "count": [
-                324
-            ],
-            "max": [
-                192
-            ],
-            "min": [
-                194
-            ],
-            "stddev": [
-                202
-            ],
-            "stddevPop": [
-                204
-            ],
-            "stddevSamp": [
-                206
-            ],
-            "sum": [
-                210
-            ],
-            "varPop": [
-                214
-            ],
-            "varSamp": [
-                216
-            ],
-            "variance": [
-                218
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelChatbotCategoryArrRelInsertInput": {
-            "data": [
-                190
-            ],
-            "onConflict": [
-                196
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelChatbotCategoryAvgFields": {
+        "LabelChatbotCategoryDomainAvgOrderBy": {
             "categoryId": [
-                171
+                147
             ],
             "chatbotId": [
-                171
+                147
             ],
             "labelId": [
-                171
+                147
             ],
             "__typename": [
-                530
+                188
             ]
         },
-        "LabelChatbotCategoryAvgOrderBy": {
-            "categoryId": [
-                324
-            ],
-            "chatbotId": [
-                324
-            ],
-            "labelId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelChatbotCategoryBoolExp": {
+        "LabelChatbotCategoryDomainBoolExp": {
             "_and": [
-                187
+                99
             ],
             "_not": [
-                187
+                99
             ],
             "_or": [
-                187
+                99
             ],
             "category": [
-                6
+                3
             ],
             "categoryId": [
-                173
+                91
             ],
             "chatbot": [
-                78
+                37
             ],
             "chatbotId": [
-                173
+                91
+            ],
+            "domain_enum": [
+                76
             ],
             "label": [
-                178
+                95
             ],
             "labelId": [
-                173
+                91
             ],
             "__typename": [
-                530
+                188
             ]
         },
-        "LabelChatbotCategoryConstraint": {},
-        "LabelChatbotCategoryIncInput": {
+        "LabelChatbotCategoryDomainMaxOrderBy": {
             "categoryId": [
-                172
+                147
             ],
             "chatbotId": [
-                172
+                147
             ],
             "labelId": [
-                172
+                147
             ],
             "__typename": [
-                530
+                188
             ]
         },
-        "LabelChatbotCategoryInsertInput": {
+        "LabelChatbotCategoryDomainMinOrderBy": {
+            "categoryId": [
+                147
+            ],
+            "chatbotId": [
+                147
+            ],
+            "labelId": [
+                147
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "LabelChatbotCategoryDomainOrderBy": {
             "category": [
                 13
             ],
             "categoryId": [
-                172
+                147
             ],
             "chatbot": [
-                127
+                57
             ],
             "chatbotId": [
-                172
+                147
+            ],
+            "domain_enum": [
+                77
             ],
             "label": [
-                225
+                113
             ],
             "labelId": [
-                172
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "LabelChatbotCategoryMaxFields": {
-            "categoryId": [
-                172
-            ],
-            "chatbotId": [
-                172
-            ],
-            "labelId": [
-                172
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelChatbotCategoryMaxOrderBy": {
-            "categoryId": [
-                324
-            ],
-            "chatbotId": [
-                324
-            ],
-            "labelId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelChatbotCategoryMinFields": {
-            "categoryId": [
-                172
-            ],
-            "chatbotId": [
-                172
-            ],
-            "labelId": [
-                172
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelChatbotCategoryMinOrderBy": {
-            "categoryId": [
-                324
-            ],
-            "chatbotId": [
-                324
-            ],
-            "labelId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelChatbotCategoryMutationResponse": {
-            "affectedRows": [
-                172
-            ],
-            "returning": [
-                179
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelChatbotCategoryOnConflict": {
-            "constraint": [
                 188
-            ],
-            "updateColumns": [
-                211
-            ],
-            "where": [
-                187
-            ],
-            "__typename": [
-                530
             ]
         },
-        "LabelChatbotCategoryOrderBy": {
-            "category": [
-                15
-            ],
+        "LabelChatbotCategoryDomainSelectColumn": {},
+        "LabelChatbotCategoryDomainStddevOrderBy": {
             "categoryId": [
-                324
-            ],
-            "chatbot": [
-                129
+                147
             ],
             "chatbotId": [
-                324
-            ],
-            "label": [
-                227
+                147
             ],
             "labelId": [
-                324
+                147
             ],
             "__typename": [
-                530
+                188
             ]
         },
-        "LabelChatbotCategoryPkColumnsInput": {
+        "LabelChatbotCategoryDomainStddevPopOrderBy": {
             "categoryId": [
-                172
+                147
             ],
             "chatbotId": [
-                172
+                147
             ],
             "labelId": [
-                172
+                147
             ],
             "__typename": [
-                530
+                188
             ]
         },
-        "LabelChatbotCategorySelectColumn": {},
-        "LabelChatbotCategorySetInput": {
+        "LabelChatbotCategoryDomainStddevSampOrderBy": {
             "categoryId": [
-                172
+                147
             ],
             "chatbotId": [
-                172
+                147
             ],
             "labelId": [
-                172
+                147
             ],
             "__typename": [
-                530
+                188
             ]
         },
-        "LabelChatbotCategoryStddevFields": {
-            "categoryId": [
-                171
-            ],
-            "chatbotId": [
-                171
-            ],
-            "labelId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelChatbotCategoryStddevOrderBy": {
-            "categoryId": [
-                324
-            ],
-            "chatbotId": [
-                324
-            ],
-            "labelId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelChatbotCategoryStddevPopFields": {
-            "categoryId": [
-                171
-            ],
-            "chatbotId": [
-                171
-            ],
-            "labelId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelChatbotCategoryStddevPopOrderBy": {
-            "categoryId": [
-                324
-            ],
-            "chatbotId": [
-                324
-            ],
-            "labelId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelChatbotCategoryStddevSampFields": {
-            "categoryId": [
-                171
-            ],
-            "chatbotId": [
-                171
-            ],
-            "labelId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelChatbotCategoryStddevSampOrderBy": {
-            "categoryId": [
-                324
-            ],
-            "chatbotId": [
-                324
-            ],
-            "labelId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelChatbotCategoryStreamCursorInput": {
+        "LabelChatbotCategoryDomainStreamCursorInput": {
             "initialValue": [
-                208
+                108
             ],
             "ordering": [
-                170
+                74
             ],
             "__typename": [
-                530
+                188
             ]
         },
-        "LabelChatbotCategoryStreamCursorValueInput": {
+        "LabelChatbotCategoryDomainStreamCursorValueInput": {
             "categoryId": [
-                172
+                90
             ],
             "chatbotId": [
-                172
+                90
             ],
             "labelId": [
-                172
+                90
             ],
             "__typename": [
-                530
+                188
             ]
         },
-        "LabelChatbotCategorySumFields": {
+        "LabelChatbotCategoryDomainSumOrderBy": {
             "categoryId": [
-                172
+                147
             ],
             "chatbotId": [
-                172
+                147
             ],
             "labelId": [
-                172
+                147
             ],
             "__typename": [
-                530
+                188
             ]
         },
-        "LabelChatbotCategorySumOrderBy": {
+        "LabelChatbotCategoryDomainVarPopOrderBy": {
             "categoryId": [
-                324
+                147
             ],
             "chatbotId": [
-                324
+                147
             ],
             "labelId": [
-                324
+                147
             ],
             "__typename": [
-                530
+                188
             ]
         },
-        "LabelChatbotCategoryUpdateColumn": {},
-        "LabelChatbotCategoryUpdates": {
-            "_inc": [
-                189
-            ],
-            "_set": [
-                200
-            ],
-            "where": [
-                187
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelChatbotCategoryVarPopFields": {
+        "LabelChatbotCategoryDomainVarSampOrderBy": {
             "categoryId": [
-                171
+                147
             ],
             "chatbotId": [
-                171
+                147
             ],
             "labelId": [
-                171
+                147
             ],
             "__typename": [
-                530
+                188
             ]
         },
-        "LabelChatbotCategoryVarPopOrderBy": {
+        "LabelChatbotCategoryDomainVarianceOrderBy": {
             "categoryId": [
-                324
+                147
             ],
             "chatbotId": [
-                324
+                147
             ],
             "labelId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "LabelChatbotCategoryVarSampFields": {
-            "categoryId": [
-                171
-            ],
-            "chatbotId": [
-                171
-            ],
-            "labelId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelChatbotCategoryVarSampOrderBy": {
-            "categoryId": [
-                324
-            ],
-            "chatbotId": [
-                324
-            ],
-            "labelId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelChatbotCategoryVarianceFields": {
-            "categoryId": [
-                171
-            ],
-            "chatbotId": [
-                171
-            ],
-            "labelId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelChatbotCategoryVarianceOrderBy": {
-            "categoryId": [
-                324
-            ],
-            "chatbotId": [
-                324
-            ],
-            "labelId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelConstraint": {},
-        "LabelIncInput": {
-            "labelId": [
-                172
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelInsertInput": {
-            "advancedLabels": [
-                0
-            ],
-            "categories": [
-                530
-            ],
-            "labelId": [
-                172
-            ],
-            "metadataLabels": [
-                184
-            ],
-            "questions": [
-                530
-            ],
-            "subCategories": [
-                530
-            ],
-            "tags": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelMaxFields": {
-            "categories": [
-                530
-            ],
-            "labelId": [
-                172
-            ],
-            "questions": [
-                530
-            ],
-            "subCategories": [
-                530
-            ],
-            "tags": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelMinFields": {
-            "categories": [
-                530
-            ],
-            "labelId": [
-                172
-            ],
-            "questions": [
-                530
-            ],
-            "subCategories": [
-                530
-            ],
-            "tags": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelMutationResponse": {
-            "affectedRows": [
-                172
-            ],
-            "returning": [
-                174
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelObjRelInsertInput": {
-            "data": [
-                221
-            ],
-            "onConflict": [
-                226
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelOnConflict": {
-            "constraint": [
-                219
-            ],
-            "updateColumns": [
-                237
-            ],
-            "where": [
-                178
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "LabelOrderBy": {
             "advancedLabels": [
-                324
+                147
             ],
             "categories": [
-                324
+                147
             ],
             "labelId": [
-                324
+                147
             ],
             "metadataLabelsAggregate": [
-                183
+                97
             ],
             "questions": [
-                324
+                147
             ],
             "subCategories": [
-                324
+                147
             ],
             "tags": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "LabelPkColumnsInput": {
-            "labelId": [
-                172
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "LabelSelectColumn": {},
-        "LabelSetInput": {
-            "advancedLabels": [
-                0
-            ],
-            "categories": [
-                530
-            ],
-            "labelId": [
-                172
-            ],
-            "questions": [
-                530
-            ],
-            "subCategories": [
-                530
-            ],
-            "tags": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelStddevFields": {
-            "labelId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelStddevPopFields": {
-            "labelId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelStddevSampFields": {
-            "labelId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
         "LabelStreamCursorInput": {
             "initialValue": [
-                235
+                116
             ],
             "ordering": [
-                170
+                74
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "LabelStreamCursorValueInput": {
@@ -3947,7144 +2305,2401 @@ export default {
                 0
             ],
             "categories": [
-                530
+                188
             ],
             "labelId": [
-                172
+                90
             ],
             "questions": [
-                530
+                188
             ],
             "subCategories": [
-                530
+                188
             ],
             "tags": [
-                530
+                188
             ],
             "__typename": [
-                530
-            ]
-        },
-        "LabelSumFields": {
-            "labelId": [
-                172
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelUpdateColumn": {},
-        "LabelUpdates": {
-            "_inc": [
-                220
-            ],
-            "_set": [
-                230
-            ],
-            "where": [
-                178
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelVarPopFields": {
-            "labelId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelVarSampFields": {
-            "labelId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LabelVarianceFields": {
-            "labelId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "LengthEnum": {
             "chatbots": [
-                70,
+                34,
                 {
                     "distinctOn": [
-                        131,
+                        58,
                         "[ChatbotSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        129,
+                        57,
                         "[ChatbotOrderBy!]"
                     ],
                     "where": [
-                        78
-                    ]
-                }
-            ],
-            "chatbotsAggregate": [
-                71,
-                {
-                    "distinctOn": [
-                        131,
-                        "[ChatbotSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        129,
-                        "[ChatbotOrderBy!]"
-                    ],
-                    "where": [
-                        78
-                    ]
-                }
-            ],
-            "preferences": [
-                325,
-                {
-                    "distinctOn": [
-                        345,
-                        "[PreferenceSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        343,
-                        "[PreferenceOrderBy!]"
-                    ],
-                    "where": [
-                        333
-                    ]
-                }
-            ],
-            "preferencesAggregate": [
-                326,
-                {
-                    "distinctOn": [
-                        345,
-                        "[PreferenceSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        343,
-                        "[PreferenceOrderBy!]"
-                    ],
-                    "where": [
-                        333
+                        37
                     ]
                 }
             ],
             "value": [
-                530
+                188
             ],
             "__typename": [
-                530
-            ]
-        },
-        "LengthEnumAggregate": {
-            "aggregate": [
-                244
-            ],
-            "nodes": [
-                242
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LengthEnumAggregateFields": {
-            "count": [
-                172,
-                {
-                    "columns": [
-                        255,
-                        "[LengthEnumSelectColumn!]"
-                    ],
-                    "distinct": [
-                        0
-                    ]
-                }
-            ],
-            "max": [
-                248
-            ],
-            "min": [
-                249
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "LengthEnumBoolExp": {
             "_and": [
-                245
+                118
             ],
             "_not": [
-                245
+                118
             ],
             "_or": [
-                245
+                118
             ],
             "chatbots": [
-                78
-            ],
-            "chatbotsAggregate": [
-                72
-            ],
-            "preferences": [
-                333
-            ],
-            "preferencesAggregate": [
-                327
+                37
             ],
             "value": [
-                531
+                189
             ],
             "__typename": [
-                530
-            ]
-        },
-        "LengthEnumConstraint": {},
-        "LengthEnumInsertInput": {
-            "chatbots": [
-                75
-            ],
-            "preferences": [
-                330
-            ],
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LengthEnumMaxFields": {
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LengthEnumMinFields": {
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LengthEnumMutationResponse": {
-            "affectedRows": [
-                172
-            ],
-            "returning": [
-                242
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LengthEnumObjRelInsertInput": {
-            "data": [
-                247
-            ],
-            "onConflict": [
-                252
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "LengthEnumOnConflict": {
-            "constraint": [
-                246
-            ],
-            "updateColumns": [
-                259
-            ],
-            "where": [
-                245
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "LengthEnumOrderBy": {
             "chatbotsAggregate": [
-                74
-            ],
-            "preferencesAggregate": [
-                329
+                35
             ],
             "value": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "LengthEnumPkColumnsInput": {
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "LengthEnumSelectColumn": {},
-        "LengthEnumSetInput": {
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
         "LengthEnumStreamCursorInput": {
             "initialValue": [
-                258
+                122
             ],
             "ordering": [
-                170
+                74
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "LengthEnumStreamCursorValueInput": {
             "value": [
-                530
+                188
             ],
             "__typename": [
-                530
-            ]
-        },
-        "LengthEnumUpdateColumn": {},
-        "LengthEnumUpdates": {
-            "_set": [
-                256
-            ],
-            "where": [
-                245
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "Message": {
+            "augmentedFrom": [
+                257
+            ],
             "content": [
-                530
+                188
             ],
             "createdAt": [
-                691
+                256
             ],
-            "messageId": [
-                693
-            ],
-            "messageTypeEnum": [
-                282
-            ],
-            "role": [
-                530
-            ],
-            "thread": [
-                532
-            ],
-            "threadId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "MessageAggregate": {
-            "aggregate": [
-                264
-            ],
-            "nodes": [
-                261
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "MessageAggregateBoolExp": {
-            "count": [
-                680
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "MessageAggregateFields": {
-            "count": [
-                172,
+            "examples": [
+                254,
                 {
-                    "columns": [
-                        278,
-                        "[MessageSelectColumn!]"
-                    ],
-                    "distinct": [
-                        0
+                    "path": [
+                        188
                     ]
                 }
             ],
-            "max": [
-                270
+            "messageId": [
+                257
             ],
-            "min": [
-                272
+            "messageTypeEnum": [
+                132
+            ],
+            "prompt": [
+                188
+            ],
+            "role": [
+                188
+            ],
+            "thread": [
+                216
+            ],
+            "threadId": [
+                257
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "MessageAggregateOrderBy": {
             "count": [
-                324
+                147
             ],
             "max": [
-                271
+                126
             ],
             "min": [
-                273
+                127
             ],
             "__typename": [
-                530
-            ]
-        },
-        "MessageArrRelInsertInput": {
-            "data": [
-                269
-            ],
-            "onConflict": [
-                275
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "MessageBoolExp": {
             "_and": [
-                267
+                125
             ],
             "_not": [
-                267
+                125
             ],
             "_or": [
-                267
+                125
+            ],
+            "augmentedFrom": [
+                253
             ],
             "content": [
-                531
+                189
             ],
             "createdAt": [
-                575
+                233
+            ],
+            "examples": [
+                93
             ],
             "messageId": [
-                675
+                253
             ],
             "messageTypeEnum": [
-                285
+                133
+            ],
+            "prompt": [
+                189
             ],
             "role": [
-                531
+                189
             ],
             "thread": [
-                540
+                219
             ],
             "threadId": [
-                675
+                253
             ],
             "__typename": [
-                530
-            ]
-        },
-        "MessageConstraint": {},
-        "MessageInsertInput": {
-            "content": [
-                530
-            ],
-            "createdAt": [
-                691
-            ],
-            "messageId": [
-                693
-            ],
-            "messageTypeEnum": [
-                291
-            ],
-            "role": [
-                530
-            ],
-            "thread": [
-                549
-            ],
-            "threadId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "MessageMaxFields": {
-            "content": [
-                530
-            ],
-            "createdAt": [
-                691
-            ],
-            "messageId": [
-                693
-            ],
-            "role": [
-                530
-            ],
-            "threadId": [
-                693
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "MessageMaxOrderBy": {
+            "augmentedFrom": [
+                147
+            ],
             "content": [
-                324
+                147
             ],
             "createdAt": [
-                324
+                147
             ],
             "messageId": [
-                324
+                147
+            ],
+            "prompt": [
+                147
             ],
             "role": [
-                324
+                147
             ],
             "threadId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "MessageMinFields": {
-            "content": [
-                530
-            ],
-            "createdAt": [
-                691
-            ],
-            "messageId": [
-                693
-            ],
-            "role": [
-                530
-            ],
-            "threadId": [
-                693
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "MessageMinOrderBy": {
+            "augmentedFrom": [
+                147
+            ],
             "content": [
-                324
+                147
             ],
             "createdAt": [
-                324
+                147
             ],
             "messageId": [
-                324
+                147
+            ],
+            "prompt": [
+                147
             ],
             "role": [
-                324
+                147
             ],
             "threadId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "MessageMutationResponse": {
-            "affectedRows": [
-                172
-            ],
-            "returning": [
-                261
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "MessageOnConflict": {
-            "constraint": [
-                268
-            ],
-            "updateColumns": [
-                301
-            ],
-            "where": [
-                267
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "MessageOrderBy": {
+            "augmentedFrom": [
+                147
+            ],
             "content": [
-                324
+                147
             ],
             "createdAt": [
-                324
+                147
+            ],
+            "examples": [
+                147
             ],
             "messageId": [
-                324
+                147
             ],
             "messageTypeEnum": [
-                293
+                134
+            ],
+            "prompt": [
+                147
             ],
             "role": [
-                324
+                147
             ],
             "thread": [
-                551
+                222
             ],
             "threadId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "MessagePkColumnsInput": {
-            "messageId": [
-                693
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "MessageSelectColumn": {},
-        "MessageSetInput": {
-            "content": [
-                530
-            ],
-            "createdAt": [
-                691
-            ],
-            "messageId": [
-                693
-            ],
-            "role": [
-                530
-            ],
-            "threadId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
         "MessageStreamCursorInput": {
             "initialValue": [
-                281
+                131
             ],
             "ordering": [
-                170
+                74
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "MessageStreamCursorValueInput": {
+            "augmentedFrom": [
+                257
+            ],
             "content": [
-                530
+                188
             ],
             "createdAt": [
-                691
+                256
+            ],
+            "examples": [
+                254
             ],
             "messageId": [
-                693
+                257
+            ],
+            "prompt": [
+                188
             ],
             "role": [
-                530
+                188
             ],
             "threadId": [
-                693
+                257
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "MessageTypeEnum": {
             "messages": [
-                261,
+                123,
                 {
                     "distinctOn": [
-                        278,
+                        129,
                         "[MessageSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        276,
+                        128,
                         "[MessageOrderBy!]"
                     ],
                     "where": [
-                        267
-                    ]
-                }
-            ],
-            "messagesAggregate": [
-                262,
-                {
-                    "distinctOn": [
-                        278,
-                        "[MessageSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        276,
-                        "[MessageOrderBy!]"
-                    ],
-                    "where": [
-                        267
+                        125
                     ]
                 }
             ],
             "value": [
-                530
+                188
             ],
             "__typename": [
-                530
-            ]
-        },
-        "MessageTypeEnumAggregate": {
-            "aggregate": [
-                284
-            ],
-            "nodes": [
-                282
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "MessageTypeEnumAggregateFields": {
-            "count": [
-                172,
-                {
-                    "columns": [
-                        295,
-                        "[MessageTypeEnumSelectColumn!]"
-                    ],
-                    "distinct": [
-                        0
-                    ]
-                }
-            ],
-            "max": [
-                288
-            ],
-            "min": [
-                289
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "MessageTypeEnumBoolExp": {
             "_and": [
-                285
+                133
             ],
             "_not": [
-                285
+                133
             ],
             "_or": [
-                285
+                133
             ],
             "messages": [
-                267
-            ],
-            "messagesAggregate": [
-                263
+                125
             ],
             "value": [
-                531
+                189
             ],
             "__typename": [
-                530
-            ]
-        },
-        "MessageTypeEnumConstraint": {},
-        "MessageTypeEnumInsertInput": {
-            "messages": [
-                266
-            ],
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "MessageTypeEnumMaxFields": {
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "MessageTypeEnumMinFields": {
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "MessageTypeEnumMutationResponse": {
-            "affectedRows": [
-                172
-            ],
-            "returning": [
-                282
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "MessageTypeEnumObjRelInsertInput": {
-            "data": [
-                287
-            ],
-            "onConflict": [
-                292
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "MessageTypeEnumOnConflict": {
-            "constraint": [
-                286
-            ],
-            "updateColumns": [
-                299
-            ],
-            "where": [
-                285
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "MessageTypeEnumOrderBy": {
             "messagesAggregate": [
-                265
+                124
             ],
             "value": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "MessageTypeEnumPkColumnsInput": {
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "MessageTypeEnumSelectColumn": {},
-        "MessageTypeEnumSetInput": {
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
         "MessageTypeEnumStreamCursorInput": {
             "initialValue": [
-                298
+                137
             ],
             "ordering": [
-                170
+                74
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "MessageTypeEnumStreamCursorValueInput": {
             "value": [
-                530
+                188
             ],
             "__typename": [
-                530
-            ]
-        },
-        "MessageTypeEnumUpdateColumn": {},
-        "MessageTypeEnumUpdates": {
-            "_set": [
-                296
-            ],
-            "where": [
-                285
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "MessageUpdateColumn": {},
-        "MessageUpdates": {
-            "_set": [
-                279
-            ],
-            "where": [
-                267
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ModelsEnum": {
             "name": [
-                530
+                188
             ],
             "threads": [
-                532,
+                216,
                 {
                     "distinctOn": [
-                        553,
+                        223,
                         "[ThreadSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        551,
+                        222,
                         "[ThreadOrderBy!]"
                     ],
                     "where": [
-                        540
-                    ]
-                }
-            ],
-            "threadsAggregate": [
-                533,
-                {
-                    "distinctOn": [
-                        553,
-                        "[ThreadSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        551,
-                        "[ThreadOrderBy!]"
-                    ],
-                    "where": [
-                        540
+                        219
                     ]
                 }
             ],
             "value": [
-                530
+                188
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ModelsEnumAggregate": {
-            "aggregate": [
-                305
-            ],
-            "nodes": [
-                303
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ModelsEnumAggregateFields": {
-            "count": [
-                172,
-                {
-                    "columns": [
-                        318,
-                        "[ModelsEnumSelectColumn!]"
-                    ],
-                    "distinct": [
-                        0
-                    ]
-                }
-            ],
-            "max": [
-                311
-            ],
-            "min": [
-                312
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ModelsEnumBoolExp": {
             "_and": [
-                306
+                139
             ],
             "_not": [
-                306
+                139
             ],
             "_or": [
-                306
+                139
             ],
             "name": [
-                531
+                189
             ],
             "threads": [
-                540
-            ],
-            "threadsAggregate": [
-                534
+                219
             ],
             "value": [
-                531
+                189
             ],
             "__typename": [
-                530
+                188
             ]
         },
-        "ModelsEnumConstraint": {},
         "ModelsEnumEnum": {},
         "ModelsEnumEnumComparisonExp": {
             "_eq": [
-                308
+                140
             ],
             "_in": [
-                308
+                140
             ],
             "_isNull": [
                 0
             ],
             "_neq": [
-                308
+                140
             ],
             "_nin": [
-                308
+                140
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ModelsEnumInsertInput": {
-            "name": [
-                530
-            ],
-            "threads": [
-                537
-            ],
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ModelsEnumMaxFields": {
-            "name": [
-                530
-            ],
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ModelsEnumMinFields": {
-            "name": [
-                530
-            ],
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ModelsEnumMutationResponse": {
-            "affectedRows": [
-                172
-            ],
-            "returning": [
-                303
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ModelsEnumObjRelInsertInput": {
-            "data": [
-                310
-            ],
-            "onConflict": [
-                315
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ModelsEnumOnConflict": {
-            "constraint": [
-                307
-            ],
-            "updateColumns": [
-                322
-            ],
-            "where": [
-                306
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ModelsEnumOrderBy": {
             "name": [
-                324
+                147
             ],
             "threadsAggregate": [
-                536
+                217
             ],
             "value": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ModelsEnumPkColumnsInput": {
-            "name": [
-                530
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ModelsEnumSelectColumn": {},
-        "ModelsEnumSetInput": {
-            "name": [
-                530
-            ],
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
         "ModelsEnumStreamCursorInput": {
             "initialValue": [
-                321
+                145
             ],
             "ordering": [
-                170
+                74
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "ModelsEnumStreamCursorValueInput": {
             "name": [
-                530
+                188
             ],
             "value": [
-                530
+                188
             ],
             "__typename": [
-                530
+                188
             ]
         },
-        "ModelsEnumUpdateColumn": {},
-        "ModelsEnumUpdates": {
-            "_set": [
-                319
+        "NumericComparisonExp": {
+            "_eq": [
+                255
             ],
-            "where": [
-                306
+            "_gt": [
+                255
+            ],
+            "_gte": [
+                255
+            ],
+            "_in": [
+                255
+            ],
+            "_isNull": [
+                0
+            ],
+            "_lt": [
+                255
+            ],
+            "_lte": [
+                255
+            ],
+            "_neq": [
+                255
+            ],
+            "_nin": [
+                255
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "OrderBy": {},
-        "Preference": {
-            "chatbot": [
-                70
-            ],
-            "chatbotId": [
-                172
-            ],
-            "complexityEnum": [
-                151
-            ],
-            "favorite": [
-                0
-            ],
-            "lengthEnum": [
-                242
-            ],
-            "preferenceId": [
-                172
-            ],
-            "preferredComplexity": [
-                530
-            ],
-            "preferredLength": [
-                530
-            ],
-            "preferredTone": [
-                530
-            ],
-            "preferredType": [
-                530
-            ],
-            "toneEnum": [
-                595
-            ],
-            "typeEnum": [
-                614
-            ],
-            "user": [
-                633
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceAggregate": {
-            "aggregate": [
-                328
-            ],
-            "nodes": [
-                325
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceAggregateBoolExp": {
-            "bool_and": [
-                681
-            ],
-            "bool_or": [
-                682
-            ],
-            "count": [
-                683
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceAggregateFields": {
-            "avg": [
-                331
-            ],
-            "count": [
-                172,
-                {
-                    "columns": [
-                        345,
-                        "[PreferenceSelectColumn!]"
-                    ],
-                    "distinct": [
-                        0
-                    ]
-                }
-            ],
-            "max": [
-                337
-            ],
-            "min": [
-                339
-            ],
-            "stddev": [
-                349
-            ],
-            "stddevPop": [
-                351
-            ],
-            "stddevSamp": [
-                353
-            ],
-            "sum": [
-                357
-            ],
-            "varPop": [
-                361
-            ],
-            "varSamp": [
-                363
-            ],
-            "variance": [
-                365
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceAggregateOrderBy": {
-            "avg": [
-                332
-            ],
-            "count": [
-                324
-            ],
-            "max": [
-                338
-            ],
-            "min": [
-                340
-            ],
-            "stddev": [
-                350
-            ],
-            "stddevPop": [
-                352
-            ],
-            "stddevSamp": [
-                354
-            ],
-            "sum": [
-                358
-            ],
-            "varPop": [
-                362
-            ],
-            "varSamp": [
-                364
-            ],
-            "variance": [
-                366
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceArrRelInsertInput": {
-            "data": [
-                336
-            ],
-            "onConflict": [
-                342
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceAvgFields": {
-            "chatbotId": [
-                171
-            ],
-            "preferenceId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceAvgOrderBy": {
-            "chatbotId": [
-                324
-            ],
-            "preferenceId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceBoolExp": {
-            "_and": [
-                333
-            ],
-            "_not": [
-                333
-            ],
-            "_or": [
-                333
-            ],
-            "chatbot": [
-                78
-            ],
-            "chatbotId": [
-                173
-            ],
-            "complexityEnum": [
-                154
-            ],
-            "favorite": [
-                1
-            ],
-            "lengthEnum": [
-                245
-            ],
-            "preferenceId": [
-                173
-            ],
-            "preferredComplexity": [
-                531
-            ],
-            "preferredLength": [
-                531
-            ],
-            "preferredTone": [
-                531
-            ],
-            "preferredType": [
-                531
-            ],
-            "toneEnum": [
-                598
-            ],
-            "typeEnum": [
-                617
-            ],
-            "user": [
-                636
-            ],
-            "userId": [
-                675
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceConstraint": {},
-        "PreferenceIncInput": {
-            "chatbotId": [
-                172
-            ],
-            "preferenceId": [
-                172
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceInsertInput": {
-            "chatbot": [
-                127
-            ],
-            "chatbotId": [
-                172
-            ],
-            "complexityEnum": [
-                160
-            ],
-            "favorite": [
-                0
-            ],
-            "lengthEnum": [
-                251
-            ],
-            "preferenceId": [
-                172
-            ],
-            "preferredComplexity": [
-                530
-            ],
-            "preferredLength": [
-                530
-            ],
-            "preferredTone": [
-                530
-            ],
-            "preferredType": [
-                530
-            ],
-            "toneEnum": [
-                604
-            ],
-            "typeEnum": [
-                623
-            ],
-            "user": [
-                642
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceMaxFields": {
-            "chatbotId": [
-                172
-            ],
-            "preferenceId": [
-                172
-            ],
-            "preferredComplexity": [
-                530
-            ],
-            "preferredLength": [
-                530
-            ],
-            "preferredTone": [
-                530
-            ],
-            "preferredType": [
-                530
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceMaxOrderBy": {
-            "chatbotId": [
-                324
-            ],
-            "preferenceId": [
-                324
-            ],
-            "preferredComplexity": [
-                324
-            ],
-            "preferredLength": [
-                324
-            ],
-            "preferredTone": [
-                324
-            ],
-            "preferredType": [
-                324
-            ],
-            "userId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceMinFields": {
-            "chatbotId": [
-                172
-            ],
-            "preferenceId": [
-                172
-            ],
-            "preferredComplexity": [
-                530
-            ],
-            "preferredLength": [
-                530
-            ],
-            "preferredTone": [
-                530
-            ],
-            "preferredType": [
-                530
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceMinOrderBy": {
-            "chatbotId": [
-                324
-            ],
-            "preferenceId": [
-                324
-            ],
-            "preferredComplexity": [
-                324
-            ],
-            "preferredLength": [
-                324
-            ],
-            "preferredTone": [
-                324
-            ],
-            "preferredType": [
-                324
-            ],
-            "userId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceMutationResponse": {
-            "affectedRows": [
-                172
-            ],
-            "returning": [
-                325
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceOnConflict": {
-            "constraint": [
-                334
-            ],
-            "updateColumns": [
-                359
-            ],
-            "where": [
-                333
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceOrderBy": {
-            "chatbot": [
-                129
-            ],
-            "chatbotId": [
-                324
-            ],
-            "complexityEnum": [
-                162
-            ],
-            "favorite": [
-                324
-            ],
-            "lengthEnum": [
-                253
-            ],
-            "preferenceId": [
-                324
-            ],
-            "preferredComplexity": [
-                324
-            ],
-            "preferredLength": [
-                324
-            ],
-            "preferredTone": [
-                324
-            ],
-            "preferredType": [
-                324
-            ],
-            "toneEnum": [
-                606
-            ],
-            "typeEnum": [
-                625
-            ],
-            "user": [
-                644
-            ],
-            "userId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferencePkColumnsInput": {
-            "preferenceId": [
-                172
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceSelectColumn": {},
-        "PreferenceSelectColumnPreferenceAggregateBoolExpBool_andArgumentsColumns": {},
-        "PreferenceSelectColumnPreferenceAggregateBoolExpBool_orArgumentsColumns": {},
-        "PreferenceSetInput": {
-            "chatbotId": [
-                172
-            ],
-            "favorite": [
-                0
-            ],
-            "preferenceId": [
-                172
-            ],
-            "preferredComplexity": [
-                530
-            ],
-            "preferredLength": [
-                530
-            ],
-            "preferredTone": [
-                530
-            ],
-            "preferredType": [
-                530
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceStddevFields": {
-            "chatbotId": [
-                171
-            ],
-            "preferenceId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceStddevOrderBy": {
-            "chatbotId": [
-                324
-            ],
-            "preferenceId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceStddevPopFields": {
-            "chatbotId": [
-                171
-            ],
-            "preferenceId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceStddevPopOrderBy": {
-            "chatbotId": [
-                324
-            ],
-            "preferenceId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceStddevSampFields": {
-            "chatbotId": [
-                171
-            ],
-            "preferenceId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceStddevSampOrderBy": {
-            "chatbotId": [
-                324
-            ],
-            "preferenceId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceStreamCursorInput": {
-            "initialValue": [
-                356
-            ],
-            "ordering": [
-                170
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceStreamCursorValueInput": {
-            "chatbotId": [
-                172
-            ],
-            "favorite": [
-                0
-            ],
-            "preferenceId": [
-                172
-            ],
-            "preferredComplexity": [
-                530
-            ],
-            "preferredLength": [
-                530
-            ],
-            "preferredTone": [
-                530
-            ],
-            "preferredType": [
-                530
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceSumFields": {
-            "chatbotId": [
-                172
-            ],
-            "preferenceId": [
-                172
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceSumOrderBy": {
-            "chatbotId": [
-                324
-            ],
-            "preferenceId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceUpdateColumn": {},
-        "PreferenceUpdates": {
-            "_inc": [
-                335
-            ],
-            "_set": [
-                348
-            ],
-            "where": [
-                333
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceVarPopFields": {
-            "chatbotId": [
-                171
-            ],
-            "preferenceId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceVarPopOrderBy": {
-            "chatbotId": [
-                324
-            ],
-            "preferenceId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceVarSampFields": {
-            "chatbotId": [
-                171
-            ],
-            "preferenceId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceVarSampOrderBy": {
-            "chatbotId": [
-                324
-            ],
-            "preferenceId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceVarianceFields": {
-            "chatbotId": [
-                171
-            ],
-            "preferenceId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PreferenceVarianceOrderBy": {
-            "chatbotId": [
-                324
-            ],
-            "preferenceId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
         "Prompt": {
             "chatbots": [
-                376,
+                152,
                 {
                     "distinctOn": [
-                        396,
+                        159,
                         "[PromptChatbotSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        394,
+                        158,
                         "[PromptChatbotOrderBy!]"
                     ],
                     "where": [
-                        384
-                    ]
-                }
-            ],
-            "chatbotsAggregate": [
-                377,
-                {
-                    "distinctOn": [
-                        396,
-                        "[PromptChatbotSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        394,
-                        "[PromptChatbotOrderBy!]"
-                    ],
-                    "where": [
-                        384
+                        155
                     ]
                 }
             ],
             "content": [
-                530
+                188
             ],
             "promptId": [
-                172
+                90
             ],
             "promptName": [
-                530
+                188
             ],
             "promptTypeEnum": [
-                440
+                179
             ],
             "type": [
-                530
-            ],
-            "users": [
-                461,
-                {
-                    "distinctOn": [
-                        481,
-                        "[PromptUserSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        479,
-                        "[PromptUserOrderBy!]"
-                    ],
-                    "where": [
-                        469
-                    ]
-                }
-            ],
-            "usersAggregate": [
-                462,
-                {
-                    "distinctOn": [
-                        481,
-                        "[PromptUserSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        479,
-                        "[PromptUserOrderBy!]"
-                    ],
-                    "where": [
-                        469
-                    ]
-                }
+                188
             ],
             "__typename": [
-                530
-            ]
-        },
-        "PromptAggregate": {
-            "aggregate": [
-                370
-            ],
-            "nodes": [
-                367
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptAggregateBoolExp": {
-            "count": [
-                684
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptAggregateFields": {
-            "avg": [
-                373
-            ],
-            "count": [
-                172,
-                {
-                    "columns": [
-                        428,
-                        "[PromptSelectColumn!]"
-                    ],
-                    "distinct": [
-                        0
-                    ]
-                }
-            ],
-            "max": [
-                419
-            ],
-            "min": [
-                421
-            ],
-            "stddev": [
-                430
-            ],
-            "stddevPop": [
-                432
-            ],
-            "stddevSamp": [
-                434
-            ],
-            "sum": [
-                438
-            ],
-            "varPop": [
-                501
-            ],
-            "varSamp": [
-                503
-            ],
-            "variance": [
-                505
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "PromptAggregateOrderBy": {
             "avg": [
-                374
+                150
             ],
             "count": [
-                324
+                147
             ],
             "max": [
-                420
+                169
             ],
             "min": [
-                422
+                170
             ],
             "stddev": [
-                431
+                173
             ],
             "stddevPop": [
-                433
+                174
             ],
             "stddevSamp": [
-                435
+                175
             ],
             "sum": [
-                439
+                178
             ],
             "varPop": [
-                502
+                185
             ],
             "varSamp": [
-                504
+                186
             ],
             "variance": [
-                506
+                187
             ],
             "__typename": [
-                530
-            ]
-        },
-        "PromptArrRelInsertInput": {
-            "data": [
-                418
-            ],
-            "onConflict": [
-                425
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptAvgFields": {
-            "promptId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "PromptAvgOrderBy": {
             "promptId": [
-                324
+                147
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "PromptBoolExp": {
             "_and": [
-                375
+                151
             ],
             "_not": [
-                375
+                151
             ],
             "_or": [
-                375
+                151
             ],
             "chatbots": [
-                384
-            ],
-            "chatbotsAggregate": [
-                378
+                155
             ],
             "content": [
-                531
+                189
             ],
             "promptId": [
-                173
+                91
             ],
             "promptName": [
-                531
+                189
             ],
             "promptTypeEnum": [
-                443
+                180
             ],
             "type": [
-                531
-            ],
-            "users": [
-                469
-            ],
-            "usersAggregate": [
-                463
+                189
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "PromptChatbot": {
             "chabotId": [
-                172
+                90
             ],
             "chatbot": [
-                70
+                34
             ],
             "prompt": [
-                367
+                148
             ],
             "promptId": [
-                172
+                90
             ],
             "__typename": [
-                530
-            ]
-        },
-        "PromptChatbotAggregate": {
-            "aggregate": [
-                379
-            ],
-            "nodes": [
-                376
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptChatbotAggregateBoolExp": {
-            "count": [
-                685
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptChatbotAggregateFields": {
-            "avg": [
-                382
-            ],
-            "count": [
-                172,
-                {
-                    "columns": [
-                        396,
-                        "[PromptChatbotSelectColumn!]"
-                    ],
-                    "distinct": [
-                        0
-                    ]
-                }
-            ],
-            "max": [
-                388
-            ],
-            "min": [
-                390
-            ],
-            "stddev": [
-                398
-            ],
-            "stddevPop": [
-                400
-            ],
-            "stddevSamp": [
-                402
-            ],
-            "sum": [
-                406
-            ],
-            "varPop": [
-                410
-            ],
-            "varSamp": [
-                412
-            ],
-            "variance": [
-                414
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "PromptChatbotAggregateOrderBy": {
             "avg": [
-                383
+                154
             ],
             "count": [
-                324
+                147
             ],
             "max": [
-                389
+                156
             ],
             "min": [
-                391
+                157
             ],
             "stddev": [
-                399
+                160
             ],
             "stddevPop": [
-                401
+                161
             ],
             "stddevSamp": [
-                403
+                162
             ],
             "sum": [
-                407
+                165
             ],
             "varPop": [
-                411
+                166
             ],
             "varSamp": [
-                413
+                167
             ],
             "variance": [
-                415
+                168
             ],
             "__typename": [
-                530
-            ]
-        },
-        "PromptChatbotArrRelInsertInput": {
-            "data": [
-                387
-            ],
-            "onConflict": [
-                393
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptChatbotAvgFields": {
-            "chabotId": [
-                171
-            ],
-            "promptId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "PromptChatbotAvgOrderBy": {
             "chabotId": [
-                324
+                147
             ],
             "promptId": [
-                324
+                147
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "PromptChatbotBoolExp": {
             "_and": [
-                384
+                155
             ],
             "_not": [
-                384
+                155
             ],
             "_or": [
-                384
+                155
             ],
             "chabotId": [
-                173
+                91
             ],
             "chatbot": [
-                78
+                37
             ],
             "prompt": [
-                375
+                151
             ],
             "promptId": [
-                173
+                91
             ],
             "__typename": [
-                530
-            ]
-        },
-        "PromptChatbotConstraint": {},
-        "PromptChatbotIncInput": {
-            "chabotId": [
-                172
-            ],
-            "promptId": [
-                172
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptChatbotInsertInput": {
-            "chabotId": [
-                172
-            ],
-            "chatbot": [
-                127
-            ],
-            "prompt": [
-                424
-            ],
-            "promptId": [
-                172
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptChatbotMaxFields": {
-            "chabotId": [
-                172
-            ],
-            "promptId": [
-                172
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "PromptChatbotMaxOrderBy": {
             "chabotId": [
-                324
+                147
             ],
             "promptId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "PromptChatbotMinFields": {
-            "chabotId": [
-                172
-            ],
-            "promptId": [
-                172
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "PromptChatbotMinOrderBy": {
             "chabotId": [
-                324
+                147
             ],
             "promptId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "PromptChatbotMutationResponse": {
-            "affectedRows": [
-                172
-            ],
-            "returning": [
-                376
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptChatbotOnConflict": {
-            "constraint": [
-                385
-            ],
-            "updateColumns": [
-                408
-            ],
-            "where": [
-                384
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "PromptChatbotOrderBy": {
             "chabotId": [
-                324
+                147
             ],
             "chatbot": [
-                129
+                57
             ],
             "prompt": [
-                426
+                171
             ],
             "promptId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "PromptChatbotPkColumnsInput": {
-            "chabotId": [
-                172
-            ],
-            "promptId": [
-                172
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "PromptChatbotSelectColumn": {},
-        "PromptChatbotSetInput": {
-            "chabotId": [
-                172
-            ],
-            "promptId": [
-                172
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptChatbotStddevFields": {
-            "chabotId": [
-                171
-            ],
-            "promptId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
         "PromptChatbotStddevOrderBy": {
             "chabotId": [
-                324
+                147
             ],
             "promptId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "PromptChatbotStddevPopFields": {
-            "chabotId": [
-                171
-            ],
-            "promptId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "PromptChatbotStddevPopOrderBy": {
             "chabotId": [
-                324
+                147
             ],
             "promptId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "PromptChatbotStddevSampFields": {
-            "chabotId": [
-                171
-            ],
-            "promptId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "PromptChatbotStddevSampOrderBy": {
             "chabotId": [
-                324
+                147
             ],
             "promptId": [
-                324
+                147
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "PromptChatbotStreamCursorInput": {
             "initialValue": [
-                405
+                164
             ],
             "ordering": [
-                170
+                74
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "PromptChatbotStreamCursorValueInput": {
             "chabotId": [
-                172
+                90
             ],
             "promptId": [
-                172
+                90
             ],
             "__typename": [
-                530
-            ]
-        },
-        "PromptChatbotSumFields": {
-            "chabotId": [
-                172
-            ],
-            "promptId": [
-                172
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "PromptChatbotSumOrderBy": {
             "chabotId": [
-                324
+                147
             ],
             "promptId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "PromptChatbotUpdateColumn": {},
-        "PromptChatbotUpdates": {
-            "_inc": [
-                386
-            ],
-            "_set": [
-                397
-            ],
-            "where": [
-                384
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptChatbotVarPopFields": {
-            "chabotId": [
-                171
-            ],
-            "promptId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "PromptChatbotVarPopOrderBy": {
             "chabotId": [
-                324
+                147
             ],
             "promptId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "PromptChatbotVarSampFields": {
-            "chabotId": [
-                171
-            ],
-            "promptId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "PromptChatbotVarSampOrderBy": {
             "chabotId": [
-                324
+                147
             ],
             "promptId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "PromptChatbotVarianceFields": {
-            "chabotId": [
-                171
-            ],
-            "promptId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "PromptChatbotVarianceOrderBy": {
             "chabotId": [
-                324
+                147
             ],
             "promptId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "PromptConstraint": {},
-        "PromptIncInput": {
-            "promptId": [
-                172
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptInsertInput": {
-            "chatbots": [
-                381
-            ],
-            "content": [
-                530
-            ],
-            "promptId": [
-                172
-            ],
-            "promptName": [
-                530
-            ],
-            "promptTypeEnum": [
-                449
-            ],
-            "type": [
-                530
-            ],
-            "users": [
-                466
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptMaxFields": {
-            "content": [
-                530
-            ],
-            "promptId": [
-                172
-            ],
-            "promptName": [
-                530
-            ],
-            "type": [
-                530
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "PromptMaxOrderBy": {
             "content": [
-                324
+                147
             ],
             "promptId": [
-                324
+                147
             ],
             "promptName": [
-                324
+                147
             ],
             "type": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "PromptMinFields": {
-            "content": [
-                530
-            ],
-            "promptId": [
-                172
-            ],
-            "promptName": [
-                530
-            ],
-            "type": [
-                530
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "PromptMinOrderBy": {
             "content": [
-                324
+                147
             ],
             "promptId": [
-                324
+                147
             ],
             "promptName": [
-                324
+                147
             ],
             "type": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "PromptMutationResponse": {
-            "affectedRows": [
-                172
-            ],
-            "returning": [
-                367
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptObjRelInsertInput": {
-            "data": [
-                418
-            ],
-            "onConflict": [
-                425
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptOnConflict": {
-            "constraint": [
-                416
-            ],
-            "updateColumns": [
-                459
-            ],
-            "where": [
-                375
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "PromptOrderBy": {
             "chatbotsAggregate": [
-                380
+                153
             ],
             "content": [
-                324
+                147
             ],
             "promptId": [
-                324
+                147
             ],
             "promptName": [
-                324
+                147
             ],
             "promptTypeEnum": [
-                451
+                181
             ],
             "type": [
-                324
-            ],
-            "usersAggregate": [
-                465
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "PromptPkColumnsInput": {
-            "promptId": [
-                172
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "PromptSelectColumn": {},
-        "PromptSetInput": {
-            "content": [
-                530
-            ],
-            "promptId": [
-                172
-            ],
-            "promptName": [
-                530
-            ],
-            "type": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptStddevFields": {
-            "promptId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
         "PromptStddevOrderBy": {
             "promptId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "PromptStddevPopFields": {
-            "promptId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "PromptStddevPopOrderBy": {
             "promptId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "PromptStddevSampFields": {
-            "promptId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "PromptStddevSampOrderBy": {
             "promptId": [
-                324
+                147
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "PromptStreamCursorInput": {
             "initialValue": [
-                437
+                177
             ],
             "ordering": [
-                170
+                74
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "PromptStreamCursorValueInput": {
             "content": [
-                530
+                188
             ],
             "promptId": [
-                172
+                90
             ],
             "promptName": [
-                530
+                188
             ],
             "type": [
-                530
+                188
             ],
             "__typename": [
-                530
-            ]
-        },
-        "PromptSumFields": {
-            "promptId": [
-                172
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "PromptSumOrderBy": {
             "promptId": [
-                324
+                147
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "PromptTypeEnum": {
             "prompts": [
-                367,
+                148,
                 {
                     "distinctOn": [
-                        428,
+                        172,
                         "[PromptSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        426,
+                        171,
                         "[PromptOrderBy!]"
                     ],
                     "where": [
-                        375
-                    ]
-                }
-            ],
-            "promptsAggregate": [
-                368,
-                {
-                    "distinctOn": [
-                        428,
-                        "[PromptSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        426,
-                        "[PromptOrderBy!]"
-                    ],
-                    "where": [
-                        375
+                        151
                     ]
                 }
             ],
             "value": [
-                530
+                188
             ],
             "__typename": [
-                530
-            ]
-        },
-        "PromptTypeEnumAggregate": {
-            "aggregate": [
-                442
-            ],
-            "nodes": [
-                440
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptTypeEnumAggregateFields": {
-            "count": [
-                172,
-                {
-                    "columns": [
-                        453,
-                        "[PromptTypeEnumSelectColumn!]"
-                    ],
-                    "distinct": [
-                        0
-                    ]
-                }
-            ],
-            "max": [
-                446
-            ],
-            "min": [
-                447
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "PromptTypeEnumBoolExp": {
             "_and": [
-                443
+                180
             ],
             "_not": [
-                443
+                180
             ],
             "_or": [
-                443
+                180
             ],
             "prompts": [
-                375
-            ],
-            "promptsAggregate": [
-                369
+                151
             ],
             "value": [
-                531
+                189
             ],
             "__typename": [
-                530
-            ]
-        },
-        "PromptTypeEnumConstraint": {},
-        "PromptTypeEnumInsertInput": {
-            "prompts": [
-                372
-            ],
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptTypeEnumMaxFields": {
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptTypeEnumMinFields": {
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptTypeEnumMutationResponse": {
-            "affectedRows": [
-                172
-            ],
-            "returning": [
-                440
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptTypeEnumObjRelInsertInput": {
-            "data": [
-                445
-            ],
-            "onConflict": [
-                450
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptTypeEnumOnConflict": {
-            "constraint": [
-                444
-            ],
-            "updateColumns": [
-                457
-            ],
-            "where": [
-                443
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "PromptTypeEnumOrderBy": {
             "promptsAggregate": [
-                371
+                149
             ],
             "value": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "PromptTypeEnumPkColumnsInput": {
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "PromptTypeEnumSelectColumn": {},
-        "PromptTypeEnumSetInput": {
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
         "PromptTypeEnumStreamCursorInput": {
             "initialValue": [
-                456
+                184
             ],
             "ordering": [
-                170
+                74
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "PromptTypeEnumStreamCursorValueInput": {
             "value": [
-                530
+                188
             ],
             "__typename": [
-                530
-            ]
-        },
-        "PromptTypeEnumUpdateColumn": {},
-        "PromptTypeEnumUpdates": {
-            "_set": [
-                454
-            ],
-            "where": [
-                443
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUpdateColumn": {},
-        "PromptUpdates": {
-            "_inc": [
-                417
-            ],
-            "_set": [
-                429
-            ],
-            "where": [
-                375
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUser": {
-            "prompt": [
-                367
-            ],
-            "promptId": [
-                172
-            ],
-            "user": [
-                633
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserAggregate": {
-            "aggregate": [
-                464
-            ],
-            "nodes": [
-                461
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserAggregateBoolExp": {
-            "count": [
-                686
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserAggregateFields": {
-            "avg": [
-                467
-            ],
-            "count": [
-                172,
-                {
-                    "columns": [
-                        481,
-                        "[PromptUserSelectColumn!]"
-                    ],
-                    "distinct": [
-                        0
-                    ]
-                }
-            ],
-            "max": [
-                473
-            ],
-            "min": [
-                475
-            ],
-            "stddev": [
-                483
-            ],
-            "stddevPop": [
-                485
-            ],
-            "stddevSamp": [
-                487
-            ],
-            "sum": [
-                491
-            ],
-            "varPop": [
-                495
-            ],
-            "varSamp": [
-                497
-            ],
-            "variance": [
-                499
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserAggregateOrderBy": {
-            "avg": [
-                468
-            ],
-            "count": [
-                324
-            ],
-            "max": [
-                474
-            ],
-            "min": [
-                476
-            ],
-            "stddev": [
-                484
-            ],
-            "stddevPop": [
-                486
-            ],
-            "stddevSamp": [
-                488
-            ],
-            "sum": [
-                492
-            ],
-            "varPop": [
-                496
-            ],
-            "varSamp": [
-                498
-            ],
-            "variance": [
-                500
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserArrRelInsertInput": {
-            "data": [
-                472
-            ],
-            "onConflict": [
-                478
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserAvgFields": {
-            "promptId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserAvgOrderBy": {
-            "promptId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserBoolExp": {
-            "_and": [
-                469
-            ],
-            "_not": [
-                469
-            ],
-            "_or": [
-                469
-            ],
-            "prompt": [
-                375
-            ],
-            "promptId": [
-                173
-            ],
-            "user": [
-                636
-            ],
-            "userId": [
-                675
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserConstraint": {},
-        "PromptUserIncInput": {
-            "promptId": [
-                172
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserInsertInput": {
-            "prompt": [
-                424
-            ],
-            "promptId": [
-                172
-            ],
-            "user": [
-                642
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserMaxFields": {
-            "promptId": [
-                172
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserMaxOrderBy": {
-            "promptId": [
-                324
-            ],
-            "userId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserMinFields": {
-            "promptId": [
-                172
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserMinOrderBy": {
-            "promptId": [
-                324
-            ],
-            "userId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserMutationResponse": {
-            "affectedRows": [
-                172
-            ],
-            "returning": [
-                461
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserOnConflict": {
-            "constraint": [
-                470
-            ],
-            "updateColumns": [
-                493
-            ],
-            "where": [
-                469
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserOrderBy": {
-            "prompt": [
-                426
-            ],
-            "promptId": [
-                324
-            ],
-            "user": [
-                644
-            ],
-            "userId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserPkColumnsInput": {
-            "promptId": [
-                172
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserSelectColumn": {},
-        "PromptUserSetInput": {
-            "promptId": [
-                172
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserStddevFields": {
-            "promptId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserStddevOrderBy": {
-            "promptId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserStddevPopFields": {
-            "promptId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserStddevPopOrderBy": {
-            "promptId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserStddevSampFields": {
-            "promptId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserStddevSampOrderBy": {
-            "promptId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserStreamCursorInput": {
-            "initialValue": [
-                490
-            ],
-            "ordering": [
-                170
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserStreamCursorValueInput": {
-            "promptId": [
-                172
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserSumFields": {
-            "promptId": [
-                172
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserSumOrderBy": {
-            "promptId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserUpdateColumn": {},
-        "PromptUserUpdates": {
-            "_inc": [
-                471
-            ],
-            "_set": [
-                482
-            ],
-            "where": [
-                469
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserVarPopFields": {
-            "promptId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserVarPopOrderBy": {
-            "promptId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserVarSampFields": {
-            "promptId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserVarSampOrderBy": {
-            "promptId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserVarianceFields": {
-            "promptId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptUserVarianceOrderBy": {
-            "promptId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "PromptVarPopFields": {
-            "promptId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "PromptVarPopOrderBy": {
             "promptId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "PromptVarSampFields": {
-            "promptId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "PromptVarSampOrderBy": {
             "promptId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "PromptVarianceFields": {
-            "promptId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "PromptVarianceOrderBy": {
             "promptId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "Referral": {
-            "referralCode": [
-                530
-            ],
-            "referrerId": [
-                693
-            ],
-            "user": [
-                633
-            ],
-            "userByUserId": [
-                633
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ReferralAggregate": {
-            "aggregate": [
-                510
-            ],
-            "nodes": [
-                507
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ReferralAggregateBoolExp": {
-            "count": [
-                687
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ReferralAggregateFields": {
-            "count": [
-                172,
-                {
-                    "columns": [
-                        524,
-                        "[ReferralSelectColumn!]"
-                    ],
-                    "distinct": [
-                        0
-                    ]
-                }
-            ],
-            "max": [
-                516
-            ],
-            "min": [
-                518
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ReferralAggregateOrderBy": {
-            "count": [
-                324
-            ],
-            "max": [
-                517
-            ],
-            "min": [
-                519
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ReferralArrRelInsertInput": {
-            "data": [
-                515
-            ],
-            "onConflict": [
-                521
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ReferralBoolExp": {
-            "_and": [
-                513
-            ],
-            "_not": [
-                513
-            ],
-            "_or": [
-                513
-            ],
-            "referralCode": [
-                531
-            ],
-            "referrerId": [
-                675
-            ],
-            "user": [
-                636
-            ],
-            "userByUserId": [
-                636
-            ],
-            "userId": [
-                675
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ReferralConstraint": {},
-        "ReferralInsertInput": {
-            "referralCode": [
-                530
-            ],
-            "referrerId": [
-                693
-            ],
-            "user": [
-                642
-            ],
-            "userByUserId": [
-                642
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ReferralMaxFields": {
-            "referralCode": [
-                530
-            ],
-            "referrerId": [
-                693
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ReferralMaxOrderBy": {
-            "referralCode": [
-                324
-            ],
-            "referrerId": [
-                324
-            ],
-            "userId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ReferralMinFields": {
-            "referralCode": [
-                530
-            ],
-            "referrerId": [
-                693
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ReferralMinOrderBy": {
-            "referralCode": [
-                324
-            ],
-            "referrerId": [
-                324
-            ],
-            "userId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ReferralMutationResponse": {
-            "affectedRows": [
-                172
-            ],
-            "returning": [
-                507
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ReferralOnConflict": {
-            "constraint": [
-                514
-            ],
-            "updateColumns": [
-                528
-            ],
-            "where": [
-                513
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ReferralOrderBy": {
-            "referralCode": [
-                324
-            ],
-            "referrerId": [
-                324
-            ],
-            "user": [
-                644
-            ],
-            "userByUserId": [
-                644
-            ],
-            "userId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ReferralPkColumnsInput": {
-            "referralCode": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ReferralSelectColumn": {},
-        "ReferralSetInput": {
-            "referralCode": [
-                530
-            ],
-            "referrerId": [
-                693
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ReferralStreamCursorInput": {
-            "initialValue": [
-                527
-            ],
-            "ordering": [
-                170
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ReferralStreamCursorValueInput": {
-            "referralCode": [
-                530
-            ],
-            "referrerId": [
-                693
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ReferralUpdateColumn": {},
-        "ReferralUpdates": {
-            "_set": [
-                525
-            ],
-            "where": [
-                513
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "String": {},
         "StringComparisonExp": {
             "_eq": [
-                530
+                188
             ],
             "_gt": [
-                530
+                188
             ],
             "_gte": [
-                530
+                188
             ],
             "_ilike": [
-                530
+                188
             ],
             "_in": [
-                530
+                188
             ],
             "_iregex": [
-                530
+                188
             ],
             "_isNull": [
                 0
             ],
             "_like": [
-                530
+                188
             ],
             "_lt": [
-                530
+                188
             ],
             "_lte": [
-                530
+                188
             ],
             "_neq": [
-                530
+                188
             ],
             "_nilike": [
-                530
+                188
             ],
             "_nin": [
-                530
+                188
             ],
             "_niregex": [
-                530
+                188
             ],
             "_nlike": [
-                530
+                188
             ],
             "_nregex": [
-                530
+                188
             ],
             "_nsimilar": [
-                530
+                188
             ],
             "_regex": [
-                530
+                188
             ],
             "_similar": [
-                530
+                188
             ],
             "__typename": [
-                530
+                188
+            ]
+        },
+        "SubcategoryEnum": {
+            "added": [
+                256
+            ],
+            "category": [
+                188
+            ],
+            "category_enum": [
+                4
+            ],
+            "domain": [
+                188
+            ],
+            "examples": [
+                81,
+                {
+                    "distinctOn": [
+                        87,
+                        "[ExampleSelectColumn!]"
+                    ],
+                    "limit": [
+                        90
+                    ],
+                    "offset": [
+                        90
+                    ],
+                    "orderBy": [
+                        86,
+                        "[ExampleOrderBy!]"
+                    ],
+                    "where": [
+                        83
+                    ]
+                }
+            ],
+            "name": [
+                188
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "SubcategoryEnumAggregateOrderBy": {
+            "count": [
+                147
+            ],
+            "max": [
+                193
+            ],
+            "min": [
+                194
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "SubcategoryEnumBoolExp": {
+            "_and": [
+                192
+            ],
+            "_not": [
+                192
+            ],
+            "_or": [
+                192
+            ],
+            "added": [
+                233
+            ],
+            "category": [
+                189
+            ],
+            "category_enum": [
+                6
+            ],
+            "domain": [
+                189
+            ],
+            "examples": [
+                83
+            ],
+            "name": [
+                189
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "SubcategoryEnumMaxOrderBy": {
+            "added": [
+                147
+            ],
+            "category": [
+                147
+            ],
+            "domain": [
+                147
+            ],
+            "name": [
+                147
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "SubcategoryEnumMinOrderBy": {
+            "added": [
+                147
+            ],
+            "category": [
+                147
+            ],
+            "domain": [
+                147
+            ],
+            "name": [
+                147
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "SubcategoryEnumOrderBy": {
+            "added": [
+                147
+            ],
+            "category": [
+                147
+            ],
+            "category_enum": [
+                9
+            ],
+            "domain": [
+                147
+            ],
+            "examplesAggregate": [
+                82
+            ],
+            "name": [
+                147
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "SubcategoryEnumSelectColumn": {},
+        "SubcategoryEnumStreamCursorInput": {
+            "initialValue": [
+                198
+            ],
+            "ordering": [
+                74
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "SubcategoryEnumStreamCursorValueInput": {
+            "added": [
+                256
+            ],
+            "category": [
+                188
+            ],
+            "domain": [
+                188
+            ],
+            "name": [
+                188
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "TagEnum": {
+            "domain": [
+                188
+            ],
+            "domain_enum": [
+                75
+            ],
+            "frequency": [
+                255
+            ],
+            "name": [
+                188
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "TagEnumAggregateOrderBy": {
+            "avg": [
+                201
+            ],
+            "count": [
+                147
+            ],
+            "max": [
+                203
+            ],
+            "min": [
+                204
+            ],
+            "stddev": [
+                207
+            ],
+            "stddevPop": [
+                208
+            ],
+            "stddevSamp": [
+                209
+            ],
+            "sum": [
+                212
+            ],
+            "varPop": [
+                213
+            ],
+            "varSamp": [
+                214
+            ],
+            "variance": [
+                215
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "TagEnumAvgOrderBy": {
+            "frequency": [
+                147
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "TagEnumBoolExp": {
+            "_and": [
+                202
+            ],
+            "_not": [
+                202
+            ],
+            "_or": [
+                202
+            ],
+            "domain": [
+                189
+            ],
+            "domain_enum": [
+                76
+            ],
+            "frequency": [
+                146
+            ],
+            "name": [
+                189
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "TagEnumMaxOrderBy": {
+            "domain": [
+                147
+            ],
+            "frequency": [
+                147
+            ],
+            "name": [
+                147
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "TagEnumMinOrderBy": {
+            "domain": [
+                147
+            ],
+            "frequency": [
+                147
+            ],
+            "name": [
+                147
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "TagEnumOrderBy": {
+            "domain": [
+                147
+            ],
+            "domain_enum": [
+                77
+            ],
+            "frequency": [
+                147
+            ],
+            "name": [
+                147
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "TagEnumSelectColumn": {},
+        "TagEnumStddevOrderBy": {
+            "frequency": [
+                147
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "TagEnumStddevPopOrderBy": {
+            "frequency": [
+                147
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "TagEnumStddevSampOrderBy": {
+            "frequency": [
+                147
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "TagEnumStreamCursorInput": {
+            "initialValue": [
+                211
+            ],
+            "ordering": [
+                74
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "TagEnumStreamCursorValueInput": {
+            "domain": [
+                188
+            ],
+            "frequency": [
+                255
+            ],
+            "name": [
+                188
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "TagEnumSumOrderBy": {
+            "frequency": [
+                147
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "TagEnumVarPopOrderBy": {
+            "frequency": [
+                147
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "TagEnumVarSampOrderBy": {
+            "frequency": [
+                147
+            ],
+            "__typename": [
+                188
+            ]
+        },
+        "TagEnumVarianceOrderBy": {
+            "frequency": [
+                147
+            ],
+            "__typename": [
+                188
             ]
         },
         "Thread": {
             "chatbot": [
-                70
+                34
             ],
             "chatbotId": [
-                172
+                90
             ],
             "createdAt": [
-                691
+                256
             ],
             "isApproved": [
-                0
-            ],
-            "isBlocked": [
                 0
             ],
             "isPublic": [
                 0
             ],
             "messages": [
-                261,
+                123,
                 {
                     "distinctOn": [
-                        278,
+                        129,
                         "[MessageSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        276,
+                        128,
                         "[MessageOrderBy!]"
                     ],
                     "where": [
-                        267
-                    ]
-                }
-            ],
-            "messagesAggregate": [
-                262,
-                {
-                    "distinctOn": [
-                        278,
-                        "[MessageSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        276,
-                        "[MessageOrderBy!]"
-                    ],
-                    "where": [
-                        267
+                        125
                     ]
                 }
             ],
             "model": [
-                308
+                140
             ],
             "modelsEnum": [
-                303
+                138
             ],
             "threadId": [
-                693
+                257
             ],
             "updatedAt": [
-                691
+                256
             ],
             "user": [
-                633
+                246
             ],
             "userId": [
-                693
+                257
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ThreadAggregate": {
-            "aggregate": [
-                535
-            ],
-            "nodes": [
-                532
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ThreadAggregateBoolExp": {
-            "bool_and": [
-                688
-            ],
-            "bool_or": [
-                689
-            ],
-            "count": [
-                690
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ThreadAggregateFields": {
-            "avg": [
-                538
-            ],
-            "count": [
-                172,
-                {
-                    "columns": [
-                        553,
-                        "[ThreadSelectColumn!]"
-                    ],
-                    "distinct": [
-                        0
-                    ]
-                }
-            ],
-            "max": [
-                544
-            ],
-            "min": [
-                546
-            ],
-            "stddev": [
-                557
-            ],
-            "stddevPop": [
-                559
-            ],
-            "stddevSamp": [
-                561
-            ],
-            "sum": [
-                565
-            ],
-            "varPop": [
-                569
-            ],
-            "varSamp": [
-                571
-            ],
-            "variance": [
-                573
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ThreadAggregateOrderBy": {
             "avg": [
-                539
+                218
             ],
             "count": [
-                324
+                147
             ],
             "max": [
-                545
+                220
             ],
             "min": [
-                547
+                221
             ],
             "stddev": [
-                558
+                224
             ],
             "stddevPop": [
-                560
+                225
             ],
             "stddevSamp": [
-                562
+                226
             ],
             "sum": [
-                566
+                229
             ],
             "varPop": [
-                570
+                230
             ],
             "varSamp": [
-                572
+                231
             ],
             "variance": [
-                574
+                232
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ThreadArrRelInsertInput": {
-            "data": [
-                543
-            ],
-            "onConflict": [
-                550
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ThreadAvgFields": {
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ThreadAvgOrderBy": {
             "chatbotId": [
-                324
+                147
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "ThreadBoolExp": {
             "_and": [
-                540
+                219
             ],
             "_not": [
-                540
+                219
             ],
             "_or": [
-                540
+                219
             ],
             "chatbot": [
-                78
+                37
             ],
             "chatbotId": [
-                173
+                91
             ],
             "createdAt": [
-                575
+                233
             ],
             "isApproved": [
-                1
-            ],
-            "isBlocked": [
                 1
             ],
             "isPublic": [
                 1
             ],
             "messages": [
-                267
-            ],
-            "messagesAggregate": [
-                263
+                125
             ],
             "model": [
-                309
+                141
             ],
             "modelsEnum": [
-                306
+                139
             ],
             "threadId": [
-                675
+                253
             ],
             "updatedAt": [
-                575
+                233
             ],
             "user": [
-                636
+                247
             ],
             "userId": [
-                675
+                253
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ThreadConstraint": {},
-        "ThreadIncInput": {
-            "chatbotId": [
-                172
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ThreadInsertInput": {
-            "chatbot": [
-                127
-            ],
-            "chatbotId": [
-                172
-            ],
-            "createdAt": [
-                691
-            ],
-            "isApproved": [
-                0
-            ],
-            "isBlocked": [
-                0
-            ],
-            "isPublic": [
-                0
-            ],
-            "messages": [
-                266
-            ],
-            "model": [
-                308
-            ],
-            "modelsEnum": [
-                314
-            ],
-            "threadId": [
-                693
-            ],
-            "updatedAt": [
-                691
-            ],
-            "user": [
-                642
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ThreadMaxFields": {
-            "chatbotId": [
-                172
-            ],
-            "createdAt": [
-                691
-            ],
-            "threadId": [
-                693
-            ],
-            "updatedAt": [
-                691
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ThreadMaxOrderBy": {
             "chatbotId": [
-                324
+                147
             ],
             "createdAt": [
-                324
+                147
             ],
             "threadId": [
-                324
+                147
             ],
             "updatedAt": [
-                324
+                147
             ],
             "userId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ThreadMinFields": {
-            "chatbotId": [
-                172
-            ],
-            "createdAt": [
-                691
-            ],
-            "threadId": [
-                693
-            ],
-            "updatedAt": [
-                691
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ThreadMinOrderBy": {
             "chatbotId": [
-                324
+                147
             ],
             "createdAt": [
-                324
+                147
             ],
             "threadId": [
-                324
+                147
             ],
             "updatedAt": [
-                324
+                147
             ],
             "userId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ThreadMutationResponse": {
-            "affectedRows": [
-                172
-            ],
-            "returning": [
-                532
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ThreadObjRelInsertInput": {
-            "data": [
-                543
-            ],
-            "onConflict": [
-                550
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ThreadOnConflict": {
-            "constraint": [
-                541
-            ],
-            "updateColumns": [
-                567
-            ],
-            "where": [
-                540
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ThreadOrderBy": {
             "chatbot": [
-                129
+                57
             ],
             "chatbotId": [
-                324
+                147
             ],
             "createdAt": [
-                324
+                147
             ],
             "isApproved": [
-                324
-            ],
-            "isBlocked": [
-                324
+                147
             ],
             "isPublic": [
-                324
+                147
             ],
             "messagesAggregate": [
-                265
+                124
             ],
             "model": [
-                324
+                147
             ],
             "modelsEnum": [
-                316
+                142
             ],
             "threadId": [
-                324
+                147
             ],
             "updatedAt": [
-                324
+                147
             ],
             "user": [
-                644
+                248
             ],
             "userId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ThreadPkColumnsInput": {
-            "threadId": [
-                693
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ThreadSelectColumn": {},
-        "ThreadSelectColumnThreadAggregateBoolExpBool_andArgumentsColumns": {},
-        "ThreadSelectColumnThreadAggregateBoolExpBool_orArgumentsColumns": {},
-        "ThreadSetInput": {
-            "chatbotId": [
-                172
-            ],
-            "createdAt": [
-                691
-            ],
-            "isApproved": [
-                0
-            ],
-            "isBlocked": [
-                0
-            ],
-            "isPublic": [
-                0
-            ],
-            "model": [
-                308
-            ],
-            "threadId": [
-                693
-            ],
-            "updatedAt": [
-                691
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ThreadStddevFields": {
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
-            ]
-        },
         "ThreadStddevOrderBy": {
             "chatbotId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ThreadStddevPopFields": {
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ThreadStddevPopOrderBy": {
             "chatbotId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ThreadStddevSampFields": {
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ThreadStddevSampOrderBy": {
             "chatbotId": [
-                324
+                147
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "ThreadStreamCursorInput": {
             "initialValue": [
-                564
+                228
             ],
             "ordering": [
-                170
+                74
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "ThreadStreamCursorValueInput": {
             "chatbotId": [
-                172
+                90
             ],
             "createdAt": [
-                691
+                256
             ],
             "isApproved": [
-                0
-            ],
-            "isBlocked": [
                 0
             ],
             "isPublic": [
                 0
             ],
             "model": [
-                308
+                140
             ],
             "threadId": [
-                693
+                257
             ],
             "updatedAt": [
-                691
+                256
             ],
             "userId": [
-                693
+                257
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ThreadSumFields": {
-            "chatbotId": [
-                172
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ThreadSumOrderBy": {
             "chatbotId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ThreadUpdateColumn": {},
-        "ThreadUpdates": {
-            "_inc": [
-                542
-            ],
-            "_set": [
-                556
-            ],
-            "where": [
-                540
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ThreadVarPopFields": {
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ThreadVarPopOrderBy": {
             "chatbotId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ThreadVarSampFields": {
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ThreadVarSampOrderBy": {
             "chatbotId": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ThreadVarianceFields": {
-            "chatbotId": [
-                171
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ThreadVarianceOrderBy": {
             "chatbotId": [
-                324
+                147
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "TimestamptzComparisonExp": {
             "_eq": [
-                691
+                256
             ],
             "_gt": [
-                691
+                256
             ],
             "_gte": [
-                691
+                256
             ],
             "_in": [
-                691
+                256
             ],
             "_isNull": [
                 0
             ],
             "_lt": [
-                691
+                256
             ],
             "_lte": [
-                691
+                256
             ],
             "_neq": [
-                691
+                256
             ],
             "_nin": [
-                691
+                256
             ],
             "__typename": [
-                530
-            ]
-        },
-        "Token": {
-            "token": [
-                530
-            ],
-            "tokenExpiry": [
-                691
-            ],
-            "userTokens": [
-                650,
-                {
-                    "distinctOn": [
-                        667,
-                        "[UserTokenSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        665,
-                        "[UserTokenOrderBy!]"
-                    ],
-                    "where": [
-                        656
-                    ]
-                }
-            ],
-            "userTokensAggregate": [
-                651,
-                {
-                    "distinctOn": [
-                        667,
-                        "[UserTokenSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        665,
-                        "[UserTokenOrderBy!]"
-                    ],
-                    "where": [
-                        656
-                    ]
-                }
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "TokenAggregate": {
-            "aggregate": [
-                578
-            ],
-            "nodes": [
-                576
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "TokenAggregateFields": {
-            "count": [
-                172,
-                {
-                    "columns": [
-                        589,
-                        "[TokenSelectColumn!]"
-                    ],
-                    "distinct": [
-                        0
-                    ]
-                }
-            ],
-            "max": [
-                582
-            ],
-            "min": [
-                583
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "TokenBoolExp": {
-            "_and": [
-                579
-            ],
-            "_not": [
-                579
-            ],
-            "_or": [
-                579
-            ],
-            "token": [
-                531
-            ],
-            "tokenExpiry": [
-                575
-            ],
-            "userTokens": [
-                656
-            ],
-            "userTokensAggregate": [
-                652
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "TokenConstraint": {},
-        "TokenInsertInput": {
-            "token": [
-                530
-            ],
-            "tokenExpiry": [
-                691
-            ],
-            "userTokens": [
-                655
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "TokenMaxFields": {
-            "token": [
-                530
-            ],
-            "tokenExpiry": [
-                691
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "TokenMinFields": {
-            "token": [
-                530
-            ],
-            "tokenExpiry": [
-                691
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "TokenMutationResponse": {
-            "affectedRows": [
-                172
-            ],
-            "returning": [
-                576
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "TokenObjRelInsertInput": {
-            "data": [
-                581
-            ],
-            "onConflict": [
-                586
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "TokenOnConflict": {
-            "constraint": [
-                580
-            ],
-            "updateColumns": [
-                593
-            ],
-            "where": [
-                579
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "TokenOrderBy": {
-            "token": [
-                324
-            ],
-            "tokenExpiry": [
-                324
-            ],
-            "userTokensAggregate": [
-                654
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "TokenPkColumnsInput": {
-            "token": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "TokenSelectColumn": {},
-        "TokenSetInput": {
-            "token": [
-                530
-            ],
-            "tokenExpiry": [
-                691
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "TokenStreamCursorInput": {
-            "initialValue": [
-                592
-            ],
-            "ordering": [
-                170
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "TokenStreamCursorValueInput": {
-            "token": [
-                530
-            ],
-            "tokenExpiry": [
-                691
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "TokenUpdateColumn": {},
-        "TokenUpdates": {
-            "_set": [
-                590
-            ],
-            "where": [
-                579
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ToneEnum": {
             "chatbots": [
-                70,
+                34,
                 {
                     "distinctOn": [
-                        131,
+                        58,
                         "[ChatbotSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        129,
+                        57,
                         "[ChatbotOrderBy!]"
                     ],
                     "where": [
-                        78
-                    ]
-                }
-            ],
-            "chatbotsAggregate": [
-                71,
-                {
-                    "distinctOn": [
-                        131,
-                        "[ChatbotSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        129,
-                        "[ChatbotOrderBy!]"
-                    ],
-                    "where": [
-                        78
-                    ]
-                }
-            ],
-            "preferences": [
-                325,
-                {
-                    "distinctOn": [
-                        345,
-                        "[PreferenceSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        343,
-                        "[PreferenceOrderBy!]"
-                    ],
-                    "where": [
-                        333
-                    ]
-                }
-            ],
-            "preferencesAggregate": [
-                326,
-                {
-                    "distinctOn": [
-                        345,
-                        "[PreferenceSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        343,
-                        "[PreferenceOrderBy!]"
-                    ],
-                    "where": [
-                        333
+                        37
                     ]
                 }
             ],
             "value": [
-                530
+                188
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ToneEnumAggregate": {
-            "aggregate": [
-                597
-            ],
-            "nodes": [
-                595
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ToneEnumAggregateFields": {
-            "count": [
-                172,
-                {
-                    "columns": [
-                        608,
-                        "[ToneEnumSelectColumn!]"
-                    ],
-                    "distinct": [
-                        0
-                    ]
-                }
-            ],
-            "max": [
-                601
-            ],
-            "min": [
-                602
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ToneEnumBoolExp": {
             "_and": [
-                598
+                235
             ],
             "_not": [
-                598
+                235
             ],
             "_or": [
-                598
+                235
             ],
             "chatbots": [
-                78
-            ],
-            "chatbotsAggregate": [
-                72
-            ],
-            "preferences": [
-                333
-            ],
-            "preferencesAggregate": [
-                327
+                37
             ],
             "value": [
-                531
+                189
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ToneEnumConstraint": {},
-        "ToneEnumInsertInput": {
-            "chatbots": [
-                75
-            ],
-            "preferences": [
-                330
-            ],
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ToneEnumMaxFields": {
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ToneEnumMinFields": {
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ToneEnumMutationResponse": {
-            "affectedRows": [
-                172
-            ],
-            "returning": [
-                595
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ToneEnumObjRelInsertInput": {
-            "data": [
-                600
-            ],
-            "onConflict": [
-                605
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "ToneEnumOnConflict": {
-            "constraint": [
-                599
-            ],
-            "updateColumns": [
-                612
-            ],
-            "where": [
-                598
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ToneEnumOrderBy": {
             "chatbotsAggregate": [
-                74
-            ],
-            "preferencesAggregate": [
-                329
+                35
             ],
             "value": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ToneEnumPkColumnsInput": {
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "ToneEnumSelectColumn": {},
-        "ToneEnumSetInput": {
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
         "ToneEnumStreamCursorInput": {
             "initialValue": [
-                611
+                239
             ],
             "ordering": [
-                170
+                74
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "ToneEnumStreamCursorValueInput": {
             "value": [
-                530
+                188
             ],
             "__typename": [
-                530
-            ]
-        },
-        "ToneEnumUpdateColumn": {},
-        "ToneEnumUpdates": {
-            "_set": [
-                609
-            ],
-            "where": [
-                598
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "TypeEnum": {
             "chatbots": [
-                70,
+                34,
                 {
                     "distinctOn": [
-                        131,
+                        58,
                         "[ChatbotSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        129,
+                        57,
                         "[ChatbotOrderBy!]"
                     ],
                     "where": [
-                        78
-                    ]
-                }
-            ],
-            "chatbotsAggregate": [
-                71,
-                {
-                    "distinctOn": [
-                        131,
-                        "[ChatbotSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        129,
-                        "[ChatbotOrderBy!]"
-                    ],
-                    "where": [
-                        78
-                    ]
-                }
-            ],
-            "preferences": [
-                325,
-                {
-                    "distinctOn": [
-                        345,
-                        "[PreferenceSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        343,
-                        "[PreferenceOrderBy!]"
-                    ],
-                    "where": [
-                        333
-                    ]
-                }
-            ],
-            "preferencesAggregate": [
-                326,
-                {
-                    "distinctOn": [
-                        345,
-                        "[PreferenceSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        343,
-                        "[PreferenceOrderBy!]"
-                    ],
-                    "where": [
-                        333
+                        37
                     ]
                 }
             ],
             "value": [
-                530
+                188
             ],
             "__typename": [
-                530
-            ]
-        },
-        "TypeEnumAggregate": {
-            "aggregate": [
-                616
-            ],
-            "nodes": [
-                614
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "TypeEnumAggregateFields": {
-            "count": [
-                172,
-                {
-                    "columns": [
-                        627,
-                        "[TypeEnumSelectColumn!]"
-                    ],
-                    "distinct": [
-                        0
-                    ]
-                }
-            ],
-            "max": [
-                620
-            ],
-            "min": [
-                621
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "TypeEnumBoolExp": {
             "_and": [
-                617
+                241
             ],
             "_not": [
-                617
+                241
             ],
             "_or": [
-                617
+                241
             ],
             "chatbots": [
-                78
-            ],
-            "chatbotsAggregate": [
-                72
-            ],
-            "preferences": [
-                333
-            ],
-            "preferencesAggregate": [
-                327
+                37
             ],
             "value": [
-                531
+                189
             ],
             "__typename": [
-                530
-            ]
-        },
-        "TypeEnumConstraint": {},
-        "TypeEnumInsertInput": {
-            "chatbots": [
-                75
-            ],
-            "preferences": [
-                330
-            ],
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "TypeEnumMaxFields": {
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "TypeEnumMinFields": {
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "TypeEnumMutationResponse": {
-            "affectedRows": [
-                172
-            ],
-            "returning": [
-                614
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "TypeEnumObjRelInsertInput": {
-            "data": [
-                619
-            ],
-            "onConflict": [
-                624
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "TypeEnumOnConflict": {
-            "constraint": [
-                618
-            ],
-            "updateColumns": [
-                631
-            ],
-            "where": [
-                617
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "TypeEnumOrderBy": {
             "chatbotsAggregate": [
-                74
-            ],
-            "preferencesAggregate": [
-                329
+                35
             ],
             "value": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "TypeEnumPkColumnsInput": {
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "TypeEnumSelectColumn": {},
-        "TypeEnumSetInput": {
-            "value": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
         "TypeEnumStreamCursorInput": {
             "initialValue": [
-                630
+                245
             ],
             "ordering": [
-                170
+                74
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "TypeEnumStreamCursorValueInput": {
             "value": [
-                530
+                188
             ],
             "__typename": [
-                530
-            ]
-        },
-        "TypeEnumUpdateColumn": {},
-        "TypeEnumUpdates": {
-            "_set": [
-                628
-            ],
-            "where": [
-                617
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "User": {
             "chats": [
-                30,
+                17,
                 {
                     "distinctOn": [
-                        50,
+                        24,
                         "[ChatSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        48,
+                        23,
                         "[ChatOrderBy!]"
                     ],
                     "where": [
-                        38
-                    ]
-                }
-            ],
-            "chatsAggregate": [
-                31,
-                {
-                    "distinctOn": [
-                        50,
-                        "[ChatSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        48,
-                        "[ChatOrderBy!]"
-                    ],
-                    "where": [
-                        38
+                        20
                     ]
                 }
             ],
             "dateJoined": [
-                691
+                256
             ],
             "email": [
-                530
-            ],
-            "getFreeMonth": [
-                0
-            ],
-            "isBlocked": [
-                0
-            ],
-            "isVerified": [
-                0
+                188
             ],
             "lastLogin": [
-                691
-            ],
-            "password": [
-                530
-            ],
-            "preferences": [
-                325,
-                {
-                    "distinctOn": [
-                        345,
-                        "[PreferenceSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        343,
-                        "[PreferenceOrderBy!]"
-                    ],
-                    "where": [
-                        333
-                    ]
-                }
-            ],
-            "preferencesAggregate": [
-                326,
-                {
-                    "distinctOn": [
-                        345,
-                        "[PreferenceSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        343,
-                        "[PreferenceOrderBy!]"
-                    ],
-                    "where": [
-                        333
-                    ]
-                }
+                256
             ],
             "proUserSubscriptionId": [
-                530
+                188
             ],
             "profilePicture": [
-                530
-            ],
-            "prompts": [
-                461,
-                {
-                    "distinctOn": [
-                        481,
-                        "[PromptUserSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        479,
-                        "[PromptUserOrderBy!]"
-                    ],
-                    "where": [
-                        469
-                    ]
-                }
-            ],
-            "promptsAggregate": [
-                462,
-                {
-                    "distinctOn": [
-                        481,
-                        "[PromptUserSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        479,
-                        "[PromptUserOrderBy!]"
-                    ],
-                    "where": [
-                        469
-                    ]
-                }
-            ],
-            "referrals": [
-                507,
-                {
-                    "distinctOn": [
-                        524,
-                        "[ReferralSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        522,
-                        "[ReferralOrderBy!]"
-                    ],
-                    "where": [
-                        513
-                    ]
-                }
-            ],
-            "referralsAggregate": [
-                508,
-                {
-                    "distinctOn": [
-                        524,
-                        "[ReferralSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        522,
-                        "[ReferralOrderBy!]"
-                    ],
-                    "where": [
-                        513
-                    ]
-                }
-            ],
-            "referralsByUserId": [
-                507,
-                {
-                    "distinctOn": [
-                        524,
-                        "[ReferralSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        522,
-                        "[ReferralOrderBy!]"
-                    ],
-                    "where": [
-                        513
-                    ]
-                }
-            ],
-            "referralsByUserIdAggregate": [
-                508,
-                {
-                    "distinctOn": [
-                        524,
-                        "[ReferralSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        522,
-                        "[ReferralOrderBy!]"
-                    ],
-                    "where": [
-                        513
-                    ]
-                }
+                188
             ],
             "slug": [
-                530
+                188
             ],
             "threads": [
-                532,
+                216,
                 {
                     "distinctOn": [
-                        553,
+                        223,
                         "[ThreadSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        551,
+                        222,
                         "[ThreadOrderBy!]"
                     ],
                     "where": [
-                        540
-                    ]
-                }
-            ],
-            "threadsAggregate": [
-                533,
-                {
-                    "distinctOn": [
-                        553,
-                        "[ThreadSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        551,
-                        "[ThreadOrderBy!]"
-                    ],
-                    "where": [
-                        540
+                        219
                     ]
                 }
             ],
             "userId": [
-                693
-            ],
-            "userTokens": [
-                650,
-                {
-                    "distinctOn": [
-                        667,
-                        "[UserTokenSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        665,
-                        "[UserTokenOrderBy!]"
-                    ],
-                    "where": [
-                        656
-                    ]
-                }
-            ],
-            "userTokensAggregate": [
-                651,
-                {
-                    "distinctOn": [
-                        667,
-                        "[UserTokenSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        665,
-                        "[UserTokenOrderBy!]"
-                    ],
-                    "where": [
-                        656
-                    ]
-                }
+                257
             ],
             "username": [
-                530
+                188
             ],
             "__typename": [
-                530
-            ]
-        },
-        "UserAggregate": {
-            "aggregate": [
-                635
-            ],
-            "nodes": [
-                633
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "UserAggregateFields": {
-            "count": [
-                172,
-                {
-                    "columns": [
-                        646,
-                        "[UserSelectColumn!]"
-                    ],
-                    "distinct": [
-                        0
-                    ]
-                }
-            ],
-            "max": [
-                639
-            ],
-            "min": [
-                640
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "UserBoolExp": {
             "_and": [
-                636
+                247
             ],
             "_not": [
-                636
+                247
             ],
             "_or": [
-                636
+                247
             ],
             "chats": [
-                38
-            ],
-            "chatsAggregate": [
-                32
+                20
             ],
             "dateJoined": [
-                575
+                233
             ],
             "email": [
-                531
-            ],
-            "getFreeMonth": [
-                1
-            ],
-            "isBlocked": [
-                1
-            ],
-            "isVerified": [
-                1
+                189
             ],
             "lastLogin": [
-                575
-            ],
-            "password": [
-                531
-            ],
-            "preferences": [
-                333
-            ],
-            "preferencesAggregate": [
-                327
+                233
             ],
             "proUserSubscriptionId": [
-                531
+                189
             ],
             "profilePicture": [
-                531
-            ],
-            "prompts": [
-                469
-            ],
-            "promptsAggregate": [
-                463
-            ],
-            "referrals": [
-                513
-            ],
-            "referralsAggregate": [
-                509
-            ],
-            "referralsByUserId": [
-                513
-            ],
-            "referralsByUserIdAggregate": [
-                509
+                189
             ],
             "slug": [
-                531
+                189
             ],
             "threads": [
-                540
-            ],
-            "threadsAggregate": [
-                534
+                219
             ],
             "userId": [
-                675
-            ],
-            "userTokens": [
-                656
-            ],
-            "userTokensAggregate": [
-                652
+                253
             ],
             "username": [
-                531
+                189
             ],
             "__typename": [
-                530
-            ]
-        },
-        "UserConstraint": {},
-        "UserInsertInput": {
-            "chats": [
-                35
-            ],
-            "dateJoined": [
-                691
-            ],
-            "email": [
-                530
-            ],
-            "getFreeMonth": [
-                0
-            ],
-            "isBlocked": [
-                0
-            ],
-            "isVerified": [
-                0
-            ],
-            "lastLogin": [
-                691
-            ],
-            "password": [
-                530
-            ],
-            "preferences": [
-                330
-            ],
-            "proUserSubscriptionId": [
-                530
-            ],
-            "profilePicture": [
-                530
-            ],
-            "prompts": [
-                466
-            ],
-            "referrals": [
-                512
-            ],
-            "referralsByUserId": [
-                512
-            ],
-            "slug": [
-                530
-            ],
-            "threads": [
-                537
-            ],
-            "userId": [
-                693
-            ],
-            "userTokens": [
-                655
-            ],
-            "username": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "UserMaxFields": {
-            "dateJoined": [
-                691
-            ],
-            "email": [
-                530
-            ],
-            "lastLogin": [
-                691
-            ],
-            "password": [
-                530
-            ],
-            "proUserSubscriptionId": [
-                530
-            ],
-            "profilePicture": [
-                530
-            ],
-            "slug": [
-                530
-            ],
-            "userId": [
-                693
-            ],
-            "username": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "UserMinFields": {
-            "dateJoined": [
-                691
-            ],
-            "email": [
-                530
-            ],
-            "lastLogin": [
-                691
-            ],
-            "password": [
-                530
-            ],
-            "proUserSubscriptionId": [
-                530
-            ],
-            "profilePicture": [
-                530
-            ],
-            "slug": [
-                530
-            ],
-            "userId": [
-                693
-            ],
-            "username": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "UserMutationResponse": {
-            "affectedRows": [
-                172
-            ],
-            "returning": [
-                633
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "UserObjRelInsertInput": {
-            "data": [
-                638
-            ],
-            "onConflict": [
-                643
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "UserOnConflict": {
-            "constraint": [
-                637
-            ],
-            "updateColumns": [
-                673
-            ],
-            "where": [
-                636
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "UserOrderBy": {
             "chatsAggregate": [
-                34
+                18
             ],
             "dateJoined": [
-                324
+                147
             ],
             "email": [
-                324
-            ],
-            "getFreeMonth": [
-                324
-            ],
-            "isBlocked": [
-                324
-            ],
-            "isVerified": [
-                324
+                147
             ],
             "lastLogin": [
-                324
-            ],
-            "password": [
-                324
-            ],
-            "preferencesAggregate": [
-                329
+                147
             ],
             "proUserSubscriptionId": [
-                324
+                147
             ],
             "profilePicture": [
-                324
-            ],
-            "promptsAggregate": [
-                465
-            ],
-            "referralsAggregate": [
-                511
-            ],
-            "referralsByUserIdAggregate": [
-                511
+                147
             ],
             "slug": [
-                324
+                147
             ],
             "threadsAggregate": [
-                536
+                217
             ],
             "userId": [
-                324
-            ],
-            "userTokensAggregate": [
-                654
+                147
             ],
             "username": [
-                324
+                147
             ],
             "__typename": [
-                530
-            ]
-        },
-        "UserPkColumnsInput": {
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "UserSelectColumn": {},
-        "UserSetInput": {
-            "dateJoined": [
-                691
-            ],
-            "email": [
-                530
-            ],
-            "getFreeMonth": [
-                0
-            ],
-            "isBlocked": [
-                0
-            ],
-            "isVerified": [
-                0
-            ],
-            "lastLogin": [
-                691
-            ],
-            "password": [
-                530
-            ],
-            "proUserSubscriptionId": [
-                530
-            ],
-            "profilePicture": [
-                530
-            ],
-            "slug": [
-                530
-            ],
-            "userId": [
-                693
-            ],
-            "username": [
-                530
-            ],
-            "__typename": [
-                530
-            ]
-        },
         "UserStreamCursorInput": {
             "initialValue": [
-                649
+                251
             ],
             "ordering": [
-                170
+                74
             ],
             "__typename": [
-                530
+                188
             ]
         },
         "UserStreamCursorValueInput": {
             "dateJoined": [
-                691
+                256
             ],
             "email": [
-                530
-            ],
-            "getFreeMonth": [
-                0
-            ],
-            "isBlocked": [
-                0
-            ],
-            "isVerified": [
-                0
+                188
             ],
             "lastLogin": [
-                691
-            ],
-            "password": [
-                530
+                256
             ],
             "proUserSubscriptionId": [
-                530
+                188
             ],
             "profilePicture": [
-                530
+                188
             ],
             "slug": [
-                530
+                188
             ],
             "userId": [
-                693
+                257
             ],
             "username": [
-                530
+                188
             ],
             "__typename": [
-                530
+                188
             ]
         },
-        "UserToken": {
-            "token": [
-                530
+        "UuidArrayComparisonExp": {
+            "_containedIn": [
+                257
             ],
-            "tokenByToken": [
-                576
+            "_contains": [
+                257
             ],
-            "user": [
-                633
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "UserTokenAggregate": {
-            "aggregate": [
-                653
-            ],
-            "nodes": [
-                650
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "UserTokenAggregateBoolExp": {
-            "count": [
-                692
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "UserTokenAggregateFields": {
-            "count": [
-                172,
-                {
-                    "columns": [
-                        667,
-                        "[UserTokenSelectColumn!]"
-                    ],
-                    "distinct": [
-                        0
-                    ]
-                }
-            ],
-            "max": [
-                659
-            ],
-            "min": [
-                661
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "UserTokenAggregateOrderBy": {
-            "count": [
-                324
-            ],
-            "max": [
-                660
-            ],
-            "min": [
-                662
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "UserTokenArrRelInsertInput": {
-            "data": [
-                658
-            ],
-            "onConflict": [
-                664
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "UserTokenBoolExp": {
-            "_and": [
-                656
-            ],
-            "_not": [
-                656
-            ],
-            "_or": [
-                656
-            ],
-            "token": [
-                531
-            ],
-            "tokenByToken": [
-                579
-            ],
-            "user": [
-                636
-            ],
-            "userId": [
-                675
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "UserTokenConstraint": {},
-        "UserTokenInsertInput": {
-            "token": [
-                530
-            ],
-            "tokenByToken": [
-                585
-            ],
-            "user": [
-                642
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "UserTokenMaxFields": {
-            "token": [
-                530
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "UserTokenMaxOrderBy": {
-            "token": [
-                324
-            ],
-            "userId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "UserTokenMinFields": {
-            "token": [
-                530
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "UserTokenMinOrderBy": {
-            "token": [
-                324
-            ],
-            "userId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "UserTokenMutationResponse": {
-            "affectedRows": [
-                172
-            ],
-            "returning": [
-                650
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "UserTokenOnConflict": {
-            "constraint": [
-                657
-            ],
-            "updateColumns": [
-                671
-            ],
-            "where": [
-                656
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "UserTokenOrderBy": {
-            "token": [
-                324
-            ],
-            "tokenByToken": [
-                587
-            ],
-            "user": [
-                644
-            ],
-            "userId": [
-                324
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "UserTokenPkColumnsInput": {
-            "token": [
-                530
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "UserTokenSelectColumn": {},
-        "UserTokenSetInput": {
-            "token": [
-                530
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "UserTokenStreamCursorInput": {
-            "initialValue": [
-                670
-            ],
-            "ordering": [
-                170
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "UserTokenStreamCursorValueInput": {
-            "token": [
-                530
-            ],
-            "userId": [
-                693
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "UserTokenUpdateColumn": {},
-        "UserTokenUpdates": {
-            "_set": [
-                668
-            ],
-            "where": [
-                656
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "UserUpdateColumn": {},
-        "UserUpdates": {
-            "_set": [
-                647
-            ],
-            "where": [
-                636
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "UuidComparisonExp": {
             "_eq": [
-                693
+                257
             ],
             "_gt": [
-                693
+                257
             ],
             "_gte": [
-                693
+                257
             ],
             "_in": [
-                693
+                257
             ],
             "_isNull": [
                 0
             ],
             "_lt": [
-                693
+                257
             ],
             "_lte": [
-                693
+                257
             ],
             "_neq": [
-                693
+                257
             ],
             "_nin": [
-                693
+                257
             ],
             "__typename": [
-                530
+                188
             ]
         },
-        "chatAggregateBoolExpCount": {
-            "arguments": [
-                50
+        "UuidComparisonExp": {
+            "_eq": [
+                257
             ],
-            "distinct": [
+            "_gt": [
+                257
+            ],
+            "_gte": [
+                257
+            ],
+            "_in": [
+                257
+            ],
+            "_isNull": [
                 0
             ],
-            "filter": [
-                38
+            "_lt": [
+                257
             ],
-            "predicate": [
-                173
+            "_lte": [
+                257
             ],
-            "__typename": [
-                530
-            ]
-        },
-        "chatbotAggregateBoolExpCount": {
-            "arguments": [
-                131
+            "_neq": [
+                257
             ],
-            "distinct": [
-                0
-            ],
-            "filter": [
-                78
-            ],
-            "predicate": [
-                173
+            "_nin": [
+                257
             ],
             "__typename": [
-                530
+                188
             ]
         },
-        "chatbotCategoryAggregateBoolExpCount": {
-            "arguments": [
-                99
-            ],
-            "distinct": [
-                0
-            ],
-            "filter": [
-                87
-            ],
-            "predicate": [
-                173
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "labelChatbotCategoryAggregateBoolExpCount": {
-            "arguments": [
-                199
-            ],
-            "distinct": [
-                0
-            ],
-            "filter": [
-                187
-            ],
-            "predicate": [
-                173
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "messageAggregateBoolExpCount": {
-            "arguments": [
-                278
-            ],
-            "distinct": [
-                0
-            ],
-            "filter": [
-                267
-            ],
-            "predicate": [
-                173
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "preferenceAggregateBoolExpBool_and": {
-            "arguments": [
-                346
-            ],
-            "distinct": [
-                0
-            ],
-            "filter": [
-                333
-            ],
-            "predicate": [
-                1
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "preferenceAggregateBoolExpBool_or": {
-            "arguments": [
-                347
-            ],
-            "distinct": [
-                0
-            ],
-            "filter": [
-                333
-            ],
-            "predicate": [
-                1
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "preferenceAggregateBoolExpCount": {
-            "arguments": [
-                345
-            ],
-            "distinct": [
-                0
-            ],
-            "filter": [
-                333
-            ],
-            "predicate": [
-                173
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "promptAggregateBoolExpCount": {
-            "arguments": [
-                428
-            ],
-            "distinct": [
-                0
-            ],
-            "filter": [
-                375
-            ],
-            "predicate": [
-                173
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "promptChatbotAggregateBoolExpCount": {
-            "arguments": [
-                396
-            ],
-            "distinct": [
-                0
-            ],
-            "filter": [
-                384
-            ],
-            "predicate": [
-                173
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "promptUserAggregateBoolExpCount": {
-            "arguments": [
-                481
-            ],
-            "distinct": [
-                0
-            ],
-            "filter": [
-                469
-            ],
-            "predicate": [
-                173
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "referralAggregateBoolExpCount": {
-            "arguments": [
-                524
-            ],
-            "distinct": [
-                0
-            ],
-            "filter": [
-                513
-            ],
-            "predicate": [
-                173
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "threadAggregateBoolExpBool_and": {
-            "arguments": [
-                554
-            ],
-            "distinct": [
-                0
-            ],
-            "filter": [
-                540
-            ],
-            "predicate": [
-                1
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "threadAggregateBoolExpBool_or": {
-            "arguments": [
-                555
-            ],
-            "distinct": [
-                0
-            ],
-            "filter": [
-                540
-            ],
-            "predicate": [
-                1
-            ],
-            "__typename": [
-                530
-            ]
-        },
-        "threadAggregateBoolExpCount": {
-            "arguments": [
-                553
-            ],
-            "distinct": [
-                0
-            ],
-            "filter": [
-                540
-            ],
-            "predicate": [
-                173
-            ],
-            "__typename": [
-                530
-            ]
-        },
+        "jsonb": {},
+        "numeric": {},
         "timestamptz": {},
-        "userTokenAggregateBoolExpCount": {
-            "arguments": [
-                667
-            ],
-            "distinct": [
-                0
-            ],
-            "filter": [
-                656
-            ],
-            "predicate": [
-                173
-            ],
-            "__typename": [
-                530
-            ]
-        },
         "uuid": {},
         "Query": {
             "category": [
                 2,
                 {
                     "distinctOn": [
-                        17,
+                        14,
                         "[CategorySelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        15,
+                        13,
                         "[CategoryOrderBy!]"
                     ],
                     "where": [
-                        6
-                    ]
-                }
-            ],
-            "categoryAggregate": [
-                3,
-                {
-                    "distinctOn": [
-                        17,
-                        "[CategorySelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        15,
-                        "[CategoryOrderBy!]"
-                    ],
-                    "where": [
-                        6
+                        3
                     ]
                 }
             ],
@@ -11092,3023 +4707,697 @@ export default {
                 2,
                 {
                     "categoryId": [
-                        172,
+                        90,
                         "Int!"
                     ]
                 }
             ],
-            "chat": [
-                30,
+            "categoryEnum": [
+                4,
                 {
                     "distinctOn": [
-                        50,
-                        "[ChatSelectColumn!]"
+                        10,
+                        "[CategoryEnumSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        48,
-                        "[ChatOrderBy!]"
+                        9,
+                        "[CategoryEnumOrderBy!]"
                     ],
                     "where": [
-                        38
+                        6
                     ]
                 }
             ],
-            "chatAggregate": [
-                31,
+            "categoryEnumByPk": [
+                4,
+                {
+                    "domain": [
+                        188,
+                        "String!"
+                    ],
+                    "name": [
+                        188,
+                        "String!"
+                    ]
+                }
+            ],
+            "chat": [
+                17,
                 {
                     "distinctOn": [
-                        50,
+                        24,
                         "[ChatSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        48,
+                        23,
                         "[ChatOrderBy!]"
                     ],
                     "where": [
-                        38
+                        20
                     ]
                 }
             ],
             "chatByPk": [
-                30,
+                17,
                 {
                     "chatId": [
-                        172,
+                        90,
                         "Int!"
                     ]
                 }
             ],
             "chatbot": [
-                70,
+                34,
                 {
                     "distinctOn": [
-                        131,
+                        58,
                         "[ChatbotSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        129,
+                        57,
                         "[ChatbotOrderBy!]"
                     ],
                     "where": [
-                        78
-                    ]
-                }
-            ],
-            "chatbotAggregate": [
-                71,
-                {
-                    "distinctOn": [
-                        131,
-                        "[ChatbotSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        129,
-                        "[ChatbotOrderBy!]"
-                    ],
-                    "where": [
-                        78
+                        37
                     ]
                 }
             ],
             "chatbotByPk": [
-                70,
+                34,
                 {
                     "chatbotId": [
-                        172,
+                        90,
                         "Int!"
                     ]
                 }
             ],
             "chatbotCategory": [
-                79,
+                38,
                 {
                     "distinctOn": [
-                        99,
+                        45,
                         "[ChatbotCategorySelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        97,
+                        44,
                         "[ChatbotCategoryOrderBy!]"
                     ],
                     "where": [
-                        87
-                    ]
-                }
-            ],
-            "chatbotCategoryAggregate": [
-                80,
-                {
-                    "distinctOn": [
-                        99,
-                        "[ChatbotCategorySelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        97,
-                        "[ChatbotCategoryOrderBy!]"
-                    ],
-                    "where": [
-                        87
+                        41
                     ]
                 }
             ],
             "chatbotCategoryByPk": [
-                79,
+                38,
                 {
                     "categoryId": [
-                        172,
+                        90,
                         "Int!"
                     ],
                     "chatbotId": [
-                        172,
+                        90,
                         "Int!"
                     ]
                 }
             ],
             "complexityEnum": [
-                151,
+                68,
                 {
                     "distinctOn": [
-                        164,
+                        71,
                         "[ComplexityEnumSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        162,
+                        70,
                         "[ComplexityEnumOrderBy!]"
                     ],
                     "where": [
-                        154
-                    ]
-                }
-            ],
-            "complexityEnumAggregate": [
-                152,
-                {
-                    "distinctOn": [
-                        164,
-                        "[ComplexityEnumSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        162,
-                        "[ComplexityEnumOrderBy!]"
-                    ],
-                    "where": [
-                        154
+                        69
                     ]
                 }
             ],
             "complexityEnumByPk": [
-                151,
+                68,
                 {
                     "value": [
-                        530,
+                        188,
                         "String!"
                     ]
                 }
             ],
-            "label": [
-                174,
+            "domainEnum": [
+                75,
                 {
                     "distinctOn": [
-                        229,
-                        "[LabelSelectColumn!]"
+                        78,
+                        "[DomainEnumSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        227,
-                        "[LabelOrderBy!]"
+                        77,
+                        "[DomainEnumOrderBy!]"
                     ],
                     "where": [
-                        178
+                        76
                     ]
                 }
             ],
-            "labelAggregate": [
-                175,
+            "domainEnumByPk": [
+                75,
+                {
+                    "name": [
+                        188,
+                        "String!"
+                    ]
+                }
+            ],
+            "example": [
+                81,
                 {
                     "distinctOn": [
-                        229,
+                        87,
+                        "[ExampleSelectColumn!]"
+                    ],
+                    "limit": [
+                        90
+                    ],
+                    "offset": [
+                        90
+                    ],
+                    "orderBy": [
+                        86,
+                        "[ExampleOrderBy!]"
+                    ],
+                    "where": [
+                        83
+                    ]
+                }
+            ],
+            "exampleByPk": [
+                81,
+                {
+                    "exampleId": [
+                        257,
+                        "uuid!"
+                    ]
+                }
+            ],
+            "label": [
+                94,
+                {
+                    "distinctOn": [
+                        114,
                         "[LabelSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        227,
+                        113,
                         "[LabelOrderBy!]"
                     ],
                     "where": [
-                        178
+                        95
                     ]
                 }
             ],
             "labelByPk": [
-                174,
+                94,
                 {
                     "labelId": [
-                        172,
+                        90,
                         "Int!"
                     ]
                 }
             ],
-            "labelChatbotCategory": [
-                179,
+            "labelChatbotCategoryDomain": [
+                96,
                 {
                     "distinctOn": [
-                        199,
-                        "[LabelChatbotCategorySelectColumn!]"
+                        103,
+                        "[LabelChatbotCategoryDomainSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        197,
-                        "[LabelChatbotCategoryOrderBy!]"
+                        102,
+                        "[LabelChatbotCategoryDomainOrderBy!]"
                     ],
                     "where": [
-                        187
-                    ]
-                }
-            ],
-            "labelChatbotCategoryAggregate": [
-                180,
-                {
-                    "distinctOn": [
-                        199,
-                        "[LabelChatbotCategorySelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        197,
-                        "[LabelChatbotCategoryOrderBy!]"
-                    ],
-                    "where": [
-                        187
-                    ]
-                }
-            ],
-            "labelChatbotCategoryByPk": [
-                179,
-                {
-                    "categoryId": [
-                        172,
-                        "Int!"
-                    ],
-                    "chatbotId": [
-                        172,
-                        "Int!"
-                    ],
-                    "labelId": [
-                        172,
-                        "Int!"
+                        99
                     ]
                 }
             ],
             "lengthEnum": [
-                242,
+                117,
                 {
                     "distinctOn": [
-                        255,
+                        120,
                         "[LengthEnumSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        253,
+                        119,
                         "[LengthEnumOrderBy!]"
                     ],
                     "where": [
-                        245
-                    ]
-                }
-            ],
-            "lengthEnumAggregate": [
-                243,
-                {
-                    "distinctOn": [
-                        255,
-                        "[LengthEnumSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        253,
-                        "[LengthEnumOrderBy!]"
-                    ],
-                    "where": [
-                        245
+                        118
                     ]
                 }
             ],
             "lengthEnumByPk": [
-                242,
+                117,
                 {
                     "value": [
-                        530,
+                        188,
                         "String!"
                     ]
                 }
             ],
             "message": [
-                261,
+                123,
                 {
                     "distinctOn": [
-                        278,
+                        129,
                         "[MessageSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        276,
+                        128,
                         "[MessageOrderBy!]"
                     ],
                     "where": [
-                        267
-                    ]
-                }
-            ],
-            "messageAggregate": [
-                262,
-                {
-                    "distinctOn": [
-                        278,
-                        "[MessageSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        276,
-                        "[MessageOrderBy!]"
-                    ],
-                    "where": [
-                        267
+                        125
                     ]
                 }
             ],
             "messageByPk": [
-                261,
+                123,
                 {
                     "messageId": [
-                        693,
+                        257,
                         "uuid!"
                     ]
                 }
             ],
             "messageTypeEnum": [
-                282,
+                132,
                 {
                     "distinctOn": [
-                        295,
+                        135,
                         "[MessageTypeEnumSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        293,
+                        134,
                         "[MessageTypeEnumOrderBy!]"
                     ],
                     "where": [
-                        285
-                    ]
-                }
-            ],
-            "messageTypeEnumAggregate": [
-                283,
-                {
-                    "distinctOn": [
-                        295,
-                        "[MessageTypeEnumSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        293,
-                        "[MessageTypeEnumOrderBy!]"
-                    ],
-                    "where": [
-                        285
+                        133
                     ]
                 }
             ],
             "messageTypeEnumByPk": [
-                282,
+                132,
                 {
                     "value": [
-                        530,
+                        188,
                         "String!"
                     ]
                 }
             ],
             "modelsEnum": [
-                303,
+                138,
                 {
                     "distinctOn": [
-                        318,
+                        143,
                         "[ModelsEnumSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        316,
+                        142,
                         "[ModelsEnumOrderBy!]"
                     ],
                     "where": [
-                        306
-                    ]
-                }
-            ],
-            "modelsEnumAggregate": [
-                304,
-                {
-                    "distinctOn": [
-                        318,
-                        "[ModelsEnumSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        316,
-                        "[ModelsEnumOrderBy!]"
-                    ],
-                    "where": [
-                        306
+                        139
                     ]
                 }
             ],
             "modelsEnumByPk": [
-                303,
+                138,
                 {
                     "name": [
-                        530,
+                        188,
                         "String!"
                     ]
                 }
             ],
-            "preference": [
-                325,
-                {
-                    "distinctOn": [
-                        345,
-                        "[PreferenceSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        343,
-                        "[PreferenceOrderBy!]"
-                    ],
-                    "where": [
-                        333
-                    ]
-                }
-            ],
-            "preferenceAggregate": [
-                326,
-                {
-                    "distinctOn": [
-                        345,
-                        "[PreferenceSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        343,
-                        "[PreferenceOrderBy!]"
-                    ],
-                    "where": [
-                        333
-                    ]
-                }
-            ],
-            "preferenceByPk": [
-                325,
-                {
-                    "preferenceId": [
-                        172,
-                        "Int!"
-                    ]
-                }
-            ],
             "prompt": [
-                367,
+                148,
                 {
                     "distinctOn": [
-                        428,
+                        172,
                         "[PromptSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        426,
+                        171,
                         "[PromptOrderBy!]"
                     ],
                     "where": [
-                        375
-                    ]
-                }
-            ],
-            "promptAggregate": [
-                368,
-                {
-                    "distinctOn": [
-                        428,
-                        "[PromptSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        426,
-                        "[PromptOrderBy!]"
-                    ],
-                    "where": [
-                        375
+                        151
                     ]
                 }
             ],
             "promptByPk": [
-                367,
+                148,
                 {
                     "promptId": [
-                        172,
+                        90,
                         "Int!"
                     ]
                 }
             ],
             "promptChatbot": [
-                376,
+                152,
                 {
                     "distinctOn": [
-                        396,
+                        159,
                         "[PromptChatbotSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        394,
+                        158,
                         "[PromptChatbotOrderBy!]"
                     ],
                     "where": [
-                        384
-                    ]
-                }
-            ],
-            "promptChatbotAggregate": [
-                377,
-                {
-                    "distinctOn": [
-                        396,
-                        "[PromptChatbotSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        394,
-                        "[PromptChatbotOrderBy!]"
-                    ],
-                    "where": [
-                        384
+                        155
                     ]
                 }
             ],
             "promptChatbotByPk": [
-                376,
+                152,
                 {
                     "chabotId": [
-                        172,
+                        90,
                         "Int!"
                     ],
                     "promptId": [
-                        172,
+                        90,
                         "Int!"
                     ]
                 }
             ],
             "promptTypeEnum": [
-                440,
+                179,
                 {
                     "distinctOn": [
-                        453,
+                        182,
                         "[PromptTypeEnumSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        451,
+                        181,
                         "[PromptTypeEnumOrderBy!]"
                     ],
                     "where": [
-                        443
-                    ]
-                }
-            ],
-            "promptTypeEnumAggregate": [
-                441,
-                {
-                    "distinctOn": [
-                        453,
-                        "[PromptTypeEnumSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        451,
-                        "[PromptTypeEnumOrderBy!]"
-                    ],
-                    "where": [
-                        443
+                        180
                     ]
                 }
             ],
             "promptTypeEnumByPk": [
-                440,
+                179,
                 {
                     "value": [
-                        530,
+                        188,
                         "String!"
                     ]
                 }
             ],
-            "promptUser": [
-                461,
+            "subcategoryEnum": [
+                190,
                 {
                     "distinctOn": [
-                        481,
-                        "[PromptUserSelectColumn!]"
+                        196,
+                        "[SubcategoryEnumSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        479,
-                        "[PromptUserOrderBy!]"
+                        195,
+                        "[SubcategoryEnumOrderBy!]"
                     ],
                     "where": [
-                        469
+                        192
                     ]
                 }
             ],
-            "promptUserAggregate": [
-                462,
+            "subcategoryEnumByPk": [
+                190,
                 {
-                    "distinctOn": [
-                        481,
-                        "[PromptUserSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        479,
-                        "[PromptUserOrderBy!]"
-                    ],
-                    "where": [
-                        469
-                    ]
-                }
-            ],
-            "promptUserByPk": [
-                461,
-                {
-                    "promptId": [
-                        172,
-                        "Int!"
-                    ],
-                    "userId": [
-                        693,
-                        "uuid!"
-                    ]
-                }
-            ],
-            "referral": [
-                507,
-                {
-                    "distinctOn": [
-                        524,
-                        "[ReferralSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        522,
-                        "[ReferralOrderBy!]"
-                    ],
-                    "where": [
-                        513
-                    ]
-                }
-            ],
-            "referralAggregate": [
-                508,
-                {
-                    "distinctOn": [
-                        524,
-                        "[ReferralSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        522,
-                        "[ReferralOrderBy!]"
-                    ],
-                    "where": [
-                        513
-                    ]
-                }
-            ],
-            "referralByPk": [
-                507,
-                {
-                    "referralCode": [
-                        530,
+                    "category": [
+                        188,
                         "String!"
+                    ],
+                    "domain": [
+                        188,
+                        "String!"
+                    ],
+                    "name": [
+                        188,
+                        "String!"
+                    ]
+                }
+            ],
+            "tagEnum": [
+                199,
+                {
+                    "distinctOn": [
+                        206,
+                        "[TagEnumSelectColumn!]"
+                    ],
+                    "limit": [
+                        90
+                    ],
+                    "offset": [
+                        90
+                    ],
+                    "orderBy": [
+                        205,
+                        "[TagEnumOrderBy!]"
+                    ],
+                    "where": [
+                        202
                     ]
                 }
             ],
             "thread": [
-                532,
+                216,
                 {
                     "distinctOn": [
-                        553,
+                        223,
                         "[ThreadSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        551,
+                        222,
                         "[ThreadOrderBy!]"
                     ],
                     "where": [
-                        540
-                    ]
-                }
-            ],
-            "threadAggregate": [
-                533,
-                {
-                    "distinctOn": [
-                        553,
-                        "[ThreadSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        551,
-                        "[ThreadOrderBy!]"
-                    ],
-                    "where": [
-                        540
+                        219
                     ]
                 }
             ],
             "threadByPk": [
-                532,
+                216,
                 {
                     "threadId": [
-                        693,
+                        257,
                         "uuid!"
                     ]
                 }
             ],
-            "token": [
-                576,
-                {
-                    "distinctOn": [
-                        589,
-                        "[TokenSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        587,
-                        "[TokenOrderBy!]"
-                    ],
-                    "where": [
-                        579
-                    ]
-                }
-            ],
-            "tokenAggregate": [
-                577,
-                {
-                    "distinctOn": [
-                        589,
-                        "[TokenSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        587,
-                        "[TokenOrderBy!]"
-                    ],
-                    "where": [
-                        579
-                    ]
-                }
-            ],
-            "tokenByPk": [
-                576,
-                {
-                    "token": [
-                        530,
-                        "String!"
-                    ]
-                }
-            ],
             "toneEnum": [
-                595,
+                234,
                 {
                     "distinctOn": [
-                        608,
+                        237,
                         "[ToneEnumSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        606,
+                        236,
                         "[ToneEnumOrderBy!]"
                     ],
                     "where": [
-                        598
-                    ]
-                }
-            ],
-            "toneEnumAggregate": [
-                596,
-                {
-                    "distinctOn": [
-                        608,
-                        "[ToneEnumSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        606,
-                        "[ToneEnumOrderBy!]"
-                    ],
-                    "where": [
-                        598
+                        235
                     ]
                 }
             ],
             "toneEnumByPk": [
-                595,
+                234,
                 {
                     "value": [
-                        530,
+                        188,
                         "String!"
                     ]
                 }
             ],
             "typeEnum": [
-                614,
+                240,
                 {
                     "distinctOn": [
-                        627,
+                        243,
                         "[TypeEnumSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        625,
+                        242,
                         "[TypeEnumOrderBy!]"
                     ],
                     "where": [
-                        617
-                    ]
-                }
-            ],
-            "typeEnumAggregate": [
-                615,
-                {
-                    "distinctOn": [
-                        627,
-                        "[TypeEnumSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        625,
-                        "[TypeEnumOrderBy!]"
-                    ],
-                    "where": [
-                        617
+                        241
                     ]
                 }
             ],
             "typeEnumByPk": [
-                614,
+                240,
                 {
                     "value": [
-                        530,
+                        188,
                         "String!"
                     ]
                 }
             ],
             "user": [
-                633,
+                246,
                 {
                     "distinctOn": [
-                        646,
+                        249,
                         "[UserSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        644,
+                        248,
                         "[UserOrderBy!]"
                     ],
                     "where": [
-                        636
-                    ]
-                }
-            ],
-            "userAggregate": [
-                634,
-                {
-                    "distinctOn": [
-                        646,
-                        "[UserSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        644,
-                        "[UserOrderBy!]"
-                    ],
-                    "where": [
-                        636
+                        247
                     ]
                 }
             ],
             "userByPk": [
-                633,
+                246,
                 {
                     "userId": [
-                        693,
-                        "uuid!"
-                    ]
-                }
-            ],
-            "userToken": [
-                650,
-                {
-                    "distinctOn": [
-                        667,
-                        "[UserTokenSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        665,
-                        "[UserTokenOrderBy!]"
-                    ],
-                    "where": [
-                        656
-                    ]
-                }
-            ],
-            "userTokenAggregate": [
-                651,
-                {
-                    "distinctOn": [
-                        667,
-                        "[UserTokenSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        665,
-                        "[UserTokenOrderBy!]"
-                    ],
-                    "where": [
-                        656
-                    ]
-                }
-            ],
-            "userTokenByPk": [
-                650,
-                {
-                    "token": [
-                        530,
-                        "String!"
-                    ],
-                    "userId": [
-                        693,
+                        257,
                         "uuid!"
                     ]
                 }
             ],
             "__typename": [
-                530
-            ]
-        },
-        "Mutation": {
-            "deleteCategory": [
-                12,
-                {
-                    "where": [
-                        6,
-                        "CategoryBoolExp!"
-                    ]
-                }
-            ],
-            "deleteCategoryByPk": [
-                2,
-                {
-                    "categoryId": [
-                        172,
-                        "Int!"
-                    ]
-                }
-            ],
-            "deleteChat": [
-                46,
-                {
-                    "where": [
-                        38,
-                        "ChatBoolExp!"
-                    ]
-                }
-            ],
-            "deleteChatByPk": [
-                30,
-                {
-                    "chatId": [
-                        172,
-                        "Int!"
-                    ]
-                }
-            ],
-            "deleteChatbot": [
-                126,
-                {
-                    "where": [
-                        78,
-                        "ChatbotBoolExp!"
-                    ]
-                }
-            ],
-            "deleteChatbotByPk": [
-                70,
-                {
-                    "chatbotId": [
-                        172,
-                        "Int!"
-                    ]
-                }
-            ],
-            "deleteChatbotCategory": [
-                95,
-                {
-                    "where": [
-                        87,
-                        "ChatbotCategoryBoolExp!"
-                    ]
-                }
-            ],
-            "deleteChatbotCategoryByPk": [
-                79,
-                {
-                    "categoryId": [
-                        172,
-                        "Int!"
-                    ],
-                    "chatbotId": [
-                        172,
-                        "Int!"
-                    ]
-                }
-            ],
-            "deleteComplexityEnum": [
-                159,
-                {
-                    "where": [
-                        154,
-                        "ComplexityEnumBoolExp!"
-                    ]
-                }
-            ],
-            "deleteComplexityEnumByPk": [
-                151,
-                {
-                    "value": [
-                        530,
-                        "String!"
-                    ]
-                }
-            ],
-            "deleteLabel": [
-                224,
-                {
-                    "where": [
-                        178,
-                        "LabelBoolExp!"
-                    ]
-                }
-            ],
-            "deleteLabelByPk": [
-                174,
-                {
-                    "labelId": [
-                        172,
-                        "Int!"
-                    ]
-                }
-            ],
-            "deleteLabelChatbotCategory": [
-                195,
-                {
-                    "where": [
-                        187,
-                        "LabelChatbotCategoryBoolExp!"
-                    ]
-                }
-            ],
-            "deleteLabelChatbotCategoryByPk": [
-                179,
-                {
-                    "categoryId": [
-                        172,
-                        "Int!"
-                    ],
-                    "chatbotId": [
-                        172,
-                        "Int!"
-                    ],
-                    "labelId": [
-                        172,
-                        "Int!"
-                    ]
-                }
-            ],
-            "deleteLengthEnum": [
-                250,
-                {
-                    "where": [
-                        245,
-                        "LengthEnumBoolExp!"
-                    ]
-                }
-            ],
-            "deleteLengthEnumByPk": [
-                242,
-                {
-                    "value": [
-                        530,
-                        "String!"
-                    ]
-                }
-            ],
-            "deleteMessage": [
-                274,
-                {
-                    "where": [
-                        267,
-                        "MessageBoolExp!"
-                    ]
-                }
-            ],
-            "deleteMessageByPk": [
-                261,
-                {
-                    "messageId": [
-                        693,
-                        "uuid!"
-                    ]
-                }
-            ],
-            "deleteMessageTypeEnum": [
-                290,
-                {
-                    "where": [
-                        285,
-                        "MessageTypeEnumBoolExp!"
-                    ]
-                }
-            ],
-            "deleteMessageTypeEnumByPk": [
-                282,
-                {
-                    "value": [
-                        530,
-                        "String!"
-                    ]
-                }
-            ],
-            "deleteModelsEnum": [
-                313,
-                {
-                    "where": [
-                        306,
-                        "ModelsEnumBoolExp!"
-                    ]
-                }
-            ],
-            "deleteModelsEnumByPk": [
-                303,
-                {
-                    "name": [
-                        530,
-                        "String!"
-                    ]
-                }
-            ],
-            "deletePreference": [
-                341,
-                {
-                    "where": [
-                        333,
-                        "PreferenceBoolExp!"
-                    ]
-                }
-            ],
-            "deletePreferenceByPk": [
-                325,
-                {
-                    "preferenceId": [
-                        172,
-                        "Int!"
-                    ]
-                }
-            ],
-            "deletePrompt": [
-                423,
-                {
-                    "where": [
-                        375,
-                        "PromptBoolExp!"
-                    ]
-                }
-            ],
-            "deletePromptByPk": [
-                367,
-                {
-                    "promptId": [
-                        172,
-                        "Int!"
-                    ]
-                }
-            ],
-            "deletePromptChatbot": [
-                392,
-                {
-                    "where": [
-                        384,
-                        "PromptChatbotBoolExp!"
-                    ]
-                }
-            ],
-            "deletePromptChatbotByPk": [
-                376,
-                {
-                    "chabotId": [
-                        172,
-                        "Int!"
-                    ],
-                    "promptId": [
-                        172,
-                        "Int!"
-                    ]
-                }
-            ],
-            "deletePromptTypeEnum": [
-                448,
-                {
-                    "where": [
-                        443,
-                        "PromptTypeEnumBoolExp!"
-                    ]
-                }
-            ],
-            "deletePromptTypeEnumByPk": [
-                440,
-                {
-                    "value": [
-                        530,
-                        "String!"
-                    ]
-                }
-            ],
-            "deletePromptUser": [
-                477,
-                {
-                    "where": [
-                        469,
-                        "PromptUserBoolExp!"
-                    ]
-                }
-            ],
-            "deletePromptUserByPk": [
-                461,
-                {
-                    "promptId": [
-                        172,
-                        "Int!"
-                    ],
-                    "userId": [
-                        693,
-                        "uuid!"
-                    ]
-                }
-            ],
-            "deleteReferral": [
-                520,
-                {
-                    "where": [
-                        513,
-                        "ReferralBoolExp!"
-                    ]
-                }
-            ],
-            "deleteReferralByPk": [
-                507,
-                {
-                    "referralCode": [
-                        530,
-                        "String!"
-                    ]
-                }
-            ],
-            "deleteThread": [
-                548,
-                {
-                    "where": [
-                        540,
-                        "ThreadBoolExp!"
-                    ]
-                }
-            ],
-            "deleteThreadByPk": [
-                532,
-                {
-                    "threadId": [
-                        693,
-                        "uuid!"
-                    ]
-                }
-            ],
-            "deleteToken": [
-                584,
-                {
-                    "where": [
-                        579,
-                        "TokenBoolExp!"
-                    ]
-                }
-            ],
-            "deleteTokenByPk": [
-                576,
-                {
-                    "token": [
-                        530,
-                        "String!"
-                    ]
-                }
-            ],
-            "deleteToneEnum": [
-                603,
-                {
-                    "where": [
-                        598,
-                        "ToneEnumBoolExp!"
-                    ]
-                }
-            ],
-            "deleteToneEnumByPk": [
-                595,
-                {
-                    "value": [
-                        530,
-                        "String!"
-                    ]
-                }
-            ],
-            "deleteTypeEnum": [
-                622,
-                {
-                    "where": [
-                        617,
-                        "TypeEnumBoolExp!"
-                    ]
-                }
-            ],
-            "deleteTypeEnumByPk": [
-                614,
-                {
-                    "value": [
-                        530,
-                        "String!"
-                    ]
-                }
-            ],
-            "deleteUser": [
-                641,
-                {
-                    "where": [
-                        636,
-                        "UserBoolExp!"
-                    ]
-                }
-            ],
-            "deleteUserByPk": [
-                633,
-                {
-                    "userId": [
-                        693,
-                        "uuid!"
-                    ]
-                }
-            ],
-            "deleteUserToken": [
-                663,
-                {
-                    "where": [
-                        656,
-                        "UserTokenBoolExp!"
-                    ]
-                }
-            ],
-            "deleteUserTokenByPk": [
-                650,
-                {
-                    "token": [
-                        530,
-                        "String!"
-                    ],
-                    "userId": [
-                        693,
-                        "uuid!"
-                    ]
-                }
-            ],
-            "insertCategory": [
-                12,
-                {
-                    "objects": [
-                        9,
-                        "[CategoryInsertInput!]!"
-                    ],
-                    "onConflict": [
-                        14
-                    ]
-                }
-            ],
-            "insertCategoryOne": [
-                2,
-                {
-                    "object": [
-                        9,
-                        "CategoryInsertInput!"
-                    ],
-                    "onConflict": [
-                        14
-                    ]
-                }
-            ],
-            "insertChat": [
-                46,
-                {
-                    "objects": [
-                        41,
-                        "[ChatInsertInput!]!"
-                    ],
-                    "onConflict": [
-                        47
-                    ]
-                }
-            ],
-            "insertChatOne": [
-                30,
-                {
-                    "object": [
-                        41,
-                        "ChatInsertInput!"
-                    ],
-                    "onConflict": [
-                        47
-                    ]
-                }
-            ],
-            "insertChatbot": [
-                126,
-                {
-                    "objects": [
-                        121,
-                        "[ChatbotInsertInput!]!"
-                    ],
-                    "onConflict": [
-                        128
-                    ]
-                }
-            ],
-            "insertChatbotCategory": [
-                95,
-                {
-                    "objects": [
-                        90,
-                        "[ChatbotCategoryInsertInput!]!"
-                    ],
-                    "onConflict": [
-                        96
-                    ]
-                }
-            ],
-            "insertChatbotCategoryOne": [
-                79,
-                {
-                    "object": [
-                        90,
-                        "ChatbotCategoryInsertInput!"
-                    ],
-                    "onConflict": [
-                        96
-                    ]
-                }
-            ],
-            "insertChatbotOne": [
-                70,
-                {
-                    "object": [
-                        121,
-                        "ChatbotInsertInput!"
-                    ],
-                    "onConflict": [
-                        128
-                    ]
-                }
-            ],
-            "insertComplexityEnum": [
-                159,
-                {
-                    "objects": [
-                        156,
-                        "[ComplexityEnumInsertInput!]!"
-                    ],
-                    "onConflict": [
-                        161
-                    ]
-                }
-            ],
-            "insertComplexityEnumOne": [
-                151,
-                {
-                    "object": [
-                        156,
-                        "ComplexityEnumInsertInput!"
-                    ],
-                    "onConflict": [
-                        161
-                    ]
-                }
-            ],
-            "insertLabel": [
-                224,
-                {
-                    "objects": [
-                        221,
-                        "[LabelInsertInput!]!"
-                    ],
-                    "onConflict": [
-                        226
-                    ]
-                }
-            ],
-            "insertLabelChatbotCategory": [
-                195,
-                {
-                    "objects": [
-                        190,
-                        "[LabelChatbotCategoryInsertInput!]!"
-                    ],
-                    "onConflict": [
-                        196
-                    ]
-                }
-            ],
-            "insertLabelChatbotCategoryOne": [
-                179,
-                {
-                    "object": [
-                        190,
-                        "LabelChatbotCategoryInsertInput!"
-                    ],
-                    "onConflict": [
-                        196
-                    ]
-                }
-            ],
-            "insertLabelOne": [
-                174,
-                {
-                    "object": [
-                        221,
-                        "LabelInsertInput!"
-                    ],
-                    "onConflict": [
-                        226
-                    ]
-                }
-            ],
-            "insertLengthEnum": [
-                250,
-                {
-                    "objects": [
-                        247,
-                        "[LengthEnumInsertInput!]!"
-                    ],
-                    "onConflict": [
-                        252
-                    ]
-                }
-            ],
-            "insertLengthEnumOne": [
-                242,
-                {
-                    "object": [
-                        247,
-                        "LengthEnumInsertInput!"
-                    ],
-                    "onConflict": [
-                        252
-                    ]
-                }
-            ],
-            "insertMessage": [
-                274,
-                {
-                    "objects": [
-                        269,
-                        "[MessageInsertInput!]!"
-                    ],
-                    "onConflict": [
-                        275
-                    ]
-                }
-            ],
-            "insertMessageOne": [
-                261,
-                {
-                    "object": [
-                        269,
-                        "MessageInsertInput!"
-                    ],
-                    "onConflict": [
-                        275
-                    ]
-                }
-            ],
-            "insertMessageTypeEnum": [
-                290,
-                {
-                    "objects": [
-                        287,
-                        "[MessageTypeEnumInsertInput!]!"
-                    ],
-                    "onConflict": [
-                        292
-                    ]
-                }
-            ],
-            "insertMessageTypeEnumOne": [
-                282,
-                {
-                    "object": [
-                        287,
-                        "MessageTypeEnumInsertInput!"
-                    ],
-                    "onConflict": [
-                        292
-                    ]
-                }
-            ],
-            "insertModelsEnum": [
-                313,
-                {
-                    "objects": [
-                        310,
-                        "[ModelsEnumInsertInput!]!"
-                    ],
-                    "onConflict": [
-                        315
-                    ]
-                }
-            ],
-            "insertModelsEnumOne": [
-                303,
-                {
-                    "object": [
-                        310,
-                        "ModelsEnumInsertInput!"
-                    ],
-                    "onConflict": [
-                        315
-                    ]
-                }
-            ],
-            "insertPreference": [
-                341,
-                {
-                    "objects": [
-                        336,
-                        "[PreferenceInsertInput!]!"
-                    ],
-                    "onConflict": [
-                        342
-                    ]
-                }
-            ],
-            "insertPreferenceOne": [
-                325,
-                {
-                    "object": [
-                        336,
-                        "PreferenceInsertInput!"
-                    ],
-                    "onConflict": [
-                        342
-                    ]
-                }
-            ],
-            "insertPrompt": [
-                423,
-                {
-                    "objects": [
-                        418,
-                        "[PromptInsertInput!]!"
-                    ],
-                    "onConflict": [
-                        425
-                    ]
-                }
-            ],
-            "insertPromptChatbot": [
-                392,
-                {
-                    "objects": [
-                        387,
-                        "[PromptChatbotInsertInput!]!"
-                    ],
-                    "onConflict": [
-                        393
-                    ]
-                }
-            ],
-            "insertPromptChatbotOne": [
-                376,
-                {
-                    "object": [
-                        387,
-                        "PromptChatbotInsertInput!"
-                    ],
-                    "onConflict": [
-                        393
-                    ]
-                }
-            ],
-            "insertPromptOne": [
-                367,
-                {
-                    "object": [
-                        418,
-                        "PromptInsertInput!"
-                    ],
-                    "onConflict": [
-                        425
-                    ]
-                }
-            ],
-            "insertPromptTypeEnum": [
-                448,
-                {
-                    "objects": [
-                        445,
-                        "[PromptTypeEnumInsertInput!]!"
-                    ],
-                    "onConflict": [
-                        450
-                    ]
-                }
-            ],
-            "insertPromptTypeEnumOne": [
-                440,
-                {
-                    "object": [
-                        445,
-                        "PromptTypeEnumInsertInput!"
-                    ],
-                    "onConflict": [
-                        450
-                    ]
-                }
-            ],
-            "insertPromptUser": [
-                477,
-                {
-                    "objects": [
-                        472,
-                        "[PromptUserInsertInput!]!"
-                    ],
-                    "onConflict": [
-                        478
-                    ]
-                }
-            ],
-            "insertPromptUserOne": [
-                461,
-                {
-                    "object": [
-                        472,
-                        "PromptUserInsertInput!"
-                    ],
-                    "onConflict": [
-                        478
-                    ]
-                }
-            ],
-            "insertReferral": [
-                520,
-                {
-                    "objects": [
-                        515,
-                        "[ReferralInsertInput!]!"
-                    ],
-                    "onConflict": [
-                        521
-                    ]
-                }
-            ],
-            "insertReferralOne": [
-                507,
-                {
-                    "object": [
-                        515,
-                        "ReferralInsertInput!"
-                    ],
-                    "onConflict": [
-                        521
-                    ]
-                }
-            ],
-            "insertThread": [
-                548,
-                {
-                    "objects": [
-                        543,
-                        "[ThreadInsertInput!]!"
-                    ],
-                    "onConflict": [
-                        550
-                    ]
-                }
-            ],
-            "insertThreadOne": [
-                532,
-                {
-                    "object": [
-                        543,
-                        "ThreadInsertInput!"
-                    ],
-                    "onConflict": [
-                        550
-                    ]
-                }
-            ],
-            "insertToken": [
-                584,
-                {
-                    "objects": [
-                        581,
-                        "[TokenInsertInput!]!"
-                    ],
-                    "onConflict": [
-                        586
-                    ]
-                }
-            ],
-            "insertTokenOne": [
-                576,
-                {
-                    "object": [
-                        581,
-                        "TokenInsertInput!"
-                    ],
-                    "onConflict": [
-                        586
-                    ]
-                }
-            ],
-            "insertToneEnum": [
-                603,
-                {
-                    "objects": [
-                        600,
-                        "[ToneEnumInsertInput!]!"
-                    ],
-                    "onConflict": [
-                        605
-                    ]
-                }
-            ],
-            "insertToneEnumOne": [
-                595,
-                {
-                    "object": [
-                        600,
-                        "ToneEnumInsertInput!"
-                    ],
-                    "onConflict": [
-                        605
-                    ]
-                }
-            ],
-            "insertTypeEnum": [
-                622,
-                {
-                    "objects": [
-                        619,
-                        "[TypeEnumInsertInput!]!"
-                    ],
-                    "onConflict": [
-                        624
-                    ]
-                }
-            ],
-            "insertTypeEnumOne": [
-                614,
-                {
-                    "object": [
-                        619,
-                        "TypeEnumInsertInput!"
-                    ],
-                    "onConflict": [
-                        624
-                    ]
-                }
-            ],
-            "insertUser": [
-                641,
-                {
-                    "objects": [
-                        638,
-                        "[UserInsertInput!]!"
-                    ],
-                    "onConflict": [
-                        643
-                    ]
-                }
-            ],
-            "insertUserOne": [
-                633,
-                {
-                    "object": [
-                        638,
-                        "UserInsertInput!"
-                    ],
-                    "onConflict": [
-                        643
-                    ]
-                }
-            ],
-            "insertUserToken": [
-                663,
-                {
-                    "objects": [
-                        658,
-                        "[UserTokenInsertInput!]!"
-                    ],
-                    "onConflict": [
-                        664
-                    ]
-                }
-            ],
-            "insertUserTokenOne": [
-                650,
-                {
-                    "object": [
-                        658,
-                        "UserTokenInsertInput!"
-                    ],
-                    "onConflict": [
-                        664
-                    ]
-                }
-            ],
-            "updateCategory": [
-                12,
-                {
-                    "_inc": [
-                        8
-                    ],
-                    "_set": [
-                        18
-                    ],
-                    "where": [
-                        6,
-                        "CategoryBoolExp!"
-                    ]
-                }
-            ],
-            "updateCategoryByPk": [
-                2,
-                {
-                    "_inc": [
-                        8
-                    ],
-                    "_set": [
-                        18
-                    ],
-                    "pkColumns": [
-                        16,
-                        "CategoryPkColumnsInput!"
-                    ]
-                }
-            ],
-            "updateCategoryMany": [
-                12,
-                {
-                    "updates": [
-                        26,
-                        "[CategoryUpdates!]!"
-                    ]
-                }
-            ],
-            "updateChat": [
-                46,
-                {
-                    "_inc": [
-                        40
-                    ],
-                    "_set": [
-                        51
-                    ],
-                    "where": [
-                        38,
-                        "ChatBoolExp!"
-                    ]
-                }
-            ],
-            "updateChatByPk": [
-                30,
-                {
-                    "_inc": [
-                        40
-                    ],
-                    "_set": [
-                        51
-                    ],
-                    "pkColumns": [
-                        49,
-                        "ChatPkColumnsInput!"
-                    ]
-                }
-            ],
-            "updateChatMany": [
-                46,
-                {
-                    "updates": [
-                        63,
-                        "[ChatUpdates!]!"
-                    ]
-                }
-            ],
-            "updateChatbot": [
-                126,
-                {
-                    "_inc": [
-                        120
-                    ],
-                    "_set": [
-                        132
-                    ],
-                    "where": [
-                        78,
-                        "ChatbotBoolExp!"
-                    ]
-                }
-            ],
-            "updateChatbotByPk": [
-                70,
-                {
-                    "_inc": [
-                        120
-                    ],
-                    "_set": [
-                        132
-                    ],
-                    "pkColumns": [
-                        130,
-                        "ChatbotPkColumnsInput!"
-                    ]
-                }
-            ],
-            "updateChatbotCategory": [
-                95,
-                {
-                    "_inc": [
-                        89
-                    ],
-                    "_set": [
-                        100
-                    ],
-                    "where": [
-                        87,
-                        "ChatbotCategoryBoolExp!"
-                    ]
-                }
-            ],
-            "updateChatbotCategoryByPk": [
-                79,
-                {
-                    "_inc": [
-                        89
-                    ],
-                    "_set": [
-                        100
-                    ],
-                    "pkColumns": [
-                        98,
-                        "ChatbotCategoryPkColumnsInput!"
-                    ]
-                }
-            ],
-            "updateChatbotCategoryMany": [
-                95,
-                {
-                    "updates": [
-                        112,
-                        "[ChatbotCategoryUpdates!]!"
-                    ]
-                }
-            ],
-            "updateChatbotMany": [
-                126,
-                {
-                    "updates": [
-                        144,
-                        "[ChatbotUpdates!]!"
-                    ]
-                }
-            ],
-            "updateComplexityEnum": [
-                159,
-                {
-                    "_set": [
-                        165
-                    ],
-                    "where": [
-                        154,
-                        "ComplexityEnumBoolExp!"
-                    ]
-                }
-            ],
-            "updateComplexityEnumByPk": [
-                151,
-                {
-                    "_set": [
-                        165
-                    ],
-                    "pkColumns": [
-                        163,
-                        "ComplexityEnumPkColumnsInput!"
-                    ]
-                }
-            ],
-            "updateComplexityEnumMany": [
-                159,
-                {
-                    "updates": [
-                        169,
-                        "[ComplexityEnumUpdates!]!"
-                    ]
-                }
-            ],
-            "updateLabel": [
-                224,
-                {
-                    "_inc": [
-                        220
-                    ],
-                    "_set": [
-                        230
-                    ],
-                    "where": [
-                        178,
-                        "LabelBoolExp!"
-                    ]
-                }
-            ],
-            "updateLabelByPk": [
-                174,
-                {
-                    "_inc": [
-                        220
-                    ],
-                    "_set": [
-                        230
-                    ],
-                    "pkColumns": [
-                        228,
-                        "LabelPkColumnsInput!"
-                    ]
-                }
-            ],
-            "updateLabelChatbotCategory": [
-                195,
-                {
-                    "_inc": [
-                        189
-                    ],
-                    "_set": [
-                        200
-                    ],
-                    "where": [
-                        187,
-                        "LabelChatbotCategoryBoolExp!"
-                    ]
-                }
-            ],
-            "updateLabelChatbotCategoryByPk": [
-                179,
-                {
-                    "_inc": [
-                        189
-                    ],
-                    "_set": [
-                        200
-                    ],
-                    "pkColumns": [
-                        198,
-                        "LabelChatbotCategoryPkColumnsInput!"
-                    ]
-                }
-            ],
-            "updateLabelChatbotCategoryMany": [
-                195,
-                {
-                    "updates": [
-                        212,
-                        "[LabelChatbotCategoryUpdates!]!"
-                    ]
-                }
-            ],
-            "updateLabelMany": [
-                224,
-                {
-                    "updates": [
-                        238,
-                        "[LabelUpdates!]!"
-                    ]
-                }
-            ],
-            "updateLengthEnum": [
-                250,
-                {
-                    "_set": [
-                        256
-                    ],
-                    "where": [
-                        245,
-                        "LengthEnumBoolExp!"
-                    ]
-                }
-            ],
-            "updateLengthEnumByPk": [
-                242,
-                {
-                    "_set": [
-                        256
-                    ],
-                    "pkColumns": [
-                        254,
-                        "LengthEnumPkColumnsInput!"
-                    ]
-                }
-            ],
-            "updateLengthEnumMany": [
-                250,
-                {
-                    "updates": [
-                        260,
-                        "[LengthEnumUpdates!]!"
-                    ]
-                }
-            ],
-            "updateMessage": [
-                274,
-                {
-                    "_set": [
-                        279
-                    ],
-                    "where": [
-                        267,
-                        "MessageBoolExp!"
-                    ]
-                }
-            ],
-            "updateMessageByPk": [
-                261,
-                {
-                    "_set": [
-                        279
-                    ],
-                    "pkColumns": [
-                        277,
-                        "MessagePkColumnsInput!"
-                    ]
-                }
-            ],
-            "updateMessageMany": [
-                274,
-                {
-                    "updates": [
-                        302,
-                        "[MessageUpdates!]!"
-                    ]
-                }
-            ],
-            "updateMessageTypeEnum": [
-                290,
-                {
-                    "_set": [
-                        296
-                    ],
-                    "where": [
-                        285,
-                        "MessageTypeEnumBoolExp!"
-                    ]
-                }
-            ],
-            "updateMessageTypeEnumByPk": [
-                282,
-                {
-                    "_set": [
-                        296
-                    ],
-                    "pkColumns": [
-                        294,
-                        "MessageTypeEnumPkColumnsInput!"
-                    ]
-                }
-            ],
-            "updateMessageTypeEnumMany": [
-                290,
-                {
-                    "updates": [
-                        300,
-                        "[MessageTypeEnumUpdates!]!"
-                    ]
-                }
-            ],
-            "updateModelsEnum": [
-                313,
-                {
-                    "_set": [
-                        319
-                    ],
-                    "where": [
-                        306,
-                        "ModelsEnumBoolExp!"
-                    ]
-                }
-            ],
-            "updateModelsEnumByPk": [
-                303,
-                {
-                    "_set": [
-                        319
-                    ],
-                    "pkColumns": [
-                        317,
-                        "ModelsEnumPkColumnsInput!"
-                    ]
-                }
-            ],
-            "updateModelsEnumMany": [
-                313,
-                {
-                    "updates": [
-                        323,
-                        "[ModelsEnumUpdates!]!"
-                    ]
-                }
-            ],
-            "updatePreference": [
-                341,
-                {
-                    "_inc": [
-                        335
-                    ],
-                    "_set": [
-                        348
-                    ],
-                    "where": [
-                        333,
-                        "PreferenceBoolExp!"
-                    ]
-                }
-            ],
-            "updatePreferenceByPk": [
-                325,
-                {
-                    "_inc": [
-                        335
-                    ],
-                    "_set": [
-                        348
-                    ],
-                    "pkColumns": [
-                        344,
-                        "PreferencePkColumnsInput!"
-                    ]
-                }
-            ],
-            "updatePreferenceMany": [
-                341,
-                {
-                    "updates": [
-                        360,
-                        "[PreferenceUpdates!]!"
-                    ]
-                }
-            ],
-            "updatePrompt": [
-                423,
-                {
-                    "_inc": [
-                        417
-                    ],
-                    "_set": [
-                        429
-                    ],
-                    "where": [
-                        375,
-                        "PromptBoolExp!"
-                    ]
-                }
-            ],
-            "updatePromptByPk": [
-                367,
-                {
-                    "_inc": [
-                        417
-                    ],
-                    "_set": [
-                        429
-                    ],
-                    "pkColumns": [
-                        427,
-                        "PromptPkColumnsInput!"
-                    ]
-                }
-            ],
-            "updatePromptChatbot": [
-                392,
-                {
-                    "_inc": [
-                        386
-                    ],
-                    "_set": [
-                        397
-                    ],
-                    "where": [
-                        384,
-                        "PromptChatbotBoolExp!"
-                    ]
-                }
-            ],
-            "updatePromptChatbotByPk": [
-                376,
-                {
-                    "_inc": [
-                        386
-                    ],
-                    "_set": [
-                        397
-                    ],
-                    "pkColumns": [
-                        395,
-                        "PromptChatbotPkColumnsInput!"
-                    ]
-                }
-            ],
-            "updatePromptChatbotMany": [
-                392,
-                {
-                    "updates": [
-                        409,
-                        "[PromptChatbotUpdates!]!"
-                    ]
-                }
-            ],
-            "updatePromptMany": [
-                423,
-                {
-                    "updates": [
-                        460,
-                        "[PromptUpdates!]!"
-                    ]
-                }
-            ],
-            "updatePromptTypeEnum": [
-                448,
-                {
-                    "_set": [
-                        454
-                    ],
-                    "where": [
-                        443,
-                        "PromptTypeEnumBoolExp!"
-                    ]
-                }
-            ],
-            "updatePromptTypeEnumByPk": [
-                440,
-                {
-                    "_set": [
-                        454
-                    ],
-                    "pkColumns": [
-                        452,
-                        "PromptTypeEnumPkColumnsInput!"
-                    ]
-                }
-            ],
-            "updatePromptTypeEnumMany": [
-                448,
-                {
-                    "updates": [
-                        458,
-                        "[PromptTypeEnumUpdates!]!"
-                    ]
-                }
-            ],
-            "updatePromptUser": [
-                477,
-                {
-                    "_inc": [
-                        471
-                    ],
-                    "_set": [
-                        482
-                    ],
-                    "where": [
-                        469,
-                        "PromptUserBoolExp!"
-                    ]
-                }
-            ],
-            "updatePromptUserByPk": [
-                461,
-                {
-                    "_inc": [
-                        471
-                    ],
-                    "_set": [
-                        482
-                    ],
-                    "pkColumns": [
-                        480,
-                        "PromptUserPkColumnsInput!"
-                    ]
-                }
-            ],
-            "updatePromptUserMany": [
-                477,
-                {
-                    "updates": [
-                        494,
-                        "[PromptUserUpdates!]!"
-                    ]
-                }
-            ],
-            "updateReferral": [
-                520,
-                {
-                    "_set": [
-                        525
-                    ],
-                    "where": [
-                        513,
-                        "ReferralBoolExp!"
-                    ]
-                }
-            ],
-            "updateReferralByPk": [
-                507,
-                {
-                    "_set": [
-                        525
-                    ],
-                    "pkColumns": [
-                        523,
-                        "ReferralPkColumnsInput!"
-                    ]
-                }
-            ],
-            "updateReferralMany": [
-                520,
-                {
-                    "updates": [
-                        529,
-                        "[ReferralUpdates!]!"
-                    ]
-                }
-            ],
-            "updateThread": [
-                548,
-                {
-                    "_inc": [
-                        542
-                    ],
-                    "_set": [
-                        556
-                    ],
-                    "where": [
-                        540,
-                        "ThreadBoolExp!"
-                    ]
-                }
-            ],
-            "updateThreadByPk": [
-                532,
-                {
-                    "_inc": [
-                        542
-                    ],
-                    "_set": [
-                        556
-                    ],
-                    "pkColumns": [
-                        552,
-                        "ThreadPkColumnsInput!"
-                    ]
-                }
-            ],
-            "updateThreadMany": [
-                548,
-                {
-                    "updates": [
-                        568,
-                        "[ThreadUpdates!]!"
-                    ]
-                }
-            ],
-            "updateToken": [
-                584,
-                {
-                    "_set": [
-                        590
-                    ],
-                    "where": [
-                        579,
-                        "TokenBoolExp!"
-                    ]
-                }
-            ],
-            "updateTokenByPk": [
-                576,
-                {
-                    "_set": [
-                        590
-                    ],
-                    "pkColumns": [
-                        588,
-                        "TokenPkColumnsInput!"
-                    ]
-                }
-            ],
-            "updateTokenMany": [
-                584,
-                {
-                    "updates": [
-                        594,
-                        "[TokenUpdates!]!"
-                    ]
-                }
-            ],
-            "updateToneEnum": [
-                603,
-                {
-                    "_set": [
-                        609
-                    ],
-                    "where": [
-                        598,
-                        "ToneEnumBoolExp!"
-                    ]
-                }
-            ],
-            "updateToneEnumByPk": [
-                595,
-                {
-                    "_set": [
-                        609
-                    ],
-                    "pkColumns": [
-                        607,
-                        "ToneEnumPkColumnsInput!"
-                    ]
-                }
-            ],
-            "updateToneEnumMany": [
-                603,
-                {
-                    "updates": [
-                        613,
-                        "[ToneEnumUpdates!]!"
-                    ]
-                }
-            ],
-            "updateTypeEnum": [
-                622,
-                {
-                    "_set": [
-                        628
-                    ],
-                    "where": [
-                        617,
-                        "TypeEnumBoolExp!"
-                    ]
-                }
-            ],
-            "updateTypeEnumByPk": [
-                614,
-                {
-                    "_set": [
-                        628
-                    ],
-                    "pkColumns": [
-                        626,
-                        "TypeEnumPkColumnsInput!"
-                    ]
-                }
-            ],
-            "updateTypeEnumMany": [
-                622,
-                {
-                    "updates": [
-                        632,
-                        "[TypeEnumUpdates!]!"
-                    ]
-                }
-            ],
-            "updateUser": [
-                641,
-                {
-                    "_set": [
-                        647
-                    ],
-                    "where": [
-                        636,
-                        "UserBoolExp!"
-                    ]
-                }
-            ],
-            "updateUserByPk": [
-                633,
-                {
-                    "_set": [
-                        647
-                    ],
-                    "pkColumns": [
-                        645,
-                        "UserPkColumnsInput!"
-                    ]
-                }
-            ],
-            "updateUserMany": [
-                641,
-                {
-                    "updates": [
-                        674,
-                        "[UserUpdates!]!"
-                    ]
-                }
-            ],
-            "updateUserToken": [
-                663,
-                {
-                    "_set": [
-                        668
-                    ],
-                    "where": [
-                        656,
-                        "UserTokenBoolExp!"
-                    ]
-                }
-            ],
-            "updateUserTokenByPk": [
-                650,
-                {
-                    "_set": [
-                        668
-                    ],
-                    "pkColumns": [
-                        666,
-                        "UserTokenPkColumnsInput!"
-                    ]
-                }
-            ],
-            "updateUserTokenMany": [
-                663,
-                {
-                    "updates": [
-                        672,
-                        "[UserTokenUpdates!]!"
-                    ]
-                }
-            ],
-            "__typename": [
-                530
+                188
             ]
         },
         "Subscription": {
@@ -14116,43 +5405,21 @@ export default {
                 2,
                 {
                     "distinctOn": [
-                        17,
+                        14,
                         "[CategorySelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        15,
+                        13,
                         "[CategoryOrderBy!]"
                     ],
                     "where": [
-                        6
-                    ]
-                }
-            ],
-            "categoryAggregate": [
-                3,
-                {
-                    "distinctOn": [
-                        17,
-                        "[CategorySelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        15,
-                        "[CategoryOrderBy!]"
-                    ],
-                    "where": [
-                        6
+                        3
                     ]
                 }
             ],
@@ -14160,8 +5427,59 @@ export default {
                 2,
                 {
                     "categoryId": [
-                        172,
+                        90,
                         "Int!"
+                    ]
+                }
+            ],
+            "categoryEnum": [
+                4,
+                {
+                    "distinctOn": [
+                        10,
+                        "[CategoryEnumSelectColumn!]"
+                    ],
+                    "limit": [
+                        90
+                    ],
+                    "offset": [
+                        90
+                    ],
+                    "orderBy": [
+                        9,
+                        "[CategoryEnumOrderBy!]"
+                    ],
+                    "where": [
+                        6
+                    ]
+                }
+            ],
+            "categoryEnumByPk": [
+                4,
+                {
+                    "domain": [
+                        188,
+                        "String!"
+                    ],
+                    "name": [
+                        188,
+                        "String!"
+                    ]
+                }
+            ],
+            "categoryEnumStream": [
+                4,
+                {
+                    "batchSize": [
+                        90,
+                        "Int!"
+                    ],
+                    "cursor": [
+                        11,
+                        "[CategoryEnumStreamCursorInput]!"
+                    ],
+                    "where": [
+                        6
                     ]
                 }
             ],
@@ -14169,1562 +5487,1005 @@ export default {
                 2,
                 {
                     "batchSize": [
-                        172,
+                        90,
                         "Int!"
                     ],
                     "cursor": [
-                        22,
+                        15,
                         "[CategoryStreamCursorInput]!"
                     ],
                     "where": [
-                        6
+                        3
                     ]
                 }
             ],
             "chat": [
-                30,
+                17,
                 {
                     "distinctOn": [
-                        50,
+                        24,
                         "[ChatSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        48,
+                        23,
                         "[ChatOrderBy!]"
                     ],
                     "where": [
-                        38
-                    ]
-                }
-            ],
-            "chatAggregate": [
-                31,
-                {
-                    "distinctOn": [
-                        50,
-                        "[ChatSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        48,
-                        "[ChatOrderBy!]"
-                    ],
-                    "where": [
-                        38
+                        20
                     ]
                 }
             ],
             "chatByPk": [
-                30,
+                17,
                 {
                     "chatId": [
-                        172,
+                        90,
                         "Int!"
                     ]
                 }
             ],
             "chatStream": [
-                30,
+                17,
                 {
                     "batchSize": [
-                        172,
+                        90,
                         "Int!"
                     ],
                     "cursor": [
-                        58,
+                        28,
                         "[ChatStreamCursorInput]!"
                     ],
                     "where": [
-                        38
+                        20
                     ]
                 }
             ],
             "chatbot": [
-                70,
+                34,
                 {
                     "distinctOn": [
-                        131,
+                        58,
                         "[ChatbotSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        129,
+                        57,
                         "[ChatbotOrderBy!]"
                     ],
                     "where": [
-                        78
-                    ]
-                }
-            ],
-            "chatbotAggregate": [
-                71,
-                {
-                    "distinctOn": [
-                        131,
-                        "[ChatbotSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        129,
-                        "[ChatbotOrderBy!]"
-                    ],
-                    "where": [
-                        78
+                        37
                     ]
                 }
             ],
             "chatbotByPk": [
-                70,
+                34,
                 {
                     "chatbotId": [
-                        172,
+                        90,
                         "Int!"
                     ]
                 }
             ],
             "chatbotCategory": [
-                79,
+                38,
                 {
                     "distinctOn": [
-                        99,
+                        45,
                         "[ChatbotCategorySelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        97,
+                        44,
                         "[ChatbotCategoryOrderBy!]"
                     ],
                     "where": [
-                        87
-                    ]
-                }
-            ],
-            "chatbotCategoryAggregate": [
-                80,
-                {
-                    "distinctOn": [
-                        99,
-                        "[ChatbotCategorySelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        97,
-                        "[ChatbotCategoryOrderBy!]"
-                    ],
-                    "where": [
-                        87
+                        41
                     ]
                 }
             ],
             "chatbotCategoryByPk": [
-                79,
+                38,
                 {
                     "categoryId": [
-                        172,
+                        90,
                         "Int!"
                     ],
                     "chatbotId": [
-                        172,
+                        90,
                         "Int!"
                     ]
                 }
             ],
             "chatbotCategoryStream": [
-                79,
+                38,
                 {
                     "batchSize": [
-                        172,
+                        90,
                         "Int!"
                     ],
                     "cursor": [
-                        107,
+                        49,
                         "[ChatbotCategoryStreamCursorInput]!"
                     ],
                     "where": [
-                        87
+                        41
                     ]
                 }
             ],
             "chatbotStream": [
-                70,
+                34,
                 {
                     "batchSize": [
-                        172,
+                        90,
                         "Int!"
                     ],
                     "cursor": [
-                        139,
+                        62,
                         "[ChatbotStreamCursorInput]!"
                     ],
                     "where": [
-                        78
+                        37
                     ]
                 }
             ],
             "complexityEnum": [
-                151,
+                68,
                 {
                     "distinctOn": [
-                        164,
+                        71,
                         "[ComplexityEnumSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        162,
+                        70,
                         "[ComplexityEnumOrderBy!]"
                     ],
                     "where": [
-                        154
-                    ]
-                }
-            ],
-            "complexityEnumAggregate": [
-                152,
-                {
-                    "distinctOn": [
-                        164,
-                        "[ComplexityEnumSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        162,
-                        "[ComplexityEnumOrderBy!]"
-                    ],
-                    "where": [
-                        154
+                        69
                     ]
                 }
             ],
             "complexityEnumByPk": [
-                151,
+                68,
                 {
                     "value": [
-                        530,
+                        188,
                         "String!"
                     ]
                 }
             ],
             "complexityEnumStream": [
-                151,
+                68,
                 {
                     "batchSize": [
-                        172,
+                        90,
                         "Int!"
                     ],
                     "cursor": [
-                        166,
+                        72,
                         "[ComplexityEnumStreamCursorInput]!"
                     ],
                     "where": [
-                        154
+                        69
+                    ]
+                }
+            ],
+            "domainEnum": [
+                75,
+                {
+                    "distinctOn": [
+                        78,
+                        "[DomainEnumSelectColumn!]"
+                    ],
+                    "limit": [
+                        90
+                    ],
+                    "offset": [
+                        90
+                    ],
+                    "orderBy": [
+                        77,
+                        "[DomainEnumOrderBy!]"
+                    ],
+                    "where": [
+                        76
+                    ]
+                }
+            ],
+            "domainEnumByPk": [
+                75,
+                {
+                    "name": [
+                        188,
+                        "String!"
+                    ]
+                }
+            ],
+            "domainEnumStream": [
+                75,
+                {
+                    "batchSize": [
+                        90,
+                        "Int!"
+                    ],
+                    "cursor": [
+                        79,
+                        "[DomainEnumStreamCursorInput]!"
+                    ],
+                    "where": [
+                        76
+                    ]
+                }
+            ],
+            "example": [
+                81,
+                {
+                    "distinctOn": [
+                        87,
+                        "[ExampleSelectColumn!]"
+                    ],
+                    "limit": [
+                        90
+                    ],
+                    "offset": [
+                        90
+                    ],
+                    "orderBy": [
+                        86,
+                        "[ExampleOrderBy!]"
+                    ],
+                    "where": [
+                        83
+                    ]
+                }
+            ],
+            "exampleByPk": [
+                81,
+                {
+                    "exampleId": [
+                        257,
+                        "uuid!"
+                    ]
+                }
+            ],
+            "exampleStream": [
+                81,
+                {
+                    "batchSize": [
+                        90,
+                        "Int!"
+                    ],
+                    "cursor": [
+                        88,
+                        "[ExampleStreamCursorInput]!"
+                    ],
+                    "where": [
+                        83
                     ]
                 }
             ],
             "label": [
-                174,
+                94,
                 {
                     "distinctOn": [
-                        229,
+                        114,
                         "[LabelSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        227,
+                        113,
                         "[LabelOrderBy!]"
                     ],
                     "where": [
-                        178
-                    ]
-                }
-            ],
-            "labelAggregate": [
-                175,
-                {
-                    "distinctOn": [
-                        229,
-                        "[LabelSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        227,
-                        "[LabelOrderBy!]"
-                    ],
-                    "where": [
-                        178
+                        95
                     ]
                 }
             ],
             "labelByPk": [
-                174,
+                94,
                 {
                     "labelId": [
-                        172,
+                        90,
                         "Int!"
                     ]
                 }
             ],
-            "labelChatbotCategory": [
-                179,
+            "labelChatbotCategoryDomain": [
+                96,
                 {
                     "distinctOn": [
-                        199,
-                        "[LabelChatbotCategorySelectColumn!]"
+                        103,
+                        "[LabelChatbotCategoryDomainSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        197,
-                        "[LabelChatbotCategoryOrderBy!]"
+                        102,
+                        "[LabelChatbotCategoryDomainOrderBy!]"
                     ],
                     "where": [
-                        187
+                        99
                     ]
                 }
             ],
-            "labelChatbotCategoryAggregate": [
-                180,
-                {
-                    "distinctOn": [
-                        199,
-                        "[LabelChatbotCategorySelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        197,
-                        "[LabelChatbotCategoryOrderBy!]"
-                    ],
-                    "where": [
-                        187
-                    ]
-                }
-            ],
-            "labelChatbotCategoryByPk": [
-                179,
-                {
-                    "categoryId": [
-                        172,
-                        "Int!"
-                    ],
-                    "chatbotId": [
-                        172,
-                        "Int!"
-                    ],
-                    "labelId": [
-                        172,
-                        "Int!"
-                    ]
-                }
-            ],
-            "labelChatbotCategoryStream": [
-                179,
+            "labelChatbotCategoryDomainStream": [
+                96,
                 {
                     "batchSize": [
-                        172,
+                        90,
                         "Int!"
                     ],
                     "cursor": [
-                        207,
-                        "[LabelChatbotCategoryStreamCursorInput]!"
+                        107,
+                        "[LabelChatbotCategoryDomainStreamCursorInput]!"
                     ],
                     "where": [
-                        187
+                        99
                     ]
                 }
             ],
             "labelStream": [
-                174,
+                94,
                 {
                     "batchSize": [
-                        172,
+                        90,
                         "Int!"
                     ],
                     "cursor": [
-                        234,
+                        115,
                         "[LabelStreamCursorInput]!"
                     ],
                     "where": [
-                        178
+                        95
                     ]
                 }
             ],
             "lengthEnum": [
-                242,
+                117,
                 {
                     "distinctOn": [
-                        255,
+                        120,
                         "[LengthEnumSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        253,
+                        119,
                         "[LengthEnumOrderBy!]"
                     ],
                     "where": [
-                        245
-                    ]
-                }
-            ],
-            "lengthEnumAggregate": [
-                243,
-                {
-                    "distinctOn": [
-                        255,
-                        "[LengthEnumSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        253,
-                        "[LengthEnumOrderBy!]"
-                    ],
-                    "where": [
-                        245
+                        118
                     ]
                 }
             ],
             "lengthEnumByPk": [
-                242,
+                117,
                 {
                     "value": [
-                        530,
+                        188,
                         "String!"
                     ]
                 }
             ],
             "lengthEnumStream": [
-                242,
+                117,
                 {
                     "batchSize": [
-                        172,
+                        90,
                         "Int!"
                     ],
                     "cursor": [
-                        257,
+                        121,
                         "[LengthEnumStreamCursorInput]!"
                     ],
                     "where": [
-                        245
+                        118
                     ]
                 }
             ],
             "message": [
-                261,
+                123,
                 {
                     "distinctOn": [
-                        278,
+                        129,
                         "[MessageSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        276,
+                        128,
                         "[MessageOrderBy!]"
                     ],
                     "where": [
-                        267
-                    ]
-                }
-            ],
-            "messageAggregate": [
-                262,
-                {
-                    "distinctOn": [
-                        278,
-                        "[MessageSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        276,
-                        "[MessageOrderBy!]"
-                    ],
-                    "where": [
-                        267
+                        125
                     ]
                 }
             ],
             "messageByPk": [
-                261,
+                123,
                 {
                     "messageId": [
-                        693,
+                        257,
                         "uuid!"
                     ]
                 }
             ],
             "messageStream": [
-                261,
+                123,
                 {
                     "batchSize": [
-                        172,
+                        90,
                         "Int!"
                     ],
                     "cursor": [
-                        280,
+                        130,
                         "[MessageStreamCursorInput]!"
                     ],
                     "where": [
-                        267
+                        125
                     ]
                 }
             ],
             "messageTypeEnum": [
-                282,
+                132,
                 {
                     "distinctOn": [
-                        295,
+                        135,
                         "[MessageTypeEnumSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        293,
+                        134,
                         "[MessageTypeEnumOrderBy!]"
                     ],
                     "where": [
-                        285
-                    ]
-                }
-            ],
-            "messageTypeEnumAggregate": [
-                283,
-                {
-                    "distinctOn": [
-                        295,
-                        "[MessageTypeEnumSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        293,
-                        "[MessageTypeEnumOrderBy!]"
-                    ],
-                    "where": [
-                        285
+                        133
                     ]
                 }
             ],
             "messageTypeEnumByPk": [
-                282,
+                132,
                 {
                     "value": [
-                        530,
+                        188,
                         "String!"
                     ]
                 }
             ],
             "messageTypeEnumStream": [
-                282,
+                132,
                 {
                     "batchSize": [
-                        172,
+                        90,
                         "Int!"
                     ],
                     "cursor": [
-                        297,
+                        136,
                         "[MessageTypeEnumStreamCursorInput]!"
                     ],
                     "where": [
-                        285
+                        133
                     ]
                 }
             ],
             "modelsEnum": [
-                303,
+                138,
                 {
                     "distinctOn": [
-                        318,
+                        143,
                         "[ModelsEnumSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        316,
+                        142,
                         "[ModelsEnumOrderBy!]"
                     ],
                     "where": [
-                        306
-                    ]
-                }
-            ],
-            "modelsEnumAggregate": [
-                304,
-                {
-                    "distinctOn": [
-                        318,
-                        "[ModelsEnumSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        316,
-                        "[ModelsEnumOrderBy!]"
-                    ],
-                    "where": [
-                        306
+                        139
                     ]
                 }
             ],
             "modelsEnumByPk": [
-                303,
+                138,
                 {
                     "name": [
-                        530,
+                        188,
                         "String!"
                     ]
                 }
             ],
             "modelsEnumStream": [
-                303,
+                138,
                 {
                     "batchSize": [
-                        172,
+                        90,
                         "Int!"
                     ],
                     "cursor": [
-                        320,
+                        144,
                         "[ModelsEnumStreamCursorInput]!"
                     ],
                     "where": [
-                        306
-                    ]
-                }
-            ],
-            "preference": [
-                325,
-                {
-                    "distinctOn": [
-                        345,
-                        "[PreferenceSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        343,
-                        "[PreferenceOrderBy!]"
-                    ],
-                    "where": [
-                        333
-                    ]
-                }
-            ],
-            "preferenceAggregate": [
-                326,
-                {
-                    "distinctOn": [
-                        345,
-                        "[PreferenceSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        343,
-                        "[PreferenceOrderBy!]"
-                    ],
-                    "where": [
-                        333
-                    ]
-                }
-            ],
-            "preferenceByPk": [
-                325,
-                {
-                    "preferenceId": [
-                        172,
-                        "Int!"
-                    ]
-                }
-            ],
-            "preferenceStream": [
-                325,
-                {
-                    "batchSize": [
-                        172,
-                        "Int!"
-                    ],
-                    "cursor": [
-                        355,
-                        "[PreferenceStreamCursorInput]!"
-                    ],
-                    "where": [
-                        333
+                        139
                     ]
                 }
             ],
             "prompt": [
-                367,
+                148,
                 {
                     "distinctOn": [
-                        428,
+                        172,
                         "[PromptSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        426,
+                        171,
                         "[PromptOrderBy!]"
                     ],
                     "where": [
-                        375
-                    ]
-                }
-            ],
-            "promptAggregate": [
-                368,
-                {
-                    "distinctOn": [
-                        428,
-                        "[PromptSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        426,
-                        "[PromptOrderBy!]"
-                    ],
-                    "where": [
-                        375
+                        151
                     ]
                 }
             ],
             "promptByPk": [
-                367,
+                148,
                 {
                     "promptId": [
-                        172,
+                        90,
                         "Int!"
                     ]
                 }
             ],
             "promptChatbot": [
-                376,
+                152,
                 {
                     "distinctOn": [
-                        396,
+                        159,
                         "[PromptChatbotSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        394,
+                        158,
                         "[PromptChatbotOrderBy!]"
                     ],
                     "where": [
-                        384
-                    ]
-                }
-            ],
-            "promptChatbotAggregate": [
-                377,
-                {
-                    "distinctOn": [
-                        396,
-                        "[PromptChatbotSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        394,
-                        "[PromptChatbotOrderBy!]"
-                    ],
-                    "where": [
-                        384
+                        155
                     ]
                 }
             ],
             "promptChatbotByPk": [
-                376,
+                152,
                 {
                     "chabotId": [
-                        172,
+                        90,
                         "Int!"
                     ],
                     "promptId": [
-                        172,
+                        90,
                         "Int!"
                     ]
                 }
             ],
             "promptChatbotStream": [
-                376,
+                152,
                 {
                     "batchSize": [
-                        172,
+                        90,
                         "Int!"
                     ],
                     "cursor": [
-                        404,
+                        163,
                         "[PromptChatbotStreamCursorInput]!"
                     ],
                     "where": [
-                        384
+                        155
                     ]
                 }
             ],
             "promptStream": [
-                367,
+                148,
                 {
                     "batchSize": [
-                        172,
+                        90,
                         "Int!"
                     ],
                     "cursor": [
-                        436,
+                        176,
                         "[PromptStreamCursorInput]!"
                     ],
                     "where": [
-                        375
+                        151
                     ]
                 }
             ],
             "promptTypeEnum": [
-                440,
+                179,
                 {
                     "distinctOn": [
-                        453,
+                        182,
                         "[PromptTypeEnumSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        451,
+                        181,
                         "[PromptTypeEnumOrderBy!]"
                     ],
                     "where": [
-                        443
-                    ]
-                }
-            ],
-            "promptTypeEnumAggregate": [
-                441,
-                {
-                    "distinctOn": [
-                        453,
-                        "[PromptTypeEnumSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        451,
-                        "[PromptTypeEnumOrderBy!]"
-                    ],
-                    "where": [
-                        443
+                        180
                     ]
                 }
             ],
             "promptTypeEnumByPk": [
-                440,
+                179,
                 {
                     "value": [
-                        530,
+                        188,
                         "String!"
                     ]
                 }
             ],
             "promptTypeEnumStream": [
-                440,
+                179,
                 {
                     "batchSize": [
-                        172,
+                        90,
                         "Int!"
                     ],
                     "cursor": [
-                        455,
+                        183,
                         "[PromptTypeEnumStreamCursorInput]!"
                     ],
                     "where": [
-                        443
+                        180
                     ]
                 }
             ],
-            "promptUser": [
-                461,
+            "subcategoryEnum": [
+                190,
                 {
                     "distinctOn": [
-                        481,
-                        "[PromptUserSelectColumn!]"
+                        196,
+                        "[SubcategoryEnumSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        479,
-                        "[PromptUserOrderBy!]"
+                        195,
+                        "[SubcategoryEnumOrderBy!]"
                     ],
                     "where": [
-                        469
+                        192
                     ]
                 }
             ],
-            "promptUserAggregate": [
-                462,
+            "subcategoryEnumByPk": [
+                190,
                 {
-                    "distinctOn": [
-                        481,
-                        "[PromptUserSelectColumn!]"
+                    "category": [
+                        188,
+                        "String!"
                     ],
-                    "limit": [
-                        172
+                    "domain": [
+                        188,
+                        "String!"
                     ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        479,
-                        "[PromptUserOrderBy!]"
-                    ],
-                    "where": [
-                        469
-                    ]
-                }
-            ],
-            "promptUserByPk": [
-                461,
-                {
-                    "promptId": [
-                        172,
-                        "Int!"
-                    ],
-                    "userId": [
-                        693,
-                        "uuid!"
-                    ]
-                }
-            ],
-            "promptUserStream": [
-                461,
-                {
-                    "batchSize": [
-                        172,
-                        "Int!"
-                    ],
-                    "cursor": [
-                        489,
-                        "[PromptUserStreamCursorInput]!"
-                    ],
-                    "where": [
-                        469
-                    ]
-                }
-            ],
-            "referral": [
-                507,
-                {
-                    "distinctOn": [
-                        524,
-                        "[ReferralSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        522,
-                        "[ReferralOrderBy!]"
-                    ],
-                    "where": [
-                        513
-                    ]
-                }
-            ],
-            "referralAggregate": [
-                508,
-                {
-                    "distinctOn": [
-                        524,
-                        "[ReferralSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        522,
-                        "[ReferralOrderBy!]"
-                    ],
-                    "where": [
-                        513
-                    ]
-                }
-            ],
-            "referralByPk": [
-                507,
-                {
-                    "referralCode": [
-                        530,
+                    "name": [
+                        188,
                         "String!"
                     ]
                 }
             ],
-            "referralStream": [
-                507,
+            "subcategoryEnumStream": [
+                190,
                 {
                     "batchSize": [
-                        172,
+                        90,
                         "Int!"
                     ],
                     "cursor": [
-                        526,
-                        "[ReferralStreamCursorInput]!"
+                        197,
+                        "[SubcategoryEnumStreamCursorInput]!"
                     ],
                     "where": [
-                        513
+                        192
+                    ]
+                }
+            ],
+            "tagEnum": [
+                199,
+                {
+                    "distinctOn": [
+                        206,
+                        "[TagEnumSelectColumn!]"
+                    ],
+                    "limit": [
+                        90
+                    ],
+                    "offset": [
+                        90
+                    ],
+                    "orderBy": [
+                        205,
+                        "[TagEnumOrderBy!]"
+                    ],
+                    "where": [
+                        202
+                    ]
+                }
+            ],
+            "tagEnumStream": [
+                199,
+                {
+                    "batchSize": [
+                        90,
+                        "Int!"
+                    ],
+                    "cursor": [
+                        210,
+                        "[TagEnumStreamCursorInput]!"
+                    ],
+                    "where": [
+                        202
                     ]
                 }
             ],
             "thread": [
-                532,
+                216,
                 {
                     "distinctOn": [
-                        553,
+                        223,
                         "[ThreadSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        551,
+                        222,
                         "[ThreadOrderBy!]"
                     ],
                     "where": [
-                        540
-                    ]
-                }
-            ],
-            "threadAggregate": [
-                533,
-                {
-                    "distinctOn": [
-                        553,
-                        "[ThreadSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        551,
-                        "[ThreadOrderBy!]"
-                    ],
-                    "where": [
-                        540
+                        219
                     ]
                 }
             ],
             "threadByPk": [
-                532,
+                216,
                 {
                     "threadId": [
-                        693,
+                        257,
                         "uuid!"
                     ]
                 }
             ],
             "threadStream": [
-                532,
+                216,
                 {
                     "batchSize": [
-                        172,
+                        90,
                         "Int!"
                     ],
                     "cursor": [
-                        563,
+                        227,
                         "[ThreadStreamCursorInput]!"
                     ],
                     "where": [
-                        540
-                    ]
-                }
-            ],
-            "token": [
-                576,
-                {
-                    "distinctOn": [
-                        589,
-                        "[TokenSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        587,
-                        "[TokenOrderBy!]"
-                    ],
-                    "where": [
-                        579
-                    ]
-                }
-            ],
-            "tokenAggregate": [
-                577,
-                {
-                    "distinctOn": [
-                        589,
-                        "[TokenSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        587,
-                        "[TokenOrderBy!]"
-                    ],
-                    "where": [
-                        579
-                    ]
-                }
-            ],
-            "tokenByPk": [
-                576,
-                {
-                    "token": [
-                        530,
-                        "String!"
-                    ]
-                }
-            ],
-            "tokenStream": [
-                576,
-                {
-                    "batchSize": [
-                        172,
-                        "Int!"
-                    ],
-                    "cursor": [
-                        591,
-                        "[TokenStreamCursorInput]!"
-                    ],
-                    "where": [
-                        579
+                        219
                     ]
                 }
             ],
             "toneEnum": [
-                595,
+                234,
                 {
                     "distinctOn": [
-                        608,
+                        237,
                         "[ToneEnumSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        606,
+                        236,
                         "[ToneEnumOrderBy!]"
                     ],
                     "where": [
-                        598
-                    ]
-                }
-            ],
-            "toneEnumAggregate": [
-                596,
-                {
-                    "distinctOn": [
-                        608,
-                        "[ToneEnumSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        606,
-                        "[ToneEnumOrderBy!]"
-                    ],
-                    "where": [
-                        598
+                        235
                     ]
                 }
             ],
             "toneEnumByPk": [
-                595,
+                234,
                 {
                     "value": [
-                        530,
+                        188,
                         "String!"
                     ]
                 }
             ],
             "toneEnumStream": [
-                595,
+                234,
                 {
                     "batchSize": [
-                        172,
+                        90,
                         "Int!"
                     ],
                     "cursor": [
-                        610,
+                        238,
                         "[ToneEnumStreamCursorInput]!"
                     ],
                     "where": [
-                        598
+                        235
                     ]
                 }
             ],
             "typeEnum": [
-                614,
+                240,
                 {
                     "distinctOn": [
-                        627,
+                        243,
                         "[TypeEnumSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        625,
+                        242,
                         "[TypeEnumOrderBy!]"
                     ],
                     "where": [
-                        617
-                    ]
-                }
-            ],
-            "typeEnumAggregate": [
-                615,
-                {
-                    "distinctOn": [
-                        627,
-                        "[TypeEnumSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        625,
-                        "[TypeEnumOrderBy!]"
-                    ],
-                    "where": [
-                        617
+                        241
                     ]
                 }
             ],
             "typeEnumByPk": [
-                614,
+                240,
                 {
                     "value": [
-                        530,
+                        188,
                         "String!"
                     ]
                 }
             ],
             "typeEnumStream": [
-                614,
+                240,
                 {
                     "batchSize": [
-                        172,
+                        90,
                         "Int!"
                     ],
                     "cursor": [
-                        629,
+                        244,
                         "[TypeEnumStreamCursorInput]!"
                     ],
                     "where": [
-                        617
+                        241
                     ]
                 }
             ],
             "user": [
-                633,
+                246,
                 {
                     "distinctOn": [
-                        646,
+                        249,
                         "[UserSelectColumn!]"
                     ],
                     "limit": [
-                        172
+                        90
                     ],
                     "offset": [
-                        172
+                        90
                     ],
                     "orderBy": [
-                        644,
+                        248,
                         "[UserOrderBy!]"
                     ],
                     "where": [
-                        636
-                    ]
-                }
-            ],
-            "userAggregate": [
-                634,
-                {
-                    "distinctOn": [
-                        646,
-                        "[UserSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        644,
-                        "[UserOrderBy!]"
-                    ],
-                    "where": [
-                        636
+                        247
                     ]
                 }
             ],
             "userByPk": [
-                633,
+                246,
                 {
                     "userId": [
-                        693,
+                        257,
                         "uuid!"
                     ]
                 }
             ],
             "userStream": [
-                633,
+                246,
                 {
                     "batchSize": [
-                        172,
+                        90,
                         "Int!"
                     ],
                     "cursor": [
-                        648,
+                        250,
                         "[UserStreamCursorInput]!"
                     ],
                     "where": [
-                        636
-                    ]
-                }
-            ],
-            "userToken": [
-                650,
-                {
-                    "distinctOn": [
-                        667,
-                        "[UserTokenSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        665,
-                        "[UserTokenOrderBy!]"
-                    ],
-                    "where": [
-                        656
-                    ]
-                }
-            ],
-            "userTokenAggregate": [
-                651,
-                {
-                    "distinctOn": [
-                        667,
-                        "[UserTokenSelectColumn!]"
-                    ],
-                    "limit": [
-                        172
-                    ],
-                    "offset": [
-                        172
-                    ],
-                    "orderBy": [
-                        665,
-                        "[UserTokenOrderBy!]"
-                    ],
-                    "where": [
-                        656
-                    ]
-                }
-            ],
-            "userTokenByPk": [
-                650,
-                {
-                    "token": [
-                        530,
-                        "String!"
-                    ],
-                    "userId": [
-                        693,
-                        "uuid!"
-                    ]
-                }
-            ],
-            "userTokenStream": [
-                650,
-                {
-                    "batchSize": [
-                        172,
-                        "Int!"
-                    ],
-                    "cursor": [
-                        669,
-                        "[UserTokenStreamCursorInput]!"
-                    ],
-                    "where": [
-                        656
+                        247
                     ]
                 }
             ],
             "__typename": [
-                530
+                188
             ]
         }
     }

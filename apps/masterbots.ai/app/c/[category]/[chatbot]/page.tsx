@@ -28,10 +28,17 @@ export default async function BotThreadsPage({
   if (isTokenExpired(jwt)) {
     redirect(`/auth/signin`);
   }
+  console.log('params', params)
+  console.log('params', params)
+  console.log('botNames', botNames)
+
   const chatbotName = botNames.get(params.chatbot);
   if (!chatbotName) {
     throw new Error(`Chatbot name for ${params.chatbot} not found`);
   }
+  console.log('chatbotName', chatbotName)
+  console.log('chatbotName', chatbotName)
+  console.log('chatbotName', chatbotName)
   const chatbot = await getChatbot({ chatbotName, jwt });
 
   if (!chatbot)

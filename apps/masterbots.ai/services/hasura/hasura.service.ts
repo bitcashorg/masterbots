@@ -313,6 +313,10 @@ export async function getChatbot({
   threads,
   jwt
 }: GetChatbotParams) {
+  console.log('chatbotId', chatbotId)
+  console.log('chatbotName', chatbotName)
+  console.log('threads', threads)
+  console.log('jwt', jwt)
   if (!chatbotId && !chatbotName)
     throw new Error('You need to pass chatbotId or chatbotName')
   let client = getHasuraClient({})

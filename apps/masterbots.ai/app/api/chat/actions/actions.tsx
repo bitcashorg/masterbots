@@ -50,8 +50,25 @@ export async function initializePerplexity(apiKey: string) {
 export async function improveMessage(
   content: string,
   clientType: AiClientType,
-  model: string,
+  model: string,  
+  retries: number = 0,
+  max_retries: number = 5,  
 ): Promise<CleanPromptResult> {
+  if (retries >= max_retries) {
+    let error = `Max retries reached. Returning original content after ${max_retries} attempts.`
+    console.warn(
+      error,
+    );
+
+    const originalText = handleImprovementError(
+      error,
+      content,
+      clientType,
+      model,
+    );
+    return setDefaultPrompt(originalText);    
+    // return setDefaultPrompt(content);
+  }
   const messageImprovementPrompt = createImprovementPrompt(content);
 
   try {
@@ -67,9 +84,10 @@ export async function improveMessage(
       cleanedResult.improved
     ) {
       console.warn(
-        "AI did not modify the text or returned invalid result. Recursively executing improved prompt.",
+        "AI did not modify the text or returned invalid result. Recursively executing improved prompt." + retries + "/" + max_retries,
       );
-      return await improveMessage(content, clientType, model);
+      retries++;
+      return await improveMessage(content, clientType, model, retries, max_retries);
     }
 
     return cleanedResult;

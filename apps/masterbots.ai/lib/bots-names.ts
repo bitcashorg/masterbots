@@ -1,4 +1,5 @@
 // this helps displaying camelCase names in ui
+// todo: this should be pulled from db
 export const botNames = new Map([
   ['healthbot', 'HealthBot'],
   ['techbot', 'TechBot'],
@@ -36,5 +37,6 @@ export const botNames = new Map([
   ['gymgenie', 'GymGenie'],
   ['dietdocbot', 'DietDocBot'],
   ['ancientherbalbot', 'AncientHerbalBot'],
-  ['blankbot', 'BlankBot']
+  ['blankbot', 'BlankBot'],
+  ['naturalhealthbot', 'NaturalHealthBot']
 ])
