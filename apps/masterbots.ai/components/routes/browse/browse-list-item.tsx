@@ -1,19 +1,17 @@
 import Image from 'next/image'
 
+import { BrowseChatMessageList } from '@/components/routes/browse/browse-chat-message-list'
 import { ChatAccordion } from '@/components/routes/chat/chat-accordion'
+import { ChatbotAvatar } from '@/components/shared/chatbot-avatar'
+import { ShortMessage } from '@/components/shared/short-message'
+import { Button } from '@/components/ui/button'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { cn, sleep } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
 import { Message, Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React from 'react'
-import { BrowseChatMessageList } from '@/components/routes/browse/browse-chat-message-list'
-import { ShortMessage } from '@/components/shared/short-message'
-import { IconOpenAI, IconUser } from '@/components/ui/icons'
-import { Button } from '@/components/ui/button'
-import { icons } from 'lucide-react'
 import { ChatOptions } from '../chat/chat-options'
 
 let initialUrl: string | null = null
@@ -122,7 +120,7 @@ export default function BrowseListItem({
         dark:border-b-mirage border-b-gray-300
         [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]
         dark:bg-[#18181b] bg-[#f4f4f5]"
-        arrowClass="mt-[10px]"
+        arrowClass="size-5 top-[0.25rem] bottom-0 transform translate-y-[100%]"
         thread={thread}
       >
         {/* Thread Title */}
@@ -131,83 +129,46 @@ export default function BrowseListItem({
             'relative flex items-center font-normal md:text-lg transition-all w-full gap-3 pr-4'
           )}
         >
-          {pageType !== 'bot' && thread.chatbot?.avatar ? (
-            <Button
-            onClick={goToBotPage}
-            title={thread.chatbot?.name}
-            variant="icon"
-            size="icon"
-            >
-              <Image
-                className="transition-opacity duration-300 rounded-full select-none bg-background dark:bg-primary-foreground hover:opacity-80"
-                src={thread.chatbot?.avatar}
-                alt={thread.chatbot?.name ?? 'BotAvatar'}
-                height={32}
-                width={32}
-              />
-            </Button>
-          ) : (
-            pageType !== 'bot' && (
-              <Button
-                onClick={goToBotPage}
-                title={thread.chatbot?.name}
-                variant="icon"
-                size="icon"
+          <div className="w-full flex justify-between items-center text-left">
+            <div className='flex items-center gap-4 w-[calc(100%-124px)] m:w-[calc(100%-58px)] '>
+              <ChatbotAvatar thread={thread} />
+              <div
+                className={cn('truncate-title', {
+                  'no-truncate max-h-40 !overflow-y-auto sm:max-h-none sm:overflow-visible': isAccordionOpen
+                })}
               >
-                <IconOpenAI />
-              </Button>
-            )
-          )}
-          <div className="w-[calc(100%-64px)] m:w-[calc(100%-28px)] flex  justify-between items-center  gap-3 text-left ">
-           <div className='flex  w-[calc(100%-124px)] m:w-[calc(100%-58px)] '>
-            <div
-              className={cn('truncate-title px-1  ', {
-                'no-truncate max-h-40 !overflow-y-auto sm:max-h-none sm:overflow-visible': isAccordionOpen
-              })}
-            >
-              {thread.messages?.[0]?.content}
-           </div>
-            {pageType !== 'user' && (
-              <span className="opacity-50 text-[0.875rem]"> by  </span>
-            )}
+                {thread.messages?.[0]?.content}
+              </div>
 
-            <div>
-            {pageType !== 'user' && thread.user?.profilePicture ? (
-              <Button
-               onClick={goToProfile}
-               title={thread.user?.username.replace('_', ' ')}
-               variant="icon"
-               size="icon"
-              >
-                <Image
-                  className="transition-opacity duration-300 rounded-full select-none hover:opacity-80"
-                  src={thread.user?.profilePicture}
-                  alt={thread.user?.username ?? 'Avatar'}
-                  height={32}
-                  width={32}
-                />
-              </Button>
-            ) : (
-              pageType !== 'user' && (
-                <Button
-                 onClick={goToProfile}
-                 title={thread.user?.username}
-                 variant="icon"
-                 size="icon"
-                >
-                  <IconUser />
-                </Button>
-              )
-            )}
+              <div className="flex gap-3 px-4 items-center">
+                {pageType !== 'user' && (
+                  <>
+                    <span className="opacity-50 text-sm"> by  </span>
+                    <Button
+                      onClick={goToProfile}
+                      title={thread.user?.username.replace('_', ' ')}
+                      variant="icon"
+                      size="icon"
+                    >
+                      <Image
+                        className="transition-opacity duration-300 rounded-full select-none hover:opacity-80"
+                        src={thread.user?.profilePicture || '/images/robohash1.png'}
+                        alt={thread.user?.username ?? 'Avatar'}
+                        height={40}
+                        width={40}
+                      />
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
+            {/* Thread Options */}
+            <div className="pl-4 pr-8">
+              <ChatOptions threadId={thread.threadId} thread={thread} isBrowse />
             </div>
-             {/* Thread Options */}
-           <div className='px-4'>
-                 <ChatOptions threadId={thread.threadId} thread={thread} isBrowse />
-           </div>
           </div>
 
-          
+
         </div>
 
         {/* Thread Description */}

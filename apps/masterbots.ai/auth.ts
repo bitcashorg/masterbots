@@ -1,12 +1,12 @@
 import bcrypt from 'bcryptjs'
 import { setCookie } from 'cookies-next'
-import { decodeToken, getHasuraClient, getToken, toSlug, validateJwtSecret, verify } from 'mb-lib'
+import { getHasuraClient, getToken, toSlug, validateJwtSecret, verify } from 'mb-lib'
 import {
   GetServerSidePropsContext,
   NextApiRequest,
   NextApiResponse
 } from 'next'
-import { NextAuthOptions, getServerSession, User } from 'next-auth'
+import { getServerSession, NextAuthOptions, User } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import Google from 'next-auth/providers/google'
 import { getUserRoleByEmail } from './services/hasura'

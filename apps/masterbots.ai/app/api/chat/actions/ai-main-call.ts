@@ -7,7 +7,7 @@ import {
   setDefaultPrompt,
 } from '@/lib/constants/prompts'
 import { convertToCoreMessages, setStreamerPayload } from '@/lib/helpers/ai-helpers'
-import { aiTools } from '@/lib/helpers/ai-tools-schemas'
+import { aiTools } from '@/lib/helpers/ai-schemas'
 import { fetchChatbotMetadata } from '@/services/hasura'
 import type {
   AiClientType,
@@ -186,9 +186,9 @@ export async function createResponseStream(
     chatbotMetadataExamples: aiTools.chatbotMetadataExamples,
   }
 
-  if (chatbot.categories.some((cat) => cat.categoryId === 1)) {
-    tools.webSearch = aiTools.webSearch
-  }
+  tools.webSearch = aiTools.webSearch
+  // if (chatbot.categories.some((cat) => cat.categoryId === 1)) {
+  // }
 
   try {
     let responseStream: ReadableStream

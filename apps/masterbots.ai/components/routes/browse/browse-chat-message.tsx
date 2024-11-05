@@ -28,6 +28,12 @@ export function BrowseChatMessage({ message, chatbot, ...props }: ChatMessagePro
             p({ children }) {
               return <p className="mb-2 last:mb-0">{children}</p>
             },
+            ol({ children }) {
+              return <ol className="list-decimal list-inside text-left">{children}</ol>
+            },
+            ul({ children }) {
+              return <ul className="list-disc list-inside text-left">{children}</ul>
+            },
             code({ node, inline, className, children, ...props }) {
               if (children.length) {
                 if (children[0] == '▍') {

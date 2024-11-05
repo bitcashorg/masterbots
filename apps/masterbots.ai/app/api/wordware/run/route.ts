@@ -6,17 +6,18 @@ export async function POST(req: Request) {
   const API_KEY = process.env.WORDWARE_API_KEY
 
   if (!API_KEY) {
+    console.error('Wordware API key is not set')
     return NextResponse.json(
-      { error: 'Wordware API key is not set' },
+      { error: 'Internal Server Error' },
       { status: 500 }
     )
   }
 
   try {
-    const { promptId, inputs } = await req.json()
+    const { promptId, inputs, appVersion } = await req.json()
 
     const response = await fetch(
-      `https://app.wordware.ai/api/prompt/${promptId}/run`,
+      `https://api.wordware.ai/v1alpha/apps/masterbots/${promptId}/${appVersion}/runs/stream`,
       {
         method: 'POST',
         headers: {

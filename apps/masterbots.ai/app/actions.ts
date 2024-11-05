@@ -1,3 +1,5 @@
+'use server'
+
 import { parseWordwareResponse } from '@/components/shared/wordware-chat'
 import {
   Card,
@@ -133,7 +135,7 @@ export async function getPromptDetails(promptId: string) {
   }
 }
 
-export async function runWordWarePrompt({ promptId, inputs }: { promptId: string, inputs: Record<string, any> }) {
+export async function runWordWarePrompt({ promptId, inputs, appVersion }: { promptId: string, appVersion: string, inputs: Record<string, any> }) {
   let fullResponse = ''
   let error = null
 

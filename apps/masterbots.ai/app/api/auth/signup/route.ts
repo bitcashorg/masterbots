@@ -1,5 +1,5 @@
-import { generateUsername } from '@/lib/username'
 import { sendEmailVerification } from '@/lib/email'
+import { generateUsername } from '@/lib/username'
 import bcryptjs from 'bcryptjs'
 import { getHasuraClient, toSlug } from 'mb-lib'
 import { type NextRequest, NextResponse } from 'next/server'

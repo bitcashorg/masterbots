@@ -1,8 +1,10 @@
-import { runWordWarePrompt } from '@/app/actions'
-import { subtractChatbotMetadataLabels } from '@/app/api/chat/actions/actions'
+'use server'
+
+import { getPromptDetails, runWordWarePrompt } from '@/app/actions'
 import { wordwareFlows } from '@/lib/constants/wordware-flows'
-import type { aiTools } from '@/lib/helpers/ai-tools-schemas'
+import type { aiTools } from '@/lib/helpers/ai-schemas'
 import type { z } from 'zod'
+import { subtractChatbotMetadataLabels } from './'
 
 export async function getChatbotMetadataTool({
   chatbot,
@@ -28,14 +30,17 @@ export async function getChatbotMetadataTool({
 export async function getWebSearchTool({
   query
 }: z.infer<typeof aiTools.webSearch.parameters>) {
+  console.info('Executing Web Search Tool... Query: ', query)
   const webSearchFlow = wordwareFlows.find(flow => flow.path === 'WebSearch')
 
   if (!webSearchFlow) {
     return null
   }
 
+  const appData = await getPromptDetails(webSearchFlow.id)
   const response = await runWordWarePrompt({
     promptId: webSearchFlow.id,
+    appVersion: appData.data.appVersion,
     inputs: {
       query
     }

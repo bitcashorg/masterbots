@@ -1,8 +1,6 @@
 'use client'
-import React from 'react'
 import ThreadComponent from '@/components/routes/thread/thread-component'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
-import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { Thread } from 'mb-genql'
 
 export default function ThreadList({
@@ -19,8 +17,8 @@ export default function ThreadList({
   loadMore: () => void
 }) {
   const { selectedCategories, selectedChatbots } = useSidebar()
-  
- const filteredThreads = threads.filter(thread =>
+
+  const filteredThreads = threads.filter(thread =>
     !(
       selectedCategories.length && !selectedCategories.includes(thread.chatbot.categories[0].categoryId)
       || selectedChatbots.length && !selectedChatbots.includes(thread.chatbotId)

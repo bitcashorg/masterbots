@@ -3,12 +3,12 @@ import { NextResponse } from 'next/server'
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const promptId = searchParams.get('promptId')
-  const apiKey = process.env.WORDWARE_API_KEY
+  const API_KEY = process.env.WORDWARE_API_KEY
 
-  if (!apiKey) {
+  if (!API_KEY) {
     console.error('Wordware API key is not set')
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal Server Error' },
       { status: 500 }
     )
   }
@@ -22,17 +22,25 @@ export async function GET(request: Request) {
 
   try {
     const response = await fetch(
-      `https://app.wordware.ai/api/prompt/${promptId}/describe`,
+      `https://api.wordware.ai/v1alpha/apps/masterbots/${promptId}`,
       {
         headers: {
-          Authorization: `Bearer ${apiKey}`
+          Authorization: `Bearer ${API_KEY}`,
+          'Content-Type': 'application/json'
         }
       }
     )
 
     const contentType = response.headers.get('content-type')
     if (contentType && contentType.indexOf('application/json') !== -1) {
-      const data = await response.json()
+      const data: {
+        version: string;
+        title: string;
+        description: string;
+        examples: Record<string, unknown>;
+        created: string;
+        inputs: Record<string, unknown>[];
+      } = await response.json()
       return NextResponse.json(data, { status: response.status })
     } else {
       const text = await response.text()
