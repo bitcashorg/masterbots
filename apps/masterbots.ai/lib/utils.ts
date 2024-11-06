@@ -230,3 +230,11 @@ export const validateEmail = (email: string) => {
   const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
   return re.test(email)
 }
+
+export function removeSurroundingQuotes(str: string) {
+  // Check if string starts AND ends with quotes
+  if (str.startsWith('"') && str.endsWith('"')) {
+      return str.slice(1, -1);
+  }
+  return str;
+}

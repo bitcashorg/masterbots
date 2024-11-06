@@ -775,18 +775,23 @@ export async function getUserByUsername({ username }: { username: string}) {
           threadId: true,
           chatbot: {
             name: true
+          },
+          messages: {
+            content: true
           }
         },
-        // followers: {
-        //   follower: {
-        //     username: true,
-        //     id: true           // Added id for proper relationship handling
+        // follower: {
+        //   followeeId: true,
+        //   followerId: true,
+        //   userByFollowerId: {
+        //     username: true
         //   }
         // },
         // following: {
-        //   following: {
-        //     username: true,
-        //     id: true           // Added id for proper relationship handling
+        //   followeeId: true,
+        //   followerId: true,
+        //   userByFollowerId: {
+        //     username: true
         //   }
         // }
       }

@@ -1,9 +1,15 @@
 import { Separator } from '@/components/ui/separator'
 import Image from 'next/image'
-import { BookUser, BotIcon, MessageSquareHeart,  UserIcon, Users, Wand2, ImagePlus  } from 'lucide-react'
+import { BookUser, BotIcon, MessageSquareHeart,  UserIcon, Users, Wand2, ImagePlus, Loader } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { User } from 'mb-genql'
 import { useProfile } from '@/lib/hooks/use-profile'
+import { type Message, useChat } from "ai/react";
+import { nanoid, removeSurroundingQuotes } from '@/lib/utils'
+import { useModel } from '@/lib/hooks/use-model'
+import toast from 'react-hot-toast'
+import { UserPersonalityPrompt } from '@/lib/constants/prompts'
+import {  useEffect, useState } from 'react'
 
 interface UserCardProps {
   user: User
@@ -11,6 +17,67 @@ interface UserCardProps {
 export function UserCard({ user }: UserCardProps) {
   const {  isSameUser } = useProfile()
   const isOwner = isSameUser(user.userId);
+  const { selectedModel, clientType } = useModel()
+  const [bio, setBio] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [generateType, setGenerateType] = useState<string | undefined>("")
+  const [favouriteTopic, setFavouriteTopic] = useState<string | null>(null)
+  
+
+  const userQuestions = user.threads.map((thread) => {
+    return {
+      id: thread.threadId,
+      content: thread.messages[0].content,
+      createdAt:  new Date(),
+      role: "user" as Message["role"],
+    }
+  })
+
+ 
+  const [lastMessage, setLastMessage] = useState<string | null>(null)
+
+  const { append } = useChat({
+    initialMessages: userQuestions,
+    id: nanoid(),
+    body: {
+      id: nanoid(),
+      model: selectedModel,
+      clientType,
+    },
+    onResponse(response) {
+      if (response.status === 401) {
+        toast.error(response.statusText)
+      }
+      setIsLoading(false)
+    },
+    async onFinish(message) {
+      setIsLoading(false)
+      setLastMessage(message.content)
+    },
+  })
+  
+  // Handle response in effect
+  useEffect(() => {
+    if (lastMessage) {
+      if (generateType === 'topic') {
+        setFavouriteTopic(removeSurroundingQuotes(lastMessage))
+      } else {
+        setBio(removeSurroundingQuotes(lastMessage))
+      }
+    }
+  }, [lastMessage])
+ 
+  const generateBio = (type: string) => {
+    setIsLoading(true)
+    setGenerateType(type)
+   const promptContent = UserPersonalityPrompt(type, userQuestions)
+    return append({
+      id: nanoid(),
+      content: promptContent,
+      role: 'system',
+      createdAt: new Date(),
+    })
+  }
   return (
     <div
       className="dark:bg-[#09090B] bg-white rounded-lg p-6 md:w-[600px]
@@ -25,9 +92,9 @@ export function UserCard({ user }: UserCardProps) {
             <BookUser className="w-4 h-4" />
             <p className="text-sm ">bio:</p>
             {isOwner && (
-             <Button variant="ghost" className="text-sm text-gray-500 border p-2 border-black dark:border-gray-400 hover:text-black dark:hover:text-gray-400">
+             <Button disabled={isLoading && generateType === 'bio'} variant="ghost" onClick={() => generateBio('bio')} className="text-sm text-gray-500 border p-2 border-black dark:border-gray-400 hover:text-black dark:hover:text-gray-400">
                generate
-               <Wand2 className="w-4 h-4 ml-1" />
+               {isLoading && generateType === 'bio' ? <Loader className="w-4 h-4 ml-1" /> : <Wand2 className="w-4 h-4 ml-1" />}
              </Button>
             )}
            
@@ -36,17 +103,16 @@ export function UserCard({ user }: UserCardProps) {
 
           {/* Bio Section */}
           <div className="space-y-2 min-h-16">
-          {isOwner && (
+          {isOwner && !bio && (
             <p className="text-xs text-gray-500 md:w-[400px]">
               click <Button variant="ghost" className="text-xs text-gray-500 p-1"> generate <Wand2 className="w-4 h-4 ml-1" /></Button>
                to create a Masterbots biography based on your thread history.
             </p>
           )}
-            {/* <p className="text-sm text-gray-500 md:w-[300px]">
-              Hipster ipsum tattooed brunch I'm baby. Probably skateboard
-              mumblecore forage tour. Mood probably yes big freegan. Schlitz
-              roof beer tile bicycle fit edison kitsch cliche ascot truck.
-            </p> */}
+          {bio && (
+           <p className="text-sm text-gray-500 md:w-[400px]">{bio}
+            </p> 
+            )}
           </div>
 
           {/* Stats Section */}
@@ -62,15 +128,20 @@ export function UserCard({ user }: UserCardProps) {
                 <MessageSquareHeart className="w-4 h-4" />
               <p className="">Favourite topic:</p>
               </div>
-              {isOwner && (
+              {isOwner && !favouriteTopic && (
               <p className="text-xs text-gray-500 md:w-[400px]">
-              click <Button variant="ghost" className="text-xs text-gray-500 p-1"> generate <Wand2 className="w-4 h-4 ml-1" /></Button>
+              click <Button
+               variant="ghost" onClick={() => generateBio('topic')} 
+               disabled={isLoading && generateType === 'topic'}
+               className="text-xs text-gray-500 p-1"> generate 
+                 {isLoading && generateType === 'topic' ? <Loader className="w-4 h-4 ml-1" /> : <Wand2 className="w-4 h-4 ml-1" />}
+                </Button>
               and know your most common topic.
             </p>
               )}
-              {/* <p className="text-gray-500">
-                The different smells of flowers and grass.
-              </p> */}
+              {favouriteTopic && (
+                <p className="text-sm text-gray-500 md:w-[300px]">{favouriteTopic}</p>
+              )}
             </div>
           </div>
         </div>

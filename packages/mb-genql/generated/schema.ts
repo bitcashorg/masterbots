@@ -9,6 +9,7 @@ export type Scalars = {
     Int: number,
     String: string,
     timestamptz: any,
+    user_role: any,
     uuid: any,
 }
 
@@ -1976,6 +1977,68 @@ export type ReferralSelectColumn = 'referralCode' | 'referrerId' | 'userId'
 export type ReferralUpdateColumn = 'referralCode' | 'referrerId' | 'userId'
 
 
+/** This junction table records social following relationships between users. Each record represents a follower-followee relationship. */
+export interface SocialFollowing {
+    createdAt: Scalars['timestamptz']
+    followeeId: Scalars['uuid']
+    followerId: Scalars['uuid']
+    /** An object relationship */
+    user: User
+    /** An object relationship */
+    userByFollowerId: User
+    __typename: 'SocialFollowing'
+}
+
+
+/** aggregated selection of "social_following" */
+export interface SocialFollowingAggregate {
+    aggregate: (SocialFollowingAggregateFields | null)
+    nodes: SocialFollowing[]
+    __typename: 'SocialFollowingAggregate'
+}
+
+
+/** aggregate fields of "social_following" */
+export interface SocialFollowingAggregateFields {
+    count: Scalars['Int']
+    max: (SocialFollowingMaxFields | null)
+    min: (SocialFollowingMinFields | null)
+    __typename: 'SocialFollowingAggregateFields'
+}
+
+
+/** aggregate max on columns */
+export interface SocialFollowingMaxFields {
+    createdAt: (Scalars['timestamptz'] | null)
+    followeeId: (Scalars['uuid'] | null)
+    followerId: (Scalars['uuid'] | null)
+    __typename: 'SocialFollowingMaxFields'
+}
+
+
+/** aggregate min on columns */
+export interface SocialFollowingMinFields {
+    createdAt: (Scalars['timestamptz'] | null)
+    followeeId: (Scalars['uuid'] | null)
+    followerId: (Scalars['uuid'] | null)
+    __typename: 'SocialFollowingMinFields'
+}
+
+
+/** response of any mutation on the table "social_following" */
+export interface SocialFollowingMutationResponse {
+    /** number of rows affected by the mutation */
+    affectedRows: Scalars['Int']
+    /** data from the rows affected by the mutation */
+    returning: SocialFollowing[]
+    __typename: 'SocialFollowingMutationResponse'
+}
+
+
+/** select columns of table "social_following" */
+export type SocialFollowingSelectColumn = 'createdAt' | 'followeeId' | 'followerId'
+
+
 /** columns and relationships of "thread" */
 export interface Thread {
     /** An object relationship */
@@ -2345,6 +2408,14 @@ export interface User {
     chatsAggregate: ChatAggregate
     dateJoined: Scalars['timestamptz']
     email: Scalars['String']
+    /** An array relationship */
+    followers: SocialFollowing[]
+    /** An aggregate relationship */
+    followersAggregate: SocialFollowingAggregate
+    /** An array relationship */
+    following: SocialFollowing[]
+    /** An aggregate relationship */
+    followingAggregate: SocialFollowingAggregate
     getFreeMonth: (Scalars['Boolean'] | null)
     isBlocked: (Scalars['Boolean'] | null)
     isVerified: (Scalars['Boolean'] | null)
@@ -2368,6 +2439,7 @@ export interface User {
     referralsByUserId: Referral[]
     /** An aggregate relationship */
     referralsByUserIdAggregate: ReferralAggregate
+    role: Scalars['user_role']
     slug: Scalars['String']
     /** An array relationship */
     threads: Thread[]
@@ -2379,7 +2451,6 @@ export interface User {
     /** An aggregate relationship */
     userTokensAggregate: UserTokenAggregate
     username: Scalars['String']
-    role: Scalars['String']
     __typename: 'User'
 }
 
@@ -2413,6 +2484,7 @@ export interface UserMaxFields {
     password: (Scalars['String'] | null)
     proUserSubscriptionId: (Scalars['String'] | null)
     profilePicture: (Scalars['String'] | null)
+    role: (Scalars['user_role'] | null)
     slug: (Scalars['String'] | null)
     userId: (Scalars['uuid'] | null)
     username: (Scalars['String'] | null)
@@ -2428,6 +2500,7 @@ export interface UserMinFields {
     password: (Scalars['String'] | null)
     proUserSubscriptionId: (Scalars['String'] | null)
     profilePicture: (Scalars['String'] | null)
+    role: (Scalars['user_role'] | null)
     slug: (Scalars['String'] | null)
     userId: (Scalars['uuid'] | null)
     username: (Scalars['String'] | null)
@@ -2446,7 +2519,7 @@ export interface UserMutationResponse {
 
 
 /** select columns of table "user" */
-export type UserSelectColumn = 'dateJoined' | 'email' | 'getFreeMonth' | 'isBlocked' | 'isVerified' | 'lastLogin' | 'password' | 'proUserSubscriptionId' | 'profilePicture' | 'slug' | 'userId' | 'username'
+export type UserSelectColumn = 'dateJoined' | 'email' | 'getFreeMonth' | 'isBlocked' | 'isVerified' | 'lastLogin' | 'password' | 'proUserSubscriptionId' | 'profilePicture' | 'role' | 'slug' | 'userId' | 'username'
 
 
 /** user <> token relationship OTP (reset password/activate account)  */
@@ -2517,7 +2590,7 @@ export type UserTokenUpdateColumn = 'token' | 'userId'
 
 
 /** update columns of table "user" */
-export type UserUpdateColumn = 'dateJoined' | 'email' | 'getFreeMonth' | 'isBlocked' | 'isVerified' | 'lastLogin' | 'password' | 'proUserSubscriptionId' | 'profilePicture' | 'slug' | 'userId' | 'username'
+export type UserUpdateColumn = 'dateJoined' | 'email' | 'getFreeMonth' | 'isBlocked' | 'isVerified' | 'lastLogin' | 'password' | 'proUserSubscriptionId' | 'profilePicture' | 'role' | 'slug' | 'userId' | 'username'
 
 
 /** mutation root */
@@ -2590,6 +2663,8 @@ export interface mutation_root {
     deleteReferral: (ReferralMutationResponse | null)
     /** delete single row from the table: "referral" */
     deleteReferralByPk: (Referral | null)
+    /** delete data from the table: "social_following" */
+    deleteSocialFollowing: (SocialFollowingMutationResponse | null)
     /** delete data from the table: "thread" */
     deleteThread: (ThreadMutationResponse | null)
     /** delete single row from the table: "thread" */
@@ -2682,6 +2757,10 @@ export interface mutation_root {
     insertReferral: (ReferralMutationResponse | null)
     /** insert a single row into the table: "referral" */
     insertReferralOne: (Referral | null)
+    /** insert data into the table: "social_following" */
+    insertSocialFollowing: (SocialFollowingMutationResponse | null)
+    /** insert a single row into the table: "social_following" */
+    insertSocialFollowingOne: (SocialFollowing | null)
     /** insert data into the table: "thread" */
     insertThread: (ThreadMutationResponse | null)
     /** insert a single row into the table: "thread" */
@@ -2808,6 +2887,10 @@ export interface mutation_root {
     updateReferralByPk: (Referral | null)
     /** update multiples rows of table: "referral" */
     updateReferralMany: ((ReferralMutationResponse | null)[] | null)
+    /** update data of the table: "social_following" */
+    updateSocialFollowing: (SocialFollowingMutationResponse | null)
+    /** update multiples rows of table: "social_following" */
+    updateSocialFollowingMany: ((SocialFollowingMutationResponse | null)[] | null)
     /** update data of the table: "thread" */
     updateThread: (ThreadMutationResponse | null)
     /** update single row of the table: "thread" */
@@ -2950,6 +3033,10 @@ export interface query_root {
     referralAggregate: ReferralAggregate
     /** fetch data from the table: "referral" using primary key columns */
     referralByPk: (Referral | null)
+    /** fetch data from the table: "social_following" */
+    socialFollowing: SocialFollowing[]
+    /** fetch aggregated fields from the table: "social_following" */
+    socialFollowingAggregate: SocialFollowingAggregate
     /** fetch data from the table: "thread" */
     thread: Thread[]
     /** fetch aggregated fields from the table: "thread" */
@@ -3126,6 +3213,12 @@ export interface subscription_root {
     referralByPk: (Referral | null)
     /** fetch data from the table in a streaming manner: "referral" */
     referralStream: Referral[]
+    /** fetch data from the table: "social_following" */
+    socialFollowing: SocialFollowing[]
+    /** fetch aggregated fields from the table: "social_following" */
+    socialFollowingAggregate: SocialFollowingAggregate
+    /** fetch data from the table in a streaming manner: "social_following" */
+    socialFollowingStream: SocialFollowing[]
     /** fetch data from the table: "thread" */
     thread: Thread[]
     /** fetch aggregated fields from the table: "thread" */
@@ -6761,6 +6854,122 @@ _set?: (ReferralSetInput | null),
 where: ReferralBoolExp}
 
 
+/** This junction table records social following relationships between users. Each record represents a follower-followee relationship. */
+export interface SocialFollowingGenqlSelection{
+    createdAt?: boolean | number
+    followeeId?: boolean | number
+    followerId?: boolean | number
+    /** An object relationship */
+    user?: UserGenqlSelection
+    /** An object relationship */
+    userByFollowerId?: UserGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregated selection of "social_following" */
+export interface SocialFollowingAggregateGenqlSelection{
+    aggregate?: SocialFollowingAggregateFieldsGenqlSelection
+    nodes?: SocialFollowingGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+export interface SocialFollowingAggregateBoolExp {count?: (socialFollowingAggregateBoolExpCount | null)}
+
+
+/** aggregate fields of "social_following" */
+export interface SocialFollowingAggregateFieldsGenqlSelection{
+    count?: { __args: {columns?: (SocialFollowingSelectColumn[] | null), distinct?: (Scalars['Boolean'] | null)} } | boolean | number
+    max?: SocialFollowingMaxFieldsGenqlSelection
+    min?: SocialFollowingMinFieldsGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by aggregate values of table "social_following" */
+export interface SocialFollowingAggregateOrderBy {count?: (OrderBy | null),max?: (SocialFollowingMaxOrderBy | null),min?: (SocialFollowingMinOrderBy | null)}
+
+
+/** input type for inserting array relation for remote table "social_following" */
+export interface SocialFollowingArrRelInsertInput {data: SocialFollowingInsertInput[]}
+
+
+/** Boolean expression to filter rows from the table "social_following". All fields are combined with a logical 'AND'. */
+export interface SocialFollowingBoolExp {_and?: (SocialFollowingBoolExp[] | null),_not?: (SocialFollowingBoolExp | null),_or?: (SocialFollowingBoolExp[] | null),createdAt?: (TimestamptzComparisonExp | null),followeeId?: (UuidComparisonExp | null),followerId?: (UuidComparisonExp | null),user?: (UserBoolExp | null),userByFollowerId?: (UserBoolExp | null)}
+
+
+/** input type for inserting data into table "social_following" */
+export interface SocialFollowingInsertInput {createdAt?: (Scalars['timestamptz'] | null),followeeId?: (Scalars['uuid'] | null),followerId?: (Scalars['uuid'] | null),user?: (UserObjRelInsertInput | null),userByFollowerId?: (UserObjRelInsertInput | null)}
+
+
+/** aggregate max on columns */
+export interface SocialFollowingMaxFieldsGenqlSelection{
+    createdAt?: boolean | number
+    followeeId?: boolean | number
+    followerId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by max() on columns of table "social_following" */
+export interface SocialFollowingMaxOrderBy {createdAt?: (OrderBy | null),followeeId?: (OrderBy | null),followerId?: (OrderBy | null)}
+
+
+/** aggregate min on columns */
+export interface SocialFollowingMinFieldsGenqlSelection{
+    createdAt?: boolean | number
+    followeeId?: boolean | number
+    followerId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by min() on columns of table "social_following" */
+export interface SocialFollowingMinOrderBy {createdAt?: (OrderBy | null),followeeId?: (OrderBy | null),followerId?: (OrderBy | null)}
+
+
+/** response of any mutation on the table "social_following" */
+export interface SocialFollowingMutationResponseGenqlSelection{
+    /** number of rows affected by the mutation */
+    affectedRows?: boolean | number
+    /** data from the rows affected by the mutation */
+    returning?: SocialFollowingGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** Ordering options when selecting data from "social_following". */
+export interface SocialFollowingOrderBy {createdAt?: (OrderBy | null),followeeId?: (OrderBy | null),followerId?: (OrderBy | null),user?: (UserOrderBy | null),userByFollowerId?: (UserOrderBy | null)}
+
+
+/** input type for updating data in table "social_following" */
+export interface SocialFollowingSetInput {createdAt?: (Scalars['timestamptz'] | null),followeeId?: (Scalars['uuid'] | null),followerId?: (Scalars['uuid'] | null)}
+
+
+/** Streaming cursor of the table "social_following" */
+export interface SocialFollowingStreamCursorInput {
+/** Stream column input with initial value */
+initialValue: SocialFollowingStreamCursorValueInput,
+/** cursor ordering */
+ordering?: (CursorOrdering | null)}
+
+
+/** Initial value of the column from where the streaming should start */
+export interface SocialFollowingStreamCursorValueInput {createdAt?: (Scalars['timestamptz'] | null),followeeId?: (Scalars['uuid'] | null),followerId?: (Scalars['uuid'] | null)}
+
+export interface SocialFollowingUpdates {
+/** sets the columns of the filtered rows to the given values */
+_set?: (SocialFollowingSetInput | null),
+/** filter the rows which have to be updated */
+where: SocialFollowingBoolExp}
+
+
 /** Boolean expression to compare columns of type "String". All fields are combined with logical 'AND'. */
 export interface StringComparisonExp {_eq?: (Scalars['String'] | null),_gt?: (Scalars['String'] | null),_gte?: (Scalars['String'] | null),
 /** does the column match the given case-insensitive pattern */
@@ -7524,6 +7733,54 @@ export interface UserGenqlSelection{
     where?: (ChatBoolExp | null)} })
     dateJoined?: boolean | number
     email?: boolean | number
+    /** An array relationship */
+    followers?: (SocialFollowingGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (SocialFollowingSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (SocialFollowingOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (SocialFollowingBoolExp | null)} })
+    /** An aggregate relationship */
+    followersAggregate?: (SocialFollowingAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (SocialFollowingSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (SocialFollowingOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (SocialFollowingBoolExp | null)} })
+    /** An array relationship */
+    following?: (SocialFollowingGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (SocialFollowingSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (SocialFollowingOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (SocialFollowingBoolExp | null)} })
+    /** An aggregate relationship */
+    followingAggregate?: (SocialFollowingAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (SocialFollowingSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (SocialFollowingOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (SocialFollowingBoolExp | null)} })
     getFreeMonth?: boolean | number
     isBlocked?: boolean | number
     isVerified?: boolean | number
@@ -7627,6 +7884,7 @@ export interface UserGenqlSelection{
     orderBy?: (ReferralOrderBy[] | null), 
     /** filter the rows returned */
     where?: (ReferralBoolExp | null)} })
+    role?: boolean | number
     slug?: boolean | number
     /** An array relationship */
     threads?: (ThreadGenqlSelection & { __args?: {
@@ -7703,11 +7961,11 @@ export interface UserAggregateFieldsGenqlSelection{
 
 
 /** Boolean expression to filter rows from the table "user". All fields are combined with a logical 'AND'. */
-export interface UserBoolExp {_and?: (UserBoolExp[] | null),_not?: (UserBoolExp | null),_or?: (UserBoolExp[] | null),chats?: (ChatBoolExp | null),chatsAggregate?: (ChatAggregateBoolExp | null),dateJoined?: (TimestamptzComparisonExp | null),email?: (StringComparisonExp | null),getFreeMonth?: (BooleanComparisonExp | null),isBlocked?: (BooleanComparisonExp | null),isVerified?: (BooleanComparisonExp | null),lastLogin?: (TimestamptzComparisonExp | null),password?: (StringComparisonExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),proUserSubscriptionId?: (StringComparisonExp | null),profilePicture?: (StringComparisonExp | null),prompts?: (PromptUserBoolExp | null),promptsAggregate?: (PromptUserAggregateBoolExp | null),referrals?: (ReferralBoolExp | null),referralsAggregate?: (ReferralAggregateBoolExp | null),referralsByUserId?: (ReferralBoolExp | null),referralsByUserIdAggregate?: (ReferralAggregateBoolExp | null),slug?: (StringComparisonExp | null),threads?: (ThreadBoolExp | null),threadsAggregate?: (ThreadAggregateBoolExp | null),userId?: (UuidComparisonExp | null),userTokens?: (UserTokenBoolExp | null),userTokensAggregate?: (UserTokenAggregateBoolExp | null),username?: (StringComparisonExp | null)}
+export interface UserBoolExp {_and?: (UserBoolExp[] | null),_not?: (UserBoolExp | null),_or?: (UserBoolExp[] | null),chats?: (ChatBoolExp | null),chatsAggregate?: (ChatAggregateBoolExp | null),dateJoined?: (TimestamptzComparisonExp | null),email?: (StringComparisonExp | null),followers?: (SocialFollowingBoolExp | null),followersAggregate?: (SocialFollowingAggregateBoolExp | null),following?: (SocialFollowingBoolExp | null),followingAggregate?: (SocialFollowingAggregateBoolExp | null),getFreeMonth?: (BooleanComparisonExp | null),isBlocked?: (BooleanComparisonExp | null),isVerified?: (BooleanComparisonExp | null),lastLogin?: (TimestamptzComparisonExp | null),password?: (StringComparisonExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),proUserSubscriptionId?: (StringComparisonExp | null),profilePicture?: (StringComparisonExp | null),prompts?: (PromptUserBoolExp | null),promptsAggregate?: (PromptUserAggregateBoolExp | null),referrals?: (ReferralBoolExp | null),referralsAggregate?: (ReferralAggregateBoolExp | null),referralsByUserId?: (ReferralBoolExp | null),referralsByUserIdAggregate?: (ReferralAggregateBoolExp | null),role?: (UserRoleComparisonExp | null),slug?: (StringComparisonExp | null),threads?: (ThreadBoolExp | null),threadsAggregate?: (ThreadAggregateBoolExp | null),userId?: (UuidComparisonExp | null),userTokens?: (UserTokenBoolExp | null),userTokensAggregate?: (UserTokenAggregateBoolExp | null),username?: (StringComparisonExp | null)}
 
 
 /** input type for inserting data into table "user" */
-export interface UserInsertInput {chats?: (ChatArrRelInsertInput | null),dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isVerified?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),preferences?: (PreferenceArrRelInsertInput | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),prompts?: (PromptUserArrRelInsertInput | null),referrals?: (ReferralArrRelInsertInput | null),referralsByUserId?: (ReferralArrRelInsertInput | null),slug?: (Scalars['String'] | null),threads?: (ThreadArrRelInsertInput | null),userId?: (Scalars['uuid'] | null),userTokens?: (UserTokenArrRelInsertInput | null),username?: (Scalars['String'] | null)}
+export interface UserInsertInput {chats?: (ChatArrRelInsertInput | null),dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),followers?: (SocialFollowingArrRelInsertInput | null),following?: (SocialFollowingArrRelInsertInput | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isVerified?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),preferences?: (PreferenceArrRelInsertInput | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),prompts?: (PromptUserArrRelInsertInput | null),referrals?: (ReferralArrRelInsertInput | null),referralsByUserId?: (ReferralArrRelInsertInput | null),role?: (Scalars['user_role'] | null),slug?: (Scalars['String'] | null),threads?: (ThreadArrRelInsertInput | null),userId?: (Scalars['uuid'] | null),userTokens?: (UserTokenArrRelInsertInput | null),username?: (Scalars['String'] | null)}
 
 
 /** aggregate max on columns */
@@ -7718,6 +7976,7 @@ export interface UserMaxFieldsGenqlSelection{
     password?: boolean | number
     proUserSubscriptionId?: boolean | number
     profilePicture?: boolean | number
+    role?: boolean | number
     slug?: boolean | number
     userId?: boolean | number
     username?: boolean | number
@@ -7734,6 +7993,7 @@ export interface UserMinFieldsGenqlSelection{
     password?: boolean | number
     proUserSubscriptionId?: boolean | number
     profilePicture?: boolean | number
+    role?: boolean | number
     slug?: boolean | number
     userId?: boolean | number
     username?: boolean | number
@@ -7764,15 +8024,19 @@ export interface UserOnConflict {constraint: UserConstraint,updateColumns?: User
 
 
 /** Ordering options when selecting data from "user". */
-export interface UserOrderBy {chatsAggregate?: (ChatAggregateOrderBy | null),dateJoined?: (OrderBy | null),email?: (OrderBy | null),getFreeMonth?: (OrderBy | null),isBlocked?: (OrderBy | null),isVerified?: (OrderBy | null),lastLogin?: (OrderBy | null),password?: (OrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),proUserSubscriptionId?: (OrderBy | null),profilePicture?: (OrderBy | null),promptsAggregate?: (PromptUserAggregateOrderBy | null),referralsAggregate?: (ReferralAggregateOrderBy | null),referralsByUserIdAggregate?: (ReferralAggregateOrderBy | null),slug?: (OrderBy | null),threadsAggregate?: (ThreadAggregateOrderBy | null),userId?: (OrderBy | null),userTokensAggregate?: (UserTokenAggregateOrderBy | null),username?: (OrderBy | null)}
+export interface UserOrderBy {chatsAggregate?: (ChatAggregateOrderBy | null),dateJoined?: (OrderBy | null),email?: (OrderBy | null),followersAggregate?: (SocialFollowingAggregateOrderBy | null),followingAggregate?: (SocialFollowingAggregateOrderBy | null),getFreeMonth?: (OrderBy | null),isBlocked?: (OrderBy | null),isVerified?: (OrderBy | null),lastLogin?: (OrderBy | null),password?: (OrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),proUserSubscriptionId?: (OrderBy | null),profilePicture?: (OrderBy | null),promptsAggregate?: (PromptUserAggregateOrderBy | null),referralsAggregate?: (ReferralAggregateOrderBy | null),referralsByUserIdAggregate?: (ReferralAggregateOrderBy | null),role?: (OrderBy | null),slug?: (OrderBy | null),threadsAggregate?: (ThreadAggregateOrderBy | null),userId?: (OrderBy | null),userTokensAggregate?: (UserTokenAggregateOrderBy | null),username?: (OrderBy | null)}
 
 
 /** primary key columns input for table: user */
 export interface UserPkColumnsInput {userId: Scalars['uuid']}
 
 
+/** Boolean expression to compare columns of type "user_role". All fields are combined with logical 'AND'. */
+export interface UserRoleComparisonExp {_eq?: (Scalars['user_role'] | null),_gt?: (Scalars['user_role'] | null),_gte?: (Scalars['user_role'] | null),_in?: (Scalars['user_role'][] | null),_isNull?: (Scalars['Boolean'] | null),_lt?: (Scalars['user_role'] | null),_lte?: (Scalars['user_role'] | null),_neq?: (Scalars['user_role'] | null),_nin?: (Scalars['user_role'][] | null)}
+
+
 /** input type for updating data in table "user" */
-export interface UserSetInput {dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isVerified?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),slug?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
+export interface UserSetInput {dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isVerified?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),role?: (Scalars['user_role'] | null),slug?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
 
 
 /** Streaming cursor of the table "user" */
@@ -7784,7 +8048,7 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface UserStreamCursorValueInput {dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isVerified?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),slug?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
+export interface UserStreamCursorValueInput {dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isVerified?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),role?: (Scalars['user_role'] | null),slug?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
 
 
 /** user <> token relationship OTP (reset password/activate account)  */
@@ -8034,6 +8298,10 @@ export interface mutation_rootGenqlSelection{
     where: ReferralBoolExp} })
     /** delete single row from the table: "referral" */
     deleteReferralByPk?: (ReferralGenqlSelection & { __args: {referralCode: Scalars['String']} })
+    /** delete data from the table: "social_following" */
+    deleteSocialFollowing?: (SocialFollowingMutationResponseGenqlSelection & { __args: {
+    /** filter the rows which have to be deleted */
+    where: SocialFollowingBoolExp} })
     /** delete data from the table: "thread" */
     deleteThread?: (ThreadMutationResponseGenqlSelection & { __args: {
     /** filter the rows which have to be deleted */
@@ -8274,6 +8542,14 @@ export interface mutation_rootGenqlSelection{
     object: ReferralInsertInput, 
     /** upsert condition */
     onConflict?: (ReferralOnConflict | null)} })
+    /** insert data into the table: "social_following" */
+    insertSocialFollowing?: (SocialFollowingMutationResponseGenqlSelection & { __args: {
+    /** the rows to be inserted */
+    objects: SocialFollowingInsertInput[]} })
+    /** insert a single row into the table: "social_following" */
+    insertSocialFollowingOne?: (SocialFollowingGenqlSelection & { __args: {
+    /** the row to be inserted */
+    object: SocialFollowingInsertInput} })
     /** insert data into the table: "thread" */
     insertThread?: (ThreadMutationResponseGenqlSelection & { __args: {
     /** the rows to be inserted */
@@ -8624,6 +8900,16 @@ export interface mutation_rootGenqlSelection{
     updateReferralMany?: (ReferralMutationResponseGenqlSelection & { __args: {
     /** updates to execute, in order */
     updates: ReferralUpdates[]} })
+    /** update data of the table: "social_following" */
+    updateSocialFollowing?: (SocialFollowingMutationResponseGenqlSelection & { __args: {
+    /** sets the columns of the filtered rows to the given values */
+    _set?: (SocialFollowingSetInput | null), 
+    /** filter the rows which have to be updated */
+    where: SocialFollowingBoolExp} })
+    /** update multiples rows of table: "social_following" */
+    updateSocialFollowingMany?: (SocialFollowingMutationResponseGenqlSelection & { __args: {
+    /** updates to execute, in order */
+    updates: SocialFollowingUpdates[]} })
     /** update data of the table: "thread" */
     updateThread?: (ThreadMutationResponseGenqlSelection & { __args: {
     /** increments the numeric columns with given value of the filtered values */
@@ -9171,6 +9457,30 @@ export interface query_rootGenqlSelection{
     where?: (ReferralBoolExp | null)} })
     /** fetch data from the table: "referral" using primary key columns */
     referralByPk?: (ReferralGenqlSelection & { __args: {referralCode: Scalars['String']} })
+    /** fetch data from the table: "social_following" */
+    socialFollowing?: (SocialFollowingGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (SocialFollowingSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (SocialFollowingOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (SocialFollowingBoolExp | null)} })
+    /** fetch aggregated fields from the table: "social_following" */
+    socialFollowingAggregate?: (SocialFollowingAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (SocialFollowingSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (SocialFollowingOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (SocialFollowingBoolExp | null)} })
     /** fetch data from the table: "thread" */
     thread?: (ThreadGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -9332,6 +9642,8 @@ export interface query_rootGenqlSelection{
 }
 
 export interface referralAggregateBoolExpCount {arguments?: (ReferralSelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (ReferralBoolExp | null),predicate: IntComparisonExp}
+
+export interface socialFollowingAggregateBoolExpCount {arguments?: (SocialFollowingSelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (SocialFollowingBoolExp | null),predicate: IntComparisonExp}
 
 export interface subscription_rootGenqlSelection{
     /** fetch data from the table: "category" */
@@ -9912,6 +10224,38 @@ export interface subscription_rootGenqlSelection{
     cursor: (ReferralStreamCursorInput | null)[], 
     /** filter the rows returned */
     where?: (ReferralBoolExp | null)} })
+    /** fetch data from the table: "social_following" */
+    socialFollowing?: (SocialFollowingGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (SocialFollowingSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (SocialFollowingOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (SocialFollowingBoolExp | null)} })
+    /** fetch aggregated fields from the table: "social_following" */
+    socialFollowingAggregate?: (SocialFollowingAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (SocialFollowingSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (SocialFollowingOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (SocialFollowingBoolExp | null)} })
+    /** fetch data from the table in a streaming manner: "social_following" */
+    socialFollowingStream?: (SocialFollowingGenqlSelection & { __args: {
+    /** maximum number of rows returned in a single batch */
+    batchSize: Scalars['Int'], 
+    /** cursor to stream the results returned by the query */
+    cursor: (SocialFollowingStreamCursorInput | null)[], 
+    /** filter the rows returned */
+    where?: (SocialFollowingBoolExp | null)} })
     /** fetch data from the table: "thread" */
     thread?: (ThreadGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -11589,6 +11933,54 @@ export type SubscriptionGenqlSelection = subscription_rootGenqlSelection
     
 
 
+    const SocialFollowing_possibleTypes: string[] = ['SocialFollowing']
+    export const isSocialFollowing = (obj?: { __typename?: any } | null): obj is SocialFollowing => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isSocialFollowing"')
+      return SocialFollowing_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const SocialFollowingAggregate_possibleTypes: string[] = ['SocialFollowingAggregate']
+    export const isSocialFollowingAggregate = (obj?: { __typename?: any } | null): obj is SocialFollowingAggregate => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isSocialFollowingAggregate"')
+      return SocialFollowingAggregate_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const SocialFollowingAggregateFields_possibleTypes: string[] = ['SocialFollowingAggregateFields']
+    export const isSocialFollowingAggregateFields = (obj?: { __typename?: any } | null): obj is SocialFollowingAggregateFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isSocialFollowingAggregateFields"')
+      return SocialFollowingAggregateFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const SocialFollowingMaxFields_possibleTypes: string[] = ['SocialFollowingMaxFields']
+    export const isSocialFollowingMaxFields = (obj?: { __typename?: any } | null): obj is SocialFollowingMaxFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isSocialFollowingMaxFields"')
+      return SocialFollowingMaxFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const SocialFollowingMinFields_possibleTypes: string[] = ['SocialFollowingMinFields']
+    export const isSocialFollowingMinFields = (obj?: { __typename?: any } | null): obj is SocialFollowingMinFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isSocialFollowingMinFields"')
+      return SocialFollowingMinFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const SocialFollowingMutationResponse_possibleTypes: string[] = ['SocialFollowingMutationResponse']
+    export const isSocialFollowingMutationResponse = (obj?: { __typename?: any } | null): obj is SocialFollowingMutationResponse => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isSocialFollowingMutationResponse"')
+      return SocialFollowingMutationResponse_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
     const Thread_possibleTypes: string[] = ['Thread']
     export const isThread = (obj?: { __typename?: any } | null): obj is Thread => {
       if (!obj?.__typename) throw new Error('__typename is missing in "isThread"')
@@ -12282,6 +12674,12 @@ export const enumReferralUpdateColumn = {
    userId: 'userId' as const
 }
 
+export const enumSocialFollowingSelectColumn = {
+   createdAt: 'createdAt' as const,
+   followeeId: 'followeeId' as const,
+   followerId: 'followerId' as const
+}
+
 export const enumThreadConstraint = {
    thread_id_key: 'thread_id_key' as const,
    thread_pkey: 'thread_pkey' as const
@@ -12378,6 +12776,7 @@ export const enumUserSelectColumn = {
    password: 'password' as const,
    proUserSubscriptionId: 'proUserSubscriptionId' as const,
    profilePicture: 'profilePicture' as const,
+   role: 'role' as const,
    slug: 'slug' as const,
    userId: 'userId' as const,
    username: 'username' as const
@@ -12407,6 +12806,7 @@ export const enumUserUpdateColumn = {
    password: 'password' as const,
    proUserSubscriptionId: 'proUserSubscriptionId' as const,
    profilePicture: 'profilePicture' as const,
+   role: 'role' as const,
    slug: 'slug' as const,
    userId: 'userId' as const,
    username: 'username' as const
