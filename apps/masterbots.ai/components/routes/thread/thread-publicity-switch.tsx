@@ -1,9 +1,28 @@
+/**
+ * ThreadPublicitySwitch Component
+ * 
+ * A toggle switch component that allows users to change the visibility
+ * of a chat thread between public and private states.
+ * 
+ * Key Features:
+ * - Displays an eye icon for public visibility and an eye-off icon for private visibility
+ * - Provides visual feedback on the current state of the thread's visibility
+ * - Integrates with the useThreadVisibility hook to manage visibility state
+ * 
+ * Functionality:
+ * - Toggles the visibility state when the switch is changed
+ * - Updates the visibility status of the thread based on user interaction
+ * 
+ * Props:
+ * - threadId: The ID of the thread whose visibility is being toggled
+ */
+
 import * as Switch from '@radix-ui/react-switch';
-import { Eye, EyeOff } from 'lucide-react'; // Importing the icons from lucide-react'
+import { Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility';
 
-export  function ThreadPublicitySwitch({ threadId }: { threadId: string }) {   
+export function ThreadPublicitySwitch({ threadId }: { threadId: string }) {   
   const { isPublic, toggleVisibility } = useThreadVisibility();
  
   return (

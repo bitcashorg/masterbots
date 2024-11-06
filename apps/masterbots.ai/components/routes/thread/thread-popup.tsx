@@ -1,5 +1,28 @@
 'use client'
 
+/**
+ * ThreadPopup Component
+ *
+ * A popup component that displays the active chat thread in a modal-like interface.
+ * It integrates chat functionality and provides a user-friendly way to interact
+ * with threads associated with a specific chatbot.
+ *
+ * Key Features:
+ * - Displays the thread title and subheading
+ * - Contains a close button to exit the popup
+ * - Shows the chat history and allows sending messages
+ * - Supports scrolling to the bottom of the chat when new messages arrive
+ * - Includes a publicity switch for thread visibility settings
+ *
+ * Functionality:
+ * - Manages the visibility of the popup based on user interaction
+ * - Automatically scrolls to the bottom when new messages are loaded
+ * - Displays a list of messages in the active thread
+ *
+ * Props:
+ * - className: Optional string for additional styling
+ */
+
 import { Chat } from '@/components/routes/chat/chat'
 import { ChatList } from '@/components/routes/chat/chat-list'
 import { IconClose } from '@/components/ui/icons'
@@ -8,7 +31,7 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { cn, scrollToBottomOfElement } from '@/lib/utils'
 import { useScroll } from 'framer-motion'
 import { useEffect, useRef } from 'react'
-import { ThreadPublicitySwitch } from "./thread-publicity-switch"
+import { ThreadPublicitySwitch } from './thread-publicity-switch'
 
 export function ThreadPopup({ className }: { className?: string }) {
   const {
@@ -93,11 +116,7 @@ export function ThreadPopup({ className }: { className?: string }) {
 
             <div className="flex items-center">
               <ThreadPublicitySwitch threadId={activeThread?.threadId} />
-              <button
-                type="button"
-                className="ml-2"
-                onClick={onClose}
-              >
+              <button type="button" className="ml-2" onClick={onClose}>
                 <IconClose />
               </button>
             </div>

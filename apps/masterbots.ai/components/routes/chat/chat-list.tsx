@@ -1,31 +1,33 @@
 'use client'
 
+//* ChatList component renders a chat interface, managing message pairs and displaying them in an accordion format.
+
 import { ChatAccordion } from '@/components/routes/chat/chat-accordion'
 import { ChatMessage } from '@/components/routes/chat/chat-message'
 import { ShortMessage } from '@/components/shared/short-message'
 import { useScroll } from '@/lib/hooks/use-scroll'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn, createMessagePairs } from '@/lib/utils'
-import { type Message } from 'ai'
-import { Chatbot } from 'mb-genql'
+import type { Message } from 'ai'
+import type { Chatbot } from 'mb-genql'
 import React, { useRef } from 'react'
 
 export interface ChatList {
-  messages?: Message[]
-  sendMessageFn?: (message: string) => void
-  chatbot?: Chatbot
-  isThread?: boolean
-  className?: string
-  chatContentClass?: string
-  chatTitleClass?: string
-  chatArrowClass?: string
-  containerRef?: React.RefObject<HTMLDivElement>
-  isNearBottom?: boolean
+  messages?: Message[] //* Array of messages to display in the chat
+  sendMessageFn?: (message: string) => void //* Optional function to send messages
+  chatbot?: Chatbot //* Chatbot configuration, used to format message display
+  isThread?: boolean //* Indicates if messages are displayed in thread format
+  className?: string //* Additional class for styling main container
+  chatContentClass?: string //* Class for styling chat content section
+  chatTitleClass?: string //* Class for styling chat title
+  chatArrowClass?: string //* Class for styling arrow icon in the chat
+  containerRef?: React.RefObject<HTMLDivElement> //* Optional ref for chat container
+  isNearBottom?: boolean //* Tracks if user is near the bottom of the chat for auto-scroll
 }
 
 type MessagePair = {
-  userMessage: Message
-  chatGptMessage: Message[]
+  userMessage: Message // User's message in the chat pair
+  chatGptMessage: Message[] // Array of chatbot responses for a user message
 }
 
 export function ChatList({
@@ -58,7 +60,7 @@ export function ChatList({
     hasMore: false,
     isLast: true,
     loading: isLoadingMessages,
-    loadMore: () => { }
+    loadMore: () => {}
   })
 
   React.useEffect(() => {
@@ -89,6 +91,7 @@ export function ChatList({
       className={`relative max-w-3xl px-4 mx-auto ${className || ''} ${isThread ? 'flex flex-col gap-3' : ''}`}
     >
       {pairs.map((pair: MessagePair, key: number) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
         <div key={key}>
           <ChatAccordion
             defaultState={
@@ -148,16 +151,17 @@ export function ChatList({
               )}
               {pair.chatGptMessage.length > 0
                 ? pair.chatGptMessage.map((message, index) => (
-                  <ChatMessage
-                    actionRequired={false}
-                    key={index}
-                    chatbot={chatbot}
-                    message={message}
-                    sendMessageFromResponse={
-                      sendMessageFn ? sendMessageFn : sendMessageFromResponse
-                    }
-                  />
-                ))
+                    <ChatMessage
+                      actionRequired={false}
+                      // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                      key={index}
+                      chatbot={chatbot}
+                      message={message}
+                      sendMessageFromResponse={
+                        sendMessageFn ? sendMessageFn : sendMessageFromResponse
+                      }
+                    />
+                  ))
                 : ''}
             </div>
           </ChatAccordion>

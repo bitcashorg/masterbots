@@ -1,6 +1,22 @@
 'use client'
 
-import { User } from 'mb-genql'
+/**
+ * BrowseUserDetails Component
+ *
+ * This component displays detailed information about a specific user, including their username and the number of threads associated with them.
+ * It fetches the number of threads for the user from the backend service and presents the user's profile picture.
+ *
+ * Props:
+ * - user: An optional User object containing details about the user, including their username and profile picture.
+ *
+ * Key Features:
+ * - Dynamic Thread Count: Fetches and displays the number of threads associated with the user.
+ * - Responsive Design: Utilizes Tailwind CSS for styling and layout.
+ * - Conditional Rendering: Displays user details only if the user data is available.
+ * - Image Handling: Displays the user's profile picture with a fallback for missing images.
+ */
+
+import type { User } from 'mb-genql'
 import Image from 'next/image'
 import { Separator } from '@/components/ui/separator'
 import { useEffect, useState } from 'react'
