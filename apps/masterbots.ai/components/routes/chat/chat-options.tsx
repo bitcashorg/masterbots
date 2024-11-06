@@ -31,8 +31,8 @@ interface ChatOptionsProps {
 export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
   const { toggleVisibility, isSameUser, initiateDeleteThread } = useThreadVisibility()
   const isUser = isSameUser(thread)
-  const title = thread?.messages[0]?.content;
-  const text = thread?.messages[1]?.content.substring(0, 100);
+  const title = thread?.messages[0]?.content ?? 'Untitled';
+  const text = thread?.messages[1]?.content.substring(0, 100) ?? 'No description found...';
   const url = `/${toSlug(thread.chatbot.categories[0].category.name)}/${thread.threadId}`
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)

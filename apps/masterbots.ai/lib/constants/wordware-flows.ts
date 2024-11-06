@@ -22,8 +22,9 @@ export const wordwareFlows: WordwareFlow[] = [
     path: 'SetBlogOutlines'
   },
   {
-    id: '0ed65573-b939-40c4-b078-240d01fc19bf',
+    // id: '0ed65573-b939-40c4-b078-240d01fc19bf', // prompt_id
+    id: 'c290c3dd-12d7-4fd2-9e03-1608bb9f7c84', // run_id
     type: 'prompt',
-    path: 'WebSearch'
+    path: 'webSearch'
   }
 ] as const

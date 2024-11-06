@@ -1,3 +1,4 @@
+import { WordWareDescribeDAtaResponse } from '@/types/wordware-flows.types'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
@@ -33,14 +34,7 @@ export async function GET(request: Request) {
 
     const contentType = response.headers.get('content-type')
     if (contentType && contentType.indexOf('application/json') !== -1) {
-      const data: {
-        version: string;
-        title: string;
-        description: string;
-        examples: Record<string, unknown>;
-        created: string;
-        inputs: Record<string, unknown>[];
-      } = await response.json()
+      const data: WordWareDescribeDAtaResponse = await response.json()
       return NextResponse.json(data, { status: response.status })
     } else {
       const text = await response.text()

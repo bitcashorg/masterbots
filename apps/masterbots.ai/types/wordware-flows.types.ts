@@ -6,7 +6,7 @@ export interface WordwareFlow {
     | 'SetBlogImages'
     | 'GenerateBlogArticle'
     | 'SetBlogOutlines'
-    | 'WebSearch'
+    | 'webSearch'
     | 'WebSonarSearch'
 }
 
@@ -30,4 +30,13 @@ export interface WordwareFlowEntry {
 export interface StreamEntry {
   type: 'chunk'
   value: WordwareFlowEntry
+}
+
+export type WordWareDescribeDAtaResponse = {
+  version: string
+  title: string
+  description: string
+  examples: Record<string, unknown>
+  created: string
+  inputs: Record<string, unknown>[]
 }

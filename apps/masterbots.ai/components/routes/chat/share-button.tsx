@@ -22,11 +22,11 @@
  * when URL shortening fails
  */
 
+import { generateShortLink } from '@/app/actions'
 import { Button } from '@/components/ui/button'
-import { LucideCheck, LucideLoader2, LucideX, Share2 } from 'lucide-react'
-import { generateShortLink } from '@/actions'
-import { useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
+import { LucideCheck, LucideLoader2, LucideX, Share2 } from 'lucide-react'
+import { useState } from 'react'
 
 interface ShareButtonProps {
   url: string

@@ -1,4 +1,4 @@
-import { createResponseStream } from '@/app/api/chat/actions'
+import { createResponseStream } from '@/app/actions'
 import { getModelClientType } from '@/lib/helpers/ai-helpers'
 import { NextResponse } from 'next/server'
 

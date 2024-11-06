@@ -1,8 +1,7 @@
 'use server'
-import { cookies } from 'next/headers'
+
 import axios from 'axios'
-import { Resend } from 'resend'
-import { z } from 'zod'
+import { cookies } from 'next/headers'
 
 // generate dub.co links
 export async function generateShortLink(path: string) {

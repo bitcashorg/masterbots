@@ -32,6 +32,7 @@ import { ChatAccordion } from '@/components/routes/chat/chat-accordion'
 import { ChatList } from '@/components/routes/chat/chat-list'
 import { ChatbotAvatar } from '@/components/shared/chatbot-avatar'
 import { ShortMessage } from '@/components/shared/short-message'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useScroll } from '@/lib/hooks/use-scroll'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
@@ -91,9 +92,9 @@ export default function ThreadComponent({
               {/* TODO: Fix UI to truncate text when closed (see -> apps/masterbots.ai/components/routes/browse/browse-list-item.tsx) */}
               {thread.messages
                 .filter(m => m.role === 'user')[0]
-                ?.content || 'wat'}
-
-
+                ?.content || (
+                  <Skeleton className="w-[280px] h-[20px]" />
+                )}
             </span>
           </span>
           {/* Thread Options */}

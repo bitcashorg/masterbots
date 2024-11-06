@@ -1,7 +1,7 @@
 import {
   getChatbotMetadataTool,
   getWebSearchTool
-} from '@/app/api/chat/actions'
+} from '@/app/actions'
 import { z } from 'zod'
 
 // ? schema output for webSearch (Non-WordWare)

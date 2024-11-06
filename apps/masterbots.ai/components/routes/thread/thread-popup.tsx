@@ -27,6 +27,7 @@ import { Chat } from '@/components/routes/chat/chat'
 import { ChatList } from '@/components/routes/chat/chat-list'
 import { Button } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useAtBottom } from '@/lib/hooks/use-at-bottom'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn, scrollToBottomOfElement } from '@/lib/utils'
@@ -103,9 +104,13 @@ export function ThreadPopup({ className }: { className?: string }) {
         <div className="relative rounded-t-[8px] px-[32px] py-[20px] dark:bg-[#1E293B] bg-[#E4E4E7]">
           <div className="flex items-center gap-6 justify-between">
             <div className="block items-center max-h-28 scrollbar small-thumb overflow-y-auto whitespace-pre-line">
-              {threadTitle && threadTitleChunks.length > 32
-                ? threadTitleHeading + ''
-                : threadTitle || 'wat'}
+              {threadTitle ?
+                threadTitleChunks.length > 32
+                  ? threadTitleHeading + ''
+                  : threadTitle
+                : (
+                  <Skeleton className="w-[280px] h-[20px]" />
+                )}
               {threadTitleSubHeading && (
                 <span className="ml-2 overflow-hidden text-sm opacity-50">
                   {threadTitleSubHeading}
@@ -123,7 +128,7 @@ export function ThreadPopup({ className }: { className?: string }) {
         </div>
 
         <div
-          className="flex flex-col dark:bg-[#18181B] bg-[white] grow rounded-b-[8px] scrollbar pb-[180px]"
+          className="flex flex-col dark:bg-[#18181B] bg-[white] grow rounded-b-[8px] scrollbar pb-[180px] h-full"
           ref={popupContentRef as React.Ref<HTMLDivElement>}
         >
           {activeThread && (

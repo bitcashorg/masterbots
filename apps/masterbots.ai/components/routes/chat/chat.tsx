@@ -34,7 +34,7 @@
 
 import {
   improveMessage
-} from "@/app/api/chat/actions/ai-main-call";
+} from "@/app/actions/ai-main-call";
 import { ChatList } from "@/components/routes/chat/chat-list";
 import { ChatPanel } from "@/components/routes/chat/chat-panel";
 import { ChatScrollAnchor } from "@/components/routes/chat/chat-scroll-anchor";
@@ -184,12 +184,9 @@ export function Chat({
       return;
     }
 
-    if (activeThread?.threadId) {
-      setIsOpenPopup(true);
-    }
-
-    // * Loading: processing your request... 'processing'
+    // * Loading: processing your request + opening pop-up...
     setLoadingState("processing");
+    setIsOpenPopup(true);
 
     let processedMessage: CleanPromptResult = setDefaultPrompt(
       userMessage.content,
@@ -219,6 +216,24 @@ export function Chat({
     const { language, originalText, improvedText, translatedText } =
       processedMessage;
     const userContent = translatedText || improvedText || originalText;
+
+    // * Optimistically setting the active thread
+    const updatedUserMessage = {
+      ...userMessage,
+      content: userContent,
+    };
+    setActiveThread({
+      threadId,
+      chatbotId: chatbot.chatbotId,
+      chatbot,
+      createdAt: new Date().toISOString(),
+      isApproved: false,
+      isBlocked: false,
+      isPublic: activeChatbot?.name !== "BlankBot",
+      // @ts-ignore
+      messages: initialMessages ? [...initialMessages, updatedUserMessage as Message] : [updatedUserMessage as Message],
+      userId: session.user.id,
+    })
 
     console.log("Processed Message: ", processedMessage);
 
@@ -320,6 +335,9 @@ export function Chat({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading]);
 
+  console.log('All Messages [threadAllMessages]', threadAllMessages);
+  console.log('Active Thread', activeThread);
+
   return (
     <>
       {params.threadId && (
@@ -358,7 +376,7 @@ export function Chat({
         stop={stop}
         append={appendWithMbContextPrompts}
         reload={reload}
-        messages={allMessages}
+        messages={threadAllMessages}
         input={input}
         setInput={setInput}
         chatbot={chatbot}
