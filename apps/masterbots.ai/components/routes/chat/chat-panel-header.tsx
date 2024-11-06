@@ -1,21 +1,22 @@
+//* ChatPanelHeader provides controls for managing chat actions like reloading, stopping generation, and sharing chat.
 import { ChatShareDialog } from '@/components/routes/chat/chat-share-dialog'
 import { ButtonScrollToBottom } from '@/components/shared/button-scroll-to-bottom'
 import { Button } from '@/components/ui/button'
 import { IconRefresh, IconShare, IconStop } from '@/components/ui/icons'
-// ChatPanelHeader.tsx
 import * as React from 'react'
 
 interface ChatPanelHeaderProps {
-  id?: string
-  title?: string
-  isLoading: boolean
-  stop: () => void
-  reload: () => void
-  messages: any[]
-  showReload: boolean
-  scrollToBottom: () => void
-  loadingState?: string
-  isAtBottom?: boolean
+  id?: string // Chat ID, required for sharing functionality
+  title?: string // Chat title, required for sharing
+  isLoading: boolean // Indicates if a response is currently generating
+  stop: () => void // Function to stop response generation
+  reload: () => void // Function to regenerate a response
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  messages: any[] // Array of messages in the chat
+  showReload: boolean // Shows reload option when true
+  scrollToBottom: () => void // Scrolls chat to the bottom
+  loadingState?: string // Current loading status or message stage
+  isAtBottom?: boolean // Indicates if chat is scrolled to the bottom
 }
 
 export function ChatPanelHeader({
@@ -38,18 +39,24 @@ export function ChatPanelHeader({
         <div className="flex items-center px-2 space-x-2">
           {isLoading ? (
             <>
-              {/* // * Testing loadingState for chat stages */}
+              {/* Displays loading state message if active */}
               {loadingState && (
-                <div className="flex gap-4 items-center justify-between">
+                <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center space-x-1 drop-shadow-lg">
-                    <div className="size-2 bg-primary rounded-full animate-pulse" />
-                    <div className="size-2 bg-primary rounded-full animate-pulse" />
-                    <div className="size-2 bg-primary rounded-full animate-pulse" />
+                    <div className="rounded-full size-2 bg-primary animate-pulse" />
+                    <div className="rounded-full size-2 bg-primary animate-pulse" />
+                    <div className="rounded-full size-2 bg-primary animate-pulse" />
                   </div>
-                  <p className="text-sm text-primary font-bold drop-shadow-lg">{loadingState}</p>
+                  <p className="text-sm font-bold text-primary drop-shadow-lg">
+                    {loadingState}
+                  </p>
                 </div>
               )}
-              <Button variant="outline" onClick={stop} className="bg-background">
+              <Button
+                variant="outline"
+                onClick={stop}
+                className="bg-background"
+              >
                 <IconStop className="mr-2" />
                 Stop generating
               </Button>
@@ -71,7 +78,7 @@ export function ChatPanelHeader({
                       Share
                     </Button>
                     <ChatShareDialog
-                      onCopy={() => setShareDialogOpen(false)}
+                      onCopy={() => setShareDialogOpen(false)} // Closes dialog after copying link.
                       chat={{
                         id,
                         title,
@@ -85,6 +92,7 @@ export function ChatPanelHeader({
           )}
         </div>
       )}
+      {/* ButtonScrollToBottom provides a button to scroll to the bottom of the chat */}
       <ButtonScrollToBottom
         scrollToBottom={scrollToBottom}
         isAtBottom={isAtBottom}

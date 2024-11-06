@@ -1,9 +1,9 @@
-'use client'; // Este componente usa el hook
+'use client';
 
 import Image from 'next/image';
 import { useSidebar } from '@/lib/hooks/use-sidebar';
 import { cn } from '@/lib/utils'
-import { Thread } from 'mb-genql'
+import type { Thread } from 'mb-genql'
 
 export function ChatbotAvatar({ thread }: { thread: Thread }) {
   const { activeChatbot } = useSidebar();

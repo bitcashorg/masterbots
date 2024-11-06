@@ -1,6 +1,31 @@
+/**
+ * PromptForm Component
+ *
+ * A reusable chat input form component that provides:
+ * - Auto-expanding textarea for message input
+ * - Submit button with loading state
+ * - Keyboard shortcuts (Enter to submit)
+ * - Focus management
+ * - Combobox integration for enhanced input options
+ *
+ * Key Features:
+ * - Auto-resizing textarea with react-textarea-autosize
+ * - Visual feedback for focus states
+ * - Disabled state handling with overlay message
+ * - Enter key submission handling
+ * - Input validation and trimming
+ * - Tooltip-enhanced submit button
+ *
+ * UX Considerations:
+ * - Maintains focus on input for immediate typing
+ * - Provides visual feedback for input states
+ * - Handles both click and keyboard submissions
+ * - Shows clear placeholder text for user guidance
+ */
+
 import * as React from 'react'
 import Textarea from 'react-textarea-autosize'
-import { UseChatHelpers } from 'ai/react'
+import type { UseChatHelpers } from 'ai/react'
 import { useEnterSubmit } from '@/lib/hooks/use-enter-submit'
 import { Button } from '@/components/ui/button'
 import {

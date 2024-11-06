@@ -1,15 +1,33 @@
 'use client'
 
+/**
+ * ShareLink Component
+ *
+ * A component that provides user actions for sharing a link to the current thread.
+ * It allows users to copy the link to the clipboard and generates a short link
+ * for easier sharing.
+ *
+ * Key Features:
+ * - Displays an icon indicating the current action state (loading, copied, error)
+ * - Integrates with the generateShortLink action to create a short link
+ * - Provides visual feedback based on the action status
+ *
+ * Functionality:
+ * - Toggles between different states: default, loading, copied, and error
+ * - Copies the generated short link to the clipboard
+ *
+ * States:
+ * - default: Initial state with the default icon
+ * - loading: Spinner icon indicating the link is being generated
+ * - copied: Checkmark icon indicating the link has been copied
+ * - error: Error icon indicating a failure in link generation
+ */
+
 import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { AnimatePresence } from 'framer-motion'
 import { LucideCheck, LucideLoader2, LucideX } from 'lucide-react'
 import { generateShortLink } from '@/actions'
-
-// * This component user-actions has the action of ShareLink that does the following:
-// ? It allows the user to copy the link to the clipboard
-// ? It also allows the user to generate a short link
-// ? It uses the generateShortLink action to generate a short link
 
 export default function ShareLink() {
   const [status, setStatus] = useState<

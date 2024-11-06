@@ -1,3 +1,8 @@
+/**
+ * ClickableText component
+ * Renders specified "unique" or "general" phrases as clickable links, triggering a message when clicked.
+ */
+
 export function ClickableText({
   children,
   isListItem,
@@ -8,7 +13,8 @@ export function ClickableText({
   sendMessageFromResponse?: (message: string) => void
 }) {
   const fullText: string = extractTextFromReactNode(children)
-  // ? This regex matches any variation of the unique key phrases followed by a colon and then captures the following sentence.
+
+  //* List of unique key phrases to detect and render as clickable text.
   const uniquePhrases = [
     'Unique, lesser-known',
     'Unique insight',
@@ -22,19 +28,23 @@ export function ClickableText({
     'For a UNIQUE, LESSER-KNOWN phrase',
     'Unique, Lesser-Known Destination'
   ]
+
+  //* Regex to match phrases followed by a colon and capture the following text as clickable.
   const uniquePattern = new RegExp(
     `(?:${uniquePhrases.join('|')}):\\s*([^.:]+[.])`,
     'i'
   )
-  const generalPattern = /(.*?)([:.,])(?:\s|$)/g
-  // First, check for the UNIQUE pattern
+
+  const generalPattern = /(.*?)([:.,])(?:\s|$)/g // General fallback pattern if unique phrases aren't found.
+
+  //* Check if fullText matches unique pattern to set clickableText and restText.
   const uniqueMatch = fullText.match(uniquePattern)
   let clickableText = uniqueMatch ? uniqueMatch[1] : ''
   let restText = uniqueMatch
     ? fullText.slice(fullText.indexOf(clickableText) + clickableText.length)
     : fullText
 
-  // If the UNIQUE pattern isn't found, use the general pattern
+  //* Fallback to general pattern if uniqueMatch is not found.
   if (!uniqueMatch) {
     const match = fullText.match(generalPattern)
     clickableText = match ? match[0] : ''
@@ -43,18 +53,20 @@ export function ClickableText({
 
   const handleClick = () => {
     if (sendMessageFromResponse && clickableText) {
-      // ? @brandon -- I am not 100% sure if this would be the best place to put it, but I found this is the only use case for this scenario.
-      sendMessageFromResponse(`Tell me more about ${clickableText.replace(/(:|\.|\,)\s*$/, '')}`)
-      // sendMessageFromResponse(clickableText.replace(/(:|\.|\,)\s*$/, ''))
+      //* Calls sendMessageFromResponse with cleaned clickableText for interaction.
+      sendMessageFromResponse(
+        `Tell me more about ${clickableText.replace(/(:|\.|\,)\s*$/, '')}`
+      )
     }
   }
 
   if (!clickableText.trim()) {
-    return <>{fullText}</>
+    return <>{fullText}</> //* Render full text if no clickable phrase found.
   }
 
   return (
     <>
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
       <span
         className="cursor-pointer text-link hover:underline"
         onClick={handleClick}
@@ -66,22 +78,13 @@ export function ClickableText({
   )
 }
 
+//* Helper function to convert ReactNode content to string for regex processing.
 function extractTextFromReactNode(node: React.ReactNode): string {
-  if (typeof node === 'string') {
-    return node
-  }
-
-  if (typeof node === 'number') {
-    return node.toString()
-  }
-
-  if (Array.isArray(node)) {
-    return node.map(extractTextFromReactNode).join('')
-  }
-
+  if (typeof node === 'string') return node
+  if (typeof node === 'number') return node.toString()
+  if (Array.isArray(node)) return node.map(extractTextFromReactNode).join('')
   if (typeof node === 'object' && node !== null && 'props' in node) {
     return extractTextFromReactNode(node.props.children)
   }
-
   return ''
 }
