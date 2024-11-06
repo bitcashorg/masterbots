@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import Link from 'next/link'
-import { toSlug } from 'mb-lib'
+import { toSlugWithUnderScore } from 'mb-lib'
 
 export interface UserMenuProps {
   user: Session['user']
@@ -51,7 +51,7 @@ export function UserMenu({ user }: UserMenuProps) {
             <div className="text-xs text-zinc-500">{user?.email}</div>
           </DropdownMenuItem>
           <DropdownMenuItem className="flex-col items-start">
-            <Link  href={`/p/${toSlug(user?.name || '')}`}
+            <Link  href={`/p/${toSlugWithUnderScore(user?.name || '')}`}
               className="text-xs"
             >
               Profile

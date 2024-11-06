@@ -9,6 +9,7 @@ import { ThemeProvider as NextThemesProvider } from 'next-themes'
 import { ThemeProviderProps } from 'next-themes/dist/types'
 import { ModelProvider } from '@/lib/hooks/use-model'
 import { ThreadVisibilityProvider } from '@/lib/hooks/use-thread-visibility'
+import { ProfileProvider } from '@/lib/hooks/use-profile'
 
 export function Providers({ children, ...props }: ThemeProviderProps) {
   return (
@@ -18,9 +19,11 @@ export function Providers({ children, ...props }: ThemeProviderProps) {
           <SidebarProvider>
             <TooltipProvider>
               <SessionProvider>
+                <ProfileProvider>
                 <ThreadProvider> 
                   <ThreadVisibilityProvider> {children}</ThreadVisibilityProvider>
                 </ThreadProvider>
+                </ProfileProvider>
               </SessionProvider>
             </TooltipProvider>
           </SidebarProvider>

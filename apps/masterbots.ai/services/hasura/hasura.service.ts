@@ -751,3 +751,79 @@ export async function getUnapprovedThreads({ jwt }: { jwt: string }) {
 
   return thread as Thread[]
 }
+
+
+// get user by username, get user info, threads, followers and  following 
+export async function getUserByUsername({ username }: { username: string}) {
+  try {
+    const client = getHasuraClient({  })
+    
+    // First attempt: try exact match with case-insensitive comparison
+    const { user } = await client.query({
+      user: {
+        __args: {
+          where: {
+            slug: {
+              _ilike: username  // Using _ilike for case-insensitive matching
+            }
+          }
+        },
+        userId: true,              // Added id field which might be required
+        username: true,
+        profilePicture: true,
+        threads: {
+          threadId: true,
+          chatbot: {
+            name: true
+          }
+        },
+        // followers: {
+        //   follower: {
+        //     username: true,
+        //     id: true           // Added id for proper relationship handling
+        //   }
+        // },
+        // following: {
+        //   following: {
+        //     username: true,
+        //     id: true           // Added id for proper relationship handling
+        //   }
+        // }
+      }
+    })
+
+    // If no user found, try alternative matching (optional)
+    if (!user || user.length === 0) {
+      // You could implement additional matching logic here
+      console.log('No user found with username:', username)
+      return { user: null, error: 'User not found.' }
+    }
+
+    return { 
+      user: user[0],  // Return the first matching user
+      error: null 
+    }
+
+  } catch (error) {
+    // Enhanced error logging
+    console.error('Error fetching user by username:', {
+      error,
+      username,
+      timestamp: new Date().toISOString()
+    })
+
+    // Type guard to handle different error types
+    if (error instanceof Error) {
+      return { 
+        user: null, 
+        error: error.message || 'Failed to fetch user by username.' 
+      }
+    }
+
+    return { 
+      user: null, 
+      error: 'An unexpected error occurred while fetching user.' 
+    }
+  }
+}
+

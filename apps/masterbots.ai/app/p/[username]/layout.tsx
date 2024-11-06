@@ -5,7 +5,7 @@ import NextTopLoader from 'nextjs-toploader'
 import { Hero } from '@/components/layout/profile/hero'
 
 interface ChatLayoutProps {
-  children: React.ReactNode
+  children: React.ReactNode,
 }
 
 export default async function ChatLayout({ children }: ChatLayoutProps) {
