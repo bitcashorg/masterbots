@@ -6,7 +6,7 @@ import {
   createImprovementPrompt,
   setDefaultPrompt,
 } from '@/lib/constants/prompts'
-import { convertToCoreMessages, setStreamerPayload } from '@/lib/helpers/ai-helpers'
+import { cleanResult, convertToCoreMessages, setStreamerPayload } from '@/lib/helpers/ai-helpers'
 import { aiTools } from '@/lib/helpers/ai-schemas'
 import { fetchChatbotMetadata } from '@/services/hasura'
 import type {
@@ -91,7 +91,7 @@ export async function subtractChatbotMetadataLabels(
 }
 
 // * This function process the AI response and return the cleaned result
-async function processWithAi(
+export async function processWithAi(
   prompt: string,
   clientType: AiClientType,
   model: string,
@@ -143,16 +143,6 @@ async function readStreamResponse(body: ReadableStream): Promise<string> {
   }
 
   return result
-}
-
-function cleanResult(result: string): CleanPromptResult {
-  const cleanedResult = result
-    .trim()
-    .replace(/\{\n/g, '{')
-    .replace(/\n\}/g, '}')
-    .replace(/\\"/g, '"')
-  // * Using template string to avoid parsing errors with ' and " special characters...
-  return JSON.parse(`${cleanedResult} `)
 }
 
 function isInvalidResult(result: string, originalContent: string): boolean {

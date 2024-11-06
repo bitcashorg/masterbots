@@ -1,4 +1,9 @@
+import { processWithAi } from '@/app/api/chat/actions'
+import { AIModels } from '@/app/api/chat/models/models'
+import { createChatbotMetadataPrompt, setDefaultPrompt } from '@/lib/constants/prompts'
+import { cleanResult } from '@/lib/helpers/ai-helpers'
 import type {
+  AiClientType,
   ChatbotMetadataHeaders,
   ReturnFetchChatbotMetadata
 } from '@/types/types'
@@ -706,8 +711,6 @@ export async function deleteThread({ threadId, jwt, userId }: { threadId: string
   }
 }
 
-
-
 // get all threads that are not approved 
 export async function getUnapprovedThreads({ jwt }: { jwt: string }) {
   if (!jwt) {
@@ -750,4 +753,22 @@ export async function getUnapprovedThreads({ jwt }: { jwt: string }) {
   })
 
   return thread as Thread[]
+}
+
+export async function subtractChatbotMetadataLabels(
+  metadataHeaders: ChatbotMetadataHeaders,
+  userPrompt: string,
+  clientType: AiClientType,
+) {
+  const chatbotMetadata = await fetchChatbotMetadata(metadataHeaders)
+
+  if (!chatbotMetadata) {
+    console.error('Chatbot metadata not found. Generating response without them.')
+    return setDefaultPrompt(userPrompt)
+  }
+
+  const prompt = createChatbotMetadataPrompt(metadataHeaders, chatbotMetadata, userPrompt)
+  const response = await processWithAi(prompt, clientType, AIModels.Default)
+
+  return cleanResult(response)
 }

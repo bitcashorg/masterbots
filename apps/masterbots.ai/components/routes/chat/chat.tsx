@@ -152,6 +152,10 @@ export function Chat({
       return;
     }
 
+    if (activeThread?.threadId) {
+      setIsOpenPopup(true);
+    }
+
     // * Loading: processing your request... 'processing'
     setLoadingState("processing");
 
@@ -226,15 +230,13 @@ export function Chat({
           userId: session.user.id,
           isPublic: activeChatbot?.name !== "BlankBot",
         });
+
         const thread = await getThread({
           threadId,
           jwt: session.user?.hasuraJwt,
         });
+
         setActiveThread(thread);
-        setIsOpenPopup(true);
-      }
-      if (activeThread?.threadId) {
-        setIsOpenPopup(true);
       }
 
       await saveNewMessage({
