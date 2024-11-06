@@ -29,13 +29,16 @@ import { Button } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAtBottom } from '@/lib/hooks/use-at-bottom'
+import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn, scrollToBottomOfElement } from '@/lib/utils'
 import { useScroll } from 'framer-motion'
+import { Chatbot } from 'mb-genql'
 import { useEffect, useRef } from 'react'
 import { ThreadPublicitySwitch } from './thread-publicity-switch'
 
 export function ThreadPopup({ className }: { className?: string }) {
+  const { activeChatbot } = useSidebar()
   const {
     isOpenPopup,
     activeThread,
@@ -131,32 +134,26 @@ export function ThreadPopup({ className }: { className?: string }) {
           className="flex flex-col dark:bg-[#18181B] bg-[white] grow rounded-b-[8px] scrollbar pb-[180px] h-full"
           ref={popupContentRef as React.Ref<HTMLDivElement>}
         >
-          {activeThread && (
-            <ChatList
-              className="max-w-full !px-[32px] !mx-0"
-              isThread={false}
-              chatbot={activeThread.chatbot}
-              messages={allMessages}
-              sendMessageFn={sendMessageFromResponse}
-              chatContentClass="dark:!border-x-mirage !border-x-gray-300 !py-[20px] !px-[16px] !mx-0 max-h-[none] "
-              chatTitleClass="!px-[11px]"
-              chatArrowClass="!right-0 !mr-0"
-            />
-          )}
+          <ChatList
+            className="max-w-full !px-[32px] !mx-0"
+            isThread={false}
+            chatbot={activeThread?.chatbot || activeChatbot as Chatbot}
+            messages={allMessages}
+            sendMessageFn={sendMessageFromResponse}
+            chatContentClass="dark:!border-x-mirage !border-x-gray-300 !py-[20px] !px-[16px] !mx-0 max-h-[none] "
+            chatTitleClass="!px-[11px]"
+            chatArrowClass="!right-0 !mr-0"
+          />
 
-          {activeThread ? (
-            <Chat
-              isPopup
-              initialMessages={initialMessages}
-              chatbot={activeThread?.chatbot}
-              threadId={activeThread?.threadId}
-              chatPanelClassName="!pl-0 rounded-b-[8px] overflow-hidden !absolute"
-              scrollToBottom={scrollToBottom}
-              isAtBottom={isAtBottom}
-            />
-          ) : (
-            ''
-          )}
+          <Chat
+            isPopup
+            initialMessages={initialMessages}
+            chatbot={activeThread?.chatbot || activeChatbot as Chatbot}
+            threadId={activeThread?.threadId}
+            chatPanelClassName="!pl-0 rounded-b-[8px] overflow-hidden !absolute"
+            scrollToBottom={scrollToBottom}
+            isAtBottom={isAtBottom}
+          />
         </div>
       </div>
     </div>

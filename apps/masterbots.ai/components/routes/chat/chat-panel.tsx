@@ -80,7 +80,7 @@ export function ChatPanel({
                 role: 'user'
               })
             }}
-            disabled={!Boolean(chatbot)} // Disables input if no chatbot is provided
+            disabled={!Boolean(chatbot) || isLoading || Boolean(loadingState)} // Disables input if no chatbot is provided
             input={input}
             setInput={setInput}
             isLoading={isLoading}
