@@ -1,10 +1,30 @@
-import Image from 'next/image'
+/**
+ * BrowseListItem Component
+ *
+ * This component represents a single item in a list of threads for browsing chat interactions.
+ * It displays the thread's title, user information, and options for interacting with the thread.
+ *
+ * Props:
+ * - thread: A Thread object containing details about the chat thread.
+ * - loadMore: A function to load more threads when needed.
+ * - loading: A boolean indicating if threads are currently being loaded.
+ * - isLast: A boolean indicating if this is the last thread in the list.
+ * - hasMore: A boolean indicating if there are more threads to load.
+ * - pageType: An optional string to specify the type of page (e.g., 'bot', 'user').
+ *
+ * Key Features:
+ * - Accordion Functionality: Allows users to expand/collapse the thread to view messages.
+ * - Dynamic Navigation: Navigates to the bot's page or user profile when clicked.
+ * - Infinite Scrolling: Uses Intersection Observer to load more threads as the user scrolls.
+ * - Message Fetching: Fetches messages for the thread when the accordion is opened.
+ * - Responsive Design: Utilizes Tailwind CSS for styling and layout.
+ */
 
-import { ChatAccordion } from '@/components/routes/chat/chat-accordion'
+import Image from 'next/image'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { cn, sleep } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
-import { Message, Thread } from 'mb-genql'
+import type { Message, Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -13,8 +33,8 @@ import { BrowseChatMessageList } from '@/components/routes/browse/browse-chat-me
 import { ShortMessage } from '@/components/shared/short-message'
 import { IconOpenAI, IconUser } from '@/components/ui/icons'
 import { Button } from '@/components/ui/button'
-import { icons } from 'lucide-react'
 import { ChatOptions } from '../chat/chat-options'
+import { BrowseAccordion } from '@/components/routes/browse/browse-accordion'
 
 let initialUrl: string | null = null
 
@@ -111,7 +131,7 @@ export default function BrowseListItem({
 
   return (
     <div ref={threadRef}>
-      <ChatAccordion
+      <BrowseAccordion
         onToggle={handleAccordionToggle}
         // handleTrigger={goToThread}
         className="relative"
@@ -133,10 +153,10 @@ export default function BrowseListItem({
         >
           {pageType !== 'bot' && thread.chatbot?.avatar ? (
             <Button
-            onClick={goToBotPage}
-            title={thread.chatbot?.name}
-            variant="icon"
-            size="icon"
+              onClick={goToBotPage}
+              title={thread.chatbot?.name}
+              variant="icon"
+              size="icon"
             >
               <Image
                 className="transition-opacity duration-300 rounded-full select-none bg-background dark:bg-primary-foreground hover:opacity-80"
@@ -159,62 +179,65 @@ export default function BrowseListItem({
             )
           )}
           <div className="w-[calc(100%-64px)] m:w-[calc(100%-28px)] flex  justify-between items-center  gap-3 text-left ">
-           <div className='flex  w-[calc(100%-124px)] m:w-[calc(100%-58px)] '>
-            <div
-              className={cn('truncate-title px-1  ', {
-                'no-truncate max-h-40 !overflow-y-auto sm:max-h-none sm:overflow-visible': isAccordionOpen
-              })}
-            >
-              {thread.messages?.[0]?.content}
-           </div>
-            {pageType !== 'user' && (
-              <span className="opacity-50 text-[0.875rem]"> by  </span>
-            )}
-
-            <div>
-            {pageType !== 'user' && thread?.user?.profilePicture ? (
-              <Button
-               onClick={goToProfile}
-               title={thread?.user?.username.replace('_', ' ')}
-               variant="icon"
-               size="icon"
+            <div className="flex  w-[calc(100%-124px)] m:w-[calc(100%-58px)] ">
+              <div
+                className={cn('truncate-title px-1  ', {
+                  'no-truncate max-h-40 !overflow-y-auto sm:max-h-none sm:overflow-visible':
+                    isAccordionOpen
+                })}
               >
-                <Image
-                  className="transition-opacity duration-300 rounded-full select-none hover:opacity-80"
-                  src={thread?.user?.profilePicture}
-                  alt={thread?.user?.username ?? 'Avatar'}
-                  height={32}
-                  width={32}
-                />
-              </Button>
-            ) : (
-              pageType !== 'user' && (
-                <Button
-                 onClick={goToProfile}
-                 title={thread?.user?.username}
-                 variant="icon"
-                 size="icon"
-                >
-                  <IconUser />
-                </Button>
-              )
-            )}
-            </div>
-            </div>
-             {/* Thread Options */}
-           <div className='px-4'>
-                 <ChatOptions threadId={thread.threadId} thread={thread} isBrowse />
-           </div>
-          </div>
+                {thread.messages?.[0]?.content}
+              </div>
+              {pageType !== 'user' && (
+                <span className="opacity-50 text-[0.875rem]"> by </span>
+              )}
 
-          
+              <div>
+                {pageType !== 'user' && thread?.user?.profilePicture ? (
+                  <Button
+                    onClick={goToProfile}
+                    title={thread?.user?.username.replace('_', ' ')}
+                    variant="icon"
+                    size="icon"
+                  >
+                    <Image
+                      className="transition-opacity duration-300 rounded-full select-none hover:opacity-80"
+                      src={thread?.user?.profilePicture}
+                      alt={thread?.user?.username ?? 'Avatar'}
+                      height={32}
+                      width={32}
+                    />
+                  </Button>
+                ) : (
+                  pageType !== 'user' && (
+                    <Button
+                      onClick={goToProfile}
+                      title={thread?.user?.username}
+                      variant="icon"
+                      size="icon"
+                    >
+                      <IconUser />
+                    </Button>
+                  )
+                )}
+              </div>
+            </div>
+            {/* Thread Options */}
+            <div className="px-4">
+              <ChatOptions
+                threadId={thread.threadId}
+                thread={thread}
+                isBrowse
+              />
+            </div>
+          </div>
         </div>
 
         {/* Thread Description */}
 
         <div className="overflow-hidden text-sm text-left opacity-50">
           {thread.messages?.[1]?.content &&
-            thread.messages?.[1]?.role !== 'user' ? (
+          thread.messages?.[1]?.role !== 'user' ? (
             <div className="flex-1 space-y-2 overflow-hidden">
               <ShortMessage content={thread.messages?.[1]?.content} />
             </div>
@@ -230,7 +253,7 @@ export default function BrowseListItem({
           user={thread?.user || undefined}
           messages={messages}
         />
-      </ChatAccordion>
+      </BrowseAccordion>
     </div>
   )
 }

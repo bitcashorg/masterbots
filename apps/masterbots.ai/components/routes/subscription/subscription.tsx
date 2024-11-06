@@ -1,5 +1,25 @@
 'use client'
 
+/**
+ * Subscription Component
+ * 
+ * A component that manages the subscription process for users, including
+ * selecting plans, entering payment information, and confirming the subscription.
+ * It utilizes a wizard interface to guide users through the subscription steps.
+ * 
+ * Key Features:
+ * - Displays a series of steps for selecting a subscription plan, entering payment information, and confirming the subscription
+ * - Integrates error handling and loading states
+ * - Checks if the user has an active subscription before proceeding
+ * - Provides a dialog wizard for a seamless user experience
+ * 
+ * Functionality:
+ * - Fetches the user's subscription status and displays the appropriate steps
+ * - Handles user actions for closing the wizard and deleting customer data if necessary
+ * 
+ * Props:
+ * - user: An object containing the user's email and name
+ */
 import { checkIfCustomerHasActiveSub } from '@/app/actions'
 import { ErrorContent } from '@/components/shared/error-content'
 import type { WizardStep } from '@/components/ui/wizard'

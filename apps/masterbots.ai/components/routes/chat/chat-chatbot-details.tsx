@@ -1,3 +1,5 @@
+//* Component for displaying details of the selected chatbot
+
 'use client'
 
 import { Separator } from '@/components/ui/separator'
@@ -9,13 +11,13 @@ import Image from 'next/image'
 import { useEffect, useState } from 'react'
 
 export default function ChatChatbotDetails() {
-  const { data: session } = useSession()
-  const { activeCategory, activeChatbot } = useSidebar()
-  const { randomChatbot } = useThread()
-  const [threadNum, setThreadNum] = useState<number>(0)
-  const [categoryName, setCategoryName] = useState<string>('')
+  const { data: session } = useSession() //* Retrieves session data using next-auth
+  const { activeCategory, activeChatbot } = useSidebar() //* Retrieves active category and chatbot from sidebar state
+  const { randomChatbot } = useThread() //* Retrieves a random chatbot from thread state
+  const [threadNum, setThreadNum] = useState<number>(0) //* Stores the number of threads
+  const [categoryName, setCategoryName] = useState<string>('') //* Stores the name of the active category
 
-  // * Get the number of all threads
+  //* Fetches the number of threads for the active category and user
   const getThreadNum = async () => {
     if (!session?.user) return
 
@@ -24,23 +26,21 @@ export default function ChatChatbotDetails() {
       categoryId: activeCategory,
       userId: session?.user.id as string
     })
-    setThreadNum(threads?.length ?? 0)
+    setThreadNum(threads?.length ?? 0) //* Updates thread number state
   }
 
-  // * Get active category name
+  //* Fetches the name of the active category
   const getCategoryName = async () => {
-    const category = await getCategory({ categoryId: activeCategory as number })
-    setCategoryName(category.name)
+    const category = await getCategory({ categoryId: activeCategory as number }) //* Retrieves category details
+    setCategoryName(category.name) //* Updates category name state
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
-    // ! Only when no active category, should get thread number
-    // * (FYI: We display this welcome message when there is no thread on the category -
-    // * So when category selected and no activeChatbot selected, thread number should be 0 all the time.)
+    //* Effect to fetch thread number or category name based on active category
     if (!activeCategory) {
-      getThreadNum()
+      getThreadNum() //* Fetch thread number if no category is active
     } else {
-      // ?When category is selected, should get category name
       getCategoryName()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -50,7 +50,7 @@ export default function ChatChatbotDetails() {
     <div className="h-[calc(100vh-196px)] flex items-center justify-center">
       <div
         className="dark:bg-[#09090B] bg-white rounded-lg md:w-[600px] w-[85%]
-      flex flex-col gap-[10px] relative font-mono"
+        flex flex-col gap-[10px] relative font-mono"
       >
         <div className="w-[70%] flex flex-col gap-[10px] px-[24px] pt-[24px]">
           <div className="text-2xl font-black">
@@ -66,6 +66,7 @@ export default function ChatChatbotDetails() {
                   : 'Please select one of the categories and a bot on the sidebar to start a conversation.'}
             </div>
             <div className="text-base gap-[8px] flex flex-col pb-[8px]">
+              {/* biome-ignore lint/complexity/useOptionalChain: <explanation> */}
               {activeChatbot && activeChatbot?.description ? (
                 <div className="font-medium">{activeChatbot.description}</div>
               ) : (
@@ -75,7 +76,7 @@ export default function ChatChatbotDetails() {
                 Threads made:{' '}
                 <span className="text-[#71717A]">
                   {activeChatbot
-                    ? activeChatbot?.threads?.length ?? 0
+                    ? (activeChatbot?.threads?.length ?? 0)
                     : threadNum}
                 </span>
               </div>
