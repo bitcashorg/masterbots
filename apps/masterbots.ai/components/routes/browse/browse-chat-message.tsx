@@ -1,5 +1,27 @@
 // Inspired by Chatbot-UI and modified to fit the needs of this project
 // @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Chat/ChatcleanMessage.tsx
+/**
+ * ChatMessageProps Interface
+ *
+ * This interface defines the props for the BrowseChatMessage component.
+ *
+ * Props:
+ * - message: The message object containing the content to be displayed.
+ * - chatbot: Optional chatbot object associated with the message.
+ *
+ * BrowseChatMessage Component
+ *
+ * This component renders a chat message, including markdown content and code blocks.
+ * It utilizes MemoizedReactMarkdown for rendering markdown and CodeBlock for code snippets.
+ *
+ * Key Features:
+ * - Content Cleaning: Cleans the message content using the cleanPrompt function.
+ * - Markdown Rendering: Renders the message content as markdown with support for GFM and math.
+ * - Code Highlighting: Supports inline and block code rendering with syntax highlighting.
+ *
+ * @param {ChatMessageProps} props - The props for the component.
+ * @returns {JSX.Element} The rendered chat message component.
+ */
 
 import { MemoizedReactMarkdown } from '@/components/shared/markdown'
 import { CodeBlock } from '@/components/ui/codeblock'
@@ -15,7 +37,11 @@ export interface ChatMessageProps {
   chatbot?: Chatbot
 }
 
-export function BrowseChatMessage({ message, chatbot, ...props }: ChatMessageProps) {
+export function BrowseChatMessage({
+  message,
+  chatbot,
+  ...props
+}: ChatMessageProps) {
   const cleanMessage = { ...message, content: cleanPrompt(message.content) }
 
   return (
@@ -37,7 +63,9 @@ export function BrowseChatMessage({ message, chatbot, ...props }: ChatMessagePro
             code({ node, inline, className, children, ...props }) {
               if (children.length) {
                 if (children[0] == '▍') {
-                  return <span className="mt-1 cursor-default animate-pulse">▍</span>
+                  return (
+                    <span className="mt-1 cursor-default animate-pulse">▍</span>
+                  )
                 }
 
                 children[0] = (children[0] as string).replace('`▍`', '▍')
@@ -61,7 +89,7 @@ export function BrowseChatMessage({ message, chatbot, ...props }: ChatMessagePro
                   {...props}
                 />
               )
-            },
+            }
           }}
         >
           {cleanMessage.content}

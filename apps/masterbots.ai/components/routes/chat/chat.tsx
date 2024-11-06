@@ -1,5 +1,37 @@
 "use client";
 
+/**
+ * Chat Component
+ * 
+ * A complex chat interface that handles:
+ * - Message management for new and existing chat threads
+ * - Integration with AI models for message processing and responses
+ * - Loading states for message generation and processing
+ * - Chatbot configuration and metadata handling
+ * - Chat history and message persistence
+ * - ICL integration for metadata extraction and labelling
+ * - Real-time message streaming and history management
+ * - Chat thread creation and state management
+ * - Message improvement and metadata extraction using AI
+ * - Automatic scrolling behavior
+ * 
+ * Key Features:
+ * - Supports both popup and inline chat modes
+ * - Handles message processing states (processing, digesting, generating, etc.)
+ * - Manages chat thread creation and persistence
+ * - Integrates with multiple chatbot models
+ * - Provides real-time message streaming
+ * - Maintains chat history and system prompts
+ * 
+ * State Management:
+ * - Uses useChat for message handling
+ * - Manages loading states for UI feedback
+ * - Tracks scroll position and bottom visibility
+ * - Handles chat thread state and persistence
+ */
+
+//TODO: Refactor and optimize the Chat component into smaller sections for better performance and readability
+
 import {
   improveMessage
 } from "@/app/api/chat/actions/ai-main-call";

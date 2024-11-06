@@ -264,11 +264,7 @@
   width: 100%;
   animation: animate-in 300ms ease-in-out;
   position: relative;
-  padding: 1rem;
-
-  @media (min-width: 768px) {
-    padding: 2rem;
-  }
+  padding: 1rem 0.5rem;
 
   @media (min-width: 1024px) {
     width: calc(100% - 250px);

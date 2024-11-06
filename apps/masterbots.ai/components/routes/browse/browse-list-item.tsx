@@ -1,15 +1,36 @@
-import Image from 'next/image'
+/**
+ * BrowseListItem Component
+ *
+ * This component represents a single item in a list of threads for browsing chat interactions.
+ * It displays the thread's title, user information, and options for interacting with the thread.
+ *
+ * Props:
+ * - thread: A Thread object containing details about the chat thread.
+ * - loadMore: A function to load more threads when needed.
+ * - loading: A boolean indicating if threads are currently being loaded.
+ * - isLast: A boolean indicating if this is the last thread in the list.
+ * - hasMore: A boolean indicating if there are more threads to load.
+ * - pageType: An optional string to specify the type of page (e.g., 'bot', 'user').
+ *
+ * Key Features:
+ * - Accordion Functionality: Allows users to expand/collapse the thread to view messages.
+ * - Dynamic Navigation: Navigates to the bot's page or user profile when clicked.
+ * - Infinite Scrolling: Uses Intersection Observer to load more threads as the user scrolls.
+ * - Message Fetching: Fetches messages for the thread when the accordion is opened.
+ * - Responsive Design: Utilizes Tailwind CSS for styling and layout.
+ */
 
+import { BrowseAccordion } from '@/components/routes/browse/browse-accordion'
 import { BrowseChatMessageList } from '@/components/routes/browse/browse-chat-message-list'
-import { ChatAccordion } from '@/components/routes/chat/chat-accordion'
 import { ChatbotAvatar } from '@/components/shared/chatbot-avatar'
 import { ShortMessage } from '@/components/shared/short-message'
 import { Button } from '@/components/ui/button'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { cn, sleep } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
-import { Message, Thread } from 'mb-genql'
+import type { Message, Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import { ChatOptions } from '../chat/chat-options'
@@ -102,14 +123,14 @@ export default function BrowseListItem({
   const goToProfile = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (thread.user?.slug) {
-      router.push(`/u/${thread.user.slug}/t`)
+    if (thread?.user?.slug) {
+      router.push(`/u/${thread?.user?.slug}/t`)
     }
   }
 
   return (
     <div ref={threadRef}>
-      <ChatAccordion
+      <BrowseAccordion
         onToggle={handleAccordionToggle}
         // handleTrigger={goToThread}
         className="relative"
@@ -131,7 +152,7 @@ export default function BrowseListItem({
         >
           <div className="w-full flex justify-between items-center text-left">
             <div className='flex items-center gap-4 w-[calc(100%-124px)] m:w-[calc(100%-58px)] '>
-              <ChatbotAvatar thread={thread} />
+              {pageType !== 'bot' && <ChatbotAvatar thread={thread} />}
               <div
                 className={cn('truncate-title', {
                   'no-truncate max-h-40 !overflow-y-auto sm:max-h-none sm:overflow-visible': isAccordionOpen
@@ -191,7 +212,7 @@ export default function BrowseListItem({
           user={thread?.user || undefined}
           messages={messages}
         />
-      </ChatAccordion>
+      </BrowseAccordion>
     </div>
   )
 }

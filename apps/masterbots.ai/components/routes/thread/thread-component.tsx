@@ -1,5 +1,33 @@
 'use client'
 
+/**
+ * ThreadComponent
+ *
+ * A comprehensive thread display component that provides:
+ * - Expandable/collapsible thread view with accordion
+ * - Thread title, description, and full message history
+ * - Infinite scroll functionality for message loading
+ * - Admin approval capabilities
+ * - Thread options (share, delete, etc.)
+ *
+ * Key Features:
+ * - Accordion-based thread expansion
+ * - Automatic scroll management
+ * - Infinite scroll with load more functionality
+ * - Message preview in collapsed state
+ * - Admin mode controls for thread approval
+ * - Thread options menu
+ *
+ * Structure:
+ * - Thread Header: Avatar + Title + Options
+ * - Thread Description: Preview of first assistant message
+ * - Thread Content: Full message history in ChatList
+ * - Admin Controls: Approval button for unapproved threads
+ *
+ * Note: Handles both regular and admin view states with
+ * different controls and capabilities
+ */
+
 import { ChatAccordion } from '@/components/routes/chat/chat-accordion'
 import { ChatList } from '@/components/routes/chat/chat-list'
 import { ChatbotAvatar } from '@/components/shared/chatbot-avatar'
@@ -54,7 +82,6 @@ export default function ThreadComponent({
         arrowClass="size-5 top-[calc(33.33%-1.25rem)] bottom-0 transform translate-y-[100%]"
         thread={thread}
       >
-
         {/* Thread Title */}
         <div className="px-[11px] flex justify-between items-center w-full gap-3">
           <span className="inline-flex gap-3 items-center text-left">

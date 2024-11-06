@@ -1,26 +1,73 @@
+/**
+ * ShareButton Component
+ *
+ * A button component that handles chat/thread sharing functionality:
+ * - Generates and copies shortened share links
+ * - Provides visual feedback for different states
+ * - Falls back to full URL if shortening fails
+ *
+ * Key Features:
+ * - URL shortening integration
+ * - Clipboard copy functionality
+ * - Status indicators (loading, copied, error)
+ * - Animated state transitions
+ *
+ * States:
+ * - default: Initial share icon
+ * - loading: Animated spinner
+ * - copied: Success checkmark
+ * - error: Error X icon
+ *
+ * Note: Uses environment variable NEXT_PUBLIC_BASE_URL as fallback
+ * when URL shortening fails
+ */
+
 import { Button } from '@/components/ui/button'
-import { Share2 } from 'lucide-react'
-import toast from 'react-hot-toast'
+import { LucideCheck, LucideLoader2, LucideX, Share2 } from 'lucide-react'
+import { generateShortLink } from '@/actions'
+import { useState } from 'react'
+import { AnimatePresence } from 'framer-motion'
 
 interface ShareButtonProps {
-  title: string
-  text: string
   url: string
 }
 
-export function ShareButton({ title, text, url }: ShareButtonProps) {
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({ title, text, url })
-        console.log('Content shared successfully')
-      } catch (error) {
-        console.log('Error sharing content:', error)
+export function ShareButton({ url }: ShareButtonProps) {
+  const [status, setStatus] = useState<
+    'default' | 'loading' | 'copied' | 'error'
+  >('default')
+
+  const copyToClipboard = async () => {
+    setStatus('loading')
+    try {
+      // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
+      let content
+      const { data, error } = await generateShortLink(url)
+      if (data !== null) {
+        content = data.shortLink
+      } else {
+        content = process.env.NEXT_PUBLIC_BASE_URL + url
       }
-    } else {
-      await navigator.clipboard.writeText(url);
-      toast.success('Link copied to clipboard')
+      await navigator.clipboard.writeText(content)
+
+      setStatus('copied')
+      const timer = setTimeout(() => setStatus('default'), 5000)
+      return () => clearTimeout(timer)
+    } catch (error) {
+      console.error('Failed to copy share link:', error)
+      setStatus('error')
+      const timer = setTimeout(() => setStatus('default'), 5000)
+      return () => clearTimeout(timer)
     }
+  }
+
+  const iconsMap = {
+    loading: (
+      <LucideLoader2 className="w-4 h-4 animate-spin stroke-accent-secondary" />
+    ),
+    copied: <LucideCheck className="w-4 h-4 stroke-success" />,
+    error: <LucideX className="w-4 h-4 stroke-destructive" />,
+    default: <Share2 className="w-4 h-4" />
   }
 
   return (
@@ -31,10 +78,10 @@ export function ShareButton({ title, text, url }: ShareButtonProps) {
       className="flex justify-between w-full"
       onClick={e => {
         e.stopPropagation()
-        handleShare()
+        copyToClipboard()
       }}
     >
-      <Share2 className="w-4 h-4" />
+      <AnimatePresence>{iconsMap[status]}</AnimatePresence>
       <span>Share</span>
     </Button>
   )

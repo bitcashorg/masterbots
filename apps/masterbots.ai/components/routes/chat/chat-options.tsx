@@ -116,6 +116,7 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
           align="end"
           className="w-[180px] px-0"
         >
+          {/* Toggle thread visibility option (only for thread owner) */}
           {isUser && (
             <DropdownMenuItem
 
@@ -145,13 +146,15 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
               </Button>
             </DropdownMenuItem>
           )}
+          {/* Share thread option */}
           <DropdownMenuItem
             className="flex-col items-start"
             onSelect={event => event.preventDefault()}
           >
-            <ShareButton title={title} text={text} url={url} />
+            <ShareButton url={url} />
           </DropdownMenuItem>
           <DropdownMenuSeparator />
+          {/* Delete thread option (only for thread owner) */}
           {isUser && (
             <DropdownMenuItem
               className="text-xs"
