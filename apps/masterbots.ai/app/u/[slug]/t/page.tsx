@@ -1,7 +1,7 @@
 import { getBrowseThreads, getUserInfoFromBrowse } from '@/services/hasura'
 import BrowseUserDetails from '@/components/routes/browse/browse-user-details'
 import BrowseSpecificThreadList from '@/components/routes/browse/browse-specific-thread-list'
-import { Metadata } from 'next'
+import type { Metadata } from 'next'
 import { generateMetadataFromSEO } from '@/lib/metadata'
 
 const PAGE_SIZE = 50
@@ -19,7 +19,7 @@ export default async function BotThreadsPage({
     limit: PAGE_SIZE
   })
   return (
-    <div className="w-full py-5">
+    <div className="w-full">
       <BrowseUserDetails user={threads?.[0].user} />
       <BrowseSpecificThreadList
         initialThreads={threads}

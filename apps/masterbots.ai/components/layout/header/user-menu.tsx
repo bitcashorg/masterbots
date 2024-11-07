@@ -23,7 +23,7 @@ function getUserInitials(name: string) {
 
 function truncateUsername(username: string | null | undefined, maxLength = 10) {
   if (!username) return '';
-  return username.length > maxLength ? `${username.slice(0, maxLength - 4)}...` : username;
+  return username.length > maxLength ? `${username.slice(0, maxLength - 4)}` : username;
 }
 
 export function UserMenu({ user }: UserMenuProps) {

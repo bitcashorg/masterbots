@@ -80,6 +80,7 @@ export function ChatPanel({
                 role: 'user'
               })
             }}
+            // biome-ignore lint/complexity/noExtraBooleanCast: <explanation>
             disabled={!Boolean(chatbot) || isLoading || Boolean(loadingState)} // Disables input if no chatbot is provided
             input={input}
             setInput={setInput}
