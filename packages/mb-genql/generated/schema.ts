@@ -2402,12 +2402,14 @@ export type TypeEnumUpdateColumn = 'value'
 
 /** Table storing information about registered users. */
 export interface User {
+    bio: (Scalars['String'] | null)
     /** An array relationship */
     chats: Chat[]
     /** An aggregate relationship */
     chatsAggregate: ChatAggregate
     dateJoined: Scalars['timestamptz']
     email: Scalars['String']
+    favouriteTopic: (Scalars['String'] | null)
     /** An array relationship */
     followers: SocialFollowing[]
     /** An aggregate relationship */
@@ -2478,8 +2480,10 @@ export type UserConstraint = 'unique_slug' | 'user_email_key' | 'user_pkey' | 'u
 
 /** aggregate max on columns */
 export interface UserMaxFields {
+    bio: (Scalars['String'] | null)
     dateJoined: (Scalars['timestamptz'] | null)
     email: (Scalars['String'] | null)
+    favouriteTopic: (Scalars['String'] | null)
     lastLogin: (Scalars['timestamptz'] | null)
     password: (Scalars['String'] | null)
     proUserSubscriptionId: (Scalars['String'] | null)
@@ -2494,8 +2498,10 @@ export interface UserMaxFields {
 
 /** aggregate min on columns */
 export interface UserMinFields {
+    bio: (Scalars['String'] | null)
     dateJoined: (Scalars['timestamptz'] | null)
     email: (Scalars['String'] | null)
+    favouriteTopic: (Scalars['String'] | null)
     lastLogin: (Scalars['timestamptz'] | null)
     password: (Scalars['String'] | null)
     proUserSubscriptionId: (Scalars['String'] | null)
@@ -2519,7 +2525,7 @@ export interface UserMutationResponse {
 
 
 /** select columns of table "user" */
-export type UserSelectColumn = 'dateJoined' | 'email' | 'getFreeMonth' | 'isBlocked' | 'isVerified' | 'lastLogin' | 'password' | 'proUserSubscriptionId' | 'profilePicture' | 'role' | 'slug' | 'userId' | 'username'
+export type UserSelectColumn = 'bio' | 'dateJoined' | 'email' | 'favouriteTopic' | 'getFreeMonth' | 'isBlocked' | 'isVerified' | 'lastLogin' | 'password' | 'proUserSubscriptionId' | 'profilePicture' | 'role' | 'slug' | 'userId' | 'username'
 
 
 /** user <> token relationship OTP (reset password/activate account)  */
@@ -2590,7 +2596,7 @@ export type UserTokenUpdateColumn = 'token' | 'userId'
 
 
 /** update columns of table "user" */
-export type UserUpdateColumn = 'dateJoined' | 'email' | 'getFreeMonth' | 'isBlocked' | 'isVerified' | 'lastLogin' | 'password' | 'proUserSubscriptionId' | 'profilePicture' | 'role' | 'slug' | 'userId' | 'username'
+export type UserUpdateColumn = 'bio' | 'dateJoined' | 'email' | 'favouriteTopic' | 'getFreeMonth' | 'isBlocked' | 'isVerified' | 'lastLogin' | 'password' | 'proUserSubscriptionId' | 'profilePicture' | 'role' | 'slug' | 'userId' | 'username'
 
 
 /** mutation root */
@@ -7707,6 +7713,7 @@ where: TypeEnumBoolExp}
 
 /** Table storing information about registered users. */
 export interface UserGenqlSelection{
+    bio?: boolean | number
     /** An array relationship */
     chats?: (ChatGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -7733,6 +7740,7 @@ export interface UserGenqlSelection{
     where?: (ChatBoolExp | null)} })
     dateJoined?: boolean | number
     email?: boolean | number
+    favouriteTopic?: boolean | number
     /** An array relationship */
     followers?: (SocialFollowingGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -7961,17 +7969,19 @@ export interface UserAggregateFieldsGenqlSelection{
 
 
 /** Boolean expression to filter rows from the table "user". All fields are combined with a logical 'AND'. */
-export interface UserBoolExp {_and?: (UserBoolExp[] | null),_not?: (UserBoolExp | null),_or?: (UserBoolExp[] | null),chats?: (ChatBoolExp | null),chatsAggregate?: (ChatAggregateBoolExp | null),dateJoined?: (TimestamptzComparisonExp | null),email?: (StringComparisonExp | null),followers?: (SocialFollowingBoolExp | null),followersAggregate?: (SocialFollowingAggregateBoolExp | null),following?: (SocialFollowingBoolExp | null),followingAggregate?: (SocialFollowingAggregateBoolExp | null),getFreeMonth?: (BooleanComparisonExp | null),isBlocked?: (BooleanComparisonExp | null),isVerified?: (BooleanComparisonExp | null),lastLogin?: (TimestamptzComparisonExp | null),password?: (StringComparisonExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),proUserSubscriptionId?: (StringComparisonExp | null),profilePicture?: (StringComparisonExp | null),prompts?: (PromptUserBoolExp | null),promptsAggregate?: (PromptUserAggregateBoolExp | null),referrals?: (ReferralBoolExp | null),referralsAggregate?: (ReferralAggregateBoolExp | null),referralsByUserId?: (ReferralBoolExp | null),referralsByUserIdAggregate?: (ReferralAggregateBoolExp | null),role?: (UserRoleComparisonExp | null),slug?: (StringComparisonExp | null),threads?: (ThreadBoolExp | null),threadsAggregate?: (ThreadAggregateBoolExp | null),userId?: (UuidComparisonExp | null),userTokens?: (UserTokenBoolExp | null),userTokensAggregate?: (UserTokenAggregateBoolExp | null),username?: (StringComparisonExp | null)}
+export interface UserBoolExp {_and?: (UserBoolExp[] | null),_not?: (UserBoolExp | null),_or?: (UserBoolExp[] | null),bio?: (StringComparisonExp | null),chats?: (ChatBoolExp | null),chatsAggregate?: (ChatAggregateBoolExp | null),dateJoined?: (TimestamptzComparisonExp | null),email?: (StringComparisonExp | null),favouriteTopic?: (StringComparisonExp | null),followers?: (SocialFollowingBoolExp | null),followersAggregate?: (SocialFollowingAggregateBoolExp | null),following?: (SocialFollowingBoolExp | null),followingAggregate?: (SocialFollowingAggregateBoolExp | null),getFreeMonth?: (BooleanComparisonExp | null),isBlocked?: (BooleanComparisonExp | null),isVerified?: (BooleanComparisonExp | null),lastLogin?: (TimestamptzComparisonExp | null),password?: (StringComparisonExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),proUserSubscriptionId?: (StringComparisonExp | null),profilePicture?: (StringComparisonExp | null),prompts?: (PromptUserBoolExp | null),promptsAggregate?: (PromptUserAggregateBoolExp | null),referrals?: (ReferralBoolExp | null),referralsAggregate?: (ReferralAggregateBoolExp | null),referralsByUserId?: (ReferralBoolExp | null),referralsByUserIdAggregate?: (ReferralAggregateBoolExp | null),role?: (UserRoleComparisonExp | null),slug?: (StringComparisonExp | null),threads?: (ThreadBoolExp | null),threadsAggregate?: (ThreadAggregateBoolExp | null),userId?: (UuidComparisonExp | null),userTokens?: (UserTokenBoolExp | null),userTokensAggregate?: (UserTokenAggregateBoolExp | null),username?: (StringComparisonExp | null)}
 
 
 /** input type for inserting data into table "user" */
-export interface UserInsertInput {chats?: (ChatArrRelInsertInput | null),dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),followers?: (SocialFollowingArrRelInsertInput | null),following?: (SocialFollowingArrRelInsertInput | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isVerified?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),preferences?: (PreferenceArrRelInsertInput | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),prompts?: (PromptUserArrRelInsertInput | null),referrals?: (ReferralArrRelInsertInput | null),referralsByUserId?: (ReferralArrRelInsertInput | null),role?: (Scalars['user_role'] | null),slug?: (Scalars['String'] | null),threads?: (ThreadArrRelInsertInput | null),userId?: (Scalars['uuid'] | null),userTokens?: (UserTokenArrRelInsertInput | null),username?: (Scalars['String'] | null)}
+export interface UserInsertInput {bio?: (Scalars['String'] | null),chats?: (ChatArrRelInsertInput | null),dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),favouriteTopic?: (Scalars['String'] | null),followers?: (SocialFollowingArrRelInsertInput | null),following?: (SocialFollowingArrRelInsertInput | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isVerified?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),preferences?: (PreferenceArrRelInsertInput | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),prompts?: (PromptUserArrRelInsertInput | null),referrals?: (ReferralArrRelInsertInput | null),referralsByUserId?: (ReferralArrRelInsertInput | null),role?: (Scalars['user_role'] | null),slug?: (Scalars['String'] | null),threads?: (ThreadArrRelInsertInput | null),userId?: (Scalars['uuid'] | null),userTokens?: (UserTokenArrRelInsertInput | null),username?: (Scalars['String'] | null)}
 
 
 /** aggregate max on columns */
 export interface UserMaxFieldsGenqlSelection{
+    bio?: boolean | number
     dateJoined?: boolean | number
     email?: boolean | number
+    favouriteTopic?: boolean | number
     lastLogin?: boolean | number
     password?: boolean | number
     proUserSubscriptionId?: boolean | number
@@ -7987,8 +7997,10 @@ export interface UserMaxFieldsGenqlSelection{
 
 /** aggregate min on columns */
 export interface UserMinFieldsGenqlSelection{
+    bio?: boolean | number
     dateJoined?: boolean | number
     email?: boolean | number
+    favouriteTopic?: boolean | number
     lastLogin?: boolean | number
     password?: boolean | number
     proUserSubscriptionId?: boolean | number
@@ -8024,7 +8036,7 @@ export interface UserOnConflict {constraint: UserConstraint,updateColumns?: User
 
 
 /** Ordering options when selecting data from "user". */
-export interface UserOrderBy {chatsAggregate?: (ChatAggregateOrderBy | null),dateJoined?: (OrderBy | null),email?: (OrderBy | null),followersAggregate?: (SocialFollowingAggregateOrderBy | null),followingAggregate?: (SocialFollowingAggregateOrderBy | null),getFreeMonth?: (OrderBy | null),isBlocked?: (OrderBy | null),isVerified?: (OrderBy | null),lastLogin?: (OrderBy | null),password?: (OrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),proUserSubscriptionId?: (OrderBy | null),profilePicture?: (OrderBy | null),promptsAggregate?: (PromptUserAggregateOrderBy | null),referralsAggregate?: (ReferralAggregateOrderBy | null),referralsByUserIdAggregate?: (ReferralAggregateOrderBy | null),role?: (OrderBy | null),slug?: (OrderBy | null),threadsAggregate?: (ThreadAggregateOrderBy | null),userId?: (OrderBy | null),userTokensAggregate?: (UserTokenAggregateOrderBy | null),username?: (OrderBy | null)}
+export interface UserOrderBy {bio?: (OrderBy | null),chatsAggregate?: (ChatAggregateOrderBy | null),dateJoined?: (OrderBy | null),email?: (OrderBy | null),favouriteTopic?: (OrderBy | null),followersAggregate?: (SocialFollowingAggregateOrderBy | null),followingAggregate?: (SocialFollowingAggregateOrderBy | null),getFreeMonth?: (OrderBy | null),isBlocked?: (OrderBy | null),isVerified?: (OrderBy | null),lastLogin?: (OrderBy | null),password?: (OrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),proUserSubscriptionId?: (OrderBy | null),profilePicture?: (OrderBy | null),promptsAggregate?: (PromptUserAggregateOrderBy | null),referralsAggregate?: (ReferralAggregateOrderBy | null),referralsByUserIdAggregate?: (ReferralAggregateOrderBy | null),role?: (OrderBy | null),slug?: (OrderBy | null),threadsAggregate?: (ThreadAggregateOrderBy | null),userId?: (OrderBy | null),userTokensAggregate?: (UserTokenAggregateOrderBy | null),username?: (OrderBy | null)}
 
 
 /** primary key columns input for table: user */
@@ -8036,7 +8048,7 @@ export interface UserRoleComparisonExp {_eq?: (Scalars['user_role'] | null),_gt?
 
 
 /** input type for updating data in table "user" */
-export interface UserSetInput {dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isVerified?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),role?: (Scalars['user_role'] | null),slug?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
+export interface UserSetInput {bio?: (Scalars['String'] | null),dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),favouriteTopic?: (Scalars['String'] | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isVerified?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),role?: (Scalars['user_role'] | null),slug?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
 
 
 /** Streaming cursor of the table "user" */
@@ -8048,7 +8060,7 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface UserStreamCursorValueInput {dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isVerified?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),role?: (Scalars['user_role'] | null),slug?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
+export interface UserStreamCursorValueInput {bio?: (Scalars['String'] | null),dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),favouriteTopic?: (Scalars['String'] | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isVerified?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),role?: (Scalars['user_role'] | null),slug?: (Scalars['String'] | null),userId?: (Scalars['uuid'] | null),username?: (Scalars['String'] | null)}
 
 
 /** user <> token relationship OTP (reset password/activate account)  */
@@ -12767,8 +12779,10 @@ export const enumUserConstraint = {
 }
 
 export const enumUserSelectColumn = {
+   bio: 'bio' as const,
    dateJoined: 'dateJoined' as const,
    email: 'email' as const,
+   favouriteTopic: 'favouriteTopic' as const,
    getFreeMonth: 'getFreeMonth' as const,
    isBlocked: 'isBlocked' as const,
    isVerified: 'isVerified' as const,
@@ -12797,8 +12811,10 @@ export const enumUserTokenUpdateColumn = {
 }
 
 export const enumUserUpdateColumn = {
+   bio: 'bio' as const,
    dateJoined: 'dateJoined' as const,
    email: 'email' as const,
+   favouriteTopic: 'favouriteTopic' as const,
    getFreeMonth: 'getFreeMonth' as const,
    isBlocked: 'isBlocked' as const,
    isVerified: 'isVerified' as const,

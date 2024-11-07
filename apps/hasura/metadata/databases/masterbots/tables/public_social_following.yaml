@@ -9,6 +9,13 @@ object_relationships:
     using:
       foreign_key_constraint_on: follower_id
 insert_permissions:
+  - role: moderator
+    permission:
+      check: {}
+      columns:
+        - followee_id
+        - follower_id
+    comment: ""
   - role: user
     permission:
       check:
@@ -22,6 +29,14 @@ insert_permissions:
         - follower_id
     comment: ""
 select_permissions:
+  - role: moderator
+    permission:
+      columns:
+        - created_at
+        - followee_id
+        - follower_id
+      filter: {}
+    comment: ""
   - role: user
     permission:
       columns:
@@ -34,7 +49,38 @@ select_permissions:
           - followee_id:
               _eq: X-Hasura-User-Id
     comment: ""
+update_permissions:
+  - role: moderator
+    permission:
+      columns:
+        - followee_id
+        - follower_id
+      filter: {}
+      check: {}
+    comment: ""
+  - role: user
+    permission:
+      columns:
+        - followee_id
+        - follower_id
+      filter:
+        _and:
+          - follower_id:
+              _eq: X-Hasura-User-Id
+          - followee_id:
+              _neq: X-Hasura-User-Id
+      check:
+        _and:
+          - follower_id:
+              _eq: X-Hasura-User-Id
+          - followee_id:
+              _neq: X-Hasura-User-Id
+    comment: ""
 delete_permissions:
+  - role: moderator
+    permission:
+      filter: {}
+    comment: ""
   - role: user
     permission:
       filter:

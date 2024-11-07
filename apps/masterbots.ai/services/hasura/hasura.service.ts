@@ -757,7 +757,7 @@ export async function getUnapprovedThreads({ jwt }: { jwt: string }) {
 export async function getUserByUsername({ username }: { username: string}) {
   try {
     const client = getHasuraClient({  })
-    
+
     // First attempt: try exact match with case-insensitive comparison
     const { user } = await client.query({
       user: {
@@ -771,6 +771,9 @@ export async function getUserByUsername({ username }: { username: string}) {
         userId: true,              // Added id field which might be required
         username: true,
         profilePicture: true,
+        slug: true,
+        // bio: true,
+        // favouriteTopic: true,
         threads: {
           threadId: true,
           chatbot: {
@@ -780,6 +783,13 @@ export async function getUserByUsername({ username }: { username: string}) {
             content: true
           }
         },
+        // followers: {
+        //   followeeId: true,
+        //   followerId: true,
+        //   userByFollowerId: {
+        //     username: true
+        //   }
+        // },
         // follower: {
         //   followeeId: true,
         //   followerId: true,
@@ -832,3 +842,52 @@ export async function getUserByUsername({ username }: { username: string}) {
   }
 }
 
+// update user bio 
+export async function updateUserPersonality({ 
+  userId, 
+  bio, 
+  topic, 
+  jwt 
+}: { 
+  userId: string | undefined , 
+  bio: string | null, 
+  topic: string | null, 
+  jwt: string | undefined 
+}) {
+  try {
+    if (!jwt) {
+      throw new Error('Authentication required to update user bio');
+    }
+
+    const client = getHasuraClient({ jwt })
+    
+    // Build update arguments based on non-null values
+    const updateArgs: any = {
+      pkColumns: { userId }
+    }
+    // Only add _set if we have values to update
+    if (bio !== null || topic !== null) {
+      updateArgs._set = {}
+      if (bio !== null) {
+        updateArgs._set.bio = bio
+      }
+      if (topic !== null) {
+        updateArgs._set.favouriteTopic = topic
+      }
+    }
+
+    await client.mutation({
+      updateUserByPk: {
+        __args: updateArgs,
+        userId: true,
+        bio: true,
+        favouriteTopic: true
+      }
+    })
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating user bio:', error);
+    return { success: false, error: 'Failed to update user bio.' };
+  }
+}

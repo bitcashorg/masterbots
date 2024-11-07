@@ -9926,6 +9926,9 @@ export default {
             ]
         },
         "User": {
+            "bio": [
+                549
+            ],
             "chats": [
                 30,
                 {
@@ -9974,6 +9977,9 @@ export default {
                 712
             ],
             "email": [
+                549
+            ],
+            "favouriteTopic": [
                 549
             ],
             "followers": [
@@ -10409,6 +10415,9 @@ export default {
             "_or": [
                 655
             ],
+            "bio": [
+                550
+            ],
             "chats": [
                 38
             ],
@@ -10419,6 +10428,9 @@ export default {
                 594
             ],
             "email": [
+                550
+            ],
+            "favouriteTopic": [
                 550
             ],
             "followers": [
@@ -10508,6 +10520,9 @@ export default {
         },
         "UserConstraint": {},
         "UserInsertInput": {
+            "bio": [
+                549
+            ],
             "chats": [
                 35
             ],
@@ -10515,6 +10530,9 @@ export default {
                 712
             ],
             "email": [
+                549
+            ],
+            "favouriteTopic": [
                 549
             ],
             "followers": [
@@ -10579,10 +10597,16 @@ export default {
             ]
         },
         "UserMaxFields": {
+            "bio": [
+                549
+            ],
             "dateJoined": [
                 712
             ],
             "email": [
+                549
+            ],
+            "favouriteTopic": [
                 549
             ],
             "lastLogin": [
@@ -10614,10 +10638,16 @@ export default {
             ]
         },
         "UserMinFields": {
+            "bio": [
+                549
+            ],
             "dateJoined": [
                 712
             ],
             "email": [
+                549
+            ],
+            "favouriteTopic": [
                 549
             ],
             "lastLogin": [
@@ -10685,6 +10715,9 @@ export default {
             ]
         },
         "UserOrderBy": {
+            "bio": [
+                324
+            ],
             "chatsAggregate": [
                 34
             ],
@@ -10692,6 +10725,9 @@ export default {
                 324
             ],
             "email": [
+                324
+            ],
+            "favouriteTopic": [
                 324
             ],
             "followersAggregate": [
@@ -10797,10 +10833,16 @@ export default {
         },
         "UserSelectColumn": {},
         "UserSetInput": {
+            "bio": [
+                549
+            ],
             "dateJoined": [
                 712
             ],
             "email": [
+                549
+            ],
+            "favouriteTopic": [
                 549
             ],
             "getFreeMonth": [
@@ -10852,10 +10894,16 @@ export default {
             ]
         },
         "UserStreamCursorValueInput": {
+            "bio": [
+                549
+            ],
             "dateJoined": [
                 712
             ],
             "email": [
+                549
+            ],
+            "favouriteTopic": [
                 549
             ],
             "getFreeMonth": [

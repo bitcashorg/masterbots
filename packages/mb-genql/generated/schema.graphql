@@ -7032,6 +7032,8 @@ input TypeEnumUpdates {
 
 """Table storing information about registered users."""
 type User {
+  bio: String
+
   """An array relationship"""
   chats(
     """distinct select on columns"""
@@ -7069,6 +7071,7 @@ type User {
   ): ChatAggregate!
   dateJoined: timestamptz!
   email: String!
+  favouriteTopic: String
 
   """An array relationship"""
   followers(
@@ -7394,10 +7397,12 @@ input UserBoolExp {
   _and: [UserBoolExp!]
   _not: UserBoolExp
   _or: [UserBoolExp!]
+  bio: StringComparisonExp
   chats: ChatBoolExp
   chatsAggregate: ChatAggregateBoolExp
   dateJoined: TimestamptzComparisonExp
   email: StringComparisonExp
+  favouriteTopic: StringComparisonExp
   followers: SocialFollowingBoolExp
   followersAggregate: SocialFollowingAggregateBoolExp
   following: SocialFollowingBoolExp
@@ -7456,9 +7461,11 @@ enum UserConstraint {
 input type for inserting data into table "user"
 """
 input UserInsertInput {
+  bio: String
   chats: ChatArrRelInsertInput
   dateJoined: timestamptz
   email: String
+  favouriteTopic: String
   followers: SocialFollowingArrRelInsertInput
   following: SocialFollowingArrRelInsertInput
   getFreeMonth: Boolean
@@ -7482,8 +7489,10 @@ input UserInsertInput {
 
 """aggregate max on columns"""
 type UserMaxFields {
+  bio: String
   dateJoined: timestamptz
   email: String
+  favouriteTopic: String
   lastLogin: timestamptz
   password: String
   proUserSubscriptionId: String
@@ -7496,8 +7505,10 @@ type UserMaxFields {
 
 """aggregate min on columns"""
 type UserMinFields {
+  bio: String
   dateJoined: timestamptz
   email: String
+  favouriteTopic: String
   lastLogin: timestamptz
   password: String
   proUserSubscriptionId: String
@@ -7540,9 +7551,11 @@ input UserOnConflict {
 
 """Ordering options when selecting data from "user"."""
 input UserOrderBy {
+  bio: OrderBy
   chatsAggregate: ChatAggregateOrderBy
   dateJoined: OrderBy
   email: OrderBy
+  favouriteTopic: OrderBy
   followersAggregate: SocialFollowingAggregateOrderBy
   followingAggregate: SocialFollowingAggregateOrderBy
   getFreeMonth: OrderBy
@@ -7589,10 +7602,16 @@ select columns of table "user"
 """
 enum UserSelectColumn {
   """column name"""
+  bio
+
+  """column name"""
   dateJoined
 
   """column name"""
   email
+
+  """column name"""
+  favouriteTopic
 
   """column name"""
   getFreeMonth
@@ -7632,8 +7651,10 @@ enum UserSelectColumn {
 input type for updating data in table "user"
 """
 input UserSetInput {
+  bio: String
   dateJoined: timestamptz
   email: String
+  favouriteTopic: String
   getFreeMonth: Boolean
   isBlocked: Boolean
   isVerified: Boolean
@@ -7660,8 +7681,10 @@ input UserStreamCursorInput {
 
 """Initial value of the column from where the streaming should start"""
 input UserStreamCursorValueInput {
+  bio: String
   dateJoined: timestamptz
   email: String
+  favouriteTopic: String
   getFreeMonth: Boolean
   isBlocked: Boolean
   isVerified: Boolean
@@ -7882,10 +7905,16 @@ update columns of table "user"
 """
 enum UserUpdateColumn {
   """column name"""
+  bio
+
+  """column name"""
   dateJoined
 
   """column name"""
   email
+
+  """column name"""
+  favouriteTopic
 
   """column name"""
   getFreeMonth

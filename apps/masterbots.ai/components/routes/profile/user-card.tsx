@@ -15,13 +15,13 @@ interface UserCardProps {
   user: User
 }
 export function UserCard({ user }: UserCardProps) {
-  const {  isSameUser } = useProfile()
+  const { isSameUser, updateUserInfo } = useProfile()
   const isOwner = isSameUser(user.userId);
   const { selectedModel, clientType } = useModel()
-  const [bio, setBio] = useState<string | null>(null)
+  const [bio, setBio] = useState<string | null>(user?.bio)
   const [isLoading, setIsLoading] = useState(false)
   const [generateType, setGenerateType] = useState<string | undefined>("")
-  const [favouriteTopic, setFavouriteTopic] = useState<string | null>(null)
+  const [favouriteTopic, setFavouriteTopic] = useState<string | null>(user?.favouriteTopic)
   
 
   const userQuestions = user.threads.map((thread) => {
@@ -51,21 +51,28 @@ export function UserCard({ user }: UserCardProps) {
       setIsLoading(false)
     },
     async onFinish(message) {
-      setIsLoading(false)
       setLastMessage(message.content)
     },
   })
   
   // Handle response in effect
   useEffect(() => {
-    if (lastMessage) {
+    handleUpdateUserInfo()
+  }, [lastMessage])
+
+
+  const handleUpdateUserInfo = async() => {
+    if (lastMessage) { 
       if (generateType === 'topic') {
         setFavouriteTopic(removeSurroundingQuotes(lastMessage))
+        updateUserInfo(null, removeSurroundingQuotes(lastMessage))
       } else {
         setBio(removeSurroundingQuotes(lastMessage))
+        updateUserInfo(removeSurroundingQuotes(lastMessage), null)
       }
+      setIsLoading(false)
     }
-  }, [lastMessage])
+  }
  
   const generateBio = (type: string) => {
     setIsLoading(true)
