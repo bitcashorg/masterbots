@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
 'use client'
 
 import { Button } from '@/components/ui/button'
@@ -8,6 +7,9 @@ import { useRouter } from 'next/navigation'
 import type React from 'react'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
+import { Eye, EyeOff } from 'lucide-react'
+import {PasswordStrengthMeter} from '@/components/shared/password-strength-meter'
+import { isPasswordStrong, validatePassword, verifyPassword } from '@/lib/password'
 
 interface SignupState {
   email: string;
@@ -16,6 +18,8 @@ interface SignupState {
   passwordVerify: string;
   isLoading: boolean;
   showVerificationNotice: boolean;
+  showPassword: boolean;
+  showPasswordVerify: boolean;
 }
 
 export default function SignUpForm() {
@@ -25,7 +29,9 @@ export default function SignUpForm() {
     username: '',
     passwordVerify: '',
     isLoading: false,
-    showVerificationNotice: false
+    showVerificationNotice: false,
+    showPassword: false,
+    showPasswordVerify: false
   })
 
   const router = useRouter()
@@ -36,6 +42,12 @@ export default function SignUpForm() {
 
     if (state.password !== state.passwordVerify) {
       toast.error('Passwords do not match')
+      setState(prev => ({ ...prev, isLoading: false }))
+      return
+    }
+
+    if (!isPasswordStrong(state.password)) {
+      toast.error('Please choose a stronger password')
       setState(prev => ({ ...prev, isLoading: false }))
       return
     }
@@ -72,12 +84,16 @@ export default function SignUpForm() {
     setState(prev => ({ ...prev, [name]: value }))
   }
 
+  const togglePasswordVisibility = (field: 'showPassword' | 'showPasswordVerify') => {
+    setState(prev => ({ ...prev, [field]: !prev[field] }))
+  }
+
   if (state.showVerificationNotice) {
     return (
       <div className="space-y-4 text-center">
         <h2 className="text-2xl font-bold">Verify Your Email</h2>
         <p>
-          We've sent a verification link to <strong>{state.email}</strong>
+          We&apos;ve sent a verification link to <strong>{state.email}</strong>
         </p>
         <p className="text-sm text-gray-600">
           Please check your email and click the verification link to activate your account.
@@ -122,29 +138,50 @@ export default function SignUpForm() {
       </div>
       <div className="space-y-2">
         <Label htmlFor="password" variant="required">Password</Label>
-        <Input
-          id="password"
-          name="password"
-          type="password"
-          min="8"
-          required
-          value={state.password}
-          onChange={handleInputChange}
-          onBlur={validatePassword}
-        />
+        <div className="relative">
+          <Input
+            id="password"
+            name="password"
+            type={state.showPassword ? 'text' : 'password'}
+            min="8"
+            required
+            value={state.password}
+            onChange={handleInputChange}
+            onBlur={validatePassword}
+            className="pr-10"
+          />
+          <button
+            type="button"
+            onClick={() => togglePasswordVisibility('showPassword')}
+            className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+          >
+            {state.showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          </button>
+        </div>
+        <PasswordStrengthMeter password={state.password} />
       </div>
       <div className="space-y-2">
         <Label htmlFor="passwordVerify" variant="required">Verify Password</Label>
-        <Input
-          id="passwordVerify"
-          name="passwordVerify"
-          type="password"
-          min="8"
-          required
-          value={state.passwordVerify}
-          onChange={handleInputChange}
-          onBlur={verifyPassword}
-        />
+        <div className="relative">
+          <Input
+            id="passwordVerify"
+            name="passwordVerify"
+            type={state.showPasswordVerify ? 'text' : 'password'}
+            min="8"
+            required
+            value={state.passwordVerify}
+            onChange={handleInputChange}
+            onBlur={verifyPassword}
+            className="pr-10"
+          />
+          <button
+            type="button"
+            onClick={() => togglePasswordVisibility('showPasswordVerify')}
+            className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+          >
+            {state.showPasswordVerify ? <EyeOff size={20} /> : <Eye size={20} />}
+          </button>
+        </div>
       </div>
       <Button 
         type="submit" 
@@ -155,28 +192,4 @@ export default function SignUpForm() {
       </Button>
     </form>
   )
-}
-
-function validatePassword(e: React.FocusEvent<HTMLInputElement>) {
-  const password = e.target.value
-
-  if (password.length < 8) {
-    e.target.setCustomValidity('Password must be at least 8 characters long')
-    e.target.reportValidity()
-  } else {
-    e.target.setCustomValidity('')
-  }
-}
-
-function verifyPassword(e: React.FocusEvent<HTMLInputElement>) {
-  const form = new FormData(e.currentTarget.form as HTMLFormElement)
-  const password = form.get('password') as string
-  const passwordVerify = e.target.value
-
-  if (passwordVerify && password !== passwordVerify) {
-    e.target.setCustomValidity('Passwords do not match')
-    e.target.reportValidity()
-  } else {
-    e.target.setCustomValidity('')
-  }
 }

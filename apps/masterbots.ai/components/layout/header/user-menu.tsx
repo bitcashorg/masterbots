@@ -1,6 +1,6 @@
 'use client'
 
-import { type Session } from 'next-auth'
+import type { Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
@@ -19,6 +19,10 @@ export interface UserMenuProps {
 function getUserInitials(name: string) {
   const [firstName, lastName] = name.split(' ')
   return lastName ? `${firstName[0]}${lastName[0]}` : firstName.slice(0, 2)
+}
+
+function truncateUsername(username: string) {
+  return username.length > 10 ? `${username.slice(0, 6)}..` : username
 }
 
 export function UserMenu({ user }: UserMenuProps) {
@@ -40,7 +44,9 @@ export function UserMenu({ user }: UserMenuProps) {
                 {user?.name ? getUserInitials(user?.name) : null}
               </div>
             )}
-            <span className="ml-2">{user?.name}</span>
+            <span className="ml-2">
+            {user?.name && truncateUsername(user.name)}
+              </span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent sideOffset={8} align="start" className="w-[180px]">

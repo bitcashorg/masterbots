@@ -20,14 +20,14 @@ export function Header() {
         <HeaderLink href="/c" text="Chat" />
         <HeaderLink href="/" text="Browse" />
 
-        {appConfig.devMode && (
+        {/* {appConfig.devMode && (
           <>
             <HeaderLink href="/wordware" text="Ww" />
             <HeaderLink href="/c/p" text="Pro" />
           </>
-        )}
+        )} */}
       </div>
-      <div className="flex items-center justify-end space-x-2 gap-2">
+      <div className="flex items-center space-x-4">
         <ThemeToggle />
         <React.Suspense fallback={<div className="flex-1 overflow-auto" />}>
           <UserLogin />

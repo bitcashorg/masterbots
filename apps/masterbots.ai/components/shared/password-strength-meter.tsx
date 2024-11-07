@@ -1,4 +1,4 @@
-import React from 'react'
+import type React from 'react'
 import {
   calculatePasswordStrength,
   getPasswordStrengthColor,
@@ -9,7 +9,7 @@ interface PasswordStrengthMeterProps {
   password: string
 }
 
-const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({
+export const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({
   password
 }) => {
   const strength = calculatePasswordStrength(password)
@@ -34,5 +34,3 @@ const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({
     </div>
   )
 }
-
-export default PasswordStrengthMeter

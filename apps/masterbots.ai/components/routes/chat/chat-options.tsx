@@ -1,4 +1,13 @@
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -9,13 +18,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { IconSpinner } from '@/components/ui/icons'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
-import {
-  BadgeCheck,
-  Eye,
-  EyeOff,
-  MoreVertical,
-  Trash
-} from 'lucide-react'
+import { BadgeCheck, Eye, EyeOff, MoreVertical, Trash } from 'lucide-react'
 import type { Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import React, { useState } from 'react'
@@ -29,56 +32,61 @@ interface ChatOptionsProps {
 }
 
 export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
-  const { toggleVisibility, isSameUser, initiateDeleteThread } = useThreadVisibility()
+  const { toggleVisibility, isSameUser, initiateDeleteThread } =
+    useThreadVisibility()
   const isUser = isSameUser(thread)
-  const title = thread?.messages[0]?.content ?? 'Untitled';
-  const text = thread?.messages[1]?.content.substring(0, 100) ?? 'No description found...';
+  const title = thread?.messages[0]?.content ?? 'Untitled'
+  const text =
+    thread?.messages[1]?.content.substring(0, 100) ?? 'No description found...'
   const url = `/${toSlug(thread.chatbot.categories[0].category.name)}/${thread.threadId}`
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
-
-
-  const handleDelete = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    e.preventDefault();
-    setIsDeleting(true);
-    const result = await initiateDeleteThread(threadId);
+  const handleDelete = async (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    e.preventDefault()
+    setIsDeleting(true)
+    const result = await initiateDeleteThread(threadId)
     if (result?.success) {
       toast.success(result.message)
     } else {
-      toast.error(result?.message);
+      toast.error(result?.message)
     }
-    setIsDeleting(false);
+    setIsDeleting(false)
     setIsDeleteOpen(false)
+  }
 
-  };
-
-  const AlertDialogue = ({ deleteDialogOpen }: { deleteDialogOpen: boolean }) => (
+  const AlertDialogue = ({
+    deleteDialogOpen
+  }: {
+    deleteDialogOpen: boolean
+  }) => (
     <AlertDialog open={deleteDialogOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanently delete your thread  and remove your
-            data from our servers.
+            This will permanently delete your thread and remove your data from
+            our servers.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={(e) => {
-            e.stopPropagation()
-            setIsDeleteOpen(false)
-          }} >
+          <AlertDialogCancel
+            onClick={e => {
+              e.stopPropagation()
+              setIsDeleteOpen(false)
+            }}
+          >
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
-            onClick={(e) => {
+            onClick={e => {
               e.stopPropagation()
               handleDelete(e)
             }}
           >
-            {
-              isDeleting && <IconSpinner className="w-4 h-4 animate-spin" />
-            }
+            {isDeleting && <IconSpinner className="w-4 h-4 animate-spin" />}
             Delete
           </AlertDialogAction>
         </AlertDialogFooter>
@@ -88,24 +96,22 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
   return (
     <div className="flex items-center gap-3 pt-[3px]">
       <AlertDialogue deleteDialogOpen={isDeleteOpen} />
-      {
-        !isBrowse && (
-          <div className="flex  items-center gap-3">
-            <div>
-              {thread?.isApproved ? (
-                <BadgeCheck className="w-4 h-4 bg-[#388DE2]  text-white rounded-full" />
-              ) : (
-                <BadgeCheck className="w-4 h-4 text-gray-400" />
-              )}
-            </div>
-            <div className="bg-gray-200 rounded-full px-2 ">
-              <span className="text-xs">
-                {thread?.isPublic ? 'Public' : 'Private'}
-              </span>
-            </div>
+      {!isBrowse && (
+        <div className="flex items-center gap-3">
+          <div>
+            {thread?.isApproved ? (
+              <BadgeCheck className="w-4 h-4 bg-[#388DE2]  text-white rounded-full" />
+            ) : (
+              <BadgeCheck className="w-4 h-4 text-gray-400" />
+            )}
           </div>
-        )
-      }
+          <div className="px-2 bg-gray-200 rounded-full dark:bg-gray-700 ">
+            <span className="text-xs">
+              {thread?.isPublic ? 'Public' : 'Private'}
+            </span>
+          </div>
+        </div>
+      )}
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -119,7 +125,6 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
           {/* Toggle thread visibility option (only for thread owner) */}
           {isUser && (
             <DropdownMenuItem
-
               className="flex-col items-start"
               onSelect={event => event.preventDefault()}
             >
@@ -163,7 +168,7 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
               <Button
                 variant={'ghost'}
                 size={'sm'}
-                className="text-red-400 flex justify-between w-full"
+                className="flex justify-between w-full text-red-400"
                 onClick={e => {
                   e.stopPropagation()
                   setIsDeleteOpen(true)
