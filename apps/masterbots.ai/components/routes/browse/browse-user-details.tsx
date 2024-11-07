@@ -43,6 +43,7 @@ export default function BrowseChatbotDetails({ user }: { user?: User | null }) {
         <a className="flex items-center mb-6 space-x-1" href="/">
           {/* biome-ignore lint/a11y/noSvgWithoutTitle: <explanation> */}
           <svg
+            aria-label="Back arrow"
             width="11"
             height="12"
             viewBox="0 0 11 12"
