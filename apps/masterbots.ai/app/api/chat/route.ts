@@ -2,7 +2,7 @@ import { createResponseStream } from '@/app/actions'
 import { getModelClientType } from '@/lib/helpers/ai-helpers'
 import { NextResponse } from 'next/server'
 
-export const runtime = 'edge'
+// export const runtime = 'edge'
 
 export async function POST(req: Request) {
   try {

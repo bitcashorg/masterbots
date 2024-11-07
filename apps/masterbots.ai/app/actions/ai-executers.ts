@@ -1,4 +1,4 @@
-'server only'
+'use server'
 
 import { parseWordwareResponse } from '@/components/shared/wordware-chat'
 import { wordwareFlows } from '@/lib/constants/wordware-flows'

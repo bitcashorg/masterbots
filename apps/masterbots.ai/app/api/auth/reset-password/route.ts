@@ -1,4 +1,4 @@
-'server only'
+'use server'
 
 import bcryptjs from 'bcryptjs'
 import { getHasuraClient } from 'mb-lib'
