@@ -20,21 +20,20 @@
  * - Responsive Design: Utilizes Tailwind CSS for styling and layout.
  */
 
-import Image from 'next/image'
+import { BrowseAccordion } from '@/components/routes/browse/browse-accordion'
+import { BrowseChatMessageList } from '@/components/routes/browse/browse-chat-message-list'
+import { ChatbotAvatar } from '@/components/shared/chatbot-avatar'
+import { ShortMessage } from '@/components/shared/short-message'
+import { Button } from '@/components/ui/button'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { cn, sleep } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
 import type { Message, Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
-import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React from 'react'
-import { BrowseChatMessageList } from '@/components/routes/browse/browse-chat-message-list'
-import { ShortMessage } from '@/components/shared/short-message'
-import { IconOpenAI, IconUser } from '@/components/ui/icons'
-import { Button } from '@/components/ui/button'
 import { ChatOptions } from '../chat/chat-options'
-import { BrowseAccordion } from '@/components/routes/browse/browse-accordion'
 
 let initialUrl: string | null = null
 
@@ -142,7 +141,7 @@ export default function BrowseListItem({
         dark:border-b-mirage border-b-gray-300
         [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]
         dark:bg-[#18181b] bg-[#f4f4f5]"
-        arrowClass="mt-[10px]"
+        arrowClass="size-5 top-[0.25rem] bottom-0 transform translate-y-[100%]"
         thread={thread}
       >
         {/* Thread Title */}
@@ -151,93 +150,53 @@ export default function BrowseListItem({
             'relative flex items-center font-normal md:text-lg transition-all w-full gap-3 pr-4'
           )}
         >
-          {pageType !== 'bot' && thread.chatbot?.avatar ? (
-            <Button
-              onClick={goToBotPage}
-              title={thread.chatbot?.name}
-              variant="icon"
-              size="icon"
-            >
-              <Image
-                className="transition-opacity duration-300 rounded-full select-none bg-background dark:bg-primary-foreground hover:opacity-80"
-                src={thread.chatbot?.avatar}
-                alt={thread.chatbot?.name ?? 'BotAvatar'}
-                height={32}
-                width={32}
-              />
-            </Button>
-          ) : (
-            pageType !== 'bot' && (
-              <Button
-                onClick={goToBotPage}
-                title={thread.chatbot?.name}
-                variant="icon"
-                size="icon"
-              >
-                <IconOpenAI />
-              </Button>
-            )
-          )}
-          <div className="w-[calc(100%-64px)] m:w-[calc(100%-28px)] flex  justify-between items-center  gap-3 text-left ">
-            <div className="flex  w-[calc(100%-124px)] m:w-[calc(100%-58px)] ">
+          <div className="w-full flex justify-between items-center text-left">
+            <div className='flex items-center gap-4 w-[calc(100%-124px)] m:w-[calc(100%-58px)] '>
+              {pageType !== 'bot' && <ChatbotAvatar thread={thread} />}
               <div
-                className={cn('truncate-title px-1  ', {
-                  'no-truncate max-h-40 !overflow-y-auto sm:max-h-none sm:overflow-visible':
-                    isAccordionOpen
+                className={cn('truncate-title', {
+                  'no-truncate max-h-40 !overflow-y-auto sm:max-h-none sm:overflow-visible': isAccordionOpen
                 })}
               >
                 {thread.messages?.[0]?.content}
               </div>
-              {pageType !== 'user' && (
-                <span className="opacity-50 text-[0.875rem]"> by </span>
-              )}
 
-              <div>
-                {pageType !== 'user' && thread?.user?.profilePicture ? (
-                  <Button
-                    onClick={goToProfile}
-                    title={thread?.user?.username.replace('_', ' ')}
-                    variant="icon"
-                    size="icon"
-                  >
-                    <Image
-                      className="transition-opacity duration-300 rounded-full select-none hover:opacity-80"
-                      src={thread?.user?.profilePicture}
-                      alt={thread?.user?.username ?? 'Avatar'}
-                      height={32}
-                      width={32}
-                    />
-                  </Button>
-                ) : (
-                  pageType !== 'user' && (
+              <div className="flex gap-3 px-4 items-center">
+                {pageType !== 'user' && (
+                  <>
+                    <span className="opacity-50 text-sm"> by  </span>
                     <Button
                       onClick={goToProfile}
-                      title={thread?.user?.username}
+                      title={thread.user?.username.replace('_', ' ')}
                       variant="icon"
                       size="icon"
                     >
-                      <IconUser />
+                      <Image
+                        className="transition-opacity duration-300 rounded-full select-none hover:opacity-80"
+                        src={thread.user?.profilePicture || '/images/robohash1.png'}
+                        alt={thread.user?.username ?? 'Avatar'}
+                        height={40}
+                        width={40}
+                      />
                     </Button>
-                  )
+                  </>
                 )}
               </div>
             </div>
             {/* Thread Options */}
-            <div className="px-4">
-              <ChatOptions
-                threadId={thread.threadId}
-                thread={thread}
-                isBrowse
-              />
+            <div className="pl-4 pr-8">
+              <ChatOptions threadId={thread.threadId} thread={thread} isBrowse />
             </div>
           </div>
+
+
         </div>
 
         {/* Thread Description */}
 
         <div className="overflow-hidden text-sm text-left opacity-50">
           {thread.messages?.[1]?.content &&
-          thread.messages?.[1]?.role !== 'user' ? (
+            thread.messages?.[1]?.role !== 'user' ? (
             <div className="flex-1 space-y-2 overflow-hidden">
               <ShortMessage content={thread.messages?.[1]?.content} />
             </div>

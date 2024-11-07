@@ -1,8 +1,10 @@
-import { type NextRequest, NextResponse } from 'next/server'
+'use server'
+
 import { getHasuraClient } from 'mb-lib'
+import { type NextRequest, NextResponse } from 'next/server'
 
 // * Add explicit runtime configuration
-export const runtime = 'edge'
+// export const runtime = 'edge'
 
 export async function POST(req: NextRequest) {
   const { token } = await req.json()

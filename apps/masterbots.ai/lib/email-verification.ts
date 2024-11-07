@@ -1,6 +1,8 @@
+'use server'
+
 import { getHasuraClient } from 'mb-lib'
-import { getAppUrl, sendEmailVerification } from './email'
 import crypto from 'node:crypto'
+import { getAppUrl, sendEmailVerification } from './email'
 
 export async function handleUnverifiedUsers() {
   const client = getHasuraClient()

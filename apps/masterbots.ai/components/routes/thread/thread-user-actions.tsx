@@ -23,11 +23,11 @@
  * - error: Error icon indicating a failure in link generation
  */
 
-import React, { useState } from 'react'
+import { generateShortLink } from '@/app/actions'
 import { Button } from '@/components/ui/button'
 import { AnimatePresence } from 'framer-motion'
 import { LucideCheck, LucideLoader2, LucideX } from 'lucide-react'
-import { generateShortLink } from '@/actions'
+import { useState } from 'react'
 
 export default function ShareLink() {
   const [status, setStatus] = useState<

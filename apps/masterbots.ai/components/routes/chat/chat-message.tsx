@@ -67,7 +67,12 @@ export function ChatMessage({
                 </li>
               )
             },
-            //* Custom code block component with syntax highlighting
+            ol({ children }) {
+              return <ol className="list-decimal list-inside text-left">{children}</ol>
+            },
+            ul({ children }) {
+              return <ul className="list-disc list-inside text-left">{children}</ul>
+            },
             code({ node, inline, className, children, ...props }) {
               //* Handle cursor animation for streaming responses
               if (children.length) {

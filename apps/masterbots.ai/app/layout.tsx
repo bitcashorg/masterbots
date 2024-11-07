@@ -21,7 +21,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
         )}
       >
         <NextTopLoader color="#1ED761" initialPosition={0.20} />
-        <Toaster />
+        <Toaster toastOptions={{
+          className: 'bg-background text-background-foreground',
+        }} />
         <Providers
           attribute="class"
           defaultTheme="system"

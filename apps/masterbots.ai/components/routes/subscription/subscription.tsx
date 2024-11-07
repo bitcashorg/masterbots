@@ -20,17 +20,17 @@
  * Props:
  * - user: An object containing the user's email and name
  */
-import { checkIfCustomerHasActiveSub } from '@/app/actions'
+import { checkIfCustomerHasActiveSub } from '@/app/actions/subscriptions'
+import { Checkout } from '@/components/routes/subscription/checkout'
+import { WrappedPaymentInformation } from '@/components/routes/subscription/payment-information'
+import { Plans } from '@/components/routes/subscription/plans'
+import { SuccessContent } from '@/components/routes/subscription/succes-content'
 import { ErrorContent } from '@/components/shared/error-content'
 import type { WizardStep } from '@/components/ui/wizard'
 import DialogWizard from '@/components/ui/wizard'
 import { usePayment } from '@/lib/hooks/use-payment'
 import { useRouter } from 'next/navigation'
 import { useAsync } from 'react-use'
-import { Checkout } from '@/components/routes/subscription/checkout'
-import { WrappedPaymentInformation } from '@/components/routes/subscription/payment-information'
-import { Plans } from '@/components/routes/subscription/plans'
-import { SuccessContent } from '@/components/routes/subscription/succes-content'
 
 const steps: WizardStep[] = [
   { component: Plans, name: 'Plans' },
@@ -49,7 +49,7 @@ export default function Subscription({ user }: { user: { email: string; name: st
   handleSetUser(user)
 
   const handleCloseWizard = async () => {
-    if ( typeof paymentIntent === 'object' && paymentIntent !== "") return router.push('/c/p')
+    if (typeof paymentIntent === 'object' && paymentIntent !== "") return router.push('/c/p')
     const del = await handleDeleteCustomer(user?.email)
     handleSetLoading(false)
     handleSetError('')

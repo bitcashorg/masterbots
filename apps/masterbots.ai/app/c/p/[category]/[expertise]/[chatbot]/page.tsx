@@ -2,7 +2,7 @@ import { authOptions } from "@/auth";
 import { ChatChatbot } from "@/components/routes/chat/chat-chatbot";
 import ThreadPanel from "@/components/routes/thread/thread-panel";
 import { formatSystemPrompts } from "@/lib/actions";
-import { botNames } from "@/lib/bots-names";
+import { botNames } from "@/lib/constants/bots-names";
 import { setDefaultUserPreferencesPrompt } from "@/lib/constants/prompts";
 import { getChatbot, getThreads } from "@/services/hasura";
 import type { Message } from "ai";
