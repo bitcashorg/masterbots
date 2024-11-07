@@ -93,7 +93,7 @@ export function BrowseAccordion({
     thread?.threadId !== activeThread?.threadId
   const shouldBeDisabled = disabled || isAnotherThreadOpen
 
-    //!!! Handle body scroll locking
+    //? Handle body scroll locking
     React.useEffect(() => {
       const isMobile = window.innerWidth < 640 // sm breakpoint
       
@@ -189,7 +189,7 @@ export function BrowseAccordion({
         'opacity-50 pointer-events-none filter grayscale',
         !isNestedThread && shouldBeDisabled && 'cursor-not-allowed',
         isNestedThread && 'my-2',
-        //! Add styles for mobile when open
+        //? mobile when open
         !isNestedThread && open && 'sm:relative fixed inset-0 sm:inset-auto'
 
       )}

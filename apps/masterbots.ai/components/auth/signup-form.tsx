@@ -147,7 +147,6 @@ export default function SignUpForm() {
             required
             value={state.password}
             onChange={handleInputChange}
-            onBlur={validatePassword}
             className="pr-10"
           />
           <button
