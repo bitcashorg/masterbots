@@ -1,10 +1,7 @@
 import type React from 'react'
 
-
-
 // * Valid password strength scores
-export type PasswordStrength = 0 | 1 | 2 | 3 | 4 | 5 | 6;
-
+export type PasswordStrength = 0 | 1 | 2 | 3 | 4 | 5 | 6
 
 //* Mapping of strength scores to labels
 export const strengthLabels: Record<PasswordStrength, string> = {
@@ -15,46 +12,46 @@ export const strengthLabels: Record<PasswordStrength, string> = {
   4: 'Good',
   5: 'Strong',
   6: 'Very Strong'
-} as const;
+} as const
 
 /**
  * Calculates password strength based on various criteria including Unicode characters.
- * Returns a score from 0 (weakest) to 6 (strongest). 
+ * Returns a score from 0 (weakest) to 6 (strongest).
  * @param password The password to evaluate
  */
 export function calculatePasswordStrength(password: string): PasswordStrength {
   // Early return for empty or very short passwords
-  if (!password || password.length < 4) return 0;
+  if (!password || password.length < 4) return 0
 
-  let strength = 0;
+  let strength = 0
 
   // Length checks
-  if (password.length > 7) strength += 1;
-  if (password.length > 10) strength += 1;
+  if (password.length > 7) strength += 1
+  if (password.length > 10) strength += 1
 
   // Unicode-aware regex patterns
   const patterns = {
     // Matches any uppercase letter, including non-ASCII uppercase
     uppercase: /\p{Lu}/u,
-    
+
     // Matches any lowercase letter, including non-ASCII lowercase
     lowercase: /\p{Ll}/u,
-    
+
     // Matches any decimal number
     numbers: /\p{Nd}/u,
-    
+
     // Matches symbols, punctuation, and other non-alphanumeric characters
     special: /[^\p{L}\p{Nd}]/u
-  };
+  }
 
   // Test each criteria
-  if (patterns.uppercase.test(password)) strength += 1;
-  if (patterns.lowercase.test(password)) strength += 1;
-  if (patterns.numbers.test(password)) strength += 1;
-  if (patterns.special.test(password)) strength += 1;
+  if (patterns.uppercase.test(password)) strength += 1
+  if (patterns.lowercase.test(password)) strength += 1
+  if (patterns.numbers.test(password)) strength += 1
+  if (patterns.special.test(password)) strength += 1
 
   // Ensure return value is within valid range
-  return Math.min(strength, 6) as PasswordStrength;
+  return Math.min(strength, 6) as PasswordStrength
 }
 
 /**
@@ -63,8 +60,11 @@ export function calculatePasswordStrength(password: string): PasswordStrength {
  */
 export function getPasswordStrengthLabel(strength: number): string {
   // Ensure strength is within valid range
-  const validStrength = Math.min(Math.max(Math.floor(strength), 0), 6) as PasswordStrength;
-  return strengthLabels[validStrength];
+  const validStrength = Math.min(
+    Math.max(Math.floor(strength), 0),
+    6
+  ) as PasswordStrength
+  return strengthLabels[validStrength]
 }
 
 export function getPasswordStrengthColor(strength: number): string {
@@ -83,15 +83,15 @@ export function getPasswordStrengthColor(strength: number): string {
   }
 }
 
-
 export function isPasswordStrong(password: string): boolean {
   const strength = calculatePasswordStrength(password)
   return strength >= 4 // Require at least a "Strong" password
 }
 
-export function validatePassword(e: React.FocusEvent<HTMLInputElement>): void {
-  const password = e.target.value
+export function validatePassword(e: React.FocusEvent<HTMLInputElement>,
+  t: (key: string) => string): void {
 
+  const password = e.target.value
   if (password.length < 8) {
     e.target.setCustomValidity('Password must be at least 8 characters long')
     e.target.reportValidity()

@@ -9,9 +9,7 @@ interface PasswordStrengthMeterProps {
   password: string
 }
 
-export const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({
-  password
-}) => {
+export function PasswordStrengthMeter({ password }: PasswordStrengthMeterProps) {
   const strength = calculatePasswordStrength(password)
   const color = getPasswordStrengthColor(strength)
   const label = getPasswordStrengthLabel(strength)

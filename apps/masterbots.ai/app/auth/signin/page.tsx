@@ -45,7 +45,6 @@ export default function SignInPage() {
             <Link 
               href="/auth/signup" 
               className="underline transition-colors hover:text-primary" 
-              prefetch={false}
             >
               Sign up
             </Link>

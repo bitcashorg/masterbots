@@ -46,11 +46,11 @@ export default function SignUpPage() {
         {/* Optional: Add terms and conditions notice */}
         <p className="mt-6 text-xs text-center text-muted-foreground">
           By creating an account, you agree to our{' '}
-          <a href="/terms" className="underline hover:text-primary">
+          <a href="/terms#terms" className="underline hover:text-primary">
             Terms of Service
           </a>{' '}
           and{' '}
-          <a href="/privacy" className="underline hover:text-primary">
+          <a href="/terms#privacy" className="underline hover:text-primary">
             Privacy Policy
           </a>
         </p>

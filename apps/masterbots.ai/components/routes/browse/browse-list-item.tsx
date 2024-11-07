@@ -65,6 +65,7 @@ export default function BrowseListItem({
     initialUrl = location.href
   })
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   React.useEffect(() => {
     initialUrl = location.href
   }, [tab])
@@ -150,53 +151,61 @@ export default function BrowseListItem({
             'relative flex items-center font-normal md:text-lg transition-all w-full gap-3 pr-4'
           )}
         >
-          <div className="w-full flex justify-between items-center text-left">
-            <div className='flex items-center gap-4 w-[calc(100%-124px)] m:w-[calc(100%-58px)] '>
+          <div className="flex items-center justify-between w-full text-left">
+            {/* Main content area - adjusted width and spacing */}
+            <div className="flex items-center gap-2 sm:gap-4 w-[calc(100%-100px)] sm:w-[calc(100%-124px)]">
               {pageType !== 'bot' && <ChatbotAvatar thread={thread} />}
+
+              {/* Message content - adjusted spacing */}
               <div
                 className={cn('truncate-title', {
-                  'no-truncate max-h-40 !overflow-y-auto sm:max-h-none sm:overflow-visible': isAccordionOpen
+                  'no-truncate max-h-40 !overflow-y-auto sm:max-h-none sm:overflow-visible':
+                    isAccordionOpen
                 })}
               >
                 {thread.messages?.[0]?.content}
               </div>
 
-              <div className="flex gap-3 px-4 items-center">
-                {pageType !== 'user' && (
-                  <>
-                    <span className="opacity-50 text-sm"> by  </span>
-                    <Button
-                      onClick={goToProfile}
-                      title={thread.user?.username.replace('_', ' ')}
-                      variant="icon"
-                      size="icon"
-                    >
-                      <Image
-                        className="transition-opacity duration-300 rounded-full select-none hover:opacity-80"
-                        src={thread.user?.profilePicture || '/images/robohash1.png'}
-                        alt={thread.user?.username ?? 'Avatar'}
-                        height={40}
-                        width={40}
-                      />
-                    </Button>
-                  </>
-                )}
-              </div>
+              {/* User section with tighter spacing on mobile */}
+              {pageType !== 'user' && (
+                <div className="flex items-center gap-1 ml-2 sm:gap-3 sm:ml-4">
+                  <span className="hidden text-sm opacity-50 sm:inline"> by </span>
+                  <Button
+                    onClick={goToProfile}
+                    title={thread.user?.username.replace('_', ' ')}
+                    variant="icon"
+                    size="icon"
+                    className="w-8 h-8 sm:h-10 sm:w-10" // Smaller on mobile
+                  >
+                    <Image
+                      className="transition-opacity duration-300 rounded-full select-none hover:opacity-80"
+                      src={
+                        thread.user?.profilePicture || '/images/robohash1.png'
+                      }
+                      alt={thread.user?.username ?? 'Avatar'}
+                      height={40}
+                      width={40}
+                    />
+                  </Button>
+                </div>
+              )}
             </div>
             {/* Thread Options */}
-            <div className="pl-4 pr-8">
-              <ChatOptions threadId={thread.threadId} thread={thread} isBrowse />
+            <div className="pl-2 pr-4 sm:pl-4 sm:pr-8">
+              <ChatOptions
+                threadId={thread.threadId}
+                thread={thread}
+                isBrowse
+              />
             </div>
           </div>
-
-
         </div>
 
         {/* Thread Description */}
 
         <div className="overflow-hidden text-sm text-left opacity-50">
           {thread.messages?.[1]?.content &&
-            thread.messages?.[1]?.role !== 'user' ? (
+          thread.messages?.[1]?.role !== 'user' ? (
             <div className="flex-1 space-y-2 overflow-hidden">
               <ShortMessage content={thread.messages?.[1]?.content} />
             </div>

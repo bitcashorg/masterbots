@@ -21,8 +21,9 @@ function getUserInitials(name: string) {
   return lastName ? `${firstName[0]}${lastName[0]}` : firstName.slice(0, 2)
 }
 
-function truncateUsername(username: string) {
-  return username.length > 10 ? `${username.slice(0, 6)}..` : username
+function truncateUsername(username: string | null | undefined, maxLength = 10) {
+  if (!username) return '';
+  return username.length > maxLength ? `${username.slice(0, maxLength - 4)}...` : username;
 }
 
 export function UserMenu({ user }: UserMenuProps) {
