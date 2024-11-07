@@ -33,13 +33,12 @@
 //TODO: Refactor and optimize the Chat component into smaller sections for better performance and readability
 
 import {
-  improveMessage,
-  subtractChatbotMetadataLabels,
-} from "@/app/api/chat/actions/actions";
+  improveMessage
+} from "@/app/actions/ai-main-call";
 import { ChatList } from "@/components/routes/chat/chat-list";
 import { ChatPanel } from "@/components/routes/chat/chat-panel";
 import { ChatScrollAnchor } from "@/components/routes/chat/chat-scroll-anchor";
-import { botNames } from "@/lib/bots-names";
+import { botNames } from "@/lib/constants/bots-names";
 import { followingQuestionsPrompt, setDefaultPrompt } from '@/lib/constants/prompts';
 import { useAtBottom } from "@/lib/hooks/use-at-bottom";
 import { useModel } from "@/lib/hooks/use-model";
@@ -103,6 +102,10 @@ export function Chat({
       body: {
         id: params.threadId || isNewChat ? threadId : activeThread?.threadId,
         model: selectedModel,
+        chatbot: activeChatbot && activeChatbot?.categories?.length ? {
+          chatbotId: activeChatbot?.chatbotId,
+          categoryId: activeChatbot?.categories[0].categoryId,
+        } : {},
         clientType,
       },
       onResponse(response) {
@@ -119,6 +122,10 @@ export function Chat({
           jwt: session!.user?.hasuraJwt,
         });
       },
+      onError(error) {
+        console.error("Error in chat: ", error);
+        toast.error("Failed to send message. Please try again.");
+      }
     });
 
   const { scrollY } = useScroll({
@@ -177,8 +184,9 @@ export function Chat({
       return;
     }
 
-    // * Loading: processing your request... 'processing'
+    // * Loading: processing your request + opening pop-up...
     setLoadingState("processing");
+    setIsOpenPopup(true);
 
     let processedMessage: CleanPromptResult = setDefaultPrompt(
       userMessage.content,
@@ -209,34 +217,35 @@ export function Chat({
       processedMessage;
     const userContent = translatedText || improvedText || originalText;
 
+    // * Optimistically setting the active thread
+    const updatedUserMessage = {
+      ...userMessage,
+      content: userContent,
+    };
+    setActiveThread({
+      threadId,
+      chatbotId: chatbot.chatbotId,
+      chatbot,
+      createdAt: new Date().toISOString(),
+      isApproved: false,
+      isBlocked: false,
+      isPublic: activeChatbot?.name !== "BlankBot",
+      // @ts-ignore
+      messages: initialMessages ? [...initialMessages, updatedUserMessage as Message] : [updatedUserMessage as Message],
+      userId: session.user.id,
+    })
+
     console.log("Processed Message: ", processedMessage);
 
     // ! Loading: Generating awesome stuff for you... 'generating'
     setLoadingState("generating");
-
-    // * Getting the user labelling the thread (categories, sub-category, etc.)
-    const chatMetadata = await subtractChatbotMetadataLabels(
-      {
-        domain: chatbot?.categories[0].categoryId,
-        chatbot: chatbot?.chatbotId,
-      },
-      userContent,
-      clientType as AiClientType,
-    );
-    console.log(
-      "Full responses from subtractChatbotMetadataLabels:",
-      chatMetadata,
-    );
-
-    // * Loading: Polishing Ai request... 'polishing'
-    setLoadingState("polishing");
 
     // ! Connecting to the ICL to send the user labelling the thread and rawData (examples) to the ICL
     // TODO: ...
     const postIclResponse = (await new Promise((resolve) => {
       const timeout = setTimeout(() => {
         resolve({
-          parsed: chatMetadata,
+          parsed: {},
           question: userContent,
           domain: chatbot?.categories[0].category.name as string,
           chatbot: chatbot?.name as string,
@@ -250,33 +259,6 @@ export function Chat({
     // * Loading: Now I have the information you need... 'ready'
     setLoadingState("ready");
 
-    if (isNewChat && chatbot) {
-      await createThread({
-        threadId,
-        chatbotId: chatbot.chatbotId,
-        jwt: session.user?.hasuraJwt,
-        userId: session.user.id,
-        isPublic: activeChatbot?.name !== "BlankBot",
-      });
-      const thread = await getThread({
-        threadId,
-        jwt: session.user?.hasuraJwt,
-      });
-      setActiveThread(thread);
-      setIsOpenPopup(true);
-    }
-    if (activeThread?.threadId) {
-      setIsOpenPopup(true);
-    }
-
-    await saveNewMessage({
-      role: "user",
-      threadId:
-        params.threadId || isNewChat ? threadId : activeThread?.threadId,
-      content: userContent,
-      jwt: session.user?.hasuraJwt,
-    });
-
     setIsNewResponse(true);
 
     return append(
@@ -286,7 +268,31 @@ export function Chat({
           ...userMessage,
           content: followingQuestionsPrompt(userContent, allMessages),
         },
-    ).then((response) => {
+    ).then(async (response) => {
+      if (isNewChat && chatbot) {
+        await createThread({
+          threadId,
+          chatbotId: chatbot.chatbotId,
+          jwt: session.user?.hasuraJwt,
+          userId: session.user.id,
+          isPublic: activeChatbot?.name !== "BlankBot",
+        });
+
+        const thread = await getThread({
+          threadId,
+          jwt: session.user?.hasuraJwt,
+        });
+
+        setActiveThread(thread);
+      }
+
+      await saveNewMessage({
+        role: "user",
+        threadId:
+          params.threadId || isNewChat ? threadId : activeThread?.threadId,
+        content: userContent,
+        jwt: session.user?.hasuraJwt,
+      });
       // * Loading: Here is the information you need... 'finish'
       setLoadingState("finished");
 
@@ -367,7 +373,7 @@ export function Chat({
         stop={stop}
         append={appendWithMbContextPrompts}
         reload={reload}
-        messages={allMessages}
+        messages={threadAllMessages}
         input={input}
         setInput={setInput}
         chatbot={chatbot}

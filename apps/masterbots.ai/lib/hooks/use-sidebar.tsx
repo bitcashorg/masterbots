@@ -1,9 +1,9 @@
 'use client'
 
-import { usePathname } from 'next/navigation'
-import { toSlug } from 'mb-lib'
 import { getCategories } from '@/services/hasura'
 import { Category, Chatbot } from 'mb-genql'
+import { toSlug } from 'mb-lib'
+import { usePathname } from 'next/navigation'
 import * as React from 'react'
 import { useAsync } from 'react-use'
 
@@ -98,19 +98,19 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
   React.useEffect(() => {
     if (!pathname || !categories) return
     const pathParts = pathname.split('/')
-    
+
     if (categories && pathParts[1] === 'c') {
       const categorySlug = pathParts[2]
-      const chatbotName = pathParts[3] 
-      
+      const chatbotName = pathParts[3]
+
       const category = categories?.categoriesChatbots.find(
         cat => toSlug(cat.name) === categorySlug
       )
-      
+
       if (category) {
         setActiveCategory(category.categoryId)
         setExpandedCategories([category.categoryId])
-        
+
         if (chatbotName) {
           const chatbot = category.chatbots.find(
             c => c.chatbot.name.toLowerCase() === chatbotName
@@ -121,7 +121,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
             setActiveChatbot(null)
           }
         } else {
-       
+
           setActiveChatbot(null)
         }
       }
@@ -168,7 +168,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
       )
         .filter(category => selectedCategories.includes(category.categoryId))
         .filter(category => category.chatbots.some(chatbot => selectedChatbots.includes(chatbot.chatbotId)))
-  }, [selectedChatbots.length, selectedCategories.length, filterValue, isFilterMode])
+  }, [selectedChatbots.length, selectedCategories.length, filterValue, isFilterMode, categories])
 
   if (isLoading) {
     return null

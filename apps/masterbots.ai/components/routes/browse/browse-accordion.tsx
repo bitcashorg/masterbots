@@ -29,11 +29,11 @@
  * - Conditional Rendering: Renders different UI elements based on the state and props.
  */
 
-import React from 'react'
-import { ChevronDown } from 'lucide-react'
-import type { Thread } from 'mb-genql'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn } from '@/lib/utils'
+import { ChevronDown } from 'lucide-react'
+import type { Thread } from 'mb-genql'
+import React from 'react'
 
 export function BrowseAccordion({
   thread = null,
@@ -156,13 +156,13 @@ export function BrowseAccordion({
         'relative transition-all duration-300',
         className,
         !isNestedThread &&
-          (open
-            ? 'z-10 my-8 scale-100'
-            : 'scale-[0.98] my-1 hover:scale-[0.99]'),
+        (open
+          ? 'z-10 my-8 scale-100'
+          : 'scale-[0.98] my-1 hover:scale-[0.99]'),
         !isNestedThread &&
-          shouldBeDisabled &&
-          !open &&
-          'opacity-50 pointer-events-none filter grayscale',
+        shouldBeDisabled &&
+        !open &&
+        'opacity-50 pointer-events-none filter grayscale',
         !isNestedThread && shouldBeDisabled && 'cursor-not-allowed',
         isNestedThread && 'my-2'
       )}
@@ -172,7 +172,7 @@ export function BrowseAccordion({
       {!isNestedThread && open && (
         <>
           {/* Background glow effect */}
-          <div className="absolute inset-0 -m-4 rounded-xl blur-xl bg-gradient-to-r dark:from-[#83E56A]/5 dark:via-[#83E56A]/10 dark:to-[#83E56A]/5 from-[#BE17E8]/5 via-[#BE17E8]/10 to-[#BE17E8]/5" />
+          <div className="absolute inset-0 -m-4 rounded-xl blur-xl bg-gradient-to-r dark:from-[#83E56A]/10 dark:via-[#83E56A]/15 dark:to-[#83E56A]/10 from-[#BE17E8]/15 via-[#BE17E8]/20 to-[#BE17E8]/15 animate-pulse" />
           {/* Additional subtle glow layer */}
           <div className="absolute inset-0 -m-1 rounded-xl opacity-50 bg-gradient-to-r dark:from-[#83E56A]/10 dark:to-[#83E56A]/15 from-[#BE17E8]/10 to-[#BE17E8]/15" />
           {/* Border glow */}
@@ -192,14 +192,14 @@ export function BrowseAccordion({
           'hover:rounded-t-[8px]',
           'font-medium w-full',
           !isNestedThread &&
-            open &&
-            'dark:border-b-mirage border-b-gray-300 dark:bg-[#18181B]/95 bg-white/95 rounded-t-lg shadow-lg transform-gpu backdrop-blur-sm',
+          open &&
+          'dark:border-b-mirage border-b-gray-300 dark:bg-[#18181B]/95 bg-white/95 rounded-t-lg shadow-lg transform-gpu backdrop-blur-sm',
           !isNestedThread &&
-            !open &&
-            'dark:hover:border-b-mirage hover:border-b-gray-300 [&>div>div>button]:!hidden',
+          !open &&
+          'dark:hover:border-b-mirage hover:border-b-gray-300 [&>div>div>button]:!hidden',
           isNestedThread &&
-            open &&
-            'dark:bg-[#18181B]/50 bg-white/50 rounded-t-lg',
+          open &&
+          'dark:bg-[#18181B]/50 bg-white/50 rounded-t-lg',
           shouldBeDisabled && !open && 'cursor-not-allowed hover:scale-100',
           triggerClass
         )}
@@ -209,11 +209,11 @@ export function BrowseAccordion({
         <ChevronDown
           {...(handleTrigger
             ? {
-                onClick: e => {
-                  e.stopPropagation()
-                  handleTrigger()
-                }
+              onClick: e => {
+                e.stopPropagation()
+                handleTrigger()
               }
+            }
             : {})}
           className={cn(
             'absolute -right-2 size-4 shrink-0 mr-4 transition-transform duration-200',
@@ -232,13 +232,13 @@ export function BrowseAccordion({
         className={cn(
           'text-sm transition-all border relative',
           !isNestedThread &&
-            open &&
-            'animate-accordion-down dark:bg-[#18181B]/95 bg-white/95 dark:border-mirage border-gray-300 !border-t-transparent rounded-b-lg shadow-lg backdrop-blur-sm',
+          open &&
+          'animate-accordion-down dark:bg-[#18181B]/95 bg-white/95 dark:border-mirage border-gray-300 !border-t-transparent rounded-b-lg shadow-lg backdrop-blur-sm',
           isNestedThread &&
-            open &&
-            'animate-accordion-down dark:bg-[#18181B]/50 bg-white/50 dark:border-mirage/50 border-gray-300/50 !border-t-transparent rounded-b-lg',
+          open &&
+          'animate-accordion-down dark:bg-[#18181B]/50 bg-white/50 dark:border-mirage/50 border-gray-300/50 !border-t-transparent rounded-b-lg',
           !open &&
-            'overflow-hidden animate-accordion-up h-0 border-transparent',
+          'overflow-hidden animate-accordion-up h-0 border-transparent',
           contentClass
         )}
       >

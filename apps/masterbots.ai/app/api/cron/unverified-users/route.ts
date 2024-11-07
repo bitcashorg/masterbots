@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server'
-import { getHasuraClient } from 'mb-lib'
 import { sendEmailVerification } from '@/lib/email'
+import { getHasuraClient } from 'mb-lib'
+import { NextResponse } from 'next/server'
 import crypto from 'node:crypto'
 
 export async function GET() {

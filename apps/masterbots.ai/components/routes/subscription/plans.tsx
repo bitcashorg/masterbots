@@ -23,16 +23,16 @@
  * - goTo: Function to navigate to a specific step in the wizard
  */
 
-import { getSubscriptionPlans } from '@/app/actions'
+import { getSubscriptionPlans } from '@/app/actions/subscriptions'
+import PlanCard from '@/components/routes/subscription/plan-card'
+import { IconArrowRightNoFill } from '@/components/ui/icons'
+import { usePayment } from '@/lib/hooks/use-payment'
+import { cn } from '@/lib/utils'
 import type { PlansPros } from '@/types/types'
 import { useRouter } from 'next/navigation'
 import type React from 'react'
 import { useState } from 'react'
 import { useAsync } from 'react-use'
-import { IconArrowRightNoFill } from '@/components/ui/icons'
-import { usePayment } from '@/lib/hooks/use-payment'
-import { cn } from '@/lib/utils'
-import PlanCard from '@/components/routes/subscription/plan-card'
 
 export function Plans({ next, goTo }: PlansPros) {
   const {

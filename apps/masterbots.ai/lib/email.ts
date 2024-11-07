@@ -21,7 +21,8 @@ export function getAppUrl(): string {
 let transporter: nodemailer.Transporter
 
 if (process.env.NEXT_PUBLIC_APP_ENV === 'prod') {
-  // TODO temporaly sendgrid configuration need to be updated for the chosen email provider
+  // ? Using sendgrid configuration with "no-reply@bitcash.org" identity,
+  // TODO: Use mbots.ai domain for definitive production environment
   transporter = nodemailer.createTransport({
     host: 'smtp.sendgrid.net',
     port: 587,

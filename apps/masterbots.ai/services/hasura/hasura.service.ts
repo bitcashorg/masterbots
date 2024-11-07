@@ -1,4 +1,12 @@
+import { processWithAi } from '@/app/actions'
+import { AIModels } from '@/app/api/chat/models/models'
+import {
+  createChatbotMetadataPrompt,
+  setDefaultPrompt
+} from '@/lib/constants/prompts'
+import { cleanResult } from '@/lib/helpers/ai-helpers'
 import type {
+  AiClientType,
   ChatbotMetadataHeaders,
   ReturnFetchChatbotMetadata
 } from '@/types/types'
@@ -144,8 +152,8 @@ export async function getThreads({
           limit: 2
         }
       },
-      isApproved:true,
-      isPublic:true,
+      isApproved: true,
+      isPublic: true,
       ...everything,
       __args: {
         orderBy: [{ createdAt: 'DESC' }],
@@ -461,10 +469,10 @@ export async function getBrowseThreads({
         profilePicture: true,
         slug: true
       },
-      isApproved:true,
-      isPublic:true,
-      ...everything,
-    },
+      isApproved: true,
+      isPublic: true,
+      ...everything
+    }
   })
 
   return thread as Thread[]
@@ -631,6 +639,11 @@ export async function fetchChatbotMetadata({
       }
     })
 
+    if (!chatbotMetadata[0]) {
+      console.error('Chatbot metadata not found. Continuing without it.')
+      return null
+    }
+
     return chatbotMetadata[0].label as LabelChatbotCategory['label']
   } catch (error) {
     console.error('Error fetching chatbot metadata:', error)
@@ -640,10 +653,10 @@ export async function fetchChatbotMetadata({
 
 export async function approveThread({
   threadId,
-  jwt,
+  jwt
 }: {
-  threadId: string;
-  jwt: string | undefined;
+  threadId: string
+  jwt: string | undefined
 }): Promise<{ success: boolean; error?: string }> {
   try {
     const client = getHasuraClient({ jwt })
@@ -651,44 +664,55 @@ export async function approveThread({
       updateThreadByPk: {
         __args: {
           pkColumns: { threadId },
-          _set: { isApproved: true}
+          _set: { isApproved: true }
         },
         threadId: true,
         isApproved: true
       }
     })
-    return { success: true };
+    return { success: true }
   } catch (error) {
-    console.error('Error approving thread:', error);
-    return { success: false, error: 'Failed to approve the thread.' };
+    console.error('Error approving thread:', error)
+    return { success: false, error: 'Failed to approve the thread.' }
   }
-} 
-
-export async function getUserRoleByEmail({ email } : { email: string | null | undefined}){
-    try{
-      const client = getHasuraClient({})
-      const { user } = await client.query({
-        user: {
-          __args: {
-            where: { email: { _eq: email } }
-          },
-          role:true
-        }
-      })
-      return { users: user as User[] }
-    }catch (error) {
-      console.error('Error fetching user role by email:', error);
-      return {  users: [],  error: 'Failed to fetch user role by email.' };
-      }
 }
 
-export async function deleteThread({ threadId, jwt, userId }: { threadId: string, jwt: string | undefined, userId: string | undefined }){
+export async function getUserRoleByEmail({
+  email
+}: {
+  email: string | null | undefined
+}) {
   try {
-
-    if (!jwt) {
-         throw new Error('Authentication required for thread deletion');
+    const client = getHasuraClient({})
+    const { user } = await client.query({
+      user: {
+        __args: {
+          where: { email: { _eq: email } }
+        },
+        role: true
       }
-    
+    })
+    return { users: user as User[] }
+  } catch (error) {
+    console.error('Error fetching user role by email:', error)
+    return { users: [], error: 'Failed to fetch user role by email.' }
+  }
+}
+
+export async function deleteThread({
+  threadId,
+  jwt,
+  userId
+}: {
+  threadId: string
+  jwt: string | undefined
+  userId: string | undefined
+}) {
+  try {
+    if (!jwt) {
+      throw new Error('Authentication required for thread deletion')
+    }
+
     const client = getHasuraClient({ jwt })
     await client.mutation({
       deleteThread: {
@@ -699,20 +723,18 @@ export async function deleteThread({ threadId, jwt, userId }: { threadId: string
       affected_rows: true
     })
 
-    return { success: true };
+    return { success: true }
   } catch (error) {
-    console.error('Error deleting thread:', error);
-    return { success: false, error: 'Failed to delete the thread.' };
+    console.error('Error deleting thread:', error)
+    return { success: false, error: 'Failed to delete the thread.' }
   }
 }
 
-
-
-// get all threads that are not approved 
+// get all threads that are not approved
 export async function getUnapprovedThreads({ jwt }: { jwt: string }) {
   if (!jwt) {
-     throw new Error('Authentication required to access unapproved threads');
-   }
+    throw new Error('Authentication required to access unapproved threads')
+  }
   const client = getHasuraClient({ jwt })
   const { thread } = await client.query({
     thread: {
@@ -743,11 +765,35 @@ export async function getUnapprovedThreads({ jwt }: { jwt: string }) {
           limit: 2
         }
       },
-      isApproved:true,
-      isPublic:true,
-      ...everything,
+      isApproved: true,
+      isPublic: true,
+      ...everything
     }
   })
 
   return thread as Thread[]
+}
+
+export async function subtractChatbotMetadataLabels(
+  metadataHeaders: ChatbotMetadataHeaders,
+  userPrompt: string,
+  clientType: AiClientType
+) {
+  const chatbotMetadata = await fetchChatbotMetadata(metadataHeaders)
+
+  if (!chatbotMetadata) {
+    console.error(
+      'Chatbot metadata not found. Generating response without them.'
+    )
+    return setDefaultPrompt(userPrompt)
+  }
+
+  const prompt = createChatbotMetadataPrompt(
+    metadataHeaders,
+    chatbotMetadata,
+    userPrompt
+  )
+  const response = await processWithAi(prompt, clientType, AIModels.Default)
+
+  return cleanResult(response)
 }

@@ -1,9 +1,14 @@
-import { generateUsername } from '@/lib/username'
+'use server'
+
 import { sendEmailVerification } from '@/lib/email'
+import { generateUsername } from '@/lib/username'
 import bcryptjs from 'bcryptjs'
 import { getHasuraClient, toSlug } from 'mb-lib'
 import { type NextRequest, NextResponse } from 'next/server'
 import crypto from 'node:crypto'
+
+// * Add explicit runtime configuration
+// export const runtime = 'edge'
 
 export async function POST(req: NextRequest) {
   const { email, password, username } = await req.json()

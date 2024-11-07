@@ -1,269 +1,284 @@
-"use server";
+'use server'
 
-import { AIModels } from "@/app/api/chat/models/models";
+import { AIModels } from '@/app/api/chat/models/models'
 import {
   createChatbotMetadataPrompt,
   createImprovementPrompt,
-  setDefaultPrompt,
-} from "@/lib/constants/prompts";
+  setDefaultPrompt
+} from '@/lib/constants/prompts'
 import {
+  cleanResult,
   convertToCoreMessages,
-  setStreamerPayload,
-} from "@/lib/helpers/ai-helpers";
-import { fetchChatbotMetadata } from "@/services/hasura";
+  setStreamerPayload
+} from '@/lib/helpers/ai-helpers'
+import { aiTools } from '@/lib/helpers/ai-schemas'
+import { fetchChatbotMetadata } from '@/services/hasura'
 import type {
   AiClientType,
   ChatbotMetadataHeaders,
   CleanPromptResult,
-  JSONResponseStream,
-} from "@/types/types";
-import { createAnthropic } from "@ai-sdk/anthropic";
-import { createOpenAI } from "@ai-sdk/openai";
-import { streamText } from "ai";
-import type { ChatCompletionMessageParam } from "openai/resources";
+  JSONResponseStream
+} from '@/types/types'
+import { createAnthropic } from '@ai-sdk/anthropic'
+import { createOpenAI } from '@ai-sdk/openai'
+import { streamText } from 'ai'
+import type { Chatbot } from 'mb-genql'
+import type { ChatCompletionMessageParam } from 'openai/resources'
 
 //* this function is used to create a client for the OpenAI API
 const initializeOpenAi = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  compatibility: "strict",
-});
+  compatibility: 'strict'
+})
 
 const initializeAnthropic = createAnthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+  apiKey: process.env.ANTHROPIC_API_KEY
+})
 
 //* Perplexity API uses openai-sdk with compatible mode and a different base URL
 export async function initializePerplexity(apiKey: string) {
   if (!apiKey) {
     throw new Error(
-      "PERPLEXITY_API_KEY is not defined in environment variables",
-    );
+      'PERPLEXITY_API_KEY is not defined in environment variables'
+    )
   }
   return await createOpenAI({
     apiKey,
-    baseURL: "https://api.perplexity.ai",
-    compatibility: "compatible",
-  });
+    baseURL: 'https://api.perplexity.ai',
+    compatibility: 'compatible'
+  })
 }
 
 // * This function improves the message using the AI
 export async function improveMessage(
   content: string,
   clientType: AiClientType,
-  model: string,
+  model: string
 ): Promise<CleanPromptResult> {
-  const messageImprovementPrompt = createImprovementPrompt(content);
+  const messageImprovementPrompt = createImprovementPrompt(content)
 
   try {
     const result = await processWithAi(
       messageImprovementPrompt,
       clientType,
-      model,
-    );
-    const cleanedResult = cleanResult(result);
+      model
+    )
+    const cleanedResult = cleanResult(result)
 
     if (
-      isInvalidResult(cleanedResult.translatedText || cleanedResult.improvedText, content) &&
+      isInvalidResult(
+        cleanedResult.translatedText || cleanedResult.improvedText,
+        content
+      ) &&
       cleanedResult.improved
     ) {
       console.warn(
-        "AI did not modify the text or returned invalid result. Recursively executing improved prompt.",
-      );
-      return await improveMessage(content, clientType, model);
+        'AI did not modify the text or returned invalid result. Recursively executing improved prompt.'
+      )
+      return await improveMessage(content, clientType, model)
     }
 
-    return cleanedResult;
+    return cleanedResult
   } catch (error) {
     const originalText = handleImprovementError(
       error,
       content,
       clientType,
-      model,
-    );
-    return setDefaultPrompt(originalText);
+      model
+    )
+    return setDefaultPrompt(originalText)
   }
 }
 
 export async function subtractChatbotMetadataLabels(
   metadataHeaders: ChatbotMetadataHeaders,
   userPrompt: string,
-  clientType: AiClientType,
+  clientType: AiClientType
 ) {
-  const chatbotMetadata = await fetchChatbotMetadata(metadataHeaders);
+  const chatbotMetadata = await fetchChatbotMetadata(metadataHeaders)
 
   if (!chatbotMetadata) {
     console.error(
-      "Chatbot metadata not found. Generating response without them.",
-    );
-    return setDefaultPrompt(userPrompt);
+      'Chatbot metadata not found. Generating response without them.'
+    )
+    return setDefaultPrompt(userPrompt)
   }
 
   const prompt = createChatbotMetadataPrompt(
     metadataHeaders,
     chatbotMetadata,
-    userPrompt,
-  );
-  const response = await processWithAi(prompt, clientType, AIModels.Default);
+    userPrompt
+  )
+  const response = await processWithAi(prompt, clientType, AIModels.Default)
 
-  return cleanResult(response);
+  return cleanResult(response)
 }
 
 // * This function process the AI response and return the cleaned result
-async function processWithAi(
+export async function processWithAi(
   prompt: string,
   clientType: AiClientType,
-  model: string,
+  model: string
 ): Promise<string> {
   try {
     const messages = [
-      { role: "user", content: prompt },
-    ] as ChatCompletionMessageParam[];
-    const processedMessages = setStreamerPayload(clientType, messages);
+      { role: 'user', content: prompt }
+    ] as ChatCompletionMessageParam[]
+    const processedMessages = setStreamerPayload(clientType, messages)
 
     const response = await createResponseStream(clientType, {
       model: AIModels.Default,
-      messages: processedMessages,
-    } as any);
+      messages: processedMessages
+    } as any)
 
     if (!response.body) {
-      throw new Error("Response body is null");
+      throw new Error('Response body is null')
     }
 
     if (response.status !== 200) {
-      const errorText = await response.text();
+      const errorText = await response.text()
       throw new Error(
-        `API responded with status ${response.status}: ${errorText} `,
-      );
+        `API responded with status ${response.status}: ${errorText} `
+      )
     }
 
-    const result = await readStreamResponse(response.body);
-    return result;
+    const result = await readStreamResponse(response.body)
+    return result
   } catch (error) {
-    console.error("Error in processWithAI:", error);
-    throw error;
+    console.error('Error in processWithAI:', error)
+    throw error
   }
 }
 
 // * This function reads the AI response and return the cleaned result
 async function readStreamResponse(body: ReadableStream): Promise<string> {
-  const reader = body.getReader();
-  let accumulatedResult = "";
+  const reader = body.getReader()
+  let accumulatedResult = ''
   while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    const chunk = new TextDecoder().decode(value);
-    accumulatedResult += chunk;
+    const { done, value } = await reader.read()
+    if (done) break
+    const chunk = new TextDecoder().decode(value)
+    accumulatedResult += chunk
   }
 
-  let result = "";
-  const parts = accumulatedResult.split("\n");
+  let result = ''
+  const parts = accumulatedResult.split('\n')
   for (const part of parts) {
-    const match = part.match(/^0:"(.*)"$/);
+    const match = part.match(/^0:"(.*)"$/)
     if (match) {
-      result += match[1];
+      result += match[1]
     }
   }
 
-  return result;
-}
-
-function cleanResult(result: string): CleanPromptResult {
-  const cleanedResult = result
-    .trim()
-    .replace(/\{\n/g, "{")
-    .replace(/\n\}/g, "}")
-    .replace(/\\"/g, '"');
-  // * Using template string to avoid parsing errors with ' and " special characters...
-  return JSON.parse(`${cleanedResult} `);
+  return result
 }
 
 function isInvalidResult(result: string, originalContent: string): boolean {
   return (
     !result ||
-    result.includes("Original message:") ||
-    result.toLowerCase() === originalContent.toLowerCase()
-  );
+    result.includes('Original message:') ||
+    result === originalContent
+  )
 }
 
 function handleImprovementError(
   error: any,
   originalContent: string,
   clientType?: AiClientType,
-  model?: string,
+  model?: string
 ): string {
-  console.error("Error in improvement process:", error);
-  return originalContent;
+  console.error('Error in improvement process:', error)
+  return originalContent
 }
 
 //* Create a response stream based on the client model type
 export async function createResponseStream(
   clientType: AiClientType,
-  json: JSONResponseStream,
-  req?: Request,
+  json: JSONResponseStream & {
+    chatbot: Pick<Chatbot, 'categories' | 'chatbotId'>
+  },
+  req?: Request
 ) {
-  const { model, messages: rawMessages, previewToken } = json;
-  const messages = setStreamerPayload(clientType, rawMessages);
+  const { model, messages: rawMessages, previewToken, chatbot } = json
+  const messages = setStreamerPayload(clientType, rawMessages)
+
+  const tools: Partial<typeof aiTools> = {
+    chatbotMetadataExamples: aiTools.chatbotMetadataExamples
+  }
+
+  tools.webSearch = aiTools.webSearch
+  // if (chatbot.categories.some((cat) => cat.categoryId === 1)) {
+  // }
 
   try {
-    let responseStream: ReadableStream;
+    let responseStream: ReadableStream
 
     switch (clientType) {
-      case "OpenAI": {
-        const openaiModel = initializeOpenAi(model);
+      case 'OpenAI': {
+        const openaiModel = initializeOpenAi(model)
         const coreMessages = convertToCoreMessages(
-          messages as ChatCompletionMessageParam[],
-        );
+          messages as ChatCompletionMessageParam[]
+        )
         const response = await streamText({
           model: openaiModel,
           messages: coreMessages,
           temperature: 0.4,
-        });
-        responseStream = response.toDataStreamResponse().body as ReadableStream;
-        break;
+          tools,
+          maxRetries: 2,
+          maxToolRoundtrips: 2
+        })
+        responseStream = response.toDataStreamResponse().body as ReadableStream
+        break
       }
-      case "Anthropic": {
+      case 'Anthropic': {
         const anthropicModel = initializeAnthropic(model, {
-          cacheControl: true,
-        });
+          cacheControl: true
+        })
         const coreMessages = convertToCoreMessages(
-          messages as ChatCompletionMessageParam[],
-        );
+          messages as ChatCompletionMessageParam[]
+        )
         const response = await streamText({
           model: anthropicModel,
           messages: coreMessages,
           temperature: 0.3,
           maxTokens: 300,
-        });
-        responseStream = response.toDataStreamResponse().body as ReadableStream;
-        break;
+          tools,
+          maxRetries: 2,
+          maxToolRoundtrips: 2
+        })
+        responseStream = response.toDataStreamResponse().body as ReadableStream
+        break
       }
-      case "Perplexity": {
+      case 'Perplexity': {
         const perplexity = await initializePerplexity(
-          previewToken || (process.env.PERPLEXITY_API_KEY as string),
-        );
-        const perplexityModel = perplexity(model);
+          previewToken || (process.env.PERPLEXITY_API_KEY as string)
+        )
+        const perplexityModel = perplexity(model)
         const coreMessages = convertToCoreMessages(
-          messages as ChatCompletionMessageParam[],
-        );
+          messages as ChatCompletionMessageParam[]
+        )
         const response = await streamText({
           model: perplexityModel,
           messages: coreMessages,
           temperature: 0.3,
           maxTokens: 1000,
-        });
-        responseStream = response.toDataStreamResponse().body as ReadableStream;
-        break;
+          tools,
+          maxRetries: 2,
+          maxToolRoundtrips: 2
+        })
+        responseStream = response.toDataStreamResponse().body as ReadableStream
+        break
       }
       default:
-        throw new Error("Unsupported client type");
+        throw new Error('Unsupported client type')
     }
 
     return new Response(responseStream, {
-      headers: { "Content-Type": "text/event-stream" },
-    });
+      headers: { 'Content-Type': 'text/event-stream' }
+    })
   } catch (error) {
-    console.error("Error in createResponseStream:", error);
-    throw error;
+    console.error('Error in createResponseStream:', error)
+    throw error
   }
 }
 
