@@ -1,5 +1,7 @@
-import { type NextRequest, NextResponse } from 'next/server'
+'server only'
+
 import { getHasuraClient } from 'mb-lib'
+import { type NextRequest, NextResponse } from 'next/server'
 
 // * Add explicit runtime configuration
 export const runtime = 'edge'

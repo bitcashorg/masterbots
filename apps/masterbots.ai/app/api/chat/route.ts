@@ -16,9 +16,8 @@ export async function POST(req: Request) {
     const clientModel = getModelClientType(model)
 
     const stream = await createResponseStream(clientModel, json, req)
-    
-    return stream
 
+    return stream
   } catch (error) {
     console.error('Error in chat API route:', error)
     return NextResponse.json(

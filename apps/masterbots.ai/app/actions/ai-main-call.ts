@@ -1,19 +1,23 @@
-'use server'
+'server only'
 
 import { AIModels } from '@/app/api/chat/models/models'
 import {
   createChatbotMetadataPrompt,
   createImprovementPrompt,
-  setDefaultPrompt,
+  setDefaultPrompt
 } from '@/lib/constants/prompts'
-import { cleanResult, convertToCoreMessages, setStreamerPayload } from '@/lib/helpers/ai-helpers'
+import {
+  cleanResult,
+  convertToCoreMessages,
+  setStreamerPayload
+} from '@/lib/helpers/ai-helpers'
 import { aiTools } from '@/lib/helpers/ai-schemas'
 import { fetchChatbotMetadata } from '@/services/hasura'
 import type {
   AiClientType,
   ChatbotMetadataHeaders,
   CleanPromptResult,
-  JSONResponseStream,
+  JSONResponseStream
 } from '@/types/types'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createOpenAI } from '@ai-sdk/openai'
@@ -24,22 +28,24 @@ import type { ChatCompletionMessageParam } from 'openai/resources'
 //* this function is used to create a client for the OpenAI API
 const initializeOpenAi = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  compatibility: 'strict',
+  compatibility: 'strict'
 })
 
 const initializeAnthropic = createAnthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+  apiKey: process.env.ANTHROPIC_API_KEY
 })
 
 //* Perplexity API uses openai-sdk with compatible mode and a different base URL
 export async function initializePerplexity(apiKey: string) {
   if (!apiKey) {
-    throw new Error('PERPLEXITY_API_KEY is not defined in environment variables')
+    throw new Error(
+      'PERPLEXITY_API_KEY is not defined in environment variables'
+    )
   }
   return await createOpenAI({
     apiKey,
     baseURL: 'https://api.perplexity.ai',
-    compatibility: 'compatible',
+    compatibility: 'compatible'
   })
 }
 
@@ -47,27 +53,39 @@ export async function initializePerplexity(apiKey: string) {
 export async function improveMessage(
   content: string,
   clientType: AiClientType,
-  model: string,
+  model: string
 ): Promise<CleanPromptResult> {
   const messageImprovementPrompt = createImprovementPrompt(content)
 
   try {
-    const result = await processWithAi(messageImprovementPrompt, clientType, model)
+    const result = await processWithAi(
+      messageImprovementPrompt,
+      clientType,
+      model
+    )
     const cleanedResult = cleanResult(result)
 
     if (
-      isInvalidResult(cleanedResult.translatedText || cleanedResult.improvedText, content) &&
+      isInvalidResult(
+        cleanedResult.translatedText || cleanedResult.improvedText,
+        content
+      ) &&
       cleanedResult.improved
     ) {
       console.warn(
-        'AI did not modify the text or returned invalid result. Recursively executing improved prompt.',
+        'AI did not modify the text or returned invalid result. Recursively executing improved prompt.'
       )
       return await improveMessage(content, clientType, model)
     }
 
     return cleanedResult
   } catch (error) {
-    const originalText = handleImprovementError(error, content, clientType, model)
+    const originalText = handleImprovementError(
+      error,
+      content,
+      clientType,
+      model
+    )
     return setDefaultPrompt(originalText)
   }
 }
@@ -75,16 +93,22 @@ export async function improveMessage(
 export async function subtractChatbotMetadataLabels(
   metadataHeaders: ChatbotMetadataHeaders,
   userPrompt: string,
-  clientType: AiClientType,
+  clientType: AiClientType
 ) {
   const chatbotMetadata = await fetchChatbotMetadata(metadataHeaders)
 
   if (!chatbotMetadata) {
-    console.error('Chatbot metadata not found. Generating response without them.')
+    console.error(
+      'Chatbot metadata not found. Generating response without them.'
+    )
     return setDefaultPrompt(userPrompt)
   }
 
-  const prompt = createChatbotMetadataPrompt(metadataHeaders, chatbotMetadata, userPrompt)
+  const prompt = createChatbotMetadataPrompt(
+    metadataHeaders,
+    chatbotMetadata,
+    userPrompt
+  )
   const response = await processWithAi(prompt, clientType, AIModels.Default)
 
   return cleanResult(response)
@@ -94,15 +118,17 @@ export async function subtractChatbotMetadataLabels(
 export async function processWithAi(
   prompt: string,
   clientType: AiClientType,
-  model: string,
+  model: string
 ): Promise<string> {
   try {
-    const messages = [{ role: 'user', content: prompt }] as ChatCompletionMessageParam[]
+    const messages = [
+      { role: 'user', content: prompt }
+    ] as ChatCompletionMessageParam[]
     const processedMessages = setStreamerPayload(clientType, messages)
 
     const response = await createResponseStream(clientType, {
       model: AIModels.Default,
-      messages: processedMessages,
+      messages: processedMessages
     } as any)
 
     if (!response.body) {
@@ -111,7 +137,9 @@ export async function processWithAi(
 
     if (response.status !== 200) {
       const errorText = await response.text()
-      throw new Error(`API responded with status ${response.status}: ${errorText} `)
+      throw new Error(
+        `API responded with status ${response.status}: ${errorText} `
+      )
     }
 
     const result = await readStreamResponse(response.body)
@@ -149,7 +177,7 @@ function isInvalidResult(result: string, originalContent: string): boolean {
   return (
     !result ||
     result.includes('Original message:') ||
-    result.toLowerCase() === originalContent.toLowerCase()
+    result === originalContent
   )
 }
 
@@ -157,7 +185,7 @@ function handleImprovementError(
   error: any,
   originalContent: string,
   clientType?: AiClientType,
-  model?: string,
+  model?: string
 ): string {
   console.error('Error in improvement process:', error)
   return originalContent
@@ -166,14 +194,16 @@ function handleImprovementError(
 //* Create a response stream based on the client model type
 export async function createResponseStream(
   clientType: AiClientType,
-  json: JSONResponseStream & { chatbot: Pick<Chatbot, 'categories' | 'chatbotId'> },
-  req?: Request,
+  json: JSONResponseStream & {
+    chatbot: Pick<Chatbot, 'categories' | 'chatbotId'>
+  },
+  req?: Request
 ) {
   const { model, messages: rawMessages, previewToken, chatbot } = json
   const messages = setStreamerPayload(clientType, rawMessages)
 
   const tools: Partial<typeof aiTools> = {
-    chatbotMetadataExamples: aiTools.chatbotMetadataExamples,
+    chatbotMetadataExamples: aiTools.chatbotMetadataExamples
   }
 
   tools.webSearch = aiTools.webSearch
@@ -186,23 +216,27 @@ export async function createResponseStream(
     switch (clientType) {
       case 'OpenAI': {
         const openaiModel = initializeOpenAi(model)
-        const coreMessages = convertToCoreMessages(messages as ChatCompletionMessageParam[])
+        const coreMessages = convertToCoreMessages(
+          messages as ChatCompletionMessageParam[]
+        )
         const response = await streamText({
           model: openaiModel,
           messages: coreMessages,
           temperature: 0.4,
           tools,
           maxRetries: 2,
-          maxToolRoundtrips: 4,
+          maxToolRoundtrips: 2
         })
         responseStream = response.toDataStreamResponse().body as ReadableStream
         break
       }
       case 'Anthropic': {
         const anthropicModel = initializeAnthropic(model, {
-          cacheControl: true,
+          cacheControl: true
         })
-        const coreMessages = convertToCoreMessages(messages as ChatCompletionMessageParam[])
+        const coreMessages = convertToCoreMessages(
+          messages as ChatCompletionMessageParam[]
+        )
         const response = await streamText({
           model: anthropicModel,
           messages: coreMessages,
@@ -210,17 +244,19 @@ export async function createResponseStream(
           maxTokens: 300,
           tools,
           maxRetries: 2,
-          maxToolRoundtrips: 4,
+          maxToolRoundtrips: 2
         })
         responseStream = response.toDataStreamResponse().body as ReadableStream
         break
       }
       case 'Perplexity': {
         const perplexity = await initializePerplexity(
-          previewToken || (process.env.PERPLEXITY_API_KEY as string),
+          previewToken || (process.env.PERPLEXITY_API_KEY as string)
         )
         const perplexityModel = perplexity(model)
-        const coreMessages = convertToCoreMessages(messages as ChatCompletionMessageParam[])
+        const coreMessages = convertToCoreMessages(
+          messages as ChatCompletionMessageParam[]
+        )
         const response = await streamText({
           model: perplexityModel,
           messages: coreMessages,
@@ -228,7 +264,7 @@ export async function createResponseStream(
           maxTokens: 1000,
           tools,
           maxRetries: 2,
-          maxToolRoundtrips: 4,
+          maxToolRoundtrips: 2
         })
         responseStream = response.toDataStreamResponse().body as ReadableStream
         break
@@ -238,7 +274,7 @@ export async function createResponseStream(
     }
 
     return new Response(responseStream, {
-      headers: { 'Content-Type': 'text/event-stream' },
+      headers: { 'Content-Type': 'text/event-stream' }
     })
   } catch (error) {
     console.error('Error in createResponseStream:', error)

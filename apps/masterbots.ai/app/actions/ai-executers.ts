@@ -1,4 +1,4 @@
-'use server'
+'server only'
 
 import { parseWordwareResponse } from '@/components/shared/wordware-chat'
 import { wordwareFlows } from '@/lib/constants/wordware-flows'
@@ -32,14 +32,14 @@ export async function getChatbotMetadataTool({
     )
 
     console.log('chatbotMetadata ==> ', chatbotMetadata)
-    return {
+    return JSON.stringify({
       chatbotMetadata
-    }
+    })
   } catch (error) {
     console.error('Error fetching chatbot metadata: ', error)
-    return {
+    return JSON.stringify({
       error: 'Internal Server Error while fetching chatbot metadata'
-    }
+    })
   }
 }
 
@@ -47,12 +47,12 @@ export async function getWebSearchTool({
   query
 }: z.infer<typeof aiTools.webSearch.parameters>) {
   console.info('Executing Web Search Tool... Query: ', query)
-  const webSearchFlow = wordwareFlows.find(flow => flow.path === 'WebSearch')
+  const webSearchFlow = wordwareFlows.find(flow => flow.path === 'webSearch')
 
   if (!webSearchFlow) {
-    return {
+    return JSON.stringify({
       error: 'Web Search tool is not available'
-    }
+    })
   }
 
   try {
@@ -69,14 +69,14 @@ export async function getWebSearchTool({
     if (appDataResponse.status >= 400) {
       console.error('Error fetching app data: ', appDataResponse)
       if (appDataResponse.status >= 500) {
-        return {
+        return JSON.stringify({
           error:
             'Internal Server Error while fetching app data. Please try again later.'
-        }
+        })
       }
-      return {
+      return JSON.stringify({
         error: 'Failed to authenticate for the app. Please try again.'
-      }
+      })
     }
 
     const appData: WordWareDescribeDAtaResponse = await appDataResponse.data
@@ -106,14 +106,14 @@ export async function getWebSearchTool({
     ) {
       console.error('Error running app: ', runAppResponse)
       if (appDataResponse.status >= 500) {
-        return {
+        return JSON.stringify({
           error:
             'Internal Server Error while fetching app data. Please try again later.'
-        }
+        })
       }
-      return {
+      return JSON.stringify({
         error: 'Failed to authenticate for the app. Please try again.'
-      }
+      })
     }
 
     const reader = runAppResponse.body.getReader()
@@ -187,11 +187,12 @@ export async function getWebSearchTool({
     console.log('searchResults ==> ', searchResults)
     console.log('sources ==> ', sources)
 
-    return {
+    return JSON.stringify({
       searchResults,
       // ? See: https://rapidapi.com/facundoPri/api/url-to-metadata/playground/apiendpoint_830f2c62-e40f-4b62-9fe0-a5dbc2bc07e6
-      sources
-    }
+      sources,
+      error: null
+    })
   } catch (error) {
     console.error('Error fetching app data: ', error)
     return 'Internal Server Error while fetching app data'

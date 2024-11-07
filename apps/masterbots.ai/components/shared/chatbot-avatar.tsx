@@ -13,7 +13,7 @@ export function ChatbotAvatar({ thread }: { thread: Thread }) {
   return (
     <div
       className={cn(
-        'md:flex size-10 shrink-0 select-none items-center justify-center rounded-full border hidden'
+        'md:flex size-10 shrink-0 select-none items-center justify-center rounded-full border'
       )}
     >
       <Image

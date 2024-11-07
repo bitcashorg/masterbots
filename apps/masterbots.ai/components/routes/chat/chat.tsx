@@ -335,9 +335,6 @@ export function Chat({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading]);
 
-  console.log('All Messages [threadAllMessages]', threadAllMessages);
-  console.log('Active Thread', activeThread);
-
   return (
     <>
       {params.threadId && (
