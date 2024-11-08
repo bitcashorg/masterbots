@@ -10,8 +10,7 @@ import {
   getMessages,
   saveNewMessage,
 } from '@/services/hasura';
-import { ChatLoadingState } from '@/types/types';
-import { WordWareFlowPaths } from '@/types/wordware-flows.types';
+import { AiToolCall, ChatLoadingState } from '@/types/types';
 import type { Message as AIMessage } from 'ai';
 import { useChat } from 'ai/react';
 import { useScroll } from 'framer-motion';
@@ -36,13 +35,13 @@ interface ThreadContext {
   randomChatbot: Chatbot | null
   isAdminMode: boolean
   loadingState?: ChatLoadingState
-  activeTool?: WordWareFlowPaths
+  activeTool?: AiToolCall
   setIsOpenPopup: React.Dispatch<React.SetStateAction<boolean>>
   setActiveThread: React.Dispatch<React.SetStateAction<Thread | null>>
   sendMessageFromResponse: (bulletContent: string) => void
   setIsNewResponse: React.Dispatch<React.SetStateAction<boolean>>
   getRandomChatbot: () => void
-  setActiveTool: (tool?: WordWareFlowPaths) => void
+  setActiveTool: (tool?: AiToolCall) => void
   setLoadingState: (state?: ChatLoadingState) => void
 }
 
@@ -85,7 +84,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     randomChatbot: Chatbot | null
     isLoadingMessages: boolean
     loadingState?: ChatLoadingState
-    activeTool?: WordWareFlowPaths
+    activeTool?: AiToolCall
   }>({
     isAdminMode: false,
     activeThread: null as Thread | null,
@@ -261,22 +260,24 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     }
 
     const newAllMessages = uniqBy(
-      initialMessages?.concat(
+      messages?.concat(
         (newThread?.messages || []).map((m) => ({
           id: m.messageId,
           role: m.role as AIMessage['role'],
           content: m.content,
-          createdAt: m.createdAt,
+          createdAt: m.createdAt || new Date().toISOString(),
         }))
       ),
       'content'
     ).filter(
       (m) => m.role !== 'system',
     )
+
+    setMessages(newAllMessages)
     setState({
       activeThread: newThread,
+      messagesFromDB: newThread.messages,
     })
-    setMessages(newAllMessages)
   }
 
   const setIsNewResponse: React.Dispatch<React.SetStateAction<boolean>> = (value) =>
@@ -289,7 +290,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       isOpenPopup: typeof isOpen === 'function' ? isOpen(prev.isOpenPopup) : isOpen,
     }))
 
-  const setActiveTool = (tool?: WordWareFlowPaths) => {
+  const setActiveTool = (tool?: AiToolCall) => {
     setState({ activeTool: tool })
   }
 

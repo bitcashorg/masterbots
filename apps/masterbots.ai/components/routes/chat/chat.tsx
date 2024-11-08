@@ -51,11 +51,10 @@ import type {
   ChatProps,
   CleanPromptResult
 } from "@/types/types";
-import { WordWareFlowPaths } from "@/types/wordware-flows.types";
+import { AiToolCall } from '@/types/types';
 import type { ChatRequestOptions, CreateMessage } from "ai";
 import { type Message, useChat } from "ai/react";
 import { useScroll } from "framer-motion";
-import { uniqBy } from "lodash";
 import { Thread } from "mb-genql";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
@@ -74,8 +73,7 @@ export function Chat({
 }: ChatProps) {
   const { data: session } = useSession();
   const {
-    allMessages: threadAllMessages,
-    initialMessages: threadInitialMessages,
+    allMessages,
     activeThread,
     loadingState,
     sendMessageFromResponse,
@@ -98,10 +96,7 @@ export function Chat({
 
   const { messages, append, reload, stop, isLoading, input, setInput } =
     useChat({
-      initialMessages:
-        params.threadId || isNewChat
-          ? initialMessages?.filter((m) => m.role === "system")
-          : threadInitialMessages.filter((m) => m.role === "system"),
+      initialMessages: allMessages,
       id: params.threadId || isNewChat ? threadId : activeThread?.threadId,
       body: {
         id: params.threadId || isNewChat ? threadId : activeThread?.threadId,
@@ -140,7 +135,7 @@ export function Chat({
         console.log('Tool call:', toolCall);
 
         toast.success(`Tool call executed: ${toolCall.toolName}`);
-        setActiveTool(toolCall.toolName as WordWareFlowPaths);
+        setActiveTool(toolCall as AiToolCall);
       },
       async onError(error) {
         console.error("Error in chat: ", error);
@@ -190,16 +185,37 @@ export function Chat({
     }
   };
 
-  // we merge past assistant and user messages for ui only
-  // we remove system prompts from ui
-  const allMessages =
-    params.threadId || isNewChat
-      ? uniqBy(initialMessages?.concat(messages), "content").filter(
-        (m) => m.role !== "system",
-      )
-      : uniqBy(threadAllMessages.concat(messages), "content").filter(
-        (m) => m.role !== "system",
-      );
+  const optimisticallyUpdateMessages = async (userMessage: Message | CreateMessage, callback: () => Promise<string | null | undefined>) => {
+    if (!session?.user || !chatbot) {
+      console.error("User is not logged in or session expired.");
+      toast.error("Failed to start conversation. Please reload and try again.");
+      return;
+    }
+
+    if (isNewChat) {
+      const optimisticThread: Thread = {
+        threadId,
+        chatbotId: chatbot!.chatbotId,
+        chatbot: chatbot!,
+        createdAt: new Date().toISOString(),
+        isApproved: false,
+        isBlocked: false,
+        isPublic: activeChatbot?.name !== "BlankBot",
+        // @ts-ignore
+        messages: [{
+          messageId: userMessage.id,
+          createdAt: new Date().toISOString(),
+          role: userMessage.role,
+          content: userMessage.content,
+        }],
+        userId: session!.user.id,
+      }
+
+      setActiveThread(optimisticThread)
+    }
+
+    return await callback();
+  }
 
   const tunningUserContent = async (
     userMessage: Message | CreateMessage,
@@ -232,31 +248,6 @@ export function Chat({
       processedMessage;
     const userContentResponse = translatedText || improvedText || originalText;
     userContentRef.current = userContentResponse;
-
-    if (isNewChat) {
-      // * Optimistically setting the active thread
-      const updatedUserMessage: Message = {
-        ...userMessage,
-        content: userContentRef.current,
-        id: userMessage.id as string, // Ensure id is always defined
-      };
-      const optimisticThread: Thread = {
-        threadId,
-        chatbotId: chatbot!.chatbotId,
-        chatbot: chatbot!,
-        createdAt: new Date().toISOString(),
-        isApproved: false,
-        isBlocked: false,
-        isPublic: activeChatbot?.name !== "BlankBot",
-        // @ts-ignore
-        messages: initialMessages
-          ? [...initialMessages, updatedUserMessage as Message]
-          : [updatedUserMessage as Message],
-        userId: session!.user.id,
-      }
-
-      setActiveThread(optimisticThread)
-    }
 
     console.log("Processed Message: ", processedMessage);
 
@@ -291,7 +282,7 @@ export function Chat({
         ? { ...userMessage, content: userContentRef.current }
         : {
           ...userMessage,
-          content: followingQuestionsPrompt(userContentRef.current, allMessages),
+          content: followingQuestionsPrompt(userContentRef.current, messages),
         },
     );
 
@@ -304,36 +295,21 @@ export function Chat({
     userMessage: Message | CreateMessage,
     chatRequestOptions?: ChatRequestOptions,
   ) => {
-    if (!session?.user || !chatbot) {
-      console.error("User is not logged in or session expired.");
-      toast.error("Failed to start conversation. Please reload and try again.");
-      return;
-    }
+    return await optimisticallyUpdateMessages(userMessage, async () => {
+      try {
+        // * Loading: processing your request + opening pop-up...
+        setLoadingState("processing");
+        setIsOpenPopup(true);
 
-    // * Loading: processing your request + opening pop-up...
-    setLoadingState("processing");
-    setIsOpenPopup(true);
+        await tunningUserContent(userMessage);
+      } catch (error) {
+        console.error("Error processing user message. Using og message. Error: ", error);
+      } finally {
+        setIsNewResponse(true);
 
-    await tunningUserContent(userMessage, chatRequestOptions);
-
-    // ! Connecting to the ICL to send the user labelling the thread and rawData (examples) to the ICL
-    // TODO: ...
-    const postIclResponse = (await new Promise((resolve) => {
-      const timeout = setTimeout(() => {
-        resolve({
-          parsed: {},
-          question: userContentRef,
-          domain: chatbot?.categories[0].category.name as string,
-          chatbot: chatbot?.name as string,
-        });
-        clearTimeout(timeout);
-      }, 700);
-    })) as { parsed: any; question: string; domain: string; chatbot: string };
-    console.log("Full responses from postICLResponse:", postIclResponse);
-
-    setIsNewResponse(true);
-
-    return await appendNewMessage(userMessage)
+        return await appendNewMessage(userMessage)
+      }
+    });
   };
 
   useEffect(() => {
@@ -374,7 +350,7 @@ export function Chat({
         >
           <ChatList
             chatbot={chatbot}
-            messages={allMessages}
+            messages={messages}
             sendMessageFn={sendMessageFromResponse}
           />
           <ChatScrollAnchor
@@ -402,7 +378,7 @@ export function Chat({
         stop={stop}
         append={appendWithMbContextPrompts}
         reload={reload}
-        messages={threadAllMessages}
+        messages={messages}
         input={input}
         setInput={setInput}
         chatbot={chatbot}

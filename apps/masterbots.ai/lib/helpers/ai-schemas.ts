@@ -14,9 +14,9 @@ export const webSearch = z.object({
 export const aiTools = {
   webSearch: {
     description:
-      'Perform a web search to retrieve relevant data based on the user query. ' +
-      'Makes sure to return the search results and the sources where the search was taken with the same given format. ' +
-      '**Focus on following any given output example.** ',
+      'Conduct a web search to gather relevant information based on the user query. ' +
+      'Ensure the search results and sources are returned in the specified format and links. ' +
+      '**Adhere strictly to any provided output examples.**',
     parameters: z.object({
       query: z
         .string()
@@ -28,7 +28,7 @@ export const aiTools = {
   },
   chatbotMetadataExamples: {
     description:
-      'Retrieve chatbot metadata for a specified chatbot and user content to support Retrieval-Augmented Generation and In-Context Learning.',
+      'Fetch metadata for a specified chatbot and user content to support Retrieval-Augmented Generation and In-Context Learning.',
     parameters: z.object({
       chatbot: z.object({
         chatbotId: z
@@ -43,7 +43,7 @@ export const aiTools = {
       userContent: z
         .string()
         .describe(
-          'The user content to be utilized for generating chatbot metadata.'
+          'The user content to be used for generating chatbot metadata.'
         )
     }),
     execute: getChatbotMetadataTool

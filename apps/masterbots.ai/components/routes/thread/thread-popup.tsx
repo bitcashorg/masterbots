@@ -90,7 +90,7 @@ export function ThreadPopup({ className }: { className?: string }) {
   const threadTitleChunks = threadTitle?.split(/\s/g) // ' '
   const threadTitleHeading = threadTitleChunks?.slice(0, 32).join(' ')
   const threadTitleSubHeading = threadTitleChunks?.slice(32).join(' ')
-
+  console.log('threadTitle', threadTitle)
   return (
     <div
       className={cn(

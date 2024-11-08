@@ -64,7 +64,7 @@ export const ChatAccordion = ({
   }
 
   //* Toggles the open state of the accordion with associated business logic
-  const toggle = React.useCallback(() => {
+  const toggle = () => {
     setOpen((prevOpen: boolean) => {
       const newState = !prevOpen
       if (!newState && handleOpen) {
@@ -81,15 +81,7 @@ export const ChatAccordion = ({
       }
       return newState
     })
-  }, [
-    handleOpen,
-    thread,
-    isNewResponse,
-    setIsNewResponse,
-    onToggle,
-    setActiveThread,
-    isMainThread
-  ])
+  }
 
   return (
     <div className={className} id={`thread-${thread?.threadId}`} {...props}>
@@ -102,10 +94,9 @@ export const ChatAccordion = ({
             transition-all ease-in-out duration-200
             border-transparent border
             hover:rounded-t-[8px]
-            font-medium w-full ${
-              open
-                ? 'dark:border-b-mirage border-b-gray-300'
-                : 'dark:hover:border-b-mirage hover:border-b-gray-300 [&>div>div>button]:!hidden'
+            font-medium w-full ${open
+              ? 'dark:border-b-mirage border-b-gray-300'
+              : 'dark:hover:border-b-mirage hover:border-b-gray-300 [&>div>div>button]:!hidden'
             } ${triggerClass || ''}`}
         >
           {children[0]}
@@ -113,11 +104,11 @@ export const ChatAccordion = ({
           <ChevronDown
             {...(handleTrigger
               ? {
-                  onClick: e => {
-                    e.stopPropagation()
-                    handleTrigger()
-                  }
+                onClick: e => {
+                  e.stopPropagation()
+                  handleTrigger()
                 }
+              }
               : {})}
             className={`${open ? '' : '-rotate-90'} absolute -right-2 size-4 shrink-0 mr-4 transition-transform duration-200 ${arrowClass || ''} ${disabled ? 'hidden' : ''}`}
           />
@@ -126,10 +117,9 @@ export const ChatAccordion = ({
       {open && (
         <div
           className={`text-sm transition-all border
-            ${
-              open
-                ? 'animate-accordion-down dark:border-mirage border-gray-300 !border-t-transparent !border-r-transparent'
-                : 'overflow-hidden animate-accordion-up h-0 border-transparent'
+            ${open
+              ? 'animate-accordion-down dark:border-mirage border-gray-300 !border-t-transparent !border-r-transparent'
+              : 'overflow-hidden animate-accordion-up h-0 border-transparent'
             } ${contentClass || ''}`}
         >
           {children[2]}

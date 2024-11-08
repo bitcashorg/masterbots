@@ -33,7 +33,7 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { cn } from '@/lib/utils'
 import { ChevronDown } from 'lucide-react'
 import type { Thread } from 'mb-genql'
-import React from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 export function BrowseAccordion({
   thread = null,
@@ -72,10 +72,10 @@ export function BrowseAccordion({
     isNewResponse,
     isOpenPopup
   } = useThread()
-  const [open, setOpen] = React.useState(
+  const [open, setOpen] = useState(
     defaultState || activeThread?.threadId === thread?.threadId
   )
-  const accordionRef = React.useRef<HTMLDivElement>(null)
+  const accordionRef = useRef<HTMLDivElement>(null)
 
   const isAnotherThreadOpen =
     !isNestedThread &&
@@ -83,7 +83,7 @@ export function BrowseAccordion({
     thread?.threadId !== activeThread?.threadId
   const shouldBeDisabled = disabled || isAnotherThreadOpen
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (
       (thread?.threadId &&
         activeThread !== null &&
@@ -94,13 +94,13 @@ export function BrowseAccordion({
     }
   }, [activeThread, thread])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isOpen !== undefined) {
       setOpen(isOpen)
     }
   }, [isOpen])
 
-  const toggle = React.useCallback(() => {
+  const toggle = () => {
     if (shouldBeDisabled) return
 
     setOpen((prevOpen: boolean) => {
@@ -127,18 +127,9 @@ export function BrowseAccordion({
 
       return newState
     })
-  }, [
-    handleOpen,
-    thread,
-    isNewResponse,
-    setIsNewResponse,
-    onToggle,
-    setActiveThread,
-    shouldBeDisabled,
-    isNestedThread
-  ])
+  }
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (
       !isOpenPopup &&
       activeThread &&

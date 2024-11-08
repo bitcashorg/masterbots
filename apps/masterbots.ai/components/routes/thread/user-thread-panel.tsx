@@ -122,11 +122,10 @@ export default function UserThreadPanel({
     if (
       threads &&
       threads.filter(t => t.threadId === activeThread?.threadId).length
-    )
-      return
+    ) return
+
     setIsOpenPopup(false)
     setActiveThread(null)
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [threads])
   return (

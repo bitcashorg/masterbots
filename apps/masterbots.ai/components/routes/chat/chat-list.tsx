@@ -130,27 +130,30 @@ function MessagePairs({
     sendMessageFromResponse
   } = useThread()
 
-  const ChatLoadingState = () => (isLoadingMessages || activeTool) && (
-    <div className='w-full h-24 flex gap-3 items-center'>
+  const ChatLoadingState = () => (isLoadingMessages || activeTool?.toolName) && (
+    <div className='flex items-center w-full h-20 opacity-65 gap-4'>
       {(() => {
-        switch (activeTool) {
+        switch (activeTool?.toolName) {
           case 'webSearch':
             return (
               <>
-                <GlobeIcon className="w-6 h-6 text-gray-500 animate-bounce" />
-                <p className="text-center text-gray-500">
-                  Searching the web
-                  {Array.from({ length: 3 }).map((_, index) => (
-                    <span key={index} className="animate-pulse rounded-full bg-primary size-0.5" style={{ animationDelay: `${index * 100}ms` }} />
-                  ))}
+                <GlobeIcon className="size-6 animate-bounce relative top-2" />
+                <p className="leading-none flex flex-col gap-1">
+                  <span>
+                    Searching on the web{' '}
+                    {Array.from({ length: 3 }).map((_, index) => (
+                      <span key={index} className="animate-pulse rounded-full text-4xl h-0.5 leading-none" style={{ animationDelay: `${index * 100}ms` }}>.</span>
+                    ))}
+                  </span>
+                  <b className="text-xs">
+                    Searching for "{activeTool.args.query}"
+                  </b>
                 </p>
               </>
             )
           default:
             return (
-              <div className="flex items-center justify-center w-full h-12">
-                <div className="transition-all w-6 h-6 border-2 border-t-[2px] rounded-full border-x-gray-300 animate-spin" />
-              </div>
+              <div className="transition-all w-6 h-6 border-2 border-t-[2px] rounded-full border-x-gray-300 animate-spin" />
             )
         }
       })()}
