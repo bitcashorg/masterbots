@@ -65,7 +65,7 @@ export function validateAndSanitizeJson(jsonStr: string): string | null {
     // Remove the 'data:' prefix and join the lines
     const cleanedJsonStr = jsonStr
       .split('\n')
-      .map(line => line.replace(/^data:\s*/, ''))
+      .map(line => line.replace(/^(data:|data)\s*/, ''))
       .join('')
 
     const parsed = JSON.parse(cleanedJsonStr)

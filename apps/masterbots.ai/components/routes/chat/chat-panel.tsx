@@ -18,7 +18,6 @@ export interface ChatPanelProps
     | 'input'
     | 'setInput'
   > {
-  loadingState?: string // Loading status for displaying the current chat stage
   scrollToBottom: () => void // Function to scroll chat to the bottom
   id?: string // Chat ID, used in message operations
   title?: string // Chat title, displayed in the header
@@ -33,7 +32,6 @@ export function ChatPanel({
   id,
   title,
   isLoading,
-  loadingState,
   stop,
   append,
   reload,
@@ -47,7 +45,7 @@ export function ChatPanel({
   scrollToBottom,
   className
 }: ChatPanelProps) {
-  const { isOpenPopup } = useThread() // State to control popup visibility
+  const { isOpenPopup, loadingState } = useThread() // State to control popup visibility
 
   return (
     <div
@@ -61,7 +59,6 @@ export function ChatPanel({
           id={id}
           title={title}
           isLoading={isLoading}
-          loadingState={loadingState}
           stop={stop}
           reload={reload}
           messages={messages}

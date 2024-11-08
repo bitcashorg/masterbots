@@ -1,7 +1,4 @@
-import {
-  getChatbotMetadataTool,
-  getWebSearchTool
-} from '@/app/actions'
+import { getChatbotMetadataTool, getWebSearchTool } from '@/app/actions'
 import { z } from 'zod'
 
 // ? schema output for webSearch (Non-WordWare)
@@ -17,31 +14,37 @@ export const webSearch = z.object({
 export const aiTools = {
   webSearch: {
     description:
-      'Search in the web for relevant data related only to the user query.',
+      'Perform a web search to retrieve relevant data based on the user query. ' +
+      'Makes sure to return the search results and the sources where the search was taken with the same given format. ' +
+      '**Makes sure to follow any example given.** ',
     parameters: z.object({
       query: z
         .string()
-        .describe('The query to use to search for and return results.')
+        .describe(
+          `The search query to use for retrieving results as of ${new Date()}.`
+        )
     }),
     execute: getWebSearchTool
   },
   chatbotMetadataExamples: {
     description:
-      'Get the chatbot metadata for a given chatbot and user content for Retrieval-Augmented Generation and for your In-Context Learning of user base knowledge.',
+      'Retrieve chatbot metadata for a specified chatbot and user content to support Retrieval-Augmented Generation and In-Context Learning.',
     parameters: z.object({
       chatbot: z.object({
         chatbotId: z
           .number()
-          .describe('The chatbot ID from 1 to 42. The ID will be given.'),
+          .describe('The ID of the chatbot, ranging from 1 to 42.'),
         categoryId: z
           .number()
           .describe(
-            'The chatbot domain (category ID) from 1 to 13. The ID will be given.'
+            'The domain category ID of the chatbot, ranging from 1 to 13.'
           )
       }),
       userContent: z
         .string()
-        .describe('The user content to be used for the chatbot metadata.')
+        .describe(
+          'The user content to be utilized for generating chatbot metadata.'
+        )
     }),
     execute: getChatbotMetadataTool
   }

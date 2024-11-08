@@ -308,7 +308,7 @@ export async function createThread({
       threadId: true
     }
   })
-  return insertThreadOne?.threadId
+  return insertThreadOne?.threadId as string
 }
 
 export async function getChatbot({

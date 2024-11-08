@@ -44,6 +44,8 @@ export function ThreadPopup({ className }: { className?: string }) {
     activeThread,
     initialMessages,
     allMessages,
+    loadingState,
+    activeTool,
     setIsOpenPopup,
     sendMessageFromResponse,
     isLoading,
@@ -138,7 +140,6 @@ export function ThreadPopup({ className }: { className?: string }) {
             className="max-w-full !px-[32px] !mx-0"
             isThread={false}
             chatbot={activeThread?.chatbot || activeChatbot as Chatbot}
-            messages={allMessages}
             sendMessageFn={sendMessageFromResponse}
             chatContentClass="dark:!border-x-mirage !border-x-gray-300 !py-[20px] !px-[16px] !mx-0 max-h-[none] "
             chatTitleClass="!px-[11px]"

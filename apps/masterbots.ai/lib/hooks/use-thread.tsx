@@ -10,6 +10,8 @@ import {
   getMessages,
   saveNewMessage,
 } from '@/services/hasura';
+import { ChatLoadingState } from '@/types/types';
+import { WordWareFlowPaths } from '@/types/wordware-flows.types';
 import type { Message as AIMessage } from 'ai';
 import { useChat } from 'ai/react';
 import { useScroll } from 'framer-motion';
@@ -33,11 +35,15 @@ interface ThreadContext {
   isLoading: boolean
   randomChatbot: Chatbot | null
   isAdminMode: boolean
+  loadingState?: ChatLoadingState
+  activeTool?: WordWareFlowPaths
   setIsOpenPopup: React.Dispatch<React.SetStateAction<boolean>>
   setActiveThread: React.Dispatch<React.SetStateAction<Thread | null>>
   sendMessageFromResponse: (bulletContent: string) => void
   setIsNewResponse: React.Dispatch<React.SetStateAction<boolean>>
   getRandomChatbot: () => void
+  setActiveTool: (tool?: WordWareFlowPaths) => void
+  setLoadingState: (state?: ChatLoadingState) => void
 }
 
 const ThreadContext = React.createContext<ThreadContext | undefined>(undefined)
@@ -66,9 +72,21 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       isOpenPopup,
       randomChatbot,
       isLoadingMessages,
+      loadingState,
+      activeTool,
     },
     setState,
-  ] = useSetState({
+  ] = useSetState<{
+    isAdminMode: boolean
+    activeThread: Thread | null
+    messagesFromDB: Message[]
+    isNewResponse: boolean
+    isOpenPopup: boolean
+    randomChatbot: Chatbot | null
+    isLoadingMessages: boolean
+    loadingState?: ChatLoadingState
+    activeTool?: WordWareFlowPaths
+  }>({
     isAdminMode: false,
     activeThread: null as Thread | null,
     messagesFromDB: [] as Message[],
@@ -76,6 +94,8 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     isOpenPopup: false,
     randomChatbot: null as Chatbot | null,
     isLoadingMessages: false,
+    loadingState: undefined,
+    activeTool: undefined,
   })
   const sectionRef = React.useRef<HTMLElement>()
   const { data: session } = useSession()
@@ -151,9 +171,10 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     }
   }
 
-  const allMessages = uniqBy(initialMessages?.concat(messages), 'content').filter(
-    (m) => m.role !== 'system',
-  )
+  const allMessages = uniqBy(
+    initialMessages?.concat(messages),
+    'content'
+  ).filter((m) => m.role !== 'system')
 
   const sendMessageFromResponse = React.useCallback(
     async (bulletContent: string) => {
@@ -268,6 +289,14 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       isOpenPopup: typeof isOpen === 'function' ? isOpen(prev.isOpenPopup) : isOpen,
     }))
 
+  const setActiveTool = (tool?: WordWareFlowPaths) => {
+    setState({ activeTool: tool })
+  }
+
+  const setLoadingState = (state?: ChatLoadingState) => {
+    setState({ loadingState: state })
+  }
+
   return (
     <ThreadContext.Provider
       value={{
@@ -282,11 +311,15 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
         sectionRef,
         randomChatbot,
         isAdminMode,
+        loadingState,
+        activeTool,
         sendMessageFromResponse,
         getRandomChatbot,
         setActiveThread,
         setIsNewResponse,
         setIsOpenPopup,
+        setActiveTool,
+        setLoadingState,
       }}
     >
       {children}

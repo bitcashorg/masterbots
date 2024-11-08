@@ -45,20 +45,21 @@ import { useModel } from "@/lib/hooks/use-model";
 import { useSidebar } from "@/lib/hooks/use-sidebar";
 import { useThread } from "@/lib/hooks/use-thread";
 import { cn, scrollToBottomOfElement } from "@/lib/utils";
-import { createThread, getThread, saveNewMessage } from "@/services/hasura";
+import { createThread, deleteThread, getThread, saveNewMessage } from "@/services/hasura";
 import type {
   AiClientType,
-  ChatLoadingState,
   ChatProps,
-  CleanPromptResult,
+  CleanPromptResult
 } from "@/types/types";
+import { WordWareFlowPaths } from "@/types/wordware-flows.types";
 import type { ChatRequestOptions, CreateMessage } from "ai";
 import { type Message, useChat } from "ai/react";
 import { useScroll } from "framer-motion";
 import { uniqBy } from "lodash";
+import { Thread } from "mb-genql";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { toast } from "react-hot-toast";
 
 export function Chat({
@@ -76,21 +77,24 @@ export function Chat({
     allMessages: threadAllMessages,
     initialMessages: threadInitialMessages,
     activeThread,
+    loadingState,
     sendMessageFromResponse,
     setActiveThread,
     setIsNewResponse,
     setIsOpenPopup,
+    setActiveTool,
+    setLoadingState,
     isOpenPopup,
     sectionRef,
     isAtBottom: isAtBottomOfSection,
   } = useThread();
   const { activeChatbot } = useSidebar();
   const containerRef = React.useRef<HTMLDivElement>();
+  const userContentRef = useRef<string>("");
 
   const params = useParams<{ chatbot: string; threadId: string }>();
   const isNewChat = Boolean(!params.threadId && !activeThread);
   const { selectedModel, clientType } = useModel();
-  const [loadingState, setLoadingState] = React.useState<ChatLoadingState>();
 
   const { messages, append, reload, stop, isLoading, input, setInput } =
     useChat({
@@ -113,18 +117,42 @@ export function Chat({
           toast.error(response.statusText);
         }
       },
-      onFinish(message) {
-        saveNewMessage({
-          role: "assistant",
-          threadId:
-            params.threadId || isNewChat ? threadId : activeThread?.threadId,
-          content: message.content,
-          jwt: session!.user?.hasuraJwt,
-        });
+      async onFinish(message) {
+        await Promise.all([
+          saveNewMessage({
+            role: "user",
+            threadId: params.threadId || isNewChat ? threadId : activeThread?.threadId,
+            content: userContentRef.current,
+            jwt: session!.user?.hasuraJwt,
+          }),
+          saveNewMessage({
+            role: "assistant",
+            threadId: params.threadId || isNewChat ? threadId : activeThread?.threadId,
+            content: message.content,
+            jwt: session!.user?.hasuraJwt,
+          })
+        ]);
+
+        setLoadingState(undefined);
+        setActiveTool(undefined);
       },
-      onError(error) {
+      onToolCall({ toolCall }) {
+        console.log('Tool call:', toolCall);
+
+        toast.success(`Tool call executed: ${toolCall.toolName}`);
+        setActiveTool(toolCall.toolName as WordWareFlowPaths);
+      },
+      async onError(error) {
         console.error("Error in chat: ", error);
         toast.error("Failed to send message. Please try again.");
+
+        if (isNewChat) {
+          await deleteThread({
+            threadId,
+            jwt: session!.user?.hasuraJwt,
+            userId: session!.user.id,
+          })
+        }
       }
     });
 
@@ -173,28 +201,15 @@ export function Chat({
         (m) => m.role !== "system",
       );
 
-  // we extend append function to add our system prompts
-  const appendWithMbContextPrompts = async (
+  const tunningUserContent = async (
     userMessage: Message | CreateMessage,
-    chatRequestOptions?: ChatRequestOptions,
   ) => {
-    if (!session?.user || !chatbot) {
-      console.error("User is not logged in or session expired.");
-      toast.error("Failed to start conversation. Please reload and try again.");
-      return;
-    }
-
-    // * Loading: processing your request + opening pop-up...
-    setLoadingState("processing");
-    setIsOpenPopup(true);
-
     let processedMessage: CleanPromptResult = setDefaultPrompt(
       userMessage.content,
     );
 
     // * Cleaning the user question (thread title) with AI
     try {
-      console.log("Original message: ", processedMessage);
       processedMessage = await improveMessage(
         userMessage.content,
         clientType as AiClientType,
@@ -215,30 +230,91 @@ export function Chat({
 
     const { language, originalText, improvedText, translatedText } =
       processedMessage;
-    const userContent = translatedText || improvedText || originalText;
+    const userContentResponse = translatedText || improvedText || originalText;
+    userContentRef.current = userContentResponse;
 
-    // * Optimistically setting the active thread
-    const updatedUserMessage = {
-      ...userMessage,
-      content: userContent,
-    };
-    setActiveThread({
-      threadId,
-      chatbotId: chatbot.chatbotId,
-      chatbot,
-      createdAt: new Date().toISOString(),
-      isApproved: false,
-      isBlocked: false,
-      isPublic: activeChatbot?.name !== "BlankBot",
-      // @ts-ignore
-      messages: initialMessages ? [...initialMessages, updatedUserMessage as Message] : [updatedUserMessage as Message],
-      userId: session.user.id,
-    })
+    if (isNewChat) {
+      // * Optimistically setting the active thread
+      const updatedUserMessage: Message = {
+        ...userMessage,
+        content: userContentRef.current,
+        id: userMessage.id as string, // Ensure id is always defined
+      };
+      const optimisticThread: Thread = {
+        threadId,
+        chatbotId: chatbot!.chatbotId,
+        chatbot: chatbot!,
+        createdAt: new Date().toISOString(),
+        isApproved: false,
+        isBlocked: false,
+        isPublic: activeChatbot?.name !== "BlankBot",
+        // @ts-ignore
+        messages: initialMessages
+          ? [...initialMessages, updatedUserMessage as Message]
+          : [updatedUserMessage as Message],
+        userId: session!.user.id,
+      }
+
+      setActiveThread(optimisticThread)
+    }
 
     console.log("Processed Message: ", processedMessage);
 
-    // ! Loading: Generating awesome stuff for you... 'generating'
     setLoadingState("generating");
+  }
+
+  const appendNewMessage = async (
+    userMessage: Message | CreateMessage,
+  ) => {
+    setLoadingState("ready");
+
+    if (isNewChat && chatbot) {
+      await createThread({
+        threadId,
+        chatbotId: chatbot.chatbotId,
+        jwt: session!.user?.hasuraJwt,
+        userId: session!.user.id,
+        isPublic: activeChatbot?.name !== "BlankBot",
+      })
+
+      // * Loading: Here is the information you need... 'finish'
+      const thread = await getThread({
+        threadId,
+        jwt: session!.user?.hasuraJwt,
+      });
+
+      setActiveThread(thread);
+    }
+
+    const appendResponse = await append(
+      isNewChat
+        ? { ...userMessage, content: userContentRef.current }
+        : {
+          ...userMessage,
+          content: followingQuestionsPrompt(userContentRef.current, allMessages),
+        },
+    );
+
+    setLoadingState("finished");
+    return appendResponse
+  }
+
+  // we extend append function to add our system prompts
+  const appendWithMbContextPrompts = async (
+    userMessage: Message | CreateMessage,
+    chatRequestOptions?: ChatRequestOptions,
+  ) => {
+    if (!session?.user || !chatbot) {
+      console.error("User is not logged in or session expired.");
+      toast.error("Failed to start conversation. Please reload and try again.");
+      return;
+    }
+
+    // * Loading: processing your request + opening pop-up...
+    setLoadingState("processing");
+    setIsOpenPopup(true);
+
+    await tunningUserContent(userMessage, chatRequestOptions);
 
     // ! Connecting to the ICL to send the user labelling the thread and rawData (examples) to the ICL
     // TODO: ...
@@ -246,64 +322,18 @@ export function Chat({
       const timeout = setTimeout(() => {
         resolve({
           parsed: {},
-          question: userContent,
+          question: userContentRef,
           domain: chatbot?.categories[0].category.name as string,
           chatbot: chatbot?.name as string,
         });
         clearTimeout(timeout);
       }, 700);
     })) as { parsed: any; question: string; domain: string; chatbot: string };
-    // ! Her we do something with the response from the ICL and attach it to the chat context the required fields and values for future ICL usage.
     console.log("Full responses from postICLResponse:", postIclResponse);
-
-    // * Loading: Now I have the information you need... 'ready'
-    setLoadingState("ready");
 
     setIsNewResponse(true);
 
-    return append(
-      isNewChat
-        ? { ...userMessage, content: userContent }
-        : {
-          ...userMessage,
-          content: followingQuestionsPrompt(userContent, allMessages),
-        },
-    ).then(async (response) => {
-      if (isNewChat && chatbot) {
-        await createThread({
-          threadId,
-          chatbotId: chatbot.chatbotId,
-          jwt: session.user?.hasuraJwt,
-          userId: session.user.id,
-          isPublic: activeChatbot?.name !== "BlankBot",
-        });
-
-        const thread = await getThread({
-          threadId,
-          jwt: session.user?.hasuraJwt,
-        });
-
-        setActiveThread(thread);
-      }
-
-      await saveNewMessage({
-        role: "user",
-        threadId:
-          params.threadId || isNewChat ? threadId : activeThread?.threadId,
-        content: userContent,
-        jwt: session.user?.hasuraJwt,
-      });
-      // * Loading: Here is the information you need... 'finish'
-      setLoadingState("finished");
-
-      const timeout = setTimeout(() => {
-        scrollToBottom();
-        setLoadingState(undefined);
-        clearTimeout(timeout);
-      }, 750);
-
-      return response;
-    });
+    return await appendNewMessage(userMessage)
   };
 
   useEffect(() => {
@@ -369,7 +399,6 @@ export function Chat({
         }
         id={params.threadId || isNewChat ? threadId : activeThread?.threadId}
         isLoading={isLoading}
-        loadingState={loadingState}
         stop={stop}
         append={appendWithMbContextPrompts}
         reload={reload}
