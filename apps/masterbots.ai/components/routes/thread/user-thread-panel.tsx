@@ -1,5 +1,30 @@
 'use client'
 
+/**
+ * UserThreadPanel Component
+ *
+ * A component that displays user threads associated with a specific chatbot.
+ * It integrates search functionality and manages the loading of threads.
+ *
+ * Key Features:
+ * - Displays a list of threads with filtering capabilities
+ * - Supports infinite scrolling to load more threads
+ * - Integrates a search input for filtering threads
+ * - Manages visibility of threads based on user interaction
+ *
+ * Functionality:
+ * - Fetches threads based on the selected category and chatbot
+ * - Updates the thread list when the active category or chatbot changes
+ * - Handles loading state and pagination
+ *
+ * Props:
+ * - chatbot: Optional string representing the selected chatbot
+ * - threads: Optional array of Thread objects to display
+ *
+ * Note: This component handles both the display of threads and the logic
+ * for fetching and updating the thread list based on user actions.
+ */
+
 import ChatChatbotDetails from '@/components/routes/chat/chat-chatbot-details'
 import { ChatSearchInput } from '@/components/routes/chat/chat-search-input'
 import ThreadList from '@/components/routes/thread/thread-list'
@@ -16,7 +41,7 @@ const PAGE_SIZE = 20
 
 export default function UserThreadPanel({
   chatbot,
-  threads: initialThreads,
+  threads: initialThreads
 }: {
   chatbot?: string
   threads?: Thread[]
@@ -25,13 +50,14 @@ export default function UserThreadPanel({
   const params = useParams<{ chatbot: string; threadId: string }>()
   const { data: session } = useSession()
   const { activeCategory, activeChatbot } = useSidebar()
-  const { isOpenPopup, activeThread, setActiveThread, setIsOpenPopup } = useThread()
+  const { isOpenPopup, activeThread, setActiveThread, setIsOpenPopup } =
+    useThread()
   const [loading, setLoading] = React.useState<boolean>(false)
   const { threads: hookThreads } = useThreadVisibility()
 
   const finalThreads = React.useMemo(
     () => initialThreads ?? hookThreads,
-    [initialThreads, hookThreads],
+    [initialThreads, hookThreads]
   )
 
   const [threads, setThreads] = React.useState<Thread[]>(finalThreads ?? [])
@@ -53,10 +79,10 @@ export default function UserThreadPanel({
       offset: threads.length,
       limit: PAGE_SIZE,
       categoryId: activeCategory,
-      chatbotName: activeChatbot?.name,
+      chatbotName: activeChatbot?.name
     })
-    if (moreThreads) setThreads((prevState) => [...prevState, ...moreThreads])
-    setCount((_prev) => moreThreads.length ?? 0)
+    if (moreThreads) setThreads(prevState => [...prevState, ...moreThreads])
+    setCount(_prev => moreThreads.length ?? 0)
     setLoading(false)
   }
 
@@ -69,14 +95,14 @@ export default function UserThreadPanel({
       userId: session!.user.id,
       limit: PAGE_SIZE,
       categoryId: activeCategory,
-      chatbotName: activeChatbot?.name,
+      chatbotName: activeChatbot?.name
     })
 
     // Check if the fetchId matches the current fetchId stored in the ref
     if (fetchIdRef.current === currentFetchId) {
       // If it matches, update the threads state
-      setThreads((_prev) => threads ?? [])
-      setCount((_prev) => threads.length ?? 0)
+      setThreads(_prev => threads ?? [])
+      setCount(_prev => threads.length ?? 0)
     }
   }
 
@@ -93,7 +119,11 @@ export default function UserThreadPanel({
   }, [isOpenPopup])
 
   useEffect(() => {
-    if (threads && threads.filter((t) => t.threadId === activeThread?.threadId).length) return
+    if (
+      threads &&
+      threads.filter(t => t.threadId === activeThread?.threadId).length
+    )
+      return
     setIsOpenPopup(false)
     setActiveThread(null)
 

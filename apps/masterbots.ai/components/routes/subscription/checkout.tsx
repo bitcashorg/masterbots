@@ -1,23 +1,47 @@
+/**
+ * Checkout Component
+ *
+ * A component that handles the subscription checkout process using Stripe.
+ * It provides a user interface for selecting a subscription plan and processing
+ * payments securely.
+ *
+ * Key Features:
+ * - Displays subscription plan details, including price and billing frequency
+ * - Integrates Stripe for payment processing
+ * - Manages loading states during payment confirmation
+ * - Provides visual feedback for the current payment state
+ * - Allows users to navigate back to the previous step
+ *
+ * Functionality:
+ * - Confirms payment intent with Stripe and handles errors
+ * - Updates the UI based on the selected payment method and plan
+ * - Displays additional fees and total due for transparency
+ *
+ * Props:
+ * - goTo: Function to navigate to a specific step in the wizard
+ * - prev: Function to go back to the previous step
+ * - next: Function to proceed to the next step
+ * - close: Function to close the checkout modal
+ * - lastStep: Boolean indicating if this is the last step in the wizard
+ * - currentStep: Current step index in the wizard
+ */
+
 import { IconCreditCard, IconHelp } from '@/components/ui/icons'
 import { usePayment } from '@/lib/hooks/use-payment'
 import { useElements, useStripe } from '@stripe/react-stripe-js'
 import { useEffect, useState } from 'react'
 import { StripeElement } from '@/components/routes/subscription/stripe-element'
 import { getCurrentOrTargetDate } from '@/lib/utils'
-import { WizardStepProps } from '@/components/ui/wizard'
+import type { WizardStepProps } from '@/components/ui/wizard'
 
 export function InnerCheckout({ prev, next }: WizardStepProps) {
   const { card, plan, loading, handleSetLoading } = usePayment()
-  const price = (plan?.unit_amount ? plan?.unit_amount / 100 : 0).toFixed(2);
+  const price = (plan?.unit_amount ? plan?.unit_amount / 100 : 0).toFixed(2)
   const stripe = useStripe()
   const elements = useElements()
-  const {
-    handleSetError,
-    confirmationToken,
-    secret,
-    handlePaymentIntent
-  } = usePayment()
-  
+  const { handleSetError, confirmationToken, secret, handlePaymentIntent } =
+    usePayment()
+
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -27,7 +51,6 @@ export function InnerCheckout({ prev, next }: WizardStepProps) {
     }
   }, [stripe, elements])
 
- 
   const submit = async () => {
     try {
       handleSetLoading(true)
@@ -103,7 +126,12 @@ export function InnerCheckout({ prev, next }: WizardStepProps) {
                 *charged once every {getCurrentOrTargetDate()}
               </span>
             </div>
-            <span>${ plan?.product?.name?.toLowerCase().includes('year') ? (4.49 * 12) : price }</span>
+            <span>
+              $
+              {plan?.product?.name?.toLowerCase().includes('year')
+                ? 4.49 * 12
+                : price}
+            </span>
           </div>
           {plan?.product?.name?.toLowerCase().includes('year') && (
             <div className="flex justify-between mt-3 text-gray-400">
@@ -111,7 +139,7 @@ export function InnerCheckout({ prev, next }: WizardStepProps) {
                 {' '}
                 <strong>Year Plan</strong> subscription discount
               </span>
-              <span>-${((4.49 * 12) - Number(price)).toFixed(2)}</span>
+              <span>-${(4.49 * 12 - Number(price)).toFixed(2)}</span>
             </div>
           )}
           <div className="flex justify-between pb-4 mt-5 border-b">
@@ -153,8 +181,9 @@ export function InnerCheckout({ prev, next }: WizardStepProps) {
           type="button"
           disabled={loading}
           onClick={submit}
-          className={`dark:bg-white bg-black text-white dark:text-black rounded-full font-bold py-2 px-4 ${loading ? 'opacity-50' : ''
-            }`}
+          className={`dark:bg-white bg-black text-white dark:text-black rounded-full font-bold py-2 px-4 ${
+            loading ? 'opacity-50' : ''
+          }`}
         >
           Pay Subscription
         </button>

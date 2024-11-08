@@ -1,16 +1,29 @@
-import { Chatbot } from 'mb-genql'
+import type { Chatbot } from 'mb-genql'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Separator } from '@/components/ui/separator'
 import ShareLink from '@/components/routes/thread/thread-user-actions'
 import { toSlug } from 'mb-lib'
 
+/**
+ * BrowseChatbotDetails Component
+ *
+ * This component displays detailed information about a specific chatbot.
+ * It includes the chatbot's name, primary category, description, and the number of threads associated with it.
+ *
+ * Props:
+ * - chatbot: An optional Chatbot object containing details about the chatbot.
+ *
+ * Key Features:
+ * - Conditional Rendering: Displays a message if no chatbot data is available.
+ * - Dynamic URL Generation: Creates a URL for chatting with the chatbot based on its category and name.
+ * - Responsive Design: Utilizes Tailwind CSS for styling and layout.
+ */
 export default function BrowseChatbotDetails({
   chatbot
 }: {
   chatbot?: Chatbot
 }) {
-
   if (!chatbot?.categories?.length) {
     return <div>No chatbot data available</div>
   }
@@ -21,6 +34,7 @@ export default function BrowseChatbotDetails({
     <div className="relative bg-cover py-10 bg-gradient-to-l from-mirage via-[#2B5D91] to-[#388DE2]">
       <div className="flex flex-row gap-3 relative mx-auto md:w-[600px]">
         <a className="flex items-center space-x-1" href="/">
+          {/* biome-ignore lint/a11y/noSvgWithoutTitle: <explanation> */}
           <svg
             width="11"
             height="12"
@@ -35,7 +49,7 @@ export default function BrowseChatbotDetails({
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-          </svg>{' '}
+          </svg>
           <span className="text-['24px'] font-normal">Back to browse</span>
         </a>
       </div>
@@ -54,7 +68,7 @@ export default function BrowseChatbotDetails({
               {chatbot?.description ? <div>{chatbot?.description}</div> : ''}
             </div>
             <div className="font-light">
-              Threads:{' '}
+              Threads:
               <span className="text-[#71717A]">
                 {chatbot?.threads.length ?? 1}
               </span>
@@ -70,20 +84,16 @@ export default function BrowseChatbotDetails({
             >
               Chat with {chatbot?.name} &gt;
             </Link>
-            <div className="flex gap-4">
-              {/* <IconUpVote className="h-4 opacity-60" />
-                <span className="text-[#72C255]">1.2k</span>
-              <IconDownVote className="h-4 opacity-60" />
-                <span className="text-[#F42F53]">375</span> */}
-              {/* <span className="text-[#FAFAFA]">17</span>               */}
-            </div>
+            <div className="flex gap-4"></div>
           </div>
         </div>
         <div className="size-24 absolute border-4 border-[#388DE2] right-0 top-0 translate-x-1/4 rounded-full -translate-y-1/4 dark:bg-[#131316] bg-white">
           <Image
             className="transition-opacity duration-300 rounded-full select-none size-full ring-1 ring-zinc-100/10 hover:opacity-80"
             src={chatbot?.avatar || ''}
-            alt={chatbot?.avatar ? `Avatar of ${chatbot?.name}` : 'Default Avatar'}
+            alt={
+              chatbot?.avatar ? `Avatar of ${chatbot?.name}` : 'Default Avatar'
+            }
             height={96}
             width={96}
           />

@@ -1,6 +1,6 @@
-import { HasuraClaims } from "mb-types";
-import { createMbClient } from "mb-genql";
 import { validateMbEnv } from "mb-env";
+import { createMbClient } from "mb-genql";
+import { HasuraClaims } from "mb-types";
 
 export function generateHasuraClaims({
   account,

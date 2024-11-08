@@ -1,12 +1,38 @@
-import { getSubscriptionPlans } from '@/app/actions'
-import { PlansPros } from '@/types/types'
-import { useRouter } from 'next/navigation'
-import React, { useState } from 'react'
-import { useAsync } from 'react-use'
+/**
+ * Plans Component
+ *
+ * A component that displays available subscription plans for selection
+ * during the checkout process. It allows users to choose a plan and
+ * handles the submission of the selected plan for payment processing.
+ *
+ * Key Features:
+ * - Displays a list of subscription plans with details and pricing
+ * - Integrates radio button functionality for selecting a plan
+ * - Shows a free plan option with its features
+ * - Handles loading states while fetching plans
+ * - Provides a referral code input link
+ *
+ * Functionality:
+ * - Fetches subscription plans from the server
+ * - Updates the selected plan state based on user interaction
+ * - Submits the selected plan for payment processing
+ * - Allows users to navigate back or close the wizard
+ *
+ * Props:
+ * - next: Function to proceed to the next step in the wizard
+ * - goTo: Function to navigate to a specific step in the wizard
+ */
+
+import { getSubscriptionPlans } from '@/app/actions/subscriptions'
+import PlanCard from '@/components/routes/subscription/plan-card'
 import { IconArrowRightNoFill } from '@/components/ui/icons'
 import { usePayment } from '@/lib/hooks/use-payment'
 import { cn } from '@/lib/utils'
-import PlanCard from '@/components/routes/subscription/plan-card'
+import type { PlansPros } from '@/types/types'
+import { useRouter } from 'next/navigation'
+import type React from 'react'
+import { useState } from 'react'
+import { useAsync } from 'react-use'
 
 export function Plans({ next, goTo }: PlansPros) {
   const {
@@ -25,11 +51,12 @@ export function Plans({ next, goTo }: PlansPros) {
 
   const [selectedPlan, setSelectedPlan] = useState(plan?.duration || 'free')
   const router = useRouter()
-  const { value: plans, loading: loadingPlans } = useAsync(async () =>
-    await getSubscriptionPlans({
-      handleSetStripePublishKey,
-      handleSetStripeSecret,
-    })
+  const { value: plans, loading: loadingPlans } = useAsync(
+    async () =>
+      await getSubscriptionPlans({
+        handleSetStripePublishKey,
+        handleSetStripeSecret
+      })
   )
 
   const handlePlanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,7 +118,10 @@ export function Plans({ next, goTo }: PlansPros) {
   }
 
   return (
-    <form className="flex flex-col w-full min-h-[480px]" onSubmit={submitSubscription}>
+    <form
+      className="flex flex-col w-full min-h-[480px]"
+      onSubmit={submitSubscription}
+    >
       <div className="pt-2 mb-3 text-center">
         <span className="font-bold text-[16px]">
           Subscribe using{' '}
@@ -103,17 +133,19 @@ export function Plans({ next, goTo }: PlansPros) {
           className={cn(
             'border-gradient w-[340px] md:w-full md:h-[135px] z-0 dark:[&>_div]:hover:bg-tertiary',
             {
-              'selected': selectedPlan === 'free'
+              selected: selectedPlan === 'free'
             }
           )}
           id="free-plan"
         >
-          <div className={cn(
-            'transition-all size-[calc(100%_-_10px)] absolute top-[5px] left-[5px] rounded-[11px] bg-transparent',
-            {
-              'bg-tertiary ': selectedPlan === 'free'
-            }
-          )} />
+          <div
+            className={cn(
+              'transition-all size-[calc(100%_-_10px)] absolute top-[5px] left-[5px] rounded-[11px] bg-transparent',
+              {
+                'bg-tertiary ': selectedPlan === 'free'
+              }
+            )}
+          />
           <input
             type="radio"
             id="free"
@@ -156,27 +188,31 @@ export function Plans({ next, goTo }: PlansPros) {
           </label>
         </div>
         <div className="flex flex-col space-y-3 md:space-x-3 md:flex-row md:space-y-0">
-          {plans && plans.length && (
-            plans?.filter(plan => plan.active).sort((a, b) => a.created - b.created).map(plan => (
-              <PlanCard
-                key={plan.id}
-                selectedPlan={selectedPlan}
-                handlePlanChange={handlePlanChange}
-                plan={plan}
-              />
-            ))
-          )}
-          {(loadingPlans && !plans) && (
+          {plans &&
+            plans.length &&
+            plans
+              ?.filter(plan => plan.active)
+              .sort((a, b) => a.created - b.created)
+              .map(plan => (
+                <PlanCard
+                  key={plan.id}
+                  selectedPlan={selectedPlan}
+                  handlePlanChange={handlePlanChange}
+                  plan={plan}
+                />
+              ))}
+          {loadingPlans && !plans && (
             <>
               <div className="w-full h-[274px] bg-muted-foreground/20 rounded-2xl animate-pulse" />
               <div className="w-full h-[274px] bg-muted-foreground/20 rounded-2xl animate-pulse" />
             </>
           )}
-          {(!plans && !loadingPlans) || (plans && !plans.length && !loadingPlans) && (
-            <div>No plans available</div>
-          )}
+          {(!plans && !loadingPlans) ||
+            (plans && !plans.length && !loadingPlans && (
+              <div>No plans available</div>
+            ))}
         </div>
-        <div >
+        <div>
           <a
             href="#referral"
             className="text-[16px] flex items-center space-x-2 mb-5"

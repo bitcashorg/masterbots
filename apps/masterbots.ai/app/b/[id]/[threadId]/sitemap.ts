@@ -1,8 +1,7 @@
-import { botNames } from '@/lib/bots-names'
+import { botNames } from '@/lib/constants/bots-names'
 import { getKeyByValue } from '@/lib/utils'
 import { getThreadsWithoutJWT } from '@/services/hasura'
-import { toSlug } from 'mb-lib'
-import { MetadataRoute } from 'next'
+import type { MetadataRoute } from 'next'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const threads = await getThreadsWithoutJWT()
