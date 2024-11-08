@@ -118,10 +118,7 @@ export async function getWebSearchTool({
 
     const reader = runAppResponse.body.getReader()
     const decoder = new TextDecoder()
-
-    // Updated regex to match each major object block with nested braces support
-    const jsonRegex =
-      /data:\s*\{((?:[^{}]|(?:\{(?:[^{}]|(?:\{[^{}]*\}))*\}))*?)\}(?=\s*data:|\s*event:|$)/g
+    const jsonRegex = /data:\s*({.*?})(?=\s*data:|\s*event:|$)/gs
 
     let buffer = ''
     let results = ''

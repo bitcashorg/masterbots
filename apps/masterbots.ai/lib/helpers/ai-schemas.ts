@@ -16,7 +16,7 @@ export const aiTools = {
     description:
       'Perform a web search to retrieve relevant data based on the user query. ' +
       'Makes sure to return the search results and the sources where the search was taken with the same given format. ' +
-      '**Makes sure to follow any example given.** ',
+      '**Focus on following any given output example.** ',
     parameters: z.object({
       query: z
         .string()
