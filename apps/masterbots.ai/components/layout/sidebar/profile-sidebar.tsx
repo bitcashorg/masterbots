@@ -2,12 +2,14 @@
 
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
+import { LogOut } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import Image from 'next/image'
 import { appConfig } from 'mb-env'
 import type { Session } from 'next-auth'
 import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { toSlug } from 'mb-lib'
 
 interface ProfileSidebarProps {
   user: Session['user'] & {
@@ -40,6 +42,17 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
     }
   }, [])
 
+  const goToProfile = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const userSlug = toSlug(user.name || '')
+    if (userSlug) {
+      setIsOpen(false)
+      router.push(`/u/${userSlug}/t`)
+    }
+  }, [router, user.name])
+
+
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
@@ -65,7 +78,11 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
         <div className="flex flex-col h-full">
           {/* Profile Header */}
           <div className="p-4 border-b">
-            <div className="flex items-center space-x-3">
+            <Button  
+             onClick={goToProfile}
+             variant="sideBarProfile"
+             size="sideBarProfile"
+            >
               {user?.image ? (
                 <Image
                   className="rounded-full size-10"
@@ -76,7 +93,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
                   priority
                 />
               ) : (
-                <div className="flex items-center justify-center text-sm font-medium uppercase rounded-full size-10 bg-muted/50">
+                <div className="flex items-center justify-center text-sm font-medium uppercase rounded-full size-10 bg-muted/50 bg-blue-700">
                   {user?.name ? getUserInitials(user?.name) : null}
                 </div>
               )}
@@ -84,7 +101,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
                 <p className="text-sm font-medium">{user?.name}</p>
                 <p className="text-xs text-muted-foreground">{user?.email}</p>
               </div>
-            </div>
+            </Button>
           </div>
 
           {/* Navigation Links - Only visible on mobile */}
@@ -133,6 +150,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
               className="w-full justify-start text-sm"
               onClick={handleLogout}
             >
+               <LogOut className="size-4 mr-2" />
               Log Out
             </Button>
           </div>
