@@ -154,7 +154,16 @@ export default function BrowseListItem({
           <div className="flex items-center justify-between w-full text-left">
             {/* Main content area - adjusted width and spacing */}
             <div className="flex items-center gap-2 sm:gap-4 w-[calc(100%-100px)] sm:w-[calc(100%-124px)]">
-              {pageType !== 'bot' && <ChatbotAvatar thread={thread} />}
+              {pageType !== 'bot' && (
+                <Button
+                  onClick={goToBotPage}
+                  title={thread.chatbot?.name}
+                  variant="ghost"
+                  className="p-0 hover:bg-transparent"
+                >
+                  <ChatbotAvatar thread={thread} />
+                </Button>
+              )}
 
               {/* Message content - adjusted spacing */}
               <div
