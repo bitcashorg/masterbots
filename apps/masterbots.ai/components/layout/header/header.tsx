@@ -20,12 +20,12 @@ export function Header() {
         <HeaderLink href="/c" text="Chat" />
         <HeaderLink href="/" text="Browse" />
 
-        {/* {appConfig.devMode && (
+        {appConfig.devMode && (
           <>
             <HeaderLink href="/wordware" text="Ww" />
             <HeaderLink href="/c/p" text="Pro" />
           </>
-        )} */}
+        )}
       </div>
       <div className="flex items-center space-x-4">
         <ThemeToggle />
