@@ -95,19 +95,19 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
     </AlertDialog>
   )
   return (
-    <div className="flex items-center gap-3 pt-[3px]">
+    <div className="flex items-center gap-1 sm:gap-3 pt-[3px]">
       <AlertDialogue deleteDialogOpen={isDeleteOpen} />
       {!isBrowse && (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1 sm:gap-3">
           <div>
             {thread?.isApproved ? (
-              <BadgeCheck className="w-4 h-4 bg-[#388DE2]  text-white rounded-full" />
+              <BadgeCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 bg-[#388DE2] text-white rounded-full" />
             ) : (
-              <BadgeCheck className="w-4 h-4 text-gray-400" />
+              <BadgeCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400" />
             )}
           </div>
-          <div className="px-2 bg-gray-200 rounded-full dark:bg-gray-700 ">
-            <span className="text-xs">
+          <div className="px-1.5 sm:px-2 py-0.5 bg-gray-200 rounded-full dark:bg-gray-700">
+            <span className="text-[10px] sm:text-xs whitespace-nowrap">
               {thread?.isPublic ? 'Public' : 'Private'}
             </span>
           </div>
@@ -116,12 +116,18 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <MoreVertical className="w-4 h-4" />
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-6 h-6 p-0 sm:h-8 sm:w-8"
+          >
+            <MoreVertical className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
           sideOffset={8}
           align="end"
-          className="w-[180px] px-0"
+          className="w-[160px] sm:w-[180px] px-0"
         >
           {/* Toggle thread visibility option (only for thread owner) */}
           {isUser && (

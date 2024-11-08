@@ -109,7 +109,7 @@ export function PromptForm({
           disabled={disabled}
           className={cn(
             "w-full resize-none bg-transparent px-4 focus-within:outline-none sm:text-sm",
-            "min-h-[40px] md:min-h-[60px]", //? Smaller height on mobile
+            "min-h-[80px] md:min-h-[60px]", //? Smaller height on mobile
             "py-2 md:py-[1.3rem]" //? Adjusted padding for mobile
           )}
           />
