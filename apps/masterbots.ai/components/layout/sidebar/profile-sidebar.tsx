@@ -93,7 +93,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
                   priority
                 />
               ) : (
-                <div className="flex items-center justify-center text-sm font-medium uppercase rounded-full size-10 bg-muted/50 bg-blue-700">
+                <div className="flex items-center justify-center text-sm font-medium uppercase rounded-full size-10 bg-muted/50">
                   {user?.name ? getUserInitials(user?.name) : null}
                 </div>
               )}
