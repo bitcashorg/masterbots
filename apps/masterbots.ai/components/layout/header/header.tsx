@@ -30,7 +30,7 @@ export function Header() {
           )}
         </div>
       </div>
-      <div className="flex items-center justify-end space-x-2 gap-2">
+      <div className="flex items-center space-x-4">
         <ThemeToggle />
         <React.Suspense fallback={<div className="flex-1 overflow-auto" />}>
           <UserLogin />

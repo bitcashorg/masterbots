@@ -18,15 +18,15 @@ export interface ChatPanelProps
     | 'input'
     | 'setInput'
   > {
-  loadingState?: string // Loading status for displaying the current chat stage
-  scrollToBottom: () => void // Function to scroll chat to the bottom
-  id?: string // Chat ID, used in message operations
-  title?: string // Chat title, displayed in the header
-  chatbot?: Chatbot // Chatbot configuration for enabling/disabling prompt form
-  showReload?: boolean // Displays reload button when true
-  placeholder: string // Placeholder text for the input field
-  isAtBottom?: boolean // Indicates if the chat is scrolled to the bottom
-  className?: string // Optional custom class for styling the panel
+    loadingState?: string // Loading status for displaying the current chat stage
+    scrollToBottom: () => void // Function to scroll chat to the bottom
+    id?: string // Chat ID, used in message operations
+    title?: string // Chat title, displayed in the header
+    chatbot?: Chatbot // Chatbot configuration for enabling/disabling prompt form
+    showReload?: boolean // Displays reload button when true
+    placeholder: string // Placeholder text for the input field
+    isAtBottom?: boolean // Indicates if the chat is scrolled to the bottom
+    className?: string // Optional custom class for styling the panel
 }
 
 export function ChatPanel({
@@ -47,16 +47,20 @@ export function ChatPanel({
   scrollToBottom,
   className
 }: ChatPanelProps) {
-  const { isOpenPopup } = useThread() // State to control popup visibility
+  const { isOpenPopup } = useThread()
 
   return (
     <div
       className={cn(
-        'z-[2] fixed inset-x-0 bottom-0 w-full bg-gradient-to-b from-muted/30 from-0% to-muted/30 to-50% animate-in duration-300 ease-in-out dark:from-background/10 dark:from-10% dark:to-background/80 lg:pl-[250px] xl:pl-[300px]',
+        'z-[2] fixed inset-x-0 bottom-0 w-full',
+        'animate-in duration-300 ease-in-out',
+        'bg-gradient-to-b from-background/50 to-background',
+        'dark:from-background/0 dark:to-background/80',
+        'lg:pl-[250px] xl:pl-[300px]',
         className
       )}
     >
-      <div className="mx-auto ">
+      <div className="relative w-full mx-auto">
         <ChatPanelHeader
           id={id}
           title={title}
@@ -70,7 +74,14 @@ export function ChatPanel({
           isAtBottom={isAtBottom}
         />
         <div
-          className={`px-4 py-2 space-y-4 border-t shadow-lg bg-background sm:border md:py-4 ${isOpenPopup ? 'dark:border-mirage border-iron' : ''}`}
+          className={cn(
+            'relative flex flex-col w-full',
+            'p-2 sm:px-4 space-y-2 sm:space-y-4',
+            'border-t shadow-lg bg-background',
+            'dark:border-zinc-800 border-zinc-200',
+            isOpenPopup ? 'dark:border-mirage border-iron' : '',
+            'min-h-[64px] sm:min-h-[80px]'
+          )}
         >
           <PromptForm
             onSubmit={async value => {
@@ -80,7 +91,8 @@ export function ChatPanel({
                 role: 'user'
               })
             }}
-            disabled={!Boolean(chatbot) || isLoading || Boolean(loadingState)} // Disables input if no chatbot is provided
+            // biome-ignore lint/complexity/noExtraBooleanCast: <explanation>
+            disabled={!Boolean(chatbot) || isLoading || Boolean(loadingState)}
             input={input}
             setInput={setInput}
             isLoading={isLoading}

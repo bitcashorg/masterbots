@@ -33,7 +33,7 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn, scrollToBottomOfElement } from '@/lib/utils'
 import { useScroll } from 'framer-motion'
-import { Chatbot } from 'mb-genql'
+import type { Chatbot } from 'mb-genql'
 import { useEffect, useRef } from 'react'
 import { ThreadPublicitySwitch } from './thread-publicity-switch'
 
@@ -74,6 +74,7 @@ export function ThreadPopup({ className }: { className?: string }) {
     }
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (isLoading && isOpenPopup) {
       const timeout = setTimeout(() => {
@@ -92,21 +93,26 @@ export function ThreadPopup({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'size-full dark:bg-[#27272A80] lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)] flex justify-center items-center fixed top-[4rem] h-[calc(100vh-4rem)] bg-[#F4F4F580] backdrop-blur-sm ease-in-out duration-500 z-[9] transition-all',
-        isOpenPopup ? 'animate-fade-in' : 'hidden animate-fade-out'
+        'size-full bg-background/80 dark:bg-background/80',
+        'lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)]',
+        'flex justify-center items-center fixed top-16',
+        'h-[calc(100vh-4rem)] backdrop-blur-sm ease-in-out duration-500 z-[9]',
+        'transition-all',
+        isOpenPopup ? 'animate-fade-in' : 'animate-fade-out',
+        className
       )}
     >
-      <div
+     <div
         className={cn(
-          className,
-          `flex flex-col z-10 rounded-lg duration-500 ease-in-out fixed h-full max-h-[90%]
-      max-w-[1032px] w-[95%] dark:border-mirage border-iron border
-      transition-opacity ${isOpenPopup ? 'animate-fade-in' : 'animate-fade-out'}`
+          'flex flex-col z-10 rounded-lg duration-500 ease-in-out fixed',
+          'h-full max-h-[90%] max-w-[1032px] w-[95%]',
+          'dark:border-mirage border-iron border bg-background dark:bg-background',
+          'transition-opacity'
         )}
       >
         <div className="relative rounded-t-[8px] px-[32px] py-[20px] dark:bg-[#1E293B] bg-[#E4E4E7]">
-          <div className="flex items-center gap-6 justify-between">
-            <div className="block items-center max-h-28 scrollbar small-thumb overflow-y-auto whitespace-pre-line">
+          <div className="flex items-center justify-between gap-6">
+            <div className="items-center block overflow-y-auto whitespace-pre-line max-h-28 scrollbar small-thumb">
               {threadTitle ?
                 threadTitleChunks.length > 32
                   ? threadTitleHeading + ''
@@ -121,7 +127,7 @@ export function ThreadPopup({ className }: { className?: string }) {
               )}
             </div>
 
-            <div className="flex gap-4 items-center">
+            <div className="flex items-center gap-4">
               <ThreadPublicitySwitch threadId={activeThread?.threadId} />
               <Button type="button" variant="ghost" size="icon" className="ml-2" onClick={onClose}>
                 <IconClose />
@@ -131,9 +137,14 @@ export function ThreadPopup({ className }: { className?: string }) {
         </div>
 
         <div
-          className="flex flex-col dark:bg-[#18181B] bg-[white] grow rounded-b-[8px] scrollbar pb-[180px] h-full"
-          ref={popupContentRef as React.Ref<HTMLDivElement>}
-        >
+        className={cn(
+          "flex flex-col dark:bg-[#18181B] bg-white grow rounded-b-[8px] scrollbar h-full",
+          "pb-[120px] md:pb-[180px]", //? Reduced padding on mobile
+          "max-h-[calc(100vh-240px)] md:max-h-[calc(100vh-220px)]", //? Adjusted height for mobile
+          className
+        )}
+        ref={popupContentRef as React.Ref<HTMLDivElement>}
+      >
           <ChatList
             className="max-w-full !px-[32px] !mx-0"
             isThread={false}

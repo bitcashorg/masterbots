@@ -35,6 +35,16 @@ import { ChevronDown } from 'lucide-react'
 import type { Thread } from 'mb-genql'
 import React from 'react'
 
+// Helper function to handle body scroll
+const toggleBodyScroll = (disable: boolean) => {
+  if (typeof window === 'undefined') return
+  
+  document.body.style.overflow = disable ? 'hidden' : 'auto'
+  // Prevent iOS Safari bouncing
+  document.body.style.position = disable ? 'fixed' : 'static'
+  document.body.style.width = disable ? '100%' : 'auto'
+}
+
 export function BrowseAccordion({
   thread = null,
   className,
@@ -82,6 +92,20 @@ export function BrowseAccordion({
     activeThread !== null &&
     thread?.threadId !== activeThread?.threadId
   const shouldBeDisabled = disabled || isAnotherThreadOpen
+
+    //? Handle body scroll locking
+    React.useEffect(() => {
+      const isMobile = window.innerWidth < 640 // sm breakpoint
+      
+      if (isMobile && open && !isNestedThread) {
+        toggleBodyScroll(true)
+      } else {
+        toggleBodyScroll(false)
+      }
+  
+      // Cleanup on unmount
+      return () => toggleBodyScroll(false)
+    }, [open, isNestedThread])
 
   React.useEffect(() => {
     if (
@@ -164,7 +188,10 @@ export function BrowseAccordion({
         !open &&
         'opacity-50 pointer-events-none filter grayscale',
         !isNestedThread && shouldBeDisabled && 'cursor-not-allowed',
-        isNestedThread && 'my-2'
+        isNestedThread && 'my-2',
+        //? mobile when open
+        !isNestedThread && open && 'sm:relative fixed inset-0 sm:inset-auto'
+
       )}
       id={`thread-${thread?.threadId}`}
       {...props}
