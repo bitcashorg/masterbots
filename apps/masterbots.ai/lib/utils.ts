@@ -4,6 +4,7 @@ import { type ClassValue, clsx } from 'clsx'
 import type { Message } from 'mb-genql'
 import { customAlphabet } from 'nanoid'
 import { twMerge } from 'tailwind-merge'
+import type { ReactNode } from 'react'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -229,4 +230,75 @@ export function isAdminOrModeratorRole(role: RoleTypes) {
 export const validateEmail = (email: string) => {
   const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
   return re.test(email)
+}
+
+// * List of predefined unique phrases to detect in text
+export const UNIQUE_PHRASES = [
+  'Unique, lesser-known',
+  'Unique insight',
+  'Unique Tip',
+  'Unique, lesser-known solution',
+  'Unique Solution',
+  'Unique, lesser-known option',
+  'Unique Insight: Lesser-Known Solution',
+  'Unique Recommendation',
+  'Lesser-Known Gem',
+  'For a UNIQUE, LESSER-KNOWN phrase',
+  'Unique, Lesser-Known Destination'
+] as const
+
+export interface ParsedText {
+  clickableText: string
+  restText: string
+}
+
+// * Converts ReactNode content to string for processing
+export function extractTextFromReactNode(node: ReactNode): string {
+  if (typeof node === 'string') return node
+  if (typeof node === 'number') return node.toString()
+  if (Array.isArray(node)) return node.map(extractTextFromReactNode).join('')
+  if (typeof node === 'object' && node !== null && 'props' in node) {
+    return extractTextFromReactNode(node.props.children)
+  }
+  return ''
+}
+
+// * Creates a regex pattern for unique phrases
+export function createUniquePattern(): RegExp {
+  return new RegExp(`(?:${UNIQUE_PHRASES.join('|')}):\\s*([^.:]+[.])`, 'i')
+}
+
+// * Pattern for general text parsing
+export const GENERAL_PATTERN = /(.*?)([:.,])(?:\s|$)/g
+
+// * Parses text to extract clickable and remaining portions
+export function parseClickableText(fullText: string): ParsedText {
+  const uniquePattern = createUniquePattern()
+  const uniqueMatch = fullText.match(uniquePattern)
+
+  // Check for unique phrase match first
+  if (uniqueMatch) {
+    const clickableText = uniqueMatch[1]
+    const restText = fullText.slice(
+      fullText.indexOf(clickableText) + clickableText.length
+    )
+    return { clickableText, restText }
+  }
+
+  // * Fall back to general pattern
+  const generalMatch = fullText.match(GENERAL_PATTERN)
+  if (generalMatch) {
+    return {
+      clickableText: generalMatch[0],
+      restText: fullText.slice(generalMatch[0].length)
+    }
+  }
+  return {
+    clickableText: '',
+    restText: fullText
+  }
+}
+
+export function cleanClickableText(text: string): string {
+  return text.replace(/(:|\.|\,)\s*$/, '')
 }

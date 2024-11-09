@@ -36,7 +36,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useScroll } from '@/lib/hooks/use-scroll'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
-import { Thread } from 'mb-genql'
+import type { Thread } from 'mb-genql'
 import { useRef } from 'react'
 import { AdminModeApprove } from '../chat/admin-mode-approve'
 import { ChatOptions } from '../chat/chat-options'
@@ -85,7 +85,7 @@ export default function ThreadComponent({
       >
         {/* Thread Title */}
         <div className="px-[11px] flex justify-between items-center w-full gap-3">
-          <span className="inline-flex gap-3 items-center text-left">
+          <span className="inline-flex items-center gap-3 text-left">
             <ChatbotAvatar thread={thread} />
 
             <span className="whitespace-pre-line">
@@ -98,7 +98,7 @@ export default function ThreadComponent({
             </span>
           </span>
           {/* Thread Options */}
-          <div className="pl-4 pr-8">
+          <div>
             <ChatOptions threadId={threadId} thread={thread} isBrowse={false} />
           </div>
         </div>
