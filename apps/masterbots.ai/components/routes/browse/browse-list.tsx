@@ -105,16 +105,39 @@ export default function BrowseList() {
   }, [keyword, threads])
   return (
     <div className="flex flex-col w-full gap-3 py-5">
-      {filteredThreads.map((thread: Thread, key) => (
-        <BrowseListItem
-          thread={thread}
-          key={key}
-          loading={loading}
-          loadMore={loadMore}
-          hasMore={count === PAGE_SIZE}
-          isLast={key === filteredThreads.length - 1}
-        />
-      ))}
+      {filteredThreads.length > 0 ? (
+        filteredThreads.map((thread: Thread, key) => (
+          <BrowseListItem
+            thread={thread}
+            key={key}
+            loading={loading}
+            loadMore={loadMore}
+            hasMore={count === PAGE_SIZE}
+            isLast={key === filteredThreads.length - 1}
+          />
+        ))
+      ) : (
+        // No results message
+        <div className="flex flex-col items-center justify-center p-8 text-center">
+          <div className="flex flex-col items-center gap-4">
+            <p className="text-xl font-semibold text-zinc-800 dark:text-zinc-200">
+              No results found
+            </p>
+            {keyword && (
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                No threads found matching &quot;{keyword}&quot;.
+                <br />
+                Try using different keywords or checking your spelling.
+              </p>
+            )}
+            {!keyword && (
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                No threads available in the selected categories.
+              </p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
