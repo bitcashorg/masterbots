@@ -23,7 +23,6 @@
 import BrowseListItem from '@/components/routes/browse/browse-list-item'
 import { ThreadItemSkeleton } from '@/components/routes/browse/skeletons/browse-skeletons'
 import { BrowseListSkeleton } from '@/components/routes/browse/skeletons/browse-list-skeleton'
-import { NoResultsSkeleton } from '@/components/routes/browse/skeletons/no-results-skeleton'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { searchThreadContent } from '@/lib/search'
@@ -121,10 +120,6 @@ export default function BrowseList() {
     return <BrowseListSkeleton count={5} />
   }
 
-  if (loading && keyword && filteredThreads.length === 0) {
-    return <NoResultsSkeleton />
-  }
-
   return (
     <div className="flex flex-col w-full gap-3 py-5">
       {filteredThreads.length > 0 ? (
@@ -142,7 +137,8 @@ export default function BrowseList() {
           {loading && <ThreadItemSkeleton />}
         </>
       ) : (
-        hasInitialized && !loading && (
+        hasInitialized &&
+        !loading && (
           <NoResults searchTerm={keyword} totalItems={threads.length} />
         )
       )}
