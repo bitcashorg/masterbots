@@ -9,7 +9,7 @@ import { ThemeProvider as NextThemesProvider } from 'next-themes'
 import type { ThemeProviderProps } from 'next-themes/dist/types'
 import { ModelProvider } from '@/lib/hooks/use-model'
 import { ThreadVisibilityProvider } from '@/lib/hooks/use-thread-visibility'
-import { ThreadSearchProvider } from '@/lib/hooks/use-threa-search'
+import { ThreadSearchProvider } from '@/lib/hooks/use-thread-search'
 
 export function Providers({ children, ...props }: ThemeProviderProps) {
   return (

@@ -20,7 +20,7 @@ import { Input } from '@/components/ui/input'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { useThreadSearch } from '@/lib/hooks/use-threa-search'
+import { useThreadSearch } from '@/lib/hooks/use-thread-search'
 
 export function BrowseSearchInput() {
   const { searchTerm, setSearchTerm } = useThreadSearch()

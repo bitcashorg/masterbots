@@ -34,7 +34,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import { ChatOptions } from '../chat/chat-options'
-import { useThreadSearch } from '@/lib/hooks/use-threa-search'
+import { useThreadSearch } from '@/lib/hooks/use-thread-search'
 import { searchThreadContent } from '@/lib/search'
 
 let initialUrl: string | null = null
