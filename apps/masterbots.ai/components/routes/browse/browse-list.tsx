@@ -23,6 +23,7 @@
 import BrowseListItem from '@/components/routes/browse/browse-list-item'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { searchThreadContent } from '@/lib/search'
 import { getBrowseThreads } from '@/services/hasura'
 import { debounce } from 'lodash'
 import type { Thread } from 'mb-genql'
@@ -63,16 +64,12 @@ export default function BrowseList() {
       setFilteredThreads(threads)
     } else {
       debounce(() => {
-        // TODO: Improve thread messages architecture to implement dynamic search to show only the thread title (first message on thread)
-        // fetchThreads(keyword, selectedCategories)
+        // Use our searchThreadContent function instead of just title search
         setFilteredThreads(
-          threads.filter((thread: Thread) =>
-            thread.messages[0]?.content
-              .toLowerCase()
-              .includes(keyword.toLowerCase())
+          threads.filter((thread: Thread) => 
+            searchThreadContent(thread, keyword)
           )
         )
-        // ? Average time of human reaction is 230ms
       }, 230)()
     }
   }
@@ -92,6 +89,7 @@ export default function BrowseList() {
     setLoading(false)
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   React.useEffect(() => {
     fetchThreads({
       keyword,
@@ -100,6 +98,7 @@ export default function BrowseList() {
     })
   }, [selectedCategories.length, selectedChatbots.length])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   React.useEffect(() => {
     verifyKeyword()
     // eslint-disable-next-line react-hooks/exhaustive-deps

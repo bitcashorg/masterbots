@@ -34,6 +34,8 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import { ChatOptions } from '../chat/chat-options'
+import { useThreadSearch } from '@/lib/hooks/use-threa-search'
+import { searchThreadContent } from '@/lib/search'
 
 let initialUrl: string | null = null
 
@@ -55,10 +57,22 @@ export default function BrowseListItem({
   const threadRef = React.useRef<HTMLDivElement>(null)
   const router = useRouter()
   const [messages, setMessages] = React.useState<Message[]>([])
-  // ? Move to custom hook and add it to the context useThread + useProvider @bran18
+  const { searchTerm } = useThreadSearch()
   const [isAccordionOpen, setIsAccordionOpen] = React.useState(false)
+  const [isVisible, setIsVisible] = React.useState(true)
+
 
   const { tab } = useBrowse()
+
+  React.useEffect(() => {
+    if (!searchTerm) {
+      setIsVisible(true)
+      return
+    }
+    const matches = searchThreadContent(thread, searchTerm)
+    setIsVisible(matches)
+  }, [searchTerm, thread]) 
+
 
   React.useEffect(() => {
     if (initialUrl) return
@@ -210,7 +224,7 @@ export default function BrowseListItem({
           </div>
         </div>
 
-        {/* Thread Description */}
+        {/*  */}
 
         <div className="overflow-hidden text-sm text-left opacity-50">
           {thread.messages?.[1]?.content &&
