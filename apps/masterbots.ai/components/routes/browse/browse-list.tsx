@@ -21,6 +21,7 @@
  */
 
 import BrowseListItem from '@/components/routes/browse/browse-list-item'
+import { NoResults } from '@/components/shared/no-results-card'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { searchThreadContent } from '@/lib/search'
@@ -66,7 +67,7 @@ export default function BrowseList() {
       debounce(() => {
         // Use our searchThreadContent function instead of just title search
         setFilteredThreads(
-          threads.filter((thread: Thread) => 
+          threads.filter((thread: Thread) =>
             searchThreadContent(thread, keyword)
           )
         )
@@ -117,26 +118,7 @@ export default function BrowseList() {
           />
         ))
       ) : (
-        // No results message
-        <div className="flex flex-col items-center justify-center p-8 text-center">
-          <div className="flex flex-col items-center gap-4">
-            <p className="text-xl font-semibold text-zinc-800 dark:text-zinc-200">
-              No results found
-            </p>
-            {keyword && (
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                No threads found matching &quot;{keyword}&quot;.
-                <br />
-                Try using different keywords or checking your spelling.
-              </p>
-            )}
-            {!keyword && (
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                No threads available in the selected categories.
-              </p>
-            )}
-          </div>
-        </div>
+        <NoResults searchTerm={keyword} totalItems={threads.length} />
       )}
     </div>
   )
