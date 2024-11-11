@@ -38,6 +38,7 @@ const PAGE_SIZE = 50
 export default function BrowseList() {
   const { keyword, tab } = useBrowse()
   const [threads, setThreads] = React.useState<Thread[]>([])
+  const [hasInitialized, setHasInitialized] = React.useState(false)
   const [filteredThreads, setFilteredThreads] = React.useState<Thread[]>([])
   const [loading, setLoading] = React.useState<boolean>(false)
   const [count, setCount] = React.useState<number>(0)
@@ -63,6 +64,7 @@ export default function BrowseList() {
       setThreads(threads)
       setFilteredThreads(threads)
       setCount(threads.length)
+      setHasInitialized(true) // ? Setting hasInitialized after fetch preventing NoResults from showing
     } catch (error) {
       console.error('Error fetching threads:', error)
     } finally {
@@ -140,7 +142,7 @@ export default function BrowseList() {
           {loading && <ThreadItemSkeleton />}
         </>
       ) : (
-        !loading && (
+        hasInitialized && !loading && (
           <NoResults searchTerm={keyword} totalItems={threads.length} />
         )
       )}
