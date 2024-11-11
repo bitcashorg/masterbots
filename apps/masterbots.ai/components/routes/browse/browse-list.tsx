@@ -21,7 +21,9 @@
  */
 
 import BrowseListItem from '@/components/routes/browse/browse-list-item'
-import { NoResults } from '@/components/shared/no-results-card'
+import { ThreadItemSkeleton } from '@/components/routes/browse/skeletons/browse-skeletons'
+import { BrowseListSkeleton } from '@/components/routes/browse/skeletons/browse-list-skeleton'
+import { NoResultsSkeleton } from '@/components/routes/browse/skeletons/no-results-skeleton'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { searchThreadContent } from '@/lib/search'
@@ -29,12 +31,12 @@ import { getBrowseThreads } from '@/services/hasura'
 import { debounce } from 'lodash'
 import type { Thread } from 'mb-genql'
 import React from 'react'
+import { NoResults } from '@/components/shared/no-results-card'
 
 const PAGE_SIZE = 50
 
 export default function BrowseList() {
   const { keyword, tab } = useBrowse()
-
   const [threads, setThreads] = React.useState<Thread[]>([])
   const [filteredThreads, setFilteredThreads] = React.useState<Thread[]>([])
   const [loading, setLoading] = React.useState<boolean>(false)
@@ -50,14 +52,22 @@ export default function BrowseList() {
     chatbotsId: number[]
     keyword: string
   }) => {
-    const threads = await getBrowseThreads({
-      categoriesId,
-      chatbotsId,
-      keyword,
-      limit: PAGE_SIZE
-    })
-    setThreads(threads)
-    setCount(threads.length)
+    setLoading(true) // ? Seting loading before fetch
+    try {
+      const threads = await getBrowseThreads({
+        categoriesId,
+        chatbotsId,
+        keyword,
+        limit: PAGE_SIZE
+      })
+      setThreads(threads)
+      setFilteredThreads(threads)
+      setCount(threads.length)
+    } catch (error) {
+      console.error('Error fetching threads:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const verifyKeyword = () => {
@@ -104,21 +114,35 @@ export default function BrowseList() {
     verifyKeyword()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [keyword, threads])
+
+  if (loading && threads.length === 0) {
+    return <BrowseListSkeleton count={5} />
+  }
+
+  if (loading && keyword && filteredThreads.length === 0) {
+    return <NoResultsSkeleton />
+  }
+
   return (
     <div className="flex flex-col w-full gap-3 py-5">
       {filteredThreads.length > 0 ? (
-        filteredThreads.map((thread: Thread, key) => (
-          <BrowseListItem
-            thread={thread}
-            key={key}
-            loading={loading}
-            loadMore={loadMore}
-            hasMore={count === PAGE_SIZE}
-            isLast={key === filteredThreads.length - 1}
-          />
-        ))
+        <>
+          {filteredThreads.map((thread: Thread, key) => (
+            <BrowseListItem
+              thread={thread}
+              key={key}
+              loading={loading}
+              loadMore={loadMore}
+              hasMore={count === PAGE_SIZE}
+              isLast={key === filteredThreads.length - 1}
+            />
+          ))}
+          {loading && <ThreadItemSkeleton />}
+        </>
       ) : (
-        <NoResults searchTerm={keyword} totalItems={threads.length} />
+        !loading && (
+          <NoResults searchTerm={keyword} totalItems={threads.length} />
+        )
       )}
     </div>
   )
