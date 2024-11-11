@@ -52,7 +52,7 @@ export function ChatCombobox() {
           role="combobox"
           aria-expanded={open}
           className={cn(
-            buttonVariants({ size: 'sm', variant: 'outline' }),
+            buttonVariants({ size: 'sm', variant: 'chatCombobox' }),
             'absolute left-0 top-4 size-8 rounded-full p-0 sm:left-4'
           )}
         >

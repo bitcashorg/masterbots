@@ -3,6 +3,7 @@ import { Slot } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'
 
 import { cn } from '@/lib/utils'
+import {ChatCombobox} from '@/components/routes/chat/chat-combobox';
 
 const buttonVariants = cva(
   'inline-flex items-center justify-center rounded-md text-sm font-medium shadow ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
@@ -21,6 +22,8 @@ const buttonVariants = cva(
         link: 'text-primary underline-offset-4 shadow-none hover:underline',
         icon: 'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow cursor-pointer',
         sideBarProfile: 'bg-transparent border-0 shadow-none justify-start',
+        chatCombobox:
+        'border border-input bg-yellow-400 hover:bg-yellow-500 hover:text-accent-foreground',
       },
       size: {
         default: 'h-8 px-4 py-2',
