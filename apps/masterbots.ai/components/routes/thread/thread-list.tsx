@@ -21,7 +21,6 @@
  * - loadMore: Function to load more threads when needed
  */
 
-import React from 'react'
 import ThreadComponent from '@/components/routes/thread/thread-component'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import type { Thread } from 'mb-genql'

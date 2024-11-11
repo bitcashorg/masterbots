@@ -1,6 +1,6 @@
 'use client'
 
-import { type Session } from 'next-auth'
+import type { Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
@@ -23,6 +23,11 @@ function getUserInitials(name: string) {
   return lastName ? `${firstName[0]}${lastName[0]}` : firstName.slice(0, 2)
 }
 
+function truncateUsername(username: string | null | undefined, maxLength = 10) {
+  if (!username) return '';
+  return username.length > maxLength ? `${username.slice(0, maxLength - 4)}` : username;
+}
+
 export function UserMenu({ user }: UserMenuProps) {
   return (
     <div className="flex items-center justify-between">
@@ -42,7 +47,9 @@ export function UserMenu({ user }: UserMenuProps) {
                 {user?.name ? getUserInitials(user?.name) : null}
               </div>
             )}
-            <span className="ml-2">{user?.name}</span>
+            <span className="ml-2">
+            {user?.name && truncateUsername(user.name)}
+              </span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent sideOffset={8} align="start" className="w-[180px]">

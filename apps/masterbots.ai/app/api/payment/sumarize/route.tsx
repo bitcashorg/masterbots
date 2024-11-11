@@ -7,7 +7,7 @@ const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 }
 
 const stripe = require('stripe')(stripeSecretKey);
-export const runtime = 'edge'
+// export const runtime = 'edge'
 
 export async function POST(req: NextRequest) {
     try {

@@ -46,11 +46,9 @@
     --mirage: 217, 33%, 17%;
     --iron: 240, 6%, 90%;
 
-    --tertiary:  288, 82%, 50%;
+    --tertiary: 288, 82%, 50%;
     --tertiary-foreground: 0 0% 98%;
-
   }
-
 
   .dark {
     --background: 240 10% 3.9%;
@@ -177,14 +175,13 @@
   background: transparent;
   cursor: pointer;
   border: double 6px transparent;
-  background-image:
-    linear-gradient(white, white),
-      linear-gradient(
-        180deg,
-        rgba(113, 113, 122, 0.1) 0%,
-        rgba(113, 113, 122, 0.5) 50%,
-        rgba(113, 113, 122, 0.564706) 100%
-      );
+  background-image: linear-gradient(white, white),
+    linear-gradient(
+      180deg,
+      rgba(113, 113, 122, 0.1) 0%,
+      rgba(113, 113, 122, 0.5) 50%,
+      rgba(113, 113, 122, 0.564706) 100%
+    );
   background-origin: border-box;
   background-clip: content-box, border-box;
   display: inline-block;
@@ -265,14 +262,10 @@
 
 .layout-footer {
   width: 100%;
-  overflow: auto;
   animation: animate-in 300ms ease-in-out;
   position: relative;
-  padding: 1rem;
-
-  @media (min-width: 768px) {
-    padding: 2.5rem;
-  }
+  padding: 1.5rem 2rem;
+  text-align: center;
 
   @media (min-width: 1024px) {
     width: calc(100% - 250px);
@@ -294,7 +287,6 @@
 .input {
   display: none;
 }
-
 
 .lucide {
   stroke-width: 1px;

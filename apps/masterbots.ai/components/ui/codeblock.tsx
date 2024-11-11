@@ -1,15 +1,12 @@
-// Inspired by Chatbot-UI and modified to fit the needs of this project
-// @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Markdown/CodeBlock.tsx
-
 'use client'
 
-import { FC, memo } from 'react'
+import { type FC, memo } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { coldarkDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
-
 import { Button } from '@/components/ui/button'
 import { IconCheck, IconCopy, IconDownload } from '@/components/ui/icons'
 import { useCopyToClipboard } from '@/lib/hooks/use-copy-to-clipboard'
+import { cn } from '@/lib/utils'
 
 interface Props {
   language: string
@@ -43,12 +40,19 @@ export const programmingLanguages: languageMap = {
   shell: '.sh',
   sql: '.sql',
   html: '.html',
-  css: '.css'
-  // add more file extensions here, make sure the key is same as language prop in CodeBlock.tsx component
+  css: '.css',
+  solidity: '.sol',
+  cairo: '.cairo',
+  json: '.json',
+  yaml: '.yaml',
+  xml: '.xml',
+  markdown: '.md',
+  plaintext: '.txt',
+  react: '.jsx'
 }
 
-export const generateRandomString = (length: number, lowercase = false) => {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXY3456789' // excluding similar looking characters like Z, 2, I, 1, O, 0
+const generateRandomString = (length: number, lowercase = false) => {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXY3456789'
   let result = ''
   for (let i = 0; i < length; i++) {
     result += chars.charAt(Math.floor(Math.random() * chars.length))
@@ -64,14 +68,10 @@ const CodeBlock: FC<Props> = memo(({ language, value }) => {
       return
     }
     const fileExtension = programmingLanguages[language] || '.file'
-    const suggestedFileName = `file-${generateRandomString(
-      3,
-      true
-    )}${fileExtension}`
+    const suggestedFileName = `file-${generateRandomString(3, true)}${fileExtension}`
     const fileName = window.prompt('Enter file name', suggestedFileName)
 
     if (!fileName) {
-      // User pressed cancel on prompt.
       return
     }
 
@@ -93,56 +93,76 @@ const CodeBlock: FC<Props> = memo(({ language, value }) => {
   }
 
   return (
-    <div className="relative w-full font-sans codeblock bg-zinc-950">
-      <div className="flex items-center justify-between w-full px-6 py-2 pr-4 bg-zinc-800 text-zinc-100">
-        <span className="text-xs lowercase">{language}</span>
-        <div className="flex items-center space-x-1">
+    <div className="relative w-full overflow-hidden font-sans text-sm rounded-md sm:text-base">
+      <div
+        className={cn(
+          'flex items-center justify-between w-full bg-zinc-800 text-zinc-100',
+          'px-2 py-1.5 sm:px-6 sm:py-2'
+        )}
+      >
+        <span className="text-[11px] sm:text-xs lowercase">{language}</span>
+        <div className="flex items-center gap-0.5 sm:gap-1">
           <Button
             variant="ghost"
-            className="hover:bg-zinc-800 focus-visible:ring-1 focus-visible:ring-slate-700 focus-visible:ring-offset-0"
+            className="h-7 w-7 sm:h-8 sm:w-8 hover:bg-zinc-800 focus-visible:ring-1 focus-visible:ring-slate-700 focus-visible:ring-offset-0"
             onClick={downloadAsFile}
             size="icon"
           >
-            <IconDownload />
+            <IconDownload className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             <span className="sr-only">Download</span>
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            className="text-xs hover:bg-zinc-800 focus-visible:ring-1 focus-visible:ring-slate-700 focus-visible:ring-offset-0"
+            className="h-7 w-7 sm:h-8 sm:w-8 hover:bg-zinc-800 focus-visible:ring-1 focus-visible:ring-slate-700 focus-visible:ring-offset-0"
             onClick={onCopy}
           >
-            {isCopied ? <IconCheck /> : <IconCopy />}
+            {isCopied ? (
+              <IconCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            ) : (
+              <IconCopy className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            )}
             <span className="sr-only">Copy code</span>
           </Button>
         </div>
       </div>
-      <SyntaxHighlighter
-        language={language}
-        style={coldarkDark}
-        PreTag="div"
-        showLineNumbers
-        customStyle={{
-          margin: 0,
-          width: '100%',
-          background: 'transparent',
-          padding: '1.5rem 1rem'
-        }}
-        lineNumberStyle={{
-          userSelect: 'none'
-        }}
-        codeTagProps={{
-          style: {
-            fontSize: '0.9rem',
-            fontFamily: 'var(--font-mono)'
-          }
-        }}
-      >
-        {value}
-      </SyntaxHighlighter>
+      <div className="relative w-full overflow-auto text-xs sm:text-sm">
+        <SyntaxHighlighter
+          language={language}
+          style={coldarkDark}
+          PreTag="div"
+          showLineNumbers
+          customStyle={{
+            margin: 0,
+            width: '100%',
+            background: 'transparent',
+            padding: '0.75rem 0.25rem'
+          }}
+          lineNumberStyle={{
+            minWidth: '2em',
+            paddingRight: '0.75em',
+            userSelect: 'none',
+            opacity: 0.5,
+            fontSize: '11px'
+          }}
+          codeTagProps={{
+            style: {
+              fontFamily: 'var(--font-mono)',
+              fontSize: 'inherit',
+              lineHeight: '1.4'
+            }
+          }}
+          className="text-xs sm:text-sm"
+          wrapLines
+          wrapLongLines
+        >
+          {value}
+        </SyntaxHighlighter>
+      </div>
     </div>
   )
 })
+
 CodeBlock.displayName = 'CodeBlock'
 
 export { CodeBlock }

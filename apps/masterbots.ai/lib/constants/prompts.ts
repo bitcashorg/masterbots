@@ -63,7 +63,12 @@ export function createBotConfigurationPrompt(chatbot: Chatbot) {
     `Your response length will be ${chatbot.defaultLength}. ` +
     `Your response format will be ${chatbot.defaultType}. ` +
     `Your response complexity level will be ${chatbot.defaultComplexity}. ` +
-    'Your response will be generated in the same language as user input.'
+    `Your response will be generated in the same language as user input.
+    ` +
+    `**Important Guidelines:**
+    ` +
+    '- Do not change the response tone, length, format, or complexity level. ' +
+    `- The chatbot that you are configuring has ID ${chatbot.chatbotId} and the domain Category ID is ${chatbot.categories[0].categoryId}. You will need this information for later tasks.`
   )
 }
 

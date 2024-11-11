@@ -1,33 +1,10 @@
 'use client'
 
-/**
- * ShareLink Component
- *
- * A component that provides user actions for sharing a link to the current thread.
- * It allows users to copy the link to the clipboard and generates a short link
- * for easier sharing.
- *
- * Key Features:
- * - Displays an icon indicating the current action state (loading, copied, error)
- * - Integrates with the generateShortLink action to create a short link
- * - Provides visual feedback based on the action status
- *
- * Functionality:
- * - Toggles between different states: default, loading, copied, and error
- * - Copies the generated short link to the clipboard
- *
- * States:
- * - default: Initial state with the default icon
- * - loading: Spinner icon indicating the link is being generated
- * - copied: Checkmark icon indicating the link has been copied
- * - error: Error icon indicating a failure in link generation
- */
-
-import React, { useState } from 'react'
+import { generateShortLink } from '@/app/actions'
 import { Button } from '@/components/ui/button'
 import { AnimatePresence } from 'framer-motion'
 import { LucideCheck, LucideLoader2, LucideX } from 'lucide-react'
-import { generateShortLink } from '@/actions'
+import { useState } from 'react'
 
 export default function ShareLink() {
   const [status, setStatus] = useState<
@@ -52,6 +29,7 @@ export default function ShareLink() {
       return () => clearTimeout(timer)
     }
   }
+  
   const iconsMap = {
     loading: (
       <LucideLoader2
@@ -62,7 +40,8 @@ export default function ShareLink() {
     copied: <LucideCheck size={26} className="stroke-success" />,
     error: <LucideX size={26} className="stroke-destructive" />,
     default: (
-      <svg
+      // biome-ignore lint/a11y/noSvgWithoutTitle: <explanation>
+<svg
         width="24"
         height="24"
         viewBox="0 0 24 24"
@@ -77,11 +56,10 @@ export default function ShareLink() {
       </svg>
     )
   }
+  
   return (
-    <div className="size-10 absolute right-0 top-20 translate-x-full -translate-y-1/4 dark:[#131316] white">
-      <Button onClick={copyToClipboard} variant="ghost" className="px-1">
-        <AnimatePresence>{iconsMap[status]}</AnimatePresence>
-      </Button>
-    </div>
+    <Button onClick={copyToClipboard} variant="ghost" className="h-auto px-1">
+      <AnimatePresence>{iconsMap[status]}</AnimatePresence>
+    </Button>
   )
 }

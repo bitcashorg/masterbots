@@ -229,10 +229,34 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     scrollY,
   })
 
-  const setActiveThread: React.Dispatch<React.SetStateAction<Thread | null>> = (value) =>
-    setState((prev) => ({
-      activeThread: typeof value === 'function' ? value(prev.activeThread) : value,
-    }))
+  const setActiveThread: React.Dispatch<React.SetStateAction<Thread | null>> = (value) => {
+    const newThread = typeof value === 'function' ? value(activeThread) : value
+
+    if (!newThread) {
+      setMessages([])
+      return setState({
+        activeThread: null,
+      })
+    }
+
+    const newAllMessages = uniqBy(
+      initialMessages?.concat(
+        (newThread?.messages || []).map((m) => ({
+          id: m.messageId,
+          role: m.role as AIMessage['role'],
+          content: m.content,
+          createdAt: m.createdAt,
+        }))
+      ),
+      'content'
+    ).filter(
+      (m) => m.role !== 'system',
+    )
+    setState({
+      activeThread: newThread,
+    })
+    setMessages(newAllMessages)
+  }
 
   const setIsNewResponse: React.Dispatch<React.SetStateAction<boolean>> = (value) =>
     setState((prev) => ({
@@ -244,41 +268,28 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       isOpenPopup: typeof isOpen === 'function' ? isOpen(prev.isOpenPopup) : isOpen,
     }))
 
-
-  const value = React.useMemo(
-    () => ({
-      isLoadingMessages,
-      activeThread,
-      allMessages,
-      initialMessages,
-      isNewResponse,
-      isOpenPopup,
-      isAtBottom,
-      isLoading,
-      sectionRef,
-      randomChatbot,
-      isAdminMode,
-      sendMessageFromResponse,
-      getRandomChatbot,
-      setActiveThread,
-      setIsNewResponse,
-      setIsOpenPopup,
-    }),
-    [
-      isLoadingMessages,
-      activeThread,
-      allMessages,
-      initialMessages,
-      isNewResponse,
-      isOpenPopup,
-      isAtBottom,
-      isLoading,
-      sectionRef,
-      randomChatbot,
-      isAdminMode,
-      sendMessageFromResponse,
-    ],
+  return (
+    <ThreadContext.Provider
+      value={{
+        isLoadingMessages,
+        activeThread,
+        allMessages,
+        initialMessages,
+        isNewResponse,
+        isOpenPopup,
+        isAtBottom,
+        isLoading,
+        sectionRef,
+        randomChatbot,
+        isAdminMode,
+        sendMessageFromResponse,
+        getRandomChatbot,
+        setActiveThread,
+        setIsNewResponse,
+        setIsOpenPopup,
+      }}
+    >
+      {children}
+    </ThreadContext.Provider>
   )
-
-  return <ThreadContext.Provider value={value}>{children}</ThreadContext.Provider>
 }

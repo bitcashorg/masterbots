@@ -15,14 +15,16 @@ export function ChatLayoutSection({ children }: { children: React.ReactNode }) {
     <section
       ref={sectionRef as React.Ref<HTMLDivElement>}
       className={cn(
-        'flex h-[calc(100vh-4rem)] group w-full overflow-auto pl-0 animate-in duration-300 ease-in-out relative lg:w-[calc(100%-250px)] xl:w-[calc(100%-300px)] px-4 md:px-10 lg:ml-[250px] xl:ml-[300px]'
+        'flex h-[calc(100vh-4rem)] group w-full overflow-auto animate-in duration-300 ease-in-out relative',
+        'lg:w-[calc(100%-250px)] xl:w-[calc(100%-300px)] lg:ml-[250px] xl:ml-[300px]',
+        'scrollbar'
       )}
     >
-      <div className="flex flex-col w-full max-w-screen-lg gap-10 pt-5 mx-auto">
-        {children}  {/* Renders children within the centered layout */}
+      <div className="flex flex-col w-full max-w-screen-lg gap-10 px-4 pt-5 mx-auto max-h-screen-lg md:px-10">
+        {children}
       </div>
 
-      {isOpenPopup ? <ThreadPopup /> : ''}
+      <ThreadPopup className={isOpenPopup ? '' : 'hidden'} />
     </section>
   )
 }

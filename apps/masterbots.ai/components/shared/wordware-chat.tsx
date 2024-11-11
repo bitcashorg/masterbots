@@ -78,7 +78,9 @@ export function WordwareChat() {
     try {
       const { fullResponse, parsed, error } = await runWordWarePrompt({
         promptId,
-        inputs
+        inputs,
+        // TODO: dynamic app version
+        appVersion: 'latest'
       })
 
       console.log('Full responses from runWordWarePrompt:', {
