@@ -6,13 +6,13 @@ import { useEffect, useState } from "react"
 import { User } from "mb-genql"
 
 export function Hero() {
-  const { username } = useParams()
+  const { slug } = useParams()
   const { getuserInfo } = useProfile()
   const [user, setUser] = useState<User | null>(null)
 
   // get user info
    async function UserInfoInit(){
-    const {user, error} =  await  getuserInfo(username as string)
+    const {user, error} =  await  getuserInfo(slug as string)
     if (error) {
       console.log(error)
     }
@@ -22,10 +22,10 @@ export function Hero() {
 
 
   useEffect(() => {
-    if (username) {
+    if (slug) {
        UserInfoInit()
     }
-  },[username])
+  },[slug])
 
 
   if (!user) return null

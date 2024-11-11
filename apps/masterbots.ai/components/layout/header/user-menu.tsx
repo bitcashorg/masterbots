@@ -51,7 +51,7 @@ export function UserMenu({ user }: UserMenuProps) {
             <div className="text-xs text-zinc-500">{user?.email}</div>
           </DropdownMenuItem>
           <DropdownMenuItem className="flex-col items-start">
-            <Link  href={`/p/${toSlugWithUnderScore(user?.name || '')}`}
+            <Link  href={`/u/${toSlugWithUnderScore(user?.name || '')}`}
               className="text-xs"
             >
               Profile

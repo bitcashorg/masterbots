@@ -10,6 +10,7 @@ import {
   type Message,
   type Thread,
   type User,
+  type query_root,
   createMbClient,
   everything
 } from 'mb-genql'
@@ -804,8 +805,8 @@ export async function getUserByUsername({ username }: { username: string}) {
         //     username: true
         //   }
         // }
-      }
-    })
+      } 
+    } as const)
 
     // If no user found, try alternative matching (optional)
     if (!user || user.length === 0) {

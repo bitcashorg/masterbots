@@ -18,9 +18,10 @@ export default async function BotThreadsPage({
     slug: params.slug,
     limit: PAGE_SIZE
   })
+  console.log({ threads})
   return (
     <div className="w-full py-5">
-      <BrowseUserDetails user={threads?.[0].user} />
+      <BrowseUserDetails user={threads?.[0]?.user} />
       <BrowseSpecificThreadList
         initialThreads={threads}
         PAGE_SIZE={PAGE_SIZE}
