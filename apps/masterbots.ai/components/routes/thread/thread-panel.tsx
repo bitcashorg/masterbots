@@ -20,11 +20,11 @@ import type { Thread } from 'mb-genql'
 
 export default function ThreadPanel({
   chatbot,
-  threads
+  threads,
 }: {
   chatbot?: string
   threads?: Thread[]
   search?: { [key: string]: string | string[] | undefined }
 }) {
-  return <UserThreadPanel chatbot={chatbot} threads={threads} />
+  return <UserThreadPanel chatbot={chatbot} threads={threads} showSearch={true} />
 }

@@ -9,17 +9,19 @@ export function Hero() {
   const { slug } = useParams()
   const { getuserInfo } = useProfile()
   const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(false)
 
   // get user info
    async function UserInfoInit(){
+    setLoading(true)
     const {user, error} =  await  getuserInfo(slug as string)
     if (error) {
       console.log(error)
     }
     setUser(user)
+    setLoading(false)
     
   }
-
 
   useEffect(() => {
     if (slug) {
@@ -28,13 +30,19 @@ export function Hero() {
   },[slug])
 
 
-  if (!user) return null
-
+  //  if (!loading && !user) return null;
     return (
       <div className="relative bg-left-bottom py-10 bg-[url('/hero-bg.png')] bg-no-repeat ">
       <div className="absolute inset-0 bg-gradient-to-l from-mirage via-[#2B5D91]/80 to-[#388DE2]/80"></div>
       <div className="relative z-[2] ">
-       <UserCard user={user} />
+        {
+          loading && <div>Loading...</div>
+        }
+        {
+          !loading && user && (
+            <UserCard user={user} /> 
+          )
+        }
       </div>
     </div>
     )

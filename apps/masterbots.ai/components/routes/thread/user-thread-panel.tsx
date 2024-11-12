@@ -41,10 +41,12 @@ const PAGE_SIZE = 20
 
 export default function UserThreadPanel({
   chatbot,
-  threads: initialThreads
+  threads: initialThreads,
+  showSearch
 }: {
   chatbot?: string
   threads?: Thread[]
+  showSearch?: boolean
   search?: { [key: string]: string | string[] | undefined }
 }) {
   const params = useParams<{ chatbot: string; threadId: string }>()
@@ -133,9 +135,11 @@ export default function UserThreadPanel({
     <>
       {threads && threads.length > 0 ? (
         <>
+        { showSearch && (
           <div className="flex justify-between px-4 md:px-10 py-5 lg:max-w-[calc(100%-100px)] 2xl:max-w-full">
             <ChatSearchInput setThreads={setThreads} />
           </div>
+        )}
 
           <div className="flex px-4 py-5 md:px-10">
             <ThreadList

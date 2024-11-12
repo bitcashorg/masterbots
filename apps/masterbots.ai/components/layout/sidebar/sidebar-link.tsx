@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { Checkbox } from "@/components/ui/checkbox"
 import { IconCaretRight } from '@/components/ui/icons'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
@@ -15,12 +15,14 @@ import React, { useCallback, useState } from 'react'
 interface SidebarLinkProps {
   category: Category
   isFilterMode: boolean
+  page?: string
 }
 
-export default function SidebarLink({ category, isFilterMode }: SidebarLinkProps) {
+export default function SidebarLink({ category, isFilterMode, page }: SidebarLinkProps) {
   const router = useRouter()
   const pathname = usePathname()
   const isBrowse = !pathname.includes('/c')
+  const { slug } = useParams()
   
   const {
     activeCategory,
@@ -48,7 +50,7 @@ export default function SidebarLink({ category, isFilterMode }: SidebarLinkProps
         const newCategory = prev === category.categoryId ? null : category.categoryId
         if (newCategory && isBrowse) {
           setActiveChatbot(null)
-          router.push(`/c/${toSlug(category.name)}`)
+          router.push( page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}` :`/c/${toSlug(category.name)}`)
         }
         return newCategory
       })
@@ -101,6 +103,7 @@ export default function SidebarLink({ category, isFilterMode }: SidebarLinkProps
           isActive={chatbotCategory.chatbot.chatbotId === activeChatbot?.chatbotId}
           setActiveChatbot={setActiveChatbot}
           isFilterMode={isFilterMode}
+          page={page}
         />
       ))}
     </div>
@@ -126,7 +129,7 @@ export default function SidebarLink({ category, isFilterMode }: SidebarLinkProps
   return (
     <div className={cn('flex flex-col mb-2')}>
       <Link
-        href={`/c/${toSlug(category.name)}`}
+        href={page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}` :`/c/${toSlug(category.name)}`}
         className={cn(
           'flex items-center p-2 cursor-pointer',
           isActive && 'bg-gray-200 dark:bg-mirage'
@@ -146,6 +149,7 @@ interface ChatbotComponentProps {
   isActive: boolean
   setActiveChatbot: React.Dispatch<React.SetStateAction<Chatbot | null>>
   isFilterMode: boolean
+  page?: string
 }
 
 const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function ChatbotComponent({
@@ -153,7 +157,8 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
   category,
   isActive,
   setActiveChatbot,
-  isFilterMode
+  isFilterMode,
+  page
 }) {
   const { selectedChatbots, toggleChatbotSelection } = useSidebar()
   const pathname = usePathname()
@@ -199,7 +204,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
     </div>
   ) : (
     <Link
-      href={`/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`}
+      href={ page === 'profile' ? `/b/${chatbot.name.toLowerCase()}`: `/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`}
       className={cn(
         'flex items-center p-2 w-full',
         isActive && 'bg-blue-100 dark:bg-blue-900',

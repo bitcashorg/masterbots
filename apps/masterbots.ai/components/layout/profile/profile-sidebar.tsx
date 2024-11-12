@@ -7,10 +7,12 @@ import { cn } from '@/lib/utils'
 import { IconCaretRight } from '@/components/ui/icons';
 import { MessagesSquare, Settings, ReceiptIcon } from 'lucide-react';
 import { SidebarCategoryGeneral } from '../sidebar/sidebar-category-general';
+import { useParams } from 'next/navigation';
 
 export const ProfileSidebar = ({ children }: any) => {
   const [isThreadsOpen, setIsThreadsOpen] = useState(false);
   const location = useLocation();
+  const { slug } = useParams()
 
   return (
     <div className="flex h-screen w-full">
@@ -40,14 +42,14 @@ export const ProfileSidebar = ({ children }: any) => {
               </button>
               {isThreadsOpen && (
                 <div className="max-h-[300px]  border dark:border-b-mirate  border-b-gray-200 overflow-y-auto scrollbar">
-                  <SidebarCategoryGeneral />
+                  <SidebarCategoryGeneral page="profile" />
                 </div>
               )}
             </div>
 
             {/* Preferences Link */}
             <Link
-              href="/preferences"
+              href={`/u/${slug}/s/pref`}
               className={cn(
                 "flex items-center space-x-2 px-4 py-3 hover:bg-gray-200 dark:hover:bg-mirage",
                 location.pathname === '/preferences' ? 'bg-gray-200 dark:bg-mirage' : ''
@@ -59,7 +61,7 @@ export const ProfileSidebar = ({ children }: any) => {
 
             {/* Subscriptions Link */}
             <Link
-              href="/subscriptions"
+                href={`/u/${slug}/s/sub`}
               className={cn(
                 "flex items-center space-x-2 px-4 py-3 hover:bg-gray-200 dark:hover:bg-mirage",
                 location.pathname === '/subscriptions' ? 'bg-gray-200 dark:bg-mirage' : ''

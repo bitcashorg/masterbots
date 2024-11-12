@@ -100,7 +100,7 @@ export function UserCard({ user }: UserCardProps) {
             <p className="text-sm  ">bio:</p>
             {isOwner && (
              <Button disabled={isLoading && generateType === 'bio'} variant="ghost" onClick={() => generateBio('bio')} className="text-sm text-gray-500 border p-2 border-black dark:border-gray-400 hover:text-black dark:hover:text-gray-400">
-               generate
+               { bio ? 'Re-generate' : 'generate'}   
                {isLoading && generateType === 'bio' ? <Loader className="w-4 h-4 ml-1" /> : <Wand2 className="w-4 h-4 ml-1" />}
              </Button>
             )}

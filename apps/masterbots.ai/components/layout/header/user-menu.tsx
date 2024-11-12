@@ -30,7 +30,7 @@ function truncateUsername(username: string | null | undefined, maxLength = 10) {
 
 export function UserMenu({ user }: UserMenuProps) {
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between hidden md:block">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="pl-0 rounded-full">
@@ -54,16 +54,14 @@ export function UserMenu({ user }: UserMenuProps) {
         </DropdownMenuTrigger>
         <DropdownMenuContent sideOffset={8} align="start" className="w-[180px]">
           <DropdownMenuItem className="flex-col items-start">
-            <div className="text-xs font-medium">{user?.name}</div>
-            <div className="text-xs text-zinc-500">{user?.email}</div>
-          </DropdownMenuItem>
-          <DropdownMenuItem className="flex-col items-start">
-            <Link  href={`/u/${toSlugWithUnderScore(user?.name || '')}`}
+          <Link  href={`/u/${toSlugWithUnderScore(user?.name || '')}`}
               className="text-xs"
             >
-              Profile
+            <div className="text-xs font-medium">{user?.name}</div>
+            <div className="text-xs text-zinc-500">{user?.email}</div>
             </Link>
           </DropdownMenuItem>
+    
           <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={() =>
