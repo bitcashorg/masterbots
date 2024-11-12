@@ -5,6 +5,7 @@ import { UserMenu } from '@/components/layout/header/user-menu'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { isTokenExpired } from 'mb-lib'
+import { ProfileSidebar } from '@/components/layout/sidebar/profile-sidebar'
 
 export function UserLogin() {
   const { data: session, status } = useSession()
@@ -25,7 +26,7 @@ export function UserLogin() {
       return <LoginButton />
     }
 
-    return <UserMenu user={session.user} />
+    return <ProfileSidebar user={session.user} />
   }
 
   return <LoginButton />
