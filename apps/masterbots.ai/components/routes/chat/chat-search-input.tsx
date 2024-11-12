@@ -26,7 +26,9 @@ export function ChatSearchInput({
 }: ChatSearchInputProps) {
   const { chatbot } = useParams()
   const { activeCategory } = useSidebar()
-  const [searchPlaceholder, setSearchPlaceholder] = React.useState<string | null>(null)
+  const [searchPlaceholder, setSearchPlaceholder] = React.useState<
+    string | null
+  >(null)
   const [keyword, changeKeyword] = React.useState<string>('')
   const previousThread = React.useRef<Thread[]>([])
   const previousCategory = React.useRef<number | null>(null)
@@ -43,11 +45,11 @@ export function ChatSearchInput({
   const searchInThread = (thread: Thread, searchTerm: string): boolean => {
     // If no search term, return true to show all threads
     if (!searchTerm) return true
-    
+
     const lowercaseSearch = searchTerm.toLowerCase()
-    
+
     // Check all messages in the thread for the search term
-    return thread.messages.some(message => 
+    return thread.messages.some(message =>
       message?.content?.toLowerCase().includes(lowercaseSearch)
     )
   }
@@ -76,9 +78,10 @@ export function ChatSearchInput({
         if (!keyword) {
           return previousThreadState
         }
-        return previousThreadState.filter(thread => searchInThread(thread, keyword))
-
-    })
+        return previousThreadState.filter(thread =>
+          searchInThread(thread, keyword)
+        )
+      })
     }, 230)
 
     debouncedSearch()
@@ -98,10 +101,12 @@ export function ChatSearchInput({
             'rounded-full',
             'dark:bg-[#18181B]/90',
             'border dark:border-[#83E56A]/10 border-[#BE17E8]/10',
+            'focus-within:border-[#BE17E8] dark:focus-within:border-[#83E56A]',
+            'focus-within:ring-1 focus-within:ring-[#BE17E8] dark:focus-within:ring-[#83E56A]',
             'transition-all duration-200'
           )}
         >
-          <Search className="absolute w-5 h-5 left-4 text-zinc-400" />
+          <Search className="absolute w-5 h-5 left-4 text-zinc-400 group-focus-within:text-[#BE17E8] dark:group-focus-within:text-[#83E56A]" />
           <Input
             value={keyword}
             onChange={e => handleKeywordChange(e.target.value)}

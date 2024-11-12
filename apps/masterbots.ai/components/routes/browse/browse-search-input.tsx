@@ -44,10 +44,12 @@ export function BrowseSearchInput() {
             'rounded-full',
             'dark:bg-[#18181B]/90',
             'border dark:border-[#83E56A]/10 border-[#BE17E8]/10',
+            'focus-within:border-[#BE17E8] dark:focus-within:border-[#83E56A]',
+            'focus-within:ring-1 focus-within:ring-[#BE17E8] dark:focus-within:ring-[#83E56A]',
             'transition-all duration-200'
           )}
         >
-          <Search className="absolute w-5 h-5 left-4 text-zinc-400" />
+          <Search className="absolute w-5 h-5 left-4 text-zinc-400 group-focus-within:text-[#BE17E8] dark:group-focus-within:text-[#83E56A]" />
           <Input
             value={searchTerm}
             onChange={e => handleSearch(e.target.value)}
