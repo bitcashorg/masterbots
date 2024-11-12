@@ -10,6 +10,7 @@ import type { ThemeProviderProps } from 'next-themes/dist/types'
 import { ModelProvider } from '@/lib/hooks/use-model'
 import { ThreadVisibilityProvider } from '@/lib/hooks/use-thread-visibility'
 import { ThreadSearchProvider } from '@/lib/hooks/use-thread-search'
+import { PowerUpProvider } from '@/lib/hooks/use-power-up'
 
 export function Providers({ children, ...props }: ThemeProviderProps) {
   return (
@@ -20,9 +21,13 @@ export function Providers({ children, ...props }: ThemeProviderProps) {
             <TooltipProvider>
               <SessionProvider>
                 <ThreadSearchProvider>
-                <ThreadProvider> 
-                  <ThreadVisibilityProvider> {children}</ThreadVisibilityProvider>
-                </ThreadProvider>
+                  <PowerUpProvider>
+                    <ThreadProvider>
+                      <ThreadVisibilityProvider>
+                        {children}
+                      </ThreadVisibilityProvider>
+                    </ThreadProvider>
+                  </PowerUpProvider>
                 </ThreadSearchProvider>
               </SessionProvider>
             </TooltipProvider>

@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/popover'
 import { useModel } from '@/lib/hooks/use-model'
 import { AIModels } from '@/app/api/chat/models/models'
+import { usePowerUp } from '@/lib/hooks/use-power-up'
 
 //* Model options available in the combobox, each with label, value, and logo icon.
 const models = [
@@ -43,6 +44,7 @@ export function ChatCombobox() {
   const { selectedModel, changeModel } = useModel()
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState(selectedModel as string)
+  const { isPowerUp } = usePowerUp()
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -52,7 +54,7 @@ export function ChatCombobox() {
           role="combobox"
           aria-expanded={open}
           className={cn(
-            buttonVariants({ size: 'sm', variant: 'outline' }),
+            buttonVariants({ size: 'sm', variant: isPowerUp ? 'powerUp' : 'outline' }),
             'absolute left-0 top-4 size-8 rounded-full p-0 sm:left-4'
           )}
         >
