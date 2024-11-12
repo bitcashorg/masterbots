@@ -1,3 +1,6 @@
+import { cn } from '@/lib/utils'
+import { ExternalLink as ExternalLinkIcon } from 'lucide-react'
+
 export function ExternalLink({
   href,
   children
@@ -9,21 +12,16 @@ export function ExternalLink({
     <a
       href={href}
       target="_blank"
-      className="inline-flex flex-1 justify-center gap-1 leading-4 hover:underline"
+      className={cn(
+        'inline-flex flex-1 items-center justify-center gap-2',
+        'border border-[#F4F4F580] rounded-3xl',
+        'bg-[#18181B] text-white text-xl py-3.5 px-9 leading-[1.3]',
+        'dark:bg-white dark:text-black',
+        'hover:underline'
+      )}
     >
       <span>{children}</span>
-      <svg
-        aria-hidden="true"
-        height="7"
-        viewBox="0 0 6 6"
-        width="7"
-        className="opacity-70"
-      >
-        <path
-          d="M1.25215 5.54731L0.622742 4.9179L3.78169 1.75597H1.3834L1.38936 0.890915H5.27615V4.78069H4.40513L4.41109 2.38538L1.25215 5.54731Z"
-          fill="currentColor"
-        ></path>
-      </svg>
+      <ExternalLinkIcon size={20} className="-mt-[1px]" />
     </a>
   )
 }

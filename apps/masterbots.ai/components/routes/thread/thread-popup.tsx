@@ -34,8 +34,10 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { cn, scrollToBottomOfElement } from '@/lib/utils'
 import { useScroll } from 'framer-motion'
 import type { Chatbot } from 'mb-genql'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { ThreadPublicitySwitch } from './thread-publicity-switch'
+import { AlertDialogue } from '@/components/shared/alert-dialogue'
 
 export function ThreadPopup({ className }: { className?: string }) {
   const { activeChatbot } = useSidebar()
@@ -47,15 +49,47 @@ export function ThreadPopup({ className }: { className?: string }) {
     setIsOpenPopup,
     sendMessageFromResponse,
     isLoading,
-    setActiveThread
+    setActiveThread,
+    isActiveThreadContinuous,
+    setIsActiveThreadContinuous
   } = useThread()
+  const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false)
+  const [isDeleting, setIsDeleting] = useState<boolean>(false)
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
 
-  const onClose = () => {
+  function closeModal () {
     setIsOpenPopup(!isOpenPopup)
     if (activeThread?.threadId) {
       setActiveThread(null)
     }
   }
+
+  function handleDelete (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) {
+    e.preventDefault()
+    const url = `${pathname}?${searchParams}`
+    const urlObj = new URL(url, window.location.href); // Base URL is needed for relative URLs
+    urlObj.searchParams.delete("continuousThreadId");
+    const newUrl = urlObj.pathname + urlObj.search;
+    setIsDeleting(true)
+    router.replace(newUrl)
+    setIsDeleting(false)
+    setIsDeleteOpen(false)
+    setIsActiveThreadContinuous(false)
+    closeModal()
+  }
+
+  function onClose () {
+    if (isActiveThreadContinuous) {
+      setIsDeleteOpen(true)
+    } else {
+      closeModal();
+    }
+  }
+
   const popupContentRef = useRef<HTMLDivElement>()
 
   const { scrollY } = useScroll({
@@ -74,6 +108,10 @@ export function ThreadPopup({ className }: { className?: string }) {
     }
   }
 
+  const AlertDialogueLossProgress = () => (
+    <AlertDialogue title="Are you sure you want to continue?" description="Proceeding will permanently erase your progress and disconnect the original thread you are trying to extend." deleteDialogOpen={isDeleteOpen} isDeleting={isDeleting} setIsDeleteOpen={setIsDeleteOpen} handleDelete={handleDelete} />
+  )
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (isLoading && isOpenPopup) {
@@ -85,88 +123,105 @@ export function ThreadPopup({ className }: { className?: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading, isOpenPopup])
 
+  useEffect(() => {
+    if (!isActiveThreadContinuous) return
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    };
+  }, [isActiveThreadContinuous])
+
   const threadTitle = allMessages.filter(m => m.role === 'user')[0]?.content
   const threadTitleChunks = threadTitle?.split(/\s/g) // ' '
   const threadTitleHeading = threadTitleChunks?.slice(0, 32).join(' ')
   const threadTitleSubHeading = threadTitleChunks?.slice(32).join(' ')
 
   return (
-    <div
-      className={cn(
-        'size-full bg-background/80 dark:bg-background/80',
-        'lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)]',
-        'flex justify-center items-center fixed top-16',
-        'h-[calc(100vh-4rem)] backdrop-blur-sm ease-in-out duration-500 z-[9]',
-        'transition-all',
-        isOpenPopup ? 'animate-fade-in' : 'animate-fade-out',
-        className
-      )}
-    >
-     <div
+    <>
+      <AlertDialogueLossProgress />
+      <div
         className={cn(
-          'flex flex-col z-10 rounded-lg duration-500 ease-in-out fixed',
-          'h-full max-h-[90%] max-w-[1032px] w-[95%]',
-          'dark:border-mirage border-iron border bg-background dark:bg-background',
-          'transition-opacity'
-        )}
-      >
-        <div className="relative rounded-t-[8px] px-[32px] py-[20px] dark:bg-[#1E293B] bg-[#E4E4E7]">
-          <div className="flex items-center justify-between gap-6">
-            <div className="items-center block overflow-y-auto whitespace-pre-line max-h-28 scrollbar small-thumb">
-              {threadTitle ?
-                threadTitleChunks.length > 32
-                  ? threadTitleHeading + ''
-                  : threadTitle
-                : (
-                  <Skeleton className="w-[280px] h-[20px]" />
-                )}
-              {threadTitleSubHeading && (
-                <span className="ml-2 overflow-hidden text-sm opacity-50">
-                  {threadTitleSubHeading}
-                </span>
-              )}
-            </div>
-
-            <div className="flex items-center gap-4">
-              <ThreadPublicitySwitch threadId={activeThread?.threadId} />
-              <Button type="button" variant="ghost" size="icon" className="ml-2" onClick={onClose}>
-                <IconClose />
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        <div
-        className={cn(
-          "flex flex-col dark:bg-[#18181B] bg-white grow rounded-b-[8px] scrollbar h-full",
-          "pb-[120px] md:pb-[180px]", //? Reduced padding on mobile
-          "max-h-[calc(100vh-240px)] md:max-h-[calc(100vh-220px)]", //? Adjusted height for mobile
+          'size-full bg-background/80 dark:bg-background/80',
+          'lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)]',
+          'flex justify-center items-center fixed top-16',
+          'h-[calc(100vh-4rem)] backdrop-blur-sm ease-in-out duration-500 z-[9]',
+          'transition-all',
+          isOpenPopup ? 'animate-fade-in' : 'animate-fade-out',
           className
         )}
-        ref={popupContentRef as React.Ref<HTMLDivElement>}
       >
-          <ChatList
-            className="max-w-full !px-[32px] !mx-0"
-            isThread={false}
-            chatbot={activeThread?.chatbot || activeChatbot as Chatbot}
-            messages={allMessages}
-            sendMessageFn={sendMessageFromResponse}
-            chatContentClass="dark:!border-x-mirage !border-x-gray-300 !py-[20px] !px-[16px] !mx-0 max-h-[none] "
-            chatTitleClass="!px-[11px]"
-            chatArrowClass="!right-0 !mr-0"
-          />
+      <div
+          className={cn(
+            'flex flex-col z-10 rounded-lg duration-500 ease-in-out fixed',
+            'h-full max-h-[90%] max-w-[1032px] w-[95%]',
+            'dark:border-mirage border-iron border bg-background dark:bg-background',
+            'transition-opacity'
+          )}
+        >
+          <div className="relative rounded-t-[8px] px-[32px] py-[20px] dark:bg-[#1E293B] bg-[#E4E4E7]">
+            <div className="flex items-center justify-between gap-6">
+              <div className="items-center block overflow-y-auto whitespace-pre-line max-h-28 scrollbar small-thumb">
+                {threadTitle ?
+                  threadTitleChunks.length > 32
+                    ? threadTitleHeading + ''
+                    : threadTitle
+                  : (
+                    <Skeleton className="w-[280px] h-[20px]" />
+                  )}
+                {threadTitleSubHeading && (
+                  <span className="ml-2 overflow-hidden text-sm opacity-50">
+                    {threadTitleSubHeading}
+                  </span>
+                )}
+              </div>
 
-          <Chat
-            isPopup
-            initialMessages={initialMessages}
-            chatbot={activeThread?.chatbot || activeChatbot as Chatbot}
-            threadId={activeThread?.threadId}
-            chatPanelClassName="!pl-0 rounded-b-[8px] overflow-hidden !absolute"
-            scrollToBottom={scrollToBottom}
-            isAtBottom={isAtBottom}
-          />
+              <div className="flex items-center gap-4">
+                <ThreadPublicitySwitch threadId={activeThread?.threadId} />
+                <Button type="button" variant="ghost" size="icon" className="ml-2" onClick={onClose}>
+                  <IconClose />
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div
+          className={cn(
+            "flex flex-col dark:bg-[#18181B] bg-white grow rounded-b-[8px] scrollbar h-full",
+            "pb-[120px] md:pb-[180px]", //? Reduced padding on mobile
+            "max-h-[calc(100vh-240px)] md:max-h-[calc(100vh-220px)]", //? Adjusted height for mobile
+            className
+          )}
+          ref={popupContentRef as React.Ref<HTMLDivElement>}
+        >
+            <ChatList
+              className="max-w-full !px-[32px] !mx-0"
+              isThread={false}
+              chatbot={activeThread?.chatbot || activeChatbot as Chatbot}
+              messages={allMessages}
+              sendMessageFn={sendMessageFromResponse}
+              chatContentClass="dark:!border-x-mirage !border-x-gray-300 !py-[20px] !px-[16px] !mx-0 max-h-[none] "
+              chatTitleClass="!px-[11px]"
+              chatArrowClass="!right-0 !mr-0"
+            />
+
+            <Chat
+              isPopup
+              initialMessages={initialMessages}
+              chatbot={activeThread?.chatbot || activeChatbot as Chatbot}
+              threadId={activeThread?.threadId}
+              chatPanelClassName="!pl-0 rounded-b-[8px] overflow-hidden !absolute"
+              scrollToBottom={scrollToBottom}
+              isAtBottom={isAtBottom}
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }

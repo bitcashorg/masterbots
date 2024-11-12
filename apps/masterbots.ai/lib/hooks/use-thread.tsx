@@ -33,11 +33,13 @@ interface ThreadContext {
   isLoading: boolean
   randomChatbot: Chatbot | null
   isAdminMode: boolean
+  isActiveThreadContinuous: boolean
   setIsOpenPopup: React.Dispatch<React.SetStateAction<boolean>>
   setActiveThread: React.Dispatch<React.SetStateAction<Thread | null>>
   sendMessageFromResponse: (bulletContent: string) => void
   setIsNewResponse: React.Dispatch<React.SetStateAction<boolean>>
   getRandomChatbot: () => void
+  setIsActiveThreadContinuous: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const ThreadContext = React.createContext<ThreadContext | undefined>(undefined)
@@ -66,6 +68,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       isOpenPopup,
       randomChatbot,
       isLoadingMessages,
+      isActiveThreadContinuous,
     },
     setState,
   ] = useSetState({
@@ -76,6 +79,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     isOpenPopup: false,
     randomChatbot: null as Chatbot | null,
     isLoadingMessages: false,
+    isActiveThreadContinuous: false,
   })
   const sectionRef = React.useRef<HTMLElement>()
   const { data: session } = useSession()
@@ -268,6 +272,11 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       isOpenPopup: typeof isOpen === 'function' ? isOpen(prev.isOpenPopup) : isOpen,
     }))
 
+  const setIsActiveThreadContinuous: React.Dispatch<React.SetStateAction<boolean>> = (isContinuous) =>
+    setState((prev) => ({
+      isActiveThreadContinuous: typeof isContinuous === 'function' ? isContinuous(prev.isActiveThreadContinuous) : isContinuous,
+    }))
+
   return (
     <ThreadContext.Provider
       value={{
@@ -282,11 +291,13 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
         sectionRef,
         randomChatbot,
         isAdminMode,
+        isActiveThreadContinuous,
         sendMessageFromResponse,
         getRandomChatbot,
         setActiveThread,
         setIsNewResponse,
         setIsOpenPopup,
+        setIsActiveThreadContinuous,
       }}
     >
       {children}

@@ -1,13 +1,3 @@
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle
-} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -16,7 +6,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { IconSpinner } from '@/components/ui/icons'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { BadgeCheck, Eye, EyeOff, MoreVertical, Trash } from 'lucide-react'
 import type { Thread } from 'mb-genql'
@@ -25,6 +14,7 @@ import type React from 'react'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { ShareButton } from './share-button'
+import { AlertDialogue } from '@/components/shared/alert-dialogue'
 
 interface ChatOptionsProps {
   threadId: string
@@ -40,8 +30,8 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
   const text =
     thread?.messages[1]?.content.substring(0, 100) ?? 'No description found...'
   const url = `/${toSlug(thread.chatbot.categories[0].category.name)}/${thread.threadId}`
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
+  const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false)
+  const [isDeleting, setIsDeleting] = useState<boolean>(false)
 
   const handleDelete = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -58,45 +48,9 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
     setIsDeleteOpen(false)
   }
 
-  const AlertDialogue = ({
-    deleteDialogOpen
-  }: {
-    deleteDialogOpen: boolean
-  }) => (
-    <AlertDialog open={deleteDialogOpen}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This will permanently delete your thread and remove your data from
-            our servers.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel
-            onClick={e => {
-              e.stopPropagation()
-              setIsDeleteOpen(false)
-            }}
-          >
-            Cancel
-          </AlertDialogCancel>
-          <AlertDialogAction
-            onClick={e => {
-              e.stopPropagation()
-              handleDelete(e)
-            }}
-          >
-            {isDeleting && <IconSpinner className="w-4 h-4 animate-spin" />}
-            Delete
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  )
   return (
     <div className="flex items-center gap-1 sm:gap-3 pt-[3px]">
-      <AlertDialogue deleteDialogOpen={isDeleteOpen} />
+      <AlertDialogue title="Are you absolutely sure?" description="This will permanently delete your thread and remove your data from our servers." deleteDialogOpen={isDeleteOpen} isDeleting={isDeleting} setIsDeleteOpen={setIsDeleteOpen} handleDelete={handleDelete} />
       {!isBrowse && (
         <div className="flex items-center gap-1 sm:gap-3">
           <div>

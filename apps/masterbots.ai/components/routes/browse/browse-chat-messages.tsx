@@ -19,6 +19,8 @@ import React from 'react'
 import BrowseChatbotDetails from '@/components/routes/browse/browse-chatbot-details'
 import { BrowseChatMessageList } from '@/components/routes/browse/browse-chat-message-list'
 import { getMessages } from '@/services/hasura'
+import { ExternalLink } from '@/components/shared/external-link'
+import { toSlug } from 'mb-lib'
 
 export type MessagePair = {
   userMessage: Message
@@ -44,6 +46,8 @@ export function BrowseChatMessages({
   chatbot?: Chatbot
 }) {
   const [messages, setMessages] = React.useState<Message[]>([])
+  const { name: categoryName } = chatbot?.categories[0].category || { name: '' }
+  const { name: chatBotName } = chatbot || { name: '' }
 
   // Fetch messages for the specified thread ID
   const fetchMessages = async () => {
@@ -68,6 +72,10 @@ export function BrowseChatMessages({
           messages={messages}
           isThread
         />
+
+        <div className="border-t border-t-iron dark:border-t-mirage pt-6 text-center mt-44 lg:mt-96">
+          <ExternalLink href={`/c/${toSlug(categoryName)}/${toSlug(chatBotName)}?continuousThreadId=${threadId}`}>Continue Thread</ExternalLink>
+        </div>
       </div>
     </div>
   )

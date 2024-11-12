@@ -2,7 +2,7 @@
 
 /**
  * Chat Component
- * 
+ *
  * A complex chat interface that handles:
  * - Message management for new and existing chat threads
  * - Integration with AI models for message processing and responses
@@ -14,7 +14,7 @@
  * - Chat thread creation and state management
  * - Message improvement and metadata extraction using AI
  * - Automatic scrolling behavior
- * 
+ *
  * Key Features:
  * - Supports both popup and inline chat modes
  * - Handles message processing states (processing, digesting, generating, etc.)
@@ -22,7 +22,7 @@
  * - Integrates with multiple chatbot models
  * - Provides real-time message streaming
  * - Maintains chat history and system prompts
- * 
+ *
  * State Management:
  * - Uses useChat for message handling
  * - Manages loading states for UI feedback
@@ -58,7 +58,7 @@ import { useScroll } from "framer-motion";
 import { uniqBy } from "lodash";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 
 export function Chat({
@@ -83,6 +83,7 @@ export function Chat({
     isOpenPopup,
     sectionRef,
     isAtBottom: isAtBottomOfSection,
+    isActiveThreadContinuous,
   } = useThread();
   const { activeChatbot } = useSidebar();
   const containerRef = React.useRef<HTMLDivElement>();
@@ -91,7 +92,10 @@ export function Chat({
   const isNewChat = Boolean(!params.threadId && !activeThread);
   const { selectedModel, clientType } = useModel();
   const [loadingState, setLoadingState] = React.useState<ChatLoadingState>();
-
+  // TODO: this functionality should be moved to a different library.
+  const newThreadId = crypto.randomUUID()
+  // let currentThreadId = params.threadId || isNewChat ? threadId : activeThread?.threadId;;
+  // currentThreadId = isActiveThreadContinuous ? newThreadId : currentThreadId;
   const { messages, append, reload, stop, isLoading, input, setInput } =
     useChat({
       initialMessages:
@@ -260,6 +264,18 @@ export function Chat({
     setLoadingState("ready");
 
     setIsNewResponse(true);
+    // console.log('userMessage', userMessage);
+    // let appendMessages = isNewChat
+    //   ? { ...userMessage, content: userContent }
+    //   : {
+    //     ...userMessage,
+    //     content: followingQuestionsPrompt(userContent, allMessages),
+    //   }
+    // // TODO: looks for a better way to append messages or maybe a different chat architecture for continuous chat.
+    // appendMessages = isActiveThreadContinuous ? {
+    //   ...userMessage,
+    //   content: followingQuestionsPrompt(userContent, allMessages),
+    // } : appendMessages
 
     return append(
       isNewChat
@@ -271,7 +287,7 @@ export function Chat({
     ).then(async (response) => {
       if (isNewChat && chatbot) {
         await createThread({
-          threadId,
+          threadId: currentThreadId,
           chatbotId: chatbot.chatbotId,
           jwt: session.user?.hasuraJwt,
           userId: session.user.id,
@@ -279,7 +295,7 @@ export function Chat({
         });
 
         const thread = await getThread({
-          threadId,
+          threadId: currentThreadId,
           jwt: session.user?.hasuraJwt,
         });
 
