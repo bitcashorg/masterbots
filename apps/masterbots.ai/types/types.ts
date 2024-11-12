@@ -26,7 +26,6 @@ export type AiToolCall = {
 export interface ChatProps extends React.ComponentProps<'div'> {
   initialMessages?: Message[]
   chatbot?: Chatbot
-  threadId: string
   newThread?: boolean
   chatPanelClassName?: string
   isPopup?: boolean

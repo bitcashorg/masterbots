@@ -5,6 +5,7 @@
 import { ChatAccordion } from '@/components/routes/chat/chat-accordion'
 import { ChatMessage } from '@/components/routes/chat/chat-message'
 import { ShortMessage } from '@/components/shared/short-message'
+import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useScroll } from '@/lib/hooks/use-scroll'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn, createMessagePairs } from '@/lib/utils'
@@ -15,7 +16,6 @@ import React, { useEffect, useRef } from 'react'
 
 export interface ChatList {
   messages?: Message[] //* Array of messages to display in the chat
-  sendMessageFn?: (message: string) => void //* Optional function to send messages
   chatbot?: Chatbot //* Chatbot configuration, used to format message display
   isThread?: boolean //* Indicates if messages are displayed in thread format
   className?: string //* Additional class for styling main container
@@ -24,6 +24,8 @@ export interface ChatList {
   chatArrowClass?: string //* Class for styling arrow icon in the chat
   containerRef?: React.RefObject<HTMLDivElement> //* Optional ref for chat container
   isNearBottom?: boolean //* Tracks if user is near the bottom of the chat for auto-scroll
+  isLoadingMessages?: boolean //* Indicates if messages are loading
+  sendMessageFn?: (message: string) => void //* Optional function to send messages
 }
 
 type MessagePair = {
@@ -35,17 +37,17 @@ export function ChatList({
   className,
   messages = [],
   isThread = true,
+  isLoadingMessages = false,
   chatContentClass,
   chatTitleClass,
   chatArrowClass,
   containerRef,
+  sendMessageFn,
   isNearBottom,
 }: ChatList) {
   const [pairs, setPairs] = React.useState<MessagePair[]>([])
   const {
     isNewResponse,
-    isLoadingMessages,
-    allMessages,
   } = useThread()
   const localContainerRef = useRef<HTMLDivElement>(null)
 
@@ -61,13 +63,14 @@ export function ChatList({
     loadMore: () => { }
   })
 
-  const messageList = messages.length > 0 ? messages : allMessages
+  console.log('messages', messages)
+  console.log('messages pairs', pairs)
 
   useEffect(() => {
     // *Prevent unnecessary updates: only set pairs if the new message list is different
-    if (messageList.length) {
+    if (messages.length) {
       const prePairs: MessagePair[] = createMessagePairs(
-        messageList
+        messages
       ) as MessagePair[]
       setPairs(prevPairs => {
         const prevString = JSON.stringify(prevPairs)
@@ -78,9 +81,9 @@ export function ChatList({
         return prevPairs
       })
     }
-  }, [messageList])
+  }, [messages])
 
-  if (messages.length === 0 && allMessages.length === 0) return null
+  if (messages.length === 0) return null
 
   return (
     <div
@@ -97,6 +100,7 @@ export function ChatList({
         chatTitleClass={chatTitleClass}
         chatArrowClass={chatArrowClass}
         chatContentClass={chatContentClass}
+        sendMessageFn={sendMessageFn}
       />
     </div>
   )
@@ -108,14 +112,15 @@ function MessagePairs({
   chatTitleClass,
   chatArrowClass,
   chatContentClass,
+  sendMessageFn,
 }: {
   pairs: MessagePair[]
   chatbot?: Chatbot
-  sendMessageFn?: (message: string) => void
   isThread: boolean
   chatTitleClass?: string
   chatArrowClass?: string
   chatContentClass?: string
+  sendMessageFn?: (message: string) => void
 }) {
   const {
     isNewResponse,
@@ -187,6 +192,7 @@ function MessagePairs({
                 // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
                 key={index}
                 message={message}
+                sendMessageFromResponse={sendMessageFn}
               />
             ))
             : ''}
@@ -199,11 +205,11 @@ function MessagePairs({
 
 export function ChatLoadingState() {
   const {
-    isLoadingMessages,
     activeTool,
   } = useThread()
+  const [{ isLoadingMessages }] = useMBChat()
 
-  if (!isLoadingMessages || !activeTool?.toolName) return null
+  if (!isLoadingMessages && !activeTool?.toolName) return null
 
   switch (activeTool?.toolName) {
     case 'webSearch':

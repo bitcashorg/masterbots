@@ -1,44 +1,31 @@
 'use client'
 
-import { followingQuestionsPrompt, setDefaultUserPreferencesPrompt } from '@/lib/constants/prompts';
 import { useAtBottom } from '@/lib/hooks/use-at-bottom';
-import { useModel } from '@/lib/hooks/use-model';
 import { useSidebar } from '@/lib/hooks/use-sidebar';
 import {
   getChatbots,
-  getChatbotsCount,
-  getMessages,
-  saveNewMessage,
+  getChatbotsCount
 } from '@/services/hasura';
 import { AiToolCall, ChatLoadingState } from '@/types/types';
-import type { Message as AIMessage } from 'ai';
-import { useChat } from 'ai/react';
 import { useScroll } from 'framer-motion';
-import { uniqBy } from 'lodash';
-import type { Chatbot, Message, Thread } from 'mb-genql';
+import type { Chatbot, Thread } from 'mb-genql';
 import { useSession } from 'next-auth/react';
 import { useParams } from 'next/navigation';
 import * as React from 'react';
-import toast from 'react-hot-toast';
 import { useSetState } from 'react-use';
 
 interface ThreadContext {
   isOpenPopup: boolean
-  isLoadingMessages: boolean
   activeThread: Thread | null
-  allMessages: AIMessage[]
-  initialMessages: AIMessage[]
   isNewResponse: boolean
   sectionRef: React.MutableRefObject<HTMLElement | undefined>
   isAtBottom: boolean
-  isLoading: boolean
   randomChatbot: Chatbot | null
   isAdminMode: boolean
   loadingState?: ChatLoadingState
   activeTool?: AiToolCall
   setIsOpenPopup: React.Dispatch<React.SetStateAction<boolean>>
   setActiveThread: React.Dispatch<React.SetStateAction<Thread | null>>
-  sendMessageFromResponse: (bulletContent: string) => void
   setIsNewResponse: React.Dispatch<React.SetStateAction<boolean>>
   getRandomChatbot: () => void
   setActiveTool: (tool?: AiToolCall) => void
@@ -61,16 +48,14 @@ interface ThreadProviderProps {
 
 export function ThreadProvider({ children }: ThreadProviderProps) {
   const params = useParams<{ chatbot: string; threadId: string }>()
-  const { activeCategory } = useSidebar()
+  const { activeCategory, activeChatbot } = useSidebar()
   const [
     {
       isAdminMode,
       activeThread,
-      messagesFromDB,
       isNewResponse,
       isOpenPopup,
       randomChatbot,
-      isLoadingMessages,
       loadingState,
       activeTool,
     },
@@ -78,130 +63,22 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
   ] = useSetState<{
     isAdminMode: boolean
     activeThread: Thread | null
-    messagesFromDB: Message[]
     isNewResponse: boolean
     isOpenPopup: boolean
     randomChatbot: Chatbot | null
-    isLoadingMessages: boolean
     loadingState?: ChatLoadingState
     activeTool?: AiToolCall
   }>({
     isAdminMode: false,
     activeThread: null as Thread | null,
-    messagesFromDB: [] as Message[],
     isNewResponse: false,
     isOpenPopup: false,
     randomChatbot: null as Chatbot | null,
-    isLoadingMessages: false,
     loadingState: undefined,
     activeTool: undefined,
   })
   const sectionRef = React.useRef<HTMLElement>()
   const { data: session } = useSession()
-  const { selectedModel, clientType } = useModel()
-
-  const isNewChat = Boolean(!params.threadId || !activeThread)
-
-  const chatbotSystemPrompts: AIMessage[] =
-    activeThread?.chatbot?.prompts?.map(({ prompt }) => ({
-      id: prompt.promptId.toString(),
-      role: 'system',
-      content: prompt.content,
-      createdAt: new Date(),
-    })) ?? []
-
-  const userPreferencesPrompts: AIMessage[] = activeThread
-    ? [setDefaultUserPreferencesPrompt(activeThread.chatbot)]
-    : []
-
-  // format all user prompts and chatgpt 'assistant' messages
-  const userAndAssistantMessages: AIMessage[] = activeThread
-    ? messagesFromDB.map((m) => ({
-      id: m.messageId,
-      role: m.role as AIMessage['role'],
-      content: m.content,
-      createdAt: m.createdAt,
-    }))
-    : []
-
-  // concatenate all message to pass it to chat component
-  const initialMessages: AIMessage[] = chatbotSystemPrompts
-    .concat(userPreferencesPrompts)
-    .concat(userAndAssistantMessages)
-
-  const { messages, append, reload, stop, isLoading, input, setInput, setMessages } = useChat({
-    // we remove previous assistant responses to get better responses thru
-    // our prompting strategy
-    initialMessages: initialMessages?.filter((m) => m.role === 'system'),
-    id: activeThread?.threadId,
-    body: {
-      id: activeThread?.threadId,
-      model: selectedModel,
-      clientType,
-    },
-    onResponse(response) {
-      if (response.status === 401) {
-        toast.error(response.statusText)
-      }
-    },
-    async onFinish(message: AIMessage) {
-      await saveNewMessage({
-        role: 'assistant',
-        threadId: activeThread?.threadId,
-        content: message.content,
-        jwt: session?.user?.hasuraJwt || '',
-      })
-    },
-  })
-
-  const fetchMessages = async () => {
-    setState({ isLoadingMessages: true })
-    try {
-      const messagesFromDB = await getMessages({
-        threadId: activeThread?.threadId,
-      })
-      setState({ messagesFromDB })
-      setMessages(chatbotSystemPrompts)
-    } catch (error) {
-      console.error('Error fetching messages:', error)
-      toast.error('Failed to load messages. Please try again.')
-    } finally {
-      setState({ isLoadingMessages: false })
-    }
-  }
-
-  const allMessages = uniqBy(
-    initialMessages?.concat(messages),
-    'content'
-  ).filter((m) => m.role !== 'system')
-
-  const sendMessageFromResponse = React.useCallback(
-    async (bulletContent: string) => {
-      const fullMessage = bulletContent
-
-      setState({ isNewResponse: true, isOpenPopup: true })
-      await saveNewMessage({
-        role: 'user',
-        threadId: activeThread?.threadId,
-        content: fullMessage,
-        jwt: session?.user?.hasuraJwt || '',
-      })
-      append({
-        role: 'user',
-        content: followingQuestionsPrompt(fullMessage, allMessages),
-      })
-    },
-    [activeThread?.threadId, allMessages, append, session],
-  )
-
-  React.useEffect(() => {
-    if (activeThread?.chatbot?.prompts?.length || activeThread?.chatbot?.name === 'BlankBot') {
-      fetchMessages()
-    } else {
-      setState({ messagesFromDB: [] })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeThread])
 
   React.useEffect(() => {
     if (
@@ -250,33 +127,8 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
   })
 
   const setActiveThread: React.Dispatch<React.SetStateAction<Thread | null>> = (value) => {
-    const newThread = typeof value === 'function' ? value(activeThread) : value
-
-    if (!newThread) {
-      setMessages([])
-      return setState({
-        activeThread: null,
-      })
-    }
-
-    const newAllMessages = uniqBy(
-      messages?.concat(
-        (newThread?.messages || []).map((m) => ({
-          id: m.messageId,
-          role: m.role as AIMessage['role'],
-          content: m.content,
-          createdAt: m.createdAt || new Date().toISOString(),
-        }))
-      ),
-      'content'
-    ).filter(
-      (m) => m.role !== 'system',
-    )
-
-    setMessages(newAllMessages)
     setState({
-      activeThread: newThread,
-      messagesFromDB: newThread.messages,
+      activeThread: typeof value === 'function' ? value(activeThread) : value,
     })
   }
 
@@ -301,20 +153,15 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
   return (
     <ThreadContext.Provider
       value={{
-        isLoadingMessages,
         activeThread,
-        allMessages,
-        initialMessages,
         isNewResponse,
         isOpenPopup,
         isAtBottom,
-        isLoading,
         sectionRef,
         randomChatbot,
         isAdminMode,
         loadingState,
         activeTool,
-        sendMessageFromResponse,
         getRandomChatbot,
         setActiveThread,
         setIsNewResponse,

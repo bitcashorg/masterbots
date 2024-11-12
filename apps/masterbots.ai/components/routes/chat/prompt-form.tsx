@@ -55,7 +55,7 @@ export function PromptForm({
   placeholder,
   disabled
 }: PromptProps) {
-  const { isOpenPopup } = useThread()
+  const { isOpenPopup, activeThread } = useThread()
   const { activeChatbot } = useSidebar()
   const { formRef, onKeyDown } = useEnterSubmit()
   const inputRef = React.useRef<HTMLTextAreaElement>(null)
@@ -87,7 +87,7 @@ export function PromptForm({
       }}
       ref={formRef}
     >
-       <div
+      <div
         className={cn(
           "relative flex flex-col w-full px-8 overflow-hidden grow bg-background sm:rounded-md sm:border sm:px-12",
           "max-h-[120px] md:max-h-60", // Limit height on mobile
@@ -112,7 +112,7 @@ export function PromptForm({
             "min-h-[80px] md:min-h-[60px]", //? Smaller height on mobile
             "py-2 md:py-[1.3rem]" //? Adjusted padding for mobile
           )}
-          />
+        />
         <div className="absolute right-0 top-4 sm:right-4">
           <Tooltip>
             <TooltipTrigger asChild>
@@ -129,7 +129,7 @@ export function PromptForm({
           </Tooltip>
         </div>
       </div>
-      {(disabled && !activeChatbot) && (
+      {(disabled && (!activeChatbot || !activeThread?.chatbot)) && (
         <div className="backdrop-blur-[1px] font-semibold border border-[#27272A] rounded-[6px] absolute size-full top-0 left-0 flex justify-center items-center dark:bg-[#27272A80] text-2xl">
           Select a bot to start a thread.
         </div>

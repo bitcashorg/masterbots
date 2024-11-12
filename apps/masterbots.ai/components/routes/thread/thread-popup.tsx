@@ -29,9 +29,11 @@ import { Button } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAtBottom } from '@/lib/hooks/use-at-bottom'
+import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn, scrollToBottomOfElement } from '@/lib/utils'
+import { Message as AiMessage } from 'ai'
 import { useScroll } from 'framer-motion'
 import type { Chatbot } from 'mb-genql'
 import { useEffect, useRef } from 'react'
@@ -42,15 +44,8 @@ export function ThreadPopup({ className }: { className?: string }) {
   const {
     isOpenPopup,
     activeThread,
-    initialMessages,
-    allMessages,
-    loadingState,
-    activeTool,
-    setIsOpenPopup,
-    sendMessageFromResponse,
-    isLoading,
-    setActiveThread
   } = useThread()
+  const [{ allMessages, isLoading }, { sendMessageFromResponse }] = useMBChat()
 
   const popupContentRef = useRef<HTMLDivElement>()
 
@@ -101,7 +96,7 @@ export function ThreadPopup({ className }: { className?: string }) {
           'transition-opacity'
         )}
       >
-        <ThreadPopUpCardHeader />
+        <ThreadPopUpCardHeader messages={allMessages} />
 
         <div
           className={cn(
@@ -113,18 +108,18 @@ export function ThreadPopup({ className }: { className?: string }) {
           ref={popupContentRef as React.Ref<HTMLDivElement>}
         >
           <ChatList
-            className="max-w-full !px-[32px] !mx-0"
             isThread={false}
+            messages={allMessages}
+            sendMessageFn={sendMessageFromResponse}
+            chatbot={activeThread?.chatbot || activeChatbot as Chatbot}
             chatContentClass="dark:!border-x-mirage !border-x-gray-300 !py-[20px] !px-[16px] !mx-0 max-h-[none] "
-            chatTitleClass="!px-[11px]"
+            className="max-w-full !px-[32px] !mx-0"
             chatArrowClass="!right-0 !mr-0"
+            chatTitleClass="!px-[11px]"
           />
 
           <Chat
             isPopup
-            initialMessages={initialMessages}
-            chatbot={activeThread?.chatbot || activeChatbot as Chatbot}
-            threadId={activeThread?.threadId}
             chatPanelClassName="!pl-0 rounded-b-[8px] overflow-hidden !absolute"
             scrollToBottom={scrollToBottom}
             isAtBottom={isAtBottom}
@@ -135,11 +130,10 @@ export function ThreadPopup({ className }: { className?: string }) {
   )
 }
 
-export function ThreadPopUpCardHeader() {
+export function ThreadPopUpCardHeader({ messages }: { messages: AiMessage[] }) {
   const {
     isOpenPopup,
     activeThread,
-    allMessages,
     setIsOpenPopup,
     setActiveThread,
   } = useThread()
@@ -151,11 +145,10 @@ export function ThreadPopUpCardHeader() {
     }
   }
 
-  const threadTitle = allMessages.filter(m => m.role === 'user')[0]?.content
+  const threadTitle = messages.filter(m => m.role === 'user')[0]?.content
   const threadTitleChunks = threadTitle?.split(/\s/g) // ' '
   const threadTitleHeading = threadTitleChunks?.slice(0, 32).join(' ')
   const threadTitleSubHeading = threadTitleChunks?.slice(32).join(' ')
-  console.log('threadTitle', threadTitle)
 
   return (
     <div className="relative rounded-t-[8px] px-[32px] py-[20px] dark:bg-[#1E293B] bg-[#E4E4E7]">

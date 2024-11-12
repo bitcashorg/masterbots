@@ -35,7 +35,6 @@ export const ChatAccordion = ({
 }) => {
   //* Retrieves thread state and setters from useThread hook
   const {
-    activeThread,
     setActiveThread,
     setIsNewResponse,
     setIsOpenPopup,
