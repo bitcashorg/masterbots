@@ -22,7 +22,7 @@ const buttonVariants = cva(
         link: 'text-primary underline-offset-4 shadow-none hover:underline',
         icon: 'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow cursor-pointer',
         sideBarProfile: 'bg-transparent border-0 shadow-none justify-start',
-        chatCombobox:'border border-input animate-pulse-yellow hover:bg-yellow-400 hover:text-accent-foreground transition-all duration-200 ease-in-out hover:shadow-[0_0_20px_#f5be0b]'
+        powerUp:'border border-input animate-pulse-yellow bg-yellow-400 text-black transition-all duration-200 ease-in-out shadow-[0_0_20px_#f5be0b] hover:bg-yellow-500'
       },
       size: {
         default: 'h-8 px-4 py-2',
