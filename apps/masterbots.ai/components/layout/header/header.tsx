@@ -16,12 +16,11 @@ export function Header() {
           <SidebarToggle />
         </React.Suspense>
         <HeaderLink href="/" text="MB" />
-        
+
         {/* Navigation links - Hidden on mobile */}
         <div className="hidden lg:flex lg:items-center">
           <IconSeparator className="size-6 text-muted-foreground/50" />
           <HeaderLink href="/c" text="Chat" />
-          
           {appConfig.devMode && (
             <>
               <HeaderLink href="/c/p" text="Pro" />
