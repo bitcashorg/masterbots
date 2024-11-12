@@ -76,7 +76,6 @@ export function Chat({
     allMessages,
     activeThread,
     loadingState,
-    sendMessageFromResponse,
     setActiveThread,
     setIsNewResponse,
     setIsOpenPopup,
@@ -348,11 +347,7 @@ export function Chat({
           ref={containerRef as React.Ref<HTMLDivElement>}
           className={cn("pb-[200px] pt-4 md:pt-10 h-full overflow-auto", className)}
         >
-          <ChatList
-            chatbot={chatbot}
-            messages={messages}
-            sendMessageFn={sendMessageFromResponse}
-          />
+          <ChatList />
           <ChatScrollAnchor
             isAtBottom={
               params.threadId

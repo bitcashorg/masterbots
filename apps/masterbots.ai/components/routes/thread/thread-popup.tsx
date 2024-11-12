@@ -52,12 +52,6 @@ export function ThreadPopup({ className }: { className?: string }) {
     setActiveThread
   } = useThread()
 
-  const onClose = () => {
-    setIsOpenPopup(!isOpenPopup)
-    if (activeThread?.threadId) {
-      setActiveThread(null)
-    }
-  }
   const popupContentRef = useRef<HTMLDivElement>()
 
   const { scrollY } = useScroll({
@@ -87,11 +81,6 @@ export function ThreadPopup({ className }: { className?: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading, isOpenPopup])
 
-  const threadTitle = allMessages.filter(m => m.role === 'user')[0]?.content
-  const threadTitleChunks = threadTitle?.split(/\s/g) // ' '
-  const threadTitleHeading = threadTitleChunks?.slice(0, 32).join(' ')
-  const threadTitleSubHeading = threadTitleChunks?.slice(32).join(' ')
-  console.log('threadTitle', threadTitle)
   return (
     <div
       className={cn(
@@ -104,7 +93,7 @@ export function ThreadPopup({ className }: { className?: string }) {
         className
       )}
     >
-     <div
+      <div
         className={cn(
           'flex flex-col z-10 rounded-lg duration-500 ease-in-out fixed',
           'h-full max-h-[90%] max-w-[1032px] w-[95%]',
@@ -112,46 +101,20 @@ export function ThreadPopup({ className }: { className?: string }) {
           'transition-opacity'
         )}
       >
-        <div className="relative rounded-t-[8px] px-[32px] py-[20px] dark:bg-[#1E293B] bg-[#E4E4E7]">
-          <div className="flex items-center justify-between gap-6">
-            <div className="items-center block overflow-y-auto whitespace-pre-line max-h-28 scrollbar small-thumb">
-              {threadTitle ?
-                threadTitleChunks.length > 32
-                  ? threadTitleHeading + ''
-                  : threadTitle
-                : (
-                  <Skeleton className="w-[280px] h-[20px]" />
-                )}
-              {threadTitleSubHeading && (
-                <span className="ml-2 overflow-hidden text-sm opacity-50">
-                  {threadTitleSubHeading}
-                </span>
-              )}
-            </div>
-
-            <div className="flex items-center gap-4">
-              <ThreadPublicitySwitch threadId={activeThread?.threadId} />
-              <Button type="button" variant="ghost" size="icon" className="ml-2" onClick={onClose}>
-                <IconClose />
-              </Button>
-            </div>
-          </div>
-        </div>
+        <ThreadPopUpCardHeader />
 
         <div
-        className={cn(
-          "flex flex-col dark:bg-[#18181B] bg-white grow rounded-b-[8px] scrollbar h-full",
-          "pb-[120px] md:pb-[180px]", //? Reduced padding on mobile
-          "max-h-[calc(100vh-240px)] md:max-h-[calc(100vh-220px)]", //? Adjusted height for mobile
-          className
-        )}
-        ref={popupContentRef as React.Ref<HTMLDivElement>}
-      >
+          className={cn(
+            "flex flex-col dark:bg-[#18181B] bg-white grow rounded-b-[8px] scrollbar h-full",
+            "pb-[120px] md:pb-[180px]", //? Reduced padding on mobile
+            "max-h-[calc(100vh-240px)] md:max-h-[calc(100vh-220px)]", //? Adjusted height for mobile
+            className
+          )}
+          ref={popupContentRef as React.Ref<HTMLDivElement>}
+        >
           <ChatList
             className="max-w-full !px-[32px] !mx-0"
             isThread={false}
-            chatbot={activeThread?.chatbot || activeChatbot as Chatbot}
-            sendMessageFn={sendMessageFromResponse}
             chatContentClass="dark:!border-x-mirage !border-x-gray-300 !py-[20px] !px-[16px] !mx-0 max-h-[none] "
             chatTitleClass="!px-[11px]"
             chatArrowClass="!right-0 !mr-0"
@@ -166,6 +129,57 @@ export function ThreadPopup({ className }: { className?: string }) {
             scrollToBottom={scrollToBottom}
             isAtBottom={isAtBottom}
           />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function ThreadPopUpCardHeader() {
+  const {
+    isOpenPopup,
+    activeThread,
+    allMessages,
+    setIsOpenPopup,
+    setActiveThread,
+  } = useThread()
+
+  const onClose = () => {
+    setIsOpenPopup(!isOpenPopup)
+    if (activeThread?.threadId) {
+      setActiveThread(null)
+    }
+  }
+
+  const threadTitle = allMessages.filter(m => m.role === 'user')[0]?.content
+  const threadTitleChunks = threadTitle?.split(/\s/g) // ' '
+  const threadTitleHeading = threadTitleChunks?.slice(0, 32).join(' ')
+  const threadTitleSubHeading = threadTitleChunks?.slice(32).join(' ')
+  console.log('threadTitle', threadTitle)
+
+  return (
+    <div className="relative rounded-t-[8px] px-[32px] py-[20px] dark:bg-[#1E293B] bg-[#E4E4E7]">
+      <div className="flex items-center justify-between gap-6">
+        <div className="items-center block overflow-y-auto whitespace-pre-line max-h-28 scrollbar small-thumb">
+          {threadTitle ?
+            threadTitleChunks.length > 32
+              ? threadTitleHeading + ''
+              : threadTitle
+            : (
+              <Skeleton className="w-[280px] h-[20px]" />
+            )}
+          {threadTitleSubHeading && (
+            <span className="ml-2 overflow-hidden text-sm opacity-50">
+              {threadTitleSubHeading}
+            </span>
+          )}
+        </div>
+
+        <div className="flex items-center gap-4">
+          <ThreadPublicitySwitch threadId={activeThread?.threadId} />
+          <Button type="button" variant="ghost" size="icon" className="ml-2" onClick={onClose}>
+            <IconClose />
+          </Button>
         </div>
       </div>
     </div>

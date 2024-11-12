@@ -11,7 +11,7 @@ import { cn, createMessagePairs } from '@/lib/utils'
 import type { Message } from 'ai'
 import { GlobeIcon } from 'lucide-react'
 import type { Chatbot } from 'mb-genql'
-import React, { useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 
 export interface ChatList {
   messages?: Message[] //* Array of messages to display in the chat
@@ -34,8 +34,6 @@ type MessagePair = {
 export function ChatList({
   className,
   messages = [],
-  sendMessageFn,
-  chatbot,
   isThread = true,
   chatContentClass,
   chatTitleClass,
@@ -65,7 +63,7 @@ export function ChatList({
 
   const messageList = messages.length > 0 ? messages : allMessages
 
-  React.useEffect(() => {
+  useEffect(() => {
     // *Prevent unnecessary updates: only set pairs if the new message list is different
     if (messageList.length) {
       const prePairs: MessagePair[] = createMessagePairs(
@@ -95,8 +93,6 @@ export function ChatList({
     >
       <MessagePairs
         pairs={pairs}
-        chatbot={chatbot}
-        sendMessageFn={sendMessageFn}
         isThread={isThread}
         chatTitleClass={chatTitleClass}
         chatArrowClass={chatArrowClass}
@@ -108,8 +104,6 @@ export function ChatList({
 
 function MessagePairs({
   pairs,
-  chatbot,
-  sendMessageFn,
   isThread,
   chatTitleClass,
   chatArrowClass,
@@ -125,41 +119,7 @@ function MessagePairs({
 }) {
   const {
     isNewResponse,
-    isLoadingMessages,
-    activeTool,
-    sendMessageFromResponse
   } = useThread()
-
-  const ChatLoadingState = () => (isLoadingMessages || activeTool?.toolName) && (
-    <div className='flex items-center w-full h-20 opacity-65 gap-4'>
-      {(() => {
-        switch (activeTool?.toolName) {
-          case 'webSearch':
-            return (
-              <>
-                <GlobeIcon className="size-6 animate-bounce relative top-2" />
-                <p className="leading-none flex flex-col gap-1">
-                  <span>
-                    Searching on the web{' '}
-                    {Array.from({ length: 3 }).map((_, index) => (
-                      <span key={index} className="animate-pulse rounded-full text-4xl h-0.5 leading-none" style={{ animationDelay: `${index * 100}ms` }}>.</span>
-                    ))}
-                  </span>
-                  <b className="text-xs">
-                    Searching for "{activeTool.args.query}"
-                  </b>
-                </p>
-              </>
-            )
-          default:
-            return (
-              <div className="transition-all w-6 h-6 border-2 border-t-[2px] rounded-full border-x-gray-300 animate-spin" />
-            )
-        }
-      })()}
-    </div>
-  )
-
 
   return <>
     {pairs.map((pair: MessagePair, key: number) => (
@@ -191,11 +151,7 @@ function MessagePairs({
         ) : (
           <ChatMessage
             actionRequired={false}
-            chatbot={chatbot}
             message={pair.userMessage}
-            sendMessageFromResponse={
-              sendMessageFn ? sendMessageFn : sendMessageFromResponse
-            }
           />
         )}
 
@@ -230,11 +186,7 @@ function MessagePairs({
                 actionRequired={false}
                 // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
                 key={index}
-                chatbot={chatbot}
                 message={message}
-                sendMessageFromResponse={
-                  sendMessageFn ? sendMessageFn : sendMessageFromResponse
-                }
               />
             ))
             : ''}
@@ -242,4 +194,38 @@ function MessagePairs({
       </ChatAccordion>
     ))}
   </>
+}
+
+
+export function ChatLoadingState() {
+  const {
+    isLoadingMessages,
+    activeTool,
+  } = useThread()
+
+  if (!isLoadingMessages || !activeTool?.toolName) return null
+
+  switch (activeTool?.toolName) {
+    case 'webSearch':
+      return (
+        <div className='flex items-center w-full h-20 opacity-65 gap-4'>
+          <GlobeIcon className="size-6 animate-bounce relative top-2" />
+          <p className="leading-none flex flex-col gap-1">
+            <span>
+              Searching on the web{' '}
+              {Array.from({ length: 3 }).map((_, index) => (
+                <span key={index} className="animate-pulse rounded-full text-4xl h-0.5 leading-none" style={{ animationDelay: `${index * 100}ms` }}>.</span>
+              ))}
+            </span>
+            <b className="text-xs">
+              Searching for "{activeTool.args.query}"
+            </b>
+          </p>
+        </div>
+      )
+    default:
+      return (
+        <div className="transition-all w-6 h-6 border-2 border-t-[2px] rounded-full border-x-gray-300 animate-spin" />
+      )
+  }
 }
