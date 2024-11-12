@@ -21,7 +21,6 @@ export function Header() {
         <div className="hidden lg:flex lg:items-center">
           <IconSeparator className="size-6 text-muted-foreground/50" />
           <HeaderLink href="/c" text="Chat" />
-          <HeaderLink href="/b" text="Browse" />
           {appConfig.devMode && (
             <>
               <HeaderLink href="/c/p" text="Pro" />
