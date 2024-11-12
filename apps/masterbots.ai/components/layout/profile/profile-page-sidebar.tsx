@@ -7,12 +7,15 @@ import { cn } from '@/lib/utils'
 import { IconCaretRight } from '@/components/ui/icons';
 import { MessagesSquare, Settings, ReceiptIcon } from 'lucide-react';
 import { SidebarCategoryGeneral } from '../sidebar/sidebar-category-general';
-import { useParams } from 'next/navigation';
+import { useParams, usePathname } from 'next/navigation';
 
 export const ProfileSidebar = ({ children }: any) => {
-  const [isThreadsOpen, setIsThreadsOpen] = useState(false);
+  const pathname = usePathname()
+  const openSidebar = pathname.includes('/t');
+  const [isThreadsOpen, setIsThreadsOpen] = useState(openSidebar);
   const location = useLocation();
   const { slug } = useParams()
+  
 
   return (
     <div className="flex h-screen w-full">
@@ -26,7 +29,7 @@ export const ProfileSidebar = ({ children }: any) => {
                 onClick={() => setIsThreadsOpen(!isThreadsOpen)}
                 className={cn(
                   "flex w-full items-center justify-between px-4 py-3 hover:bg-gray-200 dark:hover:bg-mirage",
-                  isThreadsOpen ? 'bg-gray-200 dark:bg-mirage' : ''
+                  isThreadsOpen || location.pathname?.includes('/t/') ? 'bg-gray-200 dark:bg-mirage' : ''
                 )}
               >
                 <div className="flex items-center space-x-2">
@@ -52,7 +55,7 @@ export const ProfileSidebar = ({ children }: any) => {
               href={`/u/${slug}/s/pref`}
               className={cn(
                 "flex items-center space-x-2 px-4 py-3 hover:bg-gray-200 dark:hover:bg-mirage",
-                location.pathname === '/preferences' ? 'bg-gray-200 dark:bg-mirage' : ''
+                location.pathname?.includes('/s/pref') ? 'bg-gray-200 dark:bg-mirage' : ''
               )}
             >
               <Settings className="w-5 h-5" />
@@ -61,10 +64,10 @@ export const ProfileSidebar = ({ children }: any) => {
 
             {/* Subscriptions Link */}
             <Link
-                href={`/u/${slug}/s/sub`}
+                href={`/u/${slug}/s/subs`}
               className={cn(
                 "flex items-center space-x-2 px-4 py-3 hover:bg-gray-200 dark:hover:bg-mirage",
-                location.pathname === '/subscriptions' ? 'bg-gray-200 dark:bg-mirage' : ''
+                location.pathname?.includes('/s/subs')  ? 'bg-gray-200 dark:bg-mirage' : ''
               )}
             >
               <ReceiptIcon className="w-5 h-5" />

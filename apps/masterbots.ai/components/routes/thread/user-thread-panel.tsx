@@ -42,12 +42,14 @@ const PAGE_SIZE = 20
 export default function UserThreadPanel({
   chatbot,
   threads: initialThreads,
-  showSearch
+  showSearch,
+  page
 }: {
   chatbot?: string
   threads?: Thread[]
   showSearch?: boolean
   search?: { [key: string]: string | string[] | undefined }
+  page?: string
 }) {
   const params = useParams<{ chatbot: string; threadId: string }>()
   const { data: session } = useSession()
@@ -69,7 +71,6 @@ export default function UserThreadPanel({
     setThreads(finalThreads)
     setCount(finalThreads?.length ?? 0)
   }, [finalThreads])
-
   const fetchIdRef = useRef(0) // Store the fetchId in a ref
   const loadMore = async () => {
     console.log('🟡 Loading More Content')
@@ -131,6 +132,8 @@ export default function UserThreadPanel({
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [threads])
+
+  console.log({ threads })
   return (
     <>
       {threads && threads.length > 0 ? (
@@ -154,7 +157,7 @@ export default function UserThreadPanel({
       ) : (
         ''
       )}
-      {(!threads || threads.length === 0) && <ChatChatbotDetails />}
+      {(!threads || threads.length === 0) && <ChatChatbotDetails page={page} />}
     </>
   )
 }

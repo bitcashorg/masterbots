@@ -32,8 +32,6 @@ export function UserCard({ user }: UserCardProps) {
       role: "user" as Message["role"],
     }
   })
-
- 
   const [lastMessage, setLastMessage] = useState<string | null>(null)
 
   const { append } = useChat({

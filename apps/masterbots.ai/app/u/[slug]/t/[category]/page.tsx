@@ -34,7 +34,7 @@ export default async function BrowseCategoryPage({
   
   return (
     <div className="max-w-screen-lg pb-10 mx-auto w-full">
-      <UserThreadPanel  threads={threads} />
+      <UserThreadPanel  threads={threads} page="profile" />
     </div>
   )
 }

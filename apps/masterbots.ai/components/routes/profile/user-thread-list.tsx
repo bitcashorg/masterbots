@@ -12,6 +12,7 @@ export  function UserThreadList() {
     const { getuserInfo, isSameUser } = useProfile()
     const [user, setUser] = useState<User | null>(null)
     const [loading, setLoading] = useState(false)
+    const [loaded, setLoaded] = useState(false)
     const [threads, setThreads] = useState<any>(undefined)
 
    async function UserInfoInit() {
@@ -26,6 +27,7 @@ export  function UserThreadList() {
         }
         setUser(user)
         setLoading(false)
+        setLoaded(true)
     }
     
 
@@ -37,11 +39,13 @@ export  function UserThreadList() {
 
     if (!user) return null
 
+    console.log({ threads })
+
     return (
         <>
         {loading && <div>Loading...</div>}
         { user?.threads?.length === 0 && <div>No threads found</div>}
-        {!loading  &&  <UserThreadPanel  threads={threads} />}
+       <UserThreadPanel  threads={threads} page="profile" />
        </>
     )
 }

@@ -1,7 +1,7 @@
 import FooterCT from '@/components/layout/footer/footer-ct'
 import NextTopLoader from 'nextjs-toploader'
 import { Hero } from '@/components/layout/profile/hero'
-import { ProfileSidebar } from '@/components/layout/profile/profile-sidebar'
+import { ProfileSidebar } from '@/components/layout/profile/profile-page-sidebar'
 
 interface ChatLayoutProps {
   children: React.ReactNode
