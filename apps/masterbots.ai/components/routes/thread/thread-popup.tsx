@@ -209,7 +209,6 @@ export function ThreadPopup({ className }: { className?: string }) {
               chatTitleClass="!px-[11px]"
               chatArrowClass="!right-0 !mr-0"
             />
-
             <Chat
               isPopup
               initialMessages={initialMessages}

@@ -83,7 +83,6 @@ export function Chat({
     isOpenPopup,
     sectionRef,
     isAtBottom: isAtBottomOfSection,
-    isActiveThreadContinuous,
   } = useThread();
   const { activeChatbot } = useSidebar();
   const containerRef = React.useRef<HTMLDivElement>();
@@ -92,10 +91,6 @@ export function Chat({
   const isNewChat = Boolean(!params.threadId && !activeThread);
   const { selectedModel, clientType } = useModel();
   const [loadingState, setLoadingState] = React.useState<ChatLoadingState>();
-  // TODO: this functionality should be moved to a different library.
-  const newThreadId = crypto.randomUUID()
-  // let currentThreadId = params.threadId || isNewChat ? threadId : activeThread?.threadId;;
-  // currentThreadId = isActiveThreadContinuous ? newThreadId : currentThreadId;
   const { messages, append, reload, stop, isLoading, input, setInput } =
     useChat({
       initialMessages:
@@ -287,7 +282,7 @@ export function Chat({
     ).then(async (response) => {
       if (isNewChat && chatbot) {
         await createThread({
-          threadId: currentThreadId,
+          threadId,
           chatbotId: chatbot.chatbotId,
           jwt: session.user?.hasuraJwt,
           userId: session.user.id,
@@ -295,7 +290,7 @@ export function Chat({
         });
 
         const thread = await getThread({
-          threadId: currentThreadId,
+          threadId,
           jwt: session.user?.hasuraJwt,
         });
 
