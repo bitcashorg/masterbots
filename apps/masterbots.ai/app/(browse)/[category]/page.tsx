@@ -3,7 +3,7 @@ import { BrowseCategoryTabs } from '@/components/routes/browse/browse-category-t
 import { BrowseSearchInput } from '@/components/routes/browse/browse-search-input'
 import { getCategories } from '@/services/hasura'
 import { toSlug } from 'mb-lib'
-import { Metadata } from 'next'
+import type { Metadata } from 'next'
 import { generateMetadataFromSEO } from '@/lib/metadata'
 
 export default async function BrowseCategoryPage({

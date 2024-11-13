@@ -28,6 +28,7 @@
 import ChatChatbotDetails from '@/components/routes/chat/chat-chatbot-details'
 import { ChatSearchInput } from '@/components/routes/chat/chat-search-input'
 import ThreadList from '@/components/routes/thread/thread-list'
+import { NoResults } from '@/components/shared/no-results-card'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
@@ -54,7 +55,8 @@ export default function UserThreadPanel({
     useThread()
   const [loading, setLoading] = React.useState<boolean>(false)
   const { threads: hookThreads } = useThreadVisibility()
-
+  const [searchTerm, setSearchTerm] = React.useState<string>('')
+  
   const finalThreads = React.useMemo(
     () => initialThreads ?? hookThreads,
     [initialThreads, hookThreads]
@@ -62,10 +64,12 @@ export default function UserThreadPanel({
 
   const [threads, setThreads] = React.useState<Thread[]>(finalThreads ?? [])
   const [count, setCount] = React.useState<number>(finalThreads?.length ?? 0)
+  const [totalThreads, setTotalThreads] = React.useState<number>(0)
 
   React.useEffect(() => {
     setThreads(finalThreads)
     setCount(finalThreads?.length ?? 0)
+    setTotalThreads(finalThreads?.length ?? 0)
   }, [finalThreads])
 
   const fetchIdRef = useRef(0) // Store the fetchId in a ref
@@ -90,6 +94,7 @@ export default function UserThreadPanel({
     if (!session?.user) return
     const currentFetchId = Date.now() // Generate a unique identifier for the current fetch
     fetchIdRef.current = currentFetchId
+    setLoading(true)
     const threads = await getThreads({
       jwt: session!.user?.hasuraJwt,
       userId: session!.user.id,
@@ -103,7 +108,9 @@ export default function UserThreadPanel({
       // If it matches, update the threads state
       setThreads(_prev => threads ?? [])
       setCount(_prev => threads.length ?? 0)
+      setTotalThreads(threads?.length ?? 0)
     }
+    setLoading(false)
   }
 
   React.useEffect(() => {
@@ -126,31 +133,50 @@ export default function UserThreadPanel({
       return
     setIsOpenPopup(false)
     setActiveThread(null)
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [threads])
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term)
+  }
+
+  const customMessage = activeChatbot 
+  ? `No threads available for ${activeChatbot.name}`
+  : activeCategory 
+    ? 'No threads available in the selected category'
+    : 'Start a conversation to create your first thread'
+
+
+  const showNoResults = !loading && searchTerm && threads.length === 0
+  const showChatbotDetails = !loading && !searchTerm && threads.length === 0
+
   return (
     <>
-      {threads && threads.length > 0 ? (
-        <>
-          <div className="flex justify-between px-4 md:px-10 py-5 lg:max-w-[calc(100%-100px)] 2xl:max-w-full">
-            <ChatSearchInput setThreads={setThreads} />
-          </div>
+    <div className="flex justify-between px-4 md:px-10 py-5 lg:max-w-[calc(100%-100px)] 2xl:max-w-full">
+      <ChatSearchInput setThreads={setThreads} onSearch={setSearchTerm} />
+    </div>
 
-          <div className="flex px-4 py-5 md:px-10">
-            <ThreadList
-              threads={threads}
-              loading={loading}
-              count={count}
-              pageSize={PAGE_SIZE}
-              loadMore={loadMore}
-            />
-          </div>
-        </>
-      ) : (
-        ''
-      )}
-      {(!threads || threads.length === 0) && <ChatChatbotDetails />}
-    </>
+    {loading ? (
+      <NoResults isLoading={true} />
+    ) : threads && threads.length > 0 ? (
+      <div className="flex px-4 py-5 md:px-10">
+        <ThreadList
+          threads={threads}
+          loading={loading}
+          count={count}
+          pageSize={PAGE_SIZE}
+          loadMore={loadMore}
+        />
+      </div>
+    ) : showNoResults ? (
+      <NoResults 
+        searchTerm={searchTerm}
+        totalItems={totalThreads}
+        customMessage={customMessage}
+      />
+    ) : showChatbotDetails ? (
+      <ChatChatbotDetails />
+    ) : null}
+  </>
   )
 }
