@@ -21,19 +21,23 @@
  */
 
 import BrowseListItem from '@/components/routes/browse/browse-list-item'
+import { ThreadItemSkeleton } from '@/components/routes/browse/skeletons/browse-skeletons'
+import { BrowseListSkeleton } from '@/components/routes/browse/skeletons/browse-list-skeleton'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { searchThreadContent } from '@/lib/search'
 import { getBrowseThreads } from '@/services/hasura'
 import { debounce } from 'lodash'
 import type { Thread } from 'mb-genql'
 import React from 'react'
+import { NoResults } from '@/components/shared/no-results-card'
 
 const PAGE_SIZE = 50
 
 export default function BrowseList() {
   const { keyword, tab } = useBrowse()
-
   const [threads, setThreads] = React.useState<Thread[]>([])
+  const [hasInitialized, setHasInitialized] = React.useState(false)
   const [filteredThreads, setFilteredThreads] = React.useState<Thread[]>([])
   const [loading, setLoading] = React.useState<boolean>(false)
   const [count, setCount] = React.useState<number>(0)
@@ -48,14 +52,23 @@ export default function BrowseList() {
     chatbotsId: number[]
     keyword: string
   }) => {
-    const threads = await getBrowseThreads({
-      categoriesId,
-      chatbotsId,
-      keyword,
-      limit: PAGE_SIZE
-    })
-    setThreads(threads)
-    setCount(threads.length)
+    setLoading(true) // ? Seting loading before fetch
+    try {
+      const threads = await getBrowseThreads({
+        categoriesId,
+        chatbotsId,
+        keyword,
+        limit: PAGE_SIZE
+      })
+      setThreads(threads)
+      setFilteredThreads(threads)
+      setCount(threads.length)
+      setHasInitialized(true) // ? Setting hasInitialized after fetch preventing NoResults from showing
+    } catch (error) {
+      console.error('Error fetching threads:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const verifyKeyword = () => {
@@ -63,16 +76,12 @@ export default function BrowseList() {
       setFilteredThreads(threads)
     } else {
       debounce(() => {
-        // TODO: Improve thread messages architecture to implement dynamic search to show only the thread title (first message on thread)
-        // fetchThreads(keyword, selectedCategories)
+        // Use our searchThreadContent function instead of just title search
         setFilteredThreads(
           threads.filter((thread: Thread) =>
-            thread.messages[0]?.content
-              .toLowerCase()
-              .includes(keyword.toLowerCase())
+            searchThreadContent(thread, keyword)
           )
         )
-        // ? Average time of human reaction is 230ms
       }, 230)()
     }
   }
@@ -92,6 +101,7 @@ export default function BrowseList() {
     setLoading(false)
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   React.useEffect(() => {
     fetchThreads({
       keyword,
@@ -100,22 +110,38 @@ export default function BrowseList() {
     })
   }, [selectedCategories.length, selectedChatbots.length])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   React.useEffect(() => {
     verifyKeyword()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [keyword, threads])
+
+  if (loading && threads.length === 0) {
+    return <BrowseListSkeleton count={5} />
+  }
+
   return (
     <div className="flex flex-col w-full gap-3 py-5">
-      {filteredThreads.map((thread: Thread, key) => (
-        <BrowseListItem
-          thread={thread}
-          key={key}
-          loading={loading}
-          loadMore={loadMore}
-          hasMore={count === PAGE_SIZE}
-          isLast={key === filteredThreads.length - 1}
-        />
-      ))}
+      {filteredThreads.length > 0 ? (
+        <>
+          {filteredThreads.map((thread: Thread, key) => (
+            <BrowseListItem
+              thread={thread}
+              key={key}
+              loading={loading}
+              loadMore={loadMore}
+              hasMore={count === PAGE_SIZE}
+              isLast={key === filteredThreads.length - 1}
+            />
+          ))}
+          {loading && <ThreadItemSkeleton />}
+        </>
+      ) : (
+        hasInitialized &&
+        !loading && (
+          <NoResults searchTerm={keyword} totalItems={threads.length} />
+        )
+      )}
     </div>
   )
 }
