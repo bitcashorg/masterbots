@@ -76,13 +76,17 @@ export async function generateMbMetadata({
 
     const firstQuestion =
       thread?.messages.find(m => m.role === 'user')?.content || 'not found'
+
     const firstResponse =
       thread?.messages.find(m => m.role === 'assistant')?.content || 'not found'
+
+    const firstResponseTruncated =
+      firstResponse.length > 200 ? firstResponse.slice(0, 200) : firstResponse
 
     data = {
       title: firstQuestion,
       publishedAt: thread?.updatedAt, // format(thread?.updatedAt, 'MMMM dd, yyyy'),
-      summary: firstResponse,
+      summary: firstResponseTruncated,
       image: `${process.env.BASE_URL}/api/og?threadId=${thread?.threadId}`,
       pathname: getThreadLink({ thread, chat: false })
     }
