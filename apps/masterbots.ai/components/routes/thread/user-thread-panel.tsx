@@ -63,7 +63,6 @@ export default function UserThreadPanel({
     () => initialThreads ?? hookThreads,
     [initialThreads, hookThreads]
   )
-
   const [threads, setThreads] = React.useState<Thread[]>(finalThreads ?? [])
   const [count, setCount] = React.useState<number>(finalThreads?.length ?? 0)
 
@@ -110,12 +109,14 @@ export default function UserThreadPanel({
   }
 
   React.useEffect(() => {
-    handleThreadsChange()
+    if(page !== 'profile') {
+      handleThreadsChange()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeCategory, activeChatbot])
 
   React.useEffect(() => {
-    if (!isOpenPopup) {
+    if (!isOpenPopup && page !== 'profile') {
       handleThreadsChange()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -132,8 +133,6 @@ export default function UserThreadPanel({
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [threads])
-
-  console.log({ threads })
   return (
     <>
       {threads && threads.length > 0 ? (
