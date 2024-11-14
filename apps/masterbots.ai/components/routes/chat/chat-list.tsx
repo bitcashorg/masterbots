@@ -216,7 +216,7 @@ export function ChatLoadingState() {
           <p className="leading-none flex flex-col gap-1">
             <span>
               Searching on the web{' '}
-              {['first-dot', 'second-dot', 'third-dot'].map((key) => (
+              {['first-dot', 'second-dot', 'third-dot'].map((key, index) => (
                 <span key={key} className="animate-pulse rounded-full text-4xl h-0.5 leading-none" style={{ animationDelay: `${index * 100}ms` }}>.</span>
               ))}
             </span>
