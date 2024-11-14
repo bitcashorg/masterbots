@@ -690,7 +690,8 @@ export async function getUserRoleByEmail({
         __args: {
           where: { email: { _eq: email } }
         },
-        role: true
+        role: true,
+        slug: true,
       }
     })
     return { users: user as User[] }

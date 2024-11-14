@@ -177,11 +177,13 @@ declare module 'next-auth' {
       email: string
       hasuraJwt: string
       role?: string
+      slug?: string
     } & DefaultSession['user']
   }
 
   interface User extends DefaultUser {
     role: string
+    slug: string
   }
 
   interface JWT {

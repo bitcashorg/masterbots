@@ -98,6 +98,7 @@ insert_permissions:
         - password
         - pro_user_subscription_id
         - profile_picture
+        - role
         - slug
         - username
     comment: ""
@@ -118,10 +119,8 @@ select_permissions:
   - role: moderator
     permission:
       columns:
-        - bio
         - date_joined
         - email
-        - favourite_topic
         - get_free_month
         - is_blocked
         - is_verified
@@ -160,12 +159,17 @@ update_permissions:
     permission:
       columns:
         - bio
+        - date_joined
         - favourite_topic
         - get_free_month
         - is_blocked
+        - last_login
         - password
         - pro_user_subscription_id
         - profile_picture
+        - role
+        - slug
+        - username
       filter: {}
       check: null
     comment: Allows moderators to block any user
@@ -179,6 +183,9 @@ update_permissions:
         - password
         - pro_user_subscription_id
         - profile_picture
+        - role
+        - slug
+        - username
       filter:
         user_id:
           _eq: X-Hasura-User-Id

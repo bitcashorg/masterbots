@@ -46,7 +46,8 @@ export const authOptions: NextAuthOptions = {
               password: true,
               username: true,
               profilePicture: true,
-              role: true
+              role: true,
+              slug: true
             }
           })
           if (!user || user.length === 0) {
@@ -72,7 +73,8 @@ export const authOptions: NextAuthOptions = {
             email: user[0].email,
             name: user[0].username,
             image: user[0].profilePicture,
-            role: user[0].role || 'user'
+            role: user[0].role || 'user',
+            slug: user[0].slug
           }
         } catch (error) {
           throw new Error('Authentication failed')
@@ -97,12 +99,15 @@ export const authOptions: NextAuthOptions = {
           const userRoleResult = await getUserRoleByEmail({ email })
           if (userRoleResult.users.length > 0) {
             token.role = userRoleResult.users[0]?.role || 'user'
+            token.slug = userRoleResult.users[0]?.slug
           } else {
             console.error('Error fetching user role:', userRoleResult.error)
             token.role = 'user' // Default to 'user' if no user found or in case of error
+            token.slug = toSlug(user.name as string)
           }
         } else {
           token.role = user.role // use this for other
+          token.slug = user.slug
         }
 
         token.id = user.id
@@ -164,6 +169,7 @@ export const authOptions: NextAuthOptions = {
       session.user.image = token.image as string
       session.user.hasuraJwt = token.hasuraJwt as string
       session.user.role = token.role as string
+      session.user.slug = token.slug as string
 
       console.log(
         'Session created with Hasura JWT 🗝️: ',
