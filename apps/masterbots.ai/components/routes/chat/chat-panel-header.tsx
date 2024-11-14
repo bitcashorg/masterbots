@@ -3,6 +3,7 @@ import { ChatShareDialog } from '@/components/routes/chat/chat-share-dialog'
 import { ButtonScrollToBottom } from '@/components/shared/button-scroll-to-bottom'
 import { Button } from '@/components/ui/button'
 import { IconRefresh, IconShare, IconStop } from '@/components/ui/icons'
+import { useThread } from '@/lib/hooks/use-thread'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
@@ -18,7 +19,6 @@ interface ChatPanelHeaderProps {
   messages: any[] // Array of messages in the chat
   showReload: boolean // Shows reload option when true
   scrollToBottom: () => void // Scrolls chat to the bottom
-  loadingState?: string // Current loading status or message stage
   isAtBottom?: boolean // Indicates if chat is scrolled to the bottom
 }
 
@@ -26,7 +26,6 @@ export function ChatPanelHeader({
   id,
   title,
   isLoading,
-  loadingState,
   stop,
   reload,
   messages,
@@ -34,7 +33,9 @@ export function ChatPanelHeader({
   scrollToBottom,
   isAtBottom
 }: ChatPanelHeaderProps) {
+  // TODO: Attach Share func to user chats chat pop-up
   const [shareDialogOpen, setShareDialogOpen] = React.useState(false)
+  const { loadingState } = useThread()
   const { isPowerUp, togglePowerUp } = usePowerUp()
 
   return (
@@ -50,7 +51,7 @@ export function ChatPanelHeader({
             Power-Up
           </Label>
         </div>
-        
+
         {showReload && (
           <div className="flex items-center px-2 space-x-2">
             {isLoading || loadingState ? (

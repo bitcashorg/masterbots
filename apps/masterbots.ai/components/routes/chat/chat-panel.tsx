@@ -18,22 +18,20 @@ export interface ChatPanelProps
     | 'input'
     | 'setInput'
   > {
-    loadingState?: string // Loading status for displaying the current chat stage
-    scrollToBottom: () => void // Function to scroll chat to the bottom
-    id?: string // Chat ID, used in message operations
-    title?: string // Chat title, displayed in the header
-    chatbot?: Chatbot // Chatbot configuration for enabling/disabling prompt form
-    showReload?: boolean // Displays reload button when true
-    placeholder: string // Placeholder text for the input field
-    isAtBottom?: boolean // Indicates if the chat is scrolled to the bottom
-    className?: string // Optional custom class for styling the panel
+  scrollToBottom: () => void // Function to scroll chat to the bottom
+  id?: string // Chat ID, used in message operations
+  title?: string // Chat title, displayed in the header
+  chatbot?: Chatbot // Chatbot configuration for enabling/disabling prompt form
+  showReload?: boolean // Displays reload button when true
+  placeholder: string // Placeholder text for the input field
+  isAtBottom?: boolean // Indicates if the chat is scrolled to the bottom
+  className?: string // Optional custom class for styling the panel
 }
 
 export function ChatPanel({
   id,
   title,
   isLoading,
-  loadingState,
   stop,
   append,
   reload,
@@ -47,7 +45,7 @@ export function ChatPanel({
   scrollToBottom,
   className
 }: ChatPanelProps) {
-  const { isOpenPopup } = useThread()
+  const { isOpenPopup, loadingState } = useThread() // State to control popup visibility
 
   return (
     <div
@@ -65,7 +63,6 @@ export function ChatPanel({
           id={id}
           title={title}
           isLoading={isLoading}
-          loadingState={loadingState}
           stop={stop}
           reload={reload}
           messages={messages}

@@ -1,14 +1,16 @@
 export interface WordwareFlow {
   id: string
   type: 'generation' | 'prompt' | 'tool'
-  path:
-    | 'SetBlogSections'
-    | 'SetBlogImages'
-    | 'GenerateBlogArticle'
-    | 'SetBlogOutlines'
-    | 'webSearch'
-    | 'WebSonarSearch'
+  path: WordWareFlowPaths
 }
+
+export type WordWareFlowPaths =
+  | 'SetBlogSections'
+  | 'SetBlogImages'
+  | 'GenerateBlogArticle'
+  | 'SetBlogOutlines'
+  | 'webSearch'
+  | 'WebSonarSearch'
 
 export interface WordwareFlowEntry {
   type: 'generation' | 'prompt' | 'tool' | 'chunk' | 'loop'
