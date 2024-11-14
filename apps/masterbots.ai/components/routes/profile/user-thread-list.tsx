@@ -22,18 +22,19 @@ export  function UserThreadList() {
 
    async function UserInfoInit() {
        setLoading(true)
+       let threads: Thread[] = []
         const { user, error } = await getuserInfo(slug as string)
         if (error) {
             console.log(error)
         }
         if(user && !isSameUser(user.userId)){
-            const list = await getBrowseThreads({ userId: user.userId });
-             setThreads(list)
+            threads = await getBrowseThreads({ userId: user?.userId });   
         }else{
-            const list  = await  getThreads({jwt: session?.user?.hasuraJwt as string, userId: user?.userId });
-            setThreads(list)
+           threads = await  getThreads({jwt: session?.user?.hasuraJwt as string, userId: user?.userId });
         }
         setUser(user)
+        console.log({ threads })
+        setThreads(threads)
         setLoading(false)
     }
 

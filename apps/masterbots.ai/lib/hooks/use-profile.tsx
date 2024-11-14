@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { getUserByUsername, updateUserPersonality } from '@/services/hasura'
+import { getUserBySlug, updateUserPersonality } from '@/services/hasura'
 import { useSession } from 'next-auth/react'
 
 interface profileContextProps {
@@ -30,8 +30,8 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
    
     const { data: session } = useSession()
 
-    const getuserInfo = async (username: string) => {
-        const userInfo = await getUserByUsername({username });
+    const getuserInfo = async (slug: string) => {
+        const userInfo = await getUserBySlug({slug , jwt: session?.user.slug === slug ? session?.user.hasuraJwt : undefined});
         return userInfo  
     }
     const isSameUser = (userId: string) => {

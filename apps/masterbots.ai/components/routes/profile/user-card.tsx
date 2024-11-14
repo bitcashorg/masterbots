@@ -1,6 +1,6 @@
 import { Separator } from '@/components/ui/separator'
 import Image from 'next/image'
-import { BookUser, BotIcon, MessageSquareHeart,  UserIcon, Users, Wand2, ImagePlus, Loader } from 'lucide-react'
+import { BookUser, BotIcon, MessageSquareHeart,   Wand2, ImagePlus, Loader } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { User } from 'mb-genql'
 import { useProfile } from '@/lib/hooks/use-profile'
@@ -12,19 +12,20 @@ import { UserPersonalityPrompt } from '@/lib/constants/prompts'
 import {  useEffect, useState } from 'react'
 
 interface UserCardProps {
-  user: User
+  user: User | null
+  loading?: boolean
 }
-export function UserCard({ user }: UserCardProps) {
+export function UserCard({ user, loading }: UserCardProps) {
   const { isSameUser, updateUserInfo } = useProfile()
-  const isOwner = isSameUser(user.userId);
+  const isOwner = isSameUser(user?.userId);
   const { selectedModel, clientType } = useModel()
-  const [bio, setBio] = useState<string | null>(user?.bio)
+  const [bio, setBio] = useState<string | null | undefined>(user?.bio)
   const [isLoading, setIsLoading] = useState(false)
   const [generateType, setGenerateType] = useState<string | undefined>("")
-  const [favouriteTopic, setFavouriteTopic] = useState<string | null>(user?.favouriteTopic)
+  const [favouriteTopic, setFavouriteTopic] = useState<string | null | undefined>(user?.favouriteTopic)
   
 
-  const userQuestions = user.threads.map((thread) => {
+  const userQuestions = user?.threads.map((thread) => {
     return {
       id: thread.threadId,
       content: thread.messages[0].content,
@@ -53,7 +54,6 @@ export function UserCard({ user }: UserCardProps) {
     },
   })
   
-  // Handle response in effect
   useEffect(() => {
     handleUpdateUserInfo()
   }, [lastMessage])
@@ -75,24 +75,34 @@ export function UserCard({ user }: UserCardProps) {
   const generateBio = (type: string) => {
     setIsLoading(true)
     setGenerateType(type)
-   const promptContent = UserPersonalityPrompt(type, userQuestions)
-    return append({
-      id: nanoid(),
-      content: promptContent,
-      role: 'system',
-      createdAt: new Date(),
-    })
+    if(userQuestions) {
+    const promptContent = UserPersonalityPrompt(type, userQuestions)
+      return append({
+        id: nanoid(),
+        content: promptContent,
+        role: 'system',
+        createdAt: new Date(),
+      })
+   }
   }
   return (
     <div
       className="dark:bg-[#09090B] bg-white rounded-lg p-6 md:w-[600px]
        md:min-h-[290px]
         flex flex-row gap-3 mx-auto font-geist"
-    >
-      <div className="relative w-full">
+    > {
+      loading &&  !user && (
+        <div className="absolute inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
+          <Loader className="w-16 h-16 text-white" />
+        </div>
+      )
+    }
+    {
+      !loading && user && (
+        <div className="relative w-full">
         <div className="space-y-1 ">
           {/* Profile Name */}
-          <h2 className="md:text-2xl  text-xl font-semibold">{user.username}</h2>
+          <h2 className="md:text-2xl  text-xl font-semibold">{user?.username}</h2>
           <div className="items-center space-x-1 md:hidden flex">
                 <BotIcon className="w-4 h-4" />
               <span className="">Threads:</span>
@@ -155,8 +165,8 @@ export function UserCard({ user }: UserCardProps) {
               )}
             </div>
           </div>
-
-          <div className=' flex flex-col  items-center md:mt-0 mt-7  space-y-3'>
+           {/* Implementation for this comes next :) */}
+          {/* <div className=' flex flex-col  items-center md:mt-0 mt-7  space-y-3'>
            {!isOwner && (
           <button className="px-10 py-1 text-sm text-white  rounded-md bg-[#BE17E8] hover:bg-[#BE17E8] dark:bg-[#83E56A] dark:hover:bg-[#83E56A] dark:text-black transition-colors">
             Follow
@@ -179,7 +189,7 @@ export function UserCard({ user }: UserCardProps) {
               </div>
             </div>
           </div>
-          </div>
+          </div> */}
           
           </div>
         </div>
@@ -202,6 +212,9 @@ export function UserCard({ user }: UserCardProps) {
           </div>
         </div>
       </div>
+      )
+    }
+     
     </div>
   )
 }

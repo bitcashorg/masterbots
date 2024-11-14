@@ -776,30 +776,39 @@ export async function getUnapprovedThreads({ jwt }: { jwt: string }) {
   return thread as Thread[]
 }
 
-
-// get user by username, get user info, threads, followers and  following 
-export async function getUserByUsername({ username }: { username: string}) {
+export async function getUserBySlug({ slug, jwt }: { slug: string, jwt: string | undefined}) {
   try {
-    const client = getHasuraClient({  })
-
-    // First attempt: try exact match with case-insensitive comparison
+    console.log("jwt", jwt)
+    const client = getHasuraClient({ jwt })
     const { user } = await client.query({
       user: {
         __args: {
           where: {
             slug: {
-              _ilike: username  // Using _ilike for case-insensitive matching
+              _ilike: slug  
             }
           }
         },
-        userId: true,              // Added id field which might be required
+        userId: true,           
         username: true,
         profilePicture: true,
         slug: true,
         // bio: true,
         // favouriteTopic: true,
         threads: {
+          __args: {
+            where: jwt !== undefined  
+              ? {} 
+              : { 
+                  _and: [
+                    { isApproved: { _eq: true } },
+                    { isPublic: { _eq: true } }
+                  ]
+              }
+          },
           threadId: true,
+         isApproved: true,
+         isPublic: true,
           chatbot: {
             name: true
           },
@@ -831,27 +840,21 @@ export async function getUserByUsername({ username }: { username: string}) {
       } 
     } as const)
 
-    // If no user found, try alternative matching (optional)
     if (!user || user.length === 0) {
-      // You could implement additional matching logic here
-      console.log('No user found with username:', username)
+      console.log('No user found with username:', slug)
       return { user: null, error: 'User not found.' }
     }
-
     return { 
       user: user[0],  // Return the first matching user
       error: null 
     }
 
   } catch (error) {
-    // Enhanced error logging
     console.error('Error fetching user by username:', {
       error,
-      username,
+      slug,
       timestamp: new Date().toISOString()
     })
-
-    // Type guard to handle different error types
     if (error instanceof Error) {
       return { 
         user: null, 
@@ -866,7 +869,7 @@ export async function getUserByUsername({ username }: { username: string}) {
   }
 }
 
-// update user bio 
+
 export async function updateUserPersonality({ 
   userId, 
   bio, 
