@@ -125,9 +125,8 @@ function MessagePairs({
 
   return <>
     {pairs.map((pair: MessagePair, key: number) => (
-      // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
       <ChatAccordion
-        key={`message-pair-${key}`}
+        key={`${pair.userMessage.id}-${pair.chatGptMessage[0]?.id ?? 'pending'}`}
         defaultState={
           key === 0 || (key === pairs.length - 1 && isNewResponse)
         }
@@ -186,8 +185,7 @@ function MessagePairs({
             ? pair.chatGptMessage.map((message, index) => (
               <ChatMessage
                 actionRequired={false}
-                // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-                key={index}
+                key={message.id}
                 message={message}
                 sendMessageFromResponse={sendMessageFn}
               />
