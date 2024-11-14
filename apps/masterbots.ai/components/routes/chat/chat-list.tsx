@@ -63,9 +63,6 @@ export function ChatList({
     loadMore: () => { }
   })
 
-  console.log('messages', messages)
-  console.log('messages pairs', pairs)
-
   useEffect(() => {
     // *Prevent unnecessary updates: only set pairs if the new message list is different
     if (messages.length) {
@@ -219,8 +216,8 @@ export function ChatLoadingState() {
           <p className="leading-none flex flex-col gap-1">
             <span>
               Searching on the web{' '}
-              {Array.from({ length: 3 }).map((_, index) => (
-                <span key={index} className="animate-pulse rounded-full text-4xl h-0.5 leading-none" style={{ animationDelay: `${index * 100}ms` }}>.</span>
+              {['first-dot', 'second-dot', 'third-dot'].map((key) => (
+                <span key={key} className="animate-pulse rounded-full text-4xl h-0.5 leading-none" style={{ animationDelay: `${index * 100}ms` }}>.</span>
               ))}
             </span>
             <b className="text-xs">

@@ -4,6 +4,9 @@ import { ButtonScrollToBottom } from '@/components/shared/button-scroll-to-botto
 import { Button } from '@/components/ui/button'
 import { IconRefresh, IconShare, IconStop } from '@/components/ui/icons'
 import { useThread } from '@/lib/hooks/use-thread'
+import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
+import { usePowerUp } from '@/lib/hooks/use-power-up'
 import * as React from 'react'
 
 interface ChatPanelHeaderProps {
@@ -30,67 +33,82 @@ export function ChatPanelHeader({
   scrollToBottom,
   isAtBottom
 }: ChatPanelHeaderProps) {
+  // TODO: Attach Share func to user chats chat pop-up
   const [shareDialogOpen, setShareDialogOpen] = React.useState(false)
   const { loadingState } = useThread()
+  const { isPowerUp, togglePowerUp } = usePowerUp()
 
   return (
     <div className="flex flex-col items-center justify-between w-full px-2 py-3.5 space-y-2 bg-background md:flex-row md:space-y-0">
-      {showReload && (
-        <div className="flex items-center px-2 gap-2">
-          {isLoading || loadingState ? (
-            <>
-              {/* Displays loading state message if active */}
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center space-x-1 drop-shadow-lg">
-                  {Array.from({ length: 3 }).map((_, index) => (
-                    <span key={index} className="animate-pulse rounded-full bg-primary size-1" style={{ animationDelay: `${index * 100}ms` }} />
-                  ))}
-                </div>
-                <p className="text-sm font-bold text-primary drop-shadow-lg">
-                  {loadingState}
-                </p>
-              </div>
-              <Button
-                variant="outline"
-                onClick={stop}
-                className="bg-background"
-              >
-                <IconStop className="mr-2" />
-                Stop generating
-              </Button>
-            </>
-          ) : (
-            messages?.length >= 2 && (
-              <>
-                <Button variant="outline" onClick={reload}>
-                  <IconRefresh className="mr-2" />
-                  Regenerate response
-                </Button>
-                {id && title && (
-                  <>
-                    <Button
-                      variant="outline"
-                      onClick={() => setShareDialogOpen(true)}
-                    >
-                      <IconShare className="mr-2" />
-                      Share
-                    </Button>
-                    <ChatShareDialog
-                      onCopy={() => setShareDialogOpen(false)} // Closes dialog after copying link.
-                      chat={{
-                        id,
-                        title,
-                        messages
-                      }}
-                    />
-                  </>
-                )}
-              </>
-            )
-          )}
+      <div className="flex items-center gap-4 mx-2">
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="power-up"
+            checked={isPowerUp}
+            onCheckedChange={togglePowerUp}
+          />
+          <Label htmlFor="power-up-mode" className="text-sm font-normal">
+            Power-Up
+          </Label>
         </div>
-      )}
-      {/* ButtonScrollToBottom provides a button to scroll to the bottom of the chat */}
+
+        {showReload && (
+          <div className="flex items-center px-2 space-x-2">
+            {isLoading || loadingState ? (
+              <>
+                {loadingState && (
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center space-x-1 drop-shadow-lg">
+                      <div className="rounded-full size-2 bg-primary animate-pulse" />
+                      <div className="rounded-full size-2 bg-primary animate-pulse" />
+                      <div className="rounded-full size-2 bg-primary animate-pulse" />
+                    </div>
+                    <p className="text-sm font-bold text-primary drop-shadow-lg">
+                      {loadingState}
+                    </p>
+                  </div>
+                )}
+                <Button
+                  variant="outline"
+                  onClick={stop}
+                  className="bg-background"
+                >
+                  <IconStop className="mr-2" />
+                  Stop generating
+                </Button>
+              </>
+            ) : (
+              messages?.length >= 2 && (
+                <>
+                  <Button variant="outline" onClick={reload}>
+                    <IconRefresh className="mr-2" />
+                    Regenerate response
+                  </Button>
+                  {id && title && (
+                    <>
+                      <Button
+                        variant="outline"
+                        onClick={() => setShareDialogOpen(true)}
+                      >
+                        <IconShare className="mr-2" />
+                        Share
+                      </Button>
+                      <ChatShareDialog
+                        onCopy={() => setShareDialogOpen(false)}
+                        chat={{
+                          id,
+                          title,
+                          messages
+                        }}
+                      />
+                    </>
+                  )}
+                </>
+              )
+            )}
+          </div>
+        )}
+      </div>
       <ButtonScrollToBottom
         scrollToBottom={scrollToBottom}
         isAtBottom={isAtBottom}
