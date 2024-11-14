@@ -56,7 +56,7 @@ export default function ThreadComponent({
 }) {
   const threadRef = useRef<HTMLLIElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
-  const { allMessages, isNewResponse } = useThread()
+  const { isNewResponse } = useThread()
   const { isAdminMode } = useThreadVisibility()
 
   const { isNearBottom, scrollToTop } = useScroll({
@@ -127,7 +127,6 @@ export default function ThreadComponent({
             className="max-w-full !px-0"
             isThread={false}
             chatbot={thread.chatbot}
-            messages={allMessages}
             containerRef={contentRef}
             isNearBottom={isNearBottom}
           />

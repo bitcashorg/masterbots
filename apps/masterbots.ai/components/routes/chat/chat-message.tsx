@@ -73,6 +73,18 @@ export function ChatMessage({
             ul({ children }) {
               return <ul className="list-disc list-inside text-left">{children}</ul>
             },
+            a({ node, children, ...props }) {
+              return (
+                <a
+                  className="text-blue-500 underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  {...props}
+                >
+                  {children}
+                </a>
+              )
+            },
             code({ node, inline, className, children, ...props }) {
               //* Handle cursor animation for streaming responses
               if (children.length) {

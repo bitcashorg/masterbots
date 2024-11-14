@@ -36,7 +36,7 @@ import { getThreads } from '@/services/hasura'
 import type { Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import { useParams } from 'next/navigation'
-import React, { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 const PAGE_SIZE = 20
 
@@ -53,20 +53,20 @@ export default function UserThreadPanel({
   const { activeCategory, activeChatbot } = useSidebar()
   const { isOpenPopup, activeThread, setActiveThread, setIsOpenPopup } =
     useThread()
-  const [loading, setLoading] = React.useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false)
   const { threads: hookThreads } = useThreadVisibility()
-  const [searchTerm, setSearchTerm] = React.useState<string>('')
+  const [searchTerm, setSearchTerm] = useState<string>('')
   
-  const finalThreads = React.useMemo(
+  const finalThreads = useMemo(
     () => initialThreads ?? hookThreads,
     [initialThreads, hookThreads]
   )
 
-  const [threads, setThreads] = React.useState<Thread[]>(finalThreads ?? [])
-  const [count, setCount] = React.useState<number>(finalThreads?.length ?? 0)
-  const [totalThreads, setTotalThreads] = React.useState<number>(0)
+  const [threads, setThreads] = useState<Thread[]>(finalThreads ?? [])
+  const [count, setCount] = useState<number>(finalThreads?.length ?? 0)
+  const [totalThreads, setTotalThreads] = useState<number>(0)
 
-  React.useEffect(() => {
+  useEffect(() => {
     setThreads(finalThreads)
     setCount(finalThreads?.length ?? 0)
     setTotalThreads(finalThreads?.length ?? 0)
@@ -113,12 +113,12 @@ export default function UserThreadPanel({
     setLoading(false)
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     handleThreadsChange()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeCategory, activeChatbot])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isOpenPopup) {
       handleThreadsChange()
     }
@@ -129,8 +129,8 @@ export default function UserThreadPanel({
     if (
       threads &&
       threads.filter(t => t.threadId === activeThread?.threadId).length
-    )
-      return
+    ) return
+
     setIsOpenPopup(false)
     setActiveThread(null)
     // eslint-disable-next-line react-hooks/exhaustive-deps

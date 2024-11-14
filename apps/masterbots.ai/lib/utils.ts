@@ -37,6 +37,15 @@ export async function fetcher<JSON = any>(
   return res.json()
 }
 
+export function delayFetch(ms = 200) {
+  return new Promise(resolve => {
+    const timeout = setTimeout(() => {
+      clearTimeout(timeout)
+      resolve(true)
+    }, ms)
+  })
+}
+
 export function formatDate(input: string | number | Date): string {
   const date = new Date(input)
   return date.toLocaleDateString('en-US', {
