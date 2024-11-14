@@ -120,6 +120,7 @@ export async function getWebSearchTool({
     const reader = runAppResponse.body.getReader()
     const decoder = new TextDecoder()
     // ! error TS1501: This regular expression flag is only available when targeting 'es2018' or later.
+    // const jsonRegex = /data:\s*({.*?})(?=\s*data:|\s*event:|$)/gs
     // ? Changing target not working.
     // TODO: Check typescript config...
     const jsonRegex = /data:\s*({.*?})(?=\s*data:|\s*event:|$)/g
