@@ -15,7 +15,10 @@ export default async function ProfileChatBot({ params }: {  params: {
     const { slug, category, chatbot } = params;
     const session = await getServerSession(authOptions);
     const jwt = session ? session.user?.hasuraJwt : '';
-    const { user, error } =  await getUserBySlug({ slug, jwt});
+    const { user, error } =  await getUserBySlug({ 
+      slug, 
+      jwt: session?.user.slug === slug ? session?.user.hasuraJwt : undefined
+    });
     if (!user) return <div>No user found</div>
 
     const chatbotName = botNames.get(chatbot);

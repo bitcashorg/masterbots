@@ -17,7 +17,6 @@ export const ProfileSidebar = ({ children }: any) => {
   const location = useLocation();
   const { slug } = useParams()
   const { isSidebarOpen,  toggleSidebar } = useSidebar();
-
   return (
     <div className="relative h-screen w-full">
       {/* Overlay for mobile */}
@@ -73,11 +72,11 @@ export const ProfileSidebar = ({ children }: any) => {
                 </Link>
                 <div
                   className={cn(
-                    "overflow-hidden transition-all duration-300",
-                    isThreadsOpen ? "max-h-[300px]" : "max-h-0"
+                    "overflow-scroll   transition-all duration-300",
+                    isThreadsOpen ? "max-h-[300px]  border dark:border-b-mirate border-b-gray-200" : "max-h-0"
                   )}
                 >
-                  <div className="border dark:border-b-mirate border-b-gray-200 overflow-y-auto scrollbar">
+                  <div className=" overflow-y-auto scrollbar">
                     <SidebarCategoryGeneral page="profile" />
                   </div>
                 </div>
@@ -115,6 +114,7 @@ export const ProfileSidebar = ({ children }: any) => {
         {/* Main content */}
         <div className="flex-1 w-full overflow-auto">
           <main className="h-full w-full p-6">
+            
             {children}
           </main>
         </div>

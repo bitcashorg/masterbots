@@ -21,6 +21,7 @@ export function NoResults({
   customMessage,
   isLoading = false
 }: NoResultsProps) {
+
   if (isLoading) {
     return <NoResultsSkeleton />
   }

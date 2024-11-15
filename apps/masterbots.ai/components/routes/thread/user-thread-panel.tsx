@@ -65,7 +65,7 @@ export default function UserThreadPanel({
     () => initialThreads ?? hookThreads,
     [initialThreads, hookThreads]
   )
-  
+
   const [threads, setThreads] = useState<Thread[]>(finalThreads ?? [])
   const [count, setCount] = useState<number>(finalThreads?.length ?? 0)
   const [totalThreads, setTotalThreads] = useState<number>(0)
@@ -116,12 +116,12 @@ export default function UserThreadPanel({
     setLoading(false)
   }
 
-
   useEffect(() => {
-     if (page !== 'profile' && (!isOpenPopup || activeCategory || activeChatbot)) {
-       handleThreadsChange()
-     }
-   }, [page, isOpenPopup, activeCategory, activeChatbot, handleThreadsChange])
+  if(page !== 'profile' && (!isOpenPopup || activeCategory || activeChatbot)) {
+    handleThreadsChange()
+  } }
+  , [activeCategory, activeChatbot, isOpenPopup, page])
+
 
   useEffect(() => {
     if (

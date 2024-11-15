@@ -787,7 +787,7 @@ export async function getUserBySlug({ slug, jwt }: { slug: string, jwt: string |
         __args: {
           where: {
             slug: {
-              _eq: slug
+               _ilike: slug
             }
           }
         },

@@ -20,7 +20,10 @@ export default async function BrowseCategoryPage({
   )
   
   const slug = params.slug
-   const { user, error } =  await getUserBySlug({slug, jwt: session?.user?.hasuraJwt as string});
+   const { user, error } =  await getUserBySlug({
+    slug, 
+    jwt: session?.user.slug === slug ? session?.user.hasuraJwt : undefined
+   });
 
   if (!category) return <div className="text-center p-4">Category '{params.category}' not found</div>
   if (error) return <div className="text-center p-4">Error loading profile: {error}</div>
