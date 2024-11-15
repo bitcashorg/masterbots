@@ -5,9 +5,9 @@ import { getUserBySlug, updateUserPersonality } from '@/services/hasura'
 import { useSession } from 'next-auth/react'
 
 interface profileContextProps {
- getuserInfo: (username: string) => Promise<any>
- isSameUser: (userId: string) => boolean
- updateUserInfo: (bio: string | null, topic: string | null) => void
+  getuserInfo: (username: string) => Promise<any>
+  isSameUser: (userId: string) => boolean
+  updateUserInfo: (bio: string | null, topic: string | null) => void
 }
 
 const profileContext = React.createContext<profileContextProps | undefined>(
@@ -27,33 +27,50 @@ interface ProfileProviderProps {
 }
 
 export function ProfileProvider({ children }: ProfileProviderProps) {
-   
-    const { data: session } = useSession()
+  const { data: session } = useSession()
 
-    const getuserInfo = async (slug: string) => {
-        const userInfo = await getUserBySlug({slug , jwt: session?.user.slug === slug ? session?.user.hasuraJwt : undefined});
-        return userInfo  
+  const getuserInfo = async (slug: string): Promise<any> => {
+    if (!slug?.trim()) {
+      throw new Error('Slug is required')
     }
-    const isSameUser = (userId: string) => {
-       return session?.user.id === userId
+    try {
+      const userInfo = await getUserBySlug({
+        slug,
+        jwt: session?.user.slug === slug ? session?.user.hasuraJwt : undefined
+      })
+      if (!userInfo) {
+        throw new Error('User not found')
+      }
+      return userInfo
+    } catch (error) {
+      console.error('Failed to fetch user info:', error)
+      throw error
     }
+  }
+  const isSameUser = (userId: string) => {
+    if (!userId?.trim() || !session?.user?.id) {
+             return false
+         }
+    return session?.user.id === userId
+  }
 
-    const updateUserInfo = async( bio: string | null, topic: string | null) => {
-       try{
-        await updateUserPersonality({
-          userId: session?.user.id,
-          jwt: session?.user.hasuraJwt,
-          bio,
-          topic
-         })
-       }catch(e){
-         console.log(e)
-       }
+  const updateUserInfo = async (bio: string | null, topic: string | null) => {
+    try {
+      await updateUserPersonality({
+        userId: session?.user.id,
+        jwt: session?.user.hasuraJwt,
+        bio,
+        topic
+      })
+    } catch (e) {
+      console.log(e)
     }
-
+  }
 
   return (
-    <profileContext.Provider value={{ getuserInfo, isSameUser, updateUserInfo }}>
+    <profileContext.Provider
+      value={{ getuserInfo, isSameUser, updateUserInfo }}
+    >
       {children}
     </profileContext.Provider>
   )

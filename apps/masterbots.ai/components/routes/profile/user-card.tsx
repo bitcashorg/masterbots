@@ -9,7 +9,7 @@ import { nanoid, removeSurroundingQuotes } from '@/lib/utils'
 import { useModel } from '@/lib/hooks/use-model'
 import toast from 'react-hot-toast'
 import { UserPersonalityPrompt } from '@/lib/constants/prompts'
-import {  useEffect, useState } from 'react'
+import {  useCallback, useEffect, useState } from 'react'
 
 interface UserCardProps {
   user: User | null
@@ -26,13 +26,17 @@ export function UserCard({ user, loading }: UserCardProps) {
   
 
   const userQuestions = user?.threads.map((thread) => {
+
+    if (!thread.messages?.length) {
+       return null;
+       }
     return {
       id: thread.threadId,
       content: thread.messages[0].content,
       createdAt:  new Date(),
       role: "user" as Message["role"],
     }
-  })
+  }).filter(Boolean) as Message[]
   const [lastMessage, setLastMessage] = useState<string | null>(null)
 
   const { append } = useChat({
@@ -46,31 +50,42 @@ export function UserCard({ user, loading }: UserCardProps) {
     onResponse(response) {
       if (response.status === 401) {
         toast.error(response.statusText)
-      }
+      } else if (!response.ok) {
+        toast.error('Failed to process request')
+    }
+    setIsLoading(false)
+  },
+    onError(error) {
+      toast.error('An error occurred')
       setIsLoading(false)
     },
     async onFinish(message) {
       setLastMessage(message.content)
     },
   })
-  
+
+ const handleUpdateUserInfo = useCallback(async () => {
+    if (lastMessage) {
+    try {
+        if (generateType === 'topic') {
+          setFavouriteTopic(removeSurroundingQuotes(lastMessage))     
+           await updateUserInfo(null, removeSurroundingQuotes(lastMessage))
+        } else {
+          setBio(removeSurroundingQuotes(lastMessage))
+           await updateUserInfo(removeSurroundingQuotes(lastMessage), null)
+        }
+    } catch (error) {
+      toast.error('Failed to update user information')
+    } finally {
+        setIsLoading(false)
+    }
+    }
+  }, [lastMessage, generateType, updateUserInfo])
+
   useEffect(() => {
     handleUpdateUserInfo()
-  }, [lastMessage])
+  }, [handleUpdateUserInfo])
 
-
-  const handleUpdateUserInfo = async() => {
-    if (lastMessage) { 
-      if (generateType === 'topic') {
-        setFavouriteTopic(removeSurroundingQuotes(lastMessage))
-        updateUserInfo(null, removeSurroundingQuotes(lastMessage))
-      } else {
-        setBio(removeSurroundingQuotes(lastMessage))
-        updateUserInfo(removeSurroundingQuotes(lastMessage), null)
-      }
-      setIsLoading(false)
-    }
-  }
  
   const generateBio = (type: string) => {
     setIsLoading(true)
@@ -168,7 +183,7 @@ export function UserCard({ user, loading }: UserCardProps) {
            {/* Implementation for this comes next :) */}
           {/* <div className=' flex flex-col  items-center md:mt-0 mt-7  space-y-3'>
            {!isOwner && (
-          <button className="px-10 py-1 text-sm text-white  rounded-md bg-[#BE17E8] hover:bg-[#BE17E8] dark:bg-[#83E56A] dark:hover:bg-[#83E56A] dark:text-black transition-colors">
+          <button aria-label={`Follow ${user?.username}`} className="px-10 py-1 text-sm text-white  rounded-md bg-[#BE17E8] hover:bg-[#BE17E8] dark:bg-[#83E56A] dark:hover:bg-[#83E56A] dark:text-black transition-colors">
             Follow
           </button>
           )}
@@ -201,7 +216,7 @@ export function UserCard({ user, loading }: UserCardProps) {
               <Image
                 className="transition-opacity duration-300 rounded-full select-none size-full ring-1 ring-zinc-100/10 hover:opacity-80 object-cover"
                 src={user?.profilePicture ? user.profilePicture : ''}
-                alt="Default Avatar"
+                alt={`${user.username}'s profile picture`}
                 height={136}
                 width={136}
               />

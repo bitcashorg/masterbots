@@ -13,7 +13,7 @@ export default async function BrowseCategoryPage({
 
   
   const session = await getServerSession(authOptions)
- let threads: any = []
+ let threads: Thread[] = []
   const categories = await getCategories()
   const category = categories.find(
     category => toSlug(category.name) === params.category
@@ -22,9 +22,9 @@ export default async function BrowseCategoryPage({
   const slug = params.slug
    const { user, error } =  await getUserBySlug({slug, jwt: session?.user?.hasuraJwt as string});
 
-  if (!category) return <div>No category found</div>
-  if (!user) return <div>No user found</div>
-
+  if (!category) return <div className="text-center p-4">Category '{params.category}' not found</div>
+  if (error) return <div className="text-center p-4">Error loading profile: {error}</div>
+  if (!user) return <div className="text-center p-4">User '{params.slug}' not found</div>
  
   if(session?.user?.id !== user?.userId){
     const list = await getBrowseThreads({ userId: user.userId, categoryId: category?.categoryId });

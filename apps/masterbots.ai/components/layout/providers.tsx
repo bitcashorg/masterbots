@@ -22,19 +22,14 @@ export function Providers({ children, ...props }: ThemeProviderProps) {
             <TooltipProvider>
               <SessionProvider>
                 <ProfileProvider>
+                  <PowerUpProvider>
+                  <ThreadSearchProvider>
                 <ThreadProvider> 
                   <ThreadVisibilityProvider> {children}</ThreadVisibilityProvider>
                 </ThreadProvider>
-                </ProfileProvider>
-                <ThreadSearchProvider>
-                  <PowerUpProvider>
-                    <ThreadProvider>
-                      <ThreadVisibilityProvider>
-                        {children}
-                      </ThreadVisibilityProvider>
-                    </ThreadProvider>
-                  </PowerUpProvider>
                 </ThreadSearchProvider>
+                </PowerUpProvider>
+                </ProfileProvider>
               </SessionProvider>
             </TooltipProvider>
           </SidebarProvider>

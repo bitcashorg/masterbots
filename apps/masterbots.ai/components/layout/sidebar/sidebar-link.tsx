@@ -50,7 +50,7 @@ export default function SidebarLink({ category, isFilterMode, page }: SidebarLin
         const newCategory = prev === category.categoryId ? null : category.categoryId
         if (newCategory && isBrowse) {
           setActiveChatbot(null)
-          router.push( page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}` :`/c/${toSlug(category.name)}`)
+          router.push( page === 'profile' ? `/u/${slug}/t/${toSlug(category.name.toLowerCase())}` :`/c/${toSlug(category.name.toLowerCase())}`)
         }
         return newCategory
       })

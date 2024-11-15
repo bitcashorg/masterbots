@@ -24,7 +24,14 @@ export const ProfileSidebar = ({ children }: any) => {
       {isSidebarOpen && (
         <div 
           className="fixed inset-0 bg-black/20 z-30 lg:hidden"
-          onClick={() => toggleSidebar()}
+           onClick={() => toggleSidebar()}
+           role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === 'Space') {
+              toggleSidebar();
+            }
+          }}
         />
       )}
 

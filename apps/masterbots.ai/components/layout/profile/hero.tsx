@@ -1,10 +1,10 @@
 'use client'
-import { UserCard } from "@/components/routes/profile/user-card"
+import { UserCard } from '@/components/routes/profile/user-card'
 import { useParams } from 'next/navigation'
 import { useProfile } from '@/lib/hooks/use-profile'
-import { useEffect, useState } from "react"
-import { User } from "mb-genql"
-import { useSession } from "next-auth/react"
+import { useEffect, useState } from 'react'
+import { User } from 'mb-genql'
+import { useSession } from 'next-auth/react'
 
 export function Hero() {
   const { slug } = useParams()
@@ -13,33 +13,41 @@ export function Hero() {
   const [loading, setLoading] = useState(false)
   const session = useSession()
 
-  // get user info
-   async function UserInfoInit(){
-    setLoading(true)
-    const {user, error} =  await  getuserInfo(slug as string)
-    if (error) {
-      console.log(error)
-    }
-    setUser(user)
-    setLoading(false)
-    
-  }
 
   useEffect(() => {
+    let isActive = true
     if (slug) {
-       UserInfoInit()
+      const fetchData = async () => {
+        setLoading(true)
+        try {
+          const { user, error } = await getuserInfo(slug as string)
+          if (!isActive) return
+          if (error) {
+            console.log(error)
+            setUser(null)
+            return
+          }
+          setUser(user)
+        } finally {
+          if (isActive) {
+            setLoading(false)
+          }
+        }
+      }
+      fetchData()
     }
-  },[slug])
-
+    return () => {
+      isActive = false
+    }
+  }, [slug])
 
   //  if (!loading && !user) return null;
-    return (
-      <div className="relative bg-left-bottom py-10 bg-[url('/hero-bg.png')] bg-no-repeat ">
+  return (
+    <div className="relative bg-left-bottom py-10 bg-[url('/hero-bg.png')] bg-no-repeat ">
       <div className="absolute inset-0 bg-gradient-to-l from-mirage via-[#2B5D91]/80 to-[#388DE2]/80"></div>
       <div className="relative z-[2] md:px-0 px-5">
-          <UserCard user={user} loading={loading} /> 
+        <UserCard user={user} loading={loading} />
       </div>
     </div>
-    )
-
+  )
 }

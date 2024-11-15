@@ -22,10 +22,11 @@ export  function UserThreadList() {
 
    async function UserInfoInit() {
        setLoading(true)
+       try {
        let threads: Thread[] = []
-        const { user, error } = await getuserInfo(slug as string)
+        const { user, error } = await getuserInfo(slug  as string ?? '')
         if (error) {
-            console.log(error)
+             throw new Error(`Failed to fetch user info: ${error}`)
         }
         if(user && !isSameUser(user.userId)){
             threads = await getBrowseThreads({ userId: user?.userId });   
@@ -33,9 +34,13 @@ export  function UserThreadList() {
            threads = await  getThreads({jwt: session?.user?.hasuraJwt as string, userId: user?.userId });
         }
         setUser(user)
-        console.log({ threads })
         setThreads(threads)
+      } catch (error) {
+          console.error('Failed to fetch user data:', error);
+         setThreads([]);
+      } finally {
         setLoading(false)
+       }
     }
 
     const loadMore = async () => {
@@ -51,7 +56,7 @@ export  function UserThreadList() {
           offset: threads.length
         })
       }
-        if (moreThreads) setThreads((prevState: any) => [...prevState, ...moreThreads])
+      if (moreThreads) setThreads((prevState: Thread[] = []) => [...prevState, ...moreThreads])
          setLoading(false)
       }
     

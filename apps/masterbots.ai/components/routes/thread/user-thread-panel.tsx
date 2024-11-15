@@ -116,19 +116,12 @@ export default function UserThreadPanel({
     setLoading(false)
   }
 
- useEffect(() => {
-    if(page !== 'profile') {
-      handleThreadsChange()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeCategory, activeChatbot])
 
- useEffect(() => {
-    if (!isOpenPopup && page !== 'profile') {
-      handleThreadsChange()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpenPopup])
+  useEffect(() => {
+     if (page !== 'profile' && (!isOpenPopup || activeCategory || activeChatbot)) {
+       handleThreadsChange()
+     }
+   }, [page, isOpenPopup, activeCategory, activeChatbot, handleThreadsChange])
 
   useEffect(() => {
     if (
