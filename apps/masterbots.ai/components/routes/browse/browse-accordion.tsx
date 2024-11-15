@@ -33,12 +33,12 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { cn } from '@/lib/utils'
 import { ChevronDown } from 'lucide-react'
 import type { Thread } from 'mb-genql'
-import React from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 // Helper function to handle body scroll
 const toggleBodyScroll = (disable: boolean) => {
   if (typeof window === 'undefined') return
-  
+
   document.body.style.overflow = disable ? 'hidden' : 'auto'
   // Prevent iOS Safari bouncing
   document.body.style.position = disable ? 'fixed' : 'static'
@@ -82,10 +82,10 @@ export function BrowseAccordion({
     isNewResponse,
     isOpenPopup
   } = useThread()
-  const [open, setOpen] = React.useState(
+  const [open, setOpen] = useState(
     defaultState || activeThread?.threadId === thread?.threadId
   )
-  const accordionRef = React.useRef<HTMLDivElement>(null)
+  const accordionRef = useRef<HTMLDivElement>(null)
 
   const isAnotherThreadOpen =
     !isNestedThread &&
@@ -93,21 +93,21 @@ export function BrowseAccordion({
     thread?.threadId !== activeThread?.threadId
   const shouldBeDisabled = disabled || isAnotherThreadOpen
 
-    //? Handle body scroll locking
-    React.useEffect(() => {
-      const isMobile = window.innerWidth < 640 // sm breakpoint
-      
-      if (isMobile && open && !isNestedThread) {
-        toggleBodyScroll(true)
-      } else {
-        toggleBodyScroll(false)
-      }
-  
-      // Cleanup on unmount
-      return () => toggleBodyScroll(false)
-    }, [open, isNestedThread])
+  //? Handle body scroll locking
+  useEffect(() => {
+    const isMobile = window.innerWidth < 640 // sm breakpoint
 
-  React.useEffect(() => {
+    if (isMobile && open && !isNestedThread) {
+      toggleBodyScroll(true)
+    } else {
+      toggleBodyScroll(false)
+    }
+
+    // Cleanup on unmount
+    return () => toggleBodyScroll(false)
+  }, [open, isNestedThread])
+
+  useEffect(() => {
     if (
       (thread?.threadId &&
         activeThread !== null &&
@@ -118,13 +118,13 @@ export function BrowseAccordion({
     }
   }, [activeThread, thread])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isOpen !== undefined) {
       setOpen(isOpen)
     }
   }, [isOpen])
 
-  const toggle = React.useCallback(() => {
+  const toggle = () => {
     if (shouldBeDisabled) return
 
     setOpen((prevOpen: boolean) => {
@@ -151,18 +151,9 @@ export function BrowseAccordion({
 
       return newState
     })
-  }, [
-    handleOpen,
-    thread,
-    isNewResponse,
-    setIsNewResponse,
-    onToggle,
-    setActiveThread,
-    shouldBeDisabled,
-    isNestedThread
-  ])
+  }
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (
       !isOpenPopup &&
       activeThread &&

@@ -22,7 +22,7 @@
     "noEmit": true,
     "resolveJsonModule": true,
     "strict": false,
-    "target": "es5"
+    "target": "ES2019"
   },
   "include": [
     "src",

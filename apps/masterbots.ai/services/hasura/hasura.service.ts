@@ -91,7 +91,10 @@ export async function getChatbots({
         threadId: true
       },
       categories: {
-        categoryId: true
+        categoryId: true,
+        category: {
+          name: true
+        }
       },
       ...everything,
       __args: {
@@ -309,7 +312,7 @@ export async function createThread({
       threadId: true
     }
   })
-  return insertThreadOne?.threadId
+  return insertThreadOne?.threadId as string
 }
 
 export async function getChatbot({
@@ -562,13 +565,12 @@ export async function getThreadsWithoutJWT() {
   const { thread } = await client.query({
     thread: {
       chatbot: {
-        ...everything
-      },
-      categories: {
-        category: {
-          ...everything
+        categories: {
+          category: {
+            name: true
+          }
         },
-        ...everything
+        name: true
       },
       ...everything,
       __args: {

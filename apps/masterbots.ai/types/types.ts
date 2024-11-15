@@ -1,3 +1,4 @@
+import { WordWareFlowPaths } from '@/types/wordware-flows.types'
 import type { Message } from 'ai'
 import type { Chatbot, LabelChatbotCategory } from 'mb-genql'
 import 'next-auth'
@@ -16,10 +17,15 @@ export interface Chat extends Record<string, any> {
   sharePath?: string
 }
 
+export type AiToolCall = {
+  toolCallId: string
+  toolName: WordWareFlowPaths
+  args: Record<string, any>
+}
+
 export interface ChatProps extends React.ComponentProps<'div'> {
   initialMessages?: Message[]
   chatbot?: Chatbot
-  threadId: string
   newThread?: boolean
   chatPanelClassName?: string
   isPopup?: boolean
@@ -206,12 +212,10 @@ export interface Plan {
   features_title: string
 }
 
-
-
 export interface ChatPageProps {
   params: {
-    category: string;
-    chatbot?: string;
-    threadId: string;
-  };
+    category: string
+    chatbot?: string
+    threadId: string
+  }
 }

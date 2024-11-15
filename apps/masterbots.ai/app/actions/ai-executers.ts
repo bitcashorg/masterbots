@@ -11,6 +11,7 @@ import { subtractChatbotMetadataLabels } from '.'
 
 const { WORDWARE_API_KEY } = process.env
 
+// TODO: Finish ICL implementation. ICL should be called as a tool that Ai will use to generate content.
 export async function getChatbotMetadataTool({
   chatbot,
   userContent
@@ -118,8 +119,11 @@ export async function getWebSearchTool({
 
     const reader = runAppResponse.body.getReader()
     const decoder = new TextDecoder()
-    const jsonRegex =
-      /data:\s*\{(?:[^{}]|(?:\{(?:[^{}]|(?:\{[^{}]*\}))*\}))*\}/g
+    // ! error TS1501: This regular expression flag is only available when targeting 'es2018' or later.
+    // const jsonRegex = /data:\s*({.*?})(?=\s*data:|\s*event:|$)/gs
+    // ? Changing target not working.
+    // TODO: Check typescript config...
+    const jsonRegex = /data:\s*({.*?})(?=\s*data:|\s*event:|$)/g
 
     let buffer = ''
     let results = ''
@@ -131,68 +135,62 @@ export async function getWebSearchTool({
 
         buffer += decoder.decode(value, { stream: true })
 
-        // console.log('Buffer: [Before Changes] => ', buffer)
-
         let match
         let lastIndex = 0
         while ((match = jsonRegex.exec(buffer)) !== null) {
-          const jsonStr = match[0].replace(/^data:\s*/, '')
+          console.log('match', match)
+          const jsonStr = match[0].replace(/^(data:|data)\s*/, '')
+          console.log('buffer [within while] ==> ', buffer)
           const validatedJson = validateAndSanitizeJson(jsonStr)
           if (validatedJson) {
             const jsonData = JSON.parse(validatedJson)
-            console.log('jsonData [TRY] ==> ', jsonData)
-            if (jsonData.path === webSearchFlow.path) {
-              console.log('jsonData [CAUGHT] ==> ', jsonData)
-
+            if (jsonData.path === 'web search.output') {
               results += jsonData.content
+            } else if (jsonData.path === 'web search.error') {
+              return JSON.stringify({
+                error: jsonData.content
+              })
             }
           }
           lastIndex = jsonRegex.lastIndex
         }
 
-        //* Keeping the unmatched part in the buffer
         buffer = buffer.slice(lastIndex)
 
-        //? Buffer is getting too large warning
         if (buffer.length > 10000) {
-          console.warn('Buffer overflow, clearing unmatched data')
-          buffer = ''
+          console.warn('Buffer is getting too large')
         }
 
         await new Promise(resolve => setTimeout(resolve, 10))
       }
 
-      //* Process any remaining data in the buffer
-      if (buffer.length > 0) {
-        const validatedJson = validateAndSanitizeJson(buffer)
-        if (validatedJson) {
-          const jsonData = JSON.parse(validatedJson)
+      return `${results}
+      
+      ## Output Example:
+      
+      **Resume:**  
+      Brewers: 9  
+      Dodgers: 2
 
-          if (jsonData.path === webSearchFlow.path) {
-            console.log('jsonData ==> ', jsonData)
+      **Summary**  
+      Yelich, Perkins power Brewers to 9-2 victory over Dodgers and avoid being swept in weekend series. — Christian Yelich and Blake Perkins both homered, had three hits and drove in three runs as the Milwaukee Brewers beat the Los Angeles Dodgers 9-2 Sunday to snap a seven-game losing streak at Dodger Stadium.  
+        
+      **Homeruns:**  
+      Yelich
 
-            results += jsonData.content
-          }
-        }
-      }
+      **Winning Pitcher:**  
+      J. Junis
+
+      **Sources**:
+
+      1.  [https://website1.com/](https://website1.com/)
+          
+      2.  [https://website2.com/](https://website2.com/)`
     } catch (error) {
       console.error('Error reading stream: ', error)
     } finally {
       reader.releaseLock()
     }
-
-    const [searchResults, sources] = results.split(
-      /\*\*Source:\*\*|\*\*Sources:\*\*|\*\*Source\*\*:|\*\*Sources\*\*:/
-    )
-    console.log('searchResults ==> ', searchResults)
-    console.log('sources ==> ', sources)
-
-    return JSON.stringify({
-      searchResults,
-      // ? See: https://rapidapi.com/facundoPri/api/url-to-metadata/playground/apiendpoint_830f2c62-e40f-4b62-9fe0-a5dbc2bc07e6
-      sources,
-      error: null
-    })
   } catch (error) {
     console.error('Error fetching app data: ', error)
     return 'Internal Server Error while fetching app data'
