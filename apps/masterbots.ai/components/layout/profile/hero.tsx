@@ -11,12 +11,12 @@ export function Hero() {
   const { getuserInfo } = useProfile()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(false)
-  const session = useSession()
+  const { data: session } = useSession()
 
 
   useEffect(() => {
     let isActive = true
-    if (slug) {
+    if (slug && session) {
       const fetchData = async () => {
         setLoading(true)
         try {
@@ -39,7 +39,7 @@ export function Hero() {
     return () => {
       isActive = false
     }
-  }, [slug])
+  }, [slug, session])
 
   //  if (!loading && !user) return null;
   return (

@@ -687,7 +687,7 @@ export async function getUserRoleByEmail({
   email: string | null | undefined
 }) {
   try {
-    const client = getHasuraClient({})
+    const client = getHasuraClient({ jwt: '' })
     const { user } = await client.query({
       user: {
         __args: {
@@ -779,8 +779,9 @@ export async function getUnapprovedThreads({ jwt }: { jwt: string }) {
   return thread as Thread[]
 }
 
-export async function getUserBySlug({ slug, jwt }: { slug: string, jwt: string | undefined}) {
+export async function getUserBySlug({ slug, jwt, isSameUser }: { slug: string, jwt: string | undefined, isSameUser: boolean }) {
   try {
+    console.log({ slug, jwt, isSameUser })
     const client = getHasuraClient({ jwt })
     const { user } = await client.query({
       user: {
@@ -795,11 +796,11 @@ export async function getUserBySlug({ slug, jwt }: { slug: string, jwt: string |
         username: true,
         profilePicture: true,
         slug: true,
-        // bio: true,
-        // favouriteTopic: true,
+        bio: true,
+        favouriteTopic: true,
         threads: {
           __args: {
-            where: jwt !== undefined  
+            where: isSameUser
               ? {} 
               : { 
                   _and: [

@@ -22,7 +22,8 @@ export default async function BrowseCategoryPage({
   const slug = params.slug
    const { user, error } =  await getUserBySlug({
     slug, 
-    jwt: session?.user.slug === slug ? session?.user.hasuraJwt : undefined
+    jwt: session?.user.hasuraJwt,
+    isSameUser: session?.user.slug === slug
    });
 
   if (!category) return <div className="text-center p-4">Category '{params.category}' not found</div>

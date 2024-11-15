@@ -62,10 +62,10 @@ export  function UserThreadList() {
     
 
     useEffect(() => {
-        if (slug) {
+        if (slug && session) {
             UserInfoInit()
         }
-    }, [slug])
+    }, [slug, session])
 
     if (!user) return null
 
