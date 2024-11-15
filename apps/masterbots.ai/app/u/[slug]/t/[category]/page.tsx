@@ -1,4 +1,4 @@
-import { getBrowseThreads, getCategories, getThreads, getUserByUsername } from "@/services/hasura"
+import { getBrowseThreads, getCategories, getThreads, getUserBySlug } from "@/services/hasura"
 import { toSlug } from "mb-lib"
 import { authOptions } from '@/auth'
 import { getServerSession } from "next-auth"
@@ -11,13 +11,16 @@ export default async function BrowseCategoryPage({
   params: { category: string, slug: string }
 }) {
 
+  
   const session = await getServerSession(authOptions)
  let threads: any = []
   const categories = await getCategories()
   const category = categories.find(
     category => toSlug(category.name) === params.category
   )
-   const { user, error } =  await getUserByUsername({username: params.slug});
+  
+  const slug = params.slug
+   const { user, error } =  await getUserBySlug({slug, jwt: session?.user?.hasuraJwt as string});
 
   if (!category) return <div>No category found</div>
   if (!user) return <div>No user found</div>

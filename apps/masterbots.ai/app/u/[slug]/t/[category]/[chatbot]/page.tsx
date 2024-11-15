@@ -1,7 +1,7 @@
 import { authOptions } from "@/auth";
 import UserThreadPanel from "@/components/routes/thread/user-thread-panel";
 import { botNames } from "@/lib/constants/bots-names";
-import { getBrowseThreads, getThreads, getUserByUsername } from "@/services/hasura/hasura.service";
+import { getBrowseThreads, getThreads, getUserBySlug} from "@/services/hasura/hasura.service";
 import { getServerSession } from "next-auth";
 
 
@@ -15,7 +15,7 @@ export default async function ProfileChatBot({ params }: {  params: {
     const { slug, category, chatbot } = params;
     const session = await getServerSession(authOptions);
     const jwt = session ? session.user?.hasuraJwt : '';
-    const { user, error } =  await getUserByUsername({username: slug});
+    const { user, error } =  await getUserBySlug({ slug, jwt});
     if (!user) return <div>No user found</div>
 
     const chatbotName = botNames.get(chatbot);
