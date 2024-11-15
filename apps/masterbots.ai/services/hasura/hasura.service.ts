@@ -793,8 +793,8 @@ export async function getUserBySlug({ slug, jwt }: { slug: string, jwt: string |
         username: true,
         profilePicture: true,
         slug: true,
-        // bio: true,
-        // favouriteTopic: true,
+        bio: true,
+        favouriteTopic: true,
         threads: {
           __args: {
             where: jwt !== undefined  
