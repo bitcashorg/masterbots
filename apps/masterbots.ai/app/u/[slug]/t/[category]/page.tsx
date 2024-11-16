@@ -25,9 +25,9 @@ export default async function BrowseCategoryPage({
     isSameUser: session?.user.slug === slug
    });
 
-  if (!category) return <div className="text-center p-4">Category &apos;{params.category}&apos; not found</div>
-  if (error) return <div className="text-center p-4">Error loading profile: {error}</div>
-  if (!user) return <div className="text-center p-4">User &apos;{params.slug}&apos; not found</div>
+  if (!category) return <div className="text-center p-4">Category <strong>{params.category}</strong> not found</div>
+  if (error) return <div className="text-center p-4">Error loading profile: <strong>{error}</strong></div>
+  if (!user) return <div className="text-center p-4">User <strong>{params.slug}</strong> not found</div>
  
   if(session?.user?.id !== user?.userId){
     const list = await getBrowseThreads({ userId: user.userId, categoryId: category?.categoryId });
