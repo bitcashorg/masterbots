@@ -22,13 +22,12 @@ export default async function BrowseCategoryPage({
   const slug = params.slug
    const { user, error } =  await getUserBySlug({
     slug, 
-    jwt: session?.user.hasuraJwt,
     isSameUser: session?.user.slug === slug
    });
 
-  if (!category) return <div className="text-center p-4">Category '{params.category}' not found</div>
+  if (!category) return <div className="text-center p-4">Category &apos;{params.category}&apos; not found</div>
   if (error) return <div className="text-center p-4">Error loading profile: {error}</div>
-  if (!user) return <div className="text-center p-4">User '{params.slug}' not found</div>
+  if (!user) return <div className="text-center p-4">User &apos;{params.slug}&apos; not found</div>
  
   if(session?.user?.id !== user?.userId){
     const list = await getBrowseThreads({ userId: user.userId, categoryId: category?.categoryId });

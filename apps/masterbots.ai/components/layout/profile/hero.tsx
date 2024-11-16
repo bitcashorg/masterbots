@@ -16,7 +16,7 @@ export function Hero() {
 
   useEffect(() => {
     let isActive = true
-    if (slug && session) {
+    if (slug) {
       const fetchData = async () => {
         setLoading(true)
         try {
@@ -41,7 +41,6 @@ export function Hero() {
     }
   }, [slug, session])
 
-  //  if (!loading && !user) return null;
   return (
     <div className="relative bg-left-bottom py-10 bg-[url('/hero-bg.png')] bg-no-repeat ">
       <div className="absolute inset-0 bg-gradient-to-l from-mirage via-[#2B5D91]/80 to-[#388DE2]/80"></div>

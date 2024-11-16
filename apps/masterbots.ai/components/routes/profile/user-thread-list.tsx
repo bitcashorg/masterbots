@@ -68,8 +68,7 @@ export  function UserThreadList() {
     }, [slug, session])
 
     if (!user) return null
-
-
+      
     return (
         <>
         {threads && threads.length > 0 ? (

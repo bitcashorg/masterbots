@@ -33,12 +33,10 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
     if (!slug?.trim()) {
       throw new Error('Slug is required')
     }
-    console.log({ session })
     try {
       const userInfo = await getUserBySlug({
         slug,
-        jwt: session?.user.hasuraJwt,
-        isSameUser: session?.user.slug === slug
+        isSameUser: session?.user.slug == slug
       })
       if (!userInfo) {
         throw new Error('User not found')

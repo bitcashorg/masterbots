@@ -779,10 +779,9 @@ export async function getUnapprovedThreads({ jwt }: { jwt: string }) {
   return thread as Thread[]
 }
 
-export async function getUserBySlug({ slug, jwt, isSameUser }: { slug: string, jwt: string | undefined, isSameUser: boolean }) {
+export async function getUserBySlug({ slug, isSameUser }: { slug: string, isSameUser: boolean }) {
   try {
-    console.log({ slug, jwt, isSameUser })
-    const client = getHasuraClient({ jwt })
+    const client = getHasuraClient({  })
     const { user } = await client.query({
       user: {
         __args: {
@@ -844,7 +843,7 @@ export async function getUserBySlug({ slug, jwt, isSameUser }: { slug: string, j
     } as const)
 
     if (!user || user.length === 0) {
-      console.log('No user found with username:', slug)
+      console.log('No user found with user slug:', slug)
       return { user: null, error: 'User not found.' }
     }
     return { 

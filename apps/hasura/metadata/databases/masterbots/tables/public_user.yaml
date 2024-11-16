@@ -106,11 +106,14 @@ select_permissions:
   - role: anonymous
     permission:
       columns:
+        - bio
         - date_joined
         - email
+        - favourite_topic
         - last_login
         - pro_user_subscription_id
         - profile_picture
+        - role
         - slug
         - user_id
         - username

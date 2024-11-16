@@ -9,7 +9,7 @@ import { nanoid, removeSurroundingQuotes } from '@/lib/utils'
 import { useModel } from '@/lib/hooks/use-model'
 import toast from 'react-hot-toast'
 import { UserPersonalityPrompt } from '@/lib/constants/prompts'
-import {  useCallback, useEffect, useState } from 'react'
+import {  use, useCallback, useEffect, useState } from 'react'
 
 interface UserCardProps {
   user: User | null
@@ -100,6 +100,14 @@ export function UserCard({ user, loading }: UserCardProps) {
       })
    }
   }
+
+  useEffect(() => {
+    // update bio and topic when user changes
+    setBio(user?.bio)
+    setFavouriteTopic(user?.favouriteTopic)
+  }
+  , [user])
+
   return (
     <div
       className="dark:bg-[#09090B] bg-white rounded-lg p-6 md:w-[600px]
@@ -163,6 +171,12 @@ export function UserCard({ user, loading }: UserCardProps) {
                 <div className="flex items-center space-x-1">
                 <MessageSquareHeart className="w-4 h-4" />
               <p className="">Favourite topic:</p>
+              {isOwner && (
+             <Button disabled={isLoading && generateType === 'topic'} variant="ghost" onClick={() => generateBio('topic')} className="text-sm text-gray-500 border p-2 border-black dark:border-gray-400 hover:text-black dark:hover:text-gray-400">
+               { favouriteTopic ? 'Re-generate' : 'generate'}   
+               {isLoading && generateType === 'topic' ? <Loader className="w-4 h-4 ml-1" /> : <Wand2 className="w-4 h-4 ml-1" />}
+             </Button>
+            )}
               </div>
               {isOwner && !favouriteTopic && (
               <p className="text-xs text-gray-500 md:w-[400px] w-full">
