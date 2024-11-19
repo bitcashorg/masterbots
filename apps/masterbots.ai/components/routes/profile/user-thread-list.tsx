@@ -11,37 +11,13 @@ import { useSession } from 'next-auth/react'
 
 const PAGE_SIZE = 30
 
-export  function UserThreadList() {
+export  function UserThreadList({ user, threads }: { user: User, threads: Thread[] }) {
 
-    const { slug } = useParams()
-    const { getuserInfo, isSameUser } = useProfile()
-    const [user, setUser] = useState<User | null>(null)
+    const { isSameUser } = useProfile()
     const [loading, setLoading] = useState(false)
-    const [threads, setThreads] = useState<any>(undefined)
+    const [nThreads, setThreads] = useState<Thread[]>(threads || [])
     const { data: session } = useSession()
 
-   async function UserInfoInit() {
-       setLoading(true)
-       try {
-       let threads: Thread[] = []
-        const { user, error } = await getuserInfo(slug  as string ?? '')
-        if (error) {
-             throw new Error(`Failed to fetch user info: ${error}`)
-        }
-        if(user && !isSameUser(user.userId)){
-            threads = await getBrowseThreads({ userId: user?.userId });   
-        }else{
-           threads = await  getThreads({jwt: session?.user?.hasuraJwt as string, userId: user?.userId });
-        }
-        setUser(user)
-        setThreads(threads)
-      } catch (error) {
-          console.error('Failed to fetch user data:', error);
-         setThreads([]);
-      } finally {
-        setLoading(false)
-       }
-    }
 
     const loadMore = async () => {
         console.log('🟡 Loading More Content')
@@ -61,23 +37,17 @@ export  function UserThreadList() {
       }
     
 
-    useEffect(() => {
-        if (slug && session) {
-            UserInfoInit()
-        }
-    }, [slug, session])
-
     if (!user) return null
       
     return (
         <>
-        {threads && threads.length > 0 ? (
+        {nThreads && nThreads.length > 0 ? (
         <>
           <div className="flex px-4 py-5 md:px-10">
             <ThreadList
-              threads={threads}
+              threads={nThreads}
               loading={loading}
-              count={threads.length}
+              count={nThreads.length}
               pageSize={PAGE_SIZE}
               loadMore={loadMore}
             />
@@ -86,7 +56,7 @@ export  function UserThreadList() {
       ) : (
         ''
       )}
-      {(!threads || threads.length === 0) && <ChatChatbotDetails page="profile" />}
+      {(!nThreads || nThreads.length === 0) && <ChatChatbotDetails page="profile" />}
        </>
     )
 }

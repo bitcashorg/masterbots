@@ -2,8 +2,42 @@ import { UserThreadList } from "@/components/routes/profile/user-thread-list";
 import type { Metadata } from 'next'
 import { generateMetadataFromSEO } from '@/lib/metadata'
 import {  getUserInfoFromBrowse } from '@/services/hasura'
-export default async function ProfilePage() {
-    return <UserThreadList  />
+import { authOptions } from '@/auth'
+import { getServerSession } from "next-auth"
+import { getBrowseThreads, getThreads, getUserBySlug} from "@/services/hasura";
+import { Thread, User } from "mb-genql";
+
+export default async function ProfilePage({ params }: { params: { slug: string } }) {
+
+  let threads: Thread[] = []
+  const slug = params.slug
+
+  const session = await getServerSession(authOptions)
+
+  const { user, error } =  await getUserBySlug({
+    slug, 
+    isSameUser: session?.user.slug === slug
+   });
+
+  if (error) {
+       throw new Error(`Failed to fetch user info: ${error}`)
+  }
+
+  if(user && session?.user.slug === slug){
+    threads = await  getThreads({jwt: session?.user?.hasuraJwt as string, userId: user?.userId });
+  }else{
+    threads = await getBrowseThreads({ userId: user?.userId });   
+  }
+
+  if (!user) return <div className="text-center p-4">User <strong>{params.slug}</strong> not found</div>
+  
+
+  console.log({
+    user
+  })
+
+  return <UserThreadList user={user as User} threads={threads} />
+    // return <UserThreadList user={user as User}  />
  }
 
  export async function generateMetadata({

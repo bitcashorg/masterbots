@@ -24,7 +24,6 @@ export function UserCard({ user, loading }: UserCardProps) {
   const [generateType, setGenerateType] = useState<string | undefined>("")
   const [favouriteTopic, setFavouriteTopic] = useState<string | null | undefined>(user?.favouriteTopic)
   
-
   const userQuestions = user?.threads.map((thread) => {
 
     if (!thread.messages?.length) {
