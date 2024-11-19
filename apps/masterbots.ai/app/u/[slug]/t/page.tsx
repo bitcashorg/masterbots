@@ -19,25 +19,17 @@ export default async function ProfilePage({ params }: { params: { slug: string }
     isSameUser: session?.user.slug === slug
    });
 
-  if (error) {
-       throw new Error(`Failed to fetch user info: ${error}`)
-  }
-
+   if (error) return <div className="text-center p-4">Error loading profile: <strong>{error}</strong></div>
+   if (!user) return <div className="text-center p-4">User <strong>{params.slug}</strong> not found</div>
+  
+   
   if(user && session?.user.slug === slug){
     threads = await  getThreads({jwt: session?.user?.hasuraJwt as string, userId: user?.userId });
   }else{
     threads = await getBrowseThreads({ userId: user?.userId });   
   }
-
-  if (!user) return <div className="text-center p-4">User <strong>{params.slug}</strong> not found</div>
   
-
-  console.log({
-    user
-  })
-
   return <UserThreadList user={user as User} threads={threads} />
-    // return <UserThreadList user={user as User}  />
  }
 
  export async function generateMetadata({
