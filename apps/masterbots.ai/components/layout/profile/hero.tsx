@@ -11,7 +11,7 @@ export function Hero() {
   const { getuserInfo } = useProfile()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(false)
-  const { data: session } = useSession()
+  // const { data: session } = useSession()
 
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export function Hero() {
     return () => {
       isActive = false
     }
-  }, [slug, session])
+  }, [slug])
 
   return (
     <div className="relative bg-left-bottom py-10 bg-[url('/hero-bg.png')] bg-no-repeat ">

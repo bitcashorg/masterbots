@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLocation } from 'react-use';
 import { cn } from '@/lib/utils'
@@ -9,6 +9,9 @@ import { MessagesSquare, Settings, ReceiptIcon } from 'lucide-react';
 import { SidebarCategoryGeneral } from '../sidebar/sidebar-category-general';
 import { useParams, usePathname } from 'next/navigation';
 import { useSidebar } from '@/lib/hooks/use-sidebar';
+import { useProfile } from '@/lib/hooks/use-profile';
+import { useSession } from 'next-auth/react';
+import { User } from 'mb-genql';
 
 export const ProfileSidebar = ({ children }: any) => {
   const pathname = usePathname()
@@ -17,6 +20,18 @@ export const ProfileSidebar = ({ children }: any) => {
   const location = useLocation();
   const { slug } = useParams()
   const { isSidebarOpen,  toggleSidebar } = useSidebar();
+  const [user, seUser] = useState<User | null>(null);
+  const { currentUser, isSameUser } = useProfile()
+  const { data: session } = useSession()
+
+  useEffect(() => {
+    if(currentUser !== null) {
+      seUser(currentUser)
+    }
+  },[slug, currentUser])
+
+  const sameUser = isSameUser(user?.userId)
+  
   return (
     <div className="relative h-screen w-full">
       {/* Overlay for mobile */}
@@ -34,24 +49,24 @@ export const ProfileSidebar = ({ children }: any) => {
         />
       )}
 
-      <div className="flex h-full">
+      <div className="flex h-full  ">
         {/* Sidebar */}
         <div 
-          className={cn(
-            "fixed lg:relative z-40 h-full transition-transform duration-300 ease-in-out",
-            "w-64 bg-gray-50 dark:bg-black border-r",
-            "lg:transform-none lg:transition-none",
-            isSidebarOpen
-              ? "translate-x-0"
-              : "-translate-x-full lg:translate-x-0"
-          )}
+            className={cn(
+              "fixed lg:relative z-40 h-screen top-10 md:top-0 transition-transform duration-300 ease-in-out",
+              "w-64 bg-gray-50 dark:bg-black border-r",
+              "lg:transform-none lg:transition-none",
+              isSidebarOpen
+                ? "translate-x-0"
+                : "-translate-x-full lg:translate-x-0"
+            )}
         >
-          <nav className="flex-1 h-full overflow-y-auto scrollbar">
+          <nav className="flex-1   overflow-y-auto scrollbar">
             <div className="flex flex-col space-y-1 mt-3 font-Geist">
               {/* Threads Accordion */}
               <div className="rounded-lg">
                 <Link
-                  href={`/u/${slug}`}
+                  href={`/u/${slug}/t`}
                   onClick={() => setIsThreadsOpen(!isThreadsOpen)}
                   className={cn(
                     "flex w-full items-center justify-between px-4 py-3",
@@ -72,8 +87,8 @@ export const ProfileSidebar = ({ children }: any) => {
                 </Link>
                 <div
                   className={cn(
-                    "overflow-scroll   transition-all duration-300",
-                    isThreadsOpen ? "max-h-[300px]  border dark:border-b-mirate border-b-gray-200" : "max-h-0"
+                    "overflow-y-auto scrollbar  transition-all duration-300",
+                    isThreadsOpen ? "max-h-[300px]   border dark:border-b-mirate border-b-gray-200" : "max-h-0"
                   )}
                 >
                   <div className=" overflow-y-auto scrollbar">
@@ -81,32 +96,37 @@ export const ProfileSidebar = ({ children }: any) => {
                   </div>
                 </div>
               </div>
+            {
+              sameUser && session?.user.hasuraJwt && (
+                <>
+                  {/* Preferences Link */}
+                  <Link
+                        href={`/u/${slug}/s/pref`}
+                        className={cn(
+                          "flex items-center space-x-2 px-4 py-3",
+                          "hover:bg-gray-200 dark:hover:bg-mirage transition-colors duration-200",
+                          location.pathname?.includes('/s/pref') ? 'bg-gray-200 dark:bg-mirage' : ''
+                        )}
+                      >
+                        <Settings className="w-5 h-5" />
+                        <span>Preferences</span>
+                      </Link>
 
-              {/* Preferences Link */}
-              <Link
-                href={`/u/${slug}/s/pref`}
-                className={cn(
-                  "flex items-center space-x-2 px-4 py-3",
-                  "hover:bg-gray-200 dark:hover:bg-mirage transition-colors duration-200",
-                  location.pathname?.includes('/s/pref') ? 'bg-gray-200 dark:bg-mirage' : ''
-                )}
-              >
-                <Settings className="w-5 h-5" />
-                <span>Preferences</span>
-              </Link>
-
-              {/* Subscriptions Link */}
-              <Link
-                href={`/u/${slug}/s/subs`}
-                className={cn(
-                  "flex items-center space-x-2 px-4 py-3",
-                  "hover:bg-gray-200 dark:hover:bg-mirage transition-colors duration-200",
-                  location.pathname?.includes('/s/subs') ? 'bg-gray-200 dark:bg-mirage' : ''
-                )}
-              >
-                <ReceiptIcon className="w-5 h-5" />
-                <span>Subscriptions</span>
-              </Link>
+                      <Link
+                        href={`/u/${slug}/s/subs`}
+                        className={cn(
+                          "flex items-center space-x-2 px-4 py-3",
+                          "hover:bg-gray-200 dark:hover:bg-mirage transition-colors duration-200",
+                          location.pathname?.includes('/s/subs') ? 'bg-gray-200 dark:bg-mirage' : ''
+                        )}
+                      >
+                        <ReceiptIcon className="w-5 h-5" />
+                        <span>Subscriptions</span>
+                      </Link>
+                </>
+              )
+            }
+           
             </div>
           </nav>
         </div>

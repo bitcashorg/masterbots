@@ -7,12 +7,12 @@ interface ChatLayoutProps {
   children: React.ReactNode
 }
 
-export default async function ChatLayout({ children }: ChatLayoutProps) {
+export default async function ProfilePageLayout({ children }: ChatLayoutProps) {
   return (
     <main className=" flex flex-col overflow-auto">
       <NextTopLoader color="#1ED761" initialPosition={0.2} />
       <Hero />
-      <div className="relative  flex h-full ">
+      <div className="relative  flex h-screen ">
         <ProfileSidebar>{children}</ProfileSidebar>
       </div>
       <div className="layout-footer">

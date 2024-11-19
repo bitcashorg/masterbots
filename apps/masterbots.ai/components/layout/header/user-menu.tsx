@@ -55,7 +55,7 @@ export function UserMenu({ user }: UserMenuProps) {
         </DropdownMenuTrigger>
         <DropdownMenuContent sideOffset={8} align="start" className="w-[180px]">
           <DropdownMenuItem className="flex-col items-start">
-          <Link  href={`/u/${user?.slug ? user?.slug : toSlugWithUnderScore(user?.name || '')}`}
+          <Link  href={`/u/${user?.slug ? user?.slug : toSlugWithUnderScore(user?.name || '')}/t`}
               className="text-xs"
             >
             <div className="text-xs font-medium">{user?.name}</div>

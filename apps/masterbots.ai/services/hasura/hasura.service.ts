@@ -787,7 +787,7 @@ export async function getUserBySlug({ slug, isSameUser }: { slug: string, isSame
         __args: {
           where: {
             slug: {
-               _ilike: slug
+              _eq: slug
             }
           }
         },

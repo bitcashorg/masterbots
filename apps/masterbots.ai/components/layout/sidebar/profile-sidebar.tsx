@@ -48,7 +48,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
     const userSlug = toSlugWithUnderScore(user.name || '')
     if (userSlug) {
       setIsOpen(false)
-      router.push(`/u/${userSlug}`)
+      router.push(`/u/${userSlug}/t`)
     }
   }, [router, user.name])
 
