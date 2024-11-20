@@ -2,6 +2,8 @@
 import type {
   query_rootGenqlSelection,
   query_root,
+  mutation_rootGenqlSelection,
+  mutation_root,
   subscription_rootGenqlSelection,
   subscription_root,
 } from './schema'
@@ -25,11 +27,15 @@ export interface Client {
   query<R extends query_rootGenqlSelection>(
     request: R & { __name?: string },
   ): Promise<FieldsSelection<query_root, R>>
+
+  mutation<R extends mutation_rootGenqlSelection>(
+    request: R & { __name?: string },
+  ): Promise<FieldsSelection<mutation_root, R>>
 }
 
 export const createClient = function (options?: ClientOptions): Client {
   return createClientOriginal({
-    url: 'http://host.docker.internal:8080/v1/graphql',
+    url: 'http://localhost:8080/v1/graphql',
 
     ...options,
     queryRoot: typeMap.Query!,
@@ -48,6 +54,14 @@ export const generateQueryOp: (
   fields: query_rootGenqlSelection & { __name?: string },
 ) => GraphqlOperation = function (fields) {
   return generateGraphqlOperation('query', typeMap.Query!, fields as any)
+}
+
+export type MutationResult<fields extends mutation_rootGenqlSelection> =
+  FieldsSelection<mutation_root, fields>
+export const generateMutationOp: (
+  fields: mutation_rootGenqlSelection & { __name?: string },
+) => GraphqlOperation = function (fields) {
+  return generateGraphqlOperation('mutation', typeMap.Mutation!, fields as any)
 }
 
 export type SubscriptionResult<fields extends subscription_rootGenqlSelection> =

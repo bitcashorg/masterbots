@@ -89,7 +89,7 @@ export function ChatList({
       className={`relative max-w-3xl px-4 mx-auto ${className || ''} ${isThread ? 'flex flex-col gap-3' : ''}`}
     >      
       {pairs.map((pair: MessagePair, key: number) => (
-        <div key={key}>
+        <div key={key}>          
           <ChatAccordion
             defaultState={
               key === 0 || (key === pairs.length - 1 && isNewResponse)
@@ -101,7 +101,7 @@ export function ChatList({
             contentClass="!border-l-[transparent]"
             arrowClass={`${isThread ? 'top-4' : 'right-5 top-4'} ${chatArrowClass || ''}`}
           >
-            {/* Thread Title */}
+            Thread Title
             {!isThread && key === 0 ? (
               ''
             ) : (

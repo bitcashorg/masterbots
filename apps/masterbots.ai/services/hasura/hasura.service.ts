@@ -313,10 +313,10 @@ export async function getChatbot({
   threads,
   jwt
 }: GetChatbotParams) {
-  console.log('chatbotId', chatbotId)
-  console.log('chatbotName', chatbotName)
-  console.log('threads', threads)
-  console.log('jwt', jwt)
+  // console.log('chatbotId', chatbotId)
+  // console.log('chatbotName', chatbotName)
+  // console.log('threads', threads)
+  // console.log('jwt', jwt)
   if (!chatbotId && !chatbotName)
     throw new Error('You need to pass chatbotId or chatbotName')
   let client = getHasuraClient({})
@@ -614,6 +614,32 @@ export async function UpdateThreadVisibility({
   }
 }
 
+// export async function fetchDomainExamples(
+//   domain: string
+// ) {
+//   console.log('fetching domain examples')
+//   const client = getHasuraClient({})
+//   const { example: examples } = await client.query({
+//     example: {
+//       __args: {
+//         where: {
+//           domain: { _eq: domain }
+//         }
+//       },
+//       example: {
+//         example_id: true,
+//         prompt: true,
+//         response: true,
+//         domain: true,
+//         category: true,
+//         subcategory: true,
+//         tags: true
+//       }
+//     }
+//   });
+//   return examples;
+// }
+
 export async function fetchChatbotMetadata({
   chatbotID,
   categoryID
@@ -630,12 +656,12 @@ export async function fetchChatbotMetadata({
         },
         domain_enum: {
           name: true,
-          tags: {
+          tag_enums: {
             name: true
           },
-          categories: {
+          category_enums: {
             name: true,
-            subcategoryNames: {
+            subcategory_enums: {
               name: true
             }
           }
@@ -643,41 +669,47 @@ export async function fetchChatbotMetadata({
       }
     });
 
+    // require that the length is 1
+    if (chatbotMetadata.length !== 1) {
+      throw new Error('Invalid chatbot metadata response');
+    }
+
     // todo: is this returned with domain_enum key or not?
-    console.log('chatbotMetadata as retrieved:', chatbotMetadata)
+    // console.log('chatbotMetadata as retrieved:', chatbotMetadata)
     
     // Transform the data to create a dictionary of categories with subcategories as values
     const transformedMetadata = chatbotMetadata.map(item => ({
       domainName: item.domain_enum.name,
-      tags: item.domain_enum.tags.map(tag => tag.name),
-      categories: item.domain_enum.categories.reduce((acc, category) => {
-        acc[category.name] = category.subcategoryNames.map(subcat => subcat.name);
+      tags: item.domain_enum.tag_enums.map(tag => tag.name),
+      categories: item.domain_enum.category_enums.reduce((acc, category) => {
+        acc[category.name] = category.subcategory_enums.map(subcat => subcat.name);
         return acc;
       }, {})
     }));
     
-    console.log(transformedMetadata);    
+    // console.log('transformedMetadata', transformedMetadata);    
 
-    return transformedMetadata
+    return transformedMetadata[0]
   } catch (error) {
     console.error('Error fetching chatbot metadata:', error)
     return null
   }
 }
 
-export async function fetchDomainExamples({
-  domain,
-}) {
+export async function fetchDomainExamples(
+  domain: string,
+) {
   try {
     const client = getHasuraClient({})
     // todo: typescript
-    const { examples } = await client.query({
+    const { example: examples } = await client.query({
       example: {
         __args: {
           where: {
             domain: { _eq: domain },
           }
         },
+        prompt: true,
         category: true,
         domain: true,
         exampleId: true,
@@ -692,6 +724,40 @@ export async function fetchDomainExamples({
     return examples
   } catch (error) {
     console.error('Error fetching examples:', error)
+    return null
+  }
+}
+
+export async function fetchDomainTags(
+  domain: string
+) {
+  try {
+    const client = getHasuraClient({})
+    const { tagEnum: tags } = await client.query({
+      tagEnum: {
+        __args: {
+          where: {
+            domain: { _eq: domain }
+          }
+        },
+        name: true,
+        frequency: true,
+        tagId: true
+      }
+    });
+
+    // change to a dict with key of tagId and value of object with name and frequency
+    const transformedTags = tags.reduce((acc, tag) => {
+      acc[tag.tagId] = {
+        name: tag.name,
+        frequency: tag.frequency
+      }
+      return acc
+    })
+
+    return transformedTags
+  } catch (error) {
+    console.error('Error fetching tags:', error)
     return null
   }
 }

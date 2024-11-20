@@ -2,19 +2,19 @@
 
 import {
   improveMessage,
-  subtractChatbotMetadataLabels,
+  getChatbotMetadataLabels,
 } from "@/app/api/chat/actions/actions";
 import { ChatList } from "@/components/routes/chat/chat-list";
 import { ChatPanel } from "@/components/routes/chat/chat-panel";
 import { ChatScrollAnchor } from "@/components/routes/chat/chat-scroll-anchor";
 import { botNames } from "@/lib/bots-names";
-import { followingQuestionsPrompt, setDefaultPrompt } from '@/lib/constants/prompts';
+import { followingQuestionsPrompt, withExamples, setDefaultPrompt } from '@/lib/constants/prompts';
 import { useAtBottom } from "@/lib/hooks/use-at-bottom";
 import { useModel } from "@/lib/hooks/use-model";
 import { useSidebar } from "@/lib/hooks/use-sidebar";
 import { useThread } from "@/lib/hooks/use-thread";
 import { cn, scrollToBottomOfElement } from "@/lib/utils";
-import { createThread, getThread, saveNewMessage } from "@/services/hasura";
+import { createThread, getThread, saveNewMessage, fetchDomainExamples, fetchDomainTags } from "@/services/hasura";
 import type {
   AiClientType,
   ChatLoadingState,
@@ -182,26 +182,100 @@ export function Chat({
     // ! Loading: Generating awesome stuff for you... 'generating'
     setLoadingState("generating");
 
+    let chatMetadata;
+    try{
+      chatMetadata = await getChatbotMetadataLabels(
+        {
+          domain: chatbot?.categories[0].categoryId,
+          chatbot: chatbot?.chatbotId,
+        },
+        userContent,
+        clientType as AiClientType,
+      );
+      console.log(
+        "Full responses from getChatbotMetadataLabels:",
+        chatMetadata,
+      );
+
+      // * Loading: Polishing Ai request... 'polishing'
+      setLoadingState("polishing");
+    } catch (error) {
+      console.error("Error getting chatbot metadata labels:", error);
+    }
+
+    let tagExamples = []
+    let categoryExamples = []
     // * Getting the user labelling the thread (categories, sub-category, etc.)
-    const chatMetadata = await subtractChatbotMetadataLabels(
-      {
-        domain: chatbot?.categories[0].categoryId,
-        chatbot: chatbot?.chatbotId,
-      },
-      userContent,
-      clientType as AiClientType,
-    );
-    console.log(
-      "Full responses from subtractChatbotMetadataLabels:",
-      chatMetadata,
-    );
+    try {
 
-    // * Loading: Polishing Ai request... 'polishing'
-    setLoadingState("polishing");
+      // todo: add the logic for retrieving the relevant examples
+      // pull all the examples for the domain
+      const domainExamples = await fetchDomainExamples(chatMetadata.domain)
+      console.log('Domain examples:', domainExamples)
+      const domainTags = await fetchDomainTags(chatMetadata.domain)
+      console.log('Domain tags:', domainTags)
 
-    // todo: add the logic for retrieving the relevant examples
-    // pull all the examples for the domain
-    // const domainExamples = await fetchDomainExamples(domain)
+      console.log('Domain tags length:', Object.keys(domainTags).length)
+
+      // the domainTags keys are tag ids, the values are an object with the name and frequency of the tag
+      // every example has a list of tags (tag ids); these match the domainTags object keys
+      // the chat metadata has a tags field as well; this is a list of tags (tag names)
+      // i need to go through the list of examples
+      // for each i need to get the list of tag ids and use teh domainTags object to get their names
+      // then i need to check if the name is in the chat metadata tags list
+      // i need to take a cumulative sum of 1-the frequency of the tag in the domainTags object 
+      // i need to store this cumulative sum in the example object
+
+      for (let example of domainExamples) {
+        let cumulativeSum = 0
+        for (let tagId of example.tags) {
+          try {
+            let tagName = domainTags[tagId].name
+            if (chatMetadata.tags.includes(tagName)) {
+              cumulativeSum += 1 - domainTags[tagId].frequency
+            }
+          } catch (error) {
+            console.log('Error:', error)
+            console.log('Tag id:', tagId)
+          }
+        }
+        example['cumulativeSum'] = cumulativeSum
+      }
+
+      // now i need to sort the examples by the cumulative sum, in descending order
+      domainExamples.sort((a, b) => b.cumulativeSum - a.cumulativeSum)
+
+      console.log('Sorted domain examples:', domainExamples)
+
+      // then i need to take the top 3 examples
+      // however, i do not want to take examples that have the same prompt
+      let used_prompts = []
+      for (let example of domainExamples) {
+        if (used_prompts.includes(example.prompt)) {
+          continue
+        }
+        if (tagExamples.length < 3) {
+          tagExamples.push(example)
+          used_prompts.push(example.prompt)
+        } else if (categoryExamples.length < 3) {
+          if ((example.category == chatMetadata.category) && (example.subcategory == chatMetadata.subCategory)) {
+            categoryExamples.push(example)
+            used_prompts.push(example.prompt)        
+          }
+        } else {
+          break
+        }
+      }
+
+      console.log('Tag examples length:', tagExamples.length)
+      console.log('Category examples length:', categoryExamples.length)
+
+      console.log('Tag examples:', tagExamples)
+      console.log('Category examples:', categoryExamples)
+    } catch (error) {
+      console.error("Error getting chatbot metadata labels:", error);
+    }
+
 
     // ! Connecting to the ICL to send the user labelling the thread and rawData (examples) to the ICL
     // TODO: ...
@@ -261,12 +335,20 @@ export function Chat({
 
     setIsNewResponse(true);
 
+    let oldContent = followingQuestionsPrompt(userContent, allMessages);
+    console.log('oldContent', oldContent)
+    let newContent = withExamples(categoryExamples, tagExamples, [], userContent) 
+    console.log('newContent', newContent)
+
     return append(
       isNewChat
-        ? { ...userMessage, content: userContent }
+        ? { 
+          ...userMessage, 
+          content: withExamples(categoryExamples, tagExamples, [], userContent) 
+        }
         : {
           ...userMessage,
-          content: followingQuestionsPrompt(userContent, allMessages),
+          content: withExamples(categoryExamples, tagExamples, allMessages, userContent)
         },
     ).then((response) => {
       // * Loading: Here is the information you need... 'finish'
@@ -313,16 +395,16 @@ export function Chat({
 
   return (
     <>
-      {params.threadId && (
+      {params.threadId && (        
         <div
           ref={containerRef as React.Ref<HTMLDivElement>}
           className={cn("pb-[200px] pt-4 md:pt-10 h-full overflow-auto", className)}
-        >
+        >                  
           <ChatList
             chatbot={chatbot}
             messages={allMessages}
             sendMessageFn={sendMessageFromResponse}
-          />
+          />          
           <ChatScrollAnchor
             isAtBottom={
               params.threadId

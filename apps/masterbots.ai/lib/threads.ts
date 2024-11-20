@@ -20,9 +20,10 @@ export function convertMessage(message: Message) {
 export function getAllUserMessagesAsStringArray(
   allMessages: Message[] | AI.Message[]
 ) {
+  console.log('allMessages', allMessages)
   const userMessages = allMessages.filter(m => m.role === 'user')
   const cleanMessages = userMessages.map(m =>
-    extractBetweenMarkers(m.content, 'Then answer this question:')
+    extractBetweenMarkers(m.content, 'OK, so following the same pattern, how would you answer the question:')
   )
   return cleanMessages.join(', ')
 }

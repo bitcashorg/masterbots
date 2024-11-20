@@ -33,9 +33,9 @@ export function ChatPanelHeader({
   const [shareDialogOpen, setShareDialogOpen] = React.useState(false)
 
   return (
-    <div className="flex flex-col items-center justify-between w-full p-2 space-y-2 bg-background md:flex-row md:space-y-0">
+    <div className="flex flex-col items-center justify-between w-full p-2 space-y-2 bg-background md:flex-row md:space-y-0">      
       {showReload && (
-        <div className="flex items-center px-2 space-x-2">
+        <div className="flex items-center px-2 space-x-2">          
           {isLoading ? (
             <>
               {/* // * Testing loadingState for chat stages */}

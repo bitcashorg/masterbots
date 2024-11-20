@@ -35,17 +35,18 @@ export function createImprovementPrompt(content: string): string {
 }
 
 // * This function creates the prompt for the AI chatbot metadata subtraction process
+// todo: typescript
 export function createChatbotMetadataPrompt(
   metadataHeaders: ChatbotMetadataHeaders,
   chatbotMetadata,
   userPrompt: string
 ): string {
   return (
-    `You are a top software development expert with extensive knowledge in the field of ${chatbotMetadata.domain_enum.name}. Your sole purpose is to label the following question "${userPrompt}" with the appropriate categories, sub - categories and tags as an array of strings.`+
+    `You are a top software development expert with extensive knowledge in the field of ${chatbotMetadata.domainName}. Your sole purpose is to label the following question "${userPrompt}" with the appropriate categories, sub - categories and tags as an array of strings.`+
     `These are the available categories and sub-categories: `+ 
-    chatbotMetadata.domain_enum.categories +
+    JSON.stringify(chatbotMetadata.categories) +
     `These are the available tags:` +
-    chatbotMetadata.domain_enum.tags +
+    chatbotMetadata.tags +
     `**Important Guidelines:**
     ` +
     '- Output only the requested fields without any additional explanation. ' +
@@ -65,6 +66,52 @@ export function createBotConfigurationPrompt(chatbot: Chatbot) {
     `Your response complexity level will be ${chatbot.defaultComplexity}. ` +
     'Your response will be generated in the same language as user input.'
   )
+}
+
+export function withExamples(
+  categoryExamples, 
+  tagExamples, 
+  allMessages,
+  currentQuestion
+){
+  let prompt = ''
+  if (allMessages.length > 0){
+    let prompt = `First, think about this thread of questions and answers:
+[${getAllUserMessagesAsStringArray(allMessages)}]
+`;
+  }
+  prompt += `
+Now you'll need to respond to this question ${currentQuestion}.`
+  if (categoryExamples.length !== 0 || tagExamples.length !== 0) {
+    prompt += `I have some examples of how similar questions have been answered in the past:
+Examples:
+----
+`;
+  }
+
+  for (let i = 0; i < tagExamples.length; i++) {
+      prompt += "Example Question:\n";
+      prompt += tagExamples[i].prompt + "\n";
+  
+      prompt += "Example Answer:\n";
+      prompt += tagExamples[i].response + "\n";
+  
+      prompt += "\n----\n";
+  }
+  
+  for (let i = 0; i < categoryExamples.length; i++) {
+      prompt += "Example Question:\n";
+      prompt += categoryExamples[i].prompt + "\n";
+  
+      prompt += "Example Answer:\n";
+      prompt += categoryExamples[i].response + "\n";
+  
+      prompt += "\n----\n";
+  }
+  
+  prompt += `OK, so following the same pattern, how would you answer the question: ${currentQuestion}`;
+
+  return prompt          
 }
 
 export function followingQuestionsPrompt(

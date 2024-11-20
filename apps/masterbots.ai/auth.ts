@@ -11,7 +11,6 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import Google from 'next-auth/providers/google'
 import { getUserRoleByEmail } from './services/hasura'
 
-
 //* NextAuth configuration strategy with multiprovider options
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -52,6 +51,7 @@ export const authOptions: NextAuthOptions = {
           }
 
           //* Verify the password using bcrypt (hash comparison)
+
           const isValid = bcrypt.compareSync(
             credentials.password,
             user[0].password

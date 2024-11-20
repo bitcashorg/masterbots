@@ -12,6 +12,7 @@ select_permissions:
         - name
         - domain
         - frequency
+        - tag_id
       filter: {}
     comment: ""
   - role: user
@@ -20,5 +21,6 @@ select_permissions:
         - domain
         - name
         - frequency
+        - tag_id
       filter: {}
     comment: ""

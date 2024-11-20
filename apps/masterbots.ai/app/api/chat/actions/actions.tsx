@@ -52,7 +52,7 @@ export async function improveMessage(
   clientType: AiClientType,
   model: string,  
   retries: number = 0,
-  max_retries: number = 5,  
+  max_retries: number = 1,  
 ): Promise<CleanPromptResult> {
   if (retries >= max_retries) {
     let error = `Max retries reached. Returning original content after ${max_retries} attempts.`
@@ -102,14 +102,16 @@ export async function improveMessage(
   }
 }
 
-export async function subtractChatbotMetadataLabels(
+
+
+export async function getChatbotMetadataLabels(
   metadataHeaders: ChatbotMetadataHeaders,
   userPrompt: string,
   clientType: AiClientType,
 ) {
+  console.log('getting chatbot metadata')
   const chatbotMetadata = await fetchChatbotMetadata(metadataHeaders);
-  
-
+  console.log('got chatbot metadata')
 
   if (!chatbotMetadata) {
     console.error(
@@ -126,9 +128,54 @@ export async function subtractChatbotMetadataLabels(
   );
   //todo: add structured output
   //todo: verify the cats, subcats, and tags are valid ones
-  const response = await processWithAi(prompt, clientType, AIModels.Default);
+  // console.log('class sublcass etc prompt', prompt)
 
-  return cleanResult(response);
+  const response = await classifyQuestion(prompt, clientType, chatbotMetadata)
+
+  response['domain'] = chatbotMetadata.domainName
+
+
+  return response;
+}
+
+async function classifyQuestion(prompt, clientType, chatbotMetadata, maxRetries=3, retryCount=0){
+  try{
+    const response = await processWithAi(prompt, clientType, AIModels.Default);
+    // console.log('got response', response)
+    const cleanResponse = cleanResult(response);
+
+    // check that all the tags in cleanResponse are in chatbotMetadata.tags
+
+    for (const tag of cleanResponse.tags) {
+      if (!chatbotMetadata.tags.includes(tag)) {
+        // raise exception
+        throw new Error(`Tag ${tag} not found in chatbot metadata`);
+        // remove the tag from the list        
+      }
+    }
+
+    // check that the category is in chatbotMetadata.categories
+    if (!(cleanResponse.category in chatbotMetadata.categories)) {
+      // raise exception
+      throw new Error(`Category ${cleanResponse.category} not found in chatbot metadata`);
+    } else if (!chatbotMetadata.categories[cleanResponse.category].includes(cleanResponse.subCategory)) {
+      // raise exception
+      throw new Error(`Subcategory ${cleanResponse.subCategory} not found in chatbot metadata for category ${cleanResponse.category}`);
+    }
+
+    console.log('class, subclass and tags are valid')
+
+    return cleanResponse;
+  } catch (error) {
+    console.error('Error in classifyQuestion:', error);
+    if (retryCount >= maxRetries) {
+      console.error('Max retries reached. Returning original content after ${maxRetries} attempts.');
+      throw error;      
+    } else {
+      classifyQuestion(prompt, clientType, chatbotMetadata, maxRetries=3, retryCount=retryCount+1) 
+    }
+  }
+
 }
 
 // * This function process the AI response and return the cleaned result

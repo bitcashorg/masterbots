@@ -51,6 +51,7 @@ In root folder, create an .env file based of .env_sample and the use `task` to e
 ## Running the Frontend
 
 make sure the HASURA_GRAPHQL_JWT_SECRET matches in the app .env and the docker-compose.yaml
+If the backend graphql is updated, need to update packages/mb_genql/generated as well - https://genql.dev/docs
 
 In apps/masterbots.ai folder (set up .env file - see .env_sample):
 
