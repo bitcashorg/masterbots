@@ -62,7 +62,7 @@ export const ProfileSidebar = ({ children }: any) => {
             )}
         >
           <nav className="flex-1   overflow-y-auto scrollbar">
-            <div className="flex flex-col space-y-1 mt-3 font-Geist">
+            <div className="flex flex-col space-y-1 mt-4 md:mt-0 font-Geist">
               {/* Threads Accordion */}
               <div className="rounded-lg">
                 <Link
