@@ -109,7 +109,7 @@ export function UserCard({ user, loading }: UserCardProps) {
 
   return (
     <div
-      className="dark:bg-[#09090B] bg-white rounded-lg p-6 md:w-[600px]
+      className="dark:bg-[#09090B] bg-white rounded-lg  md:w-[600px]
        md:min-h-[290px]
         flex flex-row gap-3 mx-auto font-geist"
     > {
@@ -124,6 +124,7 @@ export function UserCard({ user, loading }: UserCardProps) {
         <div className="relative w-full">
         <div className="space-y-1 ">
           {/* Profile Name */}
+          <div className='pt-5 px-5 pb-2'>
           <h2 className="md:text-2xl  text-xl font-semibold">{user?.username}</h2>
           <div className="items-center space-x-1 md:hidden flex">
                 <BotIcon className="w-4 h-4" />
@@ -141,7 +142,8 @@ export function UserCard({ user, loading }: UserCardProps) {
             )}
            
           </div>
-          <Separator className="bg-gray-300 text-white dark:bg-mirage" />
+          </div>
+          <Separator className="bg-gray-300 text-white dark:bg-mirage size-[3px] w-full" />
 
           {/* Bio Section */}
           <div className="space-y-2 min-h-16 md:mr-0  ">
@@ -158,7 +160,7 @@ export function UserCard({ user, loading }: UserCardProps) {
           </div>
 
           {/* Stats Section */}
-          <div className='flex md:flex-row flex-col md:justify-between'>
+          <div className='flex md:flex-row flex-col md:justify-between p-6' >
           <div className="space-y-1 pt-5">
             <div className="md:flex  items-center space-x-1 hidden">
                 <BotIcon className="w-4 h-4" />
@@ -223,7 +225,7 @@ export function UserCard({ user, loading }: UserCardProps) {
         </div>
 
         {/* Profile Image and Follow Button Section */}
-        <div className="absolute md:top-4  -top-3 md:right-20 right-10 pr- translate-x-1/2 flex flex-col  items-center space-y-3">
+        <div className="absolute md:top-7  -top-3 md:right-20 right-10 translate-x-1/2 flex flex-col  items-center space-y-3">
           <div className="relative size-24">
             <div className="absolute  inset-0 border-4 border-[#BE17E8] dark:border-[#83E56A] rounded-full dark:bg-[#131316] bg-white overflow-hidden">
               <Image
@@ -234,7 +236,7 @@ export function UserCard({ user, loading }: UserCardProps) {
                 width={136}
               />
             </div>
-            <div className='absolute bottom-4 right-0 p-2 rounded-full  dark:bg-[#83E56A] bg-[#BE17E8]'>
+            <div className='absolute bottom-0  right-2 p-2 rounded-full  dark:bg-[#83E56A] bg-[#BE17E8]'>
                 <ImagePlus className="w-3 h-3  rounded-full dark:text-black text-white font-bold" />
             </div>
           </div>
