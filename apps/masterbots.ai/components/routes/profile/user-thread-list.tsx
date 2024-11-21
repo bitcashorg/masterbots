@@ -40,23 +40,8 @@ export  function UserThreadList({ user, threads }: { user: User, threads: Thread
     if (!user) return null
       
     return (
-        <>
-        {nThreads && nThreads.length > 0 ? (
-        <>
-          <div className="flex px-4 py-5 md:px-10">
-            <ThreadList
-              threads={nThreads}
-              loading={loading}
-              count={nThreads.length}
-              pageSize={PAGE_SIZE}
-              loadMore={loadMore}
-            />
-          </div>
-        </>
-      ) : (
-        ''
-      )}
-      {(!nThreads || nThreads.length === 0) && <ChatChatbotDetails page="profile" />}
-       </>
+      <div className="max-w-screen-lg pb-10 mx-auto w-full">
+       <UserThreadPanel  threads={nThreads} page="profile" />
+      </div>
     )
 }

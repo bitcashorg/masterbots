@@ -124,29 +124,33 @@ export function UserCard({ user, loading }: UserCardProps) {
         <div className="relative w-full">
         <div className="space-y-1 ">
           {/* Profile Name */}
-          <div className='pt-5 px-5 pb-2'>
-          <h2 className="md:text-2xl  text-xl font-semibold">{user?.username}</h2>
+          <div className='pt-7 px-5 pb-2'>
+          <h2 className="md:text-2xl  text-xl font-semibold capitalize">{user?.username}</h2>
           <div className="items-center space-x-1 md:hidden flex">
                 <BotIcon className="w-4 h-4" />
               <span className="">Threads:</span>
               <span className='text-gray-500'>{user?.threads.length}</span>
             </div>
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center  space-x-1">
             <BookUser className="w-4 h-4" />
             <p className="text-sm  ">bio:</p>
-            {isOwner && (
-             <Button disabled={isLoading && generateType === 'bio'} variant="ghost" onClick={() => generateBio('bio')} className="text-sm text-gray-500 border p-2 border-black dark:border-gray-400 hover:text-black dark:hover:text-gray-400">
-               { bio ? 'Re-generate' : 'generate'}   
+           
+            <div className='h-7'>
+               {isOwner && (
+             <Button disabled={isLoading && generateType === 'bio'} variant="ghost" onClick={() => generateBio('bio')} className="text-sm text-gray-500 border py-[2px] px-[8px] border-black dark:border-gray-400 hover:text-black dark:hover:text-gray-400">
+               { bio ? 're-generate' : 'generate'}   
                {isLoading && generateType === 'bio' ? <Loader className="w-4 h-4 ml-1" /> : <Wand2 className="w-4 h-4 ml-1" />}
              </Button>
-            )}
+                )} 
+             </div>
+        
            
           </div>
           </div>
-          <Separator className="bg-gray-300 text-white dark:bg-mirage size-[3px] w-full" />
+          <Separator className="bg-gray-300  dark:bg-mirage size-[3px] w-full" />
 
           {/* Bio Section */}
-          <div className="space-y-2 min-h-16 md:mr-0  ">
+          <div className="space-y-2 min-h-16 md:mr-0  px-5">
           {isOwner && !bio && (
             <p className="text-[13px] font-normal text-gray-500 md:w-[400px]">
               click <Button variant="ghost" className="text-xs text-gray-500 p-1 hover:text-black dark:hover:text-gray-400"> generate <Wand2 className="w-4 h-4 ml-1" /></Button>
@@ -173,8 +177,8 @@ export function UserCard({ user, loading }: UserCardProps) {
                 <MessageSquareHeart className="w-4 h-4" />
               <p className="">Favourite topic:</p>
               {isOwner && (
-             <Button disabled={isLoading && generateType === 'topic'} variant="ghost" onClick={() => generateBio('topic')} className="text-sm text-gray-500 border p-2 border-black dark:border-gray-400 hover:text-black dark:hover:text-gray-400">
-               { favouriteTopic ? 'Re-generate' : 'generate'}   
+             <Button disabled={isLoading && generateType === 'topic'} variant="ghost" onClick={() => generateBio('topic')} className="text-sm text-gray-500 border py-[2px] px-[8px] border-black dark:border-gray-400 hover:text-black dark:hover:text-gray-400">
+               { favouriteTopic ? 're-generate' : 'generate'}   
                {isLoading && generateType === 'topic' ? <Loader className="w-4 h-4 ml-1" /> : <Wand2 className="w-4 h-4 ml-1" />}
              </Button>
             )}
@@ -225,7 +229,7 @@ export function UserCard({ user, loading }: UserCardProps) {
         </div>
 
         {/* Profile Image and Follow Button Section */}
-        <div className="absolute md:top-7  -top-3 md:right-20 right-10 translate-x-1/2 flex flex-col  items-center space-y-3">
+        <div className="absolute md:top-[3rem]  top-3 md:right-20 right-[3.5rem] translate-x-1/2 flex flex-col  items-center space-y-3">
           <div className="relative size-24">
             <div className="absolute  inset-0 border-4 border-[#BE17E8] dark:border-[#83E56A] rounded-full dark:bg-[#131316] bg-white overflow-hidden">
               <Image

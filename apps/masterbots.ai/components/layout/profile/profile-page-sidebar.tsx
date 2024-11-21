@@ -91,7 +91,7 @@ export const ProfileSidebar = ({ children }: any) => {
                     isThreadsOpen ? "max-h-[300px]   border dark:border-b-mirate border-b-gray-200" : "max-h-0"
                   )}
                 >
-                  <div className=" overflow-y-auto scrollbar">
+                  <div className=" overflow-y-auto scrollbar ">
                     <SidebarCategoryGeneral page="profile" />
                   </div>
                 </div>
