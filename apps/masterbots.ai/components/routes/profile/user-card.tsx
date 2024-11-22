@@ -10,6 +10,7 @@ import { useModel } from '@/lib/hooks/use-model'
 import toast from 'react-hot-toast'
 import { UserPersonalityPrompt } from '@/lib/constants/prompts'
 import {  ChangeEvent, useCallback, useEffect, useState } from 'react'
+import { useUploadImagesCloudinary } from '@/lib/hooks/use-cloudinary-upload'
 
 
 interface UserCardProps {
@@ -20,12 +21,15 @@ export function UserCard({ user, loading }: UserCardProps) {
   const { isSameUser, updateUserInfo } = useProfile()
   const isOwner = isSameUser(user?.userId);
   const { selectedModel, clientType } = useModel()
-  const [bio, setBio] = useState<string | null | undefined>(user?.bio)
   const [isLoading, setIsLoading] = useState(false)
   const [generateType, setGenerateType] = useState<string | undefined>("")
+  const [bio, setBio] = useState<string | null | undefined>(user?.bio)
   const [favouriteTopic, setFavouriteTopic] = useState<string | null | undefined>(user?.favouriteTopic)
+  const [userProfilePicture, setUserProfilePicture] = useState<string | null | undefined>(user?.profilePicture)
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const { uploadFilesCloudinary, error: cloudinaryError } = useUploadImagesCloudinary();
   
+
   const userQuestions = user?.threads.map((thread) => {
 
     if (!thread.messages?.length) {
@@ -69,20 +73,23 @@ export function UserCard({ user, loading }: UserCardProps) {
     const file = event.target.files[0];
   
     // You can add validation for file type and size here
-    console.log({ file })
-  
     setIsUploadingImage(true);
   
     try {
-      // Upload the image to your storage solution and get the URL
-      // const imageUrl = await uploadImage(file);
+      const { data, success } = await uploadFilesCloudinary(file);
+      if (!success && cloudinaryError) {
+        console.error('Failed to upload image:', cloudinaryError);
+        toast.error('Failed to upload image');
+        return;
+      }
+     
+      const imageUrl = data?.secure_url  as string;
   
       // Update the user's profile picture
-      // await updateUserInfo(null, null, imageUrl);
+      await updateUserInfo(null, null, imageUrl);
   
       // Update the user state
-      // setUser({ ...user, profilePicture: imageUrl });
-  
+      setUserProfilePicture(imageUrl);
       toast.success('Profile picture updated successfully');
     } catch (error) {
       toast.error('Failed to upload image');
@@ -111,7 +118,10 @@ export function UserCard({ user, loading }: UserCardProps) {
 
   useEffect(() => {
     handleUpdateUserInfo()
-  }, [handleUpdateUserInfo])
+    if (user?.profilePicture) {
+      setUserProfilePicture(user.profilePicture)
+    }
+  }, [handleUpdateUserInfo, user?.profilePicture])
 
  
   const generateBio = (type: string) => {
@@ -279,7 +289,7 @@ export function UserCard({ user, loading }: UserCardProps) {
             <div className="absolute  inset-0 border-4 border-[#BE17E8] dark:border-[#83E56A] rounded-full dark:bg-[#131316] bg-white overflow-hidden">
               <Image
                 className="transition-opacity duration-300 rounded-full select-none size-full ring-1 ring-zinc-100/10 hover:opacity-80 object-cover"
-                src={user?.profilePicture ? user.profilePicture : 'https://api.dicebear.com/9.x/identicon/svg?seed=default_masterbots_ai_user_avatar'}
+                src={userProfilePicture ? userProfilePicture : 'https://api.dicebear.com/9.x/identicon/svg?seed=default_masterbots_ai_user_avatar'}
                 alt={`${user.username}'s profile picture`}
                 height={136}
                 width={136}
@@ -310,9 +320,6 @@ export function UserCard({ user, loading }: UserCardProps) {
               />
             </>
           )}
-            {/* <Button variant="ghost" className='absolute bottom-0 w-[25px] h-[25px]   right-2  p-1 rounded-full  dark:bg-[#83E56A] bg-[#BE17E8]'>
-                <ImagePlus className="w-3 h-3 rounded-full dark:text-black text-white font-bold" />
-            </Button> */}
           </div>
         </div>
       </div>

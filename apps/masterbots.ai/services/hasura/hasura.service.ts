@@ -902,7 +902,7 @@ export async function updateUserPersonality({
     updateArgs._set = {
       ...(bio !== null && { bio }),
       ...(topic !== null && { favourite_topic: topic }),
-      ...(profilePicture !== null && { profile_picture: profilePicture }),
+      ...(profilePicture !== null && { profilePicture }),
     };
 
     await client.mutation({
