@@ -283,8 +283,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
             ...userMessage,
             content: followingQuestionsPrompt(
               userContentRef.current,
-              messages,
-              webSearch
+              messages
             )
           }
       // ? Provide chat attachments here...
