@@ -22,14 +22,14 @@ export default async function BotThreadsPage({
   if (!jwt) {
     console.error("Session JWT is missing.");
   }
-  if (isTokenExpired(jwt)) {
+  if (isTokenExpired(jwt as string)) {
     redirect(`/auth/signin`);
   }
   const chatbotName = botNames.get(params.chatbot);
   if (!chatbotName) {
     throw new Error(`Chatbot name for ${params.chatbot} not found`);
   }
-  const chatbot = await getChatbot({ chatbotName, jwt });
+  const chatbot = await getChatbot({ chatbotName, jwt: jwt as string });
 
   if (!chatbot)
     throw new Error(`Chatbot ${botNames.get(params.chatbot)} not found`);
@@ -40,7 +40,7 @@ export default async function BotThreadsPage({
   if (!userId) {
     throw new Error("User ID is missing.");
   }
-  const threads = await getThreads({ chatbotName, jwt, userId });
+  const threads = await getThreads({ chatbotName, jwt: jwt as string, userId });
 
   return (
     <>
