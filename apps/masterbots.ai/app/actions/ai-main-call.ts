@@ -195,20 +195,20 @@ function handleImprovementError(
 export async function createResponseStream(
   clientType: AiClientType,
   json: JSONResponseStream & {
-    chatbot: Pick<Chatbot, 'categories' | 'chatbotId'>
+    webSearch: boolean
+    chatbot?: Pick<Chatbot, 'categories' | 'chatbotId'>
   },
   req?: Request
 ) {
-  const { model, messages: rawMessages, previewToken, chatbot } = json
+  const { model, messages: rawMessages, previewToken, webSearch } = json
   const messages = setStreamerPayload(clientType, rawMessages)
 
   const tools: Partial<typeof aiTools> = {
-    chatbotMetadataExamples: aiTools.chatbotMetadataExamples
+    // ? Temp disabling ICL as tool. Using direct ICL integration to main prompt instead. Might be enabled later.
+    // chatbotMetadataExamples: aiTools.chatbotMetadataExamples
   }
 
-  tools.webSearch = aiTools.webSearch
-  // if (chatbot.categories.some((cat) => cat.categoryId === 1)) {
-  // }
+  if (webSearch) tools.webSearch = aiTools.webSearch
 
   try {
     let responseStream: ReadableStream

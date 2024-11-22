@@ -14,7 +14,7 @@ export const webSearch = z.object({
 export const aiTools = {
   webSearch: {
     description:
-      'Conduct a web search to gather relevant information based on the user query. ' +
+      'Use to conduct a web search to gather relevant information based on the user query. ' +
       'Ensure the search results and sources are returned in the specified format and links. ' +
       '**Adhere strictly to any provided output examples.**',
     parameters: z.object({
