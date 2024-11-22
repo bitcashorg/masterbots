@@ -160,9 +160,11 @@ export type JSONResponseStream = {
   model: string
   messages: ChatCompletionMessageParam[]
   previewToken: string
+  webSearch: boolean
   stream?: boolean
   temperature?: number
   maxTokens?: number
+  chatbot?: Pick<Chatbot, 'categories' | 'chatbotId'>
 }
 
 // ? New type for streamText function parameters if needed

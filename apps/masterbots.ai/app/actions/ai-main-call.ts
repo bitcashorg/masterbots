@@ -22,7 +22,6 @@ import type {
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createOpenAI } from '@ai-sdk/openai'
 import { streamText } from 'ai'
-import type { Chatbot } from 'mb-genql'
 import type { ChatCompletionMessageParam } from 'openai/resources'
 
 //* this function is used to create a client for the OpenAI API
@@ -194,21 +193,20 @@ function handleImprovementError(
 //* Create a response stream based on the client model type
 export async function createResponseStream(
   clientType: AiClientType,
-  json: JSONResponseStream & {
-    chatbot: Pick<Chatbot, 'categories' | 'chatbotId'>
-  },
+  json: JSONResponseStream,
   req?: Request
 ) {
-  const { model, messages: rawMessages, previewToken, chatbot } = json
+  const { model, messages: rawMessages, previewToken, webSearch } = json
   const messages = setStreamerPayload(clientType, rawMessages)
 
   const tools: Partial<typeof aiTools> = {
-    chatbotMetadataExamples: aiTools.chatbotMetadataExamples
+    // ? Temp disabling ICL as tool. Using direct ICL integration to main prompt instead. Might be enabled later.
+    // chatbotMetadataExamples: aiTools.chatbotMetadataExamples
   }
 
-  tools.webSearch = aiTools.webSearch
-  // if (chatbot.categories.some((cat) => cat.categoryId === 1)) {
-  // }
+  console.log('[SERVER] webSearch', webSearch)
+
+  if (webSearch) tools.webSearch = aiTools.webSearch
 
   try {
     let responseStream: ReadableStream
@@ -225,7 +223,7 @@ export async function createResponseStream(
           temperature: 0.4,
           tools,
           maxRetries: 2,
-          maxToolRoundtrips: 2
+          maxToolRoundtrips: 1
         })
         responseStream = response.toDataStreamResponse().body as ReadableStream
         break
@@ -244,7 +242,7 @@ export async function createResponseStream(
           maxTokens: 300,
           tools,
           maxRetries: 2,
-          maxToolRoundtrips: 2
+          maxToolRoundtrips: 1
         })
         responseStream = response.toDataStreamResponse().body as ReadableStream
         break
@@ -264,7 +262,7 @@ export async function createResponseStream(
           maxTokens: 1000,
           tools,
           maxRetries: 2,
-          maxToolRoundtrips: 2
+          maxToolRoundtrips: 1
         })
         responseStream = response.toDataStreamResponse().body as ReadableStream
         break

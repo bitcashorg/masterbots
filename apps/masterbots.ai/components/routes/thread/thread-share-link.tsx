@@ -34,7 +34,7 @@ export default function ShareLink() {
     loading: (
       <LucideLoader2
         size={26}
-        className="animate-spin stroke-accent-secondary"
+        className="animate-spin stroke-muted-secondary"
       />
     ),
     copied: <LucideCheck size={26} className="stroke-success" />,
