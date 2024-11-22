@@ -51,9 +51,7 @@ export async function getWebSearchTool({
   const webSearchFlow = wordwareFlows.find(flow => flow.path === 'webSearch')
 
   if (!webSearchFlow) {
-    return JSON.stringify({
-      error: 'Web Search tool is not available'
-    })
+    throw new Error('Web Search tool is not available')
   }
 
   try {
@@ -70,14 +68,9 @@ export async function getWebSearchTool({
     if (appDataResponse.status >= 400) {
       console.error('Error fetching app data: ', appDataResponse)
       if (appDataResponse.status >= 500) {
-        return JSON.stringify({
-          error:
-            'Internal Server Error while fetching app data. Please try again later.'
-        })
+        throw new Error('Internal Server Error while fetching app data. Please try again later.')
       }
-      return JSON.stringify({
-        error: 'Failed to authenticate for the app. Please try again.'
-      })
+      throw new Error('Failed to authenticate for the app. Please try again.')
     }
 
     const appData: WordWareDescribeDAtaResponse = await appDataResponse.data
@@ -85,7 +78,7 @@ export async function getWebSearchTool({
     console.log('appData ==> ', appData)
 
     const runAppResponse = await fetch(
-      `https://api.wordware.ai/v1alpha/apps/masterbots/${webSearchFlow.id}/${appData.version}/runs/stream`,
+      `https://api.wordware.ai/v1alpha/apps/masterbots/${webSearchFlow.id}/${appData.version}/runs/wait`,
       {
         method: 'POST',
         headers: {
@@ -106,94 +99,55 @@ export async function getWebSearchTool({
       !runAppResponse.body
     ) {
       console.error('Error running app: ', runAppResponse)
-      if (appDataResponse.status >= 500) {
-        return JSON.stringify({
-          error:
-            'Internal Server Error while fetching app data. Please try again later.'
-        })
+      if (runAppResponse.status >= 500) {
+        throw new Error('Internal Server Error while fetching app data. Please try again later.')
       }
-      return JSON.stringify({
-        error: 'Failed to authenticate for the app. Please try again.'
-      })
+      throw new Error('Failed to authenticate for the app. Please try again.')
     }
 
-    const reader = runAppResponse.body.getReader()
-    const decoder = new TextDecoder()
+    const response = await runAppResponse.json()
     // ! error TS1501: This regular expression flag is only available when targeting 'es2018' or later.
     // const jsonRegex = /data:\s*({.*?})(?=\s*data:|\s*event:|$)/gs
     // ? Changing target not working.
     // TODO: Check typescript config...
     const jsonRegex = /data:\s*({.*?})(?=\s*data:|\s*event:|$)/g
 
-    let buffer = ''
-    let results = ''
 
-    try {
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
+    console.log('[SERVER] Web Search Response web search status --> ', response.status)
+    console.log('[SERVER] Web Search Response web search outputs --> ', response.outputs['web search'])
 
-        buffer += decoder.decode(value, { stream: true })
-
-        let match
-        let lastIndex = 0
-        while ((match = jsonRegex.exec(buffer)) !== null) {
-          console.log('match', match)
-          const jsonStr = match[0].replace(/^(data:|data)\s*/, '')
-          console.log('buffer [within while] ==> ', buffer)
-          const validatedJson = validateAndSanitizeJson(jsonStr)
-          if (validatedJson) {
-            const jsonData = JSON.parse(validatedJson)
-            if (jsonData.path === 'web search.output') {
-              results += jsonData.content
-            } else if (jsonData.path === 'web search.error') {
-              return JSON.stringify({
-                error: jsonData.content
-              })
-            }
-          }
-          lastIndex = jsonRegex.lastIndex
-        }
-
-        buffer = buffer.slice(lastIndex)
-
-        if (buffer.length > 10000) {
-          console.warn('Buffer is getting too large')
-        }
-
-        await new Promise(resolve => setTimeout(resolve, 10))
-      }
-
-      return `${results}
-      
-      ## Output Example:
-      
-      **Resume:**  
-      Brewers: 9  
-      Dodgers: 2
-
-      **Summary**  
-      Yelich, Perkins power Brewers to 9-2 victory over Dodgers and avoid being swept in weekend series. — Christian Yelich and Blake Perkins both homered, had three hits and drove in three runs as the Milwaukee Brewers beat the Los Angeles Dodgers 9-2 Sunday to snap a seven-game losing streak at Dodger Stadium.  
-        
-      **Homeruns:**  
-      Yelich
-
-      **Winning Pitcher:**  
-      J. Junis
-
-      **Sources**:
-
-      1.  [https://website1.com/](https://website1.com/)
-          
-      2.  [https://website2.com/](https://website2.com/)`
-    } catch (error) {
-      console.error('Error reading stream: ', error)
-    } finally {
-      reader.releaseLock()
+    if (response.status !== 'COMPLETE') {
+      throw new Error('Web Search could not be completed.')
     }
+
+    if (!response.outputs['web search']?.output) {
+      throw new Error('No output given. Web search could not be completed')
+    }
+
+    return `${response.outputs['web search'].output}
+
+    ## EXAMPLE:
+
+    **Resume:**  
+    Brewers: 9  
+    Dodgers: 2
+
+    **Summary**  
+    Yelich, Perkins power Brewers to 9-2 victory over Dodgers and avoid being swept in weekend series. — Christian Yelich and Blake Perkins both homered, had three hits and drove in three runs as the Milwaukee Brewers beat the Los Angeles Dodgers 9-2 Sunday to snap a seven-game losing streak at Dodger Stadium.  
+
+    **Homeruns:**  
+    Yelich
+
+    **Winning Pitcher:**  
+    J. Junis
+
+    **Sources**:
+
+    1. [https://website1.com/](https://website1.com/)
+    2. [https://website2.com/](https://website2.com/)`
   } catch (error) {
     console.error('Error fetching app data: ', error)
-    return 'Internal Server Error while fetching app data'
+    throw error
   }
 }
 

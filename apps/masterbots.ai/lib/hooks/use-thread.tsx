@@ -22,6 +22,7 @@ interface ThreadContext {
   isAtBottom: boolean
   randomChatbot: Chatbot | null
   isAdminMode: boolean
+  webSearch: boolean
   loadingState?: ChatLoadingState
   activeTool?: AiToolCall
   setIsOpenPopup: React.Dispatch<React.SetStateAction<boolean>>
@@ -30,6 +31,7 @@ interface ThreadContext {
   getRandomChatbot: () => void
   setActiveTool: (tool?: AiToolCall) => void
   setLoadingState: (state?: ChatLoadingState) => void
+  setWebSearch: (state?: boolean) => void
 }
 
 const ThreadContext = React.createContext<ThreadContext | undefined>(undefined)
@@ -58,6 +60,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       randomChatbot,
       loadingState,
       activeTool,
+      webSearch,
     },
     setState,
   ] = useSetState<{
@@ -65,6 +68,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     activeThread: Thread | null
     isNewResponse: boolean
     isOpenPopup: boolean
+    webSearch: boolean
     randomChatbot: Chatbot | null
     loadingState?: ChatLoadingState
     activeTool?: AiToolCall
@@ -73,6 +77,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     activeThread: null as Thread | null,
     isNewResponse: false,
     isOpenPopup: false,
+    webSearch: false,
     randomChatbot: null as Chatbot | null,
     loadingState: undefined,
     activeTool: undefined,
@@ -150,6 +155,10 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     setState({ loadingState: state })
   }
 
+  const setWebSearch = (state?: boolean) => {
+    setState({ webSearch: !state || !webSearch })
+  }
+
   return (
     <ThreadContext.Provider
       value={{
@@ -162,12 +171,14 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
         isAdminMode,
         loadingState,
         activeTool,
+        webSearch,
         getRandomChatbot,
         setActiveThread,
         setIsNewResponse,
         setIsOpenPopup,
         setActiveTool,
         setLoadingState,
+        setWebSearch,
       }}
     >
       {children}

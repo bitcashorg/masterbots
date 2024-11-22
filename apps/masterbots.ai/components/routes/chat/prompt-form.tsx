@@ -129,11 +129,11 @@ export function PromptForm({
           </Tooltip>
         </div>
       </div>
-      {(disabled && (!activeChatbot || !activeThread?.chatbot)) && (
+      {!activeChatbot || (isOpenPopup && !activeThread?.chatbot) ? (
         <div className="backdrop-blur-[1px] font-semibold border border-[#27272A] rounded-[6px] absolute size-full top-0 left-0 flex justify-center items-center dark:bg-[#27272A80] text-2xl">
           Select a bot to start a thread.
         </div>
-      )}
+      ) : null}
     </form>
   )
 }

@@ -63,7 +63,7 @@ export function ShareButton({ url }: ShareButtonProps) {
 
   const iconsMap = {
     loading: (
-      <LucideLoader2 className="w-4 h-4 animate-spin stroke-accent-secondary" />
+      <LucideLoader2 className="w-4 h-4 animate-spin stroke-muted-secondary" />
     ),
     copied: <LucideCheck className="w-4 h-4 stroke-success" />,
     error: <LucideX className="w-4 h-4 stroke-destructive" />,

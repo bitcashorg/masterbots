@@ -3,7 +3,7 @@ import { formatSystemPrompts } from '@/lib/actions'
 import {
   followingQuestionsPrompt,
   setDefaultPrompt,
-  setDefaultUserPreferencesPrompt,
+  setDefaultUserPreferencesPrompt
 } from '@/lib/constants/prompts'
 import { useModel } from '@/lib/hooks/use-model'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
@@ -14,10 +14,14 @@ import {
   deleteThread,
   getMessages,
   getThread,
-  saveNewMessage,
+  saveNewMessage
 } from '@/services/hasura'
 import type { AiClientType, AiToolCall, CleanPromptResult } from '@/types/types'
-import type { Message as AiMessage, ChatRequestOptions, CreateMessage } from 'ai'
+import type {
+  Message as AiMessage,
+  ChatRequestOptions,
+  CreateMessage
+} from 'ai'
 import { useChat } from 'ai/react'
 import { uniqBy } from 'lodash'
 import type { Chatbot, Message, Thread } from 'mb-genql'
@@ -33,29 +37,35 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
   const {
     isOpenPopup,
     activeThread,
+    webSearch,
+    setWebSearch,
     setActiveThread,
     setIsNewResponse,
     setIsOpenPopup,
     setActiveTool,
-    setLoadingState,
+    setLoadingState
   } = useThread()
   const { activeChatbot } = useSidebar()
   const userContentRef = useRef<string>('')
   const randomThreadId = useRef<string>(crypto.randomUUID())
   const [{ messagesFromDB, isInitLoaded }, setState] = useSetState<{
     isInitLoaded: boolean
+    webSearch: boolean
     messagesFromDB: Message[]
   }>({
     isInitLoaded: false,
-    messagesFromDB: [] as Message[],
+    webSearch: false,
+    messagesFromDB: [] as Message[]
   })
+
+  console.log('[HOOK] webSearch', webSearch)
 
   const params = useParams<{ chatbot: string; threadId: string }>()
   const { selectedModel, clientType } = useModel()
 
-  // TODO: Review this logic... why set all messages as system prompts? 👀
   const chatbotSystemPrompts: AiMessage[] = formatSystemPrompts(
-    (activeThread?.chatbot ?? (activeChatbot as Chatbot) ?? chatbotProps)?.prompts,
+    (activeThread?.chatbot ?? (activeChatbot as Chatbot) ?? chatbotProps)
+      ?.prompts
   )
 
   const userPreferencesPrompts: AiMessage[] = activeThread
@@ -64,11 +74,11 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
 
   // format all user prompts and chatgpt 'assistant' messages
   const userAndAssistantMessages: AiMessage[] = activeThread
-    ? messagesFromDB.map((m) => ({
+    ? messagesFromDB.map(m => ({
       id: m.messageId,
       role: m.role as AiMessage['role'],
       content: m.content,
-      createdAt: m.createdAt,
+      createdAt: m.createdAt
     }))
     : []
 
@@ -78,16 +88,27 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     .concat(userAndAssistantMessages)
 
   const isNewChat = Boolean(!params.threadId && !activeThread)
-  const threadId = threadIdProps || activeThread?.threadId || randomThreadId.current
+  const threadId =
+    threadIdProps || activeThread?.threadId || randomThreadId.current
   const chatbot = chatbotProps || activeThread?.chatbot || activeChatbot
 
-  const { input, messages, isLoading, stop, append, reload, setInput, setMessages } = useChat({
+  const {
+    input,
+    messages,
+    isLoading,
+    stop,
+    append,
+    reload,
+    setInput,
+    setMessages
+  } = useChat({
     initialMessages,
     id: params.threadId || isNewChat ? threadId : activeThread?.threadId,
     body: {
       id: params.threadId || isNewChat ? threadId : activeThread?.threadId,
       model: selectedModel,
       clientType,
+      webSearch
       // chatbot:
       //   activeChatbot && activeChatbot?.categories?.length
       //     ? {
@@ -104,7 +125,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
           await deleteThread({
             threadId: params?.threadId ?? activeThread?.threadId,
             jwt: session!.user?.hasuraJwt,
-            userId: session!.user.id,
+            userId: session!.user.id
           })
         }
       }
@@ -113,18 +134,20 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       await Promise.all([
         saveNewMessage({
           role: 'user',
-          threadId: params.threadId || isNewChat ? threadId : activeThread?.threadId,
+          threadId:
+            params.threadId || isNewChat ? threadId : activeThread?.threadId,
           content: userContentRef.current,
-          jwt: session!.user?.hasuraJwt,
+          jwt: session!.user?.hasuraJwt
         }),
         // ? Adding a delay to securely keep the order of messages
         delayFetch(),
         saveNewMessage({
           role: 'assistant',
-          threadId: params.threadId || isNewChat ? threadId : activeThread?.threadId,
+          threadId:
+            params.threadId || isNewChat ? threadId : activeThread?.threadId,
           content: message.content,
-          jwt: session!.user?.hasuraJwt,
-        }),
+          jwt: session!.user?.hasuraJwt
+        })
       ])
 
       setLoadingState(undefined)
@@ -140,14 +163,19 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       console.error('Error in chat: ', error)
       toast.error('Failed to send message. Please try again.')
 
+      setLoadingState(undefined)
+      setActiveTool(undefined)
+      setIsNewResponse(false)
+      stop()
+
       if (isNewChat) {
         await deleteThread({
           threadId: params?.threadId ?? activeThread?.threadId,
           jwt: session!.user?.hasuraJwt,
-          userId: session!.user.id,
+          userId: session!.user.id
         })
       }
-    },
+    }
   })
 
   //* Updates the thread ID when popup is closed
@@ -161,7 +189,8 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
   // ? fetch messages from db on active thread change
   const { loading } = useAsync(async () => {
     if (
-      (activeThread?.chatbot?.prompts?.length || activeThread?.chatbot?.name === 'BlankBot') &&
+      (activeThread?.chatbot?.prompts?.length ||
+        activeThread?.chatbot?.name === 'BlankBot') &&
       !isInitLoaded &&
       !loading
     ) {
@@ -184,47 +213,31 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
 
     const newAllMessages = uniqBy(
       allMessages?.concat(
-        (newThread?.messages || []).map((m) => ({
+        (newThread?.messages || []).map(m => ({
           id: m.messageId,
           role: m.role as AiMessage['role'],
           content: m.content,
-          createdAt: m.createdAt || new Date().toISOString(),
-        })),
+          createdAt: m.createdAt || new Date().toISOString()
+        }))
       ),
-      'content',
-    ).filter((m) => m.role !== 'system')
+      'content'
+    ).filter(m => m.role !== 'system')
 
     setMessages(newAllMessages)
     setActiveThread(newThread)
   }
 
   const tunningUserContent = async (userMessage: AiMessage | CreateMessage) => {
-    let processedMessage: CleanPromptResult = setDefaultPrompt(userMessage.content)
+    setLoadingState('digesting')
 
-    // * Cleaning the user question (thread title) with AI
-    try {
-      processedMessage = await improveMessage(
-        userMessage.content,
-        clientType as AiClientType,
-        selectedModel,
-      )
-      // * Loading: getting the the information right... 'digesting'
-      setLoadingState('digesting')
+    const { content, error } = await processUserMessage(
+      userMessage.content,
+      clientType as AiClientType,
+      selectedModel
+    )
 
-      if (processedMessage.improved || processedMessage.improvedText === userMessage.content) {
-        console.warn('AiMessage was not improved by AI. Using original message.')
-      }
-    } catch (error) {
-      console.error('Error processing message:', error)
-    }
-
-    const { language, originalText, improvedText, translatedText } = processedMessage
-    const userContentResponse = translatedText || improvedText || originalText
-    userContentRef.current = userContentResponse
-
-    console.log('Processed AiMessage: ', processedMessage)
-
-    setLoadingState('generating')
+    userContentRef.current = content
+    setLoadingState(error ? undefined : 'generating')
   }
 
   const appendNewMessage = async (userMessage: AiMessage | CreateMessage) => {
@@ -236,13 +249,13 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
         chatbotId: chatbot.chatbotId,
         jwt: session!.user?.hasuraJwt,
         userId: session!.user.id,
-        isPublic: activeChatbot?.name !== 'BlankBot',
+        isPublic: activeChatbot?.name !== 'BlankBot'
       })
 
       // * Loading: Here is the information you need... 'finish'
       const thread = await getThread({
         threadId: threadId as string,
-        jwt: session!.user?.hasuraJwt,
+        jwt: session!.user?.hasuraJwt
       })
 
       updateActiveThread(thread)
@@ -253,8 +266,15 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
         ? { ...userMessage, content: userContentRef.current }
         : {
           ...userMessage,
-          content: followingQuestionsPrompt(userContentRef.current, messages),
-        },
+          content: followingQuestionsPrompt(
+            userContentRef.current,
+            messages
+          )
+        }
+      // ? Provide chat attachments here...
+      // {
+      //   experimental_attachments: [],
+      // }
     )
 
     setLoadingState('finished')
@@ -264,7 +284,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
   // we extend append function to add our system prompts
   const appendWithMbContextPrompts = async (
     userMessage: AiMessage | CreateMessage,
-    chatRequestOptions?: ChatRequestOptions,
+    chatRequestOptions?: ChatRequestOptions
   ) => {
     if (!session?.user || !chatbot) {
       console.error('User is not logged in or session expired.')
@@ -287,10 +307,10 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
             messageId: userMessage.id,
             createdAt: new Date().toISOString(),
             role: userMessage.role,
-            content: userMessage.content,
-          },
+            content: userMessage.content
+          }
         ],
-        userId: session!.user.id,
+        userId: session!.user.id
       }
 
       updateActiveThread(optimisticThread)
@@ -307,7 +327,10 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       // TODO: improve response velocity here (split this fn to yet another cb fn? 🤔)
       setIsOpenPopup(true)
     } catch (error) {
-      console.error('Error processing user message. Using og message. Error: ', error)
+      console.error(
+        'Error processing user message. Using og message. Error: ',
+        error
+      )
     } finally {
       await appendNewMessage(userMessage)
     }
@@ -317,10 +340,10 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     setState({ isInitLoaded: true })
     try {
       const messagesFromDB = await getMessages({
-        threadId: activeThread?.threadId,
+        threadId: activeThread?.threadId
       })
       setState({
-        messagesFromDB,
+        messagesFromDB
       })
       setMessages(chatbotSystemPrompts)
     } catch (error) {
@@ -335,37 +358,62 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     appendWithMbContextPrompts({
       id: params?.threadId || activeThread?.threadId,
       content: fullMessage,
-      role: 'user',
+      role: 'user'
     })
   }
 
-  const allMessages = uniqBy(initialMessages?.concat(messages), 'content').filter(
-    (m) => m.role !== 'system',
-  )
+  const allMessages = uniqBy(
+    initialMessages?.concat(messages),
+    'content'
+  ).filter(m => m.role !== 'system')
+
+  const toggleWebSearch = () => {
+    setWebSearch(!webSearch)
+  }
 
   // ? return [state, actions]
   return [
     {
       input,
       isNewChat,
+      webSearch,
       isLoading,
       allMessages,
       initialMessages,
       isLoadingMessages: loading,
-      newChatThreadId: threadId,
+      newChatThreadId: threadId
     },
     {
       // ? temp ignore...
       // @ts-ignore
       appendWithMbContextPrompts,
       sendMessageFromResponse,
+      toggleWebSearch,
       setMessages,
       setInput,
       append,
       reload,
-      stop,
-    },
+      stop
+    }
   ]
+}
+
+async function processUserMessage(
+  content: string,
+  clientType: AiClientType,
+  model: string
+): Promise<{ content: string; error?: Error }> {
+  try {
+    const improved = await improveMessage(content, clientType, model)
+
+    const processedContent =
+      improved.translatedText || improved.improvedText || improved.originalText
+
+    return { content: processedContent }
+  } catch (error) {
+    console.error('Error processing message:', error)
+    return { content, error: error as Error }
+  }
 }
 
 export type MBChatHookConfig = {
@@ -378,6 +426,7 @@ export type MBChatHookCallback = [MBChatHookState, MBChatHookActions]
 export type MBChatHookState = {
   input: string
   isNewChat: boolean
+  webSearch: boolean
   isLoading: boolean
   allMessages: AiMessage[]
   isLoadingMessages: boolean
@@ -388,15 +437,18 @@ export type MBChatHookState = {
 export type MBChatHookActions = {
   appendWithMbContextPrompts: (
     userMessage: AiMessage | CreateMessage,
-    chatRequestOptions?: ChatRequestOptions,
+    chatRequestOptions?: ChatRequestOptions
   ) => Promise<string | null | undefined>
   sendMessageFromResponse: (bulletContent: string) => void
   append: (
     message: AiMessage | CreateMessage,
-    chatRequestOptions?: ChatRequestOptions,
+    chatRequestOptions?: ChatRequestOptions
   ) => Promise<string | null | undefined>
-  reload: (chatRequestOptions?: ChatRequestOptions) => Promise<string | null | undefined>
+  reload: (
+    chatRequestOptions?: ChatRequestOptions
+  ) => Promise<string | null | undefined>
   stop: () => void
+  toggleWebSearch: () => void
   setInput: React.Dispatch<React.SetStateAction<string>>
   setMessages: (messages: AiMessage[]) => void
 }

@@ -67,8 +67,9 @@ export function createBotConfigurationPrompt(chatbot: Chatbot) {
     ` +
     `**Important Guidelines:**
     ` +
-    '- Do not change the response tone, length, format, or complexity level. ' +
-    `- The chatbot that you are configuring has ID ${chatbot.chatbotId} and the domain Category ID is ${chatbot.categories[0].categoryId}. You will need this information for later tasks.`
+    '- Do not change the response tone, length or complexity level, only format whenever requested as additional instructions and/or examples. ' +
+    '- You may be capable of performing Web Search. When available, use it to verify information before making assumptions. '
+    // `- The chatbot that you are configuring has ID ${chatbot.chatbotId} and the domain Category ID is ${chatbot.categories[0].categoryId}. You will need this information for later tasks.`
   )
 }
 
