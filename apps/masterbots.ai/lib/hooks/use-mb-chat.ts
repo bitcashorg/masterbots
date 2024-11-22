@@ -163,6 +163,11 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       console.error('Error in chat: ', error)
       toast.error('Failed to send message. Please try again.')
 
+      setLoadingState(undefined)
+      setActiveTool(undefined)
+      setIsNewResponse(false)
+      stop()
+
       if (isNewChat) {
         await deleteThread({
           threadId: params?.threadId ?? activeThread?.threadId,

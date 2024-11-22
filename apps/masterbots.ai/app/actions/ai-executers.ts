@@ -51,9 +51,7 @@ export async function getWebSearchTool({
   const webSearchFlow = wordwareFlows.find(flow => flow.path === 'webSearch')
 
   if (!webSearchFlow) {
-    return JSON.stringify({
-      error: 'Web Search tool is not available'
-    })
+    throw new Error('Web Search tool is not available')
   }
 
   try {
@@ -70,14 +68,9 @@ export async function getWebSearchTool({
     if (appDataResponse.status >= 400) {
       console.error('Error fetching app data: ', appDataResponse)
       if (appDataResponse.status >= 500) {
-        return JSON.stringify({
-          error:
-            'Internal Server Error while fetching app data. Please try again later.'
-        })
+        throw new Error('Internal Server Error while fetching app data. Please try again later.')
       }
-      return JSON.stringify({
-        error: 'Failed to authenticate for the app. Please try again.'
-      })
+      throw new Error('Failed to authenticate for the app. Please try again.')
     }
 
     const appData: WordWareDescribeDAtaResponse = await appDataResponse.data
@@ -106,15 +99,10 @@ export async function getWebSearchTool({
       !runAppResponse.body
     ) {
       console.error('Error running app: ', runAppResponse)
-      if (appDataResponse.status >= 500) {
-        return JSON.stringify({
-          error:
-            'Internal Server Error while fetching app data. Please try again later.'
-        })
+      if (runAppResponse.status >= 500) {
+        throw new Error('Internal Server Error while fetching app data. Please try again later.')
       }
-      return JSON.stringify({
-        error: 'Failed to authenticate for the app. Please try again.'
-      })
+      throw new Error('Failed to authenticate for the app. Please try again.')
     }
 
     const response = await runAppResponse.json()
@@ -124,40 +112,42 @@ export async function getWebSearchTool({
     // TODO: Check typescript config...
     const jsonRegex = /data:\s*({.*?})(?=\s*data:|\s*event:|$)/g
 
-    console.log('Web Search Response --> ', response)
-    try {
-      // jsonRegex.exec(response.outputs)
 
-      return `${response}
-      
-      ## Output Example:
-      
-      **Resume:**  
-      Brewers: 9  
-      Dodgers: 2
+    console.log('[SERVER] Web Search Response web search status --> ', response.status)
+    console.log('[SERVER] Web Search Response web search outputs --> ', response.outputs['web search'])
 
-      **Summary**  
-      Yelich, Perkins power Brewers to 9-2 victory over Dodgers and avoid being swept in weekend series. — Christian Yelich and Blake Perkins both homered, had three hits and drove in three runs as the Milwaukee Brewers beat the Los Angeles Dodgers 9-2 Sunday to snap a seven-game losing streak at Dodger Stadium.  
-        
-      **Homeruns:**  
-      Yelich
-
-      **Winning Pitcher:**  
-      J. Junis
-
-      **Sources**:
-
-      1.  [https://website1.com/](https://website1.com/)
-          
-      2.  [https://website2.com/](https://website2.com/)`
-    } catch (error) {
-      console.error('Error reading stream: ', error)
-    } finally {
-      reader.releaseLock()
+    if (response.status !== 'COMPLETE') {
+      throw new Error('Web Search could not be completed.')
     }
+
+    if (!response.outputs['web search']?.output) {
+      throw new Error('No output given. Web search could not be completed')
+    }
+
+    return `${response.outputs['web search'].output}
+
+    ## EXAMPLE:
+
+    **Resume:**  
+    Brewers: 9  
+    Dodgers: 2
+
+    **Summary**  
+    Yelich, Perkins power Brewers to 9-2 victory over Dodgers and avoid being swept in weekend series. — Christian Yelich and Blake Perkins both homered, had three hits and drove in three runs as the Milwaukee Brewers beat the Los Angeles Dodgers 9-2 Sunday to snap a seven-game losing streak at Dodger Stadium.  
+
+    **Homeruns:**  
+    Yelich
+
+    **Winning Pitcher:**  
+    J. Junis
+
+    **Sources**:
+
+    1. [https://website1.com/](https://website1.com/)
+    2. [https://website2.com/](https://website2.com/)`
   } catch (error) {
     console.error('Error fetching app data: ', error)
-    return 'Internal Server Error while fetching app data'
+    throw error
   }
 }
 
