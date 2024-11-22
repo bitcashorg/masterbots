@@ -93,7 +93,7 @@ export function UserPersonalityPrompt(userPromptType: string, allMessages: Messa
     - Question patterns and engagement style
     
     ${userPromptType === 'bio' 
-      ? `Return a concise 2 sentence bio highlighting their key interests and personality.
+      ? `Return a concise 2 sentence or 340 characters long  bio highlighting their key interests and personality.
          The bio should be engaging, personal and include relevant emojis if appropriate.
          
          Example bio format:
