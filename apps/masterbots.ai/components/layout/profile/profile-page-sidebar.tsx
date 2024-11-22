@@ -133,7 +133,7 @@ export const ProfileSidebar = ({ children }: any) => {
 
         {/* Main content */}
         <div className="flex-1 w-full overflow-auto">
-          <main className="h-full w-full p-6">
+          <main className="h-full w-full">
             
             {children}
           </main>
