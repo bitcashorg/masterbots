@@ -219,40 +219,16 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
   }
 
   const tunningUserContent = async (userMessage: AiMessage | CreateMessage) => {
-    let processedMessage: CleanPromptResult = setDefaultPrompt(
-      userMessage.content
+    setLoadingState('digesting')
+
+    const { content, error } = await processUserMessage(
+      userMessage.content,
+      clientType as AiClientType,
+      selectedModel
     )
 
-    // * Cleaning the user question (thread title) with AI
-    try {
-      processedMessage = await improveMessage(
-        userMessage.content,
-        clientType as AiClientType,
-        selectedModel
-      )
-      // * Loading: getting the the information right... 'digesting'
-      setLoadingState('digesting')
-
-      if (
-        processedMessage.improved ||
-        processedMessage.improvedText === userMessage.content
-      ) {
-        console.warn(
-          'AiMessage was not improved by AI. Using original message.'
-        )
-      }
-    } catch (error) {
-      console.error('Error processing message:', error)
-    }
-
-    const { language, originalText, improvedText, translatedText } =
-      processedMessage
-    const userContentResponse = translatedText || improvedText || originalText
-    userContentRef.current = userContentResponse
-
-    console.log('Processed AiMessage: ', processedMessage)
-
-    setLoadingState('generating')
+    userContentRef.current = content
+    setLoadingState(error ? undefined : 'generating')
   }
 
   const appendNewMessage = async (userMessage: AiMessage | CreateMessage) => {
@@ -411,6 +387,24 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       stop
     }
   ]
+}
+
+async function processUserMessage(
+  content: string,
+  clientType: AiClientType,
+  model: string
+): Promise<{ content: string; error?: Error }> {
+  try {
+    const improved = await improveMessage(content, clientType, model)
+
+    const processedContent =
+      improved.translatedText || improved.improvedText || improved.originalText
+
+    return { content: processedContent }
+  } catch (error) {
+    console.error('Error processing message:', error)
+    return { content, error: error as Error }
+  }
 }
 
 export type MBChatHookConfig = {

@@ -64,7 +64,6 @@ export function ChatPanelHeader({
             name="webSearch"
             id="webSearch"
             ref={webSearchRef}
-            defaultValue={'unchecked'}
             onCheckedChange={toggleWebSearch}
             className="transition-all delay-100 h-auto w-auto inline-flex items-center gap-2 border-muted p-0.5 data-[state=checked]:border-accent/50 data-[state=checked]:bg-accent/25 rounded-full"
             customSettings={{

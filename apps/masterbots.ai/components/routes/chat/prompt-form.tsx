@@ -66,8 +66,6 @@ export function PromptForm({
     }
   }, [])
 
-  console.log('activeThread -- PromptForm', activeThread)
-
   const handleTextareaFocus = () => {
     setIsFocused(true)
   }

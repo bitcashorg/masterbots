@@ -8,14 +8,19 @@ import { cn } from "@/lib/utils"
 
 const Checkbox = React.forwardRef<
   React.ElementRef<typeof CheckboxPrimitive.Root>,
-  React.ComponentPropsWithRef<typeof CheckboxPrimitive.Root> & {
-    custom?: boolean;
-    customSettings?: {
-      check?: React.ReactNode,
-      uncheck?: React.ReactNode,
-      indeterminate?: React.ReactNode,
+  React.ComponentPropsWithRef<typeof CheckboxPrimitive.Root> & (
+    {
+      custom?: false;
+      customSettings?: never;
+    } | {
+      custom: true;
+      customSettings: {
+        check?: React.ReactNode;
+        uncheck?: React.ReactNode;
+        indeterminate?: React.ReactNode;
+      };
     }
-  }
+  )
 >(({ className, ...props }, ref) => {
   return (
     <CheckboxPrimitive.Root

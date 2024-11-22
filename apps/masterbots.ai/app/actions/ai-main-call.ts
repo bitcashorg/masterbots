@@ -22,7 +22,6 @@ import type {
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createOpenAI } from '@ai-sdk/openai'
 import { streamText } from 'ai'
-import type { Chatbot } from 'mb-genql'
 import type { ChatCompletionMessageParam } from 'openai/resources'
 
 //* this function is used to create a client for the OpenAI API
@@ -194,10 +193,7 @@ function handleImprovementError(
 //* Create a response stream based on the client model type
 export async function createResponseStream(
   clientType: AiClientType,
-  json: JSONResponseStream & {
-    webSearch: boolean
-    chatbot?: Pick<Chatbot, 'categories' | 'chatbotId'>
-  },
+  json: JSONResponseStream,
   req?: Request
 ) {
   const { model, messages: rawMessages, previewToken, webSearch } = json
