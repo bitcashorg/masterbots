@@ -4,11 +4,12 @@ import * as React from 'react'
 import { getUserBySlug, updateUserPersonality } from '@/services/hasura'
 import { useSession } from 'next-auth/react'
 import { User } from 'mb-genql'
+import toast from 'react-hot-toast'
 
 interface profileContextProps {
   getuserInfo: (username: string) => Promise<any>
   isSameUser: (userId: string) => boolean
-  updateUserInfo: (bio: string | null, topic: string | null) => void
+  updateUserInfo: (bio: string | null, topic: string | null,   profilePicture: string | null) => void
   currentUser: User | null,
   setCurrentUser: React.Dispatch<React.SetStateAction<User | null>>
 }
@@ -63,16 +64,22 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
     return session?.user.id === userId
   }
 
-  const updateUserInfo = async (bio: string | null, topic: string | null) => {
+  const updateUserInfo = async (bio: string | null, topic: string | null, profilePicture: string | null ) => {
     try {
+      const jwt = session?.user?.hasuraJwt;
+      if (!jwt || !session.user?.id) {
+        throw new Error('User not authenticated');
+      }
       await updateUserPersonality({
         userId: session?.user.id,
         jwt: session?.user.hasuraJwt,
         bio,
-        topic
+        topic,
+        profilePicture,
       })
-    } catch (e) {
-      console.log(e)
+    } catch (error) {
+      console.error('Failed to update user info', error);
+      toast.error('Failed to update user info');
     }
   }
 

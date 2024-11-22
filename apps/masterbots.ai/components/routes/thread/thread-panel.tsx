@@ -26,5 +26,5 @@ export default function ThreadPanel({
   threads?: Thread[]
   search?: { [key: string]: string | string[] | undefined }
 }) {
-  return <UserThreadPanel chatbot={chatbot} threads={threads} showSearch={true} />
+  return <UserThreadPanel chatbot={chatbot} threads={threads} showSearch/>
 }

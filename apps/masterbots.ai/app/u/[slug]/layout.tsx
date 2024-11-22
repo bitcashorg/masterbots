@@ -3,11 +3,11 @@ import NextTopLoader from 'nextjs-toploader'
 import { Hero } from '@/components/layout/profile/hero'
 import { ProfileSidebar } from '@/components/layout/profile/profile-page-sidebar'
 
-interface ChatLayoutProps {
+interface ProfileLayoutProps {
   children: React.ReactNode
 }
 
-export default async function ProfilePageLayout({ children }: ChatLayoutProps) {
+export default async function ProfilePageLayout({ children }: ProfileLayoutProps) {
   return (
     <main className="min-h-screen flex flex-col p-0">
     <NextTopLoader color="#1ED761" initialPosition={0.2} />

@@ -13,21 +13,39 @@ export default async function ProfilePage({ params }: { params: { slug: string }
   const slug = params.slug
 
   const session = await getServerSession(authOptions)
-
   const { user, error } =  await getUserBySlug({
     slug, 
     isSameUser: session?.user.slug === slug
    });
 
+
    if (error) return <div className="text-center p-4">Error loading profile: <strong>{error}</strong></div>
    if (!user) return <div className="text-center p-4">User <strong>{params.slug}</strong> not found</div>
   
-   
-  if(user && session?.user.slug === slug){
-    threads = await  getThreads({jwt: session?.user?.hasuraJwt as string, userId: user?.userId });
-  }else{
-    threads = await getBrowseThreads({ userId: user?.userId });   
-  }
+  const fetchThreads = async () => {
+    try {
+      const isOwnProfile = session?.user?.id === user?.userId;
+      if (!isOwnProfile) {
+        return await getBrowseThreads({ 
+          userId: user.userId
+        });
+      }
+      
+      if (!session?.user?.hasuraJwt) {
+        throw new Error('Authentication required');
+      }
+      
+      return await getThreads({
+        jwt: session.user.hasuraJwt,
+        userId: user.userId
+      });
+    } catch (error) {
+      console.error('Failed to fetch threads:', error);
+      return [];
+    }
+  };
+  
+  threads = await fetchThreads();
   
   return <UserThreadList user={user as User} threads={threads} />
  }

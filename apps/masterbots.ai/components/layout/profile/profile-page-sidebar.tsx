@@ -11,7 +11,7 @@ import { useParams, usePathname } from 'next/navigation';
 import { useSidebar } from '@/lib/hooks/use-sidebar';
 import { useProfile } from '@/lib/hooks/use-profile';
 import { useSession } from 'next-auth/react';
-import { User } from 'mb-genql';
+import { useAsync  } from 'react-use'
 
 export const ProfileSidebar = ({ children }: any) => {
   const pathname = usePathname()
@@ -20,15 +20,12 @@ export const ProfileSidebar = ({ children }: any) => {
   const location = useLocation();
   const { slug } = useParams()
   const { isSidebarOpen,  toggleSidebar } = useSidebar();
-  const [user, seUser] = useState<User | null>(null);
   const { currentUser, isSameUser } = useProfile()
   const { data: session } = useSession()
-
-  useEffect(() => {
-    if(currentUser !== null) {
-      seUser(currentUser)
-    }
-  },[slug, currentUser])
+  const { value: user } = useAsync(async () => {
+    if (currentUser === null) return null;
+    return currentUser;
+  }, [slug, currentUser]);
 
   const sameUser = isSameUser(user?.userId)
   
@@ -91,9 +88,7 @@ export const ProfileSidebar = ({ children }: any) => {
                     isThreadsOpen ? "max-h-[300px]   border dark:border-b-mirate border-b-gray-200" : "max-h-0"
                   )}
                 >
-                  <div className=" overflow-y-auto scrollbar ">
                     <SidebarCategoryGeneral page="profile" />
-                  </div>
                 </div>
               </div>
             {

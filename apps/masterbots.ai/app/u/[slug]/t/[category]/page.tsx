@@ -29,14 +29,32 @@ export default async function BrowseCategoryPage({
   if (error) return <div className="text-center p-4">Error loading profile: <strong>{error}</strong></div>
   if (!user) return <div className="text-center p-4">User <strong>{params.slug}</strong> not found</div>
  
-  if(session?.user?.id !== user?.userId){
-    const list = await getBrowseThreads({ userId: user.userId, categoryId: category?.categoryId });
-    threads = list || []
-  }else{
-    const list  = await  getThreads({jwt: session?.user?.hasuraJwt as string, userId: user.userId, categoryId: category?.categoryId})
-    threads = list || []
-  }
-  
+  const fetchThreads = async () => {
+      try {
+        const isOwnProfile = session?.user?.id === user?.userId;
+        if (!isOwnProfile) {
+          return await getBrowseThreads({ 
+            userId: user.userId, 
+            categoryId: category?.categoryId 
+          });
+        }
+        
+        if (!session?.user?.hasuraJwt) {
+          throw new Error('Authentication required');
+        }
+        
+        return await getThreads({
+          jwt: session.user.hasuraJwt,
+          userId: user.userId,
+          categoryId: category?.categoryId
+        });
+      } catch (error) {
+        console.error('Failed to fetch threads:', error);
+        return [];
+      }
+    };
+    
+    threads = await fetchThreads();
   
   return (
     <div className="max-w-screen-lg pb-10 mx-auto w-full">

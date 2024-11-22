@@ -878,12 +878,14 @@ export async function updateUserPersonality({
   userId, 
   bio, 
   topic, 
-  jwt 
+  jwt,
+  profilePicture
 }: { 
   userId: string | undefined , 
   bio: string | null, 
   topic: string | null, 
-  jwt: string | undefined 
+  jwt: string | undefined,
+  profilePicture: string | null
 }) {
   try {
     if (!jwt) {
@@ -896,16 +898,12 @@ export async function updateUserPersonality({
     const updateArgs: UpdateUserArgs = {
       pkColumns: { userId }
     }
-    // Only add _set if we have values to update
-    if (bio !== null || topic !== null) {
-      updateArgs._set = {}
-      if (bio !== null) {
-        updateArgs._set.bio = bio
-      }
-      if (topic !== null) {
-        updateArgs._set.favouriteTopic = topic
-      }
-    }
+
+    updateArgs._set = {
+      ...(bio !== null && { bio }),
+      ...(topic !== null && { favourite_topic: topic }),
+      ...(profilePicture !== null && { profile_picture: profilePicture }),
+    };
 
     await client.mutation({
       updateUserByPk: {

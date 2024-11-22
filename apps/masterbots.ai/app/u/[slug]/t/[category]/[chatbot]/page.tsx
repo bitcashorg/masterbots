@@ -26,14 +26,32 @@ export default async function ProfileChatBot({ params }: {  params: {
       throw new Error(`Chatbot name for ${chatbot} not found`);
     }
 
-
-  if(session?.user?.id !== user?.userId){
-    const list = await getBrowseThreads({ userId: user?.userId, chatbotName});
-    threads = list || []
-  }else{
-    const list  = await getThreads({ chatbotName, jwt,  userId: user?.userId });
-    threads = list || []
-  }
+  const fetchThreads = async () => {
+    try {
+      const isOwnProfile = session?.user?.id === user?.userId;
+      if (!isOwnProfile) {
+        return await getBrowseThreads({ 
+          userId: user.userId, 
+          chatbotName
+        });
+      }
+      
+      if (!session?.user?.hasuraJwt) {
+        throw new Error('Authentication required');
+      }
+      
+      return await getThreads({
+        jwt,
+        userId: user.userId,
+        chatbotName
+      });
+    } catch (error) {
+      console.error('Failed to fetch threads:', error);
+      return [];
+    }
+  };
+  
+  threads = await fetchThreads();
 
     return (
         <UserThreadPanel

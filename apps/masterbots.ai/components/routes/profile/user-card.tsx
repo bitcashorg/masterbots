@@ -9,7 +9,8 @@ import { nanoid, removeSurroundingQuotes } from '@/lib/utils'
 import { useModel } from '@/lib/hooks/use-model'
 import toast from 'react-hot-toast'
 import { UserPersonalityPrompt } from '@/lib/constants/prompts'
-import {  use, useCallback, useEffect, useState } from 'react'
+import {  ChangeEvent, useCallback, useEffect, useState } from 'react'
+
 
 interface UserCardProps {
   user: User | null
@@ -23,6 +24,7 @@ export function UserCard({ user, loading }: UserCardProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [generateType, setGenerateType] = useState<string | undefined>("")
   const [favouriteTopic, setFavouriteTopic] = useState<string | null | undefined>(user?.favouriteTopic)
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   
   const userQuestions = user?.threads.map((thread) => {
 
@@ -62,16 +64,42 @@ export function UserCard({ user, loading }: UserCardProps) {
       setLastMessage(message.content)
     },
   })
+  const handleProfilePictureUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files || event.target.files.length === 0) return;
+    const file = event.target.files[0];
+  
+    // You can add validation for file type and size here
+    console.log({ file })
+  
+    setIsUploadingImage(true);
+  
+    try {
+      // Upload the image to your storage solution and get the URL
+      // const imageUrl = await uploadImage(file);
+  
+      // Update the user's profile picture
+      // await updateUserInfo(null, null, imageUrl);
+  
+      // Update the user state
+      // setUser({ ...user, profilePicture: imageUrl });
+  
+      toast.success('Profile picture updated successfully');
+    } catch (error) {
+      toast.error('Failed to upload image');
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
 
  const handleUpdateUserInfo = useCallback(async () => {
     if (lastMessage) {
     try {
         if (generateType === 'topic') {
           setFavouriteTopic(removeSurroundingQuotes(lastMessage))     
-           await updateUserInfo(null, removeSurroundingQuotes(lastMessage))
+           await updateUserInfo(null, removeSurroundingQuotes(lastMessage), null)
         } else {
           setBio(removeSurroundingQuotes(lastMessage))
-           await updateUserInfo(removeSurroundingQuotes(lastMessage), null)
+           await updateUserInfo(removeSurroundingQuotes(lastMessage), null, null)
         }
     } catch (error) {
       toast.error('Failed to update user information')
@@ -251,15 +279,40 @@ export function UserCard({ user, loading }: UserCardProps) {
             <div className="absolute  inset-0 border-4 border-[#BE17E8] dark:border-[#83E56A] rounded-full dark:bg-[#131316] bg-white overflow-hidden">
               <Image
                 className="transition-opacity duration-300 rounded-full select-none size-full ring-1 ring-zinc-100/10 hover:opacity-80 object-cover"
-                src={user?.profilePicture ? user.profilePicture : ''}
+                src={user?.profilePicture ? user.profilePicture : 'https://api.dicebear.com/9.x/identicon/svg?seed=default_masterbots_ai_user_avatar'}
                 alt={`${user.username}'s profile picture`}
                 height={136}
                 width={136}
+                onError={(e) => {
+                  e.currentTarget.src = 'https://api.dicebear.com/9.x/identicon/svg?seed=default_masterbots_ai_user_avatar'
+                }}
               />
             </div>
-            <div className='absolute bottom-0  right-2 p-2 rounded-full  dark:bg-[#83E56A] bg-[#BE17E8]'>
-                <ImagePlus className="w-3 h-3  rounded-full dark:text-black text-white font-bold" />
-            </div>
+            {isOwner && (
+            <>
+              <Button
+                variant="ghost"
+                className="absolute bottom-0 w-[25px] h-[25px]   right-2  p-1  rounded-full dark:bg-[#83E56A] bg-[#BE17E8]"
+                onClick={() => document.getElementById('profile-pic-upload')?.click()}
+              >
+                {isUploadingImage ? (
+                  <Loader className="w-4 h-4 text-white" />
+                ) : (
+                  <ImagePlus className="w-3 h-3 rounded-full dark:text-black text-white font-bold" />
+                )}
+              </Button>
+              <input
+                id="profile-pic-upload"
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={handleProfilePictureUpload}
+              />
+            </>
+          )}
+            {/* <Button variant="ghost" className='absolute bottom-0 w-[25px] h-[25px]   right-2  p-1 rounded-full  dark:bg-[#83E56A] bg-[#BE17E8]'>
+                <ImagePlus className="w-3 h-3 rounded-full dark:text-black text-white font-bold" />
+            </Button> */}
           </div>
         </div>
       </div>
