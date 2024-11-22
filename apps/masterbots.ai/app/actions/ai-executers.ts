@@ -85,7 +85,7 @@ export async function getWebSearchTool({
     console.log('appData ==> ', appData)
 
     const runAppResponse = await fetch(
-      `https://api.wordware.ai/v1alpha/apps/masterbots/${webSearchFlow.id}/${appData.version}/runs/stream`,
+      `https://api.wordware.ai/v1alpha/apps/masterbots/${webSearchFlow.id}/${appData.version}/runs/wait`,
       {
         method: 'POST',
         headers: {
@@ -117,54 +117,18 @@ export async function getWebSearchTool({
       })
     }
 
-    const reader = runAppResponse.body.getReader()
-    const decoder = new TextDecoder()
+    const response = await runAppResponse.json()
     // ! error TS1501: This regular expression flag is only available when targeting 'es2018' or later.
     // const jsonRegex = /data:\s*({.*?})(?=\s*data:|\s*event:|$)/gs
     // ? Changing target not working.
     // TODO: Check typescript config...
     const jsonRegex = /data:\s*({.*?})(?=\s*data:|\s*event:|$)/g
 
-    let buffer = ''
-    let results = ''
-
+    console.log('Web Search Response --> ', response)
     try {
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
+      // jsonRegex.exec(response.outputs)
 
-        buffer += decoder.decode(value, { stream: true })
-
-        let match
-        let lastIndex = 0
-        while ((match = jsonRegex.exec(buffer)) !== null) {
-          console.log('match', match)
-          const jsonStr = match[0].replace(/^(data:|data)\s*/, '')
-          console.log('buffer [within while] ==> ', buffer)
-          const validatedJson = validateAndSanitizeJson(jsonStr)
-          if (validatedJson) {
-            const jsonData = JSON.parse(validatedJson)
-            if (jsonData.path === 'web search.output') {
-              results += jsonData.content
-            } else if (jsonData.path === 'web search.error') {
-              return JSON.stringify({
-                error: jsonData.content
-              })
-            }
-          }
-          lastIndex = jsonRegex.lastIndex
-        }
-
-        buffer = buffer.slice(lastIndex)
-
-        if (buffer.length > 10000) {
-          console.warn('Buffer is getting too large')
-        }
-
-        await new Promise(resolve => setTimeout(resolve, 10))
-      }
-
-      return `${results}
+      return `${response}
       
       ## Output Example:
       

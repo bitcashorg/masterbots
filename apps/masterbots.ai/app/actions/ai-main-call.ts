@@ -204,6 +204,8 @@ export async function createResponseStream(
     // chatbotMetadataExamples: aiTools.chatbotMetadataExamples
   }
 
+  console.log('[SERVER] webSearch', webSearch)
+
   if (webSearch) tools.webSearch = aiTools.webSearch
 
   try {

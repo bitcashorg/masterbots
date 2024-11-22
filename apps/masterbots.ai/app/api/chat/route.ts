@@ -9,6 +9,9 @@ export async function POST(req: Request) {
     const json = await req.json()
     const { model } = json
 
+    console.log('[SERVER] req.body', req.body)
+    console.log('[SERVER] json', json)
+
     if (!model) {
       return NextResponse.json({ error: 'Model is required' }, { status: 400 })
     }

@@ -20,7 +20,7 @@ export default async function BotThreadsPage({
   // NOTE: maybe we should use same expiration time
   const jwt = session ? session.user?.hasuraJwt : null;
   if (!jwt) {
-    throw new Error("Session JWT is missing.");
+    console.error("Session JWT is missing.");
   }
   if (isTokenExpired(jwt)) {
     redirect(`/auth/signin`);

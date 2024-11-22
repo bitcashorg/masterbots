@@ -37,6 +37,8 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
   const {
     isOpenPopup,
     activeThread,
+    webSearch,
+    setWebSearch,
     setActiveThread,
     setIsNewResponse,
     setIsOpenPopup,
@@ -46,7 +48,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
   const { activeChatbot } = useSidebar()
   const userContentRef = useRef<string>('')
   const randomThreadId = useRef<string>(crypto.randomUUID())
-  const [{ messagesFromDB, isInitLoaded, webSearch }, setState] = useSetState<{
+  const [{ messagesFromDB, isInitLoaded }, setState] = useSetState<{
     isInitLoaded: boolean
     webSearch: boolean
     messagesFromDB: Message[]
@@ -55,6 +57,8 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     webSearch: false,
     messagesFromDB: [] as Message[]
   })
+
+  console.log('[HOOK] webSearch', webSearch)
 
   const params = useParams<{ chatbot: string; threadId: string }>()
   const { selectedModel, clientType } = useModel()
@@ -71,11 +75,11 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
   // format all user prompts and chatgpt 'assistant' messages
   const userAndAssistantMessages: AiMessage[] = activeThread
     ? messagesFromDB.map(m => ({
-        id: m.messageId,
-        role: m.role as AiMessage['role'],
-        content: m.content,
-        createdAt: m.createdAt
-      }))
+      id: m.messageId,
+      role: m.role as AiMessage['role'],
+      content: m.content,
+      createdAt: m.createdAt
+    }))
     : []
 
   // concatenate all message to pass it to chat component
@@ -256,12 +260,12 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       isNewChat
         ? { ...userMessage, content: userContentRef.current }
         : {
-            ...userMessage,
-            content: followingQuestionsPrompt(
-              userContentRef.current,
-              messages
-            )
-          }
+          ...userMessage,
+          content: followingQuestionsPrompt(
+            userContentRef.current,
+            messages
+          )
+        }
       // ? Provide chat attachments here...
       // {
       //   experimental_attachments: [],
@@ -359,7 +363,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
   ).filter(m => m.role !== 'system')
 
   const toggleWebSearch = () => {
-    setState({ webSearch: !webSearch })
+    setWebSearch(!webSearch)
   }
 
   // ? return [state, actions]

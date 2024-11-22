@@ -41,7 +41,7 @@ export function ChatPanelHeader({
   const [shareDialogOpen, setShareDialogOpen] = React.useState(false)
   const webSearchRef = React.useRef(null)
   const { loadingState } = useThread()
-  const [, { toggleWebSearch }] = useMBChat()
+  const [{ webSearch }, { toggleWebSearch }] = useMBChat()
   const { isPowerUp, togglePowerUp } = usePowerUp()
 
   return (
@@ -63,8 +63,9 @@ export function ChatPanelHeader({
             custom
             name="webSearch"
             id="webSearch"
+            value={webSearch ? 'checked' : 'unchecked'}
             ref={webSearchRef}
-            onCheckedChange={toggleWebSearch}
+            onClick={toggleWebSearch}
             className="transition-all delay-100 h-auto w-auto inline-flex items-center gap-2 border-muted p-0.5 data-[state=checked]:border-accent/50 data-[state=checked]:bg-accent/25 rounded-full"
             customSettings={{
               check: (
