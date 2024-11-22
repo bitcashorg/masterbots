@@ -20,10 +20,15 @@ export function Hero() {
       const fetchData = async () => {
         setLoading(true)
         try {
+          if (typeof slug !== 'string') {
+                 throw new Error('Invalid slug parameter')
+           }
+
           const { user, error } = await getuserInfo(slug as string)
           if (!isActive) return
           if (error) {
             console.log(error)
+            console.error('Failed to fetch user info:', error)
             setUser(null)
             return
           }

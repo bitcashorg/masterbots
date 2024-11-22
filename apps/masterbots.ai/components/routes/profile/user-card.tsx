@@ -87,9 +87,15 @@ export function UserCard({ user, loading }: UserCardProps) {
 
  
   const generateBio = (type: string) => {
+
+    try {
     setIsLoading(true)
     setGenerateType(type)
-    if(userQuestions) {
+    if (!userQuestions?.length) {
+      toast.error('No thread history available to generate content');
+      setIsLoading(false);
+      return;
+     }
     const promptContent = UserPersonalityPrompt(type, userQuestions)
       return append({
         id: nanoid(),
@@ -97,8 +103,19 @@ export function UserCard({ user, loading }: UserCardProps) {
         role: 'system',
         createdAt: new Date(),
       })
-   }
+    } catch (error) {
+      setIsLoading(false);
+      toast.error('Failed to generate content');
+      console.error('Bio generation failed:', error);
+    }
   }
+
+  useEffect(() => {
+      return () => {
+        setLastMessage(null);
+        setIsLoading(false);
+      };
+    }, []);
 
   useEffect(() => {
     // update bio and topic when user changes

@@ -77,11 +77,16 @@ export default function ThreadComponent({
   
   const handleAccordionToggle = () => {
  
-    if (pathname.includes('u') || pathname.includes('u') && pathname.includes('t')) {
+    if (pathname.includes('u') && pathname.includes('t')) {
       const category = thread?.chatbot?.categories[0]?.category?.name
       const chatbot = thread?.chatbot?.name
       const slug = params.slug;
-    redirect(`/u/${slug}/t/${toSlug(category)}/${toSlug(chatbot)}/${thread.threadId}`)
+
+      if (!category || !chatbot || !slug) {
+            console.error('Missing required navigation parameters');
+            return scrollToTop();
+       }
+      redirect(`/u/${slug}/t/${toSlug(category)}/${toSlug(chatbot)}/${thread.threadId}`)
     }else{
       scrollToTop()
     }
