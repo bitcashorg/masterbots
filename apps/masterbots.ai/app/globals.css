@@ -8,7 +8,7 @@
     --foreground: 240 10% 3.9%;
 
     --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
+    --muted-foreground: 240 3.8% 30%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
@@ -55,7 +55,7 @@
     --foreground: 0 0% 98%;
 
     --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
+    --muted-foreground: 240 5% 79%;
 
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;

@@ -47,6 +47,8 @@ export function ThreadPopup({ className }: { className?: string }) {
   } = useThread()
   const [{ allMessages, isLoading }, { sendMessageFromResponse }] = useMBChat()
 
+  console.log('activeThread', activeThread)
+
   const popupContentRef = useRef<HTMLDivElement>()
 
   const { scrollY } = useScroll({

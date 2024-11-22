@@ -115,8 +115,10 @@ export function ChatPanelHeader({
             ) : (
               messages?.length >= 2 && (
                 <>
-                  <Button variant="outline" onClick={reload}>
-                    <IconRefresh className="mr-2" />
+                    <Button variant="outline" className="relative group" onClick={reload}>
+                      {/* It is rotating on almost all screen... avoiding until layout fix. */}
+                    {/* <IconRefresh className="transition-all mr-2 rotate-0 group-hover:rotate-90" /> */}
+                    <IconRefresh className="transition-all mr-2" />
                     Regenerate response
                   </Button>
                   {id && title && (
