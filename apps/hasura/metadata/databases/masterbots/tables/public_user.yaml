@@ -1,7 +1,6 @@
 table:
   name: user
   schema: public
-
 array_relationships:
   - name: chats
     using:
@@ -17,7 +16,6 @@ array_relationships:
         table:
           name: social_following
           schema: public
-  
   - name: following
     using:
       foreign_key_constraint_on:
@@ -25,7 +23,6 @@ array_relationships:
         table:
           name: social_following
           schema: public
-  
   - name: preferences
     using:
       foreign_key_constraint_on:
@@ -33,7 +30,6 @@ array_relationships:
         table:
           name: preference
           schema: public
-  
   - name: prompts
     using:
       foreign_key_constraint_on:
@@ -41,7 +37,6 @@ array_relationships:
         table:
           name: prompt_user
           schema: public
-  
   - name: referrals
     using:
       foreign_key_constraint_on:
@@ -49,7 +44,6 @@ array_relationships:
         table:
           name: referral
           schema: public
-  
   - name: referralsByUserId
     using:
       foreign_key_constraint_on:
@@ -57,7 +51,6 @@ array_relationships:
         table:
           name: referral
           schema: public
-  
   - name: threads
     using:
       foreign_key_constraint_on:
@@ -65,7 +58,6 @@ array_relationships:
         table:
           name: thread
           schema: public
-  
   - name: userTokens
     using:
       foreign_key_constraint_on:
@@ -73,37 +65,40 @@ array_relationships:
         table:
           name: user_token
           schema: public
-
 insert_permissions:
   - role: moderator
     permission:
       check: {}
       columns:
+        - bio
+        - date_joined
+        - email
+        - favourite_topic
         - get_free_month
         - is_blocked
-        - email
-        - password
-        - profile_picture
-        - pro_user_subscription_id
-        - slug
-        - username
-        - date_joined
         - last_login
+        - password
+        - pro_user_subscription_id
+        - profile_picture
         - role
+        - slug
         - user_id
+        - username
     comment: ""
-  
   - role: user
     permission:
       check: {}
       columns:
+        - bio
         - email
+        - favourite_topic
         - get_free_month
         - is_blocked
         - last_login
         - password
         - pro_user_subscription_id
         - profile_picture
+        - role
         - slug
         - username
     comment: ""
@@ -111,11 +106,14 @@ select_permissions:
   - role: anonymous
     permission:
       columns:
+        - bio
         - date_joined
         - email
+        - favourite_topic
         - last_login
         - pro_user_subscription_id
         - profile_picture
+        - role
         - slug
         - user_id
         - username
@@ -141,8 +139,10 @@ select_permissions:
   - role: user
     permission:
       columns:
+        - bio
         - date_joined
         - email
+        - favourite_topic
         - get_free_month
         - is_blocked
         - is_verified
@@ -156,24 +156,39 @@ select_permissions:
       filter:
         user_id:
           _eq: X-Hasura-User-Id
-    comment: ""   
+    comment: ""
 update_permissions:
   - role: moderator
     permission:
       columns:
+        - bio
+        - date_joined
+        - favourite_topic
+        - get_free_month
         - is_blocked
+        - last_login
+        - password
+        - pro_user_subscription_id
+        - profile_picture
+        - role
+        - slug
+        - username
       filter: {}
       check: null
-    comment: "Allows moderators to block any user"
-  
+    comment: Allows moderators to block any user
   - role: user
     permission:
       columns:
+        - bio
+        - favourite_topic
         - get_free_month
         - last_login
         - password
         - pro_user_subscription_id
         - profile_picture
+        - role
+        - slug
+        - username
       filter:
         user_id:
           _eq: X-Hasura-User-Id

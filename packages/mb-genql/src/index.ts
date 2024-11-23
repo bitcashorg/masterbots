@@ -13,6 +13,7 @@ export function createMbClient({ config, jwt, env, adminSecret, debug }: GraphQL
   const client = createClient({
     fetcher: async (operation: any) => {
       const headers = {
+        'Cache-Control': 'no-cache',
         Accept: 'application/json',
         'Content-Type': 'application/json',
         ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),

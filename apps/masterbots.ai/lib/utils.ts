@@ -241,6 +241,13 @@ export const validateEmail = (email: string) => {
   return re.test(email)
 }
 
+export function removeSurroundingQuotes(str: string) {
+  // Check if string starts AND ends with quotes
+  if (str.startsWith('"') && str.endsWith('"')) {
+      return str.slice(1, -1);
+  }
+  return str;
+}
 // * List of predefined unique phrases to detect in text
 export const UNIQUE_PHRASES = [
   'Unique, lesser-known',
