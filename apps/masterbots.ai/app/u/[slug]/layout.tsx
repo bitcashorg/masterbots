@@ -18,8 +18,7 @@ export default async function ProfilePageLayout({ children }: ProfileLayoutProps
           <div className="relative h-full z-0">
             <div className='min-h-[calc(100vh-4rem)]'>
               {children}  
-            </div>
-               
+            </div>   
             <div className="sticky bottom-0 w-full  left-0 z-50  dark:bg-black bg-white">
               <FooterCT  className='flex justify-start items-center  text-center'/>
             </div>
