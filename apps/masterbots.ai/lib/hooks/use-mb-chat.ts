@@ -2,7 +2,6 @@ import { improveMessage } from '@/app/actions'
 import { formatSystemPrompts } from '@/lib/actions'
 import {
   followingQuestionsPrompt,
-  setDefaultPrompt,
   setDefaultUserPreferencesPrompt
 } from '@/lib/constants/prompts'
 import { useModel } from '@/lib/hooks/use-model'
@@ -16,7 +15,7 @@ import {
   getThread,
   saveNewMessage
 } from '@/services/hasura'
-import type { AiClientType, AiToolCall, CleanPromptResult } from '@/types/types'
+import type { AiClientType, AiToolCall } from '@/types/types'
 import type {
   Message as AiMessage,
   ChatRequestOptions,
@@ -58,8 +57,6 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     messagesFromDB: [] as Message[]
   })
 
-  console.log('[HOOK] webSearch', webSearch)
-
   const params = useParams<{ chatbot: string; threadId: string }>()
   const { selectedModel, clientType } = useModel()
 
@@ -75,11 +72,11 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
   // format all user prompts and chatgpt 'assistant' messages
   const userAndAssistantMessages: AiMessage[] = activeThread
     ? messagesFromDB.map(m => ({
-      id: m.messageId,
-      role: m.role as AiMessage['role'],
-      content: m.content,
-      createdAt: m.createdAt
-    }))
+        id: m.messageId,
+        role: m.role as AiMessage['role'],
+        content: m.content,
+        createdAt: m.createdAt
+      }))
     : []
 
   // concatenate all message to pass it to chat component
@@ -130,7 +127,25 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
         }
       }
     },
-    async onFinish(message) {
+    async onFinish(message, options) {
+      setLoadingState(undefined)
+      setActiveTool(undefined)
+      setIsNewResponse(false)
+
+      if (options.finishReason === 'error') {
+        toast.error('Failed to send message. Please try again.')
+
+        if (isNewChat) {
+          await deleteThread({
+            threadId: params?.threadId ?? activeThread?.threadId,
+            jwt: session!.user?.hasuraJwt,
+            userId: session!.user.id
+          })
+        }
+
+        return
+      }
+
       await Promise.all([
         saveNewMessage({
           role: 'user',
@@ -149,9 +164,6 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
           jwt: session!.user?.hasuraJwt
         })
       ])
-
-      setLoadingState(undefined)
-      setActiveTool(undefined)
     },
     onToolCall({ toolCall }) {
       console.log('Tool call:', toolCall)
@@ -166,7 +178,6 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       setLoadingState(undefined)
       setActiveTool(undefined)
       setIsNewResponse(false)
-      stop()
 
       if (isNewChat) {
         await deleteThread({
@@ -241,44 +252,53 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
   }
 
   const appendNewMessage = async (userMessage: AiMessage | CreateMessage) => {
-    setLoadingState('ready')
+    setLoadingState('generating')
 
-    if (isNewChat && chatbot) {
-      await createThread({
-        threadId: threadId as string,
-        chatbotId: chatbot.chatbotId,
-        jwt: session!.user?.hasuraJwt,
-        userId: session!.user.id,
-        isPublic: activeChatbot?.name !== 'BlankBot'
-      })
+    try {
+      if (isNewChat && chatbot) {
+        await createThread({
+          threadId: threadId as string,
+          chatbotId: chatbot.chatbotId,
+          jwt: session!.user?.hasuraJwt,
+          userId: session!.user.id,
+          isPublic: activeChatbot?.name !== 'BlankBot'
+        })
 
-      // * Loading: Here is the information you need... 'finish'
-      const thread = await getThread({
-        threadId: threadId as string,
-        jwt: session!.user?.hasuraJwt
-      })
+        // * Loading: Here is the information you need... 'finish'
+        const thread = await getThread({
+          threadId: threadId as string,
+          jwt: session!.user?.hasuraJwt
+        })
 
-      updateActiveThread(thread)
+        updateActiveThread(thread)
+      }
+
+      const appendResponse = await append(
+        isNewChat
+          ? { ...userMessage, content: userContentRef.current }
+          : {
+              ...userMessage,
+              content: followingQuestionsPrompt(
+                userContentRef.current,
+                messages
+              )
+            }
+        // ? Provide chat attachments here...
+        // {
+        //   experimental_attachments: [],
+        // }
+      )
+
+      setLoadingState('finished')
+      return appendResponse
+    } catch (error) {
+      setLoadingState(undefined)
+      stop()
+
+      console.error('Error appending new message: ', error)
+
+      return null
     }
-
-    const appendResponse = await append(
-      isNewChat
-        ? { ...userMessage, content: userContentRef.current }
-        : {
-          ...userMessage,
-          content: followingQuestionsPrompt(
-            userContentRef.current,
-            messages
-          )
-        }
-      // ? Provide chat attachments here...
-      // {
-      //   experimental_attachments: [],
-      // }
-    )
-
-    setLoadingState('finished')
-    return appendResponse
   }
 
   // we extend append function to add our system prompts
@@ -291,6 +311,8 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       toast.error('Failed to start conversation. Please reload and try again.')
       return
     }
+
+    setIsNewResponse(true)
 
     if (isNewChat) {
       const optimisticThread: Thread = {
@@ -314,7 +336,6 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       }
 
       updateActiveThread(optimisticThread)
-      setIsNewResponse(true)
     }
 
     try {

@@ -3,7 +3,6 @@
 import { parseWordwareResponse } from '@/components/shared/wordware-chat'
 import { wordwareFlows } from '@/lib/constants/wordware-flows'
 import type { aiTools } from '@/lib/helpers/ai-schemas'
-import { validateAndSanitizeJson } from '@/lib/helpers/ai-streams'
 import type { WordWareDescribeDAtaResponse } from '@/types/wordware-flows.types'
 import axios from 'axios'
 import type { z } from 'zod'
@@ -68,7 +67,9 @@ export async function getWebSearchTool({
     if (appDataResponse.status >= 400) {
       console.error('Error fetching app data: ', appDataResponse)
       if (appDataResponse.status >= 500) {
-        throw new Error('Internal Server Error while fetching app data. Please try again later.')
+        throw new Error(
+          'Internal Server Error while fetching app data. Please try again later.'
+        )
       }
       throw new Error('Failed to authenticate for the app. Please try again.')
     }
@@ -100,7 +101,9 @@ export async function getWebSearchTool({
     ) {
       console.error('Error running app: ', runAppResponse)
       if (runAppResponse.status >= 500) {
-        throw new Error('Internal Server Error while fetching app data. Please try again later.')
+        throw new Error(
+          'Internal Server Error while fetching app data. Please try again later.'
+        )
       }
       throw new Error('Failed to authenticate for the app. Please try again.')
     }
@@ -112,42 +115,33 @@ export async function getWebSearchTool({
     // TODO: Check typescript config...
     const jsonRegex = /data:\s*({.*?})(?=\s*data:|\s*event:|$)/g
 
-
-    console.log('[SERVER] Web Search Response web search status --> ', response.status)
-    console.log('[SERVER] Web Search Response web search outputs --> ', response.outputs['web search'])
+    console.log(
+      '[SERVER] Web Search Response web search status --> ',
+      response.status
+    )
+    console.log(
+      '[SERVER] Web Search Response web search outputs --> ',
+      response.outputs['web search']
+    )
 
     if (response.status !== 'COMPLETE') {
       throw new Error('Web Search could not be completed.')
     }
 
-    if (!response.outputs['web search']?.output) {
+    if (
+      !response.outputs['web search']?.output &&
+      !response.outputs['web search']?.logs
+    ) {
       throw new Error('No output given. Web search could not be completed')
     }
 
-    return `${response.outputs['web search'].output}
-
-    ## EXAMPLE:
-
-    **Resume:**  
-    Brewers: 9  
-    Dodgers: 2
-
-    **Summary**  
-    Yelich, Perkins power Brewers to 9-2 victory over Dodgers and avoid being swept in weekend series. — Christian Yelich and Blake Perkins both homered, had three hits and drove in three runs as the Milwaukee Brewers beat the Los Angeles Dodgers 9-2 Sunday to snap a seven-game losing streak at Dodger Stadium.  
-
-    **Homeruns:**  
-    Yelich
-
-    **Winning Pitcher:**  
-    J. Junis
-
-    **Sources**:
-
-    1. [https://website1.com/](https://website1.com/)
-    2. [https://website2.com/](https://website2.com/)`
+    return `## INPUT:
+    
+    ${response.outputs['web search']?.output ?? response.outputs['web search']?.logs}`
   } catch (error) {
-    console.error('Error fetching app data: ', error)
-    throw error
+    return `Something went wrong with web search that failed to provide results. Please try again later.
+    
+    [ERROR LOG]: ${JSON.stringify(error, null, 2)}`
   }
 }
 
