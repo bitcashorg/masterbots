@@ -77,8 +77,8 @@ export function UserCard({ user, loading }: UserCardProps) {
   
     try {
       const { data, success } = await uploadFilesCloudinary(file);
-      if (!success && cloudinaryError) {
-        console.error('Failed to upload image:', cloudinaryError);
+      if (!success) {
+        console.error('Failed to upload image xx:', cloudinaryError);
         toast.error('Failed to upload image');
         return;
       }

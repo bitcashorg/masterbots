@@ -6,6 +6,7 @@ export const appConfig = {
     google: process.env.NEXT_PUBLIC_GOOGLE_AUTH === 'true',
   },
   cloudinary: {
-    url: 'https://api.cloudinary.com/v1_1/hzxyensd5/image/upload',
+    url: `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+    upload_preset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PERESET || ''
   },
 }

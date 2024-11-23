@@ -35,7 +35,7 @@ export function useUploadImagesCloudinary() {
       }
       const formData = new FormData()
       formData.append('file', file)
-      formData.append('upload_preset', 'doc_codepen_example')
+      formData.append('upload_preset', appConfig.cloudinary.upload_preset)
       formData.append('folder', 'mastertbots/user_profile_img_uploads')
      
       const response = await fetch(appConfig.cloudinary.url, {
