@@ -18,6 +18,7 @@ import {
   type Message,
   type Thread,
   type User,
+  type query_root,
   createMbClient,
   everything
 } from 'mb-genql'
@@ -31,7 +32,8 @@ import type {
   GetThreadParams,
   GetThreadsParams,
   SaveNewMessageParams,
-  UpsertUserParams
+  UpsertUserParams,
+  UpdateUserArgs
 } from './hasura.service.type'
 
 function getHasuraClient({ jwt, adminSecret }: GetHasuraClientParams) {
@@ -685,13 +687,14 @@ export async function getUserRoleByEmail({
   email: string | null | undefined
 }) {
   try {
-    const client = getHasuraClient({})
+    const client = getHasuraClient({ jwt: '' })
     const { user } = await client.query({
       user: {
         __args: {
           where: { email: { _eq: email } }
         },
-        role: true
+        role: true,
+        slug: true,
       }
     })
     return { users: user as User[] }
@@ -774,6 +777,148 @@ export async function getUnapprovedThreads({ jwt }: { jwt: string }) {
   })
 
   return thread as Thread[]
+}
+
+export async function getUserBySlug({ slug, isSameUser }: { slug: string, isSameUser: boolean }) {
+ 
+  try {
+    const client = getHasuraClient({  })
+    const { user } = await client.query({
+      user: {
+        __args: {
+          where: {
+            slug: {
+              _eq: slug
+            }
+          }
+        },
+        userId: true,           
+        username: true,
+        profilePicture: true,
+        slug: true,
+        bio: true,
+        favouriteTopic: true,
+        threads: {
+          __args: {
+            where: isSameUser
+              ? {} 
+              : { 
+                  _and: [
+                    { isApproved: { _eq: true } },
+                    { isPublic: { _eq: true } }
+                  ]
+              }
+          },
+         threadId: true,
+         isApproved: true,
+         isPublic: true,
+          chatbot: {
+            name: true
+          },
+          messages: {
+            content: true
+          }
+        },
+        // followers: {
+        //   followeeId: true,
+        //   followerId: true,
+        //   userByFollowerId: {
+        //     username: true
+        //   }
+        // },
+        // follower: {
+        //   followeeId: true,
+        //   followerId: true,
+        //   userByFollowerId: {
+        //     username: true
+        //   }
+        // },
+        // following: {
+        //   followeeId: true,
+        //   followerId: true,
+        //   userByFollowerId: {
+        //     username: true
+        //   }
+        // }
+      } 
+    } as const)
+
+    if (!user || user.length === 0) {
+      console.log('No user found with user slug:', slug)
+      return { user: null, error: 'User not found.' }
+    }
+    return { 
+      user: user[0],  // Return the first matching user
+      error: null 
+    }
+
+  } catch (error) {
+    console.error('Error fetching user by username:', {
+      error,
+      slug,
+      timestamp: new Date().toISOString()
+    })
+    if (error instanceof Error) {
+      return { 
+        user: null, 
+        error: error.message || 'Failed to fetch user by username.' 
+      }
+    }
+
+    return { 
+      user: null, 
+      error: 'An unexpected error occurred while fetching user.' 
+    }
+  }
+}
+
+
+
+export async function updateUserPersonality({ 
+  userId, 
+  bio, 
+  topic, 
+  jwt,
+  profilePicture
+}: { 
+  userId: string | undefined , 
+  bio: string | null, 
+  topic: string | null, 
+  jwt: string | undefined,
+  profilePicture: string | null
+}) {
+  try {
+    if (!jwt) {
+      throw new Error('Authentication required to update user bio');
+    }
+
+    const client = getHasuraClient({ jwt })
+    
+    // Build update arguments based on non-null values
+    const updateArgs: UpdateUserArgs = {
+      pkColumns: { userId }
+    }
+
+    updateArgs._set = {
+      ...(bio !== null && { bio }),
+      ...(topic !== null && { favourite_topic: topic }),
+      ...(profilePicture !== null && { profilePicture }),
+    };
+
+    await client.mutation({
+      updateUserByPk: {
+        __args: updateArgs,
+        userId: true,
+        bio: true,
+        favouriteTopic: true
+      }
+    })
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating user bio:', error);
+    return { success: false, error: 'Failed to update user\'s profile' };
+  }
 }
 
 export async function subtractChatbotMetadataLabels(

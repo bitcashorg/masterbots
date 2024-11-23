@@ -9,7 +9,7 @@ import { appConfig } from 'mb-env'
 import type { Session } from 'next-auth'
 import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { toSlug } from 'mb-lib'
+import { toSlugWithUnderScore } from 'mb-lib'
 
 interface ProfileSidebarProps {
   user: Session['user'] & {
@@ -45,7 +45,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
   const goToProfile = useCallback((e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    const userSlug = toSlug(user.name || '')
+    const userSlug = toSlugWithUnderScore(user.name || '')
     if (userSlug) {
       setIsOpen(false)
       router.push(`/u/${userSlug}/t`)
@@ -56,7 +56,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" className="pl-0 rounded-full">
+        <Button variant="ghost" className="pl-0 rounded-full md:hidden block">
           {user?.image ? (
             <Image
               className="transition-opacity duration-300 rounded-full select-none size-8 bg-foreground/10 ring-1 ring-zinc-100/10 hover:opacity-80"

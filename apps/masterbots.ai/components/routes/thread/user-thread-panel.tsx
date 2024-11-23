@@ -42,11 +42,15 @@ const PAGE_SIZE = 20
 
 export default function UserThreadPanel({
   chatbot,
-  threads: initialThreads
+  threads: initialThreads,
+  showSearch,
+  page
 }: {
   chatbot?: string
   threads?: Thread[]
+  showSearch?: boolean
   search?: { [key: string]: string | string[] | undefined }
+  page?: string
 }) {
   const params = useParams<{ chatbot: string; threadId: string }>()
   const { data: session } = useSession()
@@ -71,7 +75,6 @@ export default function UserThreadPanel({
     setCount(finalThreads?.length ?? 0)
     setTotalThreads(finalThreads?.length ?? 0)
   }, [finalThreads])
-
   const fetchIdRef = useRef(0) // Store the fetchId in a ref
   const loadMore = async () => {
     console.log('🟡 Loading More Content')
@@ -114,16 +117,11 @@ export default function UserThreadPanel({
   }
 
   useEffect(() => {
+  if(page !== 'profile' && (!isOpenPopup || activeCategory || activeChatbot)) {
     handleThreadsChange()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeCategory, activeChatbot])
+  } }
+  , [activeCategory, activeChatbot, isOpenPopup, page])
 
-  useEffect(() => {
-    if (!isOpenPopup) {
-      handleThreadsChange()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpenPopup])
 
   useEffect(() => {
     if (

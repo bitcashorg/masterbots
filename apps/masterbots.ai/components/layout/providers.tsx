@@ -9,6 +9,7 @@ import { ThemeProvider as NextThemesProvider } from 'next-themes'
 import type { ThemeProviderProps } from 'next-themes/dist/types'
 import { ModelProvider } from '@/lib/hooks/use-model'
 import { ThreadVisibilityProvider } from '@/lib/hooks/use-thread-visibility'
+import { ProfileProvider } from '@/lib/hooks/use-profile'
 import { ThreadSearchProvider } from '@/lib/hooks/use-thread-search'
 import { PowerUpProvider } from '@/lib/hooks/use-power-up'
 
@@ -20,15 +21,15 @@ export function Providers({ children, ...props }: ThemeProviderProps) {
           <SidebarProvider>
             <TooltipProvider>
               <SessionProvider>
-                <ThreadSearchProvider>
+                <ProfileProvider>
                   <PowerUpProvider>
-                    <ThreadProvider>
-                      <ThreadVisibilityProvider>
-                        {children}
-                      </ThreadVisibilityProvider>
-                    </ThreadProvider>
-                  </PowerUpProvider>
+                  <ThreadSearchProvider>
+                <ThreadProvider> 
+                  <ThreadVisibilityProvider> {children}</ThreadVisibilityProvider>
+                </ThreadProvider>
                 </ThreadSearchProvider>
+                </PowerUpProvider>
+                </ProfileProvider>
               </SessionProvider>
             </TooltipProvider>
           </SidebarProvider>

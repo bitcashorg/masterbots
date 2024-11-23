@@ -15,7 +15,7 @@
  * - Conditional Rendering: Displays the first message pair differently if it is part of a thread.
  * - Responsive Design: Applies Tailwind CSS for styling and layout.
  */
-
+'use client'
 import { cn, createMessagePairs } from '@/lib/utils'
 import type { Chatbot, Message, User } from 'mb-genql'
 import { BrowseChatMessage } from '@/components/routes/browse/browse-chat-message'

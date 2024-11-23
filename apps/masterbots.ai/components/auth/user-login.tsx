@@ -26,7 +26,12 @@ export function UserLogin() {
       return <LoginButton />
     }
 
-    return <ProfileSidebar user={session.user} />
+    return (
+      <>
+      <ProfileSidebar user={session.user} />
+      <UserMenu user={session.user} />
+      </>
+    )
   }
 
   return <LoginButton />

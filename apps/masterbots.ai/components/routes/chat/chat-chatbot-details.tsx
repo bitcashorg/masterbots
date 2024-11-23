@@ -8,14 +8,17 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { getCategory, getThreads } from '@/services/hasura'
 import { useSession } from 'next-auth/react'
 import Image from 'next/image'
+import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
-export default function ChatChatbotDetails() {
+export default function ChatChatbotDetails({ page }: { page?: string }) {
   const { data: session } = useSession() //* Retrieves session data using next-auth
   const { activeCategory, activeChatbot } = useSidebar() //* Retrieves active category and chatbot from sidebar state
   const { randomChatbot } = useThread() //* Retrieves a random chatbot from thread state
   const [threadNum, setThreadNum] = useState<number>(0) //* Stores the number of threads
   const [categoryName, setCategoryName] = useState<string>('') //* Stores the name of the active category
+  // get current url params use UseParams hook from next/router to get the current url params and use it to fetch the data
+    const { slug } = useParams()
 
   //* Fetches the number of threads for the active category and user
   const getThreadNum = async () => {
@@ -53,18 +56,25 @@ export default function ChatChatbotDetails() {
         flex flex-col gap-[10px] relative font-mono"
       >
         <div className="w-[70%] flex flex-col gap-[10px] px-[24px] pt-[24px]">
-          <div className="text-2xl font-black">
-            {activeChatbot ? activeChatbot?.name : 'Welcome to Masterbots!'}
+         <div className="text-2xl font-black">
+            { page != 'profile' ? (activeChatbot  ? activeChatbot?.name : 'Welcome to Masterbots!') : `Browse ${slug}'s threads`}
           </div>
           <Separator className="bg-gray-300 dark:bg-mirage" />
           <div className="grow flex flex-col justify-between min-h-[137px]">
-            <div className="text-xl font-semibold">
-              {activeChatbot
+            {
+              page === 'profile' && (
+                <div className="text-xl font-semibold">
+                  Select category or bot to see or browse more threads from  {slug}
+                </div>
+              )
+            }
+            {/* <div className="text-xl font-semibold">
+              { page != 'profile' && (activeChatbot 
                 ? categoryName
                 : activeCategory
                   ? `You are on the ${categoryName} category. Please select one of the bots on the sidebar to start a conversation.`
-                  : 'Please select one of the categories and a bot on the sidebar to start a conversation.'}
-            </div>
+                  : 'Please select one of the categories and a bot on the sidebar to start a conversation.')}
+            </div> */}
             <div className="text-base gap-[8px] flex flex-col pb-[8px]">
               {/* biome-ignore lint/complexity/useOptionalChain: <explanation> */}
               {activeChatbot && activeChatbot?.description ? (
