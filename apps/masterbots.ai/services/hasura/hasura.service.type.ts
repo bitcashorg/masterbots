@@ -72,3 +72,10 @@ export interface GetMessagesParams extends GetHasuraClientParams {
   limit?: number
   offset?: number
 }
+export  interface UpdateUserArgs {
+  pkColumns: { userId: string | undefined };
+  _set?: {
+    bio?: string;
+    favouriteTopic?: string;
+  };
+}

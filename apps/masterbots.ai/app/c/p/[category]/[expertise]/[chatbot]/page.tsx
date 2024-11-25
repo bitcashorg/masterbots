@@ -1,11 +1,8 @@
 import { authOptions } from "@/auth";
 import { ChatChatbot } from "@/components/routes/chat/chat-chatbot";
 import ThreadPanel from "@/components/routes/thread/thread-panel";
-import { formatSystemPrompts } from "@/lib/actions";
-import { botNames } from "@/lib/bots-names";
-import { setDefaultUserPreferencesPrompt } from "@/lib/constants/prompts";
+import { botNames } from "@/lib/constants/bots-names";
 import { getChatbot, getThreads } from "@/services/hasura";
-import type { Message } from "ai";
 import { isTokenExpired } from "mb-lib";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
@@ -43,18 +40,6 @@ export default async function BrowseProBotPage({
   }
   const threads = await getThreads({ chatbotName, jwt, userId });
 
-  // format all chatbot prompts as chatgpt 'system' messages
-  const chatbotSystemPrompts: Message[] = formatSystemPrompts(chatbot.prompts);
-
-  const userPreferencesPrompts: Message[] = [
-    setDefaultUserPreferencesPrompt(chatbot),
-  ];
-
-  // concatenate all message to pass it to chat component
-  const initialMessages: Message[] = chatbotSystemPrompts.concat(
-    userPreferencesPrompts,
-  );
-
   return (
     <>
       <ThreadPanel
@@ -62,7 +47,7 @@ export default async function BrowseProBotPage({
         chatbot={chatbot.name}
         search={searchParams}
       />{" "}
-      <ChatChatbot initialMessages={initialMessages} chatbot={chatbot} />
+      <ChatChatbot chatbot={chatbot} />
     </>
   );
 }

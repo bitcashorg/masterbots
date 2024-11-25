@@ -1,4 +1,26 @@
-import { PlanCardProps } from '@/types/types'
+/**
+ * PlanCard Component
+ *
+ * A component that displays a subscription plan card for selection during
+ * the checkout process. It provides details about the plan, including
+ * pricing, duration, and features.
+ *
+ * Key Features:
+ * - Displays the plan's duration (monthly or yearly) and price
+ * - Integrates radio button functionality for selecting a plan
+ * - Shows visual feedback for the selected plan
+ * - Displays plan description and marketing features
+ *
+ * Functionality:
+ * - Updates the selected plan state when the user selects a different plan
+ * - Provides a visually appealing layout with background images based on the plan duration
+ *
+ * Props:
+ * - selectedPlan: The currently selected plan duration (e.g., 'monthly' or 'yearly')
+ * - handlePlanChange: Function to handle changes in the selected plan
+ * - plan: The plan object containing details such as price, description, and features
+ */
+import type { PlanCardProps } from '@/types/types'
 import { cn } from '@/lib/utils'
 
 export default function PlanCard({

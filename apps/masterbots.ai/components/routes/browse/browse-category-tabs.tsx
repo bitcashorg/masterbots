@@ -1,7 +1,23 @@
 'use client'
 
+/**
+ * BrowseCategoryTabs Component
+ * 
+ * This component renders a set of category buttons for browsing different categories.
+ * It allows users to switch between categories and highlights the active category.
+ * 
+ * Props:
+ * - categories: An array of category objects to display as buttons.
+ * - initialCategory: The category to be selected initially; defaults to 'all'.
+ * 
+ * Key Features:
+ * - Active Tab Management: Uses a custom hook to manage the active category tab.
+ * - Smooth Scrolling: Automatically scrolls to the active category button when changed.
+ * - Dynamic Category Buttons: Renders a button for each category, including an 'all' option.
+ */
+
 import { useBrowse } from '@/lib/hooks/use-browse'
-import { Category } from 'mb-genql'
+import type { Category } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import { useEffect } from 'react'
 import { BrowseCategoryButton } from '@/components/routes/browse/browse-category-button'
@@ -14,6 +30,7 @@ export function BrowseCategoryTabs({
   initialCategory?: string
 }) {
   const { tab: activeTab, changeTab: setActiveTab } = useBrowse()
+
   useEffect(() => {
     if (document) {
       const element = document.getElementById(

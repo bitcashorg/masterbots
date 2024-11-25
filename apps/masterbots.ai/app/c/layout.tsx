@@ -13,9 +13,7 @@ export default async function ChatLayout({ children }: ChatLayoutProps) {
       <NextTopLoader color="#1ED761" initialPosition={0.2} />
       <ResponsiveSidebar />
       <ChatLayoutSection>{children}</ChatLayoutSection>
-      <div className="layout-footer">
-        <FooterCT />
-      </div>
+      <FooterCT />
     </main>
   )
 }

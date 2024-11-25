@@ -1,3 +1,5 @@
+//* ChatHistory component displays a link to start a new chat and the user's chat history in a sidebar.
+
 import * as React from 'react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
@@ -6,7 +8,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { IconPlus } from '@/components/ui/icons'
 
 interface ChatHistoryProps {
-  userId?: string
+  userId?: string //* Optional user ID for fetching chat history specific to the user
 }
 
 export async function ChatHistory({ userId }: ChatHistoryProps) {
@@ -29,6 +31,7 @@ export async function ChatHistory({ userId }: ChatHistoryProps) {
           <div className="flex flex-col flex-1 px-4 space-y-4 overflow-auto">
             {Array.from({ length: 10 }).map((_, i) => (
               <div
+                // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
                 key={i}
                 className="w-full h-6 rounded-md shrink-0 animate-pulse bg-zinc-200 dark:bg-zinc-800"
               />
@@ -36,7 +39,7 @@ export async function ChatHistory({ userId }: ChatHistoryProps) {
           </div>
         }
       >
-        {/* @ts-ignore */}
+        {/* SidebarList displays the chat history list, using userId if available */}
         <SidebarList userId={userId} />
       </React.Suspense>
     </div>

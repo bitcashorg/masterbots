@@ -1,10 +1,34 @@
 'use client'
 
+/**
+ * NewChat Component
+ *
+ * A streamlined component for initiating new chat conversations that:
+ * - Creates new chat threads in the database
+ * - Handles initial message submission
+ * - Manages routing to the full chat interface
+ *
+ * Key Features:
+ * - Creates thread record in database before transitioning
+ * - Handles initial message persistence
+ * - Provides immediate UI feedback with fast navigation
+ * - Integrates with selected AI model configuration
+ *
+ * Flow:
+ * 1. User submits first message
+ * 2. Creates thread in database
+ * 3. Saves initial message
+ * 4. Redirects to full chat interface
+ *
+ * Note: This component is specifically for the new chat initialization flow,
+ * with minimal features compared to the full Chat component
+ */
+
 import { ChatPanel } from '@/components/routes/chat/chat-panel'
-import { useChat, type Message, CreateMessage } from 'ai/react'
+import { useChat, type Message, type CreateMessage } from 'ai/react'
 import toast from 'react-hot-toast'
-import { ChatRequestOptions } from 'ai'
-import { Chatbot } from 'mb-genql'
+import type { ChatRequestOptions } from 'ai'
+import type { Chatbot } from 'mb-genql'
 import { useRouter } from 'next/navigation'
 import { createThread, saveNewMessage } from '@/services/hasura'
 import { useSession } from 'next-auth/react'

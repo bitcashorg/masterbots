@@ -30,6 +30,12 @@ module.exports = {
         hostname: 'api.dicebear.com',
         port: '',
         pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        port: '',
+        pathname: '**',
       }
     ]
   },
