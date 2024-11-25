@@ -10,6 +10,19 @@ import { MessageSquare, MessageCircle, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toSlug } from 'mb-lib'
 
+/**
+ * Displays detailed information about a chatbot or welcome message in the Masterbots application.
+ * It serves as both a welcome screen for new users and a details card for specific chatbots.
+ *
+ * @features
+ * - Displays welcome message or chatbot information
+ * - Shows chatbot avatar with customizable border colors for light/dark modes
+ * - Presents thread count and follower statistics
+ * - Provides quick actions (Follow, New Chat)
+ * - Fully responsive design with mobile-first approach
+ * - Supports both light and dark themes
+ */
+
 export default function ChatChatbotDetails({ page }: { page?: string }) {
   const { data: session } = useSession()
   const { activeCategory, activeChatbot } = useSidebar()
