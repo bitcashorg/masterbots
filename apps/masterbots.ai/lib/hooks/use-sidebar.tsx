@@ -9,6 +9,14 @@ import { useAsync } from 'react-use'
 
 const LOCAL_STORAGE_KEY = 'sidebar'
 
+interface NavigationParams {
+  page: string | undefined
+  slug: string | undefined
+  categoryName?: string
+  chatbotName?: string
+}
+
+
 interface SidebarContext {
   isSidebarOpen: boolean
   filteredCategories: Category[]
@@ -33,7 +41,9 @@ interface SidebarContext {
   expandedCategories: number[];
   setExpandedCategories: React.Dispatch<React.SetStateAction<number[]>>;
   toggleChatbotSelection: (chatbotId: number) => void
+  navigateTo: (params: NavigationParams) => void
 }
+
 
 const SidebarContext = React.createContext<SidebarContext | undefined>(
   undefined
@@ -170,6 +180,30 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
         .filter(category => category.chatbots.some(chatbot => selectedChatbots.includes(chatbot.chatbotId)))
   }, [selectedChatbots.length, selectedCategories.length, filterValue, isFilterMode, categories])
 
+
+   const buildNavigationUrl = ({
+    page,
+    slug,
+    categoryName,
+    chatbotName
+  }: NavigationParams): string => {
+    const base = page === 'profile' ? `/u/${slug}/t` : '/c'
+    const categoryPath = categoryName ? `/${toSlug(categoryName.toLowerCase())}` : ''
+    const chatbotPath = chatbotName ? `/${chatbotName.toLowerCase()}` : ''
+    return `${base}${categoryPath}${chatbotPath}`
+  }
+  
+
+   const navigateTo = ({
+    page,
+    slug,
+    categoryName,
+    chatbotName
+  }: NavigationParams): void => {
+    const url = buildNavigationUrl({ page, slug, categoryName, chatbotName })
+    window.history.pushState({}, '', url)
+  }
+
   if (isLoading) {
     return null
   }
@@ -200,6 +234,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
         toggleChatbotSelection,
         expandedCategories,
         setExpandedCategories,
+        navigateTo
       }}
     >
       {children}

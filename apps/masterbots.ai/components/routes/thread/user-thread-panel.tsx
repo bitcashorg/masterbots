@@ -32,11 +32,13 @@ import { NoResults } from '@/components/shared/no-results-card'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
-import { getThreads } from '@/services/hasura'
+import { getThreads, getBrowseThreads, getUserBySlug } from '@/services/hasura'
 import type { Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import { useParams } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useAsync } from 'react-use'
+
 
 const PAGE_SIZE = 20
 
@@ -52,15 +54,25 @@ export default function UserThreadPanel({
   search?: { [key: string]: string | string[] | undefined }
   page?: string
 }) {
-  const params = useParams<{ chatbot: string; threadId: string }>()
+  const params = useParams<{ chatbot: string; threadId: string, slug?: string }>()
   const { data: session } = useSession()
   const { activeCategory, activeChatbot } = useSidebar()
-  const { isOpenPopup, activeThread, setActiveThread, setIsOpenPopup } =
-    useThread()
+  const { isOpenPopup, activeThread, setActiveThread, setIsOpenPopup } = useThread()
   const [loading, setLoading] = useState<boolean>(false)
   const { threads: hookThreads } = useThreadVisibility()
   const [searchTerm, setSearchTerm] = useState<string>('')
-  
+  const { slug } = params;
+
+  const userWithSlug = useAsync(async () => {
+    if (!slug) return { user: null }
+    const result = await getUserBySlug({
+      slug,
+      isSameUser: session?.user?.slug === slug
+    })
+    return result
+  }, [])
+
+
   const finalThreads = useMemo(
     () => initialThreads ?? hookThreads,
     [initialThreads, hookThreads]
@@ -76,11 +88,17 @@ export default function UserThreadPanel({
     setTotalThreads(finalThreads?.length ?? 0)
   }, [finalThreads])
   const fetchIdRef = useRef(0) // Store the fetchId in a ref
+  
+  
   const loadMore = async () => {
     console.log('🟡 Loading More Content')
     setLoading(true)
+    let moreThreads: Thread[] = []
 
-    const moreThreads = await getThreads({
+    if(page === 'profile' && !session?.user) {
+      moreThreads = await fetchBrowseThreads();
+    }else{
+     moreThreads = await getThreads({
       jwt: session!.user?.hasuraJwt,
       userId: session!.user.id,
       offset: threads.length,
@@ -88,17 +106,47 @@ export default function UserThreadPanel({
       categoryId: activeCategory,
       chatbotName: activeChatbot?.name
     })
+  }
     if (moreThreads) setThreads(prevState => [...prevState, ...moreThreads])
     setCount(_prev => moreThreads.length ?? 0)
     setLoading(false)
   }
 
+  const fetchBrowseThreads = async () => {
+    try {
+      if(!slug) return []
+      const user = userWithSlug.value?.user
+      if (!user) return []
+        return await getBrowseThreads({ 
+          userId: user.userId, 
+          categoryId: activeCategory,
+          chatbotName: activeChatbot?.name,
+          limit: PAGE_SIZE,
+        });
+      
+    } catch (error) {
+      console.error('Failed to fetch threads:', error);
+      return [];
+    }
+  };
+
   const handleThreadsChange = async () => {
-    if (!session?.user) return
+    let threads: Thread[] = []
+    setLoading(true)
+    if (!session?.user) {
+      if(page === 'profile') {
+        threads = await fetchBrowseThreads();
+        setThreads(_prev => threads ?? [])
+        setCount(_prev => threads.length ?? 0)
+        setTotalThreads(threads?.length ?? 0)
+      }
+      setLoading(false)
+      return;
+    }
     const currentFetchId = Date.now() // Generate a unique identifier for the current fetch
     fetchIdRef.current = currentFetchId
-    setLoading(true)
-    const threads = await getThreads({
+  
+     threads = await getThreads({
       jwt: session!.user?.hasuraJwt,
       userId: session!.user.id,
       limit: PAGE_SIZE,
@@ -133,6 +181,7 @@ export default function UserThreadPanel({
     setActiveThread(null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [threads])
+
 
   const handleSearch = (term: string) => {
     setSearchTerm(term)

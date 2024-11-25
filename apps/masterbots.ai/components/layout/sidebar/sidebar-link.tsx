@@ -10,7 +10,7 @@ import { toSlug } from 'mb-lib'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from "next/navigation"
-import React, { useCallback, useState } from 'react'
+import React, { useCallback } from 'react'
 
 interface SidebarLinkProps {
   category: Category
@@ -35,6 +35,7 @@ export default function SidebarLink({ category, isFilterMode, page }: SidebarLin
     setSelectedChatbots,
     expandedCategories,
     setExpandedCategories,
+    navigateTo
   } = useSidebar()
   const isExpanded = expandedCategories.includes(category.categoryId)
 
@@ -50,23 +51,16 @@ export default function SidebarLink({ category, isFilterMode, page }: SidebarLin
         const newCategory = prev === category.categoryId ? null : category.categoryId
         if (newCategory) {
           setActiveChatbot(null)
-
-          window.history.pushState(
-            {}, 
-            '', 
-            page === 'profile' 
-              ? `/u/${slug}/t/${toSlug(category.name.toLowerCase())}` 
-              : `/c/${toSlug(category.name.toLowerCase())}`
-          )
+          navigateTo({
+            page,
+            slug: slug  as string,
+            categoryName: toSlug(category.name.toLowerCase())
+          })
         }else{
-
-          window.history.pushState(
-            {}, 
-            '', 
-            page === 'profile' 
-              ? `/u/${slug}/t` 
-              : `/c`
-          )
+          navigateTo({
+            page,
+            slug: slug  as string
+          })
 
         }
         return newCategory
@@ -146,8 +140,7 @@ export default function SidebarLink({ category, isFilterMode, page }: SidebarLin
   return (
     <div className={cn('flex flex-col mb-2')}>
       <Link
-      href="#"
-       //  href={page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}` :`/c/${toSlug(category.name)}`}
+        href={page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}` :`/c/${toSlug(category.name)}`}
          className={cn(
           'flex items-center p-2 cursor-pointer',
           isActive && 'bg-gray-200 dark:bg-mirage',
@@ -179,25 +172,22 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
   isFilterMode,
   page
 }) {
-  const { selectedChatbots, toggleChatbotSelection } = useSidebar()
+  const { selectedChatbots, toggleChatbotSelection,navigateTo } = useSidebar()
   const pathname = usePathname()
   const isBrowse = !pathname.includes('/c') && !pathname.includes('/u')
   const { slug } = useParams()
 
   const handleChatbotClick = useCallback((e: React.MouseEvent) => {
-    if (isFilterMode) e.preventDefault()
-    else {
+     e.preventDefault()
       setActiveChatbot(chatbot)
       if(chatbot){
-        window.history.pushState(
-          {}, 
-          '', 
-          page === 'profile' 
-            ? `/u/${slug}/t/${toSlug(category.name)}/${chatbot.name.toLowerCase()}` 
-            : `/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`
-        )
+        navigateTo({
+          page,
+          slug: slug as string,
+          categoryName: toSlug(category.name.toLowerCase()),
+          chatbotName: chatbot.name.toLowerCase()
+        })
       }
-    }
   }, [chatbot, setActiveChatbot, isFilterMode])
 
   const isSelected = selectedChatbots.includes(chatbot.chatbotId)
@@ -235,8 +225,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
     </div>
   ) : (
     <Link
-    href="#"
-      // href={ page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`: `/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`}
+     href={ page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`: `/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`}
       className={cn(
         'flex items-center p-2 w-full',
         isActive && 'bg-blue-100 dark:bg-blue-900',
