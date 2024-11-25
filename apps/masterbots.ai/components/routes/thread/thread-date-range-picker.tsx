@@ -1,9 +1,36 @@
 'use client'
 
+/**
+ * DateRangePicker Component
+ *
+ * A reusable date range selection component that provides:
+ * - Popover-based calendar interface
+ * - Two-month view for easier range selection
+ * - Formatted date display
+ * - Default date range handling
+ *
+ * Key Features:
+ * - Double calendar month view
+ * - Date range selection with visual feedback
+ * - Formatted date display in button
+ * - Accessible keyboard navigation
+ * - Responsive popover positioning
+ *
+ * UI Elements:
+ * - Trigger Button: Shows selected date range
+ * - Calendar Popover: Double month view
+ * - Date Format: "MMM dd, yyyy" (e.g., "Jan 20, 2023")
+ *
+ * Dependencies:
+ * - Uses date-fns for date formatting
+ * - Built on Radix UI Popover
+ * - Integrates with Shadcn UI Calendar
+ */
+
 import * as React from 'react'
 import { CalendarIcon } from '@radix-ui/react-icons'
 import { addDays, format } from 'date-fns'
-import { DateRange } from 'react-day-picker'
+import type { DateRange } from 'react-day-picker'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'

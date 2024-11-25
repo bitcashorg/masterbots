@@ -1,12 +1,16 @@
 export interface WordwareFlow {
   id: string
   type: 'generation' | 'prompt' | 'tool'
-  path:
-    | 'SetBlogSections'
-    | 'SetBlogImages'
-    | 'GenerateBlogArticle'
-    | 'SetBlogOutlines'
+  path: WordWareFlowPaths
 }
+
+export type WordWareFlowPaths =
+  | 'SetBlogSections'
+  | 'SetBlogImages'
+  | 'GenerateBlogArticle'
+  | 'SetBlogOutlines'
+  | 'webSearch'
+  | 'WebSonarSearch'
 
 export interface WordwareFlowEntry {
   type: 'generation' | 'prompt' | 'tool' | 'chunk' | 'loop'
@@ -28,4 +32,13 @@ export interface WordwareFlowEntry {
 export interface StreamEntry {
   type: 'chunk'
   value: WordwareFlowEntry
+}
+
+export type WordWareDescribeDAtaResponse = {
+  version: string
+  title: string
+  description: string
+  examples: Record<string, unknown>
+  created: string
+  inputs: Record<string, unknown>[]
 }

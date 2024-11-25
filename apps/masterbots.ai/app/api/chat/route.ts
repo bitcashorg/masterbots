@@ -1,8 +1,8 @@
-import { createResponseStream } from '@/app/api/chat/actions/actions'
+import { createResponseStream } from '@/app/actions'
 import { getModelClientType } from '@/lib/helpers/ai-helpers'
 import { NextResponse } from 'next/server'
 
-export const runtime = 'edge'
+// export const runtime = 'edge'
 
 export async function POST(req: Request) {
   try {
@@ -16,9 +16,8 @@ export async function POST(req: Request) {
     const clientModel = getModelClientType(model)
 
     const stream = await createResponseStream(clientModel, json, req)
-    
-    return stream
 
+    return stream
   } catch (error) {
     console.error('Error in chat API route:', error)
     return NextResponse.json(

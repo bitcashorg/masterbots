@@ -6,3 +6,4 @@ node_modules
 _dev
 .vercel
 __dev
+.vercel

@@ -1,15 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import { generateShortLink } from '@/app/actions'
 import { Button } from '@/components/ui/button'
 import { AnimatePresence } from 'framer-motion'
 import { LucideCheck, LucideLoader2, LucideX } from 'lucide-react'
-import { generateShortLink } from '@/actions'
-
-// * This component user-actions has the action of ShareLink that does the following:
-// ? It allows the user to copy the link to the clipboard
-// ? It also allows the user to generate a short link
-// ? It uses the generateShortLink action to generate a short link
+import { useState } from 'react'
 
 export default function ShareLink() {
   const [status, setStatus] = useState<
@@ -34,17 +29,19 @@ export default function ShareLink() {
       return () => clearTimeout(timer)
     }
   }
+  
   const iconsMap = {
     loading: (
       <LucideLoader2
         size={26}
-        className="animate-spin stroke-accent-secondary"
+        className="animate-spin stroke-muted-secondary"
       />
     ),
     copied: <LucideCheck size={26} className="stroke-success" />,
     error: <LucideX size={26} className="stroke-destructive" />,
     default: (
-      <svg
+      // biome-ignore lint/a11y/noSvgWithoutTitle: <explanation>
+<svg
         width="24"
         height="24"
         viewBox="0 0 24 24"
@@ -59,11 +56,10 @@ export default function ShareLink() {
       </svg>
     )
   }
+  
   return (
-    <div className="size-10 absolute right-0 top-20 translate-x-full -translate-y-1/4 dark:[#131316] white">
-      <Button onClick={copyToClipboard} variant="ghost" className="px-1">
-        <AnimatePresence>{iconsMap[status]}</AnimatePresence>
-      </Button>
-    </div>
+    <Button onClick={copyToClipboard} variant="ghost" className="h-auto px-1">
+      <AnimatePresence>{iconsMap[status]}</AnimatePresence>
+    </Button>
   )
 }
