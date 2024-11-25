@@ -117,7 +117,7 @@ export default function UserThreadPanel({
   }
 
   useEffect(() => {
-  if(page !== 'profile' && (!isOpenPopup || activeCategory || activeChatbot)) {
+  if( !isOpenPopup || activeCategory || activeChatbot) {
     handleThreadsChange()
   } }
   , [activeCategory, activeChatbot, isOpenPopup, page])
