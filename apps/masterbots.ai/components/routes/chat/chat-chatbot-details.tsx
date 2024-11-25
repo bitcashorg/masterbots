@@ -74,7 +74,7 @@ export default function ChatChatbotDetails({ page }: { page?: string }) {
             <div
               className={cn(
                 'size-20 md:size-32 rounded-full p-2 md:p-2.5 relative', // Smaller size on mobile
-                'bg-black dark:bg-black',
+                'bg-zinc-200 dark:bg-black',
                 'ring-2 ring-[#be16e8] dark:ring-[#82e46a]'
               )}
             >
