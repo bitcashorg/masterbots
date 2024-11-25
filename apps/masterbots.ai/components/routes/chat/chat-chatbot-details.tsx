@@ -1,106 +1,148 @@
-//* Component for displaying details of the selected chatbot
-
-'use client'
-
-import { Separator } from '@/components/ui/separator'
+import { useSession } from 'next-auth/react'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
-import { getCategory, getThreads } from '@/services/hasura'
-import { useSession } from 'next-auth/react'
-import Image from 'next/image'
 import { useParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
+import { getCategory, getThreads } from '@/services/hasura'
+import Image from 'next/image'
+import { Button } from '@/components/ui/button'
+import { MessageSquare, MessageCircle, Users } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { toSlug } from 'mb-lib'
 
 export default function ChatChatbotDetails({ page }: { page?: string }) {
-  const { data: session } = useSession() //* Retrieves session data using next-auth
-  const { activeCategory, activeChatbot } = useSidebar() //* Retrieves active category and chatbot from sidebar state
-  const { randomChatbot } = useThread() //* Retrieves a random chatbot from thread state
-  const [threadNum, setThreadNum] = useState<number>(0) //* Stores the number of threads
-  const [categoryName, setCategoryName] = useState<string>('') //* Stores the name of the active category
-  // get current url params use UseParams hook from next/router to get the current url params and use it to fetch the data
-    const { slug } = useParams()
+  const { data: session } = useSession()
+  const { activeCategory, activeChatbot } = useSidebar()
+  const { randomChatbot } = useThread()
+  const [threadNum, setThreadNum] = useState<number>(0)
+  const [categoryName, setCategoryName] = useState<string>('')
+  const { slug } = useParams()
 
-  //* Fetches the number of threads for the active category and user
   const getThreadNum = async () => {
     if (!session?.user) return
-
     const threads = await getThreads({
       jwt: session?.user?.hasuraJwt as string,
       categoryId: activeCategory,
       userId: session?.user.id as string
     })
-    setThreadNum(threads?.length ?? 0) //* Updates thread number state
+    setThreadNum(threads?.length ?? 0)
   }
 
-  //* Fetches the name of the active category
   const getCategoryName = async () => {
-    const category = await getCategory({ categoryId: activeCategory as number }) //* Retrieves category details
-    setCategoryName(category.name) //* Updates category name state
+    const category = await getCategory({ categoryId: activeCategory as number })
+    setCategoryName(category.name)
   }
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
-    //* Effect to fetch thread number or category name based on active category
     if (!activeCategory) {
-      getThreadNum() //* Fetch thread number if no category is active
+      getThreadNum()
     } else {
       getCategoryName()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeCategory, activeChatbot, session?.user])
 
+  const botName = activeChatbot?.name || 'BuildBot'
+
   return (
-    <div className="h-[calc(100vh-196px)] flex items-center justify-center">
-      <div
-        className="dark:bg-[#09090B] bg-white rounded-lg md:w-[600px] w-[85%]
-        flex flex-col gap-[10px] relative font-mono"
-      >
-        <div className="w-[70%] flex flex-col gap-[10px] px-[24px] pt-[24px]">
-         <div className="text-2xl font-black">
-            { page != 'profile' ? (activeChatbot  ? activeChatbot?.name : 'Welcome to Masterbots!') : `Browse ${slug}'s threads`}
+    <div className="h-[calc(100vh-196px)] flex items-center justify-center -translate-y-8">
+      <div className="dark:bg-[#09090B] bg-white w-[85%] md:w-[600px] rounded-xl text-white relative">
+        {/* Card Header */}
+        <div className="px-4 pt-4 md:px-6 md:pt-6">
+          <div className="text-base font-bold leading-relaxed md:text-2xl text-zinc-950 dark:text-gray-300">
+            Welcome to Masterbots!
           </div>
-          <Separator className="bg-gray-300 dark:bg-mirage" />
-          <div className="grow flex flex-col justify-between min-h-[137px]">
-            {
-              page === 'profile' && (
-                <div className="text-xl font-semibold">
-                  Select category or bot to see or browse more threads from  {slug}
-                </div>
-              )
-            }
-            {/* <div className="text-xl font-semibold">
-              { page != 'profile' && (activeChatbot 
-                ? categoryName
-                : activeCategory
-                  ? `You are on the ${categoryName} category. Please select one of the bots on the sidebar to start a conversation.`
-                  : 'Please select one of the categories and a bot on the sidebar to start a conversation.')}
-            </div> */}
-            <div className="text-base gap-[8px] flex flex-col pb-[8px]">
-              {/* biome-ignore lint/complexity/useOptionalChain: <explanation> */}
-              {activeChatbot && activeChatbot?.description ? (
-                <div className="font-medium">{activeChatbot.description}</div>
-              ) : (
-                ''
+        </div>
+
+        {/* Separator Line - Extended to edges */}
+        <div className="h-[3px] bg-zinc-200 dark:bg-slate-800 mt-6 relative">
+          {/* Floating Avatar - Responsive sizing */}
+          <div className="absolute right-4 -top-10 md:right-6 md:-top-12">
+            <div
+              className={cn(
+                'size-20 md:size-32 rounded-full p-2 md:p-2.5 relative', // Smaller size on mobile
+                'bg-black dark:bg-black',
+                'ring-2 ring-[#be16e8] dark:ring-[#82e46a]'
               )}
-              <div className="font-light">
-                Threads made:{' '}
-                <span className="text-[#71717A]">
-                  {activeChatbot
-                    ? (activeChatbot?.threads?.length ?? 0)
-                    : threadNum}
-                </span>
-              </div>
+            >
+              <Image
+                src={activeChatbot?.avatar || randomChatbot?.avatar || ''}
+                alt={`${botName} avatar`}
+                height={128}
+                width={128}
+                className="object-cover rounded-full"
+              />
             </div>
           </div>
         </div>
-        <div className="size-24 absolute border-4 border-[#388DE2] right-0 top-0 translate-x-1/4 rounded-full translate-y-1/4 dark:bg-[#131316] bg-white">
-          <Image
-            className="transition-opacity duration-300 rounded-full select-none size-full ring-1 ring-zinc-100/10 hover:opacity-80"
-            src={activeChatbot?.avatar || randomChatbot?.avatar || ''}
-            alt={activeChatbot?.avatar || randomChatbot?.avatar || 'ChatAvatar'}
-            height={108}
-            width={108}
-          />
+
+        {/* Description with right margin to avoid avatar overlap */}
+        <div className="p-2 px-4 mr-2 md:p-3 md:px-6 md:mr-4">
+          <p className="pr-24 text-sm font-normal text-justify md:pr-32 md:text-base text-zinc-500 dark:text-zinc-500">
+            Here you can create new threads and share them to your network!
+            Navigate with the sidebar and pick any bot of your interest.
+          </p>
+        </div>
+
+        {/* Card Content */}
+        <div className="px-4 pb-4 md:px-6 md:pb-6 flex flex-col items-center justify-start gap-1.5">
+          <div className="mb-3 text-center md:mb-4">
+            <h2 className="text-lg md:text-2xl font-semibold leading-[34.08px] text-zinc-950 dark:text-gray-300">
+              Your Journey Begins Here!
+            </h2>
+            <p className="text-base font-semibold leading-relaxed md:text-lg text-zinc-500 dark:text-zinc-500">
+              Try and start with: {botName}
+            </p>
+          </div>
+
+          <div className="flex flex-col items-center w-full gap-3">
+            <div className="flex items-center justify-center gap-4 md:gap-6">
+              <div className="flex items-center gap-1">
+                <MessageSquare className="w-4 h-4 text-zinc-950 dark:text-gray-300" />
+                <span className="text-xs font-normal leading-tight md:text-sm text-zinc-950 dark:text-gray-300">
+                  Threads:{' '}
+                  <span className="text-zinc-500 dark:text-zinc-500">
+                    {activeChatbot
+                      ? (activeChatbot?.threads?.length ?? 0)
+                      : threadNum}
+                  </span>
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="flex items-center gap-1">
+                  <Users className="w-4 h-4 text-zinc-950 dark:text-gray-300" />
+                  <span className="text-xs font-normal leading-tight md:text-sm text-zinc-950 dark:text-gray-300">
+                    Followers:{' '}
+                    <span className="text-zinc-500 dark:text-zinc-500">
+                      3.2k
+                    </span>
+                  </span>
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs md:text-sm border-zinc-200 dark:border-zinc-100/50 text-zinc-500 dark:text-zinc-500"
+                >
+                  Follow
+                </Button>
+              </div>
+            </div>
+
+            <Button
+              className={cn(
+                'w-auto px-4 md:px-6 py-2 text-sm md:text-base',
+                'bg-[#be16e8] hover:bg-[#be16e8]/90',
+                'dark:bg-[#82e46a] dark:hover:bg-[#82e46a]/90',
+                'text-white dark:text-zinc-950',
+                'leading-none'
+              )}
+            >
+              <MessageCircle className="mr-2 size-4" />
+              New Chat With {botName}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
