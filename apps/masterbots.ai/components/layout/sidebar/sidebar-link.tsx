@@ -48,9 +48,26 @@ export default function SidebarLink({ category, isFilterMode, page }: SidebarLin
       )
       setActiveCategory(prev => {
         const newCategory = prev === category.categoryId ? null : category.categoryId
-        if (newCategory && isBrowse) {
+        if (newCategory) {
           setActiveChatbot(null)
-          router.push( page === 'profile' ? `/u/${slug}/t/${toSlug(category.name.toLowerCase())}` :`/c/${toSlug(category.name.toLowerCase())}`)
+
+          window.history.pushState(
+            {}, 
+            '', 
+            page === 'profile' 
+              ? `/u/${slug}/t/${toSlug(category.name.toLowerCase())}` 
+              : `/c/${toSlug(category.name.toLowerCase())}`
+          )
+        }else{
+
+          window.history.pushState(
+            {}, 
+            '', 
+            page === 'profile' 
+              ? `/u/${slug}/t` 
+              : `/c`
+          )
+
         }
         return newCategory
       })
@@ -129,7 +146,8 @@ export default function SidebarLink({ category, isFilterMode, page }: SidebarLin
   return (
     <div className={cn('flex flex-col mb-2')}>
       <Link
-         href={page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}` :`/c/${toSlug(category.name)}`}
+      href="#"
+       //  href={page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}` :`/c/${toSlug(category.name)}`}
          className={cn(
           'flex items-center p-2 cursor-pointer',
           isActive && 'bg-gray-200 dark:bg-mirage',
@@ -168,7 +186,18 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
 
   const handleChatbotClick = useCallback((e: React.MouseEvent) => {
     if (isFilterMode) e.preventDefault()
-    else setActiveChatbot(chatbot)
+    else {
+      setActiveChatbot(chatbot)
+      if(chatbot){
+        window.history.pushState(
+          {}, 
+          '', 
+          page === 'profile' 
+            ? `/u/${slug}/t/${toSlug(category.name)}/${chatbot.name.toLowerCase()}` 
+            : `/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`
+        )
+      }
+    }
   }, [chatbot, setActiveChatbot, isFilterMode])
 
   const isSelected = selectedChatbots.includes(chatbot.chatbotId)
@@ -206,7 +235,8 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
     </div>
   ) : (
     <Link
-      href={ page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`: `/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`}
+    href="#"
+      // href={ page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`: `/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`}
       className={cn(
         'flex items-center p-2 w-full',
         isActive && 'bg-blue-100 dark:bg-blue-900',
