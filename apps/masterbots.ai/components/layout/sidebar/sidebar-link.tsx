@@ -56,12 +56,11 @@ export default function SidebarLink({ category, isFilterMode, page }: SidebarLin
             slug: slug  as string,
             categoryName: toSlug(category.name.toLowerCase())
           })
-        }else{
+        }else{       
           navigateTo({
             page,
             slug: slug  as string
-          })
-
+          })    
         }
         return newCategory
       })

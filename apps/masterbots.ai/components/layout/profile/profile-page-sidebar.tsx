@@ -29,11 +29,6 @@ export const ProfileSidebar = ({ children }: any) => {
 
   const sameUser = isSameUser(user?.userId)
 
-  const handleToggleThreads = () => {
-    window.history.pushState({}, '', `/u/${slug}/t`)
-    setIsThreadsOpen(!isThreadsOpen)
-  }
-  
   return (
     <div className="relative h-screen w-full">
       {/* Overlay for mobile */}
@@ -68,8 +63,8 @@ export const ProfileSidebar = ({ children }: any) => {
               {/* Threads Accordion */}
               <div className="rounded-lg">
                 <Link
-                  href="#"
-                  onClick={handleToggleThreads}
+                  href={`/u/${slug}/t`}
+                  onClick={() => setIsThreadsOpen(!isThreadsOpen)}
                   className={cn(
                     "flex w-full items-center justify-between px-4 py-3",
                     "hover:bg-gray-200 dark:hover:bg-mirage transition-colors duration-200",

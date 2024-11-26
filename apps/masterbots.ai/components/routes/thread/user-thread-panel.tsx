@@ -70,14 +70,12 @@ export default function UserThreadPanel({
       isSameUser: session?.user?.slug === slug
     })
     return result
-  }, [])
-
+  }, [slug])
 
   const finalThreads = useMemo(
     () => initialThreads ?? hookThreads,
     [initialThreads, hookThreads]
   )
-
   const [threads, setThreads] = useState<Thread[]>(finalThreads ?? [])
   const [count, setCount] = useState<number>(finalThreads?.length ?? 0)
   const [totalThreads, setTotalThreads] = useState<number>(0)
@@ -89,7 +87,24 @@ export default function UserThreadPanel({
   }, [finalThreads])
   const fetchIdRef = useRef(0) // Store the fetchId in a ref
   
-  
+  const fetchBrowseThreads = async () => {
+    try {
+      if(!slug) return []
+      const user = userWithSlug.value?.user
+      if (!user) return []
+        return await getBrowseThreads({ 
+          userId: user.userId, 
+          categoryId: activeCategory,
+          chatbotName: activeChatbot?.name,
+          limit: PAGE_SIZE,
+        });
+      
+    } catch (error) {
+      console.error('Failed to fetch threads:', error);
+      return [];
+    }
+  };
+
   const loadMore = async () => {
     console.log('🟡 Loading More Content')
     setLoading(true)
@@ -111,24 +126,6 @@ export default function UserThreadPanel({
     setCount(_prev => moreThreads.length ?? 0)
     setLoading(false)
   }
-
-  const fetchBrowseThreads = async () => {
-    try {
-      if(!slug) return []
-      const user = userWithSlug.value?.user
-      if (!user) return []
-        return await getBrowseThreads({ 
-          userId: user.userId, 
-          categoryId: activeCategory,
-          chatbotName: activeChatbot?.name,
-          limit: PAGE_SIZE,
-        });
-      
-    } catch (error) {
-      console.error('Failed to fetch threads:', error);
-      return [];
-    }
-  };
 
   const handleThreadsChange = async () => {
     let threads: Thread[] = []
@@ -165,7 +162,7 @@ export default function UserThreadPanel({
   }
 
   useEffect(() => {
-  if( !isOpenPopup || activeCategory || activeChatbot) {
+  if(!isOpenPopup && activeCategory || activeChatbot) {
     handleThreadsChange()
   } }
   , [activeCategory, activeChatbot, isOpenPopup, page])
