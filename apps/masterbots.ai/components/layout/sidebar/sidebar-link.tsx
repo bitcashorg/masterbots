@@ -49,24 +49,19 @@ export default function SidebarLink({ category, isFilterMode, page }: SidebarLin
       )
       setActiveCategory(prev => {
         const newCategory = prev === category.categoryId ? null : category.categoryId
-
-        
          if (newCategory) {
           setActiveChatbot(null)
-          console.log("the isBrowse::",isBrowse)
           navigateTo({
             page,
             slug: slug  as string,
-            categoryName: toSlug(category.name.toLowerCase()),
-             isBrowse
+            categoryName: toSlug(category.name.toLowerCase())
           })
 
        }else{
         setActiveChatbot(null)
         navigateTo({
           page,
-          slug: slug as string,
-         isBrowse
+          slug: slug as string
         })
        }
         return newCategory
@@ -146,7 +141,8 @@ export default function SidebarLink({ category, isFilterMode, page }: SidebarLin
   return (
     <div className={cn('flex flex-col mb-2')}>
       <Link
-        href={'#'}//page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}` :`/c/${toSlug(category.name)}`}
+       href="#"
+       // href={page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}` :`/c/${toSlug(category.name)}`}
          className={cn(
           'flex items-center p-2 cursor-pointer',
           isActive && 'bg-gray-200 dark:bg-mirage',

@@ -108,7 +108,12 @@ export default function BrowseList() {
       categoriesId: selectedCategories,
       chatbotsId: selectedChatbots
     })
-  }, [selectedCategories.length, selectedChatbots.length])
+
+    console.log({
+      selectedCategories,
+      selectedChatbots
+    })
+  }, [selectedCategories, selectedChatbots])
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   React.useEffect(() => {

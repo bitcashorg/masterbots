@@ -182,9 +182,6 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
   }, [selectedChatbots.length, selectedCategories.length, filterValue, isFilterMode, categories])
 
   const getBasePath = ({ page, slug, isBrowse }: NavigationParams) => {
-    console.log({
-      isBrowse
-    })
     // Handle browse page first
     if (isBrowse) {
       return '';
@@ -197,8 +194,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
   
     // Default to community path
     const base = '/c';
-  
-  
+
     return base;
   };
    const buildNavigationUrl = ({
@@ -209,9 +205,6 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
     isBrowse
   }: NavigationParams): string => {
       const base = getBasePath({ page, slug, isBrowse, categoryName, chatbotName });
-        console.log({
-          isBrowse
-        })
       if (!categoryName && !chatbotName) {
         return base
       }

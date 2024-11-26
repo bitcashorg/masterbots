@@ -79,6 +79,8 @@ export default function UserThreadPanel({
   const [threads, setThreads] = useState<Thread[]>(finalThreads ?? [])
   const [count, setCount] = useState<number>(finalThreads?.length ?? 0)
   const [totalThreads, setTotalThreads] = useState<number>(0)
+  const prevCategoryRef = useRef(activeCategory);
+  const prevChatbotRef = useRef(activeChatbot);
 
   useEffect(() => {
     setThreads(finalThreads)
@@ -129,6 +131,8 @@ export default function UserThreadPanel({
 
   const handleThreadsChange = async () => {
     let threads: Thread[] = []
+
+    console.log('🟡 Fetching Threads')
     setLoading(true)
     const isOwnProfile = session?.user?.slug === slug;
     if (!session?.user || !isOwnProfile) {
@@ -167,8 +171,7 @@ export default function UserThreadPanel({
   //   handleThreadsChange()
   // } },[activeCategory, activeChatbot, isOpenPopup])
 
-  const prevCategoryRef = useRef(activeCategory);
-const prevChatbotRef = useRef(activeChatbot);
+ 
 
 useEffect(() => {
   // Skip if popup is open
