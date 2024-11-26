@@ -188,6 +188,11 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
     chatbotName
   }: NavigationParams): string => {
     const base = page === 'profile' ? `/u/${slug}/t` : '/c'
+
+    if (!categoryName && !chatbotName) {
+      return base
+    }
+  
     const categoryPath = categoryName ? `/${toSlug(categoryName.toLowerCase())}` : ''
     const chatbotPath = chatbotName ? `/${chatbotName.toLowerCase()}` : ''
     return `${base}${categoryPath}${chatbotPath}`

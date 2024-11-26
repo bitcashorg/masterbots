@@ -130,7 +130,8 @@ export default function UserThreadPanel({
   const handleThreadsChange = async () => {
     let threads: Thread[] = []
     setLoading(true)
-    if (!session?.user) {
+    const isOwnProfile = session?.user?.slug === slug;
+    if (!session?.user || !isOwnProfile) {
       if(page === 'profile') {
         threads = await fetchBrowseThreads();
         setThreads(_prev => threads ?? [])
