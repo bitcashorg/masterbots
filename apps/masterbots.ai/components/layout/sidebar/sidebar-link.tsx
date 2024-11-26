@@ -49,14 +49,26 @@ export default function SidebarLink({ category, isFilterMode, page }: SidebarLin
       )
       setActiveCategory(prev => {
         const newCategory = prev === category.categoryId ? null : category.categoryId
-        if (newCategory) {
+
+        
+         if (newCategory) {
           setActiveChatbot(null)
+          console.log("the isBrowse::",isBrowse)
           navigateTo({
             page,
             slug: slug  as string,
-            categoryName: toSlug(category.name.toLowerCase())
+            categoryName: toSlug(category.name.toLowerCase()),
+             isBrowse
           })
-        }
+
+       }else{
+        setActiveChatbot(null)
+        navigateTo({
+          page,
+          slug: slug as string,
+         isBrowse
+        })
+       }
         return newCategory
       })
     }
@@ -134,7 +146,7 @@ export default function SidebarLink({ category, isFilterMode, page }: SidebarLin
   return (
     <div className={cn('flex flex-col mb-2')}>
       <Link
-        href={page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}` :`/c/${toSlug(category.name)}`}
+        href={'#'}//page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}` :`/c/${toSlug(category.name)}`}
          className={cn(
           'flex items-center p-2 cursor-pointer',
           isActive && 'bg-gray-200 dark:bg-mirage',
@@ -219,7 +231,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
     </div>
   ) : (
     <Link
-     href={ page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`: `/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`}
+     href={page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`: `/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`}
       className={cn(
         'flex items-center p-2 w-full',
         isActive && 'bg-blue-100 dark:bg-blue-900',

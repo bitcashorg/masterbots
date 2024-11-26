@@ -14,6 +14,7 @@ interface NavigationParams {
   slug: string | undefined
   categoryName?: string
   chatbotName?: string
+  isBrowse?: boolean
 }
 
 
@@ -180,19 +181,41 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
         .filter(category => category.chatbots.some(chatbot => selectedChatbots.includes(chatbot.chatbotId)))
   }, [selectedChatbots.length, selectedCategories.length, filterValue, isFilterMode, categories])
 
-
+  const getBasePath = ({ page, slug, isBrowse }: NavigationParams) => {
+    console.log({
+      isBrowse
+    })
+    // Handle browse page first
+    if (isBrowse) {
+      return '';
+    }
+  
+    // Handle profile page
+    if (page === 'profile') {
+      return `/u/${slug}/t`;
+    }
+  
+    // Default to community path
+    const base = '/c';
+  
+  
+    return base;
+  };
    const buildNavigationUrl = ({
     page,
     slug,
     categoryName,
-    chatbotName
+    chatbotName,
+    isBrowse
   }: NavigationParams): string => {
-    const base = page === 'profile' ? `/u/${slug}/t` : '/c'
-
-    if (!categoryName && !chatbotName) {
-      return base
-    }
-  
+      const base = getBasePath({ page, slug, isBrowse, categoryName, chatbotName });
+        console.log({
+          isBrowse
+        })
+      if (!categoryName && !chatbotName) {
+        return base
+      }
+    
     const categoryPath = categoryName ? `/${toSlug(categoryName.toLowerCase())}` : ''
     const chatbotPath = chatbotName ? `/${chatbotName.toLowerCase()}` : ''
     return `${base}${categoryPath}${chatbotPath}`
@@ -203,9 +226,10 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
     page,
     slug,
     categoryName,
-    chatbotName
+    chatbotName,
+    isBrowse
   }: NavigationParams): void => {
-    const url = buildNavigationUrl({ page, slug, categoryName, chatbotName })
+    const url = buildNavigationUrl({ page, slug, categoryName, chatbotName, isBrowse })
     window.history.pushState({}, '', url)
   }
 

@@ -19,7 +19,8 @@ export const ProfileSidebar = ({ children }: any) => {
   const [isThreadsOpen, setIsThreadsOpen] = useState(openSidebar);
   const location = useLocation();
   const { slug } = useParams()
-  const { isSidebarOpen,  toggleSidebar } = useSidebar();
+  const { isSidebarOpen,  toggleSidebar, setActiveCategory,
+    setActiveChatbot, } = useSidebar();
   const { currentUser, isSameUser } = useProfile()
   const { data: session } = useSession()
   const { value: user } = useAsync(async () => {
@@ -28,6 +29,12 @@ export const ProfileSidebar = ({ children }: any) => {
   }, [slug, currentUser]);
 
   const sameUser = isSameUser(user?.userId)
+
+  const handleToggleThreads = () => {
+    setIsThreadsOpen(!isThreadsOpen);
+    setActiveCategory(null);
+    setActiveChatbot(null);
+  }
 
   return (
     <div className="relative h-screen w-full">
@@ -64,7 +71,7 @@ export const ProfileSidebar = ({ children }: any) => {
               <div className="rounded-lg">
                 <Link
                   href={`/u/${slug}/t`}
-                  onClick={() => setIsThreadsOpen(!isThreadsOpen)}
+                  onClick={handleToggleThreads}
                   className={cn(
                     "flex w-full items-center justify-between px-4 py-3",
                     "hover:bg-gray-200 dark:hover:bg-mirage transition-colors duration-200",

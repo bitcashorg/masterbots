@@ -162,11 +162,35 @@ export default function UserThreadPanel({
     setLoading(false)
   }
 
-  useEffect(() => {
-  if(!isOpenPopup && activeCategory || activeChatbot) {
-    handleThreadsChange()
-  } }
-  , [activeCategory, activeChatbot, isOpenPopup, page])
+  // useEffect(() => {
+  // if(!isOpenPopup && activeCategory || activeChatbot) {
+  //   handleThreadsChange()
+  // } },[activeCategory, activeChatbot, isOpenPopup])
+
+  const prevCategoryRef = useRef(activeCategory);
+const prevChatbotRef = useRef(activeChatbot);
+
+useEffect(() => {
+  // Skip if popup is open
+  if (isOpenPopup) return;
+
+  // Case 1: When either filter is active, apply filters
+  if (activeCategory || activeChatbot) {
+    handleThreadsChange();
+  } 
+  // Case 2: When a filter is deactivated (changed from active to null)
+  else if (
+    (prevCategoryRef.current && !activeCategory) || 
+    (prevChatbotRef.current && !activeChatbot)
+  ) {
+    handleThreadsChange();
+  }
+
+  // Update previous values
+  prevCategoryRef.current = activeCategory;
+  prevChatbotRef.current = activeChatbot;
+}, [activeCategory, activeChatbot, isOpenPopup]);
+
 
 
   useEffect(() => {
