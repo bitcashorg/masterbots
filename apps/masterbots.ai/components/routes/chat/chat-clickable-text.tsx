@@ -1,8 +1,12 @@
-import { 
-  extractTextFromReactNode, 
-  parseClickableText, 
-  cleanClickableText 
-} from '@/lib/utils'
+import React from 'react'
+import { cn } from '@/lib/utils'
+import { useThread } from '@/lib/hooks/use-thread'
+import {
+  cleanClickableText,
+  extractTextFromReactNodeNormal,
+  extractTextFromReactNodeWeb,
+  parseClickableText
+} from '@/lib/clickable-results'
 
 interface ClickableTextProps {
   children: React.ReactNode
@@ -10,36 +14,35 @@ interface ClickableTextProps {
   sendMessageFromResponse?: (message: string) => void
 }
 
-/**
- * ClickableText component
- * Renders phrases as clickable links, triggering a message when clicked.
- */
 export function ClickableText({
   children,
   isListItem,
   sendMessageFromResponse
 }: ClickableTextProps) {
-  const fullText = extractTextFromReactNode(children)
-  const { clickableText, restText } = parseClickableText(fullText)
+  const { webSearch } = useThread()
 
-  const handleClick = () => {
-    if (sendMessageFromResponse && clickableText.trim()) {
-      const cleanedText = cleanClickableText(clickableText)
+  // Choose extraction method based on webSearch state
+  const extractedContent = webSearch
+    ? extractTextFromReactNodeWeb(children)
+    : extractTextFromReactNodeNormal(children)
+
+  // Handle click
+  const createClickHandler = (text: string) => () => {
+    if (sendMessageFromResponse && text.trim()) {
+      const cleanedText = cleanClickableText(text) // Use the cleanClickableText utility
       sendMessageFromResponse(`Tell me more about ${cleanedText}`)
     }
   }
 
-  if (!clickableText.trim()) {
-    return <>{fullText}</>
-  }
-
-  return (
+  // Common render function
+  const renderClickableContent = (clickableText: string, restText: string) => (
     <>
-      {/* biome-ignore lint/a11y/useKeyWithClickEvents: Click handler is supplementary */}
       <span
-        className="cursor-pointer text-link hover:underline"
-        onClick={handleClick}
-        // biome-ignore lint/a11y/useSemanticElements: <explanation>
+        className={cn(
+          'cursor-pointer hover:underline',
+          isListItem ? 'text-blue-500' : 'text-link'
+        )}
+        onClick={createClickHandler(clickableText)}
         role="button"
         tabIndex={0}
       >
@@ -48,4 +51,41 @@ export function ClickableText({
       {restText}
     </>
   )
+
+  // Handle array of content
+  if (Array.isArray(extractedContent)) {
+    return extractedContent.map((content, index) => {
+      if (React.isValidElement(content)) {
+        return content
+      }
+
+      const { clickableText, restText } = parseClickableText(String(content))
+
+      if (!clickableText.trim()) {
+        return content
+      }
+
+      return (
+        <React.Fragment key={`clickable-${index}`}>
+          {renderClickableContent(clickableText, restText)}
+        </React.Fragment>
+      )
+    })
+  }
+
+  // Handle single React element
+  if (React.isValidElement(extractedContent)) {
+    return extractedContent
+  }
+
+  // Handle single text content
+  const { clickableText, restText } = parseClickableText(
+    String(extractedContent)
+  )
+
+  if (!clickableText.trim()) {
+    return <>{extractedContent}</>
+  }
+
+  return renderClickableContent(clickableText, restText)
 }
