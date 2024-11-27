@@ -21,20 +21,18 @@ export function ClickableText({
 }: ClickableTextProps) {
   const { webSearch } = useThread()
 
-  // Choose extraction method based on webSearch state
+  // * Choose extraction method based on webSearch state
   const extractedContent = webSearch
     ? extractTextFromReactNodeWeb(children)
     : extractTextFromReactNodeNormal(children)
 
-  // Handle click
   const createClickHandler = (text: string) => () => {
     if (sendMessageFromResponse && text.trim()) {
-      const cleanedText = cleanClickableText(text) // Use the cleanClickableText utility
+      const cleanedText = cleanClickableText(text)
       sendMessageFromResponse(`Tell me more about ${cleanedText}`)
     }
   }
 
-  // Common render function
   const renderClickableContent = (clickableText: string, restText: string) => (
     <>
       <span
@@ -52,7 +50,6 @@ export function ClickableText({
     </>
   )
 
-  // Handle array of content
   if (Array.isArray(extractedContent)) {
     return extractedContent.map((content, index) => {
       if (React.isValidElement(content)) {
@@ -73,12 +70,10 @@ export function ClickableText({
     })
   }
 
-  // Handle single React element
   if (React.isValidElement(extractedContent)) {
     return extractedContent
   }
 
-  // Handle single text content
   const { clickableText, restText } = parseClickableText(
     String(extractedContent)
   )
