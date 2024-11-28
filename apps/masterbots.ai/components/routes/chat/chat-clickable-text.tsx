@@ -55,7 +55,7 @@ export function ClickableText({
       if (React.isValidElement(content)) {
         // Si es un strong, procesamos su contenido manteniendo el texto original
         if (content.type === 'strong') {
-          const strongContent = extractTextFromReactNodeNormal(content.props.children)
+          const strongContent = extractTextFromReactNodeNormal((content.props as { children: React.ReactNode }).children)
           const { clickableText, restText } = parseClickableText(strongContent + ':')
           
           if (clickableText.trim()) {
