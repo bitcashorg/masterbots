@@ -1,4 +1,4 @@
-import {ThreadItemSkeleton} from '@/components/routes/browse/skeletons/browse-skeletons';
+import {ThreadItemSkeleton} from '@/components/shared/skeletons/browse-skeletons';
 
 export function BrowseListSkeleton({ count = 3 }: { count?: number }) {
     return (
