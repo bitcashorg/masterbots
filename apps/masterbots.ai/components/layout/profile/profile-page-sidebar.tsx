@@ -77,6 +77,14 @@ export const ProfileSidebar = ({ children }: any) => {
                     "hover:bg-gray-200 dark:hover:bg-mirage transition-colors duration-200",
                     isThreadsOpen || location.pathname?.includes('/t/') ? 'bg-gray-200 dark:bg-mirage' : ''
                   )}
+                  role="button"
+                  aria-expanded={isThreadsOpen}
+                  aria-controls="threads-panel"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === 'Space') {
+                      handleToggleThreads();
+                    }
+                  }}
                 >
                   <div className="flex items-center space-x-2">
                     <MessagesSquare className="w-5 h-5" />
@@ -134,9 +142,8 @@ export const ProfileSidebar = ({ children }: any) => {
         </div>
 
         {/* Main content */}
-        <div className="flex-1 w-full overflow-auto">
+        <div className="flex-1 w-full overflow-auto" id="threads-panel">
           <main className="h-full w-full">
-            
             {children}
           </main>
         </div>

@@ -139,18 +139,21 @@ export default function SidebarLink({ category, isFilterMode, page }: SidebarLin
 
   return (
     <div className={cn('flex flex-col mb-2')}>
-      <Link
+      <a
        href="#"
-       // href={page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}` :`/c/${toSlug(category.name)}`}
+      //  href={page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}` :`/c/${toSlug(category.name)}`}
          className={cn(
           'flex items-center p-2 cursor-pointer',
           isActive && 'bg-gray-200 dark:bg-mirage',
           page === 'profile' && 'pl-6'
         )}
-        onClick={handleClickCategory}
+        onClick={(e) => {
+          e.preventDefault();
+          handleClickCategory(e);
+        }}
       >
         {categoryContent}
-      </Link>
+      </a>
       {childrenContent}
     </div>
   )
