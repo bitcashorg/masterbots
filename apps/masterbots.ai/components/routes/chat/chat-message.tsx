@@ -3,27 +3,57 @@ import { MemoizedReactMarkdown } from '@/components/shared/markdown'
 import { CodeBlock } from '@/components/ui/codeblock'
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { cn } from '@/lib/utils'
-import type { Message } from 'ai'
-import type { Chatbot } from 'mb-genql'
 import { ClickableText } from './chat-clickable-text'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
-
-interface ChatMessageProps {
-  message: Message
-  sendMessageFromResponse?: (message: string) => void
-  chatbot?: Chatbot
-  actionRequired?: boolean
-}
+import { useState } from 'react'
+import { ChatMessageProps, WebSearchResult } from '@/types/types'
 
 export function ChatMessage({
   message,
   sendMessageFromResponse,
   chatbot,
   actionRequired = true,
+  webSearchResults = [],
   ...props
 }: ChatMessageProps) {
   const cleanMessage = { ...message, content: cleanPrompt(message.content) }
+  const [references, setReferences] = useState<WebSearchResult[]>([])
+
+  const ReferencesSection = () => {
+    if (references.length === 0) return null
+
+    return (
+      <div className="pt-4 mt-4 border-t border-gray-200">
+        <h3 className="mb-2 text-lg font-semibold">References</h3>
+        <div className="space-y-4">
+          {references.map((ref, index) => (
+            <div key={index} className="flex gap-4">
+              {ref.thumbnail?.src && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={ref.thumbnail.src}
+                  alt={ref.title}
+                  className="object-cover w-20 h-20 rounded"
+                />
+              )}
+              <div>
+                <h4 className="font-medium">{ref.title}</h4>
+                <a
+                  href={ref.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:underline"
+                >
+                  {ref.profile.name}
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className={cn('group relative flex items-start p-1')} {...props}>
@@ -41,6 +71,10 @@ export function ChatMessage({
                     <ClickableText
                       isListItem={false}
                       sendMessageFromResponse={sendMessageFromResponse}
+                      webSearchResults={webSearchResults}
+                      onReferenceFound={ref =>
+                        setReferences(prev => [...prev, ref])
+                      }
                     >
                       {children}
                     </ClickableText>
@@ -119,6 +153,7 @@ export function ChatMessage({
         {actionRequired ? (
           <ChatMessageActions className="md:!right-0" message={message} />
         ) : null}
+        <ReferencesSection />
       </div>
     </div>
   )

@@ -219,3 +219,24 @@ export interface ChatPageProps {
     threadId: string
   }
 }
+
+export interface ChatMessageProps {
+  message: Message
+  sendMessageFromResponse?: (message: string) => void
+  chatbot?: Chatbot
+  actionRequired?: boolean
+  webSearchResults?: WebSearchResult[];
+}
+
+//* Reference result manipulations props 
+export interface WebSearchResult {
+  title: string;
+  url: string;
+  description: string;
+  thumbnail?: {
+    src: string;
+  };
+  profile: {
+    name: string;
+  };
+}

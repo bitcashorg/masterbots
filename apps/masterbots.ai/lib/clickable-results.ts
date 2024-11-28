@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react'
 import React from 'react'
 
+export const GENERAL_PATTERN = /(.*?)([:.,])(?:\s|$)/g
+
 // * List of predefined unique phrases to detect in text
 export const UNIQUE_PHRASES = [
   'Unique, lesser-known',
@@ -71,10 +73,7 @@ export function createUniquePattern(): RegExp {
   return new RegExp(`(?:${UNIQUE_PHRASES.join('|')}):\\s*([^.:]+[.])`, 'i')
 }
 
-export const GENERAL_PATTERN = /(.*?)([:.,])(?:\s|$)/g
-
 export function parseClickableText(fullText: string): ParsedText {
-  // Si ya es una URL, no lo hacemos clickeable
   if (typeof fullText === 'string' && fullText.match(/https?:\/\/[^\s]+/)) {
     return {
       clickableText: '',
@@ -82,25 +81,22 @@ export function parseClickableText(fullText: string): ParsedText {
     }
   }
 
-  // Revisamos si es un texto con dos puntos
   const titlePattern = /^([^:]+?):\s*(.*)/
   const titleMatch = fullText.match(titlePattern)
-  
+
   if (titleMatch) {
     const title = titleMatch[1].trim()
-    // No hacemos clickeable si es solo puntos o está vacío
     if (!title || title.match(/^[.\s]+$/)) {
       return {
         clickableText: '',
         restText: fullText
       }
     }
-    
-    // Si el título está dentro de un strong, lo extraemos
+
     const strongPattern = /<strong>(.*?)<\/strong>/
     const strongMatch = title.match(strongPattern)
     const finalTitle = strongMatch ? strongMatch[1] : title
-    
+
     return {
       clickableText: finalTitle,
       restText: ':' + titleMatch[2]
@@ -117,3 +113,29 @@ export function cleanClickableText(text: string): string {
   return text.replace(/(:|\.|\,)\s*$/, '').trim()
 }
 
+/**
+ * transformLink transforms a given link element by updating its text content based on the context.
+ * If the original text includes 'read more' or 'learn more', it leaves the link unchanged.
+ * Otherwise, it generates a new descriptive text based on the content context and updates the link.
+ */
+export function transformLink(
+  linkElement: React.ReactElement,
+  contentContext: string
+): React.ReactElement {
+  const href = linkElement.props.href
+  const currentText = extractTextFromReactNodeNormal(linkElement.props.children)
+
+  if (
+    currentText.toLowerCase().includes('read more') ||
+    currentText.toLowerCase().includes('learn more')
+  ) {
+    return linkElement
+  }
+
+  const descriptiveText = `Read more about ${contentContext.split(':')[0].toLowerCase()} here`
+
+  return React.cloneElement(linkElement, {
+    ...linkElement.props,
+    children: descriptiveText
+  })
+}
