@@ -53,15 +53,14 @@ export default function SidebarLink({ category, isFilterMode, page }: SidebarLin
           setActiveChatbot(null)
           navigateTo({
             page,
-            slug: slug  as string,
+            slug: typeof slug === 'string' ? slug : undefined,
             categoryName: toSlug(category.name.toLowerCase())
           })
 
        }else{
-        setActiveChatbot(null)
         navigateTo({
           page,
-          slug: slug as string
+          slug: typeof slug === 'string' ? slug : undefined,
         })
        }
         return newCategory
