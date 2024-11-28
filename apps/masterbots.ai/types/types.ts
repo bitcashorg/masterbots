@@ -5,6 +5,7 @@ import 'next-auth'
 import type { DefaultSession, DefaultUser } from 'next-auth'
 import type { ChatCompletionMessageParam } from 'openai/resources'
 import type Stripe from 'stripe'
+import React from 'react';
 
 // * Chat types
 export interface Chat extends Record<string, any> {
@@ -239,4 +240,12 @@ export interface WebSearchResult {
   profile: {
     name: string;
   };
+}
+
+export interface ClickableTextProps {
+  children: React.ReactNode
+  isListItem: boolean
+  sendMessageFromResponse?: (message: string) => void
+  webSearchResults?: WebSearchResult[]
+  onReferenceFound?: (ref: WebSearchResult) => void
 }

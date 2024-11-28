@@ -8,15 +8,7 @@ import {
   parseClickableText,
   transformLink
 } from '@/lib/clickable-results'
-import { WebSearchResult } from '@/types/types'
-
-interface ClickableTextProps {
-  children: React.ReactNode
-  isListItem: boolean
-  sendMessageFromResponse?: (message: string) => void
-  webSearchResults?: WebSearchResult[]
-  onReferenceFound?: (ref: WebSearchResult) => void
-}
+import { ClickableTextProps } from '@/types/types'
 
 export function ClickableText({
   children,

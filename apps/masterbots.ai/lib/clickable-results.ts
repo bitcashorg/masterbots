@@ -110,7 +110,7 @@ export function parseClickableText(fullText: string): ParsedText {
 }
 
 export function cleanClickableText(text: string): string {
-  return text.replace(/(:|\.|\,)\s*$/, '').trim()
+  return text.replace(/[,.()[\]]$/, '').trim()
 }
 
 /**
