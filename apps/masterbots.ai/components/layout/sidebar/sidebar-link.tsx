@@ -49,12 +49,6 @@ export default function SidebarLink({ category, isFilterMode, page }: SidebarLin
       )
       setActiveCategory(prev => {
         const newCategory = prev === category.categoryId ? null : category.categoryId
-
-        if(isBrowse) {
-          router.push(`/c/${toSlug(category.name)}`);
-          return newCategory
-        }
-
          if (newCategory) {
           setActiveChatbot(null)
           navigateTo({

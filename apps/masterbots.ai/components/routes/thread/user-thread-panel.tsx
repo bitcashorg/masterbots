@@ -36,7 +36,7 @@ import { getThreads, getBrowseThreads, getUserBySlug } from '@/services/hasura'
 import type { Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import { useParams } from 'next/navigation'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useAsync } from 'react-use'
 
 
@@ -166,33 +166,29 @@ export default function UserThreadPanel({
     setLoading(false)
   }
 
-  // useEffect(() => {
-  // if(!isOpenPopup && activeCategory || activeChatbot) {
-  //   handleThreadsChange()
-  // } },[activeCategory, activeChatbot, isOpenPopup])
-
  
+   const shouldFetchThreads = useCallback(() => {
+    if (isOpenPopup) return false;
 
-useEffect(() => {
-  // Skip if popup is open
-  if (isOpenPopup) return;
+    const shouldFetch = 
+      activeCategory ||
+      activeChatbot ||
+      (prevCategoryRef.current && !activeCategory) ||
+      (prevChatbotRef.current && !activeChatbot);
 
-  // Case 1: When either filter is active, apply filters
-  if (activeCategory || activeChatbot) {
-    handleThreadsChange();
-  } 
-  // Case 2: When a filter is deactivated (changed from active to null)
-  else if (
-    (prevCategoryRef.current && !activeCategory) || 
-    (prevChatbotRef.current && !activeChatbot)
-  ) {
-    handleThreadsChange();
-  }
+    // Update refs after checking
+    prevCategoryRef.current = activeCategory;
+    prevChatbotRef.current = activeChatbot;
 
-  // Update previous values
-  prevCategoryRef.current = activeCategory;
-  prevChatbotRef.current = activeChatbot;
-}, [activeCategory, activeChatbot, isOpenPopup]);
+    return shouldFetch;
+  }, [isOpenPopup, activeCategory, activeChatbot]);
+
+
+  useEffect(() => {
+    if (shouldFetchThreads()) {
+      handleThreadsChange();
+    }
+  }, [activeCategory, activeChatbot, isOpenPopup, shouldFetchThreads]);
 
 
 
