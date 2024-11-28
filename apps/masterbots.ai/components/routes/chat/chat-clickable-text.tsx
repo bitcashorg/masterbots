@@ -53,15 +53,38 @@ export function ClickableText({
   if (Array.isArray(extractedContent)) {
     return extractedContent.map((content, index) => {
       if (React.isValidElement(content)) {
+        // Si es un strong, procesamos su contenido manteniendo el texto original
+        if (content.type === 'strong') {
+          const strongContent = extractTextFromReactNodeNormal(content.props.children)
+          const { clickableText, restText } = parseClickableText(strongContent + ':')
+          
+          if (clickableText.trim()) {
+            return (
+              <span
+                key={`clickable-${index}`}
+                className={cn(
+                  'cursor-pointer hover:underline',
+                  isListItem ? 'text-blue-500' : 'text-link'
+                )}
+                onClick={createClickHandler(clickableText)}
+                role="button"
+                tabIndex={0}
+              >
+                {strongContent}
+              </span>
+            )
+          }
+          return content
+        }
         return content
       }
-
+  
       const { clickableText, restText } = parseClickableText(String(content))
-
+  
       if (!clickableText.trim()) {
         return content
       }
-
+  
       return (
         <React.Fragment key={`clickable-${index}`}>
           {renderClickableContent(clickableText, restText)}

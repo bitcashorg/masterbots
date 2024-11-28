@@ -24,8 +24,18 @@ export interface ParsedText {
 
 // ? It recursively extracts text from a ReactNode, preserving React elements and returning plain text for strings, numbers, and arrays.
 export function extractTextFromReactNodeWeb(node: ReactNode): ReactNode {
-  // If it's a React element, preserve it entirely
+  // Si es un elemento React válido
   if (React.isValidElement(node)) {
+    // Si es un strong, preservamos su contenido original
+    if (node.type === 'strong') {
+      return {
+        ...node,
+        props: {
+          ...node.props,
+          children: extractTextFromReactNodeWeb(node.props.children)
+        }
+      }
+    }
     return node
   }
 
@@ -36,7 +46,6 @@ export function extractTextFromReactNodeWeb(node: ReactNode): ReactNode {
   }
   if (typeof node === 'object' && node !== null && 'props' in node) {
     const children = extractTextFromReactNodeWeb(node.props.children)
-    // If children contains React elements, preserve them
     if (React.isValidElement(children) || Array.isArray(children)) {
       return children
     }
@@ -44,6 +53,7 @@ export function extractTextFromReactNodeWeb(node: ReactNode): ReactNode {
   }
   return ''
 }
+
 // ? Tthis does the following: extracts plain text from a ReactNode, ignoring React elements and returning concatenated strings from arrays
 export function extractTextFromReactNodeNormal(node: ReactNode): string {
   if (typeof node === 'string') return node
@@ -64,7 +74,7 @@ export function createUniquePattern(): RegExp {
 export const GENERAL_PATTERN = /(.*?)([:.,])(?:\s|$)/g
 
 export function parseClickableText(fullText: string): ParsedText {
-  // First handle URLs - they should remain as regular text
+  // Si ya es una URL, no lo hacemos clickeable
   if (typeof fullText === 'string' && fullText.match(/https?:\/\/[^\s]+/)) {
     return {
       clickableText: '',
@@ -72,25 +82,31 @@ export function parseClickableText(fullText: string): ParsedText {
     }
   }
 
-  // Check for "Title: Description" pattern
+  // Revisamos si es un texto con dos puntos
   const titlePattern = /^([^:]+?):\s*(.*)/
   const titleMatch = fullText.match(titlePattern)
+  
   if (titleMatch) {
     const title = titleMatch[1].trim()
-    // Don't make the title clickable if it's just periods or empty
+    // No hacemos clickeable si es solo puntos o está vacío
     if (!title || title.match(/^[.\s]+$/)) {
       return {
         clickableText: '',
         restText: fullText
       }
     }
+    
+    // Si el título está dentro de un strong, lo extraemos
+    const strongPattern = /<strong>(.*?)<\/strong>/
+    const strongMatch = title.match(strongPattern)
+    const finalTitle = strongMatch ? strongMatch[1] : title
+    
     return {
-      clickableText: title,
+      clickableText: finalTitle,
       restText: ':' + titleMatch[2]
     }
   }
 
-  // If no patterns match, return original text
   return {
     clickableText: '',
     restText: fullText
@@ -100,3 +116,4 @@ export function parseClickableText(fullText: string): ParsedText {
 export function cleanClickableText(text: string): string {
   return text.replace(/(:|\.|\,)\s*$/, '').trim()
 }
+
