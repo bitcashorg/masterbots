@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { MessageSquare, MessageCircle, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toSlug } from 'mb-lib'
+import { ChatChatbotDetailsSkeleton } from '@/components/shared/skeletons/chat-chatbot-details-skeleton'
 
 /**
  * Displays detailed information about a chatbot or welcome message in the Masterbots application.
@@ -31,6 +32,9 @@ export default function ChatChatbotDetails({ page }: { page?: string }) {
   const [categoryName, setCategoryName] = useState<string>('')
   const { slug } = useParams()
 
+
+  if (status === "loading") return <ChatChatbotDetailsSkeleton />
+
   const getThreadNum = async () => {
     if (!session?.user) return
     const threads = await getThreads({
@@ -46,7 +50,7 @@ export default function ChatChatbotDetails({ page }: { page?: string }) {
     setCategoryName(category.name)
   }
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (!activeCategory) {
       getThreadNum()

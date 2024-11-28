@@ -21,8 +21,8 @@
  */
 
 import BrowseListItem from '@/components/routes/browse/browse-list-item'
-import { ThreadItemSkeleton } from '@/components/routes/browse/skeletons/browse-skeletons'
-import { BrowseListSkeleton } from '@/components/routes/browse/skeletons/browse-list-skeleton'
+import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeletons'
+import { BrowseListSkeleton } from '@/components/shared/skeletons/browse-list-skeleton'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { searchThreadContent } from '@/lib/search'
