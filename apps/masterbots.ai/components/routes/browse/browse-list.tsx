@@ -54,22 +54,19 @@ export default function BrowseList() {
   }) => {
     setLoading(true) // ? Seting loading before fetch
     try {
-      let threads: Thread[] = []
-      
-      if(activeCategory !== null || activeChatbot !== null) {
-        threads = await getBrowseThreads({
-          categoryId: activeCategory,
-          chatbotName: activeChatbot?.name,
-          limit: PAGE_SIZE
-        })
-      }else{
-       threads = await getBrowseThreads({
-        categoriesId,
-        chatbotsId,
-        keyword,
-        limit: PAGE_SIZE
+      const threads = await getBrowseThreads({
+        ...(activeCategory !== null || activeChatbot !== null
+          ? {
+              categoryId: activeCategory,
+              chatbotName: activeChatbot?.name,
+            }
+          : {
+              categoriesId,
+              chatbotsId,
+              keyword,
+            }),
+        limit: PAGE_SIZE,
       })
-    }
       setThreads(threads)
       setFilteredThreads(threads)
       setCount(threads.length)
