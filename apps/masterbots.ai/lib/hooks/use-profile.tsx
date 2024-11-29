@@ -42,9 +42,10 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
       throw new Error('Slug is required')
     }
     try {
+      const sessionSlug = session?.user.slug ? session?.user.slug.toLowerCase() : session?.user.name?.toLocaleLowerCase()
       const userInfo = await getUserBySlug({
         slug,
-        isSameUser: session?.user.slug == slug
+        isSameUser: sessionSlug === slug
       })
       if (!userInfo) {
         throw new Error('User not found')

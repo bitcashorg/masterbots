@@ -780,7 +780,7 @@ export async function getUnapprovedThreads({ jwt }: { jwt: string }) {
 }
 
 export async function getUserBySlug({ slug, isSameUser }: { slug: string, isSameUser: boolean }) {
- 
+
   try {
     const client = getHasuraClient({  })
     const { user } = await client.query({
