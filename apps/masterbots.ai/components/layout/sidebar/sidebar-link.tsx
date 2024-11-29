@@ -54,13 +54,15 @@ export default function SidebarLink({ category, isFilterMode, page }: SidebarLin
           navigateTo({
             page,
             slug: typeof slug === 'string' ? slug : undefined,
-            categoryName: toSlug(category.name.toLowerCase())
+            categoryName: toSlug(category.name.toLowerCase()),
+            isBrowse
           })
 
        }else{
         navigateTo({
           page,
           slug: typeof slug === 'string' ? slug : undefined,
+          isBrowse
         })
        }
         return newCategory
@@ -189,7 +191,8 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
           page,
           slug: slug as string,
           categoryName: toSlug(category.name.toLowerCase()),
-          chatbotName: chatbot.name.toLowerCase()
+          chatbotName: chatbot.name.toLowerCase(),
+          isBrowse
         })
       }
   }, [chatbot, setActiveChatbot, isFilterMode])
