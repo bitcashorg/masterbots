@@ -58,7 +58,7 @@ export default function ThreadComponent({
 }) {
   const threadRef = useRef<HTMLLIElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
-  const { isNewResponse } = useThread()
+  const {   isNewResponse } = useThread()
   const { isAdminMode } = useThreadVisibility()
   const pathname  = usePathname()
   const params = useParams()
@@ -74,17 +74,17 @@ export default function ThreadComponent({
   })
 
   const threadId = thread.threadId
+
+  const profilePage = /^\/u\/[^/]+\/t(?:\/|$)/.test(pathname)
   
   const handleAccordionToggle = () => {
- 
-    if (pathname.includes('u') && pathname.includes('t')) {
+    if (profilePage) {
       const category = thread?.chatbot?.categories[0]?.category?.name
       const chatbot = thread?.chatbot?.name
       const slug = params.slug;
-
       if (!category || !chatbot || !slug) {
             console.error('Missing required navigation parameters');
-            return scrollToTop();
+            return;
        }
       redirect(`/u/${slug}/t/${toSlug(category)}/${toSlug(chatbot)}/${thread.threadId}`)
     }else{

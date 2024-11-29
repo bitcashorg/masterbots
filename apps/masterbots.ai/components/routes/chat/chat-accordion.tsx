@@ -3,6 +3,7 @@
 import { useThread } from '@/lib/hooks/use-thread'
 import { ChevronDown } from 'lucide-react'
 import type { Thread } from 'mb-genql'
+import { usePathname } from 'next/navigation'
 import React from 'react'
 
 export const ChatAccordion = ({
@@ -42,8 +43,11 @@ export const ChatAccordion = ({
     isOpenPopup
   } = useThread()
 
+ const pathname  = usePathname()
+
   //* Sets the initial open state based on defaultState prop
   const initialState = defaultState
+  const profilePage = /^\/u\/[^/]+\/t(?:\/|$)/.test(pathname)
 
   const [open, setOpen] = React.useState(initialState)
   const isMainThread = !isOpenPopup
@@ -52,7 +56,7 @@ export const ChatAccordion = ({
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation()
 
-    if (isMainThread && thread) {
+    if (isMainThread && thread && !profilePage) {
       //* Main thread click - open modal
       setActiveThread(thread)
       setIsOpenPopup(true)

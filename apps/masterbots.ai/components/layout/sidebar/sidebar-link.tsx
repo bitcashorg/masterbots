@@ -59,6 +59,7 @@ export default function SidebarLink({ category, isFilterMode, page }: SidebarLin
           })
 
        }else{
+        setActiveChatbot(null)
         navigateTo({
           page,
           slug: typeof slug === 'string' ? slug : undefined,

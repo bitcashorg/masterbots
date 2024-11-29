@@ -72,6 +72,8 @@ export default function UserThreadPanel({
     return result
   }, [slug])
 
+  
+
   const finalThreads = useMemo(
     () => initialThreads ?? hookThreads,
     [initialThreads, hookThreads]
@@ -111,8 +113,9 @@ export default function UserThreadPanel({
     console.log('🟡 Loading More Content')
     setLoading(true)
     let moreThreads: Thread[] = []
-
-    if(page === 'profile' && !session?.user) {
+    const userOnSlug = userWithSlug.value?.user
+    const isOwnProfile = session?.user?.id === userOnSlug?.userId;
+    if(page === 'profile' && !session?.user  || !isOwnProfile) {
       moreThreads = await fetchBrowseThreads();
     }else{
      moreThreads = await getThreads({
@@ -131,10 +134,9 @@ export default function UserThreadPanel({
 
   const handleThreadsChange = async () => {
     let threads: Thread[] = []
-
-    console.log('🟡 Fetching Threads')
     setLoading(true)
-    const isOwnProfile = session?.user?.slug === slug;
+    const userOnSlug = userWithSlug.value?.user
+    const isOwnProfile = session?.user?.id === userOnSlug?.userId;
     if (!session?.user || !isOwnProfile) {
       if(page === 'profile') {
         threads = await fetchBrowseThreads();
@@ -145,9 +147,10 @@ export default function UserThreadPanel({
       setLoading(false)
       return;
     }
+
     const currentFetchId = Date.now() // Generate a unique identifier for the current fetch
     fetchIdRef.current = currentFetchId
-  
+
      threads = await getThreads({
       jwt: session!.user?.hasuraJwt,
       userId: session!.user.id,
