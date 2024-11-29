@@ -41,12 +41,12 @@ export default function BrowseList() {
   const [filteredThreads, setFilteredThreads] = React.useState<Thread[]>([])
   const [loading, setLoading] = React.useState<boolean>(false)
   const [count, setCount] = React.useState<number>(0)
-  const { selectedCategories, selectedChatbots } = useSidebar()
+  const { selectedCategories, selectedChatbots, activeCategory, activeChatbot} = useSidebar()
 
   const fetchThreads = async ({
     categoriesId,
     chatbotsId,
-    keyword
+    keyword,
   }: {
     categoriesId: number[]
     chatbotsId: number[]
@@ -54,12 +54,22 @@ export default function BrowseList() {
   }) => {
     setLoading(true) // ? Seting loading before fetch
     try {
-      const threads = await getBrowseThreads({
+      let threads: Thread[] = []
+      
+      if(activeCategory !== null || activeChatbot !== null) {
+        threads = await getBrowseThreads({
+          categoryId: activeCategory,
+          chatbotName: activeChatbot?.name,
+          limit: PAGE_SIZE
+        })
+      }else{
+       threads = await getBrowseThreads({
         categoriesId,
         chatbotsId,
         keyword,
         limit: PAGE_SIZE
       })
+    }
       setThreads(threads)
       setFilteredThreads(threads)
       setCount(threads.length)
@@ -108,13 +118,9 @@ export default function BrowseList() {
       categoriesId: selectedCategories,
       chatbotsId: selectedChatbots
     })
+  }, [selectedCategories, selectedChatbots, activeCategory, activeChatbot])
 
-    console.log({
-      selectedCategories,
-      selectedChatbots
-    })
-  }, [selectedCategories, selectedChatbots])
-
+ 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   React.useEffect(() => {
     verifyKeyword()

@@ -21,7 +21,7 @@ interface SidebarLinkProps {
 export default function SidebarLink({ category, isFilterMode, page }: SidebarLinkProps) {
   const router = useRouter()
   const pathname = usePathname()
-  const isBrowse = !pathname.includes('/c') && !pathname.includes('/u')
+  const isBrowse = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
   const { slug } = useParams()
   
   const {
@@ -141,8 +141,8 @@ export default function SidebarLink({ category, isFilterMode, page }: SidebarLin
 
   return (
     <div className={cn('flex flex-col mb-2')}>
-      <a
-       href="#"
+      <div
+       // Using this is causing problems on double click, double click happen when expand and collapse
       //  href={page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}` :`/c/${toSlug(category.name)}`}
          className={cn(
           'flex items-center p-2 cursor-pointer',
@@ -155,7 +155,7 @@ export default function SidebarLink({ category, isFilterMode, page }: SidebarLin
         }}
       >
         {categoryContent}
-      </a>
+      </div>
       {childrenContent}
     </div>
   )
@@ -180,7 +180,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
 }) {
   const { selectedChatbots, toggleChatbotSelection,navigateTo } = useSidebar()
   const pathname = usePathname()
-  const isBrowse = !pathname.includes('/c') && !pathname.includes('/u')
+  const isBrowse = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
   const { slug } = useParams()
 
   const handleChatbotClick = useCallback((e: React.MouseEvent) => {
@@ -207,10 +207,10 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
 
   return isFilterMode || isBrowse ? (
     <div
-      className={cn(
+    className={cn(
         'flex items-center p-2 w-full',
         isActive && 'bg-blue-100 dark:bg-blue-900',
-        'hover:bg-gray-100 dark:hover:bg-gray-800'
+        'hover:bg-gray-100 dark:hover:bg-gray-800',
       )}
     >
       {isFilterMode && (

@@ -58,7 +58,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     messagesFromDB: [] as Message[]
   })
 
-  console.log('[HOOK] webSearch', webSearch)
+  // console.log('[HOOK] webSearch', webSearch)
 
   const params = useParams<{ chatbot: string; threadId: string }>()
   const { selectedModel, clientType } = useModel()
