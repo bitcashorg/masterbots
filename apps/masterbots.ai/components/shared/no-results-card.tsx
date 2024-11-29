@@ -6,7 +6,7 @@ import {
   CardContent
 } from '@/components/ui/card'
 import { SearchX, Filter } from 'lucide-react'
-import { NoResultsSkeleton } from '../routes/browse/skeletons/no-results-skeleton'
+import { NoResultsSkeleton } from './skeletons/no-results-skeleton'
 
 interface NoResultsProps {
   searchTerm?: string
