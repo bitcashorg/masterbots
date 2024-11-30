@@ -48,7 +48,7 @@
 
     --tertiary: 288, 82%, 50%;
     --tertiary-foreground: 0 0% 98%;
-    --font-size-base: 16px;
+    --font-size-base: 1rem;
   }
 
   .dark {
