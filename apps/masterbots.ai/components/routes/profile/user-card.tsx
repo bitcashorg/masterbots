@@ -1,6 +1,6 @@
 import { Separator } from '@/components/ui/separator'
 import Image from 'next/image'
-import { BookUser, BotIcon, MessageSquareHeart,   Wand2, ImagePlus, Loader } from 'lucide-react'
+import { BookUser, BotIcon, MessageSquareHeart, Wand2, ImagePlus, Loader, UserIcon, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { User } from 'mb-genql'
 import { useProfile } from '@/lib/hooks/use-profile'
@@ -11,7 +11,9 @@ import toast from 'react-hot-toast'
 import { UserPersonalityPrompt } from '@/lib/constants/prompts'
 import {  ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { useUploadImagesCloudinary } from '@/lib/hooks/use-cloudinary-upload'
-
+import { formatNumber, Ifollowed } from '@/lib/utils'
+import { useSession } from 'next-auth/react'
+import { userFollowOrUnfollow } from '@/services/hasura/hasura.service';
 
 interface UserCardProps {
   user: User | null
@@ -28,8 +30,8 @@ export function UserCard({ user, loading }: UserCardProps) {
   const [userProfilePicture, setUserProfilePicture] = useState<string | null | undefined>(user?.profilePicture)
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const { uploadFilesCloudinary, error: cloudinaryError } = useUploadImagesCloudinary();
+  const { data: session } = useSession()
   
-
   const userQuestions = user?.threads.map((thread) => {
 
     if (!thread.messages?.length) {
@@ -162,6 +164,32 @@ export function UserCard({ user, loading }: UserCardProps) {
   }
   , [user])
 
+
+
+  const handleFollowUser = async () => {
+    try {
+      // if no session is found, redirect to login
+      if (!session) {
+        toast.error('Please sign in to follow user')
+        setTimeout(() => {
+          window.location.href = '/auth/signin'
+        } , 2000)
+        return
+      }
+      const followerId = session.user?.id
+      const followeeId = user?.userId
+      await userFollowOrUnfollow({followerId, followeeId, jwt: session.user.hasuraJwt as string})
+      toast.success(`You are now following ${user?.username}`)
+    } catch (error) {
+      toast.error('Failed to follow user')
+      console.error('Failed to follow user:', error)
+    }
+  }
+
+  const followed =  Ifollowed({followers: user?.followers, userId: session?.user?.id || ''}) 
+
+  console.log('followed:', followed)
+
   return (
     <div
       className="dark:bg-[#09090B] bg-white rounded-lg  md:w-[600px]
@@ -255,10 +283,13 @@ export function UserCard({ user, loading }: UserCardProps) {
             </div>
           </div>
            {/* Implementation for this comes next :) */}
-          {/* <div className=' flex flex-col  items-center md:mt-0 mt-7  space-y-3'>
+        <div className=' flex flex-col  items-center md:mt-0 mt-7  space-y-3'>
            {!isOwner && (
-          <button aria-label={`Follow ${user?.username}`} className="px-10 py-1 text-sm text-white  rounded-md bg-[#BE17E8] hover:bg-[#BE17E8] dark:bg-[#83E56A] dark:hover:bg-[#83E56A] dark:text-black transition-colors">
+          <button onClick={handleFollowUser} aria-label={`Follow ${user?.username}`} className="px-10 py-1 text-sm text-white  rounded-md bg-[#BE17E8] hover:bg-[#BE17E8] dark:bg-[#83E56A] dark:hover:bg-[#83E56A] dark:text-black transition-colors">
             Follow
+            {
+             followed? 'ing' : ''
+            }
           </button>
           )}
           <div className="flex space-x-6 md:pt-2 ">
@@ -266,7 +297,7 @@ export function UserCard({ user, loading }: UserCardProps) {
               <span className="text-sm">Following</span>
               <div className='flex items-center space-x-1'>
                 <UserIcon className="w-4 h-4" />
-                <span className="text-sm text-gray-500">313</span>
+                <span className="text-sm text-gray-500">{ formatNumber(user.following.length)}</span>
               </div>
               
             </div>
@@ -274,12 +305,11 @@ export function UserCard({ user, loading }: UserCardProps) {
               <span className="text-sm">Followers</span>
               <div className='flex items-center space-x-1'>
                 <Users className="w-4 h-4" />
-                <span className="text-sm text-gray-500">3.2k</span>
+                <span className="text-sm text-gray-500">{ formatNumber(user.followers.length)}</span>
               </div>
             </div>
           </div>
-          </div> */}
-          
+          </div> 
           </div>
         </div>
 

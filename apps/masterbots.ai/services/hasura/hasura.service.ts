@@ -819,27 +819,21 @@ export async function getUserBySlug({ slug, isSameUser }: { slug: string, isSame
             content: true
           }
         },
-        // followers: {
-        //   followeeId: true,
-        //   followerId: true,
-        //   userByFollowerId: {
-        //     username: true
-        //   }
-        // },
-        // follower: {
-        //   followeeId: true,
-        //   followerId: true,
-        //   userByFollowerId: {
-        //     username: true
-        //   }
-        // },
-        // following: {
-        //   followeeId: true,
-        //   followerId: true,
-        //   userByFollowerId: {
-        //     username: true
-        //   }
-        // }
+        followers: {
+          followeeId: true,
+          followerId: true,
+          userByFollowerId: {
+            username: true
+          }
+        },
+      
+        following: {
+          followeeId: true,
+          followerId: true,
+          userByFollowerId: {
+            username: true
+          }
+        }
       } 
     } as const)
 
@@ -943,4 +937,79 @@ export async function subtractChatbotMetadataLabels(
   const response = await processWithAi(prompt, clientType, AIModels.Default)
 
   return cleanResult(response)
+}
+
+
+export async function userFollowOrUnfollow({
+  followerId,
+  followeeId,
+  jwt
+}: {
+  followerId: string;
+  followeeId: string;
+  jwt: string;
+}) {
+  try {
+    if (!jwt) {
+      throw new Error('Authentication required to follow/unfollow user');
+    }
+
+    const client = getHasuraClient({ jwt });
+
+    // First check if follow relationship exists
+    const { socialFollowing } = await client.query({
+      socialFollowing: {
+        __args: {
+          where: {
+            followerId: { _eq: followerId },
+            followeeId: { _eq: followeeId }
+          }
+        },
+        followeeId: true,
+        followerId: true,
+      }
+    });
+
+    if (!socialFollowing?.length) {
+      // Create new follow relationship
+      await client.mutation({
+        insertSocialFollowingOne: {
+          __args: {
+            object: {
+              followerId,
+              followeeId
+            }
+          },
+          followeeId: true,
+          followerId: true,
+          userByFollowerId: {
+            username: true
+          }
+        }
+      });
+      return { success: true, follow: true };
+    }
+
+    // Delete existing follow relationship
+    await client.mutation({
+      deleteSocialFollowing: {
+        __args: {
+          where: {
+            followerId: { _eq: followerId },
+            followeeId: { _eq: followeeId }
+          }
+        },
+        affected_rows: true
+      }
+    });
+
+    return { success: true, follow: false };
+
+  } catch (error) {
+    console.error('Error following/unfollowing user:', error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Failed to follow/unfollow user.'
+    };
+  }
 }
