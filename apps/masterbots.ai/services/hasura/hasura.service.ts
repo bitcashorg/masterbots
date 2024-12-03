@@ -999,7 +999,11 @@ export async function userFollowOrUnfollow({
             followeeId: { _eq: followeeId }
           }
         },
-        affected_rows: true
+        affectedRows: true,
+        returning:{
+          followeeId: true,
+          followerId: true
+        }
       }
     });
 

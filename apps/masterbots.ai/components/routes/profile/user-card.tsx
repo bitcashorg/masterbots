@@ -14,6 +14,7 @@ import { useUploadImagesCloudinary } from '@/lib/hooks/use-cloudinary-upload'
 import { formatNumber, Ifollowed } from '@/lib/utils'
 import { useSession } from 'next-auth/react'
 import { userFollowOrUnfollow } from '@/services/hasura/hasura.service';
+import type { SocialFollowing } from 'mb-genql'
 
 interface UserCardProps {
   user: User | null
@@ -30,7 +31,8 @@ export function UserCard({ user, loading }: UserCardProps) {
   const [userProfilePicture, setUserProfilePicture] = useState<string | null | undefined>(user?.profilePicture)
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const { uploadFilesCloudinary, error: cloudinaryError } = useUploadImagesCloudinary();
-  const { data: session } = useSession()
+  const { data: session } = useSession();
+  const [userData, setUserData] = useState<User | null>(user)
   
   const userQuestions = user?.threads.map((thread) => {
 
@@ -161,6 +163,7 @@ export function UserCard({ user, loading }: UserCardProps) {
     // update bio and topic when user changes
     setBio(user?.bio)
     setFavouriteTopic(user?.favouriteTopic)
+    setUserData(user)
   }
   , [user])
 
@@ -178,17 +181,52 @@ export function UserCard({ user, loading }: UserCardProps) {
       }
       const followerId = session.user?.id
       const followeeId = user?.userId
-      await userFollowOrUnfollow({followerId, followeeId, jwt: session.user.hasuraJwt as string})
-      toast.success(`You are now following ${user?.username}`)
+
+     const {success, error, follow} =  await userFollowOrUnfollow({followerId, followeeId, jwt: session.user.hasuraJwt as string})
+      if(!success){
+        console.error('Failed to follow/Unfolow user:', error)
+        return
+      }
+
+      if(follow){
+        setUserData(prevUser => {
+          if (!prevUser) return prevUser;
+        
+          const newFollower: SocialFollowing = {
+            followerId,
+            followeeId,
+            createdAt: new Date().toISOString(),
+            user: prevUser,
+            userByFollowerId: prevUser,
+            __typename: 'SocialFollowing'
+          };
+        
+          return {
+            ...prevUser,
+            followers: [...(prevUser.followers || []), newFollower]
+          } as User;  // Assert the entire object as User type
+        });
+        toast.success(`You are now following ${user?.username}`)
+      }else{
+        setUserData(prevUser => {
+          if (!prevUser) return prevUser;
+        
+          return {
+            ...prevUser,
+            followers: prevUser.followers.filter(
+              follower => follower.followerId !== followerId || follower.followeeId !== followeeId
+            )
+          };
+        });
+        toast.success(`You have unfollowed ${user?.username}`)
+      }
     } catch (error) {
       toast.error('Failed to follow user')
       console.error('Failed to follow user:', error)
     }
   }
 
-  const followed =  Ifollowed({followers: user?.followers, userId: session?.user?.id || ''}) 
-
-  console.log('followed:', followed)
+  const followed =  Ifollowed({followers: userData?.followers, userId: session?.user?.id || ''}) 
 
   return (
     <div
@@ -297,7 +335,7 @@ export function UserCard({ user, loading }: UserCardProps) {
               <span className="text-sm">Following</span>
               <div className='flex items-center space-x-1'>
                 <UserIcon className="w-4 h-4" />
-                <span className="text-sm text-gray-500">{ formatNumber(user.following.length)}</span>
+                <span className="text-sm text-gray-500">{ formatNumber(userData?.following?.length || 0)}</span>
               </div>
               
             </div>
@@ -305,7 +343,7 @@ export function UserCard({ user, loading }: UserCardProps) {
               <span className="text-sm">Followers</span>
               <div className='flex items-center space-x-1'>
                 <Users className="w-4 h-4" />
-                <span className="text-sm text-gray-500">{ formatNumber(user.followers.length)}</span>
+                <span className="text-sm text-gray-500">{ formatNumber(userData?.followers?.length || 0)}</span>
               </div>
             </div>
           </div>
