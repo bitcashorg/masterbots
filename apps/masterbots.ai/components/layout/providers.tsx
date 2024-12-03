@@ -12,6 +12,7 @@ import { ThreadVisibilityProvider } from '@/lib/hooks/use-thread-visibility'
 import { ProfileProvider } from '@/lib/hooks/use-profile'
 import { ThreadSearchProvider } from '@/lib/hooks/use-thread-search'
 import { PowerUpProvider } from '@/lib/hooks/use-power-up'
+import { AccessibilityProvider } from '@/lib/hooks/use-accessibility'
 
 export function Providers({ children, ...props }: ThemeProviderProps) {
   return (
@@ -23,11 +24,13 @@ export function Providers({ children, ...props }: ThemeProviderProps) {
               <SessionProvider>
                 <ProfileProvider>
                   <PowerUpProvider>
+                    <AccessibilityProvider>
                   <ThreadSearchProvider>
                 <ThreadProvider> 
                   <ThreadVisibilityProvider> {children}</ThreadVisibilityProvider>
                 </ThreadProvider>
                 </ThreadSearchProvider>
+                </AccessibilityProvider>
                 </PowerUpProvider>
                 </ProfileProvider>
               </SessionProvider>

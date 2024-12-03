@@ -25,6 +25,7 @@ import type React from 'react'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { ShareButton } from './share-button'
+import { FontSizeSelector } from '@/components/shared/font-size-selector'
 
 interface ChatOptionsProps {
   threadId: string
@@ -129,7 +130,15 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
           align="end"
           className="w-[160px] sm:w-[180px] px-0"
         >
-          {/* Toggle thread visibility option (only for thread owner) */}
+          {/* Font Size Selector */}
+          <DropdownMenuItem
+            className="flex-col items-start px-0"
+            onSelect={event => event.preventDefault()}
+          >
+            <FontSizeSelector />
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+             {/* Toggle thread visibility option (only for thread owner) */}
           {isUser && (
             <DropdownMenuItem
               className="flex-col items-start"

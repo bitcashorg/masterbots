@@ -10,6 +10,7 @@ import type { Session } from 'next-auth'
 import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { toSlugWithUnderScore } from 'mb-lib'
+import { ThemeToggle } from '@/components/shared/theme-toggle'
 
 interface ProfileSidebarProps {
   user: Session['user'] & {
@@ -56,7 +57,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" className="pl-0 rounded-full md:hidden block">
+        <Button variant="ghost" className="block pl-0 rounded-full md:hidden">
           {user?.image ? (
             <Image
               className="transition-opacity duration-300 rounded-full select-none size-8 bg-foreground/10 ring-1 ring-zinc-100/10 hover:opacity-80"
@@ -71,7 +72,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
               {user?.name ? getUserInitials(user?.name) : null}
             </div>
           )}
-          <span className="ml-2 hidden md:inline-block">{user?.name}</span>
+          <span className="hidden ml-2 md:inline-block">{user?.name}</span>
         </Button>
       </SheetTrigger>
       <SheetContent side="right" className="w-[300px] sm:w-[400px] p-0">
@@ -103,12 +104,12 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
               </div>
             </Button>
           </div>
-
+          
           {/* Navigation Links - Only visible on mobile */}
           <nav className="flex flex-col p-4 lg:hidden">
             <Button
               variant="ghost"
-              className="w-full justify-start text-sm"
+              className="justify-start w-full text-sm"
               onClick={() => handleNavigation('/c')}
             >
               Chat
@@ -117,7 +118,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
             {appConfig.devMode && (
               <Button
                 variant="ghost"
-                className="w-full justify-start text-sm"
+                className="justify-start w-full text-sm"
                 onClick={() => handleNavigation('/c/p')}
               >
                 Pro
@@ -126,7 +127,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
 
             <Button
               variant="ghost"
-              className="w-full justify-start text-sm"
+              className="justify-start w-full text-sm"
               onClick={() => handleNavigation('/')}
             >
               Browse
@@ -135,7 +136,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
             {appConfig.devMode && (
               <Button
                 variant="ghost"
-                className="w-full justify-start text-sm"
+                className="justify-start w-full text-sm"
                 onClick={() => handleNavigation('/wordware')}
               >
                 Ww
@@ -144,15 +145,16 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
           </nav>
 
           {/* Logout Button */}
-          <div className="mt-auto p-4 border-t">
+          <div className="flex items-center justify-between p-4 mt-auto border-t">
             <Button
               variant="ghost"
-              className="w-full justify-start text-sm"
+              className="justify-start text-sm"
               onClick={handleLogout}
             >
-               <LogOut className="size-4 mr-2" />
+              <LogOut className="mr-2 size-4" />
               Log Out
             </Button>
+            <ThemeToggle />
           </div>
         </div>
       </SheetContent>
