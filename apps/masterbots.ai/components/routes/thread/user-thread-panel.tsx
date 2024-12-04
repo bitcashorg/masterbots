@@ -158,8 +158,6 @@ const pathname = usePathname();
       chatbotName: activeChatbot?.name
     })
 
-    
-
     // Check if the fetchId matches the current fetchId stored in the ref
     if (fetchIdRef.current === currentFetchId) {
       // If it matches, update the threads state
@@ -193,15 +191,6 @@ const pathname = usePathname();
   }, [activeCategory, activeChatbot, isOpenPopup, pathname]);
   
 
-  // useEffect(() => {
-  //   const handlePopState = () => {
-  //     console.log('PopState triggered');
-  //     handleThreadsChange();
-  //   };
-  
-  //   window.addEventListener('popstate', handlePopState);
-  //   return () => window.removeEventListener('popstate', handlePopState);
-  // }, [pathname]);
 
   useEffect(() => {
     if (
