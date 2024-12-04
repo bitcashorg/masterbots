@@ -1,51 +1,41 @@
-import {
-  type AdminResponse,
-  BlockUserRequest,
-  UpdateSubscriptionRequest
-} from '@/app/api/admin/types'
+import type { adminActions, AdminActionType } from '@/app/api/admin/actions'
+import type { z } from 'zod'
 
-const handleResponse = async <T>(response: Response): Promise<T> => {
-  if (!response.ok) {
-    const error = await response.json()
-    throw new Error(error.error || 'An error occurred')
-  }
-  return response.json()
-}
+type ActionConfig = typeof adminActions
+type ActionInput<T extends AdminActionType> = z.infer<ActionConfig[T]['schema']>
+type ActionOutput<T extends AdminActionType> = Awaited<
+  ReturnType<ActionConfig[T]['handler']>
+>
 
 export const adminApi = {
-  async blockUser(userId: string) {
-    const response = await fetch('/api/admin/block-user', {
+  async executeAction<T extends AdminActionType>(
+    action: T,
+    payload: ActionInput<T>
+  ): Promise<ActionOutput<T>> {
+    const response = await fetch('/api/admin', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId })
+      body: JSON.stringify({ action, payload })
     })
-    return handleResponse<AdminResponse<any>>(response)
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || 'An error occurred')
+    }
+
+    const { data } = await response.json()
+    return data
   },
 
-  async unblockUser(userId: string) {
-    const response = await fetch('/api/admin/unblock-user', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId })
-    })
-    return handleResponse<AdminResponse<any>>(response)
-  },
+  blockUser: (userId: string) =>
+    adminApi.executeAction('blockUser', { userId }),
 
-  async updateSubscription(userId: string, subscriptionId: string | null) {
-    const response = await fetch('/api/admin/update-subscription', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, subscriptionId })
-    })
-    return handleResponse<AdminResponse<any>>(response)
-  },
+  unblockUser: (userId: string) =>
+    adminApi.executeAction('unblockUser', { userId }),
 
-  async setFreeMonth(userId: string) {
-    const response = await fetch('/api/admin/set-free-month', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId })
-    })
-    return handleResponse<AdminResponse<any>>(response)
-  }
+  updateSubscription: (userId: string, subscriptionId: string | null) =>
+    adminApi.executeAction('updateSubscription', { userId, subscriptionId }),
+
+  setFreeMonth: (userId: string) =>
+    adminApi.executeAction('setFreeMonth', { userId })
 }
