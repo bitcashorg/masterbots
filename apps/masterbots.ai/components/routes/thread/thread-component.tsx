@@ -78,18 +78,7 @@ export default function ThreadComponent({
   const profilePage = /^\/u\/[^/]+\/t(?:\/|$)/.test(pathname)
   
   const handleAccordionToggle = () => {
-    if (profilePage) {
-      const category = thread?.chatbot?.categories[0]?.category?.name
-      const chatbot = thread?.chatbot?.name
-      const slug = params.slug;
-      if (!category || !chatbot || !slug) {
-            console.error('Missing required navigation parameters');
-            return;
-       }
-      redirect(`/u/${slug}/t/${toSlug(category)}/${toSlug(chatbot)}/${thread.threadId}`)
-    }else{
       scrollToTop()
-    }
   }
   return (
     <li ref={threadRef}>

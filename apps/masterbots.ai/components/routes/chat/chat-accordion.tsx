@@ -3,8 +3,9 @@
 import { useThread } from '@/lib/hooks/use-thread'
 import { ChevronDown } from 'lucide-react'
 import type { Thread } from 'mb-genql'
-import { usePathname } from 'next/navigation'
+import { usePathname, useParams, useRouter } from 'next/navigation'
 import React from 'react'
+import { toSlug } from 'mb-lib'
 
 export const ChatAccordion = ({
   className, //* CSS classes for the outer div
@@ -44,6 +45,8 @@ export const ChatAccordion = ({
   } = useThread()
 
  const pathname  = usePathname()
+ const params = useParams()
+ const router = useRouter();
 
   //* Sets the initial open state based on defaultState prop
   const initialState = defaultState
@@ -62,6 +65,16 @@ export const ChatAccordion = ({
       setIsOpenPopup(true)
     } else {
       //* Sub-conversation click - toggle accordion
+      if (profilePage) {
+      const category = thread?.chatbot?.categories[0]?.category?.name
+      const chatbot = thread?.chatbot?.name
+      const slug = params.slug;
+      if (!category || !chatbot || !slug) {
+            console.error('Missing required navigation parameters');
+            return;
+       }
+       router.push(`/u/${slug}/t/${toSlug(category)}/${toSlug(chatbot)}/${thread.threadId}`)
+      }
       toggle()
     }
   }
