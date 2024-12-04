@@ -13,6 +13,8 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: pass
       POSTGRES_DB: masterbots
+      DATABASE_URL: "postgres://user:pass@localhost:5433/masterbots?sslmode=disable"
+
 
   hasura:
     container_name: masterbots-hasura
