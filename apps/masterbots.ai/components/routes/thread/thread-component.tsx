@@ -40,9 +40,6 @@ import type { Thread } from 'mb-genql'
 import { useRef } from 'react'
 import { AdminModeApprove } from '../chat/admin-mode-approve'
 import { ChatOptions } from '../chat/chat-options'
-import {  redirect, useParams, usePathname } from 'next/navigation'
-import { toSlug } from 'mb-lib'
-
 export default function ThreadComponent({
   thread,
   loadMore,
@@ -60,9 +57,7 @@ export default function ThreadComponent({
   const contentRef = useRef<HTMLDivElement>(null)
   const {   isNewResponse } = useThread()
   const { isAdminMode } = useThreadVisibility()
-  const pathname  = usePathname()
-  const params = useParams()
-
+  
   const { isNearBottom, scrollToTop } = useScroll({
     containerRef: contentRef,
     threadRef,
@@ -74,9 +69,6 @@ export default function ThreadComponent({
   })
 
   const threadId = thread.threadId
-
-  const profilePage = /^\/u\/[^/]+\/t(?:\/|$)/.test(pathname)
-  
   const handleAccordionToggle = () => {
       scrollToTop()
   }
