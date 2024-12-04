@@ -1,0 +1,24 @@
+{
+    "name": "mb-drizzle",
+    "private": true,
+    "version": "0.0.1",
+    "main": "./src/index.ts",
+    "types": "./src/index.ts",
+    "scripts": {
+      "generate": "drizzle-kit generate:pg",
+      "push": "drizzle-kit push:pg",
+      "studio": "drizzle-kit studio",
+      "migrate": "bun ./src/migrate.ts"
+    },
+    "dependencies": {
+      "drizzle-orm": "^0.29.3",
+      "postgres": "^3.4.3",
+      "mb-env": "workspace:*"
+    },
+    "devDependencies": {
+      "drizzle-kit": "^0.29.3",
+      "@types/postgres": "^3.4.0",
+      "typescript": "^5.1.3",
+      "tsconfig": "workspace:*"
+    }
+  }
