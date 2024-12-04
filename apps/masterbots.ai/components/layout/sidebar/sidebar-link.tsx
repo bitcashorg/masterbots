@@ -58,7 +58,8 @@ export default function SidebarLink({ category, isFilterMode, page }: SidebarLin
             isBrowse
           })
 
-       }else{
+       }
+       else{
         setActiveChatbot(null)
         navigateTo({
           page,
@@ -142,21 +143,64 @@ export default function SidebarLink({ category, isFilterMode, page }: SidebarLin
 
   return (
     <div className={cn('flex flex-col mb-2')}>
-      <div
-       // Using this is causing problems on double click, double click happen when expand and collapse
-      //  href={page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}` :`/c/${toSlug(category.name)}`}
+      {/* <Link
+             // Using this is causing problems on double click, double click happen when expand and collapse
+          href={page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}` :`/c/${toSlug(category.name)}`}
          className={cn(
           'flex items-center p-2 cursor-pointer',
           isActive && 'bg-gray-200 dark:bg-mirage',
           page === 'profile' && 'pl-6'
         )}
         onClick={(e) => {
-          e.preventDefault();
           handleClickCategory(e);
         }}
+        passHref
+       legacyBehavior
+        
       >
         {categoryContent}
-      </div>
+      </Link> */}
+ 
+
+ <button
+  role="menuitem"
+  aria-expanded={isActive}
+  aria-controls={`category-${category.name}`}
+  className={cn(
+    'flex items-center p-2 w-full text-left',
+    isActive && 'bg-gray-200 dark:bg-mirage',
+    page === 'profile' && 'pl-6'
+  )}
+  onClick={(e) => {
+    e.stopPropagation();
+    handleClickCategory(e);
+  }}
+>
+  {categoryContent}
+</button>
+
+{/* <Link
+  href={page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}` : `/c/${toSlug(category.name)}`}
+  passHref
+  legacyBehavior 
+  >
+  <a
+    role="menuitem"
+    aria-expanded={isActive}
+    aria-controls={`category-${category.name}`}
+    className={cn(
+      'flex items-center p-2 w-full',
+      isActive && 'bg-gray-200 dark:bg-mirage',
+      page === 'profile' && 'pl-6'
+    )}
+    onClick={(e) => {
+      e.stopPropagation();
+      handleClickCategory(e);
+    }}
+  >
+    {categoryContent}
+  </a>
+</Link> */}
       {childrenContent}
     </div>
   )

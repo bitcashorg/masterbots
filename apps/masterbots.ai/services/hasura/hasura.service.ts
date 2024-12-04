@@ -901,7 +901,7 @@ export async function updateUserPersonality({
 
     updateArgs._set = {
       ...(bio !== null && { bio }),
-      ...(topic !== null && { favourite_topic: topic }),
+      ...(topic !== null && { favouriteTopic: topic }),
       ...(profilePicture !== null && { profilePicture }),
     };
 

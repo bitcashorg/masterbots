@@ -35,9 +35,10 @@ import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { getThreads, getBrowseThreads, getUserBySlug } from '@/services/hasura'
 import type { Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
-import { useParams } from 'next/navigation'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useParams, usePathname, useSearchParams } from 'next/navigation'
+import {  useEffect, useMemo, useRef, useState } from 'react'
 import { useAsync } from 'react-use'
+// import { useRouter } from 'next/router'
 
 
 const PAGE_SIZE = 20
@@ -61,7 +62,7 @@ export default function UserThreadPanel({
   const [loading, setLoading] = useState<boolean>(false)
   const { threads: hookThreads } = useThreadVisibility()
   const [searchTerm, setSearchTerm] = useState<string>('')
-  const { slug } = params;
+  const { slug, threadId } = params;
 
   const userWithSlug = useAsync(async () => {
     if (!slug) return { user: null }
@@ -72,8 +73,6 @@ export default function UserThreadPanel({
     return result
   }, [slug])
 
-  
-
   const finalThreads = useMemo(
     () => initialThreads ?? hookThreads,
     [initialThreads, hookThreads]
@@ -83,6 +82,9 @@ export default function UserThreadPanel({
   const [totalThreads, setTotalThreads] = useState<number>(0)
   const prevCategoryRef = useRef(activeCategory);
   const prevChatbotRef = useRef(activeChatbot);
+  const prevPathRef = useRef(usePathname());
+
+const pathname = usePathname();
 
   useEffect(() => {
     setThreads(finalThreads)
@@ -137,20 +139,17 @@ export default function UserThreadPanel({
     setLoading(true)
     const userOnSlug = userWithSlug.value?.user
     const isOwnProfile = session?.user?.id === userOnSlug?.userId;
-    if (!session?.user || !isOwnProfile) {
-      if(page === 'profile') {
-        threads = await fetchBrowseThreads();
+    if (!session?.user || !isOwnProfile && page === 'profile') {
+       threads = await fetchBrowseThreads();
         setThreads(_prev => threads ?? [])
         setCount(_prev => threads.length ?? 0)
         setTotalThreads(threads?.length ?? 0)
-      }
       setLoading(false)
       return;
     }
-
+   
     const currentFetchId = Date.now() // Generate a unique identifier for the current fetch
     fetchIdRef.current = currentFetchId
-
      threads = await getThreads({
       jwt: session!.user?.hasuraJwt,
       userId: session!.user.id,
@@ -158,6 +157,8 @@ export default function UserThreadPanel({
       categoryId: activeCategory,
       chatbotName: activeChatbot?.name
     })
+
+    
 
     // Check if the fetchId matches the current fetchId stored in the ref
     if (fetchIdRef.current === currentFetchId) {
@@ -169,31 +170,38 @@ export default function UserThreadPanel({
     setLoading(false)
   }
 
- 
-   const shouldFetchThreads = useCallback(() => {
-    if (isOpenPopup) return false;
-
+  useEffect(() => {
+    // Skip if popup is open
+    if (isOpenPopup) return;
+  
     const shouldFetch = 
       activeCategory ||
       activeChatbot ||
       (prevCategoryRef.current && !activeCategory) ||
-      (prevChatbotRef.current && !activeChatbot);
-
-    // Update refs after checking
+      (prevChatbotRef.current && !activeChatbot) ||
+      pathname !== prevPathRef.current; // Add pathname check
+  
+    // Update refs
     prevCategoryRef.current = activeCategory;
     prevChatbotRef.current = activeChatbot;
+    prevPathRef.current = pathname;
 
-    return shouldFetch;
-  }, [isOpenPopup, activeCategory, activeChatbot]);
-
-
-  useEffect(() => {
-    if (shouldFetchThreads()) {
+  
+    if (shouldFetch) {
       handleThreadsChange();
     }
-  }, [activeCategory, activeChatbot, isOpenPopup, shouldFetchThreads]);
+  }, [activeCategory, activeChatbot, isOpenPopup, pathname]);
+  
 
-
+  // useEffect(() => {
+  //   const handlePopState = () => {
+  //     console.log('PopState triggered');
+  //     handleThreadsChange();
+  //   };
+  
+  //   window.addEventListener('popstate', handlePopState);
+  //   return () => window.removeEventListener('popstate', handlePopState);
+  // }, [pathname]);
 
   useEffect(() => {
     if (
