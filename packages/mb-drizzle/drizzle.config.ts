@@ -1,17 +1,12 @@
 import type { Config } from 'drizzle-kit';
-import * as dotenv from 'dotenv';
-dotenv.config();
-
-if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL is not defined');
-}
+import { appConfig } from 'mb-env';
 
 export default {
   schema: './src/schema/*',
   out: './drizzle',
   driver: 'pg',
   dbCredentials: {
-    connectionString: process.env.DATABASE_URL,
+    connectionString: appConfig.database.url,
   },
   verbose: true,
   strict: true,
