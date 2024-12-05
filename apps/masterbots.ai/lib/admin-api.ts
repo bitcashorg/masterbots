@@ -1,4 +1,4 @@
-import type { adminActions, AdminActionType } from '@/app/api/admin/actions'
+import type { adminActions, AdminActionType } from '@/app/api/admin/admin-actions'
 import type { z } from 'zod'
 
 type ActionConfig = typeof adminActions
