@@ -1,5 +1,24 @@
+/**
+ * BrowseCategoryButton Component
+ * 
+ * This component represents a button for selecting a category in the browsing interface.
+ * It allows users to navigate to different categories or return to the main page.
+ * 
+ * Props:
+ * - category: The category object or 'all' to represent all categories.
+ * - activeTab: The currently active category ID or null if 'all' is active.
+ * - onClick: Callback function triggered when the button is clicked.
+ * - id: Unique identifier for the button element.
+ * 
+ * Key Features:
+ * - Dynamic Navigation: Navigates to the appropriate category page based on the category selected.
+ * - Active State Styling: Applies different styles based on whether the button is active or not.
+ * - Animation: Uses Framer Motion to animate the active state with a bubble effect.
+ * - Accessibility: Includes focus-visible styles for better accessibility.
+ */
+
 import { motion } from 'framer-motion'
-import { Category } from 'mb-genql'
+import type { Category } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import Link from 'next/link'
 

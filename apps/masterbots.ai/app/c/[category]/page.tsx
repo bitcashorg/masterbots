@@ -1,3 +1,4 @@
+import { authOptions } from '@/auth'
 import ChatThreadListPanel from '@/components/routes/chat/chat-thread-list-panel'
 import ThreadPanel from '@/components/routes/thread/thread-panel'
 import { generateMetadataFromSEO } from '@/lib/metadata'
@@ -6,7 +7,6 @@ import { isTokenExpired, toSlug } from 'mb-lib'
 import { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
-import { authOptions } from '@/auth'
 
 export default async function ChatCategoryPage({
   params
@@ -53,8 +53,7 @@ export async function generateMetadata({
 
   const seoData = {
     title: category?.name || '',
-    description:
-      'Please select one of the categories and a bot on the sidebar to start a conversation.',
+    description: `Please select a bot from the ${category?.name} category to start the conversation.`,
     ogType: 'website',
     ogImageUrl: '',
     twitterCard: 'summary'

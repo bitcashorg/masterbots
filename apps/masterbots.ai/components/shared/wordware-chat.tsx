@@ -1,5 +1,18 @@
 'use client'
 
+/**
+ * WordwareChat Component
+ *
+ * Provides a user interface for interacting with the WordWare prompt system.
+ * Allows users to input a prompt ID, fetch prompt details, and run the associated prompt with user-defined inputs.
+ * Key Features:
+ * - Dynamically generated input fields based on fetched prompt details.
+ * - Buttons to fetch prompt details and execute the prompt.
+ * - Displays results and errors from the prompt execution.
+ * - Card layout for organized presentation of UI elements.
+ * - Manages loading states and error handling for enhanced user experience.
+ */
+
 import { getPromptDetails, runWordWarePrompt } from '@/app/actions'
 import { Button } from '@/components/ui/button'
 import {
@@ -12,7 +25,8 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import React, { useRef, useState } from 'react'
+import type React from 'react'
+import { useRef, useState } from 'react'
 
 interface PromptInput {
   id: string
@@ -62,9 +76,16 @@ export function WordwareChat() {
     setRunResult('')
     setParsedResult('')
     try {
-      const { fullResponse, parsed, error } = await runWordWarePrompt({ promptId, inputs })
+      const { fullResponse, parsed, error } = await runWordWarePrompt({
+        promptId,
+        inputs,
+      })
 
-      console.log('Full responses from runWordWarePrompt:', { fullResponse, parsed, error })
+      console.log('Full responses from runWordWarePrompt:', {
+        fullResponse,
+        parsed,
+        error
+      })
 
       if (error || !fullResponse || !parsed) {
         throw new Error(error || 'Failed to run WordWare prompt.')
@@ -190,6 +211,7 @@ export function parseWordwareResponse(response: string): string {
   let output = ''
   let currentSection = ''
 
+  // biome-ignore lint/complexity/noForEach: <explanation>
   lines.forEach(line => {
     try {
       const parsed = JSON.parse(line)

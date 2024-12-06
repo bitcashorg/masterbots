@@ -5,7 +5,8 @@ import { NextRequest } from 'next/server'
 import { getThread } from '@/services/hasura'
 import '@/app/globals.css'
 import OGImage from '@/components/shared/og-image'
-export const runtime = 'edge'
+
+// export const runtime = 'edge'
 
 export async function GET(req: NextRequest) {
   try {

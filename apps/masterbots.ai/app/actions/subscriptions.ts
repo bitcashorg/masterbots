@@ -1,3 +1,5 @@
+'use server'
+
 import { parseWordwareResponse } from '@/components/shared/wordware-chat'
 import {
   Card,
@@ -111,9 +113,7 @@ export async function getPromptDetails(promptId: string) {
       throw new Error('Prompt ID is required')
     }
 
-    const response = await fetch(
-      `/api/wordware/describe?promptId=${promptId}`
-    )
+    const response = await fetch(`/api/wordware/describe?promptId=${promptId}`)
     data = await response.json()
     if (!response.ok) {
       throw new Error(data.error || 'Failed to fetch prompt details')
@@ -133,7 +133,13 @@ export async function getPromptDetails(promptId: string) {
   }
 }
 
-export async function runWordWarePrompt({ promptId, inputs }: { promptId: string, inputs: Record<string, any> }) {
+export async function runWordWarePrompt({
+  promptId,
+  inputs
+}: {
+  promptId: string
+  inputs: Record<string, any>
+}) {
   let fullResponse = ''
   let error = null
 

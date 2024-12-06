@@ -1,5 +1,27 @@
 // Inspired by Chatbot-UI and modified to fit the needs of this project
 // @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Chat/ChatcleanMessage.tsx
+/**
+ * ChatMessageProps Interface
+ *
+ * This interface defines the props for the BrowseChatMessage component.
+ *
+ * Props:
+ * - message: The message object containing the content to be displayed.
+ * - chatbot: Optional chatbot object associated with the message.
+ *
+ * BrowseChatMessage Component
+ *
+ * This component renders a chat message, including markdown content and code blocks.
+ * It utilizes MemoizedReactMarkdown for rendering markdown and CodeBlock for code snippets.
+ *
+ * Key Features:
+ * - Content Cleaning: Cleans the message content using the cleanPrompt function.
+ * - Markdown Rendering: Renders the message content as markdown with support for GFM and math.
+ * - Code Highlighting: Supports inline and block code rendering with syntax highlighting.
+ *
+ * @param {ChatMessageProps} props - The props for the component.
+ * @returns {JSX.Element} The rendered chat message component.
+ */
 
 import { MemoizedReactMarkdown } from '@/components/shared/markdown'
 import { CodeBlock } from '@/components/ui/codeblock'
@@ -27,6 +49,12 @@ export function BrowseChatMessage({ message, chatbot, ...props }: ChatMessagePro
           components={{
             p({ children }) {
               return <p className="mb-2 last:mb-0">{children}</p>
+            },
+            ol({ children }) {
+              return <ol className="list-decimal list-inside text-left">{children}</ol>
+            },
+            ul({ children }) {
+              return <ul className="list-disc list-inside text-left">{children}</ul>
             },
             code({ node, inline, className, children, ...props }) {
               if (children.length) {

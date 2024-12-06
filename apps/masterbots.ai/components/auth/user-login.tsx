@@ -5,6 +5,9 @@ import { UserMenu } from '@/components/layout/header/user-menu'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { isTokenExpired } from 'mb-lib'
+import { ProfileSidebar } from '@/components/layout/sidebar/profile-sidebar'
+import { Suspense } from 'react'
+import { ProfileSidebarSkeleton } from '../shared/skeletons/profile-sidebar-skeleton'
 
 export function UserLogin() {
   const { data: session, status } = useSession()
@@ -25,7 +28,14 @@ export function UserLogin() {
       return <LoginButton />
     }
 
-    return <UserMenu user={session.user} />
+    return (
+      <>
+        <Suspense fallback={<ProfileSidebarSkeleton />}>
+          <ProfileSidebar user={session.user} />
+        </Suspense>
+        <UserMenu user={session.user} />
+      </>
+    )
   }
 
   return <LoginButton />

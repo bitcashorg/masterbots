@@ -1,13 +1,22 @@
 'use client'
 
-import { usePathname } from 'next/navigation'
-import { toSlug } from 'mb-lib'
 import { getCategories } from '@/services/hasura'
 import { Category, Chatbot } from 'mb-genql'
+import { toSlug } from 'mb-lib'
+import { usePathname } from 'next/navigation'
 import * as React from 'react'
 import { useAsync } from 'react-use'
 
 const LOCAL_STORAGE_KEY = 'sidebar'
+
+interface NavigationParams {
+  page: string | undefined
+  slug: string | undefined
+  categoryName?: string
+  chatbotName?: string
+  isBrowse?: boolean
+}
+
 
 interface SidebarContext {
   isSidebarOpen: boolean
@@ -33,7 +42,9 @@ interface SidebarContext {
   expandedCategories: number[];
   setExpandedCategories: React.Dispatch<React.SetStateAction<number[]>>;
   toggleChatbotSelection: (chatbotId: number) => void
+  navigateTo: (params: NavigationParams) => void
 }
+
 
 const SidebarContext = React.createContext<SidebarContext | undefined>(
   undefined
@@ -98,19 +109,19 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
   React.useEffect(() => {
     if (!pathname || !categories) return
     const pathParts = pathname.split('/')
-    
+
     if (categories && pathParts[1] === 'c') {
       const categorySlug = pathParts[2]
-      const chatbotName = pathParts[3] 
-      
+      const chatbotName = pathParts[3]
+
       const category = categories?.categoriesChatbots.find(
         cat => toSlug(cat.name) === categorySlug
       )
-      
+
       if (category) {
         setActiveCategory(category.categoryId)
         setExpandedCategories([category.categoryId])
-        
+
         if (chatbotName) {
           const chatbot = category.chatbots.find(
             c => c.chatbot.name.toLowerCase() === chatbotName
@@ -121,7 +132,6 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
             setActiveChatbot(null)
           }
         } else {
-       
           setActiveChatbot(null)
         }
       }
@@ -168,7 +178,52 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
       )
         .filter(category => selectedCategories.includes(category.categoryId))
         .filter(category => category.chatbots.some(chatbot => selectedChatbots.includes(chatbot.chatbotId)))
-  }, [selectedChatbots.length, selectedCategories.length, filterValue, isFilterMode])
+  }, [selectedChatbots.length, selectedCategories.length, filterValue, isFilterMode, categories])
+
+  const getBasePath = ({ page, slug, isBrowse }: NavigationParams) => {
+    // Handle browse page first
+    if (isBrowse) {
+      return '';
+    }
+
+    // Handle profile page
+    if (page === 'profile') {
+      return `/u/${slug}/t`;
+    }
+
+    // Default to community path
+    const base = '/c';
+
+    return base;
+  };
+  const buildNavigationUrl = ({
+    page,
+    slug,
+    categoryName,
+    chatbotName,
+    isBrowse
+  }: NavigationParams): string => {
+    const base = getBasePath({ page, slug, isBrowse, categoryName, chatbotName });
+    if (!categoryName && !chatbotName) {
+      return base
+    }
+
+    const categoryPath = categoryName ? `/${toSlug(categoryName.toLowerCase())}` : ''
+    const chatbotPath = chatbotName ? `/${chatbotName.toLowerCase()}` : ''
+    return `${base}${categoryPath}${chatbotPath}`
+  }
+
+
+  const navigateTo = ({
+    page,
+    slug,
+    categoryName,
+    chatbotName,
+    isBrowse
+  }: NavigationParams): void => {
+    const url = buildNavigationUrl({ page, slug, categoryName, chatbotName, isBrowse })
+    window.history.pushState({}, '', url)
+  }
 
   if (isLoading) {
     return null
@@ -200,6 +255,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
         toggleChatbotSelection,
         expandedCategories,
         setExpandedCategories,
+        navigateTo
       }}
     >
       {children}

@@ -1,9 +1,30 @@
 'use client'
 
-import React from 'react'
+/**
+ * Receipt Component
+ * 
+ * A component that displays the receipt for a subscription payment.
+ * It provides details about the payment, including the payment intent ID,
+ * subscription plan, amount paid, and payment status.
+ * 
+ * Key Features:
+ * - Displays the payment intent ID and subscription details
+ * - Shows the amount paid and the payment status
+ * - Integrates card information for the payment method used
+ * - Provides visual feedback for loading states while fetching payment data
+ * 
+ * Functionality:
+ * - Fetches payment details based on the provided payment intent ID
+ * - Displays the subscription plan name, amount, and billing interval
+ * - Shows additional fees and total due for transparency
+ * 
+ * Props:
+ * - intentid: The payment intent ID used to fetch payment details
+ */
+import { fetchPayment } from '@/app/actions/subscriptions'
 import { IconCreditCard, IconHelp } from '@/components/ui/icons'
 import { getDate } from '@/lib/utils'
-import { fetchPayment } from '@/app/actions'
+import type React from 'react'
 import { useAsync } from 'react-use'
 
 interface ReceiptProps {
@@ -105,17 +126,17 @@ export const Receipt: React.FC<ReceiptProps> = ({ intentid }) => {
                   <strong> {getDate(subscription.current_period_start)}</strong>
                 </span>
               </div>
-              <span>$ { plan.interval === 'year' ? (4.49 * 12) : price }</span>
+              <span>$ {plan.interval === 'year' ? (4.49 * 12) : price}</span>
             </div>
             {plan.interval === 'year' && (
-            <div className="flex justify-between mt-3 text-gray-400">
-              <span>
-                {' '}
-                <strong>Year Plan</strong> subscription discount
-              </span>
-              <span>-${((4.49 * 12) - Number(price)).toFixed(2)}</span>
-            </div>
-          )}
+              <div className="flex justify-between mt-3 text-gray-400">
+                <span>
+                  {' '}
+                  <strong>Year Plan</strong> subscription discount
+                </span>
+                <span>-${((4.49 * 12) - Number(price)).toFixed(2)}</span>
+              </div>
+            )}
             <div className="flex justify-between pb-4 mt-5 border-b">
               <span className="font-bold"> Subtotal</span>
               <span>${price}</span>

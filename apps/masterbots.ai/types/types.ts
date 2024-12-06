@@ -1,4 +1,6 @@
+import type { WordWareFlowPaths } from '@/types/wordware-flows.types'
 import type { Message } from 'ai'
+import type { UserRole } from 'mb-drizzle'
 import type { Chatbot, LabelChatbotCategory } from 'mb-genql'
 import 'next-auth'
 import type { DefaultSession, DefaultUser } from 'next-auth'
@@ -16,10 +18,15 @@ export interface Chat extends Record<string, any> {
   sharePath?: string
 }
 
+export type AiToolCall = {
+  toolCallId: string
+  toolName: WordWareFlowPaths
+  args: Record<string, any>
+}
+
 export interface ChatProps extends React.ComponentProps<'div'> {
   initialMessages?: Message[]
   chatbot?: Chatbot
-  threadId: string
   newThread?: boolean
   chatPanelClassName?: string
   isPopup?: boolean
@@ -154,9 +161,11 @@ export type JSONResponseStream = {
   model: string
   messages: ChatCompletionMessageParam[]
   previewToken: string
+  webSearch: boolean
   stream?: boolean
   temperature?: number
   maxTokens?: number
+  chatbot?: Pick<Chatbot, 'categories' | 'chatbotId'>
 }
 
 // ? New type for streamText function parameters if needed
@@ -177,11 +186,13 @@ declare module 'next-auth' {
       email: string
       hasuraJwt: string
       role?: string
+      slug?: string
     } & DefaultSession['user']
   }
 
   interface User extends DefaultUser {
     role: string
+    slug: string
   }
 
   interface JWT {
@@ -204,12 +215,19 @@ export interface Plan {
   features_title: string
 }
 
-
-
 export interface ChatPageProps {
   params: {
-    category: string;
-    chatbot?: string;
-    threadId: string;
-  };
+    category: string
+    chatbot?: string
+    threadId: string
+  }
+}
+
+// * Drizzle Admin types
+export type AdminUserUpdate = {
+  isBlocked?: boolean
+  isVerified?: boolean
+  proUserSubscriptionId?: string
+  getFreeMonth?: boolean
+  role?: (typeof UserRole)[keyof typeof UserRole]
 }
