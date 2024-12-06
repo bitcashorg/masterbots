@@ -12,6 +12,7 @@ import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useThread } from '@/lib/hooks/use-thread'
 import { GlobeIcon } from 'lucide-react'
+import { appConfig } from 'mb-env'
 import * as React from 'react'
 
 interface ChatPanelHeaderProps {
@@ -61,39 +62,43 @@ export function ChatPanelHeader({
             </Label>
           </div>
 
-          <Separator orientation="vertical" className="h-6" />
+          {appConfig.features.webSearch && (
+            <>
+              <Separator orientation="vertical" className="h-6" />
 
-          {/* Web Search Checkbox */}
-          <Checkbox
-            custom
-            name="webSearch"
-            id="webSearch"
-            value={webSearch ? 'checked' : 'unchecked'}
-            ref={webSearchRef}
-            onClick={toggleWebSearch}
-            className="transition-all delay-100 h-auto w-auto inline-flex items-center gap-2 border-muted p-0.5 data-[state=checked]:border-accent/50 data-[state=checked]:bg-accent/25 rounded-full"
-            customSettings={{
-              check: (
-                <>
-                  <div className="bg-accent rounded-full -m-[2px] mr-1 p-0.5">
-                    <GlobeIcon className="size-7 text-accent-foreground" />
-                  </div>
-                  <Label
-                    htmlFor="webSearch"
-                    className="mr-2 text-xs leading-none text-nowrap"
-                  >
-                    Web search enabled
-                  </Label>
-                </>
-              ),
-              uncheck: (
-                <>
-                  <GlobeIcon className="opacity-75 size-7" />
-                  <span className="sr-only">Web search disabled</span>
-                </>
-              )
-            }}
-          />
+              {/* Web Search Checkbox */}
+              <Checkbox
+                custom
+                name="webSearch"
+                id="webSearch"
+                value={webSearch ? 'checked' : 'unchecked'}
+                ref={webSearchRef}
+                onClick={toggleWebSearch}
+                className="transition-all delay-100 h-auto w-auto inline-flex items-center gap-2 border-muted p-0.5 data-[state=checked]:border-accent/50 data-[state=checked]:bg-accent/25 rounded-full"
+                customSettings={{
+                  check: (
+                    <>
+                      <div className="bg-accent rounded-full -m-[2px] mr-1 p-0.5">
+                        <GlobeIcon className="size-7 text-accent-foreground" />
+                      </div>
+                      <Label
+                        htmlFor="webSearch"
+                        className="mr-2 text-xs leading-none text-nowrap"
+                      >
+                        Web search enabled
+                      </Label>
+                    </>
+                  ),
+                  uncheck: (
+                    <>
+                      <GlobeIcon className="opacity-75 size-7" />
+                      <span className="sr-only">Web search disabled</span>
+                    </>
+                  )
+                }}
+              />
+            </>
+          )}
 
           <Separator orientation="vertical" className="h-6" />
 
