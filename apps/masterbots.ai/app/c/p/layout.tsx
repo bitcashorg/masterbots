@@ -1,5 +1,5 @@
-import { ChatLayoutSection } from '@/components/routes/chat/chat-layout-section'
 import FooterCT from '@/components/layout/footer/footer-ct'
+import { ChatLayoutSection } from '@/components/routes/chat/chat-layout-section'
 import { appConfig } from 'mb-env'
 import { redirect } from 'next/navigation'
 import NextTopLoader from 'nextjs-toploader'
@@ -9,7 +9,7 @@ interface ChatLayoutProps {
 }
 
 export default async function ChatLayout({ children }: ChatLayoutProps) {
-  if (!appConfig.devMode) {
+  if (!appConfig.features.devMode) {
     console.error('Navigation to Pro is disabled. No access to this page')
     redirect('/')
   }

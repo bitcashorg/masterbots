@@ -1,12 +1,9 @@
 import { authOptions } from "@/auth";
 import { ChatChatbot } from "@/components/routes/chat/chat-chatbot";
 import ThreadPanel from "@/components/routes/thread/thread-panel";
-import { formatSystemPrompts } from "@/lib/actions";
-import { botNames } from "@/lib/bots-names";
-import { setDefaultUserPreferencesPrompt } from "@/lib/constants/prompts";
+import { botNames } from "@/lib/constants/bots-names";
 import { generateMetadataFromSEO } from "@/lib/metadata";
 import { getChatbot, getThreads } from "@/services/hasura";
-import type { Message } from "ai";
 import { isTokenExpired } from "mb-lib";
 import type { Metadata } from "next";
 import { getServerSession } from "next-auth";
@@ -23,16 +20,16 @@ export default async function BotThreadsPage({
   // NOTE: maybe we should use same expiration time
   const jwt = session ? session.user?.hasuraJwt : null;
   if (!jwt) {
-    throw new Error("Session JWT is missing.");
+    console.error("Session JWT is missing.");
   }
-  if (isTokenExpired(jwt)) {
+  if (isTokenExpired(jwt as string)) {
     redirect(`/auth/signin`);
   }
   const chatbotName = botNames.get(params.chatbot);
   if (!chatbotName) {
     throw new Error(`Chatbot name for ${params.chatbot} not found`);
   }
-  const chatbot = await getChatbot({ chatbotName, jwt });
+  const chatbot = await getChatbot({ chatbotName, jwt: jwt as string });
 
   if (!chatbot)
     throw new Error(`Chatbot ${botNames.get(params.chatbot)} not found`);
@@ -43,19 +40,8 @@ export default async function BotThreadsPage({
   if (!userId) {
     throw new Error("User ID is missing.");
   }
-  const threads = await getThreads({ chatbotName, jwt, userId });
+  const threads = await getThreads({ chatbotName, jwt: jwt as string, userId });
 
-  // format all chatbot prompts as chatgpt 'system' messages
-  const chatbotSystemPrompts: Message[] = formatSystemPrompts(chatbot.prompts);
-
-  const userPreferencesPrompts: Message[] = [
-    setDefaultUserPreferencesPrompt(chatbot),
-  ];
-
-  // concatenate all message to pass it to chat component
-  const initialMessages: Message[] = chatbotSystemPrompts.concat(
-    userPreferencesPrompts,
-  );
   return (
     <>
       <ThreadPanel
@@ -63,7 +49,7 @@ export default async function BotThreadsPage({
         chatbot={chatbot.name}
         search={searchParams}
       />{" "}
-      <ChatChatbot initialMessages={initialMessages} chatbot={chatbot} />
+      <ChatChatbot chatbot={chatbot} />
     </>
   );
 }

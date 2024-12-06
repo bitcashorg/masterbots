@@ -1,17 +1,19 @@
-'use client'
-import React from 'react';
-import { ShieldCheck, ShieldX } from 'lucide-react';
+//? Component for toggling admin mode on and off
+
+'use client';
 import { Button } from '@/components/ui/button';
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility';
+import { ShieldCheck, ShieldX } from 'lucide-react';
 
-export function AdminModeToggle(){
-const { isAdminMode, handleToggleAdminMode } = useThreadVisibility();
+export function AdminModeToggle() {
+  //* Retrieves admin mode state and toggle handler from useThreadVisibility hook
+  const { isAdminMode, handleToggleAdminMode } = useThreadVisibility();
 
   return (
-    <Button 
-    variant={isAdminMode ? 'destructive' :  'secondary'}
-    onClick={handleToggleAdminMode}
-    className='flex items-center justify-center px-4 py-2 rounded-md shadow-md transition-all duration-300'
+    <Button
+      variant={isAdminMode ? 'destructive' : 'secondary'}
+      onClick={handleToggleAdminMode}
+      className="flex items-center justify-center px-4 py-2 transition-all duration-300 rounded-md shadow-md"
     >
       {isAdminMode ? (
         <>
@@ -26,4 +28,4 @@ const { isAdminMode, handleToggleAdminMode } = useThreadVisibility();
       )}
     </Button>
   );
-};
+}

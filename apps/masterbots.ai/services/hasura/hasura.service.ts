@@ -1,4 +1,12 @@
+import { processWithAi } from '@/app/actions'
+import { AIModels } from '@/app/api/chat/models/models'
+import {
+  createChatbotMetadataPrompt,
+  setDefaultPrompt
+} from '@/lib/constants/prompts'
+import { cleanResult } from '@/lib/helpers/ai-helpers'
 import type {
+  AiClientType,
   ChatbotMetadataHeaders,
   ReturnFetchChatbotMetadata
 } from '@/types/types'
@@ -23,6 +31,7 @@ import type {
   GetThreadParams,
   GetThreadsParams,
   SaveNewMessageParams,
+  UpdateUserArgs,
   UpsertUserParams
 } from './hasura.service.type'
 
@@ -82,7 +91,10 @@ export async function getChatbots({
         threadId: true
       },
       categories: {
-        categoryId: true
+        categoryId: true,
+        category: {
+          name: true
+        }
       },
       ...everything,
       __args: {
@@ -144,8 +156,8 @@ export async function getThreads({
           limit: 2
         }
       },
-      isApproved:true,
-      isPublic:true,
+      isApproved: true,
+      isPublic: true,
       ...everything,
       __args: {
         orderBy: [{ createdAt: 'DESC' }],
@@ -300,7 +312,7 @@ export async function createThread({
       threadId: true
     }
   })
-  return insertThreadOne?.threadId
+  return insertThreadOne?.threadId as string
 }
 
 export async function getChatbot({
@@ -461,10 +473,10 @@ export async function getBrowseThreads({
         profilePicture: true,
         slug: true
       },
-      isApproved:true,
-      isPublic:true,
-      ...everything,
-    },
+      isApproved: true,
+      isPublic: true,
+      ...everything
+    }
   })
 
   return thread as Thread[]
@@ -553,13 +565,12 @@ export async function getThreadsWithoutJWT() {
   const { thread } = await client.query({
     thread: {
       chatbot: {
-        ...everything
-      },
-      categories: {
-        category: {
-          ...everything
+        categories: {
+          category: {
+            name: true
+          }
         },
-        ...everything
+        name: true
       },
       ...everything,
       __args: {
@@ -596,10 +607,10 @@ export async function UpdateThreadVisibility({
       updateThreadByPk: {
         __args: {
           pkColumns: { threadId },
-          _set: { isPublic }
+          _set: { isApproved: true }
         },
         threadId: true,
-        isPublic: true
+        isApproved: true
       }
     })
     return { success: true }
@@ -631,6 +642,11 @@ export async function fetchChatbotMetadata({
       }
     })
 
+    if (!chatbotMetadata[0]) {
+      console.error('Chatbot metadata not found. Continuing without it.')
+      return null
+    }
+
     return chatbotMetadata[0].label as LabelChatbotCategory['label']
   } catch (error) {
     console.error('Error fetching chatbot metadata:', error)
@@ -640,10 +656,10 @@ export async function fetchChatbotMetadata({
 
 export async function approveThread({
   threadId,
-  jwt,
+  jwt
 }: {
-  threadId: string;
-  jwt: string | undefined;
+  threadId: string
+  jwt: string | undefined
 }): Promise<{ success: boolean; error?: string }> {
   try {
     const client = getHasuraClient({ jwt })
@@ -651,44 +667,200 @@ export async function approveThread({
       updateThreadByPk: {
         __args: {
           pkColumns: { threadId },
-          _set: { isApproved: true}
+          _set: { isApproved: true }
         },
         threadId: true,
         isApproved: true
       }
     })
-    return { success: true };
+    return { success: true }
   } catch (error) {
-    console.error('Error approving thread:', error);
-    return { success: false, error: 'Failed to approve the thread.' };
+    console.error('Error approving thread:', error)
+    return { success: false, error: 'Failed to approve the thread.' }
   }
-} 
-
-export async function getUserRoleByEmail({ email } : { email: string | null | undefined}){
-    try{
-      const client = getHasuraClient({})
-      const { user } = await client.query({
-        user: {
-          __args: {
-            where: { email: { _eq: email } }
-          },
-          role:true
-        }
-      })
-      return { users: user as User[] }
-    }catch (error) {
-      console.error('Error fetching user role by email:', error);
-      return {  users: [],  error: 'Failed to fetch user role by email.' };
-      }
 }
 
-export async function deleteThread({ threadId, jwt, userId }: { threadId: string, jwt: string | undefined, userId: string | undefined }){
+export async function getUserBySlug({
+  slug,
+  isSameUser
+}: {
+  slug: string
+  isSameUser: boolean
+}) {
   try {
-
-    if (!jwt) {
-         throw new Error('Authentication required for thread deletion');
+    const client = getHasuraClient({})
+    const { user } = await client.query({
+      user: {
+        __args: {
+          where: {
+            slug: {
+              _eq: slug
+            }
+          }
+        },
+        userId: true,
+        username: true,
+        profilePicture: true,
+        slug: true,
+        bio: true,
+        favouriteTopic: true,
+        threads: {
+          __args: {
+            where: isSameUser
+              ? {}
+              : {
+                  _and: [
+                    { isApproved: { _eq: true } },
+                    { isPublic: { _eq: true } }
+                  ]
+                }
+          },
+          threadId: true,
+          isApproved: true,
+          isPublic: true,
+          chatbot: {
+            name: true
+          },
+          messages: {
+            content: true
+          }
+        }
+        // followers: {
+        //   followeeId: true,
+        //   followerId: true,
+        //   userByFollowerId: {
+        //     username: true
+        //   }
+        // },
+        // follower: {
+        //   followeeId: true,
+        //   followerId: true,
+        //   userByFollowerId: {
+        //     username: true
+        //   }
+        // },
+        // following: {
+        //   followeeId: true,
+        //   followerId: true,
+        //   userByFollowerId: {
+        //     username: true
+        //   }
+        // }
       }
-    
+    } as const)
+
+    if (!user || user.length === 0) {
+      console.log('No user found with user slug:', slug)
+      return { user: null, error: 'User not found.' }
+    }
+    return {
+      user: user[0], // Return the first matching user
+      error: null
+    }
+  } catch (error) {
+    console.error('Error fetching user by username:', {
+      error,
+      slug,
+      timestamp: new Date().toISOString()
+    })
+    if (error instanceof Error) {
+      return {
+        user: null,
+        error: error.message || 'Failed to fetch user by username.'
+      }
+    }
+
+    return {
+      user: null,
+      error: 'An unexpected error occurred while fetching user.'
+    }
+  }
+}
+
+export async function updateUserPersonality({
+  userId,
+  bio,
+  topic,
+  jwt,
+  profilePicture
+}: {
+  userId: string | undefined
+  bio: string | null
+  topic: string | null
+  jwt: string | undefined
+  profilePicture: string | null
+}) {
+  try {
+    if (!jwt) {
+      throw new Error('Authentication required to update user bio')
+    }
+
+    const client = getHasuraClient({ jwt })
+
+    // Build update arguments based on non-null values
+    const updateArgs: UpdateUserArgs = {
+      pkColumns: { userId }
+    }
+
+    updateArgs._set = {
+      ...(bio !== null && { bio }),
+      ...(topic !== null && { favourite_topic: topic }),
+      ...(profilePicture !== null && { profilePicture })
+    }
+
+    await client.mutation({
+      updateUserByPk: {
+        __args: updateArgs,
+        userId: true,
+        bio: true,
+        favouriteTopic: true
+      }
+    })
+
+    return { success: true }
+  } catch (error) {
+    console.error('Error updating user bio:', error)
+    return { success: false, error: "Failed to update user's profile" }
+  }
+}
+
+export async function getUserRoleByEmail({
+  email
+}: {
+  email: string | null | undefined
+}) {
+  try {
+    const client = getHasuraClient({ jwt: '' })
+    const { user } = await client.query({
+      user: {
+        __args: {
+          where: { email: { _eq: email } }
+        },
+        role: true,
+        slug: true
+      }
+    })
+    return { users: user as User[] }
+  } catch (error) {
+    console.error('Error fetching user role by email:', error)
+    return { users: [], error: 'Failed to fetch user role by email.' }
+  }
+}
+
+export async function deleteThread({
+  threadId,
+  jwt,
+  userId
+}: {
+  threadId: string
+  jwt: string | undefined
+  userId: string | undefined
+}) {
+  try {
+    if (!jwt) {
+      throw new Error('Authentication required for thread deletion')
+    }
+
     const client = getHasuraClient({ jwt })
     await client.mutation({
       deleteThread: {
@@ -699,20 +871,18 @@ export async function deleteThread({ threadId, jwt, userId }: { threadId: string
       affected_rows: true
     })
 
-    return { success: true };
+    return { success: true }
   } catch (error) {
-    console.error('Error deleting thread:', error);
-    return { success: false, error: 'Failed to delete the thread.' };
+    console.error('Error deleting thread:', error)
+    return { success: false, error: 'Failed to delete the thread.' }
   }
 }
 
-
-
-// get all threads that are not approved 
+// get all threads that are not approved
 export async function getUnapprovedThreads({ jwt }: { jwt: string }) {
   if (!jwt) {
-     throw new Error('Authentication required to access unapproved threads');
-   }
+    throw new Error('Authentication required to access unapproved threads')
+  }
   const client = getHasuraClient({ jwt })
   const { thread } = await client.query({
     thread: {
@@ -743,11 +913,35 @@ export async function getUnapprovedThreads({ jwt }: { jwt: string }) {
           limit: 2
         }
       },
-      isApproved:true,
-      isPublic:true,
-      ...everything,
+      isApproved: true,
+      isPublic: true,
+      ...everything
     }
   })
 
   return thread as Thread[]
+}
+
+export async function subtractChatbotMetadataLabels(
+  metadataHeaders: ChatbotMetadataHeaders,
+  userPrompt: string,
+  clientType: AiClientType
+) {
+  const chatbotMetadata = await fetchChatbotMetadata(metadataHeaders)
+
+  if (!chatbotMetadata) {
+    console.error(
+      'Chatbot metadata not found. Generating response without them.'
+    )
+    return setDefaultPrompt(userPrompt)
+  }
+
+  const prompt = createChatbotMetadataPrompt(
+    metadataHeaders,
+    chatbotMetadata,
+    userPrompt
+  )
+  const response = await processWithAi(prompt, clientType, AIModels.Default)
+
+  return cleanResult(response)
 }

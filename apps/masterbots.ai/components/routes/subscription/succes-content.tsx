@@ -1,3 +1,25 @@
+/**
+ * SuccessContent Component
+ * 
+ * A component that displays a success message after a user successfully subscribes
+ * to a subscription plan. It provides visual feedback and options for the user
+ * to view their receipt and close the success dialog.
+ * 
+ * Key Features:
+ * - Displays a success animation using Lottie
+ * - Shows a confirmation message indicating successful subscription
+ * - Provides a link to view the receipt online
+ * - Includes a button to close the success dialog
+ * 
+ * Functionality:
+ * - Uses the payment intent ID to generate a link for viewing the receipt
+ * - Handles closing the dialog when the user clicks the close button
+ * 
+ * Props:
+ * - close: Function to close the success dialog
+ */
+
+
 import SuccessAnim from '@/lib/animations/success-green.json'
 import { usePayment } from '@/lib/hooks/use-payment'
 import Lottie from 'lottie-react'

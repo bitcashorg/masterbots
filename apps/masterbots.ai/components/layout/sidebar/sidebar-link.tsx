@@ -1,6 +1,5 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { Checkbox } from "@/components/ui/checkbox"
 import { IconCaretRight } from '@/components/ui/icons'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
@@ -9,19 +8,21 @@ import { Category, Chatbot } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import Image from 'next/image'
 import Link from 'next/link'
-import { usePathname } from "next/navigation"
-import React, { useCallback, useState } from 'react'
+import { useParams, usePathname, useRouter } from 'next/navigation'
+import React, { useCallback } from 'react'
 
 interface SidebarLinkProps {
   category: Category
   isFilterMode: boolean
+  page?: string
 }
 
-export default function SidebarLink({ category, isFilterMode }: SidebarLinkProps) {
+export default function SidebarLink({ category, isFilterMode, page }: SidebarLinkProps) {
   const router = useRouter()
   const pathname = usePathname()
-  const isBrowse = !pathname.includes('/c')
-  
+  const isBrowse = !pathname.includes('/c') && !pathname.includes('/u')
+  const { slug } = useParams()
+
   const {
     activeCategory,
     setActiveCategory,
@@ -33,22 +34,33 @@ export default function SidebarLink({ category, isFilterMode }: SidebarLinkProps
     setSelectedChatbots,
     expandedCategories,
     setExpandedCategories,
+    navigateTo
   } = useSidebar()
   const isExpanded = expandedCategories.includes(category.categoryId)
 
   const handleClickCategory = useCallback((e: React.MouseEvent) => {
     e.stopPropagation()
     if (!isFilterMode) {
-      setExpandedCategories(prev => 
-        prev.includes(category.categoryId) 
-          ? [] 
+      setExpandedCategories(prev =>
+        prev.includes(category.categoryId)
+          ? []
           : [category.categoryId]
       )
       setActiveCategory(prev => {
         const newCategory = prev === category.categoryId ? null : category.categoryId
-        if (newCategory && isBrowse) {
+        if (newCategory) {
           setActiveChatbot(null)
-          router.push(`/c/${toSlug(category.name)}`)
+          navigateTo({
+            page,
+            slug: typeof slug === 'string' ? slug : undefined,
+            categoryName: toSlug(category.name.toLowerCase())
+          })
+
+        } else {
+          navigateTo({
+            page,
+            slug: typeof slug === 'string' ? slug : undefined,
+          })
         }
         return newCategory
       })
@@ -101,6 +113,7 @@ export default function SidebarLink({ category, isFilterMode }: SidebarLinkProps
           isActive={chatbotCategory.chatbot.chatbotId === activeChatbot?.chatbotId}
           setActiveChatbot={setActiveChatbot}
           isFilterMode={isFilterMode}
+          page={page}
         />
       ))}
     </div>
@@ -125,16 +138,21 @@ export default function SidebarLink({ category, isFilterMode }: SidebarLinkProps
 
   return (
     <div className={cn('flex flex-col mb-2')}>
-      <Link
-        href={`/c/${toSlug(category.name)}`}
+      <a
+        href="#"
+        //  href={page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}` :`/c/${toSlug(category.name)}`}
         className={cn(
           'flex items-center p-2 cursor-pointer',
-          isActive && 'bg-gray-200 dark:bg-mirage'
+          isActive && 'bg-gray-200 dark:bg-mirage',
+          page === 'profile' && 'pl-6'
         )}
-        onClick={handleClickCategory}
+        onClick={(e) => {
+          e.preventDefault();
+          handleClickCategory(e);
+        }}
       >
         {categoryContent}
-      </Link>
+      </a>
       {childrenContent}
     </div>
   )
@@ -146,6 +164,7 @@ interface ChatbotComponentProps {
   isActive: boolean
   setActiveChatbot: React.Dispatch<React.SetStateAction<Chatbot | null>>
   isFilterMode: boolean
+  page?: string
 }
 
 const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function ChatbotComponent({
@@ -153,15 +172,25 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
   category,
   isActive,
   setActiveChatbot,
-  isFilterMode
+  isFilterMode,
+  page
 }) {
-  const { selectedChatbots, toggleChatbotSelection } = useSidebar()
+  const { selectedChatbots, toggleChatbotSelection, navigateTo } = useSidebar()
   const pathname = usePathname()
-  const isBrowse = !pathname.includes('/c')
+  const isBrowse = !pathname.includes('/c') && !pathname.includes('/u')
+  const { slug } = useParams()
 
   const handleChatbotClick = useCallback((e: React.MouseEvent) => {
-    if (isFilterMode) e.preventDefault()
-    else setActiveChatbot(chatbot)
+    e.preventDefault()
+    setActiveChatbot(chatbot)
+    if (chatbot) {
+      navigateTo({
+        page,
+        slug: slug as string,
+        categoryName: toSlug(category.name.toLowerCase()),
+        chatbotName: chatbot.name.toLowerCase()
+      })
+    }
   }, [chatbot, setActiveChatbot, isFilterMode])
 
   const isSelected = selectedChatbots.includes(chatbot.chatbotId)
@@ -199,7 +228,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
     </div>
   ) : (
     <Link
-      href={`/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`}
+      href={page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}/${chatbot.name.toLowerCase()}` : `/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`}
       className={cn(
         'flex items-center p-2 w-full',
         isActive && 'bg-blue-100 dark:bg-blue-900',

@@ -8,7 +8,7 @@
     --foreground: 240 10% 3.9%;
 
     --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
+    --muted-foreground: 240 3.8% 30%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
@@ -25,7 +25,7 @@
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
 
-    --accent: 240 4.8% 95.9%;
+    --accent: 288 82% 50%;
     --accent-foreground: 0 0% 98%;
 
     --destructive: 0 84.2% 60.2%;
@@ -46,18 +46,17 @@
     --mirage: 217, 33%, 17%;
     --iron: 240, 6%, 90%;
 
-    --tertiary:  288, 82%, 50%;
+    --tertiary: 288, 82%, 50%;
     --tertiary-foreground: 0 0% 98%;
-
+    --font-size-base: 1rem;
   }
-
 
   .dark {
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
 
     --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
+    --muted-foreground: 240 5% 79%;
 
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
@@ -74,8 +73,8 @@
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
 
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: ;
+    --accent: 108 70% 66%;
+    --accent-foreground: 240 5.9% 10%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 85.7% 97.3%;
@@ -104,6 +103,19 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Font size data attributes */
+  [data-font-size='normal'] {
+    font-size: var(--font-size-base);
+  }
+
+  [data-font-size='large'] {
+    font-size: calc(var(--font-size-base) * 1.2);
+  }
+
+  [data-font-size='x-large'] {
+    font-size: calc(var(--font-size-base) * 1.4);
   }
 }
 
@@ -177,14 +189,13 @@
   background: transparent;
   cursor: pointer;
   border: double 6px transparent;
-  background-image:
-    linear-gradient(white, white),
-      linear-gradient(
-        180deg,
-        rgba(113, 113, 122, 0.1) 0%,
-        rgba(113, 113, 122, 0.5) 50%,
-        rgba(113, 113, 122, 0.564706) 100%
-      );
+  background-image: linear-gradient(white, white),
+    linear-gradient(
+      180deg,
+      rgba(113, 113, 122, 0.1) 0%,
+      rgba(113, 113, 122, 0.5) 50%,
+      rgba(113, 113, 122, 0.564706) 100%
+    );
   background-origin: border-box;
   background-clip: content-box, border-box;
   display: inline-block;
@@ -265,14 +276,10 @@
 
 .layout-footer {
   width: 100%;
-  overflow: auto;
   animation: animate-in 300ms ease-in-out;
   position: relative;
-  padding: 1rem;
-
-  @media (min-width: 768px) {
-    padding: 2.5rem;
-  }
+  padding: 1.5rem 2rem;
+  text-align: center;
 
   @media (min-width: 1024px) {
     width: calc(100% - 250px);
@@ -294,7 +301,6 @@
 .input {
   display: none;
 }
-
 
 .lucide {
   stroke-width: 1px;
