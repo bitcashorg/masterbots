@@ -36,7 +36,7 @@ import { getThreads, getBrowseThreads, getUserBySlug } from '@/services/hasura'
 import type { Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import { useParams, usePathname } from 'next/navigation'
-import {  use, useEffect, useMemo, useRef, useState } from 'react'
+import {  useEffect, useMemo, useRef, useState } from 'react'
 import { useAsync } from 'react-use'
 
 const PAGE_SIZE = 20
@@ -185,7 +185,6 @@ export default function UserThreadPanel({
       handleThreadsChange();
     }
   }, [activeCategory, activeChatbot, isOpenPopup, pathname]);
-  
 
   useEffect(() => {
     if (
