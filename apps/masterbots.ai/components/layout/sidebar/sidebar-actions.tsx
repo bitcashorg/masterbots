@@ -58,7 +58,7 @@ export function SidebarActions({
   }, [chat.id, isSelected, setSelectedChats])
 
   const handleDelete = React.useCallback(async () => {
-    startRemoveTransition(async () => {
+    const removeChatAsync = async () => {
       const result = await removeChat({
         id: chat.id,
         path: chat.path
@@ -78,6 +78,10 @@ export function SidebarActions({
       if (isSelected) {
         setSelectedChats(prev => prev.filter(id => id !== chat.id))
       }
+    }
+
+    startRemoveTransition(() => {
+      removeChatAsync()
     })
   }, [chat.id, chat.path, removeChat, router, isSelected, setSelectedChats])
 
