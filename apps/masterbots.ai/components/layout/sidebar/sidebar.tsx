@@ -17,7 +17,7 @@ export function Sidebar({ className }: React.ComponentProps<'div'>) {
         data-state={isSidebarOpen ? 'open' : 'closed'}
         className={cn(
           className,
-          'h-full flex flex-col dark:bg-zinc-950 z-[5000]'
+          'h-full flex flex-col dark:bg-zinc-950 z-40'
         )}
       >
         <div className="overflow-y-auto scrollbar h-[calc(100%-113px)]">
