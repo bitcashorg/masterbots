@@ -1,11 +1,26 @@
+'use client'
+
 import ShareLink from '@/components/routes/thread/thread-share-link'
 import { Button } from '@/components/ui/button'
 import type { Chatbot } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import Image from 'next/image'
 import Link from 'next/link'
-import {MessageSquare, Users, Bot, MessageSquareHeart, MessageSquarePlus} from 'lucide-react';
-import { cn } from '@/lib/utils'
+import {
+  MessageSquare,
+  Users,
+  Bot,
+  MessageSquareHeart,
+  MessageSquarePlus,
+  Loader,
+  Wand2
+} from 'lucide-react'
+import { cn, nanoid } from '@/lib/utils'
+import { useState } from 'react'
+import { useModel } from '@/lib/hooks/use-model'
+import { useChat } from 'ai/react'
+import toast from 'react-hot-toast'
+import { UserPersonalityPrompt } from '@/lib/constants/prompts'
 
 interface BrowseChatbotDetailsProps {
   chatbot?: Chatbot
@@ -16,6 +31,35 @@ export default function BrowseChatbotDetails({
   chatbot,
   variant = 'default'
 }: BrowseChatbotDetailsProps) {
+  const [isLoading, setIsLoading] = useState(false)
+  const [generateType, setGenerateType] = useState<string | undefined>('')
+  const [lastMessage, setLastMessage] = useState<string | null>(null)
+  const { selectedModel, clientType } = useModel()
+
+  const { append } = useChat({
+    id: nanoid(),
+    body: {
+      id: nanoid(),
+      model: selectedModel,
+      clientType
+    },
+    onResponse(response) {
+      if (response.status === 401) {
+        toast.error(response.statusText)
+      } else if (!response.ok) {
+        toast.error('Failed to process request')
+      }
+      setIsLoading(false)
+    },
+    onError(error) {
+      toast.error('An error occurred')
+      setIsLoading(false)
+    },
+    async onFinish(message) {
+      setLastMessage(message.content)
+    }
+  })
+
   if (!chatbot?.categories?.length) {
     return <div>No chatbot data available</div>
   }
@@ -28,6 +72,23 @@ export default function BrowseChatbotDetails({
     chatbot.description?.split(';').map(point => point.trim()) || []
   const hasMultiplePoints = descriptionPoints.length > 1
 
+  const generateBio = async (type: string) => {
+    try {
+      setIsLoading(true)
+      setGenerateType(type)
+      const promptContent = UserPersonalityPrompt(type, [])
+      return append({
+        id: nanoid(),
+        content: promptContent,
+        role: 'system',
+        createdAt: new Date()
+      })
+    } catch (error) {
+      setIsLoading(false)
+      toast.error('Failed to generate content')
+      console.error('Bio generation failed:', error)
+    }
+  }
   return (
     <div className="w-full bg-gradient-to-l from-mirage via-[#2B5D91] to-[#388DE2] py-6">
       <div className="max-w-[600px] dark:bg-[#09090B] bg-white rounded-lg gap-3 mx-2 md:mx-auto p-4">
@@ -62,7 +123,9 @@ export default function BrowseChatbotDetails({
             {/* Mobile Header Group */}
             <div className="flex items-start justify-between w-full md:hidden">
               <div className="space-y-2">
-                <h1 className="text-xl font-bold text-zinc-950 dark:text-gray-300">{chatbot.name}</h1>
+                <h1 className="text-xl font-bold text-zinc-950 dark:text-gray-300">
+                  {chatbot.name}
+                </h1>
                 <div className="flex items-center gap-2">
                   <MessageSquare className="size-4" />
                   <span className="text-zinc-950 dark:text-gray-300">
@@ -72,11 +135,13 @@ export default function BrowseChatbotDetails({
               </div>
 
               {/* Mobile Avatar */}
-              <div className={cn(
-                'size-20 rounded-full border-2 overflow-hidden',
-                'bg-zinc-200 dark:bg-black',
-                'ring-2 ring-[#be16e8] dark:ring-[#82e46a]'
-              )}>
+              <div
+                className={cn(
+                  'size-20 rounded-full border-2 overflow-hidden',
+                  'bg-zinc-200 dark:bg-black',
+                  'ring-2 ring-[#be16e8] dark:ring-[#82e46a]'
+                )}
+              >
                 <Image
                   src={chatbot?.avatar || ''}
                   alt={`${chatbot.name} avatar`}
@@ -98,21 +163,36 @@ export default function BrowseChatbotDetails({
             </div>
           </div>
 
-          {/* Bio Label */}
+          {/* Bio Section with Generate Button */}
           <div className="flex items-center mb-2 text-zinc-950 dark:text-gray-400">
             <Bot className="mr-2" />
-            bio:
+            <span>bio:</span>
+            <Button
+              disabled={isLoading && generateType === 'bio'}
+              variant="ghost"
+              onClick={() => generateBio('bio')}
+              className="ml-2 text-sm text-gray-500 border py-[2px] px-[8px] border-black dark:border-gray-400 hover:text-black dark:hover:text-gray-400"
+            >
+              {chatbot?.description ? 're-generate' : 'generate'}
+              {isLoading && generateType === 'bio' ? (
+                <Loader className="w-4 h-4 ml-1" />
+              ) : (
+                <Wand2 className="w-4 h-4 ml-1" />
+              )}
+            </Button>
           </div>
 
           {/* Description Section */}
-          <div className="relative pt-4 pb-6 border-t border-gray-800">
+          <div className="relative pt-4 pb-6 border-t border-zinc-200 dark:border-gray-800">
             {/* Desktop Avatar */}
             <div className="absolute right-0 hidden md:block -top-12">
-            <div className={cn(
-                'size-32 rounded-full border-4 overflow-hidden',
-                'bg-zinc-200 dark:bg-black',
-                'ring-2 ring-[#be16e8] dark:ring-[#82e46a]'
-              )}>
+              <div
+                className={cn(
+                  'size-32 rounded-full border-4 overflow-hidden',
+                  'bg-zinc-200 dark:bg-black',
+                  'ring-2 ring-[#be16e8] dark:ring-[#82e46a]'
+                )}
+              >
                 <Image
                   src={chatbot?.avatar || ''}
                   alt={`${chatbot.name} avatar`}
@@ -126,23 +206,34 @@ export default function BrowseChatbotDetails({
             {/* Description Content */}
             <div className="md:pr-28">
               {/* Mobile Description */}
-              <div className="block space-y-4 md:hidden">
-                <p className="text-zinc-500 dark:text-zinc-500">
-                  Click generate ✨ to create a Masterbots biography based on
-                  your thread history.
-                </p>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <MessageSquareHeart className="text-gray-400 size-4" />
-                    <span className="text-zinc-500 dark:text-gray-300">Favourite topic:</span>
-                  </div>
-                  <p className="text-gray-400">
-                    Click &apos;generate ✨&apos; and know your most common
-                    topic.
+              <div className="space-y-2 md:hidden">
+                <div className="flex items-center gap-2">
+                  <MessageSquareHeart className="text-gray-400 size-4" />
+                  <span className="text-zinc-500 dark:text-gray-300">
+                    Favourite topic:
+                  </span>
+                </div>
+                <div className="block space-y-4 md:hidden">
+                  <p className="text-zinc-500 dark:text-zinc-500">
+                    Click
+                    <Button
+                      variant="ghost"
+                      onClick={() => generateBio('bio')}
+                      disabled={isLoading && generateType === 'bio'}
+                      className="p-1 text-xs text-gray-500 hover:text-black dark:hover:text-gray-400"
+                    >
+                      generate
+                      {isLoading && generateType === 'bio' ? (
+                        <Loader className="w-4 h-4 ml-1" />
+                      ) : (
+                        <Wand2 className="w-4 h-4 ml-1" />
+                      )}
+                    </Button>{' '}
+                    to create a Masterbots biography based on your thread
+                    history.
                   </p>
                 </div>
               </div>
-
               {/* Desktop Description */}
               <div className="hidden md:block">
                 {hasMultiplePoints ? (
@@ -238,14 +329,18 @@ export default function BrowseChatbotDetails({
               {/* Stats and Follow */}
               <div className="flex items-center justify-center gap-6">
                 <div className="text-center">
-                <Users className="mx-auto size-4 text-zinc-950 dark:text-gray-300" />
-                  <span className="block text-sm text-zinc-950 dark:text-gray-300">Following</span>
-                  <span className='text-gray-400'>313</span>
+                  <Users className="mx-auto size-4 text-zinc-950 dark:text-gray-300" />
+                  <span className="block text-sm text-zinc-950 dark:text-gray-300">
+                    Following
+                  </span>
+                  <span className="text-gray-400">313</span>
                 </div>
                 <div className="text-center">
-                <Users className="mx-auto size-4 text-zinc-950 dark:text-gray-300" />
-                  <span className="block text-sm text-zinc-950 dark:text-gray-300">Followers</span>
-                  <span className='text-gray-400'>3.2k</span>
+                  <Users className="mx-auto size-4 text-zinc-950 dark:text-gray-300" />
+                  <span className="block text-sm text-zinc-950 dark:text-gray-300">
+                    Followers
+                  </span>
+                  <span className="text-gray-400">3.2k</span>
                 </div>
                 <Button
                   variant="outline"
