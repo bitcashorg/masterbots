@@ -1,11 +1,11 @@
 //* ChatHistory component displays a link to start a new chat and the user's chat history in a sidebar.
 
-import * as React from 'react'
-import Link from 'next/link'
-import { cn } from '@/lib/utils'
 import { SidebarList } from '@/components/layout/sidebar/sidebar-list'
 import { buttonVariants } from '@/components/ui/button'
 import { IconPlus } from '@/components/ui/icons'
+import { cn } from '@/lib/utils'
+import Link from 'next/link'
+import * as React from 'react'
 
 interface ChatHistoryProps {
   userId?: string //* Optional user ID for fetching chat history specific to the user
