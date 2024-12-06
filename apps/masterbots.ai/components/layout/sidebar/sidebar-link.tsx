@@ -11,6 +11,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from "next/navigation"
 import React, { useCallback } from 'react'
+import { urlBuilders } from '@/lib/url'
 
 interface SidebarLinkProps {
   category: Category
@@ -143,64 +144,22 @@ export default function SidebarLink({ category, isFilterMode, page }: SidebarLin
 
   return (
     <div className={cn('flex flex-col mb-2')}>
-      {/* <Link
-             // Using this is causing problems on double click, double click happen when expand and collapse
-          href={page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}` :`/c/${toSlug(category.name)}`}
-         className={cn(
-          'flex items-center p-2 cursor-pointer',
+      <button
+        role="menuitem"
+        aria-expanded={isActive}
+        aria-controls={`category-${category.name}`}
+        className={cn(
+          'flex items-center p-2 w-full text-left',
           isActive && 'bg-gray-200 dark:bg-mirage',
           page === 'profile' && 'pl-6'
         )}
         onClick={(e) => {
+          e.stopPropagation();
           handleClickCategory(e);
         }}
-        passHref
-       legacyBehavior
-        
       >
         {categoryContent}
-      </Link> */}
- 
-
- <button
-  role="menuitem"
-  aria-expanded={isActive}
-  aria-controls={`category-${category.name}`}
-  className={cn(
-    'flex items-center p-2 w-full text-left',
-    isActive && 'bg-gray-200 dark:bg-mirage',
-    page === 'profile' && 'pl-6'
-  )}
-  onClick={(e) => {
-    e.stopPropagation();
-    handleClickCategory(e);
-  }}
->
-  {categoryContent}
-</button>
-
-{/* <Link
-  href={page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}` : `/c/${toSlug(category.name)}`}
-  passHref
-  legacyBehavior 
-  >
-  <a
-    role="menuitem"
-    aria-expanded={isActive}
-    aria-controls={`category-${category.name}`}
-    className={cn(
-      'flex items-center p-2 w-full',
-      isActive && 'bg-gray-200 dark:bg-mirage',
-      page === 'profile' && 'pl-6'
-    )}
-    onClick={(e) => {
-      e.stopPropagation();
-      handleClickCategory(e);
-    }}
-  >
-    {categoryContent}
-  </a>
-</Link> */}
+      </button>
       {childrenContent}
     </div>
   )
@@ -277,7 +236,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
     </div>
   ) : (
     <Link
-     href={page === 'profile' ? `/u/${slug}/t/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`: `/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`}
+     href={page === 'profile' ? urlBuilders.userChatbotUrl({ slug: slug as string, category: category.name, chatbot: chatbot.name   }): `/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`}
       className={cn(
         'flex items-center p-2 w-full',
         isActive && 'bg-blue-100 dark:bg-blue-900',

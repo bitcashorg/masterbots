@@ -14,8 +14,6 @@ export function Sidebar({ className }: React.ComponentProps<'div'>) {
   const pathname = usePathname();
   const {  setActiveThread, setIsOpenPopup } = useThread()
   const rootAndChatRegex = /^\/(?:c)?$/;
-  
-  if (isLoading) return null
 
   React.useEffect(() => {
     if (rootAndChatRegex.test(pathname)) {
@@ -24,6 +22,9 @@ export function Sidebar({ className }: React.ComponentProps<'div'>) {
     }
     prevPathRef.current = pathname;
   }, [pathname]);
+
+  
+  if (isLoading) return null
 
   return (
     <>

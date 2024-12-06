@@ -36,6 +36,8 @@ import React from 'react'
 import { ChatOptions } from '../chat/chat-options'
 import { useThreadSearch } from '@/lib/hooks/use-thread-search'
 import { searchThreadContent } from '@/lib/search'
+import { urlBuilders } from '@/lib/url'
+
 
 let initialUrl: string | null = null
 
@@ -139,7 +141,7 @@ export default function BrowseListItem({
     e.preventDefault()
     e.stopPropagation()
     if (thread?.user?.slug) {
-      router.push(`/u/${thread?.user?.slug}/t`)
+      router.push(urlBuilders.userProfileUrl({ userSlug: thread.user.slug }))
     }
   }
 

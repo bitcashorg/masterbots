@@ -6,6 +6,7 @@ import type { Thread } from 'mb-genql'
 import { usePathname, useParams, useRouter } from 'next/navigation'
 import React from 'react'
 import { toSlug } from 'mb-lib'
+import { urlBuilders } from '@/lib/url'
 
 export const ChatAccordion = ({
   className, //* CSS classes for the outer div
@@ -75,7 +76,7 @@ export const ChatAccordion = ({
             console.error('Missing required navigation parameters');
             return;
        }
-       router.push(`/u/${slug}/t/${toSlug(category)}/${toSlug(chatbot)}/${thread.threadId}`)
+       router.push(urlBuilders.threadUrl({ slug: slug as string, category, chatbot, threadId: thread?.threadId }))
       }
       toggle()
     }
