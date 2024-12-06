@@ -10,7 +10,7 @@ interface ChatLayoutProps {
 }
 
 export default async function ChatLayout({ children }: ChatLayoutProps) {
-  if (!appConfig.devMode) {
+  if (!appConfig.features.devMode) {
     console.error('Navigation to WordWare is disabled. No access to this page')
     redirect('/')
   }
