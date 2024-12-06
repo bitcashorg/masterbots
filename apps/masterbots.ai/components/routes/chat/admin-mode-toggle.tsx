@@ -1,10 +1,9 @@
 //? Component for toggling admin mode on and off
 
 'use client';
-import React from 'react';
-import { ShieldCheck, ShieldX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility';
+import { ShieldCheck, ShieldX } from 'lucide-react';
 
 export function AdminModeToggle() {
   //* Retrieves admin mode state and toggle handler from useThreadVisibility hook
@@ -23,7 +22,7 @@ export function AdminModeToggle() {
         </>
       ) : (
         <>
-          <ShieldCheck className="w-5 h-5 mr-2" /> 
+          <ShieldCheck className="w-5 h-5 mr-2" />
           Enable Admin Mode
         </>
       )}

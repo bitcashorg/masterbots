@@ -26,6 +26,8 @@ import { ChatbotAvatar } from '@/components/shared/chatbot-avatar'
 import { ShortMessage } from '@/components/shared/short-message'
 import { Button } from '@/components/ui/button'
 import { useBrowse } from '@/lib/hooks/use-browse'
+import { useThreadSearch } from '@/lib/hooks/use-thread-search'
+import { searchThreadContent } from '@/lib/search'
 import { cn, sleep } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
 import type { Message, Thread } from 'mb-genql'
@@ -34,8 +36,6 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import { ChatOptions } from '../chat/chat-options'
-import { useThreadSearch } from '@/lib/hooks/use-thread-search'
-import { searchThreadContent } from '@/lib/search'
 
 let initialUrl: string | null = null
 
@@ -71,7 +71,7 @@ export default function BrowseListItem({
     }
     const matches = searchThreadContent(thread, searchTerm)
     setIsVisible(matches)
-  }, [searchTerm, thread]) 
+  }, [searchTerm, thread])
 
 
   React.useEffect(() => {
@@ -222,13 +222,15 @@ export default function BrowseListItem({
               />
             </div>
           </div>
+
+
         </div>
 
         {/*  */}
 
         <div className="overflow-hidden text-sm text-left opacity-50">
           {thread.messages?.[1]?.content &&
-          thread.messages?.[1]?.role !== 'user' ? (
+            thread.messages?.[1]?.role !== 'user' ? (
             <div className="flex-1 space-y-2 overflow-hidden">
               <ShortMessage content={thread.messages?.[1]?.content} />
             </div>

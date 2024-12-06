@@ -1,15 +1,14 @@
-import { useSession } from 'next-auth/react'
+import { ChatChatbotDetailsSkeleton } from '@/components/shared/skeletons/chat-chatbot-details-skeleton'
+import { Button } from '@/components/ui/button'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
-import { useParams } from 'next/navigation'
-import { useState, useEffect } from 'react'
-import { getCategory, getThreads } from '@/services/hasura'
-import Image from 'next/image'
-import { Button } from '@/components/ui/button'
-import { MessageSquare, MessageCircle, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { toSlug } from 'mb-lib'
-import { ChatChatbotDetailsSkeleton } from '@/components/shared/skeletons/chat-chatbot-details-skeleton'
+import { getCategory, getThreads } from '@/services/hasura'
+import { MessageCircle, MessageSquare, Users } from 'lucide-react'
+import { useSession } from 'next-auth/react'
+import Image from 'next/image'
+import { useParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 /**
  * Displays detailed information about a chatbot or welcome message in the Masterbots application.

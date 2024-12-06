@@ -1,6 +1,7 @@
 //* ChatPanelHeader provides controls for managing chat actions like reloading, stopping generation, and sharing chat.
 import { ChatShareDialog } from '@/components/routes/chat/chat-share-dialog'
 import { ButtonScrollToBottom } from '@/components/shared/button-scroll-to-bottom'
+import { FontSizeSelector } from '@/components/shared/font-size-selector'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { IconRefresh, IconShare, IconStop } from '@/components/ui/icons'
@@ -12,7 +13,6 @@ import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useThread } from '@/lib/hooks/use-thread'
 import { GlobeIcon } from 'lucide-react'
 import * as React from 'react'
-import { FontSizeSelector } from '@/components/shared/font-size-selector'
 
 interface ChatPanelHeaderProps {
   id?: string // Chat ID, required for sharing functionality

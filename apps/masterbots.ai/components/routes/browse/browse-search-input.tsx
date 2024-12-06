@@ -18,9 +18,9 @@ import { Button } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
 import { useBrowse } from '@/lib/hooks/use-browse'
-import { Search } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import { useThreadSearch } from '@/lib/hooks/use-thread-search'
+import { cn } from '@/lib/utils'
+import { Search } from 'lucide-react'
 
 export function BrowseSearchInput() {
   const { searchTerm, setSearchTerm } = useThreadSearch()

@@ -1,9 +1,9 @@
 'use client'
 
-import { Suspense } from 'react'
 import ResetPasswordForm from '@/components/auth/reset-password-form'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
+import { Suspense } from 'react'
 
 export default function ResetPasswordPage({
   searchParams
@@ -40,10 +40,10 @@ export default function ResetPasswordPage({
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.4, delay: 0.2 }}
       >
-          <h1 className="mb-4 text-2xl font-bold">Reset Password</h1>
-          <Suspense fallback={<div>Loading...</div>}>
-            <ResetPasswordForm token={searchParams.token} />
-          </Suspense>
+        <h1 className="mb-4 text-2xl font-bold">Reset Password</h1>
+        <Suspense fallback={<div>Loading...</div>}>
+          <ResetPasswordForm token={searchParams.token} />
+        </Suspense>
       </motion.div>
     </motion.div>
   )
