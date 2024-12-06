@@ -1,5 +1,6 @@
 import { SidebarItems } from '@/components/layout/sidebar/sidebar-items'
 import { ThemeToggle } from '@/components/shared/theme-toggle'
+// @ts-ignore
 import { cache } from 'react'
 
 interface SidebarListProps {

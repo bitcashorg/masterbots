@@ -6,7 +6,7 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "scripts": {
-    "gen": "genql --endpoint http://localhost:8080/v1/graphql --output ./generated -H 'content-type: application/json' -H 'x-hasura-admin-secret: lfg'",
+    "gen": "genql --endpoint https://dev-api.masterbots.ai/v1/graphql --output ./generated -H 'content-type: application/json' -H 'x-hasura-admin-secret: 7916dce3ec9736725aa46ee1f99b8bb8'",
     "gen-prod": "./scripts/prod.sh",
     "gen-test": "./scripts/test.sh",
     "gen-local": "./scripts/local.sh",
