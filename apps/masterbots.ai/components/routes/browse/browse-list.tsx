@@ -41,7 +41,7 @@ export default function BrowseList() {
   const [filteredThreads, setFilteredThreads] = React.useState<Thread[]>([])
   const [loading, setLoading] = React.useState<boolean>(false)
   const [count, setCount] = React.useState<number>(0)
-  const { selectedCategories, selectedChatbots, activeCategory, activeChatbot} = useSidebar()
+  const { selectedCategories, selectedChatbots, activeCategory, activeChatbot  } = useSidebar()
 
   const fetchThreads = async ({
     categoriesId,

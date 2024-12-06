@@ -35,11 +35,9 @@ import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { getThreads, getBrowseThreads, getUserBySlug } from '@/services/hasura'
 import type { Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
-import { useParams, usePathname, useSearchParams } from 'next/navigation'
-import {  useEffect, useMemo, useRef, useState } from 'react'
+import { useParams, usePathname } from 'next/navigation'
+import {  use, useEffect, useMemo, useRef, useState } from 'react'
 import { useAsync } from 'react-use'
-// import { useRouter } from 'next/router'
-
 
 const PAGE_SIZE = 20
 
@@ -83,8 +81,7 @@ export default function UserThreadPanel({
   const prevCategoryRef = useRef(activeCategory);
   const prevChatbotRef = useRef(activeChatbot);
   const prevPathRef = useRef(usePathname());
-
-const pathname = usePathname();
+   const pathname = usePathname();
 
   useEffect(() => {
     setThreads(finalThreads)
@@ -183,14 +180,12 @@ const pathname = usePathname();
     prevCategoryRef.current = activeCategory;
     prevChatbotRef.current = activeChatbot;
     prevPathRef.current = pathname;
-
   
     if (shouldFetch) {
       handleThreadsChange();
     }
   }, [activeCategory, activeChatbot, isOpenPopup, pathname]);
   
-
 
   useEffect(() => {
     if (

@@ -5,11 +5,25 @@ import { SidebarHeader } from '@/components/layout/sidebar/sidebar-header'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn } from '@/lib/utils'
 import React from 'react'
+import { usePathname } from 'next/navigation'
+import { useThread } from '@/lib/hooks/use-thread'
 
 export function Sidebar({ className }: React.ComponentProps<'div'>) {
   const { isSidebarOpen, isLoading } = useSidebar()
-
+  const prevPathRef = React.useRef(usePathname());
+  const pathname = usePathname();
+  const {  setActiveThread, setIsOpenPopup } = useThread()
+  const rootAndChatRegex = /^\/(?:c)?$/;
+  
   if (isLoading) return null
+
+  React.useEffect(() => {
+    if (rootAndChatRegex.test(pathname)) {
+      setActiveThread(null);
+      setIsOpenPopup(false);
+    }
+    prevPathRef.current = pathname;
+  }, [pathname]);
 
   return (
     <>
