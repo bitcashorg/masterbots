@@ -1,7 +1,7 @@
 import { Sidebar } from '@/components/layout/sidebar/sidebar';
 import React from 'react';
 
-export async function ResponsiveSidebar() {
+export  function ResponsiveSidebar() {
 
   return (
     <Sidebar className="peer absolute inset-y-0 z-30 border-r bg-muted

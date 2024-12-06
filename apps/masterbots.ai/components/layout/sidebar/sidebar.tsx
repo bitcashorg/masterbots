@@ -24,7 +24,7 @@ export function Sidebar({ className }: React.ComponentProps<'div'>) {
   }, [pathname]);
 
   
-  if (isLoading) return <div>Loading..</div>
+  if (isLoading) return null
 
   return (
     <>
