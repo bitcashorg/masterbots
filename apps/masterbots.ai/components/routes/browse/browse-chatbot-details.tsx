@@ -90,8 +90,9 @@ export default function BrowseChatbotDetails({
     }
   }
   return (
-    <div className="w-full bg-gradient-to-l from-mirage via-[#2B5D91] to-[#388DE2] py-6">
-      <div className="max-w-[600px] dark:bg-[#09090B] bg-white rounded-lg gap-3 mx-2 md:mx-auto p-4">
+    <div className="w-full relative bg-left-bottom bg-[url('/hero-bg.png')] bg-no-repeat py-6">
+      <div className="absolute inset-0 bg-gradient-to-l from-mirage via-[#6A0D826E]/80 to-[#9412B5BF] dark:via-[#66B252BF]/80 dark:to-[#83E56A6B]/80"/>
+      <div className="relative max-w-[600px] dark:bg-[#09090B] bg-white rounded-lg gap-3 mx-2 md:mx-auto p-4">
         {/* Header */}
         <Link
           href="/"
@@ -259,19 +260,22 @@ export default function BrowseChatbotDetails({
 
           {/* Footer Section */}
           <div className="mt-6 space-y-4">
-            {/* Desktop Layout */}
-            <div className="items-center justify-between hidden md:flex">
-              <div className="flex items-center gap-6">
-                <div className="flex items-center gap-2 text-zinc-950 dark:text-gray-300">
-                  <MessageSquare className="size-4" />
-                  <span>
-                    Threads:{' '}
-                    <span className="text-gray-400">
-                      {chatbot.threads.length}
-                    </span>
+             {/* Desktop Layout */}
+             <div className="flex-col items-center justify-between hidden w-full md:flex">
+              {/* Threads row */}
+              <div className="flex items-center w-full gap-2 mb-4 text-zinc-950 dark:text-gray-300">
+                <MessageSquare className="size-4" />
+                <span>
+                  Threads:{' '}
+                  <span className="text-gray-400">
+                    {chatbot.threads.length}
                   </span>
-                </div>
-                <div className="flex items-center gap-6">
+                </span>
+              </div>
+              
+              {/* Followers and Actions row */}
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2 text-zinc-950 dark:text-gray-300">
                     <Users className="size-4" />
                     <span>
@@ -286,22 +290,22 @@ export default function BrowseChatbotDetails({
                     Follow
                   </Button>
                 </div>
-              </div>
 
-              <Button
-                asChild
-                className={cn(
-                  'flex items-center gap-2 px-4 py-2 rounded-md',
-                  'bg-[#be16e8] hover:bg-[#be16e8]/90',
-                  'dark:bg-[#82e46a] dark:hover:bg-[#82e46a]/90',
-                  'text-white dark:text-zinc-950'
-                )}
-              >
-                <Link href={botUrl}>
-                  <MessageSquare className="size-4" />
-                  <span>New Chat</span>
-                </Link>
-              </Button>
+                <Button
+                  asChild
+                  className={cn(
+                    'flex items-center gap-2 px-4 py-2 rounded-md',
+                    'bg-[#be16e8] hover:bg-[#be16e8]/90',
+                    'dark:bg-[#82e46a] dark:hover:bg-[#82e46a]/90',
+                    'text-white dark:text-zinc-950'
+                  )}
+                >
+                  <Link href={botUrl}>
+                    <MessageSquare className="size-4" />
+                    <span>New Chat</span>
+                  </Link>
+                </Button>
+              </div>
             </div>
 
             {/* Mobile Layout */}
