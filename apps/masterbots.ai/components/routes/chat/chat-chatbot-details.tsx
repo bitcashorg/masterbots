@@ -4,35 +4,39 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn } from '@/lib/utils'
 import { getCategory, getThreads } from '@/services/hasura'
-import { MessageCircle, MessageSquare, Users } from 'lucide-react'
+import { MessageSquarePlus, MessageSquare, Users, Bot } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { cva } from 'class-variance-authority'
 
-/**
- * Displays detailed information about a chatbot or welcome message in the Masterbots application.
- * It serves as both a welcome screen for new users and a details card for specific chatbots.
- *
- * @features
- * - Displays welcome message or chatbot information
- * - Shows chatbot avatar with customizable border colors for light/dark modes
- * - Presents thread count and follower statistics
- * - Provides quick actions (Follow, New Chat)
- * - Fully responsive design with mobile-first approach
- * - Supports both light and dark themes
- */
+const containerVariants = cva(
+  'h-[calc(100vh-196px)] flex items-center justify-center -translate-y-8',
+  {
+    variants: {
+      variant: {
+        default: '',
+        selected: ''
+      }
+    },
+    defaultVariants: {
+      variant: 'default'
+    }
+  }
+)
 
-export default function ChatChatbotDetails({ page }: { page?: string }) {
+interface ChatChatbotDetailsProps {
+  page?: string
+}
+
+export default function ChatChatbotDetails({ page }: ChatChatbotDetailsProps) {
   const { data: session } = useSession()
   const { activeCategory, activeChatbot } = useSidebar()
   const { randomChatbot } = useThread()
   const [threadNum, setThreadNum] = useState<number>(0)
   const [categoryName, setCategoryName] = useState<string>('')
   const { slug } = useParams()
-
-
-  if (status === "loading") return <ChatChatbotDetailsSkeleton />
 
   const getThreadNum = async () => {
     if (!session?.user) return
@@ -49,7 +53,7 @@ export default function ChatChatbotDetails({ page }: { page?: string }) {
     setCategoryName(category.name)
   }
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (!activeCategory) {
       getThreadNum()
@@ -58,25 +62,55 @@ export default function ChatChatbotDetails({ page }: { page?: string }) {
     }
   }, [activeCategory, activeChatbot, session?.user])
 
-  const botName = activeChatbot?.name || 'BuildBot'
+  if (!session?.user) return <ChatChatbotDetailsSkeleton />
 
+  const botName = activeChatbot?.name || 'BuildBot'
+  const isWelcomeView = !activeChatbot?.name
   return (
-    <div className="h-[calc(100vh-196px)] flex items-center justify-center -translate-y-8">
-      <div className="dark:bg-[#09090B] bg-white w-[85%] md:w-[600px] rounded-xl text-white relative">
-        {/* Card Header */}
+    <div
+      className={containerVariants({
+        variant: isWelcomeView ? 'default' : 'selected'
+      })}
+    >
+      <div className="dark:bg-[#09090B] bg-white w-full md:w-[600px] rounded-xl text-white relative">
+        {/* Mobile Header - Different for default/selected */}
         <div className="px-4 pt-4 md:px-6 md:pt-6">
-          <div className="text-base font-bold leading-relaxed md:text-2xl text-zinc-950 dark:text-gray-300">
-            Welcome to Masterbots!
+          {/* Title Section */}
+          <div className="flex flex-col gap-2 md:flex-row">
+            <div className="flex items-start justify-between w-full md:items-center">
+              <div>
+                <h1 className="text-xl font-bold md:text-2xl text-zinc-950 dark:text-gray-300">
+                  {isWelcomeView ? 'Welcome to Masterbots!' : botName}
+                </h1>
+              </div>
+              {/* Mobile Avatar */}
+              <div className="md:hidden">
+                <div
+                  className={cn(
+                    'size-16 rounded-full relative',
+                    'bg-zinc-200 dark:bg-black',
+                    'ring-2 ring-[#be16e8] dark:ring-[#82e46a]'
+                  )}
+                >
+                  <Image
+                    src={activeChatbot?.avatar || randomChatbot?.avatar || ''}
+                    alt={`${botName} avatar`}
+                    height={64}
+                    width={64}
+                    className="object-cover rounded-full"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Separator Line - Extended to edges */}
-        <div className="h-[3px] bg-zinc-200 dark:bg-slate-800 mt-6 relative">
-          {/* Floating Avatar - Responsive sizing */}
+        {/* Desktop Separator & Avatar */}
+        <div className="hidden md:block h-[3px] bg-zinc-200 dark:bg-slate-800 mt-6 relative">
           <div className="absolute right-4 -top-10 md:right-6 md:-top-12">
             <div
               className={cn(
-                'size-20 md:size-32 rounded-full p-2 md:p-2.5 relative', // Smaller size on mobile
+                'size-32 rounded-full p-2.5 relative',
                 'bg-zinc-200 dark:bg-black',
                 'ring-2 ring-[#be16e8] dark:ring-[#82e46a]'
               )}
@@ -92,73 +126,96 @@ export default function ChatChatbotDetails({ page }: { page?: string }) {
           </div>
         </div>
 
-        {/* Description with right margin to avoid avatar overlap */}
-        <div className="p-2 px-4 mr-2 md:p-3 md:px-6 md:mr-4">
-          <p className="pr-24 text-sm font-normal text-justify md:pr-32 md:text-base text-zinc-500 dark:text-zinc-500">
-            Here you can create new threads and share them to your network!
-            Navigate with the sidebar and pick any bot of your interest.
+        {/* Description Section */}
+        <div className="p-4 md:px-6">
+          <p className="text-sm md:text-base text-zinc-500 dark:text-zinc-500 md:pr-28">
+            {isWelcomeView
+              ? 'Here you can create new threads and share them to your network! Navigate with the sidebar and pick any bot of your interest.'
+              : activeChatbot?.description}
           </p>
         </div>
 
-        {/* Card Content */}
-        <div className="px-4 pb-4 md:px-6 md:pb-6 flex flex-col items-center justify-start gap-1.5">
-          <div className="mb-3 text-center md:mb-4">
-            <h2 className="text-lg md:text-2xl font-semibold leading-[34.08px] text-zinc-950 dark:text-gray-300">
+        {/* Journey Section - Only for Welcome View */}
+        {isWelcomeView && (
+          <div className="px-4 text-center md:px-6">
+            <h2 className="text-lg font-semibold md:text-2xl text-zinc-950 dark:text-gray-300">
               Your Journey Begins Here!
             </h2>
-            <p className="text-base font-semibold leading-relaxed md:text-lg text-zinc-500 dark:text-zinc-500">
+            <p className="text-base md:text-lg text-zinc-500 dark:text-zinc-500">
               Try and start with: {botName}
             </p>
           </div>
+        )}
 
-          <div className="flex flex-col items-center w-full gap-3">
-            <div className="flex items-center justify-center gap-4 md:gap-6">
-              <div className="flex items-center gap-1">
-                <MessageSquare className="w-4 h-4 text-zinc-950 dark:text-gray-300" />
-                <span className="text-xs font-normal leading-tight md:text-sm text-zinc-950 dark:text-gray-300">
-                  Threads:{' '}
-                  <span className="text-zinc-500 dark:text-zinc-500">
-                    {activeChatbot
-                      ? (activeChatbot?.threads?.length ?? 0)
-                      : threadNum}
-                  </span>
+        {/* Footer Section */}
+        <div className="p-4 space-y-4 md:p-6">
+          {/* Stats Desktop */}
+          <div className="items-center justify-center hidden gap-6 md:flex">
+            <div className="flex items-center gap-2">
+              <Bot className="w-4 h-4 text-zinc-950 dark:text-gray-300" />
+              <span className="text-zinc-950 dark:text-gray-300">
+                Threads:{' '}
+                <span className="text-zinc-500 dark:text-zinc-500">
+                  {activeChatbot
+                    ? (activeChatbot?.threads?.length ?? 0)
+                    : threadNum}
                 </span>
-              </div>
-
-              <div className="flex items-center gap-2 md:gap-3">
-                <div className="flex items-center gap-1">
-                  <Users className="w-4 h-4 text-zinc-950 dark:text-gray-300" />
-                  <span className="text-xs font-normal leading-tight md:text-sm text-zinc-950 dark:text-gray-300">
-                    Followers:{' '}
-                    <span className="text-zinc-500 dark:text-zinc-500">
-                      3.2k
-                    </span>
-                  </span>
-                </div>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-xs md:text-sm border-zinc-200 dark:border-zinc-100/50 text-zinc-500 dark:text-zinc-500"
-                >
-                  Follow
-                </Button>
-              </div>
+              </span>
             </div>
-
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-zinc-950 dark:text-gray-300" />
+              <span className="text-zinc-950 dark:text-gray-300">
+                Followers: <span className="text-zinc-500">3.2k</span>
+              </span>
+            </div>
             <Button
-              className={cn(
-                'w-auto px-4 md:px-6 py-2 text-sm md:text-base',
-                'bg-[#be16e8] hover:bg-[#be16e8]/90',
-                'dark:bg-[#82e46a] dark:hover:bg-[#82e46a]/90',
-                'text-white dark:text-zinc-950',
-                'leading-none'
-              )}
+              variant="outline"
+              size="sm"
+              className="border-zinc-200 dark:border-zinc-100/50 text-zinc-500"
             >
-              <MessageCircle className="mr-2 size-4" />
-              New Chat With {botName}
+              Follow
             </Button>
           </div>
+
+          {/* Stats Mobile */}
+          <div className="md:hidden">
+            <div className="h-[3px] bg-zinc-200 dark:bg-slate-800 mt-6 relative" />
+            <div className="flex items-center justify-center gap-2 pt-2">
+              <Bot className="size-4 text-zinc-950 dark:text-gray-300" />
+              <span className="text-zinc-500 dark:text-zinc-500">
+                Threads: {activeChatbot?.threads?.length ?? threadNum}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center justify-center gap-6 md:hidden">
+            <div className="flex items-center gap-2">
+              <Users className="size-4" />
+              <span className="text-zinc-500 dark:text-zinc-500">
+                Followers: 3.2k
+              </span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-zinc-200 dark:border-zinc-100/50 text-zinc-500"
+            >
+              Follow
+            </Button>
+          </div>
+
+          {/* CTA Button */}
+          <Button
+            className={cn(
+              'w-3/4 md:w-1/2 mx-auto p-0 text-sm md:text-base',
+              'bg-[#be16e8] hover:bg-[#be16e8]/90',
+              'dark:bg-[#82e46a] dark:hover:bg-[#82e46a]/90',
+              'text-white dark:text-zinc-950',
+              'flex items-center justify-center gap-2'
+            )}
+          >
+            <MessageSquarePlus className="size-6" />
+            New Chat With {botName}
+          </Button>
         </div>
       </div>
     </div>
