@@ -40,6 +40,7 @@ export async function ChatHistory({ userId }: ChatHistoryProps) {
         }
       >
         {/* SidebarList displays the chat history list, using userId if available */}
+        {/* @ts-ignore */}
         <SidebarList userId={userId} />
       </React.Suspense>
     </div>
