@@ -37,11 +37,11 @@ import { useScroll } from '@/lib/hooks/use-scroll'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import type { Thread } from 'mb-genql'
+import { toSlug } from 'mb-lib'
+import { redirect, useParams, usePathname } from 'next/navigation'
 import { useRef } from 'react'
 import { AdminModeApprove } from '../chat/admin-mode-approve'
 import { ChatOptions } from '../chat/chat-options'
-import {  redirect, useParams, usePathname } from 'next/navigation'
-import { toSlug } from 'mb-lib'
 
 export default function ThreadComponent({
   thread,
@@ -60,7 +60,7 @@ export default function ThreadComponent({
   const contentRef = useRef<HTMLDivElement>(null)
   const { isNewResponse } = useThread()
   const { isAdminMode } = useThreadVisibility()
-  const pathname  = usePathname()
+  const pathname = usePathname()
   const params = useParams()
 
   const { isNearBottom, scrollToTop } = useScroll({
@@ -74,20 +74,20 @@ export default function ThreadComponent({
   })
 
   const threadId = thread.threadId
-  
+
   const handleAccordionToggle = () => {
- 
+
     if (pathname.includes('u') && pathname.includes('t')) {
       const category = thread?.chatbot?.categories[0]?.category?.name
       const chatbot = thread?.chatbot?.name
       const slug = params.slug;
 
       if (!category || !chatbot || !slug) {
-            console.error('Missing required navigation parameters');
-            return scrollToTop();
-       }
+        console.error('Missing required navigation parameters');
+        return scrollToTop();
+      }
       redirect(`/u/${slug}/t/${toSlug(category)}/${toSlug(chatbot)}/${thread.threadId}`)
-    }else{
+    } else {
       scrollToTop()
     }
   }

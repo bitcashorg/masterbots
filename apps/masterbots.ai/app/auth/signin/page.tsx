@@ -2,9 +2,9 @@
 
 'use client'
 
-import Link from 'next/link'
-import Image from 'next/image'
 import SignInForm from '@/components/auth/signin-form'
+import Image from 'next/image'
+import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 
 export default function SignInPage() {
@@ -30,7 +30,7 @@ export default function SignInPage() {
             <p>Please sign in to access your account.</p>
           </div>
         )}
-        
+
         <div className="space-y-2 text-center">
           <p className="text-sm sm:text-base text-muted-foreground">
             Enter your email and password to access your account.
@@ -42,9 +42,9 @@ export default function SignInPage() {
         <div className="space-y-4">
           <div className="text-sm text-center text-muted-foreground">
             Don&apos;t have an account?{' '}
-            <Link 
-              href="/auth/signup" 
-              className="underline transition-colors hover:text-primary" 
+            <Link
+              href="/auth/signup"
+              className="underline transition-colors hover:text-primary"
             >
               Sign up
             </Link>

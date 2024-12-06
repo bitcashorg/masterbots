@@ -1,6 +1,7 @@
 table:
   name: user
   schema: public
+
 array_relationships:
   - name: chats
     using:
@@ -30,6 +31,7 @@ array_relationships:
         table:
           name: preference
           schema: public
+
   - name: prompts
     using:
       foreign_key_constraint_on:
@@ -37,6 +39,7 @@ array_relationships:
         table:
           name: prompt_user
           schema: public
+
   - name: referrals
     using:
       foreign_key_constraint_on:
@@ -44,6 +47,7 @@ array_relationships:
         table:
           name: referral
           schema: public
+
   - name: referralsByUserId
     using:
       foreign_key_constraint_on:
@@ -51,6 +55,7 @@ array_relationships:
         table:
           name: referral
           schema: public
+
   - name: threads
     using:
       foreign_key_constraint_on:
@@ -110,6 +115,23 @@ select_permissions:
         - date_joined
         - email
         - favourite_topic
+        - last_login
+        - pro_user_subscription_id
+        - profile_picture
+        - role
+        - slug
+        - user_id
+        - username
+      filter: {}
+    comment: ""
+  - role: moderator
+    permission:
+      columns:
+        - date_joined
+        - email
+        - get_free_month
+        - is_blocked
+        - is_verified
         - last_login
         - pro_user_subscription_id
         - profile_picture

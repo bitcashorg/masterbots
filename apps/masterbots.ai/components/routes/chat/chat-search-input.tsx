@@ -110,9 +110,8 @@ export function ChatSearchInput({
           <Input
             value={keyword}
             onChange={e => handleKeywordChange(e.target.value)}
-            placeholder={`Search all messages in ${
-              searchPlaceholder ? searchPlaceholder : 'any category'
-            }...`}
+            placeholder={`Search all messages in ${searchPlaceholder ? searchPlaceholder : 'any category'
+              }...`}
             className={cn(
               'w-full px-12 py-6',
               'bg-transparent',

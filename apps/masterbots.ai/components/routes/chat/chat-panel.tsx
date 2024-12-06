@@ -10,13 +10,13 @@ import type { Chatbot } from 'mb-genql'
 export interface ChatPanelProps
   extends Pick<
     UseChatHelpers,
-    | 'append'
-    | 'isLoading'
-    | 'reload'
-    | 'messages'
-    | 'stop'
-    | 'input'
-    | 'setInput'
+    | "append"
+    | "isLoading"
+    | "reload"
+    | "messages"
+    | "stop"
+    | "input"
+    | "setInput"
   > {
   scrollToBottom: () => void // Function to scroll chat to the bottom
   id?: string // Chat ID, used in message operations
@@ -32,6 +32,7 @@ export function ChatPanel({
   id,
   title,
   isLoading,
+  loadingState,
   stop,
   append,
   reload,
@@ -43,7 +44,7 @@ export function ChatPanel({
   showReload = true,
   isAtBottom,
   scrollToBottom,
-  className
+  className,
 }: ChatPanelProps) {
   const { isOpenPopup, loadingState } = useThread() // State to control popup visibility
 
@@ -81,12 +82,12 @@ export function ChatPanel({
           )}
         >
           <PromptForm
-            onSubmit={async value => {
+            onSubmit={async (value) => {
               await append({
                 id,
                 content: value,
-                role: 'user'
-              })
+                role: "user",
+              });
             }}
             // biome-ignore lint/complexity/noExtraBooleanCast: <explanation>
             disabled={!Boolean(chatbot) || isLoading || Boolean(loadingState)}

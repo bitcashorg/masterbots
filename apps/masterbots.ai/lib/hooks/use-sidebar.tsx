@@ -132,7 +132,6 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
             setActiveChatbot(null)
           }
         } else {
-
           setActiveChatbot(null)
         }
       }
@@ -186,36 +185,36 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
     if (isBrowse) {
       return '';
     }
-  
+
     // Handle profile page
     if (page === 'profile') {
       return `/u/${slug}/t`;
     }
-  
+
     // Default to community path
     const base = '/c';
 
     return base;
   };
-   const buildNavigationUrl = ({
+  const buildNavigationUrl = ({
     page,
     slug,
     categoryName,
     chatbotName,
     isBrowse
   }: NavigationParams): string => {
-      const base = getBasePath({ page, slug, isBrowse, categoryName, chatbotName });
-      if (!categoryName && !chatbotName) {
-        return base
-      }
-    
+    const base = getBasePath({ page, slug, isBrowse, categoryName, chatbotName });
+    if (!categoryName && !chatbotName) {
+      return base
+    }
+
     const categoryPath = categoryName ? `/${toSlug(categoryName.toLowerCase())}` : ''
     const chatbotPath = chatbotName ? `/${chatbotName.toLowerCase()}` : ''
     return `${base}${categoryPath}${chatbotPath}`
   }
-  
 
-   const navigateTo = ({
+
+  const navigateTo = ({
     page,
     slug,
     categoryName,

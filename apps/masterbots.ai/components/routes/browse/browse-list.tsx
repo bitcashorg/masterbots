@@ -21,8 +21,9 @@
  */
 
 import BrowseListItem from '@/components/routes/browse/browse-list-item'
-import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeletons'
+import { NoResults } from '@/components/shared/no-results-card'
 import { BrowseListSkeleton } from '@/components/shared/skeletons/browse-list-skeleton'
+import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeletons'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { searchThreadContent } from '@/lib/search'
@@ -30,7 +31,6 @@ import { getBrowseThreads } from '@/services/hasura'
 import { debounce } from 'lodash'
 import type { Thread } from 'mb-genql'
 import React from 'react'
-import { NoResults } from '@/components/shared/no-results-card'
 
 const PAGE_SIZE = 50
 
