@@ -32,7 +32,6 @@ export function ChatPanel({
   id,
   title,
   isLoading,
-  loadingState,
   stop,
   append,
   reload,

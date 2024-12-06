@@ -1,9 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import * as React from 'react'
-import { toast } from 'react-hot-toast'
-import { ServerActionResult, type Chat } from '@/types/types'
+import { ChatShareDialog } from '@/components/routes/chat/chat-share-dialog'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,14 +12,17 @@ import {
   AlertDialogTitle
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
-import { IconShare, IconSpinner, IconTrash, IconCheck } from '@/components/ui/icons'
-import { ChatShareDialog } from '@/components/routes/chat/chat-share-dialog'
+import { IconCheck, IconShare, IconSpinner, IconTrash } from '@/components/ui/icons'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { ServerActionResult, type Chat } from '@/types/types'
+import { useRouter } from 'next/navigation'
+import * as React from 'react'
+import { toast } from 'react-hot-toast'
 
 interface SidebarActionsProps {
   chat: Chat
@@ -39,9 +39,9 @@ export function SidebarActions({
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false)
   const [shareDialogOpen, setShareDialogOpen] = React.useState(false)
   const [isRemovePending, startRemoveTransition] = React.useTransition()
-  const { 
-    isFilterMode, 
-    selectedChats, 
+  const {
+    isFilterMode,
+    selectedChats,
     setSelectedChats,
     filterValue
   } = useSidebar()
