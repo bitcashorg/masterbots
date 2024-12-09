@@ -1,5 +1,4 @@
 import { Sidebar } from '@/components/layout/sidebar/sidebar';
-import React from 'react';
 
 export  function ResponsiveSidebar() {
 
