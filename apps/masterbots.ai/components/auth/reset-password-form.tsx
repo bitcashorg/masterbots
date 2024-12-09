@@ -1,14 +1,14 @@
 'use client'
 
-import type React from 'react'
+import { PasswordStrengthMeter } from '@/components/shared/password-strength-meter'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { toast } from 'react-hot-toast'
-import { useRouter } from 'next/navigation'
-import { PasswordStrengthMeter } from '@/components/shared/password-strength-meter'
 import { isPasswordStrong } from '@/lib/password'
 import { Eye, EyeOff } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import type React from 'react'
+import { toast } from 'react-hot-toast'
 import { useSetState } from 'react-use'
 
 interface FormState {
@@ -146,4 +146,3 @@ export default function ResetPasswordForm({ token }: { token: string }) {
     </form>
   )
 }
-

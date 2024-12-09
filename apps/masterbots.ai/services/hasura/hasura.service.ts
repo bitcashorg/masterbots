@@ -18,7 +18,6 @@ import {
   type Message,
   type Thread,
   type User,
-  type query_root,
   createMbClient,
   everything
 } from 'mb-genql'
@@ -32,8 +31,8 @@ import type {
   GetThreadParams,
   GetThreadsParams,
   SaveNewMessageParams,
-  UpsertUserParams,
-  UpdateUserArgs
+  UpdateUserArgs,
+  UpsertUserParams
 } from './hasura.service.type'
 
 function getHasuraClient({ jwt, adminSecret }: GetHasuraClientParams) {
@@ -608,10 +607,10 @@ export async function UpdateThreadVisibility({
       updateThreadByPk: {
         __args: {
           pkColumns: { threadId },
-          _set: { isPublic }
+          _set: { isApproved: true }
         },
         threadId: true,
-        isPublic: true
+        isApproved: true
       }
     })
     return { success: true }
@@ -694,7 +693,7 @@ export async function getUserRoleByEmail({
           where: { email: { _eq: email } }
         },
         role: true,
-        slug: true,
+        slug: true
       }
     })
     return { users: user as User[] }

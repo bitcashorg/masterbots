@@ -32,7 +32,7 @@ import { NoResults } from '@/components/shared/no-results-card'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
-import { getThreads, getBrowseThreads, getUserBySlug } from '@/services/hasura'
+import { getBrowseThreads, getThreads, getUserBySlug } from '@/services/hasura'
 import type { Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import { useParams, usePathname } from 'next/navigation'
@@ -89,19 +89,19 @@ export default function UserThreadPanel({
     setTotalThreads(finalThreads?.length ?? 0)
   }, [finalThreads])
   const fetchIdRef = useRef(0) // Store the fetchId in a ref
-  
+
   const fetchBrowseThreads = async () => {
     try {
-      if(!slug) return []
+      if (!slug) return []
       const user = userWithSlug.value?.user
       if (!user) return []
-        return await getBrowseThreads({ 
-          userId: user.userId, 
-          categoryId: activeCategory,
-          chatbotName: activeChatbot?.name,
-          limit: PAGE_SIZE,
-        });
-      
+      return await getBrowseThreads({
+        userId: user.userId,
+        categoryId: activeCategory,
+        chatbotName: activeChatbot?.name,
+        limit: PAGE_SIZE,
+      });
+
     } catch (error) {
       console.error('Failed to fetch threads:', error);
       return [];
@@ -116,16 +116,16 @@ export default function UserThreadPanel({
     const isOwnProfile = session?.user?.id === userOnSlug?.userId;
     if(page === 'profile' && !session?.user  || !isOwnProfile) {
       moreThreads = await fetchBrowseThreads();
-    }else{
-     moreThreads = await getThreads({
-      jwt: session!.user?.hasuraJwt,
-      userId: session!.user.id,
-      offset: threads.length,
-      limit: PAGE_SIZE,
-      categoryId: activeCategory,
-      chatbotName: activeChatbot?.name
-    })
-  }
+    } else {
+      moreThreads = await getThreads({
+        jwt: session!.user?.hasuraJwt,
+        userId: session!.user.id,
+        offset: threads.length,
+        limit: PAGE_SIZE,
+        categoryId: activeCategory,
+        chatbotName: activeChatbot?.name,
+      })
+    }
     if (moreThreads) setThreads(prevState => [...prevState, ...moreThreads])
     setCount(_prev => moreThreads.length ?? 0)
     setLoading(false)
@@ -152,7 +152,7 @@ export default function UserThreadPanel({
       userId: session!.user.id,
       limit: PAGE_SIZE,
       categoryId: activeCategory,
-      chatbotName: activeChatbot?.name
+      chatbotName: activeChatbot?.name,
     })
 
     // Check if the fetchId matches the current fetchId stored in the ref
@@ -202,11 +202,11 @@ export default function UserThreadPanel({
     setSearchTerm(term)
   }
 
-  const customMessage = activeChatbot 
-  ? `No threads available for ${activeChatbot.name}`
-  : activeCategory 
-    ? 'No threads available in the selected category'
-    : 'Start a conversation to create your first thread'
+  const customMessage = activeChatbot
+    ? `No threads available for ${activeChatbot.name}`
+    : activeCategory
+      ? 'No threads available in the selected category'
+      : 'Start a conversation to create your first thread'
 
 
   const showNoResults = !loading && searchTerm && threads.length === 0
@@ -214,31 +214,31 @@ export default function UserThreadPanel({
 
   return (
     <>
-    <div className="flex justify-between px-4 md:px-10 py-5 lg:max-w-[calc(100%-100px)] 2xl:max-w-full">
-      <ChatSearchInput setThreads={setThreads} onSearch={setSearchTerm} />
-    </div>
-
-    {loading ? (
-      <NoResults isLoading={true} />
-    ) : threads && threads.length > 0 ? (
-      <div className="flex px-4 py-5 md:px-10">
-        <ThreadList
-          threads={threads}
-          loading={loading}
-          count={count}
-          pageSize={PAGE_SIZE}
-          loadMore={loadMore}
-        />
+      <div className="flex justify-between px-4 md:px-10 py-5 lg:max-w-[calc(100%-100px)] 2xl:max-w-full">
+        <ChatSearchInput setThreads={setThreads} onSearch={setSearchTerm} />
       </div>
-    ) : showNoResults ? (
-      <NoResults 
-        searchTerm={searchTerm}
-        totalItems={totalThreads}
-        customMessage={customMessage}
-      />
-    ) : showChatbotDetails ? (
-      <ChatChatbotDetails />
-    ) : null}
-  </>
+
+      {loading ? (
+        <NoResults isLoading={true} />
+      ) : threads && threads.length > 0 ? (
+        <div className="flex px-4 py-5 md:px-10">
+          <ThreadList
+            threads={threads}
+            loading={loading}
+            count={count}
+            pageSize={PAGE_SIZE}
+            loadMore={loadMore}
+          />
+        </div>
+      ) : showNoResults ? (
+        <NoResults
+          searchTerm={searchTerm}
+          totalItems={totalThreads}
+          customMessage={customMessage}
+        />
+      ) : showChatbotDetails ? (
+        <ChatChatbotDetails />
+      ) : null}
+    </>
   )
 }

@@ -1,6 +1,5 @@
 'use client'
 
-import { useParams, useRouter } from 'next/navigation'
 import { Checkbox } from "@/components/ui/checkbox"
 import { IconCaretRight } from '@/components/ui/icons'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
@@ -9,7 +8,7 @@ import { Category, Chatbot } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import Image from 'next/image'
 import Link from 'next/link'
-import { usePathname } from "next/navigation"
+import { useParams, usePathname, useRouter } from 'next/navigation'
 import React, { useCallback } from 'react'
 import { urlBuilders } from '@/lib/url'
 
@@ -24,7 +23,7 @@ export default function SidebarLink({ category, isFilterMode, page }: SidebarLin
   const pathname = usePathname()
   const isBrowse = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
   const { slug } = useParams()
-  
+
   const {
     activeCategory,
     setActiveCategory,
@@ -43,14 +42,14 @@ export default function SidebarLink({ category, isFilterMode, page }: SidebarLin
   const handleClickCategory = useCallback((e: React.MouseEvent) => {
     e.stopPropagation()
     if (!isFilterMode) {
-      setExpandedCategories(prev => 
-        prev.includes(category.categoryId) 
-          ? [] 
+      setExpandedCategories(prev =>
+        prev.includes(category.categoryId)
+          ? []
           : [category.categoryId]
       )
       setActiveCategory(prev => {
         const newCategory = prev === category.categoryId ? null : category.categoryId
-         if (newCategory) {
+        if (newCategory) {
           setActiveChatbot(null)
           navigateTo({
             page,
@@ -182,7 +181,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
   isFilterMode,
   page
 }) {
-  const { selectedChatbots, toggleChatbotSelection,navigateTo } = useSidebar()
+  const { selectedChatbots, toggleChatbotSelection, navigateTo } = useSidebar()
   const pathname = usePathname()
   const isBrowse = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
   const { slug } = useParams()

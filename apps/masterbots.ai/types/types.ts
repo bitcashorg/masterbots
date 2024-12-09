@@ -1,5 +1,6 @@
-import { WordWareFlowPaths } from '@/types/wordware-flows.types'
+import type { WordWareFlowPaths } from '@/types/wordware-flows.types'
 import type { Message } from 'ai'
+import type { UserRole } from 'mb-drizzle'
 import type { Chatbot, LabelChatbotCategory } from 'mb-genql'
 import 'next-auth'
 import type { DefaultSession, DefaultUser } from 'next-auth'
@@ -220,4 +221,13 @@ export interface ChatPageProps {
     chatbot?: string
     threadId: string
   }
+}
+
+// * Drizzle Admin types
+export type AdminUserUpdate = {
+  isBlocked?: boolean
+  isVerified?: boolean
+  proUserSubscriptionId?: string
+  getFreeMonth?: boolean
+  role?: (typeof UserRole)[keyof typeof UserRole]
 }
