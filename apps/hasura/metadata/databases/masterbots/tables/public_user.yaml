@@ -141,23 +141,6 @@ select_permissions:
         - username
       filter: {}
     comment: ""
-  - role: moderator
-    permission:
-      columns:
-        - date_joined
-        - email
-        - get_free_month
-        - is_blocked
-        - is_verified
-        - last_login
-        - pro_user_subscription_id
-        - profile_picture
-        - role
-        - slug
-        - user_id
-        - username
-      filter: {}
-    comment: ""
   - role: user
     permission:
       columns:
