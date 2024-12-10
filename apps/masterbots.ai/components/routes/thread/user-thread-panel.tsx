@@ -35,10 +35,9 @@ import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { getBrowseThreads, getThreads, getUserBySlug } from '@/services/hasura'
 import type { Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
-import { useParams } from 'next/navigation'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useParams, usePathname } from 'next/navigation'
+import {  useEffect, useMemo, useRef, useState } from 'react'
 import { useAsync } from 'react-use'
-
 
 const PAGE_SIZE = 20
 
@@ -61,7 +60,7 @@ export default function UserThreadPanel({
   const [loading, setLoading] = useState<boolean>(false)
   const { threads: hookThreads } = useThreadVisibility()
   const [searchTerm, setSearchTerm] = useState<string>('')
-  const { slug } = params;
+  const { slug, threadId } = params;
 
   const userWithSlug = useAsync(async () => {
     if (!slug) return { user: null }
@@ -81,6 +80,8 @@ export default function UserThreadPanel({
   const [totalThreads, setTotalThreads] = useState<number>(0)
   const prevCategoryRef = useRef(activeCategory);
   const prevChatbotRef = useRef(activeChatbot);
+  const prevPathRef = useRef(usePathname());
+   const pathname = usePathname();
 
   useEffect(() => {
     setThreads(finalThreads)
@@ -111,8 +112,9 @@ export default function UserThreadPanel({
     console.log('🟡 Loading More Content')
     setLoading(true)
     let moreThreads: Thread[] = []
-
-    if (page === 'profile' && !session?.user) {
+    const userOnSlug = userWithSlug.value?.user
+    const isOwnProfile = session?.user?.id === userOnSlug?.userId;
+    if(page === 'profile' && !session?.user  || !isOwnProfile) {
       moreThreads = await fetchBrowseThreads();
     } else {
       moreThreads = await getThreads({
@@ -131,24 +133,21 @@ export default function UserThreadPanel({
 
   const handleThreadsChange = async () => {
     let threads: Thread[] = []
-
-    console.log('🟡 Fetching Threads')
     setLoading(true)
-    const isOwnProfile = session?.user?.slug === slug;
-    if (!session?.user || !isOwnProfile) {
-      if (page === 'profile') {
-        threads = await fetchBrowseThreads();
+    const userOnSlug = userWithSlug.value?.user
+    const isOwnProfile = session?.user?.id === userOnSlug?.userId;
+    if (!session?.user || !isOwnProfile && page === 'profile') {
+       threads = await fetchBrowseThreads();
         setThreads(_prev => threads ?? [])
         setCount(_prev => threads.length ?? 0)
         setTotalThreads(threads?.length ?? 0)
-      }
       setLoading(false)
       return;
     }
+   
     const currentFetchId = Date.now() // Generate a unique identifier for the current fetch
     fetchIdRef.current = currentFetchId
-
-    threads = await getThreads({
+     threads = await getThreads({
       jwt: session!.user?.hasuraJwt,
       userId: session!.user.id,
       limit: PAGE_SIZE,
@@ -166,31 +165,26 @@ export default function UserThreadPanel({
     setLoading(false)
   }
 
-
-  const shouldFetchThreads = useCallback(() => {
-    if (isOpenPopup) return false;
-
-    const shouldFetch =
+  useEffect(() => {
+    // Skip if popup is open
+    if (isOpenPopup) return;
+  
+    const shouldFetch = 
       activeCategory ||
       activeChatbot ||
       (prevCategoryRef.current && !activeCategory) ||
-      (prevChatbotRef.current && !activeChatbot);
-
-    // Update refs after checking
+      (prevChatbotRef.current && !activeChatbot) ||
+      pathname !== prevPathRef.current; // Add pathname check
+  
+    // Update refs
     prevCategoryRef.current = activeCategory;
     prevChatbotRef.current = activeChatbot;
-
-    return shouldFetch;
-  }, [isOpenPopup, activeCategory, activeChatbot]);
-
-
-  useEffect(() => {
-    if (shouldFetchThreads()) {
+    prevPathRef.current = pathname;
+  
+    if (shouldFetch) {
       handleThreadsChange();
     }
-  }, [activeCategory, activeChatbot, isOpenPopup, shouldFetchThreads]);
-
-
+  }, [activeCategory, activeChatbot, isOpenPopup, pathname]);
 
   useEffect(() => {
     if (
