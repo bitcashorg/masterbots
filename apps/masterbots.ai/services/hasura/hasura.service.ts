@@ -722,9 +722,12 @@ export async function deleteThread({
       deleteThread: {
         __args: {
           where: { threadId: { _eq: threadId }, userId: { _eq: userId } }
-        }
-      },
-      affected_rows: true
+        },
+        returning: {
+          threadId: true
+        },
+        affectedRows: true
+      }
     })
 
     return { success: true }
