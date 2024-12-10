@@ -36,6 +36,8 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import { ChatOptions } from '../chat/chat-options'
+import { urlBuilders } from '@/lib/url'
+
 
 let initialUrl: string | null = null
 
@@ -139,7 +141,7 @@ export default function BrowseListItem({
     e.preventDefault()
     e.stopPropagation()
     if (thread?.user?.slug) {
-      router.push(`/u/${thread?.user?.slug}/t`)
+      router.push(urlBuilders.userProfileUrl({ userSlug: thread.user.slug }))
     }
   }
 
