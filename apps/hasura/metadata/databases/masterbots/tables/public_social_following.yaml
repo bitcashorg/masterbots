@@ -12,11 +12,8 @@ insert_permissions:
   - role: moderator
     permission:
       check:
-        _and:
-          - followee_id:
-              _eq: X-Hasura-User-Id
-          - follower_id:
-              _eq: X-Hasura-User-Id
+        follower_id:
+          _eq: X-Hasura-User-Id
       columns:
         - followee_id
         - follower_id
