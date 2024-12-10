@@ -349,9 +349,9 @@ export function cleanClickableText(text: string): string {
 };
 
 interface IProps {
-  followers: SocialFollowing[] | undefined;
+  followers: readonly SocialFollowing[] | undefined | null;
   userId: string;
 }
-export const Ifollowed = ({followers, userId} : IProps) => {
-  return followers?.some(follower => follower.followerId === userId);
+export const isFollowed = ({followers, userId} : IProps): boolean => {
+  return Boolean(followers?.some(follower => follower.followerId === userId));
 }
