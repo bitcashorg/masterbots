@@ -36,7 +36,7 @@ import { getBrowseThreads, getThreads, getUserBySlug } from '@/services/hasura'
 import type { Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import { useParams, usePathname } from 'next/navigation'
-import {  useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useAsync } from 'react-use'
 
 const PAGE_SIZE = 20
@@ -81,7 +81,7 @@ export default function UserThreadPanel({
   const prevCategoryRef = useRef(activeCategory);
   const prevChatbotRef = useRef(activeChatbot);
   const prevPathRef = useRef(usePathname());
-   const pathname = usePathname();
+  const pathname = usePathname();
 
   useEffect(() => {
     setThreads(finalThreads)
@@ -114,7 +114,7 @@ export default function UserThreadPanel({
     let moreThreads: Thread[] = []
     const userOnSlug = userWithSlug.value?.user
     const isOwnProfile = session?.user?.id === userOnSlug?.userId;
-    if(page === 'profile' && !session?.user  || !isOwnProfile) {
+    if (page === 'profile' && !session?.user || !isOwnProfile) {
       moreThreads = await fetchBrowseThreads();
     } else {
       moreThreads = await getThreads({
@@ -137,17 +137,17 @@ export default function UserThreadPanel({
     const userOnSlug = userWithSlug.value?.user
     const isOwnProfile = session?.user?.id === userOnSlug?.userId;
     if (!session?.user || !isOwnProfile && page === 'profile') {
-       threads = await fetchBrowseThreads();
-        setThreads(_prev => threads ?? [])
-        setCount(_prev => threads.length ?? 0)
-        setTotalThreads(threads?.length ?? 0)
+      threads = await fetchBrowseThreads();
+      setThreads(_prev => threads ?? [])
+      setCount(_prev => threads.length ?? 0)
+      setTotalThreads(threads?.length ?? 0)
       setLoading(false)
       return;
     }
-   
+
     const currentFetchId = Date.now() // Generate a unique identifier for the current fetch
     fetchIdRef.current = currentFetchId
-     threads = await getThreads({
+    threads = await getThreads({
       jwt: session!.user?.hasuraJwt,
       userId: session!.user.id,
       limit: PAGE_SIZE,
@@ -168,19 +168,19 @@ export default function UserThreadPanel({
   useEffect(() => {
     // Skip if popup is open
     if (isOpenPopup) return;
-  
-    const shouldFetch = 
+
+    const shouldFetch =
       activeCategory ||
       activeChatbot ||
       (prevCategoryRef.current && !activeCategory) ||
       (prevChatbotRef.current && !activeChatbot) ||
       pathname !== prevPathRef.current; // Add pathname check
-  
+
     // Update refs
     prevCategoryRef.current = activeCategory;
     prevChatbotRef.current = activeChatbot;
     prevPathRef.current = pathname;
-  
+
     if (shouldFetch) {
       handleThreadsChange();
     }

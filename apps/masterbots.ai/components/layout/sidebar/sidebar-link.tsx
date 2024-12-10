@@ -3,6 +3,7 @@
 import { Checkbox } from "@/components/ui/checkbox"
 import { IconCaretRight } from '@/components/ui/icons'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { urlBuilders } from '@/lib/url'
 import { cn } from '@/lib/utils'
 import { Category, Chatbot } from 'mb-genql'
 import { toSlug } from 'mb-lib'
@@ -10,7 +11,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import React, { useCallback } from 'react'
-import { urlBuilders } from '@/lib/url'
 
 interface SidebarLinkProps {
   category: Category
@@ -58,15 +58,15 @@ export default function SidebarLink({ category, isFilterMode, page }: SidebarLin
             isBrowse
           })
 
-       }
-       else{
-        setActiveChatbot(null)
-        navigateTo({
-          page,
-          slug: typeof slug === 'string' ? slug : undefined,
-          isBrowse
-        })
-       }
+        }
+        else {
+          setActiveChatbot(null)
+          navigateTo({
+            page,
+            slug: typeof slug === 'string' ? slug : undefined,
+            isBrowse
+          })
+        }
         return newCategory
       })
     }
@@ -187,17 +187,17 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
   const { slug } = useParams()
 
   const handleChatbotClick = useCallback((e: React.MouseEvent) => {
-     e.preventDefault()
-      setActiveChatbot(chatbot)
-      if(chatbot){
-        navigateTo({
-          page,
-          slug: slug as string,
-          categoryName: toSlug(category.name.toLowerCase()),
-          chatbotName: chatbot.name.toLowerCase(),
-          isBrowse
-        })
-      }
+    e.preventDefault()
+    setActiveChatbot(chatbot)
+    if (chatbot) {
+      navigateTo({
+        page,
+        slug: slug as string,
+        categoryName: toSlug(category.name.toLowerCase()),
+        chatbotName: chatbot.name.toLowerCase(),
+        isBrowse
+      })
+    }
   }, [chatbot, setActiveChatbot, isFilterMode])
 
   const isSelected = selectedChatbots.includes(chatbot.chatbotId)
@@ -210,7 +210,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
 
   return isFilterMode || isBrowse ? (
     <div
-    className={cn(
+      className={cn(
         'flex items-center p-2 w-full',
         isActive && 'bg-blue-100 dark:bg-blue-900',
         'hover:bg-gray-100 dark:hover:bg-gray-800',
@@ -235,7 +235,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
     </div>
   ) : (
     <Link
-     href={page === 'profile' ? urlBuilders.userChatbotUrl({ slug: slug as string, category: category.name, chatbot: chatbot.name   }): `/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`}
+      href={page === 'profile' ? urlBuilders.userChatbotUrl({ slug: slug as string, category: category.name, chatbot: chatbot.name }) : `/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`}
       className={cn(
         'flex items-center p-2 w-full',
         isActive && 'bg-blue-100 dark:bg-blue-900',

@@ -1,12 +1,11 @@
 //* Component for displaying a collapsible chat thread accordion
 
 import { useThread } from '@/lib/hooks/use-thread'
+import { urlBuilders } from '@/lib/url'
 import { ChevronDown } from 'lucide-react'
 import type { Thread } from 'mb-genql'
-import { usePathname, useParams, useRouter } from 'next/navigation'
+import { useParams, usePathname, useRouter } from 'next/navigation'
 import React from 'react'
-import { toSlug } from 'mb-lib'
-import { urlBuilders } from '@/lib/url'
 
 export const ChatAccordion = ({
   className, //* CSS classes for the outer div
@@ -45,9 +44,9 @@ export const ChatAccordion = ({
     isOpenPopup
   } = useThread()
 
- const pathname  = usePathname()
- const params = useParams()
- const router = useRouter();
+  const pathname = usePathname()
+  const params = useParams()
+  const router = useRouter();
 
   //* Sets the initial open state based on defaultState prop
   const initialState = defaultState
@@ -69,14 +68,14 @@ export const ChatAccordion = ({
       if (profilePage) {
         setIsOpenPopup(false)
         setActiveThread(null)
-      const category = thread?.chatbot?.categories[0]?.category?.name
-      const chatbot = thread?.chatbot?.name
-      const slug = params.slug;
-      if (!category || !chatbot || !slug) {
-            console.error('Missing required navigation parameters');
-            return;
-       }
-       router.push(urlBuilders.threadUrl({ slug: slug as string, category, chatbot, threadId: thread?.threadId }))
+        const category = thread?.chatbot?.categories[0]?.category?.name
+        const chatbot = thread?.chatbot?.name
+        const slug = params.slug;
+        if (!category || !chatbot || !slug) {
+          console.error('Missing required navigation parameters');
+          return;
+        }
+        router.push(urlBuilders.threadUrl({ slug: slug as string, category, chatbot, threadId: thread?.threadId }))
       }
       toggle()
     }

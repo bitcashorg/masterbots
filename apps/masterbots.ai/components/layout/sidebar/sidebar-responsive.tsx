@@ -1,6 +1,5 @@
 import { Sidebar } from '@/components/layout/sidebar/sidebar';
 
-
 export function ResponsiveSidebar() {
   return (
     <Sidebar className="peer absolute inset-y-0 z-30 border-r bg-muted
