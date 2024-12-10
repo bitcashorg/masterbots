@@ -37,8 +37,6 @@ import { useScroll } from '@/lib/hooks/use-scroll'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import type { Thread } from 'mb-genql'
-import { toSlug } from 'mb-lib'
-import { redirect, useParams, usePathname } from 'next/navigation'
 import { useRef } from 'react'
 import { AdminModeApprove } from '../chat/admin-mode-approve'
 import { ChatOptions } from '../chat/chat-options'
@@ -57,9 +55,9 @@ export default function ThreadComponent({
 }) {
   const threadRef = useRef<HTMLLIElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
-  const {   isNewResponse } = useThread()
+  const { isNewResponse } = useThread()
   const { isAdminMode } = useThreadVisibility()
-  
+
   const { isNearBottom, scrollToTop } = useScroll({
     containerRef: contentRef,
     threadRef,
@@ -72,7 +70,7 @@ export default function ThreadComponent({
 
   const threadId = thread.threadId
   const handleAccordionToggle = () => {
-      scrollToTop()
+    scrollToTop()
   }
   return (
     <li ref={threadRef}>

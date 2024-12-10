@@ -1,15 +1,15 @@
 'use client'
 
-import * as React from 'react'
 import { getUserBySlug, updateUserPersonality } from '@/services/hasura'
-import { useSession } from 'next-auth/react'
 import { User } from 'mb-genql'
+import { useSession } from 'next-auth/react'
+import * as React from 'react'
 import toast from 'react-hot-toast'
 
 interface profileContextProps {
   getuserInfo: (username: string) => Promise<any>
   isSameUser: (userId: string) => boolean
-  updateUserInfo: (bio: string | null, topic: string | null,   profilePicture: string | null) => void
+  updateUserInfo: (bio: string | null, topic: string | null, profilePicture: string | null) => void
   currentUser: User | null,
   setCurrentUser: React.Dispatch<React.SetStateAction<User | null>>
 }
@@ -60,12 +60,12 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
 
   const isSameUser = (userId: string) => {
     if (!userId?.trim() || !session?.user?.id) {
-             return false
-         }
+      return false
+    }
     return session?.user.id === userId
   }
 
-  const updateUserInfo = async (bio: string | null, topic: string | null, profilePicture: string | null ) => {
+  const updateUserInfo = async (bio: string | null, topic: string | null, profilePicture: string | null) => {
     try {
       const jwt = session?.user?.hasuraJwt;
       if (!jwt || !session.user?.id) {
@@ -86,7 +86,7 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
 
   return (
     <profileContext.Provider
-      value={{ getuserInfo, isSameUser, updateUserInfo, currentUser , setCurrentUser}}
+      value={{ getuserInfo, isSameUser, updateUserInfo, currentUser, setCurrentUser }}
     >
       {children}
     </profileContext.Provider>
