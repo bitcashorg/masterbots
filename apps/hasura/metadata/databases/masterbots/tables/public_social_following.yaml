@@ -12,8 +12,11 @@ insert_permissions:
   - role: moderator
     permission:
       check:
-        follower_id:
-          _eq: X-Hasura-User-Id
+        _and:
+          - followee_id:
+              _eq: X-Hasura-User-Id
+          - follower_id:
+              _eq: X-Hasura-User-Id
       columns:
         - followee_id
         - follower_id
@@ -52,7 +55,12 @@ select_permissions:
       columns:
         - followee_id
         - follower_id
-      filter: {}
+      filter:
+        _or:
+          - follower_id:
+              _eq: X-Hasura-User-Id
+          - followee_id:
+              _neq: X-Hasura-User-Id
     comment: ""
 update_permissions:
   - role: moderator

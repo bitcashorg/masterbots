@@ -15,6 +15,7 @@ import { formatNumber, Ifollowed } from '@/lib/utils'
 import { useSession } from 'next-auth/react'
 import { userFollowOrUnfollow } from '@/services/hasura/hasura.service';
 import type { SocialFollowing } from 'mb-genql'
+import router from 'next/router'
 
 interface UserCardProps {
   user: User | null
@@ -171,23 +172,25 @@ export function UserCard({ user, loading }: UserCardProps) {
 
 
   const handleFollowUser = async () => {
+    if (isFollowLoading) return;
     try {
-      // if no session is found, redirect to login
-
+      // if no session is found, redirect to login\
       if (!session) {
         toast.error('Please sign in to follow user')
-        setTimeout(() => {
-          window.location.href = '/auth/signin'
-        } , 2000)
+        router.push('/auth/signin')
         return
       }
       setIsFollowLoading(true)
       const followerId = session.user?.id
       const followeeId = user?.userId
-
+      if (!followerId || !followeeId) {
+        toast.error('Invalid user data');
+           return;
+       }
      const {success, error, follow} =  await userFollowOrUnfollow({followerId, followeeId, jwt: session.user.hasuraJwt as string})
       if(!success){
         console.error('Failed to follow/Unfolow user:', error)
+        toast.error(error || 'Failed to follow/unfollow user')
         return
       }
 
@@ -228,6 +231,8 @@ export function UserCard({ user, loading }: UserCardProps) {
       setIsFollowLoading(false)
       toast.error('Failed to follow user')
       console.error('Failed to follow user:', error)
+    } finally {
+      setIsFollowLoading(false)
     }
   }
 
