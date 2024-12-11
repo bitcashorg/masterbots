@@ -352,6 +352,6 @@ interface IProps {
   followers: readonly SocialFollowing[] | undefined | null;
   userId: string;
 }
-export const isFollowed = ({followers, userId} : IProps): boolean => {
+export const Ifollowed = ({followers, userId} : IProps): boolean => {
   return Boolean(followers?.some(follower => follower.followerId === userId));
 }
