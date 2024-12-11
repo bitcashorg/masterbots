@@ -8,7 +8,8 @@ import { cleanResult } from '@/lib/helpers/ai-helpers'
 import type {
   AiClientType,
   ChatbotMetadataHeaders,
-  ReturnFetchChatbotMetadata
+  ReturnFetchChatbotMetadata,
+  
 } from '@/types/types'
 import { validateMbEnv } from 'mb-env'
 import {
@@ -19,7 +20,9 @@ import {
   type Thread,
   type User,
   createMbClient,
-  everything
+  everything,
+  type MbClient
+  
 } from 'mb-genql'
 import type {
   CreateThreadParams,
@@ -943,76 +946,60 @@ export async function subtractChatbotMetadataLabels(
   return cleanResult(response)
 }
 
+const getFollowStatus = async (client: MbClient, followerId: string, followeeId: string) => {
+  const { socialFollowing } = await client.query({
+    socialFollowing: {
+      __args: {
+        where: { followerId: { _eq: followerId }, followeeId: { _eq: followeeId } }
+      },
+      followeeId: true,
+      followerId: true,
+    }
+  });
+  return socialFollowing?.length > 0;
+};
 
-export async function userFollowOrUnfollow({
-  followerId,
-  followeeId,
-  jwt
-}: {
+const followUser = async (client: MbClient, followerId: string, followeeId: string) => {
+  return client.mutation({
+    insertSocialFollowingOne: {
+      __args: {
+        object: { followerId, followeeId }
+      },
+      followeeId: true,
+      followerId: true,
+      userByFollowerId: { username: true }
+    }
+  });
+};
+
+const unfollowUser = async (client: MbClient, followerId: string, followeeId: string) => {
+  return client.mutation({
+    deleteSocialFollowing: {
+      __args: {
+        where: { followerId: { _eq: followerId }, followeeId: { _eq: followeeId } }
+      },
+      affectedRows: true,
+      returning: { followeeId: true, followerId: true }
+    }
+  });
+};
+
+export async function userFollowOrUnfollow({ followerId, followeeId, jwt }: {
   followerId: string;
   followeeId: string;
   jwt: string;
 }) {
+  if (!jwt) throw new Error('Authentication required to follow/unfollow user');
+
+  const client = getHasuraClient({ jwt });
   try {
-    if (!jwt) {
-      throw new Error('Authentication required to follow/unfollow user');
-    }
-
-    const client = getHasuraClient({ jwt });
-
-    // First check if follow relationship exists
-    const { socialFollowing } = await client.query({
-      socialFollowing: {
-        __args: {
-          where: {
-            followerId: { _eq: followerId },
-            followeeId: { _eq: followeeId }
-          }
-        },
-        followeeId: true,
-        followerId: true,
-      }
-    });
-
-    if (!socialFollowing?.length) {
-      // Create new follow relationship
-      await client.mutation({
-        insertSocialFollowingOne: {
-          __args: {
-            object: {
-              followerId,
-              followeeId
-            }
-          },
-          followeeId: true,
-          followerId: true,
-          userByFollowerId: {
-            username: true
-          }
-        }
-      });
+    const isFollowing = await getFollowStatus(client, followerId, followeeId);
+    if (!isFollowing) {
+      await followUser(client, followerId, followeeId);
       return { success: true, follow: true };
     }
-
-    // Delete existing follow relationship
-    await client.mutation({
-      deleteSocialFollowing: {
-        __args: {
-          where: {
-            followerId: { _eq: followerId },
-            followeeId: { _eq: followeeId }
-          }
-        },
-        affectedRows: true,
-        returning:{
-          followeeId: true,
-          followerId: true
-        }
-      }
-    });
-
+    await unfollowUser(client, followerId, followeeId);
     return { success: true, follow: false };
-
   } catch (error) {
     console.error('Error following/unfollowing user:', error);
     return { 

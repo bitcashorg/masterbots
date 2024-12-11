@@ -33,6 +33,7 @@ export function UserCard({ user, loading }: UserCardProps) {
   const { uploadFilesCloudinary, error: cloudinaryError } = useUploadImagesCloudinary();
   const { data: session } = useSession();
   const [userData, setUserData] = useState<User | null>(user)
+  const [isFollowLoading, setIsFollowLoading] = useState(false)
   
   const userQuestions = user?.threads.map((thread) => {
 
@@ -172,6 +173,7 @@ export function UserCard({ user, loading }: UserCardProps) {
   const handleFollowUser = async () => {
     try {
       // if no session is found, redirect to login
+
       if (!session) {
         toast.error('Please sign in to follow user')
         setTimeout(() => {
@@ -179,6 +181,7 @@ export function UserCard({ user, loading }: UserCardProps) {
         } , 2000)
         return
       }
+      setIsFollowLoading(true)
       const followerId = session.user?.id
       const followeeId = user?.userId
 
@@ -220,7 +223,9 @@ export function UserCard({ user, loading }: UserCardProps) {
         });
         toast.success(`You have unfollowed ${user?.username}`)
       }
+      setIsFollowLoading(false)
     } catch (error) {
+      setIsFollowLoading(false)
       toast.error('Failed to follow user')
       console.error('Failed to follow user:', error)
     }
@@ -320,15 +325,20 @@ export function UserCard({ user, loading }: UserCardProps) {
               )}
             </div>
           </div>
-           {/* Implementation for this comes next :) */}
+
         <div className=' flex flex-col  items-center md:mt-0 mt-7  space-y-3'>
            {!isOwner && (
-          <button onClick={handleFollowUser} aria-label={`Follow ${user?.username}`} className="px-10 py-1 text-sm text-white  rounded-md bg-[#BE17E8] hover:bg-[#BE17E8] dark:bg-[#83E56A] dark:hover:bg-[#83E56A] dark:text-black transition-colors">
-            Follow
-            {
-             followed? 'ing' : ''
-            }
-          </button>
+          <Button
+            disabled={isFollowLoading} 
+            onClick={handleFollowUser}
+            variant={'ghost'} aria-label={`Follow ${user?.username}`} 
+            className="px-10 py-1 text-sm text-white  rounded-md bg-[#BE17E8] hover:bg-[#BE17E8] dark:bg-[#83E56A] dark:hover:bg-[#83E56A] dark:text-black transition-colors">
+          {isFollowLoading ? (
+              <Loader className="w-4 h-4 mx-auto" />
+             ) : (
+               <>{followed ? 'Following' : 'Follow'}</>
+             )}
+          </Button>
           )}
           <div className="flex space-x-6 md:pt-2 ">
             <div className="flex flex-col items-center">
