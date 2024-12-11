@@ -1,3 +1,4 @@
+import { authOptions } from '@/auth'
 import ChatThreadListPanel from '@/components/routes/chat/chat-thread-list-panel'
 import ThreadPanel from '@/components/routes/thread/thread-panel'
 import { generateMetadataFromSEO } from '@/lib/metadata'
@@ -6,7 +7,6 @@ import { isTokenExpired, toSlug } from 'mb-lib'
 import { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
-import { authOptions } from '@/auth'
 
 export default async function ChatCategoryPage({
   params

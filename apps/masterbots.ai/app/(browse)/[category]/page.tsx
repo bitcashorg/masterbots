@@ -1,10 +1,10 @@
-import BrowseList from '@/components/routes/browse/browse-list'
 import { BrowseCategoryTabs } from '@/components/routes/browse/browse-category-tabs'
+import BrowseList from '@/components/routes/browse/browse-list'
 import { BrowseSearchInput } from '@/components/routes/browse/browse-search-input'
+import { generateMetadataFromSEO } from '@/lib/metadata'
 import { getCategories } from '@/services/hasura'
 import { toSlug } from 'mb-lib'
 import type { Metadata } from 'next'
-import { generateMetadataFromSEO } from '@/lib/metadata'
 
 export default async function BrowseCategoryPage({
   params
@@ -15,10 +15,10 @@ export default async function BrowseCategoryPage({
 
   return (
     <div className="w-full max-w-screen-lg pb-10 mx-auto">
-      <BrowseCategoryTabs
+      {/* <BrowseCategoryTabs
         initialCategory={params.category}
         categories={categories}
-      />
+      /> */}
       <BrowseSearchInput />
       <BrowseList />
     </div>
@@ -37,7 +37,7 @@ export async function generateMetadata({
 
   const seoData = {
     title: category?.name || '',
-    description: `Browse the threads and find the one that suits your needs, from the ${category?.name}  category`,
+    description: `Browse the threads and find the one that suits your needs, from the ${category?.name} category`,
     ogType: 'website',
     ogImageUrl: '',
     twitterCard: 'summary'

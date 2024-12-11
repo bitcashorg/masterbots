@@ -3,8 +3,8 @@ import type { Message as AIMessage } from 'ai/react'
 import { type ClassValue, clsx } from 'clsx'
 import type { Message, SocialFollowing } from 'mb-genql'
 import { customAlphabet } from 'nanoid'
-import { twMerge } from 'tailwind-merge'
 import type { ReactNode } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -244,9 +244,9 @@ export const validateEmail = (email: string) => {
 export function removeSurroundingQuotes(str: string) {
   // Check if string starts AND ends with quotes
   if (str.startsWith('"') && str.endsWith('"')) {
-      return str.slice(1, -1);
+    return str.slice(1, -1)
   }
-  return str;
+  return str
 }
 // * List of predefined unique phrases to detect in text
 export const UNIQUE_PHRASES = [

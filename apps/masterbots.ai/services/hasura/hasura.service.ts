@@ -18,7 +18,6 @@ import {
   type Message,
   type Thread,
   type User,
-  type query_root,
   createMbClient,
   everything
 } from 'mb-genql'
@@ -32,8 +31,8 @@ import type {
   GetThreadParams,
   GetThreadsParams,
   SaveNewMessageParams,
-  UpsertUserParams,
-  UpdateUserArgs
+  UpdateUserArgs,
+  UpsertUserParams
 } from './hasura.service.type'
 
 function getHasuraClient({ jwt, adminSecret }: GetHasuraClientParams) {
@@ -608,10 +607,10 @@ export async function UpdateThreadVisibility({
       updateThreadByPk: {
         __args: {
           pkColumns: { threadId },
-          _set: { isPublic }
+          _set: { isApproved: true }
         },
         threadId: true,
-        isPublic: true
+        isApproved: true
       }
     })
     return { success: true }
@@ -694,7 +693,7 @@ export async function getUserRoleByEmail({
           where: { email: { _eq: email } }
         },
         role: true,
-        slug: true,
+        slug: true
       }
     })
     return { users: user as User[] }
@@ -723,9 +722,12 @@ export async function deleteThread({
       deleteThread: {
         __args: {
           where: { threadId: { _eq: threadId }, userId: { _eq: userId } }
-        }
-      },
-      affected_rows: true
+        },
+        returning: {
+          threadId: true
+        },
+        affectedRows: true
+      }
     })
 
     return { success: true }
@@ -779,10 +781,15 @@ export async function getUnapprovedThreads({ jwt }: { jwt: string }) {
   return thread as Thread[]
 }
 
-export async function getUserBySlug({ slug, isSameUser }: { slug: string, isSameUser: boolean }) {
- 
+export async function getUserBySlug({
+  slug,
+  isSameUser
+}: {
+  slug: string
+  isSameUser: boolean
+}) {
   try {
-    const client = getHasuraClient({  })
+    const client = getHasuraClient({})
     const { user } = await client.query({
       user: {
         __args: {
@@ -792,7 +799,7 @@ export async function getUserBySlug({ slug, isSameUser }: { slug: string, isSame
             }
           }
         },
-        userId: true,           
+        userId: true,
         username: true,
         profilePicture: true,
         slug: true,
@@ -801,17 +808,17 @@ export async function getUserBySlug({ slug, isSameUser }: { slug: string, isSame
         threads: {
           __args: {
             where: isSameUser
-              ? {} 
-              : { 
+              ? {}
+              : {
                   _and: [
                     { isApproved: { _eq: true } },
                     { isPublic: { _eq: true } }
                   ]
-              }
+                }
           },
-         threadId: true,
-         isApproved: true,
-         isPublic: true,
+          threadId: true,
+          isApproved: true,
+          isPublic: true,
           chatbot: {
             name: true
           },
@@ -841,11 +848,10 @@ export async function getUserBySlug({ slug, isSameUser }: { slug: string, isSame
       console.log('No user found with user slug:', slug)
       return { user: null, error: 'User not found.' }
     }
-    return { 
-      user: user[0],  // Return the first matching user
-      error: null 
+    return {
+      user: user[0], // Return the first matching user
+      error: null
     }
-
   } catch (error) {
     console.error('Error fetching user by username:', {
       error,
@@ -853,41 +859,39 @@ export async function getUserBySlug({ slug, isSameUser }: { slug: string, isSame
       timestamp: new Date().toISOString()
     })
     if (error instanceof Error) {
-      return { 
-        user: null, 
-        error: error.message || 'Failed to fetch user by username.' 
+      return {
+        user: null,
+        error: error.message || 'Failed to fetch user by username.'
       }
     }
 
-    return { 
-      user: null, 
-      error: 'An unexpected error occurred while fetching user.' 
+    return {
+      user: null,
+      error: 'An unexpected error occurred while fetching user.'
     }
   }
 }
 
-
-
-export async function updateUserPersonality({ 
-  userId, 
-  bio, 
-  topic, 
+export async function updateUserPersonality({
+  userId,
+  bio,
+  topic,
   jwt,
   profilePicture
-}: { 
-  userId: string | undefined , 
-  bio: string | null, 
-  topic: string | null, 
-  jwt: string | undefined,
+}: {
+  userId: string | undefined
+  bio: string | null
+  topic: string | null
+  jwt: string | undefined
   profilePicture: string | null
 }) {
   try {
     if (!jwt) {
-      throw new Error('Authentication required to update user bio');
+      throw new Error('Authentication required to update user bio')
     }
 
     const client = getHasuraClient({ jwt })
-    
+
     // Build update arguments based on non-null values
     const updateArgs: UpdateUserArgs = {
       pkColumns: { userId }
@@ -895,9 +899,9 @@ export async function updateUserPersonality({
 
     updateArgs._set = {
       ...(bio !== null && { bio }),
-      ...(topic !== null && { favourite_topic: topic }),
-      ...(profilePicture !== null && { profilePicture }),
-    };
+      ...(topic !== null && { favouriteTopic: topic }),
+      ...(profilePicture !== null && { profilePicture })
+    }
 
     await client.mutation({
       updateUserByPk: {
@@ -908,10 +912,10 @@ export async function updateUserPersonality({
       }
     })
 
-    return { success: true };
+    return { success: true }
   } catch (error) {
-    console.error('Error updating user bio:', error);
-    return { success: false, error: 'Failed to update user\'s profile' };
+    console.error('Error updating user bio:', error)
+    return { success: false, error: "Failed to update user's profile" }
   }
 }
 

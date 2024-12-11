@@ -35,8 +35,8 @@ export default function ForgotPasswordPage() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.4, delay: 0.2 }}
       >
-          <h1 className="mb-4 text-2xl font-bold">Forgot Password</h1>
-          <ForgotPasswordForm />
+        <h1 className="mb-4 text-2xl font-bold">Forgot Password</h1>
+        <ForgotPasswordForm />
       </motion.div>
     </motion.div>
   )

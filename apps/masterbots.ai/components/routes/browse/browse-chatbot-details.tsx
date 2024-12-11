@@ -1,9 +1,9 @@
+import ShareLink from '@/components/routes/thread/thread-share-link'
+import { Separator } from '@/components/ui/separator'
 import type { Chatbot } from 'mb-genql'
+import { toSlug } from 'mb-lib'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Separator } from '@/components/ui/separator'
-import ShareLink from '@/components/routes/thread/thread-share-link'
-import { toSlug } from 'mb-lib'
 
 /**
  * BrowseChatbotDetails Component
@@ -74,7 +74,7 @@ export default function BrowseChatbotDetails({
                 </span>
               </div>
             </div>
-            
+
             <Link
               style={{ wordSpacing: '4px' }}
               className="text-[#388DE2] text-xs"

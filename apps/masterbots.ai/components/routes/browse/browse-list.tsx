@@ -21,8 +21,9 @@
  */
 
 import BrowseListItem from '@/components/routes/browse/browse-list-item'
-import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeletons'
+import { NoResults } from '@/components/shared/no-results-card'
 import { BrowseListSkeleton } from '@/components/shared/skeletons/browse-list-skeleton'
+import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeletons'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { searchThreadContent } from '@/lib/search'
@@ -30,7 +31,6 @@ import { getBrowseThreads } from '@/services/hasura'
 import { debounce } from 'lodash'
 import type { Thread } from 'mb-genql'
 import React from 'react'
-import { NoResults } from '@/components/shared/no-results-card'
 
 const PAGE_SIZE = 50
 
@@ -41,12 +41,12 @@ export default function BrowseList() {
   const [filteredThreads, setFilteredThreads] = React.useState<Thread[]>([])
   const [loading, setLoading] = React.useState<boolean>(false)
   const [count, setCount] = React.useState<number>(0)
-  const { selectedCategories, selectedChatbots } = useSidebar()
+  const { selectedCategories, selectedChatbots, activeCategory, activeChatbot } = useSidebar()
 
   const fetchThreads = async ({
     categoriesId,
     chatbotsId,
-    keyword
+    keyword,
   }: {
     categoriesId: number[]
     chatbotsId: number[]
@@ -55,10 +55,17 @@ export default function BrowseList() {
     setLoading(true) // ? Seting loading before fetch
     try {
       const threads = await getBrowseThreads({
-        categoriesId,
-        chatbotsId,
-        keyword,
-        limit: PAGE_SIZE
+        ...(activeCategory !== null || activeChatbot !== null
+          ? {
+            categoryId: activeCategory,
+            chatbotName: activeChatbot?.name,
+          }
+          : {
+            categoriesId,
+            chatbotsId,
+            keyword,
+          }),
+        limit: PAGE_SIZE,
       })
       setThreads(threads)
       setFilteredThreads(threads)
@@ -108,12 +115,8 @@ export default function BrowseList() {
       categoriesId: selectedCategories,
       chatbotsId: selectedChatbots
     })
+  }, [selectedCategories, selectedChatbots, activeCategory, activeChatbot])
 
-    console.log({
-      selectedCategories,
-      selectedChatbots
-    })
-  }, [selectedCategories, selectedChatbots])
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   React.useEffect(() => {
