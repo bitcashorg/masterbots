@@ -1,0 +1,182 @@
+'use client'
+
+import { Button } from '@/components/ui/button'
+import Image from 'next/image'
+import Link from 'next/link'
+import {
+  MessageSquare,
+  Users,
+  BookUser,
+  Bot,
+  MessageSquareHeart,
+  Loader,
+  Wand2
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
+import type { BrowseChatbotLayoutProps } from '@/types/types'
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
+
+export function BrowseChatbotMobileDetails({
+  chatbot,
+  isLoading,
+  generateType,
+  onGenerateBio,
+  isWelcomeView,
+  botUrl
+}: BrowseChatbotLayoutProps) {
+  return (
+    <div className="md:hidden w-full relative bg-left-bottom bg-[url('/hero-bg.png')] bg-no-repeat py-6">
+      <div className="absolute inset-0 bg-gradient-to-l from-mirage via-[#6A0D826E]/80 to-[#9412B5BF] dark:via-[#66B252BF]/80 dark:to-[#83E56A6B]/80" />
+      <Card className="relative mx-2 dark:bg-[#09090B] bg-white">
+        <CardHeader>
+          <div className="flex items-start justify-between w-full">
+            <div className="space-y-2">
+              <h1 className="text-xl font-bold text-zinc-950 dark:text-gray-300">
+                {chatbot.name}
+              </h1>
+              <div className="flex items-center gap-2">
+                <Bot className="size-4" />
+                <span className="text-zinc-950 dark:text-gray-300">
+                  Threads: {chatbot.threads.length}
+                </span>
+              </div>
+              <div className="flex items-center text-zinc-950 dark:text-gray-400">
+                <BookUser className="mr-2 size-4" />
+                <span>bio:</span>
+              </div>
+            </div>
+            <div
+              className={cn(
+                'size-20 rounded-full border-2 overflow-hidden',
+                'bg-zinc-200 dark:bg-black',
+                'ring-2 ring-[#be16e8] dark:ring-[#82e46a]'
+              )}
+            >
+              <Image
+                src={chatbot?.avatar || ''}
+                alt={`${chatbot.name} avatar`}
+                width={74}
+                height={74}
+                className="object-cover size-full"
+              />
+            </div>
+          </div>
+          <div className="h-[1px] bg-zinc-200 dark:bg-zinc-800 my-1" />
+        </CardHeader>
+
+        <CardContent className="space-y-6">
+          <div className="space-y-4">
+            <p className="text-zinc-500 dark:text-zinc-500">
+              Click
+              <Button
+                variant="ghost"
+                onClick={onGenerateBio}
+                disabled={isLoading && generateType === 'bio'}
+                className="p-1 text-xs text-gray-500 hover:text-black dark:hover:text-gray-400"
+              >
+                generate
+                {isLoading && generateType === 'bio' ? (
+                  <Loader className="w-4 h-4 ml-1" />
+                ) : (
+                  <Wand2 className="w-4 h-4 ml-1" />
+                )}
+              </Button>{' '}
+              to create a Masterbots biography based on your thread history.
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <MessageSquareHeart className="text-gray-400 size-4" />
+              <span className="text-zinc-500 dark:text-gray-300">
+                Favorite Topic:
+              </span>
+            </div>
+            <p className="text-zinc-500 dark:text-zinc-500">
+              Click
+              <Button
+                variant="ghost"
+                onClick={() => {}} // TODO: create topic AI generation
+                disabled={isLoading && generateType === 'topic'}
+                className="p-1 text-xs text-gray-500 hover:text-black dark:hover:text-gray-400"
+              >
+                generate
+                {isLoading && generateType === 'topic' ? (
+                  <Loader className="w-4 h-4 ml-1" />
+                ) : (
+                  <Wand2 className="w-4 h-4 ml-1" />
+                )}
+              </Button>{' '}
+              and know your most common topic.
+            </p>
+          </div>
+        </CardContent>
+
+        <CardFooter className="flex flex-col space-y-4">
+          <Button
+            asChild
+            className={cn(
+              'h-8 px-3 py-2',
+              'bg-[#be16e8] hover:bg-[#be16e8]/90',
+              'dark:bg-[#82e46a] dark:hover:bg-[#82e46a]/90',
+              'rounded-md shadow',
+              'text-white dark:text-zinc-950',
+              'font-normal font-geist leading-none'
+            )}
+          >
+            <Link
+              href={botUrl}
+              className="flex items-center justify-center gap-1"
+            >
+              <MessageSquare className="size-4" />
+              <span className="text-base">New Chat</span>
+            </Link>
+          </Button>
+
+          <div className="h-[42px] flex-col justify-center items-center inline-flex">
+            <div className="inline-flex items-center justify-center gap-3">
+              <div className="w-[67px] flex-col justify-end items-center gap-1.5 inline-flex">
+                <div className="w-[70px] h-5 text-center text-zinc-950 dark:text-gray-300 text-[13px] font-normal">
+                  Following
+                </div>
+                <div className="justify-start items-end gap-1.5 inline-flex">
+                  <Users className="size-4 text-zinc-950 dark:text-gray-300" />
+                  <div className="text-center text-zinc-500 text-[13px] font-normal">
+                    313
+                  </div>
+                </div>
+              </div>
+              <div className="inline-flex flex-col items-center justify-center">
+                <div className="w-[70px] h-5 text-center text-zinc-950 dark:text-gray-300 text-[13px] font-normal">
+                  Followers
+                </div>
+                <div className="inline-flex items-center justify-start gap-3">
+                  <div className="justify-start items-end gap-1.5 flex">
+                    <Users className="size-4 text-zinc-950 dark:text-gray-300" />
+                    <div className="text-center text-zinc-500 text-[13px] font-normal">
+                      3.2k
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      'h-[21px] px-3 py-0.5',
+                      'rounded-md shadow',
+                      'border border-zinc-100/50',
+                      'text-zinc-500 text-sm font-normal',
+                      'hover:bg-zinc-100/10 hover:text-zinc-400',
+                      'transition-colors'
+                    )}
+                  >
+                    Follow
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardFooter>
+      </Card>
+    </div>
+  )
+}

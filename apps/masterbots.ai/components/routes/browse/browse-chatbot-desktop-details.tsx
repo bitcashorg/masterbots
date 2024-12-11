@@ -1,0 +1,149 @@
+import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import ShareLink from '@/components/routes/thread/thread-share-link'
+import { MessageSquare, Users, Bot, ChevronLeft } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { cn } from '@/lib/utils'
+import type { BrowseChatbotLayoutProps } from '@/types/types'
+
+export function BrowseChatbotDesktopDetails({
+  chatbot,
+  variant,
+  isWelcomeView,
+  descriptionPoints,
+  hasMultiplePoints,
+  botUrl
+}: BrowseChatbotLayoutProps) {
+  return (
+    <div className="hidden md:block w-full relative bg-left-bottom bg-[url('/hero-bg.png')] bg-no-repeat py-6">
+      <div className="absolute inset-0 z-0 bg-gradient-to-l from-mirage via-[#6A0D826E]/80 to-[#9412B5BF] dark:via-[#66B252BF]/80 dark:to-[#83E56A6B]/80" />
+      <div className="relative z-10">
+        <div className="max-w-[600px] mx-auto mb-4">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-zinc-950 dark:text-gray-300 hover:text-gray-100"
+          >
+            <ChevronLeft className="size-4" />
+            <span>Back to browse</span>
+          </Link>
+        </div>
+        <Card className="relative max-w-[600px] dark:bg-[#09090B] bg-white mx-auto">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold text-zinc-950 dark:text-gray-300">
+                {isWelcomeView ? 'Welcome to Masterbots!' : chatbot.name}
+              </h1>
+              <ShareLink
+                variant={variant === 'selected' ? 'active' : 'default'}
+              />
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex items-center text-zinc-950 dark:text-gray-400">
+              <Bot className="mr-2" />
+              <span>bio:</span>
+            </div>
+
+            <div className="relative pt-4 border-t border-zinc-200 dark:border-gray-800">
+              <div className="absolute right-0 flex flex-col items-center gap-4 -top-12">
+                <div
+                  className={cn(
+                    'size-32 rounded-full border-4 overflow-hidden',
+                    'bg-zinc-200 dark:bg-black',
+                    'ring-2 ring-[#be16e8] dark:ring-[#82e46a]'
+                  )}
+                >
+                  <Image
+                    src={chatbot?.avatar || ''}
+                    alt={`${chatbot.name} avatar`}
+                    width={128}
+                    height={128}
+                    className="object-cover size-full"
+                  />
+                </div>
+
+                <Button
+                  asChild
+                  className={cn(
+                    'w-full flex items-center gap-2 px-4 py-2 rounded-md mt-4',
+                    'bg-[#be16e8] hover:bg-[#be16e8]/90',
+                    'dark:bg-[#82e46a] dark:hover:bg-[#82e46a]/90',
+                    'text-white dark:text-zinc-950'
+                  )}
+                >
+                  <Link href={botUrl} className="flex items-center gap-2">
+                    <MessageSquare className="size-4" />
+                    <span>New Chat</span>
+                  </Link>
+                </Button>
+              </div>
+
+              <div className="max-w-[calc(100%-200px)]">
+                {hasMultiplePoints ? (
+                  <>
+                    <p className="mb-2 text-zinc-500 dark:text-zinc-500">
+                      {descriptionPoints[0]}
+                    </p>
+                    <ul className="space-y-1 list-none">
+                      {descriptionPoints.slice(1).map((point, index) => (
+                        <li
+                          key={`point-${
+                            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                            index
+                          }`}
+                          className="text-gray-400"
+                        >
+                          • {point}
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <p className="text-gray-400">{chatbot.description}</p>
+                )}
+              </div>
+            </div>
+          </CardContent>
+
+          <CardFooter className="flex flex-col space-y-4">
+            <div className="flex items-center w-full">
+              <div className="flex items-center gap-2 text-zinc-950 dark:text-gray-300">
+                <MessageSquare className="size-4" />
+                <span>
+                  Threads:{' '}
+                  <span className="text-gray-400">
+                    {chatbot.threads.length}
+                  </span>
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 text-zinc-950 dark:text-gray-300">
+                  <Users className="size-4" />
+                  <span>
+                    Followers: <span className="text-gray-400">3.2k</span>
+                  </span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    'h-[21px] px-3 py-0.5 rounded-md shadow',
+                    'border border-zinc-100/50',
+                    'font-normal text-zinc-500 text-sm',
+                    'flex justify-center items-center gap-1'
+                  )}
+                >
+                  Follow
+                </Button>
+              </div>
+            </div>
+          </CardFooter>
+        </Card>
+      </div>
+    </div>
+  )
+}
