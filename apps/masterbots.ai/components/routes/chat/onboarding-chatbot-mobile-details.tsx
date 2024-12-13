@@ -24,10 +24,10 @@ export function OnboardingMobileChatbotDetails({
             {isWelcomeView ? (
               //* Onboarding View Layout
               <>
-                <h1 className="text-xl font-bold text-zinc-950 dark:text-gray-300">
+                <h1 className="px-4 pt-2 text-xl font-bold text-zinc-950 dark:text-gray-300">
                   Welcome to Masterbots!
                 </h1>
-                <p className="text-sm text-zinc-500 dark:text-zinc-500">
+                <p className="py-2 text-sm text-zinc-500 dark:text-zinc-500">
                   Here you can create new threads and share them to your
                   network! Navigate with the sidebar and pick any bot of your
                   interest.
@@ -68,11 +68,11 @@ export function OnboardingMobileChatbotDetails({
             ) : (
               //* Selected Bot View Layout
               <>
-                <h1 className="text-xl font-bold text-zinc-950 dark:text-gray-300">
+                <h1 className="px-4 pt-2 text-xl font-bold text-zinc-950 dark:text-gray-300">
                   {botName}
                 </h1>
                 <div className="h-[3px] bg-zinc-200 dark:bg-slate-800" />
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start justify-between gap-4 px-4">
                   <p className="flex-1 text-sm text-zinc-500 dark:text-zinc-500">
                     {description}
                   </p>
@@ -99,7 +99,7 @@ export function OnboardingMobileChatbotDetails({
         </CardHeader>
 
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center justify-center gap-2 pt-2">
             <Bot className="size-4 text-zinc-950 dark:text-gray-300" />
             <span className="text-zinc-500 dark:text-zinc-500">
               Threads: {threadCount}

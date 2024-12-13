@@ -29,7 +29,7 @@ export function BrowseChatbotMobileDetails({
       <div className="absolute inset-0 bg-gradient-to-l from-mirage via-[#6A0D826E]/80 to-[#9412B5BF] dark:via-[#66B252BF]/80 dark:to-[#83E56A6B]/80" />
       <Card className="relative mx-2 dark:bg-[#09090B] bg-white">
         <CardHeader>
-          <div className="flex items-start justify-between w-full">
+          <div className="flex items-start justify-between w-full p-5">
             <div className="space-y-2">
               <h1 className="text-xl font-bold text-zinc-950 dark:text-gray-300">
                 {chatbot.name}
@@ -61,53 +61,13 @@ export function BrowseChatbotMobileDetails({
               />
             </div>
           </div>
-          <div className="h-[1px] bg-zinc-200 dark:bg-zinc-800 my-1" />
         </CardHeader>
+          <div className="h-[1px] bg-zinc-200 dark:bg-zinc-800 my-1" />
 
         <CardContent className="space-y-6">
           <div className="space-y-4">
             <p className="text-zinc-500 dark:text-zinc-500">
-              Click
-              <Button
-                variant="ghost"
-                onClick={onGenerateBio}
-                disabled={isLoading && generateType === 'bio'}
-                className="p-1 text-xs text-gray-500 hover:text-black dark:hover:text-gray-400"
-              >
-                generate
-                {isLoading && generateType === 'bio' ? (
-                  <Loader className="w-4 h-4 ml-1" />
-                ) : (
-                  <Wand2 className="w-4 h-4 ml-1" />
-                )}
-              </Button>{' '}
-              to create a Masterbots biography based on your thread history.
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <MessageSquareHeart className="text-gray-400 size-4" />
-              <span className="text-zinc-500 dark:text-gray-300">
-                Favorite Topic:
-              </span>
-            </div>
-            <p className="text-zinc-500 dark:text-zinc-500">
-              Click
-              <Button
-                variant="ghost"
-                onClick={() => {}} // TODO: create topic AI generation
-                disabled={isLoading && generateType === 'topic'}
-                className="p-1 text-xs text-gray-500 hover:text-black dark:hover:text-gray-400"
-              >
-                generate
-                {isLoading && generateType === 'topic' ? (
-                  <Loader className="w-4 h-4 ml-1" />
-                ) : (
-                  <Wand2 className="w-4 h-4 ml-1" />
-                )}
-              </Button>{' '}
-              and know your most common topic.
+              {chatbot.description}
             </p>
           </div>
         </CardContent>

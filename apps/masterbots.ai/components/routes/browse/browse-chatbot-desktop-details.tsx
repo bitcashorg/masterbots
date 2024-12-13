@@ -31,7 +31,7 @@ export function BrowseChatbotDesktopDetails({
         <Card className="relative max-w-[600px] dark:bg-[#09090B] bg-white mx-auto">
           <CardHeader>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-zinc-950 dark:text-gray-300">
+              <h1 className="p-4 text-2xl font-bold text-zinc-950 dark:text-gray-300">
                 {isWelcomeView ? 'Welcome to Masterbots!' : chatbot.name}
               </h1>
               <ShareLink
@@ -39,14 +39,15 @@ export function BrowseChatbotDesktopDetails({
               />
             </div>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex items-center text-zinc-950 dark:text-gray-400">
-              <Bot className="mr-2" />
-              <span>bio:</span>
+          <CardContent className="p-0">
+            <div className="flex items-center text-zinc-950 dark:text-gray-400" />
+            <div className="flex items-center p-4">
+              <Bot />
+              <span className='px-1'>bio:</span>
             </div>
 
-            <div className="relative pt-4 border-t border-zinc-200 dark:border-gray-800">
-              <div className="absolute right-0 flex flex-col items-center gap-4 -top-12">
+            <div className="relative p-4 border-t border-zinc-200 dark:border-gray-800">
+              <div className="absolute right-0 flex flex-col items-center gap-4 px-4 -top-12">
                 <div
                   className={cn(
                     'size-32 rounded-full border-4 overflow-hidden',
