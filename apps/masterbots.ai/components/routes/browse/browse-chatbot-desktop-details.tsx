@@ -1,11 +1,11 @@
-import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import ShareLink from '@/components/routes/thread/thread-share-link'
-import { MessageSquare, Users, Bot, ChevronLeft } from 'lucide-react'
-import Image from 'next/image'
-import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import type { BrowseChatbotLayoutProps } from '@/types/types'
+import { Bot, BotMessageSquareIcon, ChevronLeft, MessageSquarePlusIcon, Users } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
 
 export function BrowseChatbotDesktopDetails({
   chatbot,
@@ -22,7 +22,7 @@ export function BrowseChatbotDesktopDetails({
         <div className="max-w-[600px] mx-auto mb-4">
           <Link
             href="/"
-            className="flex items-center gap-2 text-zinc-950 dark:text-gray-300 hover:text-gray-100"
+            className="flex items-center leading-none gap-2 text-white/80 dark:text-[#09090BC3] hover:text-white dark:hover:text-[#09090B]"
           >
             <ChevronLeft className="size-4" />
             <span>Back to browse</span>
@@ -42,25 +42,24 @@ export function BrowseChatbotDesktopDetails({
           <CardContent className="p-0">
             <div className="flex items-center text-zinc-950 dark:text-gray-400" />
             <div className="flex items-center p-4">
-              <Bot />
+              <Bot className="size-4" />
               <span className='px-1'>bio:</span>
             </div>
 
-            <div className="relative p-4 border-t border-zinc-200 dark:border-gray-800">
+            <div className="relative p-4 border-t-[3px] border-zinc-200 dark:border-gray-800">
               <div className="absolute right-0 flex flex-col items-center gap-4 px-4 -top-12">
                 <div
                   className={cn(
-                    'size-32 rounded-full border-4 overflow-hidden',
-                    'bg-zinc-200 dark:bg-black',
-                    'ring-2 ring-[#be16e8] dark:ring-[#82e46a]'
+                    'size-32 rounded-full overflow-hidden p-0 m-0',
+                    'bg-iron dark:bg-mirage',
+                    'ring-4 ring-[#be16e8] dark:ring-[#82e46a]'
                   )}
                 >
                   <Image
                     src={chatbot?.avatar || ''}
                     alt={`${chatbot.name} avatar`}
-                    width={128}
-                    height={128}
-                    className="object-cover size-full"
+                    className="object-cover !relative w-full h-full"
+                    fill
                   />
                 </div>
 
@@ -74,7 +73,7 @@ export function BrowseChatbotDesktopDetails({
                   )}
                 >
                   <Link href={botUrl} className="flex items-center gap-2">
-                    <MessageSquare className="size-4" />
+                    <MessageSquarePlusIcon className="size-4" />
                     <span>New Chat</span>
                   </Link>
                 </Button>
@@ -92,7 +91,7 @@ export function BrowseChatbotDesktopDetails({
                           key={`point-${
                             // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
                             index
-                          }`}
+                            }`}
                           className="text-gray-400"
                         >
                           • {point}
@@ -110,7 +109,7 @@ export function BrowseChatbotDesktopDetails({
           <CardFooter className="flex flex-col space-y-4">
             <div className="flex items-center w-full">
               <div className="flex items-center gap-2 text-zinc-950 dark:text-gray-300">
-                <MessageSquare className="size-4" />
+                <BotMessageSquareIcon className="size-4" />
                 <span>
                   Threads:{' '}
                   <span className="text-gray-400">
