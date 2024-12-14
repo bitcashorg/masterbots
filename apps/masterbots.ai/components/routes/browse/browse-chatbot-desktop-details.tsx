@@ -1,7 +1,7 @@
 import ShareLink from '@/components/routes/thread/thread-share-link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+import { cn, numberShortener } from '@/lib/utils'
 import type { BrowseChatbotLayoutProps } from '@/types/types'
 import { Bot, BotMessageSquareIcon, ChevronLeft, MessageSquarePlusIcon, Users } from 'lucide-react'
 import Image from 'next/image'
@@ -113,7 +113,7 @@ export function BrowseChatbotDesktopDetails({
                 <span>
                   Threads:{' '}
                   <span className="text-gray-400">
-                    {chatbot.threads.length}
+                    {numberShortener(chatbot.threads.length)}
                   </span>
                 </span>
               </div>
@@ -124,7 +124,9 @@ export function BrowseChatbotDesktopDetails({
                 <div className="flex items-center gap-2 text-zinc-950 dark:text-gray-300">
                   <Users className="size-4" />
                   <span>
-                    Followers: <span className="text-gray-400">3.2k</span>
+                    Followers: <span className="text-gray-400">
+                      {numberShortener(3200)}
+                    </span>
                   </span>
                 </div>
                 <Button

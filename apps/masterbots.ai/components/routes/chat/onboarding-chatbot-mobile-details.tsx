@@ -1,9 +1,9 @@
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
+import { cn, numberShortener } from '@/lib/utils'
 import type { ChatbotDetailsProps } from '@/types/types'
 import { Bot, MessageSquarePlus, Users } from 'lucide-react'
 import Image from 'next/image'
-import { cn } from '@/lib/utils'
 
 export function OnboardingMobileChatbotDetails({
   botName = 'BuildBot',
@@ -24,18 +24,21 @@ export function OnboardingMobileChatbotDetails({
             {isWelcomeView ? (
               //* Onboarding View Layout
               <>
-                <h1 className="px-4 pt-2 text-xl font-bold text-zinc-950 dark:text-gray-300">
-                  Welcome to Masterbots!
-                </h1>
-                <p className="py-2 text-sm text-zinc-500 dark:text-zinc-500">
-                  Here you can create new threads and share them to your
-                  network! Navigate with the sidebar and pick any bot of your
-                  interest.
-                </p>
+
+                <div className="px-4 pt-2.5 flex flex-col gap-2.5">
+                  <h1 className="text-xl font-bold text-zinc-950 dark:text-gray-300">
+                    Welcome to Masterbots!
+                  </h1>
+                  <p className="w-full text-sm text-zinc-500 dark:text-zinc-500 min-h-24">
+                    Here you can create new threads and share them to your
+                    network! Navigate with the sidebar and pick any bot of your
+                    interest.
+                  </p>
+                </div>
 
                 <div className="h-[3px] bg-zinc-200 dark:bg-slate-800" />
 
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex px-4 items-start justify-between gap-4">
                   <div className="flex-1">
                     <h2 className="text-lg font-semibold text-zinc-950 dark:text-gray-300">
                       Your Journey
@@ -50,17 +53,16 @@ export function OnboardingMobileChatbotDetails({
 
                   <div
                     className={cn(
-                      'size-16 shrink-0 rounded-full relative',
+                      'size-24 shrink-0 rounded-full relative',
                       'bg-zinc-200 dark:bg-black',
-                      'ring-2 ring-[#be16e8] dark:ring-[#82e46a]'
+                      'ring-[3px] ring-[#be16e8] dark:ring-[#82e46a]'
                     )}
                   >
                     <Image
                       src={avatar}
                       alt={`${botName} avatar`}
-                      height={64}
-                      width={64}
                       className="object-cover rounded-full"
+                      fill
                     />
                   </div>
                 </div>
@@ -102,7 +104,7 @@ export function OnboardingMobileChatbotDetails({
           <div className="flex items-center justify-center gap-2 pt-2">
             <Bot className="size-4 text-zinc-950 dark:text-gray-300" />
             <span className="text-zinc-500 dark:text-zinc-500">
-              Threads: {threadCount}
+              Threads: {numberShortener(threadCount)}
             </span>
           </div>
 
@@ -110,7 +112,7 @@ export function OnboardingMobileChatbotDetails({
             <div className="flex items-center gap-2">
               <Users className="size-4" />
               <span className="text-zinc-500 dark:text-zinc-500">
-                Followers: {followersCount}
+                Followers: {numberShortener(followersCount)}
               </span>
             </div>
             <Button
@@ -140,6 +142,6 @@ export function OnboardingMobileChatbotDetails({
           </Button>
         </CardFooter>
       </Card>
-    </div>
+    </div >
   )
 }

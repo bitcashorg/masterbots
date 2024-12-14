@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+import { cn, numberShortener } from '@/lib/utils'
 import type { BrowseChatbotLayoutProps } from '@/types/types'
 import {
   Bot,
@@ -57,7 +57,7 @@ export function BrowseChatbotMobileDetails({
                 className={cn(
                   'size-20 rounded-full overflow-hidden',
                   'bg-iron dark:bg-mirage',
-                  'ring-4 ring-[#be16e8] dark:ring-[#82e46a]'
+                  'ring-[3px] ring-[#be16e8] dark:ring-[#82e46a]'
                 )}
               >
                 <Image
@@ -110,7 +110,7 @@ export function BrowseChatbotMobileDetails({
                   <div className="justify-start items-end gap-1.5 inline-flex">
                     <Users className="size-4 text-zinc-950 dark:text-gray-300" />
                     <div className="text-center text-zinc-500 text-[13px] font-normal">
-                      313
+                      {numberShortener(313)}
                     </div>
                   </div>
                 </div>
@@ -122,7 +122,7 @@ export function BrowseChatbotMobileDetails({
                     <div className="justify-start items-end gap-1.5 flex">
                       <Users className="size-4 text-zinc-950 dark:text-gray-300" />
                       <div className="text-center text-zinc-500 text-[13px] font-normal">
-                        3.2k
+                        {numberShortener(3200)}
                       </div>
                     </div>
                     <Button

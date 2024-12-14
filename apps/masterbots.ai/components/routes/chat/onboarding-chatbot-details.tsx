@@ -1,9 +1,9 @@
-import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { MessageSquarePlus, Users, Bot } from 'lucide-react'
-import Image from 'next/image'
-import { cn } from '@/lib/utils'
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
+import { cn, numberShortener } from '@/lib/utils'
 import type { ChatbotDetailsProps } from '@/types/types'
+import { Bot, MessageSquarePlus, Users } from 'lucide-react'
+import Image from 'next/image'
 
 export function OnboardingChatbotDetails({
   botName = 'BuildBot',
@@ -20,19 +20,17 @@ export function OnboardingChatbotDetails({
     <div className="hidden h-[calc(100vh-196px)] md:flex items-center justify-center -translate-y-8">
       <Card className="w-[600px] bg-white dark:bg-[#09090B] relative">
         <CardHeader className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-zinc-950 dark:text-gray-300">
-              {isWelcomeView ? 'Welcome to Masterbots!' : botName}
-            </h1>
-          </div>
+          <h1 className="px-4 pt-4 text-2xl font-bold text-zinc-950 dark:text-gray-300">
+            {isWelcomeView ? 'Welcome to Masterbots!' : botName}
+          </h1>
 
           <div className="h-[3px] bg-zinc-200 dark:bg-slate-800 relative">
             <div className="absolute right-6 -top-12">
               <div
                 className={cn(
-                  'size-32 rounded-full p-2.5 relative',
+                  'size-32 rounded-full relative',
                   'bg-zinc-200 dark:bg-black',
-                  'ring-2 ring-[#be16e8] dark:ring-[#82e46a]'
+                  'ring-4 ring-[#be16e8] dark:ring-[#82e46a]'
                 )}
               >
                 <Image
@@ -48,14 +46,11 @@ export function OnboardingChatbotDetails({
         </CardHeader>
 
         <CardContent className="space-y-6">
-          <div className="max-w-[calc(100%-160px)]">
-            {' '}
-            <p className="text-base text-zinc-500 dark:text-zinc-500">
-              {isWelcomeView
-                ? 'Here you can create new threads and share them to your network! Navigate with the sidebar and pick any bot of your interest.'
-                : description}
-            </p>
-          </div>
+          <p className="pt-2.5 max-w-[calc(100%-160px)] text-base text-zinc-500 dark:text-zinc-500 min-h-24">
+            {isWelcomeView
+              ? 'Here you can create new threads and share them to your network! Navigate with the sidebar and pick any bot of your interest.'
+              : description}
+          </p>
 
           {isWelcomeView && (
             <div className="text-center">
@@ -74,14 +69,14 @@ export function OnboardingChatbotDetails({
             <div className="flex items-center gap-2">
               <Bot className="w-4 h-4 text-zinc-950 dark:text-gray-300" />
               <span className="text-zinc-950 dark:text-gray-300">
-                Threads: <span className="text-zinc-500">{threadCount}</span>
+                Threads: <span className="text-zinc-500">{numberShortener(threadCount)}</span>
               </span>
             </div>
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-zinc-950 dark:text-gray-300" />
               <span className="text-zinc-950 dark:text-gray-300">
                 Followers:{' '}
-                <span className="text-zinc-500">{followersCount}</span>
+                <span className="text-zinc-500">{numberShortener(followersCount)}</span>
               </span>
             </div>
             <Button
