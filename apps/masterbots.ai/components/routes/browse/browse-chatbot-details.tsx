@@ -1,102 +1,96 @@
-import ShareLink from '@/components/routes/thread/thread-share-link'
-import { Separator } from '@/components/ui/separator'
-import type { Chatbot } from 'mb-genql'
-import { toSlug } from 'mb-lib'
-import Image from 'next/image'
-import Link from 'next/link'
+'use client'
 
-/**
- * BrowseChatbotDetails Component
- *
- * This component displays detailed information about a specific chatbot.
- * It includes the chatbot's name, primary category, description, and the number of threads associated with it.
- *
- * Props:
- * - chatbot: An optional Chatbot object containing details about the chatbot.
- *
- * Key Features:
- * - Conditional Rendering: Displays a message if no chatbot data is available.
- * - Dynamic URL Generation: Creates a URL for chatting with the chatbot based on its category and name.
- * - Responsive Design: Utilizes Tailwind CSS for styling and layout.
- */
+import { toSlug } from 'mb-lib'
+import { nanoid } from '@/lib/utils'
+import { useState } from 'react'
+import { useModel } from '@/lib/hooks/use-model'
+import { useChat } from 'ai/react'
+import toast from 'react-hot-toast'
+import { UserPersonalityPrompt } from '@/lib/constants/prompts'
+import type { BrowseChatbotDetailsProps } from '@/types/types'
+import { BrowseChatbotDesktopDetails } from '@/components/routes/browse/browse-chatbot-desktop-details'
+import { BrowseChatbotMobileDetails } from '@/components/routes/browse/browse-chatbot-mobile-details'
+
 export default function BrowseChatbotDetails({
-  chatbot
-}: {
-  chatbot?: Chatbot
-}) {
+  chatbot,
+  variant = 'default'
+}: BrowseChatbotDetailsProps) {
+  const [isLoading, setIsLoading] = useState(false)
+  const [generateType, setGenerateType] = useState<string | undefined>('')
+  const [lastMessage, setLastMessage] = useState<string | null>(null)
+  const { selectedModel, clientType } = useModel()
+
+  const { append } = useChat({
+    id: nanoid(),
+    body: {
+      id: nanoid(),
+      model: selectedModel,
+      clientType
+    },
+    onResponse(response) {
+      if (response.status === 401) {
+        toast.error(response.statusText)
+      } else if (!response.ok) {
+        toast.error('Failed to process request')
+      }
+      setIsLoading(false)
+    },
+    onError(error) {
+      toast.error('An error occurred')
+      setIsLoading(false)
+    },
+    async onFinish(message) {
+      setLastMessage(message.content)
+    }
+  })
+
   if (!chatbot?.categories?.length) {
     return <div>No chatbot data available</div>
   }
+
   const primaryCategory = chatbot.categories[0].category
   const botUrl = `/c/${toSlug(primaryCategory.name)}/${chatbot.name.toLowerCase()}`
+  const isWelcomeView = variant === 'default' && !chatbot.name.includes('Bot')
+
+  const descriptionPoints =
+    chatbot.description?.split(';').map(point => point.trim()) || []
+  const hasMultiplePoints = descriptionPoints.length > 1
+
+  const generateBio = async () => {
+    try {
+      setIsLoading(true)
+      setGenerateType('bio')
+      const promptContent = UserPersonalityPrompt('bio', [])
+      return append({
+        id: nanoid(),
+        content: promptContent,
+        role: 'system',
+        createdAt: new Date()
+      })
+    } catch (error) {
+      setIsLoading(false)
+      toast.error('Failed to generate content')
+      console.error('Bio generation failed:', error)
+    }
+  }
+
+  const sharedProps = {
+    chatbot,
+    variant,
+    isLoading,
+    generateType,
+    lastMessage,
+    onGenerateBio: generateBio,
+    isWelcomeView,
+    descriptionPoints,
+    hasMultiplePoints,
+    botUrl
+  }
 
   return (
-    <div className="relative bg-cover py-10 bg-gradient-to-l from-mirage via-[#2B5D91] to-[#388DE2]">
-      <div className="max-w-[600px] w-full mx-auto px-4">
-        <a className="flex items-center mb-6 space-x-1" href="/">
-          {/* biome-ignore lint/a11y/noSvgWithoutTitle: <explanation> */}
-          <svg
-            width="11"
-            height="12"
-            viewBox="0 0 11 12"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M7.09973 2.15008L3.24979 6.00003L7.09973 9.84998"
-              stroke="#FAFAFA"
-              strokeWidth="0.962486"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <span className="text-['24px'] font-normal">Back to browse</span>
-        </a>
-
-        <div className="dark:bg-[#09090B] bg-white rounded-lg p-6 relative font-mono">
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-4">
-              <div className="text-2xl font-black">{chatbot?.name}</div>
-              <ShareLink />
-            </div>
-            <Separator className="bg-gray-300 dark:bg-mirage" />
-            <div className="text-xl font-semibold">
-              {chatbot?.categories[0].category.name}.
-            </div>
-            <div className="text-base">
-              <div className="font-medium">
-                {chatbot?.description ? <div>{chatbot?.description}</div> : ''}
-              </div>
-              <div className="font-light">
-                Threads:
-                <span className="text-[#71717A]">
-                  {chatbot?.threads.length ?? 1}
-                </span>
-              </div>
-            </div>
-
-            <Link
-              style={{ wordSpacing: '4px' }}
-              className="text-[#388DE2] text-xs"
-              href={botUrl}
-            >
-              Chat with {chatbot?.name} &gt;
-            </Link>
-          </div>
-
-          <div className="size-24 mr-5 absolute border-4 border-[#388DE2] right-0 top-0 translate-x-1/4 rounded-full -translate-y-1/4 dark:bg-[#131316] bg-white">
-            <Image
-              className="transition-opacity duration-300 rounded-full select-none size-full ring-1 ring-zinc-100/10 hover:opacity-80"
-              src={chatbot?.avatar || ''}
-              alt={
-                chatbot?.avatar ? `Avatar of ${chatbot?.name}` : 'Default Avatar'
-              }
-              height={96}
-              width={96}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
+    <>
+      <BrowseChatbotDesktopDetails {...sharedProps} />
+      <BrowseChatbotMobileDetails {...sharedProps} />
+    </>
   )
 }

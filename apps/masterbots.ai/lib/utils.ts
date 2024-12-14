@@ -318,3 +318,13 @@ export function parseClickableText(fullText: string): ParsedText {
 export function cleanClickableText(text: string): string {
   return text.replace(/(:|\.|\,)\s*$/, '')
 }
+
+/**
+ * Short the large numbers to a more friendly format. Examples: 670, 3.2k, 1.22m, 3.445b
+ * **/
+export function numberShortener(number: number): string {
+  if (number < 1000) return number.toString()
+  if (number < 1000000) return (number / 1000).toFixed(1) + 'k'
+  if (number < 1000000000) return (number / 1000000).toFixed(2) + 'm'
+  return (number / 1000000000).toFixed(3) + 'b'
+}

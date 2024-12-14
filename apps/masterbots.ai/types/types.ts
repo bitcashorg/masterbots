@@ -231,3 +231,34 @@ export type AdminUserUpdate = {
   getFreeMonth?: boolean
   role?: (typeof UserRole)[keyof typeof UserRole]
 }
+
+// * Chatbot details types
+export interface ChatbotDetailsProps {
+  botName?: string
+  avatar?: string
+  description?: string | null
+  threadCount?: number
+  followersCount?: number
+  isWelcomeView?: boolean
+  categoryName?: string
+  onNewChat?: () => void
+  onFollow?: () => void
+}
+
+export interface BrowseChatbotDetailsProps {
+  chatbot?: Chatbot
+  variant?: 'default' | 'selected'
+}
+
+export interface BrowseChatbotLayoutProps {
+  chatbot: Chatbot
+  variant: 'default' | 'selected'
+  isLoading: boolean
+  generateType?: string | undefined
+  lastMessage: string | null
+  onGenerateBio: () => void
+  isWelcomeView: boolean
+  descriptionPoints: string[]
+  hasMultiplePoints: boolean
+  botUrl: string
+}
