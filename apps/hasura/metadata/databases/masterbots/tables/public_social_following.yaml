@@ -2,6 +2,9 @@ table:
   name: social_following
   schema: public
 object_relationships:
+  - name: chatbot
+    using:
+      foreign_key_constraint_on: followee_id_chatbot
   - name: user
     using:
       foreign_key_constraint_on: followee_id
