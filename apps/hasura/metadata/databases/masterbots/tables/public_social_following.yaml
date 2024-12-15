@@ -87,6 +87,10 @@ update_permissions:
       check: null
     comment: ""
 delete_permissions:
+  - role: anonymous
+    permission:
+      filter: {}
+    comment: ""
   - role: moderator
     permission:
       filter:

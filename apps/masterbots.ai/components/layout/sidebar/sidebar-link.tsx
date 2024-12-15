@@ -30,7 +30,6 @@ export default function SidebarLink({ category, isFilterMode, page }: SidebarLin
     activeChatbot,
     setActiveChatbot,
     selectedCategories,
-    selectedChatbots,
     setSelectedCategories,
     setSelectedChatbots,
     expandedCategories,
