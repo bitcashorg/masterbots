@@ -2,13 +2,16 @@ import { ChatChatbotDetailsSkeleton } from '@/components/shared/skeletons/chat-c
 import { Button } from '@/components/ui/button'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
-import { cn } from '@/lib/utils'
-import { getCategory, getThreads } from '@/services/hasura'
-import { MessageCircle, MessageSquare, Users } from 'lucide-react'
+import { cn, Ifollowed, formatNumber} from '@/lib/utils'
+import { getCategory, getThreads, chatbotFollowOrUnfollow } from '@/services/hasura'
+import { MessageCircle, MessageSquare, Users, Loader } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
+import router from 'next/router'
+import type { SocialFollowing } from 'mb-genql'
 
 /**
  * Displays detailed information about a chatbot or welcome message in the Masterbots application.
@@ -30,10 +33,67 @@ export default function ChatChatbotDetails({ page }: { page?: string }) {
   const [threadNum, setThreadNum] = useState<number>(0)
   const [categoryName, setCategoryName] = useState<string>('')
   const { slug } = useParams()
+  const [isFollowLoading, setIsFollowLoading] = useState<boolean>(false)
+  const [followers, setFollowers] = useState<SocialFollowing[]>(activeChatbot?.followers || []);
 
 
   if (status === "loading") return <ChatChatbotDetailsSkeleton />
 
+
+  const handleFollowChatbot = async () => {
+   try {
+    if (!session) {
+      toast.error('Please sign in to follow user')
+      router.push('/auth/signin')
+      return
+    }
+
+    setIsFollowLoading(true)
+    const followerId = session.user?.id
+    const followeeId = activeChatbot?.chatbotId
+    if (!followerId) {
+      toast.error('Invalid user data');
+         return;
+     }
+
+    if (!followeeId) {
+      toast.error('Invalid chatbot data, please select a chatbot');
+         return;
+      }
+    const {success, error, follow} =  await chatbotFollowOrUnfollow({followerId, followeeId, jwt: session.user.hasuraJwt as string})
+    if(!success){
+      console.error('Failed to follow/Unfolow bot:', error)
+      toast.error(error || 'Failed to follow/unfollow bot')
+      return
+    }
+    if(follow){
+      setFollowers([
+        ...followers,
+        {
+            followerId: followerId,
+            followeeId: null,
+            followeeIdChatbot: followeeId,
+            chatbot: null,
+            createdAt: new Date().toISOString(),
+            userByFollowerId: null as unknown, 
+            user: null,
+            __typename: 'SocialFollowing'
+        } as SocialFollowing  
+    ]);
+   }else{
+      setFollowers(followers.filter(follower => follower.followerId !== followerId))
+    }
+  
+    toast.success(follow ? `You have followed ${activeChatbot?.name} successfully` : `You have  unfollowed  ${activeChatbot?.name}`)
+
+   }  catch (error) {
+    setIsFollowLoading(false)
+    toast.error('Failed to follow user')
+    console.error('Failed to follow user:', error)
+  } finally {
+    setIsFollowLoading(false)
+  }
+  }
   const getThreadNum = async () => {
     if (!session?.user) return
     const threads = await getThreads({
@@ -48,7 +108,6 @@ export default function ChatChatbotDetails({ page }: { page?: string }) {
     const category = await getCategory({ categoryId: activeCategory as number })
     setCategoryName(category.name)
   }
-
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (!activeCategory) {
@@ -59,6 +118,9 @@ export default function ChatChatbotDetails({ page }: { page?: string }) {
   }, [activeCategory, activeChatbot, session?.user])
 
   const botName = activeChatbot?.name || 'BuildBot'
+
+  const followed = Ifollowed({followers, userId: session?.user?.id || ''}) 
+
 
   return (
     <div className="h-[calc(100vh-196px)] flex items-center justify-center -translate-y-8">
@@ -131,17 +193,23 @@ export default function ChatChatbotDetails({ page }: { page?: string }) {
                   <span className="text-xs font-normal leading-tight md:text-sm text-zinc-950 dark:text-gray-300">
                     Followers:{' '}
                     <span className="text-zinc-500 dark:text-zinc-500">
-                      3.2k
+                     {formatNumber(followers.length || 0)}
                     </span>
                   </span>
                 </div>
 
                 <Button
+                 disabled={isFollowLoading} 
+                  onClick={handleFollowChatbot}
                   variant="outline"
                   size="sm"
                   className="text-xs md:text-sm border-zinc-200 dark:border-zinc-100/50 text-zinc-500 dark:text-zinc-500"
                 >
-                  Follow
+                  {isFollowLoading ? (
+                    <Loader className="w-4 h-4 mx-auto" />
+                  ) : (
+                    <>{followed ? 'Following' : 'Follow'}</>
+                  )}
                 </Button>
               </div>
             </div>

@@ -2,9 +2,9 @@ import { Separator } from '@/components/ui/separator'
 import Image from 'next/image'
 import { BookUser, BotIcon, MessageSquareHeart, Wand2, ImagePlus, Loader, UserIcon, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { User } from 'mb-genql'
+import type { User } from 'mb-genql'
 import { useProfile } from '@/lib/hooks/use-profile'
-import { type Message, useChat } from "ai/react";
+import { type Message,  useChat } from "ai/react";
 import { nanoid, removeSurroundingQuotes } from '@/lib/utils'
 import { useModel } from '@/lib/hooks/use-model'
 import toast from 'react-hot-toast'
@@ -189,8 +189,8 @@ export function UserCard({ user, loading }: UserCardProps) {
        }
      const {success, error, follow} =  await userFollowOrUnfollow({followerId, followeeId, jwt: session.user.hasuraJwt as string})
       if(!success){
-        console.error('Failed to follow/Unfolow user:', error)
-        toast.error(error || 'Failed to follow/unfollow user')
+        console.error('Failed to follow/Unfollow user:', error)
+        toast.error(error || 'Failed to follow/Unfollow user')
         return
       }
 
@@ -204,6 +204,8 @@ export function UserCard({ user, loading }: UserCardProps) {
             createdAt: new Date().toISOString(),
             user: prevUser,
             userByFollowerId: prevUser,
+            chatbot: null,
+            followeeIdChatbot: null,
             __typename: 'SocialFollowing'
           };
         
