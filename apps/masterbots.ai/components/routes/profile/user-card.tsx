@@ -187,6 +187,10 @@ export function UserCard({ user, loading }: UserCardProps) {
         toast.error('Invalid user data');
            return;
        }
+      if (followerId === followeeId) {
+           toast.error('You cannot follow yourself');
+           return;
+       }
      const {success, error, follow} =  await userFollowOrUnfollow({followerId, followeeId, jwt: session.user.hasuraJwt as string})
       if(!success){
         console.error('Failed to follow/Unfollow user:', error)

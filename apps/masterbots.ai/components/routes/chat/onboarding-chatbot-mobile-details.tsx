@@ -124,6 +124,7 @@ export function OnboardingMobileChatbotDetails({
             <Button
               variant="outline"
               size="sm"
+              disabled={!session}
               onClick={onFollow}
               className="border-zinc-200 dark:border-zinc-100/50 text-zinc-500"
             >

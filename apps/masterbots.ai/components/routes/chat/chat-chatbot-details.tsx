@@ -8,7 +8,7 @@ import { useSession } from 'next-auth/react'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
-import router from 'next/router'
+import { useRouter } from 'next/navigation'
 import type { SocialFollowing } from 'mb-genql'
 import { OnboardingChatbotDetails } from '@/components/routes/chat/onboarding-chatbot-details'
 import { OnboardingMobileChatbotDetails } from '@/components/routes/chat/onboarding-chatbot-mobile-details'
@@ -24,6 +24,7 @@ export default function ChatChatbotDetails() {
   const [threadNum, setThreadNum] = useState<number>(0)
   const [categoryName, setCategoryName] = useState<string>('')
   const [isLoading, setIsLoading] = useState(true)
+  const router = useRouter();
 
 
   const handleFollow = async () => {
@@ -67,7 +68,7 @@ export default function ChatChatbotDetails() {
         } as SocialFollowing  
     ]);
    }else{
-      setFollowers(followers.filter(follower => follower.followerId !== followerId))
+    setFollowers(followers.filter(follower => !(follower.followerId === followerId && follower.followeeIdChatbot === followeeId)))
     }
   
     toast.success(follow ? `You have followed ${activeChatbot?.name} successfully` : `You have  unfollowed  ${activeChatbot?.name}`)
