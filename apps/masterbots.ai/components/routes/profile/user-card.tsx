@@ -37,7 +37,6 @@ export function UserCard({ user, loading }: UserCardProps) {
   const [isFollowLoading, setIsFollowLoading] = useState(false)
   
   const userQuestions = user?.threads.map((thread) => {
-
     if (!thread.messages?.length) {
        return null;
        }
@@ -167,7 +166,7 @@ export function UserCard({ user, loading }: UserCardProps) {
     setFavouriteTopic(user?.favouriteTopic)
     setUserData(user)
   }
-  , [user])
+  ,[user])
 
 
 
