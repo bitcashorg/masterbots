@@ -62,13 +62,13 @@ export default function BrowseList() {
           ? {
               categoryId: activeCategory,
               chatbotName: activeChatbot?.name,
-              ...(userId ? { userId } : {})
+              ...(userId ? { followedUserId: userId } : {})
             }
           : {
               categoriesId,
               chatbotsId,
               keyword,
-              ...(userId ? { userId } : {})
+              ...(userId ? { followedUserId: userId } : {})
             }),
         limit: PAGE_SIZE,
       })

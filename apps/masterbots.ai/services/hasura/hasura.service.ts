@@ -377,22 +377,10 @@ export async function getBrowseThreads({
   userId,
   limit,
   offset,
-  slug
+  slug,
+  followedUserId
 }: GetBrowseThreadsParams) {
   const client = getHasuraClient({});
-
-  console.log({
-    categoryId,
-    categoriesId,
-    keyword,
-    chatbotName,
-    chatbotsId,
-    userId,
-    limit,
-    offset,
-    slug
-
-  })
 
   const baseWhereConditions = {
     ...(categoryId
@@ -452,7 +440,7 @@ export async function getBrowseThreads({
       __args: {
         orderBy: [{ createdAt: 'DESC' }],
         where: baseWhereConditions,
-        limit: (limit || 30) * 5,
+        limit: (limit || 30) * 2,
         offset: offset || 0
       },
       threadId: true,
@@ -511,24 +499,31 @@ export async function getBrowseThreads({
   
   // Separate following content (both from followed bots and users)
   const followingThreads = threads.filter(thread => {
-    if (userId) {
+    if (followedUserId) {
+      // Exclude user's own posts
+      if (thread.userId === followedUserId) {
+        return false;
+      }
+      
       // For bot content
-      if (thread.chatbot) {
-        return thread.chatbot.followers?.some(follower => follower.followerId === userId);
-      }
+      const isFollowingBot = thread.chatbot?.followers?.some(follower => {
+        return follower.followerId === followedUserId;
+      });
+  
       // For user content 
-      if (thread.user) {
-        return thread.user.followers?.some(follower => follower.followerId === userId);
-      }
+      const isFollowingUser = thread.user?.followers?.some(follower => {
+        return follower.followerId === followedUserId;
+      });
+  
+      return isFollowingBot || isFollowingUser;
     }
     return false;
   });
-
-
+  
   // Organic content (neither from followed bots nor followed users)
   const organicThreads = threads.filter(thread => 
-    !thread.chatbot?.followers?.some(follower => follower.followerId === userId) &&
-    !thread.user?.followers?.some(follower => follower.followerId === userId)
+    !thread.chatbot?.followers?.some(follower => follower.followerId === followedUserId) &&
+    !thread.user?.followers?.some(follower => follower.followerId === followedUserId)
   );
 
   const interweavedThreads: Thread[] = [];
@@ -551,7 +546,6 @@ export async function getBrowseThreads({
       organicIndex++;
     }
   }
-
   return interweavedThreads;
 }
 
