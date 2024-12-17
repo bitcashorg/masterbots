@@ -135,6 +135,7 @@ export default function ChatChatbotDetails() {
     console.log('Starting new chat with:', botName)
   }
 
+   const followed = Ifollowed({followers, userId: session?.user?.id || ''}) 
 
   const sharedProps = {
     botName,
@@ -147,12 +148,11 @@ export default function ChatChatbotDetails() {
     isWelcomeView,
     categoryName,
     onNewChat: handleNewChat,
-    onFollow: handleFollow
+    onFollow: handleFollow,
+    followers
   }
 
-  // const followed = Ifollowed({followers, userId: session?.user?.id || ''}) 
-
-
+ 
   return (
     <>
       <OnboardingChatbotDetails {...sharedProps} />

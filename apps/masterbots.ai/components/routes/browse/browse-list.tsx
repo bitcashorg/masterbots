@@ -31,6 +31,7 @@ import { getBrowseThreads } from '@/services/hasura'
 import { debounce } from 'lodash'
 import type { Thread } from 'mb-genql'
 import React from 'react'
+import { useSession } from 'next-auth/react'
 
 const PAGE_SIZE = 50
 
@@ -42,6 +43,8 @@ export default function BrowseList() {
   const [loading, setLoading] = React.useState<boolean>(false)
   const [count, setCount] = React.useState<number>(0)
   const { selectedCategories, selectedChatbots, activeCategory, activeChatbot } = useSidebar()
+  const { data: session } = useSession()
+  const userId = session?.user?.id
 
   const fetchThreads = async ({
     categoriesId,
@@ -57,14 +60,16 @@ export default function BrowseList() {
       const threads = await getBrowseThreads({
         ...(activeCategory !== null || activeChatbot !== null
           ? {
-            categoryId: activeCategory,
-            chatbotName: activeChatbot?.name,
-          }
+              categoryId: activeCategory,
+              chatbotName: activeChatbot?.name,
+              ...(userId ? { userId } : {})
+            }
           : {
-            categoriesId,
-            chatbotsId,
-            keyword,
-          }),
+              categoriesId,
+              chatbotsId,
+              keyword,
+              ...(userId ? { userId } : {})
+            }),
         limit: PAGE_SIZE,
       })
       setThreads(threads)
@@ -115,7 +120,7 @@ export default function BrowseList() {
       categoriesId: selectedCategories,
       chatbotsId: selectedChatbots
     })
-  }, [selectedCategories, selectedChatbots, activeCategory, activeChatbot])
+  }, [selectedCategories, selectedChatbots, activeCategory, activeChatbot, session])
 
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>

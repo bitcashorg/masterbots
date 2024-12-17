@@ -368,131 +368,6 @@ export async function getChatbot({
   return chatbot[0] as Chatbot
 }
 
-// export async function getBrowseThreads({
-//   categoryId,
-//   categoriesId,
-//   keyword,
-//   chatbotName,
-//   chatbotsId,
-//   userId,
-//   limit,
-//   offset,
-//   slug
-// }: GetBrowseThreadsParams) {
-//   const client = getHasuraClient({})
-
-//   const { thread } = await client.query({
-//     thread: {
-//       __args: {
-//         orderBy: [{ createdAt: 'DESC' }],
-//         where: {
-//           ...(categoryId
-//             ? {
-//                 chatbot: {
-//                   categories: {
-//                     categoryId: { _eq: categoryId }
-//                   }
-//                 }
-//               }
-//             : {}),
-//           ...(categoriesId
-//             ? {
-//                 chatbot: {
-//                   categories: {
-//                     categoryId: { _in: categoriesId }
-//                   }
-//                 }
-//               }
-//             : {}),
-//           ...(chatbotName
-//             ? {
-//                 chatbot: {
-//                   name: { _eq: chatbotName }
-//                 }
-//               }
-//             : {}),
-//           ...(chatbotsId
-//             ? {
-//                 chatbot: {
-//                   chatbotId: { _in: chatbotsId }
-//                 }
-//               }
-//             : {}),
-//           ...(userId
-//             ? {
-//                 userId: {
-//                   _eq: userId
-//                 }
-//               }
-//             : {}),
-//           ...(slug
-//             ? {
-//                 user: {
-//                   slug: {
-//                     _eq: slug
-//                   }
-//                 }
-//               }
-//             : {}),
-//           isPublic: { _eq: true },
-//           isApproved: { _eq: true }
-//         },
-//         limit: limit || 30,
-//         offset: offset || 0
-//       },
-//       chatbot: {
-//         categories: {
-//           category: {
-//             ...everything
-//           },
-//           ...everything
-//         },
-//         threads: {
-//           threadId: true
-//         },
-//         ...everything
-//       },
-//       messages: {
-//         ...everything,
-//         __args: {
-//           orderBy: [{ createdAt: 'ASC' }],
-//           ...(keyword
-//             ? {
-//                 where: {
-//                   _or: [
-//                     {
-//                       content: {
-//                         _iregex: keyword
-//                       }
-//                     },
-//                     {
-//                       content: {
-//                         _eq: keyword
-//                       }
-//                     }
-//                   ]
-//                 }
-//               }
-//             : ''),
-//           limit: 2
-//         }
-//       },
-//       user: {
-//         username: true,
-//         profilePicture: true,
-//         slug: true
-//       },
-//       isApproved: true,
-//       isPublic: true,
-//       ...everything
-//     }
-//   })
-
-//   return thread as Thread[]
-// }
-
-
-
 export async function getBrowseThreads({
   categoryId,
   categoriesId,
@@ -505,6 +380,19 @@ export async function getBrowseThreads({
   slug
 }: GetBrowseThreadsParams) {
   const client = getHasuraClient({});
+
+  console.log({
+    categoryId,
+    categoriesId,
+    keyword,
+    chatbotName,
+    chatbotsId,
+    userId,
+    limit,
+    offset,
+    slug
+
+  })
 
   const baseWhereConditions = {
     ...(categoryId
@@ -559,13 +447,12 @@ export async function getBrowseThreads({
     isApproved: { _eq: true }
   };
 
-  // Get double the limit to ensure we have enough threads for interweaving
   const { thread: allThreads } = await client.query({
     thread: {
       __args: {
         orderBy: [{ createdAt: 'DESC' }],
         where: baseWhereConditions,
-        limit: (limit || 30) * 2,  // Get more threads to allow for filtering
+        limit: (limit || 30) * 5,
         offset: offset || 0
       },
       threadId: true,
@@ -603,40 +490,47 @@ export async function getBrowseThreads({
           limit: 2
         }
       },
-      messagesAggregate: {
-        aggregate: {
-          count: true
-          },
-      },
       user: {
         username: true,
         profilePicture: true,
-        slug: true
+        slug: true,
+        followers: {
+          followerId: true
+        },
       },
       isApproved: true,
       isPublic: true,
       userId: true,
-      modelsEnum: {
-       ...everything
-      },
       ...everything
     }
   });
 
   if (!allThreads) return [];
 
-  // Type assertion to ensure allThreads is treated as Thread[]
   const threads = allThreads as Thread[];
   
-  // Separate following and organic content
-  const followingThreads = threads.filter(thread => 
-    thread.chatbot?.followers?.some(follower => follower.followerId === userId)
-  );
+  // Separate following content (both from followed bots and users)
+  const followingThreads = threads.filter(thread => {
+    if (userId) {
+      // For bot content
+      if (thread.chatbot) {
+        return thread.chatbot.followers?.some(follower => follower.followerId === userId);
+      }
+      // For user content 
+      if (thread.user) {
+        return thread.user.followers?.some(follower => follower.followerId === userId);
+      }
+    }
+    return false;
+  });
+
+
+  // Organic content (neither from followed bots nor followed users)
   const organicThreads = threads.filter(thread => 
-    !thread.chatbot?.followers?.some(follower => follower.followerId === userId)
+    !thread.chatbot?.followers?.some(follower => follower.followerId === userId) &&
+    !thread.user?.followers?.some(follower => follower.followerId === userId)
   );
 
-  // Interweave the results with proper typing
   const interweavedThreads: Thread[] = [];
   let followingIndex = 0;
   let organicIndex = 0;
@@ -660,6 +554,7 @@ export async function getBrowseThreads({
 
   return interweavedThreads;
 }
+
 export async function getMessages({
   threadId,
   limit,

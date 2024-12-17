@@ -1,9 +1,10 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { cn, numberShortener } from '@/lib/utils'
+import { cn, numberShortener, Ifollowed } from '@/lib/utils'
 import type { ChatbotDetailsProps } from '@/types/types'
 import { Bot, MessageSquarePlus, Users } from 'lucide-react'
 import Image from 'next/image'
+import { useSession } from 'next-auth/react'
 
 export function OnboardingMobileChatbotDetails({
   botName = 'BuildBot',
@@ -14,8 +15,13 @@ export function OnboardingMobileChatbotDetails({
   isWelcomeView = true,
   categoryName,
   onNewChat,
-  onFollow
+  onFollow,
+  followers
 }: ChatbotDetailsProps) {
+
+  const { data: session } = useSession()
+  const followed = Ifollowed({followers, userId: session?.user?.id || ''}) 
+
   return (
     <div className="md:hidden h-[calc(100vh-196px)] flex items-center justify-center -translate-y-8">
       <Card className="w-full bg-white dark:bg-[#09090B]">
@@ -121,7 +127,7 @@ export function OnboardingMobileChatbotDetails({
               onClick={onFollow}
               className="border-zinc-200 dark:border-zinc-100/50 text-zinc-500"
             >
-              Follow
+              {followed ? 'Following' : 'Follow'}
             </Button>
           </div>
         </CardContent>
