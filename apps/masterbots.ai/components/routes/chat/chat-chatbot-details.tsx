@@ -1,9 +1,7 @@
 import { ChatChatbotDetailsSkeleton } from '@/components/shared/skeletons/chat-chatbot-details-skeleton'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
-import { cn, Ifollowed, formatNumber} from '@/lib/utils'
 import { getCategory, getThreads, chatbotFollowOrUnfollow } from '@/services/hasura'
-import { MessageCircle, MessageSquare, Users, Loader } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -17,7 +15,6 @@ export default function ChatChatbotDetails() {
   const { data: session } = useSession()
   const { activeCategory, activeChatbot } = useSidebar()
   const { randomChatbot } = useThread()
-  const { slug } = useParams()
   const [isFollowLoading, setIsFollowLoading] = useState<boolean>(false)
   const [followers, setFollowers] = useState<SocialFollowing[]>(activeChatbot?.followers || []);
 
@@ -136,8 +133,7 @@ export default function ChatChatbotDetails() {
     console.log('Starting new chat with:', botName)
   }
 
-   const followed = Ifollowed({followers, userId: session?.user?.id || ''}) 
-
+  
   const sharedProps = {
     botName,
     avatar: activeChatbot?.avatar || randomChatbot?.avatar || '',

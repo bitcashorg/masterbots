@@ -1,8 +1,8 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { cn, numberShortener, Ifollowed } from '@/lib/utils'
+import { cn, numberShortener, isFollowed } from '@/lib/utils'
 import type { ChatbotDetailsProps } from '@/types/types'
-import { Bot, MessageSquarePlus, Users } from 'lucide-react'
+import { Bot, BotMessageSquareIcon, Users } from 'lucide-react'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
 
@@ -20,7 +20,7 @@ export function OnboardingMobileChatbotDetails({
 }: ChatbotDetailsProps) {
 
   const { data: session } = useSession()
-  const followed = Ifollowed({followers, userId: session?.user?.id || ''}) 
+  const followed = isFollowed({followers, userId: session?.user?.id || ''}) 
 
   return (
     <div className="md:hidden h-[calc(100vh-196px)] flex items-center justify-center -translate-y-8">
@@ -144,7 +144,7 @@ export function OnboardingMobileChatbotDetails({
               'flex items-center justify-center gap-2'
             )}
           >
-            <MessageSquarePlus className="size-6" />
+            <BotMessageSquareIcon className="size-6" />
             New Chat With {botName}
           </Button>
         </CardFooter>

@@ -6,7 +6,7 @@ import { cn, numberShortener } from '@/lib/utils'
 import type { BrowseChatbotLayoutProps } from '@/types/types'
 import {
   Bot,
-  MessageSquareIcon,
+  BotMessageSquareIcon,
   ChevronLeft,
   MessageSquarePlusIcon,
   Users
@@ -43,7 +43,7 @@ export function BrowseChatbotMobileDetails({
                   {chatbot.name}
                 </h1>
                 <div className="flex items-center gap-2">
-                  <MessageSquareIcon className="size-4" />
+                  <BotMessageSquareIcon className="size-4" />
                   <span className="text-zinc-950 dark:text-gray-300">
                     Threads: {chatbot.threads.length}
                   </span>
