@@ -6,7 +6,8 @@ import { useSession } from 'next-auth/react'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { OnboardingChatbotDetails } from '@/components/routes/chat/onboarding-chatbot-details'
-import { OnboardingMobileChatbotDetails } from '@/components/routes/chat/onboarding-chatbot-mobile-details'
+import { OnboardingMobileView } from '@/components/routes/chat/chat-onboarding-chatbot-mobile'
+import { SelectedBotMobileView } from '@/components/routes/chat/chat-selected-chatbot-mobile'
 
 export default function ChatChatbotDetails() {
   const { data: session } = useSession()
@@ -94,7 +95,16 @@ export default function ChatChatbotDetails() {
   return (
     <>
       <OnboardingChatbotDetails {...sharedProps} />
-      <OnboardingMobileChatbotDetails {...sharedProps} />
+      {isWelcomeView ? (
+        <OnboardingMobileView />
+      ) : (
+        <SelectedBotMobileView
+          botName={botName}
+          description={activeChatbot?.description || ''}
+          avatar={activeChatbot?.avatar || randomChatbot?.avatar || ''}
+          onNewChat={handleNewChat}
+        />
+      )}{' '}
     </>
   )
 }
