@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import type { ChatbotDetailsProps } from '@/types/types'
-import { PanelLeft, MessageSquarePlus } from 'lucide-react'
+import { PanelLeft, MessageSquarePlus, Bot } from 'lucide-react'
 import Image from 'next/image'
 
 export function OnboardingChatbotDetails({
@@ -16,20 +16,27 @@ export function OnboardingChatbotDetails({
     <div className="hidden h-[calc(100vh-196px)] md:flex items-center justify-center -translate-y-8 relative">
       {/* Background tooltip effect */}
 
-      <div
-        className="absolute left-0 w-[50rem] h-[calc(100vh-400px)] bg-gradient-to-br from-[#be16e8]/10 to-[#82e46a]/5 dark:from-[#82e46a]/10 dark:to-[#be16e8]/5 backdrop-blur-md shadow-lg transition-all duration-300 rounded-r-[50%] z-0"
-        style={{
-          clipPath: 'polygon(20% 0, 100% 0, 100% 100%, 20% 100%, 0 50%)',
-          borderRadius: '0.5rem'
-        }}
-      />
+      {isWelcomeView && (
+        <div
+          className="absolute left-0 w-[50rem] h-[calc(100vh-400px)] bg-gradient-to-br from-[#be16e8]/10 to-[#82e46a]/5 dark:from-[#82e46a]/10 dark:to-[#be16e8]/5 backdrop-blur-md shadow-lg transition-all duration-300 rounded-r-[50%] z-0"
+          style={{
+            clipPath: 'polygon(20% 0, 100% 0, 100% 100%, 20% 100%, 0 50%)',
+            borderRadius: '0.5rem'
+          }}
+        />
+      )}
 
       <Card className="w-[600px] bg-white dark:bg-[#09090B] relative z-10">
         <CardHeader className="space-y-6">
           <h1 className="px-4 pt-4 text-2xl font-bold text-zinc-950 dark:text-gray-300">
             {isWelcomeView ? 'Welcome to Masterbots!' : botName}
           </h1>
-
+          {!isWelcomeView && (
+            <div className="flex items-center px-4">
+              <Bot className="mr-2 size-4" />
+              <span className="text-sm">bio:</span>
+            </div>
+          )}
           <div className="h-[3px] bg-zinc-200 dark:bg-slate-800 relative">
             <div className="absolute right-6 -top-12">
               <div
@@ -61,12 +68,12 @@ export function OnboardingChatbotDetails({
           {isWelcomeView && (
             <div className="flex flex-col items-center justify-center space-y-4">
               <h2 className="text-2xl font-semibold text-zinc-950 dark:text-gray-300">
-              Pick a Bot and Start Chatting
+                Pick a Bot and Start Chatting
               </h2>
               <div className="flex items-center m-auto space-x-4">
                 <PanelLeft className="size-6 text-[#be16e8] dark:text-[#82e46a]" />
-                <p className="text-lg text-[#be16e8] dark:text-[#82e46a]">
-                Find Your Favorite Bot in the Sidebar
+                <p className="text-base text-[#be16e8] dark:text-[#82e46a]">
+                  Find Your Favorite Bot in the Sidebar
                 </p>
               </div>
             </div>
@@ -88,7 +95,7 @@ export function OnboardingChatbotDetails({
               >
                 <MessageSquarePlus className="size-6 shrink-0" />
                 <span className="text-base truncate whitespace-nowrap">
-                  New Chat With {botName}
+                  Chat With {botName} Now
                 </span>
               </Button>
             </div>

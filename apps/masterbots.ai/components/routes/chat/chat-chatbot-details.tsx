@@ -59,7 +59,7 @@ export default function ChatChatbotDetails() {
     }
 
     fetchData()
-  }, [activeCategory, activeChatbot, session?.user])
+  }, [activeCategory, activeChatbot])
 
   if (isLoading || !session?.user) return <ChatChatbotDetailsSkeleton />
 
