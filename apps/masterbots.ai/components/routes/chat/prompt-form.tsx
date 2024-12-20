@@ -90,7 +90,7 @@ export function PromptForm({
       <div
         className={cn(
           "relative flex flex-col w-full px-8 overflow-hidden grow bg-background sm:rounded-md sm:border sm:px-12",
-          "max-h-[120px] md:max-h-60", // Limit height on mobile
+          "max-h-32 md:max-h-60", 
           isOpenPopup && isFocused ? 'dark:border-mirage border-iron' : ''
         )}
       >
@@ -108,9 +108,9 @@ export function PromptForm({
           spellCheck={false}
           disabled={disabled}
           className={cn(
-            "w-full resize-none bg-transparent px-4 focus-within:outline-none sm:text-sm",
+            "w-full resize-none bg-transparent px-4 py-1 my-1 focus-within:outline-none sm:text-sm",
             "min-h-[80px] md:min-h-[60px]", //? Smaller height on mobile
-            "py-2 md:py-[1.3rem]" //? Adjusted padding for mobile
+            "md:py-[1.3rem]" //? Adjusted padding for mobile
           )}
         />
         <div className="absolute right-0 top-4 sm:right-4">
