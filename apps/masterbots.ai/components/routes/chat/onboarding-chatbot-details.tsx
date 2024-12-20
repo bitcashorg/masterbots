@@ -1,24 +1,30 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { cn, numberShortener } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import type { ChatbotDetailsProps } from '@/types/types'
-import { Bot, MessageSquarePlus, Users } from 'lucide-react'
+import { PanelLeft, MessageSquarePlus } from 'lucide-react'
 import Image from 'next/image'
 
 export function OnboardingChatbotDetails({
-  botName = 'BuildBot',
+  botName,
   avatar = '',
   description,
-  threadCount = 0,
-  followersCount = 3200,
   isWelcomeView = true,
-  categoryName,
-  onNewChat,
-  onFollow
+  onNewChat
 }: ChatbotDetailsProps) {
   return (
-    <div className="hidden h-[calc(100vh-196px)] md:flex items-center justify-center -translate-y-8">
-      <Card className="w-[600px] bg-white dark:bg-[#09090B] relative">
+    <div className="hidden h-[calc(100vh-196px)] md:flex items-center justify-center -translate-y-8 relative">
+      {/* Background tooltip effect */}
+
+      <div
+        className="absolute left-0 w-[50rem] h-[calc(100vh-400px)] bg-gradient-to-br from-[#be16e8]/10 to-[#82e46a]/5 dark:from-[#82e46a]/10 dark:to-[#be16e8]/5 backdrop-blur-md shadow-lg transition-all duration-300 rounded-r-[50%] z-0"
+        style={{
+          clipPath: 'polygon(20% 0, 100% 0, 100% 100%, 20% 100%, 0 50%)',
+          borderRadius: '0.5rem'
+        }}
+      />
+
+      <Card className="w-[600px] bg-white dark:bg-[#09090B] relative z-10">
         <CardHeader className="space-y-6">
           <h1 className="px-4 pt-4 text-2xl font-bold text-zinc-950 dark:text-gray-300">
             {isWelcomeView ? 'Welcome to Masterbots!' : botName}
@@ -53,60 +59,41 @@ export function OnboardingChatbotDetails({
           </p>
 
           {isWelcomeView && (
-            <div className="text-center">
+            <div className="flex flex-col items-center justify-center space-y-4">
               <h2 className="text-2xl font-semibold text-zinc-950 dark:text-gray-300">
-                Your Journey Begins Here!
+              Pick a Bot and Start Chatting
               </h2>
-              <p className="text-lg text-zinc-500 dark:text-zinc-500">
-                Try and start with: {botName}
-              </p>
+              <div className="flex items-center m-auto space-x-4">
+                <PanelLeft className="size-6 text-[#be16e8] dark:text-[#82e46a]" />
+                <p className="text-lg text-[#be16e8] dark:text-[#82e46a]">
+                Find Your Favorite Bot in the Sidebar
+                </p>
+              </div>
             </div>
           )}
         </CardContent>
 
-        <CardFooter className="flex flex-col space-y-4">
-          <div className="flex items-center justify-center gap-6">
-            <div className="flex items-center gap-2">
-              <Bot className="w-4 h-4 text-zinc-950 dark:text-gray-300" />
-              <span className="text-zinc-950 dark:text-gray-300">
-                Threads: <span className="text-zinc-500">{numberShortener(threadCount)}</span>
-              </span>
+        {!isWelcomeView && (
+          <CardFooter className="flex flex-col space-y-4">
+            <div className="w-1/2 mx-auto">
+              <Button
+                onClick={onNewChat}
+                className={cn(
+                  'w-full min-h-[44px] px-4',
+                  'bg-[#be16e8] hover:bg-[#be16e8]/90',
+                  'dark:bg-[#82e46a] dark:hover:bg-[#82e46a]/90',
+                  'text-white dark:text-zinc-950',
+                  'flex items-center justify-center gap-2'
+                )}
+              >
+                <MessageSquarePlus className="size-6 shrink-0" />
+                <span className="text-base truncate whitespace-nowrap">
+                  New Chat With {botName}
+                </span>
+              </Button>
             </div>
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-zinc-950 dark:text-gray-300" />
-              <span className="text-zinc-950 dark:text-gray-300">
-                Followers:{' '}
-                <span className="text-zinc-500">{numberShortener(followersCount)}</span>
-              </span>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onFollow}
-              className="border-zinc-200 dark:border-zinc-100/50 text-zinc-500"
-            >
-              Follow
-            </Button>
-          </div>
-
-          <div className="w-1/2 mx-auto">
-            <Button
-              onClick={onNewChat}
-              className={cn(
-                'w-full min-h-[44px] px-4',
-                'bg-[#be16e8] hover:bg-[#be16e8]/90',
-                'dark:bg-[#82e46a] dark:hover:bg-[#82e46a]/90',
-                'text-white dark:text-zinc-950',
-                'flex items-center justify-center gap-2'
-              )}
-            >
-              <MessageSquarePlus className="size-6 shrink-0" />{' '}
-              <span className="text-base truncate whitespace-nowrap">
-                New Chat With {botName}
-              </span>
-            </Button>
-          </div>
-        </CardFooter>
+          </CardFooter>
+        )}
       </Card>
     </div>
   )
