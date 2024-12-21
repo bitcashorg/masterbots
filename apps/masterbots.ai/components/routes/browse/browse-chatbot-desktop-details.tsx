@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { cn, numberShortener } from '@/lib/utils'
 import type { BrowseChatbotLayoutProps } from '@/types/types'
-import { Bot, BotMessageSquareIcon, ChevronLeft, MessageSquarePlusIcon, Users } from 'lucide-react'
+import { Bot, MessageSquareIcon, ChevronLeft, MessageSquarePlusIcon, Users } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -109,7 +109,7 @@ export function BrowseChatbotDesktopDetails({
           <CardFooter className="flex flex-col space-y-4">
             <div className="flex items-center w-full">
               <div className="flex items-center gap-2 text-zinc-950 dark:text-gray-300">
-                <BotMessageSquareIcon className="size-4" />
+                <MessageSquareIcon className="size-4" />
                 <span>
                   Threads:{' '}
                   <span className="text-gray-400">
