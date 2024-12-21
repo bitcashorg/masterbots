@@ -3,7 +3,6 @@ import * as React from 'react'
 
 import { UserLogin } from '@/components/auth/user-login'
 import { SidebarToggle } from '@/components/layout/sidebar/sidebar-toggle'
-import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { Button } from '@/components/ui/button'
 import { IconSeparator } from '@/components/ui/icons'
 import { appConfig } from 'mb-env'
@@ -21,7 +20,7 @@ export function Header() {
         <div className="hidden lg:flex lg:items-center">
           <IconSeparator className="size-6 text-muted-foreground/50" />
           <HeaderLink href="/c" text="Chat" />
-          {appConfig.devMode && (
+          {appConfig.features.devMode && (
             <>
               <HeaderLink href="/c/p" text="Pro" />
               <HeaderLink href="/wordware" text="Ww" />

@@ -1,10 +1,12 @@
-import { WordWareFlowPaths } from '@/types/wordware-flows.types'
+import type { WordWareFlowPaths } from '@/types/wordware-flows.types'
 import type { Message } from 'ai'
-import type { Chatbot, LabelChatbotCategory } from 'mb-genql'
+import type { UserRole } from 'mb-drizzle'
+import type { Chatbot, LabelChatbotCategory, SocialFollowing } from 'mb-genql'
 import 'next-auth'
 import type { DefaultSession, DefaultUser } from 'next-auth'
 import type { ChatCompletionMessageParam } from 'openai/resources'
 import type Stripe from 'stripe'
+
 
 // * Chat types
 export interface Chat extends Record<string, any> {
@@ -220,4 +222,45 @@ export interface ChatPageProps {
     chatbot?: string
     threadId: string
   }
+}
+
+// * Drizzle Admin types
+export type AdminUserUpdate = {
+  isBlocked?: boolean
+  isVerified?: boolean
+  proUserSubscriptionId?: string
+  getFreeMonth?: boolean
+  role?: (typeof UserRole)[keyof typeof UserRole]
+}
+
+// * Chatbot details types
+export interface ChatbotDetailsProps {
+  botName?: string
+  avatar?: string
+  description?: string | null
+  threadCount?: number
+  followersCount?: number
+  isWelcomeView?: boolean
+  categoryName?: string
+  onNewChat?: () => void
+  followers?: SocialFollowing[]
+  onFollow?: () => void
+}
+
+export interface BrowseChatbotDetailsProps {
+  chatbot?: Chatbot
+  variant?: 'default' | 'selected'
+}
+
+export interface BrowseChatbotLayoutProps {
+  chatbot: Chatbot
+  variant: 'default' | 'selected'
+  isLoading: boolean
+  generateType?: string | undefined
+  lastMessage: string | null
+  onGenerateBio: () => void
+  isWelcomeView: boolean
+  descriptionPoints: string[]
+  hasMultiplePoints: boolean
+  botUrl: string
 }

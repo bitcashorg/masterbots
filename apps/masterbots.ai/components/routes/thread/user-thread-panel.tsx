@@ -32,13 +32,12 @@ import { NoResults } from '@/components/shared/no-results-card'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
-import { getThreads, getBrowseThreads, getUserBySlug } from '@/services/hasura'
+import { getBrowseThreads, getThreads, getUserBySlug } from '@/services/hasura'
 import type { Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
-import { useParams } from 'next/navigation'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useParams, usePathname } from 'next/navigation'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useAsync } from 'react-use'
-
 
 const PAGE_SIZE = 20
 
@@ -61,7 +60,7 @@ export default function UserThreadPanel({
   const [loading, setLoading] = useState<boolean>(false)
   const { threads: hookThreads } = useThreadVisibility()
   const [searchTerm, setSearchTerm] = useState<string>('')
-  const { slug } = params;
+  const { slug, threadId } = params;
 
   const userWithSlug = useAsync(async () => {
     if (!slug) return { user: null }
@@ -81,6 +80,8 @@ export default function UserThreadPanel({
   const [totalThreads, setTotalThreads] = useState<number>(0)
   const prevCategoryRef = useRef(activeCategory);
   const prevChatbotRef = useRef(activeChatbot);
+  const prevPathRef = useRef(usePathname());
+  const pathname = usePathname();
 
   useEffect(() => {
     setThreads(finalThreads)
@@ -88,19 +89,19 @@ export default function UserThreadPanel({
     setTotalThreads(finalThreads?.length ?? 0)
   }, [finalThreads])
   const fetchIdRef = useRef(0) // Store the fetchId in a ref
-  
+
   const fetchBrowseThreads = async () => {
     try {
-      if(!slug) return []
+      if (!slug) return []
       const user = userWithSlug.value?.user
       if (!user) return []
-        return await getBrowseThreads({ 
-          userId: user.userId, 
-          categoryId: activeCategory,
-          chatbotName: activeChatbot?.name,
-          limit: PAGE_SIZE,
-        });
-      
+      return await getBrowseThreads({
+        userId: user.userId,
+        categoryId: activeCategory,
+        chatbotName: activeChatbot?.name,
+        limit: PAGE_SIZE,
+      });
+
     } catch (error) {
       console.error('Failed to fetch threads:', error);
       return [];
@@ -111,19 +112,20 @@ export default function UserThreadPanel({
     console.log('🟡 Loading More Content')
     setLoading(true)
     let moreThreads: Thread[] = []
-
-    if(page === 'profile' && !session?.user) {
+    const userOnSlug = userWithSlug.value?.user
+    const isOwnProfile = session?.user?.id === userOnSlug?.userId;
+    if (page === 'profile' && !session?.user || !isOwnProfile) {
       moreThreads = await fetchBrowseThreads();
-    }else{
-     moreThreads = await getThreads({
-      jwt: session!.user?.hasuraJwt,
-      userId: session!.user.id,
-      offset: threads.length,
-      limit: PAGE_SIZE,
-      categoryId: activeCategory,
-      chatbotName: activeChatbot?.name
-    })
-  }
+    } else {
+      moreThreads = await getThreads({
+        jwt: session!.user?.hasuraJwt,
+        userId: session!.user.id,
+        offset: threads.length,
+        limit: PAGE_SIZE,
+        categoryId: activeCategory,
+        chatbotName: activeChatbot?.name,
+      })
+    }
     if (moreThreads) setThreads(prevState => [...prevState, ...moreThreads])
     setCount(_prev => moreThreads.length ?? 0)
     setLoading(false)
@@ -131,29 +133,26 @@ export default function UserThreadPanel({
 
   const handleThreadsChange = async () => {
     let threads: Thread[] = []
-
-    console.log('🟡 Fetching Threads')
     setLoading(true)
-    const isOwnProfile = session?.user?.slug === slug;
-    if (!session?.user || !isOwnProfile) {
-      if(page === 'profile') {
-        threads = await fetchBrowseThreads();
-        setThreads(_prev => threads ?? [])
-        setCount(_prev => threads.length ?? 0)
-        setTotalThreads(threads?.length ?? 0)
-      }
+    const userOnSlug = userWithSlug.value?.user
+    const isOwnProfile = session?.user?.id === userOnSlug?.userId;
+    if (!session?.user || !isOwnProfile && page === 'profile') {
+      threads = await fetchBrowseThreads();
+      setThreads(_prev => threads ?? [])
+      setCount(_prev => threads.length ?? 0)
+      setTotalThreads(threads?.length ?? 0)
       setLoading(false)
       return;
     }
+
     const currentFetchId = Date.now() // Generate a unique identifier for the current fetch
     fetchIdRef.current = currentFetchId
-  
-     threads = await getThreads({
+    threads = await getThreads({
       jwt: session!.user?.hasuraJwt,
       userId: session!.user.id,
       limit: PAGE_SIZE,
       categoryId: activeCategory,
-      chatbotName: activeChatbot?.name
+      chatbotName: activeChatbot?.name,
     })
 
     // Check if the fetchId matches the current fetchId stored in the ref
@@ -166,31 +165,26 @@ export default function UserThreadPanel({
     setLoading(false)
   }
 
- 
-   const shouldFetchThreads = useCallback(() => {
-    if (isOpenPopup) return false;
+  useEffect(() => {
+    // Skip if popup is open
+    if (isOpenPopup) return;
 
-    const shouldFetch = 
+    const shouldFetch =
       activeCategory ||
       activeChatbot ||
       (prevCategoryRef.current && !activeCategory) ||
-      (prevChatbotRef.current && !activeChatbot);
+      (prevChatbotRef.current && !activeChatbot) ||
+      pathname !== prevPathRef.current; // Add pathname check
 
-    // Update refs after checking
+    // Update refs
     prevCategoryRef.current = activeCategory;
     prevChatbotRef.current = activeChatbot;
+    prevPathRef.current = pathname;
 
-    return shouldFetch;
-  }, [isOpenPopup, activeCategory, activeChatbot]);
-
-
-  useEffect(() => {
-    if (shouldFetchThreads()) {
+    if (shouldFetch) {
       handleThreadsChange();
     }
-  }, [activeCategory, activeChatbot, isOpenPopup, shouldFetchThreads]);
-
-
+  }, [activeCategory, activeChatbot, isOpenPopup, pathname]);
 
   useEffect(() => {
     if (
@@ -208,43 +202,42 @@ export default function UserThreadPanel({
     setSearchTerm(term)
   }
 
-  const customMessage = activeChatbot 
-  ? `No threads available for ${activeChatbot.name}`
-  : activeCategory 
-    ? 'No threads available in the selected category'
-    : 'Start a conversation to create your first thread'
+  const customMessage = activeChatbot
+    ? `No threads available for ${activeChatbot.name}`
+    : activeCategory
+      ? 'No threads available in the selected category'
+      : 'Start a conversation to create your first thread'
 
 
   const showNoResults = !loading && searchTerm && threads.length === 0
   const showChatbotDetails = !loading && !searchTerm && threads.length === 0
-
   return (
     <>
-    <div className="flex justify-between px-4 md:px-10 py-5 lg:max-w-[calc(100%-100px)] 2xl:max-w-full">
-      <ChatSearchInput setThreads={setThreads} onSearch={setSearchTerm} />
-    </div>
-
-    {loading ? (
-      <NoResults isLoading={true} />
-    ) : threads && threads.length > 0 ? (
-      <div className="flex px-4 py-5 md:px-10">
-        <ThreadList
-          threads={threads}
-          loading={loading}
-          count={count}
-          pageSize={PAGE_SIZE}
-          loadMore={loadMore}
-        />
+      <div className="flex justify-between px-4 md:px-10 py-5 lg:max-w-[calc(100%-100px)] 2xl:max-w-full">
+        <ChatSearchInput setThreads={setThreads} onSearch={setSearchTerm} />
       </div>
-    ) : showNoResults ? (
-      <NoResults 
-        searchTerm={searchTerm}
-        totalItems={totalThreads}
-        customMessage={customMessage}
-      />
-    ) : showChatbotDetails ? (
-      <ChatChatbotDetails />
-    ) : null}
-  </>
+
+      {loading ? (
+        <NoResults isLoading={true} />
+      ) : threads && threads.length > 0 ? (
+        <div className="flex px-4 py-5 md:px-10">
+          <ThreadList
+            threads={threads}
+            loading={loading}
+            count={count}
+            pageSize={PAGE_SIZE}
+            loadMore={loadMore}
+          />
+        </div>
+      ) : showNoResults ? (
+        <NoResults
+          searchTerm={searchTerm}
+          totalItems={totalThreads}
+          customMessage={customMessage}
+        />
+      ) : showChatbotDetails ? (
+        <ChatChatbotDetails />
+      ) : null}
+    </>
   )
 }

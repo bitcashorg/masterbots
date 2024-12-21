@@ -1,15 +1,16 @@
+/* eslint-disable react/no-unescaped-entities */
 'use client'
 
+import { PasswordStrengthMeter } from '@/components/shared/password-strength-meter'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { isPasswordStrong, verifyPassword } from '@/lib/password'
+import { Eye, EyeOff } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import type React from 'react'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
-import { Eye, EyeOff } from 'lucide-react'
-import {PasswordStrengthMeter} from '@/components/shared/password-strength-meter'
-import { isPasswordStrong, validatePassword, verifyPassword } from '@/lib/password'
 
 interface SignupState {
   email: string;
@@ -20,6 +21,15 @@ interface SignupState {
   showVerificationNotice: boolean;
   showPassword: boolean;
   showPasswordVerify: boolean;
+}
+
+interface SignupState {
+  email: string;
+  password: string;
+  username: string;
+  passwordVerify: string;
+  isLoading: boolean;
+  showVerificationNotice: boolean;
 }
 
 export default function SignUpForm() {
@@ -182,8 +192,8 @@ export default function SignUpForm() {
           </button>
         </div>
       </div>
-      <Button 
-        type="submit" 
+      <Button
+        type="submit"
         className="w-full"
         disabled={state.isLoading}
       >

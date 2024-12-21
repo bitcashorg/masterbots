@@ -798,6 +798,42 @@ type Chatbot {
   defaultType: String
   description: String
 
+  """An array relationship"""
+  followers(
+    """distinct select on columns"""
+    distinctOn: [SocialFollowingSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [SocialFollowingOrderBy!]
+
+    """filter the rows returned"""
+    where: SocialFollowingBoolExp
+  ): [SocialFollowing!]!
+
+  """An aggregate relationship"""
+  followersAggregate(
+    """distinct select on columns"""
+    distinctOn: [SocialFollowingSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [SocialFollowingOrderBy!]
+
+    """filter the rows returned"""
+    where: SocialFollowingBoolExp
+  ): SocialFollowingAggregate!
+
   """An object relationship"""
   lengthEnum: LengthEnum
 
@@ -1041,6 +1077,8 @@ input ChatbotBoolExp {
   defaultTone: StringComparisonExp
   defaultType: StringComparisonExp
   description: StringComparisonExp
+  followers: SocialFollowingBoolExp
+  followersAggregate: SocialFollowingAggregateBoolExp
   lengthEnum: LengthEnumBoolExp
   metadataLabels: LabelChatbotCategoryBoolExp
   metadataLabelsAggregate: LabelChatbotCategoryAggregateBoolExp
@@ -1434,6 +1472,7 @@ input ChatbotInsertInput {
   defaultTone: String
   defaultType: String
   description: String
+  followers: SocialFollowingArrRelInsertInput
   lengthEnum: LengthEnumObjRelInsertInput
   metadataLabels: LabelChatbotCategoryArrRelInsertInput
   name: String
@@ -1543,6 +1582,7 @@ input ChatbotOrderBy {
   defaultTone: OrderBy
   defaultType: OrderBy
   description: OrderBy
+  followersAggregate: SocialFollowingAggregateOrderBy
   lengthEnum: LengthEnumOrderBy
   metadataLabelsAggregate: LabelChatbotCategoryAggregateOrderBy
   name: OrderBy
@@ -5623,12 +5663,15 @@ input ReferralUpdates {
 This junction table records social following relationships between users. Each record represents a follower-followee relationship.
 """
 type SocialFollowing {
+  """An object relationship"""
+  chatbot: Chatbot
   createdAt: timestamptz!
-  followeeId: uuid!
+  followeeId: uuid
+  followeeIdChatbot: Int
   followerId: uuid!
 
   """An object relationship"""
-  user: User!
+  user: User
 
   """An object relationship"""
   userByFollowerId: User!
@@ -5650,18 +5693,34 @@ input SocialFollowingAggregateBoolExp {
 aggregate fields of "social_following"
 """
 type SocialFollowingAggregateFields {
+  avg: SocialFollowingAvgFields
   count(columns: [SocialFollowingSelectColumn!], distinct: Boolean): Int!
   max: SocialFollowingMaxFields
   min: SocialFollowingMinFields
+  stddev: SocialFollowingStddevFields
+  stddevPop: SocialFollowingStddevPopFields
+  stddevSamp: SocialFollowingStddevSampFields
+  sum: SocialFollowingSumFields
+  varPop: SocialFollowingVarPopFields
+  varSamp: SocialFollowingVarSampFields
+  variance: SocialFollowingVarianceFields
 }
 
 """
 order by aggregate values of table "social_following"
 """
 input SocialFollowingAggregateOrderBy {
+  avg: SocialFollowingAvgOrderBy
   count: OrderBy
   max: SocialFollowingMaxOrderBy
   min: SocialFollowingMinOrderBy
+  stddev: SocialFollowingStddevOrderBy
+  stddevPop: SocialFollowingStddevPopOrderBy
+  stddevSamp: SocialFollowingStddevSampOrderBy
+  sum: SocialFollowingSumOrderBy
+  varPop: SocialFollowingVarPopOrderBy
+  varSamp: SocialFollowingVarSampOrderBy
+  variance: SocialFollowingVarianceOrderBy
 }
 
 """
@@ -5671,6 +5730,18 @@ input SocialFollowingArrRelInsertInput {
   data: [SocialFollowingInsertInput!]!
 }
 
+"""aggregate avg on columns"""
+type SocialFollowingAvgFields {
+  followeeIdChatbot: Float
+}
+
+"""
+order by avg() on columns of table "social_following"
+"""
+input SocialFollowingAvgOrderBy {
+  followeeIdChatbot: OrderBy
+}
+
 """
 Boolean expression to filter rows from the table "social_following". All fields are combined with a logical 'AND'.
 """
@@ -5678,19 +5749,30 @@ input SocialFollowingBoolExp {
   _and: [SocialFollowingBoolExp!]
   _not: SocialFollowingBoolExp
   _or: [SocialFollowingBoolExp!]
+  chatbot: ChatbotBoolExp
   createdAt: TimestamptzComparisonExp
   followeeId: UuidComparisonExp
+  followeeIdChatbot: IntComparisonExp
   followerId: UuidComparisonExp
   user: UserBoolExp
   userByFollowerId: UserBoolExp
 }
 
 """
+input type for incrementing numeric columns in table "social_following"
+"""
+input SocialFollowingIncInput {
+  followeeIdChatbot: Int
+}
+
+"""
 input type for inserting data into table "social_following"
 """
 input SocialFollowingInsertInput {
+  chatbot: ChatbotObjRelInsertInput
   createdAt: timestamptz
   followeeId: uuid
+  followeeIdChatbot: Int
   followerId: uuid
   user: UserObjRelInsertInput
   userByFollowerId: UserObjRelInsertInput
@@ -5700,6 +5782,7 @@ input SocialFollowingInsertInput {
 type SocialFollowingMaxFields {
   createdAt: timestamptz
   followeeId: uuid
+  followeeIdChatbot: Int
   followerId: uuid
 }
 
@@ -5709,6 +5792,7 @@ order by max() on columns of table "social_following"
 input SocialFollowingMaxOrderBy {
   createdAt: OrderBy
   followeeId: OrderBy
+  followeeIdChatbot: OrderBy
   followerId: OrderBy
 }
 
@@ -5716,6 +5800,7 @@ input SocialFollowingMaxOrderBy {
 type SocialFollowingMinFields {
   createdAt: timestamptz
   followeeId: uuid
+  followeeIdChatbot: Int
   followerId: uuid
 }
 
@@ -5725,6 +5810,7 @@ order by min() on columns of table "social_following"
 input SocialFollowingMinOrderBy {
   createdAt: OrderBy
   followeeId: OrderBy
+  followeeIdChatbot: OrderBy
   followerId: OrderBy
 }
 
@@ -5741,8 +5827,10 @@ type SocialFollowingMutationResponse {
 
 """Ordering options when selecting data from "social_following"."""
 input SocialFollowingOrderBy {
+  chatbot: ChatbotOrderBy
   createdAt: OrderBy
   followeeId: OrderBy
+  followeeIdChatbot: OrderBy
   followerId: OrderBy
   user: UserOrderBy
   userByFollowerId: UserOrderBy
@@ -5759,6 +5847,9 @@ enum SocialFollowingSelectColumn {
   followeeId
 
   """column name"""
+  followeeIdChatbot
+
+  """column name"""
   followerId
 }
 
@@ -5768,7 +5859,44 @@ input type for updating data in table "social_following"
 input SocialFollowingSetInput {
   createdAt: timestamptz
   followeeId: uuid
+  followeeIdChatbot: Int
   followerId: uuid
+}
+
+"""aggregate stddev on columns"""
+type SocialFollowingStddevFields {
+  followeeIdChatbot: Float
+}
+
+"""
+order by stddev() on columns of table "social_following"
+"""
+input SocialFollowingStddevOrderBy {
+  followeeIdChatbot: OrderBy
+}
+
+"""aggregate stddevPop on columns"""
+type SocialFollowingStddevPopFields {
+  followeeIdChatbot: Float
+}
+
+"""
+order by stddevPop() on columns of table "social_following"
+"""
+input SocialFollowingStddevPopOrderBy {
+  followeeIdChatbot: OrderBy
+}
+
+"""aggregate stddevSamp on columns"""
+type SocialFollowingStddevSampFields {
+  followeeIdChatbot: Float
+}
+
+"""
+order by stddevSamp() on columns of table "social_following"
+"""
+input SocialFollowingStddevSampOrderBy {
+  followeeIdChatbot: OrderBy
 }
 
 """
@@ -5786,15 +5914,67 @@ input SocialFollowingStreamCursorInput {
 input SocialFollowingStreamCursorValueInput {
   createdAt: timestamptz
   followeeId: uuid
+  followeeIdChatbot: Int
   followerId: uuid
 }
 
+"""aggregate sum on columns"""
+type SocialFollowingSumFields {
+  followeeIdChatbot: Int
+}
+
+"""
+order by sum() on columns of table "social_following"
+"""
+input SocialFollowingSumOrderBy {
+  followeeIdChatbot: OrderBy
+}
+
 input SocialFollowingUpdates {
+  """increments the numeric columns with given value of the filtered values"""
+  _inc: SocialFollowingIncInput
+
   """sets the columns of the filtered rows to the given values"""
   _set: SocialFollowingSetInput
 
   """filter the rows which have to be updated"""
   where: SocialFollowingBoolExp!
+}
+
+"""aggregate varPop on columns"""
+type SocialFollowingVarPopFields {
+  followeeIdChatbot: Float
+}
+
+"""
+order by varPop() on columns of table "social_following"
+"""
+input SocialFollowingVarPopOrderBy {
+  followeeIdChatbot: OrderBy
+}
+
+"""aggregate varSamp on columns"""
+type SocialFollowingVarSampFields {
+  followeeIdChatbot: Float
+}
+
+"""
+order by varSamp() on columns of table "social_following"
+"""
+input SocialFollowingVarSampOrderBy {
+  followeeIdChatbot: OrderBy
+}
+
+"""aggregate variance on columns"""
+type SocialFollowingVarianceFields {
+  followeeIdChatbot: Float
+}
+
+"""
+order by variance() on columns of table "social_following"
+"""
+input SocialFollowingVarianceOrderBy {
+  followeeIdChatbot: OrderBy
 }
 
 """
@@ -9379,6 +9559,9 @@ type mutation_root {
   update data of the table: "social_following"
   """
   updateSocialFollowing(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: SocialFollowingIncInput
+
     """sets the columns of the filtered rows to the given values"""
     _set: SocialFollowingSetInput
 

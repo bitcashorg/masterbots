@@ -1,9 +1,9 @@
 
 //? Component for approving threads in admin mode
 
-import React, { useState } from 'react';
-import { ShieldCheck } from 'lucide-react';
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility';
+import { ShieldCheck } from 'lucide-react';
+import { useState } from 'react';
 
 interface AdminModeApproveProps {
   threadId: string;
@@ -20,7 +20,7 @@ export function AdminModeApprove({ threadId }: AdminModeApproveProps) {
     try {
       await adminApproveThread(threadId);
     } catch (err) {
-      setError('Failed to approve thread. Please try again.'); 
+      setError('Failed to approve thread. Please try again.');
     } finally {
       setIsLoading(false);
     }

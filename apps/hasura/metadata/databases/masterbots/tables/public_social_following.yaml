@@ -2,6 +2,9 @@ table:
   name: social_following
   schema: public
 object_relationships:
+  - name: chatbot
+    using:
+      foreign_key_constraint_on: followee_id_chatbot
   - name: user
     using:
       foreign_key_constraint_on: followee_id
@@ -9,6 +12,19 @@ object_relationships:
     using:
       foreign_key_constraint_on: follower_id
 insert_permissions:
+  - role: moderator
+    permission:
+      check:
+        _and:
+          - followee_id:
+              _eq: X-Hasura-User-Id
+          - follower_id:
+              _eq: X-Hasura-User-Id
+      columns:
+        - followee_id
+        - followee_id_chatbot
+        - follower_id
+    comment: ""
   - role: user
     permission:
       check:
@@ -19,22 +35,74 @@ insert_permissions:
               _neq: X-Hasura-User-Id
       columns:
         - followee_id
+        - followee_id_chatbot
         - follower_id
     comment: ""
 select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - created_at
+        - followee_id
+        - followee_id_chatbot
+        - follower_id
+      filter: {}
+    comment: ""
+  - role: moderator
+    permission:
+      columns:
+        - created_at
+        - followee_id
+        - followee_id_chatbot
+        - follower_id
+      filter: {}
+    comment: ""
   - role: user
     permission:
       columns:
         - followee_id
+        - followee_id_chatbot
         - follower_id
       filter:
         _or:
           - follower_id:
               _eq: X-Hasura-User-Id
           - followee_id:
+              _neq: X-Hasura-User-Id
+    comment: ""
+update_permissions:
+  - role: moderator
+    permission:
+      columns:
+        - followee_id
+        - followee_id_chatbot
+        - follower_id
+      filter:
+        follower_id:
+          _eq: X-Hasura-User-Id
+      check: null
+    comment: ""
+  - role: user
+    permission:
+      columns:
+        - followee_id
+        - followee_id_chatbot
+        - follower_id
+      filter:
+        _and:
+          - follower_id:
               _eq: X-Hasura-User-Id
+          - followee_id:
+              _neq: X-Hasura-User-Id
+      check: null
     comment: ""
 delete_permissions:
+  - role: moderator
+    permission:
+      filter:
+        follower_id:
+          _eq: X-Hasura-User-Id
+    comment: ""
   - role: user
     permission:
       filter:

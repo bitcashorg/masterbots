@@ -1,7 +1,7 @@
-import { 
-  extractTextFromReactNode, 
-  parseClickableText, 
-  cleanClickableText 
+import {
+  cleanClickableText,
+  extractTextFromReactNode,
+  parseClickableText
 } from '@/lib/utils'
 
 interface ClickableTextProps {
