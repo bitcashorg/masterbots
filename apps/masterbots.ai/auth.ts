@@ -74,7 +74,7 @@ export const authOptions: NextAuthOptions = {
             name: user[0].username,
             image: user[0].profilePicture,
             role: user[0].role || 'user',
-            slug:  user[0].slug || toSlug(user[0].username)
+            slug: user[0].slug || toSlug(user[0].username)
           }
         } catch (error) {
           throw new Error('Authentication failed')

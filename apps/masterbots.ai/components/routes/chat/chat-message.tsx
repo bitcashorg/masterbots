@@ -58,10 +58,7 @@ export function ChatMessage({
             li({ node, children }) {
               return (
                 <li className="list-disc">
-                  <ClickableText
-                    isListItem
-                    sendMessageFromResponse={sendMessageFromResponse}
-                  >
+                  <ClickableText isListItem sendMessageFromResponse={sendMessageFromResponse}>
                     {children}
                   </ClickableText>
                 </li>
@@ -116,16 +113,12 @@ export function ChatMessage({
                   {...props}
                 />
               )
-            }
+            },
           }}
         >
           {cleanMessage.content}
         </MemoizedReactMarkdown>
-        {actionRequired ? (
-          <ChatMessageActions className="md:!right-0" message={message} />
-        ) : (
-          ''
-        )}
+        {actionRequired ? <ChatMessageActions className="md:!right-0" message={message} /> : ''}
       </div>
     </div>
   )

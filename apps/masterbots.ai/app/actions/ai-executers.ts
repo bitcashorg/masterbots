@@ -1,9 +1,7 @@
 'use server'
 
-import { parseWordwareResponse } from '@/components/shared/wordware-chat'
 import { wordwareFlows } from '@/lib/constants/wordware-flows'
 import type { aiTools } from '@/lib/helpers/ai-schemas'
-import { validateAndSanitizeJson } from '@/lib/helpers/ai-streams'
 import type { WordWareDescribeDAtaResponse } from '@/types/wordware-flows.types'
 import axios from 'axios'
 import type { z } from 'zod'
@@ -68,7 +66,9 @@ export async function getWebSearchTool({
     if (appDataResponse.status >= 400) {
       console.error('Error fetching app data: ', appDataResponse)
       if (appDataResponse.status >= 500) {
-        throw new Error('Internal Server Error while fetching app data. Please try again later.')
+        throw new Error(
+          'Internal Server Error while fetching app data. Please try again later.'
+        )
       }
       throw new Error('Failed to authenticate for the app. Please try again.')
     }
@@ -100,7 +100,9 @@ export async function getWebSearchTool({
     ) {
       console.error('Error running app: ', runAppResponse)
       if (runAppResponse.status >= 500) {
-        throw new Error('Internal Server Error while fetching app data. Please try again later.')
+        throw new Error(
+          'Internal Server Error while fetching app data. Please try again later.'
+        )
       }
       throw new Error('Failed to authenticate for the app. Please try again.')
     }
@@ -112,9 +114,14 @@ export async function getWebSearchTool({
     // TODO: Check typescript config...
     const jsonRegex = /data:\s*({.*?})(?=\s*data:|\s*event:|$)/g
 
-
-    console.log('[SERVER] Web Search Response web search status --> ', response.status)
-    console.log('[SERVER] Web Search Response web search outputs --> ', response.outputs['web search'])
+    console.log(
+      '[SERVER] Web Search Response web search status --> ',
+      response.status
+    )
+    console.log(
+      '[SERVER] Web Search Response web search outputs --> ',
+      response.outputs['web search']
+    )
 
     if (response.status !== 'COMPLETE') {
       throw new Error('Web Search could not be completed.')
@@ -148,81 +155,5 @@ export async function getWebSearchTool({
   } catch (error) {
     console.error('Error fetching app data: ', error)
     throw error
-  }
-}
-
-export async function getPromptDetails(promptId: string) {
-  let data = null
-  let error = null
-  let inputs = {}
-
-  try {
-    if (!promptId) {
-      throw new Error('Prompt ID is required')
-    }
-
-    const response = await fetch(`/api/wordware/describe?promptId=${promptId}`)
-    data = await response.json()
-    if (!response.ok) {
-      throw new Error(data.error || 'Failed to fetch prompt details')
-    }
-    inputs = data.inputs.reduce(
-      (acc: any, input: { label: any }) => ({
-        ...acc,
-        [input.label]: ''
-      }),
-      {}
-    )
-  } catch (error) {
-    console.error('Error fetching prompt details:', error)
-    error = (error as Error).message
-  } finally {
-    return { data, error, inputs }
-  }
-}
-
-export async function runWordWarePrompt({
-  promptId,
-  inputs,
-  appVersion
-}: {
-  promptId: string
-  appVersion: string
-  inputs: Record<string, any>
-}) {
-  let fullResponse = ''
-  let error = null
-
-  try {
-    const response = await fetch('/api/wordware/run', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ promptId, inputs })
-    })
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
-
-    const reader = response.body?.getReader()
-    if (!reader) {
-      throw new Error('No reader available')
-    }
-
-    while (true) {
-      const { done, value } = await reader.read()
-      if (done) break
-      const chunk = new TextDecoder().decode(value)
-      fullResponse += chunk
-    }
-
-    const parsed = parseWordwareResponse(fullResponse)
-    return { fullResponse, parsed, error }
-  } catch (err) {
-    console.error('Error running prompt:', err)
-    error = (err as Error).message
-    return { fullResponse, parsed: null, error }
   }
 }

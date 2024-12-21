@@ -59,6 +59,7 @@ export interface GetBrowseThreadsParams {
   slug?: string | null
   limit?: number
   offset?: number
+  followedUserId?: string
 }
 
 export interface GetChatbotsParams {

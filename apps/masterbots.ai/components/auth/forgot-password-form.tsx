@@ -1,12 +1,12 @@
 'use client'
 
-import type React from 'react'
-import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { toast } from 'react-hot-toast'
 import { validateEmail } from '@/lib/utils'
+import type React from 'react'
+import { useState } from 'react'
+import { toast } from 'react-hot-toast'
 
 export default function ForgotPasswordForm() {
   const [email, setEmail] = useState('')

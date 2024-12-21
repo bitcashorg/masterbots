@@ -8,7 +8,7 @@ import type { Metadata } from 'next'
 const PAGE_SIZE = 50
 
 export default async function BotThreadsPage({
-  params,
+  params
 }: {
   params: { id: string }
 }) {
@@ -17,24 +17,31 @@ export default async function BotThreadsPage({
   chatbot = await getChatbot({
     chatbotName: botNames.get(params.id),
     jwt: '',
-    threads: true,
+    threads: true
   })
   if (!chatbot) throw new Error(`Chatbot ${botNames.get(params.id)} not found`)
 
   // session will always be defined
   threads = await getBrowseThreads({
     chatbotName: botNames.get(params.id),
-    limit: PAGE_SIZE,
+    limit: PAGE_SIZE
   })
 
   return (
-    <div className="w-full py-5">
-      {chatbot ? <BrowseChatbotDetails chatbot={chatbot} /> : ''}
+    <div className="w-full">
+      {chatbot ? (
+        <BrowseChatbotDetails
+          chatbot={chatbot}
+          variant={chatbot.name ? 'selected' : 'default'}
+        />
+      ) : (
+        ''
+      )}
       <BrowseSpecificThreadList
         initialThreads={threads}
         PAGE_SIZE={PAGE_SIZE}
         query={{
-          chatbotName: botNames.get(params.id),
+          chatbotName: botNames.get(params.id)
         }}
         pageType="bot"
       />
@@ -43,14 +50,14 @@ export default async function BotThreadsPage({
 }
 
 export async function generateMetadata({
-  params,
+  params
 }: {
   params: { id: string }
 }): Promise<Metadata> {
   const chatbot = await getChatbot({
     chatbotName: botNames.get(params.id),
     jwt: '',
-    threads: true,
+    threads: true
   })
 
   const seoData = {
@@ -58,7 +65,7 @@ export async function generateMetadata({
     description: chatbot?.description || '',
     ogType: 'website',
     ogImageUrl: chatbot?.avatar || '',
-    twitterCard: 'summary_large_image',
+    twitterCard: 'summary_large_image'
   }
 
   return generateMetadataFromSEO(seoData)

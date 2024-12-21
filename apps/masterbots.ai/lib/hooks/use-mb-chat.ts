@@ -2,7 +2,6 @@ import { improveMessage } from '@/app/actions'
 import { formatSystemPrompts } from '@/lib/actions'
 import {
   followingQuestionsPrompt,
-  setDefaultPrompt,
   setDefaultUserPreferencesPrompt
 } from '@/lib/constants/prompts'
 import { useModel } from '@/lib/hooks/use-model'
@@ -16,7 +15,7 @@ import {
   getThread,
   saveNewMessage
 } from '@/services/hasura'
-import type { AiClientType, AiToolCall, CleanPromptResult } from '@/types/types'
+import type { AiClientType, AiToolCall } from '@/types/types'
 import type {
   Message as AiMessage,
   ChatRequestOptions,
@@ -58,7 +57,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     messagesFromDB: [] as Message[]
   })
 
-  console.log('[HOOK] webSearch', webSearch)
+  // console.log('[HOOK] webSearch', webSearch)
 
   const params = useParams<{ chatbot: string; threadId: string }>()
   const { selectedModel, clientType } = useModel()
@@ -75,11 +74,11 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
   // format all user prompts and chatgpt 'assistant' messages
   const userAndAssistantMessages: AiMessage[] = activeThread
     ? messagesFromDB.map(m => ({
-      id: m.messageId,
-      role: m.role as AiMessage['role'],
-      content: m.content,
-      createdAt: m.createdAt
-    }))
+        id: m.messageId,
+        role: m.role as AiMessage['role'],
+        content: m.content,
+        createdAt: m.createdAt
+      }))
     : []
 
   // concatenate all message to pass it to chat component
@@ -265,12 +264,9 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       isNewChat
         ? { ...userMessage, content: userContentRef.current }
         : {
-          ...userMessage,
-          content: followingQuestionsPrompt(
-            userContentRef.current,
-            messages
-          )
-        }
+            ...userMessage,
+            content: followingQuestionsPrompt(userContentRef.current, messages)
+          }
       // ? Provide chat attachments here...
       // {
       //   experimental_attachments: [],

@@ -1,16 +1,16 @@
 'use client'
 
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { Button } from '@/components/ui/button'
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { LogOut } from 'lucide-react'
+import { appConfig } from 'mb-env'
+import { toSlugWithUnderScore } from 'mb-lib'
+import type { Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
 import Image from 'next/image'
-import { appConfig } from 'mb-env'
-import type { Session } from 'next-auth'
-import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { toSlugWithUnderScore } from 'mb-lib'
-import { ThemeToggle } from '@/components/shared/theme-toggle'
+import { useCallback, useState } from 'react'
 
 interface ProfileSidebarProps {
   user: Session['user'] & {
@@ -34,7 +34,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
 
   const handleLogout = useCallback(async () => {
     try {
-      setIsOpen(false) 
+      setIsOpen(false)
       await new Promise(resolve => setTimeout(resolve, 100))
       await signOut({ callbackUrl: '/' })
     } catch (error) {
@@ -79,10 +79,10 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
         <div className="flex flex-col h-full">
           {/* Profile Header */}
           <div className="p-4 border-b">
-            <Button  
-             onClick={goToProfile}
-             variant="sideBarProfile"
-             size="sideBarProfile"
+            <Button
+              onClick={goToProfile}
+              variant="sideBarProfile"
+              size="sideBarProfile"
             >
               {user?.image ? (
                 <Image
@@ -104,7 +104,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
               </div>
             </Button>
           </div>
-          
+
           {/* Navigation Links - Only visible on mobile */}
           <nav className="flex flex-col p-4 lg:hidden">
             <Button
@@ -114,8 +114,8 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
             >
               Chat
             </Button>
-            
-            {appConfig.devMode && (
+
+            {appConfig.features.devMode && (
               <Button
                 variant="ghost"
                 className="justify-start w-full text-sm"
@@ -133,7 +133,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
               Browse
             </Button>
 
-            {appConfig.devMode && (
+            {appConfig.features.devMode && (
               <Button
                 variant="ghost"
                 className="justify-start w-full text-sm"
