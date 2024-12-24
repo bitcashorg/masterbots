@@ -49,7 +49,7 @@ export function useSonner() {
     return toast.custom(t => (
       <div
         className={cn(
-          'w-[380px] border rounded-lg p-3 relative dark:bg-[#09090B] bg-[#ffff]',
+          'md:w-[23.125rem] w-full border rounded-lg p-3 relative dark:bg-[#09090B] bg-[#ffff]',
           styles[type]
         )}
       >
