@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  .icon-sonner-dark path {
+    stroke: white;
+  }
+}
 @layer base {
   :root {
     --background: 0 0% 100%;
