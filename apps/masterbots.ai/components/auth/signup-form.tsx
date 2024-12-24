@@ -5,31 +5,31 @@ import { PasswordStrengthMeter } from '@/components/shared/password-strength-met
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useSonner } from '@/lib/hooks/useSonner'
 import { isPasswordStrong, verifyPassword } from '@/lib/password'
 import { Eye, EyeOff } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import type React from 'react'
 import { useState } from 'react'
-import toast from 'react-hot-toast'
 
 interface SignupState {
-  email: string;
-  password: string;
-  username: string;
-  passwordVerify: string;
-  isLoading: boolean;
-  showVerificationNotice: boolean;
-  showPassword: boolean;
-  showPasswordVerify: boolean;
+  email: string
+  password: string
+  username: string
+  passwordVerify: string
+  isLoading: boolean
+  showVerificationNotice: boolean
+  showPassword: boolean
+  showPasswordVerify: boolean
 }
 
 interface SignupState {
-  email: string;
-  password: string;
-  username: string;
-  passwordVerify: string;
-  isLoading: boolean;
-  showVerificationNotice: boolean;
+  email: string
+  password: string
+  username: string
+  passwordVerify: string
+  isLoading: boolean
+  showVerificationNotice: boolean
 }
 
 export default function SignUpForm() {
@@ -43,7 +43,7 @@ export default function SignUpForm() {
     showPassword: false,
     showPasswordVerify: false
   })
-
+  const { customSonner } = useSonner()
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -51,13 +51,13 @@ export default function SignUpForm() {
     setState(prev => ({ ...prev, isLoading: true }))
 
     if (state.password !== state.passwordVerify) {
-      toast.error('Passwords do not match')
+      customSonner({ type: 'error', text: 'Passwords do not match' })
       setState(prev => ({ ...prev, isLoading: false }))
       return
     }
 
     if (!isPasswordStrong(state.password)) {
-      toast.error('Please choose a stronger password')
+      customSonner({ type: 'error', text: 'Please choose a stronger password' })
       setState(prev => ({ ...prev, isLoading: false }))
       return
     }
@@ -77,13 +77,16 @@ export default function SignUpForm() {
 
       if (response.ok) {
         setState(prev => ({ ...prev, showVerificationNotice: true }))
-        toast.success('Account created successfully! Please check your email to verify your account.')
+        customSonner({
+          type: 'success',
+          text: 'Account created successfully! Please check your email to verify your account.'
+        })
       } else {
-        toast.error(data.error || 'Failed to sign up')
+        customSonner({ type: 'error', text: data.error || 'Failed to sign up' })
       }
     } catch (error) {
       console.error(error)
-      toast.error('An unexpected error occurred')
+      customSonner({ type: 'error', text: 'An unexpected error occurred' })
     } finally {
       setState(prev => ({ ...prev, isLoading: false }))
     }
@@ -94,7 +97,9 @@ export default function SignUpForm() {
     setState(prev => ({ ...prev, [name]: value }))
   }
 
-  const togglePasswordVisibility = (field: 'showPassword' | 'showPasswordVerify') => {
+  const togglePasswordVisibility = (
+    field: 'showPassword' | 'showPasswordVerify'
+  ) => {
     setState(prev => ({ ...prev, [field]: !prev[field] }))
   }
 
@@ -106,14 +111,11 @@ export default function SignUpForm() {
           We&apos;ve sent a verification link to <strong>{state.email}</strong>
         </p>
         <p className="text-sm text-gray-600">
-          Please check your email and click the verification link to activate your account.
-          The verification link will expire in 15 days.
+          Please check your email and click the verification link to activate
+          your account. The verification link will expire in 15 days.
         </p>
         <div className="pt-4">
-          <Button
-            variant="outline"
-            onClick={() => router.push('/auth/signin')}
-          >
+          <Button variant="outline" onClick={() => router.push('/auth/signin')}>
             Go to Sign In
           </Button>
         </div>
@@ -135,7 +137,9 @@ export default function SignUpForm() {
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="email" variant="required">Email</Label>
+        <Label htmlFor="email" variant="required">
+          Email
+        </Label>
         <Input
           id="email"
           name="email"
@@ -147,7 +151,9 @@ export default function SignUpForm() {
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="password" variant="required">Password</Label>
+        <Label htmlFor="password" variant="required">
+          Password
+        </Label>
         <div className="relative">
           <Input
             id="password"
@@ -170,7 +176,9 @@ export default function SignUpForm() {
         <PasswordStrengthMeter password={state.password} />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="passwordVerify" variant="required">Verify Password</Label>
+        <Label htmlFor="passwordVerify" variant="required">
+          Verify Password
+        </Label>
         <div className="relative">
           <Input
             id="passwordVerify"
@@ -188,15 +196,15 @@ export default function SignUpForm() {
             onClick={() => togglePasswordVisibility('showPasswordVerify')}
             className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
           >
-            {state.showPasswordVerify ? <EyeOff size={20} /> : <Eye size={20} />}
+            {state.showPasswordVerify ? (
+              <EyeOff size={20} />
+            ) : (
+              <Eye size={20} />
+            )}
           </button>
         </div>
       </div>
-      <Button
-        type="submit"
-        className="w-full"
-        disabled={state.isLoading}
-      >
+      <Button type="submit" className="w-full" disabled={state.isLoading}>
         {state.isLoading ? 'Signing up...' : 'Sign Up'}
       </Button>
     </form>

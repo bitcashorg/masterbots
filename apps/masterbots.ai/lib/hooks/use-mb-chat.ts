@@ -27,8 +27,8 @@ import type { Chatbot, Message, Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import { useParams } from 'next/navigation'
 import { useEffect, useRef } from 'react'
-import toast from 'react-hot-toast'
 import { useAsync, useSetState } from 'react-use'
+import { useSonner } from './useSonner'
 
 export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
   const { threadId: threadIdProps, chatbot: chatbotProps } = config ?? {}
@@ -56,7 +56,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     webSearch: false,
     messagesFromDB: [] as Message[]
   })
-
+  const { customSonner } = useSonner()
   // console.log('[HOOK] webSearch', webSearch)
 
   const params = useParams<{ chatbot: string; threadId: string }>()
@@ -118,7 +118,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     },
     async onResponse(response) {
       if (response.status >= 400) {
-        toast.error(response.statusText)
+        customSonner({ type: 'error', text: response.statusText })
 
         if (isNewChat) {
           await deleteThread({
@@ -154,14 +154,13 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     },
     onToolCall({ toolCall }) {
       console.log('Tool call:', toolCall)
-
-      toast.success(`Tool call executed: ${toolCall.toolName}`)
+      customSonner({ type: 'info', text: `Tool call executed: ${toolCall.toolName}` })
       setActiveTool(toolCall as AiToolCall)
     },
     async onError(error) {
       console.error('Error in chat: ', error)
-      toast.error('Failed to send message. Please try again.')
-
+    
+      customSonner({ type: 'error', text: 'Failed to send message. Please try again.' })
       setLoadingState(undefined)
       setActiveTool(undefined)
       setIsNewResponse(false)
@@ -284,7 +283,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
   ) => {
     if (!session?.user || !chatbot) {
       console.error('User is not logged in or session expired.')
-      toast.error('Failed to start conversation. Please reload and try again.')
+      customSonner({ type: 'error', text: 'Failed to start conversation. Please reload and try again.' })
       return
     }
 
@@ -344,7 +343,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       setMessages(chatbotSystemPrompts)
     } catch (error) {
       console.error('Error fetching messages:', error)
-      toast.error('Failed to load messages. Please try again.')
+      customSonner({ type: 'error', text: 'Failed to load messages. Please try again.' })
     }
   }
 
