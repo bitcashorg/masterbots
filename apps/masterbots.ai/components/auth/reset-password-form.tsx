@@ -8,8 +8,8 @@ import { isPasswordStrong } from '@/lib/password'
 import { Eye, EyeOff } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import type React from 'react'
-import { toast } from 'react-hot-toast'
 import { useSetState } from 'react-use'
+import { useSonner } from '@/lib/hooks/useSonner'
 
 interface FormState {
   password: string
@@ -29,6 +29,7 @@ export default function ResetPasswordForm({ token }: { token: string }) {
     showPassword: false,
     showConfirmPassword: false
   })
+  const { customSonner } = useSonner()
 
   const router = useRouter()
 
@@ -48,13 +49,13 @@ export default function ResetPasswordForm({ token }: { token: string }) {
     setState({ isLoading: true })
 
     if (!isPasswordStrong(state.password)) {
-      toast.error('Please choose a stronger password')
+      customSonner({ type: 'error', text: 'Please choose a stronger password' })
       setState({ isLoading: false })
       return
     }
 
     if (state.password !== state.confirmPassword) {
-      toast.error('Passwords do not match')
+      customSonner({ type: 'error', text: 'Passwords do not match' })
       setState({ isLoading: false })
       return
     }
@@ -69,14 +70,14 @@ export default function ResetPasswordForm({ token }: { token: string }) {
       const data = await response.json()
 
       if (response.ok) {
-        toast.success(data.message)
+        customSonner({ type: 'success', text: data.message })
         router.push('/auth/signin')
       } else {
-        toast.error(data.error || 'An error occurred')
+        customSonner({ type: 'error', text: data.error || 'An error occurred' })
       }
     } catch (error) {
       console.error('Error:', error)
-      toast.error('An unexpected error occurred')
+      customSonner({ type: 'error', text: 'An unexpected error occurred' })
     } finally {
       setState({ isLoading: false })
     }
