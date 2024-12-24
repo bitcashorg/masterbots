@@ -51,6 +51,7 @@ export function UserCard({ user, loading }: UserCardProps) {
   const [isFollowLoading, setIsFollowLoading] = useState(false)
   const { customSonner } = useSonner() 
   
+
   const userQuestions = user?.threads
     .map(thread => {
       if (!thread.messages?.length) {
