@@ -21,13 +21,10 @@ export function OnboardingMobileView() {
               </p>
             </div>
             <div className="flex flex-col items-center py-4">
-              <h2 className="text-xl font-semibold text-zinc-950 dark:text-gray-300">
-                Select a Bot To Chat with
-              </h2>
               <div className="flex items-center py-2 space-x-4">
                 <PanelLeft className="size-6 text-[#be16e8] dark:text-[#82e46a]" />
-                <p className="text-base text-[#be16e8] dark:text-[#82e46a]">
-                  Go to sidebar and select
+                <p className="text-lg text-[#be16e8] dark:text-[#82e46a]">
+                  Go To Sidebar And Select One Bot
                 </p>
               </div>
             </div>

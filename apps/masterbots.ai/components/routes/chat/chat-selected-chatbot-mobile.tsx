@@ -1,7 +1,6 @@
-import { Button } from '@/components/ui/button'
 import { Card, CardFooter, CardHeader } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import { Bot, MessageSquarePlus } from 'lucide-react'
+import { Bot, ArrowBigDown } from 'lucide-react'
 import Image from 'next/image'
 
 interface SelectedBotMobileViewProps {
@@ -36,20 +35,20 @@ export function SelectedBotMobileView({
             <div className="relative">
               {/* Avatar container positioned absolutely */}
               <div className="absolute z-10 right-4 -top-8">
-             <div  
-             className={cn(
-                  'size-16 rounded-full relative',
-                  'bg-zinc-200 dark:bg-black',
-                  'ring-4 ring-[#be16e8] dark:ring-[#82e46a]'
-                )}
-              >
-                <Image
-                  src={avatar}
-                  alt={`${botName} avatar`}
-                  height={64}
-                  width={64}
-                  className="object-cover rounded-full"
-                />
+                <div
+                  className={cn(
+                    'size-16 rounded-full relative',
+                    'bg-zinc-200 dark:bg-black',
+                    'ring-4 ring-[#be16e8] dark:ring-[#82e46a]'
+                  )}
+                >
+                  <Image
+                    src={avatar}
+                    alt={`${botName} avatar`}
+                    height={64}
+                    width={64}
+                    className="object-cover rounded-full"
+                  />
                 </div>
               </div>
 
@@ -65,20 +64,11 @@ export function SelectedBotMobileView({
           </div>
         </CardHeader>
 
-        <CardFooter className="py-4">
-          <Button
-            onClick={onNewChat}
-            className={cn(
-              'max-w-72 mx-auto text-base p-2',
-              'bg-[#be16e8] hover:bg-[#be16e8]/90',
-              'dark:bg-[#82e46a] dark:hover:bg-[#82e46a]/90',
-              'text-white dark:text-zinc-950',
-              'flex items-center justify-center gap-2'
-            )}
-          >
-            <MessageSquarePlus className="size-6" />
-            New Chat With {botName}
-          </Button>
+        <CardFooter className="flex justify-center py-4">
+              <h2 className="flex items-center text-lg font-semibold text-[#be16e8] dark:text-[#82e46a]">
+                <ArrowBigDown className="mr-2 size-6 fill-[#be16e8] dark:fill-[#82e46a]" />
+                Start Chatting Below
+              </h2>
         </CardFooter>
       </Card>
     </div>

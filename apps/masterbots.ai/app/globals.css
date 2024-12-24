@@ -49,6 +49,9 @@
     --tertiary: 288, 82%, 50%;
     --tertiary-foreground: 0 0% 98%;
     --font-size-base: 1rem;
+
+    --background-sidebar-gradient: linear-gradient(180deg, rgba(190, 22, 232, 0.2) 0%, rgba(190, 22, 232, 0.4) 100%);
+    --background-sidebar-hover-gradient: linear-gradient(180deg, rgba(190, 22, 232, 0.1) 0%, rgba(190, 22, 232, 0.3) 100%);
   }
 
   .dark {
@@ -94,6 +97,9 @@
 
     --tertiary: 120, 100%, 65%;
     --tertiary-foreground: 0 0% 98%;
+
+    --background-sidebar-gradient: linear-gradient(180deg, rgba(130, 228, 110, 0.2) 0%, rgba(130, 228, 110, 0.4) 100%);
+    --background-sidebar-hover-gradient: linear-gradient(180deg, rgba(130, 228, 110, 0.1) 0%, rgba(130, 228, 110, 0.3) 100%);
   }
 }
 
@@ -304,4 +310,24 @@
 
 .lucide {
   stroke-width: 1.25px;
+}
+
+/* Sidebar gradient styles */
+.sidebar-gradient {
+  transition: background-image 0.3s ease;
+}
+
+/* Hover state */
+.sidebar-gradient:hover:not(.selected) {
+  background-image: var(--background-sidebar-hover-gradient);
+}
+
+/* Selected state */
+.sidebar-gradient.selected {
+  background-image: var(--background-sidebar-gradient);
+}
+
+/* Selected + hover state */
+.sidebar-gradient.selected:hover {
+  background-image: var(--background-sidebar-gradient);
 }
