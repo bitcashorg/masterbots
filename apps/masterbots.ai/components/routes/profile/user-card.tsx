@@ -1,23 +1,30 @@
-import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { UserPersonalityPrompt } from '@/lib/constants/prompts'
-import { useUploadImagesCloudinary } from '@/lib/hooks/use-cloudinary-upload'
-import { useModel } from '@/lib/hooks/use-model'
-import { useProfile } from '@/lib/hooks/use-profile'
-import { useSonner } from '@/lib/hooks/useSonner'
-import { nanoid, removeSurroundingQuotes } from '@/lib/utils'
-import { type Message, useChat } from 'ai/react'
+import Image from 'next/image'
 import {
   BookUser,
   BotIcon,
+  MessageSquareHeart,
+  Wand2,
   ImagePlus,
   Loader,
-  MessageSquareHeart,
-  Wand2
+  UserIcon,
+  Users
 } from 'lucide-react'
-import { User } from 'mb-genql'
-import Image from 'next/image'
+import { Button } from '@/components/ui/button'
+import type { User } from 'mb-genql'
+import { useProfile } from '@/lib/hooks/use-profile'
+import { type Message, useChat } from 'ai/react'
+import { nanoid, removeSurroundingQuotes } from '@/lib/utils'
+import { useModel } from '@/lib/hooks/use-model'
+import { UserPersonalityPrompt } from '@/lib/constants/prompts'
 import { ChangeEvent, useCallback, useEffect, useState } from 'react'
+import { useUploadImagesCloudinary } from '@/lib/hooks/use-cloudinary-upload'
+import { formatNumber, isFollowed } from '@/lib/utils'
+import { useSession } from 'next-auth/react'
+import { userFollowOrUnfollow } from '@/services/hasura/hasura.service'
+import type { SocialFollowing } from 'mb-genql'
+import router from 'next/router'
+import { useSonner } from '@/lib/hooks/useSonner'
 
 interface UserCardProps {
   user: User | null
@@ -39,8 +46,11 @@ export function UserCard({ user, loading }: UserCardProps) {
   const [isUploadingImage, setIsUploadingImage] = useState(false)
   const { uploadFilesCloudinary, error: cloudinaryError } =
     useUploadImagesCloudinary()
-  const { customSonner } = useSonner()
-
+  const { data: session } = useSession()
+  const [userData, setUserData] = useState<User | null>(user)
+  const [isFollowLoading, setIsFollowLoading] = useState(false)
+  const { customSonner } = useSonner() 
+  
   const userQuestions = user?.threads
     .map(thread => {
       if (!thread.messages?.length) {
@@ -91,10 +101,9 @@ export function UserCard({ user, loading }: UserCardProps) {
 
     try {
       const { data, success } = await uploadFilesCloudinary(file)
-
       if (!success) {
         console.error('Failed to upload image xx:', cloudinaryError)
-        customSonner({ type: 'error', text: 'Failed to upload image: \n' + cloudinaryError?.message })
+        customSonner({ type: 'error', text: 'Failed to upload image' })
         return
       }
 
@@ -107,7 +116,7 @@ export function UserCard({ user, loading }: UserCardProps) {
       setUserProfilePicture(imageUrl)
       customSonner({ type: 'success', text: 'Profile picture updated successfully' })
     } catch (error) {
-      customSonner({ type: 'error', text: 'Failed to upload image: \n' + (error as Error).message })
+      customSonner({ type: 'error', text: 'Failed to upload image' })
     } finally {
       setIsUploadingImage(false)
     }
@@ -156,7 +165,7 @@ export function UserCard({ user, loading }: UserCardProps) {
       })
     } catch (error) {
       setIsLoading(false)
-      customSonner({ type: 'error', text: 'Failed to generate content: \n' + (error as Error).message })
+      customSonner({ type: 'error', text: 'Failed to generate content' })
       console.error('Bio generation failed:', error)
     }
   }
@@ -172,7 +181,88 @@ export function UserCard({ user, loading }: UserCardProps) {
     // update bio and topic when user changes
     setBio(user?.bio)
     setFavouriteTopic(user?.favouriteTopic)
+    setUserData(user)
   }, [user])
+
+  const handleFollowUser = async () => {
+    if (isFollowLoading) return
+    try {
+      // if no session is found, redirect to login\
+      if (!session) {
+        customSonner({ type: 'error', text: 'Please sign in to follow user' })
+        router.push('/auth/signin')
+        return
+      }
+      setIsFollowLoading(true)
+      const followerId = session.user?.id
+      const followeeId = user?.userId
+      if (!followerId || !followeeId) {
+        customSonner({ type: 'error', text: 'Invalid user data' })
+        return
+      }
+      if (followerId === followeeId) {
+        customSonner({ type: 'error', text: 'You cannot follow yourself' })
+        return
+      }
+      const { success, error, follow } = await userFollowOrUnfollow({
+        followerId,
+        followeeId,
+        jwt: session.user.hasuraJwt as string
+      })
+      if (!success) {
+        console.error('Failed to follow/Unfollow user:', error)
+        customSonner({ type: 'error', text: error || 'Failed to follow/Unfollow user' })
+        return
+      }
+
+      if (follow) {
+        setUserData(prevUser => {
+          if (!prevUser) return prevUser
+
+          const newFollower: SocialFollowing = {
+            followerId,
+            followeeId,
+            createdAt: new Date().toISOString(),
+            user: prevUser,
+            userByFollowerId: prevUser,
+            chatbot: null,
+            followeeIdChatbot: null,
+            __typename: 'SocialFollowing'
+          }
+
+          return {
+            ...prevUser,
+            followers: [...(prevUser.followers || []), newFollower]
+          } as User // Assert the entire object as User type
+        })
+        customSonner({ type: 'success', text: `You are now following ${user?.username}` })
+      } else {
+        setUserData(prevUser => {
+          if (!prevUser) return prevUser
+
+          return {
+            ...prevUser,
+            followers: prevUser.followers.filter(
+              follower =>
+                follower.followerId !== followerId ||
+                follower.followeeId !== followeeId
+            )
+          }
+        })
+        customSonner({ type: 'success', text: `You have unfollowed ${user?.username}` })
+      }
+    } catch (error) {
+      customSonner({ type: 'error', text: 'Failed to follow user' })
+      console.error('Failed to follow user:', error)
+    } finally {
+      setIsFollowLoading(false)
+    }
+  }
+
+  const followed = isFollowed({
+    followers: userData?.followers,
+    userId: session?.user?.id || ''
+  })
 
   return (
     <div
@@ -302,31 +392,47 @@ export function UserCard({ user, loading }: UserCardProps) {
                   )}
                 </div>
               </div>
-              {/* Implementation for this comes next :) */}
-              {/* <div className=' flex flex-col  items-center md:mt-0 mt-7  space-y-3'>
-           {!isOwner && (
-          <button aria-label={`Follow ${user?.username}`} className="px-10 py-1 text-sm text-white  rounded-md bg-[#BE17E8] hover:bg-[#BE17E8] dark:bg-[#83E56A] dark:hover:bg-[#83E56A] dark:text-black transition-colors">
-            Follow
-          </button>
-          )}
-          <div className="flex space-x-6 md:pt-2 ">
-            <div className="flex flex-col items-center">
-              <span className="text-sm">Following</span>
-              <div className='flex items-center space-x-1'>
-                <UserIcon className="w-4 h-4" />
-                <span className="text-sm text-gray-500">313</span>
+
+              <div className=" flex flex-col  items-center md:mt-0 mt-7  space-y-3">
+                {!isOwner && (
+                  <Button
+                    disabled={isFollowLoading}
+                    onClick={handleFollowUser}
+                    variant={'ghost'}
+                    aria-label={`${followed ? 'Unfollow' : 'Follow'} ${
+                      user?.username
+                    }`}
+                    aria-busy={isFollowLoading}
+                    className="px-10 py-1 text-sm text-white  rounded-md bg-[#BE17E8] hover:bg-[#BE17E8] dark:bg-[#83E56A] dark:hover:bg-[#83E56A] dark:text-black transition-colors"
+                  >
+                    {isFollowLoading ? (
+                      <Loader className="w-4 h-4 mx-auto" />
+                    ) : (
+                      <>{followed ? 'Following' : 'Follow'}</>
+                    )}
+                  </Button>
+                )}
+                <div className="flex space-x-6 md:pt-2 ">
+                  <div className="flex flex-col items-center">
+                    <span className="text-sm">Following</span>
+                    <div className="flex items-center space-x-1">
+                      <UserIcon className="w-4 h-4" />
+                      <span className="text-sm text-gray-500">
+                        {formatNumber(userData?.following?.length || 0)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <span className="text-sm">Followers</span>
+                    <div className="flex items-center space-x-1">
+                      <Users className="w-4 h-4" />
+                      <span className="text-sm text-gray-500">
+                        {formatNumber(userData?.followers?.length || 0)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              
-            </div>
-            <div className="flex flex-col items-center">
-              <span className="text-sm">Followers</span>
-              <div className='flex items-center space-x-1'>
-                <Users className="w-4 h-4" />
-                <span className="text-sm text-gray-500">3.2k</span>
-              </div>
-            </div>
-          </div>
-          </div> */}
             </div>
           </div>
 
@@ -341,9 +447,11 @@ export function UserCard({ user, loading }: UserCardProps) {
                       ? userProfilePicture
                       : 'https://api.dicebear.com/9.x/identicon/svg?seed=default_masterbots_ai_user_avatar'
                   }
-                  alt={`${user.username}'s profile picture`}
+                  alt={`Profile picture of ${user.username}`}
                   height={136}
                   width={136}
+                  priority
+                  loading="eager"
                   onError={e => {
                     e.currentTarget.src =
                       'https://api.dicebear.com/9.x/identicon/svg?seed=default_masterbots_ai_user_avatar'
