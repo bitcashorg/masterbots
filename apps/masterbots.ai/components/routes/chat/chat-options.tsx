@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { IconSpinner } from '@/components/ui/icons'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
-import { BadgeCheck, Eye, EyeOff, MoreVertical, Trash } from 'lucide-react'
+import { Eye, EyeOff, MoreVertical, Trash } from 'lucide-react'
 import type { Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import type React from 'react'
@@ -100,13 +100,6 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
       <AlertDialogue deleteDialogOpen={isDeleteOpen} />
       {!isBrowse && (
         <div className="flex items-center gap-1 sm:gap-3">
-          <div>
-            {thread?.isApproved ? (
-              <BadgeCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 bg-[#388DE2] text-white rounded-full" />
-            ) : (
-              <BadgeCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400" />
-            )}
-          </div>
           <div className="px-1.5 sm:px-2 py-0.5 bg-gray-200 rounded-full dark:bg-gray-700">
             <span className="text-[10px] sm:text-xs whitespace-nowrap">
               {thread?.isPublic ? 'Public' : 'Private'}
