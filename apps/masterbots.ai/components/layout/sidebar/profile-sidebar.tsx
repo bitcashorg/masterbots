@@ -43,16 +43,18 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
     }
   }, [])
 
-  const goToProfile = useCallback((e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    const userSlug = toSlugWithUnderScore(user.name || '')
-    if (userSlug) {
-      setIsOpen(false)
-      router.push(`/u/${userSlug}/t`)
-    }
-  }, [router, user.name])
-
+  const goToProfile = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      const userSlug = toSlugWithUnderScore(user.name || '')
+      if (userSlug) {
+        setIsOpen(false)
+        router.push(`/u/${userSlug}/t`)
+      }
+    },
+    [router, user.name]
+  )
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -115,32 +117,31 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
               Chat
             </Button>
 
-            {appConfig.features.devMode && (
-              <Button
-                variant="ghost"
-                className="justify-start w-full text-sm"
-                onClick={() => handleNavigation('/c/p')}
-              >
-                Pro
-              </Button>
-            )}
-
             <Button
               variant="ghost"
               className="justify-start w-full text-sm"
               onClick={() => handleNavigation('/')}
             >
-              Browse
+              Public
             </Button>
 
             {appConfig.features.devMode && (
-              <Button
-                variant="ghost"
-                className="justify-start w-full text-sm"
-                onClick={() => handleNavigation('/wordware')}
-              >
-                Ww
-              </Button>
+              <>
+                <Button
+                  variant="ghost"
+                  className="justify-start w-full text-sm"
+                  onClick={() => handleNavigation('/c/p')}
+                >
+                  Pro
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="justify-start w-full text-sm"
+                  onClick={() => handleNavigation('/wordware')}
+                >
+                  Ww
+                </Button>
+              </>
             )}
           </nav>
 

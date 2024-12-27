@@ -60,6 +60,7 @@ export function PromptForm({
   const { formRef, onKeyDown } = useEnterSubmit()
   const inputRef = React.useRef<HTMLTextAreaElement>(null)
   const [isFocused, setIsFocused] = React.useState(false)
+
   React.useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus()
@@ -131,7 +132,7 @@ export function PromptForm({
       </div>
       {!activeChatbot || (isOpenPopup && !activeThread?.chatbot) ? (
         <div className="backdrop-blur-[1px] font-semibold border border-[#27272A] rounded-[6px] absolute size-full top-0 left-0 flex justify-center items-center dark:bg-[#27272A80] text-2xl">
-          Select a bot to start a thread.
+          Select {activeThread?.chatbot?.name} to continue
         </div>
       ) : null}
     </form>

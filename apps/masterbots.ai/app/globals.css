@@ -50,8 +50,8 @@
     --tertiary-foreground: 0 0% 98%;
     --font-size-base: 1rem;
 
-    --background-sidebar-gradient: linear-gradient(180deg, rgba(190, 22, 232, 0.2) 0%, rgba(190, 22, 232, 0.4) 100%);
-    --background-sidebar-hover-gradient: linear-gradient(180deg, rgba(190, 22, 232, 0.1) 0%, rgba(190, 22, 232, 0.3) 100%);
+    --background-sidebar-gradient: linear-gradient(180deg, rgba(155, 22, 232, 0.2) 0%, rgba(190, 22, 232, 0.53) 100%);
+    --background-sidebar-hover-gradient: linear-gradient(-180deg, rgba(166, 22, 232, 0.1) 0%, rgba(190, 22, 232, 0.3) 100%);
   }
 
   .dark {
@@ -98,8 +98,8 @@
     --tertiary: 120, 100%, 65%;
     --tertiary-foreground: 0 0% 98%;
 
-    --background-sidebar-gradient: linear-gradient(180deg, rgba(130, 228, 110, 0.2) 0%, rgba(130, 228, 110, 0.4) 100%);
-    --background-sidebar-hover-gradient: linear-gradient(180deg, rgba(130, 228, 110, 0.1) 0%, rgba(130, 228, 110, 0.3) 100%);
+    --background-sidebar-gradient: linear-gradient(180deg, rgba(115, 201, 97, 0.2) 0%, rgba(122, 214, 104, 0.4) 100%);
+    --background-sidebar-hover-gradient: linear-gradient(-180deg, rgba(113, 199, 96, 0.1) 0%, rgba(117, 205, 99, 0.3) 100%);
   }
 }
 
