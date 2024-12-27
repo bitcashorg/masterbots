@@ -52,6 +52,7 @@ export function useSonner() {
           <div className="absolute inset-y-0 right-3 flex items-center">
             <button
               className="border dark:border-[#27272A] border-[#E4E4E7] rounded-md py-1.5 px-2 text-sm dark:text-[#fafafa] text-[#09090B]"
+              type="button"
               onClick={() => toast.dismiss(t)}
             >
               {config.button}
