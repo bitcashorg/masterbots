@@ -1,5 +1,5 @@
-import { SuccessIcon, InfoIcon, ErrorIcon, CloseIcon } from '@/components/icons'
 import { cn } from '@/lib/utils'
+import { Check, Info, AlertTriangle, X } from 'lucide-react'
 import { toast } from 'sonner'
 
 export type customSonnerProps = {
@@ -13,20 +13,20 @@ export function useSonner() {
       success: {
         title: 'Success',
         text: text ?? 'Changes and been applied successfully',
-        button: <CloseIcon className="dark:icon-sonner-dark" />,
-        icon: <SuccessIcon />
+        button: <X />,
+        icon: <Check color="#83E56A" size={18} />
       },
       error: {
         title: 'Error',
         text: text ?? 'Failed to update the information. Please try again',
         button: 'Retry',
-        icon: <ErrorIcon />
+        icon: <AlertTriangle color="#F93333" size={18} />
       },
       info: {
         title: 'Changes applied',
         text: text ?? 'Your changes has been applied 5 minutes ago.',
         button: 'Undo',
-        icon: <InfoIcon />
+        icon: <Info color="#388DE2" size={18} />
       }
     }
 
