@@ -64,7 +64,9 @@ export async function generateMetadata({
     title: chatbot?.name || '',
     description: chatbot?.description || '',
     ogType: 'website',
-    ogImageUrl: `${process.env.BASE_URL}/api/og?threadId=${chatbot?.threads[0].threadId}`,
+    ogImageUrl: chatbot?.threads?.[0]?.threadId
+     ? `${process.env.BASE_URL || ''}/api/og?threadId=${chatbot.threads[0].threadId}`
+     : `${process.env.BASE_URL || ''}/api/og`,
     twitterCard: 'summary_large_image'
   }
 

@@ -3,13 +3,14 @@ import { NextRequest } from 'next/server'
 import { getThreadForOG } from './edge-client'
 import OGImage from '@/components/shared/og-image'
 import { UUID } from 'crypto'
+
 export const runtime = 'edge'
 
 const defaultContent = {
   thread: {
     chatbot: {
       name: 'Masterbots',
-      avatar: null,
+      avatar: process.env.NEXT_PUBLIC_BASE_URL + '/images/masterbots.png',
       categories: [{ category: { name: 'AI' } }]
     }
   },
@@ -18,15 +19,17 @@ const defaultContent = {
   answer:
     'Elevating AI Beyond ChatGPT: Specialized Chatbots, Social Sharing and User-Friendly Innovation',
   username: 'Masterbots',
-  user_avatar: '',
+  user_avatar: process.env.NEXT_PUBLIC_BASE_URL + '/images/masterbots.png',
   isLightTheme: false
 }
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = req.nextUrl
-    const threadId = searchParams.get('threadId') as UUID
-  
+    const rawThreadId = searchParams.get('threadId')
+    const threadId = rawThreadId?.match(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+     ? (rawThreadId as UUID)
+     : null
 
     if (!threadId) {
       return new ImageResponse(<OGImage {...defaultContent} />, {

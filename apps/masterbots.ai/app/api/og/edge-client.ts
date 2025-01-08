@@ -2,12 +2,15 @@ import { UUID } from "crypto"
 import { endpoints } from "mb-env"
 
 export async function getThreadForOG(threadId: UUID) {
-    const env = process.env.NEXT_PUBLIC_APP_ENV  as 'prod' | 'test' | 'local'
-    const endpoint = endpoints[env]
-  
-    if (!endpoint) {
-      throw new Error(`No endpoint found for env: ${env}`)
-    }
+ 
+   const env = process.env.NEXT_PUBLIC_APP_ENV
+   if (!env || !['prod', 'test', 'local'].includes(env)) {
+     throw new Error('Invalid environment configuration')
+   }
+   const endpoint = endpoints[env as 'prod' | 'test' | 'local']
+   if (!endpoint) {
+     throw new Error('API endpoint not configured')
+   }
   
     try {
       const response = await fetch(endpoint, {
@@ -43,14 +46,12 @@ export async function getThreadForOG(threadId: UUID) {
         })
       })
       const data = await response.json()
-  
       if (data.errors) {
         throw new Error(data.errors[0].message)
       }
-  
       return data.data
     } catch (error: any) {
-      throw error
+      throw new Error('Unknown error occurred while fetching thread')
     }
   }
   
