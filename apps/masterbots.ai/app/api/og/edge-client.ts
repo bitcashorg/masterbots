@@ -14,49 +14,27 @@ export async function getThreadForOG(threadId: UUID) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-hasura-admin-secret': process.env.HASURA_GRAPHQL_LOCAL_ADMIN_SECRET as string,
         },
         body: JSON.stringify({
           query: `
             query GetThread($threadId: uuid!) {
               thread(where: {threadId: {_eq: $threadId}}) {
-                threadId
-                createdAt
-                updatedAt
                 chatbot {
-                  chatbotId
                   name
                   avatar
-                  description
                   categories {
-                    categoryId
                     category {
-                      categoryId
                       name
-                    }
-                  }
-                  threads {
-                    threadId
-                  }
-                  prompts {
-                    promptId
-                    prompt {
-                      promptId
-                      content
                     }
                   }
                 }
                 user {
-                  userId
                   username
                   profilePicture
-                  email
                 }
                 messages {
-                  messageId
                   content
                   role
-                  threadId
                 }
               }
             }
@@ -72,11 +50,6 @@ export async function getThreadForOG(threadId: UUID) {
   
       return data.data
     } catch (error: any) {
-      console.error('Fetch error:', {
-        message: error.message,
-        endpoint,
-        env
-      })
       throw error
     }
   }

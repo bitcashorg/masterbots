@@ -3,9 +3,25 @@ import { NextRequest } from 'next/server'
 import { getThreadForOG } from './edge-client'
 import OGImage from '@/components/shared/og-image'
 import { UUID } from 'crypto'
-import { defaultContent } from '@/lib/metadata'
-
 export const runtime = 'edge'
+
+const defaultContent = {
+  thread: {
+    chatbot: {
+      name: 'Masterbots',
+      avatar: null,
+      categories: [{ category: { name: 'AI' } }]
+    }
+  },
+  question:
+    'Elevating AI Beyond ChatGPT: Specialized Chatbots, Social Sharing and User-Friendly Innovation',
+  answer:
+    'Elevating AI Beyond ChatGPT: Specialized Chatbots, Social Sharing and User-Friendly Innovation',
+  username: 'Masterbots',
+  user_avatar: '',
+  isLightTheme: false
+}
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = req.nextUrl

@@ -26,7 +26,8 @@
     "@ai-sdk/anthropic": "^0.0.49",
     "@types/bcryptjs": "^2.4.6",
     "axios": "^1.7.7",
-    "nextjs-toploader": "^1.6.12",
-    "lucide-react": "latest"
+    "crypto": "^1.0.1",
+    "lucide-react": "latest",
+    "nextjs-toploader": "^1.6.12"
   }
 }
