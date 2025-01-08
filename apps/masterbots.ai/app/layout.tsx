@@ -1,7 +1,6 @@
 import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
 import { Toaster } from 'react-hot-toast'
-
 import '@/app/globals.css'
 import { Header } from '@/components/layout/header/header'
 import { Providers } from '@/components/layout/providers'

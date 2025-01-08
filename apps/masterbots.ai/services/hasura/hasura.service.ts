@@ -238,7 +238,6 @@ export async function getThread({ threadId, jwt }: GetThreadParams) {
       }
     }
   })
-
   return thread[0] as Thread
 }
 
