@@ -61,18 +61,16 @@ export function PromptForm({
   const { formRef, onKeyDown } = useEnterSubmit()
   const inputRef = React.useRef<HTMLTextAreaElement>(null)
   const [isFocused, setIsFocused] = React.useState(false)
-  const [isSelecting, setIsSelecting] = React.useState(false)
 
-
-const handleBotSelection = () => {
-  if (activeThread?.chatbot) {
-    setActiveChatbot(activeThread.chatbot)
-    // Focus textarea after bot selection
-    if (inputRef.current) {
-      inputRef.current.focus()
+  const handleBotSelection = () => {
+    if (activeThread?.chatbot) {
+      setActiveChatbot(activeThread.chatbot)
+      // Focus textarea after bot selection
+      if (inputRef.current) {
+        inputRef.current.focus()
+      }
     }
   }
-}
   React.useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus()
@@ -145,16 +143,22 @@ const handleBotSelection = () => {
       </div>
       {!activeChatbot || (isOpenPopup && !activeThread?.chatbot) ? (
         // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
-        <div onClick={handleBotSelection} className={cn(
-          'backdrop-blur-[1px] font-semibold border border-[#27272A] rounded-[6px] absolute size-full top-0 left-0',
-          'flex justify-center items-center dark:bg-[#27272A80] text-2xl',
-          'cursor-pointer transition-all',
-          'hover:border-[#82e46a] hover:text-[#82e46a]'
-        )}>
-          Select <span className="mx-2 text-[#82e46a]">{activeThread?.chatbot?.name}</span> to continue
-        </div> 
+        <div
+          onClick={handleBotSelection}
+          className={cn(
+            'backdrop-blur-[1px] font-semibold border border-[#27272A] rounded-[6px] absolute size-full top-0 left-0',
+            'flex justify-center items-center dark:bg-[#27272A80] text-2xl',
+            'cursor-pointer transition-all',
+            'hover:border-[#82e46a] hover:text-[#82e46a]'
+          )}
+        >
+          Select{' '}
+          <span className="mx-2 text-[#82e46a]">
+            {activeThread?.chatbot?.name}
+          </span>{' '}
+          to continue
+        </div>
       ) : null}
     </form>
   )
 }
-
