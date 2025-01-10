@@ -328,3 +328,15 @@ export function numberShortener(number: number): string {
   if (number < 1000000000) return (number / 1000000).toFixed(2) + 'm'
   return (number / 1000000000).toFixed(3) + 'b'
 }
+
+/**
+ * Determines the route type based on the pathname
+ * @param pathname - The current pathname from Next.js usePathname()
+ * @returns 'chat' | 'public' | ''
+ */
+export function getRouteType(pathname: string | null): 'chat' | 'public' | '' {
+  if (!pathname) return ''
+  if (pathname.startsWith('/c')) return 'chat'
+  if (pathname.startsWith('/')) return 'public'
+  return ''
+}

@@ -50,8 +50,12 @@
     --tertiary-foreground: 0 0% 98%;
     --font-size-base: 1rem;
 
-    --background-sidebar-gradient: linear-gradient(180deg, rgba(155, 22, 232, 0.2) 0%, rgba(190, 22, 232, 0.53) 100%);
-    --background-sidebar-hover-gradient: linear-gradient(-180deg, rgba(166, 22, 232, 0.1) 0%, rgba(190, 22, 232, 0.3) 100%);
+    --background-chat-gradient: linear-gradient(180deg, rgba(115, 201, 97, 0.2) 0%, rgba(122, 214, 104, 0.4) 100%);
+    --background-chat-hover-gradient: linear-gradient(-180deg, rgba(113, 199, 96, 0.1) 0%, rgba(117, 205, 99, 0.3) 100%);
+    
+    /* Public route gradients */
+    --background-public-gradient: linear-gradient(180deg, rgba(155, 22, 232, 0.2) 0%, rgba(190, 22, 232, 0.53) 100%);
+    --background-public-hover-gradient: linear-gradient(-180deg, rgba(166, 22, 232, 0.1) 0%, rgba(190, 22, 232, 0.3) 100%);
   }
 
   .dark {
@@ -98,8 +102,12 @@
     --tertiary: 120, 100%, 65%;
     --tertiary-foreground: 0 0% 98%;
 
-    --background-sidebar-gradient: linear-gradient(180deg, rgba(115, 201, 97, 0.2) 0%, rgba(122, 214, 104, 0.4) 100%);
-    --background-sidebar-hover-gradient: linear-gradient(-180deg, rgba(113, 199, 96, 0.1) 0%, rgba(117, 205, 99, 0.3) 100%);
+    --background-chat-gradient: linear-gradient(180deg, rgba(115, 201, 97, 0.2) 0%, rgba(122, 214, 104, 0.4) 100%);
+    --background-chat-hover-gradient: linear-gradient(-180deg, rgba(113, 199, 96, 0.1) 0%, rgba(117, 205, 99, 0.3) 100%);
+    
+    /* Public route gradients */
+    --background-public-gradient: linear-gradient(180deg, rgba(155, 22, 232, 0.2) 0%, rgba(190, 22, 232, 0.53) 100%);
+    --background-public-hover-gradient: linear-gradient(-180deg, rgba(166, 22, 232, 0.1) 0%, rgba(190, 22, 232, 0.3) 100%);
   }
 }
 
@@ -312,22 +320,28 @@
   stroke-width: 1.25px;
 }
 
-/* Sidebar gradient styles */
+/* Base sidebar gradient styles *//* Chat route styles */
+
 .sidebar-gradient {
   transition: background-image 0.3s ease;
 }
 
-/* Hover state */
-.sidebar-gradient:hover:not(.selected) {
-  background-image: var(--background-sidebar-hover-gradient);
+/* Chat route styles */
+[data-route="chat"] .sidebar-gradient:hover:not(.selected) {
+  background-image: var(--background-chat-hover-gradient);
 }
 
-/* Selected state */
-.sidebar-gradient.selected {
-  background-image: var(--background-sidebar-gradient);
+[data-route="chat"] .sidebar-gradient.selected {
+  background-image: var(--background-chat-gradient);
 }
 
-/* Selected + hover state */
-.sidebar-gradient.selected:hover {
-  background-image: var(--background-sidebar-gradient);
+/* Public route styles */
+[data-route="public"] .sidebar-gradient:hover:not(.selected) {
+  background-image: var(--background-public-hover-gradient);
 }
+
+[data-route="public"] .sidebar-gradient.selected {
+  background-image: var(--background-public-gradient);
+}
+
+

@@ -4,7 +4,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { IconCaretRight } from '@/components/ui/icons'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { urlBuilders } from '@/lib/url'
-import { cn } from '@/lib/utils'
+import { cn, getRouteType } from '@/lib/utils'
 import type { Category, Chatbot } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import Image from 'next/image'
@@ -26,6 +26,7 @@ export default function SidebarLink({
   const router = useRouter()
   const pathname = usePathname()
   const isBrowse = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
+  const routeType = getRouteType(pathname)
   const { slug } = useParams()
 
   const {
@@ -154,7 +155,7 @@ export default function SidebarLink({
 
   if (isBrowse || isFilterMode) {
     return (
-      <div className={cn('flex flex-col mb-2')}>
+      <div className={cn('flex flex-col mb-2')} data-route={routeType}>
         {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
         <div
           className={cn(
@@ -171,7 +172,7 @@ export default function SidebarLink({
   }
 
   return (
-    <div className={cn('flex flex-col mb-2')}>
+    <div className={cn('flex flex-col mb-2')} data-route={routeType}>
       {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
       <button
         role="menuitem"
@@ -216,6 +217,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
       useSidebar()
     const pathname = usePathname()
     const isBrowse = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
+    const routeType = getRouteType(pathname)
     const { slug } = useParams()
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -247,11 +249,11 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
 
     return isFilterMode || isBrowse ? (
       <div
-        className={cn(
-          'flex items-center p-2 w-full sidebar-gradient',
-          isActive && 'selected',
-          'hover:selected:hover'
-        )}
+      className={cn(
+        'flex items-center p-2 w-full sidebar-gradient',
+        isActive && 'selected'
+      )}
+      data-route={routeType}
       >
         {isFilterMode && (
           <Checkbox
@@ -284,9 +286,9 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
         className={cn(
           'flex items-center p-2 w-full sidebar-gradient',
           isActive && 'selected',
-          'hover:selected:hover'
         )}
         onClick={handleChatbotClick}
+        data-route={routeType}
       >
         <Image
           src={chatbot.avatar || '/path/to/default/avatar.png'}
@@ -300,3 +302,4 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
     )
   }
 )
+
