@@ -10,16 +10,23 @@ import { UserPersonalityPrompt } from '@/lib/constants/prompts'
 import type { BrowseChatbotDetailsProps } from '@/types/types'
 import { BrowseChatbotDesktopDetails } from '@/components/routes/browse/browse-chatbot-desktop-details'
 import { BrowseChatbotMobileDetails } from '@/components/routes/browse/browse-chatbot-mobile-details'
+import { SocialFollowing } from 'mb-genql'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { chatbotFollowOrUnfollow } from '@/services/hasura'
 
 export default function BrowseChatbotDetails({
   chatbot,
   variant = 'default'
 }: BrowseChatbotDetailsProps) {
+
   const [isLoading, setIsLoading] = useState(false)
   const [generateType, setGenerateType] = useState<string | undefined>('')
   const [lastMessage, setLastMessage] = useState<string | null>(null)
   const { selectedModel, clientType } = useModel()
-
+  const [followers, setFollowers] = useState<SocialFollowing[]>(chatbot?.followers || []);
+  const { data: session } = useSession()
+  const router = useRouter();
   const { append } = useChat({
     id: nanoid(),
     body: {
@@ -74,6 +81,58 @@ export default function BrowseChatbotDetails({
     }
   }
 
+
+  const onFollow = async () => {
+    try {
+      if (!session) {
+        toast.error('Please sign in to follow user')
+        router.push('/auth/signin')
+        return
+      }
+      const followerId = session.user?.id
+      const followeeId = chatbot?.chatbotId
+      if (!followerId) {
+        toast.error('Invalid user data');
+        return;
+       }
+      if (!followeeId) {
+        toast.error('Invalid chatbot data, please select a chatbot');
+        return;
+       }
+       const {success, error, follow} =  await chatbotFollowOrUnfollow({followerId, followeeId, jwt: session.user.hasuraJwt as string})
+       if(!success){
+         console.error('Failed to follow/Unfolow bot:', error)
+         toast.error(error || 'Failed to follow/unfollow bot')
+         return
+       }
+       if(follow){
+        setFollowers([
+          ...followers,
+          {
+              followerId: followerId,
+              followeeId: null,
+              followeeIdChatbot: followeeId,
+              chatbot: null,
+              createdAt: new Date().toISOString(),
+              userByFollowerId: null as unknown, 
+              user: null,
+              __typename: 'SocialFollowing'
+          } as SocialFollowing  
+      ]);
+     }else{
+      setFollowers(followers.filter(follower => !(follower.followerId === followerId && follower.followeeIdChatbot === followeeId)))
+      }
+    
+      toast.success(follow ? `You have followed ${chatbot?.name} successfully` : `You have  unfollowed  ${chatbot?.name}`)
+  
+
+    } catch (error) {
+      toast.error('Failed to follow user')
+      console.error('Failed to follow user:', error)
+    }
+
+  }
+
   const sharedProps = {
     chatbot,
     variant,
@@ -84,7 +143,9 @@ export default function BrowseChatbotDetails({
     isWelcomeView,
     descriptionPoints,
     hasMultiplePoints,
-    botUrl
+    botUrl,
+    followers,
+    onFollow,
   }
 
   return (

@@ -17,7 +17,6 @@ export default function ChatChatbotDetails() {
   const { randomChatbot } = useThread()
   const [isFollowLoading, setIsFollowLoading] = useState<boolean>(false)
   const [followers, setFollowers] = useState<SocialFollowing[]>(activeChatbot?.followers || []);
-
   const [threadNum, setThreadNum] = useState<number>(0)
   const [categoryName, setCategoryName] = useState<string>('')
   const [isLoading, setIsLoading] = useState(true)
@@ -43,7 +42,7 @@ export default function ChatChatbotDetails() {
     if (!followeeId) {
       toast.error('Invalid chatbot data, please select a chatbot');
       return;
-      }
+     }
     const {success, error, follow} =  await chatbotFollowOrUnfollow({followerId, followeeId, jwt: session.user.hasuraJwt as string})
     if(!success){
       console.error('Failed to follow/Unfolow bot:', error)
@@ -148,7 +147,6 @@ export default function ChatChatbotDetails() {
     onFollow: handleFollow,
     followers
   }
-
  
   return (
     <>

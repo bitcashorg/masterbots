@@ -263,4 +263,7 @@ export interface BrowseChatbotLayoutProps {
   descriptionPoints: string[]
   hasMultiplePoints: boolean
   botUrl: string
+  followers?: SocialFollowing[]
+  onFollow?: () => void
+  followersCount?: number
 }

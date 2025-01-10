@@ -27,6 +27,8 @@ export default async function BotThreadsPage({
     limit: PAGE_SIZE
   })
 
+  
+
   return (
     <div className="w-full">
       {chatbot ? (

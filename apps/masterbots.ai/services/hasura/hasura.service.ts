@@ -340,6 +340,10 @@ export async function getChatbot({
         where: { name: { _eq: chatbotName } }
       },
       ...everything,
+      followers: {
+        followerId: true,
+        followeeIdChatbot: true
+      },
       categories: {
         category: {
           ...everything
