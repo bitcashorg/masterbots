@@ -108,6 +108,9 @@ export default function BrowseListItem({
 
   const fetchMessages = async () => {
     const messages = await getMessages({ threadId: thread.threadId })
+    console.log({
+      messages
+    })
     setMessages(_prev => messages)
   }
 
@@ -120,8 +123,10 @@ export default function BrowseListItem({
       )
       setMessages(_prev => [])
       await fetchMessages()
+      console.log('🟡 Opening Accordion')
     } else {
       window.history.pushState({}, '', initialUrl)
+      console.log('🟡 Closing Accordion')
     }
     // When toggling accordion, it should scroll
     // Use optional chaining to ensure scrollIntoView is called only if current is not null
@@ -152,12 +157,7 @@ export default function BrowseListItem({
         // handleTrigger={goToThread}
         className="relative"
         contentClass="!pt-0 max-h-[70vh] scrollbar"
-        triggerClass="dark:hover:bg-mirage hover:bg-gray-300 pl-[8px]
-        py-3 flex flex-col gap-[6px] 
-        sticky sm:top-0 top-[55px] z-[1]
-        dark:border-b-mirage border-b-gray-300
-        [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]
-        dark:bg-[#18181b] bg-[#f4f4f5]"
+        
         arrowClass="size-5 top-[0.25rem] bottom-0 transform translate-y-[100%]"
         thread={thread}
       >
@@ -192,7 +192,7 @@ export default function BrowseListItem({
               </div>
 
               {/* User section with tighter spacing on mobile */}
-              {pageType !== 'user' && (
+              {pageType !== 'user' && pageType !== 'profile' && (
                 <div className="flex items-center gap-1 ml-2 sm:gap-3 sm:ml-4">
                   <span className="hidden text-sm opacity-50 sm:inline"> by </span>
                   <Button
@@ -220,7 +220,7 @@ export default function BrowseListItem({
               <ChatOptions
                 threadId={thread.threadId}
                 thread={thread}
-                isBrowse
+                isBrowse={pageType !== 'profile'}
               />
             </div>
           </div>

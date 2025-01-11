@@ -906,6 +906,12 @@ export async function getUserBySlug({
         },
       
         following: {
+          __args: {
+            where: { 
+              followeeId: { _isNull: false },
+              followeeIdChatbot: { _isNull: true } 
+            }
+          },
           followeeId: true,
           followerId: true,
           userByFollowerId: {

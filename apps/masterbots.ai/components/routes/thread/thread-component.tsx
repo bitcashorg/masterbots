@@ -77,12 +77,14 @@ export default function ThreadComponent({
       <ChatAccordion
         onToggle={handleAccordionToggle}
         className="relative"
-        contentClass="!pt-0 !border-b-[3px] max-h-[70vh] scrollbar !border-l-[3px]"
-        triggerClass="gap-[0.375rem] py-3
-        dark:border-b-mirage border-b-iron
-        sticky top-0 z-[1] dark:hover:bg-mirage hover:bg-gray-300 sticky top-0 z-[1] dark:bg-[#18181b] bg-[#f4f4f5]
-        [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px] [&[data-state=closed]>div>span>span]:line-clamp-2"
-        arrowClass="size-5 top-[calc(33.33%-1.25rem)] bottom-0 transform translate-y-[100%]"
+        contentClass="!pt-0 max-h-[70vh] scrollbar"
+        triggerClass="dark:hover:bg-mirage hover:bg-gray-300 pl-[8px]
+        py-3 flex flex-col gap-[6px] 
+        sticky sm:top-0 top-[55px] z-[1]
+        dark:border-b-mirage border-b-gray-300
+        [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]
+        dark:bg-[#18181b] bg-[#f4f4f5]"
+        arrowClass="size-5 top-[0.25rem] bottom-0 transform translate-y-[100%]"
         thread={thread}
       >
         {/* Thread Title */}
