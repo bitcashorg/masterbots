@@ -69,15 +69,7 @@ export const ChatAccordion = ({
       if (profilePage) {
         setActiveThread(null)
         setIsOpenPopup(false)
-        // const category = thread?.chatbot?.categories[0]?.category?.name
-        // const chatbot = thread?.chatbot?.name
-        // const slug = params.slug;
-        // if (!category || !chatbot || !slug) {
-        //   console.error('Missing required navigation parameters');
-        //   return;
-        // }
-        // router.push(urlBuilders.threadUrl({ slug: slug as string, category, chatbot, threadId: thread?.threadId }))
-      }
+        }
       toggle()
     }
   }

@@ -19,7 +19,6 @@ export default function BrowseChatbotDetails({
   chatbot,
   variant = 'default'
 }: BrowseChatbotDetailsProps) {
-
   const [isLoading, setIsLoading] = useState(false)
   const [generateType, setGenerateType] = useState<string | undefined>('')
   const [lastMessage, setLastMessage] = useState<string | null>(null)

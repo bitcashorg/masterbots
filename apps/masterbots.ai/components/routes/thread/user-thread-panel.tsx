@@ -227,7 +227,7 @@ export default function UserThreadPanel({
       ) : threads && threads.length > 0 ? (
         <>
           {page === 'profile' ? (
-            <>
+             <div className="flex flex-col  py-5 ">
               {threads.map((thread: Thread, key) => (
                 <BrowseListItem
                   thread={thread}
@@ -240,7 +240,7 @@ export default function UserThreadPanel({
                 />
               ))}
               {loading && <ThreadItemSkeleton />}
-            </>
+            </div>
           ) : (
             <div className="flex px-4 py-5 md:px-10">
               <ThreadList

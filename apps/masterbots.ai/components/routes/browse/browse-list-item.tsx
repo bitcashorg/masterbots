@@ -180,9 +180,14 @@ export default function BrowseListItem({
       <BrowseAccordion
         onToggle={handleAccordionToggle}
         // handleTrigger={goToThread}
+        triggerClass="dark:hover:bg-mirage hover:bg-gray-300 pl-[8px]
+        py-3 flex flex-col gap-[6px] 
+        sticky sm:top-0 top-[55px] z-[1]
+        dark:border-b-mirage border-b-gray-300
+        [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]
+        dark:bg-[#18181b] bg-[#f4f4f5]"
         className="relative"
         contentClass="!pt-0 max-h-[70vh] scrollbar"
-        
         arrowClass="size-5 top-[0.25rem] bottom-0 transform translate-y-[100%]"
         thread={thread}
       >
