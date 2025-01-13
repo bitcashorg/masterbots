@@ -67,8 +67,8 @@ export const ChatAccordion = ({
     } else {
       //* Sub-conversation click - toggle accordion
       if (profilePage) {
-        setActiveThread(thread)
-        setIsOpenPopup(true)
+        setActiveThread(null)
+        setIsOpenPopup(false)
         // const category = thread?.chatbot?.categories[0]?.category?.name
         // const chatbot = thread?.chatbot?.name
         // const slug = params.slug;
