@@ -26,7 +26,11 @@
     "@ai-sdk/anthropic": "^0.0.49",
     "@types/bcryptjs": "^2.4.6",
     "axios": "^1.7.7",
+    "lucide-react": "latest",
+    "mdast-util-to-markdown": "^2.1.2",
     "nextjs-toploader": "^1.6.12",
-    "lucide-react": "latest"
+    "react-markdown": "^9.0.3",
+    "rehype-raw": "^7.0.0",
+    "remark-gfm": "^4.0.0"
   }
 }

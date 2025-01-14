@@ -19,6 +19,7 @@ import React from 'react'
 import BrowseChatbotDetails from '@/components/routes/browse/browse-chatbot-details'
 import { BrowseChatMessageList } from '@/components/routes/browse/browse-chat-message-list'
 import { getMessages } from '@/services/hasura'
+import { BrowseThreadBlog } from '@/components/routes/browse/browse-thread-blog'
 
 export type MessagePair = {
   userMessage: Message
@@ -49,6 +50,7 @@ export function BrowseChatMessages({
   const fetchMessages = async () => {
     if (threadId && !messages.length) {
       const messages = await getMessages({ threadId: threadId })
+      console.log('🟢 Fetched Messages:', messages)
       setMessages(messages)
     }
   }
@@ -69,12 +71,14 @@ export function BrowseChatMessages({
         ''
       )}
       <div className="flex flex-col max-w-screen-lg px-4 mx-auto mt-8 gap-y-4">
-        <BrowseChatMessageList
+        {/* <BrowseChatMessageList
           user={user}
           chatbot={chatbot}
           messages={messages}
           isThread
-        />
+        /> */}
+
+        <BrowseThreadBlog threadId={threadId} user={user} />
       </div>
     </div>
   )
