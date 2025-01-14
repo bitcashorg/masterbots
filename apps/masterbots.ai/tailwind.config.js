@@ -88,6 +88,9 @@ module.exports = {
           to: { opacity: 0 }
         }
       },
+      borderColor: {
+        mirage: 'hsl(var(--mirage))',
+      },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
