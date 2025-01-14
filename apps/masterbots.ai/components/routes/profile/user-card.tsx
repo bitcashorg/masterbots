@@ -16,7 +16,6 @@ import { useProfile } from '@/lib/hooks/use-profile'
 import { type Message, useChat } from 'ai/react'
 import { nanoid, removeSurroundingQuotes } from '@/lib/utils'
 import { useModel } from '@/lib/hooks/use-model'
-import toast from 'react-hot-toast'
 import { UserPersonalityPrompt } from '@/lib/constants/prompts'
 import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { useUploadImagesCloudinary } from '@/lib/hooks/use-cloudinary-upload'
@@ -25,6 +24,7 @@ import { useSession } from 'next-auth/react'
 import { userFollowOrUnfollow } from '@/services/hasura/hasura.service'
 import type { SocialFollowing } from 'mb-genql'
 import router from 'next/router'
+import { useSonner } from '@/lib/hooks/useSonner'
 
 interface UserCardProps {
   user: User | null
@@ -49,6 +49,8 @@ export function UserCard({ user, loading }: UserCardProps) {
   const { data: session } = useSession()
   const [userData, setUserData] = useState<User | null>(user)
   const [isFollowLoading, setIsFollowLoading] = useState(false)
+  const { customSonner } = useSonner() 
+  
 
   const userQuestions = user?.threads
     .map(thread => {
@@ -75,14 +77,14 @@ export function UserCard({ user, loading }: UserCardProps) {
     },
     onResponse(response) {
       if (response.status === 401) {
-        toast.error(response.statusText)
+        customSonner({ type: 'error', text: response.statusText })
       } else if (!response.ok) {
-        toast.error('Failed to process request')
+        customSonner({ type: 'error', text: 'Failed to process request' })
       }
       setIsLoading(false)
     },
     onError(error) {
-      toast.error('An error occurred')
+      customSonner({ type: 'error', text: 'An error occurred' })
       setIsLoading(false)
     },
     async onFinish(message) {
@@ -102,7 +104,7 @@ export function UserCard({ user, loading }: UserCardProps) {
       const { data, success } = await uploadFilesCloudinary(file)
       if (!success) {
         console.error('Failed to upload image xx:', cloudinaryError)
-        toast.error('Failed to upload image')
+        customSonner({ type: 'error', text: 'Failed to upload image' })
         return
       }
 
@@ -113,9 +115,9 @@ export function UserCard({ user, loading }: UserCardProps) {
 
       // Update the user state
       setUserProfilePicture(imageUrl)
-      toast.success('Profile picture updated successfully')
+      customSonner({ type: 'success', text: 'Profile picture updated successfully' })
     } catch (error) {
-      toast.error('Failed to upload image')
+      customSonner({ type: 'error', text: 'Failed to upload image' })
     } finally {
       setIsUploadingImage(false)
     }
@@ -132,7 +134,7 @@ export function UserCard({ user, loading }: UserCardProps) {
           await updateUserInfo(removeSurroundingQuotes(lastMessage), null, null)
         }
       } catch (error) {
-        toast.error('Failed to update user information')
+        customSonner({ type: 'error', text: 'Failed to update user information' })
       } finally {
         setIsLoading(false)
       }
@@ -151,7 +153,7 @@ export function UserCard({ user, loading }: UserCardProps) {
       setIsLoading(true)
       setGenerateType(type)
       if (!userQuestions?.length) {
-        toast.error('No thread history available to generate content')
+        customSonner({ type: 'error', text: 'No thread history available to generate content' })
         setIsLoading(false)
         return
       }
@@ -164,7 +166,7 @@ export function UserCard({ user, loading }: UserCardProps) {
       })
     } catch (error) {
       setIsLoading(false)
-      toast.error('Failed to generate content')
+      customSonner({ type: 'error', text: 'Failed to generate content' })
       console.error('Bio generation failed:', error)
     }
   }
@@ -188,7 +190,7 @@ export function UserCard({ user, loading }: UserCardProps) {
     try {
       // if no session is found, redirect to login\
       if (!session) {
-        toast.error('Please sign in to follow user')
+        customSonner({ type: 'error', text: 'Please sign in to follow user' })
         router.push('/auth/signin')
         return
       }
@@ -196,11 +198,11 @@ export function UserCard({ user, loading }: UserCardProps) {
       const followerId = session.user?.id
       const followeeId = user?.userId
       if (!followerId || !followeeId) {
-        toast.error('Invalid user data')
+        customSonner({ type: 'error', text: 'Invalid user data' })
         return
       }
       if (followerId === followeeId) {
-        toast.error('You cannot follow yourself')
+        customSonner({ type: 'error', text: 'You cannot follow yourself' })
         return
       }
       const { success, error, follow } = await userFollowOrUnfollow({
@@ -210,7 +212,7 @@ export function UserCard({ user, loading }: UserCardProps) {
       })
       if (!success) {
         console.error('Failed to follow/Unfollow user:', error)
-        toast.error(error || 'Failed to follow/Unfollow user')
+        customSonner({ type: 'error', text: error || 'Failed to follow/Unfollow user' })
         return
       }
 
@@ -234,7 +236,7 @@ export function UserCard({ user, loading }: UserCardProps) {
             followers: [...(prevUser.followers || []), newFollower]
           } as User // Assert the entire object as User type
         })
-        toast.success(`You are now following ${user?.username}`)
+        customSonner({ type: 'success', text: `You are now following ${user?.username}` })
       } else {
         setUserData(prevUser => {
           if (!prevUser) return prevUser
@@ -248,10 +250,10 @@ export function UserCard({ user, loading }: UserCardProps) {
             )
           }
         })
-        toast.success(`You have unfollowed ${user?.username}`)
+        customSonner({ type: 'success', text: `You have unfollowed ${user?.username}` })
       }
     } catch (error) {
-      toast.error('Failed to follow user')
+      customSonner({ type: 'error', text: 'Failed to follow user' })
       console.error('Failed to follow user:', error)
     } finally {
       setIsFollowLoading(false)

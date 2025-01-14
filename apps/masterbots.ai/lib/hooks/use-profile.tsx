@@ -4,13 +4,17 @@ import { getUserBySlug, updateUserPersonality } from '@/services/hasura'
 import { User } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import * as React from 'react'
-import toast from 'react-hot-toast'
+import { useSonner } from './useSonner'
 
 interface profileContextProps {
   getuserInfo: (username: string) => Promise<any>
   isSameUser: (userId: string) => boolean
-  updateUserInfo: (bio: string | null, topic: string | null, profilePicture: string | null) => void
-  currentUser: User | null,
+  updateUserInfo: (
+    bio: string | null,
+    topic: string | null,
+    profilePicture: string | null
+  ) => void
+  currentUser: User | null
   setCurrentUser: React.Dispatch<React.SetStateAction<User | null>>
 }
 
@@ -33,16 +37,17 @@ interface ProfileProviderProps {
 export function ProfileProvider({ children }: ProfileProviderProps) {
   const { data: session } = useSession()
 
-
-
   const [currentUser, setCurrentUser] = React.useState<User | null>(null)
+  const { customSonner } = useSonner()
 
   const getuserInfo = async (slug: string): Promise<any> => {
     if (!slug?.trim()) {
       throw new Error('Slug is required')
     }
     try {
-      const sessionSlug = session?.user.slug ? session?.user.slug.toLowerCase() : session?.user.name?.toLowerCase()
+      const sessionSlug = session?.user.slug
+        ? session?.user.slug.toLowerCase()
+        : session?.user.name?.toLowerCase()
       const userInfo = await getUserBySlug({
         slug,
         isSameUser: sessionSlug === slug
@@ -65,28 +70,38 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
     return session?.user.id === userId
   }
 
-  const updateUserInfo = async (bio: string | null, topic: string | null, profilePicture: string | null) => {
+  const updateUserInfo = async (
+    bio: string | null,
+    topic: string | null,
+    profilePicture: string | null
+  ) => {
     try {
-      const jwt = session?.user?.hasuraJwt;
+      const jwt = session?.user?.hasuraJwt
       if (!jwt || !session.user?.id) {
-        throw new Error('User not authenticated');
+        throw new Error('User not authenticated')
       }
       await updateUserPersonality({
         userId: session?.user.id,
         jwt: session?.user.hasuraJwt,
         bio,
         topic,
-        profilePicture,
+        profilePicture
       })
     } catch (error) {
-      console.error('Failed to update user info', error);
-      toast.error('Failed to update user info');
+      console.error('Failed to update user info', error)
+      customSonner({ type: 'error', text: 'Failed to update user info' })
     }
   }
 
   return (
     <profileContext.Provider
-      value={{ getuserInfo, isSameUser, updateUserInfo, currentUser, setCurrentUser }}
+      value={{
+        getuserInfo,
+        isSameUser,
+        updateUserInfo,
+        currentUser,
+        setCurrentUser
+      }}
     >
       {children}
     </profileContext.Provider>
