@@ -2,10 +2,10 @@ import { ImageResponse } from 'next/og'
 import { NextRequest } from 'next/server'
 import { getThreadForOG } from './edge-client'
 import OGImage from '@/components/shared/og-image'
-import { UUID } from 'crypto'
 
 export const runtime = 'edge'
 
+type UUID = `${string}-${string}-${string}-${string}-${string}`
 const defaultContent = {
   thread: {
     chatbot: {
