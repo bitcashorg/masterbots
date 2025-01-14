@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     siteName: 'Masterbots',
     images: [
       {
-        url: 'https://masterbots.ai/images/masterbots.png',
+        url: `${process.env.BASE_URL || ''}/api/og`,
         width: 1232,
         height: 928,
         alt: 'Masterbots'
@@ -71,7 +71,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     images: [
       {
-        url: 'https://masterbots.ai/images/masterbots.png',
+        url: `${process.env.BASE_URL || ''}/api/og`,
         width: 1232,
         height: 928,
         alt: 'Masterbots'
