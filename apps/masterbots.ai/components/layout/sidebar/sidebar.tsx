@@ -35,8 +35,8 @@ export function Sidebar({ className }: React.ComponentProps<'div'>) {
           className,
           'h-full flex flex-col z-40',
           isChatRoute 
-            ? 'bg-[#eeffea] dark:bg-[#081D02]' // For /c routes
-            : 'bg-[#fae8ff] dark:bg-[#17021D]'  // For other routes
+            ? 'bg-[#fae8ff] dark:bg-[#17021D]' // For /c routes
+            : 'bg-[#eeffea] dark:bg-[#0B1608]'  // For other routes
         )}
       >
         <div className="overflow-y-auto scrollbar h-[calc(100%-113px)]">
