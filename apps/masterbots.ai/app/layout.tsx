@@ -1,6 +1,5 @@
 import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
-import { Toaster } from 'react-hot-toast'
 import '@/app/globals.css'
 import { Header } from '@/components/layout/header/header'
 import { Providers } from '@/components/layout/providers'
@@ -8,6 +7,7 @@ import { cn } from '@/lib/utils'
 import { GoogleAnalytics } from '@next/third-parties/google'
 import { Metadata } from 'next'
 import NextTopLoader from 'nextjs-toploader'
+import { Toaster } from '@/components/ui/sonner'
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
