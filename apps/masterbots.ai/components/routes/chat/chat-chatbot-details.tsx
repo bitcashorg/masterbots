@@ -5,11 +5,11 @@ import { getCategory, getThreads, chatbotFollowOrUnfollow } from '@/services/has
 import { useSession } from 'next-auth/react'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
 import type { SocialFollowing } from 'mb-genql'
 import { OnboardingChatbotDetails } from '@/components/routes/chat/onboarding-chatbot-details'
 import { OnboardingMobileChatbotDetails } from '@/components/routes/chat/onboarding-chatbot-mobile-details'
+import { useSonner } from '@/lib/hooks/useSonner'
 
 export default function ChatChatbotDetails() {
   const { data: session } = useSession()
@@ -22,12 +22,12 @@ export default function ChatChatbotDetails() {
   const [categoryName, setCategoryName] = useState<string>('')
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter();
-
+  const {customSonner} = useSonner()
 
   const handleFollow = async () => {
    try {
     if (!session) {
-      toast.error('Please sign in to follow user')
+      customSonner({type: 'error', text: 'Please sign in to follow user'})
       router.push('/auth/signin')
       return
     }
@@ -36,18 +36,18 @@ export default function ChatChatbotDetails() {
     const followerId = session.user?.id
     const followeeId = activeChatbot?.chatbotId
     if (!followerId) {
-      toast.error('Invalid user data');
+      customSonner({type: 'error', text: 'Invalid user data'})
       return;
      }
 
     if (!followeeId) {
-      toast.error('Invalid chatbot data, please select a chatbot');
+      customSonner({type: 'error', text: 'Invalid chatbot data, please select a chatbot'})
       return;
       }
     const {success, error, follow} =  await chatbotFollowOrUnfollow({followerId, followeeId, jwt: session.user.hasuraJwt as string})
     if(!success){
       console.error('Failed to follow/Unfolow bot:', error)
-      toast.error(error || 'Failed to follow/unfollow bot')
+      customSonner({type: 'error', text: error || 'Failed to follow/unfollow bot'})
       return
     }
     if(follow){
@@ -68,11 +68,10 @@ export default function ChatChatbotDetails() {
     setFollowers(followers.filter(follower => !(follower.followerId === followerId && follower.followeeIdChatbot === followeeId)))
     }
   
-    toast.success(follow ? `You have followed ${activeChatbot?.name} successfully` : `You have  unfollowed  ${activeChatbot?.name}`)
-
+    customSonner({type: 'success', text: follow ? `You have followed ${activeChatbot?.name} successfully` : `You have  unfollowed  ${activeChatbot?.name}`})
    }  catch (error) {
     setIsFollowLoading(false)
-    toast.error('Failed to follow user')
+    customSonner({type: 'error', text: 'Failed to follow user'})
     console.error('Failed to follow user:', error)
   } finally {
     setIsFollowLoading(false)

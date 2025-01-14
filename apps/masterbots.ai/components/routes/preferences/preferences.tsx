@@ -242,7 +242,7 @@ export function Preferences() {
 
                   <Button className="bg-transparent border border-destructive text-destructive p-2 text-sm min-h-9">
                     <MessageSquareX className="mr-1 size-4!" />
-                    Delete Account
+                    Delete Threads
                   </Button>
                 </div>
               </CardContent>

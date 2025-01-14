@@ -5,11 +5,11 @@ import { nanoid } from '@/lib/utils'
 import { useState } from 'react'
 import { useModel } from '@/lib/hooks/use-model'
 import { useChat } from 'ai/react'
-import toast from 'react-hot-toast'
 import { UserPersonalityPrompt } from '@/lib/constants/prompts'
 import type { BrowseChatbotDetailsProps } from '@/types/types'
 import { BrowseChatbotDesktopDetails } from '@/components/routes/browse/browse-chatbot-desktop-details'
 import { BrowseChatbotMobileDetails } from '@/components/routes/browse/browse-chatbot-mobile-details'
+import { useSonner } from '@/lib/hooks/useSonner'
 
 export default function BrowseChatbotDetails({
   chatbot,
@@ -20,6 +20,7 @@ export default function BrowseChatbotDetails({
   const [lastMessage, setLastMessage] = useState<string | null>(null)
   const { selectedModel, clientType } = useModel()
 
+  const {customSonner} = useSonner()
   const { append } = useChat({
     id: nanoid(),
     body: {
@@ -29,14 +30,14 @@ export default function BrowseChatbotDetails({
     },
     onResponse(response) {
       if (response.status === 401) {
-        toast.error(response.statusText)
+        customSonner({ type: 'error', text: response.statusText })
       } else if (!response.ok) {
-        toast.error('Failed to process request')
+        customSonner({ type: 'error', text: 'Failed to process request'})
       }
       setIsLoading(false)
     },
     onError(error) {
-      toast.error('An error occurred')
+      customSonner({ type: 'error', text: 'An error occurred' })
       setIsLoading(false)
     },
     async onFinish(message) {
@@ -69,7 +70,7 @@ export default function BrowseChatbotDetails({
       })
     } catch (error) {
       setIsLoading(false)
-      toast.error('Failed to generate content')
+      customSonner({ type: 'error', text: 'Failed to generate content' })
       console.error('Bio generation failed:', error)
     }
   }
