@@ -1,6 +1,6 @@
 import { endpoints } from "mb-env"
+import { UUID } from '@/types/types'
 
-type UUID = `${string}-${string}-${string}-${string}-${string}`
 export async function getThreadForOG(threadId: UUID) {
  
    const env = process.env.NEXT_PUBLIC_APP_ENV

@@ -264,3 +264,5 @@ export interface BrowseChatbotLayoutProps {
   hasMultiplePoints: boolean
   botUrl: string
 }
+
+export type UUID = `${string}-${string}-${string}-${string}-${string}`
