@@ -12,17 +12,22 @@ import {
   AlertDialogTitle
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
-import { IconCheck, IconShare, IconSpinner, IconTrash } from '@/components/ui/icons'
+import {
+  IconCheck,
+  IconShare,
+  IconSpinner,
+  IconTrash
+} from '@/components/ui/icons'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useSonner } from '@/lib/hooks/useSonner'
 import { ServerActionResult, type Chat } from '@/types/types'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
-import { toast } from 'react-hot-toast'
 
 interface SidebarActionsProps {
   chat: Chat
@@ -39,21 +44,17 @@ export function SidebarActions({
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false)
   const [shareDialogOpen, setShareDialogOpen] = React.useState(false)
   const [isRemovePending, startRemoveTransition] = React.useTransition()
-  const {
-    isFilterMode,
-    selectedChats,
-    setSelectedChats,
-    filterValue
-  } = useSidebar()
+  const { isFilterMode, selectedChats, setSelectedChats, filterValue } =
+    useSidebar()
+  const { customSonner } = useSonner()
 
   const isSelected = selectedChats.includes(chat.id)
-  const isVisible = !filterValue || chat.title.toLowerCase().includes(filterValue.toLowerCase())
+  const isVisible =
+    !filterValue || chat.title.toLowerCase().includes(filterValue.toLowerCase())
 
   const handleSelect = React.useCallback(() => {
     setSelectedChats(prev =>
-      isSelected
-        ? prev.filter(id => id !== chat.id)
-        : [...prev, chat.id]
+      isSelected ? prev.filter(id => id !== chat.id) : [...prev, chat.id]
     )
   }, [chat.id, isSelected, setSelectedChats])
 
@@ -65,15 +66,14 @@ export function SidebarActions({
       })
 
       if (result && 'error' in result) {
-        toast.error(result.error)
+        customSonner({ type: 'error', text: result.error })
         return
       }
 
       setDeleteDialogOpen(false)
       router.refresh()
       router.push('/')
-      toast.success('Chat deleted')
-
+      customSonner({ type: 'success', text: 'Chat deleted' })
       // Remove the chat from selected chats if it was selected
       if (isSelected) {
         setSelectedChats(prev => prev.filter(id => id !== chat.id))
@@ -99,10 +99,14 @@ export function SidebarActions({
                 onClick={handleSelect}
               >
                 {isSelected ? <IconCheck /> : <IconShare />}
-                <span className="sr-only">{isSelected ? 'Deselect' : 'Select'}</span>
+                <span className="sr-only">
+                  {isSelected ? 'Deselect' : 'Select'}
+                </span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>{isSelected ? 'Deselect chat' : 'Select chat'}</TooltipContent>
+            <TooltipContent>
+              {isSelected ? 'Deselect chat' : 'Select chat'}
+            </TooltipContent>
           </Tooltip>
         ) : (
           <>

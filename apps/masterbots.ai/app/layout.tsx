@@ -1,6 +1,5 @@
 import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
-import { Toaster } from 'react-hot-toast'
 
 import '@/app/globals.css'
 import { Header } from '@/components/layout/header/header'
@@ -9,6 +8,7 @@ import { cn } from '@/lib/utils'
 import { GoogleAnalytics } from '@next/third-parties/google'
 import { Metadata } from 'next'
 import NextTopLoader from 'nextjs-toploader'
+import { Toaster } from '@/components/ui/sonner'
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
@@ -20,10 +20,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
           GeistMono.variable
         )}
       >
-        <NextTopLoader color="#1ED761" initialPosition={0.20} />
-        <Toaster toastOptions={{
-          className: 'bg-background text-background-foreground',
-        }} />
+        <NextTopLoader color="#1ED761" initialPosition={0.2} />
+        <Toaster />
         <Providers
           attribute="class"
           defaultTheme="system"
@@ -32,7 +30,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
         >
           <div className="flex flex-col min-h-screen">
             <Header />
-            <main className="relative flex flex-col flex-1 bg-muted/50">{children}</main>
+            <main className="relative flex flex-col flex-1 bg-muted/50">
+              {children}
+            </main>
           </div>
           {/* <TailwindIndicator /> */}
           <GoogleAnalytics gaId="G-N135BF99HS" />
