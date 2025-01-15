@@ -23,18 +23,10 @@ type ProvidersProps = {
 
 export function Providers({ 
   children, 
-  attribute,
-  defaultTheme,
-  enableSystem,
-  disableTransitionOnChange,
   ...props
  }: ProvidersProps) {
   return (
     <NextThemesProvider 
-      attribute={attribute}
-      defaultTheme={defaultTheme}
-      enableSystem={enableSystem}
-      disableTransitionOnChange={disableTransitionOnChange}
       {...props}
       >
       <ModelProvider>
