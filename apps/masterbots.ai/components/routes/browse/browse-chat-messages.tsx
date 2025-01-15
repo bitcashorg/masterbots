@@ -50,7 +50,6 @@ export function BrowseChatMessages({
   const fetchMessages = async () => {
     if (threadId && !messages.length) {
       const messages = await getMessages({ threadId: threadId })
-      console.log('🟢 Fetched Messages:', messages)
       setMessages(messages)
     }
   }

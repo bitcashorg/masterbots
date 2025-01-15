@@ -220,7 +220,12 @@ export async function getThread({ threadId, jwt }: GetThreadParams) {
         },
         prompts: {
           prompt: everything
-        }
+        },
+        followers: {
+          
+          followerId: true,
+          followeeIdChatbot: true
+        },
       },
       user: {
         username: true,
