@@ -5,7 +5,6 @@ import { nanoid } from '@/lib/utils'
 import { useState } from 'react'
 import { useModel } from '@/lib/hooks/use-model'
 import { useChat } from 'ai/react'
-import toast from 'react-hot-toast'
 import { UserPersonalityPrompt } from '@/lib/constants/prompts'
 import type { BrowseChatbotDetailsProps } from '@/types/types'
 import { BrowseChatbotDesktopDetails } from '@/components/routes/browse/browse-chatbot-desktop-details'
@@ -14,6 +13,7 @@ import { SocialFollowing } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { chatbotFollowOrUnfollow } from '@/services/hasura'
+import { useSonner } from '@/lib/hooks/useSonner'
 
 export default function BrowseChatbotDetails({
   chatbot,
@@ -26,6 +26,8 @@ export default function BrowseChatbotDetails({
   const [followers, setFollowers] = useState<SocialFollowing[]>(chatbot?.followers || []);
   const { data: session } = useSession()
   const router = useRouter();
+  const { customSonner } = useSonner() 
+
   const { append } = useChat({
     id: nanoid(),
     body: {
@@ -35,14 +37,14 @@ export default function BrowseChatbotDetails({
     },
     onResponse(response) {
       if (response.status === 401) {
-        toast.error(response.statusText)
+        customSonner({ type: 'error', text: response.statusText })
       } else if (!response.ok) {
-        toast.error('Failed to process request')
+        customSonner({ type: 'error', text: 'Failed to process request'})
       }
       setIsLoading(false)
     },
     onError(error) {
-      toast.error('An error occurred')
+      customSonner({ type: 'error', text: 'An error occurred' })
       setIsLoading(false)
     },
     async onFinish(message) {
@@ -75,7 +77,7 @@ export default function BrowseChatbotDetails({
       })
     } catch (error) {
       setIsLoading(false)
-      toast.error('Failed to generate content')
+      customSonner({ type: 'error', text: 'Failed to generate content' })
       console.error('Bio generation failed:', error)
     }
   }
@@ -84,24 +86,25 @@ export default function BrowseChatbotDetails({
   const onFollow = async () => {
     try {
       if (!session) {
-        toast.error('Please sign in to follow chatbot')
+        // toast.error('Please sign in to follow chatbot')
+        customSonner({ type: 'error', text: 'Please sign in to follow chatbot' })
         router.push('/auth/signin')
         return
       }
       const followerId = session.user?.id
       const followeeId = chatbot?.chatbotId
       if (!followerId) {
-        toast.error('Invalid user data');
+        customSonner({ type: 'error', text: 'Invalid user data' })
         return;
        }
       if (!followeeId) {
-        toast.error('Invalid chatbot data, please select a chatbot');
+        customSonner({ type: 'error', text: 'Invalid chatbot data, please select a chatbot' })
         return;
        }
        const {success, error, follow} =  await chatbotFollowOrUnfollow({followerId, followeeId, jwt: session.user.hasuraJwt as string})
        if(!success){
          console.error('Failed to follow/Unfolow bot:', error)
-         toast.error(error || 'Failed to follow/unfollow bot')
+        customSonner({ type: 'error', text: error || 'Failed to follow/unfollow bot' })
          return
        }
        if(follow){
@@ -121,13 +124,11 @@ export default function BrowseChatbotDetails({
      }else{
       setFollowers(followers.filter(follower => !(follower.followerId === followerId && follower.followeeIdChatbot === followeeId)))
       }
-    
-      toast.success(follow ? `You have followed ${chatbot?.name} successfully` : `You have  unfollowed  ${chatbot?.name}`)
+      customSonner({ type: 'success', text: follow ? `You have followed ${chatbot?.name} successfully` : `You have  unfollowed  ${chatbot?.name}` })
   
-
     } catch (error) {
-      toast.error('Failed to follow user')
-      console.error('Failed to follow user:', error)
+      customSonner({ type: 'error', text: 'Failed to follow chatbot' })
+      console.error('Failed to follow chatbot:', error)
     }
 
   }
