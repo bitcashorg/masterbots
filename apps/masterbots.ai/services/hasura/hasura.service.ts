@@ -224,7 +224,8 @@ export async function getThread({ threadId, jwt }: GetThreadParams) {
       },
       user: {
         username: true,
-        profilePicture: true
+        profilePicture: true,
+        slug: true,
       },
       messages: {
         ...everything,

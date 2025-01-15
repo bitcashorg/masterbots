@@ -71,13 +71,6 @@ export function BrowseChatMessages({
         ''
       )}
       <div className="flex flex-col max-w-screen-lg px-4 mx-auto mt-8 gap-y-4">
-        {/* <BrowseChatMessageList
-          user={user}
-          chatbot={chatbot}
-          messages={messages}
-          isThread
-        /> */}
-
         <BrowseThreadBlog threadId={threadId} user={user} />
       </div>
     </div>
