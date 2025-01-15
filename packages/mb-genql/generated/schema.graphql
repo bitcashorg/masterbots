@@ -6081,7 +6081,47 @@ type Thread {
 
   """An object relationship"""
   modelsEnum: ModelsEnum!
+  parentThreadId: uuid
+
+  """An object relationship"""
+  thread: Thread
   threadId: uuid!
+
+  """An array relationship"""
+  threads(
+    """distinct select on columns"""
+    distinctOn: [ThreadSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ThreadOrderBy!]
+
+    """filter the rows returned"""
+    where: ThreadBoolExp
+  ): [Thread!]!
+
+  """An aggregate relationship"""
+  threadsAggregate(
+    """distinct select on columns"""
+    distinctOn: [ThreadSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ThreadOrderBy!]
+
+    """filter the rows returned"""
+    where: ThreadBoolExp
+  ): ThreadAggregate!
   updatedAt: timestamptz!
 
   """An object relationship"""
@@ -6176,7 +6216,11 @@ input ThreadBoolExp {
   messagesAggregate: MessageAggregateBoolExp
   model: ModelsEnumEnumComparisonExp
   modelsEnum: ModelsEnumBoolExp
+  parentThreadId: UuidComparisonExp
+  thread: ThreadBoolExp
   threadId: UuidComparisonExp
+  threads: ThreadBoolExp
+  threadsAggregate: ThreadAggregateBoolExp
   updatedAt: TimestamptzComparisonExp
   user: UserBoolExp
   userId: UuidComparisonExp
@@ -6217,7 +6261,10 @@ input ThreadInsertInput {
   messages: MessageArrRelInsertInput
   model: ModelsEnumEnum
   modelsEnum: ModelsEnumObjRelInsertInput
+  parentThreadId: uuid
+  thread: ThreadObjRelInsertInput
   threadId: uuid
+  threads: ThreadArrRelInsertInput
   updatedAt: timestamptz
   user: UserObjRelInsertInput
   userId: uuid
@@ -6227,6 +6274,7 @@ input ThreadInsertInput {
 type ThreadMaxFields {
   chatbotId: Int
   createdAt: timestamptz
+  parentThreadId: uuid
   threadId: uuid
   updatedAt: timestamptz
   userId: uuid
@@ -6238,6 +6286,7 @@ order by max() on columns of table "thread"
 input ThreadMaxOrderBy {
   chatbotId: OrderBy
   createdAt: OrderBy
+  parentThreadId: OrderBy
   threadId: OrderBy
   updatedAt: OrderBy
   userId: OrderBy
@@ -6247,6 +6296,7 @@ input ThreadMaxOrderBy {
 type ThreadMinFields {
   chatbotId: Int
   createdAt: timestamptz
+  parentThreadId: uuid
   threadId: uuid
   updatedAt: timestamptz
   userId: uuid
@@ -6258,6 +6308,7 @@ order by min() on columns of table "thread"
 input ThreadMinOrderBy {
   chatbotId: OrderBy
   createdAt: OrderBy
+  parentThreadId: OrderBy
   threadId: OrderBy
   updatedAt: OrderBy
   userId: OrderBy
@@ -6304,7 +6355,10 @@ input ThreadOrderBy {
   messagesAggregate: MessageAggregateOrderBy
   model: OrderBy
   modelsEnum: ModelsEnumOrderBy
+  parentThreadId: OrderBy
+  thread: ThreadOrderBy
   threadId: OrderBy
+  threadsAggregate: ThreadAggregateOrderBy
   updatedAt: OrderBy
   user: UserOrderBy
   userId: OrderBy
@@ -6336,6 +6390,9 @@ enum ThreadSelectColumn {
 
   """column name"""
   model
+
+  """column name"""
+  parentThreadId
 
   """column name"""
   threadId
@@ -6385,6 +6442,7 @@ input ThreadSetInput {
   isBlocked: Boolean
   isPublic: Boolean
   model: ModelsEnumEnum
+  parentThreadId: uuid
   threadId: uuid
   updatedAt: timestamptz
   userId: uuid
@@ -6445,6 +6503,7 @@ input ThreadStreamCursorValueInput {
   isBlocked: Boolean
   isPublic: Boolean
   model: ModelsEnumEnum
+  parentThreadId: uuid
   threadId: uuid
   updatedAt: timestamptz
   userId: uuid
@@ -6483,6 +6542,9 @@ enum ThreadUpdateColumn {
 
   """column name"""
   model
+
+  """column name"""
+  parentThreadId
 
   """column name"""
   threadId

@@ -34,25 +34,30 @@ insert_permissions:
     permission:
       check: {}
       columns:
+        - chatbot_id
+        - created_at
         - is_approved
         - is_blocked
         - is_public
         - model
-        - chatbot_id
-        - created_at
-        - updated_at
+        - parent_thread_id
         - thread_id
+        - updated_at
         - user_id
     comment: ""
   - role: user
     permission:
-      check: {}
+      check:
+        thread:
+          user_id:
+            _eq: X-Hasura-User-Id
       columns:
         - chatbot_id
-        - thread_id
-        - user_id
         - is_public
         - model
+        - parent_thread_id
+        - thread_id
+        - user_id
     comment: ""
 select_permissions:
   - role: anonymous
@@ -71,14 +76,15 @@ select_permissions:
   - role: moderator
     permission:
       columns:
+        - chatbot_id
+        - created_at
         - is_approved
         - is_blocked
         - is_public
         - model
-        - chatbot_id
-        - created_at
-        - updated_at
+        - parent_thread_id
         - thread_id
+        - updated_at
         - user_id
       filter: {}
       allow_aggregations: true
@@ -91,10 +97,14 @@ select_permissions:
         - is_approved
         - is_public
         - model
+        - parent_thread_id
         - thread_id
         - updated_at
         - user_id
-      filter: {}
+      filter:
+        thread:
+          user_id:
+            _eq: X-Hasura-User-Id
     comment: ""
 update_permissions:
   - role: moderator
@@ -112,7 +122,10 @@ update_permissions:
         - chatbot_id
         - is_public
         - model
-      filter: {}
+      filter:
+        thread:
+          user_id:
+            _eq: X-Hasura-User-Id
       check: {}
     comment: ""
 delete_permissions:
@@ -122,5 +135,8 @@ delete_permissions:
     comment: ""
   - role: user
     permission:
-      filter: {}
+      filter:
+        thread:
+          user_id:
+            _eq: X-Hasura-User-Id
     comment: ""
