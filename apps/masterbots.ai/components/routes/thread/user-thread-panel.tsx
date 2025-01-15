@@ -124,8 +124,8 @@ export default function UserThreadPanel({
       moreThreads = await fetchBrowseThreads()
     } else {
       moreThreads = await getThreads({
-        jwt: session!.user?.hasuraJwt,
-        userId: session!.user.id,
+        jwt: session?.user?.hasuraJwt || '',
+        userId: session?.user.id || '',
         offset: threads.length,
         limit: PAGE_SIZE,
         categoryId: activeCategory,
@@ -202,7 +202,7 @@ export default function UserThreadPanel({
     setIsOpenPopup(false)
     setActiveThread(null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [threads])
+  }, [threads, activeThread])
 
   const handleSearch = (term: string) => {
     setSearchTerm(term)
@@ -228,14 +228,14 @@ export default function UserThreadPanel({
         <>
           {page === 'profile' ? (
              <div className="flex flex-col  py-5 ">
-              {threads.map((thread: Thread, key) => (
+              {threads.map((thread: Thread) => (
                 <BrowseListItem
                   thread={thread}
-                  key={key}
+                  key={thread.threadId}
                   loading={loading}
                   loadMore={loadMore}
                   hasMore={count === PAGE_SIZE}
-                  isLast={key === threads.length - 1}
+                  isLast={thread.threadId === threads[threads.length - 1].threadId}
                   pageType={page}
                 />
               ))}

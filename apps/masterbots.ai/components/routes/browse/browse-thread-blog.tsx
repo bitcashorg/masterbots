@@ -20,7 +20,6 @@ import { getMessages } from '@/services/hasura'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ThreadBlogMarkDown } from '@/components/shared/thread-blog-markdown'
-
 export function BrowseThreadBlog({
   threadId,
   user
@@ -29,14 +28,23 @@ export function BrowseThreadBlog({
   user?: User
 }) {
   const [messages, setMessages] = React.useState<Message[]>([])
+  const [isLoading, setIsLoading] = React.useState(true)
+
   const userprofile = user?.profilePicture || ''
   const username = user?.username || 'User'
 
   // Fetch messages for the specified thread ID
   const fetchMessages = async () => {
+    setIsLoading(true)
+    try {
     if (threadId && !messages.length) {
       const messages = await getMessages({ threadId: threadId })
       setMessages(messages)
+    }
+    } catch (err) {
+      throw new Error('Failed to fetch messages')
+    } finally {
+        setIsLoading(false)
     }
   }
 
@@ -55,6 +63,9 @@ export function BrowseThreadBlog({
 
   return (
     <div className="max-w-4xl mx-auto p-6 ">
+      {isLoading && <div>Loading...</div>}
+      {!isLoading && messages && (
+        <>
       <div className="space-y-8">
         {messages.map((message, index) => {
           const isUser = message.role === 'user'
@@ -110,6 +121,8 @@ export function BrowseThreadBlog({
           <span>{format(new Date(), 'MMMM dd, yyyy')}</span>
         </div>
       </footer>
+      </>
+      )}
     </div>
   )
 }

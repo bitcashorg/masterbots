@@ -84,7 +84,7 @@ export default function BrowseChatbotDetails({
   const onFollow = async () => {
     try {
       if (!session) {
-        toast.error('Please sign in to follow user')
+        toast.error('Please sign in to follow chatbot')
         router.push('/auth/signin')
         return
       }
