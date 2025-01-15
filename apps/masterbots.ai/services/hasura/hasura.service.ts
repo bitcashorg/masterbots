@@ -9,7 +9,7 @@ import type {
   AiClientType,
   ChatbotMetadataHeaders,
   ReturnFetchChatbotMetadata,
-  
+
 } from '@/types/types'
 import { validateMbEnv } from 'mb-env'
 import {
@@ -22,7 +22,7 @@ import {
   createMbClient,
   everything,
   type MbClient
-  
+
 } from 'mb-genql'
 import type {
   CreateThreadParams,
@@ -156,7 +156,7 @@ export async function getThreads({
         prompts: {
           prompt: everything
         },
-        
+
       },
       messages: {
         ...everything,
@@ -310,13 +310,14 @@ export async function createThread({
   threadId,
   jwt,
   userId,
+  parentThreadId,
   isPublic = true
 }: CreateThreadParams) {
   const client = getHasuraClient({ jwt })
   const { insertThreadOne } = await client.mutation({
     insertThreadOne: {
       __args: {
-        object: { threadId, chatbotId, userId, isPublic }
+        object: { threadId, chatbotId, userId, isPublic, parentThreadId }
       },
       threadId: true
     }
@@ -496,7 +497,7 @@ export async function getBrowseThreads({
   if (!allThreads) return [];
 
   const threads = allThreads as Thread[];
-  
+
   // Separate following content (both from followed bots and users)
   const followingThreads = threads.filter(thread => {
     if (followedUserId) {
@@ -504,24 +505,24 @@ export async function getBrowseThreads({
       if (thread.userId === followedUserId) {
         return false;
       }
-      
+
       // For bot content
       const isFollowingBot = thread.chatbot?.followers?.some(follower => {
         return follower.followerId === followedUserId;
       });
-  
-      // For user content 
+
+      // For user content
       const isFollowingUser = thread.user?.followers?.some(follower => {
         return follower.followerId === followedUserId;
       });
-  
+
       return isFollowingBot || isFollowingUser;
     }
     return false;
   });
-  
+
   // Organic content (neither from followed bots nor followed users)
-  const organicThreads = threads.filter(thread => 
+  const organicThreads = threads.filter(thread =>
     !thread.chatbot?.followers?.some(follower => follower.followerId === followedUserId) &&
     !thread.user?.followers?.some(follower => follower.followerId === followedUserId)
   );
@@ -531,7 +532,7 @@ export async function getBrowseThreads({
   let organicIndex = 0;
 
   while (
-    (followingIndex < followingThreads.length || organicIndex < organicThreads.length) && 
+    (followingIndex < followingThreads.length || organicIndex < organicThreads.length) &&
     interweavedThreads.length < (limit || 30)
   ) {
     // Add up to 4 following threads
@@ -900,7 +901,7 @@ export async function getUserBySlug({
             username: true
           }
         },
-      
+
         following: {
           followeeId: true,
           followerId: true,
@@ -908,7 +909,7 @@ export async function getUserBySlug({
             username: true
           }
         }
-      } 
+      }
     } as const)
 
     if (!user || user.length === 0) {
@@ -1066,8 +1067,8 @@ export async function userFollowOrUnfollow({ followerId, followeeId, jwt }: {
     return { success: true, follow: false };
   } catch (error) {
     console.error('Error following/unfollowing user:', error);
-    return { 
-      success: false, 
+    return {
+      success: false,
       error: error instanceof Error ? error.message : 'Failed to follow/unfollow user.'
     };
   }
@@ -1075,7 +1076,7 @@ export async function userFollowOrUnfollow({ followerId, followeeId, jwt }: {
 
 
 
-// chatbot follow or unfollow  function 
+// chatbot follow or unfollow  function
 
 const getChatbotFollowStatus = async (client: MbClient, followerId: string, followeeId: number) => {
   const { socialFollowing } = await client.query({
@@ -1133,8 +1134,8 @@ export async function chatbotFollowOrUnfollow({ followerId, followeeId, jwt }: {
     return { success: true, follow: false };
   } catch (error) {
     console.error('Error following/unfollowing chatbot:', error);
-    return { 
-      success: false, 
+    return {
+      success: false,
       error: error instanceof Error ? error.message : 'Failed to follow/unfollow chatbot.'
     };
   }

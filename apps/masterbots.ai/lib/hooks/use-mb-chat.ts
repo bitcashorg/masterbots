@@ -29,6 +29,7 @@ import { useParams } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 import { useAsync, useSetState } from 'react-use'
 import { useSonner } from './useSonner'
+import { useRouter } from 'next/navigation'
 
 export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
   const { threadId: threadIdProps, chatbot: chatbotProps } = config ?? {}
@@ -45,6 +46,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     setLoadingState
   } = useThread()
   const { activeChatbot } = useSidebar()
+  const router = useRouter()
   const userContentRef = useRef<string>('')
   const randomThreadId = useRef<string>(crypto.randomUUID())
   const [{ messagesFromDB, isInitLoaded }, setState] = useSetState<{
@@ -159,7 +161,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     },
     async onError(error) {
       console.error('Error in chat: ', error)
-    
+
       customSonner({ type: 'error', text: 'Failed to send message. Please try again.' })
       setLoadingState(undefined)
       setActiveTool(undefined)
@@ -278,8 +280,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
 
   // we extend append function to add our system prompts
   const appendWithMbContextPrompts = async (
-    userMessage: AiMessage | CreateMessage,
-    chatRequestOptions?: ChatRequestOptions
+    userMessage: AiMessage | CreateMessage
   ) => {
     if (!session?.user || !chatbot) {
       console.error('User is not logged in or session expired.')
@@ -315,7 +316,6 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     try {
       // * Loading: processing your request + opening pop-up...
       setLoadingState('processing')
-
       await tunningUserContent(userMessage)
 
       // ! At this point, the UI respond and provides a feedback to the user... before it is now even showing the updated active thread, event though that it does update the active thread...
@@ -329,6 +329,45 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     } finally {
       await appendNewMessage(userMessage)
     }
+  }
+
+  const appendAsContinuousThread = async (userMessage: AiMessage | CreateMessage) => {
+    const optimisticUserMessage = { ...userMessage, id: randomThreadId.current }
+    console.log('session!.user.id', session!.user.id)
+
+    await createThread({
+      threadId: randomThreadId.current as string,
+      parentThreadId: activeThread?.threadId,
+      chatbotId: chatbot ? chatbot?.chatbotId : 0,
+      jwt: session!.user?.hasuraJwt,
+      userId: session!.user.id,
+      isPublic: activeChatbot?.name !== 'BlankBot'
+    })
+
+    const thread = await getThread({
+      threadId: randomThreadId.current as string,
+      jwt: session!.user?.hasuraJwt
+    })
+
+    append({
+      ...optimisticUserMessage,
+      content: followingQuestionsPrompt(userContentRef.current, messages.concat(allMessages))
+    })
+
+    saveNewMessage({
+      role: 'user',
+      threadId: randomThreadId.current,
+      content: userMessage.content,
+      jwt: session!.user?.hasuraJwt
+    })
+
+    updateActiveThread(thread)
+
+    router.push(`/${chatbot?.name.trim().toLowerCase()}/${randomThreadId.current}`, {
+      scroll: false
+    })
+    router.refresh()
+    return null
   }
 
   const fetchMessages = async () => {
@@ -382,6 +421,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       // ? temp ignore...
       // @ts-ignore
       appendWithMbContextPrompts,
+      appendAsContinuousThread,
       sendMessageFromResponse,
       toggleWebSearch,
       setMessages,
@@ -433,6 +473,9 @@ export type MBChatHookActions = {
   appendWithMbContextPrompts: (
     userMessage: AiMessage | CreateMessage,
     chatRequestOptions?: ChatRequestOptions
+  ) => Promise<string | null | undefined>
+  appendAsContinuousThread: (
+    userMessage: AiMessage | CreateMessage
   ) => Promise<string | null | undefined>
   sendMessageFromResponse: (bulletContent: string) => void
   append: (

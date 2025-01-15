@@ -13,14 +13,13 @@ export function OnboardingChatbotDetails({
   threadCount = 0,
   followersCount = 3200,
   isWelcomeView = true,
-  categoryName,
   onNewChat,
   onFollow,
   followers
 }: ChatbotDetailsProps) {
 
-   const { data: session } = useSession()
-  const followed = isFollowed({followers, userId: session?.user?.id || ''}) 
+  const { data: session } = useSession()
+  const followed = isFollowed({followers, userId: session?.user?.id || ''})
 
   return (
     <div className="hidden h-[calc(100vh-196px)] md:flex items-center justify-center -translate-y-8">

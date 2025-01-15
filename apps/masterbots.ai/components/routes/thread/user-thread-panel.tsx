@@ -16,6 +16,8 @@
  * - Fetches threads based on the selected category and chatbot
  * - Updates the thread list when the active category or chatbot changes
  * - Handles loading state and pagination
+ * - Sets the active thread when a thread is part of que Query Params.
+ * - Handles the visibility of the continuos thread functionality.
  *
  * Props:
  * - chatbot: Optional string representing the selected chatbot
@@ -32,15 +34,17 @@ import { NoResults } from '@/components/shared/no-results-card'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
-import { getBrowseThreads, getThreads, getUserBySlug } from '@/services/hasura'
+import { getBrowseThreads, getThread, getThreads, getUserBySlug } from '@/services/hasura'
 import type { Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
-import { useParams, usePathname } from 'next/navigation'
+import { useParams, usePathname, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useAsync } from 'react-use'
 
 const PAGE_SIZE = 20
 
+// TODO: this is a hard to understand file since it tries to focus in too many different aspects
+// in only one file, instead of relying on reusable hooks for each context. It should be refactored.
 export default function UserThreadPanel({
   chatbot,
   threads: initialThreads,
@@ -58,9 +62,11 @@ export default function UserThreadPanel({
   const { activeCategory, activeChatbot } = useSidebar()
   const { isOpenPopup, activeThread, setActiveThread, setIsOpenPopup } = useThread()
   const [loading, setLoading] = useState<boolean>(false)
-  const { threads: hookThreads } = useThreadVisibility()
+  const { threads: hookThreads, isContinuosThread, setIsContinuosThread } = useThreadVisibility()
   const [searchTerm, setSearchTerm] = useState<string>('')
+  const searchParams = useSearchParams()
   const { slug, threadId } = params;
+  const continuousThreadId = searchParams.get('continuousThreadId')
 
   const userWithSlug = useAsync(async () => {
     if (!slug) return { user: null }
@@ -82,13 +88,13 @@ export default function UserThreadPanel({
   const prevChatbotRef = useRef(activeChatbot);
   const prevPathRef = useRef(usePathname());
   const pathname = usePathname();
+  const fetchIdRef = useRef(0) // Store the fetchId in a ref
 
   useEffect(() => {
     setThreads(finalThreads)
     setCount(finalThreads?.length ?? 0)
     setTotalThreads(finalThreads?.length ?? 0)
   }, [finalThreads])
-  const fetchIdRef = useRef(0) // Store the fetchId in a ref
 
   const fetchBrowseThreads = async () => {
     try {
@@ -165,6 +171,28 @@ export default function UserThreadPanel({
     setLoading(false)
   }
 
+  const getThreadByContinuousThreadId = async () => {
+    const thread = await getThread({
+      threadId: continuousThreadId,
+      jwt: session!.user?.hasuraJwt,
+    })
+
+    if (thread) {
+      setActiveThread(thread)
+      setThreads([thread])
+      setIsContinuosThread(true)
+      setTotalThreads(1)
+      setCount(1)
+      setIsOpenPopup(true)
+    }
+  }
+
+  useEffect(() => {
+    if (continuousThreadId && session) {
+      getThreadByContinuousThreadId()
+    }
+  }, [continuousThreadId, session]);
+
   useEffect(() => {
     // Skip if popup is open
     if (isOpenPopup) return;
@@ -197,11 +225,6 @@ export default function UserThreadPanel({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [threads])
 
-
-  const handleSearch = (term: string) => {
-    setSearchTerm(term)
-  }
-
   const customMessage = activeChatbot
     ? `No threads available for ${activeChatbot.name}`
     : activeCategory
@@ -213,9 +236,11 @@ export default function UserThreadPanel({
   const showChatbotDetails = !loading && !searchTerm && threads.length === 0
   return (
     <>
-      <div className="flex justify-between px-4 md:px-10 py-5 lg:max-w-[calc(100%-100px)] 2xl:max-w-full">
-        <ChatSearchInput setThreads={setThreads} onSearch={setSearchTerm} />
-      </div>
+      { !isContinuosThread && (
+        <div className="flex justify-between px-4 md:px-10 py-5 lg:max-w-[calc(100%-100px)] 2xl:max-w-full">
+          <ChatSearchInput setThreads={setThreads} onSearch={setSearchTerm} />
+        </div>
+      )}
 
       {loading ? (
         <NoResults isLoading={true} />
