@@ -15,6 +15,7 @@ import Link from 'next/link'
 import { toSlugWithUnderScore } from 'mb-lib'
 import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { useTheme } from 'next-themes'
+import { urlBuilders } from '@/lib/url'
 
 
 export interface UserMenuProps {
@@ -59,7 +60,7 @@ export function UserMenu({ user }: UserMenuProps) {
         </DropdownMenuTrigger>
         <DropdownMenuContent sideOffset={8} align="start" className="w-[180px]">
           <DropdownMenuItem className="flex-col items-start">
-            <Link href={`/u/${user?.slug ? user?.slug : toSlugWithUnderScore(user?.name || '')}/t`}
+            <Link href={urlBuilders.userProfileUrl({ userSlug: user?.slug ? user.slug : toSlugWithUnderScore(user?.name || '') })}
               className="text-xs"
             >
               <div className="text-xs font-medium">{user?.name}</div>
