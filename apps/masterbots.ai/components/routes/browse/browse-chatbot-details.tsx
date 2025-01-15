@@ -26,8 +26,6 @@ export default function BrowseChatbotDetails({
   const [followers, setFollowers] = useState<SocialFollowing[]>(chatbot?.followers || []);
   const { data: session } = useSession()
   const router = useRouter();
-
-  console.log('🟢 Chatbot:', chatbot)
   const { append } = useChat({
     id: nanoid(),
     body: {
