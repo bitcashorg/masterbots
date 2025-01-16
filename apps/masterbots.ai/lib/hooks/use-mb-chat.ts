@@ -363,7 +363,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
         content: message
       })
 
-      router.push(`/${chatbot?.name.trim().toLowerCase()}/${randomThreadId.current}`, {
+      router.push(`/${chatbot?.name?.trim().toLowerCase()}/${randomThreadId.current}`, {
         scroll: false
       })
 
