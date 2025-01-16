@@ -29,60 +29,60 @@ import { LucideCheck, LucideLoader2, LucideX, Share2 } from 'lucide-react'
 import { useState } from 'react'
 
 interface ShareButtonProps {
-  url: string
+	url: string
 }
 
 export function ShareButton({ url }: ShareButtonProps) {
-  const [status, setStatus] = useState<
-    'default' | 'loading' | 'copied' | 'error'
-  >('default')
+	const [status, setStatus] = useState<
+		'default' | 'loading' | 'copied' | 'error'
+	>('default')
 
-  const copyToClipboard = async () => {
-    setStatus('loading')
-    try {
-      // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
-      let content
-      const { data, error } = await generateShortLink(url)
-      if (data !== null) {
-        content = data.shortLink
-      } else {
-        content = process.env.NEXT_PUBLIC_BASE_URL + url
-      }
-      await navigator.clipboard.writeText(content)
+	const copyToClipboard = async () => {
+		setStatus('loading')
+		try {
+			// biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
+			let content
+			const { data, error } = await generateShortLink(url)
+			if (data !== null) {
+				content = data.shortLink
+			} else {
+				content = process.env.NEXT_PUBLIC_BASE_URL + url
+			}
+			await navigator.clipboard.writeText(content)
 
-      setStatus('copied')
-      const timer = setTimeout(() => setStatus('default'), 5000)
-      return () => clearTimeout(timer)
-    } catch (error) {
-      console.error('Failed to copy share link:', error)
-      setStatus('error')
-      const timer = setTimeout(() => setStatus('default'), 5000)
-      return () => clearTimeout(timer)
-    }
-  }
+			setStatus('copied')
+			const timer = setTimeout(() => setStatus('default'), 5000)
+			return () => clearTimeout(timer)
+		} catch (error) {
+			console.error('Failed to copy share link:', error)
+			setStatus('error')
+			const timer = setTimeout(() => setStatus('default'), 5000)
+			return () => clearTimeout(timer)
+		}
+	}
 
-  const iconsMap = {
-    loading: (
-      <LucideLoader2 className="w-4 h-4 animate-spin stroke-muted-secondary" />
-    ),
-    copied: <LucideCheck className="w-4 h-4 stroke-success" />,
-    error: <LucideX className="w-4 h-4 stroke-destructive" />,
-    default: <Share2 className="w-4 h-4" />
-  }
+	const iconsMap = {
+		loading: (
+			<LucideLoader2 className="w-4 h-4 animate-spin stroke-muted-secondary" />
+		),
+		copied: <LucideCheck className="w-4 h-4 stroke-success" />,
+		error: <LucideX className="w-4 h-4 stroke-destructive" />,
+		default: <Share2 className="w-4 h-4" />,
+	}
 
-  return (
-    <Button
-      type="button"
-      variant={'ghost'}
-      size={'sm'}
-      className="flex justify-between w-full"
-      onClick={e => {
-        e.stopPropagation()
-        copyToClipboard()
-      }}
-    >
-      <AnimatePresence>{iconsMap[status]}</AnimatePresence>
-      <span>Share</span>
-    </Button>
-  )
+	return (
+		<Button
+			type="button"
+			variant={'ghost'}
+			size={'sm'}
+			className="flex justify-between w-full"
+			onClick={(e) => {
+				e.stopPropagation()
+				copyToClipboard()
+			}}
+		>
+			<AnimatePresence>{iconsMap[status]}</AnimatePresence>
+			<span>Share</span>
+		</Button>
+	)
 }

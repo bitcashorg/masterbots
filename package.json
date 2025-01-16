@@ -1,32 +1,42 @@
 {
-  "name": "masterbots",
-  "version": "1.0.0",
-  "description": "Monorepo for Masterbots application",
-  "author": "Jun Dam <jun@bitcash.org>",
-  "license": "MIT",
-  "private": true,
-  "scripts": {
-    "build": "turbo build --no-daemon",
-    "dev": "turbo dev --no-daemon --parallel",
-    "lint": "turbo lint --no-daemon",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
-  },
-  "devDependencies": {
-    "@types/node": "^20.17.6",
-    "eslint": "^8.57.1",
-    "prettier": "^3.3.3",
-    "turbo": "^1.13.4"
-  },
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
-  "packageManager": "bun@1.0.14",
-  "dependencies": {
-    "@ai-sdk/anthropic": "^0.0.49",
-    "@types/bcryptjs": "^2.4.6",
-    "axios": "^1.7.7",
-    "nextjs-toploader": "^1.6.12",
-    "lucide-react": "latest"
-  }
+	"name": "masterbots",
+	"version": "1.0.0",
+	"description": "Monorepo for Masterbots application",
+	"author": "Jun Dam <jun@bitcash.org>",
+	"license": "MIT",
+	"private": true,
+	"scripts": {
+		"build": "turbo build --no-daemon",
+		"dev": "turbo dev --no-daemon --parallel",
+		"lint": "turbo lint --no-daemon",
+		"format": "prettier --write \"**/*.{ts,tsx,md}\"",
+		"format-and-lint": "biome check .",
+		"format-and-lint:fix": "biome check . --write",
+		"prepare": "husky"
+	},
+	"devDependencies": {
+		"@types/node": "^20.17.6",
+		"eslint": "^8.57.1",
+		"prettier": "^3.3.3",
+		"turbo": "^1.13.4",
+		"@biomejs/biome": "1.9.4",
+		"@commitlint/cli": "^19.6.1",
+		"@commitlint/config-conventional": "^19.6.0",
+		"@types/bun": "latest",
+		"husky": "^9.1.7"
+	},
+	"workspaces": ["apps/*", "packages/*"],
+	"husky": {
+		"hooks": {
+			"commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+		}
+	},
+	"packageManager": "bun@1.0.14",
+	"dependencies": {
+		"@ai-sdk/anthropic": "^0.0.49",
+		"@types/bcryptjs": "^2.4.6",
+		"axios": "^1.7.7",
+		"nextjs-toploader": "^1.6.12",
+		"lucide-react": "latest"
+	}
 }

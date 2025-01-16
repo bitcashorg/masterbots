@@ -8,39 +8,39 @@ import { IconSeparator } from '@/components/ui/icons'
 import { appConfig } from 'mb-env'
 
 export function Header() {
-  return (
-    <header className="sticky top-0 z-50 flex items-center justify-between w-full h-16 px-4 border-b shrink-0 bg-gradient-to-b from-background/10 via-background/50 to-background/80 backdrop-blur-xl">
-      <div className="flex items-center">
-        <React.Suspense fallback={null}>
-          <SidebarToggle />
-        </React.Suspense>
-        <HeaderLink href="/" text="MB" />
+	return (
+		<header className="sticky top-0 z-50 flex items-center justify-between w-full h-16 px-4 border-b shrink-0 bg-gradient-to-b from-background/10 via-background/50 to-background/80 backdrop-blur-xl">
+			<div className="flex items-center">
+				<React.Suspense fallback={null}>
+					<SidebarToggle />
+				</React.Suspense>
+				<HeaderLink href="/" text="MB" />
 
-        {/* Navigation links - Hidden on mobile */}
-        <div className="hidden lg:flex lg:items-center">
-          <IconSeparator className="size-6 text-muted-foreground/50" />
-          <HeaderLink href="/c" text="Chat" />
-          {appConfig.features.devMode && (
-            <>
-              <HeaderLink href="/c/p" text="Pro" />
-              <HeaderLink href="/wordware" text="Ww" />
-            </>
-          )}
-        </div>
-      </div>
-      <div className="flex items-center space-x-4">
-        <React.Suspense fallback={<div className="flex-1 overflow-auto" />}>
-          <UserLogin />
-        </React.Suspense>
-      </div>
-    </header>
-  )
+				{/* Navigation links - Hidden on mobile */}
+				<div className="hidden lg:flex lg:items-center">
+					<IconSeparator className="size-6 text-muted-foreground/50" />
+					<HeaderLink href="/c" text="Chat" />
+					{appConfig.features.devMode && (
+						<>
+							<HeaderLink href="/c/p" text="Pro" />
+							<HeaderLink href="/wordware" text="Ww" />
+						</>
+					)}
+				</div>
+			</div>
+			<div className="flex items-center space-x-4">
+				<React.Suspense fallback={<div className="flex-1 overflow-auto" />}>
+					<UserLogin />
+				</React.Suspense>
+			</div>
+		</header>
+	)
 }
 
 function HeaderLink({ href, text }: { href: string; text: string }) {
-  return (
-    <Button variant="link" asChild className="-ml-2">
-      <Link href={href}>{text}</Link>
-    </Button>
-  )
+	return (
+		<Button variant="link" asChild className="-ml-2">
+			<Link href={href}>{text}</Link>
+		</Button>
+	)
 }

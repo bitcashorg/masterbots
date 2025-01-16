@@ -9,256 +9,256 @@ import type Stripe from 'stripe'
 
 // * Chat types
 export interface Chat extends Record<string, any> {
-  id: string
-  title: string
-  createdAt: Date
-  userId: string
-  path: string
-  messages: Message[]
-  sharePath?: string
+	id: string
+	title: string
+	createdAt: Date
+	userId: string
+	path: string
+	messages: Message[]
+	sharePath?: string
 }
 
 export type AiToolCall = {
-  toolCallId: string
-  toolName: WordWareFlowPaths
-  args: Record<string, any>
+	toolCallId: string
+	toolName: WordWareFlowPaths
+	args: Record<string, any>
 }
 
 export interface ChatProps extends React.ComponentProps<'div'> {
-  initialMessages?: Message[]
-  chatbot?: Chatbot
-  newThread?: boolean
-  chatPanelClassName?: string
-  isPopup?: boolean
-  scrollToBottom?: () => void
-  isAtBottom?: boolean
+	initialMessages?: Message[]
+	chatbot?: Chatbot
+	newThread?: boolean
+	chatPanelClassName?: string
+	isPopup?: boolean
+	scrollToBottom?: () => void
+	isAtBottom?: boolean
 }
 
 export type ChatLoadingState =
-  | 'processing'
-  | 'digesting'
-  | 'generating'
-  | 'idle'
-  | 'polishing'
-  | 'ready'
-  | 'finished'
+	| 'processing'
+	| 'digesting'
+	| 'generating'
+	| 'idle'
+	| 'polishing'
+	| 'ready'
+	| 'finished'
 
 export type CleanPromptResult = {
-  language: string
-  originalText: string
-  improvedText: string
-  translatedText: string
-  improved?: boolean
+	language: string
+	originalText: string
+	improvedText: string
+	translatedText: string
+	improved?: boolean
 }
 
 export type ServerActionResult<Result> = Promise<
-  | Result
-  | {
-      error: string
-    }
+	| Result
+	| {
+			error: string
+	  }
 >
 
 // * Prompt types
 
 export type PromptProps = {
-  prompt: {
-    promptId: number
-    content: string
-  }
+	prompt: {
+		promptId: number
+		content: string
+	}
 }
 
 // * Stripe components types
 
 export type PlanCardProps = {
-  selectedPlan: string
-  handlePlanChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  plan: StripePlan
+	selectedPlan: string
+	handlePlanChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+	plan: StripePlan
 }
 
 export interface StripePlan extends Stripe.Plan, Stripe.Plan.Tier {
-  product: Stripe.Product
-  recurring: {
-    interval: Stripe.Plan.Interval
-    interval_count: number
-    aggregate_usage: Stripe.Plan.AggregateUsage
-    usage_type: Stripe.Plan.UsageType
-    // ? Plans are returning null
-    meter: any
-    trial_period_days: number | null
-  }
-  duration?: string
+	product: Stripe.Product
+	recurring: {
+		interval: Stripe.Plan.Interval
+		interval_count: number
+		aggregate_usage: Stripe.Plan.AggregateUsage
+		usage_type: Stripe.Plan.UsageType
+		// ? Plans are returning null
+		meter: any
+		trial_period_days: number | null
+	}
+	duration?: string
 }
 
 export type PlansPros = {
-  next: () => void
-  prev: () => void
-  close: () => void
-  goTo: (index: number) => void
+	next: () => void
+	prev: () => void
+	close: () => void
+	goTo: (index: number) => void
 }
 
 export type PlanList = StripePlan
 
 export type Subscription = {
-  customer: {
-    name: string
-  }
-  plan: {
-    amount: number
-    interval: string
-    product: {
-      name: string
-    }
-  }
-  current_period_start: number
-  status: string
+	customer: {
+		name: string
+	}
+	plan: {
+		amount: number
+		interval: string
+		product: {
+			name: string
+		}
+	}
+	current_period_start: number
+	status: string
 }
 
 export type Card = {
-  last4: string
+	last4: string
 }
 export const initialStateSubscription = {
-  customer: {
-    name: ''
-  },
-  plan: {
-    amount: 0,
-    interval: '',
-    product: {
-      name: ''
-    }
-  },
-  current_period_start: 0,
-  status: ''
+	customer: {
+		name: '',
+	},
+	plan: {
+		amount: 0,
+		interval: '',
+		product: {
+			name: '',
+		},
+	},
+	current_period_start: 0,
+	status: '',
 }
 
 // * AI SDK related types
 
 export type ChatbotMetadataHeaders = {
-  chatbot: number
-  domain: number
+	chatbot: number
+	domain: number
 }
 
 export type ChatbotMetadata = Pick<
-  LabelChatbotCategory['label'],
-  'questions' | 'categories' | 'subCategories' | 'tags'
+	LabelChatbotCategory['label'],
+	'questions' | 'categories' | 'subCategories' | 'tags'
 >
 
 export type ReturnFetchChatbotMetadata = ChatbotMetadata | null
 
 export type CoreMessage = {
-  id: string
-  content: string
-  user: {
-    id: string
-    name: string
-  }
+	id: string
+	content: string
+	user: {
+		id: string
+		name: string
+	}
 }
 
 export type AiClientType = 'OpenAI' | 'Anthropic' | 'Perplexity' | 'WordWare'
 
 export type JSONResponseStream = {
-  id: string
-  model: string
-  messages: ChatCompletionMessageParam[]
-  previewToken: string
-  webSearch: boolean
-  stream?: boolean
-  temperature?: number
-  maxTokens?: number
-  chatbot?: Pick<Chatbot, 'categories' | 'chatbotId'>
+	id: string
+	model: string
+	messages: ChatCompletionMessageParam[]
+	previewToken: string
+	webSearch: boolean
+	stream?: boolean
+	temperature?: number
+	maxTokens?: number
+	chatbot?: Pick<Chatbot, 'categories' | 'chatbotId'>
 }
 
 // ? New type for streamText function parameters if needed
 export type StreamTextParams = {
-  model: any // ? Replace 'any' with the correct type from the SDK if available
-  messages: CoreMessage[]
-  temperature?: number
-  maxTokens?: number
-  topP?: number
-  frequencyPenalty?: number
+	model: any // ? Replace 'any' with the correct type from the SDK if available
+	messages: CoreMessage[]
+	temperature?: number
+	maxTokens?: number
+	topP?: number
+	frequencyPenalty?: number
 }
 
 // * Next-auth types
 declare module 'next-auth' {
-  interface Session {
-    user: {
-      id: string
-      email: string
-      hasuraJwt: string
-      role?: string
-      slug?: string
-    } & DefaultSession['user']
-  }
+	interface Session {
+		user: {
+			id: string
+			email: string
+			hasuraJwt: string
+			role?: string
+			slug?: string
+		} & DefaultSession['user']
+	}
 
-  interface User extends DefaultUser {
-    role: string
-    slug: string
-  }
+	interface User extends DefaultUser {
+		role: string
+		slug: string
+	}
 
-  interface JWT {
-    id: string
-    email: string
-    name: string
-    image?: string
-    role?: string
-    provider: string
-    hasuraJwt?: string
-  }
+	interface JWT {
+		id: string
+		email: string
+		name: string
+		image?: string
+		role?: string
+		provider: string
+		hasuraJwt?: string
+	}
 }
 
 // * Utils types
 export interface Plan {
-  id: string
-  duration: string
-  price: number
-  features: string[]
-  features_title: string
+	id: string
+	duration: string
+	price: number
+	features: string[]
+	features_title: string
 }
 
 export interface ChatPageProps {
-  params: {
-    category: string
-    chatbot?: string
-    threadId: string
-  }
+	params: {
+		category: string
+		chatbot?: string
+		threadId: string
+	}
 }
 
 // * Drizzle Admin types
 export type AdminUserUpdate = {
-  isBlocked?: boolean
-  isVerified?: boolean
-  proUserSubscriptionId?: string
-  getFreeMonth?: boolean
-  role?: (typeof UserRole)[keyof typeof UserRole]
+	isBlocked?: boolean
+	isVerified?: boolean
+	proUserSubscriptionId?: string
+	getFreeMonth?: boolean
+	role?: (typeof UserRole)[keyof typeof UserRole]
 }
 
 // * Chatbot details types
 export interface ChatbotDetailsProps {
-  botName?: string
-  avatar?: string
-  description?: string | null
-  threadCount?: number
-  followersCount?: number
-  isWelcomeView?: boolean
-  categoryName?: string
-  onNewChat?: () => void
-  onFollow?: () => void
+	botName?: string
+	avatar?: string
+	description?: string | null
+	threadCount?: number
+	followersCount?: number
+	isWelcomeView?: boolean
+	categoryName?: string
+	onNewChat?: () => void
+	onFollow?: () => void
 }
 
 export interface BrowseChatbotDetailsProps {
-  chatbot?: Chatbot
-  variant?: 'default' | 'selected'
+	chatbot?: Chatbot
+	variant?: 'default' | 'selected'
 }
 
 export interface BrowseChatbotLayoutProps {
-  chatbot: Chatbot
-  variant: 'default' | 'selected'
-  isLoading: boolean
-  generateType?: string | undefined
-  lastMessage: string | null
-  onGenerateBio: () => void
-  isWelcomeView: boolean
-  descriptionPoints: string[]
-  hasMultiplePoints: boolean
-  botUrl: string
+	chatbot: Chatbot
+	variant: 'default' | 'selected'
+	isLoading: boolean
+	generateType?: string | undefined
+	lastMessage: string | null
+	onGenerateBio: () => void
+	isWelcomeView: boolean
+	descriptionPoints: string[]
+	hasMultiplePoints: boolean
+	botUrl: string
 }

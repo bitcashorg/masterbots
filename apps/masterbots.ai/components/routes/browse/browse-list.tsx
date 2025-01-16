@@ -35,121 +35,125 @@ import React from 'react'
 const PAGE_SIZE = 50
 
 export default function BrowseList() {
-  const { keyword, tab } = useBrowse()
-  const [threads, setThreads] = React.useState<Thread[]>([])
-  const [hasInitialized, setHasInitialized] = React.useState(false)
-  const [filteredThreads, setFilteredThreads] = React.useState<Thread[]>([])
-  const [loading, setLoading] = React.useState<boolean>(false)
-  const [count, setCount] = React.useState<number>(0)
-  const { selectedCategories, selectedChatbots, activeCategory, activeChatbot } = useSidebar()
+	const { keyword, tab } = useBrowse()
+	const [threads, setThreads] = React.useState<Thread[]>([])
+	const [hasInitialized, setHasInitialized] = React.useState(false)
+	const [filteredThreads, setFilteredThreads] = React.useState<Thread[]>([])
+	const [loading, setLoading] = React.useState<boolean>(false)
+	const [count, setCount] = React.useState<number>(0)
+	const {
+		selectedCategories,
+		selectedChatbots,
+		activeCategory,
+		activeChatbot,
+	} = useSidebar()
 
-  const fetchThreads = async ({
-    categoriesId,
-    chatbotsId,
-    keyword,
-  }: {
-    categoriesId: number[]
-    chatbotsId: number[]
-    keyword: string
-  }) => {
-    setLoading(true) // ? Seting loading before fetch
-    try {
-      const threads = await getBrowseThreads({
-        ...(activeCategory !== null || activeChatbot !== null
-          ? {
-            categoryId: activeCategory,
-            chatbotName: activeChatbot?.name,
-          }
-          : {
-            categoriesId,
-            chatbotsId,
-            keyword,
-          }),
-        limit: PAGE_SIZE,
-      })
-      setThreads(threads)
-      setFilteredThreads(threads)
-      setCount(threads.length)
-      setHasInitialized(true) // ? Setting hasInitialized after fetch preventing NoResults from showing
-    } catch (error) {
-      console.error('Error fetching threads:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
+	const fetchThreads = async ({
+		categoriesId,
+		chatbotsId,
+		keyword,
+	}: {
+		categoriesId: number[]
+		chatbotsId: number[]
+		keyword: string
+	}) => {
+		setLoading(true) // ? Seting loading before fetch
+		try {
+			const threads = await getBrowseThreads({
+				...(activeCategory !== null || activeChatbot !== null
+					? {
+							categoryId: activeCategory,
+							chatbotName: activeChatbot?.name,
+						}
+					: {
+							categoriesId,
+							chatbotsId,
+							keyword,
+						}),
+				limit: PAGE_SIZE,
+			})
+			setThreads(threads)
+			setFilteredThreads(threads)
+			setCount(threads.length)
+			setHasInitialized(true) // ? Setting hasInitialized after fetch preventing NoResults from showing
+		} catch (error) {
+			console.error('Error fetching threads:', error)
+		} finally {
+			setLoading(false)
+		}
+	}
 
-  const verifyKeyword = () => {
-    if (!keyword) {
-      setFilteredThreads(threads)
-    } else {
-      debounce(() => {
-        // Use our searchThreadContent function instead of just title search
-        setFilteredThreads(
-          threads.filter((thread: Thread) =>
-            searchThreadContent(thread, keyword)
-          )
-        )
-      }, 230)()
-    }
-  }
+	const verifyKeyword = () => {
+		if (!keyword) {
+			setFilteredThreads(threads)
+		} else {
+			debounce(() => {
+				// Use our searchThreadContent function instead of just title search
+				setFilteredThreads(
+					threads.filter((thread: Thread) =>
+						searchThreadContent(thread, keyword),
+					),
+				)
+			}, 230)()
+		}
+	}
 
-  const loadMore = async () => {
-    console.log('🟡 Loading More Content')
-    setLoading(true)
+	const loadMore = async () => {
+		console.log('🟡 Loading More Content')
+		setLoading(true)
 
-    const moreThreads = await getBrowseThreads({
-      categoriesId: selectedCategories,
-      offset: threads.length,
-      limit: PAGE_SIZE
-    })
+		const moreThreads = await getBrowseThreads({
+			categoriesId: selectedCategories,
+			offset: threads.length,
+			limit: PAGE_SIZE,
+		})
 
-    setThreads(prevState => [...prevState, ...moreThreads])
-    setCount(moreThreads.length)
-    setLoading(false)
-  }
+		setThreads((prevState) => [...prevState, ...moreThreads])
+		setCount(moreThreads.length)
+		setLoading(false)
+	}
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  React.useEffect(() => {
-    fetchThreads({
-      keyword,
-      categoriesId: selectedCategories,
-      chatbotsId: selectedChatbots
-    })
-  }, [selectedCategories, selectedChatbots, activeCategory, activeChatbot])
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	React.useEffect(() => {
+		fetchThreads({
+			keyword,
+			categoriesId: selectedCategories,
+			chatbotsId: selectedChatbots,
+		})
+	}, [selectedCategories, selectedChatbots, activeCategory, activeChatbot])
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	React.useEffect(() => {
+		verifyKeyword()
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [keyword, threads])
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  React.useEffect(() => {
-    verifyKeyword()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [keyword, threads])
+	if (loading && threads.length === 0) {
+		return <BrowseListSkeleton count={5} />
+	}
 
-  if (loading && threads.length === 0) {
-    return <BrowseListSkeleton count={5} />
-  }
-
-  return (
-    <div className="flex flex-col w-full gap-3 py-5">
-      {filteredThreads.length > 0 ? (
-        <>
-          {filteredThreads.map((thread: Thread, key) => (
-            <BrowseListItem
-              thread={thread}
-              key={key}
-              loading={loading}
-              loadMore={loadMore}
-              hasMore={count === PAGE_SIZE}
-              isLast={key === filteredThreads.length - 1}
-            />
-          ))}
-          {loading && <ThreadItemSkeleton />}
-        </>
-      ) : (
-        hasInitialized &&
-        !loading && (
-          <NoResults searchTerm={keyword} totalItems={threads.length} />
-        )
-      )}
-    </div>
-  )
+	return (
+		<div className="flex flex-col w-full gap-3 py-5">
+			{filteredThreads.length > 0 ? (
+				<>
+					{filteredThreads.map((thread: Thread, key) => (
+						<BrowseListItem
+							thread={thread}
+							key={key}
+							loading={loading}
+							loadMore={loadMore}
+							hasMore={count === PAGE_SIZE}
+							isLast={key === filteredThreads.length - 1}
+						/>
+					))}
+					{loading && <ThreadItemSkeleton />}
+				</>
+			) : (
+				hasInitialized &&
+				!loading && (
+					<NoResults searchTerm={keyword} totalItems={threads.length} />
+				)
+			)}
+		</div>
+	)
 }

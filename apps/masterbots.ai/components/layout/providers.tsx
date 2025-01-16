@@ -15,29 +15,32 @@ import { ThemeProvider as NextThemesProvider } from 'next-themes'
 import type { ThemeProviderProps } from 'next-themes/dist/types'
 
 export function Providers({ children, ...props }: ThemeProviderProps) {
-  return (
-    <NextThemesProvider {...props}>
-      <ModelProvider>
-        <PaymentProvider>
-          <SidebarProvider>
-            <TooltipProvider>
-              <SessionProvider>
-                <ProfileProvider>
-                  <PowerUpProvider>
-                    <AccessibilityProvider>
-                      <ThreadSearchProvider>
-                        <ThreadProvider>
-                          <ThreadVisibilityProvider> {children}</ThreadVisibilityProvider>
-                        </ThreadProvider>
-                      </ThreadSearchProvider>
-                    </AccessibilityProvider>
-                  </PowerUpProvider>
-                </ProfileProvider>
-              </SessionProvider>
-            </TooltipProvider>
-          </SidebarProvider>
-        </PaymentProvider>
-      </ModelProvider>
-    </NextThemesProvider>
-  )
+	return (
+		<NextThemesProvider {...props}>
+			<ModelProvider>
+				<PaymentProvider>
+					<SidebarProvider>
+						<TooltipProvider>
+							<SessionProvider>
+								<ProfileProvider>
+									<PowerUpProvider>
+										<AccessibilityProvider>
+											<ThreadSearchProvider>
+												<ThreadProvider>
+													<ThreadVisibilityProvider>
+														{' '}
+														{children}
+													</ThreadVisibilityProvider>
+												</ThreadProvider>
+											</ThreadSearchProvider>
+										</AccessibilityProvider>
+									</PowerUpProvider>
+								</ProfileProvider>
+							</SessionProvider>
+						</TooltipProvider>
+					</SidebarProvider>
+				</PaymentProvider>
+			</ModelProvider>
+		</NextThemesProvider>
+	)
 }

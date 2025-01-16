@@ -7,41 +7,41 @@ import { toSlug } from 'mb-lib'
 import type { Metadata } from 'next'
 
 export default async function BrowseCategoryPage({
-  params
+	params,
 }: {
-  params: { category: string }
+	params: { category: string }
 }) {
-  const categories = await getCategories()
+	const categories = await getCategories()
 
-  return (
-    <div className="w-full max-w-screen-lg pb-10 mx-auto">
-      {/* <BrowseCategoryTabs
+	return (
+		<div className="w-full max-w-screen-lg pb-10 mx-auto">
+			{/* <BrowseCategoryTabs
         initialCategory={params.category}
         categories={categories}
       /> */}
-      <BrowseSearchInput />
-      <BrowseList />
-    </div>
-  )
+			<BrowseSearchInput />
+			<BrowseList />
+		</div>
+	)
 }
 
 export async function generateMetadata({
-  params
+	params,
 }: {
-  params: { category: string }
+	params: { category: string }
 }): Promise<Metadata> {
-  const categories = await getCategories()
-  const category = categories.find(
-    category => toSlug(category.name) === params.category
-  )
+	const categories = await getCategories()
+	const category = categories.find(
+		(category) => toSlug(category.name) === params.category,
+	)
 
-  const seoData = {
-    title: category?.name || '',
-    description: `Browse the threads and find the one that suits your needs, from the ${category?.name} category`,
-    ogType: 'website',
-    ogImageUrl: '',
-    twitterCard: 'summary'
-  }
+	const seoData = {
+		title: category?.name || '',
+		description: `Browse the threads and find the one that suits your needs, from the ${category?.name} category`,
+		ogType: 'website',
+		ogImageUrl: '',
+		twitterCard: 'summary',
+	}
 
-  return generateMetadataFromSEO(seoData)
+	return generateMetadataFromSEO(seoData)
 }

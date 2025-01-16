@@ -1,70 +1,81 @@
-import { UserThreadList } from "@/components/routes/profile/user-thread-list";
-import type { Metadata } from 'next'
-import { generateMetadataFromSEO } from '@/lib/metadata'
-import {  getUserInfoFromBrowse } from '@/services/hasura'
 import { authOptions } from '@/auth'
-import { getServerSession } from "next-auth"
-import { getBrowseThreads, getThreads, getUserBySlug} from "@/services/hasura";
-import { Thread, User } from "mb-genql";
+import { UserThreadList } from '@/components/routes/profile/user-thread-list'
+import { generateMetadataFromSEO } from '@/lib/metadata'
+import { getUserInfoFromBrowse } from '@/services/hasura'
+import { getBrowseThreads, getThreads, getUserBySlug } from '@/services/hasura'
+import type { Thread, User } from 'mb-genql'
+import type { Metadata } from 'next'
+import { getServerSession } from 'next-auth'
 
-export default async function ProfilePage({ params }: { params: { slug: string } }) {
+export default async function ProfilePage({
+	params,
+}: {
+	params: { slug: string }
+}) {
+	let threads: Thread[] = []
+	const slug = params.slug
 
-  let threads: Thread[] = []
-  const slug = params.slug
+	const session = await getServerSession(authOptions)
+	const { user, error } = await getUserBySlug({
+		slug,
+		isSameUser: session?.user.slug === slug,
+	})
 
-  const session = await getServerSession(authOptions)
-  const { user, error } =  await getUserBySlug({
-    slug, 
-    isSameUser: session?.user.slug === slug
-   });
+	if (error)
+		return (
+			<div className="text-center p-4">
+				Error loading profile: <strong>{error}</strong>
+			</div>
+		)
+	if (!user)
+		return (
+			<div className="text-center p-4">
+				User <strong>{params.slug}</strong> not found
+			</div>
+		)
 
+	const fetchThreads = async () => {
+		try {
+			const isOwnProfile = session?.user?.id === user?.userId
+			if (!isOwnProfile) {
+				return await getBrowseThreads({
+					userId: user.userId,
+				})
+			}
 
-   if (error) return <div className="text-center p-4">Error loading profile: <strong>{error}</strong></div>
-   if (!user) return <div className="text-center p-4">User <strong>{params.slug}</strong> not found</div>
-  
-  const fetchThreads = async () => {
-    try {
-      const isOwnProfile = session?.user?.id === user?.userId;
-      if (!isOwnProfile) {
-        return await getBrowseThreads({ 
-          userId: user.userId
-        });
-      }
-      
-      if (!session?.user?.hasuraJwt) {
-        throw new Error('Authentication required');
-      }
-      
-      return await getThreads({
-        jwt: session.user.hasuraJwt,
-        userId: user.userId
-      });
-    } catch (error) {
-      console.error('Failed to fetch threads:', error);
-      return [];
-    }
-  };
-  
-  threads = await fetchThreads();
-  
-  return <UserThreadList user={user as User} threads={threads} />
- }
+			if (!session?.user?.hasuraJwt) {
+				throw new Error('Authentication required')
+			}
 
- export async function generateMetadata({
-    params
-  }: {
-    params: { slug: string }
-  }): Promise<Metadata> {
-    const user = await getUserInfoFromBrowse(params.slug)
-  
-    const seoData = {
-      title: user?.username || '',
-      description: user?.username || '',
-      ogType: 'website',
-      ogImageUrl: user?.profilePicture || '',
-      twitterCard: 'summary_large_image'
-    }
-  
-    return generateMetadataFromSEO(seoData)
-  }
-  
+			return await getThreads({
+				jwt: session.user.hasuraJwt,
+				userId: user.userId,
+			})
+		} catch (error) {
+			console.error('Failed to fetch threads:', error)
+			return []
+		}
+	}
+
+	threads = await fetchThreads()
+
+	return <UserThreadList user={user as User} threads={threads} />
+}
+
+export async function generateMetadata({
+	params,
+}: {
+	params: { slug: string }
+}): Promise<Metadata> {
+	const user = await getUserInfoFromBrowse(params.slug)
+
+	const seoData = {
+		title: user?.username || '',
+		description: user?.username || '',
+		ogType: 'website',
+		ogImageUrl: user?.profilePicture || '',
+		twitterCard: 'summary_large_image',
+	}
+
+	return generateMetadataFromSEO(seoData)
+}
