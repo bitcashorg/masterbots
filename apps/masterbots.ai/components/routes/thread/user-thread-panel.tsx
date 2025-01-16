@@ -17,7 +17,7 @@
  * - Updates the thread list when the active category or chatbot changes
  * - Handles loading state and pagination
  * - Sets the active thread when a thread is part of que Query Params.
- * - Handles the visibility of the continuos thread functionality.
+ * - Handles the visibility of the continuous thread functionality.
  *
  * Props:
  * - chatbot: Optional string representing the selected chatbot
@@ -36,6 +36,7 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { getBrowseThreads, getThread, getThreads, getUserBySlug } from '@/services/hasura'
 import type { Thread } from 'mb-genql'
+import { Session } from 'next-auth/core/types'
 import { useSession } from 'next-auth/react'
 import { useParams, usePathname, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -62,7 +63,7 @@ export default function UserThreadPanel({
   const { activeCategory, activeChatbot } = useSidebar()
   const { isOpenPopup, activeThread, setActiveThread, setIsOpenPopup } = useThread()
   const [loading, setLoading] = useState<boolean>(false)
-  const { threads: hookThreads, isContinuosThread, setIsContinuosThread } = useThreadVisibility()
+  const { threads: hookThreads, isContinuousThread, setIsContinuousThread } = useThreadVisibility()
   const [searchTerm, setSearchTerm] = useState<string>('')
   const searchParams = useSearchParams()
   const { slug, threadId } = params;
@@ -171,7 +172,7 @@ export default function UserThreadPanel({
     setLoading(false)
   }
 
-  const getThreadByContinuousThreadId = async () => {
+  const getThreadByContinuousThreadId = async (continuousThreadId: string, session: Session) => {
     const thread = await getThread({
       threadId: continuousThreadId,
       jwt: session!.user?.hasuraJwt,
@@ -180,7 +181,7 @@ export default function UserThreadPanel({
     if (thread) {
       setActiveThread(thread)
       setThreads([thread])
-      setIsContinuosThread(true)
+      setIsContinuousThread(true)
       setTotalThreads(1)
       setCount(1)
       setIsOpenPopup(true)
@@ -189,7 +190,7 @@ export default function UserThreadPanel({
 
   useEffect(() => {
     if (continuousThreadId && session) {
-      getThreadByContinuousThreadId()
+      getThreadByContinuousThreadId(continuousThreadId, session)
     }
   }, [continuousThreadId, session]);
 
@@ -236,7 +237,7 @@ export default function UserThreadPanel({
   const showChatbotDetails = !loading && !searchTerm && threads.length === 0
   return (
     <>
-      { !isContinuosThread && (
+      { !isContinuousThread && (
         <div className="flex justify-between px-4 md:px-10 py-5 lg:max-w-[calc(100%-100px)] 2xl:max-w-full">
           <ChatSearchInput setThreads={setThreads} onSearch={setSearchTerm} />
         </div>

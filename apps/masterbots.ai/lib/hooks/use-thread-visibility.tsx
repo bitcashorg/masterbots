@@ -26,8 +26,8 @@ interface ThreadVisibilityContextProps {
   handleToggleAdminMode: () => void
   adminApproveThread: (threadId: string) => void
   isAdminMode: boolean
-  isContinuosThread: boolean,
-  setIsContinuosThread: React.Dispatch<React.SetStateAction<boolean>>
+  isContinuousThread: boolean,
+  setIsContinuousThread: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const ThreadVisibilityContext = React.createContext<
@@ -54,7 +54,7 @@ export function ThreadVisibilityProvider({
   const [isPublic, setIsPublic] = useState(false)
   const [threads, setThreads] = useState<Thread[]>([])
   const [isAdminMode, setIsAdminMode] = React.useState<boolean>(false)
-  const [isContinuosThread, setIsContinuosThread] = React.useState<boolean>(false)
+  const [isContinuousThread, setIsContinuousThread] = React.useState<boolean>(false)
   const { customSonner } = useSonner()
 
   const session = useSession()
@@ -188,8 +188,8 @@ export function ThreadVisibilityProvider({
         handleToggleAdminMode,
         adminApproveThread,
         isAdminMode,
-        isContinuosThread,
-        setIsContinuosThread
+        isContinuousThread,
+        setIsContinuousThread
       }}
     >
       {children}

@@ -70,7 +70,7 @@ export function Chat({
     setLoadingState,
   } = useThread();
   const { activeChatbot } = useSidebar();
-  const { isContinuosThread } = useThreadVisibility()
+  const { isContinuousThread } = useThreadVisibility()
   const containerRef = React.useRef<HTMLDivElement>();
   const params = useParams<{ chatbot: string; threadId: string }>();
   const chatbot = chatbotProps || activeThread?.chatbot || activeChatbot as Chatbot
@@ -115,9 +115,9 @@ export function Chat({
     }
   };
 
-  const chatSearchMessage = (isNewChat: boolean, isContinuosThread: boolean, allMessages: UiUtilsMessage[] ) => {
+  const chatSearchMessage = (isNewChat: boolean, isContinuousThread: boolean, allMessages: UiUtilsMessage[] ) => {
     const threadTitle = allMessages.filter(m => m.role === 'user')[0]?.content
-    if (isContinuosThread && allMessages) {
+    if (isContinuousThread && allMessages) {
       return `Create new thread from "${threadTitle}" by making a new question.`
     } else if (isNewChat) {
       return `Start New Chat with ${chatbot.name}`
@@ -186,7 +186,7 @@ export function Chat({
         id={params.threadId || isNewChat ? threadId : activeThread?.threadId}
         isLoading={isLoading}
         stop={stop}
-        append={isContinuosThread ? appendAsContinuousThread : appendWithMbContextPrompts}
+        append={isContinuousThread ? appendAsContinuousThread : appendWithMbContextPrompts}
         reload={reload}
         messages={allMessages}
         input={input}
@@ -194,7 +194,7 @@ export function Chat({
         chatbot={chatbot}
         placeholder={
           chatbot
-            ? chatSearchMessage(isNewChat, isContinuosThread, allMessages)
+            ? chatSearchMessage(isNewChat, isContinuousThread, allMessages)
             : ""
         }
         showReload={!isNewChat}

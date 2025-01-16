@@ -7,6 +7,7 @@ import {
 import { useModel } from '@/lib/hooks/use-model'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
+import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { delayFetch } from '@/lib/utils'
 import {
   createThread,
@@ -59,6 +60,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     messagesFromDB: [] as Message[]
   })
   const { customSonner } = useSonner()
+  const { isContinuousThread } = useThreadVisibility()
   // console.log('[HOOK] webSearch', webSearch)
 
   const params = useParams<{ chatbot: string; threadId: string }>()
@@ -110,15 +112,8 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       model: selectedModel,
       clientType,
       webSearch
-      // chatbot:
-      //   activeChatbot && activeChatbot?.categories?.length
-      //     ? {
-      //         chatbotId: activeChatbot?.chatbotId,
-      //         categoryId: activeChatbot?.categories[0].categoryId
-      //       }
-      //     : {},
     },
-    async onResponse(response) {
+    async onResponse(response: any) {
       if (response.status >= 400) {
         customSonner({ type: 'error', text: response.statusText })
 
@@ -131,12 +126,22 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
         }
       }
     },
-    async onFinish(message) {
+    async onFinish(message: any) {
+      let aiChatThreadId;
+
+      if (isContinuousThread) {
+        aiChatThreadId = randomThreadId.current
+        // aiChatQuestion =
+      } else if (params.threadId || isNewChat) {
+        aiChatThreadId = threadId
+      } else {
+        aiChatThreadId = activeThread?.threadId
+      }
+
       await Promise.all([
         saveNewMessage({
           role: 'user',
-          threadId:
-            params.threadId || isNewChat ? threadId : activeThread?.threadId,
+          threadId: aiChatThreadId,
           content: userContentRef.current,
           jwt: session!.user?.hasuraJwt
         }),
@@ -144,8 +149,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
         delayFetch(),
         saveNewMessage({
           role: 'assistant',
-          threadId:
-            params.threadId || isNewChat ? threadId : activeThread?.threadId,
+          threadId: aiChatThreadId,
           content: message.content,
           jwt: session!.user?.hasuraJwt
         })
@@ -154,12 +158,12 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       setLoadingState(undefined)
       setActiveTool(undefined)
     },
-    onToolCall({ toolCall }) {
+    onToolCall({ toolCall }: any) {
       console.log('Tool call:', toolCall)
       customSonner({ type: 'info', text: `Tool call executed: ${toolCall.toolName}` })
       setActiveTool(toolCall as AiToolCall)
     },
-    async onError(error) {
+    async onError(error: any) {
       console.error('Error in chat: ', error)
 
       customSonner({ type: 'error', text: 'Failed to send message. Please try again.' })
@@ -333,9 +337,10 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
 
   const appendAsContinuousThread = async (userMessage: AiMessage | CreateMessage) => {
     const optimisticUserMessage = { ...userMessage, id: randomThreadId.current }
-    console.log('session!.user.id', session!.user.id)
+    const message = followingQuestionsPrompt(userMessage.content, messages.concat(allMessages))
+    userContentRef.current = userMessage.content
 
-    await createThread({
+    const createdThread = await createThread({
       threadId: randomThreadId.current as string,
       parentThreadId: activeThread?.threadId,
       chatbotId: chatbot ? chatbot?.chatbotId : 0,
@@ -344,29 +349,19 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       isPublic: activeChatbot?.name !== 'BlankBot'
     })
 
-    const thread = await getThread({
-      threadId: randomThreadId.current as string,
-      jwt: session!.user?.hasuraJwt
-    })
+    if (createdThread) {
+      await append({
+        ...optimisticUserMessage,
+        content: message
+      })
 
-    append({
-      ...optimisticUserMessage,
-      content: followingQuestionsPrompt(userContentRef.current, messages.concat(allMessages))
-    })
+      router.push(`/${chatbot?.name.trim().toLowerCase()}/${randomThreadId.current}`, {
+        scroll: false
+      })
 
-    saveNewMessage({
-      role: 'user',
-      threadId: randomThreadId.current,
-      content: userMessage.content,
-      jwt: session!.user?.hasuraJwt
-    })
+      router.refresh()
+    }
 
-    updateActiveThread(thread)
-
-    router.push(`/${chatbot?.name.trim().toLowerCase()}/${randomThreadId.current}`, {
-      scroll: false
-    })
-    router.refresh()
     return null
   }
 

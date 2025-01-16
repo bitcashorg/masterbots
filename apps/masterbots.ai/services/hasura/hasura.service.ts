@@ -232,13 +232,12 @@ export async function getThread({ threadId, jwt }: GetThreadParams) {
           orderBy: [{ createdAt: 'ASC' }]
         }
       },
-      ...everything,
+      __scalar: true,
       __args: {
         where: { threadId: { _eq: threadId } }
       }
     }
   })
-
   return thread[0] as Thread
 }
 
@@ -490,7 +489,7 @@ export async function getBrowseThreads({
       isApproved: true,
       isPublic: true,
       userId: true,
-      ...everything
+      __scalar: true,
     }
   });
 
