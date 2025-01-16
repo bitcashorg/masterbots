@@ -95,6 +95,18 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     threadIdProps || activeThread?.threadId || randomThreadId.current
   const chatbot = chatbotProps || activeThread?.chatbot || activeChatbot
 
+  const resolveThreadId = (params: {
+    isContinuousThread: boolean,
+    randomThreadId: string,
+    threadId: string,
+    activeThreadId?: string
+  }) => {
+    const { isContinuousThread, randomThreadId, threadId, activeThreadId } = params;
+    if (isContinuousThread) return randomThreadId;
+    if (params.threadId || isNewChat) return threadId;
+    return activeThreadId;
+  }
+
   const {
     input,
     messages,
@@ -127,21 +139,17 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       }
     },
     async onFinish(message: any) {
-      let aiChatThreadId;
-
-      if (isContinuousThread) {
-        aiChatThreadId = randomThreadId.current
-        // aiChatQuestion =
-      } else if (params.threadId || isNewChat) {
-        aiChatThreadId = threadId
-      } else {
-        aiChatThreadId = activeThread?.threadId
-      }
+      const aiChatThreadId = resolveThreadId({
+        isContinuousThread,
+        randomThreadId: randomThreadId.current,
+        threadId,
+        activeThreadId: activeThread?.threadId
+      });
 
       await Promise.all([
         saveNewMessage({
           role: 'user',
-          threadId: aiChatThreadId,
+          threadId: aiChatThreadId ?? '',
           content: userContentRef.current,
           jwt: session!.user?.hasuraJwt
         }),
