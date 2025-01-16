@@ -17,7 +17,6 @@ import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { useTheme } from 'next-themes'
 import { urlBuilders } from '@/lib/url'
 
-
 export interface UserMenuProps {
   user: Session['user']
 }
@@ -28,10 +27,11 @@ function getUserInitials(name: string) {
 }
 
 function truncateUsername(username: string | null | undefined, maxLength = 10) {
-  if (!username) return '';
-  return username.length > maxLength ? `${username.slice(0, maxLength - 4)}` : username;
+  if (!username) return ''
+  return username.length > maxLength
+    ? `${username.slice(0, maxLength - 4)}`
+    : username
 }
-
 
 export function UserMenu({ user }: UserMenuProps) {
   const { theme } = useTheme()
@@ -60,7 +60,12 @@ export function UserMenu({ user }: UserMenuProps) {
         </DropdownMenuTrigger>
         <DropdownMenuContent sideOffset={8} align="start" className="w-[180px]">
           <DropdownMenuItem className="flex-col items-start">
-            <Link href={urlBuilders.userProfileUrl({ userSlug: user?.slug ? user.slug : toSlugWithUnderScore(user?.name || '') })}
+            <Link
+              href={urlBuilders.userProfileUrl({
+                userSlug: user?.slug
+                  ? user.slug
+                  : toSlugWithUnderScore(user?.name || '')
+              })}
               className="text-xs"
             >
               <div className="text-xs font-medium">{user?.name}</div>
@@ -70,7 +75,9 @@ export function UserMenu({ user }: UserMenuProps) {
           <DropdownMenuSeparator />
           <DropdownMenuItem className="w-full">
             <div className="flex items-center justify-between w-full">
-              <span className="text-xs">{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+              <span className="text-xs">
+                {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+              </span>
               <ThemeToggle />
             </div>
           </DropdownMenuItem>

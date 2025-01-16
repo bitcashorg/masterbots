@@ -30,7 +30,6 @@ export const ProfileSidebar = ({ children }: any) => {
   }, [slug, currentUser]);
 
   const userSlug = slug as string
-
   const sameUser = isSameUser(user?.userId)
 
   const handleToggleThreads = () => {
