@@ -8,56 +8,31 @@ export type customSonnerProps = {
 }
 
 /**
- * Custom hook that provides a function to display custom toast notifications.
+ * Custom hook for displaying toast notifications with predefined styles.
  *
- * @returns {Object} An object containing the `customSonner` function.
- *
- * @function customSonner
- * @param {Object} params - The parameters for the custom toast notification.
- * @param {string} [params.type='success'] - The type of the toast notification. Can be 'success', 'error', or 'info'.
- * @param {string} params.text - The text to display in the toast notification.
- *
- * @typedef {Object} customSonnerProps
- * @property {string} [type='success'] - The type of the toast notification. Can be 'success', 'error', or 'info'.
- * @property {string} text - The text to display in the toast notification.
+ * @returns {Object} An object containing the `customSonner` function for displaying notifications.
+ * @returns {function} customSonner - Function to display styled toast notifications.
  */
 
 /**
  * Creates a custom notification based on the provided configuration.
  *
  * @param {customSonnerProps} options - Configuration for the notification.
- * @returns {void}
+ * @returns {import('sonner').ToastT} The created toast instance.
  *
  * @example
- * // Import the hook and use the customSonner function
- * import { useSonner } from './path/to/useSonner';
+ * // Import the hook
+ * import { useSonner } from '@/lib/hooks/useSonner';
  *
  * const { customSonner } = useSonner();
  *
  * // Trigger a success notification
  * customSonner({ type: 'success', text: 'Operation completed successfully!' });
  *
- * // Trigger an error notification
- * customSonner({ type: 'error', text: 'Something went wrong. Please try again.' });
- *
- * // Trigger an info notification
- * customSonner({ type: 'info', text: 'Your data was last updated 5 minutes ago.' });
- *
- * // Trigger a default notification
- * customSonner();
- * // This will create a "success" notification with the default text:
- * // "Changes have been applied successfully."
- *
- * // Trigger an error notification with default text
- * customSonner({ type: 'error' });
- * // This will create an "error" notification with the default text:
- * // "Failed to update the information. Please try again."
- *
- * // Trigger an info notification with default text
- * customSonner({ type: 'info' });
- *
- * // This will create an "info" notification with the default text:
- * // "Your changes were applied 5 minutes ago."
+ * // Default texts for each type:
+ * // Success: "Changes and been applied successfully"
+ * // Error: "Failed to update the information. Please try again"
+ * // Info: "Your changes has been applied 5 minutes ago."
  */
 
 export function useSonner() {
