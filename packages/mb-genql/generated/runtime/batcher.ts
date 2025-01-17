@@ -55,19 +55,20 @@ function dispatchQueueBatch(client: QueryBatcher, queue: Queue): void {
 	})()
 		.then((responses: any) => {
 			if (queue.length === 1 && !Array.isArray(responses)) {
-				if (responses.errors && responses.errors.length) {
+				if (responses.errors?.length) {
 					queue[0].reject(new GenqlError(responses.errors, responses.data))
 					return
 				}
 
 				queue[0].resolve(responses)
 				return
-			} else if (responses.length !== queue.length) {
+			}
+			if (responses.length !== queue.length) {
 				throw new Error('response length did not match query length')
 			}
 
 			for (let i = 0; i < queue.length; i++) {
-				if (responses[i].errors && responses[i].errors.length) {
+				if (responses[i].errors?.length) {
 					queue[i].reject(
 						new GenqlError(responses[i].errors, responses[i].data),
 					)

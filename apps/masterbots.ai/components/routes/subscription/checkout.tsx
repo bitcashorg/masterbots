@@ -99,7 +99,7 @@ export function InnerCheckout({ prev, next }: WizardStepProps) {
 						<span className="text-[12px] font-bold text-[#71717A] w-10">
 							Pay The{' '}
 							<span className="capitalize">
-								{plan?.recurring.interval + 'ly'}
+								{`${plan?.recurring.interval}ly`}
 							</span>{' '}
 							Plan Subscription
 						</span>

@@ -34,7 +34,7 @@ export async function generateShortLink(path: string) {
 			error: null,
 		}
 	} catch (error) {
-		console.log(path + 'Failed to generate short link: ==> ', error)
+		console.log(`${path}Failed to generate short link: ==> `, error)
 		return {
 			data: null,
 		}

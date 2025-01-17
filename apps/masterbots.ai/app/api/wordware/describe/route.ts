@@ -36,16 +36,15 @@ export async function GET(request: Request) {
 		if (contentType && contentType.indexOf('application/json') !== -1) {
 			const data: WordWareDescribeDAtaResponse = await response.json()
 			return NextResponse.json(data, { status: response.status })
-		} else {
-			const text = await response.text()
-			return NextResponse.json(
-				{
-					error: 'Unexpected response from Wordware API',
-					details: text.substring(0, 200),
-				},
-				{ status: response.status },
-			)
 		}
+		const text = await response.text()
+		return NextResponse.json(
+			{
+				error: 'Unexpected response from Wordware API',
+				details: text.substring(0, 200),
+			},
+			{ status: response.status },
+		)
 	} catch (error) {
 		console.error('Error fetching prompt details:', error)
 		return NextResponse.json(

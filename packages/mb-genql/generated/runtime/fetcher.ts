@@ -33,7 +33,7 @@ export const createFetcher = ({
 		fetcher ||
 		(async (body) => {
 			let headersObject =
-				typeof headers == 'function' ? await headers() : headers
+				typeof headers === 'function' ? await headers() : headers
 			headersObject = headersObject || {}
 			if (typeof fetch === 'undefined' && !_fetch) {
 				throw new Error(
@@ -59,7 +59,7 @@ export const createFetcher = ({
 
 	if (!batch) {
 		return async (body) => {
-			const json = await fetcher!(body)
+			const json = await fetcher?.(body)
 			if (Array.isArray(json)) {
 				return json.map((json) => {
 					if (json?.errors?.length) {
@@ -67,19 +67,18 @@ export const createFetcher = ({
 					}
 					return json.data
 				})
-			} else {
-				if (json?.errors?.length) {
-					throw new GenqlError(json.errors || [], json.data)
-				}
-				return json.data
 			}
+			if (json?.errors?.length) {
+				throw new GenqlError(json.errors || [], json.data)
+			}
+			return json.data
 		}
 	}
 
 	const batcher = new QueryBatcher(
 		async (batchedQuery) => {
 			// console.log(batchedQuery) // [{ query: 'query{user{age}}', variables: {} }, ...]
-			const json = await fetcher!(batchedQuery)
+			const json = await fetcher?.(batchedQuery)
 			return json as any
 		},
 		batch === true ? DEFAULT_BATCH_OPTIONS : batch,
@@ -91,7 +90,7 @@ export const createFetcher = ({
 			return json.data
 		}
 		throw new Error(
-			'Genql batch fetcher returned unexpected result ' + JSON.stringify(json),
+			`Genql batch fetcher returned unexpected result ${JSON.stringify(json)}`,
 		)
 	}
 }

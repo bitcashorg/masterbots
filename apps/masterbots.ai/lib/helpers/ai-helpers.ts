@@ -67,8 +67,6 @@ export function setStreamerPayload(
 						content: message.content,
 					}) as MessageParam,
 			)
-		case 'OpenAI':
-		case 'Perplexity':
 		default:
 			return payload
 	}

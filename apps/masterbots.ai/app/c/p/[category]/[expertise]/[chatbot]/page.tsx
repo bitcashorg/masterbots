@@ -21,7 +21,7 @@ export default async function BrowseProBotPage({
 		throw new Error('Session JWT is missing.')
 	}
 	if (isTokenExpired(jwt)) {
-		redirect(`/auth/signin`)
+		redirect('/auth/signin')
 	}
 	const chatbotName = botNames.get(params.chatbot)
 	if (!chatbotName) {

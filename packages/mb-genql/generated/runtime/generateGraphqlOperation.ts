@@ -40,7 +40,7 @@ const parseRequest = (
 	if (typeof request === 'object' && '__args' in request) {
 		const args: any = request.__args
 		const fields: Request | undefined = { ...request }
-		delete fields.__args
+		fields.__args = undefined
 		const argNames = Object.keys(args)
 
 		if (argNames.length === 0) {
@@ -53,7 +53,7 @@ const parseRequest = (
 			ctx.varCounter++
 			const varName = `v${ctx.varCounter}`
 
-			const typing = field.args && field.args[argName] // typeMap used here, .args
+			const typing = field.args?.[argName] // typeMap used here, .args
 
 			if (!typing) {
 				throw new Error(
@@ -71,7 +71,8 @@ const parseRequest = (
 			return `${argName}:$${varName}`
 		})
 		return `(${argStrings})${parseRequest(fields, ctx, path)}`
-	} else if (typeof request === 'object' && Object.keys(request).length > 0) {
+	}
+	if (typeof request === 'object' && Object.keys(request).length > 0) {
 		const fields = request
 		const fieldNames = Object.keys(fields).filter((k) => Boolean(fields[k]))
 
@@ -87,7 +88,7 @@ const parseRequest = (
 
 		if (fieldNames.includes('__scalar')) {
 			const falsyFieldNames = new Set(
-				Object.keys(fields).filter((k) => !Boolean(fields[k])),
+				Object.keys(fields).filter((k) => !fields[k]),
 			)
 			if (scalarFields?.length) {
 				ctx.fragmentCounter++
@@ -119,17 +120,15 @@ const parseRequest = (
 					)
 
 					return `...${implementationFragment}`
-				} else {
-					return `${f}${parsed}`
 				}
+				return `${f}${parsed}`
 			})
 			.concat(scalarFieldsFragment ? [`...${scalarFieldsFragment}`] : [])
 			.join(',')
 
 		return `{${fieldsSelection}}`
-	} else {
-		return ''
 	}
+	return ''
 }
 
 export const generateGraphqlOperation = (
@@ -182,7 +181,7 @@ export const getFieldFromPath = (
 
 	if (!root) throw new Error('root type is not provided')
 
-	if (path.length === 0) throw new Error(`path is empty`)
+	if (path.length === 0) throw new Error('path is empty')
 
 	path.forEach((f) => {
 		const type = current ? current.type : root
@@ -194,7 +193,7 @@ export const getFieldFromPath = (
 			.filter((i) => i.startsWith('on_'))
 			.reduce(
 				(types, fieldName) => {
-					const field = type.fields && type.fields[fieldName]
+					const field = type.fields?.[fieldName]
 					if (field) types.push(field.type)
 					return types
 				},
@@ -204,7 +203,7 @@ export const getFieldFromPath = (
 		let field: LinkedField | null = null
 
 		possibleTypes.forEach((type) => {
-			const found = type.fields && type.fields[f]
+			const found = type.fields?.[f]
 			if (found) field = found
 		})
 

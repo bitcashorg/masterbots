@@ -29,9 +29,8 @@ export async function fetcher<JSON = any>(
 			}
 			error.status = res.status
 			throw error
-		} else {
-			throw new Error('An unexpected error occurred')
 		}
+		throw new Error('An unexpected error occurred')
 	}
 
 	return res.json()
@@ -95,10 +94,8 @@ export function createMessagePairs(messages: Message[] | AIMessage[]) {
 				const chatGptMessage = findNextAssistantMessage(messages, j)
 				if (!chatGptMessage) {
 					break
-				} else {
-					chatGptMessages.push(chatGptMessage)
-					continue
 				}
+				chatGptMessages.push(chatGptMessage)
 			}
 			messagePairs.push({
 				userMessage,
@@ -126,7 +123,7 @@ const findNextAssistantMessage = (
 export const readingTime = (messages: { content: string }[]) => {
 	let contentGroup: any = []
 
-	for (var i = 0; i <= messages?.length; i++) {
+	for (let i = 0; i <= messages?.length; i++) {
 		const paragraphGroup = messages[i]?.content?.match(/\\n/g)
 		if (paragraphGroup) contentGroup = [...contentGroup, ...paragraphGroup]
 	}
@@ -324,7 +321,7 @@ export function cleanClickableText(text: string): string {
  * **/
 export function numberShortener(number: number): string {
 	if (number < 1000) return number.toString()
-	if (number < 1000000) return (number / 1000).toFixed(1) + 'k'
-	if (number < 1000000000) return (number / 1000000).toFixed(2) + 'm'
-	return (number / 1000000000).toFixed(3) + 'b'
+	if (number < 1000000) return `${(number / 1000).toFixed(1)}k`
+	if (number < 1000000000) return `${(number / 1000000).toFixed(2)}m`
+	return `${(number / 1000000000).toFixed(3)}b`
 }

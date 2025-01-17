@@ -87,7 +87,7 @@ export const Receipt: React.FC<ReceiptProps> = ({ intentid }) => {
 							<div className="w-40 leading-[14.88px]">
 								<span className="text-[12px] font-bold text-[#71717A] w-10">
 									You Paid The{' '}
-									<span className="capitalize">{plan.interval + 'ly'}</span>{' '}
+									<span className="capitalize">{`${plan.interval}ly`}</span>{' '}
 									Plan Subscription
 								</span>
 							</div>

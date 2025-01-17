@@ -21,7 +21,7 @@ export default async function IndexPage() {
 
 	const threads = await getThreads({
 		jwt,
-		userId: session!.user.id,
+		userId: session?.user.id,
 	})
 
 	const user = {

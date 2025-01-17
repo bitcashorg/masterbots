@@ -50,7 +50,7 @@ export const metadata: Metadata = {
 	metadataBase: new URL(`https://${process.env.VERCEL_URL}`),
 	title: {
 		default: 'Masterbots',
-		template: `%s - Masterbots`,
+		template: '%s - Masterbots',
 	},
 	description:
 		'Elevating AI Beyond ChatGPT: Specialized Chatbots, Social Sharing and User-Friendly Innovation',

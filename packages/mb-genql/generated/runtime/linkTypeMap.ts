@@ -44,9 +44,7 @@ export const linkTypeMap = (
 							.map((x) => x?.[1])
 							.filter(Boolean)
 
-						const hasRequiredArgs = argTypes.some(
-							(str) => str && str.endsWith('!'),
-						)
+						const hasRequiredArgs = argTypes.some((str) => str?.endsWith('!'))
 						if (hasRequiredArgs) {
 							return false
 						}

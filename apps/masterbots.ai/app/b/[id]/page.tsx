@@ -12,7 +12,8 @@ export default async function BotThreadsPage({
 }: {
 	params: { id: string }
 }) {
-	let chatbot, threads
+	let chatbot
+	let threads
 
 	chatbot = await getChatbot({
 		chatbotName: botNames.get(params.id),

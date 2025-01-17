@@ -93,7 +93,7 @@ export function UserCard({ user, loading }: UserCardProps) {
 
 			if (!success) {
 				console.error('Failed to upload image xx:', cloudinaryError)
-				toast.error('Failed to upload image: \n' + cloudinaryError?.message)
+				toast.error(`Failed to upload image: \n${cloudinaryError?.message}`)
 				return
 			}
 
@@ -106,7 +106,7 @@ export function UserCard({ user, loading }: UserCardProps) {
 			setUserProfilePicture(imageUrl)
 			toast.success('Profile picture updated successfully')
 		} catch (error) {
-			toast.error('Failed to upload image: \n' + (error as Error).message)
+			toast.error(`Failed to upload image: \n${(error as Error).message}`)
 		} finally {
 			setIsUploadingImage(false)
 		}
@@ -155,7 +155,7 @@ export function UserCard({ user, loading }: UserCardProps) {
 			})
 		} catch (error) {
 			setIsLoading(false)
-			toast.error('Failed to generate content: \n' + (error as Error).message)
+			toast.error(`Failed to generate content: \n${(error as Error).message}`)
 			console.error('Bio generation failed:', error)
 		}
 	}

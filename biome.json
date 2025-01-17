@@ -27,6 +27,9 @@
 				"recommended": true,
 				"noEmptyPattern": "warn"
 			},
+			"performance": {
+				"noAccumulatingSpread": "warn"
+			},
 			"suspicious": {
 				"recommended": true,
 				"noExplicitAny": "error"

@@ -29,7 +29,7 @@ export default async function ChatCategoryPage({
 
 	const threads = await getThreads({
 		jwt,
-		userId: session!.user.id,
+		userId: session?.user.id,
 		categoryId: category?.categoryId,
 	})
 

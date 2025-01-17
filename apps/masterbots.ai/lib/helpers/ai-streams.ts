@@ -29,7 +29,7 @@ export async function streamAndValidateResponse(
 				const jsonStr = match[0].replace(/^data:\s*/, '')
 				const validatedJson = validateAndSanitizeJson(jsonStr)
 				if (validatedJson) {
-					await writer.write(encoder.encode(validatedJson + '\n'))
+					await writer.write(encoder.encode(`${validatedJson}\n`))
 				}
 				lastIndex = jsonRegex.lastIndex
 			}
@@ -50,7 +50,7 @@ export async function streamAndValidateResponse(
 		if (buffer.length > 0) {
 			const validatedJson = validateAndSanitizeJson(buffer)
 			if (validatedJson) {
-				await writer.write(encoder.encode(validatedJson + '\n'))
+				await writer.write(encoder.encode(`${validatedJson}\n`))
 			}
 		}
 	} finally {

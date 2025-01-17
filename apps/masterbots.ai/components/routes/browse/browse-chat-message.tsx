@@ -68,7 +68,7 @@ export function BrowseChatMessage({
 						},
 						code({ node, inline, className, children, ...props }) {
 							if (children.length) {
-								if (children[0] == '▍') {
+								if (children[0] === '▍') {
 									return (
 										<span className="mt-1 cursor-default animate-pulse">▍</span>
 									)
@@ -90,7 +90,7 @@ export function BrowseChatMessage({
 							return (
 								<CodeBlock
 									key={Math.random()}
-									language={(match && match[1]) || ''}
+									language={match?.[1] || ''}
 									value={String(children).replace(/\n$/, '')}
 									{...props}
 								/>

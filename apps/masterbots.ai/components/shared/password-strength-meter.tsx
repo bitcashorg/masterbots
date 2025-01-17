@@ -25,7 +25,7 @@ export function PasswordStrengthMeter({
 						width: `${(strength / 6) * 100}%`,
 						backgroundColor: color,
 					}}
-				></div>
+				/>
 			</div>
 			<p role="presentation" className="mt-1 text-sm text-neutral-400">
 				Password Strength: <span className="font-medium">{label}</span>

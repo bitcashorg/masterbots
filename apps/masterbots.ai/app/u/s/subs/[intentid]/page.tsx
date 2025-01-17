@@ -25,7 +25,7 @@ export default async function IndexPage(props: IndexPageProps) {
 	// NOTE: maybe we should use same expiration time
 	const jwt = session?.user?.hasuraJwt
 	if (!jwt || isTokenExpired(jwt)) {
-		redirect(`/auth/signin`)
+		redirect('/auth/signin')
 	}
 
 	const threads = await getBrowseThreads({

@@ -12,6 +12,7 @@
 		"format": "prettier --write \"**/*.{ts,tsx,md}\"",
 		"format-and-lint": "biome check .",
 		"format-and-lint:fix": "biome check . --write",
+		"format-and-lint:fix-unsafe": "biome check . --write --unsafe",
 		"prepare": "husky"
 	},
 	"devDependencies": {

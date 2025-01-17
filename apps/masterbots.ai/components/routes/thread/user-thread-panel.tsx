@@ -122,8 +122,8 @@ export default function UserThreadPanel({
 			moreThreads = await fetchBrowseThreads()
 		} else {
 			moreThreads = await getThreads({
-				jwt: session!.user?.hasuraJwt,
-				userId: session!.user.id,
+				jwt: session?.user?.hasuraJwt ?? '',
+				userId: session?.user.id ?? '',
 				offset: threads.length,
 				limit: PAGE_SIZE,
 				categoryId: activeCategory,
@@ -152,8 +152,8 @@ export default function UserThreadPanel({
 		const currentFetchId = Date.now() // Generate a unique identifier for the current fetch
 		fetchIdRef.current = currentFetchId
 		threads = await getThreads({
-			jwt: session!.user?.hasuraJwt,
-			userId: session!.user.id,
+			jwt: session?.user?.hasuraJwt,
+			userId: session?.user.id,
 			limit: PAGE_SIZE,
 			categoryId: activeCategory,
 			chatbotName: activeChatbot?.name,
@@ -169,6 +169,7 @@ export default function UserThreadPanel({
 		setLoading(false)
 	}
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: not needed
 	useEffect(() => {
 		// Skip if popup is open
 		if (isOpenPopup) return
@@ -190,16 +191,13 @@ export default function UserThreadPanel({
 		}
 	}, [activeCategory, activeChatbot, isOpenPopup, pathname])
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: not needed
 	useEffect(() => {
-		if (
-			threads &&
-			threads.filter((t) => t.threadId === activeThread?.threadId).length
-		)
+		if (threads?.filter((t) => t.threadId === activeThread?.threadId).length)
 			return
 
 		setIsOpenPopup(false)
 		setActiveThread(null)
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [threads])
 
 	const handleSearch = (term: string) => {

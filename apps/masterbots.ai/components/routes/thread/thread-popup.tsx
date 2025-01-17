@@ -149,7 +149,7 @@ export function ThreadPopUpCardHeader({ messages }: { messages: AiMessage[] }) {
 				<div className="items-center block overflow-y-auto whitespace-pre-line max-h-28 scrollbar small-thumb">
 					{threadTitle ? (
 						threadTitleChunks.length > 32 ? (
-							threadTitleHeading + ''
+							`${threadTitleHeading}`
 						) : (
 							threadTitle
 						)

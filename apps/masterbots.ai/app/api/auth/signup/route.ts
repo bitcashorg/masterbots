@@ -90,8 +90,7 @@ export async function POST(req: NextRequest) {
 						username: newUsername,
 						slug: toSlug(newUsername),
 						password: hashedPassword,
-						profilePicture:
-							'https://api.dicebear.com/9.x/identicon/svg?seed=' + newUsername,
+						profilePicture: `https://api.dicebear.com/9.x/identicon/svg?seed=${newUsername}`,
 						dateJoined: new Date().toISOString(),
 					},
 				},

@@ -23,7 +23,7 @@ export default async function BotThreadsPage({
 		console.error('Session JWT is missing.')
 	}
 	if (isTokenExpired(jwt as string)) {
-		redirect(`/auth/signin`)
+		redirect('/auth/signin')
 	}
 	const chatbotName = botNames.get(params.chatbot)
 	if (!chatbotName) {

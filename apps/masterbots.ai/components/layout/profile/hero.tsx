@@ -47,7 +47,7 @@ export function Hero() {
 
 	return (
 		<div className="relative bg-left-bottom py-10 bg-[url('/hero-bg.png')] bg-no-repeat">
-			<div className="absolute inset-0 bg-gradient-to-l from-mirage  via-[#6A0D826E]/80  to-[#9412B5BF] dark:via-[#66B252BF]/80 dark:to-[#83E56A6B]/80"></div>
+			<div className="absolute inset-0 bg-gradient-to-l from-mirage  via-[#6A0D826E]/80  to-[#9412B5BF] dark:via-[#66B252BF]/80 dark:to-[#83E56A6B]/80" />
 			<div className="relative z-[2] md:px-0 px-5">
 				<UserCard user={user} loading={loading} />
 			</div>

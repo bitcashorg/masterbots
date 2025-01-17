@@ -137,12 +137,11 @@ export async function PUT(req: NextRequest) {
 				status: 200,
 				headers: { 'Content-Type': 'application/json' },
 			})
-		} else {
-			return new Response(JSON.stringify({ active: false }), {
-				status: 200,
-				headers: { 'Content-Type': 'application/json' },
-			})
 		}
+		return new Response(JSON.stringify({ active: false }), {
+			status: 200,
+			headers: { 'Content-Type': 'application/json' },
+		})
 	} catch (error: any) {
 		console.error('Error checking subscription:', error)
 		const stripeError = error?.raw || error

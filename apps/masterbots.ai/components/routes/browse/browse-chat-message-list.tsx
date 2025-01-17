@@ -53,7 +53,7 @@ export function BrowseChatMessageList({
 				<BrowseAccordion
 					defaultState
 					key={key}
-					isOpen={key == 0}
+					isOpen={key === 0}
 					disabled={key === 0}
 					isNestedThread={true}
 					contentClass={`!border-l-[transparent] ${key === pairs.length - 1 ? '!border-b-[transparent]' : ''}`}

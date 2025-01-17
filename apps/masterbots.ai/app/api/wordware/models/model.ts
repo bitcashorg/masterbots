@@ -25,10 +25,13 @@ export const wordwareModel = (API_KEY: string) => ({
 			throw new Error(`Wordware API error: ${response.statusText}`)
 		}
 
-		const reader = response.body!.getReader()
+		const reader = response.body?.getReader()
 		const decoder = new TextDecoder()
 
+		// Continuously read from the stream until done
 		while (true) {
+			if (!reader) break
+
 			const { done, value } = await reader.read()
 			if (done) break
 			yield decoder.decode(value)
