@@ -185,7 +185,7 @@ export const authOptions: NextAuthOptions = {
 			if (account?.provider === 'google') {
 				const client = getHasuraClient()
 
-				let signedUser
+				let signedUser: { userId: string }[]
 
 				// Check if user exists, if not, create a new user
 				const { user: currentUser } = await client.query({
@@ -221,7 +221,11 @@ export const authOptions: NextAuthOptions = {
 						},
 					})
 
-					signedUser = [newUser]
+					if (newUser) {
+						signedUser = [newUser]
+					} else {
+						throw new Error('Failed to create new user')
+					}
 				}
 
 				user.id = signedUser[0]?.userId || user.id

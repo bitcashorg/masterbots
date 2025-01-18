@@ -61,9 +61,11 @@ export async function getSubscriptionPlans({
 		handleSetStripePublishKey(data.stripe_publishable)
 		handleSetStripeSecret(data.stripeSecret)
 
-		data.plans = data.plans.filter((plan: any) => plan.unit_amount !== 0)
+		data.plans = data.plans.filter((plan: PlanList) => plan.unit_amount !== 0)
 		// show the plans in ascending order
-		data.plans.sort((a: any, b: any) => b.unit_amount - a.unit_amount)
+		data.plans.sort(
+			(a: PlanList, b: PlanList) => (b.unit_amount ?? 0) - (a.unit_amount ?? 0),
+		)
 
 		plans = data.plans as PlanList[]
 	} catch (error) {
@@ -119,15 +121,15 @@ export async function getPromptDetails(promptId: string) {
 			throw new Error(data.error || 'Failed to fetch prompt details')
 		}
 		inputs = data.inputs.reduce(
-			(acc: any, input: { label: any }) => ({
+			(acc: Record<string, string>, input: { label: string }) => ({
 				...acc,
 				[input.label]: '',
 			}),
 			{},
 		)
 	} catch (error) {
-		console.error('Error fetching prompt details:', error)
-		error = (error as Error).message
+		const messageEerror = (error as Error).message
+		console.error('Error fetching prompt details:', messageEerror)
 	} finally {
 		return { data, error, inputs }
 	}
@@ -138,7 +140,7 @@ export async function runWordWarePrompt({
 	inputs,
 }: {
 	promptId: string
-	inputs: Record<string, any>
+	inputs: Record<string, string>
 }) {
 	let fullResponse = ''
 	let error = null

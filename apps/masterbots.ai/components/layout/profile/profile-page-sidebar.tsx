@@ -8,12 +8,12 @@ import { MessagesSquare, ReceiptIcon, Settings } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
-import React, { useState, useEffect } from 'react'
+import { type ReactNode, useState } from 'react'
 import { useLocation } from 'react-use'
 import { useAsync } from 'react-use'
 import { SidebarCategoryGeneral } from '../sidebar/sidebar-category-general'
 
-export const ProfileSidebar = ({ children }: any) => {
+export const ProfileSidebar = ({ children }: { children: ReactNode }) => {
 	const pathname = usePathname()
 	const openSidebar = pathname.includes('/t')
 	const [isThreadsOpen, setIsThreadsOpen] = useState(openSidebar)

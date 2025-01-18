@@ -57,7 +57,7 @@ export function BrowseCategoryTabs({
 			)
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [initialCategory])
+	}, [initialCategory, setActiveTab, categories.filter])
 
 	return (
 		<div className="w-full py-[10px] my-3 !overflow-x-auto overflow-y-hidden whitespace-nowrap scrollbar small-thumb">

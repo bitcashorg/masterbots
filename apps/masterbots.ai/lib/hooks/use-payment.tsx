@@ -17,7 +17,7 @@ interface PaymentContextProps {
 	handlePlan: (plan: StripePlan | undefined) => void
 	handleSetCard: (card: CardProps) => void
 	handlePaymentIntent: (paymentIntent: any) => void
-	handleSetError: (error: any) => void
+	handleSetError: (error: unknown) => void
 	paymentIntent: any
 	user: {
 		id: string
@@ -87,8 +87,8 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 		setPaymentIntent(paymentIntent)
 	}
 
-	const handleSetError = (error: any) => {
-		setError(error)
+	const handleSetError = (error: unknown) => {
+		setError(error as string)
 	}
 	const handleSetUser = (user: any) => {
 		setUser(user)

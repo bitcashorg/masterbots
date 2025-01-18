@@ -1,10 +1,10 @@
-import type { GraphqlOperation } from '@genql/runtime'
 import {
 	type Client as WsClient,
 	createClient as createWsClient,
 } from 'graphql-ws'
 import { type MbEnv, endpoints } from 'mb-env'
 import { type Client, createClient } from '../generated'
+import type { GraphqlOperation } from '../generated/runtime/generateGraphqlOperation'
 
 export * from '../generated'
 
@@ -20,7 +20,10 @@ export function createMbClient({
 		url: endpoints[env || 'prod'].replace('http', 'ws'),
 	})
 	const client = createClient({
-		fetcher: async (operation: any) => {
+		fetcher: async (operation: GraphqlOperation | GraphqlOperation[]) => {
+			if (Array.isArray(operation)) {
+				throw new Error('Array of operations is not supported')
+			}
 			const headers = {
 				'Cache-Control': 'no-cache',
 				Accept: 'application/json',

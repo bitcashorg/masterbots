@@ -33,7 +33,7 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { cn } from '@/lib/utils'
 import { ChevronDown } from 'lucide-react'
 import type { Thread } from 'mb-genql'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 // Helper function to handle body scroll
 const toggleBodyScroll = (disable: boolean) => {
@@ -124,7 +124,7 @@ export function BrowseAccordion({
 		}
 	}, [isOpen])
 
-	const toggle = () => {
+	const toggle = useCallback(() => {
 		if (shouldBeDisabled) return
 
 		setOpen((prevOpen: boolean) => {
@@ -151,7 +151,16 @@ export function BrowseAccordion({
 
 			return newState
 		})
-	}
+	}, [
+		shouldBeDisabled,
+		handleOpen,
+		thread,
+		setActiveThread,
+		isNewResponse,
+		setIsNewResponse,
+		onToggle,
+		isNestedThread,
+	])
 
 	useEffect(() => {
 		if (
@@ -263,7 +272,7 @@ export function BrowseAccordion({
 			</div>
 
 			{!isNestedThread && !open && (
-				<div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-800 to-transparent opacity-30" />
+				<div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-800 to-transparent opacity-30" />
 			)}
 		</div>
 	)

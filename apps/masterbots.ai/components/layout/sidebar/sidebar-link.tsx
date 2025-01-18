@@ -79,9 +79,11 @@ export default function SidebarLink({
 			setActiveCategory,
 			setExpandedCategories,
 			setActiveChatbot,
-			router,
 			isFilterMode,
 			isBrowse,
+			navigateTo,
+			page,
+			slug,
 		],
 	)
 
@@ -106,7 +108,12 @@ export default function SidebarLink({
 						),
 			)
 		},
-		[category.categoryId, category.chatbots],
+		[
+			category.categoryId,
+			category.chatbots,
+			setSelectedCategories,
+			setSelectedChatbots,
+		],
 	)
 
 	const isActive = activeCategory === category.categoryId
@@ -228,14 +235,22 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
 					})
 				}
 			},
-			[chatbot, setActiveChatbot, isFilterMode],
+			[
+				chatbot,
+				setActiveChatbot,
+				category.name,
+				isBrowse,
+				navigateTo,
+				page,
+				slug,
+			],
 		)
 
 		const isSelected = selectedChatbots.includes(chatbot.chatbotId)
 
 		const handleCheckboxChange = useCallback(() => {
 			toggleChatbotSelection(chatbot.chatbotId)
-		}, [chatbot.chatbotId])
+		}, [chatbot.chatbotId, toggleChatbotSelection])
 
 		if (!isFilterMode && !isSelected) return null
 

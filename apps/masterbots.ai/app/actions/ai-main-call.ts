@@ -80,7 +80,7 @@ export async function improveMessage(
 		return cleanedResult
 	} catch (error) {
 		const originalText = handleImprovementError(
-			error,
+			error as Error,
 			content,
 			clientType,
 			model,
@@ -123,12 +123,19 @@ export async function processWithAi(
 		const messages = [
 			{ role: 'user', content: prompt },
 		] as ChatCompletionMessageParam[]
-		const processedMessages = setStreamerPayload(clientType, messages)
+
+		const processedMessages = setStreamerPayload(
+			clientType,
+			messages as ChatCompletionMessageParam[],
+		) as ChatCompletionMessageParam[]
 
 		const response = await createResponseStream(clientType, {
+			id: 'default-id',
 			model: AIModels.Default,
 			messages: processedMessages,
-		} as any)
+			previewToken: '',
+			webSearch: false,
+		})
 
 		if (!response.body) {
 			throw new Error('Response body is null')
@@ -181,7 +188,7 @@ function isInvalidResult(result: string, originalContent: string): boolean {
 }
 
 function handleImprovementError(
-	error: any,
+	error: Error,
 	originalContent: string,
 	clientType?: AiClientType,
 	model?: string,

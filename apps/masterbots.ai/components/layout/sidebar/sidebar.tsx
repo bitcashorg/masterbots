@@ -13,15 +13,16 @@ export function Sidebar({ className }: React.ComponentProps<'div'>) {
 	const prevPathRef = React.useRef(usePathname())
 	const pathname = usePathname()
 	const { setActiveThread, setIsOpenPopup } = useThread()
-	const rootAndChatRegex = /^\/(?:c)?$/
 
 	React.useEffect(() => {
+		const rootAndChatRegex = /^\/(?:c)?$/
+
 		if (rootAndChatRegex.test(pathname)) {
 			setActiveThread(null)
 			setIsOpenPopup(false)
 		}
 		prevPathRef.current = pathname
-	}, [pathname])
+	}, [pathname, setActiveThread, setIsOpenPopup])
 
 	if (isLoading) return null
 

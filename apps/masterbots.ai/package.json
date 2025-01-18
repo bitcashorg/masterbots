@@ -11,7 +11,8 @@
 		"preview": "next build && next start",
 		"type-check": "tsc --noEmit",
 		"format:write": "prettier --write \"{app,lib,components}/**/*.{ts,tsx,mdx}\" --cache",
-		"format:check": "prettier --check \"{app,lib,components}**/*.{ts,tsx,mdx}\" --cache"
+		"format:check": "prettier --check \"{app,lib,components}**/*.{ts,tsx,mdx}\" --cache",
+		"format-and-lint:fix": "biome check . --write"
 	},
 	"dependencies": {
 		"@ai-sdk/anthropic": "0.0.48",

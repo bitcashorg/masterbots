@@ -3,6 +3,7 @@ import BrowseSpecificThreadList from '@/components/routes/browse/browse-specific
 import { botNames } from '@/lib/constants/bots-names'
 import { generateMetadataFromSEO } from '@/lib/metadata'
 import { getBrowseThreads, getChatbot } from '@/services/hasura'
+import type { Thread } from 'mb-genql'
 import type { Metadata } from 'next'
 
 const PAGE_SIZE = 50
@@ -12,10 +13,7 @@ export default async function BotThreadsPage({
 }: {
 	params: { id: string }
 }) {
-	let chatbot
-	let threads
-
-	chatbot = await getChatbot({
+	const chatbot = await getChatbot({
 		chatbotName: botNames.get(params.id),
 		jwt: '',
 		threads: true,
@@ -23,7 +21,7 @@ export default async function BotThreadsPage({
 	if (!chatbot) throw new Error(`Chatbot ${botNames.get(params.id)} not found`)
 
 	// session will always be defined
-	threads = await getBrowseThreads({
+	const threads = await getBrowseThreads({
 		chatbotName: botNames.get(params.id),
 		limit: PAGE_SIZE,
 	})

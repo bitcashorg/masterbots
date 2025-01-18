@@ -46,17 +46,17 @@ export function BrowseChatMessages({
 	const [messages, setMessages] = React.useState<Message[]>([])
 
 	// Fetch messages for the specified thread ID
-	const fetchMessages = async () => {
+	const fetchMessages = React.useCallback(async () => {
 		if (threadId && !messages.length) {
 			const messages = await getMessages({ threadId: threadId })
 			setMessages(messages)
 		}
-	}
+	}, [threadId, messages.length])
 
 	// Effect to fetch messages when the thread ID changes
 	React.useEffect(() => {
 		fetchMessages()
-	}, [threadId])
+	}, [threadId, fetchMessages])
 
 	return (
 		<div className="w-full">

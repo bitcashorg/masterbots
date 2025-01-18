@@ -88,9 +88,9 @@ export async function GET(req: NextRequest) {
 				headers: { 'Content-Type': 'application/json' },
 			},
 		)
-	} catch (error: any) {
+	} catch (error: unknown) {
 		console.error('Error creating subscription:', error)
-		const stripeError = error?.raw || error
+		const stripeError = error as Stripe.StripeRawError
 		return new Response(JSON.stringify({ error: stripeError?.message }), {
 			status: stripeError?.statusCode || 500,
 			headers: { 'Content-Type': 'application/json' },
@@ -115,7 +115,7 @@ export async function PUT(req: NextRequest) {
 			limit: 1,
 		})
 
-		let customer
+		let customer: Stripe.Customer
 		if (customers.data.length > 0) {
 			// Use the existing customer
 			customer = customers.data[0]
@@ -142,9 +142,9 @@ export async function PUT(req: NextRequest) {
 			status: 200,
 			headers: { 'Content-Type': 'application/json' },
 		})
-	} catch (error: any) {
+	} catch (error: unknown) {
 		console.error('Error checking subscription:', error)
-		const stripeError = error?.raw || error
+		const stripeError = error as Stripe.StripeRawError
 		return new Response(JSON.stringify({ error: stripeError?.message }), {
 			status: stripeError?.statusCode || 500,
 			headers: { 'Content-Type': 'application/json' },

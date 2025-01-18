@@ -79,10 +79,10 @@ export function InnerCheckout({ prev, next }: WizardStepProps) {
 			handleSetLoading(false)
 			window.history.pushState({}, '', `/u/s/subs/${paymentIntent.id}`)
 			next()
-		} catch (error: any) {
+		} catch (error: unknown) {
 			console.error('Error confirm payment intent:', error)
 			handleSetLoading(false)
-			handleSetError(error?.message)
+			handleSetError((error as Error)?.message)
 		}
 	}
 

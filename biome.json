@@ -28,7 +28,7 @@
 				"noEmptyPattern": "warn"
 			},
 			"performance": {
-				"noAccumulatingSpread": "warn"
+				"noAccumulatingSpread": "info"
 			},
 			"suspicious": {
 				"recommended": true,

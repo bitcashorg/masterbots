@@ -43,7 +43,7 @@ export function Hero() {
 		return () => {
 			isActive = false
 		}
-	}, [slug, session])
+	}, [slug, getuserInfo])
 
 	return (
 		<div className="relative bg-left-bottom py-10 bg-[url('/hero-bg.png')] bg-no-repeat">

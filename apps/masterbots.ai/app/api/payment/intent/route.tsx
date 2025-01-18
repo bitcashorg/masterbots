@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
 			limit: 1,
 		})
 
-		let customer
+		let customer: Stripe.Customer
 		if (customers.data.length > 0) {
 			// Use the existing customer
 			customer = customers.data[0]

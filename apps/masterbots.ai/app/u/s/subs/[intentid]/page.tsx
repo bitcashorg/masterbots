@@ -32,9 +32,16 @@ export default async function IndexPage(props: IndexPageProps) {
 		userId: session?.user.id,
 		limit: 1,
 	})
-	let user
+	let user: User
+
 	if (threads.length > 0) {
-		user = threads[0]?.user
+		user =
+			threads[0]?.user ??
+			({
+				username: session?.user.name,
+				email: session?.user.email,
+				profilePicture: session?.user.image,
+			} as User)
 	} else {
 		user = {
 			username: session?.user.name,
