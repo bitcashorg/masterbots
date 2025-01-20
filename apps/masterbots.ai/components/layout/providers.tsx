@@ -13,30 +13,18 @@ import { ThreadVisibilityProvider } from '@/lib/hooks/use-thread-visibility'
 import { SessionProvider } from 'next-auth/react'
 import { Attribute, ThemeProvider as NextThemesProvider } from 'next-themes'
 
-
-interface ProvidersProps {
-  children: React.ReactNode
-  attribute?: Attribute
-  defaultTheme?: string
-  enableSystem?: boolean
+type ProvidersProps = {
+  children: React.ReactNode,
+  attribute?: Attribute,
+  defaultTheme?: string,
+  enableSystem?: boolean,
   disableTransitionOnChange?: boolean
 }
-
-export function Providers({ 
-  children, 
-  attribute,
-  defaultTheme,
-  enableSystem,
-  disableTransitionOnChange,
-  ...props 
-}: ProvidersProps) {
+export function Providers({ children, ...props }: ProvidersProps) {
+ 
   return (
     <NextThemesProvider 
-    attribute={attribute}
-    defaultTheme={defaultTheme}
-    enableSystem={enableSystem}
-    disableTransitionOnChange={disableTransitionOnChange}
-    {...props}
+     {...props}
     >
       <ModelProvider>
         <PaymentProvider>

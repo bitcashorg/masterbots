@@ -11,6 +11,7 @@ import { signOut } from 'next-auth/react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useCallback, useState } from 'react'
+import { urlBuilders } from '@/lib/url'
 
 interface ProfileSidebarProps {
   user: Session['user'] & {
@@ -49,7 +50,9 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
     const userSlug = toSlugWithUnderScore(user.name || '')
     if (userSlug) {
       setIsOpen(false)
-      router.push(`/u/${userSlug}/t`)
+      router.push(urlBuilders.userProfileUrl({
+        userSlug
+      }))
     }
   }, [router, user.name])
 
