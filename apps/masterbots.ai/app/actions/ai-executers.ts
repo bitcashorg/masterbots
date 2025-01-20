@@ -127,33 +127,19 @@ export async function getWebSearchTool({
       throw new Error('Web Search could not be completed.')
     }
 
-    if (!response.outputs['web search']?.output) {
+    if (
+      !response.outputs['web search']?.output &&
+      !response.outputs['web search']?.logs
+    ) {
       throw new Error('No output given. Web search could not be completed')
     }
 
-    return `${response.outputs['web search'].output}
-
-    ## EXAMPLE:
-
-    **Resume:**  
-    Brewers: 9  
-    Dodgers: 2
-
-    **Summary**  
-    Yelich, Perkins power Brewers to 9-2 victory over Dodgers and avoid being swept in weekend series. — Christian Yelich and Blake Perkins both homered, had three hits and drove in three runs as the Milwaukee Brewers beat the Los Angeles Dodgers 9-2 Sunday to snap a seven-game losing streak at Dodger Stadium.  
-
-    **Homeruns:**  
-    Yelich
-
-    **Winning Pitcher:**  
-    J. Junis
-
-    **Sources**:
-
-    1. [https://website1.com/](https://website1.com/)
-    2. [https://website2.com/](https://website2.com/)`
+    return `## INPUT:
+    
+    ${response.outputs['web search']?.output ?? response.outputs['web search']?.logs}`
   } catch (error) {
-    console.error('Error fetching app data: ', error)
-    throw error
+    return `Something went wrong with web search that failed to provide results. Please try again later.
+    
+    [ERROR LOG]: ${JSON.stringify(error, null, 2)}`
   }
 }
