@@ -59,6 +59,7 @@ export interface GetBrowseThreadsParams {
   slug?: string | null
   limit?: number
   offset?: number
+  followedUserId?: string
 }
 
 export interface GetChatbotsParams {
@@ -71,4 +72,11 @@ export interface GetMessagesParams extends GetHasuraClientParams {
   threadId: string
   limit?: number
   offset?: number
+}
+export  interface UpdateUserArgs {
+  pkColumns: { userId: string | undefined };
+  _set?: {
+    bio?: string;
+    favouriteTopic?: string;
+  };
 }

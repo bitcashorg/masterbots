@@ -88,9 +88,10 @@ export function isPasswordStrong(password: string): boolean {
   return strength >= 4 // Require at least a "Strong" password
 }
 
-export function validatePassword(e: React.FocusEvent<HTMLInputElement>,
-  t: (key: string) => string): void {
-
+export function validatePassword(
+  e: React.FocusEvent<HTMLInputElement>,
+  t: (key: string) => string
+): void {
   const password = e.target.value
   if (password.length < 8) {
     e.target.setCustomValidity('Password must be at least 8 characters long')

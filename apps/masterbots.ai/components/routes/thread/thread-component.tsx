@@ -40,7 +40,6 @@ import type { Thread } from 'mb-genql'
 import { useRef } from 'react'
 import { AdminModeApprove } from '../chat/admin-mode-approve'
 import { ChatOptions } from '../chat/chat-options'
-
 export default function ThreadComponent({
   thread,
   loadMore,
@@ -70,10 +69,13 @@ export default function ThreadComponent({
   })
 
   const threadId = thread.threadId
+  const handleAccordionToggle = () => {
+    scrollToTop()
+  }
   return (
     <li ref={threadRef}>
       <ChatAccordion
-        onToggle={scrollToTop}
+        onToggle={handleAccordionToggle}
         className="relative"
         contentClass="!pt-0 !border-b-[3px] max-h-[70vh] scrollbar !border-l-[3px]"
         triggerClass="gap-[0.375rem] py-3

@@ -60,7 +60,14 @@ export function BrowseChatMessages({
 
   return (
     <div className="w-full">
-      <BrowseChatbotDetails chatbot={chatbot} />
+      {chatbot ? (
+        <BrowseChatbotDetails
+          chatbot={chatbot}
+          variant={chatbot.name ? 'selected' : 'default'}
+        />
+      ) : (
+        ''
+      )}
       <div className="flex flex-col max-w-screen-lg px-4 mx-auto mt-8 gap-y-4">
         <BrowseChatMessageList
           user={user}

@@ -1,21 +1,21 @@
-import React from 'react'
-import { cn } from '@/lib/utils'
-import { useThread } from '@/lib/hooks/use-thread'
 import {
   cleanClickableText,
   extractTextFromReactNodeNormal,
   extractTextFromReactNodeWeb,
   parseClickableText,
-  transformLink
+  transformLink,
 } from '@/lib/clickable-results'
-import { ClickableTextProps } from '@/types/types'
+import { useThread } from '@/lib/hooks/use-thread'
+import { cn } from '@/lib/utils'
+import type { ClickableTextProps } from '@/types/types'
+import React from 'react'
 
 export function ClickableText({
   children,
   isListItem,
   sendMessageFromResponse,
   webSearchResults = [],
-  onReferenceFound
+  onReferenceFound,
 }: ClickableTextProps) {
   const { webSearch } = useThread()
 
@@ -33,7 +33,7 @@ export function ClickableText({
   const processLink = (linkElement: React.ReactElement) => {
     const href = linkElement.props.href
     // Buscar la referencia correspondiente
-    const reference = webSearchResults.find(result => result.url === href)
+    const reference = webSearchResults.find((result) => result.url === href)
 
     if (reference && onReferenceFound) {
       onReferenceFound(reference)
@@ -45,17 +45,13 @@ export function ClickableText({
 
   const renderClickableContent = (clickableText: string, restText: string) => (
     <>
-      <span
-        className={cn(
-          'cursor-pointer hover:underline',
-          isListItem ? 'text-blue-500' : 'text-link'
-        )}
+      <button
+        className={cn('cursor-pointer hover:underline bg-transparent border-none p-0 m-0', isListItem ? 'text-blue-500' : 'text-link')}
         onClick={createClickHandler(clickableText)}
-        role="button"
-        tabIndex={0}
+        type="button"
       >
         {clickableText}
-      </span>
+      </button>
       {restText}
     </>
   )
@@ -69,26 +65,24 @@ export function ClickableText({
         // Manejo de elementos strong
         if (content.type === 'strong') {
           const strongContent = extractTextFromReactNodeNormal(
-            (content.props as { children: React.ReactNode }).children
+            (content.props as { children: React.ReactNode }).children,
           )
-          const { clickableText, restText } = parseClickableText(
-            strongContent + ':'
-          )
+          const { clickableText, restText } = parseClickableText(strongContent + ':')
 
           if (clickableText.trim()) {
             return (
-              <span
+              <button
                 key={`clickable-${index}`}
                 className={cn(
                   'cursor-pointer hover:underline',
-                  isListItem ? 'text-blue-500' : 'text-link'
+                  isListItem ? 'text-blue-500' : 'text-link',
                 )}
                 onClick={createClickHandler(clickableText)}
-                role="button"
+                type="button"
                 tabIndex={0}
               >
                 {strongContent}
-              </span>
+              </button>
             )
           }
           return content
@@ -98,16 +92,15 @@ export function ClickableText({
         if (content.type === 'a' && webSearch) {
           const parentContext = extractedContent
             .filter(
-              item =>
-                typeof item === 'string' ||
-                (React.isValidElement(item) && item.type === 'strong')
+              (item) =>
+                typeof item === 'string' || (React.isValidElement(item) && item.type === 'strong'),
             )
-            .map(item =>
+            .map((item) =>
               typeof item === 'string'
                 ? item
                 : extractTextFromReactNodeNormal(
-                    (item.props as { children: React.ReactNode }).children
-                  )
+                  (item.props as { children: React.ReactNode }).children,
+                ),
             )
             .join(' ')
           return transformLink(content, parentContext)
@@ -134,9 +127,7 @@ export function ClickableText({
     return extractedContent
   }
 
-  const { clickableText, restText } = parseClickableText(
-    String(extractedContent)
-  )
+  const { clickableText, restText } = parseClickableText(String(extractedContent))
 
   if (!clickableText.trim()) {
     return <>{extractedContent}</>

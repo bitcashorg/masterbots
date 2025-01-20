@@ -1,11 +1,12 @@
-import { WordWareFlowPaths } from '@/types/wordware-flows.types'
+import type { WordWareFlowPaths } from '@/types/wordware-flows.types'
 import type { Message } from 'ai'
-import type { Chatbot, LabelChatbotCategory } from 'mb-genql'
+import type { UserRole } from 'mb-drizzle'
+import type { Chatbot, LabelChatbotCategory, SocialFollowing } from 'mb-genql'
 import 'next-auth'
 import type { DefaultSession, DefaultUser } from 'next-auth'
 import type { ChatCompletionMessageParam } from 'openai/resources'
+import type React from 'react'
 import type Stripe from 'stripe'
-import React from 'react';
 
 // * Chat types
 export interface Chat extends Record<string, any> {
@@ -118,17 +119,17 @@ export type Card = {
 }
 export const initialStateSubscription = {
   customer: {
-    name: ''
+    name: '',
   },
   plan: {
     amount: 0,
     interval: '',
     product: {
-      name: ''
-    }
+      name: '',
+    },
   },
   current_period_start: 0,
-  status: ''
+  status: '',
 }
 
 // * AI SDK related types
@@ -186,11 +187,13 @@ declare module 'next-auth' {
       email: string
       hasuraJwt: string
       role?: string
+      slug?: string
     } & DefaultSession['user']
   }
 
   interface User extends DefaultUser {
     role: string
+    slug: string
   }
 
   interface JWT {
@@ -226,20 +229,20 @@ export interface ChatMessageProps {
   sendMessageFromResponse?: (message: string) => void
   chatbot?: Chatbot
   actionRequired?: boolean
-  webSearchResults?: WebSearchResult[];
+  webSearchResults?: WebSearchResult[]
 }
 
-//* Reference result manipulations props 
+//* Reference result manipulations props
 export interface WebSearchResult {
-  title: string;
-  url: string;
-  description: string;
+  title: string
+  url: string
+  description: string
   thumbnail?: {
-    src: string;
-  };
+    src: string
+  }
   profile: {
-    name: string;
-  };
+    name: string
+  }
 }
 
 export interface ClickableTextProps {
@@ -249,3 +252,45 @@ export interface ClickableTextProps {
   webSearchResults?: WebSearchResult[]
   onReferenceFound?: (ref: WebSearchResult) => void
 }
+// * Drizzle Admin types
+export type AdminUserUpdate = {
+  isBlocked?: boolean
+  isVerified?: boolean
+  proUserSubscriptionId?: string
+  getFreeMonth?: boolean
+  role?: (typeof UserRole)[keyof typeof UserRole]
+}
+
+// * Chatbot details types
+export interface ChatbotDetailsProps {
+  botName?: string
+  avatar?: string
+  description?: string | null
+  threadCount?: number
+  followersCount?: number
+  isWelcomeView?: boolean
+  categoryName?: string
+  onNewChat?: () => void
+  followers?: SocialFollowing[]
+  onFollow?: () => void
+}
+
+export interface BrowseChatbotDetailsProps {
+  chatbot?: Chatbot
+  variant?: 'default' | 'selected'
+}
+
+export interface BrowseChatbotLayoutProps {
+  chatbot: Chatbot
+  variant: 'default' | 'selected'
+  isLoading: boolean
+  generateType?: string | undefined
+  lastMessage: string | null
+  onGenerateBio: () => void
+  isWelcomeView: boolean
+  descriptionPoints: string[]
+  hasMultiplePoints: boolean
+  botUrl: string
+}
+
+export type UUID = `${string}-${string}-${string}-${string}-${string}`

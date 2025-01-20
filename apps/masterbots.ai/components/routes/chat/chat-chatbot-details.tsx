@@ -1,98 +1,158 @@
-//* Component for displaying details of the selected chatbot
-
-'use client'
-
-import { Separator } from '@/components/ui/separator'
+import { ChatChatbotDetailsSkeleton } from '@/components/shared/skeletons/chat-chatbot-details-skeleton'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
-import { getCategory, getThreads } from '@/services/hasura'
+import { getCategory, getThreads, chatbotFollowOrUnfollow } from '@/services/hasura'
 import { useSession } from 'next-auth/react'
-import Image from 'next/image'
+import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import type { SocialFollowing } from 'mb-genql'
+import { OnboardingChatbotDetails } from '@/components/routes/chat/onboarding-chatbot-details'
+import { OnboardingMobileChatbotDetails } from '@/components/routes/chat/onboarding-chatbot-mobile-details'
+import { useSonner } from '@/lib/hooks/useSonner'
 
 export default function ChatChatbotDetails() {
-  const { data: session } = useSession() //* Retrieves session data using next-auth
-  const { activeCategory, activeChatbot } = useSidebar() //* Retrieves active category and chatbot from sidebar state
-  const { randomChatbot } = useThread() //* Retrieves a random chatbot from thread state
-  const [threadNum, setThreadNum] = useState<number>(0) //* Stores the number of threads
-  const [categoryName, setCategoryName] = useState<string>('') //* Stores the name of the active category
+  const { data: session } = useSession()
+  const { activeCategory, activeChatbot } = useSidebar()
+  const { randomChatbot } = useThread()
+  const [isFollowLoading, setIsFollowLoading] = useState<boolean>(false)
+  const [followers, setFollowers] = useState<SocialFollowing[]>(activeChatbot?.followers || []);
 
-  //* Fetches the number of threads for the active category and user
+  const [threadNum, setThreadNum] = useState<number>(0)
+  const [categoryName, setCategoryName] = useState<string>('')
+  const [isLoading, setIsLoading] = useState(true)
+  const router = useRouter();
+  const {customSonner} = useSonner()
+
+  const handleFollow = async () => {
+   try {
+    if (!session) {
+      customSonner({type: 'error', text: 'Please sign in to follow user'})
+      router.push('/auth/signin')
+      return
+    }
+
+    setIsFollowLoading(true)
+    const followerId = session.user?.id
+    const followeeId = activeChatbot?.chatbotId
+    if (!followerId) {
+      customSonner({type: 'error', text: 'Invalid user data'})
+      return;
+     }
+
+    if (!followeeId) {
+      customSonner({type: 'error', text: 'Invalid chatbot data, please select a chatbot'})
+      return;
+      }
+    const {success, error, follow} =  await chatbotFollowOrUnfollow({followerId, followeeId, jwt: session.user.hasuraJwt as string})
+    if(!success){
+      console.error('Failed to follow/Unfolow bot:', error)
+      customSonner({type: 'error', text: error || 'Failed to follow/unfollow bot'})
+      return
+    }
+    if(follow){
+      setFollowers([
+        ...followers,
+        {
+            followerId: followerId,
+            followeeId: null,
+            followeeIdChatbot: followeeId,
+            chatbot: null,
+            createdAt: new Date().toISOString(),
+            userByFollowerId: null as unknown, 
+            user: null,
+            __typename: 'SocialFollowing'
+        } as SocialFollowing  
+    ]);
+   }else{
+    setFollowers(followers.filter(follower => !(follower.followerId === followerId && follower.followeeIdChatbot === followeeId)))
+    }
+  
+    customSonner({type: 'success', text: follow ? `You have followed ${activeChatbot?.name} successfully` : `You have  unfollowed  ${activeChatbot?.name}`})
+   }  catch (error) {
+    setIsFollowLoading(false)
+    customSonner({type: 'error', text: 'Failed to follow user'})
+    console.error('Failed to follow user:', error)
+  } finally {
+    setIsFollowLoading(false)
+  }
+  }
   const getThreadNum = async () => {
     if (!session?.user) return
-
-    const threads = await getThreads({
-      jwt: session?.user?.hasuraJwt as string,
-      categoryId: activeCategory,
-      userId: session?.user.id as string
-    })
-    setThreadNum(threads?.length ?? 0) //* Updates thread number state
+    try {
+      const threads = await getThreads({
+        jwt: session?.user?.hasuraJwt as string,
+        categoryId: activeCategory,
+        userId: session?.user.id as string
+      })
+      setThreadNum(threads?.length ?? 0)
+    } catch (error) {
+      console.error('Error fetching threads:', error)
+    }
   }
 
-  //* Fetches the name of the active category
   const getCategoryName = async () => {
-    const category = await getCategory({ categoryId: activeCategory as number }) //* Retrieves category details
-    setCategoryName(category.name) //* Updates category name state
+    try {
+      const category = await getCategory({
+        categoryId: activeCategory as number
+      })
+      setCategoryName(category.name)
+    } catch (error) {
+      console.error('Error fetching category:', error)
+    }
   }
+  // eslint-disable-next-line react-hooks/rules-of-hooks
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
-    //* Effect to fetch thread number or category name based on active category
-    if (!activeCategory) {
-      getThreadNum() //* Fetch thread number if no category is active
-    } else {
-      getCategoryName()
+    const fetchData = async () => {
+      setIsLoading(true)
+      try {
+        if (!activeCategory) {
+          await getThreadNum()
+        } else {
+          await getCategoryName()
+        }
+      } finally {
+        setIsLoading(false)
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    fetchData()
   }, [activeCategory, activeChatbot, session?.user])
 
+  if (isLoading || !session?.user) return <ChatChatbotDetailsSkeleton />
+
+  const botName = activeChatbot?.name || 'BuildBot'
+  const isWelcomeView = !activeChatbot?.name
+
+  // Event handlers
+  const handleNewChat = () => {
+    // new chat logic
+    console.log('Starting new chat with:', botName)
+  }
+
+  
+  const sharedProps = {
+    botName,
+    avatar: activeChatbot?.avatar || randomChatbot?.avatar || '',
+    description: activeChatbot?.description,
+    threadCount: activeChatbot
+      ? (activeChatbot?.threads?.length ?? 0)
+      : threadNum,
+    followersCount: followers.length || 0, // This nees to be changed once following feat is ready
+    isWelcomeView,
+    categoryName,
+    onNewChat: handleNewChat,
+    onFollow: handleFollow,
+    followers
+  }
+
+ 
   return (
-    <div className="h-[calc(100vh-196px)] flex items-center justify-center">
-      <div
-        className="dark:bg-[#09090B] bg-white rounded-lg md:w-[600px] w-[85%]
-        flex flex-col gap-[10px] relative font-mono"
-      >
-        <div className="w-[70%] flex flex-col gap-[10px] px-[24px] pt-[24px]">
-          <div className="text-2xl font-black">
-            {activeChatbot ? activeChatbot?.name : 'Welcome to Masterbots!'}
-          </div>
-          <Separator className="bg-gray-300 dark:bg-mirage" />
-          <div className="grow flex flex-col justify-between min-h-[137px]">
-            <div className="text-xl font-semibold">
-              {activeChatbot
-                ? categoryName
-                : activeCategory
-                  ? `You are on the ${categoryName} category. Please select one of the bots on the sidebar to start a conversation.`
-                  : 'Please select one of the categories and a bot on the sidebar to start a conversation.'}
-            </div>
-            <div className="text-base gap-[8px] flex flex-col pb-[8px]">
-              {/* biome-ignore lint/complexity/useOptionalChain: <explanation> */}
-              {activeChatbot && activeChatbot?.description ? (
-                <div className="font-medium">{activeChatbot.description}</div>
-              ) : (
-                ''
-              )}
-              <div className="font-light">
-                Threads made:{' '}
-                <span className="text-[#71717A]">
-                  {activeChatbot
-                    ? (activeChatbot?.threads?.length ?? 0)
-                    : threadNum}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="size-24 absolute border-4 border-[#388DE2] right-0 top-0 translate-x-1/4 rounded-full translate-y-1/4 dark:bg-[#131316] bg-white">
-          <Image
-            className="transition-opacity duration-300 rounded-full select-none size-full ring-1 ring-zinc-100/10 hover:opacity-80"
-            src={activeChatbot?.avatar || randomChatbot?.avatar || ''}
-            alt={activeChatbot?.avatar || randomChatbot?.avatar || 'ChatAvatar'}
-            height={108}
-            width={108}
-          />
-        </div>
-      </div>
-    </div>
+    <>
+      <OnboardingChatbotDetails {...sharedProps} />
+      <OnboardingMobileChatbotDetails {...sharedProps} />
+    </>
   )
 }

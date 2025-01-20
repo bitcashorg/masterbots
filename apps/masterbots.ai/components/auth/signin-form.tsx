@@ -4,12 +4,12 @@ import { LoginButton } from '@/components/shared/login-button'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Eye, EyeOff } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { Eye, EyeOff } from 'lucide-react'
 
 export default function SignInForm() {
   const router = useRouter()
@@ -56,11 +56,11 @@ export default function SignInForm() {
           Password
         </Label>
         <div className="relative">
-          <Input 
-            id="password" 
-            name="password" 
-            type={showPassword ? 'text' : 'password'} 
-            required 
+          <Input
+            id="password"
+            name="password"
+            type={showPassword ? 'text' : 'password'}
+            required
             className="pr-10"
           />
           <button

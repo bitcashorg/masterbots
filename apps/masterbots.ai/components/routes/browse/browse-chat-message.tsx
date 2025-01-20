@@ -37,11 +37,7 @@ export interface ChatMessageProps {
   chatbot?: Chatbot
 }
 
-export function BrowseChatMessage({
-  message,
-  chatbot,
-  ...props
-}: ChatMessageProps) {
+export function BrowseChatMessage({ message, chatbot, ...props }: ChatMessageProps) {
   const cleanMessage = { ...message, content: cleanPrompt(message.content) }
 
   return (
@@ -63,9 +59,7 @@ export function BrowseChatMessage({
             code({ node, inline, className, children, ...props }) {
               if (children.length) {
                 if (children[0] == '▍') {
-                  return (
-                    <span className="mt-1 cursor-default animate-pulse">▍</span>
-                  )
+                  return <span className="mt-1 cursor-default animate-pulse">▍</span>
                 }
 
                 children[0] = (children[0] as string).replace('`▍`', '▍')
@@ -89,7 +83,7 @@ export function BrowseChatMessage({
                   {...props}
                 />
               )
-            }
+            },
           }}
         >
           {cleanMessage.content}

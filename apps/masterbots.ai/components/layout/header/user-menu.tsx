@@ -11,6 +11,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import Link from 'next/link'
+import { toSlugWithUnderScore } from 'mb-lib'
+import { ThemeToggle } from '@/components/shared/theme-toggle'
+import { useTheme } from 'next-themes'
+import { urlBuilders } from '@/lib/url'
 
 export interface UserMenuProps {
   user: Session['user']
@@ -22,13 +27,16 @@ function getUserInitials(name: string) {
 }
 
 function truncateUsername(username: string | null | undefined, maxLength = 10) {
-  if (!username) return '';
-  return username.length > maxLength ? `${username.slice(0, maxLength - 4)}` : username;
+  if (!username) return ''
+  return username.length > maxLength
+    ? `${username.slice(0, maxLength - 4)}`
+    : username
 }
 
 export function UserMenu({ user }: UserMenuProps) {
+  const { theme } = useTheme()
   return (
-    <div className="flex items-center justify-between">
+    <div className="items-center justify-between hidden md:block">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="pl-0 rounded-full">
@@ -46,14 +54,32 @@ export function UserMenu({ user }: UserMenuProps) {
               </div>
             )}
             <span className="ml-2">
-            {user?.name && truncateUsername(user.name)}
-              </span>
+              {user?.name && truncateUsername(user.name)}
+            </span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent sideOffset={8} align="start" className="w-[180px]">
           <DropdownMenuItem className="flex-col items-start">
-            <div className="text-xs font-medium">{user?.name}</div>
-            <div className="text-xs text-zinc-500">{user?.email}</div>
+            <Link
+              href={urlBuilders.userProfileUrl({
+                userSlug: user?.slug
+                  ? user.slug
+                  : toSlugWithUnderScore(user?.name || '')
+              })}
+              className="text-xs"
+            >
+              <div className="text-xs font-medium">{user?.name}</div>
+              <div className="text-xs text-zinc-500">{user?.email}</div>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem className="w-full">
+            <div className="flex items-center justify-between w-full">
+              <span className="text-xs">
+                {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+              </span>
+              <ThemeToggle />
+            </div>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem

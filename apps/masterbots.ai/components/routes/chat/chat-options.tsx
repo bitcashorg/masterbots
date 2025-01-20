@@ -1,3 +1,4 @@
+import { FontSizeSelector } from '@/components/shared/font-size-selector'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,8 +24,8 @@ import type { Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import type React from 'react'
 import { useState } from 'react'
-import toast from 'react-hot-toast'
 import { ShareButton } from './share-button'
+import { useSonner } from '@/lib/hooks/useSonner'
 
 interface ChatOptionsProps {
   threadId: string
@@ -42,6 +43,7 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
   const url = `/${toSlug(thread.chatbot.categories[0].category.name)}/${thread.threadId}`
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const { customSonner } = useSonner()
 
   const handleDelete = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -50,9 +52,9 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
     setIsDeleting(true)
     const result = await initiateDeleteThread(threadId)
     if (result?.success) {
-      toast.success(result.message)
+      customSonner({ type: 'success', text: result.message })
     } else {
-      toast.error(result?.message)
+      customSonner({ type: 'error', text: result?.error })
     }
     setIsDeleting(false)
     setIsDeleteOpen(false)
@@ -129,6 +131,14 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
           align="end"
           className="w-[160px] sm:w-[180px] px-0"
         >
+          {/* Font Size Selector */}
+          <DropdownMenuItem
+            className="flex-col items-start px-0"
+            onSelect={event => event.preventDefault()}
+          >
+            <FontSizeSelector />
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           {/* Toggle thread visibility option (only for thread owner) */}
           {isUser && (
             <DropdownMenuItem

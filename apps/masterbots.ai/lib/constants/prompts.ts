@@ -111,6 +111,36 @@ export function followingQuestionsPrompt(
   )}].  Then answer this question: ${userContent}`
 }
 
+export function UserPersonalityPrompt(
+  userPromptType: string,
+  allMessages: Message[]
+) {
+  const userMessages = getAllUserMessagesAsStringArray(allMessages)
+
+  const basePrompt = `Given a user's thread history: "${userMessages}".
+    
+    Analyze their post patterns to generate insights about this user by considering:
+    - Common themes and topics in their posts
+    - Their interests and passions based on questions asked
+    - Writing style and personality traits shown
+    - Question patterns and engagement style
+    
+    ${
+      userPromptType === 'bio'
+        ? `Return a concise 2 sentence or 340 characters long  bio highlighting their key interests and personality.
+         The bio should be engaging, personal and include relevant emojis if appropriate.
+         
+         Example bio format:
+         "Health enthusiast on a journey of wellness discovery. Passionate about understanding 
+         the human body and exploring ways to maintain optimal health. Always eager to learn
+         more about medical knowledge and preventive care. 🌱💪"`
+        : `Return their primary topic of interest based on frequency and engagement pattern.
+         Format: "TOPIC". If the topic is unclear, return "unclear".`
+    }`
+
+  return basePrompt
+}
+
 export function setDefaultUserPreferencesPrompt(chatbot: Chatbot): Message {
   return {
     id: nanoid(),

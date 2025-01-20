@@ -3,11 +3,11 @@ import { MemoizedReactMarkdown } from '@/components/shared/markdown'
 import { CodeBlock } from '@/components/ui/codeblock'
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { cn } from '@/lib/utils'
-import { ClickableText } from './chat-clickable-text'
+import type { ChatMessageProps, WebSearchResult } from '@/types/types'
+import { useState } from 'react'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
-import { useState } from 'react'
-import { ChatMessageProps, WebSearchResult } from '@/types/types'
+import { ClickableText } from './chat-clickable-text'
 
 export function ChatMessage({
   message,
@@ -145,16 +145,18 @@ export function ChatMessage({
                   {...props}
                 />
               )
-            }
+            },
           }}
         >
           {cleanMessage.content}
         </MemoizedReactMarkdown>
-        {actionRequired ? (
-          <ChatMessageActions className="md:!right-0" message={message} />
-        ) : null}
+        {
+          actionRequired ? (
+            <ChatMessageActions className="md:!right-0" message={message} />
+          ) : null
+        }
         <ReferencesSection />
-      </div>
-    </div>
+      </div >
+    </div >
   )
 }

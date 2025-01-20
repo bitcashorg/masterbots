@@ -1,17 +1,18 @@
 'use client'
 
-import type React from 'react'
-import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { toast } from 'react-hot-toast'
+import { useSonner } from '@/lib/hooks/useSonner'
 import { validateEmail } from '@/lib/utils'
+import type React from 'react'
+import { useState } from 'react'
 
 export default function ForgotPasswordForm() {
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [emailError, setEmailError] = useState('')
+  const { customSonner } = useSonner()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -34,14 +35,14 @@ export default function ForgotPasswordForm() {
       const data = await response.json()
 
       if (response.ok) {
-        toast.success(data.message)
+        customSonner({ type: 'success', text: data.message })
         setEmail('')
       } else {
-        toast.error(data.error || 'An error occurred')
+        customSonner({ type: 'error', text: data.error || 'An error occurred' })
       }
     } catch (error) {
       console.error('Error:', error)
-      toast.error('An unexpected error occurred')
+      customSonner({ type: 'error', text: 'An unexpected error occurred' })
     } finally {
       setIsLoading(false)
     }

@@ -798,6 +798,42 @@ type Chatbot {
   defaultType: String
   description: String
 
+  """An array relationship"""
+  followers(
+    """distinct select on columns"""
+    distinctOn: [SocialFollowingSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [SocialFollowingOrderBy!]
+
+    """filter the rows returned"""
+    where: SocialFollowingBoolExp
+  ): [SocialFollowing!]!
+
+  """An aggregate relationship"""
+  followersAggregate(
+    """distinct select on columns"""
+    distinctOn: [SocialFollowingSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [SocialFollowingOrderBy!]
+
+    """filter the rows returned"""
+    where: SocialFollowingBoolExp
+  ): SocialFollowingAggregate!
+
   """An object relationship"""
   lengthEnum: LengthEnum
 
@@ -1041,6 +1077,8 @@ input ChatbotBoolExp {
   defaultTone: StringComparisonExp
   defaultType: StringComparisonExp
   description: StringComparisonExp
+  followers: SocialFollowingBoolExp
+  followersAggregate: SocialFollowingAggregateBoolExp
   lengthEnum: LengthEnumBoolExp
   metadataLabels: LabelChatbotCategoryBoolExp
   metadataLabelsAggregate: LabelChatbotCategoryAggregateBoolExp
@@ -1434,6 +1472,7 @@ input ChatbotInsertInput {
   defaultTone: String
   defaultType: String
   description: String
+  followers: SocialFollowingArrRelInsertInput
   lengthEnum: LengthEnumObjRelInsertInput
   metadataLabels: LabelChatbotCategoryArrRelInsertInput
   name: String
@@ -1543,6 +1582,7 @@ input ChatbotOrderBy {
   defaultTone: OrderBy
   defaultType: OrderBy
   description: OrderBy
+  followersAggregate: SocialFollowingAggregateOrderBy
   lengthEnum: LengthEnumOrderBy
   metadataLabelsAggregate: LabelChatbotCategoryAggregateOrderBy
   name: OrderBy
@@ -5620,6 +5660,324 @@ input ReferralUpdates {
 }
 
 """
+This junction table records social following relationships between users. Each record represents a follower-followee relationship.
+"""
+type SocialFollowing {
+  """An object relationship"""
+  chatbot: Chatbot
+  createdAt: timestamptz!
+  followeeId: uuid
+  followeeIdChatbot: Int
+  followerId: uuid!
+
+  """An object relationship"""
+  user: User
+
+  """An object relationship"""
+  userByFollowerId: User!
+}
+
+"""
+aggregated selection of "social_following"
+"""
+type SocialFollowingAggregate {
+  aggregate: SocialFollowingAggregateFields
+  nodes: [SocialFollowing!]!
+}
+
+input SocialFollowingAggregateBoolExp {
+  count: socialFollowingAggregateBoolExpCount
+}
+
+"""
+aggregate fields of "social_following"
+"""
+type SocialFollowingAggregateFields {
+  avg: SocialFollowingAvgFields
+  count(columns: [SocialFollowingSelectColumn!], distinct: Boolean): Int!
+  max: SocialFollowingMaxFields
+  min: SocialFollowingMinFields
+  stddev: SocialFollowingStddevFields
+  stddevPop: SocialFollowingStddevPopFields
+  stddevSamp: SocialFollowingStddevSampFields
+  sum: SocialFollowingSumFields
+  varPop: SocialFollowingVarPopFields
+  varSamp: SocialFollowingVarSampFields
+  variance: SocialFollowingVarianceFields
+}
+
+"""
+order by aggregate values of table "social_following"
+"""
+input SocialFollowingAggregateOrderBy {
+  avg: SocialFollowingAvgOrderBy
+  count: OrderBy
+  max: SocialFollowingMaxOrderBy
+  min: SocialFollowingMinOrderBy
+  stddev: SocialFollowingStddevOrderBy
+  stddevPop: SocialFollowingStddevPopOrderBy
+  stddevSamp: SocialFollowingStddevSampOrderBy
+  sum: SocialFollowingSumOrderBy
+  varPop: SocialFollowingVarPopOrderBy
+  varSamp: SocialFollowingVarSampOrderBy
+  variance: SocialFollowingVarianceOrderBy
+}
+
+"""
+input type for inserting array relation for remote table "social_following"
+"""
+input SocialFollowingArrRelInsertInput {
+  data: [SocialFollowingInsertInput!]!
+}
+
+"""aggregate avg on columns"""
+type SocialFollowingAvgFields {
+  followeeIdChatbot: Float
+}
+
+"""
+order by avg() on columns of table "social_following"
+"""
+input SocialFollowingAvgOrderBy {
+  followeeIdChatbot: OrderBy
+}
+
+"""
+Boolean expression to filter rows from the table "social_following". All fields are combined with a logical 'AND'.
+"""
+input SocialFollowingBoolExp {
+  _and: [SocialFollowingBoolExp!]
+  _not: SocialFollowingBoolExp
+  _or: [SocialFollowingBoolExp!]
+  chatbot: ChatbotBoolExp
+  createdAt: TimestamptzComparisonExp
+  followeeId: UuidComparisonExp
+  followeeIdChatbot: IntComparisonExp
+  followerId: UuidComparisonExp
+  user: UserBoolExp
+  userByFollowerId: UserBoolExp
+}
+
+"""
+input type for incrementing numeric columns in table "social_following"
+"""
+input SocialFollowingIncInput {
+  followeeIdChatbot: Int
+}
+
+"""
+input type for inserting data into table "social_following"
+"""
+input SocialFollowingInsertInput {
+  chatbot: ChatbotObjRelInsertInput
+  createdAt: timestamptz
+  followeeId: uuid
+  followeeIdChatbot: Int
+  followerId: uuid
+  user: UserObjRelInsertInput
+  userByFollowerId: UserObjRelInsertInput
+}
+
+"""aggregate max on columns"""
+type SocialFollowingMaxFields {
+  createdAt: timestamptz
+  followeeId: uuid
+  followeeIdChatbot: Int
+  followerId: uuid
+}
+
+"""
+order by max() on columns of table "social_following"
+"""
+input SocialFollowingMaxOrderBy {
+  createdAt: OrderBy
+  followeeId: OrderBy
+  followeeIdChatbot: OrderBy
+  followerId: OrderBy
+}
+
+"""aggregate min on columns"""
+type SocialFollowingMinFields {
+  createdAt: timestamptz
+  followeeId: uuid
+  followeeIdChatbot: Int
+  followerId: uuid
+}
+
+"""
+order by min() on columns of table "social_following"
+"""
+input SocialFollowingMinOrderBy {
+  createdAt: OrderBy
+  followeeId: OrderBy
+  followeeIdChatbot: OrderBy
+  followerId: OrderBy
+}
+
+"""
+response of any mutation on the table "social_following"
+"""
+type SocialFollowingMutationResponse {
+  """number of rows affected by the mutation"""
+  affectedRows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [SocialFollowing!]!
+}
+
+"""Ordering options when selecting data from "social_following"."""
+input SocialFollowingOrderBy {
+  chatbot: ChatbotOrderBy
+  createdAt: OrderBy
+  followeeId: OrderBy
+  followeeIdChatbot: OrderBy
+  followerId: OrderBy
+  user: UserOrderBy
+  userByFollowerId: UserOrderBy
+}
+
+"""
+select columns of table "social_following"
+"""
+enum SocialFollowingSelectColumn {
+  """column name"""
+  createdAt
+
+  """column name"""
+  followeeId
+
+  """column name"""
+  followeeIdChatbot
+
+  """column name"""
+  followerId
+}
+
+"""
+input type for updating data in table "social_following"
+"""
+input SocialFollowingSetInput {
+  createdAt: timestamptz
+  followeeId: uuid
+  followeeIdChatbot: Int
+  followerId: uuid
+}
+
+"""aggregate stddev on columns"""
+type SocialFollowingStddevFields {
+  followeeIdChatbot: Float
+}
+
+"""
+order by stddev() on columns of table "social_following"
+"""
+input SocialFollowingStddevOrderBy {
+  followeeIdChatbot: OrderBy
+}
+
+"""aggregate stddevPop on columns"""
+type SocialFollowingStddevPopFields {
+  followeeIdChatbot: Float
+}
+
+"""
+order by stddevPop() on columns of table "social_following"
+"""
+input SocialFollowingStddevPopOrderBy {
+  followeeIdChatbot: OrderBy
+}
+
+"""aggregate stddevSamp on columns"""
+type SocialFollowingStddevSampFields {
+  followeeIdChatbot: Float
+}
+
+"""
+order by stddevSamp() on columns of table "social_following"
+"""
+input SocialFollowingStddevSampOrderBy {
+  followeeIdChatbot: OrderBy
+}
+
+"""
+Streaming cursor of the table "social_following"
+"""
+input SocialFollowingStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: SocialFollowingStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input SocialFollowingStreamCursorValueInput {
+  createdAt: timestamptz
+  followeeId: uuid
+  followeeIdChatbot: Int
+  followerId: uuid
+}
+
+"""aggregate sum on columns"""
+type SocialFollowingSumFields {
+  followeeIdChatbot: Int
+}
+
+"""
+order by sum() on columns of table "social_following"
+"""
+input SocialFollowingSumOrderBy {
+  followeeIdChatbot: OrderBy
+}
+
+input SocialFollowingUpdates {
+  """increments the numeric columns with given value of the filtered values"""
+  _inc: SocialFollowingIncInput
+
+  """sets the columns of the filtered rows to the given values"""
+  _set: SocialFollowingSetInput
+
+  """filter the rows which have to be updated"""
+  where: SocialFollowingBoolExp!
+}
+
+"""aggregate varPop on columns"""
+type SocialFollowingVarPopFields {
+  followeeIdChatbot: Float
+}
+
+"""
+order by varPop() on columns of table "social_following"
+"""
+input SocialFollowingVarPopOrderBy {
+  followeeIdChatbot: OrderBy
+}
+
+"""aggregate varSamp on columns"""
+type SocialFollowingVarSampFields {
+  followeeIdChatbot: Float
+}
+
+"""
+order by varSamp() on columns of table "social_following"
+"""
+input SocialFollowingVarSampOrderBy {
+  followeeIdChatbot: OrderBy
+}
+
+"""aggregate variance on columns"""
+type SocialFollowingVarianceFields {
+  followeeIdChatbot: Float
+}
+
+"""
+order by variance() on columns of table "social_following"
+"""
+input SocialFollowingVarianceOrderBy {
+  followeeIdChatbot: OrderBy
+}
+
+"""
 Boolean expression to compare columns of type "String". All fields are combined with logical 'AND'.
 """
 input StringComparisonExp {
@@ -6854,6 +7212,8 @@ input TypeEnumUpdates {
 
 """Table storing information about registered users."""
 type User {
+  bio: String
+
   """An array relationship"""
   chats(
     """distinct select on columns"""
@@ -6891,6 +7251,79 @@ type User {
   ): ChatAggregate!
   dateJoined: timestamptz!
   email: String!
+  favouriteTopic: String
+
+  """An array relationship"""
+  followers(
+    """distinct select on columns"""
+    distinctOn: [SocialFollowingSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [SocialFollowingOrderBy!]
+
+    """filter the rows returned"""
+    where: SocialFollowingBoolExp
+  ): [SocialFollowing!]!
+
+  """An aggregate relationship"""
+  followersAggregate(
+    """distinct select on columns"""
+    distinctOn: [SocialFollowingSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [SocialFollowingOrderBy!]
+
+    """filter the rows returned"""
+    where: SocialFollowingBoolExp
+  ): SocialFollowingAggregate!
+
+  """An array relationship"""
+  following(
+    """distinct select on columns"""
+    distinctOn: [SocialFollowingSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [SocialFollowingOrderBy!]
+
+    """filter the rows returned"""
+    where: SocialFollowingBoolExp
+  ): [SocialFollowing!]!
+
+  """An aggregate relationship"""
+  followingAggregate(
+    """distinct select on columns"""
+    distinctOn: [SocialFollowingSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [SocialFollowingOrderBy!]
+
+    """filter the rows returned"""
+    where: SocialFollowingBoolExp
+  ): SocialFollowingAggregate!
   getFreeMonth: Boolean
   isBlocked: Boolean
   isVerified: Boolean
@@ -7042,6 +7475,7 @@ type User {
     """filter the rows returned"""
     where: ReferralBoolExp
   ): ReferralAggregate!
+  role: user_role!
   slug: String!
 
   """An array relationship"""
@@ -7143,10 +7577,16 @@ input UserBoolExp {
   _and: [UserBoolExp!]
   _not: UserBoolExp
   _or: [UserBoolExp!]
+  bio: StringComparisonExp
   chats: ChatBoolExp
   chatsAggregate: ChatAggregateBoolExp
   dateJoined: TimestamptzComparisonExp
   email: StringComparisonExp
+  favouriteTopic: StringComparisonExp
+  followers: SocialFollowingBoolExp
+  followersAggregate: SocialFollowingAggregateBoolExp
+  following: SocialFollowingBoolExp
+  followingAggregate: SocialFollowingAggregateBoolExp
   getFreeMonth: BooleanComparisonExp
   isBlocked: BooleanComparisonExp
   isVerified: BooleanComparisonExp
@@ -7162,6 +7602,7 @@ input UserBoolExp {
   referralsAggregate: ReferralAggregateBoolExp
   referralsByUserId: ReferralBoolExp
   referralsByUserIdAggregate: ReferralAggregateBoolExp
+  role: UserRoleComparisonExp
   slug: StringComparisonExp
   threads: ThreadBoolExp
   threadsAggregate: ThreadAggregateBoolExp
@@ -7200,9 +7641,13 @@ enum UserConstraint {
 input type for inserting data into table "user"
 """
 input UserInsertInput {
+  bio: String
   chats: ChatArrRelInsertInput
   dateJoined: timestamptz
   email: String
+  favouriteTopic: String
+  followers: SocialFollowingArrRelInsertInput
+  following: SocialFollowingArrRelInsertInput
   getFreeMonth: Boolean
   isBlocked: Boolean
   isVerified: Boolean
@@ -7214,6 +7659,7 @@ input UserInsertInput {
   prompts: PromptUserArrRelInsertInput
   referrals: ReferralArrRelInsertInput
   referralsByUserId: ReferralArrRelInsertInput
+  role: user_role
   slug: String
   threads: ThreadArrRelInsertInput
   userId: uuid
@@ -7223,12 +7669,15 @@ input UserInsertInput {
 
 """aggregate max on columns"""
 type UserMaxFields {
+  bio: String
   dateJoined: timestamptz
   email: String
+  favouriteTopic: String
   lastLogin: timestamptz
   password: String
   proUserSubscriptionId: String
   profilePicture: String
+  role: user_role
   slug: String
   userId: uuid
   username: String
@@ -7236,12 +7685,15 @@ type UserMaxFields {
 
 """aggregate min on columns"""
 type UserMinFields {
+  bio: String
   dateJoined: timestamptz
   email: String
+  favouriteTopic: String
   lastLogin: timestamptz
   password: String
   proUserSubscriptionId: String
   profilePicture: String
+  role: user_role
   slug: String
   userId: uuid
   username: String
@@ -7279,9 +7731,13 @@ input UserOnConflict {
 
 """Ordering options when selecting data from "user"."""
 input UserOrderBy {
+  bio: OrderBy
   chatsAggregate: ChatAggregateOrderBy
   dateJoined: OrderBy
   email: OrderBy
+  favouriteTopic: OrderBy
+  followersAggregate: SocialFollowingAggregateOrderBy
+  followingAggregate: SocialFollowingAggregateOrderBy
   getFreeMonth: OrderBy
   isBlocked: OrderBy
   isVerified: OrderBy
@@ -7293,6 +7749,7 @@ input UserOrderBy {
   promptsAggregate: PromptUserAggregateOrderBy
   referralsAggregate: ReferralAggregateOrderBy
   referralsByUserIdAggregate: ReferralAggregateOrderBy
+  role: OrderBy
   slug: OrderBy
   threadsAggregate: ThreadAggregateOrderBy
   userId: OrderBy
@@ -7306,14 +7763,35 @@ input UserPkColumnsInput {
 }
 
 """
+Boolean expression to compare columns of type "user_role". All fields are combined with logical 'AND'.
+"""
+input UserRoleComparisonExp {
+  _eq: user_role
+  _gt: user_role
+  _gte: user_role
+  _in: [user_role!]
+  _isNull: Boolean
+  _lt: user_role
+  _lte: user_role
+  _neq: user_role
+  _nin: [user_role!]
+}
+
+"""
 select columns of table "user"
 """
 enum UserSelectColumn {
+  """column name"""
+  bio
+
   """column name"""
   dateJoined
 
   """column name"""
   email
+
+  """column name"""
+  favouriteTopic
 
   """column name"""
   getFreeMonth
@@ -7337,6 +7815,9 @@ enum UserSelectColumn {
   profilePicture
 
   """column name"""
+  role
+
+  """column name"""
   slug
 
   """column name"""
@@ -7350,8 +7831,10 @@ enum UserSelectColumn {
 input type for updating data in table "user"
 """
 input UserSetInput {
+  bio: String
   dateJoined: timestamptz
   email: String
+  favouriteTopic: String
   getFreeMonth: Boolean
   isBlocked: Boolean
   isVerified: Boolean
@@ -7359,6 +7842,7 @@ input UserSetInput {
   password: String
   proUserSubscriptionId: String
   profilePicture: String
+  role: user_role
   slug: String
   userId: uuid
   username: String
@@ -7377,8 +7861,10 @@ input UserStreamCursorInput {
 
 """Initial value of the column from where the streaming should start"""
 input UserStreamCursorValueInput {
+  bio: String
   dateJoined: timestamptz
   email: String
+  favouriteTopic: String
   getFreeMonth: Boolean
   isBlocked: Boolean
   isVerified: Boolean
@@ -7386,6 +7872,7 @@ input UserStreamCursorValueInput {
   password: String
   proUserSubscriptionId: String
   profilePicture: String
+  role: user_role
   slug: String
   userId: uuid
   username: String
@@ -7598,10 +8085,16 @@ update columns of table "user"
 """
 enum UserUpdateColumn {
   """column name"""
+  bio
+
+  """column name"""
   dateJoined
 
   """column name"""
   email
+
+  """column name"""
+  favouriteTopic
 
   """column name"""
   getFreeMonth
@@ -7623,6 +8116,9 @@ enum UserUpdateColumn {
 
   """column name"""
   profilePicture
+
+  """column name"""
+  role
 
   """column name"""
   slug
@@ -7914,6 +8410,14 @@ type mutation_root {
   delete single row from the table: "referral"
   """
   deleteReferralByPk(referralCode: String!): Referral
+
+  """
+  delete data from the table: "social_following"
+  """
+  deleteSocialFollowing(
+    """filter the rows which have to be deleted"""
+    where: SocialFollowingBoolExp!
+  ): SocialFollowingMutationResponse
 
   """
   delete data from the table: "thread"
@@ -8366,6 +8870,22 @@ type mutation_root {
     """upsert condition"""
     onConflict: ReferralOnConflict
   ): Referral
+
+  """
+  insert data into the table: "social_following"
+  """
+  insertSocialFollowing(
+    """the rows to be inserted"""
+    objects: [SocialFollowingInsertInput!]!
+  ): SocialFollowingMutationResponse
+
+  """
+  insert a single row into the table: "social_following"
+  """
+  insertSocialFollowingOne(
+    """the row to be inserted"""
+    object: SocialFollowingInsertInput!
+  ): SocialFollowing
 
   """
   insert data into the table: "thread"
@@ -9034,6 +9554,28 @@ type mutation_root {
     """updates to execute, in order"""
     updates: [ReferralUpdates!]!
   ): [ReferralMutationResponse]
+
+  """
+  update data of the table: "social_following"
+  """
+  updateSocialFollowing(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: SocialFollowingIncInput
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: SocialFollowingSetInput
+
+    """filter the rows which have to be updated"""
+    where: SocialFollowingBoolExp!
+  ): SocialFollowingMutationResponse
+
+  """
+  update multiples rows of table: "social_following"
+  """
+  updateSocialFollowingMany(
+    """updates to execute, in order"""
+    updates: [SocialFollowingUpdates!]!
+  ): [SocialFollowingMutationResponse]
 
   """
   update data of the table: "thread"
@@ -9993,6 +10535,46 @@ type query_root {
   referralByPk(referralCode: String!): Referral
 
   """
+  fetch data from the table: "social_following"
+  """
+  socialFollowing(
+    """distinct select on columns"""
+    distinctOn: [SocialFollowingSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [SocialFollowingOrderBy!]
+
+    """filter the rows returned"""
+    where: SocialFollowingBoolExp
+  ): [SocialFollowing!]!
+
+  """
+  fetch aggregated fields from the table: "social_following"
+  """
+  socialFollowingAggregate(
+    """distinct select on columns"""
+    distinctOn: [SocialFollowingSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [SocialFollowingOrderBy!]
+
+    """filter the rows returned"""
+    where: SocialFollowingBoolExp
+  ): SocialFollowingAggregate!
+
+  """
   fetch data from the table: "thread"
   """
   thread(
@@ -10255,6 +10837,13 @@ input referralAggregateBoolExpCount {
   arguments: [ReferralSelectColumn!]
   distinct: Boolean
   filter: ReferralBoolExp
+  predicate: IntComparisonExp!
+}
+
+input socialFollowingAggregateBoolExpCount {
+  arguments: [SocialFollowingSelectColumn!]
+  distinct: Boolean
+  filter: SocialFollowingBoolExp
   predicate: IntComparisonExp!
 }
 
@@ -11237,6 +11826,60 @@ type subscription_root {
   ): [Referral!]!
 
   """
+  fetch data from the table: "social_following"
+  """
+  socialFollowing(
+    """distinct select on columns"""
+    distinctOn: [SocialFollowingSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [SocialFollowingOrderBy!]
+
+    """filter the rows returned"""
+    where: SocialFollowingBoolExp
+  ): [SocialFollowing!]!
+
+  """
+  fetch aggregated fields from the table: "social_following"
+  """
+  socialFollowingAggregate(
+    """distinct select on columns"""
+    distinctOn: [SocialFollowingSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [SocialFollowingOrderBy!]
+
+    """filter the rows returned"""
+    where: SocialFollowingBoolExp
+  ): SocialFollowingAggregate!
+
+  """
+  fetch data from the table in a streaming manner: "social_following"
+  """
+  socialFollowingStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [SocialFollowingStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: SocialFollowingBoolExp
+  ): [SocialFollowing!]!
+
+  """
   fetch data from the table: "thread"
   """
   thread(
@@ -11608,5 +12251,7 @@ input userTokenAggregateBoolExpCount {
   filter: UserTokenBoolExp
   predicate: IntComparisonExp!
 }
+
+scalar user_role
 
 scalar uuid

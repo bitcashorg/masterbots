@@ -8,7 +8,8 @@ import { cleanResult } from '@/lib/helpers/ai-helpers'
 import type {
   AiClientType,
   ChatbotMetadataHeaders,
-  ReturnFetchChatbotMetadata
+  ReturnFetchChatbotMetadata,
+  
 } from '@/types/types'
 import { validateMbEnv } from 'mb-env'
 import {
@@ -19,7 +20,9 @@ import {
   type Thread,
   type User,
   createMbClient,
-  everything
+  everything,
+  type MbClient
+  
 } from 'mb-genql'
 import type {
   CreateThreadParams,
@@ -31,6 +34,7 @@ import type {
   GetThreadParams,
   GetThreadsParams,
   SaveNewMessageParams,
+  UpdateUserArgs,
   UpsertUserParams
 } from './hasura.service.type'
 
@@ -49,6 +53,11 @@ export async function getCategories() {
     category: {
       chatbots: {
         chatbot: {
+          followers: {
+            followeeId: true,
+            followerId: true,
+            followeeIdChatbot: true
+          },
           ...everything
         },
         ...everything
@@ -146,7 +155,8 @@ export async function getThreads({
         },
         prompts: {
           prompt: everything
-        }
+        },
+        
       },
       messages: {
         ...everything,
@@ -228,7 +238,6 @@ export async function getThread({ threadId, jwt }: GetThreadParams) {
       }
     }
   })
-
   return thread[0] as Thread
 }
 
@@ -367,75 +376,84 @@ export async function getBrowseThreads({
   userId,
   limit,
   offset,
-  slug
+  slug,
+  followedUserId
 }: GetBrowseThreadsParams) {
-  const client = getHasuraClient({})
+  const client = getHasuraClient({});
 
-  const { thread } = await client.query({
+  const baseWhereConditions = {
+    ...(categoryId
+      ? {
+          chatbot: {
+            categories: {
+              categoryId: { _eq: categoryId }
+            }
+          }
+        }
+      : {}),
+    ...(categoriesId
+      ? {
+          chatbot: {
+            categories: {
+              categoryId: { _in: categoriesId }
+            }
+          }
+        }
+      : {}),
+    ...(chatbotName
+      ? {
+          chatbot: {
+            name: { _eq: chatbotName }
+          }
+        }
+      : {}),
+    ...(chatbotsId
+      ? {
+          chatbot: {
+            chatbotId: { _in: chatbotsId }
+          }
+        }
+      : {}),
+    ...(userId
+      ? {
+          userId: {
+            _eq: userId
+          }
+        }
+      : {}),
+    ...(slug
+      ? {
+          user: {
+            slug: {
+              _eq: slug
+            }
+          }
+        }
+      : {}),
+    isPublic: { _eq: true },
+    isApproved: { _eq: true }
+  };
+
+  const { thread: allThreads } = await client.query({
     thread: {
       __args: {
         orderBy: [{ createdAt: 'DESC' }],
-        where: {
-          ...(categoryId
-            ? {
-                chatbot: {
-                  categories: {
-                    categoryId: { _eq: categoryId }
-                  }
-                }
-              }
-            : {}),
-          ...(categoriesId
-            ? {
-                chatbot: {
-                  categories: {
-                    categoryId: { _in: categoriesId }
-                  }
-                }
-              }
-            : {}),
-          ...(chatbotName
-            ? {
-                chatbot: {
-                  name: { _eq: chatbotName }
-                }
-              }
-            : {}),
-          ...(chatbotsId
-            ? {
-                chatbot: {
-                  chatbotId: { _in: chatbotsId }
-                }
-              }
-            : {}),
-          ...(userId
-            ? {
-                userId: {
-                  _eq: userId
-                }
-              }
-            : {}),
-          ...(slug
-            ? {
-                user: {
-                  slug: {
-                    _eq: slug
-                  }
-                }
-              }
-            : {}),
-          isPublic: { _eq: true },
-          isApproved: { _eq: true }
-        },
-        limit: limit || 30,
+        where: baseWhereConditions,
+        limit: (limit || 30) * 2,
         offset: offset || 0
       },
+      threadId: true,
       chatbot: {
+        chatbotId: true,
+        name: true,
         categories: {
           category: {
             ...everything
           },
           ...everything
+        },
+        followers: {
+          followerId: true
         },
         threads: {
           threadId: true
@@ -450,16 +468,8 @@ export async function getBrowseThreads({
             ? {
                 where: {
                   _or: [
-                    {
-                      content: {
-                        _iregex: keyword
-                      }
-                    },
-                    {
-                      content: {
-                        _eq: keyword
-                      }
-                    }
+                    { content: { _iregex: keyword } },
+                    { content: { _eq: keyword } }
                   ]
                 }
               }
@@ -470,15 +480,72 @@ export async function getBrowseThreads({
       user: {
         username: true,
         profilePicture: true,
-        slug: true
+        slug: true,
+        followers: {
+          followerId: true
+        },
       },
       isApproved: true,
       isPublic: true,
+      userId: true,
       ...everything
     }
-  })
+  });
 
-  return thread as Thread[]
+  if (!allThreads) return [];
+
+  const threads = allThreads as Thread[];
+  
+  // Separate following content (both from followed bots and users)
+  const followingThreads = threads.filter(thread => {
+    if (followedUserId) {
+      // Exclude user's own posts
+      if (thread.userId === followedUserId) {
+        return false;
+      }
+      
+      // For bot content
+      const isFollowingBot = thread.chatbot?.followers?.some(follower => {
+        return follower.followerId === followedUserId;
+      });
+  
+      // For user content 
+      const isFollowingUser = thread.user?.followers?.some(follower => {
+        return follower.followerId === followedUserId;
+      });
+  
+      return isFollowingBot || isFollowingUser;
+    }
+    return false;
+  });
+  
+  // Organic content (neither from followed bots nor followed users)
+  const organicThreads = threads.filter(thread => 
+    !thread.chatbot?.followers?.some(follower => follower.followerId === followedUserId) &&
+    !thread.user?.followers?.some(follower => follower.followerId === followedUserId)
+  );
+
+  const interweavedThreads: Thread[] = [];
+  let followingIndex = 0;
+  let organicIndex = 0;
+
+  while (
+    (followingIndex < followingThreads.length || organicIndex < organicThreads.length) && 
+    interweavedThreads.length < (limit || 30)
+  ) {
+    // Add up to 4 following threads
+    for (let i = 0; i < 4 && followingIndex < followingThreads.length && interweavedThreads.length < (limit || 30); i++) {
+      interweavedThreads.push(followingThreads[followingIndex]);
+      followingIndex++;
+    }
+
+    // Add 1 organic thread if available
+    if (organicIndex < organicThreads.length && interweavedThreads.length < (limit || 30)) {
+      interweavedThreads.push(organicThreads[organicIndex]);
+      organicIndex++;
+    }
+  }
+  return interweavedThreads;
 }
 
 export async function getMessages({
@@ -606,10 +673,10 @@ export async function UpdateThreadVisibility({
       updateThreadByPk: {
         __args: {
           pkColumns: { threadId },
-          _set: { isPublic }
+          _set: { isApproved: true }
         },
         threadId: true,
-        isPublic: true
+        isApproved: true
       }
     })
     return { success: true }
@@ -685,13 +752,14 @@ export async function getUserRoleByEmail({
   email: string | null | undefined
 }) {
   try {
-    const client = getHasuraClient({})
+    const client = getHasuraClient({ jwt: '' })
     const { user } = await client.query({
       user: {
         __args: {
           where: { email: { _eq: email } }
         },
-        role: true
+        role: true,
+        slug: true
       }
     })
     return { users: user as User[] }
@@ -720,9 +788,12 @@ export async function deleteThread({
       deleteThread: {
         __args: {
           where: { threadId: { _eq: threadId }, userId: { _eq: userId } }
-        }
-      },
-      affected_rows: true
+        },
+        returning: {
+          threadId: true
+        },
+        affectedRows: true
+      }
     })
 
     return { success: true }
@@ -776,6 +847,144 @@ export async function getUnapprovedThreads({ jwt }: { jwt: string }) {
   return thread as Thread[]
 }
 
+export async function getUserBySlug({
+  slug,
+  isSameUser
+}: {
+  slug: string
+  isSameUser: boolean
+}) {
+  try {
+    const client = getHasuraClient({})
+    const { user } = await client.query({
+      user: {
+        __args: {
+          where: {
+            slug: {
+              _eq: slug
+            }
+          }
+        },
+        userId: true,
+        username: true,
+        profilePicture: true,
+        slug: true,
+        bio: true,
+        favouriteTopic: true,
+        threads: {
+          __args: {
+            where: isSameUser
+              ? {}
+              : {
+                  _and: [
+                    { isApproved: { _eq: true } },
+                    { isPublic: { _eq: true } }
+                  ]
+                }
+          },
+          threadId: true,
+          isApproved: true,
+          isPublic: true,
+          chatbot: {
+            name: true
+          },
+          messages: {
+            content: true
+          }
+        },
+        followers: {
+          followeeId: true,
+          followerId: true,
+          userByFollowerId: {
+            username: true
+          }
+        },
+      
+        following: {
+          followeeId: true,
+          followerId: true,
+          userByFollowerId: {
+            username: true
+          }
+        }
+      } 
+    } as const)
+
+    if (!user || user.length === 0) {
+      console.log('No user found with user slug:', slug)
+      return { user: null, error: 'User not found.' }
+    }
+    return {
+      user: user[0], // Return the first matching user
+      error: null
+    }
+  } catch (error) {
+    console.error('Error fetching user by username:', {
+      error,
+      slug,
+      timestamp: new Date().toISOString()
+    })
+    if (error instanceof Error) {
+      return {
+        user: null,
+        error: error.message || 'Failed to fetch user by username.'
+      }
+    }
+
+    return {
+      user: null,
+      error: 'An unexpected error occurred while fetching user.'
+    }
+  }
+}
+
+export async function updateUserPersonality({
+  userId,
+  bio,
+  topic,
+  jwt,
+  profilePicture
+}: {
+  userId: string | undefined
+  bio: string | null
+  topic: string | null
+  jwt: string | undefined
+  profilePicture: string | null
+}) {
+  try {
+    if (!jwt) {
+      throw new Error('Authentication required to update user bio')
+    }
+
+    const client = getHasuraClient({ jwt })
+
+    // Build update arguments based on non-null values
+    const updateArgs: UpdateUserArgs = {
+      pkColumns: { userId }
+    }
+
+    updateArgs._set = {
+      ...(bio !== null && { bio }),
+      ...(topic !== null && { favouriteTopic: topic }),
+      ...(profilePicture !== null && { profilePicture })
+    }
+
+    await client.mutation({
+      updateUserByPk: {
+        __args: updateArgs,
+        userId: true,
+        bio: true,
+        favouriteTopic: true
+      }
+    })
+
+    return { success: true }
+  } catch (error) {
+    console.error('Error updating user bio:', error)
+    return { success: false, error: "Failed to update user's profile" }
+  }
+}
+
 export async function subtractChatbotMetadataLabels(
   metadataHeaders: ChatbotMetadataHeaders,
   userPrompt: string,
@@ -798,4 +1007,134 @@ export async function subtractChatbotMetadataLabels(
   const response = await processWithAi(prompt, clientType, AIModels.Default)
 
   return cleanResult(response)
+}
+
+const getFollowStatus = async (client: MbClient, followerId: string, followeeId: string) => {
+  const { socialFollowing } = await client.query({
+    socialFollowing: {
+      __args: {
+        where: { followerId: { _eq: followerId }, followeeId: { _eq: followeeId } }
+      },
+      followeeId: true,
+      followerId: true,
+    }
+  });
+  return socialFollowing?.length > 0;
+};
+
+const followUser = async (client: MbClient, followerId: string, followeeId: string) => {
+  return client.mutation({
+    insertSocialFollowingOne: {
+      __args: {
+        object: { followerId, followeeId }
+      },
+      followeeId: true,
+      followerId: true,
+      userByFollowerId: { username: true }
+    }
+  });
+};
+
+const unfollowUser = async (client: MbClient, followerId: string, followeeId: string) => {
+  return client.mutation({
+    deleteSocialFollowing: {
+      __args: {
+        where: { followerId: { _eq: followerId }, followeeId: { _eq: followeeId } }
+      },
+      affectedRows: true,
+      returning: { followeeId: true, followerId: true }
+    }
+  });
+};
+
+export async function userFollowOrUnfollow({ followerId, followeeId, jwt }: {
+  followerId: string;
+  followeeId: string;
+  jwt: string;
+}) {
+  if (!jwt) throw new Error('Authentication required to follow/unfollow user');
+
+  const client = getHasuraClient({ jwt });
+  try {
+    const isFollowing = await getFollowStatus(client, followerId, followeeId);
+    if (!isFollowing) {
+      await followUser(client, followerId, followeeId);
+      return { success: true, follow: true };
+    }
+    await unfollowUser(client, followerId, followeeId);
+    return { success: true, follow: false };
+  } catch (error) {
+    console.error('Error following/unfollowing user:', error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Failed to follow/unfollow user.'
+    };
+  }
+}
+
+
+
+// chatbot follow or unfollow  function 
+
+const getChatbotFollowStatus = async (client: MbClient, followerId: string, followeeId: number) => {
+  const { socialFollowing } = await client.query({
+    socialFollowing: {
+      __args: {
+        where: { followerId: { _eq: followerId }, followeeIdChatbot: { _eq: followeeId } }
+      },
+      followeeIdChatbot: true,
+      followerId: true,
+    }
+  });
+  return socialFollowing?.length > 0;
+};
+
+const followChatbot = async (client: MbClient, followerId: string, followeeId: number) => {
+  return client.mutation({
+    insertSocialFollowingOne: {
+      __args: {
+        object: { followerId, followeeIdChatbot: followeeId }
+      },
+      followeeIdChatbot: true,
+      followerId: true,
+      chatbot: { name: true }
+    }
+  });
+};
+
+const unfollowChatbot = async (client: MbClient, followerId: string, followeeId: number) => {
+  return client.mutation({
+    deleteSocialFollowing: {
+      __args: {
+        where: { followerId: { _eq: followerId }, followeeIdChatbot: { _eq: followeeId } }
+      },
+      affectedRows: true,
+      returning: { followeeIdChatbot: true, followerId: true }
+    }
+  });
+};
+
+export async function chatbotFollowOrUnfollow({ followerId, followeeId, jwt }: {
+  followerId: string;
+  followeeId: number;
+  jwt: string;
+}) {
+  if (!jwt) throw new Error('Authentication required to follow/unfollow chatbot');
+
+  const client = getHasuraClient({ jwt });
+  try {
+    const isFollowing = await getChatbotFollowStatus(client, followerId, followeeId);
+    if (!isFollowing) {
+      await followChatbot(client, followerId, followeeId);
+      return { success: true, follow: true };
+    }
+    await unfollowChatbot(client, followerId, followeeId);
+    return { success: true, follow: false };
+  } catch (error) {
+    console.error('Error following/unfollowing chatbot:', error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Failed to follow/unfollow chatbot.'
+    };
+  }
 }
