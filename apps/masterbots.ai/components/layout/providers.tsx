@@ -20,11 +20,7 @@ type ProvidersProps = {
   enableSystem?: boolean,
   disableTransitionOnChange?: boolean
 }
-
-export function Providers({ 
-  children, 
-  ...props
- }: ProvidersProps) {
+export function Providers({ children, ...props }: ProvidersProps) {
   return (
     <NextThemesProvider 
       {...props}
