@@ -7,6 +7,34 @@ export type customSonnerProps = {
   text?: string | null
 }
 
+/**
+ * Custom hook for displaying toast notifications with predefined styles.
+ *
+ * @returns {Object} An object containing the `customSonner` function for displaying notifications.
+ * @returns {function} customSonner - Function to display styled toast notifications.
+ */
+
+/**
+ * Creates a custom notification based on the provided configuration.
+ *
+ * @param {customSonnerProps} options - Configuration for the notification.
+ * @returns {import('sonner').ToastT} The created toast instance.
+ *
+ * @example
+ * // Import the hook
+ * import { useSonner } from '@/lib/hooks/useSonner';
+ *
+ * const { customSonner } = useSonner();
+ *
+ * // Trigger a success notification
+ * customSonner({ type: 'success', text: 'Operation completed successfully!' });
+ *
+ * // Default texts for each type:
+ * // Success: "Changes and been applied successfully"
+ * // Error: "Failed to update the information. Please try again"
+ * // Info: "Your changes has been applied 5 minutes ago."
+ */
+
 export function useSonner() {
   const customSonner = ({ type = 'success', text }: customSonnerProps) => {
     const toastConfigs = {
