@@ -21,10 +21,11 @@ type ProvidersProps = {
   disableTransitionOnChange?: boolean
 }
 export function Providers({ children, ...props }: ProvidersProps) {
+ 
   return (
     <NextThemesProvider 
-      {...props}
-      >
+     {...props}
+    >
       <ModelProvider>
         <PaymentProvider>
           <SidebarProvider>
