@@ -73,7 +73,7 @@ export const urlBuilders = {
         return '/';
       }
 
-      return `/u/${encodeURIComponent(slug)}/t/${toSlug(category)}/${chatbot.toLowerCase()}`;
+      return `/u/${encodeURIComponent(slug)}/t/${toSlug(category)}/${toSlug(chatbot)}`;
     } catch (error) {
       console.error('Error constructing profile URL:', error);
       return '/';

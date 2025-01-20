@@ -1,7 +1,7 @@
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import type { Message as AIMessage } from 'ai/react'
 import { type ClassValue, clsx } from 'clsx'
-import type { Message } from 'mb-genql'
+import type { Message, SocialFollowing } from 'mb-genql'
 import { customAlphabet } from 'nanoid'
 import type { ReactNode } from 'react'
 import { twMerge } from 'tailwind-merge'
@@ -319,6 +319,42 @@ export function cleanClickableText(text: string): string {
   return text.replace(/(:|\.|\,)\s*$/, '')
 }
 
+
+ export const formatNumber = (num: number) => {
+  const lookup = [
+    { value: 1e9, symbol: 'B' },
+    { value: 1e6, symbol: 'M' },
+    { value: 1e3, symbol: 'K' }
+  ];
+
+  // Handle negative numbers
+  const isNegative = num < 0;
+  const absNum = Math.abs(num);
+
+  // Find the appropriate suffix
+  const item = lookup.find(item => absNum >= item.value);
+
+  if (!item) {
+    // If number is smaller than 1000, return as is
+    return isNegative ? `-${absNum}` : absNum.toString();
+  }
+
+  // Calculate the formatted value with one decimal place
+  const formattedValue = (absNum / item.value).toFixed(1);
+  
+  // Remove .0 if it exists
+  const cleanValue = formattedValue.replace('.0', '');
+  
+  return `${isNegative ? '-' : ''}${cleanValue}${item.symbol}`;
+};
+
+interface IProps {
+  followers: readonly SocialFollowing[] | undefined | null;
+  userId: string;
+}
+export const isFollowed = ({followers, userId} : IProps): boolean => {
+  return Boolean(followers?.some(follower => follower.followerId === userId));
+}
 /**
  * Short the large numbers to a more friendly format. Examples: 670, 3.2k, 1.22m, 3.445b
  * **/
