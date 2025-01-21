@@ -5,8 +5,8 @@ import type { Chatbot, LabelChatbotCategory, SocialFollowing } from 'mb-genql'
 import 'next-auth'
 import type { DefaultSession, DefaultUser } from 'next-auth'
 import type { ChatCompletionMessageParam } from 'openai/resources'
+import type React from 'react'
 import type Stripe from 'stripe'
-
 
 // * Chat types
 export interface Chat extends Record<string, any> {
@@ -119,17 +119,17 @@ export type Card = {
 }
 export const initialStateSubscription = {
   customer: {
-    name: ''
+    name: '',
   },
   plan: {
     amount: 0,
     interval: '',
     product: {
-      name: ''
-    }
+      name: '',
+    },
   },
   current_period_start: 0,
-  status: ''
+  status: '',
 }
 
 // * AI SDK related types
@@ -224,6 +224,34 @@ export interface ChatPageProps {
   }
 }
 
+export interface ChatMessageProps {
+  message: Message
+  sendMessageFromResponse?: (message: string) => void
+  chatbot?: Chatbot
+  actionRequired?: boolean
+  webSearchResults?: WebSearchResult[]
+}
+
+//* Reference result manipulations props
+export interface WebSearchResult {
+  title: string
+  url: string
+  description: string
+  thumbnail?: {
+    src: string
+  }
+  profile: {
+    name: string
+  }
+}
+
+export interface ClickableTextProps {
+  children: React.ReactNode
+  isListItem: boolean
+  sendMessageFromResponse?: (message: string) => void
+  webSearchResults?: WebSearchResult[]
+  onReferenceFound?: (ref: WebSearchResult) => void
+}
 // * Drizzle Admin types
 export type AdminUserUpdate = {
   isBlocked?: boolean
@@ -264,3 +292,5 @@ export interface BrowseChatbotLayoutProps {
   hasMultiplePoints: boolean
   botUrl: string
 }
+
+export type UUID = `${string}-${string}-${string}-${string}-${string}`

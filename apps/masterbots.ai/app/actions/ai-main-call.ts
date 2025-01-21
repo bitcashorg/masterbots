@@ -223,7 +223,7 @@ export async function createResponseStream(
           temperature: 0.4,
           tools,
           maxRetries: 2,
-          maxToolRoundtrips: 1
+          maxToolRoundtrips: 2
         })
         responseStream = response.toDataStreamResponse().body as ReadableStream
         break
@@ -242,7 +242,7 @@ export async function createResponseStream(
           maxTokens: 300,
           tools,
           maxRetries: 2,
-          maxToolRoundtrips: 1
+          maxToolRoundtrips: 2
         })
         responseStream = response.toDataStreamResponse().body as ReadableStream
         break
@@ -262,7 +262,7 @@ export async function createResponseStream(
           maxTokens: 1000,
           tools,
           maxRetries: 2,
-          maxToolRoundtrips: 1
+          maxToolRoundtrips: 2
         })
         responseStream = response.toDataStreamResponse().body as ReadableStream
         break
