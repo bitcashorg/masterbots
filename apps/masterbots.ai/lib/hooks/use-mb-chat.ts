@@ -105,8 +105,8 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
         if (isNewChat) {
           await deleteThread({
             threadId: params?.threadId ?? activeThread?.threadId,
-            jwt: session!.user?.hasuraJwt,
-            userId: session!.user.id,
+            jwt: session?.user?.hasuraJwt,
+            userId: session?.user.id,
           })
         }
       }
@@ -122,8 +122,8 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
         if (isNewChat) {
           await deleteThread({
             threadId: params?.threadId ?? activeThread?.threadId,
-            jwt: session!.user?.hasuraJwt,
-            userId: session!.user.id,
+            jwt: session?.user?.hasuraJwt,
+            userId: session?.user.id,
           })
         }
 
@@ -135,7 +135,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
           role: 'user',
           threadId: params.threadId || isNewChat ? threadId : activeThread?.threadId,
           content: userContentRef.current,
-          jwt: session!.user?.hasuraJwt,
+          jwt: session?.user?.hasuraJwt,
         }),
         // ? Adding a delay to securely keep the order of messages
         delayFetch(),
@@ -143,7 +143,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
           role: 'assistant',
           threadId: params.threadId || isNewChat ? threadId : activeThread?.threadId,
           content: message.content,
-          jwt: session!.user?.hasuraJwt,
+          jwt: session?.user?.hasuraJwt,
         }),
       ])
     },
@@ -163,8 +163,8 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       if (isNewChat) {
         await deleteThread({
           threadId: params?.threadId ?? activeThread?.threadId,
-          jwt: session!.user?.hasuraJwt,
-          userId: session!.user.id,
+          jwt: session?.user?.hasuraJwt,
+          userId: session?.user.id,
         })
       }
     },
@@ -190,6 +190,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     }
   }, [activeThread])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: only activeThread is needed
   useEffect(() => {
     if (!activeThread) {
       setState({ messagesFromDB: [], isInitLoaded: false })
@@ -239,15 +240,15 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
         await createThread({
           threadId: threadId as string,
           chatbotId: chatbot.chatbotId,
-          jwt: session!.user?.hasuraJwt,
-          userId: session!.user.id,
+          jwt: session?.user?.hasuraJwt,
+          userId: session?.user.id,
           isPublic: activeChatbot?.name !== 'BlankBot',
         })
 
         // * Loading: Here is the information you need... 'finish'
         const thread = await getThread({
           threadId: threadId as string,
-          jwt: session!.user?.hasuraJwt,
+          jwt: session?.user?.hasuraJwt,
         })
 
         updateActiveThread(thread)
@@ -297,8 +298,8 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     if (isNewChat) {
       const optimisticThread: Thread = {
         threadId,
-        chatbotId: chatbot!.chatbotId,
-        chatbot: chatbot!,
+        chatbotId: chatbot?.chatbotId,
+        chatbot,
         createdAt: new Date().toISOString(),
         isApproved: false,
         isBlocked: false,
@@ -312,7 +313,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
             content: userMessage.content,
           },
         ],
-        userId: session!.user.id,
+        userId: session?.user.id,
       }
 
       updateActiveThread(optimisticThread)
