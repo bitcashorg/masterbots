@@ -12,10 +12,13 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
-    "@types/node": "^20.17.6",
+    "@types/node": "^20.x",
     "eslint": "^8.57.1",
     "prettier": "^3.3.3",
     "turbo": "^1.13.4"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   },
   "workspaces": [
     "apps/*",

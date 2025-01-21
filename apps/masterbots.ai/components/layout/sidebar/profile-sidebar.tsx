@@ -118,32 +118,31 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
               Chat
             </Button>
 
-            {appConfig.features.devMode && (
-              <Button
-                variant="ghost"
-                className="justify-start w-full text-sm"
-                onClick={() => handleNavigation('/c/p')}
-              >
-                Pro
-              </Button>
-            )}
-
             <Button
               variant="ghost"
               className="justify-start w-full text-sm"
               onClick={() => handleNavigation('/')}
             >
-              Browse
+              Public
             </Button>
 
             {appConfig.features.devMode && (
-              <Button
-                variant="ghost"
-                className="justify-start w-full text-sm"
-                onClick={() => handleNavigation('/wordware')}
-              >
-                Ww
-              </Button>
+              <>
+                <Button
+                  variant="ghost"
+                  className="justify-start w-full text-sm"
+                  onClick={() => handleNavigation('/c/p')}
+                >
+                  Pro
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="justify-start w-full text-sm"
+                  onClick={() => handleNavigation('/wordware')}
+                >
+                  Ww
+                </Button>
+              </>
             )}
           </nav>
 
