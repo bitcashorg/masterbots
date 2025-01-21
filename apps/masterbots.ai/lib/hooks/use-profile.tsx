@@ -1,7 +1,7 @@
 'use client'
 
 import { getUserBySlug, updateUserPersonality } from '@/services/hasura'
-import { User } from 'mb-genql'
+import type { User } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import * as React from 'react'
 import { useSonner } from './useSonner'
@@ -9,18 +9,12 @@ import { useSonner } from './useSonner'
 interface profileContextProps {
   getuserInfo: (username: string) => Promise<any>
   isSameUser: (userId: string) => boolean
-  updateUserInfo: (
-    bio: string | null,
-    topic: string | null,
-    profilePicture: string | null
-  ) => void
+  updateUserInfo: (bio: string | null, topic: string | null, profilePicture: string | null) => void
   currentUser: User | null
   setCurrentUser: React.Dispatch<React.SetStateAction<User | null>>
 }
 
-const profileContext = React.createContext<profileContextProps | undefined>(
-  undefined
-)
+const profileContext = React.createContext<profileContextProps | undefined>(undefined)
 
 export function useProfile() {
   const context = React.useContext(profileContext)
@@ -50,7 +44,7 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
         : session?.user.name?.toLowerCase()
       const userInfo = await getUserBySlug({
         slug,
-        isSameUser: sessionSlug === slug
+        isSameUser: sessionSlug === slug,
       })
       if (!userInfo) {
         throw new Error('User not found')
@@ -73,7 +67,7 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
   const updateUserInfo = async (
     bio: string | null,
     topic: string | null,
-    profilePicture: string | null
+    profilePicture: string | null,
   ) => {
     try {
       const jwt = session?.user?.hasuraJwt
@@ -85,7 +79,7 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
         jwt: session?.user.hasuraJwt,
         bio,
         topic,
-        profilePicture
+        profilePicture,
       })
     } catch (error) {
       console.error('Failed to update user info', error)
@@ -100,7 +94,7 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
         isSameUser,
         updateUserInfo,
         currentUser,
-        setCurrentUser
+        setCurrentUser,
       }}
     >
       {children}
