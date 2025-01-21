@@ -1,10 +1,11 @@
+import type { mbObjectSchema } from '@/lib/helpers/ai-helpers'
 import type { WordWareFlowPaths } from '@/types/wordware-flows.types'
 import type { Message } from 'ai'
 import type { UserRole } from 'mb-drizzle'
 import type { Chatbot, LabelChatbotCategory, SocialFollowing } from 'mb-genql'
 import 'next-auth'
 import type { DefaultSession, DefaultUser } from 'next-auth'
-import type { ChatCompletionMessageParam } from 'openai/resources'
+import type OpenAI from 'openai'
 import type React from 'react'
 import type Stripe from 'stripe'
 
@@ -160,7 +161,7 @@ export type AiClientType = 'OpenAI' | 'Anthropic' | 'Perplexity' | 'WordWare'
 export type JSONResponseStream = {
   id: string
   model: string
-  messages: ChatCompletionMessageParam[]
+  messages: OpenAI.ChatCompletionMessageParam[]
   previewToken: string
   webSearch: boolean
   stream?: boolean
@@ -294,3 +295,9 @@ export interface BrowseChatbotLayoutProps {
 }
 
 export type UUID = `${string}-${string}-${string}-${string}-${string}`
+
+export interface MBObjectHook {
+  schema: keyof typeof mbObjectSchema
+}
+
+export type MBSchema = 'metadata' | 'tool' | 'examples'

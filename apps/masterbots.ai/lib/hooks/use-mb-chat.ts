@@ -85,6 +85,11 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
   const { input, messages, isLoading, stop, append, reload, setInput, setMessages } = useChat({
     initialMessages,
     id: params.threadId || isNewChat ? threadId : activeThread?.threadId,
+    // TODO: Check this experimental feature: https://sdk.vercel.ai/docs/reference/ai-sdk-ui/use-chat#experimental_prepare-request-body
+    // ? We might need it depending what the AI returns to us and what kind of data it has... this is might be useful for:
+    // ? - Web Search (Tool + Global)
+    // ? - Any additional tool with multiple steps or user decisions and react according to them...
+    // experimental_prepareRequestBody
     body: {
       id: params.threadId || isNewChat ? threadId : activeThread?.threadId,
       model: selectedModel,

@@ -8,3 +8,5 @@ _dev
 __dev
 .vercel
 .vscode/
+
+.vercel
