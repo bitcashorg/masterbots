@@ -30,7 +30,6 @@ import { searchThreadContent } from '@/lib/search'
 import { getBrowseThreads } from '@/services/hasura'
 import { debounce } from 'lodash'
 import type { Thread } from 'mb-genql'
-import { useSession } from 'next-auth/react'
 import React from 'react'
 
 const PAGE_SIZE = 50
@@ -43,8 +42,6 @@ export default function BrowseList() {
   const [loading, setLoading] = React.useState<boolean>(false)
   const [count, setCount] = React.useState<number>(0)
   const { selectedCategories, selectedChatbots, activeCategory, activeChatbot } = useSidebar()
-  const { data: session } = useSession()
-  const userId = session?.user?.id
 
   const fetchThreads = async ({
     categoriesId,
@@ -62,13 +59,11 @@ export default function BrowseList() {
           ? {
             categoryId: activeCategory,
             chatbotName: activeChatbot?.name,
-            ...(userId ? { followedUserId: userId } : {})
           }
           : {
             categoriesId,
             chatbotsId,
             keyword,
-            ...(userId ? { followedUserId: userId } : {})
           }),
         limit: PAGE_SIZE,
       })
@@ -120,7 +115,7 @@ export default function BrowseList() {
       categoriesId: selectedCategories,
       chatbotsId: selectedChatbots
     })
-  }, [selectedCategories, selectedChatbots, activeCategory, activeChatbot, session])
+  }, [selectedCategories, selectedChatbots, activeCategory, activeChatbot])
 
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -140,7 +135,7 @@ export default function BrowseList() {
           {filteredThreads.map((thread: Thread, key) => (
             <BrowseListItem
               thread={thread}
-              key={thread.threadId}
+              key={key}
               loading={loading}
               loadMore={loadMore}
               hasMore={count === PAGE_SIZE}

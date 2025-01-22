@@ -26,9 +26,9 @@ export async function fetcher<JSON = any>(input: RequestInfo, init?: RequestInit
       }
       error.status = res.status
       throw error
+    } else {
+      throw new Error('An unexpected error occurred')
     }
-
-    throw new Error('An unexpected error occurred')
   }
 
   return res.json()
@@ -90,9 +90,10 @@ export function createMessagePairs(messages: Message[] | AIMessage[]) {
         const chatGptMessage = findNextAssistantMessage(messages, j)
         if (!chatGptMessage) {
           break
+        } else {
+          chatGptMessages.push(chatGptMessage)
+          continue
         }
-        chatGptMessages.push(chatGptMessage)
-        break
       }
       messagePairs.push({
         userMessage,

@@ -41,7 +41,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description:
       'Welcome to the chatbot page. Interact with our AI-powered chatbot and get answers to your questions.',
     ogType: 'website',
-    ogImageUrl: `${process.env.BASE_URL || ''}/api/og`,
+    ogImageUrl: '',
     twitterCard: 'summary'
   }
 

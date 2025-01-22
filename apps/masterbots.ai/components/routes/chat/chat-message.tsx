@@ -1,59 +1,35 @@
+// Inspired by Chatbot-UI and modified to fit the needs of this project
+// @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Chat/ChatcleanMessage.tsx
+
 import { ChatMessageActions } from '@/components/routes/chat/chat-message-actions'
 import { MemoizedReactMarkdown } from '@/components/shared/markdown'
 import { CodeBlock } from '@/components/ui/codeblock'
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { cn } from '@/lib/utils'
-import type { ChatMessageProps, WebSearchResult } from '@/types/types'
-import { useState } from 'react'
+import type { Message } from 'ai'
+import type { Chatbot } from 'mb-genql'
+import { ClickableText } from './chat-clickable-text'
+
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
-import { ClickableText } from './chat-clickable-text'
+
+//* Define the props interface for the ChatMessage component
+export interface ChatMessageProps {
+  message: Message // The chat message to display
+  sendMessageFromResponse?: (message: string) => void // Callback to send a new message
+  chatbot?: Chatbot // Chatbot configuration
+  actionRequired?: boolean // Whether to show message actions
+}
 
 export function ChatMessage({
   message,
   sendMessageFromResponse,
   chatbot,
   actionRequired = true,
-  webSearchResults = [],
   ...props
 }: ChatMessageProps) {
+  //* Clean the message content using the cleanPrompt utility
   const cleanMessage = { ...message, content: cleanPrompt(message.content) }
-  const [references, setReferences] = useState<WebSearchResult[]>([])
-
-  const ReferencesSection = () => {
-    if (references.length === 0) return null
-
-    return (
-      <div className="pt-4 mt-4 border-t border-gray-200">
-        <h3 className="mb-2 text-lg font-semibold">References</h3>
-        <div className="space-y-4">
-          {references.map((ref, index) => (
-            <div key={index} className="flex gap-4">
-              {ref.thumbnail?.src && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={ref.thumbnail.src}
-                  alt={ref.title}
-                  className="object-cover w-20 h-20 rounded"
-                />
-              )}
-              <div>
-                <h4 className="font-medium">{ref.title}</h4>
-                <a
-                  href={ref.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline"
-                >
-                  {ref.profile.name}
-                </a>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className={cn('group relative flex items-start p-1')} {...props}>
@@ -62,7 +38,7 @@ export function ChatMessage({
           className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
           remarkPlugins={[remarkGfm, remarkMath]}
           components={{
-            p({ children }) {
+            p({ node, children }) {
               return (
                 <p className="text-left whitespace-pre-line">
                   {cleanMessage.role === 'user' ? (
@@ -71,10 +47,6 @@ export function ChatMessage({
                     <ClickableText
                       isListItem={false}
                       sendMessageFromResponse={sendMessageFromResponse}
-                      webSearchResults={webSearchResults}
-                      onReferenceFound={ref =>
-                        setReferences(prev => [...prev, ref])
-                      }
                     >
                       {children}
                     </ClickableText>
@@ -82,61 +54,57 @@ export function ChatMessage({
                 </p>
               )
             },
-            li({ children }) {
+            //* Custom list item component with clickable text
+            li({ node, children }) {
               return (
-                <li className="ml-6 list-disc list-outside">
-                  <ClickableText
-                    isListItem
-                    sendMessageFromResponse={sendMessageFromResponse}
-                  >
+                <li className="list-disc">
+                  <ClickableText isListItem sendMessageFromResponse={sendMessageFromResponse}>
                     {children}
                   </ClickableText>
                 </li>
               )
             },
-            ul({ children }) {
-              return <ul className="ml-2 space-y-2">{children}</ul>
-            },
             ol({ children }) {
-              return (
-                <ol className="ml-6 space-y-2 list-decimal list-outside">
-                  {children}
-                </ol>
-              )
+              return <ol className="list-decimal list-inside text-left">{children}</ol>
             },
-            a({ href, children, ...props }) {
+            ul({ children }) {
+              return <ul className="list-disc list-inside text-left">{children}</ul>
+            },
+            a({ node, children, ...props }) {
               return (
                 <a
                   className="text-blue-500 underline"
                   target="_blank"
                   rel="noopener noreferrer"
-                  href={href}
                   {...props}
                 >
                   {children}
                 </a>
               )
             },
-            code({ inline, className, children, ...props }) {
+            code({ node, inline, className, children, ...props }) {
+              //* Handle cursor animation for streaming responses
               if (children.length) {
-                if (children[0] == '▍') {
+                if (children[0] == '▍')
                   return (
                     <span className="mt-1 cursor-default animate-pulse">▍</span>
                   )
-                }
-                children[0] = (children[0] as string).replace('▍', '▍')
+
+                children[0] = (children[0] as string).replace('`▍`', '▍')
               }
 
+              //* Extract language from className for syntax highlighting
               const match = /language-(\w+)/.exec(className || '')
 
-              if (inline) {
+              //* Handle inline code differently from code blocks
+              if (inline)
                 return (
                   <code className={className} {...props}>
                     {children}
                   </code>
                 )
-              }
 
+              //* Render full code block with syntax highlighting
               return (
                 <CodeBlock
                   key={Math.random()}
@@ -150,13 +118,8 @@ export function ChatMessage({
         >
           {cleanMessage.content}
         </MemoizedReactMarkdown>
-        {
-          actionRequired ? (
-            <ChatMessageActions className="md:!right-0" message={message} />
-          ) : null
-        }
-        <ReferencesSection />
-      </div >
-    </div >
+        {actionRequired ? <ChatMessageActions className="md:!right-0" message={message} /> : ''}
+      </div>
+    </div>
   )
 }

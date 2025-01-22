@@ -12,7 +12,6 @@ import { useSidebar } from '@/lib/hooks/use-sidebar';
 import { useProfile } from '@/lib/hooks/use-profile';
 import { useSession } from 'next-auth/react';
 import { useAsync  } from 'react-use'
-import { urlBuilders } from '@/lib/url';
 
 export const ProfileSidebar = ({ children }: any) => {
   const pathname = usePathname()
@@ -29,7 +28,6 @@ export const ProfileSidebar = ({ children }: any) => {
     return currentUser;
   }, [slug, currentUser]);
 
-  const userSlug = slug as string
   const sameUser = isSameUser(user?.userId)
 
   const handleToggleThreads = () => {
@@ -72,7 +70,7 @@ export const ProfileSidebar = ({ children }: any) => {
               {/* Threads Accordion */}
               <div className="rounded-lg">
                 <Link
-                  href={urlBuilders.userProfileUrl({ userSlug })}
+                  href={`/u/${slug}/t`}
                   onClick={handleToggleThreads}
                   className={cn(
                     "flex w-full items-center justify-between px-4 py-3",

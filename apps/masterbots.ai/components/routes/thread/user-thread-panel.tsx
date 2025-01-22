@@ -211,6 +211,7 @@ export default function UserThreadPanel({
 
   const showNoResults = !loading && searchTerm && threads.length === 0
   const showChatbotDetails = !loading && !searchTerm && threads.length === 0
+
   return (
     <>
       {threads.length > 0 && (

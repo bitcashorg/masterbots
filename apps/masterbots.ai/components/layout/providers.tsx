@@ -11,21 +11,12 @@ import { ThreadProvider } from '@/lib/hooks/use-thread'
 import { ThreadSearchProvider } from '@/lib/hooks/use-thread-search'
 import { ThreadVisibilityProvider } from '@/lib/hooks/use-thread-visibility'
 import { SessionProvider } from 'next-auth/react'
-import { Attribute, ThemeProvider as NextThemesProvider } from 'next-themes'
+import { ThemeProvider as NextThemesProvider } from 'next-themes'
+import type { ThemeProviderProps } from 'next-themes/dist/types'
 
-type ProvidersProps = {
-  children: React.ReactNode,
-  attribute?: Attribute,
-  defaultTheme?: string,
-  enableSystem?: boolean,
-  disableTransitionOnChange?: boolean
-}
-export function Providers({ children, ...props }: ProvidersProps) {
- 
+export function Providers({ children, ...props }: ThemeProviderProps) {
   return (
-    <NextThemesProvider 
-     {...props}
-    >
+    <NextThemesProvider {...props}>
       <ModelProvider>
         <PaymentProvider>
           <SidebarProvider>

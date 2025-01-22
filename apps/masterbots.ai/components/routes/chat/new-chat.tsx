@@ -26,13 +26,13 @@
 
 import { ChatPanel } from '@/components/routes/chat/chat-panel'
 import { useChat, type Message, type CreateMessage } from 'ai/react'
+import toast from 'react-hot-toast'
 import type { ChatRequestOptions } from 'ai'
 import type { Chatbot } from 'mb-genql'
 import { useRouter } from 'next/navigation'
 import { createThread, saveNewMessage } from '@/services/hasura'
 import { useSession } from 'next-auth/react'
 import { useModel } from '@/lib/hooks/use-model'
-import { useSonner } from '@/lib/hooks/useSonner'
 
 export default function NewChat({
   id,
@@ -53,14 +53,13 @@ export default function NewChat({
     },
     onResponse(response) {
       if (response.status === 401) {
-        customSonner({ type: 'error', text: response.statusText })
+        toast.error(response.statusText)
       }
     },
     onFinish() {
       console.log('NEW CHAT FINISHED FIRST, NOT GOOD')
     }
   })
-  const { customSonner } = useSonner()
 
   const appendToNewChat = async (
     userMessage: Message | CreateMessage,

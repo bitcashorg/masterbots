@@ -1,30 +1,17 @@
-import { Separator } from '@/components/ui/separator'
-import Image from 'next/image'
-import {
-  BookUser,
-  BotIcon,
-  MessageSquareHeart,
-  Wand2,
-  ImagePlus,
-  Loader,
-  UserIcon,
-  Users
-} from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import type { User } from 'mb-genql'
-import { useProfile } from '@/lib/hooks/use-profile'
-import { type Message, useChat } from 'ai/react'
-import { nanoid, removeSurroundingQuotes } from '@/lib/utils'
-import { useModel } from '@/lib/hooks/use-model'
+import { Separator } from '@/components/ui/separator'
 import { UserPersonalityPrompt } from '@/lib/constants/prompts'
-import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { useUploadImagesCloudinary } from '@/lib/hooks/use-cloudinary-upload'
-import { formatNumber, isFollowed } from '@/lib/utils'
-import { useSession } from 'next-auth/react'
-import { userFollowOrUnfollow } from '@/services/hasura/hasura.service'
-import type { SocialFollowing } from 'mb-genql'
-import router from 'next/router'
-import { useSonner } from '@/lib/hooks/useSonner'
+import { useModel } from '@/lib/hooks/use-model'
+import { useProfile } from '@/lib/hooks/use-profile'
+import { nanoid, removeSurroundingQuotes } from '@/lib/utils'
+import { type Message, useChat } from "ai/react"
+import { BookUser, BotIcon, ImagePlus, Loader, MessageSquareHeart, Wand2 } from 'lucide-react'
+import { User } from 'mb-genql'
+import Image from 'next/image'
+import { ChangeEvent, useCallback, useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
+
 
 interface UserCardProps {
   user: User | null
@@ -32,39 +19,29 @@ interface UserCardProps {
 }
 export function UserCard({ user, loading }: UserCardProps) {
   const { isSameUser, updateUserInfo } = useProfile()
-  const isOwner = isSameUser(user?.userId)
+  const isOwner = isSameUser(user?.userId);
   const { selectedModel, clientType } = useModel()
   const [isLoading, setIsLoading] = useState(false)
-  const [generateType, setGenerateType] = useState<string | undefined>('')
+  const [generateType, setGenerateType] = useState<string | undefined>("")
   const [bio, setBio] = useState<string | null | undefined>(user?.bio)
-  const [favouriteTopic, setFavouriteTopic] = useState<
-    string | null | undefined
-  >(user?.favouriteTopic)
-  const [userProfilePicture, setUserProfilePicture] = useState<
-    string | null | undefined
-  >(user?.profilePicture)
-  const [isUploadingImage, setIsUploadingImage] = useState(false)
-  const { uploadFilesCloudinary, error: cloudinaryError } =
-    useUploadImagesCloudinary()
-  const { data: session } = useSession()
-  const [userData, setUserData] = useState<User | null>(user)
-  const [isFollowLoading, setIsFollowLoading] = useState(false)
-  const { customSonner } = useSonner() 
-  
+  const [favouriteTopic, setFavouriteTopic] = useState<string | null | undefined>(user?.favouriteTopic)
+  const [userProfilePicture, setUserProfilePicture] = useState<string | null | undefined>(user?.profilePicture)
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const { uploadFilesCloudinary, error: cloudinaryError } = useUploadImagesCloudinary();
 
-  const userQuestions = user?.threads
-    .map(thread => {
-      if (!thread.messages?.length) {
-        return null
-      }
-      return {
-        id: thread.threadId,
-        content: thread.messages[0].content,
-        createdAt: new Date(),
-        role: 'user' as Message['role']
-      }
-    })
-    .filter(Boolean) as Message[]
+
+  const userQuestions = user?.threads.map((thread) => {
+
+    if (!thread.messages?.length) {
+      return null;
+    }
+    return {
+      id: thread.threadId,
+      content: thread.messages[0].content,
+      createdAt: new Date(),
+      role: "user" as Message["role"],
+    }
+  }).filter(Boolean) as Message[]
   const [lastMessage, setLastMessage] = useState<string | null>(null)
 
   const { append } = useChat({
@@ -73,55 +50,54 @@ export function UserCard({ user, loading }: UserCardProps) {
     body: {
       id: nanoid(),
       model: selectedModel,
-      clientType
+      clientType,
     },
     onResponse(response) {
       if (response.status === 401) {
-        customSonner({ type: 'error', text: response.statusText })
+        toast.error(response.statusText)
       } else if (!response.ok) {
-        customSonner({ type: 'error', text: 'Failed to process request' })
+        toast.error('Failed to process request')
       }
       setIsLoading(false)
     },
     onError(error) {
-      customSonner({ type: 'error', text: 'An error occurred' })
+      toast.error('An error occurred')
       setIsLoading(false)
     },
     async onFinish(message) {
       setLastMessage(message.content)
-    }
+    },
   })
-  const handleProfilePictureUpload = async (
-    event: ChangeEvent<HTMLInputElement>
-  ) => {
-    if (!event.target.files || event.target.files.length === 0) return
-    const file = event.target.files[0]
+  const handleProfilePictureUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files || event.target.files.length === 0) return;
+    const file = event.target.files[0];
 
     // You can add validation for file type and size here
-    setIsUploadingImage(true)
+    setIsUploadingImage(true);
 
     try {
-      const { data, success } = await uploadFilesCloudinary(file)
+      const { data, success } = await uploadFilesCloudinary(file);
+
       if (!success) {
-        console.error('Failed to upload image xx:', cloudinaryError)
-        customSonner({ type: 'error', text: 'Failed to upload image' })
-        return
+        console.error('Failed to upload image xx:', cloudinaryError);
+        toast.error('Failed to upload image: \n' + cloudinaryError?.message);
+        return;
       }
 
-      const imageUrl = data?.secure_url as string
+      const imageUrl = data?.secure_url as string;
 
       // Update the user's profile picture
-      await updateUserInfo(null, null, imageUrl)
+      await updateUserInfo(null, null, imageUrl);
 
       // Update the user state
-      setUserProfilePicture(imageUrl)
-      customSonner({ type: 'success', text: 'Profile picture updated successfully' })
+      setUserProfilePicture(imageUrl);
+      toast.success('Profile picture updated successfully');
     } catch (error) {
-      customSonner({ type: 'error', text: 'Failed to upload image' })
+      toast.error('Failed to upload image: \n' + (error as Error).message);
     } finally {
-      setIsUploadingImage(false)
+      setIsUploadingImage(false);
     }
-  }
+  };
 
   const handleUpdateUserInfo = useCallback(async () => {
     if (lastMessage) {
@@ -134,7 +110,7 @@ export function UserCard({ user, loading }: UserCardProps) {
           await updateUserInfo(removeSurroundingQuotes(lastMessage), null, null)
         }
       } catch (error) {
-        customSonner({ type: 'error', text: 'Failed to update user information' })
+        toast.error('Failed to update user information')
       } finally {
         setIsLoading(false)
       }
@@ -148,345 +124,209 @@ export function UserCard({ user, loading }: UserCardProps) {
     }
   }, [handleUpdateUserInfo, user?.profilePicture])
 
+
   const generateBio = (type: string) => {
+
     try {
       setIsLoading(true)
       setGenerateType(type)
       if (!userQuestions?.length) {
-        customSonner({ type: 'error', text: 'No thread history available to generate content' })
-        setIsLoading(false)
-        return
+        toast.error('No thread history available to generate content');
+        setIsLoading(false);
+        return;
       }
       const promptContent = UserPersonalityPrompt(type, userQuestions)
       return append({
         id: nanoid(),
         content: promptContent,
         role: 'system',
-        createdAt: new Date()
+        createdAt: new Date(),
       })
     } catch (error) {
-      setIsLoading(false)
-      customSonner({ type: 'error', text: 'Failed to generate content' })
-      console.error('Bio generation failed:', error)
+      setIsLoading(false);
+      toast.error('Failed to generate content: \n' + (error as Error).message);
+      console.error('Bio generation failed:', error);
     }
   }
 
   useEffect(() => {
     return () => {
-      setLastMessage(null)
-      setIsLoading(false)
-    }
-  }, [])
+      setLastMessage(null);
+      setIsLoading(false);
+    };
+  }, []);
 
   useEffect(() => {
     // update bio and topic when user changes
     setBio(user?.bio)
     setFavouriteTopic(user?.favouriteTopic)
-    setUserData(user)
-  }, [user])
-
-  const handleFollowUser = async () => {
-    if (isFollowLoading) return
-    try {
-      // if no session is found, redirect to login\
-      if (!session) {
-        customSonner({ type: 'error', text: 'Please sign in to follow user' })
-        router.push('/auth/signin')
-        return
-      }
-      setIsFollowLoading(true)
-      const followerId = session.user?.id
-      const followeeId = user?.userId
-      if (!followerId || !followeeId) {
-        customSonner({ type: 'error', text: 'Invalid user data' })
-        return
-      }
-      if (followerId === followeeId) {
-        customSonner({ type: 'error', text: 'You cannot follow yourself' })
-        return
-      }
-      const { success, error, follow } = await userFollowOrUnfollow({
-        followerId,
-        followeeId,
-        jwt: session.user.hasuraJwt as string
-      })
-      if (!success) {
-        console.error('Failed to follow/Unfollow user:', error)
-        customSonner({ type: 'error', text: error || 'Failed to follow/Unfollow user' })
-        return
-      }
-
-      if (follow) {
-        setUserData(prevUser => {
-          if (!prevUser) return prevUser
-
-          const newFollower: SocialFollowing = {
-            followerId,
-            followeeId,
-            createdAt: new Date().toISOString(),
-            user: prevUser,
-            userByFollowerId: prevUser,
-            chatbot: null,
-            followeeIdChatbot: null,
-            __typename: 'SocialFollowing'
-          }
-
-          return {
-            ...prevUser,
-            followers: [...(prevUser.followers || []), newFollower]
-          } as User // Assert the entire object as User type
-        })
-        customSonner({ type: 'success', text: `You are now following ${user?.username}` })
-      } else {
-        setUserData(prevUser => {
-          if (!prevUser) return prevUser
-
-          return {
-            ...prevUser,
-            followers: prevUser.followers.filter(
-              follower =>
-                follower.followerId !== followerId ||
-                follower.followeeId !== followeeId
-            )
-          }
-        })
-        customSonner({ type: 'success', text: `You have unfollowed ${user?.username}` })
-      }
-    } catch (error) {
-      customSonner({ type: 'error', text: 'Failed to follow user' })
-      console.error('Failed to follow user:', error)
-    } finally {
-      setIsFollowLoading(false)
-    }
   }
-
-  const followed = isFollowed({
-    followers: userData?.followers,
-    userId: session?.user?.id || ''
-  })
+    , [user])
 
   return (
     <div
       className="dark:bg-[#09090B] bg-white rounded-lg  md:w-[600px]
        md:min-h-[290px]
         flex flex-row gap-3 mx-auto font-geist"
-    >
-      {' '}
-      {loading && !user && (
-        <div className="absolute inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
-          <Loader className="w-16 h-16 text-white" />
-        </div>
-      )}
-      {!loading && user && (
-        <div className="relative w-full">
-          <div className="space-y-1 ">
-            {/* Profile Name */}
-            <div className="pt-7 px-5 pb-2">
-              <h2 className="md:text-2xl  text-xl font-semibold capitalize">
-                {user?.username}
-              </h2>
-              <div className="items-center space-x-1 md:hidden flex">
-                <BotIcon className="w-4 h-4" />
-                <span className="">Threads:</span>
-                <span className="text-gray-500">{user?.threads.length}</span>
-              </div>
-              <div className="flex items-center  space-x-1">
-                <BookUser className="w-4 h-4" />
-                <p className="text-sm  ">bio:</p>
-
-                <div className="h-7">
-                  {isOwner && (
-                    <Button
-                      disabled={isLoading && generateType === 'bio'}
-                      variant="ghost"
-                      onClick={() => generateBio('bio')}
-                      className="text-sm text-gray-500 border py-[2px] px-[8px] border-black dark:border-gray-400 hover:text-black dark:hover:text-gray-400"
-                    >
-                      {bio ? 're-generate' : 'generate'}
-                      {isLoading && generateType === 'bio' ? (
-                        <Loader className="w-4 h-4 ml-1" />
-                      ) : (
-                        <Wand2 className="w-4 h-4 ml-1" />
-                      )}
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </div>
-            <Separator className="bg-gray-300  dark:bg-mirage size-[3px] w-full" />
-
-            {/* Bio Section */}
-            <div className="space-y-2 min-h-16 md:mr-0  px-5">
-              {isOwner && !bio && (
-                <p className="text-[13px] font-normal text-gray-500 md:w-[400px]">
-                  click{' '}
-                  <Button
-                    variant="ghost"
-                    className="text-xs text-gray-500 p-1 hover:text-black dark:hover:text-gray-400"
-                  >
-                    {' '}
-                    generate <Wand2 className="w-4 h-4 ml-1" />
-                  </Button>
-                  to create a Masterbots biography based on your thread history.
-                </p>
-              )}
-              {bio && (
-                <p className="text-sm text-gray-500 md:w-[400px] w-full">
-                  {bio}
-                </p>
-              )}
-            </div>
-
-            {/* Stats Section */}
-            <div className="flex md:flex-row flex-col md:justify-between p-6">
-              <div className="space-y-1 pt-5">
-                <div className="md:flex  items-center space-x-1 hidden">
+    > {
+        loading && !user && (
+          <div className="absolute inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
+            <Loader className="w-16 h-16 text-white" />
+          </div>
+        )
+      }
+      {
+        !loading && user && (
+          <div className="relative w-full">
+            <div className="space-y-1 ">
+              {/* Profile Name */}
+              <div className='pt-7 px-5 pb-2'>
+                <h2 className="md:text-2xl  text-xl font-semibold capitalize">{user?.username}</h2>
+                <div className="items-center space-x-1 md:hidden flex">
                   <BotIcon className="w-4 h-4" />
                   <span className="">Threads:</span>
-                  <span className="text-gray-500">{user?.threads.length}</span>
+                  <span className='text-gray-500'>{user?.threads.length}</span>
                 </div>
+                <div className="flex items-center  space-x-1">
+                  <BookUser className="w-4 h-4" />
+                  <p className="text-sm  ">bio:</p>
 
-                <div>
-                  <div className="flex items-center space-x-1">
-                    <MessageSquareHeart className="w-4 h-4" />
-                    <p className="">Favourite topic:</p>
+                  <div className='h-7'>
                     {isOwner && (
-                      <Button
-                        disabled={isLoading && generateType === 'topic'}
-                        variant="ghost"
-                        onClick={() => generateBio('topic')}
-                        className="text-sm text-gray-500 border py-[2px] px-[8px] border-black dark:border-gray-400 hover:text-black dark:hover:text-gray-400"
-                      >
-                        {favouriteTopic ? 're-generate' : 'generate'}
-                        {isLoading && generateType === 'topic' ? (
-                          <Loader className="w-4 h-4 ml-1" />
-                        ) : (
-                          <Wand2 className="w-4 h-4 ml-1" />
-                        )}
+                      <Button disabled={isLoading && generateType === 'bio'} variant="ghost" onClick={() => generateBio('bio')} className="text-sm text-gray-500 border py-[2px] px-[8px] border-black dark:border-gray-400 hover:text-black dark:hover:text-gray-400">
+                        {bio ? 're-generate' : 'generate'}
+                        {isLoading && generateType === 'bio' ? <Loader className="w-4 h-4 ml-1" /> : <Wand2 className="w-4 h-4 ml-1" />}
                       </Button>
                     )}
                   </div>
-                  {isOwner && !favouriteTopic && (
-                    <p className="text-xs text-gray-500 md:w-[400px] w-full">
-                      click{' '}
-                      <Button
-                        variant="ghost"
-                        onClick={() => generateBio('topic')}
-                        disabled={isLoading && generateType === 'topic'}
-                        className="text-xs text-gray-500 p-1 hover:text-black dark:hover:text-gray-400"
-                      >
-                        {' '}
-                        generate
-                        {isLoading && generateType === 'topic' ? (
-                          <Loader className="w-4 h-4 ml-1" />
-                        ) : (
-                          <Wand2 className="w-4 h-4 ml-1" />
-                        )}
-                      </Button>
-                      and know your most common topic.
-                    </p>
-                  )}
-                  {favouriteTopic && (
-                    <p className="text-sm text-gray-500 md:w-[300px]">
-                      {favouriteTopic}
-                    </p>
-                  )}
+
+
                 </div>
               </div>
+              <Separator className="bg-gray-300  dark:bg-mirage size-[3px] w-full" />
 
-              <div className=" flex flex-col  items-center md:mt-0 mt-7  space-y-3">
-                {!isOwner && (
-                  <Button
-                    disabled={isFollowLoading}
-                    onClick={handleFollowUser}
-                    variant={'ghost'}
-                    aria-label={`${followed ? 'Unfollow' : 'Follow'} ${
-                      user?.username
-                    }`}
-                    aria-busy={isFollowLoading}
-                    className="px-10 py-1 text-sm text-white  rounded-md bg-[#BE17E8] hover:bg-[#BE17E8] dark:bg-[#83E56A] dark:hover:bg-[#83E56A] dark:text-black transition-colors"
-                  >
-                    {isFollowLoading ? (
-                      <Loader className="w-4 h-4 mx-auto" />
-                    ) : (
-                      <>{followed ? 'Following' : 'Follow'}</>
-                    )}
-                  </Button>
+              {/* Bio Section */}
+              <div className="space-y-2 min-h-16 md:mr-0  px-5">
+                {isOwner && !bio && (
+                  <p className="text-[13px] font-normal text-gray-500 md:w-[400px]">
+                    click <Button variant="ghost" className="text-xs text-gray-500 p-1 hover:text-black dark:hover:text-gray-400"> generate <Wand2 className="w-4 h-4 ml-1" /></Button>
+                    to create a Masterbots biography based on your thread history.
+                  </p>
                 )}
-                <div className="flex space-x-6 md:pt-2 ">
-                  <div className="flex flex-col items-center">
-                    <span className="text-sm">Following</span>
-                    <div className="flex items-center space-x-1">
-                      <UserIcon className="w-4 h-4" />
-                      <span className="text-sm text-gray-500">
-                        {formatNumber(userData?.following?.length || 0)}
-                      </span>
-                    </div>
+                {bio && (
+                  <p className="text-sm text-gray-500 md:w-[400px] w-full">{bio}
+                  </p>
+                )}
+              </div>
+
+              {/* Stats Section */}
+              <div className='flex md:flex-row flex-col md:justify-between p-6' >
+                <div className="space-y-1 pt-5">
+                  <div className="md:flex  items-center space-x-1 hidden">
+                    <BotIcon className="w-4 h-4" />
+                    <span className="">Threads:</span>
+                    <span className='text-gray-500'>{user?.threads.length}</span>
                   </div>
-                  <div className="flex flex-col items-center">
-                    <span className="text-sm">Followers</span>
+
+                  <div>
                     <div className="flex items-center space-x-1">
-                      <Users className="w-4 h-4" />
-                      <span className="text-sm text-gray-500">
-                        {formatNumber(userData?.followers?.length || 0)}
-                      </span>
+                      <MessageSquareHeart className="w-4 h-4" />
+                      <p className="">Favourite topic:</p>
+                      {isOwner && (
+                        <Button disabled={isLoading && generateType === 'topic'} variant="ghost" onClick={() => generateBio('topic')} className="text-sm text-gray-500 border py-[2px] px-[8px] border-black dark:border-gray-400 hover:text-black dark:hover:text-gray-400">
+                          {favouriteTopic ? 're-generate' : 'generate'}
+                          {isLoading && generateType === 'topic' ? <Loader className="w-4 h-4 ml-1" /> : <Wand2 className="w-4 h-4 ml-1" />}
+                        </Button>
+                      )}
                     </div>
+                    {isOwner && !favouriteTopic && (
+                      <p className="text-xs text-gray-500 md:w-[400px] w-full">
+                        click <Button
+                          variant="ghost" onClick={() => generateBio('topic')}
+                          disabled={isLoading && generateType === 'topic'}
+                          className="text-xs text-gray-500 p-1 hover:text-black dark:hover:text-gray-400"> generate
+                          {isLoading && generateType === 'topic' ? <Loader className="w-4 h-4 ml-1" /> : <Wand2 className="w-4 h-4 ml-1" />}
+                        </Button>
+                        and know your most common topic.
+                      </p>
+                    )}
+                    {favouriteTopic && (
+                      <p className="text-sm text-gray-500 md:w-[300px]">{favouriteTopic}</p>
+                    )}
                   </div>
                 </div>
+                {/* Implementation for this comes next :) */}
+                {/* <div className=' flex flex-col  items-center md:mt-0 mt-7  space-y-3'>
+           {!isOwner && (
+          <button aria-label={`Follow ${user?.username}`} className="px-10 py-1 text-sm text-white  rounded-md bg-[#BE17E8] hover:bg-[#BE17E8] dark:bg-[#83E56A] dark:hover:bg-[#83E56A] dark:text-black transition-colors">
+            Follow
+          </button>
+          )}
+          <div className="flex space-x-6 md:pt-2 ">
+            <div className="flex flex-col items-center">
+              <span className="text-sm">Following</span>
+              <div className='flex items-center space-x-1'>
+                <UserIcon className="w-4 h-4" />
+                <span className="text-sm text-gray-500">313</span>
+              </div>
+              
+            </div>
+            <div className="flex flex-col items-center">
+              <span className="text-sm">Followers</span>
+              <div className='flex items-center space-x-1'>
+                <Users className="w-4 h-4" />
+                <span className="text-sm text-gray-500">3.2k</span>
               </div>
             </div>
           </div>
+          </div> */}
 
-          {/* Profile Image and Follow Button Section */}
-          <div className="absolute md:top-[3rem]  top-3 md:right-20 right-[3.5rem] translate-x-1/2 flex flex-col  items-center space-y-3">
-            <div className="relative size-24">
-              <div className="absolute  inset-0 border-4 border-[#BE17E8] dark:border-[#83E56A] rounded-full dark:bg-[#131316] bg-white overflow-hidden">
-                <Image
-                  className="transition-opacity duration-300 rounded-full select-none size-full ring-1 ring-zinc-100/10 hover:opacity-80 object-cover"
-                  src={
-                    userProfilePicture
-                      ? userProfilePicture
-                      : 'https://api.dicebear.com/9.x/identicon/svg?seed=default_masterbots_ai_user_avatar'
-                  }
-                  alt={`Profile picture of ${user.username}`}
-                  height={136}
-                  width={136}
-                  priority
-                  loading="eager"
-                  onError={e => {
-                    e.currentTarget.src =
-                      'https://api.dicebear.com/9.x/identicon/svg?seed=default_masterbots_ai_user_avatar'
-                  }}
-                />
               </div>
-              {isOwner && (
-                <>
-                  <Button
-                    variant="ghost"
-                    className="absolute bottom-0 w-[25px] h-[25px]   right-2  p-1  rounded-full dark:bg-[#83E56A] bg-[#BE17E8]"
-                    onClick={() =>
-                      document.getElementById('profile-pic-upload')?.click()
-                    }
-                  >
-                    {isUploadingImage ? (
-                      <Loader className="w-4 h-4 text-white" />
-                    ) : (
-                      <ImagePlus className="w-3 h-3 rounded-full dark:text-black text-white font-bold" />
-                    )}
-                  </Button>
-                  <input
-                    id="profile-pic-upload"
-                    type="file"
-                    accept="image/*"
-                    style={{ display: 'none' }}
-                    onChange={handleProfilePictureUpload}
+            </div>
+
+            {/* Profile Image and Follow Button Section */}
+            <div className="absolute md:top-[3rem]  top-3 md:right-20 right-[3.5rem] translate-x-1/2 flex flex-col  items-center space-y-3">
+              <div className="relative size-24">
+                <div className="absolute  inset-0 border-4 border-[#BE17E8] dark:border-[#83E56A] rounded-full dark:bg-[#131316] bg-white overflow-hidden">
+                  <Image
+                    className="transition-opacity duration-300 rounded-full select-none size-full ring-1 ring-zinc-100/10 hover:opacity-80 object-cover"
+                    src={userProfilePicture ? userProfilePicture : 'https://api.dicebear.com/9.x/identicon/svg?seed=default_masterbots_ai_user_avatar'}
+                    alt={`${user.username}'s profile picture`}
+                    height={136}
+                    width={136}
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://api.dicebear.com/9.x/identicon/svg?seed=default_masterbots_ai_user_avatar'
+                    }}
                   />
-                </>
-              )}
+                </div>
+                {isOwner && (
+                  <>
+                    <Button
+                      variant="ghost"
+                      className="absolute bottom-0 w-[25px] h-[25px]   right-2  p-1  rounded-full dark:bg-[#83E56A] bg-[#BE17E8]"
+                      onClick={() => document.getElementById('profile-pic-upload')?.click()}
+                    >
+                      {isUploadingImage ? (
+                        <Loader className="w-4 h-4 text-white" />
+                      ) : (
+                        <ImagePlus className="w-3 h-3 rounded-full dark:text-black text-white font-bold" />
+                      )}
+                    </Button>
+                    <input
+                      id="profile-pic-upload"
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      onChange={handleProfilePictureUpload}
+                    />
+                  </>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
+
     </div>
   )
 }

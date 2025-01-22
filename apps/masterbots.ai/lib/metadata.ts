@@ -119,21 +119,3 @@ export async function generateMbMetadata({
     }
   }
 }
-
-
-export const defaultContent = {
-  thread: {
-    chatbot: {
-      name: 'Masterbots',
-      avatar: null,
-      categories: [{ category: { name: 'AI' } }]
-    }
-  },
-  question:
-    'Elevating AI Beyond ChatGPT: Specialized Chatbots, Social Sharing and User-Friendly Innovation',
-  answer:
-    'Elevating AI Beyond ChatGPT: Specialized Chatbots, Social Sharing and User-Friendly Innovation',
-  username: 'Masterbots',
-  user_avatar: '',
-  isLightTheme: false
-}

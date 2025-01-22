@@ -23,8 +23,8 @@ import type { Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import type React from 'react'
 import { useState } from 'react'
+import toast from 'react-hot-toast'
 import { ShareButton } from './share-button'
-import { useSonner } from '@/lib/hooks/useSonner'
 
 interface ChatOptionsProps {
   threadId: string
@@ -42,7 +42,6 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
   const url = `/${toSlug(thread.chatbot.categories[0].category.name)}/${thread.threadId}`
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-  const { customSonner } = useSonner()
 
   const handleDelete = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -51,9 +50,9 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
     setIsDeleting(true)
     const result = await initiateDeleteThread(threadId)
     if (result?.success) {
-      customSonner({ type: 'success', text: result.message })
+      toast.success(result.message)
     } else {
-      customSonner({ type: 'error', text: result?.error })
+      toast.error(result?.message)
     }
     setIsDeleting(false)
     setIsDeleteOpen(false)
