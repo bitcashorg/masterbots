@@ -98,15 +98,15 @@ export default function SidebarLink({
       setSelectedChatbots(prev =>
         checked
           ? [
-              ...prev,
-              ...category.chatbots.map(chatbot => chatbot.chatbot.chatbotId)
-            ]
+            ...prev,
+            ...category.chatbots.map(chatbot => chatbot.chatbot.chatbotId)
+          ]
           : prev.filter(
-              id =>
-                !category.chatbots.some(
-                  chatbot => chatbot.chatbot.chatbotId === id
-                )
-            )
+            id =>
+              !category.chatbots.some(
+                chatbot => chatbot.chatbot.chatbotId === id
+              )
+          )
       )
     },
     [category.categoryId, category.chatbots]
@@ -247,13 +247,13 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
 
     if (!isFilterMode && !isSelected) return null
 
-    return isFilterMode || isBrowse ? (
+    return isFilterMode ? (
       <div
-      className={cn(
-        'flex items-center p-2 w-full sidebar-gradient',
-        isActive && 'selected'
-      )}
-      data-route={routeType}
+        className={cn(
+          'flex items-center p-2 w-full sidebar-gradient',
+          isActive && 'selected'
+        )}
+        data-route={routeType}
       >
         {isFilterMode && (
           <Checkbox
@@ -277,11 +277,11 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
         href={
           page === 'profile'
             ? urlBuilders.userChatbotUrl({
-                slug: slug as string,
-                category: category.name,
-                chatbot: chatbot.name
-              })
-            : `/c/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`
+              slug: slug as string,
+              category: category.name,
+              chatbot: chatbot.name
+            })
+            : `${isBrowse ? '' : '/c'}/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`
         }
         className={cn(
           'flex items-center p-2 w-full sidebar-gradient',
