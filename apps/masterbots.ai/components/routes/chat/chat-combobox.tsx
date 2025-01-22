@@ -31,7 +31,7 @@ import { usePowerUp } from '@/lib/hooks/use-power-up'
 
 //* Model options available in the combobox, each with label, value, and logo icon.
 const models = [
-  { label: 'GPT-4o', value: AIModels.Default, logo: "MB" },
+  { label: 'GPT-4o', value: AIModels.Default, logo: 'MB' },
   { label: 'GPT-4', value: AIModels.GPT4, logo: <IconOpenAI /> },
   { label: 'Claude3', value: AIModels.Claude3, logo: <IconClaude /> },
   { label: 'llama3_8', value: AIModels.llama3_8b, logo: <IconLlama /> },
@@ -45,6 +45,7 @@ export function ChatCombobox() {
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState(selectedModel as string)
   const { isPowerUp } = usePowerUp()
+  const isDevEnv = process.env.NEXT_PUBLIC_APP_ENV !== 'prod'
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -54,8 +55,11 @@ export function ChatCombobox() {
           role="combobox"
           aria-expanded={open}
           className={cn(
-            buttonVariants({ size: 'sm', variant: isPowerUp ? 'powerUp' : 'outline' }),
-            'absolute left-0 top-4 size-8 rounded-full p-0 sm:left-4'
+            buttonVariants({
+              size: 'sm',
+              variant: isPowerUp ? 'powerUp' : 'outline'
+            }),
+            'absolute left-0 top-5 size-8 rounded-full p-0 sm:left-4'
           )}
         >
           {/* Renders the selected model's logo or default icon */}
@@ -74,28 +78,48 @@ export function ChatCombobox() {
           <CommandEmpty>No model found.</CommandEmpty>
           <CommandGroup>
             <CommandList>
-              {/* Iterates over models to create selectable items */}
-              {models.map(model => (
-                <CommandItem
-                  key={model.value}
-                  value={model.value}
-                  onSelect={currentValue => {
+              {/* Render models only in dev or local environments, otherwise show default */}
+              {isDevEnv ? (
+                models.map(model => (
+                  <CommandItem
+                    key={model.value}
+                    value={model.value}
+                    onSelect={currentValue => {
                       process.env.NEXT_PUBLIC_APP_ENV !== 'prod'
-                        ? (setValue(currentValue === value ? '' : currentValue), changeModel(currentValue as AIModels))
-                        : ''  
-                    setOpen(false)  // Closes the popover after selection.
+                        ? (setValue(currentValue === value ? '' : currentValue),
+                          changeModel(currentValue as AIModels))
+                        : ''
+                      setOpen(false) // Closes the popover after selection.
+                    }}
+                  >
+                    {model.label}
+                    <CheckIcon
+                      className={cn(
+                        'ml-auto size-4 text-emerald-500',
+                        value === model.value ? 'opacity-100' : 'opacity-0'
+                      )}
+                    />
+                  </CommandItem>
+                ))
+              ) : (
+                <CommandItem
+                  key={AIModels.Default}
+                  value={AIModels.Default}
+                  onSelect={() => {
+                    setValue(AIModels.Default)
+                    changeModel(AIModels.Default)
+                    setOpen(false)
                   }}
                 >
-                  {model.label}
-                  {/* Visual checkmark icon for the selected model */}
+                  Masterbot&apos;s Model
                   <CheckIcon
                     className={cn(
-                      'ml-auto h-4 w-4 text-emerald-500',
-                      value === model.value ? 'opacity-100' : 'opacity-0'
+                      'ml-auto size-4 text-emerald-500',
+                      value === AIModels.Default ? 'opacity-100' : 'opacity-0'
                     )}
                   />
                 </CommandItem>
-              ))}
+              )}
             </CommandList>
           </CommandGroup>
         </Command>

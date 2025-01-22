@@ -211,12 +211,13 @@ export default function UserThreadPanel({
 
   const showNoResults = !loading && searchTerm && threads.length === 0
   const showChatbotDetails = !loading && !searchTerm && threads.length === 0
-
   return (
     <>
-      <div className="flex justify-between px-4 md:px-10 py-5 lg:max-w-[calc(100%-100px)] 2xl:max-w-full">
-        <ChatSearchInput setThreads={setThreads} onSearch={setSearchTerm} />
-      </div>
+      {threads.length > 0 && (
+        <div className="flex justify-between px-4 md:px-10 py-5 lg:max-w-[calc(100%-100px)] 2xl:max-w-full">
+          <ChatSearchInput setThreads={setThreads} onSearch={setSearchTerm} />
+        </div>
+      )}
 
       {loading ? (
         <NoResults isLoading={true} />

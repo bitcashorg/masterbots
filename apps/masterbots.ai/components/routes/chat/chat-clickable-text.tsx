@@ -1,51 +1,137 @@
 import {
   cleanClickableText,
-  extractTextFromReactNode,
-  parseClickableText
-} from '@/lib/utils'
+  extractTextFromReactNodeNormal,
+  extractTextFromReactNodeWeb,
+  parseClickableText,
+  transformLink,
+} from '@/lib/clickable-results'
+import { useThread } from '@/lib/hooks/use-thread'
+import { cn } from '@/lib/utils'
+import type { ClickableTextProps } from '@/types/types'
+import React from 'react'
 
-interface ClickableTextProps {
-  children: React.ReactNode
-  isListItem: boolean
-  sendMessageFromResponse?: (message: string) => void
-}
-
-/**
- * ClickableText component
- * Renders phrases as clickable links, triggering a message when clicked.
- */
 export function ClickableText({
   children,
   isListItem,
-  sendMessageFromResponse
+  sendMessageFromResponse,
+  webSearchResults = [],
+  onReferenceFound,
 }: ClickableTextProps) {
-  const fullText = extractTextFromReactNode(children)
-  const { clickableText, restText } = parseClickableText(fullText)
+  const { webSearch } = useThread()
 
-  const handleClick = () => {
-    if (sendMessageFromResponse && clickableText.trim()) {
-      const cleanedText = cleanClickableText(clickableText)
+  const extractedContent = webSearch
+    ? extractTextFromReactNodeWeb(children)
+    : extractTextFromReactNodeNormal(children)
+
+  const createClickHandler = (text: string) => () => {
+    if (sendMessageFromResponse && text.trim()) {
+      const cleanedText = cleanClickableText(text)
       sendMessageFromResponse(`Tell me more about ${cleanedText}`)
     }
   }
 
-  if (!clickableText.trim()) {
-    return <>{fullText}</>
+  const processLink = (linkElement: React.ReactElement) => {
+    const href = linkElement.props.href
+    // Buscar la referencia correspondiente
+    const reference = webSearchResults.find((result) => result.url === href)
+
+    if (reference && onReferenceFound) {
+      onReferenceFound(reference)
+      return null // Remover el link inline
+    }
+
+    return linkElement // Mantener links que no son de búsqueda web
   }
 
-  return (
+  const renderClickableContent = (clickableText: string, restText: string) => (
     <>
-      {/* biome-ignore lint/a11y/useKeyWithClickEvents: Click handler is supplementary */}
-      <span
-        className="cursor-pointer text-link hover:underline"
-        onClick={handleClick}
-        // biome-ignore lint/a11y/useSemanticElements: <explanation>
-        role="button"
-        tabIndex={0}
+      <button
+        className={cn('cursor-pointer hover:underline bg-transparent border-none p-0 m-0', isListItem ? 'text-blue-500' : 'text-link')}
+        onClick={createClickHandler(clickableText)}
+        type="button"
       >
         {clickableText}
-      </span>
+      </button>
       {restText}
     </>
   )
+
+  if (Array.isArray(extractedContent)) {
+    return extractedContent.map((content, index) => {
+      if (React.isValidElement(content)) {
+        if (content.type === 'a' && webSearch) {
+          return processLink(content)
+        }
+        // Manejo de elementos strong
+        if (content.type === 'strong') {
+          const strongContent = extractTextFromReactNodeNormal(
+            (content.props as { children: React.ReactNode }).children,
+          )
+          const { clickableText, restText } = parseClickableText(strongContent + ':')
+
+          if (clickableText.trim()) {
+            return (
+              <button
+                key={`clickable-${index}`}
+                className={cn(
+                  'cursor-pointer hover:underline',
+                  isListItem ? 'text-blue-500' : 'text-link',
+                )}
+                onClick={createClickHandler(clickableText)}
+                type="button"
+                tabIndex={0}
+              >
+                {strongContent}
+              </button>
+            )
+          }
+          return content
+        }
+
+        // Manejo de links cuando webSearch está activo
+        if (content.type === 'a' && webSearch) {
+          const parentContext = extractedContent
+            .filter(
+              (item) =>
+                typeof item === 'string' || (React.isValidElement(item) && item.type === 'strong'),
+            )
+            .map((item) =>
+              typeof item === 'string'
+                ? item
+                : extractTextFromReactNodeNormal(
+                  (item.props as { children: React.ReactNode }).children,
+                ),
+            )
+            .join(' ')
+          return transformLink(content, parentContext)
+        }
+
+        return content
+      }
+
+      const { clickableText, restText } = parseClickableText(String(content))
+
+      if (!clickableText.trim()) {
+        return content
+      }
+
+      return (
+        <React.Fragment key={`clickable-${index}`}>
+          {renderClickableContent(clickableText, restText)}
+        </React.Fragment>
+      )
+    })
+  }
+
+  if (React.isValidElement(extractedContent)) {
+    return extractedContent
+  }
+
+  const { clickableText, restText } = parseClickableText(String(extractedContent))
+
+  if (!clickableText.trim()) {
+    return <>{extractedContent}</>
+  }
+
+  return renderClickableContent(clickableText, restText)
 }
