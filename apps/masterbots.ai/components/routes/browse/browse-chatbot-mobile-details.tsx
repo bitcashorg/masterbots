@@ -6,7 +6,7 @@ import { cn, isFollowed, numberShortener } from '@/lib/utils'
 import type { BrowseChatbotLayoutProps } from '@/types/types'
 import {
   Bot,
-  BotMessageSquareIcon,
+  MessageSquareIcon,
   ChevronLeft,
   MessageSquarePlusIcon,
   Users
@@ -46,7 +46,7 @@ export function BrowseChatbotMobileDetails({
                   {chatbot.name}
                 </h1>
                 <div className="flex items-center gap-2">
-                  <BotMessageSquareIcon className="size-4" />
+                  <MessageSquareIcon className="size-4" />
                   <span className="text-zinc-950 dark:text-gray-300">
                     Threads: {chatbot.threads.length}
                   </span>
@@ -68,7 +68,7 @@ export function BrowseChatbotMobileDetails({
                   alt={`${chatbot.name} avatar`}
                   width={74}
                   height={74}
-                  className="object-cover size-full p-0 m-0"
+                  className="object-cover p-0 m-0 size-full"
                 />
               </div>
             </div>
