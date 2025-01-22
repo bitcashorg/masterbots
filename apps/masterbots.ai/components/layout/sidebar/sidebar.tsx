@@ -35,7 +35,7 @@ export function Sidebar({ className }: React.ComponentProps<'div'>) {
           className,
           'h-full flex flex-col z-40',
           isChatRoute 
-            ? 'bg-[#fae8ff] dark:bg-[#17021D]' // For /c routes
+            ? 'bg-[#fae8ff] dark:bg-[#17021D]' // For /c routes only
             : 'bg-[#eeffea] dark:bg-[#0B1608]'  // For other routes
         )}
       >
