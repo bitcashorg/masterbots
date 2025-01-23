@@ -1,11 +1,34 @@
+'use client'
+
 import Link from 'next/link'
 import * as React from 'react'
+import { usePathname } from 'next/navigation'
 
 import { UserLogin } from '@/components/auth/user-login'
 import { SidebarToggle } from '@/components/layout/sidebar/sidebar-toggle'
 import { Button } from '@/components/ui/button'
 import { IconSeparator } from '@/components/ui/icons'
+import { getRouteColor } from '@/lib/utils'
 import { appConfig } from 'mb-env'
+
+function HeaderLink({ href, text }: { href: string; text: string }) {
+  const pathname = usePathname()
+  
+  // Check if this link represents the current active route
+  const isActive = href === '/' 
+    ? pathname === '/' 
+    : pathname?.startsWith(href)
+
+  return (
+    <Button 
+      variant="link" 
+      asChild 
+      className={`-ml-2 ${getRouteColor(isActive, pathname)}`}
+    >
+      <Link href={href}>{text}</Link>
+    </Button>
+  )
+}
 
 export function Header() {
   return (
@@ -30,13 +53,5 @@ export function Header() {
         </React.Suspense>
       </div>
     </header>
-  )
-}
-
-function HeaderLink({ href, text }: { href: string; text: string }) {
-  return (
-    <Button variant="link" asChild className="-ml-2">
-      <Link href={href}>{text}</Link>
-    </Button>
   )
 }

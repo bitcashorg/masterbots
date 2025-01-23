@@ -355,9 +355,25 @@ export function numberShortener(number: number): string {
  * @param pathname - The current pathname from Next.js usePathname()
  * @returns 'chat' | 'public' | ''
  */
+
+
 export function getRouteType(pathname: string | null): 'chat' | 'public' | '' {
   if (!pathname) return ''
   if (pathname.startsWith('/c')) return 'chat'
   if (pathname.startsWith('/')) return 'public'
   return ''
+}
+
+export function getRouteColor(isActive: boolean, pathname: string | null): string {
+  if (!isActive) return ''
+  
+  const routeType = getRouteType(pathname)
+  switch (routeType) {
+    case 'chat':
+      return 'text-purple-500'
+    case 'public':
+      return 'text-green-500'
+    default:
+      return ''
+  }
 }

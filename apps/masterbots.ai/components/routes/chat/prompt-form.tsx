@@ -62,6 +62,7 @@ export function PromptForm({
   const inputRef = React.useRef<HTMLTextAreaElement>(null)
   const [isFocused, setIsFocused] = React.useState(false)
 
+  //TODO: Once the  changes from luis are ready we need to refactor the handleBotSelection to use the new method
   const handleBotSelection = () => {
     if (activeThread?.chatbot) {
       setActiveChatbot(activeThread.chatbot)
@@ -71,6 +72,7 @@ export function PromptForm({
       }
     }
   }
+  
   React.useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus()
@@ -100,7 +102,7 @@ export function PromptForm({
     >
       <div
         className={cn(
-          'relative flex flex-col w-full px-8 overflow-hidden grow bg-background sm:rounded-md sm:border sm:px-12',
+          'relative flex flex-col w-full px-8 overflow-hidden grow bg-background border-purple-600/50 sm:rounded-md sm:border sm:px-12',
           'max-h-32 md:max-h-60',
           isOpenPopup && isFocused ? 'dark:border-mirage border-iron' : ''
         )}

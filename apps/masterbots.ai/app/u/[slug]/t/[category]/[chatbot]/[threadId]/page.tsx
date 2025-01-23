@@ -1,6 +1,6 @@
 import { BrowseChatMessageList } from '@/components/routes/browse/browse-chat-message-list'
 import { getThread } from '@/services/hasura'
-import { User } from 'mb-genql'
+import type { User } from 'mb-genql'
 
 interface ThreadPageProps {
   params: {
