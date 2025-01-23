@@ -23,7 +23,7 @@ function HeaderLink({ href, text }: { href: string; text: string }) {
     <Button 
       variant="link" 
       asChild 
-      className={`-ml-2 ${getRouteColor(isActive, pathname)}`}
+      className={`-ml-1 ${getRouteColor(isActive, pathname)}`}
     >
       <Link href={href}>{text}</Link>
     </Button>

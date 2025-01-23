@@ -102,9 +102,9 @@ export function PromptForm({
     >
       <div
         className={cn(
-          'relative flex flex-col w-full px-8 overflow-hidden grow bg-background border-purple-600/50 sm:rounded-md sm:border sm:px-12',
+          'relative flex flex-col w-full px-8 overflow-hidden grow bg-background border-4 border-[#be16e8] rounded-mb sm:px-12',
           'max-h-32 md:max-h-60',
-          isOpenPopup && isFocused ? 'dark:border-mirage border-iron' : ''
+          isOpenPopup && isFocused ? 'dark:border-mirage' : ''
         )}
       >
         <ChatCombobox />

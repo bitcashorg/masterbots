@@ -360,7 +360,7 @@ export function numberShortener(number: number): string {
 export function getRouteType(pathname: string | null): 'chat' | 'public' | '' {
   if (!pathname) return ''
   if (pathname.startsWith('/c')) return 'chat'
-  if (pathname.startsWith('/')) return 'public'
+  if (pathname.includes('/') ) return 'public'
   return ''
 }
 
@@ -370,9 +370,9 @@ export function getRouteColor(isActive: boolean, pathname: string | null): strin
   const routeType = getRouteType(pathname)
   switch (routeType) {
     case 'chat':
-      return 'text-purple-500'
+      return 'text-black bg-gradient-to-b from-[rgba(190,23,232,0.1)] via-[rgba(187,6,232,0.5)] to-[rgba(190,23,232,0.5)] dark:text-white'
     case 'public':
-      return 'text-green-500'
+      return 'text-black bg-gradient-to-b from-[rgba(131,229,106,0.1)] via-[rgba(131,229,106,0.5)] to-[rgba(131,229,106,0.5)] dark:text-white'
     default:
       return ''
   }
