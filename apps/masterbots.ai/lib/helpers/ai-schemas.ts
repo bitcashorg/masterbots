@@ -40,10 +40,9 @@ export const aiTools = {
 
 // ? useObject schemas for the AI tools
 export const metadataSchema = z.object({
-  domain: z.string(),
-  category: z.array(z.string()),
-  subCategory: z.array(z.string()),
-  tags: z.array(z.string()),
+  category: z.array(z.string()).describe('Exact category name from provided options.'),
+  subCategory: z.array(z.string()).describe('Exact subcategory name from chosen category.'),
+  tags: z.array(z.string()).describe('Array of exact tag names from provided options.'),
 })
 
 // TODO: Define a tool schema for tool returning objects

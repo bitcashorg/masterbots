@@ -1,4 +1,4 @@
-import { improveMessage } from '@/app/actions'
+import { getChatbotMetadataLabels, improveMessage } from '@/app/actions'
 import { formatSystemPrompts } from '@/lib/actions'
 import { followingQuestionsPrompt, setDefaultUserPreferencesPrompt } from '@/lib/constants/prompts'
 import { useModel } from '@/lib/hooks/use-model'
@@ -241,6 +241,10 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     setLoadingState('generating')
 
     try {
+      const chatbotMetadata = await getMetadataLabels()
+
+      console.log('Chatbot metadata: ', chatbotMetadata)
+
       if (isNewChat && chatbot) {
         await createThread({
           threadId: threadId as string,
@@ -260,12 +264,12 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       }
 
       const appendResponse = await append(
-        isNewChat
-          ? { ...userMessage, content: userContentRef.current }
-          : {
-              ...userMessage,
-              content: followingQuestionsPrompt(userContentRef.current, messages),
-            },
+        {
+          ...userMessage,
+          content: isNewChat
+            ? userContentRef.current
+            : followingQuestionsPrompt(userContentRef.current, messages),
+        },
         // ? Provide chat attachments here...
         // {
         //   experimental_attachments: [],
@@ -337,6 +341,103 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       console.error('Error processing user message. Using og message. Error: ', error)
     } finally {
       await appendNewMessage(userMessage)
+    }
+  }
+
+  const getMetadataLabels = async () => {
+    let chatMetadata: any
+    try {
+      chatMetadata = await getChatbotMetadataLabels(
+        {
+          domain: chatbot?.categories[0].categoryId,
+          chatbot: chatbot?.chatbotId,
+        },
+        userContent,
+        clientType as AiClientType,
+      )
+      console.log('Full responses from getChatbotMetadataLabels:', chatMetadata)
+
+      // * Loading: Polishing Ai request... 'polishing'
+      setLoadingState('polishing')
+    } catch (error) {
+      console.error('Error getting chatbot metadata labels:', error)
+    }
+
+    const tagExamples = []
+    const categoryExamples = []
+    // * Getting the user labelling the thread (categories, sub-category, etc.)
+    try {
+      // todo: add the logic for retrieving the relevant examples
+      // pull all the examples for the domain
+      const domainExamples = await fetchDomainExamples(chatMetadata.domain)
+      console.log('Domain examples:', domainExamples)
+      const domainTags = await fetchDomainTags(chatMetadata.domain)
+      console.log('Domain tags:', domainTags)
+
+      console.log('Domain tags length:', Object.keys(domainTags).length)
+
+      // * NOTE:
+      // the domainTags keys are tag ids, the values are an object with the name and frequency of the tag
+      // every example has a list of tags (tag ids); these match the domainTags object keys
+      // the chat metadata has a tags field as well; this is a list of tags (tag names)
+      // i need to go through the list of examples
+      // for each i need to get the list of tag ids and use teh domainTags object to get their names
+      // then i need to check if the name is in the chat metadata tags list
+      // i need to take a cumulative sum of 1-the frequency of the tag in the domainTags object
+      // i need to store this cumulative sum in the example object
+      // *
+
+      for (const example of domainExamples) {
+        let cumulativeSum = 0
+        for (const tagId of example.tags) {
+          try {
+            const tagName = domainTags[tagId].name
+            if (chatMetadata.tags.includes(tagName)) {
+              cumulativeSum += 1 - domainTags[tagId].frequency
+            }
+          } catch (error) {
+            console.log('Error:', error)
+            console.log('Tag id:', tagId)
+          }
+        }
+        example.cumulativeSum = cumulativeSum
+      }
+
+      // now i need to sort the examples by the cumulative sum, in descending order
+      domainExamples.sort((a, b) => b.cumulativeSum - a.cumulativeSum)
+
+      console.log('Sorted domain examples:', domainExamples)
+
+      // then i need to take the top 3 examples
+      // however, i do not want to take examples that have the same prompt
+      const usedPrompts: string[] = []
+      for (const example of domainExamples) {
+        if (usedPrompts.includes(example.prompt)) {
+          continue
+        }
+        if (tagExamples.length < 3) {
+          tagExamples.push(example)
+          usedPrompts.push(example.prompt)
+        } else if (categoryExamples.length < 3) {
+          if (
+            example.category === chatMetadata.category &&
+            example.subcategory === chatMetadata.subCategory
+          ) {
+            categoryExamples.push(example)
+            usedPrompts.push(example.prompt)
+          }
+        } else {
+          break
+        }
+      }
+
+      console.log('Tag examples length:', tagExamples.length)
+      console.log('Category examples length:', categoryExamples.length)
+
+      console.log('Tag examples:', tagExamples)
+      console.log('Category examples:', categoryExamples)
+    } catch (error) {
+      console.error('Error getting chatbot metadata labels:', error)
     }
   }
 

@@ -38,22 +38,18 @@ export function createImprovementPrompt(content: string): string {
 export function createChatbotMetadataPrompt(
   metadataHeaders: ChatbotMetadataHeaders,
   chatbotMetadata: ChatbotMetadata,
-  userPrompt: string
+  userPrompt: string,
 ): string {
   return (
-    `You are a top software development expert with extensive knowledge in the field of ${metadataHeaders.domain}. Your sole purpose is to label the following question "${userPrompt}" with the appropriate categories, sub - categories and tags as an array of strings. These are the available categories, sub-categories and tags:` +
-    chatbotMetadata.questions +
-    chatbotMetadata.categories +
-    chatbotMetadata.subCategories +
+    `You are a top software development expert with extensive knowledge in the field of ${chatbotMetadata.domainName}. Your sole purpose is to label the following question "${userPrompt}" with the appropriate categories, sub - categories and tags as an array of strings.` +
+    'These are the available categories and sub-categories: ' +
+    JSON.stringify(chatbotMetadata.categories) +
+    'These are the available tags:' +
     chatbotMetadata.tags +
     `**Important Guidelines:**
     ` +
     '- Output only the requested fields without any additional explanation. ' +
-    `- Provide the labels in the exact format as requested.
-    ` +
-    `## Example: ##
-    ` +
-    `{ "categories": ["Technology"],"subCategories": ["Software Development"],"tags": ["Java", "Python", "C++"]}`
+    '- Provide the labels in the exact format as requested.'
   )
 }
 
@@ -102,19 +98,13 @@ export function createBotConfigurationPrompt(chatbot: Chatbot) {
   )
 }
 
-export function followingQuestionsPrompt(
-  userContent: string,
-  allMessages: Message[]
-) {
+export function followingQuestionsPrompt(userContent: string, allMessages: Message[]) {
   return `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
-    allMessages
+    allMessages,
   )}].  Then answer this question: ${userContent}`
 }
 
-export function UserPersonalityPrompt(
-  userPromptType: string,
-  allMessages: Message[]
-) {
+export function UserPersonalityPrompt(userPromptType: string, allMessages: Message[]) {
   const userMessages = getAllUserMessagesAsStringArray(allMessages)
 
   const basePrompt = `Given a user's thread history: "${userMessages}".
@@ -141,12 +131,70 @@ export function UserPersonalityPrompt(
   return basePrompt
 }
 
+interface WithExamples {
+  categoryExamples: Example[]
+  tagExamples: Example[]
+  allMessages: Message[]
+  currentQuestion: string
+}
+
+interface Example {
+  prompt: string
+  response: string
+}
+
+export function withExamples({
+  categoryExamples,
+  tagExamples,
+  allMessages,
+  currentQuestion,
+}: WithExamples): string {
+  let prompt = ''
+  if (allMessages.length > 0) {
+    prompt = `First, think about this thread of questions and answers:
+[${getAllUserMessagesAsStringArray(allMessages)}]
+`
+  }
+  prompt += `
+Now you'll need to respond to this question ${currentQuestion}.`
+  if (categoryExamples.length !== 0 || tagExamples.length !== 0) {
+    prompt += `I have some examples of how similar questions have been answered in the past:
+Examples:
+----
+`
+  }
+
+  for (let i = 0; i < tagExamples.length; i++) {
+    prompt += 'Example Question:\n'
+    prompt += tagExamples[i].prompt + '\n'
+
+    prompt += 'Example Answer:\n'
+    prompt += tagExamples[i].response + '\n'
+
+    prompt += '\n----\n'
+  }
+
+  for (let i = 0; i < categoryExamples.length; i++) {
+    prompt += 'Example Question:\n'
+    prompt += categoryExamples[i].prompt + '\n'
+
+    prompt += 'Example Answer:\n'
+    prompt += categoryExamples[i].response + '\n'
+
+    prompt += '\n----\n'
+  }
+
+  prompt += `OK, so following the same pattern, how would you answer the question: ${currentQuestion}`
+
+  return prompt
+}
+
 export function setDefaultUserPreferencesPrompt(chatbot: Chatbot): Message {
   return {
     id: nanoid(),
     role: 'system',
     content: createBotConfigurationPrompt(chatbot),
-    createdAt: new Date()
+    createdAt: new Date(),
   }
 }
 
@@ -156,6 +204,6 @@ export function setDefaultPrompt(userPrompt?: string) {
     originalText: userPrompt || '',
     improvedText: '',
     translatedText: '',
-    improved: undefined
+    improved: undefined,
   }
 }

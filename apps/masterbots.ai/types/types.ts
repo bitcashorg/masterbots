@@ -2,7 +2,7 @@ import type { mbObjectSchema } from '@/lib/helpers/ai-helpers'
 import type { WordWareFlowPaths } from '@/types/wordware-flows.types'
 import type { Message } from 'ai'
 import type { UserRole } from 'mb-drizzle'
-import type { Chatbot, LabelChatbotCategory, SocialFollowing } from 'mb-genql'
+import type { Chatbot, SocialFollowing } from 'mb-genql'
 import 'next-auth'
 import type { DefaultSession, DefaultUser } from 'next-auth'
 import type OpenAI from 'openai'
@@ -140,10 +140,11 @@ export type ChatbotMetadataHeaders = {
   domain: number
 }
 
-export type ChatbotMetadata = Pick<
-  LabelChatbotCategory['label'],
-  'questions' | 'categories' | 'subCategories' | 'tags'
->
+export type ChatbotMetadata = {
+  domainName: string
+  tags: string[]
+  categories: Record<string, string[]>
+}
 
 export type ReturnFetchChatbotMetadata = ChatbotMetadata | null
 
@@ -301,3 +302,11 @@ export interface MBObjectHook {
 }
 
 export type MBSchema = 'metadata' | 'tool' | 'examples'
+
+export interface ClassifyQuestionParams {
+  prompt: string
+  clientType: AiClientType
+  chatbotMetadata: ChatbotMetadata
+  maxRetries?: number
+  retryCount?: number
+}

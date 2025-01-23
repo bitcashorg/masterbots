@@ -108,7 +108,8 @@ export async function fetchPromptDetails(promptId: string) {
 }
 
 export function cleanPrompt(str: string) {
-  const marker = '].  Then answer this question:'
+  // const marker = '].  Then answer this question:'
+  const marker = 'OK, so following the same pattern, how would you answer the question:'
   const index = str.indexOf(marker)
   let extracted = ''
 

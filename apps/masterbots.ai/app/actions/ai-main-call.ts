@@ -6,18 +6,24 @@ import {
   createImprovementPrompt,
   setDefaultPrompt,
 } from '@/lib/constants/prompts'
-import { cleanResult, convertToCoreMessages, setStreamerPayload } from '@/lib/helpers/ai-helpers'
+import {
+  cleanResult,
+  convertToCoreMessages,
+  mbObjectSchema,
+  setStreamerPayload,
+} from '@/lib/helpers/ai-helpers'
 import { aiTools } from '@/lib/helpers/ai-schemas'
 import { fetchChatbotMetadata } from '@/services/hasura'
 import type {
   AiClientType,
   ChatbotMetadataHeaders,
+  ClassifyQuestionParams,
   CleanPromptResult,
   JSONResponseStream,
 } from '@/types/types'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createOpenAI } from '@ai-sdk/openai'
-import { streamText } from 'ai'
+import { streamObject, streamText } from 'ai'
 import type OpenAI from 'openai'
 
 //* this function is used to create a client for the OpenAI API
@@ -71,22 +77,31 @@ export async function improveMessage(
   }
 }
 
-export async function subtractChatbotMetadataLabels(
+export async function getChatbotMetadataLabels(
   metadataHeaders: ChatbotMetadataHeaders,
   userPrompt: string,
   clientType: AiClientType,
 ) {
+  console.log('getting chatbot metadata')
   const chatbotMetadata = await fetchChatbotMetadata(metadataHeaders)
+  console.log('got chatbot metadata')
 
   if (!chatbotMetadata) {
     console.error('Chatbot metadata not found. Generating response without them.')
+    //todo: this will return something completely different than the main output
     return setDefaultPrompt(userPrompt)
   }
 
   const prompt = createChatbotMetadataPrompt(metadataHeaders, chatbotMetadata, userPrompt)
-  const response = await processWithAi(prompt, clientType, AIModels.Default)
+  //todo: add structured output
+  //todo: verify the cats, subcats, and tags are valid ones
+  // console.log('class sublcass etc prompt', prompt)
 
-  return cleanResult(response)
+  const response = await classifyQuestion({ prompt, clientType, chatbotMetadata })
+
+  response.domain = chatbotMetadata.domainName
+
+  return response
 }
 
 // * This function process the AI response and return the cleaned result
@@ -117,6 +132,36 @@ export async function processWithAi(
     return result
   } catch (error) {
     console.error('Error in processWithAI:', error)
+    throw error
+  }
+}
+
+export async function processWithAiObject(
+  prompt: string,
+  clientType: AiClientType,
+  model: string,
+): Promise<JSONResponseStream> {
+  try {
+    const messages = [{ role: 'user', content: prompt }] as OpenAI.ChatCompletionMessageParam[]
+
+    const response = await createResponseStreamObject(mbObjectSchema.metadata, {
+      model: AIModels.Default,
+      messages,
+    } as any)
+
+    if (!response.body) {
+      throw new Error('Response body is null')
+    }
+
+    if (response.status !== 200) {
+      const errorText = await response.text()
+      throw new Error(`API responded with status ${response.status}: ${errorText} `)
+    }
+
+    const result = await readStreamResponse(response.body)
+    return JSON.parse(result)
+  } catch (error) {
+    console.error('Error in processWithAIObject:', error)
     throw error
   }
 }
@@ -245,39 +290,100 @@ export async function createResponseStream(
   }
 }
 
-// * This function retries the AI improvement process if the first attempt fails
-// Keeping prompt for reference
-// async function retryImprovement(
-//   content: string,
-//   clientType: AiClientType,
-//   model: string,
-// ): Promise<string> {
-//   const retryPrompt = `
-//     You are a highly skilled AI assistant specializing in grammar and spelling corrections. Your task is to thoroughly enhance the following text by:
-//     1. Correcting all spelling errors with precision
-//     2. Fixing any grammatical issues to ensure clarity and correctness
-//     3. Improving punctuation for better readability and flow
-//     4. Inferring the intended words in case of obvious typos
+export async function createResponseStreamObject(
+  schema:
+    | typeof mbObjectSchema.metadata
+    | typeof mbObjectSchema.examples
+    | typeof mbObjectSchema.tool,
+  json: JSONResponseStream,
+  req?: Request,
+) {
+  const { model, messages, previewToken, webSearch } = json
 
-//     It is crucial to maintain the original meaning and intent of the message.
-//     Please return only the improved text without any explanations, additional content, or alterations to the original message structure.
+  const tools: Partial<typeof aiTools> = {
+    // ? Temp disabling ICL as tool. Using direct ICL integration to main prompt instead. Might be enabled later.
+    // chatbotMetadataExamples: aiTools.chatbotMetadataExamples
+  }
 
-//     Original text: "${content}"
-//   `;
+  console.log('[SERVER] webSearch', webSearch)
 
-//   try {
-//     const result = await processWithAI(retryPrompt, clientType, model);
-//     const cleanedResult = cleanResult(result);
+  if (webSearch) tools.webSearch = aiTools.webSearch
 
-//     if (isInvalidResult(cleanedResult, content)) {
-//       console.warn(
-//         "Retry failed to improve the text. Returning original content.",
-//       );
-//       return content;
-//     }
+  try {
+    const openaiModel = initializeOpenAi(model)
+    const { partialObjectStream } = await streamObject({
+      model: openaiModel,
+      // TODO: Fix different schemas for different tools
+      schema: schema as typeof mbObjectSchema.metadata,
+      output: 'object',
+      prompt: `
+      You are a top software development expert with extensive knowledge in the field of ${chatbotMetadata.domainName}.
+      Your purpose is to analyze and understand questions to prepare them for classification.`,
+    })
 
-//     return cleanedResult;
-//   } catch (error) {
-//     return handleImprovementError(error, content);
-//   }
-// }
+    // ? This validates the object stream before to return a object stream
+    for await (const objectStream of partialObjectStream) {
+      if (!objectStream) {
+        throw new Error('Failed to process the request, object stream is null')
+      }
+
+      console.log('objectStream --> ', objectStream)
+    }
+
+    return new Response(partialObjectStream, {
+      headers: { 'Content-Type': 'text/event-stream' },
+    })
+  } catch (error) {
+    console.error('Error in createResponseStream:', error)
+    throw error
+  }
+}
+
+export async function classifyQuestion({
+  prompt,
+  clientType,
+  chatbotMetadata,
+  maxRetries = 3,
+  retryCount = 0,
+}: ClassifyQuestionParams): Promise<CleanPromptResult> {
+  try {
+    // TODO: remove cleanResponse and replace processWithAi with processWithAiObject, reason: streamObject returns the desired object...
+    // const responseObj = await processWithAiObject(prompt, clientType, AIModels.Default)
+    const response = await processWithAi(prompt, clientType, AIModels.Default)
+    // TODO: remove cleanResponse, reason: streamObject returns the desired object...
+    const cleanResponse = cleanResult(response)
+
+    for (const tag of cleanResponse.tags) {
+      if (!chatbotMetadata.tags.includes(tag)) {
+        throw new Error(`Tag ${tag} not found in chatbot metadata`)
+      }
+    }
+
+    if (!(cleanResponse.category in chatbotMetadata.categories)) {
+      throw new Error(`Category ${cleanResponse.category} not found in chatbot metadata`)
+    }
+    if (!chatbotMetadata.categories[cleanResponse.category].includes(cleanResponse.subCategory)) {
+      throw new Error(
+        `Subcategory ${cleanResponse.subCategory} not found in chatbot metadata for category ${cleanResponse.category}`,
+      )
+    }
+
+    console.log('class, subclass and tags are valid')
+
+    return cleanResponse
+  } catch (error) {
+    console.error('Error in classifyQuestion:', error)
+    if (retryCount >= maxRetries) {
+      console.error(`Max retries reached. Returning original content after ${maxRetries} attempts.`)
+      throw error
+    }
+
+    return classifyQuestion({
+      prompt,
+      clientType,
+      chatbotMetadata,
+      maxRetries,
+      retryCount: retryCount + 1,
+    })
+  }
+}
