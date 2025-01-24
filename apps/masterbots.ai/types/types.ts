@@ -217,11 +217,11 @@ export interface Plan {
 }
 
 export interface ChatPageProps {
-  params: {
+  params: Promise<{
     category: string
     chatbot?: string
     threadId: string
-  }
+  }>
 }
 
 export interface ChatMessageProps {

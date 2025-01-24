@@ -63,12 +63,11 @@ export function SelectedBotMobileView({
             </div>
           </div>
         </CardHeader>
-
         <CardFooter className="flex justify-center py-4">
-              <h2 className="flex items-center text-lg font-semibold text-[#be16e8] dark:text-[#82e46a]">
-                <ArrowBigDown className="mr-2 size-6 fill-[#be16e8] dark:fill-[#82e46a]" />
-                Start Chatting Below
-              </h2>
+          <h2 className="flex items-center text-lg font-semibold text-[#be16e8] dark:text-[#82e46a]">
+            <ArrowBigDown className="mr-2 size-6 fill-[#be16e8] dark:fill-[#82e46a]" />
+            Start Chatting Below
+          </h2>
         </CardFooter>
       </Card>
     </div>
