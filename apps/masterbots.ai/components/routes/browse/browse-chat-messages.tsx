@@ -13,11 +13,10 @@
  * - chatbot: Optional chatbot object associated with the messages.
  */
 
+import BrowseChatbotDetails from '@/components/routes/browse/browse-chatbot-details'
 import type * as AI from 'ai'
 import type { Chatbot, Message, User } from 'mb-genql'
 import React from 'react'
-import BrowseChatbotDetails from '@/components/routes/browse/browse-chatbot-details'
-import { getMessages } from '@/services/hasura'
 import { BrowseThreadBlog } from '@/components/routes/browse/browse-thread-blog'
 
 export type MessagePair = {
@@ -36,14 +35,16 @@ export function convertMessage(message: Message) {
 
 export function BrowseChatMessages({
   threadId,
+  parentThreadId,
   user,
   chatbot
 }: {
   threadId: string
+  parentThreadId?: string
   user?: User
   chatbot?: Chatbot
 }) {
-
+  
   return (
     <div className="w-full">
       {chatbot ? (

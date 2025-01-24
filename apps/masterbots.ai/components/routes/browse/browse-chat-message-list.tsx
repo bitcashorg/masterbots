@@ -42,7 +42,6 @@ export function BrowseChatMessageList({
       setPairs(prePairs)
     } else setPairs([])
   }, [messages])
-
   return (
     <div>
       {pairs.map((pair: MessagePair, key: number) => (

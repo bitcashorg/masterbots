@@ -8711,8 +8711,58 @@ export default {
             "modelsEnum": [
                 303
             ],
+            "parentThreadId": [
+                732
+            ],
+            "thread": [
+                568
+            ],
             "threadId": [
                 732
+            ],
+            "threads": [
+                568,
+                {
+                    "distinctOn": [
+                        589,
+                        "[ThreadSelectColumn!]"
+                    ],
+                    "limit": [
+                        172
+                    ],
+                    "offset": [
+                        172
+                    ],
+                    "orderBy": [
+                        587,
+                        "[ThreadOrderBy!]"
+                    ],
+                    "where": [
+                        576
+                    ]
+                }
+            ],
+            "threadsAggregate": [
+                569,
+                {
+                    "distinctOn": [
+                        589,
+                        "[ThreadSelectColumn!]"
+                    ],
+                    "limit": [
+                        172
+                    ],
+                    "offset": [
+                        172
+                    ],
+                    "orderBy": [
+                        587,
+                        "[ThreadOrderBy!]"
+                    ],
+                    "where": [
+                        576
+                    ]
+                }
             ],
             "updatedAt": [
                 729
@@ -8904,8 +8954,20 @@ export default {
             "modelsEnum": [
                 306
             ],
+            "parentThreadId": [
+                712
+            ],
+            "thread": [
+                576
+            ],
             "threadId": [
                 712
+            ],
+            "threads": [
+                576
+            ],
+            "threadsAggregate": [
+                570
             ],
             "updatedAt": [
                 611
@@ -8957,8 +9019,17 @@ export default {
             "modelsEnum": [
                 314
             ],
+            "parentThreadId": [
+                732
+            ],
+            "thread": [
+                585
+            ],
             "threadId": [
                 732
+            ],
+            "threads": [
+                573
             ],
             "updatedAt": [
                 729
@@ -8980,6 +9051,9 @@ export default {
             "createdAt": [
                 729
             ],
+            "parentThreadId": [
+                732
+            ],
             "threadId": [
                 732
             ],
@@ -8998,6 +9072,9 @@ export default {
                 324
             ],
             "createdAt": [
+                324
+            ],
+            "parentThreadId": [
                 324
             ],
             "threadId": [
@@ -9020,6 +9097,9 @@ export default {
             "createdAt": [
                 729
             ],
+            "parentThreadId": [
+                732
+            ],
             "threadId": [
                 732
             ],
@@ -9038,6 +9118,9 @@ export default {
                 324
             ],
             "createdAt": [
+                324
+            ],
+            "parentThreadId": [
                 324
             ],
             "threadId": [
@@ -9117,8 +9200,17 @@ export default {
             "modelsEnum": [
                 316
             ],
+            "parentThreadId": [
+                324
+            ],
+            "thread": [
+                587
+            ],
             "threadId": [
                 324
+            ],
+            "threadsAggregate": [
+                572
             ],
             "updatedAt": [
                 324
@@ -9162,6 +9254,9 @@ export default {
             ],
             "model": [
                 308
+            ],
+            "parentThreadId": [
+                732
             ],
             "threadId": [
                 732
@@ -9253,6 +9348,9 @@ export default {
             ],
             "model": [
                 308
+            ],
+            "parentThreadId": [
+                732
             ],
             "threadId": [
                 732
