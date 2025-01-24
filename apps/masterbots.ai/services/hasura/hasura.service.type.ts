@@ -41,6 +41,7 @@ export interface CreateThreadParams extends HasuraServiceParams {
   threadId: string
   userId: string
   isPublic?: boolean
+  parentThreadId?: string
 }
 
 export interface GetChatbotParams extends HasuraServiceParams {

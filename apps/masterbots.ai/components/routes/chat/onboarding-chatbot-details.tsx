@@ -23,7 +23,7 @@ export function OnboardingChatbotDetails({
   threadCount
 }: ChatbotDetailsProps) {
   const { data: session } = useSession()
-  const followed = isFollowed({ followers, userId: session?.user?.id || '' })
+  const followed = isFollowed({followers, userId: session?.user?.id || ''})
 
   return (
     <div className="hidden h-[calc(100vh-196px)] md:flex items-center justify-center -translate-y-8 relative">
