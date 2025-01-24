@@ -29,19 +29,12 @@ array_relationships:
         table:
           name: chat
           schema: public
-  - name: followers
-    using:
-      foreign_key_constraint_on:
-        column: followee_id_chatbot
-        table:
-          name: social_following
-          schema: public
   - name: metadataLabels
     using:
       foreign_key_constraint_on:
         column: chatbot_id
         table:
-          name: label_chatbot_category
+          name: label_chatbot_category_domain
           schema: public
   - name: preferences
     using:

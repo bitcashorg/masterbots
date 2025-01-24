@@ -1,41 +1,40 @@
 table:
-  name: category
+  name: domain_enum
   schema: public
 array_relationships:
-  - name: chatbots
+  - name: category_enums
     using:
       foreign_key_constraint_on:
-        column: category_id
+        column: domain
         table:
-          name: chatbot_category
+          name: category_enum
           schema: public
-  - name: metadataLabels
+  - name: label_chatbot_category_domains
     using:
       foreign_key_constraint_on:
-        column: category_id
+        column: domain_id
         table:
           name: label_chatbot_category_domain
+          schema: public
+  - name: tag_enums
+    using:
+      foreign_key_constraint_on:
+        column: domain
+        table:
+          name: tag_enum
           schema: public
 select_permissions:
   - role: anonymous
     permission:
       columns:
-        - category_id
         - name
+        - added
       filter: {}
-    comment: ""
-  - role: moderator
-    permission:
-      columns:
-        - category_id
-        - name
-      filter: {}
-      allow_aggregations: true
     comment: ""
   - role: user
     permission:
       columns:
-        - category_id
         - name
+        - added
       filter: {}
     comment: ""

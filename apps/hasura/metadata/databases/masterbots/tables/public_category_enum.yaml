@@ -1,0 +1,34 @@
+table:
+  name: category_enum
+  schema: public
+object_relationships:
+  - name: domain_enum
+    using:
+      foreign_key_constraint_on: domain
+array_relationships:
+  - name: subcategory_enums
+    using:
+      foreign_key_constraint_on:
+        columns:
+          - domain
+          - category
+        table:
+          name: subcategory_enum
+          schema: public
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - domain
+        - name
+        - added
+      filter: {}
+    comment: ""
+  - role: user
+    permission:
+      columns:
+        - domain
+        - name
+        - added
+      filter: {}
+    comment: ""
