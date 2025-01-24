@@ -169,7 +169,6 @@ export function ThreadPopUpCardHeader({ messages }: { messages: AiMessage[] }) {
         </div>
 
         <div className="flex items-center gap-4">
-          <ThreadPublicitySwitch threadId={activeThread?.threadId} />
           <Button type="button" variant="ghost" size="icon" className="ml-2" onClick={onClose}>
             <IconClose />
           </Button>

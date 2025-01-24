@@ -12,10 +12,13 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
-    "@types/node": "^20.17.6",
+    "@types/node": "^20.x",
     "eslint": "^8.57.1",
     "prettier": "^3.3.3",
     "turbo": "^1.13.4"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   },
   "workspaces": [
     "apps/*",
@@ -26,7 +29,9 @@
     "@ai-sdk/anthropic": "^0.0.49",
     "@types/bcryptjs": "^2.4.6",
     "axios": "^1.7.7",
+    "crypto": "^1.0.1",
+    "lucide-react": "latest",
     "nextjs-toploader": "^1.6.12",
-    "lucide-react": "latest"
+    "react-hot-toast": "^2.5.1"
   }
 }

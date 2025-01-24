@@ -3,12 +3,12 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { getCategory, getThreads, chatbotFollowOrUnfollow } from '@/services/hasura'
 import { useSession } from 'next-auth/react'
-import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { SocialFollowing } from 'mb-genql'
 import { OnboardingChatbotDetails } from '@/components/routes/chat/onboarding-chatbot-details'
-import { OnboardingMobileChatbotDetails } from '@/components/routes/chat/onboarding-chatbot-mobile-details'
+import { OnboardingMobileView } from '@/components/routes/chat/chat-onboarding-chatbot-mobile'
+import { SelectedBotMobileView } from '@/components/routes/chat/chat-selected-chatbot-mobile'
 import { useSonner } from '@/lib/hooks/useSonner'
 
 export default function ChatChatbotDetails() {
@@ -59,15 +59,15 @@ export default function ChatChatbotDetails() {
             followeeIdChatbot: followeeId,
             chatbot: null,
             createdAt: new Date().toISOString(),
-            userByFollowerId: null as unknown, 
+            userByFollowerId: null as unknown,
             user: null,
             __typename: 'SocialFollowing'
-        } as SocialFollowing  
+        } as SocialFollowing
     ]);
    }else{
     setFollowers(followers.filter(follower => !(follower.followerId === followerId && follower.followeeIdChatbot === followeeId)))
     }
-  
+
     customSonner({type: 'success', text: follow ? `You have followed ${activeChatbot?.name} successfully` : `You have  unfollowed  ${activeChatbot?.name}`})
    }  catch (error) {
     setIsFollowLoading(false)
@@ -119,7 +119,7 @@ export default function ChatChatbotDetails() {
     }
 
     fetchData()
-  }, [activeCategory, activeChatbot, session?.user])
+  }, [activeCategory, activeChatbot])
 
   if (isLoading || !session?.user) return <ChatChatbotDetailsSkeleton />
 
@@ -132,7 +132,6 @@ export default function ChatChatbotDetails() {
     console.log('Starting new chat with:', botName)
   }
 
-  
   const sharedProps = {
     botName,
     avatar: activeChatbot?.avatar || randomChatbot?.avatar || '',
@@ -148,11 +147,19 @@ export default function ChatChatbotDetails() {
     followers
   }
 
- 
   return (
     <>
       <OnboardingChatbotDetails {...sharedProps} />
-      <OnboardingMobileChatbotDetails {...sharedProps} />
+      {isWelcomeView ? (
+        <OnboardingMobileView />
+      ) : (
+        <SelectedBotMobileView
+          botName={botName}
+          description={activeChatbot?.description || ''}
+          avatar={activeChatbot?.avatar || randomChatbot?.avatar || ''}
+          onNewChat={handleNewChat}
+        />
+      )}{' '}
     </>
   )
 }

@@ -1,3 +1,4 @@
+/* eslint-disable tailwindcss/migration-from-tailwind-2 */
 /**
  * PromptForm Component
  *
@@ -56,10 +57,20 @@ export function PromptForm({
   disabled
 }: PromptProps) {
   const { isOpenPopup, activeThread } = useThread()
-  const { activeChatbot } = useSidebar()
+  const { activeChatbot, setActiveChatbot } = useSidebar()
   const { formRef, onKeyDown } = useEnterSubmit()
   const inputRef = React.useRef<HTMLTextAreaElement>(null)
   const [isFocused, setIsFocused] = React.useState(false)
+
+  const handleBotSelection = () => {
+    if (activeThread?.chatbot) {
+      setActiveChatbot(activeThread.chatbot)
+      // Focus textarea after bot selection
+      if (inputRef.current) {
+        inputRef.current.focus()
+      }
+    }
+  }
   React.useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus()
@@ -89,8 +100,8 @@ export function PromptForm({
     >
       <div
         className={cn(
-          "relative flex flex-col w-full px-8 overflow-hidden grow bg-background sm:rounded-md sm:border sm:px-12",
-          "max-h-[120px] md:max-h-60", // Limit height on mobile
+          'relative flex flex-col w-full px-8 overflow-hidden grow bg-background sm:rounded-md sm:border sm:px-12',
+          'max-h-32 md:max-h-60',
           isOpenPopup && isFocused ? 'dark:border-mirage border-iron' : ''
         )}
       >
@@ -104,13 +115,14 @@ export function PromptForm({
           onBlur={handleTextareaBlur}
           value={input}
           onChange={e => setInput(e.target.value)}
+          onClick={handleBotSelection}
           placeholder={placeholder}
           spellCheck={false}
           disabled={disabled}
           className={cn(
-            "w-full resize-none bg-transparent px-4 focus-within:outline-none sm:text-sm",
-            "min-h-[80px] md:min-h-[60px]", //? Smaller height on mobile
-            "py-2 md:py-[1.3rem]" //? Adjusted padding for mobile
+            'w-full resize-none bg-transparent px-4 py-1 my-1 focus-within:outline-none sm:text-sm',
+            'min-h-[80px] md:min-h-[60px]', //? Smaller height on mobile
+            'md:py-[1.3rem]' //? Adjusted padding for mobile
           )}
         />
         <div className="absolute right-0 top-4 sm:right-4">
@@ -130,8 +142,21 @@ export function PromptForm({
         </div>
       </div>
       {!activeChatbot || (isOpenPopup && !activeThread?.chatbot) ? (
-        <div className="backdrop-blur-[1px] font-semibold border border-[#27272A] rounded-[6px] absolute size-full top-0 left-0 flex justify-center items-center dark:bg-[#27272A80] text-2xl">
-          Select a bot to start a thread.
+        // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
+        <div
+          onClick={handleBotSelection}
+          className={cn(
+            'backdrop-blur-[1px] font-semibold border border-[#27272A] rounded-[6px] absolute size-full top-0 left-0',
+            'flex justify-center items-center dark:bg-[#27272A80] text-2xl',
+            'cursor-pointer transition-all',
+            'hover:border-[#82e46a] hover:text-[#82e46a]'
+          )}
+        >
+          Select{' '}
+          <span className="mx-2 text-[#82e46a]">
+            {activeThread?.chatbot?.name}
+          </span>{' '}
+          to continue
         </div>
       ) : null}
     </form>

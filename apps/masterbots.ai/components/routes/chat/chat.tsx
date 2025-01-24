@@ -2,7 +2,7 @@
 
 /**
  * Chat Component
- * 
+ *
  * A complex chat interface that handles:
  * - Message management for new and existing chat threads
  * - Integration with AI models for message processing and responses
@@ -14,7 +14,7 @@
  * - Chat thread creation and state management
  * - Message improvement and metadata extraction using AI
  * - Automatic scrolling behavior
- * 
+ *
  * Key Features:
  * - Supports both popup and inline chat modes
  * - Handles message processing states (processing, digesting, generating, etc.)
@@ -22,7 +22,7 @@
  * - Integrates with multiple chatbot models
  * - Provides real-time message streaming
  * - Maintains chat history and system prompts
- * 
+ *
  * State Management:
  * - Uses useChat for message handling
  * - Manages loading states for UI feedback
@@ -40,10 +40,12 @@ import { useAtBottom } from "@/lib/hooks/use-at-bottom";
 import { useMBChat } from "@/lib/hooks/use-mb-chat";
 import { useSidebar } from "@/lib/hooks/use-sidebar";
 import { useThread } from "@/lib/hooks/use-thread";
+import { useThreadVisibility } from "@/lib/hooks/use-thread-visibility";
 import { cn, scrollToBottomOfElement } from "@/lib/utils";
 import type {
   ChatProps
 } from "@/types/types";
+import type { Message as UiUtilsMessage } from '@ai-sdk/ui-utils'
 import { useScroll } from "framer-motion";
 import { Chatbot } from "mb-genql";
 import { useParams } from "next/navigation";
@@ -68,12 +70,13 @@ export function Chat({
     setLoadingState,
   } = useThread();
   const { activeChatbot } = useSidebar();
+  const { isContinuousThread } = useThreadVisibility()
   const containerRef = React.useRef<HTMLDivElement>();
   const params = useParams<{ chatbot: string; threadId: string }>();
   const chatbot = chatbotProps || activeThread?.chatbot || activeChatbot as Chatbot
   const [
     { newChatThreadId: threadId, input, isLoading, allMessages, isNewChat },
-    { appendWithMbContextPrompts, reload, setInput }
+    { appendWithMbContextPrompts, appendAsContinuousThread, reload, setInput }
   ] = useMBChat({
     chatbot,
   });
@@ -111,6 +114,17 @@ export function Chat({
       debounceScrollToBottom(element);
     }
   };
+
+  const chatSearchMessage = (isNewChat: boolean, isContinuousThread: boolean, allMessages: UiUtilsMessage[] ) => {
+    const threadTitle = allMessages.filter(m => m.role === 'user')[0]?.content
+    if (isContinuousThread && allMessages) {
+      return `Create new thread from "${threadTitle}" by making a new question.`
+    } else if (isNewChat) {
+      return `Start New Chat with ${chatbot.name}`
+    } else {
+      return `Continue This Chat with ${chatbot.name}`
+    }
+  }
 
   useEffect(() => {
     if (
@@ -172,7 +186,7 @@ export function Chat({
         id={params.threadId || isNewChat ? threadId : activeThread?.threadId}
         isLoading={isLoading}
         stop={stop}
-        append={appendWithMbContextPrompts}
+        append={isContinuousThread ? appendAsContinuousThread : appendWithMbContextPrompts}
         reload={reload}
         messages={allMessages}
         input={input}
@@ -180,9 +194,7 @@ export function Chat({
         chatbot={chatbot}
         placeholder={
           chatbot
-            ? isNewChat
-              ? `Start New Chat with ${chatbot.name}`
-              : `Continue This Chat with ${chatbot.name}`
+            ? chatSearchMessage(isNewChat, isContinuousThread, allMessages)
             : ""
         }
         showReload={!isNewChat}
