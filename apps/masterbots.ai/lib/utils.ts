@@ -355,9 +355,28 @@ export function numberShortener(number: number): string {
  * @param pathname - The current pathname from Next.js usePathname()
  * @returns 'chat' | 'public' | ''
  */
-export function getRouteType(pathname: string | null): 'chat' | 'public' | '' {
+
+export function getRouteType(pathname: string | null): 'personal' | 'public' | '' {
   if (!pathname) return ''
-  if (pathname.startsWith('/c')) return 'chat'
-  if (pathname.startsWith('/')) return 'public'
-  return ''
+  // TODO: Private / Personal / Public / Pro cases
+  // private: local machine chat, personal: personal chats, public: public chats
+  if (pathname.match(/^(\/c|\/c\/)/g)) {
+    return 'personal'
+  }
+  return 'public'
+}
+
+export function getRouteColor(isActive: boolean, pathname: string | null): string {
+  if (!isActive) return ''
+
+  const routeType = getRouteType(pathname)
+  console.log(routeType)
+  switch (routeType) {
+    case 'personal':
+      return 'text-black bg-gradient-to-b from-[rgba(190,23,232,0.1)] via-[rgba(187,6,232,0.5)] to-[rgba(190,23,232,0.5)] dark:text-white'
+    case 'public':
+      return 'text-black bg-gradient-to-b from-[rgba(131,229,106,0.1)] via-[rgba(131,229,106,0.5)] to-[rgba(131,229,106,0.5)] dark:text-white'
+    default:
+      return ''
+  }
 }
