@@ -99,7 +99,6 @@ export default function BrowseListItem({
         observer.unobserve(entry.target)
       }
     })
-
     observer.observe(threadRef.current)
 
     return () => {
