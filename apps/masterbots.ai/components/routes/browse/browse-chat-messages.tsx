@@ -17,7 +17,6 @@ import type * as AI from 'ai'
 import type { Chatbot, Message, User } from 'mb-genql'
 import React from 'react'
 import BrowseChatbotDetails from '@/components/routes/browse/browse-chatbot-details'
-import { BrowseChatMessageList } from '@/components/routes/browse/browse-chat-message-list'
 import { getMessages } from '@/services/hasura'
 import { BrowseThreadBlog } from '@/components/routes/browse/browse-thread-blog'
 
@@ -44,20 +43,6 @@ export function BrowseChatMessages({
   user?: User
   chatbot?: Chatbot
 }) {
-  const [messages, setMessages] = React.useState<Message[]>([])
-
-  // Fetch messages for the specified thread ID
-  const fetchMessages = async () => {
-    if (threadId && !messages.length) {
-      const messages = await getMessages({ threadId: threadId })
-      setMessages(messages)
-    }
-  }
-
-  // Effect to fetch messages when the thread ID changes
-  React.useEffect(() => {
-    fetchMessages()
-  }, [threadId])
 
   return (
     <div className="w-full">
