@@ -295,7 +295,7 @@ export async function createThread({
   userId,
   parentThreadId,
   isPublic = true
-}: CreateThreadParams) {
+}: Partial<CreateThreadParams>) {
   const client = getHasuraClient({ jwt })
   const { insertThreadOne } = await client.mutation({
     insertThreadOne: {
