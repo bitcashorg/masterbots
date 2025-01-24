@@ -17,8 +17,8 @@ export function OnboardingChatbotDetails({
   threadCount
 }: ChatbotDetailsProps) {
 
-   const { data: session } = useSession()
-  const followed = isFollowed({followers, userId: session?.user?.id || ''}) 
+  const { data: session } = useSession()
+  const followed = isFollowed({followers, userId: session?.user?.id || ''})
 
   return (
     // <div className="hidden md:block w-full relative bg-left-bottom bg-[url('/hero-bg.png')] bg-no-repeat py-6">
