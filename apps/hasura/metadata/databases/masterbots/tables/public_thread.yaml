@@ -68,6 +68,7 @@ select_permissions:
         - is_approved
         - is_public
         - model
+        - parent_thread_id
         - thread_id
         - updated_at
         - user_id
