@@ -1,8 +1,6 @@
 'use client'
 
-import type { Session } from 'next-auth'
-import { signOut } from 'next-auth/react'
-import Image from 'next/image'
+import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -11,11 +9,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import Link from 'next/link'
-import { toSlugWithUnderScore } from 'mb-lib'
-import { ThemeToggle } from '@/components/shared/theme-toggle'
-import { useTheme } from 'next-themes'
 import { urlBuilders } from '@/lib/url'
+import { toSlugWithUnderScore } from 'mb-lib'
+import type { Session } from 'next-auth'
+import { signOut } from 'next-auth/react'
+import { useTheme } from 'next-themes'
+import Image from 'next/image'
+import Link from 'next/link'
 
 export interface UserMenuProps {
   user: Session['user']
@@ -74,12 +74,7 @@ export function UserMenu({ user }: UserMenuProps) {
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem className="w-full">
-            <div className="flex items-center justify-between w-full">
-              <span className="text-xs">
-                {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-              </span>
-              <ThemeToggle />
-            </div>
+            <ThemeToggle />
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
