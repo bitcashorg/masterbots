@@ -13,15 +13,15 @@
  * - chatbot: Optional chatbot object associated with the messages.
  */
 
+import { BrowseChatMessageList } from '@/components/routes/browse/browse-chat-message-list'
+import BrowseChatbotDetails from '@/components/routes/browse/browse-chatbot-details'
+import { ExternalLink } from '@/components/shared/external-link'
+import { getMessages } from '@/services/hasura'
 import type * as AI from 'ai'
 import type { Chatbot, Message, User } from 'mb-genql'
-import React from 'react'
-import BrowseChatbotDetails from '@/components/routes/browse/browse-chatbot-details'
-import { BrowseChatMessageList } from '@/components/routes/browse/browse-chat-message-list'
-import { getMessages } from '@/services/hasura'
-import { ExternalLink } from '@/components/shared/external-link'
 import { toSlug } from 'mb-lib'
 import Link from 'next/link'
+import React from 'react'
 
 export type MessagePair = {
   userMessage: Message
@@ -94,8 +94,8 @@ export function BrowseChatMessages({
         ''
       )}
       <div className="flex flex-col max-w-screen-lg px-4 mx-auto mt-8 gap-y-4">
-        { parentThreadTitle && (
-          <p>This thread is an extension of the original content from the parent thread titled <Link className="text-muted-foreground hover:text-primary transition-colors underline" href={parentThreadUrl}>"{ parentThreadTitle }"</Link>. To get the full context and explore more, visit the <Link className="text-muted-foreground hover:text-primary transition-colors underline" href={parentThreadUrl}>original post</Link>.</p>
+        {parentThreadTitle && (
+          <p>This thread is an extension of the original content from the parent thread titled <Link className="text-muted-foreground hover:text-primary transition-colors underline" href={parentThreadUrl}>&quot;{parentThreadTitle}&quot;</Link>. To get the full context and explore more, visit the <Link className="text-muted-foreground hover:text-primary transition-colors underline" href={parentThreadUrl}>original post</Link>.</p>
         )}
         <BrowseChatMessageList
           user={user}
