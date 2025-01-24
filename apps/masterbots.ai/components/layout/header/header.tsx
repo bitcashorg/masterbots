@@ -1,29 +1,36 @@
 'use client'
 
 import Link from 'next/link'
-import * as React from 'react'
 import { usePathname } from 'next/navigation'
+import * as React from 'react'
 
 import { UserLogin } from '@/components/auth/user-login'
 import { SidebarToggle } from '@/components/layout/sidebar/sidebar-toggle'
 import { Button } from '@/components/ui/button'
 import { IconSeparator } from '@/components/ui/icons'
-import { getRouteColor } from '@/lib/utils'
+import { cn, getRouteColor } from '@/lib/utils'
 import { appConfig } from 'mb-env'
+import { useEffect, useState } from 'react'
 
+// TODO: colour won't update with the pathname change... refactor to hear pathname with a route event and set the values.
+// ! href && pathname even that they match, the colour doesn't apply. Maybe a "activeClassName" is missing?
 function HeaderLink({ href, text }: { href: string; text: string }) {
   const pathname = usePathname()
-  
   // Check if this link represents the current active route
-  const isActive = href === '/' 
-    ? pathname === '/' 
-    : pathname?.startsWith(href)
+  const [routeColour, setRouteColour] = useState(getRouteColor(href === pathname, pathname))
+  const isActive = href === pathname
+  console.log('href', href)
+  console.log('pathname', pathname)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required to hear all dependencies, only pathname
+  useEffect(() => {
+    setRouteColour(getRouteColor(isActive, pathname))
+  }, [pathname])
 
   return (
-    <Button 
-      variant="link" 
-      asChild 
-      className={`-ml-1 ${getRouteColor(isActive, pathname)}`}
+    <Button
+      variant="link"
+      asChild
+      className={cn('-ml-1', { routeColour: isActive })}
     >
       <Link href={href}>{text}</Link>
     </Button>
