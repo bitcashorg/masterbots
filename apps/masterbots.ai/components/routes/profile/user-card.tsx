@@ -286,11 +286,16 @@ export function UserCard({ user, loading }: UserCardProps) {
               <h2 className="md:text-2xl  text-xl font-semibold capitalize">
                 {user?.username}
               </h2>
-              <div className="items-center space-x-1 md:hidden flex">
-                <BotIcon className="w-4 h-4" />
-                <span className="">Threads:</span>
-                <span className="text-gray-500">{user?.threads.length}</span>
-              </div>
+              {
+                user?.threads.length > 0 && (
+                  <div className="items-center space-x-1 md:hidden flex">
+                  <BotIcon className="w-4 h-4" />
+                  <span className="">Threads:</span>
+                  <span className="text-gray-500">{user?.threads.length}</span>
+                </div>
+                )
+              }
+           
               <div className="flex items-center  space-x-1">
                 <BookUser className="w-4 h-4" />
                 <p className="text-sm  ">bio:</p>
@@ -341,13 +346,17 @@ export function UserCard({ user, loading }: UserCardProps) {
             {/* Stats Section */}
             <div className="flex md:flex-row flex-col md:justify-between p-6">
               <div className="space-y-1 pt-5">
-                <div className="md:flex  items-center space-x-1 hidden">
-                  <BotIcon className="w-4 h-4" />
-                  <span className="">Threads:</span>
-                  <span className="text-gray-500">{user?.threads.length}</span>
-                </div>
+                {
+                     user?.threads.length > 0 && (
+                     <div className="md:flex  items-center space-x-1 hidden">
+                      <BotIcon className="w-4 h-4" />
+                      <span className="">Threads:</span>
+                      <span className="text-gray-500">{user?.threads.length}</span>
+                    </div>
+                      )
+                }
 
-                <div>
+                {/* <div>
                   <div className="flex items-center space-x-1">
                     <MessageSquareHeart className="w-4 h-4" />
                     <p className="">Favourite topic:</p>
@@ -392,7 +401,7 @@ export function UserCard({ user, loading }: UserCardProps) {
                       {favouriteTopic}
                     </p>
                   )}
-                </div>
+                </div> */}
               </div>
 
               <div className=" flex flex-col  items-center md:mt-0 mt-7  space-y-3">
