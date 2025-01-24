@@ -25,6 +25,7 @@ import { userFollowOrUnfollow } from '@/services/hasura/hasura.service'
 import type { SocialFollowing } from 'mb-genql'
 import router from 'next/router'
 import { useSonner } from '@/lib/hooks/useSonner'
+import { EmptyState } from './empty-state'
 
 interface UserCardProps {
   user: User | null
@@ -277,7 +278,7 @@ export function UserCard({ user, loading }: UserCardProps) {
           <Loader className="w-16 h-16 text-white" />
         </div>
       )}
-      {!loading && user && (
+      {user && (
         <div className="relative w-full">
           <div className="space-y-1 ">
             {/* Profile Name */}
@@ -487,6 +488,9 @@ export function UserCard({ user, loading }: UserCardProps) {
           </div>
         </div>
       )}
+      {!user && <EmptyState />}
+
+      
     </div>
   )
 }
