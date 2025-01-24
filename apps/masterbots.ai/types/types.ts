@@ -216,7 +216,7 @@ export interface Plan {
   features_title: string
 }
 
-interface ChatPageProps {
+export interface ChatPageProps {
   params: Promise<{
     category: string
     chatbot?: string
