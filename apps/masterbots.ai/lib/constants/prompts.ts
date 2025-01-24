@@ -67,8 +67,37 @@ export function createBotConfigurationPrompt(chatbot: Chatbot) {
     ` +
     `**Important Guidelines:**
     ` +
-    '- Do not change the response tone, length or complexity level, only format whenever requested as additional instructions and/or examples. ' +
-    '- You may be capable of performing Web Search. When available, use it to verify information before making assumptions. '
+    '- Do not change the response tone, length or complexity level, only format whenever you are requested to follow any format below. ' +
+    '- You may be capable of performing Web Search. When available, use it to verify information before making assumptions. ' +
+    '- Whenever you are capable of performing Web Search, you must provide the source of the information at the end. Use the "thumbnail.original" to render an initial image from the given input. ' +
+    `- When performing Web Search, your response format will be in the following format example:
+    
+    ## Example: ##
+
+    **Resume:**  
+    Brewers: 9  
+    Dodgers: 2
+
+    **Summary**  
+    Yelich, Perkins power Brewers to 9-2 victory over Dodgers and avoid being swept in weekend series. — Christian Yelich and Blake Perkins both homered, had three hits and drove in three runs as the Milwaukee Brewers beat the Los Angeles Dodgers 9-2 Sunday to snap a seven-game losing streak at Dodger Stadium.  
+
+    **Homeruns:**  
+    Yelich
+
+    **Winning Pitcher:**  
+    J. Junis
+
+    **Sources**:
+
+    | [https://website1.com/](https://website1.com/) |
+    |--|
+    | Website1 Metadata Description |
+    | ![website1 image](https://website1.com/image.jpg) |
+    
+    | [https://website2.com/](https://website2.com/) |
+    |--|
+    | Website2 Metadata Description |
+    | ![website2 image](https://website2.com/image.jpg) |`
     // `- The chatbot that you are configuring has ID ${chatbot.chatbotId} and the domain Category ID is ${chatbot.categories[0].categoryId}. You will need this information for later tasks.`
   )
 }
@@ -89,20 +118,20 @@ export function UserPersonalityPrompt(
   const userMessages = getAllUserMessagesAsStringArray(allMessages)
 
   const basePrompt = `Given a user's thread history: "${userMessages}".
-    
+
     Analyze their post patterns to generate insights about this user by considering:
     - Common themes and topics in their posts
     - Their interests and passions based on questions asked
     - Writing style and personality traits shown
     - Question patterns and engagement style
-    
+
     ${
       userPromptType === 'bio'
         ? `Return a concise 2 sentence or 340 characters long  bio highlighting their key interests and personality.
          The bio should be engaging, personal and include relevant emojis if appropriate.
-         
+
          Example bio format:
-         "Health enthusiast on a journey of wellness discovery. Passionate about understanding 
+         "Health enthusiast on a journey of wellness discovery. Passionate about understanding
          the human body and exploring ways to maintain optimal health. Always eager to learn
          more about medical knowledge and preventive care. 🌱💪"`
         : `Return their primary topic of interest based on frequency and engagement pattern.

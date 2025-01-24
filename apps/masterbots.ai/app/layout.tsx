@@ -1,6 +1,5 @@
 import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
-
 import '@/app/globals.css'
 import { Header } from '@/components/layout/header/header'
 import { Providers } from '@/components/layout/providers'
@@ -20,8 +19,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
           GeistMono.variable
         )}
       >
-        <NextTopLoader color="#1ED761" initialPosition={0.2} />
-        <Toaster />
+        <NextTopLoader color="#1ED761" initialPosition={0.20} />
+        <Toaster toastOptions={{
+          className: 'bg-background text-background-foreground',
+        }} />
         <Providers
           attribute="class"
           defaultTheme="system"
@@ -30,9 +31,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         >
           <div className="flex flex-col min-h-screen">
             <Header />
-            <main className="relative flex flex-col flex-1 bg-muted/50">
-              {children}
-            </main>
+            <main className="relative flex flex-col flex-1 bg-muted/50">{children}</main>
           </div>
           {/* <TailwindIndicator /> */}
           <GoogleAnalytics gaId="G-N135BF99HS" />
@@ -57,7 +56,7 @@ export const metadata: Metadata = {
     siteName: 'Masterbots',
     images: [
       {
-        url: 'https://masterbots.ai/images/masterbots.png',
+        url: `${process.env.BASE_URL || ''}/api/og`,
         width: 1232,
         height: 928,
         alt: 'Masterbots'
@@ -72,7 +71,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     images: [
       {
-        url: 'https://masterbots.ai/images/masterbots.png',
+        url: `${process.env.BASE_URL || ''}/api/og`,
         width: 1232,
         height: 928,
         alt: 'Masterbots'
