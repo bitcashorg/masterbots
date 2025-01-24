@@ -34,6 +34,7 @@ export function BrowseThread({
           chatbot={thread?.chatbot}
           user={thread?.user || undefined}
           threadId={thread.threadId}
+          parentThreadId={thread?.parentThreadId}
         />
       ) : (
         ''

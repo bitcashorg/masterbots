@@ -220,7 +220,7 @@ export async function getThread({ threadId, jwt }: Partial<GetThreadParams>) {
           orderBy: [{ createdAt: 'ASC' }],
         },
       },
-      ...everything,
+      __scalar: true,
       __args: {
         where: { threadId: { _eq: threadId } },
       },
@@ -293,13 +293,14 @@ export async function createThread({
   threadId,
   jwt,
   userId,
-  isPublic = true,
+  parentThreadId,
+  isPublic = true
 }: Partial<CreateThreadParams>) {
   const client = getHasuraClient({ jwt })
   const { insertThreadOne } = await client.mutation({
     insertThreadOne: {
       __args: {
-        object: { threadId, chatbotId, userId, isPublic },
+        object: { threadId, chatbotId, userId, isPublic, parentThreadId }
       },
       threadId: true,
     },
@@ -463,9 +464,9 @@ export async function getBrowseThreads({
       isApproved: true,
       isPublic: true,
       userId: true,
-      ...everything,
-    },
-  })
+      __scalar: true,
+    }
+  });
 
   if (!allThreads) return []
 
@@ -480,26 +481,25 @@ export async function getBrowseThreads({
       }
 
       // For bot content
-      const isFollowingBot = thread.chatbot?.followers?.some((follower) => {
-        return follower.followerId === followedUserId
-      })
+      const isFollowingBot = thread.chatbot?.followers?.some(follower => {
+        return follower.followerId === followedUserId;
+      });
 
       // For user content
-      const isFollowingUser = thread.user?.followers?.some((follower) => {
-        return follower.followerId === followedUserId
-      })
+      const isFollowingUser = thread.user?.followers?.some(follower => {
+        return follower.followerId === followedUserId;
+      });
 
-      return isFollowingBot || isFollowingUser
+      return isFollowingBot || isFollowingUser;
     }
-    return false
-  })
+    return false;
+  });
 
   // Organic content (neither from followed bots nor followed users)
-  const organicThreads = threads.filter(
-    (thread) =>
-      !thread.chatbot?.followers?.some((follower) => follower.followerId === followedUserId) &&
-      !thread.user?.followers?.some((follower) => follower.followerId === followedUserId),
-  )
+  const organicThreads = threads.filter(thread =>
+    !thread.chatbot?.followers?.some(follower => follower.followerId === followedUserId) &&
+    !thread.user?.followers?.some(follower => follower.followerId === followedUserId)
+  );
 
   const interweavedThreads: Thread[] = []
   let followingIndex = 0
@@ -873,10 +873,10 @@ export async function getUserBySlug({
           followeeId: true,
           followerId: true,
           userByFollowerId: {
-            username: true,
-          },
-        },
-      },
+            username: true
+          }
+        }
+      }
     } as const)
 
     if (!user || user.length === 0) {
@@ -1031,13 +1031,15 @@ export async function userFollowOrUnfollow({
     await unfollowUser(client, followerId, followeeId)
     return { success: true, follow: false }
   } catch (error) {
-    console.error('Error following/unfollowing user:', error)
+    console.error('Error following/unfollowing user:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to follow/unfollow user.',
-    }
+      error: error instanceof Error ? error.message : 'Failed to follow/unfollow user.'
+    };
   }
 }
+
+
 
 // chatbot follow or unfollow  function
 
@@ -1100,10 +1102,10 @@ export async function chatbotFollowOrUnfollow({
     await unfollowChatbot(client, followerId, followeeId)
     return { success: true, follow: false }
   } catch (error) {
-    console.error('Error following/unfollowing chatbot:', error)
+    console.error('Error following/unfollowing chatbot:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to follow/unfollow chatbot.',
-    }
+      error: error instanceof Error ? error.message : 'Failed to follow/unfollow chatbot.'
+    };
   }
 }

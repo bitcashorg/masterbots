@@ -2128,7 +2128,14 @@ export interface Thread {
     model: ModelsEnumEnum
     /** An object relationship */
     modelsEnum: ModelsEnum
+    parentThreadId: (Scalars['uuid'] | null)
+    /** An object relationship */
+    thread: (Thread | null)
     threadId: Scalars['uuid']
+    /** An array relationship */
+    threads: Thread[]
+    /** An aggregate relationship */
+    threadsAggregate: ThreadAggregate
     updatedAt: Scalars['timestamptz']
     /** An object relationship */
     user: (User | null)
@@ -2177,6 +2184,7 @@ export type ThreadConstraint = 'thread_id_key' | 'thread_pkey'
 export interface ThreadMaxFields {
     chatbotId: (Scalars['Int'] | null)
     createdAt: (Scalars['timestamptz'] | null)
+    parentThreadId: (Scalars['uuid'] | null)
     threadId: (Scalars['uuid'] | null)
     updatedAt: (Scalars['timestamptz'] | null)
     userId: (Scalars['uuid'] | null)
@@ -2188,6 +2196,7 @@ export interface ThreadMaxFields {
 export interface ThreadMinFields {
     chatbotId: (Scalars['Int'] | null)
     createdAt: (Scalars['timestamptz'] | null)
+    parentThreadId: (Scalars['uuid'] | null)
     threadId: (Scalars['uuid'] | null)
     updatedAt: (Scalars['timestamptz'] | null)
     userId: (Scalars['uuid'] | null)
@@ -2206,7 +2215,7 @@ export interface ThreadMutationResponse {
 
 
 /** select columns of table "thread" */
-export type ThreadSelectColumn = 'chatbotId' | 'createdAt' | 'isApproved' | 'isBlocked' | 'isPublic' | 'model' | 'threadId' | 'updatedAt' | 'userId'
+export type ThreadSelectColumn = 'chatbotId' | 'createdAt' | 'isApproved' | 'isBlocked' | 'isPublic' | 'model' | 'parentThreadId' | 'threadId' | 'updatedAt' | 'userId'
 
 
 /** select "threadAggregateBoolExpBool_andArgumentsColumns" columns of table "thread" */
@@ -2246,7 +2255,7 @@ export interface ThreadSumFields {
 
 
 /** update columns of table "thread" */
-export type ThreadUpdateColumn = 'chatbotId' | 'createdAt' | 'isApproved' | 'isBlocked' | 'isPublic' | 'model' | 'threadId' | 'updatedAt' | 'userId'
+export type ThreadUpdateColumn = 'chatbotId' | 'createdAt' | 'isApproved' | 'isBlocked' | 'isPublic' | 'model' | 'parentThreadId' | 'threadId' | 'updatedAt' | 'userId'
 
 
 /** aggregate varPop on columns */
@@ -7248,7 +7257,34 @@ export interface ThreadGenqlSelection{
     model?: boolean | number
     /** An object relationship */
     modelsEnum?: ModelsEnumGenqlSelection
+    parentThreadId?: boolean | number
+    /** An object relationship */
+    thread?: ThreadGenqlSelection
     threadId?: boolean | number
+    /** An array relationship */
+    threads?: (ThreadGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ThreadSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ThreadOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ThreadBoolExp | null)} })
+    /** An aggregate relationship */
+    threadsAggregate?: (ThreadAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ThreadSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ThreadOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ThreadBoolExp | null)} })
     updatedAt?: boolean | number
     /** An object relationship */
     user?: UserGenqlSelection
@@ -7310,7 +7346,7 @@ export interface ThreadAvgOrderBy {chatbotId?: (OrderBy | null)}
 
 
 /** Boolean expression to filter rows from the table "thread". All fields are combined with a logical 'AND'. */
-export interface ThreadBoolExp {_and?: (ThreadBoolExp[] | null),_not?: (ThreadBoolExp | null),_or?: (ThreadBoolExp[] | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),createdAt?: (TimestamptzComparisonExp | null),isApproved?: (BooleanComparisonExp | null),isBlocked?: (BooleanComparisonExp | null),isPublic?: (BooleanComparisonExp | null),messages?: (MessageBoolExp | null),messagesAggregate?: (MessageAggregateBoolExp | null),model?: (ModelsEnumEnumComparisonExp | null),modelsEnum?: (ModelsEnumBoolExp | null),threadId?: (UuidComparisonExp | null),updatedAt?: (TimestamptzComparisonExp | null),user?: (UserBoolExp | null),userId?: (UuidComparisonExp | null)}
+export interface ThreadBoolExp {_and?: (ThreadBoolExp[] | null),_not?: (ThreadBoolExp | null),_or?: (ThreadBoolExp[] | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),createdAt?: (TimestamptzComparisonExp | null),isApproved?: (BooleanComparisonExp | null),isBlocked?: (BooleanComparisonExp | null),isPublic?: (BooleanComparisonExp | null),messages?: (MessageBoolExp | null),messagesAggregate?: (MessageAggregateBoolExp | null),model?: (ModelsEnumEnumComparisonExp | null),modelsEnum?: (ModelsEnumBoolExp | null),parentThreadId?: (UuidComparisonExp | null),thread?: (ThreadBoolExp | null),threadId?: (UuidComparisonExp | null),threads?: (ThreadBoolExp | null),threadsAggregate?: (ThreadAggregateBoolExp | null),updatedAt?: (TimestamptzComparisonExp | null),user?: (UserBoolExp | null),userId?: (UuidComparisonExp | null)}
 
 
 /** input type for incrementing numeric columns in table "thread" */
@@ -7318,13 +7354,14 @@ export interface ThreadIncInput {chatbotId?: (Scalars['Int'] | null)}
 
 
 /** input type for inserting data into table "thread" */
-export interface ThreadInsertInput {chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isApproved?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isPublic?: (Scalars['Boolean'] | null),messages?: (MessageArrRelInsertInput | null),model?: (ModelsEnumEnum | null),modelsEnum?: (ModelsEnumObjRelInsertInput | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),user?: (UserObjRelInsertInput | null),userId?: (Scalars['uuid'] | null)}
+export interface ThreadInsertInput {chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isApproved?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isPublic?: (Scalars['Boolean'] | null),messages?: (MessageArrRelInsertInput | null),model?: (ModelsEnumEnum | null),modelsEnum?: (ModelsEnumObjRelInsertInput | null),parentThreadId?: (Scalars['uuid'] | null),thread?: (ThreadObjRelInsertInput | null),threadId?: (Scalars['uuid'] | null),threads?: (ThreadArrRelInsertInput | null),updatedAt?: (Scalars['timestamptz'] | null),user?: (UserObjRelInsertInput | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate max on columns */
 export interface ThreadMaxFieldsGenqlSelection{
     chatbotId?: boolean | number
     createdAt?: boolean | number
+    parentThreadId?: boolean | number
     threadId?: boolean | number
     updatedAt?: boolean | number
     userId?: boolean | number
@@ -7334,13 +7371,14 @@ export interface ThreadMaxFieldsGenqlSelection{
 
 
 /** order by max() on columns of table "thread" */
-export interface ThreadMaxOrderBy {chatbotId?: (OrderBy | null),createdAt?: (OrderBy | null),threadId?: (OrderBy | null),updatedAt?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadMaxOrderBy {chatbotId?: (OrderBy | null),createdAt?: (OrderBy | null),parentThreadId?: (OrderBy | null),threadId?: (OrderBy | null),updatedAt?: (OrderBy | null),userId?: (OrderBy | null)}
 
 
 /** aggregate min on columns */
 export interface ThreadMinFieldsGenqlSelection{
     chatbotId?: boolean | number
     createdAt?: boolean | number
+    parentThreadId?: boolean | number
     threadId?: boolean | number
     updatedAt?: boolean | number
     userId?: boolean | number
@@ -7350,7 +7388,7 @@ export interface ThreadMinFieldsGenqlSelection{
 
 
 /** order by min() on columns of table "thread" */
-export interface ThreadMinOrderBy {chatbotId?: (OrderBy | null),createdAt?: (OrderBy | null),threadId?: (OrderBy | null),updatedAt?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadMinOrderBy {chatbotId?: (OrderBy | null),createdAt?: (OrderBy | null),parentThreadId?: (OrderBy | null),threadId?: (OrderBy | null),updatedAt?: (OrderBy | null),userId?: (OrderBy | null)}
 
 
 /** response of any mutation on the table "thread" */
@@ -7375,7 +7413,7 @@ export interface ThreadOnConflict {constraint: ThreadConstraint,updateColumns?: 
 
 
 /** Ordering options when selecting data from "thread". */
-export interface ThreadOrderBy {chatbot?: (ChatbotOrderBy | null),chatbotId?: (OrderBy | null),createdAt?: (OrderBy | null),isApproved?: (OrderBy | null),isBlocked?: (OrderBy | null),isPublic?: (OrderBy | null),messagesAggregate?: (MessageAggregateOrderBy | null),model?: (OrderBy | null),modelsEnum?: (ModelsEnumOrderBy | null),threadId?: (OrderBy | null),updatedAt?: (OrderBy | null),user?: (UserOrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadOrderBy {chatbot?: (ChatbotOrderBy | null),chatbotId?: (OrderBy | null),createdAt?: (OrderBy | null),isApproved?: (OrderBy | null),isBlocked?: (OrderBy | null),isPublic?: (OrderBy | null),messagesAggregate?: (MessageAggregateOrderBy | null),model?: (OrderBy | null),modelsEnum?: (ModelsEnumOrderBy | null),parentThreadId?: (OrderBy | null),thread?: (ThreadOrderBy | null),threadId?: (OrderBy | null),threadsAggregate?: (ThreadAggregateOrderBy | null),updatedAt?: (OrderBy | null),user?: (UserOrderBy | null),userId?: (OrderBy | null)}
 
 
 /** primary key columns input for table: thread */
@@ -7383,7 +7421,7 @@ export interface ThreadPkColumnsInput {threadId: Scalars['uuid']}
 
 
 /** input type for updating data in table "thread" */
-export interface ThreadSetInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isApproved?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isPublic?: (Scalars['Boolean'] | null),model?: (ModelsEnumEnum | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
+export interface ThreadSetInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isApproved?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isPublic?: (Scalars['Boolean'] | null),model?: (ModelsEnumEnum | null),parentThreadId?: (Scalars['uuid'] | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate stddev on columns */
@@ -7431,7 +7469,7 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface ThreadStreamCursorValueInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isApproved?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isPublic?: (Scalars['Boolean'] | null),model?: (ModelsEnumEnum | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
+export interface ThreadStreamCursorValueInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isApproved?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isPublic?: (Scalars['Boolean'] | null),model?: (ModelsEnumEnum | null),parentThreadId?: (Scalars['uuid'] | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate sum on columns */
@@ -12983,6 +13021,7 @@ export const enumThreadSelectColumn = {
    isBlocked: 'isBlocked' as const,
    isPublic: 'isPublic' as const,
    model: 'model' as const,
+   parentThreadId: 'parentThreadId' as const,
    threadId: 'threadId' as const,
    updatedAt: 'updatedAt' as const,
    userId: 'userId' as const
@@ -13007,6 +13046,7 @@ export const enumThreadUpdateColumn = {
    isBlocked: 'isBlocked' as const,
    isPublic: 'isPublic' as const,
    model: 'model' as const,
+   parentThreadId: 'parentThreadId' as const,
    threadId: 'threadId' as const,
    updatedAt: 'updatedAt' as const,
    userId: 'userId' as const
