@@ -38,7 +38,8 @@ export function BrowseChatMessages({
   user,
   chatbot
 }: {
-  threadId: string
+  threadId: string,
+  parentThreadId?: string
   user?: User
   chatbot?: Chatbot
 }) {
