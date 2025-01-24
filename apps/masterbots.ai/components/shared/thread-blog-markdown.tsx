@@ -13,7 +13,7 @@ export function ThreadBlogMarkDown({ content }: { content: string }) {
       },
       li({ children }) {
         return (
-          <li className="list-disc list-inside text-left">
+          <li className="list-disc list-inside text-left [&_p]:inline-block [&_p]:m-0 [&_p]:w-[97%] [&_p]:align-text-top">
             <span className="inline">{children}</span>
           </li>
         );
