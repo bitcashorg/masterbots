@@ -16,12 +16,12 @@
  * - Responsive Design: Applies Tailwind CSS for styling and layout.
  */
 'use client'
-import { cn, createMessagePairs } from '@/lib/utils'
-import type { Chatbot, Message, User } from 'mb-genql'
-import { BrowseChatMessage } from '@/components/routes/browse/browse-chat-message'
-import { type MessagePair, convertMessage } from '@/components/routes/browse/browse-chat-messages'
-import React from 'react'
-import {BrowseAccordion} from '@/components/routes/browse/browse-accordion';
+import { BrowseAccordion } from '@/components/routes/browse/browse-accordion';
+import { BrowseChatMessage } from '@/components/routes/browse/browse-chat-message';
+import { type MessagePair, convertMessage } from '@/components/routes/browse/browse-chat-messages';
+import { cn, createMessagePairs } from '@/lib/utils';
+import type { Chatbot, Message, User } from 'mb-genql';
+import React from 'react';
 
 export function BrowseChatMessageList({
   messages,
@@ -44,7 +44,7 @@ export function BrowseChatMessageList({
     } else setPairs([])
   }, [messages])
   return (
-    <div>
+    <>
       {pairs.map((pair: MessagePair, key: number) => (
         <BrowseAccordion
           defaultState
@@ -76,16 +76,16 @@ export function BrowseChatMessageList({
           <div className="border-x-DEFAULT ml-6 mr-0 md:mx-[46px] py-5 dark:border-mirage border-gray-300 text-left">
             {pair.chatGptMessage.length > 0
               ? pair.chatGptMessage.map((message, index) => (
-                  <BrowseChatMessage
-                    chatbot={chatbot}
-                    key={index}
-                    message={convertMessage(message)}
-                  />
-                ))
+                <BrowseChatMessage
+                  chatbot={chatbot}
+                  key={index}
+                  message={convertMessage(message)}
+                />
+              ))
               : ''}
           </div>
         </BrowseAccordion>
       ))}
-    </div>
+    </>
   )
 }

@@ -1,10 +1,11 @@
+import type { mbObjectSchema } from '@/lib/helpers/ai-helpers'
 import type { WordWareFlowPaths } from '@/types/wordware-flows.types'
 import type { Message } from 'ai'
 import type { UserRole } from 'mb-drizzle'
-import type { Chatbot, LabelChatbotCategory, SocialFollowing } from 'mb-genql'
+import type { Chatbot, SocialFollowing } from 'mb-genql'
 import 'next-auth'
 import type { DefaultSession, DefaultUser } from 'next-auth'
-import type { ChatCompletionMessageParam } from 'openai/resources'
+import type OpenAI from 'openai'
 import type React from 'react'
 import type Stripe from 'stripe'
 
@@ -139,10 +140,11 @@ export type ChatbotMetadataHeaders = {
   domain: number
 }
 
-export type ChatbotMetadata = Pick<
-  LabelChatbotCategory['label'],
-  'questions' | 'categories' | 'subCategories' | 'tags'
->
+export type ChatbotMetadata = {
+  domainName: string
+  tags: string[]
+  categories: Record<string, string[]>
+}
 
 export type ReturnFetchChatbotMetadata = ChatbotMetadata | null
 
@@ -160,7 +162,7 @@ export type AiClientType = 'OpenAI' | 'Anthropic' | 'Perplexity' | 'WordWare'
 export type JSONResponseStream = {
   id: string
   model: string
-  messages: ChatCompletionMessageParam[]
+  messages: OpenAI.ChatCompletionMessageParam[]
   previewToken: string
   webSearch: boolean
   stream?: boolean
@@ -217,11 +219,11 @@ export interface Plan {
 }
 
 export interface ChatPageProps {
-  params: Promise<{
+  params: {
     category: string
     chatbot?: string
     threadId: string
-  }>
+  }
 }
 
 export interface ChatMessageProps {
@@ -294,3 +296,18 @@ export interface BrowseChatbotLayoutProps {
 }
 
 export type UUID = `${string}-${string}-${string}-${string}-${string}`
+
+export interface MBObjectHook {
+  schema: keyof typeof mbObjectSchema
+}
+
+export type MBSchema = 'metadata' | 'tool' | 'examples'
+
+export interface ClassifyQuestionParams {
+  prompt: string
+  clientType: AiClientType
+  chatbotMetadata: ChatbotMetadata
+  maxRetries?: number
+  retryCount?: number
+  domain?: string
+}

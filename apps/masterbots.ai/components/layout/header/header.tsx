@@ -18,9 +18,8 @@ function HeaderLink({ href, text }: { href: string; text: string }) {
   const pathname = usePathname()
   // Check if this link represents the current active route
   const [routeColour, setRouteColour] = useState(getRouteColor(href === pathname, pathname))
-  const isActive = href === pathname
-  console.log('href', href)
-  console.log('pathname', pathname)
+  const isActive = (pathname.startsWith(href) && href !== '/') || (pathname === href)
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: not required to hear all dependencies, only pathname
   useEffect(() => {
     setRouteColour(getRouteColor(isActive, pathname))
@@ -30,7 +29,7 @@ function HeaderLink({ href, text }: { href: string; text: string }) {
     <Button
       variant="link"
       asChild
-      className={cn('-ml-1', { routeColour: isActive })}
+      className={cn('-ml-1', { [`${routeColour}`]: isActive })}
     >
       <Link href={href}>{text}</Link>
     </Button>
