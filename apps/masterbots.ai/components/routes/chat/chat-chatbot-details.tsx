@@ -3,7 +3,6 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { getCategory, getThreads, chatbotFollowOrUnfollow } from '@/services/hasura'
 import { useSession } from 'next-auth/react'
-import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { SocialFollowing } from 'mb-genql'
@@ -60,15 +59,15 @@ export default function ChatChatbotDetails() {
             followeeIdChatbot: followeeId,
             chatbot: null,
             createdAt: new Date().toISOString(),
-            userByFollowerId: null as unknown, 
+            userByFollowerId: null as unknown,
             user: null,
             __typename: 'SocialFollowing'
-        } as SocialFollowing  
+        } as SocialFollowing
     ]);
    }else{
     setFollowers(followers.filter(follower => !(follower.followerId === followerId && follower.followeeIdChatbot === followeeId)))
     }
-  
+
     customSonner({type: 'success', text: follow ? `You have followed ${activeChatbot?.name} successfully` : `You have  unfollowed  ${activeChatbot?.name}`})
    }  catch (error) {
     setIsFollowLoading(false)
@@ -133,7 +132,6 @@ export default function ChatChatbotDetails() {
     console.log('Starting new chat with:', botName)
   }
 
-  
   const sharedProps = {
     botName,
     avatar: activeChatbot?.avatar || randomChatbot?.avatar || '',
@@ -149,7 +147,6 @@ export default function ChatChatbotDetails() {
     followers
   }
 
- 
   return (
     <>
       <OnboardingChatbotDetails {...sharedProps} />

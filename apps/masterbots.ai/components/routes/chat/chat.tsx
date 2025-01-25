@@ -40,12 +40,15 @@ import { useAtBottom } from '@/lib/hooks/use-at-bottom'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
+import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { cn, scrollToBottomOfElement } from '@/lib/utils'
 import type { ChatProps } from '@/types/types'
+import type { Message as UiUtilsMessage } from '@ai-sdk/ui-utils'
 import { useScroll } from 'framer-motion'
 import type { Chatbot } from 'mb-genql'
 import { useParams } from 'next/navigation'
 import React, { useEffect } from 'react'
+import { useAsync } from 'react-use'
 
 export function Chat({
   chatbot: chatbotProps,
@@ -66,15 +69,17 @@ export function Chat({
     setLoadingState,
   } = useThread()
   const { activeChatbot } = useSidebar()
+  const { isContinuousThread } = useThreadVisibility()
   const containerRef = React.useRef<HTMLDivElement>()
   const params = useParams<{ chatbot: string; threadId: string }>()
   const chatbot = chatbotProps || activeThread?.chatbot || (activeChatbot as Chatbot)
   const [
     { newChatThreadId: threadId, input, isLoading, allMessages, isNewChat },
-    { appendWithMbContextPrompts, reload, setInput },
+    { appendWithMbContextPrompts, appendAsContinuousThread, reload, setInput },
   ] = useMBChat({
     chatbot,
   })
+  const chatbotNames = useAsync(async () => (await botNames).get(params.chatbot), [])
 
   const { scrollY } = useScroll({
     container: containerRef as React.RefObject<HTMLElement>,
@@ -107,21 +112,35 @@ export function Chat({
     }
   }
 
-  useEffect(() => {
-    const getBotNames = async () => {
-      return (await botNames).get(params.chatbot)
+  const chatSearchMessage = (
+    isNewChat: boolean,
+    isContinuousThread: boolean,
+    allMessages: UiUtilsMessage[],
+  ) => {
+    const threadTitle = allMessages.filter((m) => m.role === 'user')[0]?.content
+    if (isContinuousThread && allMessages) {
+      return `Create new thread from "${threadTitle}" by making a new question.`
     }
+    if (isNewChat) {
+      return `Start New Chat with ${chatbot.name}`
+    }
+
+    return `Continue This Chat with ${chatbot.name}`
+  }
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Not required here
+  useEffect(() => {
     if (
       params.chatbot &&
       activeThread &&
-      getBotNames() !== activeThread.chatbot.name
+      chatbotNames.value === activeThread?.chatbot.name
     ) {
       setIsOpenPopup(false)
       setActiveThread(null)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [chatbotNames])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Not required here
   useEffect(() => {
     if (isLoading && isOpenPopup && scrollToBottomOfPopup) {
       const timeout = setTimeout(() => {
@@ -129,14 +148,13 @@ export function Chat({
         clearTimeout(timeout)
       }, 150)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading, isOpenPopup])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Not required here
   useEffect(() => {
     if (!isLoading && loadingState) {
       setLoadingState(undefined)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading])
 
   return (
@@ -160,7 +178,6 @@ export function Chat({
         </div>
       )}
       <ChatPanel
-        // biome-ignore lint/suspicious/noReactSpecificProps: <explanation>
         className={`${activeThread || activeChatbot ? '' : 'hidden'} ${chatPanelClassName}`}
         scrollToBottom={
           isOpenPopup && isPopup && scrollToBottomOfPopup ? scrollToBottomOfPopup : scrollToBottom
@@ -168,19 +185,13 @@ export function Chat({
         id={params.threadId || isNewChat ? threadId : activeThread?.threadId}
         isLoading={isLoading}
         stop={stop}
-        append={appendWithMbContextPrompts}
+        append={isContinuousThread ? appendAsContinuousThread : appendWithMbContextPrompts}
         reload={reload}
         messages={allMessages}
         input={input}
         setInput={setInput}
         chatbot={chatbot}
-        placeholder={
-          chatbot
-            ? isNewChat
-              ? `Start New Chat with ${chatbot.name}`
-              : `Continue This Chat with ${chatbot.name}`
-            : ''
-        }
+        placeholder={chatbot ? chatSearchMessage(isNewChat, isContinuousThread, allMessages) : ''}
         showReload={!isNewChat}
         isAtBottom={
           params.threadId ? isAtBottom : isPopup ? Boolean(isAtBottomOfPopup) : isAtBottomOfSection

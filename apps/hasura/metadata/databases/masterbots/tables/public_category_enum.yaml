@@ -6,6 +6,16 @@ object_relationships:
     using:
       foreign_key_constraint_on: domain
 array_relationships:
+  - name: subcategoryEnumsByCategoryDomain
+    using:
+      manual_configuration:
+        column_mapping:
+          domain: domain
+          name: category
+        insertion_order: null
+        remote_table:
+          name: subcategory_enum
+          schema: public
   - name: subcategory_enums
     using:
       foreign_key_constraint_on:

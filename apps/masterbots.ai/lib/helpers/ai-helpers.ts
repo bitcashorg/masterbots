@@ -2,7 +2,7 @@ import { AIModels } from '@/app/api/chat/models/models'
 import { examplesSchema, metadataSchema, toolSchema } from '@/lib/helpers/ai-schemas'
 import type { AiClientType, CleanPromptResult } from '@/types/types'
 import type { StreamEntry } from '@/types/wordware-flows.types'
-import type { MessageParam } from '@anthropic-ai/sdk/resources'
+import type Anthropic from '@anthropic-ai/sdk'
 import { type CoreMessage, generateId } from 'ai'
 import type OpenAI from 'openai'
 
@@ -54,7 +54,7 @@ export function createPayload(
 export function setStreamerPayload(
   model: AiClientType,
   payload: OpenAI.ChatCompletionMessageParam[],
-): OpenAI.ChatCompletionMessageParam[] | MessageParam[] {
+): OpenAI.ChatCompletionMessageParam[] | Anthropic.MessageParam[] {
   switch (model) {
     case 'WordWare':
       return payload
@@ -66,7 +66,7 @@ export function setStreamerPayload(
               ? message.role.replace('system', 'assistant')
               : message.role.replace('system', 'user'),
             content: message.content,
-          }) as MessageParam,
+          }) as Anthropic.MessageParam,
       )
     case 'OpenAI':
     case 'Perplexity':
@@ -108,8 +108,8 @@ export async function fetchPromptDetails(promptId: string) {
 }
 
 export function cleanPrompt(str: string) {
-  // const marker = '].  Then answer this question:'
-  const marker = 'OK, so following the same pattern, how would you answer the question:'
+  // const marker = 'OK, so following the same pattern, how would you answer the question:'
+  const marker = '].  Then answer this question:'
   const index = str.indexOf(marker)
   let extracted = ''
 
@@ -117,7 +117,9 @@ export function cleanPrompt(str: string) {
     extracted = str.substring(index + marker.length)
   }
   // console.log('cleanPrompt', str, extracted, index)
-  return extracted || str
+  return (extracted || str).split(
+    " Refer to the examples below to craft responses to the user's queries. Provide answers directly, omitting any labels like 'Questions', 'Answers', or 'Examples.' ",
+  )[0]
 }
 
 export function cleanResult(result: string): CleanPromptResult {

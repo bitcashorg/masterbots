@@ -11,6 +11,7 @@ import { validateMbEnv } from 'mb-env'
 import {
   type Category,
   type Chatbot,
+  type Example,
   type MbClient,
   type Message,
   type Thread,
@@ -233,7 +234,7 @@ export async function getThread({ threadId, jwt }: Partial<GetThreadParams>) {
           orderBy: [{ createdAt: 'ASC' }],
         },
       },
-      ...everything,
+      __scalar: true,
       __args: {
         where: { threadId: { _eq: threadId } },
       },
@@ -306,13 +307,14 @@ export async function createThread({
   threadId,
   jwt,
   userId,
+  parentThreadId,
   isPublic = true,
 }: Partial<CreateThreadParams>) {
   const client = getHasuraClient({ jwt })
   const { insertThreadOne } = await client.mutation({
     insertThreadOne: {
       __args: {
-        object: { threadId, chatbotId, userId, isPublic },
+        object: { threadId, chatbotId, isPublic, parentThreadId },
       },
       threadId: true,
     },
@@ -476,7 +478,7 @@ export async function getBrowseThreads({
       isApproved: true,
       isPublic: true,
       userId: true,
-      ...everything,
+      __scalar: true,
     },
   })
 
@@ -1097,7 +1099,8 @@ export async function fetchChatbotMetadata({
       labelChatbotCategoryDomain: {
         __args: {
           where: {
-            categoryId: { _eq: category },
+            categoryId: { _eq: domain },
+            // domainId: { _eq: domain }, // This is a string... ?
             chatbotId: { _eq: chatbot },
           },
         },
@@ -1128,10 +1131,15 @@ export async function fetchChatbotMetadata({
     const transformedMetadata = chatbotMetadata.map((item) => ({
       domainName: item.domain_enum.name,
       tags: item.domain_enum.tag_enums.map((tag) => tag.name),
-      categories: item.domain_enum.category_enums.reduce((acc, category) => {
-        acc[category.name] = category.subcategory_enums.map((subcat) => subcat.name)
-        return acc
-      }, {}),
+      categories: item.domain_enum.category_enums.reduce(
+        (acc: { [key: string]: string[] }, category) => {
+          acc[category.name] = category.subcategory_enums.map(
+            (subcat: { name: string }) => subcat.name,
+          )
+          return acc
+        },
+        {},
+      ),
     }))
 
     // console.log('transformedMetadata', transformedMetadata);
@@ -1147,26 +1155,33 @@ export async function fetchDomainExamples(domain: string) {
   try {
     const client = getHasuraClient({})
     // todo: typescript
-    const { example: examples } = await client.query({
-      example: {
-        __args: {
-          where: {
-            domain: { _eq: domain },
+    const examples = (
+      await client.query({
+        example: {
+          __args: {
+            where: {
+              domain: { _eq: domain },
+            },
           },
+          prompt: true,
+          category: true,
+          domain: true,
+          exampleId: true,
+          response: true,
+          subcategory: true,
+          tags: true,
         },
-        prompt: true,
-        category: true,
-        domain: true,
-        exampleId: true,
-        response: true,
-        subcategory: true,
-        tags: true,
-      },
-    })
+      })
+    ).example as (Example & {
+      cumulativeSum: number
+    })[]
 
     console.log(examples)
 
-    return examples
+    return examples.map((example) => ({
+      ...example,
+      cumulativeSum: 0,
+    }))
   } catch (error) {
     console.error('Error fetching examples:', error)
     return null
@@ -1190,8 +1205,8 @@ export async function fetchDomainTags(domain: string) {
     })
 
     // change to a dict with key of tagId and value of object with name and frequency
-    const transformedTags = tags.reduce((acc, tag) => {
-      acc[tag.tagId] = {
+    const transformedTags = tags.reduce((acc: (typeof tags)[0], tag) => {
+      acc[tag.tagId as keyof typeof tag] = {
         name: tag.name,
         frequency: tag.frequency,
       }

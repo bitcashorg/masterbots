@@ -8,6 +8,9 @@ object_relationships:
   - name: modelsEnum
     using:
       foreign_key_constraint_on: model
+  - name: thread
+    using:
+      foreign_key_constraint_on: parent_thread_id
   - name: user
     using:
       foreign_key_constraint_on: user_id
@@ -19,32 +22,45 @@ array_relationships:
         table:
           name: message
           schema: public
+  - name: threads
+    using:
+      foreign_key_constraint_on:
+        column: parent_thread_id
+        table:
+          name: thread
+          schema: public
 insert_permissions:
   - role: moderator
     permission:
       check: {}
       columns:
+        - chatbot_id
+        - created_at
         - is_approved
         - is_blocked
         - is_public
         - model
-        - chatbot_id
-        - created_at
-        - updated_at
+        - parent_thread_id
         - thread_id
+        - updated_at
         - user_id
     comment: ""
   - role: user
     permission:
-      check:
-        user_id:
-          _eq: X-Hasura-User-Id
+      check: {}
+      set:
+        user_id: x-hasura-User-Id
       columns:
         - chatbot_id
-        - thread_id
-        - user_id
+        - created_at
+        - is_approved
+        - is_blocked
         - is_public
         - model
+        - parent_thread_id
+        - thread_id
+        - updated_at
+        - user_id
     comment: ""
 select_permissions:
   - role: anonymous
@@ -53,8 +69,10 @@ select_permissions:
         - chatbot_id
         - created_at
         - is_approved
+        - is_blocked
         - is_public
         - model
+        - parent_thread_id
         - thread_id
         - updated_at
         - user_id
@@ -63,14 +81,15 @@ select_permissions:
   - role: moderator
     permission:
       columns:
+        - chatbot_id
+        - created_at
         - is_approved
         - is_blocked
         - is_public
         - model
-        - chatbot_id
-        - created_at
-        - updated_at
+        - parent_thread_id
         - thread_id
+        - updated_at
         - user_id
       filter: {}
       allow_aggregations: true
@@ -81,8 +100,10 @@ select_permissions:
         - chatbot_id
         - created_at
         - is_approved
+        - is_blocked
         - is_public
         - model
+        - parent_thread_id
         - thread_id
         - updated_at
         - user_id
@@ -102,12 +123,18 @@ update_permissions:
     permission:
       columns:
         - chatbot_id
+        - created_at
         - is_public
         - model
+        - parent_thread_id
+        - thread_id
+        - updated_at
+        - user_id
       filter:
-        user_id:
-          _eq: X-Hasura-User-Id
-      check: null
+        thread:
+          user_id:
+            _eq: X-Hasura-User-Id
+      check: {}
     comment: ""
 delete_permissions:
   - role: moderator
@@ -117,6 +144,7 @@ delete_permissions:
   - role: user
     permission:
       filter:
-        user_id:
-          _eq: X-Hasura-User-Id
+        thread:
+          user_id:
+            _eq: X-Hasura-User-Id
     comment: ""

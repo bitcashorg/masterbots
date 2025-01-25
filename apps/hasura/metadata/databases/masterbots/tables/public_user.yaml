@@ -76,8 +76,8 @@ insert_permissions:
         - favourite_topic
         - get_free_month
         - is_blocked
+        - is_verified
         - last_login
-        - password
         - pro_user_subscription_id
         - profile_picture
         - role
@@ -122,8 +122,10 @@ select_permissions:
   - role: moderator
     permission:
       columns:
+        - bio
         - date_joined
         - email
+        - favourite_topic
         - get_free_month
         - is_blocked
         - is_verified
@@ -163,15 +165,17 @@ update_permissions:
       columns:
         - bio
         - date_joined
+        - email
         - favourite_topic
         - get_free_month
         - is_blocked
+        - is_verified
         - last_login
-        - password
         - pro_user_subscription_id
         - profile_picture
         - role
         - slug
+        - user_id
         - username
       filter: {}
       check: null

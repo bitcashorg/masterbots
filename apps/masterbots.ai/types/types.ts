@@ -309,4 +309,5 @@ export interface ClassifyQuestionParams {
   chatbotMetadata: ChatbotMetadata
   maxRetries?: number
   retryCount?: number
+  domain?: string
 }

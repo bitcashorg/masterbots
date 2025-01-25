@@ -196,6 +196,42 @@ type CategoryEnum {
   ): SubcategoryEnumAggregate!
 
   """An array relationship"""
+  subcategoryEnumsByCategoryDomain(
+    """distinct select on columns"""
+    distinctOn: [SubcategoryEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [SubcategoryEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: SubcategoryEnumBoolExp
+  ): [SubcategoryEnum!]!
+
+  """An aggregate relationship"""
+  subcategoryEnumsByCategoryDomainAggregate(
+    """distinct select on columns"""
+    distinctOn: [SubcategoryEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [SubcategoryEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: SubcategoryEnumBoolExp
+  ): SubcategoryEnumAggregate!
+
+  """An array relationship"""
   subcategory_enums(
     """distinct select on columns"""
     distinctOn: [SubcategoryEnumSelectColumn!]
@@ -265,6 +301,8 @@ input CategoryEnumBoolExp {
   domain: StringComparisonExp
   domain_enum: DomainEnumBoolExp
   name: StringComparisonExp
+  subcategoryEnumsByCategoryDomain: SubcategoryEnumBoolExp
+  subcategoryEnumsByCategoryDomainAggregate: SubcategoryEnumAggregateBoolExp
   subcategory_enums: SubcategoryEnumBoolExp
   subcategory_enumsAggregate: SubcategoryEnumAggregateBoolExp
 }
@@ -287,6 +325,7 @@ input CategoryEnumInsertInput {
   domain: String
   domain_enum: DomainEnumObjRelInsertInput
   name: String
+  subcategoryEnumsByCategoryDomain: SubcategoryEnumArrRelInsertInput
   subcategory_enums: SubcategoryEnumArrRelInsertInput
 }
 
@@ -358,6 +397,7 @@ input CategoryEnumOrderBy {
   domain: OrderBy
   domain_enum: DomainEnumOrderBy
   name: OrderBy
+  subcategoryEnumsByCategoryDomainAggregate: SubcategoryEnumAggregateOrderBy
   subcategory_enumsAggregate: SubcategoryEnumAggregateOrderBy
 }
 
@@ -1062,6 +1102,42 @@ type Chatbot {
   defaultType: String
   description: String
 
+  """An array relationship"""
+  followers(
+    """distinct select on columns"""
+    distinctOn: [SocialFollowingSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [SocialFollowingOrderBy!]
+
+    """filter the rows returned"""
+    where: SocialFollowingBoolExp
+  ): [SocialFollowing!]!
+
+  """An aggregate relationship"""
+  followersAggregate(
+    """distinct select on columns"""
+    distinctOn: [SocialFollowingSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [SocialFollowingOrderBy!]
+
+    """filter the rows returned"""
+    where: SocialFollowingBoolExp
+  ): SocialFollowingAggregate!
+
   """An object relationship"""
   lengthEnum: LengthEnum
 
@@ -1305,6 +1381,8 @@ input ChatbotBoolExp {
   defaultTone: StringComparisonExp
   defaultType: StringComparisonExp
   description: StringComparisonExp
+  followers: SocialFollowingBoolExp
+  followersAggregate: SocialFollowingAggregateBoolExp
   lengthEnum: LengthEnumBoolExp
   metadataLabels: LabelChatbotCategoryDomainBoolExp
   metadataLabelsAggregate: LabelChatbotCategoryDomainAggregateBoolExp
@@ -1698,6 +1776,7 @@ input ChatbotInsertInput {
   defaultTone: String
   defaultType: String
   description: String
+  followers: SocialFollowingArrRelInsertInput
   lengthEnum: LengthEnumObjRelInsertInput
   metadataLabels: LabelChatbotCategoryDomainArrRelInsertInput
   name: String
@@ -1807,6 +1886,7 @@ input ChatbotOrderBy {
   defaultTone: OrderBy
   defaultType: OrderBy
   description: OrderBy
+  followersAggregate: SocialFollowingAggregateOrderBy
   lengthEnum: LengthEnumOrderBy
   metadataLabelsAggregate: LabelChatbotCategoryDomainAggregateOrderBy
   name: OrderBy
@@ -2555,6 +2635,9 @@ type Example {
   subcategory: String!
 
   """An object relationship"""
+  subcategoryEnumBySubcategoryCategoryDomain: SubcategoryEnum
+
+  """An object relationship"""
   subcategory_enum: SubcategoryEnum!
   tags: [uuid!]!
 }
@@ -2619,6 +2702,7 @@ input ExampleBoolExp {
   prompt: StringComparisonExp
   response: StringComparisonExp
   subcategory: StringComparisonExp
+  subcategoryEnumBySubcategoryCategoryDomain: SubcategoryEnumBoolExp
   subcategory_enum: SubcategoryEnumBoolExp
   tags: UuidArrayComparisonExp
 }
@@ -2666,6 +2750,7 @@ input ExampleInsertInput {
   prompt: String
   response: String
   subcategory: String
+  subcategoryEnumBySubcategoryCategoryDomain: SubcategoryEnumObjRelInsertInput
   subcategory_enum: SubcategoryEnumObjRelInsertInput
   tags: [uuid!]
 }
@@ -2752,6 +2837,7 @@ input ExampleOrderBy {
   prompt: OrderBy
   response: OrderBy
   subcategory: OrderBy
+  subcategoryEnumBySubcategoryCategoryDomain: SubcategoryEnumOrderBy
   subcategory_enum: SubcategoryEnumOrderBy
   tags: OrderBy
 }
@@ -3908,10 +3994,49 @@ type Message {
     """JSON select path"""
     path: String
   ): jsonb
+
+  """An object relationship"""
+  message: Message
   messageId: uuid!
 
   """An object relationship"""
   messageTypeEnum: MessageTypeEnum!
+
+  """An array relationship"""
+  messages(
+    """distinct select on columns"""
+    distinctOn: [MessageSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [MessageOrderBy!]
+
+    """filter the rows returned"""
+    where: MessageBoolExp
+  ): [Message!]!
+
+  """An aggregate relationship"""
+  messagesAggregate(
+    """distinct select on columns"""
+    distinctOn: [MessageSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [MessageOrderBy!]
+
+    """filter the rows returned"""
+    where: MessageBoolExp
+  ): MessageAggregate!
   prompt: String
   role: String!
 
@@ -3976,8 +4101,11 @@ input MessageBoolExp {
   content: StringComparisonExp
   createdAt: TimestamptzComparisonExp
   examples: JsonbComparisonExp
+  message: MessageBoolExp
   messageId: UuidComparisonExp
   messageTypeEnum: MessageTypeEnumBoolExp
+  messages: MessageBoolExp
+  messagesAggregate: MessageAggregateBoolExp
   prompt: StringComparisonExp
   role: StringComparisonExp
   thread: ThreadBoolExp
@@ -4028,8 +4156,10 @@ input MessageInsertInput {
   content: String
   createdAt: timestamptz
   examples: jsonb
+  message: MessageObjRelInsertInput
   messageId: uuid
   messageTypeEnum: MessageTypeEnumObjRelInsertInput
+  messages: MessageArrRelInsertInput
   prompt: String
   role: String
   thread: ThreadObjRelInsertInput
@@ -4096,6 +4226,16 @@ type MessageMutationResponse {
 }
 
 """
+input type for inserting object relation for remote table "message"
+"""
+input MessageObjRelInsertInput {
+  data: MessageInsertInput!
+
+  """upsert condition"""
+  onConflict: MessageOnConflict
+}
+
+"""
 on_conflict condition type for table "message"
 """
 input MessageOnConflict {
@@ -4110,8 +4250,10 @@ input MessageOrderBy {
   content: OrderBy
   createdAt: OrderBy
   examples: OrderBy
+  message: MessageOrderBy
   messageId: OrderBy
   messageTypeEnum: MessageTypeEnumOrderBy
+  messagesAggregate: MessageAggregateOrderBy
   prompt: OrderBy
   role: OrderBy
   thread: ThreadOrderBy
@@ -7078,6 +7220,9 @@ type SubcategoryEnum {
   category: String!
 
   """An object relationship"""
+  categoryEnumByDomainCategory: CategoryEnum
+
+  """An object relationship"""
   category_enum: CategoryEnum!
   domain: String!
 
@@ -7101,6 +7246,42 @@ type SubcategoryEnum {
 
   """An aggregate relationship"""
   examplesAggregate(
+    """distinct select on columns"""
+    distinctOn: [ExampleSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ExampleOrderBy!]
+
+    """filter the rows returned"""
+    where: ExampleBoolExp
+  ): ExampleAggregate!
+
+  """An array relationship"""
+  examplesByCategoryDomainSubcategory(
+    """distinct select on columns"""
+    distinctOn: [ExampleSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ExampleOrderBy!]
+
+    """filter the rows returned"""
+    where: ExampleBoolExp
+  ): [Example!]!
+
+  """An aggregate relationship"""
+  examplesByCategoryDomainSubcategoryAggregate(
     """distinct select on columns"""
     distinctOn: [ExampleSelectColumn!]
 
@@ -7168,10 +7349,13 @@ input SubcategoryEnumBoolExp {
   _or: [SubcategoryEnumBoolExp!]
   added: TimestamptzComparisonExp
   category: StringComparisonExp
+  categoryEnumByDomainCategory: CategoryEnumBoolExp
   category_enum: CategoryEnumBoolExp
   domain: StringComparisonExp
   examples: ExampleBoolExp
   examplesAggregate: ExampleAggregateBoolExp
+  examplesByCategoryDomainSubcategory: ExampleBoolExp
+  examplesByCategoryDomainSubcategoryAggregate: ExampleAggregateBoolExp
   name: StringComparisonExp
 }
 
@@ -7191,9 +7375,11 @@ input type for inserting data into table "subcategory_enum"
 input SubcategoryEnumInsertInput {
   added: timestamptz
   category: String
+  categoryEnumByDomainCategory: CategoryEnumObjRelInsertInput
   category_enum: CategoryEnumObjRelInsertInput
   domain: String
   examples: ExampleArrRelInsertInput
+  examplesByCategoryDomainSubcategory: ExampleArrRelInsertInput
   name: String
 }
 
@@ -7267,9 +7453,11 @@ input SubcategoryEnumOnConflict {
 input SubcategoryEnumOrderBy {
   added: OrderBy
   category: OrderBy
+  categoryEnumByDomainCategory: CategoryEnumOrderBy
   category_enum: CategoryEnumOrderBy
   domain: OrderBy
   examplesAggregate: ExampleAggregateOrderBy
+  examplesByCategoryDomainSubcategoryAggregate: ExampleAggregateOrderBy
   name: OrderBy
 }
 
@@ -7758,7 +7946,47 @@ type Thread {
 
   """An object relationship"""
   modelsEnum: ModelsEnum!
+  parentThreadId: uuid
+
+  """An object relationship"""
+  thread: Thread
   threadId: uuid!
+
+  """An array relationship"""
+  threads(
+    """distinct select on columns"""
+    distinctOn: [ThreadSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ThreadOrderBy!]
+
+    """filter the rows returned"""
+    where: ThreadBoolExp
+  ): [Thread!]!
+
+  """An aggregate relationship"""
+  threadsAggregate(
+    """distinct select on columns"""
+    distinctOn: [ThreadSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ThreadOrderBy!]
+
+    """filter the rows returned"""
+    where: ThreadBoolExp
+  ): ThreadAggregate!
   updatedAt: timestamptz!
 
   """An object relationship"""
@@ -7853,7 +8081,11 @@ input ThreadBoolExp {
   messagesAggregate: MessageAggregateBoolExp
   model: ModelsEnumEnumComparisonExp
   modelsEnum: ModelsEnumBoolExp
+  parentThreadId: UuidComparisonExp
+  thread: ThreadBoolExp
   threadId: UuidComparisonExp
+  threads: ThreadBoolExp
+  threadsAggregate: ThreadAggregateBoolExp
   updatedAt: TimestamptzComparisonExp
   user: UserBoolExp
   userId: UuidComparisonExp
@@ -7894,7 +8126,10 @@ input ThreadInsertInput {
   messages: MessageArrRelInsertInput
   model: ModelsEnumEnum
   modelsEnum: ModelsEnumObjRelInsertInput
+  parentThreadId: uuid
+  thread: ThreadObjRelInsertInput
   threadId: uuid
+  threads: ThreadArrRelInsertInput
   updatedAt: timestamptz
   user: UserObjRelInsertInput
   userId: uuid
@@ -7904,6 +8139,7 @@ input ThreadInsertInput {
 type ThreadMaxFields {
   chatbotId: Int
   createdAt: timestamptz
+  parentThreadId: uuid
   threadId: uuid
   updatedAt: timestamptz
   userId: uuid
@@ -7915,6 +8151,7 @@ order by max() on columns of table "thread"
 input ThreadMaxOrderBy {
   chatbotId: OrderBy
   createdAt: OrderBy
+  parentThreadId: OrderBy
   threadId: OrderBy
   updatedAt: OrderBy
   userId: OrderBy
@@ -7924,6 +8161,7 @@ input ThreadMaxOrderBy {
 type ThreadMinFields {
   chatbotId: Int
   createdAt: timestamptz
+  parentThreadId: uuid
   threadId: uuid
   updatedAt: timestamptz
   userId: uuid
@@ -7935,6 +8173,7 @@ order by min() on columns of table "thread"
 input ThreadMinOrderBy {
   chatbotId: OrderBy
   createdAt: OrderBy
+  parentThreadId: OrderBy
   threadId: OrderBy
   updatedAt: OrderBy
   userId: OrderBy
@@ -7981,7 +8220,10 @@ input ThreadOrderBy {
   messagesAggregate: MessageAggregateOrderBy
   model: OrderBy
   modelsEnum: ModelsEnumOrderBy
+  parentThreadId: OrderBy
+  thread: ThreadOrderBy
   threadId: OrderBy
+  threadsAggregate: ThreadAggregateOrderBy
   updatedAt: OrderBy
   user: UserOrderBy
   userId: OrderBy
@@ -8013,6 +8255,9 @@ enum ThreadSelectColumn {
 
   """column name"""
   model
+
+  """column name"""
+  parentThreadId
 
   """column name"""
   threadId
@@ -8062,6 +8307,7 @@ input ThreadSetInput {
   isBlocked: Boolean
   isPublic: Boolean
   model: ModelsEnumEnum
+  parentThreadId: uuid
   threadId: uuid
   updatedAt: timestamptz
   userId: uuid
@@ -8122,6 +8368,7 @@ input ThreadStreamCursorValueInput {
   isBlocked: Boolean
   isPublic: Boolean
   model: ModelsEnumEnum
+  parentThreadId: uuid
   threadId: uuid
   updatedAt: timestamptz
   userId: uuid
@@ -8160,6 +8407,9 @@ enum ThreadUpdateColumn {
 
   """column name"""
   model
+
+  """column name"""
+  parentThreadId
 
   """column name"""
   threadId

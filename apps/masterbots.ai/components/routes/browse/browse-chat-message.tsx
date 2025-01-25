@@ -48,7 +48,7 @@ export function BrowseChatMessage({ message, chatbot, ...props }: ChatMessagePro
           remarkPlugins={[remarkGfm, remarkMath]}
           components={{
             p({ children }) {
-              return <p className="mb-2 last:mb-0">{children}</p>
+              return <p className="mb-2 last:mb-0 whitespace-pre-line">{children}</p>
             },
             ol({ children }) {
               return <ol className="list-decimal list-inside text-left">{children}</ol>

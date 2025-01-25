@@ -1,6 +1,6 @@
 import { BrowseChatMessageList } from '@/components/routes/browse/browse-chat-message-list'
 import { getThread } from '@/services/hasura'
-import { User } from 'mb-genql'
+import type { User } from 'mb-genql'
 
 interface ThreadPageProps {
   params: {
@@ -10,13 +10,11 @@ interface ThreadPageProps {
   }
 }
 export default async function ThreadPage({ params }: ThreadPageProps) {
-  
-  
   const thread = await getThread({
     threadId: params.threadId,
     jwt: ''
   })
- 
+
   if(!thread){
     return <div>Thread not found</div>
   }
@@ -24,10 +22,10 @@ export default async function ThreadPage({ params }: ThreadPageProps) {
 
   return (
     <BrowseChatMessageList
-          user={user as User | undefined}
-          chatbot={chatbot}
-          messages={messages}
-          isThread
-        />
+        user={user as User | undefined}
+        chatbot={chatbot}
+        messages={messages}
+        isThread
+      />
   )
 }

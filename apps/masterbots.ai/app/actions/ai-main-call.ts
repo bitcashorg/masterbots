@@ -16,6 +16,7 @@ import { aiTools } from '@/lib/helpers/ai-schemas'
 import { fetchChatbotMetadata } from '@/services/hasura'
 import type {
   AiClientType,
+  ChatbotMetadata,
   ChatbotMetadataHeaders,
   ClassifyQuestionParams,
   CleanPromptResult,
@@ -138,15 +139,16 @@ export async function processWithAi(
 
 export async function processWithAiObject(
   prompt: string,
-  clientType: AiClientType,
-  model: string,
-): Promise<JSONResponseStream> {
+  chatbotMetadata: ChatbotMetadata,
+  schema: typeof mbObjectSchema.metadata = mbObjectSchema.metadata,
+) {
   try {
     const messages = [{ role: 'user', content: prompt }] as OpenAI.ChatCompletionMessageParam[]
 
-    const response = await createResponseStreamObject(mbObjectSchema.metadata, {
+    const response = await createResponseStreamObject(schema, {
       model: AIModels.Default,
       messages,
+      chatbotMetadata,
     } as any)
 
     if (!response.body) {
@@ -159,6 +161,7 @@ export async function processWithAiObject(
     }
 
     const result = await readStreamResponse(response.body)
+    console.log('result::processwithAiObject -->', result)
     return JSON.parse(result)
   } catch (error) {
     console.error('Error in processWithAIObject:', error)
@@ -238,18 +241,18 @@ export async function createResponseStream(
         break
       }
       case 'Anthropic': {
-        const anthropicModel = initializeAnthropic(model, {
-          cacheControl: true,
-        })
-        const coreMessages = convertToCoreMessages(messages as OpenAI.ChatCompletionMessageParam[])
-        response = await streamText({
-          model: anthropicModel,
-          messages: coreMessages,
-          temperature: 0.3,
-          maxTokens: 300,
-          tools,
-          maxRetries: 2,
-        })
+        // const anthropicModel = initializeAnthropic(model, {
+        //   cacheControl: true,
+        // })
+        // const coreMessages = convertToCoreMessages(messages as OpenAI.ChatCompletionMessageParam[])
+        // response = await streamText({
+        //   model: anthropicModel,
+        //   messages: coreMessages,
+        //   temperature: 0.3,
+        //   maxTokens: 300,
+        //   tools,
+        //   maxRetries: 2,
+        // })
         break
       }
       case 'Perplexity': {
@@ -272,6 +275,7 @@ export async function createResponseStream(
         throw new Error('Unsupported client type')
     }
 
+    // @ts-ignore
     const dataStreamResponse = response.toDataStreamResponse({
       getErrorMessage(error) {
         // * Here we can customize the error message and/or grab any special error to either retry, stop or activate another AI flow
@@ -295,10 +299,12 @@ export async function createResponseStreamObject(
     | typeof mbObjectSchema.metadata
     | typeof mbObjectSchema.examples
     | typeof mbObjectSchema.tool,
-  json: JSONResponseStream,
+  json: JSONResponseStream & {
+    chatbotMetadata: ChatbotMetadata
+  },
   req?: Request,
 ) {
-  const { model, messages, previewToken, webSearch } = json
+  const { model, chatbotMetadata, messages, webSearch } = json
 
   const tools: Partial<typeof aiTools> = {
     // ? Temp disabling ICL as tool. Using direct ICL integration to main prompt instead. Might be enabled later.
@@ -316,8 +322,7 @@ export async function createResponseStreamObject(
       // TODO: Fix different schemas for different tools
       schema: schema as typeof mbObjectSchema.metadata,
       output: 'object',
-      prompt: `
-      You are a top software development expert with extensive knowledge in the field of ${chatbotMetadata.domainName}.
+      prompt: `You are a top software development expert with extensive knowledge in the field of ${chatbotMetadata.domainName}.
       Your purpose is to analyze and understand questions to prepare them for classification.`,
     })
 
@@ -345,32 +350,33 @@ export async function classifyQuestion({
   chatbotMetadata,
   maxRetries = 3,
   retryCount = 0,
-}: ClassifyQuestionParams): Promise<CleanPromptResult> {
+}: ClassifyQuestionParams): Promise<{
+  domain: string
+  category: string
+  subCategory: string
+  tags: string[]
+}> {
   try {
-    // TODO: remove cleanResponse and replace processWithAi with processWithAiObject, reason: streamObject returns the desired object...
-    // const responseObj = await processWithAiObject(prompt, clientType, AIModels.Default)
-    const response = await processWithAi(prompt, clientType, AIModels.Default)
-    // TODO: remove cleanResponse, reason: streamObject returns the desired object...
-    const cleanResponse = cleanResult(response)
+    const responseObj = await processWithAiObject(prompt, chatbotMetadata)
 
-    for (const tag of cleanResponse.tags) {
+    for (const tag of responseObj.tags) {
       if (!chatbotMetadata.tags.includes(tag)) {
         throw new Error(`Tag ${tag} not found in chatbot metadata`)
       }
     }
 
-    if (!(cleanResponse.category in chatbotMetadata.categories)) {
-      throw new Error(`Category ${cleanResponse.category} not found in chatbot metadata`)
+    if (!(responseObj.category in chatbotMetadata.categories)) {
+      throw new Error(`Category ${responseObj.category} not found in chatbot metadata`)
     }
-    if (!chatbotMetadata.categories[cleanResponse.category].includes(cleanResponse.subCategory)) {
+    if (!chatbotMetadata.categories[responseObj.category].includes(responseObj.subCategory)) {
       throw new Error(
-        `Subcategory ${cleanResponse.subCategory} not found in chatbot metadata for category ${cleanResponse.category}`,
+        `Subcategory ${responseObj.subCategory} not found in chatbot metadata for category ${responseObj.category}`,
       )
     }
 
-    console.log('class, subclass and tags are valid')
+    console.log('class, subclass and tags are valid', responseObj)
 
-    return cleanResponse
+    return responseObj
   } catch (error) {
     console.error('Error in classifyQuestion:', error)
     if (retryCount >= maxRetries) {

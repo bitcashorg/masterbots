@@ -4,10 +4,13 @@ import { followingQuestionsPrompt, setDefaultUserPreferencesPrompt } from '@/lib
 import { useModel } from '@/lib/hooks/use-model'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
+import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { delayFetch } from '@/lib/utils'
 import {
   createThread,
   deleteThread,
+  fetchDomainExamples,
+  fetchDomainTags,
   getMessages,
   getThread,
   saveNewMessage,
@@ -18,7 +21,7 @@ import { useChat } from 'ai/react'
 import { uniqBy } from 'lodash'
 import type { Chatbot, Message, Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 import { useAsync, useSetState } from 'react-use'
 import { useSonner } from './useSonner'
@@ -38,6 +41,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     setLoadingState,
   } = useThread()
   const { activeChatbot } = useSidebar()
+  const router = useRouter()
   const userContentRef = useRef<string>('')
   const randomThreadId = useRef<string>(crypto.randomUUID())
   const [{ messagesFromDB, isInitLoaded }, setState] = useSetState<{
@@ -50,6 +54,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     messagesFromDB: [] as Message[],
   })
   const { customSonner } = useSonner()
+  const { isContinuousThread } = useThreadVisibility()
   // console.log('[HOOK] webSearch', webSearch)
 
   const params = useParams<{ chatbot: string; threadId: string }>()
@@ -82,6 +87,18 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
   const threadId = threadIdProps || activeThread?.threadId || randomThreadId.current
   const chatbot = chatbotProps || activeThread?.chatbot || activeChatbot
 
+  const resolveThreadId = (params: {
+    isContinuousThread: boolean
+    randomThreadId: string
+    threadId: string
+    activeThreadId?: string
+  }) => {
+    const { isContinuousThread, randomThreadId, threadId, activeThreadId } = params
+    if (isContinuousThread) return randomThreadId
+    if (params.threadId || isNewChat) return threadId
+    return activeThreadId
+  }
+
   const { input, messages, isLoading, stop, append, reload, setInput, setMessages } = useChat({
     initialMessages,
     id: params.threadId || isNewChat ? threadId : activeThread?.threadId,
@@ -95,15 +112,8 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       model: selectedModel,
       clientType,
       webSearch,
-      // chatbot:
-      //   activeChatbot && activeChatbot?.categories?.length
-      //     ? {
-      //         chatbotId: activeChatbot?.chatbotId,
-      //         categoryId: activeChatbot?.categories[0].categoryId
-      //       }
-      //     : {},
     },
-    async onResponse(response) {
+    async onResponse(response: any) {
       if (response.status >= 400) {
         customSonner({ type: 'error', text: response.statusText })
 
@@ -116,10 +126,17 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
         }
       }
     },
-    async onFinish(message, options) {
+    async onFinish(message: any, options: any) {
       setLoadingState(undefined)
       setActiveTool(undefined)
       setIsNewResponse(false)
+
+      const aiChatThreadId = resolveThreadId({
+        isContinuousThread,
+        randomThreadId: randomThreadId.current,
+        threadId,
+        activeThreadId: activeThread?.threadId,
+      })
 
       if (options.finishReason === 'error') {
         customSonner({ type: 'error', text: 'Failed to send message. Please try again.' })
@@ -132,13 +149,13 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
           })
         }
 
-        return
+        return stop()
       }
 
       await Promise.all([
         saveNewMessage({
           role: 'user',
-          threadId: params.threadId || isNewChat ? threadId : activeThread?.threadId,
+          threadId: aiChatThreadId ?? '',
           content: userContentRef.current,
           jwt: session?.user?.hasuraJwt,
         }),
@@ -146,18 +163,20 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
         delayFetch(),
         saveNewMessage({
           role: 'assistant',
-          threadId: params.threadId || isNewChat ? threadId : activeThread?.threadId,
+          threadId: aiChatThreadId,
           content: message.content,
           jwt: session?.user?.hasuraJwt,
         }),
       ])
+
+      return stop()
     },
-    onToolCall({ toolCall }) {
+    onToolCall({ toolCall }: any) {
       console.log('Tool call:', toolCall)
       customSonner({ type: 'info', text: `Tool call executed: ${toolCall.toolName}` })
       setActiveTool(toolCall as AiToolCall)
     },
-    async onError(error) {
+    async onError(error: any) {
       console.error('Error in chat: ', error)
 
       customSonner({ type: 'error', text: 'Failed to send message. Please try again.' })
@@ -172,6 +191,8 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
           userId: session?.user.id,
         })
       }
+
+      return stop()
     },
   })
 
@@ -250,7 +271,6 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
           threadId: threadId as string,
           chatbotId: chatbot.chatbotId,
           jwt: session?.user?.hasuraJwt,
-          userId: session?.user.id,
           isPublic: activeChatbot?.name !== 'BlankBot',
         })
 
@@ -263,12 +283,44 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
         updateActiveThread(thread)
       }
 
+      // if (chatbotMetadata) {
+      //   await append(
+      //     {
+      //       role: 'system',
+      //       content:
+      //         "Refer to the examples below to craft responses to the user's queries. Provide answers directly, omitting any labels like 'Questions', 'Answers', or 'Examples.' " +
+      //         `## EXAMPLES:
+      //         ${chatbotMetadata?.tagExamples
+      //           .map(
+      //             (e, index) => `**Example #${index + 1}:**
+      //           Question: ${e.prompt}
+      //           Answer: ${e.response}
+      //           `,
+      //           )
+      //           .join(', ')}`,
+      //     },
+      //     // ? Provide chat attachments here...
+      //     // {
+      //     //   experimental_attachments: [],
+      //     // }
+      //   )
+      // }
       const appendResponse = await append(
         {
           ...userMessage,
           content: isNewChat
             ? userContentRef.current
-            : followingQuestionsPrompt(userContentRef.current, messages),
+            : followingQuestionsPrompt(userContentRef.current, messages) +
+              " Refer to the examples below to craft responses to the user's queries. Provide answers directly, omitting any labels like 'Questions', 'Answers', or 'Examples.' " +
+              `## EXAMPLES:
+              ${(chatbotMetadata?.tagExamples ?? [])
+                .map(
+                  (e, index) => `**Example #${index + 1}:**
+                Question: ${e.prompt}
+                Answer: ${e.response}
+                `,
+                )
+                .join(', ')}`,
         },
         // ? Provide chat attachments here...
         // {
@@ -331,7 +383,6 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     try {
       // * Loading: processing your request + opening pop-up...
       setLoadingState('processing')
-
       await tunningUserContent(userMessage)
 
       // ! At this point, the UI respond and provides a feedback to the user... before it is now even showing the updated active thread, event though that it does update the active thread...
@@ -349,10 +400,10 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     try {
       chatMetadata = await getChatbotMetadataLabels(
         {
-          domain: chatbot?.categories[0].categoryId,
-          chatbot: chatbot?.chatbotId,
+          domain: chatbot?.categories[0].categoryId as number,
+          chatbot: chatbot?.chatbotId as number,
         },
-        userContent,
+        userContentRef.current,
         clientType as AiClientType,
       )
       console.log('Full responses from getChatbotMetadataLabels:', chatMetadata)
@@ -369,14 +420,19 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     try {
       // todo: add the logic for retrieving the relevant examples
       // pull all the examples for the domain
-      const domainExamples = await fetchDomainExamples(chatMetadata.domain)
+      const domainExamples = (await fetchDomainExamples(chatMetadata.domain)) ?? []
       console.log('Domain examples:', domainExamples)
-      const domainTags = await fetchDomainTags(chatMetadata.domain)
+      const domainTags = (await fetchDomainTags(chatMetadata.domain)) ?? []
       console.log('Domain tags:', domainTags)
 
-      console.log('Domain tags length:', Object.keys(domainTags).length)
+      if (!domainExamples.length && !domainTags) {
+        customSonner({ type: 'error', text: 'Error fetching domain examples or tags.' })
+        return
+      }
 
-      // * NOTE:
+      console.log('Domain tags length:', Object.keys(domainTags || {}).length)
+
+      // * NOTE: ****************************************************************************************
       // the domainTags keys are tag ids, the values are an object with the name and frequency of the tag
       // every example has a list of tags (tag ids); these match the domainTags object keys
       // the chat metadata has a tags field as well; this is a list of tags (tag names)
@@ -385,15 +441,17 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       // then i need to check if the name is in the chat metadata tags list
       // i need to take a cumulative sum of 1-the frequency of the tag in the domainTags object
       // i need to store this cumulative sum in the example object
-      // *
+      // ************************************************************************************************
 
       for (const example of domainExamples) {
         let cumulativeSum = 0
         for (const tagId of example.tags) {
           try {
-            const tagName = domainTags[tagId].name
+            // @ts-ignore
+            const tagName = domainTags[tagId]?.name
             if (chatMetadata.tags.includes(tagName)) {
-              cumulativeSum += 1 - domainTags[tagId].frequency
+              // @ts-ignore
+              cumulativeSum += 1 - domainTags[tagId]?.frequency
             }
           } catch (error) {
             console.log('Error:', error)
@@ -436,9 +494,44 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
 
       console.log('Tag examples:', tagExamples)
       console.log('Category examples:', categoryExamples)
+
+      return {
+        tagExamples,
+        categoryExamples,
+        domainExamples,
+      }
     } catch (error) {
       console.error('Error getting chatbot metadata labels:', error)
     }
+  }
+
+  const appendAsContinuousThread = async (userMessage: AiMessage | CreateMessage) => {
+    const optimisticUserMessage = { ...userMessage, id: randomThreadId.current }
+    const message = followingQuestionsPrompt(userMessage.content, messages.concat(allMessages))
+    userContentRef.current = userMessage.content
+
+    const createdThread = await createThread({
+      threadId: randomThreadId.current as string,
+      parentThreadId: activeThread?.threadId,
+      chatbotId: chatbot ? chatbot?.chatbotId : 0,
+      jwt: session?.user?.hasuraJwt,
+      isPublic: activeChatbot?.name !== 'BlankBot',
+    })
+
+    if (createdThread) {
+      await append({
+        ...optimisticUserMessage,
+        content: message,
+      })
+
+      router.push(`/${chatbot?.name?.trim().toLowerCase()}/${randomThreadId.current}`, {
+        scroll: false,
+      })
+
+      router.refresh()
+    }
+
+    return null
   }
 
   const fetchMessages = async () => {
@@ -491,6 +584,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       // ? temp ignore...
       // @ts-ignore
       appendWithMbContextPrompts,
+      appendAsContinuousThread,
       sendMessageFromResponse,
       toggleWebSearch,
       setMessages,
@@ -542,6 +636,9 @@ export type MBChatHookActions = {
   appendWithMbContextPrompts: (
     userMessage: AiMessage | CreateMessage,
     chatRequestOptions?: ChatRequestOptions,
+  ) => Promise<string | null | undefined>
+  appendAsContinuousThread: (
+    userMessage: AiMessage | CreateMessage,
   ) => Promise<string | null | undefined>
   sendMessageFromResponse: (bulletContent: string) => void
   append: (

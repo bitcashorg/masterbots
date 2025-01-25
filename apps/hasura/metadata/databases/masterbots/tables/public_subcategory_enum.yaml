@@ -2,6 +2,16 @@ table:
   name: subcategory_enum
   schema: public
 object_relationships:
+  - name: categoryEnumByDomainCategory
+    using:
+      manual_configuration:
+        column_mapping:
+          category: name
+          domain: domain
+        insertion_order: null
+        remote_table:
+          name: category_enum
+          schema: public
   - name: category_enum
     using:
       foreign_key_constraint_on:
@@ -16,6 +26,17 @@ array_relationships:
           - category
           - subcategory
         table:
+          name: example
+          schema: public
+  - name: examplesByCategoryDomainSubcategory
+    using:
+      manual_configuration:
+        column_mapping:
+          category: category
+          domain: domain
+          name: subcategory
+        insertion_order: null
+        remote_table:
           name: example
           schema: public
 select_permissions:
