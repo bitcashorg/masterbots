@@ -159,26 +159,28 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
           >
             <ShareButton url={url} />
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
           {/* Delete thread option (only for thread owner) */}
           {isUser && (
-            <DropdownMenuItem
-              className="text-xs"
-              onSelect={event => event.preventDefault()}
-            >
-              <Button
-                variant={'ghost'}
-                size={'sm'}
-                className="flex justify-between w-full text-red-400"
-                onClick={e => {
-                  e.stopPropagation()
-                  setIsDeleteOpen(true)
-                }}
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-xs"
+                onSelect={event => event.preventDefault()}
               >
-                <Trash className="w-4 h-4" />
-                <span>Delete</span>
-              </Button>
-            </DropdownMenuItem>
+                <Button
+                  variant={'ghost'}
+                  size={'sm'}
+                  className="flex justify-between w-full text-red-400"
+                  onClick={e => {
+                    e.stopPropagation()
+                    setIsDeleteOpen(true)
+                  }}
+                >
+                  <Trash className="w-4 h-4" />
+                  <span>Delete</span>
+                </Button>
+              </DropdownMenuItem>
+            </>
           )}
         </DropdownMenuContent>
       </DropdownMenu>
