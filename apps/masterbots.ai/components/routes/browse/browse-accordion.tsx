@@ -224,8 +224,8 @@ export function BrowseAccordion({
         className={cn('flex flex-1 justify-start flex-col relative',
           'transition-all ease-in-out duration-200',
           'border-transparent border',
-          'hover:rounded-t-[8px]',
           'font-medium w-full',
+          !isNestedThread && 'hover:rounded-t-[8px]',
           !isNestedThread &&
           open &&
           'dark:border-b-mirage border-b-gray-300 dark:bg-[#18181B]/95 bg-white/95 rounded-t-lg shadow-lg transform-gpu backdrop-blur-sm',
@@ -234,7 +234,7 @@ export function BrowseAccordion({
           'dark:hover:border-b-mirage hover:border-b-gray-300 [&>div>div>button]:!hidden',
           isNestedThread &&
           open &&
-          'dark:bg-[#18181B]/50 bg-white/50 rounded-t-lg',
+          'dark:bg-[#18181B]/50 bg-white/50 !hover:rounded-t-none',
           shouldBeDisabled && !open && 'cursor-not-allowed hover:scale-100',
           triggerClass
         )}

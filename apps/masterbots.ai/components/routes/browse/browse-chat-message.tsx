@@ -42,7 +42,7 @@ export function BrowseChatMessage({ message, chatbot, ...props }: ChatMessagePro
 
   return (
     <div className={cn('group relative my-4 flex items-start')} {...props}>
-      <div className="flex-1 px-1 space-y-2 overflow-hidden md:ml-4">
+      <div className="flex-1 space-y-2 overflow-hidden md:ml-4">
         <MemoizedReactMarkdown
           className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 !max-w-5xl"
           remarkPlugins={[remarkGfm, remarkMath]}
