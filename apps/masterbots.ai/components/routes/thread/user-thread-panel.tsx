@@ -36,7 +36,7 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { getBrowseThreads, getThread, getThreads, getUserBySlug } from '@/services/hasura'
 import type { Thread } from 'mb-genql'
-import { Session } from 'next-auth/core/types'
+import type { Session } from 'next-auth'
 import { useSession } from 'next-auth/react'
 import { useParams, usePathname, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -50,7 +50,7 @@ export default function UserThreadPanel({
   chatbot,
   threads: initialThreads,
   showSearch,
-  page
+  page,
 }: {
   chatbot?: string
   threads?: Thread[]
@@ -58,7 +58,7 @@ export default function UserThreadPanel({
   search?: { [key: string]: string | string[] | undefined }
   page?: string
 }) {
-  const params = useParams<{ chatbot: string; threadId: string, slug?: string }>()
+  const params = useParams<{ chatbot: string; threadId: string; slug?: string }>()
   const { data: session } = useSession()
   const { activeCategory, activeChatbot } = useSidebar()
   const { isOpenPopup, activeThread, setActiveThread, setIsOpenPopup } = useThread()
@@ -66,29 +66,26 @@ export default function UserThreadPanel({
   const { threads: hookThreads, isContinuousThread, setIsContinuousThread } = useThreadVisibility()
   const [searchTerm, setSearchTerm] = useState<string>('')
   const searchParams = useSearchParams()
-  const { slug, threadId } = params;
+  const { slug, threadId } = params
   const continuousThreadId = searchParams.get('continuousThreadId')
 
   const userWithSlug = useAsync(async () => {
     if (!slug) return { user: null }
     const result = await getUserBySlug({
       slug,
-      isSameUser: session?.user?.slug === slug
+      isSameUser: session?.user?.slug === slug,
     })
     return result
   }, [slug])
 
-  const finalThreads = useMemo(
-    () => initialThreads ?? hookThreads,
-    [initialThreads, hookThreads]
-  )
+  const finalThreads = useMemo(() => initialThreads ?? hookThreads, [initialThreads, hookThreads])
   const [threads, setThreads] = useState<Thread[]>(finalThreads ?? [])
   const [count, setCount] = useState<number>(finalThreads?.length ?? 0)
   const [totalThreads, setTotalThreads] = useState<number>(0)
-  const prevCategoryRef = useRef(activeCategory);
-  const prevChatbotRef = useRef(activeChatbot);
-  const prevPathRef = useRef(usePathname());
-  const pathname = usePathname();
+  const prevCategoryRef = useRef(activeCategory)
+  const prevChatbotRef = useRef(activeChatbot)
+  const prevPathRef = useRef(usePathname())
+  const pathname = usePathname()
   const fetchIdRef = useRef(0) // Store the fetchId in a ref
 
   useEffect(() => {
@@ -107,22 +104,21 @@ export default function UserThreadPanel({
         categoryId: activeCategory,
         chatbotName: activeChatbot?.name,
         limit: PAGE_SIZE,
-      });
-
+      })
     } catch (error) {
-      console.error('Failed to fetch threads:', error);
-      return [];
+      console.error('Failed to fetch threads:', error)
+      return []
     }
-  };
+  }
 
   const loadMore = async () => {
     console.log('🟡 Loading More Content')
     setLoading(true)
     let moreThreads: Thread[] = []
     const userOnSlug = userWithSlug.value?.user
-    const isOwnProfile = session?.user?.id === userOnSlug?.userId;
-    if (page === 'profile' && !session?.user || !isOwnProfile) {
-      moreThreads = await fetchBrowseThreads();
+    const isOwnProfile = session?.user?.id === userOnSlug?.userId
+    if ((page === 'profile' && !session?.user) || !isOwnProfile) {
+      moreThreads = await fetchBrowseThreads()
     } else {
       moreThreads = await getThreads({
         jwt: session!.user?.hasuraJwt,
@@ -133,8 +129,8 @@ export default function UserThreadPanel({
         chatbotName: activeChatbot?.name,
       })
     }
-    if (moreThreads) setThreads(prevState => [...prevState, ...moreThreads])
-    setCount(_prev => moreThreads.length ?? 0)
+    if (moreThreads) setThreads((prevState) => [...prevState, ...moreThreads])
+    setCount((_prev) => moreThreads.length ?? 0)
     setLoading(false)
   }
 
@@ -142,21 +138,21 @@ export default function UserThreadPanel({
     let threads: Thread[] = []
     setLoading(true)
     const userOnSlug = userWithSlug.value?.user
-    const isOwnProfile = session?.user?.id === userOnSlug?.userId;
-    if (!session?.user || !isOwnProfile && page === 'profile') {
-      threads = await fetchBrowseThreads();
-      setThreads(_prev => threads ?? [])
-      setCount(_prev => threads.length ?? 0)
+    const isOwnProfile = session?.user?.id === userOnSlug?.userId
+    if (!session?.user || (!isOwnProfile && page === 'profile')) {
+      threads = await fetchBrowseThreads()
+      setThreads((_prev) => threads ?? [])
+      setCount((_prev) => threads.length ?? 0)
       setTotalThreads(threads?.length ?? 0)
       setLoading(false)
-      return;
+      return
     }
 
     const currentFetchId = Date.now() // Generate a unique identifier for the current fetch
     fetchIdRef.current = currentFetchId
     threads = await getThreads({
-      jwt: session!.user?.hasuraJwt,
-      userId: session!.user.id,
+      jwt: session?.user?.hasuraJwt,
+      userId: session?.user.id,
       limit: PAGE_SIZE,
       categoryId: activeCategory,
       chatbotName: activeChatbot?.name,
@@ -165,8 +161,8 @@ export default function UserThreadPanel({
     // Check if the fetchId matches the current fetchId stored in the ref
     if (fetchIdRef.current === currentFetchId) {
       // If it matches, update the threads state
-      setThreads(_prev => threads ?? [])
-      setCount(_prev => threads.length ?? 0)
+      setThreads((_prev) => threads ?? [])
+      setCount((_prev) => threads.length ?? 0)
       setTotalThreads(threads?.length ?? 0)
     }
     setLoading(false)
@@ -192,34 +188,31 @@ export default function UserThreadPanel({
     if (continuousThreadId && session) {
       getThreadByContinuousThreadId(continuousThreadId, session)
     }
-  }, [continuousThreadId, session]);
+  }, [continuousThreadId, session])
 
   useEffect(() => {
     // Skip if popup is open
-    if (isOpenPopup) return;
+    if (isOpenPopup) return
 
     const shouldFetch =
       activeCategory ||
       activeChatbot ||
       (prevCategoryRef.current && !activeCategory) ||
       (prevChatbotRef.current && !activeChatbot) ||
-      pathname !== prevPathRef.current; // Add pathname check
+      pathname !== prevPathRef.current // Add pathname check
 
     // Update refs
-    prevCategoryRef.current = activeCategory;
-    prevChatbotRef.current = activeChatbot;
-    prevPathRef.current = pathname;
+    prevCategoryRef.current = activeCategory
+    prevChatbotRef.current = activeChatbot
+    prevPathRef.current = pathname
 
     if (shouldFetch) {
-      handleThreadsChange();
+      handleThreadsChange()
     }
-  }, [activeCategory, activeChatbot, isOpenPopup, pathname]);
+  }, [activeCategory, activeChatbot, isOpenPopup, pathname])
 
   useEffect(() => {
-    if (
-      threads &&
-      threads.filter(t => t.threadId === activeThread?.threadId).length
-    ) return
+    if (threads && threads.filter((t) => t.threadId === activeThread?.threadId).length) return
 
     setIsOpenPopup(false)
     setActiveThread(null)
@@ -231,7 +224,6 @@ export default function UserThreadPanel({
     : activeCategory
       ? 'No threads available in the selected category'
       : 'Start a conversation to create your first thread'
-
 
   const showNoResults = !loading && searchTerm && threads.length === 0
   const showChatbotDetails = !loading && !searchTerm && threads.length === 0
