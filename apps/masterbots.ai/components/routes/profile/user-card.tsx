@@ -25,6 +25,7 @@ import { userFollowOrUnfollow } from '@/services/hasura/hasura.service'
 import type { SocialFollowing } from 'mb-genql'
 import router from 'next/router'
 import { useSonner } from '@/lib/hooks/useSonner'
+import { EmptyState } from './empty-state'
 
 interface UserCardProps {
   user: User | null
@@ -277,7 +278,7 @@ export function UserCard({ user, loading }: UserCardProps) {
           <Loader className="w-16 h-16 text-white" />
         </div>
       )}
-      {!loading && user && (
+      {user && (
         <div className="relative w-full">
           <div className="space-y-1 ">
             {/* Profile Name */}
@@ -285,12 +286,17 @@ export function UserCard({ user, loading }: UserCardProps) {
               <h2 className="text-xl font-semibold capitalize md:text-2xl">
                 {user?.username}
               </h2>
-              <div className="flex items-center space-x-1 md:hidden">
-                <BotIcon className="w-4 h-4" />
-                <span className="">Threads:</span>
-                <span className="text-gray-500">{user?.threads.length}</span>
-              </div>
-              <div className="flex items-center space-x-1">
+              {
+                user?.threads.length > 0 && (
+                  <div className="items-center space-x-1 md:hidden flex">
+                  <BotIcon className="w-4 h-4" />
+                  <span className="">Threads:</span>
+                  <span className="text-gray-500">{user?.threads.length}</span>
+                </div>
+                )
+              }
+           
+              <div className="flex items-center  space-x-1">
                 <BookUser className="w-4 h-4" />
                 <p className="text-sm ">bio:</p>
 
@@ -338,15 +344,19 @@ export function UserCard({ user, loading }: UserCardProps) {
             </div>
 
             {/* Stats Section */}
-            <div className="flex flex-col p-6 md:flex-row md:justify-between">
-              <div className="pt-5 space-y-1">
-                <div className="items-center hidden space-x-1 md:flex">
-                  <BotIcon className="w-4 h-4" />
-                  <span className="">Threads:</span>
-                  <span className="text-gray-500">{user?.threads.length}</span>
-                </div>
+            <div className="flex md:flex-row flex-col md:justify-between p-6">
+              <div className="space-y-1 pt-5">
+                {
+                     user?.threads.length > 0 && (
+                     <div className="md:flex  items-center space-x-1 hidden">
+                      <BotIcon className="w-4 h-4" />
+                      <span className="">Threads:</span>
+                      <span className="text-gray-500">{user?.threads.length}</span>
+                    </div>
+                      )
+                }
 
-                <div>
+                {/* <div>
                   <div className="flex items-center space-x-1">
                     <MessageSquareHeart className="w-4 h-4" />
                     <p className="">Favourite topic:</p>
@@ -391,7 +401,7 @@ export function UserCard({ user, loading }: UserCardProps) {
                       {favouriteTopic}
                     </p>
                   )}
-                </div>
+                </div> */}
               </div>
 
               <div className="flex flex-col items-center space-y-3  md:mt-0 mt-7">
@@ -487,6 +497,9 @@ export function UserCard({ user, loading }: UserCardProps) {
           </div>
         </div>
       )}
+      {!user && <EmptyState />}
+
+      
     </div>
   )
 }
