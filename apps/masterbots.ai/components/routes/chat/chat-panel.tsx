@@ -89,7 +89,7 @@ export function ChatPanel({
               });
             }}
             // biome-ignore lint/complexity/noExtraBooleanCast: <explanation>
-            disabled={!Boolean(chatbot) || isLoading || Boolean(loadingState)}
+            disabled={!Boolean(chatbot) || isLoading}
             input={input}
             setInput={setInput}
             isLoading={isLoading}
