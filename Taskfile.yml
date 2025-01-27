@@ -7,7 +7,7 @@ tasks:
   # Run the main app with Turbo repo
   app:
     cmds:
-      - turbo run dev --scope="masterbots.ai"
+      - cd apps/masterbots.ai && bun run dev
 
   # [After Migrating] Run the hasura backend console (highly recommended for changes)
   console:
