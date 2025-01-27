@@ -1,17 +1,9 @@
-import { processWithAi } from '@/app/actions'
-import { AIModels } from '@/app/api/chat/models/models'
-import { createChatbotMetadataPrompt, setDefaultPrompt } from '@/lib/constants/prompts'
-import { cleanResult } from '@/lib/helpers/ai-helpers'
-import type {
-  AiClientType,
-  ChatbotMetadataHeaders,
-  ReturnFetchChatbotMetadata,
-} from '@/types/types'
+import { type ExampleMetadata } from '@/lib/constants/prompts'
+import type { ChatbotMetadataHeaders, ReturnFetchChatbotMetadata } from '@/types/types'
 import { validateMbEnv } from 'mb-env'
 import {
   type Category,
   type Chatbot,
-  type Example,
   type MbClient,
   type Message,
   type Thread,
@@ -59,15 +51,17 @@ export async function getCategories(userId?: string) {
       },
       ...everything,
       __args: {
-        where: userId ? {
-          chatbots: {
-            chatbot: {
-              threads: {
-                userId: { _eq: userId }
-              }
+        where: userId
+          ? {
+              chatbots: {
+                chatbot: {
+                  threads: {
+                    userId: { _eq: userId },
+                  },
+                },
+              },
             }
-          }
-        } : {},
+          : {},
       },
     },
   })
@@ -942,24 +936,6 @@ export async function updateUserPersonality({
   }
 }
 
-export async function subtractChatbotMetadataLabels(
-  metadataHeaders: ChatbotMetadataHeaders,
-  userPrompt: string,
-  clientType: AiClientType,
-) {
-  const chatbotMetadata = await fetchChatbotMetadata(metadataHeaders)
-
-  if (!chatbotMetadata) {
-    console.error('Chatbot metadata not found. Generating response without them.')
-    return setDefaultPrompt(userPrompt)
-  }
-
-  const prompt = createChatbotMetadataPrompt(metadataHeaders, chatbotMetadata, userPrompt)
-  const response = await processWithAi(prompt, clientType, AIModels.Default)
-
-  return cleanResult(response)
-}
-
 const getFollowStatus = async (client: MbClient, followerId: string, followeeId: string) => {
   const { socialFollowing } = await client.query({
     socialFollowing: {
@@ -1180,16 +1156,14 @@ export async function fetchDomainExamples(domain: string) {
           tags: true,
         },
       })
-    ).example as (Example & {
-      cumulativeSum: number
-    })[]
+    ).example
 
-    console.log(examples)
+    console.log('fetchDoaminExamples, result --> ', examples)
 
     return examples.map((example) => ({
       ...example,
       cumulativeSum: 0,
-    }))
+    })) as unknown as ExampleMetadata[]
   } catch (error) {
     console.error('Error fetching examples:', error)
     return null
@@ -1211,6 +1185,10 @@ export async function fetchDomainTags(domain: string) {
         tagId: true,
       },
     })
+
+    if (!tags.length) {
+      throw new Error(`No tags found for domain: ${domain}`)
+    }
 
     // change to a dict with key of tagId and value of object with name and frequency
     const transformedTags = tags.reduce((acc: (typeof tags)[0], tag) => {

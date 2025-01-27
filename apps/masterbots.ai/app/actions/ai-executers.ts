@@ -22,8 +22,8 @@ export async function getChatbotMetadataTool({
   try {
     const chatbotMetadata = await getChatbotMetadataLabels(
       {
-        // domain: chatbot.domainId,
-        domain: chatbot.categoryId,
+        domain: chatbot.domainId,
+        category: chatbot.categoryId,
         chatbot: chatbot.chatbotId,
       },
       userContent,

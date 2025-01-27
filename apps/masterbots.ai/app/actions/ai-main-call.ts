@@ -2,6 +2,7 @@
 
 import { AIModels } from '@/app/api/chat/models/models'
 import {
+  type GetChatbotMetadataLabels,
   createChatbotMetadataPrompt,
   createImprovementPrompt,
   setDefaultPrompt,
@@ -82,23 +83,26 @@ export async function getChatbotMetadataLabels(
   metadataHeaders: ChatbotMetadataHeaders,
   userPrompt: string,
   clientType: AiClientType,
-) {
-  console.log('getting chatbot metadata')
+): Promise<GetChatbotMetadataLabels> {
+  console.log('getting chatbot metadata, headers --> ', metadataHeaders)
   const chatbotMetadata = await fetchChatbotMetadata(metadataHeaders)
   console.log('got chatbot metadata')
 
   if (!chatbotMetadata) {
     console.error('Chatbot metadata not found. Generating response without them.')
-    //todo: this will return something completely different than the main output
-    return setDefaultPrompt(userPrompt)
+    return {
+      domain: '',
+      category: '',
+      subCategory: '',
+      tags: [],
+    }
   }
 
   const prompt = createChatbotMetadataPrompt(metadataHeaders, chatbotMetadata, userPrompt)
-  //todo: add structured output
-  //todo: verify the cats, subcats, and tags are valid ones
-  // console.log('class sublcass etc prompt', prompt)
-
   const response = await classifyQuestion({ prompt, clientType, chatbotMetadata })
+
+  console.log('prompt, response --> ', prompt)
+  console.log('classifyQuestion, response --> ', response)
 
   response.domain = chatbotMetadata.domainName
 

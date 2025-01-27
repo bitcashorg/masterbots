@@ -29,6 +29,7 @@ export const aiTools = {
         categoryId: z
           .number()
           .describe('The domain category ID of the chatbot, ranging from 1 to 13.'),
+        domainId: z.number().describe('The domain ID of the chatbot, ranging from 1 to 3.'),
       }),
       userContent: z
         .string()
