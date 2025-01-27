@@ -42,8 +42,12 @@ function getHasuraClient({ jwt, adminSecret }: GetHasuraClientParams) {
   })
 }
 
-export async function getCategories() {
+export async function getCategories(userId?: string) {
   const client = getHasuraClient({})
+
+  console.log(
+    "from hasura::",userId)
+  
   const { category } = await client.query({
     category: {
       chatbots: {
@@ -59,7 +63,15 @@ export async function getCategories() {
       },
       ...everything,
       __args: {
-        limit: 20,
+        where: userId ? {
+          chatbots: {
+            chatbot: {
+              threads: {
+                userId: { _eq: userId }
+              }
+            }
+          }
+        } : {},
       },
     },
   })
