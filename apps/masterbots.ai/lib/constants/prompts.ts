@@ -131,6 +131,53 @@ export function UserPersonalityPrompt(userPromptType: string, allMessages: Messa
   return basePrompt
 }
 
+export type GetChatbotMetadataLabels = {
+  domain: string
+  category: string
+  subCategory: string
+  tags: string[]
+}
+
+export type ExampleMetadata = Example & {
+  messageId: string
+  role: string
+  content: string
+  createdAt: string
+  tags: string[]
+  category: string
+  subcategory: string
+  prompt: string
+  response: string
+  cumulativeSum?: number
+}
+
+export interface ChatbotMetadataExamples {
+  tagExamples: ExampleMetadata[]
+  categoryExamples: ExampleMetadata[]
+  domainExamples: ExampleMetadata[]
+}
+
+export function finalIndicationPrompt() {
+  return `
+  Provide high-quality answers to my questions, followed by one UNIQUE, LESSER-KNOWN solution. Your UNIQUE insights are crucial to my lifelong quest for knowledge. Please take a deep breath and think step-by-step.`
+}
+
+export function examplesPrompt(chatbotMetadata: ChatbotMetadataExamples) {
+  return " Refer to the examples below to craft responses to the user's queries. Provide answers directly, omitting any labels like 'Questions', 'Answers', or 'Examples.'." +
+    chatbotMetadata?.tagExamples?.length
+    ? `
+  ## EXAMPLES:
+  ${chatbotMetadata.tagExamples
+    .map(
+      (e, index) => `**Example #${index + 1}:**
+    Question: ${e.prompt}
+    Answer: ${e.response}
+    `,
+    )
+    .join(', ')}`
+    : ''
+}
+
 interface WithExamples {
   categoryExamples: Example[]
   tagExamples: Example[]

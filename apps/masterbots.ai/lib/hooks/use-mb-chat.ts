@@ -1,6 +1,14 @@
 import { getChatbotMetadataLabels, improveMessage } from '@/app/actions'
 import { formatSystemPrompts } from '@/lib/actions'
-import { followingQuestionsPrompt, setDefaultUserPreferencesPrompt } from '@/lib/constants/prompts'
+import {
+  type ChatbotMetadataExamples,
+  type ExampleMetadata,
+  type GetChatbotMetadataLabels,
+  examplesPrompt,
+  finalIndicationPrompt,
+  followingQuestionsPrompt,
+  setDefaultUserPreferencesPrompt,
+} from '@/lib/constants/prompts'
 import { useModel } from '@/lib/hooks/use-model'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
@@ -20,6 +28,7 @@ import type { Message as AiMessage, ChatRequestOptions, CreateMessage } from 'ai
 import { useChat } from 'ai/react'
 import { uniqBy } from 'lodash'
 import type { Chatbot, Message, Thread } from 'mb-genql'
+
 import { useSession } from 'next-auth/react'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useRef } from 'react'
@@ -82,6 +91,11 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
   const initialMessages: AiMessage[] = chatbotSystemPrompts
     .concat(userPreferencesPrompts)
     .concat(userAndAssistantMessages)
+
+  // ? Prompt formatting:
+  // 1. SYSTEM
+  // 2. CHATBOT CONFIG
+  // 3. THREAD MESSAGES
 
   const isNewChat = Boolean(!params.threadId && !activeThread)
   const threadId = threadIdProps || activeThread?.threadId || randomThreadId.current
@@ -258,88 +272,6 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     setLoadingState(error ? undefined : 'generating')
   }
 
-  const appendNewMessage = async (userMessage: AiMessage | CreateMessage) => {
-    setLoadingState('generating')
-
-    try {
-      const chatbotMetadata = await getMetadataLabels()
-
-      console.log('Chatbot metadata: ', chatbotMetadata)
-
-      if (isNewChat && chatbot) {
-        await createThread({
-          threadId: threadId as string,
-          chatbotId: chatbot.chatbotId,
-          jwt: session?.user?.hasuraJwt,
-          isPublic: activeChatbot?.name !== 'BlankBot',
-        })
-
-        // * Loading: Here is the information you need... 'finish'
-        const thread = await getThread({
-          threadId: threadId as string,
-          jwt: session?.user?.hasuraJwt,
-        })
-
-        updateActiveThread(thread)
-      }
-
-      // if (chatbotMetadata) {
-      //   await append(
-      //     {
-      //       role: 'system',
-      //       content:
-      //         "Refer to the examples below to craft responses to the user's queries. Provide answers directly, omitting any labels like 'Questions', 'Answers', or 'Examples.' " +
-      //         `## EXAMPLES:
-      //         ${chatbotMetadata?.tagExamples
-      //           .map(
-      //             (e, index) => `**Example #${index + 1}:**
-      //           Question: ${e.prompt}
-      //           Answer: ${e.response}
-      //           `,
-      //           )
-      //           .join(', ')}`,
-      //     },
-      //     // ? Provide chat attachments here...
-      //     // {
-      //     //   experimental_attachments: [],
-      //     // }
-      //   )
-      // }
-      const appendResponse = await append(
-        {
-          ...userMessage,
-          content: isNewChat
-            ? userContentRef.current
-            : followingQuestionsPrompt(userContentRef.current, messages) +
-              " Refer to the examples below to craft responses to the user's queries. Provide answers directly, omitting any labels like 'Questions', 'Answers', or 'Examples.' " +
-              `## EXAMPLES:
-              ${(chatbotMetadata?.tagExamples ?? [])
-                .map(
-                  (e, index) => `**Example #${index + 1}:**
-                Question: ${e.prompt}
-                Answer: ${e.response}
-                `,
-                )
-                .join(', ')}`,
-        },
-        // ? Provide chat attachments here...
-        // {
-        //   experimental_attachments: [],
-        // }
-      )
-
-      setLoadingState('finished')
-      return appendResponse
-    } catch (error) {
-      setLoadingState(undefined)
-      stop()
-
-      console.error('Error appending new message: ', error)
-
-      return null
-    }
-  }
-
   // we extend append function to add our system prompts
   const appendWithMbContextPrompts = async (
     userMessage: AiMessage | CreateMessage,
@@ -395,13 +327,20 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     }
   }
 
-  const getMetadataLabels = async () => {
-    let chatMetadata: any
+  const getMetadataLabels = async (): Promise<ChatbotMetadataExamples> => {
+    let chatMetadata: GetChatbotMetadataLabels | undefined
+    const defaultMetadata: ChatbotMetadataExamples = {
+      tagExamples: [],
+      categoryExamples: [],
+      domainExamples: [],
+    }
     try {
       chatMetadata = await getChatbotMetadataLabels(
         {
+          // ! domain should have a relationship to the chatbot... currently isn't...
           domain: chatbot?.categories[0].categoryId as number,
           chatbot: chatbot?.chatbotId as number,
+          category: chatbot?.categories[0].categoryId as number,
         },
         userContentRef.current,
         clientType as AiClientType,
@@ -416,18 +355,29 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
 
     const tagExamples = []
     const categoryExamples = []
+    let domainExamples: ExampleMetadata[] = []
     // * Getting the user labelling the thread (categories, sub-category, etc.)
     try {
-      // todo: add the logic for retrieving the relevant examples
-      // pull all the examples for the domain
-      const domainExamples = (await fetchDomainExamples(chatMetadata.domain)) ?? []
+      if (
+        !chatMetadata ||
+        (chatMetadata &&
+          (!chatMetadata?.domain ||
+            !chatMetadata?.tags ||
+            !chatMetadata?.category ||
+            !chatMetadata?.subCategory))
+      ) {
+        customSonner({ type: 'error', text: 'Error fetching chatbot metadata labels.' })
+        return defaultMetadata
+      }
+
+      domainExamples = (await fetchDomainExamples(chatMetadata.domain)) ?? []
       console.log('Domain examples:', domainExamples)
       const domainTags = (await fetchDomainTags(chatMetadata.domain)) ?? []
       console.log('Domain tags:', domainTags)
 
       if (!domainExamples.length && !domainTags) {
         customSonner({ type: 'error', text: 'Error fetching domain examples or tags.' })
-        return
+        return defaultMetadata
       }
 
       console.log('Domain tags length:', Object.keys(domainTags || {}).length)
@@ -449,6 +399,9 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
           try {
             // @ts-ignore
             const tagName = domainTags[tagId]?.name
+            if (!chatMetadata.tags.length) {
+              break
+            }
             if (chatMetadata.tags.includes(tagName)) {
               // @ts-ignore
               cumulativeSum += 1 - domainTags[tagId]?.frequency
@@ -462,7 +415,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       }
 
       // now i need to sort the examples by the cumulative sum, in descending order
-      domainExamples.sort((a, b) => b.cumulativeSum - a.cumulativeSum)
+      domainExamples.sort((a, b) => (b?.cumulativeSum || 0) - (a?.cumulativeSum || 0))
 
       console.log('Sorted domain examples:', domainExamples)
 
@@ -494,14 +447,14 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
 
       console.log('Tag examples:', tagExamples)
       console.log('Category examples:', categoryExamples)
-
-      return {
-        tagExamples,
-        categoryExamples,
-        domainExamples,
-      }
     } catch (error) {
       console.error('Error getting chatbot metadata labels:', error)
+    }
+
+    return {
+      tagExamples,
+      categoryExamples,
+      domainExamples,
     }
   }
 
@@ -566,6 +519,82 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
 
   const toggleWebSearch = () => {
     setWebSearch(!webSearch)
+  }
+
+  const appendNewMessage = async (userMessage: AiMessage | CreateMessage) => {
+    setLoadingState('generating')
+
+    try {
+      const chatbotMetadata = await getMetadataLabels()
+
+      console.log('Chatbot metadata: ', chatbotMetadata)
+
+      if (isNewChat && chatbot) {
+        await createThread({
+          threadId: threadId as string,
+          chatbotId: chatbot.chatbotId,
+          jwt: session?.user?.hasuraJwt,
+          isPublic: activeChatbot?.name !== 'BlankBot',
+        })
+
+        // * Loading: Here is the information you need... 'finish'
+        const thread = await getThread({
+          threadId: threadId as string,
+          jwt: session?.user?.hasuraJwt,
+        })
+
+        updateActiveThread(thread)
+      }
+
+      // if (chatbotMetadata) {
+      //   await append(
+      //     {
+      //       role: 'system',
+      //       content:
+      //         "Refer to the examples below to craft responses to the user's queries. Provide answers directly, omitting any labels like 'Questions', 'Answers', or 'Examples.' " +
+      //         `## EXAMPLES:
+      //         ${chatbotMetadata?.tagExamples
+      //           .map(
+      //             (e, index) => `**Example #${index + 1}:**
+      //           Question: ${e.prompt}
+      //           Answer: ${e.response}
+      //           `,
+      //           )
+      //           .join(', ')}`,
+      //     },
+      //     // ? Provide chat attachments here...
+      //     // {
+      //     //   experimental_attachments: [],
+      //     // }
+      //   )
+      // }
+      console.log('Thread ID: ', threadId)
+      console.log('initialMessages: ', initialMessages)
+      const appendResponse = await append(
+        {
+          ...userMessage,
+          content: isNewChat
+            ? userContentRef.current
+            : examplesPrompt(chatbotMetadata) +
+              followingQuestionsPrompt(userContentRef.current, messages) +
+              finalIndicationPrompt(),
+        },
+        // ? Provide chat attachments here...
+        // {
+        //   experimental_attachments: [],
+        // }
+      )
+
+      setLoadingState('finished')
+      return appendResponse
+    } catch (error) {
+      setLoadingState(undefined)
+      stop()
+
+      console.error('Error appending new message: ', error)
+
+      return null
+    }
   }
 
   // ? return [state, actions]

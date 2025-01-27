@@ -137,6 +137,7 @@ export const initialStateSubscription = {
 
 export type ChatbotMetadataHeaders = {
   chatbot: number
+  category: number
   domain: number
 }
 
