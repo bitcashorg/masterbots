@@ -1,9 +1,9 @@
 'use client'
 
-import { getCategories } from '@/services/hasura'
+import { getCategories, getUserBySlug } from '@/services/hasura'
 import { Category, Chatbot } from 'mb-genql'
 import { toSlug } from 'mb-lib'
-import { usePathname } from 'next/navigation'
+import { usePathname, useParams } from 'next/navigation'
 import * as React from 'react'
 import { useAsync } from 'react-use'
 
@@ -65,8 +65,21 @@ interface SidebarProviderProps {
 export function SidebarProvider({ children }: SidebarProviderProps) {
   const [selectedCategories, setSelectedCategories] = React.useState<number[]>([])
   const [selectedChatbots, setSelectedChatbots] = React.useState<number[]>([])
+  const { slug } = useParams()
+  const pathname = usePathname()
+ 
   const { value: categories, loading, error } = useAsync(async () => {
-    const categories = await getCategories()
+    let categories = []
+    if(slug){
+      const { user, error } =  await getUserBySlug({
+        slug: slug as string, 
+        isSameUser: false
+       });
+       const userId = user ? user?.userId : undefined
+        categories = await getCategories(userId)
+    }else{
+       categories = await getCategories()
+    }
     const categoriesObj = {
       categoriesChatbots: categories || [],
       categoriesId: categories.map(category => category.categoryId),
@@ -76,7 +89,8 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
     setSelectedCategories(categoriesObj.categoriesId)
     setSelectedChatbots(categoriesObj.chatbotsId)
     return categoriesObj
-  }, [])
+  }, [pathname])
+
   const [isSidebarOpen, setSidebarOpen] = React.useState(false)
   const [isLoading, setLoading] = React.useState(true)
   const [activeChatbot, setActiveChatbot] = React.useState<Chatbot | null>(null)
@@ -105,7 +119,6 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
     })
   }
 
-  const pathname = usePathname()
   React.useEffect(() => {
     if (!pathname || !categories) return
     const pathParts = pathname.split('/')
