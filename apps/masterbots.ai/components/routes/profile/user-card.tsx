@@ -17,7 +17,7 @@ import { type Message, useChat } from 'ai/react'
 import { nanoid, removeSurroundingQuotes } from '@/lib/utils'
 import { useModel } from '@/lib/hooks/use-model'
 import { UserPersonalityPrompt } from '@/lib/constants/prompts'
-import { ChangeEvent, useCallback, useEffect, useState } from 'react'
+import { type ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { useUploadImagesCloudinary } from '@/lib/hooks/use-cloudinary-upload'
 import { formatNumber, isFollowed } from '@/lib/utils'
 import { useSession } from 'next-auth/react'
@@ -274,7 +274,7 @@ export function UserCard({ user, loading }: UserCardProps) {
     >
       {' '}
       {loading && !user && (
-        <div className="absolute inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <Loader className="w-16 h-16 text-white" />
         </div>
       )}
@@ -282,8 +282,8 @@ export function UserCard({ user, loading }: UserCardProps) {
         <div className="relative w-full">
           <div className="space-y-1 ">
             {/* Profile Name */}
-            <div className="pt-7 px-5 pb-2">
-              <h2 className="md:text-2xl  text-xl font-semibold capitalize">
+            <div className="px-5 pb-2 pt-7">
+              <h2 className="text-xl font-semibold capitalize md:text-2xl">
                 {user?.username}
               </h2>
               {
@@ -298,7 +298,7 @@ export function UserCard({ user, loading }: UserCardProps) {
            
               <div className="flex items-center  space-x-1">
                 <BookUser className="w-4 h-4" />
-                <p className="text-sm  ">bio:</p>
+                <p className="text-sm ">bio:</p>
 
                 <div className="h-7">
                   {isOwner && (
@@ -322,13 +322,13 @@ export function UserCard({ user, loading }: UserCardProps) {
             <Separator className="bg-gray-300  dark:bg-mirage size-[3px] w-full" />
 
             {/* Bio Section */}
-            <div className="space-y-2 min-h-16 md:mr-0  px-5">
+            <div className="px-5 space-y-2 min-h-16 md:mr-0">
               {isOwner && !bio && (
                 <p className="text-[13px] font-normal text-gray-500 md:w-[400px]">
                   click{' '}
                   <Button
                     variant="ghost"
-                    className="text-xs text-gray-500 p-1 hover:text-black dark:hover:text-gray-400"
+                    className="p-1 text-xs text-gray-500 hover:text-black dark:hover:text-gray-400"
                   >
                     {' '}
                     generate <Wand2 className="w-4 h-4 ml-1" />
@@ -383,7 +383,7 @@ export function UserCard({ user, loading }: UserCardProps) {
                         variant="ghost"
                         onClick={() => generateBio('topic')}
                         disabled={isLoading && generateType === 'topic'}
-                        className="text-xs text-gray-500 p-1 hover:text-black dark:hover:text-gray-400"
+                        className="p-1 text-xs text-gray-500 hover:text-black dark:hover:text-gray-400"
                       >
                         {' '}
                         generate
@@ -404,7 +404,7 @@ export function UserCard({ user, loading }: UserCardProps) {
                 </div> */}
               </div>
 
-              <div className=" flex flex-col  items-center md:mt-0 mt-7  space-y-3">
+              <div className="flex flex-col items-center space-y-3  md:mt-0 mt-7">
                 {!isOwner && (
                   <Button
                     disabled={isFollowLoading}
@@ -452,7 +452,7 @@ export function UserCard({ user, loading }: UserCardProps) {
             <div className="relative size-24">
               <div className="absolute  inset-0 border-4 border-[#BE17E8] dark:border-[#83E56A] rounded-full dark:bg-[#131316] bg-white overflow-hidden">
                 <Image
-                  className="transition-opacity duration-300 rounded-full select-none size-full ring-1 ring-zinc-100/10 hover:opacity-80 object-cover"
+                  className="object-cover transition-opacity duration-300 rounded-full select-none size-full ring-1 ring-zinc-100/10 hover:opacity-80"
                   src={
                     userProfilePicture
                       ? userProfilePicture
@@ -481,7 +481,7 @@ export function UserCard({ user, loading }: UserCardProps) {
                     {isUploadingImage ? (
                       <Loader className="w-4 h-4 text-white" />
                     ) : (
-                      <ImagePlus className="w-3 h-3 rounded-full dark:text-black text-white font-bold" />
+                      <ImagePlus className="w-3 h-3 font-bold text-white rounded-full dark:text-black" />
                     )}
                   </Button>
                   <input

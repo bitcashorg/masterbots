@@ -11,7 +11,6 @@ import { signOut } from 'next-auth/react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useCallback, useState } from 'react'
-import { urlBuilders } from '@/lib/url'
 
 interface ProfileSidebarProps {
   user: Session['user'] & {
@@ -44,18 +43,18 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
     }
   }, [])
 
-  const goToProfile = useCallback((e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    const userSlug = toSlugWithUnderScore(user.name || '')
-    if (userSlug) {
-      setIsOpen(false)
-      router.push(urlBuilders.userProfileUrl({
-        userSlug
-      }))
-    }
-  }, [router, user.name])
-
+  const goToProfile = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      const userSlug = toSlugWithUnderScore(user.name || '')
+      if (userSlug) {
+        setIsOpen(false)
+        router.push(`/u/${userSlug}/t`)
+      }
+    },
+    [router, user.name]
+  )
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>

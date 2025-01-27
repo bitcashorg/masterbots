@@ -135,7 +135,7 @@ function MessagePairs({
           'dark:border-b-mirage border-b-gray-300 py-[0.4375rem] dark:hover:bg-mirage hover:bg-gray-300',
           {
             'sticky top-0 md:-top-10 z-[1] dark:bg-[#18181b] bg-[#f4f4f5] !border-l-[transparent] px-3 [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]': isThread,
-            'px-[calc(47px-0.25rem)]': !isThread,
+            'px-[calc(32px-0.25rem)]': !isThread,
             'hidden': !isThread && key === 0,
           },
           chatTitleClass

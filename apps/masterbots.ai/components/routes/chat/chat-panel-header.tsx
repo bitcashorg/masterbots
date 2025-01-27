@@ -111,7 +111,7 @@ export function ChatPanelHeader({
         {/* Right side controls */}
         <div className="flex items-center gap-2">
           {showReload &&
-            (isLoading || loadingState ? (
+            (isLoading || loadingState?.match(/^(processing|digesting|generating|polishing|ready)/) ? (
               <>
                 {loadingState && (
                   <div className="flex items-center justify-between gap-4">
