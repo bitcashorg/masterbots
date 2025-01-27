@@ -67,6 +67,7 @@ select_permissions:
   - role: moderator
     permission:
       columns:
+        - augmented_from
         - content
         - created_at
         - examples
