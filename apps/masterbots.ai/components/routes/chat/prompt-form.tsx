@@ -72,7 +72,7 @@ export function PromptForm({
       }
     }
   }
-  
+
   React.useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus()
