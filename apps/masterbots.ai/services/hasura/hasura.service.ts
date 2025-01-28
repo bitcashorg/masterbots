@@ -1,5 +1,8 @@
 import { type ExampleMetadata } from '@/lib/constants/prompts'
-import type { ChatbotMetadataHeaders, ReturnFetchChatbotMetadata } from '@/types/types'
+import type {
+  ChatbotMetadataHeaders,
+  ReturnFetchChatbotMetadata
+} from '@/types/types'
 import { validateMbEnv } from 'mb-env'
 import {
   type Category,
@@ -9,7 +12,7 @@ import {
   type Thread,
   type User,
   createMbClient,
-  everything,
+  everything
 } from 'mb-genql'
 import type {
   CreateThreadParams,
@@ -22,7 +25,7 @@ import type {
   GetThreadsParams,
   SaveNewMessageParams,
   UpdateUserArgs,
-  UpsertUserParams,
+  UpsertUserParams
 } from './hasura.service.type'
 
 function getHasuraClient({ jwt, adminSecret }: GetHasuraClientParams) {
@@ -30,7 +33,7 @@ function getHasuraClient({ jwt, adminSecret }: GetHasuraClientParams) {
     jwt,
     adminSecret,
     debug: process.env.DEBUG === 'true',
-    env: validateMbEnv(process.env.NEXT_PUBLIC_APP_ENV),
+    env: validateMbEnv(process.env.NEXT_PUBLIC_APP_ENV)
   })
 }
 
@@ -43,11 +46,11 @@ export async function getCategories(userId?: string) {
           followers: {
             followeeId: true,
             followerId: true,
-            followeeIdChatbot: true,
+            followeeIdChatbot: true
           },
-          ...everything,
+          ...everything
         },
-        ...everything,
+        ...everything
       },
       ...everything,
       __args: {
@@ -56,14 +59,14 @@ export async function getCategories(userId?: string) {
               chatbots: {
                 chatbot: {
                   threads: {
-                    userId: { _eq: userId },
-                  },
-                },
-              },
+                    userId: { _eq: userId }
+                  }
+                }
+              }
             }
-          : {},
-      },
-    },
+          : {}
+      }
+    }
   })
 
   return category as Category[]
@@ -74,11 +77,11 @@ export async function getCategory({ categoryId }: { categoryId: number }) {
   const { category } = await client.query({
     category: {
       __args: {
-        where: { categoryId: { _eq: categoryId } },
+        where: { categoryId: { _eq: categoryId } }
       },
       name: true,
-      categoryId: true,
-    },
+      categoryId: true
+    }
   })
 
   return category[0] as Category
@@ -90,33 +93,37 @@ export async function getAllChatbots() {
     chatbot: {
       name: true,
       __args: {
-        limit: 100,
-      },
-    },
+        limit: 100
+      }
+    }
   })
 
   return chatbot as Chatbot[]
 }
 
-export async function getChatbots({ limit, offset, categoryId }: GetChatbotsParams) {
+export async function getChatbots({
+  limit,
+  offset,
+  categoryId
+}: GetChatbotsParams) {
   const client = getHasuraClient({})
   const { chatbot } = await client.query({
     chatbot: {
       threads: {
-        threadId: true,
+        threadId: true
       },
       categories: {
         categoryId: true,
         category: {
-          name: true,
-        },
+          name: true
+        }
       },
       ...everything,
       __args: {
         limit: limit ? limit : 20,
         ...(offset
           ? {
-              offset,
+              offset
             }
           : {}),
         ...(categoryId
@@ -124,14 +131,14 @@ export async function getChatbots({ limit, offset, categoryId }: GetChatbotsPara
               where: {
                 categories: {
                   categoryId: {
-                    _eq: categoryId,
-                  },
-                },
-              },
+                    _eq: categoryId
+                  }
+                }
+              }
             }
-          : {}),
-      },
-    },
+          : {})
+      }
+    }
   })
 
   return chatbot as Chatbot[]
@@ -143,7 +150,7 @@ export async function getThreads({
   userId,
   limit,
   offset,
-  categoryId,
+  categoryId
 }: GetThreadsParams) {
   const client = getHasuraClient({ jwt })
 
@@ -153,23 +160,23 @@ export async function getThreads({
         ...everything,
         categories: {
           category: {
-            ...everything,
+            ...everything
           },
-          ...everything,
+          ...everything
         },
         threads: {
-          threadId: true,
+          threadId: true
         },
         prompts: {
-          prompt: everything,
-        },
+          prompt: everything
+        }
       },
       messages: {
         ...everything,
         __args: {
           orderBy: [{ createdAt: 'ASC' }],
-          limit: 2,
-        },
+          limit: 2
+        }
       },
       isApproved: true,
       isPublic: true,
@@ -179,7 +186,7 @@ export async function getThreads({
         limit: limit ? limit : 20,
         ...(offset
           ? {
-              offset,
+              offset
             }
           : {}),
         ...(chatbotName || categoryId
@@ -188,19 +195,21 @@ export async function getThreads({
                 chatbot: {
                   ...(chatbotName
                     ? {
-                        name: { _eq: chatbotName },
+                        name: { _eq: chatbotName }
                       }
                     : {}),
-                  ...(categoryId ? { categories: { categoryId: { _eq: categoryId } } } : {}),
+                  ...(categoryId
+                    ? { categories: { categoryId: { _eq: categoryId } } }
+                    : {})
                 },
-                ...(userId ? { userId: { _eq: userId } } : {}),
-              },
+                ...(userId ? { userId: { _eq: userId } } : {})
+              }
             }
           : userId
             ? { where: { userId: { _eq: userId } } }
-            : {}),
-      },
-    },
+            : {})
+      }
+    }
   })
 
   return thread as Thread[]
@@ -215,54 +224,61 @@ export async function getThread({ threadId, jwt }: Partial<GetThreadParams>) {
         ...everything,
         categories: {
           category: {
-            ...everything,
+            ...everything
           },
-          ...everything,
+          ...everything
         },
         threads: {
-          threadId: true,
+          threadId: true
         },
         prompts: {
-          prompt: everything,
+          prompt: everything
         },
         followers: {
           followerId: true,
-          followeeIdChatbot: true,
-        },
+          followeeIdChatbot: true
+        }
       },
       user: {
         username: true,
         profilePicture: true,
-        slug: true,
+        slug: true
       },
       messages: {
         ...everything,
         __args: {
-          orderBy: [{ createdAt: 'ASC' }],
-        },
+          orderBy: [{ createdAt: 'ASC' }]
+        }
       },
       __scalar: true,
       __args: {
-        where: { threadId: { _eq: threadId } },
-      },
-    },
+        where: { threadId: { _eq: threadId } }
+      }
+    }
   })
   return thread[0] as Thread
 }
 
-export async function saveNewMessage({ jwt, ...object }: Partial<SaveNewMessageParams>) {
+export async function saveNewMessage({
+  jwt,
+  ...object
+}: Partial<SaveNewMessageParams>) {
   const client = getHasuraClient({ jwt })
   await client.mutation({
     insertMessageOne: {
       __args: {
-        object,
+        object
       },
-      ...everything,
-    },
+      ...everything
+    }
   })
 }
 
-export async function upsertUser({ adminSecret, username, ...object }: UpsertUserParams) {
+export async function upsertUser({
+  adminSecret,
+  username,
+  ...object
+}: UpsertUserParams) {
   const client = getHasuraClient({ adminSecret })
 
   // Generate base slug from the user's name
@@ -275,11 +291,11 @@ export async function upsertUser({ adminSecret, username, ...object }: UpsertUse
     const { user } = await client.query({
       user: {
         __args: {
-          where: { slug: { _eq: slug } },
+          where: { slug: { _eq: slug } }
         },
         slug: true,
-        email: true,
-      },
+        email: true
+      }
     })
     if (!user?.length || user[0]?.email === object.email) {
       // Found a unique slug
@@ -295,15 +311,15 @@ export async function upsertUser({ adminSecret, username, ...object }: UpsertUse
         object: {
           username,
           slug,
-          ...object,
+          ...object
         },
         onConflict: {
           constraint: 'user_email_key',
-          updateColumns: ['profilePicture'],
-        },
+          updateColumns: ['profilePicture']
+        }
       },
-      ...everything,
-    },
+      ...everything
+    }
   })
 
   return insertUserOne as User
@@ -315,42 +331,48 @@ export async function createThread({
   jwt,
   userId,
   parentThreadId,
-  isPublic = true,
+  isPublic = true
 }: Partial<CreateThreadParams>) {
   const client = getHasuraClient({ jwt })
   const { insertThreadOne } = await client.mutation({
     insertThreadOne: {
       __args: {
-        object: { threadId, chatbotId, isPublic, parentThreadId },
+        object: { threadId, chatbotId, isPublic, parentThreadId }
       },
-      threadId: true,
-    },
+      threadId: true
+    }
   })
   return insertThreadOne?.threadId as string
 }
 
-export async function getChatbot({ chatbotId, chatbotName, threads, jwt }: GetChatbotParams) {
-  if (!chatbotId && !chatbotName) throw new Error('You need to pass chatbotId or chatbotName')
+export async function getChatbot({
+  chatbotId,
+  chatbotName,
+  threads,
+  jwt
+}: GetChatbotParams) {
+  if (!chatbotId && !chatbotName)
+    throw new Error('You need to pass chatbotId or chatbotName')
   let client = getHasuraClient({})
   if (jwt) client = getHasuraClient({ jwt })
   const { chatbot } = await client.query({
     chatbot: {
       __args: {
-        where: { name: { _eq: chatbotName } },
+        where: { name: { _eq: chatbotName } }
       },
       ...everything,
       followers: {
         followerId: true,
-        followeeIdChatbot: true,
+        followeeIdChatbot: true
       },
       categories: {
         category: {
-          ...everything,
+          ...everything
         },
-        ...everything,
+        ...everything
       },
       prompts: {
-        prompt: everything,
+        prompt: everything
       },
       ...(threads
         ? {
@@ -359,13 +381,13 @@ export async function getChatbot({ chatbotId, chatbotName, threads, jwt }: GetCh
               messages: {
                 ...everything,
                 __args: {
-                  orderBy: [{ createdAt: 'ASC' }],
-                },
-              },
-            },
+                  orderBy: [{ createdAt: 'ASC' }]
+                }
+              }
+            }
           }
-        : {}),
-    },
+        : {})
+    }
   })
 
   return chatbot[0] as Chatbot
@@ -381,7 +403,7 @@ export async function getBrowseThreads({
   limit,
   offset,
   slug,
-  followedUserId,
+  followedUserId
 }: GetBrowseThreadsParams) {
   const client = getHasuraClient({})
 
@@ -390,52 +412,52 @@ export async function getBrowseThreads({
       ? {
           chatbot: {
             categories: {
-              categoryId: { _eq: categoryId },
-            },
-          },
+              categoryId: { _eq: categoryId }
+            }
+          }
         }
       : {}),
     ...(categoriesId
       ? {
           chatbot: {
             categories: {
-              categoryId: { _in: categoriesId },
-            },
-          },
+              categoryId: { _in: categoriesId }
+            }
+          }
         }
       : {}),
     ...(chatbotName
       ? {
           chatbot: {
-            name: { _eq: chatbotName },
-          },
+            name: { _eq: chatbotName }
+          }
         }
       : {}),
     ...(chatbotsId
       ? {
           chatbot: {
-            chatbotId: { _in: chatbotsId },
-          },
+            chatbotId: { _in: chatbotsId }
+          }
         }
       : {}),
     ...(userId
       ? {
           userId: {
-            _eq: userId,
-          },
+            _eq: userId
+          }
         }
       : {}),
     ...(slug
       ? {
           user: {
             slug: {
-              _eq: slug,
-            },
-          },
+              _eq: slug
+            }
+          }
         }
       : {}),
     isPublic: { _eq: true },
-    isApproved: { _eq: true },
+    isApproved: { _eq: true }
   }
 
   const { thread: allThreads } = await client.query({
@@ -444,7 +466,7 @@ export async function getBrowseThreads({
         orderBy: [{ createdAt: 'DESC' }],
         where: baseWhereConditions,
         limit: (limit || 30) * 2,
-        offset: offset || 0,
+        offset: offset || 0
       },
       threadId: true,
       chatbot: {
@@ -452,45 +474,51 @@ export async function getBrowseThreads({
         name: true,
         categories: {
           category: {
-            ...everything,
+            ...everything
           },
-          ...everything,
+          ...everything
         },
         followers: {
-          followerId: true,
+          followerId: true
         },
         threads: {
-          threadId: true,
+          threadId: true
         },
-        ...everything,
+        ...everything
       },
       messages: {
-        ...everything,
+        messageId: true,
+        content: true,
+        createdAt: true,
+        role: true,
         __args: {
           orderBy: [{ createdAt: 'ASC' }],
           ...(keyword
             ? {
                 where: {
-                  _or: [{ content: { _iregex: keyword } }, { content: { _eq: keyword } }],
-                },
+                  _or: [
+                    { content: { _iregex: keyword } },
+                    { content: { _eq: keyword } }
+                  ]
+                }
               }
             : ''),
-          limit: 2,
-        },
+          limit: 2
+        }
       },
       user: {
         username: true,
         profilePicture: true,
         slug: true,
         followers: {
-          followerId: true,
-        },
+          followerId: true
+        }
       },
       isApproved: true,
       isPublic: true,
       userId: true,
-      __scalar: true,
-    },
+      __scalar: true
+    }
   })
 
   if (!allThreads) return []
@@ -498,7 +526,7 @@ export async function getBrowseThreads({
   const threads = allThreads as Thread[]
 
   // Separate following content (both from followed bots and users)
-  const followingThreads = threads.filter((thread) => {
+  const followingThreads = threads.filter(thread => {
     if (followedUserId) {
       // Exclude user's own posts
       if (thread.userId === followedUserId) {
@@ -506,12 +534,12 @@ export async function getBrowseThreads({
       }
 
       // For bot content
-      const isFollowingBot = thread.chatbot?.followers?.some((follower) => {
+      const isFollowingBot = thread.chatbot?.followers?.some(follower => {
         return follower.followerId === followedUserId
       })
 
       // For user content
-      const isFollowingUser = thread.user?.followers?.some((follower) => {
+      const isFollowingUser = thread.user?.followers?.some(follower => {
         return follower.followerId === followedUserId
       })
 
@@ -522,9 +550,13 @@ export async function getBrowseThreads({
 
   // Organic content (neither from followed bots nor followed users)
   const organicThreads = threads.filter(
-    (thread) =>
-      !thread.chatbot?.followers?.some((follower) => follower.followerId === followedUserId) &&
-      !thread.user?.followers?.some((follower) => follower.followerId === followedUserId),
+    thread =>
+      !thread.chatbot?.followers?.some(
+        follower => follower.followerId === followedUserId
+      ) &&
+      !thread.user?.followers?.some(
+        follower => follower.followerId === followedUserId
+      )
   )
 
   const interweavedThreads: Thread[] = []
@@ -532,7 +564,8 @@ export async function getBrowseThreads({
   let organicIndex = 0
 
   while (
-    (followingIndex < followingThreads.length || organicIndex < organicThreads.length) &&
+    (followingIndex < followingThreads.length ||
+      organicIndex < organicThreads.length) &&
     interweavedThreads.length < (limit || 30)
   ) {
     // Add up to 4 following threads
@@ -548,7 +581,10 @@ export async function getBrowseThreads({
     }
 
     // Add 1 organic thread if available
-    if (organicIndex < organicThreads.length && interweavedThreads.length < (limit || 30)) {
+    if (
+      organicIndex < organicThreads.length &&
+      interweavedThreads.length < (limit || 30)
+    ) {
       interweavedThreads.push(organicThreads[organicIndex])
       organicIndex++
     }
@@ -556,7 +592,12 @@ export async function getBrowseThreads({
   return interweavedThreads
 }
 
-export async function getMessages({ threadId, limit, offset, jwt }: GetMessagesParams) {
+export async function getMessages({
+  threadId,
+  limit,
+  offset,
+  jwt
+}: GetMessagesParams) {
   let client = getHasuraClient({})
   if (jwt) client = getHasuraClient({ jwt })
   const { message } = await client.query({
@@ -567,26 +608,29 @@ export async function getMessages({ threadId, limit, offset, jwt }: GetMessagesP
         orderBy: [{ createdAt: 'ASC' }],
         ...(limit
           ? {
-              limit,
+              limit
             }
           : {}),
         ...(offset
           ? {
-              offset,
+              offset
             }
-          : {}),
-      },
-    },
+          : {})
+      }
+    }
   })
   return message as Message[]
 }
 
-export async function getChatbotsCount({ categoryId, jwt }: GetChatbotsParams & { jwt: string }) {
+export async function getChatbotsCount({
+  categoryId,
+  jwt
+}: GetChatbotsParams & { jwt: string }) {
   const client = getHasuraClient({ jwt })
   const { chatbotAggregate } = await client.query({
     chatbotAggregate: {
       aggregate: {
-        count: true,
+        count: true
       },
       __args: {
         ...(categoryId
@@ -594,16 +638,18 @@ export async function getChatbotsCount({ categoryId, jwt }: GetChatbotsParams & 
               where: {
                 categories: {
                   categoryId: {
-                    _eq: categoryId,
-                  },
-                },
-              },
+                    _eq: categoryId
+                  }
+                }
+              }
             }
-          : {}),
-      },
-    },
+          : {})
+      }
+    }
   })
-  return chatbotAggregate.aggregate?.count ? chatbotAggregate.aggregate.count : 0
+  return chatbotAggregate.aggregate?.count
+    ? chatbotAggregate.aggregate.count
+    : 0
 }
 
 export async function getUserInfoFromBrowse(slug: string) {
@@ -615,11 +661,11 @@ export async function getUserInfoFromBrowse(slug: string) {
       __args: {
         where: {
           slug: {
-            _eq: slug,
-          },
-        },
-      },
-    },
+            _eq: slug
+          }
+        }
+      }
+    }
   })
   return user[0]
 }
@@ -631,16 +677,16 @@ export async function getThreadsWithoutJWT() {
       chatbot: {
         categories: {
           category: {
-            name: true,
-          },
+            name: true
+          }
         },
-        name: true,
+        name: true
       },
       ...everything,
       __args: {
-        orderBy: [{ createdAt: 'DESC' }],
-      },
-    },
+        orderBy: [{ createdAt: 'DESC' }]
+      }
+    }
   })
 
   return thread as Thread[]
@@ -650,8 +696,8 @@ export async function getUsers() {
   const client = getHasuraClient({})
   const { user } = await client.query({
     user: {
-      slug: true,
-    },
+      slug: true
+    }
   })
   return user as User[]
 }
@@ -659,7 +705,7 @@ export async function getUsers() {
 export async function UpdateThreadVisibility({
   threadId,
   isPublic,
-  jwt,
+  jwt
 }: {
   threadId: string
   isPublic: boolean
@@ -671,11 +717,11 @@ export async function UpdateThreadVisibility({
       updateThreadByPk: {
         __args: {
           pkColumns: { threadId },
-          _set: { isApproved: true },
+          _set: { isApproved: true }
         },
         threadId: true,
-        isApproved: true,
-      },
+        isApproved: true
+      }
     })
     return { success: true }
   } catch (error) {
@@ -685,7 +731,7 @@ export async function UpdateThreadVisibility({
 
 export async function approveThread({
   threadId,
-  jwt,
+  jwt
 }: {
   threadId: string
   jwt: string | undefined
@@ -696,11 +742,11 @@ export async function approveThread({
       updateThreadByPk: {
         __args: {
           pkColumns: { threadId },
-          _set: { isApproved: true },
+          _set: { isApproved: true }
         },
         threadId: true,
-        isApproved: true,
-      },
+        isApproved: true
+      }
     })
     return { success: true }
   } catch (error) {
@@ -710,7 +756,7 @@ export async function approveThread({
 }
 
 export async function getUserRoleByEmail({
-  email,
+  email
 }: {
   email: string | null | undefined
 }) {
@@ -719,11 +765,11 @@ export async function getUserRoleByEmail({
     const { user } = await client.query({
       user: {
         __args: {
-          where: { email: { _eq: email } },
+          where: { email: { _eq: email } }
         },
         role: true,
-        slug: true,
-      },
+        slug: true
+      }
     })
     return { users: user as User[] }
   } catch (error) {
@@ -735,7 +781,7 @@ export async function getUserRoleByEmail({
 export async function deleteThread({
   threadId,
   jwt,
-  userId,
+  userId
 }: {
   threadId: string
   jwt: string | undefined
@@ -750,13 +796,13 @@ export async function deleteThread({
     await client.mutation({
       deleteThread: {
         __args: {
-          where: { threadId: { _eq: threadId }, userId: { _eq: userId } },
+          where: { threadId: { _eq: threadId }, userId: { _eq: userId } }
         },
         returning: {
-          threadId: true,
+          threadId: true
         },
-        affectedRows: true,
-      },
+        affectedRows: true
+      }
     })
 
     return { success: true }
@@ -777,34 +823,34 @@ export async function getUnapprovedThreads({ jwt }: { jwt: string }) {
       __args: {
         where: { isApproved: { _eq: false } },
         orderBy: [{ createdAt: 'DESC' }],
-        limit: 20,
+        limit: 20
       },
       chatbot: {
         ...everything,
         categories: {
           category: {
-            ...everything,
+            ...everything
           },
-          ...everything,
+          ...everything
         },
         threads: {
-          threadId: true,
+          threadId: true
         },
         prompts: {
-          prompt: everything,
-        },
+          prompt: everything
+        }
       },
       messages: {
         ...everything,
         __args: {
           orderBy: [{ createdAt: 'ASC' }],
-          limit: 2,
-        },
+          limit: 2
+        }
       },
       isApproved: true,
       isPublic: true,
-      ...everything,
-    },
+      ...everything
+    }
   })
 
   return thread as Thread[]
@@ -812,7 +858,7 @@ export async function getUnapprovedThreads({ jwt }: { jwt: string }) {
 
 export async function getUserBySlug({
   slug,
-  isSameUser,
+  isSameUser
 }: {
   slug: string
   isSameUser: boolean
@@ -824,9 +870,9 @@ export async function getUserBySlug({
         __args: {
           where: {
             slug: {
-              _eq: slug,
-            },
-          },
+              _eq: slug
+            }
+          }
         },
         userId: true,
         username: true,
@@ -839,41 +885,44 @@ export async function getUserBySlug({
             where: isSameUser
               ? {}
               : {
-                  _and: [{ isApproved: { _eq: true } }, { isPublic: { _eq: true } }],
-                },
+                  _and: [
+                    { isApproved: { _eq: true } },
+                    { isPublic: { _eq: true } }
+                  ]
+                }
           },
           threadId: true,
           isApproved: true,
           isPublic: true,
           chatbot: {
-            name: true,
+            name: true
           },
           messages: {
-            content: true,
-          },
+            content: true
+          }
         },
         followers: {
           followeeId: true,
           followerId: true,
           userByFollowerId: {
-            username: true,
-          },
+            username: true
+          }
         },
 
         following: {
           __args: {
             where: {
               followeeId: { _isNull: false },
-              followeeIdChatbot: { _isNull: true },
-            },
+              followeeIdChatbot: { _isNull: true }
+            }
           },
           followeeId: true,
           followerId: true,
           userByFollowerId: {
-            username: true,
-          },
-        },
-      },
+            username: true
+          }
+        }
+      }
     } as const)
 
     if (!user || user.length === 0) {
@@ -882,24 +931,24 @@ export async function getUserBySlug({
     }
     return {
       user: user[0], // Return the first matching user
-      error: null,
+      error: null
     }
   } catch (error) {
     console.error('Error fetching user by username:', {
       error,
       slug,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date().toISOString()
     })
     if (error instanceof Error) {
       return {
         user: null,
-        error: error.message || 'Failed to fetch user by username.',
+        error: error.message || 'Failed to fetch user by username.'
       }
     }
 
     return {
       user: null,
-      error: 'An unexpected error occurred while fetching user.',
+      error: 'An unexpected error occurred while fetching user.'
     }
   }
 }
@@ -909,7 +958,7 @@ export async function updateUserPersonality({
   bio,
   topic,
   jwt,
-  profilePicture,
+  profilePicture
 }: {
   userId: string | undefined
   bio: string | null
@@ -926,13 +975,13 @@ export async function updateUserPersonality({
 
     // Build update arguments based on non-null values
     const updateArgs: UpdateUserArgs = {
-      pkColumns: { userId },
+      pkColumns: { userId }
     }
 
     updateArgs._set = {
       ...(bio !== null && { bio }),
       ...(topic !== null && { favouriteTopic: topic }),
-      ...(profilePicture !== null && { profilePicture }),
+      ...(profilePicture !== null && { profilePicture })
     }
 
     await client.mutation({
@@ -940,8 +989,8 @@ export async function updateUserPersonality({
         __args: updateArgs,
         userId: true,
         bio: true,
-        favouriteTopic: true,
-      },
+        favouriteTopic: true
+      }
     })
 
     return { success: true }
@@ -951,48 +1000,66 @@ export async function updateUserPersonality({
   }
 }
 
-const getFollowStatus = async (client: MbClient, followerId: string, followeeId: string) => {
+const getFollowStatus = async (
+  client: MbClient,
+  followerId: string,
+  followeeId: string
+) => {
   const { socialFollowing } = await client.query({
     socialFollowing: {
       __args: {
-        where: { followerId: { _eq: followerId }, followeeId: { _eq: followeeId } },
+        where: {
+          followerId: { _eq: followerId },
+          followeeId: { _eq: followeeId }
+        }
       },
       followeeId: true,
-      followerId: true,
-    },
+      followerId: true
+    }
   })
   return socialFollowing?.length > 0
 }
 
-const followUser = async (client: MbClient, followerId: string, followeeId: string) => {
+const followUser = async (
+  client: MbClient,
+  followerId: string,
+  followeeId: string
+) => {
   return client.mutation({
     insertSocialFollowingOne: {
       __args: {
-        object: { followerId, followeeId },
+        object: { followerId, followeeId }
       },
       followeeId: true,
       followerId: true,
-      userByFollowerId: { username: true },
-    },
+      userByFollowerId: { username: true }
+    }
   })
 }
 
-const unfollowUser = async (client: MbClient, followerId: string, followeeId: string) => {
+const unfollowUser = async (
+  client: MbClient,
+  followerId: string,
+  followeeId: string
+) => {
   return client.mutation({
     deleteSocialFollowing: {
       __args: {
-        where: { followerId: { _eq: followerId }, followeeId: { _eq: followeeId } },
+        where: {
+          followerId: { _eq: followerId },
+          followeeId: { _eq: followeeId }
+        }
       },
       affectedRows: true,
-      returning: { followeeId: true, followerId: true },
-    },
+      returning: { followeeId: true, followerId: true }
+    }
   })
 }
 
 export async function userFollowOrUnfollow({
   followerId,
   followeeId,
-  jwt,
+  jwt
 }: {
   followerId: string
   followeeId: string
@@ -1013,65 +1080,91 @@ export async function userFollowOrUnfollow({
     console.error('Error following/unfollowing user:', error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to follow/unfollow user.',
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Failed to follow/unfollow user.'
     }
   }
 }
 
 // chatbot follow or unfollow  function
 
-const getChatbotFollowStatus = async (client: MbClient, followerId: string, followeeId: number) => {
+const getChatbotFollowStatus = async (
+  client: MbClient,
+  followerId: string,
+  followeeId: number
+) => {
   const { socialFollowing } = await client.query({
     socialFollowing: {
       __args: {
-        where: { followerId: { _eq: followerId }, followeeIdChatbot: { _eq: followeeId } },
+        where: {
+          followerId: { _eq: followerId },
+          followeeIdChatbot: { _eq: followeeId }
+        }
       },
       followeeIdChatbot: true,
-      followerId: true,
-    },
+      followerId: true
+    }
   })
   return socialFollowing?.length > 0
 }
 
-const followChatbot = async (client: MbClient, followerId: string, followeeId: number) => {
+const followChatbot = async (
+  client: MbClient,
+  followerId: string,
+  followeeId: number
+) => {
   return client.mutation({
     insertSocialFollowingOne: {
       __args: {
-        object: { followerId, followeeIdChatbot: followeeId },
+        object: { followerId, followeeIdChatbot: followeeId }
       },
       followeeIdChatbot: true,
       followerId: true,
-      chatbot: { name: true },
-    },
+      chatbot: { name: true }
+    }
   })
 }
 
-const unfollowChatbot = async (client: MbClient, followerId: string, followeeId: number) => {
+const unfollowChatbot = async (
+  client: MbClient,
+  followerId: string,
+  followeeId: number
+) => {
   return client.mutation({
     deleteSocialFollowing: {
       __args: {
-        where: { followerId: { _eq: followerId }, followeeIdChatbot: { _eq: followeeId } },
+        where: {
+          followerId: { _eq: followerId },
+          followeeIdChatbot: { _eq: followeeId }
+        }
       },
       affectedRows: true,
-      returning: { followeeIdChatbot: true, followerId: true },
-    },
+      returning: { followeeIdChatbot: true, followerId: true }
+    }
   })
 }
 
 export async function chatbotFollowOrUnfollow({
   followerId,
   followeeId,
-  jwt,
+  jwt
 }: {
   followerId: string
   followeeId: number
   jwt: string
 }) {
-  if (!jwt) throw new Error('Authentication required to follow/unfollow chatbot')
+  if (!jwt)
+    throw new Error('Authentication required to follow/unfollow chatbot')
 
   const client = getHasuraClient({ jwt })
   try {
-    const isFollowing = await getChatbotFollowStatus(client, followerId, followeeId)
+    const isFollowing = await getChatbotFollowStatus(
+      client,
+      followerId,
+      followeeId
+    )
     if (!isFollowing) {
       await followChatbot(client, followerId, followeeId)
       return { success: true, follow: true }
@@ -1082,7 +1175,10 @@ export async function chatbotFollowOrUnfollow({
     console.error('Error following/unfollowing chatbot:', error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to follow/unfollow chatbot.',
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Failed to follow/unfollow chatbot.'
     }
   }
 }
@@ -1090,7 +1186,7 @@ export async function chatbotFollowOrUnfollow({
 export async function fetchChatbotMetadata({
   chatbot, // ? domain === category: Renaming category to domains and category will be another level for the Masterbots (chatbots)
   // category,
-  domain,
+  domain
 }: ChatbotMetadataHeaders): Promise<ReturnFetchChatbotMetadata> {
   try {
     const client = getHasuraClient({})
@@ -1100,22 +1196,22 @@ export async function fetchChatbotMetadata({
           where: {
             categoryId: { _eq: domain },
             // domainId: { _eq: domain }, // This is a string... ?
-            chatbotId: { _eq: chatbot },
-          },
+            chatbotId: { _eq: chatbot }
+          }
         },
         domain_enum: {
           name: true,
           tag_enums: {
-            name: true,
+            name: true
           },
           category_enums: {
             name: true,
             subcategory_enums: {
-              name: true,
-            },
-          },
-        },
-      },
+              name: true
+            }
+          }
+        }
+      }
     })
 
     // require that the length is 1
@@ -1127,18 +1223,18 @@ export async function fetchChatbotMetadata({
     // console.log('chatbotMetadata as retrieved:', chatbotMetadata)
 
     // Transform the data to create a dictionary of categories with subcategories as values
-    const transformedMetadata = chatbotMetadata.map((item) => ({
+    const transformedMetadata = chatbotMetadata.map(item => ({
       domainName: item.domain_enum.name,
-      tags: item.domain_enum.tag_enums.map((tag) => tag.name),
+      tags: item.domain_enum.tag_enums.map(tag => tag.name),
       categories: item.domain_enum.category_enums.reduce(
         (acc: { [key: string]: string[] }, category) => {
           acc[category.name] = category.subcategory_enums.map(
-            (subcat: { name: string }) => subcat.name,
+            (subcat: { name: string }) => subcat.name
           )
           return acc
         },
-        {},
-      ),
+        {}
+      )
     }))
 
     // console.log('transformedMetadata', transformedMetadata);
@@ -1159,8 +1255,8 @@ export async function fetchDomainExamples(domain: string) {
         example: {
           __args: {
             where: {
-              domain: { _eq: domain },
-            },
+              domain: { _eq: domain }
+            }
           },
           prompt: true,
           category: true,
@@ -1168,16 +1264,16 @@ export async function fetchDomainExamples(domain: string) {
           exampleId: true,
           response: true,
           subcategory: true,
-          tags: true,
-        },
+          tags: true
+        }
       })
     ).example
 
     console.log('fetchDoaminExamples, result --> ', examples)
 
-    return examples.map((example) => ({
+    return examples.map(example => ({
       ...example,
-      cumulativeSum: 0,
+      cumulativeSum: 0
     })) as unknown as ExampleMetadata[]
   } catch (error) {
     console.error('Error fetching examples:', error)
@@ -1192,13 +1288,13 @@ export async function fetchDomainTags(domain: string) {
       tagEnum: {
         __args: {
           where: {
-            domain: { _eq: domain },
-          },
+            domain: { _eq: domain }
+          }
         },
         name: true,
         frequency: true,
-        tagId: true,
-      },
+        tagId: true
+      }
     })
 
     if (!tags.length) {
@@ -1209,7 +1305,7 @@ export async function fetchDomainTags(domain: string) {
     const transformedTags = tags.reduce((acc: (typeof tags)[0], tag) => {
       acc[tag.tagId as keyof typeof tag] = {
         name: tag.name,
-        frequency: tag.frequency,
+        frequency: tag.frequency
       }
       return acc
     })
