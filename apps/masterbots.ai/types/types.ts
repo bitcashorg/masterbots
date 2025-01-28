@@ -158,7 +158,7 @@ export type CoreMessage = {
   }
 }
 
-export type AiClientType = 'OpenAI' | 'Anthropic' | 'Perplexity' | 'WordWare'
+export type AiClientType = 'OpenAI' | 'Anthropic' | 'Perplexity' | 'WordWare' | 'DeepSeek'
 
 export type JSONResponseStream = {
   id: string
@@ -174,6 +174,7 @@ export type JSONResponseStream = {
 
 // ? New type for streamText function parameters if needed
 export type StreamTextParams = {
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   model: any // ? Replace 'any' with the correct type from the SDK if available
   messages: CoreMessage[]
   temperature?: number
