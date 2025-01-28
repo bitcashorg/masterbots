@@ -9,26 +9,20 @@ import { Input } from '@/components/ui/input'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn } from '@/lib/utils'
 import { getCategory } from '@/services/hasura'
+import type { ThreadState } from '@/types/types'
 import { debounce } from 'lodash'
 import { Search } from 'lucide-react'
 import type { Thread } from 'mb-genql'
-import { useParams } from 'next/navigation'
-import React from 'react'
+import React, { useEffect } from 'react'
 
 interface ChatSearchInputProps {
-  setThreads: React.Dispatch<React.SetStateAction<Thread[]>>
+  setThreads: React.Dispatch<React.SetStateAction<ThreadState>>
   onSearch?: (term: string) => void
 }
 
-export function ChatSearchInput({
-  setThreads,
-  onSearch
-}: ChatSearchInputProps) {
-  const { chatbot } = useParams()
-  const { activeCategory } = useSidebar()
-  const [searchPlaceholder, setSearchPlaceholder] = React.useState<
-    string | null
-  >(null)
+export function ChatSearchInput({ setThreads, onSearch }: ChatSearchInputProps) {
+  const { activeCategory, activeChatbot } = useSidebar()
+  const [searchPlaceholder, setSearchPlaceholder] = React.useState<string | null>(null)
   const [keyword, changeKeyword] = React.useState<string>('')
   const previousThread = React.useRef<Thread[]>([])
   const previousCategory = React.useRef<number | null>(null)
@@ -49,14 +43,14 @@ export function ChatSearchInput({
     const lowercaseSearch = searchTerm.toLowerCase()
 
     // Check all messages in the thread for the search term
-    return thread.messages.some(message =>
-      message?.content?.toLowerCase().includes(lowercaseSearch)
+    return thread.messages.some((message) =>
+      message?.content?.toLowerCase().includes(lowercaseSearch),
     )
   }
 
   const fetchSearchPlaceholder = async () => {
-    if (chatbot) {
-      setSearchPlaceholder(chatbot as string)
+    if (activeChatbot) {
+      setSearchPlaceholder(activeChatbot?.name.replace(/([A-Z])/g, ' $1').toLowerCase().trimStart())
     } else if (activeCategory && activeCategory !== previousCategory.current) {
       previousCategory.current = activeCategory
       const getCategoryLabel = await getCategory({ categoryId: activeCategory })
@@ -64,32 +58,36 @@ export function ChatSearchInput({
     }
   }
 
-  React.useEffect(() => {
+  // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should only run when the active chatbot or category changes
+  useEffect(() => {
     fetchSearchPlaceholder()
-  }, [chatbot, activeCategory])
+  }, [activeChatbot, activeCategory])
 
-  React.useEffect(() => {
+  // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should only run when the keyword changes
+  useEffect(() => {
     const debouncedSearch = debounce(() => {
-      setThreads(prevState => {
-        previousThread.current = !previousThread.current.length
-          ? prevState
-          : previousThread.current
+      setThreads((prevState) => {
+        previousThread.current = !previousThread.current.length ? prevState.threads : previousThread.current
         const previousThreadState = previousThread.current
         if (!keyword) {
-          return previousThreadState
+          return {
+            ...prevState,
+            threads: previousThreadState
+          }
         }
-        return previousThreadState.filter(thread =>
-          searchInThread(thread, keyword)
-        )
+        return {
+          ...prevState,
+          threads: previousThreadState.filter((thread) => searchInThread(thread, keyword)),
+        }
       })
     }, 230)
 
     debouncedSearch()
     return () => debouncedSearch.cancel()
-  }, [keyword, setThreads])
+  }, [keyword])
 
   return (
-    <div className="relative w-full max-w-[900px] mx-auto flex items-center justify-center pt-5">
+    <div className="relative w-full max-w-[900px] mx-auto flex items-center justify-center">
       <div className="relative w-full">
         <div className="absolute inset-0 transition-opacity duration-300 rounded-full opacity-0 group-focus-within:opacity-100">
           <div className="absolute inset-0 rounded-full bg-gradient-to-r dark:from-[#83E56A]/5 dark:to-[#83E56A]/5 from-[#BE17E8]/5 to-[#BE17E8]/5 blur-lg animate-pulse" />
@@ -103,13 +101,13 @@ export function ChatSearchInput({
             'border dark:border-[#83E56A]/10 border-[#BE17E8]/10',
             'focus-within:border-[#BE17E8] dark:focus-within:border-[#83E56A]',
             'focus-within:ring-1 focus-within:ring-[#BE17E8] dark:focus-within:ring-[#83E56A]',
-            'transition-all duration-200'
+            'transition-all duration-200',
           )}
         >
           <Search className="absolute w-5 h-5 left-4 text-zinc-400 group-focus-within:text-[#BE17E8] dark:group-focus-within:text-[#83E56A]" />
           <Input
             value={keyword}
-            onChange={e => handleKeywordChange(e.target.value)}
+            onChange={(e) => handleKeywordChange(e.target.value)}
             placeholder={`Search all messages in ${searchPlaceholder ? searchPlaceholder : 'any category'
               }...`}
             className={cn(
@@ -118,7 +116,7 @@ export function ChatSearchInput({
               'placeholder:text-zinc-400',
               'text-base dark:text-zinc-100',
               'border-0 ring-0 focus-visible:ring-0 focus-visible:ring-offset-0',
-              'rounded-full'
+              'rounded-full',
             )}
           />
           {keyword && (
@@ -130,7 +128,7 @@ export function ChatSearchInput({
                 'absolute right-2',
                 'size-8 p-0',
                 'hover:bg-zinc-800/50',
-                'rounded-full'
+                'rounded-full',
               )}
               aria-label="Clear search"
             >

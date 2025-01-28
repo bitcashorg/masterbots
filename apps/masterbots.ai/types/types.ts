@@ -2,10 +2,11 @@ import type { mbObjectSchema } from '@/lib/helpers/ai-helpers'
 import type { WordWareFlowPaths } from '@/types/wordware-flows.types'
 import type { Message } from 'ai'
 import type { UserRole } from 'mb-drizzle'
-import type { Chatbot, SocialFollowing } from 'mb-genql'
+import type { Chatbot, Example, SocialFollowing, Thread } from 'mb-genql'
 import 'next-auth'
 import type { DefaultSession, DefaultUser } from 'next-auth'
 import type OpenAI from 'openai'
+import type { FunctionToolCall, ToolCall } from 'openai/resources/beta/threads/runs/steps.mjs'
 import type React from 'react'
 import type Stripe from 'stripe'
 
@@ -20,11 +21,12 @@ export interface Chat extends Record<string, any> {
   sharePath?: string
 }
 
-export type AiToolCall = {
-  toolCallId: string
-  toolName: WordWareFlowPaths
-  args: Record<string, any>
-}
+export type AiToolCall = ToolCall &
+  FunctionToolCall & {
+    toolCallId: string
+    toolName: WordWareFlowPaths
+    args: Record<string, any>
+  }
 
 export interface ChatProps extends React.ComponentProps<'div'> {
   initialMessages?: Message[]
@@ -134,6 +136,38 @@ export const initialStateSubscription = {
 }
 
 // * AI SDK related types
+
+export type GetChatbotMetadataLabels = {
+  domain: string
+  category: string
+  subCategory: string
+  tags: string[]
+}
+
+export type ExampleMetadata = Example & {
+  messageId: string
+  role: string
+  content: string
+  createdAt: string
+  tags: string[]
+  category: string
+  subcategory: string
+  prompt: string
+  response: string
+  cumulativeSum?: number
+}
+
+export interface ChatbotMetadataExamples {
+  tagExamples: ExampleMetadata[]
+  categoryExamples: ExampleMetadata[]
+  domainExamples: ExampleMetadata[]
+}
+
+export interface ThreadState {
+  threads: Thread[]
+  count: number
+  totalThreads: number
+}
 
 export type ChatbotMetadataHeaders = {
   chatbot: number

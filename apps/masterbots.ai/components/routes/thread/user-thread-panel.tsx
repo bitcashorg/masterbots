@@ -31,31 +31,29 @@ import ChatChatbotDetails from '@/components/routes/chat/chat-chatbot-details'
 import { ChatSearchInput } from '@/components/routes/chat/chat-search-input'
 import ThreadList from '@/components/routes/thread/thread-list'
 import { NoResults } from '@/components/shared/no-results-card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { getBrowseThreads, getThread, getThreads, getUserBySlug } from '@/services/hasura'
+import { isEqual } from 'lodash'
 import type { Thread } from 'mb-genql'
 import type { Session } from 'next-auth'
 import { useSession } from 'next-auth/react'
 import { useParams, usePathname, useSearchParams } from 'next/navigation'
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { useAsync } from 'react-use'
+import { Suspense, useEffect, useRef, useState } from 'react'
+import { useAsync, useSetState } from 'react-use'
 
 const PAGE_SIZE = 20
 
 // TODO: this is a hard to understand file since it tries to focus in too many different aspects
 // in only one file, instead of relying on reusable hooks for each context. It should be refactored.
 export default function UserThreadPanel({
-  chatbot,
   threads: initialThreads,
-  showSearch,
   page,
 }: {
-  chatbot?: string
   threads?: Thread[]
   showSearch?: boolean
-  search?: { [key: string]: string | string[] | undefined }
   page?: string
 }) {
   const params = useParams<{ chatbot: string; threadId: string; slug?: string }>()
@@ -78,21 +76,43 @@ export default function UserThreadPanel({
     return result
   }, [slug])
 
-  const finalThreads = useMemo(() => initialThreads ?? hookThreads, [initialThreads, hookThreads])
-  const [threads, setThreads] = useState<Thread[]>(finalThreads ?? [])
-  const [count, setCount] = useState<number>(finalThreads?.length ?? 0)
-  const [totalThreads, setTotalThreads] = useState<number>(0)
   const prevCategoryRef = useRef(activeCategory)
   const prevChatbotRef = useRef(activeChatbot)
   const prevPathRef = useRef(usePathname())
-  const pathname = usePathname()
   const fetchIdRef = useRef(0) // Store the fetchId in a ref
+  const pathname = usePathname()
+  const [state, setState] = useSetState<{
+    threads: Thread[]
+    count: number
+    totalThreads: number
+  }>({
+    threads: initialThreads || [],
+    count: initialThreads?.length || 0,
+    totalThreads: initialThreads?.length || 0,
+  })
+  const { threads, count, totalThreads } = state
 
+  const updateThreads = () => {
+    console.log('threads', threads)
+    console.log('initialThreads', initialThreads)
+
+    setState({
+      threads: initialThreads || hookThreads,
+      count: initialThreads?.length,
+      totalThreads: initialThreads?.length,
+    })
+  }
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should run only once when the initial threads change
   useEffect(() => {
-    setThreads(finalThreads)
-    setCount(finalThreads?.length ?? 0)
-    setTotalThreads(finalThreads?.length ?? 0)
-  }, [finalThreads])
+    if (isEqual(initialThreads, threads) && threads.length > (initialThreads?.length || 0)) return
+
+    updateThreads()
+
+    return () => {
+      updateThreads()
+    }
+  }, [activeCategory, activeChatbot])
 
   const fetchBrowseThreads = async () => {
     try {
@@ -121,36 +141,42 @@ export default function UserThreadPanel({
       moreThreads = await fetchBrowseThreads()
     } else {
       moreThreads = await getThreads({
-        jwt: session!.user?.hasuraJwt,
-        userId: session!.user.id,
+        jwt: session?.user?.hasuraJwt as string,
+        userId: session?.user.id as string,
         offset: threads.length,
         limit: PAGE_SIZE,
         categoryId: activeCategory,
         chatbotName: activeChatbot?.name,
       })
     }
-    if (moreThreads) setThreads((prevState) => [...prevState, ...moreThreads])
-    setCount((_prev) => moreThreads.length ?? 0)
+    setState({
+      threads: moreThreads
+        ? [...threads, ...moreThreads]
+        : threads,
+      count: threads.length,
+    })
     setLoading(false)
   }
 
   const handleThreadsChange = async () => {
-    let threads: Thread[] = []
     setLoading(true)
     const userOnSlug = userWithSlug.value?.user
     const isOwnProfile = session?.user?.id === userOnSlug?.userId
     if (!session?.user || (!isOwnProfile && page === 'profile')) {
-      threads = await fetchBrowseThreads()
-      setThreads((_prev) => threads ?? [])
-      setCount((_prev) => threads.length ?? 0)
-      setTotalThreads(threads?.length ?? 0)
+      const newThreads = await fetchBrowseThreads()
+
+      setState({
+        threads: newThreads,
+        totalThreads: threads?.length,
+        count: threads?.length,
+      })
       setLoading(false)
       return
     }
 
     const currentFetchId = Date.now() // Generate a unique identifier for the current fetch
     fetchIdRef.current = currentFetchId
-    threads = await getThreads({
+    const newThreads = await getThreads({
       jwt: session?.user?.hasuraJwt,
       userId: session?.user.id,
       limit: PAGE_SIZE,
@@ -161,9 +187,11 @@ export default function UserThreadPanel({
     // Check if the fetchId matches the current fetchId stored in the ref
     if (fetchIdRef.current === currentFetchId) {
       // If it matches, update the threads state
-      setThreads((_prev) => threads ?? [])
-      setCount((_prev) => threads.length ?? 0)
-      setTotalThreads(threads?.length ?? 0)
+      setState({
+        threads: newThreads,
+        totalThreads: threads?.length,
+        count: threads?.length,
+      })
     }
     setLoading(false)
   }
@@ -171,25 +199,29 @@ export default function UserThreadPanel({
   const getThreadByContinuousThreadId = async (continuousThreadId: string, session: Session) => {
     const thread = await getThread({
       threadId: continuousThreadId,
-      jwt: session!.user?.hasuraJwt,
+      jwt: session.user?.hasuraJwt,
     })
 
     if (thread) {
+      setState({
+        threads: [thread, ...threads],
+        totalThreads: totalThreads + 1,
+        count: count + 1,
+      })
       setActiveThread(thread)
-      setThreads([thread])
       setIsContinuousThread(true)
-      setTotalThreads(1)
-      setCount(1)
       setIsOpenPopup(true)
     }
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should run only once
   useEffect(() => {
     if (continuousThreadId && session) {
       getThreadByContinuousThreadId(continuousThreadId, session)
     }
   }, [continuousThreadId, session])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should run only when the active category or chatbot changes
   useEffect(() => {
     // Skip if popup is open
     if (isOpenPopup) return
@@ -211,12 +243,13 @@ export default function UserThreadPanel({
     }
   }, [activeCategory, activeChatbot, isOpenPopup, pathname])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should run only when the active thread changes
   useEffect(() => {
-    if (threads && threads.filter((t) => t.threadId === activeThread?.threadId).length) return
+    if (threads?.filter((t) => t.threadId === activeThread?.threadId).length)
+      return
 
     setIsOpenPopup(false)
     setActiveThread(null)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [threads])
 
   const customMessage = activeChatbot
@@ -224,38 +257,42 @@ export default function UserThreadPanel({
     : activeCategory
       ? 'No threads available in the selected category'
       : 'Start a conversation to create your first thread'
-
   const showNoResults = !loading && searchTerm && threads.length === 0
   const showChatbotDetails = !loading && !searchTerm && threads.length === 0
-  return (
-    <>
-      {!isContinuousThread && (
-        <div className="flex justify-between px-4 md:px-10 py-5 lg:max-w-[calc(100%-100px)] 2xl:max-w-full">
-          <ChatSearchInput setThreads={setThreads} onSearch={setSearchTerm} />
-        </div>
-      )}
 
-      {loading ? (
+  return (
+    <Suspense fallback={(
+      <div className="flex flex-col gap-10 w-full">
+        <Skeleton className="w-[280px] h-[20px]" />
+
         <NoResults isLoading={true} />
-      ) : threads && threads.length > 0 ? (
-        <div className="flex px-4 py-5 md:px-10">
-          <ThreadList
-            threads={threads}
-            loading={loading}
-            count={count}
-            pageSize={PAGE_SIZE}
-            loadMore={loadMore}
-          />
-        </div>
-      ) : showNoResults ? (
-        <NoResults
-          searchTerm={searchTerm}
-          totalItems={totalThreads}
-          customMessage={customMessage}
+      </div>
+    )}>
+      <div className="flex flex-col gap-1 h-[calc(100%-9.688rem)] px-4 py-5 lg:px-10">
+        {!isContinuousThread && (
+          <div className="flex justify-between px-4 md:px-10 py-5 lg:max-w-full">
+            <ChatSearchInput setThreads={setState} onSearch={setSearchTerm} />
+          </div>
+        )}
+        {loading && <NoResults isLoading={true} />}
+        <ThreadList
+          threads={threads}
+          loading={loading}
+          count={count}
+          pageSize={PAGE_SIZE}
+          loadMore={loadMore}
         />
-      ) : showChatbotDetails ? (
-        <ChatChatbotDetails />
-      ) : null}
-    </>
+        {showNoResults && (
+          <NoResults
+            searchTerm={searchTerm}
+            totalItems={totalThreads}
+            customMessage={customMessage}
+          />
+        )}
+        {showChatbotDetails && (
+          <ChatChatbotDetails />
+        )}
+      </div>
+    </Suspense>
   )
 }

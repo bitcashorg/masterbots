@@ -38,7 +38,7 @@ export default function ThreadList({
   pageSize: number
   loadMore: () => void
 }) {
-  const { selectedCategories, selectedChatbots } = useSidebar()
+  const { selectedCategories, selectedChatbots, activeCategory, activeChatbot } = useSidebar()
 
   const filteredThreads = threads.filter(
     thread =>
@@ -49,14 +49,17 @@ export default function ThreadList({
           )) ||
         (selectedChatbots.length &&
           !selectedChatbots.includes(thread.chatbotId))
+      ) || (
+        (activeCategory && thread.chatbot.categories.some(({ categoryId }) => activeCategory === categoryId)) ||
+        (activeChatbot && thread.chatbot.chatbotId === activeChatbot.chatbotId)
       )
   )
 
-  return (
+  return filteredThreads.length ? (
     <ul className="flex flex-col w-full gap-3">
       {filteredThreads?.map((thread, key) => (
         <ThreadComponent
-          key={key}
+          key={thread.threadId}
           thread={thread}
           loading={loading}
           loadMore={loadMore}
@@ -65,5 +68,5 @@ export default function ThreadList({
         />
       ))}
     </ul>
-  )
+  ) : null
 }

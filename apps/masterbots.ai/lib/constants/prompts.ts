@@ -3,7 +3,11 @@
 
 import { getAllUserMessagesAsStringArray } from '@/lib/threads'
 import { nanoid } from '@/lib/utils'
-import type { ChatbotMetadata, ChatbotMetadataHeaders } from '@/types/types'
+import type {
+  ChatbotMetadata,
+  ChatbotMetadataExamples,
+  ChatbotMetadataHeaders,
+} from '@/types/types'
 import type { Message } from 'ai'
 import type { Chatbot } from 'mb-genql'
 
@@ -129,32 +133,6 @@ export function UserPersonalityPrompt(userPromptType: string, allMessages: Messa
     }`
 
   return basePrompt
-}
-
-export type GetChatbotMetadataLabels = {
-  domain: string
-  category: string
-  subCategory: string
-  tags: string[]
-}
-
-export type ExampleMetadata = Example & {
-  messageId: string
-  role: string
-  content: string
-  createdAt: string
-  tags: string[]
-  category: string
-  subcategory: string
-  prompt: string
-  response: string
-  cumulativeSum?: number
-}
-
-export interface ChatbotMetadataExamples {
-  tagExamples: ExampleMetadata[]
-  categoryExamples: ExampleMetadata[]
-  domainExamples: ExampleMetadata[]
 }
 
 export function finalIndicationPrompt() {

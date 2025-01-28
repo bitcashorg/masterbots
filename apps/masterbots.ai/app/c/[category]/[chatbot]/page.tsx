@@ -14,7 +14,7 @@ export default async function BotThreadsPage({
   searchParams,
 }: {
   params: { category: string; chatbot: string };
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }) {
   const session = await getServerSession(authOptions);
   // NOTE: maybe we should use same expiration time
@@ -25,6 +25,7 @@ export default async function BotThreadsPage({
   if (isTokenExpired(jwt as string)) {
     redirect(`/auth/signin`);
   }
+
   const chatbotName = (await botNames).get(params.chatbot);
   if (!chatbotName) {
     throw new Error(`Chatbot name for ${params.chatbot} not found`);
@@ -46,8 +47,6 @@ export default async function BotThreadsPage({
     <>
       <ThreadPanel
         threads={threads}
-        chatbot={chatbot.name}
-        search={searchParams}
       />{" "}
       <ChatChatbot chatbot={chatbot} />
     </>

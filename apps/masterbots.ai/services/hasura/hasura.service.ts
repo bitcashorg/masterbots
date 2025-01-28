@@ -1,5 +1,8 @@
-import { type ExampleMetadata } from '@/lib/constants/prompts'
-import type { ChatbotMetadataHeaders, ReturnFetchChatbotMetadata } from '@/types/types'
+import type {
+  ChatbotMetadataHeaders,
+  ExampleMetadata,
+  ReturnFetchChatbotMetadata,
+} from '@/types/types'
 import { validateMbEnv } from 'mb-env'
 import {
   type Category,
@@ -1074,7 +1077,7 @@ export async function chatbotFollowOrUnfollow({
 
 export async function fetchChatbotMetadata({
   chatbot, // ? domain === category: Renaming category to domains and category will be another level for the Masterbots (chatbots)
-  // category,
+  category,
   domain,
 }: ChatbotMetadataHeaders): Promise<ReturnFetchChatbotMetadata> {
   try {
@@ -1083,7 +1086,7 @@ export async function fetchChatbotMetadata({
       labelChatbotCategoryDomain: {
         __args: {
           where: {
-            categoryId: { _eq: domain },
+            categoryId: { _eq: category },
             // domainId: { _eq: domain }, // This is a string... ?
             chatbotId: { _eq: chatbot },
           },
