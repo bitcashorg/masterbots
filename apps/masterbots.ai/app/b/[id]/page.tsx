@@ -12,18 +12,19 @@ export default async function BotThreadsPage({
 }: {
   params: { id: string }
 }) {
+  const chatbotName = (await botNames).get(params.id)
   let chatbot, threads
 
   chatbot = await getChatbot({
-    chatbotName: botNames.get(params.id),
+    chatbotName,
     jwt: '',
     threads: true
   })
-  if (!chatbot) throw new Error(`Chatbot ${botNames.get(params.id)} not found`)
+  if (!chatbot) throw new Error(`Chatbot ${chatbotName} not found`)
 
   // session will always be defined
   threads = await getBrowseThreads({
-    chatbotName: botNames.get(params.id),
+    chatbotName,
     limit: PAGE_SIZE
   })
 
@@ -41,7 +42,7 @@ export default async function BotThreadsPage({
         initialThreads={threads}
         PAGE_SIZE={PAGE_SIZE}
         query={{
-          chatbotName: botNames.get(params.id)
+          chatbotName
         }}
         pageType="bot"
       />
@@ -54,8 +55,9 @@ export async function generateMetadata({
 }: {
   params: { id: string }
 }): Promise<Metadata> {
+  const chatbotName = (await botNames).get(params.id)
   const chatbot = await getChatbot({
-    chatbotName: botNames.get(params.id),
+    chatbotName,
     jwt: '',
     threads: true
   })
@@ -65,8 +67,8 @@ export async function generateMetadata({
     description: chatbot?.description || '',
     ogType: 'website',
     ogImageUrl: chatbot?.threads?.[0]?.threadId
-     ? `${process.env.BASE_URL || ''}/api/og?threadId=${chatbot.threads[0].threadId}`
-     : `${process.env.BASE_URL || ''}/api/og`,
+      ? `${process.env.BASE_URL || ''}/api/og?threadId=${chatbot.threads[0].threadId}`
+      : `${process.env.BASE_URL || ''}/api/og`,
     twitterCard: 'summary_large_image'
   }
 

@@ -1,4 +1,4 @@
-import { type Metadata } from 'next'
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { formatDate } from '@/lib/utils'
 import { ChatList } from '@/components/routes/chat/chat-list'

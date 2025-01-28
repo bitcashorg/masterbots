@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { getThread } from '@/services/hasura'
-import { ChatPageProps } from '@/types/types'
+import type { ChatPageProps } from '@/types/types'
 
 export { generateMbMetadata as generateMetadata } from '@/lib/metadata'
 

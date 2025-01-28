@@ -41,7 +41,7 @@ array_relationships:
       foreign_key_constraint_on:
         column: chatbot_id
         table:
-          name: label_chatbot_category
+          name: label_chatbot_category_domain
           schema: public
   - name: preferences
     using:
@@ -78,6 +78,7 @@ select_permissions:
         - description
         - name
       filter: {}
+      allow_aggregations: true
     comment: ""
   - role: moderator
     permission:

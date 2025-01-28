@@ -26,7 +26,8 @@ export function ClickableText({
   const createClickHandler = (text: string) => () => {
     if (sendMessageFromResponse && text.trim()) {
       const cleanedText = cleanClickableText(text)
-      sendMessageFromResponse(`Tell me more about ${cleanedText}`)
+      sendMessageFromResponse(`Explain more in-depth and in detail about ${cleanedText}`)
+      // sendMessageFromResponse(`Tell me more about ${cleanedText}`)
     }
   }
 
@@ -45,14 +46,17 @@ export function ClickableText({
 
   const renderClickableContent = (clickableText: string, restText: string) => (
     <>
-      <button
+      <span
         className={cn('cursor-pointer hover:underline bg-transparent border-none p-0 m-0', isListItem ? 'text-blue-500' : 'text-link')}
+        // biome-ignore lint/a11y/useSemanticElements: it is required to have a span to not break the text
+        role="button"
+        tabIndex={0}
         onClick={createClickHandler(clickableText)}
-        type="button"
+        onKeyUp={(e) => e.key === 'Enter' && createClickHandler(clickableText)()}
       >
         {clickableText}
-      </button>
-      {restText}
+      </span>
+      {restText.startsWith(':') ? restText.replace(/^:/, ': ') : restText}
     </>
   )
 

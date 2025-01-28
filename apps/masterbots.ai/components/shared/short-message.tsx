@@ -1,7 +1,7 @@
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
-import { MemoizedReactMarkdown } from './markdown'
 import { CodeBlock } from '../ui/codeblock'
+import { MemoizedReactMarkdown } from './markdown'
 
 export function ShortMessage({ content }: { content: string }) {
   return (
@@ -10,7 +10,7 @@ export function ShortMessage({ content }: { content: string }) {
       remarkPlugins={[remarkGfm, remarkMath]}
       components={{
         p({ children }) {
-          return <p className="mb-2 last:mb-0">{children}</p>
+          return <p className="mb-2 last:mb-0 whitespace-pre-line">{children}</p>
         },
         code({ node, inline, className, children, ...props }) {
           if (children.length) {

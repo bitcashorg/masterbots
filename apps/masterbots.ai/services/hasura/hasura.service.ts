@@ -1,17 +1,9 @@
-import { processWithAi } from '@/app/actions'
-import { AIModels } from '@/app/api/chat/models/models'
-import { createChatbotMetadataPrompt, setDefaultPrompt } from '@/lib/constants/prompts'
-import { cleanResult } from '@/lib/helpers/ai-helpers'
-import type {
-  AiClientType,
-  ChatbotMetadataHeaders,
-  ReturnFetchChatbotMetadata,
-} from '@/types/types'
+import { type ExampleMetadata } from '@/lib/constants/prompts'
+import type { ChatbotMetadataHeaders, ReturnFetchChatbotMetadata } from '@/types/types'
 import { validateMbEnv } from 'mb-env'
 import {
   type Category,
   type Chatbot,
-  type LabelChatbotCategory,
   type MbClient,
   type Message,
   type Thread,
@@ -42,7 +34,7 @@ function getHasuraClient({ jwt, adminSecret }: GetHasuraClientParams) {
   })
 }
 
-export async function getCategories() {
+export async function getCategories(userId?: string) {
   const client = getHasuraClient({})
   const { category } = await client.query({
     category: {
@@ -59,7 +51,17 @@ export async function getCategories() {
       },
       ...everything,
       __args: {
-        limit: 20,
+        where: userId
+          ? {
+              chatbots: {
+                chatbot: {
+                  threads: {
+                    userId: { _eq: userId },
+                  },
+                },
+              },
+            }
+          : {},
       },
     },
   })
@@ -80,6 +82,20 @@ export async function getCategory({ categoryId }: { categoryId: number }) {
   })
 
   return category[0] as Category
+}
+
+export async function getAllChatbots() {
+  const client = getHasuraClient({})
+  const { chatbot } = await client.query({
+    chatbot: {
+      name: true,
+      __args: {
+        limit: 100,
+      },
+    },
+  })
+
+  return chatbot as Chatbot[]
 }
 
 export async function getChatbots({ limit, offset, categoryId }: GetChatbotsParams) {
@@ -299,13 +315,13 @@ export async function createThread({
   jwt,
   userId,
   parentThreadId,
-  isPublic = true
+  isPublic = true,
 }: Partial<CreateThreadParams>) {
   const client = getHasuraClient({ jwt })
   const { insertThreadOne } = await client.mutation({
     insertThreadOne: {
       __args: {
-        object: { threadId, chatbotId, userId, isPublic, parentThreadId }
+        object: { threadId, chatbotId, isPublic, parentThreadId },
       },
       threadId: true,
     },
@@ -474,8 +490,8 @@ export async function getBrowseThreads({
       isPublic: true,
       userId: true,
       __scalar: true,
-    }
-  });
+    },
+  })
 
   if (!allThreads) return []
 
@@ -490,25 +506,26 @@ export async function getBrowseThreads({
       }
 
       // For bot content
-      const isFollowingBot = thread.chatbot?.followers?.some(follower => {
-        return follower.followerId === followedUserId;
-      });
+      const isFollowingBot = thread.chatbot?.followers?.some((follower) => {
+        return follower.followerId === followedUserId
+      })
 
       // For user content
-      const isFollowingUser = thread.user?.followers?.some(follower => {
-        return follower.followerId === followedUserId;
-      });
+      const isFollowingUser = thread.user?.followers?.some((follower) => {
+        return follower.followerId === followedUserId
+      })
 
-      return isFollowingBot || isFollowingUser;
+      return isFollowingBot || isFollowingUser
     }
-    return false;
-  });
+    return false
+  })
 
   // Organic content (neither from followed bots nor followed users)
-  const organicThreads = threads.filter(thread =>
-    !thread.chatbot?.followers?.some(follower => follower.followerId === followedUserId) &&
-    !thread.user?.followers?.some(follower => follower.followerId === followedUserId)
-  );
+  const organicThreads = threads.filter(
+    (thread) =>
+      !thread.chatbot?.followers?.some((follower) => follower.followerId === followedUserId) &&
+      !thread.user?.followers?.some((follower) => follower.followerId === followedUserId),
+  )
 
   const interweavedThreads: Thread[] = []
   let followingIndex = 0
@@ -663,41 +680,6 @@ export async function UpdateThreadVisibility({
     return { success: true }
   } catch (error) {
     return { success: false, error: (error as Error).message }
-  }
-}
-
-export async function fetchChatbotMetadata({
-  chatbot,
-  domain,
-}: ChatbotMetadataHeaders): Promise<ReturnFetchChatbotMetadata> {
-  try {
-    const client = getHasuraClient({})
-    const { labelChatbotCategory: chatbotMetadata } = await client.query({
-      labelChatbotCategory: {
-        __args: {
-          where: {
-            chatbotId: { _eq: chatbot },
-            categoryId: { _eq: domain },
-          },
-        },
-        label: {
-          questions: true,
-          categories: true,
-          subCategories: true,
-          tags: true,
-        },
-      },
-    })
-
-    if (!chatbotMetadata[0]) {
-      console.error('Chatbot metadata not found. Continuing without it.')
-      return null
-    }
-
-    return chatbotMetadata[0].label as LabelChatbotCategory['label']
-  } catch (error) {
-    console.error('Error fetching chatbot metadata:', error)
-    return null
   }
 }
 
@@ -888,10 +870,10 @@ export async function getUserBySlug({
           followeeId: true,
           followerId: true,
           userByFollowerId: {
-            username: true
-          }
-        }
-      }
+            username: true,
+          },
+        },
+      },
     } as const)
 
     if (!user || user.length === 0) {
@@ -969,24 +951,6 @@ export async function updateUserPersonality({
   }
 }
 
-export async function subtractChatbotMetadataLabels(
-  metadataHeaders: ChatbotMetadataHeaders,
-  userPrompt: string,
-  clientType: AiClientType,
-) {
-  const chatbotMetadata = await fetchChatbotMetadata(metadataHeaders)
-
-  if (!chatbotMetadata) {
-    console.error('Chatbot metadata not found. Generating response without them.')
-    return setDefaultPrompt(userPrompt)
-  }
-
-  const prompt = createChatbotMetadataPrompt(metadataHeaders, chatbotMetadata, userPrompt)
-  const response = await processWithAi(prompt, clientType, AIModels.Default)
-
-  return cleanResult(response)
-}
-
 const getFollowStatus = async (client: MbClient, followerId: string, followeeId: string) => {
   const { socialFollowing } = await client.query({
     socialFollowing: {
@@ -1046,15 +1010,13 @@ export async function userFollowOrUnfollow({
     await unfollowUser(client, followerId, followeeId)
     return { success: true, follow: false }
   } catch (error) {
-    console.error('Error following/unfollowing user:', error);
+    console.error('Error following/unfollowing user:', error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to follow/unfollow user.'
-    };
+      error: error instanceof Error ? error.message : 'Failed to follow/unfollow user.',
+    }
   }
 }
-
-
 
 // chatbot follow or unfollow  function
 
@@ -1117,10 +1079,144 @@ export async function chatbotFollowOrUnfollow({
     await unfollowChatbot(client, followerId, followeeId)
     return { success: true, follow: false }
   } catch (error) {
-    console.error('Error following/unfollowing chatbot:', error);
+    console.error('Error following/unfollowing chatbot:', error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to follow/unfollow chatbot.'
-    };
+      error: error instanceof Error ? error.message : 'Failed to follow/unfollow chatbot.',
+    }
+  }
+}
+
+export async function fetchChatbotMetadata({
+  chatbot, // ? domain === category: Renaming category to domains and category will be another level for the Masterbots (chatbots)
+  // category,
+  domain,
+}: ChatbotMetadataHeaders): Promise<ReturnFetchChatbotMetadata> {
+  try {
+    const client = getHasuraClient({})
+    const { labelChatbotCategoryDomain: chatbotMetadata } = await client.query({
+      labelChatbotCategoryDomain: {
+        __args: {
+          where: {
+            categoryId: { _eq: domain },
+            // domainId: { _eq: domain }, // This is a string... ?
+            chatbotId: { _eq: chatbot },
+          },
+        },
+        domain_enum: {
+          name: true,
+          tag_enums: {
+            name: true,
+          },
+          category_enums: {
+            name: true,
+            subcategory_enums: {
+              name: true,
+            },
+          },
+        },
+      },
+    })
+
+    // require that the length is 1
+    if (chatbotMetadata.length !== 1) {
+      throw new Error('Invalid chatbot metadata response')
+    }
+
+    // todo: is this returned with domain_enum key or not?
+    // console.log('chatbotMetadata as retrieved:', chatbotMetadata)
+
+    // Transform the data to create a dictionary of categories with subcategories as values
+    const transformedMetadata = chatbotMetadata.map((item) => ({
+      domainName: item.domain_enum.name,
+      tags: item.domain_enum.tag_enums.map((tag) => tag.name),
+      categories: item.domain_enum.category_enums.reduce(
+        (acc: { [key: string]: string[] }, category) => {
+          acc[category.name] = category.subcategory_enums.map(
+            (subcat: { name: string }) => subcat.name,
+          )
+          return acc
+        },
+        {},
+      ),
+    }))
+
+    // console.log('transformedMetadata', transformedMetadata);
+
+    return transformedMetadata[0]
+  } catch (error) {
+    console.error('Error fetching chatbot metadata:', error)
+    return null
+  }
+}
+
+export async function fetchDomainExamples(domain: string) {
+  try {
+    const client = getHasuraClient({})
+    // todo: typescript
+    const examples = (
+      await client.query({
+        example: {
+          __args: {
+            where: {
+              domain: { _eq: domain },
+            },
+          },
+          prompt: true,
+          category: true,
+          domain: true,
+          exampleId: true,
+          response: true,
+          subcategory: true,
+          tags: true,
+        },
+      })
+    ).example
+
+    console.log('fetchDoaminExamples, result --> ', examples)
+
+    return examples.map((example) => ({
+      ...example,
+      cumulativeSum: 0,
+    })) as unknown as ExampleMetadata[]
+  } catch (error) {
+    console.error('Error fetching examples:', error)
+    return null
+  }
+}
+
+export async function fetchDomainTags(domain: string) {
+  try {
+    const client = getHasuraClient({})
+    const { tagEnum: tags } = await client.query({
+      tagEnum: {
+        __args: {
+          where: {
+            domain: { _eq: domain },
+          },
+        },
+        name: true,
+        frequency: true,
+        tagId: true,
+      },
+    })
+
+    if (!tags.length) {
+      throw new Error(`No tags found for domain: ${domain}`)
+    }
+
+    // change to a dict with key of tagId and value of object with name and frequency
+    const transformedTags = tags.reduce((acc: (typeof tags)[0], tag) => {
+      acc[tag.tagId as keyof typeof tag] = {
+        name: tag.name,
+        frequency: tag.frequency,
+      }
+      return acc
+    })
+
+    return transformedTags
+  } catch (error) {
+    console.error('Error fetching tags:', error)
+    return null
   }
 }

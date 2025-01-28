@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -49,17 +50,17 @@
     --tertiary-foreground: 0 0% 98%;
     --font-size-base: 1rem;
 
-    --background-chat-gradient: linear-gradient(180deg, rgba(115, 201, 97, 0.2) 0%, rgba(122, 214, 104, 0.4) 100%);
-    --background-chat-hover-gradient: linear-gradient(-180deg, rgba(113, 199, 96, 0.1) 0%, rgba(117, 205, 99, 0.3) 100%);
+    --background-public-gradient: linear-gradient(180deg, rgba(115, 201, 97, 0.2) 0%, rgba(122, 214, 104, 0.4) 100%);
+    --background-public-hover-gradient: linear-gradient(-180deg, rgba(113, 199, 96, 0.1) 0%, rgba(117, 205, 99, 0.3) 100%);
     
     /* Public route gradients */
-    --background-public-gradient: linear-gradient(180deg, rgba(155, 22, 232, 0.2) 0%, rgba(190, 22, 232, 0.53) 100%);
-    --background-public-hover-gradient: linear-gradient(-180deg, rgba(166, 22, 232, 0.1) 0%, rgba(190, 22, 232, 0.3) 100%);
+    --background-chat-gradient: linear-gradient(180deg, rgba(155, 22, 232, 0.2) 0%, rgba(190, 22, 232, 0.53) 100%);
+    --background-chat-hover-gradient: linear-gradient(-180deg, rgba(166, 22, 232, 0.1) 0%, rgba(190, 22, 232, 0.3) 100%);
   }
 
   .dark {
     --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
+    --foreground: 0 0% 100%;
 
     --muted: 240 3.7% 15.9%;
     --muted-foreground: 240 5% 79%;
@@ -101,12 +102,12 @@
     --tertiary: 120, 100%, 65%;
     --tertiary-foreground: 0 0% 98%;
 
-    --background-chat-gradient: linear-gradient(180deg, rgba(115, 201, 97, 0.2) 0%, rgba(122, 214, 104, 0.4) 100%);
-    --background-chat-hover-gradient: linear-gradient(-180deg, rgba(113, 199, 96, 0.1) 0%, rgba(117, 205, 99, 0.3) 100%);
+    --background-public-gradient: linear-gradient(180deg, rgba(115, 201, 97, 0.2) 0%, rgba(122, 214, 104, 0.4) 100%);
+    --background-public-hover-gradient: linear-gradient(-180deg, rgba(113, 199, 96, 0.1) 0%, rgba(117, 205, 99, 0.3) 100%);
     
     /* Public route gradients */
-    --background-public-gradient: linear-gradient(180deg, rgba(155, 22, 232, 0.2) 0%, rgba(190, 22, 232, 0.53) 100%);
-    --background-public-hover-gradient: linear-gradient(-180deg, rgba(166, 22, 232, 0.1) 0%, rgba(190, 22, 232, 0.3) 100%);
+    --background-chat-gradient: linear-gradient(180deg, rgba(155, 22, 232, 0.2) 0%, rgba(190, 22, 232, 0.53) 100%);
+    --background-chat-hover-gradient: linear-gradient(-180deg, rgba(166, 22, 232, 0.1) 0%, rgba(190, 22, 232, 0.3) 100%);
   }
 }
 
@@ -342,5 +343,3 @@
 [data-route="public"] .sidebar-gradient.selected {
   background-image: var(--background-public-gradient);
 }
-
-

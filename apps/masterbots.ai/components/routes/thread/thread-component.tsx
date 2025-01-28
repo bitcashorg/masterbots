@@ -102,8 +102,12 @@ export default function ThreadComponent({
             </span>
           </span>
           {/* Thread Options */}
-          <div>
-            <ChatOptions threadId={threadId} thread={thread} isBrowse={false} />
+          <div className="pl-2 pr-4 sm:pl-4 sm:pr-8">
+            <ChatOptions
+              threadId={thread.threadId}
+              thread={thread}
+              isBrowse
+            />
           </div>
         </div>
 

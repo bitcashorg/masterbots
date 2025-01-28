@@ -86,6 +86,12 @@ export function BrowseAccordion({
     defaultState || activeThread?.threadId === thread?.threadId
   )
   const accordionRef = useRef<HTMLDivElement>(null)
+  // TODO: Implement inViewport hook for thread visibility
+  // const inViewport = useInView(accordionRef, {
+  //   margin: '0px'
+  // })
+  // console.log('inViewport', inViewport)
+
 
   const isAnotherThreadOpen =
     !isNestedThread &&
@@ -97,15 +103,26 @@ export function BrowseAccordion({
   useEffect(() => {
     const isMobile = window.innerWidth < 640 // sm breakpoint
 
-    if (isMobile && open && !isNestedThread) {
-      toggleBodyScroll(true)
-    } else {
-      toggleBodyScroll(false)
-    }
+    toggleBodyScroll(isMobile && open && !isNestedThread)
 
     // Cleanup on unmount
     return () => toggleBodyScroll(false)
   }, [open, isNestedThread])
+
+  // const checkViewport = () => {
+  //   if (!inViewport && activeThread && open) {
+  //     open && setOpen(false)
+  //     setActiveThread(null)
+  //   }
+  // }
+
+  // // biome-ignore lint/correctness/useExhaustiveDependencies: functions in array dep are not needed
+  // useEffect(() => {
+  //   const timeout = setTimeout(() => {
+  //     checkViewport()
+  //     clearTimeout(timeout)
+  //   }, 2000)
+  // }, [inViewport])
 
   useEffect(() => {
     if (
@@ -153,6 +170,7 @@ export function BrowseAccordion({
     })
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: functions in array dep are not needed
   useEffect(() => {
     if (
       !isOpenPopup &&
@@ -162,7 +180,7 @@ export function BrowseAccordion({
     ) {
       toggle()
     }
-  }, [isOpenPopup, activeThread, thread, open, toggle])
+  }, [isOpenPopup, activeThread, thread, open])
 
   return (
     <div
@@ -203,12 +221,11 @@ export function BrowseAccordion({
         data-state={open ? 'open' : 'closed'}
         onClick={toggle}
         disabled={shouldBeDisabled}
-        className={cn(
-          'flex flex-1 justify-start flex-col relative',
+        className={cn('flex flex-1 justify-start flex-col relative',
           'transition-all ease-in-out duration-200',
           'border-transparent border',
-          'hover:rounded-t-[8px]',
           'font-medium w-full',
+          !isNestedThread && 'hover:rounded-t-[8px]',
           !isNestedThread &&
           open &&
           'dark:border-b-mirage border-b-gray-300 dark:bg-[#18181B]/95 bg-white/95 rounded-t-lg shadow-lg transform-gpu backdrop-blur-sm',
@@ -217,7 +234,7 @@ export function BrowseAccordion({
           'dark:hover:border-b-mirage hover:border-b-gray-300 [&>div>div>button]:!hidden',
           isNestedThread &&
           open &&
-          'dark:bg-[#18181B]/50 bg-white/50 rounded-t-lg',
+          'dark:bg-[#18181B]/50 bg-white/50 !hover:rounded-t-none',
           shouldBeDisabled && !open && 'cursor-not-allowed hover:scale-100',
           triggerClass
         )}
@@ -234,7 +251,7 @@ export function BrowseAccordion({
             }
             : {})}
           className={cn(
-            'absolute -right-2 size-4 shrink-0 mr-4 transition-transform duration-200',
+            'absolute -right-2 !top-1 size-4 shrink-0 mr-4 transition-transform duration-200',
             open ? '' : '-rotate-90',
             arrowClass,
             disabled && 'hidden'
@@ -251,10 +268,10 @@ export function BrowseAccordion({
           'text-sm transition-all border relative',
           !isNestedThread &&
           open &&
-          'animate-accordion-down dark:bg-[#18181B]/95 bg-white/95 dark:border-mirage border-gray-300 !border-t-transparent rounded-b-lg shadow-lg backdrop-blur-sm',
+          'animate-accordion-down dark:bg-[#18181B]/95 bg-white/95 dark:border-b-mirage border-b-gray-300 !border-t-transparent last-of-type:rounded-b-lg shadow-lg backdrop-blur-sm',
           isNestedThread &&
           open &&
-          'animate-accordion-down dark:bg-[#18181B]/50 bg-white/50 dark:border-mirage/50 border-gray-300/50 !border-t-transparent rounded-b-lg',
+          'animate-accordion-down dark:bg-[#18181B]/50 bg-white/50 dark:border-b-mirage border-b-gray-300/10 !border-t-transparent last-of-type:rounded-b-lg',
           !open &&
           'overflow-hidden animate-accordion-up h-0 border-transparent',
           contentClass

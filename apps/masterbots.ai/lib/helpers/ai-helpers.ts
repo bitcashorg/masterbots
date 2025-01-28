@@ -1,9 +1,10 @@
 import { AIModels } from '@/app/api/chat/models/models'
+import { examplesSchema, metadataSchema, toolSchema } from '@/lib/helpers/ai-schemas'
 import type { AiClientType, CleanPromptResult } from '@/types/types'
 import type { StreamEntry } from '@/types/wordware-flows.types'
-import type { MessageParam } from '@anthropic-ai/sdk/resources'
+import type Anthropic from '@anthropic-ai/sdk'
 import { type CoreMessage, generateId } from 'ai'
-import type { ChatCompletionMessageParam } from 'openai/resources'
+import type OpenAI from 'openai'
 
 // * This function gets the model client type
 export function getModelClientType(model: AIModels) {
@@ -27,7 +28,7 @@ export function getModelClientType(model: AIModels) {
 export function createPayload(
   json: { id: string },
   messages: { content: string }[],
-  completion: any
+  completion: any,
 ) {
   const title = messages[0]?.content.substring(0, 100)
   const id = json.id ?? generateId()
@@ -43,17 +44,17 @@ export function createPayload(
       ...messages,
       {
         content: completion,
-        role: 'assistant'
-      }
-    ]
+        role: 'assistant',
+      },
+    ],
   }
 }
 
 // * This function sets the streamer payload
 export function setStreamerPayload(
   model: AiClientType,
-  payload: ChatCompletionMessageParam[]
-): ChatCompletionMessageParam[] | MessageParam[] {
+  payload: OpenAI.ChatCompletionMessageParam[],
+): OpenAI.ChatCompletionMessageParam[] | Anthropic.MessageParam[] {
   switch (model) {
     case 'WordWare':
       return payload
@@ -64,8 +65,8 @@ export function setStreamerPayload(
             role: index
               ? message.role.replace('system', 'assistant')
               : message.role.replace('system', 'user'),
-            content: message.content
-          }) as MessageParam
+            content: message.content,
+          }) as Anthropic.MessageParam,
       )
     case 'OpenAI':
     case 'Perplexity':
@@ -76,17 +77,17 @@ export function setStreamerPayload(
 
 // * This function converts the messages to the core messages
 export function convertToCoreMessages(
-  messages: ChatCompletionMessageParam[]
+  messages: OpenAI.ChatCompletionMessageParam[],
 ): CoreMessage[] {
-  return messages.map(msg =>
+  return messages.map((msg) =>
     msg.role.match(/(user|system|assistant)/)
       ? {
           role: msg.role as 'user' | 'system' | 'assistant',
-          content: msg.content as string
+          content: msg.content as string,
         }
       : (() => {
           throw new Error(`Unsupported message role: ${msg.role}`)
-        })()
+        })(),
   )
 }
 
@@ -107,6 +108,7 @@ export async function fetchPromptDetails(promptId: string) {
 }
 
 export function cleanPrompt(str: string) {
+  // const marker = 'OK, so following the same pattern, how would you answer the question:'
   const marker = '].  Then answer this question:'
   const index = str.indexOf(marker)
   let extracted = ''
@@ -115,7 +117,9 @@ export function cleanPrompt(str: string) {
     extracted = str.substring(index + marker.length)
   }
   // console.log('cleanPrompt', str, extracted, index)
-  return extracted || str
+  return (extracted || str).split(
+    " Refer to the examples below to craft responses to the user's queries. Provide answers directly, omitting any labels like 'Questions', 'Answers', or 'Examples.' ",
+  )[0]
 }
 
 export function cleanResult(result: string): CleanPromptResult {
@@ -150,3 +154,9 @@ export const processLogEntry = (logEntry: StreamEntry) => {
     }
   }
 }
+
+export const mbObjectSchema = {
+  metadata: metadataSchema,
+  examples: examplesSchema,
+  tool: toolSchema,
+} as const
