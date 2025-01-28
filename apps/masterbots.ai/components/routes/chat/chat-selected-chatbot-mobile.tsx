@@ -1,21 +1,24 @@
 import { Card, CardFooter, CardHeader } from '@/components/ui/card'
+import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useThread } from '@/lib/hooks/use-thread'
 import { cn } from '@/lib/utils'
-import { Bot, ArrowBigDown } from 'lucide-react'
+import { ArrowBigDown, Bot } from 'lucide-react'
 import Image from 'next/image'
 
 interface SelectedBotMobileViewProps {
-  botName: string
-  description: string
-  avatar: string
   onNewChat: () => void
 }
 
 export function SelectedBotMobileView({
-  botName,
-  description,
-  avatar,
   onNewChat
 }: SelectedBotMobileViewProps) {
+  const { activeChatbot } = useSidebar()
+  const { randomChatbot } = useThread()
+
+  const botName = (activeChatbot?.name || randomChatbot?.name)
+  const avatar = (activeChatbot?.avatar || randomChatbot?.avatar || '')
+  const description = (activeChatbot?.description || randomChatbot?.description)
+
   return (
     <div className="md:hidden h-[calc(100vh-196px)] flex items-center justify-center -translate-y-8">
       <Card className="w-full bg-white dark:bg-[#09090B]">

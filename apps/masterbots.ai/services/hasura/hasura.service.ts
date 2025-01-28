@@ -34,6 +34,9 @@ function getHasuraClient({ jwt, adminSecret }: GetHasuraClientParams) {
     adminSecret,
     debug: process.env.DEBUG === 'true',
     env: validateMbEnv(process.env.NEXT_PUBLIC_APP_ENV),
+    config: {
+      keepalive: true,
+    }
   })
 }
 

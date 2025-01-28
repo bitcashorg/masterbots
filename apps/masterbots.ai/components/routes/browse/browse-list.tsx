@@ -24,6 +24,7 @@ import BrowseListItem from '@/components/routes/browse/browse-list-item'
 import { NoResults } from '@/components/shared/no-results-card'
 import { BrowseListSkeleton } from '@/components/shared/skeletons/browse-list-skeleton'
 import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeletons'
+import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { searchThreadContent } from '@/lib/search'
@@ -32,8 +33,6 @@ import { debounce } from 'lodash'
 import type { Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import React from 'react'
-
-const PAGE_SIZE = 50
 
 export default function BrowseList() {
   const { keyword, tab } = useBrowse()

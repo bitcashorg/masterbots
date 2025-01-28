@@ -11,7 +11,7 @@ import type React from 'react'
 import type Stripe from 'stripe'
 
 // * Chat types
-export interface Chat extends Record<string, any> {
+export interface Chat extends Record<string, unknown> {
   id: string
   title: string
   createdAt: Date
@@ -25,7 +25,7 @@ export type AiToolCall = ToolCall &
   FunctionToolCall & {
     toolCallId: string
     toolName: WordWareFlowPaths
-    args: Record<string, any>
+    args: Record<string, unknown>
   }
 
 export interface ChatProps extends React.ComponentProps<'div'> {

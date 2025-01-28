@@ -44,7 +44,7 @@ export function ChatSearchInput({ setThreads, onSearch }: ChatSearchInputProps) 
 
     // Check all messages in the thread for the search term
     return thread.messages.some((message) =>
-      message?.content?.toLowerCase().includes(lowercaseSearch),
+      message?.content?.toLowerCase().includes(lowercaseSearch) || false,
     )
   }
 
@@ -67,17 +67,26 @@ export function ChatSearchInput({ setThreads, onSearch }: ChatSearchInputProps) 
   useEffect(() => {
     const debouncedSearch = debounce(() => {
       setThreads((prevState) => {
-        previousThread.current = !previousThread.current.length ? prevState.threads : previousThread.current
+        if (!previousThread.current.length) {
+          previousThread.current = prevState.threads
+        }
         const previousThreadState = previousThread.current
         if (!keyword) {
           return {
             ...prevState,
-            threads: previousThreadState
+            threads: previousThreadState,
+            count: previousThreadState.length,
+            totalThreads: prevState.totalThreads
           }
         }
+        const filteredThreads = previousThreadState.filter((thread) =>
+          searchInThread(thread, keyword)
+        )
         return {
           ...prevState,
-          threads: previousThreadState.filter((thread) => searchInThread(thread, keyword)),
+          threads: filteredThreads,
+          count: filteredThreads.length,
+          totalThreads: prevState.totalThreads
         }
       })
     }, 230)

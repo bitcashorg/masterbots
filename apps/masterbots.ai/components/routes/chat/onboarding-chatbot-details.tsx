@@ -1,29 +1,31 @@
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import {
-  ArrowBigLeft,
-  ArrowBigDown,
-  Bot,
-  BotMessageSquareIcon,
-  Users
-} from 'lucide-react'
-import { cn, numberShortener, isFollowed } from '@/lib/utils'
+import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useThread } from '@/lib/hooks/use-thread'
+import { cn, isFollowed } from '@/lib/utils'
 import type { ChatbotDetailsProps } from '@/types/types'
-import Image from 'next/image'
+import {
+  ArrowBigDown,
+  ArrowBigLeft,
+  Bot
+} from 'lucide-react'
 import { useSession } from 'next-auth/react'
-import { Button } from '@/components/ui/button'
+import Image from 'next/image'
 
 export function OnboardingChatbotDetails({
-  botName,
-  avatar = '',
-  description,
   isWelcomeView = true,
+  followers,
   onNewChat,
   onFollow,
-  followers,
-  threadCount
 }: ChatbotDetailsProps) {
   const { data: session } = useSession()
-  const followed = isFollowed({followers, userId: session?.user?.id || ''})
+  const { activeChatbot } = useSidebar()
+  const { randomChatbot } = useThread()
+
+  const followed = isFollowed({ followers, userId: session?.user?.id || '' })
+  const botName = (activeChatbot?.name || randomChatbot?.name)
+  const avatar = (activeChatbot?.avatar || randomChatbot?.avatar || '')
+  const description = (activeChatbot?.description || randomChatbot?.description)
+  const threadCount = activeChatbot?.threads?.length || 0
 
   return (
     <div className="hidden h-[calc(100vh-196px)] md:flex items-center justify-center -translate-y-8 relative">

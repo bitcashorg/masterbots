@@ -2,6 +2,7 @@ import { authOptions } from '@/auth'
 import { AdminModeToggle } from '@/components/routes/chat/admin-mode-toggle'
 import ChatThreadListPanel from '@/components/routes/chat/chat-thread-list-panel'
 import ThreadPanel from '@/components/routes/thread/thread-panel'
+import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { generateMetadataFromSEO } from '@/lib/metadata'
 import { type RoleTypes, isAdminOrModeratorRole } from '@/lib/utils'
 import { getThreads } from '@/services/hasura'
@@ -20,7 +21,7 @@ export default async function IndexPage() {
   }
 
   const role = session.user.role as RoleTypes
-  const threads = await getThreads({ jwt, userId: session.user.id })
+  const threads = await getThreads({ jwt, userId: session.user.id, limit: PAGE_SIZE })
 
   return (
     <>

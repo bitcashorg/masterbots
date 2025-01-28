@@ -32,6 +32,7 @@ import { ChatSearchInput } from '@/components/routes/chat/chat-search-input'
 import ThreadList from '@/components/routes/thread/thread-list'
 import { NoResults } from '@/components/shared/no-results-card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { PAGE_SM_SIZE } from '@/lib/constants/hasura'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
@@ -43,8 +44,6 @@ import { useSession } from 'next-auth/react'
 import { useParams, usePathname, useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { useAsync, useSetState } from 'react-use'
-
-const PAGE_SIZE = 20
 
 // TODO: this is a hard to understand file since it tries to focus in too many different aspects
 // in only one file, instead of relying on reusable hooks for each context. It should be refactored.
@@ -58,7 +57,7 @@ export default function UserThreadPanel({
 }) {
   const params = useParams<{ chatbot: string; threadId: string; slug?: string }>()
   const { data: session } = useSession()
-  const { activeCategory, activeChatbot } = useSidebar()
+  const { activeCategory, activeChatbot, selectedChatbots, selectedCategories } = useSidebar()
   const { isOpenPopup, activeThread, setActiveThread, setIsOpenPopup } = useThread()
   const [loading, setLoading] = useState<boolean>(false)
   const { threads: hookThreads, isContinuousThread, setIsContinuousThread } = useThreadVisibility()
@@ -86,13 +85,23 @@ export default function UserThreadPanel({
     count: number
     totalThreads: number
   }>({
-    threads: initialThreads || [],
-    count: initialThreads?.length || 0,
-    totalThreads: initialThreads?.length || 0,
+    threads: [],
+    count: 0,
+    totalThreads: 0,
   })
   const { threads, count, totalThreads } = state
 
   const updateThreads = () => {
+    const initialLength = initialThreads?.length || 0;
+    const currentLength = threads?.length || 0;
+
+    // Skip update if threads grew in size compared to initial
+    if (currentLength > initialLength) return
+
+    // Skip if arrays have same length and same IDs in same order
+    if (isEqual(initialThreads, threads)) return
+    if (!currentLength && !initialLength) return
+
     console.log('threads', threads)
     console.log('initialThreads', initialThreads)
 
@@ -105,14 +114,8 @@ export default function UserThreadPanel({
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should run only once when the initial threads change
   useEffect(() => {
-    if (isEqual(initialThreads, threads) && threads.length > (initialThreads?.length || 0)) return
-
     updateThreads()
-
-    return () => {
-      updateThreads()
-    }
-  }, [activeCategory, activeChatbot])
+  }, [selectedChatbots, selectedCategories, activeCategory, activeChatbot])
 
   const fetchBrowseThreads = async () => {
     try {
@@ -123,7 +126,7 @@ export default function UserThreadPanel({
         userId: user.userId,
         categoryId: activeCategory,
         chatbotName: activeChatbot?.name,
-        limit: PAGE_SIZE,
+        limit: PAGE_SM_SIZE,
       })
     } catch (error) {
       console.error('Failed to fetch threads:', error)
@@ -144,7 +147,7 @@ export default function UserThreadPanel({
         jwt: session?.user?.hasuraJwt as string,
         userId: session?.user.id as string,
         offset: threads.length,
-        limit: PAGE_SIZE,
+        limit: PAGE_SM_SIZE,
         categoryId: activeCategory,
         chatbotName: activeChatbot?.name,
       })
@@ -179,7 +182,7 @@ export default function UserThreadPanel({
     const newThreads = await getThreads({
       jwt: session?.user?.hasuraJwt,
       userId: session?.user.id,
-      limit: PAGE_SIZE,
+      limit: PAGE_SM_SIZE,
       categoryId: activeCategory,
       chatbotName: activeChatbot?.name,
     })
@@ -279,7 +282,7 @@ export default function UserThreadPanel({
           threads={threads}
           loading={loading}
           count={count}
-          pageSize={PAGE_SIZE}
+          pageSize={PAGE_SM_SIZE}
           loadMore={loadMore}
         />
         {showNoResults && (
