@@ -114,9 +114,16 @@ update_permissions:
   - role: moderator
     permission:
       columns:
+        - chatbot_id
+        - created_at
         - is_approved
         - is_blocked
         - is_public
+        - model
+        - parent_thread_id
+        - thread_id
+        - updated_at
+        - user_id
       filter: {}
       check: {}
     comment: Allows moderators to approve or block any thread
