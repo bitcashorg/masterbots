@@ -1,28 +1,5 @@
 'use client'
 
-/**
- * ThreadPopup Component
- *
- * A popup component that displays the active chat thread in a modal-like interface.
- * It integrates chat functionality and provides a user-friendly way to interact
- * with threads associated with a specific chatbot.
- *
- * Key Features:
- * - Displays the thread title and subheading
- * - Contains a close button to exit the popup
- * - Shows the chat history and allows sending messages
- * - Supports scrolling to the bottom of the chat when new messages arrive
- * - Includes a publicity switch for thread visibility settings
- *
- * Functionality:
- * - Manages the visibility of the popup based on user interaction
- * - Automatically scrolls to the bottom when new messages are loaded
- * - Displays a list of messages in the active thread
- *
- * Props:
- * - className: Optional string for additional styling
- */
-
 import { Chat } from '@/components/routes/chat/chat'
 import { ChatList } from '@/components/routes/chat/chat-list'
 import { Button } from '@/components/ui/button'
@@ -33,11 +10,10 @@ import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn, scrollToBottomOfElement } from '@/lib/utils'
-import { Message as AiMessage } from 'ai'
+import type { Message as AiMessage } from 'ai'
 import { useScroll } from 'framer-motion'
 import type { Chatbot } from 'mb-genql'
 import { useEffect, useRef } from 'react'
-import { ThreadPublicitySwitch } from './thread-publicity-switch'
 
 export function ThreadPopup({ className }: { className?: string }) {
   const { activeChatbot } = useSidebar()
@@ -65,7 +41,6 @@ export function ThreadPopup({ className }: { className?: string }) {
     }
   }
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (isLoading && isOpenPopup) {
       const timeout = setTimeout(() => {
@@ -73,7 +48,6 @@ export function ThreadPopup({ className }: { className?: string }) {
         clearTimeout(timeout)
       }, 150)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading, isOpenPopup])
 
   return (
@@ -112,12 +86,13 @@ export function ThreadPopup({ className }: { className?: string }) {
             messages={allMessages}
             sendMessageFn={sendMessageFromResponse}
             chatbot={activeThread?.chatbot || activeChatbot as Chatbot}
-            chatContentClass="dark:!border-x-mirage !border-x-gray-300 !py-[20px] !px-[16px] !mx-0 max-h-[none] "
+            chatContentClass="dark:!border-x-mirage !border-x-gray-300 !py-[20px] !px-[16px] !mx-0 max-h-[none]"
             className="max-w-full !px-[32px] !mx-0"
             chatArrowClass="!right-0 !mr-0"
             chatTitleClass="!px-[11px]"
           />
 
+          {/* Always show Chat component regardless of variant */}
           <Chat
             isPopup
             chatPanelClassName="!pl-0 rounded-b-[8px] overflow-hidden !absolute"
@@ -130,7 +105,7 @@ export function ThreadPopup({ className }: { className?: string }) {
   )
 }
 
-export function ThreadPopUpCardHeader({ messages }: { messages: AiMessage[] }) {
+function ThreadPopUpCardHeader({ messages }: { messages: AiMessage[] }) {
   const {
     isOpenPopup,
     activeThread,
@@ -146,7 +121,7 @@ export function ThreadPopUpCardHeader({ messages }: { messages: AiMessage[] }) {
   }
 
   const threadTitle = messages.filter(m => m.role === 'user')[0]?.content
-  const threadTitleChunks = threadTitle?.split(/\s/g) // ' '
+  const threadTitleChunks = threadTitle?.split(/\s/g) 
   const threadTitleHeading = threadTitleChunks?.slice(0, 32).join(' ')
   const threadTitleSubHeading = threadTitleChunks?.slice(32).join(' ')
 

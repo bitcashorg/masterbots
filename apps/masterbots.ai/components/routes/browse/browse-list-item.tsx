@@ -1,26 +1,4 @@
-/**
- * BrowseListItem Component
- *
- * This component represents a single item in a list of threads for browsing chat interactions.
- * It displays the thread's title, user information, and options for interacting with the thread.
- *
- * Props:
- * - thread: A Thread object containing details about the chat thread.
- * - loadMore: A function to load more threads when needed.
- * - loading: A boolean indicating if threads are currently being loaded.
- * - isLast: A boolean indicating if this is the last thread in the list.
- * - hasMore: A boolean indicating if there are more threads to load.
- * - pageType: An optional string to specify the type of page (e.g., 'bot', 'user').
- *
- * Key Features:
- * - Accordion Functionality: Allows users to expand/collapse the thread to view messages.
- * - Dynamic Navigation: Navigates to the bot's page or user profile when clicked.
- * - Infinite Scrolling: Uses Intersection Observer to load more threads as the user scrolls.
- * - Message Fetching: Fetches messages for the thread when the accordion is opened.
- * - Responsive Design: Utilizes Tailwind CSS for styling and layout.
- */
-
-import { BrowseAccordion } from '@/components/routes/browse/browse-accordion'
+import { SharedAccordion } from '@/components/shared/shared-accordion'
 import { BrowseChatMessageList } from '@/components/routes/browse/browse-chat-message-list'
 import { ChatbotAvatar } from '@/components/shared/chatbot-avatar'
 import { ShortMessage } from '@/components/shared/short-message'
@@ -37,7 +15,6 @@ import { useRouter } from 'next/navigation'
 import React from 'react'
 import { ChatOptions } from '../chat/chat-options'
 import { urlBuilders } from '@/lib/url'
-
 
 let initialUrl: string | null = null
 
@@ -62,8 +39,6 @@ export default function BrowseListItem({
   const { searchTerm } = useThreadSearch()
   const [isAccordionOpen, setIsAccordionOpen] = React.useState(false)
   const [isVisible, setIsVisible] = React.useState(true)
-
-
   const { tab } = useBrowse()
 
   React.useEffect(() => {
@@ -74,7 +49,6 @@ export default function BrowseListItem({
     const matches = searchThreadContent(thread, searchTerm)
     setIsVisible(matches)
   }, [searchTerm, thread])
-
 
   React.useEffect(() => {
     if (initialUrl) return
@@ -94,16 +68,12 @@ export default function BrowseListItem({
           loadMore()
           clearTimeout(timeout)
         }, 150)
-
         observer.unobserve(entry.target)
       }
     })
 
     observer.observe(threadRef.current)
-
-    return () => {
-      observer.disconnect()
-    }
+    return () => observer.disconnect()
   }, [isLast, hasMore, loading, loadMore])
 
   const fetchMessages = async () => {
@@ -123,12 +93,9 @@ export default function BrowseListItem({
     } else {
       window.history.pushState({}, '', initialUrl)
     }
-    // When toggling accordion, it should scroll
-    // Use optional chaining to ensure scrollIntoView is called only if current is not null
-    await sleep(300) // animation time
+    await sleep(300)
     threadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     setIsAccordionOpen(isOpen)
-    // Should fetch messages only when opening thread.
   }
 
   const goToBotPage = (e: React.MouseEvent) => {
@@ -147,9 +114,8 @@ export default function BrowseListItem({
 
   return (
     <div ref={threadRef}>
-      <BrowseAccordion
+      <SharedAccordion
         onToggle={handleAccordionToggle}
-        // handleTrigger={goToThread}
         className="relative"
         contentClass="!pt-0 max-h-[70vh] scrollbar"
         triggerClass="dark:hover:bg-mirage hover:bg-gray-300 pl-[8px]
@@ -160,15 +126,11 @@ export default function BrowseListItem({
         dark:bg-[#18181b] bg-[#f4f4f5]"
         arrowClass="size-5 top-[0.25rem] bottom-0 transform translate-y-[100%]"
         thread={thread}
+        variant="browse"
       >
         {/* Thread Title */}
-        <div
-          className={cn(
-            'relative flex items-center font-normal md:text-lg transition-all w-full gap-3 pr-4'
-          )}
-        >
+        <div className={cn('relative flex items-center font-normal md:text-lg transition-all w-full gap-3 pr-4')}>
           <div className="flex items-center justify-between w-full text-left">
-            {/* Main content area - adjusted width and spacing */}
             <div className="flex items-center gap-2 sm:gap-4 w-[calc(100%-100px)] sm:w-[calc(100%-124px)]">
               {pageType !== 'bot' && (
                 <Button
@@ -181,17 +143,12 @@ export default function BrowseListItem({
                 </Button>
               )}
 
-              {/* Message content - adjusted spacing */}
-              <div
-                className={cn('truncate-title', {
-                  'no-truncate max-h-40 !overflow-y-auto sm:max-h-none sm:overflow-visible':
-                    isAccordionOpen
-                })}
-              >
+              <div className={cn('truncate-title', {
+                'no-truncate max-h-40 !overflow-y-auto sm:max-h-none sm:overflow-visible': isAccordionOpen
+              })}>
                 {thread.messages?.[0]?.content}
               </div>
 
-              {/* User section with tighter spacing on mobile */}
               {pageType !== 'user' && (
                 <div className="flex items-center gap-1 ml-2 sm:gap-3 sm:ml-4">
                   <span className="hidden text-sm opacity-50 sm:inline"> by </span>
@@ -200,13 +157,11 @@ export default function BrowseListItem({
                     title={thread.user?.username.replace('_', ' ')}
                     variant="icon"
                     size="icon"
-                    className="w-8 h-8 sm:h-10 sm:w-10" // Smaller on mobile
+                    className="w-8 h-8 sm:h-10 sm:w-10"
                   >
                     <Image
                       className="transition-opacity duration-300 rounded-full select-none hover:opacity-80"
-                      src={
-                        thread.user?.profilePicture || '/images/robohash1.png'
-                      }
+                      src={thread.user?.profilePicture || '/images/robohash1.png'}
                       alt={thread.user?.username ?? 'Avatar'}
                       height={40}
                       width={40}
@@ -215,7 +170,6 @@ export default function BrowseListItem({
                 </div>
               )}
             </div>
-            {/* Thread Options */}
             <div className="pl-2 pr-4 sm:pl-4 sm:pr-8">
               <ChatOptions
                 threadId={thread.threadId}
@@ -224,31 +178,24 @@ export default function BrowseListItem({
               />
             </div>
           </div>
-
-
         </div>
 
-        {/*  */}
-
+        {/* Thread Description */}
         <div className="overflow-hidden text-sm text-left opacity-50">
-          {thread.messages?.[1]?.content &&
-            thread.messages?.[1]?.role !== 'user' ? (
+          {thread.messages?.[1]?.content && thread.messages?.[1]?.role !== 'user' ? (
             <div className="flex-1 space-y-2 overflow-hidden">
               <ShortMessage content={thread.messages?.[1]?.content} />
             </div>
-          ) : (
-            ''
-          )}
+          ) : ''}
         </div>
 
         {/* Thread Content */}
-
         <BrowseChatMessageList
           chatbot={thread?.chatbot}
           user={thread?.user || undefined}
           messages={messages}
         />
-      </BrowseAccordion>
+      </SharedAccordion>
     </div>
   )
 }
