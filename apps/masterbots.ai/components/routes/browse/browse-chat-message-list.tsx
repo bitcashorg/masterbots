@@ -34,7 +34,6 @@ export function BrowseChatMessageList({
   isThread?: boolean
 }) {
   const [pairs, setPairs] = React.useState<MessagePair[]>([])
-
   React.useEffect(() => {
     if (messages.length) {
       const prePairs: MessagePair[] = createMessagePairs(

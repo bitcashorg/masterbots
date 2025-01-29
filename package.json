@@ -12,8 +12,11 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
+    "@genql/cli": "latest",
+    "@genql/runtime": "latest",
     "@types/node": "^20.8.0",
     "eslint": "^8.57.1",
+    "genql": "latest",
     "prettier": "^3.3.3"
   },
   "engines": {
