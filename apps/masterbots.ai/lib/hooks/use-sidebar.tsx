@@ -3,7 +3,8 @@
 import { getCategories, getUserBySlug } from '@/services/hasura'
 import { Category, Chatbot } from 'mb-genql'
 import { toSlug } from 'mb-lib'
-import { usePathname, useParams } from 'next/navigation'
+import { useSession } from 'next-auth/react'
+import { useParams, usePathname } from 'next/navigation'
 import * as React from 'react'
 import { useAsync } from 'react-use'
 
@@ -65,20 +66,30 @@ interface SidebarProviderProps {
 export function SidebarProvider({ children }: SidebarProviderProps) {
   const [selectedCategories, setSelectedCategories] = React.useState<number[]>([])
   const [selectedChatbots, setSelectedChatbots] = React.useState<number[]>([])
+  const { data: session } = useSession()
   const { slug } = useParams()
   const pathname = usePathname()
- 
+
   const { value: categories, loading, error } = useAsync(async () => {
     let categories = []
-    if(slug){
-      const { user, error } =  await getUserBySlug({
-        slug: slug as string, 
+    let userId = null
+    if (slug) {
+      const { user, error } = await getUserBySlug({
+        slug: slug as string,
         isSameUser: false
-       });
-       const userId = user ? user?.userId : undefined
-        categories = await getCategories(userId)
-    }else{
-       categories = await getCategories()
+      });
+
+      if (error) {
+        throw new Error(error)
+      }
+
+      userId = user?.userId
+    }
+
+    if (session?.user || slug) {
+      categories = await getCategories(slug ? userId : session?.user?.id)
+    } else {
+      categories = await getCategories()
     }
     const categoriesObj = {
       categoriesChatbots: categories || [],

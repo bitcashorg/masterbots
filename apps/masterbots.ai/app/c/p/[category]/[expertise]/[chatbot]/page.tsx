@@ -44,8 +44,7 @@ export default async function BrowseProBotPage({
     <>
       <ThreadPanel
         threads={threads}
-        chatbot={chatbot.name}
-        search={searchParams}
+      // search={searchParams}
       />{" "}
       <ChatChatbot chatbot={chatbot} />
     </>

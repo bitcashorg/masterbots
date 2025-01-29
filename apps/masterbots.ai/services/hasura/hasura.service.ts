@@ -1,7 +1,7 @@
-import { type ExampleMetadata } from '@/lib/constants/prompts'
 import type {
   ChatbotMetadataHeaders,
-  ReturnFetchChatbotMetadata
+  ExampleMetadata,
+  ReturnFetchChatbotMetadata,
 } from '@/types/types'
 import { validateMbEnv } from 'mb-env'
 import {
@@ -48,11 +48,16 @@ export async function getCategories(userId?: string) {
             followerId: true,
             followeeIdChatbot: true
           },
-          ...everything
+          __scalar: true,
+          prompts: {
+            prompt: {
+              __scalar: true,
+            },
+          }
         },
-        ...everything
+        __scalar: true,
       },
-      ...everything,
+      __scalar: true,
       __args: {
         where: userId
           ? {
@@ -1185,8 +1190,8 @@ export async function chatbotFollowOrUnfollow({
 
 export async function fetchChatbotMetadata({
   chatbot, // ? domain === category: Renaming category to domains and category will be another level for the Masterbots (chatbots)
-  // category,
-  domain
+  category,
+  domain,
 }: ChatbotMetadataHeaders): Promise<ReturnFetchChatbotMetadata> {
   try {
     const client = getHasuraClient({})
@@ -1194,7 +1199,7 @@ export async function fetchChatbotMetadata({
       labelChatbotCategoryDomain: {
         __args: {
           where: {
-            categoryId: { _eq: domain },
+            categoryId: { _eq: category },
             // domainId: { _eq: domain }, // This is a string... ?
             chatbotId: { _eq: chatbot }
           }

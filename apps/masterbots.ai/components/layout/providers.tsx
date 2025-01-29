@@ -21,16 +21,16 @@ type ProvidersProps = {
   disableTransitionOnChange?: boolean
 }
 export function Providers({ children, ...props }: ProvidersProps) {
- 
+
   return (
-    <NextThemesProvider 
-     {...props}
+    <NextThemesProvider
+      {...props}
     >
-      <ModelProvider>
-        <PaymentProvider>
-          <SidebarProvider>
-            <TooltipProvider>
-              <SessionProvider>
+      <SessionProvider>
+        <ModelProvider>
+          <PaymentProvider>
+            <SidebarProvider>
+              <TooltipProvider>
                 <ProfileProvider>
                   <PowerUpProvider>
                     <AccessibilityProvider>
@@ -42,11 +42,11 @@ export function Providers({ children, ...props }: ProvidersProps) {
                     </AccessibilityProvider>
                   </PowerUpProvider>
                 </ProfileProvider>
-              </SessionProvider>
-            </TooltipProvider>
-          </SidebarProvider>
-        </PaymentProvider>
-      </ModelProvider>
+              </TooltipProvider>
+            </SidebarProvider>
+          </PaymentProvider>
+        </ModelProvider>
+      </SessionProvider>
     </NextThemesProvider>
   )
 }

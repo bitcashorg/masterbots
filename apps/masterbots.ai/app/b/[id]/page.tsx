@@ -1,11 +1,10 @@
 import BrowseChatbotDetails from '@/components/routes/browse/browse-chatbot-details'
 import BrowseSpecificThreadList from '@/components/routes/browse/browse-specific-thread-list'
 import { botNames } from '@/lib/constants/bots-names'
+import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { generateMetadataFromSEO } from '@/lib/metadata'
 import { getBrowseThreads, getChatbot } from '@/services/hasura'
 import type { Metadata } from 'next'
-
-const PAGE_SIZE = 50
 
 export default async function BotThreadsPage({
   params

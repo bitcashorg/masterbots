@@ -1,9 +1,11 @@
 import { authOptions } from "@/auth";
 import { UserThreadList } from "@/components/routes/profile/user-thread-list";
 import { botNames } from "@/lib/constants/bots-names";
+import { PAGE_SM_SIZE } from "@/lib/constants/hasura";
 import { getBrowseThreads, getThreads, getUserBySlug } from "@/services/hasura/hasura.service";
 import { User } from "mb-genql";
 import { getServerSession } from "next-auth";
+import { Suspense } from "react";
 
 
 export default async function ProfileChatBot({ params }: {
@@ -34,7 +36,8 @@ export default async function ProfileChatBot({ params }: {
       if (!isOwnProfile) {
         return await getBrowseThreads({
           userId: user.userId,
-          chatbotName
+          chatbotName,
+          limit: PAGE_SM_SIZE,
         });
       }
 
@@ -45,7 +48,8 @@ export default async function ProfileChatBot({ params }: {
       return await getThreads({
         jwt,
         userId: user.userId,
-        chatbotName
+        chatbotName,
+        limit: PAGE_SM_SIZE,
       });
     } catch (error) {
       console.error('Failed to fetch threads:', error);
@@ -56,6 +60,8 @@ export default async function ProfileChatBot({ params }: {
   threads = await fetchThreads();
 
   return (
-    <UserThreadList user={user as User} threads={threads} />
+    <Suspense fallback={null}>
+      <UserThreadList user={user as User} threads={threads} />
+    </Suspense>
   )
 }
