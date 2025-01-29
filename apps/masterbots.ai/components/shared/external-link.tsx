@@ -1,11 +1,14 @@
+import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react'
 
 export function ExternalLink({
   href,
+  className,
   children
 }: {
   href: string
+  className: string
   children: React.ReactNode
 }) {
   return (
@@ -13,14 +16,11 @@ export function ExternalLink({
       href={href}
       target="_blank"
       className={cn(
-        'inline-flex flex-1 items-center justify-center gap-2',
-        'border border-[#F4F4F580] rounded-3xl',
-        'bg-[#18181B] text-white text-xl py-3.5 px-9 leading-[1.3]',
-        'dark:bg-white dark:text-black',
-        'hover:underline'
+        buttonVariants({ variant: 'link' }),
+        className,
       )}
     >
-      <span>{children}</span>
+      {children}
       <ExternalLinkIcon size={20} className="-mt-[1px]" />
     </a>
   )

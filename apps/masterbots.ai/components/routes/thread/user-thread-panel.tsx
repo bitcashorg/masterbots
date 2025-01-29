@@ -31,6 +31,7 @@ import ChatChatbotDetails from '@/components/routes/chat/chat-chatbot-details'
 import { ChatSearchInput } from '@/components/routes/chat/chat-search-input'
 import ThreadList from '@/components/routes/thread/thread-list'
 import { NoResults } from '@/components/shared/no-results-card'
+import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeletons'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
@@ -41,6 +42,7 @@ import { useSession } from 'next-auth/react'
 import { useParams, usePathname, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useAsync } from 'react-use'
+import BrowseListItem from '../browse/browse-list-item'
 
 const PAGE_SIZE = 20
 
@@ -61,7 +63,8 @@ export default function UserThreadPanel({
   const params = useParams<{ chatbot: string; threadId: string; slug?: string }>()
   const { data: session } = useSession()
   const { activeCategory, activeChatbot } = useSidebar()
-  const { isOpenPopup, activeThread, setActiveThread, setIsOpenPopup } = useThread()
+  const { isOpenPopup, activeThread, setActiveThread, setIsOpenPopup } =
+    useThread()
   const [loading, setLoading] = useState<boolean>(false)
   const { threads: hookThreads, isContinuousThread, setIsContinuousThread } = useThreadVisibility()
   const [searchTerm, setSearchTerm] = useState<string>('')
@@ -103,7 +106,7 @@ export default function UserThreadPanel({
         userId: user.userId,
         categoryId: activeCategory,
         chatbotName: activeChatbot?.name,
-        limit: PAGE_SIZE,
+        limit: PAGE_SIZE
       })
     } catch (error) {
       console.error('Failed to fetch threads:', error)
@@ -121,12 +124,12 @@ export default function UserThreadPanel({
       moreThreads = await fetchBrowseThreads()
     } else {
       moreThreads = await getThreads({
-        jwt: session!.user?.hasuraJwt,
-        userId: session!.user.id,
+        jwt: session?.user?.hasuraJwt || '',
+        userId: session?.user.id || '',
         offset: threads.length,
         limit: PAGE_SIZE,
         categoryId: activeCategory,
-        chatbotName: activeChatbot?.name,
+        chatbotName: activeChatbot?.name
       })
     }
     if (moreThreads) setThreads((prevState) => [...prevState, ...moreThreads])
@@ -141,8 +144,8 @@ export default function UserThreadPanel({
     const isOwnProfile = session?.user?.id === userOnSlug?.userId
     if (!session?.user || (!isOwnProfile && page === 'profile')) {
       threads = await fetchBrowseThreads()
-      setThreads((_prev) => threads ?? [])
-      setCount((_prev) => threads.length ?? 0)
+      setThreads(_prev => threads ?? [])
+      setCount(_prev => threads.length ?? 0)
       setTotalThreads(threads?.length ?? 0)
       setLoading(false)
       return
@@ -155,7 +158,7 @@ export default function UserThreadPanel({
       userId: session?.user.id,
       limit: PAGE_SIZE,
       categoryId: activeCategory,
-      chatbotName: activeChatbot?.name,
+      chatbotName: activeChatbot?.name
     })
 
     // Check if the fetchId matches the current fetchId stored in the ref
@@ -238,15 +241,34 @@ export default function UserThreadPanel({
       {loading ? (
         <NoResults isLoading={true} />
       ) : threads && threads.length > 0 ? (
-        <div className="flex px-4 py-5 md:px-10">
-          <ThreadList
-            threads={threads}
-            loading={loading}
-            count={count}
-            pageSize={PAGE_SIZE}
-            loadMore={loadMore}
-          />
-        </div>
+        <>
+          {page === 'profile' ? (
+            <div className="flex flex-col  py-5 ">
+              {threads.map((thread: Thread) => (
+                <BrowseListItem
+                  thread={thread}
+                  key={thread.threadId}
+                  loading={loading}
+                  loadMore={loadMore}
+                  hasMore={count === PAGE_SIZE}
+                  isLast={thread.threadId === threads[threads.length - 1].threadId}
+                  pageType={page}
+                />
+              ))}
+              {loading && <ThreadItemSkeleton />}
+            </div>
+          ) : (
+            <div className="flex px-4 py-5 md:px-10">
+              <ThreadList
+                threads={threads}
+                loading={loading}
+                count={count}
+                pageSize={PAGE_SIZE}
+                loadMore={loadMore}
+              />
+            </div>
+          )}
+        </>
       ) : showNoResults ? (
         <NoResults
           searchTerm={searchTerm}

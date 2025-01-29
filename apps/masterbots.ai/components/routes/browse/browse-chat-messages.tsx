@@ -13,9 +13,11 @@
  * - chatbot: Optional chatbot object associated with the messages.
  */
 
-import { BrowseChatMessageList } from '@/components/routes/browse/browse-chat-message-list'
 import BrowseChatbotDetails from '@/components/routes/browse/browse-chatbot-details'
+import { BrowseThreadBlog } from '@/components/routes/browse/browse-thread-blog'
 import { ExternalLink } from '@/components/shared/external-link'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
 import type * as AI from 'ai'
 import type { Chatbot, Message, User } from 'mb-genql'
@@ -43,7 +45,7 @@ export function BrowseChatMessages({
   user,
   chatbot
 }: {
-  threadId: string
+  threadId: string,
   parentThreadId?: string
   user?: User
   chatbot?: Chatbot
@@ -97,15 +99,15 @@ export function BrowseChatMessages({
         {parentThreadTitle && (
           <p>This thread is an extension of the original content from the parent thread titled <Link className="text-muted-foreground hover:text-primary transition-colors underline" href={parentThreadUrl}>&quot;{parentThreadTitle}&quot;</Link>. To get the full context and explore more, visit the <Link className="text-muted-foreground hover:text-primary transition-colors underline" href={parentThreadUrl}>original post</Link>.</p>
         )}
-        <BrowseChatMessageList
-          user={user}
-          chatbot={chatbot}
-          messages={messages}
-          isThread
-        />
-      </div>
-      <div className="border-t border-t-iron dark:border-t-mirage pt-6 text-center mt-44 lg:mt-96">
-        <ExternalLink href={`/c/${toSlug(categoryName)}/${toSlug(chatBotName)}?continuousThreadId=${threadId}`}>Continue Thread</ExternalLink>
+        <BrowseThreadBlog threadId={threadId} user={user} />
+        <div className="border-t border-t-iron dark:border-t-mirage pt-6 text-center mt-44 lg:mt-20">
+          <ExternalLink
+            className={cn(buttonVariants({ size: 'xl', radius: 'full' }), 'text-xl hover:no-underline')}
+            href={`/c/${toSlug(categoryName)}/${toSlug(chatBotName)}?continuousThreadId=${threadId}`}
+          >
+            Continue Thread
+          </ExternalLink>
+        </div>
       </div>
     </div>
   )
