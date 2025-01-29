@@ -1,15 +1,19 @@
 'use client'
 
-import { toSlug } from 'mb-lib'
-import { nanoid } from '@/lib/utils'
-import { useState } from 'react'
-import { useModel } from '@/lib/hooks/use-model'
-import { useChat } from 'ai/react'
-import { UserPersonalityPrompt } from '@/lib/constants/prompts'
-import type { BrowseChatbotDetailsProps } from '@/types/types'
 import { BrowseChatbotDesktopDetails } from '@/components/routes/browse/browse-chatbot-desktop-details'
 import { BrowseChatbotMobileDetails } from '@/components/routes/browse/browse-chatbot-mobile-details'
+import { userPersonalityPrompt } from '@/lib/constants/prompts'
+import { useModel } from '@/lib/hooks/use-model'
 import { useSonner } from '@/lib/hooks/useSonner'
+import { nanoid } from '@/lib/utils'
+import { chatbotFollowOrUnfollow } from '@/services/hasura'
+import type { BrowseChatbotDetailsProps } from '@/types/types'
+import { useChat } from 'ai/react'
+import { SocialFollowing } from 'mb-genql'
+import { toSlug } from 'mb-lib'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 export default function BrowseChatbotDetails({
   chatbot,
@@ -19,8 +23,11 @@ export default function BrowseChatbotDetails({
   const [generateType, setGenerateType] = useState<string | undefined>('')
   const [lastMessage, setLastMessage] = useState<string | null>(null)
   const { selectedModel, clientType } = useModel()
+  const [followers, setFollowers] = useState<SocialFollowing[]>(chatbot?.followers || []);
+  const { data: session } = useSession()
+  const router = useRouter();
+  const { customSonner } = useSonner()
 
-  const {customSonner} = useSonner()
   const { append } = useChat({
     id: nanoid(),
     body: {
@@ -32,7 +39,7 @@ export default function BrowseChatbotDetails({
       if (response.status === 401) {
         customSonner({ type: 'error', text: response.statusText })
       } else if (!response.ok) {
-        customSonner({ type: 'error', text: 'Failed to process request'})
+        customSonner({ type: 'error', text: 'Failed to process request' })
       }
       setIsLoading(false)
     },
@@ -61,7 +68,7 @@ export default function BrowseChatbotDetails({
     try {
       setIsLoading(true)
       setGenerateType('bio')
-      const promptContent = UserPersonalityPrompt('bio', [])
+      const promptContent = userPersonalityPrompt('bio', [])
       return append({
         id: nanoid(),
         content: promptContent,
@@ -75,6 +82,57 @@ export default function BrowseChatbotDetails({
     }
   }
 
+
+  const onFollow = async () => {
+    try {
+      if (!session) {
+        // toast.error('Please sign in to follow chatbot')
+        customSonner({ type: 'error', text: 'Please sign in to follow chatbot' })
+        router.push('/auth/signin')
+        return
+      }
+      const followerId = session.user?.id
+      const followeeId = chatbot?.chatbotId
+      if (!followerId) {
+        customSonner({ type: 'error', text: 'Invalid user data' })
+        return;
+      }
+      if (!followeeId) {
+        customSonner({ type: 'error', text: 'Invalid chatbot data, please select a chatbot' })
+        return;
+      }
+      const { success, error, follow } = await chatbotFollowOrUnfollow({ followerId, followeeId, jwt: session.user.hasuraJwt as string })
+      if (!success) {
+        console.error('Failed to follow/Unfolow bot:', error)
+        customSonner({ type: 'error', text: error || 'Failed to follow/unfollow bot' })
+        return
+      }
+      if (follow) {
+        setFollowers([
+          ...followers,
+          {
+            followerId: followerId,
+            followeeId: null,
+            followeeIdChatbot: followeeId,
+            chatbot: null,
+            createdAt: new Date().toISOString(),
+            userByFollowerId: null as unknown,
+            user: null,
+            __typename: 'SocialFollowing'
+          } as SocialFollowing
+        ]);
+      } else {
+        setFollowers(followers.filter(follower => !(follower.followerId === followerId && follower.followeeIdChatbot === followeeId)))
+      }
+      customSonner({ type: 'success', text: follow ? `You have followed ${chatbot?.name} successfully` : `You have  unfollowed  ${chatbot?.name}` })
+
+    } catch (error) {
+      customSonner({ type: 'error', text: 'Failed to follow chatbot' })
+      console.error('Failed to follow chatbot:', error)
+    }
+
+  }
+
   const sharedProps = {
     chatbot,
     variant,
@@ -85,7 +143,9 @@ export default function BrowseChatbotDetails({
     isWelcomeView,
     descriptionPoints,
     hasMultiplePoints,
-    botUrl
+    botUrl,
+    followers,
+    onFollow,
   }
 
   return (

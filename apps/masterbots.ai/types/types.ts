@@ -328,6 +328,9 @@ export interface BrowseChatbotLayoutProps {
   descriptionPoints: string[]
   hasMultiplePoints: boolean
   botUrl: string
+  followers?: SocialFollowing[]
+  onFollow?: () => void
+  followersCount?: number
 }
 
 export type UUID = `${string}-${string}-${string}-${string}-${string}`

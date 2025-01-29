@@ -15,7 +15,6 @@ export default function ChatChatbotDetails() {
   const { activeChatbot } = useSidebar()
   const [isFollowLoading, setIsFollowLoading] = useState<boolean>(false)
   const [followers, setFollowers] = useState<SocialFollowing[]>(activeChatbot?.followers || []);
-
   const router = useRouter();
   const { customSonner } = useSonner()
 

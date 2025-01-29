@@ -108,7 +108,7 @@ export function followingQuestionsPrompt(userContent: string, allMessages: Messa
   )}].  Then answer this question: ${userContent}`
 }
 
-export function UserPersonalityPrompt(userPromptType: string, allMessages: Message[]) {
+export function userPersonalityPrompt(userPromptType: string, allMessages: Message[]) {
   const userMessages = getAllUserMessagesAsStringArray(allMessages)
 
   const basePrompt = `Given a user's thread history: "${userMessages}".

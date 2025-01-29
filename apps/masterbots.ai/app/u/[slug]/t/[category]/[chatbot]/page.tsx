@@ -1,8 +1,9 @@
 import { authOptions } from "@/auth";
-import UserThreadPanel from "@/components/routes/thread/user-thread-panel";
+import { UserThreadList } from "@/components/routes/profile/user-thread-list";
 import { botNames } from "@/lib/constants/bots-names";
 import { PAGE_SM_SIZE } from "@/lib/constants/hasura";
 import { getBrowseThreads, getThreads, getUserBySlug } from "@/services/hasura/hasura.service";
+import { User } from "mb-genql";
 import { getServerSession } from "next-auth";
 import { Suspense } from "react";
 
@@ -60,10 +61,7 @@ export default async function ProfileChatBot({ params }: {
 
   return (
     <Suspense fallback={null}>
-      <UserThreadPanel
-        threads={threads}
-        page="profile"
-      />
+      <UserThreadList user={user as User} threads={threads} />
     </Suspense>
   )
 }
