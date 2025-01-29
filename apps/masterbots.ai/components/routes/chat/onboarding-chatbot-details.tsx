@@ -28,7 +28,7 @@ export function OnboardingChatbotDetails({
   const threadCount = activeChatbot?.threads?.length || 0
 
   return (
-    <div className="hidden h-[calc(100vh-196px)] md:flex items-center justify-center -translate-y-8 relative">
+    <div className="hidden md:flex items-center justify-center -translate-y-8 relative">
       <Card className="w-[600px] bg-white dark:bg-[#09090B] relative z-10">
         <CardHeader className="space-y-6">
           <h1 className="px-4 pt-4 text-2xl font-bold text-zinc-950 dark:text-gray-300">

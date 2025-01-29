@@ -23,6 +23,7 @@ export default async function ChatCategoryPage({
     redirect('/auth/signin')
   }
 
+
   const categories = await getCategories()
   const category = categories.find((category) => toSlug(category.name) === params.category)
   const threads = await getThreads({
@@ -31,6 +32,9 @@ export default async function ChatCategoryPage({
     categoryId: category?.categoryId,
     limit: PAGE_SIZE,
   })
+  console.log('params.category', params.category)
+  console.log('category', category)
+  console.log('threads', threads)
 
   return (
     <>

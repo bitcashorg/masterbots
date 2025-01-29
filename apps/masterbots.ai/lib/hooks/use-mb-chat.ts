@@ -28,7 +28,7 @@ import type {
   GetChatbotMetadataLabels,
 } from '@/types/types'
 import type { Message as AiMessage, ChatRequestOptions, CreateMessage } from 'ai'
-import { useChat } from 'ai/react'
+import { useChat, UseChatOptions } from 'ai/react'
 import { uniqBy } from 'lodash'
 import type { Chatbot, Message, Thread } from 'mb-genql'
 
@@ -112,8 +112,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     if (params.threadId || isNewChat) return threadId
     return activeThreadId
   }
-
-  const { input, messages, isLoading, stop, append, reload, setInput, setMessages } = useChat({
+  const useChatConfig: Partial<UseChatOptions> = {
     initialMessages,
     id: params.threadId || isNewChat ? threadId : activeThread?.threadId,
     // TODO: Check this experimental feature: https://sdk.vercel.ai/docs/reference/ai-sdk-ui/use-chat#experimental_prepare-request-body
@@ -126,7 +125,10 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       model: selectedModel,
       clientType,
       webSearch,
-    },
+    }
+  }
+  const { input, messages, isLoading, stop, append, reload, setInput, setMessages } = useChat({
+    ...useChatConfig,
     async onResponse(response: any) {
       if (response.status >= 400) {
         customSonner({ type: 'error', text: response.statusText })

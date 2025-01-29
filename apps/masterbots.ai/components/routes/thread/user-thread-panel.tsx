@@ -31,18 +31,18 @@ import ChatChatbotDetails from '@/components/routes/chat/chat-chatbot-details'
 import { ChatSearchInput } from '@/components/routes/chat/chat-search-input'
 import ThreadList from '@/components/routes/thread/thread-list'
 import { NoResults } from '@/components/shared/no-results-card'
-import { Skeleton } from '@/components/ui/skeleton'
-import { PAGE_SM_SIZE } from '@/lib/constants/hasura'
+import { PAGE_SIZE, PAGE_SM_SIZE } from '@/lib/constants/hasura'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
+import { cn } from '@/lib/utils'
 import { getBrowseThreads, getThread, getThreads, getUserBySlug } from '@/services/hasura'
 import { isEqual } from 'lodash'
 import type { Thread } from 'mb-genql'
 import type { Session } from 'next-auth'
 import { useSession } from 'next-auth/react'
 import { useParams, usePathname, useSearchParams } from 'next/navigation'
-import { Suspense, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useAsync, useSetState } from 'react-use'
 
 // TODO: this is a hard to understand file since it tries to focus in too many different aspects
@@ -89,33 +89,7 @@ export default function UserThreadPanel({
     count: 0,
     totalThreads: 0,
   })
-  const { threads, count, totalThreads } = state
-
-  const updateThreads = () => {
-    const initialLength = initialThreads?.length || 0;
-    const currentLength = threads?.length || 0;
-
-    // Skip update if threads grew in size compared to initial
-    if (currentLength > initialLength) return
-
-    // Skip if arrays have same length and same IDs in same order
-    if (isEqual(initialThreads, threads)) return
-    if (!currentLength && !initialLength) return
-
-    console.log('threads', threads)
-    console.log('initialThreads', initialThreads)
-
-    setState({
-      threads: initialThreads || hookThreads,
-      count: initialThreads?.length,
-      totalThreads: initialThreads?.length,
-    })
-  }
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should run only once when the initial threads change
-  useEffect(() => {
-    updateThreads()
-  }, [selectedChatbots, selectedCategories, activeCategory, activeChatbot])
+  const { count, totalThreads } = state
 
   const fetchBrowseThreads = async () => {
     try {
@@ -182,7 +156,7 @@ export default function UserThreadPanel({
     const newThreads = await getThreads({
       jwt: session?.user?.hasuraJwt,
       userId: session?.user.id,
-      limit: PAGE_SM_SIZE,
+      limit: PAGE_SIZE,
       categoryId: activeCategory,
       chatbotName: activeChatbot?.name,
     })
@@ -224,6 +198,8 @@ export default function UserThreadPanel({
     }
   }, [continuousThreadId, session])
 
+  const threads = state.threads || initialThreads
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should run only when the active category or chatbot changes
   useEffect(() => {
     // Skip if popup is open
@@ -232,8 +208,8 @@ export default function UserThreadPanel({
     const shouldFetch =
       activeCategory ||
       activeChatbot ||
-      (prevCategoryRef.current && !activeCategory) ||
-      (prevChatbotRef.current && !activeChatbot) ||
+      !isEqual(prevCategoryRef.current, activeCategory) ||
+      !isEqual(prevChatbotRef.current, activeChatbot) ||
       pathname !== prevPathRef.current // Add pathname check
 
     // Update refs
@@ -261,30 +237,32 @@ export default function UserThreadPanel({
       ? 'No threads available in the selected category'
       : 'Start a conversation to create your first thread'
   const showNoResults = !loading && searchTerm && threads.length === 0
-  const showChatbotDetails = !loading && !searchTerm && threads.length === 0
+  const showChatbotDetails = !loading && !searchTerm && !threads.length
 
   return (
-    <Suspense fallback={(
-      <div className="flex flex-col gap-10 w-full">
-        <Skeleton className="w-[280px] h-[20px]" />
-
-        <NoResults isLoading={true} />
-      </div>
-    )}>
-      <div className="flex flex-col gap-1 h-[calc(100%-9.688rem)] px-4 py-5 lg:px-10">
-        {!isContinuousThread && (
-          <div className="flex justify-between px-4 md:px-10 py-5 lg:max-w-full">
-            <ChatSearchInput setThreads={setState} onSearch={setSearchTerm} />
-          </div>
+    <>
+      {(!isContinuousThread || page !== 'profile') && (
+        <div className="flex justify-between px-4 md:px-10 py-5 lg:max-w-full">
+          <ChatSearchInput setThreads={setState} onSearch={setSearchTerm} />
+        </div>
+      )}
+      <ul className={cn(
+        'flex flex-col w-full h-full gap-3 pb-5 px-4 lg:px-10',
+        {
+          'items-center justify-center': showNoResults || showChatbotDetails,
+        }
+      )}>
+        {showChatbotDetails ? (
+          <ChatChatbotDetails />
+        ) : (
+          <ThreadList
+            threads={threads}
+            loading={loading}
+            count={count}
+            pageSize={PAGE_SM_SIZE}
+            loadMore={loadMore}
+          />
         )}
-        {loading && <NoResults isLoading={true} />}
-        <ThreadList
-          threads={threads}
-          loading={loading}
-          count={count}
-          pageSize={PAGE_SM_SIZE}
-          loadMore={loadMore}
-        />
         {showNoResults && (
           <NoResults
             searchTerm={searchTerm}
@@ -292,10 +270,7 @@ export default function UserThreadPanel({
             customMessage={customMessage}
           />
         )}
-        {showChatbotDetails && (
-          <ChatChatbotDetails />
-        )}
-      </div>
-    </Suspense>
+      </ul>
+    </>
   )
 }
