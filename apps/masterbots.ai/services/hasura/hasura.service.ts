@@ -221,12 +221,12 @@ export async function getThread({ threadId, jwt }: Partial<GetThreadParams>) {
   const { thread } = await client.query({
     thread: {
       chatbot: {
-        ...everything,
+        __scalar: true,
         categories: {
           category: {
-            ...everything
+            __scalar: true,
           },
-          ...everything
+          __scalar: true,
         },
         threads: {
           threadId: true
@@ -245,7 +245,7 @@ export async function getThread({ threadId, jwt }: Partial<GetThreadParams>) {
         slug: true
       },
       messages: {
-        ...everything,
+        __scalar: true,
         __args: {
           orderBy: [{ createdAt: 'ASC' }]
         }

@@ -31,6 +31,7 @@ import ChatChatbotDetails from '@/components/routes/chat/chat-chatbot-details'
 import { ChatSearchInput } from '@/components/routes/chat/chat-search-input'
 import ThreadList from '@/components/routes/thread/thread-list'
 import { NoResults } from '@/components/shared/no-results-card'
+import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeletons'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
@@ -42,7 +43,6 @@ import { useParams, usePathname, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useAsync } from 'react-use'
 import BrowseListItem from '../browse/browse-list-item'
-import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeletons'
 
 const PAGE_SIZE = 20
 
@@ -243,7 +243,7 @@ export default function UserThreadPanel({
       ) : threads && threads.length > 0 ? (
         <>
           {page === 'profile' ? (
-             <div className="flex flex-col  py-5 ">
+            <div className="flex flex-col  py-5 ">
               {threads.map((thread: Thread) => (
                 <BrowseListItem
                   thread={thread}

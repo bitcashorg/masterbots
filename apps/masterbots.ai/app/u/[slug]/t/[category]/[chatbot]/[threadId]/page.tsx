@@ -1,6 +1,7 @@
-import { BrowseChatMessageList } from '@/components/routes/browse/browse-chat-message-list'
+import { BrowseThreadBlog } from '@/components/routes/browse/browse-thread-blog'
 import { getThread } from '@/services/hasura'
-import type { User } from 'mb-genql'
+import { User } from 'mb-genql'
+import { getServerSession } from 'next-auth'
 
 interface ThreadPageProps {
   params: {
@@ -14,18 +15,14 @@ export default async function ThreadPage({ params }: ThreadPageProps) {
     threadId: params.threadId,
     jwt: ''
   })
+  const session = await getServerSession()
 
-  if(!thread){
+  if (!thread) {
     return <div>Thread not found</div>
   }
-  const { user, chatbot, messages } = thread
+  const { threadId } = thread
 
   return (
-    <BrowseChatMessageList
-        user={user as User | undefined}
-        chatbot={chatbot}
-        messages={messages}
-        isThread
-      />
+    <BrowseThreadBlog threadId={threadId} user={session?.user as unknown as User} />
   )
 }

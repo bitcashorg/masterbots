@@ -28,15 +28,15 @@ import { Button } from '@/components/ui/button'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { useThreadSearch } from '@/lib/hooks/use-thread-search'
 import { searchThreadContent } from '@/lib/search'
+import { urlBuilders } from '@/lib/url'
 import { cn, sleep } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
 import type { Message, Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import Image from 'next/image'
 import { useParams, useRouter } from 'next/navigation'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { ChatOptions } from '../chat/chat-options'
-import { urlBuilders } from '@/lib/url'
 
 
 let initialUrl: string | null = null
@@ -63,7 +63,7 @@ export default function BrowseListItem({
   const [isAccordionOpen, setIsAccordionOpen] = React.useState(false)
   const [isVisible, setIsVisible] = React.useState(true)
   const params = useParams()
-  
+
 
   const { tab } = useBrowse()
 
@@ -104,7 +104,7 @@ export default function BrowseListItem({
     return () => {
       observer.disconnect()
     }
-  }, [isLast, hasMore, loading, loadMore])
+  }, [isLast, hasMore, loading])
 
   const fetchMessages = async () => {
     const messages = await getMessages({ threadId: thread.threadId })
@@ -113,7 +113,7 @@ export default function BrowseListItem({
 
 
   const updateUrlN = () => {
-    if(pageType === 'profile') {
+    if (pageType === 'profile') {
       const slug = params.slug
       const category = thread?.chatbot?.categories[0]?.category?.name
       const chatbot = thread?.chatbot?.name;
@@ -124,15 +124,15 @@ export default function BrowseListItem({
         chatbot,
         threadId: thread?.threadId
       })
-      
+
       // Update just the URL without triggering navigation
       window.history.replaceState(
         window.history.state,
         '',
         url.toString()
       )
-      
-    }else{
+
+    } else {
       window.history.pushState(
         {},
         '',
@@ -146,20 +146,20 @@ export default function BrowseListItem({
       setMessages(_prev => [])
       await fetchMessages()
       updateUrlN()
-    // When toggling accordion, it should scroll
-    // Use optional chaining to ensure scrollIntoView is called only if current is not null
-    await sleep(300) // animation time
-    threadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    setIsAccordionOpen(isOpen)
-  }else{
-    window.history.replaceState(
-     {},
-      '',
-      initialUrl
-    )
+      // When toggling accordion, it should scroll
+      // Use optional chaining to ensure scrollIntoView is called only if current is not null
+      await sleep(300) // animation time
+      threadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      setIsAccordionOpen(isOpen)
+    } else {
+      window.history.replaceState(
+        {},
+        '',
+        initialUrl
+      )
+    }
   }
-}
- 
+
   const goToBotPage = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()

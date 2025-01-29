@@ -13,13 +13,13 @@
  * - threadId: The ID of the thread to fetch messages for.
  * - user: Optional user object associated with the messages.
  */
-import type { Message, User } from 'mb-genql'
-import React from 'react'
-import { format } from 'date-fns'
+import { ThreadBlogMarkDown } from '@/components/shared/thread-blog-markdown'
 import { getMessages } from '@/services/hasura'
+import { format } from 'date-fns'
+import type { Message, User } from 'mb-genql'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ThreadBlogMarkDown } from '@/components/shared/thread-blog-markdown'
+import React from 'react'
 export function BrowseThreadBlog({
   threadId,
   user
@@ -37,14 +37,14 @@ export function BrowseThreadBlog({
   const fetchMessages = async () => {
     setIsLoading(true)
     try {
-    if (threadId && !messages.length) {
-      const messages = await getMessages({ threadId: threadId })
-      setMessages(messages)
-    }
+      if (threadId && !messages.length) {
+        const messages = await getMessages({ threadId: threadId })
+        setMessages(messages)
+      }
     } catch (err) {
       throw new Error('Failed to fetch messages')
     } finally {
-        setIsLoading(false)
+      setIsLoading(false)
     }
   }
 
@@ -62,66 +62,66 @@ export function BrowseThreadBlog({
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 ">
+    <div className="max-w-4xl mx-auto p-6">
       {isLoading && <div>Loading...</div>}
       {!isLoading && messages && (
         <>
-      <div className="space-y-8">
-        {messages.map((message, index) => {
-          const isUser = message.role === 'user'
+          <div className="space-t-8">
+            {messages.map((message, index) => {
+              const isUser = message.role === 'user'
 
-          return (
-            <article
-              key={message.messageId}
-              className={`${index !== messages.length - 1 ? ' pb-5' : ''}`}
-            >
-              {/* User Questions as Headers */}
-              {isUser && index === 0 && (
-                <header>
-                  <h1 className="text-3xl font-bold ">{message.content}</h1>
+              return (
+                <article
+                  key={message.messageId}
+                  className={`${index !== messages.length - 1 ? ' pb-5' : ''}`}
+                >
+                  {/* User Questions as Headers */}
+                  {isUser && index === 0 && (
+                    <header>
+                      <h1 className="text-3xl font-bold ">{message.content}</h1>
 
-                  <span className="text-sm text-gray-500">
-                    {countWords()} minutes reading
-                  </span>
-                </header>
-              )}
+                      <span className="text-sm text-gray-500">
+                        {countWords()} minutes reading
+                      </span>
+                    </header>
+                  )}
 
-              {isUser && index != 0 && (
-                <header>
-                  <h3 className="text-xl font-bold ">{message.content}</h3>
-                </header>
-              )}
+                  {isUser && index != 0 && (
+                    <header>
+                      <h3 className="text-xl font-bold ">{message.content}</h3>
+                    </header>
+                  )}
 
-              {/* Assistant Responses with Formatting */}
-              {!isUser && (
-                <div className="max-w-none">
-                  <ThreadBlogMarkDown content={message.content} />
-                </div>
-              )}
-            </article>
-          )
-        })}
-      </div>
+                  {/* Assistant Responses with Formatting */}
+                  {!isUser && (
+                    <div className="max-w-none">
+                      <ThreadBlogMarkDown content={message.content} />
+                    </div>
+                  )}
+                </article>
+              )
+            })}
+          </div>
 
-      {/* Thread Footer */}
-      <footer className="mt-12 pt-6 flex flex-col justify-end items-end space-y-2">
-        <div className="flex items-center space-x-2">
-          <span>created by</span>
-          <Link href={`/u/${user?.slug}/t`} target="_blank">
-            <Image
-              src={userprofile}
-              alt={username}
-              width={40}
-              height={40}
-              className="rounded-full"
-            />
-          </Link>
-        </div>
-        <div>
-          <span>{format(new Date(), 'MMMM dd, yyyy')}</span>
-        </div>
-      </footer>
-      </>
+          {/* Thread Footer */}
+          <footer className="mt-12 pt-6 flex flex-col justify-end items-end space-y-2">
+            <div className="flex items-center space-x-2">
+              <span>created by</span>
+              <Link href={`/u/${user?.slug}/t`} target="_blank">
+                <Image
+                  src={userprofile}
+                  alt={username}
+                  width={40}
+                  height={40}
+                  className="rounded-full"
+                />
+              </Link>
+            </div>
+            <div>
+              <span>{format(new Date(), 'MMMM dd, yyyy')}</span>
+            </div>
+          </footer>
+        </>
       )}
     </div>
   )
