@@ -2,6 +2,7 @@ import { authOptions } from "@/auth";
 import { ChatChatbot } from "@/components/routes/chat/chat-chatbot";
 import ThreadPanel from "@/components/routes/thread/thread-panel";
 import { botNames } from "@/lib/constants/bots-names";
+import { PAGE_SM_SIZE } from "@/lib/constants/hasura";
 import { generateMetadataFromSEO } from "@/lib/metadata";
 import { getChatbot, getThreads } from "@/services/hasura";
 import { isTokenExpired } from "mb-lib";
@@ -14,7 +15,7 @@ export default async function BotThreadsPage({
   searchParams,
 }: {
   params: { category: string; chatbot: string };
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }) {
   const session = await getServerSession(authOptions);
   // NOTE: maybe we should use same expiration time
@@ -25,6 +26,7 @@ export default async function BotThreadsPage({
   if (isTokenExpired(jwt as string)) {
     redirect(`/auth/signin`);
   }
+
   const chatbotName = (await botNames).get(params.chatbot);
   if (!chatbotName) {
     throw new Error(`Chatbot name for ${params.chatbot} not found`);
@@ -40,15 +42,14 @@ export default async function BotThreadsPage({
   if (!userId) {
     throw new Error("User ID is missing.");
   }
-  const threads = await getThreads({ chatbotName, jwt: jwt as string, userId });
+
+  const threads = await getThreads({ chatbotName, jwt: jwt as string, userId, limit: PAGE_SM_SIZE });
 
   return (
     <>
       <ThreadPanel
         threads={threads}
-        chatbot={chatbot.name}
-        search={searchParams}
-      />{" "}
+      />
       <ChatChatbot chatbot={chatbot} />
     </>
   );

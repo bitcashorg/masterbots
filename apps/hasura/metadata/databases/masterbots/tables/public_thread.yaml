@@ -33,6 +33,8 @@ insert_permissions:
   - role: moderator
     permission:
       check: {}
+      set:
+        user_id: x-hasura-user-Id
       columns:
         - chatbot_id
         - created_at
@@ -49,7 +51,7 @@ insert_permissions:
     permission:
       check: {}
       set:
-        user_id: x-hasura-User-Id
+        user_id: x-hasura-user-Id
       columns:
         - chatbot_id
         - created_at
