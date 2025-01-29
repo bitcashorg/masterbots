@@ -42,9 +42,9 @@ export default async function BotThreadsPage({
   if (!userId) {
     throw new Error("User ID is missing.");
   }
-  console.log('chatbotName', chatbotName)
+
   const threads = await getThreads({ chatbotName, jwt: jwt as string, userId, limit: PAGE_SM_SIZE });
-  console.log("threads in chatbot page", threads)
+
   return (
     <>
       <ThreadPanel

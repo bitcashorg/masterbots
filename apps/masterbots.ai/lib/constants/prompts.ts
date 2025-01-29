@@ -136,8 +136,9 @@ export function UserPersonalityPrompt(userPromptType: string, allMessages: Messa
 }
 
 export function finalIndicationPrompt() {
-  return `
-  Provide high-quality answers to my questions, followed by one UNIQUE, LESSER-KNOWN solution. Your UNIQUE insights are crucial to my lifelong quest for knowledge. Please take a deep breath and think step-by-step.`
+  return ''
+  // return `
+  // Provide high-quality answers to my questions, followed by one UNIQUE, LESSER-KNOWN solution. Your UNIQUE insights are crucial to my lifelong quest for knowledge. Please take a deep breath and think step-by-step.`
 }
 
 export function examplesPrompt(chatbotMetadata: ChatbotMetadataExamples) {

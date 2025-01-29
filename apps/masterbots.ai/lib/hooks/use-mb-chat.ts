@@ -73,14 +73,11 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
   const params = useParams<{ chatbot: string; threadId: string }>()
   const { selectedModel, clientType } = useModel()
 
-  const chatbotSystemPrompts: AiMessage[] = formatSystemPrompts(
-    (activeThread?.chatbot ?? (activeChatbot as Chatbot) ?? chatbotProps)?.prompts,
-  )
-
-  const userPreferencesPrompts: AiMessage[] = activeThread
-    ? [setDefaultUserPreferencesPrompt(activeThread.chatbot)]
+  const chatbotData = activeThread?.chatbot ?? (activeChatbot as Chatbot) ?? chatbotProps
+  const chatbotSystemPrompts: AiMessage[] = formatSystemPrompts(chatbotData?.prompts)
+  const userPreferencesPrompts: AiMessage[] = chatbotData
+    ? [setDefaultUserPreferencesPrompt(chatbotData)]
     : []
-
   // format all user prompts and chatgpt 'assistant' messages
   const userAndAssistantMessages: AiMessage[] = activeThread
     ? messagesFromDB.map((m) => ({
@@ -90,7 +87,6 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
         createdAt: m.createdAt,
       }))
     : []
-
   // concatenate all message to pass it to chat component
   const initialMessages: AiMessage[] = chatbotSystemPrompts
     .concat(userPreferencesPrompts)

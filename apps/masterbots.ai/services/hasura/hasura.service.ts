@@ -51,11 +51,16 @@ export async function getCategories(userId?: string) {
             followerId: true,
             followeeIdChatbot: true,
           },
-          ...everything,
+          __scalar: true,
+          prompts: {
+            prompt: {
+              __scalar: true,
+            },
+          }
         },
-        ...everything,
+        __scalar: true,
       },
-      ...everything,
+      __scalar: true,
       __args: {
         where: userId
           ? {
