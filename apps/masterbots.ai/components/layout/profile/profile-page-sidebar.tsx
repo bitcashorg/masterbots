@@ -45,7 +45,7 @@ export const ProfileSidebar = ({ children }: any) => {
       {/* Overlay for mobile */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/20 z-30 lg:hidden"
+          className="fixed inset-0 z-30 lg:hidden"
           onClick={() => toggleSidebar()}
           role="button"
           tabIndex={0}
