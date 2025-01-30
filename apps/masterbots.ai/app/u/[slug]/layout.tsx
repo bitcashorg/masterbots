@@ -13,7 +13,7 @@ export default async function ProfilePageLayout({ children }: ProfileLayoutProps
       <NextTopLoader color="#1ED761" initialPosition={0.2} />
       <Hero />
       <ProfileSidebar>
-        <div className="px-4 md:px-10">
+        <div className="px-4 md:px-10 h-full">
           {children}
         </div>
         <div className="sticky bottom-0 w-full left-0 z-50  dark:bg-black bg-white">
