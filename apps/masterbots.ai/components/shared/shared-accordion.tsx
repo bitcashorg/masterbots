@@ -237,7 +237,7 @@ export function SharedAccordion({
         onClick={handleClick}
         disabled={shouldBeDisabled}
         className={cn(
-          'flex flex-1 justify-start flex-col relative',
+          'flex flex-1 mt-2 justify-start flex-col relative',
           'transition-all ease-in-out duration-200',
           'border-transparent border font-medium w-full',
           !isNestedThread && 'hover:rounded-t-[8px]',
@@ -266,7 +266,7 @@ export function SharedAccordion({
               }
             : {})}
           className={cn(
-            'absolute -right-2 !top-1 size-4 shrink-0 mr-4 transition-transform duration-200',
+            'absolute -right-2 size-4 shrink-0 mr-4 transition-transform duration-200',
             open ? '' : '-rotate-90',
             arrowClass,
             disabled && 'hidden'
