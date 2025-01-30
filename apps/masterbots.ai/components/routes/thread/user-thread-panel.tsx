@@ -240,7 +240,7 @@ export default function UserThreadPanel({
       : 'Start a conversation to create your first thread'
   const showNoResults = !loading && searchTerm && threads.length === 0
   const showChatbotDetails = !loading && !searchTerm && !threads.length
-  console.log('page', page)
+
   return (
     <>
       {(page !== 'profile' || (page !== 'profile' && !isContinuousThread)) && (
