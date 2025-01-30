@@ -117,7 +117,7 @@ export function ThreadPopup({ className }: { className?: string }) {
                 messages={allMessages}
                 sendMessageFn={sendMessageFromResponse}
                 chatbot={activeThread?.chatbot || (activeChatbot as Chatbot)}
-                chatContentClass="dark:!border-x-mirage !border-x-gray-300 !py-[20px] !px-[16px] !mx-0 max-h-[none]"
+                chatContentClass="!border-x-gray-300 !px-[16px] !mx-0 max-h-[none] dark:!border-x-mirage"
                 className="max-w-full !px-[32px] !mx-0"
                 chatArrowClass="!right-0 !mr-0"
                 chatTitleClass="!px-[11px]"
