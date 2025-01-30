@@ -29,7 +29,7 @@ import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { cn } from '@/lib/utils'
 import type { Message } from 'ai'
 import type { Chatbot } from 'mb-genql'
-import type { ExtraProps } from 'react-markdown'
+import type ExtraProps from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 
@@ -49,13 +49,13 @@ export function BrowseChatMessage({ message, chatbot, ...props }: ChatMessagePro
           remarkPlugins={[remarkGfm, remarkMath]}
           components={{
             p({ children }) {
-              return <p className="mb-2 last:mb-0 whitespace-pre-line">{children}</p>
+              return <p className="mb-2 whitespace-pre-line last:mb-0">{children}</p>
             },
             ol({ children }) {
-              return <ol className="list-decimal list-inside text-left">{children}</ol>
+              return <ol className="text-left list-decimal list-inside">{children}</ol>
             },
             ul({ children }) {
-              return <ul className="list-disc list-inside text-left">{children}</ul>
+              return <ul className="text-left list-disc list-inside">{children}</ul>
             },
             // @ts-ignore
             code({ node, inline = false, className, children, ...props }: React.HTMLAttributes<HTMLElement> & ExtraProps & { node: unknown, inline?: boolean }) {
