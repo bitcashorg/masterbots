@@ -39,7 +39,9 @@ export const ProfileSidebar = ({ children }: any) => {
   }
 
   return (
-    <div className="relative w-full flex">
+    <div className={cn(
+      'transition-all relative w-full flex',
+    )}>
       {/* Overlay for mobile */}
       {isSidebarOpen && (
         <div
@@ -57,12 +59,12 @@ export const ProfileSidebar = ({ children }: any) => {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed lg:relative z-40 top-10 md:top-0 transition-transform duration-300 ease-in-out",
+          "lg:relative z-40 top-10 md:top-0 transition-transform duration-300 ease-in-out",
           "w-64 bg-gray-50 dark:bg-black border-r",
           "lg:transform-none lg:transition-none",
           isSidebarOpen
-            ? "translate-x-0"
-            : "-translate-x-full lg:translate-x-0"
+            ? 'translate-x-0 w-[300px]'
+            : '-translate-x-[300px] lg:translate-x-0 w-0'
         )}
       >
         <nav className="flex-1 scrollbar">

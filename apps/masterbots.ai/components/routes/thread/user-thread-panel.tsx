@@ -240,10 +240,10 @@ export default function UserThreadPanel({
       : 'Start a conversation to create your first thread'
   const showNoResults = !loading && searchTerm && threads.length === 0
   const showChatbotDetails = !loading && !searchTerm && !threads.length
-
+  console.log('page', page)
   return (
     <>
-      {(!isContinuousThread || page !== 'profile') && (
+      {(page !== 'profile' || (page !== 'profile' && !isContinuousThread)) && (
         <div className="flex justify-between px-4 md:px-10 py-5 lg:max-w-full">
           <ChatSearchInput setThreads={setState} onSearch={setSearchTerm} />
         </div>
@@ -259,7 +259,7 @@ export default function UserThreadPanel({
         ) : (
           <>
             {page === 'profile' ? (
-              <div className="flex flex-col  py-5 ">
+              <div className="flex flex-col py-5">
                 {threads.map((thread: Thread) => (
                   <BrowseListItem
                     thread={thread}
@@ -274,15 +274,13 @@ export default function UserThreadPanel({
                 {loading && <ThreadItemSkeleton />}
               </div>
             ) : (
-              <div className="flex px-4 py-5 md:px-10">
-                <ThreadList
-                  threads={threads}
-                  loading={loading}
-                  count={count}
-                  pageSize={PAGE_SIZE}
-                  loadMore={loadMore}
-                />
-              </div>
+              <ThreadList
+                threads={threads}
+                loading={loading}
+                count={count}
+                pageSize={PAGE_SIZE}
+                loadMore={loadMore}
+              />
             )}
           </>
         )}
