@@ -23,12 +23,9 @@ interface SharedAccordionProps {
   isNestedThread?: boolean
 }
 
-// Helper function to handle body scroll for mobile
 const toggleBodyScroll = (disable: boolean) => {
   if (typeof window === 'undefined') return
-
   document.body.style.overflow = disable ? 'hidden' : 'auto'
-  // Prevent iOS Safari bouncing
   document.body.style.position = disable ? 'fixed' : 'static'
   document.body.style.width = disable ? '100%' : 'auto'
 }
@@ -221,14 +218,14 @@ export function SharedAccordion({
       id={`thread-${thread?.threadId}`}
       {...props}
     >
-      {/* Glow effects for browse variant */}
+      {/* Glow effects for browse variant
       {variant === 'browse' && !isNestedThread && open && (
         <>
           <div className="absolute inset-0 -m-4 rounded-xl blur-xl bg-gradient-to-r dark:from-[#83E56A]/10 dark:via-[#83E56A]/15 dark:to-[#83E56A]/10 from-[#BE17E8]/15 via-[#BE17E8]/20 to-[#BE17E8]/15 animate-pulse" />
           <div className="absolute inset-0 -m-1 rounded-xl opacity-50 bg-gradient-to-r dark:from-[#83E56A]/10 dark:to-[#83E56A]/15 from-[#BE17E8]/10 to-[#BE17E8]/15" />
           <div className="absolute inset-0 border rounded-xl dark:border-[#83E56A]/10 border-[#BE17E8]/10" />
         </>
-      )}
+      )} */}
 
       {/* Accordion trigger button */}
       {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
@@ -239,11 +236,20 @@ export function SharedAccordion({
         className={cn(
           'flex flex-1 mt-2 justify-start flex-col relative',
           'transition-all ease-in-out duration-200',
-          'border-transparent border font-medium w-full',
-          !isNestedThread && 'hover:rounded-t-[8px]',
+          'border-transparent border font-medium w-full rounded-lg',
+          // Base background color for all states
+          'bg-gray-200/90 dark:bg-gray-800/90',
+          // Closed state hover effect
+          !open && 'hover:bg-gray-100 dark:hover:bg-gray-700',
+          // Open state specific styles - maintain background color
+          open && [
+            'bg-gray-200/90 dark:bg-gray-800/90',
+            'hover:bg-gray-100 dark:hover:bg-gray-700'
+          ],
+          !isNestedThread && 'hover:rounded-t-lg',
           !isNestedThread &&
             open &&
-            'dark:border-b-mirage border-b-gray-300 dark:bg-[#18181B]/95 bg-white/95 rounded-t-lg shadow-lg transform-gpu backdrop-blur-sm',
+            'dark:border-b-mirage border-b-gray-300 shadow-lg transform-gpu backdrop-blur-sm',
           !isNestedThread &&
             !open &&
             'dark:hover:border-b-mirage hover:border-b-gray-300 [&>div>div>button]:!hidden',
@@ -266,7 +272,7 @@ export function SharedAccordion({
               }
             : {})}
           className={cn(
-            'absolute -right-2 size-4 shrink-0 mr-4 transition-transform duration-200',
+            'absolute size-4 left-[57.5rem] shrink-0 mr-8 transition-transform duration-200',
             open ? '' : '-rotate-90',
             arrowClass,
             disabled && 'hidden'
