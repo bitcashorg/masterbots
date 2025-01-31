@@ -22,6 +22,7 @@ select_permissions:
         - chatbot_id
         - domain_name
       filter: {}
+      allow_aggregations: true
     comment: ""
   - role: user
     permission:
@@ -29,4 +30,5 @@ select_permissions:
         - chatbot_id
         - domain_name
       filter: {}
+      allow_aggregations: true
     comment: ""
