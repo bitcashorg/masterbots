@@ -6,4 +6,4 @@ CREATE TABLE IF NOT EXISTS "public"."chatbot_domain" (
   FOREIGN KEY ("chatbot_id") REFERENCES "public"."chatbot"("chatbot_id") ON UPDATE restrict ON DELETE restrict
 );
 
-COMMENT ON TABLE "public"."chatbot_domain" IS E 'Junction table to track domains and chatbots relationships.';
+COMMENT ON TABLE "public"."chatbot_domain" IS 'Junction table to track domains and chatbots relationships.';
