@@ -2,13 +2,6 @@ table:
   name: user
   schema: public
 array_relationships:
-  - name: chats
-    using:
-      foreign_key_constraint_on:
-        column: added_by
-        table:
-          name: chat
-          schema: public
   - name: followers
     using:
       foreign_key_constraint_on:

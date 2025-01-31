@@ -12,9 +12,9 @@ array_relationships:
   - name: label_chatbot_category_domains
     using:
       foreign_key_constraint_on:
-        column: domain_id
+        column: domain_name
         table:
-          name: label_chatbot_category_domain
+          name: chatbot_domain
           schema: public
   - name: tag_enums
     using:
