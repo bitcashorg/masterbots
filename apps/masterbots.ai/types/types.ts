@@ -137,7 +137,7 @@ export const initialStateSubscription = {
 
 // * AI SDK related types
 
-export type GetChatbotMetadataLabels = {
+export type getChatbotMetadata = {
   domain: string
   category: string
   subCategory: string
