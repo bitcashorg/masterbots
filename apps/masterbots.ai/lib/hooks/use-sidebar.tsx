@@ -170,6 +170,14 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
     }
   }, [pathname, categories])
 
+
+  /**
+   * Toggles the selection of a chatbot by its ID. If the chatbot is already selected, it will be removed from the selection.
+   * Otherwise, it will be added to the selection. Additionally, updates the selected categories based on the chatbots
+   * associated with each category.
+   *
+   * @param {number} chatbotId - The ID of the chatbot to toggle selection for.
+   */
   const toggleChatbotSelection = React.useCallback((chatbotId: number) => {
     setSelectedChatbots((prev) =>
       prev.includes(chatbotId) ? prev.filter((id) => id !== chatbotId) : [...prev, chatbotId],
