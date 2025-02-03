@@ -13,8 +13,7 @@ import { getMessages } from '@/services/hasura'
 import type { Message, Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import Image from 'next/image'
-import { useParams } from 'next/navigation'
-import { useRouter } from 'next/router'
+import { useParams, useRouter } from 'next/navigation'
 import React from 'react'
 
 let initialUrl: string | null = null
