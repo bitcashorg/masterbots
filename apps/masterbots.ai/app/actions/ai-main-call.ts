@@ -1,7 +1,7 @@
 'use server'
 
 import { AIModels } from '@/app/api/chat/models/models'
-import { deepseek } from '@ai-sdk/deepseek';
+import { deepseek } from '@ai-sdk/deepseek'
 
 import {
   createChatbotMetadataPrompt,
@@ -40,7 +40,7 @@ const initializeDeepSeek = (apiKey: string) => {
   if (!apiKey) {
     throw new Error('DEEPSEEK_API_KEY is not defined in environment variables')
   }
-  return deepseek;
+  return deepseek
 }
 
 const initializeAnthropic = createAnthropic({
@@ -107,7 +107,7 @@ export async function getChatbotMetadataLabels(
     }
   }
 
-  const prompt = createChatbotMetadataPrompt(metadataHeaders, chatbotMetadata, userPrompt)
+  const prompt = createChatbotMetadataPrompt(chatbotMetadata, userPrompt)
   const response = await classifyQuestion({ prompt, clientType, chatbotMetadata })
 
   console.log('prompt, response --> ', prompt)
@@ -294,7 +294,7 @@ export async function createResponseStream(
           model: deepseekModel,
           messages: coreMessages,
           temperature: 0.3, // DeepSeek works well with lower temperature for reasoning
-          maxTokens: 2000,  // DeepSeek can handle longer contexts
+          maxTokens: 2000, // DeepSeek can handle longer contexts
           tools,
           maxRetries: 2,
         })
@@ -312,7 +312,7 @@ export async function createResponseStream(
         return 'Failed to process the request'
       },
     })
-    
+
     const responseStream = dataStreamResponse.body as ReadableStream
 
     return new Response(responseStream, {

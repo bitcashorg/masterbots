@@ -171,8 +171,6 @@ export interface ThreadState {
 
 export type ChatbotMetadataHeaders = {
   chatbot: number
-  category: number
-  domain: number
 }
 
 export type ChatbotMetadata = {

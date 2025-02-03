@@ -3,11 +3,7 @@
 
 import { getAllUserMessagesAsStringArray } from '@/lib/threads'
 import { nanoid } from '@/lib/utils'
-import type {
-  ChatbotMetadata,
-  ChatbotMetadataExamples,
-  ChatbotMetadataHeaders,
-} from '@/types/types'
+import type { ChatbotMetadata, ChatbotMetadataExamples } from '@/types/types'
 import type { Message } from 'ai'
 import type { Chatbot } from 'mb-genql'
 
@@ -40,7 +36,6 @@ export function createImprovementPrompt(content: string): string {
 
 // * This function creates the prompt for the AI chatbot metadata subtraction process
 export function createChatbotMetadataPrompt(
-  metadataHeaders: ChatbotMetadataHeaders,
   chatbotMetadata: ChatbotMetadata,
   userPrompt: string,
 ): string {
