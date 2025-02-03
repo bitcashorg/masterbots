@@ -1,4 +1,3 @@
-import { BrowseCategoryTabs } from '@/components/routes/browse/browse-category-tabs'
 import BrowseList from '@/components/routes/browse/browse-list'
 import { BrowseSearchInput } from '@/components/routes/browse/browse-search-input'
 import { generateMetadataFromSEO } from '@/lib/metadata'
@@ -11,8 +10,6 @@ export default async function BrowseCategoryPage({
 }: {
   params: { category: string }
 }) {
-  const categories = await getCategories()
-
   return (
     <div className="w-full max-w-screen-lg pb-10 mx-auto">
       {/* <BrowseCategoryTabs

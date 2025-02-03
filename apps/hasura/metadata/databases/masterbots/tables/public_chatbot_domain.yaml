@@ -1,38 +1,34 @@
 table:
-  name: label_chatbot_category
+  name: chatbot_domain
   schema: public
 object_relationships:
-  - name: category
-    using:
-      foreign_key_constraint_on: category_id
   - name: chatbot
     using:
       foreign_key_constraint_on: chatbot_id
-  - name: label
+  - name: domain
     using:
-      foreign_key_constraint_on: label_id
+      foreign_key_constraint_on: domain_name
 select_permissions:
   - role: anonymous
     permission:
       columns:
-        - category_id
         - chatbot_id
-        - label_id
+        - domain_name
       filter: {}
     comment: ""
   - role: moderator
     permission:
       columns:
-        - category_id
         - chatbot_id
-        - label_id
+        - domain_name
       filter: {}
+      allow_aggregations: true
     comment: ""
   - role: user
     permission:
       columns:
-        - category_id
         - chatbot_id
-        - label_id
+        - domain_name
       filter: {}
+      allow_aggregations: true
     comment: ""

@@ -211,7 +211,7 @@ export function ChatLoadingState() {
               ))}
             </span>
             <b className="text-xs">
-              Searching for &quot;{activeTool.args.query}&quot;
+              Searching for &quot;{activeTool.args.query as string}&quot;
             </b>
           </p>
         </div>

@@ -4,7 +4,6 @@ import { AIModels } from '@/app/api/chat/models/models'
 import { deepseek } from '@ai-sdk/deepseek';
 
 import {
-  type GetChatbotMetadataLabels,
   createChatbotMetadataPrompt,
   createImprovementPrompt,
   setDefaultPrompt,
@@ -23,6 +22,7 @@ import type {
   ChatbotMetadataHeaders,
   ClassifyQuestionParams,
   CleanPromptResult,
+  GetChatbotMetadataLabels,
   JSONResponseStream,
 } from '@/types/types'
 import { createAnthropic } from '@ai-sdk/anthropic'
@@ -254,18 +254,18 @@ export async function createResponseStream(
         break
       }
       case 'Anthropic': {
-        // const anthropicModel = initializeAnthropic(model, {
-        //   cacheControl: true,
-        // })
-        // const coreMessages = convertToCoreMessages(messages as OpenAI.ChatCompletionMessageParam[])
-        // response = await streamText({
-        //   model: anthropicModel,
-        //   messages: coreMessages,
-        //   temperature: 0.3,
-        //   maxTokens: 300,
-        //   tools,
-        //   maxRetries: 2,
-        // })
+        const anthropicModel = initializeAnthropic(model, {
+          cacheControl: true,
+        })
+        const coreMessages = convertToCoreMessages(messages as OpenAI.ChatCompletionMessageParam[])
+        response = await streamText({
+          model: anthropicModel,
+          messages: coreMessages,
+          temperature: 0.3,
+          maxTokens: 300,
+          tools,
+          maxRetries: 2,
+        })
         break
       }
       case 'Perplexity': {

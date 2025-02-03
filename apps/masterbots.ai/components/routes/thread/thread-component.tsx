@@ -1,25 +1,25 @@
 'use client'
 
-import { SharedAccordion } from '@/components/shared/shared-accordion'
+import { AdminModeApprove } from '@/components/routes/chat/admin-mode-approve'
 import { ChatList } from '@/components/routes/chat/chat-list'
+import { ChatOptions } from '@/components/routes/chat/chat-options'
 import { ChatbotAvatar } from '@/components/shared/chatbot-avatar'
+import { SharedAccordion } from '@/components/shared/shared-accordion'
 import { ShortMessage } from '@/components/shared/short-message'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useScroll } from '@/lib/hooks/use-scroll'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
+import { cn } from '@/lib/utils'
 import type { Thread } from 'mb-genql'
 import { useRef } from 'react'
-import { AdminModeApprove } from '../chat/admin-mode-approve'
-import { ChatOptions } from '../chat/chat-options'
-import { cn } from '@/lib/utils'
 
 export default function ThreadComponent({
   thread,
   loadMore,
   loading,
   isLast,
-  hasMore
+  hasMore,
 }: {
   thread: Thread
   loadMore: () => void
@@ -39,7 +39,7 @@ export default function ThreadComponent({
     hasMore,
     isLast,
     loading,
-    loadMore
+    loadMore,
   })
 
   const threadId = thread.threadId
@@ -54,17 +54,15 @@ export default function ThreadComponent({
       <SharedAccordion
         onToggle={handleAccordionToggle}
         className="relative"
-        contentClass={cn(
-          "!pt-0 !border-b-[3px] max-h-[70vh] scrollbar !border-l-[3px]"
-        )}
+        contentClass={cn('!pt-0 !border-b-[3px] max-h-[70vh] scrollbar !border-l-[3px]')}
         triggerClass={cn(
-          "gap-1.5 py-3",
-          "dark:border-b-mirage border-b-iron",
-          "sticky top-0 z-[1] dark:hover:bg-mirage hover:bg-gray-300",
-          "dark:bg-[#18181b] bg-[#f4f4f5]",
-          "[&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage",
-          "[&[data-state=open]]:rounded-t-[8px]",
-          "[&[data-state=closed]>div>span>span]:line-clamp-2"
+          'gap-1.5 py-3',
+          'dark:border-b-mirage border-b-iron',
+          'sticky top-0 z-[1] dark:hover:bg-mirage hover:bg-gray-300',
+          'dark:bg-[#18181b] bg-[#f4f4f5]',
+          '[&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage',
+          '[&[data-state=open]]:rounded-t-[8px]',
+          '[&[data-state=closed]>div>span>span]:line-clamp-2',
         )}
         arrowClass="size-5 top-[calc(33.33%-1.25rem)] bottom-0 transform translate-y-[100%]"
         thread={thread}
@@ -75,41 +73,30 @@ export default function ThreadComponent({
           <span className="inline-flex items-center gap-3 text-left">
             <ChatbotAvatar thread={thread} />
             <span className="whitespace-pre-line">
-              {thread.messages
-                .filter(m => m.role === 'user')[0]
-                ?.content || (
-                  <Skeleton className="w-[280px] h-[20px]" />
-                )}
+              {thread.messages.filter((m) => m.role === 'user')[0]?.content || (
+                <Skeleton className="w-[280px] h-[20px]" />
+              )}
             </span>
           </span>
           {/* Thread Options */}
           <div className="pl-2 pr-4 sm:pl-4 sm:pr-8">
-            <ChatOptions
-              threadId={thread.threadId}
-              thread={thread}
-              isBrowse
-            />
+            <ChatOptions threadId={thread.threadId} thread={thread} isBrowse />
           </div>
         </div>
 
         {/* Thread Description */}
         <div className="overflow-hidden text-sm text-left opacity-50">
-          {thread.messages.filter(m => m.role !== 'user')?.[0]?.content ? (
+          {thread.messages.filter((m) => m.role !== 'user')?.[0]?.content ? (
             <div className="flex-1 px-[8px] pb-3 space-y-2 overflow-hidden">
-              <ShortMessage
-                content={
-                  thread.messages.filter(m => m.role !== 'user')[0].content
-                }
-              />
+              <ShortMessage content={thread.messages.filter((m) => m.role !== 'user')[0].content} />
             </div>
-          ) : ''}
+          ) : (
+            ''
+          )}
         </div>
 
         {/* Thread Content */}
-        <div
-          ref={contentRef}
-          className="overflow-y-auto max-h-[calc(70vh-100px)]"
-        >
+        <div ref={contentRef} className="overflow-y-auto max-h-[calc(70vh-100px)]">
           <ChatList
             className="max-w-full !px-0"
             isThread={false}
@@ -119,11 +106,9 @@ export default function ThreadComponent({
           />
         </div>
       </SharedAccordion>
-      
+
       {/* Admin Mode Approve */}
-      {isAdminMode && !thread.isApproved && (
-        <AdminModeApprove threadId={threadId} />
-      )}
+      {isAdminMode && !thread.isApproved && <AdminModeApprove threadId={threadId} />}
     </li>
   )
 }

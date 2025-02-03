@@ -33,6 +33,8 @@ insert_permissions:
   - role: moderator
     permission:
       check: {}
+      set:
+        user_id: x-hasura-user-Id
       columns:
         - chatbot_id
         - created_at
@@ -49,7 +51,7 @@ insert_permissions:
     permission:
       check: {}
       set:
-        user_id: x-hasura-User-Id
+        user_id: x-hasura-user-Id
       columns:
         - chatbot_id
         - created_at
@@ -114,9 +116,16 @@ update_permissions:
   - role: moderator
     permission:
       columns:
+        - chatbot_id
+        - created_at
         - is_approved
         - is_blocked
         - is_public
+        - model
+        - parent_thread_id
+        - thread_id
+        - updated_at
+        - user_id
       filter: {}
       check: {}
     comment: Allows moderators to approve or block any thread

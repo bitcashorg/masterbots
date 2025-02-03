@@ -12,14 +12,18 @@ export function ShortMessage({ content }: { content: string }) {
         p({ children }) {
           return <p className="mb-2 last:mb-0 whitespace-pre-line">{children}</p>
         },
+        // @ts-ignore
         code({ node, inline, className, children, ...props }) {
+          // @ts-ignore
           if (children.length) {
-            if (children[0] == '▍') {
+            // @ts-ignore
+            if (children[0] === '▍') {
               return (
                 <span className="mt-1 cursor-default animate-pulse">▍</span>
               )
             }
 
+            // @ts-ignore
             children[0] = (children[0] as string).replace('`▍`', '▍')
           }
 
@@ -36,7 +40,7 @@ export function ShortMessage({ content }: { content: string }) {
           return (
             <CodeBlock
               key={Math.random()}
-              language={(match && match[1]) || ''}
+              language={match?.[1] || ''}
               value={String(children).replace(/\n$/, '')}
               {...props}
             />

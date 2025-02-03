@@ -22,6 +22,7 @@
  */
 
 import ThreadComponent from '@/components/routes/thread/thread-component'
+import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeletons'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import type { Thread } from 'mb-genql'
 
@@ -38,7 +39,7 @@ export default function ThreadList({
   pageSize: number
   loadMore: () => void
 }) {
-  const { selectedCategories, selectedChatbots } = useSidebar()
+  const { selectedCategories, selectedChatbots, activeCategory, activeChatbot } = useSidebar()
 
   const filteredThreads = threads.filter(
     thread =>
@@ -49,21 +50,28 @@ export default function ThreadList({
           )) ||
         (selectedChatbots.length &&
           !selectedChatbots.includes(thread.chatbotId))
+      ) || (
+        (activeCategory && thread.chatbot.categories.some(({ categoryId }) => activeCategory === categoryId)) ||
+        (activeChatbot && thread.chatbot.chatbotId === activeChatbot.chatbotId)
       )
   )
 
   return (
-    <ul className="flex flex-col w-full gap-3">
-      {filteredThreads?.map((thread, key) => (
-        <ThreadComponent
-          key={key}
-          thread={thread}
-          loading={loading}
-          loadMore={loadMore}
-          hasMore={count === pageSize}
-          isLast={key === threads.length - 1}
-        />
-      ))}
-    </ul>
+    <>
+      {loading
+        ? Array.from({ length: 5 }).map((_, key) => (
+          <ThreadItemSkeleton key={`thread-skeleton-${key}`} />
+        ))
+        : filteredThreads?.map((thread, key) => (
+          <ThreadComponent
+            key={thread.threadId}
+            thread={thread}
+            loading={loading}
+            loadMore={loadMore}
+            hasMore={count === pageSize}
+            isLast={key === threads.length - 1}
+          />
+        ))}
+    </>
   )
 }

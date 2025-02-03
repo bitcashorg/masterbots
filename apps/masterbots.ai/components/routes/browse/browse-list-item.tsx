@@ -1,20 +1,21 @@
-import { SharedAccordion } from '@/components/shared/shared-accordion'
 import { BrowseChatMessageList } from '@/components/routes/browse/browse-chat-message-list'
+import { ChatOptions } from '@/components/routes/chat/chat-options'
 import { ChatbotAvatar } from '@/components/shared/chatbot-avatar'
+import { SharedAccordion } from '@/components/shared/shared-accordion'
 import { ShortMessage } from '@/components/shared/short-message'
 import { Button } from '@/components/ui/button'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { useThreadSearch } from '@/lib/hooks/use-thread-search'
 import { searchThreadContent } from '@/lib/search'
+import { urlBuilders } from '@/lib/url'
 import { cn, sleep } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
 import type { Message, Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
+import { useRouter } from 'next/router'
 import React from 'react'
-import { ChatOptions } from '../chat/chat-options'
-import { urlBuilders } from '@/lib/url'
 
 let initialUrl: string | null = null
 
@@ -39,6 +40,9 @@ export default function BrowseListItem({
   const { searchTerm } = useThreadSearch()
   const [isAccordionOpen, setIsAccordionOpen] = React.useState(false)
   const [isVisible, setIsVisible] = React.useState(true)
+  const params = useParams()
+
+
   const { tab } = useBrowse()
 
   React.useEffect(() => {
@@ -71,27 +75,64 @@ export default function BrowseListItem({
         observer.unobserve(entry.target)
       }
     })
-
     observer.observe(threadRef.current)
-    return () => observer.disconnect()
-  }, [isLast, hasMore, loading, loadMore])
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [isLast, hasMore, loading])
 
   const fetchMessages = async () => {
     const messages = await getMessages({ threadId: thread.threadId })
     setMessages(_prev => messages)
   }
 
-  const handleAccordionToggle = async (isOpen: boolean) => {
-    if (isOpen) {
+
+  const updateUrlN = () => {
+    if (pageType === 'profile') {
+      const slug = params.slug
+      const category = thread?.chatbot?.categories[0]?.category?.name
+      const chatbot = thread?.chatbot?.name;
+      const url = new URL(window.location.href)
+      url.pathname = urlBuilders.threadUrl({
+        slug: slug as string,
+        category,
+        chatbot,
+        threadId: thread?.threadId
+      })
+
+      // Update just the URL without triggering navigation
+      window.history.replaceState(
+        window.history.state,
+        '',
+        url.toString()
+      )
+
+    } else {
       window.history.pushState(
         {},
         '',
         `/${toSlug(thread.chatbot.categories[0].category.name)}/${thread.threadId}`
       )
+    }
+  }
+
+  const handleAccordionToggle = async (isOpen: boolean) => {
+    if (isOpen) {
       setMessages(_prev => [])
       await fetchMessages()
+      updateUrlN()
+      // When toggling accordion, it should scroll
+      // Use optional chaining to ensure scrollIntoView is called only if current is not null
+      await sleep(300) // animation time
+      threadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      setIsAccordionOpen(isOpen)
     } else {
-      window.history.pushState({}, '', initialUrl)
+      window.history.replaceState(
+        {},
+        '',
+        initialUrl
+      )
     }
     await sleep(300)
     threadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -149,7 +190,8 @@ export default function BrowseListItem({
                 {thread.messages?.[0]?.content}
               </div>
 
-              {pageType !== 'user' && (
+              {/* User section with tighter spacing on mobile */}
+              {pageType !== 'user' && pageType !== 'profile' && (
                 <div className="flex items-center gap-1 ml-2 sm:gap-3 sm:ml-4">
                   <span className="hidden text-sm opacity-50 sm:inline"> by </span>
                   <Button
@@ -174,13 +216,12 @@ export default function BrowseListItem({
               <ChatOptions
                 threadId={thread.threadId}
                 thread={thread}
-                isBrowse
+                isBrowse={pageType !== 'profile'}
               />
             </div>
           </div>
         </div>
 
-        {/* Thread Description */}
         <div className="overflow-hidden text-sm text-left opacity-50">
           {thread.messages?.[1]?.content && thread.messages?.[1]?.role !== 'user' ? (
             <div className="flex-1 space-y-2 overflow-hidden">

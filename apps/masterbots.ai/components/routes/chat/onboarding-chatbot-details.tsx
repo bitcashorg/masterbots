@@ -1,24 +1,29 @@
 'use client'
 
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { ArrowBigLeft, ArrowBigDown, Bot } from 'lucide-react'
-import { cn, isFollowed, getRouteType } from '@/lib/utils'
+import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useThread } from '@/lib/hooks/use-thread'
+import { cn, getRouteType } from '@/lib/utils'
 import type { ChatbotDetailsProps } from '@/types/types'
+import {
+  ArrowBigDown,
+  ArrowBigLeft,
+  Bot
+} from 'lucide-react'
 import Image from 'next/image'
-import { useSession } from 'next-auth/react'
 import { usePathname } from 'next/navigation'
 
 export function OnboardingChatbotDetails({
-  botName,
-  avatar = '',
-  description,
   isWelcomeView = true,
   followers
 }: ChatbotDetailsProps) {
-  const { data: session } = useSession()
-  const followed = isFollowed({ followers, userId: session?.user?.id || '' })
-  const pathname = usePathname()
-  const routeType = getRouteType(pathname)
+  const routeType = getRouteType(usePathname())
+  const { activeChatbot } = useSidebar()
+  const { randomChatbot } = useThread()
+
+  const botName = (activeChatbot?.name || randomChatbot?.name)
+  const avatar = (activeChatbot?.avatar || randomChatbot?.avatar || '')
+  const description = (activeChatbot?.description || randomChatbot?.description)
 
   return (
     <div

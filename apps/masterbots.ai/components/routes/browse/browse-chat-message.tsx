@@ -29,6 +29,7 @@ import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { cn } from '@/lib/utils'
 import type { Message } from 'ai'
 import type { Chatbot } from 'mb-genql'
+import type ExtraProps from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 
@@ -48,20 +49,24 @@ export function BrowseChatMessage({ message, chatbot, ...props }: ChatMessagePro
           remarkPlugins={[remarkGfm, remarkMath]}
           components={{
             p({ children }) {
-              return <p className="mb-2 last:mb-0 whitespace-pre-line">{children}</p>
+              return <p className="mb-2 whitespace-pre-line last:mb-0">{children}</p>
             },
             ol({ children }) {
-              return <ol className="list-decimal list-inside text-left">{children}</ol>
+              return <ol className="text-left list-decimal list-inside">{children}</ol>
             },
             ul({ children }) {
-              return <ul className="list-disc list-inside text-left">{children}</ul>
+              return <ul className="text-left list-disc list-inside">{children}</ul>
             },
-            code({ node, inline, className, children, ...props }) {
+            // @ts-ignore
+            code({ node, inline = false, className, children, ...props }: React.HTMLAttributes<HTMLElement> & ExtraProps & { node: unknown, inline?: boolean }) {
+              // @ts-ignore
               if (children.length) {
-                if (children[0] == '▍') {
+                // @ts-ignore
+                if (children[0] === '▍') {
                   return <span className="mt-1 cursor-default animate-pulse">▍</span>
                 }
 
+                // @ts-ignore
                 children[0] = (children[0] as string).replace('`▍`', '▍')
               }
 
@@ -78,7 +83,7 @@ export function BrowseChatMessage({ message, chatbot, ...props }: ChatMessagePro
               return (
                 <CodeBlock
                   key={Math.random()}
-                  language={(match && match[1]) || ''}
+                  language={match?.[1] || ''}
                   value={String(children).replace(/\n$/, '')}
                   {...props}
                 />

@@ -144,13 +144,17 @@ export function ChatMessage({
                 </a>
               )
             },
+            // @ts-ignore
             code({ inline, className, children, ...props }) {
+              // @ts-ignore
               if (children.length) {
-                if (children[0] == '▍') {
+                // @ts-ignore
+                if (children[0] === '▍') {
                   return (
                     <span className="mt-1 cursor-default animate-pulse">▍</span>
                   )
                 }
+                // @ts-ignore
                 children[0] = (children[0] as string).replace('▍', '▍')
               }
 
@@ -167,7 +171,7 @@ export function ChatMessage({
               return (
                 <CodeBlock
                   key={Math.random()}
-                  language={(match && match[1]) || ''}
+                  language={match?.[1] || ''}
                   value={String(children).replace(/\n$/, '')}
                   {...props}
                 />

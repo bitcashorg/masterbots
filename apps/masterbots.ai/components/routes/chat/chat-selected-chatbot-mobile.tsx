@@ -1,24 +1,26 @@
 import { Card, CardFooter, CardHeader } from '@/components/ui/card'
+import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useThread } from '@/lib/hooks/use-thread'
 import { cn, getRouteType } from '@/lib/utils'
-import { Bot, ArrowBigDown } from 'lucide-react'
+import { ArrowBigDown, Bot } from 'lucide-react'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 
 interface SelectedBotMobileViewProps {
-  botName: string
-  description: string
-  avatar: string
   onNewChat: () => void
 }
 
 export function SelectedBotMobileView({
-  botName,
-  description,
-  avatar,
   onNewChat
 }: SelectedBotMobileViewProps) {
   const pathname = usePathname()
   const routeType = getRouteType(pathname)
+  const { activeChatbot } = useSidebar()
+  const { randomChatbot } = useThread()
+
+  const botName = (activeChatbot?.name || randomChatbot?.name)
+  const avatar = (activeChatbot?.avatar || randomChatbot?.avatar || '')
+  const description = (activeChatbot?.description || randomChatbot?.description)
 
   return (
     <div

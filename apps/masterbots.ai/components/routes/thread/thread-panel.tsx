@@ -17,14 +17,16 @@
 
 import UserThreadPanel from '@/components/routes/thread/user-thread-panel'
 import type { Thread } from 'mb-genql'
+import { Suspense } from 'react'
 
 export default function ThreadPanel({
-  chatbot,
   threads,
 }: {
-  chatbot?: string
   threads?: Thread[]
-  search?: { [key: string]: string | string[] | undefined }
 }) {
-  return <UserThreadPanel chatbot={chatbot} threads={threads} showSearch />
+  return (
+    <Suspense fallback={null}>
+      <UserThreadPanel threads={threads} showSearch />
+    </Suspense>
+  )
 }

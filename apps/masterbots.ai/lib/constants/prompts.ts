@@ -3,7 +3,11 @@
 
 import { getAllUserMessagesAsStringArray } from '@/lib/threads'
 import { nanoid } from '@/lib/utils'
-import type { ChatbotMetadata, ChatbotMetadataHeaders } from '@/types/types'
+import type {
+  ChatbotMetadata,
+  ChatbotMetadataExamples,
+  ChatbotMetadataHeaders,
+} from '@/types/types'
 import type { Message } from 'ai'
 import type { Chatbot } from 'mb-genql'
 
@@ -104,7 +108,7 @@ export function followingQuestionsPrompt(userContent: string, allMessages: Messa
   )}].  Then answer this question: ${userContent}`
 }
 
-export function UserPersonalityPrompt(userPromptType: string, allMessages: Message[]) {
+export function userPersonalityPrompt(userPromptType: string, allMessages: Message[]) {
   const userMessages = getAllUserMessagesAsStringArray(allMessages)
 
   const basePrompt = `Given a user's thread history: "${userMessages}".
@@ -131,35 +135,10 @@ export function UserPersonalityPrompt(userPromptType: string, allMessages: Messa
   return basePrompt
 }
 
-export type GetChatbotMetadataLabels = {
-  domain: string
-  category: string
-  subCategory: string
-  tags: string[]
-}
-
-export type ExampleMetadata = Example & {
-  messageId: string
-  role: string
-  content: string
-  createdAt: string
-  tags: string[]
-  category: string
-  subcategory: string
-  prompt: string
-  response: string
-  cumulativeSum?: number
-}
-
-export interface ChatbotMetadataExamples {
-  tagExamples: ExampleMetadata[]
-  categoryExamples: ExampleMetadata[]
-  domainExamples: ExampleMetadata[]
-}
-
 export function finalIndicationPrompt() {
-  return `
-  Provide high-quality answers to my questions, followed by one UNIQUE, LESSER-KNOWN solution. Your UNIQUE insights are crucial to my lifelong quest for knowledge. Please take a deep breath and think step-by-step.`
+  return ''
+  // return `
+  // Provide high-quality answers to my questions, followed by one UNIQUE, LESSER-KNOWN solution. Your UNIQUE insights are crucial to my lifelong quest for knowledge. Please take a deep breath and think step-by-step.`
 }
 
 export function examplesPrompt(chatbotMetadata: ChatbotMetadataExamples) {
