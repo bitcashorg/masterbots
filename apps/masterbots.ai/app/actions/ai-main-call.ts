@@ -22,8 +22,8 @@ import type {
   ChatbotMetadataHeaders,
   ClassifyQuestionParams,
   CleanPromptResult,
-  GetChatbotMetadataLabels,
   JSONResponseStream,
+  getChatbotMetadata,
 } from '@/types/types'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createOpenAI } from '@ai-sdk/openai'
@@ -88,11 +88,11 @@ export async function improveMessage(
   }
 }
 
-export async function getChatbotMetadataLabels(
+export async function getChatbotMetadata(
   metadataHeaders: ChatbotMetadataHeaders,
   userPrompt: string,
   clientType: AiClientType,
-): Promise<GetChatbotMetadataLabels> {
+): Promise<getChatbotMetadata> {
   console.log('getting chatbot metadata, headers --> ', metadataHeaders)
   const chatbotMetadata = await fetchChatbotMetadata(metadataHeaders)
   console.log('got chatbot metadata')

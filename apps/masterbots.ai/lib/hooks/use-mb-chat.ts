@@ -1,4 +1,4 @@
-import { getChatbotMetadataLabels, improveMessage } from '@/app/actions'
+import { getChatbotMetadata, improveMessage } from '@/app/actions'
 import { formatSystemPrompts } from '@/lib/actions'
 import {
   examplesPrompt,
@@ -25,10 +25,9 @@ import type {
   AiToolCall,
   ChatbotMetadataExamples,
   ExampleMetadata,
-  GetChatbotMetadataLabels,
 } from '@/types/types'
 import type { Message as AiMessage, ChatRequestOptions, CreateMessage } from 'ai'
-import { useChat, UseChatOptions } from 'ai/react'
+import { type UseChatOptions, useChat } from 'ai/react'
 import { uniqBy } from 'lodash'
 import type { Chatbot, Message, Thread } from 'mb-genql'
 
@@ -125,7 +124,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       model: selectedModel,
       clientType,
       webSearch,
-    }
+    },
   }
   const { input, messages, isLoading, stop, append, reload, setInput, setMessages } = useChat({
     ...useChatConfig,
@@ -325,7 +324,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
   }
 
   const getMetadataLabels = async (): Promise<ChatbotMetadataExamples> => {
-    let chatMetadata: GetChatbotMetadataLabels | undefined
+    let chatMetadata: getChatbotMetadata | undefined
     const defaultMetadata: ChatbotMetadataExamples = {
       tagExamples: [],
       categoryExamples: [],
@@ -340,7 +339,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
         return defaultMetadata
       }
 
-      chatMetadata = await getChatbotMetadataLabels(
+      chatMetadata = await getChatbotMetadata(
         {
           // ! domain should have a relationship to the chatbot... currently isn't...
           domain: chatbot?.categories[0].categoryId as number,
@@ -350,7 +349,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
         userContentRef.current,
         clientType as AiClientType,
       )
-      console.log('Full responses from getChatbotMetadataLabels:', chatMetadata)
+      console.log('Full responses from getChatbotMetadata:', chatMetadata)
 
       // * Loading: Polishing Ai request... 'polishing'
       setLoadingState('polishing')
