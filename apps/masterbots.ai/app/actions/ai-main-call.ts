@@ -1,6 +1,8 @@
 'use server'
 
 import { AIModels } from '@/app/api/chat/models/models'
+import { deepseek } from '@ai-sdk/deepseek';
+
 import {
   createChatbotMetadataPrompt,
   createImprovementPrompt,
@@ -33,6 +35,13 @@ const initializeOpenAi = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
   compatibility: 'strict',
 })
+
+const initializeDeepSeek = (apiKey: string) => {
+  if (!apiKey) {
+    throw new Error('DEEPSEEK_API_KEY is not defined in environment variables')
+  }
+  return deepseek;
+}
 
 const initializeAnthropic = createAnthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -275,18 +284,35 @@ export async function createResponseStream(
         })
         break
       }
+      case 'DeepSeek': {
+        const deepseekModel = initializeDeepSeek(
+          previewToken || (process.env.DEEPSEEK_API_KEY as string),
+        )(model)
+
+        const coreMessages = convertToCoreMessages(messages as OpenAI.ChatCompletionMessageParam[])
+        response = await streamText({
+          model: deepseekModel,
+          messages: coreMessages,
+          temperature: 0.3, // DeepSeek works well with lower temperature for reasoning
+          maxTokens: 2000,  // DeepSeek can handle longer contexts
+          tools,
+          maxRetries: 2,
+        })
+        break
+      }
       default:
         throw new Error('Unsupported client type')
     }
 
     // @ts-ignore
     const dataStreamResponse = response.toDataStreamResponse({
+      sendReasoning: clientType === 'DeepSeek', // Enable reasoning output for DeepSeek
       getErrorMessage(error) {
-        // * Here we can customize the error message and/or grab any special error to either retry, stop or activate another AI flow
         if (error instanceof Error) return error.message
         return 'Failed to process the request'
       },
     })
+    
     const responseStream = dataStreamResponse.body as ReadableStream
 
     return new Response(responseStream, {

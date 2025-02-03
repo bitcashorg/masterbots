@@ -19,10 +19,13 @@ export function getModelClientType(model: AIModels) {
       return 'Perplexity'
     case AIModels.WordWare:
       return 'WordWare'
+    case AIModels.DeepSeekR1:
+      return 'DeepSeek'  // Add this case
     default:
       throw new Error('Unsupported model specified')
   }
 }
+
 
 // * This function creates the payload for the AI response
 export function createPayload(
@@ -60,16 +63,30 @@ export function setStreamerPayload(
       return payload
     case 'Anthropic':
       return payload.map(
-        (message, index) =>
-          ({
-            role: index
-              ? message.role.replace('system', 'assistant')
-              : message.role.replace('system', 'user'),
-            content: message.content,
-          }) as Anthropic.MessageParam,
+        (message, index) => ({
+          role: index
+            ? message.role.replace('system', 'assistant')
+            : message.role.replace('system', 'user'),
+          content: message.content,
+        }) as Anthropic.MessageParam,
       )
-    case 'OpenAI':
-    case 'Perplexity':
+      case 'DeepSeek':
+        return payload.map(message => {
+          if (message.role === 'assistant') {
+            const content = message.content as string;
+            // Extract any existing reasoning if present
+            const reasoningMatch = content.match(/<think>(.*?)<\/think>/s);
+            const answerMatch = content.match(/<answer>(.*?)<\/answer>/s);
+            
+            return {
+              ...message,
+              // If content already has think/answer tags, use those, otherwise add reasoning field
+              content: answerMatch ? content : `<answer>${content}</answer>`,
+              reasoning: reasoningMatch ? reasoningMatch[1] : '<think>Analyzing the context and formulating a response...</think>'
+            };
+          }
+          return message;
+        })
     default:
       return payload
   }
