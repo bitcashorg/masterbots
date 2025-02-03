@@ -5,7 +5,7 @@ import type { aiTools } from '@/lib/helpers/ai-schemas'
 import type { WordWareDescribeDAtaResponse } from '@/types/wordware-flows.types'
 import axios from 'axios'
 import type { z } from 'zod'
-import { getChatbotMetadataLabels } from '.'
+import { getChatbotMetadata } from '.'
 
 const { WORDWARE_API_KEY } = process.env
 
@@ -20,10 +20,8 @@ export async function getChatbotMetadataTool({
   })
 
   try {
-    const chatbotMetadata = await getChatbotMetadataLabels(
+    const chatbotMetadata = await getChatbotMetadata(
       {
-        domain: chatbot.domainId,
-        category: chatbot.categoryId,
         chatbot: chatbot.chatbotId,
       },
       userContent,
