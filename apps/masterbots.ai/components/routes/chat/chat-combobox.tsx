@@ -9,7 +9,8 @@ import {
   IconOpenAI,
   IconClaude,
   IconLlama,
-  IconWordware
+  IconWordware,
+  IconDeepSeek
 } from '@/components/ui/icons'
 import { cn } from '@/lib/utils'
 import {
@@ -36,7 +37,8 @@ const models = [
   { label: 'Claude3', value: AIModels.Claude3, logo: <IconClaude /> },
   { label: 'llama3_8', value: AIModels.llama3_8b, logo: <IconLlama /> },
   { label: 'llama3_7', value: AIModels.llama3_7b, logo: <IconLlama /> },
-  { label: 'WordWare', value: AIModels.WordWare, logo: <IconWordware /> }
+  { label: 'WordWare', value: AIModels.WordWare, logo: <IconWordware /> },
+  { label: 'DeepSeek R1', value: AIModels.DeepSeekR1, logo: <IconDeepSeek /> }
 ]
 
 //* ChatCombobox provides a popover for AI model selection and triggers model change based on user choice.

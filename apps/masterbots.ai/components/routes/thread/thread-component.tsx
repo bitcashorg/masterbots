@@ -1,51 +1,25 @@
 'use client'
 
-/**
- * ThreadComponent
- *
- * A comprehensive thread display component that provides:
- * - Expandable/collapsible thread view with accordion
- * - Thread title, description, and full message history
- * - Infinite scroll functionality for message loading
- * - Admin approval capabilities
- * - Thread options (share, delete, etc.)
- *
- * Key Features:
- * - Accordion-based thread expansion
- * - Automatic scroll management
- * - Infinite scroll with load more functionality
- * - Message preview in collapsed state
- * - Admin mode controls for thread approval
- * - Thread options menu
- *
- * Structure:
- * - Thread Header: Avatar + Title + Options
- * - Thread Description: Preview of first assistant message
- * - Thread Content: Full message history in ChatList
- * - Admin Controls: Approval button for unapproved threads
- *
- * Note: Handles both regular and admin view states with
- * different controls and capabilities
- */
-
-import { ChatAccordion } from '@/components/routes/chat/chat-accordion'
+import { AdminModeApprove } from '@/components/routes/chat/admin-mode-approve'
 import { ChatList } from '@/components/routes/chat/chat-list'
+import { ChatOptions } from '@/components/routes/chat/chat-options'
 import { ChatbotAvatar } from '@/components/shared/chatbot-avatar'
+import { SharedAccordion } from '@/components/shared/shared-accordion'
 import { ShortMessage } from '@/components/shared/short-message'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useScroll } from '@/lib/hooks/use-scroll'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
+import { cn } from '@/lib/utils'
 import type { Thread } from 'mb-genql'
 import { useRef } from 'react'
-import { AdminModeApprove } from '../chat/admin-mode-approve'
-import { ChatOptions } from '../chat/chat-options'
+
 export default function ThreadComponent({
   thread,
   loadMore,
   loading,
   isLast,
-  hasMore
+  hasMore,
 }: {
   thread: Thread
   loadMore: () => void
@@ -65,61 +39,56 @@ export default function ThreadComponent({
     hasMore,
     isLast,
     loading,
-    loadMore
+    loadMore,
   })
 
   const threadId = thread.threadId
-  const handleAccordionToggle = () => {
-    scrollToTop()
+  const handleAccordionToggle = (isOpen: boolean) => {
+    if (isOpen) {
+      scrollToTop()
+    }
   }
+
   return (
     <li ref={threadRef}>
-      <ChatAccordion
+      <SharedAccordion
         onToggle={handleAccordionToggle}
         className="relative"
-        contentClass="!pt-0 max-h-[70vh] scrollbar"
-        triggerClass="dark:hover:bg-mirage hover:bg-gray-300 pl-[8px]
-        py-3 flex flex-col gap-[6px] 
-        sticky sm:top-0 top-[55px] z-[1]
-        dark:border-b-mirage border-b-gray-300
-        [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]
-        dark:bg-[#18181b] bg-[#f4f4f5]"
-        arrowClass="size-5 top-[0.25rem] bottom-0 transform translate-y-[100%]"
+        contentClass={cn('!pt-0 !border-b-[3px] max-h-[70vh] scrollbar !border-l-[3px]')}
+        triggerClass={cn(
+          'gap-1.5 py-3',
+          'dark:border-b-mirage border-b-iron',
+          'sticky top-0 z-[1] dark:hover:bg-mirage hover:bg-gray-300',
+          'dark:bg-[#18181b] bg-[#f4f4f5]',
+          '[&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage',
+          '[&[data-state=open]]:rounded-t-[8px]',
+          '[&[data-state=closed]>div>span>span]:line-clamp-2',
+        )}
+        arrowClass="size-5 top-[calc(33.33%-1.25rem)] bottom-0 transform translate-y-[100%]"
         thread={thread}
+        variant="browse"
       >
         {/* Thread Title */}
         <div className="px-[11px] flex justify-between items-center w-full gap-3">
           <span className="inline-flex items-center gap-3 text-left">
             <ChatbotAvatar thread={thread} />
-
             <span className="whitespace-pre-line">
-              {/* TODO: Fix UI to truncate text when closed (see -> apps/masterbots.ai/components/routes/browse/browse-list-item.tsx) */}
-              {thread.messages
-                .filter(m => m.role === 'user')[0]
-                ?.content || (
-                  <Skeleton className="w-[280px] h-[20px]" />
-                )}
+              {thread.messages.filter((m) => m.role === 'user')[0]?.content || (
+                <Skeleton className="w-[280px] h-[20px]" />
+              )}
             </span>
           </span>
           {/* Thread Options */}
           <div className="pl-2 pr-4 sm:pl-4 sm:pr-8">
-            <ChatOptions
-              threadId={thread.threadId}
-              thread={thread}
-              isBrowse
-            />
+            <ChatOptions threadId={thread.threadId} thread={thread} isBrowse />
           </div>
         </div>
 
         {/* Thread Description */}
         <div className="overflow-hidden text-sm text-left opacity-50">
-          {thread.messages.filter(m => m.role !== 'user')?.[0]?.content ? (
+          {thread.messages.filter((m) => m.role !== 'user')?.[0]?.content ? (
             <div className="flex-1 px-[8px] pb-3 space-y-2 overflow-hidden">
-              <ShortMessage
-                content={
-                  thread.messages.filter(m => m.role !== 'user')[0].content
-                }
-              />
+              <ShortMessage content={thread.messages.filter((m) => m.role !== 'user')[0].content} />
             </div>
           ) : (
             ''
@@ -127,10 +96,7 @@ export default function ThreadComponent({
         </div>
 
         {/* Thread Content */}
-        <div
-          ref={contentRef}
-          className="overflow-y-auto max-h-[calc(70vh-100px)]"
-        >
+        <div ref={contentRef} className="overflow-y-auto max-h-[calc(70vh-100px)]">
           <ChatList
             className="max-w-full !px-0"
             isThread={false}
@@ -138,14 +104,11 @@ export default function ThreadComponent({
             containerRef={contentRef}
             isNearBottom={isNearBottom}
           />
-
         </div>
+      </SharedAccordion>
 
-      </ChatAccordion>
       {/* Admin Mode Approve */}
-      {isAdminMode && !thread.isApproved && (
-        <AdminModeApprove threadId={threadId} />
-      )}
+      {isAdminMode && !thread.isApproved && <AdminModeApprove threadId={threadId} />}
     </li>
   )
 }
