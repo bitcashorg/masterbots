@@ -67,42 +67,6 @@ type Category {
     """filter the rows returned"""
     where: ChatbotCategoryBoolExp
   ): ChatbotCategoryAggregate!
-
-  """An array relationship"""
-  metadataLabels(
-    """distinct select on columns"""
-    distinctOn: [LabelChatbotCategoryDomainSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [LabelChatbotCategoryDomainOrderBy!]
-
-    """filter the rows returned"""
-    where: LabelChatbotCategoryDomainBoolExp
-  ): [LabelChatbotCategoryDomain!]!
-
-  """An aggregate relationship"""
-  metadataLabelsAggregate(
-    """distinct select on columns"""
-    distinctOn: [LabelChatbotCategoryDomainSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [LabelChatbotCategoryDomainOrderBy!]
-
-    """filter the rows returned"""
-    where: LabelChatbotCategoryDomainBoolExp
-  ): LabelChatbotCategoryDomainAggregate!
   name: String!
 }
 
@@ -146,8 +110,6 @@ input CategoryBoolExp {
   categoryId: IntComparisonExp
   chatbots: ChatbotCategoryBoolExp
   chatbotsAggregate: ChatbotCategoryAggregateBoolExp
-  metadataLabels: LabelChatbotCategoryDomainBoolExp
-  metadataLabelsAggregate: LabelChatbotCategoryDomainAggregateBoolExp
   name: StringComparisonExp
 }
 
@@ -483,7 +445,6 @@ input type for inserting data into table "category"
 input CategoryInsertInput {
   categoryId: Int
   chatbots: ChatbotCategoryArrRelInsertInput
-  metadataLabels: LabelChatbotCategoryDomainArrRelInsertInput
   name: String
 }
 
@@ -533,7 +494,6 @@ input CategoryOnConflict {
 input CategoryOrderBy {
   categoryId: OrderBy
   chatbotsAggregate: ChatbotCategoryAggregateOrderBy
-  metadataLabelsAggregate: LabelChatbotCategoryDomainAggregateOrderBy
   name: OrderBy
 }
 
@@ -636,385 +596,6 @@ type CategoryVarianceFields {
 }
 
 """
-Table to store links to GPT chat conversations and associate them with a specific GPT chatbot and the user who added the link.
-"""
-type Chat {
-  addedBy: uuid
-  chatId: Int!
-
-  """An object relationship"""
-  chatbot: Chatbot!
-  chatbotId: Int!
-  conversationLink: String!
-
-  """An object relationship"""
-  user: User
-}
-
-"""
-aggregated selection of "chat"
-"""
-type ChatAggregate {
-  aggregate: ChatAggregateFields
-  nodes: [Chat!]!
-}
-
-input ChatAggregateBoolExp {
-  count: chatAggregateBoolExpCount
-}
-
-"""
-aggregate fields of "chat"
-"""
-type ChatAggregateFields {
-  avg: ChatAvgFields
-  count(columns: [ChatSelectColumn!], distinct: Boolean): Int!
-  max: ChatMaxFields
-  min: ChatMinFields
-  stddev: ChatStddevFields
-  stddevPop: ChatStddevPopFields
-  stddevSamp: ChatStddevSampFields
-  sum: ChatSumFields
-  varPop: ChatVarPopFields
-  varSamp: ChatVarSampFields
-  variance: ChatVarianceFields
-}
-
-"""
-order by aggregate values of table "chat"
-"""
-input ChatAggregateOrderBy {
-  avg: ChatAvgOrderBy
-  count: OrderBy
-  max: ChatMaxOrderBy
-  min: ChatMinOrderBy
-  stddev: ChatStddevOrderBy
-  stddevPop: ChatStddevPopOrderBy
-  stddevSamp: ChatStddevSampOrderBy
-  sum: ChatSumOrderBy
-  varPop: ChatVarPopOrderBy
-  varSamp: ChatVarSampOrderBy
-  variance: ChatVarianceOrderBy
-}
-
-"""
-input type for inserting array relation for remote table "chat"
-"""
-input ChatArrRelInsertInput {
-  data: [ChatInsertInput!]!
-
-  """upsert condition"""
-  onConflict: ChatOnConflict
-}
-
-"""aggregate avg on columns"""
-type ChatAvgFields {
-  chatId: Float
-  chatbotId: Float
-}
-
-"""
-order by avg() on columns of table "chat"
-"""
-input ChatAvgOrderBy {
-  chatId: OrderBy
-  chatbotId: OrderBy
-}
-
-"""
-Boolean expression to filter rows from the table "chat". All fields are combined with a logical 'AND'.
-"""
-input ChatBoolExp {
-  _and: [ChatBoolExp!]
-  _not: ChatBoolExp
-  _or: [ChatBoolExp!]
-  addedBy: UuidComparisonExp
-  chatId: IntComparisonExp
-  chatbot: ChatbotBoolExp
-  chatbotId: IntComparisonExp
-  conversationLink: StringComparisonExp
-  user: UserBoolExp
-}
-
-"""
-unique or primary key constraints on table "chat"
-"""
-enum ChatConstraint {
-  """
-  unique or primary key constraint on columns "conversation_link"
-  """
-  gpt_chat_conversation_link_key
-
-  """
-  unique or primary key constraint on columns "chat_id"
-  """
-  gpt_chat_pkey
-}
-
-"""
-input type for incrementing numeric columns in table "chat"
-"""
-input ChatIncInput {
-  chatId: Int
-  chatbotId: Int
-}
-
-"""
-input type for inserting data into table "chat"
-"""
-input ChatInsertInput {
-  addedBy: uuid
-  chatId: Int
-  chatbot: ChatbotObjRelInsertInput
-  chatbotId: Int
-  conversationLink: String
-  user: UserObjRelInsertInput
-}
-
-"""aggregate max on columns"""
-type ChatMaxFields {
-  addedBy: uuid
-  chatId: Int
-  chatbotId: Int
-  conversationLink: String
-}
-
-"""
-order by max() on columns of table "chat"
-"""
-input ChatMaxOrderBy {
-  addedBy: OrderBy
-  chatId: OrderBy
-  chatbotId: OrderBy
-  conversationLink: OrderBy
-}
-
-"""aggregate min on columns"""
-type ChatMinFields {
-  addedBy: uuid
-  chatId: Int
-  chatbotId: Int
-  conversationLink: String
-}
-
-"""
-order by min() on columns of table "chat"
-"""
-input ChatMinOrderBy {
-  addedBy: OrderBy
-  chatId: OrderBy
-  chatbotId: OrderBy
-  conversationLink: OrderBy
-}
-
-"""
-response of any mutation on the table "chat"
-"""
-type ChatMutationResponse {
-  """number of rows affected by the mutation"""
-  affectedRows: Int!
-
-  """data from the rows affected by the mutation"""
-  returning: [Chat!]!
-}
-
-"""
-on_conflict condition type for table "chat"
-"""
-input ChatOnConflict {
-  constraint: ChatConstraint!
-  updateColumns: [ChatUpdateColumn!]! = []
-  where: ChatBoolExp
-}
-
-"""Ordering options when selecting data from "chat"."""
-input ChatOrderBy {
-  addedBy: OrderBy
-  chatId: OrderBy
-  chatbot: ChatbotOrderBy
-  chatbotId: OrderBy
-  conversationLink: OrderBy
-  user: UserOrderBy
-}
-
-"""primary key columns input for table: chat"""
-input ChatPkColumnsInput {
-  chatId: Int!
-}
-
-"""
-select columns of table "chat"
-"""
-enum ChatSelectColumn {
-  """column name"""
-  addedBy
-
-  """column name"""
-  chatId
-
-  """column name"""
-  chatbotId
-
-  """column name"""
-  conversationLink
-}
-
-"""
-input type for updating data in table "chat"
-"""
-input ChatSetInput {
-  addedBy: uuid
-  chatId: Int
-  chatbotId: Int
-  conversationLink: String
-}
-
-"""aggregate stddev on columns"""
-type ChatStddevFields {
-  chatId: Float
-  chatbotId: Float
-}
-
-"""
-order by stddev() on columns of table "chat"
-"""
-input ChatStddevOrderBy {
-  chatId: OrderBy
-  chatbotId: OrderBy
-}
-
-"""aggregate stddevPop on columns"""
-type ChatStddevPopFields {
-  chatId: Float
-  chatbotId: Float
-}
-
-"""
-order by stddevPop() on columns of table "chat"
-"""
-input ChatStddevPopOrderBy {
-  chatId: OrderBy
-  chatbotId: OrderBy
-}
-
-"""aggregate stddevSamp on columns"""
-type ChatStddevSampFields {
-  chatId: Float
-  chatbotId: Float
-}
-
-"""
-order by stddevSamp() on columns of table "chat"
-"""
-input ChatStddevSampOrderBy {
-  chatId: OrderBy
-  chatbotId: OrderBy
-}
-
-"""
-Streaming cursor of the table "chat"
-"""
-input ChatStreamCursorInput {
-  """Stream column input with initial value"""
-  initialValue: ChatStreamCursorValueInput!
-
-  """cursor ordering"""
-  ordering: CursorOrdering
-}
-
-"""Initial value of the column from where the streaming should start"""
-input ChatStreamCursorValueInput {
-  addedBy: uuid
-  chatId: Int
-  chatbotId: Int
-  conversationLink: String
-}
-
-"""aggregate sum on columns"""
-type ChatSumFields {
-  chatId: Int
-  chatbotId: Int
-}
-
-"""
-order by sum() on columns of table "chat"
-"""
-input ChatSumOrderBy {
-  chatId: OrderBy
-  chatbotId: OrderBy
-}
-
-"""
-update columns of table "chat"
-"""
-enum ChatUpdateColumn {
-  """column name"""
-  addedBy
-
-  """column name"""
-  chatId
-
-  """column name"""
-  chatbotId
-
-  """column name"""
-  conversationLink
-}
-
-input ChatUpdates {
-  """increments the numeric columns with given value of the filtered values"""
-  _inc: ChatIncInput
-
-  """sets the columns of the filtered rows to the given values"""
-  _set: ChatSetInput
-
-  """filter the rows which have to be updated"""
-  where: ChatBoolExp!
-}
-
-"""aggregate varPop on columns"""
-type ChatVarPopFields {
-  chatId: Float
-  chatbotId: Float
-}
-
-"""
-order by varPop() on columns of table "chat"
-"""
-input ChatVarPopOrderBy {
-  chatId: OrderBy
-  chatbotId: OrderBy
-}
-
-"""aggregate varSamp on columns"""
-type ChatVarSampFields {
-  chatId: Float
-  chatbotId: Float
-}
-
-"""
-order by varSamp() on columns of table "chat"
-"""
-input ChatVarSampOrderBy {
-  chatId: OrderBy
-  chatbotId: OrderBy
-}
-
-"""aggregate variance on columns"""
-type ChatVarianceFields {
-  chatId: Float
-  chatbotId: Float
-}
-
-"""
-order by variance() on columns of table "chat"
-"""
-input ChatVarianceOrderBy {
-  chatId: OrderBy
-  chatbotId: OrderBy
-}
-
-"""
 Table storing information about chatbots, their characteristics, and default settings.
 """
 type Chatbot {
@@ -1056,42 +637,6 @@ type Chatbot {
     where: ChatbotCategoryBoolExp
   ): ChatbotCategoryAggregate!
   chatbotId: Int!
-
-  """An array relationship"""
-  chats(
-    """distinct select on columns"""
-    distinctOn: [ChatSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ChatOrderBy!]
-
-    """filter the rows returned"""
-    where: ChatBoolExp
-  ): [Chat!]!
-
-  """An aggregate relationship"""
-  chatsAggregate(
-    """distinct select on columns"""
-    distinctOn: [ChatSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ChatOrderBy!]
-
-    """filter the rows returned"""
-    where: ChatBoolExp
-  ): ChatAggregate!
 
   """An object relationship"""
   complexityEnum: ComplexityEnum
@@ -1142,9 +687,9 @@ type Chatbot {
   lengthEnum: LengthEnum
 
   """An array relationship"""
-  metadataLabels(
+  metadata(
     """distinct select on columns"""
-    distinctOn: [LabelChatbotCategoryDomainSelectColumn!]
+    distinctOn: [ChatbotDomainSelectColumn!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -1153,16 +698,16 @@ type Chatbot {
     offset: Int
 
     """sort the rows by one or more columns"""
-    orderBy: [LabelChatbotCategoryDomainOrderBy!]
+    orderBy: [ChatbotDomainOrderBy!]
 
     """filter the rows returned"""
-    where: LabelChatbotCategoryDomainBoolExp
-  ): [LabelChatbotCategoryDomain!]!
+    where: ChatbotDomainBoolExp
+  ): [ChatbotDomain!]!
 
   """An aggregate relationship"""
-  metadataLabelsAggregate(
+  metadataAggregate(
     """distinct select on columns"""
-    distinctOn: [LabelChatbotCategoryDomainSelectColumn!]
+    distinctOn: [ChatbotDomainSelectColumn!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -1171,11 +716,11 @@ type Chatbot {
     offset: Int
 
     """sort the rows by one or more columns"""
-    orderBy: [LabelChatbotCategoryDomainOrderBy!]
+    orderBy: [ChatbotDomainOrderBy!]
 
     """filter the rows returned"""
-    where: LabelChatbotCategoryDomainBoolExp
-  ): LabelChatbotCategoryDomainAggregate!
+    where: ChatbotDomainBoolExp
+  ): ChatbotDomainAggregate!
   name: String!
 
   """An array relationship"""
@@ -1372,8 +917,6 @@ input ChatbotBoolExp {
   categories: ChatbotCategoryBoolExp
   categoriesAggregate: ChatbotCategoryAggregateBoolExp
   chatbotId: IntComparisonExp
-  chats: ChatBoolExp
-  chatsAggregate: ChatAggregateBoolExp
   complexityEnum: ComplexityEnumBoolExp
   createdBy: StringComparisonExp
   defaultComplexity: StringComparisonExp
@@ -1384,8 +927,8 @@ input ChatbotBoolExp {
   followers: SocialFollowingBoolExp
   followersAggregate: SocialFollowingAggregateBoolExp
   lengthEnum: LengthEnumBoolExp
-  metadataLabels: LabelChatbotCategoryDomainBoolExp
-  metadataLabelsAggregate: LabelChatbotCategoryDomainAggregateBoolExp
+  metadata: ChatbotDomainBoolExp
+  metadataAggregate: ChatbotDomainAggregateBoolExp
   name: StringComparisonExp
   preferences: PreferenceBoolExp
   preferencesAggregate: PreferenceAggregateBoolExp
@@ -1754,6 +1297,329 @@ enum ChatbotConstraint {
   chatbot_pkey
 }
 
+"""Junction table to track domains and chatbots relationships."""
+type ChatbotDomain {
+  """An object relationship"""
+  chatbot: Chatbot!
+  chatbotId: Int!
+
+  """An object relationship"""
+  domain: DomainEnum!
+  domainName: String!
+}
+
+"""
+aggregated selection of "chatbot_domain"
+"""
+type ChatbotDomainAggregate {
+  aggregate: ChatbotDomainAggregateFields
+  nodes: [ChatbotDomain!]!
+}
+
+input ChatbotDomainAggregateBoolExp {
+  count: chatbotDomainAggregateBoolExpCount
+}
+
+"""
+aggregate fields of "chatbot_domain"
+"""
+type ChatbotDomainAggregateFields {
+  avg: ChatbotDomainAvgFields
+  count(columns: [ChatbotDomainSelectColumn!], distinct: Boolean): Int!
+  max: ChatbotDomainMaxFields
+  min: ChatbotDomainMinFields
+  stddev: ChatbotDomainStddevFields
+  stddevPop: ChatbotDomainStddevPopFields
+  stddevSamp: ChatbotDomainStddevSampFields
+  sum: ChatbotDomainSumFields
+  varPop: ChatbotDomainVarPopFields
+  varSamp: ChatbotDomainVarSampFields
+  variance: ChatbotDomainVarianceFields
+}
+
+"""
+order by aggregate values of table "chatbot_domain"
+"""
+input ChatbotDomainAggregateOrderBy {
+  avg: ChatbotDomainAvgOrderBy
+  count: OrderBy
+  max: ChatbotDomainMaxOrderBy
+  min: ChatbotDomainMinOrderBy
+  stddev: ChatbotDomainStddevOrderBy
+  stddevPop: ChatbotDomainStddevPopOrderBy
+  stddevSamp: ChatbotDomainStddevSampOrderBy
+  sum: ChatbotDomainSumOrderBy
+  varPop: ChatbotDomainVarPopOrderBy
+  varSamp: ChatbotDomainVarSampOrderBy
+  variance: ChatbotDomainVarianceOrderBy
+}
+
+"""
+input type for inserting array relation for remote table "chatbot_domain"
+"""
+input ChatbotDomainArrRelInsertInput {
+  data: [ChatbotDomainInsertInput!]!
+
+  """upsert condition"""
+  onConflict: ChatbotDomainOnConflict
+}
+
+"""aggregate avg on columns"""
+type ChatbotDomainAvgFields {
+  chatbotId: Float
+}
+
+"""
+order by avg() on columns of table "chatbot_domain"
+"""
+input ChatbotDomainAvgOrderBy {
+  chatbotId: OrderBy
+}
+
+"""
+Boolean expression to filter rows from the table "chatbot_domain". All fields are combined with a logical 'AND'.
+"""
+input ChatbotDomainBoolExp {
+  _and: [ChatbotDomainBoolExp!]
+  _not: ChatbotDomainBoolExp
+  _or: [ChatbotDomainBoolExp!]
+  chatbot: ChatbotBoolExp
+  chatbotId: IntComparisonExp
+  domain: DomainEnumBoolExp
+  domainName: StringComparisonExp
+}
+
+"""
+unique or primary key constraints on table "chatbot_domain"
+"""
+enum ChatbotDomainConstraint {
+  """
+  unique or primary key constraint on columns "domain_name", "chatbot_id"
+  """
+  chatbot_domain_pkey
+}
+
+"""
+input type for incrementing numeric columns in table "chatbot_domain"
+"""
+input ChatbotDomainIncInput {
+  chatbotId: Int
+}
+
+"""
+input type for inserting data into table "chatbot_domain"
+"""
+input ChatbotDomainInsertInput {
+  chatbot: ChatbotObjRelInsertInput
+  chatbotId: Int
+  domain: DomainEnumObjRelInsertInput
+  domainName: String
+}
+
+"""aggregate max on columns"""
+type ChatbotDomainMaxFields {
+  chatbotId: Int
+  domainName: String
+}
+
+"""
+order by max() on columns of table "chatbot_domain"
+"""
+input ChatbotDomainMaxOrderBy {
+  chatbotId: OrderBy
+  domainName: OrderBy
+}
+
+"""aggregate min on columns"""
+type ChatbotDomainMinFields {
+  chatbotId: Int
+  domainName: String
+}
+
+"""
+order by min() on columns of table "chatbot_domain"
+"""
+input ChatbotDomainMinOrderBy {
+  chatbotId: OrderBy
+  domainName: OrderBy
+}
+
+"""
+response of any mutation on the table "chatbot_domain"
+"""
+type ChatbotDomainMutationResponse {
+  """number of rows affected by the mutation"""
+  affectedRows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [ChatbotDomain!]!
+}
+
+"""
+on_conflict condition type for table "chatbot_domain"
+"""
+input ChatbotDomainOnConflict {
+  constraint: ChatbotDomainConstraint!
+  updateColumns: [ChatbotDomainUpdateColumn!]! = []
+  where: ChatbotDomainBoolExp
+}
+
+"""Ordering options when selecting data from "chatbot_domain"."""
+input ChatbotDomainOrderBy {
+  chatbot: ChatbotOrderBy
+  chatbotId: OrderBy
+  domain: DomainEnumOrderBy
+  domainName: OrderBy
+}
+
+"""primary key columns input for table: chatbot_domain"""
+input ChatbotDomainPkColumnsInput {
+  chatbotId: Int!
+  domainName: String!
+}
+
+"""
+select columns of table "chatbot_domain"
+"""
+enum ChatbotDomainSelectColumn {
+  """column name"""
+  chatbotId
+
+  """column name"""
+  domainName
+}
+
+"""
+input type for updating data in table "chatbot_domain"
+"""
+input ChatbotDomainSetInput {
+  chatbotId: Int
+  domainName: String
+}
+
+"""aggregate stddev on columns"""
+type ChatbotDomainStddevFields {
+  chatbotId: Float
+}
+
+"""
+order by stddev() on columns of table "chatbot_domain"
+"""
+input ChatbotDomainStddevOrderBy {
+  chatbotId: OrderBy
+}
+
+"""aggregate stddevPop on columns"""
+type ChatbotDomainStddevPopFields {
+  chatbotId: Float
+}
+
+"""
+order by stddevPop() on columns of table "chatbot_domain"
+"""
+input ChatbotDomainStddevPopOrderBy {
+  chatbotId: OrderBy
+}
+
+"""aggregate stddevSamp on columns"""
+type ChatbotDomainStddevSampFields {
+  chatbotId: Float
+}
+
+"""
+order by stddevSamp() on columns of table "chatbot_domain"
+"""
+input ChatbotDomainStddevSampOrderBy {
+  chatbotId: OrderBy
+}
+
+"""
+Streaming cursor of the table "chatbot_domain"
+"""
+input ChatbotDomainStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: ChatbotDomainStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input ChatbotDomainStreamCursorValueInput {
+  chatbotId: Int
+  domainName: String
+}
+
+"""aggregate sum on columns"""
+type ChatbotDomainSumFields {
+  chatbotId: Int
+}
+
+"""
+order by sum() on columns of table "chatbot_domain"
+"""
+input ChatbotDomainSumOrderBy {
+  chatbotId: OrderBy
+}
+
+"""
+update columns of table "chatbot_domain"
+"""
+enum ChatbotDomainUpdateColumn {
+  """column name"""
+  chatbotId
+
+  """column name"""
+  domainName
+}
+
+input ChatbotDomainUpdates {
+  """increments the numeric columns with given value of the filtered values"""
+  _inc: ChatbotDomainIncInput
+
+  """sets the columns of the filtered rows to the given values"""
+  _set: ChatbotDomainSetInput
+
+  """filter the rows which have to be updated"""
+  where: ChatbotDomainBoolExp!
+}
+
+"""aggregate varPop on columns"""
+type ChatbotDomainVarPopFields {
+  chatbotId: Float
+}
+
+"""
+order by varPop() on columns of table "chatbot_domain"
+"""
+input ChatbotDomainVarPopOrderBy {
+  chatbotId: OrderBy
+}
+
+"""aggregate varSamp on columns"""
+type ChatbotDomainVarSampFields {
+  chatbotId: Float
+}
+
+"""
+order by varSamp() on columns of table "chatbot_domain"
+"""
+input ChatbotDomainVarSampOrderBy {
+  chatbotId: OrderBy
+}
+
+"""aggregate variance on columns"""
+type ChatbotDomainVarianceFields {
+  chatbotId: Float
+}
+
+"""
+order by variance() on columns of table "chatbot_domain"
+"""
+input ChatbotDomainVarianceOrderBy {
+  chatbotId: OrderBy
+}
+
 """
 input type for incrementing numeric columns in table "chatbot"
 """
@@ -1768,7 +1634,6 @@ input ChatbotInsertInput {
   avatar: String
   categories: ChatbotCategoryArrRelInsertInput
   chatbotId: Int
-  chats: ChatArrRelInsertInput
   complexityEnum: ComplexityEnumObjRelInsertInput
   createdBy: String
   defaultComplexity: String
@@ -1778,7 +1643,7 @@ input ChatbotInsertInput {
   description: String
   followers: SocialFollowingArrRelInsertInput
   lengthEnum: LengthEnumObjRelInsertInput
-  metadataLabels: LabelChatbotCategoryDomainArrRelInsertInput
+  metadata: ChatbotDomainArrRelInsertInput
   name: String
   preferences: PreferenceArrRelInsertInput
   prompts: PromptChatbotArrRelInsertInput
@@ -1878,7 +1743,6 @@ input ChatbotOrderBy {
   avatar: OrderBy
   categoriesAggregate: ChatbotCategoryAggregateOrderBy
   chatbotId: OrderBy
-  chatsAggregate: ChatAggregateOrderBy
   complexityEnum: ComplexityEnumOrderBy
   createdBy: OrderBy
   defaultComplexity: OrderBy
@@ -1888,7 +1752,7 @@ input ChatbotOrderBy {
   description: OrderBy
   followersAggregate: SocialFollowingAggregateOrderBy
   lengthEnum: LengthEnumOrderBy
-  metadataLabelsAggregate: LabelChatbotCategoryDomainAggregateOrderBy
+  metadataAggregate: ChatbotDomainAggregateOrderBy
   name: OrderBy
   preferencesAggregate: PreferenceAggregateOrderBy
   promptsAggregate: PromptChatbotAggregateOrderBy
@@ -2378,28 +2242,10 @@ type DomainEnum {
     where: CategoryEnumBoolExp
   ): [CategoryEnum!]!
 
-  """An aggregate relationship"""
-  labelChatbotCategoryDomainsAggregate(
-    """distinct select on columns"""
-    distinctOn: [LabelChatbotCategoryDomainSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [LabelChatbotCategoryDomainOrderBy!]
-
-    """filter the rows returned"""
-    where: LabelChatbotCategoryDomainBoolExp
-  ): LabelChatbotCategoryDomainAggregate!
-
   """An array relationship"""
-  label_chatbot_category_domains(
+  chatbot(
     """distinct select on columns"""
-    distinctOn: [LabelChatbotCategoryDomainSelectColumn!]
+    distinctOn: [ChatbotDomainSelectColumn!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -2408,11 +2254,29 @@ type DomainEnum {
     offset: Int
 
     """sort the rows by one or more columns"""
-    orderBy: [LabelChatbotCategoryDomainOrderBy!]
+    orderBy: [ChatbotDomainOrderBy!]
 
     """filter the rows returned"""
-    where: LabelChatbotCategoryDomainBoolExp
-  ): [LabelChatbotCategoryDomain!]!
+    where: ChatbotDomainBoolExp
+  ): [ChatbotDomain!]!
+
+  """An aggregate relationship"""
+  chatbotAggregate(
+    """distinct select on columns"""
+    distinctOn: [ChatbotDomainSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotDomainOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotDomainBoolExp
+  ): ChatbotDomainAggregate!
   name: String!
 
   """An aggregate relationship"""
@@ -2479,8 +2343,8 @@ input DomainEnumBoolExp {
   added: TimestamptzComparisonExp
   category_enums: CategoryEnumBoolExp
   category_enumsAggregate: CategoryEnumAggregateBoolExp
-  label_chatbot_category_domains: LabelChatbotCategoryDomainBoolExp
-  label_chatbot_category_domainsAggregate: LabelChatbotCategoryDomainAggregateBoolExp
+  chatbot: ChatbotDomainBoolExp
+  chatbotAggregate: ChatbotDomainAggregateBoolExp
   name: StringComparisonExp
   tag_enums: TagEnumBoolExp
   tag_enumsAggregate: TagEnumAggregateBoolExp
@@ -2502,7 +2366,7 @@ input type for inserting data into table "domain_enum"
 input DomainEnumInsertInput {
   added: timestamptz
   category_enums: CategoryEnumArrRelInsertInput
-  label_chatbot_category_domains: LabelChatbotCategoryDomainArrRelInsertInput
+  chatbot: ChatbotDomainArrRelInsertInput
   name: String
   tag_enums: TagEnumArrRelInsertInput
 }
@@ -2553,7 +2417,7 @@ input DomainEnumOnConflict {
 input DomainEnumOrderBy {
   added: OrderBy
   category_enumsAggregate: CategoryEnumAggregateOrderBy
-  label_chatbot_category_domainsAggregate: LabelChatbotCategoryDomainAggregateOrderBy
+  chatbotAggregate: ChatbotDomainAggregateOrderBy
   name: OrderBy
   tag_enumsAggregate: TagEnumAggregateOrderBy
 }
@@ -3032,730 +2896,6 @@ input JsonbComparisonExp {
   _lte: jsonb
   _neq: jsonb
   _nin: [jsonb!]
-}
-
-"""Labels for chatbots (e.g.: domain, category, sub-category, tags """
-type Label {
-  advancedLabels: Boolean!
-  categories: String!
-  labelId: Int!
-
-  """An array relationship"""
-  metadataLabels(
-    """distinct select on columns"""
-    distinctOn: [LabelChatbotCategoryDomainSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [LabelChatbotCategoryDomainOrderBy!]
-
-    """filter the rows returned"""
-    where: LabelChatbotCategoryDomainBoolExp
-  ): [LabelChatbotCategoryDomain!]!
-
-  """An aggregate relationship"""
-  metadataLabelsAggregate(
-    """distinct select on columns"""
-    distinctOn: [LabelChatbotCategoryDomainSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [LabelChatbotCategoryDomainOrderBy!]
-
-    """filter the rows returned"""
-    where: LabelChatbotCategoryDomainBoolExp
-  ): LabelChatbotCategoryDomainAggregate!
-  questions: String!
-  subCategories: String!
-  tags: String!
-}
-
-"""
-aggregated selection of "label"
-"""
-type LabelAggregate {
-  aggregate: LabelAggregateFields
-  nodes: [Label!]!
-}
-
-"""
-aggregate fields of "label"
-"""
-type LabelAggregateFields {
-  avg: LabelAvgFields
-  count(columns: [LabelSelectColumn!], distinct: Boolean): Int!
-  max: LabelMaxFields
-  min: LabelMinFields
-  stddev: LabelStddevFields
-  stddevPop: LabelStddevPopFields
-  stddevSamp: LabelStddevSampFields
-  sum: LabelSumFields
-  varPop: LabelVarPopFields
-  varSamp: LabelVarSampFields
-  variance: LabelVarianceFields
-}
-
-"""aggregate avg on columns"""
-type LabelAvgFields {
-  labelId: Float
-}
-
-"""
-Boolean expression to filter rows from the table "label". All fields are combined with a logical 'AND'.
-"""
-input LabelBoolExp {
-  _and: [LabelBoolExp!]
-  _not: LabelBoolExp
-  _or: [LabelBoolExp!]
-  advancedLabels: BooleanComparisonExp
-  categories: StringComparisonExp
-  labelId: IntComparisonExp
-  metadataLabels: LabelChatbotCategoryDomainBoolExp
-  metadataLabelsAggregate: LabelChatbotCategoryDomainAggregateBoolExp
-  questions: StringComparisonExp
-  subCategories: StringComparisonExp
-  tags: StringComparisonExp
-}
-
-"""
-Junction table to connect between Label, Chatbot, Categories, and Domains tables.
-"""
-type LabelChatbotCategoryDomain {
-  """An object relationship"""
-  category: Category!
-  categoryId: Int!
-
-  """An object relationship"""
-  chatbot: Chatbot!
-  chatbotId: Int!
-  domainId: String!
-
-  """An object relationship"""
-  domain_enum: DomainEnum!
-
-  """An object relationship"""
-  label: Label!
-  labelId: Int!
-}
-
-"""
-aggregated selection of "label_chatbot_category_domain"
-"""
-type LabelChatbotCategoryDomainAggregate {
-  aggregate: LabelChatbotCategoryDomainAggregateFields
-  nodes: [LabelChatbotCategoryDomain!]!
-}
-
-input LabelChatbotCategoryDomainAggregateBoolExp {
-  count: labelChatbotCategoryDomainAggregateBoolExpCount
-}
-
-"""
-aggregate fields of "label_chatbot_category_domain"
-"""
-type LabelChatbotCategoryDomainAggregateFields {
-  avg: LabelChatbotCategoryDomainAvgFields
-  count(columns: [LabelChatbotCategoryDomainSelectColumn!], distinct: Boolean): Int!
-  max: LabelChatbotCategoryDomainMaxFields
-  min: LabelChatbotCategoryDomainMinFields
-  stddev: LabelChatbotCategoryDomainStddevFields
-  stddevPop: LabelChatbotCategoryDomainStddevPopFields
-  stddevSamp: LabelChatbotCategoryDomainStddevSampFields
-  sum: LabelChatbotCategoryDomainSumFields
-  varPop: LabelChatbotCategoryDomainVarPopFields
-  varSamp: LabelChatbotCategoryDomainVarSampFields
-  variance: LabelChatbotCategoryDomainVarianceFields
-}
-
-"""
-order by aggregate values of table "label_chatbot_category_domain"
-"""
-input LabelChatbotCategoryDomainAggregateOrderBy {
-  avg: LabelChatbotCategoryDomainAvgOrderBy
-  count: OrderBy
-  max: LabelChatbotCategoryDomainMaxOrderBy
-  min: LabelChatbotCategoryDomainMinOrderBy
-  stddev: LabelChatbotCategoryDomainStddevOrderBy
-  stddevPop: LabelChatbotCategoryDomainStddevPopOrderBy
-  stddevSamp: LabelChatbotCategoryDomainStddevSampOrderBy
-  sum: LabelChatbotCategoryDomainSumOrderBy
-  varPop: LabelChatbotCategoryDomainVarPopOrderBy
-  varSamp: LabelChatbotCategoryDomainVarSampOrderBy
-  variance: LabelChatbotCategoryDomainVarianceOrderBy
-}
-
-"""
-input type for inserting array relation for remote table "label_chatbot_category_domain"
-"""
-input LabelChatbotCategoryDomainArrRelInsertInput {
-  data: [LabelChatbotCategoryDomainInsertInput!]!
-
-  """upsert condition"""
-  onConflict: LabelChatbotCategoryDomainOnConflict
-}
-
-"""aggregate avg on columns"""
-type LabelChatbotCategoryDomainAvgFields {
-  categoryId: Float
-  chatbotId: Float
-  labelId: Float
-}
-
-"""
-order by avg() on columns of table "label_chatbot_category_domain"
-"""
-input LabelChatbotCategoryDomainAvgOrderBy {
-  categoryId: OrderBy
-  chatbotId: OrderBy
-  labelId: OrderBy
-}
-
-"""
-Boolean expression to filter rows from the table "label_chatbot_category_domain". All fields are combined with a logical 'AND'.
-"""
-input LabelChatbotCategoryDomainBoolExp {
-  _and: [LabelChatbotCategoryDomainBoolExp!]
-  _not: LabelChatbotCategoryDomainBoolExp
-  _or: [LabelChatbotCategoryDomainBoolExp!]
-  category: CategoryBoolExp
-  categoryId: IntComparisonExp
-  chatbot: ChatbotBoolExp
-  chatbotId: IntComparisonExp
-  domainId: StringComparisonExp
-  domain_enum: DomainEnumBoolExp
-  label: LabelBoolExp
-  labelId: IntComparisonExp
-}
-
-"""
-unique or primary key constraints on table "label_chatbot_category_domain"
-"""
-enum LabelChatbotCategoryDomainConstraint {
-  """
-  unique or primary key constraint on columns "label_id", "category_id", "domain_id", "chatbot_id"
-  """
-  label_chatbot_category_pkey
-}
-
-"""
-input type for incrementing numeric columns in table "label_chatbot_category_domain"
-"""
-input LabelChatbotCategoryDomainIncInput {
-  categoryId: Int
-  chatbotId: Int
-  labelId: Int
-}
-
-"""
-input type for inserting data into table "label_chatbot_category_domain"
-"""
-input LabelChatbotCategoryDomainInsertInput {
-  category: CategoryObjRelInsertInput
-  categoryId: Int
-  chatbot: ChatbotObjRelInsertInput
-  chatbotId: Int
-  domainId: String
-  domain_enum: DomainEnumObjRelInsertInput
-  label: LabelObjRelInsertInput
-  labelId: Int
-}
-
-"""aggregate max on columns"""
-type LabelChatbotCategoryDomainMaxFields {
-  categoryId: Int
-  chatbotId: Int
-  domainId: String
-  labelId: Int
-}
-
-"""
-order by max() on columns of table "label_chatbot_category_domain"
-"""
-input LabelChatbotCategoryDomainMaxOrderBy {
-  categoryId: OrderBy
-  chatbotId: OrderBy
-  domainId: OrderBy
-  labelId: OrderBy
-}
-
-"""aggregate min on columns"""
-type LabelChatbotCategoryDomainMinFields {
-  categoryId: Int
-  chatbotId: Int
-  domainId: String
-  labelId: Int
-}
-
-"""
-order by min() on columns of table "label_chatbot_category_domain"
-"""
-input LabelChatbotCategoryDomainMinOrderBy {
-  categoryId: OrderBy
-  chatbotId: OrderBy
-  domainId: OrderBy
-  labelId: OrderBy
-}
-
-"""
-response of any mutation on the table "label_chatbot_category_domain"
-"""
-type LabelChatbotCategoryDomainMutationResponse {
-  """number of rows affected by the mutation"""
-  affectedRows: Int!
-
-  """data from the rows affected by the mutation"""
-  returning: [LabelChatbotCategoryDomain!]!
-}
-
-"""
-on_conflict condition type for table "label_chatbot_category_domain"
-"""
-input LabelChatbotCategoryDomainOnConflict {
-  constraint: LabelChatbotCategoryDomainConstraint!
-  updateColumns: [LabelChatbotCategoryDomainUpdateColumn!]! = []
-  where: LabelChatbotCategoryDomainBoolExp
-}
-
-"""
-Ordering options when selecting data from "label_chatbot_category_domain".
-"""
-input LabelChatbotCategoryDomainOrderBy {
-  category: CategoryOrderBy
-  categoryId: OrderBy
-  chatbot: ChatbotOrderBy
-  chatbotId: OrderBy
-  domainId: OrderBy
-  domain_enum: DomainEnumOrderBy
-  label: LabelOrderBy
-  labelId: OrderBy
-}
-
-"""primary key columns input for table: label_chatbot_category_domain"""
-input LabelChatbotCategoryDomainPkColumnsInput {
-  categoryId: Int!
-  chatbotId: Int!
-  domainId: String!
-  labelId: Int!
-}
-
-"""
-select columns of table "label_chatbot_category_domain"
-"""
-enum LabelChatbotCategoryDomainSelectColumn {
-  """column name"""
-  categoryId
-
-  """column name"""
-  chatbotId
-
-  """column name"""
-  domainId
-
-  """column name"""
-  labelId
-}
-
-"""
-input type for updating data in table "label_chatbot_category_domain"
-"""
-input LabelChatbotCategoryDomainSetInput {
-  categoryId: Int
-  chatbotId: Int
-  domainId: String
-  labelId: Int
-}
-
-"""aggregate stddev on columns"""
-type LabelChatbotCategoryDomainStddevFields {
-  categoryId: Float
-  chatbotId: Float
-  labelId: Float
-}
-
-"""
-order by stddev() on columns of table "label_chatbot_category_domain"
-"""
-input LabelChatbotCategoryDomainStddevOrderBy {
-  categoryId: OrderBy
-  chatbotId: OrderBy
-  labelId: OrderBy
-}
-
-"""aggregate stddevPop on columns"""
-type LabelChatbotCategoryDomainStddevPopFields {
-  categoryId: Float
-  chatbotId: Float
-  labelId: Float
-}
-
-"""
-order by stddevPop() on columns of table "label_chatbot_category_domain"
-"""
-input LabelChatbotCategoryDomainStddevPopOrderBy {
-  categoryId: OrderBy
-  chatbotId: OrderBy
-  labelId: OrderBy
-}
-
-"""aggregate stddevSamp on columns"""
-type LabelChatbotCategoryDomainStddevSampFields {
-  categoryId: Float
-  chatbotId: Float
-  labelId: Float
-}
-
-"""
-order by stddevSamp() on columns of table "label_chatbot_category_domain"
-"""
-input LabelChatbotCategoryDomainStddevSampOrderBy {
-  categoryId: OrderBy
-  chatbotId: OrderBy
-  labelId: OrderBy
-}
-
-"""
-Streaming cursor of the table "label_chatbot_category_domain"
-"""
-input LabelChatbotCategoryDomainStreamCursorInput {
-  """Stream column input with initial value"""
-  initialValue: LabelChatbotCategoryDomainStreamCursorValueInput!
-
-  """cursor ordering"""
-  ordering: CursorOrdering
-}
-
-"""Initial value of the column from where the streaming should start"""
-input LabelChatbotCategoryDomainStreamCursorValueInput {
-  categoryId: Int
-  chatbotId: Int
-  domainId: String
-  labelId: Int
-}
-
-"""aggregate sum on columns"""
-type LabelChatbotCategoryDomainSumFields {
-  categoryId: Int
-  chatbotId: Int
-  labelId: Int
-}
-
-"""
-order by sum() on columns of table "label_chatbot_category_domain"
-"""
-input LabelChatbotCategoryDomainSumOrderBy {
-  categoryId: OrderBy
-  chatbotId: OrderBy
-  labelId: OrderBy
-}
-
-"""
-update columns of table "label_chatbot_category_domain"
-"""
-enum LabelChatbotCategoryDomainUpdateColumn {
-  """column name"""
-  categoryId
-
-  """column name"""
-  chatbotId
-
-  """column name"""
-  domainId
-
-  """column name"""
-  labelId
-}
-
-input LabelChatbotCategoryDomainUpdates {
-  """increments the numeric columns with given value of the filtered values"""
-  _inc: LabelChatbotCategoryDomainIncInput
-
-  """sets the columns of the filtered rows to the given values"""
-  _set: LabelChatbotCategoryDomainSetInput
-
-  """filter the rows which have to be updated"""
-  where: LabelChatbotCategoryDomainBoolExp!
-}
-
-"""aggregate varPop on columns"""
-type LabelChatbotCategoryDomainVarPopFields {
-  categoryId: Float
-  chatbotId: Float
-  labelId: Float
-}
-
-"""
-order by varPop() on columns of table "label_chatbot_category_domain"
-"""
-input LabelChatbotCategoryDomainVarPopOrderBy {
-  categoryId: OrderBy
-  chatbotId: OrderBy
-  labelId: OrderBy
-}
-
-"""aggregate varSamp on columns"""
-type LabelChatbotCategoryDomainVarSampFields {
-  categoryId: Float
-  chatbotId: Float
-  labelId: Float
-}
-
-"""
-order by varSamp() on columns of table "label_chatbot_category_domain"
-"""
-input LabelChatbotCategoryDomainVarSampOrderBy {
-  categoryId: OrderBy
-  chatbotId: OrderBy
-  labelId: OrderBy
-}
-
-"""aggregate variance on columns"""
-type LabelChatbotCategoryDomainVarianceFields {
-  categoryId: Float
-  chatbotId: Float
-  labelId: Float
-}
-
-"""
-order by variance() on columns of table "label_chatbot_category_domain"
-"""
-input LabelChatbotCategoryDomainVarianceOrderBy {
-  categoryId: OrderBy
-  chatbotId: OrderBy
-  labelId: OrderBy
-}
-
-"""
-unique or primary key constraints on table "label"
-"""
-enum LabelConstraint {
-  """
-  unique or primary key constraint on columns "label_id"
-  """
-  label_label_id_key
-
-  """
-  unique or primary key constraint on columns "label_id"
-  """
-  label_pkey
-}
-
-"""
-input type for incrementing numeric columns in table "label"
-"""
-input LabelIncInput {
-  labelId: Int
-}
-
-"""
-input type for inserting data into table "label"
-"""
-input LabelInsertInput {
-  advancedLabels: Boolean
-  categories: String
-  labelId: Int
-  metadataLabels: LabelChatbotCategoryDomainArrRelInsertInput
-  questions: String
-  subCategories: String
-  tags: String
-}
-
-"""aggregate max on columns"""
-type LabelMaxFields {
-  categories: String
-  labelId: Int
-  questions: String
-  subCategories: String
-  tags: String
-}
-
-"""aggregate min on columns"""
-type LabelMinFields {
-  categories: String
-  labelId: Int
-  questions: String
-  subCategories: String
-  tags: String
-}
-
-"""
-response of any mutation on the table "label"
-"""
-type LabelMutationResponse {
-  """number of rows affected by the mutation"""
-  affectedRows: Int!
-
-  """data from the rows affected by the mutation"""
-  returning: [Label!]!
-}
-
-"""
-input type for inserting object relation for remote table "label"
-"""
-input LabelObjRelInsertInput {
-  data: LabelInsertInput!
-
-  """upsert condition"""
-  onConflict: LabelOnConflict
-}
-
-"""
-on_conflict condition type for table "label"
-"""
-input LabelOnConflict {
-  constraint: LabelConstraint!
-  updateColumns: [LabelUpdateColumn!]! = []
-  where: LabelBoolExp
-}
-
-"""Ordering options when selecting data from "label"."""
-input LabelOrderBy {
-  advancedLabels: OrderBy
-  categories: OrderBy
-  labelId: OrderBy
-  metadataLabelsAggregate: LabelChatbotCategoryDomainAggregateOrderBy
-  questions: OrderBy
-  subCategories: OrderBy
-  tags: OrderBy
-}
-
-"""primary key columns input for table: label"""
-input LabelPkColumnsInput {
-  labelId: Int!
-}
-
-"""
-select columns of table "label"
-"""
-enum LabelSelectColumn {
-  """column name"""
-  advancedLabels
-
-  """column name"""
-  categories
-
-  """column name"""
-  labelId
-
-  """column name"""
-  questions
-
-  """column name"""
-  subCategories
-
-  """column name"""
-  tags
-}
-
-"""
-input type for updating data in table "label"
-"""
-input LabelSetInput {
-  advancedLabels: Boolean
-  categories: String
-  labelId: Int
-  questions: String
-  subCategories: String
-  tags: String
-}
-
-"""aggregate stddev on columns"""
-type LabelStddevFields {
-  labelId: Float
-}
-
-"""aggregate stddevPop on columns"""
-type LabelStddevPopFields {
-  labelId: Float
-}
-
-"""aggregate stddevSamp on columns"""
-type LabelStddevSampFields {
-  labelId: Float
-}
-
-"""
-Streaming cursor of the table "label"
-"""
-input LabelStreamCursorInput {
-  """Stream column input with initial value"""
-  initialValue: LabelStreamCursorValueInput!
-
-  """cursor ordering"""
-  ordering: CursorOrdering
-}
-
-"""Initial value of the column from where the streaming should start"""
-input LabelStreamCursorValueInput {
-  advancedLabels: Boolean
-  categories: String
-  labelId: Int
-  questions: String
-  subCategories: String
-  tags: String
-}
-
-"""aggregate sum on columns"""
-type LabelSumFields {
-  labelId: Int
-}
-
-"""
-update columns of table "label"
-"""
-enum LabelUpdateColumn {
-  """column name"""
-  advancedLabels
-
-  """column name"""
-  categories
-
-  """column name"""
-  labelId
-
-  """column name"""
-  questions
-
-  """column name"""
-  subCategories
-
-  """column name"""
-  tags
-}
-
-input LabelUpdates {
-  """increments the numeric columns with given value of the filtered values"""
-  _inc: LabelIncInput
-
-  """sets the columns of the filtered rows to the given values"""
-  _set: LabelSetInput
-
-  """filter the rows which have to be updated"""
-  where: LabelBoolExp!
-}
-
-"""aggregate varPop on columns"""
-type LabelVarPopFields {
-  labelId: Float
-}
-
-"""aggregate varSamp on columns"""
-type LabelVarSampFields {
-  labelId: Float
-}
-
-"""aggregate variance on columns"""
-type LabelVarianceFields {
-  labelId: Float
 }
 
 """
@@ -9140,42 +8280,6 @@ input TypeEnumUpdates {
 """Table storing information about registered users."""
 type User {
   bio: String
-
-  """An array relationship"""
-  chats(
-    """distinct select on columns"""
-    distinctOn: [ChatSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ChatOrderBy!]
-
-    """filter the rows returned"""
-    where: ChatBoolExp
-  ): [Chat!]!
-
-  """An aggregate relationship"""
-  chatsAggregate(
-    """distinct select on columns"""
-    distinctOn: [ChatSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ChatOrderBy!]
-
-    """filter the rows returned"""
-    where: ChatBoolExp
-  ): ChatAggregate!
   dateJoined: timestamptz!
   email: String!
   favouriteTopic: String
@@ -9505,8 +8609,6 @@ input UserBoolExp {
   _not: UserBoolExp
   _or: [UserBoolExp!]
   bio: StringComparisonExp
-  chats: ChatBoolExp
-  chatsAggregate: ChatAggregateBoolExp
   dateJoined: TimestamptzComparisonExp
   email: StringComparisonExp
   favouriteTopic: StringComparisonExp
@@ -9569,7 +8671,6 @@ input type for inserting data into table "user"
 """
 input UserInsertInput {
   bio: String
-  chats: ChatArrRelInsertInput
   dateJoined: timestamptz
   email: String
   favouriteTopic: String
@@ -9659,7 +8760,6 @@ input UserOnConflict {
 """Ordering options when selecting data from "user"."""
 input UserOrderBy {
   bio: OrderBy
-  chatsAggregate: ChatAggregateOrderBy
   dateJoined: OrderBy
   email: OrderBy
   favouriteTopic: OrderBy
@@ -10107,13 +9207,6 @@ input categoryEnumAggregateBoolExpCount {
   predicate: IntComparisonExp!
 }
 
-input chatAggregateBoolExpCount {
-  arguments: [ChatSelectColumn!]
-  distinct: Boolean
-  filter: ChatBoolExp
-  predicate: IntComparisonExp!
-}
-
 input chatbotAggregateBoolExpCount {
   arguments: [ChatbotSelectColumn!]
   distinct: Boolean
@@ -10128,6 +9221,13 @@ input chatbotCategoryAggregateBoolExpCount {
   predicate: IntComparisonExp!
 }
 
+input chatbotDomainAggregateBoolExpCount {
+  arguments: [ChatbotDomainSelectColumn!]
+  distinct: Boolean
+  filter: ChatbotDomainBoolExp
+  predicate: IntComparisonExp!
+}
+
 input exampleAggregateBoolExpCount {
   arguments: [ExampleSelectColumn!]
   distinct: Boolean
@@ -10136,13 +9236,6 @@ input exampleAggregateBoolExpCount {
 }
 
 scalar jsonb
-
-input labelChatbotCategoryDomainAggregateBoolExpCount {
-  arguments: [LabelChatbotCategoryDomainSelectColumn!]
-  distinct: Boolean
-  filter: LabelChatbotCategoryDomainBoolExp
-  predicate: IntComparisonExp!
-}
 
 input messageAggregateBoolExpCount {
   arguments: [MessageSelectColumn!]
@@ -10180,19 +9273,6 @@ type mutation_root {
   deleteCategoryEnumByPk(domain: String!, name: String!): CategoryEnum
 
   """
-  delete data from the table: "chat"
-  """
-  deleteChat(
-    """filter the rows which have to be deleted"""
-    where: ChatBoolExp!
-  ): ChatMutationResponse
-
-  """
-  delete single row from the table: "chat"
-  """
-  deleteChatByPk(chatId: Int!): Chat
-
-  """
   delete data from the table: "chatbot"
   """
   deleteChatbot(
@@ -10217,6 +9297,19 @@ type mutation_root {
   delete single row from the table: "chatbot_category"
   """
   deleteChatbotCategoryByPk(categoryId: Int!, chatbotId: Int!): ChatbotCategory
+
+  """
+  delete data from the table: "chatbot_domain"
+  """
+  deleteChatbotDomain(
+    """filter the rows which have to be deleted"""
+    where: ChatbotDomainBoolExp!
+  ): ChatbotDomainMutationResponse
+
+  """
+  delete single row from the table: "chatbot_domain"
+  """
+  deleteChatbotDomainByPk(chatbotId: Int!, domainName: String!): ChatbotDomain
 
   """
   delete data from the table: "complexity_enum"
@@ -10256,32 +9349,6 @@ type mutation_root {
   delete single row from the table: "example"
   """
   deleteExampleByPk(exampleId: uuid!): Example
-
-  """
-  delete data from the table: "label"
-  """
-  deleteLabel(
-    """filter the rows which have to be deleted"""
-    where: LabelBoolExp!
-  ): LabelMutationResponse
-
-  """
-  delete single row from the table: "label"
-  """
-  deleteLabelByPk(labelId: Int!): Label
-
-  """
-  delete data from the table: "label_chatbot_category_domain"
-  """
-  deleteLabelChatbotCategoryDomain(
-    """filter the rows which have to be deleted"""
-    where: LabelChatbotCategoryDomainBoolExp!
-  ): LabelChatbotCategoryDomainMutationResponse
-
-  """
-  delete single row from the table: "label_chatbot_category_domain"
-  """
-  deleteLabelChatbotCategoryDomainByPk(categoryId: Int!, chatbotId: Int!, domainId: String!, labelId: Int!): LabelChatbotCategoryDomain
 
   """
   delete data from the table: "length_enum"
@@ -10570,28 +9637,6 @@ type mutation_root {
   ): Category
 
   """
-  insert data into the table: "chat"
-  """
-  insertChat(
-    """the rows to be inserted"""
-    objects: [ChatInsertInput!]!
-
-    """upsert condition"""
-    onConflict: ChatOnConflict
-  ): ChatMutationResponse
-
-  """
-  insert a single row into the table: "chat"
-  """
-  insertChatOne(
-    """the row to be inserted"""
-    object: ChatInsertInput!
-
-    """upsert condition"""
-    onConflict: ChatOnConflict
-  ): Chat
-
-  """
   insert data into the table: "chatbot"
   """
   insertChatbot(
@@ -10623,6 +9668,28 @@ type mutation_root {
     """upsert condition"""
     onConflict: ChatbotCategoryOnConflict
   ): ChatbotCategory
+
+  """
+  insert data into the table: "chatbot_domain"
+  """
+  insertChatbotDomain(
+    """the rows to be inserted"""
+    objects: [ChatbotDomainInsertInput!]!
+
+    """upsert condition"""
+    onConflict: ChatbotDomainOnConflict
+  ): ChatbotDomainMutationResponse
+
+  """
+  insert a single row into the table: "chatbot_domain"
+  """
+  insertChatbotDomainOne(
+    """the row to be inserted"""
+    object: ChatbotDomainInsertInput!
+
+    """upsert condition"""
+    onConflict: ChatbotDomainOnConflict
+  ): ChatbotDomain
 
   """
   insert a single row into the table: "chatbot"
@@ -10700,50 +9767,6 @@ type mutation_root {
     """upsert condition"""
     onConflict: ExampleOnConflict
   ): Example
-
-  """
-  insert data into the table: "label"
-  """
-  insertLabel(
-    """the rows to be inserted"""
-    objects: [LabelInsertInput!]!
-
-    """upsert condition"""
-    onConflict: LabelOnConflict
-  ): LabelMutationResponse
-
-  """
-  insert data into the table: "label_chatbot_category_domain"
-  """
-  insertLabelChatbotCategoryDomain(
-    """the rows to be inserted"""
-    objects: [LabelChatbotCategoryDomainInsertInput!]!
-
-    """upsert condition"""
-    onConflict: LabelChatbotCategoryDomainOnConflict
-  ): LabelChatbotCategoryDomainMutationResponse
-
-  """
-  insert a single row into the table: "label_chatbot_category_domain"
-  """
-  insertLabelChatbotCategoryDomainOne(
-    """the row to be inserted"""
-    object: LabelChatbotCategoryDomainInsertInput!
-
-    """upsert condition"""
-    onConflict: LabelChatbotCategoryDomainOnConflict
-  ): LabelChatbotCategoryDomain
-
-  """
-  insert a single row into the table: "label"
-  """
-  insertLabelOne(
-    """the row to be inserted"""
-    object: LabelInsertInput!
-
-    """upsert condition"""
-    onConflict: LabelOnConflict
-  ): Label
 
   """
   insert data into the table: "length_enum"
@@ -11220,40 +10243,6 @@ type mutation_root {
   ): [CategoryMutationResponse]
 
   """
-  update data of the table: "chat"
-  """
-  updateChat(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: ChatIncInput
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: ChatSetInput
-
-    """filter the rows which have to be updated"""
-    where: ChatBoolExp!
-  ): ChatMutationResponse
-
-  """
-  update single row of the table: "chat"
-  """
-  updateChatByPk(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: ChatIncInput
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: ChatSetInput
-    pkColumns: ChatPkColumnsInput!
-  ): Chat
-
-  """
-  update multiples rows of table: "chat"
-  """
-  updateChatMany(
-    """updates to execute, in order"""
-    updates: [ChatUpdates!]!
-  ): [ChatMutationResponse]
-
-  """
   update data of the table: "chatbot"
   """
   updateChatbot(
@@ -11312,6 +10301,40 @@ type mutation_root {
     """updates to execute, in order"""
     updates: [ChatbotCategoryUpdates!]!
   ): [ChatbotCategoryMutationResponse]
+
+  """
+  update data of the table: "chatbot_domain"
+  """
+  updateChatbotDomain(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: ChatbotDomainIncInput
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: ChatbotDomainSetInput
+
+    """filter the rows which have to be updated"""
+    where: ChatbotDomainBoolExp!
+  ): ChatbotDomainMutationResponse
+
+  """
+  update single row of the table: "chatbot_domain"
+  """
+  updateChatbotDomainByPk(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: ChatbotDomainIncInput
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: ChatbotDomainSetInput
+    pkColumns: ChatbotDomainPkColumnsInput!
+  ): ChatbotDomain
+
+  """
+  update multiples rows of table: "chatbot_domain"
+  """
+  updateChatbotDomainMany(
+    """updates to execute, in order"""
+    updates: [ChatbotDomainUpdates!]!
+  ): [ChatbotDomainMutationResponse]
 
   """
   update multiples rows of table: "chatbot"
@@ -11446,74 +10469,6 @@ type mutation_root {
     """updates to execute, in order"""
     updates: [ExampleUpdates!]!
   ): [ExampleMutationResponse]
-
-  """
-  update data of the table: "label"
-  """
-  updateLabel(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: LabelIncInput
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: LabelSetInput
-
-    """filter the rows which have to be updated"""
-    where: LabelBoolExp!
-  ): LabelMutationResponse
-
-  """
-  update single row of the table: "label"
-  """
-  updateLabelByPk(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: LabelIncInput
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: LabelSetInput
-    pkColumns: LabelPkColumnsInput!
-  ): Label
-
-  """
-  update data of the table: "label_chatbot_category_domain"
-  """
-  updateLabelChatbotCategoryDomain(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: LabelChatbotCategoryDomainIncInput
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: LabelChatbotCategoryDomainSetInput
-
-    """filter the rows which have to be updated"""
-    where: LabelChatbotCategoryDomainBoolExp!
-  ): LabelChatbotCategoryDomainMutationResponse
-
-  """
-  update single row of the table: "label_chatbot_category_domain"
-  """
-  updateLabelChatbotCategoryDomainByPk(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: LabelChatbotCategoryDomainIncInput
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: LabelChatbotCategoryDomainSetInput
-    pkColumns: LabelChatbotCategoryDomainPkColumnsInput!
-  ): LabelChatbotCategoryDomain
-
-  """
-  update multiples rows of table: "label_chatbot_category_domain"
-  """
-  updateLabelChatbotCategoryDomainMany(
-    """updates to execute, in order"""
-    updates: [LabelChatbotCategoryDomainUpdates!]!
-  ): [LabelChatbotCategoryDomainMutationResponse]
-
-  """
-  update multiples rows of table: "label"
-  """
-  updateLabelMany(
-    """updates to execute, in order"""
-    updates: [LabelUpdates!]!
-  ): [LabelMutationResponse]
 
   """
   update data of the table: "length_enum"
@@ -12252,49 +11207,6 @@ type query_root {
   categoryEnumByPk(domain: String!, name: String!): CategoryEnum
 
   """
-  fetch data from the table: "chat"
-  """
-  chat(
-    """distinct select on columns"""
-    distinctOn: [ChatSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ChatOrderBy!]
-
-    """filter the rows returned"""
-    where: ChatBoolExp
-  ): [Chat!]!
-
-  """
-  fetch aggregated fields from the table: "chat"
-  """
-  chatAggregate(
-    """distinct select on columns"""
-    distinctOn: [ChatSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ChatOrderBy!]
-
-    """filter the rows returned"""
-    where: ChatBoolExp
-  ): ChatAggregate!
-
-  """fetch data from the table: "chat" using primary key columns"""
-  chatByPk(chatId: Int!): Chat
-
-  """
   fetch data from the table: "chatbot"
   """
   chatbot(
@@ -12381,6 +11293,49 @@ type query_root {
   fetch data from the table: "chatbot_category" using primary key columns
   """
   chatbotCategoryByPk(categoryId: Int!, chatbotId: Int!): ChatbotCategory
+
+  """
+  fetch data from the table: "chatbot_domain"
+  """
+  chatbotDomain(
+    """distinct select on columns"""
+    distinctOn: [ChatbotDomainSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotDomainOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotDomainBoolExp
+  ): [ChatbotDomain!]!
+
+  """
+  fetch aggregated fields from the table: "chatbot_domain"
+  """
+  chatbotDomainAggregate(
+    """distinct select on columns"""
+    distinctOn: [ChatbotDomainSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotDomainOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotDomainBoolExp
+  ): ChatbotDomainAggregate!
+
+  """fetch data from the table: "chatbot_domain" using primary key columns"""
+  chatbotDomainByPk(chatbotId: Int!, domainName: String!): ChatbotDomain
 
   """
   fetch data from the table: "complexity_enum"
@@ -12510,94 +11465,6 @@ type query_root {
 
   """fetch data from the table: "example" using primary key columns"""
   exampleByPk(exampleId: uuid!): Example
-
-  """
-  fetch data from the table: "label"
-  """
-  label(
-    """distinct select on columns"""
-    distinctOn: [LabelSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [LabelOrderBy!]
-
-    """filter the rows returned"""
-    where: LabelBoolExp
-  ): [Label!]!
-
-  """
-  fetch aggregated fields from the table: "label"
-  """
-  labelAggregate(
-    """distinct select on columns"""
-    distinctOn: [LabelSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [LabelOrderBy!]
-
-    """filter the rows returned"""
-    where: LabelBoolExp
-  ): LabelAggregate!
-
-  """fetch data from the table: "label" using primary key columns"""
-  labelByPk(labelId: Int!): Label
-
-  """
-  fetch data from the table: "label_chatbot_category_domain"
-  """
-  labelChatbotCategoryDomain(
-    """distinct select on columns"""
-    distinctOn: [LabelChatbotCategoryDomainSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [LabelChatbotCategoryDomainOrderBy!]
-
-    """filter the rows returned"""
-    where: LabelChatbotCategoryDomainBoolExp
-  ): [LabelChatbotCategoryDomain!]!
-
-  """
-  fetch aggregated fields from the table: "label_chatbot_category_domain"
-  """
-  labelChatbotCategoryDomainAggregate(
-    """distinct select on columns"""
-    distinctOn: [LabelChatbotCategoryDomainSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [LabelChatbotCategoryDomainOrderBy!]
-
-    """filter the rows returned"""
-    where: LabelChatbotCategoryDomainBoolExp
-  ): LabelChatbotCategoryDomainAggregate!
-
-  """
-  fetch data from the table: "label_chatbot_category_domain" using primary key columns
-  """
-  labelChatbotCategoryDomainByPk(categoryId: Int!, chatbotId: Int!, domainId: String!, labelId: Int!): LabelChatbotCategoryDomain
 
   """
   fetch data from the table: "length_enum"
@@ -13557,63 +12424,6 @@ type subscription_root {
   ): [Category!]!
 
   """
-  fetch data from the table: "chat"
-  """
-  chat(
-    """distinct select on columns"""
-    distinctOn: [ChatSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ChatOrderBy!]
-
-    """filter the rows returned"""
-    where: ChatBoolExp
-  ): [Chat!]!
-
-  """
-  fetch aggregated fields from the table: "chat"
-  """
-  chatAggregate(
-    """distinct select on columns"""
-    distinctOn: [ChatSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ChatOrderBy!]
-
-    """filter the rows returned"""
-    where: ChatBoolExp
-  ): ChatAggregate!
-
-  """fetch data from the table: "chat" using primary key columns"""
-  chatByPk(chatId: Int!): Chat
-
-  """
-  fetch data from the table in a streaming manner: "chat"
-  """
-  chatStream(
-    """maximum number of rows returned in a single batch"""
-    batchSize: Int!
-
-    """cursor to stream the results returned by the query"""
-    cursor: [ChatStreamCursorInput]!
-
-    """filter the rows returned"""
-    where: ChatBoolExp
-  ): [Chat!]!
-
-  """
   fetch data from the table: "chatbot"
   """
   chatbot(
@@ -13714,6 +12524,63 @@ type subscription_root {
     """filter the rows returned"""
     where: ChatbotCategoryBoolExp
   ): [ChatbotCategory!]!
+
+  """
+  fetch data from the table: "chatbot_domain"
+  """
+  chatbotDomain(
+    """distinct select on columns"""
+    distinctOn: [ChatbotDomainSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotDomainOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotDomainBoolExp
+  ): [ChatbotDomain!]!
+
+  """
+  fetch aggregated fields from the table: "chatbot_domain"
+  """
+  chatbotDomainAggregate(
+    """distinct select on columns"""
+    distinctOn: [ChatbotDomainSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotDomainOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotDomainBoolExp
+  ): ChatbotDomainAggregate!
+
+  """fetch data from the table: "chatbot_domain" using primary key columns"""
+  chatbotDomainByPk(chatbotId: Int!, domainName: String!): ChatbotDomain
+
+  """
+  fetch data from the table in a streaming manner: "chatbot_domain"
+  """
+  chatbotDomainStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [ChatbotDomainStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: ChatbotDomainBoolExp
+  ): [ChatbotDomain!]!
 
   """
   fetch data from the table in a streaming manner: "chatbot"
@@ -13899,122 +12766,6 @@ type subscription_root {
     """filter the rows returned"""
     where: ExampleBoolExp
   ): [Example!]!
-
-  """
-  fetch data from the table: "label"
-  """
-  label(
-    """distinct select on columns"""
-    distinctOn: [LabelSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [LabelOrderBy!]
-
-    """filter the rows returned"""
-    where: LabelBoolExp
-  ): [Label!]!
-
-  """
-  fetch aggregated fields from the table: "label"
-  """
-  labelAggregate(
-    """distinct select on columns"""
-    distinctOn: [LabelSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [LabelOrderBy!]
-
-    """filter the rows returned"""
-    where: LabelBoolExp
-  ): LabelAggregate!
-
-  """fetch data from the table: "label" using primary key columns"""
-  labelByPk(labelId: Int!): Label
-
-  """
-  fetch data from the table: "label_chatbot_category_domain"
-  """
-  labelChatbotCategoryDomain(
-    """distinct select on columns"""
-    distinctOn: [LabelChatbotCategoryDomainSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [LabelChatbotCategoryDomainOrderBy!]
-
-    """filter the rows returned"""
-    where: LabelChatbotCategoryDomainBoolExp
-  ): [LabelChatbotCategoryDomain!]!
-
-  """
-  fetch aggregated fields from the table: "label_chatbot_category_domain"
-  """
-  labelChatbotCategoryDomainAggregate(
-    """distinct select on columns"""
-    distinctOn: [LabelChatbotCategoryDomainSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [LabelChatbotCategoryDomainOrderBy!]
-
-    """filter the rows returned"""
-    where: LabelChatbotCategoryDomainBoolExp
-  ): LabelChatbotCategoryDomainAggregate!
-
-  """
-  fetch data from the table: "label_chatbot_category_domain" using primary key columns
-  """
-  labelChatbotCategoryDomainByPk(categoryId: Int!, chatbotId: Int!, domainId: String!, labelId: Int!): LabelChatbotCategoryDomain
-
-  """
-  fetch data from the table in a streaming manner: "label_chatbot_category_domain"
-  """
-  labelChatbotCategoryDomainStream(
-    """maximum number of rows returned in a single batch"""
-    batchSize: Int!
-
-    """cursor to stream the results returned by the query"""
-    cursor: [LabelChatbotCategoryDomainStreamCursorInput]!
-
-    """filter the rows returned"""
-    where: LabelChatbotCategoryDomainBoolExp
-  ): [LabelChatbotCategoryDomain!]!
-
-  """
-  fetch data from the table in a streaming manner: "label"
-  """
-  labelStream(
-    """maximum number of rows returned in a single batch"""
-    batchSize: Int!
-
-    """cursor to stream the results returned by the query"""
-    cursor: [LabelStreamCursorInput]!
-
-    """filter the rows returned"""
-    where: LabelBoolExp
-  ): [Label!]!
 
   """
   fetch data from the table: "length_enum"

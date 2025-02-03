@@ -1,4 +1,0 @@
--- Could not auto-generate a down migration.
--- Please write an appropriate down migration for the SQL below:
--- DROP table if exists "public"."label_chatbot_category";
--- DROP table if exists "public"."label_chatbot_category_domain";
