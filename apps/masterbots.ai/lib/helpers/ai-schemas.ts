@@ -1,4 +1,4 @@
-import { getChatbotMetadataTool, getWebSearchTool } from '@/app/actions'
+import { ChatbotMetadataTool, getWebSearchTool } from '@/app/actions'
 import { z } from 'zod'
 
 // ? schema output for webSearch (Non-WordWare)
@@ -35,14 +35,14 @@ export const aiTools = {
         .string()
         .describe('The user content to be used for generating chatbot metadata.'),
     }),
-    execute: getChatbotMetadataTool,
+    execute: ChatbotMetadataTool,
   },
 }
 
 // ? useObject schemas for the AI tools
 export const metadataSchema = z.object({
-  category: z.array(z.string()).describe('Exact category name from provided options.'),
-  subCategory: z.array(z.string()).describe('Exact subcategory name from chosen category.'),
+  categories: z.array(z.string()).describe('Exact category name from provided options.'),
+  subCategories: z.array(z.string()).describe('Exact subcategory name from chosen category.'),
   tags: z.array(z.string()).describe('Array of exact tag names from provided options.'),
 })
 

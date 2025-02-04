@@ -41,7 +41,7 @@ export function createChatbotMetadataPrompt(
 ): string {
   return (
     `You are a top data scientist with extensive knowledge in the field of ${chatbotMetadata.domainName}. Your sole purpose is to label the following question "${userPrompt}" with the appropriate categories, sub-categories and tags as an array of strings.` +
-    'These are the available categories and sub-categories: ' +
+    'These are the available categories and their sub-categories: ' +
     JSON.stringify(chatbotMetadata.categories) +
     'These are the available tags: ' +
     chatbotMetadata.tags +

@@ -19,11 +19,11 @@ import { fetchChatbotMetadata } from '@/services/hasura'
 import type {
   AiClientType,
   ChatbotMetadata,
+  ChatbotMetadataClassification,
   ChatbotMetadataHeaders,
   ClassifyQuestionParams,
   CleanPromptResult,
   JSONResponseStream,
-  getChatbotMetadata,
 } from '@/types/types'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createOpenAI } from '@ai-sdk/openai'
@@ -92,7 +92,7 @@ export async function getChatbotMetadata(
   metadataHeaders: ChatbotMetadataHeaders,
   userPrompt: string,
   clientType: AiClientType,
-): Promise<getChatbotMetadata> {
+) {
   console.log('getting chatbot metadata, headers --> ', metadataHeaders)
   const chatbotMetadata = await fetchChatbotMetadata(metadataHeaders)
   console.log('got chatbot metadata')
@@ -100,9 +100,9 @@ export async function getChatbotMetadata(
   if (!chatbotMetadata) {
     console.error('Chatbot metadata not found. Generating response without them.')
     return {
-      domain: '',
-      category: '',
-      subCategory: '',
+      domainName: '',
+      categories: [],
+      subcategories: [],
       tags: [],
     }
   }
@@ -113,7 +113,7 @@ export async function getChatbotMetadata(
   console.log('prompt, response --> ', prompt)
   console.log('classifyQuestion, response --> ', response)
 
-  response.domain = chatbotMetadata.domainName
+  response.domainName = chatbotMetadata.domainName
 
   return response
 }
@@ -153,7 +153,7 @@ export async function processWithAi(
 export async function processWithAiObject(
   prompt: string,
   chatbotMetadata: ChatbotMetadata,
-  schema: typeof mbObjectSchema.metadata = mbObjectSchema.metadata,
+  schema = mbObjectSchema.metadata,
 ) {
   try {
     const messages = [{ role: 'user', content: prompt }] as OpenAI.ChatCompletionMessageParam[]
@@ -380,12 +380,7 @@ export async function classifyQuestion({
   chatbotMetadata,
   maxRetries = 3,
   retryCount = 0,
-}: ClassifyQuestionParams): Promise<{
-  domain: string
-  category: string
-  subCategory: string
-  tags: string[]
-}> {
+}: ClassifyQuestionParams): Promise<ChatbotMetadataClassification> {
   try {
     const responseObj = await processWithAiObject(prompt, chatbotMetadata)
 
@@ -395,13 +390,14 @@ export async function classifyQuestion({
       }
     }
 
-    if (!(responseObj.category in chatbotMetadata.categories)) {
-      throw new Error(`Category ${responseObj.category} not found in chatbot metadata`)
-    }
-    if (!chatbotMetadata.categories[responseObj.category].includes(responseObj.subCategory)) {
-      throw new Error(
-        `Subcategory ${responseObj.subCategory} not found in chatbot metadata for category ${responseObj.category}`,
-      )
+    for (const category of responseObj.categories) {
+      if (!chatbotMetadata.categories[category]) {
+        throw new Error(`Category ${category} not found in chatbot metadata`)
+      }
+
+      if (responseObj.categories[category].length === 0) {
+        throw new Error(`No subcategories found for category ${category}`)
+      }
     }
 
     console.log('class, subclass and tags are valid', responseObj)

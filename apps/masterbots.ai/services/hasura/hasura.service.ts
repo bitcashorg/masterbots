@@ -1,4 +1,5 @@
 import type {
+  ChatbotMetadata,
   ChatbotMetadataHeaders,
   ExampleMetadata,
   ReturnFetchChatbotMetadata,
@@ -1161,7 +1162,7 @@ export async function fetchChatbotMetadata({
 
     // console.log('transformedMetadata', transformedMetadata);
 
-    return transformedMetadata[0]
+    return transformedMetadata[0] as unknown as ChatbotMetadata
   } catch (error) {
     console.error('Error fetching chatbot metadata:', error)
     return null
