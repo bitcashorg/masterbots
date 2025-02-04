@@ -332,13 +332,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       domainExamples: [],
     }
     try {
-      if (!chatbot?.categories || !chatbot?.categories.length) {
-        console.error('Error fetching chatbot domain. No category found.')
-        if (appConfig.features.devMode) {
-          customSonner({ type: 'error', text: 'Error fetching chatbot domain. No category found.' })
-        }
-        return defaultMetadata
-      }
+      console.log('chatbot', chatbot)
 
       chatMetadata = await getChatbotMetadata(
         {
@@ -352,7 +346,17 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       // * Loading: Polishing Ai request... 'polishing'
       setLoadingState('polishing')
     } catch (error) {
-      console.error('Error getting chatbot metadata labels:', error)
+      console.error('Error getting chatbot metadata:', error)
+      if (appConfig.features.devMode) {
+        customSonner({ type: 'error', text: (error as Error)?.message })
+      }
+    }
+
+    if (chatMetadata?.errors?.length) {
+      customSonner({
+        type: 'error',
+        text: `${chatMetadata.domainName}: ${chatMetadata.errors.join(' & ')}`,
+      })
     }
 
     const tagExamples = []
@@ -365,9 +369,6 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
         (chatMetadata &&
           (!chatMetadata?.domainName || !chatMetadata?.tags || !chatMetadata?.categories.length))
       ) {
-        if (appConfig.features.devMode) {
-          customSonner({ type: 'error', text: 'Error fetching chatbot metadata labels.' })
-        }
         return defaultMetadata
       }
 
@@ -541,9 +542,6 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
 
         updateActiveThread(thread)
       }
-
-      console.log('Thread ID: ', threadId)
-      console.log('initialMessages: ', initialMessages)
 
       const appendResponse = await append(
         {

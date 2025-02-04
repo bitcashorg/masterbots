@@ -3,10 +3,10 @@
 import { SidebarCategoryGeneral } from '@/components/layout/sidebar/sidebar-category-general'
 import { SidebarHeader } from '@/components/layout/sidebar/sidebar-header'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
-import { cn } from '@/lib/utils'
-import React from 'react'
-import { usePathname } from 'next/navigation'
 import { useThread } from '@/lib/hooks/use-thread'
+import { cn } from '@/lib/utils'
+import { usePathname } from 'next/navigation'
+import React from 'react'
 
 export function Sidebar({ className }: React.ComponentProps<'div'>) {
   const { isSidebarOpen, isLoading } = useSidebar()
@@ -34,7 +34,7 @@ export function Sidebar({ className }: React.ComponentProps<'div'>) {
         className={cn(
           className,
           'h-full flex flex-col z-40',
-          isChatRoute 
+          isChatRoute
             ? 'bg-[#fae8ff] dark:bg-[#000000]' // For /c routes only
             : 'bg-[#eeffea] dark:bg-[#000000]'  // For other routes
         )}

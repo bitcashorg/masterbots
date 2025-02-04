@@ -200,7 +200,7 @@ export default function UserThreadPanel({
     }
   }, [continuousThreadId, session])
 
-  const threads = state.threads || initialThreads
+  const threads = state.threads.length ? state.threads : initialThreads
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should run only when the active category or chatbot changes
   useEffect(() => {
@@ -226,7 +226,7 @@ export default function UserThreadPanel({
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should run only when the active thread changes
   useEffect(() => {
-    if (threads?.filter((t) => t.threadId === activeThread?.threadId).length)
+    if (isOpenPopup && threads?.filter((t) => t.threadId === activeThread?.threadId).length)
       return
 
     setIsOpenPopup(false)

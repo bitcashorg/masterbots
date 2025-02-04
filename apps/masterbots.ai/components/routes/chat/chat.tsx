@@ -46,7 +46,7 @@ import type { ChatProps } from '@/types/types'
 import type { Message as UiUtilsMessage } from '@ai-sdk/ui-utils'
 import { useScroll } from 'framer-motion'
 import type { Chatbot } from 'mb-genql'
-import { useParams } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 import React, { useEffect } from 'react'
 import { useAsync } from 'react-use'
 
@@ -80,6 +80,8 @@ export function Chat({
     chatbot,
   })
   const chatbotNames = useAsync(async () => (await botNames).get(params.chatbot), [])
+  const pathname = usePathname()
+  const prevPathname = React.useRef(pathname)
 
   const { scrollY } = useScroll({
     container: containerRef as React.RefObject<HTMLElement>,
@@ -130,15 +132,13 @@ export function Chat({
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: Not required here
   useEffect(() => {
-    if (
-      params.chatbot &&
-      activeThread &&
-      chatbotNames.value === activeThread?.chatbot.name
-    ) {
+    if (prevPathname.current !== pathname) {
+      prevPathname.current = pathname
+
       setIsOpenPopup(false)
       setActiveThread(null)
     }
-  }, [chatbotNames])
+  }, [pathname])
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: Not required here
   useEffect(() => {

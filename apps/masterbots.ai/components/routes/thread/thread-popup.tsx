@@ -1,8 +1,8 @@
 'use client'
 
+import { BrowseChatMessageList } from '@/components/routes/browse/browse-chat-message-list'
 import { Chat } from '@/components/routes/chat/chat'
 import { ChatList } from '@/components/routes/chat/chat-list'
-import { BrowseChatMessageList } from '@/components/routes/browse/browse-chat-message-list'
 import { Button } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -11,16 +11,18 @@ import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn, scrollToBottomOfElement } from '@/lib/utils'
+import { getMessages } from '@/services/hasura'
 import type { Message as AiMessage } from 'ai'
 import { useScroll } from 'framer-motion'
 import type { Chatbot, Message } from 'mb-genql'
 import { useEffect, useRef, useState } from 'react'
-import { getMessages } from '@/services/hasura'
 
 export function ThreadPopup({ className }: { className?: string }) {
   const { activeChatbot } = useSidebar()
   const { isOpenPopup, activeThread } = useThread()
-  const [{ allMessages, isLoading }, { sendMessageFromResponse }] = useMBChat()
+  const [{ allMessages, isLoading }, { sendMessageFromResponse }] = useMBChat({
+    threadId: activeThread?.threadId
+  })
   const [browseMessages, setBrowseMessages] = useState<Message[]>([])
   const popupContentRef = useRef<HTMLDivElement>()
 
@@ -158,7 +160,7 @@ function ThreadPopUpCardHeader({
   const threadTitle = isBrowseView
     ? (messages[0] as Message)?.content
     : (messages.filter(m => (m as AiMessage).role === 'user')[0] as AiMessage)
-        ?.content
+      ?.content
 
   const threadTitleChunks = threadTitle?.split(/\s/g)
   const threadTitleHeading = threadTitleChunks?.slice(0, 32).join(' ')

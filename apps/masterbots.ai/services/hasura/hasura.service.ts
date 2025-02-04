@@ -1124,7 +1124,7 @@ export async function fetchChatbotMetadata({
             chatbotId: { _eq: chatbot },
           },
         },
-        domain_enum: {
+        domain: {
           name: true,
           tag_enums: {
             name: true,
@@ -1138,10 +1138,13 @@ export async function fetchChatbotMetadata({
         },
       },
     })
-    const chatbotMetadata = chatbotDomain as unknown as ChatbotDomain[]
+    const chatbotMetadata = chatbotDomain.filter(
+      // ? Filtering Advanced chatbots domains
+      (item) => !item.domain.name.endsWith('(Advanced)'),
+    ) as unknown as ChatbotDomain[]
 
     // require that the length is 1
-    if (chatbotMetadata.length !== 1 || !chatbotMetadata[0].domain) {
+    if (chatbotMetadata.length > 2 || !chatbotMetadata[0].domain) {
       throw new Error('Invalid chatbot metadata response')
     }
 
