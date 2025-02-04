@@ -23,6 +23,7 @@ import {
 import type {
   AiClientType,
   AiToolCall,
+  ChatbotMetadataClassification,
   ChatbotMetadataExamples,
   ExampleMetadata,
 } from '@/types/types'
@@ -324,7 +325,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
   }
 
   const getMetadataLabels = async (): Promise<ChatbotMetadataExamples> => {
-    let chatMetadata: getChatbotMetadata | undefined
+    let chatMetadata: ChatbotMetadataClassification | undefined
     const defaultMetadata: ChatbotMetadataExamples = {
       tagExamples: [],
       categoryExamples: [],
@@ -341,15 +342,12 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
 
       chatMetadata = await getChatbotMetadata(
         {
-          // ! domain should have a relationship to the chatbot... currently isn't...
-          domain: chatbot?.categories[0].categoryId as number,
           chatbot: chatbot?.chatbotId as number,
-          category: chatbot?.categories[0].categoryId as number,
         },
         userContentRef.current,
         clientType as AiClientType,
       )
-      console.log('Full responses from getChatbotMetadata:', chatMetadata)
+      console.log('Full responses from ChatbotMetadata:', chatMetadata)
 
       // * Loading: Polishing Ai request... 'polishing'
       setLoadingState('polishing')
@@ -365,10 +363,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       if (
         !chatMetadata ||
         (chatMetadata &&
-          (!chatMetadata?.domain ||
-            !chatMetadata?.tags ||
-            !chatMetadata?.category ||
-            !chatMetadata?.subCategory))
+          (!chatMetadata?.domainName || !chatMetadata?.tags || !chatMetadata?.categories.length))
       ) {
         if (appConfig.features.devMode) {
           customSonner({ type: 'error', text: 'Error fetching chatbot metadata labels.' })
@@ -376,9 +371,9 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
         return defaultMetadata
       }
 
-      domainExamples = (await fetchDomainExamples(chatMetadata.domain)) ?? []
+      domainExamples = (await fetchDomainExamples(chatMetadata.domainName)) ?? []
       console.log('Domain examples --> ', domainExamples)
-      const domainTags = (await fetchDomainTags(chatMetadata.domain)) ?? []
+      const domainTags = (await fetchDomainTags(chatMetadata.domainName)) ?? []
       console.log('Domain tags --> ', domainTags)
 
       if (!domainExamples.length && !domainTags) {
@@ -436,12 +431,13 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
           tagExamples.push(example)
           usedPrompts.push(example.prompt)
         } else if (categoryExamples.length < 3) {
-          if (
-            example.category === chatMetadata.category &&
-            example.subcategory === chatMetadata.subCategory
-          ) {
-            categoryExamples.push(example)
-            usedPrompts.push(example.prompt)
+          for (const categories of chatMetadata.categories) {
+            for (const category of Object.keys(categories)) {
+              if (example.category === category) {
+                categoryExamples.push(example)
+                usedPrompts.push(example.prompt)
+              }
+            }
           }
         } else {
           break

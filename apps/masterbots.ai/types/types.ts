@@ -137,10 +137,19 @@ export const initialStateSubscription = {
 
 // * AI SDK related types
 
-export type getChatbotMetadata = {
-  domain: string
-  category: string
-  subCategory: string
+export type ChatbotMetadata = {
+  domainName: string
+  tags: string[]
+  categories:
+    | Record<string, string>[]
+    | {
+        [key: string]: string
+      }[]
+}
+
+export type ChatbotMetadataClassification = {
+  domainName: string
+  categories: string[]
   tags: string[]
 }
 
@@ -171,12 +180,6 @@ export interface ThreadState {
 
 export type ChatbotMetadataHeaders = {
   chatbot: number
-}
-
-export type ChatbotMetadata = {
-  domainName: string
-  tags: string[]
-  categories: Record<string, string[]>
 }
 
 export type ReturnFetchChatbotMetadata = ChatbotMetadata | null

@@ -10,7 +10,7 @@ import { getChatbotMetadata } from '.'
 const { WORDWARE_API_KEY } = process.env
 
 // TODO: Finish ICL implementation. ICL should be called as a tool that Ai will use to generate content.
-export async function getChatbotMetadataTool({
+export async function ChatbotMetadataTool({
   chatbot,
   userContent,
 }: z.infer<typeof aiTools.chatbotMetadataExamples.parameters>) {
