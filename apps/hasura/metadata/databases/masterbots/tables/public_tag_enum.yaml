@@ -1,0 +1,26 @@
+table:
+  name: tag_enum
+  schema: public
+object_relationships:
+  - name: domain_enum
+    using:
+      foreign_key_constraint_on: domain
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - name
+        - domain
+        - frequency
+        - tag_id
+      filter: {}
+    comment: ""
+  - role: user
+    permission:
+      columns:
+        - domain
+        - name
+        - frequency
+        - tag_id
+      filter: {}
+    comment: ""
