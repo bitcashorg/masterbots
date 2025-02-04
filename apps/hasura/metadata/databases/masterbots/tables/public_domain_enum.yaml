@@ -31,13 +31,6 @@ select_permissions:
         - added
       filter: {}
     comment: ""
-  - role: moderator
-    permission:
-      columns:
-        - name
-        - added
-      filter: {}
-    comment: ""
   - role: user
     permission:
       columns:
