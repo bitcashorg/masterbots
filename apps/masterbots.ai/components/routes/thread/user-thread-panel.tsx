@@ -50,7 +50,7 @@ import { useAsync, useSetState } from 'react-use'
 // TODO: this is a hard to understand file since it tries to focus in too many different aspects
 // in only one file, instead of relying on reusable hooks for each context. It should be refactored.
 export default function UserThreadPanel({
-  threads: initialThreads,
+  threads: initialThreads = [],
   page,
 }: {
   threads?: Thread[]
@@ -244,12 +244,12 @@ export default function UserThreadPanel({
   return (
     <>
       {(page !== 'profile' || (page !== 'profile' && !isContinuousThread)) && (
-        <div className="flex justify-between px-4 md:px-10 py-5 lg:max-w-full">
+        <div className="flex justify-between px-4 py-5 md:px-10 lg:max-w-full">
           <ChatSearchInput setThreads={setState} onSearch={setSearchTerm} />
         </div>
       )}
       <ul className={cn(
-        'flex flex-col w-full h-full gap-3 pb-5 px-4 lg:px-10',
+        'flex flex-col size-full gap-3 pb-5 px-4 lg:px-10',
         {
           'items-center justify-center': showNoResults || showChatbotDetails,
         }
