@@ -1,18 +1,15 @@
 'use client'
 
-import { useAtBottom } from '@/lib/hooks/use-at-bottom';
-import { useSidebar } from '@/lib/hooks/use-sidebar';
-import {
-  getChatbots,
-  getChatbotsCount
-} from '@/services/hasura';
-import { AiToolCall, ChatLoadingState } from '@/types/types';
-import { useScroll } from 'framer-motion';
-import type { Chatbot, Thread } from 'mb-genql';
-import { useSession } from 'next-auth/react';
-import { useParams } from 'next/navigation';
-import * as React from 'react';
-import { useSetState } from 'react-use';
+import { useAtBottom } from '@/lib/hooks/use-at-bottom'
+import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { getChatbots, getChatbotsCount } from '@/services/hasura'
+import type { AiToolCall, ChatLoadingState } from '@/types/types'
+import { useScroll } from 'framer-motion'
+import type { Chatbot, Thread } from 'mb-genql'
+import { useSession } from 'next-auth/react'
+import { useParams } from 'next/navigation'
+import * as React from 'react'
+import { useSetState } from 'react-use'
 
 interface ThreadContext {
   isOpenPopup: boolean

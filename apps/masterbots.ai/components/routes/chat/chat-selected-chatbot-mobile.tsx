@@ -1,23 +1,32 @@
 import { Card, CardFooter, CardHeader } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
-import { Bot, ArrowBigDown } from 'lucide-react'
+import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useThread } from '@/lib/hooks/use-thread'
+import { cn, getRouteType } from '@/lib/utils'
+import { ArrowBigDown, Bot } from 'lucide-react'
 import Image from 'next/image'
+import { usePathname } from 'next/navigation'
 
 interface SelectedBotMobileViewProps {
-  botName: string
-  description: string
-  avatar: string
   onNewChat: () => void
 }
 
 export function SelectedBotMobileView({
-  botName,
-  description,
-  avatar,
   onNewChat
 }: SelectedBotMobileViewProps) {
+  const pathname = usePathname()
+  const routeType = getRouteType(pathname)
+  const { activeChatbot } = useSidebar()
+  const { randomChatbot } = useThread()
+
+  const botName = (activeChatbot?.name || randomChatbot?.name)
+  const avatar = (activeChatbot?.avatar || randomChatbot?.avatar || '')
+  const description = (activeChatbot?.description || randomChatbot?.description)
+
   return (
-    <div className="md:hidden h-[calc(100vh-196px)] flex items-center justify-center -translate-y-8">
+    <div
+      className="md:hidden h-[calc(100vh-196px)] flex items-center justify-center -translate-y-8"
+      data-route={routeType}
+    >
       <Card className="w-full bg-white dark:bg-[#09090B]">
         <CardHeader>
           <div className="flex flex-col gap-4">
@@ -39,7 +48,7 @@ export function SelectedBotMobileView({
                   className={cn(
                     'size-16 rounded-full relative',
                     'bg-zinc-200 dark:bg-black',
-                    'ring-4 ring-[#be16e8] dark:ring-[#82e46a]'
+                    'ring-4 selected-bot-avatar'
                   )}
                 >
                   <Image
@@ -63,12 +72,11 @@ export function SelectedBotMobileView({
             </div>
           </div>
         </CardHeader>
-
         <CardFooter className="flex justify-center py-4">
-              <h2 className="flex items-center text-lg font-semibold text-[#be16e8] dark:text-[#82e46a]">
-                <ArrowBigDown className="mr-2 size-6 fill-[#be16e8] dark:fill-[#82e46a]" />
-                Start Chatting Below
-              </h2>
+          <h2 className="flex items-center text-lg font-semibold selected-bot-text">
+            <ArrowBigDown className="mr-2 size-6 selected-bot-icon" />
+            Start Chatting Below
+          </h2>
         </CardFooter>
       </Card>
     </div>

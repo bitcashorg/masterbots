@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, RefObject } from 'react'
+import { type RefObject, useCallback, useEffect, useState } from 'react'
 
 interface UseScrollOptions {
   containerRef: RefObject<HTMLElement>
@@ -21,7 +21,7 @@ export function useScroll({
   loading,
   loadMore,
   rootMargin = '0px 0px 100px 0px',
-  threshold = 0.1
+  threshold = 0.1,
 }: UseScrollOptions) {
   const [isNearBottom, setIsNearBottom] = useState(false)
 
@@ -34,13 +34,14 @@ export function useScroll({
       // ? Two-phase scroll
       containerRef.current.scrollTop = maxScrollTop - 1 // ? First scroll to near bottom
       requestAnimationFrame(() => {
-        containerRef.current!.scrollTop = maxScrollTop // ? Then scroll to actual bottom
+        if (!containerRef.current) return
+        containerRef.current.scrollTop = maxScrollTop // ? Then scroll to actual bottom
       })
     }
   }, [containerRef])
 
   const scrollToTop = useCallback(async () => {
-    await new Promise(resolve => setTimeout(resolve, 300)) // animation time
+    await new Promise((resolve) => setTimeout(resolve, 300)) // animation time
     if (threadRef.current) {
       threadRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
@@ -55,8 +56,8 @@ export function useScroll({
         {
           root: containerRef.current,
           threshold,
-          rootMargin
-        }
+          rootMargin,
+        },
       )
 
       const dummy = document.createElement('div')
@@ -88,8 +89,8 @@ export function useScroll({
       {
         root: null,
         rootMargin: '100px',
-        threshold: 0.1
-      }
+        threshold: 0.1,
+      },
     )
 
     observer.observe(threadRef.current)

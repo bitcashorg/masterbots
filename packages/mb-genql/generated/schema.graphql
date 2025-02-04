@@ -67,42 +67,6 @@ type Category {
     """filter the rows returned"""
     where: ChatbotCategoryBoolExp
   ): ChatbotCategoryAggregate!
-
-  """An array relationship"""
-  metadataLabels(
-    """distinct select on columns"""
-    distinctOn: [LabelChatbotCategorySelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [LabelChatbotCategoryOrderBy!]
-
-    """filter the rows returned"""
-    where: LabelChatbotCategoryBoolExp
-  ): [LabelChatbotCategory!]!
-
-  """An aggregate relationship"""
-  metadataLabelsAggregate(
-    """distinct select on columns"""
-    distinctOn: [LabelChatbotCategorySelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [LabelChatbotCategoryOrderBy!]
-
-    """filter the rows returned"""
-    where: LabelChatbotCategoryBoolExp
-  ): LabelChatbotCategoryAggregate!
   name: String!
 }
 
@@ -146,8 +110,6 @@ input CategoryBoolExp {
   categoryId: IntComparisonExp
   chatbots: ChatbotCategoryBoolExp
   chatbotsAggregate: ChatbotCategoryAggregateBoolExp
-  metadataLabels: LabelChatbotCategoryBoolExp
-  metadataLabelsAggregate: LabelChatbotCategoryAggregateBoolExp
   name: StringComparisonExp
 }
 
@@ -167,6 +129,310 @@ enum CategoryConstraint {
 }
 
 """
+columns and relationships of "category_enum"
+"""
+type CategoryEnum {
+  added: timestamptz!
+  domain: String!
+
+  """An object relationship"""
+  domain_enum: DomainEnum!
+  name: String!
+
+  """An aggregate relationship"""
+  subcategoryEnumsAggregate(
+    """distinct select on columns"""
+    distinctOn: [SubcategoryEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [SubcategoryEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: SubcategoryEnumBoolExp
+  ): SubcategoryEnumAggregate!
+
+  """An array relationship"""
+  subcategoryEnumsByCategoryDomain(
+    """distinct select on columns"""
+    distinctOn: [SubcategoryEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [SubcategoryEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: SubcategoryEnumBoolExp
+  ): [SubcategoryEnum!]!
+
+  """An aggregate relationship"""
+  subcategoryEnumsByCategoryDomainAggregate(
+    """distinct select on columns"""
+    distinctOn: [SubcategoryEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [SubcategoryEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: SubcategoryEnumBoolExp
+  ): SubcategoryEnumAggregate!
+
+  """An array relationship"""
+  subcategory_enums(
+    """distinct select on columns"""
+    distinctOn: [SubcategoryEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [SubcategoryEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: SubcategoryEnumBoolExp
+  ): [SubcategoryEnum!]!
+}
+
+"""
+aggregated selection of "category_enum"
+"""
+type CategoryEnumAggregate {
+  aggregate: CategoryEnumAggregateFields
+  nodes: [CategoryEnum!]!
+}
+
+input CategoryEnumAggregateBoolExp {
+  count: categoryEnumAggregateBoolExpCount
+}
+
+"""
+aggregate fields of "category_enum"
+"""
+type CategoryEnumAggregateFields {
+  count(columns: [CategoryEnumSelectColumn!], distinct: Boolean): Int!
+  max: CategoryEnumMaxFields
+  min: CategoryEnumMinFields
+}
+
+"""
+order by aggregate values of table "category_enum"
+"""
+input CategoryEnumAggregateOrderBy {
+  count: OrderBy
+  max: CategoryEnumMaxOrderBy
+  min: CategoryEnumMinOrderBy
+}
+
+"""
+input type for inserting array relation for remote table "category_enum"
+"""
+input CategoryEnumArrRelInsertInput {
+  data: [CategoryEnumInsertInput!]!
+
+  """upsert condition"""
+  onConflict: CategoryEnumOnConflict
+}
+
+"""
+Boolean expression to filter rows from the table "category_enum". All fields are combined with a logical 'AND'.
+"""
+input CategoryEnumBoolExp {
+  _and: [CategoryEnumBoolExp!]
+  _not: CategoryEnumBoolExp
+  _or: [CategoryEnumBoolExp!]
+  added: TimestamptzComparisonExp
+  domain: StringComparisonExp
+  domain_enum: DomainEnumBoolExp
+  name: StringComparisonExp
+  subcategoryEnumsByCategoryDomain: SubcategoryEnumBoolExp
+  subcategoryEnumsByCategoryDomainAggregate: SubcategoryEnumAggregateBoolExp
+  subcategory_enums: SubcategoryEnumBoolExp
+  subcategory_enumsAggregate: SubcategoryEnumAggregateBoolExp
+}
+
+"""
+unique or primary key constraints on table "category_enum"
+"""
+enum CategoryEnumConstraint {
+  """
+  unique or primary key constraint on columns "domain", "name"
+  """
+  category_enum_pkey
+}
+
+"""
+input type for inserting data into table "category_enum"
+"""
+input CategoryEnumInsertInput {
+  added: timestamptz
+  domain: String
+  domain_enum: DomainEnumObjRelInsertInput
+  name: String
+  subcategoryEnumsByCategoryDomain: SubcategoryEnumArrRelInsertInput
+  subcategory_enums: SubcategoryEnumArrRelInsertInput
+}
+
+"""aggregate max on columns"""
+type CategoryEnumMaxFields {
+  added: timestamptz
+  domain: String
+  name: String
+}
+
+"""
+order by max() on columns of table "category_enum"
+"""
+input CategoryEnumMaxOrderBy {
+  added: OrderBy
+  domain: OrderBy
+  name: OrderBy
+}
+
+"""aggregate min on columns"""
+type CategoryEnumMinFields {
+  added: timestamptz
+  domain: String
+  name: String
+}
+
+"""
+order by min() on columns of table "category_enum"
+"""
+input CategoryEnumMinOrderBy {
+  added: OrderBy
+  domain: OrderBy
+  name: OrderBy
+}
+
+"""
+response of any mutation on the table "category_enum"
+"""
+type CategoryEnumMutationResponse {
+  """number of rows affected by the mutation"""
+  affectedRows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [CategoryEnum!]!
+}
+
+"""
+input type for inserting object relation for remote table "category_enum"
+"""
+input CategoryEnumObjRelInsertInput {
+  data: CategoryEnumInsertInput!
+
+  """upsert condition"""
+  onConflict: CategoryEnumOnConflict
+}
+
+"""
+on_conflict condition type for table "category_enum"
+"""
+input CategoryEnumOnConflict {
+  constraint: CategoryEnumConstraint!
+  updateColumns: [CategoryEnumUpdateColumn!]! = []
+  where: CategoryEnumBoolExp
+}
+
+"""Ordering options when selecting data from "category_enum"."""
+input CategoryEnumOrderBy {
+  added: OrderBy
+  domain: OrderBy
+  domain_enum: DomainEnumOrderBy
+  name: OrderBy
+  subcategoryEnumsByCategoryDomainAggregate: SubcategoryEnumAggregateOrderBy
+  subcategory_enumsAggregate: SubcategoryEnumAggregateOrderBy
+}
+
+"""primary key columns input for table: category_enum"""
+input CategoryEnumPkColumnsInput {
+  domain: String!
+  name: String!
+}
+
+"""
+select columns of table "category_enum"
+"""
+enum CategoryEnumSelectColumn {
+  """column name"""
+  added
+
+  """column name"""
+  domain
+
+  """column name"""
+  name
+}
+
+"""
+input type for updating data in table "category_enum"
+"""
+input CategoryEnumSetInput {
+  added: timestamptz
+  domain: String
+  name: String
+}
+
+"""
+Streaming cursor of the table "category_enum"
+"""
+input CategoryEnumStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: CategoryEnumStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input CategoryEnumStreamCursorValueInput {
+  added: timestamptz
+  domain: String
+  name: String
+}
+
+"""
+update columns of table "category_enum"
+"""
+enum CategoryEnumUpdateColumn {
+  """column name"""
+  added
+
+  """column name"""
+  domain
+
+  """column name"""
+  name
+}
+
+input CategoryEnumUpdates {
+  """sets the columns of the filtered rows to the given values"""
+  _set: CategoryEnumSetInput
+
+  """filter the rows which have to be updated"""
+  where: CategoryEnumBoolExp!
+}
+
+"""
 input type for incrementing numeric columns in table "category"
 """
 input CategoryIncInput {
@@ -179,7 +445,6 @@ input type for inserting data into table "category"
 input CategoryInsertInput {
   categoryId: Int
   chatbots: ChatbotCategoryArrRelInsertInput
-  metadataLabels: LabelChatbotCategoryArrRelInsertInput
   name: String
 }
 
@@ -229,7 +494,6 @@ input CategoryOnConflict {
 input CategoryOrderBy {
   categoryId: OrderBy
   chatbotsAggregate: ChatbotCategoryAggregateOrderBy
-  metadataLabelsAggregate: LabelChatbotCategoryAggregateOrderBy
   name: OrderBy
 }
 
@@ -332,385 +596,6 @@ type CategoryVarianceFields {
 }
 
 """
-Table to store links to GPT chat conversations and associate them with a specific GPT chatbot and the user who added the link.
-"""
-type Chat {
-  addedBy: uuid
-  chatId: Int!
-
-  """An object relationship"""
-  chatbot: Chatbot!
-  chatbotId: Int!
-  conversationLink: String!
-
-  """An object relationship"""
-  user: User
-}
-
-"""
-aggregated selection of "chat"
-"""
-type ChatAggregate {
-  aggregate: ChatAggregateFields
-  nodes: [Chat!]!
-}
-
-input ChatAggregateBoolExp {
-  count: chatAggregateBoolExpCount
-}
-
-"""
-aggregate fields of "chat"
-"""
-type ChatAggregateFields {
-  avg: ChatAvgFields
-  count(columns: [ChatSelectColumn!], distinct: Boolean): Int!
-  max: ChatMaxFields
-  min: ChatMinFields
-  stddev: ChatStddevFields
-  stddevPop: ChatStddevPopFields
-  stddevSamp: ChatStddevSampFields
-  sum: ChatSumFields
-  varPop: ChatVarPopFields
-  varSamp: ChatVarSampFields
-  variance: ChatVarianceFields
-}
-
-"""
-order by aggregate values of table "chat"
-"""
-input ChatAggregateOrderBy {
-  avg: ChatAvgOrderBy
-  count: OrderBy
-  max: ChatMaxOrderBy
-  min: ChatMinOrderBy
-  stddev: ChatStddevOrderBy
-  stddevPop: ChatStddevPopOrderBy
-  stddevSamp: ChatStddevSampOrderBy
-  sum: ChatSumOrderBy
-  varPop: ChatVarPopOrderBy
-  varSamp: ChatVarSampOrderBy
-  variance: ChatVarianceOrderBy
-}
-
-"""
-input type for inserting array relation for remote table "chat"
-"""
-input ChatArrRelInsertInput {
-  data: [ChatInsertInput!]!
-
-  """upsert condition"""
-  onConflict: ChatOnConflict
-}
-
-"""aggregate avg on columns"""
-type ChatAvgFields {
-  chatId: Float
-  chatbotId: Float
-}
-
-"""
-order by avg() on columns of table "chat"
-"""
-input ChatAvgOrderBy {
-  chatId: OrderBy
-  chatbotId: OrderBy
-}
-
-"""
-Boolean expression to filter rows from the table "chat". All fields are combined with a logical 'AND'.
-"""
-input ChatBoolExp {
-  _and: [ChatBoolExp!]
-  _not: ChatBoolExp
-  _or: [ChatBoolExp!]
-  addedBy: UuidComparisonExp
-  chatId: IntComparisonExp
-  chatbot: ChatbotBoolExp
-  chatbotId: IntComparisonExp
-  conversationLink: StringComparisonExp
-  user: UserBoolExp
-}
-
-"""
-unique or primary key constraints on table "chat"
-"""
-enum ChatConstraint {
-  """
-  unique or primary key constraint on columns "conversation_link"
-  """
-  gpt_chat_conversation_link_key
-
-  """
-  unique or primary key constraint on columns "chat_id"
-  """
-  gpt_chat_pkey
-}
-
-"""
-input type for incrementing numeric columns in table "chat"
-"""
-input ChatIncInput {
-  chatId: Int
-  chatbotId: Int
-}
-
-"""
-input type for inserting data into table "chat"
-"""
-input ChatInsertInput {
-  addedBy: uuid
-  chatId: Int
-  chatbot: ChatbotObjRelInsertInput
-  chatbotId: Int
-  conversationLink: String
-  user: UserObjRelInsertInput
-}
-
-"""aggregate max on columns"""
-type ChatMaxFields {
-  addedBy: uuid
-  chatId: Int
-  chatbotId: Int
-  conversationLink: String
-}
-
-"""
-order by max() on columns of table "chat"
-"""
-input ChatMaxOrderBy {
-  addedBy: OrderBy
-  chatId: OrderBy
-  chatbotId: OrderBy
-  conversationLink: OrderBy
-}
-
-"""aggregate min on columns"""
-type ChatMinFields {
-  addedBy: uuid
-  chatId: Int
-  chatbotId: Int
-  conversationLink: String
-}
-
-"""
-order by min() on columns of table "chat"
-"""
-input ChatMinOrderBy {
-  addedBy: OrderBy
-  chatId: OrderBy
-  chatbotId: OrderBy
-  conversationLink: OrderBy
-}
-
-"""
-response of any mutation on the table "chat"
-"""
-type ChatMutationResponse {
-  """number of rows affected by the mutation"""
-  affectedRows: Int!
-
-  """data from the rows affected by the mutation"""
-  returning: [Chat!]!
-}
-
-"""
-on_conflict condition type for table "chat"
-"""
-input ChatOnConflict {
-  constraint: ChatConstraint!
-  updateColumns: [ChatUpdateColumn!]! = []
-  where: ChatBoolExp
-}
-
-"""Ordering options when selecting data from "chat"."""
-input ChatOrderBy {
-  addedBy: OrderBy
-  chatId: OrderBy
-  chatbot: ChatbotOrderBy
-  chatbotId: OrderBy
-  conversationLink: OrderBy
-  user: UserOrderBy
-}
-
-"""primary key columns input for table: chat"""
-input ChatPkColumnsInput {
-  chatId: Int!
-}
-
-"""
-select columns of table "chat"
-"""
-enum ChatSelectColumn {
-  """column name"""
-  addedBy
-
-  """column name"""
-  chatId
-
-  """column name"""
-  chatbotId
-
-  """column name"""
-  conversationLink
-}
-
-"""
-input type for updating data in table "chat"
-"""
-input ChatSetInput {
-  addedBy: uuid
-  chatId: Int
-  chatbotId: Int
-  conversationLink: String
-}
-
-"""aggregate stddev on columns"""
-type ChatStddevFields {
-  chatId: Float
-  chatbotId: Float
-}
-
-"""
-order by stddev() on columns of table "chat"
-"""
-input ChatStddevOrderBy {
-  chatId: OrderBy
-  chatbotId: OrderBy
-}
-
-"""aggregate stddevPop on columns"""
-type ChatStddevPopFields {
-  chatId: Float
-  chatbotId: Float
-}
-
-"""
-order by stddevPop() on columns of table "chat"
-"""
-input ChatStddevPopOrderBy {
-  chatId: OrderBy
-  chatbotId: OrderBy
-}
-
-"""aggregate stddevSamp on columns"""
-type ChatStddevSampFields {
-  chatId: Float
-  chatbotId: Float
-}
-
-"""
-order by stddevSamp() on columns of table "chat"
-"""
-input ChatStddevSampOrderBy {
-  chatId: OrderBy
-  chatbotId: OrderBy
-}
-
-"""
-Streaming cursor of the table "chat"
-"""
-input ChatStreamCursorInput {
-  """Stream column input with initial value"""
-  initialValue: ChatStreamCursorValueInput!
-
-  """cursor ordering"""
-  ordering: CursorOrdering
-}
-
-"""Initial value of the column from where the streaming should start"""
-input ChatStreamCursorValueInput {
-  addedBy: uuid
-  chatId: Int
-  chatbotId: Int
-  conversationLink: String
-}
-
-"""aggregate sum on columns"""
-type ChatSumFields {
-  chatId: Int
-  chatbotId: Int
-}
-
-"""
-order by sum() on columns of table "chat"
-"""
-input ChatSumOrderBy {
-  chatId: OrderBy
-  chatbotId: OrderBy
-}
-
-"""
-update columns of table "chat"
-"""
-enum ChatUpdateColumn {
-  """column name"""
-  addedBy
-
-  """column name"""
-  chatId
-
-  """column name"""
-  chatbotId
-
-  """column name"""
-  conversationLink
-}
-
-input ChatUpdates {
-  """increments the numeric columns with given value of the filtered values"""
-  _inc: ChatIncInput
-
-  """sets the columns of the filtered rows to the given values"""
-  _set: ChatSetInput
-
-  """filter the rows which have to be updated"""
-  where: ChatBoolExp!
-}
-
-"""aggregate varPop on columns"""
-type ChatVarPopFields {
-  chatId: Float
-  chatbotId: Float
-}
-
-"""
-order by varPop() on columns of table "chat"
-"""
-input ChatVarPopOrderBy {
-  chatId: OrderBy
-  chatbotId: OrderBy
-}
-
-"""aggregate varSamp on columns"""
-type ChatVarSampFields {
-  chatId: Float
-  chatbotId: Float
-}
-
-"""
-order by varSamp() on columns of table "chat"
-"""
-input ChatVarSampOrderBy {
-  chatId: OrderBy
-  chatbotId: OrderBy
-}
-
-"""aggregate variance on columns"""
-type ChatVarianceFields {
-  chatId: Float
-  chatbotId: Float
-}
-
-"""
-order by variance() on columns of table "chat"
-"""
-input ChatVarianceOrderBy {
-  chatId: OrderBy
-  chatbotId: OrderBy
-}
-
-"""
 Table storing information about chatbots, their characteristics, and default settings.
 """
 type Chatbot {
@@ -752,42 +637,6 @@ type Chatbot {
     where: ChatbotCategoryBoolExp
   ): ChatbotCategoryAggregate!
   chatbotId: Int!
-
-  """An array relationship"""
-  chats(
-    """distinct select on columns"""
-    distinctOn: [ChatSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ChatOrderBy!]
-
-    """filter the rows returned"""
-    where: ChatBoolExp
-  ): [Chat!]!
-
-  """An aggregate relationship"""
-  chatsAggregate(
-    """distinct select on columns"""
-    distinctOn: [ChatSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ChatOrderBy!]
-
-    """filter the rows returned"""
-    where: ChatBoolExp
-  ): ChatAggregate!
 
   """An object relationship"""
   complexityEnum: ComplexityEnum
@@ -838,9 +687,9 @@ type Chatbot {
   lengthEnum: LengthEnum
 
   """An array relationship"""
-  metadataLabels(
+  metadata(
     """distinct select on columns"""
-    distinctOn: [LabelChatbotCategorySelectColumn!]
+    distinctOn: [ChatbotDomainSelectColumn!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -849,16 +698,16 @@ type Chatbot {
     offset: Int
 
     """sort the rows by one or more columns"""
-    orderBy: [LabelChatbotCategoryOrderBy!]
+    orderBy: [ChatbotDomainOrderBy!]
 
     """filter the rows returned"""
-    where: LabelChatbotCategoryBoolExp
-  ): [LabelChatbotCategory!]!
+    where: ChatbotDomainBoolExp
+  ): [ChatbotDomain!]!
 
   """An aggregate relationship"""
-  metadataLabelsAggregate(
+  metadataAggregate(
     """distinct select on columns"""
-    distinctOn: [LabelChatbotCategorySelectColumn!]
+    distinctOn: [ChatbotDomainSelectColumn!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -867,11 +716,11 @@ type Chatbot {
     offset: Int
 
     """sort the rows by one or more columns"""
-    orderBy: [LabelChatbotCategoryOrderBy!]
+    orderBy: [ChatbotDomainOrderBy!]
 
     """filter the rows returned"""
-    where: LabelChatbotCategoryBoolExp
-  ): LabelChatbotCategoryAggregate!
+    where: ChatbotDomainBoolExp
+  ): ChatbotDomainAggregate!
   name: String!
 
   """An array relationship"""
@@ -1068,8 +917,6 @@ input ChatbotBoolExp {
   categories: ChatbotCategoryBoolExp
   categoriesAggregate: ChatbotCategoryAggregateBoolExp
   chatbotId: IntComparisonExp
-  chats: ChatBoolExp
-  chatsAggregate: ChatAggregateBoolExp
   complexityEnum: ComplexityEnumBoolExp
   createdBy: StringComparisonExp
   defaultComplexity: StringComparisonExp
@@ -1080,8 +927,8 @@ input ChatbotBoolExp {
   followers: SocialFollowingBoolExp
   followersAggregate: SocialFollowingAggregateBoolExp
   lengthEnum: LengthEnumBoolExp
-  metadataLabels: LabelChatbotCategoryBoolExp
-  metadataLabelsAggregate: LabelChatbotCategoryAggregateBoolExp
+  metadata: ChatbotDomainBoolExp
+  metadataAggregate: ChatbotDomainAggregateBoolExp
   name: StringComparisonExp
   preferences: PreferenceBoolExp
   preferencesAggregate: PreferenceAggregateBoolExp
@@ -1450,6 +1297,329 @@ enum ChatbotConstraint {
   chatbot_pkey
 }
 
+"""Junction table to track domains and chatbots relationships."""
+type ChatbotDomain {
+  """An object relationship"""
+  chatbot: Chatbot!
+  chatbotId: Int!
+
+  """An object relationship"""
+  domain: DomainEnum!
+  domainName: String!
+}
+
+"""
+aggregated selection of "chatbot_domain"
+"""
+type ChatbotDomainAggregate {
+  aggregate: ChatbotDomainAggregateFields
+  nodes: [ChatbotDomain!]!
+}
+
+input ChatbotDomainAggregateBoolExp {
+  count: chatbotDomainAggregateBoolExpCount
+}
+
+"""
+aggregate fields of "chatbot_domain"
+"""
+type ChatbotDomainAggregateFields {
+  avg: ChatbotDomainAvgFields
+  count(columns: [ChatbotDomainSelectColumn!], distinct: Boolean): Int!
+  max: ChatbotDomainMaxFields
+  min: ChatbotDomainMinFields
+  stddev: ChatbotDomainStddevFields
+  stddevPop: ChatbotDomainStddevPopFields
+  stddevSamp: ChatbotDomainStddevSampFields
+  sum: ChatbotDomainSumFields
+  varPop: ChatbotDomainVarPopFields
+  varSamp: ChatbotDomainVarSampFields
+  variance: ChatbotDomainVarianceFields
+}
+
+"""
+order by aggregate values of table "chatbot_domain"
+"""
+input ChatbotDomainAggregateOrderBy {
+  avg: ChatbotDomainAvgOrderBy
+  count: OrderBy
+  max: ChatbotDomainMaxOrderBy
+  min: ChatbotDomainMinOrderBy
+  stddev: ChatbotDomainStddevOrderBy
+  stddevPop: ChatbotDomainStddevPopOrderBy
+  stddevSamp: ChatbotDomainStddevSampOrderBy
+  sum: ChatbotDomainSumOrderBy
+  varPop: ChatbotDomainVarPopOrderBy
+  varSamp: ChatbotDomainVarSampOrderBy
+  variance: ChatbotDomainVarianceOrderBy
+}
+
+"""
+input type for inserting array relation for remote table "chatbot_domain"
+"""
+input ChatbotDomainArrRelInsertInput {
+  data: [ChatbotDomainInsertInput!]!
+
+  """upsert condition"""
+  onConflict: ChatbotDomainOnConflict
+}
+
+"""aggregate avg on columns"""
+type ChatbotDomainAvgFields {
+  chatbotId: Float
+}
+
+"""
+order by avg() on columns of table "chatbot_domain"
+"""
+input ChatbotDomainAvgOrderBy {
+  chatbotId: OrderBy
+}
+
+"""
+Boolean expression to filter rows from the table "chatbot_domain". All fields are combined with a logical 'AND'.
+"""
+input ChatbotDomainBoolExp {
+  _and: [ChatbotDomainBoolExp!]
+  _not: ChatbotDomainBoolExp
+  _or: [ChatbotDomainBoolExp!]
+  chatbot: ChatbotBoolExp
+  chatbotId: IntComparisonExp
+  domain: DomainEnumBoolExp
+  domainName: StringComparisonExp
+}
+
+"""
+unique or primary key constraints on table "chatbot_domain"
+"""
+enum ChatbotDomainConstraint {
+  """
+  unique or primary key constraint on columns "domain_name", "chatbot_id"
+  """
+  chatbot_domain_pkey
+}
+
+"""
+input type for incrementing numeric columns in table "chatbot_domain"
+"""
+input ChatbotDomainIncInput {
+  chatbotId: Int
+}
+
+"""
+input type for inserting data into table "chatbot_domain"
+"""
+input ChatbotDomainInsertInput {
+  chatbot: ChatbotObjRelInsertInput
+  chatbotId: Int
+  domain: DomainEnumObjRelInsertInput
+  domainName: String
+}
+
+"""aggregate max on columns"""
+type ChatbotDomainMaxFields {
+  chatbotId: Int
+  domainName: String
+}
+
+"""
+order by max() on columns of table "chatbot_domain"
+"""
+input ChatbotDomainMaxOrderBy {
+  chatbotId: OrderBy
+  domainName: OrderBy
+}
+
+"""aggregate min on columns"""
+type ChatbotDomainMinFields {
+  chatbotId: Int
+  domainName: String
+}
+
+"""
+order by min() on columns of table "chatbot_domain"
+"""
+input ChatbotDomainMinOrderBy {
+  chatbotId: OrderBy
+  domainName: OrderBy
+}
+
+"""
+response of any mutation on the table "chatbot_domain"
+"""
+type ChatbotDomainMutationResponse {
+  """number of rows affected by the mutation"""
+  affectedRows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [ChatbotDomain!]!
+}
+
+"""
+on_conflict condition type for table "chatbot_domain"
+"""
+input ChatbotDomainOnConflict {
+  constraint: ChatbotDomainConstraint!
+  updateColumns: [ChatbotDomainUpdateColumn!]! = []
+  where: ChatbotDomainBoolExp
+}
+
+"""Ordering options when selecting data from "chatbot_domain"."""
+input ChatbotDomainOrderBy {
+  chatbot: ChatbotOrderBy
+  chatbotId: OrderBy
+  domain: DomainEnumOrderBy
+  domainName: OrderBy
+}
+
+"""primary key columns input for table: chatbot_domain"""
+input ChatbotDomainPkColumnsInput {
+  chatbotId: Int!
+  domainName: String!
+}
+
+"""
+select columns of table "chatbot_domain"
+"""
+enum ChatbotDomainSelectColumn {
+  """column name"""
+  chatbotId
+
+  """column name"""
+  domainName
+}
+
+"""
+input type for updating data in table "chatbot_domain"
+"""
+input ChatbotDomainSetInput {
+  chatbotId: Int
+  domainName: String
+}
+
+"""aggregate stddev on columns"""
+type ChatbotDomainStddevFields {
+  chatbotId: Float
+}
+
+"""
+order by stddev() on columns of table "chatbot_domain"
+"""
+input ChatbotDomainStddevOrderBy {
+  chatbotId: OrderBy
+}
+
+"""aggregate stddevPop on columns"""
+type ChatbotDomainStddevPopFields {
+  chatbotId: Float
+}
+
+"""
+order by stddevPop() on columns of table "chatbot_domain"
+"""
+input ChatbotDomainStddevPopOrderBy {
+  chatbotId: OrderBy
+}
+
+"""aggregate stddevSamp on columns"""
+type ChatbotDomainStddevSampFields {
+  chatbotId: Float
+}
+
+"""
+order by stddevSamp() on columns of table "chatbot_domain"
+"""
+input ChatbotDomainStddevSampOrderBy {
+  chatbotId: OrderBy
+}
+
+"""
+Streaming cursor of the table "chatbot_domain"
+"""
+input ChatbotDomainStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: ChatbotDomainStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input ChatbotDomainStreamCursorValueInput {
+  chatbotId: Int
+  domainName: String
+}
+
+"""aggregate sum on columns"""
+type ChatbotDomainSumFields {
+  chatbotId: Int
+}
+
+"""
+order by sum() on columns of table "chatbot_domain"
+"""
+input ChatbotDomainSumOrderBy {
+  chatbotId: OrderBy
+}
+
+"""
+update columns of table "chatbot_domain"
+"""
+enum ChatbotDomainUpdateColumn {
+  """column name"""
+  chatbotId
+
+  """column name"""
+  domainName
+}
+
+input ChatbotDomainUpdates {
+  """increments the numeric columns with given value of the filtered values"""
+  _inc: ChatbotDomainIncInput
+
+  """sets the columns of the filtered rows to the given values"""
+  _set: ChatbotDomainSetInput
+
+  """filter the rows which have to be updated"""
+  where: ChatbotDomainBoolExp!
+}
+
+"""aggregate varPop on columns"""
+type ChatbotDomainVarPopFields {
+  chatbotId: Float
+}
+
+"""
+order by varPop() on columns of table "chatbot_domain"
+"""
+input ChatbotDomainVarPopOrderBy {
+  chatbotId: OrderBy
+}
+
+"""aggregate varSamp on columns"""
+type ChatbotDomainVarSampFields {
+  chatbotId: Float
+}
+
+"""
+order by varSamp() on columns of table "chatbot_domain"
+"""
+input ChatbotDomainVarSampOrderBy {
+  chatbotId: OrderBy
+}
+
+"""aggregate variance on columns"""
+type ChatbotDomainVarianceFields {
+  chatbotId: Float
+}
+
+"""
+order by variance() on columns of table "chatbot_domain"
+"""
+input ChatbotDomainVarianceOrderBy {
+  chatbotId: OrderBy
+}
+
 """
 input type for incrementing numeric columns in table "chatbot"
 """
@@ -1464,7 +1634,6 @@ input ChatbotInsertInput {
   avatar: String
   categories: ChatbotCategoryArrRelInsertInput
   chatbotId: Int
-  chats: ChatArrRelInsertInput
   complexityEnum: ComplexityEnumObjRelInsertInput
   createdBy: String
   defaultComplexity: String
@@ -1474,7 +1643,7 @@ input ChatbotInsertInput {
   description: String
   followers: SocialFollowingArrRelInsertInput
   lengthEnum: LengthEnumObjRelInsertInput
-  metadataLabels: LabelChatbotCategoryArrRelInsertInput
+  metadata: ChatbotDomainArrRelInsertInput
   name: String
   preferences: PreferenceArrRelInsertInput
   prompts: PromptChatbotArrRelInsertInput
@@ -1574,7 +1743,6 @@ input ChatbotOrderBy {
   avatar: OrderBy
   categoriesAggregate: ChatbotCategoryAggregateOrderBy
   chatbotId: OrderBy
-  chatsAggregate: ChatAggregateOrderBy
   complexityEnum: ComplexityEnumOrderBy
   createdBy: OrderBy
   defaultComplexity: OrderBy
@@ -1584,7 +1752,7 @@ input ChatbotOrderBy {
   description: OrderBy
   followersAggregate: SocialFollowingAggregateOrderBy
   lengthEnum: LengthEnumOrderBy
-  metadataLabelsAggregate: LabelChatbotCategoryAggregateOrderBy
+  metadataAggregate: ChatbotDomainAggregateOrderBy
   name: OrderBy
   preferencesAggregate: PreferenceAggregateOrderBy
   promptsAggregate: PromptChatbotAggregateOrderBy
@@ -2033,6 +2201,654 @@ enum CursorOrdering {
 }
 
 """
+columns and relationships of "domain_enum"
+"""
+type DomainEnum {
+  added: timestamptz
+
+  """An aggregate relationship"""
+  categoryEnumsAggregate(
+    """distinct select on columns"""
+    distinctOn: [CategoryEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [CategoryEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: CategoryEnumBoolExp
+  ): CategoryEnumAggregate!
+
+  """An array relationship"""
+  category_enums(
+    """distinct select on columns"""
+    distinctOn: [CategoryEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [CategoryEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: CategoryEnumBoolExp
+  ): [CategoryEnum!]!
+
+  """An array relationship"""
+  chatbot(
+    """distinct select on columns"""
+    distinctOn: [ChatbotDomainSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotDomainOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotDomainBoolExp
+  ): [ChatbotDomain!]!
+
+  """An aggregate relationship"""
+  chatbotAggregate(
+    """distinct select on columns"""
+    distinctOn: [ChatbotDomainSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotDomainOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotDomainBoolExp
+  ): ChatbotDomainAggregate!
+  name: String!
+
+  """An aggregate relationship"""
+  tagEnumsAggregate(
+    """distinct select on columns"""
+    distinctOn: [TagEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [TagEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: TagEnumBoolExp
+  ): TagEnumAggregate!
+
+  """An array relationship"""
+  tag_enums(
+    """distinct select on columns"""
+    distinctOn: [TagEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [TagEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: TagEnumBoolExp
+  ): [TagEnum!]!
+}
+
+"""
+aggregated selection of "domain_enum"
+"""
+type DomainEnumAggregate {
+  aggregate: DomainEnumAggregateFields
+  nodes: [DomainEnum!]!
+}
+
+"""
+aggregate fields of "domain_enum"
+"""
+type DomainEnumAggregateFields {
+  count(columns: [DomainEnumSelectColumn!], distinct: Boolean): Int!
+  max: DomainEnumMaxFields
+  min: DomainEnumMinFields
+}
+
+"""
+Boolean expression to filter rows from the table "domain_enum". All fields are combined with a logical 'AND'.
+"""
+input DomainEnumBoolExp {
+  _and: [DomainEnumBoolExp!]
+  _not: DomainEnumBoolExp
+  _or: [DomainEnumBoolExp!]
+  added: TimestamptzComparisonExp
+  category_enums: CategoryEnumBoolExp
+  category_enumsAggregate: CategoryEnumAggregateBoolExp
+  chatbot: ChatbotDomainBoolExp
+  chatbotAggregate: ChatbotDomainAggregateBoolExp
+  name: StringComparisonExp
+  tag_enums: TagEnumBoolExp
+  tag_enumsAggregate: TagEnumAggregateBoolExp
+}
+
+"""
+unique or primary key constraints on table "domain_enum"
+"""
+enum DomainEnumConstraint {
+  """
+  unique or primary key constraint on columns "name"
+  """
+  domain_enum_pkey
+}
+
+"""
+input type for inserting data into table "domain_enum"
+"""
+input DomainEnumInsertInput {
+  added: timestamptz
+  category_enums: CategoryEnumArrRelInsertInput
+  chatbot: ChatbotDomainArrRelInsertInput
+  name: String
+  tag_enums: TagEnumArrRelInsertInput
+}
+
+"""aggregate max on columns"""
+type DomainEnumMaxFields {
+  added: timestamptz
+  name: String
+}
+
+"""aggregate min on columns"""
+type DomainEnumMinFields {
+  added: timestamptz
+  name: String
+}
+
+"""
+response of any mutation on the table "domain_enum"
+"""
+type DomainEnumMutationResponse {
+  """number of rows affected by the mutation"""
+  affectedRows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [DomainEnum!]!
+}
+
+"""
+input type for inserting object relation for remote table "domain_enum"
+"""
+input DomainEnumObjRelInsertInput {
+  data: DomainEnumInsertInput!
+
+  """upsert condition"""
+  onConflict: DomainEnumOnConflict
+}
+
+"""
+on_conflict condition type for table "domain_enum"
+"""
+input DomainEnumOnConflict {
+  constraint: DomainEnumConstraint!
+  updateColumns: [DomainEnumUpdateColumn!]! = []
+  where: DomainEnumBoolExp
+}
+
+"""Ordering options when selecting data from "domain_enum"."""
+input DomainEnumOrderBy {
+  added: OrderBy
+  category_enumsAggregate: CategoryEnumAggregateOrderBy
+  chatbotAggregate: ChatbotDomainAggregateOrderBy
+  name: OrderBy
+  tag_enumsAggregate: TagEnumAggregateOrderBy
+}
+
+"""primary key columns input for table: domain_enum"""
+input DomainEnumPkColumnsInput {
+  name: String!
+}
+
+"""
+select columns of table "domain_enum"
+"""
+enum DomainEnumSelectColumn {
+  """column name"""
+  added
+
+  """column name"""
+  name
+}
+
+"""
+input type for updating data in table "domain_enum"
+"""
+input DomainEnumSetInput {
+  added: timestamptz
+  name: String
+}
+
+"""
+Streaming cursor of the table "domain_enum"
+"""
+input DomainEnumStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: DomainEnumStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input DomainEnumStreamCursorValueInput {
+  added: timestamptz
+  name: String
+}
+
+"""
+update columns of table "domain_enum"
+"""
+enum DomainEnumUpdateColumn {
+  """column name"""
+  added
+
+  """column name"""
+  name
+}
+
+input DomainEnumUpdates {
+  """sets the columns of the filtered rows to the given values"""
+  _set: DomainEnumSetInput
+
+  """filter the rows which have to be updated"""
+  where: DomainEnumBoolExp!
+}
+
+"""
+columns and relationships of "example"
+"""
+type Example {
+  added: timestamptz!
+  category: String!
+  domain: String!
+  exampleId: uuid!
+  metadata(
+    """JSON select path"""
+    path: String
+  ): jsonb!
+  prompt: String!
+  response: String!
+  subcategory: String!
+
+  """An object relationship"""
+  subcategoryEnumBySubcategoryCategoryDomain: SubcategoryEnum
+
+  """An object relationship"""
+  subcategory_enum: SubcategoryEnum!
+  tags: [uuid!]!
+}
+
+"""
+aggregated selection of "example"
+"""
+type ExampleAggregate {
+  aggregate: ExampleAggregateFields
+  nodes: [Example!]!
+}
+
+input ExampleAggregateBoolExp {
+  count: exampleAggregateBoolExpCount
+}
+
+"""
+aggregate fields of "example"
+"""
+type ExampleAggregateFields {
+  count(columns: [ExampleSelectColumn!], distinct: Boolean): Int!
+  max: ExampleMaxFields
+  min: ExampleMinFields
+}
+
+"""
+order by aggregate values of table "example"
+"""
+input ExampleAggregateOrderBy {
+  count: OrderBy
+  max: ExampleMaxOrderBy
+  min: ExampleMinOrderBy
+}
+
+"""append existing jsonb value of filtered columns with new jsonb value"""
+input ExampleAppendInput {
+  metadata: jsonb
+}
+
+"""
+input type for inserting array relation for remote table "example"
+"""
+input ExampleArrRelInsertInput {
+  data: [ExampleInsertInput!]!
+
+  """upsert condition"""
+  onConflict: ExampleOnConflict
+}
+
+"""
+Boolean expression to filter rows from the table "example". All fields are combined with a logical 'AND'.
+"""
+input ExampleBoolExp {
+  _and: [ExampleBoolExp!]
+  _not: ExampleBoolExp
+  _or: [ExampleBoolExp!]
+  added: TimestamptzComparisonExp
+  category: StringComparisonExp
+  domain: StringComparisonExp
+  exampleId: UuidComparisonExp
+  metadata: JsonbComparisonExp
+  prompt: StringComparisonExp
+  response: StringComparisonExp
+  subcategory: StringComparisonExp
+  subcategoryEnumBySubcategoryCategoryDomain: SubcategoryEnumBoolExp
+  subcategory_enum: SubcategoryEnumBoolExp
+  tags: UuidArrayComparisonExp
+}
+
+"""
+unique or primary key constraints on table "example"
+"""
+enum ExampleConstraint {
+  """
+  unique or primary key constraint on columns "example_id"
+  """
+  example_pkey
+}
+
+"""
+delete the field or element with specified path (for JSON arrays, negative integers count from the end)
+"""
+input ExampleDeleteAtPathInput {
+  metadata: [String!]
+}
+
+"""
+delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array
+"""
+input ExampleDeleteElemInput {
+  metadata: Int
+}
+
+"""
+delete key/value pair or string element. key/value pairs are matched based on their key value
+"""
+input ExampleDeleteKeyInput {
+  metadata: String
+}
+
+"""
+input type for inserting data into table "example"
+"""
+input ExampleInsertInput {
+  added: timestamptz
+  category: String
+  domain: String
+  exampleId: uuid
+  metadata: jsonb
+  prompt: String
+  response: String
+  subcategory: String
+  subcategoryEnumBySubcategoryCategoryDomain: SubcategoryEnumObjRelInsertInput
+  subcategory_enum: SubcategoryEnumObjRelInsertInput
+  tags: [uuid!]
+}
+
+"""aggregate max on columns"""
+type ExampleMaxFields {
+  added: timestamptz
+  category: String
+  domain: String
+  exampleId: uuid
+  prompt: String
+  response: String
+  subcategory: String
+  tags: [uuid!]
+}
+
+"""
+order by max() on columns of table "example"
+"""
+input ExampleMaxOrderBy {
+  added: OrderBy
+  category: OrderBy
+  domain: OrderBy
+  exampleId: OrderBy
+  prompt: OrderBy
+  response: OrderBy
+  subcategory: OrderBy
+  tags: OrderBy
+}
+
+"""aggregate min on columns"""
+type ExampleMinFields {
+  added: timestamptz
+  category: String
+  domain: String
+  exampleId: uuid
+  prompt: String
+  response: String
+  subcategory: String
+  tags: [uuid!]
+}
+
+"""
+order by min() on columns of table "example"
+"""
+input ExampleMinOrderBy {
+  added: OrderBy
+  category: OrderBy
+  domain: OrderBy
+  exampleId: OrderBy
+  prompt: OrderBy
+  response: OrderBy
+  subcategory: OrderBy
+  tags: OrderBy
+}
+
+"""
+response of any mutation on the table "example"
+"""
+type ExampleMutationResponse {
+  """number of rows affected by the mutation"""
+  affectedRows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [Example!]!
+}
+
+"""
+on_conflict condition type for table "example"
+"""
+input ExampleOnConflict {
+  constraint: ExampleConstraint!
+  updateColumns: [ExampleUpdateColumn!]! = []
+  where: ExampleBoolExp
+}
+
+"""Ordering options when selecting data from "example"."""
+input ExampleOrderBy {
+  added: OrderBy
+  category: OrderBy
+  domain: OrderBy
+  exampleId: OrderBy
+  metadata: OrderBy
+  prompt: OrderBy
+  response: OrderBy
+  subcategory: OrderBy
+  subcategoryEnumBySubcategoryCategoryDomain: SubcategoryEnumOrderBy
+  subcategory_enum: SubcategoryEnumOrderBy
+  tags: OrderBy
+}
+
+"""primary key columns input for table: example"""
+input ExamplePkColumnsInput {
+  exampleId: uuid!
+}
+
+"""prepend existing jsonb value of filtered columns with new jsonb value"""
+input ExamplePrependInput {
+  metadata: jsonb
+}
+
+"""
+select columns of table "example"
+"""
+enum ExampleSelectColumn {
+  """column name"""
+  added
+
+  """column name"""
+  category
+
+  """column name"""
+  domain
+
+  """column name"""
+  exampleId
+
+  """column name"""
+  metadata
+
+  """column name"""
+  prompt
+
+  """column name"""
+  response
+
+  """column name"""
+  subcategory
+
+  """column name"""
+  tags
+}
+
+"""
+input type for updating data in table "example"
+"""
+input ExampleSetInput {
+  added: timestamptz
+  category: String
+  domain: String
+  exampleId: uuid
+  metadata: jsonb
+  prompt: String
+  response: String
+  subcategory: String
+  tags: [uuid!]
+}
+
+"""
+Streaming cursor of the table "example"
+"""
+input ExampleStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: ExampleStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input ExampleStreamCursorValueInput {
+  added: timestamptz
+  category: String
+  domain: String
+  exampleId: uuid
+  metadata: jsonb
+  prompt: String
+  response: String
+  subcategory: String
+  tags: [uuid!]
+}
+
+"""
+update columns of table "example"
+"""
+enum ExampleUpdateColumn {
+  """column name"""
+  added
+
+  """column name"""
+  category
+
+  """column name"""
+  domain
+
+  """column name"""
+  exampleId
+
+  """column name"""
+  metadata
+
+  """column name"""
+  prompt
+
+  """column name"""
+  response
+
+  """column name"""
+  subcategory
+
+  """column name"""
+  tags
+}
+
+input ExampleUpdates {
+  """append existing jsonb value of filtered columns with new jsonb value"""
+  _append: ExampleAppendInput
+
+  """
+  delete the field or element with specified path (for JSON arrays, negative integers count from the end)
+  """
+  _deleteAtPath: ExampleDeleteAtPathInput
+
+  """
+  delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array
+  """
+  _deleteElem: ExampleDeleteElemInput
+
+  """
+  delete key/value pair or string element. key/value pairs are matched based on their key value
+  """
+  _deleteKey: ExampleDeleteKeyInput
+
+  """prepend existing jsonb value of filtered columns with new jsonb value"""
+  _prepend: ExamplePrependInput
+
+  """sets the columns of the filtered rows to the given values"""
+  _set: ExampleSetInput
+
+  """filter the rows which have to be updated"""
+  where: ExampleBoolExp!
+}
+
+"""
 Boolean expression to compare columns of type "Int". All fields are combined with logical 'AND'.
 """
 input IntComparisonExp {
@@ -2047,703 +2863,39 @@ input IntComparisonExp {
   _nin: [Int!]
 }
 
-"""Labels for chatbots (e.g.: domain, category, sub-category, tags """
-type Label {
-  advancedLabels: Boolean!
-  categories: String!
-  labelId: Int!
-
-  """An array relationship"""
-  metadataLabels(
-    """distinct select on columns"""
-    distinctOn: [LabelChatbotCategorySelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [LabelChatbotCategoryOrderBy!]
-
-    """filter the rows returned"""
-    where: LabelChatbotCategoryBoolExp
-  ): [LabelChatbotCategory!]!
-
-  """An aggregate relationship"""
-  metadataLabelsAggregate(
-    """distinct select on columns"""
-    distinctOn: [LabelChatbotCategorySelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [LabelChatbotCategoryOrderBy!]
-
-    """filter the rows returned"""
-    where: LabelChatbotCategoryBoolExp
-  ): LabelChatbotCategoryAggregate!
-  questions: String!
-  subCategories: String!
-  tags: String!
-}
-
-"""
-aggregated selection of "label"
-"""
-type LabelAggregate {
-  aggregate: LabelAggregateFields
-  nodes: [Label!]!
-}
-
-"""
-aggregate fields of "label"
-"""
-type LabelAggregateFields {
-  avg: LabelAvgFields
-  count(columns: [LabelSelectColumn!], distinct: Boolean): Int!
-  max: LabelMaxFields
-  min: LabelMinFields
-  stddev: LabelStddevFields
-  stddevPop: LabelStddevPopFields
-  stddevSamp: LabelStddevSampFields
-  sum: LabelSumFields
-  varPop: LabelVarPopFields
-  varSamp: LabelVarSampFields
-  variance: LabelVarianceFields
-}
-
-"""aggregate avg on columns"""
-type LabelAvgFields {
-  labelId: Float
-}
-
-"""
-Boolean expression to filter rows from the table "label". All fields are combined with a logical 'AND'.
-"""
-input LabelBoolExp {
-  _and: [LabelBoolExp!]
-  _not: LabelBoolExp
-  _or: [LabelBoolExp!]
-  advancedLabels: BooleanComparisonExp
-  categories: StringComparisonExp
-  labelId: IntComparisonExp
-  metadataLabels: LabelChatbotCategoryBoolExp
-  metadataLabelsAggregate: LabelChatbotCategoryAggregateBoolExp
-  questions: StringComparisonExp
-  subCategories: StringComparisonExp
-  tags: StringComparisonExp
-}
-
-"""
-Junction table to connect between Label, Chatbot and Categories tables.
-"""
-type LabelChatbotCategory {
-  """An object relationship"""
-  category: Category!
-  categoryId: Int!
-
-  """An object relationship"""
-  chatbot: Chatbot!
-  chatbotId: Int!
-
-  """An object relationship"""
-  label: Label!
-  labelId: Int!
-}
-
-"""
-aggregated selection of "label_chatbot_category"
-"""
-type LabelChatbotCategoryAggregate {
-  aggregate: LabelChatbotCategoryAggregateFields
-  nodes: [LabelChatbotCategory!]!
-}
-
-input LabelChatbotCategoryAggregateBoolExp {
-  count: labelChatbotCategoryAggregateBoolExpCount
-}
-
-"""
-aggregate fields of "label_chatbot_category"
-"""
-type LabelChatbotCategoryAggregateFields {
-  avg: LabelChatbotCategoryAvgFields
-  count(columns: [LabelChatbotCategorySelectColumn!], distinct: Boolean): Int!
-  max: LabelChatbotCategoryMaxFields
-  min: LabelChatbotCategoryMinFields
-  stddev: LabelChatbotCategoryStddevFields
-  stddevPop: LabelChatbotCategoryStddevPopFields
-  stddevSamp: LabelChatbotCategoryStddevSampFields
-  sum: LabelChatbotCategorySumFields
-  varPop: LabelChatbotCategoryVarPopFields
-  varSamp: LabelChatbotCategoryVarSampFields
-  variance: LabelChatbotCategoryVarianceFields
-}
-
-"""
-order by aggregate values of table "label_chatbot_category"
-"""
-input LabelChatbotCategoryAggregateOrderBy {
-  avg: LabelChatbotCategoryAvgOrderBy
-  count: OrderBy
-  max: LabelChatbotCategoryMaxOrderBy
-  min: LabelChatbotCategoryMinOrderBy
-  stddev: LabelChatbotCategoryStddevOrderBy
-  stddevPop: LabelChatbotCategoryStddevPopOrderBy
-  stddevSamp: LabelChatbotCategoryStddevSampOrderBy
-  sum: LabelChatbotCategorySumOrderBy
-  varPop: LabelChatbotCategoryVarPopOrderBy
-  varSamp: LabelChatbotCategoryVarSampOrderBy
-  variance: LabelChatbotCategoryVarianceOrderBy
-}
-
-"""
-input type for inserting array relation for remote table "label_chatbot_category"
-"""
-input LabelChatbotCategoryArrRelInsertInput {
-  data: [LabelChatbotCategoryInsertInput!]!
-
-  """upsert condition"""
-  onConflict: LabelChatbotCategoryOnConflict
-}
-
-"""aggregate avg on columns"""
-type LabelChatbotCategoryAvgFields {
-  categoryId: Float
-  chatbotId: Float
-  labelId: Float
-}
-
-"""
-order by avg() on columns of table "label_chatbot_category"
-"""
-input LabelChatbotCategoryAvgOrderBy {
-  categoryId: OrderBy
-  chatbotId: OrderBy
-  labelId: OrderBy
-}
-
-"""
-Boolean expression to filter rows from the table "label_chatbot_category". All fields are combined with a logical 'AND'.
-"""
-input LabelChatbotCategoryBoolExp {
-  _and: [LabelChatbotCategoryBoolExp!]
-  _not: LabelChatbotCategoryBoolExp
-  _or: [LabelChatbotCategoryBoolExp!]
-  category: CategoryBoolExp
-  categoryId: IntComparisonExp
-  chatbot: ChatbotBoolExp
-  chatbotId: IntComparisonExp
-  label: LabelBoolExp
-  labelId: IntComparisonExp
-}
-
-"""
-unique or primary key constraints on table "label_chatbot_category"
-"""
-enum LabelChatbotCategoryConstraint {
-  """
-  unique or primary key constraint on columns "label_id", "category_id", "chatbot_id"
-  """
-  label_chatbot_category_pkey
-}
-
-"""
-input type for incrementing numeric columns in table "label_chatbot_category"
-"""
-input LabelChatbotCategoryIncInput {
-  categoryId: Int
-  chatbotId: Int
-  labelId: Int
-}
-
-"""
-input type for inserting data into table "label_chatbot_category"
-"""
-input LabelChatbotCategoryInsertInput {
-  category: CategoryObjRelInsertInput
-  categoryId: Int
-  chatbot: ChatbotObjRelInsertInput
-  chatbotId: Int
-  label: LabelObjRelInsertInput
-  labelId: Int
-}
-
-"""aggregate max on columns"""
-type LabelChatbotCategoryMaxFields {
-  categoryId: Int
-  chatbotId: Int
-  labelId: Int
-}
-
-"""
-order by max() on columns of table "label_chatbot_category"
-"""
-input LabelChatbotCategoryMaxOrderBy {
-  categoryId: OrderBy
-  chatbotId: OrderBy
-  labelId: OrderBy
-}
-
-"""aggregate min on columns"""
-type LabelChatbotCategoryMinFields {
-  categoryId: Int
-  chatbotId: Int
-  labelId: Int
-}
-
-"""
-order by min() on columns of table "label_chatbot_category"
-"""
-input LabelChatbotCategoryMinOrderBy {
-  categoryId: OrderBy
-  chatbotId: OrderBy
-  labelId: OrderBy
-}
-
-"""
-response of any mutation on the table "label_chatbot_category"
-"""
-type LabelChatbotCategoryMutationResponse {
-  """number of rows affected by the mutation"""
-  affectedRows: Int!
-
-  """data from the rows affected by the mutation"""
-  returning: [LabelChatbotCategory!]!
-}
-
-"""
-on_conflict condition type for table "label_chatbot_category"
-"""
-input LabelChatbotCategoryOnConflict {
-  constraint: LabelChatbotCategoryConstraint!
-  updateColumns: [LabelChatbotCategoryUpdateColumn!]! = []
-  where: LabelChatbotCategoryBoolExp
-}
-
-"""Ordering options when selecting data from "label_chatbot_category"."""
-input LabelChatbotCategoryOrderBy {
-  category: CategoryOrderBy
-  categoryId: OrderBy
-  chatbot: ChatbotOrderBy
-  chatbotId: OrderBy
-  label: LabelOrderBy
-  labelId: OrderBy
-}
-
-"""primary key columns input for table: label_chatbot_category"""
-input LabelChatbotCategoryPkColumnsInput {
-  categoryId: Int!
-  chatbotId: Int!
-  labelId: Int!
-}
-
-"""
-select columns of table "label_chatbot_category"
-"""
-enum LabelChatbotCategorySelectColumn {
-  """column name"""
-  categoryId
-
-  """column name"""
-  chatbotId
-
-  """column name"""
-  labelId
-}
-
-"""
-input type for updating data in table "label_chatbot_category"
-"""
-input LabelChatbotCategorySetInput {
-  categoryId: Int
-  chatbotId: Int
-  labelId: Int
-}
-
-"""aggregate stddev on columns"""
-type LabelChatbotCategoryStddevFields {
-  categoryId: Float
-  chatbotId: Float
-  labelId: Float
-}
-
-"""
-order by stddev() on columns of table "label_chatbot_category"
-"""
-input LabelChatbotCategoryStddevOrderBy {
-  categoryId: OrderBy
-  chatbotId: OrderBy
-  labelId: OrderBy
-}
-
-"""aggregate stddevPop on columns"""
-type LabelChatbotCategoryStddevPopFields {
-  categoryId: Float
-  chatbotId: Float
-  labelId: Float
-}
-
-"""
-order by stddevPop() on columns of table "label_chatbot_category"
-"""
-input LabelChatbotCategoryStddevPopOrderBy {
-  categoryId: OrderBy
-  chatbotId: OrderBy
-  labelId: OrderBy
-}
-
-"""aggregate stddevSamp on columns"""
-type LabelChatbotCategoryStddevSampFields {
-  categoryId: Float
-  chatbotId: Float
-  labelId: Float
-}
-
-"""
-order by stddevSamp() on columns of table "label_chatbot_category"
-"""
-input LabelChatbotCategoryStddevSampOrderBy {
-  categoryId: OrderBy
-  chatbotId: OrderBy
-  labelId: OrderBy
-}
-
-"""
-Streaming cursor of the table "label_chatbot_category"
-"""
-input LabelChatbotCategoryStreamCursorInput {
-  """Stream column input with initial value"""
-  initialValue: LabelChatbotCategoryStreamCursorValueInput!
-
-  """cursor ordering"""
-  ordering: CursorOrdering
-}
-
-"""Initial value of the column from where the streaming should start"""
-input LabelChatbotCategoryStreamCursorValueInput {
-  categoryId: Int
-  chatbotId: Int
-  labelId: Int
-}
-
-"""aggregate sum on columns"""
-type LabelChatbotCategorySumFields {
-  categoryId: Int
-  chatbotId: Int
-  labelId: Int
-}
-
-"""
-order by sum() on columns of table "label_chatbot_category"
-"""
-input LabelChatbotCategorySumOrderBy {
-  categoryId: OrderBy
-  chatbotId: OrderBy
-  labelId: OrderBy
-}
-
-"""
-update columns of table "label_chatbot_category"
-"""
-enum LabelChatbotCategoryUpdateColumn {
-  """column name"""
-  categoryId
-
-  """column name"""
-  chatbotId
-
-  """column name"""
-  labelId
-}
-
-input LabelChatbotCategoryUpdates {
-  """increments the numeric columns with given value of the filtered values"""
-  _inc: LabelChatbotCategoryIncInput
-
-  """sets the columns of the filtered rows to the given values"""
-  _set: LabelChatbotCategorySetInput
-
-  """filter the rows which have to be updated"""
-  where: LabelChatbotCategoryBoolExp!
-}
-
-"""aggregate varPop on columns"""
-type LabelChatbotCategoryVarPopFields {
-  categoryId: Float
-  chatbotId: Float
-  labelId: Float
-}
-
-"""
-order by varPop() on columns of table "label_chatbot_category"
-"""
-input LabelChatbotCategoryVarPopOrderBy {
-  categoryId: OrderBy
-  chatbotId: OrderBy
-  labelId: OrderBy
-}
-
-"""aggregate varSamp on columns"""
-type LabelChatbotCategoryVarSampFields {
-  categoryId: Float
-  chatbotId: Float
-  labelId: Float
-}
-
-"""
-order by varSamp() on columns of table "label_chatbot_category"
-"""
-input LabelChatbotCategoryVarSampOrderBy {
-  categoryId: OrderBy
-  chatbotId: OrderBy
-  labelId: OrderBy
-}
-
-"""aggregate variance on columns"""
-type LabelChatbotCategoryVarianceFields {
-  categoryId: Float
-  chatbotId: Float
-  labelId: Float
-}
-
-"""
-order by variance() on columns of table "label_chatbot_category"
-"""
-input LabelChatbotCategoryVarianceOrderBy {
-  categoryId: OrderBy
-  chatbotId: OrderBy
-  labelId: OrderBy
-}
-
-"""
-unique or primary key constraints on table "label"
-"""
-enum LabelConstraint {
-  """
-  unique or primary key constraint on columns "label_id"
-  """
-  label_label_id_key
-
-  """
-  unique or primary key constraint on columns "label_id"
-  """
-  label_pkey
-}
-
-"""
-input type for incrementing numeric columns in table "label"
-"""
-input LabelIncInput {
-  labelId: Int
-}
-
-"""
-input type for inserting data into table "label"
-"""
-input LabelInsertInput {
-  advancedLabels: Boolean
-  categories: String
-  labelId: Int
-  metadataLabels: LabelChatbotCategoryArrRelInsertInput
-  questions: String
-  subCategories: String
-  tags: String
+input JsonbCastExp {
+  String: StringComparisonExp
 }
 
-"""aggregate max on columns"""
-type LabelMaxFields {
-  categories: String
-  labelId: Int
-  questions: String
-  subCategories: String
-  tags: String
-}
-
-"""aggregate min on columns"""
-type LabelMinFields {
-  categories: String
-  labelId: Int
-  questions: String
-  subCategories: String
-  tags: String
-}
-
-"""
-response of any mutation on the table "label"
-"""
-type LabelMutationResponse {
-  """number of rows affected by the mutation"""
-  affectedRows: Int!
-
-  """data from the rows affected by the mutation"""
-  returning: [Label!]!
-}
-
-"""
-input type for inserting object relation for remote table "label"
-"""
-input LabelObjRelInsertInput {
-  data: LabelInsertInput!
-
-  """upsert condition"""
-  onConflict: LabelOnConflict
-}
-
-"""
-on_conflict condition type for table "label"
-"""
-input LabelOnConflict {
-  constraint: LabelConstraint!
-  updateColumns: [LabelUpdateColumn!]! = []
-  where: LabelBoolExp
-}
-
-"""Ordering options when selecting data from "label"."""
-input LabelOrderBy {
-  advancedLabels: OrderBy
-  categories: OrderBy
-  labelId: OrderBy
-  metadataLabelsAggregate: LabelChatbotCategoryAggregateOrderBy
-  questions: OrderBy
-  subCategories: OrderBy
-  tags: OrderBy
-}
-
-"""primary key columns input for table: label"""
-input LabelPkColumnsInput {
-  labelId: Int!
-}
-
-"""
-select columns of table "label"
-"""
-enum LabelSelectColumn {
-  """column name"""
-  advancedLabels
-
-  """column name"""
-  categories
-
-  """column name"""
-  labelId
-
-  """column name"""
-  questions
-
-  """column name"""
-  subCategories
-
-  """column name"""
-  tags
-}
-
-"""
-input type for updating data in table "label"
-"""
-input LabelSetInput {
-  advancedLabels: Boolean
-  categories: String
-  labelId: Int
-  questions: String
-  subCategories: String
-  tags: String
-}
-
-"""aggregate stddev on columns"""
-type LabelStddevFields {
-  labelId: Float
-}
-
-"""aggregate stddevPop on columns"""
-type LabelStddevPopFields {
-  labelId: Float
-}
-
-"""aggregate stddevSamp on columns"""
-type LabelStddevSampFields {
-  labelId: Float
-}
-
-"""
-Streaming cursor of the table "label"
-"""
-input LabelStreamCursorInput {
-  """Stream column input with initial value"""
-  initialValue: LabelStreamCursorValueInput!
-
-  """cursor ordering"""
-  ordering: CursorOrdering
-}
-
-"""Initial value of the column from where the streaming should start"""
-input LabelStreamCursorValueInput {
-  advancedLabels: Boolean
-  categories: String
-  labelId: Int
-  questions: String
-  subCategories: String
-  tags: String
-}
-
-"""aggregate sum on columns"""
-type LabelSumFields {
-  labelId: Int
-}
-
 """
-update columns of table "label"
+Boolean expression to compare columns of type "jsonb". All fields are combined with logical 'AND'.
 """
-enum LabelUpdateColumn {
-  """column name"""
-  advancedLabels
-
-  """column name"""
-  categories
-
-  """column name"""
-  labelId
+input JsonbComparisonExp {
+  _cast: JsonbCastExp
 
-  """column name"""
-  questions
+  """is the column contained in the given json value"""
+  _containedIn: jsonb
 
-  """column name"""
-  subCategories
+  """does the column contain the given json value at the top level"""
+  _contains: jsonb
+  _eq: jsonb
+  _gt: jsonb
+  _gte: jsonb
 
-  """column name"""
-  tags
-}
-
-input LabelUpdates {
-  """increments the numeric columns with given value of the filtered values"""
-  _inc: LabelIncInput
-
-  """sets the columns of the filtered rows to the given values"""
-  _set: LabelSetInput
-
-  """filter the rows which have to be updated"""
-  where: LabelBoolExp!
-}
-
-"""aggregate varPop on columns"""
-type LabelVarPopFields {
-  labelId: Float
-}
+  """does the string exist as a top-level key in the column"""
+  _hasKey: String
 
-"""aggregate varSamp on columns"""
-type LabelVarSampFields {
-  labelId: Float
-}
+  """do all of these strings exist as top-level keys in the column"""
+  _hasKeysAll: [String!]
 
-"""aggregate variance on columns"""
-type LabelVarianceFields {
-  labelId: Float
+  """do any of these strings exist as top-level keys in the column"""
+  _hasKeysAny: [String!]
+  _in: [jsonb!]
+  _isNull: Boolean
+  _lt: jsonb
+  _lte: jsonb
+  _neq: jsonb
+  _nin: [jsonb!]
 }
 
 """
@@ -2975,12 +3127,57 @@ input LengthEnumUpdates {
 
 """This table stores the messages exchanged between users and chatbots."""
 type Message {
+  augmentedFrom: uuid
   content: String!
   createdAt: timestamptz!
+  examples(
+    """JSON select path"""
+    path: String
+  ): jsonb
+
+  """An object relationship"""
+  message: Message
   messageId: uuid!
 
   """An object relationship"""
   messageTypeEnum: MessageTypeEnum!
+
+  """An array relationship"""
+  messages(
+    """distinct select on columns"""
+    distinctOn: [MessageSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [MessageOrderBy!]
+
+    """filter the rows returned"""
+    where: MessageBoolExp
+  ): [Message!]!
+
+  """An aggregate relationship"""
+  messagesAggregate(
+    """distinct select on columns"""
+    distinctOn: [MessageSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [MessageOrderBy!]
+
+    """filter the rows returned"""
+    where: MessageBoolExp
+  ): MessageAggregate!
+  prompt: String
   role: String!
 
   """An object relationship"""
@@ -3018,6 +3215,11 @@ input MessageAggregateOrderBy {
   min: MessageMinOrderBy
 }
 
+"""append existing jsonb value of filtered columns with new jsonb value"""
+input MessageAppendInput {
+  examples: jsonb
+}
+
 """
 input type for inserting array relation for remote table "message"
 """
@@ -3035,10 +3237,16 @@ input MessageBoolExp {
   _and: [MessageBoolExp!]
   _not: MessageBoolExp
   _or: [MessageBoolExp!]
+  augmentedFrom: UuidComparisonExp
   content: StringComparisonExp
   createdAt: TimestamptzComparisonExp
+  examples: JsonbComparisonExp
+  message: MessageBoolExp
   messageId: UuidComparisonExp
   messageTypeEnum: MessageTypeEnumBoolExp
+  messages: MessageBoolExp
+  messagesAggregate: MessageAggregateBoolExp
+  prompt: StringComparisonExp
   role: StringComparisonExp
   thread: ThreadBoolExp
   threadId: UuidComparisonExp
@@ -3060,13 +3268,39 @@ enum MessageConstraint {
 }
 
 """
+delete the field or element with specified path (for JSON arrays, negative integers count from the end)
+"""
+input MessageDeleteAtPathInput {
+  examples: [String!]
+}
+
+"""
+delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array
+"""
+input MessageDeleteElemInput {
+  examples: Int
+}
+
+"""
+delete key/value pair or string element. key/value pairs are matched based on their key value
+"""
+input MessageDeleteKeyInput {
+  examples: String
+}
+
+"""
 input type for inserting data into table "message"
 """
 input MessageInsertInput {
+  augmentedFrom: uuid
   content: String
   createdAt: timestamptz
+  examples: jsonb
+  message: MessageObjRelInsertInput
   messageId: uuid
   messageTypeEnum: MessageTypeEnumObjRelInsertInput
+  messages: MessageArrRelInsertInput
+  prompt: String
   role: String
   thread: ThreadObjRelInsertInput
   threadId: uuid
@@ -3074,9 +3308,11 @@ input MessageInsertInput {
 
 """aggregate max on columns"""
 type MessageMaxFields {
+  augmentedFrom: uuid
   content: String
   createdAt: timestamptz
   messageId: uuid
+  prompt: String
   role: String
   threadId: uuid
 }
@@ -3085,18 +3321,22 @@ type MessageMaxFields {
 order by max() on columns of table "message"
 """
 input MessageMaxOrderBy {
+  augmentedFrom: OrderBy
   content: OrderBy
   createdAt: OrderBy
   messageId: OrderBy
+  prompt: OrderBy
   role: OrderBy
   threadId: OrderBy
 }
 
 """aggregate min on columns"""
 type MessageMinFields {
+  augmentedFrom: uuid
   content: String
   createdAt: timestamptz
   messageId: uuid
+  prompt: String
   role: String
   threadId: uuid
 }
@@ -3105,9 +3345,11 @@ type MessageMinFields {
 order by min() on columns of table "message"
 """
 input MessageMinOrderBy {
+  augmentedFrom: OrderBy
   content: OrderBy
   createdAt: OrderBy
   messageId: OrderBy
+  prompt: OrderBy
   role: OrderBy
   threadId: OrderBy
 }
@@ -3124,6 +3366,16 @@ type MessageMutationResponse {
 }
 
 """
+input type for inserting object relation for remote table "message"
+"""
+input MessageObjRelInsertInput {
+  data: MessageInsertInput!
+
+  """upsert condition"""
+  onConflict: MessageOnConflict
+}
+
+"""
 on_conflict condition type for table "message"
 """
 input MessageOnConflict {
@@ -3134,10 +3386,15 @@ input MessageOnConflict {
 
 """Ordering options when selecting data from "message"."""
 input MessageOrderBy {
+  augmentedFrom: OrderBy
   content: OrderBy
   createdAt: OrderBy
+  examples: OrderBy
+  message: MessageOrderBy
   messageId: OrderBy
   messageTypeEnum: MessageTypeEnumOrderBy
+  messagesAggregate: MessageAggregateOrderBy
+  prompt: OrderBy
   role: OrderBy
   thread: ThreadOrderBy
   threadId: OrderBy
@@ -3148,10 +3405,18 @@ input MessagePkColumnsInput {
   messageId: uuid!
 }
 
+"""prepend existing jsonb value of filtered columns with new jsonb value"""
+input MessagePrependInput {
+  examples: jsonb
+}
+
 """
 select columns of table "message"
 """
 enum MessageSelectColumn {
+  """column name"""
+  augmentedFrom
+
   """column name"""
   content
 
@@ -3159,7 +3424,13 @@ enum MessageSelectColumn {
   createdAt
 
   """column name"""
+  examples
+
+  """column name"""
   messageId
+
+  """column name"""
+  prompt
 
   """column name"""
   role
@@ -3172,9 +3443,12 @@ enum MessageSelectColumn {
 input type for updating data in table "message"
 """
 input MessageSetInput {
+  augmentedFrom: uuid
   content: String
   createdAt: timestamptz
+  examples: jsonb
   messageId: uuid
+  prompt: String
   role: String
   threadId: uuid
 }
@@ -3192,9 +3466,12 @@ input MessageStreamCursorInput {
 
 """Initial value of the column from where the streaming should start"""
 input MessageStreamCursorValueInput {
+  augmentedFrom: uuid
   content: String
   createdAt: timestamptz
+  examples: jsonb
   messageId: uuid
+  prompt: String
   role: String
   threadId: uuid
 }
@@ -3391,13 +3668,22 @@ update columns of table "message"
 """
 enum MessageUpdateColumn {
   """column name"""
+  augmentedFrom
+
+  """column name"""
   content
 
   """column name"""
   createdAt
 
   """column name"""
+  examples
+
+  """column name"""
   messageId
+
+  """column name"""
+  prompt
 
   """column name"""
   role
@@ -3407,6 +3693,27 @@ enum MessageUpdateColumn {
 }
 
 input MessageUpdates {
+  """append existing jsonb value of filtered columns with new jsonb value"""
+  _append: MessageAppendInput
+
+  """
+  delete the field or element with specified path (for JSON arrays, negative integers count from the end)
+  """
+  _deleteAtPath: MessageDeleteAtPathInput
+
+  """
+  delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array
+  """
+  _deleteElem: MessageDeleteElemInput
+
+  """
+  delete key/value pair or string element. key/value pairs are matched based on their key value
+  """
+  _deleteKey: MessageDeleteKeyInput
+
+  """prepend existing jsonb value of filtered columns with new jsonb value"""
+  _prepend: MessagePrependInput
+
   """sets the columns of the filtered rows to the given values"""
   _set: MessageSetInput
 
@@ -3644,6 +3951,21 @@ input ModelsEnumUpdates {
 
   """filter the rows which have to be updated"""
   where: ModelsEnumBoolExp!
+}
+
+"""
+Boolean expression to compare columns of type "numeric". All fields are combined with logical 'AND'.
+"""
+input NumericComparisonExp {
+  _eq: numeric
+  _gt: numeric
+  _gte: numeric
+  _in: [numeric!]
+  _isNull: Boolean
+  _lt: numeric
+  _lte: numeric
+  _neq: numeric
+  _nin: [numeric!]
 }
 
 """column ordering options"""
@@ -6031,6 +6353,689 @@ input StringComparisonExp {
 }
 
 """
+columns and relationships of "subcategory_enum"
+"""
+type SubcategoryEnum {
+  added: timestamptz!
+  category: String!
+
+  """An object relationship"""
+  categoryEnumByDomainCategory: CategoryEnum
+
+  """An object relationship"""
+  category_enum: CategoryEnum!
+  domain: String!
+
+  """An array relationship"""
+  examples(
+    """distinct select on columns"""
+    distinctOn: [ExampleSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ExampleOrderBy!]
+
+    """filter the rows returned"""
+    where: ExampleBoolExp
+  ): [Example!]!
+
+  """An aggregate relationship"""
+  examplesAggregate(
+    """distinct select on columns"""
+    distinctOn: [ExampleSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ExampleOrderBy!]
+
+    """filter the rows returned"""
+    where: ExampleBoolExp
+  ): ExampleAggregate!
+
+  """An array relationship"""
+  examplesByCategoryDomainSubcategory(
+    """distinct select on columns"""
+    distinctOn: [ExampleSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ExampleOrderBy!]
+
+    """filter the rows returned"""
+    where: ExampleBoolExp
+  ): [Example!]!
+
+  """An aggregate relationship"""
+  examplesByCategoryDomainSubcategoryAggregate(
+    """distinct select on columns"""
+    distinctOn: [ExampleSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ExampleOrderBy!]
+
+    """filter the rows returned"""
+    where: ExampleBoolExp
+  ): ExampleAggregate!
+  name: String!
+}
+
+"""
+aggregated selection of "subcategory_enum"
+"""
+type SubcategoryEnumAggregate {
+  aggregate: SubcategoryEnumAggregateFields
+  nodes: [SubcategoryEnum!]!
+}
+
+input SubcategoryEnumAggregateBoolExp {
+  count: subcategoryEnumAggregateBoolExpCount
+}
+
+"""
+aggregate fields of "subcategory_enum"
+"""
+type SubcategoryEnumAggregateFields {
+  count(columns: [SubcategoryEnumSelectColumn!], distinct: Boolean): Int!
+  max: SubcategoryEnumMaxFields
+  min: SubcategoryEnumMinFields
+}
+
+"""
+order by aggregate values of table "subcategory_enum"
+"""
+input SubcategoryEnumAggregateOrderBy {
+  count: OrderBy
+  max: SubcategoryEnumMaxOrderBy
+  min: SubcategoryEnumMinOrderBy
+}
+
+"""
+input type for inserting array relation for remote table "subcategory_enum"
+"""
+input SubcategoryEnumArrRelInsertInput {
+  data: [SubcategoryEnumInsertInput!]!
+
+  """upsert condition"""
+  onConflict: SubcategoryEnumOnConflict
+}
+
+"""
+Boolean expression to filter rows from the table "subcategory_enum". All fields are combined with a logical 'AND'.
+"""
+input SubcategoryEnumBoolExp {
+  _and: [SubcategoryEnumBoolExp!]
+  _not: SubcategoryEnumBoolExp
+  _or: [SubcategoryEnumBoolExp!]
+  added: TimestamptzComparisonExp
+  category: StringComparisonExp
+  categoryEnumByDomainCategory: CategoryEnumBoolExp
+  category_enum: CategoryEnumBoolExp
+  domain: StringComparisonExp
+  examples: ExampleBoolExp
+  examplesAggregate: ExampleAggregateBoolExp
+  examplesByCategoryDomainSubcategory: ExampleBoolExp
+  examplesByCategoryDomainSubcategoryAggregate: ExampleAggregateBoolExp
+  name: StringComparisonExp
+}
+
+"""
+unique or primary key constraints on table "subcategory_enum"
+"""
+enum SubcategoryEnumConstraint {
+  """
+  unique or primary key constraint on columns "domain", "category", "name"
+  """
+  subcategory_enum_pkey
+}
+
+"""
+input type for inserting data into table "subcategory_enum"
+"""
+input SubcategoryEnumInsertInput {
+  added: timestamptz
+  category: String
+  categoryEnumByDomainCategory: CategoryEnumObjRelInsertInput
+  category_enum: CategoryEnumObjRelInsertInput
+  domain: String
+  examples: ExampleArrRelInsertInput
+  examplesByCategoryDomainSubcategory: ExampleArrRelInsertInput
+  name: String
+}
+
+"""aggregate max on columns"""
+type SubcategoryEnumMaxFields {
+  added: timestamptz
+  category: String
+  domain: String
+  name: String
+}
+
+"""
+order by max() on columns of table "subcategory_enum"
+"""
+input SubcategoryEnumMaxOrderBy {
+  added: OrderBy
+  category: OrderBy
+  domain: OrderBy
+  name: OrderBy
+}
+
+"""aggregate min on columns"""
+type SubcategoryEnumMinFields {
+  added: timestamptz
+  category: String
+  domain: String
+  name: String
+}
+
+"""
+order by min() on columns of table "subcategory_enum"
+"""
+input SubcategoryEnumMinOrderBy {
+  added: OrderBy
+  category: OrderBy
+  domain: OrderBy
+  name: OrderBy
+}
+
+"""
+response of any mutation on the table "subcategory_enum"
+"""
+type SubcategoryEnumMutationResponse {
+  """number of rows affected by the mutation"""
+  affectedRows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [SubcategoryEnum!]!
+}
+
+"""
+input type for inserting object relation for remote table "subcategory_enum"
+"""
+input SubcategoryEnumObjRelInsertInput {
+  data: SubcategoryEnumInsertInput!
+
+  """upsert condition"""
+  onConflict: SubcategoryEnumOnConflict
+}
+
+"""
+on_conflict condition type for table "subcategory_enum"
+"""
+input SubcategoryEnumOnConflict {
+  constraint: SubcategoryEnumConstraint!
+  updateColumns: [SubcategoryEnumUpdateColumn!]! = []
+  where: SubcategoryEnumBoolExp
+}
+
+"""Ordering options when selecting data from "subcategory_enum"."""
+input SubcategoryEnumOrderBy {
+  added: OrderBy
+  category: OrderBy
+  categoryEnumByDomainCategory: CategoryEnumOrderBy
+  category_enum: CategoryEnumOrderBy
+  domain: OrderBy
+  examplesAggregate: ExampleAggregateOrderBy
+  examplesByCategoryDomainSubcategoryAggregate: ExampleAggregateOrderBy
+  name: OrderBy
+}
+
+"""primary key columns input for table: subcategory_enum"""
+input SubcategoryEnumPkColumnsInput {
+  category: String!
+  domain: String!
+  name: String!
+}
+
+"""
+select columns of table "subcategory_enum"
+"""
+enum SubcategoryEnumSelectColumn {
+  """column name"""
+  added
+
+  """column name"""
+  category
+
+  """column name"""
+  domain
+
+  """column name"""
+  name
+}
+
+"""
+input type for updating data in table "subcategory_enum"
+"""
+input SubcategoryEnumSetInput {
+  added: timestamptz
+  category: String
+  domain: String
+  name: String
+}
+
+"""
+Streaming cursor of the table "subcategory_enum"
+"""
+input SubcategoryEnumStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: SubcategoryEnumStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input SubcategoryEnumStreamCursorValueInput {
+  added: timestamptz
+  category: String
+  domain: String
+  name: String
+}
+
+"""
+update columns of table "subcategory_enum"
+"""
+enum SubcategoryEnumUpdateColumn {
+  """column name"""
+  added
+
+  """column name"""
+  category
+
+  """column name"""
+  domain
+
+  """column name"""
+  name
+}
+
+input SubcategoryEnumUpdates {
+  """sets the columns of the filtered rows to the given values"""
+  _set: SubcategoryEnumSetInput
+
+  """filter the rows which have to be updated"""
+  where: SubcategoryEnumBoolExp!
+}
+
+"""
+columns and relationships of "tag_enum"
+"""
+type TagEnum {
+  domain: String!
+
+  """An object relationship"""
+  domain_enum: DomainEnum!
+  frequency: numeric!
+  name: String!
+  tagId: uuid!
+}
+
+"""
+aggregated selection of "tag_enum"
+"""
+type TagEnumAggregate {
+  aggregate: TagEnumAggregateFields
+  nodes: [TagEnum!]!
+}
+
+input TagEnumAggregateBoolExp {
+  count: tagEnumAggregateBoolExpCount
+}
+
+"""
+aggregate fields of "tag_enum"
+"""
+type TagEnumAggregateFields {
+  avg: TagEnumAvgFields
+  count(columns: [TagEnumSelectColumn!], distinct: Boolean): Int!
+  max: TagEnumMaxFields
+  min: TagEnumMinFields
+  stddev: TagEnumStddevFields
+  stddevPop: TagEnumStddevPopFields
+  stddevSamp: TagEnumStddevSampFields
+  sum: TagEnumSumFields
+  varPop: TagEnumVarPopFields
+  varSamp: TagEnumVarSampFields
+  variance: TagEnumVarianceFields
+}
+
+"""
+order by aggregate values of table "tag_enum"
+"""
+input TagEnumAggregateOrderBy {
+  avg: TagEnumAvgOrderBy
+  count: OrderBy
+  max: TagEnumMaxOrderBy
+  min: TagEnumMinOrderBy
+  stddev: TagEnumStddevOrderBy
+  stddevPop: TagEnumStddevPopOrderBy
+  stddevSamp: TagEnumStddevSampOrderBy
+  sum: TagEnumSumOrderBy
+  varPop: TagEnumVarPopOrderBy
+  varSamp: TagEnumVarSampOrderBy
+  variance: TagEnumVarianceOrderBy
+}
+
+"""
+input type for inserting array relation for remote table "tag_enum"
+"""
+input TagEnumArrRelInsertInput {
+  data: [TagEnumInsertInput!]!
+
+  """upsert condition"""
+  onConflict: TagEnumOnConflict
+}
+
+"""aggregate avg on columns"""
+type TagEnumAvgFields {
+  frequency: Float
+}
+
+"""
+order by avg() on columns of table "tag_enum"
+"""
+input TagEnumAvgOrderBy {
+  frequency: OrderBy
+}
+
+"""
+Boolean expression to filter rows from the table "tag_enum". All fields are combined with a logical 'AND'.
+"""
+input TagEnumBoolExp {
+  _and: [TagEnumBoolExp!]
+  _not: TagEnumBoolExp
+  _or: [TagEnumBoolExp!]
+  domain: StringComparisonExp
+  domain_enum: DomainEnumBoolExp
+  frequency: NumericComparisonExp
+  name: StringComparisonExp
+  tagId: UuidComparisonExp
+}
+
+"""
+unique or primary key constraints on table "tag_enum"
+"""
+enum TagEnumConstraint {
+  """
+  unique or primary key constraint on columns "domain", "name"
+  """
+  tag_enum_name_domain_key
+
+  """
+  unique or primary key constraint on columns "tag_id"
+  """
+  tag_enum_pkey
+}
+
+"""
+input type for incrementing numeric columns in table "tag_enum"
+"""
+input TagEnumIncInput {
+  frequency: numeric
+}
+
+"""
+input type for inserting data into table "tag_enum"
+"""
+input TagEnumInsertInput {
+  domain: String
+  domain_enum: DomainEnumObjRelInsertInput
+  frequency: numeric
+  name: String
+  tagId: uuid
+}
+
+"""aggregate max on columns"""
+type TagEnumMaxFields {
+  domain: String
+  frequency: numeric
+  name: String
+  tagId: uuid
+}
+
+"""
+order by max() on columns of table "tag_enum"
+"""
+input TagEnumMaxOrderBy {
+  domain: OrderBy
+  frequency: OrderBy
+  name: OrderBy
+  tagId: OrderBy
+}
+
+"""aggregate min on columns"""
+type TagEnumMinFields {
+  domain: String
+  frequency: numeric
+  name: String
+  tagId: uuid
+}
+
+"""
+order by min() on columns of table "tag_enum"
+"""
+input TagEnumMinOrderBy {
+  domain: OrderBy
+  frequency: OrderBy
+  name: OrderBy
+  tagId: OrderBy
+}
+
+"""
+response of any mutation on the table "tag_enum"
+"""
+type TagEnumMutationResponse {
+  """number of rows affected by the mutation"""
+  affectedRows: Int!
+
+  """data from the rows affected by the mutation"""
+  returning: [TagEnum!]!
+}
+
+"""
+on_conflict condition type for table "tag_enum"
+"""
+input TagEnumOnConflict {
+  constraint: TagEnumConstraint!
+  updateColumns: [TagEnumUpdateColumn!]! = []
+  where: TagEnumBoolExp
+}
+
+"""Ordering options when selecting data from "tag_enum"."""
+input TagEnumOrderBy {
+  domain: OrderBy
+  domain_enum: DomainEnumOrderBy
+  frequency: OrderBy
+  name: OrderBy
+  tagId: OrderBy
+}
+
+"""primary key columns input for table: tag_enum"""
+input TagEnumPkColumnsInput {
+  tagId: uuid!
+}
+
+"""
+select columns of table "tag_enum"
+"""
+enum TagEnumSelectColumn {
+  """column name"""
+  domain
+
+  """column name"""
+  frequency
+
+  """column name"""
+  name
+
+  """column name"""
+  tagId
+}
+
+"""
+input type for updating data in table "tag_enum"
+"""
+input TagEnumSetInput {
+  domain: String
+  frequency: numeric
+  name: String
+  tagId: uuid
+}
+
+"""aggregate stddev on columns"""
+type TagEnumStddevFields {
+  frequency: Float
+}
+
+"""
+order by stddev() on columns of table "tag_enum"
+"""
+input TagEnumStddevOrderBy {
+  frequency: OrderBy
+}
+
+"""aggregate stddevPop on columns"""
+type TagEnumStddevPopFields {
+  frequency: Float
+}
+
+"""
+order by stddevPop() on columns of table "tag_enum"
+"""
+input TagEnumStddevPopOrderBy {
+  frequency: OrderBy
+}
+
+"""aggregate stddevSamp on columns"""
+type TagEnumStddevSampFields {
+  frequency: Float
+}
+
+"""
+order by stddevSamp() on columns of table "tag_enum"
+"""
+input TagEnumStddevSampOrderBy {
+  frequency: OrderBy
+}
+
+"""
+Streaming cursor of the table "tag_enum"
+"""
+input TagEnumStreamCursorInput {
+  """Stream column input with initial value"""
+  initialValue: TagEnumStreamCursorValueInput!
+
+  """cursor ordering"""
+  ordering: CursorOrdering
+}
+
+"""Initial value of the column from where the streaming should start"""
+input TagEnumStreamCursorValueInput {
+  domain: String
+  frequency: numeric
+  name: String
+  tagId: uuid
+}
+
+"""aggregate sum on columns"""
+type TagEnumSumFields {
+  frequency: numeric
+}
+
+"""
+order by sum() on columns of table "tag_enum"
+"""
+input TagEnumSumOrderBy {
+  frequency: OrderBy
+}
+
+"""
+update columns of table "tag_enum"
+"""
+enum TagEnumUpdateColumn {
+  """column name"""
+  domain
+
+  """column name"""
+  frequency
+
+  """column name"""
+  name
+
+  """column name"""
+  tagId
+}
+
+input TagEnumUpdates {
+  """increments the numeric columns with given value of the filtered values"""
+  _inc: TagEnumIncInput
+
+  """sets the columns of the filtered rows to the given values"""
+  _set: TagEnumSetInput
+
+  """filter the rows which have to be updated"""
+  where: TagEnumBoolExp!
+}
+
+"""aggregate varPop on columns"""
+type TagEnumVarPopFields {
+  frequency: Float
+}
+
+"""
+order by varPop() on columns of table "tag_enum"
+"""
+input TagEnumVarPopOrderBy {
+  frequency: OrderBy
+}
+
+"""aggregate varSamp on columns"""
+type TagEnumVarSampFields {
+  frequency: Float
+}
+
+"""
+order by varSamp() on columns of table "tag_enum"
+"""
+input TagEnumVarSampOrderBy {
+  frequency: OrderBy
+}
+
+"""aggregate variance on columns"""
+type TagEnumVarianceFields {
+  frequency: Float
+}
+
+"""
+order by variance() on columns of table "tag_enum"
+"""
+input TagEnumVarianceOrderBy {
+  frequency: OrderBy
+}
+
+"""
 columns and relationships of "thread"
 """
 type Thread {
@@ -7275,42 +8280,6 @@ input TypeEnumUpdates {
 """Table storing information about registered users."""
 type User {
   bio: String
-
-  """An array relationship"""
-  chats(
-    """distinct select on columns"""
-    distinctOn: [ChatSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ChatOrderBy!]
-
-    """filter the rows returned"""
-    where: ChatBoolExp
-  ): [Chat!]!
-
-  """An aggregate relationship"""
-  chatsAggregate(
-    """distinct select on columns"""
-    distinctOn: [ChatSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ChatOrderBy!]
-
-    """filter the rows returned"""
-    where: ChatBoolExp
-  ): ChatAggregate!
   dateJoined: timestamptz!
   email: String!
   favouriteTopic: String
@@ -7640,8 +8609,6 @@ input UserBoolExp {
   _not: UserBoolExp
   _or: [UserBoolExp!]
   bio: StringComparisonExp
-  chats: ChatBoolExp
-  chatsAggregate: ChatAggregateBoolExp
   dateJoined: TimestamptzComparisonExp
   email: StringComparisonExp
   favouriteTopic: StringComparisonExp
@@ -7704,7 +8671,6 @@ input type for inserting data into table "user"
 """
 input UserInsertInput {
   bio: String
-  chats: ChatArrRelInsertInput
   dateJoined: timestamptz
   email: String
   favouriteTopic: String
@@ -7794,7 +8760,6 @@ input UserOnConflict {
 """Ordering options when selecting data from "user"."""
 input UserOrderBy {
   bio: OrderBy
-  chatsAggregate: ChatAggregateOrderBy
   dateJoined: OrderBy
   email: OrderBy
   favouriteTopic: OrderBy
@@ -8203,6 +9168,26 @@ input UserUpdates {
 """
 Boolean expression to compare columns of type "uuid". All fields are combined with logical 'AND'.
 """
+input UuidArrayComparisonExp {
+  """is the array contained in the given array value"""
+  _containedIn: [uuid!]
+
+  """does the array contain the given value"""
+  _contains: [uuid!]
+  _eq: [uuid!]
+  _gt: [uuid!]
+  _gte: [uuid!]
+  _in: [[uuid!]!]
+  _isNull: Boolean
+  _lt: [uuid!]
+  _lte: [uuid!]
+  _neq: [uuid!]
+  _nin: [[uuid!]!]
+}
+
+"""
+Boolean expression to compare columns of type "uuid". All fields are combined with logical 'AND'.
+"""
 input UuidComparisonExp {
   _eq: uuid
   _gt: uuid
@@ -8215,10 +9200,10 @@ input UuidComparisonExp {
   _nin: [uuid!]
 }
 
-input chatAggregateBoolExpCount {
-  arguments: [ChatSelectColumn!]
+input categoryEnumAggregateBoolExpCount {
+  arguments: [CategoryEnumSelectColumn!]
   distinct: Boolean
-  filter: ChatBoolExp
+  filter: CategoryEnumBoolExp
   predicate: IntComparisonExp!
 }
 
@@ -8236,12 +9221,21 @@ input chatbotCategoryAggregateBoolExpCount {
   predicate: IntComparisonExp!
 }
 
-input labelChatbotCategoryAggregateBoolExpCount {
-  arguments: [LabelChatbotCategorySelectColumn!]
+input chatbotDomainAggregateBoolExpCount {
+  arguments: [ChatbotDomainSelectColumn!]
   distinct: Boolean
-  filter: LabelChatbotCategoryBoolExp
+  filter: ChatbotDomainBoolExp
   predicate: IntComparisonExp!
 }
+
+input exampleAggregateBoolExpCount {
+  arguments: [ExampleSelectColumn!]
+  distinct: Boolean
+  filter: ExampleBoolExp
+  predicate: IntComparisonExp!
+}
+
+scalar jsonb
 
 input messageAggregateBoolExpCount {
   arguments: [MessageSelectColumn!]
@@ -8266,17 +9260,17 @@ type mutation_root {
   deleteCategoryByPk(categoryId: Int!): Category
 
   """
-  delete data from the table: "chat"
+  delete data from the table: "category_enum"
   """
-  deleteChat(
+  deleteCategoryEnum(
     """filter the rows which have to be deleted"""
-    where: ChatBoolExp!
-  ): ChatMutationResponse
+    where: CategoryEnumBoolExp!
+  ): CategoryEnumMutationResponse
 
   """
-  delete single row from the table: "chat"
+  delete single row from the table: "category_enum"
   """
-  deleteChatByPk(chatId: Int!): Chat
+  deleteCategoryEnumByPk(domain: String!, name: String!): CategoryEnum
 
   """
   delete data from the table: "chatbot"
@@ -8305,6 +9299,19 @@ type mutation_root {
   deleteChatbotCategoryByPk(categoryId: Int!, chatbotId: Int!): ChatbotCategory
 
   """
+  delete data from the table: "chatbot_domain"
+  """
+  deleteChatbotDomain(
+    """filter the rows which have to be deleted"""
+    where: ChatbotDomainBoolExp!
+  ): ChatbotDomainMutationResponse
+
+  """
+  delete single row from the table: "chatbot_domain"
+  """
+  deleteChatbotDomainByPk(chatbotId: Int!, domainName: String!): ChatbotDomain
+
+  """
   delete data from the table: "complexity_enum"
   """
   deleteComplexityEnum(
@@ -8318,30 +9325,30 @@ type mutation_root {
   deleteComplexityEnumByPk(value: String!): ComplexityEnum
 
   """
-  delete data from the table: "label"
+  delete data from the table: "domain_enum"
   """
-  deleteLabel(
+  deleteDomainEnum(
     """filter the rows which have to be deleted"""
-    where: LabelBoolExp!
-  ): LabelMutationResponse
+    where: DomainEnumBoolExp!
+  ): DomainEnumMutationResponse
 
   """
-  delete single row from the table: "label"
+  delete single row from the table: "domain_enum"
   """
-  deleteLabelByPk(labelId: Int!): Label
+  deleteDomainEnumByPk(name: String!): DomainEnum
 
   """
-  delete data from the table: "label_chatbot_category"
+  delete data from the table: "example"
   """
-  deleteLabelChatbotCategory(
+  deleteExample(
     """filter the rows which have to be deleted"""
-    where: LabelChatbotCategoryBoolExp!
-  ): LabelChatbotCategoryMutationResponse
+    where: ExampleBoolExp!
+  ): ExampleMutationResponse
 
   """
-  delete single row from the table: "label_chatbot_category"
+  delete single row from the table: "example"
   """
-  deleteLabelChatbotCategoryByPk(categoryId: Int!, chatbotId: Int!, labelId: Int!): LabelChatbotCategory
+  deleteExampleByPk(exampleId: uuid!): Example
 
   """
   delete data from the table: "length_enum"
@@ -8482,6 +9489,32 @@ type mutation_root {
   ): SocialFollowingMutationResponse
 
   """
+  delete data from the table: "subcategory_enum"
+  """
+  deleteSubcategoryEnum(
+    """filter the rows which have to be deleted"""
+    where: SubcategoryEnumBoolExp!
+  ): SubcategoryEnumMutationResponse
+
+  """
+  delete single row from the table: "subcategory_enum"
+  """
+  deleteSubcategoryEnumByPk(category: String!, domain: String!, name: String!): SubcategoryEnum
+
+  """
+  delete data from the table: "tag_enum"
+  """
+  deleteTagEnum(
+    """filter the rows which have to be deleted"""
+    where: TagEnumBoolExp!
+  ): TagEnumMutationResponse
+
+  """
+  delete single row from the table: "tag_enum"
+  """
+  deleteTagEnumByPk(tagId: uuid!): TagEnum
+
+  """
   delete data from the table: "thread"
   """
   deleteThread(
@@ -8571,6 +9604,28 @@ type mutation_root {
   ): CategoryMutationResponse
 
   """
+  insert data into the table: "category_enum"
+  """
+  insertCategoryEnum(
+    """the rows to be inserted"""
+    objects: [CategoryEnumInsertInput!]!
+
+    """upsert condition"""
+    onConflict: CategoryEnumOnConflict
+  ): CategoryEnumMutationResponse
+
+  """
+  insert a single row into the table: "category_enum"
+  """
+  insertCategoryEnumOne(
+    """the row to be inserted"""
+    object: CategoryEnumInsertInput!
+
+    """upsert condition"""
+    onConflict: CategoryEnumOnConflict
+  ): CategoryEnum
+
+  """
   insert a single row into the table: "category"
   """
   insertCategoryOne(
@@ -8580,28 +9635,6 @@ type mutation_root {
     """upsert condition"""
     onConflict: CategoryOnConflict
   ): Category
-
-  """
-  insert data into the table: "chat"
-  """
-  insertChat(
-    """the rows to be inserted"""
-    objects: [ChatInsertInput!]!
-
-    """upsert condition"""
-    onConflict: ChatOnConflict
-  ): ChatMutationResponse
-
-  """
-  insert a single row into the table: "chat"
-  """
-  insertChatOne(
-    """the row to be inserted"""
-    object: ChatInsertInput!
-
-    """upsert condition"""
-    onConflict: ChatOnConflict
-  ): Chat
 
   """
   insert data into the table: "chatbot"
@@ -8637,6 +9670,28 @@ type mutation_root {
   ): ChatbotCategory
 
   """
+  insert data into the table: "chatbot_domain"
+  """
+  insertChatbotDomain(
+    """the rows to be inserted"""
+    objects: [ChatbotDomainInsertInput!]!
+
+    """upsert condition"""
+    onConflict: ChatbotDomainOnConflict
+  ): ChatbotDomainMutationResponse
+
+  """
+  insert a single row into the table: "chatbot_domain"
+  """
+  insertChatbotDomainOne(
+    """the row to be inserted"""
+    object: ChatbotDomainInsertInput!
+
+    """upsert condition"""
+    onConflict: ChatbotDomainOnConflict
+  ): ChatbotDomain
+
+  """
   insert a single row into the table: "chatbot"
   """
   insertChatbotOne(
@@ -8670,48 +9725,48 @@ type mutation_root {
   ): ComplexityEnum
 
   """
-  insert data into the table: "label"
+  insert data into the table: "domain_enum"
   """
-  insertLabel(
+  insertDomainEnum(
     """the rows to be inserted"""
-    objects: [LabelInsertInput!]!
+    objects: [DomainEnumInsertInput!]!
 
     """upsert condition"""
-    onConflict: LabelOnConflict
-  ): LabelMutationResponse
+    onConflict: DomainEnumOnConflict
+  ): DomainEnumMutationResponse
 
   """
-  insert data into the table: "label_chatbot_category"
+  insert a single row into the table: "domain_enum"
   """
-  insertLabelChatbotCategory(
+  insertDomainEnumOne(
+    """the row to be inserted"""
+    object: DomainEnumInsertInput!
+
+    """upsert condition"""
+    onConflict: DomainEnumOnConflict
+  ): DomainEnum
+
+  """
+  insert data into the table: "example"
+  """
+  insertExample(
     """the rows to be inserted"""
-    objects: [LabelChatbotCategoryInsertInput!]!
+    objects: [ExampleInsertInput!]!
 
     """upsert condition"""
-    onConflict: LabelChatbotCategoryOnConflict
-  ): LabelChatbotCategoryMutationResponse
+    onConflict: ExampleOnConflict
+  ): ExampleMutationResponse
 
   """
-  insert a single row into the table: "label_chatbot_category"
+  insert a single row into the table: "example"
   """
-  insertLabelChatbotCategoryOne(
+  insertExampleOne(
     """the row to be inserted"""
-    object: LabelChatbotCategoryInsertInput!
+    object: ExampleInsertInput!
 
     """upsert condition"""
-    onConflict: LabelChatbotCategoryOnConflict
-  ): LabelChatbotCategory
-
-  """
-  insert a single row into the table: "label"
-  """
-  insertLabelOne(
-    """the row to be inserted"""
-    object: LabelInsertInput!
-
-    """upsert condition"""
-    onConflict: LabelOnConflict
-  ): Label
+    onConflict: ExampleOnConflict
+  ): Example
 
   """
   insert data into the table: "length_enum"
@@ -8950,6 +10005,50 @@ type mutation_root {
   ): SocialFollowing
 
   """
+  insert data into the table: "subcategory_enum"
+  """
+  insertSubcategoryEnum(
+    """the rows to be inserted"""
+    objects: [SubcategoryEnumInsertInput!]!
+
+    """upsert condition"""
+    onConflict: SubcategoryEnumOnConflict
+  ): SubcategoryEnumMutationResponse
+
+  """
+  insert a single row into the table: "subcategory_enum"
+  """
+  insertSubcategoryEnumOne(
+    """the row to be inserted"""
+    object: SubcategoryEnumInsertInput!
+
+    """upsert condition"""
+    onConflict: SubcategoryEnumOnConflict
+  ): SubcategoryEnum
+
+  """
+  insert data into the table: "tag_enum"
+  """
+  insertTagEnum(
+    """the rows to be inserted"""
+    objects: [TagEnumInsertInput!]!
+
+    """upsert condition"""
+    onConflict: TagEnumOnConflict
+  ): TagEnumMutationResponse
+
+  """
+  insert a single row into the table: "tag_enum"
+  """
+  insertTagEnumOne(
+    """the row to be inserted"""
+    object: TagEnumInsertInput!
+
+    """upsert condition"""
+    onConflict: TagEnumOnConflict
+  ): TagEnum
+
+  """
   insert data into the table: "thread"
   """
   insertThread(
@@ -9108,46 +10207,40 @@ type mutation_root {
   ): Category
 
   """
+  update data of the table: "category_enum"
+  """
+  updateCategoryEnum(
+    """sets the columns of the filtered rows to the given values"""
+    _set: CategoryEnumSetInput
+
+    """filter the rows which have to be updated"""
+    where: CategoryEnumBoolExp!
+  ): CategoryEnumMutationResponse
+
+  """
+  update single row of the table: "category_enum"
+  """
+  updateCategoryEnumByPk(
+    """sets the columns of the filtered rows to the given values"""
+    _set: CategoryEnumSetInput
+    pkColumns: CategoryEnumPkColumnsInput!
+  ): CategoryEnum
+
+  """
+  update multiples rows of table: "category_enum"
+  """
+  updateCategoryEnumMany(
+    """updates to execute, in order"""
+    updates: [CategoryEnumUpdates!]!
+  ): [CategoryEnumMutationResponse]
+
+  """
   update multiples rows of table: "category"
   """
   updateCategoryMany(
     """updates to execute, in order"""
     updates: [CategoryUpdates!]!
   ): [CategoryMutationResponse]
-
-  """
-  update data of the table: "chat"
-  """
-  updateChat(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: ChatIncInput
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: ChatSetInput
-
-    """filter the rows which have to be updated"""
-    where: ChatBoolExp!
-  ): ChatMutationResponse
-
-  """
-  update single row of the table: "chat"
-  """
-  updateChatByPk(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: ChatIncInput
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: ChatSetInput
-    pkColumns: ChatPkColumnsInput!
-  ): Chat
-
-  """
-  update multiples rows of table: "chat"
-  """
-  updateChatMany(
-    """updates to execute, in order"""
-    updates: [ChatUpdates!]!
-  ): [ChatMutationResponse]
 
   """
   update data of the table: "chatbot"
@@ -9210,6 +10303,40 @@ type mutation_root {
   ): [ChatbotCategoryMutationResponse]
 
   """
+  update data of the table: "chatbot_domain"
+  """
+  updateChatbotDomain(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: ChatbotDomainIncInput
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: ChatbotDomainSetInput
+
+    """filter the rows which have to be updated"""
+    where: ChatbotDomainBoolExp!
+  ): ChatbotDomainMutationResponse
+
+  """
+  update single row of the table: "chatbot_domain"
+  """
+  updateChatbotDomainByPk(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: ChatbotDomainIncInput
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: ChatbotDomainSetInput
+    pkColumns: ChatbotDomainPkColumnsInput!
+  ): ChatbotDomain
+
+  """
+  update multiples rows of table: "chatbot_domain"
+  """
+  updateChatbotDomainMany(
+    """updates to execute, in order"""
+    updates: [ChatbotDomainUpdates!]!
+  ): [ChatbotDomainMutationResponse]
+
+  """
   update multiples rows of table: "chatbot"
   """
   updateChatbotMany(
@@ -9246,72 +10373,102 @@ type mutation_root {
   ): [ComplexityEnumMutationResponse]
 
   """
-  update data of the table: "label"
+  update data of the table: "domain_enum"
   """
-  updateLabel(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: LabelIncInput
-
+  updateDomainEnum(
     """sets the columns of the filtered rows to the given values"""
-    _set: LabelSetInput
+    _set: DomainEnumSetInput
 
     """filter the rows which have to be updated"""
-    where: LabelBoolExp!
-  ): LabelMutationResponse
+    where: DomainEnumBoolExp!
+  ): DomainEnumMutationResponse
 
   """
-  update single row of the table: "label"
+  update single row of the table: "domain_enum"
   """
-  updateLabelByPk(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: LabelIncInput
+  updateDomainEnumByPk(
+    """sets the columns of the filtered rows to the given values"""
+    _set: DomainEnumSetInput
+    pkColumns: DomainEnumPkColumnsInput!
+  ): DomainEnum
+
+  """
+  update multiples rows of table: "domain_enum"
+  """
+  updateDomainEnumMany(
+    """updates to execute, in order"""
+    updates: [DomainEnumUpdates!]!
+  ): [DomainEnumMutationResponse]
+
+  """
+  update data of the table: "example"
+  """
+  updateExample(
+    """append existing jsonb value of filtered columns with new jsonb value"""
+    _append: ExampleAppendInput
+
+    """
+    delete the field or element with specified path (for JSON arrays, negative integers count from the end)
+    """
+    _deleteAtPath: ExampleDeleteAtPathInput
+
+    """
+    delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array
+    """
+    _deleteElem: ExampleDeleteElemInput
+
+    """
+    delete key/value pair or string element. key/value pairs are matched based on their key value
+    """
+    _deleteKey: ExampleDeleteKeyInput
+
+    """prepend existing jsonb value of filtered columns with new jsonb value"""
+    _prepend: ExamplePrependInput
 
     """sets the columns of the filtered rows to the given values"""
-    _set: LabelSetInput
-    pkColumns: LabelPkColumnsInput!
-  ): Label
-
-  """
-  update data of the table: "label_chatbot_category"
-  """
-  updateLabelChatbotCategory(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: LabelChatbotCategoryIncInput
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: LabelChatbotCategorySetInput
+    _set: ExampleSetInput
 
     """filter the rows which have to be updated"""
-    where: LabelChatbotCategoryBoolExp!
-  ): LabelChatbotCategoryMutationResponse
+    where: ExampleBoolExp!
+  ): ExampleMutationResponse
 
   """
-  update single row of the table: "label_chatbot_category"
+  update single row of the table: "example"
   """
-  updateLabelChatbotCategoryByPk(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: LabelChatbotCategoryIncInput
+  updateExampleByPk(
+    """append existing jsonb value of filtered columns with new jsonb value"""
+    _append: ExampleAppendInput
+
+    """
+    delete the field or element with specified path (for JSON arrays, negative integers count from the end)
+    """
+    _deleteAtPath: ExampleDeleteAtPathInput
+
+    """
+    delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array
+    """
+    _deleteElem: ExampleDeleteElemInput
+
+    """
+    delete key/value pair or string element. key/value pairs are matched based on their key value
+    """
+    _deleteKey: ExampleDeleteKeyInput
+
+    """prepend existing jsonb value of filtered columns with new jsonb value"""
+    _prepend: ExamplePrependInput
 
     """sets the columns of the filtered rows to the given values"""
-    _set: LabelChatbotCategorySetInput
-    pkColumns: LabelChatbotCategoryPkColumnsInput!
-  ): LabelChatbotCategory
+    _set: ExampleSetInput
+    pkColumns: ExamplePkColumnsInput!
+  ): Example
 
   """
-  update multiples rows of table: "label_chatbot_category"
+  update multiples rows of table: "example"
   """
-  updateLabelChatbotCategoryMany(
+  updateExampleMany(
     """updates to execute, in order"""
-    updates: [LabelChatbotCategoryUpdates!]!
-  ): [LabelChatbotCategoryMutationResponse]
-
-  """
-  update multiples rows of table: "label"
-  """
-  updateLabelMany(
-    """updates to execute, in order"""
-    updates: [LabelUpdates!]!
-  ): [LabelMutationResponse]
+    updates: [ExampleUpdates!]!
+  ): [ExampleMutationResponse]
 
   """
   update data of the table: "length_enum"
@@ -9345,6 +10502,27 @@ type mutation_root {
   update data of the table: "message"
   """
   updateMessage(
+    """append existing jsonb value of filtered columns with new jsonb value"""
+    _append: MessageAppendInput
+
+    """
+    delete the field or element with specified path (for JSON arrays, negative integers count from the end)
+    """
+    _deleteAtPath: MessageDeleteAtPathInput
+
+    """
+    delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array
+    """
+    _deleteElem: MessageDeleteElemInput
+
+    """
+    delete key/value pair or string element. key/value pairs are matched based on their key value
+    """
+    _deleteKey: MessageDeleteKeyInput
+
+    """prepend existing jsonb value of filtered columns with new jsonb value"""
+    _prepend: MessagePrependInput
+
     """sets the columns of the filtered rows to the given values"""
     _set: MessageSetInput
 
@@ -9356,6 +10534,27 @@ type mutation_root {
   update single row of the table: "message"
   """
   updateMessageByPk(
+    """append existing jsonb value of filtered columns with new jsonb value"""
+    _append: MessageAppendInput
+
+    """
+    delete the field or element with specified path (for JSON arrays, negative integers count from the end)
+    """
+    _deleteAtPath: MessageDeleteAtPathInput
+
+    """
+    delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array
+    """
+    _deleteElem: MessageDeleteElemInput
+
+    """
+    delete key/value pair or string element. key/value pairs are matched based on their key value
+    """
+    _deleteKey: MessageDeleteKeyInput
+
+    """prepend existing jsonb value of filtered columns with new jsonb value"""
+    _prepend: MessagePrependInput
+
     """sets the columns of the filtered rows to the given values"""
     _set: MessageSetInput
     pkColumns: MessagePkColumnsInput!
@@ -9640,6 +10839,68 @@ type mutation_root {
   ): [SocialFollowingMutationResponse]
 
   """
+  update data of the table: "subcategory_enum"
+  """
+  updateSubcategoryEnum(
+    """sets the columns of the filtered rows to the given values"""
+    _set: SubcategoryEnumSetInput
+
+    """filter the rows which have to be updated"""
+    where: SubcategoryEnumBoolExp!
+  ): SubcategoryEnumMutationResponse
+
+  """
+  update single row of the table: "subcategory_enum"
+  """
+  updateSubcategoryEnumByPk(
+    """sets the columns of the filtered rows to the given values"""
+    _set: SubcategoryEnumSetInput
+    pkColumns: SubcategoryEnumPkColumnsInput!
+  ): SubcategoryEnum
+
+  """
+  update multiples rows of table: "subcategory_enum"
+  """
+  updateSubcategoryEnumMany(
+    """updates to execute, in order"""
+    updates: [SubcategoryEnumUpdates!]!
+  ): [SubcategoryEnumMutationResponse]
+
+  """
+  update data of the table: "tag_enum"
+  """
+  updateTagEnum(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: TagEnumIncInput
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: TagEnumSetInput
+
+    """filter the rows which have to be updated"""
+    where: TagEnumBoolExp!
+  ): TagEnumMutationResponse
+
+  """
+  update single row of the table: "tag_enum"
+  """
+  updateTagEnumByPk(
+    """increments the numeric columns with given value of the filtered values"""
+    _inc: TagEnumIncInput
+
+    """sets the columns of the filtered rows to the given values"""
+    _set: TagEnumSetInput
+    pkColumns: TagEnumPkColumnsInput!
+  ): TagEnum
+
+  """
+  update multiples rows of table: "tag_enum"
+  """
+  updateTagEnumMany(
+    """updates to execute, in order"""
+    updates: [TagEnumUpdates!]!
+  ): [TagEnumMutationResponse]
+
+  """
   update data of the table: "thread"
   """
   updateThread(
@@ -9814,6 +11075,8 @@ type mutation_root {
   ): [UserTokenMutationResponse]
 }
 
+scalar numeric
+
 input preferenceAggregateBoolExpBool_and {
   arguments: PreferenceSelectColumnPreferenceAggregateBoolExpBool_andArgumentsColumns!
   distinct: Boolean
@@ -9901,11 +11164,11 @@ type query_root {
   categoryByPk(categoryId: Int!): Category
 
   """
-  fetch data from the table: "chat"
+  fetch data from the table: "category_enum"
   """
-  chat(
+  categoryEnum(
     """distinct select on columns"""
-    distinctOn: [ChatSelectColumn!]
+    distinctOn: [CategoryEnumSelectColumn!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -9914,18 +11177,18 @@ type query_root {
     offset: Int
 
     """sort the rows by one or more columns"""
-    orderBy: [ChatOrderBy!]
+    orderBy: [CategoryEnumOrderBy!]
 
     """filter the rows returned"""
-    where: ChatBoolExp
-  ): [Chat!]!
+    where: CategoryEnumBoolExp
+  ): [CategoryEnum!]!
 
   """
-  fetch aggregated fields from the table: "chat"
+  fetch aggregated fields from the table: "category_enum"
   """
-  chatAggregate(
+  categoryEnumAggregate(
     """distinct select on columns"""
-    distinctOn: [ChatSelectColumn!]
+    distinctOn: [CategoryEnumSelectColumn!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -9934,14 +11197,14 @@ type query_root {
     offset: Int
 
     """sort the rows by one or more columns"""
-    orderBy: [ChatOrderBy!]
+    orderBy: [CategoryEnumOrderBy!]
 
     """filter the rows returned"""
-    where: ChatBoolExp
-  ): ChatAggregate!
+    where: CategoryEnumBoolExp
+  ): CategoryEnumAggregate!
 
-  """fetch data from the table: "chat" using primary key columns"""
-  chatByPk(chatId: Int!): Chat
+  """fetch data from the table: "category_enum" using primary key columns"""
+  categoryEnumByPk(domain: String!, name: String!): CategoryEnum
 
   """
   fetch data from the table: "chatbot"
@@ -10032,6 +11295,49 @@ type query_root {
   chatbotCategoryByPk(categoryId: Int!, chatbotId: Int!): ChatbotCategory
 
   """
+  fetch data from the table: "chatbot_domain"
+  """
+  chatbotDomain(
+    """distinct select on columns"""
+    distinctOn: [ChatbotDomainSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotDomainOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotDomainBoolExp
+  ): [ChatbotDomain!]!
+
+  """
+  fetch aggregated fields from the table: "chatbot_domain"
+  """
+  chatbotDomainAggregate(
+    """distinct select on columns"""
+    distinctOn: [ChatbotDomainSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotDomainOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotDomainBoolExp
+  ): ChatbotDomainAggregate!
+
+  """fetch data from the table: "chatbot_domain" using primary key columns"""
+  chatbotDomainByPk(chatbotId: Int!, domainName: String!): ChatbotDomain
+
+  """
   fetch data from the table: "complexity_enum"
   """
   complexityEnum(
@@ -10075,11 +11381,11 @@ type query_root {
   complexityEnumByPk(value: String!): ComplexityEnum
 
   """
-  fetch data from the table: "label"
+  fetch data from the table: "domain_enum"
   """
-  label(
+  domainEnum(
     """distinct select on columns"""
-    distinctOn: [LabelSelectColumn!]
+    distinctOn: [DomainEnumSelectColumn!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -10088,18 +11394,18 @@ type query_root {
     offset: Int
 
     """sort the rows by one or more columns"""
-    orderBy: [LabelOrderBy!]
+    orderBy: [DomainEnumOrderBy!]
 
     """filter the rows returned"""
-    where: LabelBoolExp
-  ): [Label!]!
+    where: DomainEnumBoolExp
+  ): [DomainEnum!]!
 
   """
-  fetch aggregated fields from the table: "label"
+  fetch aggregated fields from the table: "domain_enum"
   """
-  labelAggregate(
+  domainEnumAggregate(
     """distinct select on columns"""
-    distinctOn: [LabelSelectColumn!]
+    distinctOn: [DomainEnumSelectColumn!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -10108,21 +11414,21 @@ type query_root {
     offset: Int
 
     """sort the rows by one or more columns"""
-    orderBy: [LabelOrderBy!]
+    orderBy: [DomainEnumOrderBy!]
 
     """filter the rows returned"""
-    where: LabelBoolExp
-  ): LabelAggregate!
+    where: DomainEnumBoolExp
+  ): DomainEnumAggregate!
 
-  """fetch data from the table: "label" using primary key columns"""
-  labelByPk(labelId: Int!): Label
+  """fetch data from the table: "domain_enum" using primary key columns"""
+  domainEnumByPk(name: String!): DomainEnum
 
   """
-  fetch data from the table: "label_chatbot_category"
+  fetch data from the table: "example"
   """
-  labelChatbotCategory(
+  example(
     """distinct select on columns"""
-    distinctOn: [LabelChatbotCategorySelectColumn!]
+    distinctOn: [ExampleSelectColumn!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -10131,18 +11437,18 @@ type query_root {
     offset: Int
 
     """sort the rows by one or more columns"""
-    orderBy: [LabelChatbotCategoryOrderBy!]
+    orderBy: [ExampleOrderBy!]
 
     """filter the rows returned"""
-    where: LabelChatbotCategoryBoolExp
-  ): [LabelChatbotCategory!]!
+    where: ExampleBoolExp
+  ): [Example!]!
 
   """
-  fetch aggregated fields from the table: "label_chatbot_category"
+  fetch aggregated fields from the table: "example"
   """
-  labelChatbotCategoryAggregate(
+  exampleAggregate(
     """distinct select on columns"""
-    distinctOn: [LabelChatbotCategorySelectColumn!]
+    distinctOn: [ExampleSelectColumn!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -10151,16 +11457,14 @@ type query_root {
     offset: Int
 
     """sort the rows by one or more columns"""
-    orderBy: [LabelChatbotCategoryOrderBy!]
+    orderBy: [ExampleOrderBy!]
 
     """filter the rows returned"""
-    where: LabelChatbotCategoryBoolExp
-  ): LabelChatbotCategoryAggregate!
+    where: ExampleBoolExp
+  ): ExampleAggregate!
 
-  """
-  fetch data from the table: "label_chatbot_category" using primary key columns
-  """
-  labelChatbotCategoryByPk(categoryId: Int!, chatbotId: Int!, labelId: Int!): LabelChatbotCategory
+  """fetch data from the table: "example" using primary key columns"""
+  exampleByPk(exampleId: uuid!): Example
 
   """
   fetch data from the table: "length_enum"
@@ -10637,6 +11941,94 @@ type query_root {
   ): SocialFollowingAggregate!
 
   """
+  fetch data from the table: "subcategory_enum"
+  """
+  subcategoryEnum(
+    """distinct select on columns"""
+    distinctOn: [SubcategoryEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [SubcategoryEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: SubcategoryEnumBoolExp
+  ): [SubcategoryEnum!]!
+
+  """
+  fetch aggregated fields from the table: "subcategory_enum"
+  """
+  subcategoryEnumAggregate(
+    """distinct select on columns"""
+    distinctOn: [SubcategoryEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [SubcategoryEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: SubcategoryEnumBoolExp
+  ): SubcategoryEnumAggregate!
+
+  """
+  fetch data from the table: "subcategory_enum" using primary key columns
+  """
+  subcategoryEnumByPk(category: String!, domain: String!, name: String!): SubcategoryEnum
+
+  """
+  fetch data from the table: "tag_enum"
+  """
+  tagEnum(
+    """distinct select on columns"""
+    distinctOn: [TagEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [TagEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: TagEnumBoolExp
+  ): [TagEnum!]!
+
+  """
+  fetch aggregated fields from the table: "tag_enum"
+  """
+  tagEnumAggregate(
+    """distinct select on columns"""
+    distinctOn: [TagEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [TagEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: TagEnumBoolExp
+  ): TagEnumAggregate!
+
+  """fetch data from the table: "tag_enum" using primary key columns"""
+  tagEnumByPk(tagId: uuid!): TagEnum
+
+  """
   fetch data from the table: "thread"
   """
   thread(
@@ -10909,6 +12301,13 @@ input socialFollowingAggregateBoolExpCount {
   predicate: IntComparisonExp!
 }
 
+input subcategoryEnumAggregateBoolExpCount {
+  arguments: [SubcategoryEnumSelectColumn!]
+  distinct: Boolean
+  filter: SubcategoryEnumBoolExp
+  predicate: IntComparisonExp!
+}
+
 type subscription_root {
   """
   fetch data from the table: "category"
@@ -10954,6 +12353,63 @@ type subscription_root {
   categoryByPk(categoryId: Int!): Category
 
   """
+  fetch data from the table: "category_enum"
+  """
+  categoryEnum(
+    """distinct select on columns"""
+    distinctOn: [CategoryEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [CategoryEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: CategoryEnumBoolExp
+  ): [CategoryEnum!]!
+
+  """
+  fetch aggregated fields from the table: "category_enum"
+  """
+  categoryEnumAggregate(
+    """distinct select on columns"""
+    distinctOn: [CategoryEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [CategoryEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: CategoryEnumBoolExp
+  ): CategoryEnumAggregate!
+
+  """fetch data from the table: "category_enum" using primary key columns"""
+  categoryEnumByPk(domain: String!, name: String!): CategoryEnum
+
+  """
+  fetch data from the table in a streaming manner: "category_enum"
+  """
+  categoryEnumStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [CategoryEnumStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: CategoryEnumBoolExp
+  ): [CategoryEnum!]!
+
+  """
   fetch data from the table in a streaming manner: "category"
   """
   categoryStream(
@@ -10966,63 +12422,6 @@ type subscription_root {
     """filter the rows returned"""
     where: CategoryBoolExp
   ): [Category!]!
-
-  """
-  fetch data from the table: "chat"
-  """
-  chat(
-    """distinct select on columns"""
-    distinctOn: [ChatSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ChatOrderBy!]
-
-    """filter the rows returned"""
-    where: ChatBoolExp
-  ): [Chat!]!
-
-  """
-  fetch aggregated fields from the table: "chat"
-  """
-  chatAggregate(
-    """distinct select on columns"""
-    distinctOn: [ChatSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ChatOrderBy!]
-
-    """filter the rows returned"""
-    where: ChatBoolExp
-  ): ChatAggregate!
-
-  """fetch data from the table: "chat" using primary key columns"""
-  chatByPk(chatId: Int!): Chat
-
-  """
-  fetch data from the table in a streaming manner: "chat"
-  """
-  chatStream(
-    """maximum number of rows returned in a single batch"""
-    batchSize: Int!
-
-    """cursor to stream the results returned by the query"""
-    cursor: [ChatStreamCursorInput]!
-
-    """filter the rows returned"""
-    where: ChatBoolExp
-  ): [Chat!]!
 
   """
   fetch data from the table: "chatbot"
@@ -11127,6 +12526,63 @@ type subscription_root {
   ): [ChatbotCategory!]!
 
   """
+  fetch data from the table: "chatbot_domain"
+  """
+  chatbotDomain(
+    """distinct select on columns"""
+    distinctOn: [ChatbotDomainSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotDomainOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotDomainBoolExp
+  ): [ChatbotDomain!]!
+
+  """
+  fetch aggregated fields from the table: "chatbot_domain"
+  """
+  chatbotDomainAggregate(
+    """distinct select on columns"""
+    distinctOn: [ChatbotDomainSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ChatbotDomainOrderBy!]
+
+    """filter the rows returned"""
+    where: ChatbotDomainBoolExp
+  ): ChatbotDomainAggregate!
+
+  """fetch data from the table: "chatbot_domain" using primary key columns"""
+  chatbotDomainByPk(chatbotId: Int!, domainName: String!): ChatbotDomain
+
+  """
+  fetch data from the table in a streaming manner: "chatbot_domain"
+  """
+  chatbotDomainStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [ChatbotDomainStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: ChatbotDomainBoolExp
+  ): [ChatbotDomain!]!
+
+  """
   fetch data from the table in a streaming manner: "chatbot"
   """
   chatbotStream(
@@ -11198,11 +12654,11 @@ type subscription_root {
   ): [ComplexityEnum!]!
 
   """
-  fetch data from the table: "label"
+  fetch data from the table: "domain_enum"
   """
-  label(
+  domainEnum(
     """distinct select on columns"""
-    distinctOn: [LabelSelectColumn!]
+    distinctOn: [DomainEnumSelectColumn!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -11211,18 +12667,18 @@ type subscription_root {
     offset: Int
 
     """sort the rows by one or more columns"""
-    orderBy: [LabelOrderBy!]
+    orderBy: [DomainEnumOrderBy!]
 
     """filter the rows returned"""
-    where: LabelBoolExp
-  ): [Label!]!
+    where: DomainEnumBoolExp
+  ): [DomainEnum!]!
 
   """
-  fetch aggregated fields from the table: "label"
+  fetch aggregated fields from the table: "domain_enum"
   """
-  labelAggregate(
+  domainEnumAggregate(
     """distinct select on columns"""
-    distinctOn: [LabelSelectColumn!]
+    distinctOn: [DomainEnumSelectColumn!]
 
     """limit the number of rows returned"""
     limit: Int
@@ -11231,87 +12687,85 @@ type subscription_root {
     offset: Int
 
     """sort the rows by one or more columns"""
-    orderBy: [LabelOrderBy!]
+    orderBy: [DomainEnumOrderBy!]
 
     """filter the rows returned"""
-    where: LabelBoolExp
-  ): LabelAggregate!
+    where: DomainEnumBoolExp
+  ): DomainEnumAggregate!
 
-  """fetch data from the table: "label" using primary key columns"""
-  labelByPk(labelId: Int!): Label
-
-  """
-  fetch data from the table: "label_chatbot_category"
-  """
-  labelChatbotCategory(
-    """distinct select on columns"""
-    distinctOn: [LabelChatbotCategorySelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [LabelChatbotCategoryOrderBy!]
-
-    """filter the rows returned"""
-    where: LabelChatbotCategoryBoolExp
-  ): [LabelChatbotCategory!]!
+  """fetch data from the table: "domain_enum" using primary key columns"""
+  domainEnumByPk(name: String!): DomainEnum
 
   """
-  fetch aggregated fields from the table: "label_chatbot_category"
+  fetch data from the table in a streaming manner: "domain_enum"
   """
-  labelChatbotCategoryAggregate(
-    """distinct select on columns"""
-    distinctOn: [LabelChatbotCategorySelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [LabelChatbotCategoryOrderBy!]
-
-    """filter the rows returned"""
-    where: LabelChatbotCategoryBoolExp
-  ): LabelChatbotCategoryAggregate!
-
-  """
-  fetch data from the table: "label_chatbot_category" using primary key columns
-  """
-  labelChatbotCategoryByPk(categoryId: Int!, chatbotId: Int!, labelId: Int!): LabelChatbotCategory
-
-  """
-  fetch data from the table in a streaming manner: "label_chatbot_category"
-  """
-  labelChatbotCategoryStream(
+  domainEnumStream(
     """maximum number of rows returned in a single batch"""
     batchSize: Int!
 
     """cursor to stream the results returned by the query"""
-    cursor: [LabelChatbotCategoryStreamCursorInput]!
+    cursor: [DomainEnumStreamCursorInput]!
 
     """filter the rows returned"""
-    where: LabelChatbotCategoryBoolExp
-  ): [LabelChatbotCategory!]!
+    where: DomainEnumBoolExp
+  ): [DomainEnum!]!
 
   """
-  fetch data from the table in a streaming manner: "label"
+  fetch data from the table: "example"
   """
-  labelStream(
+  example(
+    """distinct select on columns"""
+    distinctOn: [ExampleSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ExampleOrderBy!]
+
+    """filter the rows returned"""
+    where: ExampleBoolExp
+  ): [Example!]!
+
+  """
+  fetch aggregated fields from the table: "example"
+  """
+  exampleAggregate(
+    """distinct select on columns"""
+    distinctOn: [ExampleSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [ExampleOrderBy!]
+
+    """filter the rows returned"""
+    where: ExampleBoolExp
+  ): ExampleAggregate!
+
+  """fetch data from the table: "example" using primary key columns"""
+  exampleByPk(exampleId: uuid!): Example
+
+  """
+  fetch data from the table in a streaming manner: "example"
+  """
+  exampleStream(
     """maximum number of rows returned in a single batch"""
     batchSize: Int!
 
     """cursor to stream the results returned by the query"""
-    cursor: [LabelStreamCursorInput]!
+    cursor: [ExampleStreamCursorInput]!
 
     """filter the rows returned"""
-    where: LabelBoolExp
-  ): [Label!]!
+    where: ExampleBoolExp
+  ): [Example!]!
 
   """
   fetch data from the table: "length_enum"
@@ -11942,6 +13396,122 @@ type subscription_root {
   ): [SocialFollowing!]!
 
   """
+  fetch data from the table: "subcategory_enum"
+  """
+  subcategoryEnum(
+    """distinct select on columns"""
+    distinctOn: [SubcategoryEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [SubcategoryEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: SubcategoryEnumBoolExp
+  ): [SubcategoryEnum!]!
+
+  """
+  fetch aggregated fields from the table: "subcategory_enum"
+  """
+  subcategoryEnumAggregate(
+    """distinct select on columns"""
+    distinctOn: [SubcategoryEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [SubcategoryEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: SubcategoryEnumBoolExp
+  ): SubcategoryEnumAggregate!
+
+  """
+  fetch data from the table: "subcategory_enum" using primary key columns
+  """
+  subcategoryEnumByPk(category: String!, domain: String!, name: String!): SubcategoryEnum
+
+  """
+  fetch data from the table in a streaming manner: "subcategory_enum"
+  """
+  subcategoryEnumStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [SubcategoryEnumStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: SubcategoryEnumBoolExp
+  ): [SubcategoryEnum!]!
+
+  """
+  fetch data from the table: "tag_enum"
+  """
+  tagEnum(
+    """distinct select on columns"""
+    distinctOn: [TagEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [TagEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: TagEnumBoolExp
+  ): [TagEnum!]!
+
+  """
+  fetch aggregated fields from the table: "tag_enum"
+  """
+  tagEnumAggregate(
+    """distinct select on columns"""
+    distinctOn: [TagEnumSelectColumn!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    orderBy: [TagEnumOrderBy!]
+
+    """filter the rows returned"""
+    where: TagEnumBoolExp
+  ): TagEnumAggregate!
+
+  """fetch data from the table: "tag_enum" using primary key columns"""
+  tagEnumByPk(tagId: uuid!): TagEnum
+
+  """
+  fetch data from the table in a streaming manner: "tag_enum"
+  """
+  tagEnumStream(
+    """maximum number of rows returned in a single batch"""
+    batchSize: Int!
+
+    """cursor to stream the results returned by the query"""
+    cursor: [TagEnumStreamCursorInput]!
+
+    """filter the rows returned"""
+    where: TagEnumBoolExp
+  ): [TagEnum!]!
+
+  """
   fetch data from the table: "thread"
   """
   thread(
@@ -12282,6 +13852,13 @@ type subscription_root {
     """filter the rows returned"""
     where: UserTokenBoolExp
   ): [UserToken!]!
+}
+
+input tagEnumAggregateBoolExpCount {
+  arguments: [TagEnumSelectColumn!]
+  distinct: Boolean
+  filter: TagEnumBoolExp
+  predicate: IntComparisonExp!
 }
 
 input threadAggregateBoolExpBool_and {

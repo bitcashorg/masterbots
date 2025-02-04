@@ -1,15 +1,16 @@
 import { authOptions } from '@/auth'
 import ChatThreadListPanel from '@/components/routes/chat/chat-thread-list-panel'
 import ThreadPanel from '@/components/routes/thread/thread-panel'
+import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { generateMetadataFromSEO } from '@/lib/metadata'
 import { getCategories, getThreads } from '@/services/hasura'
 import { isTokenExpired, toSlug } from 'mb-lib'
-import { Metadata } from 'next'
+import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 
 export default async function ChatCategoryPage({
-  params
+  params,
 }: {
   params: { category: string }
 }) {
@@ -22,16 +23,18 @@ export default async function ChatCategoryPage({
     redirect('/auth/signin')
   }
 
-  const categories = await getCategories()
-  const category = categories.find(
-    category => toSlug(category.name) === params.category
-  )
 
+  const categories = await getCategories()
+  const category = categories.find((category) => toSlug(category.name) === params.category)
   const threads = await getThreads({
     jwt,
-    userId: session!.user.id,
-    categoryId: category?.categoryId
+    userId: session?.user.id,
+    categoryId: category?.categoryId,
+    limit: PAGE_SIZE,
   })
+  console.log('params.category', params.category)
+  console.log('category', category)
+  console.log('threads', threads)
 
   return (
     <>
@@ -42,21 +45,19 @@ export default async function ChatCategoryPage({
 }
 
 export async function generateMetadata({
-  params
+  params,
 }: {
   params: { category: string }
 }): Promise<Metadata> {
   const categories = await getCategories()
-  const category = categories.find(
-    category => toSlug(category.name) === params.category
-  )
+  const category = categories.find((category) => toSlug(category.name) === params.category)
 
   const seoData = {
     title: category?.name || '',
     description: `Please select a bot from the ${category?.name} category to start the conversation.`,
     ogType: 'website',
     ogImageUrl: '',
-    twitterCard: 'summary'
+    twitterCard: 'summary',
   }
 
   return generateMetadataFromSEO(seoData)

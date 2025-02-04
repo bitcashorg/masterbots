@@ -1,40 +1,13 @@
+import { getAllChatbots } from '@/services/hasura'
+
+// ? Review performance: This can fetch over and over every time the botNames is called.
+// ! Caching the value would be key for continuous usage.
 // this helps displaying camelCase names in ui
-export const botNames = new Map([
-  ['healthbot', 'HealthBot'],
-  ['techbot', 'TechBot'],
-  ['moneybot', 'MoneyBot'],
-  ['edubot', 'EduBot'],
-  ['scibot', 'SciBot'],
-  ['travelbot', 'TravelBot'],
-  ['mediabot', 'MediaBot'],
-  ['jobbot', 'JobBot'],
-  ['homebot', 'HomeBot'],
-  ['lawbot', 'LawBot'],
-  ['biobuddybot', 'BioBuddyBot'],
-  ['chemwizbot', 'ChemWizBot'],
-  ['buildbot', 'BuildBot'],
-  ['contractbot', 'ContractBot'],
-  ['consumerchampbot', 'ConsumerChampBot'],
-  ['workrightsbot', 'WorkRightsBot'],
-  ['venturelawbot', 'VentureLawBot'],
-  ['skillsyncbot', 'SkillSyncBot'],
-  ['preptalkbot', 'PrepTalkBot'],
-  ['resumebot', 'ResuMeBot'],
-  ['handybot', 'HandyBot'],
-  ['decorbot', 'DecorBot'],
-  ['tunetailor', 'TuneTailor'],
-  ['flickfinderbot', 'FlickFinderBot'],
-  ['thrillbot', 'ThrillBot'],
-  ['wanderbot', 'WanderBot'],
-  ['techpulsebot', 'TechPulseBot'],
-  ['codeguru', 'CodeGuru'],
-  ['lingobot', 'LingoBot'],
-  ['studyprobot', 'StudyProBot'],
-  ['budgetbot', 'BudgetBot'],
-  ['debtzero', 'DebtZero'],
-  ['wealthwizbot', 'WealthWizBot'],
-  ['gymgenie', 'GymGenie'],
-  ['dietdocbot', 'DietDocBot'],
-  ['ancientherbalbot', 'AncientHerbalBot'],
-  ['blankbot', 'BlankBot']
-])
+export const botNames = (async () => {
+  const chatbots = await getAllChatbots() // Adjust the limit as needed
+  const bots = new Map<string, string>()
+  for (const chatbot of chatbots) {
+    bots.set(chatbot.name.toLowerCase(), chatbot.name)
+  }
+  return bots
+})()

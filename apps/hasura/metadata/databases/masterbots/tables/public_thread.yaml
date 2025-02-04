@@ -33,6 +33,8 @@ insert_permissions:
   - role: moderator
     permission:
       check: {}
+      set:
+        user_id: x-hasura-user-Id
       columns:
         - chatbot_id
         - created_at
@@ -47,16 +49,19 @@ insert_permissions:
     comment: ""
   - role: user
     permission:
-      check:
-        thread:
-          user_id:
-            _eq: X-Hasura-User-Id
+      check: {}
+      set:
+        user_id: x-hasura-user-Id
       columns:
         - chatbot_id
+        - created_at
+        - is_approved
+        - is_blocked
         - is_public
         - model
         - parent_thread_id
         - thread_id
+        - updated_at
         - user_id
     comment: ""
 select_permissions:
@@ -66,12 +71,15 @@ select_permissions:
         - chatbot_id
         - created_at
         - is_approved
+        - is_blocked
         - is_public
         - model
+        - parent_thread_id
         - thread_id
         - updated_at
         - user_id
       filter: {}
+      allow_aggregations: true
     comment: ""
   - role: moderator
     permission:
@@ -95,24 +103,29 @@ select_permissions:
         - chatbot_id
         - created_at
         - is_approved
+        - is_blocked
         - is_public
         - model
         - parent_thread_id
         - thread_id
         - updated_at
         - user_id
-      filter:
-        thread:
-          user_id:
-            _eq: X-Hasura-User-Id
+      filter: {}
     comment: ""
 update_permissions:
   - role: moderator
     permission:
       columns:
+        - chatbot_id
+        - created_at
         - is_approved
         - is_blocked
         - is_public
+        - model
+        - parent_thread_id
+        - thread_id
+        - updated_at
+        - user_id
       filter: {}
       check: {}
     comment: Allows moderators to approve or block any thread
@@ -120,8 +133,13 @@ update_permissions:
     permission:
       columns:
         - chatbot_id
+        - created_at
         - is_public
         - model
+        - parent_thread_id
+        - thread_id
+        - updated_at
+        - user_id
       filter:
         thread:
           user_id:
