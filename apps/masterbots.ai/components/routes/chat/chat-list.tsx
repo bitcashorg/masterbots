@@ -1,7 +1,7 @@
 'use client'
 
 import { SharedAccordion } from '@/components/shared/shared-accordion'
-import { ChatMessage } from '@/components/routes/chat/chat-message'
+import { ThreadMessage } from '@/components/routes/thread/thread-message'
 import { ShortMessage } from '@/components/shared/short-message'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useScroll } from '@/lib/hooks/use-scroll'
@@ -40,8 +40,7 @@ export function ChatList({
   chatTitleClass,
   chatArrowClass,
   containerRef,
-  sendMessageFn,
-  isNearBottom,
+  sendMessageFn
 }: ChatList) {
   const [pairs, setPairs] = React.useState<MessagePair[]>([])
   const { isNewResponse } = useThread()
@@ -55,12 +54,14 @@ export function ChatList({
     hasMore: false,
     isLast: true,
     loading: isLoadingMessages,
-    loadMore: () => { }
+    loadMore: () => {}
   })
 
   useEffect(() => {
     if (messages.length) {
-      const prePairs: MessagePair[] = createMessagePairs(messages) as MessagePair[]
+      const prePairs: MessagePair[] = createMessagePairs(
+        messages
+      ) as MessagePair[]
       setPairs(prevPairs => {
         const prevString = JSON.stringify(prevPairs)
         const newString = JSON.stringify(prePairs)
@@ -77,11 +78,9 @@ export function ChatList({
   return (
     <div
       ref={effectiveContainerRef}
-      className={cn(
-        'relative max-w-3xl px-4 mx-auto',
-        className,
-        { 'flex flex-col gap-3': isThread }
-      )}
+      className={cn('relative max-w-3xl px-4 mx-auto', className, {
+        'flex flex-col gap-3': isThread
+      })}
     >
       <MessagePairs
         pairs={pairs}
@@ -101,7 +100,7 @@ function MessagePairs({
   chatTitleClass,
   chatArrowClass,
   chatContentClass,
-  sendMessageFn,
+  sendMessageFn
 }: {
   pairs: MessagePair[]
   chatbot?: Chatbot
@@ -118,21 +117,21 @@ function MessagePairs({
       {pairs.map((pair: MessagePair, key: number) => (
         <SharedAccordion
           key={`${pair.userMessage.id}-${pair.chatGptMessage[0]?.id ?? 'pending'}`}
-          defaultState={key === 0 || (key === pairs.length - 1 && isNewResponse)}
-          className={cn({ 'relative': isThread })}
+          defaultState={
+            key === 0 || (key === pairs.length - 1 && isNewResponse)
+          }
+          className={cn({ relative: isThread })}
           triggerClass={cn(
             'dark:border-b-mirage border-b-gray-300 py-[0.4375rem] dark:hover:bg-mirage hover:bg-gray-300',
             {
-              'sticky top-0 md:-top-10 z-[1] dark:bg-[#18181b] bg-[#f4f4f5] !border-l-[transparent] px-3 [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]': isThread,
+              'sticky top-0 md:-top-10 z-[1] dark:bg-[#18181b] bg-[#f4f4f5] !border-l-[transparent] px-3 [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]':
+                isThread,
               'px-[calc(32px-0.25rem)]': !isThread,
-              'hidden': !isThread && key === 0,
+              hidden: !isThread && key === 0
             },
             chatTitleClass
           )}
-          contentClass={cn(
-            '!border-l-transparent',
-            chatContentClass
-          )}
+          contentClass={cn('!border-l-transparent', chatContentClass)}
           arrowClass={cn(
             { 'top-4': isThread, 'right-5 top-4': !isThread },
             chatArrowClass
@@ -143,10 +142,7 @@ function MessagePairs({
           {!isThread && key === 0 ? (
             ''
           ) : (
-            <ChatMessage
-              actionRequired={false}
-              message={pair.userMessage}
-            />
+            <ThreadMessage message={pair.userMessage} actionRequired={false} />
           )}
 
           {/* Thread Description */}
@@ -156,9 +152,13 @@ function MessagePairs({
                 <div className="flex-1 px-1 space-y-2 overflow-hidden text-left">
                   <ShortMessage content={pair.chatGptMessage[0]?.content} />
                 </div>
-              ) : ''}
+              ) : (
+                ''
+              )}
             </div>
-          ) : <></>}
+          ) : (
+            <></>
+          )}
 
           {/* Thread Content */}
           <div
@@ -170,14 +170,14 @@ function MessagePairs({
           >
             <ChatLoadingState />
             {pair.chatGptMessage.length > 0
-              ? pair.chatGptMessage.map((message) => (
-                <ChatMessage
-                  key={message.id}
-                  actionRequired={false}
-                  message={message}
-                  sendMessageFromResponse={sendMessageFn}
-                />
-              ))
+              ? pair.chatGptMessage.map(message => (
+                  <ThreadMessage
+                    key={message.id}
+                    message={message}
+                    actionRequired={false}
+                    sendMessageFromResponse={sendMessageFn}
+                  />
+                ))
               : ''}
           </div>
         </SharedAccordion>
@@ -195,15 +195,15 @@ export function ChatLoadingState() {
   switch (activeTool?.toolName) {
     case 'webSearch':
       return (
-        <div className='flex items-center w-full h-20 gap-4 opacity-65'>
+        <div className="flex items-center w-full h-20 gap-4 opacity-65">
           <GlobeIcon className="relative size-6 animate-bounce top-2" />
           <p className="flex flex-col gap-1 leading-none">
             <span>
               Searching on the web{' '}
               {['first-dot', 'second-dot', 'third-dot'].map((key, index) => (
-                <span 
-                  key={key} 
-                  className="animate-pulse rounded-full text-4xl h-0.5 leading-none" 
+                <span
+                  key={key}
+                  className="animate-pulse rounded-full text-4xl h-0.5 leading-none"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   .
