@@ -28,6 +28,7 @@ import type {
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createOpenAI } from '@ai-sdk/openai'
 import { streamObject, streamText } from 'ai'
+import { createStreamableValue } from 'ai/rsc'
 import type OpenAI from 'openai'
 
 //* this function is used to create a client for the OpenAI API
@@ -95,7 +96,7 @@ export async function getChatbotMetadata(
 ) {
   console.log('getting chatbot metadata, headers --> ', metadataHeaders)
   const chatbotMetadata = await fetchChatbotMetadata(metadataHeaders)
-  console.log('got chatbot metadata')
+  console.log('got chatbot metadata', chatbotMetadata)
 
   if (!chatbotMetadata) {
     console.error('Chatbot metadata not found. Generating response without them.')
@@ -164,20 +165,26 @@ export async function processWithAiObject(
       chatbotMetadata,
     } as any)
 
-    if (!response.body) {
-      throw new Error('Response body is null')
+    // @ts-ignore
+    const responseObject = response.curr
+
+    // ! Experimental. Use when stable...
+    // for await (const resObj of readStreamableValue(response)) {
+    //   if (!resObj) {
+    //     throw new Error('Failed to process the request, object stream is null')
+    //   }
+
+    //   responseObject = resObj
+    // }
+
+    if (!responseObject) {
+      throw new Error('Failed to get response object')
     }
 
-    if (response.status !== 200) {
-      const errorText = await response.text()
-      throw new Error(`API responded with status ${response.status}: ${errorText} `)
-    }
-
-    const result = await readStreamResponse(response.body)
-    console.log('result::processwithAiObject -->', result)
-    return JSON.parse(result)
+    console.log('result::processwithAiObject -->', responseObject)
+    return responseObject
   } catch (error) {
-    console.error('Error in processWithAIObject:', error)
+    console.error('Error in processWithAIObject: ', error)
     throw error
   }
 }
@@ -347,7 +354,8 @@ export async function createResponseStreamObject(
 
   try {
     const openaiModel = initializeOpenAi(model)
-    const { partialObjectStream } = await streamObject({
+    const stream = createStreamableValue()
+    const { partialObjectStream } = streamObject({
       model: openaiModel,
       // TODO: Fix different schemas for different tools
       schema: schema as typeof mbObjectSchema.metadata,
@@ -362,14 +370,14 @@ export async function createResponseStreamObject(
         throw new Error('Failed to process the request, object stream is null')
       }
 
-      console.log('objectStream --> ', objectStream)
+      stream.update(objectStream)
     }
 
-    return new Response(partialObjectStream, {
-      headers: { 'Content-Type': 'text/event-stream' },
-    })
+    stream.done()
+
+    return stream.value
   } catch (error) {
-    console.error('Error in createResponseStream:', error)
+    console.error('Error in createResponseStreamObject:', error)
     throw error
   }
 }
@@ -383,24 +391,32 @@ export async function classifyQuestion({
 }: ClassifyQuestionParams): Promise<ChatbotMetadataClassification> {
   try {
     const responseObj = await processWithAiObject(prompt, chatbotMetadata)
+    const errors = []
 
     for (const tag of responseObj.tags) {
       if (!chatbotMetadata.tags.includes(tag)) {
-        throw new Error(`Tag ${tag} not found in chatbot metadata`)
+        responseObj.tags = responseObj.tags.filter((t: string) => t !== tag)
+
+        errors.push(`Tag ${tag} not found in chatbot metadata`)
       }
     }
 
     for (const category of responseObj.categories) {
       if (!chatbotMetadata.categories[category]) {
-        throw new Error(`Category ${category} not found in chatbot metadata`)
+        responseObj.categories = responseObj.categories.filter((c: string) => c !== category)
+
+        errors.push(`Category ${category} not found in chatbot metadata`)
       }
 
-      if (responseObj.categories[category].length === 0) {
-        throw new Error(`No subcategories found for category ${category}`)
+      if (responseObj.categories[category] && responseObj.categories[category]?.length === 0) {
+        errors.push(`No subcategories found for category ${category}`)
       }
     }
 
     console.log('class, subclass and tags are valid', responseObj)
+    console.error('Errors: ', JSON.stringify(errors, null, 3))
+
+    responseObj.errors = errors
 
     return responseObj
   } catch (error) {

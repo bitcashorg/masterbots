@@ -151,6 +151,7 @@ export type ChatbotMetadataClassification = {
   domainName: string
   categories: string[]
   tags: string[]
+  errors?: string[]
 }
 
 export type ExampleMetadata = Example & {

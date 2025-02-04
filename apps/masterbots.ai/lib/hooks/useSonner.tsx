@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import { Check, Info, AlertTriangle, X } from 'lucide-react'
+import { AlertTriangle, Check, Info, X } from 'lucide-react'
 import { toast } from 'sonner'
 
 export type customSonnerProps = {
@@ -88,6 +88,8 @@ export function useSonner() {
           </div>
         </div>
       )
+    }, {
+      duration: 30000,
     })
   }
 
