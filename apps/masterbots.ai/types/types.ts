@@ -1,15 +1,17 @@
+import type { mbObjectSchema } from '@/lib/helpers/ai-helpers'
 import type { WordWareFlowPaths } from '@/types/wordware-flows.types'
 import type { Message } from 'ai'
 import type { UserRole } from 'mb-drizzle'
-import type { Chatbot, LabelChatbotCategory, SocialFollowing } from 'mb-genql'
+import type { Chatbot, Example, SocialFollowing, Thread } from 'mb-genql'
 import 'next-auth'
 import type { DefaultSession, DefaultUser } from 'next-auth'
-import type { ChatCompletionMessageParam } from 'openai/resources'
+import type OpenAI from 'openai'
+import type { FunctionToolCall, ToolCall } from 'openai/resources/beta/threads/runs/steps.mjs'
 import type React from 'react'
 import type Stripe from 'stripe'
 
 // * Chat types
-export interface Chat extends Record<string, any> {
+export interface Chat extends Record<string, unknown> {
   id: string
   title: string
   createdAt: Date
@@ -19,11 +21,12 @@ export interface Chat extends Record<string, any> {
   sharePath?: string
 }
 
-export type AiToolCall = {
-  toolCallId: string
-  toolName: WordWareFlowPaths
-  args: Record<string, any>
-}
+export type AiToolCall = ToolCall &
+  FunctionToolCall & {
+    toolCallId: string
+    toolName: WordWareFlowPaths
+    args: Record<string, unknown>
+  }
 
 export interface ChatProps extends React.ComponentProps<'div'> {
   initialMessages?: Message[]
@@ -134,15 +137,51 @@ export const initialStateSubscription = {
 
 // * AI SDK related types
 
-export type ChatbotMetadataHeaders = {
-  chatbot: number
-  domain: number
+export type ChatbotMetadata = {
+  domainName: string
+  tags: string[]
+  categories:
+    | Record<string, string>[]
+    | {
+        [key: string]: string
+      }[]
 }
 
-export type ChatbotMetadata = Pick<
-  LabelChatbotCategory['label'],
-  'questions' | 'categories' | 'subCategories' | 'tags'
->
+export type ChatbotMetadataClassification = {
+  domainName: string
+  categories: string[]
+  tags: string[]
+  errors?: string[]
+}
+
+export type ExampleMetadata = Example & {
+  messageId: string
+  role: string
+  content: string
+  createdAt: string
+  tags: string[]
+  category: string
+  subcategory: string
+  prompt: string
+  response: string
+  cumulativeSum?: number
+}
+
+export interface ChatbotMetadataExamples {
+  tagExamples: ExampleMetadata[]
+  categoryExamples: ExampleMetadata[]
+  domainExamples: ExampleMetadata[]
+}
+
+export interface ThreadState {
+  threads: Thread[]
+  count: number
+  totalThreads: number
+}
+
+export type ChatbotMetadataHeaders = {
+  chatbot: number
+}
 
 export type ReturnFetchChatbotMetadata = ChatbotMetadata | null
 
@@ -155,12 +194,12 @@ export type CoreMessage = {
   }
 }
 
-export type AiClientType = 'OpenAI' | 'Anthropic' | 'Perplexity' | 'WordWare'
+export type AiClientType = 'OpenAI' | 'Anthropic' | 'Perplexity' | 'WordWare' | 'DeepSeek'
 
 export type JSONResponseStream = {
   id: string
   model: string
-  messages: ChatCompletionMessageParam[]
+  messages: OpenAI.ChatCompletionMessageParam[]
   previewToken: string
   webSearch: boolean
   stream?: boolean
@@ -171,6 +210,7 @@ export type JSONResponseStream = {
 
 // ? New type for streamText function parameters if needed
 export type StreamTextParams = {
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   model: any // ? Replace 'any' with the correct type from the SDK if available
   messages: CoreMessage[]
   temperature?: number
@@ -291,6 +331,24 @@ export interface BrowseChatbotLayoutProps {
   descriptionPoints: string[]
   hasMultiplePoints: boolean
   botUrl: string
+  followers?: SocialFollowing[]
+  onFollow?: () => void
+  followersCount?: number
 }
 
 export type UUID = `${string}-${string}-${string}-${string}-${string}`
+
+export interface MBObjectHook {
+  schema: keyof typeof mbObjectSchema
+}
+
+export type MBSchema = 'metadata' | 'tool' | 'examples'
+
+export interface ClassifyQuestionParams {
+  prompt: string
+  clientType: AiClientType
+  chatbotMetadata: ChatbotMetadata
+  maxRetries?: number
+  retryCount?: number
+  domain?: string
+}

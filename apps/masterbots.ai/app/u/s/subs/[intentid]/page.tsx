@@ -5,8 +5,8 @@ import { redirect } from 'next/navigation'
 
 import { generateMetadataFromSEO } from '@/lib/metadata'
 import { getBrowseThreads } from '@/services/hasura'
-import { User } from 'mb-genql'
-import { Metadata } from 'next'
+import type { User } from 'mb-genql'
+import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/auth'
 

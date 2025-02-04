@@ -55,6 +55,33 @@ export function ChatMessage({
     )
   }
 
+  const ReasoningSection = () => {
+    //? Only show for DeepSeek responses that include reasoning
+    if (!message.reasoning || message.role !== 'assistant') return null
+
+    return (
+      <div className="pt-4 mt-4 border-t border-gray-200">
+        <details className="group">
+          <summary className="font-medium transition-colors cursor-pointer hover:text-gray-700">
+            View AI Reasoning Process
+            <span className="ml-1 text-gray-400 group-open:hidden">▼</span>
+            <span className="hidden ml-1 text-gray-400 group-open:inline">
+              ▲
+            </span>
+          </summary>
+          <div className="p-4 mt-2 text-sm text-gray-600 rounded-md bg-gray-50">
+            <MemoizedReactMarkdown
+              className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
+              remarkPlugins={[remarkGfm, remarkMath]}
+            >
+              {message.reasoning}
+            </MemoizedReactMarkdown>
+          </div>
+        </details>
+      </div>
+    )
+  }
+
   return (
     <div className={cn('group relative flex items-start p-1')} {...props}>
       <div className="flex-1 pr-1 space-y-2 overflow-hidden">
@@ -117,13 +144,17 @@ export function ChatMessage({
                 </a>
               )
             },
+            // @ts-ignore
             code({ inline, className, children, ...props }) {
+              // @ts-ignore
               if (children.length) {
-                if (children[0] == '▍') {
+                // @ts-ignore
+                if (children[0] === '▍') {
                   return (
                     <span className="mt-1 cursor-default animate-pulse">▍</span>
                   )
                 }
+                // @ts-ignore
                 children[0] = (children[0] as string).replace('▍', '▍')
               }
 
@@ -140,23 +171,22 @@ export function ChatMessage({
               return (
                 <CodeBlock
                   key={Math.random()}
-                  language={(match && match[1]) || ''}
+                  language={match?.[1] || ''}
                   value={String(children).replace(/\n$/, '')}
                   {...props}
                 />
               )
-            },
+            }
           }}
         >
           {cleanMessage.content}
         </MemoizedReactMarkdown>
-        {
-          actionRequired ? (
-            <ChatMessageActions className="md:!right-0" message={message} />
-          ) : null
-        }
+        <ReasoningSection />
+        {actionRequired ? (
+          <ChatMessageActions className="md:!right-0" message={message} />
+        ) : null}
         <ReferencesSection />
-      </div >
-    </div >
+      </div>
+    </div>
   )
 }

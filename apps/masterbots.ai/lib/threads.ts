@@ -2,7 +2,6 @@ import { extractBetweenMarkers } from '@/lib/utils'
 import type * as AI from 'ai'
 import type { Message, Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
-import { urlBuilders } from './url'
 
 export interface MessagePair {
   userMessage: Message | AI.Message
@@ -14,23 +13,24 @@ export function convertMessage(message: Message) {
     id: message.messageId,
     content: message.content,
     createAt: message.createdAt,
-    role: message.role
+    role: message.role,
   } as AI.Message
 }
 
-export function getAllUserMessagesAsStringArray(
-  allMessages: Message[] | AI.Message[]
-) {
-  const userMessages = allMessages.filter(m => m.role === 'user')
-  const cleanMessages = userMessages.map(m =>
-    extractBetweenMarkers(m.content, 'Then answer this question:')
+export function getAllUserMessagesAsStringArray(allMessages: Message[] | AI.Message[]) {
+  const userMessages = allMessages.filter((m) => m.role === 'user')
+  const cleanMessages = userMessages.map((m) =>
+    extractBetweenMarkers(
+      m.content,
+      'OK, so following the same pattern, how would you answer the question:',
+    ),
   )
   return cleanMessages.join(', ')
 }
 
 export function getThreadLink({
   chat = false,
-  thread
+  thread,
 }: {
   chat?: boolean
   thread: Thread

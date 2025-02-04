@@ -75,7 +75,7 @@ export function ChatPanelHeader({
                 ref={webSearchRef}
                 onClick={toggleWebSearch}
                 className="transition-all delay-100 h-auto w-auto inline-flex items-center gap-2 border-muted p-0.5 data-[state=checked]:border-accent/50 data-[state=checked]:bg-accent/25 rounded-full"
-                customSettings={{
+                checkboxconfig={{
                   check: (
                     <>
                       <div className="bg-accent rounded-full -m-[2px] mr-1 p-0.5">
@@ -111,7 +111,7 @@ export function ChatPanelHeader({
         {/* Right side controls */}
         <div className="flex items-center gap-2">
           {showReload &&
-            (isLoading || loadingState ? (
+            (isLoading || loadingState?.match(/^(processing|digesting|generating|polishing|ready)/) ? (
               <>
                 {loadingState && (
                   <div className="flex items-center justify-between gap-4">

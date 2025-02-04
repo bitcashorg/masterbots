@@ -35,6 +35,7 @@ export default function SidebarLink({
     activeChatbot,
     setActiveChatbot,
     selectedCategories,
+    selectedChatbots,
     setSelectedCategories,
     setSelectedChatbots,
     expandedCategories,
@@ -43,9 +44,10 @@ export default function SidebarLink({
   } = useSidebar()
   const isExpanded = expandedCategories.includes(category.categoryId)
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   const handleClickCategory = useCallback(
     (e: React.MouseEvent) => {
+      // TODO: return to the previous path when clicking on the active category
       e.stopPropagation()
       if (!isFilterMode) {
         setExpandedCategories(prev =>
@@ -86,7 +88,7 @@ export default function SidebarLink({
     ]
   )
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   const handleCheckboxChange = useCallback(
     (checked: boolean) => {
       setSelectedCategories(prev =>
@@ -301,4 +303,3 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
     )
   }
 )
-

@@ -11,10 +11,10 @@ const Checkbox = React.forwardRef<
   React.ComponentPropsWithRef<typeof CheckboxPrimitive.Root> & (
     {
       custom?: false;
-      customSettings?: never;
+      checkboxconfig?: never;
     } | {
       custom: true;
-      customSettings: {
+      checkboxconfig: {
         check?: React.ReactNode;
         uncheck?: React.ReactNode;
         indeterminate?: React.ReactNode;
@@ -39,17 +39,17 @@ const Checkbox = React.forwardRef<
         )}
       >
         {
-          props?.custom && props?.customSettings
+          props?.custom && props?.checkboxconfig
             ? (
               <>
                 <span className="flex items-center transition-all opacity-0 group-data-[state=checked]:opacity-100 group-data-[state=checked]:relative absolute origin-right">
-                  {props?.customSettings?.check}
+                  {props?.checkboxconfig?.check}
                 </span>
                 <span className="flex items-center transition-all opacity-0 group-data-[state=unchecked]:opacity-100 group-data-[state=unchecked]:relative absolute origin-right">
-                  {props?.customSettings?.uncheck}
+                  {props?.checkboxconfig?.uncheck}
                 </span>
                 <span className="flex items-center transition-all opacity-0 group-data-[state=indeterminate]:opacity-100 group-data-[state=indeterminate]:relative absolute">
-                  {props?.customSettings?.indeterminate}
+                  {props?.checkboxconfig?.indeterminate}
                 </span>
               </>
             )

@@ -1,13 +1,13 @@
+import { authOptions } from '@/auth'
 import ChatThreadListPanel from '@/components/routes/chat/chat-thread-list-panel'
 import Subscription from '@/components/routes/subscription/subscription'
 import ThreadPanel from '@/components/routes/thread/thread-panel'
 import { generateMetadataFromSEO } from '@/lib/metadata'
 import { getThreads } from '@/services/hasura'
 import { isTokenExpired } from 'mb-lib'
-import { Metadata } from 'next'
+import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
-import { authOptions } from '@/auth'
 
 export default async function IndexPage() {
   const session = await getServerSession(authOptions)
@@ -21,12 +21,12 @@ export default async function IndexPage() {
 
   const threads = await getThreads({
     jwt,
-    userId: session!.user.id
+    userId: session?.user.id,
   })
 
   const user = {
     email: session.user.email || '',
-    name: session.user.name || ''
+    name: session.user.name || '',
   }
 
   return (
@@ -41,11 +41,10 @@ export default async function IndexPage() {
 export async function generateMetadata(): Promise<Metadata> {
   const seoData = {
     title: 'Pro page',
-    description:
-      'Masterbots Subscription plans, Subscribe to our service and stay updated',
+    description: 'Masterbots Subscription plans, Subscribe to our service and stay updated',
     ogType: 'website',
     ogImageUrl: '',
-    twitterCard: 'summary'
+    twitterCard: 'summary',
   }
 
   return generateMetadataFromSEO(seoData)
