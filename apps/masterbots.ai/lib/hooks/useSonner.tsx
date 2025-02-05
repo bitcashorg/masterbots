@@ -73,7 +73,7 @@ export function useSonner() {
               {config.title}
             </h2>
           </div>
-          <p className="text-sm dark:text-[#A1A1AA] text-[#71717A] pr-16">
+          <p className="text-sm dark:text-[#A1A1AA] text-[#71717A] pr-16 whitespace-pre-line">
             {config.text}
           </p>
 

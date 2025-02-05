@@ -1,11 +1,6 @@
 import { getChatbotMetadata, improveMessage } from '@/app/actions'
 import { formatSystemPrompts } from '@/lib/actions'
-import {
-  examplesPrompt,
-  finalIndicationPrompt,
-  followingQuestionsPrompt,
-  setDefaultUserPreferencesPrompt,
-} from '@/lib/constants/prompts'
+import { followingQuestionsPrompt, setDefaultUserPreferencesPrompt } from '@/lib/constants/prompts'
 import { useModel } from '@/lib/hooks/use-model'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
@@ -17,7 +12,6 @@ import {
   fetchDomainExamples,
   fetchDomainTags,
   getMessages,
-  getThread,
   saveNewMessage,
 } from '@/services/hasura'
 import type {
@@ -283,7 +277,8 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       return
     }
 
-    setIsNewResponse(true)
+    // * Loading: processing your request + opening pop-up...
+    setLoadingState('processing')
 
     if (isNewChat) {
       const optimisticThread: Thread = {
@@ -310,17 +305,15 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     }
 
     try {
-      // * Loading: processing your request + opening pop-up...
-      setLoadingState('processing')
       await tunningUserContent(userMessage)
-
       // ! At this point, the UI respond and provides a feedback to the user... before it is now even showing the updated active thread, event though that it does update the active thread...
       // TODO: improve response velocity here (split this fn to yet another cb fn? 🤔)
-      setIsOpenPopup(true)
     } catch (error) {
       console.error('Error processing user message. Using og message. Error: ', error)
     } finally {
       await appendNewMessage(userMessage)
+      setIsNewResponse(true)
+      setIsOpenPopup(true)
     }
   }
 
@@ -332,8 +325,6 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       domainExamples: [],
     }
     try {
-      console.log('chatbot', chatbot)
-
       chatMetadata = await getChatbotMetadata(
         {
           chatbot: chatbot?.chatbotId as number,
@@ -355,7 +346,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     if (chatMetadata?.errors?.length) {
       customSonner({
         type: 'error',
-        text: `${chatMetadata.domainName}: ${chatMetadata.errors.join(' & ')}`,
+        text: `${chatMetadata.domainName}:\n${chatMetadata.errors.join('.\n')}`,
       })
     }
 
@@ -526,40 +517,40 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
 
       console.log('Chatbot metadata: ', chatbotMetadata)
 
-      if (isNewChat && chatbot) {
-        await createThread({
-          threadId: threadId as string,
-          chatbotId: chatbot.chatbotId,
-          jwt: session?.user?.hasuraJwt,
-          isPublic: activeChatbot?.name !== 'BlankBot',
-        })
+      // if (isNewChat && chatbot) {
+      //   await createThread({
+      //     threadId: threadId as string,
+      //     chatbotId: chatbot.chatbotId,
+      //     jwt: session?.user?.hasuraJwt,
+      //     isPublic: activeChatbot?.name !== 'BlankBot',
+      //   })
 
-        // * Loading: Here is the information you need... 'finish'
-        const thread = await getThread({
-          threadId: threadId as string,
-          jwt: session?.user?.hasuraJwt,
-        })
+      //   // * Loading: Here is the information you need... 'finish'
+      //   const thread = await getThread({
+      //     threadId: threadId as string,
+      //     jwt: session?.user?.hasuraJwt,
+      //   })
 
-        updateActiveThread(thread)
-      }
+      //   updateActiveThread(thread)
+      // }
 
-      const appendResponse = await append(
-        {
-          ...userMessage,
-          content: isNewChat
-            ? userContentRef.current
-            : examplesPrompt(chatbotMetadata) +
-              followingQuestionsPrompt(userContentRef.current, messages) +
-              finalIndicationPrompt(),
-        },
-        // ? Provide chat attachments here...
-        // {
-        //   experimental_attachments: [],
-        // }
-      )
+      // const appendResponse = await append(
+      //   {
+      //     ...userMessage,
+      //     content: isNewChat
+      //       ? userContentRef.current
+      //       : examplesPrompt(chatbotMetadata) +
+      //         followingQuestionsPrompt(userContentRef.current, messages) +
+      //         finalIndicationPrompt(),
+      //   },
+      //   // ? Provide chat attachments here...
+      //   // {
+      //   //   experimental_attachments: [],
+      //   // }
+      // )
 
-      setLoadingState('finished')
-      return appendResponse
+      // setLoadingState('finished')
+      // return appendResponse
     } catch (error) {
       setLoadingState(undefined)
       stop()

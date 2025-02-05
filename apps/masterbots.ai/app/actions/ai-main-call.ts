@@ -402,14 +402,29 @@ export async function classifyQuestion({
     }
 
     for (const category of responseObj.categories) {
-      if (!chatbotMetadata.categories[category]) {
+      const categoryKey = Object.keys(chatbotMetadata.categories).find((cat) =>
+        cat.includes(category),
+      ) as keyof typeof chatbotMetadata.categories
+      console.log('categoryKey -> ', categoryKey)
+      if (!chatbotMetadata.categories[categoryKey]) {
         responseObj.categories = responseObj.categories.filter((c: string) => c !== category)
 
         errors.push(`Category ${category} not found in chatbot metadata`)
-      }
+      } else {
+        for (const subCategory of responseObj.subCategories) {
+          if (
+            Array.isArray(chatbotMetadata.categories[categoryKey]) &&
+            !chatbotMetadata.categories[categoryKey].includes(subCategory)
+          ) {
+            responseObj.subCategories = responseObj.subCategories.filter(
+              (sc: string) => sc !== subCategory,
+            )
 
-      if (responseObj.categories[category] && responseObj.categories[category]?.length === 0) {
-        errors.push(`No subcategories found for category ${category}`)
+            errors.push(
+              `SubCategory ${subCategory} not found in chatbot metadata for category ${category}`,
+            )
+          }
+        }
       }
     }
 
