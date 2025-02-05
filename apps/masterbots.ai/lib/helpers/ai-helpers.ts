@@ -20,12 +20,11 @@ export function getModelClientType(model: AIModels) {
     case AIModels.WordWare:
       return 'WordWare'
     case AIModels.DeepSeekR1:
-      return 'DeepSeek'  // Add this case
+      return 'DeepSeek' // Add this case
     default:
       throw new Error('Unsupported model specified')
   }
 }
-
 
 // * This function creates the payload for the AI response
 export function createPayload(
@@ -63,30 +62,33 @@ export function setStreamerPayload(
       return payload
     case 'Anthropic':
       return payload.map(
-        (message, index) => ({
-          role: index
-            ? message.role.replace('system', 'assistant')
-            : message.role.replace('system', 'user'),
-          content: message.content,
-        }) as Anthropic.MessageParam,
+        (message, index) =>
+          ({
+            role: index
+              ? message.role.replace('system', 'assistant')
+              : message.role.replace('system', 'user'),
+            content: message.content,
+          }) as Anthropic.MessageParam,
       )
-      case 'DeepSeek':
-        return payload.map(message => {
-          if (message.role === 'assistant') {
-            const content = message.content as string;
-            // Extract any existing reasoning if present
-            const reasoningMatch = content.match(/<think>(.*?)<\/think>/s);
-            const answerMatch = content.match(/<answer>(.*?)<\/answer>/s);
-            
-            return {
-              ...message,
-              // If content already has think/answer tags, use those, otherwise add reasoning field
-              content: answerMatch ? content : `<answer>${content}</answer>`,
-              reasoning: reasoningMatch ? reasoningMatch[1] : '<think>Analyzing the context and formulating a response...</think>'
-            };
+    case 'DeepSeek':
+      return payload.map((message) => {
+        if (message.role === 'assistant') {
+          const content = message.content as string
+          // Extract any existing reasoning if present
+          const reasoningMatch = content.match(/<think>(.*?)<\/think>/s)
+          const answerMatch = content.match(/<answer>(.*?)<\/answer>/s)
+
+          return {
+            ...message,
+            // If content already has think/answer tags, use those, otherwise add reasoning field
+            content: answerMatch ? content : `<answer>${content}</answer>`,
+            reasoning: reasoningMatch
+              ? reasoningMatch[1]
+              : '<think>Analyzing the context and formulating a response...</think>',
           }
-          return message;
-        })
+        }
+        return message
+      })
     default:
       return payload
   }
@@ -127,7 +129,8 @@ export async function fetchPromptDetails(promptId: string) {
 export function cleanPrompt(str: string) {
   // const marker = 'OK, so following the same pattern, how would you answer the question:'
   const marker = '].  Then answer this question:'
-  const index = str.indexOf(marker)
+  const marker2 = ']. Then answer this question:'
+  const index = str.indexOf(marker) || str.indexOf(marker2)
   let extracted = ''
 
   if (index !== -1) {
