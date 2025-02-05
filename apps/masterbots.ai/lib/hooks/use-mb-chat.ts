@@ -363,9 +363,9 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
         return defaultMetadata
       }
 
-      domainExamples = (await fetchDomainExamples(chatMetadata.domainName)) ?? []
+      domainExamples = (await fetchDomainExamples(chatMetadata)) ?? []
       console.log('Domain examples --> ', domainExamples)
-      const domainTags = (await fetchDomainTags(chatMetadata.domainName)) ?? []
+      const domainTags = (await fetchDomainTags(chatMetadata)) ?? []
       console.log('Domain tags --> ', domainTags)
 
       if (!domainExamples.length && !domainTags) {

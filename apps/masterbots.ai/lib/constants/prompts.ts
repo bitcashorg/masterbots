@@ -43,12 +43,12 @@ export function createChatbotMetadataPrompt(
   const tags = chatbotMetadata.tags
   return (
     `You are a senior data scientist expert in the field of ${chatbotMetadata.domainName}. Your task is to identify the most relevant categories, sub-categories, and tags for the following user question: "${userPrompt}".` +
-    '\n\n**Available categories and their sub-categories:**\n' +
+    '\n\n**Available categories and their related sub-categories:**\n' +
     categories
       .map(
-        (category) =>
-          `- ${category}:
-    ${(chatbotMetadata.categories[category as keyof typeof chatbotMetadata.categories] as unknown as string[]).join(', ')}.`,
+        (category, index) =>
+          `${index + 1}. ${category}:
+    - Sub-categories: ${(chatbotMetadata.categories[category as keyof typeof chatbotMetadata.categories] as unknown as string[]).join(', ')}.`,
       )
       .join('\n') +
     '\n\n**Available tags:**\n- ' +

@@ -1,5 +1,6 @@
 import type {
   ChatbotMetadata,
+  ChatbotMetadataClassification,
   ChatbotMetadataHeaders,
   ExampleMetadata,
   ReturnFetchChatbotMetadata,
@@ -1172,28 +1173,31 @@ export async function fetchChatbotMetadata({
   }
 }
 
-export async function fetchDomainExamples(domain: string) {
+export async function fetchDomainExamples({
+  domainName,
+  categories,
+}: ChatbotMetadataClassification) {
   try {
     const client = getHasuraClient({})
-    // todo: typescript
-    const examples = (
-      await client.query({
-        example: {
-          __args: {
-            where: {
-              domain: { _eq: domain },
+    const { example: examples } = await client.query({
+      example: {
+        __args: {
+          where: {
+            domain: { _eq: domainName },
+            category: {
+              _in: categories,
             },
           },
-          prompt: true,
-          category: true,
-          domain: true,
-          exampleId: true,
-          response: true,
-          subcategory: true,
-          tags: true,
         },
-      })
-    ).example
+        prompt: true,
+        category: true,
+        domain: true,
+        exampleId: true,
+        response: true,
+        subcategory: true,
+        tags: true,
+      },
+    })
 
     console.log('fetchDomainExamples, result --> ', examples)
 
@@ -1207,14 +1211,14 @@ export async function fetchDomainExamples(domain: string) {
   }
 }
 
-export async function fetchDomainTags(domain: string) {
+export async function fetchDomainTags({ domainName }: ChatbotMetadataClassification) {
   try {
     const client = getHasuraClient({})
     const { tagEnum: tags } = await client.query({
       tagEnum: {
         __args: {
           where: {
-            domain: { _eq: domain },
+            domain: { _eq: domainName },
           },
         },
         name: true,
@@ -1224,7 +1228,7 @@ export async function fetchDomainTags(domain: string) {
     })
 
     if (!tags.length) {
-      throw new Error(`No tags found for domain: ${domain}`)
+      throw new Error(`No tags found for domain: ${domainName}`)
     }
 
     // change to a dict with key of tagId and value of object with name and frequency
