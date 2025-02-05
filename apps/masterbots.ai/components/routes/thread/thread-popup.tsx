@@ -21,7 +21,8 @@ export function ThreadPopup({ className }: { className?: string }) {
   const { activeChatbot } = useSidebar()
   const { isOpenPopup, activeThread } = useThread()
   const [{ allMessages, isLoading }, { sendMessageFromResponse }] = useMBChat({
-    threadId: activeThread?.threadId
+    threadId: activeThread?.threadId,
+    chatbot: activeThread?.chatbot || (activeChatbot as Chatbot)
   })
   const [browseMessages, setBrowseMessages] = useState<Message[]>([])
   const popupContentRef = useRef<HTMLDivElement>()

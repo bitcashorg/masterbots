@@ -1,6 +1,11 @@
 import { getChatbotMetadata, improveMessage } from '@/app/actions'
 import { formatSystemPrompts } from '@/lib/actions'
-import { followingQuestionsPrompt, setDefaultUserPreferencesPrompt } from '@/lib/constants/prompts'
+import {
+  examplesPrompt,
+  finalIndicationPrompt,
+  followingQuestionsPrompt,
+  setDefaultUserPreferencesPrompt,
+} from '@/lib/constants/prompts'
 import { useModel } from '@/lib/hooks/use-model'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
@@ -12,6 +17,7 @@ import {
   fetchDomainExamples,
   fetchDomainTags,
   getMessages,
+  getThread,
   saveNewMessage,
 } from '@/services/hasura'
 import type {
@@ -247,6 +253,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     ).filter((m) => m.role !== 'system')
 
     setMessages(newAllMessages)
+    allMessages.concat(newAllMessages)
     setActiveThread(newThread)
   }
 
@@ -281,6 +288,15 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     setLoadingState('processing')
 
     if (isNewChat) {
+      const defaultUserMessage: Partial<Message> = {
+        content: userMessage.content,
+        role: 'user',
+        messageId: randomThreadId.current,
+        createdAt: new Date().toISOString(),
+        augmentedFrom: null,
+        examples: [],
+        threadId: threadId,
+      }
       const optimisticThread: Thread = {
         threadId,
         chatbotId: chatbot?.chatbotId,
@@ -289,20 +305,16 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
         isApproved: false,
         isBlocked: false,
         isPublic: activeChatbot?.name !== 'BlankBot',
-        messages: [
-          // @ts-ignore
-          {
-            messageId: userMessage.id,
-            createdAt: new Date().toISOString(),
-            role: userMessage.role,
-            content: userMessage.content,
-          },
-        ],
+        // @ts-ignore
+        messages: [defaultUserMessage],
         userId: session?.user.id,
       }
 
       updateActiveThread(optimisticThread)
     }
+
+    setIsNewResponse(true)
+    setIsOpenPopup(true)
 
     try {
       await tunningUserContent(userMessage)
@@ -312,8 +324,6 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       console.error('Error processing user message. Using og message. Error: ', error)
     } finally {
       await appendNewMessage(userMessage)
-      setIsNewResponse(true)
-      setIsOpenPopup(true)
     }
   }
 
@@ -501,9 +511,17 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     })
   }
 
-  const allMessages = uniqBy(initialMessages?.concat(messages), 'content').filter(
-    (m) => m.role !== 'system',
-  )
+  const allMessages = uniqBy(
+    initialMessages?.concat(messages),
+    // .concat(
+    //   activeThread?.messages?.map((msg) => ({
+    //     ...msg,
+    //     id: msg.messageId,
+    //     role: msg.role as 'data' | 'system' | 'user' | 'assistant',
+    //   })) || [],
+    // )
+    'content',
+  ).filter((m) => m.role !== 'system')
 
   const toggleWebSearch = () => {
     setWebSearch(!webSearch)
@@ -517,40 +535,42 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
 
       console.log('Chatbot metadata: ', chatbotMetadata)
 
-      // if (isNewChat && chatbot) {
-      //   await createThread({
-      //     threadId: threadId as string,
-      //     chatbotId: chatbot.chatbotId,
-      //     jwt: session?.user?.hasuraJwt,
-      //     isPublic: activeChatbot?.name !== 'BlankBot',
-      //   })
+      if (isNewChat && chatbot) {
+        await createThread({
+          threadId: threadId as string,
+          chatbotId: chatbot.chatbotId,
+          jwt: session?.user?.hasuraJwt,
+          isPublic: activeChatbot?.name !== 'BlankBot',
+        })
+      }
 
-      //   // * Loading: Here is the information you need... 'finish'
-      //   const thread = await getThread({
-      //     threadId: threadId as string,
-      //     jwt: session?.user?.hasuraJwt,
-      //   })
+      if (chatbot && (isNewChat || !activeThread)) {
+        // * Loading: Here is the information you need... 'finish'
+        const thread = await getThread({
+          threadId: threadId as string,
+          jwt: session?.user?.hasuraJwt,
+        })
 
-      //   updateActiveThread(thread)
-      // }
+        updateActiveThread(thread)
+      }
 
-      // const appendResponse = await append(
-      //   {
-      //     ...userMessage,
-      //     content: isNewChat
-      //       ? userContentRef.current
-      //       : examplesPrompt(chatbotMetadata) +
-      //         followingQuestionsPrompt(userContentRef.current, messages) +
-      //         finalIndicationPrompt(),
-      //   },
-      //   // ? Provide chat attachments here...
-      //   // {
-      //   //   experimental_attachments: [],
-      //   // }
-      // )
+      const appendResponse = await append(
+        {
+          ...userMessage,
+          content: isNewChat
+            ? userContentRef.current
+            : examplesPrompt(chatbotMetadata) +
+              followingQuestionsPrompt(userContentRef.current, messages) +
+              finalIndicationPrompt(),
+        },
+        // ? Provide chat attachments here...
+        // {
+        //   experimental_attachments: [],
+        // }
+      )
 
-      // setLoadingState('finished')
-      // return appendResponse
+      setLoadingState('finished')
+      return appendResponse
     } catch (error) {
       setLoadingState(undefined)
       stop()

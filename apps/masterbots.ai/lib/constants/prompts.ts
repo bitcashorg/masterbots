@@ -42,21 +42,26 @@ export function createChatbotMetadataPrompt(
   const categories = Object.keys(chatbotMetadata.categories)
   const tags = chatbotMetadata.tags
   return (
-    `You are a senior data scientist expert in the field of ${chatbotMetadata.domainName}. Your task is to identify the most relevant categories, sub-categories, and tags for the following user question: "${userPrompt}".` +
-    '\n\n**Available categories and their related sub-categories:**\n' +
+    '<expertise>\n' +
+    `You are an expert in the field of ${chatbotMetadata.domainName}. Your task is to identify the most relevant categories, sub-categories, and tags for the following user question: "${userPrompt}".` +
+    '\n</expertise>\n' +
+    '\n<context>\n' +
+    '\n## Categories and their sub-categories:\n' +
     categories
       .map(
         (category, index) =>
           `${index + 1}. ${category}:
-    - Sub-categories: ${(chatbotMetadata.categories[category as keyof typeof chatbotMetadata.categories] as unknown as string[]).join(', ')}.`,
+      - Sub-categories: ${(chatbotMetadata.categories[category as keyof typeof chatbotMetadata.categories] as unknown as string[]).join(', ')}.`,
       )
       .join('\n') +
-    '\n\n**Available tags:**\n- ' +
-    tags.join('. ') +
-    '\n\n**Important Guidelines:**\n' +
+    '\n\n## Tags:\n- ' +
+    tags.join('. - ') +
+    '.\n</context>\n' +
+    '\n<instruction>\n' +
     '- Ensure the selected categories, sub-categories, and tags are highly relevant to the user question.\n' +
     '- Provide the labels and values in the exact format as requested.\n' +
-    '- Keep the values concise and relevant to the question.\n'
+    '- Keep the values concise and relevant to the question.\n' +
+    '\n</instruction>\n'
     // `\n\n**Example:**\n` +
     // `{categories: ["${categories[0]}", "${categories[1]}", "${categories[2]}"], subCategories: [${(chatbotMetadata.categories[categories[0]] as unknown as string[]).map((sc) => `"${sc}"`).join(', ')}], tags: ["${tags[0]}", "${tags[1]}", "${tags[2]}"]}`
   )

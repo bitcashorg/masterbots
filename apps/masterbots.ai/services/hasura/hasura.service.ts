@@ -1184,9 +1184,11 @@ export async function fetchDomainExamples({
         __args: {
           where: {
             domain: { _eq: domainName },
-            category: {
-              _in: categories,
-            },
+            // _or: [
+            //   {
+            //     ...(categories.length ? { category: { _in: categories } } : {}),
+            //   },
+            // ],
           },
         },
         prompt: true,
