@@ -160,7 +160,7 @@ export default function SidebarLink({
         {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
         <div
           className={cn(
-            'flex items-center p-2 cursor-pointer sidebar-gradient',
+            'flex items-center p-4 cursor-pointer sidebar-gradient',
             isActive && 'selected'
           )}
           onClick={handleClickCategory}
@@ -180,7 +180,7 @@ export default function SidebarLink({
         aria-expanded={isActive}
         aria-controls={`category-${category.name}`}
         className={cn(
-          'flex items-center p-2 w-full text-left sidebar-gradient',
+          'flex items-center p-4 w-full text-left sidebar-gradient',
           isActive && 'selected',
           page === 'profile' && 'pl-6'
         )}
@@ -251,7 +251,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
     return isFilterMode ? (
       <div
         className={cn(
-          'flex items-center p-2 w-full sidebar-gradient',
+          'flex items-center py-2 px-4 w-full sidebar-gradient',
           isActive && 'selected'
         )}
         data-route={routeType}
@@ -267,8 +267,8 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
         <Image
           src={chatbot.avatar || '/path/to/default/avatar.png'}
           alt={chatbot.name}
-          width={24}
-          height={24}
+          width={36}
+          height={36}
           className="mr-2 rounded-full"
         />
         <span>{chatbot.name}</span>
@@ -285,7 +285,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
             : `${isBrowse ? '' : '/c'}/${toSlug(category.name)}/${chatbot.name.toLowerCase()}`
         }
         className={cn(
-          'flex items-center p-2 w-full sidebar-gradient',
+          'flex items-center py-2 px-4 w-full sidebar-gradient',
           isActive && 'selected',
         )}
         onClick={handleChatbotClick}
@@ -294,8 +294,8 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
         <Image
           src={chatbot.avatar || '/path/to/default/avatar.png'}
           alt={chatbot.name}
-          width={24}
-          height={24}
+          width={36}
+          height={36}
           className="mr-2 rounded-full"
         />
         <span>{chatbot.name}</span>
