@@ -104,9 +104,9 @@ export const ProfileSidebar = ({ children }: any) => {
                 className={cn(
                   "overflow-y-auto scrollbar transition-all duration-300",
                   {
-                    "max-h-[300px] border dark:border-b-mirage border-b-gray-200": isThreadsOpen && sameUser,
+                    "max-h-[300px] border dark:border-b-mirage border-b-gray-200": isThreadsOpen,
                     "max-h-0": !isThreadsOpen,
-                    'max-h-full border-b-none': !sameUser
+                    'border-b-none': !sameUser
                   }
                 )}
               >
@@ -160,8 +160,8 @@ export const ProfileSidebar = ({ children }: any) => {
           {children}
         </div>
         <div className="sticky bottom-0 w-full left-0 z-50  dark:bg-black bg-white">          
-               <FooterCT className='flex justify-start items-center  text-center' />         
-             </div> 
+             <FooterCT className='flex justify-start items-center  text-center' />         
+         </div> 
       </section>
     </div>
   );

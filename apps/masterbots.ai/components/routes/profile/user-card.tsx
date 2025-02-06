@@ -434,7 +434,7 @@ export function UserCard({ user, loading }: UserCardProps) {
 
           {/* Profile Image and Follow Button Section */}
           <div className="absolute origin-top-right md:top-6 top-3 md:right-6 right-3 flex flex-col items-center space-y-3">
-            <div className="relative size-32">
+            <div className="relative md:size-32  size-24">
               <div className="absolute inset-0 border-4 border-[#BE17E8] dark:border-[#83E56A] rounded-full dark:bg-[#131316] bg-white overflow-hidden">
                 <Image
                   className="object-cover transition-opacity duration-300 rounded-full select-none size-full ring-1 ring-zinc-100/10 hover:opacity-80"
