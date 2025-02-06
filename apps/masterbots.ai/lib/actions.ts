@@ -6,8 +6,9 @@ export function formatSystemPrompts(prompts: PromptProps[]): Message[] {
     prompts?.map(({ prompt }) => ({
       id: prompt.promptId.toString(),
       role: 'system',
+      // role: 'user',
       content: prompt.content,
-      createdAt: new Date()
+      createdAt: new Date(),
     })) || []
   )
 }

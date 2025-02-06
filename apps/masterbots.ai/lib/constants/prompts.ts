@@ -43,7 +43,7 @@ export function createChatbotMetadataPrompt(
   const tags = chatbotMetadata.tags
   return (
     '<expertise>\n' +
-    `You are an expert in the field of ${chatbotMetadata.domainName}. Your task is to identify the most relevant categories, sub-categories, and tags for the following user question: "${userPrompt}".` +
+    `You are an expert in the field of ${chatbotMetadata.domainName}. Your task is to identify the most relevant categories, sub-categories, and tags for the following user question:` +
     '\n</expertise>\n' +
     '\n<context>\n' +
     '\n## Categories and their sub-categories:\n' +
@@ -61,54 +61,22 @@ export function createChatbotMetadataPrompt(
     '- Ensure the selected categories, sub-categories, and tags are highly relevant to the user question.\n' +
     '- Provide the labels and values in the exact format as requested.\n' +
     '- Keep the values concise and relevant to the question.\n' +
-    '\n</instruction>\n'
-    // `\n\n**Example:**\n` +
-    // `{categories: ["${categories[0]}", "${categories[1]}", "${categories[2]}"], subCategories: [${(chatbotMetadata.categories[categories[0]] as unknown as string[]).map((sc) => `"${sc}"`).join(', ')}], tags: ["${tags[0]}", "${tags[1]}", "${tags[2]}"]}`
+    '</instruction>\n' +
+    '\n<question>\n' +
+    userPrompt +
+    '\n</question>'
   )
 }
 
 export function createBotConfigurationPrompt(chatbot: Chatbot) {
   return (
+    // '\n<instructions>\n' +
     `Your response tone will be ${chatbot.defaultTone}. ` +
     `Your response length will be ${chatbot.defaultLength}. ` +
     `Your response format will be ${chatbot.defaultType}. ` +
     `Your response complexity level will be ${chatbot.defaultComplexity}. ` +
-    `Your response will be generated in the same language as user input.
-    ` +
-    `**Important Guidelines:**
-    ` +
-    '- Do not change the response tone, length or complexity level, only format whenever you are requested to follow any format below. ' +
-    '- You may be capable of performing Web Search. When available, use it to verify information before making assumptions. ' +
-    '- Whenever you are capable of performing Web Search, you must provide the source of the information at the end. Use the "thumbnail.original" to render an initial image from the given input. ' +
-    `- When performing Web Search, your response format will be in the following format example:
-    
-    ## Web Search Example: ##
-
-    **Resume:**  
-    Brewers: 9  
-    Dodgers: 2
-
-    **Summary**  
-    Yelich, Perkins power Brewers to 9-2 victory over Dodgers and avoid being swept in weekend series. — Christian Yelich and Blake Perkins both homered, had three hits and drove in three runs as the Milwaukee Brewers beat the Los Angeles Dodgers 9-2 Sunday to snap a seven-game losing streak at Dodger Stadium.  
-
-    **Homeruns:**  
-    Yelich
-
-    **Winning Pitcher:**  
-    J. Junis
-
-    **Sources**:
-
-    | [https://website1.com/](https://website1.com/) |
-    |--|
-    | Website1 Metadata Description |
-    | ![website1 image](https://website1.com/image.jpg) |
-    
-    | [https://website2.com/](https://website2.com/) |
-    |--|
-    | Website2 Metadata Description |
-    | ![website2 image](https://website2.com/image.jpg) |`
-    // `- The chatbot that you are configuring has ID ${chatbot.chatbotId} and the domain Category ID is ${chatbot.categories[0].categoryId}. You will need this information for later tasks.`
+    'Your response will be generated in the same language as user input. '
+    // '\n</instructions>\n'
   )
 }
 
@@ -145,25 +113,19 @@ export function userPersonalityPrompt(userPromptType: string, allMessages: Messa
   return basePrompt
 }
 
-export function finalIndicationPrompt() {
-  return ''
-  // return `
-  // Provide high-quality answers to my questions, followed by one UNIQUE, LESSER-KNOWN solution. Your UNIQUE insights are crucial to my lifelong quest for knowledge. Please take a deep breath and think step-by-step.`
-}
-
 export function examplesPrompt(chatbotMetadata: ChatbotMetadataExamples) {
-  return " Refer to the examples below to craft responses to the user's queries. Provide answers directly, omitting any labels like 'Questions', 'Answers', or 'Examples.'." +
-    chatbotMetadata?.tagExamples?.length
-    ? `
-  ## EXAMPLES:
+  return `<instruction>
+  Provide answers directly, omitting any labels like 'Questions', 'Answers', or 'Examples.'.
+  </instruction>` + chatbotMetadata?.tagExamples?.length
+    ? `<examples>
   ${chatbotMetadata.tagExamples
     .map(
-      (e, index) => `**Example #${index + 1}:**
-    Question: ${e.prompt}
-    Answer: ${e.response}
-    `,
+      (e, index) => `## Example #${index + 1}
+    - Question: ${e.prompt}
+    - Answer: ${e.response}`,
     )
-    .join(', ')}`
+    .join('\n\n')}
+    </examples>`
     : ''
 }
 
@@ -179,6 +141,7 @@ interface Example {
   response: string
 }
 
+// ! Not in use...
 export function withExamples({
   categoryExamples,
   tagExamples,
@@ -229,6 +192,7 @@ export function setDefaultUserPreferencesPrompt(chatbot: Chatbot): Message {
   return {
     id: nanoid(),
     role: 'system',
+    // role: 'user',
     content: createBotConfigurationPrompt(chatbot),
     createdAt: new Date(),
   }
