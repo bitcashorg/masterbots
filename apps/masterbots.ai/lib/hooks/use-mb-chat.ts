@@ -342,7 +342,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
         userContentRef.current,
         clientType as AiClientType,
       )
-      console.log('Full responses from ChatbotMetadata:', chatMetadata)
+      // console.log('Full responses from ChatbotMetadata:', chatMetadata)
 
       // * Loading: Polishing Ai request... 'polishing'
       setLoadingState('polishing')
@@ -427,7 +427,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
 
       // now i need to sort the examples by the cumulative sum, in descending order
       domainExamples.sort((a, b) => (b?.cumulativeSum || 0) - (a?.cumulativeSum || 0))
-      console.log('Sorted domain examples:', domainExamples)
+      // console.log('Sorted domain examples:', domainExamples)
 
       // then i need to take the top 3 examples
       // however, i do not want to take examples that have the same prompt
@@ -553,8 +553,8 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       setMessages(newChatMessages)
 
       // What remedies are good for stress relieve?
-      console.log('newChatMessages --> ', newChatMessages)
-      console.log('Chatbot metadata: ', chatbotMetadata)
+      // console.log('newChatMessages --> ', newChatMessages)
+      // console.log('Chatbot metadata: ', chatbotMetadata)
 
       if (isNewChat && chatbot) {
         await createThread({
