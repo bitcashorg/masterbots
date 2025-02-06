@@ -553,8 +553,10 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       setMessages(newChatMessages)
 
       // What remedies are good for stress relieve?
-      // console.log('newChatMessages --> ', newChatMessages)
-      // console.log('Chatbot metadata: ', chatbotMetadata)
+      if (appConfig.features.devMode) {
+        console.log('newChatMessages --> ', newChatMessages)
+        console.log('Chatbot metadata --> ', chatbotMetadata)
+      }
 
       if (isNewChat && chatbot) {
         await createThread({
