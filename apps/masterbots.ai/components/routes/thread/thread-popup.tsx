@@ -69,8 +69,8 @@ export function ThreadPopup({ className }: { className?: string }) {
 
   const isBrowseView = activeThread?.threadId && !allMessages.length
 
-  console.log('activeThread messages', activeThread?.messages)
-  console.log('allMessages', allMessages)
+  // console.log('activeThread messages', activeThread?.messages)
+  // console.log('allMessages', allMessages)
 
   return (
     <div

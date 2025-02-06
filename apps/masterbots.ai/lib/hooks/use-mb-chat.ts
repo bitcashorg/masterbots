@@ -1,11 +1,6 @@
 import { getChatbotMetadata, improveMessage } from '@/app/actions'
 import { formatSystemPrompts } from '@/lib/actions'
-import {
-  examplesPrompt,
-  finalIndicationPrompt,
-  followingQuestionsPrompt,
-  setDefaultUserPreferencesPrompt,
-} from '@/lib/constants/prompts'
+import { followingQuestionsPrompt, setDefaultUserPreferencesPrompt } from '@/lib/constants/prompts'
 import { useModel } from '@/lib/hooks/use-model'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
@@ -88,8 +83,8 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       }))
     : []
   // concatenate all message to pass it to chat component
-  const initialMessages: AiMessage[] = chatbotSystemPrompts
-    .concat(userPreferencesPrompts)
+  const initialMessages: AiMessage[] = userPreferencesPrompts
+    .concat(chatbotSystemPrompts)
     .concat(userAndAssistantMessages)
 
   // ? Prompt formatting:
@@ -113,7 +108,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     return activeThreadId
   }
   const useChatConfig: Partial<UseChatOptions> = {
-    initialMessages,
+    // initialMessages,
     id: params.threadId || isNewChat ? threadId : activeThread?.threadId,
     // TODO: Check this experimental feature: https://sdk.vercel.ai/docs/reference/ai-sdk-ui/use-chat#experimental_prepare-request-body
     // ? We might need it depending what the AI returns to us and what kind of data it has... this is might be useful for:
@@ -375,15 +370,16 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
 
       const domainExampleResponse = (await fetchDomainExamples(chatMetadata)) ?? []
       const domainTags = (await fetchDomainTags(chatMetadata)) ?? []
-      console.log('Domain examples --> ', domainExampleResponse)
-      console.log('Domain tags --> ', domainTags)
+
+      // console.log('Domain examples --> ', domainExampleResponse)
+      // console.log('Domain tags --> ', domainTags)
 
       if (!domainExampleResponse.length && !domainTags) {
         customSonner({ type: 'error', text: 'Error fetching domain examples or tags.' })
         return defaultMetadata
       }
 
-      console.log('Domain tags length:', Object.keys(domainTags || {}).length)
+      // console.log('Domain tags length:', Object.keys(domainTags || {}).length)
 
       // * NOTE: ****************************************************************************************
       // the domainTags keys are tag ids, the values are an object with the name and frequency of the tag
@@ -421,7 +417,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
             console.log('Tag id:', tagId)
           }
         }
-        // example.cumulativeSum = cumulativeSum
+        example.cumulativeSum = cumulativeSum
       }
 
       // now i need to sort the examples by the cumulative sum, in descending order
@@ -565,9 +561,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
           ...userMessage,
           content: isNewChat
             ? userContentRef.current
-            : examplesPrompt(chatbotMetadata) +
-              followingQuestionsPrompt(userContentRef.current, messages) +
-              finalIndicationPrompt(),
+            : followingQuestionsPrompt(userContentRef.current, messages),
         },
         // ? Provide chat attachments here...
         // {
