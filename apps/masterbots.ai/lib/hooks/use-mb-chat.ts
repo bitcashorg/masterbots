@@ -542,7 +542,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
         [
           {
             id: nanoid(),
-            role: 'user' as 'data' | 'system' | 'user' | 'assistant',
+            role: 'system' as 'data' | 'system' | 'user' | 'assistant',
             content: examplesPrompt(chatbotMetadata),
           },
           ...initialMessages,
