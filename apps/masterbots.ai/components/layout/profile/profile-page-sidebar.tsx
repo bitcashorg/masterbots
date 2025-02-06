@@ -13,7 +13,6 @@ import { useParams, usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { useAsync, useLocation } from 'react-use';
 import { SidebarCategoryGeneral } from '../sidebar/sidebar-category-general';
-import FooterCT from '../footer/footer-ct';
 
 export const ProfileSidebar = ({ children }: any) => {
   const pathname = usePathname()
@@ -96,10 +95,7 @@ export const ProfileSidebar = ({ children }: any) => {
                 <IconCaretRight
                   className={cn(
                     'transition-transform duration-300 stroke-[#09090b] dark:stroke-[#FAFAFA]',
-                    isThreadsOpen ? 'rotate-90' : 'rotate-0',
-                    {
-                    'hidden': !sameUser
-                    }
+                    isThreadsOpen ? 'rotate-90' : 'rotate-0'
                   )}
                 />
               </Link>
@@ -107,9 +103,9 @@ export const ProfileSidebar = ({ children }: any) => {
                 className={cn(
                   "overflow-y-auto scrollbar transition-all duration-300",
                   {
-                    "max-h-[300px] border dark:border-b-mirage border-b-gray-200": isThreadsOpen,
+                    "max-h-[300px] border dark:border-b-mirage border-b-gray-200": isThreadsOpen && sameUser,
                     "max-h-0": !isThreadsOpen,
-                    'border-b-none': !sameUser
+                    'max-h-full border-b-none': !sameUser
                   }
                 )}
               >
@@ -156,14 +152,11 @@ export const ProfileSidebar = ({ children }: any) => {
       {/* Main content */}
       <section
         className={cn(
-          'flex flex-col h-[calc(100vh-465px)] group w-full overflow-auto animate-in duration-300 ease-in-out relative ',
+          'flex h-[calc(100vh-475px)] group w-full overflow-auto animate-in duration-300 ease-in-out relative scrollbar',
         )}
       >
-        <div className="flex flex-col w-full gap-10 pt-5 mx-auto scrollbar">
+        <div className="flex flex-col w-full gap-10 pt-5 mx-auto min-h-[845px]">
           {children}
-        </div>
-        <div className="sticky flex justify-center bottom-0 w-full left-0 z-50  dark:bg-black bg-white">
-          <FooterCT className='flex justify-start items-center  text-center' />
         </div>
       </section>
     </div>
