@@ -22,10 +22,9 @@ export function NoResults({
   isLoading = false
 }: NoResultsProps) {
 
-  console.log("isLoading", isLoading)
-  // if (isLoading) {
-  //   return <NoResultsSkeleton />
-  // }
+  if (isLoading) {
+    return <NoResultsSkeleton />
+  }
 
   return (
     <Card className="bg-transparent border-none shadow-none">
