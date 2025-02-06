@@ -122,7 +122,7 @@ export default function UserThreadPanel({
       moreThreads = await getThreads({
         jwt: session?.user?.hasuraJwt as string,
         userId: session?.user.id as string,
-        offset: threads.length,
+        offset: threads?.length,
         limit: PAGE_SM_SIZE,
         categoryId: activeCategory,
         chatbotName: activeChatbot?.name
@@ -200,7 +200,7 @@ export default function UserThreadPanel({
     }
   }, [continuousThreadId, session])
 
-  const threads = state.threads.length ? state.threads : initialThreads
+  const threads = state.threads.length ? state.threads : initialThreads ?? []
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should run only when the active category or chatbot changes
   useEffect(() => {

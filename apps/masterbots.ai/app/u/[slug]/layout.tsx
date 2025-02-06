@@ -16,9 +16,6 @@ export default async function ProfilePageLayout({ children }: ProfileLayoutProps
         <div className="px-4 md:px-10 h-full">
           {children}
         </div>
-        <div className="sticky bottom-0 w-full left-0 z-50  dark:bg-black bg-white">
-          <FooterCT className='flex justify-start items-center  text-center' />
-        </div>
       </ProfileSidebar>
     </main >
   )
