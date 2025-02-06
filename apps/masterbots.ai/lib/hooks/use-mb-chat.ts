@@ -253,6 +253,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     ).filter((m) => m.role !== 'system')
 
     setMessages(newAllMessages)
+    allMessages.concat(newAllMessages)
     setActiveThread(newThread)
   }
 
@@ -283,9 +284,19 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       return
     }
 
-    setIsNewResponse(true)
+    // * Loading: processing your request + opening pop-up...
+    setLoadingState('processing')
 
     if (isNewChat) {
+      const defaultUserMessage: Partial<Message> = {
+        content: userMessage.content,
+        role: 'user',
+        messageId: randomThreadId.current,
+        createdAt: new Date().toISOString(),
+        augmentedFrom: null,
+        examples: [],
+        threadId: threadId,
+      }
       const optimisticThread: Thread = {
         threadId,
         chatbotId: chatbot?.chatbotId,
@@ -294,29 +305,21 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
         isApproved: false,
         isBlocked: false,
         isPublic: activeChatbot?.name !== 'BlankBot',
-        messages: [
-          // @ts-ignore
-          {
-            messageId: userMessage.id,
-            createdAt: new Date().toISOString(),
-            role: userMessage.role,
-            content: userMessage.content,
-          },
-        ],
+        // @ts-ignore
+        messages: [defaultUserMessage],
         userId: session?.user.id,
       }
 
       updateActiveThread(optimisticThread)
     }
 
-    try {
-      // * Loading: processing your request + opening pop-up...
-      setLoadingState('processing')
-      await tunningUserContent(userMessage)
+    setIsNewResponse(true)
+    setIsOpenPopup(true)
 
+    try {
+      await tunningUserContent(userMessage)
       // ! At this point, the UI respond and provides a feedback to the user... before it is now even showing the updated active thread, event though that it does update the active thread...
       // TODO: improve response velocity here (split this fn to yet another cb fn? 🤔)
-      setIsOpenPopup(true)
     } catch (error) {
       console.error('Error processing user message. Using og message. Error: ', error)
     } finally {
@@ -332,8 +335,6 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       domainExamples: [],
     }
     try {
-      console.log('chatbot', chatbot)
-
       chatMetadata = await getChatbotMetadata(
         {
           chatbot: chatbot?.chatbotId as number,
@@ -355,7 +356,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     if (chatMetadata?.errors?.length) {
       customSonner({
         type: 'error',
-        text: `${chatMetadata.domainName}: ${chatMetadata.errors.join(' & ')}`,
+        text: `${chatMetadata.domainName}:\n${chatMetadata.errors.join('.\n')}`,
       })
     }
 
@@ -372,9 +373,9 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
         return defaultMetadata
       }
 
-      domainExamples = (await fetchDomainExamples(chatMetadata.domainName)) ?? []
+      domainExamples = (await fetchDomainExamples(chatMetadata)) ?? []
       console.log('Domain examples --> ', domainExamples)
-      const domainTags = (await fetchDomainTags(chatMetadata.domainName)) ?? []
+      const domainTags = (await fetchDomainTags(chatMetadata)) ?? []
       console.log('Domain tags --> ', domainTags)
 
       if (!domainExamples.length && !domainTags) {
@@ -510,9 +511,17 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     })
   }
 
-  const allMessages = uniqBy(initialMessages?.concat(messages), 'content').filter(
-    (m) => m.role !== 'system',
-  )
+  const allMessages = uniqBy(
+    initialMessages?.concat(messages),
+    // .concat(
+    //   activeThread?.messages?.map((msg) => ({
+    //     ...msg,
+    //     id: msg.messageId,
+    //     role: msg.role as 'data' | 'system' | 'user' | 'assistant',
+    //   })) || [],
+    // )
+    'content',
+  ).filter((m) => m.role !== 'system')
 
   const toggleWebSearch = () => {
     setWebSearch(!webSearch)
@@ -533,7 +542,9 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
           jwt: session?.user?.hasuraJwt,
           isPublic: activeChatbot?.name !== 'BlankBot',
         })
+      }
 
+      if (chatbot && (isNewChat || !activeThread)) {
         // * Loading: Here is the information you need... 'finish'
         const thread = await getThread({
           threadId: threadId as string,
