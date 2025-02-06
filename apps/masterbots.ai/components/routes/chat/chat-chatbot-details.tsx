@@ -71,8 +71,8 @@ export default function ChatChatbotDetails() {
       setIsFollowLoading(false)
     }
   }
-
-  if (!session?.user) return <ChatChatbotDetailsSkeleton />
+   // #Reason: this is showing on the profile page when visiting the page as guest user
+  // if (!session?.user) return <ChatChatbotDetailsSkeleton />
 
   const isWelcomeView = !activeChatbot?.name
 
