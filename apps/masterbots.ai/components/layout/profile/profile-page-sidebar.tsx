@@ -156,7 +156,7 @@ export const ProfileSidebar = ({ children }: any) => {
       {/* Main content */}
       <section
         className={cn(
-          'flex flex-col h-[calc(100vh-475px)] group w-full overflow-auto animate-in duration-300 ease-in-out relative ',
+          'flex flex-col h-[calc(100vh-465px)] group w-full overflow-auto animate-in duration-300 ease-in-out relative ',
         )}
       >
         <div className="flex flex-col w-full gap-10 pt-5 mx-auto scrollbar">
