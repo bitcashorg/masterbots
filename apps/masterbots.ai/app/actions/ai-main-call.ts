@@ -343,13 +343,14 @@ export async function createResponseStreamObject(
   const { model, chatbotMetadata, prompt, webSearch } = json
 
   const tools: Partial<typeof aiTools> = {
+    webSearch: aiTools.webSearch,
     // ? Temp disabling ICL as tool. Using direct ICL integration to main prompt instead. Might be enabled later.
     // chatbotMetadataExamples: aiTools.chatbotMetadataExamples
   }
 
   console.log('[SERVER] webSearch', webSearch)
 
-  if (webSearch) tools.webSearch = aiTools.webSearch
+  // if (webSearch) tools.webSearch = aiTools.webSearch
 
   try {
     const openaiModel = initializeOpenAi(model)
