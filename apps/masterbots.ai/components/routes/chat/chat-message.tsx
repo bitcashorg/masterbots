@@ -9,6 +9,9 @@ import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 import { ClickableText } from './chat-clickable-text'
 
+// TODO: Check if we are safe to remove this component as the thread message is doing the job
+
+
 export function ChatMessage({
   message,
   sendMessageFromResponse,

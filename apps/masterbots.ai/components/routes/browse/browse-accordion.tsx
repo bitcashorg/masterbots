@@ -29,6 +29,8 @@
  * - Conditional Rendering: Renders different UI elements based on the state and props.
  */
 
+// TODO: Check if we are safe to remove this component as the sharedAccordion is doing the job
+
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn } from '@/lib/utils'
 import { ChevronDown } from 'lucide-react'

@@ -38,6 +38,8 @@ export interface ChatMessageProps {
   chatbot?: Chatbot
 }
 
+// TODO: Check if we are safe to remove this component as the thread message is doing the job
+
 export function BrowseChatMessage({ message, chatbot, ...props }: ChatMessageProps) {
   const cleanMessage = { ...message, content: cleanPrompt(message.content) }
 

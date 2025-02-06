@@ -7,6 +7,9 @@ import type { Thread } from 'mb-genql'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import React from 'react'
 
+// TODO: Check if we are safe to remove this component as the thread message is doing the job
+
+
 export const ChatAccordion = ({
   className, //* CSS classes for the outer div
   children, //* Child elements representing different parts of the accordion
