@@ -59,16 +59,16 @@ export const ProfileSidebar = ({ children }: any) => {
       {/* Sidebar */}
       <aside
         className={cn(
-          "lg:relative z-40 top-10 md:top-0 transition-transform duration-300 ease-in-out",
-          "w-64 bg-gray-50 dark:bg-black border-r",
-          "lg:transform-none lg:transition-none",
+          "fixed lg:relative z-[70] bottom-0 top-16 lg:top-0 transition-transform duration-300 ease-in-out",
+          "w-[18.75rem] bg-gray-50 dark:bg-black border-r",
+           "lg:transform-none lg:transition-none", 
           isSidebarOpen
-            ? 'translate-x-0 w-[300px]'
-            : '-translate-x-[300px] lg:translate-x-0 w-0'
+            ? "translate-x-0"
+            : "-translate-x-full lg:translate-x-0"
         )}
       >
         <nav className="flex-1 scrollbar">
-          <div className="flex flex-col space-y-1 mt-4 md:mt-0 font-Geist">
+          <div className="flex flex-col space-y-1 font-Geist">
             {/* Threads Accordion */}
             <div className="rounded-lg">
               <Link
