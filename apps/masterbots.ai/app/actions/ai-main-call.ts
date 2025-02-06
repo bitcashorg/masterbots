@@ -157,11 +157,9 @@ export async function processWithAiObject(
   schema = mbObjectSchema.metadata,
 ) {
   try {
-    const messages = [{ role: 'user', content: prompt }] as OpenAI.ChatCompletionMessageParam[]
-
     const response = await createResponseStreamObject(schema, {
       model: AIModels.Default,
-      messages,
+      prompt,
       chatbotMetadata,
     } as any)
 
@@ -338,10 +336,11 @@ export async function createResponseStreamObject(
     | typeof mbObjectSchema.tool,
   json: JSONResponseStream & {
     chatbotMetadata: ChatbotMetadata
+    prompt: string
   },
   req?: Request,
 ) {
-  const { model, chatbotMetadata, messages, webSearch } = json
+  const { model, chatbotMetadata, prompt, webSearch } = json
 
   const tools: Partial<typeof aiTools> = {
     // ? Temp disabling ICL as tool. Using direct ICL integration to main prompt instead. Might be enabled later.
@@ -360,8 +359,7 @@ export async function createResponseStreamObject(
       // TODO: Fix different schemas for different tools
       schema: schema as typeof mbObjectSchema.metadata,
       output: 'object',
-      prompt: `You are a top software development expert with extensive knowledge in the field of ${chatbotMetadata.domainName}.
-      Your purpose is to analyze and understand questions to prepare them for classification.`,
+      prompt,
     })
 
     // ? This validates the object stream before to return a object stream

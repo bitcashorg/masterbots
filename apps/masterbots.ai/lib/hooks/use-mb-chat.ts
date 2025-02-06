@@ -2,7 +2,6 @@ import { getChatbotMetadata, improveMessage } from '@/app/actions'
 import { formatSystemPrompts } from '@/lib/actions'
 import {
   examplesPrompt,
-  finalIndicationPrompt,
   followingQuestionsPrompt,
   setDefaultUserPreferencesPrompt,
 } from '@/lib/constants/prompts'
@@ -33,6 +32,7 @@ import { uniqBy } from 'lodash'
 import type { Chatbot, Message, Thread } from 'mb-genql'
 
 import { appConfig } from 'mb-env'
+import { nanoid } from 'nanoid'
 import { useSession } from 'next-auth/react'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useRef } from 'react'
@@ -88,8 +88,8 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       }))
     : []
   // concatenate all message to pass it to chat component
-  const initialMessages: AiMessage[] = chatbotSystemPrompts
-    .concat(userPreferencesPrompts)
+  const initialMessages: AiMessage[] = userPreferencesPrompts
+    .concat(chatbotSystemPrompts)
     .concat(userAndAssistantMessages)
 
   // ? Prompt formatting:
@@ -113,7 +113,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
     return activeThreadId
   }
   const useChatConfig: Partial<UseChatOptions> = {
-    initialMessages,
+    // initialMessages,
     id: params.threadId || isNewChat ? threadId : activeThread?.threadId,
     // TODO: Check this experimental feature: https://sdk.vercel.ai/docs/reference/ai-sdk-ui/use-chat#experimental_prepare-request-body
     // ? We might need it depending what the AI returns to us and what kind of data it has... this is might be useful for:
@@ -174,7 +174,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
           jwt: session?.user?.hasuraJwt,
         }),
         // ? Adding a delay to securely keep the order of messages
-        delayFetch(),
+        delayFetch(500),
         saveNewMessage({
           role: 'assistant',
           threadId: aiChatThreadId,
@@ -342,7 +342,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
         userContentRef.current,
         clientType as AiClientType,
       )
-      console.log('Full responses from ChatbotMetadata:', chatMetadata)
+      // console.log('Full responses from ChatbotMetadata:', chatMetadata)
 
       // * Loading: Polishing Ai request... 'polishing'
       setLoadingState('polishing')
@@ -362,7 +362,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
 
     const tagExamples = []
     const categoryExamples = []
-    let domainExamples: ExampleMetadata[] = []
+    const domainExamples: ExampleMetadata[] = []
     // * Getting the user labelling the thread (categories, sub-category, etc.)
     try {
       if (
@@ -373,17 +373,18 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
         return defaultMetadata
       }
 
-      domainExamples = (await fetchDomainExamples(chatMetadata)) ?? []
-      console.log('Domain examples --> ', domainExamples)
+      const domainExampleResponse = (await fetchDomainExamples(chatMetadata)) ?? []
       const domainTags = (await fetchDomainTags(chatMetadata)) ?? []
-      console.log('Domain tags --> ', domainTags)
 
-      if (!domainExamples.length && !domainTags) {
+      // console.log('Domain examples --> ', domainExampleResponse)
+      // console.log('Domain tags --> ', domainTags)
+
+      if (!domainExampleResponse.length && !domainTags) {
         customSonner({ type: 'error', text: 'Error fetching domain examples or tags.' })
         return defaultMetadata
       }
 
-      console.log('Domain tags length:', Object.keys(domainTags || {}).length)
+      // console.log('Domain tags length:', Object.keys(domainTags || {}).length)
 
       // * NOTE: ****************************************************************************************
       // the domainTags keys are tag ids, the values are an object with the name and frequency of the tag
@@ -396,7 +397,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       // i need to store this cumulative sum in the example object
       // ************************************************************************************************
 
-      for (const example of domainExamples) {
+      for (const example of domainExampleResponse) {
         let cumulativeSum = 0
         for (const tagId of example.tags) {
           try {
@@ -408,6 +409,13 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
             if (chatMetadata.tags.includes(tagName)) {
               // @ts-ignore
               cumulativeSum += 1 - domainTags[tagId]?.frequency
+              const exampleIndex = domainExampleResponse.findIndex(
+                (e) => e.exampleId === example.exampleId,
+              )
+              // grab the exampleIndex to push it into a new array
+              if (exampleIndex !== -1) {
+                domainExamples.push({ ...example, cumulativeSum })
+              }
             }
           } catch (error) {
             console.log('Error:', error)
@@ -419,8 +427,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
 
       // now i need to sort the examples by the cumulative sum, in descending order
       domainExamples.sort((a, b) => (b?.cumulativeSum || 0) - (a?.cumulativeSum || 0))
-
-      console.log('Sorted domain examples:', domainExamples)
+      // console.log('Sorted domain examples:', domainExamples)
 
       // then i need to take the top 3 examples
       // however, i do not want to take examples that have the same prompt
@@ -512,14 +519,13 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
   }
 
   const allMessages = uniqBy(
-    initialMessages?.concat(messages),
-    // .concat(
-    //   activeThread?.messages?.map((msg) => ({
-    //     ...msg,
-    //     id: msg.messageId,
-    //     role: msg.role as 'data' | 'system' | 'user' | 'assistant',
-    //   })) || [],
-    // )
+    initialMessages?.concat(messages).concat(
+      activeThread?.messages?.map((msg) => ({
+        ...msg,
+        id: msg.messageId,
+        role: msg.role as 'data' | 'system' | 'user' | 'assistant',
+      })) || [],
+    ),
     'content',
   ).filter((m) => m.role !== 'system')
 
@@ -532,8 +538,23 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
 
     try {
       const chatbotMetadata = await getMetadataLabels()
+      const newChatMessages = uniqBy(
+        [
+          {
+            id: nanoid(),
+            role: 'system' as 'data' | 'system' | 'user' | 'assistant',
+            content: examplesPrompt(chatbotMetadata),
+          },
+          ...initialMessages,
+          ...allMessages,
+        ],
+        'content',
+      )
+      setMessages(newChatMessages)
 
-      console.log('Chatbot metadata: ', chatbotMetadata)
+      // What remedies are good for stress relieve?
+      // console.log('newChatMessages --> ', newChatMessages)
+      // console.log('Chatbot metadata: ', chatbotMetadata)
 
       if (isNewChat && chatbot) {
         await createThread({
@@ -559,9 +580,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
           ...userMessage,
           content: isNewChat
             ? userContentRef.current
-            : examplesPrompt(chatbotMetadata) +
-              followingQuestionsPrompt(userContentRef.current, messages) +
-              finalIndicationPrompt(),
+            : followingQuestionsPrompt(userContentRef.current, messages),
         },
         // ? Provide chat attachments here...
         // {
