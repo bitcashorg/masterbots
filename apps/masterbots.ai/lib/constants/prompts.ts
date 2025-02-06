@@ -152,18 +152,17 @@ export function finalIndicationPrompt() {
 }
 
 export function examplesPrompt(chatbotMetadata: ChatbotMetadataExamples) {
-  return " Refer to the examples below to craft responses to the user's queries. Provide answers directly, omitting any labels like 'Questions', 'Answers', or 'Examples.'." +
+  return "<instruction>Provide answers directly, omitting any labels like 'Questions', 'Answers', or 'Examples.'.</instruction>" +
     chatbotMetadata?.tagExamples?.length
-    ? `
-  ## EXAMPLES:
+    ? `<examples>
   ${chatbotMetadata.tagExamples
     .map(
-      (e, index) => `**Example #${index + 1}:**
-    Question: ${e.prompt}
-    Answer: ${e.response}
-    `,
+      (e, index) => `## Example #${index + 1}
+    - Question: ${e.prompt}
+    - Answer: ${e.response}`,
     )
-    .join(', ')}`
+    .join('\n\n')}
+    </examples>`
     : ''
 }
 

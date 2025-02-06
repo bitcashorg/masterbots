@@ -1,7 +1,7 @@
 'use client'
 
-import { SharedAccordion } from '@/components/shared/shared-accordion'
 import { ChatMessage } from '@/components/routes/chat/chat-message'
+import { SharedAccordion } from '@/components/shared/shared-accordion'
 import { ShortMessage } from '@/components/shared/short-message'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useScroll } from '@/lib/hooks/use-scroll'
@@ -33,7 +33,7 @@ type MessagePair = {
 
 export function ChatList({
   className,
-  messages = [],
+  messages,
   isThread = true,
   isLoadingMessages = false,
   chatContentClass,
@@ -44,9 +44,10 @@ export function ChatList({
   isNearBottom,
 }: ChatList) {
   const [pairs, setPairs] = React.useState<MessagePair[]>([])
-  const { isNewResponse } = useThread()
+  const { isNewResponse, activeThread } = useThread()
   const localContainerRef = useRef<HTMLDivElement>(null)
   const effectiveContainerRef = containerRef || localContainerRef
+  const chatMessages = (messages || activeThread?.messages || []).sort((a, b) => b.createdAt + a.createdAt)
 
   useScroll({
     containerRef: effectiveContainerRef,
@@ -59,8 +60,8 @@ export function ChatList({
   })
 
   useEffect(() => {
-    if (messages.length) {
-      const prePairs: MessagePair[] = createMessagePairs(messages) as MessagePair[]
+    if (chatMessages?.length) {
+      const prePairs: MessagePair[] = createMessagePairs(chatMessages) as MessagePair[]
       setPairs(prevPairs => {
         const prevString = JSON.stringify(prevPairs)
         const newString = JSON.stringify(prePairs)
@@ -70,9 +71,9 @@ export function ChatList({
         return prevPairs
       })
     }
-  }, [messages])
+  }, [chatMessages])
 
-  if (messages.length === 0) return null
+  if (messages?.length === 0) return null
 
   return (
     <div
@@ -201,9 +202,9 @@ export function ChatLoadingState() {
             <span>
               Searching on the web{' '}
               {['first-dot', 'second-dot', 'third-dot'].map((key, index) => (
-                <span 
-                  key={key} 
-                  className="animate-pulse rounded-full text-4xl h-0.5 leading-none" 
+                <span
+                  key={key}
+                  className="animate-pulse rounded-full text-4xl h-0.5 leading-none"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   .

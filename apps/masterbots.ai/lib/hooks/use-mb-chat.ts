@@ -174,7 +174,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
           jwt: session?.user?.hasuraJwt,
         }),
         // ? Adding a delay to securely keep the order of messages
-        delayFetch(),
+        delayFetch(500),
         saveNewMessage({
           role: 'assistant',
           threadId: aiChatThreadId,
@@ -362,7 +362,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
 
     const tagExamples = []
     const categoryExamples = []
-    let domainExamples: ExampleMetadata[] = []
+    const domainExamples: ExampleMetadata[] = []
     // * Getting the user labelling the thread (categories, sub-category, etc.)
     try {
       if (
@@ -373,12 +373,12 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
         return defaultMetadata
       }
 
-      domainExamples = (await fetchDomainExamples(chatMetadata)) ?? []
-      console.log('Domain examples --> ', domainExamples)
+      const domainExampleResponse = (await fetchDomainExamples(chatMetadata)) ?? []
       const domainTags = (await fetchDomainTags(chatMetadata)) ?? []
+      console.log('Domain examples --> ', domainExampleResponse)
       console.log('Domain tags --> ', domainTags)
 
-      if (!domainExamples.length && !domainTags) {
+      if (!domainExampleResponse.length && !domainTags) {
         customSonner({ type: 'error', text: 'Error fetching domain examples or tags.' })
         return defaultMetadata
       }
@@ -396,7 +396,7 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
       // i need to store this cumulative sum in the example object
       // ************************************************************************************************
 
-      for (const example of domainExamples) {
+      for (const example of domainExampleResponse) {
         let cumulativeSum = 0
         for (const tagId of example.tags) {
           try {
@@ -408,18 +408,24 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
             if (chatMetadata.tags.includes(tagName)) {
               // @ts-ignore
               cumulativeSum += 1 - domainTags[tagId]?.frequency
+              const exampleIndex = domainExampleResponse.findIndex(
+                (e) => e.exampleId === example.exampleId,
+              )
+              // grab the exampleIndex to push it into a new array
+              if (exampleIndex !== -1) {
+                domainExamples.push({ ...example, cumulativeSum })
+              }
             }
           } catch (error) {
             console.log('Error:', error)
             console.log('Tag id:', tagId)
           }
         }
-        example.cumulativeSum = cumulativeSum
+        // example.cumulativeSum = cumulativeSum
       }
 
       // now i need to sort the examples by the cumulative sum, in descending order
       domainExamples.sort((a, b) => (b?.cumulativeSum || 0) - (a?.cumulativeSum || 0))
-
       console.log('Sorted domain examples:', domainExamples)
 
       // then i need to take the top 3 examples
