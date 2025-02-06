@@ -1,6 +1,10 @@
 import { getChatbotMetadata, improveMessage } from '@/app/actions'
 import { formatSystemPrompts } from '@/lib/actions'
-import { followingQuestionsPrompt, setDefaultUserPreferencesPrompt } from '@/lib/constants/prompts'
+import {
+  examplesPrompt,
+  followingQuestionsPrompt,
+  setDefaultUserPreferencesPrompt,
+} from '@/lib/constants/prompts'
 import { useModel } from '@/lib/hooks/use-model'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
@@ -28,6 +32,7 @@ import { uniqBy } from 'lodash'
 import type { Chatbot, Message, Thread } from 'mb-genql'
 
 import { appConfig } from 'mb-env'
+import { nanoid } from 'nanoid'
 import { useSession } from 'next-auth/react'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useRef } from 'react'
@@ -514,14 +519,13 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
   }
 
   const allMessages = uniqBy(
-    initialMessages?.concat(messages),
-    // .concat(
-    //   activeThread?.messages?.map((msg) => ({
-    //     ...msg,
-    //     id: msg.messageId,
-    //     role: msg.role as 'data' | 'system' | 'user' | 'assistant',
-    //   })) || [],
-    // )
+    initialMessages?.concat(messages).concat(
+      activeThread?.messages?.map((msg) => ({
+        ...msg,
+        id: msg.messageId,
+        role: msg.role as 'data' | 'system' | 'user' | 'assistant',
+      })) || [],
+    ),
     'content',
   ).filter((m) => m.role !== 'system')
 
@@ -534,7 +538,22 @@ export function useMBChat(config?: MBChatHookConfig): MBChatHookCallback {
 
     try {
       const chatbotMetadata = await getMetadataLabels()
+      const newChatMessages = uniqBy(
+        [
+          {
+            id: nanoid(),
+            role: 'system' as 'data' | 'system' | 'user' | 'assistant',
+            content: examplesPrompt(chatbotMetadata),
+          },
+          ...initialMessages,
+          ...allMessages,
+        ],
+        'content',
+      )
+      setMessages(newChatMessages)
 
+      // What remedies are good for stress relieve?
+      console.log('newChatMessages --> ', newChatMessages)
       console.log('Chatbot metadata: ', chatbotMetadata)
 
       if (isNewChat && chatbot) {
