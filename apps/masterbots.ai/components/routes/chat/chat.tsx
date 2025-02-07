@@ -35,7 +35,6 @@
 import { ChatList } from '@/components/routes/chat/chat-list'
 import { ChatPanel } from '@/components/routes/chat/chat-panel'
 import { ChatScrollAnchor } from '@/components/routes/chat/chat-scroll-anchor'
-import { botNames } from '@/lib/constants/bots-names'
 import { useAtBottom } from '@/lib/hooks/use-at-bottom'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
@@ -48,7 +47,6 @@ import { useScroll } from 'framer-motion'
 import type { Chatbot } from 'mb-genql'
 import { useParams, usePathname } from 'next/navigation'
 import React, { useEffect } from 'react'
-import { useAsync } from 'react-use'
 
 export function Chat({
   chatbot: chatbotProps,
@@ -76,10 +74,7 @@ export function Chat({
   const [
     { newChatThreadId: threadId, input, isLoading, allMessages, isNewChat },
     { appendWithMbContextPrompts, appendAsContinuousThread, reload, setInput },
-  ] = useMBChat({
-    chatbot,
-  })
-  const chatbotNames = useAsync(async () => (await botNames).get(params.chatbot), [])
+  ] = useMBChat()
   const pathname = usePathname()
   const prevPathname = React.useRef(pathname)
 
@@ -92,7 +87,7 @@ export function Chat({
     scrollY,
   })
 
-  // ? saffer way to debounce scroll to bottom
+  // ? safer way to debounce scroll to bottom
   let timeoutId: any
   const debounceScrollToBottom = (element: HTMLElement | undefined) => {
     clearTimeout(timeoutId)

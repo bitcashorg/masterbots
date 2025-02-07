@@ -179,7 +179,7 @@ export async function processWithAiObject(
       throw new Error('Failed to get response object')
     }
 
-    console.log('result::processwithAiObject -->', responseObject)
+    console.log('result::processWithAiObject -->', responseObject)
     return responseObject
   } catch (error) {
     console.error('Error in processWithAIObject: ', error)

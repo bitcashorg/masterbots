@@ -27,8 +27,8 @@ export function ChatMessage({
       <div className="pt-4 mt-4 border-t border-gray-200">
         <h3 className="mb-2 text-lg font-semibold">References</h3>
         <div className="space-y-4">
-          {references.map((ref, index) => (
-            <div key={index} className="flex gap-4">
+          {references.map((ref) => (
+            <div key={ref.profile.name.toLowerCase().replace(/\s/g, '-')} className="flex gap-4">
               {ref.thumbnail?.src && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img

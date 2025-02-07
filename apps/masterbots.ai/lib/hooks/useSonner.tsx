@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils'
 import { AlertTriangle, Check, Info, X } from 'lucide-react'
 import { toast } from 'sonner'
 
-export type customSonnerProps = {
+export type CustomSonnerProps = {
   type?: 'success' | 'error' | 'info'
   text?: string | null
 }
@@ -17,7 +17,7 @@ export type customSonnerProps = {
 /**
  * Creates a custom notification based on the provided configuration.
  *
- * @param {customSonnerProps} options - Configuration for the notification.
+ * @param {CustomSonnerProps} options - Configuration for the notification.
  * @returns {import('sonner').ToastT} The created toast instance.
  *
  * @example
@@ -36,7 +36,7 @@ export type customSonnerProps = {
  */
 
 export function useSonner() {
-  const customSonner = ({ type = 'success', text }: customSonnerProps) => {
+  const customSonner = ({ type = 'success', text }: CustomSonnerProps) => {
     const toastConfigs = {
       success: {
         title: 'Success',
