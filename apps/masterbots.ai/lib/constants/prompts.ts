@@ -190,9 +190,9 @@ Examples:
 
 export function setDefaultUserPreferencesPrompt(chatbot: Chatbot): Message {
   return {
-    id: nanoid(),
-    // role: 'system',
-    role: 'user',
+    id: 'instructions-' + nanoid(10),
+    role: 'system',
+    // role: 'user',
     content: createBotConfigurationPrompt(chatbot),
     createdAt: new Date(),
   }

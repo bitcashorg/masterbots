@@ -4,11 +4,10 @@ import { CodeBlock } from '@/components/ui/codeblock'
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { cn } from '@/lib/utils'
 import type { ChatMessageProps, WebSearchResult } from '@/types/types'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 import { ClickableText } from './chat-clickable-text'
-import React from 'react'
 
 export function ChatMessage({
   message,
@@ -29,8 +28,7 @@ export function ChatMessage({
         <h3 className="mb-2 text-lg font-semibold">References</h3>
         <div className="space-y-4">
           {references.map((ref, index) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-            <div key={index} className="flex gap-4">
+            <div key={ref.profile.name.toLowerCase().replace(/\s/g, '-')} className="flex gap-4">
               {ref.thumbnail?.src && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
