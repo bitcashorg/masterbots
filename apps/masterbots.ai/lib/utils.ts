@@ -12,13 +12,10 @@ export function cn(...inputs: ClassValue[]) {
 
 export const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
-  7
+  7,
 ) // 7-character random string
 
-export async function fetcher<JSON = any>(
-  input: RequestInfo,
-  init?: RequestInit
-): Promise<JSON> {
+export async function fetcher<JSON = any>(input: RequestInfo, init?: RequestInit): Promise<JSON> {
   const res = await fetch(input, init)
 
   if (!res.ok) {
@@ -38,7 +35,7 @@ export async function fetcher<JSON = any>(
 }
 
 export function delayFetch(ms = 200) {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     const timeout = setTimeout(() => {
       clearTimeout(timeout)
       resolve(true)
@@ -51,19 +48,17 @@ export function formatDate(input: string | number | Date): string {
   return date.toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
-    year: 'numeric'
+    year: 'numeric',
   })
 }
 
 export function extractBetweenMarkers(
   str: string,
   startMarker: string,
-  endMarker?: string // endMarker is now optional
+  endMarker?: string, // endMarker is now optional
 ): string {
   let startIndex = str.indexOf(startMarker)
-  const endIndex = endMarker
-    ? str.indexOf(endMarker, startIndex + startMarker.length)
-    : str.length
+  const endIndex = endMarker ? str.indexOf(endMarker, startIndex + startMarker.length) : str.length
 
   if (startIndex === -1) {
     // Start marker not found, return the whole string
@@ -101,7 +96,7 @@ export function createMessagePairs(messages: Message[] | AIMessage[]) {
       }
       messagePairs.push({
         userMessage,
-        chatGptMessage: chatGptMessages
+        chatGptMessage: chatGptMessages,
       })
     }
   }
@@ -109,14 +104,11 @@ export function createMessagePairs(messages: Message[] | AIMessage[]) {
   return messagePairs
 }
 
-const findNextAssistantMessage = (
-  messages: Message[] | AIMessage[],
-  startIndex: number
-) => {
+const findNextAssistantMessage = (messages: Message[] | AIMessage[], startIndex: number) => {
   if (messages[startIndex]?.role === 'assistant') {
     return {
       ...messages[startIndex],
-      content: cleanPrompt(messages[startIndex].content)
+      content: cleanPrompt(messages[startIndex].content),
     }
   }
   return null
@@ -159,7 +151,7 @@ export const scrollToBottomOfElement = (element?: HTMLElement) => {
       elapsed,
       element.scrollTop,
       targetScroll - element.scrollTop,
-      duration
+      duration,
     )
     element.scrollTop = position
 
@@ -174,7 +166,7 @@ export const scrollToBottomOfElement = (element?: HTMLElement) => {
 }
 
 export async function sleep(time: number) {
-  return new Promise(resolve => setTimeout(resolve, time))
+  return new Promise((resolve) => setTimeout(resolve, time))
 }
 
 export const plans = [
@@ -183,18 +175,15 @@ export const plans = [
     duration: 'monthly',
     price: 4.5,
     features_title: 'Everything from <strong>Free</strong> plan plus:',
-    features: ['Access to our Professional tools']
+    features: ['Access to our Professional tools'],
   },
   {
     id: 'yearly',
     duration: 'yearly',
     price: 3.99,
     features_title: 'Everything from <strong>Monthly</strong> plan plus: ',
-    features: [
-      '11% of discount every month.',
-      'Access to pre-release content to chat with.'
-    ]
-  }
+    features: ['11% of discount every month.', 'Access to pre-release content to chat with.'],
+  },
 ]
 
 export function getDate(timestamp: number) {
@@ -206,7 +195,7 @@ export function getDate(timestamp: number) {
   }
   const options: Intl.DateTimeFormatOptions = {
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
   }
   const dateString = date.toLocaleString('en-US', options)
 
@@ -217,7 +206,7 @@ export function getCurrentOrTargetDate() {
   const today = new Date()
   return today.toLocaleDateString('en-US', {
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
   })
 }
 
@@ -259,7 +248,7 @@ export const UNIQUE_PHRASES = [
   'Unique Recommendation',
   'Lesser-Known Gem',
   'For a UNIQUE, LESSER-KNOWN phrase',
-  'Unique, Lesser-Known Destination'
+  'Unique, Lesser-Known Destination',
 ] as const
 
 export interface ParsedText {
@@ -294,9 +283,7 @@ export function parseClickableText(fullText: string): ParsedText {
   // Check for unique phrase match first
   if (uniqueMatch) {
     const clickableText = uniqueMatch[1]
-    const restText = fullText.slice(
-      fullText.indexOf(clickableText) + clickableText.length
-    )
+    const restText = fullText.slice(fullText.indexOf(clickableText) + clickableText.length)
     return { clickableText, restText }
   }
 
@@ -305,12 +292,12 @@ export function parseClickableText(fullText: string): ParsedText {
   if (generalMatch) {
     return {
       clickableText: generalMatch[0],
-      restText: fullText.slice(generalMatch[0].length)
+      restText: fullText.slice(generalMatch[0].length),
     }
   }
   return {
     clickableText: '',
-    restText: fullText
+    restText: fullText,
   }
 }
 
@@ -322,7 +309,7 @@ export const formatNumber = (num: number) => {
   const lookup = [
     { value: 1e9, symbol: 'B' },
     { value: 1e6, symbol: 'M' },
-    { value: 1e3, symbol: 'K' }
+    { value: 1e3, symbol: 'K' },
   ]
 
   // Handle negative numbers
@@ -330,7 +317,7 @@ export const formatNumber = (num: number) => {
   const absNum = Math.abs(num)
 
   // Find the appropriate suffix
-  const item = lookup.find(item => absNum >= item.value)
+  const item = lookup.find((item) => absNum >= item.value)
 
   if (!item) {
     // If number is smaller than 1000, return as is
@@ -351,7 +338,7 @@ interface IProps {
   userId: string
 }
 export const isFollowed = ({ followers, userId }: IProps): boolean => {
-  return Boolean(followers?.some(follower => follower.followerId === userId))
+  return Boolean(followers?.some((follower) => follower.followerId === userId))
 }
 /**
  * Short the large numbers to a more friendly format. Examples: 670, 3.2k, 1.22m, 3.445b
@@ -377,10 +364,7 @@ export function getRouteType(pathname: string | null): RouteType {
   return normalizedPath.startsWith('/c') ? 'chat' : 'public'
 }
 
-export function getRouteColor(
-  isActive: boolean,
-  pathname: string | null
-): string {
+export function getRouteColor(isActive: boolean, pathname: string | null): string {
   return ''
   // if (!isActive) return ''
 

@@ -33,7 +33,7 @@ type MessagePair = {
 
 export function ChatList({
   className,
-  messages = [],
+  messages,
   isThread = true,
   isLoadingMessages = false,
   chatContentClass,
@@ -43,9 +43,10 @@ export function ChatList({
   sendMessageFn
 }: ChatList) {
   const [pairs, setPairs] = React.useState<MessagePair[]>([])
-  const { isNewResponse } = useThread()
+  const { isNewResponse, activeThread } = useThread()
   const localContainerRef = useRef<HTMLDivElement>(null)
   const effectiveContainerRef = containerRef || localContainerRef
+  const chatMessages = (messages || activeThread?.messages || []).sort((a, b) => a.createdAt - b.createdAt)
 
   useScroll({
     containerRef: effectiveContainerRef,
@@ -71,9 +72,9 @@ export function ChatList({
         return prevPairs
       })
     }
-  }, [messages])
+  }, [chatMessages])
 
-  if (messages.length === 0) return null
+  if (messages?.length === 0) return null
 
   return (
     <div

@@ -1,5 +1,6 @@
 import type {
   ChatbotMetadata,
+  ChatbotMetadataClassification,
   ChatbotMetadataHeaders,
   ExampleMetadata,
   ReturnFetchChatbotMetadata,
@@ -1172,30 +1173,34 @@ export async function fetchChatbotMetadata({
   }
 }
 
-export async function fetchDomainExamples(domain: string) {
+export async function fetchDomainExamples({
+  domainName,
+  categories,
+}: ChatbotMetadataClassification) {
   try {
     const client = getHasuraClient({})
-    // todo: typescript
-    const examples = (
-      await client.query({
-        example: {
-          __args: {
-            where: {
-              domain: { _eq: domain },
-            },
+    const categoryArgs = categories.map((category) => ({
+      category: {
+        _like: `%${category}%`,
+      },
+    }))
+    const { example: examples } = await client.query({
+      example: {
+        __args: {
+          where: {
+            domain: { _eq: domainName },
+            _or: categoryArgs,
           },
-          prompt: true,
-          category: true,
-          domain: true,
-          exampleId: true,
-          response: true,
-          subcategory: true,
-          tags: true,
         },
-      })
-    ).example
-
-    console.log('fetchDomainExamples, result --> ', examples)
+        prompt: true,
+        category: true,
+        domain: true,
+        exampleId: true,
+        response: true,
+        subcategory: true,
+        tags: true,
+      },
+    })
 
     return examples.map((example) => ({
       ...example,
@@ -1207,14 +1212,23 @@ export async function fetchDomainExamples(domain: string) {
   }
 }
 
-export async function fetchDomainTags(domain: string) {
+export async function fetchDomainTags({
+  domainName,
+  tags: tagNames,
+}: ChatbotMetadataClassification) {
   try {
     const client = getHasuraClient({})
+    const tagNameArgs = tagNames.map((tag) => ({
+      name: {
+        _eq: tag,
+      },
+    }))
     const { tagEnum: tags } = await client.query({
       tagEnum: {
         __args: {
           where: {
-            domain: { _eq: domain },
+            domain: { _eq: domainName },
+            _or: tagNameArgs,
           },
         },
         name: true,
@@ -1224,17 +1238,19 @@ export async function fetchDomainTags(domain: string) {
     })
 
     if (!tags.length) {
-      throw new Error(`No tags found for domain: ${domain}`)
+      throw new Error(`No tags found for domain: ${domainName}`)
     }
 
     // change to a dict with key of tagId and value of object with name and frequency
-    const transformedTags = tags.reduce((acc: (typeof tags)[0], tag) => {
-      acc[tag.tagId as keyof typeof tag] = {
-        name: tag.name,
-        frequency: tag.frequency,
+    const transformedTags: { [key: string]: { name: string; frequency: number } } = {}
+
+    for (const tag in tags) {
+      const tagData = tags[tag]
+      transformedTags[tagData.tagId] = {
+        name: tagData.name,
+        frequency: tagData.frequency,
       }
-      return acc
-    })
+    }
 
     return transformedTags
   } catch (error) {

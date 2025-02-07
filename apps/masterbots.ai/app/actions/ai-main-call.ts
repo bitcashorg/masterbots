@@ -157,11 +157,9 @@ export async function processWithAiObject(
   schema = mbObjectSchema.metadata,
 ) {
   try {
-    const messages = [{ role: 'user', content: prompt }] as OpenAI.ChatCompletionMessageParam[]
-
     const response = await createResponseStreamObject(schema, {
       model: AIModels.Default,
-      messages,
+      prompt,
       chatbotMetadata,
     } as any)
 
@@ -338,19 +336,21 @@ export async function createResponseStreamObject(
     | typeof mbObjectSchema.tool,
   json: JSONResponseStream & {
     chatbotMetadata: ChatbotMetadata
+    prompt: string
   },
   req?: Request,
 ) {
-  const { model, chatbotMetadata, messages, webSearch } = json
+  const { model, chatbotMetadata, prompt, webSearch } = json
 
   const tools: Partial<typeof aiTools> = {
+    webSearch: aiTools.webSearch,
     // ? Temp disabling ICL as tool. Using direct ICL integration to main prompt instead. Might be enabled later.
     // chatbotMetadataExamples: aiTools.chatbotMetadataExamples
   }
 
   console.log('[SERVER] webSearch', webSearch)
 
-  if (webSearch) tools.webSearch = aiTools.webSearch
+  // if (webSearch) tools.webSearch = aiTools.webSearch
 
   try {
     const openaiModel = initializeOpenAi(model)
@@ -360,8 +360,7 @@ export async function createResponseStreamObject(
       // TODO: Fix different schemas for different tools
       schema: schema as typeof mbObjectSchema.metadata,
       output: 'object',
-      prompt: `You are a top software development expert with extensive knowledge in the field of ${chatbotMetadata.domainName}.
-      Your purpose is to analyze and understand questions to prepare them for classification.`,
+      prompt,
     })
 
     // ? This validates the object stream before to return a object stream
@@ -402,14 +401,29 @@ export async function classifyQuestion({
     }
 
     for (const category of responseObj.categories) {
-      if (!chatbotMetadata.categories[category]) {
+      const categoryKey = Object.keys(chatbotMetadata.categories).find((cat) =>
+        cat.includes(category),
+      ) as keyof typeof chatbotMetadata.categories
+      console.log('categoryKey -> ', categoryKey)
+      if (!chatbotMetadata.categories[categoryKey]) {
         responseObj.categories = responseObj.categories.filter((c: string) => c !== category)
 
         errors.push(`Category ${category} not found in chatbot metadata`)
-      }
+      } else {
+        for (const subCategory of responseObj.subCategories) {
+          if (
+            Array.isArray(chatbotMetadata.categories[categoryKey]) &&
+            !chatbotMetadata.categories[categoryKey].includes(subCategory)
+          ) {
+            responseObj.subCategories = responseObj.subCategories.filter(
+              (sc: string) => sc !== subCategory,
+            )
 
-      if (responseObj.categories[category] && responseObj.categories[category]?.length === 0) {
-        errors.push(`No subcategories found for category ${category}`)
+            errors.push(
+              `SubCategory ${subCategory} not found in chatbot metadata for category ${category}`,
+            )
+          }
+        }
       }
     }
 

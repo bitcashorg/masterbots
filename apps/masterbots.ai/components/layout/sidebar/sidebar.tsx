@@ -39,11 +39,9 @@ export function Sidebar({ className }: React.ComponentProps<'div'>) {
             : 'bg-[#eeffea] dark:bg-[#000000]'  // For other routes
         )}
       >
-        <div className="overflow-y-auto scrollbar h-[calc(100%-113px)]">
-          <SidebarHeader />
-          <div className="p-4 overflow-y-auto grow scrollbar">
-            <SidebarCategoryGeneral />
-          </div>
+        <SidebarHeader />
+        <div className="pt-4 pb-20 h-full scrollbar">
+          <SidebarCategoryGeneral />
         </div>
       </aside>
     </>
