@@ -43,7 +43,7 @@ import { useSonner } from './useSonner'
 export function useMBChat(): MBChatHookCallback {
   const context = useContext(MBChatContext)
   if (!context) {
-    throw new Error('useMBChat must be used within a ThreadProvider')
+    throw new Error('useMBChat must be used within a MBChatProvider')
   }
   return context
 }
