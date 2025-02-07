@@ -85,18 +85,10 @@ export function createMessagePairs(messages: Message[] | AIMessage[]) {
 
     if (message.role === 'user') {
       const userMessage = message
-      const chatGptMessages = []
-      for (let j = i + 1; j < messages.length; j++) {
-        const chatGptMessage = findNextAssistantMessage(messages, j)
-        if (!chatGptMessage) {
-          break
-        }
-        chatGptMessages.push(chatGptMessage)
-        break
-      }
+      const chatGptMessage = findNextAssistantMessage(messages, i + 1)
       messagePairs.push({
         userMessage,
-        chatGptMessage: chatGptMessages,
+        chatGptMessage: chatGptMessage ? [chatGptMessage] : [],
       })
     }
   }

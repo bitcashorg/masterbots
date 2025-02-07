@@ -59,8 +59,8 @@ export default function ThreadList({
   return (
     <>
       {loading
-        ? Array.from({ length: 5 }).map((_, key) => (
-          <ThreadItemSkeleton key={`thread-skeleton-${key}`} />
+        ? [1, 2, 3, 4, 5].map((pos) => (
+          <ThreadItemSkeleton key={`thread-skeleton-${pos}`} />
         ))
         : filteredThreads?.map((thread, key) => (
           <ThreadComponent

@@ -109,14 +109,11 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
       )}
 
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-6 h-6 p-0 sm:h-8 sm:w-8"
-          >
-            <MoreVertical className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-          </Button>
+        <DropdownMenuTrigger asChild className={cn(buttonVariants({
+          variant: 'ghost',
+          size: 'sm'
+        }), 'size-6 p-0 sm:size-8')}>
+          <MoreVertical className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
         </DropdownMenuTrigger>
         <DropdownMenuContent
           sideOffset={8}

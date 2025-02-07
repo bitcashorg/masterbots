@@ -179,7 +179,7 @@ export async function processWithAiObject(
       throw new Error('Failed to get response object')
     }
 
-    console.log('result::processwithAiObject -->', responseObject)
+    console.log('result::processWithAiObject -->', responseObject)
     return responseObject
   } catch (error) {
     console.error('Error in processWithAIObject: ', error)
@@ -343,7 +343,7 @@ export async function createResponseStreamObject(
   const { model, chatbotMetadata, prompt, webSearch } = json
 
   const tools: Partial<typeof aiTools> = {
-    webSearch: aiTools.webSearch,
+    // webSearch: aiTools.webSearch,
     // ? Temp disabling ICL as tool. Using direct ICL integration to main prompt instead. Might be enabled later.
     // chatbotMetadataExamples: aiTools.chatbotMetadataExamples
   }

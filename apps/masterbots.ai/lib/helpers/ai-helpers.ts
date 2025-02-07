@@ -127,19 +127,21 @@ export async function fetchPromptDetails(promptId: string) {
 }
 
 export function cleanPrompt(str: string) {
-  // const marker = 'OK, so following the same pattern, how would you answer the question:'
-  const marker = '].  Then answer this question:'
-  const marker2 = ']. Then answer this question:'
-  const index = str.indexOf(marker) || str.indexOf(marker2)
-  let extracted = ''
+  const markers = ['].  Then answer this question:', ']. Then answer this question:']
+  let extracted = str
 
-  if (index !== -1) {
-    extracted = str.substring(index + marker.length)
+  const runExtraction = () => {
+    for (const marker of markers) {
+      const index = extracted.indexOf(marker)
+      if (index !== -1) {
+        extracted = extracted.substring(index + marker.length)
+      }
+    }
   }
-  // console.log('cleanPrompt', str, extracted, index)
-  return (extracted || str).split(
-    " Refer to the examples below to craft responses to the user's queries. Provide answers directly, omitting any labels like 'Questions', 'Answers', or 'Examples.' ",
-  )[0]
+
+  if (markers.some((marker) => extracted.includes(marker))) runExtraction()
+
+  return extracted
 }
 
 export function cleanResult(result: string): CleanPromptResult {

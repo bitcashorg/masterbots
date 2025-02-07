@@ -8,7 +8,6 @@ import { IconRefresh, IconShare, IconStop } from '@/components/ui/icons'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
-import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useThread } from '@/lib/hooks/use-thread'
 import { GlobeIcon } from 'lucide-react'
@@ -42,8 +41,7 @@ export function ChatPanelHeader({
   // TODO: Attach Share func to user chats chat pop-up
   const [shareDialogOpen, setShareDialogOpen] = React.useState(false)
   const webSearchRef = React.useRef(null)
-  const { loadingState } = useThread()
-  const [{ webSearch }, { toggleWebSearch }] = useMBChat()
+  const { loadingState, webSearch, setWebSearch } = useThread()
   const { isPowerUp, togglePowerUp } = usePowerUp()
 
   return (
@@ -73,7 +71,7 @@ export function ChatPanelHeader({
                 id="webSearch"
                 value={webSearch ? 'checked' : 'unchecked'}
                 ref={webSearchRef}
-                onClick={toggleWebSearch}
+                onClick={value => setWebSearch(!value)}
                 className="transition-all delay-100 h-auto w-auto inline-flex items-center gap-2 border-muted p-0.5 data-[state=checked]:border-accent/50 data-[state=checked]:bg-accent/25 rounded-full"
                 checkboxconfig={{
                   check: (
