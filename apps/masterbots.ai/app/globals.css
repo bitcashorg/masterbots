@@ -141,6 +141,97 @@
   [data-font-size='x-large'] {
     font-size: calc(var(--font-size-base) * 1.4);
   }
+  
+  /* Enhanced nested list styles */
+  .nested-list {
+    @apply ml-2 space-y-2 text-foreground;
+  }
+
+  /* First level items */
+  .nested-list > li {
+    @apply relative ml-4;
+    padding-left: 1.5rem;
+  }
+
+  /* Second level lists */
+  .nested-list .nested-list {
+    @apply mt-2 ml-4 space-y-1.5;
+  }
+
+  /* Second level items */
+  .nested-list .nested-list > li {
+    @apply relative ml-4;
+    padding-left: 1.5rem;
+  }
+
+  /* Third level lists */
+  .nested-list .nested-list .nested-list {
+    @apply mt-2 ml-6 space-y-1;
+  }
+
+  /* Third level items */
+  .nested-list .nested-list .nested-list > li {
+    @apply relative ml-4;
+    padding-left: 1.5rem;
+  }
+
+  /* Custom list markers using pseudo-elements */
+  .nested-list.list-disc > li::before {
+    content: "•";
+    @apply absolute left-0 text-muted-foreground;
+  }
+
+  .nested-list.list-decimal > li {
+    counter-increment: list-counter;
+  }
+
+  .nested-list.list-decimal > li::before {
+    content: counter(list-counter) ".";
+    @apply absolute left-0 text-muted-foreground;
+  }
+
+  /* Clickable elements styling */
+  .nested-list .text-link,
+  .nested-list .text-blue-500 {
+    @apply inline-flex items-center transition-colors duration-200 cursor-pointer hover:underline text-accent hover:text-accent/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+  }
+
+  /* Dark mode adjustments */
+  .dark .nested-list .text-link,
+  .dark .nested-list .text-blue-500 {
+    @apply text-accent hover:text-accent/80;
+  }
+
+  /* Spacing for items with nested content */
+  .nested-list li:has(> .nested-list) {
+    @apply mt-2 mb-1;
+  }
+
+  /* Interactive states */
+  .nested-list li:hover > .text-link,
+  .nested-list li:hover > .text-blue-500 {
+    @apply underline;
+  }
+
+  /* Focus styles for accessibility */
+  .nested-list li:focus-within {
+    @apply rounded outline-none ring-1 ring-ring ring-offset-1;
+  }
+
+  /* Ensure proper spacing between text and nested lists */
+  .nested-list li > *:first-child {
+    @apply inline-block;
+  }
+
+  /* Handle markdown content within list items */
+  .nested-list li p {
+    @apply inline;
+  }
+
+  /* Preserve spacing when list items contain multiple paragraphs */
+  .nested-list li p + p {
+    @apply block mt-2;
+  }
 }
 
 .scrollbar {
@@ -315,7 +406,7 @@
     margin-left: 300px;
   }
 }
-/* // black when it's dark mode and white when it's light mode  */
+
 .p-FieldLabel.Label {
   color: green !important;
 }
