@@ -200,7 +200,7 @@ export default function UserThreadPanel({
     }
   }, [continuousThreadId, session])
 
-  const threads = state.threads.length ? state.threads : initialThreads
+  const threads = state.threads.length > initialThreads.length ? state.threads : initialThreads
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should run only when the active category or chatbot changes
   useEffect(() => {
@@ -243,9 +243,35 @@ export default function UserThreadPanel({
 
   return (
     <>
-      {(page !== 'profile' || (page !== 'profile' && !isContinuousThread)) && (
+      {(threads.length !== 0 && (page !== 'profile' || (page !== 'profile' && !isContinuousThread))) && (
         <div className="flex justify-between px-4 py-5 md:px-10 lg:max-w-full">
           <ChatSearchInput setThreads={setState} onSearch={setSearchTerm} />
+        </div>
+      )}
+      {loading && (
+        <div className="flex justify-between px-4 py-5 md:px-10 lg:max-w-full">
+          <div className="relative w-full max-w-[900px] mx-auto flex items-center justify-center pt-5">
+            <div className="relative w-full">
+              <div className="absolute inset-0 transition-opacity duration-300 rounded-full opacity-0 group-focus-within:opacity-100">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r dark:from-[#83E56A]/5 dark:to-[#83E56A]/5 from-[#BE17E8]/5 to-[#BE17E8]/5 blur-lg animate-pulse" />
+              </div>
+
+              <div
+                className={cn(
+                  'group relative w-full flex items-center',
+                  'rounded-full',
+                  'dark:bg-[#18181B]/90',
+                  'border dark:border-[#83E56A]/10 border-[#BE17E8]/10',
+                  'focus-within:border-[#BE17E8] dark:focus-within:border-[#83E56A]',
+                  'focus-within:ring-1 focus-within:ring-[#BE17E8] dark:focus-within:ring-[#83E56A]',
+                  'transition-all duration-200'
+                )}
+              >
+                <div className="absolute w-5 h-5 left-4 text-zinc-400 group-focus-within:text-[#BE17E8] dark:group-focus-within:text-[#83E56A] animate-pulse bg-gray-300 rounded-full" />
+                <div className="w-full px-12 py-6 bg-transparent placeholder:text-zinc-400 text-base dark:text-zinc-100 animate-pulse bg-gray-300 rounded-full" />
+              </div>
+            </div>
+          </div>
         </div>
       )}
       <ul className={cn(
