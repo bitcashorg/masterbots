@@ -27,8 +27,11 @@ export function ChatMessage({
       <div className="pt-4 mt-4 border-t border-gray-200">
         <h3 className="mb-2 text-lg font-semibold">References</h3>
         <div className="space-y-4">
-          {references.map((ref, index) => (
-            <div key={ref.profile.name.toLowerCase().replace(/\s/g, '-')} className="flex gap-4">
+          {references.map((ref) => (
+            <div 
+              key={ref.profile.name.toLowerCase().replace(/\s/g, '-')} 
+              className="flex gap-4"
+            >
               {ref.thumbnail?.src && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -84,19 +87,19 @@ export function ChatMessage({
             },
             ul({ children }) {
               return (
-                <ul className="ml-2 space-y-2 list-inside nested-list">
+                <ul className="ml-2 space-y-2">
                   {children}
                 </ul>
               )
             },
             ol({ children }) {
               return (
-                <ol className="ml-2 space-y-2 list-decimal list-inside nested-list">
+                <ol className="ml-2 space-y-2">
                   {children}
                 </ol>
               )
             },
-            li({ children, ordered, ...props }) {
+            li({ children, ordered }) {
               const hasNestedList = React.Children.toArray(children).some(
                 child =>
                   React.isValidElement(child) &&
@@ -104,15 +107,19 @@ export function ChatMessage({
               )
 
               return (
-                <li
+                <li 
                   className={cn(
-                    'ml-4',
-                    hasNestedList && 'mt-2',
-                    ordered ? 'list-decimal' : 'list-disc'
+                    "ml-4",
+                    ordered ? "list-decimal" : "list-disc",
+                    hasNestedList && "mt-2"
                   )}
-                  {...props}
                 >
-                  <ClickableText isListItem>{children}</ClickableText>
+                  <ClickableText
+                    isListItem
+                    sendMessageFromResponse={sendMessageFromResponse}
+                  >
+                    {children}
+                  </ClickableText>
                 </li>
               )
             },

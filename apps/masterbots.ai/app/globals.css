@@ -234,6 +234,23 @@
   }
 }
 
+.text-link {
+  @apply text-accent hover:text-accent/90;
+}
+
+button.text-link {
+  @apply inline-block p-0 m-0 bg-transparent border-0;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+/* Prevent wrapping issues */
+.inline > button,
+.inline > span {
+  vertical-align: baseline;
+}
+
 .scrollbar {
   overflow: auto;
 }

@@ -127,12 +127,23 @@ export function parseClickableText(fullText: string): ParsedText {
     }
   }
 
+  // First check for unique phrases
+  for (const phrase of UNIQUE_PHRASES) {
+    if (fullText.includes(phrase)) {
+      // Split content after the phrase
+      const [_, ...rest] = fullText.split(phrase)
+      return {
+        clickableText: phrase,
+        restText: rest.join(phrase) // Rejoin in case phrase appears multiple times
+      }
+    }
+  }
+
   const titlePattern = /^([^:]+?):\s*(.*)/
   const titleMatch = fullText.match(titlePattern)
 
   if (titleMatch) {
     const title = titleMatch[1].trim()
-    // * Skiping empty or punctuation-only titles
     if (!title || title.match(/^[.\s]+$/)) {
       return {
         clickableText: '',
@@ -140,24 +151,9 @@ export function parseClickableText(fullText: string): ParsedText {
       }
     }
 
-    const strongPattern = /<strong>(.*?)<\/strong>/
-    const strongMatch = title.match(strongPattern)
-    const finalTitle = strongMatch ? strongMatch[1] : title
-
     return {
-      clickableText: finalTitle,
-      restText: ':' + titleMatch[2]
-    }
-  }
-
-  // * Handle nested list items
-  const listItemPattern = /^[-*•]\s*([^:]+?):\s*(.*)/
-  const listItemMatch = fullText.match(listItemPattern)
-  
-  if (listItemMatch) {
-    return {
-      clickableText: listItemMatch[1].trim(),
-      restText: ':' + listItemMatch[2]
+      clickableText: title,
+      restText: ': ' + titleMatch[2]
     }
   }
 
