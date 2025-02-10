@@ -86,22 +86,19 @@ export function ClickableText({
   }
 
   const renderClickableContent = (clickableText: string, restText: string) => (
-    <>
-      <span
+    <span className="inline">
+      <button
         className={cn(
-          'cursor-pointer hover:underline bg-transparent border-none p-0 m-0',
+          'inline-block cursor-pointer hover:underline bg-transparent border-none p-0 m-0',
           isListItem ? 'text-blue-500' : 'text-link'
         )}
-        // biome-ignore lint/a11y/useSemanticElements: <explanation>
-        role="button"
-        tabIndex={0}
         onClick={createClickHandler(clickableText)}
-        onKeyUp={e => e.key === 'Enter' && createClickHandler(clickableText)()}
+        type="button"
       >
         {clickableText}
-      </span>
+      </button>
       {restText.startsWith(':') ? restText.replace(/^:/, ': ') : restText}
-    </>
+    </span>
   )
 
   if (Array.isArray(extractedContent)) {
