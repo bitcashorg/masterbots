@@ -33,13 +33,13 @@ import { ChatSearchInput } from '@/components/routes/chat/chat-search-input'
 import ThreadList from '@/components/routes/thread/thread-list'
 import { NoResults } from '@/components/shared/no-results-card'
 import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeletons'
+import { Skeleton } from '@/components/ui/skeleton'
 import { PAGE_SIZE, PAGE_SM_SIZE } from '@/lib/constants/hasura'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { cn } from '@/lib/utils'
 import { getBrowseThreads, getThread, getThreads, getUserBySlug } from '@/services/hasura'
-import { isEqual } from 'lodash'
 import type { Thread } from 'mb-genql'
 import type { Session } from 'next-auth'
 import { useSession } from 'next-auth/react'
@@ -59,10 +59,10 @@ export default function UserThreadPanel({
 }) {
   const params = useParams<{ chatbot: string; threadId: string; slug?: string }>()
   const { data: session } = useSession()
-  const { activeCategory, activeChatbot, selectedChatbots, selectedCategories } = useSidebar()
+  const { activeCategory, activeChatbot } = useSidebar()
   const { isOpenPopup, activeThread, setActiveThread, setIsOpenPopup } = useThread()
-  const [loading, setLoading] = useState<boolean>(false)
-  const { threads: hookThreads, isContinuousThread, setIsContinuousThread } = useThreadVisibility()
+  const [loading, setLoading] = useState<boolean>(true)
+  const { isContinuousThread, setIsContinuousThread } = useThreadVisibility()
   const [searchTerm, setSearchTerm] = useState<string>('')
   const searchParams = useSearchParams()
   const { slug, threadId } = params
@@ -77,10 +77,7 @@ export default function UserThreadPanel({
     return result
   }, [slug])
 
-  const prevCategoryRef = useRef(activeCategory)
-  const prevChatbotRef = useRef(activeChatbot)
-  const prevPathRef = useRef(usePathname())
-  const fetchIdRef = useRef(0) // Store the fetchId in a ref
+  const prevPathRef = useRef('')
   const pathname = usePathname()
   const [state, setState] = useSetState<{
     threads: Thread[]
@@ -137,44 +134,6 @@ export default function UserThreadPanel({
     setLoading(false)
   }
 
-  const handleThreadsChange = async () => {
-    setLoading(true)
-    const userOnSlug = userWithSlug.value?.user
-    const isOwnProfile = session?.user?.id === userOnSlug?.userId
-    if (!session?.user || (!isOwnProfile && page === 'profile')) {
-      const newThreads = await fetchBrowseThreads()
-
-      setState({
-        threads: newThreads,
-        totalThreads: threads?.length,
-        count: threads?.length,
-      })
-      setLoading(false)
-      return
-    }
-
-    const currentFetchId = Date.now() // Generate a unique identifier for the current fetch
-    fetchIdRef.current = currentFetchId
-    const newThreads = await getThreads({
-      jwt: session?.user?.hasuraJwt,
-      userId: session?.user.id,
-      limit: PAGE_SIZE,
-      categoryId: activeCategory,
-      chatbotName: activeChatbot?.name
-    })
-
-    // Check if the fetchId matches the current fetchId stored in the ref
-    if (fetchIdRef.current === currentFetchId) {
-      // If it matches, update the threads state
-      setState({
-        threads: newThreads,
-        totalThreads: threads?.length,
-        count: threads?.length,
-      })
-    }
-    setLoading(false)
-  }
-
   const getThreadByContinuousThreadId = async (continuousThreadId: string, session: Session) => {
     const thread = await getThread({
       threadId: continuousThreadId,
@@ -202,27 +161,19 @@ export default function UserThreadPanel({
 
   const threads = state.threads.length > initialThreads.length ? state.threads : initialThreads
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should run only when the active category or chatbot changes
+  const completeLoading = (load: boolean) => {
+    setLoading(load)
+  }
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should run only when the pathname changes
   useEffect(() => {
-    // Skip if popup is open
+    // Skip if popup is open or there is initial threads
     if (isOpenPopup) return
 
-    const shouldFetch =
-      activeCategory ||
-      activeChatbot ||
-      !isEqual(prevCategoryRef.current, activeCategory) ||
-      !isEqual(prevChatbotRef.current, activeChatbot) ||
-      pathname !== prevPathRef.current // Add pathname check
-
-    // Update refs
-    prevCategoryRef.current = activeCategory
-    prevChatbotRef.current = activeChatbot
     prevPathRef.current = pathname
 
-    if (shouldFetch) {
-      handleThreadsChange()
-    }
-  }, [activeCategory, activeChatbot, isOpenPopup, pathname])
+    completeLoading(prevPathRef.current !== pathname)
+  }, [initialThreads, pathname, activeChatbot, activeCategory])
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should run only when the active thread changes
   useEffect(() => {
@@ -239,38 +190,21 @@ export default function UserThreadPanel({
       ? 'No threads available in the selected category'
       : 'Start a conversation to create your first thread'
   const showNoResults = !loading && searchTerm && threads.length === 0
-  const showChatbotDetails = !loading && !searchTerm && !threads.length
+  const showChatbotDetails = !loading && !searchTerm && !threads.length && activeChatbot
+  const searchInputContainerClassName = 'flex justify-between px-4 py-5 md:px-10 lg:max-w-full'
 
   return (
     <>
-      {(threads.length !== 0 && (page !== 'profile' || (page !== 'profile' && !isContinuousThread))) && (
-        <div className="flex justify-between px-4 py-5 md:px-10 lg:max-w-full">
+      {!loading && (threads.length !== 0 && (page !== 'profile' || (page !== 'profile' && !isContinuousThread))) && (
+        <div className={searchInputContainerClassName}>
           <ChatSearchInput setThreads={setState} onSearch={setSearchTerm} />
         </div>
       )}
       {loading && (
-        <div className="flex justify-between px-4 py-5 md:px-10 lg:max-w-full">
-          <div className="relative w-full max-w-[900px] mx-auto flex items-center justify-center pt-5">
-            <div className="relative w-full">
-              <div className="absolute inset-0 transition-opacity duration-300 rounded-full opacity-0 group-focus-within:opacity-100">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r dark:from-[#83E56A]/5 dark:to-[#83E56A]/5 from-[#BE17E8]/5 to-[#BE17E8]/5 blur-lg animate-pulse" />
-              </div>
-
-              <div
-                className={cn(
-                  'group relative w-full flex items-center',
-                  'rounded-full',
-                  'dark:bg-[#18181B]/90',
-                  'border dark:border-[#83E56A]/10 border-[#BE17E8]/10',
-                  'focus-within:border-[#BE17E8] dark:focus-within:border-[#83E56A]',
-                  'focus-within:ring-1 focus-within:ring-[#BE17E8] dark:focus-within:ring-[#83E56A]',
-                  'transition-all duration-200'
-                )}
-              >
-                <div className="absolute w-5 h-5 left-4 text-zinc-400 group-focus-within:text-[#BE17E8] dark:group-focus-within:text-[#83E56A] animate-pulse bg-gray-300 rounded-full" />
-                <div className="w-full px-12 py-6 bg-transparent placeholder:text-zinc-400 text-base dark:text-zinc-100 animate-pulse bg-gray-300 rounded-full" />
-              </div>
-            </div>
+        <div className={searchInputContainerClassName}>
+          <div className="relative w-full max-w-[900px] mx-auto flex items-center justify-center">
+            <Skeleton className="w-full mx-auto h-12 rounded-full flex absolute" />
+            <Skeleton className="size-6 rounded-full mr-auto ml-3 bg-foreground/10" />
           </div>
         </div>
       )}

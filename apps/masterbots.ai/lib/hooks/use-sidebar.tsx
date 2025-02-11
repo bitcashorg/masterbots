@@ -10,7 +10,7 @@ import { useAsync } from 'react-use'
 
 const LOCAL_STORAGE_KEY = 'sidebar'
 
-interface NavigationParams {
+export interface NavigationParams {
   page: string | undefined
   slug: string | undefined
   categoryName?: string

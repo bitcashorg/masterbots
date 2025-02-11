@@ -50,17 +50,32 @@
     --tertiary-foreground: 0 0% 98%;
     --font-size-base: 1rem;
 
-    --background-public-gradient: linear-gradient(180deg, rgba(115, 201, 97, 0.2) 0%, rgba(122, 214, 104, 0.4) 100%);
-    --background-public-hover-gradient: linear-gradient(-180deg, rgba(113, 199, 96, 0.1) 0%, rgba(117, 205, 99, 0.3) 100%);
-    
+    --background-public-gradient: linear-gradient(
+      180deg,
+      rgba(115, 201, 97, 0.2) 0%,
+      rgba(122, 214, 104, 0.4) 100%
+    );
+    --background-public-hover-gradient: linear-gradient(
+      -180deg,
+      rgba(113, 199, 96, 0.1) 0%,
+      rgba(117, 205, 99, 0.3) 100%
+    );
+
     /* Public route gradients */
-    --background-chat-gradient: linear-gradient(180deg, rgba(155, 22, 232, 0.2) 0%, rgba(190, 22, 232, 0.53) 100%);
-    --background-chat-hover-gradient: linear-gradient(-180deg, rgba(166, 22, 232, 0.1) 0%, rgba(190, 22, 232, 0.3) 100%);
+    --background-chat-gradient: linear-gradient(
+      180deg,
+      rgba(155, 22, 232, 0.2) 0%,
+      rgba(190, 22, 232, 0.53) 100%
+    );
+    --background-chat-hover-gradient: linear-gradient(
+      -180deg,
+      rgba(166, 22, 232, 0.1) 0%,
+      rgba(190, 22, 232, 0.3) 100%
+    );
 
     /* Component route colors */
-    --component-color-chat: 190, 23, 232;  /* Example: purple in HSL */
-    --component-color-public: 34, 197, 94;   /* Example: green in HSL */
-  
+    --component-color-chat: 190, 23, 232; /* Example: purple in HSL */
+    --component-color-public: 34, 197, 94; /* Example: green in HSL */
   }
 
   .dark {
@@ -107,17 +122,32 @@
     --tertiary: 120, 100%, 65%;
     --tertiary-foreground: 0 0% 98%;
 
-    --background-public-gradient: linear-gradient(180deg, rgba(115, 201, 97, 0.2) 0%, rgba(122, 214, 104, 0.4) 100%);
-    --background-public-hover-gradient: linear-gradient(-180deg, rgba(113, 199, 96, 0.1) 0%, rgba(117, 205, 99, 0.3) 100%);
-    
+    --background-public-gradient: linear-gradient(
+      180deg,
+      rgba(115, 201, 97, 0.2) 0%,
+      rgba(122, 214, 104, 0.4) 100%
+    );
+    --background-public-hover-gradient: linear-gradient(
+      -180deg,
+      rgba(113, 199, 96, 0.1) 0%,
+      rgba(117, 205, 99, 0.3) 100%
+    );
+
     /* Public route gradients */
-    --background-chat-gradient: linear-gradient(180deg, rgba(155, 22, 232, 0.2) 0%, rgba(190, 22, 232, 0.53) 100%);
-    --background-chat-hover-gradient: linear-gradient(-180deg, rgba(166, 22, 232, 0.1) 0%, rgba(190, 22, 232, 0.3) 100%);
+    --background-chat-gradient: linear-gradient(
+      180deg,
+      rgba(155, 22, 232, 0.2) 0%,
+      rgba(190, 22, 232, 0.53) 100%
+    );
+    --background-chat-hover-gradient: linear-gradient(
+      -180deg,
+      rgba(166, 22, 232, 0.1) 0%,
+      rgba(190, 22, 232, 0.3) 100%
+    );
 
     /* Component route colors */
-    --component-color-chat: 190, 23, 232;  /* Example: purple in HSL */
-    --component-color-public: 34, 197, 94;   /* Example: green in HSL */
-    
+    --component-color-chat: 190, 23, 232; /* Example: purple in HSL */
+    --component-color-public: 34, 197, 94; /* Example: green in HSL */
   }
 }
 
@@ -141,7 +171,7 @@
   [data-font-size='x-large'] {
     font-size: calc(var(--font-size-base) * 1.4);
   }
-  
+
   /* Enhanced nested list styles */
   .nested-list {
     @apply ml-2 space-y-2 text-foreground;
@@ -177,7 +207,7 @@
 
   /* Custom list markers using pseudo-elements */
   .nested-list.list-disc > li::before {
-    content: "•";
+    content: '•';
     @apply absolute left-0 text-muted-foreground;
   }
 
@@ -186,7 +216,7 @@
   }
 
   .nested-list.list-decimal > li::before {
-    content: counter(list-counter) ".";
+    content: counter(list-counter) '.';
     @apply absolute left-0 text-muted-foreground;
   }
 
@@ -265,16 +295,16 @@ button.text-link {
 }
 .scrollbar::-webkit-scrollbar-thumb {
   background: var(--scrollbar-thumb);
-  border-radius: 2px;
+  border-radius: 3px;
 }
-/* .scrollbar::-webkit-scrollbar-thumb:hover {
-  background: var(--scrollbar-thumb-hover);
-} */
+.scrollbar::-webkit-scrollbar-thumb:hover {
+  background: hsla(var(--accent));
+}
 
 @media screen and (min-width: 1024px) {
   .scrollbar::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
 }
 
@@ -438,52 +468,52 @@ button.text-link {
   stroke-width: 1.25px;
 }
 
-/* Base sidebar gradient styles *//* Chat route styles */
+/* Base sidebar gradient styles */ /* Chat route styles */
 
 .sidebar-gradient {
   transition: background-image 0.3s ease;
 }
 
 /* Chat route styles */
-[data-route="chat"] .sidebar-gradient:hover:not(.selected) {
+[data-route='chat'] .sidebar-gradient:hover:not(.selected) {
   background-image: var(--background-chat-hover-gradient);
 }
 
-[data-route="chat"] .sidebar-gradient.selected {
+[data-route='chat'] .sidebar-gradient.selected {
   background-image: var(--background-chat-gradient);
 }
 
 /* Public route styles */
-[data-route="public"] .sidebar-gradient:hover:not(.selected) {
+[data-route='public'] .sidebar-gradient:hover:not(.selected) {
   background-image: var(--background-public-hover-gradient);
 }
 
-[data-route="public"] .sidebar-gradient.selected {
+[data-route='public'] .sidebar-gradient.selected {
   background-image: var(--background-public-gradient);
 }
 
 /* Component route styles */
 
-  /* Avatar ring colors */
-  [data-route="chat"] .selected-bot-avatar {
-    @apply ring-purple-500;
-  }
-  [data-route="public"] .selected-bot-avatar {
-    @apply ring-green-500;
-  }
+/* Avatar ring colors */
+[data-route='chat'] .selected-bot-avatar {
+  @apply ring-purple-500;
+}
+[data-route='public'] .selected-bot-avatar {
+  @apply ring-green-500;
+}
 
-  /* Text colors */
-  [data-route="chat"] .selected-bot-text {
-    @apply text-purple-500;
-  }
-  [data-route="public"] .selected-bot-text {
-    @apply text-green-500;
-  }
+/* Text colors */
+[data-route='chat'] .selected-bot-text {
+  @apply text-purple-500;
+}
+[data-route='public'] .selected-bot-text {
+  @apply text-green-500;
+}
 
-  /* Icon fill colors */
-  [data-route="chat"] .selected-bot-icon {
-    @apply fill-purple-500;
-  }
-  [data-route="public"] .selected-bot-icon {
-    @apply fill-green-500;
-  }
+/* Icon fill colors */
+[data-route='chat'] .selected-bot-icon {
+  @apply fill-purple-500;
+}
+[data-route='public'] .selected-bot-icon {
+  @apply fill-green-500;
+}
