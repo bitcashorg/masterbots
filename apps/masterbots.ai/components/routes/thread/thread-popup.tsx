@@ -15,6 +15,7 @@ import { getMessages } from '@/services/hasura'
 import type { Message as AiMessage } from 'ai'
 import { useScroll } from 'framer-motion'
 import type { Chatbot, Message } from 'mb-genql'
+import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
 export function ThreadPopup({ className }: { className?: string }) {
@@ -23,6 +24,7 @@ export function ThreadPopup({ className }: { className?: string }) {
   const [{ allMessages, isLoading }, { sendMessageFromResponse }] = useMBChat()
   const [browseMessages, setBrowseMessages] = useState<Message[]>([])
   const popupContentRef = useRef<HTMLDivElement>()
+  const pathname = usePathname()
 
   const { scrollY } = useScroll({
     container: popupContentRef as React.RefObject<HTMLElement>

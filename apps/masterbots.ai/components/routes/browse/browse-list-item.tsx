@@ -177,6 +177,7 @@ export default function BrowseListItem({
                   onClick={goToBotPage}
                   title={thread.chatbot?.name}
                   variant="ghost"
+                  radius="full"
                   className="p-0 hover:bg-transparent"
                 >
                   <ChatbotAvatar thread={thread} />
@@ -191,21 +192,22 @@ export default function BrowseListItem({
 
               {/* User section with tighter spacing on mobile */}
               {pageType !== 'user' && pageType !== 'profile' && (
-                <div className="flex items-center gap-1 ml-2 sm:gap-3 sm:ml-4">
+                // <div className="flex items-center gap-1 sm:gap-3">
+                <div className="ml-auto flex items-center gap-1 sm:gap-3">
                   <span className="hidden text-sm opacity-50 sm:inline"> by </span>
                   <Button
                     onClick={goToProfile}
                     title={thread.user?.username.replace('_', ' ')}
                     variant="icon"
                     size="icon"
-                    className="w-8 h-8 sm:h-10 sm:w-10"
+                    className="rounded-full w-8 h-8 sm:h-10 sm:w-10"
                   >
                     <Image
                       className="transition-opacity duration-300 rounded-full select-none hover:opacity-80"
                       src={thread.user?.profilePicture || '/images/robohash1.png'}
                       alt={thread.user?.username ?? 'Avatar'}
-                      height={40}
-                      width={40}
+                      height={42}
+                      width={42}
                     />
                   </Button>
                 </div>

@@ -296,12 +296,27 @@ export function numberShortener(number: number): string {
  * @returns 'chat' | 'public' | ''
  */
 
-type RouteType = 'chat' | 'public'
+type RouteType = 'chat' | 'public' | 'profile'
 
 export function getRouteType(pathname: string | null): RouteType {
   if (!pathname || pathname === '/') return 'public'
   const normalizedPath = pathname.toLowerCase().replace(/\/+$/, '')
-  return normalizedPath.startsWith('/c') ? 'chat' : 'public'
+
+  if (normalizedPath.startsWith('/c') && normalizedPath !== '/career') {
+    return 'chat'
+  }
+
+  if (normalizedPath.startsWith('/u')) {
+    return 'profile'
+  }
+
+  const publicRoutes = [/^\/$/, /^\/[^/]+\/[^/]+$/, /^\/[^/]+\/[^/]+\/[^/]+$/]
+
+  if (publicRoutes.some((route) => route.test(normalizedPath))) {
+    return 'public'
+  }
+
+  return 'public'
 }
 
 export function getRouteColor(isActive: boolean, pathname: string | null): string {
