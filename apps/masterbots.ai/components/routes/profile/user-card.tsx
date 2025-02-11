@@ -211,7 +211,7 @@ export function UserCard({ user, loading }: UserCardProps) {
       })
       if (!success) {
         console.error('Failed to follow/Unfollow user:', error)
-        customSonner({ type: 'error', text: error || 'Failed to follow/Unfollow user' })
+        customSonner({ type: 'error', text: `Failed to process your request, try again!` })
         return
       }
 
