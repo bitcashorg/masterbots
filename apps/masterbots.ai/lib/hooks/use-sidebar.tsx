@@ -4,13 +4,13 @@ import { getCategories, getUserBySlug } from '@/services/hasura'
 import type { Category, Chatbot } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import { useSession } from 'next-auth/react'
-import { useParams, usePathname } from 'next/navigation'
+import { useParams, usePathname, useRouter } from 'next/navigation'
 import * as React from 'react'
 import { useAsync } from 'react-use'
 
 const LOCAL_STORAGE_KEY = 'sidebar'
 
-interface NavigationParams {
+export interface NavigationParams {
   page: string | undefined
   slug: string | undefined
   categoryName?: string
@@ -65,6 +65,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
   const { data: session } = useSession()
   const { slug } = useParams()
   const pathname = usePathname()
+  const router = useRouter()
   const prevPath = React.useRef<string | null>(null)
 
   const {
@@ -271,7 +272,15 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
     isBrowse,
   }: NavigationParams): void => {
     const url = buildNavigationUrl({ page, slug, categoryName, chatbotName, isBrowse })
-    window.history.pushState({}, '', url)
+
+    if (url.startsWith('/c')) {
+      router.push(url, { scroll: false })
+    } else {
+      window.history.pushState({
+        category: categoryName,
+        chatbot: chatbotName,
+      }, '', url)
+    }
   }
 
   if (isLoading) {

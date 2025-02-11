@@ -99,21 +99,21 @@ export function ChatSearchInput({ setThreads, onSearch }: ChatSearchInputProps) 
     <div className="relative w-full max-w-[900px] mx-auto flex items-center justify-center">
       <div className="relative w-full">
         <div className="absolute inset-0 transition-opacity duration-300 rounded-full opacity-0 group-focus-within:opacity-100">
-          <div className="absolute inset-0 rounded-full bg-gradient-to-r dark:from-[#83E56A]/5 dark:to-[#83E56A]/5 from-[#BE17E8]/5 to-[#BE17E8]/5 blur-lg animate-pulse" />
+          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-accent/10 to-accent/10 blur-lg animate-pulse" />
         </div>
 
         <div
           className={cn(
             'group relative w-full flex items-center',
             'rounded-full',
-            'dark:bg-[#18181B]/90',
-            'border dark:border-[#83E56A]/10 border-[#BE17E8]/10',
-            'focus-within:border-[#BE17E8] dark:focus-within:border-[#83E56A]',
-            'focus-within:ring-1 focus-within:ring-[#BE17E8] dark:focus-within:ring-[#83E56A]',
+            'bg-background/60',
+            'border border-accent/10',
+            'focus-within:border-accent',
+            'focus-within:ring-1 focus-within:ring-accent',
             'transition-all duration-200',
           )}
         >
-          <Search className="absolute w-5 h-5 left-4 text-zinc-400 group-focus-within:text-[#BE17E8] dark:group-focus-within:text-[#83E56A]" />
+          <Search className="absolute size-5 left-4 text-zinc-400 group-focus-within:text-accent" />
           <Input
             value={keyword}
             onChange={(e) => handleKeywordChange(e.target.value)}

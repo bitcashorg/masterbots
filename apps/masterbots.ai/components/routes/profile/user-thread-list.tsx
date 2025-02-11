@@ -1,10 +1,10 @@
 'use client'
-import { Thread, User } from 'mb-genql'
+import type { Thread, User } from 'mb-genql'
 import UserThreadPanel from '../thread/user-thread-panel'
 
 export function UserThreadList({
   user,
-  threads
+  threads,
 }: {
   user: User
   threads: Thread[]
