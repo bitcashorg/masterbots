@@ -1,7 +1,12 @@
 'use client'
 
-// * This component provides a search input for filtering chat threads based on user input.
-// * The search results are filtered based on the content in each thread.
+/**
+ * ThreadSearchInput Component
+ *
+ * A unified search input component that can be used for both chat and browse views.
+ * It provides search functionality with debouncing, placeholder text management,
+ * and thread filtering capabilities.
+ */
 
 import { Button } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
@@ -15,41 +20,61 @@ import { Search } from 'lucide-react'
 import type { Thread } from 'mb-genql'
 import React, { useEffect } from 'react'
 
-interface ChatSearchInputProps {
-  setThreads: React.Dispatch<React.SetStateAction<ThreadState>>
+interface ThreadSearchInputProps {
+  // Chat view specific props
+  setThreads?: React.Dispatch<React.SetStateAction<ThreadState>>
   onSearch?: (term: string) => void
+  // Browse view specific props
+  searchTerm?: string
+  setSearchTerm?: (term: string) => void
+  // Shared props
+  isBrowseView?: boolean
+  className?: string
+  placeholder?: string
 }
 
-export function ChatSearchInput({ setThreads, onSearch }: ChatSearchInputProps) {
+export function ThreadSearchInput({
+  setThreads,
+  onSearch,
+  searchTerm: externalSearchTerm,
+  setSearchTerm: externalSetSearchTerm,
+  isBrowseView = false,
+  className,
+  placeholder: customPlaceholder,
+}: ThreadSearchInputProps) {
   const { activeCategory, activeChatbot } = useSidebar()
   const [searchPlaceholder, setSearchPlaceholder] = React.useState<string | null>(null)
-  const [keyword, changeKeyword] = React.useState<string>('')
+  const [internalSearchTerm, setInternalSearchTerm] = React.useState<string>('')
   const previousThread = React.useRef<Thread[]>([])
   const previousCategory = React.useRef<number | null>(null)
 
-  const handleKeywordChange = (value: string) => {
-    changeKeyword(value)
-    onSearch?.(value) // Call the onSearch callback if provided
+  // Use either external or internal search term based on mode
+  const searchTerm = isBrowseView ? externalSearchTerm : internalSearchTerm
+  const setSearchTerm = isBrowseView ? externalSetSearchTerm : setInternalSearchTerm
+
+  const handleSearch = (value: string) => {
+    setSearchTerm?.(value)
+    if (!isBrowseView) {
+      onSearch?.(value)
+    }
   }
 
   const clearSearch = () => {
-    handleKeywordChange('') // Use the same handler for clearing to ensure onSearch is called
+    handleSearch('')
   }
 
-  const searchInThread = (thread: Thread, searchTerm: string): boolean => {
-    // If no search term, return true to show all threads
-    if (!searchTerm) return true
-
-    const lowercaseSearch = searchTerm.toLowerCase()
-
-    // Check all messages in the thread for the search term
+  const searchInThread = (thread: Thread, term: string): boolean => {
+    if (!term) return true
+    const lowercaseSearch = term.toLowerCase()
     return thread.messages.some((message) =>
-      message?.content?.toLowerCase().includes(lowercaseSearch) || false,
+      message?.content?.toLowerCase().includes(lowercaseSearch) || false
     )
   }
 
   const fetchSearchPlaceholder = async () => {
-    if (activeChatbot) {
+    if (customPlaceholder) {
+      setSearchPlaceholder(customPlaceholder)
+    } else if (activeChatbot) {
       setSearchPlaceholder(activeChatbot?.name.replace(/([A-Z])/g, ' $1').toLowerCase().trimStart())
     } else if (activeCategory && activeCategory !== previousCategory.current) {
       previousCategory.current = activeCategory
@@ -58,20 +83,21 @@ export function ChatSearchInput({ setThreads, onSearch }: ChatSearchInputProps) 
     }
   }
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should only run when the active chatbot or category changes
   useEffect(() => {
     fetchSearchPlaceholder()
-  }, [activeChatbot, activeCategory])
+  }, [activeChatbot, activeCategory, customPlaceholder])
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should only run when the keyword changes
+  // Handle thread filtering for chat view
   useEffect(() => {
+    if (!setThreads || isBrowseView) return
+
     const debouncedSearch = debounce(() => {
       setThreads((prevState) => {
         if (!previousThread.current.length) {
           previousThread.current = prevState.threads
         }
         const previousThreadState = previousThread.current
-        if (!keyword) {
+        if (!internalSearchTerm) {
           return {
             ...prevState,
             threads: previousThreadState,
@@ -80,7 +106,7 @@ export function ChatSearchInput({ setThreads, onSearch }: ChatSearchInputProps) 
           }
         }
         const filteredThreads = previousThreadState.filter((thread) =>
-          searchInThread(thread, keyword)
+          searchInThread(thread, internalSearchTerm)
         )
         return {
           ...prevState,
@@ -93,10 +119,13 @@ export function ChatSearchInput({ setThreads, onSearch }: ChatSearchInputProps) 
 
     debouncedSearch()
     return () => debouncedSearch.cancel()
-  }, [keyword])
+  }, [internalSearchTerm, setThreads, isBrowseView])
 
   return (
-    <div className="relative w-full max-w-[900px] mx-auto flex items-center justify-center">
+    <div className={cn("relative w-full max-w-[900px] mx-auto flex items-center justify-center",
+      { "pt-5": isBrowseView },
+      className
+    )}>
       <div className="relative w-full">
         <div className="absolute inset-0 transition-opacity duration-300 rounded-full opacity-0 group-focus-within:opacity-100">
           <div className="absolute inset-0 rounded-full bg-gradient-to-r from-accent/10 to-accent/10 blur-lg animate-pulse" />
@@ -113,22 +142,23 @@ export function ChatSearchInput({ setThreads, onSearch }: ChatSearchInputProps) 
             'transition-all duration-200',
           )}
         >
-          <Search className="absolute size-5 left-4 text-zinc-400 group-focus-within:text-accent" />
+          <Search className="absolute w-5 h-5 left-4 text-zinc-400 group-focus-within:text-accent" />
           <Input
-            value={keyword}
-            onChange={(e) => handleKeywordChange(e.target.value)}
-            placeholder={`Search all messages in ${searchPlaceholder ? searchPlaceholder : 'any category'
-              }...`}
+            value={searchTerm}
+            onChange={(e) => handleSearch(e.target.value)}
+            placeholder={customPlaceholder ||
+              `Search all messages in ${searchPlaceholder ? searchPlaceholder : 'any category'}...`
+            }
             className={cn(
               'w-full px-12 py-6',
               'bg-transparent',
               'placeholder:text-zinc-400',
               'text-base dark:text-zinc-100',
               'border-0 ring-0 focus-visible:ring-0 focus-visible:ring-offset-0',
-              'rounded-full',
+              'rounded-full'
             )}
           />
-          {keyword && (
+          {searchTerm && (
             <Button
               type="reset"
               variant="ghost"
@@ -137,7 +167,7 @@ export function ChatSearchInput({ setThreads, onSearch }: ChatSearchInputProps) 
                 'absolute right-2',
                 'size-8 p-0',
                 'hover:bg-zinc-800/50',
-                'rounded-full',
+                'rounded-full'
               )}
               aria-label="Clear search"
             >

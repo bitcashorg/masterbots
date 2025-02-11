@@ -65,18 +65,17 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
   const { activeChatbot, navigateTo } = useSidebar()
   const userContentRef = useRef<string>('')
   const randomThreadId = useRef<string>(crypto.randomUUID())
-  const [{ messagesFromDB, isInitLoaded /* isNewChat */ }, setState] = useSetState<{
+  const [{ messagesFromDB, isInitLoaded, isNewChat }, setState] = useSetState<{
     isInitLoaded: boolean
     webSearch: boolean
     messagesFromDB: Message[]
-    // isNewChat: boolean
+    isNewChat: boolean
   }>({
     isInitLoaded: false,
     webSearch: false,
     messagesFromDB: [] as Message[],
-    // isNewChat: Boolean(!activeThread || activeThread && activeThread.messages.length <= 1),
+    isNewChat: true,
   })
-  const isNewChat = Boolean(!activeThread || (activeThread && activeThread.messages.length <= 1))
 
   const { customSonner } = useSonner()
   const { isContinuousThread } = useThreadVisibility()
@@ -291,10 +290,23 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
   // biome-ignore lint/correctness/useExhaustiveDependencies: only activeThread is needed
   useEffect(() => {
     if (!activeThread && !isOpenPopup) {
-      setState({ messagesFromDB: [], isInitLoaded: false })
+      setState({ messagesFromDB: [], isInitLoaded: false, isNewChat: true })
       setLoadingState()
     }
   }, [activeThread, isOpenPopup])
+
+  const updateNewThread = () => {
+    setState({
+      isNewChat: Boolean(!activeThread?.messages.length),
+    })
+  }
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: we want to update the new chat state only when activeThread changes
+  useEffect(() => {
+    if (!activeThread) return
+
+    updateNewThread()
+  }, [activeThread])
 
   // reset all states when unmounting the context hook
   // biome-ignore lint/correctness/useExhaustiveDependencies: not required
@@ -303,6 +315,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       setState({
         isInitLoaded: false,
         webSearch: false,
+        isNewChat: true,
         messagesFromDB: [],
       })
       setInput('')
@@ -341,6 +354,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       setActiveThread(thread)
       setState({
         messagesFromDB: thread.messages,
+        isNewChat: Boolean(!thread.messages.length),
       })
     }
 
@@ -479,6 +493,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     })
 
     // ? Will this update the chat accordantly?... Maybe 🤔
+    // TODO: Add appendNewMessage instead to create continuous conversation flow...
+    // ! It is not adding the previous messages to the new thread...
+    // ! unless we need to add the parentThread messages to the ThreadPopUp...
     if (createdThread) {
       await append({
         ...optimisticUserMessage,

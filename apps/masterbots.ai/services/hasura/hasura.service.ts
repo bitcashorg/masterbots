@@ -232,9 +232,14 @@ export async function getThread({ threadId, jwt }: Partial<GetThreadParams>) {
         },
         threads: {
           threadId: true,
+          messages: {
+            __scalar: true,
+          },
         },
         prompts: {
-          prompt: everything,
+          prompt: {
+            __scalar: true,
+          },
         },
         followers: {
           followerId: true,
