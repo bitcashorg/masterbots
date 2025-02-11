@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 export function ChatChatbotDetailsSkeleton() {
   return (
-    <div className="h-[calc(100vh-196px)] flex items-center justify-center -translate-y-8">
+    <div className="flex items-center justify-center -translate-y-8">
       <div className="dark:bg-[#09090B] bg-white w-[85%] md:w-[600px] rounded-xl text-white relative">
         {/* Card Header */}
         <div className="px-4 pt-4 md:px-6 md:pt-6">

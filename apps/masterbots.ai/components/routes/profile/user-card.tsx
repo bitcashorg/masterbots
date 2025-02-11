@@ -267,12 +267,12 @@ export function UserCard({ user, loading }: UserCardProps) {
   return (
     <div className="bg-background relative rounded-lg w-full max-w-[600px] md:h-[320px] flex flex-col gap-1 mx-auto font-geist space-y-1">
       {loading  && (
-        <div className="relative w-full h-full z-10">
+        <div className="relative w-full h-[300px]  z-10">
           <ChatChatbotDetailsSkeleton />
         </div>
       )}
       {!user && !loading && <EmptyState />}
-      {user && (
+      {user && !loading &&(
         <>
           {/* Profile Name */}
           <div className="px-5 pb-2 pt-7 flex flex-col gap-2.5">
