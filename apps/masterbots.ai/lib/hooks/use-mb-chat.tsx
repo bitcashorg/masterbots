@@ -102,6 +102,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       createdAt: m.createdAt,
     }))
     : []
+  const systemPrompts: AiMessage[] = userPreferencesPrompts
+    .concat(chatbotSystemPrompts)
   /**
    * @description
    * Concatenate all message to pass it to chat component.
@@ -112,9 +114,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
    * 2. Chatbot System Prompts (IQ, Expertise).
    * 3. Conversation between user and assistant.
    * */
-  const initialMessages: AiMessage[] = userPreferencesPrompts
-    .concat(chatbotSystemPrompts)
-    .concat(userAndAssistantMessages)
+  const initialMessages: AiMessage[] = systemPrompts.concat(userAndAssistantMessages)
 
   const threadId = activeThread?.threadId || randomThreadId.current
   const chatbot = activeThread?.chatbot || activeChatbot
@@ -325,21 +325,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
         threadId,
         jwt: session?.user?.hasuraJwt,
       })
-    } else {
-      const newAllMessages = uniqBy(
-        allMessages?.concat(
-          (newThread?.messages || []).map((m) => ({
-            id: m.messageId,
-            role: m.role as AiMessage['role'],
-            content: m.content,
-            createdAt: m.createdAt || new Date().toISOString(),
-          })),
-        ),
-        'content',
-      )
-      // .filter((m) => m.role !== 'system')
-      // console.log('newAllMessages ---> ', newAllMessages)
-      setMessages(newAllMessages)
     }
 
     if (thread) {
@@ -411,7 +396,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       userId: session?.user.id,
     }
 
-    const thread = await updateActiveThread(!activeThread || isNewChat ? optimisticThread : undefined)
+    const thread = await updateActiveThread(isNewChat ? optimisticThread : (activeThread || undefined))
 
     if (!isOpenPopup) {
       setIsOpenPopup(true)
@@ -513,32 +498,24 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       const chatbotMetadata = await getMetadataLabels()
       const isUpdatedThreadNewChat = Boolean(!thread || (thread && thread.messages.length <= 1))
 
-      if (isUpdatedThreadNewChat) {
-        const newChatMessages = uniqBy(
-          [
-            {
-              id: 'examples-' + nanoid(10),
-              role: 'system' as 'data' | 'system' | 'user' | 'assistant',
-              content: examplesPrompt(chatbotMetadata),
-            },
-            ...initialMessages,
-            ...allMessages,
-          ],
-          'content',
-        )
-        setMessages(newChatMessages)
+      const newChatMessages = uniqBy(
+        [
+          {
+            id: 'examples-' + nanoid(10),
+            role: 'system' as 'data' | 'system' | 'user' | 'assistant',
+            content: examplesPrompt(chatbotMetadata),
+          },
+          ...initialMessages,
+        ],
+        'content',
+      )
+      setMessages(newChatMessages)
 
-        if (appConfig.features.devMode) {
-          console.log('newChatMessages --> ', newChatMessages)
-          console.log('Chatbot metadata --> ', chatbotMetadata)
-        }
-      }
       // What remedies are good for stress relieve?
-      if (appConfig.features.devMode && !isUpdatedThreadNewChat) {
-        console.log('allMessages --> ', allMessages)
+      if (appConfig.features.devMode) {
+        console.log('newChatMessages --> ', newChatMessages)
         console.log('Chatbot metadata --> ', chatbotMetadata)
       }
-
 
       if (isUpdatedThreadNewChat && chatbot) {
         await createThread({
@@ -553,9 +530,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       const appendResponse = await append(
         {
           ...userMessage,
-          content: isNewChat
+          // ! This condition is not working as expected 🤔 it is now overkill to have the following question
+          // ! due the UI force us to switch the paradigm on how the new messages display into the conversation (going upwards instead down as it should)
+          content: isUpdatedThreadNewChat
             ? userContentRef.current
-            : followingQuestionsPrompt(userContentRef.current, messages),
+            : followingQuestionsPrompt(userContentRef.current, allMessages.filter(msg => msg.role === 'user')),
         },
         // ? Provide chat attachments here...
         // {
