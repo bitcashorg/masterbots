@@ -3,7 +3,6 @@ import React from 'react'
 
 export const GENERAL_PATTERN = /(.*?)([:.,])(?:\s|$)/g
 
-// * List of predefined unique phrases to detect in text
 export const UNIQUE_PHRASES = [
   'Unique, lesser-known',
   'Unique insight',
@@ -24,11 +23,8 @@ export interface ParsedText {
   restText: string
 }
 
-// ? It recursively extracts text from a ReactNode, preserving React elements and returning plain text for strings, numbers, and arrays.
 export function extractTextFromReactNodeWeb(node: ReactNode): ReactNode {
-  // Si es un elemento React válido
   if (React.isValidElement(node)) {
-    // Si es un strong, preservamos su contenido original
     if (node.type === 'strong') {
       return {
         ...node,
@@ -38,6 +34,31 @@ export function extractTextFromReactNodeWeb(node: ReactNode): ReactNode {
         }
       }
     }
+    
+    // Handle nested lists in web extraction
+    if (node.type === 'ul' || node.type === 'ol') {
+      return {
+        ...node,
+        props: {
+          ...node.props,
+          children: React.Children.map(node.props.children, child =>
+            extractTextFromReactNodeWeb(child)
+          )
+        }
+      }
+    }
+
+    // Handle list items
+    if (node.type === 'li') {
+      return {
+        ...node,
+        props: {
+          ...node.props,
+          children: extractTextFromReactNodeWeb(node.props.children)
+        }
+      }
+    }
+    
     return node
   }
 
@@ -56,28 +77,65 @@ export function extractTextFromReactNodeWeb(node: ReactNode): ReactNode {
   return ''
 }
 
-// ? Tthis does the following: extracts plain text from a ReactNode, ignoring React elements and returning concatenated strings from arrays
 export function extractTextFromReactNodeNormal(node: ReactNode): string {
   if (typeof node === 'string') return node
   if (typeof node === 'number') return node.toString()
-  if (Array.isArray(node))
-    return node.map(extractTextFromReactNodeNormal).join('')
-  if (typeof node === 'object' && node !== null && 'props' in node) {
-    return extractTextFromReactNodeNormal(node.props.children)
+  
+  if (Array.isArray(node)) {
+    return node.map(item => {
+      // Add type guard to safely access props
+      if (React.isValidElement(item) && 
+          'props' in item && 
+          'children' in (item.props as { children?: ReactNode })) {
+          
+        if (item.type === 'ul' || item.type === 'ol') {
+          // Now TypeScript knows props and children exist
+          return '\n' + extractTextFromReactNodeNormal((item.props as { children: ReactNode }).children)
+        }
+        if (item.type === 'li') {
+          const content = extractTextFromReactNodeNormal((item.props as { children: ReactNode }).children)
+          const hasNestedList = content.includes('\n')
+          return `\n- ${content}${hasNestedList ? '\n' : ''}`
+        }
+      }
+      return extractTextFromReactNodeNormal(item)
+    }).join('')
   }
+  
+  // Type guard for objects with props
+  if (typeof node === 'object' && 
+      node !== null && 
+      'props' in node && 
+      'children' in (node.props as { children?: ReactNode })) {
+      
+    if (node.type === 'li') {
+      const content = extractTextFromReactNodeNormal((node.props as { children: ReactNode }).children)
+      return `\n- ${content}`
+    }
+    return extractTextFromReactNodeNormal((node.props as { children: ReactNode }).children)
+  }
+  
   return ''
 }
 
-// * Creates a regex pattern for unique phrases
-export function createUniquePattern(): RegExp {
-  return new RegExp(`(?:${UNIQUE_PHRASES.join('|')}):\\s*([^.:]+[.])`, 'i')
-}
-
 export function parseClickableText(fullText: string): ParsedText {
+  // Skip URLs
   if (typeof fullText === 'string' && fullText.match(/https?:\/\/[^\s]+/)) {
     return {
       clickableText: '',
       restText: fullText
+    }
+  }
+
+  // First check for unique phrases
+  for (const phrase of UNIQUE_PHRASES) {
+    if (fullText.includes(phrase)) {
+      // Split content after the phrase
+      const [_, ...rest] = fullText.split(phrase)
+      return {
+        clickableText: phrase,
+        restText: rest.join(phrase) // Rejoin in case phrase appears multiple times
+      }
     }
   }
 
@@ -93,13 +151,9 @@ export function parseClickableText(fullText: string): ParsedText {
       }
     }
 
-    const strongPattern = /<strong>(.*?)<\/strong>/
-    const strongMatch = title.match(strongPattern)
-    const finalTitle = strongMatch ? strongMatch[1] : title
-
     return {
-      clickableText: finalTitle,
-      restText: ':' + titleMatch[2]
+      clickableText: title,
+      restText: ': ' + titleMatch[2]
     }
   }
 
@@ -110,14 +164,10 @@ export function parseClickableText(fullText: string): ParsedText {
 }
 
 export function cleanClickableText(text: string): string {
+  // Remove trailing punctuation and whitespace
   return text.replace(/[,.()[\]]$/, '').trim()
 }
 
-/**
- * transformLink transforms a given link element by updating its text content based on the context.
- * If the original text includes 'read more' or 'learn more', it leaves the link unchanged.
- * Otherwise, it generates a new descriptive text based on the content context and updates the link.
- */
 export function transformLink(
   linkElement: React.ReactElement,
   contentContext: string
@@ -125,6 +175,7 @@ export function transformLink(
   const href = linkElement.props.href
   const currentText = extractTextFromReactNodeNormal(linkElement.props.children)
 
+  // Don't transform "read more" or "learn more" links
   if (
     currentText.toLowerCase().includes('read more') ||
     currentText.toLowerCase().includes('learn more')
@@ -132,10 +183,39 @@ export function transformLink(
     return linkElement
   }
 
+  // Create descriptive text based on context
   const descriptiveText = `Read more about ${contentContext.split(':')[0].toLowerCase()} here`
 
   return React.cloneElement(linkElement, {
     ...linkElement.props,
     children: descriptiveText
   })
+}
+
+//? helper function for handling nested lists
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+export function processNestedList(node: ReactNode, level: any = 0): ReactNode {
+  if (!React.isValidElement(node)) return node;
+
+  if (node.type === 'ul' || node.type === 'ol') {
+    return React.cloneElement(node, {
+      ...node.props,
+      className: `ml-${level * 4} ${node.type === 'ul' ? 'list-disc' : 'list-decimal'}`,
+      children: React.Children.map(node.props.children, child =>
+        processNestedList(child, level + 1)
+      )
+    });
+  }
+
+  if (node.type === 'li') {
+    return React.cloneElement(node, {
+      ...node.props,
+      className: `ml-${level * 2}`,
+      children: React.Children.map(node.props.children, child =>
+        processNestedList(child, level)
+      )
+    });
+  }
+
+  return node;
 }

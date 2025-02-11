@@ -1179,16 +1179,17 @@ export async function fetchDomainExamples({
 }: ChatbotMetadataClassification) {
   try {
     const client = getHasuraClient({})
+    const categoryArgs = categories.map((category) => ({
+      category: {
+        _like: `%${category}%`,
+      },
+    }))
     const { example: examples } = await client.query({
       example: {
         __args: {
           where: {
             domain: { _eq: domainName },
-            // _or: [
-            //   {
-            //     ...(categories.length ? { category: { _in: categories } } : {}),
-            //   },
-            // ],
+            _or: categoryArgs,
           },
         },
         prompt: true,
@@ -1201,8 +1202,6 @@ export async function fetchDomainExamples({
       },
     })
 
-    console.log('fetchDomainExamples, result --> ', examples)
-
     return examples.map((example) => ({
       ...example,
       cumulativeSum: 0,
@@ -1213,14 +1212,23 @@ export async function fetchDomainExamples({
   }
 }
 
-export async function fetchDomainTags({ domainName }: ChatbotMetadataClassification) {
+export async function fetchDomainTags({
+  domainName,
+  tags: tagNames,
+}: ChatbotMetadataClassification) {
   try {
     const client = getHasuraClient({})
+    const tagNameArgs = tagNames.map((tag) => ({
+      name: {
+        _eq: tag,
+      },
+    }))
     const { tagEnum: tags } = await client.query({
       tagEnum: {
         __args: {
           where: {
             domain: { _eq: domainName },
+            _or: tagNameArgs,
           },
         },
         name: true,
@@ -1234,13 +1242,15 @@ export async function fetchDomainTags({ domainName }: ChatbotMetadataClassificat
     }
 
     // change to a dict with key of tagId and value of object with name and frequency
-    const transformedTags = tags.reduce((acc: (typeof tags)[0], tag) => {
-      acc[tag.tagId as keyof typeof tag] = {
-        name: tag.name,
-        frequency: tag.frequency,
+    const transformedTags: { [key: string]: { name: string; frequency: number } } = {}
+
+    for (const tag in tags) {
+      const tagData = tags[tag]
+      transformedTags[tagData.tagId] = {
+        name: tagData.name,
+        frequency: tagData.frequency,
       }
-      return acc
-    })
+    }
 
     return transformedTags
   } catch (error) {

@@ -1,9 +1,8 @@
 'use client'
 
-import { SharedAccordion } from '@/components/shared/shared-accordion'
 import { ChatMessage } from '@/components/routes/chat/chat-message'
+import { SharedAccordion } from '@/components/shared/shared-accordion'
 import { ShortMessage } from '@/components/shared/short-message'
-import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useScroll } from '@/lib/hooks/use-scroll'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn, createMessagePairs } from '@/lib/utils'
@@ -33,7 +32,7 @@ type MessagePair = {
 
 export function ChatList({
   className,
-  messages = [],
+  messages,
   isThread = true,
   isLoadingMessages = false,
   chatContentClass,
@@ -44,9 +43,11 @@ export function ChatList({
   isNearBottom,
 }: ChatList) {
   const [pairs, setPairs] = React.useState<MessagePair[]>([])
-  const { isNewResponse } = useThread()
+  const { isNewResponse, activeThread } = useThread()
   const localContainerRef = useRef<HTMLDivElement>(null)
   const effectiveContainerRef = containerRef || localContainerRef
+  const chatMessages = (messages || activeThread?.messages || [])
+  // .sort((a, b) => a.createdAt - b.createdAt)
 
   useScroll({
     containerRef: effectiveContainerRef,
@@ -59,8 +60,8 @@ export function ChatList({
   })
 
   useEffect(() => {
-    if (messages.length) {
-      const prePairs: MessagePair[] = createMessagePairs(messages) as MessagePair[]
+    if (chatMessages?.length) {
+      const prePairs: MessagePair[] = createMessagePairs(chatMessages) as MessagePair[]
       setPairs(prevPairs => {
         const prevString = JSON.stringify(prevPairs)
         const newString = JSON.stringify(prePairs)
@@ -70,9 +71,9 @@ export function ChatList({
         return prevPairs
       })
     }
-  }, [messages])
+  }, [chatMessages])
 
-  if (messages.length === 0) return null
+  if (messages?.length === 0) return null
 
   return (
     <div
@@ -117,7 +118,7 @@ function MessagePairs({
     <>
       {pairs.map((pair: MessagePair, key: number) => (
         <SharedAccordion
-          key={`${pair.userMessage.id}-${pair.chatGptMessage[0]?.id ?? 'pending'}`}
+          key={`${pair.userMessage.createdAt}-${pair.chatGptMessage[0]?.id ?? 'pending'}`}
           defaultState={key === 0 || (key === pairs.length - 1 && isNewResponse)}
           className={cn({ 'relative': isThread })}
           triggerClass={cn(
@@ -187,10 +188,17 @@ function MessagePairs({
 }
 
 export function ChatLoadingState() {
-  const { activeTool } = useThread()
-  const [{ isLoadingMessages }] = useMBChat()
+  const { activeTool, loadingState } = useThread()
 
-  if (!isLoadingMessages && !activeTool?.toolName) return null
+  if (!loadingState || !activeTool?.toolName) return null
+
+  if (loadingState?.match(/^(processing|digesting|polishing)/)) {
+    return (
+      <div className="flex items-center justify-center w-full h-20">
+        <div className="w-8 h-8 border-4 border-t-4 border-gray-200 rounded-full animate-ping" />
+      </div>
+    )
+  }
 
   switch (activeTool?.toolName) {
     case 'webSearch':
@@ -201,9 +209,9 @@ export function ChatLoadingState() {
             <span>
               Searching on the web{' '}
               {['first-dot', 'second-dot', 'third-dot'].map((key, index) => (
-                <span 
-                  key={key} 
-                  className="animate-pulse rounded-full text-4xl h-0.5 leading-none" 
+                <span
+                  key={key}
+                  className="animate-pulse rounded-full text-4xl h-0.5 leading-none"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   .
@@ -218,7 +226,9 @@ export function ChatLoadingState() {
       )
     default:
       return (
-        <div className="transition-all size-6 border-2 border-t-[2px] rounded-full border-x-gray-300 animate-spin" />
+        <div className="flex items-center justify-center w-full h-20">
+          <div className="w-8 h-8 border-4 border-t-4 border-gray-200 rounded-full animate-ping" />
+        </div>
       )
   }
 }
