@@ -4,7 +4,7 @@ import { CodeBlock } from '@/components/ui/codeblock'
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { cn } from '@/lib/utils'
 import type { ChatMessageProps, WebSearchResult } from '@/types/types'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 import { ClickableText } from './chat-clickable-text'
@@ -27,14 +27,17 @@ export function ChatMessage({
       <div className="pt-4 mt-4 border-t border-gray-200">
         <h3 className="mb-2 text-lg font-semibold">References</h3>
         <div className="space-y-4">
-          {references.map((ref, index) => (
-            <div key={index} className="flex gap-4">
+          {references.map((ref) => (
+            <div 
+              key={ref.profile.name.toLowerCase().replace(/\s/g, '-')} 
+              className="flex gap-4"
+            >
               {ref.thumbnail?.src && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={ref.thumbnail.src}
                   alt={ref.title}
-                  className="object-cover w-20 h-20 rounded"
+                  className="object-cover rounded size-20"
                 />
               )}
               <div>
@@ -51,33 +54,6 @@ export function ChatMessage({
             </div>
           ))}
         </div>
-      </div>
-    )
-  }
-
-  const ReasoningSection = () => {
-    //? Only show for DeepSeek responses that include reasoning
-    if (!message.reasoning || message.role !== 'assistant') return null
-
-    return (
-      <div className="pt-4 mt-4 border-t border-gray-200">
-        <details className="group">
-          <summary className="font-medium transition-colors cursor-pointer hover:text-gray-700">
-            View AI Reasoning Process
-            <span className="ml-1 text-gray-400 group-open:hidden">▼</span>
-            <span className="hidden ml-1 text-gray-400 group-open:inline">
-              ▲
-            </span>
-          </summary>
-          <div className="p-4 mt-2 text-sm text-gray-600 rounded-md bg-gray-50">
-            <MemoizedReactMarkdown
-              className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
-              remarkPlugins={[remarkGfm, remarkMath]}
-            >
-              {message.reasoning}
-            </MemoizedReactMarkdown>
-          </div>
-        </details>
       </div>
     )
   }
@@ -109,9 +85,35 @@ export function ChatMessage({
                 </p>
               )
             },
-            li({ children }) {
+            ul({ children }) {
               return (
-                <li className="ml-6 list-disc list-outside">
+                <ul className="ml-2 space-y-2">
+                  {children}
+                </ul>
+              )
+            },
+            ol({ children }) {
+              return (
+                <ol className="ml-2 space-y-2">
+                  {children}
+                </ol>
+              )
+            },
+            li({ children, ordered }) {
+              const hasNestedList = React.Children.toArray(children).some(
+                child =>
+                  React.isValidElement(child) &&
+                  (child.type === 'ul' || child.type === 'ol')
+              )
+
+              return (
+                <li 
+                  className={cn(
+                    "ml-4",
+                    ordered ? "list-decimal" : "list-disc",
+                    hasNestedList && "mt-2"
+                  )}
+                >
                   <ClickableText
                     isListItem
                     sendMessageFromResponse={sendMessageFromResponse}
@@ -119,16 +121,6 @@ export function ChatMessage({
                     {children}
                   </ClickableText>
                 </li>
-              )
-            },
-            ul({ children }) {
-              return <ul className="ml-2 space-y-2">{children}</ul>
-            },
-            ol({ children }) {
-              return (
-                <ol className="ml-6 space-y-2 list-decimal list-outside">
-                  {children}
-                </ol>
               )
             },
             a({ href, children, ...props }) {
@@ -144,17 +136,13 @@ export function ChatMessage({
                 </a>
               )
             },
-            // @ts-ignore
             code({ inline, className, children, ...props }) {
-              // @ts-ignore
               if (children.length) {
-                // @ts-ignore
                 if (children[0] === '▍') {
                   return (
                     <span className="mt-1 cursor-default animate-pulse">▍</span>
                   )
                 }
-                // @ts-ignore
                 children[0] = (children[0] as string).replace('▍', '▍')
               }
 
@@ -181,10 +169,9 @@ export function ChatMessage({
         >
           {cleanMessage.content}
         </MemoizedReactMarkdown>
-        <ReasoningSection />
-        {actionRequired ? (
+        {actionRequired && (
           <ChatMessageActions className="md:!right-0" message={message} />
-        ) : null}
+        )}
         <ReferencesSection />
       </div>
     </div>

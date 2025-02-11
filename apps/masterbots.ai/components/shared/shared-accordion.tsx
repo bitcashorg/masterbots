@@ -272,7 +272,7 @@ export function SharedAccordion({
             }
             : {})}
           className={cn(
-            'absolute size-4 left-[57.5rem] shrink-0 mr-8 transition-transform duration-200',
+            'absolute size-4 -right-4 shrink-0 mr-8 transition-transform duration-200',
             open ? '' : '-rotate-90',
             arrowClass,
             disabled && 'hidden'
