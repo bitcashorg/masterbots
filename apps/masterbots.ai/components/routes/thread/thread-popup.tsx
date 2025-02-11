@@ -95,7 +95,7 @@ export function ThreadPopup({ className }: { className?: string }) {
           className={cn(
             'flex flex-col dark:bg-[#18181b] bg-white grow rounded-b-[8px] scrollbar h-full',
             'pb-[120px] md:pb-[180px]',
-            'max-h-[calc(100vh-240px)] md:max-h-[calc(100vh-220px)]',
+            'max-h-[calc(100%-240px)] md:max-h-[calc(100%-220px)]',
             className
           )}
           ref={popupContentRef as React.Ref<HTMLDivElement>}
