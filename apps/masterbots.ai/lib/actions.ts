@@ -1,13 +1,15 @@
 import type { PromptProps } from '@/types/types'
 import type { Message } from 'ai'
+import { nanoid } from 'nanoid'
 
 export function formatSystemPrompts(prompts: PromptProps[]): Message[] {
   return (
     prompts?.map(({ prompt }) => ({
-      id: prompt.promptId.toString(),
+      id: 'expertise-' + nanoid(10),
       role: 'system',
+      // role: 'user',
       content: prompt.content,
-      createdAt: new Date()
+      createdAt: new Date(),
     })) || []
   )
 }

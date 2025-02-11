@@ -1,4 +1,3 @@
-
 export type GetHasuraClientParams = {
   jwt?: string
   adminSecret?: string
@@ -25,6 +24,7 @@ export interface SaveNewMessageParams extends HasuraServiceParams {
   content: string
   role: 'user' | 'assistant'
   threadId: string
+  createdAt?: string
 }
 
 // this can only be called by admin
@@ -74,10 +74,10 @@ export interface GetMessagesParams extends GetHasuraClientParams {
   limit?: number
   offset?: number
 }
-export  interface UpdateUserArgs {
-  pkColumns: { userId: string | undefined };
+export interface UpdateUserArgs {
+  pkColumns: { userId: string | undefined }
   _set?: {
-    bio?: string;
-    favouriteTopic?: string;
-  };
+    bio?: string
+    favouriteTopic?: string
+  }
 }
