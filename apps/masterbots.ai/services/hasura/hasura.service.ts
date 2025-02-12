@@ -268,14 +268,21 @@ export async function getThread({ threadId, jwt }: Partial<GetThreadParams>) {
 
 export async function saveNewMessage({ jwt, ...object }: Partial<SaveNewMessageParams>) {
   const client = getHasuraClient({ jwt })
-  await client.mutation({
-    insertMessageOne: {
-      __args: {
-        object,
+  try {
+    const { insertMessageOne: newMessage } = await client.mutation({
+      insertMessageOne: {
+        __args: {
+          object,
+        },
+        __scalar: true,
       },
-      ...everything,
-    },
-  })
+    })
+
+    return newMessage as Message
+  } catch (error) {
+    console.error('Error saving new message:', error)
+    throw new Error('Failed to save new message.')
+  }
 }
 
 export async function upsertUser({ adminSecret, username, ...object }: UpsertUserParams) {

@@ -186,25 +186,23 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
         threadId: aiChatThreadId ?? '',
         jwt: session?.user?.hasuraJwt,
       }
-      const newUserMessage: Partial<SaveNewMessageParams> = {
-        ...newBaseMessage,
-        role: 'user',
-        content: userContentRef.current,
-        createdAt: new Date().toISOString(),
-      }
-      const newAssistantMessage: Partial<SaveNewMessageParams> = {
-        ...newBaseMessage,
-        role: 'assistant',
-        content: message.content,
-        createdAt: new Date(Date.now() + 1000).toISOString(),
-      }
-
-      await Promise.all([
+      const [newUserMessage, newAssistantMessage]: Partial<SaveNewMessageParams>[] = [
+        {
+          ...newBaseMessage,
+          role: 'user',
+          content: userContentRef.current,
+          createdAt: new Date().toISOString(),
+        }, {
+          ...newBaseMessage,
+          role: 'assistant',
+          content: message.content,
+          createdAt: new Date(Date.now() + 1000).toISOString(),
+        }
+      ]
+      const newMessages = await Promise.all([
         saveNewMessage(newUserMessage),
         // ? Adding a delay to securely keep the order of messages
         saveNewMessage(newAssistantMessage),
-        // delayFetch(),
-        // fetchMessages(),
       ])
 
       // ? This is when we want to reflect the whole conversation and serves as a fallback
@@ -217,6 +215,13 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
         createdAt: msg.createdAt,
       } as AiMessage))
       setMessages(allMessages.concat(transformedMessages))
+
+      if (activeThread) {
+        updateActiveThread({
+          ...activeThread,
+          messages: activeThread.messages.concat(newMessages),
+        })
+      }
 
       // router.push(
       //   `/c/${toSlug(activeThread?.chatbot.categories[0].category.name as string)}/${toSlug(activeThread?.chatbot.name as string)}/${activeThread?.threadId}`,
@@ -296,9 +301,14 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
   }, [activeThread, isOpenPopup])
 
   const updateNewThread = () => {
+    const isNewChatState = Boolean(!activeThread?.messages.length)
+
     setState({
-      isNewChat: Boolean(!activeThread?.messages.length),
+      isNewChat: isNewChatState,
     })
+
+    console.log('activeThread --> ', isNewChatState)
+    return isNewChatState
   }
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: we want to update the new chat state only when activeThread changes
@@ -331,8 +341,17 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
         jwt: session?.user?.hasuraJwt,
       })
 
+      console.log('messagesFromDB::fetchMessages --> ', messagesFromDB)
+
       if (messagesFromDB) {
         setState({ messagesFromDB })
+
+        if (activeThread && activeThread.messages.length < messagesFromDB.length) {
+          setActiveThread({
+            ...activeThread,
+            messages: messagesFromDB,
+          })
+        }
       }
     } catch (error) {
       console.error('Error fetching messages:', error)
@@ -353,7 +372,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     if (thread) {
       setActiveThread(thread)
       setState({
-        messagesFromDB: thread.messages,
         isNewChat: Boolean(!thread.messages.length),
       })
     }
@@ -400,7 +418,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
     // * Loading: processing your request + opening pop-up...
     setLoadingState('processing')
-
+    const isThreadStarted = updateNewThread()
     const defaultUserMessage: Partial<Message> = {
       content: userMessage.content,
       role: 'user',
@@ -425,8 +443,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
     console.log('appendWithMbContextPrompts::activeThread', activeThread)
     console.log('appendWithMbContextPrompts::isNewChat', isNewChat)
+    console.log('appendWithMbContextPrompts::isThreadStarted', isThreadStarted)
     const thread = await updateActiveThread(
-      isNewChat && !activeThread ? optimisticThread : activeThread || undefined,
+      isThreadStarted ? optimisticThread : activeThread || undefined,
     )
 
     if (!isOpenPopup) {

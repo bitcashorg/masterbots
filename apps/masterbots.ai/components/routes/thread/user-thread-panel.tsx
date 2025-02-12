@@ -220,11 +220,14 @@ export default function UserThreadPanel({
   // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should run only when the active thread is not in the thread list and we are closing the pop-up.
   useEffect(() => {
     if (isOpenPopup) return
-    if (activeThread && !threads?.some((t) => t.threadId === activeThread?.threadId)) handleThreadsChange()
+
+    const hasThreadChanged = !threads?.some((t) => t.threadId === activeThread?.threadId && t.messages.length === activeThread?.messages.length)
+
+    if (activeThread && hasThreadChanged) handleThreadsChange()
 
     setIsOpenPopup(false)
     setActiveThread(null)
-  }, [threads, isOpenPopup])
+  }, [threads, isOpenPopup, pathname])
 
   const customMessage = activeChatbot
     ? `No threads available for ${activeChatbot.name}`
@@ -233,7 +236,7 @@ export default function UserThreadPanel({
       : 'Start a conversation to create your first thread'
   const showNoResults = !loading && searchTerm && threads.length === 0
   const showChatbotDetails = !loading && !searchTerm && !threads.length && activeChatbot
-  const searchInputContainerClassName = 'flex justify-between px-4 py-5 md:px-10 lg:max-w-full'
+  const searchInputContainerClassName = 'flex justify-between py-5 lg:max-w-full'
 
   return (
     <>
@@ -251,7 +254,7 @@ export default function UserThreadPanel({
         </div>
       )}
       <ul className={cn(
-        'flex flex-col size-full gap-3 pb-5 px-4 lg:px-10',
+        'flex flex-col size-full gap-3 pb-5',
         {
           'items-center justify-center': showNoResults || showChatbotDetails,
         }

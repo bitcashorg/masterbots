@@ -203,7 +203,7 @@ export function SharedAccordion({
         variant === 'browse' &&
         !isNestedThread &&
         (open
-          ? 'z-10 my-8 scale-100'
+          ? 'z-[1] my-8 scale-100'
           : 'scale-[0.98] my-1 hover:scale-[0.99]'),
         variant === 'browse' &&
         !isNestedThread &&

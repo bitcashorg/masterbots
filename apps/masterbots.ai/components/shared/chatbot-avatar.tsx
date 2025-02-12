@@ -20,8 +20,8 @@ export function ChatbotAvatar({ thread }: { thread: Thread }) {
     >
       <Image
         className="transition-all duration-300 rounded-full select-none bg-background/100 hover:bg-background/30"
-        src={thread.chatbot?.avatar}
-        alt={thread.chatbot?.name ?? 'BotAvatar'}
+        src={thread.chatbot?.avatar ?? '/images/robohash1.png'}
+        alt={thread.chatbot?.name ?? 'Default BotAvatar'}
         height={42}
         width={42}
       />{' '}

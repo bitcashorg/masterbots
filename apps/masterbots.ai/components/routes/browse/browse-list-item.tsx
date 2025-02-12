@@ -192,8 +192,7 @@ export default function BrowseListItem({
 
               {/* User section with tighter spacing on mobile */}
               {pageType !== 'user' && pageType !== 'profile' && (
-                // <div className="flex items-center gap-1 sm:gap-3">
-                <div className="ml-auto flex items-center gap-1 sm:gap-3">
+                <div className="flex items-center gap-1 sm:gap-3">
                   <span className="hidden text-sm opacity-50 sm:inline"> by </span>
                   <Button
                     onClick={goToProfile}
