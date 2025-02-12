@@ -10,11 +10,12 @@ import { useAtBottom } from '@/lib/hooks/use-at-bottom'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
-import { cn, scrollToBottomOfElement } from '@/lib/utils'
+import { cn, getRouteType, scrollToBottomOfElement } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
 import type { Message as AiMessage } from 'ai'
 import { useScroll } from 'framer-motion'
 import type { Chatbot, Message } from 'mb-genql'
+import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
 export function ThreadPopup({ className }: { className?: string }) {
@@ -23,14 +24,15 @@ export function ThreadPopup({ className }: { className?: string }) {
   const [{ allMessages, isLoading }, { sendMessageFromResponse }] = useMBChat()
   const [browseMessages, setBrowseMessages] = useState<Message[]>([])
   const popupContentRef = useRef<HTMLDivElement>()
+  const pathname = usePathname()
 
   const { scrollY } = useScroll({
-    container: popupContentRef as React.RefObject<HTMLElement>
+    container: popupContentRef as React.RefObject<HTMLElement>,
   })
 
   const { isAtBottom } = useAtBottom({
     ref: popupContentRef,
-    scrollY
+    scrollY,
   })
 
   const scrollToBottom = () => {
@@ -64,7 +66,8 @@ export function ThreadPopup({ className }: { className?: string }) {
     }
   }, [activeThread?.threadId])
 
-  const isBrowseView = activeThread?.threadId && !allMessages.length
+  const routeType = getRouteType(pathname)
+  const isBrowseView = routeType === 'public' && activeThread?.threadId
 
   return (
     <div
@@ -75,7 +78,7 @@ export function ThreadPopup({ className }: { className?: string }) {
         'h-[calc(100vh-4rem)] backdrop-blur-sm ease-in-out duration-500 z-[9]',
         'transition-all',
         isOpenPopup ? 'animate-fade-in' : 'animate-fade-out',
-        className
+        className,
       )}
     >
       <div
@@ -83,7 +86,7 @@ export function ThreadPopup({ className }: { className?: string }) {
           'flex flex-col z-10 rounded-lg duration-500 ease-in-out fixed',
           'h-full max-h-[90%] max-w-[1032px] w-[95%]',
           'dark:border-mirage border-iron border bg-background dark:bg-background',
-          'transition-opacity'
+          'transition-opacity',
         )}
       >
         <ThreadPopUpCardHeader
@@ -94,9 +97,9 @@ export function ThreadPopup({ className }: { className?: string }) {
         <div
           className={cn(
             'flex flex-col dark:bg-[#18181b] bg-white grow rounded-b-[8px] scrollbar h-full',
-            'pb-[120px] md:pb-[180px]',
-            'max-h-[calc(100%-240px)] md:max-h-[calc(100%-220px)]',
-            className
+            isBrowseView ? 'pb-2 md:pb-4' : 'pb-[120px] md:pb-[180px]',
+            isBrowseView ? '' :'max-h-[calc(100%-240px)] md:max-h-[calc(100%-220px)]',
+            className,
           )}
           ref={popupContentRef as React.Ref<HTMLDivElement>}
         >
@@ -107,6 +110,7 @@ export function ThreadPopup({ className }: { className?: string }) {
                 chatbot={activeThread?.chatbot}
                 user={activeThread?.user || undefined}
                 messages={browseMessages}
+                threadId={activeThread?.threadId}
               />
             </div>
           ) : (
@@ -140,13 +144,12 @@ export function ThreadPopup({ className }: { className?: string }) {
 
 function ThreadPopUpCardHeader({
   messages,
-  isBrowseView
+  isBrowseView,
 }: {
   messages: (AiMessage | Message)[]
   isBrowseView: boolean
 }) {
-  const { isOpenPopup, activeThread, setIsOpenPopup, setActiveThread } =
-    useThread()
+  const { isOpenPopup, activeThread, setIsOpenPopup, setActiveThread } = useThread()
 
   const onClose = () => {
     setIsOpenPopup(!isOpenPopup)
@@ -158,8 +161,7 @@ function ThreadPopUpCardHeader({
   // Handle different message structures for browse and chat views
   const threadTitle = isBrowseView
     ? (messages[0] as Message)?.content
-    : (messages.filter(m => (m as AiMessage).role === 'user')[0] as AiMessage)
-      ?.content
+    : (messages.filter((m) => (m as AiMessage).role === 'user')[0] as AiMessage)?.content
 
   const threadTitleChunks = threadTitle?.split(/\s/g)
   const threadTitleHeading = threadTitleChunks?.slice(0, 32).join(' ')
@@ -179,20 +181,12 @@ function ThreadPopUpCardHeader({
             <Skeleton className="w-[280px] h-[20px]" />
           )}
           {threadTitleSubHeading && (
-            <span className="ml-2 overflow-hidden text-sm opacity-50">
-              {threadTitleSubHeading}
-            </span>
+            <span className="ml-2 overflow-hidden text-sm opacity-50">{threadTitleSubHeading}</span>
           )}
         </div>
 
         <div className="flex items-center gap-4">
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="ml-2"
-            onClick={onClose}
-          >
+          <Button type="button" variant="ghost" size="icon" className="ml-2" onClick={onClose}>
             <IconClose />
           </Button>
         </div>

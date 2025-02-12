@@ -31,6 +31,7 @@ import type { Message } from 'ai'
 import type { Chatbot } from 'mb-genql'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
+import { ChatMessageActions } from '../chat/chat-message-actions'
 
 export interface ChatMessageProps {
   message: Message
