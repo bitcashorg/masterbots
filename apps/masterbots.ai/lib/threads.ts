@@ -23,7 +23,8 @@ export function getAllUserMessagesAsStringArray(allMessages: Message[] | AI.Mess
     extractBetweenMarkers(
       m.content,
       // 'OK, so following the same pattern, how would you answer the question:',
-      'First, think about the following questions and requests: [',
+      // 'First, think about the following questions and requests: [',
+      'Here are a list of questions that may be relevant for you to understand my chain of thoughts: [',
     ),
   )
   return cleanMessages.join(', ')
