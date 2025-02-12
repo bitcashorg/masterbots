@@ -86,7 +86,6 @@ export default function BrowseListItem({
     setMessages(_prev => messages)
   }
 
-
   const updateUrlN = () => {
     if (pageType === 'profile') {
       const slug = params.slug

@@ -221,9 +221,11 @@ export default function UserThreadPanel({
   useEffect(() => {
     if (isOpenPopup) return
 
-    const hasThreadChanged = !threads?.some((t) => t.threadId === activeThread?.threadId && t.messages.length === activeThread?.messages.length)
+    const hasThreadListChanged = !threads?.some((t) =>
+      t.threadId === activeThread?.threadId || t.messages.length === activeThread?.messages.length
+    )
 
-    if (activeThread && hasThreadChanged) handleThreadsChange()
+    if (activeThread && hasThreadListChanged) handleThreadsChange()
 
     setIsOpenPopup(false)
     setActiveThread(null)
@@ -235,7 +237,7 @@ export default function UserThreadPanel({
       ? 'No threads available in the selected category'
       : 'Start a conversation to create your first thread'
   const showNoResults = !loading && searchTerm && threads.length === 0
-  const showChatbotDetails = !loading && !searchTerm && !threads.length && activeChatbot
+  const showChatbotDetails = !loading && !searchTerm && !threads.length
   const searchInputContainerClassName = 'flex justify-between py-5 lg:max-w-full'
 
   return (

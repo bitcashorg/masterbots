@@ -157,10 +157,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       }
     },
     async onFinish(message: any, options: any) {
-      setLoadingState('finished')
-      setActiveTool(undefined)
-      setIsNewResponse(false)
-
       const aiChatThreadId = resolveThreadId({
         isContinuousThread,
         randomThreadId: randomThreadId.current,
@@ -203,8 +199,13 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       ])
 
       throttle(async () => {
+        setIsNewResponse(false)
+
         await updateActiveThread()
       }, 500)
+
+      setLoadingState('finished')
+      setActiveTool(undefined)
 
       // ? This is when we want to reflect the whole conversation and serves as a fallback
       // ? whenever the conversation glitches due the bug with the "isNewChat" boolean.
@@ -251,7 +252,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
   /**
    * @description
-   * All messages coming from DB and continuing the chat, omitting the system prompts.
+   * All messages coming from DB and continuing the chat, omitting the system prompts to provide to the LLM context.
    */
   const allMessages = uniqBy(
     initialMessages?.concat(messages).concat(
@@ -283,7 +284,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
   }, [activeThread, isOpenPopup])
 
   const updateNewThread = () => {
-    console.log('activeThread.messages length --> ', activeThread?.messages)
+    // console.log('activeThread.messages length --> ', activeThread?.messages)
     const isNewChatState = Boolean(!activeThread?.messages.length)
 
     setState({
