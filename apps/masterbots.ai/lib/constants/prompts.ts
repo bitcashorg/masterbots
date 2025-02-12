@@ -81,9 +81,10 @@ export function createBotConfigurationPrompt(chatbot: Chatbot) {
 }
 
 export function followingQuestionsPrompt(userContent: string, allMessages: Message[]) {
-  return `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
+  // return `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
+  return `Here are a list of questions that may be relevant for you to understand my chain of thoughts: [${getAllUserMessagesAsStringArray(
     allMessages,
-  )}].  Then answer this question: ${userContent}`
+  )}].  \n\nNow please answer the following question: ${userContent}`
 }
 
 export function userPersonalityPrompt(userPromptType: string, allMessages: Message[]) {
