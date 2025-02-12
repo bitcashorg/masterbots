@@ -70,13 +70,13 @@ export function createChatbotMetadataPrompt(
 
 export function createBotConfigurationPrompt(chatbot: Chatbot) {
   return (
-    // '\n<instructions>\n' +
+    '\n<instructions>\n' +
     `Your response tone will be ${chatbot.defaultTone}. ` +
     `Your response length will be ${chatbot.defaultLength}. ` +
     `Your response format will be ${chatbot.defaultType}. ` +
     `Your response complexity level will be ${chatbot.defaultComplexity}. ` +
-    'Your response will be generated in the same language as user input. '
-    // '\n</instructions>\n'
+    'Your response will be generated in the same language as user input. ' +
+    '\n</instructions>\n'
   )
 }
 
@@ -114,9 +114,9 @@ export function userPersonalityPrompt(userPromptType: string, allMessages: Messa
 }
 
 export function examplesPrompt(chatbotMetadata: ChatbotMetadataExamples) {
-  return `<instruction>
+  return `<instructions>
   Provide answers directly, omitting any labels like 'Questions', 'Answers', or 'Examples.'.
-  </instruction>` + chatbotMetadata?.tagExamples?.length
+  </instructions>` + chatbotMetadata?.tagExamples?.length
     ? `<examples>
   ${chatbotMetadata.tagExamples
     .map(
