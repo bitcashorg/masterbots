@@ -47,7 +47,7 @@ export function ChatList({
   const localContainerRef = useRef<HTMLDivElement>(null)
   const effectiveContainerRef = containerRef || localContainerRef
   const chatMessages = (messages || activeThread?.messages || [])
-    .sort((a, b) => a.createdAt - b.createdAt)
+    .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
 
   useScroll({
     containerRef: effectiveContainerRef,
@@ -116,10 +116,10 @@ function MessagePairs({
 
   return (
     <>
-      {pairs.map((pair: MessagePair, key: number) => (
+      {pairs.map((pair: MessagePair, key: number, pairsArray) => (
         <SharedAccordion
           key={`${pair.userMessage.createdAt}-${pair.chatGptMessage[0]?.id ?? 'pending'}`}
-          defaultState={key === 0 || (key === pairs.length - 1 && isNewResponse)}
+          defaultState={key === 0 || key === pairsArray.length - 1 || (key === pairsArray.length - 2 && isNewResponse)}
           className={cn({ 'relative': isThread })}
           triggerClass={cn(
             'dark:border-b-mirage border-b-gray-300 py-[0.4375rem] dark:hover:bg-mirage hover:bg-gray-300',

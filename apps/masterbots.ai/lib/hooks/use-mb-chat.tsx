@@ -14,9 +14,8 @@ import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import {
   createThread,
   deleteThread,
-  getMessages,
   getThread,
-  saveNewMessage,
+  saveNewMessage
 } from '@/services/hasura'
 import type {
   AiClientType,
@@ -26,7 +25,7 @@ import type {
 } from '@/types/types'
 import type { Message as AiMessage, ChatRequestOptions, CreateMessage } from 'ai'
 import { type UseChatOptions, useChat } from 'ai/react'
-import { uniqBy } from 'lodash'
+import { throttle, uniqBy } from 'lodash'
 import type { Chatbot, Message, Thread } from 'mb-genql'
 
 import { aiExampleClassification, processUserMessage } from '@/lib/helpers/ai-classification'
@@ -37,7 +36,7 @@ import { nanoid } from 'nanoid'
 import { useSession } from 'next-auth/react'
 import { useParams } from 'next/navigation'
 import { createContext, useContext, useEffect, useRef } from 'react'
-import { useAsync, useSetState } from 'react-use'
+import { useSetState } from 'react-use'
 import { useSonner } from './useSonner'
 
 export function useMBChat(): MBChatHookCallback {
@@ -73,7 +72,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
   }>({
     isInitLoaded: false,
     webSearch: false,
-    messagesFromDB: [] as Message[],
+    messagesFromDB: activeThread?.messages || [],
     isNewChat: true,
   })
 
@@ -113,7 +112,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
    * 3. Conversation between user and assistant.
    * */
   const initialMessages: AiMessage[] = systemPrompts.concat(userAndAssistantMessages)
-
   const threadId = activeThread?.threadId || randomThreadId.current
   const chatbot = activeThread?.chatbot || activeChatbot
 
@@ -199,11 +197,14 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
           createdAt: new Date(Date.now() + 1000).toISOString(),
         }
       ]
-      const newMessages = await Promise.all([
+      await Promise.all([
         saveNewMessage(newUserMessage),
-        // ? Adding a delay to securely keep the order of messages
         saveNewMessage(newAssistantMessage),
       ])
+
+      throttle(async () => {
+        await updateActiveThread()
+      }, 500)
 
       // ? This is when we want to reflect the whole conversation and serves as a fallback
       // ? whenever the conversation glitches due the bug with the "isNewChat" boolean.
@@ -214,21 +215,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
         content: msg.content,
         createdAt: msg.createdAt,
       } as AiMessage))
+
       setMessages(allMessages.concat(transformedMessages))
-
-      if (activeThread) {
-        updateActiveThread({
-          ...activeThread,
-          messages: activeThread.messages.concat(newMessages),
-        })
-      }
-
-      // router.push(
-      //   `/c/${toSlug(activeThread?.chatbot.categories[0].category.name as string)}/${toSlug(activeThread?.chatbot.name as string)}/${activeThread?.threadId}`,
-      //   {
-      //     scroll: false,
-      //   },
-      // )
+      setState({
+        isNewChat: false,
+      })
     },
     // @ts-ignore
     onToolCall({ toolCall }: { toolCall: AiToolCall }) {
@@ -280,43 +271,27 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpenPopup])
 
-  // ? fetch messages from db on active thread change
-  const { loading } = useAsync(async () => {
-    if (
-      (activeThread?.chatbot?.prompts?.length || activeThread?.chatbot?.name === 'BlankBot') &&
-      !isInitLoaded &&
-      !loading
-    ) {
-      // ? Rendering 3 times on first load... 🤔
-      await fetchMessages()
-    }
-  }, [activeThread?.chatbot])
-
   // biome-ignore lint/correctness/useExhaustiveDependencies: only activeThread is needed
   useEffect(() => {
     if (!activeThread && !isOpenPopup) {
       setState({ messagesFromDB: [], isInitLoaded: false, isNewChat: true })
       setLoadingState()
     }
+    if (!activeThread) return
+
+    updateNewThread()
   }, [activeThread, isOpenPopup])
 
   const updateNewThread = () => {
+    console.log('activeThread.messages length --> ', activeThread?.messages)
     const isNewChatState = Boolean(!activeThread?.messages.length)
 
     setState({
       isNewChat: isNewChatState,
     })
 
-    console.log('activeThread --> ', isNewChatState)
     return isNewChatState
   }
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: we want to update the new chat state only when activeThread changes
-  useEffect(() => {
-    if (!activeThread) return
-
-    updateNewThread()
-  }, [activeThread])
 
   // reset all states when unmounting the context hook
   // biome-ignore lint/correctness/useExhaustiveDependencies: not required
@@ -333,32 +308,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  const fetchMessages = async () => {
-    setState({ isInitLoaded: true })
-    try {
-      const messagesFromDB = await getMessages({
-        threadId,
-        jwt: session?.user?.hasuraJwt,
-      })
-
-      console.log('messagesFromDB::fetchMessages --> ', messagesFromDB)
-
-      if (messagesFromDB) {
-        setState({ messagesFromDB })
-
-        if (activeThread && activeThread.messages.length < messagesFromDB.length) {
-          setActiveThread({
-            ...activeThread,
-            messages: messagesFromDB,
-          })
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching messages:', error)
-      customSonner({ type: 'error', text: 'Failed to load messages. Please try again.' })
-    }
-  }
-
   const updateActiveThread = async (newThread?: Thread, clean?: boolean) => {
     let thread = newThread
 
@@ -368,11 +317,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
         jwt: session?.user?.hasuraJwt,
       })
     }
-
     if (thread) {
       setActiveThread(thread)
       setState({
         isNewChat: Boolean(!thread.messages.length),
+        messagesFromDB: thread.messages,
       })
     }
 
@@ -382,8 +331,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
   const tunningUserContent = async (userMessage: AiMessage | CreateMessage, thread: Thread) => {
     setLoadingState('digesting')
 
+    const userPrompt = cleanPrompt(userMessage.content)
     const { content, error } = await processUserMessage(
-      cleanPrompt(userMessage.content),
+      userPrompt,
       clientType as AiClientType,
       selectedModel,
     )
@@ -393,7 +343,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       updateActiveThread(
         {
           ...thread,
-          messages: thread.messages.filter((m) => m.content !== userMessage.content),
+          messages: thread.messages.filter((m) => m.content !== userPrompt),
         },
         true,
       )
@@ -418,7 +368,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
     // * Loading: processing your request + opening pop-up...
     setLoadingState('processing')
-    const isThreadStarted = updateNewThread()
+    setIsNewResponse(true)
+    updateNewThread()
+
     const defaultUserMessage: Partial<Message> = {
       content: userMessage.content,
       role: 'user',
@@ -441,17 +393,13 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       userId: session?.user.id,
     }
 
-    console.log('appendWithMbContextPrompts::activeThread', activeThread)
-    console.log('appendWithMbContextPrompts::isNewChat', isNewChat)
-    console.log('appendWithMbContextPrompts::isThreadStarted', isThreadStarted)
     const thread = await updateActiveThread(
-      isThreadStarted ? optimisticThread : activeThread || undefined,
+      isNewChat ? optimisticThread : undefined,
     )
 
     if (!isOpenPopup) {
       setIsOpenPopup(true)
     }
-    setIsNewResponse(true)
 
     try {
       await tunningUserContent(userMessage, thread)
@@ -461,7 +409,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       console.error('Error processing user message. Using og message. Error: ', error)
     }
 
-    await appendNewMessage(userMessage, thread)
+    await appendNewMessage(userMessage)
   }
 
   const getMetadataLabels = async (): Promise<ChatbotMetadataExamples> => {
@@ -545,12 +493,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     setWebSearch(!webSearch)
   }
 
-  const appendNewMessage = async (userMessage: AiMessage | CreateMessage, thread: Thread) => {
+  const appendNewMessage = async (userMessage: AiMessage | CreateMessage, thread?: Thread) => {
     try {
       const chatbotMetadata = await getMetadataLabels()
-      const isUpdatedThreadNewChat = Boolean(!thread || (thread && thread.messages.length <= 1))
 
-      if (isUpdatedThreadNewChat && chatbot) {
+      if (isNewChat && chatbot) {
         await createThread({
           threadId: threadId as string,
           chatbotId: chatbot.chatbotId,
@@ -583,7 +530,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       const appendResponse = await append(
         {
           ...userMessage,
-          content: isUpdatedThreadNewChat
+          content: isNewChat
             ? userContentRef.current
             : followingQuestionsPrompt(
               userContentRef.current,
@@ -620,7 +567,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
           isLoading,
           allMessages,
           initialMessages,
-          isLoadingMessages: loading,
           newChatThreadId: threadId,
         },
         {
@@ -656,7 +602,6 @@ export type MBChatHookState = {
   webSearch: boolean
   isLoading: boolean
   allMessages: AiMessage[]
-  isLoadingMessages: boolean
   initialMessages: AiMessage[]
   newChatThreadId: string
 }

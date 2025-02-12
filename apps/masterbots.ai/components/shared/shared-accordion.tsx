@@ -1,8 +1,10 @@
 import { useThread } from '@/lib/hooks/use-thread'
 import { urlBuilders } from '@/lib/url'
 import { cn } from '@/lib/utils'
+import { getThread } from '@/services/hasura'
 import { ChevronDown } from 'lucide-react'
 import type { Thread } from 'mb-genql'
+import { useSession } from 'next-auth/react'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
@@ -47,6 +49,7 @@ export function SharedAccordion({
   isNestedThread = false,
   ...props
 }: SharedAccordionProps) {
+  const { data: session } = useSession()
   const {
     activeThread,
     setActiveThread,
@@ -65,6 +68,7 @@ export function SharedAccordion({
   const [open, setOpen] = useState(
     defaultState || activeThread?.threadId === thread?.threadId
   )
+  const [loading, setLoading] = useState(false)
 
   // Check if another thread is open (for browse variant)
   const isAnotherThreadOpen =
@@ -118,12 +122,24 @@ export function SharedAccordion({
     }
   }, [isOpenPopup, activeThread, thread, open])
 
-  const handleClick = (e: React.MouseEvent) => {
+  const updateActiveThread = async () => {
+    const fullThread = await getThread({
+      threadId: thread?.threadId,
+      jwt: session?.user?.hasuraJwt,
+    })
+    setActiveThread(fullThread)
+    setLoading(false)
+
+    return thread
+  }
+
+  const handleClick = async (e: React.MouseEvent) => {
     e.stopPropagation()
 
     if (isMainThread && thread && !profilePage) {
+      setLoading(true)
       // Open modal for both variants
-      setActiveThread(thread)
+      await updateActiveThread()
       setIsOpenPopup(true)
     } else if (profilePage) {
       // Profile page navigation
@@ -272,12 +288,15 @@ export function SharedAccordion({
             }
             : {})}
           className={cn(
-            'absolute size-4 -right-4 shrink-0 mr-8 transition-transform duration-200',
+            'absolute size-4 -right-4 top-4 shrink-0 mr-8 transition-transform duration-200',
             open ? '' : '-rotate-90',
             arrowClass,
             disabled && 'hidden'
           )}
         />
+        {loading && (
+          <div className="absolute inset-0 bg-accent/5 rounded-lg backdrop-blur-[1px] animate-pulse" />
+        )}
 
         {variant === 'browse' &&
           !isNestedThread &&
