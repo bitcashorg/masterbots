@@ -89,7 +89,7 @@ export function ClickableText({
     <span className="inline">
       <button
         className={cn(
-          'inline-block cursor-pointer hover:underline bg-transparent border-none p-0 m-0',
+          'inline-block cursor-pointer hover:underline bg-transparent border-none p-0 m-0 text-left',
           isListItem ? 'text-blue-500' : 'text-link'
         )}
         onClick={createClickHandler(clickableText)}
