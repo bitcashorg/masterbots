@@ -30,12 +30,13 @@ import type { Chatbot, Message, Thread } from 'mb-genql'
 
 import { aiExampleClassification, processUserMessage } from '@/lib/helpers/ai-classification'
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
+import { usePowerUp } from '@/lib/hooks/use-power-up'
 import type { SaveNewMessageParams } from '@/services/hasura/hasura.service.type'
 import { appConfig } from 'mb-env'
 import { nanoid } from 'nanoid'
 import { useSession } from 'next-auth/react'
 import { useParams } from 'next/navigation'
-import { createContext, useContext, useEffect, useRef } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef } from 'react'
 import { useSetState } from 'react-use'
 import { useSonner } from './useSonner'
 
@@ -78,6 +79,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
   const { customSonner } = useSonner()
   const { isContinuousThread } = useThreadVisibility()
+  const { isPowerUp } = usePowerUp()
   // console.log('[HOOK] webSearch', webSearch)
 
   const params = useParams<{ chatbot: string; threadId: string }>()
@@ -139,6 +141,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       model: selectedModel,
       clientType,
       webSearch,
+      isPowerUp,
     },
   }
   const { input, messages, isLoading, stop, append, reload, setInput, setMessages } = useChat({
@@ -413,13 +416,16 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     await appendNewMessage(userMessage)
   }
 
-  const getMetadataLabels = async (): Promise<ChatbotMetadataExamples> => {
+  // biome-ignore lint/correctness/useExhaustiveDependencies: we need the isPowerUp to be updated
+  const getMetadataLabels = useCallback(async (): Promise<ChatbotMetadataExamples> => {
     let chatMetadata: ChatbotMetadataClassification | undefined
     try {
       setLoadingState('polishing')
+      console.log('isPowerUp', isPowerUp)
       chatMetadata = await getChatbotMetadata(
         {
           chatbot: chatbot?.chatbotId as number,
+          isPowerUp,
         },
         userContentRef.current,
         clientType as AiClientType,
@@ -445,7 +451,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       chatMetadata,
       customSonner,
     })
-  }
+  }, [isPowerUp])
 
   const appendAsContinuousThread = async (userMessage: AiMessage | CreateMessage) => {
     const optimisticUserMessage = { ...userMessage, id: randomThreadId.current }

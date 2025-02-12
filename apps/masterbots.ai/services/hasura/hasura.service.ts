@@ -9,7 +9,6 @@ import { validateMbEnv } from 'mb-env'
 import {
   type Category,
   type Chatbot,
-  type ChatbotDomain,
   type MbClient,
   type Message,
   type Thread,
@@ -1127,6 +1126,7 @@ export async function chatbotFollowOrUnfollow({
 
 export async function fetchChatbotMetadata({
   chatbot, // ? domain === category: Renaming category to domains and category will be another level for the Masterbots (chatbots)
+  isPowerUp,
 }: ChatbotMetadataHeaders): Promise<ReturnFetchChatbotMetadata> {
   try {
     const client = getHasuraClient({})
@@ -1151,13 +1151,18 @@ export async function fetchChatbotMetadata({
         },
       },
     })
+    console.log('isPowerUp --> ', isPowerUp)
     const chatbotMetadata = chatbotDomain.filter(
       // ? Filtering Advanced chatbots domains
-      (item) => !item.domain.name.endsWith('(Advanced)'),
-    ) as unknown as ChatbotDomain[]
+      (item) =>
+        isPowerUp
+          ? item.domain.name.endsWith('(Advanced)')
+          : !item.domain.name.endsWith('(Advanced)'),
+    )
+    console.log('chatbotMetadata::BE --> ', chatbotMetadata)
 
     // require that the length is 1
-    if (chatbotMetadata.length > 2 || !chatbotMetadata[0].domain) {
+    if (!chatbotMetadata[0] || !chatbotMetadata[0].domain) {
       throw new Error('Invalid chatbot metadata response')
     }
 

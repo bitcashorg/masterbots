@@ -94,9 +94,7 @@ export async function getChatbotMetadata(
   userPrompt: string,
   clientType: AiClientType,
 ) {
-  console.log('getting chatbot metadata, headers --> ', metadataHeaders)
   const chatbotMetadata = await fetchChatbotMetadata(metadataHeaders)
-  console.log('got chatbot metadata', chatbotMetadata)
 
   if (!chatbotMetadata) {
     console.error('Chatbot metadata not found. Generating response without them.')
@@ -230,7 +228,8 @@ export async function createResponseStream(
   json: JSONResponseStream,
   req?: Request,
 ) {
-  const { model, messages: rawMessages, previewToken, webSearch } = json
+  // TODO: Integrate powerUp mode into the response stream whenever required.
+  const { model, messages: rawMessages, previewToken, webSearch, isPowerUp } = json
   const messages = setStreamerPayload(clientType, rawMessages)
 
   const tools: Partial<typeof aiTools> = {
