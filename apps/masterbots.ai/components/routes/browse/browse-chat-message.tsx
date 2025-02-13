@@ -29,9 +29,9 @@ import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { cn } from '@/lib/utils'
 import type { Message } from 'ai'
 import type { Chatbot } from 'mb-genql'
-import type ExtraProps from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
+import { ChatMessageActions } from '../chat/chat-message-actions'
 
 export interface ChatMessageProps {
   message: Message

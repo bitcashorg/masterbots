@@ -2,7 +2,7 @@ import { authOptions } from "@/auth";
 import { ChatChatbot } from "@/components/routes/chat/chat-chatbot";
 import ThreadPanel from "@/components/routes/thread/thread-panel";
 import { botNames } from "@/lib/constants/bots-names";
-import { PAGE_SM_SIZE } from "@/lib/constants/hasura";
+import { PAGE_SIZE } from "@/lib/constants/hasura";
 import { generateMetadataFromSEO } from "@/lib/metadata";
 import { getChatbot, getThreads } from "@/services/hasura";
 import { isTokenExpired } from "mb-lib";
@@ -43,8 +43,9 @@ export default async function BotThreadsPage({
     throw new Error("User ID is missing.");
   }
 
-  const threads = await getThreads({ chatbotName, jwt: jwt as string, userId, limit: PAGE_SM_SIZE });
-
+  const threads = await getThreads({ chatbotName, jwt: jwt as string, userId, limit: PAGE_SIZE });
+  console.log('threads::[chatbots] page --> ', threads.length)
+  console.log('threads::[chatbots] page::chatbotName --> ', chatbotName)
   return (
     <>
       <ThreadPanel

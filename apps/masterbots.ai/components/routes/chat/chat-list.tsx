@@ -47,7 +47,7 @@ export function ChatList({
   const localContainerRef = useRef<HTMLDivElement>(null)
   const effectiveContainerRef = containerRef || localContainerRef
   const chatMessages = (messages || activeThread?.messages || [])
-  // .sort((a, b) => a.createdAt - b.createdAt)
+    .sort((a, b) => a.createdAt - b.createdAt)
 
   useScroll({
     containerRef: effectiveContainerRef,

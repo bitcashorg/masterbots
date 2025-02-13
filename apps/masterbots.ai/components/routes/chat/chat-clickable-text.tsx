@@ -89,7 +89,7 @@ export function ClickableText({
     <span className="inline">
       <button
         className={cn(
-          'inline-block cursor-pointer hover:underline bg-transparent border-none p-0 m-0',
+          'inline-block cursor-pointer hover:underline bg-transparent border-none p-0 m-0 text-left',
           isListItem ? 'text-blue-500' : 'text-link'
         )}
         onClick={createClickHandler(clickableText)}
@@ -126,7 +126,7 @@ export function ClickableText({
                 key={`clickable-${
                   // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
                   index
-                }`}
+                  }`}
                 className={cn(
                   'cursor-pointer hover:underline',
                   isListItem ? 'text-blue-500' : 'text-link'
@@ -153,8 +153,8 @@ export function ClickableText({
               typeof item === 'string'
                 ? item
                 : extractTextFromReactNodeNormal(
-                    (item.props as { children: React.ReactNode }).children
-                  )
+                  (item.props as { children: React.ReactNode }).children
+                )
             )
             .join(' ')
           return transformLink(content, parentContext)
@@ -174,7 +174,7 @@ export function ClickableText({
           key={`clickable-${
             // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
             index
-          }`}
+            }`}
         >
           {renderClickableContent(clickableText, restText)}
         </React.Fragment>

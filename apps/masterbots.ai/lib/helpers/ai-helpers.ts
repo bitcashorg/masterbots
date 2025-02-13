@@ -125,21 +125,27 @@ export async function fetchPromptDetails(promptId: string) {
 
   return response.json()
 }
-
 export function cleanPrompt(str: string) {
-  const markers = ['].  Then answer this question:', ']. Then answer this question:']
+  const markers = [
+    '].  \n\nNow please answer the following question: ',
+    ']. \n\nNow please answer the following question: ',
+    '].\n\nNow please answer the following question: ',
+  ]
   let extracted = str
 
   const runExtraction = () => {
+    let markerFound = false
     for (const marker of markers) {
       const index = extracted.indexOf(marker)
       if (index !== -1) {
         extracted = extracted.substring(index + marker.length)
+        markerFound = true
       }
     }
+    return markerFound
   }
 
-  if (markers.some((marker) => extracted.includes(marker))) runExtraction()
+  while (runExtraction()) {}
 
   return extracted
 }

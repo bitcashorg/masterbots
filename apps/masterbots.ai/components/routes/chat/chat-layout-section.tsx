@@ -15,7 +15,7 @@ export function ChatLayoutSection({ children }: { children: React.ReactNode }) {
     <section
       ref={sectionRef as React.Ref<HTMLDivElement>}
       className={cn(
-        'flex h-[calc(100vh-4rem)] group w-full overflow-auto animate-in duration-300 ease-in-out relative',
+        'flex h-full max-h-[calc(100vh-219px)] group w-full overflow-auto animate-in duration-300 ease-in-out relative',
         'lg:w-[calc(100%-250px)] xl:w-[calc(100%-300px)] lg:ml-[250px] xl:ml-[300px]',
         'scrollbar'
       )}
