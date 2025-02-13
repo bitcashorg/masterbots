@@ -17,7 +17,7 @@ interface ThreadContext {
   isNewResponse: boolean
   sectionRef: React.RefObject<HTMLElement>
   isAtBottom: boolean
-  isAtBottomOfSection: boolean  // Added this property
+  isAtBottomOfSection: boolean
   randomChatbot: Chatbot | null
   isAdminMode: boolean
   webSearch: boolean
@@ -167,7 +167,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
         isNewResponse,
         isOpenPopup,
         isAtBottom: isNearBottom,
-        isAtBottomOfSection,  // Include the new property
+        isAtBottomOfSection,
         sectionRef,
         randomChatbot,
         isAdminMode,
