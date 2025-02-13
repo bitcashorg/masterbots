@@ -217,52 +217,67 @@ export async function getThreads({
 }
 
 export async function getThread({ threadId, jwt }: Partial<GetThreadParams>) {
-  let client = getHasuraClient({})
-  if (jwt) client = getHasuraClient({ jwt })
-  const { thread } = await client.query({
-    thread: {
-      chatbot: {
-        __scalar: true,
-        categories: {
-          category: {
-            __scalar: true,
-          },
+  try {
+    let client = getHasuraClient({})
+    if (jwt) client = getHasuraClient({ jwt })
+    const { thread: threadResponse } = await client.query({
+      thread: {
+        chatbot: {
           __scalar: true,
+          categories: {
+            category: {
+              __scalar: true,
+            },
+            __scalar: true,
+          },
+          threads: {
+            threadId: true,
+          },
+          prompts: {
+            prompt: {
+              __scalar: true,
+            },
+          },
+          followers: {
+            followerId: true,
+            followeeIdChatbot: true,
+          },
         },
-        threads: {
-          threadId: true,
+        user: {
+          username: true,
+          profilePicture: true,
+          slug: true,
+        },
+        thread: {
           messages: {
+            __args: {
+              orderBy: [{ createdAt: 'ASC' }],
+            },
             __scalar: true,
           },
         },
-        prompts: {
-          prompt: {
-            __scalar: true,
+        messages: {
+          __scalar: true,
+          __args: {
+            orderBy: [{ createdAt: 'ASC' }],
           },
         },
-        followers: {
-          followerId: true,
-          followeeIdChatbot: true,
-        },
-      },
-      user: {
-        username: true,
-        profilePicture: true,
-        slug: true,
-      },
-      messages: {
         __scalar: true,
         __args: {
-          orderBy: [{ createdAt: 'ASC' }],
+          where: { threadId: { _eq: threadId } },
         },
       },
-      __scalar: true,
-      __args: {
-        where: { threadId: { _eq: threadId } },
-      },
-    },
-  })
-  return thread[0] as Thread
+    })
+
+    const thread = threadResponse[0] as Thread
+
+    console.log('You got the thread updated! --> ', thread)
+
+    return thread
+  } catch (error) {
+    console.error('Error fetching thread:', error)
+    throw new Error('Failed to fetch thread.')
+  }
 }
 
 export async function saveNewMessage({ jwt, ...object }: Partial<SaveNewMessageParams>) {

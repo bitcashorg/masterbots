@@ -455,33 +455,14 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
   const appendAsContinuousThread = async (userMessage: AiMessage | CreateMessage) => {
     const optimisticUserMessage = { ...userMessage, id: randomThreadId.current }
-    const message = followingQuestionsPrompt(userMessage.content, messages)
-    userContentRef.current = userMessage.content
 
-    const createdThread = await createThread({
-      threadId: randomThreadId.current as string,
-      parentThreadId: activeThread?.threadId,
-      chatbotId: chatbot ? chatbot?.chatbotId : 0,
-      jwt: session?.user?.hasuraJwt,
-      isPublic: activeChatbot?.name !== 'BlankBot',
-    })
+    await appendWithMbContextPrompts(optimisticUserMessage)
 
-    // ? Will this update the chat accordantly?... Maybe 🤔
-    // TODO: Add appendNewMessage instead to create continuous conversation flow...
-    // ! It is not adding the previous messages to the new thread...
-    // ! unless we need to add the parentThread messages to the ThreadPopUp...
-    if (createdThread) {
-      await append({
-        ...optimisticUserMessage,
-        content: message,
-      })
-
-      navigateTo({
-        categoryName: activeChatbot?.categories[0].category.name,
-        chatbotName: activeChatbot?.name,
-        page: 'personal',
-      } as NavigationParams)
-    }
+    navigateTo({
+      categoryName: activeChatbot?.categories[0].category.name,
+      chatbotName: activeChatbot?.name,
+      page: 'personal',
+    } as NavigationParams)
 
     return null
   }
@@ -500,7 +481,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     setWebSearch(!webSearch)
   }
 
-  const appendNewMessage = async (userMessage: AiMessage | CreateMessage, thread?: Thread) => {
+  const appendNewMessage = async (userMessage: AiMessage | CreateMessage) => {
     try {
       const chatbotMetadata = await getMetadataLabels()
 
@@ -508,6 +489,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
         await createThread({
           threadId: threadId as string,
           chatbotId: chatbot.chatbotId,
+          parentThreadId: isContinuousThread ? activeThread?.threadId : undefined,
           jwt: session?.user?.hasuraJwt,
           isPublic: activeChatbot?.name !== 'BlankBot',
         })
@@ -534,6 +516,18 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
         console.log('Chatbot metadata --> ', chatbotMetadata)
       }
 
+      let previousAiUserMessages: AiMessage[] = []
+
+      if (activeThread?.thread) {
+        previousAiUserMessages = activeThread.thread.messages.map((msg) => ({
+          id: msg.messageId,
+          role: msg.role as AiMessage['role'],
+          content: msg.content,
+          createdAt: msg.createdAt,
+        })).filter(msg => msg.role === 'user')
+      }
+      const userMessages = allMessages.filter((msg) => msg.role === 'user')
+
       const appendResponse = await append(
         {
           ...userMessage,
@@ -541,7 +535,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
             ? userContentRef.current
             : followingQuestionsPrompt(
               userContentRef.current,
-              allMessages.filter((msg) => msg.role === 'user'),
+              previousAiUserMessages.concat(userMessages),
             ),
         },
         // ? Provide chat attachments here...
