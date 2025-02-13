@@ -416,12 +416,12 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     await appendNewMessage(userMessage)
   }
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: we need the isPowerUp to be updated
+  // biome-ignore lint/correctness/useExhaustiveDependencies: I need to hear the chatbot and isPowerUp changes only
   const getMetadataLabels = useCallback(async (): Promise<ChatbotMetadataExamples> => {
     let chatMetadata: ChatbotMetadataClassification | undefined
     try {
       setLoadingState('polishing')
-      console.log('isPowerUp', isPowerUp)
+      // console.log('isPowerUp', isPowerUp)
       chatMetadata = await getChatbotMetadata(
         {
           chatbot: chatbot?.chatbotId as number,
@@ -451,7 +451,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       chatMetadata,
       customSonner,
     })
-  }, [isPowerUp])
+  }, [chatbot, isPowerUp])
 
   const appendAsContinuousThread = async (userMessage: AiMessage | CreateMessage) => {
     const optimisticUserMessage = { ...userMessage, id: randomThreadId.current }
