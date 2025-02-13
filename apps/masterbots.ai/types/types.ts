@@ -35,6 +35,7 @@ export interface ChatProps extends React.ComponentProps<'div'> {
   chatPanelClassName?: string
   isPopup?: boolean
   scrollToBottom?: () => void
+  scrollToBottomOfPopup?: () => void
   isAtBottom?: boolean
 }
 

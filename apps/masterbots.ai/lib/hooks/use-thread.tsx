@@ -1,22 +1,23 @@
 'use client'
 
-import { useAtBottom } from '@/lib/hooks/use-at-bottom'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { getChatbots, getChatbotsCount } from '@/services/hasura'
 import type { AiToolCall, ChatLoadingState } from '@/types/types'
-import { useScroll } from 'framer-motion'
 import type { Chatbot, Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import { useParams } from 'next/navigation'
 import * as React from 'react'
 import { useSetState } from 'react-use'
+import { useScroll } from '@/lib/hooks/use-scroll'
+
 
 interface ThreadContext {
   isOpenPopup: boolean
   activeThread: Thread | null
   isNewResponse: boolean
-  sectionRef: React.MutableRefObject<HTMLElement | undefined>
+  sectionRef: React.RefObject<HTMLElement>
   isAtBottom: boolean
+  isAtBottomOfSection: boolean  // Added this property
   randomChatbot: Chatbot | null
   isAdminMode: boolean
   webSearch: boolean
@@ -79,9 +80,22 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     loadingState: undefined,
     activeTool: undefined,
   })
-  const sectionRef = React.useRef<HTMLElement>()
+  
+  const sectionRef = React.useRef<HTMLElement>(null)
+  const threadRef = React.useRef<HTMLElement>(null)
   const { data: session } = useSession()
 
+  const { isNearBottom: isAtBottomOfSection, isNearBottom } = useScroll({
+    containerRef: sectionRef,
+    threadRef,
+    isNewContent: false,
+    hasMore: false,
+    isLast: true,
+    loading: false,
+    loadMore: () => {},
+  })
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   React.useEffect(() => {
     if (
       !isOpenPopup &&
@@ -91,11 +105,9 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     ) {
       setState({ activeThread: null })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpenPopup])
+  }, [isOpenPopup, activeThread, activeCategory])
 
   const getRandomChatbot = async () => {
-    // console.log('session?.user?.hasuraJwt', session?.user?.hasuraJwt)
     if (activeThread || !session?.user?.hasuraJwt) return
     const chatbotsCount = await getChatbotsCount({
       categoryId: activeCategory,
@@ -115,18 +127,10 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     }
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   React.useEffect(() => {
     getRandomChatbot()
   }, [activeCategory, activeThread, session])
-
-  const { scrollY } = useScroll({
-    container: sectionRef as React.RefObject<HTMLElement>,
-  })
-
-  const { isAtBottom } = useAtBottom({
-    ref: sectionRef,
-    scrollY,
-  })
 
   const setActiveThread: React.Dispatch<React.SetStateAction<Thread | null>> = (value) => {
     setState({
@@ -162,7 +166,8 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
         activeThread,
         isNewResponse,
         isOpenPopup,
-        isAtBottom,
+        isAtBottom: isNearBottom,
+        isAtBottomOfSection,  // Include the new property
         sectionRef,
         randomChatbot,
         isAdminMode,
