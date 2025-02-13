@@ -42,7 +42,7 @@ export function FilterInput({ className }: FilterInputProps) {
           className="pr-12"
           aria-label="Filter bots"
         />
-        <IconChatSearch className="absolute -translate-y-1/2 right-2 top-1/2 text-muted-foreground" />
+        {/* <IconChatSearch className="absolute -translate-y-1/2 right-2 top-1/2 text-muted-foreground" /> */}
         {filterValue && (
           <button
             onClick={handleClearFilter}
