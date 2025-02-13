@@ -17,7 +17,8 @@ export function ChatMessage({
   webSearchResults = [],
   ...props
 }: ChatMessageProps) {
-  const cleanMessage = { ...message, content: cleanPrompt(message.content) }
+  const content = cleanPrompt(message.content)
+  const cleanMessage = { ...message, content }
   const [references, setReferences] = useState<WebSearchResult[]>([])
 
   const ReferencesSection = () => {
@@ -28,8 +29,8 @@ export function ChatMessage({
         <h3 className="mb-2 text-lg font-semibold">References</h3>
         <div className="space-y-4">
           {references.map((ref) => (
-            <div 
-              key={ref.profile.name.toLowerCase().replace(/\s/g, '-')} 
+            <div
+              key={ref.profile.name.toLowerCase().replace(/\s/g, '-')}
               className="flex gap-4"
             >
               {ref.thumbnail?.src && (
@@ -107,7 +108,7 @@ export function ChatMessage({
               )
 
               return (
-                <li 
+                <li
                   className={cn(
                     "ml-4",
                     ordered ? "list-decimal" : "list-disc",

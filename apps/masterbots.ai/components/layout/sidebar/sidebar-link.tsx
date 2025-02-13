@@ -290,6 +290,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
         )}
         onClick={handleChatbotClick}
         data-route={routeType}
+        prefetch
       >
         <Image
           src={chatbot.avatar || '/path/to/default/avatar.png'}
