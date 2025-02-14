@@ -275,9 +275,7 @@ export async function getThread({ threadId, jwt, signal }: Partial<GetThreadPara
     })
 
     const thread = threadResponse[0] as Thread
-
-    console.log('You got the thread updated! --> ', thread)
-
+    // console.log('You got the thread updated! --> ', thread)
     return thread
   } catch (error) {
     if ((error as Error).name === 'AbortError') {

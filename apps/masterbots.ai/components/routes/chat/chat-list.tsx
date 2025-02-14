@@ -89,7 +89,10 @@ export function ChatList({
         return prevPairs
       })
     }
-  }, [previousChatMessages])
+    if (!activeThread?.thread && previousConversationPairs.length > 0) {
+      setPreviousConversationPairs([])
+    }
+  }, [previousChatMessages, activeThread?.thread])
 
   if (chatMessages?.length === 0) return null
 
