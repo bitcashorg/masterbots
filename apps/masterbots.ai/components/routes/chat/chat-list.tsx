@@ -259,7 +259,7 @@ export function MessagePairAccordion({ pair, isThread, index, arrayLength, isNew
               Previous Thread
             </span>
             <div className="opacity-50 pb-3 overflow-hidden text-sm mt-4">
-              Continued from "{pair.userMessage.content.trim()}" thread{activeThread?.thread?.user?.username ? `, by ${activeThread?.thread?.user?.username}.` : '.'}
+              Continued from <b>&ldquo;{pair.userMessage.content.trim()}&rdquo;</b> thread{activeThread?.thread?.user?.username ? `, by ${activeThread?.thread?.user?.username}.` : '.'}
             </div>
           </>
         ) : ''}
