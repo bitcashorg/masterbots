@@ -59,6 +59,15 @@ export async function getCategories(userId?: string) {
           },
         },
         __scalar: true,
+        __args: userId ? {
+          where: {
+            chatbot: {
+              threads: {
+                userId: { _eq: userId }
+              }
+            }
+          }
+        } : {},
       },
       __scalar: true,
       __args: {

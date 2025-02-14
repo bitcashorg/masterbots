@@ -73,23 +73,18 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
     loading,
     error,
   } = useAsync(async () => {
-    let categories = []
+
     let userId = null
-    if (slug) {
-      const { user, error } = await getUserBySlug({
-        slug: slug as string,
-        isSameUser: false,
-      })
-
-      if (error) {
-        throw new Error(error)
-      }
-
-      userId = user?.userId
+    if(slug){
+      const { user, error } =  await getUserBySlug({
+        slug: slug as string, 
+        isSameUser: false
+       });
+        if(error) throw error
+       userId = user ? user?.userId : null
     }
-
-    categories = await getCategories()
-
+    
+   const categories = await getCategories(userId)
     const categoriesObj = {
       categoriesChatbots: categories || [],
       categoriesId: categories.map((category) => category.categoryId),
