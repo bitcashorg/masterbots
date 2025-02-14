@@ -91,7 +91,7 @@ export function ChatList({
     }
   }, [previousChatMessages])
 
-  if (messages?.length === 0) return null
+  if (chatMessages?.length === 0) return null
 
   return (
     <div
@@ -135,6 +135,7 @@ function MessagePairs({
 }) {
   const { isNewResponse } = useThread()
 
+  // TODO: Re-arrange the questions when the thread has a previous conversation from a different thread
   return (
     <>
       {previousPairs.map((pair: MessagePair, key: number, pairsArray) => (
