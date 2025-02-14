@@ -77,6 +77,7 @@ export function ChatList({
     }
   }, [chatMessages])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: adding functions to array dep is not needed
   useEffect(() => {
     if (previousChatMessages?.length) {
       const prePairs: MessagePair[] = createMessagePairs(previousChatMessages) as MessagePair[]
