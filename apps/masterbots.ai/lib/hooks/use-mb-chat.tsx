@@ -205,7 +205,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
         setIsNewResponse(false)
 
         await updateActiveThread()
-      }, 500)
+      }, 500)()
 
       setLoadingState('finished')
       setActiveTool(undefined)

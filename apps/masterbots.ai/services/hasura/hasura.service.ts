@@ -30,8 +30,11 @@ import type {
   UpsertUserParams,
 } from './hasura.service.type'
 
-function getHasuraClient({ jwt, adminSecret }: GetHasuraClientParams) {
+function getHasuraClient({ jwt, adminSecret, signal }: GetHasuraClientParams) {
   return createMbClient({
+    config: {
+      signal
+    },
     jwt,
     adminSecret,
     debug: process.env.DEBUG === 'true',
@@ -216,10 +219,9 @@ export async function getThreads({
   return thread as Thread[]
 }
 
-export async function getThread({ threadId, jwt }: Partial<GetThreadParams>) {
+export async function getThread({ threadId, jwt, signal }: Partial<GetThreadParams>) {
   try {
-    let client = getHasuraClient({})
-    if (jwt) client = getHasuraClient({ jwt })
+    const client = getHasuraClient({ signal, jwt: jwt || undefined })
     const { thread: threadResponse } = await client.query({
       thread: {
         chatbot: {
@@ -255,6 +257,9 @@ export async function getThread({ threadId, jwt }: Partial<GetThreadParams>) {
             },
             __scalar: true,
           },
+          user: {
+            username: true,
+          }
         },
         messages: {
           __scalar: true,
@@ -275,8 +280,12 @@ export async function getThread({ threadId, jwt }: Partial<GetThreadParams>) {
 
     return thread
   } catch (error) {
-    console.error('Error fetching thread:', error)
-    throw new Error('Failed to fetch thread.')
+    if ((error as Error).name === 'AbortError') {
+      console.error('ℹ️ Request was aborted: ', error)
+    } else {
+      console.error('Error fetching thread: ', error)
+      throw new Error('Failed to fetch thread.')
+    }
   }
 }
 

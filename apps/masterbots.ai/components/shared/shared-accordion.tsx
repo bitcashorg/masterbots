@@ -58,6 +58,7 @@ export function SharedAccordion({
     setIsOpenPopup,
     isOpenPopup
   } = useThread()
+  const [currentRequest, setCurrentRequest] = useState<AbortController | null>(null)
 
   const pathname = usePathname()
   const params = useParams()
@@ -123,15 +124,24 @@ export function SharedAccordion({
   }, [isOpenPopup, activeThread, thread, open])
 
   const updateActiveThread = async () => {
+    // Cancel any in-flight request
+    currentRequest?.abort();
+    const abortController = new AbortController();
+
+    setCurrentRequest(abortController);
+
     const fullThread = await getThread({
       threadId: thread?.threadId,
       jwt: session?.user?.hasuraJwt,
-    })
-    setActiveThread(fullThread)
-    setLoading(false)
+      signal: abortController.signal,
+    });
 
-    return thread
-  }
+    setActiveThread(fullThread);
+    setLoading(false);
+    setCurrentRequest(null);
+
+    return thread;
+  };
 
   const handleClick = async (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -312,7 +322,7 @@ export function SharedAccordion({
           'text-sm transition-all border relative',
           !isNestedThread &&
           open &&
-          'animate-accordion-down dark:bg-[#18181B]/95 bg-white/95 dark:border-b-mirage border-b-gray-300 !border-t-transparent last-of-type:rounded-b-lg shadow-lg backdrop-blur-sm',
+          'animate-accordion-down dark:bg-[#18181B]/75 bg-white/75 dark:border-b-mirage border-b-gray-300 !border-t-transparent last-of-type:rounded-b-lg shadow-lg backdrop-blur-sm',
           isNestedThread &&
           open &&
           'animate-accordion-down dark:bg-[#18181B]/50 bg-white/50 dark:border-b-mirage border-b-gray-300/10 !border-t-transparent last-of-type:rounded-b-lg',

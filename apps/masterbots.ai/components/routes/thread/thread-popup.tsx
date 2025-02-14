@@ -153,9 +153,8 @@ function ThreadPopUpCardHeader({
 
   const onClose = () => {
     setIsOpenPopup(!isOpenPopup)
-    if (activeThread?.threadId) {
-      setActiveThread(null)
-    }
+    
+    setActiveThread(null)
   }
 
   // Handle different message structures for browse and chat views

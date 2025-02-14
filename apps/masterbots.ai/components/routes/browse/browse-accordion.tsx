@@ -228,7 +228,7 @@ export function BrowseAccordion({
           !isNestedThread && 'hover:rounded-t-[8px]',
           !isNestedThread &&
           open &&
-          'dark:border-b-mirage border-b-gray-300 dark:bg-[#18181B]/95 bg-white/95 rounded-t-lg shadow-lg transform-gpu backdrop-blur-sm',
+          'dark:border-b-mirage border-b-gray-300 dark:bg-[#18181B]/75 bg-white/75 rounded-t-lg shadow-lg transform-gpu backdrop-blur-sm',
           !isNestedThread &&
           !open &&
           'dark:hover:border-b-mirage hover:border-b-gray-300 [&>div>div>button]:!hidden',
@@ -268,7 +268,7 @@ export function BrowseAccordion({
           'text-sm transition-all border relative',
           !isNestedThread &&
           open &&
-          'animate-accordion-down dark:bg-[#18181B]/95 bg-white/95 dark:border-b-mirage border-b-gray-300 !border-t-transparent last-of-type:rounded-b-lg shadow-lg backdrop-blur-sm',
+          'animate-accordion-down dark:bg-[#18181B]/75 bg-white/75 dark:border-b-mirage border-b-gray-300 !border-t-transparent last-of-type:rounded-b-lg shadow-lg backdrop-blur-sm',
           isNestedThread &&
           open &&
           'animate-accordion-down dark:bg-[#18181B]/50 bg-white/50 dark:border-b-mirage border-b-gray-300/10 !border-t-transparent last-of-type:rounded-b-lg',
