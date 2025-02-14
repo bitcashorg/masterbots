@@ -8,6 +8,7 @@ import { useScroll } from '@/lib/hooks/use-scroll'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn, createMessagePairs } from '@/lib/utils'
 import type { Message } from 'ai'
+import { isEqual } from 'lodash'
 import { GlobeIcon } from 'lucide-react'
 import type { Chatbot } from 'mb-genql'
 import React, { useEffect, useRef } from 'react'
@@ -67,9 +68,7 @@ export function ChatList({
     if (chatMessages?.length) {
       const prePairs: MessagePair[] = createMessagePairs(chatMessages) as MessagePair[]
       setPairs(prevPairs => {
-        const prevString = JSON.stringify(prevPairs)
-        const newString = JSON.stringify(prePairs)
-        if (prevString !== newString) {
+        if (!isEqual(prevPairs, prePairs)) {
           return prePairs
         }
         return prevPairs
@@ -82,9 +81,7 @@ export function ChatList({
     if (previousChatMessages?.length) {
       const prePairs: MessagePair[] = createMessagePairs(previousChatMessages) as MessagePair[]
       setPreviousConversationPairs(prevPairs => {
-        const prevString = JSON.stringify(prevPairs)
-        const newString = JSON.stringify(prePairs)
-        if (prevString !== newString) {
+        if (!isEqual(prevPairs, prePairs)) {
           return prePairs
         }
         return prevPairs
