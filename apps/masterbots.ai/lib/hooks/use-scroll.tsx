@@ -27,27 +27,25 @@ export function useScroll({
   rootMargin = '0px 0px 100px 0px',
   threshold = 0.1,
   scrollBehavior = 'smooth',
-  scrollDelay = 300,
+  scrollDelay = 300
 }: UseScrollOptions) {
   const [isNearBottom, setIsNearBottom] = useState(false)
   const observerRef = useRef<IntersectionObserver | null>(null)
   const dummyRef = useRef<HTMLDivElement | null>(null)
   const loadMoreTimeoutRef = useRef<number | null>(null)
 
-  // Memoize scroll handlers to prevent unnecessary re-renders
   const smoothScrollToBottom = useCallback(() => {
     if (!containerRef.current) return
 
-    const scrollHeight = containerRef.current.scrollHeight
-    const height = containerRef.current.clientHeight
-    const maxScrollTop = scrollHeight - height
+    const { scrollHeight, clientHeight } = containerRef.current
+    const maxScrollTop = scrollHeight - clientHeight
 
     // Implement RAF-based smooth scrolling with error handling
     try {
       // First phase: scroll near bottom
       containerRef.current.scrollTo({
         top: maxScrollTop - 1,
-        behavior: scrollBehavior,
+        behavior: scrollBehavior
       })
 
       // Second phase: complete scroll to bottom
@@ -55,7 +53,7 @@ export function useScroll({
         if (!containerRef.current) return
         containerRef.current.scrollTo({
           top: maxScrollTop,
-          behavior: scrollBehavior,
+          behavior: scrollBehavior
         })
       })
     } catch (error) {
@@ -69,12 +67,12 @@ export function useScroll({
 
   const scrollToTop = useCallback(async () => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, scrollDelay))
+      await new Promise(resolve => setTimeout(resolve, scrollDelay))
       if (!threadRef.current) return
 
-      threadRef.current.scrollIntoView({ 
-        behavior: scrollBehavior, 
-        block: 'start' 
+      threadRef.current.scrollIntoView({
+        behavior: scrollBehavior,
+        block: 'start'
       })
     } catch (error) {
       console.error('Error during scroll to top:', error)
@@ -110,7 +108,7 @@ export function useScroll({
         {
           root: containerRef.current,
           threshold,
-          rootMargin,
+          rootMargin
         }
       )
 
@@ -118,7 +116,6 @@ export function useScroll({
       dummyRef.current.style.height = '1px'
       containerRef.current.appendChild(dummyRef.current)
       observerRef.current.observe(dummyRef.current)
-
     } catch (error) {
       console.error('Error setting up bottom observer:', error)
     }
@@ -158,7 +155,7 @@ export function useScroll({
         {
           root: null,
           rootMargin: '100px',
-          threshold: 0.1,
+          threshold: 0.1
         }
       )
 
@@ -176,6 +173,6 @@ export function useScroll({
   return {
     isNearBottom,
     smoothScrollToBottom,
-    scrollToTop,
+    scrollToTop
   }
 }
