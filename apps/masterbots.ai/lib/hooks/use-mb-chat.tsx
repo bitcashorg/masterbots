@@ -312,7 +312,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  const updateActiveThread = async (newThread: Thread | null | undefined, clean?: boolean) => {
+  const updateActiveThread = async (newThread?: Thread | null, clean?: boolean) => {
     let thread = newThread
 
     if (!thread) {
