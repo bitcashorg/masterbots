@@ -32,7 +32,7 @@ export default function ThreadComponent({
   const { isNewResponse } = useThread()
   const { isAdminMode } = useThreadVisibility()
 
-  const { isNearBottom, scrollToTop } = useMBScroll({
+  const { scrollToTop } = useMBScroll({
     containerRef: contentRef,
     threadRef,
     isNewContent: isNewResponse,
@@ -102,7 +102,7 @@ export default function ThreadComponent({
             isThread={false}
             chatbot={thread.chatbot}
             containerRef={contentRef}
-            isNearBottom={isNearBottom}
+            isLoadingMessages={loading}
           />
         </div>
       </SharedAccordion>
