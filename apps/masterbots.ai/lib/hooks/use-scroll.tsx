@@ -1,5 +1,7 @@
 import { type RefObject, useCallback, useEffect, useState, useRef } from 'react'
 
+// TODO: Replace the name for use-mb-scroll
+
 interface UseScrollOptions {
   containerRef: RefObject<HTMLElement>
   threadRef: RefObject<HTMLElement>
