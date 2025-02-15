@@ -329,7 +329,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       })
     }
 
-    return thread
+    return thread as Thread
   }
 
   const tunningUserContent = async (userMessage: AiMessage | CreateMessage, thread: Thread) => {

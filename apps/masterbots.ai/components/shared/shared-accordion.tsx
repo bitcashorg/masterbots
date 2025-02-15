@@ -136,7 +136,7 @@ export function SharedAccordion({
       signal: abortController.signal,
     });
 
-    setActiveThread(fullThread);
+    setActiveThread(fullThread || null);
     setLoading(false);
     setCurrentRequest(null);
 
