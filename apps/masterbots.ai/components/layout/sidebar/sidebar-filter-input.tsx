@@ -3,9 +3,10 @@
 import * as React from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { IconChatSearch, IconFilter, IconClose } from '@/components/ui/icons'
+import {  IconFilter, IconClose } from '@/components/ui/icons'
 import { cn } from '@/lib/utils'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { usePathname } from 'next/navigation'
 
 interface FilterInputProps {
   className?: string
@@ -18,6 +19,9 @@ export function FilterInput({ className }: FilterInputProps) {
     isFilterMode,
     setIsFilterMode
   } = useSidebar()
+
+  const pathname = usePathname()
+  const isBrowse = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFilterValue(event.target.value)
@@ -42,7 +46,6 @@ export function FilterInput({ className }: FilterInputProps) {
           className="pr-12"
           aria-label="Filter bots"
         />
-        <IconChatSearch className="absolute -translate-y-1/2 right-2 top-1/2 text-muted-foreground" />
         {filterValue && (
           <button
             onClick={handleClearFilter}
@@ -58,6 +61,8 @@ export function FilterInput({ className }: FilterInputProps) {
         variant={isFilterMode ? 'default' : 'outline'}
         onClick={handleFilterModeToggle}
         aria-label="Toggle filter mode"
+        className="btn-gradient"
+        data-route={isBrowse ? 'public' : 'chat'}
       >
         <IconFilter className={cn('size-4', isFilterMode && 'text-white')} />
       </Button>
