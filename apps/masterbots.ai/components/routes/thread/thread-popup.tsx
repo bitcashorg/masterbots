@@ -118,15 +118,16 @@ export function ThreadPopup({ className }: { className?: string }) {
               // Chat view
               <>
                 <ChatList
-                  isThread={false}
-                  messages={allMessages}
-                  sendMessageFn={sendMessageFromResponse}
-                  chatbot={activeThread?.chatbot || (activeChatbot as Chatbot)}
-                  chatContentClass="!border-x-gray-300 !px-[16px] !mx-0 max-h-[none] dark:!border-x-mirage"
-                  className="max-w-full !px-[32px] !mx-0"
-                  chatArrowClass="!right-0 !mr-0"
-                  chatTitleClass="!px-[11px]"
-                />
+                isThread={false}
+                messages={allMessages}
+                isLoadingMessages={isLoading}
+                sendMessageFn={sendMessageFromResponse}
+                chatbot={activeThread?.chatbot || (activeChatbot as Chatbot)}
+                chatContentClass="!border-x-gray-300 !px-[16px] !mx-0 max-h-[none] dark:!border-x-mirage"
+                className="max-w-full !px-[32px] !mx-0"
+                chatArrowClass="!right-0 !mr-0"
+                chatTitleClass="!px-[11px]"
+              />
 
                 <Chat
                   isPopup
@@ -154,9 +155,8 @@ function ThreadPopUpCardHeader({
 
   const onClose = () => {
     setIsOpenPopup(!isOpenPopup)
-    if (activeThread?.threadId) {
-      setActiveThread(null)
-    }
+    
+    setActiveThread(null)
   }
 
   // Handle different message structures for browse and chat views

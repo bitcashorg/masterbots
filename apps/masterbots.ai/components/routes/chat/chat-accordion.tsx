@@ -1,7 +1,6 @@
 //* Component for displaying a collapsible chat thread accordion
 
 import { useThread } from '@/lib/hooks/use-thread'
-import { urlBuilders } from '@/lib/url'
 import { ChevronDown } from 'lucide-react'
 import type { Thread } from 'mb-genql'
 import { useParams, usePathname, useRouter } from 'next/navigation'

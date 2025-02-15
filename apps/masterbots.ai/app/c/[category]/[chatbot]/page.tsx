@@ -44,8 +44,7 @@ export default async function BotThreadsPage({
   }
 
   const threads = await getThreads({ chatbotName, jwt: jwt as string, userId, limit: PAGE_SIZE });
-  console.log('threads::[chatbots] page --> ', threads.length)
-  console.log('threads::[chatbots] page::chatbotName --> ', chatbotName)
+
   return (
     <>
       <ThreadPanel

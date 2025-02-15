@@ -59,6 +59,7 @@ export function createChatbotMetadataPrompt(
     '.\n</context>\n' +
     '\n<instruction>\n' +
     '- Ensure the selected categories, sub-categories, and tags are highly relevant to the user question.\n' +
+    '- At least one category, one sub-category and one tag must be selected.\n' +
     '- Provide the labels and values in the exact format as requested.\n' +
     '- Keep the values concise and relevant to the question.\n' +
     '</instruction>\n' +

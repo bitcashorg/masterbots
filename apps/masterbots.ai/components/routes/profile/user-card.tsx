@@ -211,7 +211,7 @@ export function UserCard({ user, loading }: UserCardProps) {
       })
       if (!success) {
         console.error('Failed to follow/Unfollow user:', error)
-        customSonner({ type: 'error', text: error || 'Failed to follow/Unfollow user' })
+        customSonner({ type: 'error', text: `Failed to process your request, try again!` })
         return
       }
 
@@ -266,13 +266,13 @@ export function UserCard({ user, loading }: UserCardProps) {
 
   return (
     <div className="bg-background relative rounded-lg w-full max-w-[600px] md:h-[320px] flex flex-col gap-1 mx-auto font-geist space-y-1">
-      {loading || !user && (
-        <div className="relative w-full h-full max-h-[330px] z-10">
+      {loading  && (
+        <div className="relative w-full h-[300px]  z-10">
           <ChatChatbotDetailsSkeleton />
         </div>
       )}
       {!user && !loading && <EmptyState />}
-      {user && (
+      {user && !loading &&(
         <>
           {/* Profile Name */}
           <div className="px-5 pb-2 pt-7 flex flex-col gap-2.5">
