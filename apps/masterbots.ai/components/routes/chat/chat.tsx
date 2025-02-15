@@ -35,25 +35,24 @@
 import { ChatList } from '@/components/routes/chat/chat-list'
 import { ChatPanel } from '@/components/routes/chat/chat-panel'
 import { ChatScrollAnchor } from '@/components/routes/chat/chat-scroll-anchor'
-import { useAtBottom } from '@/lib/hooks/use-at-bottom'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
-import { cn, scrollToBottomOfElement } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import type { ChatProps } from '@/types/types'
 import type { Message as UiUtilsMessage } from '@ai-sdk/ui-utils'
-import { useScroll } from 'framer-motion'
 import type { Chatbot } from 'mb-genql'
 import { useParams, usePathname } from 'next/navigation'
 import React, { useEffect } from 'react'
+import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 
 export function Chat({
   chatbot: chatbotProps,
   className,
   chatPanelClassName,
   isPopup,
-  scrollToBottom: scrollToBottomOfPopup,
+  scrollToBottomOfPopup,
   isAtBottom: isAtBottomOfPopup,
 }: ChatProps) {
   const {
@@ -61,14 +60,15 @@ export function Chat({
     loadingState,
     isOpenPopup,
     sectionRef,
-    isAtBottom: isAtBottomOfSection,
+    isAtBottomOfSection,
     setActiveThread,
     setIsOpenPopup,
     setLoadingState,
   } = useThread()
   const { activeChatbot } = useSidebar()
   const { isContinuousThread } = useThreadVisibility()
-  const containerRef = React.useRef<HTMLDivElement>()
+  const containerRef = React.useRef<HTMLDivElement>(null)
+  const threadRef = React.useRef<HTMLDivElement>(null)
   const params = useParams<{ chatbot: string; threadId: string }>()
   const chatbot = chatbotProps || activeThread?.chatbot || (activeChatbot as Chatbot)
   const [
@@ -78,31 +78,35 @@ export function Chat({
   const pathname = usePathname()
   const prevPathname = React.useRef(pathname)
 
-  const { scrollY } = useScroll({
-    container: containerRef as React.RefObject<HTMLElement>,
-  })
-
-  const { isAtBottom } = useAtBottom({
-    ref: containerRef,
-    scrollY,
+  const { isNearBottom, smoothScrollToBottom, scrollToTop } = useMBScroll({
+    containerRef,
+    threadRef,
+    isNewContent: isLoading,
+    hasMore: false, //* true for implementing infinite scroll
+    isLast: true,
+    loading: isLoading,
+    loadMore: () => {}, //* Implement if adding infinite scroll
   })
 
   // ? safer way to debounce scroll to bottom
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   let timeoutId: any
   const debounceScrollToBottom = (element: HTMLElement | undefined) => {
     clearTimeout(timeoutId)
     timeoutId = setTimeout(() => {
-      scrollToBottomOfElement(element)
+      if (element) {
+        smoothScrollToBottom()
+      }
       clearTimeout(timeoutId)
-    }, 150) //? Adjustable delay as necessary
+    }, 150)
   }
 
   const scrollToBottom = () => {
     if ((params.threadId && containerRef.current) || (!params.threadId && sectionRef.current)) {
-      let element: any
+      let element: HTMLElement | undefined = undefined
       if (sectionRef.current) {
         element = sectionRef.current
-      } else {
+      } else if (containerRef.current) {
         element = containerRef.current
       }
       debounceScrollToBottom(element)
@@ -156,14 +160,16 @@ export function Chat({
     <>
       {params.threadId && (
         <div
-          ref={containerRef as React.Ref<HTMLDivElement>}
+          ref={containerRef}
           className={cn('pb-[200px] pt-4 md:pt-10 h-full overflow-auto', className)}
         >
-          <ChatList />
+          <div ref={threadRef}>
+            <ChatList />
+          </div>
           <ChatScrollAnchor
             isAtBottom={
               params.threadId
-                ? isAtBottom
+                ? isNearBottom
                 : isPopup
                   ? Boolean(isAtBottomOfPopup)
                   : isAtBottomOfSection
@@ -189,7 +195,11 @@ export function Chat({
         placeholder={chatbot ? chatSearchMessage(isNewChat, isContinuousThread, allMessages) : ''}
         showReload={!isNewChat}
         isAtBottom={
-          params.threadId ? isAtBottom : isPopup ? Boolean(isAtBottomOfPopup) : isAtBottomOfSection
+          params.threadId
+            ? isNearBottom
+            : isPopup
+              ? Boolean(isAtBottomOfPopup)
+              : isAtBottomOfSection
         }
       />
     </>
