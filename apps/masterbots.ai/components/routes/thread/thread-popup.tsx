@@ -42,13 +42,16 @@ export function ThreadPopup({ className }: { className?: string }) {
     }
   }
 
-  // Updated effect to use smoothScrollToBottom from custom hook
+  // Uses smoothScrollToBottom from custom hook
   useEffect(() => {
+    let timeout: NodeJS.Timeout
     if (isLoading && isOpenPopup) {
-      const timeout = setTimeout(() => {
+      timeout = setTimeout(() => {
         smoothScrollToBottom()
-        clearTimeout(timeout)
       }, 150)
+    }
+    return () => {
+      clearTimeout(timeout)
     }
   }, [isLoading, isOpenPopup, smoothScrollToBottom])
 
