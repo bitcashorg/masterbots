@@ -3,6 +3,7 @@
 import { Checkbox } from '@/components/ui/checkbox'
 import { IconCaretRight } from '@/components/ui/icons'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useThread } from '@/lib/hooks/use-thread'
 import { urlBuilders } from '@/lib/url'
 import { cn, getRouteType } from '@/lib/utils'
 import type { Category, Chatbot } from 'mb-genql'
@@ -28,6 +29,7 @@ export default function SidebarLink({
   const isBrowse = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
   const routeType = getRouteType(pathname)
   const { slug } = useParams()
+  const { setIsOpenPopup, setActiveThread } = useThread()
 
   const {
     activeCategory,
@@ -49,6 +51,8 @@ export default function SidebarLink({
     (e: React.MouseEvent) => {
       // TODO: return to the previous path when clicking on the active category
       e.stopPropagation()
+      setIsOpenPopup(false)
+      setActiveThread(null)
       if (!isFilterMode) {
         setExpandedCategories(prev =>
           prev.includes(category.categoryId) ? [] : [category.categoryId]
@@ -220,11 +224,14 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
     const isBrowse = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
     const routeType = getRouteType(pathname)
     const { slug } = useParams()
+   const { setIsOpenPopup, setActiveThread } = useThread()
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     const handleChatbotClick = useCallback(
       (e: React.MouseEvent) => {
         e.preventDefault()
+        setIsOpenPopup(false)
+        setActiveThread(null)
         setActiveChatbot(chatbot)
         if (chatbot) {
           navigateTo({
