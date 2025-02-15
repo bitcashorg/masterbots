@@ -1,8 +1,10 @@
 import type { ReactNode } from 'react'
 import React from 'react'
 
+// * Pattern for general text parsing
 export const GENERAL_PATTERN = /(.*?)([:.,])(?:\s|$)/g
 
+// * List of predefined unique phrases to detect in text
 export const UNIQUE_PHRASES = [
   'Unique, lesser-known',
   'Unique insight',
@@ -15,8 +17,13 @@ export const UNIQUE_PHRASES = [
   'Lesser-Known Gem',
   'For a UNIQUE, LESSER-KNOWN phrase',
   'Unique, Lesser-Known Destination',
-  'For more detailed insights'
+  'For more detailed insights',
 ] as const
+
+// * Creates a regex pattern for unique phrases
+export function createUniquePattern(): RegExp {
+  return new RegExp(`(?:${UNIQUE_PHRASES.join('|')}):\\s*([^.:]+[.])`, 'i')
+}
 
 export interface ParsedText {
   clickableText: string
@@ -30,21 +37,21 @@ export function extractTextFromReactNodeWeb(node: ReactNode): ReactNode {
         ...node,
         props: {
           ...node.props,
-          children: extractTextFromReactNodeWeb(node.props.children)
-        }
+          children: extractTextFromReactNodeWeb(node.props.children),
+        },
       }
     }
-    
+
     // Handle nested lists in web extraction
     if (node.type === 'ul' || node.type === 'ol') {
       return {
         ...node,
         props: {
           ...node.props,
-          children: React.Children.map(node.props.children, child =>
-            extractTextFromReactNodeWeb(child)
-          )
-        }
+          children: React.Children.map(node.props.children, (child) =>
+            extractTextFromReactNodeWeb(child),
+          ),
+        },
       }
     }
 
@@ -54,11 +61,11 @@ export function extractTextFromReactNodeWeb(node: ReactNode): ReactNode {
         ...node,
         props: {
           ...node.props,
-          children: extractTextFromReactNodeWeb(node.props.children)
-        }
+          children: extractTextFromReactNodeWeb(node.props.children),
+        },
       }
     }
-    
+
     return node
   }
 
@@ -80,41 +87,52 @@ export function extractTextFromReactNodeWeb(node: ReactNode): ReactNode {
 export function extractTextFromReactNodeNormal(node: ReactNode): string {
   if (typeof node === 'string') return node
   if (typeof node === 'number') return node.toString()
-  
+
   if (Array.isArray(node)) {
-    return node.map(item => {
-      // Add type guard to safely access props
-      if (React.isValidElement(item) && 
-          'props' in item && 
-          'children' in (item.props as { children?: ReactNode })) {
-          
-        if (item.type === 'ul' || item.type === 'ol') {
-          // Now TypeScript knows props and children exist
-          return '\n' + extractTextFromReactNodeNormal((item.props as { children: ReactNode }).children)
+    return node
+      .map((item) => {
+        // Add type guard to safely access props
+        if (
+          React.isValidElement(item) &&
+          'props' in item &&
+          'children' in (item.props as { children?: ReactNode })
+        ) {
+          if (item.type === 'ul' || item.type === 'ol') {
+            // Now TypeScript knows props and children exist
+            return (
+              '\n' +
+              extractTextFromReactNodeNormal((item.props as { children: ReactNode }).children)
+            )
+          }
+          if (item.type === 'li') {
+            const content = extractTextFromReactNodeNormal(
+              (item.props as { children: ReactNode }).children,
+            )
+            const hasNestedList = content.includes('\n')
+            return `\n- ${content}${hasNestedList ? '\n' : ''}`
+          }
         }
-        if (item.type === 'li') {
-          const content = extractTextFromReactNodeNormal((item.props as { children: ReactNode }).children)
-          const hasNestedList = content.includes('\n')
-          return `\n- ${content}${hasNestedList ? '\n' : ''}`
-        }
-      }
-      return extractTextFromReactNodeNormal(item)
-    }).join('')
+        return extractTextFromReactNodeNormal(item)
+      })
+      .join('')
   }
-  
+
   // Type guard for objects with props
-  if (typeof node === 'object' && 
-      node !== null && 
-      'props' in node && 
-      'children' in (node.props as { children?: ReactNode })) {
-      
+  if (
+    typeof node === 'object' &&
+    node !== null &&
+    'props' in node &&
+    'children' in (node.props as { children?: ReactNode })
+  ) {
     if (node.type === 'li') {
-      const content = extractTextFromReactNodeNormal((node.props as { children: ReactNode }).children)
+      const content = extractTextFromReactNodeNormal(
+        (node.props as { children: ReactNode }).children,
+      )
       return `\n- ${content}`
     }
     return extractTextFromReactNodeNormal((node.props as { children: ReactNode }).children)
   }
-  
+
   return ''
 }
 
@@ -123,7 +141,7 @@ export function parseClickableText(fullText: string): ParsedText {
   if (typeof fullText === 'string' && fullText.match(/https?:\/\/[^\s]+/)) {
     return {
       clickableText: '',
-      restText: fullText
+      restText: fullText,
     }
   }
 
@@ -134,7 +152,7 @@ export function parseClickableText(fullText: string): ParsedText {
       const [_, ...rest] = fullText.split(phrase)
       return {
         clickableText: phrase,
-        restText: rest.join(phrase) // Rejoin in case phrase appears multiple times
+        restText: rest.join(phrase), // Rejoin in case phrase appears multiple times
       }
     }
   }
@@ -147,19 +165,19 @@ export function parseClickableText(fullText: string): ParsedText {
     if (!title || title.match(/^[.\s]+$/)) {
       return {
         clickableText: '',
-        restText: fullText
+        restText: fullText,
       }
     }
 
     return {
       clickableText: title,
-      restText: ': ' + titleMatch[2]
+      restText: ': ' + titleMatch[2],
     }
   }
 
   return {
     clickableText: '',
-    restText: fullText
+    restText: fullText,
   }
 }
 
@@ -170,7 +188,7 @@ export function cleanClickableText(text: string): string {
 
 export function transformLink(
   linkElement: React.ReactElement,
-  contentContext: string
+  contentContext: string,
 ): React.ReactElement {
   const href = linkElement.props.href
   const currentText = extractTextFromReactNodeNormal(linkElement.props.children)
@@ -188,34 +206,32 @@ export function transformLink(
 
   return React.cloneElement(linkElement, {
     ...linkElement.props,
-    children: descriptiveText
+    children: descriptiveText,
   })
 }
 
 //? helper function for handling nested lists
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export function processNestedList(node: ReactNode, level: any = 0): ReactNode {
-  if (!React.isValidElement(node)) return node;
+  if (!React.isValidElement(node)) return node
 
   if (node.type === 'ul' || node.type === 'ol') {
     return React.cloneElement(node, {
       ...node.props,
       className: `ml-${level * 4} ${node.type === 'ul' ? 'list-disc' : 'list-decimal'}`,
-      children: React.Children.map(node.props.children, child =>
-        processNestedList(child, level + 1)
-      )
-    });
+      children: React.Children.map(node.props.children, (child) =>
+        processNestedList(child, level + 1),
+      ),
+    })
   }
 
   if (node.type === 'li') {
     return React.cloneElement(node, {
       ...node.props,
       className: `ml-${level * 2}`,
-      children: React.Children.map(node.props.children, child =>
-        processNestedList(child, level)
-      )
-    });
+      children: React.Children.map(node.props.children, (child) => processNestedList(child, level)),
+    })
   }
 
-  return node;
+  return node
 }
