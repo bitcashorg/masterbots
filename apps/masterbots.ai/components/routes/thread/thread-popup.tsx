@@ -15,7 +15,7 @@ import { getMessages } from '@/services/hasura'
 import type { Message as AiMessage } from 'ai'
 import { useScroll } from 'framer-motion'
 import type { Chatbot, Message } from 'mb-genql'
-import { usePathname } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
 export function ThreadPopup({ className }: { className?: string }) {
@@ -149,11 +149,16 @@ function ThreadPopUpCardHeader({
   messages: (AiMessage | Message)[]
   isBrowseView: boolean
 }) {
-  const { isOpenPopup, activeThread, setIsOpenPopup, setActiveThread } = useThread()
+  const { isOpenPopup, setIsOpenPopup, setActiveThread } = useThread()
+  const { setActiveChatbot } = useSidebar()
+  const params = useParams<{ category?: string; chatbot: string; threadId?: string }>()
 
   const onClose = () => {
     setIsOpenPopup(!isOpenPopup)
     
+    if (!params.chatbot) {
+      setActiveChatbot(null)
+    }
     setActiveThread(null)
   }
 

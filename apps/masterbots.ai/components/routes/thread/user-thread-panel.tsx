@@ -229,7 +229,7 @@ export default function UserThreadPanel({
 
     setIsOpenPopup(false)
     setActiveThread(null)
-  }, [threads, isOpenPopup, pathname])
+  }, [threads, isOpenPopup, pathname, activeThread])
 
   const customMessage = activeChatbot
     ? `No threads available for ${activeChatbot.name}`

@@ -27,8 +27,9 @@ import type {
 } from '@/types/types'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createOpenAI } from '@ai-sdk/openai'
-import { streamObject, streamText } from 'ai'
+import { smoothStream, streamObject, streamText } from 'ai'
 import { createStreamableValue } from 'ai/rsc'
+import { appConfig } from 'mb-env'
 import type OpenAI from 'openai'
 
 //* this function is used to create a client for the OpenAI API
@@ -248,13 +249,20 @@ export async function createResponseStream(
       case 'OpenAI': {
         const openaiModel = initializeOpenAi(model)
         const coreMessages = convertToCoreMessages(messages as OpenAI.ChatCompletionMessageParam[])
-        response = await streamText({
+        const openAiStreamConfig = {
           model: openaiModel,
           messages: coreMessages,
           temperature: 0.4,
           tools,
           maxRetries: 2,
-        })
+        }
+
+        if (appConfig.features.experimentalAiConfig) {
+          // @ts-ignore: It does exist in the config
+          openAiStreamConfig.experimental_transform = smoothStream()
+        }
+
+        response = await streamText(openAiStreamConfig)
         break
       }
       case 'Anthropic': {

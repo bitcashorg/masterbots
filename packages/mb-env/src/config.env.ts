@@ -2,6 +2,7 @@
 export const appConfig = {
   features: {
     devMode: process.env.NEXT_PUBLIC_DEV_MODE === "true",
+    experimentalAiConfig: process.env.NEXT_PUBLIC_FEATURE_EXPERIMENTAL_AI_CONFIG === "true",
     webSearch: process.env.NEXT_PUBLIC_FEATURE_WEB_SEARCH === "true",
   },
   enableAuth: {

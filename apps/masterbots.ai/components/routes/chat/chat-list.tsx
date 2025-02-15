@@ -284,7 +284,7 @@ export function ChatLoadingState() {
 
   if (!loadingState || !activeTool?.toolName) return null
 
-  if (loadingState?.match(/^(processing|digesting|polishing)/)) {
+  if (loadingState && !loadingState?.match(/^(generating|finished)/)) {
     return (
       <div className="flex items-center justify-center w-full h-20">
         <div className="w-8 h-8 border-4 border-t-4 border-gray-200 rounded-full animate-ping" />
