@@ -312,7 +312,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  const updateActiveThread = async (newThread?: Thread, clean?: boolean) => {
+  const updateActiveThread = async (newThread: Thread | null | undefined, clean?: boolean) => {
     let thread = newThread
 
     if (!thread) {
@@ -485,7 +485,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     try {
       const chatbotMetadata = await getMetadataLabels()
 
-      if (isNewChat && chatbot) {
+      if ((isNewChat || !activeThread?.messages.length) && chatbot) {
         await createThread({
           threadId: threadId as string,
           chatbotId: chatbot.chatbotId,
@@ -499,12 +499,12 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
       const chatMessagesToAppend = uniqBy(
         [
+          ...systemPrompts,
           {
             id: 'examples-' + nanoid(10),
             role: 'system' as 'data' | 'system' | 'user' | 'assistant',
             content: examplesPrompt(chatbotMetadata),
           },
-          ...systemPrompts,
         ],
         'content',
       )

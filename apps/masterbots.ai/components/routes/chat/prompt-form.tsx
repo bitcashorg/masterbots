@@ -37,6 +37,7 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn } from '@/lib/utils'
 import type { UseChatHelpers } from 'ai/react'
+import { useParams } from 'next/navigation'
 import * as React from 'react'
 import Textarea from 'react-textarea-autosize'
 
@@ -56,11 +57,12 @@ export function PromptForm({
   placeholder,
   disabled
 }: PromptProps) {
-  const { isOpenPopup, activeThread } = useThread()
+  const { activeThread } = useThread()
   const { activeChatbot, setActiveChatbot } = useSidebar()
   const { formRef, onKeyDown } = useEnterSubmit()
   const inputRef = React.useRef<HTMLTextAreaElement>(null)
   const [isFocused, setIsFocused] = React.useState(false)
+  const params = useParams<{ chatbot: string; category: string; threadId: string }>()
 
   const handleBotSelection = () => {
     if (activeThread?.chatbot) {
@@ -107,7 +109,8 @@ export function PromptForm({
         className={cn(
           'transition-all relative flex flex-col w-full px-8 overflow-hidden grow bg-background border-4 border-[#be16e8] rounded-md sm:px-12',
           'max-h-32 md:max-h-60',
-          isOpenPopup && isFocused ? 'dark:border-mirage' : ''
+          isFocused ? 'dark:border-mirage' : '',
+          disabled && 'bg-muted text-muted-foreground opacity-50',
         )}
       >
         <ChatCombobox />
@@ -127,7 +130,8 @@ export function PromptForm({
           className={cn(
             'w-full resize-none bg-transparent px-4 py-1 my-1 focus-within:outline-none sm:text-sm',
             'min-h-[80px] md:min-h-[60px]', //? Smaller height on mobile
-            'md:py-[1.3rem]' //? Adjusted padding for mobile
+            'md:py-[1.3rem]', //? Adjusted padding for mobile
+            'disabled:cursor-not-allowed',
           )}
         />
         <div className="absolute right-0 top-4 sm:right-4">
@@ -146,18 +150,18 @@ export function PromptForm({
           </Tooltip>
         </div>
       </div>
-      {!activeChatbot || (isOpenPopup && !activeThread?.chatbot) ? (
+      {!activeChatbot ? (
         <div
           className={cn(
             'backdrop-blur-[1px] font-semibold border border-[#27272A] rounded-[6px] absolute size-full top-0 left-0',
-            'flex justify-center items-center dark:bg-[#27272A80] text-2xl',
+            'flex justify-center items-center dark:bg-[#27272A80] text-xl',
             'cursor-pointer transition-all',
             'hover:border-[#82e46a] hover:text-[#82e46a]'
           )}
         >
           Select{' '}
           <span className="mx-2 text-[#82e46a]">
-            {activeThread?.chatbot?.name}
+            {params.chatbot || 'a Masterbot'}
           </span>{' '}
           to continue
         </div>
