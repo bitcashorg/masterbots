@@ -7,7 +7,7 @@ import { ChatbotAvatar } from '@/components/shared/chatbot-avatar'
 import { SharedAccordion } from '@/components/shared/shared-accordion'
 import { ShortMessage } from '@/components/shared/short-message'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useScroll } from '@/lib/hooks/use-scroll'
+import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { cn } from '@/lib/utils'
@@ -32,7 +32,7 @@ export default function ThreadComponent({
   const { isNewResponse } = useThread()
   const { isAdminMode } = useThreadVisibility()
 
-  const { isNearBottom, scrollToTop } = useScroll({
+  const { isNearBottom, scrollToTop } = useMBScroll({
     containerRef: contentRef,
     threadRef,
     isNewContent: isNewResponse,

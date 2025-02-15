@@ -8,7 +8,7 @@ import { useSession } from 'next-auth/react'
 import { useParams } from 'next/navigation'
 import * as React from 'react'
 import { useSetState } from 'react-use'
-import { useScroll } from '@/lib/hooks/use-scroll'
+import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 
 
 interface ThreadContext {
@@ -85,7 +85,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
   const threadRef = React.useRef<HTMLElement>(null)
   const { data: session } = useSession()
 
-  const { isNearBottom: isAtBottomOfSection, isNearBottom } = useScroll({
+  const { isNearBottom: isAtBottomOfSection, isNearBottom } = useMBScroll({
     containerRef: sectionRef,
     threadRef,
     isNewContent: false,

@@ -15,7 +15,7 @@ import type { Message as AiMessage } from 'ai'
 import type { Chatbot, Message } from 'mb-genql'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import { useScroll } from '@/lib/hooks/use-scroll'
+import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 
 export function ThreadPopup({ className }: { className?: string }) {
   const { activeChatbot } = useSidebar()
@@ -26,7 +26,7 @@ export function ThreadPopup({ className }: { className?: string }) {
   const threadRef = useRef<HTMLDivElement>(null)
   const pathname = usePathname()
 
-  const { isNearBottom, smoothScrollToBottom } = useScroll({
+  const { isNearBottom, smoothScrollToBottom } = useMBScroll({
     containerRef: popupContentRef,
     threadRef,
     isNewContent: isLoading,

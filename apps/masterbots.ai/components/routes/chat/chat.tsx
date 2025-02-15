@@ -45,7 +45,7 @@ import type { Message as UiUtilsMessage } from '@ai-sdk/ui-utils'
 import type { Chatbot } from 'mb-genql'
 import { useParams, usePathname } from 'next/navigation'
 import React, { useEffect } from 'react'
-import { useScroll } from '@/lib/hooks/use-scroll'
+import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 
 export function Chat({
   chatbot: chatbotProps,
@@ -78,7 +78,7 @@ export function Chat({
   const pathname = usePathname()
   const prevPathname = React.useRef(pathname)
 
-  const { isNearBottom, smoothScrollToBottom, scrollToTop } = useScroll({
+  const { isNearBottom, smoothScrollToBottom, scrollToTop } = useMBScroll({
     containerRef,
     threadRef,
     isNewContent: isLoading,
