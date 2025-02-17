@@ -392,26 +392,40 @@ export async function getChatbot({ chatbotId, chatbotName, threads, jwt }: GetCh
       __args: {
         where: { name: { _eq: chatbotName } },
       },
-      ...everything,
+      __scalar: true,
       followers: {
         followerId: true,
         followeeIdChatbot: true,
       },
       categories: {
         category: {
-          ...everything,
+          __scalar: true,
         },
-        ...everything,
+        __scalar: true,
       },
       prompts: {
-        prompt: everything,
+        prompt: {
+          __scalar: true,
+        },
+      },
+      complexityEnum: {
+        prompt: true,
+      },
+      toneEnum: {
+        prompt: true,
+      },
+      lengthEnum: {
+        prompt: true,
+      },
+      typeEnum: {
+        prompt: true
       },
       ...(threads
         ? {
             threads: {
-              ...everything,
+              __scalar: true,
               messages: {
-                ...everything,
+                __scalar: true,
                 __args: {
                   orderBy: [{ createdAt: 'ASC' }],
                 },

@@ -2989,6 +2989,9 @@ export default {
                     ]
                 }
             ],
+            "prompt": [
+                578
+            ],
             "value": [
                 578
             ],
@@ -3052,6 +3055,9 @@ export default {
             "preferencesAggregate": [
                 339
             ],
+            "prompt": [
+                579
+            ],
             "value": [
                 579
             ],
@@ -3067,6 +3073,9 @@ export default {
             "preferences": [
                 342
             ],
+            "prompt": [
+                578
+            ],
             "value": [
                 578
             ],
@@ -3075,6 +3084,9 @@ export default {
             ]
         },
         "ComplexityEnumMaxFields": {
+            "prompt": [
+                578
+            ],
             "value": [
                 578
             ],
@@ -3083,6 +3095,9 @@ export default {
             ]
         },
         "ComplexityEnumMinFields": {
+            "prompt": [
+                578
+            ],
             "value": [
                 578
             ],
@@ -3133,6 +3148,9 @@ export default {
             "preferencesAggregate": [
                 341
             ],
+            "prompt": [
+                336
+            ],
             "value": [
                 336
             ],
@@ -3150,6 +3168,9 @@ export default {
         },
         "ComplexityEnumSelectColumn": {},
         "ComplexityEnumSetInput": {
+            "prompt": [
+                578
+            ],
             "value": [
                 578
             ],
@@ -3169,6 +3190,9 @@ export default {
             ]
         },
         "ComplexityEnumStreamCursorValueInput": {
+            "prompt": [
+                578
+            ],
             "value": [
                 578
             ],
@@ -4264,6 +4288,9 @@ export default {
                     ]
                 }
             ],
+            "prompt": [
+                578
+            ],
             "value": [
                 578
             ],
@@ -4327,6 +4354,9 @@ export default {
             "preferencesAggregate": [
                 339
             ],
+            "prompt": [
+                579
+            ],
             "value": [
                 579
             ],
@@ -4342,6 +4372,9 @@ export default {
             "preferences": [
                 342
             ],
+            "prompt": [
+                578
+            ],
             "value": [
                 578
             ],
@@ -4350,6 +4383,9 @@ export default {
             ]
         },
         "LengthEnumMaxFields": {
+            "prompt": [
+                578
+            ],
             "value": [
                 578
             ],
@@ -4358,6 +4394,9 @@ export default {
             ]
         },
         "LengthEnumMinFields": {
+            "prompt": [
+                578
+            ],
             "value": [
                 578
             ],
@@ -4408,6 +4447,9 @@ export default {
             "preferencesAggregate": [
                 341
             ],
+            "prompt": [
+                336
+            ],
             "value": [
                 336
             ],
@@ -4425,6 +4467,9 @@ export default {
         },
         "LengthEnumSelectColumn": {},
         "LengthEnumSetInput": {
+            "prompt": [
+                578
+            ],
             "value": [
                 578
             ],
@@ -4444,6 +4489,9 @@ export default {
             ]
         },
         "LengthEnumStreamCursorValueInput": {
+            "prompt": [
+                578
+            ],
             "value": [
                 578
             ],
@@ -11135,6 +11183,9 @@ export default {
                     ]
                 }
             ],
+            "prompt": [
+                578
+            ],
             "value": [
                 578
             ],
@@ -11198,6 +11249,9 @@ export default {
             "preferencesAggregate": [
                 339
             ],
+            "prompt": [
+                579
+            ],
             "value": [
                 579
             ],
@@ -11213,6 +11267,9 @@ export default {
             "preferences": [
                 342
             ],
+            "prompt": [
+                578
+            ],
             "value": [
                 578
             ],
@@ -11221,6 +11278,9 @@ export default {
             ]
         },
         "ToneEnumMaxFields": {
+            "prompt": [
+                578
+            ],
             "value": [
                 578
             ],
@@ -11229,6 +11289,9 @@ export default {
             ]
         },
         "ToneEnumMinFields": {
+            "prompt": [
+                578
+            ],
             "value": [
                 578
             ],
@@ -11279,6 +11342,9 @@ export default {
             "preferencesAggregate": [
                 341
             ],
+            "prompt": [
+                336
+            ],
             "value": [
                 336
             ],
@@ -11296,6 +11362,9 @@ export default {
         },
         "ToneEnumSelectColumn": {},
         "ToneEnumSetInput": {
+            "prompt": [
+                578
+            ],
             "value": [
                 578
             ],
@@ -11315,6 +11384,9 @@ export default {
             ]
         },
         "ToneEnumStreamCursorValueInput": {
+            "prompt": [
+                578
+            ],
             "value": [
                 578
             ],
@@ -11423,6 +11495,9 @@ export default {
                     ]
                 }
             ],
+            "prompt": [
+                578
+            ],
             "value": [
                 578
             ],
@@ -11486,6 +11561,9 @@ export default {
             "preferencesAggregate": [
                 339
             ],
+            "prompt": [
+                579
+            ],
             "value": [
                 579
             ],
@@ -11501,6 +11579,9 @@ export default {
             "preferences": [
                 342
             ],
+            "prompt": [
+                578
+            ],
             "value": [
                 578
             ],
@@ -11509,6 +11590,9 @@ export default {
             ]
         },
         "TypeEnumMaxFields": {
+            "prompt": [
+                578
+            ],
             "value": [
                 578
             ],
@@ -11517,6 +11601,9 @@ export default {
             ]
         },
         "TypeEnumMinFields": {
+            "prompt": [
+                578
+            ],
             "value": [
                 578
             ],
@@ -11567,6 +11654,9 @@ export default {
             "preferencesAggregate": [
                 341
             ],
+            "prompt": [
+                336
+            ],
             "value": [
                 336
             ],
@@ -11584,6 +11674,9 @@ export default {
         },
         "TypeEnumSelectColumn": {},
         "TypeEnumSetInput": {
+            "prompt": [
+                578
+            ],
             "value": [
                 578
             ],
@@ -11603,6 +11696,9 @@ export default {
             ]
         },
         "TypeEnumStreamCursorValueInput": {
+            "prompt": [
+                578
+            ],
             "value": [
                 578
             ],
