@@ -1,8 +1,9 @@
 'use client'
 
 import { ThemeToggle } from '@/components/shared/theme-toggle'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { cn } from '@/lib/utils'
 import { LogOut } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import { toSlugWithUnderScore } from 'mb-lib'
@@ -58,24 +59,22 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetTrigger asChild>
-        <Button variant="ghost" className="block pl-0 rounded-full md:hidden">
-          {user?.image ? (
-            <Image
-              className="transition-opacity duration-300 rounded-full select-none size-8 bg-foreground/10 ring-1 ring-zinc-100/10 hover:opacity-80"
-              src={user?.image ? user.image : ''}
-              alt={user.name ?? 'Avatar'}
-              height={32}
-              width={32}
-              priority
-            />
-          ) : (
-            <div className="flex items-center justify-center text-xs font-medium uppercase rounded-full select-none size-7 shrink-0 bg-muted/50 text-muted-foreground">
-              {user?.name ? getUserInitials(user?.name) : null}
-            </div>
-          )}
-          <span className="hidden ml-2 md:inline-block">{user?.name}</span>
-        </Button>
+      <SheetTrigger className={cn(buttonVariants({ variant: 'ghost', radius: 'full' }), 'block h-full p-2 rounded-full md:hidden')}>
+        {user?.image ? (
+          <Image
+            className="transition-opacity duration-300 rounded-full select-none size-8 bg-foreground/10 ring-1 ring-zinc-100/10 hover:opacity-80"
+            src={user?.image ? user.image : ''}
+            alt={user.name ?? 'Avatar'}
+            height={32}
+            width={32}
+            priority
+          />
+        ) : (
+          <div className="flex items-center justify-center text-xs font-medium uppercase rounded-full select-none size-7 shrink-0 bg-muted/50 text-muted-foreground">
+            {user?.name ? getUserInitials(user?.name) : null}
+          </div>
+        )}
+        <span className="sr-only">{user?.name}</span>
       </SheetTrigger>
       <SheetContent side="right" className="w-[300px] sm:w-[400px] p-0">
         <div className="flex flex-col h-full">
@@ -96,7 +95,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
                   priority
                 />
               ) : (
-                <div className="flex items-center justify-center text-sm font-medium uppercase rounded-full size-10 bg-muted/50">
+                <div className="flex justify-center text-sm font-medium uppercase rounded-full size-10 bg-muted/50">
                   {user?.name ? getUserInitials(user?.name) : null}
                 </div>
               )}

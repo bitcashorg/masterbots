@@ -16,10 +16,10 @@ insert_permissions:
     permission:
       check:
         _and:
-          - followee_id:
-              _eq: X-Hasura-User-Id
           - follower_id:
               _eq: X-Hasura-User-Id
+          - followee_id:
+              _neq: X-Hasura-User-Id
       columns:
         - followee_id
         - followee_id_chatbot
@@ -78,8 +78,11 @@ update_permissions:
         - followee_id_chatbot
         - follower_id
       filter:
-        follower_id:
-          _eq: X-Hasura-User-Id
+        _and:
+          - follower_id:
+              _eq: X-Hasura-User-Id
+          - followee_id:
+              _neq: X-Hasura-User-Id
       check: null
     comment: ""
   - role: user

@@ -1,8 +1,10 @@
 import { useThread } from '@/lib/hooks/use-thread'
 import { urlBuilders } from '@/lib/url'
 import { cn } from '@/lib/utils'
+import { getThread } from '@/services/hasura'
 import { ChevronDown } from 'lucide-react'
 import type { Thread } from 'mb-genql'
+import { useSession } from 'next-auth/react'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
@@ -47,6 +49,7 @@ export function SharedAccordion({
   isNestedThread = false,
   ...props
 }: SharedAccordionProps) {
+  const { data: session } = useSession()
   const {
     activeThread,
     setActiveThread,
@@ -55,6 +58,7 @@ export function SharedAccordion({
     setIsOpenPopup,
     isOpenPopup
   } = useThread()
+  const [currentRequest, setCurrentRequest] = useState<AbortController | null>(null)
 
   const pathname = usePathname()
   const params = useParams()
@@ -65,6 +69,7 @@ export function SharedAccordion({
   const [open, setOpen] = useState(
     defaultState || activeThread?.threadId === thread?.threadId
   )
+  const [loading, setLoading] = useState(false)
 
   // Check if another thread is open (for browse variant)
   const isAnotherThreadOpen =
@@ -118,12 +123,33 @@ export function SharedAccordion({
     }
   }, [isOpenPopup, activeThread, thread, open])
 
-  const handleClick = (e: React.MouseEvent) => {
+  const updateActiveThread = async () => {
+    // Cancel any in-flight request
+    currentRequest?.abort();
+    const abortController = new AbortController();
+
+    setCurrentRequest(abortController);
+
+    const fullThread = await getThread({
+      threadId: thread?.threadId,
+      jwt: session?.user?.hasuraJwt,
+      signal: abortController.signal,
+    });
+
+    setActiveThread(fullThread || null);
+    setLoading(false);
+    setCurrentRequest(null);
+
+    return thread;
+  };
+
+  const handleClick = async (e: React.MouseEvent) => {
     e.stopPropagation()
 
     if (isMainThread && thread && !profilePage) {
+      setLoading(true)
       // Open modal for both variants
-      setActiveThread(thread)
+      await updateActiveThread()
       setIsOpenPopup(true)
     } else if (profilePage) {
       // Profile page navigation
@@ -203,7 +229,7 @@ export function SharedAccordion({
         variant === 'browse' &&
         !isNestedThread &&
         (open
-          ? 'z-10 my-8 scale-100'
+          ? 'z-[1] my-8 scale-100'
           : 'scale-[0.98] my-1 hover:scale-[0.99]'),
         variant === 'browse' &&
         !isNestedThread &&
@@ -272,12 +298,15 @@ export function SharedAccordion({
             }
             : {})}
           className={cn(
-            'absolute size-4 -right-4 shrink-0 mr-8 transition-transform duration-200',
+            'absolute size-4 -right-4 top-4 shrink-0 mr-8 transition-transform duration-200',
             open ? '' : '-rotate-90',
             arrowClass,
             disabled && 'hidden'
           )}
         />
+        {loading && (
+          <div className="absolute inset-0 bg-accent/5 rounded-lg backdrop-blur-[1px] animate-pulse" />
+        )}
 
         {variant === 'browse' &&
           !isNestedThread &&
@@ -293,7 +322,7 @@ export function SharedAccordion({
           'text-sm transition-all border relative',
           !isNestedThread &&
           open &&
-          'animate-accordion-down dark:bg-[#18181B]/95 bg-white/95 dark:border-b-mirage border-b-gray-300 !border-t-transparent last-of-type:rounded-b-lg shadow-lg backdrop-blur-sm',
+          'animate-accordion-down dark:bg-[#18181B]/75 bg-white/75 dark:border-b-mirage border-b-gray-300 !border-t-transparent last-of-type:rounded-b-lg shadow-lg backdrop-blur-sm',
           isNestedThread &&
           open &&
           'animate-accordion-down dark:bg-[#18181B]/50 bg-white/50 dark:border-b-mirage border-b-gray-300/10 !border-t-transparent last-of-type:rounded-b-lg',
