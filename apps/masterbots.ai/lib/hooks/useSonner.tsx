@@ -47,13 +47,15 @@ export function useSonner() {
       error: {
         title: 'Error',
         text: text ?? 'Failed to update the information. Please try again',
-        button: 'Retry',
+        // TODO: When the button is clicked and there is a retry action, the toast should be dismissed and the action should be triggered.
+        button: <X />,
         icon: <AlertTriangle color="#F93333" size={18} />
       },
       info: {
-        title: 'Changes applied',
+        title: 'Info',
         text: text ?? 'Your changes has been applied 5 minutes ago.',
-        button: 'Undo',
+        // TODO: When the button is clicked and there is a undo action, the toast should be dismissed and the action should be triggered.
+        button: <X />,
         icon: <Info color="#388DE2" size={18} />
       }
     }
