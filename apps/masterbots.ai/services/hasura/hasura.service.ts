@@ -291,8 +291,9 @@ export async function getThread({ threadId, jwt, signal }: Partial<GetThreadPara
       console.error('ℹ️ Request was aborted: ', error)
     } else {
       console.error('Error fetching thread: ', error)
-      throw new Error('Failed to fetch thread.')
     }
+
+    return null
   }
 }
 
