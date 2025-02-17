@@ -1,5 +1,6 @@
 'use client'
 
+import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { getChatbots, getChatbotsCount } from '@/services/hasura'
 import type { AiToolCall, ChatLoadingState } from '@/types/types'
@@ -8,7 +9,6 @@ import { useSession } from 'next-auth/react'
 import { useParams } from 'next/navigation'
 import * as React from 'react'
 import { useSetState } from 'react-use'
-import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 
 
 interface ThreadContext {
@@ -101,6 +101,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       !isOpenPopup &&
       activeThread &&
       activeCategory &&
+      activeThread.chatbot.categories[0] &&
       activeCategory !== activeThread.chatbot.categories[0].categoryId
     ) {
       setState({ activeThread: null })
