@@ -23,7 +23,11 @@ export const ChatAccordion = ({
 }: {
   className?: string
   children: React.ReactNode[]
+
+  
   defaultState?: boolean
+
+
   triggerClass?: string
   contentClass?: string
   onToggle?: (isOpen: boolean) => void

@@ -6,51 +6,54 @@ import { ChatList } from '@/components/routes/chat/chat-list'
 import { Button } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useAtBottom } from '@/lib/hooks/use-at-bottom'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
-import { cn, getRouteType, scrollToBottomOfElement } from '@/lib/utils'
+import { cn, getRouteType } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
 import type { Message as AiMessage } from 'ai'
-import { useScroll } from 'framer-motion'
 import type { Chatbot, Message } from 'mb-genql'
 import { useParams, usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
+import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 
 export function ThreadPopup({ className }: { className?: string }) {
   const { activeChatbot } = useSidebar()
   const { isOpenPopup, activeThread } = useThread()
   const [{ allMessages, isLoading }, { sendMessageFromResponse }] = useMBChat()
   const [browseMessages, setBrowseMessages] = useState<Message[]>([])
-  const popupContentRef = useRef<HTMLDivElement>()
+  const popupContentRef = useRef<HTMLDivElement>(null)
+  const threadRef = useRef<HTMLDivElement>(null)
   const pathname = usePathname()
 
-  const { scrollY } = useScroll({
-    container: popupContentRef as React.RefObject<HTMLElement>,
-  })
-
-  const { isAtBottom } = useAtBottom({
-    ref: popupContentRef,
-    scrollY,
+  const { isNearBottom, smoothScrollToBottom } = useMBScroll({
+    containerRef: popupContentRef,
+    threadRef,
+    isNewContent: isLoading,
+    hasMore: false,
+    isLast: true,
+    loading: isLoading,
+    loadMore: () => {},
   })
 
   const scrollToBottom = () => {
     if (popupContentRef.current) {
-      const element = popupContentRef.current
-      scrollToBottomOfElement(element)
+      smoothScrollToBottom()
     }
   }
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // Uses smoothScrollToBottom from custom hook
   useEffect(() => {
+    let timeout: NodeJS.Timeout
     if (isLoading && isOpenPopup) {
-      const timeout = setTimeout(() => {
-        scrollToBottom()
-        clearTimeout(timeout)
+      timeout = setTimeout(() => {
+        smoothScrollToBottom()
       }, 150)
     }
-  }, [isLoading, isOpenPopup])
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [isLoading, isOpenPopup, smoothScrollToBottom])
 
   // Fetch browse messages when activeThread changes
   useEffect(() => {
@@ -95,28 +98,29 @@ export function ThreadPopup({ className }: { className?: string }) {
         />
 
         <div
+          ref={popupContentRef}
           className={cn(
             'flex flex-col dark:bg-[#18181b] bg-white grow rounded-b-[8px] scrollbar h-full',
             isBrowseView ? 'pb-2 md:pb-4' : 'pb-[120px] md:pb-[180px]',
-            isBrowseView ? '' :'max-h-[calc(100%-240px)] md:max-h-[calc(100%-220px)]',
+            isBrowseView ? '' : 'max-h-[calc(100%-240px)] md:max-h-[calc(100%-220px)]',
             className,
           )}
-          ref={popupContentRef as React.Ref<HTMLDivElement>}
         >
-          {isBrowseView ? (
-            // Browse view
-            <div className="px-8 py-4">
-              <BrowseChatMessageList
-                chatbot={activeThread?.chatbot}
-                user={activeThread?.user || undefined}
-                messages={browseMessages}
-                threadId={activeThread?.threadId}
-              />
-            </div>
-          ) : (
-            // Chat view
-            <>
-              <ChatList
+          <div ref={threadRef}>
+            {isBrowseView ? (
+              // Browse view
+              <div className="px-8 py-4">
+                <BrowseChatMessageList
+                  chatbot={activeThread?.chatbot}
+                  user={activeThread?.user || undefined}
+                  messages={browseMessages}
+                  threadId={activeThread?.threadId}
+                />
+              </div>
+            ) : (
+              // Chat view
+              <>
+                <ChatList
                 isThread={false}
                 messages={allMessages}
                 isLoadingMessages={isLoading}
@@ -128,14 +132,15 @@ export function ThreadPopup({ className }: { className?: string }) {
                 chatTitleClass="!px-[11px]"
               />
 
-              <Chat
-                isPopup
-                chatPanelClassName="!pl-0 rounded-b-[8px] overflow-hidden !absolute"
-                scrollToBottom={scrollToBottom}
-                isAtBottom={isAtBottom}
-              />
-            </>
-          )}
+                <Chat
+                  isPopup
+                  chatPanelClassName="!pl-0 rounded-b-[8px] overflow-hidden !absolute"
+                  scrollToBottom={scrollToBottom}
+                  isAtBottom={isNearBottom}
+                />
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
