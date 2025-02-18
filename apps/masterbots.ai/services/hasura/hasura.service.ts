@@ -54,22 +54,39 @@ export async function getCategories(userId?: string) {
             followeeIdChatbot: true,
           },
           __scalar: true,
+          categories: {
+            __scalar: true,
+          },
           prompts: {
             prompt: {
               __scalar: true,
             },
           },
+          complexityEnum: {
+            prompt: true,
+          },
+          toneEnum: {
+            prompt: true,
+          },
+          lengthEnum: {
+            prompt: true,
+          },
+          typeEnum: {
+            prompt: true,
+          },
         },
         __scalar: true,
-        __args: userId ? {
-          where: {
-            chatbot: {
-              threads: {
-                userId: { _eq: userId }
-              }
+        __args: userId
+          ? {
+              where: {
+                chatbot: {
+                  threads: {
+                    userId: { _eq: userId },
+                  },
+                },
+              },
             }
-          }
-        } : {},
+          : {},
       },
       __scalar: true,
       __args: {

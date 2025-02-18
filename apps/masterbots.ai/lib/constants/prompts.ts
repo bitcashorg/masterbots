@@ -72,10 +72,12 @@ export function createChatbotMetadataPrompt(
 export function createBotConfigurationPrompt(chatbot: Chatbot) {
   return (
     '\n<instructions>\n' +
-    `Your response complexity level will be ${chatbot.defaultComplexity}. ` +
-    `Your response tone will be ${chatbot.defaultTone}. ` +
-    `Your response format will be ${chatbot.defaultType}. ` +
-    `Your response length will be ${chatbot.defaultLength}. ` +
+    [
+      chatbot.complexityEnum?.prompt,
+      chatbot.toneEnum?.prompt,
+      chatbot.typeEnum?.prompt,
+      chatbot.lengthEnum?.prompt,
+    ].join(' ') +
     '\n</instructions>\n'
   )
 }

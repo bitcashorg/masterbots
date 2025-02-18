@@ -6,30 +6,31 @@ import { getChatbots, getChatbotsCount } from '@/services/hasura'
 import type { AiToolCall, ChatLoadingState } from '@/types/types'
 import type { Chatbot, Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
-import { useParams } from 'next/navigation'
 import * as React from 'react'
 import { useSetState } from 'react-use'
 
 
 interface ThreadContext {
+  webSearch: boolean
+  sectionRef: React.RefObject<HTMLElement>
+  isAtBottom: boolean
+  isAdminMode: boolean
   isOpenPopup: boolean
   activeThread: Thread | null
   isNewResponse: boolean
-  sectionRef: React.RefObject<HTMLElement>
-  isAtBottom: boolean
-  isAtBottomOfSection: boolean
   randomChatbot: Chatbot | null
-  isAdminMode: boolean
-  webSearch: boolean
-  loadingState?: ChatLoadingState
+  isAtBottomOfSection: boolean
+  shouldRefreshThreads: boolean
   activeTool?: AiToolCall
+  loadingState?: ChatLoadingState
+  setWebSearch: (state?: boolean) => void
+  setActiveTool: (tool?: AiToolCall) => void
   setIsOpenPopup: React.Dispatch<React.SetStateAction<boolean>>
   setActiveThread: React.Dispatch<React.SetStateAction<Thread | null>>
+  setLoadingState: (state?: ChatLoadingState) => void
   setIsNewResponse: React.Dispatch<React.SetStateAction<boolean>>
   getRandomChatbot: () => void
-  setActiveTool: (tool?: AiToolCall) => void
-  setLoadingState: (state?: ChatLoadingState) => void
-  setWebSearch: (state?: boolean) => void
+  setShouldRefreshThreads: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const ThreadContext = React.createContext<ThreadContext | undefined>(undefined)
@@ -47,7 +48,6 @@ interface ThreadProviderProps {
 }
 
 export function ThreadProvider({ children }: ThreadProviderProps) {
-  const params = useParams<{ chatbot: string; threadId: string }>()
   const { activeCategory, activeChatbot } = useSidebar()
   const [
     {
@@ -59,6 +59,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       loadingState,
       activeTool,
       webSearch,
+      shouldRefreshThreads,
     },
     setState,
   ] = useSetState<{
@@ -68,6 +69,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     isOpenPopup: boolean
     webSearch: boolean
     randomChatbot: Chatbot | null
+    shouldRefreshThreads: boolean
     loadingState?: ChatLoadingState
     activeTool?: AiToolCall
   }>({
@@ -76,6 +78,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     isNewResponse: false,
     isOpenPopup: false,
     webSearch: false,
+    shouldRefreshThreads: false,
     randomChatbot: null as Chatbot | null,
     loadingState: undefined,
     activeTool: undefined,
@@ -101,7 +104,8 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
       !isOpenPopup &&
       activeThread &&
       activeCategory &&
-      activeThread.chatbot.categories[0] &&
+      activeThread.chatbot && 
+      activeThread.chatbot.categories &&
       activeCategory !== activeThread.chatbot.categories[0].categoryId
     ) {
       setState({ activeThread: null })
@@ -136,6 +140,12 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
   const setActiveThread: React.Dispatch<React.SetStateAction<Thread | null>> = (value) => {
     setState({
       activeThread: typeof value === 'function' ? value(activeThread) : value,
+    })
+  }
+
+  const setShouldRefreshThreads: React.Dispatch<React.SetStateAction<boolean>> = (value) => {
+    setState({
+      shouldRefreshThreads: typeof value === 'function' ? value(shouldRefreshThreads) : value,
     })
   }
 
@@ -175,6 +185,8 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
         loadingState,
         activeTool,
         webSearch,
+        shouldRefreshThreads,
+        setShouldRefreshThreads,
         getRandomChatbot,
         setActiveThread,
         setIsNewResponse,
