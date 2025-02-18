@@ -253,6 +253,18 @@ export async function getThread({ threadId, jwt, signal }: Partial<GetThreadPara
             followerId: true,
             followeeIdChatbot: true,
           },
+          complexityEnum: {
+            prompt: true,
+          },
+          toneEnum: {
+            prompt: true,
+          },
+          lengthEnum: {
+            prompt: true,
+          },
+          typeEnum: {
+            prompt: true,
+          },
         },
         user: {
           username: true,
@@ -268,7 +280,7 @@ export async function getThread({ threadId, jwt, signal }: Partial<GetThreadPara
           },
           user: {
             username: true,
-          }
+          },
         },
         messages: {
           __scalar: true,
