@@ -58,20 +58,18 @@ export default function ThreadList({
 
   return (
     <>
-      {loading
-        ? [1, 2, 3, 4, 5].map((pos) => (
-          <ThreadItemSkeleton key={`thread-skeleton-${pos}`} />
-        ))
-        : filteredThreads?.map((thread, key) => (
-          <ThreadComponent
-            key={thread.threadId}
-            thread={thread}
-            loading={loading}
-            loadMore={loadMore}
-            hasMore={count === pageSize}
-            isLast={key === threads.length - 1}
-          />
-        ))}
+      {loading ? [1, 2, 3, 4, 5].map((pos) => (
+        <ThreadItemSkeleton key={`thread-skeleton-${pos}`} />
+      )) : filteredThreads?.map((thread, key) => (
+        <ThreadComponent
+          key={thread.threadId}
+          thread={thread}
+          loading={loading}
+          loadMore={loadMore}
+          hasMore={count === pageSize}
+          isLast={key === threads.length - 1}
+        />
+      ))}
     </>
   )
 }

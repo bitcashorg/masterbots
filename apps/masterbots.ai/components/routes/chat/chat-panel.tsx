@@ -1,11 +1,11 @@
-import * as React from 'react'
 import type { UseChatHelpers } from 'ai/react'
-import type { Chatbot } from 'mb-genql'
 import { GlobeIcon } from 'lucide-react'
 import { appConfig } from 'mb-env'
+import type { Chatbot } from 'mb-genql'
+import * as React from 'react'
 
-import { PromptForm } from '@/components/routes/chat/prompt-form'
 import { ChatShareDialog } from '@/components/routes/chat/chat-share-dialog'
+import { PromptForm } from '@/components/routes/chat/prompt-form'
 import { ButtonScrollToBottom } from '@/components/shared/button-scroll-to-bottom'
 import { FontSizeSelector } from '@/components/shared/font-size-selector'
 import { Button } from '@/components/ui/button'
@@ -125,21 +125,17 @@ export function ChatPanel({
             </div>
 
             {/* Right side controls */}
-            <div className="flex items-center gap-2">
-              {showReload &&
-              (isLoading ||
-                loadingState?.match(/^(processing|digesting|generating|polishing|ready)/)) ? (
+            <div className="flex items-center gap-5">
+              {showReload && isLoading ? (
                 <>
-                  {loadingState && (
+                  {loadingState !== 'finished' && (
                     <div className="flex items-center justify-between gap-4">
-                      <div className="flex items-center space-x-1 drop-shadow-lg">
-                        <div className="rounded-full size-2 bg-primary animate-pulse" />
-                        <div className="rounded-full size-2 bg-primary animate-pulse" />
-                        <div className="rounded-full size-2 bg-primary animate-pulse" />
-                      </div>
-                      <p className="text-sm font-bold text-primary drop-shadow-lg">
+                      <b className="text-xs drop-shadow-lg">
                         {loadingState}
-                      </p>
+                      </b>
+                      <div className="flex items-center justify-center w-full size-4">
+                        <div className="size-3 border-2 border-gray-200 rounded-full animate-ping" />
+                      </div>
                     </div>
                   )}
                   <Button variant="outline" onClick={stop} className="bg-background">
@@ -198,7 +194,7 @@ export function ChatPanel({
               })
             }}
             // biome-ignore lint/complexity/noExtraBooleanCast: <explanation>
-            disabled={!Boolean(chatbot) || isLoading}
+            disabled={isLoading || !Boolean(chatbot)}
             input={input}
             setInput={setInput}
             isLoading={isLoading}

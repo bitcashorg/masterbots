@@ -35,6 +35,7 @@ export interface ChatProps extends React.ComponentProps<'div'> {
   chatPanelClassName?: string
   isPopup?: boolean
   scrollToBottom?: () => void
+  scrollToBottomOfPopup?: () => void
   isAtBottom?: boolean
 }
 
@@ -181,6 +182,7 @@ export interface ThreadState {
 
 export type ChatbotMetadataHeaders = {
   chatbot: number
+  isPowerUp: boolean
 }
 
 export type ReturnFetchChatbotMetadata = ChatbotMetadata | null
@@ -201,6 +203,7 @@ export type JSONResponseStream = {
   model: string
   messages: OpenAI.ChatCompletionMessageParam[]
   previewToken: string
+  isPowerUp: boolean
   webSearch: boolean
   stream?: boolean
   temperature?: number

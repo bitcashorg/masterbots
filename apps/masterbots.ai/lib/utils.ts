@@ -228,20 +228,6 @@ export function removeSurroundingQuotes(str: string) {
   }
   return str
 }
-// * List of predefined unique phrases to detect in text
-export const UNIQUE_PHRASES = [
-  'Unique, lesser-known',
-  'Unique insight',
-  'Unique Tip',
-  'Unique, lesser-known solution',
-  'Unique Solution',
-  'Unique, lesser-known option',
-  'Unique Insight: Lesser-Known Solution',
-  'Unique Recommendation',
-  'Lesser-Known Gem',
-  'For a UNIQUE, LESSER-KNOWN phrase',
-  'Unique, Lesser-Known Destination',
-] as const
 
 export interface ParsedText {
   clickableText: string
@@ -257,44 +243,6 @@ export function extractTextFromReactNode(node: ReactNode): string {
     return extractTextFromReactNode(node.props.children)
   }
   return ''
-}
-
-// * Creates a regex pattern for unique phrases
-export function createUniquePattern(): RegExp {
-  return new RegExp(`(?:${UNIQUE_PHRASES.join('|')}):\\s*([^.:]+[.])`, 'i')
-}
-
-// * Pattern for general text parsing
-export const GENERAL_PATTERN = /(.*?)([:.,])(?:\s|$)/g
-
-// * Parses text to extract clickable and remaining portions
-export function parseClickableText(fullText: string): ParsedText {
-  const uniquePattern = createUniquePattern()
-  const uniqueMatch = fullText.match(uniquePattern)
-
-  // Check for unique phrase match first
-  if (uniqueMatch) {
-    const clickableText = uniqueMatch[1]
-    const restText = fullText.slice(fullText.indexOf(clickableText) + clickableText.length)
-    return { clickableText, restText }
-  }
-
-  // * Fall back to general pattern
-  const generalMatch = fullText.match(GENERAL_PATTERN)
-  if (generalMatch) {
-    return {
-      clickableText: generalMatch[0],
-      restText: fullText.slice(generalMatch[0].length),
-    }
-  }
-  return {
-    clickableText: '',
-    restText: fullText,
-  }
-}
-
-export function cleanClickableText(text: string): string {
-  return text.replace(/(:|\.|\,)\s*$/, '')
 }
 
 export const formatNumber = (num: number) => {
@@ -348,12 +296,27 @@ export function numberShortener(number: number): string {
  * @returns 'chat' | 'public' | ''
  */
 
-type RouteType = 'chat' | 'public'
+type RouteType = 'chat' | 'public' | 'profile'
 
 export function getRouteType(pathname: string | null): RouteType {
-  if (!pathname) return 'public'
+  if (!pathname || pathname === '/') return 'public'
   const normalizedPath = pathname.toLowerCase().replace(/\/+$/, '')
-  return normalizedPath.startsWith('/c') ? 'chat' : 'public'
+
+  if (normalizedPath.startsWith('/c') && normalizedPath !== '/career') {
+    return 'chat'
+  }
+
+  if (normalizedPath.startsWith('/u')) {
+    return 'profile'
+  }
+
+  const publicRoutes = [/^\/$/, /^\/[^/]+\/[^/]+$/, /^\/[^/]+\/[^/]+\/[^/]+$/]
+
+  if (publicRoutes.some((route) => route.test(normalizedPath))) {
+    return 'public'
+  }
+
+  return 'public'
 }
 
 export function getRouteColor(isActive: boolean, pathname: string | null): string {

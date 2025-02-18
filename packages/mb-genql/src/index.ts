@@ -1,12 +1,18 @@
-import { GraphqlOperation } from '@genql/runtime'
-import { createClient as createWsClient, Client as WsClient } from 'graphql-ws'
-import { endpoints, MbEnv } from 'mb-env'
-import { Client, createClient } from '../generated'
+import type { GraphqlOperation } from '@genql/runtime'
+import { type Client as WsClient, createClient as createWsClient } from 'graphql-ws'
+import { type MbEnv, endpoints } from 'mb-env'
+import { type Client, createClient } from '../generated'
 
 export * from '../generated'
 
 // Server side client
-export function createMbClient({ config, jwt, env, adminSecret, debug }: GraphQLSdkProps = {}): MbClient {
+export function createMbClient({
+  config,
+  jwt,
+  env,
+  adminSecret,
+  debug,
+}: GraphQLSdkProps = {}): MbClient {
   const { subscribe } = createWsClient({
     url: endpoints[env || 'prod'].replace('http', 'ws'),
   })
@@ -20,10 +26,11 @@ export function createMbClient({ config, jwt, env, adminSecret, debug }: GraphQL
         ...(adminSecret ? { 'x-hasura-admin-secret': adminSecret } : {}),
       }
 
-      debug && console.log(
-        '\n ==> GraphQL Query : \n',
-        JSON.stringify((operation as GraphqlOperation).query.replaceAll('"', ''))
-      )
+      debug &&
+        console.log(
+          '\n ==> GraphQL Query : \n',
+          JSON.stringify((operation as GraphqlOperation).query.replaceAll('"', '')),
+        )
 
       let fetchResponse
       try {
@@ -31,6 +38,7 @@ export function createMbClient({ config, jwt, env, adminSecret, debug }: GraphQL
           method: 'POST',
           headers,
           body: JSON.stringify(operation),
+          signal: operation.context?.signal,
           ...config,
         }).then((response) => response.json())
       } catch (error) {
@@ -48,7 +56,7 @@ export function createMbClient({ config, jwt, env, adminSecret, debug }: GraphQL
 }
 
 export interface MbClient extends Client {
-  subscribe: WsClient["subscribe"]
+  subscribe: WsClient['subscribe']
 }
 
 type GraphQLSdkProps = {
