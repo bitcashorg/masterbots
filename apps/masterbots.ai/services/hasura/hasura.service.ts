@@ -30,10 +30,25 @@ import type {
   UpsertUserParams,
 } from './hasura.service.type'
 
+const chatbotEnumFieldsFragment = {
+  complexityEnum: {
+    prompt: true,
+  },
+  toneEnum: {
+    prompt: true,
+  },
+  lengthEnum: {
+    prompt: true,
+  },
+  typeEnum: {
+    prompt: true,
+  },
+}
+
 function getHasuraClient({ jwt, adminSecret, signal }: GetHasuraClientParams) {
   return createMbClient({
     config: {
-      signal
+      signal,
     },
     jwt,
     adminSecret,
@@ -54,22 +69,28 @@ export async function getCategories(userId?: string) {
             followeeIdChatbot: true,
           },
           __scalar: true,
+          categories: {
+            __scalar: true,
+          },
           prompts: {
             prompt: {
               __scalar: true,
             },
           },
+          ...chatbotEnumFieldsFragment,
         },
         __scalar: true,
-        __args: userId ? {
-          where: {
-            chatbot: {
-              threads: {
-                userId: { _eq: userId }
-              }
+        __args: userId
+          ? {
+              where: {
+                chatbot: {
+                  threads: {
+                    userId: { _eq: userId },
+                  },
+                },
+              },
             }
-          }
-        } : {},
+          : {},
       },
       __scalar: true,
       __args: {
@@ -253,6 +274,7 @@ export async function getThread({ threadId, jwt, signal }: Partial<GetThreadPara
             followerId: true,
             followeeIdChatbot: true,
           },
+          ...chatbotEnumFieldsFragment,
         },
         user: {
           username: true,
@@ -268,7 +290,7 @@ export async function getThread({ threadId, jwt, signal }: Partial<GetThreadPara
           },
           user: {
             username: true,
-          }
+          },
         },
         messages: {
           __scalar: true,
@@ -392,26 +414,29 @@ export async function getChatbot({ chatbotId, chatbotName, threads, jwt }: GetCh
       __args: {
         where: { name: { _eq: chatbotName } },
       },
-      ...everything,
+      __scalar: true,
       followers: {
         followerId: true,
         followeeIdChatbot: true,
       },
       categories: {
         category: {
-          ...everything,
+          __scalar: true,
         },
-        ...everything,
+        __scalar: true,
       },
       prompts: {
-        prompt: everything,
+        prompt: {
+          __scalar: true,
+        },
       },
+      ...chatbotEnumFieldsFragment,
       ...(threads
         ? {
             threads: {
-              ...everything,
+              __scalar: true,
               messages: {
-                ...everything,
+                __scalar: true,
                 __args: {
                   orderBy: [{ createdAt: 'ASC' }],
                 },

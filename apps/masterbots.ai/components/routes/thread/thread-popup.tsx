@@ -7,15 +7,15 @@ import { Button } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
+import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn, getRouteType } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
 import type { Message as AiMessage } from 'ai'
 import type { Chatbot, Message } from 'mb-genql'
-import { useParams, usePathname } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 
 export function ThreadPopup({ className }: { className?: string }) {
   const { activeChatbot } = useSidebar()
@@ -42,8 +42,9 @@ export function ThreadPopup({ className }: { className?: string }) {
     }
   }
 
-  // Uses smoothScrollToBottom from custom hook
-  useEffect(() => {
+  // Uses smoothScrollToBottom from custom hook useMBScroll
+  // biome-ignore lint/correctness/useExhaustiveDependencies: smoothScrollToBottom might be necessary however, it has his own memoization (useCallback). That should be enough, else, can be added as a dependency
+    useEffect(() => {
     let timeout: NodeJS.Timeout
     if (isLoading && isOpenPopup) {
       timeout = setTimeout(() => {
@@ -53,7 +54,7 @@ export function ThreadPopup({ className }: { className?: string }) {
     return () => {
       clearTimeout(timeout)
     }
-  }, [isLoading, isOpenPopup, smoothScrollToBottom])
+  }, [isLoading, isOpenPopup])
 
   // Fetch browse messages when activeThread changes
   useEffect(() => {
@@ -154,17 +155,15 @@ function ThreadPopUpCardHeader({
   messages: (AiMessage | Message)[]
   isBrowseView: boolean
 }) {
-  const { isOpenPopup, setIsOpenPopup, setActiveThread } = useThread()
-  const { setActiveChatbot } = useSidebar()
-  const params = useParams<{ category?: string; chatbot: string; threadId?: string }>()
+  const { isOpenPopup, setIsOpenPopup, setActiveThread, setShouldRefreshThreads } = useThread()
 
   const onClose = () => {
     setIsOpenPopup(!isOpenPopup)
     
-    if (!params.chatbot) {
-      setActiveChatbot(null)
-    }
+    // ! Required to close the threads popup and show the thread list. Without this, the thread accordion will remain open.
+    // ? We have to signal the use-thread-panel component to re-fetch the threads list when the activeThread is closed.
     setActiveThread(null)
+    setShouldRefreshThreads(true)
   }
 
   // Handle different message structures for browse and chat views

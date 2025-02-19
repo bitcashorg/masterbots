@@ -37,7 +37,6 @@ export default function SidebarLink({
     activeChatbot,
     setActiveChatbot,
     selectedCategories,
-    selectedChatbots,
     setSelectedCategories,
     setSelectedChatbots,
     expandedCategories,
