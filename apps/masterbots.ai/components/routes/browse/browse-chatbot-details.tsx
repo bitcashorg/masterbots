@@ -9,7 +9,7 @@ import { nanoid } from '@/lib/utils'
 import { chatbotFollowOrUnfollow } from '@/services/hasura'
 import type { BrowseChatbotDetailsProps } from '@/types/types'
 import { useChat } from 'ai/react'
-import { SocialFollowing } from 'mb-genql'
+import type { SocialFollowing } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
@@ -17,15 +17,15 @@ import { useState } from 'react'
 
 export default function BrowseChatbotDetails({
   chatbot,
-  variant = 'default'
+  variant = 'default',
 }: BrowseChatbotDetailsProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [generateType, setGenerateType] = useState<string | undefined>('')
   const [lastMessage, setLastMessage] = useState<string | null>(null)
   const { selectedModel, clientType } = useModel()
-  const [followers, setFollowers] = useState<SocialFollowing[]>(chatbot?.followers || []);
+  const [followers, setFollowers] = useState<SocialFollowing[]>(chatbot?.followers || [])
   const { data: session } = useSession()
-  const router = useRouter();
+  const router = useRouter()
   const { customSonner } = useSonner()
 
   const { append } = useChat({
@@ -33,7 +33,7 @@ export default function BrowseChatbotDetails({
     body: {
       id: nanoid(),
       model: selectedModel,
-      clientType
+      clientType,
     },
     onResponse(response) {
       if (response.status === 401) {
@@ -49,7 +49,7 @@ export default function BrowseChatbotDetails({
     },
     async onFinish(message) {
       setLastMessage(message.content)
-    }
+    },
   })
 
   if (!chatbot?.categories?.length) {
@@ -60,8 +60,7 @@ export default function BrowseChatbotDetails({
   const botUrl = `/c/${toSlug(primaryCategory.name)}/${chatbot.name.toLowerCase()}`
   const isWelcomeView = variant === 'default' && !chatbot.name.includes('Bot')
 
-  const descriptionPoints =
-    chatbot.description?.split(';').map(point => point.trim()) || []
+  const descriptionPoints = chatbot.description?.split(';').map((point) => point.trim()) || []
   const hasMultiplePoints = descriptionPoints.length > 1
 
   const generateBio = async () => {
@@ -73,7 +72,7 @@ export default function BrowseChatbotDetails({
         id: nanoid(),
         content: promptContent,
         role: 'system',
-        createdAt: new Date()
+        createdAt: new Date(),
       })
     } catch (error) {
       setIsLoading(false)
@@ -81,7 +80,6 @@ export default function BrowseChatbotDetails({
       console.error('Bio generation failed:', error)
     }
   }
-
 
   const onFollow = async () => {
     try {
@@ -95,13 +93,17 @@ export default function BrowseChatbotDetails({
       const followeeId = chatbot?.chatbotId
       if (!followerId) {
         customSonner({ type: 'error', text: 'Invalid user data' })
-        return;
+        return
       }
       if (!followeeId) {
         customSonner({ type: 'error', text: 'Invalid chatbot data, please select a chatbot' })
-        return;
+        return
       }
-      const { success, error, follow } = await chatbotFollowOrUnfollow({ followerId, followeeId, jwt: session.user.hasuraJwt as string })
+      const { success, error, follow } = await chatbotFollowOrUnfollow({
+        followerId,
+        followeeId,
+        jwt: session.user.hasuraJwt as string,
+      })
       if (!success) {
         console.error('Failed to follow/Unfolow bot:', error)
         customSonner({ type: 'error', text: error || 'Failed to follow/unfollow bot' })
@@ -118,19 +120,27 @@ export default function BrowseChatbotDetails({
             createdAt: new Date().toISOString(),
             userByFollowerId: null as unknown,
             user: null,
-            __typename: 'SocialFollowing'
-          } as SocialFollowing
-        ]);
+            __typename: 'SocialFollowing',
+          } as SocialFollowing,
+        ])
       } else {
-        setFollowers(followers.filter(follower => !(follower.followerId === followerId && follower.followeeIdChatbot === followeeId)))
+        setFollowers(
+          followers.filter(
+            (follower) =>
+              !(follower.followerId === followerId && follower.followeeIdChatbot === followeeId),
+          ),
+        )
       }
-      customSonner({ type: 'success', text: follow ? `You have followed ${chatbot?.name} successfully` : `You have  unfollowed  ${chatbot?.name}` })
-
+      customSonner({
+        type: 'success',
+        text: follow
+          ? `You have followed ${chatbot?.name} successfully`
+          : `You have  unfollowed  ${chatbot?.name}`,
+      })
     } catch (error) {
       customSonner({ type: 'error', text: 'Failed to follow chatbot' })
       console.error('Failed to follow chatbot:', error)
     }
-
   }
 
   const sharedProps = {
