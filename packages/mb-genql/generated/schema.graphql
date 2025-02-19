@@ -2039,6 +2039,7 @@ type ComplexityEnum {
     """filter the rows returned"""
     where: PreferenceBoolExp
   ): PreferenceAggregate!
+  prompt: String!
   value: String!
 }
 
@@ -2070,6 +2071,7 @@ input ComplexityEnumBoolExp {
   chatbotsAggregate: ChatbotAggregateBoolExp
   preferences: PreferenceBoolExp
   preferencesAggregate: PreferenceAggregateBoolExp
+  prompt: StringComparisonExp
   value: StringComparisonExp
 }
 
@@ -2089,16 +2091,19 @@ input type for inserting data into table "complexity_enum"
 input ComplexityEnumInsertInput {
   chatbots: ChatbotArrRelInsertInput
   preferences: PreferenceArrRelInsertInput
+  prompt: String
   value: String
 }
 
 """aggregate max on columns"""
 type ComplexityEnumMaxFields {
+  prompt: String
   value: String
 }
 
 """aggregate min on columns"""
 type ComplexityEnumMinFields {
+  prompt: String
   value: String
 }
 
@@ -2136,6 +2141,7 @@ input ComplexityEnumOnConflict {
 input ComplexityEnumOrderBy {
   chatbotsAggregate: ChatbotAggregateOrderBy
   preferencesAggregate: PreferenceAggregateOrderBy
+  prompt: OrderBy
   value: OrderBy
 }
 
@@ -2149,6 +2155,9 @@ select columns of table "complexity_enum"
 """
 enum ComplexityEnumSelectColumn {
   """column name"""
+  prompt
+
+  """column name"""
   value
 }
 
@@ -2156,6 +2165,7 @@ enum ComplexityEnumSelectColumn {
 input type for updating data in table "complexity_enum"
 """
 input ComplexityEnumSetInput {
+  prompt: String
   value: String
 }
 
@@ -2172,6 +2182,7 @@ input ComplexityEnumStreamCursorInput {
 
 """Initial value of the column from where the streaming should start"""
 input ComplexityEnumStreamCursorValueInput {
+  prompt: String
   value: String
 }
 
@@ -2179,6 +2190,9 @@ input ComplexityEnumStreamCursorValueInput {
 update columns of table "complexity_enum"
 """
 enum ComplexityEnumUpdateColumn {
+  """column name"""
+  prompt
+
   """column name"""
   value
 }
@@ -2973,6 +2987,7 @@ type LengthEnum {
     """filter the rows returned"""
     where: PreferenceBoolExp
   ): PreferenceAggregate!
+  prompt: String!
   value: String!
 }
 
@@ -3004,6 +3019,7 @@ input LengthEnumBoolExp {
   chatbotsAggregate: ChatbotAggregateBoolExp
   preferences: PreferenceBoolExp
   preferencesAggregate: PreferenceAggregateBoolExp
+  prompt: StringComparisonExp
   value: StringComparisonExp
 }
 
@@ -3023,16 +3039,19 @@ input type for inserting data into table "length_enum"
 input LengthEnumInsertInput {
   chatbots: ChatbotArrRelInsertInput
   preferences: PreferenceArrRelInsertInput
+  prompt: String
   value: String
 }
 
 """aggregate max on columns"""
 type LengthEnumMaxFields {
+  prompt: String
   value: String
 }
 
 """aggregate min on columns"""
 type LengthEnumMinFields {
+  prompt: String
   value: String
 }
 
@@ -3070,6 +3089,7 @@ input LengthEnumOnConflict {
 input LengthEnumOrderBy {
   chatbotsAggregate: ChatbotAggregateOrderBy
   preferencesAggregate: PreferenceAggregateOrderBy
+  prompt: OrderBy
   value: OrderBy
 }
 
@@ -3083,6 +3103,9 @@ select columns of table "length_enum"
 """
 enum LengthEnumSelectColumn {
   """column name"""
+  prompt
+
+  """column name"""
   value
 }
 
@@ -3090,6 +3113,7 @@ enum LengthEnumSelectColumn {
 input type for updating data in table "length_enum"
 """
 input LengthEnumSetInput {
+  prompt: String
   value: String
 }
 
@@ -3106,6 +3130,7 @@ input LengthEnumStreamCursorInput {
 
 """Initial value of the column from where the streaming should start"""
 input LengthEnumStreamCursorValueInput {
+  prompt: String
   value: String
 }
 
@@ -3113,6 +3138,9 @@ input LengthEnumStreamCursorValueInput {
 update columns of table "length_enum"
 """
 enum LengthEnumUpdateColumn {
+  """column name"""
+  prompt
+
   """column name"""
   value
 }
@@ -7898,6 +7926,7 @@ type ToneEnum {
     """filter the rows returned"""
     where: PreferenceBoolExp
   ): PreferenceAggregate!
+  prompt: String!
   value: String!
 }
 
@@ -7929,6 +7958,7 @@ input ToneEnumBoolExp {
   chatbotsAggregate: ChatbotAggregateBoolExp
   preferences: PreferenceBoolExp
   preferencesAggregate: PreferenceAggregateBoolExp
+  prompt: StringComparisonExp
   value: StringComparisonExp
 }
 
@@ -7948,16 +7978,19 @@ input type for inserting data into table "tone_enum"
 input ToneEnumInsertInput {
   chatbots: ChatbotArrRelInsertInput
   preferences: PreferenceArrRelInsertInput
+  prompt: String
   value: String
 }
 
 """aggregate max on columns"""
 type ToneEnumMaxFields {
+  prompt: String
   value: String
 }
 
 """aggregate min on columns"""
 type ToneEnumMinFields {
+  prompt: String
   value: String
 }
 
@@ -7995,6 +8028,7 @@ input ToneEnumOnConflict {
 input ToneEnumOrderBy {
   chatbotsAggregate: ChatbotAggregateOrderBy
   preferencesAggregate: PreferenceAggregateOrderBy
+  prompt: OrderBy
   value: OrderBy
 }
 
@@ -8008,6 +8042,9 @@ select columns of table "tone_enum"
 """
 enum ToneEnumSelectColumn {
   """column name"""
+  prompt
+
+  """column name"""
   value
 }
 
@@ -8015,6 +8052,7 @@ enum ToneEnumSelectColumn {
 input type for updating data in table "tone_enum"
 """
 input ToneEnumSetInput {
+  prompt: String
   value: String
 }
 
@@ -8031,6 +8069,7 @@ input ToneEnumStreamCursorInput {
 
 """Initial value of the column from where the streaming should start"""
 input ToneEnumStreamCursorValueInput {
+  prompt: String
   value: String
 }
 
@@ -8038,6 +8077,9 @@ input ToneEnumStreamCursorValueInput {
 update columns of table "tone_enum"
 """
 enum ToneEnumUpdateColumn {
+  """column name"""
+  prompt
+
   """column name"""
   value
 }
@@ -8125,6 +8167,7 @@ type TypeEnum {
     """filter the rows returned"""
     where: PreferenceBoolExp
   ): PreferenceAggregate!
+  prompt: String!
   value: String!
 }
 
@@ -8156,6 +8199,7 @@ input TypeEnumBoolExp {
   chatbotsAggregate: ChatbotAggregateBoolExp
   preferences: PreferenceBoolExp
   preferencesAggregate: PreferenceAggregateBoolExp
+  prompt: StringComparisonExp
   value: StringComparisonExp
 }
 
@@ -8175,16 +8219,19 @@ input type for inserting data into table "type_enum"
 input TypeEnumInsertInput {
   chatbots: ChatbotArrRelInsertInput
   preferences: PreferenceArrRelInsertInput
+  prompt: String
   value: String
 }
 
 """aggregate max on columns"""
 type TypeEnumMaxFields {
+  prompt: String
   value: String
 }
 
 """aggregate min on columns"""
 type TypeEnumMinFields {
+  prompt: String
   value: String
 }
 
@@ -8222,6 +8269,7 @@ input TypeEnumOnConflict {
 input TypeEnumOrderBy {
   chatbotsAggregate: ChatbotAggregateOrderBy
   preferencesAggregate: PreferenceAggregateOrderBy
+  prompt: OrderBy
   value: OrderBy
 }
 
@@ -8235,6 +8283,9 @@ select columns of table "type_enum"
 """
 enum TypeEnumSelectColumn {
   """column name"""
+  prompt
+
+  """column name"""
   value
 }
 
@@ -8242,6 +8293,7 @@ enum TypeEnumSelectColumn {
 input type for updating data in table "type_enum"
 """
 input TypeEnumSetInput {
+  prompt: String
   value: String
 }
 
@@ -8258,6 +8310,7 @@ input TypeEnumStreamCursorInput {
 
 """Initial value of the column from where the streaming should start"""
 input TypeEnumStreamCursorValueInput {
+  prompt: String
   value: String
 }
 
@@ -8265,6 +8318,9 @@ input TypeEnumStreamCursorValueInput {
 update columns of table "type_enum"
 """
 enum TypeEnumUpdateColumn {
+  """column name"""
+  prompt
+
   """column name"""
   value
 }

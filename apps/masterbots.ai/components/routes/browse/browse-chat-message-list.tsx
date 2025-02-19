@@ -7,10 +7,10 @@
  */
 'use client'
 
-import { SharedAccordion } from '@/components/shared/shared-accordion'
 import { BrowseChatMessage } from '@/components/routes/browse/browse-chat-message'
 import { type MessagePair, convertMessage } from '@/components/routes/browse/browse-chat-messages'
 import { ExternalLink } from '@/components/shared/external-link'
+import { SharedAccordion } from '@/components/shared/shared-accordion'
 import { buttonVariants } from '@/components/ui/button'
 import { cn, createMessagePairs } from '@/lib/utils'
 import type { Chatbot, Message, User } from 'mb-genql'
@@ -55,13 +55,13 @@ export function BrowseChatMessageList({
             'border-l-transparent',
             key === pairs.length - 1 && 'border-b-transparent',
           )}
-          triggerClass="dark:border-b-mirage border-b-gray-300 py-[0.625rem] px-[47px] gap-4"
+          triggerClass="dark:border-b-mirage border-b-gray-300 py-[0.625rem] px-2 md:px-4 xl:px-11 gap-4"
           arrowClass="mt-[0.625rem] right-[calc(47px-1rem)] translate-x-[50%]"
         >
           {/* Thread Title */}
           <div
             className={cn(
-              'relative flex items-center font-normal md:text-lg transition-all w-full gap-3 pr-4',
+              'relative flex items-center font-normal md:text-lg transition-all size-full gap-3 pr-4',
               key === 0 && !isThread && 'hidden',
             )}
           >
@@ -72,7 +72,7 @@ export function BrowseChatMessageList({
           <div />
 
           {/* Thread Content */}
-          <div className="border-x-DEFAULT ml-6 mr-0 md:mx-[46px] py-5 dark:border-mirage border-gray-300 text-left">
+          <div className="border-x-DEFAULT mx-2 md:mx-4 xl:mx-11 py-5 dark:border-mirage border-gray-300 text-left">
             {pair.chatGptMessage.length > 0 &&
               pair.chatGptMessage.map((message, index) => (
                 <BrowseChatMessage

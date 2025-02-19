@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils'
 import { AlertTriangle, Check, Info, X } from 'lucide-react'
+import { appConfig } from 'mb-env'
 import { toast } from 'sonner'
 
 export type CustomSonnerProps = {
@@ -23,6 +24,7 @@ export type CustomSonnerProps = {
  * @example
  * // Import the hook
  * import { useSonner } from '@/lib/hooks/useSonner';
+import { appConfig } from '../../../../packages/mb-env/src/config.env';
  *
  * const { customSonner } = useSonner();
  *
@@ -41,19 +43,21 @@ export function useSonner() {
       success: {
         title: 'Success',
         text: text ?? 'Changes and been applied successfully',
-        button: <X />,
+        button: <X className="size-3" />,
         icon: <Check color="#83E56A" size={18} />
       },
       error: {
         title: 'Error',
         text: text ?? 'Failed to update the information. Please try again',
-        button: 'Retry',
+        // TODO: When the button is clicked and there is a retry action, the toast should be dismissed and the action should be triggered.
+        button: <X className="size-3" />,
         icon: <AlertTriangle color="#F93333" size={18} />
       },
       info: {
-        title: 'Changes applied',
+        title: 'Info',
         text: text ?? 'Your changes has been applied 5 minutes ago.',
-        button: 'Undo',
+        // TODO: When the button is clicked and there is a undo action, the toast should be dismissed and the action should be triggered.
+        button: <X className="size-3" />,
         icon: <Info color="#388DE2" size={18} />
       }
     }
@@ -89,7 +93,7 @@ export function useSonner() {
         </div>
       )
     }, {
-      duration: 30000,
+      duration: appConfig.features.devMode ? 30000 : 8000,
     })
   }
 

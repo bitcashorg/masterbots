@@ -1,7 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -517,3 +516,29 @@ button.text-link {
 [data-route='public'] .selected-bot-icon {
   @apply fill-green-500;
 }
+
+/* Base sidebar gradient styles *//* Chat route styles */
+
+.sidebar-gradient {
+  transition: background-image 0.3s ease;
+}
+
+/* Chat route styles */
+[data-route="chat"] .sidebar-gradient:hover:not(.selected) {
+  background-image: var(--background-chat-hover-gradient);
+}
+
+[data-route="chat"] .sidebar-gradient.selected {
+  background-image: var(--background-chat-gradient);
+}
+
+/* Public route styles */
+[data-route="public"] .sidebar-gradient:hover:not(.selected) {
+  background-image: var(--background-public-hover-gradient);
+}
+
+[data-route="public"] .sidebar-gradient.selected {
+  background-image: var(--background-public-gradient);
+}
+
+

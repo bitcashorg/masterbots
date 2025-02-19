@@ -2,6 +2,7 @@ import { extractBetweenMarkers } from '@/lib/utils'
 import type * as AI from 'ai'
 import type { Message, Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
+import { urlBuilders } from './url'
 
 export interface MessagePair {
   userMessage: Message | AI.Message
