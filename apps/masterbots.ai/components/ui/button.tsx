@@ -1,5 +1,5 @@
 import { Slot } from '@radix-ui/react-slot';
-import { cva, type VariantProps } from 'class-variance-authority';
+import { type VariantProps, cva } from 'class-variance-authority';
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
@@ -19,7 +19,7 @@ const buttonVariants = cva(
           'bg-secondary text-secondary-foreground hover:bg-secondary/70',
         ghost: 'shadow-none hover:bg-muted hover:text-muted-foreground',
         link: 'text-primary underline-offset-4 shadow-none hover:underline',
-        icon: 'flex size-8 shrink-0 select-none items-center justify-center rounded-full border shadow cursor-pointer',
+        icon: 'flex size-8 shrink-0 select-none items-center justify-center border shadow cursor-pointer',
         sideBarProfile: 'bg-transparent border-0 shadow-none justify-start',
         powerUp: 'border border-input animate-pulse-yellow bg-yellow-400 text-black transition-all duration-200 ease-in-out shadow-[0_0_20px_#f5be0b] hover:bg-yellow-500'
       },

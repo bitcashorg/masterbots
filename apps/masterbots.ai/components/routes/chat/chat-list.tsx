@@ -3,10 +3,12 @@
 import { ChatMessage } from '@/components/routes/chat/chat-message'
 import { SharedAccordion } from '@/components/shared/shared-accordion'
 import { ShortMessage } from '@/components/shared/short-message'
-import { useScroll } from '@/lib/hooks/use-scroll'
+import { Separator } from '@/components/ui/separator'
+import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn, createMessagePairs } from '@/lib/utils'
 import type { Message } from 'ai'
+import { isEqual } from 'lodash'
 import { GlobeIcon } from 'lucide-react'
 import type { Chatbot } from 'mb-genql'
 import React, { useEffect, useRef } from 'react'
@@ -20,7 +22,6 @@ export interface ChatList {
   chatTitleClass?: string
   chatArrowClass?: string
   containerRef?: React.RefObject<HTMLDivElement>
-  isNearBottom?: boolean
   isLoadingMessages?: boolean
   sendMessageFn?: (message: string) => void
 }
@@ -38,34 +39,44 @@ export function ChatList({
   chatContentClass,
   chatTitleClass,
   chatArrowClass,
-  containerRef,
-  sendMessageFn,
-  isNearBottom,
+  containerRef: externalContainerRef,
+  sendMessageFn
 }: ChatList) {
   const [pairs, setPairs] = React.useState<MessagePair[]>([])
+  const [previousConversationPairs, setPreviousConversationPairs] =
+    React.useState<MessagePair[]>([])
   const { isNewResponse, activeThread } = useThread()
-  const localContainerRef = useRef<HTMLDivElement>(null)
-  const effectiveContainerRef = containerRef || localContainerRef
-  const chatMessages = (messages || activeThread?.messages || [])
-    .sort((a, b) => a.createdAt - b.createdAt)
+  const chatListRef = useRef<HTMLDivElement>(null)
+  const messageContainerRef = useRef<HTMLDivElement>(null)
 
-  useScroll({
+  //? Uses the external ref if provided, otherwise it uses our internal refs
+  const effectiveContainerRef = externalContainerRef || chatListRef
+  const effectiveThreadRef = messageContainerRef
+
+  const chatMessages = (messages || activeThread?.messages || []).sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  )
+  const previousChatMessages = (activeThread?.thread?.messages || []).sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  )
+
+  const { isNearBottom } = useMBScroll({
     containerRef: effectiveContainerRef,
-    threadRef: effectiveContainerRef,
+    threadRef: effectiveThreadRef,
     isNewContent: isNewResponse,
     hasMore: false,
     isLast: true,
     loading: isLoadingMessages,
-    loadMore: () => { }
+    loadMore: () => {}
   })
 
   useEffect(() => {
     if (chatMessages?.length) {
-      const prePairs: MessagePair[] = createMessagePairs(chatMessages) as MessagePair[]
+      const prePairs: MessagePair[] = createMessagePairs(
+        chatMessages
+      ) as MessagePair[]
       setPairs(prevPairs => {
-        const prevString = JSON.stringify(prevPairs)
-        const newString = JSON.stringify(prePairs)
-        if (prevString !== newString) {
+        if (!isEqual(prevPairs, prePairs)) {
           return prePairs
         }
         return prevPairs
@@ -73,38 +84,61 @@ export function ChatList({
     }
   }, [chatMessages])
 
-  if (messages?.length === 0) return null
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    if (previousChatMessages?.length) {
+      const prePairs: MessagePair[] = createMessagePairs(
+        previousChatMessages
+      ) as MessagePair[]
+      setPreviousConversationPairs(prevPairs => {
+        if (!isEqual(prevPairs, prePairs)) {
+          return prePairs
+        }
+        return prevPairs
+      })
+    }
+    if (!activeThread?.thread && previousConversationPairs.length > 0) {
+      setPreviousConversationPairs([])
+    }
+  }, [previousChatMessages, activeThread?.thread])
+
+  if (chatMessages?.length === 0) return null
 
   return (
     <div
       ref={effectiveContainerRef}
       className={cn(
-        'relative max-w-3xl px-4 mx-auto',
+        'relative max-w-3xl px-4 mx-auto overflow-auto scrollbar-thin',
         className,
         { 'flex flex-col gap-3': isThread }
       )}
     >
-      <MessagePairs
-        pairs={pairs}
-        isThread={isThread}
-        chatTitleClass={chatTitleClass}
-        chatArrowClass={chatArrowClass}
-        chatContentClass={chatContentClass}
-        sendMessageFn={sendMessageFn}
-      />
+      <div ref={effectiveThreadRef} className="min-h-full">
+        <MessagePairs
+          pairs={pairs}
+          previousPairs={previousConversationPairs}
+          isThread={isThread}
+          chatTitleClass={chatTitleClass}
+          chatArrowClass={chatArrowClass}
+          chatContentClass={chatContentClass}
+          sendMessageFn={sendMessageFn}
+        />
+      </div>
     </div>
   )
 }
 
 function MessagePairs({
   pairs,
+  previousPairs,
   isThread,
   chatTitleClass,
   chatArrowClass,
   chatContentClass,
-  sendMessageFn,
+  sendMessageFn
 }: {
   pairs: MessagePair[]
+  previousPairs: MessagePair[]
   chatbot?: Chatbot
   isThread: boolean
   chatTitleClass?: string
@@ -114,76 +148,170 @@ function MessagePairs({
 }) {
   const { isNewResponse } = useThread()
 
+  // TODO: Re-arrange the questions when the thread has a previous conversation from a different thread
   return (
     <>
-      {pairs.map((pair: MessagePair, key: number) => (
-        <SharedAccordion
+      {previousPairs.map((pair: MessagePair, key: number, pairsArray) => (
+        <MessagePairAccordion
           key={`${pair.userMessage.createdAt}-${pair.chatGptMessage[0]?.id ?? 'pending'}`}
-          defaultState={key === 0 || (key === pairs.length - 1 && isNewResponse)}
-          className={cn({ 'relative': isThread })}
-          triggerClass={cn(
-            'dark:border-b-mirage border-b-gray-300 py-[0.4375rem] dark:hover:bg-mirage hover:bg-gray-300',
-            {
-              'sticky top-0 md:-top-10 z-[1] dark:bg-[#18181b] bg-[#f4f4f5] !border-l-[transparent] px-3 [&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage [&[data-state=open]]:rounded-t-[8px]': isThread,
-              'px-[calc(32px-0.25rem)]': !isThread,
-              'hidden': !isThread && key === 0,
-            },
-            chatTitleClass
-          )}
-          contentClass={cn(
-            '!border-l-transparent',
-            chatContentClass
-          )}
-          arrowClass={cn(
-            { 'top-4': isThread, 'right-5 top-4': !isThread },
-            chatArrowClass
-          )}
-          variant="chat"
-        >
-          {/* Thread Title */}
-          {!isThread && key === 0 ? (
-            ''
-          ) : (
-            <ChatMessage
-              actionRequired={false}
-              message={pair.userMessage}
-            />
-          )}
-
-          {/* Thread Description */}
-          {isThread ? (
-            <div className="opacity-50 pb-3 overflow-hidden text-sm mt-[0.375rem]">
-              {pair.chatGptMessage[0]?.content ? (
-                <div className="flex-1 px-1 space-y-2 overflow-hidden text-left">
-                  <ShortMessage content={pair.chatGptMessage[0]?.content} />
-                </div>
-              ) : ''}
-            </div>
-          ) : <></>}
-
-          {/* Thread Content */}
-          <div
-            className={cn(
-              'mx-4 md:mx-[46px] px-1 py-4 border-transparent dark:border-x-mirage border-x-gray-300 border h-full',
-              { '!border-[transparent]': !isThread && key === 0 },
-              chatContentClass
-            )}
-          >
-            <ChatLoadingState />
-            {pair.chatGptMessage.length > 0
-              ? pair.chatGptMessage.map((message) => (
-                <ChatMessage
-                  key={message.id}
-                  actionRequired={false}
-                  message={message}
-                  sendMessageFromResponse={sendMessageFn}
-                />
-              ))
-              : ''}
-          </div>
-        </SharedAccordion>
+          pair={pair}
+          isThread={isThread}
+          index={key}
+          arrayLength={pairsArray.length}
+          isNewResponse={isNewResponse}
+          type="previous"
+          chatTitleClass={chatTitleClass}
+          chatContentClass={chatContentClass}
+          sendMessageFn={sendMessageFn}
+        />
+      ))}
+      {previousPairs.length > 0 && pairs.length > 0 && (
+        <Separator className="relative mt-6 -bottom-1.5 h-1.5 z-[2] rounded-sm bg-iron dark:bg-mirage" />
+      )}
+      {pairs.map((pair: MessagePair, key: number, pairsArray) => (
+        <MessagePairAccordion
+          key={`${pair.userMessage.createdAt}-${pair.chatGptMessage[0]?.id ?? 'pending'}`}
+          pair={pair}
+          isThread={isThread}
+          index={key}
+          arrayLength={pairsArray.length}
+          isNewResponse={isNewResponse}
+          type="current"
+          chatTitleClass={chatTitleClass}
+          chatContentClass={chatContentClass}
+          sendMessageFn={sendMessageFn}
+        />
       ))}
     </>
+  )
+}
+
+export function MessagePairAccordion({
+  pair,
+  isThread,
+  index,
+  arrayLength,
+  isNewResponse,
+  type,
+  ...props
+}: {
+  pair: MessagePair
+  isThread: boolean
+  index: number
+  arrayLength: number
+  isNewResponse: boolean
+  type: 'previous' | 'current'
+  chatTitleClass?: string
+  chatContentClass?: string
+  sendMessageFn?: (message: string) => void
+}) {
+  const { activeThread } = useThread()
+  const isPrevious = type === 'previous'
+
+  return (
+    <SharedAccordion
+      key={`${pair.userMessage.createdAt}-${pair.chatGptMessage[0]?.id ?? 'pending'}`}
+      defaultState={
+        index === 0 ||
+        index === arrayLength - 1 ||
+        (index === arrayLength - 2 && isNewResponse)
+      }
+      className={cn(
+        { relative: isThread },
+        // Adds subtle background tint and left border for previous messages
+        isPrevious && 'bg-accent/25 rounded-[8px] border-l-accent/20'
+      )}
+      triggerClass={cn(
+        'py-[0.4375rem]',
+        {
+          'sticky top-0 md:-top-10 z-[1] px-3 [&[data-state=open]]:rounded-t-[8px]':
+            isThread,
+          'px-[calc(32px-0.25rem)]': !isThread,
+          hidden: !isThread && index === 0, // Style differences for previous vs current messages
+          'dark:bg-[#1d283a9a] bg-iron !border-l-[transparent] [&[data-state=open]]:!bg-gray-400/50 dark:[&[data-state=open]]:!bg-mirage':
+            !isPrevious,
+          'bg-accent/15 dark:bg-accent/15 hover:bg-accent/30 hover:dark:bg-accent/30 border-l-accent/20 dark:border-l-accent/20 [&[data-state=open]]:!bg-accent/25 dark:[&[data-state=open]]:!bg-accent/25':
+            isPrevious
+        },
+        props.chatTitleClass
+      )}
+      contentClass={cn(
+        {
+          // Border styling differences
+          '!border-l-accent/20': isPrevious,
+          '!border-l-transparent': !isPrevious
+        },
+        props.chatContentClass
+      )}
+      variant="chat"
+    >
+      {/* Thread Title with indicator for previous messages */}
+      {!isThread && index === 0 ? (
+        ''
+      ) : (
+        <div
+          className={cn('flex items-start gap-2', {
+            '[&_div]:text-sm': isPrevious
+          })}
+        >
+          <ChatMessage actionRequired={false} message={pair.userMessage} />
+        </div>
+      )}
+      {/* Thread Description */}
+      {isThread ? (
+        <div className="opacity-50 pb-3 overflow-hidden text-sm mt-[0.375rem]">
+          {pair.chatGptMessage[0]?.content ? (
+            <div className="flex-1 px-1 space-y-2 overflow-hidden text-left">
+              <ShortMessage content={pair.chatGptMessage[0]?.content} />
+            </div>
+          ) : (
+            ''
+          )}
+        </div>
+      ) : (
+        <></>
+      )}
+
+      {/* Thread Content */}
+      <div
+        className={cn(
+          'mx-4 md:mx-[46px] px-1 py-4 border-transparent dark:border-x-mirage border-x-gray-300 border h-full',
+          {
+            '!border-[transparent]': !isThread && index === 0,
+            '[&>div>div>div_*]:!text-xs': isPrevious
+          },
+          props.chatContentClass
+        )}
+      >
+        {isPrevious && index === 0 ? (
+          <>
+            <span className="absolute top-1 -left-5 px-1.5 py-0.5 text-[10px] font-medium rounded-md bg-accent text-accent-foreground">
+              Previous Thread
+            </span>
+            <div className="pb-3 mt-4 overflow-hidden text-sm opacity-50">
+              Continued from{' '}
+              <b>&ldquo;{pair.userMessage.content.trim()}&rdquo;</b> thread
+              {activeThread?.thread?.user?.username
+                ? `, by ${activeThread?.thread?.user?.username}.`
+                : '.'}
+            </div>
+          </>
+        ) : (
+          ''
+        )}
+        <ChatLoadingState />
+        {pair.chatGptMessage.length > 0
+          ? pair.chatGptMessage.map(message => (
+              <ChatMessage
+                key={message.id}
+                actionRequired={false}
+                message={message}
+                sendMessageFromResponse={props.sendMessageFn}
+              />
+            ))
+          : ''}
+      </div>
+    </SharedAccordion>
   )
 }
 
@@ -192,7 +320,7 @@ export function ChatLoadingState() {
 
   if (!loadingState || !activeTool?.toolName) return null
 
-  if (loadingState?.match(/^(processing|digesting|polishing)/)) {
+  if (loadingState && !loadingState?.match(/^(generating|finished)/)) {
     return (
       <div className="flex items-center justify-center w-full h-20">
         <div className="w-8 h-8 border-4 border-t-4 border-gray-200 rounded-full animate-ping" />
@@ -203,7 +331,7 @@ export function ChatLoadingState() {
   switch (activeTool?.toolName) {
     case 'webSearch':
       return (
-        <div className='flex items-center w-full h-20 gap-4 opacity-65'>
+        <div className="flex items-center w-full h-20 gap-4 opacity-65">
           <GlobeIcon className="relative size-6 animate-bounce top-2" />
           <p className="flex flex-col gap-1 leading-none">
             <span>

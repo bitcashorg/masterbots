@@ -9,7 +9,6 @@ import { validateMbEnv } from 'mb-env'
 import {
   type Category,
   type Chatbot,
-  type ChatbotDomain,
   type MbClient,
   type Message,
   type Thread,
@@ -31,8 +30,26 @@ import type {
   UpsertUserParams,
 } from './hasura.service.type'
 
-function getHasuraClient({ jwt, adminSecret }: GetHasuraClientParams) {
+const chatbotEnumFieldsFragment = {
+  complexityEnum: {
+    prompt: true,
+  },
+  toneEnum: {
+    prompt: true,
+  },
+  lengthEnum: {
+    prompt: true,
+  },
+  typeEnum: {
+    prompt: true,
+  },
+}
+
+function getHasuraClient({ jwt, adminSecret, signal }: GetHasuraClientParams) {
   return createMbClient({
+    config: {
+      signal,
+    },
     jwt,
     adminSecret,
     debug: process.env.DEBUG === 'true',
@@ -52,13 +69,28 @@ export async function getCategories(userId?: string) {
             followeeIdChatbot: true,
           },
           __scalar: true,
+          categories: {
+            __scalar: true,
+          },
           prompts: {
             prompt: {
               __scalar: true,
             },
           },
+          ...chatbotEnumFieldsFragment,
         },
         __scalar: true,
+        __args: userId
+          ? {
+              where: {
+                chatbot: {
+                  threads: {
+                    userId: { _eq: userId },
+                  },
+                },
+              },
+            }
+          : {},
       },
       __scalar: true,
       __args: {
@@ -217,60 +249,93 @@ export async function getThreads({
   return thread as Thread[]
 }
 
-export async function getThread({ threadId, jwt }: Partial<GetThreadParams>) {
-  let client = getHasuraClient({})
-  if (jwt) client = getHasuraClient({ jwt })
-  const { thread } = await client.query({
-    thread: {
-      chatbot: {
-        __scalar: true,
-        categories: {
-          category: {
+export async function getThread({ threadId, jwt, signal }: Partial<GetThreadParams>) {
+  try {
+    const client = getHasuraClient({ signal, jwt: jwt || undefined })
+    const { thread: threadResponse } = await client.query({
+      thread: {
+        chatbot: {
+          __scalar: true,
+          categories: {
+            category: {
+              __scalar: true,
+            },
             __scalar: true,
           },
+          threads: {
+            threadId: true,
+          },
+          prompts: {
+            prompt: {
+              __scalar: true,
+            },
+          },
+          followers: {
+            followerId: true,
+            followeeIdChatbot: true,
+          },
+          ...chatbotEnumFieldsFragment,
+        },
+        user: {
+          username: true,
+          profilePicture: true,
+          slug: true,
+        },
+        thread: {
+          messages: {
+            __args: {
+              orderBy: [{ createdAt: 'ASC' }],
+            },
+            __scalar: true,
+          },
+          user: {
+            username: true,
+          },
+        },
+        messages: {
           __scalar: true,
+          __args: {
+            orderBy: [{ createdAt: 'ASC' }],
+          },
         },
-        threads: {
-          threadId: true,
-        },
-        prompts: {
-          prompt: everything,
-        },
-        followers: {
-          followerId: true,
-          followeeIdChatbot: true,
-        },
-      },
-      user: {
-        username: true,
-        profilePicture: true,
-        slug: true,
-      },
-      messages: {
         __scalar: true,
         __args: {
-          orderBy: [{ createdAt: 'ASC' }],
+          where: { threadId: { _eq: threadId } },
         },
       },
-      __scalar: true,
-      __args: {
-        where: { threadId: { _eq: threadId } },
-      },
-    },
-  })
-  return thread[0] as Thread
+    })
+
+    const thread = threadResponse[0] as Thread
+    // console.log('You got the thread updated! --> ', thread)
+    return thread
+  } catch (error) {
+    if ((error as Error).name === 'AbortError') {
+      console.error('ℹ️ Request was aborted: ', error)
+    } else {
+      console.error('Error fetching thread: ', error)
+    }
+
+    return null
+  }
 }
 
 export async function saveNewMessage({ jwt, ...object }: Partial<SaveNewMessageParams>) {
   const client = getHasuraClient({ jwt })
-  await client.mutation({
-    insertMessageOne: {
-      __args: {
-        object,
+  try {
+    const { insertMessageOne: newMessage } = await client.mutation({
+      insertMessageOne: {
+        __args: {
+          object,
+        },
+        __scalar: true,
       },
-      ...everything,
-    },
-  })
+    })
+
+    return newMessage as Message
+  } catch (error) {
+    console.error('Error saving new message:', error)
+    throw new Error('Failed to save new message.')
+  }
 }
 
 export async function upsertUser({ adminSecret, username, ...object }: UpsertUserParams) {
@@ -349,26 +414,29 @@ export async function getChatbot({ chatbotId, chatbotName, threads, jwt }: GetCh
       __args: {
         where: { name: { _eq: chatbotName } },
       },
-      ...everything,
+      __scalar: true,
       followers: {
         followerId: true,
         followeeIdChatbot: true,
       },
       categories: {
         category: {
-          ...everything,
+          __scalar: true,
         },
-        ...everything,
+        __scalar: true,
       },
       prompts: {
-        prompt: everything,
+        prompt: {
+          __scalar: true,
+        },
       },
+      ...chatbotEnumFieldsFragment,
       ...(threads
         ? {
             threads: {
-              ...everything,
+              __scalar: true,
               messages: {
-                ...everything,
+                __scalar: true,
                 __args: {
                   orderBy: [{ createdAt: 'ASC' }],
                 },
@@ -1115,6 +1183,7 @@ export async function chatbotFollowOrUnfollow({
 
 export async function fetchChatbotMetadata({
   chatbot, // ? domain === category: Renaming category to domains and category will be another level for the Masterbots (chatbots)
+  isPowerUp,
 }: ChatbotMetadataHeaders): Promise<ReturnFetchChatbotMetadata> {
   try {
     const client = getHasuraClient({})
@@ -1139,13 +1208,18 @@ export async function fetchChatbotMetadata({
         },
       },
     })
+    console.log('isPowerUp --> ', isPowerUp)
     const chatbotMetadata = chatbotDomain.filter(
       // ? Filtering Advanced chatbots domains
-      (item) => !item.domain.name.endsWith('(Advanced)'),
-    ) as unknown as ChatbotDomain[]
+      (item) =>
+        isPowerUp
+          ? item.domain.name.endsWith('(Advanced)')
+          : !item.domain.name.endsWith('(Advanced)'),
+    )
+    console.log('chatbotMetadata::BE --> ', chatbotMetadata)
 
     // require that the length is 1
-    if (chatbotMetadata.length > 2 || !chatbotMetadata[0].domain) {
+    if (!chatbotMetadata[0] || !chatbotMetadata[0].domain) {
       throw new Error('Invalid chatbot metadata response')
     }
 

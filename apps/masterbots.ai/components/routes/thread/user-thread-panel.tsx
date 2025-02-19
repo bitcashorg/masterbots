@@ -29,9 +29,9 @@ import BrowseListItem from '@/components/routes/browse/browse-list-item'
  */
 
 import ChatChatbotDetails from '@/components/routes/chat/chat-chatbot-details'
-import { ChatSearchInput } from '@/components/routes/chat/chat-search-input'
 import ThreadList from '@/components/routes/thread/thread-list'
 import { NoResults } from '@/components/shared/no-results-card'
+import { ThreadSearchInput } from '@/components/shared/shared-search'
 import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeletons'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PAGE_SIZE, PAGE_SM_SIZE } from '@/lib/constants/hasura'
@@ -57,15 +57,15 @@ export default function UserThreadPanel({
   showSearch?: boolean
   page?: string
 }) {
-  const params = useParams<{ chatbot: string; threadId: string; slug?: string }>()
+  const params = useParams<{ category?: string; chatbot?: string; threadId?: string; slug?: string }>()
   const { data: session } = useSession()
-  const { activeCategory, activeChatbot } = useSidebar()
-  const { isOpenPopup, activeThread, setActiveThread, setIsOpenPopup } = useThread()
+  const { activeCategory, activeChatbot, setActiveChatbot } = useSidebar()
+  const { isOpenPopup, activeThread, shouldRefreshThreads, setShouldRefreshThreads, setActiveThread, setIsOpenPopup } = useThread()
   const [loading, setLoading] = useState<boolean>(true)
   const { isContinuousThread, setIsContinuousThread } = useThreadVisibility()
   const [searchTerm, setSearchTerm] = useState<string>('')
   const searchParams = useSearchParams()
-  const { slug, threadId } = params
+  const { slug, category, chatbot } = params
   const continuousThreadId = searchParams.get('continuousThreadId')
 
   const userWithSlug = useAsync(async () => {
@@ -134,6 +134,7 @@ export default function UserThreadPanel({
     setLoading(false)
   }
 
+  // TODO: add this to continuous thread
   const getThreadByContinuousThreadId = async (continuousThreadId: string, session: Session) => {
     const thread = await getThread({
       threadId: continuousThreadId,
@@ -175,14 +176,75 @@ export default function UserThreadPanel({
     completeLoading(prevPathRef.current !== pathname)
   }, [initialThreads, pathname, activeChatbot, activeCategory])
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should run only when the active thread changes
-  useEffect(() => {
-    if (isOpenPopup && threads?.filter((t) => t.threadId === activeThread?.threadId).length)
-      return
+  const fetchIdRef = useRef<number>()
 
-    setIsOpenPopup(false)
-    setActiveThread(null)
-  }, [threads])
+  const handleThreadsChange = async () => {
+    if (!shouldRefreshThreads) return
+
+    try {
+      console.log('loading::handleThreadsChange', loading)
+      setLoading(true)
+      const userOnSlug = userWithSlug.value?.user
+      const isOwnProfile = session?.user?.id === userOnSlug?.userId
+      if (!session?.user || (!isOwnProfile && page === 'profile')) {
+        const newThreads = await fetchBrowseThreads()
+  
+        setState({
+          threads: newThreads,
+          totalThreads: threads?.length,
+          count: threads?.length,
+        })
+        setLoading(false)
+        return
+      }
+  
+      const currentFetchId = Date.now() // Generate a unique identifier for the current fetch
+      fetchIdRef.current = currentFetchId
+      const newThreads = await getThreads({
+        jwt: session?.user?.hasuraJwt,
+        userId: session?.user.id,
+        limit: PAGE_SIZE,
+        categoryId: activeCategory,
+        chatbotName: activeChatbot?.name
+      })
+  
+      // Check if the fetchId matches the current fetchId stored in the ref
+      if (fetchIdRef.current === currentFetchId) {
+        // If it matches, update the threads state
+        setState({
+          threads: newThreads,
+          totalThreads: threads?.length,
+          count: threads?.length,
+        })
+      }
+    } catch (error) {
+      console.error('Failed to fetch threads:', error)
+    } finally {
+      setIsOpenPopup(false)
+      setShouldRefreshThreads(false)
+      
+      if (activeThread) {
+        setActiveThread(null)
+      }
+      if (activeChatbot && (
+        (category && !chatbot) || (!category && !chatbot)
+      )) {
+        setActiveChatbot(null)
+      }
+      setLoading(false)
+    }
+  }
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should run only when the active thread is not in the thread list and we are closing the pop-up.
+  useEffect(() => {
+    if (isOpenPopup) return
+
+    const hasThreadListChanged = !threads?.some((t) =>
+      t.threadId === activeThread?.threadId || t.messages.length === activeThread?.messages.length
+    )
+
+    if (hasThreadListChanged) handleThreadsChange()
+  }, [threads, isOpenPopup, pathname, shouldRefreshThreads])
 
   const customMessage = activeChatbot
     ? `No threads available for ${activeChatbot.name}`
@@ -190,14 +252,14 @@ export default function UserThreadPanel({
       ? 'No threads available in the selected category'
       : 'Start a conversation to create your first thread'
   const showNoResults = !loading && searchTerm && threads.length === 0
-  const showChatbotDetails = !loading && !searchTerm && !threads.length && activeChatbot
-  const searchInputContainerClassName = 'flex justify-between px-4 py-5 md:px-10 lg:max-w-full'
+  const showChatbotDetails = !loading && !searchTerm && !threads.length
+  const searchInputContainerClassName = 'flex justify-between py-5 lg:max-w-full'
 
   return (
     <>
       {!loading && (threads.length !== 0 && (page !== 'profile' || (page !== 'profile' && !isContinuousThread))) && (
         <div className={searchInputContainerClassName}>
-          <ChatSearchInput setThreads={setState} onSearch={setSearchTerm} />
+          <ThreadSearchInput setThreads={setState} onSearch={setSearchTerm} />
         </div>
       )}
       {loading && (
@@ -209,7 +271,7 @@ export default function UserThreadPanel({
         </div>
       )}
       <ul className={cn(
-        'flex flex-col size-full gap-3 pb-5 px-4 lg:px-10',
+        'flex flex-col size-full gap-3 pb-5',
         {
           'items-center justify-center': showNoResults || showChatbotDetails,
         }

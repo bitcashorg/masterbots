@@ -4,12 +4,19 @@ import { wordwareFlows } from '@/lib/constants/wordware-flows'
 import type { aiTools } from '@/lib/helpers/ai-schemas'
 import type { WordWareDescribeDAtaResponse } from '@/types/wordware-flows.types'
 import axios from 'axios'
+import { appConfig } from 'mb-env'
 import type { z } from 'zod'
 import { getChatbotMetadata } from '.'
 
 const { WORDWARE_API_KEY } = process.env
 
 // TODO: Finish ICL implementation. ICL should be called as a tool that Ai will use to generate content.
+/**
+ * @deprecated
+ * ICL is not implemented as a tool, but part of the appendMBContext function in the use-mb-chat context hook.
+ *
+ * 💡 Use `getChatbotMetadata` function instead.
+ */
 export async function ChatbotMetadataTool({
   chatbot,
   userContent,
@@ -23,13 +30,16 @@ export async function ChatbotMetadataTool({
     const chatbotMetadata = await getChatbotMetadata(
       {
         chatbot: chatbot.chatbotId,
+        isPowerUp: false,
       },
       userContent,
       // ? We will be using OpenAi for a while, at least for these tools
       'OpenAI',
     )
 
-    console.log('chatbotMetadata ==> ', chatbotMetadata)
+    if (!appConfig.features.devMode) {
+      console.log('chatbotMetadata ==> ', chatbotMetadata)
+    }
     return JSON.stringify({
       chatbotMetadata,
     })

@@ -19,30 +19,30 @@ export interface NavigationParams {
 }
 
 interface SidebarContext {
-  isSidebarOpen: boolean
-  filteredCategories: Category[]
-  toggleSidebar: (toggle?: boolean) => void
-  isLoading: boolean
   tab: 'general' | 'work'
-  changeTab: (cate: 'general' | 'work') => void
-  activeCategory: number | null
-  activeChatbot: Chatbot | null
-  setActiveCategory: React.Dispatch<React.SetStateAction<number | null>>
-  setActiveChatbot: React.Dispatch<React.SetStateAction<Chatbot | null>>
-  isFilterMode: boolean
-  setIsFilterMode: React.Dispatch<React.SetStateAction<boolean>>
+  isLoading: boolean
   filterValue: string
-  setFilterValue: React.Dispatch<React.SetStateAction<string>>
-  selectedCategories: number[]
-  setSelectedCategories: React.Dispatch<React.SetStateAction<number[]>>
-  selectedChatbots: number[]
-  setSelectedChatbots: React.Dispatch<React.SetStateAction<number[]>>
+  isFilterMode: boolean
+  isSidebarOpen: boolean
   selectedChats: string[]
-  setSelectedChats: React.Dispatch<React.SetStateAction<string[]>>
+  activeChatbot: Chatbot | null
+  activeCategory: number | null
+  selectedChatbots: number[]
+  filteredCategories: Category[]
+  selectedCategories: number[]
   expandedCategories: number[]
+  changeTab: (cate: 'general' | 'work') => void
+  navigateTo: (params: NavigationParams) => void
+  toggleSidebar: (toggle?: boolean) => void
+  setFilterValue: React.Dispatch<React.SetStateAction<string>>
+  setIsFilterMode: React.Dispatch<React.SetStateAction<boolean>>
+  setSelectedChats: React.Dispatch<React.SetStateAction<string[]>>
+  setActiveChatbot: React.Dispatch<React.SetStateAction<Chatbot | null>>
+  setActiveCategory: React.Dispatch<React.SetStateAction<number | null>>
+  setSelectedChatbots: React.Dispatch<React.SetStateAction<number[]>>
+  setSelectedCategories: React.Dispatch<React.SetStateAction<number[]>>
   setExpandedCategories: React.Dispatch<React.SetStateAction<number[]>>
   toggleChatbotSelection: (chatbotId: number) => void
-  navigateTo: (params: NavigationParams) => void
 }
 
 const SidebarContext = React.createContext<SidebarContext | undefined>(undefined)
@@ -73,23 +73,18 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
     loading,
     error,
   } = useAsync(async () => {
-    let categories = []
+
     let userId = null
-    if (slug) {
-      const { user, error } = await getUserBySlug({
-        slug: slug as string,
-        isSameUser: false,
-      })
-
-      if (error) {
-        throw new Error(error)
-      }
-
-      userId = user?.userId
+    if(slug){
+      const { user, error } =  await getUserBySlug({
+        slug: slug as string, 
+        isSameUser: false
+       });
+        if(error) throw error
+       userId = user ? user?.userId : null
     }
-
-    categories = await getCategories()
-
+    
+   const categories = await getCategories(userId)
     const categoriesObj = {
       categoriesChatbots: categories || [],
       categoriesId: categories.map((category) => category.categoryId),

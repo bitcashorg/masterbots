@@ -1,6 +1,6 @@
 import { Card, CardHeader } from '@/components/ui/card'
-import { PanelLeft } from 'lucide-react'
 import { getRouteType } from '@/lib/utils'
+import { PanelLeft } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 
 export function OnboardingMobileView() {

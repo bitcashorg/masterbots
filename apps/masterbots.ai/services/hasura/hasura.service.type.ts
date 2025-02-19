@@ -1,6 +1,7 @@
 export type GetHasuraClientParams = {
   jwt?: string
   adminSecret?: string
+  signal?: AbortController['signal']
 }
 
 export interface HasuraServiceParams {
@@ -18,6 +19,7 @@ export interface GetThreadsParams extends HasuraServiceParams {
 
 export interface GetThreadParams extends HasuraServiceParams {
   threadId: string | null
+  signal?: AbortController['signal']
 }
 
 export interface SaveNewMessageParams extends HasuraServiceParams {

@@ -59,6 +59,7 @@ export function createChatbotMetadataPrompt(
     '.\n</context>\n' +
     '\n<instruction>\n' +
     '- Ensure the selected categories, sub-categories, and tags are highly relevant to the user question.\n' +
+    '- At least one category, one sub-category and one tag must be selected.\n' +
     '- Provide the labels and values in the exact format as requested.\n' +
     '- Keep the values concise and relevant to the question.\n' +
     '</instruction>\n' +
@@ -71,11 +72,12 @@ export function createChatbotMetadataPrompt(
 export function createBotConfigurationPrompt(chatbot: Chatbot) {
   return (
     '\n<instructions>\n' +
-    `Your response tone will be ${chatbot.defaultTone}. ` +
-    `Your response length will be ${chatbot.defaultLength}. ` +
-    `Your response format will be ${chatbot.defaultType}. ` +
-    `Your response complexity level will be ${chatbot.defaultComplexity}. ` +
-    'Your response will be generated in the same language as user input. ' +
+    [
+      chatbot.complexityEnum?.prompt,
+      chatbot.toneEnum?.prompt,
+      chatbot.typeEnum?.prompt,
+      chatbot.lengthEnum?.prompt,
+    ].join(' ') +
     '\n</instructions>\n'
   )
 }

@@ -12,8 +12,8 @@ import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { useAsync, useLocation } from 'react-use';
-import { SidebarCategoryGeneral } from '../sidebar/sidebar-category-general';
 import FooterCT from '../footer/footer-ct';
+import { SidebarCategoryGeneral } from '../sidebar/sidebar-category-general';
 
 export const ProfileSidebar = ({ children }: any) => {
   const pathname = usePathname()

@@ -1,7 +1,6 @@
 import { OnboardingMobileView } from '@/components/routes/chat/chat-onboarding-chatbot-mobile'
 import { SelectedBotMobileView } from '@/components/routes/chat/chat-selected-chatbot-mobile'
 import { OnboardingChatbotDetails } from '@/components/routes/chat/onboarding-chatbot-details'
-import { ChatChatbotDetailsSkeleton } from '@/components/shared/skeletons/chat-chatbot-details-skeleton'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useSonner } from '@/lib/hooks/useSonner'
 import { chatbotFollowOrUnfollow } from '@/services/hasura'
@@ -89,6 +88,7 @@ export default function ChatChatbotDetails() {
     onFollow: handleFollow,
   }
 
+ 
   return (
     <>
       <OnboardingChatbotDetails {...sharedProps} />

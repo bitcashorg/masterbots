@@ -1,14 +1,14 @@
 'use client'
-import React, { useEffect, useState } from 'react'
 import {
-  getThreads,
   UpdateThreadVisibility,
-  deleteThread,
   approveThread,
+  deleteThread,
+  getThreads,
   getUnapprovedThreads
 } from '@/services/hasura'
-import { useSession } from 'next-auth/react'
 import type { Thread } from 'mb-genql'
+import { useSession } from 'next-auth/react'
+import React, { useEffect, useState } from 'react'
 import { useSonner } from './useSonner'
 
 interface DeleteThreadResponse {
@@ -48,6 +48,8 @@ interface ThreadVisibilityProviderProps {
   children: React.ReactNode
 }
 
+// ? This depends on the client-side updates, not reading the server threads
+// ! TODO: Add initial server state to avoid flickering
 export function ThreadVisibilityProvider({
   children
 }: ThreadVisibilityProviderProps) {
@@ -60,6 +62,7 @@ export function ThreadVisibilityProvider({
   const session = useSession()
   const jwt = session?.data?.user?.hasuraJwt
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required here
   useEffect(() => {
     getThreadForUser()
   }, [jwt])
@@ -181,15 +184,15 @@ export function ThreadVisibilityProvider({
     <ThreadVisibilityContext.Provider
       value={{
         isPublic,
-        toggleVisibility,
         threads,
-        isSameUser,
-        initiateDeleteThread,
-        handleToggleAdminMode,
-        adminApproveThread,
         isAdminMode,
         isContinuousThread,
-        setIsContinuousThread
+        isSameUser,
+        toggleVisibility,
+        adminApproveThread,
+        initiateDeleteThread,
+        handleToggleAdminMode,
+        setIsContinuousThread,
       }}
     >
       {children}

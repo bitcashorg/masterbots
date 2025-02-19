@@ -6,8 +6,8 @@ import { cn, isFollowed, numberShortener } from '@/lib/utils'
 import type { BrowseChatbotLayoutProps } from '@/types/types'
 import {
   Bot,
-  MessageSquareIcon,
   ChevronLeft,
+  MessageSquareIcon,
   MessageSquarePlusIcon,
   Users
 } from 'lucide-react'
