@@ -1,17 +1,14 @@
-import { processWithAi } from '@/app/actions'
-import { AIModels } from '@/app/api/chat/models/models'
-import { createChatbotMetadataPrompt, setDefaultPrompt } from '@/lib/constants/prompts'
-import { cleanResult } from '@/lib/helpers/ai-helpers'
 import type {
-  AiClientType,
+  ChatbotMetadata,
+  ChatbotMetadataClassification,
   ChatbotMetadataHeaders,
+  ExampleMetadata,
   ReturnFetchChatbotMetadata,
 } from '@/types/types'
 import { validateMbEnv } from 'mb-env'
 import {
   type Category,
   type Chatbot,
-  type LabelChatbotCategory,
   type MbClient,
   type Message,
   type Thread,
@@ -33,8 +30,26 @@ import type {
   UpsertUserParams,
 } from './hasura.service.type'
 
-function getHasuraClient({ jwt, adminSecret }: GetHasuraClientParams) {
+const chatbotEnumFieldsFragment = {
+  complexityEnum: {
+    prompt: true,
+  },
+  toneEnum: {
+    prompt: true,
+  },
+  lengthEnum: {
+    prompt: true,
+  },
+  typeEnum: {
+    prompt: true,
+  },
+}
+
+function getHasuraClient({ jwt, adminSecret, signal }: GetHasuraClientParams) {
   return createMbClient({
+    config: {
+      signal,
+    },
     jwt,
     adminSecret,
     debug: process.env.DEBUG === 'true',
@@ -42,7 +57,7 @@ function getHasuraClient({ jwt, adminSecret }: GetHasuraClientParams) {
   })
 }
 
-export async function getCategories() {
+export async function getCategories(userId?: string) {
   const client = getHasuraClient({})
   const { category } = await client.query({
     category: {
@@ -53,13 +68,43 @@ export async function getCategories() {
             followerId: true,
             followeeIdChatbot: true,
           },
-          ...everything,
+          __scalar: true,
+          categories: {
+            __scalar: true,
+          },
+          prompts: {
+            prompt: {
+              __scalar: true,
+            },
+          },
+          ...chatbotEnumFieldsFragment,
         },
-        ...everything,
+        __scalar: true,
+        __args: userId
+          ? {
+              where: {
+                chatbot: {
+                  threads: {
+                    userId: { _eq: userId },
+                  },
+                },
+              },
+            }
+          : {},
       },
-      ...everything,
+      __scalar: true,
       __args: {
-        limit: 20,
+        where: userId
+          ? {
+              chatbots: {
+                chatbot: {
+                  threads: {
+                    userId: { _eq: userId },
+                  },
+                },
+              },
+            }
+          : {},
       },
     },
   })
@@ -80,6 +125,20 @@ export async function getCategory({ categoryId }: { categoryId: number }) {
   })
 
   return category[0] as Category
+}
+
+export async function getAllChatbots() {
+  const client = getHasuraClient({})
+  const { chatbot } = await client.query({
+    chatbot: {
+      name: true,
+      __args: {
+        limit: 100,
+      },
+    },
+  })
+
+  return chatbot as Chatbot[]
 }
 
 export async function getChatbots({ limit, offset, categoryId }: GetChatbotsParams) {
@@ -190,55 +249,93 @@ export async function getThreads({
   return thread as Thread[]
 }
 
-export async function getThread({ threadId, jwt }: Partial<GetThreadParams>) {
-  let client = getHasuraClient({})
-  if (jwt) client = getHasuraClient({ jwt })
-  const { thread } = await client.query({
-    thread: {
-      chatbot: {
-        ...everything,
-        categories: {
-          category: {
-            ...everything,
+export async function getThread({ threadId, jwt, signal }: Partial<GetThreadParams>) {
+  try {
+    const client = getHasuraClient({ signal, jwt: jwt || undefined })
+    const { thread: threadResponse } = await client.query({
+      thread: {
+        chatbot: {
+          __scalar: true,
+          categories: {
+            category: {
+              __scalar: true,
+            },
+            __scalar: true,
           },
-          ...everything,
+          threads: {
+            threadId: true,
+          },
+          prompts: {
+            prompt: {
+              __scalar: true,
+            },
+          },
+          followers: {
+            followerId: true,
+            followeeIdChatbot: true,
+          },
+          ...chatbotEnumFieldsFragment,
         },
-        threads: {
-          threadId: true,
+        user: {
+          username: true,
+          profilePicture: true,
+          slug: true,
         },
-        prompts: {
-          prompt: everything,
+        thread: {
+          messages: {
+            __args: {
+              orderBy: [{ createdAt: 'ASC' }],
+            },
+            __scalar: true,
+          },
+          user: {
+            username: true,
+          },
         },
-      },
-      user: {
-        username: true,
-        profilePicture: true,
-      },
-      messages: {
-        ...everything,
+        messages: {
+          __scalar: true,
+          __args: {
+            orderBy: [{ createdAt: 'ASC' }],
+          },
+        },
+        __scalar: true,
         __args: {
-          orderBy: [{ createdAt: 'ASC' }],
+          where: { threadId: { _eq: threadId } },
         },
       },
-      ...everything,
-      __args: {
-        where: { threadId: { _eq: threadId } },
-      },
-    },
-  })
-  return thread[0] as Thread
+    })
+
+    const thread = threadResponse[0] as Thread
+    // console.log('You got the thread updated! --> ', thread)
+    return thread
+  } catch (error) {
+    if ((error as Error).name === 'AbortError') {
+      console.error('ℹ️ Request was aborted: ', error)
+    } else {
+      console.error('Error fetching thread: ', error)
+    }
+
+    return null
+  }
 }
 
 export async function saveNewMessage({ jwt, ...object }: Partial<SaveNewMessageParams>) {
   const client = getHasuraClient({ jwt })
-  await client.mutation({
-    insertMessageOne: {
-      __args: {
-        object,
+  try {
+    const { insertMessageOne: newMessage } = await client.mutation({
+      insertMessageOne: {
+        __args: {
+          object,
+        },
+        __scalar: true,
       },
-      ...everything,
-    },
-  })
+    })
+
+    return newMessage as Message
+  } catch (error) {
+    console.error('Error saving new message:', error)
+    throw new Error('Failed to save new message.')
+  }
 }
 
 export async function upsertUser({ adminSecret, username, ...object }: UpsertUserParams) {
@@ -293,13 +390,14 @@ export async function createThread({
   threadId,
   jwt,
   userId,
+  parentThreadId,
   isPublic = true,
 }: Partial<CreateThreadParams>) {
   const client = getHasuraClient({ jwt })
   const { insertThreadOne } = await client.mutation({
     insertThreadOne: {
       __args: {
-        object: { threadId, chatbotId, userId, isPublic },
+        object: { threadId, chatbotId, isPublic, parentThreadId },
       },
       threadId: true,
     },
@@ -316,22 +414,29 @@ export async function getChatbot({ chatbotId, chatbotName, threads, jwt }: GetCh
       __args: {
         where: { name: { _eq: chatbotName } },
       },
-      ...everything,
+      __scalar: true,
+      followers: {
+        followerId: true,
+        followeeIdChatbot: true,
+      },
       categories: {
         category: {
-          ...everything,
+          __scalar: true,
         },
-        ...everything,
+        __scalar: true,
       },
       prompts: {
-        prompt: everything,
+        prompt: {
+          __scalar: true,
+        },
       },
+      ...chatbotEnumFieldsFragment,
       ...(threads
         ? {
             threads: {
-              ...everything,
+              __scalar: true,
               messages: {
-                ...everything,
+                __scalar: true,
                 __args: {
                   orderBy: [{ createdAt: 'ASC' }],
                 },
@@ -439,7 +544,10 @@ export async function getBrowseThreads({
         ...everything,
       },
       messages: {
-        ...everything,
+        messageId: true,
+        content: true,
+        createdAt: true,
+        role: true,
         __args: {
           orderBy: [{ createdAt: 'ASC' }],
           ...(keyword
@@ -463,7 +571,7 @@ export async function getBrowseThreads({
       isApproved: true,
       isPublic: true,
       userId: true,
-      ...everything,
+      __scalar: true,
     },
   })
 
@@ -657,41 +765,6 @@ export async function UpdateThreadVisibility({
   }
 }
 
-export async function fetchChatbotMetadata({
-  chatbot,
-  domain,
-}: ChatbotMetadataHeaders): Promise<ReturnFetchChatbotMetadata> {
-  try {
-    const client = getHasuraClient({})
-    const { labelChatbotCategory: chatbotMetadata } = await client.query({
-      labelChatbotCategory: {
-        __args: {
-          where: {
-            chatbotId: { _eq: chatbot },
-            categoryId: { _eq: domain },
-          },
-        },
-        label: {
-          questions: true,
-          categories: true,
-          subCategories: true,
-          tags: true,
-        },
-      },
-    })
-
-    if (!chatbotMetadata[0]) {
-      console.error('Chatbot metadata not found. Continuing without it.')
-      return null
-    }
-
-    return chatbotMetadata[0].label as LabelChatbotCategory['label']
-  } catch (error) {
-    console.error('Error fetching chatbot metadata:', error)
-    return null
-  }
-}
-
 export async function approveThread({
   threadId,
   jwt,
@@ -870,6 +943,12 @@ export async function getUserBySlug({
         },
 
         following: {
+          __args: {
+            where: {
+              followeeId: { _isNull: false },
+              followeeIdChatbot: { _isNull: true },
+            },
+          },
           followeeId: true,
           followerId: true,
           userByFollowerId: {
@@ -954,29 +1033,14 @@ export async function updateUserPersonality({
   }
 }
 
-export async function subtractChatbotMetadataLabels(
-  metadataHeaders: ChatbotMetadataHeaders,
-  userPrompt: string,
-  clientType: AiClientType,
-) {
-  const chatbotMetadata = await fetchChatbotMetadata(metadataHeaders)
-
-  if (!chatbotMetadata) {
-    console.error('Chatbot metadata not found. Generating response without them.')
-    return setDefaultPrompt(userPrompt)
-  }
-
-  const prompt = createChatbotMetadataPrompt(metadataHeaders, chatbotMetadata, userPrompt)
-  const response = await processWithAi(prompt, clientType, AIModels.Default)
-
-  return cleanResult(response)
-}
-
 const getFollowStatus = async (client: MbClient, followerId: string, followeeId: string) => {
   const { socialFollowing } = await client.query({
     socialFollowing: {
       __args: {
-        where: { followerId: { _eq: followerId }, followeeId: { _eq: followeeId } },
+        where: {
+          followerId: { _eq: followerId },
+          followeeId: { _eq: followeeId },
+        },
       },
       followeeId: true,
       followerId: true,
@@ -1002,7 +1066,10 @@ const unfollowUser = async (client: MbClient, followerId: string, followeeId: st
   return client.mutation({
     deleteSocialFollowing: {
       __args: {
-        where: { followerId: { _eq: followerId }, followeeId: { _eq: followeeId } },
+        where: {
+          followerId: { _eq: followerId },
+          followeeId: { _eq: followeeId },
+        },
       },
       affectedRows: true,
       returning: { followeeId: true, followerId: true },
@@ -1045,7 +1112,10 @@ const getChatbotFollowStatus = async (client: MbClient, followerId: string, foll
   const { socialFollowing } = await client.query({
     socialFollowing: {
       __args: {
-        where: { followerId: { _eq: followerId }, followeeIdChatbot: { _eq: followeeId } },
+        where: {
+          followerId: { _eq: followerId },
+          followeeIdChatbot: { _eq: followeeId },
+        },
       },
       followeeIdChatbot: true,
       followerId: true,
@@ -1071,7 +1141,10 @@ const unfollowChatbot = async (client: MbClient, followerId: string, followeeId:
   return client.mutation({
     deleteSocialFollowing: {
       __args: {
-        where: { followerId: { _eq: followerId }, followeeIdChatbot: { _eq: followeeId } },
+        where: {
+          followerId: { _eq: followerId },
+          followeeIdChatbot: { _eq: followeeId },
+        },
       },
       affectedRows: true,
       returning: { followeeIdChatbot: true, followerId: true },
@@ -1105,5 +1178,157 @@ export async function chatbotFollowOrUnfollow({
       success: false,
       error: error instanceof Error ? error.message : 'Failed to follow/unfollow chatbot.',
     }
+  }
+}
+
+export async function fetchChatbotMetadata({
+  chatbot, // ? domain === category: Renaming category to domains and category will be another level for the Masterbots (chatbots)
+  isPowerUp,
+}: ChatbotMetadataHeaders): Promise<ReturnFetchChatbotMetadata> {
+  try {
+    const client = getHasuraClient({})
+    const { chatbotDomain } = await client.query({
+      chatbotDomain: {
+        __args: {
+          where: {
+            chatbotId: { _eq: chatbot },
+          },
+        },
+        domain: {
+          name: true,
+          tag_enums: {
+            name: true,
+          },
+          category_enums: {
+            name: true,
+            subcategory_enums: {
+              name: true,
+            },
+          },
+        },
+      },
+    })
+    console.log('isPowerUp --> ', isPowerUp)
+    const chatbotMetadata = chatbotDomain.filter(
+      // ? Filtering Advanced chatbots domains
+      (item) =>
+        isPowerUp
+          ? item.domain.name.endsWith('(Advanced)')
+          : !item.domain.name.endsWith('(Advanced)'),
+    )
+    console.log('chatbotMetadata::BE --> ', chatbotMetadata)
+
+    // require that the length is 1
+    if (!chatbotMetadata[0] || !chatbotMetadata[0].domain) {
+      throw new Error('Invalid chatbot metadata response')
+    }
+
+    // Transform the data to create a dictionary of categories with subcategories as values
+    const transformedMetadata = chatbotMetadata.map((item) => ({
+      domainName: item.domain.name,
+      tags: item.domain.tag_enums.map((tag) => tag.name),
+      categories: item.domain.category_enums.reduce(
+        (acc: { [key: string]: string[] }, category) => {
+          acc[category.name] = category.subcategory_enums.map(
+            (subcat: { name: string }) => subcat.name,
+          )
+          return acc
+        },
+        {},
+      ),
+    }))
+
+    // console.log('transformedMetadata', transformedMetadata);
+
+    return transformedMetadata[0] as unknown as ChatbotMetadata
+  } catch (error) {
+    console.error('Error fetching chatbot metadata:', error)
+    return null
+  }
+}
+
+export async function fetchDomainExamples({
+  domainName,
+  categories,
+}: ChatbotMetadataClassification) {
+  try {
+    const client = getHasuraClient({})
+    const categoryArgs = categories.map((category) => ({
+      category: {
+        _like: `%${category}%`,
+      },
+    }))
+    const { example: examples } = await client.query({
+      example: {
+        __args: {
+          where: {
+            domain: { _eq: domainName },
+            _or: categoryArgs,
+          },
+        },
+        prompt: true,
+        category: true,
+        domain: true,
+        exampleId: true,
+        response: true,
+        subcategory: true,
+        tags: true,
+      },
+    })
+
+    return examples.map((example) => ({
+      ...example,
+      cumulativeSum: 0,
+    })) as unknown as ExampleMetadata[]
+  } catch (error) {
+    console.error('Error fetching examples:', error)
+    return null
+  }
+}
+
+export async function fetchDomainTags({
+  domainName,
+  tags: tagNames,
+}: ChatbotMetadataClassification) {
+  try {
+    const client = getHasuraClient({})
+    const tagNameArgs = tagNames.map((tag) => ({
+      name: {
+        _eq: tag,
+      },
+    }))
+    const { tagEnum: tags } = await client.query({
+      tagEnum: {
+        __args: {
+          where: {
+            domain: { _eq: domainName },
+            _or: tagNameArgs,
+          },
+        },
+        name: true,
+        frequency: true,
+        tagId: true,
+      },
+    })
+
+    if (!tags.length) {
+      throw new Error(`No tags found for domain: ${domainName}`)
+    }
+
+    // change to a dict with key of tagId and value of object with name and frequency
+    const transformedTags: { [key: string]: { name: string; frequency: number } } = {}
+
+    for (const tag in tags) {
+      const tagData = tags[tag]
+      transformedTags[tagData.tagId] = {
+        name: tagData.name,
+        frequency: tagData.frequency,
+      }
+    }
+
+    return transformedTags
+  } catch (error) {
+    console.error('Error fetching tags:', error)
+    return null
   }
 }

@@ -23,14 +23,14 @@ export default async function BrowseProBotPage({
   if (isTokenExpired(jwt)) {
     redirect(`/auth/signin`);
   }
-  const chatbotName = botNames.get(params.chatbot);
+  const chatbotName = (await botNames).get(params.chatbot);
   if (!chatbotName) {
     throw new Error(`Chatbot name for ${params.chatbot} not found`);
   }
   const chatbot = await getChatbot({ chatbotName, jwt });
 
   if (!chatbot)
-    throw new Error(`Chatbot ${botNames.get(params.chatbot)} not found`);
+    throw new Error(`Chatbot ${chatbotName} not found`);
 
   // session will always be defined
 
@@ -44,8 +44,7 @@ export default async function BrowseProBotPage({
     <>
       <ThreadPanel
         threads={threads}
-        chatbot={chatbot.name}
-        search={searchParams}
+      // search={searchParams}
       />{" "}
       <ChatChatbot chatbot={chatbot} />
     </>

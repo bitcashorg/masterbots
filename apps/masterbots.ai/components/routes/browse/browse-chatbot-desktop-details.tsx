@@ -1,9 +1,10 @@
 import ShareLink from '@/components/routes/thread/thread-share-link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { cn, numberShortener } from '@/lib/utils'
+import { cn, isFollowed, numberShortener } from '@/lib/utils'
 import type { BrowseChatbotLayoutProps } from '@/types/types'
-import { Bot, MessageSquareIcon, ChevronLeft, MessageSquarePlusIcon, Users } from 'lucide-react'
+import { Bot, ChevronLeft, MessageSquareIcon, MessageSquarePlusIcon, Users } from 'lucide-react'
+import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -13,8 +14,14 @@ export function BrowseChatbotDesktopDetails({
   isWelcomeView,
   descriptionPoints,
   hasMultiplePoints,
-  botUrl
+  botUrl,
+  followers,
+  onFollow
 }: BrowseChatbotLayoutProps) {
+
+  const { data: session } = useSession()
+  const followed = isFollowed({followers, userId: session?.user?.id || ''}) 
+
   return (
     <div className="hidden md:block w-full relative bg-left-bottom bg-[url('/hero-bg.png')] bg-no-repeat py-6">
       <div className="absolute inset-0 z-0 bg-gradient-to-l from-mirage via-[#6A0D826E]/80 to-[#9412B5BF] dark:via-[#66B252BF]/80 dark:to-[#83E56A6B]/80" />
@@ -125,7 +132,7 @@ export function BrowseChatbotDesktopDetails({
                   <Users className="size-4" />
                   <span>
                     Followers: <span className="text-gray-400">
-                      {numberShortener(3200)}
+                      {numberShortener(followers?.length || 0)}
                     </span>
                   </span>
                 </div>
@@ -138,8 +145,9 @@ export function BrowseChatbotDesktopDetails({
                     'font-normal text-zinc-500 text-sm',
                     'flex justify-center items-center gap-1'
                   )}
+                  onClick={onFollow}
                 >
-                  Follow
+                  {followed ? 'Following' : 'Follow'}
                 </Button>
               </div>
             </div>

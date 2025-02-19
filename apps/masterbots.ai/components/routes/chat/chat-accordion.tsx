@@ -1,7 +1,6 @@
 //* Component for displaying a collapsible chat thread accordion
 
 import { useThread } from '@/lib/hooks/use-thread'
-import { urlBuilders } from '@/lib/url'
 import { ChevronDown } from 'lucide-react'
 import type { Thread } from 'mb-genql'
 import { useParams, usePathname, useRouter } from 'next/navigation'
@@ -24,7 +23,11 @@ export const ChatAccordion = ({
 }: {
   className?: string
   children: React.ReactNode[]
+
+  
   defaultState?: boolean
+
+
   triggerClass?: string
   contentClass?: string
   onToggle?: (isOpen: boolean) => void
@@ -58,6 +61,7 @@ export const ChatAccordion = ({
   //* Handles click events on the accordion header
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation()
+    e.preventDefault()
 
     if (isMainThread && thread && !profilePage) {
       //* Main thread click - open modal
@@ -66,17 +70,9 @@ export const ChatAccordion = ({
     } else {
       //* Sub-conversation click - toggle accordion
       if (profilePage) {
-        setIsOpenPopup(false)
         setActiveThread(null)
-        const category = thread?.chatbot?.categories[0]?.category?.name
-        const chatbot = thread?.chatbot?.name
-        const slug = params.slug;
-        if (!category || !chatbot || !slug) {
-          console.error('Missing required navigation parameters');
-          return;
+        setIsOpenPopup(false)
         }
-        router.push(urlBuilders.threadUrl({ slug: slug as string, category, chatbot, threadId: thread?.threadId }))
-      }
       toggle()
     }
   }
@@ -128,7 +124,7 @@ export const ChatAccordion = ({
                 }
               }
               : {})}
-            className={`${open ? '' : '-rotate-90'} absolute -right-2 size-4 shrink-0 mr-4 transition-transform duration-200 ${arrowClass || ''} ${disabled ? 'hidden' : ''}`}
+            className={`${open ? '' : '-rotate-90'} absolute -right-2 !top-1 size-4 shrink-0 mr-4 transition-transform duration-200 ${arrowClass || ''} ${disabled ? 'hidden' : ''}`}
           />
         </button>
       )}

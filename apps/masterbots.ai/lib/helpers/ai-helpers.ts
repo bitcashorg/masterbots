@@ -1,9 +1,10 @@
 import { AIModels } from '@/app/api/chat/models/models'
+import { examplesSchema, metadataSchema, toolSchema } from '@/lib/helpers/ai-schemas'
 import type { AiClientType, CleanPromptResult } from '@/types/types'
 import type { StreamEntry } from '@/types/wordware-flows.types'
-import type { MessageParam } from '@anthropic-ai/sdk/resources'
+import type Anthropic from '@anthropic-ai/sdk'
 import { type CoreMessage, generateId } from 'ai'
-import type { ChatCompletionMessageParam } from 'openai/resources'
+import type OpenAI from 'openai'
 
 // * This function gets the model client type
 export function getModelClientType(model: AIModels) {
@@ -18,6 +19,8 @@ export function getModelClientType(model: AIModels) {
       return 'Perplexity'
     case AIModels.WordWare:
       return 'WordWare'
+    case AIModels.DeepSeekR1:
+      return 'DeepSeek' // Add this case
     default:
       throw new Error('Unsupported model specified')
   }
@@ -27,7 +30,7 @@ export function getModelClientType(model: AIModels) {
 export function createPayload(
   json: { id: string },
   messages: { content: string }[],
-  completion: any
+  completion: any,
 ) {
   const title = messages[0]?.content.substring(0, 100)
   const id = json.id ?? generateId()
@@ -43,17 +46,17 @@ export function createPayload(
       ...messages,
       {
         content: completion,
-        role: 'assistant'
-      }
-    ]
+        role: 'assistant',
+      },
+    ],
   }
 }
 
 // * This function sets the streamer payload
 export function setStreamerPayload(
   model: AiClientType,
-  payload: ChatCompletionMessageParam[]
-): ChatCompletionMessageParam[] | MessageParam[] {
+  payload: OpenAI.ChatCompletionMessageParam[],
+): OpenAI.ChatCompletionMessageParam[] | Anthropic.MessageParam[] {
   switch (model) {
     case 'WordWare':
       return payload
@@ -64,11 +67,28 @@ export function setStreamerPayload(
             role: index
               ? message.role.replace('system', 'assistant')
               : message.role.replace('system', 'user'),
-            content: message.content
-          }) as MessageParam
+            content: message.content,
+          }) as Anthropic.MessageParam,
       )
-    case 'OpenAI':
-    case 'Perplexity':
+    case 'DeepSeek':
+      return payload.map((message) => {
+        if (message.role === 'assistant') {
+          const content = message.content as string
+          // Extract any existing reasoning if present
+          const reasoningMatch = content.match(/<think>(.*?)<\/think>/s)
+          const answerMatch = content.match(/<answer>(.*?)<\/answer>/s)
+
+          return {
+            ...message,
+            // If content already has think/answer tags, use those, otherwise add reasoning field
+            content: answerMatch ? content : `<answer>${content}</answer>`,
+            reasoning: reasoningMatch
+              ? reasoningMatch[1]
+              : '<think>Analyzing the context and formulating a response...</think>',
+          }
+        }
+        return message
+      })
     default:
       return payload
   }
@@ -76,17 +96,17 @@ export function setStreamerPayload(
 
 // * This function converts the messages to the core messages
 export function convertToCoreMessages(
-  messages: ChatCompletionMessageParam[]
+  messages: OpenAI.ChatCompletionMessageParam[],
 ): CoreMessage[] {
-  return messages.map(msg =>
+  return messages.map((msg) =>
     msg.role.match(/(user|system|assistant)/)
       ? {
           role: msg.role as 'user' | 'system' | 'assistant',
-          content: msg.content as string
+          content: msg.content as string,
         }
       : (() => {
           throw new Error(`Unsupported message role: ${msg.role}`)
-        })()
+        })(),
   )
 }
 
@@ -105,17 +125,29 @@ export async function fetchPromptDetails(promptId: string) {
 
   return response.json()
 }
-
 export function cleanPrompt(str: string) {
-  const marker = '].  Then answer this question:'
-  const index = str.indexOf(marker)
-  let extracted = ''
+  const markers = [
+    '].  \n\nNow please answer the following question: ',
+    ']. \n\nNow please answer the following question: ',
+    '].\n\nNow please answer the following question: ',
+  ]
+  let extracted = str
 
-  if (index !== -1) {
-    extracted = str.substring(index + marker.length)
+  const runExtraction = () => {
+    let markerFound = false
+    for (const marker of markers) {
+      const index = extracted.indexOf(marker)
+      if (index !== -1) {
+        extracted = extracted.substring(index + marker.length)
+        markerFound = true
+      }
+    }
+    return markerFound
   }
-  // console.log('cleanPrompt', str, extracted, index)
-  return extracted || str
+
+  while (runExtraction()) {}
+
+  return extracted
 }
 
 export function cleanResult(result: string): CleanPromptResult {
@@ -150,3 +182,9 @@ export const processLogEntry = (logEntry: StreamEntry) => {
     }
   }
 }
+
+export const mbObjectSchema = {
+  metadata: metadataSchema,
+  examples: examplesSchema,
+  tool: toolSchema,
+} as const

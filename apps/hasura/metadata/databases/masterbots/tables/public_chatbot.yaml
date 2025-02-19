@@ -22,13 +22,6 @@ array_relationships:
         table:
           name: chatbot_category
           schema: public
-  - name: chats
-    using:
-      foreign_key_constraint_on:
-        column: chatbot_id
-        table:
-          name: chat
-          schema: public
   - name: followers
     using:
       foreign_key_constraint_on:
@@ -36,12 +29,12 @@ array_relationships:
         table:
           name: social_following
           schema: public
-  - name: metadataLabels
+  - name: metadata
     using:
       foreign_key_constraint_on:
         column: chatbot_id
         table:
-          name: label_chatbot_category
+          name: chatbot_domain
           schema: public
   - name: preferences
     using:
@@ -78,6 +71,7 @@ select_permissions:
         - description
         - name
       filter: {}
+      allow_aggregations: true
     comment: ""
   - role: moderator
     permission:

@@ -1,7 +1,7 @@
-
 export type GetHasuraClientParams = {
   jwt?: string
   adminSecret?: string
+  signal?: AbortController['signal']
 }
 
 export interface HasuraServiceParams {
@@ -19,12 +19,14 @@ export interface GetThreadsParams extends HasuraServiceParams {
 
 export interface GetThreadParams extends HasuraServiceParams {
   threadId: string | null
+  signal?: AbortController['signal']
 }
 
 export interface SaveNewMessageParams extends HasuraServiceParams {
   content: string
   role: 'user' | 'assistant'
   threadId: string
+  createdAt?: string
 }
 
 // this can only be called by admin
@@ -41,6 +43,7 @@ export interface CreateThreadParams extends HasuraServiceParams {
   threadId: string
   userId: string
   isPublic?: boolean
+  parentThreadId?: string
 }
 
 export interface GetChatbotParams extends HasuraServiceParams {
@@ -73,10 +76,10 @@ export interface GetMessagesParams extends GetHasuraClientParams {
   limit?: number
   offset?: number
 }
-export  interface UpdateUserArgs {
-  pkColumns: { userId: string | undefined };
+export interface UpdateUserArgs {
+  pkColumns: { userId: string | undefined }
   _set?: {
-    bio?: string;
-    favouriteTopic?: string;
-  };
+    bio?: string
+    favouriteTopic?: string
+  }
 }

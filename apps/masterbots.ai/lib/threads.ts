@@ -14,23 +14,26 @@ export function convertMessage(message: Message) {
     id: message.messageId,
     content: message.content,
     createAt: message.createdAt,
-    role: message.role
+    role: message.role,
   } as AI.Message
 }
 
-export function getAllUserMessagesAsStringArray(
-  allMessages: Message[] | AI.Message[]
-) {
-  const userMessages = allMessages.filter(m => m.role === 'user')
-  const cleanMessages = userMessages.map(m =>
-    extractBetweenMarkers(m.content, 'Then answer this question:')
+export function getAllUserMessagesAsStringArray(allMessages: Message[] | AI.Message[]) {
+  const userMessages = allMessages.filter((m) => m.role === 'user')
+  const cleanMessages = userMessages.map((m) =>
+    extractBetweenMarkers(
+      m.content,
+      // 'OK, so following the same pattern, how would you answer the question:',
+      // 'First, think about the following questions and requests: [',
+      'Here are a list of questions that may be relevant for you to understand my chain of thoughts: [',
+    ),
   )
   return cleanMessages.join(', ')
 }
 
 export function getThreadLink({
   chat = false,
-  thread
+  thread,
 }: {
   chat?: boolean
   thread: Thread
