@@ -4,6 +4,7 @@ import { wordwareFlows } from '@/lib/constants/wordware-flows'
 import type { aiTools } from '@/lib/helpers/ai-schemas'
 import type { WordWareDescribeDAtaResponse } from '@/types/wordware-flows.types'
 import axios from 'axios'
+import { appConfig } from 'mb-env'
 import type { z } from 'zod'
 import { getChatbotMetadata } from '.'
 
@@ -36,7 +37,9 @@ export async function ChatbotMetadataTool({
       'OpenAI',
     )
 
-    console.log('chatbotMetadata ==> ', chatbotMetadata)
+    if (!appConfig.features.devMode) {
+      console.log('chatbotMetadata ==> ', chatbotMetadata)
+    }
     return JSON.stringify({
       chatbotMetadata,
     })

@@ -34,6 +34,20 @@ select_permissions:
         - example_id
       filter: {}
     comment: ""
+  - role: moderator
+    permission:
+      columns:
+        - tags
+        - category
+        - domain
+        - subcategory
+        - metadata
+        - prompt
+        - response
+        - added
+        - example_id
+      filter: {}
+    comment: ""
   - role: user
     permission:
       columns:

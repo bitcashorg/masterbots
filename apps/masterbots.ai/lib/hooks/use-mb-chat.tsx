@@ -201,15 +201,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
         saveNewMessage(newAssistantMessage),
       ])
 
-      throttle(async () => {
-        setIsNewResponse(false)
-
-        await updateActiveThread()
-      }, 500)()
-
-      setLoadingState('finished')
-      setActiveTool(undefined)
-
       // ? This is when we want to reflect the whole conversation and serves as a fallback
       // ? whenever the conversation glitches due the bug with the "isNewChat" boolean.
       // ! Logic has to improve...
@@ -224,6 +215,13 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       setState({
         isNewChat: false,
       })
+
+      // ? We throttle for smooth transition between the messages
+      throttle(() => {
+        setIsNewResponse(false)
+        setLoadingState('finished')
+        setActiveTool(undefined)
+      }, 500)()
     },
     // @ts-ignore
     onToolCall({ toolCall }: { toolCall: AiToolCall }) {
