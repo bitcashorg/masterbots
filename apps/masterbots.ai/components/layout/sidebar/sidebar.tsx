@@ -16,7 +16,7 @@ export function Sidebar({ className }: React.ComponentProps<'div'>) {
   const rootAndChatRegex = /^\/(?:c)?$/
   const isChatRoute = pathname?.startsWith('/c')
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   React.useEffect(() => {
     if (rootAndChatRegex.test(pathname)) {
       setActiveThread(null)
@@ -24,7 +24,6 @@ export function Sidebar({ className }: React.ComponentProps<'div'>) {
     }
     prevPathRef.current = pathname
   }, [pathname])
-
 
   if (isLoading) return null
 
@@ -36,15 +35,13 @@ export function Sidebar({ className }: React.ComponentProps<'div'>) {
           className,
           'h-full flex flex-col z-40',
           isChatRoute
-            ? 'bg-[#eeffea] dark:bg-[#081D02]' // For /c routes
-            : 'bg-[#fae8ff] dark:bg-[#17021D]'  // For other routes
+            ? 'bg-[#fae8ff] dark:bg-[#000000]' // For /c routes only
+            : 'bg-[#eeffea] dark:bg-[#000000]'  // For other routes
         )}
       >
-        <div className="overflow-y-auto scrollbar h-[calc(100%-113px)]">
-          <SidebarHeader />
-          <div className="p-4 overflow-y-auto grow scrollbar">
-            <SidebarCategoryGeneral />
-          </div>
+        <SidebarHeader />
+        <div className="pt-4 pb-20 h-full scrollbar">
+          <SidebarCategoryGeneral />
         </div>
       </aside>
     </>

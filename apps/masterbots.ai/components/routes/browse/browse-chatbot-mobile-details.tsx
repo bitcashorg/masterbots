@@ -2,26 +2,29 @@
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { cn, numberShortener } from '@/lib/utils'
+import { cn, isFollowed, numberShortener } from '@/lib/utils'
 import type { BrowseChatbotLayoutProps } from '@/types/types'
 import {
   Bot,
-  MessageSquareIcon,
   ChevronLeft,
+  MessageSquareIcon,
   MessageSquarePlusIcon,
   Users
 } from 'lucide-react'
+import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import Link from 'next/link'
 
 export function BrowseChatbotMobileDetails({
   chatbot,
-  isLoading,
-  generateType,
-  onGenerateBio,
-  isWelcomeView,
-  botUrl
+  botUrl,
+  followers,
+  onFollow
 }: BrowseChatbotLayoutProps) {
+
+  const { data: session } = useSession()
+  const followed = isFollowed({followers, userId: session?.user?.id || ''}) 
+
   return (
     <div className="md:hidden w-full relative bg-left-bottom bg-[url('/hero-bg.png')] bg-no-repeat py-6">
       <div className="absolute inset-0 bg-gradient-to-l from-mirage via-[#6A0D826E]/80 to-[#9412B5BF] dark:via-[#66B252BF]/80 dark:to-[#83E56A6B]/80" />
@@ -104,28 +107,33 @@ export function BrowseChatbotMobileDetails({
             <div className="h-[42px] flex-col justify-center items-center inline-flex">
               <div className="inline-flex items-center justify-center gap-3">
                 <div className="w-[67px] flex-col justify-end items-center gap-1.5 inline-flex">
-                  <div className="w-[70px] h-5 text-center text-zinc-950 dark:text-gray-300 text-[13px] font-normal">
+                  {/* <div className="w-[70px] h-5 text-center text-zinc-950 dark:text-gray-300 text-[13px] font-normal">
                     Following
-                  </div>
-                  <div className="justify-start items-end gap-1.5 inline-flex">
+                  </div> */}
+                  {/* <div className="justify-start items-end gap-1.5 inline-flex">
                     <Users className="size-4 text-zinc-950 dark:text-gray-300" />
                     <div className="text-center text-zinc-500 text-[13px] font-normal">
-                      {numberShortener(313)}
+                      {numberShortener(followers?.length || 0)}
                     </div>
-                  </div>
+                  </div> */}
                 </div>
-                <div className="inline-flex flex-col items-center justify-center">
+                <div className="flex items-center space-x-5">
+                  <div className='inline-flex flex-col items-center justify-center'>
                   <div className="w-[70px] h-5 text-center text-zinc-950 dark:text-gray-300 text-[13px] font-normal">
                     Followers
                   </div>
-                  <div className="inline-flex items-center justify-start gap-3">
+                  <div className="inline-flex items-center justify-start gap-5">
                     <div className="justify-start items-end gap-1.5 flex">
                       <Users className="size-4 text-zinc-950 dark:text-gray-300" />
                       <div className="text-center text-zinc-500 text-[13px] font-normal">
-                        {numberShortener(3200)}
+                        {numberShortener(followers?.length || 0)}
                       </div>
                     </div>
-                    <Button
+                  </div>
+                  </div>
+
+
+                  <Button
                       variant="outline"
                       size="sm"
                       className={cn(
@@ -136,10 +144,10 @@ export function BrowseChatbotMobileDetails({
                         'hover:bg-zinc-100/10 hover:text-zinc-400',
                         'transition-colors'
                       )}
+                      onClick={onFollow}
                     >
-                      Follow
+                      {followed ? 'Following' : 'Follow'}
                     </Button>
-                  </div>
                 </div>
               </div>
             </div>

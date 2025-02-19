@@ -3,7 +3,7 @@ import {
   extractTextFromReactNodeNormal,
   extractTextFromReactNodeWeb,
   parseClickableText,
-  transformLink,
+  transformLink
 } from '@/lib/clickable-results'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn } from '@/lib/utils'
@@ -15,7 +15,7 @@ export function ClickableText({
   isListItem,
   sendMessageFromResponse,
   webSearchResults = [],
-  onReferenceFound,
+  onReferenceFound
 }: ClickableTextProps) {
   const { webSearch } = useThread()
 
@@ -26,56 +26,110 @@ export function ClickableText({
   const createClickHandler = (text: string) => () => {
     if (sendMessageFromResponse && text.trim()) {
       const cleanedText = cleanClickableText(text)
-      sendMessageFromResponse(`Tell me more about ${cleanedText}`)
+      sendMessageFromResponse(
+        `Explain more in-depth and in detail about ${cleanedText}`
+      )
     }
+  }
+
+  const processNestedContent = (content: React.ReactNode): React.ReactNode => {
+    if (React.isValidElement(content)) {
+      if (content.type === 'ul' || content.type === 'ol') {
+        return React.cloneElement(content, {
+          ...content.props,
+          className: cn(
+            content.props.className,
+            'mt-2 ml-4',
+            content.type === 'ul' ? 'list-disc' : 'list-decimal',
+            'nested-list'
+          ),
+          children: React.Children.map(content.props.children, child =>
+            processNestedContent(child)
+          )
+        })
+      }
+
+      if (content.type === 'li') {
+        const hasNestedList = React.Children.toArray(
+          content.props.children
+        ).some(
+          child =>
+            React.isValidElement(child) &&
+            (child.type === 'ul' || child.type === 'ol')
+        )
+
+        return React.cloneElement(content, {
+          ...content.props,
+          className: cn(
+            content.props.className,
+            'ml-4',
+            hasNestedList && 'mt-2'
+          ),
+          children: processNestedContent(content.props.children)
+        })
+      }
+    }
+
+    return content
   }
 
   const processLink = (linkElement: React.ReactElement) => {
     const href = linkElement.props.href
-    // Buscar la referencia correspondiente
-    const reference = webSearchResults.find((result) => result.url === href)
+    const reference = webSearchResults.find(result => result.url === href)
 
     if (reference && onReferenceFound) {
       onReferenceFound(reference)
-      return null // Remover el link inline
+      return null
     }
 
-    return linkElement // Mantener links que no son de búsqueda web
+    return linkElement
   }
 
   const renderClickableContent = (clickableText: string, restText: string) => (
-    <>
+    <span className="inline">
       <button
-        className={cn('cursor-pointer hover:underline bg-transparent border-none p-0 m-0', isListItem ? 'text-blue-500' : 'text-link')}
+        className={cn(
+          'inline-block cursor-pointer hover:underline bg-transparent border-none p-0 m-0 text-left',
+          isListItem ? 'text-blue-500' : 'text-link'
+        )}
         onClick={createClickHandler(clickableText)}
         type="button"
       >
         {clickableText}
       </button>
-      {restText}
-    </>
+      {restText.startsWith(':') ? restText.replace(/^:/, ': ') : restText}
+    </span>
   )
 
   if (Array.isArray(extractedContent)) {
     return extractedContent.map((content, index) => {
       if (React.isValidElement(content)) {
+        if (content.type === 'ul' || content.type === 'ol') {
+          return processNestedContent(content)
+        }
+
         if (content.type === 'a' && webSearch) {
           return processLink(content)
         }
-        // Manejo de elementos strong
+
         if (content.type === 'strong') {
           const strongContent = extractTextFromReactNodeNormal(
-            (content.props as { children: React.ReactNode }).children,
+            (content.props as { children: React.ReactNode }).children
           )
-          const { clickableText, restText } = parseClickableText(strongContent + ':')
+          const { clickableText, restText } = parseClickableText(
+            strongContent + ':'
+          )
 
           if (clickableText.trim()) {
             return (
               <button
-                key={`clickable-${index}`}
+                key={`clickable-${
+                  // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                  index
+                  }`}
                 className={cn(
                   'cursor-pointer hover:underline',
-                  isListItem ? 'text-blue-500' : 'text-link',
+                  isListItem ? 'text-blue-500' : 'text-link'
                 )}
                 onClick={createClickHandler(clickableText)}
                 type="button"
@@ -88,19 +142,19 @@ export function ClickableText({
           return content
         }
 
-        // Manejo de links cuando webSearch está activo
         if (content.type === 'a' && webSearch) {
           const parentContext = extractedContent
             .filter(
-              (item) =>
-                typeof item === 'string' || (React.isValidElement(item) && item.type === 'strong'),
+              item =>
+                typeof item === 'string' ||
+                (React.isValidElement(item) && item.type === 'strong')
             )
-            .map((item) =>
+            .map(item =>
               typeof item === 'string'
                 ? item
                 : extractTextFromReactNodeNormal(
-                  (item.props as { children: React.ReactNode }).children,
-                ),
+                  (item.props as { children: React.ReactNode }).children
+                )
             )
             .join(' ')
           return transformLink(content, parentContext)
@@ -116,7 +170,12 @@ export function ClickableText({
       }
 
       return (
-        <React.Fragment key={`clickable-${index}`}>
+        <React.Fragment
+          key={`clickable-${
+            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+            index
+            }`}
+        >
           {renderClickableContent(clickableText, restText)}
         </React.Fragment>
       )
@@ -127,7 +186,9 @@ export function ClickableText({
     return extractedContent
   }
 
-  const { clickableText, restText } = parseClickableText(String(extractedContent))
+  const { clickableText, restText } = parseClickableText(
+    String(extractedContent)
+  )
 
   if (!clickableText.trim()) {
     return <>{extractedContent}</>

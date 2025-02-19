@@ -1,0 +1,1 @@
+CREATE TABLE "public"."subcategory_enum" ("name" varchar NOT NULL, "category" varchar NOT NULL, "domain" varchar NOT NULL, "added" timestamptz NOT NULL DEFAULT now(), PRIMARY KEY ("name","category","domain") , FOREIGN KEY ("category", "domain") REFERENCES "public"."category_enum"("name", "domain") ON UPDATE restrict ON DELETE restrict);

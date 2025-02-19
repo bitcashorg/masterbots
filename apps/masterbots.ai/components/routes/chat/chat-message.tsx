@@ -4,7 +4,7 @@ import { CodeBlock } from '@/components/ui/codeblock'
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { cn } from '@/lib/utils'
 import type { ChatMessageProps, WebSearchResult } from '@/types/types'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 import { ClickableText } from './chat-clickable-text'
@@ -17,7 +17,8 @@ export function ChatMessage({
   webSearchResults = [],
   ...props
 }: ChatMessageProps) {
-  const cleanMessage = { ...message, content: cleanPrompt(message.content) }
+  const content = cleanPrompt(message.content)
+  const cleanMessage = { ...message, content }
   const [references, setReferences] = useState<WebSearchResult[]>([])
 
   const ReferencesSection = () => {
@@ -27,14 +28,17 @@ export function ChatMessage({
       <div className="pt-4 mt-4 border-t border-gray-200">
         <h3 className="mb-2 text-lg font-semibold">References</h3>
         <div className="space-y-4">
-          {references.map((ref, index) => (
-            <div key={index} className="flex gap-4">
+          {references.map((ref) => (
+            <div
+              key={ref.profile.name.toLowerCase().replace(/\s/g, '-')}
+              className="flex gap-4"
+            >
               {ref.thumbnail?.src && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={ref.thumbnail.src}
                   alt={ref.title}
-                  className="object-cover w-20 h-20 rounded"
+                  className="object-cover rounded size-20"
                 />
               )}
               <div>
@@ -82,9 +86,35 @@ export function ChatMessage({
                 </p>
               )
             },
-            li({ children }) {
+            ul({ children }) {
               return (
-                <li className="ml-6 list-disc list-outside">
+                <ul className="ml-2 space-y-2">
+                  {children}
+                </ul>
+              )
+            },
+            ol({ children }) {
+              return (
+                <ol className="ml-2 space-y-2">
+                  {children}
+                </ol>
+              )
+            },
+            li({ children, ordered }) {
+              const hasNestedList = React.Children.toArray(children).some(
+                child =>
+                  React.isValidElement(child) &&
+                  (child.type === 'ul' || child.type === 'ol')
+              )
+
+              return (
+                <li
+                  className={cn(
+                    "ml-4",
+                    ordered ? "list-decimal" : "list-disc",
+                    hasNestedList && "mt-2"
+                  )}
+                >
                   <ClickableText
                     isListItem
                     sendMessageFromResponse={sendMessageFromResponse}
@@ -92,16 +122,6 @@ export function ChatMessage({
                     {children}
                   </ClickableText>
                 </li>
-              )
-            },
-            ul({ children }) {
-              return <ul className="ml-2 space-y-2">{children}</ul>
-            },
-            ol({ children }) {
-              return (
-                <ol className="ml-6 space-y-2 list-decimal list-outside">
-                  {children}
-                </ol>
               )
             },
             a({ href, children, ...props }) {
@@ -119,7 +139,7 @@ export function ChatMessage({
             },
             code({ inline, className, children, ...props }) {
               if (children.length) {
-                if (children[0] == '▍') {
+                if (children[0] === '▍') {
                   return (
                     <span className="mt-1 cursor-default animate-pulse">▍</span>
                   )
@@ -140,23 +160,21 @@ export function ChatMessage({
               return (
                 <CodeBlock
                   key={Math.random()}
-                  language={(match && match[1]) || ''}
+                  language={match?.[1] || ''}
                   value={String(children).replace(/\n$/, '')}
                   {...props}
                 />
               )
-            },
+            }
           }}
         >
           {cleanMessage.content}
         </MemoizedReactMarkdown>
-        {
-          actionRequired ? (
-            <ChatMessageActions className="md:!right-0" message={message} />
-          ) : null
-        }
+        {actionRequired && (
+          <ChatMessageActions className="md:!right-0" message={message} />
+        )}
         <ReferencesSection />
-      </div >
-    </div >
+      </div>
+    </div>
   )
 }

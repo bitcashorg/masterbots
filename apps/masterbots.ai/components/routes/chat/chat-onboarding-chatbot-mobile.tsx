@@ -1,9 +1,17 @@
 import { Card, CardHeader } from '@/components/ui/card'
+import { getRouteType } from '@/lib/utils'
 import { PanelLeft } from 'lucide-react'
+import { usePathname } from 'next/navigation'
 
 export function OnboardingMobileView() {
+  const pathname = usePathname()
+  const routeType = getRouteType(pathname)
+
   return (
-    <div className="md:hidden h-[calc(100vh-196px)] flex items-center justify-center -translate-y-8">
+    <div 
+      className="md:hidden h-[calc(100vh-196px)] flex items-center justify-center -translate-y-8"
+      data-route={routeType}
+    >
       <Card className="w-full bg-white dark:bg-[#09090B]">
         <CardHeader>
           <div className="flex flex-col gap-4">
@@ -22,8 +30,8 @@ export function OnboardingMobileView() {
             </div>
             <div className="flex flex-col items-center py-4">
               <div className="flex items-center py-2 space-x-4">
-                <PanelLeft className="size-6 text-[#be16e8] dark:text-[#82e46a]" />
-                <p className="text-lg text-[#be16e8] dark:text-[#82e46a]">
+                <PanelLeft className="size-6 selected-bot-text" />
+                <p className="text-lg selected-bot-text">
                   Go To Sidebar And Select One Bot
                 </p>
               </div>

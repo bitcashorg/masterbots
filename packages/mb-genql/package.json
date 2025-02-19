@@ -15,15 +15,15 @@
   "author": "masterbots.ai",
   "license": "ISC",
   "dependencies": {
-    "@genql/runtime": "^2.10.0",
     "graphql": "^16.6.0",
     "graphql-ws": "^5.14.2",
     "mb-env": "workspace:*"
   },
   "devDependencies": {
-    "@genql/cli": "^6.0.0",
-    "genql": "^2.0.1",
-    "typescript": "^5.1.3",
-    "tsconfig": "workspace:*"
+    "@genql/cli": "latest",
+    "@genql/runtime": "latest",
+    "genql": "latest",
+    "tsconfig": "workspace:*",
+    "typescript": "^5.1.3"
   }
 }

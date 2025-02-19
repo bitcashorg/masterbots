@@ -1,14 +1,14 @@
 'use client'
-import React, { useEffect, useState } from 'react'
 import {
-  getThreads,
   UpdateThreadVisibility,
-  deleteThread,
   approveThread,
+  deleteThread,
+  getThreads,
   getUnapprovedThreads
 } from '@/services/hasura'
-import { useSession } from 'next-auth/react'
 import type { Thread } from 'mb-genql'
+import { useSession } from 'next-auth/react'
+import React, { useEffect, useState } from 'react'
 import { useSonner } from './useSonner'
 
 interface DeleteThreadResponse {
@@ -26,6 +26,8 @@ interface ThreadVisibilityContextProps {
   handleToggleAdminMode: () => void
   adminApproveThread: (threadId: string) => void
   isAdminMode: boolean
+  isContinuousThread: boolean,
+  setIsContinuousThread: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const ThreadVisibilityContext = React.createContext<
@@ -46,17 +48,21 @@ interface ThreadVisibilityProviderProps {
   children: React.ReactNode
 }
 
+// ? This depends on the client-side updates, not reading the server threads
+// ! TODO: Add initial server state to avoid flickering
 export function ThreadVisibilityProvider({
   children
 }: ThreadVisibilityProviderProps) {
   const [isPublic, setIsPublic] = useState(false)
   const [threads, setThreads] = useState<Thread[]>([])
   const [isAdminMode, setIsAdminMode] = React.useState<boolean>(false)
+  const [isContinuousThread, setIsContinuousThread] = React.useState<boolean>(false)
   const { customSonner } = useSonner()
 
   const session = useSession()
   const jwt = session?.data?.user?.hasuraJwt
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required here
   useEffect(() => {
     getThreadForUser()
   }, [jwt])
@@ -178,13 +184,15 @@ export function ThreadVisibilityProvider({
     <ThreadVisibilityContext.Provider
       value={{
         isPublic,
-        toggleVisibility,
         threads,
+        isAdminMode,
+        isContinuousThread,
         isSameUser,
+        toggleVisibility,
+        adminApproveThread,
         initiateDeleteThread,
         handleToggleAdminMode,
-        adminApproveThread,
-        isAdminMode
+        setIsContinuousThread,
       }}
     >
       {children}

@@ -85,18 +85,10 @@ export function createMessagePairs(messages: Message[] | AIMessage[]) {
 
     if (message.role === 'user') {
       const userMessage = message
-      const chatGptMessages = []
-      for (let j = i + 1; j < messages.length; j++) {
-        const chatGptMessage = findNextAssistantMessage(messages, j)
-        if (!chatGptMessage) {
-          break
-        }
-        chatGptMessages.push(chatGptMessage)
-        break
-      }
+      const chatGptMessage = findNextAssistantMessage(messages, i + 1)
       messagePairs.push({
         userMessage,
-        chatGptMessage: chatGptMessages,
+        chatGptMessage: chatGptMessage ? [chatGptMessage] : [],
       })
     }
   }
@@ -236,20 +228,6 @@ export function removeSurroundingQuotes(str: string) {
   }
   return str
 }
-// * List of predefined unique phrases to detect in text
-export const UNIQUE_PHRASES = [
-  'Unique, lesser-known',
-  'Unique insight',
-  'Unique Tip',
-  'Unique, lesser-known solution',
-  'Unique Solution',
-  'Unique, lesser-known option',
-  'Unique Insight: Lesser-Known Solution',
-  'Unique Recommendation',
-  'Lesser-Known Gem',
-  'For a UNIQUE, LESSER-KNOWN phrase',
-  'Unique, Lesser-Known Destination',
-] as const
 
 export interface ParsedText {
   clickableText: string
@@ -265,44 +243,6 @@ export function extractTextFromReactNode(node: ReactNode): string {
     return extractTextFromReactNode(node.props.children)
   }
   return ''
-}
-
-// * Creates a regex pattern for unique phrases
-export function createUniquePattern(): RegExp {
-  return new RegExp(`(?:${UNIQUE_PHRASES.join('|')}):\\s*([^.:]+[.])`, 'i')
-}
-
-// * Pattern for general text parsing
-export const GENERAL_PATTERN = /(.*?)([:.,])(?:\s|$)/g
-
-// * Parses text to extract clickable and remaining portions
-export function parseClickableText(fullText: string): ParsedText {
-  const uniquePattern = createUniquePattern()
-  const uniqueMatch = fullText.match(uniquePattern)
-
-  // Check for unique phrase match first
-  if (uniqueMatch) {
-    const clickableText = uniqueMatch[1]
-    const restText = fullText.slice(fullText.indexOf(clickableText) + clickableText.length)
-    return { clickableText, restText }
-  }
-
-  // * Fall back to general pattern
-  const generalMatch = fullText.match(GENERAL_PATTERN)
-  if (generalMatch) {
-    return {
-      clickableText: generalMatch[0],
-      restText: fullText.slice(generalMatch[0].length),
-    }
-  }
-  return {
-    clickableText: '',
-    restText: fullText,
-  }
-}
-
-export function cleanClickableText(text: string): string {
-  return text.replace(/(:|\.|\,)\s*$/, '')
 }
 
 export const formatNumber = (num: number) => {
@@ -355,9 +295,42 @@ export function numberShortener(number: number): string {
  * @param pathname - The current pathname from Next.js usePathname()
  * @returns 'chat' | 'public' | ''
  */
-export function getRouteType(pathname: string | null): 'chat' | 'public' | '' {
-  if (!pathname) return ''
-  if (pathname.startsWith('/c')) return 'chat'
-  if (pathname.startsWith('/')) return 'public'
+
+type RouteType = 'chat' | 'public' | 'profile'
+
+export function getRouteType(pathname: string | null): RouteType {
+  if (!pathname || pathname === '/') return 'public'
+  const normalizedPath = pathname.toLowerCase().replace(/\/+$/, '')
+
+  if (normalizedPath.startsWith('/c') && normalizedPath !== '/career') {
+    return 'chat'
+  }
+
+  if (normalizedPath.startsWith('/u')) {
+    return 'profile'
+  }
+
+  const publicRoutes = [/^\/$/, /^\/[^/]+\/[^/]+$/, /^\/[^/]+\/[^/]+\/[^/]+$/]
+
+  if (publicRoutes.some((route) => route.test(normalizedPath))) {
+    return 'public'
+  }
+
+  return 'public'
+}
+
+export function getRouteColor(isActive: boolean, pathname: string | null): string {
   return ''
+  // if (!isActive) return ''
+
+  // const routeType = getRouteType(pathname)
+  // console.log(routeType)
+  // switch (routeType) {
+  //   case 'personal':
+  //     return 'text-black bg-gradient-to-b from-[rgba(190,23,232,0.1)] via-[rgba(187,6,232,0.5)] to-[rgba(190,23,232,0.5)] dark:text-white'
+  //   case 'public':
+  //     return 'text-black bg-gradient-to-b from-[rgba(131,229,106,0.1)] via-[rgba(131,229,106,0.5)] to-[rgba(131,229,106,0.5)] dark:text-white'
+  //   default:
+  //     return ''
+  // }
 }
