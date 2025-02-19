@@ -1,10 +1,10 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { cn, numberShortener, isFollowed, getRouteType } from '@/lib/utils'
+import { cn, getRouteType, isFollowed, numberShortener } from '@/lib/utils'
 import type { ChatbotDetailsProps } from '@/types/types'
 import { Bot, BotMessageSquareIcon, Users } from 'lucide-react'
-import Image from 'next/image'
 import { useSession } from 'next-auth/react'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 
 export function OnboardingMobileChatbotDetails({

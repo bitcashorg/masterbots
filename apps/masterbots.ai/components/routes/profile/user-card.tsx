@@ -48,7 +48,8 @@ export function UserCard({ user, loading }: UserCardProps) {
   const { data: session } = useSession()
   const [userData, setUserData] = useState<User | null>(user)
   const [isFollowLoading, setIsFollowLoading] = useState(false)
-  const { customSonner } = useSonner()
+  const { customSonner } = useSonner() 
+  
 
   const userQuestions = user?.threads
     .map(thread => {
@@ -89,7 +90,6 @@ export function UserCard({ user, loading }: UserCardProps) {
       setLastMessage(message.content)
     }
   })
-
   const handleProfilePictureUpload = async (
     event: ChangeEvent<HTMLInputElement>
   ) => {

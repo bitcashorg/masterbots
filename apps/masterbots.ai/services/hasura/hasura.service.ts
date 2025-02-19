@@ -48,7 +48,7 @@ const chatbotEnumFieldsFragment = {
 function getHasuraClient({ jwt, adminSecret, signal }: GetHasuraClientParams) {
   return createMbClient({
     config: {
-      signal
+      signal,
     },
     jwt,
     adminSecret,
