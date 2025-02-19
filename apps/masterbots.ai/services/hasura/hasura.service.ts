@@ -30,6 +30,21 @@ import type {
   UpsertUserParams,
 } from './hasura.service.type'
 
+const chatbotEnumFieldsFragment = {
+  complexityEnum: {
+    prompt: true,
+  },
+  toneEnum: {
+    prompt: true,
+  },
+  lengthEnum: {
+    prompt: true,
+  },
+  typeEnum: {
+    prompt: true,
+  },
+}
+
 function getHasuraClient({ jwt, adminSecret, signal }: GetHasuraClientParams) {
   return createMbClient({
     config: {
@@ -62,18 +77,7 @@ export async function getCategories(userId?: string) {
               __scalar: true,
             },
           },
-          complexityEnum: {
-            prompt: true,
-          },
-          toneEnum: {
-            prompt: true,
-          },
-          lengthEnum: {
-            prompt: true,
-          },
-          typeEnum: {
-            prompt: true,
-          },
+          ...chatbotEnumFieldsFragment,
         },
         __scalar: true,
         __args: userId
@@ -270,18 +274,7 @@ export async function getThread({ threadId, jwt, signal }: Partial<GetThreadPara
             followerId: true,
             followeeIdChatbot: true,
           },
-          complexityEnum: {
-            prompt: true,
-          },
-          toneEnum: {
-            prompt: true,
-          },
-          lengthEnum: {
-            prompt: true,
-          },
-          typeEnum: {
-            prompt: true,
-          },
+          ...chatbotEnumFieldsFragment,
         },
         user: {
           username: true,
@@ -437,18 +430,7 @@ export async function getChatbot({ chatbotId, chatbotName, threads, jwt }: GetCh
           __scalar: true,
         },
       },
-      complexityEnum: {
-        prompt: true,
-      },
-      toneEnum: {
-        prompt: true,
-      },
-      lengthEnum: {
-        prompt: true,
-      },
-      typeEnum: {
-        prompt: true
-      },
+      ...chatbotEnumFieldsFragment,
       ...(threads
         ? {
             threads: {

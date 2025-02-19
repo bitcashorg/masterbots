@@ -156,7 +156,6 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
           )
           if (chatbot) {
             setActiveChatbot(chatbot.chatbot)
-            console.log('New chatbot', chatbot.chatbot)
           } else {
             setActiveChatbot(null)
           }
