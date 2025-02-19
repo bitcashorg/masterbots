@@ -268,14 +268,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
   }: NavigationParams): void => {
     const url = buildNavigationUrl({ page, slug, categoryName, chatbotName, isBrowse })
 
-    if (url.startsWith('/c')) {
-      router.push(url, { scroll: false })
-    } else {
-      window.history.pushState({
-        category: categoryName,
-        chatbot: chatbotName,
-      }, '', url)
-    }
+    router.push(url, { scroll: false })
   }
 
   if (isLoading) {
