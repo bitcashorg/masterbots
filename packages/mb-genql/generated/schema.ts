@@ -683,6 +683,7 @@ export interface ComplexityEnum {
     preferences: Preference[]
     /** An aggregate relationship */
     preferencesAggregate: PreferenceAggregate
+    prompt: Scalars['String']
     value: Scalars['String']
     __typename: 'ComplexityEnum'
 }
@@ -711,6 +712,7 @@ export type ComplexityEnumConstraint = 'default_complexity_enum_pkey'
 
 /** aggregate max on columns */
 export interface ComplexityEnumMaxFields {
+    prompt: (Scalars['String'] | null)
     value: (Scalars['String'] | null)
     __typename: 'ComplexityEnumMaxFields'
 }
@@ -718,6 +720,7 @@ export interface ComplexityEnumMaxFields {
 
 /** aggregate min on columns */
 export interface ComplexityEnumMinFields {
+    prompt: (Scalars['String'] | null)
     value: (Scalars['String'] | null)
     __typename: 'ComplexityEnumMinFields'
 }
@@ -734,11 +737,11 @@ export interface ComplexityEnumMutationResponse {
 
 
 /** select columns of table "complexity_enum" */
-export type ComplexityEnumSelectColumn = 'value'
+export type ComplexityEnumSelectColumn = 'prompt' | 'value'
 
 
 /** update columns of table "complexity_enum" */
-export type ComplexityEnumUpdateColumn = 'value'
+export type ComplexityEnumUpdateColumn = 'prompt' | 'value'
 
 
 /** ordering argument of a cursor */
@@ -916,6 +919,7 @@ export interface LengthEnum {
     preferences: Preference[]
     /** An aggregate relationship */
     preferencesAggregate: PreferenceAggregate
+    prompt: Scalars['String']
     value: Scalars['String']
     __typename: 'LengthEnum'
 }
@@ -944,6 +948,7 @@ export type LengthEnumConstraint = 'default_length_enum_pkey'
 
 /** aggregate max on columns */
 export interface LengthEnumMaxFields {
+    prompt: (Scalars['String'] | null)
     value: (Scalars['String'] | null)
     __typename: 'LengthEnumMaxFields'
 }
@@ -951,6 +956,7 @@ export interface LengthEnumMaxFields {
 
 /** aggregate min on columns */
 export interface LengthEnumMinFields {
+    prompt: (Scalars['String'] | null)
     value: (Scalars['String'] | null)
     __typename: 'LengthEnumMinFields'
 }
@@ -967,11 +973,11 @@ export interface LengthEnumMutationResponse {
 
 
 /** select columns of table "length_enum" */
-export type LengthEnumSelectColumn = 'value'
+export type LengthEnumSelectColumn = 'prompt' | 'value'
 
 
 /** update columns of table "length_enum" */
-export type LengthEnumUpdateColumn = 'value'
+export type LengthEnumUpdateColumn = 'prompt' | 'value'
 
 
 /** This table stores the messages exchanged between users and chatbots. */
@@ -2509,6 +2515,7 @@ export interface ToneEnum {
     preferences: Preference[]
     /** An aggregate relationship */
     preferencesAggregate: PreferenceAggregate
+    prompt: Scalars['String']
     value: Scalars['String']
     __typename: 'ToneEnum'
 }
@@ -2537,6 +2544,7 @@ export type ToneEnumConstraint = 'default_tone_enum_pkey'
 
 /** aggregate max on columns */
 export interface ToneEnumMaxFields {
+    prompt: (Scalars['String'] | null)
     value: (Scalars['String'] | null)
     __typename: 'ToneEnumMaxFields'
 }
@@ -2544,6 +2552,7 @@ export interface ToneEnumMaxFields {
 
 /** aggregate min on columns */
 export interface ToneEnumMinFields {
+    prompt: (Scalars['String'] | null)
     value: (Scalars['String'] | null)
     __typename: 'ToneEnumMinFields'
 }
@@ -2560,11 +2569,11 @@ export interface ToneEnumMutationResponse {
 
 
 /** select columns of table "tone_enum" */
-export type ToneEnumSelectColumn = 'value'
+export type ToneEnumSelectColumn = 'prompt' | 'value'
 
 
 /** update columns of table "tone_enum" */
-export type ToneEnumUpdateColumn = 'value'
+export type ToneEnumUpdateColumn = 'prompt' | 'value'
 
 
 /** columns and relationships of "type_enum" */
@@ -2577,6 +2586,7 @@ export interface TypeEnum {
     preferences: Preference[]
     /** An aggregate relationship */
     preferencesAggregate: PreferenceAggregate
+    prompt: Scalars['String']
     value: Scalars['String']
     __typename: 'TypeEnum'
 }
@@ -2605,6 +2615,7 @@ export type TypeEnumConstraint = 'default_type_enum_pkey'
 
 /** aggregate max on columns */
 export interface TypeEnumMaxFields {
+    prompt: (Scalars['String'] | null)
     value: (Scalars['String'] | null)
     __typename: 'TypeEnumMaxFields'
 }
@@ -2612,6 +2623,7 @@ export interface TypeEnumMaxFields {
 
 /** aggregate min on columns */
 export interface TypeEnumMinFields {
+    prompt: (Scalars['String'] | null)
     value: (Scalars['String'] | null)
     __typename: 'TypeEnumMinFields'
 }
@@ -2628,11 +2640,11 @@ export interface TypeEnumMutationResponse {
 
 
 /** select columns of table "type_enum" */
-export type TypeEnumSelectColumn = 'value'
+export type TypeEnumSelectColumn = 'prompt' | 'value'
 
 
 /** update columns of table "type_enum" */
-export type TypeEnumUpdateColumn = 'value'
+export type TypeEnumUpdateColumn = 'prompt' | 'value'
 
 
 /** Table storing information about registered users. */
@@ -4917,6 +4929,7 @@ export interface ComplexityEnumGenqlSelection{
     orderBy?: (PreferenceOrderBy[] | null), 
     /** filter the rows returned */
     where?: (PreferenceBoolExp | null)} })
+    prompt?: boolean | number
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -4943,15 +4956,16 @@ export interface ComplexityEnumAggregateFieldsGenqlSelection{
 
 
 /** Boolean expression to filter rows from the table "complexity_enum". All fields are combined with a logical 'AND'. */
-export interface ComplexityEnumBoolExp {_and?: (ComplexityEnumBoolExp[] | null),_not?: (ComplexityEnumBoolExp | null),_or?: (ComplexityEnumBoolExp[] | null),chatbots?: (ChatbotBoolExp | null),chatbotsAggregate?: (ChatbotAggregateBoolExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),value?: (StringComparisonExp | null)}
+export interface ComplexityEnumBoolExp {_and?: (ComplexityEnumBoolExp[] | null),_not?: (ComplexityEnumBoolExp | null),_or?: (ComplexityEnumBoolExp[] | null),chatbots?: (ChatbotBoolExp | null),chatbotsAggregate?: (ChatbotAggregateBoolExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),prompt?: (StringComparisonExp | null),value?: (StringComparisonExp | null)}
 
 
 /** input type for inserting data into table "complexity_enum" */
-export interface ComplexityEnumInsertInput {chatbots?: (ChatbotArrRelInsertInput | null),preferences?: (PreferenceArrRelInsertInput | null),value?: (Scalars['String'] | null)}
+export interface ComplexityEnumInsertInput {chatbots?: (ChatbotArrRelInsertInput | null),preferences?: (PreferenceArrRelInsertInput | null),prompt?: (Scalars['String'] | null),value?: (Scalars['String'] | null)}
 
 
 /** aggregate max on columns */
 export interface ComplexityEnumMaxFieldsGenqlSelection{
+    prompt?: boolean | number
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -4960,6 +4974,7 @@ export interface ComplexityEnumMaxFieldsGenqlSelection{
 
 /** aggregate min on columns */
 export interface ComplexityEnumMinFieldsGenqlSelection{
+    prompt?: boolean | number
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -4988,7 +5003,7 @@ export interface ComplexityEnumOnConflict {constraint: ComplexityEnumConstraint,
 
 
 /** Ordering options when selecting data from "complexity_enum". */
-export interface ComplexityEnumOrderBy {chatbotsAggregate?: (ChatbotAggregateOrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),value?: (OrderBy | null)}
+export interface ComplexityEnumOrderBy {chatbotsAggregate?: (ChatbotAggregateOrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),prompt?: (OrderBy | null),value?: (OrderBy | null)}
 
 
 /** primary key columns input for table: complexity_enum */
@@ -4996,7 +5011,7 @@ export interface ComplexityEnumPkColumnsInput {value: Scalars['String']}
 
 
 /** input type for updating data in table "complexity_enum" */
-export interface ComplexityEnumSetInput {value?: (Scalars['String'] | null)}
+export interface ComplexityEnumSetInput {prompt?: (Scalars['String'] | null),value?: (Scalars['String'] | null)}
 
 
 /** Streaming cursor of the table "complexity_enum" */
@@ -5008,7 +5023,7 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface ComplexityEnumStreamCursorValueInput {value?: (Scalars['String'] | null)}
+export interface ComplexityEnumStreamCursorValueInput {prompt?: (Scalars['String'] | null),value?: (Scalars['String'] | null)}
 
 export interface ComplexityEnumUpdates {
 /** sets the columns of the filtered rows to the given values */
@@ -5438,6 +5453,7 @@ export interface LengthEnumGenqlSelection{
     orderBy?: (PreferenceOrderBy[] | null), 
     /** filter the rows returned */
     where?: (PreferenceBoolExp | null)} })
+    prompt?: boolean | number
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -5464,15 +5480,16 @@ export interface LengthEnumAggregateFieldsGenqlSelection{
 
 
 /** Boolean expression to filter rows from the table "length_enum". All fields are combined with a logical 'AND'. */
-export interface LengthEnumBoolExp {_and?: (LengthEnumBoolExp[] | null),_not?: (LengthEnumBoolExp | null),_or?: (LengthEnumBoolExp[] | null),chatbots?: (ChatbotBoolExp | null),chatbotsAggregate?: (ChatbotAggregateBoolExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),value?: (StringComparisonExp | null)}
+export interface LengthEnumBoolExp {_and?: (LengthEnumBoolExp[] | null),_not?: (LengthEnumBoolExp | null),_or?: (LengthEnumBoolExp[] | null),chatbots?: (ChatbotBoolExp | null),chatbotsAggregate?: (ChatbotAggregateBoolExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),prompt?: (StringComparisonExp | null),value?: (StringComparisonExp | null)}
 
 
 /** input type for inserting data into table "length_enum" */
-export interface LengthEnumInsertInput {chatbots?: (ChatbotArrRelInsertInput | null),preferences?: (PreferenceArrRelInsertInput | null),value?: (Scalars['String'] | null)}
+export interface LengthEnumInsertInput {chatbots?: (ChatbotArrRelInsertInput | null),preferences?: (PreferenceArrRelInsertInput | null),prompt?: (Scalars['String'] | null),value?: (Scalars['String'] | null)}
 
 
 /** aggregate max on columns */
 export interface LengthEnumMaxFieldsGenqlSelection{
+    prompt?: boolean | number
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -5481,6 +5498,7 @@ export interface LengthEnumMaxFieldsGenqlSelection{
 
 /** aggregate min on columns */
 export interface LengthEnumMinFieldsGenqlSelection{
+    prompt?: boolean | number
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -5509,7 +5527,7 @@ export interface LengthEnumOnConflict {constraint: LengthEnumConstraint,updateCo
 
 
 /** Ordering options when selecting data from "length_enum". */
-export interface LengthEnumOrderBy {chatbotsAggregate?: (ChatbotAggregateOrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),value?: (OrderBy | null)}
+export interface LengthEnumOrderBy {chatbotsAggregate?: (ChatbotAggregateOrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),prompt?: (OrderBy | null),value?: (OrderBy | null)}
 
 
 /** primary key columns input for table: length_enum */
@@ -5517,7 +5535,7 @@ export interface LengthEnumPkColumnsInput {value: Scalars['String']}
 
 
 /** input type for updating data in table "length_enum" */
-export interface LengthEnumSetInput {value?: (Scalars['String'] | null)}
+export interface LengthEnumSetInput {prompt?: (Scalars['String'] | null),value?: (Scalars['String'] | null)}
 
 
 /** Streaming cursor of the table "length_enum" */
@@ -5529,7 +5547,7 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface LengthEnumStreamCursorValueInput {value?: (Scalars['String'] | null)}
+export interface LengthEnumStreamCursorValueInput {prompt?: (Scalars['String'] | null),value?: (Scalars['String'] | null)}
 
 export interface LengthEnumUpdates {
 /** sets the columns of the filtered rows to the given values */
@@ -8451,6 +8469,7 @@ export interface ToneEnumGenqlSelection{
     orderBy?: (PreferenceOrderBy[] | null), 
     /** filter the rows returned */
     where?: (PreferenceBoolExp | null)} })
+    prompt?: boolean | number
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -8477,15 +8496,16 @@ export interface ToneEnumAggregateFieldsGenqlSelection{
 
 
 /** Boolean expression to filter rows from the table "tone_enum". All fields are combined with a logical 'AND'. */
-export interface ToneEnumBoolExp {_and?: (ToneEnumBoolExp[] | null),_not?: (ToneEnumBoolExp | null),_or?: (ToneEnumBoolExp[] | null),chatbots?: (ChatbotBoolExp | null),chatbotsAggregate?: (ChatbotAggregateBoolExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),value?: (StringComparisonExp | null)}
+export interface ToneEnumBoolExp {_and?: (ToneEnumBoolExp[] | null),_not?: (ToneEnumBoolExp | null),_or?: (ToneEnumBoolExp[] | null),chatbots?: (ChatbotBoolExp | null),chatbotsAggregate?: (ChatbotAggregateBoolExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),prompt?: (StringComparisonExp | null),value?: (StringComparisonExp | null)}
 
 
 /** input type for inserting data into table "tone_enum" */
-export interface ToneEnumInsertInput {chatbots?: (ChatbotArrRelInsertInput | null),preferences?: (PreferenceArrRelInsertInput | null),value?: (Scalars['String'] | null)}
+export interface ToneEnumInsertInput {chatbots?: (ChatbotArrRelInsertInput | null),preferences?: (PreferenceArrRelInsertInput | null),prompt?: (Scalars['String'] | null),value?: (Scalars['String'] | null)}
 
 
 /** aggregate max on columns */
 export interface ToneEnumMaxFieldsGenqlSelection{
+    prompt?: boolean | number
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -8494,6 +8514,7 @@ export interface ToneEnumMaxFieldsGenqlSelection{
 
 /** aggregate min on columns */
 export interface ToneEnumMinFieldsGenqlSelection{
+    prompt?: boolean | number
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -8522,7 +8543,7 @@ export interface ToneEnumOnConflict {constraint: ToneEnumConstraint,updateColumn
 
 
 /** Ordering options when selecting data from "tone_enum". */
-export interface ToneEnumOrderBy {chatbotsAggregate?: (ChatbotAggregateOrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),value?: (OrderBy | null)}
+export interface ToneEnumOrderBy {chatbotsAggregate?: (ChatbotAggregateOrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),prompt?: (OrderBy | null),value?: (OrderBy | null)}
 
 
 /** primary key columns input for table: tone_enum */
@@ -8530,7 +8551,7 @@ export interface ToneEnumPkColumnsInput {value: Scalars['String']}
 
 
 /** input type for updating data in table "tone_enum" */
-export interface ToneEnumSetInput {value?: (Scalars['String'] | null)}
+export interface ToneEnumSetInput {prompt?: (Scalars['String'] | null),value?: (Scalars['String'] | null)}
 
 
 /** Streaming cursor of the table "tone_enum" */
@@ -8542,7 +8563,7 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface ToneEnumStreamCursorValueInput {value?: (Scalars['String'] | null)}
+export interface ToneEnumStreamCursorValueInput {prompt?: (Scalars['String'] | null),value?: (Scalars['String'] | null)}
 
 export interface ToneEnumUpdates {
 /** sets the columns of the filtered rows to the given values */
@@ -8601,6 +8622,7 @@ export interface TypeEnumGenqlSelection{
     orderBy?: (PreferenceOrderBy[] | null), 
     /** filter the rows returned */
     where?: (PreferenceBoolExp | null)} })
+    prompt?: boolean | number
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -8627,15 +8649,16 @@ export interface TypeEnumAggregateFieldsGenqlSelection{
 
 
 /** Boolean expression to filter rows from the table "type_enum". All fields are combined with a logical 'AND'. */
-export interface TypeEnumBoolExp {_and?: (TypeEnumBoolExp[] | null),_not?: (TypeEnumBoolExp | null),_or?: (TypeEnumBoolExp[] | null),chatbots?: (ChatbotBoolExp | null),chatbotsAggregate?: (ChatbotAggregateBoolExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),value?: (StringComparisonExp | null)}
+export interface TypeEnumBoolExp {_and?: (TypeEnumBoolExp[] | null),_not?: (TypeEnumBoolExp | null),_or?: (TypeEnumBoolExp[] | null),chatbots?: (ChatbotBoolExp | null),chatbotsAggregate?: (ChatbotAggregateBoolExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),prompt?: (StringComparisonExp | null),value?: (StringComparisonExp | null)}
 
 
 /** input type for inserting data into table "type_enum" */
-export interface TypeEnumInsertInput {chatbots?: (ChatbotArrRelInsertInput | null),preferences?: (PreferenceArrRelInsertInput | null),value?: (Scalars['String'] | null)}
+export interface TypeEnumInsertInput {chatbots?: (ChatbotArrRelInsertInput | null),preferences?: (PreferenceArrRelInsertInput | null),prompt?: (Scalars['String'] | null),value?: (Scalars['String'] | null)}
 
 
 /** aggregate max on columns */
 export interface TypeEnumMaxFieldsGenqlSelection{
+    prompt?: boolean | number
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -8644,6 +8667,7 @@ export interface TypeEnumMaxFieldsGenqlSelection{
 
 /** aggregate min on columns */
 export interface TypeEnumMinFieldsGenqlSelection{
+    prompt?: boolean | number
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -8672,7 +8696,7 @@ export interface TypeEnumOnConflict {constraint: TypeEnumConstraint,updateColumn
 
 
 /** Ordering options when selecting data from "type_enum". */
-export interface TypeEnumOrderBy {chatbotsAggregate?: (ChatbotAggregateOrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),value?: (OrderBy | null)}
+export interface TypeEnumOrderBy {chatbotsAggregate?: (ChatbotAggregateOrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),prompt?: (OrderBy | null),value?: (OrderBy | null)}
 
 
 /** primary key columns input for table: type_enum */
@@ -8680,7 +8704,7 @@ export interface TypeEnumPkColumnsInput {value: Scalars['String']}
 
 
 /** input type for updating data in table "type_enum" */
-export interface TypeEnumSetInput {value?: (Scalars['String'] | null)}
+export interface TypeEnumSetInput {prompt?: (Scalars['String'] | null),value?: (Scalars['String'] | null)}
 
 
 /** Streaming cursor of the table "type_enum" */
@@ -8692,7 +8716,7 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface TypeEnumStreamCursorValueInput {value?: (Scalars['String'] | null)}
+export interface TypeEnumStreamCursorValueInput {prompt?: (Scalars['String'] | null),value?: (Scalars['String'] | null)}
 
 export interface TypeEnumUpdates {
 /** sets the columns of the filtered rows to the given values */
@@ -13899,10 +13923,12 @@ export const enumComplexityEnumConstraint = {
 }
 
 export const enumComplexityEnumSelectColumn = {
+   prompt: 'prompt' as const,
    value: 'value' as const
 }
 
 export const enumComplexityEnumUpdateColumn = {
+   prompt: 'prompt' as const,
    value: 'value' as const
 }
 
@@ -13958,10 +13984,12 @@ export const enumLengthEnumConstraint = {
 }
 
 export const enumLengthEnumSelectColumn = {
+   prompt: 'prompt' as const,
    value: 'value' as const
 }
 
 export const enumLengthEnumUpdateColumn = {
+   prompt: 'prompt' as const,
    value: 'value' as const
 }
 
@@ -14250,10 +14278,12 @@ export const enumToneEnumConstraint = {
 }
 
 export const enumToneEnumSelectColumn = {
+   prompt: 'prompt' as const,
    value: 'value' as const
 }
 
 export const enumToneEnumUpdateColumn = {
+   prompt: 'prompt' as const,
    value: 'value' as const
 }
 
@@ -14262,10 +14292,12 @@ export const enumTypeEnumConstraint = {
 }
 
 export const enumTypeEnumSelectColumn = {
+   prompt: 'prompt' as const,
    value: 'value' as const
 }
 
 export const enumTypeEnumUpdateColumn = {
+   prompt: 'prompt' as const,
    value: 'value' as const
 }
 
