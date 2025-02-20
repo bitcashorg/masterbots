@@ -29,21 +29,26 @@ import { useBrowse } from '@/lib/hooks/use-browse'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { searchThreadContent } from '@/lib/search'
 import { getBrowseThreads } from '@/services/hasura'
-import { debounce } from 'lodash'
-import type { Thread } from 'mb-genql'
+import { debounce, isEqual } from 'lodash'
+import type { Chatbot, Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import React from 'react'
 
-export default function BrowseList() {
-  const { keyword, tab } = useBrowse()
-  const [threads, setThreads] = React.useState<Thread[]>([])
+export default function BrowseList({ initialThreads, categoryId, chatbot }: {
+  initialThreads?: Thread[]
+  categoryId?: number
+  chatbot?: Chatbot
+}) {
+  const { keyword } = useBrowse()
+  const [threadState, setThreadState] = React.useState<Thread[]>([])
   const [hasInitialized, setHasInitialized] = React.useState(false)
   const [filteredThreads, setFilteredThreads] = React.useState<Thread[]>([])
   const [loading, setLoading] = React.useState<boolean>(false)
   const [count, setCount] = React.useState<number>(0)
-  const { selectedCategories, selectedChatbots, activeCategory, activeChatbot } = useSidebar()
+  const { selectedCategories, selectedChatbots, activeCategory, activeChatbot, setActiveChatbot, setActiveCategory } = useSidebar()
   const { data: session } = useSession()
   const userId = session?.user?.id
+  const threads = threadState && initialThreads && threadState.length > initialThreads.length ? threadState : (initialThreads || [])
 
   const fetchThreads = async ({
     categoriesId,
@@ -57,10 +62,10 @@ export default function BrowseList() {
     setLoading(true) // ? Seting loading before fetch
     try {
       const threads = await getBrowseThreads({
-        ...(activeCategory !== null || activeChatbot !== null
+        ...(activeCategory !== null || activeChatbot !== null || (chatbot || categoryId)
           ? {
-            categoryId: activeCategory,
-            chatbotName: activeChatbot?.name,
+            categoryId: categoryId || activeCategory,
+            chatbotName: chatbot?.name || activeChatbot?.name,
             ...(userId ? { followedUserId: userId } : {})
           }
           : {
@@ -71,7 +76,7 @@ export default function BrowseList() {
           }),
         limit: PAGE_SIZE,
       })
-      setThreads(threads)
+      setThreadState(threads)
       setFilteredThreads(threads)
       setCount(threads.length)
       setHasInitialized(true) // ? Setting hasInitialized after fetch preventing NoResults from showing
@@ -107,13 +112,26 @@ export default function BrowseList() {
       limit: PAGE_SIZE
     })
 
-    setThreads(prevState => [...prevState, ...moreThreads])
+    setThreadState(prevState => [...prevState, ...moreThreads])
     setCount(moreThreads.length)
     setLoading(false)
   }
 
+  const verifyPath = () => {
+    if (chatbot) {
+      setActiveChatbot(chatbot)
+    }
+    if (categoryId) {
+      setActiveCategory(categoryId)
+    }
+  }
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   React.useEffect(() => {
+    if ((chatbot || categoryId) && !activeCategory && !activeChatbot) {
+      verifyPath()
+    }
+
     fetchThreads({
       keyword,
       categoriesId: selectedCategories,
@@ -124,6 +142,8 @@ export default function BrowseList() {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   React.useEffect(() => {
+    if (isEqual(threads, filteredThreads)) return
+    
     verifyKeyword()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [keyword, threads])
