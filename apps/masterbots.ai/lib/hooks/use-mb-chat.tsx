@@ -73,7 +73,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     isInitLoaded: false,
     webSearch: false,
     messagesFromDB: activeThread?.messages || [],
-    isNewChat: Boolean(!activeThread || (activeThread && activeThread.messages.length <= 1)),
+    isNewChat: true,
   })
 
   const { customSonner } = useSonner()
@@ -274,6 +274,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: only activeThread is needed
   useEffect(() => {
+    // Resetting the chat when the popup is closed
     if (!activeThread && !isOpenPopup) {
       setState({ messagesFromDB: [], isInitLoaded: false, isNewChat: true })
       setLoadingState()
@@ -482,7 +483,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     try {
       const chatbotMetadata = await getMetadataLabels()
 
-      if ((isNewChat || !activeThread?.messages.length || (activeThread && activeThread.messages.length <= 1)) && chatbot) {
+      console.log('isNewChat  -> ', isNewChat)
+      if (isNewChat && chatbot) {
         await createThread({
           threadId: threadId as string,
           chatbotId: chatbot.chatbotId,
