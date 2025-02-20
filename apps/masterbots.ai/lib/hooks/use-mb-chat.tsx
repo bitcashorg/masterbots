@@ -549,6 +549,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       stop()
 
       console.error('Error appending new message: ', error)
+      customSonner({ type: 'error', text: 'Failed to send the message to the Masterbot. Please try again.' })
 
       return null
     }
