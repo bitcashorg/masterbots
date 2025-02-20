@@ -125,7 +125,7 @@ export async function fetchPromptDetails(promptId: string) {
 
   return response.json()
 }
-export function cleanPrompt(str) {
+export function cleanPrompt(str: string) {
   const markers = [
     '].  Now please answer the following question: ',
     ']. Now please answer the following question: ',
