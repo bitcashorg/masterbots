@@ -280,7 +280,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
   const updateNewThread = () => {
     // console.log('activeThread.messages length --> ', activeThread?.messages)
-    const isNewChatState = Boolean(!activeThread?.messages.length)
+    const isNewChatState = Boolean(!allMessages.length || !activeThread?.messages.length)
 
     setState({
       isNewChat: isNewChatState,
@@ -484,7 +484,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
         console.log('activeThread --> ', activeThread)
       }
 
-      if ((isNewChat || !allMessages.length) && chatbot) {
+      if (isNewChat && chatbot) {
         await createThread({
           threadId: threadId as string,
           chatbotId: chatbot.chatbotId,
