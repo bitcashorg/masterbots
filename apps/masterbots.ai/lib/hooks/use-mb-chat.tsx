@@ -484,7 +484,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
         console.log('activeThread --> ', activeThread)
       }
 
-      if (isNewChat && chatbot) {
+      if ((!allMessages.length && isNewChat) && chatbot) {
         await createThread({
           threadId: threadId as string,
           chatbotId: chatbot.chatbotId,

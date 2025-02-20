@@ -125,11 +125,10 @@ export async function fetchPromptDetails(promptId: string) {
 
   return response.json()
 }
-export function cleanPrompt(str: string) {
+export function cleanPrompt(str) {
   const markers = [
-    '].  \n\nNow please answer the following question: ',
-    ']. \n\nNow please answer the following question: ',
-    '].\n\nNow please answer the following question: ',
+    '].  Now please answer the following question: ',
+    ']. Now please answer the following question: ',
   ]
   let extracted = str
 
