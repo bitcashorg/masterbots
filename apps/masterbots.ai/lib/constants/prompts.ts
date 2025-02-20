@@ -86,7 +86,7 @@ export function followingQuestionsPrompt(userContent: string, allMessages: Messa
   // return `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
   return `Here are a list of questions that may be relevant for you to understand my chain of thoughts: [${getAllUserMessagesAsStringArray(
     allMessages,
-  )}].  \n\nNow please answer the following question: ${userContent}`
+  )}].  Now please answer the following question: ${userContent}`
 }
 
 export function userPersonalityPrompt(userPromptType: string, allMessages: Message[]) {
