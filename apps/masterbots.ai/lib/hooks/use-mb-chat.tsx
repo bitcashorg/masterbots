@@ -64,6 +64,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
   const { activeChatbot, navigateTo } = useSidebar()
   const userContentRef = useRef<string>('')
   const randomThreadId = useRef<string>(crypto.randomUUID())
+  const initialIsNewChat = Boolean(!activeThread?.messages.length)
   const [{ messagesFromDB, isNewChat }, setState] = useSetState<{
     isInitLoaded: boolean
     webSearch: boolean
@@ -73,7 +74,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     isInitLoaded: false,
     webSearch: false,
     messagesFromDB: activeThread?.messages || [],
-    isNewChat: true,
+    isNewChat: initialIsNewChat,
   })
 
   const { customSonner } = useSonner()
