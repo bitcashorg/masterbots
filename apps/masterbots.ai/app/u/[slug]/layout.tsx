@@ -1,4 +1,3 @@
-import FooterCT from '@/components/layout/footer/footer-ct'
 import { Hero } from '@/components/layout/profile/hero'
 import { ProfileSidebar } from '@/components/layout/profile/profile-page-sidebar'
 import NextTopLoader from 'nextjs-toploader'
