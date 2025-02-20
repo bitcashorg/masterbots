@@ -275,7 +275,7 @@ export function MessagePairAccordion({
       {/* Thread Content */}
       <div
         className={cn(
-          'mx-4 md:mx-[46px] px-1 py-4 border-transparent dark:border-x-mirage border-x-gray-300 border h-full',
+          'mx-4 md:mx-[46px] px-1 py-4  h-full',
           {
             '!border-[transparent]': !isThread && index === 0,
             '[&>div>div>div_*]:!text-xs': isPrevious

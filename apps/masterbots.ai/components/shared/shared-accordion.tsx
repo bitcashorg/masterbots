@@ -227,32 +227,23 @@ export function SharedAccordion({
         className,
         // Browse variant specific styles
         variant === 'browse' &&
-        !isNestedThread &&
-        (open
-          ? 'z-[1] my-8 scale-100'
-          : 'scale-[0.98] my-1 hover:scale-[0.99]'),
+          !isNestedThread &&
+          (open
+            ? 'z-[1] my-8 scale-100'
+            : 'scale-[0.98] my-1 hover:scale-[0.99]'),
         variant === 'browse' &&
-        !isNestedThread &&
-        shouldBeDisabled &&
-        'opacity-50 pointer-events-none grayscale cursor-not-allowed',
+          !isNestedThread &&
+          shouldBeDisabled &&
+          'opacity-50 pointer-events-none grayscale cursor-not-allowed',
         variant === 'browse' && isNestedThread && 'my-2',
         variant === 'browse' &&
-        !isNestedThread &&
-        open &&
-        'sm:relative fixed inset-0 sm:inset-auto'
+          !isNestedThread &&
+          open &&
+          'sm:relative fixed inset-0 sm:inset-auto'
       )}
       id={`thread-${thread?.threadId}`}
       {...props}
     >
-      {/* Glow effects for browse variant
-      {variant === 'browse' && !isNestedThread && open && (
-        <>
-          <div className="absolute inset-0 -m-4 rounded-xl blur-xl bg-gradient-to-r dark:from-[#83E56A]/10 dark:via-[#83E56A]/15 dark:to-[#83E56A]/10 from-[#BE17E8]/15 via-[#BE17E8]/20 to-[#BE17E8]/15 animate-pulse" />
-          <div className="absolute inset-0 -m-1 rounded-xl opacity-50 bg-gradient-to-r dark:from-[#83E56A]/10 dark:to-[#83E56A]/15 from-[#BE17E8]/10 to-[#BE17E8]/15" />
-          <div className="absolute inset-0 border rounded-xl dark:border-[#83E56A]/10 border-[#BE17E8]/10" />
-        </>
-      )} */}
-
       {/* Accordion trigger button */}
       {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
       <button
@@ -263,25 +254,20 @@ export function SharedAccordion({
           'flex flex-1 mt-2 justify-start flex-col relative',
           'transition-all ease-in-out duration-200',
           'border-transparent border font-medium w-full rounded-lg',
-          // Base background color for all states
+          //? Base background color for all states
           'bg-gray-200/90 dark:bg-gray-800/90',
-          // Closed state hover effect
-          !open && 'hover:bg-gray-100 dark:hover:bg-gray-700',
-          // Open state specific styles - maintain background color
-          open && [
-            'bg-gray-200/90 dark:bg-gray-800/90',
-            'hover:bg-gray-100 dark:hover:bg-gray-700'
-          ],
+          //? Hover effect for both open and closed states
+          'hover:bg-gray-100 dark:hover:bg-gray-700',
           !isNestedThread && 'hover:rounded-t-lg',
           !isNestedThread &&
-          open &&
-          'dark:border-b-mirage border-b-gray-300 shadow-lg transform-gpu backdrop-blur-sm',
+            open &&
+            'dark:border-b-mirage border-b-gray-300 shadow-lg transform-gpu backdrop-blur-sm',
           !isNestedThread &&
-          !open &&
-          'dark:hover:border-b-mirage hover:border-b-gray-300 [&>div>div>button]:!hidden',
+            !open &&
+            'dark:hover:border-b-mirage hover:border-b-gray-300 [&>div>div>button]:!hidden',
           isNestedThread &&
-          open &&
-          'dark:bg-[#18181B]/50 bg-white/50 !hover:rounded-t-none',
+            open &&
+            'bg-gray-200/90 dark:bg-gray-800/90 !hover:rounded-t-none',
           shouldBeDisabled && !open && 'cursor-not-allowed hover:scale-100',
           triggerClass
         )}
@@ -291,11 +277,11 @@ export function SharedAccordion({
         <ChevronDown
           {...(handleTrigger
             ? {
-              onClick: e => {
-                e.stopPropagation()
-                handleTrigger()
+                onClick: e => {
+                  e.stopPropagation()
+                  handleTrigger()
+                }
               }
-            }
             : {})}
           className={cn(
             'absolute size-4 -right-4 top-4 shrink-0 mr-8 transition-transform duration-200',
@@ -321,13 +307,13 @@ export function SharedAccordion({
         className={cn(
           'text-sm transition-all border relative',
           !isNestedThread &&
-          open &&
-          'animate-accordion-down dark:bg-[#18181B]/75 bg-white/75 dark:border-b-mirage border-b-gray-300 !border-t-transparent last-of-type:rounded-b-lg shadow-lg backdrop-blur-sm',
+            open &&
+            'animate-accordion-down dark:bg-[#18181B]/75 bg-white/75 dark:border-b-mirage border-b-gray-300 !border-t-transparent last-of-type:rounded-b-lg shadow-lg backdrop-blur-sm',
           isNestedThread &&
-          open &&
-          'animate-accordion-down dark:bg-[#18181B]/50 bg-white/50 dark:border-b-mirage border-b-gray-300/10 !border-t-transparent last-of-type:rounded-b-lg',
+            open &&
+            'animate-accordion-down dark:bg-[#18181B]/50 bg-white/50 dark:border-b-mirage border-b-gray-300/10 !border-t-transparent last-of-type:rounded-b-lg',
           !open &&
-          'overflow-hidden animate-accordion-up h-0 border-transparent',
+            'overflow-hidden animate-accordion-up h-0 border-transparent',
           contentClass
         )}
       >
