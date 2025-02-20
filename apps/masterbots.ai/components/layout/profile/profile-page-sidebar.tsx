@@ -42,7 +42,7 @@ export const ProfileSidebar = ({ children }: any) => {
 
   return (
     <div className={cn(
-      'transition-all relative w-full flex',
+      'transition-all relative w-full flex h-full'
     )}>
       {/* Overlay for mobile */}
       {isSidebarOpen && (
@@ -61,15 +61,16 @@ export const ProfileSidebar = ({ children }: any) => {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed lg:relative z-[70] bottom-0 top-16 lg:top-0 transition-transform duration-300 ease-in-out",
+          "fixed lg:sticky z-[70] top-0 h-full", // Changed to sticky and match parent height
           "w-[18.75rem] bg-gray-50 dark:bg-black border-r",
-           "lg:transform-none lg:transition-none", 
+          "overflow-y-auto", // Allow scrolling within sidebar
+          "lg:transform-none lg:transition-none", 
           isSidebarOpen
             ? "translate-x-0"
             : "-translate-x-full lg:translate-x-0"
         )}
       >
-        <nav className="flex-1 scrollbar">
+        <nav className="flex-1 scrollbar h-full">
           <div className="flex flex-col space-y-1 font-Geist">
             {/* Threads Accordion */}
             <div className="rounded-lg">
@@ -146,23 +147,22 @@ export const ProfileSidebar = ({ children }: any) => {
                 </>
               )
             }
-
           </div>
         </nav>
       </aside>
-
+  
       {/* Main content */}
       <section
         className={cn(
-          'flex flex-col  h-[calc(100vh-465px)] group w-full overflow-auto animate-in duration-300 ease-in-out relative ',
+          'flex flex-col w-full overflow-auto  h-full',
         )}
       >
-        <div className="flex flex-col w-full gap-10 pt-5 mx-auto min-h-[845px] scrollbar">
+        <div className="flex flex-col w-full gap-10 pt-5 mx-auto flex-grow">
           {children}
         </div>
-        <div className="sticky bottom-0 w-full left-0 z-50  dark:bg-black bg-white">          
-             <FooterCT className='flex justify-start items-center  text-center' />         
-         </div> 
+        <div className="sticky bottom-0 w-full left-0 z-10 dark:bg-black bg-white">          
+          <FooterCT className='flex justify-start items-center text-center' />         
+        </div> 
       </section>
     </div>
   );
