@@ -136,7 +136,7 @@ export function ThreadPopup({ className }: { className?: string }) {
                 <Chat
                   isPopup
                   chatPanelClassName="!pl-0 rounded-b-[8px] overflow-hidden !absolute"
-                  scrollToBottom={scrollToBottom}
+                  scrollToBottomOfPopup={scrollToBottom}
                   isAtBottom={isNearBottom}
                 />
               </>

@@ -201,17 +201,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
         saveNewMessage(newAssistantMessage),
       ])
 
-      // ? This is when we want to reflect the whole conversation and serves as a fallback
-      // ? whenever the conversation glitches due the bug with the "isNewChat" boolean.
-      // ! Logic has to improve...
-      const transformedMessages = [newUserMessage, newAssistantMessage].map((msg) => ({
-        id: nanoid(),
-        role: msg.role as AiMessage['role'],
-        content: msg.content,
-        createdAt: msg.createdAt,
-      } as AiMessage))
-
-      setMessages(allMessages.concat(transformedMessages))
       setState({
         isNewChat: false,
       })
