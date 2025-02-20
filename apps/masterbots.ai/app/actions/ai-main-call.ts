@@ -27,7 +27,7 @@ import type {
 } from '@/types/types'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createOpenAI } from '@ai-sdk/openai'
-import { ToolSet, smoothStream, streamObject, streamText } from 'ai'
+import { smoothStream, streamObject, streamText } from 'ai'
 import { createStreamableValue } from 'ai/rsc'
 import { appConfig } from 'mb-env'
 import type OpenAI from 'openai'
@@ -60,7 +60,7 @@ export async function initializePerplexity(apiKey: string) {
     throw new Error('PERPLEXITY_API_KEY is not defined in environment variables')
   }
   return await createOpenAI({
-    apiKey,-
+    apiKey,
     baseURL: 'https://api.perplexity.ai',
     compatibility: 'compatible',
   })
