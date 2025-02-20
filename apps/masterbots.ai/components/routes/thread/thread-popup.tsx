@@ -42,19 +42,19 @@ export function ThreadPopup({ className }: { className?: string }) {
     }
   }
 
-  // Uses smoothScrollToBottom from custom hook useMBScroll
-  // biome-ignore lint/correctness/useExhaustiveDependencies: smoothScrollToBottom might be necessary however, it has his own memoization (useCallback). That should be enough, else, can be added as a dependency
-    useEffect(() => {
-    let timeout: NodeJS.Timeout
-    if (isLoading && isOpenPopup) {
-      timeout = setTimeout(() => {
-        smoothScrollToBottom()
-      }, 150)
-    }
-    return () => {
-      clearTimeout(timeout)
-    }
-  }, [isLoading, isOpenPopup])
+  // // Uses smoothScrollToBottom from custom hook useMBScroll
+  // // biome-ignore lint/correctness/useExhaustiveDependencies: smoothScrollToBottom might be necessary however, it has his own memoization (useCallback). That should be enough, else, can be added as a dependency
+  //   useEffect(() => {
+  //   let timeout: NodeJS.Timeout
+  //   if (isLoading && isOpenPopup) {
+  //     timeout = setTimeout(() => {
+  //       smoothScrollToBottom()
+  //     }, 150)
+  //   }
+  //   return () => {
+  //     clearTimeout(timeout)
+  //   }
+  // }, [isLoading, isOpenPopup])
 
   // Fetch browse messages when activeThread changes
   useEffect(() => {
@@ -136,7 +136,7 @@ export function ThreadPopup({ className }: { className?: string }) {
                 <Chat
                   isPopup
                   chatPanelClassName="!pl-0 rounded-b-[8px] overflow-hidden !absolute"
-                  scrollToBottom={scrollToBottom}
+                  scrollToBottomOfPopup={scrollToBottom}
                   isAtBottom={isNearBottom}
                 />
               </>
