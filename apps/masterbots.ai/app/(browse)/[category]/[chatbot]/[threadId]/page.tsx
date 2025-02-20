@@ -1,10 +1,15 @@
+import { getThread } from '@/services/hasura'
 import type { ChatPageProps } from '@/types/types'
-import { toSlug } from 'mb-lib'
 import { redirect } from 'next/navigation'
 
 export { generateMbMetadata as generateMetadata } from '@/lib/metadata'
 
 export default async function ChatPage({ params }: ChatPageProps) {
+  const thread = await getThread({ threadId: params.threadId })
+  
+  if (!thread) {
+    redirect('/b')
+  }
 
-  redirect(`/b/${toSlug(params.chatbot || '')}/${params.threadId.trim()}`)
+  redirect(`/b/${params.threadId.trim()}`)
 }
