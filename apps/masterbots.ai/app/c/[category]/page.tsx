@@ -32,6 +32,9 @@ export default async function ChatCategoryPage({
     categoryId: category?.categoryId,
     limit: PAGE_SIZE,
   })
+  console.log('params.category', params.category)
+  console.log('category', category)
+  console.log('threads', threads)
 
   return (
     <>
