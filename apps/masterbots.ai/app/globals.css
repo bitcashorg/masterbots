@@ -482,6 +482,10 @@ button.text-link {
   background-image: var(--background-chat-gradient);
 }
 
+[data-route='chat'].btn-gradient:hover {
+  background-image: var(--background-chat-hover-gradient);
+}
+
 /* Public route styles */
 [data-route='public'] .sidebar-gradient:hover:not(.selected) {
   background-image: var(--background-public-hover-gradient);
@@ -490,6 +494,14 @@ button.text-link {
 [data-route='public'] .sidebar-gradient.selected {
   background-image: var(--background-public-gradient);
 }
+
+[data-route='public'].btn-gradient:hover {
+  background-image: var(--background-public-gradient);
+}
+
+
+
+
 
 /* Component route styles */
 
