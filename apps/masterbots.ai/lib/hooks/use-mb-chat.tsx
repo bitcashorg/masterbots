@@ -53,7 +53,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
   const {
     isOpenPopup,
     activeThread,
-    loadingState,
     webSearch,
     setWebSearch,
     setActiveThread,
@@ -65,7 +64,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
   const { activeChatbot, navigateTo } = useSidebar()
   const userContentRef = useRef<string>('')
   const randomThreadId = useRef<string>(crypto.randomUUID())
-  const [{ messagesFromDB, isInitLoaded, isNewChat }, setState] = useSetState<{
+  const initialIsNewChat = Boolean(!activeThread?.messages.length)
+  const [{ messagesFromDB, isNewChat }, setState] = useSetState<{
     isInitLoaded: boolean
     webSearch: boolean
     messagesFromDB: Message[]
@@ -74,7 +74,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     isInitLoaded: false,
     webSearch: false,
     messagesFromDB: activeThread?.messages || [],
-    isNewChat: true,
+    isNewChat: initialIsNewChat,
   })
 
   const { customSonner } = useSonner()
@@ -201,17 +201,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
         saveNewMessage(newAssistantMessage),
       ])
 
-      // ? This is when we want to reflect the whole conversation and serves as a fallback
-      // ? whenever the conversation glitches due the bug with the "isNewChat" boolean.
-      // ! Logic has to improve...
-      const transformedMessages = [newUserMessage, newAssistantMessage].map((msg) => ({
-        id: nanoid(),
-        role: msg.role as AiMessage['role'],
-        content: msg.content,
-        createdAt: msg.createdAt,
-      } as AiMessage))
-
-      setMessages(allMessages.concat(transformedMessages))
       setState({
         isNewChat: false,
       })
@@ -275,6 +264,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: only activeThread is needed
   useEffect(() => {
+    // Resetting the chat when the popup is closed
     if (!activeThread && !isOpenPopup) {
       setState({ messagesFromDB: [], isInitLoaded: false, isNewChat: true })
       setLoadingState()
@@ -483,7 +473,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     try {
       const chatbotMetadata = await getMetadataLabels()
 
-      if ((isNewChat || !activeThread?.messages.length) && chatbot) {
+      if (isNewChat && chatbot) {
         await createThread({
           threadId: threadId as string,
           chatbotId: chatbot.chatbotId,
@@ -548,6 +538,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       stop()
 
       console.error('Error appending new message: ', error)
+      customSonner({ type: 'error', text: 'Failed to send the message to the Masterbot. Please try again.' })
 
       return null
     }
