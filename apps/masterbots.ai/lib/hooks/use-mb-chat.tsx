@@ -160,6 +160,10 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       }
     },
     async onFinish(message: any, options: any) {
+      if (appConfig.features.devMode) {
+        customSonner({ type: 'info', text: `Ai generation finished, reason: ${options.finishReason}` })
+      }
+
       const aiChatThreadId = resolveThreadId({
         isContinuousThread,
         randomThreadId: randomThreadId.current,
@@ -472,6 +476,14 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
   const appendNewMessage = async (userMessage: AiMessage | CreateMessage) => {
     try {
       const chatbotMetadata = await getMetadataLabels()
+
+      if (appConfig.features.devMode) {
+        console.info('Before appending a new message, we check the following to know if is new chat or not: ')
+        console.log('isNewChat guard --> ', isNewChat)
+        console.log('allMessages --> ', allMessages)
+        console.log('activeThread --> ', activeThread)
+        console.info('--- --- --- --- --- --- --- --- --- --- ---')
+      }
 
       if (isNewChat && chatbot) {
         await createThread({
