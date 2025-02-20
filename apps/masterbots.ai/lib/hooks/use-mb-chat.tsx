@@ -53,7 +53,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
   const {
     isOpenPopup,
     activeThread,
-    loadingState,
     webSearch,
     setWebSearch,
     setActiveThread,
@@ -65,7 +64,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
   const { activeChatbot, navigateTo } = useSidebar()
   const userContentRef = useRef<string>('')
   const randomThreadId = useRef<string>(crypto.randomUUID())
-  const [{ messagesFromDB, isInitLoaded, isNewChat }, setState] = useSetState<{
+  const [{ messagesFromDB, isNewChat }, setState] = useSetState<{
     isInitLoaded: boolean
     webSearch: boolean
     messagesFromDB: Message[]
@@ -74,7 +73,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     isInitLoaded: false,
     webSearch: false,
     messagesFromDB: activeThread?.messages || [],
-    isNewChat: true,
+    isNewChat: Boolean(!activeThread || (activeThread && activeThread.messages.length <= 1)),
   })
 
   const { customSonner } = useSonner()
@@ -483,7 +482,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     try {
       const chatbotMetadata = await getMetadataLabels()
 
-      if ((isNewChat || !activeThread?.messages.length) && chatbot) {
+      if ((isNewChat || !activeThread?.messages.length || (activeThread && activeThread.messages.length <= 1)) && chatbot) {
         await createThread({
           threadId: threadId as string,
           chatbotId: chatbot.chatbotId,
