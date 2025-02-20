@@ -483,7 +483,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     try {
       const chatbotMetadata = await getMetadataLabels()
 
-      console.log('isNewChat  -> ', isNewChat)
       if (isNewChat && chatbot) {
         await createThread({
           threadId: threadId as string,
