@@ -60,7 +60,7 @@ export async function initializePerplexity(apiKey: string) {
     throw new Error('PERPLEXITY_API_KEY is not defined in environment variables')
   }
   return await createOpenAI({
-    apiKey,
+    apiKey,-
     baseURL: 'https://api.perplexity.ai',
     compatibility: 'compatible',
   })
@@ -268,10 +268,7 @@ export async function createResponseStream(
           openAiStreamConfig.experimental_transform = smoothStream()
         }
 
-        response = await streamText({
-          ...openAiStreamConfig,,
-          topP: 0.9,
-        })
+        response = await streamText(openAiStreamConfig)
         break
       }
       case 'Anthropic': {
