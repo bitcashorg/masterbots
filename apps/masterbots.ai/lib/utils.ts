@@ -302,7 +302,7 @@ export function getRouteType(pathname: string | null): RouteType {
   if (!pathname || pathname === '/') return 'public'
   const normalizedPath = pathname.toLowerCase().replace(/\/+$/, '')
 
-  if (normalizedPath.startsWith('/c') && normalizedPath !== '/career') {
+  if (normalizedPath.startsWith('/c') && !normalizedPath.includes('/career')) {
     return 'chat'
   }
 
