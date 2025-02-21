@@ -300,18 +300,26 @@ type RouteType = 'chat' | 'public' | 'profile'
 
 export function getRouteType(pathname: string | null): RouteType {
   if (!pathname || pathname === '/') return 'public'
+
+  // ? Normalize the path by converting to lowercase and removing trailing slashes
   const normalizedPath = pathname.toLowerCase().replace(/\/+$/, '')
 
-  if (normalizedPath.startsWith('/c') && normalizedPath !== '/career') {
+  // ? Check for chat routes (starting with /c but not being /career)
+  if (
+    normalizedPath.startsWith('/c') &&
+    normalizedPath !== '/career' &&
+    !normalizedPath.startsWith('/career/')
+  ) {
     return 'chat'
   }
 
+  // ? Check for profile routes
   if (normalizedPath.startsWith('/u')) {
     return 'profile'
   }
 
+  // ? Check for public routes
   const publicRoutes = [/^\/$/, /^\/[^/]+\/[^/]+$/, /^\/[^/]+\/[^/]+\/[^/]+$/]
-
   if (publicRoutes.some((route) => route.test(normalizedPath))) {
     return 'public'
   }

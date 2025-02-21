@@ -1,22 +1,21 @@
 'use client'
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Button, type ButtonProps } from '@/components/ui/button'
-import { IconArrowDown } from '@/components/ui/icons'
+import { Button, type ButtonProps } from '@/components/ui/button';
+import { IconArrowDown } from '@/components/ui/icons';
+import { cn } from '@/lib/utils';
 
 export function ButtonScrollToBottom({
   className,
   isAtBottom,
   scrollToBottom,
   ...props
-}: ButtonProps & { isAtBottom?: boolean; scrollToBottom: () => void }) {
+}: ButtonProps & { textClassName?: string; isAtBottom?: boolean; scrollToBottom: () => void }) {
   return (
     <Button
       variant="outline"
       size="icon"
       className={cn(
-        'absolute right-4 top-1 z-10 bg-background transition-opacity duration-300 sm:right-8 md:top-2',
+        'z-10 bg-background transition-opacity duration-300',
         isAtBottom ? 'opacity-0' : 'opacity-100',
         className
       )}
@@ -25,8 +24,10 @@ export function ButtonScrollToBottom({
       }}
       {...props}
     >
-      <IconArrowDown />
-      <span className="sr-only">Scroll to bottom</span>
+      <IconArrowDown className="transition-all" />
+      <span className={props?.textClassName ? props.textClassName : 'sr-only'}>
+        Scroll to bottom
+      </span>
     </Button>
   )
 }

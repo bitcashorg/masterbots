@@ -56,6 +56,8 @@ export function ChatPanel({
   const webSearchRef = React.useRef(null)
 
   const isPreProcessing = Boolean(loadingState?.match(/processing|digesting|polishing/))
+  const hiddenAnimationClassNames = 'p-2 gap-0 w-auto relative overflow-hidden [&:hover_span]:opacity-100 [&:hover_span]:w-auto [&:hover_span]:duration-300 [&:hover_svg]:mr-2 [&:hover_span]:transition-all'
+  const hiddenAnimationItemClassNames = 'transition-all w-[0px] opacity-0 whitespace-nowrap duration-300'
 
   return (
     <div
@@ -127,7 +129,13 @@ export function ChatPanel({
             </div>
 
             {/* Right side controls */}
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-3.5">
+              <ButtonScrollToBottom
+                scrollToBottom={scrollToBottom}
+                isAtBottom={isAtBottom}
+                className={hiddenAnimationClassNames}
+                textClassName={hiddenAnimationItemClassNames}
+              />
               {showReload && (isLoading || isPreProcessing) ? (
                 <>
                   {loadingState !== 'finished' && (
@@ -150,10 +158,12 @@ export function ChatPanel({
               ) : (
                 messages?.length >= 2 && (
                   <>
-                    <Button variant="outline" className="relative group" onClick={() => reload()}>
-                      <IconRefresh className="mr-2 transition-all" />
-                      Regenerate response
-                    </Button>
+                      <Button variant="outline" size="icon" className={hiddenAnimationClassNames} onClick={() => reload()}>
+                        <IconRefresh className="transition-all" />
+                        <span className={hiddenAnimationItemClassNames}>
+                          Regenerate response
+                        </span>
+                      </Button>
                     {id && title && (
                       <>
                         <Button variant="outline" onClick={() => setShareDialogOpen(true)}>
@@ -175,7 +185,6 @@ export function ChatPanel({
               )}
             </div>
           </div>
-          <ButtonScrollToBottom scrollToBottom={scrollToBottom} isAtBottom={isAtBottom} />
         </div>
 
         {/* Prompt Form Section */}
