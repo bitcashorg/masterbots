@@ -5,6 +5,7 @@ import { getAllUserMessagesAsStringArray } from '@/lib/threads'
 import { nanoid } from '@/lib/utils'
 import type { ChatbotMetadata, ChatbotMetadataExamples } from '@/types/types'
 import type { Message } from 'ai'
+import { uniq } from 'lodash'
 import type { Chatbot } from 'mb-genql'
 
 // * This function creates the prompt for the AI improvement process
@@ -85,7 +86,7 @@ export function createBotConfigurationPrompt(chatbot: Chatbot) {
 export function followingQuestionsPrompt(userContent: string, allMessages: Message[]) {
   // return `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
   return `Here are a list of questions that may be relevant for you to understand my chain of thoughts: [${getAllUserMessagesAsStringArray(
-    allMessages,
+    uniq(allMessages),
   )}].  Now please answer the following question: ${userContent}`
 }
 
