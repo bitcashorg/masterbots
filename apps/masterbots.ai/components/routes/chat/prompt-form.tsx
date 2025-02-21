@@ -128,9 +128,9 @@ export function PromptForm({
           spellCheck={false}
           disabled={disabled}
           className={cn(
-            'w-full resize-none bg-transparent px-4 py-1 my-1 focus-within:outline-none sm:text-sm',
+            'w-full resize-none bg-transparent px-4 py-3.5 focus-within:outline-none sm:text-sm',
             'min-h-[80px] md:min-h-[60px]', //? Smaller height on mobile
-            'md:py-[1.3rem]', //? Adjusted padding for mobile
+            // 'py-[1.3rem]', //? Adjusted padding for mobile
             'disabled:cursor-not-allowed',
           )}
         />
