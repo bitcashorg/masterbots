@@ -74,9 +74,9 @@ export function ChatPanel({
           <div className="flex items-center justify-between w-full gap-4 mx-2">
             <div className="flex items-center space-x-4">
               {/* Power-Up Switch */}
-              <div className="flex items-center space-x-2">
-                <Switch id="power-up" checked={isPowerUp} onCheckedChange={togglePowerUp} />
-                <Label htmlFor="power-up" className="text-sm font-normal">
+              <div className="flex md:flex-row flex-col items-center space-x-2 gap-y-2 cursor-pointer">
+                <Switch id="power-up" checked={isPowerUp} onCheckedChange={togglePowerUp} className="h-4 w-9 [&>span]:size-3.5"/>
+                <Label htmlFor="power-up" className="text-xs md:text-sm font-normal cursor-pointer">
                   Power-Up
                 </Label>
               </div>
