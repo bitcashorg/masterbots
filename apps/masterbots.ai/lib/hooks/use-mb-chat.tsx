@@ -160,19 +160,65 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       }
     },
     async onFinish(message: any, options: any) {
-      if (appConfig.features.devMode) {
-        customSonner({ type: 'info', text: `Ai generation finished, reason: ${options.finishReason}` })
-      }
+      try {
+        if (appConfig.features.devMode) {
+          customSonner({ type: 'info', text: `Ai generation finished, reason: ${options.finishReason}` })
+        }
 
-      const aiChatThreadId = resolveThreadId({
-        isContinuousThread,
-        randomThreadId: randomThreadId.current,
-        threadId,
-        activeThreadId: activeThread?.threadId,
-      })
+        const aiChatThreadId = resolveThreadId({
+          isContinuousThread,
+          randomThreadId: randomThreadId.current,
+          threadId,
+          activeThreadId: activeThread?.threadId,
+        })
 
-      if (options.finishReason === 'error') {
-        customSonner({ type: 'error', text: 'Failed to send message. Please try again.' })
+        if (options.finishReason === 'error') {
+          customSonner({ type: 'error', text: 'Failed to send message. Please try again.' })
+
+          if (isNewChat) {
+            await deleteThread({
+              threadId: params?.threadId ?? activeThread?.threadId,
+              jwt: session?.user?.hasuraJwt,
+              userId: session?.user.id,
+            })
+          }
+        }
+
+        const newBaseMessage: Partial<SaveNewMessageParams> = {
+          threadId: aiChatThreadId ?? '',
+          jwt: session?.user?.hasuraJwt,
+        }
+        const [newUserMessage, newAssistantMessage]: Partial<SaveNewMessageParams>[] = [
+          {
+            ...newBaseMessage,
+            role: 'user',
+            content: userContentRef.current,
+            createdAt: new Date().toISOString(),
+          }, {
+            ...newBaseMessage,
+            role: 'assistant',
+            content: message.content,
+            createdAt: new Date(Date.now() + 1000).toISOString(),
+          }
+        ]
+        await Promise.all([
+          saveNewMessage(newUserMessage),
+          saveNewMessage(newAssistantMessage),
+        ])
+
+        setState({
+          isNewChat: false,
+        })
+
+        // ? We throttle for smooth transition between the messages
+        throttle(() => {
+          setIsNewResponse(false)
+          setLoadingState('finished')
+          setActiveTool(undefined)
+        }, 500)()
+      } catch (error) {
+        console.error('Error saving new message: ', error)
+        customSonner({ type: 'error', text: 'Failed to save the Masterbot message. Please try again.' })
 
         if (isNewChat) {
           await deleteThread({
@@ -182,39 +228,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
           })
         }
       }
-
-      const newBaseMessage: Partial<SaveNewMessageParams> = {
-        threadId: aiChatThreadId ?? '',
-        jwt: session?.user?.hasuraJwt,
-      }
-      const [newUserMessage, newAssistantMessage]: Partial<SaveNewMessageParams>[] = [
-        {
-          ...newBaseMessage,
-          role: 'user',
-          content: userContentRef.current,
-          createdAt: new Date().toISOString(),
-        }, {
-          ...newBaseMessage,
-          role: 'assistant',
-          content: message.content,
-          createdAt: new Date(Date.now() + 1000).toISOString(),
-        }
-      ]
-      await Promise.all([
-        saveNewMessage(newUserMessage),
-        saveNewMessage(newAssistantMessage),
-      ])
-
-      setState({
-        isNewChat: false,
-      })
-
-      // ? We throttle for smooth transition between the messages
-      throttle(() => {
-        setIsNewResponse(false)
-        setLoadingState('finished')
-        setActiveTool(undefined)
-      }, 500)()
     },
     // @ts-ignore
     onToolCall({ toolCall }: { toolCall: AiToolCall }) {
@@ -432,7 +445,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    if (chatMetadata?.errors?.length) {
+    if (chatMetadata?.errors?.length && appConfig.features.devMode) {
       customSonner({
         type: 'error',
         text: `${chatMetadata.domainName}:\n${chatMetadata.errors.join('.\n')}`,
