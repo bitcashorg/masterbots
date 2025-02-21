@@ -55,6 +55,8 @@ export function ChatPanel({
   const [shareDialogOpen, setShareDialogOpen] = React.useState(false)
   const webSearchRef = React.useRef(null)
 
+  const isPreProcessing = Boolean(loadingState?.match(/processing|digesting|polishing/))
+
   return (
     <div
       className={cn(
@@ -72,9 +74,9 @@ export function ChatPanel({
           <div className="flex items-center justify-between w-full gap-4 mx-2">
             <div className="flex items-center space-x-4">
               {/* Power-Up Switch */}
-              <div className="flex items-center space-x-2">
-                <Switch id="power-up" checked={isPowerUp} onCheckedChange={togglePowerUp} />
-                <Label htmlFor="power-up" className="text-sm font-normal">
+              <div className="flex md:flex-row flex-col items-center space-x-2 gap-y-2 cursor-pointer">
+                <Switch id="power-up" checked={isPowerUp} onCheckedChange={togglePowerUp} className="h-4 w-9 [&>span]:size-3.5"/>
+                <Label htmlFor="power-up" className="text-xs md:text-sm font-normal cursor-pointer">
                   Power-Up
                 </Label>
               </div>
@@ -126,7 +128,7 @@ export function ChatPanel({
 
             {/* Right side controls */}
             <div className="flex items-center gap-5">
-              {showReload && isLoading ? (
+              {showReload && (isLoading || isPreProcessing) ? (
                 <>
                   {loadingState !== 'finished' && (
                     <div className="flex items-center justify-between gap-4">
@@ -138,10 +140,12 @@ export function ChatPanel({
                       </div>
                     </div>
                   )}
-                  <Button variant="outline" onClick={stop} className="bg-background">
-                    <IconStop className="mr-2" />
-                    Stop generating
-                  </Button>
+                  {isLoading && (
+                    <Button variant="outline" onClick={stop} className="bg-background">
+                      <IconStop className="mr-2" />
+                      Stop generating
+                    </Button>
+                  )}
                 </>
               ) : (
                 messages?.length >= 2 && (
@@ -194,10 +198,10 @@ export function ChatPanel({
               })
             }}
             // biome-ignore lint/complexity/noExtraBooleanCast: <explanation>
-            disabled={isLoading || !Boolean(chatbot)}
+            disabled={isLoading || !Boolean(chatbot) || isPreProcessing}
             input={input}
             setInput={setInput}
-            isLoading={isLoading}
+            isLoading={isLoading || isPreProcessing}
             placeholder={placeholder}
           />
         </div>
