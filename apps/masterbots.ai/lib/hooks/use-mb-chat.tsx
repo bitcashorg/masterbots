@@ -525,7 +525,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
           createdAt: msg.createdAt,
         })).filter(msg => msg.role === 'user')
       }
-      const userMessages = allMessages.filter((msg) => msg.role === 'user')
 
       const appendResponse = await append(
         {
@@ -534,7 +533,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
             ? userContentRef.current
             : followingQuestionsPrompt(
               userContentRef.current,
-              previousAiUserMessages.concat(userMessages),
+              previousAiUserMessages.concat(allMessages),
             ),
         },
         // ? Provide chat attachments here...
