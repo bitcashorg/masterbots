@@ -318,15 +318,7 @@ export function MessagePairAccordion({
 export function ChatLoadingState() {
   const { activeTool, loadingState } = useThread()
 
-  if (!loadingState || !activeTool?.toolName) return null
-
-  if (loadingState && !loadingState?.match(/^(generating|finished)/)) {
-    return (
-      <div className="flex items-center justify-center w-full h-20">
-        <div className="w-8 h-8 border-4 border-t-4 border-gray-200 rounded-full animate-ping" />
-      </div>
-    )
-  }
+  const isPreProcessing = Boolean(loadingState?.match(/processing|digesting|polishing/))
 
   switch (activeTool?.toolName) {
     case 'webSearch':
@@ -353,10 +345,10 @@ export function ChatLoadingState() {
         </div>
       )
     default:
-      return (
+      return isPreProcessing ? (
         <div className="flex items-center justify-center w-full h-20">
           <div className="w-8 h-8 border-4 border-t-4 border-gray-200 rounded-full animate-ping" />
         </div>
-      )
+      ) : null
   }
 }

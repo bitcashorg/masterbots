@@ -36,6 +36,7 @@ import { ChatList } from '@/components/routes/chat/chat-list'
 import { ChatPanel } from '@/components/routes/chat/chat-panel'
 import { ChatScrollAnchor } from '@/components/routes/chat/chat-scroll-anchor'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
+import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
@@ -45,7 +46,6 @@ import type { Message as UiUtilsMessage } from '@ai-sdk/ui-utils'
 import type { Chatbot } from 'mb-genql'
 import { useParams, usePathname } from 'next/navigation'
 import React, { useEffect } from 'react'
-import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 
 export function Chat({
   chatbot: chatbotProps,
@@ -120,7 +120,8 @@ export function Chat({
   ) => {
     const threadTitle = allMessages.filter((m) => m.role === 'user')[0]?.content
     if (isContinuousThread && allMessages) {
-      return `Create new thread from "${threadTitle}" by making a new question.`
+      // return `Create new thread from "${threadTitle}" by making a new question.`
+      return 'Continue this thread here'
     }
     if (isNewChat) {
       return `Start New Chat with ${chatbot.name}`
