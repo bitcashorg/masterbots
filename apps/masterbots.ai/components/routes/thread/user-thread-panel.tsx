@@ -134,7 +134,6 @@ export default function UserThreadPanel({
     setLoading(false)
   }
 
-  // TODO: add this to continuous thread
   const getThreadByContinuousThreadId = async (continuousThreadId: string, session: Session) => {
     const thread = await getThread({
       threadId: continuousThreadId,
@@ -142,23 +141,27 @@ export default function UserThreadPanel({
     })
 
     if (thread) {
-      setState({
-        threads: [thread, ...threads],
-        totalThreads: totalThreads + 1,
-        count: count + 1,
-      })
-      setActiveThread(thread)
+      const defaultThread = initialThread(thread, session)
+      // ? here we can replace the active thread to appear as it is form a continuing thread with the thread parameter
+      setActiveThread(defaultThread)
+      // setActiveThread(thread)
       setIsContinuousThread(true)
       setIsOpenPopup(true)
     }
   }
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should run only once
-  useEffect(() => {
-    if (continuousThreadId && session) {
-      getThreadByContinuousThreadId(continuousThreadId, session)
+  useAsync(async () => {
+    if (!session) return
+
+    if (!continuousThreadId && isContinuousThread) {
+      setIsContinuousThread(false)
+      return
     }
-  }, [continuousThreadId, session])
+
+    if (!continuousThreadId) return
+
+    await getThreadByContinuousThreadId(continuousThreadId, session)
+  }, [session])
 
   const threads = state.threads.length > initialThreads.length ? state.threads : initialThreads
 
@@ -316,4 +319,24 @@ export default function UserThreadPanel({
       </ul>
     </>
   )
+}
+
+export function initialThread(thread: Thread, session: Session): Thread {
+  return {
+    threadId: '',
+    chatbot: thread.chatbot,
+    chatbotId: thread.chatbotId,
+    createdAt: new Date(),
+    isApproved: false,
+    isPublic: false,
+    messages: [thread.messages.filter(msg => msg.role === 'user')[0]],
+    userId: session.user?.id,
+    updatedAt: new Date(),
+    isBlocked: false,
+    model: 'OPENAI',
+    user: null,
+    thread,
+    parentThreadId: thread.threadId,
+    threads: [],
+  } as unknown as Thread
 }
