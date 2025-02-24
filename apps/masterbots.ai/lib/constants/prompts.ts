@@ -79,7 +79,10 @@ export function createBotConfigurationPrompt(chatbot: Chatbot) {
       chatbot.typeEnum?.prompt,
       chatbot.lengthEnum?.prompt,
     ].join(' ') +
-    '\n</instructions>\n'
+    '\n</instructions>\n' +
+    '\n<output_instructions>\n' +
+    'Use heading levels (H2, H3, H4) for better readability. Use list if necessary for clarity and organization.' +
+    '\n</output_instructions>\n'
   )
 }
 

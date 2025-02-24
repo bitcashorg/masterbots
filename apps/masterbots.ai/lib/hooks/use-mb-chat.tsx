@@ -25,7 +25,7 @@ import type {
 } from '@/types/types'
 import type { Message as AiMessage, ChatRequestOptions, CreateMessage } from 'ai'
 import { type UseChatOptions, useChat } from 'ai/react'
-import { throttle, uniqBy } from 'lodash'
+import { uniqBy } from 'lodash'
 import type { Chatbot, Message, Thread } from 'mb-genql'
 
 import { aiExampleClassification, processUserMessage } from '@/lib/helpers/ai-classification'
@@ -35,7 +35,7 @@ import type { SaveNewMessageParams } from '@/services/hasura/hasura.service.type
 import { appConfig } from 'mb-env'
 import { nanoid } from 'nanoid'
 import { useSession } from 'next-auth/react'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import { createContext, useCallback, useContext, useEffect, useRef } from 'react'
 import { useSetState } from 'react-use'
 import { useSonner } from './useSonner'
@@ -64,7 +64,15 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
   const { activeChatbot, navigateTo } = useSidebar()
   const userContentRef = useRef<string>('')
   const randomThreadId = useRef<string>(crypto.randomUUID())
-  const initialIsNewChat = Boolean(!activeThread?.messages.length)
+  const { isContinuousThread, setIsContinuousThread } = useThreadVisibility()
+  const { customSonner } = useSonner()
+  const { isPowerUp } = usePowerUp()
+  // console.log('[HOOK] webSearch', webSearch)
+
+  const params = useParams<{ chatbot: string; threadId: string }>()
+  const { selectedModel, clientType } = useModel()
+
+  // const initialIsNewChat = Boolean(isContinuousThread || !activeThread?.messages.length)
   const [{ messagesFromDB, isNewChat }, setState] = useSetState<{
     isInitLoaded: boolean
     webSearch: boolean
@@ -74,17 +82,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     isInitLoaded: false,
     webSearch: false,
     messagesFromDB: activeThread?.messages || [],
-    isNewChat: initialIsNewChat,
+    isNewChat: true,
   })
-
-  const { customSonner } = useSonner()
-  const { isContinuousThread } = useThreadVisibility()
-  const { isPowerUp } = usePowerUp()
-  // console.log('[HOOK] webSearch', webSearch)
-
-  const params = useParams<{ chatbot: string; threadId: string }>()
-  const { selectedModel, clientType } = useModel()
-
   const chatbotData = activeThread?.chatbot ?? (activeChatbot as Chatbot)
   const chatbotSystemPrompts: AiMessage[] = formatSystemPrompts(chatbotData?.prompts)
   const userPreferencesPrompts: AiMessage[] = chatbotData
@@ -114,7 +113,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
    * 3. Conversation between user and assistant.
    * */
   const initialMessages: AiMessage[] = systemPrompts.concat(userAndAssistantMessages)
-  const threadId = activeThread?.threadId || randomThreadId.current
+  const threadId = isContinuousThread ? randomThreadId.current : (params.threadId || activeThread?.threadId || randomThreadId.current)
   const chatbot = activeThread?.chatbot || activeChatbot
 
   const resolveThreadId = (params: {
@@ -128,6 +127,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     if (params.threadId || isNewChat) return threadId
     return activeThreadId
   }
+
+  const searchParams = useSearchParams()
+
   const useChatConfig: Partial<UseChatOptions> = {
     initialMessages,
     id: params.threadId || threadId,
@@ -160,19 +162,70 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       }
     },
     async onFinish(message: any, options: any) {
-      if (appConfig.features.devMode) {
-        customSonner({ type: 'info', text: `Ai generation finished, reason: ${options.finishReason}` })
-      }
+      try {
+        if (appConfig.features.devMode) {
+          customSonner({ type: 'info', text: `Ai generation finished, reason: ${options.finishReason}` })
+        }
 
-      const aiChatThreadId = resolveThreadId({
-        isContinuousThread,
-        randomThreadId: randomThreadId.current,
-        threadId,
-        activeThreadId: activeThread?.threadId,
-      })
+        const aiChatThreadId = resolveThreadId({
+          isContinuousThread,
+          randomThreadId: randomThreadId.current,
+          threadId,
+          activeThreadId: activeThread?.threadId,
+        })
 
-      if (options.finishReason === 'error') {
-        customSonner({ type: 'error', text: 'Failed to send message. Please try again.' })
+        if (options.finishReason === 'error') {
+          customSonner({ type: 'error', text: 'Failed to finish communication with the Masterbot. Please try again.' })
+
+          if (isNewChat) {
+            await deleteThread({
+              threadId: params?.threadId ?? activeThread?.threadId,
+              jwt: session?.user?.hasuraJwt,
+              userId: session?.user.id,
+            })
+          }
+        }
+
+        const newBaseMessage: Partial<SaveNewMessageParams> = {
+          threadId: aiChatThreadId ?? '',
+          jwt: session?.user?.hasuraJwt,
+        }
+        const [newUserMessage, newAssistantMessage]: Partial<SaveNewMessageParams>[] = [
+          {
+            ...newBaseMessage,
+            role: 'user',
+            content: userContentRef.current,
+            createdAt: new Date().toISOString(),
+          }, {
+            ...newBaseMessage,
+            role: 'assistant',
+            content: message.content,
+            createdAt: new Date(Date.now() + 1000).toISOString(),
+          }
+        ]
+        await Promise.all([
+          saveNewMessage(newUserMessage),
+          saveNewMessage(newAssistantMessage),
+        ])
+
+        setState({
+          isNewChat: false,
+        })
+
+        if (isContinuousThread) {
+          // Remove continuousThreadId search param
+          const newSearchParams = new URLSearchParams(searchParams.toString())
+          newSearchParams.delete('continuousThreadId')
+          window.history.replaceState(null, '', `${window.location.pathname}?${newSearchParams.toString()}`)
+
+          setIsContinuousThread(false)
+        }
+        setIsNewResponse(false)
+        setLoadingState('finished')
+        setActiveTool(undefined)
+      } catch (error) {
+        console.error('Error saving new message: ', error)
+        customSonner({ type: 'error', text: 'Failed to save the Masterbot message. Please try again.' })
 
         if (isNewChat) {
           await deleteThread({
@@ -182,39 +235,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
           })
         }
       }
-
-      const newBaseMessage: Partial<SaveNewMessageParams> = {
-        threadId: aiChatThreadId ?? '',
-        jwt: session?.user?.hasuraJwt,
-      }
-      const [newUserMessage, newAssistantMessage]: Partial<SaveNewMessageParams>[] = [
-        {
-          ...newBaseMessage,
-          role: 'user',
-          content: userContentRef.current,
-          createdAt: new Date().toISOString(),
-        }, {
-          ...newBaseMessage,
-          role: 'assistant',
-          content: message.content,
-          createdAt: new Date(Date.now() + 1000).toISOString(),
-        }
-      ]
-      await Promise.all([
-        saveNewMessage(newUserMessage),
-        saveNewMessage(newAssistantMessage),
-      ])
-
-      setState({
-        isNewChat: false,
-      })
-
-      // ? We throttle for smooth transition between the messages
-      throttle(() => {
-        setIsNewResponse(false)
-        setLoadingState('finished')
-        setActiveTool(undefined)
-      }, 500)()
     },
     // @ts-ignore
     onToolCall({ toolCall }: { toolCall: AiToolCall }) {
@@ -259,13 +279,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     'content',
   ).filter((m) => m.role !== 'system')
 
-  //* Updates the thread ID when popup is closed
-  useEffect(() => {
-    if (isOpenPopup) return
-    randomThreadId.current = crypto.randomUUID() //* Generates a new thread ID
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpenPopup])
-
   // biome-ignore lint/correctness/useExhaustiveDependencies: only activeThread is needed
   useEffect(() => {
     // Resetting the chat when the popup is closed
@@ -273,10 +286,27 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       setState({ messagesFromDB: [], isInitLoaded: false, isNewChat: true })
       setLoadingState()
     }
+    if (!isOpenPopup) {
+      randomThreadId.current = crypto.randomUUID() //* Generates a new thread ID
+    }
     if (!activeThread) return
 
     updateNewThread()
-  }, [activeThread, isOpenPopup])
+  }, [activeThread, isOpenPopup, searchParams])
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
+  useEffect(() => {
+    // reset all states when unmounting the context hook
+    return () => {
+      setState({
+        isInitLoaded: false,
+        isNewChat: true,
+        messagesFromDB: [],
+      })
+      setInput('')
+      setMessages([])
+    }
+  }, [])
 
   const updateNewThread = () => {
     // console.log('activeThread.messages length --> ', activeThread?.messages)
@@ -289,34 +319,19 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     return isNewChatState
   }
 
-  // reset all states when unmounting the context hook
-  // biome-ignore lint/correctness/useExhaustiveDependencies: not required
-  useEffect(() => {
-    return () => {
-      setState({
-        isInitLoaded: false,
-        webSearch: false,
-        isNewChat: true,
-        messagesFromDB: [],
-      })
-      setInput('')
-      setMessages([])
-    }
-  }, [])
-
   const updateActiveThread = async (newThread?: Thread | null, clean?: boolean) => {
     let thread = newThread
 
     if (!thread) {
       thread = await getThread({
-        threadId,
+        threadId: isContinuousThread ? randomThreadId.current : threadId,
         jwt: session?.user?.hasuraJwt,
       })
     }
     if (thread) {
       setActiveThread(thread)
       setState({
-        isNewChat: Boolean(!thread.messages.length),
+        isNewChat: Boolean(!allMessages.length || !thread.messages.length),
         messagesFromDB: thread.messages,
       })
     }
@@ -368,7 +383,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     updateNewThread()
 
     const defaultUserMessage: Partial<Message> = {
-      content: userMessage.content,
+      content: cleanPrompt(userMessage.content),
       role: 'user',
       messageId: randomThreadId.current,
       createdAt: new Date().toISOString(),
@@ -386,11 +401,12 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       isPublic: activeChatbot?.name !== 'BlankBot',
       // @ts-ignore
       messages: uniqBy([...allMessages, defaultUserMessage], 'content'),
+      thread: isContinuousThread ? activeThread?.thread || null : null,
       userId: session?.user.id,
     }
 
     const thread = await updateActiveThread(
-      isNewChat ? optimisticThread : undefined,
+      isNewChat || isContinuousThread ? optimisticThread : undefined,
     )
 
     if (!isOpenPopup) {
@@ -432,7 +448,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    if (chatMetadata?.errors?.length) {
+    if (chatMetadata?.errors?.length && appConfig.features.devMode) {
       customSonner({
         type: 'error',
         text: `${chatMetadata.domainName}:\n${chatMetadata.errors.join('.\n')}`,
@@ -476,25 +492,29 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
   const appendNewMessage = async (userMessage: AiMessage | CreateMessage) => {
     try {
       const chatbotMetadata = await getMetadataLabels()
+      // ? Hydration issues is causing the continuing thread to update until the 2nd attempt after it gets updated to false and the react state to get the latest searchParam in the client... These hydration issues might be related to the client components trying to update the state before the server response is ready or the client doesn't catch-up on time the react states... Maybe removing the hydration warning we might now... 🤔 
+      const recentSearchParams = new URLSearchParams(window.location.search)
+      const isContinuingThread = recentSearchParams.has('continuousThreadId')
 
       if (appConfig.features.devMode) {
-        console.info('Before appending a new message, we check the following to know if is new chat or not: ')
+        console.info(
+          'Before appending a new message, we check the following to know if is new chat or not: ',
+        )
         console.log('isNewChat guard --> ', isNewChat)
         console.log('allMessages --> ', allMessages)
         console.log('activeThread --> ', activeThread)
+        console.log('isContinuousThread --> ', isContinuingThread)
       }
 
-      if ((!allMessages.length && isNewChat) && chatbot) {
+      if (((!allMessages.length && isNewChat) || isContinuingThread) && chatbot) {
         await createThread({
           threadId: threadId as string,
           chatbotId: chatbot.chatbotId,
-          parentThreadId: isContinuousThread ? activeThread?.threadId : undefined,
+          parentThreadId: isContinuousThread ? threadId : undefined,
           jwt: session?.user?.hasuraJwt,
           isPublic: activeChatbot?.name !== 'BlankBot',
         })
       }
-
-      setLoadingState('generating')
 
       const chatMessagesToAppend = uniqBy(
         [
@@ -518,13 +538,17 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       let previousAiUserMessages: AiMessage[] = []
 
       if (activeThread?.thread) {
-        previousAiUserMessages = activeThread.thread.messages.map((msg) => ({
-          id: msg.messageId,
-          role: msg.role as AiMessage['role'],
-          content: msg.content,
-          createdAt: msg.createdAt,
-        })).filter(msg => msg.role === 'user')
+        previousAiUserMessages = activeThread.thread.messages
+          .map((msg) => ({
+            id: msg.messageId,
+            role: msg.role as AiMessage['role'],
+            content: msg.content,
+            createdAt: msg.createdAt,
+          }))
+          .filter((msg) => msg.role === 'user')
       }
+
+      setLoadingState('generating')
 
       const appendResponse = await append(
         {
@@ -532,9 +556,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
           content: isNewChat
             ? userContentRef.current
             : followingQuestionsPrompt(
-              userContentRef.current,
-              previousAiUserMessages.concat(allMessages),
-            ),
+                userContentRef.current,
+                previousAiUserMessages.concat(allMessages),
+              ),
         },
         // ? Provide chat attachments here...
         // {
@@ -548,7 +572,10 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       stop()
 
       console.error('Error appending new message: ', error)
-      customSonner({ type: 'error', text: 'Failed to send the message to the Masterbot. Please try again.' })
+      customSonner({
+        type: 'error',
+        text: 'Failed to send the message to the Masterbot. Please try again.',
+      })
 
       return null
     }

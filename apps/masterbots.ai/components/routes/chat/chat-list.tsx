@@ -108,7 +108,7 @@ export function ChatList({
     <div
       ref={effectiveContainerRef}
       className={cn(
-        'relative max-w-3xl px-4 mx-auto overflow-auto scrollbar-thin',
+        'relative max-w-3xl px-4 mx-auto',
         className,
         { 'flex flex-col gap-3': isThread }
       )}
@@ -168,20 +168,25 @@ function MessagePairs({
       {previousPairs.length > 0 && pairs.length > 0 && (
         <Separator className="relative mt-6 -bottom-1.5 h-1.5 z-[2] rounded-sm bg-iron dark:bg-mirage" />
       )}
-      {pairs.map((pair: MessagePair, key: number, pairsArray) => (
-        <MessagePairAccordion
-          key={`${pair.userMessage.createdAt}-${pair.chatGptMessage[0]?.id ?? 'pending'}`}
-          pair={pair}
-          isThread={isThread}
-          index={key}
-          arrayLength={pairsArray.length}
-          isNewResponse={isNewResponse}
-          type="current"
-          chatTitleClass={chatTitleClass}
-          chatContentClass={chatContentClass}
-          sendMessageFn={sendMessageFn}
-        />
-      ))}
+      {pairs.map((pair: MessagePair, key: number, pairsArray) => pair.chatGptMessage[0] && pair.userMessage ? (
+        <>
+          <MessagePairAccordion
+            key={`${pair.userMessage.createdAt}-${pair.chatGptMessage[0]?.id ?? 'pending'}`}
+            pair={pair}
+            isThread={isThread}
+            index={key}
+            arrayLength={pairsArray.length}
+            isNewResponse={isNewResponse}
+            type="current"
+            chatTitleClass={chatTitleClass}
+            chatContentClass={chatContentClass}
+            sendMessageFn={sendMessageFn}
+          />
+          {pairsArray.length > 1 && key === pairsArray.length - 1 ? (
+            <ChatLoadingState key="chat-loading-state" />
+          ) : null}
+        </>
+      ) : null)}
     </>
   )
 }
@@ -210,11 +215,13 @@ export function MessagePairAccordion({
 
   return (
     <SharedAccordion
-      key={`${pair.userMessage.createdAt}-${pair.chatGptMessage[0]?.id ?? 'pending'}`}
       defaultState={
-        index === 0 ||
-        index === arrayLength - 1 ||
-        (index === arrayLength - 2 && isNewResponse)
+        // ? Case for when there is more than one message and we want to hide the first message
+        // (!index && arrayLength <= 1)
+        // ? Case for when we have the first message in the conversation or last and both are not previous 
+        ((!index || index === arrayLength - 1) && !isPrevious) ||
+        // ? Case for when we have the first message in the previous conversation
+        (!index  && isPrevious)
       }
       className={cn(
         { relative: isThread },
@@ -230,7 +237,7 @@ export function MessagePairAccordion({
           hidden: !isThread && index === 0, // Style differences for previous vs current messages
           'dark:bg-[#1d283a9a] bg-iron !border-l-[transparent] [&[data-state=open]]:!bg-gray-400/50 dark:[&[data-state=open]]:!bg-mirage':
             !isPrevious,
-          'bg-accent/15 dark:bg-accent/15 hover:bg-accent/30 hover:dark:bg-accent/30 border-l-accent/20 dark:border-l-accent/20 [&[data-state=open]]:!bg-accent/25 dark:[&[data-state=open]]:!bg-accent/25':
+          'bg-accent/10 dark:bg-accent/10 hover:bg-accent/30 hover:dark:bg-accent/30 border-l-accent/10 dark:border-l-accent/10 [&[data-state=open]]:!bg-accent/30 dark:[&[data-state=open]]:!bg-accent/30':
             isPrevious
         },
         props.chatTitleClass
@@ -250,9 +257,7 @@ export function MessagePairAccordion({
         ''
       ) : (
         <div
-          className={cn('flex items-start gap-2', {
-            '[&_div]:text-sm': isPrevious
-          })}
+          className={cn('flex items-start gap-2')}
         >
           <ChatMessage actionRequired={false} message={pair.userMessage} />
         </div>
@@ -278,7 +283,6 @@ export function MessagePairAccordion({
           'mx-4 md:mx-[46px] px-1 py-4  h-full',
           {
             '!border-[transparent]': !isThread && index === 0,
-            '[&>div>div>div_*]:!text-xs': isPrevious
           },
           props.chatContentClass
         )}
@@ -288,7 +292,7 @@ export function MessagePairAccordion({
             <span className="absolute top-1 -left-5 px-1.5 py-0.5 text-[10px] font-medium rounded-md bg-accent text-accent-foreground">
               Previous Thread
             </span>
-            <div className="pb-3 mt-4 overflow-hidden text-sm opacity-50">
+            <div className="pb-3 mt-4 overflow-hidden opacity-50">
               Continued from{' '}
               <b>&ldquo;{pair.userMessage.content.trim()}&rdquo;</b> thread
               {activeThread?.thread?.user?.username
@@ -299,7 +303,6 @@ export function MessagePairAccordion({
         ) : (
           ''
         )}
-        <ChatLoadingState />
         {pair.chatGptMessage.length > 0
           ? pair.chatGptMessage.map(message => (
               <ChatMessage

@@ -229,11 +229,6 @@ export function removeSurroundingQuotes(str: string) {
   return str
 }
 
-export interface ParsedText {
-  clickableText: string
-  restText: string
-}
-
 // * Converts ReactNode content to string for processing
 export function extractTextFromReactNode(node: ReactNode): string {
   if (typeof node === 'string') return node

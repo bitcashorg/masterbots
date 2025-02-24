@@ -1,10 +1,10 @@
 'use client'
 import {
-  UpdateThreadVisibility,
   approveThread,
   deleteThread,
   getThreads,
-  getUnapprovedThreads
+  getUnapprovedThreads,
+  updateThreadVisibility
 } from '@/services/hasura'
 import type { Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
@@ -19,7 +19,7 @@ interface DeleteThreadResponse {
 
 interface ThreadVisibilityContextProps {
   isPublic: boolean
-  toggleVisibility: (newIsPublic: boolean, threadId: string) => void
+  toggleVisibility: (newIsPublic: boolean, threadId: string) => Promise<void>
   threads: Thread[]
   isSameUser: (thread: Thread) => boolean
   initiateDeleteThread: (threadId: string) => Promise<DeleteThreadResponse>
@@ -69,11 +69,15 @@ export function ThreadVisibilityProvider({
 
   const toggleVisibility = async (newIsPublic: boolean, threadId: string) => {
     try {
-      setIsPublic(newIsPublic)
-      await UpdateThreadVisibility({ isPublic: newIsPublic, threadId, jwt })
-      await getThreadForUser()
+      const updateThreadResponse = await updateThreadVisibility({ isPublic: newIsPublic, threadId, jwt })
+
+      if (updateThreadResponse.success) {
+        setIsPublic(newIsPublic)
+        customSonner({ type: 'success', text: `Thread is now ${newIsPublic ? 'public' : 'private'}!` })
+      }
     } catch (error) {
       console.error('Failed to update thread visibility:', error)
+      customSonner({ type: 'error', text: 'Failed to update the thread visibility. Try again later.' })
     }
   }
 

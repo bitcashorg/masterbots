@@ -8,6 +8,7 @@ import type { DefaultSession, DefaultUser } from 'next-auth'
 import type OpenAI from 'openai'
 import type { FunctionToolCall, ToolCall } from 'openai/resources/beta/threads/runs/steps.mjs'
 import type React from 'react'
+import { Element } from 'react-markdown/lib/ast-to-react'
 import type Stripe from 'stripe'
 
 // * Chat types
@@ -291,9 +292,10 @@ export interface WebSearchResult {
 export interface ClickableTextProps {
   children: React.ReactNode
   isListItem: boolean
-  sendMessageFromResponse?: (message: string) => void
+  node?: Element
   webSearchResults?: WebSearchResult[]
   onReferenceFound?: (ref: WebSearchResult) => void
+  sendMessageFromResponse?: (message: string) => void
 }
 // * Drizzle Admin types
 export type AdminUserUpdate = {
@@ -354,4 +356,10 @@ export interface ClassifyQuestionParams {
   maxRetries?: number
   retryCount?: number
   domain?: string
+}
+
+export interface ParsedText {
+  clickableText: string;  // The text that appears clickable
+  restText: string;       // The text that follows (for visual rendering)
+  fullContext: string;    // The full sentence context for the follow-up question
 }

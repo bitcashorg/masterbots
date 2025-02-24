@@ -75,7 +75,7 @@ export async function getCategories(userId?: string) {
           prompts: {
             prompt: {
               __scalar: true,
-            },
+            }
           },
           ...chatbotEnumFieldsFragment,
         },
@@ -738,7 +738,7 @@ export async function getUsers() {
   return user as User[]
 }
 
-export async function UpdateThreadVisibility({
+export async function updateThreadVisibility({
   threadId,
   isPublic,
   jwt,
@@ -753,10 +753,10 @@ export async function UpdateThreadVisibility({
       updateThreadByPk: {
         __args: {
           pkColumns: { threadId },
-          _set: { isApproved: true },
+          _set: { isPublic },
         },
         threadId: true,
-        isApproved: true,
+        isPublic: true,
       },
     })
     return { success: true }
