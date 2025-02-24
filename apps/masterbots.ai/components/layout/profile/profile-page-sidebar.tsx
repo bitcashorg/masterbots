@@ -154,7 +154,7 @@ export const ProfileSidebar = ({ children }: any) => {
       {/* Main content */}
       <section
         className={cn(
-          'flex flex-col w-full overflow-auto  h-full',
+          'flex flex-col w-full h-full',
         )}
       >
         <div className="flex flex-col w-full gap-10 pt-5 mx-auto flex-grow">
