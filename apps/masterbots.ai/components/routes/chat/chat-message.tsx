@@ -110,11 +110,15 @@ export function ChatMessage({
               )
               return (
                 // @ts-ignore
-                <Tag as={node.tagName as keyof JSX.IntrinsicElements}>
+                <Tag
+                  as={node.tagName as keyof JSX.IntrinsicElements}
+                  className="gap-2"
+                >
                   {/* TODO: This modifies the lists, removes the formatting. maybe only to grab what we received form the node object, would be enough */}
                   <ClickableText
                     isListItem
                     sendMessageFromResponse={sendMessageFromResponse}
+                    node={node}
                   >
                     {children}
                   </ClickableText>
