@@ -1,3 +1,4 @@
+import type { ParsedText } from '@/types/types'
 import type { ReactNode } from 'react'
 import React from 'react'
 
@@ -23,11 +24,6 @@ export const UNIQUE_PHRASES = [
 // * Creates a regex pattern for unique phrases
 export function createUniquePattern(): RegExp {
   return new RegExp(`(?:${UNIQUE_PHRASES.join('|')}):\\s*([^.:]+[.])`, 'i')
-}
-
-export interface ParsedText {
-  clickableText: string
-  restText: string
 }
 
 export function extractTextFromReactNodeWeb(node: ReactNode): ReactNode {
@@ -137,22 +133,24 @@ export function extractTextFromReactNodeNormal(node: ReactNode): string {
 }
 
 export function parseClickableText(fullText: string): ParsedText {
-  // Skip URLs
   if (typeof fullText === 'string' && fullText.match(/https?:\/\/[^\s]+/)) {
     return {
       clickableText: '',
       restText: fullText,
+      fullContext: fullText,
     }
   }
 
-  // First check for unique phrases
+  //* checks unique phrases
   for (const phrase of UNIQUE_PHRASES) {
     if (fullText.includes(phrase)) {
-      // Split content after the phrase
+      //* Split content after the phrase
       const [_, ...rest] = fullText.split(phrase)
+      const restContent = rest.join(phrase);
       return {
         clickableText: phrase,
-        restText: rest.join(phrase), // Rejoin in case phrase appears multiple times
+        restText: restContent,
+        fullContext: phrase + restContent, //* Store the full context
       }
     }
   }
@@ -162,27 +160,32 @@ export function parseClickableText(fullText: string): ParsedText {
 
   if (titleMatch) {
     const title = titleMatch[1].trim()
+    const content = titleMatch[2]
+    
     if (!title || title.match(/^[.\s]+$/)) {
       return {
         clickableText: '',
         restText: fullText,
+        fullContext: fullText,
       }
     }
 
     return {
       clickableText: title,
-      restText: ': ' + titleMatch[2],
+      restText: ': ' + content,
+      fullContext: fullText, //? Stores the full context
     }
   }
 
   return {
     clickableText: '',
     restText: fullText,
+    fullContext: fullText,
   }
 }
 
+
 export function cleanClickableText(text: string): string {
-  // Remove trailing punctuation and whitespace
   return text.replace(/[,.()[\]]$/, '').trim()
 }
 
