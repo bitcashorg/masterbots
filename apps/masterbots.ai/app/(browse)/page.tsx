@@ -7,8 +7,8 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* <BrowseSearchInput /> */}
-      {/* <BrowseList initialThreads={threads} /> */}
+      <BrowseSearchInput />
+      <BrowseList initialThreads={threads} />
     </>
   )
 }

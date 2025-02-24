@@ -256,7 +256,6 @@ export default function UserThreadPanel({
     if (hasThreadListChanged) handleThreadsChange()
   }, [threads, isOpenPopup, pathname, shouldRefreshThreads])
 
-
   const customMessage = activeChatbot
     ? `No threads available for ${activeChatbot.name}`
     : activeCategory
