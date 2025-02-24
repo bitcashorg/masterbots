@@ -329,6 +329,9 @@ export function initialThread(thread: Thread, session: Session): Thread {
     createdAt: new Date(),
     isApproved: false,
     isPublic: false,
+    // Filtering to have one user message so we can optimistically render the thread first question in the continuous thread.
+    // After having a question we can fetch the rest of the thread and it will have the whole user messages.
+    // ? These messages doesn't go to the allMessages directly, allMessages filters the true content.
     messages: [thread.messages.filter(msg => msg.role === 'user')[0]],
     userId: session.user?.id,
     updatedAt: new Date(),

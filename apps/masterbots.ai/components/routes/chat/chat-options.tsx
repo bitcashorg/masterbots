@@ -124,9 +124,12 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
               <Button
                 onClick={async (e) => {
                   e.stopPropagation()
-                  await toggleVisibility(!thread?.isPublic, threadId).then(() => {
+                  try {
+                    await toggleVisibility(!thread?.isPublic, threadId)
                     thread.isPublic = !thread?.isPublic
-                  })
+                  } catch (error) {
+                    console.error('Failed to update thread visibility:', error)
+                  }
                 }}
                 variant={'ghost'}
                 size={'sm'}
