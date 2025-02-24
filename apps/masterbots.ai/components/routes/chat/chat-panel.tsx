@@ -55,6 +55,10 @@ export function ChatPanel({
   const [shareDialogOpen, setShareDialogOpen] = React.useState(false)
   const webSearchRef = React.useRef(null)
 
+  const isPreProcessing = Boolean(loadingState?.match(/processing|digesting|polishing/))
+  const hiddenAnimationClassNames = 'p-2 gap-0 w-auto relative overflow-hidden [&:hover_span]:opacity-100 [&:hover_span]:w-auto [&:hover_span]:duration-300 [&:hover_svg]:mr-2 [&:hover_span]:transition-all'
+  const hiddenAnimationItemClassNames = 'transition-all w-[0px] opacity-0 whitespace-nowrap duration-300'
+
   return (
     <div
       className={cn(
@@ -72,9 +76,9 @@ export function ChatPanel({
           <div className="flex items-center justify-between w-full gap-4 mx-2">
             <div className="flex items-center space-x-4">
               {/* Power-Up Switch */}
-              <div className="flex items-center space-x-2">
-                <Switch id="power-up" checked={isPowerUp} onCheckedChange={togglePowerUp} />
-                <Label htmlFor="power-up" className="text-sm font-normal">
+              <div className="flex md:flex-row flex-col items-center space-x-2 gap-y-2 cursor-pointer">
+                <Switch id="power-up" checked={isPowerUp} onCheckedChange={togglePowerUp} className="h-4 w-9 [&>span]:size-3.5"/>
+                <Label htmlFor="power-up" className="text-xs md:text-sm font-normal cursor-pointer">
                   Power-Up
                 </Label>
               </div>
@@ -125,8 +129,14 @@ export function ChatPanel({
             </div>
 
             {/* Right side controls */}
-            <div className="flex items-center gap-5">
-              {showReload && isLoading ? (
+            <div className="flex items-center gap-3.5">
+              <ButtonScrollToBottom
+                scrollToBottom={scrollToBottom}
+                isAtBottom={isAtBottom}
+                className={hiddenAnimationClassNames}
+                textClassName={hiddenAnimationItemClassNames}
+              />
+              {showReload && (isLoading || isPreProcessing) ? (
                 <>
                   {loadingState !== 'finished' && (
                     <div className="flex items-center justify-between gap-4">
@@ -138,18 +148,22 @@ export function ChatPanel({
                       </div>
                     </div>
                   )}
-                  <Button variant="outline" onClick={stop} className="bg-background">
-                    <IconStop className="mr-2" />
-                    Stop generating
-                  </Button>
+                  {isLoading && (
+                    <Button variant="outline" onClick={stop} className="bg-background">
+                      <IconStop className="mr-2" />
+                      Stop generating
+                    </Button>
+                  )}
                 </>
               ) : (
                 messages?.length >= 2 && (
                   <>
-                    <Button variant="outline" className="relative group" onClick={() => reload()}>
-                      <IconRefresh className="mr-2 transition-all" />
-                      Regenerate response
-                    </Button>
+                      <Button variant="outline" size="icon" className={hiddenAnimationClassNames} onClick={() => reload()}>
+                        <IconRefresh className="transition-all" />
+                        <span className={hiddenAnimationItemClassNames}>
+                          Regenerate response
+                        </span>
+                      </Button>
                     {id && title && (
                       <>
                         <Button variant="outline" onClick={() => setShareDialogOpen(true)}>
@@ -171,7 +185,6 @@ export function ChatPanel({
               )}
             </div>
           </div>
-          <ButtonScrollToBottom scrollToBottom={scrollToBottom} isAtBottom={isAtBottom} />
         </div>
 
         {/* Prompt Form Section */}
@@ -194,10 +207,10 @@ export function ChatPanel({
               })
             }}
             // biome-ignore lint/complexity/noExtraBooleanCast: <explanation>
-            disabled={isLoading || !Boolean(chatbot)}
+            disabled={isLoading || !Boolean(chatbot) || isPreProcessing}
             input={input}
             setInput={setInput}
-            isLoading={isLoading}
+            isLoading={isLoading || isPreProcessing}
             placeholder={placeholder}
           />
         </div>

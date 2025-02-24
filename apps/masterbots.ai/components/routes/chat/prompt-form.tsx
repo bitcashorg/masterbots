@@ -107,7 +107,7 @@ export function PromptForm({
     >
       <div
         className={cn(
-          'transition-all relative flex flex-col w-full px-8 overflow-hidden grow bg-background border-4 border-[#be16e8] rounded-md sm:px-12',
+          'transition-all relative flex flex-col w-full overflow-hidden grow bg-background border-4 border-[#be16e8] rounded-md',
           'max-h-32 md:max-h-60',
           isFocused ? 'dark:border-mirage' : '',
           disabled && 'bg-muted text-muted-foreground opacity-50',
@@ -118,7 +118,9 @@ export function PromptForm({
           ref={inputRef}
           tabIndex={0}
           onKeyDown={onKeyDown}
+          minRows={2}
           rows={1}
+          maxRows={6}
           onFocus={handleTextareaFocus}
           onBlur={handleTextareaBlur}
           value={input}
@@ -127,14 +129,13 @@ export function PromptForm({
           placeholder={placeholder}
           spellCheck={false}
           disabled={disabled}
-          className={cn(
-            'w-full resize-none bg-transparent px-4 py-1 my-1 focus-within:outline-none sm:text-sm',
-            'min-h-[80px] md:min-h-[60px]', //? Smaller height on mobile
-            'md:py-[1.3rem]', //? Adjusted padding for mobile
+          className={cn('w-full resize-none bg-transparent px-12 md:px-14 py-[14px] focus-within:outline-none sm:text-sm scrollbar',
+            'min-h-20 md:min-h-16', //? Smaller height on mobile
+            // 'py-[1.3rem]', //? Adjusted padding for mobile
             'disabled:cursor-not-allowed',
           )}
         />
-        <div className="absolute right-0 top-4 sm:right-4">
+        <div className="absolute right-[8px] top-[14px] sm:right-[14px]">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button

@@ -2,17 +2,8 @@
 
 //* ChatCombobox component allows users to select an AI model, with interactive dropdown and visual indicators.
 
-import * as React from 'react'
-import { CheckIcon } from '@radix-ui/react-icons'
+import { AIModels } from '@/app/api/chat/models/models'
 import { Button, buttonVariants } from '@/components/ui/button'
-import {
-  IconOpenAI,
-  IconClaude,
-  IconLlama,
-  IconWordware,
-  IconDeepSeek
-} from '@/components/ui/icons'
-import { cn } from '@/lib/utils'
 import {
   Command,
   CommandEmpty,
@@ -22,13 +13,22 @@ import {
   CommandList
 } from '@/components/ui/command'
 import {
+  IconClaude,
+  IconDeepSeek,
+  IconLlama,
+  IconOpenAI,
+  IconWordware
+} from '@/components/ui/icons'
+import {
   Popover,
   PopoverContent,
   PopoverTrigger
 } from '@/components/ui/popover'
 import { useModel } from '@/lib/hooks/use-model'
-import { AIModels } from '@/app/api/chat/models/models'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
+import { cn } from '@/lib/utils'
+import { CheckIcon } from '@radix-ui/react-icons'
+import * as React from 'react'
 
 //* Model options available in the combobox, each with label, value, and logo icon.
 const models = [
@@ -60,8 +60,7 @@ export function ChatCombobox() {
             buttonVariants({
               size: 'sm',
               variant: isPowerUp ? 'powerUp' : 'outline'
-            }),
-            'absolute left-0 top-5 size-8 rounded-full p-0 sm:left-4'
+            }),'absolute left-[8px] top-[14px] size-8 rounded-full p-0 sm:left-[14px]'
           )}
         >
           {/* Renders the selected model's logo or default icon */}
