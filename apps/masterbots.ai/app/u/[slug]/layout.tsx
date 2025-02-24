@@ -8,7 +8,7 @@ interface ProfileLayoutProps {
 
 export default async function ProfilePageLayout({ children }: ProfileLayoutProps) {
   return (
-    <main className="h-[calc(100vh-66px)] flex flex-col p-0">
+    <main className="flex flex-col p-0">
       <NextTopLoader color="#1ED761" initialPosition={0.2} />
       <Hero />
       <ProfileSidebar>
