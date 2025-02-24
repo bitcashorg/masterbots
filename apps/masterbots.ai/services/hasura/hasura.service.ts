@@ -75,7 +75,7 @@ export async function getCategories(userId?: string) {
           prompts: {
             prompt: {
               __scalar: true,
-            },
+            }
           },
           ...chatbotEnumFieldsFragment,
         },

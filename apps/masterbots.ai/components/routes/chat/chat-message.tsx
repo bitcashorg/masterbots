@@ -100,28 +100,24 @@ export function ChatMessage({
                 </ol>
               )
             },
-            li({ children, ordered }) {
+            li({ children, ordered, ...props }) {
+              const Tag = props.node.tagName 
               const hasNestedList = React.Children.toArray(children).some(
                 child =>
                   React.isValidElement(child) &&
                   (child.type === 'ul' || child.type === 'ol')
               )
-
               return (
-                <li
-                  className={cn(
-                    "ml-4",
-                    ordered ? "list-decimal" : "list-disc",
-                    hasNestedList && "mt-2"
-                  )}
-                >
+                // @ts-ignore
+                <Tag>
+                  {/* TODO: This modifies the lists, removes the formatting. maybe only to grab what we received form the node object, would be enough */}
                   <ClickableText
                     isListItem
                     sendMessageFromResponse={sendMessageFromResponse}
                   >
                     {children}
                   </ClickableText>
-                </li>
+                </Tag>
               )
             },
             a({ href, children, ...props }) {
