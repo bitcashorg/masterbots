@@ -145,13 +145,13 @@ export function parseClickableText(fullText: string): ParsedText {
   for (const phrase of UNIQUE_PHRASES) {
     if (fullText.includes(phrase)) {
       //* Split content after the phrase
-      const [_, ...rest] = fullText.split(phrase)
-      const restContent = rest.join(phrase);
-      
+      const parts = fullText.split(phrase)
+      const restContent = parts.slice(1).join(phrase).trim()
+
       //* Extract first sentence (up to the first period after the phrase)
-      const firstSentenceMatch = (phrase + restContent).match(/^(.+?\.)\s/);
-      const firstSentence = firstSentenceMatch ? firstSentenceMatch[1] : (phrase + restContent);
-      
+      const firstSentenceMatch = (phrase + restContent).match(/^(.+?\.)(?:\s|$)/)
+      const firstSentence = firstSentenceMatch ? firstSentenceMatch[1] : phrase + restContent
+
       return {
         clickableText: phrase,
         restText: restContent,
@@ -176,7 +176,7 @@ export function parseClickableText(fullText: string): ParsedText {
     }
 
     // * Extract the first sentence of the content (up to the first period)
-    const firstSentenceMatch = content.match(/^(.+?\.)\s/);
+    const firstSentenceMatch = content.match(/^(.+?\.)(?:\s|$)/);
     const firstSentence = firstSentenceMatch 
       ? title + ': ' + firstSentenceMatch[1] 
       : title + ': ' + content;
