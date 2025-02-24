@@ -160,6 +160,10 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       }
     },
     async onFinish(message: any, options: any) {
+      if (appConfig.features.devMode) {
+        customSonner({ type: 'info', text: `Ai generation finished, reason: ${options.finishReason}` })
+      }
+
       const aiChatThreadId = resolveThreadId({
         isContinuousThread,
         randomThreadId: randomThreadId.current,
@@ -276,7 +280,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
   const updateNewThread = () => {
     // console.log('activeThread.messages length --> ', activeThread?.messages)
-    const isNewChatState = Boolean(!activeThread?.messages.length)
+    const isNewChatState = Boolean(!allMessages.length || !activeThread?.messages.length)
 
     setState({
       isNewChat: isNewChatState,
@@ -473,7 +477,14 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     try {
       const chatbotMetadata = await getMetadataLabels()
 
-      if (isNewChat && chatbot) {
+      if (appConfig.features.devMode) {
+        console.info('Before appending a new message, we check the following to know if is new chat or not: ')
+        console.log('isNewChat guard --> ', isNewChat)
+        console.log('allMessages --> ', allMessages)
+        console.log('activeThread --> ', activeThread)
+      }
+
+      if ((!allMessages.length && isNewChat) && chatbot) {
         await createThread({
           threadId: threadId as string,
           chatbotId: chatbot.chatbotId,
@@ -514,7 +525,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
           createdAt: msg.createdAt,
         })).filter(msg => msg.role === 'user')
       }
-      const userMessages = allMessages.filter((msg) => msg.role === 'user')
 
       const appendResponse = await append(
         {
@@ -523,7 +533,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
             ? userContentRef.current
             : followingQuestionsPrompt(
               userContentRef.current,
-              previousAiUserMessages.concat(userMessages),
+              previousAiUserMessages.concat(allMessages),
             ),
         },
         // ? Provide chat attachments here...

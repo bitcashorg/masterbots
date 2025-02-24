@@ -32,6 +32,11 @@ import { createStreamableValue } from 'ai/rsc'
 import { appConfig } from 'mb-env'
 import type OpenAI from 'openai'
 
+const OPEN_AI_ENV_CONFIG = {
+  TOP_P: process.env.OPENAI_TOP_P ? Number.parseFloat(process.env.OPENAI_TOP_P) : undefined,
+  TEMPERATURE: process.env.OPENAI_TEMPERATURE ? Number.parseFloat(process.env.OPENAI_TEMPERATURE) : undefined,
+}
+
 //* this function is used to create a client for the OpenAI API
 const initializeOpenAi = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -250,11 +255,12 @@ export async function createResponseStream(
         const openaiModel = initializeOpenAi(model)
         const coreMessages = convertToCoreMessages(messages as OpenAI.ChatCompletionMessageParam[])
         const openAiStreamConfig = {
-          model: openaiModel,
+          temperature: OPEN_AI_ENV_CONFIG.TEMPERATURE,
+          topP: OPEN_AI_ENV_CONFIG.TOP_P,
           messages: coreMessages,
-          temperature: 0.4,
-          tools,
+          model: openaiModel,
           maxRetries: 2,
+          tools,
         }
 
         if (appConfig.features.experimentalAiConfig) {
