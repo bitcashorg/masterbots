@@ -15,8 +15,10 @@ export function ClickableText({
   isListItem,
   sendMessageFromResponse,
   webSearchResults = [],
+  node,
   onReferenceFound
 }: ClickableTextProps) {
+  // TODO: node property might be very helpful to know wheter is nested or not, due the `content` contains the node object hence, would be key to know the nested items here
   const { webSearch } = useThread()
 
   const extractedContent = webSearch
