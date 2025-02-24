@@ -355,3 +355,9 @@ export interface ClassifyQuestionParams {
   retryCount?: number
   domain?: string
 }
+
+export interface ParsedText {
+  clickableText: string;  // The text that appears clickable
+  restText: string;       // The text that follows (for visual rendering)
+  fullContext: string;    // The full sentence context for the follow-up question
+}
