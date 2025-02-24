@@ -40,7 +40,7 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
   const title = thread?.messages[0]?.content ?? 'Untitled'
   const text =
     thread?.messages[1]?.content.substring(0, 100) ?? 'No description found...'
-  const url = `/${toSlug(thread.chatbot.categories[0].category.name)}/${thread.threadId}`
+  const url = `/b/${toSlug(thread.chatbot.categories[0].category.name)}/${thread.threadId}`
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const { customSonner } = useSonner()
@@ -100,36 +100,36 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
   return (
     <div className="flex items-center gap-4 sm:gap-3 pt-[3px]">
       <AlertDialogue deleteDialogOpen={isDeleteOpen} />
-      {!isBrowse && (
-        <div className="flex items-center gap-1 sm:gap-3">
-          <span className="px-2.5 py-0.5 flex items-center justify-center bg-gray-200 rounded-full dark:bg-gray-700 text-[10px] leading-none sm:text-xs whitespace-nowrap">
-            {thread?.isPublic ? 'Public' : 'Private'}
-          </span>
-        </div>
-      )}
 
       <DropdownMenu>
-        <DropdownMenuTrigger asChild className={cn(buttonVariants({
-          variant: 'ghost',
-          size: 'sm'
-        }), 'size-6 p-0 sm:size-8')}>
-          <MoreVertical className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          sideOffset={8}
-          align="end"
-          className="w-[160px] sm:w-[180px] px-0"
+        <DropdownMenuTrigger
+          className={cn(
+            buttonVariants({
+              variant: 'ghost',
+              size: 'icon',
+              radius: 'full',
+            }),
+            'p-1',
+          )}
         >
+          <MoreVertical className="w-4 h-4" />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent sideOffset={8} align="end" className="w-[160px] sm:w-[180px] px-0">
           {/* Toggle thread visibility option (only for thread owner) */}
           {isUser && (
             <DropdownMenuItem
               className="flex-col items-start"
-              onSelect={event => event.preventDefault()}
+              onSelect={(event) => event.preventDefault()}
             >
               <Button
-                onClick={e => {
+                onClick={async (e) => {
                   e.stopPropagation()
-                  toggleVisibility(!thread?.isPublic, threadId)
+                  try {
+                    await toggleVisibility(!thread?.isPublic, threadId)
+                    thread.isPublic = !thread?.isPublic
+                  } catch (error) {
+                    console.error('Failed to update thread visibility:', error)
+                  }
                 }}
                 variant={'ghost'}
                 size={'sm'}
@@ -152,7 +152,7 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
           {/* Share thread option */}
           <DropdownMenuItem
             className="flex-col items-start"
-            onSelect={event => event.preventDefault()}
+            onSelect={(event) => event.preventDefault()}
           >
             <ShareButton url={url} />
           </DropdownMenuItem>
@@ -160,15 +160,12 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
           {isUser && (
             <>
               <DropdownMenuSeparator />
-              <DropdownMenuItem
-                className="text-xs"
-                onSelect={event => event.preventDefault()}
-              >
+              <DropdownMenuItem className="text-xs" onSelect={(event) => event.preventDefault()}>
                 <Button
                   variant={'ghost'}
                   size={'sm'}
                   className="flex justify-between w-full text-red-400"
-                  onClick={e => {
+                  onClick={(e) => {
                     e.stopPropagation()
                     setIsDeleteOpen(true)
                   }}
