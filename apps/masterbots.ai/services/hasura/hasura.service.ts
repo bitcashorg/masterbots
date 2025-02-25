@@ -76,6 +76,9 @@ export async function getCategories(userId?: string) {
             prompt: {
               __scalar: true,
             },
+            __args: {
+              orderBy: [{ promptId: 'DESC' }],
+            },
           },
           ...chatbotEnumFieldsFragment,
         },
@@ -269,6 +272,9 @@ export async function getThread({ threadId, jwt, signal }: Partial<GetThreadPara
             prompt: {
               __scalar: true,
             },
+            __args: {
+              orderBy: [{ promptId: 'DESC' }],
+            },
           },
           followers: {
             followerId: true,
@@ -428,6 +434,9 @@ export async function getChatbot({ chatbotId, chatbotName, threads, jwt }: GetCh
       prompts: {
         prompt: {
           __scalar: true,
+        },
+        __args: {
+          orderBy: [{ promptId: 'DESC' }],
         },
       },
       ...chatbotEnumFieldsFragment,
@@ -738,7 +747,7 @@ export async function getUsers() {
   return user as User[]
 }
 
-export async function UpdateThreadVisibility({
+export async function updateThreadVisibility({
   threadId,
   isPublic,
   jwt,
@@ -753,10 +762,10 @@ export async function UpdateThreadVisibility({
       updateThreadByPk: {
         __args: {
           pkColumns: { threadId },
-          _set: { isApproved: true },
+          _set: { isPublic },
         },
         threadId: true,
-        isApproved: true,
+        isPublic: true,
       },
     })
     return { success: true }

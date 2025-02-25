@@ -28,7 +28,10 @@ export function getAllUserMessagesAsStringArray(allMessages: Message[] | AI.Mess
       'Here are a list of questions that may be relevant for you to understand my chain of thoughts: [',
     ),
   )
-  return cleanMessages.map((msg) => `"${msg}"`).join(', ')
+  // Making sure each array item is a string and it is unique
+  const uniqueCleanMessages = Array.from(new Set(cleanMessages.map(String)))
+
+  return uniqueCleanMessages.map((msg) => `"${msg}"`).join(', ')
 }
 
 export function getThreadLink({

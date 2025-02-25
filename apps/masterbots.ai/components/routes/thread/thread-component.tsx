@@ -6,12 +6,14 @@ import { ChatOptions } from '@/components/routes/chat/chat-options'
 import { ChatbotAvatar } from '@/components/shared/chatbot-avatar'
 import { SharedAccordion } from '@/components/shared/shared-accordion'
 import { ShortMessage } from '@/components/shared/short-message'
+import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
-import { cn } from '@/lib/utils'
+import { cn, getRouteType } from '@/lib/utils'
 import type { Thread } from 'mb-genql'
+import { usePathname } from 'next/navigation'
 import { useRef } from 'react'
 
 export default function ThreadComponent({
@@ -30,7 +32,9 @@ export default function ThreadComponent({
   const threadRef = useRef<HTMLLIElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const { isNewResponse } = useThread()
-  const { isAdminMode } = useThreadVisibility()
+  const { isPublic, isAdminMode } = useThreadVisibility()
+  const pathname = usePathname()
+  const routeType = getRouteType(pathname)
 
   const { scrollToTop } = useMBScroll({
     containerRef: contentRef,
@@ -79,7 +83,20 @@ export default function ThreadComponent({
             </span>
           </span>
           {/* Thread Options */}
-          <div className="pl-2 pr-4 sm:pl-4 sm:pr-8">
+          <div className="flex gap-3 items-center justify-center pl-2 pr-4 sm:pl-4 sm:pr-8">
+            {routeType === 'chat' && (
+              <Badge 
+              variant="outline"
+                className={cn({
+                  // Light mode accent color...
+                  'bg-[#BE17E8] text-white': thread.isApproved && thread.isPublic,
+                  // Woodsmoke
+                  'bg-[#09090B] text-white': thread.isApproved && !thread.isPublic,
+                })}
+              >
+                {thread.isPublic ? 'Public' : 'Private'}
+              </Badge>
+            )}
             <ChatOptions threadId={thread.threadId} thread={thread} isBrowse />
           </div>
         </div>
