@@ -101,7 +101,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       createdAt: m.createdAt,
     }))
     : []
-  const systemPrompts: AiMessage[] = userPreferencesPrompts.concat(chatbotSystemPrompts)
+  const systemPrompts: AiMessage[] = chatbotSystemPrompts.concat(userPreferencesPrompts)
   /**
    * @description
    * Concatenate all message to pass it to chat component.

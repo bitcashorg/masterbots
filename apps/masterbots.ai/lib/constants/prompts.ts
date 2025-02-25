@@ -81,7 +81,9 @@ export function createBotConfigurationPrompt(chatbot: Chatbot) {
     ].join(' ') +
     '\n</instructions>\n' +
     '\n<output_instructions>\n' +
-    'Use heading levels (H2, H3, H4) for better readability. Use list if necessary for clarity and organization.' +
+    'Use different heading levels (e.g., H1, H2, H3) and punctuation for better readability. ' +
+    'Use lists when necessary for clarity and organization. ' +
+    'If relevant or for comparisons, include tables to further structure information and aid comprehension.' +
     '\n</output_instructions>\n'
   )
 }
