@@ -1,75 +1,34 @@
 import type { ParsedText } from '@/types/types'
 import type { ReactNode } from 'react'
 import React from 'react'
+import { UNIQUE_PHRASES } from './utils'
 
-// * Pattern for general text parsing
-export const GENERAL_PATTERN = /(.*?)([:.,])(?:\s|$)/g
-
-// * List of predefined unique phrases to detect in text
-export const UNIQUE_PHRASES = [
-  'Unique, lesser-known',
-  'Unique insight',
-  'Unique Tip',
-  'Unique, lesser-known solution',
-  'Unique Solution',
-  'Unique, lesser-known option',
-  'Unique Insight: Lesser-Known Solution',
-  'Unique Recommendation',
-  'Lesser-Known Gem',
-  'For a UNIQUE, LESSER-KNOWN phrase',
-  'Unique, Lesser-Known Destination',
-  'For more detailed insights',
-] as const
-
-// * Creates a regex pattern for unique phrases
-export function createUniquePattern(): RegExp {
-  return new RegExp(`(?:${UNIQUE_PHRASES.join('|')}):\\s*([^.:]+[.])`, 'i')
-}
-
+/**
+ * Extracts text content from React nodes for web parsing
+ */
 export function extractTextFromReactNodeWeb(node: ReactNode): ReactNode {
-  if (React.isValidElement(node)) {
-    if (node.type === 'strong') {
-      return {
-        ...node,
-        props: {
-          ...node.props,
-          children: extractTextFromReactNodeWeb(node.props.children),
-        },
-      }
-    }
-
-    // Handle nested lists in web extraction
-    if (node.type === 'ul' || node.type === 'ol') {
-      return {
-        ...node,
-        props: {
-          ...node.props,
-          children: React.Children.map(node.props.children, (child) =>
-            extractTextFromReactNodeWeb(child),
-          ),
-        },
-      }
-    }
-
-    // Handle list items
-    if (node.type === 'li') {
-      return {
-        ...node,
-        props: {
-          ...node.props,
-          children: extractTextFromReactNodeWeb(node.props.children),
-        },
-      }
-    }
-
-    return node
-  }
-
+  // Return string/number nodes directly
   if (typeof node === 'string') return node
   if (typeof node === 'number') return node.toString()
+
+  // Handle arrays of nodes
   if (Array.isArray(node)) {
     return node.map(extractTextFromReactNodeWeb)
   }
+
+  // Handle React elements
+  if (React.isValidElement(node)) {
+    // Process children of the element
+    return {
+      ...node,
+      props: {
+        ...node.props,
+        children: extractTextFromReactNodeWeb(node.props.children),
+      },
+    }
+  }
+
+  // Handle objects with props
   if (typeof node === 'object' && node !== null && 'props' in node) {
     const children = extractTextFromReactNodeWeb(node.props.children)
     if (React.isValidElement(children) || Array.isArray(children)) {
@@ -77,62 +36,104 @@ export function extractTextFromReactNodeWeb(node: ReactNode): ReactNode {
     }
     return String(children)
   }
+
   return ''
 }
 
+/**
+ * Extracts raw text content from React nodes
+ */
 export function extractTextFromReactNodeNormal(node: ReactNode): string {
+  // Handle string and number nodes
   if (typeof node === 'string') return node
   if (typeof node === 'number') return node.toString()
 
+  // Handle arrays
   if (Array.isArray(node)) {
-    return node
-      .map((item) => {
-        // Add type guard to safely access props
-        if (
-          React.isValidElement(item) &&
-          'props' in item &&
-          'children' in (item.props as { children?: ReactNode })
-        ) {
-          if (item.type === 'ul' || item.type === 'ol') {
-            // Now TypeScript knows props and children exist
-            return (
-              '\n' +
-              extractTextFromReactNodeNormal((item.props as { children: ReactNode }).children)
-            )
-          }
-          if (item.type === 'li') {
-            const content = extractTextFromReactNodeNormal(
-              (item.props as { children: ReactNode }).children,
-            )
-            const hasNestedList = content.includes('\n')
-            return `\n- ${content}${hasNestedList ? '\n' : ''}`
-          }
-        }
-        return extractTextFromReactNodeNormal(item)
-      })
-      .join('')
+    return node.map(extractTextFromReactNodeNormal).join('')
   }
 
-  // Type guard for objects with props
-  if (
-    typeof node === 'object' &&
-    node !== null &&
-    'props' in node &&
-    'children' in (node.props as { children?: ReactNode })
-  ) {
-    if (node.type === 'li') {
-      const content = extractTextFromReactNodeNormal(
-        (node.props as { children: ReactNode }).children,
-      )
-      return `\n- ${content}`
-    }
-    return extractTextFromReactNodeNormal((node.props as { children: ReactNode }).children)
+  // Handle React elements
+  if (React.isValidElement(node)) {
+    return extractTextFromReactNodeNormal(node.props.children)
+  }
+
+  // Handle objects with props
+  if (typeof node === 'object' && node !== null && 'props' in node) {
+    return extractTextFromReactNodeNormal(node.props.children)
   }
 
   return ''
 }
 
+/**
+ * Cleans text for use in follow-up queries
+ */
+export function cleanClickableText(text: string): string {
+  return text
+    .replace(/^#+\s+/, '') // Remove Markdown heading markers
+    .replace(/^\d+\.\s*/, '') // Remove leading numbers
+    .replace(/^[•-]\s*/, '') // Remove bullet points
+    .replace(/^\*\*|\*\*$/g, '') // Remove Markdown bold markers
+    .replace(/[,.()[\]]$/, '') // Remove trailing punctuation
+    .trim()
+}
+
+/**
+ * Determines if text should be made clickable based on patterns
+ */
+export function isTextClickable(text: string): boolean {
+  // Skip short texts, URLs, and empty content
+  if (!text || text.length < 3 || text.match(/https?:\/\/[^\s]+/)) {
+    return false
+  }
+
+  // Check for basic heading patterns
+  if (
+    text.match(/^#+\s+/) || // Markdown headings (## Title)
+    text.match(/^\d+\.\s+/) || // Numbered sections (1. Title)
+    text.match(/^[•-]\s+/) || // Bullet points (• Title)
+    text.match(/^\*\*.*\*\*/) || // Bold text (**Title**)
+    text.match(/^[A-Z][^:.\n]{2,}(?=:)/) // Capitalized text followed by colon
+  ) {
+    return true
+  }
+
+  return false
+}
+
+/**
+ * Extracts the clickable portion of text for interactive elements
+ */
+export function extractClickablePortion(text: string): string {
+  // For markdown headings
+  const headingMatch = text.match(/^(#+\s+[^:\n]+)/)
+  if (headingMatch) return headingMatch[1].trim()
+
+  // For numbered sections
+  const numberedMatch = text.match(/^(\d+\.\s+[^:\n]+)/)
+  if (numberedMatch) return numberedMatch[1].trim()
+
+  // For sections with colons (Title: Description)
+  const colonMatch = text.match(/^([^:]+):/)
+  if (colonMatch) return colonMatch[1].trim()
+
+  // For bullet points
+  const bulletMatch = text.match(/^([•-]\s+[^:\n]+)/)
+  if (bulletMatch) return bulletMatch[1].trim()
+
+  // For bold text
+  const boldMatch = text.match(/^\*\*([^*]+)\*\*/)
+  if (boldMatch) return boldMatch[1].trim()
+
+  return text
+}
+
+/**
+ * Analyzes text for clickable portions and returns structured result
+ */
 export function parseClickableText(fullText: string): ParsedText {
+  // Skip URLs
   if (typeof fullText === 'string' && fullText.match(/https?:\/\/[^\s]+/)) {
     return {
       clickableText: '',
@@ -141,111 +142,115 @@ export function parseClickableText(fullText: string): ParsedText {
     }
   }
 
-  //* First check for unique phrases
+  // Handle Markdown headers (## or ###)
+  const markdownHeaderMatch = fullText.match(/^(#{1,3}\s+[^:\n]+)(:?.*)$/s)
+  if (markdownHeaderMatch) {
+    return {
+      clickableText: markdownHeaderMatch[1].trim(),
+      restText: markdownHeaderMatch[2] || '',
+      fullContext: markdownHeaderMatch[1].trim(),
+    }
+  }
+
+  // Handle section headers with numbers (e.g., "1. Infection Prevention:")
+  const sectionMatch = fullText.match(/^(\d+\.\s+[^:]+):(.*)$/s)
+  if (sectionMatch) {
+    return {
+      clickableText: sectionMatch[1].trim(),
+      restText: `: ${sectionMatch[2]}`,
+      fullContext: sectionMatch[1].trim(),
+    }
+  }
+
+  // Handle regular numbered items without colon
+  const numberedMatch = fullText.match(/^(\d+\.\s+[^:\n]+)(.*)/s)
+  if (numberedMatch) {
+    return {
+      clickableText: numberedMatch[1].trim(),
+      restText: numberedMatch[2] || '',
+      fullContext: numberedMatch[1].trim(),
+    }
+  }
+
+  // Handle bullet points with colon (e.g., "• Water Temperature: While warm water...")
+  const bulletColonMatch = fullText.match(/^(\s*[•-]\s+[^:]+):(.*)$/s)
+  if (bulletColonMatch) {
+    return {
+      clickableText: bulletColonMatch[1].trim(),
+      restText: `: ${bulletColonMatch[2]}`,
+      fullContext: bulletColonMatch[1].trim(),
+    }
+  }
+
+  // Handle regular bullet points
+  const bulletMatch = fullText.match(/^(\s*[•-]\s+[^:\n]+)(.*)/s)
+  if (bulletMatch) {
+    return {
+      clickableText: bulletMatch[1].trim(),
+      restText: bulletMatch[2] || '',
+      fullContext: bulletMatch[1].trim(),
+    }
+  }
+
+  // Handle bold text parts (e.g., "**Infection Prevention**: Rinsing hands...")
+  const boldColonMatch = fullText.match(/^\*\*([^*:]+)\*\*:(.*)$/s)
+  if (boldColonMatch) {
+    return {
+      clickableText: boldColonMatch[1].trim(),
+      restText: `: ${boldColonMatch[2]}`,
+      fullContext: boldColonMatch[1].trim(),
+    }
+  }
+
+  // Handle standard bold text
+  const boldMatch = fullText.match(/^\*\*([^*]+)\*\*(.*)/s)
+  if (boldMatch) {
+    return {
+      clickableText: boldMatch[1].trim(),
+      restText: boldMatch[2] || '',
+      fullContext: boldMatch[1].trim(),
+    }
+  }
+
+  // Check for any of the UNIQUE_PHRASES
   for (const phrase of UNIQUE_PHRASES) {
     if (fullText.includes(phrase)) {
-      //* Split content after the phrase
-      const parts = fullText.split(phrase)
-      const restContent = parts.slice(1).join(phrase).trim()
+      const index = fullText.indexOf(phrase)
+      const endIndex = fullText.indexOf(':', index + phrase.length)
 
-      //* Extract first sentence (up to the first period after the phrase)
-      const firstSentenceMatch = (phrase + restContent).match(/^(.+?\.)(?:\s|$)/)
-      const firstSentence = firstSentenceMatch ? firstSentenceMatch[1] : phrase + restContent
-
-      return {
-        clickableText: phrase,
-        restText: restContent,
-        fullContext: firstSentence, //* Use first sentence instead as context
+      if (endIndex !== -1) {
+        const clickable = fullText.substring(index, endIndex).trim()
+        const rest = fullText.substring(endIndex)
+        return {
+          clickableText: clickable,
+          restText: rest,
+          fullContext: clickable,
+        }
+        // biome-ignore lint/style/noUselessElse: <explanation>
+      } else {
+        return {
+          clickableText: phrase,
+          restText: fullText.substring(index + phrase.length),
+          fullContext: phrase,
+        }
       }
     }
   }
 
-  const titlePattern = /^([^:]+?):\s*(.*)/
-  const titleMatch = fullText.match(titlePattern)
-
-  if (titleMatch) {
-    const title = titleMatch[1].trim()
-    const content = titleMatch[2]
-    
-    if (!title || title.match(/^[.\s]+$/)) {
-      return {
-        clickableText: '',
-        restText: fullText,
-        fullContext: fullText,
-      }
-    }
-
-    // * Extract the first sentence of the content (up to the first period)
-    const firstSentenceMatch = content.match(/^(.+?\.)(?:\s|$)/);
-    const firstSentence = firstSentenceMatch 
-      ? title + ': ' + firstSentenceMatch[1] 
-      : title + ': ' + content;
-    
+  // Handle section titles with colons (Title: Content)
+  const titleColonMatch = fullText.match(/^([^:]{3,}):(.*)$/s)
+  if (titleColonMatch) {
     return {
-      clickableText: title,
-      restText: ': ' + content,
-      fullContext: firstSentence, // * Use title + first sentence instead of full context
+      clickableText: titleColonMatch[1].trim(),
+      restText: `: ${titleColonMatch[2]}`,
+      fullContext: titleColonMatch[1].trim(),
     }
   }
 
+  // Default case: no specific pattern found
   return {
     clickableText: '',
     restText: fullText,
     fullContext: fullText,
   }
-}
-
-
-export function cleanClickableText(text: string): string {
-  return text.replace(/[,.()[\]]$/, '').trim()
-}
-
-export function transformLink(
-  linkElement: React.ReactElement,
-  contentContext: string,
-): React.ReactElement {
-  const href = linkElement.props.href
-  const currentText = extractTextFromReactNodeNormal(linkElement.props.children)
-
-  // Don't transform "read more" or "learn more" links
-  if (
-    currentText.toLowerCase().includes('read more') ||
-    currentText.toLowerCase().includes('learn more')
-  ) {
-    return linkElement
-  }
-
-  // Create descriptive text based on context
-  const descriptiveText = `Read more about ${contentContext.split(':')[0].toLowerCase()} here`
-
-  return React.cloneElement(linkElement, {
-    ...linkElement.props,
-    children: descriptiveText,
-  })
-}
-
-//? helper function for handling nested lists
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-export function processNestedList(node: ReactNode, level: any = 0): ReactNode {
-  if (!React.isValidElement(node)) return node
-
-  if (node.type === 'ul' || node.type === 'ol') {
-    return React.cloneElement(node, {
-      ...node.props,
-      className: `ml-${level * 4} ${node.type === 'ul' ? 'list-disc' : 'list-decimal'}`,
-      children: React.Children.map(node.props.children, (child) =>
-        processNestedList(child, level + 1),
-      ),
-    })
-  }
-
-  if (node.type === 'li') {
-    return React.cloneElement(node, {
-      ...node.props,
-      className: `ml-${level * 2}`,
-      children: React.Children.map(node.props.children, (child) => processNestedList(child, level)),
-    })
-  }
-
-  return node
 }

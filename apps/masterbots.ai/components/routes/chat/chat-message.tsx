@@ -7,9 +7,16 @@ import type { ChatMessageProps, WebSearchResult } from '@/types/types'
 import React, { useState } from 'react'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
-import { ClickableText } from './chat-clickable-text'
+import { EnhancedClickableText } from './chat-clickable-list'
 
-export function ChatMessage({
+/**
+ * ChatMessage Component - Renders chat messages with enhanced clickable sections
+ *
+ * This component renders a chat message with markdown formatting and makes
+ * headings and list items with bold/strong tags clickable.
+ */
+
+export function EnhancedChatMessage({
   message,
   sendMessageFromResponse,
   chatbot,
@@ -17,10 +24,12 @@ export function ChatMessage({
   webSearchResults = [],
   ...props
 }: ChatMessageProps) {
+  // Clean the message content
   const content = cleanPrompt(message.content)
   const cleanMessage = { ...message, content }
   const [references, setReferences] = useState<WebSearchResult[]>([])
 
+  // References section component for web search results
   const ReferencesSection = () => {
     if (references.length === 0) return null
 
@@ -28,7 +37,7 @@ export function ChatMessage({
       <div className="pt-4 mt-4 border-t border-gray-200">
         <h3 className="mb-2 text-lg font-semibold">References</h3>
         <div className="space-y-4">
-          {references.map((ref) => (
+          {references.map(ref => (
             <div
               key={ref.profile.name.toLowerCase().replace(/\s/g, '-')}
               className="flex gap-4"
@@ -59,6 +68,19 @@ export function ChatMessage({
     )
   }
 
+  // Enhanced content wrapper
+  const EnhancedContent = ({ children }: { children: React.ReactNode }) => {
+    if (cleanMessage.role === 'user' || !sendMessageFromResponse) {
+      return <>{children}</>
+    }
+
+    return (
+      <EnhancedClickableText sendMessageFromResponse={sendMessageFromResponse}>
+        {children}
+      </EnhancedClickableText>
+    )
+  }
+
   return (
     <div className={cn('group relative flex items-start p-1')} {...props}>
       <div className="flex-1 pr-1 space-y-2 overflow-hidden">
@@ -66,41 +88,55 @@ export function ChatMessage({
           className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
           remarkPlugins={[remarkGfm, remarkMath]}
           components={{
+            // Process paragraph nodes
             p({ children }) {
               return (
                 <p className="text-left whitespace-pre-line">
-                  {cleanMessage.role === 'user' ? (
-                    children
-                  ) : (
-                    <ClickableText
-                      isListItem={false}
-                      sendMessageFromResponse={sendMessageFromResponse}
-                      webSearchResults={webSearchResults}
-                      onReferenceFound={ref =>
-                        setReferences(prev => [...prev, ref])
-                      }
-                    >
-                      {children}
-                    </ClickableText>
-                  )}
+                  <EnhancedContent>{children}</EnhancedContent>
                 </p>
               )
             },
-            ul({ children }) {
+
+            // Process heading nodes
+            h1({ children }) {
               return (
-                <ul className="ml-2 space-y-2">
-                  {children}
-                </ul>
+                <h1 className="mb-2 text-2xl font-bold">
+                  <EnhancedContent>{children}</EnhancedContent>
+                </h1>
               )
+            },
+            h2({ children }) {
+              return (
+                <h2 className="mb-2 text-xl font-bold">
+                  <EnhancedContent>{children}</EnhancedContent>
+                </h2>
+              )
+            },
+            h3({ children }) {
+              return (
+                <h3 className="mb-2 text-lg font-bold">
+                  <EnhancedContent>{children}</EnhancedContent>
+                </h3>
+              )
+            },
+
+            // Process strong/emphasis nodes
+            strong({ children }) {
+              return (
+                <strong>
+                  <EnhancedContent>{children}</EnhancedContent>
+                </strong>
+              )
+            },
+
+            // Process list nodes
+            ul({ children }) {
+              return <ul className="ml-2 space-y-2 list-disc">{children}</ul>
             },
             ol({ children }) {
-              return (
-                <ol className="ml-2 space-y-2">
-                  {children}
-                </ol>
-              )
+              return <ol className="ml-2 space-y-2 list-decimal">{children}</ol>
             },
-            li({ children, ordered }) {
+            li({ children }) {
               const hasNestedList = React.Children.toArray(children).some(
                 child =>
                   React.isValidElement(child) &&
@@ -108,22 +144,13 @@ export function ChatMessage({
               )
 
               return (
-                <li
-                  className={cn(
-                    "ml-4",
-                    ordered ? "list-decimal" : "list-disc",
-                    hasNestedList && "mt-2"
-                  )}
-                >
-                  <ClickableText
-                    isListItem
-                    sendMessageFromResponse={sendMessageFromResponse}
-                  >
-                    {children}
-                  </ClickableText>
+                <li className={cn('ml-4', hasNestedList && 'mt-2')}>
+                  <EnhancedContent>{children}</EnhancedContent>
                 </li>
               )
             },
+
+            // Process link nodes
             a({ href, children, ...props }) {
               return (
                 <a
@@ -137,6 +164,8 @@ export function ChatMessage({
                 </a>
               )
             },
+
+            // Process code blocks
             code({ inline, className, children, ...props }) {
               if (children.length) {
                 if (children[0] === '▍') {
@@ -170,9 +199,11 @@ export function ChatMessage({
         >
           {cleanMessage.content}
         </MemoizedReactMarkdown>
+
         {actionRequired && (
           <ChatMessageActions className="md:!right-0" message={message} />
         )}
+
         <ReferencesSection />
       </div>
     </div>

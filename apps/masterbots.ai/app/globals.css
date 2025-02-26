@@ -263,21 +263,71 @@
   }
 }
 
+/* Clickable text styles */
 .text-link {
   @apply text-accent hover:text-accent/90;
 }
 
-button.text-link {
-  @apply inline-block p-0 m-0 bg-transparent border-0;
+/* Improved button styling for clickable text elements */
+button.text-link, 
+button.clickable-text {
+  @apply inline-block p-0 m-0 bg-transparent border-0 cursor-pointer;
   font-family: inherit;
   font-size: inherit;
   line-height: inherit;
+  text-align: left;
+}
+
+/* Clickable text hover effect */
+button.clickable-text {
+  @apply transition-colors duration-200 text-accent hover:text-accent/90 hover:underline;
+  position: relative;
+}
+
+/* Enhanced hover effect for headings */
+h1 button.clickable-text,
+h2 button.clickable-text,
+h3 button.clickable-text,
+h4 button.clickable-text {
+  @apply hover:text-accent;
+  position: relative;
+}
+
+/* Special styling for clickable section titles */
+.section-title.clickable-text,
+button.section-title {
+  @apply font-semibold;
+}
+
+/* Bullet point-specific clickable styling */
+li > button.clickable-text {
+  @apply font-medium hover:text-accent;
+}
+
+/* Focus styles for accessibility */
+button.clickable-text:focus-visible {
+  @apply rounded outline-none ring-2 ring-accent ring-offset-2;
 }
 
 /* Prevent wrapping issues */
 .inline > button,
 .inline > span {
   vertical-align: baseline;
+}
+
+/* Special styling for markdown headers */
+.markdown-header button.clickable-text {
+  @apply font-bold hover:text-accent;
+}
+
+/* Unique phrase highlighting */
+.unique-phrase button.clickable-text {
+  @apply italic font-medium;
+}
+
+/* Styling for highlighted terms */
+.highlighted-term button.clickable-text {
+  @apply bg-accent/10 py-0.5 px-1 rounded hover:bg-accent/20;
 }
 
 .scrollbar {
@@ -499,10 +549,6 @@ button.text-link {
   background-image: var(--background-public-gradient);
 }
 
-
-
-
-
 /* Component route styles */
 
 /* Avatar ring colors */
@@ -553,4 +599,55 @@ button.text-link {
   background-image: var(--background-public-gradient);
 }
 
+/* Specific styles for markdown-generated sections */
 
+/* Style for h2 headings */
+h2 button.clickable-text {
+  @apply text-xl font-bold transition-colors duration-150 hover:text-accent;
+}
+
+/* Style for h3 headings */
+h3 button.clickable-text {
+  @apply text-lg font-bold transition-colors duration-150 hover:text-accent;
+}
+
+/* Style for numbered sections */
+[class*="section-number"] button.clickable-text {
+  @apply font-semibold hover:text-accent;
+}
+
+/* Style for bullet points */
+li > p > button.clickable-text:first-child {
+  @apply font-medium hover:text-accent;
+}
+
+/* Style for "MacBook Pro M2" and "MacBook Air M2" sections */
+p > button.clickable-text:first-child {
+  @apply font-medium hover:text-accent;
+}
+
+/* Style specifically for section titles with colons */
+button.clickable-text[data-section-title="true"] {
+  @apply font-semibold hover:text-accent;
+}
+
+/* Style for "Unique Lesser-Known Solution" section */
+.unique-solution button.clickable-text {
+  @apply italic font-medium hover:text-accent;
+}
+
+/* Indicator for clickable sections */
+button.clickable-text::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background-color: currentColor;
+  transition: width 0.2s ease;
+}
+
+button.clickable-text:hover::after {
+  width: 100%;
+}

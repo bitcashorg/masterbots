@@ -1,81 +1,230 @@
+import React from 'react'
 import {
   cleanClickableText,
+  extractClickablePortion,
   extractTextFromReactNodeNormal,
   extractTextFromReactNodeWeb,
-  parseClickableText,
-  transformLink
+  isTextClickable,
+  parseClickableText
 } from '@/lib/clickable-results'
 import { useThread } from '@/lib/hooks/use-thread'
-import { cn } from '@/lib/utils'
+import {cn, UNIQUE_PHRASES} from '@/lib/utils';
 import type { ClickableTextProps } from '@/types/types'
-import React from 'react'
 
+/**
+ * ClickableText Component - Makes sections of text clickable to generate follow-up queries
+ *
+ * This component analyzes text content and creates clickable buttons for headers,
+ * section titles, and other important parts. When clicked, these elements generate
+ * a new query that asks for more details about the clicked content.
+ */
 export function ClickableText({
   children,
   isListItem,
   sendMessageFromResponse,
   webSearchResults = [],
-  onReferenceFound
+  onReferenceFound,
+  node
 }: ClickableTextProps) {
   const { webSearch } = useThread()
 
-  const extractedContent = webSearch
-    ? extractTextFromReactNodeWeb(children)
-    : extractTextFromReactNodeNormal(children)
+  // Extract content based on search context
+  const contentText =
+    typeof children === 'string'
+      ? children
+      : extractTextFromReactNodeNormal(children)
 
-  const createClickHandler = (text: string, fullContext: string) => () => {
+  // Create a handler for clicks on text elements
+  const handleTextClick = (text: string) => {
     if (sendMessageFromResponse && text.trim()) {
       const cleanedText = cleanClickableText(text)
-      const contextToUse = fullContext || cleanedText
       sendMessageFromResponse(
-        `Explain more in-depth and in detail about ${contextToUse}`
+        `Explain more in-depth and in detail about ${cleanedText}`
       )
     }
   }
 
-  const processNestedContent = (content: React.ReactNode): React.ReactNode => {
-    if (React.isValidElement(content)) {
-      if (content.type === 'ul' || content.type === 'ol') {
-        return React.cloneElement(content, {
-          ...content.props,
-          className: cn(
-            content.props.className,
-            'mt-2 ml-4',
-            content.type === 'ul' ? 'list-disc' : 'list-decimal',
-            'nested-list'
-          ),
-          children: React.Children.map(content.props.children, child =>
-            processNestedContent(child)
-          )
-        })
-      }
+  // Get appropriate CSS class for different content types
+  const getContentTypeClass = (text: string): string => {
+    // Check for headings (## or ###)
+    if (text.match(/^#+\s+/)) {
+      return 'markdown-header'
+    }
 
-      if (content.type === 'li') {
-        const hasNestedList = React.Children.toArray(
-          content.props.children
-        ).some(
-          child =>
-            React.isValidElement(child) &&
-            (child.type === 'ul' || child.type === 'ol')
-        )
+    // Check for numbered sections (1. Title)
+    if (text.match(/^\d+\.\s+/)) {
+      return 'section-number'
+    }
 
-        return React.cloneElement(content, {
-          ...content.props,
-          className: cn(
-            content.props.className,
-            'ml-4',
-            hasNestedList && 'mt-2'
-          ),
-          children: processNestedContent(content.props.children)
-        })
+    // Check for unique phrases
+    
+    for (const phrase of UNIQUE_PHRASES) {
+      if (text.includes(phrase)) {
+        return 'unique-solution'
       }
     }
 
-    return content
+    // Check for bullet points
+    if (text.match(/^[•\-]\s+/)) {
+      return 'bullet-point'
+    }
+
+    // Check for colon-separated titles
+    if (text.includes(':')) {
+      return 'section-title'
+    }
+
+    // Check for bold/strong text
+    if (text.match(/^\*\*.*\*\*$/)) {
+      return 'strong-text'
+    }
+
+    return ''
   }
 
-  const processLink = (linkElement: React.ReactElement) => {
-    const href = linkElement.props.href
+  // Process standard text nodes (paragraphs, plain text)
+  const processTextContent = (text: string) => {
+    // Don't process empty or very short text
+    if (!text || text.length < 3) return text
+
+    // Try to parse clickable portions
+    const { clickableText, restText } = parseClickableText(text)
+
+    if (clickableText) {
+      const contentTypeClass = getContentTypeClass(text)
+      const isSectionTitle = text.includes(':')
+
+      return (
+        <>
+          <button
+            className={cn(
+              'clickable-text p-0 m-0 font-semibold text-left bg-transparent border-none cursor-pointer hover:underline',
+              contentTypeClass
+            )}
+            onClick={() => handleTextClick(clickableText)}
+            type="button"
+            data-section-title={isSectionTitle}
+          >
+            {clickableText}
+          </button>
+          {restText}
+        </>
+      )
+    }
+
+    return text
+  }
+
+  // Process heading elements (h1, h2, h3)
+  const processHeading = (element: React.ReactElement) => {
+    const headingText = extractTextFromReactNodeNormal(element.props.children)
+    const headingLevel = element.type.toString().charAt(1)
+
+    return React.cloneElement(element, {
+      ...element.props,
+      children: (
+        <button
+          className={cn(
+            'clickable-text w-full p-0 m-0 text-left bg-transparent border-none cursor-pointer hover:underline',
+            'markdown-header',
+            `heading-${headingLevel}`
+          )}
+          onClick={() => handleTextClick(headingText)}
+          type="button"
+        >
+          {element.props.children}
+        </button>
+      )
+    })
+  }
+
+  // Process emphasis elements (strong, bold)
+  const processEmphasis = (element: React.ReactElement) => {
+    const emphasisText = extractTextFromReactNodeNormal(element.props.children)
+    
+    // If emphasis element contains a colon, make sure we handle it properly
+    const colonMatch = emphasisText.match(/^([^:]+):(.*)$/);
+    if (colonMatch) {
+      return React.cloneElement(element, {
+        ...element.props,
+        children: (
+          <>
+            <button
+              className="p-0 m-0 bg-transparent border-none cursor-pointer clickable-text hover:underline font-inherit"
+              onClick={() => handleTextClick(colonMatch[1].trim())}
+              type="button"
+            >
+              {colonMatch[1]}
+            </button>
+            {`: ${colonMatch[2]}`}
+          </>
+        )
+      });
+    }
+
+    // No colon found, make the entire emphasis text clickable
+    return React.cloneElement(element, {
+      ...element.props,
+      children: (
+        <button
+          className="p-0 m-0 bg-transparent border-none cursor-pointer clickable-text hover:underline font-inherit"
+          onClick={() => handleTextClick(emphasisText)}
+          type="button"
+        >
+          {element.props.children}
+        </button>
+      )
+    })
+  }
+
+  // Process list item elements
+  const processListItem = (element: React.ReactElement) => {
+    // Check for strong/emphasized text within list items
+    if (React.Children.toArray(element.props.children).some(
+      child => React.isValidElement(child) && (child.type === 'strong' || child.type === 'b')
+    )) {
+      // Process the children to handle the strong elements properly
+      return React.cloneElement(element, {
+        ...element.props,
+        children: processContent(element.props.children)
+      });
+    }
+    
+    const itemText = extractTextFromReactNodeNormal(element.props.children)
+    const parsedItem = parseClickableText(itemText)
+
+    if (parsedItem.clickableText) {
+      const contentTypeClass = getContentTypeClass(itemText)
+
+      return React.cloneElement(element, {
+        ...element.props,
+        children: (
+          <>
+            <button
+              className={cn(
+                'clickable-text p-0 m-0 font-semibold text-left bg-transparent border-none cursor-pointer hover:underline',
+                contentTypeClass,
+                isListItem && 'bullet-point'
+              )}
+              onClick={() => handleTextClick(parsedItem.clickableText)}
+              type="button"
+            >
+              {parsedItem.clickableText}
+            </button>
+            {parsedItem.restText}
+          </>
+        )
+      })
+    }
+
+    return element
+  }
+
+  // Process link elements for web search
+  const processLink = (element: React.ReactElement) => {
+    if (!webSearch) return element
+
+    const href = element.props.href
     const reference = webSearchResults.find(result => result.url === href)
 
     if (reference && onReferenceFound) {
@@ -83,126 +232,83 @@ export function ClickableText({
       return null
     }
 
-    return linkElement
+    return element
   }
 
-  const renderClickableContent = (
-    clickableText: string,
-    restText: string,
-    fullContext: string
-  ) => (
-    <span className="inline">
-      <button
-        className={cn(
-          'inline-block cursor-pointer hover:underline bg-transparent border-none p-0 m-0 text-left',
-          isListItem ? 'text-blue-500' : 'text-link'
-        )}
-        onClick={createClickHandler(clickableText, fullContext)}
-        type="button"
-      >
-        {clickableText}
-      </button>
-      {restText.startsWith(':') ? restText.replace(/^:/, ': ') : restText}
-    </span>
-  )
+  // Main processing function for React element trees
+  const processContent = (content: React.ReactNode): React.ReactNode => {
+    // Process strings directly
+    if (typeof content === 'string') {
+      return processTextContent(content)
+    }
 
-  if (Array.isArray(extractedContent)) {
-    return extractedContent.map((content, index) => {
-      if (React.isValidElement(content)) {
-        if (content.type === 'ul' || content.type === 'ol') {
-          return processNestedContent(content)
-        }
+    // Skip non-string primitives
+    if (typeof content !== 'object' || content === null) {
+      return content
+    }
 
-        if (content.type === 'a' && webSearch) {
-          return processLink(content)
-        }
-
-        if (content.type === 'strong') {
-          const strongContent = extractTextFromReactNodeNormal(
-            (content.props as { children: React.ReactNode }).children
-          )
-          const { clickableText, restText, fullContext } = parseClickableText(
-            strongContent + ':'
-          )
-
-          if (clickableText.trim()) {
-            return (
-              <button
-                key={`clickable-${
-                  // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-                  index
-                }`}
-                className={cn(
-                  'cursor-pointer hover:underline',
-                  isListItem ? 'text-blue-500' : 'text-link'
-                )}
-                onClick={createClickHandler(
-                  clickableText,
-                  fullContext || strongContent
-                )}
-                type="button"
-                tabIndex={0}
-              >
-                {strongContent}
-              </button>
-            )
-          }
-          return content
-        }
-
-        if (content.type === 'a' && webSearch) {
-          const parentContext = extractedContent
-            .filter(
-              item =>
-                typeof item === 'string' ||
-                (React.isValidElement(item) && item.type === 'strong')
-            )
-            .map(item =>
-              typeof item === 'string'
-                ? item
-                : extractTextFromReactNodeNormal(
-                    (item.props as { children: React.ReactNode }).children
-                  )
-            )
-            .join(' ')
-          return transformLink(content, parentContext)
-        }
-
-        return content
-      }
-
-      const { clickableText, restText, fullContext } = parseClickableText(
-        String(content)
-      )
-
-      if (!clickableText.trim()) {
-        return content
-      }
-
-      return (
+    // Process arrays of elements
+    if (Array.isArray(content)) {
+      return content.map((item, index) => (
         <React.Fragment
-          key={`clickable-${
+          key={`content-${
             // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
             index
           }`}
         >
-          {renderClickableContent(clickableText, restText, fullContext)}
+          {processContent(item)}
         </React.Fragment>
-      )
-    })
+      ))
+    }
+
+    // Process React elements
+    if (React.isValidElement(content)) {
+      // Handle different element types
+      if (typeof content.type === 'string') {
+        // Process headings (h1, h2, h3)
+        if (content.type.match(/^h[1-6]$/)) {
+          return processHeading(content)
+        }
+
+        // Process emphasis (strong, b)
+        if (content.type === 'strong' || content.type === 'b') {
+          return processEmphasis(content)
+        }
+
+        // Process list items
+        if (content.type === 'li') {
+          return processListItem(content)
+        }
+
+        // Process links
+        if (content.type === 'a') {
+          return processLink(content)
+        }
+
+        // Process paragraphs and other elements by checking their children
+        // biome-ignore lint/complexity/useOptionalChain: <explanation>
+        if (content.props && content.props.children) {
+          return React.cloneElement(content, {
+            ...content.props,
+            children: processContent(content.props.children)
+          })
+        }
+      }
+    }
+
+    return content
   }
 
-  if (React.isValidElement(extractedContent)) {
-    return extractedContent
+  // Main rendering logic
+  // Handle direct node rendering (e.g., from markdown-react)
+  if (node) {
+    return processContent(children)
   }
 
-  const { clickableText, restText, fullContext } = parseClickableText(
-    String(extractedContent)
-  )
+  // Process content differently based on web search context
+  const processedContent = webSearch
+    ? processContent(extractTextFromReactNodeWeb(children))
+    : processContent(children)
 
-  if (!clickableText.trim()) {
-    return <>{extractedContent}</>
-  }
-
-  return renderClickableContent(clickableText, restText, fullContext)
+  return processedContent
 }

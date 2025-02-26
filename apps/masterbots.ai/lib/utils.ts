@@ -337,3 +337,19 @@ export function getRouteColor(isActive: boolean, pathname: string | null): strin
   //     return ''
   // }
 }
+
+export const UNIQUE_PHRASES = [
+  'Unique, lesser-known',
+  'Unique',
+  'Unique insight',
+  'Unique Tip',
+  'Unique, lesser-known solution',
+  'Unique Solution',
+  'Unique, lesser-known option',
+  'Unique Insight: Lesser-Known Solution',
+  'Unique Recommendation',
+  'Lesser-Known Gem',
+  'For a UNIQUE, LESSER-KNOWN phrase',
+  'Unique, Lesser-Known Destination',
+  'For more detailed insights',
+] as const

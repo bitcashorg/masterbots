@@ -88,7 +88,8 @@ export interface StripePlan extends Stripe.Plan, Stripe.Plan.Tier {
     aggregate_usage: Stripe.Plan.AggregateUsage
     usage_type: Stripe.Plan.UsageType
     // ? Plans are returning null
-    meter: any
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+        meter: any
     trial_period_days: number | null
   }
   duration?: string
@@ -289,11 +290,13 @@ export interface WebSearchResult {
 }
 
 export interface ClickableTextProps {
-  children: React.ReactNode
-  isListItem: boolean
-  sendMessageFromResponse?: (message: string) => void
-  webSearchResults?: WebSearchResult[]
-  onReferenceFound?: (ref: WebSearchResult) => void
+  children: React.ReactNode;
+  isListItem: boolean;
+  sendMessageFromResponse?: (text: string) => void;
+  webSearchResults?: WebSearchResult[];
+  onReferenceFound?: (reference: WebSearchResult) => void;
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  node?: any; // Support for markdown-react node
 }
 // * Drizzle Admin types
 export type AdminUserUpdate = {
