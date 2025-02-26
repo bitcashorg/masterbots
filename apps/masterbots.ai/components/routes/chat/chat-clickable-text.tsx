@@ -9,6 +9,7 @@ interface SimplifiedClickableTextProps {
 /**
  * SimplifiedClickableText Component - Makes list items clickable while preserving their content
  */
+
 export function ImprovedClickableText({
   children,
   sendMessageFromResponse
@@ -139,7 +140,7 @@ export function ImprovedClickableText({
       (child: ReactNode) => {
         // If we have a strong element and this child is a strong element
         if (hasStrong && React.isValidElement(child) && (child.type === 'strong' || child.type === 'b')) {
-          return React.cloneElement(child as React.ReactElement<React.PropsWithChildren<{}>>, {
+          return React.cloneElement(child as React.ReactElement<React.PropsWithChildren<unknown>>, {
             ...(child as React.ReactElement).props,
             className: cn(
               (child as React.ReactElement).props.className,
@@ -315,7 +316,7 @@ index}`}>
           const elementId = `strong-${strongText.toLowerCase()}`
           const isHovered = hoveredElement === elementId
           
-          return React.cloneElement(content as React.ReactElement<React.PropsWithChildren<{}>>, {
+          return React.cloneElement(content as React.ReactElement<React.PropsWithChildren<unknown>>, {
             ...(content as React.ReactElement).props,
             className: cn(
               'cursor-pointer transition-colors duration-200 text-blue-500',
@@ -331,7 +332,7 @@ index}`}>
       // Process children of other elements
       // biome-ignore lint/complexity/useOptionalChain: <explanation>
             if (content.props && content.props.children) {
-        return React.cloneElement(content as React.ReactElement<React.PropsWithChildren<{}>>, {
+        return React.cloneElement(content as React.ReactElement<React.PropsWithChildren<unknown>>, {
           ...(content as React.ReactElement).props,
           children: processContent((content as React.ReactElement).props.children)
         })
