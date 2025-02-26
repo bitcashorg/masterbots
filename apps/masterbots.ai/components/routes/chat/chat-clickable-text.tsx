@@ -1,9 +1,7 @@
 import {
   cleanClickableText,
   extractTextFromReactNodeNormal,
-  extractTextFromReactNodeWeb,
-  parseClickableText,
-  transformLink
+  parseClickableText
 } from '@/lib/clickable-results'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn } from '@/lib/utils'
@@ -18,13 +16,9 @@ export function ClickableText({
   node,
   onReferenceFound
 }: ClickableTextProps) {
-  // TODO: node property might be very helpful to know wheter is nested or not, due the `content` contains the node object hence, would be key to know the nested items here
   const { webSearch } = useThread()
 
-  const extractedContent = webSearch
-    ? extractTextFromReactNodeWeb(children)
-    : extractTextFromReactNodeNormal(children)
-
+  // Creates a click handler that uses the clickable text and its full context.
   const createClickHandler = (text: string, fullContext: string) => () => {
     if (sendMessageFromResponse && text.trim()) {
       const cleanedText = cleanClickableText(text)
@@ -35,176 +29,95 @@ export function ClickableText({
     }
   }
 
-  const processNestedContent = (content: React.ReactNode): React.ReactNode => {
-    if (React.isValidElement(content)) {
-      if (content.type === 'ul' || content.type === 'ol') {
-        return React.cloneElement(content, {
-          ...content.props,
-          className: cn(
-            content.props.className,
-            'mt-2 ml-4',
-            content.type === 'ul' ? 'list-disc' : 'list-decimal',
-            'nested-list'
-          ),
-          children: React.Children.map(content.props.children, child =>
-            processNestedContent(child)
-          )
-        })
-      }
-
-      if (content.type === 'li') {
-        const hasNestedList = React.Children.toArray(
-          content.props.children
-        ).some(
-          child =>
-            React.isValidElement(child) &&
-            (child.type === 'ul' || child.type === 'ol')
-        )
-
-        return React.cloneElement(content, {
-          ...content.props,
-          className: cn(
-            content.props.className,
-            'ml-4',
-            hasNestedList && 'mt-2'
-          ),
-          children: processNestedContent(content.props.children)
-        })
-      }
-    }
-
-    return content
-  }
-
-  const processLink = (linkElement: React.ReactElement) => {
-    const href = linkElement.props.href
-    const reference = webSearchResults.find(result => result.url === href)
-
-    if (reference && onReferenceFound) {
-      onReferenceFound(reference)
-      return null
-    }
-
-    return linkElement
-  }
-
-  const renderClickableContent = (
-    clickableText: string,
-    restText: string,
-    fullContext: string
-  ) => (
-    <span className="inline">
-      <button
-        className={cn(
-          'inline-block cursor-pointer hover:underline bg-transparent border-none p-0 m-0 text-left',
-          isListItem ? 'text-blue-500' : 'text-link'
-        )}
-        onClick={createClickHandler(clickableText, fullContext)}
-        type="button"
-      >
-        {clickableText}
-      </button>
-      {restText.startsWith(':') ? restText.replace(/^:/, ': ') : restText}
-    </span>
-  )
-
-  if (Array.isArray(extractedContent)) {
-    return extractedContent.map((content, index) => {
-      if (React.isValidElement(content)) {
-        if (content.type === 'ul' || content.type === 'ol') {
-          return processNestedContent(content)
-        }
-
-        if (content.type === 'a' && webSearch) {
-          return processLink(content)
-        }
-
-        if (content.type === 'strong') {
-          const strongContent = extractTextFromReactNodeNormal(
-            (content.props as { children: React.ReactNode }).children
-          )
-          const { clickableText, restText, fullContext } = parseClickableText(
-            strongContent + ':'
-          )
-
-          if (clickableText.trim()) {
-            return (
-              <button
-                key={`clickable-${
-                  // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-                  index
-                }`}
-                className={cn(
-                  'cursor-pointer hover:underline',
-                  isListItem ? 'text-blue-500' : 'text-link'
-                )}
-                onClick={createClickHandler(
-                  clickableText,
-                  fullContext || strongContent
-                )}
-                type="button"
-                tabIndex={0}
-              >
-                {strongContent}
-              </button>
-            )
-          }
-          return content
-        }
-
-        if (content.type === 'a' && webSearch) {
-          const parentContext = extractedContent
-            .filter(
-              item =>
-                typeof item === 'string' ||
-                (React.isValidElement(item) && item.type === 'strong')
-            )
-            .map(item =>
-              typeof item === 'string'
-                ? item
-                : extractTextFromReactNodeNormal(
-                    (item.props as { children: React.ReactNode }).children
-                  )
-            )
-            .join(' ')
-          return transformLink(content, parentContext)
-        }
-
-        return content
-      }
-
-      const { clickableText, restText, fullContext } = parseClickableText(
-        String(content)
-      )
-
+  /**
+   * Recursively process all content nodes.
+   * If a string contains a colon-delimited pattern, it wraps the text before the first colon in a clickable button.
+   * For <strong> or <b> elements, it applies the same logic based on their text content.
+   * All other nodes are recursively processed to ensure nothing is dropped.
+   */
+  const processContent = (content: React.ReactNode): React.ReactNode => {
+    if (typeof content === 'string') {
+      // Parse the string to see if it matches the clickable pattern.
+      const { clickableText, restText, fullContext } =
+        parseClickableText(content)
+      // If nothing qualifies as clickable, return the string as-is.
       if (!clickableText.trim()) {
         return content
       }
-
       return (
-        <React.Fragment
-          key={`clickable-${
-            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-            index
-          }`}
-        >
-          {renderClickableContent(clickableText, restText, fullContext)}
-        </React.Fragment>
+        <span>
+          <button
+            className={cn(
+              'inline-block cursor-pointer hover:underline bg-transparent border-none p-0 m-0 text-left',
+              isListItem ? 'text-blue-500' : 'text-link'
+            )}
+            onClick={createClickHandler(clickableText, fullContext)}
+            type="button"
+          >
+            {clickableText}
+          </button>
+          {restText}
+        </span>
       )
-    })
+    }
+
+    // If the content is a valid React element...
+    if (React.isValidElement(content)) {
+      // For <strong> or <b> elements, process their text content.
+      if (content.type === 'strong' || content.type === 'b') {
+        const strongText = extractTextFromReactNodeNormal(
+          content.props.children
+        )
+        // Append a colon if one is missing so that our parser can work correctly.
+        const textToParse = strongText.includes(':')
+          ? strongText
+          : strongText + ':'
+        const { clickableText, restText, fullContext } =
+          parseClickableText(textToParse)
+        if (clickableText.trim()) {
+          return (
+            <button
+              className={cn(
+                'cursor-pointer hover:underline',
+                isListItem ? 'text-blue-500' : 'text-link'
+              )}
+              onClick={createClickHandler(
+                clickableText,
+                fullContext || strongText
+              )}
+              type="button"
+            >
+              {strongText}
+            </button>
+          )
+        }
+        return content
+      }
+
+      // Otherwise, if the element has children, recursively process them.
+      // biome-ignore lint/complexity/useOptionalChain: <explanation>
+      if (content.props && content.props.children) {
+        return React.cloneElement(content, {
+          ...content.props,
+          children: React.Children.map(content.props.children, child =>
+            processContent(child)
+          )
+        })
+      }
+      return content
+    }
+
+    // If content is an array, process each item recursively.
+    if (Array.isArray(content)) {
+      return content.map((child, index) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+        <React.Fragment key={index}>{processContent(child)}</React.Fragment>
+      ))
+    }
+
+    // For any other type, just return it.
+    return content
   }
 
-  if (React.isValidElement(extractedContent)) {
-    return extractedContent
-  }
-
-  const { clickableText, restText, fullContext } = parseClickableText(
-    String(extractedContent)
-  )
-
-  if (!clickableText.trim()) {
-    return <>{extractedContent}</>
-  }
-
-  return renderClickableContent(clickableText, restText, fullContext)
+  return <>{processContent(children)}</>
 }
