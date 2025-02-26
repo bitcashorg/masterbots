@@ -7,7 +7,7 @@ import type { ChatMessageProps, WebSearchResult } from '@/types/types'
 import React, { useState } from 'react'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
-import { ImprovedClickableText } from './chat-clickable-text'
+import { ClickableText } from './chat-clickable-text'
 
 /**
  * ImprovedChatMessage Component - Renders chat messages with improved clickable sections
@@ -71,9 +71,9 @@ export function ChatMessage({
     }
 
     return (
-      <ImprovedClickableText sendMessageFromResponse={sendMessageFromResponse}>
+      <ClickableText sendMessageFromResponse={sendMessageFromResponse} isListItem={false}>
         {children}
-      </ImprovedClickableText>
+      </ClickableText>
     )
   }
 
