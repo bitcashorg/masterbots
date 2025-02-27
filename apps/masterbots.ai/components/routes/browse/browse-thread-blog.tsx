@@ -17,8 +17,8 @@ import { ThreadBlogMarkDown } from '@/components/shared/thread-blog-markdown'
 import { getMessages } from '@/services/hasura'
 import { format } from 'date-fns'
 import type { Message, User } from 'mb-genql'
-import Image from 'next/image'
-import Link from 'next/link'
+// import Image from 'next/image'
+// import Link from 'next/link'
 import React from 'react'
 export function BrowseThreadBlog({
   threadId,
@@ -105,8 +105,7 @@ export function BrowseThreadBlog({
 
           {/* Thread Footer */}
           <footer className="mt-12 pt-6 flex flex-col justify-end items-end space-y-2">
-            <div className="flex items-center space-x-2">
-              <span>created by</span>
+            {/* <div className="flex items-center space-x-2">
               <Link href={`/u/${user?.slug}/t`} target="_blank">
                 <Image
                   src={userprofile}
@@ -116,7 +115,7 @@ export function BrowseThreadBlog({
                   className="rounded-full"
                 />
               </Link>
-            </div>
+            </div> */}
             <div>
               <span>{format(new Date(), 'MMMM dd, yyyy')}</span>
             </div>
