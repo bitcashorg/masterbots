@@ -105,7 +105,7 @@ export function BrowseThreadBlog({
 
           {/* Thread Footer */}
           <footer className="mt-12 pt-6 flex flex-col justify-end items-end space-y-2">
-            <div className="flex items-center space-x-2">
+            {/* <div className="flex items-center space-x-2">
               <Link href={`/u/${user?.slug}/t`} target="_blank">
                 <Image
                   src={userprofile}
@@ -115,7 +115,7 @@ export function BrowseThreadBlog({
                   className="rounded-full"
                 />
               </Link>
-            </div>
+            </div> */}
             <div>
               <span>{format(new Date(), 'MMMM dd, yyyy')}</span>
             </div>
