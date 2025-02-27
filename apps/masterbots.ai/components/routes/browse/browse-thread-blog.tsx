@@ -17,8 +17,8 @@ import { ThreadBlogMarkDown } from '@/components/shared/thread-blog-markdown'
 import { getMessages } from '@/services/hasura'
 import { format } from 'date-fns'
 import type { Message, User } from 'mb-genql'
-import Image from 'next/image'
-import Link from 'next/link'
+// import Image from 'next/image'
+// import Link from 'next/link'
 import React from 'react'
 export function BrowseThreadBlog({
   threadId,
