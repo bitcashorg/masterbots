@@ -49,6 +49,7 @@ export function UserCard({ user, loading }: UserCardProps) {
   const [userData, setUserData] = useState<User | null>(user)
   const [isFollowLoading, setIsFollowLoading] = useState(false)
   const { customSonner } = useSonner() 
+  const [displayedBio, setDisplayedBio] = useState<string>("");
   
 
   const userQuestions = user?.threads
@@ -87,9 +88,11 @@ export function UserCard({ user, loading }: UserCardProps) {
       setIsLoading(false)
     },
     async onFinish(message) {
+      setDisplayedBio("");
       setLastMessage(message.content)
     }
   })
+
   const handleProfilePictureUpload = async (
     event: ChangeEvent<HTMLInputElement>
   ) => {
@@ -154,10 +157,12 @@ export function UserCard({ user, loading }: UserCardProps) {
   const generateBio = (type: string) => {
     try {
       setGenerateType(type)
+      setDisplayedBio("");
       if (!userQuestions?.length) {
         customSonner({ type: 'error', text: 'No thread history available to generate content' })
         return
       }
+      
       const promptContent = userPersonalityPrompt(type, userQuestions)
       return append({
         id: nanoid(),
@@ -178,7 +183,6 @@ export function UserCard({ user, loading }: UserCardProps) {
   }, [])
 
   useEffect(() => {
-    // update bio and topic when user changes
     setBio(user?.bio)
     setFavoriteTopic(user?.favouriteTopic)
     setUserData(user)
@@ -264,6 +268,34 @@ export function UserCard({ user, loading }: UserCardProps) {
     userId: session?.user?.id || ''
   })
 
+
+
+  useEffect(() => {
+    if (bio) {
+      let i = 0; // Start from index 1 since we set the first char manually
+      setDisplayedBio(""); 
+  
+      const formattedBio = bio.charAt(0).toUpperCase() + bio.slice(1); // Capitalize first letter
+  
+      // Immediately set the first letter
+      setDisplayedBio(formattedBio.charAt(0));
+  
+      const interval = setInterval(() => {
+        if (i < formattedBio.length) {
+          setDisplayedBio((prev) => prev + formattedBio.charAt(i)); 
+          i++;
+        } else {
+          clearInterval(interval);
+          setIsLoading(false);
+        }
+      }, 50); // Adjust speed as needed
+  
+      return () => clearInterval(interval);
+    }
+  }, [bio]);
+  
+  
+
   return (
     <div className="bg-background relative rounded-lg w-full max-w-[600px] md:h-[320px] flex flex-col gap-1 mx-auto font-geist space-y-1">
       {loading  && (
@@ -342,7 +374,7 @@ export function UserCard({ user, loading }: UserCardProps) {
             )}
             {bio && (
               <p className="text-sm text-gray-500 md:w-[400px] w-full">
-                {isLoading && generateType === 'bio' ? <Loader /> : bio}
+                {isLoading && generateType === 'bio' ? <Loader /> : displayedBio}
               </p>
             )}
           </div>
