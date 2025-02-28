@@ -63,14 +63,13 @@ export const ProfileSidebar = ({ children }: any) => {
         className={cn(
           "fixed lg:sticky z-[70] top-0 h-full", // Changed to sticky and match parent height
           "w-[18.75rem] bg-gray-50 dark:bg-black border-r",
-          "overflow-y-auto", // Allow scrolling within sidebar
           "lg:transform-none lg:transition-none", 
           isSidebarOpen
             ? "translate-x-0"
             : "-translate-x-full lg:translate-x-0"
         )}
       >
-        <nav className="flex-1 scrollbar h-full">
+        <nav className="flex-1  overflow-y-hidden h-full">
           <div className="flex flex-col space-y-1 font-Geist">
             {/* Threads Accordion */}
             <div className="rounded-lg">
@@ -104,9 +103,9 @@ export const ProfileSidebar = ({ children }: any) => {
               </Link>
               <div
                 className={cn(
-                  "overflow-y-auto scrollbar transition-all duration-300",
+                  "overflow-y-auto scrollbar transition-all duration-300 w-[300px] lg:w-[250px] xl:w-[300px]",
                   {
-                    "max-h-[300px] border dark:border-b-mirage border-b-gray-200": isThreadsOpen,
+                    "border dark:border-b-mirage border-b-gray-200": isThreadsOpen,
                     "max-h-0": !isThreadsOpen,
                     'border-b-none': !sameUser
                   }
@@ -154,10 +153,10 @@ export const ProfileSidebar = ({ children }: any) => {
       {/* Main content */}
       <section
         className={cn(
-          'flex flex-col w-full h-full',
+          'flex flex-col w-full h-full  lg:w-[calc(100%-250px)] xl:w-[calc(100%-300px)]',
         )}
       >
-        <div className="flex flex-col w-full gap-10 pt-5 mx-auto flex-grow">
+        <div className="flex flex-col w-full gap-10 pt-5 mx-auto flex-grow ">
           {children}
         </div>
         <div className="sticky bottom-0 w-full left-0 z-10 dark:bg-black bg-white">          
