@@ -15,19 +15,22 @@ export function ClickableText({
   isListItem,
   sendMessageFromResponse,
   webSearchResults = [],
+  node,
   onReferenceFound
 }: ClickableTextProps) {
+  // TODO: node property might be very helpful to know wheter is nested or not, due the `content` contains the node object hence, would be key to know the nested items here
   const { webSearch } = useThread()
 
   const extractedContent = webSearch
     ? extractTextFromReactNodeWeb(children)
     : extractTextFromReactNodeNormal(children)
 
-  const createClickHandler = (text: string) => () => {
+  const createClickHandler = (text: string, fullContext: string) => () => {
     if (sendMessageFromResponse && text.trim()) {
       const cleanedText = cleanClickableText(text)
+      const contextToUse = fullContext || cleanedText
       sendMessageFromResponse(
-        `Explain more in-depth and in detail about ${cleanedText}`
+        `Explain more in-depth and in detail about ${contextToUse}`
       )
     }
   }
@@ -85,14 +88,18 @@ export function ClickableText({
     return linkElement
   }
 
-  const renderClickableContent = (clickableText: string, restText: string) => (
+  const renderClickableContent = (
+    clickableText: string,
+    restText: string,
+    fullContext: string
+  ) => (
     <span className="inline">
       <button
         className={cn(
           'inline-block cursor-pointer hover:underline bg-transparent border-none p-0 m-0 text-left',
           isListItem ? 'text-blue-500' : 'text-link'
         )}
-        onClick={createClickHandler(clickableText)}
+        onClick={createClickHandler(clickableText, fullContext)}
         type="button"
       >
         {clickableText}
@@ -116,7 +123,7 @@ export function ClickableText({
           const strongContent = extractTextFromReactNodeNormal(
             (content.props as { children: React.ReactNode }).children
           )
-          const { clickableText, restText } = parseClickableText(
+          const { clickableText, restText, fullContext } = parseClickableText(
             strongContent + ':'
           )
 
@@ -126,12 +133,15 @@ export function ClickableText({
                 key={`clickable-${
                   // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
                   index
-                  }`}
+                }`}
                 className={cn(
                   'cursor-pointer hover:underline',
                   isListItem ? 'text-blue-500' : 'text-link'
                 )}
-                onClick={createClickHandler(clickableText)}
+                onClick={createClickHandler(
+                  clickableText,
+                  fullContext || strongContent
+                )}
                 type="button"
                 tabIndex={0}
               >
@@ -153,8 +163,8 @@ export function ClickableText({
               typeof item === 'string'
                 ? item
                 : extractTextFromReactNodeNormal(
-                  (item.props as { children: React.ReactNode }).children
-                )
+                    (item.props as { children: React.ReactNode }).children
+                  )
             )
             .join(' ')
           return transformLink(content, parentContext)
@@ -163,7 +173,9 @@ export function ClickableText({
         return content
       }
 
-      const { clickableText, restText } = parseClickableText(String(content))
+      const { clickableText, restText, fullContext } = parseClickableText(
+        String(content)
+      )
 
       if (!clickableText.trim()) {
         return content
@@ -174,9 +186,9 @@ export function ClickableText({
           key={`clickable-${
             // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
             index
-            }`}
+          }`}
         >
-          {renderClickableContent(clickableText, restText)}
+          {renderClickableContent(clickableText, restText, fullContext)}
         </React.Fragment>
       )
     })
@@ -186,7 +198,7 @@ export function ClickableText({
     return extractedContent
   }
 
-  const { clickableText, restText } = parseClickableText(
+  const { clickableText, restText, fullContext } = parseClickableText(
     String(extractedContent)
   )
 
@@ -194,5 +206,5 @@ export function ClickableText({
     return <>{extractedContent}</>
   }
 
-  return renderClickableContent(clickableText, restText)
+  return renderClickableContent(clickableText, restText, fullContext)
 }
