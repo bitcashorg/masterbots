@@ -79,12 +79,7 @@ export function createBotConfigurationPrompt(chatbot: Chatbot) {
       chatbot.typeEnum?.prompt,
       chatbot.lengthEnum?.prompt,
     ].join(' ') +
-    '\n</instructions>\n' +
-    '\n<output_instructions>\n' +
-    'Use different heading levels (e.g., H1, H2, H3) and punctuation for better readability. ' +
-    'Use lists when necessary for clarity and organization. ' +
-    'If relevant or for comparisons, include tables to further structure information and aid comprehension.' +
-    '\n</output_instructions>\n'
+    '\n</instructions>\n'
   )
 }
 
@@ -205,8 +200,20 @@ export function setDefaultUserPreferencesPrompt(chatbot: Chatbot): Message {
   return {
     id: 'instructions-' + nanoid(10),
     role: 'system',
-    // role: 'user',
     content: createBotConfigurationPrompt(chatbot),
+    createdAt: new Date(),
+  }
+}
+
+export function setOutputInstructionPrompt(): Message {
+  return {
+    id: 'output-instructions-' + nanoid(10),
+    role: 'system',
+    content: '\n<output_instructions>\n' +
+    'Use different heading levels (e.g., H1, H2, H3) and punctuation for better readability. ' +
+    'Use lists when necessary for clarity and organization. ' +
+    'If relevant or for comparisons, include tables to further structure information and aid comprehension.' +
+    '\n</output_instructions>\n',
     createdAt: new Date(),
   }
 }
