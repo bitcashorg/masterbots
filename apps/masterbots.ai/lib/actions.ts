@@ -4,24 +4,25 @@ import { nanoid } from 'nanoid'
 
 export function formatSystemPrompts(prompts: PromptProps[]): Message[] {
   return (
-    prompts?.map(({ prompt }) => {
-      const contentTag = (content: string) => {
-        const tag = prompt.type === 'instruction' ? 'instructions' : 'expertise'
-        return `
-        <${tag}>
-        ${content}
-        </${tag}>
-        `
-      }
-      
-      return {
-        id: 'expertise-' + nanoid(10),
-        role: 'system',
-        // role: 'user',
-        content: contentTag(prompt.content),
-        createdAt: new Date(),
-      }
-    }) || []
+    prompts
+      ?.sort((a, b) => (a.prompt.type === 'prompt' ? -1 : 1))
+      .map(({ prompt }) => {
+        const contentTag = (content: string) => {
+          const tag = prompt.type === 'instruction' ? 'instructions' : 'expertise'
+          return `
+<${tag}>
+${content}
+</${tag}>
+`
+        }
+        
+        return {
+          id: 'expertise-' + nanoid(10),
+          role: 'system',
+          content: contentTag(prompt.content),
+          createdAt: new Date(),
+        }
+      }) || []
   )
 }
 
