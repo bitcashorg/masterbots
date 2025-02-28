@@ -129,9 +129,13 @@ export function examplesPrompt(chatbotMetadata: ChatbotMetadataExamples) {
     ? `<examples>
   ${chatbotMetadata.tagExamples
     .map(
-      (e, index) => `## Example #${index + 1}
-    - Question: ${e.prompt}
-    - Answer: ${e.response}`,
+      (e, index) => `## Example ${index + 1}
+    <question>
+    ${e.prompt}
+    </question>
+    <answer>
+    ${e.response}
+    </answer>`,
     )
     .join('\n\n')}
     </examples>`
