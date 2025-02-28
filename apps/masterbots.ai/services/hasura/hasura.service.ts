@@ -75,10 +75,7 @@ export async function getCategories(userId?: string) {
           prompts: {
             prompt: {
               __scalar: true,
-            },
-            __args: {
-              orderBy: [{ promptId: 'DESC' }],
-            },
+            }
           },
           ...chatbotEnumFieldsFragment,
         },
@@ -271,10 +268,7 @@ export async function getThread({ threadId, jwt, signal }: Partial<GetThreadPara
           prompts: {
             prompt: {
               __scalar: true,
-            },
-            __args: {
-              orderBy: [{ promptId: 'DESC' }],
-            },
+            }
           },
           followers: {
             followerId: true,
