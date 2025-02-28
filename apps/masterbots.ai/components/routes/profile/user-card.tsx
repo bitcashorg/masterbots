@@ -161,8 +161,7 @@ export function UserCard({ user, loading }: UserCardProps) {
       if (!userQuestions?.length) {
         customSonner({ type: 'error', text: 'No thread history available to generate content' })
         return
-      }
-      
+      }  
       const promptContent = userPersonalityPrompt(type, userQuestions)
       return append({
         id: nanoid(),
@@ -288,7 +287,7 @@ export function UserCard({ user, loading }: UserCardProps) {
           clearInterval(interval);
           setIsLoading(false);
         }
-      }, 50); // Adjust speed as needed
+      }, 20); // Adjust speed as needed
   
       return () => clearInterval(interval);
     }
