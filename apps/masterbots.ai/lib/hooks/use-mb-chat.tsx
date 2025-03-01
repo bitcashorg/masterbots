@@ -49,6 +49,8 @@ export function useMBChat(): MBChatHookCallback {
   return context
 }
 
+const outputInstructionPrompt = setOutputInstructionPrompt()
+
 export function MBChatProvider({ children }: { children: React.ReactNode }) {
   const { data: session } = useSession()
   const {
@@ -101,7 +103,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       content: m.content,
       createdAt: m.createdAt,
     }))
-    : []/**
+    : []
+  /**
    * @description
    * Concatenate all Masterbots system prompts to pass it to chat context. This represents the initial/continuing state of the chat.
    * The system prompts is the identify of each Masterbot and how this will interact with Users. Prompt order is important to provide a good user experience.
