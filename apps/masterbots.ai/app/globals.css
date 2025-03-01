@@ -456,4 +456,24 @@
   [data-route='public'] .sidebar-gradient.selected {
     background-image: var(--background-public-gradient);
   }
+  
+  .clickable-text {
+    color: #3b82f6; /* text-blue-500 */
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  
+  .clickable-text:hover {
+    color: #1d4ed8; /* text-blue-700 */
+    text-decoration: underline;
+  }
+  
+  /* Dark mode support */
+  .dark .clickable-text {
+    color: #60a5fa; /* text-blue-400 in dark mode */
+  }
+  
+  .dark .clickable-text:hover {
+    color: #93c5fd; /* text-blue-300 in dark mode */
+  }
 }

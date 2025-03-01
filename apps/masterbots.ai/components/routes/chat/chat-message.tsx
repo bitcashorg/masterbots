@@ -138,7 +138,7 @@ export function ChatMessage({
               return (
                 // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
                 <h1
-                  className="mb-2 text-2xl font-bold cursor-pointer"
+                  className="mb-2 text-2xl font-bold cursor-pointer clickable-text"
                   onClick={() => handleClickableClick(text)}
                 >
                   {preprocessChildren(children)}
@@ -150,7 +150,7 @@ export function ChatMessage({
               return (
                 // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
                 <h2
-                  className="mb-2 text-xl font-bold cursor-pointer"
+                  className="mb-2 text-xl font-bold cursor-pointer clickable-text"
                   onClick={() => handleClickableClick(text)}
                 >
                   {preprocessChildren(children)}
@@ -162,7 +162,7 @@ export function ChatMessage({
               return (
                 // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
                 <h3
-                  className="mb-2 text-lg font-bold cursor-pointer"
+                  className="mb-2 text-lg font-bold cursor-pointer clickable-text"
                   onClick={() => handleClickableClick(text)}
                 >
                   {preprocessChildren(children)}
@@ -205,7 +205,7 @@ export function ChatMessage({
                   className={cn(
                     'ml-4',
                     hasNestedList && 'mt-2',
-                    'cursor-pointer'
+                    'clickable-text'
                   )}
                   onClick={() => handleClickableClick(text)}
                 >
