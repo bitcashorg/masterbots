@@ -8,13 +8,18 @@ import React, { useState } from 'react'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 import {
+  cleanClickableText,
   extractFollowUpContext,
   getTextFromChildren
 } from '@/lib/chat-clickable-text'
 
 /**
- * Processes React node children to combine elements separated by a colon.
+ * Preprocesses the children to combine adjacent nodes with a colon.
+ *
+ * @param children The children nodes.
+ * @returns The preprocessed children.
  */
+
 const preprocessChildren = (children: React.ReactNode): React.ReactNode => {
   if (!Array.isArray(children)) return children
 
@@ -56,7 +61,14 @@ const preprocessChildren = (children: React.ReactNode): React.ReactNode => {
 }
 
 /**
- * ChatMessage Component - Renders chat messages with markdown content
+ * Displays a chat message with clickable text elements.
+ *
+ * @param message The chat message object.
+ * @param sendMessageFromResponse The function to send a message from the response.
+ * @param chatbot The chatbot object.
+ * @param actionRequired Whether the message requires an action.
+ * @param webSearchResults The web search results.
+ * @returns The chat message component.
  */
 export function ChatMessage({
   message,
@@ -74,7 +86,8 @@ export function ChatMessage({
   // Handler for clickable text elements.
   const handleClickableClick = (clickableText: string) => {
     const context = extractFollowUpContext(message.content, clickableText)
-    const followUpPrompt = `Could you please elaborate on "${clickableText}"? ${context}`
+    const cleanedText = cleanClickableText(context)
+    const followUpPrompt = `Explain more in-depth and in detail about "${clickableText}"? ${cleanedText}`
     sendMessageFromResponse?.(followUpPrompt)
   }
 

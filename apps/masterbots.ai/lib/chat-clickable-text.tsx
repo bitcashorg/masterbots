@@ -7,7 +7,10 @@ import React from 'react'
  * @param clickableText The text that was clicked.
  * @returns The text following the clickable text until the next period.
  */
-export function extractFollowUpContext(content: string, clickableText: string): string {
+export function extractFollowUpContext(
+  content: string,
+  clickableText: string
+): string {
   const startIdx = content.indexOf(clickableText)
   if (startIdx === -1) return ''
 
@@ -35,4 +38,15 @@ export function getTextFromChildren(children: React.ReactNode): string {
     return getTextFromChildren(children.props.children)
   }
   return ''
+}
+
+/**
+ * Cleans the clickable text by removing trailing punctuation.
+ *
+ * @param text The clickable text.
+ * @returns The cleaned text.
+ */
+
+export function cleanClickableText(text: string): string {
+  return text.replace(/[,.()[\]]$/, '').trim()
 }
