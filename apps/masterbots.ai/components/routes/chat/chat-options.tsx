@@ -40,7 +40,7 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
   const title = thread?.messages[0]?.content ?? 'Untitled'
   const text =
     thread?.messages[1]?.content.substring(0, 100) ?? 'No description found...'
-  const url = `/b/${toSlug(thread.chatbot.categories[0].category.name)}/${thread.threadId}`
+  const url = `/b/${toSlug(thread.chatbot.name)}/${thread.threadId}`
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const { customSonner } = useSonner()
