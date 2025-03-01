@@ -296,6 +296,7 @@ export interface ClickableTextProps {
   webSearchResults?: WebSearchResult[]
   onReferenceFound?: (ref: WebSearchResult) => void
   sendMessageFromResponse?: (message: string) => void
+  parentContext?: string
 }
 // * Drizzle Admin types
 export type AdminUserUpdate = {
