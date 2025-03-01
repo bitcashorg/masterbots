@@ -49,8 +49,6 @@ export function useMBChat(): MBChatHookCallback {
   return context
 }
 
-const outputInstructionPrompt = setOutputInstructionPrompt()
-
 export function MBChatProvider({ children }: { children: React.ReactNode }) {
   const { data: session } = useSession()
   const {
