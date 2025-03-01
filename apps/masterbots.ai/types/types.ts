@@ -53,7 +53,6 @@ export type CleanPromptResult = {
   language: string
   originalText: string
   improvedText: string
-  translatedText: string
   improved?: boolean
 }
 
@@ -197,12 +196,12 @@ export type CoreMessage = {
 export type AiClientType = 'OpenAI' | 'Anthropic' | 'Perplexity' | 'WordWare' | 'DeepSeek'
 
 export type JSONResponseStream = {
-  id: string
   model: string
-  messages: OpenAI.ChatCompletionMessageParam[]
-  previewToken: string
-  isPowerUp: boolean
-  webSearch: boolean
+  id?: string
+  messages?: OpenAI.ChatCompletionMessageParam[]
+  previewToken?: string
+  isPowerUp?: boolean
+  webSearch?: boolean
   stream?: boolean
   temperature?: number
   maxTokens?: number
