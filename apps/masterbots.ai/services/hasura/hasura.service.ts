@@ -1211,7 +1211,7 @@ export async function fetchChatbotMetadata({
         },
       },
     })
-    console.log('isPowerUp --> ', isPowerUp)
+    // console.log('isPowerUp --> ', isPowerUp)
     const chatbotMetadata = chatbotDomain.filter(
       // ? Filtering Advanced chatbots domains
       (item) =>
@@ -1219,7 +1219,7 @@ export async function fetchChatbotMetadata({
           ? item.domain.name.endsWith('(Advanced)')
           : !item.domain.name.endsWith('(Advanced)'),
     )
-    console.log('chatbotMetadata::BE --> ', chatbotMetadata)
+    // console.log('chatbotMetadata::BE --> ', chatbotMetadata)
 
     // require that the length is 1
     if (!chatbotMetadata[0] || !chatbotMetadata[0].domain) {
