@@ -1,5 +1,5 @@
 import { AIModels } from '@/app/api/chat/models/models'
-import { examplesSchema, metadataSchema, toolSchema } from '@/lib/helpers/ai-schemas'
+import { examplesSchema, languageGammarSchema, metadataSchema, toolSchema } from '@/lib/helpers/ai-schemas'
 import type { AiClientType, CleanPromptResult } from '@/types/types'
 import type { StreamEntry } from '@/types/wordware-flows.types'
 import type Anthropic from '@anthropic-ai/sdk'
@@ -186,4 +186,5 @@ export const mbObjectSchema = {
   metadata: metadataSchema,
   examples: examplesSchema,
   tool: toolSchema,
-} as const
+  grammarLanguageImprover: languageGammarSchema,
+}

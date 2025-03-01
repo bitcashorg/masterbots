@@ -49,8 +49,6 @@ export function useMBChat(): MBChatHookCallback {
   return context
 }
 
-const outputInstructionPrompt = setOutputInstructionPrompt()
-
 export function MBChatProvider({ children }: { children: React.ReactNode }) {
   const { data: session } = useSession()
   const {
@@ -103,8 +101,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       content: m.content,
       createdAt: m.createdAt,
     }))
-    : []
-  /**
+    : []/**
    * @description
    * Concatenate all Masterbots system prompts to pass it to chat context. This represents the initial/continuing state of the chat.
    * The system prompts is the identify of each Masterbot and how this will interact with Users. Prompt order is important to provide a good user experience.
@@ -114,15 +111,17 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
    * 1. Masterbot Expertise.
    * 2. Masterbot Default or User Preferences Config. Instructions.
    * 3. Masterbot Final Enhancer (IQ) Instructions.
-   * 4. Masterbot Output Instructions.
+   * 4. Masterbot Output Instructions (Goes before appending the new message).
    * 5. Masterbot Examples (Goes before appending the new message).
    * */
-  const systemPrompts: AiMessage[] = chatbotSystemPrompts.length && userPreferencesPrompts.length ? [
-    chatbotSystemPrompts[0],
-    ...userPreferencesPrompts,
-    chatbotSystemPrompts[1],
-    outputInstructionPrompt
-  ] : []
+  const systemPrompts: AiMessage[] =
+    chatbotSystemPrompts.length && userPreferencesPrompts.length
+      ? [
+          chatbotSystemPrompts[0],
+          ...userPreferencesPrompts,
+          chatbotSystemPrompts[1],
+        ]
+      : []
   /**
    * @description
    * Concatenate all message to pass it to chat UI component. This list is the initial state of the chat UI and updates on every new message with `allMessages`.
@@ -542,6 +541,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       const chatMessagesToAppend = uniqBy(
         [
           ...systemPrompts,
+          setOutputInstructionPrompt(userMessage.content),
           {
             id: 'examples-' + nanoid(10),
             role: 'system' as 'data' | 'system' | 'user' | 'assistant',

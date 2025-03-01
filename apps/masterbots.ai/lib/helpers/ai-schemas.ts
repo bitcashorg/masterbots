@@ -60,3 +60,11 @@ export const examplesSchema = z.array(
     answer: z.string(),
   }),
 )
+
+// '{ "language": "es", "originalText": "Q restaurant puede recomendar en zona de San Francisco, CA?", "improvedText": "¿Qué restaurante puedes recomendar en la zona de San Francisco, CA?", "translatedText": "What restaurant can you recommend in the area of San Francisco, CA?", "improved": true }'
+export const languageGammarSchema = z.object({
+  language: z.string().describe('The language of the original text.'), // spanish
+  originalText: z.string().describe('The original text provided by the user.'), // I like beer
+  improvedText: z.string().describe('The grammatically improved text.'), // 'I like beer'
+  improved: z.boolean().describe('Indicates if the text was improved or viewed.'), // false
+})
