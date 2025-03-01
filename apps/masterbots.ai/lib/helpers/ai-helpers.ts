@@ -149,6 +149,12 @@ export function cleanPrompt(str: string) {
   return extracted
 }
 
+/**
+ * @deprecated
+ * This function cleans the text result from the AI to have a final object.
+ * 
+ * If you want to clean up a response string and have an object, use instead `processWithAiObject`
+ */
 export function cleanResult(result: string): CleanPromptResult {
   const cleanedResult = result
     .trim()
