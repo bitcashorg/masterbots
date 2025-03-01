@@ -185,7 +185,6 @@ export default function UserThreadPanel({
     if (!shouldRefreshThreads) return
 
     try {
-      console.log('loading::handleThreadsChange', loading)
       setLoading(true)
       const userOnSlug = userWithSlug.value?.user
       const isOwnProfile = session?.user?.id === userOnSlug?.userId

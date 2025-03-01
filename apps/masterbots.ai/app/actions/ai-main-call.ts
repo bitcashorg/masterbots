@@ -81,7 +81,10 @@ export async function improveMessage(
       prompt: messageImprovementPrompt,
       schema: mbObjectSchema.grammarLanguageImprover,
     })
-    console.log('result::improveMessage --> ', result)
+
+    if (appConfig.features.devMode) {
+      console.log('result::improveMessage --> ', result)
+    }
 
     if (
       !result.improved && (result.originalText === result.improvedText || !result.improvedText)
@@ -253,7 +256,7 @@ export async function createResponseStream(
     // chatbotMetadataExamples: aiTools.chatbotMetadataExamples
   }
 
-  console.log('[SERVER] webSearch', webSearch)
+  // console.log('[SERVER] webSearch', webSearch)
 
   if (webSearch) tools.webSearch = aiTools.webSearch
 
@@ -373,7 +376,7 @@ export async function createResponseStreamObject(
     // chatbotMetadataExamples: aiTools.chatbotMetadataExamples
   }
 
-  console.log('[SERVER] webSearch', webSearch)
+  // console.log('[SERVER] webSearch', webSearch)
 
   // if (webSearch) tools.webSearch = aiTools.webSearch
 
