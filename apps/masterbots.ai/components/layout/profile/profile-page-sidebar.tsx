@@ -42,7 +42,7 @@ export const ProfileSidebar = ({ children }: any) => {
 
   return (
     <div className={cn(
-      'transition-all relative w-full flex h-full'
+      'transition-all relative w-full flex h-full',
     )}>
       {/* Overlay for mobile */}
       {isSidebarOpen && (
@@ -61,7 +61,7 @@ export const ProfileSidebar = ({ children }: any) => {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed lg:sticky z-[70] top-0 h-full", // Changed to sticky and match parent height
+          "fixed lg:sticky z-[70] top-0 h-[100vh] ", // Changed to sticky and match parent height
           "w-[18.75rem] bg-gray-50 dark:bg-black border-r",
           "lg:transform-none lg:transition-none", 
           isSidebarOpen
@@ -69,7 +69,7 @@ export const ProfileSidebar = ({ children }: any) => {
             : "-translate-x-full lg:translate-x-0"
         )}
       >
-        <nav className="flex-1  overflow-y-hidden h-full">
+        <nav className="flex-1  h-full">
           <div className="flex flex-col space-y-1 font-Geist">
             {/* Threads Accordion */}
             <div className="rounded-lg">
