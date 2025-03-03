@@ -151,7 +151,7 @@ export function ChatMessage({
               return (
                 // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
                 <h1
-                  className="mb-2 text-2xl font-bold cursor-pointer clickable-text"
+                  className="mb-2 text-2xl font-bold cursor-pointer clickable-heading"
                   onClick={() => handleClickableClick(text)}
                 >
                   {preprocessChildren(children)}
@@ -163,7 +163,7 @@ export function ChatMessage({
               return (
                 // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
                 <h2
-                  className="mb-2 text-xl font-bold cursor-pointer clickable-text"
+                  className="mb-2 text-xl font-bold cursor-pointer clickable-heading"
                   onClick={() => handleClickableClick(text)}
                 >
                   {preprocessChildren(children)}
@@ -175,7 +175,7 @@ export function ChatMessage({
               return (
                 // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
                 <h3
-                  className="mb-2 text-lg font-bold cursor-pointer clickable-text"
+                  className="mb-2 text-lg font-bold cursor-pointer clickable-heading"
                   onClick={() => handleClickableClick(text)}
                 >
                   {preprocessChildren(children)}
@@ -184,7 +184,9 @@ export function ChatMessage({
             },
             // Process strong/emphasis nodes.
             strong({ children }) {
-              return <strong>{preprocessChildren(children)}</strong>
+              return <strong
+              className='clickable-list-heading'
+              >{preprocessChildren(children)}</strong>
             },
             // List handling.
             ul({ children }) {
@@ -218,7 +220,6 @@ export function ChatMessage({
                   className={cn(
                     'ml-4',
                     hasNestedList && 'mt-2',
-                    'clickable-text'
                   )}
                   onClick={() => handleClickableClick(text)}
                 >

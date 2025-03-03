@@ -457,23 +457,40 @@
     background-image: var(--background-public-gradient);
   }
   
-  .clickable-text {
-    color: #3b82f6; /* text-blue-500 */
+  /* clickable list heading color */
+  .clickable-list-heading {
+    color: #dae5f8; /* text-blue-500 */
     cursor: pointer;
     transition: color 0.2s ease;
   }
   
-  .clickable-text:hover {
-    color: #1d4ed8; /* text-blue-700 */
+  .clickable-list-heading:hover {
+    color: #c1d1fb; /* text-blue-700 */
     text-decoration: underline;
   }
   
   /* Dark mode support */
-  .dark .clickable-text {
-    color: #60a5fa; /* text-blue-400 in dark mode */
+  .dark .clickable-list-heading {
+    color: #db9eff; /* text-blue-400 in dark mode */
   }
   
-  .dark .clickable-text:hover {
-    color: #93c5fd; /* text-blue-300 in dark mode */
+  .dark .clickable-list-heading:hover {
+    color: #c663ff; /* text-blue-300 in dark mode */
+  }
+
+/* clickable headings color */
+  .clickable-heading{
+    color: #dae5f8; /* text-blue-500 */
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  .clickable-heading:hover{
+    color: #c1d1fb; /* text-blue-700 */
+  }
+  .dark .clickable-heading{
+    color: #db9eff; /* text-blue-400 in dark mode */
+  }
+  .dark .clickable-heading:hover{
+    color: #c663ff; /* text-blue-300 in dark mode */
   }
 }
