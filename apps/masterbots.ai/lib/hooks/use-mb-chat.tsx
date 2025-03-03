@@ -6,6 +6,7 @@ import {
   examplesPrompt,
   followingQuestionsPrompt,
   setDefaultUserPreferencesPrompt,
+  setOutputInstructionPrompt,
 } from '@/lib/constants/prompts'
 import { useModel } from '@/lib/hooks/use-model'
 import { type NavigationParams, useSidebar } from '@/lib/hooks/use-sidebar'
@@ -101,16 +102,38 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       createdAt: m.createdAt,
     }))
     : []
-  const systemPrompts: AiMessage[] = chatbotSystemPrompts.concat(userPreferencesPrompts)
   /**
    * @description
-   * Concatenate all message to pass it to chat component.
+   * Concatenate all Masterbots system prompts to pass it to chat context. This represents the initial/continuing state of the chat.
+   * The system prompts is the identify of each Masterbot and how this will interact with Users. Prompt order is important to provide a good user experience.
    *
    * **Prompt Formatting:**
    *
-   * 1. Chatbot Config.
-   * 2. Chatbot System Prompts (IQ, Expertise).
-   * 3. Conversation between user and assistant.
+   * 1. Masterbot Expertise.
+   * 2. Masterbot Default or User Preferences Config. Instructions.
+   * 3. Masterbot Final Enhancer (IQ) Instructions.
+   * 4. Masterbot Output Instructions (Goes before appending the new message).
+   * 5. Masterbot Examples (Goes before appending the new message).
+   * */
+  const systemPrompts: AiMessage[] =
+    chatbotSystemPrompts.length && userPreferencesPrompts.length
+      ? [
+          chatbotSystemPrompts[0],
+          ...userPreferencesPrompts,
+          chatbotSystemPrompts[1],
+        ]
+      : []
+  /**
+   * @description
+   * Concatenate all message to pass it to chat UI component. This list is the initial state of the chat UI and updates on every new message with `allMessages`.
+   *
+   * **Prompt Formatting:**
+   *
+   * 1. Masterbot Expertise.
+   * 2. Masterbot Default or User Preferences Config. Instructions.
+   * 3. Masterbot Final Enhancer (IQ) Instructions.
+   * 4. Masterbot Output Instructions.
+   * 5. Conversation between user and assistant.
    * */
   const initialMessages: AiMessage[] = systemPrompts.concat(userAndAssistantMessages)
   const threadId = isContinuousThread ? randomThreadId.current : (params.threadId || activeThread?.threadId || randomThreadId.current)
@@ -519,6 +542,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       const chatMessagesToAppend = uniqBy(
         [
           ...systemPrompts,
+          setOutputInstructionPrompt(userMessage.content),
           {
             id: 'examples-' + nanoid(10),
             role: 'system' as 'data' | 'system' | 'user' | 'assistant',

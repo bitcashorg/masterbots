@@ -131,8 +131,7 @@ export async function processUserMessage(
   try {
     const improved = await improveMessage(content, clientType, model)
 
-    const processedContent =
-      improved.translatedText || improved.improvedText || improved.originalText
+    const processedContent = improved.improvedText || improved.originalText
 
     return { content: processedContent }
   } catch (error) {

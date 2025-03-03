@@ -1,5 +1,5 @@
 import { AIModels } from '@/app/api/chat/models/models'
-import { examplesSchema, metadataSchema, toolSchema } from '@/lib/helpers/ai-schemas'
+import { examplesSchema, languageGammarSchema, metadataSchema, toolSchema } from '@/lib/helpers/ai-schemas'
 import type { AiClientType, CleanPromptResult } from '@/types/types'
 import type { StreamEntry } from '@/types/wordware-flows.types'
 import type Anthropic from '@anthropic-ai/sdk'
@@ -149,6 +149,12 @@ export function cleanPrompt(str: string) {
   return extracted
 }
 
+/**
+ * @deprecated
+ * This function cleans the text result from the AI to have a final object.
+ * 
+ * If you want to clean up a response string and have an object, use instead `processWithAiObject`
+ */
 export function cleanResult(result: string): CleanPromptResult {
   const cleanedResult = result
     .trim()
@@ -186,4 +192,5 @@ export const mbObjectSchema = {
   metadata: metadataSchema,
   examples: examplesSchema,
   tool: toolSchema,
-} as const
+  grammarLanguageImprover: languageGammarSchema,
+}

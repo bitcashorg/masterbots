@@ -2,13 +2,13 @@ import type { mbObjectSchema } from '@/lib/helpers/ai-helpers'
 import type { WordWareFlowPaths } from '@/types/wordware-flows.types'
 import type { Message } from 'ai'
 import type { UserRole } from 'mb-drizzle'
-import type { Chatbot, Example, SocialFollowing, Thread } from 'mb-genql'
+import type { Chatbot, Example, Prompt, SocialFollowing, Thread } from 'mb-genql'
 import 'next-auth'
 import type { DefaultSession, DefaultUser } from 'next-auth'
 import type OpenAI from 'openai'
 import type { FunctionToolCall, ToolCall } from 'openai/resources/beta/threads/runs/steps.mjs'
 import type React from 'react'
-import { Element } from 'react-markdown/lib/ast-to-react'
+import type { Element } from 'react-markdown/lib/ast-to-react'
 import type Stripe from 'stripe'
 
 // * Chat types
@@ -53,7 +53,6 @@ export type CleanPromptResult = {
   language: string
   originalText: string
   improvedText: string
-  translatedText: string
   improved?: boolean
 }
 
@@ -67,10 +66,7 @@ export type ServerActionResult<Result> = Promise<
 // * Prompt types
 
 export type PromptProps = {
-  prompt: {
-    promptId: number
-    content: string
-  }
+  prompt: Pick<Prompt, 'promptId' | 'content' | 'type'>
 }
 
 // * Stripe components types
@@ -200,12 +196,12 @@ export type CoreMessage = {
 export type AiClientType = 'OpenAI' | 'Anthropic' | 'Perplexity' | 'WordWare' | 'DeepSeek'
 
 export type JSONResponseStream = {
-  id: string
   model: string
-  messages: OpenAI.ChatCompletionMessageParam[]
-  previewToken: string
-  isPowerUp: boolean
-  webSearch: boolean
+  id?: string
+  messages?: OpenAI.ChatCompletionMessageParam[]
+  previewToken?: string
+  isPowerUp?: boolean
+  webSearch?: boolean
   stream?: boolean
   temperature?: number
   maxTokens?: number
@@ -360,7 +356,7 @@ export interface ClassifyQuestionParams {
 }
 
 export interface ParsedText {
-  clickableText: string;  // The text that appears clickable
-  restText: string;       // The text that follows (for visual rendering)
-  fullContext: string;    // The full sentence context for the follow-up question
+  clickableText: string // The text that appears clickable
+  restText: string // The text that follows (for visual rendering)
+  fullContext: string // The full sentence context for the follow-up question
 }
