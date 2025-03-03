@@ -459,38 +459,38 @@
   
   /* clickable list heading color */
   .clickable-list-heading {
-    color: #dae5f8; /* text-blue-500 */
+    color: #db9eff !important;
     cursor: pointer;
     transition: color 0.2s ease;
   }
   
   .clickable-list-heading:hover {
-    color: #c1d1fb; /* text-blue-700 */
+    color: #c663ff !important;
     text-decoration: underline;
   }
   
   /* Dark mode support */
   .dark .clickable-list-heading {
-    color: #db9eff; /* text-blue-400 in dark mode */
+    color: #db9eff;
   }
   
   .dark .clickable-list-heading:hover {
-    color: #c663ff; /* text-blue-300 in dark mode */
+    color: #c663ff;
   }
 
 /* clickable headings color */
   .clickable-heading{
-    color: #dae5f8; /* text-blue-500 */
+    color: #db9eff !important;
     cursor: pointer;
     transition: color 0.2s ease;
   }
   .clickable-heading:hover{
-    color: #c1d1fb; /* text-blue-700 */
+    color: #c663ff !important;
   }
   .dark .clickable-heading{
-    color: #db9eff; /* text-blue-400 in dark mode */
+    color: #db9eff;
   }
   .dark .clickable-heading:hover{
-    color: #c663ff; /* text-blue-300 in dark mode */
+    color: #c663ff;
   }
 }
