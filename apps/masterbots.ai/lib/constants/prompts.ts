@@ -11,7 +11,7 @@ import type { Chatbot } from 'mb-genql'
 // * This function creates the prompt for the AI improvement process
 export function createImprovementPrompt(content: string): string {
   return (
-    'You are a highly specialized, multidisciplinary polyglot expert assistant and master of emotional intelligence that combines competencies across linguistics, language, culture, communication, psychology, and NLP to rewrite the following user\'s questions based on intent but try to minimize changes: "' +
+    'You are a highly specialized, multidisciplinary polyglot expert assistant and master of emotional intelligence that combines competencies across linguistics, language, culture, communication, psychology, copywriting and NLP to very concisely summarize the question based on intent to less than 49 words: "' +
     content +
     '".\n\n' +
     '**Important Guidelines:**' +
