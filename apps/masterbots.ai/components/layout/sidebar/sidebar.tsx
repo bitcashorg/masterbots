@@ -14,7 +14,7 @@ export function Sidebar({ className }: React.ComponentProps<'div'>) {
   const pathname = usePathname()
   const { setActiveThread, setIsOpenPopup } = useThread()
   const rootAndChatRegex = /^\/(?:c)?$/
-  const isChatRoute = pathname?.startsWith('/c')
+  const isBrowse = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   React.useEffect(() => {
@@ -34,7 +34,7 @@ export function Sidebar({ className }: React.ComponentProps<'div'>) {
         className={cn(
           className,
           'h-full flex flex-col z-40',
-          isChatRoute
+          !isBrowse
             ? 'bg-[#fae8ff] dark:bg-[#000000]' // For /c routes only
             : 'bg-[#eeffea] dark:bg-[#000000]'  // For other routes
         )}
