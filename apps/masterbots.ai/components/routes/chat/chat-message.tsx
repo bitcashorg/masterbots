@@ -185,20 +185,19 @@ export function ChatMessage({
             // Process strong/emphasis nodes.
             strong({ children }) {
               return <strong
-              className='clickable-list-heading'
               >{preprocessChildren(children)}</strong>
             },
             // List handling.
             ul({ children }) {
               return (
-                <ul className="ml-2 space-y-2 list-disc nested-list">
+                <ul className="ml-2 space-y-2 list-disc">
                   {children}
                 </ul>
               )
             },
             ol({ children }) {
               return (
-                <ol className="ml-2 space-y-2 list-decimal nested-list">
+                <ol className="ml-2 space-y-2 list-decimal">
                   {children}
                 </ol>
               )
@@ -220,6 +219,7 @@ export function ChatMessage({
                   className={cn(
                     'ml-4',
                     hasNestedList && 'mt-2',
+                    'clickable-list-heading'
                   )}
                   onClick={() => handleClickableClick(text)}
                 >
