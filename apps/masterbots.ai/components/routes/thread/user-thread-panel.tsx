@@ -62,7 +62,7 @@ export default function UserThreadPanel({
   const { activeCategory, activeChatbot, setActiveChatbot } = useSidebar()
   const { isOpenPopup, activeThread, shouldRefreshThreads, setShouldRefreshThreads, setActiveThread, setIsOpenPopup } = useThread()
   const [loading, setLoading] = useState<boolean>(true)
-  const { isContinuousThread, setIsContinuousThread } = useThreadVisibility()
+  const { isContinuousThread, setIsContinuousThread, threads: hookThreads, isAdminMode } = useThreadVisibility()
   const [searchTerm, setSearchTerm] = useState<string>('')
   const searchParams = useSearchParams()
   const { slug, category, chatbot } = params
@@ -163,7 +163,17 @@ export default function UserThreadPanel({
     await getThreadByContinuousThreadId(continuousThreadId, session)
   }, [session])
 
-  const threads = state.threads.length > initialThreads.length ? state.threads : initialThreads
+  useEffect(() => {
+    if(isAdminMode){
+    setState({
+      threads: hookThreads,
+      totalThreads: hookThreads.length,
+      count: hookThreads.length,
+    })
+  }
+ },[hookThreads])
+
+  const threads = state.threads.length > initialThreads.length || isAdminMode  ? state.threads : initialThreads
 
   const completeLoading = (load: boolean) => {
     setLoading(load)
