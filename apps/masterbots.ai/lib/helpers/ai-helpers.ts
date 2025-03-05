@@ -1,9 +1,20 @@
 import { AIModels } from '@/app/api/chat/models/models'
-import { examplesSchema, languageGammarSchema, metadataSchema, toolSchema } from '@/lib/helpers/ai-schemas'
+import {
+  examplesSchema,
+  languageGammarSchema,
+  metadataSchema,
+  toolSchema,
+} from '@/lib/helpers/ai-schemas'
 import type { AiClientType, CleanPromptResult } from '@/types/types'
 import type { StreamEntry } from '@/types/wordware-flows.types'
 import type Anthropic from '@anthropic-ai/sdk'
-import { type CoreMessage, generateId } from 'ai'
+import {
+  type Attachment,
+  type CoreMessage,
+  type FilePart,
+  type ImagePart,
+  generateId
+} from 'ai'
 import type OpenAI from 'openai'
 
 // * This function gets the model client type
@@ -96,18 +107,40 @@ export function setStreamerPayload(
 
 // * This function converts the messages to the core messages
 export function convertToCoreMessages(
-  messages: OpenAI.ChatCompletionMessageParam[],
+  messages: (OpenAI.ChatCompletionMessageParam & { experimental_attachments?: Attachment[] })[],
 ): CoreMessage[] {
-  return messages.map((msg) =>
-    msg.role.match(/(user|system|assistant)/)
-      ? {
-          role: msg.role as 'user' | 'system' | 'assistant',
-          content: msg.content as string,
-        }
-      : (() => {
-          throw new Error(`Unsupported message role: ${msg.role}`)
-        })(),
-  )
+  const coreMessages: CoreMessage[] = []
+
+  for (const msg of messages) {
+    if (!msg.role.match(/(user|system|assistant)/))
+      throw new Error(`Unsupported message role: ${msg.role}`)
+
+    const { experimental_attachments, ...rest } = msg
+
+    if (experimental_attachments?.length) {
+      coreMessages.push({
+        role: msg.role as 'user' | 'system' | 'assistant',
+        content: experimental_attachments.map((attachment) => {
+          const isImageType = attachment.contentType?.includes('image')
+          const attachmentType = isImageType ? 'image' : 'file'
+
+          return {
+            type: attachmentType,
+            [attachmentType === 'file' ? 'data' : attachmentType]: attachment.url,
+          } as unknown as FilePart | ImagePart
+        }),
+      } as CoreMessage)
+    }
+
+    if (rest.content) {
+      coreMessages.push({
+        role: msg.role as 'user' | 'system' | 'assistant',
+        content: rest.content as string,
+      })
+    }
+  }
+
+  return coreMessages
 }
 
 // * This function initializes the WordWare model with describe call
@@ -152,7 +185,7 @@ export function cleanPrompt(str: string) {
 /**
  * @deprecated
  * This function cleans the text result from the AI to have a final object.
- * 
+ *
  * If you want to clean up a response string and have an object, use instead `processWithAiObject`
  */
 export function cleanResult(result: string): CleanPromptResult {

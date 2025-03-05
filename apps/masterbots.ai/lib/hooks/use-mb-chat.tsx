@@ -444,7 +444,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       console.error('Error processing user message. Using og message. Error: ', error)
     }
 
-    await appendNewMessage(userMessage)
+    await appendNewMessage(userMessage, chatRequestOptions)
   }
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: I need to hear the chatbot and isPowerUp changes only
@@ -512,7 +512,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     setWebSearch(!webSearch)
   }
 
-  const appendNewMessage = async (userMessage: AiMessage | CreateMessage) => {
+  const appendNewMessage = async (userMessage: AiMessage | CreateMessage, chatMessagesOptions?: ChatRequestOptions) => {
     try {
       const chatbotMetadata = await getMetadataLabels()
       // ? Hydration issues is causing the continuing thread to update until the 2nd attempt after it gets updated to false and the react state to get the latest searchParam in the client... These hydration issues might be related to the client components trying to update the state before the server response is ready or the client doesn't catch-up on time the react states... Maybe removing the hydration warning we might now... 🤔 
@@ -584,10 +584,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
                 previousAiUserMessages.concat(allMessages),
               ),
         },
-        // ? Provide chat attachments here...
-        // {
-        //   experimental_attachments: [],
-        // }
+        chatMessagesOptions,
       )
 
       return appendResponse
