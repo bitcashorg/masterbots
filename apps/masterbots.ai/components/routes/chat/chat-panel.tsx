@@ -200,6 +200,7 @@ export function ChatPanel({
         >
           <PromptForm
             onSubmit={async (value, chatOptions) => {
+              scrollToBottom()
               await append({
                 id,
                 content: value,

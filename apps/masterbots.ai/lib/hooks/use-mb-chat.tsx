@@ -217,11 +217,13 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
         // Saving attachments to indexedDB and attaching them to the message
         const attachments = messageAttachments.current
-        const newAttachments = attachments.map((attachment) => ({
-          ...attachment,
-          // We make the relationship of the attachment with the user and assistant messages, making it flexible
-          messageIds: [...(attachment?.messageIds || []), userMessageId, assistantMessageId],
-        }))
+        const newAttachments = attachments
+          ? attachments.map((attachment) => ({
+            ...attachment,
+            // We make the relationship of the attachment with the user and assistant messages, making it flexible
+            messageIds: [...(attachment?.messageIds || []), userMessageId, assistantMessageId],
+          }))
+          : []
 
         for (const attachment of newAttachments) {
           try {
