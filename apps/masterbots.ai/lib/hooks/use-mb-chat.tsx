@@ -21,7 +21,7 @@ import type {
 } from '@/types/types'
 import type { Message as AiMessage, ChatRequestOptions, CreateMessage } from 'ai'
 import { type UseChatOptions, useChat } from 'ai/react'
-import { uniqBy } from 'lodash'
+import { throttle, uniqBy } from 'lodash'
 import type { Chatbot, Message, Thread } from 'mb-genql'
 
 import { aiExampleClassification, processUserMessage } from '@/lib/helpers/ai-classification'
@@ -275,6 +275,10 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
         setIsNewResponse(false)
         setLoadingState('finished')
         setActiveTool(undefined)
+
+        throttle(async () => {
+          await updateActiveThread()
+        }, 250)()
       } catch (error) {
         console.error('Error saving new message: ', error)
         customSonner({
@@ -609,7 +613,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
       setLoadingState('generating')
       messageAttachments.current = chatMessagesOptions?.experimental_attachments as FileAttachment[]
-
       const appendResponse = await append(
         {
           ...userMessage,

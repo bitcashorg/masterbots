@@ -41,6 +41,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { type FileAttachment, useFileAttachments } from '@/lib/hooks/use-chat-attachments'
 import { useEnterSubmit } from '@/lib/hooks/use-enter-submit'
+import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn, nanoid } from '@/lib/utils'
@@ -69,6 +70,7 @@ export function PromptForm({
 }: PromptProps) {
   const { activeThread } = useThread()
   const { activeChatbot, setActiveChatbot } = useSidebar()
+  const [{ allMessages }] = useMBChat()
   const { formRef, onKeyDown } = useEnterSubmit()
   const inputRef = React.useRef<HTMLTextAreaElement>(null)
   const [isFocused, setIsFocused] = React.useState(false)
@@ -102,17 +104,15 @@ export function PromptForm({
 
   const handleTextareaBlur = () => {
     setIsFocused(false)
-  }
-
-  // * Creating unique instances for each form (popup and main).
+  }// * Creating unique instances for each form (popup and main).
   // ? This is required to prevent the form from submitting when the user presses Enter in the popup.
   // ? Must be rendered once per form instance. Else it will not work as expected if leave without memoizing (onChange would update this component).
   const formId = React.useMemo(() => nanoid(16), [])
   const userAttachments =
-    (userData.userAttachments as FileAttachment[]) && activeThread?.messages.length
-      ? (userData.userAttachments as FileAttachment[]).filter((attachment) =>
-          activeThread?.messages?.some(
-            (a) => !attachment.messageIds?.some((id) => id === a.messageId),
+  (userData.userAttachments as FileAttachment[]) && allMessages.length
+  ? (userData.userAttachments as FileAttachment[]).filter((attachment) =>
+        allMessages.some(
+            (a) => attachment.messageIds?.some((id) => id === a.id),
           ),
         )
       : []
@@ -166,6 +166,7 @@ export function PromptForm({
         }
 
         await onSubmit(input, chatOptions)
+        fileAttachmentActions.clearAttachments()
       }}
       ref={formRef}
       onDrop={fileAttachmentActions.onDrop}
@@ -203,14 +204,14 @@ export function PromptForm({
           spellCheck={false}
           disabled={disabled}
           className={cn(
-            'w-full resize-none bg-transparent px-12 md:px-14 py-[14px] focus-within:outline-none sm:text-sm scrollbar',
+            'w-full resize-none bg-transparent px-12 md:px-14 py-[8px] focus-within:outline-none sm:text-sm scrollbar',
             'min-h-20 md:min-h-16', //? Smaller height on mobile
             // 'py-[1.3rem]', //? Adjusted padding for mobile
             'disabled:cursor-not-allowed',
           )}
         />
 
-        <div className="absolute flex gap-3 right-[8px] top-[14px] sm:right-[14px]">
+        <div className="absolute flex flex-col-reverse gap-1.5 sm:flex-row sm:gap-3 right-[8px] top-[8px] sm:right-[14px]">
           <Popover>
             <PopoverTrigger asChild>
               <div

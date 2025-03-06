@@ -12,10 +12,11 @@ export function UserAttachments({
   attachments: IndexedDBItem[] | undefined
   onChange: (id: string) => void
 }) {
-  if (!attachments) return null
-  return attachments.map((attach) => {
-    const attachment = attach as FileAttachment
-    if (!attachment || !attachment.type) return null
+  return attachments?.map((attach) => {
+    // TODO: fix type to be just one type (FileAttachment)
+    const attachment = attach as FileAttachment & { contentType?: string }
+    const attachmentType = (attachment?.type ?? attachment?.contentType)?.split('/')[0]
+    if (!attachment) return null
     return (
       <CommandItem key={attachment.id} value={attachment.id} className="w-full">
         <Tooltip>
@@ -32,7 +33,7 @@ export function UserAttachments({
                 onChange={() => onChange(attachment.id)}
               />
               <div className="size-10 flex flex-shrink-0 items-center justify-center bg-muted rounded">
-                {attachment.type.includes('image') ? (
+                {attachmentType?.includes('image') ? (
                   <Image
                     src={attachment.url as string}
                     width={40}

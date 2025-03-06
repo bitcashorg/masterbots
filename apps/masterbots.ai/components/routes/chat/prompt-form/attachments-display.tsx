@@ -11,7 +11,7 @@ export function AttachmentsDisplay({
   onRemove,
 }: {
   isDragging: boolean
-  attachments: FileAttachment[]
+  attachments: (FileAttachment & { contentType?: string })[]
   onRemove: (id: string) => void
 }) {
   return (
@@ -41,7 +41,7 @@ export function AttachmentsDisplay({
               <Popover>
                 <PopoverTrigger className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-900 rounded-full h-10">
                   <div className="relative rounded-full size-10 bg-zinc-200 dark:bg-zinc-800">
-                    {attachment.type?.includes('image') ? (
+                    {(attachment?.contentType || attachment?.type)?.includes('image') ? (
                       <Image
                         src={attachment.url as string}
                         width={40}
