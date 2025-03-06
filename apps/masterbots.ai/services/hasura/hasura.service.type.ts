@@ -1,3 +1,5 @@
+import type { Message } from 'mb-genql'
+
 export type GetHasuraClientParams = {
   jwt?: string
   adminSecret?: string
@@ -22,12 +24,8 @@ export interface GetThreadParams extends HasuraServiceParams {
   signal?: AbortController['signal']
 }
 
-export interface SaveNewMessageParams extends HasuraServiceParams {
-  content: string
+export interface SaveNewMessageParams extends HasuraServiceParams, Partial<Message> {
   role: 'user' | 'assistant'
-  threadId: string
-  createdAt?: string
-  id: string
 }
 
 // this can only be called by admin

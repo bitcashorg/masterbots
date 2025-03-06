@@ -241,14 +241,14 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
         const [newUserMessage, newAssistantMessage]: Partial<SaveNewMessageParams>[] = [
           {
             ...newBaseMessage,
-            id: userMessageId,
+            messageId: userMessageId,
             role: 'user',
             content: userContentRef.current,
             createdAt: new Date().toISOString(),
           },
           {
             ...newBaseMessage,
-            id: assistantMessageId,
+            messageId: assistantMessageId,
             role: 'assistant',
             content: message.content,
             createdAt: new Date(Date.now() + 1000).toISOString(),

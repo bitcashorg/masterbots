@@ -1,21 +1,21 @@
-import { AIModels } from '@/app/api/chat/models/models'
+import { AIModels } from '@/app/api/chat/models/models';
 import {
   examplesSchema,
   languageGammarSchema,
   metadataSchema,
   toolSchema,
-} from '@/lib/helpers/ai-schemas'
-import type { AiClientType, CleanPromptResult } from '@/types/types'
-import type { StreamEntry } from '@/types/wordware-flows.types'
-import type Anthropic from '@anthropic-ai/sdk'
+} from '@/lib/helpers/ai-schemas';
+import type { AiClientType, CleanPromptResult } from '@/types/types';
+import type { StreamEntry } from '@/types/wordware-flows.types';
+import type Anthropic from '@anthropic-ai/sdk';
 import {
   type Attachment,
   type CoreMessage,
   type FilePart,
   type ImagePart,
   generateId
-} from 'ai'
-import type OpenAI from 'openai'
+} from 'ai';
+import type OpenAI from 'openai';
 
 // * This function gets the model client type
 export function getModelClientType(model: AIModels) {
@@ -138,6 +138,13 @@ export function convertToCoreMessages(
         }),
       } as CoreMessage)
     }
+
+    // * Here we can add the condition to load the user attachments by reading the user session from cookies
+    // * and then adding the attachments to the coreMessages array if there is a message related to the attachments/thread
+    // * This is for the LLM context... can be used to vectorize the user attachments and pass them to the
+    // * AI model for better context understanding
+    // ? base64 encode works for the AttachmentsDisplay
+    // TODO: Add condition to handle remote attachments (vectorized bucket)
   }
 
   console.log('coreMessages --> ', coreMessages.map((msg) => ({
