@@ -117,6 +117,13 @@ export function convertToCoreMessages(
 
     const { experimental_attachments, ...rest } = msg
 
+    if (rest.content) {
+      coreMessages.push({
+        role: msg.role as 'user' | 'system' | 'assistant',
+        content: rest.content as string,
+      })
+    }
+
     if (experimental_attachments?.length) {
       coreMessages.push({
         role: msg.role as 'user' | 'system' | 'assistant',
@@ -131,14 +138,23 @@ export function convertToCoreMessages(
         }),
       } as CoreMessage)
     }
-
-    if (rest.content) {
-      coreMessages.push({
-        role: msg.role as 'user' | 'system' | 'assistant',
-        content: rest.content as string,
-      })
-    }
   }
+
+  console.log('coreMessages --> ', coreMessages.map((msg) => ({
+    ...msg,
+    content: typeof msg.content === 'string' ? msg.content : msg.content.map((content) => {
+      if (content.type === 'file') {
+        return {
+          type: content.type,
+          data: content.data.toString().substring(0, 64),
+        }
+      }
+      return {
+        type: content.type,
+        image: (content as ImagePart).image.toString().substring(0, 64),
+      }
+    }),
+  })))
 
   return coreMessages
 }

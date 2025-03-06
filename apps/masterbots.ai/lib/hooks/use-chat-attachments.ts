@@ -19,6 +19,13 @@ export type FileAttachment = {
   isSelected?: boolean
 }
 
+export function getUserIndexedDBKeys(userId?: string) {
+  return {
+    dbName: `${userId || 'nosession'}_masterbots_attachments_indexed_db`,
+    storeName: `${userId || 'nosession'}_masterbots_attachments_store`,
+  }
+}
+
 export function useFileAttachments(formRef: React.RefObject<HTMLFormElement>): [
   {
     isDragging: boolean
@@ -41,11 +48,9 @@ export function useFileAttachments(formRef: React.RefObject<HTMLFormElement>): [
     onDrop: (event: React.DragEvent<HTMLFormElement>) => void
   },
 ] {
-  const session = useSession()
-  const { mounted, ...indexedDBActions } = useIndexedDB(
-    `${session.data?.user.id}_masterbots_attachments_indexed_db`,
-    `${session.data?.user.id}_masterbots_attachments_store`,
-  )
+  const { data: session } = useSession()
+  const dbKeys = getUserIndexedDBKeys(session?.user?.id)
+  const { mounted, ...indexedDBActions } = useIndexedDB(dbKeys)
   const {
     value: userAttachments,
     loading,
@@ -53,7 +58,7 @@ export function useFileAttachments(formRef: React.RefObject<HTMLFormElement>): [
   } = useAsync(async () => {
     if (!mounted) return
     return await indexedDBActions.getAllItems()
-  }, [session.data?.user, mounted])
+  }, [session?.user, mounted])
 
   const [state, setState] = useSetState<{
     isDragging: boolean
@@ -106,16 +111,17 @@ export function useFileAttachments(formRef: React.RefObject<HTMLFormElement>): [
             ? reader.result
             : Buffer.from(reader.result as ArrayBuffer).toString('base64')
         const newAttachment: FileAttachment = {
-          id: nanoid(),
+          id: nanoid(16),
           name: attachmentFile?.name || '',
           size: attachmentFile?.size || 0,
           type: attachmentFile?.type || '',
           content: reader.result,
           url: attachmentUrl,
+          isSelected: true,
           messageIds: [],
         }
         setState((prev) => ({ attachments: [...prev.attachments, newAttachment] }))
-        indexedDBActions.addItem(newAttachment)
+        // indexedDBActions.addItem(newAttachment)
       }
 
       console.log('Final attachmentFile --> ', attachmentFile)
@@ -216,17 +222,20 @@ export function useFileAttachments(formRef: React.RefObject<HTMLFormElement>): [
   }
 
   const toggleAttachmentSelection = (id: string) => {
+    console.log('id', id)
     const newAttachments = state.attachments.map((attachment) => {
       if (attachment.id === id) {
-      return {
-        ...attachment,
-        isSelected: !attachment.isSelected,
-      }
+        return {
+          ...attachment,
+          isSelected: !attachment.isSelected,
+        }
       }
       return attachment
-    }).filter((attachment) => attachment.isSelected !== false)
+    })
 
-    const userAttachment = userAttachments?.find((attachment) => attachment.id === id) as FileAttachment
+    const userAttachment = userAttachments?.find(
+      (attachment) => attachment.id === id,
+    ) as FileAttachment
     if (userAttachment && !newAttachments.some((attachment) => attachment.id === id)) {
       newAttachments.push({
         ...userAttachment,
@@ -234,7 +243,7 @@ export function useFileAttachments(formRef: React.RefObject<HTMLFormElement>): [
       })
     }
 
-    setState({ attachments: newAttachments })
+    setState({ attachments: newAttachments.filter((attachment) => attachment.isSelected) })
   }
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: We only required to run this effect once

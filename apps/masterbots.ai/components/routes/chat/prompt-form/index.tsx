@@ -25,6 +25,8 @@
  */
 
 import { ChatCombobox } from '@/components/routes/chat/chat-combobox'
+import { AttachmentsDisplay } from '@/components/routes/chat/prompt-form/attachments-display'
+import { UserAttachments } from '@/components/routes/chat/prompt-form/user-attachments'
 import {
   Accordion,
   AccordionContent,
@@ -44,9 +46,8 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { cn, nanoid } from '@/lib/utils'
 import type { Attachment, ChatRequestOptions } from 'ai'
 import type { UseChatHelpers } from 'ai/react'
-import { AnimatePresence, motion } from 'framer-motion'
-import { FileIcon, FilePlusIcon, PaperclipIcon, SaveIcon, XIcon } from 'lucide-react'
-import Image from 'next/image'
+import { motion } from 'framer-motion'
+import { FilePlusIcon, PaperclipIcon, SaveIcon } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import * as React from 'react'
 import Textarea from 'react-textarea-autosize'
@@ -142,7 +143,7 @@ export function PromptForm({
 
         if (attachments.length) {
           // ? I might not need to destructure it here... maybe it is capable to read the FileList directly
-          const fileAttachments: Attachment[] = []
+          const fileAttachments: (Attachment & { id: string })[]= []
           for (const attachment of attachments) {
             if (!attachment.content) return
 
@@ -153,6 +154,7 @@ export function PromptForm({
                 : Buffer.from(attachment.content).toString('base64')
 
             fileAttachments.push({
+              id: attachment.id,
               name: attachment.name,
               contentType: attachment.type,
               // url: attachment.url,
@@ -170,69 +172,11 @@ export function PromptForm({
       onDragOver={fileAttachmentActions.onDragOver}
       onDragLeave={fileAttachmentActions.onDragLeave}
     >
-      <AnimatePresence>
-        {isDragging && (
-          <motion.div
-            className="absolute left-0 top-0 pointer-events-none dark:bg-zinc-900/90 size-full rounded-md z-10 justify-center items-center flex flex-col gap-1 bg-zinc-100/90"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <div>Drag and drop files here</div>
-            <div className="text-sm dark:text-zinc-400 text-zinc-500">{'(images and text)'}</div>
-          </motion.div>
-        )}
-
-        {attachments.length > 0 && (
-          <ul className="flex flex-nowrap gap-2 px-2 py-1 mb-2 scrollbar w-full">
-            {attachments.map((attachment) => (
-              <motion.li
-                className="flex flex-wrap gap-2 p-2"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                key={attachment.id}
-              >
-                <Popover>
-                  <PopoverTrigger className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-900 rounded-full h-10">
-                    <div className="relative rounded-full size-10 bg-zinc-200 dark:bg-zinc-800">
-                      {attachment.type.includes('image') ? (
-                        <Image
-                          src={attachment.url as string}
-                          width={40}
-                          height={40}
-                          alt={attachment.name}
-                          className="size-10 rounded-full object-cover"
-                        />
-                      ) : (
-                        <FileIcon />
-                      )}
-                    </div>
-                    <div className="p-2 flex items-center gap-2">
-                      <span className="truncate">{attachment.name}</span>
-                      <Button
-                        type="reset"
-                        variant="ghost"
-                        size="icon"
-                        radius="full"
-                        onClick={() => fileAttachmentActions.removeAttachment(attachment.id)}
-                      >
-                        <XIcon className="transform" />
-                        <span className="sr-only">Remove attachment</span>
-                      </Button>
-                    </div>
-                  </PopoverTrigger>
-                  <PopoverContent>
-                    <div className="p-2 rounded-lg">
-                      <img src={attachment.url} alt={attachment.name} className="w-full h-auto" />
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              </motion.li>
-            ))}
-          </ul>
-        )}
-      </AnimatePresence>
+      <AttachmentsDisplay
+        isDragging={isDragging}
+        attachments={attachments}
+        onRemove={fileAttachmentActions.removeAttachment}
+      />
       <div
         className={cn(
           'transition-all relative flex flex-col w-full overflow-hidden grow bg-background border-4 border-[#be16e8] rounded-md',
@@ -295,80 +239,36 @@ export function PromptForm({
                   )}
                   accept="image/*,text/*"
                   type="file"
-                  disabled={Boolean(!userAttachments.length)}
+                  disabled={Boolean(userAttachments.length)}
                   multiple
                 />
                 <PaperclipIcon className="p-0.5 z-0 cursor-pointer" />
               </div>
             </PopoverTrigger>
-            <PopoverContent className="max-w-[360px]">
+            <PopoverContent className="w-[320px]">
               <Command>
                 <CommandGroup>
-                  <CommandList className="overflow-hidden w-full">
+                  <CommandList className="overflow-hidden w-full p-0">
                     <Accordion type="single" collapsible>
                       <AccordionItem value={`user-attachments-${formId}`}>
                         <AccordionTrigger className="sticky top-0 p-2">
-                          <SaveIcon className="size-4" /> Saved Attachments ({userData.userAttachments?.length || 0})
+                          <SaveIcon className="size-4" /> Saved Attachments (
+                          {userAttachments?.length || 0})
                         </AccordionTrigger>
-                        <AccordionContent className="scrollbar h-full max-h-[200px] md:max-h-[300px] w-max">
-                          {userData.userAttachments?.map((attach) => {
-                            const attachment = attach as FileAttachment
-                            return (
-                              <CommandItem
-                                key={attachment.id}
-                                value={attachment.id}
-                                onSelect={() => {
-                                  fileAttachmentActions.toggleAttachmentSelection(attachment.id)
-                                }}
-                                className="w-full"
-                              >
-                                <Tooltip>
-                                  <TooltipTrigger className="flex items-center gap-2 w-full">
-                                    <label
-                                      className="flex items-center gap-2 w-full"
-                                      htmlFor={`attachment-${attachment.id}`}
-                                    >
-                                      <div className="size-10 flex-shrink-0">
-                                        {attachment.type.includes('image') ? (
-                                          <Image
-                                            src={attachment.url as string}
-                                            width={40}
-                                            height={40}
-                                            alt={attachment.name}
-                                            className="size-10 object-cover rounded"
-                                          />
-                                        ) : (
-                                          <FileIcon className="size-6" />
-                                        )}
-                                      </div>
-                                      <input
-                                        type="checkbox"
-                                        id={`attachment-${attachment.id}`}
-                                        name={`attachment-${attachment.id}`}
-                                        checked={attachment.isSelected}
-                                        onChange={() =>
-                                          fileAttachmentActions.toggleAttachmentSelection(
-                                            attachment.id,
-                                          )
-                                        }
-                                      />
-                                      <span className="truncate">{attachment.name}</span>
-                                    </label>
-                                  </TooltipTrigger>
-                                  <TooltipContent>{attachment.name}</TooltipContent>
-                                </Tooltip>
-                              </CommandItem>
-                            )
-                          })}
+                        <AccordionContent className="scrollbar h-full max-h-[200px] md:max-h-[300px] w-full">
+                          <UserAttachments
+                            attachments={userAttachments}
+                            onChange={fileAttachmentActions.toggleAttachmentSelection}
+                          />
                         </AccordionContent>
                       </AccordionItem>
                     </Accordion>
 
-                    <CommandItem asChild>
+                    <CommandItem asChild className="bg-transparent">
                       <Button
-                        variant="ghost"
+                        variant="outline"
                         size="lg"
-                        className="w-full my-2"
+                        className="w-full mt-4 mb-1 cursor-pointer"
                         onClick={triggerNativeFileInput}
                       >
                         <FilePlusIcon className="size-4" />

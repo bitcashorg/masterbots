@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 const DEFAULT_DB_NAME = 'masterbots_attachments_indexed_db'
 const DEFAULT_STORE_NAME = 'masterbots_attachments_store'
 
-export function useIndexedDB(dbName = DEFAULT_DB_NAME, storeName = DEFAULT_STORE_NAME) {
+export function useIndexedDB({ dbName = DEFAULT_DB_NAME, storeName = DEFAULT_STORE_NAME }) {
   const dbRef = useRef<IDBDatabase | null>(null)
   const [mounted, setMounted] = useState(false)
   const db = dbRef.current
@@ -45,7 +45,7 @@ export function useIndexedDB(dbName = DEFAULT_DB_NAME, storeName = DEFAULT_STORE
     store.add(item)
   }
 
-  const getItem = (id: number): Promise<IndexedDBItem> => {
+  const getItem = (id: IDBValidKey): Promise<IndexedDBItem> => {
     return new Promise((resolve, reject) => {
       if (!db) return reject('Database not initialized')
       const transaction = db.transaction(storeName, 'readonly')
@@ -80,11 +80,12 @@ export function useIndexedDB(dbName = DEFAULT_DB_NAME, storeName = DEFAULT_STORE
     })
   }
 
-  const updateItem = (id: number, updatedItem: IndexedDBItem) => {
+  const updateItem = (id: string, updatedItem: IndexedDBItem) => {
     if (!db) return
     const transaction = db.transaction(storeName, 'readwrite')
     const store = transaction.objectStore(storeName)
-    store.put({ ...updatedItem, id })
+    const itemToUpdate = { ...updatedItem, id }
+    store.put(itemToUpdate)
   }
 
   const deleteItem = (id: number) => {

@@ -27,6 +27,7 @@ export interface SaveNewMessageParams extends HasuraServiceParams {
   role: 'user' | 'assistant'
   threadId: string
   createdAt?: string
+  id: string
 }
 
 // this can only be called by admin
