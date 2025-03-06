@@ -1,4 +1,4 @@
-import type { Message } from 'mb-genql'
+import type { MessageInsertInput } from 'mb-genql'
 
 export type GetHasuraClientParams = {
   jwt?: string
@@ -24,9 +24,7 @@ export interface GetThreadParams extends HasuraServiceParams {
   signal?: AbortController['signal']
 }
 
-export interface SaveNewMessageParams extends HasuraServiceParams, Partial<Message> {
-  role: 'user' | 'assistant'
-}
+export interface SaveNewMessageParams extends HasuraServiceParams, Partial<MessageInsertInput> {}
 
 // this can only be called by admin
 export interface UpsertUserParams {
