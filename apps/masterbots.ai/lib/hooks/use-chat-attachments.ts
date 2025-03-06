@@ -1,7 +1,11 @@
+import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
+import { useSonner } from '@/lib/hooks/useSonner'
 import type * as OpenAi from 'ai'
+import { appConfig } from 'mb-env'
 import { nanoid } from 'nanoid'
+import { useSession } from 'next-auth/react'
 import { useCallback, useEffect } from 'react'
-import { useSetState } from 'react-use'
+import { useAsync, useSetState } from 'react-use'
 
 export type FileAttachment = {
   id: string
@@ -9,14 +13,21 @@ export type FileAttachment = {
   size: number
   type: string
   content: string | ArrayBuffer | null
+  messageIds: string[]
   // The URL of the attachment. It can either be a URL to a hosted file or a Data URL.
   url?: string
+  isSelected?: boolean
 }
 
 export function useFileAttachments(formRef: React.RefObject<HTMLFormElement>): [
   {
     isDragging: boolean
     attachments: FileAttachment[]
+    userData: {
+      userAttachments: IndexedDBItem[] | undefined
+      loading: boolean
+      error: Error | undefined
+    }
   },
   {
     addAttachment: (file: DataTransferItem | File) => void
@@ -24,11 +35,26 @@ export function useFileAttachments(formRef: React.RefObject<HTMLFormElement>): [
     removeAttachment: (id: string) => void
     clearAttachments: () => void
     attachFilesToMessage: (message: OpenAi.AssistantMessage) => OpenAi.AssistantMessage
+    toggleAttachmentSelection: (id: string) => void
     onDragOver: (event: React.DragEvent<HTMLFormElement>) => void
     onDragLeave: (event: React.DragEvent<HTMLFormElement>) => void
     onDrop: (event: React.DragEvent<HTMLFormElement>) => void
   },
 ] {
+  const session = useSession()
+  const { mounted, ...indexedDBActions } = useIndexedDB(
+    `${session.data?.user.id}_masterbots_attachments_indexed_db`,
+    `${session.data?.user.id}_masterbots_attachments_store`,
+  )
+  const {
+    value: userAttachments,
+    loading,
+    error,
+  } = useAsync(async () => {
+    if (!mounted) return
+    return await indexedDBActions.getAllItems()
+  }, [session.data?.user, mounted])
+
   const [state, setState] = useSetState<{
     isDragging: boolean
     attachments: FileAttachment[]
@@ -36,38 +62,70 @@ export function useFileAttachments(formRef: React.RefObject<HTMLFormElement>): [
     isDragging: false,
     attachments: [],
   })
+  const { customSonner } = useSonner()
 
-  const addAttachment = (file: DataTransferItem | File) => {
-    const reader = new FileReader()
-    let attachmentFile: File | null = file as File
+  // biome-ignore lint/correctness/useExhaustiveDependencies: We only required to update this fn everytime we receive a new state of attachments
+  const addAttachment = useCallback(
+    (file: DataTransferItem | File) => {
+      const reader = new FileReader()
+      let attachmentFile: File | null = file as File
 
-    if (file instanceof DataTransferItem) {
-      attachmentFile = file.getAsFile()
-    }
-
-    reader.onload = () => {
-      // Creating an base64 string from the file content
-      const attachmentUrl =
-        typeof reader.result === 'string'
-          ? reader.result
-          : Buffer.from(reader.result as ArrayBuffer).toString('base64')
-      const newAttachment: FileAttachment = {
-        id: nanoid(),
-        name: attachmentFile?.name || '',
-        size: attachmentFile?.size || 0,
-        type: attachmentFile?.type || '',
-        content: reader.result,
-        url: attachmentUrl,
+      if (file instanceof DataTransferItem) {
+        attachmentFile = file.getAsFile()
       }
-      setState((prev) => ({ attachments: [...prev.attachments, newAttachment] }))
-    }
 
-    console.log('Final attachmentFile --> ', attachmentFile)
+      if (
+        appConfig.features.maxAttachments &&
+        state.attachments.length >= appConfig.features.maxAttachments
+      ) {
+        console.error('Cannot add more than 10 attachments')
+        customSonner({
+          type: 'error',
+          text: 'Cannot add more than 10 attachments',
+        })
+        return
+      }
 
-    if (!attachmentFile) return
+      if (
+        appConfig.features.maxFileSize &&
+        attachmentFile?.size &&
+        attachmentFile.size > appConfig.features.maxFileSize
+      ) {
+        console.error('File size exceeds the limit')
+        customSonner({
+          type: 'error',
+          text: 'File size exceeds the limit of 10MB',
+        })
+        return
+      }
 
-    reader.readAsDataURL(attachmentFile)
-  }
+      reader.onload = () => {
+        // Creating an base64 string from the file content
+        const attachmentUrl =
+          typeof reader.result === 'string'
+            ? reader.result
+            : Buffer.from(reader.result as ArrayBuffer).toString('base64')
+        const newAttachment: FileAttachment = {
+          id: nanoid(),
+          name: attachmentFile?.name || '',
+          size: attachmentFile?.size || 0,
+          type: attachmentFile?.type || '',
+          content: reader.result,
+          url: attachmentUrl,
+          messageIds: [],
+        }
+        setState((prev) => ({ attachments: [...prev.attachments, newAttachment] }))
+        indexedDBActions.addItem(newAttachment)
+      }
+
+      console.log('Final attachmentFile --> ', attachmentFile)
+
+      if (!attachmentFile) return
+
+      reader.readAsDataURL(attachmentFile)
+    },
+    [state.attachments],
+  )
 
   const removeAttachment = (id: string) =>
     setState((prev) => ({
@@ -76,11 +134,18 @@ export function useFileAttachments(formRef: React.RefObject<HTMLFormElement>): [
 
   const clearAttachments = () => setState({ attachments: [] })
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: We only required to know when the attachments has changed
   const attachFilesToMessage = useCallback(
     (message: OpenAi.AssistantMessage) => {
+      const updatedAttachments = state.attachments.map((attachment) => ({
+        ...attachment,
+        messageIds: [...attachment.messageIds, message.id],
+      }))
+
+      setState({ attachments: updatedAttachments })
       return {
         ...message,
-        attachments: state.attachments,
+        attachments: updatedAttachments,
       }
     },
     [state.attachments],
@@ -90,15 +155,17 @@ export function useFileAttachments(formRef: React.RefObject<HTMLFormElement>): [
     let validAttachments: DataTransferItemList | FileList | null = files as DataTransferItemList
     if (files instanceof FileList) {
       const dataTransfer = new DataTransfer()
-      
+
       for (const file of files) {
         dataTransfer.items.add(file)
       }
-      
+
       validAttachments = dataTransfer.items
     }
-    
-    const validFiles = Array.from(validAttachments).filter((file) => file.type.startsWith('image/') || file.type.startsWith('text/'))
+
+    const validFiles = Array.from(validAttachments).filter(
+      (file) => file.type.startsWith('image/') || file.type.startsWith('text/'),
+    )
     console.log('Files to process (the validFiles) --> ', validFiles)
     for (const file of validFiles) {
       addAttachment(file)
@@ -148,14 +215,36 @@ export function useFileAttachments(formRef: React.RefObject<HTMLFormElement>): [
     setState({ isDragging: false })
   }
 
+  const toggleAttachmentSelection = (id: string) => {
+    const newAttachments = state.attachments.map((attachment) => {
+      if (attachment.id === id) {
+      return {
+        ...attachment,
+        isSelected: !attachment.isSelected,
+      }
+      }
+      return attachment
+    }).filter((attachment) => attachment.isSelected !== false)
+
+    const userAttachment = userAttachments?.find((attachment) => attachment.id === id) as FileAttachment
+    if (userAttachment && !newAttachments.some((attachment) => attachment.id === id)) {
+      newAttachments.push({
+        ...userAttachment,
+        isSelected: true,
+      })
+    }
+
+    setState({ attachments: newAttachments })
+  }
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: We only required to run this effect once
   useEffect(() => {
     const form = formRef?.current
-    
+
     if (form) {
       const formId = form.id.split('-').pop()
       const formTextarea = form.querySelector(`input[id=prompt-textarea-${formId}]`)
-      
+
       if (formTextarea) {
         formTextarea.addEventListener('paste', handleFilePaste as EventListener)
       }
@@ -174,13 +263,21 @@ export function useFileAttachments(formRef: React.RefObject<HTMLFormElement>): [
 
   // [state, actions]
   return [
-    state,
+    {
+      ...state,
+      userData: {
+        userAttachments,
+        loading,
+        error,
+      },
+    },
     {
       addAttachment,
       handleFileSelect,
       removeAttachment,
       clearAttachments,
       attachFilesToMessage,
+      toggleAttachmentSelection,
       onDragOver: handleDragOver,
       onDragLeave: handleDragLeave,
       onDrop: handleDrop,

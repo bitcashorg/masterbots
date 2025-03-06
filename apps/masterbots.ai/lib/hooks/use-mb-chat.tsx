@@ -190,6 +190,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
           customSonner({ type: 'info', text: `Ai generation finished, reason: ${options.finishReason}` })
         }
 
+        console.log('message on finish --> ', message)
+        console.log('messages on finish --> ', messages)
+
         const aiChatThreadId = resolveThreadId({
           isContinuousThread,
           randomThreadId: randomThreadId.current,

@@ -25,12 +25,19 @@
  */
 
 import { ChatCombobox } from '@/components/routes/chat/chat-combobox'
-import { Button } from '@/components/ui/button'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion'
+import { Button, buttonVariants } from '@/components/ui/button'
+import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui/command'
 import { IconArrowElbow } from '@/components/ui/icons'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useFileAttachments } from '@/lib/hooks/use-chat-attachments'
+import { type FileAttachment, useFileAttachments } from '@/lib/hooks/use-chat-attachments'
 import { useEnterSubmit } from '@/lib/hooks/use-enter-submit'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
@@ -38,6 +45,8 @@ import { cn, nanoid } from '@/lib/utils'
 import type { Attachment, ChatRequestOptions } from 'ai'
 import type { UseChatHelpers } from 'ai/react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { FileIcon, FilePlusIcon, PaperclipIcon, SaveIcon, XIcon } from 'lucide-react'
+import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import * as React from 'react'
 import Textarea from 'react-textarea-autosize'
@@ -63,7 +72,7 @@ export function PromptForm({
   const inputRef = React.useRef<HTMLTextAreaElement>(null)
   const [isFocused, setIsFocused] = React.useState(false)
   const params = useParams<{ chatbot: string; category: string; threadId: string }>()
-  const [{ attachments, isDragging }, fileAttachmentActions] = useFileAttachments(formRef)
+  const [{ attachments, isDragging, userData }, fileAttachmentActions] = useFileAttachments(formRef)
 
   const handleBotSelection = () => {
     if (activeThread?.chatbot) {
@@ -93,12 +102,30 @@ export function PromptForm({
   const handleTextareaBlur = () => {
     setIsFocused(false)
   }
-    
 
   // * Creating unique instances for each form (popup and main).
   // ? This is required to prevent the form from submitting when the user presses Enter in the popup.
   // ? Must be rendered once per form instance. Else it will not work as expected if leave without memoizing (onChange would update this component).
   const formId = React.useMemo(() => nanoid(16), [])
+  const userAttachments =
+    (userData.userAttachments as FileAttachment[]) && activeThread?.messages.length
+      ? (userData.userAttachments as FileAttachment[]).filter((attachment) =>
+          activeThread?.messages?.some(
+            (a) => !attachment.messageIds?.some((id) => id === a.messageId),
+          ),
+        )
+      : []
+  const triggerNativeFileInput = (e: React.MouseEvent) => {
+    const $document = e.currentTarget.ownerDocument
+    if (!$document) return
+
+    const $input = $document.getElementById(`file-attachments-${formId}`)
+    if (!$input) return
+
+    $input.removeAttribute('disabled')
+    $input.click()
+    $input.setAttribute('disabled', '')
+  }
 
   return (
     <motion.form
@@ -120,9 +147,10 @@ export function PromptForm({
             if (!attachment.content) return
 
             // Turn the ArrayBuffer into a base64 string for the Ai to read.
-            const attachmentUrl = typeof attachment.content === 'string'
-              ? attachment.content
-              : Buffer.from(attachment.content).toString('base64')
+            const attachmentUrl =
+              typeof attachment.content === 'string'
+                ? attachment.content
+                : Buffer.from(attachment.content).toString('base64')
 
             fileAttachments.push({
               name: attachment.name,
@@ -151,14 +179,12 @@ export function PromptForm({
             exit={{ opacity: 0 }}
           >
             <div>Drag and drop files here</div>
-            <div className="text-sm dark:text-zinc-400 text-zinc-500">
-              {"(images and text)"}
-            </div>
+            <div className="text-sm dark:text-zinc-400 text-zinc-500">{'(images and text)'}</div>
           </motion.div>
         )}
 
         {attachments.length > 0 && (
-          <ul className="flex flex-nowrap gap-2 p-2 scrollbar w-full">
+          <ul className="flex flex-nowrap gap-2 px-2 py-1 mb-2 scrollbar w-full">
             {attachments.map((attachment) => (
               <motion.li
                 className="flex flex-wrap gap-2 p-2"
@@ -168,19 +194,33 @@ export function PromptForm({
                 key={attachment.id}
               >
                 <Popover>
-                  <PopoverTrigger
-                    className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-900 p-2 rounded-md"
-                  >
-                    <span className="truncate">{attachment.name}</span>
-                    <Button
-                      type="reset"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => fileAttachmentActions.removeAttachment(attachment.id)}
-                    >
-                      <IconArrowElbow className="transform rotate-45" />
-                      <span className="sr-only">Remove attachment</span>
-                    </Button>
+                  <PopoverTrigger className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-900 rounded-full h-10">
+                    <div className="relative rounded-full size-10 bg-zinc-200 dark:bg-zinc-800">
+                      {attachment.type.includes('image') ? (
+                        <Image
+                          src={attachment.url as string}
+                          width={40}
+                          height={40}
+                          alt={attachment.name}
+                          className="size-10 rounded-full object-cover"
+                        />
+                      ) : (
+                        <FileIcon />
+                      )}
+                    </div>
+                    <div className="p-2 flex items-center gap-2">
+                      <span className="truncate">{attachment.name}</span>
+                      <Button
+                        type="reset"
+                        variant="ghost"
+                        size="icon"
+                        radius="full"
+                        onClick={() => fileAttachmentActions.removeAttachment(attachment.id)}
+                      >
+                        <XIcon className="transform" />
+                        <span className="sr-only">Remove attachment</span>
+                      </Button>
+                    </div>
                   </PopoverTrigger>
                   <PopoverContent>
                     <div className="p-2 rounded-lg">
@@ -226,15 +266,131 @@ export function PromptForm({
           )}
         />
 
-        <Input
-          onChange={fileAttachmentActions.handleFileSelect}
-          id={`file-attachments-${formId}`}
-          accept="image/*,text/*"
-          type="file"
-          multiple
-        />
+        <div className="absolute flex gap-3 right-[8px] top-[14px] sm:right-[14px]">
+          <Popover>
+            <PopoverTrigger asChild>
+              <div
+                // biome-ignore lint/a11y/useSemanticElements: We need to use a div with role button due we have an input inside. An input inside of a button element is not allowed and accessible.
+                role="button"
+                tabIndex={0}
+                onClick={(e) => {
+                  e.currentTarget.querySelector('input')?.click()
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.currentTarget.querySelector('input')?.click()
+                  }
+                }}
+                className={cn(
+                  buttonVariants({ variant: 'ghost', size: 'icon' }),
+                  'relative cursor-pointer',
+                )}
+              >
+                <Input
+                  onChange={fileAttachmentActions.handleFileSelect}
+                  tabIndex={-1}
+                  id={`file-attachments-${formId}`}
+                  className={cn(
+                    'absolute opacity-0 size-full !cursor-pointer p-0 disabled:opacity-0',
+                  )}
+                  accept="image/*,text/*"
+                  type="file"
+                  disabled={Boolean(!userAttachments.length)}
+                  multiple
+                />
+                <PaperclipIcon className="p-0.5 z-0 cursor-pointer" />
+              </div>
+            </PopoverTrigger>
+            <PopoverContent className="max-w-[360px]">
+              <Command>
+                <CommandGroup>
+                  <CommandList className="overflow-hidden w-full">
+                    <Accordion type="single" collapsible>
+                      <AccordionItem value={`user-attachments-${formId}`}>
+                        <AccordionTrigger className="sticky top-0 p-2">
+                          <SaveIcon className="size-4" /> Saved Attachments ({userData.userAttachments?.length || 0})
+                        </AccordionTrigger>
+                        <AccordionContent className="scrollbar h-full max-h-[200px] md:max-h-[300px] w-max">
+                          {userData.userAttachments?.map((attach) => {
+                            const attachment = attach as FileAttachment
+                            return (
+                              <CommandItem
+                                key={attachment.id}
+                                value={attachment.id}
+                                onSelect={() => {
+                                  fileAttachmentActions.toggleAttachmentSelection(attachment.id)
+                                }}
+                                className="w-full"
+                              >
+                                <Tooltip>
+                                  <TooltipTrigger className="flex items-center gap-2 w-full">
+                                    <label
+                                      className="flex items-center gap-2 w-full"
+                                      htmlFor={`attachment-${attachment.id}`}
+                                    >
+                                      <div className="size-10 flex-shrink-0">
+                                        {attachment.type.includes('image') ? (
+                                          <Image
+                                            src={attachment.url as string}
+                                            width={40}
+                                            height={40}
+                                            alt={attachment.name}
+                                            className="size-10 object-cover rounded"
+                                          />
+                                        ) : (
+                                          <FileIcon className="size-6" />
+                                        )}
+                                      </div>
+                                      <input
+                                        type="checkbox"
+                                        id={`attachment-${attachment.id}`}
+                                        name={`attachment-${attachment.id}`}
+                                        checked={attachment.isSelected}
+                                        onChange={() =>
+                                          fileAttachmentActions.toggleAttachmentSelection(
+                                            attachment.id,
+                                          )
+                                        }
+                                      />
+                                      <span className="truncate">{attachment.name}</span>
+                                    </label>
+                                  </TooltipTrigger>
+                                  <TooltipContent>{attachment.name}</TooltipContent>
+                                </Tooltip>
+                              </CommandItem>
+                            )
+                          })}
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
 
-        <div className="absolute right-[8px] top-[14px] sm:right-[14px]">
+                    <CommandItem asChild>
+                      <Button
+                        variant="ghost"
+                        size="lg"
+                        className="w-full my-2"
+                        onClick={triggerNativeFileInput}
+                      >
+                        <FilePlusIcon className="size-4" />
+                        Add Attachments
+                      </Button>
+                    </CommandItem>
+                    {/* <CommandItem>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={fileAttachmentActions.clearAttachments}
+                        disabled={!attachments.length}
+                      >
+                        Clear Attachments
+                      </Button>
+                    </CommandItem> */}
+                  </CommandList>
+                </CommandGroup>
+              </Command>
+            </PopoverContent>
+          </Popover>
+
           <Tooltip>
             <TooltipTrigger asChild>
               <Button type="submit" size="icon" disabled={isLoading || input === ''}>
