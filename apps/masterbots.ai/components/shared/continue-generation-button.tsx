@@ -1,4 +1,3 @@
-import * as React from 'react'
 import { Button } from '@/components/ui/button'
 import { IconRefresh } from '@/components/ui/icons'
 import { cn } from '@/lib/utils'
