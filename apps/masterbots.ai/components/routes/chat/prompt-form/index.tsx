@@ -77,16 +77,6 @@ export function PromptForm({
   const params = useParams<{ chatbot: string; category: string; threadId: string }>()
   const [{ attachments, isDragging, userData }, fileAttachmentActions] = useFileAttachments(formRef)
 
-  const handleBotSelection = () => {
-    if (activeThread?.chatbot) {
-      setActiveChatbot(activeThread.chatbot)
-      // Focus textarea after bot selection
-      if (inputRef.current) {
-        inputRef.current.focus()
-      }
-    }
-  }
-
   // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   React.useEffect(() => {
     handleBotSelection()
@@ -98,24 +88,24 @@ export function PromptForm({
     }
   }, [])
 
+  const handleBotSelection = () => {
+    if (activeThread?.chatbot) {
+      setActiveChatbot(activeThread.chatbot)
+      // Focus textarea after bot selection
+      if (inputRef.current) {
+        inputRef.current.focus()
+      }
+    }
+  }
+
   const handleTextareaFocus = () => {
     setIsFocused(true)
   }
 
   const handleTextareaBlur = () => {
     setIsFocused(false)
-  }// * Creating unique instances for each form (popup and main).
-  // ? This is required to prevent the form from submitting when the user presses Enter in the popup.
-  // ? Must be rendered once per form instance. Else it will not work as expected if leave without memoizing (onChange would update this component).
-  const formId = React.useMemo(() => nanoid(16), [])
-  const userAttachments =
-  (userData.userAttachments as FileAttachment[]) && allMessages.length
-  ? (userData.userAttachments as FileAttachment[]).filter((attachment) =>
-        allMessages.some(
-            (a) => attachment.messageIds?.some((id) => id === a.id),
-          ),
-        )
-      : []
+  }
+
   const triggerNativeFileInput = (e: React.MouseEvent) => {
     const $document = e.currentTarget.ownerDocument
     if (!$document) return
@@ -128,36 +118,50 @@ export function PromptForm({
     $input.setAttribute('disabled', '')
   }
 
+  const submitPrompt = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!input?.trim() || disabled) {
+      return
+    }
+    setInput('')
+
+    const chatOptions: ChatRequestOptions = {}
+    if (attachments.length) {
+      // ? I might not need to destructure it here... maybe it is capable to read the FileList directly
+      const fileAttachments: (Attachment & { id: string })[] = []
+      for (const attachment of attachments) {
+        if (!attachment.url) return
+
+        fileAttachments.push(attachment)
+      }
+
+      chatOptions.experimental_attachments = fileAttachments
+    }
+
+    await onSubmit(input, chatOptions)
+    fileAttachmentActions.clearAttachments()
+  }
+  
+  // * Creating unique instances for each form (popup and main).
+  // ? This is required to prevent the form from submitting when the user presses Enter in the popup.
+  // ? Must be rendered once per form instance. Else it will not work as expected if leave without memoizing (onChange would update this component).
+  const formId = React.useMemo(() => nanoid(16), [])
+  const userAttachments =
+    (userData.userAttachments as FileAttachment[]) && allMessages.length
+      ? (userData.userAttachments as FileAttachment[]).filter((attachment) =>
+          allMessages.some((a) => attachment.messageIds?.some((id) => id === a.id)),
+        )
+      : []
+
   return (
     <motion.form
       id={`prompt-form-${formId}`}
       className="relative"
-      onSubmit={async (e) => {
-        e.preventDefault()
-        if (!input?.trim() || disabled) {
-          return
-        }
-        setInput('')
-
-        const chatOptions: ChatRequestOptions = {}
-        if (attachments.length) {
-          // ? I might not need to destructure it here... maybe it is capable to read the FileList directly
-          const fileAttachments: (Attachment & { id: string })[]= []
-          for (const attachment of attachments) {
-            if (!attachment.url) return
-
-            fileAttachments.push(attachment)
-          }
-
-          chatOptions.experimental_attachments = fileAttachments
-        }
-
-        await onSubmit(input, chatOptions)
-        fileAttachmentActions.clearAttachments()
-      }}
+      onSubmit={submitPrompt}
       ref={formRef}
       onDrop={fileAttachmentActions.onDrop}
       onDragOver={fileAttachmentActions.onDragOver}
+      onDragExit={fileAttachmentActions.onDragLeave}
       onDragLeave={fileAttachmentActions.onDragLeave}
     >
       <AttachmentsDisplay
@@ -286,7 +290,9 @@ export function PromptForm({
                 <span className="sr-only">Send message</span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent sideOffset={5} side="top" align="center" className="px-2 py-1">Send message</TooltipContent>
+            <TooltipContent sideOffset={5} side="top" align="center" className="px-2 py-1">
+              Send message
+            </TooltipContent>
           </Tooltip>
         </div>
       </div>

@@ -24,24 +24,25 @@ export function AttachmentsDisplay({
 }) {
   const toggleFullScreen = (e: React.MouseEvent) => {
     e.stopPropagation()
-    const tooltipParent = e.currentTarget.closest('figure')?.parentElement?.parentElement
-    const figureParent = e.currentTarget.closest('figure')?.parentElement
-    const figure = e.currentTarget.closest('figure')
-    const maximizeIcon = e.currentTarget.querySelector('#maximize-icon')
-    const minimizeIcon = e.currentTarget.querySelector('#minimize-icon')
-    if (figure && figureParent && tooltipParent) {
-      tooltipParent.classList.toggle('flex')
-      tooltipParent.classList.toggle('fixed')
-      tooltipParent.classList.toggle('inset-0')
-      tooltipParent.classList.toggle('top-[66px]')
-      tooltipParent.classList.toggle('z-50')
-      tooltipParent.classList.toggle('p-4')
-      tooltipParent.classList.toggle('bg-black/10')
-      tooltipParent.classList.toggle('items-center')
-      tooltipParent.classList.toggle('justify-center')
-      figureParent.classList.toggle('size-[720px]')
-      maximizeIcon?.classList.toggle('hidden')
-      minimizeIcon?.classList.toggle('hidden')
+
+    const $tooltipParent = e.currentTarget.closest('figure')?.parentElement?.parentElement
+    const $figureParent = e.currentTarget.closest('figure')?.parentElement
+    const $maximizeIcon = e.currentTarget.querySelector('#maximize-icon')
+    const $minimizeIcon = e.currentTarget.querySelector('#minimize-icon')
+
+    if ($figureParent && $tooltipParent) {
+      $tooltipParent.classList.toggle('flex')
+      $tooltipParent.classList.toggle('fixed')
+      $tooltipParent.classList.toggle('inset-0')
+      $tooltipParent.classList.toggle('top-[66px]')
+      $tooltipParent.classList.toggle('z-50')
+      $tooltipParent.classList.toggle('p-4')
+      $tooltipParent.classList.toggle('bg-black/10')
+      $tooltipParent.classList.toggle('items-center')
+      $tooltipParent.classList.toggle('justify-center')
+      $figureParent.classList.toggle('size-[720px]')
+      $maximizeIcon?.classList.toggle('hidden')
+      $minimizeIcon?.classList.toggle('hidden')
     }
   }
 

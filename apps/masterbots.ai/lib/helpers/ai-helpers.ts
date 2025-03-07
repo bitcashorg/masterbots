@@ -244,21 +244,6 @@ export const processLogEntry = (logEntry: StreamEntry) => {
   }
 }
 
-export function base64DecodeUnicode(str: string) {
-  try {
-    return decodeURIComponent(
-      Buffer.from(str, 'base64')
-        .toString('binary')
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join(''),
-    )
-  } catch (e) {
-    console.error('Failed to decode base64 string:', e)
-    return ''
-  }
-}
-
 export const mbObjectSchema = {
   metadata: metadataSchema,
   examples: examplesSchema,

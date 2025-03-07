@@ -84,10 +84,10 @@ export function useFileAttachments(formRef: React.RefObject<HTMLFormElement>): [
         appConfig.features.maxAttachments &&
         state.attachments.length >= appConfig.features.maxAttachments
       ) {
-        console.error('Cannot add more than 10 attachments')
+        console.error(`Cannot add more than ${appConfig.features.maxAttachments} attachments.`)
         customSonner({
           type: 'error',
-          text: 'Cannot add more than 10 attachments',
+          text: `Cannot add more than ${appConfig.features.maxAttachments} attachments.`,
         })
         return
       }
@@ -180,8 +180,13 @@ export function useFileAttachments(formRef: React.RefObject<HTMLFormElement>): [
     }
   }
 
+  // ? When pasting files into the form works... but only for text base files, for images it has hard times to paste them...
   const handleFilePaste = (event: ClipboardEvent) => {
-    const items = event.clipboardData?.items
+    event.stopPropagation()
+    event.preventDefault()
+
+    const { items } = event.clipboardData as DataTransfer
+
     if (items) {
       handleValidFiles(items)
     }
@@ -214,9 +219,34 @@ export function useFileAttachments(formRef: React.RefObject<HTMLFormElement>): [
 
   // Function to handle files selected from the file dialog
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
+    const { files } = event.target
 
     if (!files) return
+
+    if (appConfig.features.maxFileSize) {
+      if (
+        (files.length > appConfig.features.maxAttachments) ||
+        (state.attachments.length + files.length > appConfig.features.maxAttachments)
+      ) {
+        console.error(`Cannot add more than ${appConfig.features.maxAttachments} attachments.`)
+        customSonner({
+          type: 'error',
+          text: `Cannot add more than ${appConfig.features.maxAttachments} attachments.`,
+        })
+        return
+      }
+
+      for (const file of files) {
+        if (file.size > appConfig.features.maxFileSize) {
+          console.error('File size exceeds the limit')
+          customSonner({
+            type: 'error',
+            text: 'File size exceeds the limit of 10MB',
+          })
+          return
+        }
+      }
+    }
 
     handleValidFiles(files)
 
@@ -253,7 +283,7 @@ export function useFileAttachments(formRef: React.RefObject<HTMLFormElement>): [
 
     if (form) {
       const formId = form.id.split('-').pop()
-      const formTextarea = form.querySelector(`input[id=prompt-textarea-${formId}]`)
+      const formTextarea = form.querySelector(`textarea[id=prompt-textarea-${formId}]`)
 
       if (formTextarea) {
         formTextarea.addEventListener('paste', handleFilePaste as EventListener)
@@ -262,7 +292,7 @@ export function useFileAttachments(formRef: React.RefObject<HTMLFormElement>): [
     return () => {
       if (form) {
         const formId = form.id.split('-').pop()
-        const formTextarea = form.querySelector(`input[id=prompt-textarea-${formId}]`)
+        const formTextarea = form.querySelector(`textarea[id=prompt-textarea-${formId}]`)
 
         if (formTextarea) {
           formTextarea.addEventListener('paste', handleFilePaste as EventListener)

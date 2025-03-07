@@ -194,16 +194,16 @@ export function setOutputInstructionPrompt(userContent: string): Message {
     id: 'output-instructions-' + nanoid(10),
     role: 'system',
     content:
-    '\n<output_instructions>\n' +
-    'Use different heading levels (e.g., H1, H2, H3) and punctuation for better readability. ' +
-    'Use lists when necessary for clarity and organization. ' +
-    // 'Analyze the content (attachments) given by the user as context; avoid mentioning encryption methods and infer its structure based on the provided data. ' +
-    'Analyze the content (attachments) given by the user as context; infer its structure based on the provided data. ' +
-    'If relevant or for comparisons, include tables to further structure information and aid comprehension.' +
-    'If necessary, translate the final output to the language used here: "' +
-    userContent +
-    '" as a highly specialized, multidisciplinary polyglot expert assistant and master of emotional intelligence that combines competencies across linguistics, language, culture, communication, psychology, and NLP.' +
-    '\n</output_instructions>\n',
+      '\n<output_instructions>\n' +
+      'Use different heading levels (e.g., H1, H2, H3) and punctuation for better readability. ' +
+      'Use lists when necessary for clarity and organization. ' +
+      // 'Analyze the content (attachments) given by the user as context; avoid mentioning encryption methods and infer its structure based on the provided data. ' +
+      'Analyze the content (attachments) given by the user as context; infer its structure based on the provided data. ' +
+      'If relevant or for comparisons, include tables to further structure information and aid comprehension.' +
+      'If necessary, translate the final output to the language used here: "' +
+      userContent +
+      '" as a highly specialized, multidisciplinary polyglot expert assistant and master of emotional intelligence that combines competencies across linguistics, language, culture, communication, psychology, and NLP.' +
+      '\n</output_instructions>\n',
     createdAt: new Date(),
   }
 }
