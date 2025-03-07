@@ -31,7 +31,7 @@ export function OnboardingChatbotDetails({
       data-route={routeType}
     >
       <Card className="w-[600px] bg-white dark:bg-[#09090B] relative z-10">
-        <CardHeader className="space-y-6">
+        <CardHeader className="space-y-3">
           <h1 className="px-4 pt-4 text-2xl font-bold text-zinc-950 dark:text-gray-300">
             {isWelcomeView ? 'Welcome to Masterbots!' : botName}
           </h1>

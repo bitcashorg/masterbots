@@ -1,6 +1,6 @@
-import { type RefObject, useCallback, useState, useRef, useEffect } from 'react'
-import { useIntersectionObserver } from './use-intersection-observer'
+import { type RefObject, useCallback, useEffect, useRef, useState } from 'react'
 import { useDebounce } from './use-debounce'
+import { useIntersectionObserver } from './use-intersection-observer'
 
 interface UseScrollOptions {
   containerRef: RefObject<HTMLElement>
@@ -93,7 +93,7 @@ export function useMBScroll({
     try {
       // First phase: scroll near bottom
       containerRef.current.scrollTo({
-        top: maxScrollTop - 1,
+        top: maxScrollTop - 8,
         behavior: scrollBehavior
       })
 
@@ -133,11 +133,12 @@ export function useMBScroll({
   }, [threadRef, scrollBehavior, scrollDelay])
 
   // Auto-scroll to bottom when new content arrives
-  useEffect(() => {
-    if (isNewContent && isNearBottom) {
-      smoothScrollToBottom()
-    }
-  }, [isNewContent, isNearBottom, smoothScrollToBottom])
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Not required here
+    useEffect(() => {
+      if (isNewContent && !isNearBottom) {
+        smoothScrollToBottom()
+      }
+    }, [isNewContent])
 
   return {
     isNearBottom,
