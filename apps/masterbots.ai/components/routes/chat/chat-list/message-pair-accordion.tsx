@@ -6,7 +6,7 @@ import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import { useThread } from '@/lib/hooks/use-thread'
 import type { MessagePair } from '@/lib/threads'
 import { cn } from '@/lib/utils'
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 
 export function MessagePairAccordion({
   pair,
@@ -125,15 +125,14 @@ export function MessagePairAccordion({
         )}
         {pair.chatGptMessage.length > 0
           ? pair.chatGptMessage.map((message) => (
-              <>
+            <Fragment key={message.id}>
               {index === 0 && !isThread && <AttachmentCards userAttachments={userAttachments} isAccordionFocused={isAccordionFocused} />}
                 <ChatMessage
-                  key={message.id}
                   actionRequired={false}
                   message={message}
                   sendMessageFromResponse={props.sendMessageFn}
                 />
-              </>
+              </Fragment>
             ))
           : ''}
       </div>
