@@ -115,7 +115,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
    * */
   const systemPrompts: AiMessage[] =
     chatbotSystemPrompts.length && userPreferencesPrompts.length
-      ? [chatbotSystemPrompts[0], ...userPreferencesPrompts, chatbotSystemPrompts[1]]
+      ? [chatbotSystemPrompts[0], ...userPreferencesPrompts, chatbotSystemPrompts[1]].filter(
+          (prompt) => prompt !== undefined,
+        )
       : []
   /**
    * @description
@@ -336,7 +338,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       })) || [],
     ),
     'content',
-  ).filter((m) => m && m.role !== 'system')
+  ).filter(Boolean).filter((m) => m.role !== 'system')
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: only activeThread is needed
   useEffect(() => {
