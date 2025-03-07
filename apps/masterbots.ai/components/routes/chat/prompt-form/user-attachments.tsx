@@ -48,7 +48,9 @@ export function UserAttachments({
               <span className="truncate w-full">{attachment.name}</span>
             </label>
           </TooltipTrigger>
-          <TooltipContent className="px-2 py-1">{attachment.name}</TooltipContent>
+          <TooltipContent sideOffset={5} side="top" align="center" className="px-2 py-1">
+            {attachment.name}
+          </TooltipContent>
         </Tooltip>
       </CommandItem>
     )

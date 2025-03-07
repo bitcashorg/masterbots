@@ -299,7 +299,7 @@ export function PromptForm({
                 <span className="sr-only">Send message</span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Send message</TooltipContent>
+            <TooltipContent sideOffset={5} side="top" align="center" className="px-2 py-1">Send message</TooltipContent>
           </Tooltip>
         </div>
       </div>

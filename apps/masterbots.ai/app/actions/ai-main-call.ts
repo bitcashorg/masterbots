@@ -349,7 +349,7 @@ export async function createResponseStream(
       headers: { 'Content-Type': 'text/event-stream' },
     })
   } catch (error) {
-    console.error('Error in createResponseStream:', error)
+    console.error('--- ERROR IN createResponseStream ---')
     throw error
   }
 }
