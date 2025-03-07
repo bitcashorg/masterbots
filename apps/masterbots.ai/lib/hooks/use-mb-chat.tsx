@@ -336,7 +336,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       })) || [],
     ),
     'content',
-  ).filter((m) => m.role !== 'system')
+  ).filter((m) => m && m.role !== 'system')
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: only activeThread is needed
   useEffect(() => {
