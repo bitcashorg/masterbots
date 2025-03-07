@@ -12,12 +12,7 @@ import { useModel } from '@/lib/hooks/use-model'
 import { type NavigationParams, useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
-import {
-  createThread,
-  deleteThread,
-  getThread,
-  saveNewMessage
-} from '@/services/hasura'
+import { createThread, deleteThread, getThread, saveNewMessage } from '@/services/hasura'
 import type {
   AiClientType,
   AiToolCall,
@@ -30,7 +25,7 @@ import type {
   CreateMessage
 } from 'ai'
 import { type UseChatOptions, useChat } from 'ai/react'
-import { uniqBy } from 'lodash'
+import { throttle, uniqBy } from 'lodash'
 import type { Chatbot, Message, Thread } from 'mb-genql'
 
 import {
@@ -38,8 +33,11 @@ import {
   processUserMessage
 } from '@/lib/helpers/ai-classification'
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
+import { type FileAttachment, getUserIndexedDBKeys } from '@/lib/hooks/use-chat-attachments'
+import { useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
 import type { SaveNewMessageParams } from '@/services/hasura/hasura.service.type'
+import type * as OpenAi from 'ai'
 import { appConfig } from 'mb-env'
 import { nanoid } from 'nanoid'
 import { useSession } from 'next-auth/react'
@@ -155,6 +153,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
    * 4. Masterbot Output Instructions.
    * 5. Conversation between user and assistant.
    * */
+
   const initialMessages: AiMessage[] = systemPrompts.concat(
     userAndAssistantMessages
   )
@@ -177,6 +176,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
   }
 
   const searchParams = useSearchParams()
+  const messageAttachments = useRef<FileAttachment[]>([])
+  const dbKeys = getUserIndexedDBKeys(session?.user?.id)
+  const indexedDBActions = useIndexedDB(dbKeys)
 
   const useChatConfig: Partial<UseChatOptions> = {
     initialMessages,
@@ -219,6 +221,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
         }
       }
     },
+
     // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     async onFinish(message: any, options: any) {
       try {
@@ -263,6 +266,34 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
           }
         }
 
+        const aiChatThreadId = resolveThreadId({
+          isContinuousThread,
+          randomThreadId: randomThreadId.current,
+          threadId,
+          activeThreadId: activeThread?.threadId,
+        })
+        const userMessageId = crypto.randomUUID()
+        const assistantMessageId = crypto.randomUUID()
+
+        // Saving attachments to indexedDB and attaching them to the message
+        const attachments = messageAttachments.current
+        const newAttachments = attachments
+          ? attachments.map((attachment) => ({
+            ...attachment,
+            // We make the relationship of the attachment with the user and assistant messages, making it flexible
+            messageIds: [...(attachment?.messageIds || []), userMessageId, assistantMessageId],
+          }))
+          : []
+
+        for (const attachment of newAttachments) {
+          try {
+            indexedDBActions.updateItem(attachment.id, attachment)
+          } catch (error) {
+            console.error('Error saving attachment: ', error)
+            indexedDBActions.addItem(attachment)
+          }
+        }
+
         const newBaseMessage: Partial<SaveNewMessageParams> = {
           threadId: aiChatThreadId ?? '',
           jwt: session?.user?.hasuraJwt
@@ -273,12 +304,14 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
         ]: Partial<SaveNewMessageParams>[] = [
           {
             ...newBaseMessage,
+            messageId: userMessageId,
             role: 'user',
             content: userContentRef.current,
             createdAt: new Date().toISOString()
           },
           {
             ...newBaseMessage,
+            messageId: assistantMessageId,
             role: 'assistant',
             content: message.content,
             createdAt: new Date(Date.now() + 1000).toISOString()
@@ -291,7 +324,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
             saveNewMessage(newAssistantMessage)
           ])
         }
-
         setState({
           isNewChat: false
         })
@@ -312,6 +344,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
         setLoadingState('finished')
         setActiveTool(undefined)
         setIsContinuingGeneration(false)
+        throttle(async () => {
+          await updateActiveThread()
+        }, 250)()
       } catch (error) {
         console.error('Error saving new message: ', error)
         customSonner({
@@ -552,7 +587,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       )
     }
 
-    await appendNewMessage(userMessage)
+    await appendNewMessage(userMessage, chatRequestOptions)
   }
 
   const getMetadataLabels =
@@ -623,7 +658,10 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     setWebSearch(!webSearch)
   }
 
-  const appendNewMessage = async (userMessage: AiMessage | CreateMessage) => {
+  const appendNewMessage = async (
+    userMessage: AiMessage | CreateMessage,
+    chatMessagesOptions?: ChatRequestOptions,
+  ) => {
     try {
       const chatbotMetadata = await getMetadataLabels()
       // ? Hydration issues is causing the continuing thread to update until the 2nd attempt after it gets updated to false and the react state to get the latest searchParam in the client... These hydration issues might be related to the client components trying to update the state before the server response is ready or the client doesn't catch-up on time the react states... Maybe removing the hydration warning we might now... 🤔
@@ -687,7 +725,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       }
 
       setLoadingState('generating')
-
+      messageAttachments.current = chatMessagesOptions?.experimental_attachments as FileAttachment[]
       const appendResponse = await append(
         {
           ...userMessage,
@@ -695,13 +733,10 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
             ? userContentRef.current
             : followingQuestionsPrompt(
                 userContentRef.current,
-                previousAiUserMessages.concat(allMessages)
-              )
-        }
-        // ? Provide chat attachments here...
-        // {
-        //   experimental_attachments: [],
-        // }
+                previousAiUserMessages.concat(allMessages),
+              ),
+        },
+        chatMessagesOptions,
       )
 
       return appendResponse
