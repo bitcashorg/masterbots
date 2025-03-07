@@ -17,11 +17,19 @@ import { Switch } from '@/components/ui/switch'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn } from '@/lib/utils'
+import { useMBChat } from '@/lib/hooks/use-mb-chat'
+import { ContinueGenerationButton } from '@/components/shared/continue-generation-button'
 
 export interface ChatPanelProps
   extends Pick<
     UseChatHelpers,
-    'append' | 'isLoading' | 'reload' | 'messages' | 'stop' | 'input' | 'setInput'
+    | 'append'
+    | 'isLoading'
+    | 'reload'
+    | 'messages'
+    | 'stop'
+    | 'input'
+    | 'setInput'
   > {
   scrollToBottom: () => void
   id?: string
@@ -48,16 +56,53 @@ export function ChatPanel({
   showReload = true,
   isAtBottom,
   scrollToBottom,
-  className,
+  className
 }: ChatPanelProps) {
   const { isOpenPopup, loadingState, webSearch, setWebSearch } = useThread()
   const { isPowerUp, togglePowerUp } = usePowerUp()
   const [shareDialogOpen, setShareDialogOpen] = React.useState(false)
   const webSearchRef = React.useRef(null)
+  const [mbChatState, mbChatActions] = useMBChat()
+  const { isContinuingGeneration } = mbChatState
 
-  const isPreProcessing = Boolean(loadingState?.match(/processing|digesting|polishing/))
-  const hiddenAnimationClassNames = 'p-2 gap-0 w-auto relative overflow-hidden [&:hover_span]:opacity-100 [&:hover_span]:w-auto [&:hover_span]:duration-300 [&:hover_svg]:mr-2 [&:hover_span]:transition-all'
-  const hiddenAnimationItemClassNames = 'transition-all w-[0px] opacity-0 whitespace-nowrap duration-300'
+  //? Check if the last response might be incomplete
+  const mayNeedContinuation = React.useMemo(() => {
+    if (!messages.length) return false
+
+    //? Get the last assistant message
+    const lastAssistantMessage = [...messages]
+      .reverse()
+      .find(msg => msg.role === 'assistant')
+
+    //? Criteria for potentially needing continuation:
+    //? 1. Last assistant message exists and isn't too short
+    //? 2. The response doesn't have a clear conclusion
+    if (
+      lastAssistantMessage?.content &&
+      lastAssistantMessage.content.length > 100
+    ) {
+      const content = lastAssistantMessage.content
+      //? Check if the message ends abruptly without conclusion markers
+      const hasProperConclusion =
+        content.endsWith('.') ||
+        content.endsWith('!') ||
+        content.endsWith('?') ||
+        content.endsWith('"') ||
+        content.endsWith(')')
+
+      return !hasProperConclusion
+    }
+
+    return false
+  }, [messages])
+
+  const isPreProcessing = Boolean(
+    loadingState?.match(/processing|digesting|polishing/)
+  )
+  const hiddenAnimationClassNames =
+    'p-2 gap-0 w-auto relative overflow-hidden [&:hover_span]:opacity-100 [&:hover_span]:w-auto [&:hover_span]:duration-300 [&:hover_svg]:mr-2 [&:hover_span]:transition-all'
+  const hiddenAnimationItemClassNames =
+    'transition-all w-[0px] opacity-0 whitespace-nowrap duration-300'
 
   return (
     <div
@@ -67,7 +112,7 @@ export function ChatPanel({
         'bg-gradient-to-b from-background/50 to-background',
         'dark:from-background/0 dark:to-background/80',
         'lg:pl-[250px] xl:pl-[300px]',
-        className,
+        className
       )}
     >
       <div className="relative w-full mx-auto">
@@ -76,9 +121,17 @@ export function ChatPanel({
           <div className="flex items-center justify-between w-full gap-4 mx-2">
             <div className="flex items-center space-x-4">
               {/* Power-Up Switch */}
-              <div className="flex md:flex-row flex-col items-center space-x-2 gap-y-2 cursor-pointer">
-                <Switch id="power-up" checked={isPowerUp} onCheckedChange={togglePowerUp} className="h-4 w-9 [&>span]:size-3.5"/>
-                <Label htmlFor="power-up" className="text-xs md:text-sm font-normal cursor-pointer">
+              <div className="flex flex-col items-center space-x-2 cursor-pointer md:flex-row gap-y-2">
+                <Switch
+                  id="power-up"
+                  checked={isPowerUp}
+                  onCheckedChange={togglePowerUp}
+                  className="h-4 w-9 [&>span]:size-3.5"
+                />
+                <Label
+                  htmlFor="power-up"
+                  className="text-xs font-normal cursor-pointer md:text-sm"
+                >
                   Power-Up
                 </Label>
               </div>
@@ -93,7 +146,7 @@ export function ChatPanel({
                     id="webSearch"
                     value={webSearch ? 'checked' : 'unchecked'}
                     ref={webSearchRef}
-                    onClick={(value) => setWebSearch(!value)}
+                    onClick={value => setWebSearch(!value)}
                     className="transition-all delay-100 h-auto w-auto inline-flex items-center gap-2 border-muted p-0.5 data-[state=checked]:border-accent/50 data-[state=checked]:bg-accent/25 rounded-full"
                     checkboxconfig={{
                       check: (
@@ -114,7 +167,7 @@ export function ChatPanel({
                           <GlobeIcon className="opacity-75 size-7" />
                           <span className="sr-only">Web search disabled</span>
                         </>
-                      ),
+                      )
                     }}
                   />
                 </>
@@ -140,16 +193,18 @@ export function ChatPanel({
                 <>
                   {loadingState !== 'finished' && (
                     <div className="flex items-center justify-between gap-4">
-                      <b className="text-xs drop-shadow-lg">
-                        {loadingState}
-                      </b>
+                      <b className="text-xs drop-shadow-lg">{loadingState}</b>
                       <div className="flex items-center justify-center w-full size-4">
-                        <div className="size-3 border-2 border-gray-200 rounded-full animate-ping" />
+                        <div className="border-2 border-gray-200 rounded-full size-3 animate-ping" />
                       </div>
                     </div>
                   )}
                   {isLoading && (
-                    <Button variant="outline" onClick={stop} className="bg-background">
+                    <Button
+                      variant="outline"
+                      onClick={stop}
+                      className="bg-background"
+                    >
                       <IconStop className="mr-2" />
                       Stop generating
                     </Button>
@@ -158,15 +213,33 @@ export function ChatPanel({
               ) : (
                 messages?.length >= 2 && (
                   <>
-                      <Button variant="outline" size="icon" className={hiddenAnimationClassNames} onClick={() => reload()}>
-                        <IconRefresh className="transition-all" />
-                        <span className={hiddenAnimationItemClassNames}>
-                          Regenerate response
-                        </span>
-                      </Button>
+                    {/* Continue Generation Button - Show based on message conditions */}
+                    {mayNeedContinuation && (
+                      <ContinueGenerationButton
+                        onClick={mbChatActions.continueGeneration}
+                        isContinuing={isContinuingGeneration}
+                        className="bg-background"
+                      />
+                    )}
+
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className={hiddenAnimationClassNames}
+                      onClick={() => reload()}
+                    >
+                      <IconRefresh className="transition-all" />
+                      <span className={hiddenAnimationItemClassNames}>
+                        Regenerate response
+                      </span>
+                    </Button>
+
                     {id && title && (
                       <>
-                        <Button variant="outline" onClick={() => setShareDialogOpen(true)}>
+                        <Button
+                          variant="outline"
+                          onClick={() => setShareDialogOpen(true)}
+                        >
                           <IconShare className="mr-2" />
                           Share
                         </Button>
@@ -175,7 +248,7 @@ export function ChatPanel({
                           chat={{
                             id,
                             title,
-                            messages,
+                            messages
                           }}
                         />
                       </>
@@ -195,15 +268,15 @@ export function ChatPanel({
             'border-t shadow-lg bg-background',
             'dark:border-zinc-800 border-zinc-200',
             isOpenPopup ? 'dark:border-mirage border-iron' : '',
-            'min-h-[64px] sm:min-h-[80px]',
+            'min-h-[64px] sm:min-h-[80px]'
           )}
         >
           <PromptForm
-            onSubmit={async (value) => {
+            onSubmit={async value => {
               await append({
                 id,
                 content: value,
-                role: 'user',
+                role: 'user'
               })
             }}
             // biome-ignore lint/complexity/noExtraBooleanCast: <explanation>
