@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import { IconRefresh } from '@/components/ui/icons'
+import { ListRestart } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface ContinueGenerationButtonProps {
@@ -24,7 +24,7 @@ export function ContinueGenerationButton({
       onClick={onClick}
       disabled={isContinuing}
     >
-      <IconRefresh className={cn("transition-all", isContinuing && "animate-spin")} />
+      <ListRestart className={cn("transition-all", isContinuing && "animate-spin", "text-purple-400")} />
       <span className={textClassNames}>
         {isContinuing ? 'Continuing...' : 'Continue generation'}
       </span>
