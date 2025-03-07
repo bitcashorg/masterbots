@@ -140,26 +140,13 @@ export function PromptForm({
         setInput('')
 
         const chatOptions: ChatRequestOptions = {}
-
         if (attachments.length) {
           // ? I might not need to destructure it here... maybe it is capable to read the FileList directly
           const fileAttachments: (Attachment & { id: string })[]= []
           for (const attachment of attachments) {
-            if (!attachment.content) return
+            if (!attachment.url) return
 
-            // Turn the ArrayBuffer into a base64 string for the Ai to read.
-            const attachmentUrl =
-              typeof attachment.content === 'string'
-                ? attachment.content
-                : Buffer.from(attachment.content).toString('base64')
-
-            fileAttachments.push({
-              id: attachment.id,
-              name: attachment.name,
-              contentType: attachment.type,
-              // url: attachment.url,
-              url: attachmentUrl,
-            })
+            fileAttachments.push(attachment)
           }
 
           chatOptions.experimental_attachments = fileAttachments

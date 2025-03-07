@@ -3,7 +3,15 @@ import { TooltipContent } from '@/components/ui/tooltip'
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import { cn } from '@/lib/utils'
 import { Tooltip, TooltipTrigger } from '@radix-ui/react-tooltip'
+import { AnimatePresence, type MotionProps, motion } from 'framer-motion'
+import { FileIcon } from 'lucide-react'
 import Image from 'next/image'
+
+export const cardSlideUpShowAnimationProps: MotionProps = {
+  initial: { opacity: 0, y: 5 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: 5 },
+}
 
 export function AttachmentCards({
   userAttachments,
@@ -16,44 +24,58 @@ export function AttachmentCards({
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-1">
             <span className="text-xs font-medium">Base Knowledge:</span>
-            <span className="text-xs font-medium text-accent">{attachmentsLength} File{attachmentsLength > 1 ? 's' : ''}</span>
+            <span className="text-xs font-medium text-accent">
+              {attachmentsLength} File{attachmentsLength > 1 ? 's' : ''}
+            </span>
           </div>
           <div className="flex flex-wrap gap-1">
-            {userAttachments.map((attachment) => (
-              <Card
-                key={(attachment as FileAttachment).id}
-                className={cn(
-                  'transition duration-300 relative flex flex-col items-center gap-1 text-xs font-medium',
-                  isAccordionFocused ? 'size-[240px]' : 'size-[80px]',
-                )}
-              >
-                <CardTitle className="size-full">
-                  <Image
-                    src={(attachment as FileAttachment).url || ''}
-                    alt={(attachment as FileAttachment).name}
-                    loading="lazy"
-                    width={240}
-                    height={240}
-                    className="size-full object-cover rounded-lg"
-                  />
-                </CardTitle>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <CardDescription
+            <AnimatePresence>
+              {userAttachments.map((attachment) => {
+                const { id, name, url, contentType } = attachment as FileAttachment
+                return (
+                  <motion.div key={id} {...cardSlideUpShowAnimationProps}>
+                    <Card
                       className={cn(
-                        'transition duration-300 absolute truncate bottom-0 px-3 py-1.5 w-full text-center bg-accent text-accent-foreground rounded-b-lg',
-                        isAccordionFocused ? 'text-sm' : 'text-xs',
+                        'transition duration-300 relative flex flex-col items-center gap-1 text-xs font-medium',
+                        isAccordionFocused ? 'size-[240px]' : 'size-[80px]',
                       )}
                     >
-                      {(attachment as FileAttachment).name}
-                    </CardDescription>
-                  </TooltipTrigger>
-                  <TooltipContent sideOffset={5} side="top" align="center" className="px-2 py-1">
-                    {(attachment as FileAttachment).name}
-                  </TooltipContent>
-                </Tooltip>
-              </Card>
-            ))}
+                      <CardTitle className="size-full">
+                        {contentType?.includes('image') ? (
+                          <Image
+                            src={url}
+                            alt={name}
+                            loading="lazy"
+                            width={240}
+                            height={240}
+                            className="size-full object-cover rounded-lg"
+                          />
+                        ) : (
+                          <div className="size-full flex items-center justify-center bg-muted rounded-lg">
+                            <FileIcon className="size-5" />
+                          </div>
+                        )}
+                      </CardTitle>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <CardDescription
+                            className={cn(
+                              'transition duration-300 absolute truncate bottom-0 px-3 py-1.5 w-full text-center bg-accent text-accent-foreground rounded-b-lg',
+                              isAccordionFocused ? 'text-sm' : 'text-xs',
+                            )}
+                          >
+                            {name}
+                          </CardDescription>
+                        </TooltipTrigger>
+                        <TooltipContent sideOffset={5} side="top" align="center" className="px-2 py-1">
+                          {name}
+                        </TooltipContent>
+                      </Tooltip>
+                    </Card>
+                  </motion.div>
+                )
+              })}
+            </AnimatePresence>
           </div>
         </div>
       )}

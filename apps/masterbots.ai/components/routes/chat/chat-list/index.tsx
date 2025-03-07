@@ -65,7 +65,7 @@ export function ChatList({
     if (session) {
       getUserAttachments()
     }
-  }, [session, messages])
+  }, [session, messages, activeThread])
 
   //? Uses the external ref if provided, otherwise it uses our internal refs
   const effectiveContainerRef = externalContainerRef || chatListRef

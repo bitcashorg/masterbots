@@ -13,9 +13,8 @@ export function UserAttachments({
   onChange: (id: string) => void
 }) {
   return attachments?.map((attach) => {
-    // TODO: fix type to be just one type (FileAttachment)
-    const attachment = attach as FileAttachment & { contentType?: string }
-    const attachmentType = (attachment?.type ?? attachment?.contentType)?.split('/')[0]
+    const attachment = attach as FileAttachment
+    const attachmentType = (attachment.contentType)?.split('/')[0]
     if (!attachment) return null
     return (
       <CommandItem key={attachment.id} value={attachment.id} className="w-full">
@@ -35,7 +34,7 @@ export function UserAttachments({
               <div className="size-10 flex flex-shrink-0 items-center justify-center bg-muted rounded">
                 {attachmentType?.includes('image') ? (
                   <Image
-                    src={attachment.url as string}
+                    src={attachment.url}
                     width={40}
                     height={40}
                     alt={attachment.name}

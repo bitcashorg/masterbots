@@ -1,21 +1,21 @@
-import { AIModels } from '@/app/api/chat/models/models';
+import { AIModels } from '@/app/api/chat/models/models'
 import {
   examplesSchema,
   languageGammarSchema,
   metadataSchema,
   toolSchema,
-} from '@/lib/helpers/ai-schemas';
-import type { AiClientType, CleanPromptResult } from '@/types/types';
-import type { StreamEntry } from '@/types/wordware-flows.types';
-import type Anthropic from '@anthropic-ai/sdk';
+} from '@/lib/helpers/ai-schemas'
+import type { AiClientType, CleanPromptResult } from '@/types/types'
+import type { StreamEntry } from '@/types/wordware-flows.types'
+import type Anthropic from '@anthropic-ai/sdk'
 import {
   type Attachment,
   type CoreMessage,
-  type FilePart,
   type ImagePart,
+  type TextPart,
   generateId
-} from 'ai';
-import type OpenAI from 'openai';
+} from 'ai'
+import type OpenAI from 'openai'
 
 // * This function gets the model client type
 export function getModelClientType(model: AIModels) {
@@ -128,13 +128,29 @@ export function convertToCoreMessages(
       coreMessages.push({
         role: msg.role as 'user' | 'system' | 'assistant',
         content: experimental_attachments.map((attachment) => {
-          const isImageType = attachment.contentType?.includes('image')
-          const attachmentType = isImageType ? 'image' : 'file'
+          const { contentType, url } = attachment
+          const isImageType = contentType?.includes('image')
+          const attachmentType = isImageType ? 'image' : 'text'
 
+          if (attachmentType === 'image') {
+            return {
+              type: attachmentType,
+              image: url,
+            } as ImagePart
+          }
+
+          // * File type does not work for text file type should be of type file... anyway.
+          // ? data content should be processed as below or as ArrayBuffer
+          // return {
+          //   type: 'file',
+          //   data: url,
+          // } as FilePart
+          const base64Hash = url.split(',')[1]
+          const textContent = atob(base64Hash)
           return {
             type: attachmentType,
-            [attachmentType === 'file' ? 'data' : attachmentType]: attachment.url,
-          } as unknown as FilePart | ImagePart
+            text: textContent,
+          } as TextPart
         }),
       } as CoreMessage)
     }
@@ -146,22 +162,6 @@ export function convertToCoreMessages(
     // ? base64 encode works for the AttachmentsDisplay
     // TODO: Add condition to handle remote attachments (vectorized bucket)
   }
-
-  console.log('coreMessages --> ', coreMessages.map((msg) => ({
-    ...msg,
-    content: typeof msg.content === 'string' ? msg.content : msg.content.map((content) => {
-      if (content.type === 'file') {
-        return {
-          type: content.type,
-          data: content.data.toString().substring(0, 64),
-        }
-      }
-      return {
-        type: content.type,
-        image: (content as ImagePart).image.toString().substring(0, 64),
-      }
-    }),
-  })))
 
   return coreMessages
 }
@@ -241,6 +241,21 @@ export const processLogEntry = (logEntry: StreamEntry) => {
         // Handle default case
         break
     }
+  }
+}
+
+export function base64DecodeUnicode(str: string) {
+  try {
+    return decodeURIComponent(
+      Buffer.from(str, 'base64')
+        .toString('binary')
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join(''),
+    )
+  } catch (e) {
+    console.error('Failed to decode base64 string:', e)
+    return ''
   }
 }
 

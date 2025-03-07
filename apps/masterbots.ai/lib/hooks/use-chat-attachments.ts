@@ -11,11 +11,12 @@ export type FileAttachment = {
   id: string
   name: string
   size: number
-  type: string
-  content: string | ArrayBuffer | null
+  contentType: string
   messageIds: string[]
+  // The raw content of the attachment. It can either be a string or an ArrayBuffer.
+  content: string | ArrayBuffer | null
   // The URL of the attachment. It can either be a URL to a hosted file or a Data URL.
-  url?: string
+  url: string
   isSelected?: boolean
 }
 
@@ -69,7 +70,7 @@ export function useFileAttachments(formRef: React.RefObject<HTMLFormElement>): [
   })
   const { customSonner } = useSonner()
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: We only required to update this fn everytime we receive a new state of attachments
+  // biome-ignore lint/correctness/useExhaustiveDependencies: We only required to update this fn every time we receive a new state of attachments
   const addAttachment = useCallback(
     (file: DataTransferItem | File) => {
       const reader = new FileReader()
@@ -114,17 +115,18 @@ export function useFileAttachments(formRef: React.RefObject<HTMLFormElement>): [
           id: nanoid(16),
           name: attachmentFile?.name || '',
           size: attachmentFile?.size || 0,
-          type: attachmentFile?.type || '',
+          contentType: attachmentFile?.type || '',
           content: reader.result,
           url: attachmentUrl,
           isSelected: true,
           messageIds: [],
         }
         setState((prev) => ({ attachments: [...prev.attachments, newAttachment] }))
-        // indexedDBActions.addItem(newAttachment)
       }
 
-      console.log('Final attachmentFile --> ', attachmentFile)
+      if (appConfig.features.devMode) {
+        console.info('Final attachmentFile --> ', attachmentFile)
+      }
 
       if (!attachmentFile) return
 
@@ -222,7 +224,6 @@ export function useFileAttachments(formRef: React.RefObject<HTMLFormElement>): [
   }
 
   const toggleAttachmentSelection = (id: string) => {
-    console.log('id', id)
     const newAttachments = state.attachments.map((attachment) => {
       if (attachment.id === id) {
         return {
