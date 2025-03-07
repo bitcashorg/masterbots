@@ -255,8 +255,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
           ) {
             customSonner({
               // TODO: create one Sonner just for warning messages im using erro in the meantime
-              type: 'error',
-              text: 'The response was interrupted. Use the "Continue generation" button to complete it.'
+              type: 'info',
+              text: '⚠️ The response was interrupted. Use the "Continue generation" button to complete it.'
             })
           } else if (options.finishReason === 'length') {
             customSonner({
@@ -266,12 +266,14 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
           }
         }
 
-        const aiChatThreadId = resolveThreadId({
-          isContinuousThread,
-          randomThreadId: randomThreadId.current,
-          threadId,
-          activeThreadId: activeThread?.threadId,
-        })
+        //TODO: Check if its safe to delete this block of code
+        // const aiChatThreadId = resolveThreadId({
+        //   isContinuousThread,
+        //   randomThreadId: randomThreadId.current,
+        //   threadId,
+        //   activeThreadId: activeThread?.threadId,
+        // })
+
         const userMessageId = crypto.randomUUID()
         const assistantMessageId = crypto.randomUUID()
 
