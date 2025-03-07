@@ -263,10 +263,11 @@ export async function createResponseStream(
   try {
     let response: ReturnType<typeof streamText>
 
+    const coreMessages = convertToCoreMessages(messages as OpenAI.ChatCompletionMessageParam[])
+
     switch (clientType) {
       case 'OpenAI': {
         const openaiModel = initializeOpenAi(model)
-        const coreMessages = convertToCoreMessages(messages as OpenAI.ChatCompletionMessageParam[])
         const openAiStreamConfig = {
           temperature: OPEN_AI_ENV_CONFIG.TEMPERATURE,
           topP: OPEN_AI_ENV_CONFIG.TOP_P,
@@ -281,6 +282,7 @@ export async function createResponseStream(
           openAiStreamConfig.experimental_transform = smoothStream()
         }
 
+        // Check this -> https://sdk.vercel.ai/docs/reference/ai-sdk-core/stream-text#messages.core-user-message.role
         response = await streamText(openAiStreamConfig)
         break
       }
@@ -288,7 +290,6 @@ export async function createResponseStream(
         const anthropicModel = initializeAnthropic(model, {
           cacheControl: true,
         })
-        const coreMessages = convertToCoreMessages(messages as OpenAI.ChatCompletionMessageParam[])
         response = await streamText({
           model: anthropicModel,
           messages: coreMessages,
@@ -304,7 +305,6 @@ export async function createResponseStream(
           previewToken || (process.env.PERPLEXITY_API_KEY as string),
         )
         const perplexityModel = perplexity(model)
-        const coreMessages = convertToCoreMessages(messages as OpenAI.ChatCompletionMessageParam[])
         response = await streamText({
           model: perplexityModel,
           messages: coreMessages,
@@ -320,7 +320,6 @@ export async function createResponseStream(
           previewToken || (process.env.DEEPSEEK_API_KEY as string),
         )(model)
 
-        const coreMessages = convertToCoreMessages(messages as OpenAI.ChatCompletionMessageParam[])
         response = await streamText({
           model: deepseekModel,
           messages: coreMessages,
@@ -350,7 +349,7 @@ export async function createResponseStream(
       headers: { 'Content-Type': 'text/event-stream' },
     })
   } catch (error) {
-    console.error('Error in createResponseStream:', error)
+    console.error('--- ERROR IN createResponseStream ---')
     throw error
   }
 }

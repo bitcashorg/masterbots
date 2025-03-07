@@ -199,12 +199,13 @@ export function ChatPanel({
           )}
         >
           <PromptForm
-            onSubmit={async (value) => {
+            onSubmit={async (value, chatOptions) => {
+              scrollToBottom()
               await append({
                 id,
                 content: value,
                 role: 'user',
-              })
+              }, chatOptions)
             }}
             // biome-ignore lint/complexity/noExtraBooleanCast: <explanation>
             disabled={isLoading || !Boolean(chatbot) || isPreProcessing}

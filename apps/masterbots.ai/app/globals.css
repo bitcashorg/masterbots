@@ -456,47 +456,48 @@
   [data-route='public'] .sidebar-gradient.selected {
     background-image: var(--background-public-gradient);
   }
-  
-/* Base styles for clickable-list-heading */
-.clickable-list-heading {
-  pointer-events: none; /* Disables click events on the parent */
-}
 
-/* Enable clicks only on strong elements */
-.clickable-list-heading strong {
-  color: #db9eff !important;
-  transition: color 0.2s ease;
-  pointer-events: auto; /* Re-enables click events specifically for strong elements */
-  cursor: pointer;
-}
+  /* Base styles for clickable-list-heading */
+  .clickable-list-heading {
+    pointer-events: none; /* Disables click events on the parent */
+  }
 
-.clickable-list-heading strong:hover {
-  color: #c663ff !important;
-  text-decoration: underline;
-}
+  /* Enable clicks only on strong elements */
+  .clickable-list-heading strong {
+    color: #db9eff !important;
+    transition: color 0.2s ease;
+    pointer-events: auto; /* Re-enables click events specifically for strong elements */
+    cursor: pointer;
+  }
 
-/* Dark mode support */
-.dark .clickable-list-heading strong {
-  color: #db9eff;
-}
+  .clickable-list-heading strong:hover {
+    color: #c663ff !important;
+    text-decoration: underline;
+  }
 
-.dark .clickable-list-heading strong:hover {
-  color: #c663ff;
-}
+  /* Dark mode support */
+  .dark .clickable-list-heading strong {
+    color: #db9eff;
+  }
 
-/* clickable headings color */
-  .clickable-heading{
+  .dark .clickable-list-heading strong:hover {
+    color: #c663ff;
+  }
+
+  /* clickable headings color */
+  .clickable-heading {
     color: #d081fd !important;
     cursor: pointer;
     transition: color 0.2s ease;
+    width: max-content;
   }
-  .clickable-heading:hover{
+  .clickable-heading:hover {
     color: #b159e4 !important;
   }
-  .dark .clickable-heading{
+  .dark .clickable-heading {
     color: #d081fd;
   }
-  .dark .clickable-heading:hover{
+  .dark .clickable-heading:hover {
     color: #b159e4;
   }
 }

@@ -5,8 +5,8 @@ import type { Message, Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 
 export interface MessagePair {
-  userMessage: Message | AI.Message
-  chatGptMessage: Message[]
+  userMessage: AI.Message
+  chatGptMessage: AI.Message[]
 }
 
 export function convertMessage(message: Message) {
