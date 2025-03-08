@@ -6,7 +6,7 @@ import {
   examplesPrompt,
   followingQuestionsPrompt,
   setDefaultUserPreferencesPrompt,
-  setOutputInstructionPrompt,
+  setOutputInstructionPrompt
 } from '@/lib/constants/prompts'
 import { useModel } from '@/lib/hooks/use-model'
 import { type NavigationParams, useSidebar } from '@/lib/hooks/use-sidebar'
@@ -17,14 +17,21 @@ import type {
   AiClientType,
   AiToolCall,
   ChatbotMetadataClassification,
-  ChatbotMetadataExamples,
+  ChatbotMetadataExamples
 } from '@/types/types'
-import type { Message as AiMessage, ChatRequestOptions, CreateMessage } from 'ai'
+import type {
+  Message as AiMessage,
+  ChatRequestOptions,
+  CreateMessage
+} from 'ai'
 import { type UseChatOptions, useChat } from 'ai/react'
 import { throttle, uniqBy } from 'lodash'
 import type { Chatbot, Message, Thread } from 'mb-genql'
 
-import { aiExampleClassification, processUserMessage } from '@/lib/helpers/ai-classification'
+import {
+  aiExampleClassification,
+  processUserMessage
+} from '@/lib/helpers/ai-classification'
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { type FileAttachment, getUserIndexedDBKeys } from '@/lib/hooks/use-chat-attachments'
 import { useIndexedDB } from '@/lib/hooks/use-indexed-db'
@@ -35,9 +42,17 @@ import { appConfig } from 'mb-env'
 import { nanoid } from 'nanoid'
 import { useSession } from 'next-auth/react'
 import { useParams, useSearchParams } from 'next/navigation'
-import { createContext, useCallback, useContext, useEffect, useRef } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState
+} from 'react'
 import { useSetState } from 'react-use'
 import { useSonner } from './useSonner'
+import { continueGeneration } from '../continue-generation'
 
 export function useMBChat(): MBChatHookCallback {
   const context = useContext(MBChatContext)
@@ -58,7 +73,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     setIsNewResponse,
     setIsOpenPopup,
     setActiveTool,
-    setLoadingState,
+    setLoadingState
   } = useThread()
   const { activeChatbot, navigateTo } = useSidebar()
   const userContentRef = useRef<string>('')
@@ -66,6 +81,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
   const { isContinuousThread, setIsContinuousThread } = useThreadVisibility()
   const { customSonner } = useSonner()
   const { isPowerUp } = usePowerUp()
+  //* Track continuation state and last message
+  const [isContinuingGeneration, setIsContinuingGeneration] = useState(false)
+  const lastIncompleteMessage = useRef<string>('')
   // console.log('[HOOK] webSearch', webSearch)
 
   const params = useParams<{ chatbot: string; threadId: string }>()
@@ -81,10 +99,12 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     isInitLoaded: false,
     webSearch: false,
     messagesFromDB: activeThread?.messages || [],
-    isNewChat: true,
+    isNewChat: true
   })
   const chatbotData = activeThread?.chatbot ?? (activeChatbot as Chatbot)
-  const chatbotSystemPrompts: AiMessage[] = formatSystemPrompts(chatbotData?.prompts)
+  const chatbotSystemPrompts: AiMessage[] = formatSystemPrompts(
+    chatbotData?.prompts
+  )
   const userPreferencesPrompts: AiMessage[] = chatbotData
     ? [setDefaultUserPreferencesPrompt(chatbotData)]
     : []
@@ -93,11 +113,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
    * Format all User prompts and AI 'assistant' messages.
    * */
   const userAndAssistantMessages: AiMessage[] = activeThread
-    ? messagesFromDB.map((m) => ({
+    ? messagesFromDB.map(m => ({
         id: m.messageId,
         role: m.role as AiMessage['role'],
         content: m.content,
-        createdAt: m.createdAt,
+        createdAt: m.createdAt
       }))
     : []
   /**
@@ -115,9 +135,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
    * */
   const systemPrompts: AiMessage[] =
     chatbotSystemPrompts.length && userPreferencesPrompts.length
-      ? [chatbotSystemPrompts[0], ...userPreferencesPrompts, chatbotSystemPrompts[1]].filter(
-          (prompt) => prompt !== undefined,
-        )
+      ? [
+          chatbotSystemPrompts[0],
+          ...userPreferencesPrompts,
+          chatbotSystemPrompts[1]
+        ]
       : []
   /**
    * @description
@@ -131,7 +153,10 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
    * 4. Masterbot Output Instructions.
    * 5. Conversation between user and assistant.
    * */
-  const initialMessages: AiMessage[] = systemPrompts.concat(userAndAssistantMessages)
+
+  const initialMessages: AiMessage[] = systemPrompts.concat(
+    userAndAssistantMessages
+  )
   const threadId = isContinuousThread
     ? randomThreadId.current
     : params.threadId || activeThread?.threadId || randomThreadId.current
@@ -143,7 +168,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     threadId: string
     activeThreadId?: string
   }) => {
-    const { isContinuousThread, randomThreadId, threadId, activeThreadId } = params
+    const { isContinuousThread, randomThreadId, threadId, activeThreadId } =
+      params
     if (isContinuousThread) return randomThreadId
     if (params.threadId || isNewChat) return threadId
     return activeThreadId
@@ -167,11 +193,21 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       model: selectedModel,
       clientType,
       webSearch,
-      isPowerUp,
-    },
+      isPowerUp
+    }
   }
-  const { input, messages, isLoading, stop, append, reload, setInput, setMessages } = useChat({
+  const {
+    input,
+    messages,
+    isLoading,
+    stop,
+    append,
+    reload,
+    setInput,
+    setMessages
+  } = useChat({
     ...useChatConfig,
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     async onResponse(response: any) {
       if (response.status >= 400) {
         customSonner({ type: 'error', text: response.statusText })
@@ -180,43 +216,70 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
           await deleteThread({
             threadId: params?.threadId ?? activeThread?.threadId,
             jwt: session?.user?.hasuraJwt,
-            userId: session?.user.id,
+            userId: session?.user.id
           })
         }
       }
     },
-    async onFinish(message: OpenAi.Message, options: any) {
+
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    async onFinish(message: any, options: any) {
       try {
         if (appConfig.features.devMode) {
           customSonner({
             type: 'info',
-            text: `Ai generation finished, reason: ${options.finishReason}`,
+            text: `Ai generation finished, reason: ${options.finishReason}`
           })
         }
-        if (options.finishReason === 'error') {
-          customSonner({
-            type: 'error',
-            text: 'Failed to finish communication with the Masterbot. Please try again.',
-          })
-
-          if (isNewChat) {
-            await deleteThread({
-              threadId: params?.threadId ?? activeThread?.threadId,
-              jwt: session?.user?.hasuraJwt,
-              userId: session?.user.id,
-            })
-          }
-        }
-
+    
         const aiChatThreadId = resolveThreadId({
           isContinuousThread,
           randomThreadId: randomThreadId.current,
           threadId,
-          activeThreadId: activeThread?.threadId,
+          activeThreadId: activeThread?.threadId
         })
+    
+        //* Handle incomplete or errored responses
+        if (
+          options.finishReason === 'error' ||
+          options.finishReason === 'unknown' ||
+          options.finishReason === 'length'
+        ) {
+          //* Store the incomplete message for potential continuation
+          lastIncompleteMessage.current = message.content
+          
+          //* Automatic continuation for error and unknown reasons
+          if (options.finishReason === 'error' || options.finishReason === 'unknown') {
+            customSonner({
+              type: 'info',
+              text: '⚠️ The response was interrupted. Continuing automatically...'
+            })
+            
+            //* Delay to make it clear to users that a continuation is happening
+            setTimeout(async () => {
+              try {
+                await handleContinueGeneration()
+              } catch (error) {
+                console.error('Automatic continuation failed:', error)
+                customSonner({
+                  type: 'error',
+                  text: 'Automatic continuation failed. Use the "Continue generation" button to try again.'
+                })
+              }
+            }, 1500)
+          } 
+          //* For length issues, just show a notification with manual option
+          else if (options.finishReason === 'length') {
+            customSonner({
+              type: 'info',
+              text: 'The response reached maximum length. Use the "Continue generation" button for more.'
+            })
+          }
+        }
+    
         const userMessageId = crypto.randomUUID()
         const assistantMessageId = crypto.randomUUID()
-
+    
         // Saving attachments to indexedDB and attaching them to the message
         const attachments = messageAttachments.current
         const newAttachments = attachments
@@ -226,7 +289,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
             messageIds: [...(attachment?.messageIds || []), userMessageId, assistantMessageId],
           }))
           : []
-
+    
         for (const attachment of newAttachments) {
           try {
             indexedDBActions.updateItem(attachment.id, attachment)
@@ -235,49 +298,63 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
             indexedDBActions.addItem(attachment)
           }
         }
-
+    
         const newBaseMessage: Partial<SaveNewMessageParams> = {
           threadId: aiChatThreadId ?? '',
-          jwt: session?.user?.hasuraJwt,
+          jwt: session?.user?.hasuraJwt
         }
-        const [newUserMessage, newAssistantMessage]: Partial<SaveNewMessageParams>[] = [
+        const [
+          newUserMessage,
+          newAssistantMessage
+        ]: Partial<SaveNewMessageParams>[] = [
           {
             ...newBaseMessage,
             messageId: userMessageId,
             role: 'user',
             content: userContentRef.current,
-            createdAt: new Date().toISOString(),
+            createdAt: new Date().toISOString()
           },
           {
             ...newBaseMessage,
             messageId: assistantMessageId,
             role: 'assistant',
             content: message.content,
-            createdAt: new Date(Date.now() + 1000).toISOString(),
-          },
+            createdAt: new Date(Date.now() + 1000).toISOString()
+          }
         ]
-        await Promise.all([saveNewMessage(newUserMessage), saveNewMessage(newAssistantMessage)])
-
+    
+        if (!isContinuingGeneration) {
+          await Promise.all([
+            saveNewMessage(newUserMessage),
+            saveNewMessage(newAssistantMessage)
+          ])
+        }
+        
         setState({
-          isNewChat: false,
+          isNewChat: false
         })
-
+    
         if (isContinuousThread) {
-          // Remove continuousThreadId search param
+          //* Remove continuousThreadId search param
           const newSearchParams = new URLSearchParams(searchParams.toString())
           newSearchParams.delete('continuousThreadId')
           window.history.replaceState(
             null,
             '',
-            `${window.location.pathname}?${newSearchParams.toString()}`,
+            `${window.location.pathname}?${newSearchParams.toString()}`
           )
-
+    
           setIsContinuousThread(false)
         }
-        setIsNewResponse(false)
-        setLoadingState('finished')
-        setActiveTool(undefined)
-
+        
+        // Only finish the process if we're not doing an automatic continuation
+        if (!(options.finishReason === 'error' || options.finishReason === 'unknown')) {
+          setIsNewResponse(false)
+          setLoadingState('finished')
+          setActiveTool(undefined)
+          setIsContinuingGeneration(false)
+        }
+        
         throttle(async () => {
           await updateActiveThread()
         }, 250)()
@@ -285,16 +362,17 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
         console.error('Error saving new message: ', error)
         customSonner({
           type: 'error',
-          text: 'Failed to save the Masterbot message. Please try again.',
+          text: 'Failed to save the Masterbot message. Please try again.'
         })
-
+    
         if (isNewChat) {
           await deleteThread({
             threadId: params?.threadId ?? activeThread?.threadId,
             jwt: session?.user?.hasuraJwt,
-            userId: session?.user.id,
+            userId: session?.user.id
           })
         }
+        setIsContinuingGeneration(false)
       }
     },
     // @ts-ignore
@@ -302,27 +380,35 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       console.log('Tool call:', toolCall)
 
       if (appConfig.features.devMode) {
-        customSonner({ type: 'info', text: `Tool call executed: ${toolCall.toolName}` })
+        customSonner({
+          type: 'info',
+          text: `Tool call executed: ${toolCall.toolName}`
+        })
       }
 
       setActiveTool(toolCall as AiToolCall)
     },
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     async onError(error: any) {
       console.error('Error in chat: ', error)
 
-      customSonner({ type: 'error', text: 'Failed to send message. Please try again.' })
+      customSonner({
+        type: 'error',
+        text: 'Failed to send message. Please try again.'
+      })
       setLoadingState(undefined)
       setActiveTool(undefined)
       setIsNewResponse(false)
+      setIsContinuingGeneration(false)
 
       if (isNewChat) {
         await deleteThread({
           threadId: params?.threadId ?? activeThread?.threadId,
           jwt: session?.user?.hasuraJwt,
-          userId: session?.user.id,
+          userId: session?.user.id
         })
       }
-    },
+    }
   })
 
   /**
@@ -331,14 +417,14 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
    */
   const allMessages = uniqBy(
     initialMessages?.concat(messages).concat(
-      activeThread?.messages?.map((msg) => ({
+      activeThread?.messages?.map(msg => ({
         ...msg,
         id: msg.messageId,
-        role: msg.role as 'data' | 'system' | 'user' | 'assistant',
-      })) || [],
+        role: msg.role as 'data' | 'system' | 'user' | 'assistant'
+      })) || []
     ),
-    'content',
-  ).filter(Boolean).filter((m) => m.role !== 'system')
+    'content'
+  ).filter(m => m.role !== 'system')
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: only activeThread is needed
   useEffect(() => {
@@ -362,7 +448,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       setState({
         isInitLoaded: false,
         isNewChat: true,
-        messagesFromDB: [],
+        messagesFromDB: []
       })
       setInput('')
       setMessages([])
@@ -371,43 +457,51 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
   const updateNewThread = () => {
     // console.log('activeThread.messages length --> ', activeThread?.messages)
-    const isNewChatState = Boolean(!allMessages.length || !activeThread?.messages.length)
+    const isNewChatState = Boolean(
+      !allMessages.length || !activeThread?.messages.length
+    )
 
     setState({
-      isNewChat: isNewChatState,
+      isNewChat: isNewChatState
     })
 
     return isNewChatState
   }
 
-  const updateActiveThread = async (newThread?: Thread | null, clean?: boolean) => {
+  const updateActiveThread = async (
+    newThread?: Thread | null,
+    clean?: boolean
+  ) => {
     let thread = newThread
 
     if (!thread) {
       thread = await getThread({
         threadId: isContinuousThread ? randomThreadId.current : threadId,
-        jwt: session?.user?.hasuraJwt,
+        jwt: session?.user?.hasuraJwt
       })
     }
     if (thread) {
       setActiveThread(thread)
       setState({
         isNewChat: Boolean(!allMessages.length || !thread.messages.length),
-        messagesFromDB: thread.messages,
+        messagesFromDB: thread.messages
       })
     }
 
     return thread as Thread
   }
 
-  const tunningUserContent = async (userMessage: AiMessage | CreateMessage, thread: Thread) => {
+  const tunningUserContent = async (
+    userMessage: AiMessage | CreateMessage,
+    thread: Thread
+  ) => {
     setLoadingState('digesting')
 
     const userPrompt = cleanPrompt(userMessage.content)
     const { content, error } = await processUserMessage(
       userPrompt,
       clientType as AiClientType,
-      selectedModel,
+      selectedModel
     )
 
     // console.log('thread::tunninUserContent  --> ', thread)
@@ -415,25 +509,44 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       updateActiveThread(
         {
           ...thread,
-          messages: thread.messages.filter((m) => m.content !== userPrompt),
+          messages: thread.messages.filter(m => m.content !== userPrompt)
         },
-        true,
+        true
       )
     }
 
     userContentRef.current = content
   }
 
+  // Implementation of continueGeneration function that works with our hook
+  const handleContinueGeneration = async () => {
+    setIsContinuingGeneration(true)
+    await continueGeneration({
+      lastMessageContent: lastIncompleteMessage.current,
+      threadId,
+      activeThread,
+      systemPrompts,
+      clientType: clientType as AiClientType,
+      session,
+      append,
+      setMessages,
+      setLoadingState,
+      customSonner
+    })
+    setIsContinuingGeneration(false)
+    return null
+  }
+
   // we extend append function to add our system prompts
   const appendWithMbContextPrompts = async (
     userMessage: AiMessage | CreateMessage,
-    chatRequestOptions?: ChatRequestOptions,
+    chatRequestOptions?: ChatRequestOptions
   ): Promise<string | null | undefined> => {
     if (!session?.user || !chatbot) {
       console.error('User is not logged in or session expired.')
       customSonner({
         type: 'error',
-        text: 'Failed to start conversation. Please reload and try again.',
+        text: 'Failed to start conversation. Please reload and try again.'
       })
       return
     }
@@ -450,7 +563,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       createdAt: new Date().toISOString(),
       augmentedFrom: null,
       examples: [],
-      threadId,
+      threadId
     }
     const optimisticThread: Thread = {
       threadId,
@@ -463,11 +576,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       // @ts-ignore
       messages: uniqBy([...allMessages, defaultUserMessage], 'content'),
       thread: isContinuousThread ? activeThread?.thread || null : null,
-      userId: session?.user.id,
+      userId: session?.user.id
     }
 
     const thread = await updateActiveThread(
-      isNewChat || isContinuousThread ? optimisticThread : undefined,
+      isNewChat || isContinuousThread ? optimisticThread : undefined
     )
 
     if (!isOpenPopup) {
@@ -479,50 +592,56 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       // ! At this point, the UI respond and provides a feedback to the user... before it is now even showing the updated active thread, event though that it does update the active thread...
       // TODO: improve response velocity here (split this fn to yet another cb fn? 🤔)
     } catch (error) {
-      console.error('Error processing user message. Using og message. Error: ', error)
+      console.error(
+        'Error processing user message. Using og message. Error: ',
+        error
+      )
     }
 
     await appendNewMessage(userMessage, chatRequestOptions)
   }
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: I need to hear the chatbot and isPowerUp changes only
-  const getMetadataLabels = useCallback(async (): Promise<ChatbotMetadataExamples> => {
-    let chatMetadata: ChatbotMetadataClassification | undefined
-    try {
-      setLoadingState('polishing')
-      // console.log('isPowerUp', isPowerUp)
-      chatMetadata = await getChatbotMetadata(
-        {
-          chatbot: chatbot?.chatbotId as number,
-          isPowerUp,
-        },
-        userContentRef.current,
-        clientType as AiClientType,
-      )
-      // console.log('Full responses from ChatbotMetadata:', chatMetadata)
+  const getMetadataLabels =
+    // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+    useCallback(async (): Promise<ChatbotMetadataExamples> => {
+      let chatMetadata: ChatbotMetadataClassification | undefined
+      try {
+        setLoadingState('polishing')
+        // console.log('isPowerUp', isPowerUp)
+        chatMetadata = await getChatbotMetadata(
+          {
+            chatbot: chatbot?.chatbotId as number,
+            isPowerUp
+          },
+          userContentRef.current,
+          clientType as AiClientType
+        )
+        // console.log('Full responses from ChatbotMetadata:', chatMetadata)
 
-      // * Loading: Polishing Ai request... 'polishing'
-    } catch (error) {
-      console.error('Error getting chatbot metadata:', error)
-      if (appConfig.features.devMode) {
-        customSonner({ type: 'error', text: (error as Error)?.message })
+        // * Loading: Polishing Ai request... 'polishing'
+      } catch (error) {
+        console.error('Error getting chatbot metadata:', error)
+        if (appConfig.features.devMode) {
+          customSonner({ type: 'error', text: (error as Error)?.message })
+        }
       }
-    }
 
-    if (chatMetadata?.errors?.length && appConfig.features.devMode) {
-      customSonner({
-        type: 'error',
-        text: `${chatMetadata.domainName}:\n${chatMetadata.errors.join('.\n')}`,
+      if (chatMetadata?.errors?.length && appConfig.features.devMode) {
+        customSonner({
+          type: 'error',
+          text: `${chatMetadata.domainName}:\n${chatMetadata.errors.join('.\n')}`
+        })
+      }
+
+      return await aiExampleClassification({
+        chatMetadata,
+        customSonner
       })
-    }
+    }, [chatbot, isPowerUp])
 
-    return await aiExampleClassification({
-      chatMetadata,
-      customSonner,
-    })
-  }, [chatbot, isPowerUp])
-
-  const appendAsContinuousThread = async (userMessage: AiMessage | CreateMessage) => {
+  const appendAsContinuousThread = async (
+    userMessage: AiMessage | CreateMessage
+  ) => {
     const optimisticUserMessage = { ...userMessage, id: randomThreadId.current }
 
     await appendWithMbContextPrompts(optimisticUserMessage)
@@ -530,7 +649,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     navigateTo({
       categoryName: activeChatbot?.categories[0].category.name,
       chatbotName: activeChatbot?.name,
-      page: 'personal',
+      page: 'personal'
     } as NavigationParams)
 
     return null
@@ -542,7 +661,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     appendWithMbContextPrompts({
       id: params?.threadId || activeThread?.threadId,
       content: fullMessage,
-      role: 'user',
+      role: 'user'
     })
   }
 
@@ -562,7 +681,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
       if (appConfig.features.devMode) {
         console.info(
-          'Before appending a new message, we check the following to know if is new chat or not: ',
+          'Before appending a new message, we check the following to know if is new chat or not: '
         )
         console.log('isNewChat guard --> ', isNewChat)
         console.log('allMessages --> ', allMessages)
@@ -570,13 +689,16 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
         console.log('isContinuousThread --> ', isContinuingThread)
       }
 
-      if (((!allMessages.length && isNewChat) || isContinuingThread) && chatbot) {
+      if (
+        ((!allMessages.length && isNewChat) || isContinuingThread) &&
+        chatbot
+      ) {
         await createThread({
           threadId: threadId as string,
           chatbotId: chatbot.chatbotId,
           parentThreadId: isContinuousThread ? threadId : undefined,
           jwt: session?.user?.hasuraJwt,
-          isPublic: activeChatbot?.name !== 'BlankBot',
+          isPublic: activeChatbot?.name !== 'BlankBot'
         })
       }
 
@@ -587,10 +709,10 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
           {
             id: 'examples-' + nanoid(10),
             role: 'system' as 'data' | 'system' | 'user' | 'assistant',
-            content: examplesPrompt(chatbotMetadata),
-          },
+            content: examplesPrompt(chatbotMetadata)
+          }
         ],
-        'content',
+        'content'
       )
       setMessages(chatMessagesToAppend)
 
@@ -604,13 +726,13 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
       if (activeThread?.thread) {
         previousAiUserMessages = activeThread.thread.messages
-          .map((msg) => ({
+          .map(msg => ({
             id: msg.messageId,
             role: msg.role as AiMessage['role'],
             content: msg.content,
-            createdAt: msg.createdAt,
+            createdAt: msg.createdAt
           }))
-          .filter((msg) => msg.role === 'user')
+          .filter(msg => msg.role === 'user')
       }
 
       setLoadingState('generating')
@@ -636,7 +758,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       console.error('Error appending new message: ', error)
       customSonner({
         type: 'error',
-        text: 'Failed to send the message to the Masterbot. Please try again.',
+        text: 'Failed to send the message to the Masterbot. Please try again.'
       })
 
       return null
@@ -657,6 +779,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
           allMessages,
           initialMessages,
           newChatThreadId: threadId,
+          isContinuingGeneration,
+          lastIncompleteMessage: lastIncompleteMessage.current
         },
         {
           appendWithMbContextPrompts,
@@ -668,7 +792,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
           append,
           reload,
           stop,
-        },
+          continueGeneration: handleContinueGeneration
+        }
       ]}
     >
       {children}
@@ -693,24 +818,29 @@ export type MBChatHookState = {
   allMessages: AiMessage[]
   initialMessages: AiMessage[]
   newChatThreadId: string
+  isContinuingGeneration: boolean
+  lastIncompleteMessage: string
 }
 
 export type MBChatHookActions = {
   appendWithMbContextPrompts: (
     userMessage: AiMessage | CreateMessage,
-    chatRequestOptions?: ChatRequestOptions,
+    chatRequestOptions?: ChatRequestOptions
   ) => Promise<string | null | undefined>
   appendAsContinuousThread: (
-    userMessage: AiMessage | CreateMessage,
+    userMessage: AiMessage | CreateMessage
   ) => Promise<string | null | undefined>
   sendMessageFromResponse: (bulletContent: string) => void
   append: (
     message: AiMessage | CreateMessage,
-    chatRequestOptions?: ChatRequestOptions,
+    chatRequestOptions?: ChatRequestOptions
   ) => Promise<string | null | undefined>
-  reload: (chatRequestOptions?: ChatRequestOptions) => Promise<string | null | undefined>
+  reload: (
+    chatRequestOptions?: ChatRequestOptions
+  ) => Promise<string | null | undefined>
   stop: () => void
   toggleWebSearch: () => void
   setInput: React.Dispatch<React.SetStateAction<string>>
   setMessages: (messages: AiMessage[]) => void
+  continueGeneration: () => Promise<string | null | undefined>
 }
