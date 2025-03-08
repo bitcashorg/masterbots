@@ -67,22 +67,23 @@ export function ChatPanel({
 
   //? Check if the last response might be incomplete
   const mayNeedContinuation = React.useMemo(() => {
-    if (!messages.length) return false
+    if (!messages.length || isContinuingGeneration) return false
 
-    //? Get the last assistant message
+    //* Get the last assistant message
     const lastAssistantMessage = [...messages]
       .reverse()
       .find(msg => msg.role === 'assistant')
 
-    //? Criteria for potentially needing continuation:
-    //? 1. Last assistant message exists and isn't too short
-    //? 2. The response doesn't have a clear conclusion
+    //* Criteria for potentially needing continuation:
+    // 1. Last assistant message exists and isn't too short
+    // 2. The response doesn't have a clear conclusion
     if (
       lastAssistantMessage?.content &&
       lastAssistantMessage.content.length > 100
     ) {
       const content = lastAssistantMessage.content
-      //? Check if the message ends abruptly without conclusion markers
+
+      //* Check if the message ends abruptly without conclusion markers
       const hasProperConclusion =
         content.endsWith('.') ||
         content.endsWith('!') ||
@@ -90,11 +91,22 @@ export function ChatPanel({
         content.endsWith('"') ||
         content.endsWith(')')
 
-      return !hasProperConclusion
+      //* Also check if the message ends mid-sentence
+      const endsWithCommonCutoffs =
+        content.endsWith(',') ||
+        content.endsWith(':') ||
+        content.endsWith(';') ||
+        content.endsWith('-') ||
+        content.endsWith('...') ||
+        /\b(and|or|but|so|because|which|that|who|when|where|while|until)\s*$/.test(
+          content
+        )
+
+      return !hasProperConclusion || endsWithCommonCutoffs
     }
 
     return false
-  }, [messages])
+  }, [messages, isContinuingGeneration])
 
   const isPreProcessing = Boolean(
     loadingState?.match(/processing|digesting|polishing/)

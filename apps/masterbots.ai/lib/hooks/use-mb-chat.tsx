@@ -231,14 +231,14 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
             text: `Ai generation finished, reason: ${options.finishReason}`
           })
         }
-
+    
         const aiChatThreadId = resolveThreadId({
           isContinuousThread,
           randomThreadId: randomThreadId.current,
           threadId,
           activeThreadId: activeThread?.threadId
         })
-
+    
         //* Handle incomplete or errored responses
         if (
           options.finishReason === 'error' ||
@@ -247,36 +247,39 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
         ) {
           //* Store the incomplete message for potential continuation
           lastIncompleteMessage.current = message.content
-
-          //* Show different toast messages based on the finish reason
-          if (
-            options.finishReason === 'error' ||
-            options.finishReason === 'unknown'
-          ) {
+          
+          //* Automatic continuation for error and unknown reasons
+          if (options.finishReason === 'error' || options.finishReason === 'unknown') {
             customSonner({
-              // TODO: create one Sonner just for warning messages im using erro in the meantime
               type: 'info',
-              text: '⚠️ The response was interrupted. Use the "Continue generation" button to complete it.'
+              text: '⚠️ The response was interrupted. Continuing automatically...'
             })
-          } else if (options.finishReason === 'length') {
+            
+            //* Delay to make it clear to users that a continuation is happening
+            setTimeout(async () => {
+              try {
+                await handleContinueGeneration()
+              } catch (error) {
+                console.error('Automatic continuation failed:', error)
+                customSonner({
+                  type: 'error',
+                  text: 'Automatic continuation failed. Use the "Continue generation" button to try again.'
+                })
+              }
+            }, 1500)
+          } 
+          //* For length issues, just show a notification with manual option
+          else if (options.finishReason === 'length') {
             customSonner({
               type: 'info',
               text: 'The response reached maximum length. Use the "Continue generation" button for more.'
             })
           }
         }
-
-        //TODO: Check if its safe to delete this block of code
-        // const aiChatThreadId = resolveThreadId({
-        //   isContinuousThread,
-        //   randomThreadId: randomThreadId.current,
-        //   threadId,
-        //   activeThreadId: activeThread?.threadId,
-        // })
-
+    
         const userMessageId = crypto.randomUUID()
         const assistantMessageId = crypto.randomUUID()
-
+    
         // Saving attachments to indexedDB and attaching them to the message
         const attachments = messageAttachments.current
         const newAttachments = attachments
@@ -286,7 +289,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
             messageIds: [...(attachment?.messageIds || []), userMessageId, assistantMessageId],
           }))
           : []
-
+    
         for (const attachment of newAttachments) {
           try {
             indexedDBActions.updateItem(attachment.id, attachment)
@@ -295,7 +298,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
             indexedDBActions.addItem(attachment)
           }
         }
-
+    
         const newBaseMessage: Partial<SaveNewMessageParams> = {
           threadId: aiChatThreadId ?? '',
           jwt: session?.user?.hasuraJwt
@@ -319,19 +322,20 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
             createdAt: new Date(Date.now() + 1000).toISOString()
           }
         ]
-  
+    
         if (!isContinuingGeneration) {
           await Promise.all([
             saveNewMessage(newUserMessage),
             saveNewMessage(newAssistantMessage)
           ])
         }
+        
         setState({
           isNewChat: false
         })
-
+    
         if (isContinuousThread) {
-          // Remove continuousThreadId search param
+          //* Remove continuousThreadId search param
           const newSearchParams = new URLSearchParams(searchParams.toString())
           newSearchParams.delete('continuousThreadId')
           window.history.replaceState(
@@ -339,13 +343,18 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
             '',
             `${window.location.pathname}?${newSearchParams.toString()}`
           )
-
+    
           setIsContinuousThread(false)
         }
-        setIsNewResponse(false)
-        setLoadingState('finished')
-        setActiveTool(undefined)
-        setIsContinuingGeneration(false)
+        
+        // Only finish the process if we're not doing an automatic continuation
+        if (!(options.finishReason === 'error' || options.finishReason === 'unknown')) {
+          setIsNewResponse(false)
+          setLoadingState('finished')
+          setActiveTool(undefined)
+          setIsContinuingGeneration(false)
+        }
+        
         throttle(async () => {
           await updateActiveThread()
         }, 250)()
@@ -355,7 +364,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
           type: 'error',
           text: 'Failed to save the Masterbot message. Please try again.'
         })
-
+    
         if (isNewChat) {
           await deleteThread({
             threadId: params?.threadId ?? activeThread?.threadId,
