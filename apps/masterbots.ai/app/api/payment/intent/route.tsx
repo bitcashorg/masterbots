@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 import Stripe from 'stripe';
 
 // Initialize Stripe with your secret key

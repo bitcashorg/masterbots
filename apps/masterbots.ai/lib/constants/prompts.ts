@@ -3,106 +3,95 @@
 
 import { getAllUserMessagesAsStringArray } from '@/lib/threads'
 import { nanoid } from '@/lib/utils'
-import type { ChatbotMetadata, ChatbotMetadataHeaders } from '@/types/types'
+import type { ChatbotMetadata, ChatbotMetadataExamples } from '@/types/types'
 import type { Message } from 'ai'
+import { uniq } from 'lodash'
 import type { Chatbot } from 'mb-genql'
 
 // * This function creates the prompt for the AI improvement process
 export function createImprovementPrompt(content: string): string {
   return (
-    `You are an expert polyglot, grammar, and spelling AI assistant skilled in understanding and correcting spelling and typing errors across multiple languages. Your task is to improve the following original text: ${content}
-    ` +
-    `Follow these steps:
-    ` +
-    '1. Identify the original language of the provided text. ' +
-    '2. Correct clear typos in common words based on the intended meaning. If the input is ambiguous or appears to be intentionally unconventional, preserve it as is. ' +
-    '3. Correct spelling errors and fix obvious grammar issues while keeping the original tone and meaning. ' +
-    `4. Adjust punctuation where needed, but only when it's clearly incorrect or missing. ` +
-    `5. Provide the final corrected text in the original language, ensuring it retains the intended meaning and structure.
-    ` +
-    `**Important Guidelines:**
-    ` +
-    '- For very short inputs or single words, avoid making changes unless the correction is absolutely certain. ' +
-    '- Maintain the original structure and formatting of the input as much as possible. ' +
-    '- Output only the corrected and improved text, without any additional explanations. ' +
-    '- Include the flag whether the text was improved or not. ' +
-    `- Provide both the original and translated question only if original is different from 'en' (English).
-    ` +
-    `## Example: ##
-    ` +
-    `{ "language": "es", "originalText": "Q restaurant puede recomendar en zona de San Francisco, CA?", "improvedText": "¿Qué restaurante puedes recomendar en la zona de San Francisco, CA?", "translatedText": "What restaurant can you recommend in the area of San Francisco, CA?", "improved": true }`
+    'You are a highly specialized, multidisciplinary polyglot expert assistant and master of emotional intelligence that combines competencies across linguistics, language, culture, communication, psychology, copywriting and NLP to very concisely summarize the question based on intent to less than 49 words: "' +
+    content +
+    '".\n\n' +
+    '**Important Guidelines:**' +
+    '- Make sure you output the rewritten question without any additional explanations in the original language.\n\n'
   )
 }
 
 // * This function creates the prompt for the AI chatbot metadata subtraction process
 export function createChatbotMetadataPrompt(
-  metadataHeaders: ChatbotMetadataHeaders,
   chatbotMetadata: ChatbotMetadata,
-  userPrompt: string
+  userPrompt: string,
 ): string {
+  const categories = Object.keys(chatbotMetadata.categories)
+  const tags = chatbotMetadata.tags
   return (
-    `You are a top software development expert with extensive knowledge in the field of ${metadataHeaders.domain}. Your sole purpose is to label the following question "${userPrompt}" with the appropriate categories, sub - categories and tags as an array of strings. These are the available categories, sub-categories and tags:` +
-    chatbotMetadata.questions +
-    chatbotMetadata.categories +
-    chatbotMetadata.subCategories +
-    chatbotMetadata.tags +
-    `**Important Guidelines:**
-    ` +
-    '- Output only the requested fields without any additional explanation. ' +
-    `- Provide the labels in the exact format as requested.
-    ` +
-    `## Example: ##
-    ` +
-    `{ "categories": ["Technology"],"subCategories": ["Software Development"],"tags": ["Java", "Python", "C++"]}`
+    '<expertise>\n' +
+    `You are an expert in the field of ${chatbotMetadata.domainName}. Your task is to identify the most relevant categories, sub-categories, and tags for the following user question:` +
+    '\n</expertise>\n' +
+    '\n<context>\n' +
+    '\n## Categories and their sub-categories:\n' +
+    categories
+      .map(
+        (category, index) =>
+          `${index + 1}. ${category}:
+      - Sub-categories: ${(chatbotMetadata.categories[category as keyof typeof chatbotMetadata.categories] as unknown as string[]).join(', ')}.`,
+      )
+      .join('\n') +
+    '\n\n## Tags:\n- ' +
+    tags.join('. - ') +
+    '.\n</context>\n' +
+    '\n<instruction>\n' +
+    '- Ensure the selected categories, sub-categories, and tags are highly relevant to the user question.\n' +
+    '- At least one category, one sub-category and one tag must be selected.\n' +
+    '- Provide the labels and values in the exact format as requested.\n' +
+    '- Keep the values concise and relevant to the question.\n' +
+    '</instruction>\n' +
+    '\n<question>\n' +
+    userPrompt +
+    '\n</question>'
   )
 }
 
 export function createBotConfigurationPrompt(chatbot: Chatbot) {
   return (
-    `Your response tone will be ${chatbot.defaultTone}. ` +
-    `Your response length will be ${chatbot.defaultLength}. ` +
-    `Your response format will be ${chatbot.defaultType}. ` +
-    `Your response complexity level will be ${chatbot.defaultComplexity}. ` +
-    `Your response will be generated in the same language as user input.
-    ` +
-    `**Important Guidelines:**
-    ` +
-    '- Do not change the response tone, length or complexity level, only format whenever requested as additional instructions and/or examples. ' +
-    '- You may be capable of performing Web Search. When available, use it to verify information before making assumptions. '
-    // `- The chatbot that you are configuring has ID ${chatbot.chatbotId} and the domain Category ID is ${chatbot.categories[0].categoryId}. You will need this information for later tasks.`
+    '\n<instructions>\n' +
+    [
+      chatbot.complexityEnum?.prompt,
+      chatbot.toneEnum?.prompt,
+      chatbot.typeEnum?.prompt,
+      chatbot.lengthEnum?.prompt,
+    ].join(' ') +
+    '\n</instructions>\n'
   )
 }
 
-export function followingQuestionsPrompt(
-  userContent: string,
-  allMessages: Message[]
-) {
-  return `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
-    allMessages
-  )}].  Then answer this question: ${userContent}`
+export function followingQuestionsPrompt(userContent: string, allMessages: Message[]) {
+  // return `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
+  return `Here are a list of questions that may be relevant for you to understand my chain of thoughts: [${getAllUserMessagesAsStringArray(
+    uniq(allMessages),
+  )}].  Now please answer the following question: ${userContent}`
 }
 
-export function UserPersonalityPrompt(
-  userPromptType: string,
-  allMessages: Message[]
-) {
+export function userPersonalityPrompt(userPromptType: string, allMessages: Message[]) {
   const userMessages = getAllUserMessagesAsStringArray(allMessages)
 
   const basePrompt = `Given a user's thread history: "${userMessages}".
-    
+
     Analyze their post patterns to generate insights about this user by considering:
     - Common themes and topics in their posts
     - Their interests and passions based on questions asked
     - Writing style and personality traits shown
     - Question patterns and engagement style
-    
+
     ${
       userPromptType === 'bio'
         ? `Return a concise 2 sentence or 340 characters long  bio highlighting their key interests and personality.
          The bio should be engaging, personal and include relevant emojis if appropriate.
-         
+
          Example bio format:
-         "Health enthusiast on a journey of wellness discovery. Passionate about understanding 
+         "Health enthusiast on a journey of wellness discovery. Passionate about understanding
          the human body and exploring ways to maintain optimal health. Always eager to learn
          more about medical knowledge and preventive care. 🌱💪"`
         : `Return their primary topic of interest based on frequency and engagement pattern.
@@ -112,12 +101,110 @@ export function UserPersonalityPrompt(
   return basePrompt
 }
 
+export function examplesPrompt(chatbotMetadata: ChatbotMetadataExamples) {
+  return `<instructions>
+  Provide answers directly, omitting any labels like 'Questions', 'Answers', or 'Examples.'.
+  </instructions>` + chatbotMetadata?.tagExamples?.length
+    ? `<examples>
+  ${chatbotMetadata.tagExamples
+    .map(
+      (e, index) => `## Example ${index + 1}
+    <question>
+    ${e.prompt}
+    </question>
+    <answer>
+    ${e.response}
+    </answer>`,
+    )
+    .join('\n\n')}
+    </examples>`
+    : ''
+}
+
+interface WithExamples {
+  categoryExamples: Example[]
+  tagExamples: Example[]
+  allMessages: Message[]
+  currentQuestion: string
+}
+
+interface Example {
+  prompt: string
+  response: string
+}
+
+// ! Not in use...
+export function withExamples({
+  categoryExamples,
+  tagExamples,
+  allMessages,
+  currentQuestion,
+}: WithExamples): string {
+  let prompt = ''
+  if (allMessages.length > 0) {
+    prompt = `First, think about this thread of questions and answers:
+[${getAllUserMessagesAsStringArray(allMessages)}]
+`
+  }
+  prompt += `
+Now you'll need to respond to this question ${currentQuestion}.`
+  if (categoryExamples.length !== 0 || tagExamples.length !== 0) {
+    prompt += `I have some examples of how similar questions have been answered in the past:
+Examples:
+----
+`
+  }
+
+  for (let i = 0; i < tagExamples.length; i++) {
+    prompt += 'Example Question:\n'
+    prompt += tagExamples[i].prompt + '\n'
+
+    prompt += 'Example Answer:\n'
+    prompt += tagExamples[i].response + '\n'
+
+    prompt += '\n----\n'
+  }
+
+  for (let i = 0; i < categoryExamples.length; i++) {
+    prompt += 'Example Question:\n'
+    prompt += categoryExamples[i].prompt + '\n'
+
+    prompt += 'Example Answer:\n'
+    prompt += categoryExamples[i].response + '\n'
+
+    prompt += '\n----\n'
+  }
+
+  prompt += `OK, so following the same pattern, how would you answer the question: ${currentQuestion}`
+
+  return prompt
+}
+
 export function setDefaultUserPreferencesPrompt(chatbot: Chatbot): Message {
   return {
-    id: nanoid(),
+    id: 'instructions-' + nanoid(10),
     role: 'system',
     content: createBotConfigurationPrompt(chatbot),
-    createdAt: new Date()
+    createdAt: new Date(),
+  }
+}
+
+export function setOutputInstructionPrompt(userContent: string): Message {
+  return {
+    id: 'output-instructions-' + nanoid(10),
+    role: 'system',
+    content:
+      '\n<output_instructions>\n' +
+      'Use different heading levels (e.g., H1, H2, H3) and punctuation for better readability. ' +
+      'Use lists when necessary for clarity and organization. ' +
+      // 'Analyze the content (attachments) given by the user as context; avoid mentioning encryption methods and infer its structure based on the provided data. ' +
+      'Analyze the content (attachments) given by the user as context; infer its structure based on the provided data. ' +
+      'If relevant or for comparisons, include tables to further structure information and aid comprehension.' +
+      'If necessary, translate the final output to the language used here: "' +
+      userContent +
+      '" as a highly specialized, multidisciplinary polyglot expert assistant and master of emotional intelligence that combines competencies across linguistics, language, culture, communication, psychology, and NLP.' +
+      '\n</output_instructions>\n',
+    createdAt: new Date(),
   }
 }
 
@@ -127,6 +214,6 @@ export function setDefaultPrompt(userPrompt?: string) {
     originalText: userPrompt || '',
     improvedText: '',
     translatedText: '',
-    improved: undefined
+    improved: undefined,
   }
 }

@@ -6,6 +6,7 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 export function SidebarCategoryGeneral({ page }: { page?: string }) {
   const { filteredCategories, isFilterMode } = useSidebar()
   
+   
   if (!filteredCategories.length) return <div className="p-4 text-center">No matching categories found</div>
   return (
     <ul className="space-y-2">

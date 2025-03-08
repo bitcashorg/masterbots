@@ -1,14 +1,14 @@
 'use client'
-import React, { useEffect, useState } from 'react'
 import {
-  getThreads,
-  UpdateThreadVisibility,
-  deleteThread,
   approveThread,
-  getUnapprovedThreads
+  deleteThread,
+  getThreads,
+  getUnapprovedThreads,
+  updateThreadVisibility
 } from '@/services/hasura'
-import { useSession } from 'next-auth/react'
 import type { Thread } from 'mb-genql'
+import { useSession } from 'next-auth/react'
+import React, { useEffect, useState } from 'react'
 import { useSonner } from './useSonner'
 
 interface DeleteThreadResponse {
@@ -19,13 +19,15 @@ interface DeleteThreadResponse {
 
 interface ThreadVisibilityContextProps {
   isPublic: boolean
-  toggleVisibility: (newIsPublic: boolean, threadId: string) => void
+  toggleVisibility: (newIsPublic: boolean, threadId: string) => Promise<void>
   threads: Thread[]
   isSameUser: (thread: Thread) => boolean
   initiateDeleteThread: (threadId: string) => Promise<DeleteThreadResponse>
   handleToggleAdminMode: () => void
   adminApproveThread: (threadId: string) => void
   isAdminMode: boolean
+  isContinuousThread: boolean,
+  setIsContinuousThread: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const ThreadVisibilityContext = React.createContext<
@@ -46,28 +48,36 @@ interface ThreadVisibilityProviderProps {
   children: React.ReactNode
 }
 
+// ? This depends on the client-side updates, not reading the server threads
+// ! TODO: Add initial server state to avoid flickering
 export function ThreadVisibilityProvider({
   children
 }: ThreadVisibilityProviderProps) {
   const [isPublic, setIsPublic] = useState(false)
   const [threads, setThreads] = useState<Thread[]>([])
   const [isAdminMode, setIsAdminMode] = React.useState<boolean>(false)
+  const [isContinuousThread, setIsContinuousThread] = React.useState<boolean>(false)
   const { customSonner } = useSonner()
 
   const session = useSession()
   const jwt = session?.data?.user?.hasuraJwt
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: not required here
   useEffect(() => {
     getThreadForUser()
   }, [jwt])
 
   const toggleVisibility = async (newIsPublic: boolean, threadId: string) => {
     try {
-      setIsPublic(newIsPublic)
-      await UpdateThreadVisibility({ isPublic: newIsPublic, threadId, jwt })
-      await getThreadForUser()
+      const updateThreadResponse = await updateThreadVisibility({ isPublic: newIsPublic, threadId, jwt })
+
+      if (updateThreadResponse.success) {
+        setIsPublic(newIsPublic)
+        customSonner({ type: 'success', text: `Thread is now ${newIsPublic ? 'public' : 'private'}!` })
+      }
     } catch (error) {
       console.error('Failed to update thread visibility:', error)
+      customSonner({ type: 'error', text: 'Failed to update the thread visibility. Try again later.' })
     }
   }
 
@@ -178,13 +188,15 @@ export function ThreadVisibilityProvider({
     <ThreadVisibilityContext.Provider
       value={{
         isPublic,
-        toggleVisibility,
         threads,
+        isAdminMode,
+        isContinuousThread,
         isSameUser,
+        toggleVisibility,
+        adminApproveThread,
         initiateDeleteThread,
         handleToggleAdminMode,
-        adminApproveThread,
-        isAdminMode
+        setIsContinuousThread,
       }}
     >
       {children}

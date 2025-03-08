@@ -1,13 +1,6 @@
 table:
   name: chat
   schema: public
-object_relationships:
-  - name: chatbot
-    using:
-      foreign_key_constraint_on: chatbot_id
-  - name: user
-    using:
-      foreign_key_constraint_on: added_by
 select_permissions:
   - role: anonymous
     permission:

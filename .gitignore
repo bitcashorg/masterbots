@@ -7,3 +7,6 @@ _dev
 .vercel
 __dev
 .vercel
+.vscode/
+
+.vercel

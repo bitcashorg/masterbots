@@ -1,8 +1,8 @@
-import { type Metadata } from 'next'
-import { notFound } from 'next/navigation'
-import { formatDate } from '@/lib/utils'
-import { ChatList } from '@/components/routes/chat/chat-list'
 import { FooterText } from '@/components/layout/footer/footer'
+import { ChatList } from '@/components/routes/chat/chat-list'
+import { formatDate } from '@/lib/utils'
+import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 
 interface SharePageProps {
   params: {

@@ -1,31 +1,63 @@
 import { cn } from '@/lib/utils'
-import { Check, Info, AlertTriangle, X } from 'lucide-react'
+import { AlertTriangle, Check, Info, X } from 'lucide-react'
+import { appConfig } from 'mb-env'
 import { toast } from 'sonner'
 
-export type customSonnerProps = {
+export type CustomSonnerProps = {
   type?: 'success' | 'error' | 'info'
   text?: string | null
 }
 
+/**
+ * Custom hook for displaying toast notifications with predefined styles.
+ *
+ * @returns {Object} An object containing the `customSonner` function for displaying notifications.
+ * @returns {function} customSonner - Function to display styled toast notifications.
+ */
+
+/**
+ * Creates a custom notification based on the provided configuration.
+ *
+ * @param {CustomSonnerProps} options - Configuration for the notification.
+ * @returns {import('sonner').ToastT} The created toast instance.
+ *
+ * @example
+ * // Import the hook
+ * import { useSonner } from '@/lib/hooks/useSonner';
+import { appConfig } from '../../../../packages/mb-env/src/config.env';
+ *
+ * const { customSonner } = useSonner();
+ *
+ * // Trigger a success notification
+ * customSonner({ type: 'success', text: 'Operation completed successfully!' });
+ *
+ * // Default texts for each type:
+ * // Success: "Changes and been applied successfully"
+ * // Error: "Failed to update the information. Please try again"
+ * // Info: "Your changes has been applied 5 minutes ago."
+ */
+
 export function useSonner() {
-  const customSonner = ({ type = 'success', text }: customSonnerProps) => {
+  const customSonner = ({ type = 'success', text }: CustomSonnerProps) => {
     const toastConfigs = {
       success: {
         title: 'Success',
         text: text ?? 'Changes and been applied successfully',
-        button: <X />,
+        button: <X className="size-3" />,
         icon: <Check color="#83E56A" size={18} />
       },
       error: {
         title: 'Error',
         text: text ?? 'Failed to update the information. Please try again',
-        button: 'Retry',
+        // TODO: When the button is clicked and there is a retry action, the toast should be dismissed and the action should be triggered.
+        button: <X className="size-3" />,
         icon: <AlertTriangle color="#F93333" size={18} />
       },
       info: {
-        title: 'Changes applied',
+        title: 'Info',
         text: text ?? 'Your changes has been applied 5 minutes ago.',
-        button: 'Undo',
+        // TODO: When the button is clicked and there is a undo action, the toast should be dismissed and the action should be triggered.
+        button: <X className="size-3" />,
         icon: <Info color="#388DE2" size={18} />
       }
     }
@@ -45,7 +77,7 @@ export function useSonner() {
               {config.title}
             </h2>
           </div>
-          <p className="text-sm dark:text-[#A1A1AA] text-[#71717A] pr-16">
+          <p className="text-sm dark:text-[#A1A1AA] text-[#71717A] pr-16 whitespace-pre-line">
             {config.text}
           </p>
 
@@ -60,6 +92,8 @@ export function useSonner() {
           </div>
         </div>
       )
+    }, {
+      duration: appConfig.features.devMode ? 30000 : 8000,
     })
   }
 

@@ -12,10 +12,15 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
-    "@types/node": "^20.17.6",
+    "@genql/cli": "latest",
+    "@genql/runtime": "latest",
+    "@types/node": "^20.8.0",
     "eslint": "^8.57.1",
-    "prettier": "^3.3.3",
-    "turbo": "^1.13.4"
+    "genql": "latest",
+    "prettier": "^3.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   },
   "workspaces": [
     "apps/*",
@@ -23,11 +28,6 @@
   ],
   "packageManager": "bun@1.1.31",
   "dependencies": {
-    "@ai-sdk/anthropic": "^0.0.49",
-    "@radix-ui/react-toggle-group": "^1.1.2",
-    "@types/bcryptjs": "^2.4.6",
-    "axios": "^1.7.7",
-    "lucide-react": "latest",
-    "nextjs-toploader": "^1.6.12"
+    "axios": "^1.7.7"
   }
 }

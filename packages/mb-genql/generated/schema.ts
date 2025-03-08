@@ -8,6 +8,8 @@ export type Scalars = {
     Float: number,
     Int: number,
     String: string,
+    jsonb: any,
+    numeric: any,
     timestamptz: any,
     user_role: any,
     uuid: any,
@@ -21,10 +23,6 @@ export interface Category {
     chatbots: ChatbotCategory[]
     /** An aggregate relationship */
     chatbotsAggregate: ChatbotCategoryAggregate
-    /** An array relationship */
-    metadataLabels: LabelChatbotCategory[]
-    /** An aggregate relationship */
-    metadataLabelsAggregate: LabelChatbotCategoryAggregate
     name: Scalars['String']
     __typename: 'Category'
 }
@@ -64,6 +62,82 @@ export interface CategoryAvgFields {
 
 /** unique or primary key constraints on table "category" */
 export type CategoryConstraint = 'category_name_key' | 'category_pkey'
+
+
+/** columns and relationships of "category_enum" */
+export interface CategoryEnum {
+    added: Scalars['timestamptz']
+    domain: Scalars['String']
+    /** An object relationship */
+    domain_enum: DomainEnum
+    name: Scalars['String']
+    /** An aggregate relationship */
+    subcategoryEnumsAggregate: SubcategoryEnumAggregate
+    /** An array relationship */
+    subcategoryEnumsByCategoryDomain: SubcategoryEnum[]
+    /** An aggregate relationship */
+    subcategoryEnumsByCategoryDomainAggregate: SubcategoryEnumAggregate
+    /** An array relationship */
+    subcategory_enums: SubcategoryEnum[]
+    __typename: 'CategoryEnum'
+}
+
+
+/** aggregated selection of "category_enum" */
+export interface CategoryEnumAggregate {
+    aggregate: (CategoryEnumAggregateFields | null)
+    nodes: CategoryEnum[]
+    __typename: 'CategoryEnumAggregate'
+}
+
+
+/** aggregate fields of "category_enum" */
+export interface CategoryEnumAggregateFields {
+    count: Scalars['Int']
+    max: (CategoryEnumMaxFields | null)
+    min: (CategoryEnumMinFields | null)
+    __typename: 'CategoryEnumAggregateFields'
+}
+
+
+/** unique or primary key constraints on table "category_enum" */
+export type CategoryEnumConstraint = 'category_enum_pkey'
+
+
+/** aggregate max on columns */
+export interface CategoryEnumMaxFields {
+    added: (Scalars['timestamptz'] | null)
+    domain: (Scalars['String'] | null)
+    name: (Scalars['String'] | null)
+    __typename: 'CategoryEnumMaxFields'
+}
+
+
+/** aggregate min on columns */
+export interface CategoryEnumMinFields {
+    added: (Scalars['timestamptz'] | null)
+    domain: (Scalars['String'] | null)
+    name: (Scalars['String'] | null)
+    __typename: 'CategoryEnumMinFields'
+}
+
+
+/** response of any mutation on the table "category_enum" */
+export interface CategoryEnumMutationResponse {
+    /** number of rows affected by the mutation */
+    affectedRows: Scalars['Int']
+    /** data from the rows affected by the mutation */
+    returning: CategoryEnum[]
+    __typename: 'CategoryEnumMutationResponse'
+}
+
+
+/** select columns of table "category_enum" */
+export type CategoryEnumSelectColumn = 'added' | 'domain' | 'name'
+
+
+/** update columns of table "category_enum" */
+export type CategoryEnumUpdateColumn = 'added' | 'domain' | 'name'
 
 
 /** aggregate max on columns */
@@ -149,151 +223,6 @@ export interface CategoryVarianceFields {
 }
 
 
-/** Table to store links to GPT chat conversations and associate them with a specific GPT chatbot and the user who added the link. */
-export interface Chat {
-    addedBy: (Scalars['uuid'] | null)
-    chatId: Scalars['Int']
-    /** An object relationship */
-    chatbot: Chatbot
-    chatbotId: Scalars['Int']
-    conversationLink: Scalars['String']
-    /** An object relationship */
-    user: (User | null)
-    __typename: 'Chat'
-}
-
-
-/** aggregated selection of "chat" */
-export interface ChatAggregate {
-    aggregate: (ChatAggregateFields | null)
-    nodes: Chat[]
-    __typename: 'ChatAggregate'
-}
-
-
-/** aggregate fields of "chat" */
-export interface ChatAggregateFields {
-    avg: (ChatAvgFields | null)
-    count: Scalars['Int']
-    max: (ChatMaxFields | null)
-    min: (ChatMinFields | null)
-    stddev: (ChatStddevFields | null)
-    stddevPop: (ChatStddevPopFields | null)
-    stddevSamp: (ChatStddevSampFields | null)
-    sum: (ChatSumFields | null)
-    varPop: (ChatVarPopFields | null)
-    varSamp: (ChatVarSampFields | null)
-    variance: (ChatVarianceFields | null)
-    __typename: 'ChatAggregateFields'
-}
-
-
-/** aggregate avg on columns */
-export interface ChatAvgFields {
-    chatId: (Scalars['Float'] | null)
-    chatbotId: (Scalars['Float'] | null)
-    __typename: 'ChatAvgFields'
-}
-
-
-/** unique or primary key constraints on table "chat" */
-export type ChatConstraint = 'gpt_chat_conversation_link_key' | 'gpt_chat_pkey'
-
-
-/** aggregate max on columns */
-export interface ChatMaxFields {
-    addedBy: (Scalars['uuid'] | null)
-    chatId: (Scalars['Int'] | null)
-    chatbotId: (Scalars['Int'] | null)
-    conversationLink: (Scalars['String'] | null)
-    __typename: 'ChatMaxFields'
-}
-
-
-/** aggregate min on columns */
-export interface ChatMinFields {
-    addedBy: (Scalars['uuid'] | null)
-    chatId: (Scalars['Int'] | null)
-    chatbotId: (Scalars['Int'] | null)
-    conversationLink: (Scalars['String'] | null)
-    __typename: 'ChatMinFields'
-}
-
-
-/** response of any mutation on the table "chat" */
-export interface ChatMutationResponse {
-    /** number of rows affected by the mutation */
-    affectedRows: Scalars['Int']
-    /** data from the rows affected by the mutation */
-    returning: Chat[]
-    __typename: 'ChatMutationResponse'
-}
-
-
-/** select columns of table "chat" */
-export type ChatSelectColumn = 'addedBy' | 'chatId' | 'chatbotId' | 'conversationLink'
-
-
-/** aggregate stddev on columns */
-export interface ChatStddevFields {
-    chatId: (Scalars['Float'] | null)
-    chatbotId: (Scalars['Float'] | null)
-    __typename: 'ChatStddevFields'
-}
-
-
-/** aggregate stddevPop on columns */
-export interface ChatStddevPopFields {
-    chatId: (Scalars['Float'] | null)
-    chatbotId: (Scalars['Float'] | null)
-    __typename: 'ChatStddevPopFields'
-}
-
-
-/** aggregate stddevSamp on columns */
-export interface ChatStddevSampFields {
-    chatId: (Scalars['Float'] | null)
-    chatbotId: (Scalars['Float'] | null)
-    __typename: 'ChatStddevSampFields'
-}
-
-
-/** aggregate sum on columns */
-export interface ChatSumFields {
-    chatId: (Scalars['Int'] | null)
-    chatbotId: (Scalars['Int'] | null)
-    __typename: 'ChatSumFields'
-}
-
-
-/** update columns of table "chat" */
-export type ChatUpdateColumn = 'addedBy' | 'chatId' | 'chatbotId' | 'conversationLink'
-
-
-/** aggregate varPop on columns */
-export interface ChatVarPopFields {
-    chatId: (Scalars['Float'] | null)
-    chatbotId: (Scalars['Float'] | null)
-    __typename: 'ChatVarPopFields'
-}
-
-
-/** aggregate varSamp on columns */
-export interface ChatVarSampFields {
-    chatId: (Scalars['Float'] | null)
-    chatbotId: (Scalars['Float'] | null)
-    __typename: 'ChatVarSampFields'
-}
-
-
-/** aggregate variance on columns */
-export interface ChatVarianceFields {
-    chatId: (Scalars['Float'] | null)
-    chatbotId: (Scalars['Float'] | null)
-    __typename: 'ChatVarianceFields'
-}
-
-
 /** Table storing information about chatbots, their characteristics, and default settings. */
 export interface Chatbot {
     avatar: (Scalars['String'] | null)
@@ -302,10 +231,6 @@ export interface Chatbot {
     /** An aggregate relationship */
     categoriesAggregate: ChatbotCategoryAggregate
     chatbotId: Scalars['Int']
-    /** An array relationship */
-    chats: Chat[]
-    /** An aggregate relationship */
-    chatsAggregate: ChatAggregate
     /** An object relationship */
     complexityEnum: (ComplexityEnum | null)
     createdBy: Scalars['String']
@@ -321,9 +246,9 @@ export interface Chatbot {
     /** An object relationship */
     lengthEnum: (LengthEnum | null)
     /** An array relationship */
-    metadataLabels: LabelChatbotCategory[]
+    metadata: ChatbotDomain[]
     /** An aggregate relationship */
-    metadataLabelsAggregate: LabelChatbotCategoryAggregate
+    metadataAggregate: ChatbotDomainAggregate
     name: Scalars['String']
     /** An array relationship */
     preferences: Preference[]
@@ -520,6 +445,137 @@ export interface ChatbotCategoryVarianceFields {
 export type ChatbotConstraint = 'chatbot_name_key' | 'chatbot_pkey'
 
 
+/** Junction table to track domains and chatbots relationships. */
+export interface ChatbotDomain {
+    /** An object relationship */
+    chatbot: Chatbot
+    chatbotId: Scalars['Int']
+    /** An object relationship */
+    domain: DomainEnum
+    domainName: Scalars['String']
+    __typename: 'ChatbotDomain'
+}
+
+
+/** aggregated selection of "chatbot_domain" */
+export interface ChatbotDomainAggregate {
+    aggregate: (ChatbotDomainAggregateFields | null)
+    nodes: ChatbotDomain[]
+    __typename: 'ChatbotDomainAggregate'
+}
+
+
+/** aggregate fields of "chatbot_domain" */
+export interface ChatbotDomainAggregateFields {
+    avg: (ChatbotDomainAvgFields | null)
+    count: Scalars['Int']
+    max: (ChatbotDomainMaxFields | null)
+    min: (ChatbotDomainMinFields | null)
+    stddev: (ChatbotDomainStddevFields | null)
+    stddevPop: (ChatbotDomainStddevPopFields | null)
+    stddevSamp: (ChatbotDomainStddevSampFields | null)
+    sum: (ChatbotDomainSumFields | null)
+    varPop: (ChatbotDomainVarPopFields | null)
+    varSamp: (ChatbotDomainVarSampFields | null)
+    variance: (ChatbotDomainVarianceFields | null)
+    __typename: 'ChatbotDomainAggregateFields'
+}
+
+
+/** aggregate avg on columns */
+export interface ChatbotDomainAvgFields {
+    chatbotId: (Scalars['Float'] | null)
+    __typename: 'ChatbotDomainAvgFields'
+}
+
+
+/** unique or primary key constraints on table "chatbot_domain" */
+export type ChatbotDomainConstraint = 'chatbot_domain_pkey'
+
+
+/** aggregate max on columns */
+export interface ChatbotDomainMaxFields {
+    chatbotId: (Scalars['Int'] | null)
+    domainName: (Scalars['String'] | null)
+    __typename: 'ChatbotDomainMaxFields'
+}
+
+
+/** aggregate min on columns */
+export interface ChatbotDomainMinFields {
+    chatbotId: (Scalars['Int'] | null)
+    domainName: (Scalars['String'] | null)
+    __typename: 'ChatbotDomainMinFields'
+}
+
+
+/** response of any mutation on the table "chatbot_domain" */
+export interface ChatbotDomainMutationResponse {
+    /** number of rows affected by the mutation */
+    affectedRows: Scalars['Int']
+    /** data from the rows affected by the mutation */
+    returning: ChatbotDomain[]
+    __typename: 'ChatbotDomainMutationResponse'
+}
+
+
+/** select columns of table "chatbot_domain" */
+export type ChatbotDomainSelectColumn = 'chatbotId' | 'domainName'
+
+
+/** aggregate stddev on columns */
+export interface ChatbotDomainStddevFields {
+    chatbotId: (Scalars['Float'] | null)
+    __typename: 'ChatbotDomainStddevFields'
+}
+
+
+/** aggregate stddevPop on columns */
+export interface ChatbotDomainStddevPopFields {
+    chatbotId: (Scalars['Float'] | null)
+    __typename: 'ChatbotDomainStddevPopFields'
+}
+
+
+/** aggregate stddevSamp on columns */
+export interface ChatbotDomainStddevSampFields {
+    chatbotId: (Scalars['Float'] | null)
+    __typename: 'ChatbotDomainStddevSampFields'
+}
+
+
+/** aggregate sum on columns */
+export interface ChatbotDomainSumFields {
+    chatbotId: (Scalars['Int'] | null)
+    __typename: 'ChatbotDomainSumFields'
+}
+
+
+/** update columns of table "chatbot_domain" */
+export type ChatbotDomainUpdateColumn = 'chatbotId' | 'domainName'
+
+
+/** aggregate varPop on columns */
+export interface ChatbotDomainVarPopFields {
+    chatbotId: (Scalars['Float'] | null)
+    __typename: 'ChatbotDomainVarPopFields'
+}
+
+
+/** aggregate varSamp on columns */
+export interface ChatbotDomainVarSampFields {
+    chatbotId: (Scalars['Float'] | null)
+    __typename: 'ChatbotDomainVarSampFields'
+}
+
+
+/** aggregate variance on columns */
+export interface ChatbotDomainVarianceFields {
+    chatbotId: (Scalars['Float'] | null)
+    __typename: 'ChatbotDomainVarianceFields'
+}
+
+
 /** aggregate max on columns */
 export interface ChatbotMaxFields {
     avatar: (Scalars['String'] | null)
@@ -627,6 +683,7 @@ export interface ComplexityEnum {
     preferences: Preference[]
     /** An aggregate relationship */
     preferencesAggregate: PreferenceAggregate
+    prompt: Scalars['String']
     value: Scalars['String']
     __typename: 'ComplexityEnum'
 }
@@ -655,6 +712,7 @@ export type ComplexityEnumConstraint = 'default_complexity_enum_pkey'
 
 /** aggregate max on columns */
 export interface ComplexityEnumMaxFields {
+    prompt: (Scalars['String'] | null)
     value: (Scalars['String'] | null)
     __typename: 'ComplexityEnumMaxFields'
 }
@@ -662,6 +720,7 @@ export interface ComplexityEnumMaxFields {
 
 /** aggregate min on columns */
 export interface ComplexityEnumMinFields {
+    prompt: (Scalars['String'] | null)
     value: (Scalars['String'] | null)
     __typename: 'ComplexityEnumMinFields'
 }
@@ -678,308 +737,176 @@ export interface ComplexityEnumMutationResponse {
 
 
 /** select columns of table "complexity_enum" */
-export type ComplexityEnumSelectColumn = 'value'
+export type ComplexityEnumSelectColumn = 'prompt' | 'value'
 
 
 /** update columns of table "complexity_enum" */
-export type ComplexityEnumUpdateColumn = 'value'
+export type ComplexityEnumUpdateColumn = 'prompt' | 'value'
 
 
 /** ordering argument of a cursor */
 export type CursorOrdering = 'ASC' | 'DESC'
 
 
-/** Labels for chatbots (e.g.: domain, category, sub-category, tags  */
-export interface Label {
-    advancedLabels: Scalars['Boolean']
-    categories: Scalars['String']
-    labelId: Scalars['Int']
-    /** An array relationship */
-    metadataLabels: LabelChatbotCategory[]
+/** columns and relationships of "domain_enum" */
+export interface DomainEnum {
+    added: (Scalars['timestamptz'] | null)
     /** An aggregate relationship */
-    metadataLabelsAggregate: LabelChatbotCategoryAggregate
-    questions: Scalars['String']
-    subCategories: Scalars['String']
-    tags: Scalars['String']
-    __typename: 'Label'
+    categoryEnumsAggregate: CategoryEnumAggregate
+    /** An array relationship */
+    category_enums: CategoryEnum[]
+    /** An array relationship */
+    chatbot: ChatbotDomain[]
+    /** An aggregate relationship */
+    chatbotAggregate: ChatbotDomainAggregate
+    name: Scalars['String']
+    /** An aggregate relationship */
+    tagEnumsAggregate: TagEnumAggregate
+    /** An array relationship */
+    tag_enums: TagEnum[]
+    __typename: 'DomainEnum'
 }
 
 
-/** aggregated selection of "label" */
-export interface LabelAggregate {
-    aggregate: (LabelAggregateFields | null)
-    nodes: Label[]
-    __typename: 'LabelAggregate'
+/** aggregated selection of "domain_enum" */
+export interface DomainEnumAggregate {
+    aggregate: (DomainEnumAggregateFields | null)
+    nodes: DomainEnum[]
+    __typename: 'DomainEnumAggregate'
 }
 
 
-/** aggregate fields of "label" */
-export interface LabelAggregateFields {
-    avg: (LabelAvgFields | null)
+/** aggregate fields of "domain_enum" */
+export interface DomainEnumAggregateFields {
     count: Scalars['Int']
-    max: (LabelMaxFields | null)
-    min: (LabelMinFields | null)
-    stddev: (LabelStddevFields | null)
-    stddevPop: (LabelStddevPopFields | null)
-    stddevSamp: (LabelStddevSampFields | null)
-    sum: (LabelSumFields | null)
-    varPop: (LabelVarPopFields | null)
-    varSamp: (LabelVarSampFields | null)
-    variance: (LabelVarianceFields | null)
-    __typename: 'LabelAggregateFields'
+    max: (DomainEnumMaxFields | null)
+    min: (DomainEnumMinFields | null)
+    __typename: 'DomainEnumAggregateFields'
 }
 
 
-/** aggregate avg on columns */
-export interface LabelAvgFields {
-    labelId: (Scalars['Float'] | null)
-    __typename: 'LabelAvgFields'
-}
-
-
-/** Junction table to connect between Label, Chatbot and Categories tables. */
-export interface LabelChatbotCategory {
-    /** An object relationship */
-    category: Category
-    categoryId: Scalars['Int']
-    /** An object relationship */
-    chatbot: Chatbot
-    chatbotId: Scalars['Int']
-    /** An object relationship */
-    label: Label
-    labelId: Scalars['Int']
-    __typename: 'LabelChatbotCategory'
-}
-
-
-/** aggregated selection of "label_chatbot_category" */
-export interface LabelChatbotCategoryAggregate {
-    aggregate: (LabelChatbotCategoryAggregateFields | null)
-    nodes: LabelChatbotCategory[]
-    __typename: 'LabelChatbotCategoryAggregate'
-}
-
-
-/** aggregate fields of "label_chatbot_category" */
-export interface LabelChatbotCategoryAggregateFields {
-    avg: (LabelChatbotCategoryAvgFields | null)
-    count: Scalars['Int']
-    max: (LabelChatbotCategoryMaxFields | null)
-    min: (LabelChatbotCategoryMinFields | null)
-    stddev: (LabelChatbotCategoryStddevFields | null)
-    stddevPop: (LabelChatbotCategoryStddevPopFields | null)
-    stddevSamp: (LabelChatbotCategoryStddevSampFields | null)
-    sum: (LabelChatbotCategorySumFields | null)
-    varPop: (LabelChatbotCategoryVarPopFields | null)
-    varSamp: (LabelChatbotCategoryVarSampFields | null)
-    variance: (LabelChatbotCategoryVarianceFields | null)
-    __typename: 'LabelChatbotCategoryAggregateFields'
-}
-
-
-/** aggregate avg on columns */
-export interface LabelChatbotCategoryAvgFields {
-    categoryId: (Scalars['Float'] | null)
-    chatbotId: (Scalars['Float'] | null)
-    labelId: (Scalars['Float'] | null)
-    __typename: 'LabelChatbotCategoryAvgFields'
-}
-
-
-/** unique or primary key constraints on table "label_chatbot_category" */
-export type LabelChatbotCategoryConstraint = 'label_chatbot_category_pkey'
+/** unique or primary key constraints on table "domain_enum" */
+export type DomainEnumConstraint = 'domain_enum_pkey'
 
 
 /** aggregate max on columns */
-export interface LabelChatbotCategoryMaxFields {
-    categoryId: (Scalars['Int'] | null)
-    chatbotId: (Scalars['Int'] | null)
-    labelId: (Scalars['Int'] | null)
-    __typename: 'LabelChatbotCategoryMaxFields'
+export interface DomainEnumMaxFields {
+    added: (Scalars['timestamptz'] | null)
+    name: (Scalars['String'] | null)
+    __typename: 'DomainEnumMaxFields'
 }
 
 
 /** aggregate min on columns */
-export interface LabelChatbotCategoryMinFields {
-    categoryId: (Scalars['Int'] | null)
-    chatbotId: (Scalars['Int'] | null)
-    labelId: (Scalars['Int'] | null)
-    __typename: 'LabelChatbotCategoryMinFields'
+export interface DomainEnumMinFields {
+    added: (Scalars['timestamptz'] | null)
+    name: (Scalars['String'] | null)
+    __typename: 'DomainEnumMinFields'
 }
 
 
-/** response of any mutation on the table "label_chatbot_category" */
-export interface LabelChatbotCategoryMutationResponse {
+/** response of any mutation on the table "domain_enum" */
+export interface DomainEnumMutationResponse {
     /** number of rows affected by the mutation */
     affectedRows: Scalars['Int']
     /** data from the rows affected by the mutation */
-    returning: LabelChatbotCategory[]
-    __typename: 'LabelChatbotCategoryMutationResponse'
+    returning: DomainEnum[]
+    __typename: 'DomainEnumMutationResponse'
 }
 
 
-/** select columns of table "label_chatbot_category" */
-export type LabelChatbotCategorySelectColumn = 'categoryId' | 'chatbotId' | 'labelId'
+/** select columns of table "domain_enum" */
+export type DomainEnumSelectColumn = 'added' | 'name'
 
 
-/** aggregate stddev on columns */
-export interface LabelChatbotCategoryStddevFields {
-    categoryId: (Scalars['Float'] | null)
-    chatbotId: (Scalars['Float'] | null)
-    labelId: (Scalars['Float'] | null)
-    __typename: 'LabelChatbotCategoryStddevFields'
+/** update columns of table "domain_enum" */
+export type DomainEnumUpdateColumn = 'added' | 'name'
+
+
+/** columns and relationships of "example" */
+export interface Example {
+    added: Scalars['timestamptz']
+    category: Scalars['String']
+    domain: Scalars['String']
+    exampleId: Scalars['uuid']
+    metadata: Scalars['jsonb']
+    prompt: Scalars['String']
+    response: Scalars['String']
+    subcategory: Scalars['String']
+    /** An object relationship */
+    subcategoryEnumBySubcategoryCategoryDomain: (SubcategoryEnum | null)
+    /** An object relationship */
+    subcategory_enum: SubcategoryEnum
+    tags: Scalars['uuid'][]
+    __typename: 'Example'
 }
 
 
-/** aggregate stddevPop on columns */
-export interface LabelChatbotCategoryStddevPopFields {
-    categoryId: (Scalars['Float'] | null)
-    chatbotId: (Scalars['Float'] | null)
-    labelId: (Scalars['Float'] | null)
-    __typename: 'LabelChatbotCategoryStddevPopFields'
+/** aggregated selection of "example" */
+export interface ExampleAggregate {
+    aggregate: (ExampleAggregateFields | null)
+    nodes: Example[]
+    __typename: 'ExampleAggregate'
 }
 
 
-/** aggregate stddevSamp on columns */
-export interface LabelChatbotCategoryStddevSampFields {
-    categoryId: (Scalars['Float'] | null)
-    chatbotId: (Scalars['Float'] | null)
-    labelId: (Scalars['Float'] | null)
-    __typename: 'LabelChatbotCategoryStddevSampFields'
+/** aggregate fields of "example" */
+export interface ExampleAggregateFields {
+    count: Scalars['Int']
+    max: (ExampleMaxFields | null)
+    min: (ExampleMinFields | null)
+    __typename: 'ExampleAggregateFields'
 }
 
 
-/** aggregate sum on columns */
-export interface LabelChatbotCategorySumFields {
-    categoryId: (Scalars['Int'] | null)
-    chatbotId: (Scalars['Int'] | null)
-    labelId: (Scalars['Int'] | null)
-    __typename: 'LabelChatbotCategorySumFields'
-}
-
-
-/** update columns of table "label_chatbot_category" */
-export type LabelChatbotCategoryUpdateColumn = 'categoryId' | 'chatbotId' | 'labelId'
-
-
-/** aggregate varPop on columns */
-export interface LabelChatbotCategoryVarPopFields {
-    categoryId: (Scalars['Float'] | null)
-    chatbotId: (Scalars['Float'] | null)
-    labelId: (Scalars['Float'] | null)
-    __typename: 'LabelChatbotCategoryVarPopFields'
-}
-
-
-/** aggregate varSamp on columns */
-export interface LabelChatbotCategoryVarSampFields {
-    categoryId: (Scalars['Float'] | null)
-    chatbotId: (Scalars['Float'] | null)
-    labelId: (Scalars['Float'] | null)
-    __typename: 'LabelChatbotCategoryVarSampFields'
-}
-
-
-/** aggregate variance on columns */
-export interface LabelChatbotCategoryVarianceFields {
-    categoryId: (Scalars['Float'] | null)
-    chatbotId: (Scalars['Float'] | null)
-    labelId: (Scalars['Float'] | null)
-    __typename: 'LabelChatbotCategoryVarianceFields'
-}
-
-
-/** unique or primary key constraints on table "label" */
-export type LabelConstraint = 'label_label_id_key' | 'label_pkey'
+/** unique or primary key constraints on table "example" */
+export type ExampleConstraint = 'example_pkey'
 
 
 /** aggregate max on columns */
-export interface LabelMaxFields {
-    categories: (Scalars['String'] | null)
-    labelId: (Scalars['Int'] | null)
-    questions: (Scalars['String'] | null)
-    subCategories: (Scalars['String'] | null)
-    tags: (Scalars['String'] | null)
-    __typename: 'LabelMaxFields'
+export interface ExampleMaxFields {
+    added: (Scalars['timestamptz'] | null)
+    category: (Scalars['String'] | null)
+    domain: (Scalars['String'] | null)
+    exampleId: (Scalars['uuid'] | null)
+    prompt: (Scalars['String'] | null)
+    response: (Scalars['String'] | null)
+    subcategory: (Scalars['String'] | null)
+    tags: (Scalars['uuid'][] | null)
+    __typename: 'ExampleMaxFields'
 }
 
 
 /** aggregate min on columns */
-export interface LabelMinFields {
-    categories: (Scalars['String'] | null)
-    labelId: (Scalars['Int'] | null)
-    questions: (Scalars['String'] | null)
-    subCategories: (Scalars['String'] | null)
-    tags: (Scalars['String'] | null)
-    __typename: 'LabelMinFields'
+export interface ExampleMinFields {
+    added: (Scalars['timestamptz'] | null)
+    category: (Scalars['String'] | null)
+    domain: (Scalars['String'] | null)
+    exampleId: (Scalars['uuid'] | null)
+    prompt: (Scalars['String'] | null)
+    response: (Scalars['String'] | null)
+    subcategory: (Scalars['String'] | null)
+    tags: (Scalars['uuid'][] | null)
+    __typename: 'ExampleMinFields'
 }
 
 
-/** response of any mutation on the table "label" */
-export interface LabelMutationResponse {
+/** response of any mutation on the table "example" */
+export interface ExampleMutationResponse {
     /** number of rows affected by the mutation */
     affectedRows: Scalars['Int']
     /** data from the rows affected by the mutation */
-    returning: Label[]
-    __typename: 'LabelMutationResponse'
+    returning: Example[]
+    __typename: 'ExampleMutationResponse'
 }
 
 
-/** select columns of table "label" */
-export type LabelSelectColumn = 'advancedLabels' | 'categories' | 'labelId' | 'questions' | 'subCategories' | 'tags'
+/** select columns of table "example" */
+export type ExampleSelectColumn = 'added' | 'category' | 'domain' | 'exampleId' | 'metadata' | 'prompt' | 'response' | 'subcategory' | 'tags'
 
 
-/** aggregate stddev on columns */
-export interface LabelStddevFields {
-    labelId: (Scalars['Float'] | null)
-    __typename: 'LabelStddevFields'
-}
-
-
-/** aggregate stddevPop on columns */
-export interface LabelStddevPopFields {
-    labelId: (Scalars['Float'] | null)
-    __typename: 'LabelStddevPopFields'
-}
-
-
-/** aggregate stddevSamp on columns */
-export interface LabelStddevSampFields {
-    labelId: (Scalars['Float'] | null)
-    __typename: 'LabelStddevSampFields'
-}
-
-
-/** aggregate sum on columns */
-export interface LabelSumFields {
-    labelId: (Scalars['Int'] | null)
-    __typename: 'LabelSumFields'
-}
-
-
-/** update columns of table "label" */
-export type LabelUpdateColumn = 'advancedLabels' | 'categories' | 'labelId' | 'questions' | 'subCategories' | 'tags'
-
-
-/** aggregate varPop on columns */
-export interface LabelVarPopFields {
-    labelId: (Scalars['Float'] | null)
-    __typename: 'LabelVarPopFields'
-}
-
-
-/** aggregate varSamp on columns */
-export interface LabelVarSampFields {
-    labelId: (Scalars['Float'] | null)
-    __typename: 'LabelVarSampFields'
-}
-
-
-/** aggregate variance on columns */
-export interface LabelVarianceFields {
-    labelId: (Scalars['Float'] | null)
-    __typename: 'LabelVarianceFields'
-}
+/** update columns of table "example" */
+export type ExampleUpdateColumn = 'added' | 'category' | 'domain' | 'exampleId' | 'metadata' | 'prompt' | 'response' | 'subcategory' | 'tags'
 
 
 /** columns and relationships of "length_enum" */
@@ -992,6 +919,7 @@ export interface LengthEnum {
     preferences: Preference[]
     /** An aggregate relationship */
     preferencesAggregate: PreferenceAggregate
+    prompt: Scalars['String']
     value: Scalars['String']
     __typename: 'LengthEnum'
 }
@@ -1020,6 +948,7 @@ export type LengthEnumConstraint = 'default_length_enum_pkey'
 
 /** aggregate max on columns */
 export interface LengthEnumMaxFields {
+    prompt: (Scalars['String'] | null)
     value: (Scalars['String'] | null)
     __typename: 'LengthEnumMaxFields'
 }
@@ -1027,6 +956,7 @@ export interface LengthEnumMaxFields {
 
 /** aggregate min on columns */
 export interface LengthEnumMinFields {
+    prompt: (Scalars['String'] | null)
     value: (Scalars['String'] | null)
     __typename: 'LengthEnumMinFields'
 }
@@ -1043,20 +973,29 @@ export interface LengthEnumMutationResponse {
 
 
 /** select columns of table "length_enum" */
-export type LengthEnumSelectColumn = 'value'
+export type LengthEnumSelectColumn = 'prompt' | 'value'
 
 
 /** update columns of table "length_enum" */
-export type LengthEnumUpdateColumn = 'value'
+export type LengthEnumUpdateColumn = 'prompt' | 'value'
 
 
 /** This table stores the messages exchanged between users and chatbots. */
 export interface Message {
+    augmentedFrom: (Scalars['uuid'] | null)
     content: Scalars['String']
     createdAt: Scalars['timestamptz']
+    examples: (Scalars['jsonb'] | null)
+    /** An object relationship */
+    message: (Message | null)
     messageId: Scalars['uuid']
     /** An object relationship */
     messageTypeEnum: MessageTypeEnum
+    /** An array relationship */
+    messages: Message[]
+    /** An aggregate relationship */
+    messagesAggregate: MessageAggregate
+    prompt: (Scalars['String'] | null)
     role: Scalars['String']
     /** An object relationship */
     thread: (Thread | null)
@@ -1088,9 +1027,11 @@ export type MessageConstraint = 'message_id_key' | 'message_pkey'
 
 /** aggregate max on columns */
 export interface MessageMaxFields {
+    augmentedFrom: (Scalars['uuid'] | null)
     content: (Scalars['String'] | null)
     createdAt: (Scalars['timestamptz'] | null)
     messageId: (Scalars['uuid'] | null)
+    prompt: (Scalars['String'] | null)
     role: (Scalars['String'] | null)
     threadId: (Scalars['uuid'] | null)
     __typename: 'MessageMaxFields'
@@ -1099,9 +1040,11 @@ export interface MessageMaxFields {
 
 /** aggregate min on columns */
 export interface MessageMinFields {
+    augmentedFrom: (Scalars['uuid'] | null)
     content: (Scalars['String'] | null)
     createdAt: (Scalars['timestamptz'] | null)
     messageId: (Scalars['uuid'] | null)
+    prompt: (Scalars['String'] | null)
     role: (Scalars['String'] | null)
     threadId: (Scalars['uuid'] | null)
     __typename: 'MessageMinFields'
@@ -1119,7 +1062,7 @@ export interface MessageMutationResponse {
 
 
 /** select columns of table "message" */
-export type MessageSelectColumn = 'content' | 'createdAt' | 'messageId' | 'role' | 'threadId'
+export type MessageSelectColumn = 'augmentedFrom' | 'content' | 'createdAt' | 'examples' | 'messageId' | 'prompt' | 'role' | 'threadId'
 
 
 /** columns and relationships of "message_type_enum" */
@@ -1187,7 +1130,7 @@ export type MessageTypeEnumUpdateColumn = 'value'
 
 
 /** update columns of table "message" */
-export type MessageUpdateColumn = 'content' | 'createdAt' | 'messageId' | 'role' | 'threadId'
+export type MessageUpdateColumn = 'augmentedFrom' | 'content' | 'createdAt' | 'examples' | 'messageId' | 'prompt' | 'role' | 'threadId'
 
 
 /** columns and relationships of "models_enum" */
@@ -2112,6 +2055,222 @@ export interface SocialFollowingVarianceFields {
 }
 
 
+/** columns and relationships of "subcategory_enum" */
+export interface SubcategoryEnum {
+    added: Scalars['timestamptz']
+    category: Scalars['String']
+    /** An object relationship */
+    categoryEnumByDomainCategory: (CategoryEnum | null)
+    /** An object relationship */
+    category_enum: CategoryEnum
+    domain: Scalars['String']
+    /** An array relationship */
+    examples: Example[]
+    /** An aggregate relationship */
+    examplesAggregate: ExampleAggregate
+    /** An array relationship */
+    examplesByCategoryDomainSubcategory: Example[]
+    /** An aggregate relationship */
+    examplesByCategoryDomainSubcategoryAggregate: ExampleAggregate
+    name: Scalars['String']
+    __typename: 'SubcategoryEnum'
+}
+
+
+/** aggregated selection of "subcategory_enum" */
+export interface SubcategoryEnumAggregate {
+    aggregate: (SubcategoryEnumAggregateFields | null)
+    nodes: SubcategoryEnum[]
+    __typename: 'SubcategoryEnumAggregate'
+}
+
+
+/** aggregate fields of "subcategory_enum" */
+export interface SubcategoryEnumAggregateFields {
+    count: Scalars['Int']
+    max: (SubcategoryEnumMaxFields | null)
+    min: (SubcategoryEnumMinFields | null)
+    __typename: 'SubcategoryEnumAggregateFields'
+}
+
+
+/** unique or primary key constraints on table "subcategory_enum" */
+export type SubcategoryEnumConstraint = 'subcategory_enum_pkey'
+
+
+/** aggregate max on columns */
+export interface SubcategoryEnumMaxFields {
+    added: (Scalars['timestamptz'] | null)
+    category: (Scalars['String'] | null)
+    domain: (Scalars['String'] | null)
+    name: (Scalars['String'] | null)
+    __typename: 'SubcategoryEnumMaxFields'
+}
+
+
+/** aggregate min on columns */
+export interface SubcategoryEnumMinFields {
+    added: (Scalars['timestamptz'] | null)
+    category: (Scalars['String'] | null)
+    domain: (Scalars['String'] | null)
+    name: (Scalars['String'] | null)
+    __typename: 'SubcategoryEnumMinFields'
+}
+
+
+/** response of any mutation on the table "subcategory_enum" */
+export interface SubcategoryEnumMutationResponse {
+    /** number of rows affected by the mutation */
+    affectedRows: Scalars['Int']
+    /** data from the rows affected by the mutation */
+    returning: SubcategoryEnum[]
+    __typename: 'SubcategoryEnumMutationResponse'
+}
+
+
+/** select columns of table "subcategory_enum" */
+export type SubcategoryEnumSelectColumn = 'added' | 'category' | 'domain' | 'name'
+
+
+/** update columns of table "subcategory_enum" */
+export type SubcategoryEnumUpdateColumn = 'added' | 'category' | 'domain' | 'name'
+
+
+/** columns and relationships of "tag_enum" */
+export interface TagEnum {
+    domain: Scalars['String']
+    /** An object relationship */
+    domain_enum: DomainEnum
+    frequency: Scalars['numeric']
+    name: Scalars['String']
+    tagId: Scalars['uuid']
+    __typename: 'TagEnum'
+}
+
+
+/** aggregated selection of "tag_enum" */
+export interface TagEnumAggregate {
+    aggregate: (TagEnumAggregateFields | null)
+    nodes: TagEnum[]
+    __typename: 'TagEnumAggregate'
+}
+
+
+/** aggregate fields of "tag_enum" */
+export interface TagEnumAggregateFields {
+    avg: (TagEnumAvgFields | null)
+    count: Scalars['Int']
+    max: (TagEnumMaxFields | null)
+    min: (TagEnumMinFields | null)
+    stddev: (TagEnumStddevFields | null)
+    stddevPop: (TagEnumStddevPopFields | null)
+    stddevSamp: (TagEnumStddevSampFields | null)
+    sum: (TagEnumSumFields | null)
+    varPop: (TagEnumVarPopFields | null)
+    varSamp: (TagEnumVarSampFields | null)
+    variance: (TagEnumVarianceFields | null)
+    __typename: 'TagEnumAggregateFields'
+}
+
+
+/** aggregate avg on columns */
+export interface TagEnumAvgFields {
+    frequency: (Scalars['Float'] | null)
+    __typename: 'TagEnumAvgFields'
+}
+
+
+/** unique or primary key constraints on table "tag_enum" */
+export type TagEnumConstraint = 'tag_enum_name_domain_key' | 'tag_enum_pkey'
+
+
+/** aggregate max on columns */
+export interface TagEnumMaxFields {
+    domain: (Scalars['String'] | null)
+    frequency: (Scalars['numeric'] | null)
+    name: (Scalars['String'] | null)
+    tagId: (Scalars['uuid'] | null)
+    __typename: 'TagEnumMaxFields'
+}
+
+
+/** aggregate min on columns */
+export interface TagEnumMinFields {
+    domain: (Scalars['String'] | null)
+    frequency: (Scalars['numeric'] | null)
+    name: (Scalars['String'] | null)
+    tagId: (Scalars['uuid'] | null)
+    __typename: 'TagEnumMinFields'
+}
+
+
+/** response of any mutation on the table "tag_enum" */
+export interface TagEnumMutationResponse {
+    /** number of rows affected by the mutation */
+    affectedRows: Scalars['Int']
+    /** data from the rows affected by the mutation */
+    returning: TagEnum[]
+    __typename: 'TagEnumMutationResponse'
+}
+
+
+/** select columns of table "tag_enum" */
+export type TagEnumSelectColumn = 'domain' | 'frequency' | 'name' | 'tagId'
+
+
+/** aggregate stddev on columns */
+export interface TagEnumStddevFields {
+    frequency: (Scalars['Float'] | null)
+    __typename: 'TagEnumStddevFields'
+}
+
+
+/** aggregate stddevPop on columns */
+export interface TagEnumStddevPopFields {
+    frequency: (Scalars['Float'] | null)
+    __typename: 'TagEnumStddevPopFields'
+}
+
+
+/** aggregate stddevSamp on columns */
+export interface TagEnumStddevSampFields {
+    frequency: (Scalars['Float'] | null)
+    __typename: 'TagEnumStddevSampFields'
+}
+
+
+/** aggregate sum on columns */
+export interface TagEnumSumFields {
+    frequency: (Scalars['numeric'] | null)
+    __typename: 'TagEnumSumFields'
+}
+
+
+/** update columns of table "tag_enum" */
+export type TagEnumUpdateColumn = 'domain' | 'frequency' | 'name' | 'tagId'
+
+
+/** aggregate varPop on columns */
+export interface TagEnumVarPopFields {
+    frequency: (Scalars['Float'] | null)
+    __typename: 'TagEnumVarPopFields'
+}
+
+
+/** aggregate varSamp on columns */
+export interface TagEnumVarSampFields {
+    frequency: (Scalars['Float'] | null)
+    __typename: 'TagEnumVarSampFields'
+}
+
+
+/** aggregate variance on columns */
+export interface TagEnumVarianceFields {
+    frequency: (Scalars['Float'] | null)
+    __typename: 'TagEnumVarianceFields'
+}
+
+
 /** columns and relationships of "thread" */
 export interface Thread {
     /** An object relationship */
@@ -2128,7 +2287,14 @@ export interface Thread {
     model: ModelsEnumEnum
     /** An object relationship */
     modelsEnum: ModelsEnum
+    parentThreadId: (Scalars['uuid'] | null)
+    /** An object relationship */
+    thread: (Thread | null)
     threadId: Scalars['uuid']
+    /** An array relationship */
+    threads: Thread[]
+    /** An aggregate relationship */
+    threadsAggregate: ThreadAggregate
     updatedAt: Scalars['timestamptz']
     /** An object relationship */
     user: (User | null)
@@ -2177,6 +2343,7 @@ export type ThreadConstraint = 'thread_id_key' | 'thread_pkey'
 export interface ThreadMaxFields {
     chatbotId: (Scalars['Int'] | null)
     createdAt: (Scalars['timestamptz'] | null)
+    parentThreadId: (Scalars['uuid'] | null)
     threadId: (Scalars['uuid'] | null)
     updatedAt: (Scalars['timestamptz'] | null)
     userId: (Scalars['uuid'] | null)
@@ -2188,6 +2355,7 @@ export interface ThreadMaxFields {
 export interface ThreadMinFields {
     chatbotId: (Scalars['Int'] | null)
     createdAt: (Scalars['timestamptz'] | null)
+    parentThreadId: (Scalars['uuid'] | null)
     threadId: (Scalars['uuid'] | null)
     updatedAt: (Scalars['timestamptz'] | null)
     userId: (Scalars['uuid'] | null)
@@ -2206,7 +2374,7 @@ export interface ThreadMutationResponse {
 
 
 /** select columns of table "thread" */
-export type ThreadSelectColumn = 'chatbotId' | 'createdAt' | 'isApproved' | 'isBlocked' | 'isPublic' | 'model' | 'threadId' | 'updatedAt' | 'userId'
+export type ThreadSelectColumn = 'chatbotId' | 'createdAt' | 'isApproved' | 'isBlocked' | 'isPublic' | 'model' | 'parentThreadId' | 'threadId' | 'updatedAt' | 'userId'
 
 
 /** select "threadAggregateBoolExpBool_andArgumentsColumns" columns of table "thread" */
@@ -2246,7 +2414,7 @@ export interface ThreadSumFields {
 
 
 /** update columns of table "thread" */
-export type ThreadUpdateColumn = 'chatbotId' | 'createdAt' | 'isApproved' | 'isBlocked' | 'isPublic' | 'model' | 'threadId' | 'updatedAt' | 'userId'
+export type ThreadUpdateColumn = 'chatbotId' | 'createdAt' | 'isApproved' | 'isBlocked' | 'isPublic' | 'model' | 'parentThreadId' | 'threadId' | 'updatedAt' | 'userId'
 
 
 /** aggregate varPop on columns */
@@ -2347,6 +2515,7 @@ export interface ToneEnum {
     preferences: Preference[]
     /** An aggregate relationship */
     preferencesAggregate: PreferenceAggregate
+    prompt: Scalars['String']
     value: Scalars['String']
     __typename: 'ToneEnum'
 }
@@ -2375,6 +2544,7 @@ export type ToneEnumConstraint = 'default_tone_enum_pkey'
 
 /** aggregate max on columns */
 export interface ToneEnumMaxFields {
+    prompt: (Scalars['String'] | null)
     value: (Scalars['String'] | null)
     __typename: 'ToneEnumMaxFields'
 }
@@ -2382,6 +2552,7 @@ export interface ToneEnumMaxFields {
 
 /** aggregate min on columns */
 export interface ToneEnumMinFields {
+    prompt: (Scalars['String'] | null)
     value: (Scalars['String'] | null)
     __typename: 'ToneEnumMinFields'
 }
@@ -2398,11 +2569,11 @@ export interface ToneEnumMutationResponse {
 
 
 /** select columns of table "tone_enum" */
-export type ToneEnumSelectColumn = 'value'
+export type ToneEnumSelectColumn = 'prompt' | 'value'
 
 
 /** update columns of table "tone_enum" */
-export type ToneEnumUpdateColumn = 'value'
+export type ToneEnumUpdateColumn = 'prompt' | 'value'
 
 
 /** columns and relationships of "type_enum" */
@@ -2415,6 +2586,7 @@ export interface TypeEnum {
     preferences: Preference[]
     /** An aggregate relationship */
     preferencesAggregate: PreferenceAggregate
+    prompt: Scalars['String']
     value: Scalars['String']
     __typename: 'TypeEnum'
 }
@@ -2443,6 +2615,7 @@ export type TypeEnumConstraint = 'default_type_enum_pkey'
 
 /** aggregate max on columns */
 export interface TypeEnumMaxFields {
+    prompt: (Scalars['String'] | null)
     value: (Scalars['String'] | null)
     __typename: 'TypeEnumMaxFields'
 }
@@ -2450,6 +2623,7 @@ export interface TypeEnumMaxFields {
 
 /** aggregate min on columns */
 export interface TypeEnumMinFields {
+    prompt: (Scalars['String'] | null)
     value: (Scalars['String'] | null)
     __typename: 'TypeEnumMinFields'
 }
@@ -2466,20 +2640,16 @@ export interface TypeEnumMutationResponse {
 
 
 /** select columns of table "type_enum" */
-export type TypeEnumSelectColumn = 'value'
+export type TypeEnumSelectColumn = 'prompt' | 'value'
 
 
 /** update columns of table "type_enum" */
-export type TypeEnumUpdateColumn = 'value'
+export type TypeEnumUpdateColumn = 'prompt' | 'value'
 
 
 /** Table storing information about registered users. */
 export interface User {
     bio: (Scalars['String'] | null)
-    /** An array relationship */
-    chats: Chat[]
-    /** An aggregate relationship */
-    chatsAggregate: ChatAggregate
     dateJoined: Scalars['timestamptz']
     email: Scalars['String']
     favouriteTopic: (Scalars['String'] | null)
@@ -2678,10 +2848,10 @@ export interface mutation_root {
     deleteCategory: (CategoryMutationResponse | null)
     /** delete single row from the table: "category" */
     deleteCategoryByPk: (Category | null)
-    /** delete data from the table: "chat" */
-    deleteChat: (ChatMutationResponse | null)
-    /** delete single row from the table: "chat" */
-    deleteChatByPk: (Chat | null)
+    /** delete data from the table: "category_enum" */
+    deleteCategoryEnum: (CategoryEnumMutationResponse | null)
+    /** delete single row from the table: "category_enum" */
+    deleteCategoryEnumByPk: (CategoryEnum | null)
     /** delete data from the table: "chatbot" */
     deleteChatbot: (ChatbotMutationResponse | null)
     /** delete single row from the table: "chatbot" */
@@ -2690,18 +2860,22 @@ export interface mutation_root {
     deleteChatbotCategory: (ChatbotCategoryMutationResponse | null)
     /** delete single row from the table: "chatbot_category" */
     deleteChatbotCategoryByPk: (ChatbotCategory | null)
+    /** delete data from the table: "chatbot_domain" */
+    deleteChatbotDomain: (ChatbotDomainMutationResponse | null)
+    /** delete single row from the table: "chatbot_domain" */
+    deleteChatbotDomainByPk: (ChatbotDomain | null)
     /** delete data from the table: "complexity_enum" */
     deleteComplexityEnum: (ComplexityEnumMutationResponse | null)
     /** delete single row from the table: "complexity_enum" */
     deleteComplexityEnumByPk: (ComplexityEnum | null)
-    /** delete data from the table: "label" */
-    deleteLabel: (LabelMutationResponse | null)
-    /** delete single row from the table: "label" */
-    deleteLabelByPk: (Label | null)
-    /** delete data from the table: "label_chatbot_category" */
-    deleteLabelChatbotCategory: (LabelChatbotCategoryMutationResponse | null)
-    /** delete single row from the table: "label_chatbot_category" */
-    deleteLabelChatbotCategoryByPk: (LabelChatbotCategory | null)
+    /** delete data from the table: "domain_enum" */
+    deleteDomainEnum: (DomainEnumMutationResponse | null)
+    /** delete single row from the table: "domain_enum" */
+    deleteDomainEnumByPk: (DomainEnum | null)
+    /** delete data from the table: "example" */
+    deleteExample: (ExampleMutationResponse | null)
+    /** delete single row from the table: "example" */
+    deleteExampleByPk: (Example | null)
     /** delete data from the table: "length_enum" */
     deleteLengthEnum: (LengthEnumMutationResponse | null)
     /** delete single row from the table: "length_enum" */
@@ -2744,6 +2918,14 @@ export interface mutation_root {
     deleteReferralByPk: (Referral | null)
     /** delete data from the table: "social_following" */
     deleteSocialFollowing: (SocialFollowingMutationResponse | null)
+    /** delete data from the table: "subcategory_enum" */
+    deleteSubcategoryEnum: (SubcategoryEnumMutationResponse | null)
+    /** delete single row from the table: "subcategory_enum" */
+    deleteSubcategoryEnumByPk: (SubcategoryEnum | null)
+    /** delete data from the table: "tag_enum" */
+    deleteTagEnum: (TagEnumMutationResponse | null)
+    /** delete single row from the table: "tag_enum" */
+    deleteTagEnumByPk: (TagEnum | null)
     /** delete data from the table: "thread" */
     deleteThread: (ThreadMutationResponse | null)
     /** delete single row from the table: "thread" */
@@ -2770,32 +2952,36 @@ export interface mutation_root {
     deleteUserTokenByPk: (UserToken | null)
     /** insert data into the table: "category" */
     insertCategory: (CategoryMutationResponse | null)
+    /** insert data into the table: "category_enum" */
+    insertCategoryEnum: (CategoryEnumMutationResponse | null)
+    /** insert a single row into the table: "category_enum" */
+    insertCategoryEnumOne: (CategoryEnum | null)
     /** insert a single row into the table: "category" */
     insertCategoryOne: (Category | null)
-    /** insert data into the table: "chat" */
-    insertChat: (ChatMutationResponse | null)
-    /** insert a single row into the table: "chat" */
-    insertChatOne: (Chat | null)
     /** insert data into the table: "chatbot" */
     insertChatbot: (ChatbotMutationResponse | null)
     /** insert data into the table: "chatbot_category" */
     insertChatbotCategory: (ChatbotCategoryMutationResponse | null)
     /** insert a single row into the table: "chatbot_category" */
     insertChatbotCategoryOne: (ChatbotCategory | null)
+    /** insert data into the table: "chatbot_domain" */
+    insertChatbotDomain: (ChatbotDomainMutationResponse | null)
+    /** insert a single row into the table: "chatbot_domain" */
+    insertChatbotDomainOne: (ChatbotDomain | null)
     /** insert a single row into the table: "chatbot" */
     insertChatbotOne: (Chatbot | null)
     /** insert data into the table: "complexity_enum" */
     insertComplexityEnum: (ComplexityEnumMutationResponse | null)
     /** insert a single row into the table: "complexity_enum" */
     insertComplexityEnumOne: (ComplexityEnum | null)
-    /** insert data into the table: "label" */
-    insertLabel: (LabelMutationResponse | null)
-    /** insert data into the table: "label_chatbot_category" */
-    insertLabelChatbotCategory: (LabelChatbotCategoryMutationResponse | null)
-    /** insert a single row into the table: "label_chatbot_category" */
-    insertLabelChatbotCategoryOne: (LabelChatbotCategory | null)
-    /** insert a single row into the table: "label" */
-    insertLabelOne: (Label | null)
+    /** insert data into the table: "domain_enum" */
+    insertDomainEnum: (DomainEnumMutationResponse | null)
+    /** insert a single row into the table: "domain_enum" */
+    insertDomainEnumOne: (DomainEnum | null)
+    /** insert data into the table: "example" */
+    insertExample: (ExampleMutationResponse | null)
+    /** insert a single row into the table: "example" */
+    insertExampleOne: (Example | null)
     /** insert data into the table: "length_enum" */
     insertLengthEnum: (LengthEnumMutationResponse | null)
     /** insert a single row into the table: "length_enum" */
@@ -2840,6 +3026,14 @@ export interface mutation_root {
     insertSocialFollowing: (SocialFollowingMutationResponse | null)
     /** insert a single row into the table: "social_following" */
     insertSocialFollowingOne: (SocialFollowing | null)
+    /** insert data into the table: "subcategory_enum" */
+    insertSubcategoryEnum: (SubcategoryEnumMutationResponse | null)
+    /** insert a single row into the table: "subcategory_enum" */
+    insertSubcategoryEnumOne: (SubcategoryEnum | null)
+    /** insert data into the table: "tag_enum" */
+    insertTagEnum: (TagEnumMutationResponse | null)
+    /** insert a single row into the table: "tag_enum" */
+    insertTagEnumOne: (TagEnum | null)
     /** insert data into the table: "thread" */
     insertThread: (ThreadMutationResponse | null)
     /** insert a single row into the table: "thread" */
@@ -2868,14 +3062,14 @@ export interface mutation_root {
     updateCategory: (CategoryMutationResponse | null)
     /** update single row of the table: "category" */
     updateCategoryByPk: (Category | null)
+    /** update data of the table: "category_enum" */
+    updateCategoryEnum: (CategoryEnumMutationResponse | null)
+    /** update single row of the table: "category_enum" */
+    updateCategoryEnumByPk: (CategoryEnum | null)
+    /** update multiples rows of table: "category_enum" */
+    updateCategoryEnumMany: ((CategoryEnumMutationResponse | null)[] | null)
     /** update multiples rows of table: "category" */
     updateCategoryMany: ((CategoryMutationResponse | null)[] | null)
-    /** update data of the table: "chat" */
-    updateChat: (ChatMutationResponse | null)
-    /** update single row of the table: "chat" */
-    updateChatByPk: (Chat | null)
-    /** update multiples rows of table: "chat" */
-    updateChatMany: ((ChatMutationResponse | null)[] | null)
     /** update data of the table: "chatbot" */
     updateChatbot: (ChatbotMutationResponse | null)
     /** update single row of the table: "chatbot" */
@@ -2886,6 +3080,12 @@ export interface mutation_root {
     updateChatbotCategoryByPk: (ChatbotCategory | null)
     /** update multiples rows of table: "chatbot_category" */
     updateChatbotCategoryMany: ((ChatbotCategoryMutationResponse | null)[] | null)
+    /** update data of the table: "chatbot_domain" */
+    updateChatbotDomain: (ChatbotDomainMutationResponse | null)
+    /** update single row of the table: "chatbot_domain" */
+    updateChatbotDomainByPk: (ChatbotDomain | null)
+    /** update multiples rows of table: "chatbot_domain" */
+    updateChatbotDomainMany: ((ChatbotDomainMutationResponse | null)[] | null)
     /** update multiples rows of table: "chatbot" */
     updateChatbotMany: ((ChatbotMutationResponse | null)[] | null)
     /** update data of the table: "complexity_enum" */
@@ -2894,18 +3094,18 @@ export interface mutation_root {
     updateComplexityEnumByPk: (ComplexityEnum | null)
     /** update multiples rows of table: "complexity_enum" */
     updateComplexityEnumMany: ((ComplexityEnumMutationResponse | null)[] | null)
-    /** update data of the table: "label" */
-    updateLabel: (LabelMutationResponse | null)
-    /** update single row of the table: "label" */
-    updateLabelByPk: (Label | null)
-    /** update data of the table: "label_chatbot_category" */
-    updateLabelChatbotCategory: (LabelChatbotCategoryMutationResponse | null)
-    /** update single row of the table: "label_chatbot_category" */
-    updateLabelChatbotCategoryByPk: (LabelChatbotCategory | null)
-    /** update multiples rows of table: "label_chatbot_category" */
-    updateLabelChatbotCategoryMany: ((LabelChatbotCategoryMutationResponse | null)[] | null)
-    /** update multiples rows of table: "label" */
-    updateLabelMany: ((LabelMutationResponse | null)[] | null)
+    /** update data of the table: "domain_enum" */
+    updateDomainEnum: (DomainEnumMutationResponse | null)
+    /** update single row of the table: "domain_enum" */
+    updateDomainEnumByPk: (DomainEnum | null)
+    /** update multiples rows of table: "domain_enum" */
+    updateDomainEnumMany: ((DomainEnumMutationResponse | null)[] | null)
+    /** update data of the table: "example" */
+    updateExample: (ExampleMutationResponse | null)
+    /** update single row of the table: "example" */
+    updateExampleByPk: (Example | null)
+    /** update multiples rows of table: "example" */
+    updateExampleMany: ((ExampleMutationResponse | null)[] | null)
     /** update data of the table: "length_enum" */
     updateLengthEnum: (LengthEnumMutationResponse | null)
     /** update single row of the table: "length_enum" */
@@ -2970,6 +3170,18 @@ export interface mutation_root {
     updateSocialFollowing: (SocialFollowingMutationResponse | null)
     /** update multiples rows of table: "social_following" */
     updateSocialFollowingMany: ((SocialFollowingMutationResponse | null)[] | null)
+    /** update data of the table: "subcategory_enum" */
+    updateSubcategoryEnum: (SubcategoryEnumMutationResponse | null)
+    /** update single row of the table: "subcategory_enum" */
+    updateSubcategoryEnumByPk: (SubcategoryEnum | null)
+    /** update multiples rows of table: "subcategory_enum" */
+    updateSubcategoryEnumMany: ((SubcategoryEnumMutationResponse | null)[] | null)
+    /** update data of the table: "tag_enum" */
+    updateTagEnum: (TagEnumMutationResponse | null)
+    /** update single row of the table: "tag_enum" */
+    updateTagEnumByPk: (TagEnum | null)
+    /** update multiples rows of table: "tag_enum" */
+    updateTagEnumMany: ((TagEnumMutationResponse | null)[] | null)
     /** update data of the table: "thread" */
     updateThread: (ThreadMutationResponse | null)
     /** update single row of the table: "thread" */
@@ -3016,12 +3228,12 @@ export interface query_root {
     categoryAggregate: CategoryAggregate
     /** fetch data from the table: "category" using primary key columns */
     categoryByPk: (Category | null)
-    /** fetch data from the table: "chat" */
-    chat: Chat[]
-    /** fetch aggregated fields from the table: "chat" */
-    chatAggregate: ChatAggregate
-    /** fetch data from the table: "chat" using primary key columns */
-    chatByPk: (Chat | null)
+    /** fetch data from the table: "category_enum" */
+    categoryEnum: CategoryEnum[]
+    /** fetch aggregated fields from the table: "category_enum" */
+    categoryEnumAggregate: CategoryEnumAggregate
+    /** fetch data from the table: "category_enum" using primary key columns */
+    categoryEnumByPk: (CategoryEnum | null)
     /** fetch data from the table: "chatbot" */
     chatbot: Chatbot[]
     /** fetch aggregated fields from the table: "chatbot" */
@@ -3034,24 +3246,30 @@ export interface query_root {
     chatbotCategoryAggregate: ChatbotCategoryAggregate
     /** fetch data from the table: "chatbot_category" using primary key columns */
     chatbotCategoryByPk: (ChatbotCategory | null)
+    /** fetch data from the table: "chatbot_domain" */
+    chatbotDomain: ChatbotDomain[]
+    /** fetch aggregated fields from the table: "chatbot_domain" */
+    chatbotDomainAggregate: ChatbotDomainAggregate
+    /** fetch data from the table: "chatbot_domain" using primary key columns */
+    chatbotDomainByPk: (ChatbotDomain | null)
     /** fetch data from the table: "complexity_enum" */
     complexityEnum: ComplexityEnum[]
     /** fetch aggregated fields from the table: "complexity_enum" */
     complexityEnumAggregate: ComplexityEnumAggregate
     /** fetch data from the table: "complexity_enum" using primary key columns */
     complexityEnumByPk: (ComplexityEnum | null)
-    /** fetch data from the table: "label" */
-    label: Label[]
-    /** fetch aggregated fields from the table: "label" */
-    labelAggregate: LabelAggregate
-    /** fetch data from the table: "label" using primary key columns */
-    labelByPk: (Label | null)
-    /** fetch data from the table: "label_chatbot_category" */
-    labelChatbotCategory: LabelChatbotCategory[]
-    /** fetch aggregated fields from the table: "label_chatbot_category" */
-    labelChatbotCategoryAggregate: LabelChatbotCategoryAggregate
-    /** fetch data from the table: "label_chatbot_category" using primary key columns */
-    labelChatbotCategoryByPk: (LabelChatbotCategory | null)
+    /** fetch data from the table: "domain_enum" */
+    domainEnum: DomainEnum[]
+    /** fetch aggregated fields from the table: "domain_enum" */
+    domainEnumAggregate: DomainEnumAggregate
+    /** fetch data from the table: "domain_enum" using primary key columns */
+    domainEnumByPk: (DomainEnum | null)
+    /** fetch data from the table: "example" */
+    example: Example[]
+    /** fetch aggregated fields from the table: "example" */
+    exampleAggregate: ExampleAggregate
+    /** fetch data from the table: "example" using primary key columns */
+    exampleByPk: (Example | null)
     /** fetch data from the table: "length_enum" */
     lengthEnum: LengthEnum[]
     /** fetch aggregated fields from the table: "length_enum" */
@@ -3116,6 +3334,18 @@ export interface query_root {
     socialFollowing: SocialFollowing[]
     /** fetch aggregated fields from the table: "social_following" */
     socialFollowingAggregate: SocialFollowingAggregate
+    /** fetch data from the table: "subcategory_enum" */
+    subcategoryEnum: SubcategoryEnum[]
+    /** fetch aggregated fields from the table: "subcategory_enum" */
+    subcategoryEnumAggregate: SubcategoryEnumAggregate
+    /** fetch data from the table: "subcategory_enum" using primary key columns */
+    subcategoryEnumByPk: (SubcategoryEnum | null)
+    /** fetch data from the table: "tag_enum" */
+    tagEnum: TagEnum[]
+    /** fetch aggregated fields from the table: "tag_enum" */
+    tagEnumAggregate: TagEnumAggregate
+    /** fetch data from the table: "tag_enum" using primary key columns */
+    tagEnumByPk: (TagEnum | null)
     /** fetch data from the table: "thread" */
     thread: Thread[]
     /** fetch aggregated fields from the table: "thread" */
@@ -3162,16 +3392,16 @@ export interface subscription_root {
     categoryAggregate: CategoryAggregate
     /** fetch data from the table: "category" using primary key columns */
     categoryByPk: (Category | null)
+    /** fetch data from the table: "category_enum" */
+    categoryEnum: CategoryEnum[]
+    /** fetch aggregated fields from the table: "category_enum" */
+    categoryEnumAggregate: CategoryEnumAggregate
+    /** fetch data from the table: "category_enum" using primary key columns */
+    categoryEnumByPk: (CategoryEnum | null)
+    /** fetch data from the table in a streaming manner: "category_enum" */
+    categoryEnumStream: CategoryEnum[]
     /** fetch data from the table in a streaming manner: "category" */
     categoryStream: Category[]
-    /** fetch data from the table: "chat" */
-    chat: Chat[]
-    /** fetch aggregated fields from the table: "chat" */
-    chatAggregate: ChatAggregate
-    /** fetch data from the table: "chat" using primary key columns */
-    chatByPk: (Chat | null)
-    /** fetch data from the table in a streaming manner: "chat" */
-    chatStream: Chat[]
     /** fetch data from the table: "chatbot" */
     chatbot: Chatbot[]
     /** fetch aggregated fields from the table: "chatbot" */
@@ -3186,6 +3416,14 @@ export interface subscription_root {
     chatbotCategoryByPk: (ChatbotCategory | null)
     /** fetch data from the table in a streaming manner: "chatbot_category" */
     chatbotCategoryStream: ChatbotCategory[]
+    /** fetch data from the table: "chatbot_domain" */
+    chatbotDomain: ChatbotDomain[]
+    /** fetch aggregated fields from the table: "chatbot_domain" */
+    chatbotDomainAggregate: ChatbotDomainAggregate
+    /** fetch data from the table: "chatbot_domain" using primary key columns */
+    chatbotDomainByPk: (ChatbotDomain | null)
+    /** fetch data from the table in a streaming manner: "chatbot_domain" */
+    chatbotDomainStream: ChatbotDomain[]
     /** fetch data from the table in a streaming manner: "chatbot" */
     chatbotStream: Chatbot[]
     /** fetch data from the table: "complexity_enum" */
@@ -3196,22 +3434,22 @@ export interface subscription_root {
     complexityEnumByPk: (ComplexityEnum | null)
     /** fetch data from the table in a streaming manner: "complexity_enum" */
     complexityEnumStream: ComplexityEnum[]
-    /** fetch data from the table: "label" */
-    label: Label[]
-    /** fetch aggregated fields from the table: "label" */
-    labelAggregate: LabelAggregate
-    /** fetch data from the table: "label" using primary key columns */
-    labelByPk: (Label | null)
-    /** fetch data from the table: "label_chatbot_category" */
-    labelChatbotCategory: LabelChatbotCategory[]
-    /** fetch aggregated fields from the table: "label_chatbot_category" */
-    labelChatbotCategoryAggregate: LabelChatbotCategoryAggregate
-    /** fetch data from the table: "label_chatbot_category" using primary key columns */
-    labelChatbotCategoryByPk: (LabelChatbotCategory | null)
-    /** fetch data from the table in a streaming manner: "label_chatbot_category" */
-    labelChatbotCategoryStream: LabelChatbotCategory[]
-    /** fetch data from the table in a streaming manner: "label" */
-    labelStream: Label[]
+    /** fetch data from the table: "domain_enum" */
+    domainEnum: DomainEnum[]
+    /** fetch aggregated fields from the table: "domain_enum" */
+    domainEnumAggregate: DomainEnumAggregate
+    /** fetch data from the table: "domain_enum" using primary key columns */
+    domainEnumByPk: (DomainEnum | null)
+    /** fetch data from the table in a streaming manner: "domain_enum" */
+    domainEnumStream: DomainEnum[]
+    /** fetch data from the table: "example" */
+    example: Example[]
+    /** fetch aggregated fields from the table: "example" */
+    exampleAggregate: ExampleAggregate
+    /** fetch data from the table: "example" using primary key columns */
+    exampleByPk: (Example | null)
+    /** fetch data from the table in a streaming manner: "example" */
+    exampleStream: Example[]
     /** fetch data from the table: "length_enum" */
     lengthEnum: LengthEnum[]
     /** fetch aggregated fields from the table: "length_enum" */
@@ -3298,6 +3536,22 @@ export interface subscription_root {
     socialFollowingAggregate: SocialFollowingAggregate
     /** fetch data from the table in a streaming manner: "social_following" */
     socialFollowingStream: SocialFollowing[]
+    /** fetch data from the table: "subcategory_enum" */
+    subcategoryEnum: SubcategoryEnum[]
+    /** fetch aggregated fields from the table: "subcategory_enum" */
+    subcategoryEnumAggregate: SubcategoryEnumAggregate
+    /** fetch data from the table: "subcategory_enum" using primary key columns */
+    subcategoryEnumByPk: (SubcategoryEnum | null)
+    /** fetch data from the table in a streaming manner: "subcategory_enum" */
+    subcategoryEnumStream: SubcategoryEnum[]
+    /** fetch data from the table: "tag_enum" */
+    tagEnum: TagEnum[]
+    /** fetch aggregated fields from the table: "tag_enum" */
+    tagEnumAggregate: TagEnumAggregate
+    /** fetch data from the table: "tag_enum" using primary key columns */
+    tagEnumByPk: (TagEnum | null)
+    /** fetch data from the table in a streaming manner: "tag_enum" */
+    tagEnumStream: TagEnum[]
     /** fetch data from the table: "thread" */
     thread: Thread[]
     /** fetch aggregated fields from the table: "thread" */
@@ -3385,30 +3639,6 @@ export interface CategoryGenqlSelection{
     orderBy?: (ChatbotCategoryOrderBy[] | null), 
     /** filter the rows returned */
     where?: (ChatbotCategoryBoolExp | null)} })
-    /** An array relationship */
-    metadataLabels?: (LabelChatbotCategoryGenqlSelection & { __args?: {
-    /** distinct select on columns */
-    distinctOn?: (LabelChatbotCategorySelectColumn[] | null), 
-    /** limit the number of rows returned */
-    limit?: (Scalars['Int'] | null), 
-    /** skip the first n rows. Use only with order_by */
-    offset?: (Scalars['Int'] | null), 
-    /** sort the rows by one or more columns */
-    orderBy?: (LabelChatbotCategoryOrderBy[] | null), 
-    /** filter the rows returned */
-    where?: (LabelChatbotCategoryBoolExp | null)} })
-    /** An aggregate relationship */
-    metadataLabelsAggregate?: (LabelChatbotCategoryAggregateGenqlSelection & { __args?: {
-    /** distinct select on columns */
-    distinctOn?: (LabelChatbotCategorySelectColumn[] | null), 
-    /** limit the number of rows returned */
-    limit?: (Scalars['Int'] | null), 
-    /** skip the first n rows. Use only with order_by */
-    offset?: (Scalars['Int'] | null), 
-    /** sort the rows by one or more columns */
-    orderBy?: (LabelChatbotCategoryOrderBy[] | null), 
-    /** filter the rows returned */
-    where?: (LabelChatbotCategoryBoolExp | null)} })
     name?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -3451,7 +3681,185 @@ export interface CategoryAvgFieldsGenqlSelection{
 
 
 /** Boolean expression to filter rows from the table "category". All fields are combined with a logical 'AND'. */
-export interface CategoryBoolExp {_and?: (CategoryBoolExp[] | null),_not?: (CategoryBoolExp | null),_or?: (CategoryBoolExp[] | null),categoryId?: (IntComparisonExp | null),chatbots?: (ChatbotCategoryBoolExp | null),chatbotsAggregate?: (ChatbotCategoryAggregateBoolExp | null),metadataLabels?: (LabelChatbotCategoryBoolExp | null),metadataLabelsAggregate?: (LabelChatbotCategoryAggregateBoolExp | null),name?: (StringComparisonExp | null)}
+export interface CategoryBoolExp {_and?: (CategoryBoolExp[] | null),_not?: (CategoryBoolExp | null),_or?: (CategoryBoolExp[] | null),categoryId?: (IntComparisonExp | null),chatbots?: (ChatbotCategoryBoolExp | null),chatbotsAggregate?: (ChatbotCategoryAggregateBoolExp | null),name?: (StringComparisonExp | null)}
+
+
+/** columns and relationships of "category_enum" */
+export interface CategoryEnumGenqlSelection{
+    added?: boolean | number
+    domain?: boolean | number
+    /** An object relationship */
+    domain_enum?: DomainEnumGenqlSelection
+    name?: boolean | number
+    /** An aggregate relationship */
+    subcategoryEnumsAggregate?: (SubcategoryEnumAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (SubcategoryEnumSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (SubcategoryEnumOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (SubcategoryEnumBoolExp | null)} })
+    /** An array relationship */
+    subcategoryEnumsByCategoryDomain?: (SubcategoryEnumGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (SubcategoryEnumSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (SubcategoryEnumOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (SubcategoryEnumBoolExp | null)} })
+    /** An aggregate relationship */
+    subcategoryEnumsByCategoryDomainAggregate?: (SubcategoryEnumAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (SubcategoryEnumSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (SubcategoryEnumOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (SubcategoryEnumBoolExp | null)} })
+    /** An array relationship */
+    subcategory_enums?: (SubcategoryEnumGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (SubcategoryEnumSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (SubcategoryEnumOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (SubcategoryEnumBoolExp | null)} })
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregated selection of "category_enum" */
+export interface CategoryEnumAggregateGenqlSelection{
+    aggregate?: CategoryEnumAggregateFieldsGenqlSelection
+    nodes?: CategoryEnumGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+export interface CategoryEnumAggregateBoolExp {count?: (categoryEnumAggregateBoolExpCount | null)}
+
+
+/** aggregate fields of "category_enum" */
+export interface CategoryEnumAggregateFieldsGenqlSelection{
+    count?: { __args: {columns?: (CategoryEnumSelectColumn[] | null), distinct?: (Scalars['Boolean'] | null)} } | boolean | number
+    max?: CategoryEnumMaxFieldsGenqlSelection
+    min?: CategoryEnumMinFieldsGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by aggregate values of table "category_enum" */
+export interface CategoryEnumAggregateOrderBy {count?: (OrderBy | null),max?: (CategoryEnumMaxOrderBy | null),min?: (CategoryEnumMinOrderBy | null)}
+
+
+/** input type for inserting array relation for remote table "category_enum" */
+export interface CategoryEnumArrRelInsertInput {data: CategoryEnumInsertInput[],
+/** upsert condition */
+onConflict?: (CategoryEnumOnConflict | null)}
+
+
+/** Boolean expression to filter rows from the table "category_enum". All fields are combined with a logical 'AND'. */
+export interface CategoryEnumBoolExp {_and?: (CategoryEnumBoolExp[] | null),_not?: (CategoryEnumBoolExp | null),_or?: (CategoryEnumBoolExp[] | null),added?: (TimestamptzComparisonExp | null),domain?: (StringComparisonExp | null),domain_enum?: (DomainEnumBoolExp | null),name?: (StringComparisonExp | null),subcategoryEnumsByCategoryDomain?: (SubcategoryEnumBoolExp | null),subcategoryEnumsByCategoryDomainAggregate?: (SubcategoryEnumAggregateBoolExp | null),subcategory_enums?: (SubcategoryEnumBoolExp | null),subcategory_enumsAggregate?: (SubcategoryEnumAggregateBoolExp | null)}
+
+
+/** input type for inserting data into table "category_enum" */
+export interface CategoryEnumInsertInput {added?: (Scalars['timestamptz'] | null),domain?: (Scalars['String'] | null),domain_enum?: (DomainEnumObjRelInsertInput | null),name?: (Scalars['String'] | null),subcategoryEnumsByCategoryDomain?: (SubcategoryEnumArrRelInsertInput | null),subcategory_enums?: (SubcategoryEnumArrRelInsertInput | null)}
+
+
+/** aggregate max on columns */
+export interface CategoryEnumMaxFieldsGenqlSelection{
+    added?: boolean | number
+    domain?: boolean | number
+    name?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by max() on columns of table "category_enum" */
+export interface CategoryEnumMaxOrderBy {added?: (OrderBy | null),domain?: (OrderBy | null),name?: (OrderBy | null)}
+
+
+/** aggregate min on columns */
+export interface CategoryEnumMinFieldsGenqlSelection{
+    added?: boolean | number
+    domain?: boolean | number
+    name?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by min() on columns of table "category_enum" */
+export interface CategoryEnumMinOrderBy {added?: (OrderBy | null),domain?: (OrderBy | null),name?: (OrderBy | null)}
+
+
+/** response of any mutation on the table "category_enum" */
+export interface CategoryEnumMutationResponseGenqlSelection{
+    /** number of rows affected by the mutation */
+    affectedRows?: boolean | number
+    /** data from the rows affected by the mutation */
+    returning?: CategoryEnumGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** input type for inserting object relation for remote table "category_enum" */
+export interface CategoryEnumObjRelInsertInput {data: CategoryEnumInsertInput,
+/** upsert condition */
+onConflict?: (CategoryEnumOnConflict | null)}
+
+
+/** on_conflict condition type for table "category_enum" */
+export interface CategoryEnumOnConflict {constraint: CategoryEnumConstraint,updateColumns?: CategoryEnumUpdateColumn[],where?: (CategoryEnumBoolExp | null)}
+
+
+/** Ordering options when selecting data from "category_enum". */
+export interface CategoryEnumOrderBy {added?: (OrderBy | null),domain?: (OrderBy | null),domain_enum?: (DomainEnumOrderBy | null),name?: (OrderBy | null),subcategoryEnumsByCategoryDomainAggregate?: (SubcategoryEnumAggregateOrderBy | null),subcategory_enumsAggregate?: (SubcategoryEnumAggregateOrderBy | null)}
+
+
+/** primary key columns input for table: category_enum */
+export interface CategoryEnumPkColumnsInput {domain: Scalars['String'],name: Scalars['String']}
+
+
+/** input type for updating data in table "category_enum" */
+export interface CategoryEnumSetInput {added?: (Scalars['timestamptz'] | null),domain?: (Scalars['String'] | null),name?: (Scalars['String'] | null)}
+
+
+/** Streaming cursor of the table "category_enum" */
+export interface CategoryEnumStreamCursorInput {
+/** Stream column input with initial value */
+initialValue: CategoryEnumStreamCursorValueInput,
+/** cursor ordering */
+ordering?: (CursorOrdering | null)}
+
+
+/** Initial value of the column from where the streaming should start */
+export interface CategoryEnumStreamCursorValueInput {added?: (Scalars['timestamptz'] | null),domain?: (Scalars['String'] | null),name?: (Scalars['String'] | null)}
+
+export interface CategoryEnumUpdates {
+/** sets the columns of the filtered rows to the given values */
+_set?: (CategoryEnumSetInput | null),
+/** filter the rows which have to be updated */
+where: CategoryEnumBoolExp}
 
 
 /** input type for incrementing numeric columns in table "category" */
@@ -3459,7 +3867,7 @@ export interface CategoryIncInput {categoryId?: (Scalars['Int'] | null)}
 
 
 /** input type for inserting data into table "category" */
-export interface CategoryInsertInput {categoryId?: (Scalars['Int'] | null),chatbots?: (ChatbotCategoryArrRelInsertInput | null),metadataLabels?: (LabelChatbotCategoryArrRelInsertInput | null),name?: (Scalars['String'] | null)}
+export interface CategoryInsertInput {categoryId?: (Scalars['Int'] | null),chatbots?: (ChatbotCategoryArrRelInsertInput | null),name?: (Scalars['String'] | null)}
 
 
 /** aggregate max on columns */
@@ -3502,7 +3910,7 @@ export interface CategoryOnConflict {constraint: CategoryConstraint,updateColumn
 
 
 /** Ordering options when selecting data from "category". */
-export interface CategoryOrderBy {categoryId?: (OrderBy | null),chatbotsAggregate?: (ChatbotCategoryAggregateOrderBy | null),metadataLabelsAggregate?: (LabelChatbotCategoryAggregateOrderBy | null),name?: (OrderBy | null)}
+export interface CategoryOrderBy {categoryId?: (OrderBy | null),chatbotsAggregate?: (ChatbotCategoryAggregateOrderBy | null),name?: (OrderBy | null)}
 
 
 /** primary key columns input for table: category */
@@ -3589,253 +3997,6 @@ export interface CategoryVarianceFieldsGenqlSelection{
 }
 
 
-/** Table to store links to GPT chat conversations and associate them with a specific GPT chatbot and the user who added the link. */
-export interface ChatGenqlSelection{
-    addedBy?: boolean | number
-    chatId?: boolean | number
-    /** An object relationship */
-    chatbot?: ChatbotGenqlSelection
-    chatbotId?: boolean | number
-    conversationLink?: boolean | number
-    /** An object relationship */
-    user?: UserGenqlSelection
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** aggregated selection of "chat" */
-export interface ChatAggregateGenqlSelection{
-    aggregate?: ChatAggregateFieldsGenqlSelection
-    nodes?: ChatGenqlSelection
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-export interface ChatAggregateBoolExp {count?: (chatAggregateBoolExpCount | null)}
-
-
-/** aggregate fields of "chat" */
-export interface ChatAggregateFieldsGenqlSelection{
-    avg?: ChatAvgFieldsGenqlSelection
-    count?: { __args: {columns?: (ChatSelectColumn[] | null), distinct?: (Scalars['Boolean'] | null)} } | boolean | number
-    max?: ChatMaxFieldsGenqlSelection
-    min?: ChatMinFieldsGenqlSelection
-    stddev?: ChatStddevFieldsGenqlSelection
-    stddevPop?: ChatStddevPopFieldsGenqlSelection
-    stddevSamp?: ChatStddevSampFieldsGenqlSelection
-    sum?: ChatSumFieldsGenqlSelection
-    varPop?: ChatVarPopFieldsGenqlSelection
-    varSamp?: ChatVarSampFieldsGenqlSelection
-    variance?: ChatVarianceFieldsGenqlSelection
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by aggregate values of table "chat" */
-export interface ChatAggregateOrderBy {avg?: (ChatAvgOrderBy | null),count?: (OrderBy | null),max?: (ChatMaxOrderBy | null),min?: (ChatMinOrderBy | null),stddev?: (ChatStddevOrderBy | null),stddevPop?: (ChatStddevPopOrderBy | null),stddevSamp?: (ChatStddevSampOrderBy | null),sum?: (ChatSumOrderBy | null),varPop?: (ChatVarPopOrderBy | null),varSamp?: (ChatVarSampOrderBy | null),variance?: (ChatVarianceOrderBy | null)}
-
-
-/** input type for inserting array relation for remote table "chat" */
-export interface ChatArrRelInsertInput {data: ChatInsertInput[],
-/** upsert condition */
-onConflict?: (ChatOnConflict | null)}
-
-
-/** aggregate avg on columns */
-export interface ChatAvgFieldsGenqlSelection{
-    chatId?: boolean | number
-    chatbotId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by avg() on columns of table "chat" */
-export interface ChatAvgOrderBy {chatId?: (OrderBy | null),chatbotId?: (OrderBy | null)}
-
-
-/** Boolean expression to filter rows from the table "chat". All fields are combined with a logical 'AND'. */
-export interface ChatBoolExp {_and?: (ChatBoolExp[] | null),_not?: (ChatBoolExp | null),_or?: (ChatBoolExp[] | null),addedBy?: (UuidComparisonExp | null),chatId?: (IntComparisonExp | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),conversationLink?: (StringComparisonExp | null),user?: (UserBoolExp | null)}
-
-
-/** input type for incrementing numeric columns in table "chat" */
-export interface ChatIncInput {chatId?: (Scalars['Int'] | null),chatbotId?: (Scalars['Int'] | null)}
-
-
-/** input type for inserting data into table "chat" */
-export interface ChatInsertInput {addedBy?: (Scalars['uuid'] | null),chatId?: (Scalars['Int'] | null),chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),conversationLink?: (Scalars['String'] | null),user?: (UserObjRelInsertInput | null)}
-
-
-/** aggregate max on columns */
-export interface ChatMaxFieldsGenqlSelection{
-    addedBy?: boolean | number
-    chatId?: boolean | number
-    chatbotId?: boolean | number
-    conversationLink?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by max() on columns of table "chat" */
-export interface ChatMaxOrderBy {addedBy?: (OrderBy | null),chatId?: (OrderBy | null),chatbotId?: (OrderBy | null),conversationLink?: (OrderBy | null)}
-
-
-/** aggregate min on columns */
-export interface ChatMinFieldsGenqlSelection{
-    addedBy?: boolean | number
-    chatId?: boolean | number
-    chatbotId?: boolean | number
-    conversationLink?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by min() on columns of table "chat" */
-export interface ChatMinOrderBy {addedBy?: (OrderBy | null),chatId?: (OrderBy | null),chatbotId?: (OrderBy | null),conversationLink?: (OrderBy | null)}
-
-
-/** response of any mutation on the table "chat" */
-export interface ChatMutationResponseGenqlSelection{
-    /** number of rows affected by the mutation */
-    affectedRows?: boolean | number
-    /** data from the rows affected by the mutation */
-    returning?: ChatGenqlSelection
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** on_conflict condition type for table "chat" */
-export interface ChatOnConflict {constraint: ChatConstraint,updateColumns?: ChatUpdateColumn[],where?: (ChatBoolExp | null)}
-
-
-/** Ordering options when selecting data from "chat". */
-export interface ChatOrderBy {addedBy?: (OrderBy | null),chatId?: (OrderBy | null),chatbot?: (ChatbotOrderBy | null),chatbotId?: (OrderBy | null),conversationLink?: (OrderBy | null),user?: (UserOrderBy | null)}
-
-
-/** primary key columns input for table: chat */
-export interface ChatPkColumnsInput {chatId: Scalars['Int']}
-
-
-/** input type for updating data in table "chat" */
-export interface ChatSetInput {addedBy?: (Scalars['uuid'] | null),chatId?: (Scalars['Int'] | null),chatbotId?: (Scalars['Int'] | null),conversationLink?: (Scalars['String'] | null)}
-
-
-/** aggregate stddev on columns */
-export interface ChatStddevFieldsGenqlSelection{
-    chatId?: boolean | number
-    chatbotId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by stddev() on columns of table "chat" */
-export interface ChatStddevOrderBy {chatId?: (OrderBy | null),chatbotId?: (OrderBy | null)}
-
-
-/** aggregate stddevPop on columns */
-export interface ChatStddevPopFieldsGenqlSelection{
-    chatId?: boolean | number
-    chatbotId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by stddevPop() on columns of table "chat" */
-export interface ChatStddevPopOrderBy {chatId?: (OrderBy | null),chatbotId?: (OrderBy | null)}
-
-
-/** aggregate stddevSamp on columns */
-export interface ChatStddevSampFieldsGenqlSelection{
-    chatId?: boolean | number
-    chatbotId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by stddevSamp() on columns of table "chat" */
-export interface ChatStddevSampOrderBy {chatId?: (OrderBy | null),chatbotId?: (OrderBy | null)}
-
-
-/** Streaming cursor of the table "chat" */
-export interface ChatStreamCursorInput {
-/** Stream column input with initial value */
-initialValue: ChatStreamCursorValueInput,
-/** cursor ordering */
-ordering?: (CursorOrdering | null)}
-
-
-/** Initial value of the column from where the streaming should start */
-export interface ChatStreamCursorValueInput {addedBy?: (Scalars['uuid'] | null),chatId?: (Scalars['Int'] | null),chatbotId?: (Scalars['Int'] | null),conversationLink?: (Scalars['String'] | null)}
-
-
-/** aggregate sum on columns */
-export interface ChatSumFieldsGenqlSelection{
-    chatId?: boolean | number
-    chatbotId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by sum() on columns of table "chat" */
-export interface ChatSumOrderBy {chatId?: (OrderBy | null),chatbotId?: (OrderBy | null)}
-
-export interface ChatUpdates {
-/** increments the numeric columns with given value of the filtered values */
-_inc?: (ChatIncInput | null),
-/** sets the columns of the filtered rows to the given values */
-_set?: (ChatSetInput | null),
-/** filter the rows which have to be updated */
-where: ChatBoolExp}
-
-
-/** aggregate varPop on columns */
-export interface ChatVarPopFieldsGenqlSelection{
-    chatId?: boolean | number
-    chatbotId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by varPop() on columns of table "chat" */
-export interface ChatVarPopOrderBy {chatId?: (OrderBy | null),chatbotId?: (OrderBy | null)}
-
-
-/** aggregate varSamp on columns */
-export interface ChatVarSampFieldsGenqlSelection{
-    chatId?: boolean | number
-    chatbotId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by varSamp() on columns of table "chat" */
-export interface ChatVarSampOrderBy {chatId?: (OrderBy | null),chatbotId?: (OrderBy | null)}
-
-
-/** aggregate variance on columns */
-export interface ChatVarianceFieldsGenqlSelection{
-    chatId?: boolean | number
-    chatbotId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by variance() on columns of table "chat" */
-export interface ChatVarianceOrderBy {chatId?: (OrderBy | null),chatbotId?: (OrderBy | null)}
-
-
 /** Table storing information about chatbots, their characteristics, and default settings. */
 export interface ChatbotGenqlSelection{
     avatar?: boolean | number
@@ -3864,30 +4025,6 @@ export interface ChatbotGenqlSelection{
     /** filter the rows returned */
     where?: (ChatbotCategoryBoolExp | null)} })
     chatbotId?: boolean | number
-    /** An array relationship */
-    chats?: (ChatGenqlSelection & { __args?: {
-    /** distinct select on columns */
-    distinctOn?: (ChatSelectColumn[] | null), 
-    /** limit the number of rows returned */
-    limit?: (Scalars['Int'] | null), 
-    /** skip the first n rows. Use only with order_by */
-    offset?: (Scalars['Int'] | null), 
-    /** sort the rows by one or more columns */
-    orderBy?: (ChatOrderBy[] | null), 
-    /** filter the rows returned */
-    where?: (ChatBoolExp | null)} })
-    /** An aggregate relationship */
-    chatsAggregate?: (ChatAggregateGenqlSelection & { __args?: {
-    /** distinct select on columns */
-    distinctOn?: (ChatSelectColumn[] | null), 
-    /** limit the number of rows returned */
-    limit?: (Scalars['Int'] | null), 
-    /** skip the first n rows. Use only with order_by */
-    offset?: (Scalars['Int'] | null), 
-    /** sort the rows by one or more columns */
-    orderBy?: (ChatOrderBy[] | null), 
-    /** filter the rows returned */
-    where?: (ChatBoolExp | null)} })
     /** An object relationship */
     complexityEnum?: ComplexityEnumGenqlSelection
     createdBy?: boolean | number
@@ -3923,29 +4060,29 @@ export interface ChatbotGenqlSelection{
     /** An object relationship */
     lengthEnum?: LengthEnumGenqlSelection
     /** An array relationship */
-    metadataLabels?: (LabelChatbotCategoryGenqlSelection & { __args?: {
+    metadata?: (ChatbotDomainGenqlSelection & { __args?: {
     /** distinct select on columns */
-    distinctOn?: (LabelChatbotCategorySelectColumn[] | null), 
+    distinctOn?: (ChatbotDomainSelectColumn[] | null), 
     /** limit the number of rows returned */
     limit?: (Scalars['Int'] | null), 
     /** skip the first n rows. Use only with order_by */
     offset?: (Scalars['Int'] | null), 
     /** sort the rows by one or more columns */
-    orderBy?: (LabelChatbotCategoryOrderBy[] | null), 
+    orderBy?: (ChatbotDomainOrderBy[] | null), 
     /** filter the rows returned */
-    where?: (LabelChatbotCategoryBoolExp | null)} })
+    where?: (ChatbotDomainBoolExp | null)} })
     /** An aggregate relationship */
-    metadataLabelsAggregate?: (LabelChatbotCategoryAggregateGenqlSelection & { __args?: {
+    metadataAggregate?: (ChatbotDomainAggregateGenqlSelection & { __args?: {
     /** distinct select on columns */
-    distinctOn?: (LabelChatbotCategorySelectColumn[] | null), 
+    distinctOn?: (ChatbotDomainSelectColumn[] | null), 
     /** limit the number of rows returned */
     limit?: (Scalars['Int'] | null), 
     /** skip the first n rows. Use only with order_by */
     offset?: (Scalars['Int'] | null), 
     /** sort the rows by one or more columns */
-    orderBy?: (LabelChatbotCategoryOrderBy[] | null), 
+    orderBy?: (ChatbotDomainOrderBy[] | null), 
     /** filter the rows returned */
-    where?: (LabelChatbotCategoryBoolExp | null)} })
+    where?: (ChatbotDomainBoolExp | null)} })
     name?: boolean | number
     /** An array relationship */
     preferences?: (PreferenceGenqlSelection & { __args?: {
@@ -4080,7 +4217,7 @@ export interface ChatbotAvgOrderBy {chatbotId?: (OrderBy | null)}
 
 
 /** Boolean expression to filter rows from the table "chatbot". All fields are combined with a logical 'AND'. */
-export interface ChatbotBoolExp {_and?: (ChatbotBoolExp[] | null),_not?: (ChatbotBoolExp | null),_or?: (ChatbotBoolExp[] | null),avatar?: (StringComparisonExp | null),categories?: (ChatbotCategoryBoolExp | null),categoriesAggregate?: (ChatbotCategoryAggregateBoolExp | null),chatbotId?: (IntComparisonExp | null),chats?: (ChatBoolExp | null),chatsAggregate?: (ChatAggregateBoolExp | null),complexityEnum?: (ComplexityEnumBoolExp | null),createdBy?: (StringComparisonExp | null),defaultComplexity?: (StringComparisonExp | null),defaultLength?: (StringComparisonExp | null),defaultTone?: (StringComparisonExp | null),defaultType?: (StringComparisonExp | null),description?: (StringComparisonExp | null),followers?: (SocialFollowingBoolExp | null),followersAggregate?: (SocialFollowingAggregateBoolExp | null),lengthEnum?: (LengthEnumBoolExp | null),metadataLabels?: (LabelChatbotCategoryBoolExp | null),metadataLabelsAggregate?: (LabelChatbotCategoryAggregateBoolExp | null),name?: (StringComparisonExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),prompts?: (PromptChatbotBoolExp | null),promptsAggregate?: (PromptChatbotAggregateBoolExp | null),threads?: (ThreadBoolExp | null),threadsAggregate?: (ThreadAggregateBoolExp | null),toneEnum?: (ToneEnumBoolExp | null),typeEnum?: (TypeEnumBoolExp | null)}
+export interface ChatbotBoolExp {_and?: (ChatbotBoolExp[] | null),_not?: (ChatbotBoolExp | null),_or?: (ChatbotBoolExp[] | null),avatar?: (StringComparisonExp | null),categories?: (ChatbotCategoryBoolExp | null),categoriesAggregate?: (ChatbotCategoryAggregateBoolExp | null),chatbotId?: (IntComparisonExp | null),complexityEnum?: (ComplexityEnumBoolExp | null),createdBy?: (StringComparisonExp | null),defaultComplexity?: (StringComparisonExp | null),defaultLength?: (StringComparisonExp | null),defaultTone?: (StringComparisonExp | null),defaultType?: (StringComparisonExp | null),description?: (StringComparisonExp | null),followers?: (SocialFollowingBoolExp | null),followersAggregate?: (SocialFollowingAggregateBoolExp | null),lengthEnum?: (LengthEnumBoolExp | null),metadata?: (ChatbotDomainBoolExp | null),metadataAggregate?: (ChatbotDomainAggregateBoolExp | null),name?: (StringComparisonExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),prompts?: (PromptChatbotBoolExp | null),promptsAggregate?: (PromptChatbotAggregateBoolExp | null),threads?: (ThreadBoolExp | null),threadsAggregate?: (ThreadAggregateBoolExp | null),toneEnum?: (ToneEnumBoolExp | null),typeEnum?: (TypeEnumBoolExp | null)}
 
 
 /** Junction table to manage the many-to-many relationships between chatbots and their categories. */
@@ -4324,12 +4461,245 @@ export interface ChatbotCategoryVarianceFieldsGenqlSelection{
 export interface ChatbotCategoryVarianceOrderBy {categoryId?: (OrderBy | null),chatbotId?: (OrderBy | null)}
 
 
+/** Junction table to track domains and chatbots relationships. */
+export interface ChatbotDomainGenqlSelection{
+    /** An object relationship */
+    chatbot?: ChatbotGenqlSelection
+    chatbotId?: boolean | number
+    /** An object relationship */
+    domain?: DomainEnumGenqlSelection
+    domainName?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregated selection of "chatbot_domain" */
+export interface ChatbotDomainAggregateGenqlSelection{
+    aggregate?: ChatbotDomainAggregateFieldsGenqlSelection
+    nodes?: ChatbotDomainGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+export interface ChatbotDomainAggregateBoolExp {count?: (chatbotDomainAggregateBoolExpCount | null)}
+
+
+/** aggregate fields of "chatbot_domain" */
+export interface ChatbotDomainAggregateFieldsGenqlSelection{
+    avg?: ChatbotDomainAvgFieldsGenqlSelection
+    count?: { __args: {columns?: (ChatbotDomainSelectColumn[] | null), distinct?: (Scalars['Boolean'] | null)} } | boolean | number
+    max?: ChatbotDomainMaxFieldsGenqlSelection
+    min?: ChatbotDomainMinFieldsGenqlSelection
+    stddev?: ChatbotDomainStddevFieldsGenqlSelection
+    stddevPop?: ChatbotDomainStddevPopFieldsGenqlSelection
+    stddevSamp?: ChatbotDomainStddevSampFieldsGenqlSelection
+    sum?: ChatbotDomainSumFieldsGenqlSelection
+    varPop?: ChatbotDomainVarPopFieldsGenqlSelection
+    varSamp?: ChatbotDomainVarSampFieldsGenqlSelection
+    variance?: ChatbotDomainVarianceFieldsGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by aggregate values of table "chatbot_domain" */
+export interface ChatbotDomainAggregateOrderBy {avg?: (ChatbotDomainAvgOrderBy | null),count?: (OrderBy | null),max?: (ChatbotDomainMaxOrderBy | null),min?: (ChatbotDomainMinOrderBy | null),stddev?: (ChatbotDomainStddevOrderBy | null),stddevPop?: (ChatbotDomainStddevPopOrderBy | null),stddevSamp?: (ChatbotDomainStddevSampOrderBy | null),sum?: (ChatbotDomainSumOrderBy | null),varPop?: (ChatbotDomainVarPopOrderBy | null),varSamp?: (ChatbotDomainVarSampOrderBy | null),variance?: (ChatbotDomainVarianceOrderBy | null)}
+
+
+/** input type for inserting array relation for remote table "chatbot_domain" */
+export interface ChatbotDomainArrRelInsertInput {data: ChatbotDomainInsertInput[],
+/** upsert condition */
+onConflict?: (ChatbotDomainOnConflict | null)}
+
+
+/** aggregate avg on columns */
+export interface ChatbotDomainAvgFieldsGenqlSelection{
+    chatbotId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by avg() on columns of table "chatbot_domain" */
+export interface ChatbotDomainAvgOrderBy {chatbotId?: (OrderBy | null)}
+
+
+/** Boolean expression to filter rows from the table "chatbot_domain". All fields are combined with a logical 'AND'. */
+export interface ChatbotDomainBoolExp {_and?: (ChatbotDomainBoolExp[] | null),_not?: (ChatbotDomainBoolExp | null),_or?: (ChatbotDomainBoolExp[] | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),domain?: (DomainEnumBoolExp | null),domainName?: (StringComparisonExp | null)}
+
+
+/** input type for incrementing numeric columns in table "chatbot_domain" */
+export interface ChatbotDomainIncInput {chatbotId?: (Scalars['Int'] | null)}
+
+
+/** input type for inserting data into table "chatbot_domain" */
+export interface ChatbotDomainInsertInput {chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),domain?: (DomainEnumObjRelInsertInput | null),domainName?: (Scalars['String'] | null)}
+
+
+/** aggregate max on columns */
+export interface ChatbotDomainMaxFieldsGenqlSelection{
+    chatbotId?: boolean | number
+    domainName?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by max() on columns of table "chatbot_domain" */
+export interface ChatbotDomainMaxOrderBy {chatbotId?: (OrderBy | null),domainName?: (OrderBy | null)}
+
+
+/** aggregate min on columns */
+export interface ChatbotDomainMinFieldsGenqlSelection{
+    chatbotId?: boolean | number
+    domainName?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by min() on columns of table "chatbot_domain" */
+export interface ChatbotDomainMinOrderBy {chatbotId?: (OrderBy | null),domainName?: (OrderBy | null)}
+
+
+/** response of any mutation on the table "chatbot_domain" */
+export interface ChatbotDomainMutationResponseGenqlSelection{
+    /** number of rows affected by the mutation */
+    affectedRows?: boolean | number
+    /** data from the rows affected by the mutation */
+    returning?: ChatbotDomainGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** on_conflict condition type for table "chatbot_domain" */
+export interface ChatbotDomainOnConflict {constraint: ChatbotDomainConstraint,updateColumns?: ChatbotDomainUpdateColumn[],where?: (ChatbotDomainBoolExp | null)}
+
+
+/** Ordering options when selecting data from "chatbot_domain". */
+export interface ChatbotDomainOrderBy {chatbot?: (ChatbotOrderBy | null),chatbotId?: (OrderBy | null),domain?: (DomainEnumOrderBy | null),domainName?: (OrderBy | null)}
+
+
+/** primary key columns input for table: chatbot_domain */
+export interface ChatbotDomainPkColumnsInput {chatbotId: Scalars['Int'],domainName: Scalars['String']}
+
+
+/** input type for updating data in table "chatbot_domain" */
+export interface ChatbotDomainSetInput {chatbotId?: (Scalars['Int'] | null),domainName?: (Scalars['String'] | null)}
+
+
+/** aggregate stddev on columns */
+export interface ChatbotDomainStddevFieldsGenqlSelection{
+    chatbotId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by stddev() on columns of table "chatbot_domain" */
+export interface ChatbotDomainStddevOrderBy {chatbotId?: (OrderBy | null)}
+
+
+/** aggregate stddevPop on columns */
+export interface ChatbotDomainStddevPopFieldsGenqlSelection{
+    chatbotId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by stddevPop() on columns of table "chatbot_domain" */
+export interface ChatbotDomainStddevPopOrderBy {chatbotId?: (OrderBy | null)}
+
+
+/** aggregate stddevSamp on columns */
+export interface ChatbotDomainStddevSampFieldsGenqlSelection{
+    chatbotId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by stddevSamp() on columns of table "chatbot_domain" */
+export interface ChatbotDomainStddevSampOrderBy {chatbotId?: (OrderBy | null)}
+
+
+/** Streaming cursor of the table "chatbot_domain" */
+export interface ChatbotDomainStreamCursorInput {
+/** Stream column input with initial value */
+initialValue: ChatbotDomainStreamCursorValueInput,
+/** cursor ordering */
+ordering?: (CursorOrdering | null)}
+
+
+/** Initial value of the column from where the streaming should start */
+export interface ChatbotDomainStreamCursorValueInput {chatbotId?: (Scalars['Int'] | null),domainName?: (Scalars['String'] | null)}
+
+
+/** aggregate sum on columns */
+export interface ChatbotDomainSumFieldsGenqlSelection{
+    chatbotId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by sum() on columns of table "chatbot_domain" */
+export interface ChatbotDomainSumOrderBy {chatbotId?: (OrderBy | null)}
+
+export interface ChatbotDomainUpdates {
+/** increments the numeric columns with given value of the filtered values */
+_inc?: (ChatbotDomainIncInput | null),
+/** sets the columns of the filtered rows to the given values */
+_set?: (ChatbotDomainSetInput | null),
+/** filter the rows which have to be updated */
+where: ChatbotDomainBoolExp}
+
+
+/** aggregate varPop on columns */
+export interface ChatbotDomainVarPopFieldsGenqlSelection{
+    chatbotId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by varPop() on columns of table "chatbot_domain" */
+export interface ChatbotDomainVarPopOrderBy {chatbotId?: (OrderBy | null)}
+
+
+/** aggregate varSamp on columns */
+export interface ChatbotDomainVarSampFieldsGenqlSelection{
+    chatbotId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by varSamp() on columns of table "chatbot_domain" */
+export interface ChatbotDomainVarSampOrderBy {chatbotId?: (OrderBy | null)}
+
+
+/** aggregate variance on columns */
+export interface ChatbotDomainVarianceFieldsGenqlSelection{
+    chatbotId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by variance() on columns of table "chatbot_domain" */
+export interface ChatbotDomainVarianceOrderBy {chatbotId?: (OrderBy | null)}
+
+
 /** input type for incrementing numeric columns in table "chatbot" */
 export interface ChatbotIncInput {chatbotId?: (Scalars['Int'] | null)}
 
 
 /** input type for inserting data into table "chatbot" */
-export interface ChatbotInsertInput {avatar?: (Scalars['String'] | null),categories?: (ChatbotCategoryArrRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),chats?: (ChatArrRelInsertInput | null),complexityEnum?: (ComplexityEnumObjRelInsertInput | null),createdBy?: (Scalars['String'] | null),defaultComplexity?: (Scalars['String'] | null),defaultLength?: (Scalars['String'] | null),defaultTone?: (Scalars['String'] | null),defaultType?: (Scalars['String'] | null),description?: (Scalars['String'] | null),followers?: (SocialFollowingArrRelInsertInput | null),lengthEnum?: (LengthEnumObjRelInsertInput | null),metadataLabels?: (LabelChatbotCategoryArrRelInsertInput | null),name?: (Scalars['String'] | null),preferences?: (PreferenceArrRelInsertInput | null),prompts?: (PromptChatbotArrRelInsertInput | null),threads?: (ThreadArrRelInsertInput | null),toneEnum?: (ToneEnumObjRelInsertInput | null),typeEnum?: (TypeEnumObjRelInsertInput | null)}
+export interface ChatbotInsertInput {avatar?: (Scalars['String'] | null),categories?: (ChatbotCategoryArrRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),complexityEnum?: (ComplexityEnumObjRelInsertInput | null),createdBy?: (Scalars['String'] | null),defaultComplexity?: (Scalars['String'] | null),defaultLength?: (Scalars['String'] | null),defaultTone?: (Scalars['String'] | null),defaultType?: (Scalars['String'] | null),description?: (Scalars['String'] | null),followers?: (SocialFollowingArrRelInsertInput | null),lengthEnum?: (LengthEnumObjRelInsertInput | null),metadata?: (ChatbotDomainArrRelInsertInput | null),name?: (Scalars['String'] | null),preferences?: (PreferenceArrRelInsertInput | null),prompts?: (PromptChatbotArrRelInsertInput | null),threads?: (ThreadArrRelInsertInput | null),toneEnum?: (ToneEnumObjRelInsertInput | null),typeEnum?: (TypeEnumObjRelInsertInput | null)}
 
 
 /** aggregate max on columns */
@@ -4394,7 +4764,7 @@ export interface ChatbotOnConflict {constraint: ChatbotConstraint,updateColumns?
 
 
 /** Ordering options when selecting data from "chatbot". */
-export interface ChatbotOrderBy {avatar?: (OrderBy | null),categoriesAggregate?: (ChatbotCategoryAggregateOrderBy | null),chatbotId?: (OrderBy | null),chatsAggregate?: (ChatAggregateOrderBy | null),complexityEnum?: (ComplexityEnumOrderBy | null),createdBy?: (OrderBy | null),defaultComplexity?: (OrderBy | null),defaultLength?: (OrderBy | null),defaultTone?: (OrderBy | null),defaultType?: (OrderBy | null),description?: (OrderBy | null),followersAggregate?: (SocialFollowingAggregateOrderBy | null),lengthEnum?: (LengthEnumOrderBy | null),metadataLabelsAggregate?: (LabelChatbotCategoryAggregateOrderBy | null),name?: (OrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),promptsAggregate?: (PromptChatbotAggregateOrderBy | null),threadsAggregate?: (ThreadAggregateOrderBy | null),toneEnum?: (ToneEnumOrderBy | null),typeEnum?: (TypeEnumOrderBy | null)}
+export interface ChatbotOrderBy {avatar?: (OrderBy | null),categoriesAggregate?: (ChatbotCategoryAggregateOrderBy | null),chatbotId?: (OrderBy | null),complexityEnum?: (ComplexityEnumOrderBy | null),createdBy?: (OrderBy | null),defaultComplexity?: (OrderBy | null),defaultLength?: (OrderBy | null),defaultTone?: (OrderBy | null),defaultType?: (OrderBy | null),description?: (OrderBy | null),followersAggregate?: (SocialFollowingAggregateOrderBy | null),lengthEnum?: (LengthEnumOrderBy | null),metadataAggregate?: (ChatbotDomainAggregateOrderBy | null),name?: (OrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),promptsAggregate?: (PromptChatbotAggregateOrderBy | null),threadsAggregate?: (ThreadAggregateOrderBy | null),toneEnum?: (ToneEnumOrderBy | null),typeEnum?: (TypeEnumOrderBy | null)}
 
 
 /** primary key columns input for table: chatbot */
@@ -4559,6 +4929,7 @@ export interface ComplexityEnumGenqlSelection{
     orderBy?: (PreferenceOrderBy[] | null), 
     /** filter the rows returned */
     where?: (PreferenceBoolExp | null)} })
+    prompt?: boolean | number
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -4585,15 +4956,16 @@ export interface ComplexityEnumAggregateFieldsGenqlSelection{
 
 
 /** Boolean expression to filter rows from the table "complexity_enum". All fields are combined with a logical 'AND'. */
-export interface ComplexityEnumBoolExp {_and?: (ComplexityEnumBoolExp[] | null),_not?: (ComplexityEnumBoolExp | null),_or?: (ComplexityEnumBoolExp[] | null),chatbots?: (ChatbotBoolExp | null),chatbotsAggregate?: (ChatbotAggregateBoolExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),value?: (StringComparisonExp | null)}
+export interface ComplexityEnumBoolExp {_and?: (ComplexityEnumBoolExp[] | null),_not?: (ComplexityEnumBoolExp | null),_or?: (ComplexityEnumBoolExp[] | null),chatbots?: (ChatbotBoolExp | null),chatbotsAggregate?: (ChatbotAggregateBoolExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),prompt?: (StringComparisonExp | null),value?: (StringComparisonExp | null)}
 
 
 /** input type for inserting data into table "complexity_enum" */
-export interface ComplexityEnumInsertInput {chatbots?: (ChatbotArrRelInsertInput | null),preferences?: (PreferenceArrRelInsertInput | null),value?: (Scalars['String'] | null)}
+export interface ComplexityEnumInsertInput {chatbots?: (ChatbotArrRelInsertInput | null),preferences?: (PreferenceArrRelInsertInput | null),prompt?: (Scalars['String'] | null),value?: (Scalars['String'] | null)}
 
 
 /** aggregate max on columns */
 export interface ComplexityEnumMaxFieldsGenqlSelection{
+    prompt?: boolean | number
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -4602,6 +4974,7 @@ export interface ComplexityEnumMaxFieldsGenqlSelection{
 
 /** aggregate min on columns */
 export interface ComplexityEnumMinFieldsGenqlSelection{
+    prompt?: boolean | number
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -4630,7 +5003,7 @@ export interface ComplexityEnumOnConflict {constraint: ComplexityEnumConstraint,
 
 
 /** Ordering options when selecting data from "complexity_enum". */
-export interface ComplexityEnumOrderBy {chatbotsAggregate?: (ChatbotAggregateOrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),value?: (OrderBy | null)}
+export interface ComplexityEnumOrderBy {chatbotsAggregate?: (ChatbotAggregateOrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),prompt?: (OrderBy | null),value?: (OrderBy | null)}
 
 
 /** primary key columns input for table: complexity_enum */
@@ -4638,7 +5011,7 @@ export interface ComplexityEnumPkColumnsInput {value: Scalars['String']}
 
 
 /** input type for updating data in table "complexity_enum" */
-export interface ComplexityEnumSetInput {value?: (Scalars['String'] | null)}
+export interface ComplexityEnumSetInput {prompt?: (Scalars['String'] | null),value?: (Scalars['String'] | null)}
 
 
 /** Streaming cursor of the table "complexity_enum" */
@@ -4650,7 +5023,7 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface ComplexityEnumStreamCursorValueInput {value?: (Scalars['String'] | null)}
+export interface ComplexityEnumStreamCursorValueInput {prompt?: (Scalars['String'] | null),value?: (Scalars['String'] | null)}
 
 export interface ComplexityEnumUpdates {
 /** sets the columns of the filtered rows to the given values */
@@ -4659,479 +5032,375 @@ _set?: (ComplexityEnumSetInput | null),
 where: ComplexityEnumBoolExp}
 
 
+/** columns and relationships of "domain_enum" */
+export interface DomainEnumGenqlSelection{
+    added?: boolean | number
+    /** An aggregate relationship */
+    categoryEnumsAggregate?: (CategoryEnumAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (CategoryEnumSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (CategoryEnumOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (CategoryEnumBoolExp | null)} })
+    /** An array relationship */
+    category_enums?: (CategoryEnumGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (CategoryEnumSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (CategoryEnumOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (CategoryEnumBoolExp | null)} })
+    /** An array relationship */
+    chatbot?: (ChatbotDomainGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ChatbotDomainSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ChatbotDomainOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ChatbotDomainBoolExp | null)} })
+    /** An aggregate relationship */
+    chatbotAggregate?: (ChatbotDomainAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ChatbotDomainSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ChatbotDomainOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ChatbotDomainBoolExp | null)} })
+    name?: boolean | number
+    /** An aggregate relationship */
+    tagEnumsAggregate?: (TagEnumAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (TagEnumSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (TagEnumOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (TagEnumBoolExp | null)} })
+    /** An array relationship */
+    tag_enums?: (TagEnumGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (TagEnumSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (TagEnumOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (TagEnumBoolExp | null)} })
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregated selection of "domain_enum" */
+export interface DomainEnumAggregateGenqlSelection{
+    aggregate?: DomainEnumAggregateFieldsGenqlSelection
+    nodes?: DomainEnumGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregate fields of "domain_enum" */
+export interface DomainEnumAggregateFieldsGenqlSelection{
+    count?: { __args: {columns?: (DomainEnumSelectColumn[] | null), distinct?: (Scalars['Boolean'] | null)} } | boolean | number
+    max?: DomainEnumMaxFieldsGenqlSelection
+    min?: DomainEnumMinFieldsGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** Boolean expression to filter rows from the table "domain_enum". All fields are combined with a logical 'AND'. */
+export interface DomainEnumBoolExp {_and?: (DomainEnumBoolExp[] | null),_not?: (DomainEnumBoolExp | null),_or?: (DomainEnumBoolExp[] | null),added?: (TimestamptzComparisonExp | null),category_enums?: (CategoryEnumBoolExp | null),category_enumsAggregate?: (CategoryEnumAggregateBoolExp | null),chatbot?: (ChatbotDomainBoolExp | null),chatbotAggregate?: (ChatbotDomainAggregateBoolExp | null),name?: (StringComparisonExp | null),tag_enums?: (TagEnumBoolExp | null),tag_enumsAggregate?: (TagEnumAggregateBoolExp | null)}
+
+
+/** input type for inserting data into table "domain_enum" */
+export interface DomainEnumInsertInput {added?: (Scalars['timestamptz'] | null),category_enums?: (CategoryEnumArrRelInsertInput | null),chatbot?: (ChatbotDomainArrRelInsertInput | null),name?: (Scalars['String'] | null),tag_enums?: (TagEnumArrRelInsertInput | null)}
+
+
+/** aggregate max on columns */
+export interface DomainEnumMaxFieldsGenqlSelection{
+    added?: boolean | number
+    name?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregate min on columns */
+export interface DomainEnumMinFieldsGenqlSelection{
+    added?: boolean | number
+    name?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** response of any mutation on the table "domain_enum" */
+export interface DomainEnumMutationResponseGenqlSelection{
+    /** number of rows affected by the mutation */
+    affectedRows?: boolean | number
+    /** data from the rows affected by the mutation */
+    returning?: DomainEnumGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** input type for inserting object relation for remote table "domain_enum" */
+export interface DomainEnumObjRelInsertInput {data: DomainEnumInsertInput,
+/** upsert condition */
+onConflict?: (DomainEnumOnConflict | null)}
+
+
+/** on_conflict condition type for table "domain_enum" */
+export interface DomainEnumOnConflict {constraint: DomainEnumConstraint,updateColumns?: DomainEnumUpdateColumn[],where?: (DomainEnumBoolExp | null)}
+
+
+/** Ordering options when selecting data from "domain_enum". */
+export interface DomainEnumOrderBy {added?: (OrderBy | null),category_enumsAggregate?: (CategoryEnumAggregateOrderBy | null),chatbotAggregate?: (ChatbotDomainAggregateOrderBy | null),name?: (OrderBy | null),tag_enumsAggregate?: (TagEnumAggregateOrderBy | null)}
+
+
+/** primary key columns input for table: domain_enum */
+export interface DomainEnumPkColumnsInput {name: Scalars['String']}
+
+
+/** input type for updating data in table "domain_enum" */
+export interface DomainEnumSetInput {added?: (Scalars['timestamptz'] | null),name?: (Scalars['String'] | null)}
+
+
+/** Streaming cursor of the table "domain_enum" */
+export interface DomainEnumStreamCursorInput {
+/** Stream column input with initial value */
+initialValue: DomainEnumStreamCursorValueInput,
+/** cursor ordering */
+ordering?: (CursorOrdering | null)}
+
+
+/** Initial value of the column from where the streaming should start */
+export interface DomainEnumStreamCursorValueInput {added?: (Scalars['timestamptz'] | null),name?: (Scalars['String'] | null)}
+
+export interface DomainEnumUpdates {
+/** sets the columns of the filtered rows to the given values */
+_set?: (DomainEnumSetInput | null),
+/** filter the rows which have to be updated */
+where: DomainEnumBoolExp}
+
+
+/** columns and relationships of "example" */
+export interface ExampleGenqlSelection{
+    added?: boolean | number
+    category?: boolean | number
+    domain?: boolean | number
+    exampleId?: boolean | number
+    metadata?: { __args: {
+    /** JSON select path */
+    path?: (Scalars['String'] | null)} } | boolean | number
+    prompt?: boolean | number
+    response?: boolean | number
+    subcategory?: boolean | number
+    /** An object relationship */
+    subcategoryEnumBySubcategoryCategoryDomain?: SubcategoryEnumGenqlSelection
+    /** An object relationship */
+    subcategory_enum?: SubcategoryEnumGenqlSelection
+    tags?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregated selection of "example" */
+export interface ExampleAggregateGenqlSelection{
+    aggregate?: ExampleAggregateFieldsGenqlSelection
+    nodes?: ExampleGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+export interface ExampleAggregateBoolExp {count?: (exampleAggregateBoolExpCount | null)}
+
+
+/** aggregate fields of "example" */
+export interface ExampleAggregateFieldsGenqlSelection{
+    count?: { __args: {columns?: (ExampleSelectColumn[] | null), distinct?: (Scalars['Boolean'] | null)} } | boolean | number
+    max?: ExampleMaxFieldsGenqlSelection
+    min?: ExampleMinFieldsGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by aggregate values of table "example" */
+export interface ExampleAggregateOrderBy {count?: (OrderBy | null),max?: (ExampleMaxOrderBy | null),min?: (ExampleMinOrderBy | null)}
+
+
+/** append existing jsonb value of filtered columns with new jsonb value */
+export interface ExampleAppendInput {metadata?: (Scalars['jsonb'] | null)}
+
+
+/** input type for inserting array relation for remote table "example" */
+export interface ExampleArrRelInsertInput {data: ExampleInsertInput[],
+/** upsert condition */
+onConflict?: (ExampleOnConflict | null)}
+
+
+/** Boolean expression to filter rows from the table "example". All fields are combined with a logical 'AND'. */
+export interface ExampleBoolExp {_and?: (ExampleBoolExp[] | null),_not?: (ExampleBoolExp | null),_or?: (ExampleBoolExp[] | null),added?: (TimestamptzComparisonExp | null),category?: (StringComparisonExp | null),domain?: (StringComparisonExp | null),exampleId?: (UuidComparisonExp | null),metadata?: (JsonbComparisonExp | null),prompt?: (StringComparisonExp | null),response?: (StringComparisonExp | null),subcategory?: (StringComparisonExp | null),subcategoryEnumBySubcategoryCategoryDomain?: (SubcategoryEnumBoolExp | null),subcategory_enum?: (SubcategoryEnumBoolExp | null),tags?: (UuidArrayComparisonExp | null)}
+
+
+/** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+export interface ExampleDeleteAtPathInput {metadata?: (Scalars['String'][] | null)}
+
+
+/** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+export interface ExampleDeleteElemInput {metadata?: (Scalars['Int'] | null)}
+
+
+/** delete key/value pair or string element. key/value pairs are matched based on their key value */
+export interface ExampleDeleteKeyInput {metadata?: (Scalars['String'] | null)}
+
+
+/** input type for inserting data into table "example" */
+export interface ExampleInsertInput {added?: (Scalars['timestamptz'] | null),category?: (Scalars['String'] | null),domain?: (Scalars['String'] | null),exampleId?: (Scalars['uuid'] | null),metadata?: (Scalars['jsonb'] | null),prompt?: (Scalars['String'] | null),response?: (Scalars['String'] | null),subcategory?: (Scalars['String'] | null),subcategoryEnumBySubcategoryCategoryDomain?: (SubcategoryEnumObjRelInsertInput | null),subcategory_enum?: (SubcategoryEnumObjRelInsertInput | null),tags?: (Scalars['uuid'][] | null)}
+
+
+/** aggregate max on columns */
+export interface ExampleMaxFieldsGenqlSelection{
+    added?: boolean | number
+    category?: boolean | number
+    domain?: boolean | number
+    exampleId?: boolean | number
+    prompt?: boolean | number
+    response?: boolean | number
+    subcategory?: boolean | number
+    tags?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by max() on columns of table "example" */
+export interface ExampleMaxOrderBy {added?: (OrderBy | null),category?: (OrderBy | null),domain?: (OrderBy | null),exampleId?: (OrderBy | null),prompt?: (OrderBy | null),response?: (OrderBy | null),subcategory?: (OrderBy | null),tags?: (OrderBy | null)}
+
+
+/** aggregate min on columns */
+export interface ExampleMinFieldsGenqlSelection{
+    added?: boolean | number
+    category?: boolean | number
+    domain?: boolean | number
+    exampleId?: boolean | number
+    prompt?: boolean | number
+    response?: boolean | number
+    subcategory?: boolean | number
+    tags?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by min() on columns of table "example" */
+export interface ExampleMinOrderBy {added?: (OrderBy | null),category?: (OrderBy | null),domain?: (OrderBy | null),exampleId?: (OrderBy | null),prompt?: (OrderBy | null),response?: (OrderBy | null),subcategory?: (OrderBy | null),tags?: (OrderBy | null)}
+
+
+/** response of any mutation on the table "example" */
+export interface ExampleMutationResponseGenqlSelection{
+    /** number of rows affected by the mutation */
+    affectedRows?: boolean | number
+    /** data from the rows affected by the mutation */
+    returning?: ExampleGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** on_conflict condition type for table "example" */
+export interface ExampleOnConflict {constraint: ExampleConstraint,updateColumns?: ExampleUpdateColumn[],where?: (ExampleBoolExp | null)}
+
+
+/** Ordering options when selecting data from "example". */
+export interface ExampleOrderBy {added?: (OrderBy | null),category?: (OrderBy | null),domain?: (OrderBy | null),exampleId?: (OrderBy | null),metadata?: (OrderBy | null),prompt?: (OrderBy | null),response?: (OrderBy | null),subcategory?: (OrderBy | null),subcategoryEnumBySubcategoryCategoryDomain?: (SubcategoryEnumOrderBy | null),subcategory_enum?: (SubcategoryEnumOrderBy | null),tags?: (OrderBy | null)}
+
+
+/** primary key columns input for table: example */
+export interface ExamplePkColumnsInput {exampleId: Scalars['uuid']}
+
+
+/** prepend existing jsonb value of filtered columns with new jsonb value */
+export interface ExamplePrependInput {metadata?: (Scalars['jsonb'] | null)}
+
+
+/** input type for updating data in table "example" */
+export interface ExampleSetInput {added?: (Scalars['timestamptz'] | null),category?: (Scalars['String'] | null),domain?: (Scalars['String'] | null),exampleId?: (Scalars['uuid'] | null),metadata?: (Scalars['jsonb'] | null),prompt?: (Scalars['String'] | null),response?: (Scalars['String'] | null),subcategory?: (Scalars['String'] | null),tags?: (Scalars['uuid'][] | null)}
+
+
+/** Streaming cursor of the table "example" */
+export interface ExampleStreamCursorInput {
+/** Stream column input with initial value */
+initialValue: ExampleStreamCursorValueInput,
+/** cursor ordering */
+ordering?: (CursorOrdering | null)}
+
+
+/** Initial value of the column from where the streaming should start */
+export interface ExampleStreamCursorValueInput {added?: (Scalars['timestamptz'] | null),category?: (Scalars['String'] | null),domain?: (Scalars['String'] | null),exampleId?: (Scalars['uuid'] | null),metadata?: (Scalars['jsonb'] | null),prompt?: (Scalars['String'] | null),response?: (Scalars['String'] | null),subcategory?: (Scalars['String'] | null),tags?: (Scalars['uuid'][] | null)}
+
+export interface ExampleUpdates {
+/** append existing jsonb value of filtered columns with new jsonb value */
+_append?: (ExampleAppendInput | null),
+/** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+_deleteAtPath?: (ExampleDeleteAtPathInput | null),
+/** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+_deleteElem?: (ExampleDeleteElemInput | null),
+/** delete key/value pair or string element. key/value pairs are matched based on their key value */
+_deleteKey?: (ExampleDeleteKeyInput | null),
+/** prepend existing jsonb value of filtered columns with new jsonb value */
+_prepend?: (ExamplePrependInput | null),
+/** sets the columns of the filtered rows to the given values */
+_set?: (ExampleSetInput | null),
+/** filter the rows which have to be updated */
+where: ExampleBoolExp}
+
+
 /** Boolean expression to compare columns of type "Int". All fields are combined with logical 'AND'. */
 export interface IntComparisonExp {_eq?: (Scalars['Int'] | null),_gt?: (Scalars['Int'] | null),_gte?: (Scalars['Int'] | null),_in?: (Scalars['Int'][] | null),_isNull?: (Scalars['Boolean'] | null),_lt?: (Scalars['Int'] | null),_lte?: (Scalars['Int'] | null),_neq?: (Scalars['Int'] | null),_nin?: (Scalars['Int'][] | null)}
 
-
-/** Labels for chatbots (e.g.: domain, category, sub-category, tags  */
-export interface LabelGenqlSelection{
-    advancedLabels?: boolean | number
-    categories?: boolean | number
-    labelId?: boolean | number
-    /** An array relationship */
-    metadataLabels?: (LabelChatbotCategoryGenqlSelection & { __args?: {
-    /** distinct select on columns */
-    distinctOn?: (LabelChatbotCategorySelectColumn[] | null), 
-    /** limit the number of rows returned */
-    limit?: (Scalars['Int'] | null), 
-    /** skip the first n rows. Use only with order_by */
-    offset?: (Scalars['Int'] | null), 
-    /** sort the rows by one or more columns */
-    orderBy?: (LabelChatbotCategoryOrderBy[] | null), 
-    /** filter the rows returned */
-    where?: (LabelChatbotCategoryBoolExp | null)} })
-    /** An aggregate relationship */
-    metadataLabelsAggregate?: (LabelChatbotCategoryAggregateGenqlSelection & { __args?: {
-    /** distinct select on columns */
-    distinctOn?: (LabelChatbotCategorySelectColumn[] | null), 
-    /** limit the number of rows returned */
-    limit?: (Scalars['Int'] | null), 
-    /** skip the first n rows. Use only with order_by */
-    offset?: (Scalars['Int'] | null), 
-    /** sort the rows by one or more columns */
-    orderBy?: (LabelChatbotCategoryOrderBy[] | null), 
-    /** filter the rows returned */
-    where?: (LabelChatbotCategoryBoolExp | null)} })
-    questions?: boolean | number
-    subCategories?: boolean | number
-    tags?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** aggregated selection of "label" */
-export interface LabelAggregateGenqlSelection{
-    aggregate?: LabelAggregateFieldsGenqlSelection
-    nodes?: LabelGenqlSelection
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** aggregate fields of "label" */
-export interface LabelAggregateFieldsGenqlSelection{
-    avg?: LabelAvgFieldsGenqlSelection
-    count?: { __args: {columns?: (LabelSelectColumn[] | null), distinct?: (Scalars['Boolean'] | null)} } | boolean | number
-    max?: LabelMaxFieldsGenqlSelection
-    min?: LabelMinFieldsGenqlSelection
-    stddev?: LabelStddevFieldsGenqlSelection
-    stddevPop?: LabelStddevPopFieldsGenqlSelection
-    stddevSamp?: LabelStddevSampFieldsGenqlSelection
-    sum?: LabelSumFieldsGenqlSelection
-    varPop?: LabelVarPopFieldsGenqlSelection
-    varSamp?: LabelVarSampFieldsGenqlSelection
-    variance?: LabelVarianceFieldsGenqlSelection
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** aggregate avg on columns */
-export interface LabelAvgFieldsGenqlSelection{
-    labelId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** Boolean expression to filter rows from the table "label". All fields are combined with a logical 'AND'. */
-export interface LabelBoolExp {_and?: (LabelBoolExp[] | null),_not?: (LabelBoolExp | null),_or?: (LabelBoolExp[] | null),advancedLabels?: (BooleanComparisonExp | null),categories?: (StringComparisonExp | null),labelId?: (IntComparisonExp | null),metadataLabels?: (LabelChatbotCategoryBoolExp | null),metadataLabelsAggregate?: (LabelChatbotCategoryAggregateBoolExp | null),questions?: (StringComparisonExp | null),subCategories?: (StringComparisonExp | null),tags?: (StringComparisonExp | null)}
-
-
-/** Junction table to connect between Label, Chatbot and Categories tables. */
-export interface LabelChatbotCategoryGenqlSelection{
-    /** An object relationship */
-    category?: CategoryGenqlSelection
-    categoryId?: boolean | number
-    /** An object relationship */
-    chatbot?: ChatbotGenqlSelection
-    chatbotId?: boolean | number
-    /** An object relationship */
-    label?: LabelGenqlSelection
-    labelId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** aggregated selection of "label_chatbot_category" */
-export interface LabelChatbotCategoryAggregateGenqlSelection{
-    aggregate?: LabelChatbotCategoryAggregateFieldsGenqlSelection
-    nodes?: LabelChatbotCategoryGenqlSelection
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-export interface LabelChatbotCategoryAggregateBoolExp {count?: (labelChatbotCategoryAggregateBoolExpCount | null)}
-
-
-/** aggregate fields of "label_chatbot_category" */
-export interface LabelChatbotCategoryAggregateFieldsGenqlSelection{
-    avg?: LabelChatbotCategoryAvgFieldsGenqlSelection
-    count?: { __args: {columns?: (LabelChatbotCategorySelectColumn[] | null), distinct?: (Scalars['Boolean'] | null)} } | boolean | number
-    max?: LabelChatbotCategoryMaxFieldsGenqlSelection
-    min?: LabelChatbotCategoryMinFieldsGenqlSelection
-    stddev?: LabelChatbotCategoryStddevFieldsGenqlSelection
-    stddevPop?: LabelChatbotCategoryStddevPopFieldsGenqlSelection
-    stddevSamp?: LabelChatbotCategoryStddevSampFieldsGenqlSelection
-    sum?: LabelChatbotCategorySumFieldsGenqlSelection
-    varPop?: LabelChatbotCategoryVarPopFieldsGenqlSelection
-    varSamp?: LabelChatbotCategoryVarSampFieldsGenqlSelection
-    variance?: LabelChatbotCategoryVarianceFieldsGenqlSelection
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by aggregate values of table "label_chatbot_category" */
-export interface LabelChatbotCategoryAggregateOrderBy {avg?: (LabelChatbotCategoryAvgOrderBy | null),count?: (OrderBy | null),max?: (LabelChatbotCategoryMaxOrderBy | null),min?: (LabelChatbotCategoryMinOrderBy | null),stddev?: (LabelChatbotCategoryStddevOrderBy | null),stddevPop?: (LabelChatbotCategoryStddevPopOrderBy | null),stddevSamp?: (LabelChatbotCategoryStddevSampOrderBy | null),sum?: (LabelChatbotCategorySumOrderBy | null),varPop?: (LabelChatbotCategoryVarPopOrderBy | null),varSamp?: (LabelChatbotCategoryVarSampOrderBy | null),variance?: (LabelChatbotCategoryVarianceOrderBy | null)}
-
-
-/** input type for inserting array relation for remote table "label_chatbot_category" */
-export interface LabelChatbotCategoryArrRelInsertInput {data: LabelChatbotCategoryInsertInput[],
-/** upsert condition */
-onConflict?: (LabelChatbotCategoryOnConflict | null)}
-
-
-/** aggregate avg on columns */
-export interface LabelChatbotCategoryAvgFieldsGenqlSelection{
-    categoryId?: boolean | number
-    chatbotId?: boolean | number
-    labelId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by avg() on columns of table "label_chatbot_category" */
-export interface LabelChatbotCategoryAvgOrderBy {categoryId?: (OrderBy | null),chatbotId?: (OrderBy | null),labelId?: (OrderBy | null)}
-
-
-/** Boolean expression to filter rows from the table "label_chatbot_category". All fields are combined with a logical 'AND'. */
-export interface LabelChatbotCategoryBoolExp {_and?: (LabelChatbotCategoryBoolExp[] | null),_not?: (LabelChatbotCategoryBoolExp | null),_or?: (LabelChatbotCategoryBoolExp[] | null),category?: (CategoryBoolExp | null),categoryId?: (IntComparisonExp | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),label?: (LabelBoolExp | null),labelId?: (IntComparisonExp | null)}
-
-
-/** input type for incrementing numeric columns in table "label_chatbot_category" */
-export interface LabelChatbotCategoryIncInput {categoryId?: (Scalars['Int'] | null),chatbotId?: (Scalars['Int'] | null),labelId?: (Scalars['Int'] | null)}
-
-
-/** input type for inserting data into table "label_chatbot_category" */
-export interface LabelChatbotCategoryInsertInput {category?: (CategoryObjRelInsertInput | null),categoryId?: (Scalars['Int'] | null),chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),label?: (LabelObjRelInsertInput | null),labelId?: (Scalars['Int'] | null)}
-
-
-/** aggregate max on columns */
-export interface LabelChatbotCategoryMaxFieldsGenqlSelection{
-    categoryId?: boolean | number
-    chatbotId?: boolean | number
-    labelId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by max() on columns of table "label_chatbot_category" */
-export interface LabelChatbotCategoryMaxOrderBy {categoryId?: (OrderBy | null),chatbotId?: (OrderBy | null),labelId?: (OrderBy | null)}
-
-
-/** aggregate min on columns */
-export interface LabelChatbotCategoryMinFieldsGenqlSelection{
-    categoryId?: boolean | number
-    chatbotId?: boolean | number
-    labelId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by min() on columns of table "label_chatbot_category" */
-export interface LabelChatbotCategoryMinOrderBy {categoryId?: (OrderBy | null),chatbotId?: (OrderBy | null),labelId?: (OrderBy | null)}
-
-
-/** response of any mutation on the table "label_chatbot_category" */
-export interface LabelChatbotCategoryMutationResponseGenqlSelection{
-    /** number of rows affected by the mutation */
-    affectedRows?: boolean | number
-    /** data from the rows affected by the mutation */
-    returning?: LabelChatbotCategoryGenqlSelection
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** on_conflict condition type for table "label_chatbot_category" */
-export interface LabelChatbotCategoryOnConflict {constraint: LabelChatbotCategoryConstraint,updateColumns?: LabelChatbotCategoryUpdateColumn[],where?: (LabelChatbotCategoryBoolExp | null)}
-
-
-/** Ordering options when selecting data from "label_chatbot_category". */
-export interface LabelChatbotCategoryOrderBy {category?: (CategoryOrderBy | null),categoryId?: (OrderBy | null),chatbot?: (ChatbotOrderBy | null),chatbotId?: (OrderBy | null),label?: (LabelOrderBy | null),labelId?: (OrderBy | null)}
-
-
-/** primary key columns input for table: label_chatbot_category */
-export interface LabelChatbotCategoryPkColumnsInput {categoryId: Scalars['Int'],chatbotId: Scalars['Int'],labelId: Scalars['Int']}
-
-
-/** input type for updating data in table "label_chatbot_category" */
-export interface LabelChatbotCategorySetInput {categoryId?: (Scalars['Int'] | null),chatbotId?: (Scalars['Int'] | null),labelId?: (Scalars['Int'] | null)}
-
-
-/** aggregate stddev on columns */
-export interface LabelChatbotCategoryStddevFieldsGenqlSelection{
-    categoryId?: boolean | number
-    chatbotId?: boolean | number
-    labelId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by stddev() on columns of table "label_chatbot_category" */
-export interface LabelChatbotCategoryStddevOrderBy {categoryId?: (OrderBy | null),chatbotId?: (OrderBy | null),labelId?: (OrderBy | null)}
-
-
-/** aggregate stddevPop on columns */
-export interface LabelChatbotCategoryStddevPopFieldsGenqlSelection{
-    categoryId?: boolean | number
-    chatbotId?: boolean | number
-    labelId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by stddevPop() on columns of table "label_chatbot_category" */
-export interface LabelChatbotCategoryStddevPopOrderBy {categoryId?: (OrderBy | null),chatbotId?: (OrderBy | null),labelId?: (OrderBy | null)}
-
-
-/** aggregate stddevSamp on columns */
-export interface LabelChatbotCategoryStddevSampFieldsGenqlSelection{
-    categoryId?: boolean | number
-    chatbotId?: boolean | number
-    labelId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by stddevSamp() on columns of table "label_chatbot_category" */
-export interface LabelChatbotCategoryStddevSampOrderBy {categoryId?: (OrderBy | null),chatbotId?: (OrderBy | null),labelId?: (OrderBy | null)}
-
-
-/** Streaming cursor of the table "label_chatbot_category" */
-export interface LabelChatbotCategoryStreamCursorInput {
-/** Stream column input with initial value */
-initialValue: LabelChatbotCategoryStreamCursorValueInput,
-/** cursor ordering */
-ordering?: (CursorOrdering | null)}
-
-
-/** Initial value of the column from where the streaming should start */
-export interface LabelChatbotCategoryStreamCursorValueInput {categoryId?: (Scalars['Int'] | null),chatbotId?: (Scalars['Int'] | null),labelId?: (Scalars['Int'] | null)}
-
-
-/** aggregate sum on columns */
-export interface LabelChatbotCategorySumFieldsGenqlSelection{
-    categoryId?: boolean | number
-    chatbotId?: boolean | number
-    labelId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by sum() on columns of table "label_chatbot_category" */
-export interface LabelChatbotCategorySumOrderBy {categoryId?: (OrderBy | null),chatbotId?: (OrderBy | null),labelId?: (OrderBy | null)}
-
-export interface LabelChatbotCategoryUpdates {
-/** increments the numeric columns with given value of the filtered values */
-_inc?: (LabelChatbotCategoryIncInput | null),
-/** sets the columns of the filtered rows to the given values */
-_set?: (LabelChatbotCategorySetInput | null),
-/** filter the rows which have to be updated */
-where: LabelChatbotCategoryBoolExp}
-
-
-/** aggregate varPop on columns */
-export interface LabelChatbotCategoryVarPopFieldsGenqlSelection{
-    categoryId?: boolean | number
-    chatbotId?: boolean | number
-    labelId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by varPop() on columns of table "label_chatbot_category" */
-export interface LabelChatbotCategoryVarPopOrderBy {categoryId?: (OrderBy | null),chatbotId?: (OrderBy | null),labelId?: (OrderBy | null)}
-
-
-/** aggregate varSamp on columns */
-export interface LabelChatbotCategoryVarSampFieldsGenqlSelection{
-    categoryId?: boolean | number
-    chatbotId?: boolean | number
-    labelId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by varSamp() on columns of table "label_chatbot_category" */
-export interface LabelChatbotCategoryVarSampOrderBy {categoryId?: (OrderBy | null),chatbotId?: (OrderBy | null),labelId?: (OrderBy | null)}
-
-
-/** aggregate variance on columns */
-export interface LabelChatbotCategoryVarianceFieldsGenqlSelection{
-    categoryId?: boolean | number
-    chatbotId?: boolean | number
-    labelId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** order by variance() on columns of table "label_chatbot_category" */
-export interface LabelChatbotCategoryVarianceOrderBy {categoryId?: (OrderBy | null),chatbotId?: (OrderBy | null),labelId?: (OrderBy | null)}
-
-
-/** input type for incrementing numeric columns in table "label" */
-export interface LabelIncInput {labelId?: (Scalars['Int'] | null)}
-
-
-/** input type for inserting data into table "label" */
-export interface LabelInsertInput {advancedLabels?: (Scalars['Boolean'] | null),categories?: (Scalars['String'] | null),labelId?: (Scalars['Int'] | null),metadataLabels?: (LabelChatbotCategoryArrRelInsertInput | null),questions?: (Scalars['String'] | null),subCategories?: (Scalars['String'] | null),tags?: (Scalars['String'] | null)}
-
-
-/** aggregate max on columns */
-export interface LabelMaxFieldsGenqlSelection{
-    categories?: boolean | number
-    labelId?: boolean | number
-    questions?: boolean | number
-    subCategories?: boolean | number
-    tags?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** aggregate min on columns */
-export interface LabelMinFieldsGenqlSelection{
-    categories?: boolean | number
-    labelId?: boolean | number
-    questions?: boolean | number
-    subCategories?: boolean | number
-    tags?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** response of any mutation on the table "label" */
-export interface LabelMutationResponseGenqlSelection{
-    /** number of rows affected by the mutation */
-    affectedRows?: boolean | number
-    /** data from the rows affected by the mutation */
-    returning?: LabelGenqlSelection
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** input type for inserting object relation for remote table "label" */
-export interface LabelObjRelInsertInput {data: LabelInsertInput,
-/** upsert condition */
-onConflict?: (LabelOnConflict | null)}
-
-
-/** on_conflict condition type for table "label" */
-export interface LabelOnConflict {constraint: LabelConstraint,updateColumns?: LabelUpdateColumn[],where?: (LabelBoolExp | null)}
-
-
-/** Ordering options when selecting data from "label". */
-export interface LabelOrderBy {advancedLabels?: (OrderBy | null),categories?: (OrderBy | null),labelId?: (OrderBy | null),metadataLabelsAggregate?: (LabelChatbotCategoryAggregateOrderBy | null),questions?: (OrderBy | null),subCategories?: (OrderBy | null),tags?: (OrderBy | null)}
-
-
-/** primary key columns input for table: label */
-export interface LabelPkColumnsInput {labelId: Scalars['Int']}
-
-
-/** input type for updating data in table "label" */
-export interface LabelSetInput {advancedLabels?: (Scalars['Boolean'] | null),categories?: (Scalars['String'] | null),labelId?: (Scalars['Int'] | null),questions?: (Scalars['String'] | null),subCategories?: (Scalars['String'] | null),tags?: (Scalars['String'] | null)}
-
-
-/** aggregate stddev on columns */
-export interface LabelStddevFieldsGenqlSelection{
-    labelId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** aggregate stddevPop on columns */
-export interface LabelStddevPopFieldsGenqlSelection{
-    labelId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** aggregate stddevSamp on columns */
-export interface LabelStddevSampFieldsGenqlSelection{
-    labelId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** Streaming cursor of the table "label" */
-export interface LabelStreamCursorInput {
-/** Stream column input with initial value */
-initialValue: LabelStreamCursorValueInput,
-/** cursor ordering */
-ordering?: (CursorOrdering | null)}
-
-
-/** Initial value of the column from where the streaming should start */
-export interface LabelStreamCursorValueInput {advancedLabels?: (Scalars['Boolean'] | null),categories?: (Scalars['String'] | null),labelId?: (Scalars['Int'] | null),questions?: (Scalars['String'] | null),subCategories?: (Scalars['String'] | null),tags?: (Scalars['String'] | null)}
-
-
-/** aggregate sum on columns */
-export interface LabelSumFieldsGenqlSelection{
-    labelId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-export interface LabelUpdates {
-/** increments the numeric columns with given value of the filtered values */
-_inc?: (LabelIncInput | null),
-/** sets the columns of the filtered rows to the given values */
-_set?: (LabelSetInput | null),
-/** filter the rows which have to be updated */
-where: LabelBoolExp}
-
-
-/** aggregate varPop on columns */
-export interface LabelVarPopFieldsGenqlSelection{
-    labelId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** aggregate varSamp on columns */
-export interface LabelVarSampFieldsGenqlSelection{
-    labelId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
-
-
-/** aggregate variance on columns */
-export interface LabelVarianceFieldsGenqlSelection{
-    labelId?: boolean | number
-    __typename?: boolean | number
-    __scalar?: boolean | number
-}
+export interface JsonbCastExp {String?: (StringComparisonExp | null)}
+
+
+/** Boolean expression to compare columns of type "jsonb". All fields are combined with logical 'AND'. */
+export interface JsonbComparisonExp {_cast?: (JsonbCastExp | null),
+/** is the column contained in the given json value */
+_containedIn?: (Scalars['jsonb'] | null),
+/** does the column contain the given json value at the top level */
+_contains?: (Scalars['jsonb'] | null),_eq?: (Scalars['jsonb'] | null),_gt?: (Scalars['jsonb'] | null),_gte?: (Scalars['jsonb'] | null),
+/** does the string exist as a top-level key in the column */
+_hasKey?: (Scalars['String'] | null),
+/** do all of these strings exist as top-level keys in the column */
+_hasKeysAll?: (Scalars['String'][] | null),
+/** do any of these strings exist as top-level keys in the column */
+_hasKeysAny?: (Scalars['String'][] | null),_in?: (Scalars['jsonb'][] | null),_isNull?: (Scalars['Boolean'] | null),_lt?: (Scalars['jsonb'] | null),_lte?: (Scalars['jsonb'] | null),_neq?: (Scalars['jsonb'] | null),_nin?: (Scalars['jsonb'][] | null)}
 
 
 /** columns and relationships of "length_enum" */
@@ -5184,6 +5453,7 @@ export interface LengthEnumGenqlSelection{
     orderBy?: (PreferenceOrderBy[] | null), 
     /** filter the rows returned */
     where?: (PreferenceBoolExp | null)} })
+    prompt?: boolean | number
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -5210,15 +5480,16 @@ export interface LengthEnumAggregateFieldsGenqlSelection{
 
 
 /** Boolean expression to filter rows from the table "length_enum". All fields are combined with a logical 'AND'. */
-export interface LengthEnumBoolExp {_and?: (LengthEnumBoolExp[] | null),_not?: (LengthEnumBoolExp | null),_or?: (LengthEnumBoolExp[] | null),chatbots?: (ChatbotBoolExp | null),chatbotsAggregate?: (ChatbotAggregateBoolExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),value?: (StringComparisonExp | null)}
+export interface LengthEnumBoolExp {_and?: (LengthEnumBoolExp[] | null),_not?: (LengthEnumBoolExp | null),_or?: (LengthEnumBoolExp[] | null),chatbots?: (ChatbotBoolExp | null),chatbotsAggregate?: (ChatbotAggregateBoolExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),prompt?: (StringComparisonExp | null),value?: (StringComparisonExp | null)}
 
 
 /** input type for inserting data into table "length_enum" */
-export interface LengthEnumInsertInput {chatbots?: (ChatbotArrRelInsertInput | null),preferences?: (PreferenceArrRelInsertInput | null),value?: (Scalars['String'] | null)}
+export interface LengthEnumInsertInput {chatbots?: (ChatbotArrRelInsertInput | null),preferences?: (PreferenceArrRelInsertInput | null),prompt?: (Scalars['String'] | null),value?: (Scalars['String'] | null)}
 
 
 /** aggregate max on columns */
 export interface LengthEnumMaxFieldsGenqlSelection{
+    prompt?: boolean | number
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -5227,6 +5498,7 @@ export interface LengthEnumMaxFieldsGenqlSelection{
 
 /** aggregate min on columns */
 export interface LengthEnumMinFieldsGenqlSelection{
+    prompt?: boolean | number
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -5255,7 +5527,7 @@ export interface LengthEnumOnConflict {constraint: LengthEnumConstraint,updateCo
 
 
 /** Ordering options when selecting data from "length_enum". */
-export interface LengthEnumOrderBy {chatbotsAggregate?: (ChatbotAggregateOrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),value?: (OrderBy | null)}
+export interface LengthEnumOrderBy {chatbotsAggregate?: (ChatbotAggregateOrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),prompt?: (OrderBy | null),value?: (OrderBy | null)}
 
 
 /** primary key columns input for table: length_enum */
@@ -5263,7 +5535,7 @@ export interface LengthEnumPkColumnsInput {value: Scalars['String']}
 
 
 /** input type for updating data in table "length_enum" */
-export interface LengthEnumSetInput {value?: (Scalars['String'] | null)}
+export interface LengthEnumSetInput {prompt?: (Scalars['String'] | null),value?: (Scalars['String'] | null)}
 
 
 /** Streaming cursor of the table "length_enum" */
@@ -5275,7 +5547,7 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface LengthEnumStreamCursorValueInput {value?: (Scalars['String'] | null)}
+export interface LengthEnumStreamCursorValueInput {prompt?: (Scalars['String'] | null),value?: (Scalars['String'] | null)}
 
 export interface LengthEnumUpdates {
 /** sets the columns of the filtered rows to the given values */
@@ -5286,11 +5558,42 @@ where: LengthEnumBoolExp}
 
 /** This table stores the messages exchanged between users and chatbots. */
 export interface MessageGenqlSelection{
+    augmentedFrom?: boolean | number
     content?: boolean | number
     createdAt?: boolean | number
+    examples?: { __args: {
+    /** JSON select path */
+    path?: (Scalars['String'] | null)} } | boolean | number
+    /** An object relationship */
+    message?: MessageGenqlSelection
     messageId?: boolean | number
     /** An object relationship */
     messageTypeEnum?: MessageTypeEnumGenqlSelection
+    /** An array relationship */
+    messages?: (MessageGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (MessageSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (MessageOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (MessageBoolExp | null)} })
+    /** An aggregate relationship */
+    messagesAggregate?: (MessageAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (MessageSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (MessageOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (MessageBoolExp | null)} })
+    prompt?: boolean | number
     role?: boolean | number
     /** An object relationship */
     thread?: ThreadGenqlSelection
@@ -5325,6 +5628,10 @@ export interface MessageAggregateFieldsGenqlSelection{
 export interface MessageAggregateOrderBy {count?: (OrderBy | null),max?: (MessageMaxOrderBy | null),min?: (MessageMinOrderBy | null)}
 
 
+/** append existing jsonb value of filtered columns with new jsonb value */
+export interface MessageAppendInput {examples?: (Scalars['jsonb'] | null)}
+
+
 /** input type for inserting array relation for remote table "message" */
 export interface MessageArrRelInsertInput {data: MessageInsertInput[],
 /** upsert condition */
@@ -5332,18 +5639,32 @@ onConflict?: (MessageOnConflict | null)}
 
 
 /** Boolean expression to filter rows from the table "message". All fields are combined with a logical 'AND'. */
-export interface MessageBoolExp {_and?: (MessageBoolExp[] | null),_not?: (MessageBoolExp | null),_or?: (MessageBoolExp[] | null),content?: (StringComparisonExp | null),createdAt?: (TimestamptzComparisonExp | null),messageId?: (UuidComparisonExp | null),messageTypeEnum?: (MessageTypeEnumBoolExp | null),role?: (StringComparisonExp | null),thread?: (ThreadBoolExp | null),threadId?: (UuidComparisonExp | null)}
+export interface MessageBoolExp {_and?: (MessageBoolExp[] | null),_not?: (MessageBoolExp | null),_or?: (MessageBoolExp[] | null),augmentedFrom?: (UuidComparisonExp | null),content?: (StringComparisonExp | null),createdAt?: (TimestamptzComparisonExp | null),examples?: (JsonbComparisonExp | null),message?: (MessageBoolExp | null),messageId?: (UuidComparisonExp | null),messageTypeEnum?: (MessageTypeEnumBoolExp | null),messages?: (MessageBoolExp | null),messagesAggregate?: (MessageAggregateBoolExp | null),prompt?: (StringComparisonExp | null),role?: (StringComparisonExp | null),thread?: (ThreadBoolExp | null),threadId?: (UuidComparisonExp | null)}
+
+
+/** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+export interface MessageDeleteAtPathInput {examples?: (Scalars['String'][] | null)}
+
+
+/** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+export interface MessageDeleteElemInput {examples?: (Scalars['Int'] | null)}
+
+
+/** delete key/value pair or string element. key/value pairs are matched based on their key value */
+export interface MessageDeleteKeyInput {examples?: (Scalars['String'] | null)}
 
 
 /** input type for inserting data into table "message" */
-export interface MessageInsertInput {content?: (Scalars['String'] | null),createdAt?: (Scalars['timestamptz'] | null),messageId?: (Scalars['uuid'] | null),messageTypeEnum?: (MessageTypeEnumObjRelInsertInput | null),role?: (Scalars['String'] | null),thread?: (ThreadObjRelInsertInput | null),threadId?: (Scalars['uuid'] | null)}
+export interface MessageInsertInput {augmentedFrom?: (Scalars['uuid'] | null),content?: (Scalars['String'] | null),createdAt?: (Scalars['timestamptz'] | null),examples?: (Scalars['jsonb'] | null),message?: (MessageObjRelInsertInput | null),messageId?: (Scalars['uuid'] | null),messageTypeEnum?: (MessageTypeEnumObjRelInsertInput | null),messages?: (MessageArrRelInsertInput | null),prompt?: (Scalars['String'] | null),role?: (Scalars['String'] | null),thread?: (ThreadObjRelInsertInput | null),threadId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate max on columns */
 export interface MessageMaxFieldsGenqlSelection{
+    augmentedFrom?: boolean | number
     content?: boolean | number
     createdAt?: boolean | number
     messageId?: boolean | number
+    prompt?: boolean | number
     role?: boolean | number
     threadId?: boolean | number
     __typename?: boolean | number
@@ -5352,14 +5673,16 @@ export interface MessageMaxFieldsGenqlSelection{
 
 
 /** order by max() on columns of table "message" */
-export interface MessageMaxOrderBy {content?: (OrderBy | null),createdAt?: (OrderBy | null),messageId?: (OrderBy | null),role?: (OrderBy | null),threadId?: (OrderBy | null)}
+export interface MessageMaxOrderBy {augmentedFrom?: (OrderBy | null),content?: (OrderBy | null),createdAt?: (OrderBy | null),messageId?: (OrderBy | null),prompt?: (OrderBy | null),role?: (OrderBy | null),threadId?: (OrderBy | null)}
 
 
 /** aggregate min on columns */
 export interface MessageMinFieldsGenqlSelection{
+    augmentedFrom?: boolean | number
     content?: boolean | number
     createdAt?: boolean | number
     messageId?: boolean | number
+    prompt?: boolean | number
     role?: boolean | number
     threadId?: boolean | number
     __typename?: boolean | number
@@ -5368,7 +5691,7 @@ export interface MessageMinFieldsGenqlSelection{
 
 
 /** order by min() on columns of table "message" */
-export interface MessageMinOrderBy {content?: (OrderBy | null),createdAt?: (OrderBy | null),messageId?: (OrderBy | null),role?: (OrderBy | null),threadId?: (OrderBy | null)}
+export interface MessageMinOrderBy {augmentedFrom?: (OrderBy | null),content?: (OrderBy | null),createdAt?: (OrderBy | null),messageId?: (OrderBy | null),prompt?: (OrderBy | null),role?: (OrderBy | null),threadId?: (OrderBy | null)}
 
 
 /** response of any mutation on the table "message" */
@@ -5382,20 +5705,30 @@ export interface MessageMutationResponseGenqlSelection{
 }
 
 
+/** input type for inserting object relation for remote table "message" */
+export interface MessageObjRelInsertInput {data: MessageInsertInput,
+/** upsert condition */
+onConflict?: (MessageOnConflict | null)}
+
+
 /** on_conflict condition type for table "message" */
 export interface MessageOnConflict {constraint: MessageConstraint,updateColumns?: MessageUpdateColumn[],where?: (MessageBoolExp | null)}
 
 
 /** Ordering options when selecting data from "message". */
-export interface MessageOrderBy {content?: (OrderBy | null),createdAt?: (OrderBy | null),messageId?: (OrderBy | null),messageTypeEnum?: (MessageTypeEnumOrderBy | null),role?: (OrderBy | null),thread?: (ThreadOrderBy | null),threadId?: (OrderBy | null)}
+export interface MessageOrderBy {augmentedFrom?: (OrderBy | null),content?: (OrderBy | null),createdAt?: (OrderBy | null),examples?: (OrderBy | null),message?: (MessageOrderBy | null),messageId?: (OrderBy | null),messageTypeEnum?: (MessageTypeEnumOrderBy | null),messagesAggregate?: (MessageAggregateOrderBy | null),prompt?: (OrderBy | null),role?: (OrderBy | null),thread?: (ThreadOrderBy | null),threadId?: (OrderBy | null)}
 
 
 /** primary key columns input for table: message */
 export interface MessagePkColumnsInput {messageId: Scalars['uuid']}
 
 
+/** prepend existing jsonb value of filtered columns with new jsonb value */
+export interface MessagePrependInput {examples?: (Scalars['jsonb'] | null)}
+
+
 /** input type for updating data in table "message" */
-export interface MessageSetInput {content?: (Scalars['String'] | null),createdAt?: (Scalars['timestamptz'] | null),messageId?: (Scalars['uuid'] | null),role?: (Scalars['String'] | null),threadId?: (Scalars['uuid'] | null)}
+export interface MessageSetInput {augmentedFrom?: (Scalars['uuid'] | null),content?: (Scalars['String'] | null),createdAt?: (Scalars['timestamptz'] | null),examples?: (Scalars['jsonb'] | null),messageId?: (Scalars['uuid'] | null),prompt?: (Scalars['String'] | null),role?: (Scalars['String'] | null),threadId?: (Scalars['uuid'] | null)}
 
 
 /** Streaming cursor of the table "message" */
@@ -5407,7 +5740,7 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface MessageStreamCursorValueInput {content?: (Scalars['String'] | null),createdAt?: (Scalars['timestamptz'] | null),messageId?: (Scalars['uuid'] | null),role?: (Scalars['String'] | null),threadId?: (Scalars['uuid'] | null)}
+export interface MessageStreamCursorValueInput {augmentedFrom?: (Scalars['uuid'] | null),content?: (Scalars['String'] | null),createdAt?: (Scalars['timestamptz'] | null),examples?: (Scalars['jsonb'] | null),messageId?: (Scalars['uuid'] | null),prompt?: (Scalars['String'] | null),role?: (Scalars['String'] | null),threadId?: (Scalars['uuid'] | null)}
 
 
 /** columns and relationships of "message_type_enum" */
@@ -5536,6 +5869,16 @@ _set?: (MessageTypeEnumSetInput | null),
 where: MessageTypeEnumBoolExp}
 
 export interface MessageUpdates {
+/** append existing jsonb value of filtered columns with new jsonb value */
+_append?: (MessageAppendInput | null),
+/** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+_deleteAtPath?: (MessageDeleteAtPathInput | null),
+/** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+_deleteElem?: (MessageDeleteElemInput | null),
+/** delete key/value pair or string element. key/value pairs are matched based on their key value */
+_deleteKey?: (MessageDeleteKeyInput | null),
+/** prepend existing jsonb value of filtered columns with new jsonb value */
+_prepend?: (MessagePrependInput | null),
 /** sets the columns of the filtered rows to the given values */
 _set?: (MessageSetInput | null),
 /** filter the rows which have to be updated */
@@ -5673,6 +6016,10 @@ export interface ModelsEnumUpdates {
 _set?: (ModelsEnumSetInput | null),
 /** filter the rows which have to be updated */
 where: ModelsEnumBoolExp}
+
+
+/** Boolean expression to compare columns of type "numeric". All fields are combined with logical 'AND'. */
+export interface NumericComparisonExp {_eq?: (Scalars['numeric'] | null),_gt?: (Scalars['numeric'] | null),_gte?: (Scalars['numeric'] | null),_in?: (Scalars['numeric'][] | null),_isNull?: (Scalars['Boolean'] | null),_lt?: (Scalars['numeric'] | null),_lte?: (Scalars['numeric'] | null),_neq?: (Scalars['numeric'] | null),_nin?: (Scalars['numeric'][] | null)}
 
 
 /** This table stores user-specific preferences for quick access when they interact with a chatbot. */
@@ -7212,6 +7559,426 @@ _regex?: (Scalars['String'] | null),
 _similar?: (Scalars['String'] | null)}
 
 
+/** columns and relationships of "subcategory_enum" */
+export interface SubcategoryEnumGenqlSelection{
+    added?: boolean | number
+    category?: boolean | number
+    /** An object relationship */
+    categoryEnumByDomainCategory?: CategoryEnumGenqlSelection
+    /** An object relationship */
+    category_enum?: CategoryEnumGenqlSelection
+    domain?: boolean | number
+    /** An array relationship */
+    examples?: (ExampleGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ExampleSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ExampleOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ExampleBoolExp | null)} })
+    /** An aggregate relationship */
+    examplesAggregate?: (ExampleAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ExampleSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ExampleOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ExampleBoolExp | null)} })
+    /** An array relationship */
+    examplesByCategoryDomainSubcategory?: (ExampleGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ExampleSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ExampleOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ExampleBoolExp | null)} })
+    /** An aggregate relationship */
+    examplesByCategoryDomainSubcategoryAggregate?: (ExampleAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ExampleSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ExampleOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ExampleBoolExp | null)} })
+    name?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregated selection of "subcategory_enum" */
+export interface SubcategoryEnumAggregateGenqlSelection{
+    aggregate?: SubcategoryEnumAggregateFieldsGenqlSelection
+    nodes?: SubcategoryEnumGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+export interface SubcategoryEnumAggregateBoolExp {count?: (subcategoryEnumAggregateBoolExpCount | null)}
+
+
+/** aggregate fields of "subcategory_enum" */
+export interface SubcategoryEnumAggregateFieldsGenqlSelection{
+    count?: { __args: {columns?: (SubcategoryEnumSelectColumn[] | null), distinct?: (Scalars['Boolean'] | null)} } | boolean | number
+    max?: SubcategoryEnumMaxFieldsGenqlSelection
+    min?: SubcategoryEnumMinFieldsGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by aggregate values of table "subcategory_enum" */
+export interface SubcategoryEnumAggregateOrderBy {count?: (OrderBy | null),max?: (SubcategoryEnumMaxOrderBy | null),min?: (SubcategoryEnumMinOrderBy | null)}
+
+
+/** input type for inserting array relation for remote table "subcategory_enum" */
+export interface SubcategoryEnumArrRelInsertInput {data: SubcategoryEnumInsertInput[],
+/** upsert condition */
+onConflict?: (SubcategoryEnumOnConflict | null)}
+
+
+/** Boolean expression to filter rows from the table "subcategory_enum". All fields are combined with a logical 'AND'. */
+export interface SubcategoryEnumBoolExp {_and?: (SubcategoryEnumBoolExp[] | null),_not?: (SubcategoryEnumBoolExp | null),_or?: (SubcategoryEnumBoolExp[] | null),added?: (TimestamptzComparisonExp | null),category?: (StringComparisonExp | null),categoryEnumByDomainCategory?: (CategoryEnumBoolExp | null),category_enum?: (CategoryEnumBoolExp | null),domain?: (StringComparisonExp | null),examples?: (ExampleBoolExp | null),examplesAggregate?: (ExampleAggregateBoolExp | null),examplesByCategoryDomainSubcategory?: (ExampleBoolExp | null),examplesByCategoryDomainSubcategoryAggregate?: (ExampleAggregateBoolExp | null),name?: (StringComparisonExp | null)}
+
+
+/** input type for inserting data into table "subcategory_enum" */
+export interface SubcategoryEnumInsertInput {added?: (Scalars['timestamptz'] | null),category?: (Scalars['String'] | null),categoryEnumByDomainCategory?: (CategoryEnumObjRelInsertInput | null),category_enum?: (CategoryEnumObjRelInsertInput | null),domain?: (Scalars['String'] | null),examples?: (ExampleArrRelInsertInput | null),examplesByCategoryDomainSubcategory?: (ExampleArrRelInsertInput | null),name?: (Scalars['String'] | null)}
+
+
+/** aggregate max on columns */
+export interface SubcategoryEnumMaxFieldsGenqlSelection{
+    added?: boolean | number
+    category?: boolean | number
+    domain?: boolean | number
+    name?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by max() on columns of table "subcategory_enum" */
+export interface SubcategoryEnumMaxOrderBy {added?: (OrderBy | null),category?: (OrderBy | null),domain?: (OrderBy | null),name?: (OrderBy | null)}
+
+
+/** aggregate min on columns */
+export interface SubcategoryEnumMinFieldsGenqlSelection{
+    added?: boolean | number
+    category?: boolean | number
+    domain?: boolean | number
+    name?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by min() on columns of table "subcategory_enum" */
+export interface SubcategoryEnumMinOrderBy {added?: (OrderBy | null),category?: (OrderBy | null),domain?: (OrderBy | null),name?: (OrderBy | null)}
+
+
+/** response of any mutation on the table "subcategory_enum" */
+export interface SubcategoryEnumMutationResponseGenqlSelection{
+    /** number of rows affected by the mutation */
+    affectedRows?: boolean | number
+    /** data from the rows affected by the mutation */
+    returning?: SubcategoryEnumGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** input type for inserting object relation for remote table "subcategory_enum" */
+export interface SubcategoryEnumObjRelInsertInput {data: SubcategoryEnumInsertInput,
+/** upsert condition */
+onConflict?: (SubcategoryEnumOnConflict | null)}
+
+
+/** on_conflict condition type for table "subcategory_enum" */
+export interface SubcategoryEnumOnConflict {constraint: SubcategoryEnumConstraint,updateColumns?: SubcategoryEnumUpdateColumn[],where?: (SubcategoryEnumBoolExp | null)}
+
+
+/** Ordering options when selecting data from "subcategory_enum". */
+export interface SubcategoryEnumOrderBy {added?: (OrderBy | null),category?: (OrderBy | null),categoryEnumByDomainCategory?: (CategoryEnumOrderBy | null),category_enum?: (CategoryEnumOrderBy | null),domain?: (OrderBy | null),examplesAggregate?: (ExampleAggregateOrderBy | null),examplesByCategoryDomainSubcategoryAggregate?: (ExampleAggregateOrderBy | null),name?: (OrderBy | null)}
+
+
+/** primary key columns input for table: subcategory_enum */
+export interface SubcategoryEnumPkColumnsInput {category: Scalars['String'],domain: Scalars['String'],name: Scalars['String']}
+
+
+/** input type for updating data in table "subcategory_enum" */
+export interface SubcategoryEnumSetInput {added?: (Scalars['timestamptz'] | null),category?: (Scalars['String'] | null),domain?: (Scalars['String'] | null),name?: (Scalars['String'] | null)}
+
+
+/** Streaming cursor of the table "subcategory_enum" */
+export interface SubcategoryEnumStreamCursorInput {
+/** Stream column input with initial value */
+initialValue: SubcategoryEnumStreamCursorValueInput,
+/** cursor ordering */
+ordering?: (CursorOrdering | null)}
+
+
+/** Initial value of the column from where the streaming should start */
+export interface SubcategoryEnumStreamCursorValueInput {added?: (Scalars['timestamptz'] | null),category?: (Scalars['String'] | null),domain?: (Scalars['String'] | null),name?: (Scalars['String'] | null)}
+
+export interface SubcategoryEnumUpdates {
+/** sets the columns of the filtered rows to the given values */
+_set?: (SubcategoryEnumSetInput | null),
+/** filter the rows which have to be updated */
+where: SubcategoryEnumBoolExp}
+
+
+/** columns and relationships of "tag_enum" */
+export interface TagEnumGenqlSelection{
+    domain?: boolean | number
+    /** An object relationship */
+    domain_enum?: DomainEnumGenqlSelection
+    frequency?: boolean | number
+    name?: boolean | number
+    tagId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** aggregated selection of "tag_enum" */
+export interface TagEnumAggregateGenqlSelection{
+    aggregate?: TagEnumAggregateFieldsGenqlSelection
+    nodes?: TagEnumGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+export interface TagEnumAggregateBoolExp {count?: (tagEnumAggregateBoolExpCount | null)}
+
+
+/** aggregate fields of "tag_enum" */
+export interface TagEnumAggregateFieldsGenqlSelection{
+    avg?: TagEnumAvgFieldsGenqlSelection
+    count?: { __args: {columns?: (TagEnumSelectColumn[] | null), distinct?: (Scalars['Boolean'] | null)} } | boolean | number
+    max?: TagEnumMaxFieldsGenqlSelection
+    min?: TagEnumMinFieldsGenqlSelection
+    stddev?: TagEnumStddevFieldsGenqlSelection
+    stddevPop?: TagEnumStddevPopFieldsGenqlSelection
+    stddevSamp?: TagEnumStddevSampFieldsGenqlSelection
+    sum?: TagEnumSumFieldsGenqlSelection
+    varPop?: TagEnumVarPopFieldsGenqlSelection
+    varSamp?: TagEnumVarSampFieldsGenqlSelection
+    variance?: TagEnumVarianceFieldsGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by aggregate values of table "tag_enum" */
+export interface TagEnumAggregateOrderBy {avg?: (TagEnumAvgOrderBy | null),count?: (OrderBy | null),max?: (TagEnumMaxOrderBy | null),min?: (TagEnumMinOrderBy | null),stddev?: (TagEnumStddevOrderBy | null),stddevPop?: (TagEnumStddevPopOrderBy | null),stddevSamp?: (TagEnumStddevSampOrderBy | null),sum?: (TagEnumSumOrderBy | null),varPop?: (TagEnumVarPopOrderBy | null),varSamp?: (TagEnumVarSampOrderBy | null),variance?: (TagEnumVarianceOrderBy | null)}
+
+
+/** input type for inserting array relation for remote table "tag_enum" */
+export interface TagEnumArrRelInsertInput {data: TagEnumInsertInput[],
+/** upsert condition */
+onConflict?: (TagEnumOnConflict | null)}
+
+
+/** aggregate avg on columns */
+export interface TagEnumAvgFieldsGenqlSelection{
+    frequency?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by avg() on columns of table "tag_enum" */
+export interface TagEnumAvgOrderBy {frequency?: (OrderBy | null)}
+
+
+/** Boolean expression to filter rows from the table "tag_enum". All fields are combined with a logical 'AND'. */
+export interface TagEnumBoolExp {_and?: (TagEnumBoolExp[] | null),_not?: (TagEnumBoolExp | null),_or?: (TagEnumBoolExp[] | null),domain?: (StringComparisonExp | null),domain_enum?: (DomainEnumBoolExp | null),frequency?: (NumericComparisonExp | null),name?: (StringComparisonExp | null),tagId?: (UuidComparisonExp | null)}
+
+
+/** input type for incrementing numeric columns in table "tag_enum" */
+export interface TagEnumIncInput {frequency?: (Scalars['numeric'] | null)}
+
+
+/** input type for inserting data into table "tag_enum" */
+export interface TagEnumInsertInput {domain?: (Scalars['String'] | null),domain_enum?: (DomainEnumObjRelInsertInput | null),frequency?: (Scalars['numeric'] | null),name?: (Scalars['String'] | null),tagId?: (Scalars['uuid'] | null)}
+
+
+/** aggregate max on columns */
+export interface TagEnumMaxFieldsGenqlSelection{
+    domain?: boolean | number
+    frequency?: boolean | number
+    name?: boolean | number
+    tagId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by max() on columns of table "tag_enum" */
+export interface TagEnumMaxOrderBy {domain?: (OrderBy | null),frequency?: (OrderBy | null),name?: (OrderBy | null),tagId?: (OrderBy | null)}
+
+
+/** aggregate min on columns */
+export interface TagEnumMinFieldsGenqlSelection{
+    domain?: boolean | number
+    frequency?: boolean | number
+    name?: boolean | number
+    tagId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by min() on columns of table "tag_enum" */
+export interface TagEnumMinOrderBy {domain?: (OrderBy | null),frequency?: (OrderBy | null),name?: (OrderBy | null),tagId?: (OrderBy | null)}
+
+
+/** response of any mutation on the table "tag_enum" */
+export interface TagEnumMutationResponseGenqlSelection{
+    /** number of rows affected by the mutation */
+    affectedRows?: boolean | number
+    /** data from the rows affected by the mutation */
+    returning?: TagEnumGenqlSelection
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** on_conflict condition type for table "tag_enum" */
+export interface TagEnumOnConflict {constraint: TagEnumConstraint,updateColumns?: TagEnumUpdateColumn[],where?: (TagEnumBoolExp | null)}
+
+
+/** Ordering options when selecting data from "tag_enum". */
+export interface TagEnumOrderBy {domain?: (OrderBy | null),domain_enum?: (DomainEnumOrderBy | null),frequency?: (OrderBy | null),name?: (OrderBy | null),tagId?: (OrderBy | null)}
+
+
+/** primary key columns input for table: tag_enum */
+export interface TagEnumPkColumnsInput {tagId: Scalars['uuid']}
+
+
+/** input type for updating data in table "tag_enum" */
+export interface TagEnumSetInput {domain?: (Scalars['String'] | null),frequency?: (Scalars['numeric'] | null),name?: (Scalars['String'] | null),tagId?: (Scalars['uuid'] | null)}
+
+
+/** aggregate stddev on columns */
+export interface TagEnumStddevFieldsGenqlSelection{
+    frequency?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by stddev() on columns of table "tag_enum" */
+export interface TagEnumStddevOrderBy {frequency?: (OrderBy | null)}
+
+
+/** aggregate stddevPop on columns */
+export interface TagEnumStddevPopFieldsGenqlSelection{
+    frequency?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by stddevPop() on columns of table "tag_enum" */
+export interface TagEnumStddevPopOrderBy {frequency?: (OrderBy | null)}
+
+
+/** aggregate stddevSamp on columns */
+export interface TagEnumStddevSampFieldsGenqlSelection{
+    frequency?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by stddevSamp() on columns of table "tag_enum" */
+export interface TagEnumStddevSampOrderBy {frequency?: (OrderBy | null)}
+
+
+/** Streaming cursor of the table "tag_enum" */
+export interface TagEnumStreamCursorInput {
+/** Stream column input with initial value */
+initialValue: TagEnumStreamCursorValueInput,
+/** cursor ordering */
+ordering?: (CursorOrdering | null)}
+
+
+/** Initial value of the column from where the streaming should start */
+export interface TagEnumStreamCursorValueInput {domain?: (Scalars['String'] | null),frequency?: (Scalars['numeric'] | null),name?: (Scalars['String'] | null),tagId?: (Scalars['uuid'] | null)}
+
+
+/** aggregate sum on columns */
+export interface TagEnumSumFieldsGenqlSelection{
+    frequency?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by sum() on columns of table "tag_enum" */
+export interface TagEnumSumOrderBy {frequency?: (OrderBy | null)}
+
+export interface TagEnumUpdates {
+/** increments the numeric columns with given value of the filtered values */
+_inc?: (TagEnumIncInput | null),
+/** sets the columns of the filtered rows to the given values */
+_set?: (TagEnumSetInput | null),
+/** filter the rows which have to be updated */
+where: TagEnumBoolExp}
+
+
+/** aggregate varPop on columns */
+export interface TagEnumVarPopFieldsGenqlSelection{
+    frequency?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by varPop() on columns of table "tag_enum" */
+export interface TagEnumVarPopOrderBy {frequency?: (OrderBy | null)}
+
+
+/** aggregate varSamp on columns */
+export interface TagEnumVarSampFieldsGenqlSelection{
+    frequency?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by varSamp() on columns of table "tag_enum" */
+export interface TagEnumVarSampOrderBy {frequency?: (OrderBy | null)}
+
+
+/** aggregate variance on columns */
+export interface TagEnumVarianceFieldsGenqlSelection{
+    frequency?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+/** order by variance() on columns of table "tag_enum" */
+export interface TagEnumVarianceOrderBy {frequency?: (OrderBy | null)}
+
+
 /** columns and relationships of "thread" */
 export interface ThreadGenqlSelection{
     /** An object relationship */
@@ -7248,7 +8015,34 @@ export interface ThreadGenqlSelection{
     model?: boolean | number
     /** An object relationship */
     modelsEnum?: ModelsEnumGenqlSelection
+    parentThreadId?: boolean | number
+    /** An object relationship */
+    thread?: ThreadGenqlSelection
     threadId?: boolean | number
+    /** An array relationship */
+    threads?: (ThreadGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ThreadSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ThreadOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ThreadBoolExp | null)} })
+    /** An aggregate relationship */
+    threadsAggregate?: (ThreadAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ThreadSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ThreadOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ThreadBoolExp | null)} })
     updatedAt?: boolean | number
     /** An object relationship */
     user?: UserGenqlSelection
@@ -7310,7 +8104,7 @@ export interface ThreadAvgOrderBy {chatbotId?: (OrderBy | null)}
 
 
 /** Boolean expression to filter rows from the table "thread". All fields are combined with a logical 'AND'. */
-export interface ThreadBoolExp {_and?: (ThreadBoolExp[] | null),_not?: (ThreadBoolExp | null),_or?: (ThreadBoolExp[] | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),createdAt?: (TimestamptzComparisonExp | null),isApproved?: (BooleanComparisonExp | null),isBlocked?: (BooleanComparisonExp | null),isPublic?: (BooleanComparisonExp | null),messages?: (MessageBoolExp | null),messagesAggregate?: (MessageAggregateBoolExp | null),model?: (ModelsEnumEnumComparisonExp | null),modelsEnum?: (ModelsEnumBoolExp | null),threadId?: (UuidComparisonExp | null),updatedAt?: (TimestamptzComparisonExp | null),user?: (UserBoolExp | null),userId?: (UuidComparisonExp | null)}
+export interface ThreadBoolExp {_and?: (ThreadBoolExp[] | null),_not?: (ThreadBoolExp | null),_or?: (ThreadBoolExp[] | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),createdAt?: (TimestamptzComparisonExp | null),isApproved?: (BooleanComparisonExp | null),isBlocked?: (BooleanComparisonExp | null),isPublic?: (BooleanComparisonExp | null),messages?: (MessageBoolExp | null),messagesAggregate?: (MessageAggregateBoolExp | null),model?: (ModelsEnumEnumComparisonExp | null),modelsEnum?: (ModelsEnumBoolExp | null),parentThreadId?: (UuidComparisonExp | null),thread?: (ThreadBoolExp | null),threadId?: (UuidComparisonExp | null),threads?: (ThreadBoolExp | null),threadsAggregate?: (ThreadAggregateBoolExp | null),updatedAt?: (TimestamptzComparisonExp | null),user?: (UserBoolExp | null),userId?: (UuidComparisonExp | null)}
 
 
 /** input type for incrementing numeric columns in table "thread" */
@@ -7318,13 +8112,14 @@ export interface ThreadIncInput {chatbotId?: (Scalars['Int'] | null)}
 
 
 /** input type for inserting data into table "thread" */
-export interface ThreadInsertInput {chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isApproved?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isPublic?: (Scalars['Boolean'] | null),messages?: (MessageArrRelInsertInput | null),model?: (ModelsEnumEnum | null),modelsEnum?: (ModelsEnumObjRelInsertInput | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),user?: (UserObjRelInsertInput | null),userId?: (Scalars['uuid'] | null)}
+export interface ThreadInsertInput {chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isApproved?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isPublic?: (Scalars['Boolean'] | null),messages?: (MessageArrRelInsertInput | null),model?: (ModelsEnumEnum | null),modelsEnum?: (ModelsEnumObjRelInsertInput | null),parentThreadId?: (Scalars['uuid'] | null),thread?: (ThreadObjRelInsertInput | null),threadId?: (Scalars['uuid'] | null),threads?: (ThreadArrRelInsertInput | null),updatedAt?: (Scalars['timestamptz'] | null),user?: (UserObjRelInsertInput | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate max on columns */
 export interface ThreadMaxFieldsGenqlSelection{
     chatbotId?: boolean | number
     createdAt?: boolean | number
+    parentThreadId?: boolean | number
     threadId?: boolean | number
     updatedAt?: boolean | number
     userId?: boolean | number
@@ -7334,13 +8129,14 @@ export interface ThreadMaxFieldsGenqlSelection{
 
 
 /** order by max() on columns of table "thread" */
-export interface ThreadMaxOrderBy {chatbotId?: (OrderBy | null),createdAt?: (OrderBy | null),threadId?: (OrderBy | null),updatedAt?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadMaxOrderBy {chatbotId?: (OrderBy | null),createdAt?: (OrderBy | null),parentThreadId?: (OrderBy | null),threadId?: (OrderBy | null),updatedAt?: (OrderBy | null),userId?: (OrderBy | null)}
 
 
 /** aggregate min on columns */
 export interface ThreadMinFieldsGenqlSelection{
     chatbotId?: boolean | number
     createdAt?: boolean | number
+    parentThreadId?: boolean | number
     threadId?: boolean | number
     updatedAt?: boolean | number
     userId?: boolean | number
@@ -7350,7 +8146,7 @@ export interface ThreadMinFieldsGenqlSelection{
 
 
 /** order by min() on columns of table "thread" */
-export interface ThreadMinOrderBy {chatbotId?: (OrderBy | null),createdAt?: (OrderBy | null),threadId?: (OrderBy | null),updatedAt?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadMinOrderBy {chatbotId?: (OrderBy | null),createdAt?: (OrderBy | null),parentThreadId?: (OrderBy | null),threadId?: (OrderBy | null),updatedAt?: (OrderBy | null),userId?: (OrderBy | null)}
 
 
 /** response of any mutation on the table "thread" */
@@ -7375,7 +8171,7 @@ export interface ThreadOnConflict {constraint: ThreadConstraint,updateColumns?: 
 
 
 /** Ordering options when selecting data from "thread". */
-export interface ThreadOrderBy {chatbot?: (ChatbotOrderBy | null),chatbotId?: (OrderBy | null),createdAt?: (OrderBy | null),isApproved?: (OrderBy | null),isBlocked?: (OrderBy | null),isPublic?: (OrderBy | null),messagesAggregate?: (MessageAggregateOrderBy | null),model?: (OrderBy | null),modelsEnum?: (ModelsEnumOrderBy | null),threadId?: (OrderBy | null),updatedAt?: (OrderBy | null),user?: (UserOrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadOrderBy {chatbot?: (ChatbotOrderBy | null),chatbotId?: (OrderBy | null),createdAt?: (OrderBy | null),isApproved?: (OrderBy | null),isBlocked?: (OrderBy | null),isPublic?: (OrderBy | null),messagesAggregate?: (MessageAggregateOrderBy | null),model?: (OrderBy | null),modelsEnum?: (ModelsEnumOrderBy | null),parentThreadId?: (OrderBy | null),thread?: (ThreadOrderBy | null),threadId?: (OrderBy | null),threadsAggregate?: (ThreadAggregateOrderBy | null),updatedAt?: (OrderBy | null),user?: (UserOrderBy | null),userId?: (OrderBy | null)}
 
 
 /** primary key columns input for table: thread */
@@ -7383,7 +8179,7 @@ export interface ThreadPkColumnsInput {threadId: Scalars['uuid']}
 
 
 /** input type for updating data in table "thread" */
-export interface ThreadSetInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isApproved?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isPublic?: (Scalars['Boolean'] | null),model?: (ModelsEnumEnum | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
+export interface ThreadSetInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isApproved?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isPublic?: (Scalars['Boolean'] | null),model?: (ModelsEnumEnum | null),parentThreadId?: (Scalars['uuid'] | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate stddev on columns */
@@ -7431,7 +8227,7 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface ThreadStreamCursorValueInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isApproved?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isPublic?: (Scalars['Boolean'] | null),model?: (ModelsEnumEnum | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
+export interface ThreadStreamCursorValueInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isApproved?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isPublic?: (Scalars['Boolean'] | null),model?: (ModelsEnumEnum | null),parentThreadId?: (Scalars['uuid'] | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate sum on columns */
@@ -7673,6 +8469,7 @@ export interface ToneEnumGenqlSelection{
     orderBy?: (PreferenceOrderBy[] | null), 
     /** filter the rows returned */
     where?: (PreferenceBoolExp | null)} })
+    prompt?: boolean | number
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -7699,15 +8496,16 @@ export interface ToneEnumAggregateFieldsGenqlSelection{
 
 
 /** Boolean expression to filter rows from the table "tone_enum". All fields are combined with a logical 'AND'. */
-export interface ToneEnumBoolExp {_and?: (ToneEnumBoolExp[] | null),_not?: (ToneEnumBoolExp | null),_or?: (ToneEnumBoolExp[] | null),chatbots?: (ChatbotBoolExp | null),chatbotsAggregate?: (ChatbotAggregateBoolExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),value?: (StringComparisonExp | null)}
+export interface ToneEnumBoolExp {_and?: (ToneEnumBoolExp[] | null),_not?: (ToneEnumBoolExp | null),_or?: (ToneEnumBoolExp[] | null),chatbots?: (ChatbotBoolExp | null),chatbotsAggregate?: (ChatbotAggregateBoolExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),prompt?: (StringComparisonExp | null),value?: (StringComparisonExp | null)}
 
 
 /** input type for inserting data into table "tone_enum" */
-export interface ToneEnumInsertInput {chatbots?: (ChatbotArrRelInsertInput | null),preferences?: (PreferenceArrRelInsertInput | null),value?: (Scalars['String'] | null)}
+export interface ToneEnumInsertInput {chatbots?: (ChatbotArrRelInsertInput | null),preferences?: (PreferenceArrRelInsertInput | null),prompt?: (Scalars['String'] | null),value?: (Scalars['String'] | null)}
 
 
 /** aggregate max on columns */
 export interface ToneEnumMaxFieldsGenqlSelection{
+    prompt?: boolean | number
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -7716,6 +8514,7 @@ export interface ToneEnumMaxFieldsGenqlSelection{
 
 /** aggregate min on columns */
 export interface ToneEnumMinFieldsGenqlSelection{
+    prompt?: boolean | number
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -7744,7 +8543,7 @@ export interface ToneEnumOnConflict {constraint: ToneEnumConstraint,updateColumn
 
 
 /** Ordering options when selecting data from "tone_enum". */
-export interface ToneEnumOrderBy {chatbotsAggregate?: (ChatbotAggregateOrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),value?: (OrderBy | null)}
+export interface ToneEnumOrderBy {chatbotsAggregate?: (ChatbotAggregateOrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),prompt?: (OrderBy | null),value?: (OrderBy | null)}
 
 
 /** primary key columns input for table: tone_enum */
@@ -7752,7 +8551,7 @@ export interface ToneEnumPkColumnsInput {value: Scalars['String']}
 
 
 /** input type for updating data in table "tone_enum" */
-export interface ToneEnumSetInput {value?: (Scalars['String'] | null)}
+export interface ToneEnumSetInput {prompt?: (Scalars['String'] | null),value?: (Scalars['String'] | null)}
 
 
 /** Streaming cursor of the table "tone_enum" */
@@ -7764,7 +8563,7 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface ToneEnumStreamCursorValueInput {value?: (Scalars['String'] | null)}
+export interface ToneEnumStreamCursorValueInput {prompt?: (Scalars['String'] | null),value?: (Scalars['String'] | null)}
 
 export interface ToneEnumUpdates {
 /** sets the columns of the filtered rows to the given values */
@@ -7823,6 +8622,7 @@ export interface TypeEnumGenqlSelection{
     orderBy?: (PreferenceOrderBy[] | null), 
     /** filter the rows returned */
     where?: (PreferenceBoolExp | null)} })
+    prompt?: boolean | number
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -7849,15 +8649,16 @@ export interface TypeEnumAggregateFieldsGenqlSelection{
 
 
 /** Boolean expression to filter rows from the table "type_enum". All fields are combined with a logical 'AND'. */
-export interface TypeEnumBoolExp {_and?: (TypeEnumBoolExp[] | null),_not?: (TypeEnumBoolExp | null),_or?: (TypeEnumBoolExp[] | null),chatbots?: (ChatbotBoolExp | null),chatbotsAggregate?: (ChatbotAggregateBoolExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),value?: (StringComparisonExp | null)}
+export interface TypeEnumBoolExp {_and?: (TypeEnumBoolExp[] | null),_not?: (TypeEnumBoolExp | null),_or?: (TypeEnumBoolExp[] | null),chatbots?: (ChatbotBoolExp | null),chatbotsAggregate?: (ChatbotAggregateBoolExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),prompt?: (StringComparisonExp | null),value?: (StringComparisonExp | null)}
 
 
 /** input type for inserting data into table "type_enum" */
-export interface TypeEnumInsertInput {chatbots?: (ChatbotArrRelInsertInput | null),preferences?: (PreferenceArrRelInsertInput | null),value?: (Scalars['String'] | null)}
+export interface TypeEnumInsertInput {chatbots?: (ChatbotArrRelInsertInput | null),preferences?: (PreferenceArrRelInsertInput | null),prompt?: (Scalars['String'] | null),value?: (Scalars['String'] | null)}
 
 
 /** aggregate max on columns */
 export interface TypeEnumMaxFieldsGenqlSelection{
+    prompt?: boolean | number
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -7866,6 +8667,7 @@ export interface TypeEnumMaxFieldsGenqlSelection{
 
 /** aggregate min on columns */
 export interface TypeEnumMinFieldsGenqlSelection{
+    prompt?: boolean | number
     value?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -7894,7 +8696,7 @@ export interface TypeEnumOnConflict {constraint: TypeEnumConstraint,updateColumn
 
 
 /** Ordering options when selecting data from "type_enum". */
-export interface TypeEnumOrderBy {chatbotsAggregate?: (ChatbotAggregateOrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),value?: (OrderBy | null)}
+export interface TypeEnumOrderBy {chatbotsAggregate?: (ChatbotAggregateOrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),prompt?: (OrderBy | null),value?: (OrderBy | null)}
 
 
 /** primary key columns input for table: type_enum */
@@ -7902,7 +8704,7 @@ export interface TypeEnumPkColumnsInput {value: Scalars['String']}
 
 
 /** input type for updating data in table "type_enum" */
-export interface TypeEnumSetInput {value?: (Scalars['String'] | null)}
+export interface TypeEnumSetInput {prompt?: (Scalars['String'] | null),value?: (Scalars['String'] | null)}
 
 
 /** Streaming cursor of the table "type_enum" */
@@ -7914,7 +8716,7 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface TypeEnumStreamCursorValueInput {value?: (Scalars['String'] | null)}
+export interface TypeEnumStreamCursorValueInput {prompt?: (Scalars['String'] | null),value?: (Scalars['String'] | null)}
 
 export interface TypeEnumUpdates {
 /** sets the columns of the filtered rows to the given values */
@@ -7926,30 +8728,6 @@ where: TypeEnumBoolExp}
 /** Table storing information about registered users. */
 export interface UserGenqlSelection{
     bio?: boolean | number
-    /** An array relationship */
-    chats?: (ChatGenqlSelection & { __args?: {
-    /** distinct select on columns */
-    distinctOn?: (ChatSelectColumn[] | null), 
-    /** limit the number of rows returned */
-    limit?: (Scalars['Int'] | null), 
-    /** skip the first n rows. Use only with order_by */
-    offset?: (Scalars['Int'] | null), 
-    /** sort the rows by one or more columns */
-    orderBy?: (ChatOrderBy[] | null), 
-    /** filter the rows returned */
-    where?: (ChatBoolExp | null)} })
-    /** An aggregate relationship */
-    chatsAggregate?: (ChatAggregateGenqlSelection & { __args?: {
-    /** distinct select on columns */
-    distinctOn?: (ChatSelectColumn[] | null), 
-    /** limit the number of rows returned */
-    limit?: (Scalars['Int'] | null), 
-    /** skip the first n rows. Use only with order_by */
-    offset?: (Scalars['Int'] | null), 
-    /** sort the rows by one or more columns */
-    orderBy?: (ChatOrderBy[] | null), 
-    /** filter the rows returned */
-    where?: (ChatBoolExp | null)} })
     dateJoined?: boolean | number
     email?: boolean | number
     favouriteTopic?: boolean | number
@@ -8181,11 +8959,11 @@ export interface UserAggregateFieldsGenqlSelection{
 
 
 /** Boolean expression to filter rows from the table "user". All fields are combined with a logical 'AND'. */
-export interface UserBoolExp {_and?: (UserBoolExp[] | null),_not?: (UserBoolExp | null),_or?: (UserBoolExp[] | null),bio?: (StringComparisonExp | null),chats?: (ChatBoolExp | null),chatsAggregate?: (ChatAggregateBoolExp | null),dateJoined?: (TimestamptzComparisonExp | null),email?: (StringComparisonExp | null),favouriteTopic?: (StringComparisonExp | null),followers?: (SocialFollowingBoolExp | null),followersAggregate?: (SocialFollowingAggregateBoolExp | null),following?: (SocialFollowingBoolExp | null),followingAggregate?: (SocialFollowingAggregateBoolExp | null),getFreeMonth?: (BooleanComparisonExp | null),isBlocked?: (BooleanComparisonExp | null),isVerified?: (BooleanComparisonExp | null),lastLogin?: (TimestamptzComparisonExp | null),password?: (StringComparisonExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),proUserSubscriptionId?: (StringComparisonExp | null),profilePicture?: (StringComparisonExp | null),prompts?: (PromptUserBoolExp | null),promptsAggregate?: (PromptUserAggregateBoolExp | null),referrals?: (ReferralBoolExp | null),referralsAggregate?: (ReferralAggregateBoolExp | null),referralsByUserId?: (ReferralBoolExp | null),referralsByUserIdAggregate?: (ReferralAggregateBoolExp | null),role?: (UserRoleComparisonExp | null),slug?: (StringComparisonExp | null),threads?: (ThreadBoolExp | null),threadsAggregate?: (ThreadAggregateBoolExp | null),userId?: (UuidComparisonExp | null),userTokens?: (UserTokenBoolExp | null),userTokensAggregate?: (UserTokenAggregateBoolExp | null),username?: (StringComparisonExp | null)}
+export interface UserBoolExp {_and?: (UserBoolExp[] | null),_not?: (UserBoolExp | null),_or?: (UserBoolExp[] | null),bio?: (StringComparisonExp | null),dateJoined?: (TimestamptzComparisonExp | null),email?: (StringComparisonExp | null),favouriteTopic?: (StringComparisonExp | null),followers?: (SocialFollowingBoolExp | null),followersAggregate?: (SocialFollowingAggregateBoolExp | null),following?: (SocialFollowingBoolExp | null),followingAggregate?: (SocialFollowingAggregateBoolExp | null),getFreeMonth?: (BooleanComparisonExp | null),isBlocked?: (BooleanComparisonExp | null),isVerified?: (BooleanComparisonExp | null),lastLogin?: (TimestamptzComparisonExp | null),password?: (StringComparisonExp | null),preferences?: (PreferenceBoolExp | null),preferencesAggregate?: (PreferenceAggregateBoolExp | null),proUserSubscriptionId?: (StringComparisonExp | null),profilePicture?: (StringComparisonExp | null),prompts?: (PromptUserBoolExp | null),promptsAggregate?: (PromptUserAggregateBoolExp | null),referrals?: (ReferralBoolExp | null),referralsAggregate?: (ReferralAggregateBoolExp | null),referralsByUserId?: (ReferralBoolExp | null),referralsByUserIdAggregate?: (ReferralAggregateBoolExp | null),role?: (UserRoleComparisonExp | null),slug?: (StringComparisonExp | null),threads?: (ThreadBoolExp | null),threadsAggregate?: (ThreadAggregateBoolExp | null),userId?: (UuidComparisonExp | null),userTokens?: (UserTokenBoolExp | null),userTokensAggregate?: (UserTokenAggregateBoolExp | null),username?: (StringComparisonExp | null)}
 
 
 /** input type for inserting data into table "user" */
-export interface UserInsertInput {bio?: (Scalars['String'] | null),chats?: (ChatArrRelInsertInput | null),dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),favouriteTopic?: (Scalars['String'] | null),followers?: (SocialFollowingArrRelInsertInput | null),following?: (SocialFollowingArrRelInsertInput | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isVerified?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),preferences?: (PreferenceArrRelInsertInput | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),prompts?: (PromptUserArrRelInsertInput | null),referrals?: (ReferralArrRelInsertInput | null),referralsByUserId?: (ReferralArrRelInsertInput | null),role?: (Scalars['user_role'] | null),slug?: (Scalars['String'] | null),threads?: (ThreadArrRelInsertInput | null),userId?: (Scalars['uuid'] | null),userTokens?: (UserTokenArrRelInsertInput | null),username?: (Scalars['String'] | null)}
+export interface UserInsertInput {bio?: (Scalars['String'] | null),dateJoined?: (Scalars['timestamptz'] | null),email?: (Scalars['String'] | null),favouriteTopic?: (Scalars['String'] | null),followers?: (SocialFollowingArrRelInsertInput | null),following?: (SocialFollowingArrRelInsertInput | null),getFreeMonth?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isVerified?: (Scalars['Boolean'] | null),lastLogin?: (Scalars['timestamptz'] | null),password?: (Scalars['String'] | null),preferences?: (PreferenceArrRelInsertInput | null),proUserSubscriptionId?: (Scalars['String'] | null),profilePicture?: (Scalars['String'] | null),prompts?: (PromptUserArrRelInsertInput | null),referrals?: (ReferralArrRelInsertInput | null),referralsByUserId?: (ReferralArrRelInsertInput | null),role?: (Scalars['user_role'] | null),slug?: (Scalars['String'] | null),threads?: (ThreadArrRelInsertInput | null),userId?: (Scalars['uuid'] | null),userTokens?: (UserTokenArrRelInsertInput | null),username?: (Scalars['String'] | null)}
 
 
 /** aggregate max on columns */
@@ -8248,7 +9026,7 @@ export interface UserOnConflict {constraint: UserConstraint,updateColumns?: User
 
 
 /** Ordering options when selecting data from "user". */
-export interface UserOrderBy {bio?: (OrderBy | null),chatsAggregate?: (ChatAggregateOrderBy | null),dateJoined?: (OrderBy | null),email?: (OrderBy | null),favouriteTopic?: (OrderBy | null),followersAggregate?: (SocialFollowingAggregateOrderBy | null),followingAggregate?: (SocialFollowingAggregateOrderBy | null),getFreeMonth?: (OrderBy | null),isBlocked?: (OrderBy | null),isVerified?: (OrderBy | null),lastLogin?: (OrderBy | null),password?: (OrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),proUserSubscriptionId?: (OrderBy | null),profilePicture?: (OrderBy | null),promptsAggregate?: (PromptUserAggregateOrderBy | null),referralsAggregate?: (ReferralAggregateOrderBy | null),referralsByUserIdAggregate?: (ReferralAggregateOrderBy | null),role?: (OrderBy | null),slug?: (OrderBy | null),threadsAggregate?: (ThreadAggregateOrderBy | null),userId?: (OrderBy | null),userTokensAggregate?: (UserTokenAggregateOrderBy | null),username?: (OrderBy | null)}
+export interface UserOrderBy {bio?: (OrderBy | null),dateJoined?: (OrderBy | null),email?: (OrderBy | null),favouriteTopic?: (OrderBy | null),followersAggregate?: (SocialFollowingAggregateOrderBy | null),followingAggregate?: (SocialFollowingAggregateOrderBy | null),getFreeMonth?: (OrderBy | null),isBlocked?: (OrderBy | null),isVerified?: (OrderBy | null),lastLogin?: (OrderBy | null),password?: (OrderBy | null),preferencesAggregate?: (PreferenceAggregateOrderBy | null),proUserSubscriptionId?: (OrderBy | null),profilePicture?: (OrderBy | null),promptsAggregate?: (PromptUserAggregateOrderBy | null),referralsAggregate?: (ReferralAggregateOrderBy | null),referralsByUserIdAggregate?: (ReferralAggregateOrderBy | null),role?: (OrderBy | null),slug?: (OrderBy | null),threadsAggregate?: (ThreadAggregateOrderBy | null),userId?: (OrderBy | null),userTokensAggregate?: (UserTokenAggregateOrderBy | null),username?: (OrderBy | null)}
 
 
 /** primary key columns input for table: user */
@@ -8405,15 +9183,25 @@ where: UserBoolExp}
 
 
 /** Boolean expression to compare columns of type "uuid". All fields are combined with logical 'AND'. */
+export interface UuidArrayComparisonExp {
+/** is the array contained in the given array value */
+_containedIn?: (Scalars['uuid'][] | null),
+/** does the array contain the given value */
+_contains?: (Scalars['uuid'][] | null),_eq?: (Scalars['uuid'][] | null),_gt?: (Scalars['uuid'][] | null),_gte?: (Scalars['uuid'][] | null),_in?: (Scalars['uuid'][][] | null),_isNull?: (Scalars['Boolean'] | null),_lt?: (Scalars['uuid'][] | null),_lte?: (Scalars['uuid'][] | null),_neq?: (Scalars['uuid'][] | null),_nin?: (Scalars['uuid'][][] | null)}
+
+
+/** Boolean expression to compare columns of type "uuid". All fields are combined with logical 'AND'. */
 export interface UuidComparisonExp {_eq?: (Scalars['uuid'] | null),_gt?: (Scalars['uuid'] | null),_gte?: (Scalars['uuid'] | null),_in?: (Scalars['uuid'][] | null),_isNull?: (Scalars['Boolean'] | null),_lt?: (Scalars['uuid'] | null),_lte?: (Scalars['uuid'] | null),_neq?: (Scalars['uuid'] | null),_nin?: (Scalars['uuid'][] | null)}
 
-export interface chatAggregateBoolExpCount {arguments?: (ChatSelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (ChatBoolExp | null),predicate: IntComparisonExp}
+export interface categoryEnumAggregateBoolExpCount {arguments?: (CategoryEnumSelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (CategoryEnumBoolExp | null),predicate: IntComparisonExp}
 
 export interface chatbotAggregateBoolExpCount {arguments?: (ChatbotSelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (ChatbotBoolExp | null),predicate: IntComparisonExp}
 
 export interface chatbotCategoryAggregateBoolExpCount {arguments?: (ChatbotCategorySelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (ChatbotCategoryBoolExp | null),predicate: IntComparisonExp}
 
-export interface labelChatbotCategoryAggregateBoolExpCount {arguments?: (LabelChatbotCategorySelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (LabelChatbotCategoryBoolExp | null),predicate: IntComparisonExp}
+export interface chatbotDomainAggregateBoolExpCount {arguments?: (ChatbotDomainSelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (ChatbotDomainBoolExp | null),predicate: IntComparisonExp}
+
+export interface exampleAggregateBoolExpCount {arguments?: (ExampleSelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (ExampleBoolExp | null),predicate: IntComparisonExp}
 
 export interface messageAggregateBoolExpCount {arguments?: (MessageSelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (MessageBoolExp | null),predicate: IntComparisonExp}
 
@@ -8426,12 +9214,12 @@ export interface mutation_rootGenqlSelection{
     where: CategoryBoolExp} })
     /** delete single row from the table: "category" */
     deleteCategoryByPk?: (CategoryGenqlSelection & { __args: {categoryId: Scalars['Int']} })
-    /** delete data from the table: "chat" */
-    deleteChat?: (ChatMutationResponseGenqlSelection & { __args: {
+    /** delete data from the table: "category_enum" */
+    deleteCategoryEnum?: (CategoryEnumMutationResponseGenqlSelection & { __args: {
     /** filter the rows which have to be deleted */
-    where: ChatBoolExp} })
-    /** delete single row from the table: "chat" */
-    deleteChatByPk?: (ChatGenqlSelection & { __args: {chatId: Scalars['Int']} })
+    where: CategoryEnumBoolExp} })
+    /** delete single row from the table: "category_enum" */
+    deleteCategoryEnumByPk?: (CategoryEnumGenqlSelection & { __args: {domain: Scalars['String'], name: Scalars['String']} })
     /** delete data from the table: "chatbot" */
     deleteChatbot?: (ChatbotMutationResponseGenqlSelection & { __args: {
     /** filter the rows which have to be deleted */
@@ -8444,24 +9232,30 @@ export interface mutation_rootGenqlSelection{
     where: ChatbotCategoryBoolExp} })
     /** delete single row from the table: "chatbot_category" */
     deleteChatbotCategoryByPk?: (ChatbotCategoryGenqlSelection & { __args: {categoryId: Scalars['Int'], chatbotId: Scalars['Int']} })
+    /** delete data from the table: "chatbot_domain" */
+    deleteChatbotDomain?: (ChatbotDomainMutationResponseGenqlSelection & { __args: {
+    /** filter the rows which have to be deleted */
+    where: ChatbotDomainBoolExp} })
+    /** delete single row from the table: "chatbot_domain" */
+    deleteChatbotDomainByPk?: (ChatbotDomainGenqlSelection & { __args: {chatbotId: Scalars['Int'], domainName: Scalars['String']} })
     /** delete data from the table: "complexity_enum" */
     deleteComplexityEnum?: (ComplexityEnumMutationResponseGenqlSelection & { __args: {
     /** filter the rows which have to be deleted */
     where: ComplexityEnumBoolExp} })
     /** delete single row from the table: "complexity_enum" */
     deleteComplexityEnumByPk?: (ComplexityEnumGenqlSelection & { __args: {value: Scalars['String']} })
-    /** delete data from the table: "label" */
-    deleteLabel?: (LabelMutationResponseGenqlSelection & { __args: {
+    /** delete data from the table: "domain_enum" */
+    deleteDomainEnum?: (DomainEnumMutationResponseGenqlSelection & { __args: {
     /** filter the rows which have to be deleted */
-    where: LabelBoolExp} })
-    /** delete single row from the table: "label" */
-    deleteLabelByPk?: (LabelGenqlSelection & { __args: {labelId: Scalars['Int']} })
-    /** delete data from the table: "label_chatbot_category" */
-    deleteLabelChatbotCategory?: (LabelChatbotCategoryMutationResponseGenqlSelection & { __args: {
+    where: DomainEnumBoolExp} })
+    /** delete single row from the table: "domain_enum" */
+    deleteDomainEnumByPk?: (DomainEnumGenqlSelection & { __args: {name: Scalars['String']} })
+    /** delete data from the table: "example" */
+    deleteExample?: (ExampleMutationResponseGenqlSelection & { __args: {
     /** filter the rows which have to be deleted */
-    where: LabelChatbotCategoryBoolExp} })
-    /** delete single row from the table: "label_chatbot_category" */
-    deleteLabelChatbotCategoryByPk?: (LabelChatbotCategoryGenqlSelection & { __args: {categoryId: Scalars['Int'], chatbotId: Scalars['Int'], labelId: Scalars['Int']} })
+    where: ExampleBoolExp} })
+    /** delete single row from the table: "example" */
+    deleteExampleByPk?: (ExampleGenqlSelection & { __args: {exampleId: Scalars['uuid']} })
     /** delete data from the table: "length_enum" */
     deleteLengthEnum?: (LengthEnumMutationResponseGenqlSelection & { __args: {
     /** filter the rows which have to be deleted */
@@ -8526,6 +9320,18 @@ export interface mutation_rootGenqlSelection{
     deleteSocialFollowing?: (SocialFollowingMutationResponseGenqlSelection & { __args: {
     /** filter the rows which have to be deleted */
     where: SocialFollowingBoolExp} })
+    /** delete data from the table: "subcategory_enum" */
+    deleteSubcategoryEnum?: (SubcategoryEnumMutationResponseGenqlSelection & { __args: {
+    /** filter the rows which have to be deleted */
+    where: SubcategoryEnumBoolExp} })
+    /** delete single row from the table: "subcategory_enum" */
+    deleteSubcategoryEnumByPk?: (SubcategoryEnumGenqlSelection & { __args: {category: Scalars['String'], domain: Scalars['String'], name: Scalars['String']} })
+    /** delete data from the table: "tag_enum" */
+    deleteTagEnum?: (TagEnumMutationResponseGenqlSelection & { __args: {
+    /** filter the rows which have to be deleted */
+    where: TagEnumBoolExp} })
+    /** delete single row from the table: "tag_enum" */
+    deleteTagEnumByPk?: (TagEnumGenqlSelection & { __args: {tagId: Scalars['uuid']} })
     /** delete data from the table: "thread" */
     deleteThread?: (ThreadMutationResponseGenqlSelection & { __args: {
     /** filter the rows which have to be deleted */
@@ -8568,24 +9374,24 @@ export interface mutation_rootGenqlSelection{
     objects: CategoryInsertInput[], 
     /** upsert condition */
     onConflict?: (CategoryOnConflict | null)} })
+    /** insert data into the table: "category_enum" */
+    insertCategoryEnum?: (CategoryEnumMutationResponseGenqlSelection & { __args: {
+    /** the rows to be inserted */
+    objects: CategoryEnumInsertInput[], 
+    /** upsert condition */
+    onConflict?: (CategoryEnumOnConflict | null)} })
+    /** insert a single row into the table: "category_enum" */
+    insertCategoryEnumOne?: (CategoryEnumGenqlSelection & { __args: {
+    /** the row to be inserted */
+    object: CategoryEnumInsertInput, 
+    /** upsert condition */
+    onConflict?: (CategoryEnumOnConflict | null)} })
     /** insert a single row into the table: "category" */
     insertCategoryOne?: (CategoryGenqlSelection & { __args: {
     /** the row to be inserted */
     object: CategoryInsertInput, 
     /** upsert condition */
     onConflict?: (CategoryOnConflict | null)} })
-    /** insert data into the table: "chat" */
-    insertChat?: (ChatMutationResponseGenqlSelection & { __args: {
-    /** the rows to be inserted */
-    objects: ChatInsertInput[], 
-    /** upsert condition */
-    onConflict?: (ChatOnConflict | null)} })
-    /** insert a single row into the table: "chat" */
-    insertChatOne?: (ChatGenqlSelection & { __args: {
-    /** the row to be inserted */
-    object: ChatInsertInput, 
-    /** upsert condition */
-    onConflict?: (ChatOnConflict | null)} })
     /** insert data into the table: "chatbot" */
     insertChatbot?: (ChatbotMutationResponseGenqlSelection & { __args: {
     /** the rows to be inserted */
@@ -8604,6 +9410,18 @@ export interface mutation_rootGenqlSelection{
     object: ChatbotCategoryInsertInput, 
     /** upsert condition */
     onConflict?: (ChatbotCategoryOnConflict | null)} })
+    /** insert data into the table: "chatbot_domain" */
+    insertChatbotDomain?: (ChatbotDomainMutationResponseGenqlSelection & { __args: {
+    /** the rows to be inserted */
+    objects: ChatbotDomainInsertInput[], 
+    /** upsert condition */
+    onConflict?: (ChatbotDomainOnConflict | null)} })
+    /** insert a single row into the table: "chatbot_domain" */
+    insertChatbotDomainOne?: (ChatbotDomainGenqlSelection & { __args: {
+    /** the row to be inserted */
+    object: ChatbotDomainInsertInput, 
+    /** upsert condition */
+    onConflict?: (ChatbotDomainOnConflict | null)} })
     /** insert a single row into the table: "chatbot" */
     insertChatbotOne?: (ChatbotGenqlSelection & { __args: {
     /** the row to be inserted */
@@ -8622,30 +9440,30 @@ export interface mutation_rootGenqlSelection{
     object: ComplexityEnumInsertInput, 
     /** upsert condition */
     onConflict?: (ComplexityEnumOnConflict | null)} })
-    /** insert data into the table: "label" */
-    insertLabel?: (LabelMutationResponseGenqlSelection & { __args: {
+    /** insert data into the table: "domain_enum" */
+    insertDomainEnum?: (DomainEnumMutationResponseGenqlSelection & { __args: {
     /** the rows to be inserted */
-    objects: LabelInsertInput[], 
+    objects: DomainEnumInsertInput[], 
     /** upsert condition */
-    onConflict?: (LabelOnConflict | null)} })
-    /** insert data into the table: "label_chatbot_category" */
-    insertLabelChatbotCategory?: (LabelChatbotCategoryMutationResponseGenqlSelection & { __args: {
+    onConflict?: (DomainEnumOnConflict | null)} })
+    /** insert a single row into the table: "domain_enum" */
+    insertDomainEnumOne?: (DomainEnumGenqlSelection & { __args: {
+    /** the row to be inserted */
+    object: DomainEnumInsertInput, 
+    /** upsert condition */
+    onConflict?: (DomainEnumOnConflict | null)} })
+    /** insert data into the table: "example" */
+    insertExample?: (ExampleMutationResponseGenqlSelection & { __args: {
     /** the rows to be inserted */
-    objects: LabelChatbotCategoryInsertInput[], 
+    objects: ExampleInsertInput[], 
     /** upsert condition */
-    onConflict?: (LabelChatbotCategoryOnConflict | null)} })
-    /** insert a single row into the table: "label_chatbot_category" */
-    insertLabelChatbotCategoryOne?: (LabelChatbotCategoryGenqlSelection & { __args: {
+    onConflict?: (ExampleOnConflict | null)} })
+    /** insert a single row into the table: "example" */
+    insertExampleOne?: (ExampleGenqlSelection & { __args: {
     /** the row to be inserted */
-    object: LabelChatbotCategoryInsertInput, 
+    object: ExampleInsertInput, 
     /** upsert condition */
-    onConflict?: (LabelChatbotCategoryOnConflict | null)} })
-    /** insert a single row into the table: "label" */
-    insertLabelOne?: (LabelGenqlSelection & { __args: {
-    /** the row to be inserted */
-    object: LabelInsertInput, 
-    /** upsert condition */
-    onConflict?: (LabelOnConflict | null)} })
+    onConflict?: (ExampleOnConflict | null)} })
     /** insert data into the table: "length_enum" */
     insertLengthEnum?: (LengthEnumMutationResponseGenqlSelection & { __args: {
     /** the rows to be inserted */
@@ -8774,6 +9592,30 @@ export interface mutation_rootGenqlSelection{
     insertSocialFollowingOne?: (SocialFollowingGenqlSelection & { __args: {
     /** the row to be inserted */
     object: SocialFollowingInsertInput} })
+    /** insert data into the table: "subcategory_enum" */
+    insertSubcategoryEnum?: (SubcategoryEnumMutationResponseGenqlSelection & { __args: {
+    /** the rows to be inserted */
+    objects: SubcategoryEnumInsertInput[], 
+    /** upsert condition */
+    onConflict?: (SubcategoryEnumOnConflict | null)} })
+    /** insert a single row into the table: "subcategory_enum" */
+    insertSubcategoryEnumOne?: (SubcategoryEnumGenqlSelection & { __args: {
+    /** the row to be inserted */
+    object: SubcategoryEnumInsertInput, 
+    /** upsert condition */
+    onConflict?: (SubcategoryEnumOnConflict | null)} })
+    /** insert data into the table: "tag_enum" */
+    insertTagEnum?: (TagEnumMutationResponseGenqlSelection & { __args: {
+    /** the rows to be inserted */
+    objects: TagEnumInsertInput[], 
+    /** upsert condition */
+    onConflict?: (TagEnumOnConflict | null)} })
+    /** insert a single row into the table: "tag_enum" */
+    insertTagEnumOne?: (TagEnumGenqlSelection & { __args: {
+    /** the row to be inserted */
+    object: TagEnumInsertInput, 
+    /** upsert condition */
+    onConflict?: (TagEnumOnConflict | null)} })
     /** insert data into the table: "thread" */
     insertThread?: (ThreadMutationResponseGenqlSelection & { __args: {
     /** the rows to be inserted */
@@ -8860,28 +9702,24 @@ export interface mutation_rootGenqlSelection{
     _inc?: (CategoryIncInput | null), 
     /** sets the columns of the filtered rows to the given values */
     _set?: (CategorySetInput | null), pkColumns: CategoryPkColumnsInput} })
+    /** update data of the table: "category_enum" */
+    updateCategoryEnum?: (CategoryEnumMutationResponseGenqlSelection & { __args: {
+    /** sets the columns of the filtered rows to the given values */
+    _set?: (CategoryEnumSetInput | null), 
+    /** filter the rows which have to be updated */
+    where: CategoryEnumBoolExp} })
+    /** update single row of the table: "category_enum" */
+    updateCategoryEnumByPk?: (CategoryEnumGenqlSelection & { __args: {
+    /** sets the columns of the filtered rows to the given values */
+    _set?: (CategoryEnumSetInput | null), pkColumns: CategoryEnumPkColumnsInput} })
+    /** update multiples rows of table: "category_enum" */
+    updateCategoryEnumMany?: (CategoryEnumMutationResponseGenqlSelection & { __args: {
+    /** updates to execute, in order */
+    updates: CategoryEnumUpdates[]} })
     /** update multiples rows of table: "category" */
     updateCategoryMany?: (CategoryMutationResponseGenqlSelection & { __args: {
     /** updates to execute, in order */
     updates: CategoryUpdates[]} })
-    /** update data of the table: "chat" */
-    updateChat?: (ChatMutationResponseGenqlSelection & { __args: {
-    /** increments the numeric columns with given value of the filtered values */
-    _inc?: (ChatIncInput | null), 
-    /** sets the columns of the filtered rows to the given values */
-    _set?: (ChatSetInput | null), 
-    /** filter the rows which have to be updated */
-    where: ChatBoolExp} })
-    /** update single row of the table: "chat" */
-    updateChatByPk?: (ChatGenqlSelection & { __args: {
-    /** increments the numeric columns with given value of the filtered values */
-    _inc?: (ChatIncInput | null), 
-    /** sets the columns of the filtered rows to the given values */
-    _set?: (ChatSetInput | null), pkColumns: ChatPkColumnsInput} })
-    /** update multiples rows of table: "chat" */
-    updateChatMany?: (ChatMutationResponseGenqlSelection & { __args: {
-    /** updates to execute, in order */
-    updates: ChatUpdates[]} })
     /** update data of the table: "chatbot" */
     updateChatbot?: (ChatbotMutationResponseGenqlSelection & { __args: {
     /** increments the numeric columns with given value of the filtered values */
@@ -8914,6 +9752,24 @@ export interface mutation_rootGenqlSelection{
     updateChatbotCategoryMany?: (ChatbotCategoryMutationResponseGenqlSelection & { __args: {
     /** updates to execute, in order */
     updates: ChatbotCategoryUpdates[]} })
+    /** update data of the table: "chatbot_domain" */
+    updateChatbotDomain?: (ChatbotDomainMutationResponseGenqlSelection & { __args: {
+    /** increments the numeric columns with given value of the filtered values */
+    _inc?: (ChatbotDomainIncInput | null), 
+    /** sets the columns of the filtered rows to the given values */
+    _set?: (ChatbotDomainSetInput | null), 
+    /** filter the rows which have to be updated */
+    where: ChatbotDomainBoolExp} })
+    /** update single row of the table: "chatbot_domain" */
+    updateChatbotDomainByPk?: (ChatbotDomainGenqlSelection & { __args: {
+    /** increments the numeric columns with given value of the filtered values */
+    _inc?: (ChatbotDomainIncInput | null), 
+    /** sets the columns of the filtered rows to the given values */
+    _set?: (ChatbotDomainSetInput | null), pkColumns: ChatbotDomainPkColumnsInput} })
+    /** update multiples rows of table: "chatbot_domain" */
+    updateChatbotDomainMany?: (ChatbotDomainMutationResponseGenqlSelection & { __args: {
+    /** updates to execute, in order */
+    updates: ChatbotDomainUpdates[]} })
     /** update multiples rows of table: "chatbot" */
     updateChatbotMany?: (ChatbotMutationResponseGenqlSelection & { __args: {
     /** updates to execute, in order */
@@ -8932,42 +9788,54 @@ export interface mutation_rootGenqlSelection{
     updateComplexityEnumMany?: (ComplexityEnumMutationResponseGenqlSelection & { __args: {
     /** updates to execute, in order */
     updates: ComplexityEnumUpdates[]} })
-    /** update data of the table: "label" */
-    updateLabel?: (LabelMutationResponseGenqlSelection & { __args: {
-    /** increments the numeric columns with given value of the filtered values */
-    _inc?: (LabelIncInput | null), 
+    /** update data of the table: "domain_enum" */
+    updateDomainEnum?: (DomainEnumMutationResponseGenqlSelection & { __args: {
     /** sets the columns of the filtered rows to the given values */
-    _set?: (LabelSetInput | null), 
+    _set?: (DomainEnumSetInput | null), 
     /** filter the rows which have to be updated */
-    where: LabelBoolExp} })
-    /** update single row of the table: "label" */
-    updateLabelByPk?: (LabelGenqlSelection & { __args: {
-    /** increments the numeric columns with given value of the filtered values */
-    _inc?: (LabelIncInput | null), 
+    where: DomainEnumBoolExp} })
+    /** update single row of the table: "domain_enum" */
+    updateDomainEnumByPk?: (DomainEnumGenqlSelection & { __args: {
     /** sets the columns of the filtered rows to the given values */
-    _set?: (LabelSetInput | null), pkColumns: LabelPkColumnsInput} })
-    /** update data of the table: "label_chatbot_category" */
-    updateLabelChatbotCategory?: (LabelChatbotCategoryMutationResponseGenqlSelection & { __args: {
-    /** increments the numeric columns with given value of the filtered values */
-    _inc?: (LabelChatbotCategoryIncInput | null), 
+    _set?: (DomainEnumSetInput | null), pkColumns: DomainEnumPkColumnsInput} })
+    /** update multiples rows of table: "domain_enum" */
+    updateDomainEnumMany?: (DomainEnumMutationResponseGenqlSelection & { __args: {
+    /** updates to execute, in order */
+    updates: DomainEnumUpdates[]} })
+    /** update data of the table: "example" */
+    updateExample?: (ExampleMutationResponseGenqlSelection & { __args: {
+    /** append existing jsonb value of filtered columns with new jsonb value */
+    _append?: (ExampleAppendInput | null), 
+    /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+    _deleteAtPath?: (ExampleDeleteAtPathInput | null), 
+    /** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+    _deleteElem?: (ExampleDeleteElemInput | null), 
+    /** delete key/value pair or string element. key/value pairs are matched based on their key value */
+    _deleteKey?: (ExampleDeleteKeyInput | null), 
+    /** prepend existing jsonb value of filtered columns with new jsonb value */
+    _prepend?: (ExamplePrependInput | null), 
     /** sets the columns of the filtered rows to the given values */
-    _set?: (LabelChatbotCategorySetInput | null), 
+    _set?: (ExampleSetInput | null), 
     /** filter the rows which have to be updated */
-    where: LabelChatbotCategoryBoolExp} })
-    /** update single row of the table: "label_chatbot_category" */
-    updateLabelChatbotCategoryByPk?: (LabelChatbotCategoryGenqlSelection & { __args: {
-    /** increments the numeric columns with given value of the filtered values */
-    _inc?: (LabelChatbotCategoryIncInput | null), 
+    where: ExampleBoolExp} })
+    /** update single row of the table: "example" */
+    updateExampleByPk?: (ExampleGenqlSelection & { __args: {
+    /** append existing jsonb value of filtered columns with new jsonb value */
+    _append?: (ExampleAppendInput | null), 
+    /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+    _deleteAtPath?: (ExampleDeleteAtPathInput | null), 
+    /** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+    _deleteElem?: (ExampleDeleteElemInput | null), 
+    /** delete key/value pair or string element. key/value pairs are matched based on their key value */
+    _deleteKey?: (ExampleDeleteKeyInput | null), 
+    /** prepend existing jsonb value of filtered columns with new jsonb value */
+    _prepend?: (ExamplePrependInput | null), 
     /** sets the columns of the filtered rows to the given values */
-    _set?: (LabelChatbotCategorySetInput | null), pkColumns: LabelChatbotCategoryPkColumnsInput} })
-    /** update multiples rows of table: "label_chatbot_category" */
-    updateLabelChatbotCategoryMany?: (LabelChatbotCategoryMutationResponseGenqlSelection & { __args: {
+    _set?: (ExampleSetInput | null), pkColumns: ExamplePkColumnsInput} })
+    /** update multiples rows of table: "example" */
+    updateExampleMany?: (ExampleMutationResponseGenqlSelection & { __args: {
     /** updates to execute, in order */
-    updates: LabelChatbotCategoryUpdates[]} })
-    /** update multiples rows of table: "label" */
-    updateLabelMany?: (LabelMutationResponseGenqlSelection & { __args: {
-    /** updates to execute, in order */
-    updates: LabelUpdates[]} })
+    updates: ExampleUpdates[]} })
     /** update data of the table: "length_enum" */
     updateLengthEnum?: (LengthEnumMutationResponseGenqlSelection & { __args: {
     /** sets the columns of the filtered rows to the given values */
@@ -8984,12 +9852,32 @@ export interface mutation_rootGenqlSelection{
     updates: LengthEnumUpdates[]} })
     /** update data of the table: "message" */
     updateMessage?: (MessageMutationResponseGenqlSelection & { __args: {
+    /** append existing jsonb value of filtered columns with new jsonb value */
+    _append?: (MessageAppendInput | null), 
+    /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+    _deleteAtPath?: (MessageDeleteAtPathInput | null), 
+    /** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+    _deleteElem?: (MessageDeleteElemInput | null), 
+    /** delete key/value pair or string element. key/value pairs are matched based on their key value */
+    _deleteKey?: (MessageDeleteKeyInput | null), 
+    /** prepend existing jsonb value of filtered columns with new jsonb value */
+    _prepend?: (MessagePrependInput | null), 
     /** sets the columns of the filtered rows to the given values */
     _set?: (MessageSetInput | null), 
     /** filter the rows which have to be updated */
     where: MessageBoolExp} })
     /** update single row of the table: "message" */
     updateMessageByPk?: (MessageGenqlSelection & { __args: {
+    /** append existing jsonb value of filtered columns with new jsonb value */
+    _append?: (MessageAppendInput | null), 
+    /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+    _deleteAtPath?: (MessageDeleteAtPathInput | null), 
+    /** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+    _deleteElem?: (MessageDeleteElemInput | null), 
+    /** delete key/value pair or string element. key/value pairs are matched based on their key value */
+    _deleteKey?: (MessageDeleteKeyInput | null), 
+    /** prepend existing jsonb value of filtered columns with new jsonb value */
+    _prepend?: (MessagePrependInput | null), 
     /** sets the columns of the filtered rows to the given values */
     _set?: (MessageSetInput | null), pkColumns: MessagePkColumnsInput} })
     /** update multiples rows of table: "message" */
@@ -9136,6 +10024,38 @@ export interface mutation_rootGenqlSelection{
     updateSocialFollowingMany?: (SocialFollowingMutationResponseGenqlSelection & { __args: {
     /** updates to execute, in order */
     updates: SocialFollowingUpdates[]} })
+    /** update data of the table: "subcategory_enum" */
+    updateSubcategoryEnum?: (SubcategoryEnumMutationResponseGenqlSelection & { __args: {
+    /** sets the columns of the filtered rows to the given values */
+    _set?: (SubcategoryEnumSetInput | null), 
+    /** filter the rows which have to be updated */
+    where: SubcategoryEnumBoolExp} })
+    /** update single row of the table: "subcategory_enum" */
+    updateSubcategoryEnumByPk?: (SubcategoryEnumGenqlSelection & { __args: {
+    /** sets the columns of the filtered rows to the given values */
+    _set?: (SubcategoryEnumSetInput | null), pkColumns: SubcategoryEnumPkColumnsInput} })
+    /** update multiples rows of table: "subcategory_enum" */
+    updateSubcategoryEnumMany?: (SubcategoryEnumMutationResponseGenqlSelection & { __args: {
+    /** updates to execute, in order */
+    updates: SubcategoryEnumUpdates[]} })
+    /** update data of the table: "tag_enum" */
+    updateTagEnum?: (TagEnumMutationResponseGenqlSelection & { __args: {
+    /** increments the numeric columns with given value of the filtered values */
+    _inc?: (TagEnumIncInput | null), 
+    /** sets the columns of the filtered rows to the given values */
+    _set?: (TagEnumSetInput | null), 
+    /** filter the rows which have to be updated */
+    where: TagEnumBoolExp} })
+    /** update single row of the table: "tag_enum" */
+    updateTagEnumByPk?: (TagEnumGenqlSelection & { __args: {
+    /** increments the numeric columns with given value of the filtered values */
+    _inc?: (TagEnumIncInput | null), 
+    /** sets the columns of the filtered rows to the given values */
+    _set?: (TagEnumSetInput | null), pkColumns: TagEnumPkColumnsInput} })
+    /** update multiples rows of table: "tag_enum" */
+    updateTagEnumMany?: (TagEnumMutationResponseGenqlSelection & { __args: {
+    /** updates to execute, in order */
+    updates: TagEnumUpdates[]} })
     /** update data of the table: "thread" */
     updateThread?: (ThreadMutationResponseGenqlSelection & { __args: {
     /** increments the numeric columns with given value of the filtered values */
@@ -9267,32 +10187,32 @@ export interface query_rootGenqlSelection{
     where?: (CategoryBoolExp | null)} })
     /** fetch data from the table: "category" using primary key columns */
     categoryByPk?: (CategoryGenqlSelection & { __args: {categoryId: Scalars['Int']} })
-    /** fetch data from the table: "chat" */
-    chat?: (ChatGenqlSelection & { __args?: {
+    /** fetch data from the table: "category_enum" */
+    categoryEnum?: (CategoryEnumGenqlSelection & { __args?: {
     /** distinct select on columns */
-    distinctOn?: (ChatSelectColumn[] | null), 
+    distinctOn?: (CategoryEnumSelectColumn[] | null), 
     /** limit the number of rows returned */
     limit?: (Scalars['Int'] | null), 
     /** skip the first n rows. Use only with order_by */
     offset?: (Scalars['Int'] | null), 
     /** sort the rows by one or more columns */
-    orderBy?: (ChatOrderBy[] | null), 
+    orderBy?: (CategoryEnumOrderBy[] | null), 
     /** filter the rows returned */
-    where?: (ChatBoolExp | null)} })
-    /** fetch aggregated fields from the table: "chat" */
-    chatAggregate?: (ChatAggregateGenqlSelection & { __args?: {
+    where?: (CategoryEnumBoolExp | null)} })
+    /** fetch aggregated fields from the table: "category_enum" */
+    categoryEnumAggregate?: (CategoryEnumAggregateGenqlSelection & { __args?: {
     /** distinct select on columns */
-    distinctOn?: (ChatSelectColumn[] | null), 
+    distinctOn?: (CategoryEnumSelectColumn[] | null), 
     /** limit the number of rows returned */
     limit?: (Scalars['Int'] | null), 
     /** skip the first n rows. Use only with order_by */
     offset?: (Scalars['Int'] | null), 
     /** sort the rows by one or more columns */
-    orderBy?: (ChatOrderBy[] | null), 
+    orderBy?: (CategoryEnumOrderBy[] | null), 
     /** filter the rows returned */
-    where?: (ChatBoolExp | null)} })
-    /** fetch data from the table: "chat" using primary key columns */
-    chatByPk?: (ChatGenqlSelection & { __args: {chatId: Scalars['Int']} })
+    where?: (CategoryEnumBoolExp | null)} })
+    /** fetch data from the table: "category_enum" using primary key columns */
+    categoryEnumByPk?: (CategoryEnumGenqlSelection & { __args: {domain: Scalars['String'], name: Scalars['String']} })
     /** fetch data from the table: "chatbot" */
     chatbot?: (ChatbotGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -9345,6 +10265,32 @@ export interface query_rootGenqlSelection{
     where?: (ChatbotCategoryBoolExp | null)} })
     /** fetch data from the table: "chatbot_category" using primary key columns */
     chatbotCategoryByPk?: (ChatbotCategoryGenqlSelection & { __args: {categoryId: Scalars['Int'], chatbotId: Scalars['Int']} })
+    /** fetch data from the table: "chatbot_domain" */
+    chatbotDomain?: (ChatbotDomainGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ChatbotDomainSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ChatbotDomainOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ChatbotDomainBoolExp | null)} })
+    /** fetch aggregated fields from the table: "chatbot_domain" */
+    chatbotDomainAggregate?: (ChatbotDomainAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ChatbotDomainSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ChatbotDomainOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ChatbotDomainBoolExp | null)} })
+    /** fetch data from the table: "chatbot_domain" using primary key columns */
+    chatbotDomainByPk?: (ChatbotDomainGenqlSelection & { __args: {chatbotId: Scalars['Int'], domainName: Scalars['String']} })
     /** fetch data from the table: "complexity_enum" */
     complexityEnum?: (ComplexityEnumGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -9371,58 +10317,58 @@ export interface query_rootGenqlSelection{
     where?: (ComplexityEnumBoolExp | null)} })
     /** fetch data from the table: "complexity_enum" using primary key columns */
     complexityEnumByPk?: (ComplexityEnumGenqlSelection & { __args: {value: Scalars['String']} })
-    /** fetch data from the table: "label" */
-    label?: (LabelGenqlSelection & { __args?: {
+    /** fetch data from the table: "domain_enum" */
+    domainEnum?: (DomainEnumGenqlSelection & { __args?: {
     /** distinct select on columns */
-    distinctOn?: (LabelSelectColumn[] | null), 
+    distinctOn?: (DomainEnumSelectColumn[] | null), 
     /** limit the number of rows returned */
     limit?: (Scalars['Int'] | null), 
     /** skip the first n rows. Use only with order_by */
     offset?: (Scalars['Int'] | null), 
     /** sort the rows by one or more columns */
-    orderBy?: (LabelOrderBy[] | null), 
+    orderBy?: (DomainEnumOrderBy[] | null), 
     /** filter the rows returned */
-    where?: (LabelBoolExp | null)} })
-    /** fetch aggregated fields from the table: "label" */
-    labelAggregate?: (LabelAggregateGenqlSelection & { __args?: {
+    where?: (DomainEnumBoolExp | null)} })
+    /** fetch aggregated fields from the table: "domain_enum" */
+    domainEnumAggregate?: (DomainEnumAggregateGenqlSelection & { __args?: {
     /** distinct select on columns */
-    distinctOn?: (LabelSelectColumn[] | null), 
+    distinctOn?: (DomainEnumSelectColumn[] | null), 
     /** limit the number of rows returned */
     limit?: (Scalars['Int'] | null), 
     /** skip the first n rows. Use only with order_by */
     offset?: (Scalars['Int'] | null), 
     /** sort the rows by one or more columns */
-    orderBy?: (LabelOrderBy[] | null), 
+    orderBy?: (DomainEnumOrderBy[] | null), 
     /** filter the rows returned */
-    where?: (LabelBoolExp | null)} })
-    /** fetch data from the table: "label" using primary key columns */
-    labelByPk?: (LabelGenqlSelection & { __args: {labelId: Scalars['Int']} })
-    /** fetch data from the table: "label_chatbot_category" */
-    labelChatbotCategory?: (LabelChatbotCategoryGenqlSelection & { __args?: {
+    where?: (DomainEnumBoolExp | null)} })
+    /** fetch data from the table: "domain_enum" using primary key columns */
+    domainEnumByPk?: (DomainEnumGenqlSelection & { __args: {name: Scalars['String']} })
+    /** fetch data from the table: "example" */
+    example?: (ExampleGenqlSelection & { __args?: {
     /** distinct select on columns */
-    distinctOn?: (LabelChatbotCategorySelectColumn[] | null), 
+    distinctOn?: (ExampleSelectColumn[] | null), 
     /** limit the number of rows returned */
     limit?: (Scalars['Int'] | null), 
     /** skip the first n rows. Use only with order_by */
     offset?: (Scalars['Int'] | null), 
     /** sort the rows by one or more columns */
-    orderBy?: (LabelChatbotCategoryOrderBy[] | null), 
+    orderBy?: (ExampleOrderBy[] | null), 
     /** filter the rows returned */
-    where?: (LabelChatbotCategoryBoolExp | null)} })
-    /** fetch aggregated fields from the table: "label_chatbot_category" */
-    labelChatbotCategoryAggregate?: (LabelChatbotCategoryAggregateGenqlSelection & { __args?: {
+    where?: (ExampleBoolExp | null)} })
+    /** fetch aggregated fields from the table: "example" */
+    exampleAggregate?: (ExampleAggregateGenqlSelection & { __args?: {
     /** distinct select on columns */
-    distinctOn?: (LabelChatbotCategorySelectColumn[] | null), 
+    distinctOn?: (ExampleSelectColumn[] | null), 
     /** limit the number of rows returned */
     limit?: (Scalars['Int'] | null), 
     /** skip the first n rows. Use only with order_by */
     offset?: (Scalars['Int'] | null), 
     /** sort the rows by one or more columns */
-    orderBy?: (LabelChatbotCategoryOrderBy[] | null), 
+    orderBy?: (ExampleOrderBy[] | null), 
     /** filter the rows returned */
-    where?: (LabelChatbotCategoryBoolExp | null)} })
-    /** fetch data from the table: "label_chatbot_category" using primary key columns */
-    labelChatbotCategoryByPk?: (LabelChatbotCategoryGenqlSelection & { __args: {categoryId: Scalars['Int'], chatbotId: Scalars['Int'], labelId: Scalars['Int']} })
+    where?: (ExampleBoolExp | null)} })
+    /** fetch data from the table: "example" using primary key columns */
+    exampleByPk?: (ExampleGenqlSelection & { __args: {exampleId: Scalars['uuid']} })
     /** fetch data from the table: "length_enum" */
     lengthEnum?: (LengthEnumGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -9707,6 +10653,58 @@ export interface query_rootGenqlSelection{
     orderBy?: (SocialFollowingOrderBy[] | null), 
     /** filter the rows returned */
     where?: (SocialFollowingBoolExp | null)} })
+    /** fetch data from the table: "subcategory_enum" */
+    subcategoryEnum?: (SubcategoryEnumGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (SubcategoryEnumSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (SubcategoryEnumOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (SubcategoryEnumBoolExp | null)} })
+    /** fetch aggregated fields from the table: "subcategory_enum" */
+    subcategoryEnumAggregate?: (SubcategoryEnumAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (SubcategoryEnumSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (SubcategoryEnumOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (SubcategoryEnumBoolExp | null)} })
+    /** fetch data from the table: "subcategory_enum" using primary key columns */
+    subcategoryEnumByPk?: (SubcategoryEnumGenqlSelection & { __args: {category: Scalars['String'], domain: Scalars['String'], name: Scalars['String']} })
+    /** fetch data from the table: "tag_enum" */
+    tagEnum?: (TagEnumGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (TagEnumSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (TagEnumOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (TagEnumBoolExp | null)} })
+    /** fetch aggregated fields from the table: "tag_enum" */
+    tagEnumAggregate?: (TagEnumAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (TagEnumSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (TagEnumOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (TagEnumBoolExp | null)} })
+    /** fetch data from the table: "tag_enum" using primary key columns */
+    tagEnumByPk?: (TagEnumGenqlSelection & { __args: {tagId: Scalars['uuid']} })
     /** fetch data from the table: "thread" */
     thread?: (ThreadGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -9871,6 +10869,8 @@ export interface referralAggregateBoolExpCount {arguments?: (ReferralSelectColum
 
 export interface socialFollowingAggregateBoolExpCount {arguments?: (SocialFollowingSelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (SocialFollowingBoolExp | null),predicate: IntComparisonExp}
 
+export interface subcategoryEnumAggregateBoolExpCount {arguments?: (SubcategoryEnumSelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (SubcategoryEnumBoolExp | null),predicate: IntComparisonExp}
+
 export interface subscription_rootGenqlSelection{
     /** fetch data from the table: "category" */
     category?: (CategoryGenqlSelection & { __args?: {
@@ -9898,6 +10898,40 @@ export interface subscription_rootGenqlSelection{
     where?: (CategoryBoolExp | null)} })
     /** fetch data from the table: "category" using primary key columns */
     categoryByPk?: (CategoryGenqlSelection & { __args: {categoryId: Scalars['Int']} })
+    /** fetch data from the table: "category_enum" */
+    categoryEnum?: (CategoryEnumGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (CategoryEnumSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (CategoryEnumOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (CategoryEnumBoolExp | null)} })
+    /** fetch aggregated fields from the table: "category_enum" */
+    categoryEnumAggregate?: (CategoryEnumAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (CategoryEnumSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (CategoryEnumOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (CategoryEnumBoolExp | null)} })
+    /** fetch data from the table: "category_enum" using primary key columns */
+    categoryEnumByPk?: (CategoryEnumGenqlSelection & { __args: {domain: Scalars['String'], name: Scalars['String']} })
+    /** fetch data from the table in a streaming manner: "category_enum" */
+    categoryEnumStream?: (CategoryEnumGenqlSelection & { __args: {
+    /** maximum number of rows returned in a single batch */
+    batchSize: Scalars['Int'], 
+    /** cursor to stream the results returned by the query */
+    cursor: (CategoryEnumStreamCursorInput | null)[], 
+    /** filter the rows returned */
+    where?: (CategoryEnumBoolExp | null)} })
     /** fetch data from the table in a streaming manner: "category" */
     categoryStream?: (CategoryGenqlSelection & { __args: {
     /** maximum number of rows returned in a single batch */
@@ -9906,40 +10940,6 @@ export interface subscription_rootGenqlSelection{
     cursor: (CategoryStreamCursorInput | null)[], 
     /** filter the rows returned */
     where?: (CategoryBoolExp | null)} })
-    /** fetch data from the table: "chat" */
-    chat?: (ChatGenqlSelection & { __args?: {
-    /** distinct select on columns */
-    distinctOn?: (ChatSelectColumn[] | null), 
-    /** limit the number of rows returned */
-    limit?: (Scalars['Int'] | null), 
-    /** skip the first n rows. Use only with order_by */
-    offset?: (Scalars['Int'] | null), 
-    /** sort the rows by one or more columns */
-    orderBy?: (ChatOrderBy[] | null), 
-    /** filter the rows returned */
-    where?: (ChatBoolExp | null)} })
-    /** fetch aggregated fields from the table: "chat" */
-    chatAggregate?: (ChatAggregateGenqlSelection & { __args?: {
-    /** distinct select on columns */
-    distinctOn?: (ChatSelectColumn[] | null), 
-    /** limit the number of rows returned */
-    limit?: (Scalars['Int'] | null), 
-    /** skip the first n rows. Use only with order_by */
-    offset?: (Scalars['Int'] | null), 
-    /** sort the rows by one or more columns */
-    orderBy?: (ChatOrderBy[] | null), 
-    /** filter the rows returned */
-    where?: (ChatBoolExp | null)} })
-    /** fetch data from the table: "chat" using primary key columns */
-    chatByPk?: (ChatGenqlSelection & { __args: {chatId: Scalars['Int']} })
-    /** fetch data from the table in a streaming manner: "chat" */
-    chatStream?: (ChatGenqlSelection & { __args: {
-    /** maximum number of rows returned in a single batch */
-    batchSize: Scalars['Int'], 
-    /** cursor to stream the results returned by the query */
-    cursor: (ChatStreamCursorInput | null)[], 
-    /** filter the rows returned */
-    where?: (ChatBoolExp | null)} })
     /** fetch data from the table: "chatbot" */
     chatbot?: (ChatbotGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -10000,6 +11000,40 @@ export interface subscription_rootGenqlSelection{
     cursor: (ChatbotCategoryStreamCursorInput | null)[], 
     /** filter the rows returned */
     where?: (ChatbotCategoryBoolExp | null)} })
+    /** fetch data from the table: "chatbot_domain" */
+    chatbotDomain?: (ChatbotDomainGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ChatbotDomainSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ChatbotDomainOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ChatbotDomainBoolExp | null)} })
+    /** fetch aggregated fields from the table: "chatbot_domain" */
+    chatbotDomainAggregate?: (ChatbotDomainAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ChatbotDomainSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ChatbotDomainOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ChatbotDomainBoolExp | null)} })
+    /** fetch data from the table: "chatbot_domain" using primary key columns */
+    chatbotDomainByPk?: (ChatbotDomainGenqlSelection & { __args: {chatbotId: Scalars['Int'], domainName: Scalars['String']} })
+    /** fetch data from the table in a streaming manner: "chatbot_domain" */
+    chatbotDomainStream?: (ChatbotDomainGenqlSelection & { __args: {
+    /** maximum number of rows returned in a single batch */
+    batchSize: Scalars['Int'], 
+    /** cursor to stream the results returned by the query */
+    cursor: (ChatbotDomainStreamCursorInput | null)[], 
+    /** filter the rows returned */
+    where?: (ChatbotDomainBoolExp | null)} })
     /** fetch data from the table in a streaming manner: "chatbot" */
     chatbotStream?: (ChatbotGenqlSelection & { __args: {
     /** maximum number of rows returned in a single batch */
@@ -10042,74 +11076,74 @@ export interface subscription_rootGenqlSelection{
     cursor: (ComplexityEnumStreamCursorInput | null)[], 
     /** filter the rows returned */
     where?: (ComplexityEnumBoolExp | null)} })
-    /** fetch data from the table: "label" */
-    label?: (LabelGenqlSelection & { __args?: {
+    /** fetch data from the table: "domain_enum" */
+    domainEnum?: (DomainEnumGenqlSelection & { __args?: {
     /** distinct select on columns */
-    distinctOn?: (LabelSelectColumn[] | null), 
+    distinctOn?: (DomainEnumSelectColumn[] | null), 
     /** limit the number of rows returned */
     limit?: (Scalars['Int'] | null), 
     /** skip the first n rows. Use only with order_by */
     offset?: (Scalars['Int'] | null), 
     /** sort the rows by one or more columns */
-    orderBy?: (LabelOrderBy[] | null), 
+    orderBy?: (DomainEnumOrderBy[] | null), 
     /** filter the rows returned */
-    where?: (LabelBoolExp | null)} })
-    /** fetch aggregated fields from the table: "label" */
-    labelAggregate?: (LabelAggregateGenqlSelection & { __args?: {
+    where?: (DomainEnumBoolExp | null)} })
+    /** fetch aggregated fields from the table: "domain_enum" */
+    domainEnumAggregate?: (DomainEnumAggregateGenqlSelection & { __args?: {
     /** distinct select on columns */
-    distinctOn?: (LabelSelectColumn[] | null), 
+    distinctOn?: (DomainEnumSelectColumn[] | null), 
     /** limit the number of rows returned */
     limit?: (Scalars['Int'] | null), 
     /** skip the first n rows. Use only with order_by */
     offset?: (Scalars['Int'] | null), 
     /** sort the rows by one or more columns */
-    orderBy?: (LabelOrderBy[] | null), 
+    orderBy?: (DomainEnumOrderBy[] | null), 
     /** filter the rows returned */
-    where?: (LabelBoolExp | null)} })
-    /** fetch data from the table: "label" using primary key columns */
-    labelByPk?: (LabelGenqlSelection & { __args: {labelId: Scalars['Int']} })
-    /** fetch data from the table: "label_chatbot_category" */
-    labelChatbotCategory?: (LabelChatbotCategoryGenqlSelection & { __args?: {
-    /** distinct select on columns */
-    distinctOn?: (LabelChatbotCategorySelectColumn[] | null), 
-    /** limit the number of rows returned */
-    limit?: (Scalars['Int'] | null), 
-    /** skip the first n rows. Use only with order_by */
-    offset?: (Scalars['Int'] | null), 
-    /** sort the rows by one or more columns */
-    orderBy?: (LabelChatbotCategoryOrderBy[] | null), 
-    /** filter the rows returned */
-    where?: (LabelChatbotCategoryBoolExp | null)} })
-    /** fetch aggregated fields from the table: "label_chatbot_category" */
-    labelChatbotCategoryAggregate?: (LabelChatbotCategoryAggregateGenqlSelection & { __args?: {
-    /** distinct select on columns */
-    distinctOn?: (LabelChatbotCategorySelectColumn[] | null), 
-    /** limit the number of rows returned */
-    limit?: (Scalars['Int'] | null), 
-    /** skip the first n rows. Use only with order_by */
-    offset?: (Scalars['Int'] | null), 
-    /** sort the rows by one or more columns */
-    orderBy?: (LabelChatbotCategoryOrderBy[] | null), 
-    /** filter the rows returned */
-    where?: (LabelChatbotCategoryBoolExp | null)} })
-    /** fetch data from the table: "label_chatbot_category" using primary key columns */
-    labelChatbotCategoryByPk?: (LabelChatbotCategoryGenqlSelection & { __args: {categoryId: Scalars['Int'], chatbotId: Scalars['Int'], labelId: Scalars['Int']} })
-    /** fetch data from the table in a streaming manner: "label_chatbot_category" */
-    labelChatbotCategoryStream?: (LabelChatbotCategoryGenqlSelection & { __args: {
+    where?: (DomainEnumBoolExp | null)} })
+    /** fetch data from the table: "domain_enum" using primary key columns */
+    domainEnumByPk?: (DomainEnumGenqlSelection & { __args: {name: Scalars['String']} })
+    /** fetch data from the table in a streaming manner: "domain_enum" */
+    domainEnumStream?: (DomainEnumGenqlSelection & { __args: {
     /** maximum number of rows returned in a single batch */
     batchSize: Scalars['Int'], 
     /** cursor to stream the results returned by the query */
-    cursor: (LabelChatbotCategoryStreamCursorInput | null)[], 
+    cursor: (DomainEnumStreamCursorInput | null)[], 
     /** filter the rows returned */
-    where?: (LabelChatbotCategoryBoolExp | null)} })
-    /** fetch data from the table in a streaming manner: "label" */
-    labelStream?: (LabelGenqlSelection & { __args: {
+    where?: (DomainEnumBoolExp | null)} })
+    /** fetch data from the table: "example" */
+    example?: (ExampleGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ExampleSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ExampleOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ExampleBoolExp | null)} })
+    /** fetch aggregated fields from the table: "example" */
+    exampleAggregate?: (ExampleAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (ExampleSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (ExampleOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (ExampleBoolExp | null)} })
+    /** fetch data from the table: "example" using primary key columns */
+    exampleByPk?: (ExampleGenqlSelection & { __args: {exampleId: Scalars['uuid']} })
+    /** fetch data from the table in a streaming manner: "example" */
+    exampleStream?: (ExampleGenqlSelection & { __args: {
     /** maximum number of rows returned in a single batch */
     batchSize: Scalars['Int'], 
     /** cursor to stream the results returned by the query */
-    cursor: (LabelStreamCursorInput | null)[], 
+    cursor: (ExampleStreamCursorInput | null)[], 
     /** filter the rows returned */
-    where?: (LabelBoolExp | null)} })
+    where?: (ExampleBoolExp | null)} })
     /** fetch data from the table: "length_enum" */
     lengthEnum?: (LengthEnumGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -10482,6 +11516,74 @@ export interface subscription_rootGenqlSelection{
     cursor: (SocialFollowingStreamCursorInput | null)[], 
     /** filter the rows returned */
     where?: (SocialFollowingBoolExp | null)} })
+    /** fetch data from the table: "subcategory_enum" */
+    subcategoryEnum?: (SubcategoryEnumGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (SubcategoryEnumSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (SubcategoryEnumOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (SubcategoryEnumBoolExp | null)} })
+    /** fetch aggregated fields from the table: "subcategory_enum" */
+    subcategoryEnumAggregate?: (SubcategoryEnumAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (SubcategoryEnumSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (SubcategoryEnumOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (SubcategoryEnumBoolExp | null)} })
+    /** fetch data from the table: "subcategory_enum" using primary key columns */
+    subcategoryEnumByPk?: (SubcategoryEnumGenqlSelection & { __args: {category: Scalars['String'], domain: Scalars['String'], name: Scalars['String']} })
+    /** fetch data from the table in a streaming manner: "subcategory_enum" */
+    subcategoryEnumStream?: (SubcategoryEnumGenqlSelection & { __args: {
+    /** maximum number of rows returned in a single batch */
+    batchSize: Scalars['Int'], 
+    /** cursor to stream the results returned by the query */
+    cursor: (SubcategoryEnumStreamCursorInput | null)[], 
+    /** filter the rows returned */
+    where?: (SubcategoryEnumBoolExp | null)} })
+    /** fetch data from the table: "tag_enum" */
+    tagEnum?: (TagEnumGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (TagEnumSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (TagEnumOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (TagEnumBoolExp | null)} })
+    /** fetch aggregated fields from the table: "tag_enum" */
+    tagEnumAggregate?: (TagEnumAggregateGenqlSelection & { __args?: {
+    /** distinct select on columns */
+    distinctOn?: (TagEnumSelectColumn[] | null), 
+    /** limit the number of rows returned */
+    limit?: (Scalars['Int'] | null), 
+    /** skip the first n rows. Use only with order_by */
+    offset?: (Scalars['Int'] | null), 
+    /** sort the rows by one or more columns */
+    orderBy?: (TagEnumOrderBy[] | null), 
+    /** filter the rows returned */
+    where?: (TagEnumBoolExp | null)} })
+    /** fetch data from the table: "tag_enum" using primary key columns */
+    tagEnumByPk?: (TagEnumGenqlSelection & { __args: {tagId: Scalars['uuid']} })
+    /** fetch data from the table in a streaming manner: "tag_enum" */
+    tagEnumStream?: (TagEnumGenqlSelection & { __args: {
+    /** maximum number of rows returned in a single batch */
+    batchSize: Scalars['Int'], 
+    /** cursor to stream the results returned by the query */
+    cursor: (TagEnumStreamCursorInput | null)[], 
+    /** filter the rows returned */
+    where?: (TagEnumBoolExp | null)} })
     /** fetch data from the table: "thread" */
     thread?: (ThreadGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -10690,6 +11792,8 @@ export interface subscription_rootGenqlSelection{
     __scalar?: boolean | number
 }
 
+export interface tagEnumAggregateBoolExpCount {arguments?: (TagEnumSelectColumn[] | null),distinct?: (Scalars['Boolean'] | null),filter?: (TagEnumBoolExp | null),predicate: IntComparisonExp}
+
 export interface threadAggregateBoolExpBool_and {arguments: ThreadSelectColumnThreadAggregateBoolExpBool_andArgumentsColumns,distinct?: (Scalars['Boolean'] | null),filter?: (ThreadBoolExp | null),predicate: BooleanComparisonExp}
 
 export interface threadAggregateBoolExpBool_or {arguments: ThreadSelectColumnThreadAggregateBoolExpBool_orArgumentsColumns,distinct?: (Scalars['Boolean'] | null),filter?: (ThreadBoolExp | null),predicate: BooleanComparisonExp}
@@ -10731,6 +11835,54 @@ export type SubscriptionGenqlSelection = subscription_rootGenqlSelection
     export const isCategoryAvgFields = (obj?: { __typename?: any } | null): obj is CategoryAvgFields => {
       if (!obj?.__typename) throw new Error('__typename is missing in "isCategoryAvgFields"')
       return CategoryAvgFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const CategoryEnum_possibleTypes: string[] = ['CategoryEnum']
+    export const isCategoryEnum = (obj?: { __typename?: any } | null): obj is CategoryEnum => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isCategoryEnum"')
+      return CategoryEnum_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const CategoryEnumAggregate_possibleTypes: string[] = ['CategoryEnumAggregate']
+    export const isCategoryEnumAggregate = (obj?: { __typename?: any } | null): obj is CategoryEnumAggregate => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isCategoryEnumAggregate"')
+      return CategoryEnumAggregate_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const CategoryEnumAggregateFields_possibleTypes: string[] = ['CategoryEnumAggregateFields']
+    export const isCategoryEnumAggregateFields = (obj?: { __typename?: any } | null): obj is CategoryEnumAggregateFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isCategoryEnumAggregateFields"')
+      return CategoryEnumAggregateFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const CategoryEnumMaxFields_possibleTypes: string[] = ['CategoryEnumMaxFields']
+    export const isCategoryEnumMaxFields = (obj?: { __typename?: any } | null): obj is CategoryEnumMaxFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isCategoryEnumMaxFields"')
+      return CategoryEnumMaxFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const CategoryEnumMinFields_possibleTypes: string[] = ['CategoryEnumMinFields']
+    export const isCategoryEnumMinFields = (obj?: { __typename?: any } | null): obj is CategoryEnumMinFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isCategoryEnumMinFields"')
+      return CategoryEnumMinFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const CategoryEnumMutationResponse_possibleTypes: string[] = ['CategoryEnumMutationResponse']
+    export const isCategoryEnumMutationResponse = (obj?: { __typename?: any } | null): obj is CategoryEnumMutationResponse => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isCategoryEnumMutationResponse"')
+      return CategoryEnumMutationResponse_possibleTypes.includes(obj.__typename)
     }
     
 
@@ -10811,118 +11963,6 @@ export type SubscriptionGenqlSelection = subscription_rootGenqlSelection
     export const isCategoryVarianceFields = (obj?: { __typename?: any } | null): obj is CategoryVarianceFields => {
       if (!obj?.__typename) throw new Error('__typename is missing in "isCategoryVarianceFields"')
       return CategoryVarianceFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const Chat_possibleTypes: string[] = ['Chat']
-    export const isChat = (obj?: { __typename?: any } | null): obj is Chat => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isChat"')
-      return Chat_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const ChatAggregate_possibleTypes: string[] = ['ChatAggregate']
-    export const isChatAggregate = (obj?: { __typename?: any } | null): obj is ChatAggregate => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isChatAggregate"')
-      return ChatAggregate_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const ChatAggregateFields_possibleTypes: string[] = ['ChatAggregateFields']
-    export const isChatAggregateFields = (obj?: { __typename?: any } | null): obj is ChatAggregateFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isChatAggregateFields"')
-      return ChatAggregateFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const ChatAvgFields_possibleTypes: string[] = ['ChatAvgFields']
-    export const isChatAvgFields = (obj?: { __typename?: any } | null): obj is ChatAvgFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isChatAvgFields"')
-      return ChatAvgFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const ChatMaxFields_possibleTypes: string[] = ['ChatMaxFields']
-    export const isChatMaxFields = (obj?: { __typename?: any } | null): obj is ChatMaxFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isChatMaxFields"')
-      return ChatMaxFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const ChatMinFields_possibleTypes: string[] = ['ChatMinFields']
-    export const isChatMinFields = (obj?: { __typename?: any } | null): obj is ChatMinFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isChatMinFields"')
-      return ChatMinFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const ChatMutationResponse_possibleTypes: string[] = ['ChatMutationResponse']
-    export const isChatMutationResponse = (obj?: { __typename?: any } | null): obj is ChatMutationResponse => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isChatMutationResponse"')
-      return ChatMutationResponse_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const ChatStddevFields_possibleTypes: string[] = ['ChatStddevFields']
-    export const isChatStddevFields = (obj?: { __typename?: any } | null): obj is ChatStddevFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isChatStddevFields"')
-      return ChatStddevFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const ChatStddevPopFields_possibleTypes: string[] = ['ChatStddevPopFields']
-    export const isChatStddevPopFields = (obj?: { __typename?: any } | null): obj is ChatStddevPopFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isChatStddevPopFields"')
-      return ChatStddevPopFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const ChatStddevSampFields_possibleTypes: string[] = ['ChatStddevSampFields']
-    export const isChatStddevSampFields = (obj?: { __typename?: any } | null): obj is ChatStddevSampFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isChatStddevSampFields"')
-      return ChatStddevSampFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const ChatSumFields_possibleTypes: string[] = ['ChatSumFields']
-    export const isChatSumFields = (obj?: { __typename?: any } | null): obj is ChatSumFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isChatSumFields"')
-      return ChatSumFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const ChatVarPopFields_possibleTypes: string[] = ['ChatVarPopFields']
-    export const isChatVarPopFields = (obj?: { __typename?: any } | null): obj is ChatVarPopFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isChatVarPopFields"')
-      return ChatVarPopFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const ChatVarSampFields_possibleTypes: string[] = ['ChatVarSampFields']
-    export const isChatVarSampFields = (obj?: { __typename?: any } | null): obj is ChatVarSampFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isChatVarSampFields"')
-      return ChatVarSampFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const ChatVarianceFields_possibleTypes: string[] = ['ChatVarianceFields']
-    export const isChatVarianceFields = (obj?: { __typename?: any } | null): obj is ChatVarianceFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isChatVarianceFields"')
-      return ChatVarianceFields_possibleTypes.includes(obj.__typename)
     }
     
 
@@ -11071,6 +12111,118 @@ export type SubscriptionGenqlSelection = subscription_rootGenqlSelection
     
 
 
+    const ChatbotDomain_possibleTypes: string[] = ['ChatbotDomain']
+    export const isChatbotDomain = (obj?: { __typename?: any } | null): obj is ChatbotDomain => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isChatbotDomain"')
+      return ChatbotDomain_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const ChatbotDomainAggregate_possibleTypes: string[] = ['ChatbotDomainAggregate']
+    export const isChatbotDomainAggregate = (obj?: { __typename?: any } | null): obj is ChatbotDomainAggregate => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isChatbotDomainAggregate"')
+      return ChatbotDomainAggregate_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const ChatbotDomainAggregateFields_possibleTypes: string[] = ['ChatbotDomainAggregateFields']
+    export const isChatbotDomainAggregateFields = (obj?: { __typename?: any } | null): obj is ChatbotDomainAggregateFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isChatbotDomainAggregateFields"')
+      return ChatbotDomainAggregateFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const ChatbotDomainAvgFields_possibleTypes: string[] = ['ChatbotDomainAvgFields']
+    export const isChatbotDomainAvgFields = (obj?: { __typename?: any } | null): obj is ChatbotDomainAvgFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isChatbotDomainAvgFields"')
+      return ChatbotDomainAvgFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const ChatbotDomainMaxFields_possibleTypes: string[] = ['ChatbotDomainMaxFields']
+    export const isChatbotDomainMaxFields = (obj?: { __typename?: any } | null): obj is ChatbotDomainMaxFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isChatbotDomainMaxFields"')
+      return ChatbotDomainMaxFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const ChatbotDomainMinFields_possibleTypes: string[] = ['ChatbotDomainMinFields']
+    export const isChatbotDomainMinFields = (obj?: { __typename?: any } | null): obj is ChatbotDomainMinFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isChatbotDomainMinFields"')
+      return ChatbotDomainMinFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const ChatbotDomainMutationResponse_possibleTypes: string[] = ['ChatbotDomainMutationResponse']
+    export const isChatbotDomainMutationResponse = (obj?: { __typename?: any } | null): obj is ChatbotDomainMutationResponse => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isChatbotDomainMutationResponse"')
+      return ChatbotDomainMutationResponse_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const ChatbotDomainStddevFields_possibleTypes: string[] = ['ChatbotDomainStddevFields']
+    export const isChatbotDomainStddevFields = (obj?: { __typename?: any } | null): obj is ChatbotDomainStddevFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isChatbotDomainStddevFields"')
+      return ChatbotDomainStddevFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const ChatbotDomainStddevPopFields_possibleTypes: string[] = ['ChatbotDomainStddevPopFields']
+    export const isChatbotDomainStddevPopFields = (obj?: { __typename?: any } | null): obj is ChatbotDomainStddevPopFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isChatbotDomainStddevPopFields"')
+      return ChatbotDomainStddevPopFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const ChatbotDomainStddevSampFields_possibleTypes: string[] = ['ChatbotDomainStddevSampFields']
+    export const isChatbotDomainStddevSampFields = (obj?: { __typename?: any } | null): obj is ChatbotDomainStddevSampFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isChatbotDomainStddevSampFields"')
+      return ChatbotDomainStddevSampFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const ChatbotDomainSumFields_possibleTypes: string[] = ['ChatbotDomainSumFields']
+    export const isChatbotDomainSumFields = (obj?: { __typename?: any } | null): obj is ChatbotDomainSumFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isChatbotDomainSumFields"')
+      return ChatbotDomainSumFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const ChatbotDomainVarPopFields_possibleTypes: string[] = ['ChatbotDomainVarPopFields']
+    export const isChatbotDomainVarPopFields = (obj?: { __typename?: any } | null): obj is ChatbotDomainVarPopFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isChatbotDomainVarPopFields"')
+      return ChatbotDomainVarPopFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const ChatbotDomainVarSampFields_possibleTypes: string[] = ['ChatbotDomainVarSampFields']
+    export const isChatbotDomainVarSampFields = (obj?: { __typename?: any } | null): obj is ChatbotDomainVarSampFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isChatbotDomainVarSampFields"')
+      return ChatbotDomainVarSampFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const ChatbotDomainVarianceFields_possibleTypes: string[] = ['ChatbotDomainVarianceFields']
+    export const isChatbotDomainVarianceFields = (obj?: { __typename?: any } | null): obj is ChatbotDomainVarianceFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isChatbotDomainVarianceFields"')
+      return ChatbotDomainVarianceFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
     const ChatbotMaxFields_possibleTypes: string[] = ['ChatbotMaxFields']
     export const isChatbotMaxFields = (obj?: { __typename?: any } | null): obj is ChatbotMaxFields => {
       if (!obj?.__typename) throw new Error('__typename is missing in "isChatbotMaxFields"')
@@ -11199,226 +12351,98 @@ export type SubscriptionGenqlSelection = subscription_rootGenqlSelection
     
 
 
-    const Label_possibleTypes: string[] = ['Label']
-    export const isLabel = (obj?: { __typename?: any } | null): obj is Label => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabel"')
-      return Label_possibleTypes.includes(obj.__typename)
+    const DomainEnum_possibleTypes: string[] = ['DomainEnum']
+    export const isDomainEnum = (obj?: { __typename?: any } | null): obj is DomainEnum => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isDomainEnum"')
+      return DomainEnum_possibleTypes.includes(obj.__typename)
     }
     
 
 
-    const LabelAggregate_possibleTypes: string[] = ['LabelAggregate']
-    export const isLabelAggregate = (obj?: { __typename?: any } | null): obj is LabelAggregate => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelAggregate"')
-      return LabelAggregate_possibleTypes.includes(obj.__typename)
+    const DomainEnumAggregate_possibleTypes: string[] = ['DomainEnumAggregate']
+    export const isDomainEnumAggregate = (obj?: { __typename?: any } | null): obj is DomainEnumAggregate => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isDomainEnumAggregate"')
+      return DomainEnumAggregate_possibleTypes.includes(obj.__typename)
     }
     
 
 
-    const LabelAggregateFields_possibleTypes: string[] = ['LabelAggregateFields']
-    export const isLabelAggregateFields = (obj?: { __typename?: any } | null): obj is LabelAggregateFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelAggregateFields"')
-      return LabelAggregateFields_possibleTypes.includes(obj.__typename)
+    const DomainEnumAggregateFields_possibleTypes: string[] = ['DomainEnumAggregateFields']
+    export const isDomainEnumAggregateFields = (obj?: { __typename?: any } | null): obj is DomainEnumAggregateFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isDomainEnumAggregateFields"')
+      return DomainEnumAggregateFields_possibleTypes.includes(obj.__typename)
     }
     
 
 
-    const LabelAvgFields_possibleTypes: string[] = ['LabelAvgFields']
-    export const isLabelAvgFields = (obj?: { __typename?: any } | null): obj is LabelAvgFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelAvgFields"')
-      return LabelAvgFields_possibleTypes.includes(obj.__typename)
+    const DomainEnumMaxFields_possibleTypes: string[] = ['DomainEnumMaxFields']
+    export const isDomainEnumMaxFields = (obj?: { __typename?: any } | null): obj is DomainEnumMaxFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isDomainEnumMaxFields"')
+      return DomainEnumMaxFields_possibleTypes.includes(obj.__typename)
     }
     
 
 
-    const LabelChatbotCategory_possibleTypes: string[] = ['LabelChatbotCategory']
-    export const isLabelChatbotCategory = (obj?: { __typename?: any } | null): obj is LabelChatbotCategory => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategory"')
-      return LabelChatbotCategory_possibleTypes.includes(obj.__typename)
+    const DomainEnumMinFields_possibleTypes: string[] = ['DomainEnumMinFields']
+    export const isDomainEnumMinFields = (obj?: { __typename?: any } | null): obj is DomainEnumMinFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isDomainEnumMinFields"')
+      return DomainEnumMinFields_possibleTypes.includes(obj.__typename)
     }
     
 
 
-    const LabelChatbotCategoryAggregate_possibleTypes: string[] = ['LabelChatbotCategoryAggregate']
-    export const isLabelChatbotCategoryAggregate = (obj?: { __typename?: any } | null): obj is LabelChatbotCategoryAggregate => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategoryAggregate"')
-      return LabelChatbotCategoryAggregate_possibleTypes.includes(obj.__typename)
+    const DomainEnumMutationResponse_possibleTypes: string[] = ['DomainEnumMutationResponse']
+    export const isDomainEnumMutationResponse = (obj?: { __typename?: any } | null): obj is DomainEnumMutationResponse => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isDomainEnumMutationResponse"')
+      return DomainEnumMutationResponse_possibleTypes.includes(obj.__typename)
     }
     
 
 
-    const LabelChatbotCategoryAggregateFields_possibleTypes: string[] = ['LabelChatbotCategoryAggregateFields']
-    export const isLabelChatbotCategoryAggregateFields = (obj?: { __typename?: any } | null): obj is LabelChatbotCategoryAggregateFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategoryAggregateFields"')
-      return LabelChatbotCategoryAggregateFields_possibleTypes.includes(obj.__typename)
+    const Example_possibleTypes: string[] = ['Example']
+    export const isExample = (obj?: { __typename?: any } | null): obj is Example => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isExample"')
+      return Example_possibleTypes.includes(obj.__typename)
     }
     
 
 
-    const LabelChatbotCategoryAvgFields_possibleTypes: string[] = ['LabelChatbotCategoryAvgFields']
-    export const isLabelChatbotCategoryAvgFields = (obj?: { __typename?: any } | null): obj is LabelChatbotCategoryAvgFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategoryAvgFields"')
-      return LabelChatbotCategoryAvgFields_possibleTypes.includes(obj.__typename)
+    const ExampleAggregate_possibleTypes: string[] = ['ExampleAggregate']
+    export const isExampleAggregate = (obj?: { __typename?: any } | null): obj is ExampleAggregate => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isExampleAggregate"')
+      return ExampleAggregate_possibleTypes.includes(obj.__typename)
     }
     
 
 
-    const LabelChatbotCategoryMaxFields_possibleTypes: string[] = ['LabelChatbotCategoryMaxFields']
-    export const isLabelChatbotCategoryMaxFields = (obj?: { __typename?: any } | null): obj is LabelChatbotCategoryMaxFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategoryMaxFields"')
-      return LabelChatbotCategoryMaxFields_possibleTypes.includes(obj.__typename)
+    const ExampleAggregateFields_possibleTypes: string[] = ['ExampleAggregateFields']
+    export const isExampleAggregateFields = (obj?: { __typename?: any } | null): obj is ExampleAggregateFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isExampleAggregateFields"')
+      return ExampleAggregateFields_possibleTypes.includes(obj.__typename)
     }
     
 
 
-    const LabelChatbotCategoryMinFields_possibleTypes: string[] = ['LabelChatbotCategoryMinFields']
-    export const isLabelChatbotCategoryMinFields = (obj?: { __typename?: any } | null): obj is LabelChatbotCategoryMinFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategoryMinFields"')
-      return LabelChatbotCategoryMinFields_possibleTypes.includes(obj.__typename)
+    const ExampleMaxFields_possibleTypes: string[] = ['ExampleMaxFields']
+    export const isExampleMaxFields = (obj?: { __typename?: any } | null): obj is ExampleMaxFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isExampleMaxFields"')
+      return ExampleMaxFields_possibleTypes.includes(obj.__typename)
     }
     
 
 
-    const LabelChatbotCategoryMutationResponse_possibleTypes: string[] = ['LabelChatbotCategoryMutationResponse']
-    export const isLabelChatbotCategoryMutationResponse = (obj?: { __typename?: any } | null): obj is LabelChatbotCategoryMutationResponse => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategoryMutationResponse"')
-      return LabelChatbotCategoryMutationResponse_possibleTypes.includes(obj.__typename)
+    const ExampleMinFields_possibleTypes: string[] = ['ExampleMinFields']
+    export const isExampleMinFields = (obj?: { __typename?: any } | null): obj is ExampleMinFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isExampleMinFields"')
+      return ExampleMinFields_possibleTypes.includes(obj.__typename)
     }
     
 
 
-    const LabelChatbotCategoryStddevFields_possibleTypes: string[] = ['LabelChatbotCategoryStddevFields']
-    export const isLabelChatbotCategoryStddevFields = (obj?: { __typename?: any } | null): obj is LabelChatbotCategoryStddevFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategoryStddevFields"')
-      return LabelChatbotCategoryStddevFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const LabelChatbotCategoryStddevPopFields_possibleTypes: string[] = ['LabelChatbotCategoryStddevPopFields']
-    export const isLabelChatbotCategoryStddevPopFields = (obj?: { __typename?: any } | null): obj is LabelChatbotCategoryStddevPopFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategoryStddevPopFields"')
-      return LabelChatbotCategoryStddevPopFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const LabelChatbotCategoryStddevSampFields_possibleTypes: string[] = ['LabelChatbotCategoryStddevSampFields']
-    export const isLabelChatbotCategoryStddevSampFields = (obj?: { __typename?: any } | null): obj is LabelChatbotCategoryStddevSampFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategoryStddevSampFields"')
-      return LabelChatbotCategoryStddevSampFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const LabelChatbotCategorySumFields_possibleTypes: string[] = ['LabelChatbotCategorySumFields']
-    export const isLabelChatbotCategorySumFields = (obj?: { __typename?: any } | null): obj is LabelChatbotCategorySumFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategorySumFields"')
-      return LabelChatbotCategorySumFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const LabelChatbotCategoryVarPopFields_possibleTypes: string[] = ['LabelChatbotCategoryVarPopFields']
-    export const isLabelChatbotCategoryVarPopFields = (obj?: { __typename?: any } | null): obj is LabelChatbotCategoryVarPopFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategoryVarPopFields"')
-      return LabelChatbotCategoryVarPopFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const LabelChatbotCategoryVarSampFields_possibleTypes: string[] = ['LabelChatbotCategoryVarSampFields']
-    export const isLabelChatbotCategoryVarSampFields = (obj?: { __typename?: any } | null): obj is LabelChatbotCategoryVarSampFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategoryVarSampFields"')
-      return LabelChatbotCategoryVarSampFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const LabelChatbotCategoryVarianceFields_possibleTypes: string[] = ['LabelChatbotCategoryVarianceFields']
-    export const isLabelChatbotCategoryVarianceFields = (obj?: { __typename?: any } | null): obj is LabelChatbotCategoryVarianceFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelChatbotCategoryVarianceFields"')
-      return LabelChatbotCategoryVarianceFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const LabelMaxFields_possibleTypes: string[] = ['LabelMaxFields']
-    export const isLabelMaxFields = (obj?: { __typename?: any } | null): obj is LabelMaxFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelMaxFields"')
-      return LabelMaxFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const LabelMinFields_possibleTypes: string[] = ['LabelMinFields']
-    export const isLabelMinFields = (obj?: { __typename?: any } | null): obj is LabelMinFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelMinFields"')
-      return LabelMinFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const LabelMutationResponse_possibleTypes: string[] = ['LabelMutationResponse']
-    export const isLabelMutationResponse = (obj?: { __typename?: any } | null): obj is LabelMutationResponse => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelMutationResponse"')
-      return LabelMutationResponse_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const LabelStddevFields_possibleTypes: string[] = ['LabelStddevFields']
-    export const isLabelStddevFields = (obj?: { __typename?: any } | null): obj is LabelStddevFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelStddevFields"')
-      return LabelStddevFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const LabelStddevPopFields_possibleTypes: string[] = ['LabelStddevPopFields']
-    export const isLabelStddevPopFields = (obj?: { __typename?: any } | null): obj is LabelStddevPopFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelStddevPopFields"')
-      return LabelStddevPopFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const LabelStddevSampFields_possibleTypes: string[] = ['LabelStddevSampFields']
-    export const isLabelStddevSampFields = (obj?: { __typename?: any } | null): obj is LabelStddevSampFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelStddevSampFields"')
-      return LabelStddevSampFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const LabelSumFields_possibleTypes: string[] = ['LabelSumFields']
-    export const isLabelSumFields = (obj?: { __typename?: any } | null): obj is LabelSumFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelSumFields"')
-      return LabelSumFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const LabelVarPopFields_possibleTypes: string[] = ['LabelVarPopFields']
-    export const isLabelVarPopFields = (obj?: { __typename?: any } | null): obj is LabelVarPopFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelVarPopFields"')
-      return LabelVarPopFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const LabelVarSampFields_possibleTypes: string[] = ['LabelVarSampFields']
-    export const isLabelVarSampFields = (obj?: { __typename?: any } | null): obj is LabelVarSampFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelVarSampFields"')
-      return LabelVarSampFields_possibleTypes.includes(obj.__typename)
-    }
-    
-
-
-    const LabelVarianceFields_possibleTypes: string[] = ['LabelVarianceFields']
-    export const isLabelVarianceFields = (obj?: { __typename?: any } | null): obj is LabelVarianceFields => {
-      if (!obj?.__typename) throw new Error('__typename is missing in "isLabelVarianceFields"')
-      return LabelVarianceFields_possibleTypes.includes(obj.__typename)
+    const ExampleMutationResponse_possibleTypes: string[] = ['ExampleMutationResponse']
+    export const isExampleMutationResponse = (obj?: { __typename?: any } | null): obj is ExampleMutationResponse => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isExampleMutationResponse"')
+      return ExampleMutationResponse_possibleTypes.includes(obj.__typename)
     }
     
 
@@ -12271,6 +13295,166 @@ export type SubscriptionGenqlSelection = subscription_rootGenqlSelection
     
 
 
+    const SubcategoryEnum_possibleTypes: string[] = ['SubcategoryEnum']
+    export const isSubcategoryEnum = (obj?: { __typename?: any } | null): obj is SubcategoryEnum => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isSubcategoryEnum"')
+      return SubcategoryEnum_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const SubcategoryEnumAggregate_possibleTypes: string[] = ['SubcategoryEnumAggregate']
+    export const isSubcategoryEnumAggregate = (obj?: { __typename?: any } | null): obj is SubcategoryEnumAggregate => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isSubcategoryEnumAggregate"')
+      return SubcategoryEnumAggregate_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const SubcategoryEnumAggregateFields_possibleTypes: string[] = ['SubcategoryEnumAggregateFields']
+    export const isSubcategoryEnumAggregateFields = (obj?: { __typename?: any } | null): obj is SubcategoryEnumAggregateFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isSubcategoryEnumAggregateFields"')
+      return SubcategoryEnumAggregateFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const SubcategoryEnumMaxFields_possibleTypes: string[] = ['SubcategoryEnumMaxFields']
+    export const isSubcategoryEnumMaxFields = (obj?: { __typename?: any } | null): obj is SubcategoryEnumMaxFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isSubcategoryEnumMaxFields"')
+      return SubcategoryEnumMaxFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const SubcategoryEnumMinFields_possibleTypes: string[] = ['SubcategoryEnumMinFields']
+    export const isSubcategoryEnumMinFields = (obj?: { __typename?: any } | null): obj is SubcategoryEnumMinFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isSubcategoryEnumMinFields"')
+      return SubcategoryEnumMinFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const SubcategoryEnumMutationResponse_possibleTypes: string[] = ['SubcategoryEnumMutationResponse']
+    export const isSubcategoryEnumMutationResponse = (obj?: { __typename?: any } | null): obj is SubcategoryEnumMutationResponse => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isSubcategoryEnumMutationResponse"')
+      return SubcategoryEnumMutationResponse_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const TagEnum_possibleTypes: string[] = ['TagEnum']
+    export const isTagEnum = (obj?: { __typename?: any } | null): obj is TagEnum => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isTagEnum"')
+      return TagEnum_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const TagEnumAggregate_possibleTypes: string[] = ['TagEnumAggregate']
+    export const isTagEnumAggregate = (obj?: { __typename?: any } | null): obj is TagEnumAggregate => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isTagEnumAggregate"')
+      return TagEnumAggregate_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const TagEnumAggregateFields_possibleTypes: string[] = ['TagEnumAggregateFields']
+    export const isTagEnumAggregateFields = (obj?: { __typename?: any } | null): obj is TagEnumAggregateFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isTagEnumAggregateFields"')
+      return TagEnumAggregateFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const TagEnumAvgFields_possibleTypes: string[] = ['TagEnumAvgFields']
+    export const isTagEnumAvgFields = (obj?: { __typename?: any } | null): obj is TagEnumAvgFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isTagEnumAvgFields"')
+      return TagEnumAvgFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const TagEnumMaxFields_possibleTypes: string[] = ['TagEnumMaxFields']
+    export const isTagEnumMaxFields = (obj?: { __typename?: any } | null): obj is TagEnumMaxFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isTagEnumMaxFields"')
+      return TagEnumMaxFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const TagEnumMinFields_possibleTypes: string[] = ['TagEnumMinFields']
+    export const isTagEnumMinFields = (obj?: { __typename?: any } | null): obj is TagEnumMinFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isTagEnumMinFields"')
+      return TagEnumMinFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const TagEnumMutationResponse_possibleTypes: string[] = ['TagEnumMutationResponse']
+    export const isTagEnumMutationResponse = (obj?: { __typename?: any } | null): obj is TagEnumMutationResponse => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isTagEnumMutationResponse"')
+      return TagEnumMutationResponse_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const TagEnumStddevFields_possibleTypes: string[] = ['TagEnumStddevFields']
+    export const isTagEnumStddevFields = (obj?: { __typename?: any } | null): obj is TagEnumStddevFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isTagEnumStddevFields"')
+      return TagEnumStddevFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const TagEnumStddevPopFields_possibleTypes: string[] = ['TagEnumStddevPopFields']
+    export const isTagEnumStddevPopFields = (obj?: { __typename?: any } | null): obj is TagEnumStddevPopFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isTagEnumStddevPopFields"')
+      return TagEnumStddevPopFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const TagEnumStddevSampFields_possibleTypes: string[] = ['TagEnumStddevSampFields']
+    export const isTagEnumStddevSampFields = (obj?: { __typename?: any } | null): obj is TagEnumStddevSampFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isTagEnumStddevSampFields"')
+      return TagEnumStddevSampFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const TagEnumSumFields_possibleTypes: string[] = ['TagEnumSumFields']
+    export const isTagEnumSumFields = (obj?: { __typename?: any } | null): obj is TagEnumSumFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isTagEnumSumFields"')
+      return TagEnumSumFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const TagEnumVarPopFields_possibleTypes: string[] = ['TagEnumVarPopFields']
+    export const isTagEnumVarPopFields = (obj?: { __typename?: any } | null): obj is TagEnumVarPopFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isTagEnumVarPopFields"')
+      return TagEnumVarPopFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const TagEnumVarSampFields_possibleTypes: string[] = ['TagEnumVarSampFields']
+    export const isTagEnumVarSampFields = (obj?: { __typename?: any } | null): obj is TagEnumVarSampFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isTagEnumVarSampFields"')
+      return TagEnumVarSampFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const TagEnumVarianceFields_possibleTypes: string[] = ['TagEnumVarianceFields']
+    export const isTagEnumVarianceFields = (obj?: { __typename?: any } | null): obj is TagEnumVarianceFields => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isTagEnumVarianceFields"')
+      return TagEnumVarianceFields_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
     const Thread_possibleTypes: string[] = ['Thread']
     export const isThread = (obj?: { __typename?: any } | null): obj is Thread => {
       if (!obj?.__typename) throw new Error('__typename is missing in "isThread"')
@@ -12651,6 +13835,22 @@ export const enumCategoryConstraint = {
    category_pkey: 'category_pkey' as const
 }
 
+export const enumCategoryEnumConstraint = {
+   category_enum_pkey: 'category_enum_pkey' as const
+}
+
+export const enumCategoryEnumSelectColumn = {
+   added: 'added' as const,
+   domain: 'domain' as const,
+   name: 'name' as const
+}
+
+export const enumCategoryEnumUpdateColumn = {
+   added: 'added' as const,
+   domain: 'domain' as const,
+   name: 'name' as const
+}
+
 export const enumCategorySelectColumn = {
    categoryId: 'categoryId' as const,
    name: 'name' as const
@@ -12659,25 +13859,6 @@ export const enumCategorySelectColumn = {
 export const enumCategoryUpdateColumn = {
    categoryId: 'categoryId' as const,
    name: 'name' as const
-}
-
-export const enumChatConstraint = {
-   gpt_chat_conversation_link_key: 'gpt_chat_conversation_link_key' as const,
-   gpt_chat_pkey: 'gpt_chat_pkey' as const
-}
-
-export const enumChatSelectColumn = {
-   addedBy: 'addedBy' as const,
-   chatId: 'chatId' as const,
-   chatbotId: 'chatbotId' as const,
-   conversationLink: 'conversationLink' as const
-}
-
-export const enumChatUpdateColumn = {
-   addedBy: 'addedBy' as const,
-   chatId: 'chatId' as const,
-   chatbotId: 'chatbotId' as const,
-   conversationLink: 'conversationLink' as const
 }
 
 export const enumChatbotCategoryConstraint = {
@@ -12697,6 +13878,20 @@ export const enumChatbotCategoryUpdateColumn = {
 export const enumChatbotConstraint = {
    chatbot_name_key: 'chatbot_name_key' as const,
    chatbot_pkey: 'chatbot_pkey' as const
+}
+
+export const enumChatbotDomainConstraint = {
+   chatbot_domain_pkey: 'chatbot_domain_pkey' as const
+}
+
+export const enumChatbotDomainSelectColumn = {
+   chatbotId: 'chatbotId' as const,
+   domainName: 'domainName' as const
+}
+
+export const enumChatbotDomainUpdateColumn = {
+   chatbotId: 'chatbotId' as const,
+   domainName: 'domainName' as const
 }
 
 export const enumChatbotSelectColumn = {
@@ -12728,10 +13923,12 @@ export const enumComplexityEnumConstraint = {
 }
 
 export const enumComplexityEnumSelectColumn = {
+   prompt: 'prompt' as const,
    value: 'value' as const
 }
 
 export const enumComplexityEnumUpdateColumn = {
+   prompt: 'prompt' as const,
    value: 'value' as const
 }
 
@@ -12740,42 +13937,45 @@ export const enumCursorOrdering = {
    DESC: 'DESC' as const
 }
 
-export const enumLabelChatbotCategoryConstraint = {
-   label_chatbot_category_pkey: 'label_chatbot_category_pkey' as const
+export const enumDomainEnumConstraint = {
+   domain_enum_pkey: 'domain_enum_pkey' as const
 }
 
-export const enumLabelChatbotCategorySelectColumn = {
-   categoryId: 'categoryId' as const,
-   chatbotId: 'chatbotId' as const,
-   labelId: 'labelId' as const
+export const enumDomainEnumSelectColumn = {
+   added: 'added' as const,
+   name: 'name' as const
 }
 
-export const enumLabelChatbotCategoryUpdateColumn = {
-   categoryId: 'categoryId' as const,
-   chatbotId: 'chatbotId' as const,
-   labelId: 'labelId' as const
+export const enumDomainEnumUpdateColumn = {
+   added: 'added' as const,
+   name: 'name' as const
 }
 
-export const enumLabelConstraint = {
-   label_label_id_key: 'label_label_id_key' as const,
-   label_pkey: 'label_pkey' as const
+export const enumExampleConstraint = {
+   example_pkey: 'example_pkey' as const
 }
 
-export const enumLabelSelectColumn = {
-   advancedLabels: 'advancedLabels' as const,
-   categories: 'categories' as const,
-   labelId: 'labelId' as const,
-   questions: 'questions' as const,
-   subCategories: 'subCategories' as const,
+export const enumExampleSelectColumn = {
+   added: 'added' as const,
+   category: 'category' as const,
+   domain: 'domain' as const,
+   exampleId: 'exampleId' as const,
+   metadata: 'metadata' as const,
+   prompt: 'prompt' as const,
+   response: 'response' as const,
+   subcategory: 'subcategory' as const,
    tags: 'tags' as const
 }
 
-export const enumLabelUpdateColumn = {
-   advancedLabels: 'advancedLabels' as const,
-   categories: 'categories' as const,
-   labelId: 'labelId' as const,
-   questions: 'questions' as const,
-   subCategories: 'subCategories' as const,
+export const enumExampleUpdateColumn = {
+   added: 'added' as const,
+   category: 'category' as const,
+   domain: 'domain' as const,
+   exampleId: 'exampleId' as const,
+   metadata: 'metadata' as const,
+   prompt: 'prompt' as const,
+   response: 'response' as const,
+   subcategory: 'subcategory' as const,
    tags: 'tags' as const
 }
 
@@ -12784,10 +13984,12 @@ export const enumLengthEnumConstraint = {
 }
 
 export const enumLengthEnumSelectColumn = {
+   prompt: 'prompt' as const,
    value: 'value' as const
 }
 
 export const enumLengthEnumUpdateColumn = {
+   prompt: 'prompt' as const,
    value: 'value' as const
 }
 
@@ -12797,9 +13999,12 @@ export const enumMessageConstraint = {
 }
 
 export const enumMessageSelectColumn = {
+   augmentedFrom: 'augmentedFrom' as const,
    content: 'content' as const,
    createdAt: 'createdAt' as const,
+   examples: 'examples' as const,
    messageId: 'messageId' as const,
+   prompt: 'prompt' as const,
    role: 'role' as const,
    threadId: 'threadId' as const
 }
@@ -12817,9 +14022,12 @@ export const enumMessageTypeEnumUpdateColumn = {
 }
 
 export const enumMessageUpdateColumn = {
+   augmentedFrom: 'augmentedFrom' as const,
    content: 'content' as const,
    createdAt: 'createdAt' as const,
+   examples: 'examples' as const,
    messageId: 'messageId' as const,
+   prompt: 'prompt' as const,
    role: 'role' as const,
    threadId: 'threadId' as const
 }
@@ -12971,6 +14179,43 @@ export const enumSocialFollowingSelectColumn = {
    followerId: 'followerId' as const
 }
 
+export const enumSubcategoryEnumConstraint = {
+   subcategory_enum_pkey: 'subcategory_enum_pkey' as const
+}
+
+export const enumSubcategoryEnumSelectColumn = {
+   added: 'added' as const,
+   category: 'category' as const,
+   domain: 'domain' as const,
+   name: 'name' as const
+}
+
+export const enumSubcategoryEnumUpdateColumn = {
+   added: 'added' as const,
+   category: 'category' as const,
+   domain: 'domain' as const,
+   name: 'name' as const
+}
+
+export const enumTagEnumConstraint = {
+   tag_enum_name_domain_key: 'tag_enum_name_domain_key' as const,
+   tag_enum_pkey: 'tag_enum_pkey' as const
+}
+
+export const enumTagEnumSelectColumn = {
+   domain: 'domain' as const,
+   frequency: 'frequency' as const,
+   name: 'name' as const,
+   tagId: 'tagId' as const
+}
+
+export const enumTagEnumUpdateColumn = {
+   domain: 'domain' as const,
+   frequency: 'frequency' as const,
+   name: 'name' as const,
+   tagId: 'tagId' as const
+}
+
 export const enumThreadConstraint = {
    thread_id_key: 'thread_id_key' as const,
    thread_pkey: 'thread_pkey' as const
@@ -12983,6 +14228,7 @@ export const enumThreadSelectColumn = {
    isBlocked: 'isBlocked' as const,
    isPublic: 'isPublic' as const,
    model: 'model' as const,
+   parentThreadId: 'parentThreadId' as const,
    threadId: 'threadId' as const,
    updatedAt: 'updatedAt' as const,
    userId: 'userId' as const
@@ -13007,6 +14253,7 @@ export const enumThreadUpdateColumn = {
    isBlocked: 'isBlocked' as const,
    isPublic: 'isPublic' as const,
    model: 'model' as const,
+   parentThreadId: 'parentThreadId' as const,
    threadId: 'threadId' as const,
    updatedAt: 'updatedAt' as const,
    userId: 'userId' as const
@@ -13031,10 +14278,12 @@ export const enumToneEnumConstraint = {
 }
 
 export const enumToneEnumSelectColumn = {
+   prompt: 'prompt' as const,
    value: 'value' as const
 }
 
 export const enumToneEnumUpdateColumn = {
+   prompt: 'prompt' as const,
    value: 'value' as const
 }
 
@@ -13043,10 +14292,12 @@ export const enumTypeEnumConstraint = {
 }
 
 export const enumTypeEnumSelectColumn = {
+   prompt: 'prompt' as const,
    value: 'value' as const
 }
 
 export const enumTypeEnumUpdateColumn = {
+   prompt: 'prompt' as const,
    value: 'value' as const
 }
 

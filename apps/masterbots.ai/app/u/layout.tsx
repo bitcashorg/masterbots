@@ -1,4 +1,3 @@
-import FooterCT from '@/components/layout/footer/footer-ct';
 import { BrowseProvider } from '@/lib/hooks/use-browse';
 import NextTopLoader from 'nextjs-toploader';
 
@@ -6,7 +5,7 @@ interface BrowseLayoutProps {
   children: React.ReactNode
 }
 
-export default async function BrowseLayout({ children }: BrowseLayoutProps) {
+export default async function ProfileLayout({ children }: BrowseLayoutProps) {
   return (
     <BrowseProvider>
       <NextTopLoader color="#1ED761" initialPosition={0.20} />

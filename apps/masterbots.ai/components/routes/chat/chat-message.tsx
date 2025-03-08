@@ -1,35 +1,134 @@
-// Inspired by Chatbot-UI and modified to fit the needs of this project
-// @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Chat/ChatcleanMessage.tsx
-
 import { ChatMessageActions } from '@/components/routes/chat/chat-message-actions'
 import { MemoizedReactMarkdown } from '@/components/shared/markdown'
 import { CodeBlock } from '@/components/ui/codeblock'
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { cn } from '@/lib/utils'
-import type { Message } from 'ai'
-import type { Chatbot } from 'mb-genql'
-import { ClickableText } from './chat-clickable-text'
-
+import type { ChatMessageProps, WebSearchResult } from '@/types/types'
+import React, { useState } from 'react'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
+import {
+  cleanClickableText,
+  extractFollowUpContext,
+  getTextFromChildren
+} from '@/lib/chat-clickable-text'
 
-//* Define the props interface for the ChatMessage component
-export interface ChatMessageProps {
-  message: Message // The chat message to display
-  sendMessageFromResponse?: (message: string) => void // Callback to send a new message
-  chatbot?: Chatbot // Chatbot configuration
-  actionRequired?: boolean // Whether to show message actions
+/**
+ * Preprocesses the children to combine adjacent nodes with a colon.
+ *
+ * @param children The children nodes.
+ * @returns The preprocessed children.
+ */
+
+const preprocessChildren = (children: React.ReactNode): React.ReactNode => {
+  if (!Array.isArray(children)) return children
+
+  const result: React.ReactNode[] = []
+  let i = 0
+
+  while (i < children.length) {
+    const current = children[i]
+    const next = i + 1 < children.length ? children[i + 1] : null
+
+    // If we detect a pattern where a node is immediately followed by ":"
+    if (next && typeof next === 'string' && next.trim() === ':') {
+      if (typeof current === 'string') {
+        result.push(current + ':')
+      } else if (React.isValidElement(current)) {
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+        const element = current as React.ReactElement<any>
+        const currentChildren = element.props.children
+        result.push(
+          React.cloneElement(element, {
+            children:
+              typeof currentChildren === 'string'
+                ? currentChildren + ':'
+                : currentChildren
+          })
+        )
+      } else {
+        result.push(current)
+        result.push(next)
+      }
+      i += 2
+    } else {
+      result.push(current)
+      i += 1
+    }
+  }
+
+  return result
 }
 
+/**
+ * Displays a chat message with clickable text elements.
+ *
+ * @param message The chat message object.
+ * @param sendMessageFromResponse The function to send a message from the response.
+ * @param chatbot The chatbot object.
+ * @param actionRequired Whether the message requires an action.
+ * @param webSearchResults The web search results.
+ * @returns The chat message component.
+ */
 export function ChatMessage({
   message,
   sendMessageFromResponse,
   chatbot,
   actionRequired = true,
+  webSearchResults = [],
   ...props
 }: ChatMessageProps) {
-  //* Clean the message content using the cleanPrompt utility
-  const cleanMessage = { ...message, content: cleanPrompt(message.content) }
+  // Clean the message content and update the message object.
+  const content = cleanPrompt(message.content)
+  const cleanMessage = { ...message, content }
+  const [references, setReferences] = useState<WebSearchResult[]>([])
+
+  // Handler for clickable text elements.
+  const handleClickableClick = (clickableText: string) => {
+    const context = extractFollowUpContext(message.content, clickableText)
+    const cleanedText = cleanClickableText(context)
+    const followUpPrompt = `Explain more in-depth and in detail about "${clickableText}"? ${cleanedText}`
+    sendMessageFromResponse?.(followUpPrompt)
+  }
+
+  // References section component.
+  const ReferencesSection = () => {
+    if (references.length === 0) return null
+
+    return (
+      <div className="pt-4 mt-4 border-t border-gray-200">
+        <h3 className="mb-2 text-lg font-semibold">References</h3>
+        <div className="space-y-4">
+          {references.map(ref => (
+            <div
+              key={ref.profile.name.toLowerCase().replace(/\s/g, '-')}
+              className="flex gap-4"
+            >
+              {ref.thumbnail?.src && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={ref.thumbnail.src}
+                  alt={ref.title}
+                  className="object-cover rounded size-20"
+                />
+              )}
+              <div>
+                <h4 className="font-medium">{ref.title}</h4>
+                <a
+                  href={ref.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:underline"
+                >
+                  {ref.profile.name}
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className={cn('group relative flex items-start p-1')} {...props}>
@@ -38,87 +137,148 @@ export function ChatMessage({
           className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
           remarkPlugins={[remarkGfm, remarkMath]}
           components={{
-            p({ node, children }) {
+            // Process paragraph nodes.
+            p({ children }) {
               return (
                 <p className="text-left whitespace-pre-line">
-                  {cleanMessage.role === 'user' ? (
-                    children
-                  ) : (
-                    <ClickableText
-                      isListItem={false}
-                      sendMessageFromResponse={sendMessageFromResponse}
-                    >
-                      {children}
-                    </ClickableText>
-                  )}
+                  {preprocessChildren(children)}
                 </p>
               )
             },
-            //* Custom list item component with clickable text
-            li({ node, children }) {
+            // Process heading nodes with clickable functionality.
+            h1({ children }) {
+              const text = getTextFromChildren(children)
               return (
-                <li className="list-disc">
-                  <ClickableText isListItem sendMessageFromResponse={sendMessageFromResponse}>
-                    {children}
-                  </ClickableText>
-                </li>
+                // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
+                <h1
+                  className="mb-2 text-2xl font-bold cursor-pointer clickable-heading"
+                  onClick={() => handleClickableClick(text)}
+                >
+                  {preprocessChildren(children)}
+                </h1>
+              )
+            },
+            h2({ children }) {
+              const text = getTextFromChildren(children)
+              return (
+                // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
+                <h2
+                  className="mb-2 text-xl font-bold cursor-pointer clickable-heading"
+                  onClick={() => handleClickableClick(text)}
+                >
+                  {preprocessChildren(children)}
+                </h2>
+              )
+            },
+            h3({ children }) {
+              const text = getTextFromChildren(children)
+              return (
+                // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
+                <h3
+                  className="mb-2 text-lg font-bold cursor-pointer clickable-heading"
+                  onClick={() => handleClickableClick(text)}
+                >
+                  {preprocessChildren(children)}
+                </h3>
+              )
+            },
+            // Process strong/emphasis nodes.
+            strong({ children }) {
+              return <strong
+              >{preprocessChildren(children)}</strong>
+            },
+            // List handling.
+            ul({ children }) {
+              return (
+                <ul className="ml-2 space-y-2 list-disc">
+                  {children}
+                </ul>
               )
             },
             ol({ children }) {
-              return <ol className="list-decimal list-inside text-left">{children}</ol>
+              return (
+                <ol className="ml-2 space-y-2 list-decimal">
+                  {children}
+                </ol>
+              )
             },
-            ul({ children }) {
-              return <ul className="list-disc list-inside text-left">{children}</ul>
+            li({ children }) {
+              const processedChildren = preprocessChildren(children)
+              const text = getTextFromChildren(processedChildren)
+              const hasNestedList = React.Children.toArray(
+                processedChildren
+              ).some(
+                child =>
+                  React.isValidElement(child) &&
+                  (child.type === 'ul' || child.type === 'ol')
+              )
+
+              return (
+                // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
+                <li
+                  className={cn(
+                    'ml-4',
+                    hasNestedList && 'mt-2',
+                    'clickable-list-heading'
+                  )}
+                  onClick={() => handleClickableClick(text)}
+                >
+                  {processedChildren}
+                </li>
+              )
             },
-            a({ node, children, ...props }) {
+            // Process link nodes.
+            a({ href, children, ...props }) {
               return (
                 <a
                   className="text-blue-500 underline"
                   target="_blank"
                   rel="noopener noreferrer"
+                  href={href}
                   {...props}
                 >
                   {children}
                 </a>
               )
             },
-            code({ node, inline, className, children, ...props }) {
-              //* Handle cursor animation for streaming responses
+            // Process code blocks.
+            code({ inline, className, children, ...props }) {
               if (children.length) {
-                if (children[0] == '▍')
+                if (children[0] === '▍') {
                   return (
                     <span className="mt-1 cursor-default animate-pulse">▍</span>
                   )
-
-                children[0] = (children[0] as string).replace('`▍`', '▍')
+                }
+                children[0] = (children[0] as string).replace('▍', '▍')
               }
 
-              //* Extract language from className for syntax highlighting
               const match = /language-(\w+)/.exec(className || '')
-
-              //* Handle inline code differently from code blocks
-              if (inline)
+              if (inline) {
                 return (
                   <code className={className} {...props}>
                     {children}
                   </code>
                 )
-
-              //* Render full code block with syntax highlighting
+              }
               return (
                 <CodeBlock
                   key={Math.random()}
-                  language={(match && match[1]) || ''}
+                  language={match?.[1] || ''}
                   value={String(children).replace(/\n$/, '')}
                   {...props}
                 />
               )
-            },
+            }
           }}
         >
           {cleanMessage.content}
         </MemoizedReactMarkdown>
-        {actionRequired ? <ChatMessageActions className="md:!right-0" message={message} /> : ''}
+
+        {actionRequired && (
+          <ChatMessageActions className="md:!right-0" message={message} />
+        )}
+
+        <ReferencesSection />
       </div>
     </div>
   )

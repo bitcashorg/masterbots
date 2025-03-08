@@ -4,49 +4,56 @@ import { wordwareFlows } from '@/lib/constants/wordware-flows'
 import type { aiTools } from '@/lib/helpers/ai-schemas'
 import type { WordWareDescribeDAtaResponse } from '@/types/wordware-flows.types'
 import axios from 'axios'
+import { appConfig } from 'mb-env'
 import type { z } from 'zod'
-import { subtractChatbotMetadataLabels } from '.'
+import { getChatbotMetadata } from '.'
 
 const { WORDWARE_API_KEY } = process.env
 
 // TODO: Finish ICL implementation. ICL should be called as a tool that Ai will use to generate content.
-export async function getChatbotMetadataTool({
+/**
+ * @deprecated
+ * ICL is not implemented as a tool, but part of the appendMBContext function in the use-mb-chat context hook.
+ *
+ * 💡 Use `getChatbotMetadata` function instead.
+ */
+export async function ChatbotMetadataTool({
   chatbot,
-  userContent
+  userContent,
 }: z.infer<typeof aiTools.chatbotMetadataExamples.parameters>) {
   console.info('Executing Chatbot Metadata Tool... Chatbot: ', {
     chatbot,
-    userContent
+    userContent,
   })
 
   try {
-    const chatbotMetadata = await subtractChatbotMetadataLabels(
+    const chatbotMetadata = await getChatbotMetadata(
       {
-        domain: chatbot.categoryId,
-        chatbot: chatbot.chatbotId
+        chatbot: chatbot.chatbotId,
+        isPowerUp: false,
       },
       userContent,
       // ? We will be using OpenAi for a while, at least for these tools
-      'OpenAI'
+      'OpenAI',
     )
 
-    console.log('chatbotMetadata ==> ', chatbotMetadata)
+    if (!appConfig.features.devMode) {
+      console.log('chatbotMetadata ==> ', chatbotMetadata)
+    }
     return JSON.stringify({
-      chatbotMetadata
+      chatbotMetadata,
     })
   } catch (error) {
     console.error('Error fetching chatbot metadata: ', error)
     return JSON.stringify({
-      error: 'Internal Server Error while fetching chatbot metadata'
+      error: 'Internal Server Error while fetching chatbot metadata',
     })
   }
 }
 
-export async function getWebSearchTool({
-  query
-}: z.infer<typeof aiTools.webSearch.parameters>) {
+export async function getWebSearchTool({ query }: z.infer<typeof aiTools.webSearch.parameters>) {
   console.info('Executing Web Search Tool... Query: ', query)
-  const webSearchFlow = wordwareFlows.find(flow => flow.path === 'webSearch')
+  const webSearchFlow = wordwareFlows.find((flow) => flow.path === 'webSearch')
 
   if (!webSearchFlow) {
     throw new Error('Web Search tool is not available')
@@ -58,17 +65,15 @@ export async function getWebSearchTool({
       {
         headers: {
           Authorization: `Bearer ${WORDWARE_API_KEY}`,
-          'Content-Type': 'application/json'
-        }
-      }
+          'Content-Type': 'application/json',
+        },
+      },
     )
 
     if (appDataResponse.status >= 400) {
       console.error('Error fetching app data: ', appDataResponse)
       if (appDataResponse.status >= 500) {
-        throw new Error(
-          'Internal Server Error while fetching app data. Please try again later.'
-        )
+        throw new Error('Internal Server Error while fetching app data. Please try again later.')
       }
       throw new Error('Failed to authenticate for the app. Please try again.')
     }
@@ -83,26 +88,20 @@ export async function getWebSearchTool({
         method: 'POST',
         headers: {
           Authorization: `Bearer ${WORDWARE_API_KEY}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           inputs: {
-            query
-          }
-        })
-      }
+            query,
+          },
+        }),
+      },
     )
 
-    if (
-      runAppResponse.status >= 400 ||
-      !runAppResponse.ok ||
-      !runAppResponse.body
-    ) {
+    if (runAppResponse.status >= 400 || !runAppResponse.ok || !runAppResponse.body) {
       console.error('Error running app: ', runAppResponse)
       if (runAppResponse.status >= 500) {
-        throw new Error(
-          'Internal Server Error while fetching app data. Please try again later.'
-        )
+        throw new Error('Internal Server Error while fetching app data. Please try again later.')
       }
       throw new Error('Failed to authenticate for the app. Please try again.')
     }
@@ -114,46 +113,26 @@ export async function getWebSearchTool({
     // TODO: Check typescript config...
     const jsonRegex = /data:\s*({.*?})(?=\s*data:|\s*event:|$)/g
 
-    console.log(
-      '[SERVER] Web Search Response web search status --> ',
-      response.status
-    )
+    console.log('[SERVER] Web Search Response web search status --> ', response.status)
     console.log(
       '[SERVER] Web Search Response web search outputs --> ',
-      response.outputs['web search']
+      response.outputs['web search'],
     )
 
     if (response.status !== 'COMPLETE') {
       throw new Error('Web Search could not be completed.')
     }
 
-    if (!response.outputs['web search']?.output) {
+    if (!response.outputs['web search']?.output && !response.outputs['web search']?.logs) {
       throw new Error('No output given. Web search could not be completed')
     }
 
-    return `${response.outputs['web search'].output}
-
-    ## EXAMPLE:
-
-    **Resume:**  
-    Brewers: 9  
-    Dodgers: 2
-
-    **Summary**  
-    Yelich, Perkins power Brewers to 9-2 victory over Dodgers and avoid being swept in weekend series. — Christian Yelich and Blake Perkins both homered, had three hits and drove in three runs as the Milwaukee Brewers beat the Los Angeles Dodgers 9-2 Sunday to snap a seven-game losing streak at Dodger Stadium.  
-
-    **Homeruns:**  
-    Yelich
-
-    **Winning Pitcher:**  
-    J. Junis
-
-    **Sources**:
-
-    1. [https://website1.com/](https://website1.com/)
-    2. [https://website2.com/](https://website2.com/)`
+    return `## INPUT:
+    
+    ${response.outputs['web search']?.output ?? response.outputs['web search']?.logs}`
   } catch (error) {
-    console.error('Error fetching app data: ', error)
-    throw error
+    return `Something went wrong with web search that failed to provide results. Please try again later.
+    
+    [ERROR LOG]: ${JSON.stringify(error, null, 2)}`
   }
 }

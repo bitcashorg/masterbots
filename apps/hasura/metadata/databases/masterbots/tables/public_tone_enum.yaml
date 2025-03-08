@@ -20,18 +20,21 @@ select_permissions:
   - role: anonymous
     permission:
       columns:
+        - prompt
         - value
       filter: {}
     comment: ""
   - role: moderator
     permission:
       columns:
+        - prompt
         - value
       filter: {}
     comment: ""
   - role: user
     permission:
       columns:
+        - prompt
         - value
       filter: {}
     comment: ""

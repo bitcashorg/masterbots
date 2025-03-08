@@ -1,0 +1,34 @@
+table:
+  name: chatbot_domain
+  schema: public
+object_relationships:
+  - name: chatbot
+    using:
+      foreign_key_constraint_on: chatbot_id
+  - name: domain
+    using:
+      foreign_key_constraint_on: domain_name
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - chatbot_id
+        - domain_name
+      filter: {}
+    comment: ""
+  - role: moderator
+    permission:
+      columns:
+        - chatbot_id
+        - domain_name
+      filter: {}
+      allow_aggregations: true
+    comment: ""
+  - role: user
+    permission:
+      columns:
+        - chatbot_id
+        - domain_name
+      filter: {}
+      allow_aggregations: true
+    comment: ""

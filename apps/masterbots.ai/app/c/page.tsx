@@ -2,13 +2,14 @@ import { authOptions } from '@/auth'
 import { AdminModeToggle } from '@/components/routes/chat/admin-mode-toggle'
 import ChatThreadListPanel from '@/components/routes/chat/chat-thread-list-panel'
 import ThreadPanel from '@/components/routes/thread/thread-panel'
+import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { generateMetadataFromSEO } from '@/lib/metadata'
+import { type RoleTypes, isAdminOrModeratorRole } from '@/lib/utils'
 import { getThreads } from '@/services/hasura'
-import { decodeToken, isTokenExpired, validateJwtSecret } from 'mb-lib'
-import { Metadata } from 'next'
+import { isTokenExpired } from 'mb-lib'
+import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
-import { isAdminOrModeratorRole , RoleTypes} from  '@/lib/utils'
 export default async function IndexPage() {
   const session = await getServerSession(authOptions)
 
@@ -19,17 +20,18 @@ export default async function IndexPage() {
     redirect('/auth/signin')
   }
 
-  const role = session.user.role as RoleTypes;
+  const role = session.user.role as RoleTypes
+  const threads = await getThreads({ jwt, userId: session.user.id, limit: PAGE_SIZE })
+
   return (
     <>
-    {
-     isAdminOrModeratorRole(role) && (
-          <div className='flex justify-center'>
-           <AdminModeToggle />
-         </div>
-      )
-    }
-      <ThreadPanel  />
+      {isAdminOrModeratorRole(role) && (
+        <div className="flex justify-center">
+          <AdminModeToggle />
+        </div>
+      )}
+
+      <ThreadPanel threads={threads} />
       <ChatThreadListPanel />
     </>
   )
@@ -41,8 +43,8 @@ export async function generateMetadata(): Promise<Metadata> {
     description:
       'Welcome to the chatbot page. Interact with our AI-powered chatbot and get answers to your questions.',
     ogType: 'website',
-    ogImageUrl: '',
-    twitterCard: 'summary'
+    ogImageUrl: `${process.env.BASE_URL || ''}/api/og`,
+    twitterCard: 'summary',
   }
 
   return generateMetadataFromSEO(seoData)

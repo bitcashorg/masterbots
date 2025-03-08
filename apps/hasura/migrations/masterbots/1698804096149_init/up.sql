@@ -38,16 +38,20 @@ CREATE SEQUENCE public.chatbot_chatbot_id_seq
     CACHE 1;
 ALTER SEQUENCE public.chatbot_chatbot_id_seq OWNED BY public.chatbot.chatbot_id;
 CREATE TABLE public.default_complexity_enum (
-    value text NOT NULL
+    value text NOT NULL,
+    prompt text NOT NULL
 );
 CREATE TABLE public.default_length_enum (
-    value text NOT NULL
+    value text NOT NULL,
+    prompt text NOT NULL
 );
 CREATE TABLE public.default_tone_enum (
-    value text NOT NULL
+    value text NOT NULL,
+    prompt text NOT NULL
 );
 CREATE TABLE public.default_type_enum (
-    value text NOT NULL
+    value text NOT NULL,
+    prompt text NOT NULL
 );
 CREATE TABLE public.gpt_chat (
     gpt_chat_id integer NOT NULL,

@@ -3,27 +3,28 @@
 import { SidebarCategoryGeneral } from '@/components/layout/sidebar/sidebar-category-general'
 import { SidebarHeader } from '@/components/layout/sidebar/sidebar-header'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
-import { cn } from '@/lib/utils'
-import React from 'react'
-import { usePathname } from 'next/navigation'
 import { useThread } from '@/lib/hooks/use-thread'
+import { cn } from '@/lib/utils'
+import { usePathname } from 'next/navigation'
+import React from 'react'
 
 export function Sidebar({ className }: React.ComponentProps<'div'>) {
   const { isSidebarOpen, isLoading } = useSidebar()
-  const prevPathRef = React.useRef(usePathname());
-  const pathname = usePathname();
-  const {  setActiveThread, setIsOpenPopup } = useThread()
-  const rootAndChatRegex = /^\/(?:c)?$/;
+  const prevPathRef = React.useRef(usePathname())
+  const pathname = usePathname()
+  const { setActiveThread, setIsOpenPopup } = useThread()
+  const rootAndChatRegex = /^\/(?:c)?$/
+  const isBrowse = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   React.useEffect(() => {
     if (rootAndChatRegex.test(pathname)) {
-      setActiveThread(null);
-      setIsOpenPopup(false);
+      setActiveThread(null)
+      setIsOpenPopup(false)
     }
-    prevPathRef.current = pathname;
-  }, [pathname]);
+    prevPathRef.current = pathname
+  }, [pathname])
 
-  
   if (isLoading) return null
 
   return (
@@ -32,16 +33,19 @@ export function Sidebar({ className }: React.ComponentProps<'div'>) {
         data-state={isSidebarOpen ? 'open' : 'closed'}
         className={cn(
           className,
-          'h-full flex flex-col dark:bg-zinc-950 z-40'
+          'h-full flex flex-col z-40',
+          !isBrowse
+            ? 'bg-[#fae8ff] dark:bg-[#000000]' // For /c routes only
+            : 'bg-[#eeffea] dark:bg-[#000000]'  // For other routes
         )}
       >
-        <div className="overflow-y-auto scrollbar h-[calc(100%-113px)]">
-          <SidebarHeader />
-          <div className="grow p-4 overflow-y-auto scrollbar">
-            <SidebarCategoryGeneral />
-          </div>
+        <SidebarHeader />
+        <div className="pt-4 pb-20 h-full scrollbar">
+          <SidebarCategoryGeneral />
         </div>
       </aside>
     </>
   )
 }
+
+export default Sidebar;

@@ -1,4 +1,3 @@
-import { FontSizeSelector } from '@/components/shared/font-size-selector'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,7 +8,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from '@/components/ui/alert-dialog'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,13 +18,14 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { IconSpinner } from '@/components/ui/icons'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
-import { BadgeCheck, Eye, EyeOff, MoreVertical, Trash } from 'lucide-react'
+import { useSonner } from '@/lib/hooks/useSonner'
+import { cn } from '@/lib/utils'
+import { Eye, EyeOff, MoreVertical, Trash } from 'lucide-react'
 import type { Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import type React from 'react'
 import { useState } from 'react'
 import { ShareButton } from './share-button'
-import { useSonner } from '@/lib/hooks/useSonner'
 
 interface ChatOptionsProps {
   threadId: string
@@ -40,7 +40,7 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
   const title = thread?.messages[0]?.content ?? 'Untitled'
   const text =
     thread?.messages[1]?.content.substring(0, 100) ?? 'No description found...'
-  const url = `/${toSlug(thread.chatbot.categories[0].category.name)}/${thread.threadId}`
+  const url = `/b/${toSlug(thread.chatbot.categories[0].category.name)}/${thread.threadId}`
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const { customSonner } = useSonner()
@@ -88,6 +88,7 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
               e.stopPropagation()
               handleDelete(e)
             }}
+            className={cn(buttonVariants({ variant: 'destructive' }))}
           >
             {isDeleting && <IconSpinner className="w-4 h-4 animate-spin" />}
             Delete
@@ -97,58 +98,38 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
     </AlertDialog>
   )
   return (
-    <div className="flex items-center gap-1 sm:gap-3 pt-[3px]">
+    <div className="flex items-center gap-4 sm:gap-3 pt-[3px]">
       <AlertDialogue deleteDialogOpen={isDeleteOpen} />
-      {!isBrowse && (
-        <div className="flex items-center gap-1 sm:gap-3">
-          <div>
-            {thread?.isApproved ? (
-              <BadgeCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 bg-[#388DE2] text-white rounded-full" />
-            ) : (
-              <BadgeCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400" />
-            )}
-          </div>
-          <div className="px-1.5 sm:px-2 py-0.5 bg-gray-200 rounded-full dark:bg-gray-700">
-            <span className="text-[10px] sm:text-xs whitespace-nowrap">
-              {thread?.isPublic ? 'Public' : 'Private'}
-            </span>
-          </div>
-        </div>
-      )}
 
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-6 h-6 p-0 sm:h-8 sm:w-8"
-          >
-            <MoreVertical className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          sideOffset={8}
-          align="end"
-          className="w-[160px] sm:w-[180px] px-0"
+        <DropdownMenuTrigger
+          className={cn(
+            buttonVariants({
+              variant: 'ghost',
+              size: 'icon',
+              radius: 'full',
+            }),
+            'p-1',
+          )}
         >
-          {/* Font Size Selector */}
-          <DropdownMenuItem
-            className="flex-col items-start px-0"
-            onSelect={event => event.preventDefault()}
-          >
-            <FontSizeSelector />
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
+          <MoreVertical className="w-4 h-4" />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent sideOffset={8} align="end" className="w-[160px] sm:w-[180px] px-0">
           {/* Toggle thread visibility option (only for thread owner) */}
           {isUser && (
             <DropdownMenuItem
               className="flex-col items-start"
-              onSelect={event => event.preventDefault()}
+              onSelect={(event) => event.preventDefault()}
             >
               <Button
-                onClick={e => {
+                onClick={async (e) => {
                   e.stopPropagation()
-                  toggleVisibility(!thread?.isPublic, threadId)
+                  try {
+                    await toggleVisibility(!thread?.isPublic, threadId)
+                    thread.isPublic = !thread?.isPublic
+                  } catch (error) {
+                    console.error('Failed to update thread visibility:', error)
+                  }
                 }}
                 variant={'ghost'}
                 size={'sm'}
@@ -171,30 +152,29 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
           {/* Share thread option */}
           <DropdownMenuItem
             className="flex-col items-start"
-            onSelect={event => event.preventDefault()}
+            onSelect={(event) => event.preventDefault()}
           >
             <ShareButton url={url} />
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
           {/* Delete thread option (only for thread owner) */}
           {isUser && (
-            <DropdownMenuItem
-              className="text-xs"
-              onSelect={event => event.preventDefault()}
-            >
-              <Button
-                variant={'ghost'}
-                size={'sm'}
-                className="flex justify-between w-full text-red-400"
-                onClick={e => {
-                  e.stopPropagation()
-                  setIsDeleteOpen(true)
-                }}
-              >
-                <Trash className="w-4 h-4" />
-                <span>Delete</span>
-              </Button>
-            </DropdownMenuItem>
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="text-xs" onSelect={(event) => event.preventDefault()}>
+                <Button
+                  variant={'ghost'}
+                  size={'sm'}
+                  className="flex justify-between w-full text-red-400"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setIsDeleteOpen(true)
+                  }}
+                >
+                  <Trash className="w-4 h-4" />
+                  <span>Delete</span>
+                </Button>
+              </DropdownMenuItem>
+            </>
           )}
         </DropdownMenuContent>
       </DropdownMenu>

@@ -1,80 +1,63 @@
 'use client'
 
-/**
- * ThreadPopup Component
- *
- * A popup component that displays the active chat thread in a modal-like interface.
- * It integrates chat functionality and provides a user-friendly way to interact
- * with threads associated with a specific chatbot.
- *
- * Key Features:
- * - Displays the thread title and subheading
- * - Contains a close button to exit the popup
- * - Shows the chat history and allows sending messages
- * - Supports scrolling to the bottom of the chat when new messages arrive
- * - Includes a publicity switch for thread visibility settings
- *
- * Functionality:
- * - Manages the visibility of the popup based on user interaction
- * - Automatically scrolls to the bottom when new messages are loaded
- * - Displays a list of messages in the active thread
- *
- * Props:
- * - className: Optional string for additional styling
- */
-
+import { BrowseChatMessageList } from '@/components/routes/browse/browse-chat-message-list'
 import { Chat } from '@/components/routes/chat/chat'
 import { ChatList } from '@/components/routes/chat/chat-list'
 import { Button } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useAtBottom } from '@/lib/hooks/use-at-bottom'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
+import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
-import { cn, scrollToBottomOfElement } from '@/lib/utils'
-import { Message as AiMessage } from 'ai'
-import { useScroll } from 'framer-motion'
-import type { Chatbot } from 'mb-genql'
-import { useEffect, useRef } from 'react'
-import { ThreadPublicitySwitch } from './thread-publicity-switch'
+import { cn, getRouteType } from '@/lib/utils'
+import { getMessages } from '@/services/hasura'
+import type { Message as AiMessage } from 'ai'
+import type { Chatbot, Message } from 'mb-genql'
+import { usePathname } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
 
 export function ThreadPopup({ className }: { className?: string }) {
   const { activeChatbot } = useSidebar()
-  const {
-    isOpenPopup,
-    activeThread,
-  } = useThread()
+  const { isOpenPopup, activeThread, isNewResponse } = useThread()
   const [{ allMessages, isLoading }, { sendMessageFromResponse }] = useMBChat()
+  const [browseMessages, setBrowseMessages] = useState<Message[]>([])
+  const popupContentRef = useRef<HTMLDivElement>(null)
+  const threadRef = useRef<HTMLDivElement>(null)
+  const pathname = usePathname()
 
-  const popupContentRef = useRef<HTMLDivElement>()
-
-  const { scrollY } = useScroll({
-    container: popupContentRef as React.RefObject<HTMLElement>
-  })
-
-  const { isAtBottom } = useAtBottom({
-    ref: popupContentRef,
-    scrollY
+  const { isNearBottom, smoothScrollToBottom } = useMBScroll({
+    containerRef: popupContentRef,
+    threadRef,
+    isNewContent: isNewResponse,
+    hasMore: false,
+    isLast: true,
+    loading: isLoading,
+    loadMore: () => {},
   })
 
   const scrollToBottom = () => {
     if (popupContentRef.current) {
-      const element = popupContentRef.current
-      scrollToBottomOfElement(element)
+      smoothScrollToBottom()
     }
   }
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // Fetch browse messages when activeThread changes
   useEffect(() => {
-    if (isLoading && isOpenPopup) {
-      const timeout = setTimeout(() => {
-        scrollToBottom()
-        clearTimeout(timeout)
-      }, 150)
+    const fetchBrowseMessages = async () => {
+      if (activeThread?.threadId) {
+        const messages = await getMessages({ threadId: activeThread.threadId })
+        setBrowseMessages(messages)
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, isOpenPopup])
+
+    if (activeThread?.threadId) {
+      fetchBrowseMessages()
+    }
+  }, [activeThread?.threadId])
+
+  const routeType = getRouteType(pathname)
+  const isBrowseView = routeType === 'public' && activeThread?.threadId
 
   return (
     <div
@@ -85,7 +68,7 @@ export function ThreadPopup({ className }: { className?: string }) {
         'h-[calc(100vh-4rem)] backdrop-blur-sm ease-in-out duration-500 z-[9]',
         'transition-all',
         isOpenPopup ? 'animate-fade-in' : 'animate-fade-out',
-        className
+        className,
       )}
     >
       <div
@@ -93,60 +76,91 @@ export function ThreadPopup({ className }: { className?: string }) {
           'flex flex-col z-10 rounded-lg duration-500 ease-in-out fixed',
           'h-full max-h-[90%] max-w-[1032px] w-[95%]',
           'dark:border-mirage border-iron border bg-background dark:bg-background',
-          'transition-opacity'
+          'transition-opacity',
         )}
       >
-        <ThreadPopUpCardHeader messages={allMessages} />
+        <ThreadPopUpCardHeader
+          messages={isBrowseView ? browseMessages : allMessages}
+          isBrowseView={isBrowseView}
+        />
 
         <div
+          ref={popupContentRef}
           className={cn(
-            "flex flex-col dark:bg-[#18181B] bg-white grow rounded-b-[8px] scrollbar h-full",
-            "pb-[120px] md:pb-[180px]", //? Reduced padding on mobile
-            "max-h-[calc(100vh-240px)] md:max-h-[calc(100vh-220px)]", //? Adjusted height for mobile
-            className
+            'flex flex-col dark:bg-[#18181b] bg-white grow rounded-b-[8px] scrollbar h-full',
+            isBrowseView ? 'pb-2 md:pb-4' : 'pb-[120px] md:pb-[180px]',
+            isBrowseView ? '' : 'max-h-[calc(100%-240px)] md:max-h-[calc(100%-220px)]',
+            className,
           )}
-          ref={popupContentRef as React.Ref<HTMLDivElement>}
         >
-          <ChatList
-            isThread={false}
-            messages={allMessages}
-            sendMessageFn={sendMessageFromResponse}
-            chatbot={activeThread?.chatbot || activeChatbot as Chatbot}
-            chatContentClass="dark:!border-x-mirage !border-x-gray-300 !py-[20px] !px-[16px] !mx-0 max-h-[none] "
-            className="max-w-full !px-[32px] !mx-0"
-            chatArrowClass="!right-0 !mr-0"
-            chatTitleClass="!px-[11px]"
-          />
+          <div ref={threadRef}>
+            {isBrowseView ? (
+              // Browse view
+              <div className="px-8 py-4">
+                <BrowseChatMessageList
+                  chatbot={activeThread?.chatbot}
+                  user={activeThread?.user || undefined}
+                  messages={browseMessages}
+                  threadId={activeThread?.threadId}
+                />
+              </div>
+            ) : (
+              // Chat view
+              <>
+                <ChatList
+                  isThread={false}
+                  messages={allMessages}
+                  isLoadingMessages={isLoading}
+                  sendMessageFn={(message: string) => {
+                    scrollToBottom()
+                    sendMessageFromResponse(message)
+                  }}
+                  chatbot={activeThread?.chatbot || (activeChatbot as Chatbot)}
+                  chatContentClass="!border-x-gray-300 !px-[16px] !mx-0 max-h-[none] dark:!border-x-mirage"
+                  className="max-w-full !px-[32px] !mx-0"
+                  chatArrowClass="!right-0 !mr-0"
+                  chatTitleClass="!px-[11px]"
+                />
 
-          <Chat
-            isPopup
-            chatPanelClassName="!pl-0 rounded-b-[8px] overflow-hidden !absolute"
-            scrollToBottom={scrollToBottom}
-            isAtBottom={isAtBottom}
-          />
+                <Chat
+                  isPopup
+                  chatPanelClassName="!pl-0 rounded-b-[8px] overflow-hidden !absolute"
+                  scrollToBottomOfPopup={scrollToBottom}
+                  isAtBottom={isNearBottom}
+                />
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
   )
 }
 
-export function ThreadPopUpCardHeader({ messages }: { messages: AiMessage[] }) {
-  const {
-    isOpenPopup,
-    activeThread,
-    setIsOpenPopup,
-    setActiveThread,
-  } = useThread()
+function ThreadPopUpCardHeader({
+  messages,
+  isBrowseView,
+}: {
+  messages: (AiMessage | Message)[]
+  isBrowseView: boolean
+}) {
+  const { isOpenPopup, setIsOpenPopup, setActiveThread, setShouldRefreshThreads } = useThread()
 
   const onClose = () => {
     setIsOpenPopup(!isOpenPopup)
-    if (activeThread?.threadId) {
-      setActiveThread(null)
-    }
+    
+    // ! Required to close the threads popup and show the thread list. Without this, the thread accordion will remain open.
+    // ? We have to signal the use-thread-panel component to re-fetch the threads list when the activeThread is closed.
+    setActiveThread(null)
+    setShouldRefreshThreads(true)
   }
 
-  const threadTitle = messages.filter(m => m.role === 'user')[0]?.content
-  const threadTitleChunks = threadTitle?.split(/\s/g) // ' '
+  // Handle different message structures for browse and chat views
+  const threadTitle = isBrowseView
+    ? (messages[0] as Message)?.content
+    : (messages.filter((m) => (m as AiMessage).role === 'user')[0] as AiMessage)?.content
+
+  const threadTitleChunks = threadTitle?.split(/\s/g)
   const threadTitleHeading = threadTitleChunks?.slice(0, 32).join(' ')
   const threadTitleSubHeading = threadTitleChunks?.slice(32).join(' ')
 
@@ -154,22 +168,21 @@ export function ThreadPopUpCardHeader({ messages }: { messages: AiMessage[] }) {
     <div className="relative rounded-t-[8px] px-[32px] py-[20px] dark:bg-[#1E293B] bg-[#E4E4E7]">
       <div className="flex items-center justify-between gap-6">
         <div className="items-center block overflow-y-auto whitespace-pre-line max-h-28 scrollbar small-thumb">
-          {threadTitle ?
-            threadTitleChunks.length > 32
-              ? threadTitleHeading + ''
-              : threadTitle
-            : (
-              <Skeleton className="w-[280px] h-[20px]" />
-            )}
+          {threadTitle ? (
+            threadTitleChunks.length > 32 ? (
+              threadTitleHeading + ''
+            ) : (
+              threadTitle
+            )
+          ) : (
+            <Skeleton className="w-[280px] h-[20px]" />
+          )}
           {threadTitleSubHeading && (
-            <span className="ml-2 overflow-hidden text-sm opacity-50">
-              {threadTitleSubHeading}
-            </span>
+            <span className="ml-2 overflow-hidden text-sm opacity-50">{threadTitleSubHeading}</span>
           )}
         </div>
 
         <div className="flex items-center gap-4">
-          <ThreadPublicitySwitch threadId={activeThread?.threadId} />
           <Button type="button" variant="ghost" size="icon" className="ml-2" onClick={onClose}>
             <IconClose />
           </Button>
