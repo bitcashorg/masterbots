@@ -63,6 +63,7 @@ export default function BrowseListItem({
     initialUrl = location.href
   }, [tab])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: function are not required to have as exhaustive dependencies
   React.useEffect(() => {
     if (!threadRef.current) return
     const observer = new IntersectionObserver(([entry]) => {
@@ -88,15 +89,13 @@ export default function BrowseListItem({
 
   const updateUrlN = () => {
     if (pageType === 'profile') {
-      const slug = params.slug
-      const category = thread?.chatbot?.categories[0]?.category?.name
-      const chatbot = thread?.chatbot?.name;
       const url = new URL(window.location.href)
-      url.pathname = urlBuilders.threadUrl({
-        slug: slug as string,
-        category,
-        chatbot,
-        threadId: thread?.threadId
+
+      url.pathname = urlBuilders.profilesThreadUrl({
+        type: 'chatbot',
+        domain: thread?.chatbot?.categories[0]?.category?.name,
+        chatbot: thread?.chatbot?.name,
+        threadSlug: thread.slug
       })
 
       // Update just the URL without triggering navigation
@@ -147,7 +146,7 @@ export default function BrowseListItem({
     e.preventDefault()
     e.stopPropagation()
     if (thread?.user?.slug) {
-      router.push(urlBuilders.userProfileUrl({ userSlug: thread.user.slug }))
+      router.push(urlBuilders.profilesUrl({ type: 'user', usernameSlug: thread.user.slug }))
     }
   }
 

@@ -31,6 +31,7 @@ insert_permissions:
         - message_id
         - prompt
         - role
+        - slug
         - thread_id
     comment: ""
   - role: user
@@ -42,12 +43,13 @@ insert_permissions:
       columns:
         - augmented_from
         - content
-        - role
         - created_at
         - examples
         - message_id
         - prompt
         - role
+        - role
+        - slug
         - thread_id
     comment: ""
 select_permissions:
@@ -60,8 +62,9 @@ select_permissions:
         - examples
         - message_id
         - prompt
-        - thread_id
         - role
+        - slug
+        - thread_id
       filter: {}
     comment: ""
   - role: moderator
@@ -74,6 +77,7 @@ select_permissions:
         - message_id
         - prompt
         - role
+        - slug
         - thread_id
       filter: {}
     comment: ""
@@ -82,11 +86,12 @@ select_permissions:
       columns:
         - augmented_from
         - content
-        - role
         - created_at
         - examples
         - message_id
         - prompt
+        - role
+        - slug
         - thread_id
       filter: {}
     comment: ""
