@@ -4588,6 +4588,9 @@ export default {
             "role": [
                 578
             ],
+            "slug": [
+                578
+            ],
             "thread": [
                 644
             ],
@@ -4716,6 +4719,9 @@ export default {
             "role": [
                 579
             ],
+            "slug": [
+                579
+            ],
             "thread": [
                 652
             ],
@@ -4782,6 +4788,9 @@ export default {
             "role": [
                 578
             ],
+            "slug": [
+                578
+            ],
             "thread": [
                 661
             ],
@@ -4811,6 +4820,9 @@ export default {
             "role": [
                 578
             ],
+            "slug": [
+                578
+            ],
             "threadId": [
                 814
             ],
@@ -4835,6 +4847,9 @@ export default {
                 336
             ],
             "role": [
+                336
+            ],
+            "slug": [
                 336
             ],
             "threadId": [
@@ -4863,6 +4878,9 @@ export default {
             "role": [
                 578
             ],
+            "slug": [
+                578
+            ],
             "threadId": [
                 814
             ],
@@ -4887,6 +4905,9 @@ export default {
                 336
             ],
             "role": [
+                336
+            ],
+            "slug": [
                 336
             ],
             "threadId": [
@@ -4963,6 +4984,9 @@ export default {
             "role": [
                 336
             ],
+            "slug": [
+                336
+            ],
             "thread": [
                 663
             ],
@@ -4976,6 +5000,9 @@ export default {
         "MessagePkColumnsInput": {
             "messageId": [
                 814
+            ],
+            "slug": [
+                578
             ],
             "__typename": [
                 578
@@ -5010,6 +5037,9 @@ export default {
                 578
             ],
             "role": [
+                578
+            ],
+            "slug": [
                 578
             ],
             "threadId": [
@@ -5050,6 +5080,9 @@ export default {
                 578
             ],
             "role": [
+                578
+            ],
+            "slug": [
                 578
             ],
             "threadId": [
@@ -10076,6 +10109,9 @@ export default {
             "parentThreadId": [
                 814
             ],
+            "slug": [
+                578
+            ],
             "thread": [
                 644
             ],
@@ -10319,6 +10355,9 @@ export default {
             "parentThreadId": [
                 789
             ],
+            "slug": [
+                579
+            ],
             "thread": [
                 652
             ],
@@ -10384,6 +10423,9 @@ export default {
             "parentThreadId": [
                 814
             ],
+            "slug": [
+                578
+            ],
             "thread": [
                 661
             ],
@@ -10416,6 +10458,9 @@ export default {
             "parentThreadId": [
                 814
             ],
+            "slug": [
+                578
+            ],
             "threadId": [
                 814
             ],
@@ -10437,6 +10482,9 @@ export default {
                 336
             ],
             "parentThreadId": [
+                336
+            ],
+            "slug": [
                 336
             ],
             "threadId": [
@@ -10462,6 +10510,9 @@ export default {
             "parentThreadId": [
                 814
             ],
+            "slug": [
+                578
+            ],
             "threadId": [
                 814
             ],
@@ -10483,6 +10534,9 @@ export default {
                 336
             ],
             "parentThreadId": [
+                336
+            ],
+            "slug": [
                 336
             ],
             "threadId": [
@@ -10565,6 +10619,9 @@ export default {
             "parentThreadId": [
                 336
             ],
+            "slug": [
+                336
+            ],
             "thread": [
                 663
             ],
@@ -10588,6 +10645,9 @@ export default {
             ]
         },
         "ThreadPkColumnsInput": {
+            "slug": [
+                578
+            ],
             "threadId": [
                 814
             ],
@@ -10619,6 +10679,9 @@ export default {
             ],
             "parentThreadId": [
                 814
+            ],
+            "slug": [
+                578
             ],
             "threadId": [
                 814
@@ -10713,6 +10776,9 @@ export default {
             ],
             "parentThreadId": [
                 814
+            ],
+            "slug": [
+                578
             ],
             "threadId": [
                 814
@@ -13918,6 +13984,10 @@ export default {
                     "messageId": [
                         814,
                         "uuid!"
+                    ],
+                    "slug": [
+                        578,
+                        "String!"
                     ]
                 }
             ],
@@ -14558,6 +14628,10 @@ export default {
             "threadByPk": [
                 644,
                 {
+                    "slug": [
+                        578,
+                        "String!"
+                    ],
                     "threadId": [
                         814,
                         "uuid!"
@@ -15027,6 +15101,10 @@ export default {
                     "messageId": [
                         814,
                         "uuid!"
+                    ],
+                    "slug": [
+                        578,
+                        "String!"
                     ]
                 }
             ],
@@ -15247,6 +15325,10 @@ export default {
             "deleteThreadByPk": [
                 644,
                 {
+                    "slug": [
+                        578,
+                        "String!"
+                    ],
                     "threadId": [
                         814,
                         "uuid!"
@@ -17679,6 +17761,10 @@ export default {
                     "messageId": [
                         814,
                         "uuid!"
+                    ],
+                    "slug": [
+                        578,
+                        "String!"
                     ]
                 }
             ],
@@ -18511,6 +18597,10 @@ export default {
             "threadByPk": [
                 644,
                 {
+                    "slug": [
+                        578,
+                        "String!"
+                    ],
                     "threadId": [
                         814,
                         "uuid!"
