@@ -66,8 +66,9 @@ export function UserMenu({ user }: UserMenuProps) {
         <DropdownMenuContent sideOffset={8} align="start" className="w-[180px]">
           <DropdownMenuItem className="flex-col items-start">
             <Link
-              href={urlBuilders.userProfileUrl({
-                userSlug: user?.slug
+              href={urlBuilders.profilesUrl({
+                type: 'user',
+                usernameSlug: user?.slug
                   ? user.slug
                   : toSlugWithUnderScore(user?.name || '')
               })}

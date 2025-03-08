@@ -9,6 +9,8 @@ import type {
   ThreadQuestionUrlParams,
   ThreadUrlParams,
   TopicThreadListUrlParams,
+  UserChatbotThreadListUrlParams,
+  UserTopicThreadListUrlParams,
 } from '@/types/url'
 import { toSlug } from 'mb-lib'
 import { wordsToRemove } from 'mb-lib/src/constants/slug-seo-words'
@@ -56,13 +58,13 @@ export const urlBuilders = {
 
       switch (type) {
         case 'personal':
-          basePath = '/c'
+          basePath = 'c'
           break
         case 'public':
-          basePath = '/'
+          basePath = ''
           break
         case 'pro':
-          basePath = '/pro'
+          basePath = 'pro'
           break
         default:
           console.error('Invalid thread URL type:', type)
@@ -70,7 +72,7 @@ export const urlBuilders = {
       }
 
       // Return the URL with the thread slug
-      return ['', basePath, toSlug(category)].join('/')
+      return [basePath, toSlug(category)].join('/')
     } catch (error) {
       console.error('Error constructing thread URL:', error)
       return '/'
@@ -282,6 +284,68 @@ export const urlBuilders = {
           return '/'
         }
       }
+    } catch (error) {
+      console.error('Error constructing profile URL:', error)
+      return '/'
+    }
+  },
+
+  userTopicThreadListUrl({
+    usernameSlug,
+    category,
+  }: UserTopicThreadListUrlParams): string {
+    try {
+      if (!usernameSlug || !category) {
+        const userEntries = { category, usernameSlug }
+        const missing = Object.entries(userEntries)
+          .filter(([_, value]) => !value)
+          .map(([key]) => key)
+          .join(', ')
+
+        console.error(`Missing required parameters for profile URL: ${missing}`)
+        return '/'
+      }
+
+      return [
+        '',
+        'u',
+        usernameSlug,
+        't',
+        toSlug(category),
+      ].join('/')
+    } catch (error) {
+      console.error('Error constructing profile URL:', error)
+      return '/'
+    }
+  },
+
+  userChatbotThreadListUrl({
+    usernameSlug,
+    category,
+    domain,
+    chatbot,
+  }: UserChatbotThreadListUrlParams): string {
+    try {
+      if (!chatbot || !domain || !usernameSlug || !category) {
+        const mainEntries = { chatbot, domain, category, usernameSlug }
+        const missing = Object.entries(mainEntries)
+          .filter(([_, value]) => !value)
+          .map(([key]) => key)
+          .join(', ')
+
+        console.error(`Missing required parameters for profile URL: ${missing}`)
+        return '/'
+      }
+
+      return [
+        '',
+        'u',
+        usernameSlug,
+        't',
+        toSlug(category),
+        toSlug(domain),
+        toSlug(chatbot),
+      ].join('/')
     } catch (error) {
       console.error('Error constructing profile URL:', error)
       return '/'

@@ -18,7 +18,12 @@ export function toSlug(str: string): string {
     lower: true,
     strict: true,
     trim: true,
-    remove: new RegExp(wordsToRemove.map((r) => r).join('|'), 'g'),
+    remove: new RegExp(
+      `\\b(?:${wordsToRemove
+        .map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+        .join('|')})\\b`,
+      'gi'
+    ),
   })
 }
 
