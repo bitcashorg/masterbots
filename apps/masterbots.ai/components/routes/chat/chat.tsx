@@ -40,6 +40,7 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import type { ChatProps } from '@/types/types'
 import type { Message as UiUtilsMessage } from '@ai-sdk/ui-utils'
+import type { Message as AiMessage } from 'ai'
 import type { Chatbot } from 'mb-genql'
 import { useParams, usePathname } from 'next/navigation'
 import React, { useEffect } from 'react'
@@ -110,7 +111,7 @@ export function Chat({
   const chatSearchMessage = (
     isNewChat: boolean,
     isContinuousThread: boolean,
-    allMessages: UiUtilsMessage[],
+    allMessages: AiMessage[],
   ) => {
     const threadTitle = allMessages.filter((m) => m.role === 'user')[0]?.content
     if (isContinuousThread && allMessages) {
