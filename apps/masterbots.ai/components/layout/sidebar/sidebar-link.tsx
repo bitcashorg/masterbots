@@ -233,7 +233,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
             type: 'user',
             usernameSlug: username as string,
             category: category.name,
-            domain: chatbot.metadata[0].domainName,
+            domain: chatbot.metadata ? chatbot.metadata[0].domainName : '',
             chatbot: chatbot.name,
           } as UserChatbotThreadListUrlParams,
         })
@@ -244,7 +244,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
         navigationParams: {
           type: isPublic ? 'public' : 'personal',
           category: category.name,
-          domain: chatbot.metadata[0].domainName,
+          domain: chatbot.metadata ? chatbot.metadata[0].domainName : '',
           chatbot: chatbot.name,
         } as ChatbotThreadListUrlParams,
       })
@@ -291,14 +291,14 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
               type: 'user',
               usernameSlug: username as string,
               category: category.name,
-              domain: chatbot.metadata[0].domainName,
-              chatbot: chatbot.name,
+              domain: chatbot?.metadata ? chatbot.metadata[0].domainName : '',
+              chatbot: chatbot?.name,
             })
           : urlBuilders.chatbotThreadListUrl({
             type: isPublic ? 'public' : 'personal',
             category: category.name,
-            domain: chatbot.metadata[0].domainName,
-            chatbot: chatbot.name,
+            domain: chatbot?.metadata ? chatbot.metadata[0].domainName : '',
+            chatbot: chatbot?.name,
           })
       }
       className={cn('flex items-center py-2 px-4 w-full sidebar-gradient', isActive && 'selected')}

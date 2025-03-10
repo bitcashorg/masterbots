@@ -251,8 +251,6 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
       )
     }
 
-    alert('url --> ' + url)
-
     return router.push(url, { scroll: false })
   }
 

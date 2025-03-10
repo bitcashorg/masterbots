@@ -14,16 +14,20 @@ export function toSlug(str: string): string {
     return ''
   }
 
-  return slugify(str, {
+  // map each word to remove words from wordsToRemove
+  const string = str.split(' ').map(word => {
+    if (wordsToRemove.includes(word)) {
+      return ''
+    }
+    return word
+  }).join(' ')
+
+
+  return slugify(string, {
     lower: true,
     strict: true,
+    locale: '',
     trim: true,
-    remove: new RegExp(
-      `\\b(?:${wordsToRemove
-        .map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-        .join('|')})\\b`,
-      'gi'
-    ),
   })
 }
 
