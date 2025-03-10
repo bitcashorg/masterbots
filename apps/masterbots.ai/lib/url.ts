@@ -108,13 +108,13 @@ export const urlBuilders = {
 
       switch (type) {
         case 'personal':
-          basePath = '/c'
+          basePath = 'c'
           break
         case 'public':
-          basePath = '/'
+          basePath = ''
           break
         case 'pro':
-          basePath = '/pro'
+          basePath = 'pro'
           break
         default:
           console.error('Invalid thread URL type:', type)
@@ -122,6 +122,7 @@ export const urlBuilders = {
       }
 
       // Return the URL with the thread slug
+      // TODO: Remove the empty string at the beginning when the type is 'public'
       return ['', basePath, toSlug(category), toSlug(domain), toSlug(chatbot)].join('/')
     } catch (error) {
       console.error('Error constructing thread URL:', error)

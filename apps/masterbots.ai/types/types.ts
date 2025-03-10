@@ -260,7 +260,8 @@ export interface ChatPageProps {
   params: {
     category: string
     chatbot?: string
-    threadId: string
+    threadSlug?: string
+    threadQuestionSlug?: string
   }
 }
 

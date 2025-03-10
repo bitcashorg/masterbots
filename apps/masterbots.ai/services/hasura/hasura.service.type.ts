@@ -20,7 +20,8 @@ export interface GetThreadsParams extends HasuraServiceParams {
 }
 
 export interface GetThreadParams extends HasuraServiceParams {
-  threadId: string | null
+  threadSlug: string | null
+  threadQuestionSlug?: string | null
   signal?: AbortController['signal']
 }
 

@@ -249,7 +249,7 @@ export async function getThreads({
   return thread as Thread[]
 }
 
-export async function getThread({ threadId, jwt, signal }: Partial<GetThreadParams>) {
+export async function getThread({ threadSlug, threadQuestionSlug, jwt, signal }: Partial<GetThreadParams>) {
   try {
     const client = getHasuraClient({ signal, jwt: jwt || undefined })
     const { thread: threadResponse } = await client.query({
@@ -263,7 +263,7 @@ export async function getThread({ threadId, jwt, signal }: Partial<GetThreadPara
             __scalar: true,
           },
           threads: {
-            threadId: true,
+            slug: true,
           },
           prompts: {
             prompt: {
@@ -300,7 +300,7 @@ export async function getThread({ threadId, jwt, signal }: Partial<GetThreadPara
         },
         __scalar: true,
         __args: {
-          where: { threadId: { _eq: threadId } },
+          where: { slug: { _eq: threadSlug } },
         },
       },
     })
