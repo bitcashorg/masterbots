@@ -4,7 +4,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { IconCaretRight } from '@/components/ui/icons'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
-import { urlBuilders } from '@/lib/url'
+import { normalizeChatbotDomain, urlBuilders } from '@/lib/url'
 import { cn, getRouteType } from '@/lib/utils'
 import type { ChatbotThreadListUrlParams, TopicThreadListUrlParams, UserChatbotThreadListUrlParams, UserTopicThreadListUrlParams } from '@/types/url'
 import type { Category, Chatbot } from 'mb-genql'
@@ -216,6 +216,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
   const { username } = useParams()
   const { setIsOpenPopup, setActiveThread } = useThread()
 
+  const chatbotDomain = normalizeChatbotDomain(chatbot.metadata ? chatbot.metadata[0].domainName : '')
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   const handleChatbotClick = useCallback(
     (e: React.MouseEvent) => {
@@ -233,7 +234,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
             type: 'user',
             usernameSlug: username as string,
             category: category.name,
-            domain: chatbot.metadata ? chatbot.metadata[0].domainName : '',
+            domain: chatbotDomain,
             chatbot: chatbot.name,
           } as UserChatbotThreadListUrlParams,
         })
@@ -244,7 +245,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
         navigationParams: {
           type: isPublic ? 'public' : 'personal',
           category: category.name,
-          domain: chatbot.metadata ? chatbot.metadata[0].domainName : '',
+          domain: chatbotDomain,
           chatbot: chatbot.name,
         } as ChatbotThreadListUrlParams,
       })
@@ -261,19 +262,33 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
 
   if (!isFilterMode && !isSelected) return null
 
+  const chatbotPathname = page === 'profile'
+    ? urlBuilders.userChatbotThreadListUrl({
+      type: 'user',
+      usernameSlug: username as string,
+      category: category.name,
+      domain: chatbotDomain,
+      chatbot: chatbot?.name,
+    })
+    : urlBuilders.chatbotThreadListUrl({
+      type: isPublic ? 'public' : 'personal',
+      category: category.name,
+      domain: chatbotDomain,
+      chatbot: chatbot?.name,
+    })
+  // console.log('chatbotPathname', chatbotPathname)
+
   return isFilterMode ? (
     <div
       className={cn('flex items-center py-2 px-4 w-full sidebar-gradient', isActive && 'selected')}
       data-route={routeType}
     >
-      {isFilterMode && (
-        <Checkbox
-          checked={isSelected}
-          onCheckedChange={handleCheckboxChange}
-          onClick={(e) => e.stopPropagation()}
-          className="mr-2"
-        />
-      )}
+      <Checkbox
+        checked={isSelected}
+        onCheckedChange={handleCheckboxChange}
+        onClick={(e) => e.stopPropagation()}
+        className="mr-2"
+      />
       <Image
         src={chatbot.avatar || '/images/robohash2.png'}
         alt={chatbot.name}
@@ -285,22 +300,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
     </div>
   ) : (
     <Link
-      href={
-        page === 'profile'
-          ? urlBuilders.userChatbotThreadListUrl({
-              type: 'user',
-              usernameSlug: username as string,
-              category: category.name,
-              domain: chatbot?.metadata ? chatbot.metadata[0].domainName : '',
-              chatbot: chatbot?.name,
-            })
-          : urlBuilders.chatbotThreadListUrl({
-            type: isPublic ? 'public' : 'personal',
-            category: category.name,
-            domain: chatbot?.metadata ? chatbot.metadata[0].domainName : '',
-            chatbot: chatbot?.name,
-          })
-      }
+      href={chatbotPathname}
       className={cn('flex items-center py-2 px-4 w-full sidebar-gradient', isActive && 'selected')}
       onClick={handleChatbotClick}
       data-route={routeType}

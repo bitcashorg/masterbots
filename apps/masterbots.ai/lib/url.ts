@@ -33,6 +33,12 @@ export const decodeQuery = (input: string): string => {
   return decodeURIComponent(input.replace(/\+/g, ' '))
 }
 
+// ? Anything beyond the first space with a parenthesis next is removed
+// ? Example: "Holistic Health (Basic)" -> "holistic-health"
+export const normalizeChatbotDomain = (domain: string): string => {
+  return toSlug(domain.replace(/\s\(\w*./g, ''))
+}
+
 export const urlBuilders = {
   /**
    * Constructs and returns a URL for a thread list based on the provided parameters.
@@ -72,7 +78,9 @@ export const urlBuilders = {
       }
 
       // Return the URL with the thread slug
-      return [basePath, toSlug(category)].join('/')
+      const pathParts = basePath ? ['', basePath] : ['']
+      pathParts.push(toSlug(category))
+      return pathParts.join('/')
     } catch (error) {
       console.error('Error constructing thread URL:', error)
       return '/'
@@ -122,8 +130,9 @@ export const urlBuilders = {
       }
 
       // Return the URL with the thread slug
-      // TODO: Remove the empty string at the beginning when the type is 'public'
-      return ['', basePath, toSlug(category), toSlug(domain), toSlug(chatbot)].join('/')
+      const pathParts = basePath ? ['', basePath] : ['']
+      pathParts.push(toSlug(category), domain, toSlug(chatbot))
+      return pathParts.join('/')
     } catch (error) {
       console.error('Error constructing thread URL:', error)
       return '/'
@@ -159,13 +168,13 @@ export const urlBuilders = {
 
       switch (type) {
         case 'personal':
-          basePath = '/c'
+          basePath = 'c'
           break
         case 'public':
-          basePath = '/'
+          basePath = ''
           break
         case 'pro':
-          basePath = '/pro'
+          basePath = 'pro'
           break
         default:
           console.error('Invalid thread URL type:', type)
@@ -173,7 +182,9 @@ export const urlBuilders = {
       }
 
       // Return the URL with the thread slug
-      return ['', basePath, toSlug(category), toSlug(domain), toSlug(chatbot), threadSlug].join('/')
+      const pathParts = basePath ? ['', basePath] : ['']
+      pathParts.push(toSlug(category), domain, toSlug(chatbot), threadSlug)
+      return pathParts.join('/')
     } catch (error) {
       console.error('Error constructing thread URL:', error)
       return '/'
@@ -217,13 +228,13 @@ export const urlBuilders = {
 
       switch (type) {
         case 'personal':
-          basePath = '/c'
+          basePath = 'c'
           break
         case 'public':
-          basePath = '/'
+          basePath = ''
           break
         case 'pro':
-          basePath = '/pro'
+          basePath = 'pro'
           break
         default:
           console.error('Invalid thread URL type:', type)
@@ -231,15 +242,9 @@ export const urlBuilders = {
       }
 
       // Return the URL with the thread slug
-      return [
-        '',
-        basePath,
-        toSlug(category),
-        toSlug(domain),
-        toSlug(chatbot),
-        threadSlug,
-        threadQuestionSlug,
-      ].join('/')
+      const pathParts = basePath ? ['', basePath] : ['']
+      pathParts.push(toSlug(category), domain, toSlug(chatbot), threadSlug, threadQuestionSlug)
+      return pathParts.join('/')
     } catch (error) {
       console.error('Error constructing thread URL:', error)
       return '/'
@@ -344,7 +349,7 @@ export const urlBuilders = {
         usernameSlug,
         't',
         toSlug(category),
-        toSlug(domain),
+        domain,
         toSlug(chatbot),
       ].join('/')
     } catch (error) {
@@ -405,13 +410,13 @@ export const urlBuilders = {
             usernameSlug,
             't',
             toSlug(category),
-            toSlug(domain),
+            domain,
             toSlug(chatbot),
             threadSlug,
           ].join('/')
         }
         case 'chatbot': {
-          return ['', 'b', toSlug(chatbot), toSlug(domain), threadSlug].join('/')
+          return ['', 'b', toSlug(chatbot), domain, threadSlug].join('/')
         }
         default: {
           console.error('Invalid profile URL type:', type)
@@ -477,14 +482,14 @@ export const urlBuilders = {
             usernameSlug,
             't',
             toSlug(category),
-            toSlug(domain),
+            domain,
             toSlug(chatbot),
             threadSlug,
             threadQuestionSlug,
           ].join('/')
         }
         case 'chatbot': {
-          return ['', 'b', toSlug(chatbot), toSlug(domain), threadSlug, threadQuestionSlug].join(
+          return ['', 'b', toSlug(chatbot), domain, threadSlug, threadQuestionSlug].join(
             '/',
           )
         }

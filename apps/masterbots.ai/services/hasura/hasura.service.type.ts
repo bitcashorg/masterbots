@@ -14,6 +14,7 @@ export interface GetThreadsParams extends HasuraServiceParams {
   chatbotName?: string
   userId?: string
   categoryId?: number | null
+  domain?: string | null
   keyword?: string
   limit?: number
   offset?: number

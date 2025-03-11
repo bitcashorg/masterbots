@@ -77,6 +77,9 @@ export async function getCategories(userId?: string) {
               __scalar: true,
             }
           },
+          metadata: {
+            domainName: true,
+          },
           ...chatbotEnumFieldsFragment,
         },
         __scalar: true,
@@ -182,11 +185,12 @@ export async function getChatbots({ limit, offset, categoryId }: GetChatbotsPara
 
 export async function getThreads({
   chatbotName,
-  jwt,
+  categoryId,
   userId,
+  domain,
+  jwt,
   limit,
   offset,
-  categoryId,
 }: GetThreadsParams) {
   const client = getHasuraClient({ jwt })
 
@@ -235,6 +239,7 @@ export async function getThreads({
                       }
                     : {}),
                   ...(categoryId ? { categories: { categoryId: { _eq: categoryId } } } : {}),
+                  ...(domain ? { metadata: { domainName: { _ilike: `%${domain.replace('-', ' ')}%` } } } : {}),
                 },
                 ...(userId ? { userId: { _eq: userId } } : {}),
               },

@@ -1,5 +1,5 @@
-import slugify from 'slugify';
-import { slugWordExtension, wordsToRemove } from '../constants';
+import slugify from 'slugify'
+import { slugWordExtension, wordsToRemove } from '../constants'
 
 slugify.extend(slugWordExtension)
 
@@ -13,22 +13,29 @@ export function toSlug(str: string): string {
   if (!str) {
     return ''
   }
-
-  // map each word to remove words from wordsToRemove
-  const string = str.split(' ').map(word => {
-    if (wordsToRemove.includes(word)) {
-      return ''
-    }
-    return word
-  }).join(' ')
-
-
-  return slugify(string, {
+  
+  const preSlug = slugify(str, {
     lower: true,
     strict: true,
-    locale: '',
     trim: true,
   })
+  // map each word to remove words from wordsToRemove
+  const slug = preSlug
+    .split('-')
+    .map((word) => {
+      // Skip empty words
+      if (!word) return ''
+
+      // Check if word is in wordsToRemove (case insensitive)
+      if (wordsToRemove.some((removeWord) => removeWord === word)) return ''
+
+      return word
+    })
+    // Remove empty strings and join words with hyphen
+    .filter(Boolean)
+    .join('-')
+
+  return slug
 }
 
 export function toSlugWithUnderScore(str: string) {
