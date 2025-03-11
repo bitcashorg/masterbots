@@ -21,17 +21,17 @@ import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { ContinueGenerationButton } from '@/components/shared/continue-generation-button'
 import type { Message as AiMessage } from 'ai'
 
+
 export interface ChatPanelProps
-  extends Pick<
+  extends Omit<Pick<
     UseChatHelpers,
     | 'append'
     | 'isLoading'
     | 'reload'
-    | 'messages'
     | 'stop'
     | 'input'
     | 'setInput'
-  > {
+  >, 'messages'> {
   scrollToBottom: () => void
   id?: string
   title?: string
@@ -39,7 +39,8 @@ export interface ChatPanelProps
   showReload?: boolean
   placeholder: string
   isAtBottom?: boolean
-  className?: string
+  className?: string,
+  messages: AiMessage[]
 }
 
 export function ChatPanel({
