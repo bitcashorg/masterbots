@@ -1,5 +1,5 @@
+import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
-import { urlBuilders } from '@/lib/url'
 import { cn } from '@/lib/utils'
 import { getThread } from '@/services/hasura'
 import { ChevronDown } from 'lucide-react'
@@ -58,12 +58,14 @@ export function SharedAccordion({
     setIsOpenPopup,
     isOpenPopup
   } = useThread()
+  const { navigateTo } = useSidebar()
   const [currentRequest, setCurrentRequest] = useState<AbortController | null>(null)
 
   const pathname = usePathname()
   const params = useParams()
   const router = useRouter()
   const accordionRef = useRef<HTMLDivElement>(null)
+  const isPublic = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
 
   // State initialization
   const [open, setOpen] = useState(
@@ -140,6 +142,18 @@ export function SharedAccordion({
     setLoading(false);
     setCurrentRequest(null);
 
+    navigateTo({
+      urlType: 'threadUrl',
+      shallow: true,
+      navigationParams: {
+        type: 'public',
+        category: fullThread?.chatbot?.categories[0]?.category?.name || 'AI',
+        domain: fullThread?.chatbot?.metadata[0]?.domainName || 'General',
+        chatbot: fullThread?.chatbot?.name || 'Masterbots',
+        threadSlug: fullThread?.slug || (params.threadSlug as string),
+      }
+    })
+
     return thread;
   };
 
@@ -157,21 +171,23 @@ export function SharedAccordion({
       setActiveThread(null)
       const category = thread?.chatbot?.categories[0]?.category?.name
       const chatbot = thread?.chatbot?.name
-      const slug = params.slug
+      const slug = params.userSlug as string
 
       if (!category || !chatbot || !slug) {
         console.error('Missing required navigation parameters')
         return
       }
 
-      router.push(
-        urlBuilders.threadUrl({
-          slug: slug as string,
-          category,
-          chatbot,
-          threadId: thread?.threadId
-        })
-      )
+      navigateTo({
+        urlType: 'userTopicThreadListUrl',
+        navigationParams: {
+          type: 'user',
+          usernameSlug: slug,
+          category: category,
+          chatbot: chatbot,
+          domain: thread?.chatbot?.metadata[0]?.domainName || ''
+        }
+      })
     } else {
       // Regular toggle
       toggle()

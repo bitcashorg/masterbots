@@ -1,25 +1,15 @@
 import { getThread } from '@/services/hasura'
 import type { ChatPageProps } from '@/types/types'
-import { toSlug } from 'mb-lib'
 import { redirect } from 'next/navigation'
 
 export { generateMbMetadata as generateMetadata } from '@/lib/metadata'
 
-export default async function ThreadQuestionSlugPage({ params }: ChatPageProps) {
-  // TODO: update getThread to get the slug
-  const thread = await getThread({ threadSlug: params.threadSlug })
-  
+export default async function ChatPage({ params }: ChatPageProps) {
+  const thread = await getThread({ threadSlug: params.threadSlug, domain: params.domain, threadQuestionSlug: params.threadQuestionSlug })
+
   if (!thread) {
-    return redirect('/b')
+    redirect('/b')
   }
 
-  if (!params.threadSlug) {
-    return redirect(`/b/${toSlug(thread.chatbot.name)}}`)
-  }
-
-  if (!params.threadQuestionSlug) {
-    return redirect(`/b/${params.threadSlug.trim()}`)
-  }
-
-  return redirect(`/b/${params.threadSlug.trim()}`)
+  redirect(`/b/${params.chatbot}/${params.threadSlug}/${params.threadQuestionSlug}`)
 }

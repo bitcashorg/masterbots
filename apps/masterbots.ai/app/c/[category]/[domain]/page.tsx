@@ -1,9 +1,6 @@
 import { authOptions } from '@/auth'
-import ChatThreadListPanel from '@/components/routes/chat/chat-thread-list-panel'
-import ThreadPanel from '@/components/routes/thread/thread-panel'
-import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { generateMetadataFromSEO } from '@/lib/metadata'
-import { getCategories, getThreads } from '@/services/hasura'
+import { getCategories } from '@/services/hasura'
 import { isTokenExpired, toSlug } from 'mb-lib'
 import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
@@ -25,19 +22,8 @@ export default async function ChatCategoryPage({
 
   const categories = await getCategories()
   const category = categories.find((category) => toSlug(category.name) === params.category)
-  const threads = await getThreads({
-    jwt,
-    userId: session?.user.id,
-    categoryId: category?.categoryId,
-    limit: PAGE_SIZE,
-  })
 
-  return (
-    <>
-      <ThreadPanel threads={threads} />
-      <ChatThreadListPanel />
-    </>
-  )
+  return redirect(category ? `/${toSlug(category.name)}` : '/')
 }
 
 export async function generateMetadata({

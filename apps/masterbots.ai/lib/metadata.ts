@@ -1,4 +1,4 @@
-import { getThreadLink } from '@/lib/threads'
+import { urlBuilders } from '@/lib/url'
 import { getThread } from '@/services/hasura'
 import type { Thread } from 'mb-genql'
 import type { Metadata } from 'next'
@@ -20,7 +20,7 @@ type OgType =
 
 type TwitterCard = 'summary' | 'summary_large_image' | 'player' | 'app'
 
-interface PageSEO {
+interface PageSEO extends Metadata {
   title: string
   description: string
   ogType: string
@@ -69,23 +69,35 @@ export async function generateMbMetadata({
   }
 
   try {
-    const threadId = params?.threadId
-    thread = (await getThread({ threadId, jwt: '' })) as Thread
+    const { threadSlug, threadQuestionSlug  } = params
+    thread = (await getThread({ threadSlug, jwt: '' })) as Thread
 
-    const firstQuestion = thread?.messages.find((m) => m.role === 'user')?.content || 'not found'
-
-    const firstResponse =
-      thread?.messages.find((m) => m.role === 'assistant')?.content || 'not found'
+    const firstQuestion = thread?.messages.find((m) => (threadQuestionSlug && m.slug === threadQuestionSlug) || m.role === 'user')?.content || 'not found'
+    const threadQuestionSlugIndex = thread?.messages.findIndex(
+      (m) => m.slug === threadQuestionSlug,
+    )
+    const firstResponse = !threadQuestionSlugIndex
+      ? thread?.messages.find((m) => m.role === 'assistant')?.content || 'not found'
+      : thread?.messages[threadQuestionSlugIndex + 1]?.content || 'not found' // next message after the question is (and should be) the assistant response
 
     const firstResponseTruncated =
       firstResponse.length > 200 ? firstResponse.slice(0, 200) : firstResponse
 
+    const threadUrl = urlBuilders.threadUrl({
+      type: 'public', // Assuming this is for public threads, adjust as needed
+      category: thread?.chatbot?.categories?.[0]?.category?.name || 'AI',
+      domain: thread?.chatbot?.metadata[0]?.domainName || 'General',
+      chatbot: thread?.chatbot?.name || 'Masterbots',
+      threadSlug: thread?.slug || params.threadSlug,
+      raw: false
+    });
+
     data = {
       title: firstQuestion,
-      publishedAt: thread?.updatedAt, // format(thread?.updatedAt, 'MMMM dd, yyyy'),
+      publishedAt: thread?.updatedAt,
       summary: firstResponseTruncated,
-      image: `${process.env.BASE_URL}/api/og?threadId=${thread?.threadId}`,
-      pathname: getThreadLink({ thread, chat: false }),
+      image: `${process.env.BASE_URL}/api/og?threadId=${thread?.threadId}&threadQuestionSlug=${threadQuestionSlug}`,
+      pathname: threadUrl,
     }
   } catch (error) {
     console.error('Error in getThread', error)

@@ -11,9 +11,9 @@ import type { Thread, User } from 'mb-genql'
 import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 
-export default async function ProfilePage({ params }: { params: { slug: string } }) {
+export default async function ProfilePage({ params }: { params: { userSlug: string } }) {
   let threads: Thread[] = []
-  const slug = params.slug
+  const slug = params.userSlug
 
   const session = await getServerSession(authOptions)
   const { user, error } = await getUserBySlug({
@@ -30,7 +30,7 @@ export default async function ProfilePage({ params }: { params: { slug: string }
   if (!user)
     return (
       <div className="text-center p-4">
-        User <strong>{params.slug}</strong> not found
+        User <strong>{params.userSlug}</strong> not found
       </div>
     )
 
@@ -73,7 +73,7 @@ export async function generateMetadata({
     title: user?.username || '',
     description: user?.username || '',
     ogType: 'website',
-    ogImageUrl: user?.profilePicture || '',
+    ogImageUrl: user ? `/api/og/user/${encodeURIComponent(user.username)}` : '',
     twitterCard: 'summary_large_image',
   }
 

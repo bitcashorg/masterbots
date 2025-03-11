@@ -9,7 +9,7 @@ import {
   setOutputInstructionPrompt,
 } from '@/lib/constants/prompts'
 import { useModel } from '@/lib/hooks/use-model'
-import { type NavigationParams, useSidebar } from '@/lib/hooks/use-sidebar'
+import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { createThread, deleteThread, getThread, saveNewMessage } from '@/services/hasura'
@@ -528,10 +528,16 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     await appendWithMbContextPrompts(optimisticUserMessage)
 
     navigateTo({
-      categoryName: activeChatbot?.categories[0].category.name,
-      chatbotName: activeChatbot?.name,
-      page: 'personal',
-    } as NavigationParams)
+      urlType: 'threadUrl',
+      shallow: true,
+      navigationParams: {
+        type: 'personal',
+        category: activeChatbot?.categories[0].category.name || '',
+        domain: activeChatbot?.metadata[0].domainName || '',
+        chatbot: activeChatbot?.name || '',
+        threadSlug: activeThread?.slug || '',
+      }
+    })
 
     return null
   }

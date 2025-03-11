@@ -50,7 +50,7 @@ export async function generateMetadata({
     title: chatbotName || "",
     description: chatbot.description || "",
     ogType: "website",
-    ogImageUrl: chatbot.avatar || "",
+    ogImageUrl: `${process.env.BASE_URL}/api/og?chatbotId=${chatbot.chatbotId}`,
     twitterCard: "summary",
   };
 

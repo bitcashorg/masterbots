@@ -68,7 +68,6 @@ export async function getCategories(userId?: string) {
             followerId: true,
             followeeIdChatbot: true,
           },
-          __scalar: true,
           categories: {
             __scalar: true,
           },
@@ -80,6 +79,7 @@ export async function getCategories(userId?: string) {
           metadata: {
             domainName: true,
           },
+          __scalar: true,
           ...chatbotEnumFieldsFragment,
         },
         __scalar: true,
@@ -135,9 +135,9 @@ export async function getAllChatbots() {
   const { chatbot } = await client.query({
     chatbot: {
       name: true,
-      __args: {
-        limit: 100,
-      },
+      metadata: {
+        domainName: true,
+      }
     },
   })
 
@@ -157,7 +157,10 @@ export async function getChatbots({ limit, offset, categoryId }: GetChatbotsPara
           name: true,
         },
       },
-      ...everything,
+      metadata: {
+        domainName: true,
+      },
+      __scalar: true,
       __args: {
         limit: limit ? limit : 20,
         ...(offset
@@ -254,7 +257,7 @@ export async function getThreads({
   return thread as Thread[]
 }
 
-export async function getThread({ threadSlug, threadQuestionSlug, jwt, signal }: Partial<GetThreadParams>) {
+export async function getThread({ threadId, threadSlug, threadQuestionSlug, domain, jwt, signal }: Partial<GetThreadParams>) {
   try {
     const client = getHasuraClient({ signal, jwt: jwt || undefined })
     const { thread: threadResponse } = await client.query({
@@ -273,7 +276,7 @@ export async function getThread({ threadSlug, threadQuestionSlug, jwt, signal }:
           prompts: {
             prompt: {
               __scalar: true,
-            }
+            },
           },
           followers: {
             followerId: true,
@@ -305,7 +308,20 @@ export async function getThread({ threadSlug, threadQuestionSlug, jwt, signal }:
         },
         __scalar: true,
         __args: {
-          where: { slug: { _eq: threadSlug } },
+          where: {
+            ...(threadId ? { threadId: { _eq: threadId } } : {}),
+            ...(threadSlug ? { slug: { _eq: threadSlug } } : {}),
+            ...(domain ? {
+              chatbot: {
+                metadata: {
+                  domainName: {
+                    _ilike: `%${domain.replace('-', ' ')}%`,
+                  },
+                },
+              },
+            } : {}),
+            ...(threadQuestionSlug ? { messages: { slug: { _eq: threadQuestionSlug } } } : {}),
+          },
         },
       },
     })
@@ -758,9 +774,9 @@ export async function updateThreadVisibility({
   try {
     const client = getHasuraClient({ jwt })
     await client.mutation({
-      updateThreadByPk: {
+      updateThread: {
         __args: {
-          pkColumns: { threadId },
+          where: { threadId: { _eq: threadId } },
           _set: { isPublic },
         },
         threadId: true,
@@ -783,9 +799,9 @@ export async function approveThread({
   try {
     const client = getHasuraClient({ jwt })
     await client.mutation({
-      updateThreadByPk: {
+      updateThread: {
         __args: {
-          pkColumns: { threadId },
+          where: { threadId: { _eq: threadId } },
           _set: { isApproved: true },
         },
         threadId: true,

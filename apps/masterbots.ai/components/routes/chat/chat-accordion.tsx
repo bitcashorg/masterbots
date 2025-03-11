@@ -1,5 +1,6 @@
 //* Component for displaying a collapsible chat thread accordion
 
+import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { ChevronDown } from 'lucide-react'
 import type { Thread } from 'mb-genql'
@@ -46,6 +47,7 @@ export const ChatAccordion = ({
     isNewResponse,
     isOpenPopup
   } = useThread()
+  const { navigateTo } = useSidebar()
 
   const pathname = usePathname()
   const params = useParams()
@@ -54,6 +56,7 @@ export const ChatAccordion = ({
   //* Sets the initial open state based on defaultState prop
   const initialState = defaultState
   const profilePage = /^\/u\/[^/]+\/t(?:\/|$)/.test(pathname)
+  const isPublic = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
 
   const [open, setOpen] = React.useState(initialState)
   const isMainThread = !isOpenPopup
@@ -93,6 +96,22 @@ export const ChatAccordion = ({
       if (onToggle) {
         onToggle(newState)
       }
+
+      if (newState) {
+        navigateTo({
+          urlType: 'threadUrl',
+          shallow: true,
+          navigationParams: {
+            type: !isPublic ? 'public' : 'personal',
+            chatbot: thread?.chatbot?.name || '',
+            category: thread?.chatbot?.categories?.[0]?.category?.name || '',
+            domain: thread?.chatbot?.metadata[0]?.domainName || '',
+            threadSlug: thread?.slug || (params?.threadSlug as string) || '',
+            // threadQuestionSlug: thread?.threadQuestionSlug || '',
+          }
+        })
+      }
+
       return newState
     })
   }
