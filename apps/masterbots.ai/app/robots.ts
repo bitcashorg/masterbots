@@ -23,16 +23,16 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
   )
   
   // Use urlBuilders for nested URLs
-    const publicNestedUrls = categories.flatMap((category) =>
-      category.chatbots.map(({ chatbot }) =>
-        urlBuilders.chatbotThreadListUrl({
-          type: 'public',
-          category: category.name,
-          domain: chatbot.metadata[0]?.domainName || 'prompt',
-          chatbot: chatbot.name,
-        }),
-      ),
-    )
+  const publicNestedUrls = categories.flatMap((category) =>
+    category.chatbots.map(({ chatbot }) =>
+      urlBuilders.chatbotThreadListUrl({
+        type: 'public',
+        category: category.name,
+        domain: chatbot.metadata[0]?.domainName || 'prompt',
+        chatbot: chatbot.name,
+      }),
+    ),
+  )
   const publicNestedRawUrls = categories.flatMap((category) =>
     category.chatbots.map(({ chatbot }) =>
       urlBuilders.chatbotThreadListUrl({
@@ -68,13 +68,12 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
   )
 
   const personalPublicThreadsWildcards = personalNestedUrls.map((url) => `${url}/*`)
-  const personalPublicRawThreadsWildcards = personalNestedUrls.map((url) => `${url}/*`)
+  const personalPublicRawThreadsWildcards = personalNestedRawUrls.map((url) => `${url}/*`)
   
   const publicPublicThreadsWildcards = publicNestedUrls.map((url) => `${url}/*`) 
-  const publicPublicRawThreadsWildcards = publicNestedUrls.map((url) => `${url}/*`)
+  const publicPublicRawThreadsWildcards = publicNestedRawUrls.map((url) => `${url}/*`)
 
   const chatbotProfilesWildcards = chatbotUrls.map((url) => `${url}/*`)
-  const chatbotProfilesRawWildcards = chatbotUrls.map((url) => `${url}/*`)
   
   return {
     rules: {
@@ -92,7 +91,6 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
         ...publicPublicThreadsWildcards,
         ...publicPublicRawThreadsWildcards,
         ...chatbotProfilesWildcards,
-        ...chatbotProfilesRawWildcards,
       ],
       disallow: '/c/p',
     },
