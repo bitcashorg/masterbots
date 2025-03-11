@@ -4,7 +4,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { IconCaretRight } from '@/components/ui/icons'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
-import { normalizeChatbotDomain, urlBuilders } from '@/lib/url'
+import { urlBuilders } from '@/lib/url'
 import { cn, getRouteType } from '@/lib/utils'
 import type { ChatbotThreadListUrlParams, TopicThreadListUrlParams, UserChatbotThreadListUrlParams, UserTopicThreadListUrlParams } from '@/types/url'
 import type { Category, Chatbot } from 'mb-genql'
@@ -216,7 +216,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
   const { username } = useParams()
   const { setIsOpenPopup, setActiveThread } = useThread()
 
-  const chatbotDomain = normalizeChatbotDomain(chatbot.metadata ? chatbot.metadata[0].domainName : '')
+  const chatbotDomain = chatbot.metadata ? chatbot.metadata[0].domainName : ''
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   const handleChatbotClick = useCallback(
     (e: React.MouseEvent) => {

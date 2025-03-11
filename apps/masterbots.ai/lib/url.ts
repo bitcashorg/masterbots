@@ -1,3 +1,4 @@
+import { domainSlugs } from '@/lib/constants/domain-slugs'
 import type {
   ChatbotThreadListUrlParams,
   ProfilesThreadQuestionUrlChatbotParams,
@@ -33,10 +34,69 @@ export const decodeQuery = (input: string): string => {
   return decodeURIComponent(input.replace(/\+/g, ' '))
 }
 
-// ? Anything beyond the first space with a parenthesis next is removed
-// ? Example: "Holistic Health (Basic)" -> "holistic-health"
-export const normalizeChatbotDomain = (domain: string): string => {
-  return toSlug(domain.replace(/\s\(\w*./g, ''))
+/**
+ * Normalizes a chatbot domain name by finding the best matching slug from a predefined list.
+ *
+ * This function attempts to match the input domain to a canonical form using the following strategy:
+ * 1. Process the input domain by removing parenthetical content and converting to a slug format
+ * 2. Check for an exact match in the predefined domain slugs (highest priority)
+ * 3. Look for word boundary matches where the processed domain appears as a complete word
+ * 4. Try partial matches as a last resort, prioritizing by closest length
+ * 5. If no matches are found, return the processed domain slug
+ *
+ * @param domain - The chatbot domain name to normalize
+ * @param raw - If true, returns the raw slug without normalization
+ * @returns A normalized slug version of the domain that best matches the predefined list
+ *
+ * @example
+ * // Returns "artificial-intelligence" if it's in the domainSlugs list
+ * normalizeDomainSlug("Artificial Intelligence (AI)")
+ */
+export function normalizeDomainSlug(domain: string, raw?: boolean): string {
+  const domainSlug = toSlug(domain.replace(/\s\(\w*./g, ''))
+
+  // ? Return raw slug if requested
+  if (raw) {
+    return domainSlug
+  }
+
+  // * 1. Check for exact match first (highest priority)
+  const exactMatch = domainSlugs.find((slug) => slug === domainSlug)
+  if (exactMatch) {
+    return exactMatch
+  }
+
+  // * 2. Find word boundary matches where domainSlug appears as a complete word
+  const wordMatches = domainSlugs.filter((slug) => {
+    const regex = new RegExp(`\\b${domainSlug}\\b`)
+    return regex.test(slug)
+  })
+
+  // ? If multiple word matches found, return original domainSlug
+  if (wordMatches.length > 1) {
+    return domainSlug
+  }
+
+  // ? If exactly one word match found, use it
+  if (wordMatches.length === 1) {
+    return wordMatches[0]
+  }
+
+  // * 3. Try partial matches as a last resort
+  const partialMatches = domainSlugs.filter(
+    (slug) => slug.includes(domainSlug) || domainSlug.includes(slug),
+  )
+
+  // ? If multiple partial matches, find the closest one by length
+  if (partialMatches.length > 0) {
+    partialMatches.sort(
+      (a, b) => Math.abs(a.length - domainSlug.length) - Math.abs(b.length - domainSlug.length),
+    )
+    return partialMatches[0]
+  }
+
+  // * 4. No matches found, return the original slug
+  return domainSlug
 }
 
 export const urlBuilders = {
@@ -100,7 +160,13 @@ export const urlBuilders = {
    * If any of the required parameters are missing or the type is invalid, the function logs an error and returns the root URL ('/').
    * In the event of any unexpected error during URL construction, it catches the error, logs it, and returns '/'.
    */
-  chatbotThreadListUrl({ type, category, domain, chatbot }: ChatbotThreadListUrlParams): string {
+  chatbotThreadListUrl({
+    type,
+    category,
+    domain,
+    chatbot,
+    raw = false,
+  }: ChatbotThreadListUrlParams): string {
     try {
       if (!category || !chatbot || !domain) {
         const threadListEntries = { category, chatbot, domain }
@@ -131,7 +197,7 @@ export const urlBuilders = {
 
       // Return the URL with the thread slug
       const pathParts = basePath ? ['', basePath] : ['']
-      pathParts.push(toSlug(category), domain, toSlug(chatbot))
+      pathParts.push(toSlug(category), normalizeDomainSlug(domain, raw), toSlug(chatbot))
       return pathParts.join('/')
     } catch (error) {
       console.error('Error constructing thread URL:', error)
@@ -152,7 +218,7 @@ export const urlBuilders = {
    * If any of the required parameters are missing or the type is invalid, the function logs an error and returns the root URL ('/').
    * In the event of any unexpected error during URL construction, it catches the error, logs it, and returns '/'.
    */
-  threadUrl({ type, category, domain, chatbot, threadSlug }: ThreadUrlParams): string {
+  threadUrl({ type, category, domain, chatbot, threadSlug, raw = false }: ThreadUrlParams): string {
     try {
       if (!category || !chatbot || !threadSlug || !domain) {
         const threadUrlEntries = { category, chatbot, domain, threadSlug }
@@ -183,7 +249,12 @@ export const urlBuilders = {
 
       // Return the URL with the thread slug
       const pathParts = basePath ? ['', basePath] : ['']
-      pathParts.push(toSlug(category), domain, toSlug(chatbot), threadSlug)
+      pathParts.push(
+        toSlug(category),
+        normalizeDomainSlug(domain, raw),
+        toSlug(chatbot),
+        threadSlug,
+      )
       return pathParts.join('/')
     } catch (error) {
       console.error('Error constructing thread URL:', error)
@@ -211,6 +282,7 @@ export const urlBuilders = {
     chatbot,
     threadSlug,
     threadQuestionSlug,
+    raw = false,
   }: ThreadQuestionUrlParams): string {
     try {
       if (!category || !chatbot || !threadSlug || !domain || !threadQuestionSlug) {
@@ -243,7 +315,13 @@ export const urlBuilders = {
 
       // Return the URL with the thread slug
       const pathParts = basePath ? ['', basePath] : ['']
-      pathParts.push(toSlug(category), domain, toSlug(chatbot), threadSlug, threadQuestionSlug)
+      pathParts.push(
+        toSlug(category),
+        normalizeDomainSlug(domain, raw),
+        toSlug(chatbot),
+        threadSlug,
+        threadQuestionSlug,
+      )
       return pathParts.join('/')
     } catch (error) {
       console.error('Error constructing thread URL:', error)
@@ -296,10 +374,7 @@ export const urlBuilders = {
     }
   },
 
-  userTopicThreadListUrl({
-    usernameSlug,
-    category,
-  }: UserTopicThreadListUrlParams): string {
+  userTopicThreadListUrl({ usernameSlug, category }: UserTopicThreadListUrlParams): string {
     try {
       if (!usernameSlug || !category) {
         const userEntries = { category, usernameSlug }
@@ -312,13 +387,7 @@ export const urlBuilders = {
         return '/'
       }
 
-      return [
-        '',
-        'u',
-        usernameSlug,
-        't',
-        toSlug(category),
-      ].join('/')
+      return ['', 'u', usernameSlug, 't', toSlug(category)].join('/')
     } catch (error) {
       console.error('Error constructing profile URL:', error)
       return '/'
@@ -330,6 +399,7 @@ export const urlBuilders = {
     category,
     domain,
     chatbot,
+    raw = false,
   }: UserChatbotThreadListUrlParams): string {
     try {
       if (!chatbot || !domain || !usernameSlug || !category) {
@@ -349,7 +419,7 @@ export const urlBuilders = {
         usernameSlug,
         't',
         toSlug(category),
-        domain,
+        normalizeDomainSlug(domain, raw),
         toSlug(chatbot),
       ].join('/')
     } catch (error) {
@@ -379,6 +449,7 @@ export const urlBuilders = {
     domain,
     chatbot,
     threadSlug,
+    raw = false,
   }: ProfilesThreadUrlUserParams | ProfilesThreadUrlChatbotParams): string {
     try {
       if (!chatbot || !domain || !threadSlug) {
@@ -410,7 +481,7 @@ export const urlBuilders = {
             usernameSlug,
             't',
             toSlug(category),
-            domain,
+            normalizeDomainSlug(domain, raw),
             toSlug(chatbot),
             threadSlug,
           ].join('/')
@@ -451,6 +522,7 @@ export const urlBuilders = {
     chatbot,
     threadSlug,
     threadQuestionSlug,
+    raw = false,
   }: ProfilesThreadQuestionUrlUserParams | ProfilesThreadQuestionUrlChatbotParams): string {
     try {
       if (!chatbot || !domain || !threadSlug || !threadQuestionSlug) {
@@ -482,16 +554,14 @@ export const urlBuilders = {
             usernameSlug,
             't',
             toSlug(category),
-            domain,
+            normalizeDomainSlug(domain, raw),
             toSlug(chatbot),
             threadSlug,
             threadQuestionSlug,
           ].join('/')
         }
         case 'chatbot': {
-          return ['', 'b', toSlug(chatbot), domain, threadSlug, threadQuestionSlug].join(
-            '/',
-          )
+          return ['', 'b', toSlug(chatbot), domain, threadSlug, threadQuestionSlug].join('/')
         }
         default: {
           console.error('Invalid profile URL type:', type)
