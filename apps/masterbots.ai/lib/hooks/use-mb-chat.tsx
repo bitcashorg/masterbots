@@ -27,7 +27,6 @@ import type {
 import { type UseChatOptions, useChat } from 'ai/react'
 import { throttle, uniqBy } from 'lodash'
 import type { Chatbot, Message, Thread } from 'mb-genql'
-
 import {
   aiExampleClassification,
   processUserMessage
