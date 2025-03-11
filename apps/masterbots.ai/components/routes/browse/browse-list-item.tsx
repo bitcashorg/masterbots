@@ -11,7 +11,6 @@ import { urlBuilders } from '@/lib/url'
 import { cn, sleep } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
 import type { Message, Thread } from 'mb-genql'
-import { toSlug } from 'mb-lib'
 import Image from 'next/image'
 import { useParams, useRouter } from 'next/navigation'
 import React from 'react'
@@ -88,30 +87,31 @@ export default function BrowseListItem({
   }
 
   const updateUrlN = () => {
-    if (pageType === 'profile') {
-      const url = new URL(window.location.href)
+    const url = new URL(window.location.href)
 
+    if (pageType === 'profile') {
       url.pathname = urlBuilders.profilesThreadUrl({
         type: 'chatbot',
         domain: thread?.chatbot?.categories[0]?.category?.name,
         chatbot: thread?.chatbot?.name,
         threadSlug: thread.slug
-      })
-
-      // Update just the URL without triggering navigation
-      window.history.replaceState(
-        window.history.state,
-        '',
-        url.toString()
-      )
-
+      })      
     } else {
-      window.history.pushState(
-        {},
-        '',
-        `/${toSlug(thread.chatbot.categories[0].category.name)}/${thread.threadId}`
-      )
+      url.pathname = urlBuilders.threadUrl({
+        type: 'public',
+        category: thread?.chatbot?.categories[0]?.category?.name,
+        domain: thread?.chatbot?.metadata[0]?.domainName,
+        chatbot: thread?.chatbot?.name,
+        threadSlug: thread.slug
+      })
     }
+
+    // Update just the URL without triggering navigation
+    window.history.replaceState(
+      window.history.state,
+      '',
+      url.toString()
+    )
   }
 
   const handleAccordionToggle = async (isOpen: boolean) => {

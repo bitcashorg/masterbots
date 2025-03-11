@@ -23,73 +23,49 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
   )
   
   // Use urlBuilders for nested URLs
-  const publicNestedUrls = categories.flatMap((category) => {
-    return category.chatbots.map((bot) => {
-      const chatbot = chatbots.find((chatbot) => chatbot.name === bot.chatbot.name)
-
-      if (!chatbot) {
-        throw new Error(`Chatbot not found for chatbotId: ${bot.chatbotId}`)
-      }
-
-      return urlBuilders.chatbotThreadListUrl({
-        type: 'public',
-        category: category.name,
-        domain: chatbot.metadata[0].domainName,
-        chatbot: chatbot.name,
-      })
-    })
-  })
-  const publicNestedRawUrls = categories.flatMap((category) => {
-    return category.chatbots.map((bot) => {
-      const chatbot = chatbots.find((chatbot) => chatbot.name === bot.chatbot.name)
-
-      if (!chatbot) {
-        throw new Error(`Chatbot not found for chatbotId: ${bot.chatbotId}`)
-      }
-
-      return urlBuilders.chatbotThreadListUrl({
+    const publicNestedUrls = categories.flatMap((category) =>
+      category.chatbots.map(({ chatbot }) =>
+        urlBuilders.chatbotThreadListUrl({
+          type: 'public',
+          category: category.name,
+          domain: chatbot.metadata[0]?.domainName || 'prompt',
+          chatbot: chatbot.name,
+        }),
+      ),
+    )
+  const publicNestedRawUrls = categories.flatMap((category) =>
+    category.chatbots.map(({ chatbot }) =>
+      urlBuilders.chatbotThreadListUrl({
         type: 'public',
         raw: true,
         category: category.name,
-        domain: chatbot.metadata[0].domainName,
+        domain: chatbot.metadata[0]?.domainName || 'prompt',
         chatbot: chatbot.name,
-      })
-    })
-  })
+      }),
+    ),
+  )
   
-  const personalNestedUrls = categories.flatMap((category) => {
-    return category.chatbots.map((bot) => {
-      const chatbot = chatbots.find((chatbot) => chatbot.name === bot.chatbot.name)
-
-      if (!chatbot) {
-        throw new Error(`Chatbot not found for chatbotId: ${bot.chatbotId}`)
-      }
-
-      return urlBuilders.chatbotThreadListUrl({
+  const personalNestedUrls = categories.flatMap((category) =>
+    category.chatbots.map(({ chatbot }) =>
+      urlBuilders.chatbotThreadListUrl({
         type: 'personal',
         category: category.name,
-        domain: chatbot.metadata[0].domainName,
+        domain: chatbot.metadata[0]?.domainName || 'prompt',
         chatbot: chatbot.name,
       })
-    })
-  })
-  const personalNestedRawUrls = categories.flatMap((category) => {
-    return category.chatbots.map((bot) => {
-      const chatbot = chatbots.find((chatbot) => chatbot.name === bot.chatbot.name)
-
-      if (!chatbot) {
-        throw new Error(`Chatbot not found for chatbotId: ${bot.chatbotId}`)
-      }
-
-      return urlBuilders.chatbotThreadListUrl({
+    ),
+  )
+  const personalNestedRawUrls = categories.flatMap((category) =>
+    category.chatbots.map(({ chatbot }) =>
+      urlBuilders.chatbotThreadListUrl({
         type: 'personal',
         raw: true,
         category: category.name,
-        domain: chatbot.metadata[0].domainName,
+        domain: chatbot.metadata[0]?.domainName || 'prompt',
         chatbot: chatbot.name,
-      })
-    })
-  })
+      }),
+    ),
+  )
 
   const personalPublicThreadsWildcards = personalNestedUrls.map((url) => `${url}/*`)
   const personalPublicRawThreadsWildcards = personalNestedUrls.map((url) => `${url}/*`)

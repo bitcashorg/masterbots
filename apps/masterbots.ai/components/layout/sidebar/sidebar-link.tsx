@@ -216,7 +216,8 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
   const { username } = useParams()
   const { setIsOpenPopup, setActiveThread } = useThread()
 
-  const chatbotDomain = chatbot.metadata ? chatbot.metadata[0].domainName : ''
+  // * Default to prompt when no metadata found... Special case for BlankBot
+  const chatbotDomain = chatbot.metadata ? chatbot.metadata[0].domainName : 'prompt'
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   const handleChatbotClick = useCallback(
     (e: React.MouseEvent) => {

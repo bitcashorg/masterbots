@@ -282,6 +282,9 @@ export async function getThread({ threadId, threadSlug, threadQuestionSlug, doma
             followerId: true,
             followeeIdChatbot: true,
           },
+          metadata: {
+            domainName: true,
+          },
           ...chatbotEnumFieldsFragment,
         },
         user: {

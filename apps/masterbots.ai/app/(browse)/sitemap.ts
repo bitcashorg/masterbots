@@ -36,7 +36,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: urlBuilders.chatbotThreadListUrl({
         type: 'public',
         category: category.name,
-        domain: chatbot.chatbot.metadata[0]?.domainName,
+        domain: chatbot.chatbot.metadata[0]?.domainName || 'prompt',
         chatbot: chatbot.chatbot.name
       }),
       lastModified: new Date(),
@@ -50,7 +50,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: urlBuilders.chatbotThreadListUrl({
         type: 'personal',
         category: category.name,
-        domain: chatbot.chatbot.metadata[0]?.domainName,
+        domain: chatbot.chatbot.metadata[0]?.domainName || 'prompt',
         chatbot: chatbot.chatbot.name,
       }),
       lastModified: new Date(),
@@ -66,7 +66,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         type: 'public',
         raw: true,
         category: category.name,
-        domain: chatbot.chatbot.metadata[0]?.domainName,
+        domain: chatbot.chatbot.metadata[0]?.domainName || 'prompt',
         chatbot: chatbot.chatbot.name
       }),
       lastModified: new Date(),
@@ -81,7 +81,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         type: 'personal',
         raw: true,
         category: category.name,
-        domain: chatbot.chatbot.metadata[0]?.domainName,
+        domain: chatbot.chatbot.metadata[0]?.domainName || 'prompt',
         chatbot: chatbot.chatbot.name,
       }),
       lastModified: new Date(),
