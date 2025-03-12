@@ -19,7 +19,7 @@ import { useEffect, useRef, useState } from 'react'
 
 export function ThreadPopup({ className }: { className?: string }) {
   const { activeChatbot } = useSidebar()
-  const { isOpenPopup, activeThread } = useThread()
+  const { isOpenPopup, activeThread, isNewResponse } = useThread()
   const [{ allMessages, isLoading }, { sendMessageFromResponse }] = useMBChat()
   const [browseMessages, setBrowseMessages] = useState<Message[]>([])
   const popupContentRef = useRef<HTMLDivElement>(null)
@@ -29,7 +29,7 @@ export function ThreadPopup({ className }: { className?: string }) {
   const { isNearBottom, smoothScrollToBottom } = useMBScroll({
     containerRef: popupContentRef,
     threadRef,
-    isNewContent: isLoading,
+    isNewContent: isNewResponse,
     hasMore: false,
     isLast: true,
     loading: isLoading,
@@ -41,20 +41,6 @@ export function ThreadPopup({ className }: { className?: string }) {
       smoothScrollToBottom()
     }
   }
-
-  // // Uses smoothScrollToBottom from custom hook useMBScroll
-  // // biome-ignore lint/correctness/useExhaustiveDependencies: smoothScrollToBottom might be necessary however, it has his own memoization (useCallback). That should be enough, else, can be added as a dependency
-  //   useEffect(() => {
-  //   let timeout: NodeJS.Timeout
-  //   if (isLoading && isOpenPopup) {
-  //     timeout = setTimeout(() => {
-  //       smoothScrollToBottom()
-  //     }, 150)
-  //   }
-  //   return () => {
-  //     clearTimeout(timeout)
-  //   }
-  // }, [isLoading, isOpenPopup])
 
   // Fetch browse messages when activeThread changes
   useEffect(() => {
@@ -122,16 +108,19 @@ export function ThreadPopup({ className }: { className?: string }) {
               // Chat view
               <>
                 <ChatList
-                isThread={false}
-                messages={allMessages}
-                isLoadingMessages={isLoading}
-                sendMessageFn={sendMessageFromResponse}
-                chatbot={activeThread?.chatbot || (activeChatbot as Chatbot)}
-                chatContentClass="!border-x-gray-300 !px-[16px] !mx-0 max-h-[none] dark:!border-x-mirage"
-                className="max-w-full !px-[32px] !mx-0"
-                chatArrowClass="!right-0 !mr-0"
-                chatTitleClass="!px-[11px]"
-              />
+                  isThread={false}
+                  messages={allMessages}
+                  isLoadingMessages={isLoading}
+                  sendMessageFn={(message: string) => {
+                    scrollToBottom()
+                    sendMessageFromResponse(message)
+                  }}
+                  chatbot={activeThread?.chatbot || (activeChatbot as Chatbot)}
+                  chatContentClass="!border-x-gray-300 !px-[16px] !mx-0 max-h-[none] dark:!border-x-mirage"
+                  className="max-w-full !px-[32px] !mx-0"
+                  chatArrowClass="!right-0 !mr-0"
+                  chatTitleClass="!px-[11px]"
+                />
 
                 <Chat
                   isPopup

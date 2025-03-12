@@ -62,7 +62,7 @@ export default function UserThreadPanel({
   const { activeCategory, activeChatbot, setActiveChatbot } = useSidebar()
   const { isOpenPopup, activeThread, shouldRefreshThreads, setShouldRefreshThreads, setActiveThread, setIsOpenPopup } = useThread()
   const [loading, setLoading] = useState<boolean>(true)
-  const { isContinuousThread, setIsContinuousThread } = useThreadVisibility()
+  const { isContinuousThread, setIsContinuousThread, threads: hookThreads, isAdminMode } = useThreadVisibility()
   const [searchTerm, setSearchTerm] = useState<string>('')
   const searchParams = useSearchParams()
   const { slug, category, chatbot } = params
@@ -134,7 +134,6 @@ export default function UserThreadPanel({
     setLoading(false)
   }
 
-  // TODO: add this to continuous thread
   const getThreadByContinuousThreadId = async (continuousThreadId: string, session: Session) => {
     const thread = await getThread({
       threadId: continuousThreadId,
@@ -142,25 +141,39 @@ export default function UserThreadPanel({
     })
 
     if (thread) {
-      setState({
-        threads: [thread, ...threads],
-        totalThreads: totalThreads + 1,
-        count: count + 1,
-      })
-      setActiveThread(thread)
+      const defaultThread = initialThread(thread, session)
+      // ? here we can replace the active thread to appear as it is form a continuing thread with the thread parameter
+      setActiveThread(defaultThread)
+      // setActiveThread(thread)
       setIsContinuousThread(true)
       setIsOpenPopup(true)
     }
   }
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should run only once
-  useEffect(() => {
-    if (continuousThreadId && session) {
-      getThreadByContinuousThreadId(continuousThreadId, session)
-    }
-  }, [continuousThreadId, session])
+  useAsync(async () => {
+    if (!session) return
 
-  const threads = state.threads.length > initialThreads.length ? state.threads : initialThreads
+    if (!continuousThreadId && isContinuousThread) {
+      setIsContinuousThread(false)
+      return
+    }
+
+    if (!continuousThreadId) return
+
+    await getThreadByContinuousThreadId(continuousThreadId, session)
+  }, [session])
+
+  useEffect(() => {
+    if(isAdminMode){
+    setState({
+      threads: hookThreads,
+      totalThreads: hookThreads.length,
+      count: hookThreads.length,
+    })
+  }
+ },[hookThreads])
+
+  const threads = state.threads.length > initialThreads.length || isAdminMode  ? state.threads : initialThreads
 
   const completeLoading = (load: boolean) => {
     setLoading(load)
@@ -182,7 +195,6 @@ export default function UserThreadPanel({
     if (!shouldRefreshThreads) return
 
     try {
-      console.log('loading::handleThreadsChange', loading)
       setLoading(true)
       const userOnSlug = userWithSlug.value?.user
       const isOwnProfile = session?.user?.id === userOnSlug?.userId
@@ -316,4 +328,27 @@ export default function UserThreadPanel({
       </ul>
     </>
   )
+}
+
+export function initialThread(thread: Thread, session: Session): Thread {
+  return {
+    threadId: '',
+    chatbot: thread.chatbot,
+    chatbotId: thread.chatbotId,
+    createdAt: new Date(),
+    isApproved: false,
+    isPublic: false,
+    // Filtering to have one user message so we can optimistically render the thread first question in the continuous thread.
+    // After having a question we can fetch the rest of the thread and it will have the whole user messages.
+    // ? These messages doesn't go to the allMessages directly, allMessages filters the true content.
+    messages: [thread.messages.filter(msg => msg.role === 'user')[0]],
+    userId: session.user?.id,
+    updatedAt: new Date(),
+    isBlocked: false,
+    model: 'OPENAI',
+    user: null,
+    thread,
+    parentThreadId: thread.threadId,
+    threads: [],
+  } as unknown as Thread
 }

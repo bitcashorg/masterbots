@@ -60,7 +60,7 @@ export function ChatCombobox() {
             buttonVariants({
               size: 'sm',
               variant: isPowerUp ? 'powerUp' : 'outline'
-            }),'absolute left-[8px] top-[14px] size-8 rounded-full p-0 sm:left-[14px]'
+            }),'absolute left-[8px] top-[8px] size-8 rounded-full p-0 sm:left-[14px]'
           )}
         >
           {/* Renders the selected model's logo or default icon */}

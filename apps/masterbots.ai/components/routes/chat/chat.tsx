@@ -32,17 +32,15 @@
 
 //TODO: Refactor and optimize the Chat component into smaller sections for better performance and readability
 
-import { ChatList } from '@/components/routes/chat/chat-list'
 import { ChatPanel } from '@/components/routes/chat/chat-panel'
-import { ChatScrollAnchor } from '@/components/routes/chat/chat-scroll-anchor'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
-import { cn } from '@/lib/utils'
 import type { ChatProps } from '@/types/types'
 import type { Message as UiUtilsMessage } from '@ai-sdk/ui-utils'
+import type { Message as AiMessage } from 'ai'
 import type { Chatbot } from 'mb-genql'
 import { useParams, usePathname } from 'next/navigation'
 import React, { useEffect } from 'react'
@@ -75,6 +73,7 @@ export function Chat({
     { newChatThreadId: threadId, input, isLoading, allMessages, isNewChat },
     { appendWithMbContextPrompts, appendAsContinuousThread, reload, setInput },
   ] = useMBChat()
+  // * useThread has duplicated logic for isAtBottom, isAtBottomOfSection, and isAtBottomOfPopup (basically useMBScroll)
   const pathname = usePathname()
   const prevPathname = React.useRef(pathname)
 
@@ -91,7 +90,7 @@ export function Chat({
   // ? safer way to debounce scroll to bottom
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   let timeoutId: any
-  const debounceScrollToBottom = (element: HTMLElement | undefined) => {
+  const debounceScrollToBottom = (element: HTMLElement | null) => {
     clearTimeout(timeoutId)
     timeoutId = setTimeout(() => {
       if (element) {
@@ -102,13 +101,9 @@ export function Chat({
   }
 
   const scrollToBottom = () => {
-    if ((params.threadId && containerRef.current) || (!params.threadId && sectionRef.current)) {
-      let element: HTMLElement | undefined = undefined
-      if (sectionRef.current) {
-        element = sectionRef.current
-      } else if (containerRef.current) {
-        element = containerRef.current
-      }
+    console.log('Scrolling to bottom')
+    if (containerRef.current || sectionRef.current) {
+      const element: HTMLElement | null = sectionRef.current ?? containerRef.current
       debounceScrollToBottom(element)
     }
   }
@@ -116,7 +111,7 @@ export function Chat({
   const chatSearchMessage = (
     isNewChat: boolean,
     isContinuousThread: boolean,
-    allMessages: UiUtilsMessage[],
+    allMessages: AiMessage[],
   ) => {
     const threadTitle = allMessages.filter((m) => m.role === 'user')[0]?.content
     if (isContinuousThread && allMessages) {
@@ -142,16 +137,6 @@ export function Chat({
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: Not required here
   useEffect(() => {
-    if (isLoading && isOpenPopup && scrollToBottomOfPopup) {
-      const timeout = setTimeout(() => {
-        scrollToBottomOfPopup()
-        clearTimeout(timeout)
-      }, 150)
-    }
-  }, [isLoading, isOpenPopup])
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: Not required here
-  useEffect(() => {
     if (!isLoading && loadingState) {
       setLoadingState(undefined)
     }
@@ -159,26 +144,6 @@ export function Chat({
 
   return (
     <>
-      {params.threadId && (
-        <div
-          ref={containerRef}
-          className={cn('pb-[200px] pt-4 md:pt-10 h-full overflow-auto', className)}
-        >
-          <div ref={threadRef}>
-            <ChatList />
-          </div>
-          <ChatScrollAnchor
-            isAtBottom={
-              params.threadId
-                ? isNearBottom
-                : isPopup
-                  ? Boolean(isAtBottomOfPopup)
-                  : isAtBottomOfSection
-            }
-            trackVisibility={isLoading}
-          />
-        </div>
-      )}
       <ChatPanel
         className={`${activeThread || activeChatbot ? '' : 'hidden'} ${chatPanelClassName}`}
         scrollToBottom={

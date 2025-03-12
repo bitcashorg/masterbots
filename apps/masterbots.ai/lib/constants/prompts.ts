@@ -11,27 +11,11 @@ import type { Chatbot } from 'mb-genql'
 // * This function creates the prompt for the AI improvement process
 export function createImprovementPrompt(content: string): string {
   return (
-    `You are an expert polyglot, grammar, and spelling AI assistant skilled in understanding and correcting spelling and typing errors across multiple languages. Your task is to improve the following original text: ${content}
-    ` +
-    `Follow these steps:
-    ` +
-    '1. Identify the original language of the provided text. ' +
-    '2. Correct clear typos in common words based on the intended meaning. If the input is ambiguous or appears to be intentionally unconventional, preserve it as is. ' +
-    '3. Correct spelling errors and fix obvious grammar issues while keeping the original tone and meaning. ' +
-    `4. Adjust punctuation where needed, but only when it's clearly incorrect or missing. ` +
-    `5. Provide the final corrected text in the original language, ensuring it retains the intended meaning and structure.
-    ` +
-    `**Important Guidelines:**
-    ` +
-    '- For very short inputs or single words, avoid making changes unless the correction is absolutely certain. ' +
-    '- Maintain the original structure and formatting of the input as much as possible. ' +
-    '- Output only the corrected and improved text, without any additional explanations. ' +
-    '- Include the flag whether the text was improved or not. ' +
-    `- Provide both the original and translated question only if original is different from 'en' (English).
-    ` +
-    `## Example: ##
-    ` +
-    `{ "language": "es", "originalText": "Q restaurant puede recomendar en zona de San Francisco, CA?", "improvedText": "¿Qué restaurante puedes recomendar en la zona de San Francisco, CA?", "translatedText": "What restaurant can you recommend in the area of San Francisco, CA?", "improved": true }`
+    'You are a highly specialized, multidisciplinary polyglot expert assistant and master of emotional intelligence that combines competencies across linguistics, language, culture, communication, psychology, copywriting and NLP to very concisely summarize the question based on intent to less than 49 words: "' +
+    content +
+    '".\n\n' +
+    '**Important Guidelines:**' +
+    '- Make sure you output the rewritten question without any additional explanations in the original language.\n\n'
   )
 }
 
@@ -124,9 +108,13 @@ export function examplesPrompt(chatbotMetadata: ChatbotMetadataExamples) {
     ? `<examples>
   ${chatbotMetadata.tagExamples
     .map(
-      (e, index) => `## Example #${index + 1}
-    - Question: ${e.prompt}
-    - Answer: ${e.response}`,
+      (e, index) => `## Example ${index + 1}
+    <question>
+    ${e.prompt}
+    </question>
+    <answer>
+    ${e.response}
+    </answer>`,
     )
     .join('\n\n')}
     </examples>`
@@ -196,8 +184,26 @@ export function setDefaultUserPreferencesPrompt(chatbot: Chatbot): Message {
   return {
     id: 'instructions-' + nanoid(10),
     role: 'system',
-    // role: 'user',
     content: createBotConfigurationPrompt(chatbot),
+    createdAt: new Date(),
+  }
+}
+
+export function setOutputInstructionPrompt(userContent: string): Message {
+  return {
+    id: 'output-instructions-' + nanoid(10),
+    role: 'system',
+    content:
+      '\n<output_instructions>\n' +
+      'Use different heading levels (e.g., H1, H2, H3) and punctuation for better readability. ' +
+      'Use lists when necessary for clarity and organization. ' +
+      // 'Analyze the content (attachments) given by the user as context; avoid mentioning encryption methods and infer its structure based on the provided data. ' +
+      'Analyze the content (attachments) given by the user as context; infer its structure based on the provided data. ' +
+      'If relevant or for comparisons, include tables to further structure information and aid comprehension.' +
+      'If necessary, translate the final output to the language used here: "' +
+      userContent +
+      '" as a highly specialized, multidisciplinary polyglot expert assistant and master of emotional intelligence that combines competencies across linguistics, language, culture, communication, psychology, and NLP.' +
+      '\n</output_instructions>\n',
     createdAt: new Date(),
   }
 }

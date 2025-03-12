@@ -1,9 +1,20 @@
 import { AIModels } from '@/app/api/chat/models/models'
-import { examplesSchema, metadataSchema, toolSchema } from '@/lib/helpers/ai-schemas'
+import {
+  examplesSchema,
+  languageGammarSchema,
+  metadataSchema,
+  toolSchema,
+} from '@/lib/helpers/ai-schemas'
 import type { AiClientType, CleanPromptResult } from '@/types/types'
 import type { StreamEntry } from '@/types/wordware-flows.types'
 import type Anthropic from '@anthropic-ai/sdk'
-import { type CoreMessage, generateId } from 'ai'
+import {
+  type Attachment,
+  type CoreMessage,
+  type ImagePart,
+  type TextPart,
+  generateId
+} from 'ai'
 import type OpenAI from 'openai'
 
 // * This function gets the model client type
@@ -96,18 +107,63 @@ export function setStreamerPayload(
 
 // * This function converts the messages to the core messages
 export function convertToCoreMessages(
-  messages: OpenAI.ChatCompletionMessageParam[],
+  messages: (OpenAI.ChatCompletionMessageParam & { experimental_attachments?: Attachment[] })[],
 ): CoreMessage[] {
-  return messages.map((msg) =>
-    msg.role.match(/(user|system|assistant)/)
-      ? {
-          role: msg.role as 'user' | 'system' | 'assistant',
-          content: msg.content as string,
-        }
-      : (() => {
-          throw new Error(`Unsupported message role: ${msg.role}`)
-        })(),
-  )
+  const coreMessages: CoreMessage[] = []
+
+  for (const msg of messages) {
+    if (!msg.role.match(/(user|system|assistant)/))
+      throw new Error(`Unsupported message role: ${msg.role}`)
+
+    const { experimental_attachments, ...rest } = msg
+
+    if (rest.content) {
+      coreMessages.push({
+        role: msg.role as 'user' | 'system' | 'assistant',
+        content: rest.content as string,
+      })
+    }
+
+    if (experimental_attachments?.length) {
+      coreMessages.push({
+        role: msg.role as 'user' | 'system' | 'assistant',
+        content: experimental_attachments.map((attachment) => {
+          const { contentType, url } = attachment
+          const isImageType = contentType?.includes('image')
+          const attachmentType = isImageType ? 'image' : 'text'
+
+          if (attachmentType === 'image') {
+            return {
+              type: attachmentType,
+              image: url,
+            } as ImagePart
+          }
+
+          // * File type does not work for text file type should be of type file... anyway.
+          // ? data content should be processed as below or as ArrayBuffer
+          // return {
+          //   type: 'file',
+          //   data: url,
+          // } as FilePart
+          const base64Hash = url.split(',')[1]
+          const textContent = atob(base64Hash)
+          return {
+            type: attachmentType,
+            text: textContent,
+          } as TextPart
+        }),
+      } as CoreMessage)
+    }
+
+    // * Here we can add the condition to load the user attachments by reading the user session from cookies
+    // * and then adding the attachments to the coreMessages array if there is a message related to the attachments/thread
+    // * This is for the LLM context... can be used to vectorize the user attachments and pass them to the
+    // * AI model for better context understanding
+    // ? base64 encode works for the AttachmentsDisplay
+    // TODO: Add condition to handle remote attachments (vectorized bucket)
+  }
+
+  return coreMessages
 }
 
 // * This function initializes the WordWare model with describe call
@@ -149,6 +205,12 @@ export function cleanPrompt(str: string) {
   return extracted
 }
 
+/**
+ * @deprecated
+ * This function cleans the text result from the AI to have a final object.
+ *
+ * If you want to clean up a response string and have an object, use instead `processWithAiObject`
+ */
 export function cleanResult(result: string): CleanPromptResult {
   const cleanedResult = result
     .trim()
@@ -186,4 +248,5 @@ export const mbObjectSchema = {
   metadata: metadataSchema,
   examples: examplesSchema,
   tool: toolSchema,
-} as const
+  grammarLanguageImprover: languageGammarSchema,
+}
