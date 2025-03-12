@@ -367,7 +367,7 @@ BEGIN
   
   -- If no words left after filtering, return a default
   IF result = '' THEN
-    result := 'untitled-thread';
+    result := 'untitled-slug';
   END IF;
   
   -- Trim to 100 characters max
@@ -403,7 +403,7 @@ BEGIN
   
   -- If slug is empty, use a fallback
   IF length(slug) = 0 THEN
-    slug := 'untitled-thread';
+    slug := 'untitled-slug';
   END IF;
   
   RETURN slug;
