@@ -107,13 +107,13 @@ export function setStreamerPayload(
         return payload.map((message) => {
           if (message.role === 'assistant') {
             const content = message.content as string
-            // Extract any existing reasoning if present
+            //? Extract any existing reasoning if present
             const reasoningMatch = content.match(/<think>(.*?)<\/think>/s)
             const answerMatch = content.match(/<answer>(.*?)<\/answer>/s)
   
             return {
               ...message,
-              // If content already has think/answer tags, use those, otherwise add reasoning field
+              //? If content already has think/answer tags, use those, otherwise add reasoning field
               content: answerMatch ? content : `<answer>${content}</answer>`,
               reasoning: reasoningMatch
                 ? reasoningMatch[1]
@@ -121,7 +121,7 @@ export function setStreamerPayload(
             }
           }
           return message
-        });
+        })
     default:
       return payload
   }

@@ -31,8 +31,8 @@ import { createStreamableValue } from 'ai/rsc'
 import { appConfig } from 'mb-env'
 import type OpenAI from 'openai'
 import type { ZodType, z } from 'zod'
-import { createGroq } from '@ai-sdk/groq';
-import { extractReasoningMiddleware, wrapLanguageModel } from 'ai';
+import { createGroq } from '@ai-sdk/groq'
+import { extractReasoningMiddleware, wrapLanguageModel } from 'ai'
 
 const OPEN_AI_ENV_CONFIG = {
   TOP_P: process.env.OPENAI_TOP_P ? Number.parseFloat(process.env.OPENAI_TOP_P) : undefined,
@@ -49,27 +49,27 @@ const initializeOpenAi = createOpenAI({
 
 //* this function is used to create a client for the Groq API
 const initializeGroq = (apiKey?: string) => {
-  const key = apiKey || process.env.GROQ_API_KEY;
+  const key = apiKey || process.env.GROQ_API_KEY
   
   if (!key) {
-    throw new Error('GROQ_API_KEY is not defined in environment variables');
+    throw new Error('GROQ_API_KEY is not defined in environment variables')
   }
   
   const groqClient = createGroq({
     apiKey: key,
-  });
+  })
   
-  // For DeepSeek models via Groq, use the enhanced model with reasoning extraction
+  //? For DeepSeek models via Groq, we use the enhanced model with reasoning extraction
   return {
     basic: groqClient,
     enhanced: (model: string) => {
       return wrapLanguageModel({
         model: groqClient(model),
         middleware: extractReasoningMiddleware({ tagName: 'think' }),
-      });
+      })
     }
-  };
-};
+  }
+}
 
 // * This function initializes the DeepSeek API
 const initializeDeepSeek = (apiKey: string) => {
