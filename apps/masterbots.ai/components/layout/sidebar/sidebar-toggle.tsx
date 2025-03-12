@@ -8,18 +8,18 @@ import * as React from 'react'
 import { usePrevious } from 'react-use'
 
 export function SidebarToggle() {
-  const { isSidebarOpen, toggleSidebar } = useSidebar()
+  const { isSidebarOpen, activeChatbot, toggleSidebar } = useSidebar()
   const pathname = usePathname()
   const prevPathname = usePrevious(pathname)
 
   // Close sidebar if it is open on pathname change.
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-    React.useEffect(() => {
+  React.useEffect(() => {
     const isSmallScreen = window.innerWidth < 1024 
-    if (isSidebarOpen && pathname !== prevPathname && isSmallScreen) {
+    if (isSidebarOpen && pathname !== prevPathname && isSmallScreen && activeChatbot) {
       toggleSidebar()
     }
-  }, [pathname])
+  }, [pathname, activeChatbot])
 
   return (
     <Button
