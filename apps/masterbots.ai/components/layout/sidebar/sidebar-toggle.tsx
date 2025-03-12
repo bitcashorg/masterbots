@@ -1,12 +1,25 @@
 'use client'
 
-import * as React from 'react'
-import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { Button } from '@/components/ui/button'
 import { IconSidebar } from '@/components/ui/icons'
+import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { usePathname } from 'next/navigation'
+import * as React from 'react'
+import { usePrevious } from 'react-use'
 
 export function SidebarToggle() {
-  const { toggleSidebar } = useSidebar()
+  const { isSidebarOpen, toggleSidebar } = useSidebar()
+  const pathname = usePathname()
+  const prevPathname = usePrevious(pathname)
+
+  // Close sidebar if it is open on pathname change.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+    React.useEffect(() => {
+    const isSmallScreen = window.innerWidth < 1024 
+    if (isSidebarOpen && pathname !== prevPathname && isSmallScreen) {
+      toggleSidebar()
+    }
+  }, [pathname])
 
   return (
     <Button

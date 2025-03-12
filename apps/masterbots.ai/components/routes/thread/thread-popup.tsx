@@ -6,6 +6,7 @@ import { ChatList } from '@/components/routes/chat/chat-list'
 import { Button } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
 import { Skeleton } from '@/components/ui/skeleton'
+import { canonicalChatbotDomains } from '@/lib/constants/canonical-domains'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
@@ -144,10 +145,25 @@ function ThreadPopUpCardHeader({
   messages: (AiMessage | Message)[]
   isBrowseView: boolean
 }) {
-  const { isOpenPopup, setIsOpenPopup, setActiveThread, setShouldRefreshThreads } = useThread()
+  const { isOpenPopup, activeThread, setIsOpenPopup, setActiveThread, setShouldRefreshThreads } = useThread()
+  const { navigateTo } = useSidebar()
 
   const onClose = () => {
+    const [, canonicalDomain] = (canonicalChatbotDomains.find(
+     (cChatbot) => cChatbot.name === activeThread?.chatbot?.name.toLowerCase()
+    )?.value) || ['other', 'prompt']
     setIsOpenPopup(!isOpenPopup)
+
+    navigateTo({
+      urlType: 'topicThreadListUrl',
+      shallow: true,
+      navigationParams: {
+        type: 'public',
+        category: activeThread?.chatbot?.categories?.[0]?.category?.name || '',
+        domain: canonicalDomain,
+        chatbot: activeThread?.chatbot?.name || '',
+      },
+    })
     
     // ! Required to close the threads popup and show the thread list. Without this, the thread accordion will remain open.
     // ? We have to signal the use-thread-panel component to re-fetch the threads list when the activeThread is closed.

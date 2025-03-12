@@ -35,6 +35,7 @@ export function BrowseCategoryButton({
 }) {
   return (
     <Link
+      rel="canonical"
       href={
         category === 'all'
           ? '/'

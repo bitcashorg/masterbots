@@ -1,11 +1,11 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
 import { UserMenu } from '@/components/layout/header/user-menu'
-import { Button } from '@/components/ui/button'
-import Link from 'next/link'
-import { isTokenExpired } from 'mb-lib'
 import { ProfileSidebar } from '@/components/layout/sidebar/profile-sidebar'
+import { Button } from '@/components/ui/button'
+import { isTokenExpired } from 'mb-lib'
+import { useSession } from 'next-auth/react'
+import Link from 'next/link'
 import { Suspense } from 'react'
 import { ProfileSidebarSkeleton } from '../shared/skeletons/profile-sidebar-skeleton'
 
@@ -44,7 +44,7 @@ export function UserLogin() {
 function LoginButton() {
   return (
     <Button variant="link" asChild className="-ml-2">
-      <Link href="/auth/signin">Login</Link>
+      <Link href="/auth/signin" rel="canonical">Login</Link>
     </Button>
   )
 }

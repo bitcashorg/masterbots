@@ -70,6 +70,9 @@ export async function getCategories(userId?: string) {
           },
           categories: {
             __scalar: true,
+            category: {
+              name: true,
+            }
           },
           prompts: {
             prompt: {
@@ -242,7 +245,7 @@ export async function getThreads({
                       }
                     : {}),
                   ...(categoryId ? { categories: { categoryId: { _eq: categoryId } } } : {}),
-                  ...(domain ? { metadata: { domainName: { _ilike: `%${domain.replace('-', ' ')}%` } } } : {}),
+                  ...(domain ? { metadata: { domainName: { _ilike: `%${domain.replace(/-/g, ' ')}%` } } } : {}),
                 },
                 ...(userId ? { userId: { _eq: userId } } : {}),
               },
@@ -318,7 +321,7 @@ export async function getThread({ threadId, threadSlug, threadQuestionSlug, doma
               chatbot: {
                 metadata: {
                   domainName: {
-                    _ilike: `%${domain.replace('-', ' ')}%`,
+                    _ilike: `%${domain.replace(/-/g, ' ')}%`,
                   },
                 },
               },

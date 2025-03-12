@@ -59,37 +59,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
   ) as MetadataRoute.Sitemap
 
-  // Additional configurations from robots.ts
-  const publicNestedRawUrls = categories.flatMap((category) =>
-    category.chatbots.map((chatbot) => ({
-      url: urlBuilders.chatbotThreadListUrl({
-        type: 'public',
-        raw: true,
-        category: category.name,
-        domain: chatbot.chatbot.metadata[0]?.domainName || 'prompt',
-        chatbot: chatbot.chatbot.name
-      }),
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
-    })),
-  ) as MetadataRoute.Sitemap
-  
-  const personalNestedRawUrls = categories.flatMap((category) =>
-    category.chatbots.map((chatbot) => ({
-      url: urlBuilders.chatbotThreadListUrl({
-        type: 'personal',
-        raw: true,
-        category: category.name,
-        domain: chatbot.chatbot.metadata[0]?.domainName || 'prompt',
-        chatbot: chatbot.chatbot.name,
-      }),
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.4,
-    })),
-  ) as MetadataRoute.Sitemap
-
   const categoryUrls = [...personalCategoryUrls, ...publicCategoryUrls]
 
   return [
@@ -115,7 +84,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...categoryUrls,
     ...publicNestedUrls,
     ...personalNestedUrls,
-    ...publicNestedRawUrls,
-    ...personalNestedRawUrls,
   ]
 }

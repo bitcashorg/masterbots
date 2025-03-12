@@ -73,6 +73,7 @@ export function UserMenu({ user }: UserMenuProps) {
                   : toSlugWithUnderScore(user?.name || '')
               })}
               className="text-xs"
+              rel="canonical"
             >
               <div className="text-xs font-medium">{user?.name}</div>
               <div className="text-xs text-zinc-500">{user?.email}</div>

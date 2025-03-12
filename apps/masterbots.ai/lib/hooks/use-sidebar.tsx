@@ -92,7 +92,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
        userId = user ? user?.userId : null
     }
     
-   const categories = await getCategories(userId)
+    const categories = await getCategories(userId)
     const categoriesObj = {
       categoriesChatbots: categories || [],
       categoriesId: categories.map((category) => category.categoryId),

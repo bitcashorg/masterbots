@@ -2,15 +2,16 @@
 
 import { BrowseChatbotDesktopDetails } from '@/components/routes/browse/browse-chatbot-desktop-details'
 import { BrowseChatbotMobileDetails } from '@/components/routes/browse/browse-chatbot-mobile-details'
+import { canonicalChatbotDomains } from '@/lib/constants/canonical-domains'
 import { userPersonalityPrompt } from '@/lib/constants/prompts'
 import { useModel } from '@/lib/hooks/use-model'
 import { useSonner } from '@/lib/hooks/useSonner'
+import { urlBuilders } from '@/lib/url'
 import { nanoid } from '@/lib/utils'
 import { chatbotFollowOrUnfollow } from '@/services/hasura'
 import type { BrowseChatbotDetailsProps } from '@/types/types'
 import { useChat } from 'ai/react'
 import type { SocialFollowing } from 'mb-genql'
-import { toSlug } from 'mb-lib'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -57,7 +58,15 @@ export default function BrowseChatbotDetails({
   }
 
   const primaryCategory = chatbot.categories[0].category
-  const botUrl = `/c/${toSlug(primaryCategory.name)}/${chatbot.name.toLowerCase()}`
+  const [, canonicalDomain] = (canonicalChatbotDomains.find(
+    (cChatbot) => cChatbot.name === chatbot.name.toLocaleLowerCase(),
+  )?.value || '/').split('/') || ['other', 'prompt']
+  const botUrl = urlBuilders.chatbotThreadListUrl({
+    type: 'personal',
+    category: primaryCategory.name,
+    domain: canonicalDomain,
+    chatbot: chatbot.name
+  })
   const isWelcomeView = variant === 'default' && !chatbot.name.includes('Bot')
 
   const descriptionPoints = chatbot.description?.split(';').map((point) => point.trim()) || []

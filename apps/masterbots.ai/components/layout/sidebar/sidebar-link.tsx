@@ -2,6 +2,7 @@
 
 import { Checkbox } from '@/components/ui/checkbox'
 import { IconCaretRight } from '@/components/ui/icons'
+import { canonicalChatbotDomains } from '@/lib/constants/canonical-domains'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { urlBuilders } from '@/lib/url'
@@ -57,31 +58,32 @@ export default function SidebarLink({ category, isFilterMode, page }: SidebarLin
         setActiveChatbot(null)
 
         const newCategory = prev === category.categoryId ? null : category.categoryId
-        const timeout = setTimeout(() => {
-          clearTimeout(timeout)
+        
+        if (!newCategory) {
+          setActiveCategory(null)
+          setActiveChatbot(null)
+          router.push('/')
+        }
 
-          if (!newCategory) return
-
-          // ? Only the profile user has a sidebar
-          if (page === 'profile') {
-            return navigateTo({
-              urlType: 'userTopicThreadListUrl',
-              navigationParams: {
-                type: 'user',
-                usernameSlug: username as string,
-                category: category.name,
-              } as UserTopicThreadListUrlParams,
-            })
-          }
-
-          return navigateTo({
+        // ? Only the profile user has a sidebar
+        if (page === 'profile' && newCategory) {
+          navigateTo({
+            urlType: 'userTopicThreadListUrl',
+            navigationParams: {
+              type: 'user',
+              usernameSlug: username as string,
+              category: category.name,
+            } as UserTopicThreadListUrlParams,
+          })
+        } else if (newCategory) {
+          navigateTo({
             urlType: 'topicThreadListUrl',
             navigationParams: {
               type: isPublic ? 'public' : 'personal',
               category: category.name,
             } as TopicThreadListUrlParams,
           })
-        })
+        }
 
         return newCategory
       })
@@ -213,11 +215,16 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
   const pathname = usePathname()
   const isPublic = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
   const routeType = getRouteType(pathname)
-  const { username } = useParams()
+  const { username, domain } = useParams()
   const { setIsOpenPopup, setActiveThread } = useThread()
 
+  const [, canonicalDomain] = (canonicalChatbotDomains.find((cDomain) => cDomain.name === chatbot.name.toLowerCase())?.value || '/').split('/')
   // * Default to prompt when no metadata found... Special case for BlankBot
-  const chatbotDomain = chatbot.metadata ? chatbot.metadata[0].domainName : 'prompt'
+  const chatbotDomain = canonicalDomain || domain as string || 'prompt'
+  // console.log('canonicalDomain', {
+  //   canonicalDomain,
+  //   chatbotDomain
+  // })
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   const handleChatbotClick = useCallback(
     (e: React.MouseEvent) => {
@@ -251,7 +258,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
         } as ChatbotThreadListUrlParams,
       })
     },
-    [chatbot, isFilterMode],
+    [chatbot, isFilterMode, chatbotDomain],
   )
 
   const isSelected = selectedChatbots.includes(chatbot.chatbotId)
@@ -277,7 +284,6 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
       domain: chatbotDomain,
       chatbot: chatbot?.name,
     })
-  // console.log('chatbotPathname', chatbotPathname)
 
   return isFilterMode ? (
     <div
@@ -301,10 +307,11 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
     </div>
   ) : (
     <Link
-      href={chatbotPathname}
       className={cn('flex items-center py-2 px-4 w-full sidebar-gradient', isActive && 'selected')}
       onClick={handleChatbotClick}
+      href={chatbotPathname}
       data-route={routeType}
+      rel="canonical"
       prefetch
     >
       <Image

@@ -73,6 +73,7 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
             {/* Threads Accordion */}
             <div className="rounded-lg">
               <Link
+                rel="canonical"
                 href={urlBuilders.profilesUrl({
                   type: 'user',
                   usernameSlug: username as string,
@@ -120,6 +121,7 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
             {sameUser && session?.user.hasuraJwt && appConfig.features.devMode && (
               <>
                 <Link
+                  // rel="canonical"
                   href={`/u/${username}/s/pref`}
                   className={cn(
                     "flex items-center space-x-2 px-4 py-3",
@@ -131,6 +133,7 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
                   <span>Preferences</span>
                 </Link>
                 <Link
+                  // rel="canonical"
                   href={`/u/${username}/s/subs`}
                   className={cn(
                     "flex items-center space-x-2 px-4 py-3",
