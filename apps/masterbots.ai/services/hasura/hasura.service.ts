@@ -75,7 +75,7 @@ export async function getCategories(userId?: string) {
           prompts: {
             prompt: {
               __scalar: true,
-            },
+            }
           },
           ...chatbotEnumFieldsFragment,
         },
@@ -268,7 +268,7 @@ export async function getThread({ threadId, jwt, signal }: Partial<GetThreadPara
           prompts: {
             prompt: {
               __scalar: true,
-            },
+            }
           },
           followers: {
             followerId: true,
@@ -428,6 +428,9 @@ export async function getChatbot({ chatbotId, chatbotName, threads, jwt }: GetCh
       prompts: {
         prompt: {
           __scalar: true,
+        },
+        __args: {
+          orderBy: [{ promptId: 'DESC' }],
         },
       },
       ...chatbotEnumFieldsFragment,
@@ -738,7 +741,7 @@ export async function getUsers() {
   return user as User[]
 }
 
-export async function UpdateThreadVisibility({
+export async function updateThreadVisibility({
   threadId,
   isPublic,
   jwt,
@@ -753,10 +756,10 @@ export async function UpdateThreadVisibility({
       updateThreadByPk: {
         __args: {
           pkColumns: { threadId },
-          _set: { isApproved: true },
+          _set: { isPublic },
         },
         threadId: true,
-        isApproved: true,
+        isPublic: true,
       },
     })
     return { success: true }
@@ -1208,7 +1211,7 @@ export async function fetchChatbotMetadata({
         },
       },
     })
-    console.log('isPowerUp --> ', isPowerUp)
+    // console.log('isPowerUp --> ', isPowerUp)
     const chatbotMetadata = chatbotDomain.filter(
       // ? Filtering Advanced chatbots domains
       (item) =>
@@ -1216,7 +1219,7 @@ export async function fetchChatbotMetadata({
           ? item.domain.name.endsWith('(Advanced)')
           : !item.domain.name.endsWith('(Advanced)'),
     )
-    console.log('chatbotMetadata::BE --> ', chatbotMetadata)
+    // console.log('chatbotMetadata::BE --> ', chatbotMetadata)
 
     // require that the length is 1
     if (!chatbotMetadata[0] || !chatbotMetadata[0].domain) {

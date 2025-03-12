@@ -17,11 +17,12 @@ import { Switch } from '@/components/ui/switch'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn } from '@/lib/utils'
+import type { Message as AiMessage } from 'ai'
 
 export interface ChatPanelProps
   extends Pick<
     UseChatHelpers,
-    'append' | 'isLoading' | 'reload' | 'messages' | 'stop' | 'input' | 'setInput'
+    'append' | 'isLoading' | 'reload' | 'stop' | 'input' | 'setInput'
   > {
   scrollToBottom: () => void
   id?: string
@@ -30,7 +31,8 @@ export interface ChatPanelProps
   showReload?: boolean
   placeholder: string
   isAtBottom?: boolean
-  className?: string
+  className?: string,
+  messages: AiMessage[]
 }
 
 export function ChatPanel({
@@ -199,12 +201,13 @@ export function ChatPanel({
           )}
         >
           <PromptForm
-            onSubmit={async (value) => {
+            onSubmit={async (value, chatOptions) => {
+              scrollToBottom()
               await append({
                 id,
                 content: value,
                 role: 'user',
-              })
+              }, chatOptions)
             }}
             // biome-ignore lint/complexity/noExtraBooleanCast: <explanation>
             disabled={isLoading || !Boolean(chatbot) || isPreProcessing}

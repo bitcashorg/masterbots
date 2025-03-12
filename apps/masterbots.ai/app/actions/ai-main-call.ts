@@ -9,10 +9,9 @@ import {
   setDefaultPrompt,
 } from '@/lib/constants/prompts'
 import {
-  cleanResult,
   convertToCoreMessages,
   mbObjectSchema,
-  setStreamerPayload,
+  setStreamerPayload
 } from '@/lib/helpers/ai-helpers'
 import { aiTools } from '@/lib/helpers/ai-schemas'
 import { fetchChatbotMetadata } from '@/services/hasura'
@@ -31,10 +30,13 @@ import { smoothStream, streamObject, streamText } from 'ai'
 import { createStreamableValue } from 'ai/rsc'
 import { appConfig } from 'mb-env'
 import type OpenAI from 'openai'
+import type { ZodType, z } from 'zod'
 
 const OPEN_AI_ENV_CONFIG = {
   TOP_P: process.env.OPENAI_TOP_P ? Number.parseFloat(process.env.OPENAI_TOP_P) : undefined,
-  TEMPERATURE: process.env.OPENAI_TEMPERATURE ? Number.parseFloat(process.env.OPENAI_TEMPERATURE) : undefined,
+  TEMPERATURE: process.env.OPENAI_TEMPERATURE
+    ? Number.parseFloat(process.env.OPENAI_TEMPERATURE)
+    : undefined,
 }
 
 //* this function is used to create a client for the OpenAI API
@@ -75,12 +77,17 @@ export async function improveMessage(
   const messageImprovementPrompt = createImprovementPrompt(content)
 
   try {
-    const result = await processWithAi(messageImprovementPrompt, clientType, model)
-    const cleanedResult = cleanResult(result)
+    const result: z.infer<typeof mbObjectSchema.grammarLanguageImprover> = await processWithAiObject({
+      prompt: messageImprovementPrompt,
+      schema: mbObjectSchema.grammarLanguageImprover,
+    })
+
+    if (appConfig.features.devMode) {
+      console.log('result::improveMessage --> ', result)
+    }
 
     if (
-      isInvalidResult(cleanedResult.translatedText || cleanedResult.improvedText, content) &&
-      cleanedResult.improved
+      !result.improved && (result.originalText === result.improvedText || !result.improvedText)
     ) {
       console.warn(
         'AI did not modify the text or returned invalid result. Recursively executing improved prompt.',
@@ -88,7 +95,7 @@ export async function improveMessage(
       return await improveMessage(content, clientType, model)
     }
 
-    return cleanedResult
+    return result
   } catch (error) {
     const originalText = handleImprovementError(error, content, clientType, model)
     return setDefaultPrompt(originalText)
@@ -115,8 +122,8 @@ export async function getChatbotMetadata(
   const prompt = createChatbotMetadataPrompt(chatbotMetadata, userPrompt)
   const response = await classifyQuestion({ prompt, clientType, chatbotMetadata })
 
-  console.log('prompt, response --> ', prompt)
-  console.log('classifyQuestion, response --> ', response)
+  // console.log('prompt, response --> ', prompt)
+  // console.log('classifyQuestion, response --> ', response)
 
   response.domainName = chatbotMetadata.domainName
 
@@ -155,17 +162,27 @@ export async function processWithAi(
   }
 }
 
-export async function processWithAiObject(
-  prompt: string,
-  chatbotMetadata: ChatbotMetadata,
-  schema = mbObjectSchema.metadata,
-) {
+export type AiObjectSchema =
+  | typeof mbObjectSchema.metadata
+  | typeof mbObjectSchema.examples
+  | typeof mbObjectSchema.tool
+  | typeof mbObjectSchema.grammarLanguageImprover
+
+export async function processWithAiObject({
+  prompt,
+  chatbotMetadata,
+  schema,
+}: {
+  prompt: string
+  schema: AiObjectSchema
+  chatbotMetadata?: ChatbotMetadata
+}) {
   try {
     const response = await createResponseStreamObject(schema, {
       model: AIModels.Default,
       prompt,
       chatbotMetadata,
-    } as any)
+    })
 
     // @ts-ignore
     const responseObject = response.curr
@@ -183,7 +200,7 @@ export async function processWithAiObject(
       throw new Error('Failed to get response object')
     }
 
-    console.log('result::processWithAiObject -->', responseObject)
+    // console.log('result::processWithAiObject -->', responseObject)
     return responseObject
   } catch (error) {
     console.error('Error in processWithAIObject: ', error)
@@ -214,10 +231,6 @@ async function readStreamResponse(body: ReadableStream): Promise<string> {
   return result
 }
 
-function isInvalidResult(result: string, originalContent: string): boolean {
-  return !result || result.includes('Original message:') || result === originalContent
-}
-
 function handleImprovementError(
   error: any,
   originalContent: string,
@@ -236,24 +249,25 @@ export async function createResponseStream(
 ) {
   // TODO: Integrate powerUp mode into the response stream whenever required.
   const { model, messages: rawMessages, previewToken, webSearch, isPowerUp } = json
-  const messages = setStreamerPayload(clientType, rawMessages)
+  const messages = setStreamerPayload(clientType, rawMessages || [])
 
   const tools: Partial<typeof aiTools> = {
     // ? Temp disabling ICL as tool. Using direct ICL integration to main prompt instead. Might be enabled later.
     // chatbotMetadataExamples: aiTools.chatbotMetadataExamples
   }
 
-  console.log('[SERVER] webSearch', webSearch)
+  // console.log('[SERVER] webSearch', webSearch)
 
   if (webSearch) tools.webSearch = aiTools.webSearch
 
   try {
     let response: ReturnType<typeof streamText>
 
+    const coreMessages = convertToCoreMessages(messages as OpenAI.ChatCompletionMessageParam[])
+
     switch (clientType) {
       case 'OpenAI': {
         const openaiModel = initializeOpenAi(model)
-        const coreMessages = convertToCoreMessages(messages as OpenAI.ChatCompletionMessageParam[])
         const openAiStreamConfig = {
           temperature: OPEN_AI_ENV_CONFIG.TEMPERATURE,
           topP: OPEN_AI_ENV_CONFIG.TOP_P,
@@ -268,6 +282,7 @@ export async function createResponseStream(
           openAiStreamConfig.experimental_transform = smoothStream()
         }
 
+        // Check this -> https://sdk.vercel.ai/docs/reference/ai-sdk-core/stream-text#messages.core-user-message.role
         response = await streamText(openAiStreamConfig)
         break
       }
@@ -275,7 +290,6 @@ export async function createResponseStream(
         const anthropicModel = initializeAnthropic(model, {
           cacheControl: true,
         })
-        const coreMessages = convertToCoreMessages(messages as OpenAI.ChatCompletionMessageParam[])
         response = await streamText({
           model: anthropicModel,
           messages: coreMessages,
@@ -291,7 +305,6 @@ export async function createResponseStream(
           previewToken || (process.env.PERPLEXITY_API_KEY as string),
         )
         const perplexityModel = perplexity(model)
-        const coreMessages = convertToCoreMessages(messages as OpenAI.ChatCompletionMessageParam[])
         response = await streamText({
           model: perplexityModel,
           messages: coreMessages,
@@ -307,7 +320,6 @@ export async function createResponseStream(
           previewToken || (process.env.DEEPSEEK_API_KEY as string),
         )(model)
 
-        const coreMessages = convertToCoreMessages(messages as OpenAI.ChatCompletionMessageParam[])
         response = await streamText({
           model: deepseekModel,
           messages: coreMessages,
@@ -337,19 +349,21 @@ export async function createResponseStream(
       headers: { 'Content-Type': 'text/event-stream' },
     })
   } catch (error) {
-    console.error('Error in createResponseStream:', error)
+    console.error('--- ERROR IN createResponseStream ---')
     throw error
   }
 }
 
 export async function createResponseStreamObject(
-  schema:
-    | typeof mbObjectSchema.metadata
-    | typeof mbObjectSchema.examples
-    | typeof mbObjectSchema.tool,
+  schema: ZodType<
+    | z.infer<typeof mbObjectSchema.examples>
+    | z.infer<typeof mbObjectSchema.metadata>
+    | z.infer<typeof mbObjectSchema.tool>
+    | z.infer<typeof mbObjectSchema.grammarLanguageImprover>
+  >,
   json: JSONResponseStream & {
-    chatbotMetadata: ChatbotMetadata
     prompt: string
+    chatbotMetadata?: ChatbotMetadata
   },
   req?: Request,
 ) {
@@ -361,7 +375,7 @@ export async function createResponseStreamObject(
     // chatbotMetadataExamples: aiTools.chatbotMetadataExamples
   }
 
-  console.log('[SERVER] webSearch', webSearch)
+  // console.log('[SERVER] webSearch', webSearch)
 
   // if (webSearch) tools.webSearch = aiTools.webSearch
 
@@ -370,8 +384,7 @@ export async function createResponseStreamObject(
     const stream = createStreamableValue()
     const { partialObjectStream } = streamObject({
       model: openaiModel,
-      // TODO: Fix different schemas for different tools
-      schema: schema as typeof mbObjectSchema.metadata,
+      schema,
       output: 'object',
       prompt,
     })
@@ -402,7 +415,11 @@ export async function classifyQuestion({
   retryCount = 0,
 }: ClassifyQuestionParams): Promise<ChatbotMetadataClassification> {
   try {
-    const responseObj = await processWithAiObject(prompt, chatbotMetadata)
+    const responseObj = await processWithAiObject({ 
+      prompt,
+      chatbotMetadata,
+      schema: mbObjectSchema.metadata,
+    })
     const errors = []
 
     for (const tag of responseObj.tags) {
@@ -417,7 +434,7 @@ export async function classifyQuestion({
       const categoryKey = Object.keys(chatbotMetadata.categories).find((cat) =>
         cat.includes(category),
       ) as keyof typeof chatbotMetadata.categories
-      console.log('categoryKey -> ', categoryKey)
+      // console.log('categoryKey -> ', categoryKey)
       if (!chatbotMetadata.categories[categoryKey]) {
         responseObj.categories = responseObj.categories.filter((c: string) => c !== category)
 
@@ -440,7 +457,7 @@ export async function classifyQuestion({
       }
     }
 
-    console.log('class, subclass and tags are valid', responseObj)
+    // console.log('class, subclass and tags are valid', responseObj)
     console.error('Errors: ', JSON.stringify(errors, null, 3))
 
     responseObj.errors = errors
