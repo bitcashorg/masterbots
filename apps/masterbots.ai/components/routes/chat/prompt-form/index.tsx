@@ -152,6 +152,10 @@ export function PromptForm({
           allMessages.some((a) => attachment.messageIds?.some((id) => id === a.id)),
         )
       : []
+  const selectedUserAttachments = userAttachments.map((attachment) => ({
+    ...attachment,
+    isSelected: attachments.some((a) => a.id === attachment.id),
+  }))
 
   return (
     <motion.form
@@ -249,7 +253,7 @@ export function PromptForm({
                         </AccordionTrigger>
                         <AccordionContent className="scrollbar h-full max-h-[200px] md:max-h-[300px] w-full">
                           <UserAttachments
-                            attachments={userAttachments}
+                            attachments={selectedUserAttachments}
                             onChange={fileAttachmentActions.toggleAttachmentSelection}
                           />
                         </AccordionContent>

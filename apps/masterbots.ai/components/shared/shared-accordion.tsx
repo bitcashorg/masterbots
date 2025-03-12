@@ -146,7 +146,7 @@ export function SharedAccordion({
       urlType: 'threadUrl',
       shallow: true,
       navigationParams: {
-        type: 'public',
+        type: isPublic ? 'public' : 'personal',
         category: fullThread?.chatbot?.categories[0]?.category?.name || 'AI',
         domain: fullThread?.chatbot?.metadata[0]?.domainName || 'General',
         chatbot: fullThread?.chatbot?.name || 'Masterbots',

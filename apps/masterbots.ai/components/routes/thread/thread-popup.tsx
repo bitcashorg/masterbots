@@ -15,7 +15,7 @@ import { cn, getRouteType } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
 import type { Message as AiMessage } from 'ai'
 import type { Chatbot, Message } from 'mb-genql'
-import { usePathname } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
 export function ThreadPopup({ className }: { className?: string }) {
@@ -147,16 +147,19 @@ function ThreadPopUpCardHeader({
 }) {
   const { isOpenPopup, activeThread, setIsOpenPopup, setActiveThread, setShouldRefreshThreads } = useThread()
   const { navigateTo } = useSidebar()
+  const pathname = usePathname()
+  const params = useParams()
+  const isPublic = getRouteType(pathname) === 'public'
 
   const onClose = () => {
     const canonicalDomain = getCanonicalDomain(activeThread?.chatbot?.name || '')
     setIsOpenPopup(!isOpenPopup)
 
     navigateTo({
-      urlType: 'topicThreadListUrl',
+      urlType: 'chatbotThreadListUrl',
       shallow: true,
       navigationParams: {
-        type: 'public',
+        type: isPublic ? 'public' : 'personal',
         category: activeThread?.chatbot?.categories?.[0]?.category?.name || '',
         domain: canonicalDomain,
         chatbot: activeThread?.chatbot?.name || '',

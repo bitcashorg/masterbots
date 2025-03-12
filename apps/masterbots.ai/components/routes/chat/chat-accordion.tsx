@@ -102,7 +102,7 @@ export const ChatAccordion = ({
           urlType: 'threadUrl',
           shallow: true,
           navigationParams: {
-            type: !isPublic ? 'public' : 'personal',
+            type: isPublic ? 'public' : 'personal',
             chatbot: thread?.chatbot?.name || '',
             category: thread?.chatbot?.categories?.[0]?.category?.name || '',
             domain: thread?.chatbot?.metadata[0]?.domainName || '',

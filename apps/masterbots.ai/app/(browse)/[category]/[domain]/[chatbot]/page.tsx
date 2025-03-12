@@ -6,7 +6,7 @@ import { generateMetadataFromSEO } from '@/lib/metadata'
 import { getChatbot, getThreads } from '@/services/hasura'
 import type { Metadata } from 'next'
 
-export default async function BrowseCategoryPage({
+export default async function BrowseCategoryChatbotPage({
   params
 }: {
   params: { category: string, chatbot: string }

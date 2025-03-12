@@ -12,7 +12,7 @@ import { useModel } from '@/lib/hooks/use-model'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
-import { createThread, deleteThread, getThread, saveNewMessage } from '@/services/hasura'
+import { createThread, deleteThread, doesMessageSlugExist, doesThreadSlugExist, getThread, saveNewMessage } from '@/services/hasura'
 import type {
   AiClientType,
   AiToolCall,
@@ -32,6 +32,7 @@ import { usePowerUp } from '@/lib/hooks/use-power-up'
 import type { SaveNewMessageParams } from '@/services/hasura/hasura.service.type'
 import type * as OpenAi from 'ai'
 import { appConfig } from 'mb-env'
+import { toSlug } from 'mb-lib'
 import { nanoid } from 'nanoid'
 import { useSession } from 'next-auth/react'
 import { useParams, useSearchParams } from 'next/navigation'
@@ -221,10 +222,10 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
         const attachments = messageAttachments.current
         const newAttachments = attachments
           ? attachments.map((attachment) => ({
-            ...attachment,
-            // We make the relationship of the attachment with the user and assistant messages, making it flexible
-            messageIds: [...(attachment?.messageIds || []), userMessageId, assistantMessageId],
-          }))
+              ...attachment,
+              // We make the relationship of the attachment with the user and assistant messages, making it flexible
+              messageIds: [...(attachment?.messageIds || []), userMessageId, assistantMessageId],
+            }))
           : []
 
         for (const attachment of newAttachments) {
@@ -240,10 +241,38 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
           threadId: aiChatThreadId ?? '',
           jwt: session?.user?.hasuraJwt,
         }
+        const curatedPreUserMessageSlug = userContentRef.current
+          .toLocaleLowerCase()
+          .replace(
+            /(explain more in-depth and in detail about |explain more in depth and in detail about |explain more in-depth about |explain more in depth about |can you provide a detailed explanation of )/g,
+            '',
+          )
+
+        // Check and get unique slugs for both messages
+        let userMessageSlug = toSlug(curatedPreUserMessageSlug)
+        let userSlugCheck = await doesMessageSlugExist(userMessageSlug)
+
+        // If user message slug already exists, append a counter
+        while (userSlugCheck.exists) {
+          userMessageSlug = toSlug(`${curatedPreUserMessageSlug} ${userSlugCheck.sequence + 1}`)
+          userSlugCheck = await doesMessageSlugExist(userMessageSlug)
+        }
+
+        // We need to check for a unique slug for assistant message as well
+        let assistantMessageSlug = toSlug(message.content)
+        let assistantSlugCheck = await doesMessageSlugExist(assistantMessageSlug)
+
+        // If assistant message slug already exists, append a counter
+        while (assistantSlugCheck.exists) {
+          assistantMessageSlug = toSlug(`${message.content} ${assistantSlugCheck.sequence + 1}`)
+          assistantSlugCheck = await doesMessageSlugExist(assistantMessageSlug)
+        }
+
         const [newUserMessage, newAssistantMessage]: Partial<SaveNewMessageParams>[] = [
           {
             ...newBaseMessage,
             messageId: userMessageId,
+            slug: userMessageSlug,
             role: 'user',
             content: userContentRef.current,
             createdAt: new Date().toISOString(),
@@ -251,6 +280,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
           {
             ...newBaseMessage,
             messageId: assistantMessageId,
+            slug: assistantMessageSlug,
             role: 'assistant',
             content: message.content,
             createdAt: new Date(Date.now() + 1000).toISOString(),
@@ -338,7 +368,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       })) || [],
     ),
     'content',
-  ).filter(Boolean).filter((m) => m.role !== 'system')
+  )
+    .filter(Boolean)
+    .filter((m) => m.role !== 'system')
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: only activeThread is needed
   useEffect(() => {
@@ -536,7 +568,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
         domain: activeChatbot?.metadata[0].domainName || '',
         chatbot: activeChatbot?.name || '',
         threadSlug: activeThread?.slug || '',
-      }
+      },
     })
 
     return null
@@ -577,8 +609,17 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (((!allMessages.length && isNewChat) || isContinuingThread) && chatbot) {
+        let slug = toSlug(userContentRef.current)
+        let slugCheck = await doesThreadSlugExist(slug)
+
+        while (slugCheck.exists) {
+          slug = toSlug(`${userContentRef.current} ${slugCheck.sequence + 1}`)
+          slugCheck = await doesThreadSlugExist(slug)
+        }
+
         await createThread({
           threadId: threadId as string,
+          slug,
           chatbotId: chatbot.chatbotId,
           parentThreadId: isContinuousThread ? threadId : undefined,
           jwt: session?.user?.hasuraJwt,
@@ -589,7 +630,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       const chatMessagesToAppend = uniqBy(
         [
           ...systemPrompts,
-          setOutputInstructionPrompt(userMessage.content),
+          setOutputInstructionPrompt(userContentRef.current),
           {
             id: 'examples-' + nanoid(10),
             role: 'system' as 'data' | 'system' | 'user' | 'assistant',

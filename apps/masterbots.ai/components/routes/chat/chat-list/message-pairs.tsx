@@ -27,7 +27,7 @@ export function MessagePairs({
   sendMessageFn?: (message: string) => void
 }) {
   const { isNewResponse } = useThread()
-
+  console.log('pairs --> ', pairs)
   // TODO: Re-arrange the questions when the thread has a previous conversation from a different thread
   return (
     <>

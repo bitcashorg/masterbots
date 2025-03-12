@@ -42,6 +42,7 @@ export interface UpsertUserParams {
 export interface CreateThreadParams extends HasuraServiceParams {
   chatbotId: number
   threadId: string
+  slug: string
   userId: string
   isPublic?: boolean
   parentThreadId?: string

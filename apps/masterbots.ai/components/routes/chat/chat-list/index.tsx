@@ -46,17 +46,17 @@ export function ChatList({
   const indexedDBKeys = getUserIndexedDBKeys(session?.user?.id)
   const { getAllItems } = useIndexedDB(indexedDBKeys)
   const [userAttachments, setUserAttachments] = React.useState<FileAttachment[]>([])
+  const { isNewResponse, activeThread } = useThread()
   const [_, getUserAttachments] = useAsyncFn(async () => {
     const attachments = await getAllItems()
     setUserAttachments(attachments as FileAttachment[])
 
     return attachments
-  }, [session])
+  }, [session, messages])
   const [pairs, setPairs] = React.useState<MessagePair[]>([])
   const [previousConversationPairs, setPreviousConversationPairs] = React.useState<MessagePair[]>(
     [],
   )
-  const { isNewResponse, activeThread } = useThread()
   const chatListRef = useRef<HTMLDivElement>(null)
   const messageContainerRef = useRef<HTMLDivElement>(null)
 
@@ -65,7 +65,7 @@ export function ChatList({
     if (session) {
       getUserAttachments()
     }
-  }, [session, messages, activeThread])
+  }, [session, activeThread])
 
   //? Uses the external ref if provided, otherwise it uses our internal refs
   const effectiveContainerRef = externalContainerRef || chatListRef

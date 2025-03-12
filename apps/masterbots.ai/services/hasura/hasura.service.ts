@@ -45,6 +45,7 @@ const chatbotEnumFieldsFragment = {
   },
 }
 
+
 function getHasuraClient({ jwt, adminSecret, signal }: GetHasuraClientParams) {
   return createMbClient({
     config: {
@@ -55,6 +56,48 @@ function getHasuraClient({ jwt, adminSecret, signal }: GetHasuraClientParams) {
     debug: process.env.DEBUG === 'true',
     env: validateMbEnv(process.env.NEXT_PUBLIC_APP_ENV),
   })
+}
+
+export async function doesThreadSlugExist(slug: string) {
+  const client = getHasuraClient({})
+  const { thread } = await client.query({
+    thread: {
+      slug: true,
+      __args: {
+        where: {
+          slug: {
+            _eq: slug,
+          },
+        }
+      }
+    },
+  })
+  return {
+    exists: thread.length > 0,
+    slug: thread[0]?.slug,
+    sequence: Number.parseFloat(thread[0]?.slug.split('-').pop() as string) || 0,
+  }
+}
+
+export async function doesMessageSlugExist(slug: string) {
+  const client = getHasuraClient({})
+  const { message } = await client.query({
+    message: {
+      slug: true,
+      __args: {
+        where: {
+          slug: {
+            _eq: slug,
+          },
+        }
+      }
+    },
+  })
+  return {
+    exists: message.length > 0,
+    slug: message[0]?.slug,
+    sequence: Number.parseFloat(message[0]?.slug.split('-').pop() as string) || 0,
+  }
 }
 
 export async function getCategories(userId?: string) {
@@ -415,6 +458,7 @@ export async function upsertUser({ adminSecret, username, ...object }: UpsertUse
 export async function createThread({
   chatbotId,
   threadId,
+  slug,
   jwt,
   userId,
   parentThreadId,
@@ -424,12 +468,16 @@ export async function createThread({
   const { insertThreadOne } = await client.mutation({
     insertThreadOne: {
       __args: {
-        object: { threadId, chatbotId, isPublic, parentThreadId },
+        object: { threadId, chatbotId, isPublic, parentThreadId, slug },
       },
       threadId: true,
+      slug: true,
     },
   })
-  return insertThreadOne?.threadId as string
+  return {
+    threadId: insertThreadOne?.threadId,
+    slug: insertThreadOne?.slug,
+  }
 }
 
 export async function getChatbot({ chatbotId, chatbotName, threads, jwt }: GetChatbotParams) {

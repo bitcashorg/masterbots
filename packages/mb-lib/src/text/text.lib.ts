@@ -9,7 +9,7 @@ slugify.extend(slugWordExtension)
  * @param {string} str The string to be slugified
  * @return {string} The slugified string.
  */
-export function toSlug(str: string): string {
+export function toSlug(str: string, maxWords = 10): string {
   if (!str) {
     return ''
   }
@@ -19,8 +19,9 @@ export function toSlug(str: string): string {
     strict: true,
     trim: true,
   })
+  
   // map each word to remove words from wordsToRemove
-  const slug = preSlug
+  const words = preSlug
     .split('-')
     .map((word) => {
       // Skip empty words
@@ -31,9 +32,13 @@ export function toSlug(str: string): string {
 
       return word
     })
-    // Remove empty strings and join words with hyphen
+    // Remove empty strings
     .filter(Boolean)
-    .join('-')
+    // Limit to maxWords
+    .slice(0, maxWords)
+  
+  // Join words with hyphen
+  const slug = words.join('-')
 
   return slug
 }

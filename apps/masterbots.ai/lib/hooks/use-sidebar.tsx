@@ -144,12 +144,10 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 
   React.useEffect(() => {
     if (!pathname || !categories) return
-    const pathParts = pathname.split('/')
+    // ? "/:root/:categorySlug/:domainSlug/:chatbotSlug"
+    const [_rootPath, basePath, categorySlug, _domainSlug, chatbotSlug] = pathname.split('/')
 
-    if (categories && pathParts[1] === 'c') {
-      const categorySlug = pathParts[2]
-      const chatbotName = pathParts[3]
-
+    if (categories && basePath === 'c') {
       const category = categories?.categoriesChatbots.find(
         (cat) => toSlug(cat.name) === categorySlug,
       )
@@ -158,9 +156,9 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
         setActiveCategory(category.categoryId)
         setExpandedCategories([category.categoryId])
 
-        if (chatbotName) {
+        if (chatbotSlug) {
           const chatbot = category.chatbots.find(
-            (c) => c.chatbot.name.toLowerCase() === chatbotName,
+            (c) => c.chatbot.name.toLowerCase() === chatbotSlug,
           )
           if (chatbot) {
             setActiveChatbot(chatbot.chatbot)
