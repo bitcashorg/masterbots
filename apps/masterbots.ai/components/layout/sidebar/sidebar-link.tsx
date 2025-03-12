@@ -2,10 +2,9 @@
 
 import { Checkbox } from '@/components/ui/checkbox'
 import { IconCaretRight } from '@/components/ui/icons'
-import { canonicalChatbotDomains } from '@/lib/constants/canonical-domains'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
-import { urlBuilders } from '@/lib/url'
+import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { cn, getRouteType } from '@/lib/utils'
 import type { ChatbotThreadListUrlParams, TopicThreadListUrlParams, UserChatbotThreadListUrlParams, UserTopicThreadListUrlParams } from '@/types/url'
 import type { Category, Chatbot } from 'mb-genql'
@@ -218,7 +217,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(function Ch
   const { username, domain } = useParams()
   const { setIsOpenPopup, setActiveThread } = useThread()
 
-  const [, canonicalDomain] = (canonicalChatbotDomains.find((cDomain) => cDomain.name === chatbot.name.toLowerCase())?.value || '/').split('/')
+  const canonicalDomain = getCanonicalDomain(chatbot.name)
   // * Default to prompt when no metadata found... Special case for BlankBot
   const chatbotDomain = canonicalDomain || domain as string || 'prompt'
   // console.log('canonicalDomain', {

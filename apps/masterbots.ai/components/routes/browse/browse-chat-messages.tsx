@@ -17,7 +17,6 @@ import BrowseChatbotDetails from '@/components/routes/browse/browse-chatbot-deta
 import { BrowseThreadBlog } from '@/components/routes/browse/browse-thread-blog'
 import { ExternalLink } from '@/components/shared/external-link'
 import { buttonVariants } from '@/components/ui/button'
-import { canonicalChatbotDomains } from '@/lib/constants/canonical-domains'
 import { urlBuilders } from '@/lib/url'
 import { cn } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
@@ -25,6 +24,7 @@ import type * as AI from 'ai'
 import type { Chatbot, Message, User } from 'mb-genql'
 import Link from 'next/link'
 import React from 'react'
+import { getCanonicalDomain } from '../../../lib/url'
 
 export type MessagePair = {
   userMessage: Message
@@ -57,10 +57,7 @@ export function BrowseChatMessages({
   const parentThreadSlug = parentThread[0]?.thread?.slug
   const { name: categoryName } = chatbot?.categories[0].category || { name: '' }
   const { name: chatBotName } = chatbot || { name: '' }
-  const [, canonicalDomain] = (
-    canonicalChatbotDomains.find((cChatbot) => cChatbot.name === chatBotName.toLocaleLowerCase())
-      ?.value || '/'
-  ).split('/') || ['other', 'prompt']
+  const canonicalDomain = getCanonicalDomain(chatBotName)
   const parentThreadUrl =
     parentThreadSlug && chatbot
       ? urlBuilders.profilesThreadUrl({

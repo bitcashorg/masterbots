@@ -8,8 +8,8 @@ import { UserLogin } from '@/components/auth/user-login'
 import { SidebarToggle } from '@/components/layout/sidebar/sidebar-toggle'
 import { Button } from '@/components/ui/button'
 import { IconSeparator } from '@/components/ui/icons'
-import { canonicalChatbotDomains } from '@/lib/constants/canonical-domains'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { getCanonicalDomain } from '@/lib/url'
 import { cn, getRouteColor, getRouteType } from '@/lib/utils'
 import { appConfig } from 'mb-env'
 
@@ -52,11 +52,7 @@ function HeaderLink({
 
 export function Header() {
   const { activeCategory, activeChatbot, setActiveCategory, setActiveChatbot } = useSidebar()
-  const [, canonicalDomain] = (
-    canonicalChatbotDomains.find(
-      (cChatbot) => cChatbot.name === activeChatbot?.name.toLocaleLowerCase(),
-    )?.value || '/'
-  ).split('/')
+  const canonicalDomain = getCanonicalDomain(activeChatbot?.name || '')
 
   const resetNavigation = (e: React.MouseEvent) => {
     setActiveCategory(null)

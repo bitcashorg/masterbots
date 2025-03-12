@@ -2,11 +2,10 @@
 
 import { BrowseChatbotDesktopDetails } from '@/components/routes/browse/browse-chatbot-desktop-details'
 import { BrowseChatbotMobileDetails } from '@/components/routes/browse/browse-chatbot-mobile-details'
-import { canonicalChatbotDomains } from '@/lib/constants/canonical-domains'
 import { userPersonalityPrompt } from '@/lib/constants/prompts'
 import { useModel } from '@/lib/hooks/use-model'
 import { useSonner } from '@/lib/hooks/useSonner'
-import { urlBuilders } from '@/lib/url'
+import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { nanoid } from '@/lib/utils'
 import { chatbotFollowOrUnfollow } from '@/services/hasura'
 import type { BrowseChatbotDetailsProps } from '@/types/types'
@@ -58,9 +57,7 @@ export default function BrowseChatbotDetails({
   }
 
   const primaryCategory = chatbot.categories[0].category
-  const [, canonicalDomain] = (canonicalChatbotDomains.find(
-    (cChatbot) => cChatbot.name === chatbot.name.toLocaleLowerCase(),
-  )?.value || '/').split('/') || ['other', 'prompt']
+  const canonicalDomain = getCanonicalDomain(chatbot.name)
   const botUrl = urlBuilders.chatbotThreadListUrl({
     type: 'personal',
     category: primaryCategory.name,

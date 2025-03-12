@@ -1,4 +1,4 @@
-import { urlBuilders } from '@/lib/url'
+import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { getAllChatbots, getCategories } from '@/services/hasura'
 import type { MetadataRoute } from 'next'
 
@@ -36,7 +36,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: urlBuilders.chatbotThreadListUrl({
         type: 'public',
         category: category.name,
-        domain: chatbot.chatbot.metadata[0]?.domainName || 'prompt',
+        domain: getCanonicalDomain(chatbot.chatbot.metadata[0]?.domainName),
         chatbot: chatbot.chatbot.name
       }),
       lastModified: new Date(),
@@ -50,7 +50,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: urlBuilders.chatbotThreadListUrl({
         type: 'personal',
         category: category.name,
-        domain: chatbot.chatbot.metadata[0]?.domainName || 'prompt',
+        domain: getCanonicalDomain(chatbot.chatbot.metadata[0]?.domainName),
         chatbot: chatbot.chatbot.name,
       }),
       lastModified: new Date(),

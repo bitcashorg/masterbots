@@ -1,4 +1,4 @@
-import { urlBuilders } from '@/lib/url'
+import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { getAllChatbots, getCategories } from '@/services/hasura'
 import type { MetadataRoute } from 'next'
 
@@ -28,18 +28,7 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
       urlBuilders.chatbotThreadListUrl({
         type: 'public',
         category: category.name,
-        domain: chatbot.metadata[0]?.domainName || 'prompt',
-        chatbot: chatbot.name,
-      }),
-    ),
-  )
-  const publicNestedRawUrls = categories.flatMap((category) =>
-    category.chatbots.map(({ chatbot }) =>
-      urlBuilders.chatbotThreadListUrl({
-        type: 'public',
-        raw: true,
-        category: category.name,
-        domain: chatbot.metadata[0]?.domainName || 'prompt',
+        domain: getCanonicalDomain(chatbot.metadata[0]?.domainName),
         chatbot: chatbot.name,
       }),
     ),
@@ -50,29 +39,14 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
       urlBuilders.chatbotThreadListUrl({
         type: 'personal',
         category: category.name,
-        domain: chatbot.metadata[0]?.domainName || 'prompt',
+        domain: getCanonicalDomain(chatbot.metadata[0]?.domainName),
         chatbot: chatbot.name,
       })
     ),
   )
-  const personalNestedRawUrls = categories.flatMap((category) =>
-    category.chatbots.map(({ chatbot }) =>
-      urlBuilders.chatbotThreadListUrl({
-        type: 'personal',
-        raw: true,
-        category: category.name,
-        domain: chatbot.metadata[0]?.domainName || 'prompt',
-        chatbot: chatbot.name,
-      }),
-    ),
-  )
 
-  const personalPublicThreadsWildcards = personalNestedUrls.map((url) => `${url}/*`)
-  const personalPublicRawThreadsWildcards = personalNestedRawUrls.map((url) => `${url}/*`)
-  
-  const publicPublicThreadsWildcards = publicNestedUrls.map((url) => `${url}/*`) 
-  const publicPublicRawThreadsWildcards = publicNestedRawUrls.map((url) => `${url}/*`)
-
+  const personalPublicThreadsWildcards = personalNestedUrls.map((url) => `${url}/*`)  
+  const publicPublicThreadsWildcards = publicNestedUrls.map((url) => `${url}/*`)
   const chatbotProfilesWildcards = chatbotUrls.map((url) => `${url}/*`)
   
   return {
@@ -81,15 +55,11 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
       allow: [
         ...personalNestedUrls,
         ...publicNestedUrls,
-        ...personalNestedRawUrls,
-        ...publicNestedRawUrls,
         ...personalCategoryUrls,
         ...publicCategoryUrls,
         ...chatbotUrls,
         ...personalPublicThreadsWildcards,
-        ...personalPublicRawThreadsWildcards,
         ...publicPublicThreadsWildcards,
-        ...publicPublicRawThreadsWildcards,
         ...chatbotProfilesWildcards,
       ],
       disallow: '/c/p',

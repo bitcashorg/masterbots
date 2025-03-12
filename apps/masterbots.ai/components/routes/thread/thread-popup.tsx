@@ -6,11 +6,11 @@ import { ChatList } from '@/components/routes/chat/chat-list'
 import { Button } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
 import { Skeleton } from '@/components/ui/skeleton'
-import { canonicalChatbotDomains } from '@/lib/constants/canonical-domains'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
+import { getCanonicalDomain } from '@/lib/url'
 import { cn, getRouteType } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
 import type { Message as AiMessage } from 'ai'
@@ -149,9 +149,7 @@ function ThreadPopUpCardHeader({
   const { navigateTo } = useSidebar()
 
   const onClose = () => {
-    const [, canonicalDomain] = (canonicalChatbotDomains.find(
-     (cChatbot) => cChatbot.name === activeThread?.chatbot?.name.toLowerCase()
-    )?.value) || ['other', 'prompt']
+    const canonicalDomain = getCanonicalDomain(activeThread?.chatbot?.name || '')
     setIsOpenPopup(!isOpenPopup)
 
     navigateTo({

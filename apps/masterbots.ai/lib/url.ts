@@ -1,3 +1,4 @@
+import { canonicalChatbotDomains } from '@/lib/constants/canonical-domains'
 import { domainSlugs } from '@/lib/constants/domain-slugs'
 import type {
   ChatbotThreadListUrlParams,
@@ -32,6 +33,15 @@ export const encodeQuery = (input: string): string => {
 
 export const decodeQuery = (input: string): string => {
   return decodeURIComponent(input.replace(/\+/g, ' '))
+}
+
+export const getCanonicalDomain = (chatbotName: string) => {
+  try {
+    return (canonicalChatbotDomains.find((cChatbot) => cChatbot.name === chatbotName.toLocaleLowerCase())?.value || '/').split('/')[1]
+  } catch (error) {
+    console.error('Error getting canonical domain:', error)
+    return 'prompt'
+  }
 }
 
 /**
