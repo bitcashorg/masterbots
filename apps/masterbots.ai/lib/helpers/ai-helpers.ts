@@ -31,7 +31,9 @@ export function getModelClientType(model: AIModels) {
     case AIModels.WordWare:
       return 'WordWare'
     case AIModels.DeepSeekR1:
-      return 'DeepSeek' // Add this case
+      return 'DeepSeek'
+    case AIModels.DeepSeekR1Groq:
+      return 'Groq'
     default:
       throw new Error('Unsupported model specified')
   }
@@ -41,6 +43,7 @@ export function getModelClientType(model: AIModels) {
 export function createPayload(
   json: { id: string },
   messages: { content: string }[],
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   completion: any,
 ) {
   const title = messages[0]?.content.substring(0, 100)
@@ -100,6 +103,25 @@ export function setStreamerPayload(
         }
         return message
       })
+      case 'Groq':
+        return payload.map((message) => {
+          if (message.role === 'assistant') {
+            const content = message.content as string
+            // Extract any existing reasoning if present
+            const reasoningMatch = content.match(/<think>(.*?)<\/think>/s)
+            const answerMatch = content.match(/<answer>(.*?)<\/answer>/s)
+  
+            return {
+              ...message,
+              // If content already has think/answer tags, use those, otherwise add reasoning field
+              content: answerMatch ? content : `<answer>${content}</answer>`,
+              reasoning: reasoningMatch
+                ? reasoningMatch[1]
+                : '<think>Analyzing the context and formulating a response...</think>',
+            }
+          }
+          return message
+        });
     default:
       return payload
   }

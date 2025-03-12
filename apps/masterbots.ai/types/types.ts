@@ -193,7 +193,7 @@ export type CoreMessage = {
   }
 }
 
-export type AiClientType = 'OpenAI' | 'Anthropic' | 'Perplexity' | 'WordWare' | 'DeepSeek'
+export type AiClientType = 'OpenAI' | 'Anthropic' | 'Perplexity' | 'WordWare' | 'DeepSeek' | 'Groq'
 
 export type JSONResponseStream = {
   model: string

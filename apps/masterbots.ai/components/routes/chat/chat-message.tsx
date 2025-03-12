@@ -90,7 +90,7 @@ export function ChatMessage({
     const followUpPrompt = `Explain more in-depth and in detail about "${clickableText}"? ${cleanedText}`
     sendMessageFromResponse?.(followUpPrompt)
   }
-
+  
   // References section component.
   const ReferencesSection = () => {
     if (references.length === 0) return null
@@ -129,6 +129,29 @@ export function ChatMessage({
       </div>
     )
   }
+
+   //* ReasoningSection component
+   const ReasoningSection = () => {
+    if (!message.reasoning) return null;
+    
+    return (
+      <div className="pt-4 mt-4 border-t border-gray-200">
+        <details className="reasoning-details">
+          <summary className="font-semibold text-gray-600 cursor-pointer hover:text-gray-900">
+            Show AI Reasoning
+          </summary>
+          <div className="p-2 mt-2 rounded-md bg-gray-50">
+            <MemoizedReactMarkdown
+              className="text-sm prose text-gray-700 break-words dark:prose-invert"
+              remarkPlugins={[remarkGfm, remarkMath]}
+            >
+              {message.reasoning}
+            </MemoizedReactMarkdown>
+          </div>
+        </details>
+      </div>
+    );
+  };
 
   return (
     <div className={cn('group relative flex items-start p-1')} {...props}>
@@ -279,6 +302,7 @@ export function ChatMessage({
         )}
 
         <ReferencesSection />
+        <ReasoningSection />
       </div>
     </div>
   )

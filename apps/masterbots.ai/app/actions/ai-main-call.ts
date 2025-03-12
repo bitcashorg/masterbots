@@ -31,6 +31,8 @@ import { createStreamableValue } from 'ai/rsc'
 import { appConfig } from 'mb-env'
 import type OpenAI from 'openai'
 import type { ZodType, z } from 'zod'
+import { createGroq } from '@ai-sdk/groq';
+import { extractReasoningMiddleware, wrapLanguageModel } from 'ai';
 
 const OPEN_AI_ENV_CONFIG = {
   TOP_P: process.env.OPENAI_TOP_P ? Number.parseFloat(process.env.OPENAI_TOP_P) : undefined,
@@ -45,6 +47,31 @@ const initializeOpenAi = createOpenAI({
   compatibility: 'strict',
 })
 
+//* this function is used to create a client for the Groq API
+const initializeGroq = (apiKey?: string) => {
+  const key = apiKey || process.env.GROQ_API_KEY;
+  
+  if (!key) {
+    throw new Error('GROQ_API_KEY is not defined in environment variables');
+  }
+  
+  const groqClient = createGroq({
+    apiKey: key,
+  });
+  
+  // For DeepSeek models via Groq, use the enhanced model with reasoning extraction
+  return {
+    basic: groqClient,
+    enhanced: (model: string) => {
+      return wrapLanguageModel({
+        model: groqClient(model),
+        middleware: extractReasoningMiddleware({ tagName: 'think' }),
+      });
+    }
+  };
+};
+
+// * This function initializes the DeepSeek API
 const initializeDeepSeek = (apiKey: string) => {
   if (!apiKey) {
     throw new Error('DEEPSEEK_API_KEY is not defined in environment variables')
@@ -55,6 +82,7 @@ const initializeDeepSeek = (apiKey: string) => {
 const initializeAnthropic = createAnthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 })
+
 
 //* Perplexity API uses openai-sdk with compatible mode and a different base URL
 export async function initializePerplexity(apiKey: string) {
@@ -143,6 +171,7 @@ export async function processWithAi(
     const response = await createResponseStream(clientType, {
       model: AIModels.Default,
       messages: processedMessages,
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     } as any)
 
     if (!response.body) {
@@ -232,6 +261,7 @@ async function readStreamResponse(body: ReadableStream): Promise<string> {
 }
 
 function handleImprovementError(
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   error: any,
   originalContent: string,
   clientType?: AiClientType,
@@ -330,13 +360,27 @@ export async function createResponseStream(
         })
         break
       }
+      case 'Groq': {
+        const groq = initializeGroq(previewToken || undefined);
+        const groqModel = groq.enhanced(model);
+        
+        response = await streamText({
+          model: groqModel,
+          messages: coreMessages,
+          temperature: 0.3,  // Lower temperature for reasoning models
+          maxTokens: 2000,
+          tools,
+          maxRetries: 2,
+        });
+        break;
+      }
       default:
         throw new Error('Unsupported client type')
     }
 
     // @ts-ignore
     const dataStreamResponse = response.toDataStreamResponse({
-      sendReasoning: clientType === 'DeepSeek', // Enable reasoning output for DeepSeek
+      sendReasoning: clientType === 'DeepSeek' || clientType === 'Groq', // Enable reasoning output for both DeepSeek and Groq
       getErrorMessage(error) {
         if (error instanceof Error) return error.message
         return 'Failed to process the request'
