@@ -6,24 +6,32 @@ RETURNS void AS $$
 DECLARE
   msg RECORD;
   base_slug TEXT;
-  new_slug TEXT;
+  final_slug TEXT;
   counter INTEGER;
 BEGIN
   -- Process each message that needs a slug
-  FOR msg IN SELECT message_id, content FROM public.message WHERE slug IS NULL OR slug = '' LOOP
+  FOR msg IN 
+    SELECT 
+      message_id, 
+      COALESCE(content, 'untitled-message') as content
+    FROM public.message 
+    WHERE slug IS NULL OR slug = '' 
+  LOOP
     -- Generate base slug from content
     base_slug := slugify(msg.content);
-    new_slug := base_slug;
+    final_slug := base_slug;
     counter := 1;
     
     -- Check for duplicates and append counter if necessary
-    WHILE EXISTS(SELECT 1 FROM public.message WHERE slug = new_slug AND message_id != msg.message_id) LOOP
-      new_slug := base_slug || '-' || counter;
+    WHILE EXISTS(SELECT 1 FROM public.message WHERE slug = final_slug AND message_id != msg.message_id) LOOP
+      final_slug := base_slug || '-' || counter;
       counter := counter + 1;
     END LOOP;
     
     -- Update the message with unique slug
-    UPDATE public.message SET slug = new_slug WHERE message_id = msg.message_id;
+    UPDATE public.message 
+    SET slug = final_slug 
+    WHERE message_id = msg.message_id;
   END LOOP;
 END;
 $$ LANGUAGE plpgsql;
