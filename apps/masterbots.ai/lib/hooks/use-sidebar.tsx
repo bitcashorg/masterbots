@@ -1,5 +1,6 @@
 'use client'
 
+import { urlBuilders } from '@/lib/url'
 import { getCategories, getUserBySlug } from '@/services/hasura'
 import type { Category, Chatbot } from 'mb-genql'
 import { toSlug } from 'mb-lib'
@@ -12,7 +13,7 @@ const LOCAL_STORAGE_KEY = 'sidebar'
 
 export interface NavigationParams {
   page: string | undefined
-  slug: string | undefined
+  usernameSlug: string | undefined
   categoryName?: string
   chatbotName?: string
   isBrowse?: boolean
@@ -32,7 +33,7 @@ interface SidebarContext {
   selectedCategories: number[]
   expandedCategories: number[]
   changeTab: (cate: 'general' | 'work') => void
-  navigateTo: (params: NavigationParams) => void
+  navigateTo: <T extends keyof typeof urlBuilders>(params: NavigateToParams<T>) => void
   toggleSidebar: (toggle?: boolean) => void
   setFilterValue: React.Dispatch<React.SetStateAction<string>>
   setIsFilterMode: React.Dispatch<React.SetStateAction<boolean>>
@@ -57,6 +58,13 @@ export function useSidebar() {
 
 interface SidebarProviderProps {
   children: React.ReactNode
+}
+
+type NavigateToParams<T extends keyof typeof urlBuilders = keyof typeof urlBuilders> = {
+  urlType: T
+  // Use Parameters to extract the parameter type of the selected URL builder.
+  navigationParams: Parameters<(typeof urlBuilders)[T]>[0]
+  shallow?: boolean
 }
 
 export function SidebarProvider({ children }: SidebarProviderProps) {
@@ -84,7 +92,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
        userId = user ? user?.userId : null
     }
     
-   const categories = await getCategories(userId)
+    const categories = await getCategories(userId)
     const categoriesObj = {
       categoriesChatbots: categories || [],
       categoriesId: categories.map((category) => category.categoryId),
@@ -136,12 +144,10 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 
   React.useEffect(() => {
     if (!pathname || !categories) return
-    const pathParts = pathname.split('/')
+    // ? "/:root/:categorySlug/:domainSlug/:chatbotSlug"
+    const [_rootPath, basePath, categorySlug, _domainSlug, chatbotSlug] = pathname.split('/')
 
-    if (categories && pathParts[1] === 'c') {
-      const categorySlug = pathParts[2]
-      const chatbotName = pathParts[3]
-
+    if (categories && basePath === 'c') {
       const category = categories?.categoriesChatbots.find(
         (cat) => toSlug(cat.name) === categorySlug,
       )
@@ -150,9 +156,9 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
         setActiveCategory(category.categoryId)
         setExpandedCategories([category.categoryId])
 
-        if (chatbotName) {
+        if (chatbotSlug) {
           const chatbot = category.chatbots.find(
-            (c) => c.chatbot.name.toLowerCase() === chatbotName,
+            (c) => c.chatbot.name.toLowerCase() === chatbotSlug,
           )
           if (chatbot) {
             setActiveChatbot(chatbot.chatbot)
@@ -178,14 +184,15 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
     setSelectedChatbots((prev) =>
       prev.includes(chatbotId) ? prev.filter((id) => id !== chatbotId) : [...prev, chatbotId],
     )
+    const categoriesChatbots = categories ? categories.categoriesChatbots : [];
     setSelectedCategories((prev) =>
-      categories?.categoriesChatbots
+      categoriesChatbots
         .filter((category) => category.chatbots.some((chatbot) => chatbot.chatbotId === chatbotId))
         .map((category) => category.categoryId)
         .filter((id) => !prev.includes(id)).length
         ? [
           ...prev,
-          ...categories?.categoriesChatbots
+          ...categoriesChatbots
             .filter((category) =>
               category.chatbots.some((chatbot) => chatbot.chatbotId === chatbotId),
             )
@@ -193,7 +200,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
         ]
         : prev.filter(
           (id) =>
-            !categories?.categoriesChatbots
+            !categoriesChatbots
               .filter((category) =>
                 category.chatbots.some((chatbot) => chatbot.chatbotId === chatbotId),
               )
@@ -201,12 +208,13 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
               .includes(id),
         ),
     )
-  }, [])
+  }, [categories])
 
   const changeTab = (cate: 'general' | 'work') => {
     setTab(cate)
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   const filteredCategories = React.useMemo(() => {
     const categoriesChatbots = categories?.categoriesChatbots || []
 
@@ -226,49 +234,22 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
         )
   }, [selectedChatbots.length, selectedCategories.length, filterValue, isFilterMode, categories])
 
-  const getBasePath = ({ page, slug, isBrowse }: NavigationParams) => {
-    // Handle browse page first
-    if (isBrowse) {
-      return ''
+  const navigateTo = <T extends keyof typeof urlBuilders>({
+    urlType,
+    navigationParams,
+    shallow,
+  }: NavigateToParams<T>) => {
+    const url = (urlBuilders as Record<string, (params: typeof navigationParams) => string>)[urlType](navigationParams)
+
+    if (shallow && window) {
+      return window.history.replaceState(
+        window.history.state,
+        '',
+        url
+      )
     }
 
-    // Handle profile page
-    if (page === 'profile') {
-      return `/u/${slug}/t`
-    }
-
-    // Default to community path
-    const base = '/c'
-
-    return base
-  }
-  const buildNavigationUrl = ({
-    page,
-    slug,
-    categoryName,
-    chatbotName,
-    isBrowse,
-  }: NavigationParams): string => {
-    const base = getBasePath({ page, slug, isBrowse, categoryName, chatbotName })
-    if (!categoryName && !chatbotName) {
-      return base
-    }
-
-    const categoryPath = categoryName ? `/${toSlug(categoryName.toLowerCase())}` : ''
-    const chatbotPath = chatbotName ? `/${chatbotName.toLowerCase()}` : ''
-    return `${base}${categoryPath}${chatbotPath}`
-  }
-
-  const navigateTo = ({
-    page,
-    slug,
-    categoryName,
-    chatbotName,
-    isBrowse,
-  }: NavigationParams): void => {
-    const url = buildNavigationUrl({ page, slug, categoryName, chatbotName, isBrowse })
-
-    router.push(url, { scroll: false })
+    return router.push(url, { scroll: false })
   }
 
   if (isLoading) {
@@ -278,30 +259,30 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
   return (
     <SidebarContext.Provider
       value={{
-        isSidebarOpen,
-        toggleSidebar,
-        isLoading,
         tab,
-        changeTab,
-        filteredCategories,
-        activeCategory,
-        setActiveCategory,
-        activeChatbot,
-        setActiveChatbot,
-        isFilterMode,
-        setIsFilterMode,
+        isLoading,
         filterValue,
-        setFilterValue,
-        selectedCategories,
-        setSelectedCategories,
-        selectedChatbots,
-        setSelectedChatbots,
+        isFilterMode,
+        isSidebarOpen,
         selectedChats,
-        setSelectedChats,
-        toggleChatbotSelection,
+        activeChatbot,
+        activeCategory,
+        selectedChatbots,
+        filteredCategories,
+        selectedCategories,
         expandedCategories,
-        setExpandedCategories,
+        changeTab,
         navigateTo,
+        toggleSidebar,
+        setFilterValue,
+        setIsFilterMode,
+        setActiveChatbot,
+        setSelectedChats,
+        setActiveCategory,
+        setSelectedChatbots,
+        setExpandedCategories,
+        setSelectedCategories,
+        toggleChatbotSelection,
       }}
     >
       {children}

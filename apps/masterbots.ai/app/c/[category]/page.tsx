@@ -9,11 +9,12 @@ import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 
-export default async function ChatCategoryPage({
-  params,
-}: {
-  params: { category: string }
-}) {
+export default async function ChatCategoryPage(
+  props: {
+    params: Promise<{ category: string }>
+  }
+) {
+  const params = await props.params;
   const session = await getServerSession(authOptions)
 
   // NOTE: maybe we should use same expiration time
@@ -40,11 +41,12 @@ export default async function ChatCategoryPage({
   )
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { category: string }
-}): Promise<Metadata> {
+export async function generateMetadata(
+  props: {
+    params: Promise<{ category: string }>
+  }
+): Promise<Metadata> {
+  const params = await props.params;
   const categories = await getCategories()
   const category = categories.find((category) => toSlug(category.name) === params.category)
 
@@ -52,7 +54,7 @@ export async function generateMetadata({
     title: category?.name || '',
     description: `Please select a bot from the ${category?.name} category to start the conversation.`,
     ogType: 'website',
-    ogImageUrl: '',
+    ogImageUrl: `${process.env.BASE_URL}/api/og`,
     twitterCard: 'summary',
   }
 

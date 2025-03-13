@@ -11,7 +11,6 @@ import { urlBuilders } from '@/lib/url'
 import { cn, sleep } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
 import type { Message, Thread } from 'mb-genql'
-import { toSlug } from 'mb-lib'
 import Image from 'next/image'
 import { useParams, useRouter } from 'next/navigation'
 import React from 'react'
@@ -53,16 +52,18 @@ export default function BrowseListItem({
     setIsVisible(matches)
   }, [searchTerm, thread])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   React.useEffect(() => {
     if (initialUrl) return
     initialUrl = location.href
-  })
+  }, [initialUrl])
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   React.useEffect(() => {
     initialUrl = location.href
   }, [tab])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: function are not required to have as exhaustive dependencies
   React.useEffect(() => {
     if (!threadRef.current) return
     const observer = new IntersectionObserver(([entry]) => {
@@ -87,32 +88,31 @@ export default function BrowseListItem({
   }
 
   const updateUrlN = () => {
+    const url = new URL(window.location.href)
+
     if (pageType === 'profile') {
-      const slug = params.slug
-      const category = thread?.chatbot?.categories[0]?.category?.name
-      const chatbot = thread?.chatbot?.name;
-      const url = new URL(window.location.href)
-      url.pathname = urlBuilders.threadUrl({
-        slug: slug as string,
-        category,
-        chatbot,
-        threadId: thread?.threadId
-      })
-
-      // Update just the URL without triggering navigation
-      window.history.replaceState(
-        window.history.state,
-        '',
-        url.toString()
-      )
-
+      url.pathname = urlBuilders.profilesThreadUrl({
+        type: 'chatbot',
+        domain: thread?.chatbot?.categories[0]?.category?.name,
+        chatbot: thread?.chatbot?.name,
+        threadSlug: thread.slug
+      })      
     } else {
-      window.history.pushState(
-        {},
-        '',
-        `/${toSlug(thread.chatbot.categories[0].category.name)}/${thread.threadId}`
-      )
+      url.pathname = urlBuilders.threadUrl({
+        type: 'public',
+        category: thread?.chatbot?.categories[0]?.category?.name,
+        domain: thread?.chatbot?.metadata[0]?.domainName,
+        chatbot: thread?.chatbot?.name,
+        threadSlug: thread.slug
+      })
     }
+
+    // Update just the URL without triggering navigation
+    window.history.replaceState(
+      window.history.state,
+      '',
+      url.toString()
+    )
   }
 
   const handleAccordionToggle = async (isOpen: boolean) => {
@@ -147,7 +147,7 @@ export default function BrowseListItem({
     e.preventDefault()
     e.stopPropagation()
     if (thread?.user?.slug) {
-      router.push(urlBuilders.userProfileUrl({ userSlug: thread.user.slug }))
+      router.push(urlBuilders.profilesUrl({ type: 'user', usernameSlug: thread.user.slug }))
     }
   }
 

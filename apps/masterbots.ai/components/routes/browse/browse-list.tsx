@@ -27,12 +27,14 @@ import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeleto
 import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useThread } from '@/lib/hooks/use-thread'
 import { searchThreadContent } from '@/lib/search'
+import { getRouteType } from '@/lib/utils'
 import { getBrowseThreads } from '@/services/hasura'
 import { debounce, isEqual } from 'lodash'
 import type { Chatbot, Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
-import React from 'react'
+import React, { useEffect } from 'react'
 
 export default function BrowseList({ initialThreads, categoryId, chatbot }: {
   initialThreads?: Thread[]
@@ -40,6 +42,7 @@ export default function BrowseList({ initialThreads, categoryId, chatbot }: {
   chatbot?: Chatbot
 }) {
   const { keyword } = useBrowse()
+  const { activeThread, setActiveThread, setIsOpenPopup } = useThread()
   const [threadState, setThreadState] = React.useState<Thread[]>([])
   const [hasInitialized, setHasInitialized] = React.useState(false)
   const [filteredThreads, setFilteredThreads] = React.useState<Thread[]>([])
@@ -127,7 +130,7 @@ export default function BrowseList({ initialThreads, categoryId, chatbot }: {
   }
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  React.useEffect(() => {
+  useEffect(() => {
     if ((chatbot || categoryId) && !activeCategory && !activeChatbot) {
       verifyPath()
     }
@@ -139,9 +142,37 @@ export default function BrowseList({ initialThreads, categoryId, chatbot }: {
     })
   }, [selectedCategories, selectedChatbots, activeCategory, activeChatbot, session])
 
+  const activateThreadPopup = (thread: Thread) => {
+    setActiveThread(thread as Thread)
+    setIsOpenPopup(true)
+  }
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: I only need to run this effect when the activeThread changes
+  useEffect(() => {
+    if (activeThread) return
+    const pathname = window.location.pathname
+    const pathNameParts = pathname.split('/')
+    // console.log('window.location.pathname.split', pathname.split('/'))
+    const isPublic = getRouteType(pathname) === 'public'
+    const isProfile = getRouteType(pathname) === 'profile'
+
+    const [, _category, _domain, _chatbot, _threadSlug, threadQuestionSlug] = pathNameParts
+    const [, _chatbotProfileRootBase, _chatbotProfileChatbotName, _chatbotProfileThreadSlug, chatbotProfileThreadQuestionSlug] = pathNameParts
+    const thread = threads.find((thread) =>
+      thread.messages.find(
+        (message) =>
+          message.slug === threadQuestionSlug || message.slug === chatbotProfileThreadQuestionSlug,
+      ),
+    )
+    if (thread && ((threadQuestionSlug && isPublic) || (chatbotProfileThreadQuestionSlug && isProfile))) {
+      console.log('scrolling to', threadQuestionSlug || chatbotProfileThreadQuestionSlug)
+      activateThreadPopup(thread)
+    }
+  }, [activeThread])
+
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  React.useEffect(() => {
+  useEffect(() => {
     if (isEqual(threads, filteredThreads)) return
     
     verifyKeyword()

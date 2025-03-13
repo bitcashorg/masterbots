@@ -20,11 +20,11 @@
  */
 
 
+import type { WizardStepProps } from '@/components/ui/wizard'
 import SuccessAnim from '@/lib/animations/success-green.json'
 import { usePayment } from '@/lib/hooks/use-payment'
 import Lottie from 'lottie-react'
 import Link from 'next/link'
-import type { WizardStepProps } from '@/components/ui/wizard'
 export function SuccessContent({ close }: WizardStepProps) {
   const { paymentIntent } = usePayment()
 

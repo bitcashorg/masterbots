@@ -10,11 +10,12 @@ import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
+import { getCanonicalDomain } from '@/lib/url'
 import { cn, getRouteType } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
 import type { Message as AiMessage } from 'ai'
 import type { Chatbot, Message } from 'mb-genql'
-import { usePathname } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
 export function ThreadPopup({ className }: { className?: string }) {
@@ -22,8 +23,8 @@ export function ThreadPopup({ className }: { className?: string }) {
   const { isOpenPopup, activeThread, isNewResponse } = useThread()
   const [{ allMessages, isLoading }, { sendMessageFromResponse }] = useMBChat()
   const [browseMessages, setBrowseMessages] = useState<Message[]>([])
-  const popupContentRef = useRef<HTMLDivElement>(null)
-  const threadRef = useRef<HTMLDivElement>(null)
+  const popupContentRef = useRef<HTMLElement | null>(null)
+  const threadRef = useRef<HTMLElement | null>(null)
   const pathname = usePathname()
 
   const { isNearBottom, smoothScrollToBottom } = useMBScroll({
@@ -144,10 +145,26 @@ function ThreadPopUpCardHeader({
   messages: (AiMessage | Message)[]
   isBrowseView: boolean
 }) {
-  const { isOpenPopup, setIsOpenPopup, setActiveThread, setShouldRefreshThreads } = useThread()
+  const { isOpenPopup, activeThread, setIsOpenPopup, setActiveThread, setShouldRefreshThreads } = useThread()
+  const { navigateTo } = useSidebar()
+  const pathname = usePathname()
+  const params = useParams()
+  const isPublic = getRouteType(pathname) === 'public'
 
   const onClose = () => {
+    const canonicalDomain = getCanonicalDomain(activeThread?.chatbot?.name || '')
     setIsOpenPopup(!isOpenPopup)
+
+    navigateTo({
+      urlType: 'chatbotThreadListUrl',
+      shallow: true,
+      navigationParams: {
+        type: isPublic ? 'public' : 'personal',
+        category: activeThread?.chatbot?.categories?.[0]?.category?.name || '',
+        domain: canonicalDomain,
+        chatbot: activeThread?.chatbot?.name || '',
+      },
+    })
     
     // ! Required to close the threads popup and show the thread list. Without this, the thread accordion will remain open.
     // ? We have to signal the use-thread-panel component to re-fetch the threads list when the activeThread is closed.

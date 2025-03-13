@@ -3,13 +3,14 @@
 import ResetPasswordForm from '@/components/auth/reset-password-form'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
-import { Suspense } from 'react'
+import { Suspense, use } from 'react';
 
-export default function ResetPasswordPage({
-  searchParams
-}: {
-  searchParams: { token: string }
-}) {
+export default function ResetPasswordPage(
+  props: {
+    searchParams: Promise<{ token: string }>
+  }
+) {
+  const searchParams = use(props.searchParams);
   return (
     <motion.div
       className="flex flex-col min-h-[calc(100vh-4rem)] items-center py-6 sm:py-10"

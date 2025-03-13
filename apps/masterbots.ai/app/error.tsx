@@ -22,13 +22,16 @@ export default function Error({
 
       <h1 className="text-3xl font-bold  mb-4">Oops! Page Not Found</h1>
       <p className=" text-center mb-4 max-w-[480px]">{error.message}</p>
-      <Link href="/" className='flex items-center space-x-1'>
+      <Link href="/" rel="canonical" className='flex items-center space-x-1'>
         <svg
           width="11"
           height="12"
           viewBox="0 0 11 12"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          role="img"
+          aria-label="Back arrow"
         >
           <path
             d="M7.09973 2.15008L3.24979 6.00003L7.09973 9.84998"

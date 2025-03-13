@@ -49,6 +49,7 @@ export function BrowseThreadBlog({
   }
 
   // Effect to fetch messages when the thread ID changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   React.useEffect(() => {
     fetchMessages()
   }, [threadId])
@@ -86,7 +87,7 @@ export function BrowseThreadBlog({
                     </header>
                   )}
 
-                  {isUser && index != 0 && (
+                  {isUser && index !== 0 && (
                     <header>
                       <h3 className="text-xl font-bold ">{message.content}</h3>
                     </header>
@@ -105,17 +106,6 @@ export function BrowseThreadBlog({
 
           {/* Thread Footer */}
           <footer className="mt-12 pt-6 flex flex-col justify-end items-end space-y-2">
-            {/* <div className="flex items-center space-x-2">
-              <Link href={`/u/${user?.slug}/t`} target="_blank">
-                <Image
-                  src={userprofile}
-                  alt={username}
-                  width={40}
-                  height={40}
-                  className="rounded-full"
-                />
-              </Link>
-            </div> */}
             <div>
               <span>{format(new Date(), 'MMMM dd, yyyy')}</span>
             </div>

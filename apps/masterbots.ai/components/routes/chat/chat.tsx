@@ -125,20 +125,28 @@ export function Chat({
     return `Continue This Chat with ${chatbot.name}`
   }
 
+  const resetState = () => {
+    setIsOpenPopup(false)
+    setActiveThread(null)
+  }
+
+  const resetLoadState = () => {
+    setLoadingState(undefined)
+  }
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: Not required here
   useEffect(() => {
     if (prevPathname.current !== pathname) {
       prevPathname.current = pathname
 
-      setIsOpenPopup(false)
-      setActiveThread(null)
+      resetState()
     }
   }, [pathname])
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: Not required here
   useEffect(() => {
     if (!isLoading && loadingState) {
-      setLoadingState(undefined)
+      resetLoadState()
     }
   }, [isLoading])
 

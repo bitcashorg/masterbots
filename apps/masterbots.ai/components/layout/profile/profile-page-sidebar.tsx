@@ -15,12 +15,12 @@ import { useAsync, useLocation } from 'react-use';
 import FooterCT from '../footer/footer-ct';
 import { SidebarCategoryGeneral } from '../sidebar/sidebar-category-general';
 
-export const ProfileSidebar = ({ children }: any) => {
+export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname()
   const openSidebar = pathname.includes('/t');
   const [isThreadsOpen, setIsThreadsOpen] = useState(openSidebar);
   const location = useLocation();
-  const { slug } = useParams()
+  const { username } = useParams()
   const { isSidebarOpen, toggleSidebar, setActiveCategory,
     setActiveChatbot, } = useSidebar();
   const { currentUser, isSameUser } = useProfile()
@@ -28,9 +28,8 @@ export const ProfileSidebar = ({ children }: any) => {
   const { value: user } = useAsync(async () => {
     if (currentUser === null) return null;
     return currentUser;
-  }, [slug, currentUser]);
+  }, [username, currentUser]);
 
-  const userSlug = slug as string
   const sameUser = isSameUser(user?.userId)
 
   const handleToggleThreads = () => {
@@ -74,13 +73,18 @@ export const ProfileSidebar = ({ children }: any) => {
             {/* Threads Accordion */}
             <div className="rounded-lg">
               <Link
-                href={urlBuilders.userProfileUrl({ userSlug })}
+                rel="canonical"
+                href={urlBuilders.profilesUrl({
+                  type: 'user',
+                  usernameSlug: username as string,
+                })}
                 onClick={handleToggleThreads}
                 className={cn(
                   "flex w-full items-center justify-between px-4 py-3",
                   "hover:bg-gray-200 dark:hover:bg-mirage transition-colors duration-200",
                   isThreadsOpen || location.pathname?.includes('/t/') ? 'bg-gray-200 dark:bg-mirage' : ''
                 )}
+                // biome-ignore lint/a11y/useSemanticElements: This is a button that redirects you to a page
                 role="button"
                 aria-expanded={isThreadsOpen}
                 aria-controls="threads-panel"
@@ -114,38 +118,34 @@ export const ProfileSidebar = ({ children }: any) => {
                 <SidebarCategoryGeneral page="profile" />
               </div>
             </div>
-            {
-              sameUser && session?.user.hasuraJwt && (
-                <>
-                  {appConfig.features.devMode && (
-                    <>
-                      <Link
-                        href={`/u/${slug}/s/pref`}
-                        className={cn(
-                          "flex items-center space-x-2 px-4 py-3",
-                          "hover:bg-gray-200 dark:hover:bg-mirage transition-colors duration-200",
-                          location.pathname?.includes('/s/pref') ? 'bg-gray-200 dark:bg-mirage' : ''
-                        )}
-                      >
-                        <Settings className="w-5 h-5" />
-                        <span>Preferences</span>
-                      </Link>
-                      <Link
-                        href={`/u/${slug}/s/subs`}
-                        className={cn(
-                          "flex items-center space-x-2 px-4 py-3",
-                          "hover:bg-gray-200 dark:hover:bg-mirage transition-colors duration-200",
-                          location.pathname?.includes('/s/subs') ? 'bg-gray-200 dark:bg-mirage' : ''
-                        )}
-                      >
-                        <ReceiptIcon className="w-5 h-5" />
-                        <span>Subscriptions</span>
-                      </Link>
-                    </>
+            {sameUser && session?.user.hasuraJwt && appConfig.features.devMode && (
+              <>
+                <Link
+                  // rel="canonical"
+                  href={`/u/${username}/s/pref`}
+                  className={cn(
+                    "flex items-center space-x-2 px-4 py-3",
+                    "hover:bg-gray-200 dark:hover:bg-mirage transition-colors duration-200",
+                    location.pathname?.includes('/s/pref') ? 'bg-gray-200 dark:bg-mirage' : ''
                   )}
-                </>
-              )
-            }
+                >
+                  <Settings className="w-5 h-5" />
+                  <span>Preferences</span>
+                </Link>
+                <Link
+                  // rel="canonical"
+                  href={`/u/${username}/s/subs`}
+                  className={cn(
+                    "flex items-center space-x-2 px-4 py-3",
+                    "hover:bg-gray-200 dark:hover:bg-mirage transition-colors duration-200",
+                    location.pathname?.includes('/s/subs') ? 'bg-gray-200 dark:bg-mirage' : ''
+                  )}
+                >
+                  <ReceiptIcon className="w-5 h-5" />
+                  <span>Subscriptions</span>
+                </Link>
+              </>
+            )}
           </div>
         </nav>
       </aside>

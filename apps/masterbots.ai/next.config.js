@@ -52,9 +52,7 @@ module.exports = {
       },
     ];
   },
-  experimental: {
-    ...(process.env.NODE_ENV === 'development'
-      ? { outputFileTracingRoot: path.join(__dirname, '../../') }
-      : null)
-  }
+  // ...(process.env.NODE_ENV === 'development'
+  //   ? { outputFileTracingRoot: path.join(__dirname, '../../') }
+  //   : null),
 }

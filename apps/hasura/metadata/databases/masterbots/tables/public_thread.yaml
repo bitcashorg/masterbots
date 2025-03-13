@@ -43,6 +43,7 @@ insert_permissions:
         - is_public
         - model
         - parent_thread_id
+        - slug
         - thread_id
         - updated_at
         - user_id
@@ -60,6 +61,7 @@ insert_permissions:
         - is_public
         - model
         - parent_thread_id
+        - slug
         - thread_id
         - updated_at
         - user_id
@@ -75,6 +77,7 @@ select_permissions:
         - is_public
         - model
         - parent_thread_id
+        - slug
         - thread_id
         - updated_at
         - user_id
@@ -91,6 +94,7 @@ select_permissions:
         - is_public
         - model
         - parent_thread_id
+        - slug
         - thread_id
         - updated_at
         - user_id
@@ -107,6 +111,7 @@ select_permissions:
         - is_public
         - model
         - parent_thread_id
+        - slug
         - thread_id
         - updated_at
         - user_id
@@ -134,6 +139,7 @@ update_permissions:
       columns:
         - chatbot_id
         - created_at
+        - is_blocked
         - is_public
         - model
         - parent_thread_id

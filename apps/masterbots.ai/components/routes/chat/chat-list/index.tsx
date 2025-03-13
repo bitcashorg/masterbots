@@ -5,6 +5,7 @@ import { type FileAttachment, getUserIndexedDBKeys } from '@/lib/hooks/use-chat-
 import { useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useThread } from '@/lib/hooks/use-thread'
+import type { MessagePair } from '@/lib/threads'
 import { cn, createMessagePairs } from '@/lib/utils'
 import type { Message } from 'ai'
 import { isEqual } from 'lodash'
@@ -26,11 +27,6 @@ export interface ChatList {
   sendMessageFn?: (message: string) => void
 }
 
-type MessagePair = {
-  userMessage: Message
-  chatGptMessage: Message[]
-}
-
 export function ChatList({
   className,
   messages,
@@ -46,17 +42,17 @@ export function ChatList({
   const indexedDBKeys = getUserIndexedDBKeys(session?.user?.id)
   const { getAllItems } = useIndexedDB(indexedDBKeys)
   const [userAttachments, setUserAttachments] = React.useState<FileAttachment[]>([])
+  const { isNewResponse, activeThread } = useThread()
   const [_, getUserAttachments] = useAsyncFn(async () => {
     const attachments = await getAllItems()
     setUserAttachments(attachments as FileAttachment[])
 
     return attachments
-  }, [session])
+  }, [session, messages])
   const [pairs, setPairs] = React.useState<MessagePair[]>([])
   const [previousConversationPairs, setPreviousConversationPairs] = React.useState<MessagePair[]>(
     [],
   )
-  const { isNewResponse, activeThread } = useThread()
   const chatListRef = useRef<HTMLDivElement>(null)
   const messageContainerRef = useRef<HTMLDivElement>(null)
 
@@ -65,7 +61,7 @@ export function ChatList({
     if (session) {
       getUserAttachments()
     }
-  }, [session, messages, activeThread])
+  }, [session, activeThread])
 
   //? Uses the external ref if provided, otherwise it uses our internal refs
   const effectiveContainerRef = externalContainerRef || chatListRef

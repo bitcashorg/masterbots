@@ -2,32 +2,27 @@
 
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
 import { Check } from "lucide-react"
-import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-const Checkbox = React.forwardRef<
-  React.ElementRef<typeof CheckboxPrimitive.Root>,
-  React.ComponentPropsWithRef<typeof CheckboxPrimitive.Root> & (
-    {
-      custom?: false;
-      checkboxconfig?: never;
-    } | {
-      custom: true;
-      checkboxconfig: {
-        check?: React.ReactNode;
-        uncheck?: React.ReactNode;
-        indeterminate?: React.ReactNode;
-      };
-    }
-  )
->(({ className, ...props }, ref) => {
+const Checkbox = ({
+  className,
+  ...props
+}: React.ComponentProps<'button'> &
+  typeof CheckboxPrimitive.Root & {
+  custom?: true
+  checkboxconfig?: {
+    check?: React.ReactNode
+    uncheck?: React.ReactNode
+    indeterminate?: React.ReactNode
+  }
+}) => {
   return (
     <CheckboxPrimitive.Root
-      ref={ref}
+      ref={props.ref}
       className={cn(
-        "peer size-4 shrink-0 rounded-sm border border-primary ring-offset-background group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 group-data-[state=checked]:bg-primary group-data-[state=checked]:text-primary-foreground",
-        className
+        'peer size-4 shrink-0 rounded-sm border border-primary ring-offset-background group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 group-data-[state=checked]:bg-primary group-data-[state=checked]:text-primary-foreground',
+        className,
       )}
       {...props}
     >
@@ -35,30 +30,29 @@ const Checkbox = React.forwardRef<
         forceMount={props?.custom || undefined}
         asChild={props?.custom || undefined}
         className={cn(
-          "flex relative items-center justify-center text-current h-full transition-opacity",
+          'flex relative items-center justify-center text-current h-full transition-opacity',
         )}
       >
-        {
-          props?.custom && props?.checkboxconfig
-            ? (
-              <>
-                <span className="flex items-center transition-all opacity-0 group-data-[state=checked]:opacity-100 group-data-[state=checked]:relative absolute origin-right">
-                  {props?.checkboxconfig?.check}
-                </span>
-                <span className="flex items-center transition-all opacity-0 group-data-[state=unchecked]:opacity-100 group-data-[state=unchecked]:relative absolute origin-right">
-                  {props?.checkboxconfig?.uncheck}
-                </span>
-                <span className="flex items-center transition-all opacity-0 group-data-[state=indeterminate]:opacity-100 group-data-[state=indeterminate]:relative absolute">
-                  {props?.checkboxconfig?.indeterminate}
-                </span>
-              </>
-            )
-            : <Check className="size-4" />
-        }
+        {props?.custom && props?.checkboxconfig ? (
+          <div>
+            <span className="flex items-center transition-all opacity-0 group-data-[state=checked]:opacity-100 group-data-[state=checked]:relative absolute origin-right">
+              {props?.checkboxconfig?.check}
+            </span>
+            <span className="flex items-center transition-all opacity-0 group-data-[state=unchecked]:opacity-100 group-data-[state=unchecked]:relative absolute origin-right">
+              {props?.checkboxconfig?.uncheck}
+            </span>
+            <span className="flex items-center transition-all opacity-0 group-data-[state=indeterminate]:opacity-100 group-data-[state=indeterminate]:relative absolute">
+              {props?.checkboxconfig?.indeterminate}
+            </span>
+          </div>
+        ) : (
+          <Check className="size-4" />
+        )}
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>
   )
-})
+}
+
 Checkbox.displayName = CheckboxPrimitive.Root.displayName
 
 export { Checkbox }

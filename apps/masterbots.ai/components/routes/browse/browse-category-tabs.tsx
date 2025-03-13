@@ -16,11 +16,11 @@
  * - Dynamic Category Buttons: Renders a button for each category, including an 'all' option.
  */
 
+import { BrowseCategoryButton } from '@/components/routes/browse/browse-category-button'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import type { Category } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import { useEffect } from 'react'
-import { BrowseCategoryButton } from '@/components/routes/browse/browse-category-button'
 
 export function BrowseCategoryTabs({
   categories,
@@ -32,33 +32,29 @@ export function BrowseCategoryTabs({
   const { tab: activeTab, changeTab: setActiveTab } = useBrowse()
 
   useEffect(() => {
-    if (document) {
-      const element = document.getElementById(
-        `browse-category-tab__${activeTab?.toString()}`
-      )
+    if (!document) return
+    const element = document.getElementById(`browse-category-tab__${activeTab?.toString()}`)
 
-      if (element) {
-        element.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-          inline: 'center'
-        })
-      }
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'center',
+      })
     }
   })
 
-  useEffect(() => {
+  const updateActiveTab = (category: string) => {
     if (initialCategory === 'all') {
       setActiveTab(null)
     } else {
-      setActiveTab(
-        categories.filter(
-          c =>
-            toSlug(c.name) ===
-            initialCategory
-        )[0]?.categoryId
-      )
+      setActiveTab(categories.filter((c) => toSlug(c.name) === initialCategory)[0]?.categoryId)
     }
+  }
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    updateActiveTab(initialCategory)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialCategory])
 

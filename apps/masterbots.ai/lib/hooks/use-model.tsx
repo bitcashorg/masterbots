@@ -1,8 +1,8 @@
 'use client'
 
 import { AIModels } from '@/app/api/chat/models/models'
-import * as React from 'react'
 import { getModelClientType } from '@/lib/helpers/ai-helpers'
+import * as React from 'react'
 
 interface ModelContextProps {
   selectedModel: AIModels
@@ -30,8 +30,13 @@ export function ModelProvider({ children }: ModelProviderProps) {
   const [selectedModel, setSelectedModel] = React.useState(AIModels.Default) // OpenIA as default model
   const [clientType, setClientType] = React.useState('')
 
-  React.useEffect(() => {
+  const updateSelectedModel = () => {
     setClientType(getModelClientType(selectedModel))
+  }
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  React.useEffect(() => {
+    updateSelectedModel()
   }, [selectedModel])
 
   const changeModel = (model: AIModels) => {

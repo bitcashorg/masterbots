@@ -29,6 +29,7 @@ export function BrowseChatbotDesktopDetails({
         <div className="max-w-[600px] mx-auto mb-4">
           <Link
             href="/"
+            rel="canonical"
             className="flex items-center leading-none gap-2 text-white/80 dark:text-[#09090BC3] hover:text-white dark:hover:text-[#09090B]"
           >
             <ChevronLeft className="size-4" />
@@ -79,7 +80,7 @@ export function BrowseChatbotDesktopDetails({
                     'text-white dark:text-zinc-950'
                   )}
                 >
-                  <Link href={botUrl} className="flex items-center gap-2">
+                  <Link href={botUrl} rel="canonical" className="flex items-center gap-2">
                     <MessageSquarePlusIcon className="size-4" />
                     <span>New Chat</span>
                   </Link>

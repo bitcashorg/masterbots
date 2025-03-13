@@ -3207,6 +3207,7 @@ type Message {
   ): MessageAggregate!
   prompt: String
   role: String!
+  slug: String!
 
   """An object relationship"""
   thread: Thread
@@ -3276,6 +3277,7 @@ input MessageBoolExp {
   messagesAggregate: MessageAggregateBoolExp
   prompt: StringComparisonExp
   role: StringComparisonExp
+  slug: StringComparisonExp
   thread: ThreadBoolExp
   threadId: UuidComparisonExp
 }
@@ -3290,9 +3292,14 @@ enum MessageConstraint {
   message_id_key
 
   """
-  unique or primary key constraint on columns "message_id"
+  unique or primary key constraint on columns "slug", "message_id"
   """
   message_pkey
+
+  """
+  unique or primary key constraint on columns "slug"
+  """
+  message_slug_key
 }
 
 """
@@ -3330,6 +3337,7 @@ input MessageInsertInput {
   messages: MessageArrRelInsertInput
   prompt: String
   role: String
+  slug: String
   thread: ThreadObjRelInsertInput
   threadId: uuid
 }
@@ -3342,6 +3350,7 @@ type MessageMaxFields {
   messageId: uuid
   prompt: String
   role: String
+  slug: String
   threadId: uuid
 }
 
@@ -3355,6 +3364,7 @@ input MessageMaxOrderBy {
   messageId: OrderBy
   prompt: OrderBy
   role: OrderBy
+  slug: OrderBy
   threadId: OrderBy
 }
 
@@ -3366,6 +3376,7 @@ type MessageMinFields {
   messageId: uuid
   prompt: String
   role: String
+  slug: String
   threadId: uuid
 }
 
@@ -3379,6 +3390,7 @@ input MessageMinOrderBy {
   messageId: OrderBy
   prompt: OrderBy
   role: OrderBy
+  slug: OrderBy
   threadId: OrderBy
 }
 
@@ -3424,6 +3436,7 @@ input MessageOrderBy {
   messagesAggregate: MessageAggregateOrderBy
   prompt: OrderBy
   role: OrderBy
+  slug: OrderBy
   thread: ThreadOrderBy
   threadId: OrderBy
 }
@@ -3431,6 +3444,7 @@ input MessageOrderBy {
 """primary key columns input for table: message"""
 input MessagePkColumnsInput {
   messageId: uuid!
+  slug: String!
 }
 
 """prepend existing jsonb value of filtered columns with new jsonb value"""
@@ -3464,6 +3478,9 @@ enum MessageSelectColumn {
   role
 
   """column name"""
+  slug
+
+  """column name"""
   threadId
 }
 
@@ -3478,6 +3495,7 @@ input MessageSetInput {
   messageId: uuid
   prompt: String
   role: String
+  slug: String
   threadId: uuid
 }
 
@@ -3501,6 +3519,7 @@ input MessageStreamCursorValueInput {
   messageId: uuid
   prompt: String
   role: String
+  slug: String
   threadId: uuid
 }
 
@@ -3715,6 +3734,9 @@ enum MessageUpdateColumn {
 
   """column name"""
   role
+
+  """column name"""
+  slug
 
   """column name"""
   threadId
@@ -7115,6 +7137,7 @@ type Thread {
   """An object relationship"""
   modelsEnum: ModelsEnum!
   parentThreadId: uuid
+  slug: String!
 
   """An object relationship"""
   thread: Thread
@@ -7250,6 +7273,7 @@ input ThreadBoolExp {
   model: ModelsEnumEnumComparisonExp
   modelsEnum: ModelsEnumBoolExp
   parentThreadId: UuidComparisonExp
+  slug: StringComparisonExp
   thread: ThreadBoolExp
   threadId: UuidComparisonExp
   threads: ThreadBoolExp
@@ -7269,9 +7293,14 @@ enum ThreadConstraint {
   thread_id_key
 
   """
-  unique or primary key constraint on columns "thread_id"
+  unique or primary key constraint on columns "slug", "thread_id"
   """
   thread_pkey
+
+  """
+  unique or primary key constraint on columns "slug"
+  """
+  thread_slug_key
 }
 
 """
@@ -7295,6 +7324,7 @@ input ThreadInsertInput {
   model: ModelsEnumEnum
   modelsEnum: ModelsEnumObjRelInsertInput
   parentThreadId: uuid
+  slug: String
   thread: ThreadObjRelInsertInput
   threadId: uuid
   threads: ThreadArrRelInsertInput
@@ -7308,6 +7338,7 @@ type ThreadMaxFields {
   chatbotId: Int
   createdAt: timestamptz
   parentThreadId: uuid
+  slug: String
   threadId: uuid
   updatedAt: timestamptz
   userId: uuid
@@ -7320,6 +7351,7 @@ input ThreadMaxOrderBy {
   chatbotId: OrderBy
   createdAt: OrderBy
   parentThreadId: OrderBy
+  slug: OrderBy
   threadId: OrderBy
   updatedAt: OrderBy
   userId: OrderBy
@@ -7330,6 +7362,7 @@ type ThreadMinFields {
   chatbotId: Int
   createdAt: timestamptz
   parentThreadId: uuid
+  slug: String
   threadId: uuid
   updatedAt: timestamptz
   userId: uuid
@@ -7342,6 +7375,7 @@ input ThreadMinOrderBy {
   chatbotId: OrderBy
   createdAt: OrderBy
   parentThreadId: OrderBy
+  slug: OrderBy
   threadId: OrderBy
   updatedAt: OrderBy
   userId: OrderBy
@@ -7389,6 +7423,7 @@ input ThreadOrderBy {
   model: OrderBy
   modelsEnum: ModelsEnumOrderBy
   parentThreadId: OrderBy
+  slug: OrderBy
   thread: ThreadOrderBy
   threadId: OrderBy
   threadsAggregate: ThreadAggregateOrderBy
@@ -7399,6 +7434,7 @@ input ThreadOrderBy {
 
 """primary key columns input for table: thread"""
 input ThreadPkColumnsInput {
+  slug: String!
   threadId: uuid!
 }
 
@@ -7426,6 +7462,9 @@ enum ThreadSelectColumn {
 
   """column name"""
   parentThreadId
+
+  """column name"""
+  slug
 
   """column name"""
   threadId
@@ -7476,6 +7515,7 @@ input ThreadSetInput {
   isPublic: Boolean
   model: ModelsEnumEnum
   parentThreadId: uuid
+  slug: String
   threadId: uuid
   updatedAt: timestamptz
   userId: uuid
@@ -7537,6 +7577,7 @@ input ThreadStreamCursorValueInput {
   isPublic: Boolean
   model: ModelsEnumEnum
   parentThreadId: uuid
+  slug: String
   threadId: uuid
   updatedAt: timestamptz
   userId: uuid
@@ -7578,6 +7619,9 @@ enum ThreadUpdateColumn {
 
   """column name"""
   parentThreadId
+
+  """column name"""
+  slug
 
   """column name"""
   threadId
@@ -9430,7 +9474,7 @@ type mutation_root {
   """
   delete single row from the table: "message"
   """
-  deleteMessageByPk(messageId: uuid!): Message
+  deleteMessageByPk(messageId: uuid!, slug: String!): Message
 
   """
   delete data from the table: "message_type_enum"
@@ -9581,7 +9625,7 @@ type mutation_root {
   """
   delete single row from the table: "thread"
   """
-  deleteThreadByPk(threadId: uuid!): Thread
+  deleteThreadByPk(slug: String!, threadId: uuid!): Thread
 
   """
   delete data from the table: "token"
@@ -11606,7 +11650,7 @@ type query_root {
   ): MessageAggregate!
 
   """fetch data from the table: "message" using primary key columns"""
-  messageByPk(messageId: uuid!): Message
+  messageByPk(messageId: uuid!, slug: String!): Message
 
   """
   fetch data from the table: "message_type_enum"
@@ -12125,7 +12169,7 @@ type query_root {
   ): ThreadAggregate!
 
   """fetch data from the table: "thread" using primary key columns"""
-  threadByPk(threadId: uuid!): Thread
+  threadByPk(slug: String!, threadId: uuid!): Thread
 
   """
   fetch data from the table: "token"
@@ -12921,7 +12965,7 @@ type subscription_root {
   ): MessageAggregate!
 
   """fetch data from the table: "message" using primary key columns"""
-  messageByPk(messageId: uuid!): Message
+  messageByPk(messageId: uuid!, slug: String!): Message
 
   """
   fetch data from the table in a streaming manner: "message"
@@ -13608,7 +13652,7 @@ type subscription_root {
   ): ThreadAggregate!
 
   """fetch data from the table: "thread" using primary key columns"""
-  threadByPk(threadId: uuid!): Thread
+  threadByPk(slug: String!, threadId: uuid!): Thread
 
   """
   fetch data from the table in a streaming manner: "thread"

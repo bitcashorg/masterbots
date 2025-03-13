@@ -1,33 +1,33 @@
 import type {
-  ChatbotMetadata,
-  ChatbotMetadataClassification,
-  ChatbotMetadataHeaders,
-  ExampleMetadata,
-  ReturnFetchChatbotMetadata,
+    ChatbotMetadata,
+    ChatbotMetadataClassification,
+    ChatbotMetadataHeaders,
+    ExampleMetadata,
+    ReturnFetchChatbotMetadata,
 } from '@/types/types'
 import { validateMbEnv } from 'mb-env'
 import {
-  type Category,
-  type Chatbot,
-  type MbClient,
-  type Message,
-  type Thread,
-  type User,
-  createMbClient,
-  everything,
+    type Category,
+    type Chatbot,
+    type MbClient,
+    type Message,
+    type Thread,
+    type User,
+    createMbClient,
+    everything,
 } from 'mb-genql'
 import type {
-  CreateThreadParams,
-  GetBrowseThreadsParams,
-  GetChatbotParams,
-  GetChatbotsParams,
-  GetHasuraClientParams,
-  GetMessagesParams,
-  GetThreadParams,
-  GetThreadsParams,
-  SaveNewMessageParams,
-  UpdateUserArgs,
-  UpsertUserParams,
+    CreateThreadParams,
+    GetBrowseThreadsParams,
+    GetChatbotParams,
+    GetChatbotsParams,
+    GetHasuraClientParams,
+    GetMessagesParams,
+    GetThreadParams,
+    GetThreadsParams,
+    SaveNewMessageParams,
+    UpdateUserArgs,
+    UpsertUserParams,
 } from './hasura.service.type'
 
 const chatbotEnumFieldsFragment = {
@@ -45,6 +45,7 @@ const chatbotEnumFieldsFragment = {
   },
 }
 
+
 function getHasuraClient({ jwt, adminSecret, signal }: GetHasuraClientParams) {
   return createMbClient({
     config: {
@@ -55,6 +56,48 @@ function getHasuraClient({ jwt, adminSecret, signal }: GetHasuraClientParams) {
     debug: process.env.DEBUG === 'true',
     env: validateMbEnv(process.env.NEXT_PUBLIC_APP_ENV),
   })
+}
+
+export async function doesThreadSlugExist(slug: string) {
+  const client = getHasuraClient({})
+  const { thread } = await client.query({
+    thread: {
+      slug: true,
+      __args: {
+        where: {
+          slug: {
+            _eq: slug,
+          },
+        }
+      }
+    },
+  })
+  return {
+    exists: thread.length > 0,
+    slug: thread[0]?.slug,
+    sequence: Number.parseFloat(thread[0]?.slug.split('-').pop() as string) || 0,
+  }
+}
+
+export async function doesMessageSlugExist(slug: string) {
+  const client = getHasuraClient({})
+  const { message } = await client.query({
+    message: {
+      slug: true,
+      __args: {
+        where: {
+          slug: {
+            _eq: slug,
+          },
+        }
+      }
+    },
+  })
+  return {
+    exists: message.length > 0,
+    slug: message[0]?.slug,
+    sequence: Number.parseFloat(message[0]?.slug.split('-').pop() as string) || 0,
+  }
 }
 
 export async function getCategories(userId?: string) {
@@ -68,15 +111,21 @@ export async function getCategories(userId?: string) {
             followerId: true,
             followeeIdChatbot: true,
           },
-          __scalar: true,
           categories: {
             __scalar: true,
+            category: {
+              name: true,
+            }
           },
           prompts: {
             prompt: {
               __scalar: true,
             }
           },
+          metadata: {
+            domainName: true,
+          },
+          __scalar: true,
           ...chatbotEnumFieldsFragment,
         },
         __scalar: true,
@@ -132,9 +181,9 @@ export async function getAllChatbots() {
   const { chatbot } = await client.query({
     chatbot: {
       name: true,
-      __args: {
-        limit: 100,
-      },
+      metadata: {
+        domainName: true,
+      }
     },
   })
 
@@ -154,7 +203,10 @@ export async function getChatbots({ limit, offset, categoryId }: GetChatbotsPara
           name: true,
         },
       },
-      ...everything,
+      metadata: {
+        domainName: true,
+      },
+      __scalar: true,
       __args: {
         limit: limit ? limit : 20,
         ...(offset
@@ -182,11 +234,12 @@ export async function getChatbots({ limit, offset, categoryId }: GetChatbotsPara
 
 export async function getThreads({
   chatbotName,
-  jwt,
+  categoryId,
   userId,
+  domain,
+  jwt,
   limit,
   offset,
-  categoryId,
 }: GetThreadsParams) {
   const client = getHasuraClient({ jwt })
 
@@ -235,6 +288,7 @@ export async function getThreads({
                       }
                     : {}),
                   ...(categoryId ? { categories: { categoryId: { _eq: categoryId } } } : {}),
+                  ...(domain ? { metadata: { domainName: { _ilike: `%${domain.replace(/-/g, ' ')}%` } } } : {}),
                 },
                 ...(userId ? { userId: { _eq: userId } } : {}),
               },
@@ -249,7 +303,7 @@ export async function getThreads({
   return thread as Thread[]
 }
 
-export async function getThread({ threadId, jwt, signal }: Partial<GetThreadParams>) {
+export async function getThread({ threadId, threadSlug, threadQuestionSlug, domain, jwt, signal }: Partial<GetThreadParams>) {
   try {
     const client = getHasuraClient({ signal, jwt: jwt || undefined })
     const { thread: threadResponse } = await client.query({
@@ -263,16 +317,19 @@ export async function getThread({ threadId, jwt, signal }: Partial<GetThreadPara
             __scalar: true,
           },
           threads: {
-            threadId: true,
+            slug: true,
           },
           prompts: {
             prompt: {
               __scalar: true,
-            }
+            },
           },
           followers: {
             followerId: true,
             followeeIdChatbot: true,
+          },
+          metadata: {
+            domainName: true,
           },
           ...chatbotEnumFieldsFragment,
         },
@@ -300,7 +357,20 @@ export async function getThread({ threadId, jwt, signal }: Partial<GetThreadPara
         },
         __scalar: true,
         __args: {
-          where: { threadId: { _eq: threadId } },
+          where: {
+            ...(threadId ? { threadId: { _eq: threadId } } : {}),
+            ...(threadSlug ? { slug: { _eq: threadSlug } } : {}),
+            ...(domain ? {
+              chatbot: {
+                metadata: {
+                  domainName: {
+                    _ilike: `%${domain.replace(/-/g, ' ')}%`,
+                  },
+                },
+              },
+            } : {}),
+            ...(threadQuestionSlug ? { messages: { slug: { _eq: threadQuestionSlug } } } : {}),
+          },
         },
       },
     })
@@ -388,6 +458,7 @@ export async function upsertUser({ adminSecret, username, ...object }: UpsertUse
 export async function createThread({
   chatbotId,
   threadId,
+  slug,
   jwt,
   userId,
   parentThreadId,
@@ -397,12 +468,16 @@ export async function createThread({
   const { insertThreadOne } = await client.mutation({
     insertThreadOne: {
       __args: {
-        object: { threadId, chatbotId, isPublic, parentThreadId },
+        object: { threadId, chatbotId, isPublic, parentThreadId, slug },
       },
       threadId: true,
+      slug: true,
     },
   })
-  return insertThreadOne?.threadId as string
+  return {
+    threadId: insertThreadOne?.threadId,
+    slug: insertThreadOne?.slug,
+  }
 }
 
 export async function getChatbot({ chatbotId, chatbotName, threads, jwt }: GetChatbotParams) {
@@ -753,9 +828,9 @@ export async function updateThreadVisibility({
   try {
     const client = getHasuraClient({ jwt })
     await client.mutation({
-      updateThreadByPk: {
+      updateThread: {
         __args: {
-          pkColumns: { threadId },
+          where: { threadId: { _eq: threadId } },
           _set: { isPublic },
         },
         threadId: true,
@@ -778,9 +853,9 @@ export async function approveThread({
   try {
     const client = getHasuraClient({ jwt })
     await client.mutation({
-      updateThreadByPk: {
+      updateThread: {
         __args: {
-          pkColumns: { threadId },
+          where: { threadId: { _eq: threadId } },
           _set: { isApproved: true },
         },
         threadId: true,

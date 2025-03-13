@@ -14,13 +14,17 @@ export interface GetThreadsParams extends HasuraServiceParams {
   chatbotName?: string
   userId?: string
   categoryId?: number | null
+  domain?: string | null
   keyword?: string
   limit?: number
   offset?: number
 }
 
 export interface GetThreadParams extends HasuraServiceParams {
-  threadId: string | null
+  domain: string
+  threadSlug: string | null
+  threadId?: string | null
+  threadQuestionSlug?: string | null
   signal?: AbortController['signal']
 }
 
@@ -38,6 +42,7 @@ export interface UpsertUserParams {
 export interface CreateThreadParams extends HasuraServiceParams {
   chatbotId: number
   threadId: string
+  slug: string
   userId: string
   isPublic?: boolean
   parentThreadId?: string
