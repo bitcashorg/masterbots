@@ -9,10 +9,10 @@ import {
   setOutputInstructionPrompt,
 } from '@/lib/constants/prompts'
 import { useModel } from '@/lib/hooks/use-model'
-import { type NavigationParams, useSidebar } from '@/lib/hooks/use-sidebar'
+import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
-import { createThread, deleteThread, getThread, saveNewMessage } from '@/services/hasura'
+import { createThread, deleteThread, doesMessageSlugExist, doesThreadSlugExist, getThread, saveNewMessage } from '@/services/hasura'
 import type {
   AiClientType,
   AiToolCall,
@@ -31,10 +31,11 @@ import { usePowerUp } from '@/lib/hooks/use-power-up'
 import type { SaveNewMessageParams } from '@/services/hasura/hasura.service.type'
 import type * as OpenAi from 'ai'
 import { appConfig } from 'mb-env'
+import { toSlug } from 'mb-lib'
 import { nanoid } from 'nanoid'
 import { useSession } from 'next-auth/react'
 import { useParams, useSearchParams } from 'next/navigation'
-import { createContext, useCallback, useContext, useEffect, useRef } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef } from 'react'
 import { useSetState } from 'react-use'
 import { useSonner } from './useSonner'
 
@@ -130,7 +131,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
    * 4. Masterbot Output Instructions.
    * 5. Conversation between user and assistant.
    * */
-  const initialMessages: AiMessage[] = systemPrompts.concat(userAndAssistantMessages)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  const  initialMessages: AiMessage[] = useMemo(() => systemPrompts.concat(userAndAssistantMessages), [activeChatbot])
   const threadId = isContinuousThread
     ? randomThreadId.current
     : params.threadId || activeThread?.threadId || randomThreadId.current
@@ -220,10 +222,10 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
         const attachments = messageAttachments.current
         const newAttachments = attachments
           ? attachments.map((attachment) => ({
-            ...attachment,
-            // We make the relationship of the attachment with the user and assistant messages, making it flexible
-            messageIds: [...(attachment?.messageIds || []), userMessageId, assistantMessageId],
-          }))
+              ...attachment,
+              // We make the relationship of the attachment with the user and assistant messages, making it flexible
+              messageIds: [...(attachment?.messageIds || []), userMessageId, assistantMessageId],
+            }))
           : []
 
         for (const attachment of newAttachments) {
@@ -239,10 +241,38 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
           threadId: aiChatThreadId ?? '',
           jwt: session?.user?.hasuraJwt,
         }
+        const curatedPreUserMessageSlug = userContentRef.current
+          .toLocaleLowerCase()
+          .replace(
+            /(explain more in-depth and in detail about |explain more in depth and in detail about |explain more in-depth about |explain more in depth about |can you provide a detailed explanation of )/g,
+            '',
+          )
+
+        // Check and get unique slugs for both messages
+        let userMessageSlug = toSlug(curatedPreUserMessageSlug)
+        let userSlugCheck = await doesMessageSlugExist(userMessageSlug)
+
+        // If user message slug already exists, append a counter
+        while (userSlugCheck.exists) {
+          userMessageSlug = toSlug(`${curatedPreUserMessageSlug} ${userSlugCheck.sequence + 1}`)
+          userSlugCheck = await doesMessageSlugExist(userMessageSlug)
+        }
+
+        // We need to check for a unique slug for assistant message as well
+        let assistantMessageSlug = toSlug(message.content)
+        let assistantSlugCheck = await doesMessageSlugExist(assistantMessageSlug)
+
+        // If assistant message slug already exists, append a counter
+        while (assistantSlugCheck.exists) {
+          assistantMessageSlug = toSlug(`${message.content} ${assistantSlugCheck.sequence + 1}`)
+          assistantSlugCheck = await doesMessageSlugExist(assistantMessageSlug)
+        }
+
         const [newUserMessage, newAssistantMessage]: Partial<SaveNewMessageParams>[] = [
           {
             ...newBaseMessage,
             messageId: userMessageId,
+            slug: userMessageSlug,
             role: 'user',
             content: userContentRef.current,
             createdAt: new Date().toISOString(),
@@ -250,6 +280,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
           {
             ...newBaseMessage,
             messageId: assistantMessageId,
+            slug: assistantMessageSlug,
             role: 'assistant',
             content: message.content,
             createdAt: new Date(Date.now() + 1000).toISOString(),
@@ -337,14 +368,14 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       })) || [],
     ),
     'content',
-  ).filter(Boolean).filter((m) => m.role !== 'system')
+  )
+    .filter(Boolean)
+    .filter((m) => m.role !== 'system')
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: only activeThread is needed
   useEffect(() => {
     // Resetting the chat when the popup is closed
     if (!activeThread && !isOpenPopup) {
-      setState({ messagesFromDB: [], isInitLoaded: false, isNewChat: true })
-      setLoadingState()
+      resetState()
     }
     if (!isOpenPopup) {
       randomThreadId.current = crypto.randomUUID() //* Generates a new thread ID
@@ -352,20 +383,22 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     if (!activeThread) return
 
     updateNewThread()
-  }, [activeThread, isOpenPopup, searchParams])
+  }, [activeThread, isOpenPopup])
+
+  const resetState = () => {
+    setState({
+      isInitLoaded: false,
+      isNewChat: true,
+      messagesFromDB: [],
+    })
+    setInput('')
+    setMessages([])
+  }
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
     // reset all states when unmounting the context hook
-    return () => {
-      setState({
-        isInitLoaded: false,
-        isNewChat: true,
-        messagesFromDB: [],
-      })
-      setInput('')
-      setMessages([])
-    }
+    return resetState
   }, [])
 
   const updateNewThread = () => {
@@ -527,10 +560,16 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     await appendWithMbContextPrompts(optimisticUserMessage)
 
     navigateTo({
-      categoryName: activeChatbot?.categories[0].category.name,
-      chatbotName: activeChatbot?.name,
-      page: 'personal',
-    } as NavigationParams)
+      urlType: 'threadUrl',
+      shallow: true,
+      navigationParams: {
+        type: 'personal',
+        category: activeChatbot?.categories[0].category.name || '',
+        domain: activeChatbot?.metadata[0].domainName || '',
+        chatbot: activeChatbot?.name || '',
+        threadSlug: activeThread?.slug || '',
+      },
+    })
 
     return null
   }
@@ -570,8 +609,17 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (((!allMessages.length && isNewChat) || isContinuingThread) && chatbot) {
+        let slug = toSlug(userContentRef.current)
+        let slugCheck = await doesThreadSlugExist(slug)
+
+        while (slugCheck.exists) {
+          slug = toSlug(`${userContentRef.current} ${slugCheck.sequence + 1}`)
+          slugCheck = await doesThreadSlugExist(slug)
+        }
+
         await createThread({
           threadId: threadId as string,
+          slug,
           chatbotId: chatbot.chatbotId,
           parentThreadId: isContinuousThread ? threadId : undefined,
           jwt: session?.user?.hasuraJwt,
@@ -582,7 +630,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
       const chatMessagesToAppend = uniqBy(
         [
           ...systemPrompts,
-          setOutputInstructionPrompt(userMessage.content),
+          setOutputInstructionPrompt(userContentRef.current),
           {
             id: 'examples-' + nanoid(10),
             role: 'system' as 'data' | 'system' | 'user' | 'assistant',
@@ -653,8 +701,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
           isNewChat,
           webSearch,
           isLoading,
-          allMessages,
-          initialMessages,
+          allMessages: allMessages as OpenAi.UIMessage[],
+          initialMessages: initialMessages as OpenAi.UIMessage[],
           newChatThreadId: threadId,
         },
         {
@@ -689,27 +737,27 @@ export type MBChatHookState = {
   isNewChat: boolean
   webSearch: boolean
   isLoading: boolean
-  allMessages: AiMessage[]
-  initialMessages: AiMessage[]
+  allMessages: OpenAi.UIMessage[]
+  initialMessages: OpenAi.UIMessage[]
   newChatThreadId: string
 }
 
 export type MBChatHookActions = {
   appendWithMbContextPrompts: (
-    userMessage: AiMessage | CreateMessage,
+    userMessage: OpenAi.UIMessage | CreateMessage,
     chatRequestOptions?: ChatRequestOptions,
   ) => Promise<string | null | undefined>
   appendAsContinuousThread: (
-    userMessage: AiMessage | CreateMessage,
+    userMessage: OpenAi.UIMessage | CreateMessage,
   ) => Promise<string | null | undefined>
   sendMessageFromResponse: (bulletContent: string) => void
   append: (
-    message: AiMessage | CreateMessage,
+    message: OpenAi.UIMessage | CreateMessage,
     chatRequestOptions?: ChatRequestOptions,
   ) => Promise<string | null | undefined>
   reload: (chatRequestOptions?: ChatRequestOptions) => Promise<string | null | undefined>
   stop: () => void
   toggleWebSearch: () => void
   setInput: React.Dispatch<React.SetStateAction<string>>
-  setMessages: (messages: AiMessage[]) => void
+  setMessages: (messages: OpenAi.UIMessage[]) => void
 }

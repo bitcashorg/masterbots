@@ -16,17 +16,13 @@ export function PowerUpProvider({ children }: { children: React.ReactNode }) {
     setIsPowerUp(prev => !prev)
   }, [])
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  const value = React.useMemo(
-    () => ({
-      isPowerUp,
-      togglePowerUp
-    }),
-    [isPowerUp]
-  )
-
   return (
-    <PowerUpContext.Provider value={value}>
+    <PowerUpContext.Provider
+      value={{
+        isPowerUp,
+        togglePowerUp
+      }}
+    >
       {children}
     </PowerUpContext.Provider>
   )

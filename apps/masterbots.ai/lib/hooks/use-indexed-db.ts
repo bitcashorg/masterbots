@@ -9,32 +9,42 @@ export function useIndexedDB({ dbName = DEFAULT_DB_NAME, storeName = DEFAULT_STO
   const [mounted, setMounted] = useState(false)
   const db = dbRef.current
 
+  const onMountSuccess = (event: Event) => {
+    console.log('IndexedDB opened successfully')
+    dbRef.current = (event.target as IDBOpenDBRequest).result
+    setMounted(true)
+  }
+
+  const onUpgradeNeeded = (event: IDBVersionChangeEvent) => {
+    const db = (event.target as IDBOpenDBRequest).result
+    if (!db.objectStoreNames.contains(storeName)) {
+      db.createObjectStore(storeName, { keyPath: 'id', autoIncrement: true })
+    }
+  }
+
+  const onError = (event: Event) => {
+    console.error('IndexedDB error:', (event.target as IDBOpenDBRequest).error)
+  }
+
+  const resetState = () => {
+    setMounted(false)
+    if (db) {
+      db.close()
+    }
+  }
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     const openRequest = indexedDB.open(dbName, 1)
 
-    openRequest.onupgradeneeded = (event) => {
-      const db = (event.target as IDBOpenDBRequest).result
-      if (!db.objectStoreNames.contains(storeName)) {
-        db.createObjectStore(storeName, { keyPath: 'id', autoIncrement: true })
-      }
-    }
+    openRequest.onupgradeneeded = onUpgradeNeeded
 
-    openRequest.onsuccess = (event) => {
-      console.log('IndexedDB opened successfully')
-      dbRef.current = (event.target as IDBOpenDBRequest).result
-      setMounted(true)
-    }
+    openRequest.onsuccess = onMountSuccess
 
-    openRequest.onerror = (event) => {
-      console.error('IndexedDB error:', (event.target as IDBOpenDBRequest).error)
-    }
+    openRequest.onerror = onError
 
     return () => {
-      setMounted(false)
-      if (db) {
-        db.close()
-      }
+      resetState()
     }
   }, [dbName, storeName])
 

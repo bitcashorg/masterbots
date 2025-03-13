@@ -1,45 +1,58 @@
+import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { getAllChatbots, getCategories } from '@/services/hasura'
-import { toSlug } from 'mb-lib'
 import type { MetadataRoute } from 'next'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Adding main routes
-  // TODO: domain and slugify thread titles + thread inner questions
   const chatbots = await getAllChatbots()
   const categories = await getCategories()
+  
+  // Use urlBuilders for chatbot profile URLs
   const chatbotUrls = chatbots.map(chatbot => ({
-    url: `${process.env.BASE_URL}/b/${toSlug(chatbot.name)}`,
+    url: urlBuilders.profilesUrl({ type: 'chatbot', chatbot: chatbot.name }),
     lastModified: new Date(),
     changeFrequency: 'monthly',
     priority: 0.7
   })) as MetadataRoute.Sitemap
+  
+  // Use urlBuilders for category URLs
   const personalCategoryUrls = categories.map(category => ({
-    url: `${process.env.BASE_URL}/c/${toSlug(category.name)}`,
+    url: urlBuilders.topicThreadListUrl({ type: 'personal', category: category.name }),
     lastModified: new Date(),
     changeFrequency: 'monthly',
     priority: 0.6
   })) as MetadataRoute.Sitemap
+  
   const publicCategoryUrls = categories.map(category => ({
-    url: `${process.env.BASE_URL}/${toSlug(category.name)}`,
+    url: urlBuilders.topicThreadListUrl({ type: 'public', category: category.name }),
     lastModified: new Date(),
     changeFrequency: 'monthly',
     priority: 0.6
   })) as MetadataRoute.Sitemap
+  
+  // Use urlBuilders for nested URLs
   const publicNestedUrls = categories.flatMap((category) =>
     category.chatbots.map((chatbot) => ({
-      // TODO: slugify domainName
-      // url: `${process.env.BASE_URL}/${toSlug(category.name)}/${chatbot.chatbot.metadata[0].domainName}/${toSlug(chatbot.chatbot.name)}`,
-      url: `${process.env.BASE_URL}/${toSlug(category.name)}/${toSlug(chatbot.chatbot.name)}`,
+      url: urlBuilders.chatbotThreadListUrl({
+        type: 'public',
+        category: category.name,
+        domain: getCanonicalDomain(chatbot.chatbot.metadata[0]?.domainName),
+        chatbot: chatbot.chatbot.name
+      }),
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.8,
     })),
   ) as MetadataRoute.Sitemap
+  
   const personalNestedUrls = categories.flatMap((category) =>
     category.chatbots.map((chatbot) => ({
-      // TODO: slugify domainName
-      // url: `${process.env.BASE_URL}/c/${toSlug(category.name)}/${chatbot.chatbot.metadata[0].domainName}/${toSlug(chatbot.chatbot.name)}`,
-      url: `${process.env.BASE_URL}/c/${toSlug(category.name)}/${toSlug(chatbot.chatbot.name)}`,
+      url: urlBuilders.chatbotThreadListUrl({
+        type: 'personal',
+        category: category.name,
+        domain: getCanonicalDomain(chatbot.chatbot.metadata[0]?.domainName),
+        chatbot: chatbot.chatbot.name,
+      }),
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.5,

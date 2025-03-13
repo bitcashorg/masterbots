@@ -3,6 +3,7 @@
 import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn } from '@/lib/utils'
 import { LogOut } from 'lucide-react'
 import { appConfig } from 'mb-env'
@@ -26,11 +27,16 @@ function getUserInitials(name: string) {
 
 export function ProfileSidebar({ user }: ProfileSidebarProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const { setActiveCategory, setActiveChatbot } = useSidebar()
   const router = useRouter()
 
   const handleNavigation = (path: string) => {
     setIsOpen(false)
     router.push(path)
+
+    // TODO: This is a temporary fix to reset the active category and chatbot. Consider to update the navigation according to the active category and chatbot.
+    setActiveCategory(null)
+    setActiveChatbot(null)
   }
 
   const handleLogout = useCallback(async () => {

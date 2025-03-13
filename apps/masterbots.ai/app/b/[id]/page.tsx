@@ -6,11 +6,12 @@ import { generateMetadataFromSEO } from '@/lib/metadata'
 import { getBrowseThreads, getChatbot } from '@/services/hasura'
 import type { Metadata } from 'next'
 
-export default async function BotThreadsPage({
-  params
-}: {
-  params: { id: string }
-}) {
+export default async function BotThreadsPage(
+  props: {
+    params: Promise<{ id: string }>
+  }
+) {
+  const params = await props.params;
   const chatbotName = (await botNames).get(params.id)
   let chatbot, threads
 
@@ -49,11 +50,12 @@ export default async function BotThreadsPage({
   )
 }
 
-export async function generateMetadata({
-  params
-}: {
-  params: { id: string }
-}): Promise<Metadata> {
+export async function generateMetadata(
+  props: {
+    params: Promise<{ id: string }>
+  }
+): Promise<Metadata> {
+  const params = await props.params;
   const chatbotName = (await botNames).get(params.id)
   const chatbot = await getChatbot({
     chatbotName,

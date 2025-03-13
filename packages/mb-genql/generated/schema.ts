@@ -997,6 +997,7 @@ export interface Message {
     messagesAggregate: MessageAggregate
     prompt: (Scalars['String'] | null)
     role: Scalars['String']
+    slug: Scalars['String']
     /** An object relationship */
     thread: (Thread | null)
     threadId: (Scalars['uuid'] | null)
@@ -1022,7 +1023,7 @@ export interface MessageAggregateFields {
 
 
 /** unique or primary key constraints on table "message" */
-export type MessageConstraint = 'message_id_key' | 'message_pkey'
+export type MessageConstraint = 'message_id_key' | 'message_pkey' | 'message_slug_key'
 
 
 /** aggregate max on columns */
@@ -1033,6 +1034,7 @@ export interface MessageMaxFields {
     messageId: (Scalars['uuid'] | null)
     prompt: (Scalars['String'] | null)
     role: (Scalars['String'] | null)
+    slug: (Scalars['String'] | null)
     threadId: (Scalars['uuid'] | null)
     __typename: 'MessageMaxFields'
 }
@@ -1046,6 +1048,7 @@ export interface MessageMinFields {
     messageId: (Scalars['uuid'] | null)
     prompt: (Scalars['String'] | null)
     role: (Scalars['String'] | null)
+    slug: (Scalars['String'] | null)
     threadId: (Scalars['uuid'] | null)
     __typename: 'MessageMinFields'
 }
@@ -1062,7 +1065,7 @@ export interface MessageMutationResponse {
 
 
 /** select columns of table "message" */
-export type MessageSelectColumn = 'augmentedFrom' | 'content' | 'createdAt' | 'examples' | 'messageId' | 'prompt' | 'role' | 'threadId'
+export type MessageSelectColumn = 'augmentedFrom' | 'content' | 'createdAt' | 'examples' | 'messageId' | 'prompt' | 'role' | 'slug' | 'threadId'
 
 
 /** columns and relationships of "message_type_enum" */
@@ -1130,7 +1133,7 @@ export type MessageTypeEnumUpdateColumn = 'value'
 
 
 /** update columns of table "message" */
-export type MessageUpdateColumn = 'augmentedFrom' | 'content' | 'createdAt' | 'examples' | 'messageId' | 'prompt' | 'role' | 'threadId'
+export type MessageUpdateColumn = 'augmentedFrom' | 'content' | 'createdAt' | 'examples' | 'messageId' | 'prompt' | 'role' | 'slug' | 'threadId'
 
 
 /** columns and relationships of "models_enum" */
@@ -2288,6 +2291,7 @@ export interface Thread {
     /** An object relationship */
     modelsEnum: ModelsEnum
     parentThreadId: (Scalars['uuid'] | null)
+    slug: Scalars['String']
     /** An object relationship */
     thread: (Thread | null)
     threadId: Scalars['uuid']
@@ -2336,7 +2340,7 @@ export interface ThreadAvgFields {
 
 
 /** unique or primary key constraints on table "thread" */
-export type ThreadConstraint = 'thread_id_key' | 'thread_pkey'
+export type ThreadConstraint = 'thread_id_key' | 'thread_pkey' | 'thread_slug_key'
 
 
 /** aggregate max on columns */
@@ -2344,6 +2348,7 @@ export interface ThreadMaxFields {
     chatbotId: (Scalars['Int'] | null)
     createdAt: (Scalars['timestamptz'] | null)
     parentThreadId: (Scalars['uuid'] | null)
+    slug: (Scalars['String'] | null)
     threadId: (Scalars['uuid'] | null)
     updatedAt: (Scalars['timestamptz'] | null)
     userId: (Scalars['uuid'] | null)
@@ -2356,6 +2361,7 @@ export interface ThreadMinFields {
     chatbotId: (Scalars['Int'] | null)
     createdAt: (Scalars['timestamptz'] | null)
     parentThreadId: (Scalars['uuid'] | null)
+    slug: (Scalars['String'] | null)
     threadId: (Scalars['uuid'] | null)
     updatedAt: (Scalars['timestamptz'] | null)
     userId: (Scalars['uuid'] | null)
@@ -2374,7 +2380,7 @@ export interface ThreadMutationResponse {
 
 
 /** select columns of table "thread" */
-export type ThreadSelectColumn = 'chatbotId' | 'createdAt' | 'isApproved' | 'isBlocked' | 'isPublic' | 'model' | 'parentThreadId' | 'threadId' | 'updatedAt' | 'userId'
+export type ThreadSelectColumn = 'chatbotId' | 'createdAt' | 'isApproved' | 'isBlocked' | 'isPublic' | 'model' | 'parentThreadId' | 'slug' | 'threadId' | 'updatedAt' | 'userId'
 
 
 /** select "threadAggregateBoolExpBool_andArgumentsColumns" columns of table "thread" */
@@ -2414,7 +2420,7 @@ export interface ThreadSumFields {
 
 
 /** update columns of table "thread" */
-export type ThreadUpdateColumn = 'chatbotId' | 'createdAt' | 'isApproved' | 'isBlocked' | 'isPublic' | 'model' | 'parentThreadId' | 'threadId' | 'updatedAt' | 'userId'
+export type ThreadUpdateColumn = 'chatbotId' | 'createdAt' | 'isApproved' | 'isBlocked' | 'isPublic' | 'model' | 'parentThreadId' | 'slug' | 'threadId' | 'updatedAt' | 'userId'
 
 
 /** aggregate varPop on columns */
@@ -5595,6 +5601,7 @@ export interface MessageGenqlSelection{
     where?: (MessageBoolExp | null)} })
     prompt?: boolean | number
     role?: boolean | number
+    slug?: boolean | number
     /** An object relationship */
     thread?: ThreadGenqlSelection
     threadId?: boolean | number
@@ -5639,7 +5646,7 @@ onConflict?: (MessageOnConflict | null)}
 
 
 /** Boolean expression to filter rows from the table "message". All fields are combined with a logical 'AND'. */
-export interface MessageBoolExp {_and?: (MessageBoolExp[] | null),_not?: (MessageBoolExp | null),_or?: (MessageBoolExp[] | null),augmentedFrom?: (UuidComparisonExp | null),content?: (StringComparisonExp | null),createdAt?: (TimestamptzComparisonExp | null),examples?: (JsonbComparisonExp | null),message?: (MessageBoolExp | null),messageId?: (UuidComparisonExp | null),messageTypeEnum?: (MessageTypeEnumBoolExp | null),messages?: (MessageBoolExp | null),messagesAggregate?: (MessageAggregateBoolExp | null),prompt?: (StringComparisonExp | null),role?: (StringComparisonExp | null),thread?: (ThreadBoolExp | null),threadId?: (UuidComparisonExp | null)}
+export interface MessageBoolExp {_and?: (MessageBoolExp[] | null),_not?: (MessageBoolExp | null),_or?: (MessageBoolExp[] | null),augmentedFrom?: (UuidComparisonExp | null),content?: (StringComparisonExp | null),createdAt?: (TimestamptzComparisonExp | null),examples?: (JsonbComparisonExp | null),message?: (MessageBoolExp | null),messageId?: (UuidComparisonExp | null),messageTypeEnum?: (MessageTypeEnumBoolExp | null),messages?: (MessageBoolExp | null),messagesAggregate?: (MessageAggregateBoolExp | null),prompt?: (StringComparisonExp | null),role?: (StringComparisonExp | null),slug?: (StringComparisonExp | null),thread?: (ThreadBoolExp | null),threadId?: (UuidComparisonExp | null)}
 
 
 /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
@@ -5655,7 +5662,7 @@ export interface MessageDeleteKeyInput {examples?: (Scalars['String'] | null)}
 
 
 /** input type for inserting data into table "message" */
-export interface MessageInsertInput {augmentedFrom?: (Scalars['uuid'] | null),content?: (Scalars['String'] | null),createdAt?: (Scalars['timestamptz'] | null),examples?: (Scalars['jsonb'] | null),message?: (MessageObjRelInsertInput | null),messageId?: (Scalars['uuid'] | null),messageTypeEnum?: (MessageTypeEnumObjRelInsertInput | null),messages?: (MessageArrRelInsertInput | null),prompt?: (Scalars['String'] | null),role?: (Scalars['String'] | null),thread?: (ThreadObjRelInsertInput | null),threadId?: (Scalars['uuid'] | null)}
+export interface MessageInsertInput {augmentedFrom?: (Scalars['uuid'] | null),content?: (Scalars['String'] | null),createdAt?: (Scalars['timestamptz'] | null),examples?: (Scalars['jsonb'] | null),message?: (MessageObjRelInsertInput | null),messageId?: (Scalars['uuid'] | null),messageTypeEnum?: (MessageTypeEnumObjRelInsertInput | null),messages?: (MessageArrRelInsertInput | null),prompt?: (Scalars['String'] | null),role?: (Scalars['String'] | null),slug?: (Scalars['String'] | null),thread?: (ThreadObjRelInsertInput | null),threadId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate max on columns */
@@ -5666,6 +5673,7 @@ export interface MessageMaxFieldsGenqlSelection{
     messageId?: boolean | number
     prompt?: boolean | number
     role?: boolean | number
+    slug?: boolean | number
     threadId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -5673,7 +5681,7 @@ export interface MessageMaxFieldsGenqlSelection{
 
 
 /** order by max() on columns of table "message" */
-export interface MessageMaxOrderBy {augmentedFrom?: (OrderBy | null),content?: (OrderBy | null),createdAt?: (OrderBy | null),messageId?: (OrderBy | null),prompt?: (OrderBy | null),role?: (OrderBy | null),threadId?: (OrderBy | null)}
+export interface MessageMaxOrderBy {augmentedFrom?: (OrderBy | null),content?: (OrderBy | null),createdAt?: (OrderBy | null),messageId?: (OrderBy | null),prompt?: (OrderBy | null),role?: (OrderBy | null),slug?: (OrderBy | null),threadId?: (OrderBy | null)}
 
 
 /** aggregate min on columns */
@@ -5684,6 +5692,7 @@ export interface MessageMinFieldsGenqlSelection{
     messageId?: boolean | number
     prompt?: boolean | number
     role?: boolean | number
+    slug?: boolean | number
     threadId?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -5691,7 +5700,7 @@ export interface MessageMinFieldsGenqlSelection{
 
 
 /** order by min() on columns of table "message" */
-export interface MessageMinOrderBy {augmentedFrom?: (OrderBy | null),content?: (OrderBy | null),createdAt?: (OrderBy | null),messageId?: (OrderBy | null),prompt?: (OrderBy | null),role?: (OrderBy | null),threadId?: (OrderBy | null)}
+export interface MessageMinOrderBy {augmentedFrom?: (OrderBy | null),content?: (OrderBy | null),createdAt?: (OrderBy | null),messageId?: (OrderBy | null),prompt?: (OrderBy | null),role?: (OrderBy | null),slug?: (OrderBy | null),threadId?: (OrderBy | null)}
 
 
 /** response of any mutation on the table "message" */
@@ -5716,11 +5725,11 @@ export interface MessageOnConflict {constraint: MessageConstraint,updateColumns?
 
 
 /** Ordering options when selecting data from "message". */
-export interface MessageOrderBy {augmentedFrom?: (OrderBy | null),content?: (OrderBy | null),createdAt?: (OrderBy | null),examples?: (OrderBy | null),message?: (MessageOrderBy | null),messageId?: (OrderBy | null),messageTypeEnum?: (MessageTypeEnumOrderBy | null),messagesAggregate?: (MessageAggregateOrderBy | null),prompt?: (OrderBy | null),role?: (OrderBy | null),thread?: (ThreadOrderBy | null),threadId?: (OrderBy | null)}
+export interface MessageOrderBy {augmentedFrom?: (OrderBy | null),content?: (OrderBy | null),createdAt?: (OrderBy | null),examples?: (OrderBy | null),message?: (MessageOrderBy | null),messageId?: (OrderBy | null),messageTypeEnum?: (MessageTypeEnumOrderBy | null),messagesAggregate?: (MessageAggregateOrderBy | null),prompt?: (OrderBy | null),role?: (OrderBy | null),slug?: (OrderBy | null),thread?: (ThreadOrderBy | null),threadId?: (OrderBy | null)}
 
 
 /** primary key columns input for table: message */
-export interface MessagePkColumnsInput {messageId: Scalars['uuid']}
+export interface MessagePkColumnsInput {messageId: Scalars['uuid'],slug: Scalars['String']}
 
 
 /** prepend existing jsonb value of filtered columns with new jsonb value */
@@ -5728,7 +5737,7 @@ export interface MessagePrependInput {examples?: (Scalars['jsonb'] | null)}
 
 
 /** input type for updating data in table "message" */
-export interface MessageSetInput {augmentedFrom?: (Scalars['uuid'] | null),content?: (Scalars['String'] | null),createdAt?: (Scalars['timestamptz'] | null),examples?: (Scalars['jsonb'] | null),messageId?: (Scalars['uuid'] | null),prompt?: (Scalars['String'] | null),role?: (Scalars['String'] | null),threadId?: (Scalars['uuid'] | null)}
+export interface MessageSetInput {augmentedFrom?: (Scalars['uuid'] | null),content?: (Scalars['String'] | null),createdAt?: (Scalars['timestamptz'] | null),examples?: (Scalars['jsonb'] | null),messageId?: (Scalars['uuid'] | null),prompt?: (Scalars['String'] | null),role?: (Scalars['String'] | null),slug?: (Scalars['String'] | null),threadId?: (Scalars['uuid'] | null)}
 
 
 /** Streaming cursor of the table "message" */
@@ -5740,7 +5749,7 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface MessageStreamCursorValueInput {augmentedFrom?: (Scalars['uuid'] | null),content?: (Scalars['String'] | null),createdAt?: (Scalars['timestamptz'] | null),examples?: (Scalars['jsonb'] | null),messageId?: (Scalars['uuid'] | null),prompt?: (Scalars['String'] | null),role?: (Scalars['String'] | null),threadId?: (Scalars['uuid'] | null)}
+export interface MessageStreamCursorValueInput {augmentedFrom?: (Scalars['uuid'] | null),content?: (Scalars['String'] | null),createdAt?: (Scalars['timestamptz'] | null),examples?: (Scalars['jsonb'] | null),messageId?: (Scalars['uuid'] | null),prompt?: (Scalars['String'] | null),role?: (Scalars['String'] | null),slug?: (Scalars['String'] | null),threadId?: (Scalars['uuid'] | null)}
 
 
 /** columns and relationships of "message_type_enum" */
@@ -8016,6 +8025,7 @@ export interface ThreadGenqlSelection{
     /** An object relationship */
     modelsEnum?: ModelsEnumGenqlSelection
     parentThreadId?: boolean | number
+    slug?: boolean | number
     /** An object relationship */
     thread?: ThreadGenqlSelection
     threadId?: boolean | number
@@ -8104,7 +8114,7 @@ export interface ThreadAvgOrderBy {chatbotId?: (OrderBy | null)}
 
 
 /** Boolean expression to filter rows from the table "thread". All fields are combined with a logical 'AND'. */
-export interface ThreadBoolExp {_and?: (ThreadBoolExp[] | null),_not?: (ThreadBoolExp | null),_or?: (ThreadBoolExp[] | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),createdAt?: (TimestamptzComparisonExp | null),isApproved?: (BooleanComparisonExp | null),isBlocked?: (BooleanComparisonExp | null),isPublic?: (BooleanComparisonExp | null),messages?: (MessageBoolExp | null),messagesAggregate?: (MessageAggregateBoolExp | null),model?: (ModelsEnumEnumComparisonExp | null),modelsEnum?: (ModelsEnumBoolExp | null),parentThreadId?: (UuidComparisonExp | null),thread?: (ThreadBoolExp | null),threadId?: (UuidComparisonExp | null),threads?: (ThreadBoolExp | null),threadsAggregate?: (ThreadAggregateBoolExp | null),updatedAt?: (TimestamptzComparisonExp | null),user?: (UserBoolExp | null),userId?: (UuidComparisonExp | null)}
+export interface ThreadBoolExp {_and?: (ThreadBoolExp[] | null),_not?: (ThreadBoolExp | null),_or?: (ThreadBoolExp[] | null),chatbot?: (ChatbotBoolExp | null),chatbotId?: (IntComparisonExp | null),createdAt?: (TimestamptzComparisonExp | null),isApproved?: (BooleanComparisonExp | null),isBlocked?: (BooleanComparisonExp | null),isPublic?: (BooleanComparisonExp | null),messages?: (MessageBoolExp | null),messagesAggregate?: (MessageAggregateBoolExp | null),model?: (ModelsEnumEnumComparisonExp | null),modelsEnum?: (ModelsEnumBoolExp | null),parentThreadId?: (UuidComparisonExp | null),slug?: (StringComparisonExp | null),thread?: (ThreadBoolExp | null),threadId?: (UuidComparisonExp | null),threads?: (ThreadBoolExp | null),threadsAggregate?: (ThreadAggregateBoolExp | null),updatedAt?: (TimestamptzComparisonExp | null),user?: (UserBoolExp | null),userId?: (UuidComparisonExp | null)}
 
 
 /** input type for incrementing numeric columns in table "thread" */
@@ -8112,7 +8122,7 @@ export interface ThreadIncInput {chatbotId?: (Scalars['Int'] | null)}
 
 
 /** input type for inserting data into table "thread" */
-export interface ThreadInsertInput {chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isApproved?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isPublic?: (Scalars['Boolean'] | null),messages?: (MessageArrRelInsertInput | null),model?: (ModelsEnumEnum | null),modelsEnum?: (ModelsEnumObjRelInsertInput | null),parentThreadId?: (Scalars['uuid'] | null),thread?: (ThreadObjRelInsertInput | null),threadId?: (Scalars['uuid'] | null),threads?: (ThreadArrRelInsertInput | null),updatedAt?: (Scalars['timestamptz'] | null),user?: (UserObjRelInsertInput | null),userId?: (Scalars['uuid'] | null)}
+export interface ThreadInsertInput {chatbot?: (ChatbotObjRelInsertInput | null),chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isApproved?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isPublic?: (Scalars['Boolean'] | null),messages?: (MessageArrRelInsertInput | null),model?: (ModelsEnumEnum | null),modelsEnum?: (ModelsEnumObjRelInsertInput | null),parentThreadId?: (Scalars['uuid'] | null),slug?: (Scalars['String'] | null),thread?: (ThreadObjRelInsertInput | null),threadId?: (Scalars['uuid'] | null),threads?: (ThreadArrRelInsertInput | null),updatedAt?: (Scalars['timestamptz'] | null),user?: (UserObjRelInsertInput | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate max on columns */
@@ -8120,6 +8130,7 @@ export interface ThreadMaxFieldsGenqlSelection{
     chatbotId?: boolean | number
     createdAt?: boolean | number
     parentThreadId?: boolean | number
+    slug?: boolean | number
     threadId?: boolean | number
     updatedAt?: boolean | number
     userId?: boolean | number
@@ -8129,7 +8140,7 @@ export interface ThreadMaxFieldsGenqlSelection{
 
 
 /** order by max() on columns of table "thread" */
-export interface ThreadMaxOrderBy {chatbotId?: (OrderBy | null),createdAt?: (OrderBy | null),parentThreadId?: (OrderBy | null),threadId?: (OrderBy | null),updatedAt?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadMaxOrderBy {chatbotId?: (OrderBy | null),createdAt?: (OrderBy | null),parentThreadId?: (OrderBy | null),slug?: (OrderBy | null),threadId?: (OrderBy | null),updatedAt?: (OrderBy | null),userId?: (OrderBy | null)}
 
 
 /** aggregate min on columns */
@@ -8137,6 +8148,7 @@ export interface ThreadMinFieldsGenqlSelection{
     chatbotId?: boolean | number
     createdAt?: boolean | number
     parentThreadId?: boolean | number
+    slug?: boolean | number
     threadId?: boolean | number
     updatedAt?: boolean | number
     userId?: boolean | number
@@ -8146,7 +8158,7 @@ export interface ThreadMinFieldsGenqlSelection{
 
 
 /** order by min() on columns of table "thread" */
-export interface ThreadMinOrderBy {chatbotId?: (OrderBy | null),createdAt?: (OrderBy | null),parentThreadId?: (OrderBy | null),threadId?: (OrderBy | null),updatedAt?: (OrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadMinOrderBy {chatbotId?: (OrderBy | null),createdAt?: (OrderBy | null),parentThreadId?: (OrderBy | null),slug?: (OrderBy | null),threadId?: (OrderBy | null),updatedAt?: (OrderBy | null),userId?: (OrderBy | null)}
 
 
 /** response of any mutation on the table "thread" */
@@ -8171,15 +8183,15 @@ export interface ThreadOnConflict {constraint: ThreadConstraint,updateColumns?: 
 
 
 /** Ordering options when selecting data from "thread". */
-export interface ThreadOrderBy {chatbot?: (ChatbotOrderBy | null),chatbotId?: (OrderBy | null),createdAt?: (OrderBy | null),isApproved?: (OrderBy | null),isBlocked?: (OrderBy | null),isPublic?: (OrderBy | null),messagesAggregate?: (MessageAggregateOrderBy | null),model?: (OrderBy | null),modelsEnum?: (ModelsEnumOrderBy | null),parentThreadId?: (OrderBy | null),thread?: (ThreadOrderBy | null),threadId?: (OrderBy | null),threadsAggregate?: (ThreadAggregateOrderBy | null),updatedAt?: (OrderBy | null),user?: (UserOrderBy | null),userId?: (OrderBy | null)}
+export interface ThreadOrderBy {chatbot?: (ChatbotOrderBy | null),chatbotId?: (OrderBy | null),createdAt?: (OrderBy | null),isApproved?: (OrderBy | null),isBlocked?: (OrderBy | null),isPublic?: (OrderBy | null),messagesAggregate?: (MessageAggregateOrderBy | null),model?: (OrderBy | null),modelsEnum?: (ModelsEnumOrderBy | null),parentThreadId?: (OrderBy | null),slug?: (OrderBy | null),thread?: (ThreadOrderBy | null),threadId?: (OrderBy | null),threadsAggregate?: (ThreadAggregateOrderBy | null),updatedAt?: (OrderBy | null),user?: (UserOrderBy | null),userId?: (OrderBy | null)}
 
 
 /** primary key columns input for table: thread */
-export interface ThreadPkColumnsInput {threadId: Scalars['uuid']}
+export interface ThreadPkColumnsInput {slug: Scalars['String'],threadId: Scalars['uuid']}
 
 
 /** input type for updating data in table "thread" */
-export interface ThreadSetInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isApproved?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isPublic?: (Scalars['Boolean'] | null),model?: (ModelsEnumEnum | null),parentThreadId?: (Scalars['uuid'] | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
+export interface ThreadSetInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isApproved?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isPublic?: (Scalars['Boolean'] | null),model?: (ModelsEnumEnum | null),parentThreadId?: (Scalars['uuid'] | null),slug?: (Scalars['String'] | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate stddev on columns */
@@ -8227,7 +8239,7 @@ ordering?: (CursorOrdering | null)}
 
 
 /** Initial value of the column from where the streaming should start */
-export interface ThreadStreamCursorValueInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isApproved?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isPublic?: (Scalars['Boolean'] | null),model?: (ModelsEnumEnum | null),parentThreadId?: (Scalars['uuid'] | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
+export interface ThreadStreamCursorValueInput {chatbotId?: (Scalars['Int'] | null),createdAt?: (Scalars['timestamptz'] | null),isApproved?: (Scalars['Boolean'] | null),isBlocked?: (Scalars['Boolean'] | null),isPublic?: (Scalars['Boolean'] | null),model?: (ModelsEnumEnum | null),parentThreadId?: (Scalars['uuid'] | null),slug?: (Scalars['String'] | null),threadId?: (Scalars['uuid'] | null),updatedAt?: (Scalars['timestamptz'] | null),userId?: (Scalars['uuid'] | null)}
 
 
 /** aggregate sum on columns */
@@ -9267,7 +9279,7 @@ export interface mutation_rootGenqlSelection{
     /** filter the rows which have to be deleted */
     where: MessageBoolExp} })
     /** delete single row from the table: "message" */
-    deleteMessageByPk?: (MessageGenqlSelection & { __args: {messageId: Scalars['uuid']} })
+    deleteMessageByPk?: (MessageGenqlSelection & { __args: {messageId: Scalars['uuid'], slug: Scalars['String']} })
     /** delete data from the table: "message_type_enum" */
     deleteMessageTypeEnum?: (MessageTypeEnumMutationResponseGenqlSelection & { __args: {
     /** filter the rows which have to be deleted */
@@ -9337,7 +9349,7 @@ export interface mutation_rootGenqlSelection{
     /** filter the rows which have to be deleted */
     where: ThreadBoolExp} })
     /** delete single row from the table: "thread" */
-    deleteThreadByPk?: (ThreadGenqlSelection & { __args: {threadId: Scalars['uuid']} })
+    deleteThreadByPk?: (ThreadGenqlSelection & { __args: {slug: Scalars['String'], threadId: Scalars['uuid']} })
     /** delete data from the table: "token" */
     deleteToken?: (TokenMutationResponseGenqlSelection & { __args: {
     /** filter the rows which have to be deleted */
@@ -10420,7 +10432,7 @@ export interface query_rootGenqlSelection{
     /** filter the rows returned */
     where?: (MessageBoolExp | null)} })
     /** fetch data from the table: "message" using primary key columns */
-    messageByPk?: (MessageGenqlSelection & { __args: {messageId: Scalars['uuid']} })
+    messageByPk?: (MessageGenqlSelection & { __args: {messageId: Scalars['uuid'], slug: Scalars['String']} })
     /** fetch data from the table: "message_type_enum" */
     messageTypeEnum?: (MessageTypeEnumGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -10730,7 +10742,7 @@ export interface query_rootGenqlSelection{
     /** filter the rows returned */
     where?: (ThreadBoolExp | null)} })
     /** fetch data from the table: "thread" using primary key columns */
-    threadByPk?: (ThreadGenqlSelection & { __args: {threadId: Scalars['uuid']} })
+    threadByPk?: (ThreadGenqlSelection & { __args: {slug: Scalars['String'], threadId: Scalars['uuid']} })
     /** fetch data from the table: "token" */
     token?: (TokenGenqlSelection & { __args?: {
     /** distinct select on columns */
@@ -11203,7 +11215,7 @@ export interface subscription_rootGenqlSelection{
     /** filter the rows returned */
     where?: (MessageBoolExp | null)} })
     /** fetch data from the table: "message" using primary key columns */
-    messageByPk?: (MessageGenqlSelection & { __args: {messageId: Scalars['uuid']} })
+    messageByPk?: (MessageGenqlSelection & { __args: {messageId: Scalars['uuid'], slug: Scalars['String']} })
     /** fetch data from the table in a streaming manner: "message" */
     messageStream?: (MessageGenqlSelection & { __args: {
     /** maximum number of rows returned in a single batch */
@@ -11609,7 +11621,7 @@ export interface subscription_rootGenqlSelection{
     /** filter the rows returned */
     where?: (ThreadBoolExp | null)} })
     /** fetch data from the table: "thread" using primary key columns */
-    threadByPk?: (ThreadGenqlSelection & { __args: {threadId: Scalars['uuid']} })
+    threadByPk?: (ThreadGenqlSelection & { __args: {slug: Scalars['String'], threadId: Scalars['uuid']} })
     /** fetch data from the table in a streaming manner: "thread" */
     threadStream?: (ThreadGenqlSelection & { __args: {
     /** maximum number of rows returned in a single batch */
@@ -13995,7 +14007,8 @@ export const enumLengthEnumUpdateColumn = {
 
 export const enumMessageConstraint = {
    message_id_key: 'message_id_key' as const,
-   message_pkey: 'message_pkey' as const
+   message_pkey: 'message_pkey' as const,
+   message_slug_key: 'message_slug_key' as const
 }
 
 export const enumMessageSelectColumn = {
@@ -14006,6 +14019,7 @@ export const enumMessageSelectColumn = {
    messageId: 'messageId' as const,
    prompt: 'prompt' as const,
    role: 'role' as const,
+   slug: 'slug' as const,
    threadId: 'threadId' as const
 }
 
@@ -14029,6 +14043,7 @@ export const enumMessageUpdateColumn = {
    messageId: 'messageId' as const,
    prompt: 'prompt' as const,
    role: 'role' as const,
+   slug: 'slug' as const,
    threadId: 'threadId' as const
 }
 
@@ -14218,7 +14233,8 @@ export const enumTagEnumUpdateColumn = {
 
 export const enumThreadConstraint = {
    thread_id_key: 'thread_id_key' as const,
-   thread_pkey: 'thread_pkey' as const
+   thread_pkey: 'thread_pkey' as const,
+   thread_slug_key: 'thread_slug_key' as const
 }
 
 export const enumThreadSelectColumn = {
@@ -14229,6 +14245,7 @@ export const enumThreadSelectColumn = {
    isPublic: 'isPublic' as const,
    model: 'model' as const,
    parentThreadId: 'parentThreadId' as const,
+   slug: 'slug' as const,
    threadId: 'threadId' as const,
    updatedAt: 'updatedAt' as const,
    userId: 'userId' as const
@@ -14254,6 +14271,7 @@ export const enumThreadUpdateColumn = {
    isPublic: 'isPublic' as const,
    model: 'model' as const,
    parentThreadId: 'parentThreadId' as const,
+   slug: 'slug' as const,
    threadId: 'threadId' as const,
    updatedAt: 'updatedAt' as const,
    userId: 'userId' as const

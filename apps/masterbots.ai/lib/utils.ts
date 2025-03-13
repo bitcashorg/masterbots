@@ -323,17 +323,18 @@ export function getRouteType(pathname: string | null): RouteType {
 }
 
 export function getRouteColor(isActive: boolean, pathname: string | null): string {
-  return ''
-  // if (!isActive) return ''
+  // return ''
+  if (!isActive) return ''
 
-  // const routeType = getRouteType(pathname)
-  // console.log(routeType)
-  // switch (routeType) {
-  //   case 'personal':
-  //     return 'text-black bg-gradient-to-b from-[rgba(190,23,232,0.1)] via-[rgba(187,6,232,0.5)] to-[rgba(190,23,232,0.5)] dark:text-white'
-  //   case 'public':
-  //     return 'text-black bg-gradient-to-b from-[rgba(131,229,106,0.1)] via-[rgba(131,229,106,0.5)] to-[rgba(131,229,106,0.5)] dark:text-white'
-  //   default:
-  //     return ''
-  // }
+  const routeType = getRouteType(pathname)
+
+  switch (routeType) {
+    // case 'personal':
+    case 'chat':
+      return 'text-black bg-gradient-to-b from-[rgba(190,23,232,0.1)] via-[rgba(187,6,232,0.5)] to-[rgba(190,23,232,0.5)] dark:text-white'
+    case 'public':
+      return 'text-black bg-gradient-to-b from-[rgba(131,229,106,0.1)] via-[rgba(131,229,106,0.5)] to-[rgba(131,229,106,0.5)] dark:text-white'
+    default:
+      return ''
+  }
 }

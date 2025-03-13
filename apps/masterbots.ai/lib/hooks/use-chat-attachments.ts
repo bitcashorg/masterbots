@@ -1,4 +1,5 @@
 import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
+import { useThread } from '@/lib/hooks/use-thread'
 import { useSonner } from '@/lib/hooks/useSonner'
 import type * as OpenAi from 'ai'
 import { appConfig } from 'mb-env'
@@ -50,6 +51,7 @@ export function useFileAttachments(formRef: React.RefObject<HTMLFormElement>): [
   },
 ] {
   const { data: session } = useSession()
+  const { activeThread } = useThread()
   const dbKeys = getUserIndexedDBKeys(session?.user?.id)
   const { mounted, ...indexedDBActions } = useIndexedDB(dbKeys)
   const {
@@ -59,7 +61,7 @@ export function useFileAttachments(formRef: React.RefObject<HTMLFormElement>): [
   } = useAsync(async () => {
     if (!mounted) return
     return await indexedDBActions.getAllItems()
-  }, [session?.user, mounted])
+  }, [session?.user, mounted, activeThread])
 
   const [state, setState] = useSetState<{
     isDragging: boolean
@@ -180,17 +182,19 @@ export function useFileAttachments(formRef: React.RefObject<HTMLFormElement>): [
     }
   }
 
-  // ? When pasting files into the form works... but only for text base files, for images it has hard times to paste them...
-  const handleFilePaste = (event: ClipboardEvent) => {
-    event.stopPropagation()
-    event.preventDefault()
-
+  // ? When pasting files into the form works... but only for text base files, for images it has hard times to paste them... depends on the browser and OS
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  const handleFilePaste = useCallback((event: ClipboardEvent) => {
     const { items } = event.clipboardData as DataTransfer
+    const isValidItems = Array.from(items).some((item) => item.kind !== 'string')
 
-    if (items) {
+    if (isValidItems) {
+      event.stopPropagation()
+      event.preventDefault()
+
       handleValidFiles(items)
     }
-  }
+  }, [])
 
   const handleDragOver = (event: React.DragEvent<HTMLFormElement>) => {
     event.preventDefault()

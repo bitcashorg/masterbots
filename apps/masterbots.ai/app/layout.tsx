@@ -14,12 +14,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html lang="en" suppressHydrationWarning>
       <body className={cn('font-sans antialiased', GeistSans.variable, GeistMono.variable)}>
         <NextTopLoader color="#1ED761" initialPosition={0.2} />
-        <Toaster
-          toastOptions={{
-            className: 'bg-background text-background-foreground',
-          }}
-        />
         <Providers attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <Toaster
+            toastOptions={{
+              className: 'bg-background text-background-foreground',
+            }}
+          />
           <div className="flex flex-col min-h-screen">
             <Header />
             <main className="relative flex flex-col flex-1 bg-muted/50">{children}</main>
