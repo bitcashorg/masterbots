@@ -23,7 +23,6 @@ import type { Message as AiMessage, ChatRequestOptions, CreateMessage } from 'ai
 import { type UseChatOptions, useChat } from 'ai/react'
 import { throttle, uniqBy } from 'lodash'
 import type { Chatbot, Message, Thread } from 'mb-genql'
-
 import { aiExampleClassification, processUserMessage } from '@/lib/helpers/ai-classification'
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { type FileAttachment, getUserIndexedDBKeys } from '@/lib/hooks/use-chat-attachments'

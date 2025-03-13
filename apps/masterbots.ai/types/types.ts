@@ -362,3 +362,21 @@ export interface ParsedText {
   restText: string // The text that follows (for visual rendering)
   fullContext: string // The full sentence context for the follow-up question
 }
+
+
+export type ControlType = "switch" | "toggle" | "button" | "plus" | 'dangerButton' | 'toggleGroup';
+export type PreferenceItemType = {
+    title: string;
+    description: string;
+    type?: string
+    props?: Record<string, any>;
+    defaultChecked?: boolean;
+    icon?: React.ElementType;
+    buttonText?: string;
+  };
+  
+  export type PreferenceSectionProps = {
+    title: string;
+    items: PreferenceItemType[];
+    variant?: 'default' | 'danger';
+  };
