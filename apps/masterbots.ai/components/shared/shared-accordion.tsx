@@ -8,20 +8,18 @@ import { useSession } from 'next-auth/react'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
-interface SharedAccordionProps {
-  className?: string
-  children: React.ReactNode[]
+interface SharedAccordionProps extends Omit<React.ComponentProps<'div'>, 'onToggle'> {
   defaultState?: boolean
   triggerClass?: string
   contentClass?: string
-  onToggle?: (isOpen: boolean) => void
   isOpen?: boolean
   arrowClass?: string
+  onToggle?: (isOpen: boolean) => void
   handleTrigger?: () => void
   handleOpen?: () => void
-  thread?: Thread | null
-  disabled?: boolean
+  thread?: Omit<Thread, '__typename'> & {  id?: string }| null
   variant?: 'browse' | 'chat'
+  disabled?: boolean
   isNestedThread?: boolean
 }
 
@@ -56,7 +54,7 @@ export function SharedAccordion({
     setIsNewResponse,
     isNewResponse,
     setIsOpenPopup,
-    isOpenPopup
+    isOpenPopup,
   } = useThread()
   const { navigateTo } = useSidebar()
   const [currentRequest, setCurrentRequest] = useState<AbortController | null>(null)
@@ -68,9 +66,7 @@ export function SharedAccordion({
   const isPublic = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
 
   // State initialization
-  const [open, setOpen] = useState(
-    defaultState || activeThread?.threadId === thread?.threadId
-  )
+  const [open, setOpen] = useState(defaultState || activeThread?.threadId === thread?.threadId)
   const [loading, setLoading] = useState(false)
 
   // Check if another thread is open (for browse variant)
@@ -97,9 +93,7 @@ export function SharedAccordion({
   // Handle active thread changes
   useEffect(() => {
     if (
-      (thread?.threadId &&
-        activeThread !== null &&
-        thread?.threadId !== activeThread?.threadId) ||
+      (thread?.threadId && activeThread !== null && thread?.threadId !== activeThread?.threadId) ||
       (activeThread === null && thread?.threadId)
     ) {
       setOpen(false)
@@ -115,32 +109,27 @@ export function SharedAccordion({
 
   // Handle popup state changes
   useEffect(() => {
-    if (
-      !isOpenPopup &&
-      activeThread &&
-      activeThread.threadId === thread?.threadId &&
-      !open
-    ) {
+    if (!isOpenPopup && activeThread && activeThread.threadId === thread?.threadId && !open) {
       toggle()
     }
   }, [isOpenPopup, activeThread, thread, open])
 
   const updateActiveThread = async () => {
     // Cancel any in-flight request
-    currentRequest?.abort();
-    const abortController = new AbortController();
+    currentRequest?.abort()
+    const abortController = new AbortController()
 
-    setCurrentRequest(abortController);
+    setCurrentRequest(abortController)
 
     const fullThread = await getThread({
       threadId: thread?.threadId,
       jwt: session?.user?.hasuraJwt,
       signal: abortController.signal,
-    });
+    })
 
-    setActiveThread(fullThread || null);
-    setLoading(false);
-    setCurrentRequest(null);
+    setActiveThread(fullThread || null)
+    setLoading(false)
+    setCurrentRequest(null)
 
     navigateTo({
       urlType: 'threadUrl',
@@ -151,11 +140,11 @@ export function SharedAccordion({
         domain: fullThread?.chatbot?.metadata[0]?.domainName || 'General',
         chatbot: fullThread?.chatbot?.name || 'Masterbots',
         threadSlug: fullThread?.slug || (params.threadSlug as string),
-      }
+      },
     })
 
-    return thread;
-  };
+    return thread
+  }
 
   const handleClick = async (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -185,8 +174,8 @@ export function SharedAccordion({
           usernameSlug: slug,
           category: category,
           chatbot: chatbot,
-          domain: thread?.chatbot?.metadata[0]?.domainName || ''
-        }
+          domain: thread?.chatbot?.metadata[0]?.domainName || '',
+        },
       })
     } else {
       // Regular toggle
@@ -197,7 +186,7 @@ export function SharedAccordion({
   const toggle = () => {
     if (shouldBeDisabled) return
 
-    setOpen(prevOpen => {
+    setOpen((prevOpen) => {
       const newState = !prevOpen
 
       if (!newState && handleOpen) {
@@ -205,7 +194,7 @@ export function SharedAccordion({
       }
 
       if (thread?.threadId) {
-        setActiveThread(newState ? thread : null)
+        setActiveThread(newState ? thread as Thread : null)
       }
 
       if (isNewResponse) {
@@ -217,16 +206,11 @@ export function SharedAccordion({
       }
 
       // Scroll into view for browse variant
-      if (
-        variant === 'browse' &&
-        newState &&
-        !isNestedThread &&
-        accordionRef.current
-      ) {
+      if (variant === 'browse' && newState && !isNestedThread && accordionRef.current) {
         setTimeout(() => {
           accordionRef.current?.scrollIntoView({
             behavior: 'smooth',
-            block: 'start'
+            block: 'start',
           })
         }, 100)
       }
@@ -244,9 +228,7 @@ export function SharedAccordion({
         // Browse variant specific styles
         variant === 'browse' &&
           !isNestedThread &&
-          (open
-            ? 'z-[1] my-8 scale-100'
-            : 'scale-[0.98] my-1 hover:scale-[0.99]'),
+          (open ? 'z-[1] my-8 scale-100' : 'scale-[0.98] my-1 hover:scale-[0.99]'),
         variant === 'browse' &&
           !isNestedThread &&
           shouldBeDisabled &&
@@ -255,9 +237,9 @@ export function SharedAccordion({
         variant === 'browse' &&
           !isNestedThread &&
           open &&
-          'sm:relative fixed inset-0 sm:inset-auto'
+          'sm:relative fixed inset-0 sm:inset-auto',
       )}
-      id={`thread-${thread?.threadId}`}
+      id={`thread-${thread?.id || thread?.threadId}`}
       {...props}
     >
       {/* Accordion trigger button */}
@@ -281,41 +263,37 @@ export function SharedAccordion({
           !isNestedThread &&
             !open &&
             'dark:hover:border-b-mirage hover:border-b-gray-300 [&>div>div>button]:!hidden',
-          isNestedThread &&
-            open &&
-            'bg-gray-200/90 dark:bg-gray-800/90 !hover:rounded-t-none',
+          isNestedThread && open && 'bg-gray-200/90 dark:bg-gray-800/90 !hover:rounded-t-none',
           shouldBeDisabled && !open && 'cursor-not-allowed hover:scale-100',
-          triggerClass
+          triggerClass,
         )}
+        id={props.id}
       >
         {children[0]}
         {!open && children[1]}
         <ChevronDown
           {...(handleTrigger
             ? {
-                onClick: e => {
+                onClick: (e) => {
                   e.stopPropagation()
                   handleTrigger()
-                }
+                },
               }
             : {})}
           className={cn(
             'absolute size-4 -right-4 top-4 shrink-0 mr-8 transition-transform duration-200',
             open ? '' : '-rotate-90',
             arrowClass,
-            disabled && 'hidden'
+            disabled && 'hidden',
           )}
         />
         {loading && (
           <div className="absolute inset-0 bg-accent/5 rounded-lg backdrop-blur-[1px] animate-pulse" />
         )}
 
-        {variant === 'browse' &&
-          !isNestedThread &&
-          shouldBeDisabled &&
-          !open && (
-            <div className="absolute inset-0 bg-black/5 dark:bg-white/5 rounded-lg backdrop-blur-[1px]" />
-          )}
+        {variant === 'browse' && !isNestedThread && shouldBeDisabled && !open && (
+          <div className="absolute inset-0 bg-black/5 dark:bg-white/5 rounded-lg backdrop-blur-[1px]" />
+        )}
       </button>
 
       {/* Accordion content */}
@@ -328,9 +306,8 @@ export function SharedAccordion({
           isNestedThread &&
             open &&
             'animate-accordion-down dark:bg-[#18181B]/50 bg-white/50 dark:border-b-mirage border-b-gray-300/10 !border-t-transparent last-of-type:rounded-b-lg',
-          !open &&
-            'overflow-hidden animate-accordion-up h-0 border-transparent',
-          contentClass
+          !open && 'overflow-hidden animate-accordion-up h-0 border-transparent',
+          contentClass,
         )}
       >
         {children[2]}

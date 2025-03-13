@@ -1,4 +1,4 @@
-import { useEffect, type RefObject, useCallback } from 'react'
+import { type RefObject, useCallback, useEffect } from 'react'
 
 interface UseIntersectionObserverProps {
   target: RefObject<HTMLElement>
@@ -23,6 +23,7 @@ export function useIntersectionObserver({
     },
     [onIntersect]
   )
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (!enabled || !target.current) return
 
@@ -38,5 +39,5 @@ export function useIntersectionObserver({
     return () => {
       observer.disconnect()
     }
-  }, [callback, enabled, root, rootMargin, target, threshold])
+  }, [enabled, root, rootMargin, target, threshold])
 }

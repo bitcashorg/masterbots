@@ -372,12 +372,10 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     .filter(Boolean)
     .filter((m) => m.role !== 'system')
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: only activeThread is needed
   useEffect(() => {
     // Resetting the chat when the popup is closed
     if (!activeThread && !isOpenPopup) {
-      setState({ messagesFromDB: [], isInitLoaded: false, isNewChat: true })
-      setLoadingState()
+      resetState()
     }
     if (!isOpenPopup) {
       randomThreadId.current = crypto.randomUUID() //* Generates a new thread ID
@@ -385,20 +383,22 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
     if (!activeThread) return
 
     updateNewThread()
-  }, [activeThread, isOpenPopup, searchParams])
+  }, [activeThread, isOpenPopup])
+
+  const resetState = () => {
+    setState({
+      isInitLoaded: false,
+      isNewChat: true,
+      messagesFromDB: [],
+    })
+    setInput('')
+    setMessages([])
+  }
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: not required
   useEffect(() => {
     // reset all states when unmounting the context hook
-    return () => {
-      setState({
-        isInitLoaded: false,
-        isNewChat: true,
-        messagesFromDB: [],
-      })
-      setInput('')
-      setMessages([])
-    }
+    return resetState
   }, [])
 
   const updateNewThread = () => {

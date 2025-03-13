@@ -1,3 +1,4 @@
+// ! NOT IN USE. TODO: PLEASE SAFELY REMOVE THIS FILE
 /* eslint-disable tailwindcss/migration-from-tailwind-2 */
 /**
  * BrowseAccordion Component

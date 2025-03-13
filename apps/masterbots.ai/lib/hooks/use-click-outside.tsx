@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { type RefObject } from 'react'
+import type { RefObject } from 'react'
+import { useEffect } from 'react'
 
 const useClickOutside = (elementRef: RefObject<Element>, toggleVisiblePopover: () => void) => {
   useEffect(() => {
@@ -9,13 +9,13 @@ const useClickOutside = (elementRef: RefObject<Element>, toggleVisiblePopover: (
         elementRef.current &&
         !elementRef.current.contains(e.target)
       ) {
-        toggleVisiblePopover();
+        toggleVisiblePopover()
       }
-    };
-    document.addEventListener("click", handleClickOutside);
+    }
+    document.addEventListener('click', handleClickOutside)
     return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  });
-};
-export default useClickOutside;
+      document.removeEventListener('click', handleClickOutside)
+    }
+  }, [])
+}
+export default useClickOutside

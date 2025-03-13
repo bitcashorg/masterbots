@@ -266,7 +266,7 @@ export interface ChatPageProps {
   }
 }
 
-export interface ChatMessageProps {
+export interface ChatMessageProps extends React.ComponentProps<'div'> {
   message: Message
   sendMessageFromResponse?: (message: string) => void
   chatbot?: Chatbot

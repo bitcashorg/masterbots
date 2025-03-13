@@ -5,6 +5,7 @@ import { type FileAttachment, getUserIndexedDBKeys } from '@/lib/hooks/use-chat-
 import { useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useThread } from '@/lib/hooks/use-thread'
+import type { MessagePair } from '@/lib/threads'
 import { cn, createMessagePairs } from '@/lib/utils'
 import type { Message } from 'ai'
 import { isEqual } from 'lodash'
@@ -24,11 +25,6 @@ export interface ChatList {
   containerRef?: React.RefObject<HTMLDivElement>
   isLoadingMessages?: boolean
   sendMessageFn?: (message: string) => void
-}
-
-type MessagePair = {
-  userMessage: Message
-  chatGptMessage: Message[]
 }
 
 export function ChatList({

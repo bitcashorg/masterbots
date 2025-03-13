@@ -3,10 +3,12 @@ import { ChatMessage } from '@/components/routes/chat/chat-message'
 import { SharedAccordion } from '@/components/shared/shared-accordion'
 import { ShortMessage } from '@/components/shared/short-message'
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
+import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import type { MessagePair } from '@/lib/threads'
-import { cn } from '@/lib/utils'
-import { Fragment, useState } from 'react'
+import { cn, getRouteType } from '@/lib/utils'
+import { useParams, usePathname } from 'next/navigation'
+import { Fragment, useCallback, useEffect, useState } from 'react'
 
 export function MessagePairAccordion({
   pair,
@@ -30,8 +32,67 @@ export function MessagePairAccordion({
   sendMessageFn?: (message: string) => void
 }) {
   const { activeThread } = useThread()
+  const { navigateTo } = useSidebar()
   const isPrevious = type === 'previous'
   const [isAccordionFocused, setIsAccordionFocused] = useState<boolean>(false)
+  const params = useParams()
+  const pathname = usePathname()
+  const isPublic = getRouteType(pathname) === 'public'
+  const isProfile = getRouteType(pathname) === 'profile'
+
+  useEffect(() => {
+    if (!params.threadQuestionSlug) return
+
+    const $questionElement = document.getElementById(params.threadQuestionSlug as string)
+
+    if (!$questionElement) return
+
+    $questionElement.scrollIntoView() 
+    $questionElement.focus()
+  }, [params])
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  const toggleThreadQuestionUrl = useCallback((isOpen: boolean) => {
+    setIsAccordionFocused(isOpen)
+    // console.log('window.location.pathname.split', window.location.pathname.split('/'))
+    const [, category, domain, chatbot, threadSlug, threadQuestionSlug] = window.location.pathname.split('/')
+    const navigationParts = {
+      category,
+      domain,
+      chatbot,
+      threadSlug,
+      threadQuestionSlug: pair.userMessage.slug,
+    }
+
+    if (!threadQuestionSlug && isOpen) {
+      console.log('navigateTo threadQuestionUrl', navigationParts)
+      navigateTo({
+        urlType: isProfile ? 'profilesThreadQuestionUrl' : 'threadQuestionUrl',
+        shallow: true,
+        navigationParams: isProfile ? {
+          type: 'chatbot',
+          ...navigationParts,
+        } : {
+          type: isPublic ? 'public' : 'personal',
+          ...navigationParts,
+        }
+      })
+    }
+    if (threadQuestionSlug && !isOpen) {
+      console.log('navigateTo threadUrl', navigationParts)
+      navigateTo({
+        urlType: isProfile ? 'profilesThreadUrl' : 'threadUrl',
+        shallow: true,
+        navigationParams: isProfile ? {
+          type: 'chatbot',
+          ...navigationParts,
+        } : {
+          type: isPublic ? 'public' : 'personal',
+          ...navigationParts,
+        }
+      })
+    }
+  }, [])
 
   return (
     <SharedAccordion
@@ -43,6 +104,7 @@ export function MessagePairAccordion({
         // ? Case for when we have the first message in the previous conversation
         (!index && isPrevious)
       }
+      id={pair.userMessage.slug}
       className={cn(
         { relative: isThread },
         // Adds subtle background tint and left border for previous messages
@@ -69,9 +131,7 @@ export function MessagePairAccordion({
         },
         props.chatContentClass,
       )}
-      onToggle={(isOpen) => {
-        setIsAccordionFocused(isOpen)
-      }}
+      onToggle={toggleThreadQuestionUrl}
       variant="chat"
     >
       {/* Thread Title with indicator for previous messages */}
@@ -128,6 +188,7 @@ export function MessagePairAccordion({
             <Fragment key={message.id}>
               {index === 0 && !isThread && <AttachmentCards userAttachments={userAttachments} isAccordionFocused={isAccordionFocused} />}
                 <ChatMessage
+                  id={message.slug}
                   actionRequired={false}
                   message={message}
                   sendMessageFromResponse={props.sendMessageFn}
