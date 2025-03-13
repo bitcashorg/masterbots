@@ -10,13 +10,13 @@ import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 
-export default async function BotThreadsPage({
-  params,
-  searchParams,
-}: {
-  params: { category: string; chatbot: string }
-  searchParams?: { [key: string]: string | string[] | undefined }
-}) {
+export default async function BotThreadsPage(
+  props: {
+    params: Promise<{ category: string; chatbot: string }>
+    searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
+  }
+) {
+  const params = await props.params;
   const session = await getServerSession(authOptions)
   // NOTE: maybe we should use same expiration time
   const jwt = session ? session.user?.hasuraJwt : null
@@ -52,11 +52,12 @@ export default async function BotThreadsPage({
   )
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { chatbot: string }
-}): Promise<Metadata> {
+export async function generateMetadata(
+  props: {
+    params: Promise<{ chatbot: string }>
+  }
+): Promise<Metadata> {
+  const params = await props.params;
   const chatbotName = (await botNames).get(params.chatbot)
   const chatbot = await getChatbot({ chatbotName, jwt: '' })
 

@@ -8,15 +8,16 @@ import { isTokenExpired } from 'mb-lib'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 
-export { generateMbMetadata as generateMetadata } from '@/lib/metadata'
+export { /* @next-codemod-error `generateMbMetadata` export is re-exported. Check if this component uses `params` or `searchParams`*/
+generateMbMetadata as generateMetadata } from '@/lib/metadata'
 
-export default async function BotThreadPopUpPage({
-  params,
-  searchParams,
-}: {
-  params: { category: string; chatbot: string }
-  searchParams?: { [key: string]: string | string[] | undefined }
-}) {
+export default async function BotThreadPopUpPage(
+  props: {
+    params: Promise<{ category: string; chatbot: string }>
+    searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
+  }
+) {
+  const params = await props.params;
   const session = await getServerSession(authOptions)
   // NOTE: maybe we should use same expiration time
   const jwt = session ? session.user?.hasuraJwt : null

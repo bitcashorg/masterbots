@@ -52,10 +52,11 @@ export default function BrowseListItem({
     setIsVisible(matches)
   }, [searchTerm, thread])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   React.useEffect(() => {
     if (initialUrl) return
     initialUrl = location.href
-  })
+  }, [initialUrl])
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   React.useEffect(() => {

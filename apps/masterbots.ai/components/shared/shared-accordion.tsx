@@ -90,20 +90,26 @@ export function SharedAccordion({
     }
   }, [open, isNestedThread, variant])
 
+  const toggleIsOpen = (isOpen: boolean) => {
+    setOpen(isOpen)
+  }
+
   // Handle active thread changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (
       (thread?.threadId && activeThread !== null && thread?.threadId !== activeThread?.threadId) ||
       (activeThread === null && thread?.threadId)
     ) {
-      setOpen(false)
+      toggleIsOpen(false)
     }
   }, [activeThread, thread])
 
   // Handle controlled state
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (isOpen !== undefined) {
-      setOpen(isOpen)
+      toggleIsOpen(isOpen)
     }
   }, [isOpen])
 

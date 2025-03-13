@@ -82,12 +82,14 @@ export function ThreadSearchInput({
       setSearchPlaceholder(`${getCategoryLabel.name.toLowerCase()} category`)
     }
   }
-
+  
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     fetchSearchPlaceholder()
   }, [activeChatbot, activeCategory, customPlaceholder])
 
   // Handle thread filtering for chat view
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (!setThreads || isBrowseView) return
 
@@ -119,7 +121,7 @@ export function ThreadSearchInput({
 
     debouncedSearch()
     return () => debouncedSearch.cancel()
-  }, [internalSearchTerm, setThreads, isBrowseView])
+  }, [internalSearchTerm, isBrowseView])
 
   return (
     <div className={cn("relative w-full max-w-[900px] mx-auto flex items-center justify-center",

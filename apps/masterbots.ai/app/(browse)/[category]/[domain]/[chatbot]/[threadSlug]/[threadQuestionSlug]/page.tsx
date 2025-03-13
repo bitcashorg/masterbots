@@ -5,9 +5,11 @@ import { getCategories, getThreads } from '@/services/hasura'
 import type { ChatPageProps } from '@/types/types'
 import { toSlug } from 'mb-lib'
 
-export { generateMbMetadata as generateMetadata } from '@/lib/metadata'
+export { /* @next-codemod-error `generateMbMetadata` export is re-exported. Check if this component uses `params` or `searchParams`*/
+generateMbMetadata as generateMetadata } from '@/lib/metadata'
 
-export default async function BrowserThreadQuestionPage({ params }: ChatPageProps) {
+export default async function BrowserThreadQuestionPage(props: ChatPageProps) {
+  const params = await props.params;
   // const thread = await getThread({ threadSlug: params.threadSlug, jwt: '' })
 
   // if (!thread) {
@@ -22,7 +24,7 @@ export default async function BrowserThreadQuestionPage({ params }: ChatPageProp
     limit: PAGE_SIZE,
     jwt: '',
   })
-  
+
   return (
     <div className="w-full max-w-screen-lg pb-10 mx-auto">
       {/* <BrowseCategoryTabs

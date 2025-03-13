@@ -2,16 +2,17 @@ import { authOptions } from '@/auth'
 import { UserThreadList } from '@/components/routes/profile/user-thread-list'
 import { generateMetadataFromSEO } from '@/lib/metadata'
 import {
-  getBrowseThreads,
-  getThreads,
-  getUserBySlug,
-  getUserInfoFromBrowse,
+    getBrowseThreads,
+    getThreads,
+    getUserBySlug,
+    getUserInfoFromBrowse,
 } from '@/services/hasura'
 import type { Thread, User } from 'mb-genql'
 import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 
-export default async function ProfilePage({ params }: { params: { userSlug: string } }) {
+export default async function ProfilePage(props: { params: Promise<{ userSlug: string }> }) {
+  const params = await props.params;
   let threads: Thread[] = []
   const slug = params.userSlug
 
@@ -62,11 +63,12 @@ export default async function ProfilePage({ params }: { params: { userSlug: stri
   return <UserThreadList user={user as User} threads={threads} />
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { slug: string }
-}): Promise<Metadata> {
+export async function generateMetadata(
+  props: {
+    params: Promise<{ slug: string }>
+  }
+): Promise<Metadata> {
+  const params = await props.params;
   const user = await getUserInfoFromBrowse(params.slug)
 
   const seoData = {

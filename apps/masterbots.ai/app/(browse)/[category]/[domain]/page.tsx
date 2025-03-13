@@ -5,11 +5,12 @@ import { toSlug } from 'mb-lib'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 
-export default async function BrowseDomainPage({
-  params
-}: {
-  params: { category: string, domain: string }
-}) {
+export default async function BrowseDomainPage(
+  props: {
+    params: Promise<{ category: string, domain: string }>
+  }
+) {
+  const params = await props.params;
   const categories = await getCategories()
   const category = categories.find((category) => toSlug(category.name) === params.category)
   const threads = await getThreads({
@@ -22,11 +23,12 @@ export default async function BrowseDomainPage({
   return redirect(category ? `/${toSlug(category.name)}` : '/')
 }
 
-export async function generateMetadata({
-  params
-}: {
-  params: { category: string }
-}): Promise<Metadata> {
+export async function generateMetadata(
+  props: {
+    params: Promise<{ category: string }>
+  }
+): Promise<Metadata> {
+  const params = await props.params;
   const categories = await getCategories()
   const category = categories.find(
     category => toSlug(category.name) === params.category

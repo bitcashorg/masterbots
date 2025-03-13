@@ -701,8 +701,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
           isNewChat,
           webSearch,
           isLoading,
-          allMessages,
-          initialMessages,
+          allMessages: allMessages as OpenAi.UIMessage[],
+          initialMessages: initialMessages as OpenAi.UIMessage[],
           newChatThreadId: threadId,
         },
         {
@@ -737,27 +737,27 @@ export type MBChatHookState = {
   isNewChat: boolean
   webSearch: boolean
   isLoading: boolean
-  allMessages: AiMessage[]
-  initialMessages: AiMessage[]
+  allMessages: OpenAi.UIMessage[]
+  initialMessages: OpenAi.UIMessage[]
   newChatThreadId: string
 }
 
 export type MBChatHookActions = {
   appendWithMbContextPrompts: (
-    userMessage: AiMessage | CreateMessage,
+    userMessage: OpenAi.UIMessage | CreateMessage,
     chatRequestOptions?: ChatRequestOptions,
   ) => Promise<string | null | undefined>
   appendAsContinuousThread: (
-    userMessage: AiMessage | CreateMessage,
+    userMessage: OpenAi.UIMessage | CreateMessage,
   ) => Promise<string | null | undefined>
   sendMessageFromResponse: (bulletContent: string) => void
   append: (
-    message: AiMessage | CreateMessage,
+    message: OpenAi.UIMessage | CreateMessage,
     chatRequestOptions?: ChatRequestOptions,
   ) => Promise<string | null | undefined>
   reload: (chatRequestOptions?: ChatRequestOptions) => Promise<string | null | undefined>
   stop: () => void
   toggleWebSearch: () => void
   setInput: React.Dispatch<React.SetStateAction<string>>
-  setMessages: (messages: AiMessage[]) => void
+  setMessages: (messages: OpenAi.UIMessage[]) => void
 }

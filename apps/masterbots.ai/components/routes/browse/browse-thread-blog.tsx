@@ -49,6 +49,7 @@ export function BrowseThreadBlog({
   }
 
   // Effect to fetch messages when the thread ID changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   React.useEffect(() => {
     fetchMessages()
   }, [threadId])

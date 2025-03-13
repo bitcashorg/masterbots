@@ -6,11 +6,12 @@ import { generateMetadataFromSEO } from '@/lib/metadata'
 import { getChatbot, getThreads } from '@/services/hasura'
 import type { Metadata } from 'next'
 
-export default async function BrowseCategoryChatbotPage({
-  params
-}: {
-  params: { category: string, chatbot: string }
-}) {
+export default async function BrowseCategoryChatbotPage(
+  props: {
+    params: Promise<{ category: string, chatbot: string }>
+  }
+) {
+  const params = await props.params;
   const chatbotName = (await botNames).get(params.chatbot);
   if (!chatbotName) {
     throw new Error(`Chatbot name for ${params.chatbot} not found`);
@@ -19,7 +20,7 @@ export default async function BrowseCategoryChatbotPage({
 
   if (!chatbot)
     throw new Error(`Chatbot ${chatbotName} not found`);
-  
+
   const threads = await getThreads({ chatbotName, limit: PAGE_SIZE, jwt: '' });
 
   return (
@@ -38,11 +39,12 @@ export default async function BrowseCategoryChatbotPage({
   )
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { chatbot: string };
-}): Promise<Metadata> {
+export async function generateMetadata(
+  props: {
+    params: Promise<{ chatbot: string }>;
+  }
+): Promise<Metadata> {
+  const params = await props.params;
   const chatbotName = (await botNames).get(params.chatbot);
   const chatbot = await getChatbot({ chatbotName, jwt: "" });
 

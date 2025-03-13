@@ -11,9 +11,9 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/auth'
 
 interface IndexPageProps {
-  params: {
+  params: Promise<{
     intentid: string
-  }
+  }>
 }
 
 export default async function IndexPage(props: IndexPageProps) {

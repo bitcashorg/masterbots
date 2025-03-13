@@ -7,15 +7,16 @@ import type { User } from 'mb-genql'
 import { getServerSession } from 'next-auth'
 import { Suspense } from 'react'
 
-export default async function ProfileChatBot({
-  params,
-}: {
-  params: {
-    slug: string
-    category: string
-    chatbot: string
+export default async function ProfileChatBot(
+  props: {
+    params: Promise<{
+      slug: string
+      category: string
+      chatbot: string
+    }>
   }
-}) {
+) {
+  const params = await props.params;
   let threads = []
   const { slug, category, chatbot } = params
   const session = await getServerSession(authOptions)

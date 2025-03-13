@@ -16,11 +16,15 @@ export function Sidebar({ className }: React.ComponentProps<'div'>) {
   const rootAndChatRegex = /^\/(?:c)?$/
   const isBrowse = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
 
+  const resetState = () => {
+    setActiveThread(null)
+    setIsOpenPopup(false)
+  }
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   React.useEffect(() => {
     if (rootAndChatRegex.test(pathname)) {
-      setActiveThread(null)
-      setIsOpenPopup(false)
+      resetState()
     }
     prevPathRef.current = pathname
   }, [pathname])

@@ -142,6 +142,11 @@ export default function BrowseList({ initialThreads, categoryId, chatbot }: {
     })
   }, [selectedCategories, selectedChatbots, activeCategory, activeChatbot, session])
 
+  const activateThreadPopup = (thread: Thread) => {
+    setActiveThread(thread as Thread)
+    setIsOpenPopup(true)
+  }
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: I only need to run this effect when the activeThread changes
   useEffect(() => {
     if (activeThread) return
@@ -159,10 +164,9 @@ export default function BrowseList({ initialThreads, categoryId, chatbot }: {
           message.slug === threadQuestionSlug || message.slug === chatbotProfileThreadQuestionSlug,
       ),
     )
-    if (thread && (threadQuestionSlug && isPublic) || (chatbotProfileThreadQuestionSlug && isProfile)) {
+    if (thread && ((threadQuestionSlug && isPublic) || (chatbotProfileThreadQuestionSlug && isProfile))) {
       console.log('scrolling to', threadQuestionSlug || chatbotProfileThreadQuestionSlug)
-      setActiveThread(thread as Thread)
-      setIsOpenPopup(true)
+      activateThreadPopup(thread)
     }
   }, [activeThread])
 

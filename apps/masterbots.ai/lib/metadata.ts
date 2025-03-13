@@ -2,7 +2,7 @@ import { urlBuilders } from '@/lib/url'
 import { getThread } from '@/services/hasura'
 import type { Thread } from 'mb-genql'
 import type { Metadata } from 'next'
-import { headers } from 'next/headers'
+import { headers, type UnsafeUnwrappedHeaders } from 'next/headers';
 
 type OgType =
   | 'website'
@@ -29,7 +29,7 @@ interface PageSEO extends Metadata {
 }
 
 export const generateMetadataFromSEO = (pageSeo: PageSEO): Metadata => {
-  const headersList = headers()
+  const headersList = (headers() as unknown as UnsafeUnwrappedHeaders)
   const pathname = headersList.get('x-invoke-path') || ''
   const currentUrl = process.env.VERCEL_URL + pathname
   const ogImageUrlDefault = '/masterbots_og.png'

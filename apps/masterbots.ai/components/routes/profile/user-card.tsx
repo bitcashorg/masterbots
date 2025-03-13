@@ -145,12 +145,17 @@ export function UserCard({ user, loading }: UserCardProps) {
     }
   }
 
+  const updateUserProfilePicture = (picture: string) => {
+    setUserProfilePicture(picture)
+  }
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     handleUpdateUserInfo()
 
     if (user?.profilePicture && !userProfilePicture) {
       console.log('user.profilePicture', user.profilePicture)
-      setUserProfilePicture(user.profilePicture)
+      updateUserProfilePicture(user.profilePicture)
     }
   }, [lastMessage, generateType, user?.profilePicture])
 
@@ -175,16 +180,26 @@ export function UserCard({ user, loading }: UserCardProps) {
     }
   }
 
+  const resetState = () => {
+    setLastMessage(null)
+  }
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     return () => {
-      setLastMessage(null)
+      resetState()
     }
   }, [])
 
-  useEffect(() => {
+  const updateUserData = () => {
     setBio(user?.bio)
     setFavoriteTopic(user?.favouriteTopic)
     setUserData(user)
+  }
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    updateUserData()
   }, [user])
 
   const handleFollowUser = async () => {
@@ -289,7 +304,9 @@ export function UserCard({ user, loading }: UserCardProps) {
         }
       }, 20); // Adjust speed as needed
   
-      return () => clearInterval(interval);
+      return () => {
+        clearInterval(interval)
+      };
     }
   }, [bio]);
   

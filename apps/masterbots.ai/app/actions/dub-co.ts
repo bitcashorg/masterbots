@@ -5,7 +5,7 @@ import { cookies } from 'next/headers'
 
 // generate dub.co links
 export async function generateShortLink(path: string) {
-  const cookieStorage = cookies()
+  const cookieStorage = await cookies()
   try {
     const resolved: DubShareLinkResponse = await axios
       .post(

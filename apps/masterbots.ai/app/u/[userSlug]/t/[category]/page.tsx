@@ -5,11 +5,12 @@ import type { Thread, User } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import { getServerSession } from 'next-auth'
 
-export default async function BrowseCategoryPage({
-  params,
-}: {
-  params: { category: string; slug: string }
-}) {
+export default async function BrowseCategoryPage(
+  props: {
+    params: Promise<{ category: string; slug: string }>
+  }
+) {
+  const params = await props.params;
   const session = await getServerSession(authOptions)
   let threads: Thread[] = []
   const categories = await getCategories()

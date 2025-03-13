@@ -163,6 +163,7 @@ export default function UserThreadPanel({
     await getThreadByContinuousThreadId(continuousThreadId, session)
   }, [session])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if(isAdminMode){
     setState({

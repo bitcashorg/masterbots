@@ -35,11 +35,16 @@ export function BrowseChatMessageList({
   const { name: categoryName } = chatbot?.categories[0]?.category || { name: '' }
   const { name: chatBotName } = chatbot || { name: '' }
   
-  useEffect(() => {
+  const setMessagePairs = (messages: Message[]) => {
     if (messages.length) {
       const prePairs: MessagePair[] = createMessagePairs(messages) as MessagePair[]
       setPairs(prePairs)
     } else setPairs([])
+  }
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    setMessagePairs(messages)
   }, [messages])
 
   return (
