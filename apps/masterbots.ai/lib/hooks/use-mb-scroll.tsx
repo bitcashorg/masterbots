@@ -3,8 +3,8 @@ import { useDebounce } from './use-debounce'
 import { useIntersectionObserver } from './use-intersection-observer'
 
 interface UseScrollOptions {
-  containerRef: RefObject<HTMLElement>
-  threadRef: RefObject<HTMLElement>
+  containerRef: RefObject<HTMLElement | null>
+  threadRef: RefObject<HTMLElement | null>
   isNewContent: boolean
   hasMore: boolean
   isLast: boolean
@@ -57,15 +57,15 @@ export function useMBScroll({
   // Bottom detection observer
   useIntersectionObserver({
     target: {
-      current: dummyElementRef.current
-    } as RefObject<HTMLElement>,
+      current: dummyElementRef.current,
+    } as RefObject<HTMLElement | null>,
     root: containerRef,
     rootMargin,
     threshold,
-    onIntersect: isIntersecting => {
+    onIntersect: (isIntersecting) => {
       setIsNearBottom(isIntersecting)
     },
-    enabled: Boolean(dummyElementRef.current)
+    enabled: Boolean(dummyElementRef.current),
   })
 
   // Infinite scroll observer
@@ -134,11 +134,11 @@ export function useMBScroll({
 
   // Auto-scroll to bottom when new content arrives
   // biome-ignore lint/correctness/useExhaustiveDependencies: Not required here
-    useEffect(() => {
-      if (isNewContent && !isNearBottom) {
-        smoothScrollToBottom()
-      }
-    }, [isNewContent])
+  // useEffect(() => {
+  //   if (isNewContent && !isNearBottom) {
+  //     smoothScrollToBottom()
+  //   }
+  // }, [isNearBottom])
 
   return {
     isNearBottom,

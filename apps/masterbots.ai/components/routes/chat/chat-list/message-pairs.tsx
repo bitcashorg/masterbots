@@ -5,6 +5,7 @@ import { useThread } from '@/lib/hooks/use-thread'
 import type { MessagePair } from '@/lib/threads'
 import { Separator } from '@radix-ui/react-dropdown-menu'
 import type { Chatbot } from 'mb-genql'
+import { Fragment } from 'react'
 
 export function MessagePairs({
   pairs,
@@ -27,8 +28,11 @@ export function MessagePairs({
   sendMessageFn?: (message: string) => void
 }) {
   const { isNewResponse } = useThread()
-  console.log('pairs --> ', pairs)
+  // console.log('pairs --> ', pairs)
   // TODO: Re-arrange the questions when the thread has a previous conversation from a different thread
+
+  // const previousPairsAttachments = previousPairs.map((pair) => )
+
   return (
     <>
       {previousPairs.map((pair: MessagePair, key: number, pairsArray) => {
@@ -61,9 +65,8 @@ export function MessagePairs({
             (attachment as FileAttachment).messageIds?.includes(pair.userMessage.id),
           ) || []
         return pair.chatGptMessage[0] && pair.userMessage ? (
-          <>
+          <Fragment key={`${pair.userMessage.createdAt}-${pair.chatGptMessage[0]?.id ?? 'pending'}`}>
             <MessagePairAccordion
-              key={`${pair.userMessage.createdAt}-${pair.chatGptMessage[0]?.id ?? 'pending'}`}
               pair={pair}
               isThread={isThread}
               index={key}
@@ -78,7 +81,7 @@ export function MessagePairs({
             {pairsArray.length > 1 && key === pairsArray.length - 1 ? (
               <ChatLoadingState key="chat-loading-state" />
             ) : null}
-          </>
+          </Fragment>
         ) : null
       })}
     </>

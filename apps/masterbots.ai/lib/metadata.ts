@@ -1,8 +1,8 @@
-import { urlBuilders } from '@/lib/url'
-import { getThread } from '@/services/hasura'
-import type { Thread } from 'mb-genql'
-import type { Metadata } from 'next'
-import { headers, type UnsafeUnwrappedHeaders } from 'next/headers';
+import { urlBuilders } from '@/lib/url';
+import { getThread } from '@/services/hasura';
+import type { Thread } from 'mb-genql';
+import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 
 type OgType =
   | 'website'
@@ -28,8 +28,8 @@ interface PageSEO extends Metadata {
   twitterCard: string
 }
 
-export const generateMetadataFromSEO = (pageSeo: PageSEO): Metadata => {
-  const headersList = (headers() as unknown as UnsafeUnwrappedHeaders)
+export const generateMetadataFromSEO = async (pageSeo: PageSEO): Promise<Metadata> => {
+  const headersList = await headers()
   const pathname = headersList.get('x-invoke-path') || ''
   const currentUrl = process.env.VERCEL_URL + pathname
   const ogImageUrlDefault = '/masterbots_og.png'
@@ -69,7 +69,7 @@ export async function generateMbMetadata({
   }
 
   try {
-    const { threadSlug, threadQuestionSlug  } = params
+    const { threadSlug, threadQuestionSlug  } = await params
     thread = (await getThread({ threadSlug, jwt: '' })) as Thread
 
     const firstQuestion = thread?.messages.find((m) => (threadQuestionSlug && m.slug === threadQuestionSlug) || m.role === 'user')?.content || 'not found'
@@ -88,7 +88,7 @@ export async function generateMbMetadata({
       category: thread?.chatbot?.categories?.[0]?.category?.name || 'AI',
       domain: thread?.chatbot?.metadata[0]?.domainName || 'General',
       chatbot: thread?.chatbot?.name || 'Masterbots',
-      threadSlug: thread?.slug || params.threadSlug,
+      threadSlug: thread?.slug || threadSlug,
       raw: false
     });
 

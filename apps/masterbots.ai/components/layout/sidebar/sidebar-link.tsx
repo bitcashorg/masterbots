@@ -53,6 +53,8 @@ export default function SidebarLink({ category, isFilterMode, page }: SidebarLin
       setExpandedCategories((prev) =>
         prev.includes(category.categoryId) ? [] : [category.categoryId],
       )
+      // TODO: Pasar estos side-effect a una nueva función que se llame handleCategoryClick para sí evitar errores de hidratación y actualización de estado
+      // ! Asegurarse que no estamos repitiendo este patrón con otro setState...
       setActiveCategory((prev) => {
         setActiveChatbot(null)
 

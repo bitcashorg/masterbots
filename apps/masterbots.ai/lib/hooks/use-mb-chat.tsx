@@ -36,7 +36,7 @@ import { toSlug } from 'mb-lib'
 import { nanoid } from 'nanoid'
 import { useSession } from 'next-auth/react'
 import { useParams, useSearchParams } from 'next/navigation'
-import { createContext, useCallback, useContext, useEffect, useRef } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef } from 'react'
 import { useSetState } from 'react-use'
 import { useSonner } from './useSonner'
 
@@ -132,7 +132,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
    * 4. Masterbot Output Instructions.
    * 5. Conversation between user and assistant.
    * */
-  const initialMessages: AiMessage[] = systemPrompts.concat(userAndAssistantMessages)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  const  initialMessages: AiMessage[] = useMemo(() => systemPrompts.concat(userAndAssistantMessages), [activeChatbot])
   const threadId = isContinuousThread
     ? randomThreadId.current
     : params.threadId || activeThread?.threadId || randomThreadId.current

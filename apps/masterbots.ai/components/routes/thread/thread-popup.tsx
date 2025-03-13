@@ -23,8 +23,8 @@ export function ThreadPopup({ className }: { className?: string }) {
   const { isOpenPopup, activeThread, isNewResponse } = useThread()
   const [{ allMessages, isLoading }, { sendMessageFromResponse }] = useMBChat()
   const [browseMessages, setBrowseMessages] = useState<Message[]>([])
-  const popupContentRef = useRef<HTMLDivElement>(null)
-  const threadRef = useRef<HTMLDivElement>(null)
+  const popupContentRef = useRef<HTMLElement | null>(null)
+  const threadRef = useRef<HTMLElement | null>(null)
   const pathname = usePathname()
 
   const { isNearBottom, smoothScrollToBottom } = useMBScroll({
