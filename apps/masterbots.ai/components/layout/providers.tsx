@@ -12,41 +12,44 @@ import { ThreadProvider } from '@/lib/hooks/use-thread'
 import { ThreadSearchProvider } from '@/lib/hooks/use-thread-search'
 import { ThreadVisibilityProvider } from '@/lib/hooks/use-thread-visibility'
 import { SessionProvider } from 'next-auth/react'
-import { type Attribute, ThemeProvider as NextThemesProvider } from 'next-themes'
+import {
+	type Attribute,
+	ThemeProvider as NextThemesProvider,
+} from 'next-themes'
 
 type ProvidersProps = {
-  children: React.ReactNode
-  attribute?: Attribute
-  defaultTheme?: string
-  enableSystem?: boolean
-  disableTransitionOnChange?: boolean
+	children: React.ReactNode
+	attribute?: Attribute
+	defaultTheme?: string
+	enableSystem?: boolean
+	disableTransitionOnChange?: boolean
 }
 export function Providers({ children, ...props }: ProvidersProps) {
-  return (
-    <NextThemesProvider {...props}>
-      <SessionProvider>
-        <ModelProvider>
-          <PaymentProvider>
-            <SidebarProvider>
-              <TooltipProvider>
-                <ProfileProvider>
-                  <PowerUpProvider>
-                    <AccessibilityProvider>
-                      <ThreadSearchProvider>
-                        <ThreadProvider>
-                          <ThreadVisibilityProvider>
-                            <MBChatProvider>{children}</MBChatProvider>
-                          </ThreadVisibilityProvider>
-                        </ThreadProvider>
-                      </ThreadSearchProvider>
-                    </AccessibilityProvider>
-                  </PowerUpProvider>
-                </ProfileProvider>
-              </TooltipProvider>
-            </SidebarProvider>
-          </PaymentProvider>
-        </ModelProvider>
-      </SessionProvider>
-    </NextThemesProvider>
-  )
+	return (
+		<NextThemesProvider {...props}>
+			<SessionProvider>
+				<ModelProvider>
+					<PaymentProvider>
+						<SidebarProvider>
+							<TooltipProvider>
+								<ProfileProvider>
+									<PowerUpProvider>
+										<AccessibilityProvider>
+											<ThreadSearchProvider>
+												<ThreadProvider>
+													<ThreadVisibilityProvider>
+														<MBChatProvider>{children}</MBChatProvider>
+													</ThreadVisibilityProvider>
+												</ThreadProvider>
+											</ThreadSearchProvider>
+										</AccessibilityProvider>
+									</PowerUpProvider>
+								</ProfileProvider>
+							</TooltipProvider>
+						</SidebarProvider>
+					</PaymentProvider>
+				</ModelProvider>
+			</SessionProvider>
+		</NextThemesProvider>
+	)
 }

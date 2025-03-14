@@ -24,32 +24,32 @@ import type React from 'react'
 import { useEffect, useState } from 'react'
 
 interface StripeElementProps {
-  children: React.ReactNode
+	children: React.ReactNode
 }
 
 export function StripeElement({ children }: StripeElementProps) {
-  const { secret, stripePublishkey } = usePayment()
-  const [theme, setTheme] = useState<'night' | 'stripe' | 'flat'>('stripe')
-  const stripeLoader = loadStripe(stripePublishkey || '')
+	const { secret, stripePublishkey } = usePayment()
+	const [theme, setTheme] = useState<'night' | 'stripe' | 'flat'>('stripe')
+	const stripeLoader = loadStripe(stripePublishkey || '')
 
-  useEffect(() => {
-    const preferredTheme = window.matchMedia('(prefers-color-scheme: dark)')
-      .matches
-      ? 'night'
-      : 'stripe'
-    setTheme(preferredTheme)
-  }, [])
+	useEffect(() => {
+		const preferredTheme = window.matchMedia('(prefers-color-scheme: dark)')
+			.matches
+			? 'night'
+			: 'stripe'
+		setTheme(preferredTheme)
+	}, [])
 
-  const options = {
-    clientSecret: secret,
-    appearance: {
-      theme,
-      labels: 'floating' as const
-    }
-  }
-  return (
-    <Elements stripe={stripeLoader} options={options}>
-      {children}
-    </Elements>
-  )
+	const options = {
+		clientSecret: secret,
+		appearance: {
+			theme,
+			labels: 'floating' as const,
+		},
+	}
+	return (
+		<Elements stripe={stripeLoader} options={options}>
+			{children}
+		</Elements>
+	)
 }

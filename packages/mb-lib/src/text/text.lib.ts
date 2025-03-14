@@ -10,56 +10,56 @@ slugify.extend(slugWordExtension)
  * @return {string} The slugified string.
  */
 export function toSlug(str: string, maxWords = 10): string {
-  if (!str) {
-    return ''
-  }
-  
-  const preSlug = slugify(str, {
-    lower: true,
-    strict: true,
-    trim: true,
-  })
-  
-  // map each word to remove words from wordsToRemove
-  const words = preSlug
-    .split('-')
-    .map((word) => {
-      // Skip empty words
-      if (!word) return ''
+	if (!str) {
+		return ''
+	}
 
-      // Check if word is in wordsToRemove (case insensitive)
-      if (wordsToRemove.some((removeWord) => removeWord === word)) return ''
+	const preSlug = slugify(str, {
+		lower: true,
+		strict: true,
+		trim: true,
+	})
 
-      return word
-    })
-    // Remove empty strings
-    .filter(Boolean)
-    // Limit to maxWords
-    .slice(0, maxWords)
-  
-  // Join words with hyphen
-  const slug = words.join('-')
+	// map each word to remove words from wordsToRemove
+	const words = preSlug
+		.split('-')
+		.map((word) => {
+			// Skip empty words
+			if (!word) return ''
 
-  return slug
+			// Check if word is in wordsToRemove (case insensitive)
+			if (wordsToRemove.some((removeWord) => removeWord === word)) return ''
+
+			return word
+		})
+		// Remove empty strings
+		.filter(Boolean)
+		// Limit to maxWords
+		.slice(0, maxWords)
+
+	// Join words with hyphen
+	const slug = words.join('-')
+
+	return slug
 }
 
 export function toSlugWithUnderScore(str: string) {
-  // Return empty string if input is null or undefined
-  if (!str) return ''
+	// Return empty string if input is null or undefined
+	if (!str) return ''
 
-  // Regular expression to check if string is already in slug format
-  // Allows only lowercase letters, numbers, and underscores
-  const slugRegex = /^[a-z0-9_]+$/g
+	// Regular expression to check if string is already in slug format
+	// Allows only lowercase letters, numbers, and underscores
+	const slugRegex = /^[a-z0-9_]+$/g
 
-  // If string is already in correct format, return it
-  if (slugRegex.test(str)) {
-    return str.trimEnd().trimStart().toLowerCase()
-  }
+	// If string is already in correct format, return it
+	if (slugRegex.test(str)) {
+		return str.trimEnd().trimStart().toLowerCase()
+	}
 
-  return slugify(str, {
-    replacement: '_',
-    lower: true,
-    strict: true,
-    trim: true,
-  })
+	return slugify(str, {
+		replacement: '_',
+		lower: true,
+		strict: true,
+		trim: true,
+	})
 }

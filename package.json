@@ -1,33 +1,47 @@
 {
-  "name": "masterbots",
-  "version": "1.0.0",
-  "description": "Monorepo for Masterbots application",
-  "author": "Jun Dam <jun@bitcash.org>",
-  "license": "MIT",
-  "private": true,
-  "scripts": {
-    "build": "turbo build --no-daemon",
-    "dev": "turbo dev --no-daemon --parallel",
-    "lint": "turbo lint --no-daemon",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
-  },
-  "devDependencies": {
-    "@genql/cli": "latest",
-    "@genql/runtime": "latest",
-    "@types/node": "^20.17.24",
-    "eslint": "^8.57.1",
-    "genql": "latest",
-    "prettier": "^3.3.3"
-  },
-  "engines": {
-    "node": ">=20.0.0"
-  },
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
-  "packageManager": "bun@1.2.0",
-  "dependencies": {
-    "axios": "^1.7.7"
-  }
+	"name": "masterbots",
+	"version": "1.0.0",
+	"description": "Monorepo for Masterbots application",
+	"author": "Jun Dam <jun@bitcash.org>",
+	"license": "MIT",
+	"private": true,
+	"scripts": {
+		"init": "bun install && bun husky:prepare",
+		"husky:prepare": "husky",
+		"format-and-lint": "biome check .",
+		"format-and-lint:fix": "biome check . --write",
+		"clean": "git clean -xdf node_modules",
+		"clean:node_modules": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
+		"prepare": "husky"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
+		"@commitlint/cli": "^19.6.1",
+		"@commitlint/config-conventional": "^19.6.0",
+		"@genql/cli": "latest",
+		"@genql/runtime": "latest",
+		"@types/bun": "latest",
+		"@types/node": "^20.17.24",
+		"eslint": "^8.57.1",
+		"eslint-plugin-biome": "^0.9.19",
+		"genql": "latest",
+		"husky": "^9.1.7",
+		"prettier": "^3.3.3"
+	},
+	"peerDependencies": {
+		"typescript": "^5.8.2"
+	},
+	"engines": {
+		"bun": "1.x"
+	},
+	"husky": {
+		"hooks": {
+			"commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+		}
+	},
+	"workspaces": ["apps/*", "packages/*"],
+	"packageManager": "bun@1.2.0",
+	"dependencies": {
+		"axios": "^1.7.7"
+	}
 }
