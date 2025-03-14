@@ -101,14 +101,14 @@ export async function improveMessage(
 			console.warn(
 				'AI did not modify the text or returned invalid result. Recursively executing improved prompt.',
 			)
-			return await improveMessage(content, clientType, model)
+			return await improveMessage(userPrompt, clientType, model)
 		}
 
 		return result
 	} catch (error) {
 		const originalText = handleImprovementError(
 			error,
-			content,
+			userPrompt.content,
 			clientType,
 			model,
 		)

@@ -41,7 +41,7 @@ export function MessagePairAccordion({
 	const isProfile = getRouteType(pathname) === 'profile'
 
 	useEffect(() => {
-		console.log('params', params)
+		// console.log('params', params)
 		if (!params.threadQuestionSlug) return
 
 		const $questionElement = document.getElementById(
