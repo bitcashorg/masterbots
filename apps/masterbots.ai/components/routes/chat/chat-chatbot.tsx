@@ -6,13 +6,9 @@ import { Chat } from '@/components/routes/chat/chat'
 import type { Chatbot } from 'mb-genql'
 
 export const ChatChatbot = ({
-  chatbot //* Chatbot data to interact with
+	chatbot, //* Chatbot data to interact with
 }: {
-  chatbot?: Chatbot
+	chatbot?: Chatbot
 }) => {
-  return (
-    <Chat
-      chatbot={chatbot}
-    />
-  )
+	return <Chat chatbot={chatbot} />
 }

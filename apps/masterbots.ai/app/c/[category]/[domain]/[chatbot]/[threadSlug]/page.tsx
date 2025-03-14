@@ -8,47 +8,49 @@ import { isTokenExpired } from 'mb-lib'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 
-export { /* @next-codemod-error `generateMbMetadata` export is re-exported. Check if this component uses `params` or `searchParams`*/
-generateMbMetadata as generateMetadata } from '@/lib/metadata'
+export { generateMbMetadata as generateMetadata } from '@/lib/metadata'
 
-export default async function BotThreadPopUpPage(
-  props: {
-    params: Promise<{ category: string; chatbot: string }>
-    searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
-  }
-) {
-  const params = await props.params;
-  const session = await getServerSession(authOptions)
-  // NOTE: maybe we should use same expiration time
-  const jwt = session ? session.user?.hasuraJwt : null
-  if (!jwt) {
-    console.error('Session JWT is missing.')
-  }
-  if (isTokenExpired(jwt as string)) {
-    redirect(`/auth/signin`)
-  }
+export default async function BotThreadPopUpPage(props: {
+	params: Promise<{ category: string; chatbot: string }>
+	searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+	const params = await props.params
+	const session = await getServerSession(authOptions)
+	// NOTE: maybe we should use same expiration time
+	const jwt = session ? session.user?.hasuraJwt : null
+	if (!jwt) {
+		console.error('Session JWT is missing.')
+	}
+	if (isTokenExpired(jwt as string)) {
+		redirect('/auth/signin')
+	}
 
-  const chatbotName = (await botNames).get(params.chatbot)
-  if (!chatbotName) {
-    throw new Error(`Chatbot name for ${params.chatbot} not found`)
-  }
-  const chatbot = await getChatbot({ chatbotName, jwt: jwt as string })
+	const chatbotName = (await botNames).get(params.chatbot)
+	if (!chatbotName) {
+		throw new Error(`Chatbot name for ${params.chatbot} not found`)
+	}
+	const chatbot = await getChatbot({ chatbotName, jwt: jwt as string })
 
-  if (!chatbot) throw new Error(`Chatbot ${chatbotName} not found`)
+	if (!chatbot) throw new Error(`Chatbot ${chatbotName} not found`)
 
-  // session will always be defined
+	// session will always be defined
 
-  const userId = session?.user?.id
-  if (!userId) {
-    throw new Error('User ID is missing.')
-  }
+	const userId = session?.user?.id
+	if (!userId) {
+		throw new Error('User ID is missing.')
+	}
 
-  const threads = await getThreads({ chatbotName, jwt: jwt as string, userId, limit: PAGE_SIZE })
+	const threads = await getThreads({
+		chatbotName,
+		jwt: jwt as string,
+		userId,
+		limit: PAGE_SIZE,
+	})
 
-  return (
-    <>
-      <ThreadPanel threads={threads} />
-      <ChatChatbot chatbot={chatbot} />
-    </>
-  )
+	return (
+		<>
+			<ThreadPanel threads={threads} />
+			<ChatChatbot chatbot={chatbot} />
+		</>
+	)
 }

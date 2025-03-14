@@ -27,49 +27,58 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 import type { Thread } from 'mb-genql'
 
 export default function ThreadList({
-  loading,
-  loadMore,
-  count,
-  pageSize,
-  threads
+	loading,
+	loadMore,
+	count,
+	pageSize,
+	threads,
 }: {
-  threads: Thread[]
-  loading: boolean
-  count: number
-  pageSize: number
-  loadMore: () => void
+	threads: Thread[]
+	loading: boolean
+	count: number
+	pageSize: number
+	loadMore: () => void
 }) {
-  const { selectedCategories, selectedChatbots, activeCategory, activeChatbot } = useSidebar()
+	const {
+		selectedCategories,
+		selectedChatbots,
+		activeCategory,
+		activeChatbot,
+	} = useSidebar()
 
-  const filteredThreads = threads.filter(
-    thread =>
-      !(
-        (selectedCategories.length &&
-          !selectedCategories.includes(
-            thread.chatbot.categories[0].categoryId
-          )) ||
-        (selectedChatbots.length &&
-          !selectedChatbots.includes(thread.chatbotId))
-      ) || (
-        (activeCategory && thread.chatbot.categories.some(({ categoryId }) => activeCategory === categoryId)) ||
-        (activeChatbot && thread.chatbot.chatbotId === activeChatbot.chatbotId)
-      )
-  )
+	const filteredThreads = threads.filter(
+		(thread) =>
+			!(
+				(selectedCategories.length &&
+					!selectedCategories.includes(
+						thread.chatbot.categories[0].categoryId,
+					)) ||
+				(selectedChatbots.length &&
+					!selectedChatbots.includes(thread.chatbotId))
+			) ||
+			(activeCategory &&
+				thread.chatbot.categories.some(
+					({ categoryId }) => activeCategory === categoryId,
+				)) ||
+			(activeChatbot && thread.chatbot.chatbotId === activeChatbot.chatbotId),
+	)
 
-  return (
-    <>
-      {loading ? [1, 2, 3, 4, 5].map((pos) => (
-        <ThreadItemSkeleton key={`thread-skeleton-${pos}`} />
-      )) : filteredThreads?.map((thread, key) => (
-        <ThreadComponent
-          key={thread.threadId}
-          thread={thread}
-          loading={loading}
-          loadMore={loadMore}
-          hasMore={count === pageSize}
-          isLast={key === threads.length - 1}
-        />
-      ))}
-    </>
-  )
+	return (
+		<>
+			{loading
+				? [1, 2, 3, 4, 5].map((pos) => (
+						<ThreadItemSkeleton key={`thread-skeleton-${pos}`} />
+					))
+				: filteredThreads?.map((thread, key) => (
+						<ThreadComponent
+							key={thread.threadId}
+							thread={thread}
+							loading={loading}
+							loadMore={loadMore}
+							hasMore={count === pageSize}
+							isLast={key === threads.length - 1}
+						/>
+					))}
+		</>
+	)
 }

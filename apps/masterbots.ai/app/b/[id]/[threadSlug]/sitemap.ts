@@ -4,10 +4,10 @@ import { getThreadsWithoutJWT } from '@/services/hasura'
 import type { MetadataRoute } from 'next'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const threads = await getThreadsWithoutJWT()
+	const threads = await getThreadsWithoutJWT()
 
-  return threads.map(thread => ({
-    url: `${process.env.VERCEL_URL}/b/${getKeyByValue(botNames, thread.chatbot?.name)}/${thread.threadId}`,
-    lastModified: thread.updatedAt
-  }))
+	return threads.map((thread) => ({
+		url: `${process.env.VERCEL_URL}/b/${getKeyByValue(botNames, thread.chatbot?.name)}/${thread.threadId}`,
+		lastModified: thread.updatedAt,
+	}))
 }

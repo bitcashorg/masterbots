@@ -1,34 +1,52 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
-  "vcs": {
-    "enabled": true,
-    "clientKind": "git",
-    "useIgnoreFile": true
-  },
-  "formatter": {
-    "enabled": true,
-    "indentStyle": "space",
-    "indentWidth": 2,
-    "lineWidth": 100
-  },
-  "linter": {
-    "enabled": true,
-    "rules": {
-      "style": {
-        "useTemplate": "off",
-        "noUnusedTemplateLiteral": "info",
-        "noCommaOperator": "off",
-        "recommended": true
-      }
-    }
-  },
-  "organizeImports": {
-    "enabled": true
-  },
-  "javascript": {
-    "formatter": {
-      "semicolons": "asNeeded",
-      "quoteStyle": "single"
-    }
-  }
+	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+	"vcs": {
+		"enabled": false,
+		"clientKind": "git",
+		"useIgnoreFile": false
+	},
+	"files": {
+		"ignoreUnknown": false,
+		"ignore": [
+			"./apps/masterbots.ai/.next",
+			".vercel",
+			".vscode",
+			"node_modules",
+			"bun.lock",
+			"./packages/mb-genql/generated",
+			"./packages/mb-genql/generated/runtime"
+		]
+	},
+	"formatter": { "enabled": true, "indentStyle": "tab", "indentWidth": 2 },
+	"organizeImports": { "enabled": true },
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"style": {
+				"recommended": true,
+				"noYodaExpression": "error",
+				"noNonNullAssertion": "warn",
+				"noUselessElse": "error",
+				"useForOf": "error",
+				"useImportType": "error"
+			},
+			"correctness": {
+				"recommended": true,
+				"noEmptyPattern": "warn"
+			},
+			"suspicious": {
+				"recommended": true,
+				"noExplicitAny": "warn",
+				"noArrayIndexKey": "warn"
+			},
+			"performance": {
+				"recommended": true,
+				"noAccumulatingSpread": "warn"
+			}
+		}
+	},
+	"javascript": {
+		"formatter": { "quoteStyle": "single", "semicolons": "asNeeded" }
+	}
 }
