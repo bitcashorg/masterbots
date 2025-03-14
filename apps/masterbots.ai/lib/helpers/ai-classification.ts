@@ -7,6 +7,7 @@ import type {
 	ChatbotMetadataExamples,
 	ExampleMetadata,
 } from '@/types/types'
+import type { Message } from 'ai'
 
 export async function aiExampleClassification({
 	chatMetadata,
@@ -135,18 +136,21 @@ export async function aiExampleClassification({
 }
 
 export async function processUserMessage(
-	content: string,
+	userPrompt: {
+		content: string
+		allUserMessages: Message[]
+	},
 	clientType: AiClientType,
 	model: string,
 ): Promise<{ content: string; error?: Error }> {
 	try {
-		const improved = await improveMessage(content, clientType, model)
+		const improved = await improveMessage(userPrompt, clientType, model)
 
 		const processedContent = improved.improvedText || improved.originalText
 
 		return { content: processedContent }
 	} catch (error) {
 		console.error('Error processing message:', error)
-		return { content, error: error as Error }
+		return { content: userPrompt.content, error: error as Error }
 	}
 }

@@ -517,10 +517,10 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				}))
 				.filter((msg) => msg.role === 'user')
 		}
-		const userPrompt = followingQuestionsPrompt(
-			userMessage.content,
-			previousAiUserMessages.concat(allMessages),
-		)
+		const userPrompt = {
+			content: userMessage.content,
+			allUserMessages: previousAiUserMessages.concat(allMessages),
+		}
 		const { content, error } = await processUserMessage(
 			userPrompt,
 			clientType as AiClientType,
@@ -532,7 +532,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 			updateActiveThread(
 				{
 					...thread,
-					messages: thread.messages.filter((m) => m.content !== userPrompt),
+					messages: thread.messages.filter(
+						(m) => m.content !== userPrompt.content,
+					),
 				},
 				true,
 			)
