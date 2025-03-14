@@ -7,7 +7,15 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"ignore": ["./apps/masterbots.ai/.next", ".vercel", ".vscode", "node_modules", "bun.lock"]
+		"ignore": [
+			"./apps/masterbots.ai/.next",
+			".vercel",
+			".vscode",
+			"node_modules",
+			"bun.lock",
+			"./packages/mb-genql/generated",
+			"./packages/mb-genql/generated/runtime"
+		]
 	},
 	"formatter": { "enabled": true, "indentStyle": "tab", "indentWidth": 2 },
 	"organizeImports": { "enabled": true },
@@ -29,7 +37,12 @@
 			},
 			"suspicious": {
 				"recommended": true,
-				"noExplicitAny": "error"
+				"noExplicitAny": "warn",
+				"noArrayIndexKey": "warn"
+			},
+			"performance": {
+				"recommended": true,
+				"noAccumulatingSpread": "warn"
 			}
 		}
 	},

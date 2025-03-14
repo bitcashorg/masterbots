@@ -1,28 +1,32 @@
 {
-  "$schema": "https://json.schemastore.org/eslintrc",
-  "root": true,
-  "extends": [
-    "next/core-web-vitals",
-    "prettier",
-    "plugin:tailwindcss/recommended"
-  ],
-  "plugins": ["tailwindcss"],
-  "rules": {
-    "tailwindcss/no-custom-classname": "off",
-    "tailwindcss/classnames-order": "off",
-    "no-unused-vars": "warn",
-		"react/no-unescaped-entities": "warn"
-  },
-  "settings": {
-    "tailwindcss": {
-      "callees": ["cn", "cva"],
-      "config": "tailwind.config.js"
-    }
-  },
-  "overrides": [
-    {
-      "files": ["*.ts", "*.tsx"],
-      "parser": "@typescript-eslint/parser"
-    }
-  ]
+	"$schema": "https://json.schemastore.org/eslintrc",
+	"root": true,
+	"extends": [
+		"next/core-web-vitals",
+		"prettier",
+		"plugin:tailwindcss/recommended"
+	],
+	"plugins": ["tailwindcss"],
+	"rules": {
+		"react/no-unescaped-entities": "warn",
+		"no-unused-vars": "warn",
+		"tailwindcss/no-custom-classname": "off",
+		"tailwindcss/classnames-order": "off"
+	},
+	"settings": {
+		"tailwindcss": {
+			"callees": ["cn", "cva"],
+			"config": "tailwind.config.js"
+		}
+	},
+	"overrides": [
+		{
+			"files": ["*.ts", "*.tsx"],
+			"parser": "@typescript-eslint/parser"
+		},
+		{
+			"files": ["*.ts", "*.tsx"],
+			"extends": ["plugin:biome/recommended"]
+		}
+	]
 }

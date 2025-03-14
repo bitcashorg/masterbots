@@ -10,42 +10,43 @@ import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 
 export default async function IndexPage() {
-  const session = await getServerSession(authOptions)
+	const session = await getServerSession(authOptions)
 
-  // NOTE: maybe we should use same expiration time
-  const jwt = session?.user?.hasuraJwt
+	// NOTE: maybe we should use same expiration time
+	const jwt = session?.user?.hasuraJwt
 
-  if (!jwt || isTokenExpired(jwt)) {
-    redirect('/auth/signin')
-  }
+	if (!jwt || isTokenExpired(jwt)) {
+		redirect('/auth/signin')
+	}
 
-  const threads = await getThreads({
-    jwt,
-    userId: session?.user.id,
-  })
+	const threads = await getThreads({
+		jwt,
+		userId: session?.user.id,
+	})
 
-  const user = {
-    email: session.user.email || '',
-    name: session.user.name || '',
-  }
+	const user = {
+		email: session.user.email || '',
+		name: session.user.name || '',
+	}
 
-  return (
-    <>
-      <ThreadPanel threads={threads} />
-      <ChatThreadListPanel />
-      <Subscription user={user} />
-    </>
-  )
+	return (
+		<>
+			<ThreadPanel threads={threads} />
+			<ChatThreadListPanel />
+			<Subscription user={user} />
+		</>
+	)
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const seoData = {
-    title: 'Pro page',
-    description: 'Masterbots Subscription plans, Subscribe to our service and stay updated',
-    ogType: 'website',
-    ogImageUrl: '',
-    twitterCard: 'summary',
-  }
+	const seoData = {
+		title: 'Pro page',
+		description:
+			'Masterbots Subscription plans, Subscribe to our service and stay updated',
+		ogType: 'website',
+		ogImageUrl: '',
+		twitterCard: 'summary',
+	}
 
-  return generateMetadataFromSEO(seoData)
+	return generateMetadataFromSEO(seoData)
 }
