@@ -12,7 +12,6 @@ import {
 	aiExampleClassification,
 	processUserMessage,
 } from '@/lib/helpers/ai-classification'
-// Import the helper functions at the top of your use-mb-chat.tsx file
 import {
 	continueAIGeneration,
 	shouldContinueGeneration,
@@ -659,6 +658,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				chatMetadata,
 				customSonner,
 			})
+			// eslint-disable-next-line react-hooks/exhaustive-deps
 		}, [chatbot, isPowerUp])
 
 	const appendAsContinuousThread = async (
