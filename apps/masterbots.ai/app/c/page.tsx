@@ -11,41 +11,45 @@ import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 export default async function IndexPage() {
-  const session = await getServerSession(authOptions)
+	const session = await getServerSession(authOptions)
 
-  // NOTE: maybe we should use same expiration time
-  const jwt = session?.user?.hasuraJwt
+	// NOTE: maybe we should use same expiration time
+	const jwt = session?.user?.hasuraJwt
 
-  if (!jwt || isTokenExpired(jwt)) {
-    redirect('/auth/signin')
-  }
+	if (!jwt || isTokenExpired(jwt)) {
+		redirect('/auth/signin')
+	}
 
-  const role = session.user.role as RoleTypes
-  const threads = await getThreads({ jwt, userId: session.user.id, limit: PAGE_SIZE })
+	const role = session.user.role as RoleTypes
+	const threads = await getThreads({
+		jwt,
+		userId: session.user.id,
+		limit: PAGE_SIZE,
+	})
 
-  return (
-    <>
-      {isAdminOrModeratorRole(role) && (
-        <div className="flex justify-center">
-          <AdminModeToggle />
-        </div>
-      )}
+	return (
+		<>
+			{isAdminOrModeratorRole(role) && (
+				<div className="flex justify-center">
+					<AdminModeToggle />
+				</div>
+			)}
 
-      <ThreadPanel threads={threads} />
-      <ChatThreadListPanel />
-    </>
-  )
+			<ThreadPanel threads={threads} />
+			<ChatThreadListPanel />
+		</>
+	)
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const seoData = {
-    title: 'Chat page',
-    description:
-      'Welcome to the chatbot page. Interact with our AI-powered chatbot and get answers to your questions.',
-    ogType: 'website',
-    ogImageUrl: `${process.env.BASE_URL || ''}/api/og`,
-    twitterCard: 'summary',
-  }
+	const seoData = {
+		title: 'Chat page',
+		description:
+			'Welcome to the chatbot page. Interact with our AI-powered chatbot and get answers to your questions.',
+		ogType: 'website',
+		ogImageUrl: `${process.env.BASE_URL || ''}/api/og`,
+		twitterCard: 'summary',
+	}
 
-  return generateMetadataFromSEO(seoData)
+	return generateMetadataFromSEO(seoData)
 }

@@ -10,3 +10,5 @@ __dev
 .vscode/
 
 .vercel
+
+bun.lockb

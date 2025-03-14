@@ -9,52 +9,54 @@ import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 
-export default async function ChatCategoryPage({
-  params,
-}: {
-  params: { category: string }
+export default async function ChatCategoryPage(props: {
+	params: Promise<{ category: string }>
 }) {
-  const session = await getServerSession(authOptions)
+	const params = await props.params
+	const session = await getServerSession(authOptions)
 
-  // NOTE: maybe we should use same expiration time
-  const jwt = session?.user?.hasuraJwt
+	// NOTE: maybe we should use same expiration time
+	const jwt = session?.user?.hasuraJwt
 
-  if (!jwt || isTokenExpired(jwt)) {
-    redirect('/auth/signin')
-  }
+	if (!jwt || isTokenExpired(jwt)) {
+		redirect('/auth/signin')
+	}
 
-  const categories = await getCategories()
-  const category = categories.find((category) => toSlug(category.name) === params.category)
-  const threads = await getThreads({
-    jwt,
-    userId: session?.user.id,
-    categoryId: category?.categoryId,
-    limit: PAGE_SIZE,
-  })
+	const categories = await getCategories()
+	const category = categories.find(
+		(category) => toSlug(category.name) === params.category,
+	)
+	const threads = await getThreads({
+		jwt,
+		userId: session?.user.id,
+		categoryId: category?.categoryId,
+		limit: PAGE_SIZE,
+	})
 
-  return (
-    <>
-      <ThreadPanel threads={threads} />
-      <ChatThreadListPanel />
-    </>
-  )
+	return (
+		<>
+			<ThreadPanel threads={threads} />
+			<ChatThreadListPanel />
+		</>
+	)
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { category: string }
+export async function generateMetadata(props: {
+	params: Promise<{ category: string }>
 }): Promise<Metadata> {
-  const categories = await getCategories()
-  const category = categories.find((category) => toSlug(category.name) === params.category)
+	const params = await props.params
+	const categories = await getCategories()
+	const category = categories.find(
+		(category) => toSlug(category.name) === params.category,
+	)
 
-  const seoData = {
-    title: category?.name || '',
-    description: `Please select a bot from the ${category?.name} category to start the conversation.`,
-    ogType: 'website',
-    ogImageUrl: '',
-    twitterCard: 'summary',
-  }
+	const seoData = {
+		title: category?.name || '',
+		description: `Please select a bot from the ${category?.name} category to start the conversation.`,
+		ogType: 'website',
+		ogImageUrl: `${process.env.BASE_URL}/api/og`,
+		twitterCard: 'summary',
+	}
 
-  return generateMetadataFromSEO(seoData)
+	return generateMetadataFromSEO(seoData)
 }

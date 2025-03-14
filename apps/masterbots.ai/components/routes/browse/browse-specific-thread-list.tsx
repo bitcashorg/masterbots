@@ -29,15 +29,15 @@ import { searchThreadContent } from '@/lib/search'
 import { NoResults } from '@/components/shared/no-results-card'
 
 export default function BrowseSpecificThreadList({
-  initialThreads,
-  query,
-  PAGE_SIZE,
-  pageType = ''
+	initialThreads,
+	query,
+	PAGE_SIZE,
+	pageType = '',
 }: {
-  query: { [key: string]: string | undefined }
-  initialThreads: Thread[]
-  PAGE_SIZE: number
-  pageType?: string
+	query: { [key: string]: string | undefined }
+	initialThreads: Thread[]
+	PAGE_SIZE: number
+	pageType?: string
 }) {
   const [threads, setThreads] = React.useState<Thread[]>(initialThreads)
   const [loading, setLoading] = React.useState<boolean>(false)
@@ -46,15 +46,15 @@ export default function BrowseSpecificThreadList({
     React.useState<Thread[]>(initialThreads)
   const { keyword } = useBrowse()
 
-  const loadMore = async () => {
-    console.log('🟡 Loading More Content')
-    setLoading(true)
+	const loadMore = async () => {
+		console.log('🟡 Loading More Content')
+		setLoading(true)
 
-    const moreThreads = await getBrowseThreads({
-      ...query,
-      limit: PAGE_SIZE,
-      offset: threads.length
-    })
+		const moreThreads = await getBrowseThreads({
+			...query,
+			limit: PAGE_SIZE,
+			offset: threads.length,
+		})
 
     setThreads(prevState => [...prevState, ...moreThreads])
     setCount(moreThreads.length)

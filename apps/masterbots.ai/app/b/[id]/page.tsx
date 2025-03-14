@@ -7,26 +7,24 @@ import { generateMetadataFromSEO } from '@/lib/metadata'
 import { getBrowseThreads, getChatbot } from '@/services/hasura'
 import type { Metadata } from 'next'
 
-export default async function BotThreadsPage({
-  params
-}: {
-  params: { id: string }
+export default async function BotThreadsPage(props: {
+	params: Promise<{ id: string }>
 }) {
-  const chatbotName = (await botNames).get(params.id)
-  let chatbot, threads
+	const params = await props.params
+	const chatbotName = (await botNames).get(params.id)
 
-  chatbot = await getChatbot({
-    chatbotName,
-    jwt: '',
-    threads: true
-  })
-  if (!chatbot) throw new Error(`Chatbot ${chatbotName} not found`)
+	const chatbot = await getChatbot({
+		chatbotName,
+		jwt: '',
+		threads: true,
+	})
+	if (!chatbot) throw new Error(`Chatbot ${chatbotName} not found`)
 
-  // session will always be defined
-  threads = await getBrowseThreads({
-    chatbotName,
-    limit: PAGE_SIZE
-  })
+	// session will always be defined
+	const threads = await getBrowseThreads({
+		chatbotName,
+		limit: PAGE_SIZE,
+	})
 
   return (
     <div className="w-full">
@@ -51,27 +49,26 @@ export default async function BotThreadsPage({
   )
 }
 
-export async function generateMetadata({
-  params
-}: {
-  params: { id: string }
+export async function generateMetadata(props: {
+	params: Promise<{ id: string }>
 }): Promise<Metadata> {
-  const chatbotName = (await botNames).get(params.id)
-  const chatbot = await getChatbot({
-    chatbotName,
-    jwt: '',
-    threads: true
-  })
+	const params = await props.params
+	const chatbotName = (await botNames).get(params.id)
+	const chatbot = await getChatbot({
+		chatbotName,
+		jwt: '',
+		threads: true,
+	})
 
-  const seoData = {
-    title: chatbot?.name || '',
-    description: chatbot?.description || '',
-    ogType: 'website',
-    ogImageUrl: chatbot?.threads?.[0]?.threadId
-      ? `${process.env.BASE_URL || ''}/api/og?threadId=${chatbot.threads[0].threadId}`
-      : `${process.env.BASE_URL || ''}/api/og`,
-    twitterCard: 'summary_large_image'
-  }
+	const seoData = {
+		title: chatbot?.name || '',
+		description: chatbot?.description || '',
+		ogType: 'website',
+		ogImageUrl: chatbot?.threads?.[0]?.threadId
+			? `${process.env.BASE_URL || ''}/api/og?threadId=${chatbot.threads[0].threadId}`
+			: `${process.env.BASE_URL || ''}/api/og`,
+		twitterCard: 'summary_large_image',
+	}
 
-  return generateMetadataFromSEO(seoData)
+	return generateMetadataFromSEO(seoData)
 }

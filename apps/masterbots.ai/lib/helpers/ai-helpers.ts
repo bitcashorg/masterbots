@@ -1,208 +1,210 @@
 import { AIModels } from '@/app/api/chat/models/models'
 import {
-  examplesSchema,
-  languageGammarSchema,
-  metadataSchema,
-  toolSchema,
+	examplesSchema,
+	languageGammarSchema,
+	metadataSchema,
+	toolSchema,
 } from '@/lib/helpers/ai-schemas'
 import type { AiClientType, CleanPromptResult } from '@/types/types'
 import type { StreamEntry } from '@/types/wordware-flows.types'
 import type Anthropic from '@anthropic-ai/sdk'
 import {
-  type Attachment,
-  type CoreMessage,
-  type ImagePart,
-  type TextPart,
-  generateId
+	type Attachment,
+	type CoreMessage,
+	type ImagePart,
+	type TextPart,
+	generateId,
 } from 'ai'
 import type OpenAI from 'openai'
 
 // * This function gets the model client type
 export function getModelClientType(model: AIModels) {
-  switch (model) {
-    case AIModels.GPT4:
-    case AIModels.Default:
-      return 'OpenAI'
-    case AIModels.Claude3:
-      return 'Anthropic'
-    case AIModels.llama3_7b:
-    case AIModels.llama3_8b:
-      return 'Perplexity'
-    case AIModels.WordWare:
-      return 'WordWare'
-    case AIModels.DeepSeekR1:
-      return 'DeepSeek' // Add this case
-    default:
-      throw new Error('Unsupported model specified')
-  }
+	switch (model) {
+		case AIModels.GPT4:
+		case AIModels.Default:
+			return 'OpenAI'
+		case AIModels.Claude3:
+			return 'Anthropic'
+		case AIModels.llama3_7b:
+		case AIModels.llama3_8b:
+			return 'Perplexity'
+		case AIModels.WordWare:
+			return 'WordWare'
+		case AIModels.DeepSeekR1:
+			return 'DeepSeek' // Add this case
+		default:
+			throw new Error('Unsupported model specified')
+	}
 }
 
 // * This function creates the payload for the AI response
 export function createPayload(
-  json: { id: string },
-  messages: { content: string }[],
-  completion: any,
+	json: { id: string },
+	messages: { content: string }[],
+	completion: any,
 ) {
-  const title = messages[0]?.content.substring(0, 100)
-  const id = json.id ?? generateId()
-  const createdAt = Date.now()
-  const path = `/c/${id}`
-  return {
-    id,
-    title,
-    userId: 1,
-    createdAt,
-    path,
-    messages: [
-      ...messages,
-      {
-        content: completion,
-        role: 'assistant',
-      },
-    ],
-  }
+	const title = messages[0]?.content.substring(0, 100)
+	const id = json.id ?? generateId()
+	const createdAt = Date.now()
+	const path = `/c/${id}`
+	return {
+		id,
+		title,
+		userId: 1,
+		createdAt,
+		path,
+		messages: [
+			...messages,
+			{
+				content: completion,
+				role: 'assistant',
+			},
+		],
+	}
 }
 
 // * This function sets the streamer payload
 export function setStreamerPayload(
-  model: AiClientType,
-  payload: OpenAI.ChatCompletionMessageParam[],
+	model: AiClientType,
+	payload: OpenAI.ChatCompletionMessageParam[],
 ): OpenAI.ChatCompletionMessageParam[] | Anthropic.MessageParam[] {
-  switch (model) {
-    case 'WordWare':
-      return payload
-    case 'Anthropic':
-      return payload.map(
-        (message, index) =>
-          ({
-            role: index
-              ? message.role.replace('system', 'assistant')
-              : message.role.replace('system', 'user'),
-            content: message.content,
-          }) as Anthropic.MessageParam,
-      )
-    case 'DeepSeek':
-      return payload.map((message) => {
-        if (message.role === 'assistant') {
-          const content = message.content as string
-          // Extract any existing reasoning if present
-          const reasoningMatch = content.match(/<think>(.*?)<\/think>/s)
-          const answerMatch = content.match(/<answer>(.*?)<\/answer>/s)
+	switch (model) {
+		case 'WordWare':
+			return payload
+		case 'Anthropic':
+			return payload.map(
+				(message, index) =>
+					({
+						role: index
+							? message.role.replace('system', 'assistant')
+							: message.role.replace('system', 'user'),
+						content: message.content,
+					}) as Anthropic.MessageParam,
+			)
+		case 'DeepSeek':
+			return payload.map((message) => {
+				if (message.role === 'assistant') {
+					const content = message.content as string
+					// Extract any existing reasoning if present
+					const reasoningMatch = content.match(/<think>(.*?)<\/think>/s)
+					const answerMatch = content.match(/<answer>(.*?)<\/answer>/s)
 
-          return {
-            ...message,
-            // If content already has think/answer tags, use those, otherwise add reasoning field
-            content: answerMatch ? content : `<answer>${content}</answer>`,
-            reasoning: reasoningMatch
-              ? reasoningMatch[1]
-              : '<think>Analyzing the context and formulating a response...</think>',
-          }
-        }
-        return message
-      })
-    default:
-      return payload
-  }
+					return {
+						...message,
+						// If content already has think/answer tags, use those, otherwise add reasoning field
+						content: answerMatch ? content : `<answer>${content}</answer>`,
+						reasoning: reasoningMatch
+							? reasoningMatch[1]
+							: '<think>Analyzing the context and formulating a response...</think>',
+					}
+				}
+				return message
+			})
+		default:
+			return payload
+	}
 }
 
 // * This function converts the messages to the core messages
 export function convertToCoreMessages(
-  messages: (OpenAI.ChatCompletionMessageParam & { experimental_attachments?: Attachment[] })[],
+	messages: (OpenAI.ChatCompletionMessageParam & {
+		experimental_attachments?: Attachment[]
+	})[],
 ): CoreMessage[] {
-  const coreMessages: CoreMessage[] = []
+	const coreMessages: CoreMessage[] = []
 
-  for (const msg of messages) {
-    if (!msg.role.match(/(user|system|assistant)/))
-      throw new Error(`Unsupported message role: ${msg.role}`)
+	for (const msg of messages) {
+		if (!msg.role.match(/(user|system|assistant)/))
+			throw new Error(`Unsupported message role: ${msg.role}`)
 
-    const { experimental_attachments, ...rest } = msg
+		const { experimental_attachments, ...rest } = msg
 
-    if (rest.content) {
-      coreMessages.push({
-        role: msg.role as 'user' | 'system' | 'assistant',
-        content: rest.content as string,
-      })
-    }
+		if (rest.content) {
+			coreMessages.push({
+				role: msg.role as 'user' | 'system' | 'assistant',
+				content: rest.content as string,
+			})
+		}
 
-    if (experimental_attachments?.length) {
-      coreMessages.push({
-        role: msg.role as 'user' | 'system' | 'assistant',
-        content: experimental_attachments.map((attachment) => {
-          const { contentType, url } = attachment
-          const isImageType = contentType?.includes('image')
-          const attachmentType = isImageType ? 'image' : 'text'
+		if (experimental_attachments?.length) {
+			coreMessages.push({
+				role: msg.role as 'user' | 'system' | 'assistant',
+				content: experimental_attachments.map((attachment) => {
+					const { contentType, url } = attachment
+					const isImageType = contentType?.includes('image')
+					const attachmentType = isImageType ? 'image' : 'text'
 
-          if (attachmentType === 'image') {
-            return {
-              type: attachmentType,
-              image: url,
-            } as ImagePart
-          }
+					if (attachmentType === 'image') {
+						return {
+							type: attachmentType,
+							image: url,
+						} as ImagePart
+					}
 
-          // * File type does not work for text file type should be of type file... anyway.
-          // ? data content should be processed as below or as ArrayBuffer
-          // return {
-          //   type: 'file',
-          //   data: url,
-          // } as FilePart
-          const base64Hash = url.split(',')[1]
-          const textContent = atob(base64Hash)
-          return {
-            type: attachmentType,
-            text: textContent,
-          } as TextPart
-        }),
-      } as CoreMessage)
-    }
+					// * File type does not work for text file type should be of type file... anyway.
+					// ? data content should be processed as below or as ArrayBuffer
+					// return {
+					//   type: 'file',
+					//   data: url,
+					// } as FilePart
+					const base64Hash = url.split(',')[1]
+					const textContent = atob(base64Hash)
+					return {
+						type: attachmentType,
+						text: textContent,
+					} as TextPart
+				}),
+			} as CoreMessage)
+		}
 
-    // * Here we can add the condition to load the user attachments by reading the user session from cookies
-    // * and then adding the attachments to the coreMessages array if there is a message related to the attachments/thread
-    // * This is for the LLM context... can be used to vectorize the user attachments and pass them to the
-    // * AI model for better context understanding
-    // ? base64 encode works for the AttachmentsDisplay
-    // TODO: Add condition to handle remote attachments (vectorized bucket)
-  }
+		// * Here we can add the condition to load the user attachments by reading the user session from cookies
+		// * and then adding the attachments to the coreMessages array if there is a message related to the attachments/thread
+		// * This is for the LLM context... can be used to vectorize the user attachments and pass them to the
+		// * AI model for better context understanding
+		// ? base64 encode works for the AttachmentsDisplay
+		// TODO: Add condition to handle remote attachments (vectorized bucket)
+	}
 
-  return coreMessages
+	return coreMessages
 }
 
 // * This function initializes the WordWare model with describe call
 export async function fetchPromptDetails(promptId: string) {
-  if (!promptId) {
-    throw new Error('Prompt ID is required')
-  }
+	if (!promptId) {
+		throw new Error('Prompt ID is required')
+	}
 
-  const response = await fetch(`/api/wordware/describe?promptId=${promptId}`)
+	const response = await fetch(`/api/wordware/describe?promptId=${promptId}`)
 
-  if (!response.ok) {
-    const errorData = await response.json()
-    throw new Error(errorData.error || 'Failed to fetch prompt details')
-  }
+	if (!response.ok) {
+		const errorData = await response.json()
+		throw new Error(errorData.error || 'Failed to fetch prompt details')
+	}
 
-  return response.json()
+	return response.json()
 }
 export function cleanPrompt(str: string) {
-  const markers = [
-    '].  Now please answer the following question: ',
-    ']. Now please answer the following question: ',
-  ]
-  let extracted = str
+	const markers = [
+		'].  Now please answer the following question: ',
+		']. Now please answer the following question: ',
+	]
+	let extracted = str
 
-  const runExtraction = () => {
-    let markerFound = false
-    for (const marker of markers) {
-      const index = extracted.indexOf(marker)
-      if (index !== -1) {
-        extracted = extracted.substring(index + marker.length)
-        markerFound = true
-      }
-    }
-    return markerFound
-  }
+	const runExtraction = () => {
+		let markerFound = false
+		for (const marker of markers) {
+			const index = extracted.indexOf(marker)
+			if (index !== -1) {
+				extracted = extracted.substring(index + marker.length)
+				markerFound = true
+			}
+		}
+		return markerFound
+	}
 
-  while (runExtraction()) {}
+	while (runExtraction()) {}
 
-  return extracted
+	return extracted
 }
 
 /**
@@ -212,41 +214,41 @@ export function cleanPrompt(str: string) {
  * If you want to clean up a response string and have an object, use instead `processWithAiObject`
  */
 export function cleanResult(result: string): CleanPromptResult {
-  const cleanedResult = result
-    .trim()
-    .replace(/\{\n/g, '{')
-    .replace(/\n\}/g, '}')
-    .replace(/\\"/g, '"')
-  // * Using template string to avoid parsing errors with ' and " special characters...
-  return JSON.parse(`${cleanedResult} `)
+	const cleanedResult = result
+		.trim()
+		.replace(/\{\n/g, '{')
+		.replace(/\n\}/g, '}')
+		.replace(/\\"/g, '"')
+	// * Using template string to avoid parsing errors with ' and " special characters...
+	return JSON.parse(`${cleanedResult} `)
 }
 
 export const processLogEntry = (logEntry: StreamEntry) => {
-  const { type, value } = logEntry
-  if (type === 'chunk' && value.label) {
-    switch (value.label) {
-      case 'blogPostSection':
-        // Handle blogPostSection specific logic
-        break
-      case 'generatedImages':
-        // Handle generatedImages specific logic
-        break
-      case 'Image generation':
-        // Handle Image generation specific logic
-        break
-      case 'imageDescription':
-        // Handle imageDescription specific logic
-        break
-      default:
-        // Handle default case
-        break
-    }
-  }
+	const { type, value } = logEntry
+	if (type === 'chunk' && value.label) {
+		switch (value.label) {
+			case 'blogPostSection':
+				// Handle blogPostSection specific logic
+				break
+			case 'generatedImages':
+				// Handle generatedImages specific logic
+				break
+			case 'Image generation':
+				// Handle Image generation specific logic
+				break
+			case 'imageDescription':
+				// Handle imageDescription specific logic
+				break
+			default:
+				// Handle default case
+				break
+		}
+	}
 }
 
 export const mbObjectSchema = {
-  metadata: metadataSchema,
-  examples: examplesSchema,
-  tool: toolSchema,
-  grammarLanguageImprover: languageGammarSchema,
+	metadata: metadataSchema,
+	examples: examplesSchema,
+	tool: toolSchema,
+	grammarLanguageImprover: languageGammarSchema,
 }
