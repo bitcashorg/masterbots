@@ -10,7 +10,12 @@ import type { Chatbot } from 'mb-genql'
 
 // * This function creates the prompt for the AI improvement process
 export function createImprovementPrompt(content: string): string {
-	return `You are a highly specialized, multidisciplinary polyglot expert assistant and master of emotional intelligence that combines competencies across linguistics, language, culture, communication, psychology, copywriting and NLP to very concisely summarize the question based on intent to less than 49 words: "${content}".\n\n**Important Guidelines:**- Make sure you output the rewritten question without any additional explanations in the original language.\n\n`
+	const prompt = `You are a highly specialized, multidisciplinary polyglot expert assistant and master of emotional intelligence that combines competencies across linguistics, language, culture, communication, psychology, copywriting and NLP to very concisely summarize the question based on intent to less than 49 words: "${content}".\n\n**Important Guidelines:**- Make sure you output the rewritten question without any additional explanations in the original language.\n\n`
+	console.log(
+		'createImprovementPrompt::prompt with final followingQuestions',
+		prompt,
+	)
+	return prompt
 }
 
 // * This function creates the prompt for the AI chatbot metadata subtraction process
