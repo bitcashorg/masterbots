@@ -82,7 +82,7 @@ export function ChatPanel({
 					<div className="flex items-center justify-between w-full gap-4 mx-2">
 						<div className="flex items-center space-x-4">
 							{/* Power-Up Switch */}
-							<div className="flex md:flex-row flex-col items-center space-x-2 gap-y-2 cursor-pointer">
+							<div className="flex flex-col items-center space-x-2 cursor-pointer md:flex-row gap-y-2">
 								<Switch
 									id="power-up"
 									checked={isPowerUp}
@@ -91,7 +91,7 @@ export function ChatPanel({
 								/>
 								<Label
 									htmlFor="power-up"
-									className="text-xs md:text-sm font-normal cursor-pointer"
+									className="text-xs font-normal cursor-pointer md:text-sm"
 								>
 									Power-Up
 								</Label>
@@ -108,7 +108,7 @@ export function ChatPanel({
 										value={webSearch ? 'checked' : 'unchecked'}
 										ref={webSearchRef}
 										onClick={(value) => setWebSearch(!value)}
-										className="transition-all delay-100 h-auto w-auto inline-flex items-center gap-2 border-muted p-0.5 data-[state=checked]:border-accent/50 data-[state=checked]:bg-accent/25 rounded-full"
+										className="transition-all delay-100 size-auto inline-flex items-center gap-2 border-muted p-0.5 data-[state=checked]:border-accent/50 data-[state=checked]:bg-accent/25 rounded-full"
 										checkboxconfig={{
 											check: (
 												<>
@@ -156,7 +156,7 @@ export function ChatPanel({
 										<div className="flex items-center justify-between gap-4">
 											<b className="text-xs drop-shadow-lg">{loadingState}</b>
 											<div className="flex items-center justify-center w-full size-4">
-												<div className="size-3 border-2 border-gray-200 rounded-full animate-ping" />
+												<div className="border-2 border-gray-200 rounded-full size-3 animate-ping" />
 											</div>
 										</div>
 									)}

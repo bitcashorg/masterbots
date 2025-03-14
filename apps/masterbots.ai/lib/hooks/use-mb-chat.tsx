@@ -12,6 +12,11 @@ import {
 	aiExampleClassification,
 	processUserMessage,
 } from '@/lib/helpers/ai-classification'
+// Import the helper functions at the top of your use-mb-chat.tsx file
+import {
+	continueAIGeneration,
+	shouldContinueGeneration,
+} from '@/lib/helpers/ai-continue-generation'
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import {
 	type FileAttachment,
@@ -235,6 +240,31 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						text: `Ai generation finished, reason: ${options.finishReason}`,
 					})
 				}
+
+				//? Check if we should continue the generation based on the finish reason
+				if (shouldContinueGeneration(options.finishReason)) {
+					if (appConfig.features.devMode) {
+						customSonner({
+							type: 'info',
+							text: `Generation was cut off (${options.finishReason}). Attempting to continue...`,
+						})
+					}
+
+					//? Try to continue the AI generation
+					const continuedContent = await continueAIGeneration(message, append, {
+						setLoadingState,
+						customSonner,
+						devMode: appConfig.features.devMode,
+						chatConfig: useChatConfig.body,
+						maxAttempts: 2,
+					})
+
+					if (continuedContent) {
+						// Override the message content with the continued content
+						message.content = continuedContent
+					}
+				}
+
 				if (options.finishReason === 'error') {
 					customSonner({
 						type: 'error',
@@ -248,8 +278,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 							userId: session?.user.id,
 						})
 					}
+
+					return
 				}
 
+				// Continue with your existing message saving logic
 				const aiChatThreadId = resolveThreadId({
 					isContinuousThread,
 					randomThreadId: randomThreadId.current,
@@ -631,7 +664,10 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	const appendAsContinuousThread = async (
 		userMessage: AiMessage | CreateMessage,
 	) => {
-		const optimisticUserMessage = { ...userMessage, id: randomThreadId.current }
+		const optimisticUserMessage = {
+			...userMessage,
+			id: randomThreadId.current,
+		}
 
 		await appendWithMbContextPrompts(optimisticUserMessage)
 
