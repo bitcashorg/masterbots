@@ -38,8 +38,10 @@ import { PAGE_SIZE, PAGE_SM_SIZE } from '@/lib/constants/hasura'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
+import { searchThreadContent } from '@/lib/search'
 import { cn } from '@/lib/utils'
 import { getBrowseThreads, getThread, getThreads, getUserBySlug } from '@/services/hasura'
+import { debounce } from 'lodash'
 import type { Thread } from 'mb-genql'
 import type { Session } from 'next-auth'
 import { useSession } from 'next-auth/react'
@@ -67,6 +69,8 @@ export default function UserThreadPanel({
   const searchParams = useSearchParams()
   const { slug, category, chatbot } = params
   const continuousThreadId = searchParams.get('continuousThreadId')
+  const [storeThreads, setStoreThreads] = useState<Thread[]>(initialThreads)
+  
 
   const userWithSlug = useAsync(async () => {
     if (!slug) return { user: null }
@@ -131,6 +135,9 @@ export default function UserThreadPanel({
         : threads,
       count: threads.length,
     })
+    setStoreThreads(moreThreads
+      ? [...storeThreads, ...moreThreads]
+      : storeThreads)
     setLoading(false)
   }
 
@@ -165,6 +172,7 @@ export default function UserThreadPanel({
 
   useEffect(() => {
     if(isAdminMode){
+      setStoreThreads(hookThreads)
     setState({
       threads: hookThreads,
       totalThreads: hookThreads.length,
@@ -173,8 +181,8 @@ export default function UserThreadPanel({
   }
  },[hookThreads])
 
-  const threads = state.threads.length > initialThreads.length || isAdminMode  ? state.threads : initialThreads
-
+  const threads = state.threads.length > initialThreads.length || isAdminMode || searchTerm  ? state.threads : initialThreads
+  const allthreads = threads;
   const completeLoading = (load: boolean) => {
     setLoading(load)
   }
@@ -266,10 +274,44 @@ export default function UserThreadPanel({
   const showNoResults = !loading && searchTerm && threads.length === 0
   const showChatbotDetails = !loading && !searchTerm && !threads.length
   const searchInputContainerClassName = 'flex justify-between py-5 lg:max-w-full'
+  
+  const verifyKeyword = () => {
+    setLoading(true)
+  
+    if (!searchTerm) {
+      setState({
+        threads,
+        count: threads.length,
+        totalThreads: threads.length
+      })
+    } else {
+      debounce(() => {
+       const searchResult = storeThreads.filter((thread: Thread) =>
+            searchThreadContent(thread, searchTerm)
+          )
+      setState({
+          threads: searchResult,
+          count: searchResult.length,
+          totalThreads: threads.length
+        })
+        
+      }, 230)()
+    }
+
+    setLoading(false)
+  }
+
+
+  useEffect(() => {
+    if(searchTerm){
+      verifyKeyword();
+    }
+  }
+  ,[searchTerm])
 
   return (
     <>
-      {!loading && (threads.length !== 0 && (page !== 'profile' || (page !== 'profile' && !isContinuousThread))) && (
+     {!loading && ( (threads.length !== 0 || searchTerm) && !isContinuousThread) && (
         <div className={searchInputContainerClassName}>
           <ThreadSearchInput setThreads={setState} onSearch={setSearchTerm} />
         </div>

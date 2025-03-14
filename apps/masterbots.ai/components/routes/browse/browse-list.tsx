@@ -142,9 +142,8 @@ export default function BrowseList({ initialThreads, categoryId, chatbot }: {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   React.useEffect(() => {
-    if (isEqual(threads, filteredThreads)) return
-    
-    verifyKeyword()
+    // if (isEqual(threads, filteredThreads)) return
+     verifyKeyword()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [keyword, threads])
 
