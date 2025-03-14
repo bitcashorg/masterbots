@@ -23,15 +23,6 @@ interface SignupState {
 	showPasswordVerify: boolean
 }
 
-interface SignupState {
-	email: string
-	password: string
-	username: string
-	passwordVerify: string
-	isLoading: boolean
-	showVerificationNotice: boolean
-}
-
 export default function SignUpForm() {
 	const [state, setState] = useState<SignupState>({
 		email: '',
