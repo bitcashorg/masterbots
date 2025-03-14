@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unescaped-entities */
-import React from 'react'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
+import React from 'react'
 
 export function FooterText({ className, ...props }: React.ComponentProps<'div'>) {
   return (
@@ -17,14 +17,14 @@ export function FooterText({ className, ...props }: React.ComponentProps<'div'>)
       </span>
       <span className='px-1'>
         Robot avatars by{' '}
-        <a 
+        <Link 
           href="https://robohash.org" 
           target="_blank" 
-          rel="noopener noreferrer" 
+          rel="nofollow noopener noreferrer" 
           className="underline hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary"
         >
           robohash.org
-        </a>
+        </Link>
         {' • '}
         <Link 
           href="/terms" 

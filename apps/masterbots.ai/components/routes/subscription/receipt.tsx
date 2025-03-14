@@ -24,6 +24,7 @@
 import { fetchPayment } from '@/app/actions/subscriptions'
 import { IconCreditCard, IconHelp } from '@/components/ui/icons'
 import { getDate } from '@/lib/utils'
+import Link from 'next/link'
 import type React from 'react'
 import { useAsync } from 'react-use'
 
@@ -152,9 +153,9 @@ export const Receipt: React.FC<ReceiptProps> = ({ intentid }) => {
                 <span className="font-normal text-[11px]">
                   *calculated by country regulations.
                 </span>
-                <a href="/term" className="text-blue-400 text-[11px]">
+                <Link href="/term" className="text-blue-400 text-[11px]">
                   Terms and Conditions.
-                </a>
+                </Link>
               </div>
               <span className="text-gray-400">$0.00</span>
             </div>

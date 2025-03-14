@@ -19,11 +19,12 @@
  */
 
 
+import { Separator } from '@/components/ui/separator'
+import { getBrowseThreads } from '@/services/hasura'
 import type { User } from 'mb-genql'
 import Image from 'next/image'
-import { Separator } from '@/components/ui/separator'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { getBrowseThreads } from '@/services/hasura'
 
 export default function BrowseChatbotDetails({ user }: { user?: User | null }) {
   const [threadNum, setThreadNum] = useState(0)
@@ -40,7 +41,7 @@ export default function BrowseChatbotDetails({ user }: { user?: User | null }) {
   return (
     <div className="relative bg-cover py-10 bg-gradient-to-l from-mirage via-[#2B5D91] to-[#388DE2]">
       <div className="max-w-[600px] w-full mx-auto px-4">
-        <a className="flex items-center mb-6 space-x-1" href="/">
+        <Link className="flex items-center mb-6 space-x-1" href="/">
           {/* biome-ignore lint/a11y/noSvgWithoutTitle: <explanation> */}
           <svg
             aria-label="Back arrow"
@@ -59,7 +60,7 @@ export default function BrowseChatbotDetails({ user }: { user?: User | null }) {
             />
           </svg>
           <span className="text-['24px'] font-normal">Back to browse</span>
-        </a>
+        </Link>
 
         <div className="dark:bg-[#09090B] bg-white rounded-lg p-6 relative font-mono">
           <div className="flex flex-col gap-3">

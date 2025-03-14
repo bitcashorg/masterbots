@@ -28,7 +28,7 @@ export function getUserIndexedDBKeys(userId?: string) {
   }
 }
 
-export function useFileAttachments(formRef: React.RefObject<HTMLFormElement>): [
+export function useFileAttachments(formRef: React.RefObject<HTMLFormElement | null>): [
   {
     isDragging: boolean
     attachments: FileAttachment[]

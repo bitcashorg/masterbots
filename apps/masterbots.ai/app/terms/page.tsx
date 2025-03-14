@@ -1,3 +1,4 @@
+import Link from "next/link";
 
 export default async function TermPoliciesPage() {
   
@@ -116,7 +117,7 @@ export default async function TermPoliciesPage() {
          <h2 className="text-md font-bold mb-2 uppercase">USER RESPONSIBILITIES</h2>
          <p className="mb-4">As a user, it is your responsibility to ensure that your payment information is accurate and up-to-date.
           Any disputes regarding additional fees should be directed to Stripe&apos;s support team for resolution. 
-          For further details, please refer to our <a className="underline" href="/faq">FAQ page</a>  for general information about product subscriptions and country-specific regulations</p>
+          For further details, please refer to our <Link className="underline" href="/faq">FAQ page</Link>  for general information about product subscriptions and country-specific regulations</p>
 
 
         <h2 className="text-xl font-bold mb-2 uppercase">Children&apos;s Privacy</h2>
@@ -129,7 +130,7 @@ export default async function TermPoliciesPage() {
 
         <h2 className="text-xl font-bold mb-2 uppercase">Contact Us</h2>
         <p className="mb-4">For any questions or concerns regarding this privacy policy, please contact us at 
-            <a className="underline" href="mailto:contact@masterbots.ai"> contact@masterbots.ai</a></p>
+            <Link className="underline" href="mailto:contact@masterbots.ai"> contact@masterbots.ai</Link></p>
 
 
          {/* <h2 className="text-xl font-bold mb-2 uppercase">Introduction</h2>
@@ -190,7 +191,7 @@ export default async function TermPoliciesPage() {
             to any principles of conflicts of law.</p>
 
         <h2 className="text-xl font-bold mb-2 uppercase">Contact Us</h2>
-        <p className="mb-4">For any questions or concerns regarding these Terms, please contact us at <a className="underline" href="mailto:contact@masterbots.ai"> contact@masterbots.ai</a></p>
+        <p className="mb-4">For any questions or concerns regarding these Terms, please contact us at <Link className="underline" href="mailto:contact@masterbots.ai"> contact@masterbots.ai</Link></p>
     */}
 
         {/* <!-- Additional sections and content can be added similarly --> */}

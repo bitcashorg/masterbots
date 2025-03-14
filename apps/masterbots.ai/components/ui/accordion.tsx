@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 
 const Accordion = AccordionPrimitive.Root
 
-const AccordionItem = ({ className, ref, ...props }) => (
+const AccordionItem = ({ className, ref, ...props }: AccordionPrimitive.AccordionItemProps & React.RefAttributes<HTMLDivElement>) => (
   <AccordionPrimitive.Item
     ref={ref}
     className={cn("border-b", className)}
@@ -16,7 +16,7 @@ const AccordionItem = ({ className, ref, ...props }) => (
 )
 AccordionItem.displayName = "AccordionItem"
 
-const AccordionTrigger = ({ className, children, ref, ...props }) => (
+const AccordionTrigger = ({ className, children, ref, ...props }: AccordionPrimitive.AccordionTriggerProps & React.RefAttributes<HTMLButtonElement>) => (
   <AccordionPrimitive.Header className="flex">
     <AccordionPrimitive.Trigger
       ref={ref}
@@ -27,13 +27,13 @@ const AccordionTrigger = ({ className, children, ref, ...props }) => (
       {...props}
     >
       {children}
-      <ChevronDown className="h-4 w-4 shrink-0 !top-1 transition-transform duration-200" />
+      <ChevronDown className="size-4 shrink-0 !top-1 transition-transform duration-200" />
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>
 )
 AccordionTrigger.displayName = AccordionPrimitive.Trigger.displayName
 
-const AccordionContent = ({ className, children, ref, ...props }) => (
+const AccordionContent = ({ className, children, ref, ...props }: AccordionPrimitive.AccordionContentProps & React.RefAttributes<HTMLDivElement>) => (
   <AccordionPrimitive.Content
     ref={ref}
     className="overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"

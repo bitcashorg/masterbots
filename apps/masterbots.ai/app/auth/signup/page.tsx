@@ -1,8 +1,9 @@
 'use client'
 
-import Image from 'next/image'
 import SignUpForm from '@/components/auth/signup-form'
 import { motion } from 'framer-motion'
+import Image from 'next/image'
+import Link from 'next/link'
 
 export default function SignUpPage() {
   return (
@@ -46,13 +47,13 @@ export default function SignUpPage() {
         {/* Optional: Add terms and conditions notice */}
         <p className="mt-6 text-xs text-center text-muted-foreground">
           By creating an account, you agree to our{' '}
-          <a href="/terms#terms" className="underline hover:text-primary">
+          <Link href="/terms#terms" className="underline hover:text-primary">
             Terms of Service
-          </a>{' '}
+          </Link>{' '}
           and{' '}
-          <a href="/terms#privacy" className="underline hover:text-primary">
+          <Link href="/terms#privacy" className="underline hover:text-primary">
             Privacy Policy
-          </a>
+          </Link>
         </p>
       </motion.div>
     </motion.div>

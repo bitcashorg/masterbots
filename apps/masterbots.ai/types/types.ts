@@ -257,13 +257,13 @@ export interface Plan {
 }
 
 export interface ChatPageProps {
-  params: {
+  params: Promise<{
     category: string
     chatbot?: string
     domain?: string
     threadSlug?: string
     threadQuestionSlug?: string
-  }
+  }>
 }
 
 export interface ChatMessageProps extends React.ComponentProps<'div'> {

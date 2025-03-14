@@ -3,23 +3,21 @@ import { Receipt } from '@/components/routes/subscription/receipt'
 import { isTokenExpired } from 'mb-lib'
 import { redirect } from 'next/navigation'
 
+import { authOptions } from '@/auth'
 import { generateMetadataFromSEO } from '@/lib/metadata'
 import { getBrowseThreads } from '@/services/hasura'
 import type { User } from 'mb-genql'
 import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '@/auth'
 
 interface IndexPageProps {
   params: Promise<{
-    intentid: string
+    intentId: string
   }>
 }
 
 export default async function IndexPage(props: IndexPageProps) {
-  const {
-    params: { intentid }
-  } = props
+  const { intentId } = await props.params
 
   const session = await getServerSession(authOptions)
   // NOTE: maybe we should use same expiration time
@@ -57,7 +55,7 @@ export default async function IndexPage(props: IndexPageProps) {
     <div className="flex flex-col w-full">
       <UserInfo />
       <SubscriptionHeader />
-      <Receipt intentid={intentid} />
+      <Receipt intentid={intentId} />
     </div>
   )
 }
@@ -65,9 +63,7 @@ export default async function IndexPage(props: IndexPageProps) {
 export async function generateMetadata(
   props: IndexPageProps
 ): Promise<Metadata> {
-  const {
-    params: { intentid }
-  } = props
+  const { intentId } = await props.params
 
   const seoData = {
     title: 'Masterbots Pro Subscription',

@@ -7,7 +7,7 @@ import * as React from 'react'
 import { useSonner } from './useSonner'
 
 interface profileContextProps {
-  getuserInfo: (username: string) => Promise<any>
+  getUserInfo: (username: string) => Promise<any>
   isSameUser: (userId: string) => boolean
   updateUserInfo: (bio: string | null, topic: string | null, profilePicture: string | null) => void
   currentUser: User | null
@@ -34,7 +34,7 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
   const [currentUser, setCurrentUser] = React.useState<User | null>(null)
   const { customSonner } = useSonner()
 
-  const getuserInfo = async (slug: string): Promise<any> => {
+  const getUserInfo = async (slug: string): Promise<any> => {
     if (!slug?.trim()) {
       throw new Error('Slug is required')
     }
@@ -90,7 +90,7 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
   return (
     <profileContext.Provider
       value={{
-        getuserInfo,
+        getUserInfo,
         isSameUser,
         updateUserInfo,
         currentUser,

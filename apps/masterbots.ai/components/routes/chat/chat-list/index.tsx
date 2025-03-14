@@ -22,7 +22,7 @@ export interface ChatList {
   chatContentClass?: string
   chatTitleClass?: string
   chatArrowClass?: string
-  containerRef?: React.RefObject<HTMLDivElement>
+  containerRef?: React.RefObject<HTMLDivElement | null>
   isLoadingMessages?: boolean
   sendMessageFn?: (message: string) => void
 }

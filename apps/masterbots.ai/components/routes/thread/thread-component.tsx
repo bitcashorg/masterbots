@@ -29,8 +29,8 @@ export default function ThreadComponent({
   isLast: boolean
   hasMore: boolean
 }) {
-  const threadRef = useRef<HTMLLIElement>(null)
-  const contentRef = useRef<HTMLDivElement>(null)
+  const threadRef = useRef<HTMLLIElement | null>(null)
+  const contentRef = useRef<HTMLDivElement | null>(null)
   const { isNewResponse } = useThread()
   const { isPublic, isAdminMode } = useThreadVisibility()
   const pathname = usePathname()

@@ -9,7 +9,9 @@
   "plugins": ["tailwindcss"],
   "rules": {
     "tailwindcss/no-custom-classname": "off",
-    "tailwindcss/classnames-order": "off"
+    "tailwindcss/classnames-order": "off",
+    "no-unused-vars": "warn",
+		"react/no-unescaped-entities": "warn"
   },
   "settings": {
     "tailwindcss": {

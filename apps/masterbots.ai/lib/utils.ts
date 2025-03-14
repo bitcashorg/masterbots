@@ -3,7 +3,7 @@ import type { Message as AIMessage } from 'ai/react'
 import { type ClassValue, clsx } from 'clsx'
 import type { Message, SocialFollowing } from 'mb-genql'
 import { customAlphabet } from 'nanoid'
-import type { ReactNode } from 'react'
+import { isValidElement, type ReactNode } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
@@ -234,8 +234,9 @@ export function extractTextFromReactNode(node: ReactNode): string {
   if (typeof node === 'string') return node
   if (typeof node === 'number') return node.toString()
   if (Array.isArray(node)) return node.map(extractTextFromReactNode).join('')
-  if (typeof node === 'object' && node !== null && 'props' in node) {
-    return extractTextFromReactNode(node.props.children)
+  if (isValidElement(node)) {
+    const element = node as React.ReactElement<{ children: ReactNode }>
+    return extractTextFromReactNode(element.props.children)
   }
   return ''
 }

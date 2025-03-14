@@ -190,7 +190,7 @@ export default function UserThreadPanel({
     completeLoading(prevPathRef.current !== pathname)
   }, [initialThreads, pathname, activeChatbot, activeCategory])
 
-  const fetchIdRef = useRef<number>()
+  const fetchIdRef = useRef<number>(0)
 
   const handleThreadsChange = async () => {
     if (!shouldRefreshThreads) return

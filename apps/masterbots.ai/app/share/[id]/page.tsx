@@ -5,9 +5,9 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
 interface SharePageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export async function generateMetadata({

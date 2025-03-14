@@ -8,14 +8,15 @@ import { cn } from "@/lib/utils"
 const Checkbox = ({
   className,
   ...props
-}: React.ComponentProps<'button'> &
-  typeof CheckboxPrimitive.Root & {
-  custom?: true
-  checkboxconfig?: {
-    check?: React.ReactNode
-    uncheck?: React.ReactNode
-    indeterminate?: React.ReactNode
-  }
+}: CheckboxPrimitive.CheckboxProps &
+  React.RefAttributes<HTMLButtonElement> &
+  {
+    custom?: boolean
+    checkboxconfig?: {
+      check?: React.ReactNode
+      uncheck?: React.ReactNode
+      indeterminate?: React.ReactNode
+    }
 }) => {
   return (
     <CheckboxPrimitive.Root

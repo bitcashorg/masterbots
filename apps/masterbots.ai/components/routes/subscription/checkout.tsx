@@ -26,13 +26,14 @@
  * - currentStep: Current step index in the wizard
  */
 
-import { IconCreditCard, IconHelp } from '@/components/ui/icons'
-import { usePayment } from '@/lib/hooks/use-payment'
-import { useElements, useStripe } from '@stripe/react-stripe-js'
-import { useEffect, useState } from 'react'
 import { StripeElement } from '@/components/routes/subscription/stripe-element'
-import { getCurrentOrTargetDate } from '@/lib/utils'
+import { IconCreditCard, IconHelp } from '@/components/ui/icons'
 import type { WizardStepProps } from '@/components/ui/wizard'
+import { usePayment } from '@/lib/hooks/use-payment'
+import { getCurrentOrTargetDate } from '@/lib/utils'
+import { useElements, useStripe } from '@stripe/react-stripe-js'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
 export function InnerCheckout({ prev, next }: WizardStepProps) {
   const { card, plan, loading, handleSetLoading } = usePayment()
@@ -157,9 +158,9 @@ export function InnerCheckout({ prev, next }: WizardStepProps) {
               <span className="font-normal text-[11px]">
                 *calculated by country regulations.
               </span>
-              <a href="/terms" className="text-blue-400 text-[11px]">
+              <Link href="/terms" className="text-blue-400 text-[11px]">
                 Terms and Conditions.
-              </a>
+              </Link>
             </div>
             <span className="text-gray-400">$0.00</span>
           </div>

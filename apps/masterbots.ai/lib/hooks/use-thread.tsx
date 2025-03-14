@@ -12,7 +12,7 @@ import { useSetState } from 'react-use'
 
 interface ThreadContext {
   webSearch: boolean
-  sectionRef: React.RefObject<HTMLElement>
+  sectionRef: React.RefObject<HTMLElement | null>
   isAtBottom: boolean
   isAdminMode: boolean
   isOpenPopup: boolean
@@ -84,8 +84,8 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
     activeTool: undefined,
   })
   
-  const sectionRef = React.useRef<HTMLElement>(null)
-  const threadRef = React.useRef<HTMLElement>(null)
+  const sectionRef = React.useRef<HTMLElement | null>(null)
+  const threadRef = React.useRef<HTMLElement | null>(null)
   const { data: session } = useSession()
 
   const { isNearBottom: isAtBottomOfSection, isNearBottom } = useMBScroll({

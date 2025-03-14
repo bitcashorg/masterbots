@@ -275,8 +275,8 @@ export function SharedAccordion({
         )}
         id={props.id}
       >
-        {children[0]}
-        {!open && children[1]}
+        {Array.isArray(children) && children[0]}
+        {!open && Array.isArray(children) && children[1]}
         <ChevronDown
           {...(handleTrigger
             ? {
@@ -316,7 +316,7 @@ export function SharedAccordion({
           contentClass,
         )}
       >
-        {children[2]}
+        {Array.isArray(children) && children[2]}
       </div>
 
       {variant === 'browse' && !isNestedThread && !open && (

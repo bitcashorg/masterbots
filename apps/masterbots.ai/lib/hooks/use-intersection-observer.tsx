@@ -1,8 +1,8 @@
 import { type RefObject, useCallback, useEffect } from 'react'
 
 interface UseIntersectionObserverProps {
-  target: RefObject<HTMLElement>
-  root?: RefObject<HTMLElement> | null
+  target: RefObject<HTMLElement | null>
+  root?: RefObject<HTMLElement | null> | null
   rootMargin?: string
   threshold?: number
   onIntersect: (isIntersecting: boolean) => void
