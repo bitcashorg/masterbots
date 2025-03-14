@@ -1,6 +1,9 @@
 'use client'
 
-import { MessagePairs } from '@/components/routes/chat/chat-list/message-pairs'
+import {
+	MessagePairs,
+	type MessagePairsData,
+} from '@/components/routes/chat/chat-list/message-pairs'
 import {
 	type FileAttachment,
 	getUserIndexedDBKeys,
@@ -122,6 +125,22 @@ export function ChatList({
 
 	if (chatMessages?.length === 0) return null
 
+	const currentMessages: MessagePairsData['current'] = {
+		userMessages: pairs.map((pair) => pair.userMessage),
+		assistantMessages: pairs.flatMap((pair) => [pair.chatGptMessage]),
+	}
+	const previousMessages: MessagePairsData['previous'] = {
+		userMessages: previousConversationPairs.map((pair) => pair.userMessage),
+		assistantMessages: previousConversationPairs.flatMap((pair) => [
+			pair.chatGptMessage,
+		]),
+	}
+
+	const messagesData: MessagePairsData = {
+		current: currentMessages,
+		previous: previousMessages,
+	}
+
 	return (
 		<div
 			ref={effectiveContainerRef}
@@ -131,8 +150,7 @@ export function ChatList({
 		>
 			<div ref={effectiveThreadRef} className="min-h-full">
 				<MessagePairs
-					pairs={pairs}
-					previousPairs={previousConversationPairs}
+					messagesData={messagesData}
 					isThread={isThread}
 					chatTitleClass={chatTitleClass}
 					chatArrowClass={chatArrowClass}

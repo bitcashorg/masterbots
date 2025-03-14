@@ -7,7 +7,6 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
 	// TODO: domain and slugify thread titles + thread inner questions
 	const chatbots = await getAllChatbots()
 	const categories = await getCategories()
-
 	// Use urlBuilders for chatbot profile URLs
 	const chatbotUrls = chatbots.map((chatbot) =>
 		urlBuilders.profilesUrl({ type: 'chatbot', chatbot: chatbot.name }),
@@ -31,9 +30,7 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
 			urlBuilders.chatbotThreadListUrl({
 				type: 'public',
 				category: category.name,
-				domain: getCanonicalDomain(
-					chatbot?.metadata?.[0]?.domainName || 'prompt',
-				),
+				domain: getCanonicalDomain(chatbot.name),
 				chatbot: chatbot.name,
 			}),
 		),
@@ -44,9 +41,7 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
 			urlBuilders.chatbotThreadListUrl({
 				type: 'personal',
 				category: category.name,
-				domain: getCanonicalDomain(
-					chatbot?.metadata?.[0]?.domainName || 'prompt',
-				),
+				domain: getCanonicalDomain(chatbot.name),
 				chatbot: chatbot.name,
 			}),
 		),

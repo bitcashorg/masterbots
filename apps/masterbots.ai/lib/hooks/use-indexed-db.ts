@@ -13,6 +13,7 @@ export function useIndexedDB({
 	const db = dbRef.current
 
 	const onMountSuccess = (event: Event) => {
+		if (mounted) return
 		console.log('IndexedDB opened successfully')
 		dbRef.current = (event.target as IDBOpenDBRequest).result
 		setMounted(true)

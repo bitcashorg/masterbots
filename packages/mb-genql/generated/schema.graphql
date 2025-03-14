@@ -4203,7 +4203,7 @@ enum MessageConstraint {
   """
   unique or primary key constraint on columns "slug"
   """
-  message_slug_key
+  message_slug_unique
 }
 
 """
@@ -9080,7 +9080,7 @@ enum ThreadConstraint {
   """
   unique or primary key constraint on columns "slug"
   """
-  thread_slug_key
+  thread_slug_unique
 }
 
 """

@@ -68,7 +68,7 @@ export function MessagePairAccordion({
 		}
 
 		if (!threadQuestionSlug && isOpen) {
-			console.log('navigateTo threadQuestionUrl', navigationParts)
+			// console.log('navigateTo threadQuestionUrl', navigationParts)
 			navigateTo({
 				urlType: isProfile ? 'profilesThreadQuestionUrl' : 'threadQuestionUrl',
 				shallow: true,
@@ -84,7 +84,7 @@ export function MessagePairAccordion({
 			})
 		}
 		if (threadQuestionSlug && !isOpen) {
-			console.log('navigateTo threadUrl', navigationParts)
+			// console.log('navigateTo threadUrl', navigationParts)
 			navigateTo({
 				urlType: isProfile ? 'profilesThreadUrl' : 'threadUrl',
 				shallow: true,

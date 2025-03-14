@@ -5,11 +5,21 @@ import { useThread } from '@/lib/hooks/use-thread'
 import type { MessagePair } from '@/lib/threads'
 import { Separator } from '@radix-ui/react-dropdown-menu'
 import type { Chatbot } from 'mb-genql'
-import { Fragment } from 'react'
+import { Fragment, useMemo } from 'react'
+
+export type MessagePairsData = {
+	current: {
+		userMessages: MessagePair['userMessage'][]
+		assistantMessages: MessagePair['chatGptMessage'][]
+	}
+	previous: {
+		userMessages: MessagePair['userMessage'][]
+		assistantMessages: MessagePair['chatGptMessage'][]
+	}
+}
 
 export function MessagePairs({
-	pairs,
-	previousPairs,
+	messagesData,
 	isThread,
 	chatTitleClass,
 	chatArrowClass,
@@ -18,8 +28,7 @@ export function MessagePairs({
 	userAttachments,
 }: {
 	isThread: boolean
-	pairs: MessagePair[]
-	previousPairs: MessagePair[]
+	messagesData: MessagePairsData
 	userAttachments: FileAttachment[]
 	chatbot?: Chatbot
 	chatTitleClass?: string
@@ -28,68 +37,106 @@ export function MessagePairs({
 	sendMessageFn?: (message: string) => void
 }) {
 	const { isNewResponse } = useThread()
-	// console.log('pairs --> ', pairs)
-	// TODO: Re-arrange the questions when the thread has a previous conversation from a different thread
 
-	// const previousPairsAttachments = previousPairs.map((pair) => )
+	// Memoize previous pairs processing
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	const previousPairsElements = useMemo(() => {
+		const { userMessages, assistantMessages } = messagesData.previous
 
-	return (
-		<>
-			{previousPairs.map((pair: MessagePair, key: number, pairsArray) => {
+		return userMessages.map((userMessage, index) => {
+			const chatGptMessage = assistantMessages[index] || []
+			const pair = { userMessage, chatGptMessage }
+
+			const filteredUserAttachments =
+				userAttachments?.filter((attachment) =>
+					(attachment as FileAttachment).messageIds?.includes(userMessage.id),
+				) || []
+
+			return (
+				<MessagePairAccordion
+					key={`${userMessage.createdAt}-${chatGptMessage[0]?.id ?? 'pending'}`}
+					pair={pair}
+					isThread={isThread}
+					index={index}
+					arrayLength={userMessages.length}
+					isNewResponse={isNewResponse}
+					type="previous"
+					sendMessageFn={sendMessageFn}
+					chatTitleClass={chatTitleClass}
+					userAttachments={filteredUserAttachments}
+					chatContentClass={chatContentClass}
+				/>
+			)
+		})
+	}, [
+		messagesData.previous,
+		userAttachments,
+		isThread,
+		isNewResponse,
+		chatTitleClass,
+		chatContentClass,
+	])
+
+	// Memoize current pairs processing
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	const currentPairsElements = useMemo(() => {
+		const { userMessages, assistantMessages } = messagesData.current
+
+		return userMessages
+			.map((userMessage, index) => {
+				const chatGptMessage = assistantMessages[index] || []
+				const pair = { userMessage, chatGptMessage }
+
+				if (!chatGptMessage[0] || !userMessage) return null
+
 				const filteredUserAttachments =
 					userAttachments?.filter((attachment) =>
-						(attachment as FileAttachment).messageIds?.includes(
-							pair.userMessage.id,
-						),
+						(attachment as FileAttachment).messageIds?.includes(userMessage.id),
 					) || []
+
 				return (
-					<MessagePairAccordion
-						key={`${pair.userMessage.createdAt}-${pair.chatGptMessage[0]?.id ?? 'pending'}`}
-						pair={pair}
-						isThread={isThread}
-						index={key}
-						arrayLength={pairsArray.length}
-						isNewResponse={isNewResponse}
-						type="previous"
-						sendMessageFn={sendMessageFn}
-						chatTitleClass={chatTitleClass}
-						userAttachments={filteredUserAttachments as FileAttachment[]}
-						chatContentClass={chatContentClass}
-					/>
-				)
-			})}
-			{previousPairs.length > 0 && pairs.length > 0 && (
-				<Separator className="relative mt-6 -bottom-1.5 h-1.5 z-[2] rounded-sm bg-iron dark:bg-mirage" />
-			)}
-			{pairs.map((pair: MessagePair, key: number, pairsArray) => {
-				const filteredUserAttachments =
-					userAttachments?.filter((attachment) =>
-						(attachment as FileAttachment).messageIds?.includes(
-							pair.userMessage.id,
-						),
-					) || []
-				return pair.chatGptMessage[0] && pair.userMessage ? (
 					<Fragment
-						key={`${pair.userMessage.createdAt}-${pair.chatGptMessage[0]?.id ?? 'pending'}`}
+						key={`${userMessage.createdAt}-${chatGptMessage[0]?.id ?? 'pending'}`}
 					>
 						<MessagePairAccordion
 							pair={pair}
 							isThread={isThread}
-							index={key}
-							arrayLength={pairsArray.length}
+							index={index}
+							arrayLength={userMessages.length}
 							isNewResponse={isNewResponse}
 							type="current"
 							chatTitleClass={chatTitleClass}
 							chatContentClass={chatContentClass}
 							sendMessageFn={sendMessageFn}
-							userAttachments={filteredUserAttachments as FileAttachment[]}
+							userAttachments={filteredUserAttachments}
 						/>
-						{pairsArray.length > 1 && key === pairsArray.length - 1 ? (
+						{userMessages.length > 1 && index === userMessages.length - 1 ? (
 							<ChatLoadingState key="chat-loading-state" />
 						) : null}
 					</Fragment>
-				) : null
-			})}
+				)
+			})
+			.filter(Boolean)
+	}, [
+		messagesData.current,
+		userAttachments,
+		isThread,
+		isNewResponse,
+		chatTitleClass,
+		chatContentClass,
+	])
+
+	const showSeparator =
+		messagesData.previous.userMessages.length > 0 &&
+		messagesData.current.userMessages.length > 0
+
+	return (
+		<>
+			{previousPairsElements}
+			{showSeparator && (
+				<Separator className="relative mt-6 -bottom-1.5 h-1.5 z-[2] rounded-sm bg-iron dark:bg-mirage" />
+			)}
+			{currentPairsElements}
 		</>
 	)
 }

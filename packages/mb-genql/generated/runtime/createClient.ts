@@ -1,11 +1,11 @@
 // @ts-nocheck
 
 import { type BatchOptions, createFetcher } from "./fetcher";
-import {
-  type GraphqlOperation,
-  generateGraphqlOperation,
-} from "./generateGraphqlOperation";
 import type { ExecutionResult, LinkedType } from "./types";
+import {
+  generateGraphqlOperation,
+  type GraphqlOperation,
+} from "./generateGraphqlOperation";
 
 export type Headers =
   | HeadersInit
@@ -20,7 +20,7 @@ export type ClientOptions = Omit<RequestInit, "body" | "headers"> & {
   url?: string;
   batch?: BatchOptions | boolean;
   fetcher?: BaseFetcher;
-  fetch?: typeof Function;
+  fetch?: Function;
   headers?: Headers;
 };
 
@@ -36,8 +36,8 @@ export const createClient = ({
 }) => {
   const fetcher = createFetcher(options);
   const client: {
-    query?: typeof Function;
-    mutation?: typeof Function;
+    query?: Function;
+    mutation?: Function;
   } = {};
 
   if (queryRoot) {

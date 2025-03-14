@@ -23,7 +23,7 @@ export const linkTypeMap = (
     ...Object.keys(typeMap.types).map((k, i) => ({ [i]: k })),
   );
 
-  const intermediaryTypeMap = Object.assign(
+  let intermediaryTypeMap = Object.assign(
     {},
     ...Object.keys(typeMap.types || {}).map((k): Record<string, LinkedType> => {
       const type: CompressedType = typeMap.types[k]!;
@@ -44,7 +44,9 @@ export const linkTypeMap = (
               .map((x) => x?.[1])
               .filter(Boolean);
 
-            const hasRequiredArgs = argTypes.some((str) => str?.endsWith("!"));
+            const hasRequiredArgs = argTypes.some(
+              (str) => str && str.endsWith("!"),
+            );
             if (hasRequiredArgs) {
               return false;
             }

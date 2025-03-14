@@ -944,7 +944,7 @@ export interface MessageAggregateFields {
 export type MessageConstraint =
   | "message_id_key"
   | "message_pkey"
-  | "message_slug_key";
+  | "message_slug_unique";
 
 /** aggregate max on columns */
 export interface MessageMaxFields {
@@ -2160,7 +2160,7 @@ export interface ThreadAvgFields {
 export type ThreadConstraint =
   | "thread_id_key"
   | "thread_pkey"
-  | "thread_slug_key";
+  | "thread_slug_unique";
 
 /** aggregate max on columns */
 export interface ThreadMaxFields {
@@ -17356,7 +17356,7 @@ export const enumLengthEnumUpdateColumn = {
 export const enumMessageConstraint = {
   message_id_key: "message_id_key" as const,
   message_pkey: "message_pkey" as const,
-  message_slug_key: "message_slug_key" as const,
+  message_slug_unique: "message_slug_unique" as const,
 };
 
 export const enumMessageSelectColumn = {
@@ -17584,7 +17584,7 @@ export const enumTagEnumUpdateColumn = {
 export const enumThreadConstraint = {
   thread_id_key: "thread_id_key" as const,
   thread_pkey: "thread_pkey" as const,
-  thread_slug_key: "thread_slug_key" as const,
+  thread_slug_unique: "thread_slug_unique" as const,
 };
 
 export const enumThreadSelectColumn = {
