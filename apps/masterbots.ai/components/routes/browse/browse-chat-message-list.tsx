@@ -108,9 +108,7 @@ export function BrowseMessagePairs({
 	const isPublic = getRouteType(pathname) === 'public'
 	const isProfile = getRouteType(pathname) === 'profile'
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: We need to read the pathname only each time it changes
 	useEffect(() => {
-		console.log('params', params)
 		if (!params.threadQuestionSlug) return
 
 		const $questionElement = document.getElementById(
@@ -121,7 +119,9 @@ export function BrowseMessagePairs({
 
 		const timeout = setTimeout(() => {
 			const scrollBehavior =
-				$questionElement.offsetHeight > window.innerHeight ? 'start' : 'center'
+				$questionElement.offsetHeight > window.innerHeight - 144
+					? 'start'
+					: 'center'
 			$questionElement.scrollIntoView({
 				behavior: 'smooth',
 				block: scrollBehavior,

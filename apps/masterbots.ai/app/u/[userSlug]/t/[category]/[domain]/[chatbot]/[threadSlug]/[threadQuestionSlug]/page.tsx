@@ -3,10 +3,33 @@ import { getThread } from '@/services/hasura'
 import type { User } from 'mb-genql'
 import { getServerSession } from 'next-auth'
 
-export { generateMbMetadata as generateMetadata } from '@/lib/metadata'
+import { generateMbMetadata } from '@/lib/metadata'
+
+import type { Metadata } from 'next'
+import type { AppLinks } from 'next/dist/lib/metadata/types/extra-types'
+
+export async function generateMetadata(
+	props: ThreadPageProps,
+): Promise<Metadata> {
+	// Get base metadata from the shared function
+	const baseMetadata = await generateMbMetadata(props)
+	const params = await props.params
+	// Add or override with your custom link tags
+	return {
+		...baseMetadata,
+		appLinks: [
+			...((baseMetadata?.appLinks || []) as AppLinks[]),
+			{
+				rel: 'canonical',
+				href: `${process.env.BASE_URL}/${Object.keys(params).join('/')}`,
+			},
+		] as AppLinks,
+	}
+}
 
 interface ThreadPageProps {
 	params: Promise<{
+		userSlug: string
 		category: string
 		domain: string
 		threadSlug: string
