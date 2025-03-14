@@ -40,7 +40,12 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { searchThreadContent } from '@/lib/search'
 import { cn } from '@/lib/utils'
-import { getBrowseThreads, getThread, getThreads, getUserBySlug } from '@/services/hasura'
+import {
+  getBrowseThreads,
+  getThread,
+  getThreads,
+  getUserBySlug
+} from '@/services/hasura'
 import { debounce } from 'lodash'
 import type { Thread } from 'mb-genql'
 import type { Session } from 'next-auth'
@@ -53,30 +58,46 @@ import { useAsync, useSetState } from 'react-use'
 // in only one file, instead of relying on reusable hooks for each context. It should be refactored.
 export default function UserThreadPanel({
   threads: initialThreads = [],
-  page,
+  page
 }: {
   threads?: Thread[]
   showSearch?: boolean
   page?: string
 }) {
-  const params = useParams<{ category?: string; chatbot?: string; threadId?: string; slug?: string }>()
+  const params = useParams<{
+    category?: string
+    chatbot?: string
+    threadId?: string
+    slug?: string
+  }>()
   const { data: session } = useSession()
   const { activeCategory, activeChatbot, setActiveChatbot } = useSidebar()
-  const { isOpenPopup, activeThread, shouldRefreshThreads, setShouldRefreshThreads, setActiveThread, setIsOpenPopup } = useThread()
+  const {
+    isOpenPopup,
+    activeThread,
+    shouldRefreshThreads,
+    setShouldRefreshThreads,
+    setActiveThread,
+    setIsOpenPopup
+  } = useThread()
   const [loading, setLoading] = useState<boolean>(true)
-  const { isContinuousThread, setIsContinuousThread, threads: hookThreads, isAdminMode } = useThreadVisibility()
+  const {
+    isContinuousThread,
+    setIsContinuousThread,
+    threads: hookThreads,
+    isAdminMode
+  } = useThreadVisibility()
   const [searchTerm, setSearchTerm] = useState<string>('')
   const searchParams = useSearchParams()
   const { slug, category, chatbot } = params
   const continuousThreadId = searchParams.get('continuousThreadId')
   const [storeThreads, setStoreThreads] = useState<Thread[]>(initialThreads)
-  
 
   const userWithSlug = useAsync(async () => {
     if (!slug) return { user: null }
     const result = await getUserBySlug({
       slug,
-      isSameUser: session?.user?.slug === slug,
+      isSameUser: session?.user?.slug === slug
     })
     return result
   }, [slug])
@@ -90,7 +111,7 @@ export default function UserThreadPanel({
   }>({
     threads: [],
     count: 0,
-    totalThreads: 0,
+    totalThreads: 0
   })
   const { count, totalThreads } = state
 
@@ -103,7 +124,7 @@ export default function UserThreadPanel({
         userId: user.userId,
         categoryId: activeCategory,
         chatbotName: activeChatbot?.name,
-        limit: PAGE_SM_SIZE,
+        limit: PAGE_SM_SIZE
       })
     } catch (error) {
       console.error('Failed to fetch threads:', error)
@@ -130,21 +151,22 @@ export default function UserThreadPanel({
       })
     }
     setState({
-      threads: moreThreads
-        ? [...threads, ...moreThreads]
-        : threads,
-      count: threads.length,
+      threads: moreThreads ? [...threads, ...moreThreads] : threads,
+      count: threads.length
     })
-    setStoreThreads(moreThreads
-      ? [...storeThreads, ...moreThreads]
-      : storeThreads)
+    setStoreThreads(
+      moreThreads ? [...storeThreads, ...moreThreads] : storeThreads
+    )
     setLoading(false)
   }
 
-  const getThreadByContinuousThreadId = async (continuousThreadId: string, session: Session) => {
+  const getThreadByContinuousThreadId = async (
+    continuousThreadId: string,
+    session: Session
+  ) => {
     const thread = await getThread({
       threadId: continuousThreadId,
-      jwt: session.user?.hasuraJwt,
+      jwt: session.user?.hasuraJwt
     })
 
     if (thread) {
@@ -171,18 +193,21 @@ export default function UserThreadPanel({
   }, [session])
 
   useEffect(() => {
-    if(isAdminMode){
+    if (isAdminMode) {
       setStoreThreads(hookThreads)
-    setState({
-      threads: hookThreads,
-      totalThreads: hookThreads.length,
-      count: hookThreads.length,
-    })
-  }
- },[hookThreads])
+      setState({
+        threads: hookThreads,
+        totalThreads: hookThreads.length,
+        count: hookThreads.length
+      })
+    }
+  }, [hookThreads])
 
-  const threads = state.threads.length > initialThreads.length || isAdminMode || searchTerm  ? state.threads : initialThreads
-  const allthreads = threads;
+  const threads =
+    state.threads.length > initialThreads.length || isAdminMode || searchTerm
+      ? state.threads
+      : initialThreads
+  const allthreads = threads
   const completeLoading = (load: boolean) => {
     setLoading(load)
   }
@@ -208,16 +233,16 @@ export default function UserThreadPanel({
       const isOwnProfile = session?.user?.id === userOnSlug?.userId
       if (!session?.user || (!isOwnProfile && page === 'profile')) {
         const newThreads = await fetchBrowseThreads()
-  
+
         setState({
           threads: newThreads,
           totalThreads: threads?.length,
-          count: threads?.length,
+          count: threads?.length
         })
         setLoading(false)
         return
       }
-  
+
       const currentFetchId = Date.now() // Generate a unique identifier for the current fetch
       fetchIdRef.current = currentFetchId
       const newThreads = await getThreads({
@@ -227,14 +252,14 @@ export default function UserThreadPanel({
         categoryId: activeCategory,
         chatbotName: activeChatbot?.name
       })
-  
+
       // Check if the fetchId matches the current fetchId stored in the ref
       if (fetchIdRef.current === currentFetchId) {
         // If it matches, update the threads state
         setState({
           threads: newThreads,
           totalThreads: threads?.length,
-          count: threads?.length,
+          count: threads?.length
         })
       }
     } catch (error) {
@@ -242,13 +267,14 @@ export default function UserThreadPanel({
     } finally {
       setIsOpenPopup(false)
       setShouldRefreshThreads(false)
-      
+
       if (activeThread) {
         setActiveThread(null)
       }
-      if (activeChatbot && (
-        (category && !chatbot) || (!category && !chatbot)
-      )) {
+      if (
+        activeChatbot &&
+        ((category && !chatbot) || (!category && !chatbot))
+      ) {
         setActiveChatbot(null)
       }
       setLoading(false)
@@ -259,8 +285,10 @@ export default function UserThreadPanel({
   useEffect(() => {
     if (isOpenPopup) return
 
-    const hasThreadListChanged = !threads?.some((t) =>
-      t.threadId === activeThread?.threadId || t.messages.length === activeThread?.messages.length
+    const hasThreadListChanged = !threads?.some(
+      t =>
+        t.threadId === activeThread?.threadId ||
+        t.messages.length === activeThread?.messages.length
     )
 
     if (hasThreadListChanged) handleThreadsChange()
@@ -273,11 +301,12 @@ export default function UserThreadPanel({
       : 'Start a conversation to create your first thread'
   const showNoResults = !loading && searchTerm && threads.length === 0
   const showChatbotDetails = !loading && !searchTerm && !threads.length
-  const searchInputContainerClassName = 'flex justify-between py-5 lg:max-w-full'
-  
+  const searchInputContainerClassName =
+    'flex justify-between py-5 lg:max-w-full'
+
   const verifyKeyword = () => {
     setLoading(true)
-  
+
     if (!searchTerm) {
       setState({
         threads,
@@ -286,36 +315,35 @@ export default function UserThreadPanel({
       })
     } else {
       debounce(() => {
-       const searchResult = storeThreads.filter((thread: Thread) =>
-            searchThreadContent(thread, searchTerm)
-          )
-      setState({
+        const searchResult = storeThreads.filter((thread: Thread) =>
+          searchThreadContent(thread, searchTerm)
+        )
+        setState({
           threads: searchResult,
           count: searchResult.length,
           totalThreads: threads.length
         })
-        
       }, 230)()
     }
 
     setLoading(false)
   }
 
-
   useEffect(() => {
-    if(searchTerm){
-      verifyKeyword();
+    if (searchTerm) {
+      verifyKeyword()
     }
-  }
-  ,[searchTerm])
+  }, [searchTerm])
 
   return (
     <>
-     {!loading && ( (threads.length !== 0 || searchTerm) && !isContinuousThread) && (
-        <div className={searchInputContainerClassName}>
-          <ThreadSearchInput setThreads={setState} onSearch={setSearchTerm} />
-        </div>
-      )}
+      {!loading &&
+        (threads.length !== 0 || searchTerm) &&
+        !isContinuousThread && (
+          <div className={searchInputContainerClassName}>
+            <ThreadSearchInput setThreads={setState} onSearch={setSearchTerm} />
+          </div>
+        )}
       {loading && (
         <div className={searchInputContainerClassName}>
           <div className="relative w-full max-w-[900px] mx-auto flex items-center justify-center">
@@ -324,12 +352,11 @@ export default function UserThreadPanel({
           </div>
         </div>
       )}
-      <ul className={cn(
-        'flex flex-col size-full gap-3 pb-5',
-        {
-          'items-center justify-center': showNoResults || showChatbotDetails,
-        }
-      )}>
+      <ul
+        className={cn('flex flex-col size-full gap-3 pb-5', {
+          'items-center justify-center': showNoResults || showChatbotDetails
+        })}
+      >
         {showChatbotDetails ? (
           <ChatChatbotDetails />
         ) : (
@@ -343,7 +370,9 @@ export default function UserThreadPanel({
                     loading={loading}
                     loadMore={loadMore}
                     hasMore={count === PAGE_SIZE}
-                    isLast={thread.threadId === threads[threads.length - 1].threadId}
+                    isLast={
+                      thread.threadId === threads[threads.length - 1].threadId
+                    }
                     pageType={page}
                   />
                 ))}
@@ -391,6 +420,6 @@ export function initialThread(thread: Thread, session: Session): Thread {
     user: null,
     thread,
     parentThreadId: thread.threadId,
-    threads: [],
+    threads: []
   } as unknown as Thread
 }
