@@ -39,7 +39,11 @@ const models = [
 	{ label: 'llama3_8', value: AIModels.llama3_8b, logo: <IconLlama /> },
 	{ label: 'llama3_7', value: AIModels.llama3_7b, logo: <IconLlama /> },
 	{ label: 'WordWare', value: AIModels.WordWare, logo: <IconWordware /> },
-	{ label: 'DeepSeek R1', value: AIModels.DeepSeekR1, logo: <IconDeepSeek /> },
+	{
+		label: 'DeepSeek',
+		value: AIModels.DeepSeekGroq,
+		logo: <IconDeepSeek />,
+	},
 ]
 
 //* ChatCombobox provides a popover for AI model selection and triggers model change based on user choice.

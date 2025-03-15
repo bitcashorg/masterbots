@@ -208,6 +208,7 @@ export type AiClientType =
 	| 'Perplexity'
 	| 'WordWare'
 	| 'DeepSeek'
+	| 'GroqDeepSeek'
 
 export type JSONResponseStream = {
 	model: string
@@ -286,6 +287,7 @@ export interface ChatMessageProps extends React.ComponentProps<'div'> {
 	chatbot?: Chatbot
 	actionRequired?: boolean
 	webSearchResults?: WebSearchResult[]
+	isGenerating?: boolean
 }
 
 //* Reference result manipulations props

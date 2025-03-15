@@ -1,5 +1,5 @@
 import { AttachmentCards } from '@/components/routes/chat/chat-list/attachment-cards'
-import { ChatMessage } from '@/components/routes/chat/chat-message'
+import { MessageRenderer } from '@/components/routes/chat/chat-message-renderer'
 import { SharedAccordion } from '@/components/shared/shared-accordion'
 import { ShortMessage } from '@/components/shared/short-message'
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
@@ -147,7 +147,7 @@ export function MessagePairAccordion({
 				''
 			) : (
 				<div className={cn('flex flex-col items-start gap-2')}>
-					<ChatMessage actionRequired={false} message={pair.userMessage} />
+					<MessageRenderer actionRequired={false} message={pair.userMessage} />
 					<AttachmentCards
 						userAttachments={userAttachments}
 						isAccordionFocused={isAccordionFocused}
@@ -204,7 +204,7 @@ export function MessagePairAccordion({
 										isAccordionFocused={isAccordionFocused}
 									/>
 								)}
-								<ChatMessage
+								<MessageRenderer
 									id={message.slug}
 									actionRequired={false}
 									message={message}

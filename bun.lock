@@ -4,6 +4,7 @@
     "": {
       "name": "masterbots",
       "dependencies": {
+        "@ai-sdk/groq": "^1.1.14",
         "axios": "^1.7.7",
       },
       "devDependencies": {
@@ -193,6 +194,8 @@
     "@ai-sdk/anthropic": ["@ai-sdk/anthropic@1.1.17", "", { "dependencies": { "@ai-sdk/provider": "1.0.11", "@ai-sdk/provider-utils": "2.1.13" }, "peerDependencies": { "zod": "^3.0.0" } }, "sha512-t4ipxope34TFvWa4SrFsg2//aAFk3hUv2gxlM5W39IdsT7Hq2nMxJIcXE6C19YdhE/0Kep32iv38BgPaDZet6A=="],
 
     "@ai-sdk/deepseek": ["@ai-sdk/deepseek@0.1.15", "", { "dependencies": { "@ai-sdk/openai-compatible": "0.1.15", "@ai-sdk/provider": "1.0.11", "@ai-sdk/provider-utils": "2.1.13" }, "peerDependencies": { "zod": "^3.0.0" } }, "sha512-0sB3G71eXI7ND4fa9MwBIyN+tTwnH0MQs2Sc+8gGluMy6FtlQi1x49j0yWp1jWSp8E0T31zU7Po7U77NEM0Wxw=="],
+
+    "@ai-sdk/groq": ["@ai-sdk/groq@1.1.14", "", { "dependencies": { "@ai-sdk/provider": "1.0.11", "@ai-sdk/provider-utils": "2.1.13" }, "peerDependencies": { "zod": "^3.0.0" } }, "sha512-LbjpTwN8kLeU/+nfE9inFVQRff1U194j7FJfJNTpKAMPB1AJB7EhPd06IbRdQ7i1CB+fEGnpeQc8gyISjWBQug=="],
 
     "@ai-sdk/openai": ["@ai-sdk/openai@1.2.5", "", { "dependencies": { "@ai-sdk/provider": "1.0.11", "@ai-sdk/provider-utils": "2.1.13" }, "peerDependencies": { "zod": "^3.0.0" } }, "sha512-COK7LzspgQQh5Yq070xfDdVMvp8WX592rXRaMaYNNqu1xpzahxDcM24aF9xgKYWuYH0UMoOw4UmWGwGxr6ygIg=="],
 

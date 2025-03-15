@@ -31,7 +31,9 @@ export function getModelClientType(model: AIModels) {
 		case AIModels.WordWare:
 			return 'WordWare'
 		case AIModels.DeepSeekR1:
-			return 'DeepSeek' // Add this case
+			return 'DeepSeek'
+		case AIModels.DeepSeekGroq:
+			return 'GroqDeepSeek'
 		default:
 			throw new Error('Unsupported model specified')
 	}
@@ -82,16 +84,15 @@ export function setStreamerPayload(
 					}) as Anthropic.MessageParam,
 			)
 		case 'DeepSeek':
+		case 'GroqDeepSeek':
 			return payload.map((message) => {
 				if (message.role === 'assistant') {
 					const content = message.content as string
-					// Extract any existing reasoning if present
 					const reasoningMatch = content.match(/<think>(.*?)<\/think>/s)
 					const answerMatch = content.match(/<answer>(.*?)<\/answer>/s)
 
 					return {
 						...message,
-						// If content already has think/answer tags, use those, otherwise add reasoning field
 						content: answerMatch ? content : `<answer>${content}</answer>`,
 						reasoning: reasoningMatch
 							? reasoningMatch[1]

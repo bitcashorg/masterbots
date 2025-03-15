@@ -25,8 +25,10 @@ import type {
 	JSONResponseStream,
 } from '@/types/types'
 import { createAnthropic } from '@ai-sdk/anthropic'
+import { createGroq, groq } from '@ai-sdk/groq'
 import { createOpenAI } from '@ai-sdk/openai'
 import { smoothStream, streamObject, streamText } from 'ai'
+import { extractReasoningMiddleware, wrapLanguageModel } from 'ai'
 import { createStreamableValue } from 'ai/rsc'
 import { appConfig } from 'mb-env'
 import type OpenAI from 'openai'
@@ -39,6 +41,23 @@ const OPEN_AI_ENV_CONFIG = {
 	TEMPERATURE: process.env.OPENAI_TEMPERATURE
 		? Number.parseFloat(process.env.OPENAI_TEMPERATURE)
 		: undefined,
+}
+
+const initializeGroq = (apiKey: string) => {
+	if (!apiKey) {
+		throw new Error('GROQ_API_KEY is not defined in environment variables')
+	}
+
+	const groqProvider = createGroq({
+		apiKey,
+	})
+
+	const enhancedModel = wrapLanguageModel({
+		model: groqProvider('deepseek-r1-distill-llama-70b'),
+		middleware: extractReasoningMiddleware({ tagName: 'think' }),
+	})
+
+	return enhancedModel
 }
 
 //* this function is used to create a client for the OpenAI API
@@ -359,13 +378,28 @@ export async function createResponseStream(
 				})
 				break
 			}
+			case 'GroqDeepSeek': {
+				const groqModel = initializeGroq(
+					previewToken || (process.env.GROQ_API_KEY as string),
+				)
+
+				response = await streamText({
+					model: groqModel,
+					messages: coreMessages,
+					temperature: 0.2, //? Groq DeepSeek works well with lower temperature
+					maxTokens: 2000,
+					tools,
+					maxRetries: 2,
+				})
+				break
+			}
 			default:
 				throw new Error('Unsupported client type')
 		}
 
 		// @ts-ignore
 		const dataStreamResponse = response.toDataStreamResponse({
-			sendReasoning: clientType === 'DeepSeek', // Enable reasoning output for DeepSeek
+			sendReasoning: clientType === 'DeepSeek' || clientType === 'GroqDeepSeek',
 			getErrorMessage(error) {
 				if (error instanceof Error) return error.message
 				return 'Failed to process the request'

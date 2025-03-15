@@ -42,6 +42,7 @@
 	"workspaces": ["apps/*", "packages/*"],
 	"packageManager": "bun@1.2.0",
 	"dependencies": {
+		"@ai-sdk/groq": "^1.1.14",
 		"axios": "^1.7.7"
 	}
 }
