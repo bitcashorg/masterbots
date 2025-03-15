@@ -10,6 +10,8 @@ import type { Thread, User } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import { getServerSession } from 'next-auth'
 
+export { generateMbMetadata as generateMetadata } from '@/lib/metadata'
+
 export default async function BrowseCategoryPage(props: {
 	params: Promise<{ category: string; slug: string }>
 }) {

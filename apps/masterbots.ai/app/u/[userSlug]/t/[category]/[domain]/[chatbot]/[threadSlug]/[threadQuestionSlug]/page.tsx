@@ -3,25 +3,7 @@ import { getThread } from '@/services/hasura'
 import type { User } from 'mb-genql'
 import { getServerSession } from 'next-auth'
 
-import { generateMbMetadata } from '@/lib/metadata'
-
-import type { Metadata } from 'next'
-
-export async function generateMetadata(
-	props: ThreadPageProps,
-): Promise<Metadata> {
-	// Get base metadata from the shared function
-	const baseMetadata = await generateMbMetadata(props)
-	const params = await props.params
-	// Add or override with your custom link tags
-	return {
-		...baseMetadata,
-		alternates: {
-			canonical: `/${params.userSlug}/${params.category}/${params.domain}/${params.chatbot}/${params.threadSlug}`,
-			// TODO: Add languages when languages are enabled.
-		},
-	}
-}
+export { generateMbMetadata as generateMetadata } from '@/lib/metadata'
 
 interface ThreadPageProps {
 	params: Promise<{

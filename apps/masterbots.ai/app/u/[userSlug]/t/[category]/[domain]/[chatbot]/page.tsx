@@ -2,60 +2,31 @@ import { authOptions } from '@/auth'
 import { UserThreadList } from '@/components/routes/profile/user-thread-list'
 import { botNames } from '@/lib/constants/bots-names'
 import { PAGE_SM_SIZE } from '@/lib/constants/hasura'
-import { generateMbMetadata } from '@/lib/metadata'
 import {
 	getBrowseThreads,
 	getThreads,
 	getUserBySlug,
 } from '@/services/hasura/hasura.service'
+import type { PageProps } from '@/types/types'
 import type { User } from 'mb-genql'
-import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
-import type { AppLinks } from 'next/dist/lib/metadata/types/extra-types'
 import { Suspense } from 'react'
 
-interface ThreadPageProps {
-	params: Promise<{
-		username: string
-		category: string
-		domain: string
-		chatbot: string
-	}>
-}
+export { generateMbMetadata as generateMetadata } from '@/lib/metadata'
 
-export async function generateMetadata(
-	props: ThreadPageProps,
-): Promise<Metadata> {
-	const params = await props.params
-	// Get base metadata from the shared function
-	const baseMetadata = await generateMbMetadata(props)
-
-	// Add or override with your custom link tags
-	return {
-		...baseMetadata,
-		appLinks: [
-			...((baseMetadata?.appLinks || []) as AppLinks[]),
-			{
-				rel: 'canonical',
-				href: `${process.env.BASE_URL}/${Object.keys(params).join('/')}`,
-			},
-		] as AppLinks,
-	}
-}
-
-export default async function ProfileChatBot(props: ThreadPageProps) {
+export default async function ProfileChatBot(props: PageProps) {
 	const params = await props.params
 	let threads = []
-	const { username, category, chatbot } = params
+	const { userSlug, category, chatbot } = params
 	const session = await getServerSession(authOptions)
 	const jwt = session ? session.user?.hasuraJwt : ''
 	const { user, error } = await getUserBySlug({
-		isSameUser: session?.user.slug === username,
-		slug: username,
+		isSameUser: session?.user.slug === userSlug,
+		slug: userSlug as string,
 	})
 	if (!user) return <div>No user found</div>
 
-	const chatbotName = (await botNames).get(chatbot)
+	const chatbotName = (await botNames).get(chatbot as string)
 	if (!chatbotName) {
 		throw new Error(`Chatbot name for ${chatbot} not found`)
 	}

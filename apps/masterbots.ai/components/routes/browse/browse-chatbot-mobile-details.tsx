@@ -31,7 +31,6 @@ export function BrowseChatbotMobileDetails({
 				<div className="px-2 mx-auto mb-4">
 					<Link
 						href="/"
-						rel="canonical"
 						className="flex items-center leading-none gap-2 text-white/80 dark:text-[#09090BC3] hover:text-white dark:hover:text-[#09090B]"
 					>
 						<ChevronLeft className="size-4" />
@@ -97,7 +96,6 @@ export function BrowseChatbotMobileDetails({
 						>
 							<Link
 								href={botUrl}
-								rel="canonical"
 								className="flex items-center justify-center gap-1"
 							>
 								<MessageSquarePlusIcon className="size-4" />

@@ -1,5 +1,6 @@
 import { urlBuilders } from '@/lib/url'
 import { getThread } from '@/services/hasura'
+import type { PageProps } from '@/types/types'
 import type { Thread } from 'mb-genql'
 import type { Metadata } from 'next'
 import { headers } from 'next/headers'
@@ -30,15 +31,20 @@ interface PageSEO extends Metadata {
 
 export const generateMetadataFromSEO = async (
 	pageSeo: PageSEO,
+	params: Record<string, any>,
 ): Promise<Metadata> => {
+	const paramKeys = Object.keys(params) as Array<keyof typeof params>
 	const headersList = await headers()
 	const pathname = headersList.get('x-invoke-path') || ''
-	const currentUrl = process.env.VERCEL_URL + pathname
+	const currentUrl = process.env.BASE_URL + pathname
 	const ogImageUrlDefault = '/masterbots_og.png'
+	// Dynamic default canonical: The params should return in order of the URL
+	const canonical = ['', ...paramKeys.map((key) => params[key])].join('/')
 
 	return {
 		title: pageSeo.title || '',
 		description: pageSeo.description || '',
+		metadataBase: new URL(process.env.BASE_URL || 'https://masterbots.ai'),
 		openGraph: {
 			type: pageSeo.ogType as OgType,
 			title: pageSeo.title,
@@ -55,14 +61,19 @@ export const generateMetadataFromSEO = async (
 			description: pageSeo.description,
 			images: pageSeo.ogImageUrl ? [pageSeo.ogImageUrl] : [ogImageUrlDefault],
 		},
+		alternates: {
+			canonical,
+		},
 	}
 }
 
 export async function generateMbMetadata({
 	params,
 }: {
-	params: Promise<any>
+	params: PageProps['params']
 }): Promise<Metadata | undefined> {
+	const paramsObject = await params
+
 	let thread: Thread | undefined
 	let data = {
 		title: 'not found',
@@ -73,7 +84,7 @@ export async function generateMbMetadata({
 	}
 
 	try {
-		const { threadSlug, threadQuestionSlug } = await params
+		const { threadSlug, threadQuestionSlug } = paramsObject
 		thread = (await getThread({ threadSlug, jwt: '' })) as Thread
 
 		const firstQuestion =
@@ -98,7 +109,7 @@ export async function generateMbMetadata({
 			category: thread?.chatbot?.categories?.[0]?.category?.name || 'AI',
 			domain: thread?.chatbot?.metadata[0]?.domainName || 'General',
 			chatbot: thread?.chatbot?.name || 'Masterbots',
-			threadSlug: thread?.slug || threadSlug,
+			threadSlug: thread?.slug || (threadSlug as string),
 			raw: false,
 		})
 
@@ -113,6 +124,20 @@ export async function generateMbMetadata({
 		console.error('Error in getThread', error)
 	}
 
+	const paramKeys = Object.keys(paramsObject) as Array<
+		keyof typeof paramsObject
+	>
+	const headersList = await headers()
+	const pathname = headersList.get('x-invoke-path') || ''
+	const currentUrl = process.env.BASE_URL + pathname
+	// Dynamic default canonical: The params should return in order of the URL
+	const canonical = [
+		'',
+		...paramKeys.map((key) => key !== 'userSlug' && paramsObject[key]),
+	]
+		.filter(Boolean)
+		.join('/')
+
 	return {
 		title: data.title,
 		description: data.summary,
@@ -123,7 +148,7 @@ export async function generateMbMetadata({
 			description: data.summary,
 			type: 'article',
 			publishedTime: data.publishedAt,
-			url: process.env.BASE_URL + data.pathname,
+			url: currentUrl,
 			images: [
 				{
 					url: data.image,
@@ -136,6 +161,9 @@ export async function generateMbMetadata({
 			site: '@masterbotsai',
 			description: data.summary,
 			images: [data.image],
+		},
+		alternates: {
+			canonical,
 		},
 	}
 }

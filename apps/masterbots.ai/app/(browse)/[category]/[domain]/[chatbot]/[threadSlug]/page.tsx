@@ -2,12 +2,12 @@ import BrowseList from '@/components/routes/browse/browse-list'
 import { BrowseSearchInput } from '@/components/routes/browse/browse-search-input'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { getCategories, getThreads } from '@/services/hasura'
-import type { ChatPageProps } from '@/types/types'
+import type { PageProps } from '@/types/types'
 import { toSlug } from 'mb-lib'
 
 export { generateMbMetadata as generateMetadata } from '@/lib/metadata'
 
-export default async function ChatPage(props: ChatPageProps) {
+export default async function ChatPage(props: PageProps) {
 	const params = await props.params
 	// const thread = await getThread({
 	// 	threadSlug: params.threadSlug,

@@ -270,9 +270,11 @@ export interface Plan {
 	features_title: string
 }
 
-export interface ChatPageProps {
+export interface PageProps {
 	params: Promise<{
-		category: string
+		botSlug?: string
+		userSlug?: string
+		category?: string
 		chatbot?: string
 		domain?: string
 		threadSlug?: string
