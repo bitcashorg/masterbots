@@ -3,14 +3,14 @@ import BrowseSpecificThreadList from '@/components/routes/browse/browse-specific
 import { botNames } from '@/lib/constants/bots-names'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { generateMetadataFromSEO } from '@/lib/metadata'
+import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { getBrowseThreads, getChatbot } from '@/services/hasura'
+import type { PageProps } from '@/types/types'
 import type { Metadata } from 'next'
 
-export default async function BotThreadsPage(props: {
-	params: Promise<{ id: string }>
-}) {
+export default async function BotThreadsPage(props: PageProps) {
 	const params = await props.params
-	const chatbotName = (await botNames).get(params.id)
+	const chatbotName = (await botNames).get(params.botSlug as string)
 
 	const chatbot = await getChatbot({
 		chatbotName,
@@ -47,11 +47,9 @@ export default async function BotThreadsPage(props: {
 	)
 }
 
-export async function generateMetadata(props: {
-	params: Promise<{ id: string }>
-}): Promise<Metadata> {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
 	const params = await props.params
-	const chatbotName = (await botNames).get(params.id)
+	const chatbotName = (await botNames).get(params.botSlug as string)
 	const chatbot = await getChatbot({
 		chatbotName,
 		jwt: '',
@@ -67,6 +65,17 @@ export async function generateMetadata(props: {
 			: `${process.env.BASE_URL || ''}/api/og`,
 		twitterCard: 'summary_large_image',
 	}
-
-	return generateMetadataFromSEO(seoData)
+	const domain = getCanonicalDomain(chatbotName as string)
+	return {
+		...generateMetadataFromSEO(seoData, params),
+		alternates: {
+			canonical: urlBuilders.chatbotThreadListUrl({
+				type: 'public',
+				category: chatbot.categories?.[0]?.category?.name || 'AI',
+				domain,
+				chatbot: chatbotName as string,
+			}),
+			// TODO: Add languages when languages are enabled.
+		},
+	}
 }

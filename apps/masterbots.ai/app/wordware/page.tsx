@@ -1,6 +1,7 @@
 import { authOptions } from '@/auth'
 import { WordwareChat } from '@/components/shared/wordware-chat'
 import { generateMetadataFromSEO } from '@/lib/metadata'
+import type { PageProps } from '@/types/types'
 import { isTokenExpired } from 'mb-lib'
 import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
@@ -23,7 +24,8 @@ export default async function IndexPage() {
 	)
 }
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
+	const params = await props.params
 	const seoData = {
 		title: 'Wordware page',
 		description:
@@ -33,5 +35,5 @@ export async function generateMetadata(): Promise<Metadata> {
 		twitterCard: 'summary',
 	}
 
-	return generateMetadataFromSEO(seoData)
+	return generateMetadataFromSEO(seoData, params)
 }

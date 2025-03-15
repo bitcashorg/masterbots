@@ -26,7 +26,7 @@ import type {
 } from '@/types/types'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createOpenAI } from '@ai-sdk/openai'
-import { smoothStream, streamObject, streamText } from 'ai'
+import { type Message, smoothStream, streamObject, streamText } from 'ai'
 import { createStreamableValue } from 'ai/rsc'
 import { appConfig } from 'mb-env'
 import type OpenAI from 'openai'
@@ -74,11 +74,14 @@ export async function initializePerplexity(apiKey: string) {
 
 // * This function improves the message using the AI
 export async function improveMessage(
-	content: string,
+	userPrompt: {
+		content: string
+		allUserMessages: Message[]
+	},
 	clientType: AiClientType,
 	model: string,
 ): Promise<CleanPromptResult> {
-	const messageImprovementPrompt = createImprovementPrompt(content)
+	const messageImprovementPrompt = createImprovementPrompt(userPrompt)
 
 	try {
 		const result: z.infer<typeof mbObjectSchema.grammarLanguageImprover> =
@@ -98,14 +101,14 @@ export async function improveMessage(
 			console.warn(
 				'AI did not modify the text or returned invalid result. Recursively executing improved prompt.',
 			)
-			return await improveMessage(content, clientType, model)
+			return await improveMessage(userPrompt, clientType, model)
 		}
 
 		return result
 	} catch (error) {
 		const originalText = handleImprovementError(
 			error,
-			content,
+			userPrompt.content,
 			clientType,
 			model,
 		)

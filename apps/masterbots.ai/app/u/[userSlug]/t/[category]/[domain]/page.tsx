@@ -5,6 +5,8 @@ import { toSlug } from 'mb-lib'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 
+export { generateMbMetadata as generateMetadata } from '@/lib/metadata'
+
 export default async function BrowseCategoryPage(props: {
 	params: Promise<{ category: string; slug: string }>
 }) {

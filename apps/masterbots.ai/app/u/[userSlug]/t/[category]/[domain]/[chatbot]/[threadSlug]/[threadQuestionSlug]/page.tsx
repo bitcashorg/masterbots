@@ -7,6 +7,7 @@ export { generateMbMetadata as generateMetadata } from '@/lib/metadata'
 
 interface ThreadPageProps {
 	params: Promise<{
+		userSlug: string
 		category: string
 		domain: string
 		threadSlug: string

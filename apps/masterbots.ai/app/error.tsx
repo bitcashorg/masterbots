@@ -21,7 +21,7 @@ export default function ErrorPage({
 
 			<h1 className="text-3xl font-bold  mb-4">Oops! Page Not Found</h1>
 			<p className=" text-center mb-4 max-w-[480px]">{error.message}</p>
-			<Link href="/" rel="canonical" className="flex items-center space-x-1">
+			<Link href="/" className="flex items-center space-x-1">
 				<svg
 					width="11"
 					height="12"

@@ -6,6 +6,7 @@ import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { generateMetadataFromSEO } from '@/lib/metadata'
 import { type RoleTypes, isAdminOrModeratorRole } from '@/lib/utils'
 import { getThreads } from '@/services/hasura'
+import type { PageProps } from '@/types/types'
 import { isTokenExpired } from 'mb-lib'
 import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
@@ -41,7 +42,8 @@ export default async function IndexPage() {
 	)
 }
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
+	const params = await props.params
 	const seoData = {
 		title: 'Chat page',
 		description:
@@ -51,5 +53,5 @@ export async function generateMetadata(): Promise<Metadata> {
 		twitterCard: 'summary',
 	}
 
-	return generateMetadataFromSEO(seoData)
+	return generateMetadataFromSEO(seoData, params)
 }

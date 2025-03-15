@@ -13,7 +13,7 @@ import { getMessages } from '@/services/hasura'
 import type { Message, Thread } from 'mb-genql'
 import Image from 'next/image'
 import { useParams, useRouter } from 'next/navigation'
-import React from 'react'
+import React, { useEffect } from 'react'
 
 let initialUrl: string | null = null
 
@@ -42,7 +42,7 @@ export default function BrowseListItem({
 
 	const { tab } = useBrowse()
 
-	React.useEffect(() => {
+	useEffect(() => {
 		if (!searchTerm) {
 			setIsVisible(true)
 			return
@@ -52,18 +52,18 @@ export default function BrowseListItem({
 	}, [searchTerm, thread])
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	React.useEffect(() => {
+	useEffect(() => {
 		if (initialUrl) return
 		initialUrl = location.href
 	}, [initialUrl])
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	React.useEffect(() => {
+	useEffect(() => {
 		initialUrl = location.href
 	}, [tab])
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: function are not required to have as exhaustive dependencies
-	React.useEffect(() => {
+	useEffect(() => {
 		if (!threadRef.current) return
 		const observer = new IntersectionObserver(([entry]) => {
 			if (hasMore && isLast && entry.isIntersecting && !loading) {
@@ -151,6 +151,7 @@ export default function BrowseListItem({
 		<div ref={threadRef}>
 			<SharedAccordion
 				onToggle={handleAccordionToggle}
+				isOpen={isAccordionOpen}
 				className="relative"
 				contentClass="!pt-0 max-h-[70vh] scrollbar"
 				triggerClass="dark:hover:bg-mirage hover:bg-gray-300 pl-[8px]
