@@ -63,7 +63,7 @@ export default async function IndexPage(props: IndexPageProps) {
 export async function generateMetadata(
 	props: IndexPageProps,
 ): Promise<Metadata> {
-	const { intentId } = await props.params
+	const params = await props.params
 
 	const seoData = {
 		title: 'Masterbots Pro Subscription',
@@ -73,5 +73,5 @@ export async function generateMetadata(
 		twitterCard: 'summary',
 	}
 
-	return generateMetadataFromSEO(seoData)
+	return generateMetadataFromSEO(seoData, params)
 }

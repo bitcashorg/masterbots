@@ -56,7 +56,7 @@ export function UserCard({ user, loading }: UserCardProps) {
 	const { customSonner } = useSonner()
 	const [displayedBio, setDisplayedBio] = useState<string>('')
 
-	const userQuestions = user?.threads
+	const userQuestions = (user?.threads || [])
 		.map((thread) => {
 			if (!thread.messages?.length) {
 				return null
@@ -345,11 +345,11 @@ export function UserCard({ user, loading }: UserCardProps) {
 						<h2 className="text-xl font-semibold capitalize md:text-2xl">
 							{user?.username}
 						</h2>
-						{user?.threads.length > 0 && (
+						{user?.threads?.length > 0 && (
 							<div className="items-center space-x-1 md:hidden flex">
 								<BotIcon className="w-4 h-4" />
 								<span className="">Threads:</span>
-								<span className="text-gray-500">{user?.threads.length}</span>
+								<span className="text-gray-500">{user?.threads?.length}</span>
 							</div>
 						)}
 
@@ -418,11 +418,11 @@ export function UserCard({ user, loading }: UserCardProps) {
 					{/* Stats Section */}
 					<div className="flex md:flex-row flex-col md:justify-between p-6">
 						<div className="space-y-1 pt-5">
-							{user?.threads.length > 0 && (
+							{user?.threads?.length > 0 && (
 								<div className="md:flex  items-center space-x-1 hidden">
 									<BotIcon className="w-4 h-4" />
 									<span className="">Threads:</span>
-									<span className="text-gray-500">{user?.threads.length}</span>
+									<span className="text-gray-500">{user?.threads?.length}</span>
 								</div>
 							)}
 

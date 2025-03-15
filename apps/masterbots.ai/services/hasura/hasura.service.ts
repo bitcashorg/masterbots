@@ -162,12 +162,23 @@ export async function getCategories(userId?: string) {
 	return category as Category[]
 }
 
-export async function getCategory({ categoryId }: { categoryId: number }) {
+export async function getCategory({
+	categoryId,
+	chatbotName,
+}: {
+	categoryId?: number
+	chatbotName?: string
+}) {
 	const client = getHasuraClient({})
 	const { category } = await client.query({
 		category: {
 			__args: {
-				where: { categoryId: { _eq: categoryId } },
+				where: {
+					...(categoryId ? { categoryId: { _eq: categoryId } } : {}),
+					...(chatbotName
+						? { chatbots: { chatbot: { name: { _eq: chatbotName } } } }
+						: {}),
+				},
 			},
 			name: true,
 			categoryId: true,
@@ -1070,9 +1081,15 @@ export async function getUserBySlug({
 					isPublic: true,
 					chatbot: {
 						name: true,
+						metadata: {
+							domainName: true,
+						},
 					},
 					messages: {
 						content: true,
+						__args: {
+							limit: 2,
+						},
 					},
 				},
 				followers: {

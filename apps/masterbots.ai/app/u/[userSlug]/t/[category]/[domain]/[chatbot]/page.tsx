@@ -7,29 +7,26 @@ import {
 	getThreads,
 	getUserBySlug,
 } from '@/services/hasura/hasura.service'
+import type { PageProps } from '@/types/types'
 import type { User } from 'mb-genql'
 import { getServerSession } from 'next-auth'
 import { Suspense } from 'react'
 
-export default async function ProfileChatBot(props: {
-	params: Promise<{
-		slug: string
-		category: string
-		chatbot: string
-	}>
-}) {
+export { generateMbMetadata as generateMetadata } from '@/lib/metadata'
+
+export default async function ProfileChatBot(props: PageProps) {
 	const params = await props.params
 	let threads = []
-	const { slug, category, chatbot } = params
+	const { userSlug, category, chatbot } = params
 	const session = await getServerSession(authOptions)
 	const jwt = session ? session.user?.hasuraJwt : ''
 	const { user, error } = await getUserBySlug({
-		slug,
-		isSameUser: session?.user.slug === slug,
+		isSameUser: session?.user.slug === userSlug,
+		slug: userSlug as string,
 	})
 	if (!user) return <div>No user found</div>
 
-	const chatbotName = (await botNames).get(chatbot)
+	const chatbotName = (await botNames).get(chatbot as string)
 	if (!chatbotName) {
 		throw new Error(`Chatbot name for ${chatbot} not found`)
 	}
