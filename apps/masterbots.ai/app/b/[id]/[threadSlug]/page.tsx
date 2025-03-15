@@ -4,7 +4,6 @@ import type { ChatPageProps } from '@/types/types'
 import type { Metadata } from 'next'
 
 import { generateMbMetadata } from '@/lib/metadata'
-import type { AppLinks } from 'next/dist/lib/metadata/types/extra-types'
 
 export async function generateMetadata(
 	props: ChatPageProps,
@@ -12,17 +11,13 @@ export async function generateMetadata(
 	// Get base metadata from the shared function
 	const baseMetadata = await generateMbMetadata(props)
 	const params = await props.params
-
 	// Add or override with your custom link tags
 	return {
 		...baseMetadata,
-		appLinks: [
-			...((baseMetadata?.appLinks || []) as AppLinks[]),
-			{
-				rel: 'canonical',
-				href: `${process.env.BASE_URL}/${Object.keys(params).join('/')}`,
-			},
-		] as AppLinks,
+		alternates: {
+			canonical: `/${Object.keys(params).join('/')}`,
+			// TODO: Add languages when languages are enabled.
+		},
 	}
 }
 

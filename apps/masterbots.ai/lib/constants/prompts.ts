@@ -11,6 +11,7 @@ import type { Chatbot } from 'mb-genql'
 
 // * This function creates the prompt for the AI improvement process with the following question
 export function followingQuestionsImprovementPrompt(
+	userQuestion: string,
 	improvementPrompt: string,
 	allMessages: Message[],
 ) {
@@ -20,7 +21,7 @@ export function followingQuestionsImprovementPrompt(
 		)}].`,
 		improvementPrompt,
 		`**Important Guidelines:**
-- Use the list of questions to clarify certain word selection, but only summarize the current question based on intent.
+- Use the list of questions to clarify word selection, but keep your main focus on the User Question and please try incredibly hard to make your best guess only using the words: "${userQuestion}".
 - Make sure you output the rewritten question without any additional explanations in the original language.`,
 	].join('\n\n')
 }
@@ -33,8 +34,9 @@ export function createImprovementPrompt({
 	content: string
 	allUserMessages: Message[]
 }): string {
-	const prompt = `You are a highly specialized, multidisciplinary polyglot expert assistant and master of emotional intelligence that combines competencies across linguistics, language, culture, communication, psychology, copywriting and NLP to very concisely summarize the question based on intent to less than 49 words:	"${content}".`
+	const prompt = `You are a highly specialized, multidisciplinary polyglot expert assistant and master of emotional intelligence that combines competencies across linguistics, language, culture, communication, psychology, copywriting and NLP to very concisely summarize the question based on intent to less than 49 words:	[**User Question:** ${content}"].`
 	const finalPrompt = followingQuestionsImprovementPrompt(
+		content,
 		prompt,
 		allUserMessages,
 	)

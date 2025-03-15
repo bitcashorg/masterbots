@@ -6,7 +6,6 @@ import { getServerSession } from 'next-auth'
 import { generateMbMetadata } from '@/lib/metadata'
 
 import type { Metadata } from 'next'
-import type { AppLinks } from 'next/dist/lib/metadata/types/extra-types'
 
 export async function generateMetadata(
 	props: ThreadPageProps,
@@ -17,13 +16,10 @@ export async function generateMetadata(
 	// Add or override with your custom link tags
 	return {
 		...baseMetadata,
-		appLinks: [
-			...((baseMetadata?.appLinks || []) as AppLinks[]),
-			{
-				rel: 'canonical',
-				href: `${process.env.BASE_URL}/${Object.keys(params).join('/')}`,
-			},
-		] as AppLinks,
+		alternates: {
+			canonical: `/${params.userSlug}/${params.category}/${params.domain}/${params.chatbot}/${params.threadSlug}`,
+			// TODO: Add languages when languages are enabled.
+		},
 	}
 }
 

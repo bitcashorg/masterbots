@@ -116,6 +116,7 @@ export async function generateMbMetadata({
 	return {
 		title: data.title,
 		description: data.summary,
+		metadataBase: new URL(process.env.BASE_URL || 'https://masterbots.ai'),
 		openGraph: {
 			locale: 'en_US',
 			title: data.title,
