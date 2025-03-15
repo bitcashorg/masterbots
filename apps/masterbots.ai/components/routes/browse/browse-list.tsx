@@ -179,13 +179,13 @@ export default function BrowseList({
 		const isPublic = getRouteType(pathname) === 'public'
 		const isProfile = getRouteType(pathname) === 'profile'
 
-		const [, _category, _domain, _chatbot, _threadSlug, threadQuestionSlug] =
+		const [, _category, _domain, _chatbot, threadSlug, threadQuestionSlug] =
 			pathNameParts
 		const [
 			,
 			_chatbotProfileRootBase,
 			_chatbotProfileChatbotName,
-			_chatbotProfileThreadSlug,
+			chatbotProfileThreadSlug,
 			chatbotProfileThreadQuestionSlug,
 		] = pathNameParts
 		const thread = threads.find((thread) =>
@@ -198,7 +198,9 @@ export default function BrowseList({
 		if (
 			thread &&
 			((threadQuestionSlug && isPublic) ||
-				(chatbotProfileThreadQuestionSlug && isProfile))
+				(chatbotProfileThreadQuestionSlug && isProfile) ||
+				(threadSlug && isPublic) ||
+				(chatbotProfileThreadSlug && isProfile))
 		) {
 			console.log(
 				'scrolling to',

@@ -9,7 +9,7 @@ slugify.extend(slugWordExtension)
  * @param {string} str The string to be slugified
  * @return {string} The slugified string.
  */
-export function toSlug(str: string, maxWords = 10): string {
+export function toSlug(str: string, maxWords = 7): string {
 	if (!str) {
 		return ''
 	}

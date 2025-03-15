@@ -50,9 +50,7 @@ function HeaderLink({
 			variant="link"
 			asChild
 		>
-			<Link href={href} rel="canonical">
-				{text}
-			</Link>
+			<Link href={href}>{text}</Link>
 		</Button>
 	)
 }

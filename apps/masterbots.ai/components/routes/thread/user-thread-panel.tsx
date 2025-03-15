@@ -45,7 +45,7 @@ import {
 	getThreads,
 	getUserBySlug,
 } from '@/services/hasura'
-import type { Thread } from 'mb-genql'
+import type { Thread, User } from 'mb-genql'
 import type { Session } from 'next-auth'
 import { useSession } from 'next-auth/react'
 import { useParams, usePathname, useSearchParams } from 'next/navigation'
@@ -56,17 +56,19 @@ import { useAsync, useSetState } from 'react-use'
 // in only one file, instead of relying on reusable hooks for each context. It should be refactored.
 export default function UserThreadPanel({
 	threads: initialThreads = [],
+	user: userProps,
 	page,
 }: {
+	user?: User
 	threads?: Thread[]
 	showSearch?: boolean
 	page?: string
 }) {
 	const params = useParams<{
+		userSlug?: string
 		category?: string
 		chatbot?: string
-		threadId?: string
-		slug?: string
+		threadSlug?: string
 	}>()
 	const { data: session } = useSession()
 	const { activeCategory, activeChatbot, setActiveChatbot } = useSidebar()
@@ -87,17 +89,18 @@ export default function UserThreadPanel({
 	} = useThreadVisibility()
 	const [searchTerm, setSearchTerm] = useState<string>('')
 	const searchParams = useSearchParams()
-	const { slug, category, chatbot } = params
+	const { userSlug, category, chatbot } = params
 	const continuousThreadId = searchParams.get('continuousThreadId')
 
 	const userWithSlug = useAsync(async () => {
-		if (!slug) return { user: null }
+		if (!userSlug) return { user: null }
+		if (userProps) return { user: userProps }
 		const result = await getUserBySlug({
-			slug,
-			isSameUser: session?.user?.slug === slug,
+			slug: userSlug,
+			isSameUser: session?.user?.slug === userSlug,
 		})
 		return result
-	}, [slug])
+	}, [userSlug, userProps])
 
 	const prevPathRef = useRef('')
 	const pathname = usePathname()
@@ -114,7 +117,7 @@ export default function UserThreadPanel({
 
 	const fetchBrowseThreads = async () => {
 		try {
-			if (!slug) return []
+			if (!userSlug) return []
 			const user = userWithSlug.value?.user
 			if (!user) return []
 			return await getBrowseThreads({

@@ -7,12 +7,14 @@ export { generateMbMetadata as generateMetadata } from '@/lib/metadata'
 
 interface ThreadPageProps {
 	params: Promise<{
+		userSlug: string
 		category: string
 		domain: string
 		threadSlug: string
 		chatbot: string
 	}>
 }
+
 export default async function ThreadPage(props: ThreadPageProps) {
 	const params = await props.params
 	const thread = await getThread({

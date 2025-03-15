@@ -35,7 +35,6 @@ export function BrowseCategoryButton({
 }) {
 	return (
 		<Link
-			rel="canonical"
 			href={category === 'all' ? '/' : `/${toSlug(category.name)}`}
 			shallow
 			id={id}

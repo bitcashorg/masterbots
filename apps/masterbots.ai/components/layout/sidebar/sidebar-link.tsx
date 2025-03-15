@@ -335,7 +335,6 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
 				onClick={handleChatbotClick}
 				href={chatbotPathname}
 				data-route={routeType}
-				rel="canonical"
 				prefetch
 			>
 				<Image

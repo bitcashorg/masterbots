@@ -123,7 +123,6 @@ export function BrowseChatMessages({
 						<Link
 							className="text-muted-foreground hover:text-primary transition-colors underline"
 							href={parentThreadUrl}
-							rel="canonical"
 						>
 							original post
 						</Link>
