@@ -1,5 +1,6 @@
 import { ChatMessage } from '@/components/routes/chat/chat-message'
 import { ReasoningChatMessage } from '@/components/routes/chat/reasoning/reasoning-chat-message'
+import { hasReasoning } from '@/lib/helpers/ai-helpers'
 
 type MessageRendererProps = {
 	message: any
@@ -8,14 +9,6 @@ type MessageRendererProps = {
 	chatbot?: any
 	webSearchResults?: any[]
 	[key: string]: any
-}
-
-//? Helper function to check if a message has reasoning
-function hasReasoning(message: any): boolean {
-	return Boolean(
-		message.reasoning ||
-			message.parts?.some((part: any) => part.type === 'reasoning'),
-	)
 }
 
 export function MessageRenderer({

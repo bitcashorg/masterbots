@@ -12,9 +12,11 @@ import {
 	type Attachment,
 	type CoreMessage,
 	type ImagePart,
+	type Message,
 	type TextPart,
 	generateId,
 } from 'ai'
+import type { Message as MBMessage } from 'mb-genql'
 import type OpenAI from 'openai'
 
 // * This function gets the model client type
@@ -252,4 +254,13 @@ export const mbObjectSchema = {
 	examples: examplesSchema,
 	tool: toolSchema,
 	grammarLanguageImprover: languageGammarSchema,
+}
+
+//? Helper function to check if a message has reasoning
+export function hasReasoning(message: Message & Partial<MBMessage>): boolean {
+	return Boolean(
+		message.reasoning ||
+			message.parts?.some((part) => part.type === 'reasoning') ||
+			message?.thinking,
+	)
 }

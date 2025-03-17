@@ -5,6 +5,7 @@ import type { UserRole } from 'mb-drizzle'
 import type {
 	Chatbot,
 	Example,
+	Message as MBMessage,
 	Prompt,
 	SocialFollowing,
 	Thread,
@@ -284,7 +285,7 @@ export interface PageProps {
 }
 
 export interface ChatMessageProps extends React.ComponentProps<'div'> {
-	message: Message
+	message: Message & Partial<MBMessage>
 	sendMessageFromResponse?: (message: string) => void
 	chatbot?: Chatbot
 	actionRequired?: boolean

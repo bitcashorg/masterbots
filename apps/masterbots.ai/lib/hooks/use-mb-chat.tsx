@@ -16,7 +16,7 @@ import {
 	continueAIGeneration,
 	shouldContinueGeneration,
 } from '@/lib/helpers/ai-continue-generation'
-import { cleanPrompt } from '@/lib/helpers/ai-helpers'
+import { cleanPrompt, hasReasoning } from '@/lib/helpers/ai-helpers'
 import {
 	type FileAttachment,
 	getUserIndexedDBKeys,
@@ -124,6 +124,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	 * */
 	const userAndAssistantMessages: AiMessage[] = activeThread
 		? messagesFromDB.map((m) => ({
+				...m,
 				id: m.messageId,
 				role: m.role as AiMessage['role'],
 				content: m.content,
@@ -364,6 +365,13 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					},
 					{
 						...newBaseMessage,
+						...(hasReasoning(message)
+							? {
+									thinking:
+										message.parts?.find((msg) => msg.type === 'reasoning')
+											?.reasoning || message.reasoning,
+								}
+							: {}),
 						messageId: assistantMessageId,
 						slug: assistantMessageSlug,
 						role: 'assistant',
@@ -454,7 +462,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	 * All messages coming from DB and continuing the chat, omitting the system prompts to provide to the LLM context.
 	 */
 	const allMessages = uniqBy(
-		initialMessages?.concat(messages).concat(
+		initialMessages?.concat(messages)?.concat(
 			activeThread?.messages?.map((msg) => ({
 				...msg,
 				id: msg.messageId,

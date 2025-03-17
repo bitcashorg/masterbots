@@ -9,20 +9,24 @@ import {
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { cn } from '@/lib/utils'
 import type { ChatMessageProps } from '@/types/types'
+import type { Message } from 'ai'
+import type { Message as MBMessage } from 'mb-genql'
 import React from 'react'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 
 // extract reasoning content
-function extractReasoningContent(message: any): string | undefined {
+export function extractReasoningContent(
+	message: Message & Partial<MBMessage>,
+): string | null | undefined {
 	if (message.parts?.length) {
 		const reasoningPart = message.parts.find(
-			(part: any) => part.type === 'reasoning',
+			(part) => part.type === 'reasoning',
 		)
 		if (reasoningPart) return reasoningPart.reasoning
 	}
 
-	return message.reasoning
+	return message?.reasoning || message.thinking
 }
 
 const preprocessChildren = (children: React.ReactNode): React.ReactNode => {
@@ -73,7 +77,6 @@ export function ReasoningChatMessage({
 }: ChatMessageProps) {
 	// Extract reasoning from message
 	const reasoningContent = extractReasoningContent(message)
-
 	// Clean the message content and update the message object.
 	const content = cleanPrompt(message.content)
 	const cleanMessage = { ...message, content }
