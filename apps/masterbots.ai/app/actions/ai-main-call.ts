@@ -28,11 +28,11 @@ import { createAnthropic } from '@ai-sdk/anthropic'
 import { createGroq, groq } from '@ai-sdk/groq'
 import { createOpenAI } from '@ai-sdk/openai'
 import { type Message, smoothStream, streamObject, streamText } from 'ai'
+import { extractReasoningMiddleware, wrapLanguageModel } from 'ai'
 import { createStreamableValue } from 'ai/rsc'
 import { appConfig } from 'mb-env'
 import type OpenAI from 'openai'
 import type { ZodType, z } from 'zod'
-import { extractReasoningMiddleware, wrapLanguageModel } from 'ai'
 
 const OPEN_AI_ENV_CONFIG = {
 	TOP_P: process.env.OPENAI_TOP_P
