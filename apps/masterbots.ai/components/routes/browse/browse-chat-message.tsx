@@ -54,6 +54,7 @@ export function BrowseChatMessage({
 					remarkPlugins={[remarkGfm, remarkMath]}
 					components={
 						{
+							// @ts-ignore
 							p({ children }) {
 								return (
 									<p className="mb-2 whitespace-pre-line last:mb-0">
@@ -61,6 +62,7 @@ export function BrowseChatMessage({
 									</p>
 								)
 							},
+							// @ts-ignore
 							ol({ children }) {
 								return (
 									<ol className="text-left list-decimal list-inside">
@@ -68,6 +70,7 @@ export function BrowseChatMessage({
 									</ol>
 								)
 							},
+							// @ts-ignore
 							ul({ children }) {
 								return (
 									<ul className="text-left list-disc list-inside">
@@ -119,7 +122,7 @@ export function BrowseChatMessage({
 									/>
 								)
 							},
-						} as Partial<
+						} as unknown as Partial<
 							Omit<NormalComponents, keyof SpecialComponents> &
 								SpecialComponents
 						>

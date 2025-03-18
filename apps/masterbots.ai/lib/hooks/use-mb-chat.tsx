@@ -332,10 +332,13 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 				// If user message slug already exists, append a counter
 				while (userSlugCheck.exists) {
-					userMessageSlug = toSlug(
-						`${curatedPreUserMessageSlug} ${userSlugCheck.sequence + 1}`,
-					)
-					userSlugCheck = await doesMessageSlugExist(userMessageSlug)
+					// Throttle the request to avoid too many requests and potential infinite loop when getting the slug
+					throttle(async () => {
+						userMessageSlug = toSlug(
+							`${curatedPreUserMessageSlug} ${userSlugCheck.sequence + 1}`,
+						)
+						userSlugCheck = await doesMessageSlugExist(userMessageSlug)
+					}, 250)()
 				}
 
 				// We need to check for a unique slug for assistant message as well
@@ -345,10 +348,14 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 				// If assistant message slug already exists, append a counter
 				while (assistantSlugCheck.exists) {
-					assistantMessageSlug = toSlug(
-						`${message.content} ${assistantSlugCheck.sequence + 1}`,
-					)
-					assistantSlugCheck = await doesMessageSlugExist(assistantMessageSlug)
+					// Throttle the request to avoid too many requests and potential infinite loop when getting the slug
+					throttle(async () => {
+						assistantMessageSlug = toSlug(
+							`${message.content} ${assistantSlugCheck.sequence + 1}`,
+						)
+						assistantSlugCheck =
+							await doesMessageSlugExist(assistantMessageSlug)
+					}, 250)()
 				}
 
 				const [
