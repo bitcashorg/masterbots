@@ -2,6 +2,7 @@
 
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { AccessibilityProvider } from '@/lib/hooks/use-accessibility'
+import { DeepThinkingProvider } from '@/lib/hooks/use-deep-thinking'
 import { MBChatProvider } from '@/lib/hooks/use-mb-chat'
 import { ModelProvider } from '@/lib/hooks/use-model'
 import { PaymentProvider } from '@/lib/hooks/use-payment'
@@ -34,15 +35,17 @@ export function Providers({ children, ...props }: ProvidersProps) {
 							<TooltipProvider>
 								<ProfileProvider>
 									<PowerUpProvider>
-										<AccessibilityProvider>
-											<ThreadSearchProvider>
-												<ThreadProvider>
-													<ThreadVisibilityProvider>
-														<MBChatProvider>{children}</MBChatProvider>
-													</ThreadVisibilityProvider>
-												</ThreadProvider>
-											</ThreadSearchProvider>
-										</AccessibilityProvider>
+										<DeepThinkingProvider>
+											<AccessibilityProvider>
+												<ThreadSearchProvider>
+													<ThreadProvider>
+														<ThreadVisibilityProvider>
+															<MBChatProvider>{children}</MBChatProvider>
+														</ThreadVisibilityProvider>
+													</ThreadProvider>
+												</ThreadSearchProvider>
+											</AccessibilityProvider>
+										</DeepThinkingProvider>
 									</PowerUpProvider>
 								</ProfileProvider>
 							</TooltipProvider>

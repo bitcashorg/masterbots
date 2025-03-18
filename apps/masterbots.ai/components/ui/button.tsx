@@ -23,6 +23,8 @@ const buttonVariants = cva(
 				sideBarProfile: 'bg-transparent border-0 shadow-none justify-start',
 				powerUp:
 					'border border-input animate-pulse-yellow bg-yellow-400 text-black transition-all duration-200 ease-in-out shadow-[0_0_20px_#f5be0b] hover:bg-yellow-500',
+				deepThinking:
+					'border border-input animate-pulse-green bg-green-400 text-black transition-all duration-200 ease-in-out shadow-[0_0_20px_#f5be0b] hover:bg-green-500',
 			},
 			size: {
 				default: 'h-8 px-4 py-2',
