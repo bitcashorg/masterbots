@@ -18,7 +18,6 @@ import type {
 	ToolCall,
 } from 'openai/resources/beta/threads/runs/steps.mjs'
 import type React from 'react'
-import type { Element } from 'react-markdown/lib/ast-to-react'
 import type Stripe from 'stripe'
 
 // * Chat types

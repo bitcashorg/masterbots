@@ -10,8 +10,6 @@ import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { cn } from '@/lib/utils'
 import type { ChatMessageProps, WebSearchResult } from '@/types/types'
 import React, { useState } from 'react'
-import type { SpecialComponents } from 'react-markdown/lib/ast-to-react'
-import type { NormalComponents } from 'react-markdown/lib/complex-types'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 
@@ -138,150 +136,142 @@ export function ChatMessage({
 				<MemoizedReactMarkdown
 					className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
 					remarkPlugins={[remarkGfm, remarkMath]}
-					components={
-						{
-							// Process paragraph nodes.
-							// @ts-ignore
-							p({ children }) {
-								return (
-									<p className="text-left whitespace-pre-line">
-										{preprocessChildren(children)}
-									</p>
-								)
-							},
-							// Process heading nodes with clickable functionality.
-							// @ts-ignore
-							h1({ children }) {
-								const text = getTextFromChildren(children)
-								return (
-									// biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
-									<h1
-										className="mb-2 text-2xl font-bold cursor-pointer clickable-heading"
-										onClick={() => handleClickableClick(text)}
-									>
-										{preprocessChildren(children)}
-									</h1>
-								)
-							},
-							// @ts-ignore
-							h2({ children }) {
-								const text = getTextFromChildren(children)
-								return (
-									// biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
-									<h2
-										className="mb-2 text-xl font-bold cursor-pointer clickable-heading"
-										onClick={() => handleClickableClick(text)}
-									>
-										{preprocessChildren(children)}
-									</h2>
-								)
-							},
-							// @ts-ignore
-							h3({ children }) {
-								const text = getTextFromChildren(children)
-								return (
-									// biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
-									<h3
-										className="mb-2 text-lg font-bold cursor-pointer clickable-heading"
-										onClick={() => handleClickableClick(text)}
-									>
-										{preprocessChildren(children)}
-									</h3>
-								)
-							},
-							// Process strong/emphasis nodes.
-							// @ts-ignore
-							strong({ children }) {
-								return <strong>{preprocessChildren(children)}</strong>
-							},
-							// List handling.
-							// @ts-ignore
-							ul({ children }) {
-								return <ul className="ml-2 space-y-2 list-disc">{children}</ul>
-							},
-							// @ts-ignore
-							ol({ children }) {
-								return (
-									<ol className="ml-2 space-y-2 list-decimal">{children}</ol>
-								)
-							},
-							// @ts-ignore
-							li({ children }) {
-								const processedChildren = preprocessChildren(children)
-								const text = getTextFromChildren(processedChildren)
-								const hasNestedList = React.Children.toArray(
-									processedChildren,
-								).some(
-									(child) =>
-										React.isValidElement(child) &&
-										(child.type === 'ul' || child.type === 'ol'),
-								)
+					components={{
+						// Process paragraph nodes.
+						// @ts-ignore
+						p({ children }) {
+							return (
+								<p className="text-left whitespace-pre-line">
+									{preprocessChildren(children)}
+								</p>
+							)
+						},
+						// Process heading nodes with clickable functionality.
+						// @ts-ignore
+						h1({ children }) {
+							const text = getTextFromChildren(children)
+							return (
+								// biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
+								<h1
+									className="mb-2 text-2xl font-bold cursor-pointer clickable-heading"
+									onClick={() => handleClickableClick(text)}
+								>
+									{preprocessChildren(children)}
+								</h1>
+							)
+						},
+						// @ts-ignore
+						h2({ children }) {
+							const text = getTextFromChildren(children)
+							return (
+								// biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
+								<h2
+									className="mb-2 text-xl font-bold cursor-pointer clickable-heading"
+									onClick={() => handleClickableClick(text)}
+								>
+									{preprocessChildren(children)}
+								</h2>
+							)
+						},
+						// @ts-ignore
+						h3({ children }) {
+							const text = getTextFromChildren(children)
+							return (
+								// biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
+								<h3
+									className="mb-2 text-lg font-bold cursor-pointer clickable-heading"
+									onClick={() => handleClickableClick(text)}
+								>
+									{preprocessChildren(children)}
+								</h3>
+							)
+						},
+						// Process strong/emphasis nodes.
+						// @ts-ignore
+						strong({ children }) {
+							return <strong>{preprocessChildren(children)}</strong>
+						},
+						// List handling.
+						// @ts-ignore
+						ul({ children }) {
+							return <ul className="ml-2 space-y-2 list-disc">{children}</ul>
+						},
+						// @ts-ignore
+						ol({ children }) {
+							return <ol className="ml-2 space-y-2 list-decimal">{children}</ol>
+						},
+						// @ts-ignore
+						li({ children }) {
+							const processedChildren = preprocessChildren(children)
+							const text = getTextFromChildren(processedChildren)
+							const hasNestedList = React.Children.toArray(
+								processedChildren,
+							).some(
+								(child) =>
+									React.isValidElement(child) &&
+									(child.type === 'ul' || child.type === 'ol'),
+							)
 
-								return (
-									// biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
-									<li
-										className={cn(
-											'ml-4',
-											hasNestedList && 'mt-2',
-											'clickable-list-heading',
-										)}
-										onClick={() => handleClickableClick(text)}
-									>
-										{processedChildren}
-									</li>
-								)
-							},
-							// Process link nodes.
+							return (
+								// biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
+								<li
+									className={cn(
+										'ml-4',
+										hasNestedList && 'mt-2',
+										'clickable-list-heading',
+									)}
+									onClick={() => handleClickableClick(text)}
+								>
+									{processedChildren}
+								</li>
+							)
+						},
+						// Process link nodes.
+						// @ts-ignore
+						a({ href, children, ...props }) {
+							return (
+								<a
+									className="text-blue-500 underline"
+									target="_blank"
+									rel="noopener noreferrer"
+									href={href}
+									{...props}
+								>
+									{children}
+								</a>
+							)
+						},
+						// Process code blocks.
+						// @ts-ignore
+						code({ inline, className, children, ...props }) {
 							// @ts-ignore
-							a({ href, children, ...props }) {
-								return (
-									<a
-										className="text-blue-500 underline"
-										target="_blank"
-										rel="noopener noreferrer"
-										href={href}
-										{...props}
-									>
-										{children}
-									</a>
-								)
-							},
-							// Process code blocks.
-							// @ts-ignore
-							code({ inline, className, children, ...props }) {
-								if (children.length) {
-									if (children[0] === '▍') {
-										return (
-											<span className="mt-1 cursor-default animate-pulse">
-												▍
-											</span>
-										)
-									}
-									children[0] = (children[0] as string).replace('▍', '▍')
-								}
-
-								const match = /language-(\w+)/.exec(className || '')
-								if (inline) {
+							if (children.length) {
+								// @ts-ignore
+								if (children[0] === '▍') {
 									return (
-										<code className={className} {...props}>
-											{children}
-										</code>
+										<span className="mt-1 cursor-default animate-pulse">▍</span>
 									)
 								}
+							}
+
+							const match = /language-(\w+)/.exec(className || '')
+							if (inline) {
 								return (
-									<CodeBlock
-										key={Math.random()}
-										language={match?.[1] || ''}
-										value={String(children).replace(/\n$/, '')}
-										{...props}
-									/>
+									<code className={className} {...props}>
+										{children}
+									</code>
 								)
-							},
-						} as unknown as Partial<
-							Omit<NormalComponents, keyof SpecialComponents> &
-								SpecialComponents
-						>
-					}
+							}
+							return (
+								<CodeBlock
+									key={Math.random()}
+									language={match?.[1] || ''}
+									value={String(children).replace(/\n$/, '')}
+									{...props}
+								/>
+							)
+						},
+					}}
 				>
 					{cleanMessage.content}
 				</MemoizedReactMarkdown>
