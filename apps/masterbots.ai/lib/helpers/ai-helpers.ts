@@ -41,7 +41,7 @@ export function getModelClientType(model: AIModels) {
 export function createPayload(
 	json: { id: string },
 	messages: { content: string }[],
-	completion: any,
+	completion: string,
 ) {
 	const title = messages[0]?.content.substring(0, 100)
 	const id = json.id ?? generateId()

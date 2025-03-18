@@ -68,7 +68,14 @@ export function Plans({ next, goTo }: PlansPros) {
 		if (del) return router.push('/c')
 	}
 
-	const handleSubscription = async (plan: any) => {
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	const handleSubscription = async (plan: {
+		planId: string | undefined
+		trialPeriodDays: number
+		automatic_payment_methods: { enabled: boolean }
+		email: string
+		name: string
+	}) => {
 		const response = await fetch('/api/payment/intent', {
 			method: 'POST',
 			headers: {

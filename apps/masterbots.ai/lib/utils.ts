@@ -15,7 +15,7 @@ export const nanoid = customAlphabet(
 	7,
 ) // 7-character random string
 
-export async function fetcher<JSON = any>(
+export async function fetcher<JSON>(
 	input: RequestInfo,
 	init?: RequestInit,
 ): Promise<JSON> {
@@ -115,6 +115,7 @@ const findNextAssistantMessage = (
 }
 
 export const readingTime = (messages: { content: string }[]) => {
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	let contentGroup: any = []
 
 	for (let i = 0; i <= messages?.length; i++) {
@@ -213,6 +214,7 @@ export function getCurrentOrTargetDate() {
 	})
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export function getKeyByValue(map: any, searchValue: string) {
 	for (const [key, value] of map.entries()) {
 		if (value === searchValue) {
