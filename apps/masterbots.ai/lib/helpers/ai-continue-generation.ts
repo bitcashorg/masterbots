@@ -101,11 +101,15 @@ export async function continueAIGeneration(
 						'Your previous response was cut off. Please continue exactly where you left off without summarizing or repeating what you already said.',
 				}
 			} else {
-				//? Final attempt: provides a specific reference point
+				//? Final attempt: provides a specific reference point with dynamic length
+				const referenceLength = Math.min(
+					100,
+					Math.floor(continuedContent.length * 0.1),
+				) //? Use the last 10% of the message, with a max of 100 characters
 				continuationPrompt = {
 					id: nanoid(),
 					role: 'user',
-					content: `I need the rest of your explanation. Your last message ended with: "${continuedContent.slice(-100)}". Please continue from there.`,
+					content: `I need the rest of your explanation. Your last message ended with: "${continuedContent.slice(-referenceLength)}". Please continue from there.`,
 				}
 			}
 
