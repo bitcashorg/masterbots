@@ -330,15 +330,22 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				let userMessageSlug = toSlug(curatedPreUserMessageSlug)
 				let userSlugCheck = await doesMessageSlugExist(userMessageSlug)
 
+				// Create a throttled version of the slug check function outside the loop to avoid creating a new function
+				// on each iteration, increase performance and infinite loop prevention.
+				const throttledCheckSlug = throttle(async (baseSlug, sequence) => {
+					const newSlug = toSlug(`${baseSlug} ${sequence}`)
+					return await doesMessageSlugExist(newSlug)
+				}, 250)
+
 				// If user message slug already exists, append a counter
 				while (userSlugCheck.exists) {
-					// Throttle the request to avoid too many requests and potential infinite loop when getting the slug
-					throttle(async () => {
-						userMessageSlug = toSlug(
-							`${curatedPreUserMessageSlug} ${userSlugCheck.sequence + 1}`,
-						)
-						userSlugCheck = await doesMessageSlugExist(userMessageSlug)
-					}, 250)()
+					userMessageSlug = toSlug(
+						`${curatedPreUserMessageSlug} ${userSlugCheck.sequence + 1}`,
+					)
+					userSlugCheck = await throttledCheckSlug(
+						curatedPreUserMessageSlug,
+						userSlugCheck.sequence + 1,
+					)
 				}
 
 				// We need to check for a unique slug for assistant message as well
@@ -348,14 +355,13 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 				// If assistant message slug already exists, append a counter
 				while (assistantSlugCheck.exists) {
-					// Throttle the request to avoid too many requests and potential infinite loop when getting the slug
-					throttle(async () => {
-						assistantMessageSlug = toSlug(
-							`${message.content} ${assistantSlugCheck.sequence + 1}`,
-						)
-						assistantSlugCheck =
-							await doesMessageSlugExist(assistantMessageSlug)
-					}, 250)()
+					assistantMessageSlug = toSlug(
+						`${message.content} ${assistantSlugCheck.sequence + 1}`,
+					)
+					assistantSlugCheck = await throttledCheckSlug(
+						message.content,
+						assistantSlugCheck.sequence + 1,
+					)
 				}
 
 				const [

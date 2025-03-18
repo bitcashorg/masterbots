@@ -1,15 +1,12 @@
 import { ChatMessageActions } from '@/components/routes/chat/chat-message-actions'
 import { MemoizedReactMarkdown } from '@/components/shared/markdown'
 import { CodeBlock } from '@/components/ui/codeblock'
-import {
-	cleanClickableText,
-	extractFollowUpContext,
-	getTextFromChildren,
-} from '@/lib/chat-clickable-text'
+import { getTextFromChildren } from '@/lib/chat-clickable-text'
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { cn } from '@/lib/utils'
 import type { ChatMessageProps } from '@/types/types'
 import type { Message } from 'ai'
+import { appConfig } from 'mb-env'
 import type { Message as MBMessage } from 'mb-genql'
 import React from 'react'
 import remarkGfm from 'remark-gfm'
@@ -83,10 +80,16 @@ export function ReasoningChatMessage({
 
 	// Handler for clickable text elements.
 	const handleClickableClick = (clickableText: string) => {
-		const context = extractFollowUpContext(message.content, clickableText)
-		const cleanedText = cleanClickableText(context)
-		const followUpPrompt = `Explain more in-depth and in detail about "${clickableText}"? ${cleanedText}`
-		sendMessageFromResponse?.(followUpPrompt)
+		if (appConfig.features.devMode) {
+			console.info(
+				'Feature Temporarily Disabled. Reason: Redundant function in relation of the LLM model answer. We might need to clean this.',
+			)
+		}
+		return null
+		// const context = extractFollowUpContext(message.content, clickableText)
+		// const cleanedText = cleanClickableText(context)
+		// const followUpPrompt = `Explain more in-depth and in detail about "${clickableText}"? ${cleanedText}`
+		// sendMessageFromResponse?.(followUpPrompt)
 	}
 
 	return (
@@ -260,9 +263,10 @@ export function ReasoningChatMessage({
 										</code>
 									)
 								}
+								const codeBlockKey = `code-${match?.[1] || ''}-${String(children).substring(0, 20).replace(/\n$/, '').replace(/\s/g, '-')}`
 								return (
 									<CodeBlock
-										key={Math.random()}
+										key={codeBlockKey}
 										language={match?.[1] || ''}
 										value={String(children).replace(/\n$/, '')}
 										{...props}
