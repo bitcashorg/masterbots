@@ -6,7 +6,7 @@ DECLARE
   result text := '';
   word text;
   word_count integer := 0;
-  max_words integer := 10;
+  max_words integer := 7;
   filtered_words text[];
 BEGIN
   -- Convert text to lowercase and split into words

@@ -44,9 +44,7 @@ export function UserLogin() {
 function LoginButton() {
 	return (
 		<Button variant="link" asChild className="-ml-2">
-			<Link href="/auth/signin" rel="canonical">
-				Login
-			</Link>
+			<Link href="/auth/signin">Login</Link>
 		</Button>
 	)
 }

@@ -7,16 +7,17 @@ import {
 	getUserBySlug,
 	getUserInfoFromBrowse,
 } from '@/services/hasura'
+import type { PageProps } from '@/types/types'
 import type { Thread, User } from 'mb-genql'
 import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 
 export default async function ProfilePage(props: {
-	params: Promise<{ userSlug: string }>
+	params: PageProps['params']
 }) {
 	const params = await props.params
 	let threads: Thread[] = []
-	const slug = params.userSlug
+	const slug = params.userSlug as string
 
 	const session = await getServerSession(authOptions)
 	const { user, error } = await getUserBySlug({
@@ -66,10 +67,10 @@ export default async function ProfilePage(props: {
 }
 
 export async function generateMetadata(props: {
-	params: Promise<{ slug: string }>
+	params: PageProps['params']
 }): Promise<Metadata> {
 	const params = await props.params
-	const user = await getUserInfoFromBrowse(params.slug)
+	const user = await getUserInfoFromBrowse(params.userSlug as string)
 
 	const seoData = {
 		title: user?.username || '',
@@ -79,5 +80,5 @@ export async function generateMetadata(props: {
 		twitterCard: 'summary_large_image',
 	}
 
-	return generateMetadataFromSEO(seoData)
+	return generateMetadataFromSEO(seoData, params)
 }

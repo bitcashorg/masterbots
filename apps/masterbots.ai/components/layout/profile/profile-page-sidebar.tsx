@@ -20,7 +20,7 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 	const openSidebar = pathname.includes('/t')
 	const [isThreadsOpen, setIsThreadsOpen] = useState(openSidebar)
 	const location = useLocation()
-	const { username } = useParams()
+	const { userSlug } = useParams()
 	const { isSidebarOpen, toggleSidebar, setActiveCategory, setActiveChatbot } =
 		useSidebar()
 	const { currentUser, isSameUser } = useProfile()
@@ -28,7 +28,7 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 	const { value: user } = useAsync(async () => {
 		if (currentUser === null) return null
 		return currentUser
-	}, [username, currentUser])
+	}, [userSlug, currentUser])
 
 	const sameUser = isSameUser(user?.userId)
 
@@ -71,10 +71,9 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 						{/* Threads Accordion */}
 						<div className="rounded-lg">
 							<Link
-								rel="canonical"
 								href={urlBuilders.profilesUrl({
 									type: 'user',
-									usernameSlug: username as string,
+									usernameSlug: userSlug as string,
 								})}
 								onClick={handleToggleThreads}
 								className={cn(
@@ -124,8 +123,8 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 							appConfig.features.devMode && (
 								<>
 									<Link
-										// rel="canonical"
-										href={`/u/${username}/s/pref`}
+										//
+										href={`/u/${userSlug}/s/pref`}
 										className={cn(
 											'flex items-center space-x-2 px-4 py-3',
 											'hover:bg-gray-200 dark:hover:bg-mirage transition-colors duration-200',
@@ -138,8 +137,8 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 										<span>Preferences</span>
 									</Link>
 									<Link
-										// rel="canonical"
-										href={`/u/${username}/s/subs`}
+										//
+										href={`/u/${userSlug}/s/subs`}
 										className={cn(
 											'flex items-center space-x-2 px-4 py-3',
 											'hover:bg-gray-200 dark:hover:bg-mirage transition-colors duration-200',

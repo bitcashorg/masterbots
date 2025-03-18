@@ -32,6 +32,6 @@ export async function POST(req: NextRequest) {
 	}
 }
 
-function summarizePaymentDetails(confirmationToken: any) {
+function summarizePaymentDetails(confirmationToken: string) {
 	// Use confirmationToken.payment_method_preview to derive the applicable summary fields for your UI
 }

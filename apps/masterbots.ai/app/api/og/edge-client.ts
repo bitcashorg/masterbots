@@ -55,7 +55,7 @@ export async function getThreadForOG(threadId: UUID) {
 			throw new Error(data.errors[0].message)
 		}
 		return data.data
-	} catch (error: any) {
+	} catch (error) {
 		throw new Error('Unknown error occurred while fetching thread')
 	}
 }
@@ -90,7 +90,7 @@ export async function getChatbotForOG(chatbotId: UUID) {
                   category {
                     name
                   }
-                }
+                }l
               }
             }
           `,
@@ -102,7 +102,7 @@ export async function getChatbotForOG(chatbotId: UUID) {
 			throw new Error(data.errors[0].message)
 		}
 		return data.data
-	} catch (error: any) {
+	} catch (error) {
 		throw new Error('Unknown error occurred while fetching chatbot')
 	}
 }

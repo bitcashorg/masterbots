@@ -505,7 +505,22 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	) => {
 		setLoadingState('digesting')
 
-		const userPrompt = cleanPrompt(userMessage.content)
+		let previousAiUserMessages: AiMessage[] = []
+
+		if (activeThread?.thread) {
+			previousAiUserMessages = activeThread.thread.messages
+				.map((msg) => ({
+					id: msg.messageId,
+					role: msg.role as AiMessage['role'],
+					content: msg.content,
+					createdAt: msg.createdAt,
+				}))
+				.filter((msg) => msg.role === 'user')
+		}
+		const userPrompt = {
+			content: userMessage.content,
+			allUserMessages: previousAiUserMessages.concat(allMessages),
+		}
 		const { content, error } = await processUserMessage(
 			userPrompt,
 			clientType as AiClientType,
@@ -517,7 +532,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 			updateActiveThread(
 				{
 					...thread,
-					messages: thread.messages.filter((m) => m.content !== userPrompt),
+					messages: thread.messages.filter(
+						(m) => m.content !== userPrompt.content,
+					),
 				},
 				true,
 			)
@@ -746,7 +763,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				{
 					...userMessage,
 					content: isNewChat
-						? userContentRef.current
+						? userContentRef.current // improved user message
 						: followingQuestionsPrompt(
 								userContentRef.current,
 								previousAiUserMessages.concat(allMessages),

@@ -19,14 +19,14 @@
  * - Integration with Services: Uses the `getBrowseThreads` service to fetch threads based on the query.
  */
 
-import React, { useEffect } from 'react'
-import { getBrowseThreads } from '@/services/hasura'
-import type { Thread } from 'mb-genql'
 import BrowseListItem from '@/components/routes/browse/browse-list-item'
-import { useBrowse } from '@/lib/hooks/use-browse'
-import { debounce } from 'lodash'
-import { searchThreadContent } from '@/lib/search'
 import { NoResults } from '@/components/shared/no-results-card'
+import { useBrowse } from '@/lib/hooks/use-browse'
+import { searchThreadContent } from '@/lib/search'
+import { getBrowseThreads } from '@/services/hasura'
+import { debounce } from 'lodash'
+import type { Thread } from 'mb-genql'
+import React, { useEffect } from 'react'
 
 export default function BrowseSpecificThreadList({
 	initialThreads,
@@ -39,12 +39,12 @@ export default function BrowseSpecificThreadList({
 	PAGE_SIZE: number
 	pageType?: string
 }) {
-  const [threads, setThreads] = React.useState<Thread[]>(initialThreads)
-  const [loading, setLoading] = React.useState<boolean>(false)
-  const [count, setCount] = React.useState<number>(initialThreads.length)
-  const [storeThreads, setStoreThreads] =
-    React.useState<Thread[]>(initialThreads)
-  const { keyword } = useBrowse()
+	const [threads, setThreads] = React.useState<Thread[]>(initialThreads)
+	const [loading, setLoading] = React.useState<boolean>(false)
+	const [count, setCount] = React.useState<number>(initialThreads.length)
+	const [storeThreads, setStoreThreads] =
+		React.useState<Thread[]>(initialThreads)
+	const { keyword } = useBrowse()
 
 	const loadMore = async () => {
 		console.log('🟡 Loading More Content')
@@ -56,49 +56,51 @@ export default function BrowseSpecificThreadList({
 			offset: threads.length,
 		})
 
-    setThreads(prevState => [...prevState, ...moreThreads])
-    setCount(moreThreads.length)
-    setLoading(false)
-    setStoreThreads(moreThreads)
-  }
+		setThreads((prevState) => [...prevState, ...moreThreads])
+		setCount(moreThreads.length)
+		setLoading(false)
+		setStoreThreads(moreThreads)
+	}
 
-  const verifyKeyword = () => {
-    setLoading(true)
+	const verifyKeyword = () => {
+		setLoading(true)
 
-    if (!keyword) {
-      setThreads(threads)
-    } else {
-      debounce(() => {
-        const searchResult = storeThreads.filter((thread: Thread) =>
-          searchThreadContent(thread, keyword)
-        )
-        setThreads(searchResult)
-      }, 230)()
-    }
-    setLoading(false)
-  }
+		if (!keyword) {
+			setThreads(threads)
+		} else {
+			debounce(() => {
+				const searchResult = storeThreads.filter((thread: Thread) =>
+					searchThreadContent(thread, keyword),
+				)
+				setThreads(searchResult)
+			}, 230)()
+		}
+		setLoading(false)
+	}
 
-  useEffect(() => {
-    if (keyword) {
-      verifyKeyword()
-    }
-  }, [keyword])
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
+		if (keyword) {
+			verifyKeyword()
+		}
+	}, [keyword])
 
-  return (
-    <div className="flex flex-col max-w-screen-lg px-4 mx-auto mt-8 gap-y-4">
-      {threads.map((thread: Thread, key) => (
-        <BrowseListItem
-          pageType={pageType}
-          thread={thread}
-          key={key}
-          loading={loading}
-          loadMore={loadMore}
-          hasMore={count === PAGE_SIZE}
-          isLast={key === threads.length - 1}
-        />
-      ))}
+	return (
+		<div className="flex flex-col max-w-screen-lg px-4 mx-auto mt-8 gap-y-4">
+			{threads.map((thread: Thread, key) => (
+				<BrowseListItem
+					pageType={pageType}
+					thread={thread}
+					// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+					key={key}
+					loading={loading}
+					loadMore={loadMore}
+					hasMore={count === PAGE_SIZE}
+					isLast={key === threads.length - 1}
+				/>
+			))}
 
-      {threads.length === 0 && !loading && keyword && <NoResults />}
-    </div>
-  )
+			{threads.length === 0 && !loading && keyword && <NoResults />}
+		</div>
+	)
 }

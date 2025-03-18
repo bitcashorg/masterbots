@@ -170,12 +170,12 @@ export default function BrowseList({
 		setIsOpenPopup(true)
 	}
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  React.useEffect(() => {
-    // if (isEqual(threads, filteredThreads)) return
-     verifyKeyword()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [keyword, threads])
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	React.useEffect(() => {
+		// if (isEqual(threads, filteredThreads)) return
+		verifyKeyword()
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [keyword, threads])
 	// biome-ignore lint/correctness/useExhaustiveDependencies: I only need to run this effect when the activeThread changes
 	useEffect(() => {
 		if (activeThread) return
@@ -185,13 +185,13 @@ export default function BrowseList({
 		const isPublic = getRouteType(pathname) === 'public'
 		const isProfile = getRouteType(pathname) === 'profile'
 
-		const [, _category, _domain, _chatbot, _threadSlug, threadQuestionSlug] =
+		const [, _category, _domain, _chatbot, threadSlug, threadQuestionSlug] =
 			pathNameParts
 		const [
 			,
 			_chatbotProfileRootBase,
 			_chatbotProfileChatbotName,
-			_chatbotProfileThreadSlug,
+			chatbotProfileThreadSlug,
 			chatbotProfileThreadQuestionSlug,
 		] = pathNameParts
 		const thread = threads.find((thread) =>
@@ -204,7 +204,9 @@ export default function BrowseList({
 		if (
 			thread &&
 			((threadQuestionSlug && isPublic) ||
-				(chatbotProfileThreadQuestionSlug && isProfile))
+				(chatbotProfileThreadQuestionSlug && isProfile) ||
+				(threadSlug && isPublic) ||
+				(chatbotProfileThreadSlug && isProfile))
 		) {
 			console.log(
 				'scrolling to',

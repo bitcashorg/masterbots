@@ -19,7 +19,7 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn, createMessagePairs, getRouteType } from '@/lib/utils'
 import type { Chatbot, Message, User } from 'mb-genql'
 import { toSlug } from 'mb-lib'
-import { usePathname } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 import React, { useCallback, useEffect } from 'react'
 
 export function BrowseChatMessageList({
@@ -104,39 +104,34 @@ export function BrowseMessagePairs({
 }) {
 	const { navigateTo } = useSidebar()
 	const pathname = usePathname()
+	const params = useParams()
 	const isPublic = getRouteType(pathname) === 'public'
 	const isProfile = getRouteType(pathname) === 'profile'
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: We need to read the pathname only each time it changes
 	useEffect(() => {
-		const [, _category, _domain, _chatbot, _threadSlug, threadQuestionSlug] =
-			window.location.pathname.split('/')
-		if (threadQuestionSlug && isPublic) {
-			const $questionElement = document.getElementById(threadQuestionSlug)
+		if (!params.threadQuestionSlug) return
 
-			if (!$questionElement) return
+		const $questionElement = document.getElementById(
+			params.threadQuestionSlug as string,
+		)
 
-			$questionElement.scrollIntoView()
+		if (!$questionElement) return
+
+		const timeout = setTimeout(() => {
+			const scrollBehavior =
+				$questionElement.offsetHeight > window.innerHeight - 144
+					? 'start'
+					: 'center'
+			$questionElement.scrollIntoView({
+				behavior: 'smooth',
+				block: scrollBehavior,
+				inline: 'center',
+			})
 			$questionElement.focus()
-		}
-		const [
-			,
-			_chatbotProfileRootBase,
-			_chatbotProfileChatbotName,
-			_chatbotProfileThreadSlug,
-			chatbotProfileThreadQuestionSlug,
-		] = window.location.pathname.split('/')
-		if (chatbotProfileThreadQuestionSlug && isProfile) {
-			const $questionElement = document.getElementById(
-				chatbotProfileThreadQuestionSlug,
-			)
 
-			if (!$questionElement) return
-
-			$questionElement.scrollIntoView()
-			$questionElement.focus()
-		}
-	}, [pathname])
+			clearTimeout(timeout)
+		}, 500)
+	}, [params])
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const toggleThreadQuestionUrl = useCallback((isOpen: boolean) => {
@@ -188,7 +183,9 @@ export function BrowseMessagePairs({
 	return (
 		<SharedAccordion
 			defaultState={true}
-			isOpen={index === 0}
+			isOpen={
+				index === 0 || params.threadQuestionSlug === pair.userMessage.slug
+			}
 			disabled={index === 0}
 			isNestedThread={true}
 			variant="browse"
