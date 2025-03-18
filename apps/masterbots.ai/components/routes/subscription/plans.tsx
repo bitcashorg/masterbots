@@ -68,7 +68,6 @@ export function Plans({ next, goTo }: PlansPros) {
 		if (del) return router.push('/c')
 	}
 
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	const handleSubscription = async (plan: {
 		planId: string | undefined
 		trialPeriodDays: number
