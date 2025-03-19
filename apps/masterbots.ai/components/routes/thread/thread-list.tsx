@@ -82,9 +82,9 @@ export default function ThreadList({
 		} catch (error) {
 			console.error('Error activating thread popup:', error)
 			customSonner({ type: 'error', text: 'Error activating thread popup' })
+		} finally {
+			setLoadingThread(false)
 		}
-
-		setLoadingThread(false)
 	}
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: I only need to run this effect when the activeThread changes
@@ -101,8 +101,6 @@ export default function ThreadList({
 			threadSlug,
 			threadQuestionSlug,
 		] = pathNameParts
-
-		console.log('pathNameParts', pathNameParts)
 
 		const thread = filteredThreads.find((thread) =>
 			thread.messages.find(

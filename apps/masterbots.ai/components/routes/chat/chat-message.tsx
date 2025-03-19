@@ -10,8 +10,9 @@ import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { cn } from '@/lib/utils'
 import type { ChatMessageProps, WebSearchResult } from '@/types/types'
 import React, { useState } from 'react'
+import rehypeMathJax from 'rehype-mathjax'
 import remarkGfm from 'remark-gfm'
-import remarkMath from 'remark-math'
+import remarkRehype from 'remark-rehype'
 
 /**
  * Preprocesses the children to combine adjacent nodes with a colon.
@@ -135,7 +136,7 @@ export function ChatMessage({
 			<div className="flex-1 pr-1 space-y-2 overflow-hidden">
 				<MemoizedReactMarkdown
 					className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
-					remarkPlugins={[remarkGfm, remarkMath]}
+					remarkPlugins={[remarkGfm, rehypeMathJax, remarkRehype]}
 					components={{
 						// Process paragraph nodes.
 						// @ts-ignore

@@ -12,8 +12,9 @@ import type { ChatMessageProps } from '@/types/types'
 import type { Message } from 'ai'
 import type { Message as MBMessage } from 'mb-genql'
 import React from 'react'
+import rehypeMathJax from 'rehype-mathjax'
 import remarkGfm from 'remark-gfm'
-import remarkMath from 'remark-math'
+import remarkRehype from 'remark-rehype'
 
 // extract reasoning content
 export function extractReasoningContent(
@@ -129,7 +130,7 @@ export function ReasoningChatMessage({
 					</div>
 					<MemoizedReactMarkdown
 						className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
-						remarkPlugins={[remarkGfm, remarkMath]}
+						remarkPlugins={[remarkGfm, rehypeMathJax, remarkRehype]}
 						components={{
 							// Process paragraph nodes.
 							// @ts-ignore
