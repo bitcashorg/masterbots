@@ -65,38 +65,43 @@ export default function SidebarLink({
 			)
 			// TODO: Pasar estos side-effect a una nueva función que se llame handleCategoryClick para sí evitar errores de hidratación y actualización de estado
 			// ! Asegurarse que no estamos repitiendo este patrón con otro setState...
-			setActiveCategory((prev) => {
-				setActiveChatbot(null)
+			setActiveChatbot(null)
 
-				const newCategory =
-					prev === category.categoryId ? null : category.categoryId
+			const newCategory =
+				activeCategory === category.categoryId ? null : category.categoryId
 
-				if (!newCategory) {
-					router.push('/')
-				}
+			if (!newCategory && page !== 'profile') {
+				router.push('/')
+			} else if (!newCategory && page === 'profile') {
+				navigateTo({
+					urlType: 'profilesUrl',
+					navigationParams: {
+						type: 'user',
+						usernameSlug: userSlug as string,
+					},
+				})
+			}
 
+			if (page === 'profile' && newCategory) {
 				// ? Only the profile user has a sidebar
-				if (page === 'profile' && newCategory) {
-					navigateTo({
-						urlType: 'userTopicThreadListUrl',
-						navigationParams: {
-							type: 'user',
-							usernameSlug: userSlug as string,
-							category: category.name,
-						} as UserTopicThreadListUrlParams,
-					})
-				} else if (newCategory) {
-					navigateTo({
-						urlType: 'topicThreadListUrl',
-						navigationParams: {
-							type: isPublic ? 'public' : 'personal',
-							category: category.name,
-						} as TopicThreadListUrlParams,
-					})
-				}
-
-				return newCategory
-			})
+				navigateTo({
+					urlType: 'userTopicThreadListUrl',
+					navigationParams: {
+						type: 'user',
+						usernameSlug: userSlug as string,
+						category: category.name,
+					} as UserTopicThreadListUrlParams,
+				})
+			} else if (newCategory) {
+				navigateTo({
+					urlType: 'topicThreadListUrl',
+					navigationParams: {
+						type: isPublic ? 'public' : 'personal',
+						category: category.name,
+					} as TopicThreadListUrlParams,
+				})
+			}
+			setActiveCategory(newCategory)
 		},
 		[router, isPublic, category, isFilterMode],
 	)

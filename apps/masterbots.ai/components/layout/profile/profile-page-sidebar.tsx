@@ -14,7 +14,6 @@ import { useState } from 'react'
 import { useAsync, useLocation } from 'react-use'
 import FooterCT from '../footer/footer-ct'
 import Sidebar from '../sidebar/sidebar'
-import { SidebarCategoryGeneral } from '../sidebar/sidebar-category-general'
 
 export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 	const pathname = usePathname()
@@ -117,7 +116,7 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 									},
 								)}
 							>
-								<Sidebar />
+								<Sidebar page="profile" />
 							</div>
 						</div>
 						{sameUser &&

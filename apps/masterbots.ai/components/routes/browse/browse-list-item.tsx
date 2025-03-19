@@ -8,8 +8,7 @@ import { useBrowse } from '@/lib/hooks/use-browse'
 import { useThreadSearch } from '@/lib/hooks/use-thread-search'
 import { searchThreadContent } from '@/lib/search'
 import { urlBuilders } from '@/lib/url'
-import { cn, sleep } from '@/lib/utils'
-import { getMessages } from '@/services/hasura'
+import { cn } from '@/lib/utils'
 import type { Message, Thread } from 'mb-genql'
 import Image from 'next/image'
 import { useParams, useRouter } from 'next/navigation'
@@ -81,53 +80,6 @@ export default function BrowseListItem({
 		}
 	}, [isLast, hasMore, loading])
 
-	const fetchMessages = async () => {
-		const messages = await getMessages({ threadId: thread.threadId })
-		setMessages((_prev) => messages)
-	}
-
-	const updateUrlN = () => {
-		const url = new URL(window.location.href)
-
-		if (pageType === 'profile') {
-			url.pathname = urlBuilders.profilesThreadUrl({
-				type: 'chatbot',
-				domain: thread?.chatbot?.categories[0]?.category?.name,
-				chatbot: thread?.chatbot?.name,
-				threadSlug: thread.slug,
-			})
-		} else {
-			url.pathname = urlBuilders.threadUrl({
-				type: 'public',
-				category: thread?.chatbot?.categories[0]?.category?.name,
-				domain: thread?.chatbot?.metadata[0]?.domainName,
-				chatbot: thread?.chatbot?.name,
-				threadSlug: thread.slug,
-			})
-		}
-
-		// Update just the URL without triggering navigation
-		window.history.replaceState(window.history.state, '', url.toString())
-	}
-
-	const handleAccordionToggle = async (isOpen: boolean) => {
-		if (isOpen) {
-			setMessages((_prev) => [])
-			await fetchMessages()
-			updateUrlN()
-			// When toggling accordion, it should scroll
-			// Use optional chaining to ensure scrollIntoView is called only if current is not null
-			await sleep(300) // animation time
-			threadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-			setIsAccordionOpen(isOpen)
-		} else {
-			window.history.replaceState({}, '', initialUrl)
-		}
-		await sleep(300)
-		threadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-		setIsAccordionOpen(isOpen)
-	}
-
 	const goToBotPage = (e: React.MouseEvent) => {
 		e.preventDefault()
 		e.stopPropagation()
@@ -150,8 +102,6 @@ export default function BrowseListItem({
 	return (
 		<div ref={threadRef}>
 			<SharedAccordion
-				onToggle={handleAccordionToggle}
-				isOpen={isAccordionOpen}
 				className="relative"
 				contentClass="!pt-0 max-h-[70vh] scrollbar"
 				triggerClass="dark:hover:bg-mirage hover:bg-gray-300 pl-[8px]

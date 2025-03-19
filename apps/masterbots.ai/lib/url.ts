@@ -503,7 +503,7 @@ export const urlBuilders = {
 		raw = false,
 	}: ProfilesThreadUrlUserParams | ProfilesThreadUrlChatbotParams): string {
 		try {
-			if (!chatbot || !domain || !threadSlug) {
+			if (!chatbot || !threadSlug) {
 				const mainEntries = { chatbot, domain, threadSlug }
 				const missing = Object.entries(mainEntries)
 					.filter(([_, value]) => !value)
@@ -516,8 +516,8 @@ export const urlBuilders = {
 
 			switch (type) {
 				case 'user': {
-					if (!usernameSlug || !category) {
-						const userEntries = { category, usernameSlug }
+					if (!usernameSlug || !domain || !category) {
+						const userEntries = { category, usernameSlug, domain }
 						const missing = Object.entries(userEntries)
 							.filter(([_, value]) => !value)
 							.map(([key]) => key)
@@ -540,7 +540,7 @@ export const urlBuilders = {
 					].join('/')
 				}
 				case 'chatbot': {
-					return ['', 'b', toSlug(chatbot), domain, threadSlug].join('/')
+					return ['', 'b', toSlug(chatbot), threadSlug].join('/')
 				}
 				default: {
 					console.error('Invalid profile URL type:', type)
