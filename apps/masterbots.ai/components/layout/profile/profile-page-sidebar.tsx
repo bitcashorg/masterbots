@@ -13,6 +13,7 @@ import { useParams, usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { useAsync, useLocation } from 'react-use'
 import FooterCT from '../footer/footer-ct'
+import Sidebar from '../sidebar/sidebar'
 import { SidebarCategoryGeneral } from '../sidebar/sidebar-category-general'
 
 export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
@@ -34,6 +35,7 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 
 	const handleToggleThreads = () => {
 		if (!sameUser) return
+		console.log('isThreadsOpen', !isThreadsOpen)
 		setIsThreadsOpen(!isThreadsOpen)
 		setActiveCategory(null)
 		setActiveChatbot(null)
@@ -115,7 +117,8 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 									},
 								)}
 							>
-								<SidebarCategoryGeneral page="profile" />
+								{/* <SidebarCategoryGeneral page="profile" /> */}
+								<Sidebar />
 							</div>
 						</div>
 						{sameUser &&
