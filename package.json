@@ -44,6 +44,7 @@
 	"dependencies": {
 		"@ai-sdk/groq": "^1.1.14",
 		"axios": "^1.7.7",
+		"rehype-mathjax": "^7.1.0",
 		"slugify": "^1.6.6"
 	}
 }
