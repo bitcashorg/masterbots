@@ -79,7 +79,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 	)
 	const [selectedChatbots, setSelectedChatbots] = React.useState<number[]>([])
 	const { data: session } = useSession()
-	const { slug } = useParams()
+	const { userSlug } = useParams()
 	const pathname = usePathname()
 	const router = useRouter()
 	const prevPath = React.useRef<string | null>(null)
@@ -90,9 +90,9 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 		error,
 	} = useAsync(async () => {
 		let userId = null
-		if (slug) {
+		if (userSlug) {
 			const { user, error } = await getUserBySlug({
-				slug: slug as string,
+				slug: userSlug as string,
 				isSameUser: false,
 			})
 			if (error) throw error
