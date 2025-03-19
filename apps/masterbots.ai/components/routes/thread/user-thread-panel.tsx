@@ -38,6 +38,7 @@ import { PAGE_SIZE, PAGE_SM_SIZE } from '@/lib/constants/hasura'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
+import { searchThreadContent } from '@/lib/search'
 import { cn } from '@/lib/utils'
 import {
 	getBrowseThreads,
@@ -45,11 +46,12 @@ import {
 	getThreads,
 	getUserBySlug,
 } from '@/services/hasura'
+import { debounce } from 'lodash'
 import type { Thread, User } from 'mb-genql'
 import type { Session } from 'next-auth'
 import { useSession } from 'next-auth/react'
 import { useParams, usePathname, useSearchParams } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useAsync, useSetState } from 'react-use'
 
 // TODO: this is a hard to understand file since it tries to focus in too many different aspects
@@ -65,10 +67,10 @@ export default function UserThreadPanel({
 	page?: string
 }) {
 	const params = useParams<{
-		userSlug?: string
 		category?: string
 		chatbot?: string
-		threadSlug?: string
+		threadId?: string
+		slug?: string
 	}>()
 	const { data: session } = useSession()
 	const { activeCategory, activeChatbot, setActiveChatbot } = useSidebar()
@@ -89,18 +91,19 @@ export default function UserThreadPanel({
 	} = useThreadVisibility()
 	const [searchTerm, setSearchTerm] = useState<string>('')
 	const searchParams = useSearchParams()
-	const { userSlug, category, chatbot } = params
+	const { slug, category, chatbot } = params
 	const continuousThreadId = searchParams.get('continuousThreadId')
+	const [storeThreads, setStoreThreads] = useState<Thread[]>(initialThreads)
+	const fetchIdRef = useRef<number>(0)
 
 	const userWithSlug = useAsync(async () => {
-		if (!userSlug) return { user: null }
-		if (userProps) return { user: userProps }
+		if (!slug) return { user: null }
 		const result = await getUserBySlug({
-			slug: userSlug,
-			isSameUser: session?.user?.slug === userSlug,
+			slug,
+			isSameUser: session?.user?.slug === slug,
 		})
 		return result
-	}, [userSlug, userProps])
+	}, [slug])
 
 	const prevPathRef = useRef('')
 	const pathname = usePathname()
@@ -117,7 +120,7 @@ export default function UserThreadPanel({
 
 	const fetchBrowseThreads = async () => {
 		try {
-			if (!userSlug) return []
+			if (!slug) return []
 			const user = userWithSlug.value?.user
 			if (!user) return []
 			return await getBrowseThreads({
@@ -154,6 +157,9 @@ export default function UserThreadPanel({
 			threads: moreThreads ? [...threads, ...moreThreads] : threads,
 			count: threads.length,
 		})
+		setStoreThreads(
+			moreThreads ? [...storeThreads, ...moreThreads] : storeThreads,
+		)
 		setLoading(false)
 	}
 
@@ -192,6 +198,7 @@ export default function UserThreadPanel({
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (isAdminMode) {
+			setStoreThreads(hookThreads)
 			setState({
 				threads: hookThreads,
 				totalThreads: hookThreads.length,
@@ -201,10 +208,10 @@ export default function UserThreadPanel({
 	}, [hookThreads])
 
 	const threads =
-		state.threads.length > initialThreads.length || isAdminMode
+		state.threads.length > initialThreads.length || isAdminMode || searchTerm
 			? state.threads
 			: initialThreads
-
+	const allthreads = threads
 	const completeLoading = (load: boolean) => {
 		setLoading(load)
 	}
@@ -218,8 +225,6 @@ export default function UserThreadPanel({
 
 		completeLoading(prevPathRef.current !== pathname)
 	}, [initialThreads, pathname, activeChatbot, activeCategory])
-
-	const fetchIdRef = useRef<number>(0)
 
 	const handleThreadsChange = async () => {
 		if (!shouldRefreshThreads) return
@@ -265,20 +270,10 @@ export default function UserThreadPanel({
 			setIsOpenPopup(false)
 			setShouldRefreshThreads(false)
 
-			if (activeThread) {
-				setActiveThread(null)
-			}
-			if (
-				activeChatbot &&
-				((category && !chatbot) || (!category && !chatbot))
-			) {
-				setActiveChatbot(null)
-			}
 			setLoading(false)
 		}
 	}
-
-	// biome-ignore lint/correctness/useExhaustiveDependencies: This effect should run only when the active thread is not in the thread list and we are closing the pop-up.
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (isOpenPopup) return
 
@@ -301,11 +296,48 @@ export default function UserThreadPanel({
 	const searchInputContainerClassName =
 		'flex justify-between py-5 lg:max-w-full'
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	const debouncedSearch = useMemo(
+		() =>
+			debounce((term) => {
+				if (!term) {
+					setState({
+						threads,
+						count: threads.length,
+						totalThreads: threads.length,
+					})
+				} else {
+					const searchResult = storeThreads.filter((thread: Thread) =>
+						searchThreadContent(thread, term),
+					)
+					setState({
+						threads: searchResult,
+						count: searchResult.length,
+						totalThreads: threads.length,
+					})
+				}
+				setLoading(false)
+			}, 230),
+		[storeThreads, threads],
+	)
+
+	const verifyKeyword = () => {
+		setLoading(true)
+		debouncedSearch(searchTerm)
+	}
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
+		if (searchTerm) {
+			verifyKeyword()
+		}
+	}, [searchTerm])
+
 	return (
 		<>
 			{!loading &&
-				threads.length !== 0 &&
-				(page !== 'profile' || (page !== 'profile' && !isContinuousThread)) && (
+				(threads.length !== 0 || searchTerm) &&
+				!isContinuousThread && (
 					<div className={searchInputContainerClassName}>
 						<ThreadSearchInput setThreads={setState} onSearch={setSearchTerm} />
 					</div>

@@ -3,11 +3,15 @@ import { ReasoningChatMessage } from '@/components/routes/chat/reasoning/reasoni
 import { hasReasoning } from '@/lib/helpers/ai-helpers'
 
 type MessageRendererProps = {
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	message: any
 	actionRequired?: boolean
 	sendMessageFromResponse?: (message: string) => void
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	chatbot?: any
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	webSearchResults?: any[]
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	[key: string]: any
 }
 

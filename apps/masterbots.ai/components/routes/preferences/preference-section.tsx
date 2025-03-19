@@ -36,7 +36,7 @@ export function PreferenceSection({
 						<CardContent className="px-4 py-8 flex flex-col justify-center items-center gap-y-4 w-full">
 							{items.map((item, idx) => (
 								<div
-									key={idx}
+									key={item.title}
 									className={cn(
 										'flex justify-between items-center gap-x-5 px-4 border-b border-mirage pb-5 w-full',
 										idx === items.length - 1 ? 'border-none' : '',

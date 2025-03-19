@@ -7,6 +7,7 @@ import * as React from 'react'
 import { useSonner } from './useSonner'
 
 interface profileContextProps {
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	getUserInfo: (username: string) => Promise<any>
 	isSameUser: (userId: string) => boolean
 	updateUserInfo: (
@@ -40,6 +41,7 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
 	const [currentUser, setCurrentUser] = React.useState<User | null>(null)
 	const { customSonner } = useSonner()
 
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	const getUserInfo = async (slug: string): Promise<any> => {
 		if (!slug?.trim()) {
 			throw new Error('Slug is required')

@@ -88,6 +88,8 @@ export async function GET(req: NextRequest) {
 				headers: { 'Content-Type': 'application/json' },
 			},
 		)
+
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	} catch (error: any) {
 		console.error('Error creating subscription:', error)
 		const stripeError = error?.raw || error
@@ -142,6 +144,8 @@ export async function PUT(req: NextRequest) {
 			status: 200,
 			headers: { 'Content-Type': 'application/json' },
 		})
+
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	} catch (error: any) {
 		console.error('Error checking subscription:', error)
 		const stripeError = error?.raw || error
