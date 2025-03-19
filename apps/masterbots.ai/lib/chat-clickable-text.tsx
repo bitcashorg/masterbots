@@ -8,17 +8,17 @@ import React from 'react'
  * @returns The text following the clickable text until the next period.
  */
 export function extractFollowUpContext(
-  content: string,
-  clickableText: string
+	content: string,
+	clickableText: string,
 ): string {
-  const startIdx = content.indexOf(clickableText)
-  if (startIdx === -1) return ''
+	const startIdx = content.indexOf(clickableText)
+	if (startIdx === -1) return ''
 
-  // Get the text following the clickable text.
-  const textAfter = content.slice(startIdx + clickableText.length)
-  const periodIdx = textAfter.indexOf('.')
-  if (periodIdx === -1) return textAfter.trim()
-  return textAfter.slice(0, periodIdx).trim()
+	// Get the text following the clickable text.
+	const textAfter = content.slice(startIdx + clickableText.length)
+	const periodIdx = textAfter.indexOf('.')
+	if (periodIdx === -1) return textAfter.trim()
+	return textAfter.slice(0, periodIdx).trim()
 }
 
 /**
@@ -28,16 +28,19 @@ export function extractFollowUpContext(
  * @returns A plain text string representation.
  */
 export function getTextFromChildren(children: React.ReactNode): string {
-  if (typeof children === 'string') {
-    return children
-  }
-  if (Array.isArray(children)) {
-    return children.map(child => getTextFromChildren(child)).join('')
-  }
-  if (React.isValidElement(children)) {
-    return getTextFromChildren(children.props.children)
-  }
-  return ''
+	if (typeof children === 'string') {
+		return children
+	}
+	if (Array.isArray(children)) {
+		return children.map((child) => getTextFromChildren(child)).join('')
+	}
+	if (React.isValidElement(children)) {
+		return getTextFromChildren(
+			(children as React.ReactElement<{ children?: React.ReactNode }>).props
+				?.children,
+		)
+	}
+	return ''
 }
 
 /**
@@ -48,5 +51,5 @@ export function getTextFromChildren(children: React.ReactNode): string {
  */
 
 export function cleanClickableText(text: string): string {
-  return text.replace(/[,.()[\]]$/, '').trim()
+	return text.replace(/[,.()[\]]$/, '').trim()
 }
