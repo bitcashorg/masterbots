@@ -117,7 +117,6 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 									},
 								)}
 							>
-								{/* <SidebarCategoryGeneral page="profile" /> */}
 								<Sidebar />
 							</div>
 						</div>
