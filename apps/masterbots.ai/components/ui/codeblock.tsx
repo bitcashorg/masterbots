@@ -9,7 +9,8 @@ import { Prism as SyntaxHighlighterComponent } from 'react-syntax-highlighter'
 import { coldarkDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 
 // Use type assertion to fix React version incompatibility
-const SyntaxHighlighter = SyntaxHighlighterComponent
+const SyntaxHighlighter =
+	SyntaxHighlighterComponent as unknown as React.ComponentType<any>
 
 interface Props {
 	language: string
