@@ -1,48 +1,65 @@
+import slugify from 'slugify'
+import { slugWordExtension, wordsToRemove } from '../constants'
+
+slugify.extend(slugWordExtension)
+
 /**
  * Return a slugified copy of a string.
  *
  * @param {string} str The string to be slugified
  * @return {string} The slugified string.
  */
-export function toSlug(str: string): string {
-  let s = str;
-  if (!s) {
-    return "";
-  }
-  s = s.toLowerCase().trim();
-  s = s.replace(/ & /g, "_n_");
-  s = s.replace(/&/g, "n");
-  s = s.replace(/[ ]+/g, "-");
-  s = s.replace(/[-]+/g, "-");
-  s = s.replace(/[^a-z0-9-]+/g, "");
-  return s;
+export function toSlug(str: string, maxWords = 7): string {
+	if (!str) {
+		return ''
+	}
+
+	const preSlug = slugify(str, {
+		lower: true,
+		strict: true,
+		trim: true,
+	})
+
+	// map each word to remove words from wordsToRemove
+	const words = preSlug
+		.split('-')
+		.map((word) => {
+			// Skip empty words
+			if (!word) return ''
+
+			// Check if word is in wordsToRemove (case insensitive)
+			if (wordsToRemove.some((removeWord) => removeWord === word)) return ''
+
+			return word
+		})
+		// Remove empty strings
+		.filter(Boolean)
+		// Limit to maxWords
+		.slice(0, maxWords)
+
+	// Join words with hyphen
+	const slug = words.join('-')
+
+	return slug
 }
 
-
-
 export function toSlugWithUnderScore(str: string) {
-  // Return empty string if input is null or undefined
-  if (!str) return '';
-  
-  // Regular expression to check if string is already in slug format
-  // Allows only lowercase letters, numbers, and underscores
-  const slugRegex = /^[a-z0-9_]+$/;
-  
-  // If string is already in correct format, return it
-  if (slugRegex.test(str)) {
-    return str;
-  }
-  
-  return str
-    // Convert to lowercase
-    .toLowerCase()
-    // Replace accented characters with regular ones
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    // Replace spaces and special characters with underscore
-    .replace(/[^a-z0-9]+/g, '_')
-    // Remove underscores from start and end
-    .replace(/^_+|_+$/g, '')
-    // Replace multiple consecutive underscores with single underscore
-    .replace(/_+/g, '_');
+	// Return empty string if input is null or undefined
+	if (!str) return ''
+
+	// Regular expression to check if string is already in slug format
+	// Allows only lowercase letters, numbers, and underscores
+	const slugRegex = /^[a-z0-9_]+$/g
+
+	// If string is already in correct format, return it
+	if (slugRegex.test(str)) {
+		return str.trimEnd().trimStart().toLowerCase()
+	}
+
+	return slugify(str, {
+		replacement: '_',
+		lower: true,
+		strict: true,
+		trim: true,
+	})
 }

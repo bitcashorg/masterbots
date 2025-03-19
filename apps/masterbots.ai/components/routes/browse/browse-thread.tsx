@@ -16,29 +16,29 @@
  * - Responsive Design: Applies Tailwind CSS for styling and layout.
  */
 
-import { cn } from '@/lib/utils'
 import { BrowseChatMessages } from '@/components/routes/browse/browse-chat-messages'
+import { cn } from '@/lib/utils'
 import type { Thread } from 'mb-genql'
 
 export function BrowseThread({
-  thread,
-  className
+	thread,
+	className,
 }: {
-  thread: Thread
-  className?: string
+	thread: Thread
+	className?: string
 }) {
-  return (
-    <div className={cn('pb-[100px]', className)}>
-      {thread.messages?.length ? (
-        <BrowseChatMessages
-          chatbot={thread?.chatbot}
-          user={thread?.user || undefined}
-          threadId={thread.threadId}
-          parentThreadId={thread?.parentThreadId}
-        />
-      ) : (
-        ''
-      )}
-    </div>
-  )
+	return (
+		<div className={cn('pb-[100px]', className)}>
+			{thread.messages?.length ? (
+				<BrowseChatMessages
+					chatbot={thread?.chatbot}
+					user={thread?.user || undefined}
+					threadId={thread.threadId}
+					parentThreadId={thread?.parentThreadId}
+				/>
+			) : (
+				''
+			)}
+		</div>
+	)
 }
