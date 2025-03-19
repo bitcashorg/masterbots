@@ -16,14 +16,14 @@ export default async function ProfilePageLayout({
 }: ProfileLayoutProps) {
 	const session = await getServerSession()
 	const { userSlug } = await params
-	const user = (await getUserBySlug({
+	const { user, error } = await getUserBySlug({
 		slug: userSlug as string,
 		isSameUser: session?.user.slug === userSlug,
-	})) as unknown as User
+	})
 	return (
 		<main className="flex flex-col p-0">
 			<NextTopLoader color="#1ED761" initialPosition={0.2} />
-			<Hero user={user} />
+			<Hero user={user as User} />
 			<ProfileSidebar>
 				<div className="px-4 md:px-10 h-full">{children}</div>
 			</ProfileSidebar>

@@ -41,7 +41,6 @@ export function MessagePairAccordion({
 	const isProfile = getRouteType(pathname) === 'profile'
 
 	useEffect(() => {
-		// console.log('params', params)
 		if (!params.threadQuestionSlug) return
 
 		const $questionElement = document.getElementById(
@@ -50,15 +49,27 @@ export function MessagePairAccordion({
 
 		if (!$questionElement) return
 
-		$questionElement.scrollIntoView()
-		$questionElement.focus()
+		const timeout = setTimeout(() => {
+			const scrollBehavior =
+				$questionElement.offsetHeight > window.innerHeight - 144
+					? 'start'
+					: 'center'
+			$questionElement.scrollIntoView({
+				behavior: 'smooth',
+				block: scrollBehavior,
+				inline: 'center',
+			})
+			$questionElement.focus()
+
+			clearTimeout(timeout)
+		}, 500)
 	}, [params])
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const toggleThreadQuestionUrl = useCallback((isOpen: boolean) => {
 		setIsAccordionFocused(isOpen)
 		// console.log('window.location.pathname.split', window.location.pathname.split('/'))
-		const [, category, domain, chatbot, threadSlug, threadQuestionSlug] =
+		const [, base, category, domain, chatbot, threadSlug, threadQuestionSlug] =
 			window.location.pathname.split('/')
 		const navigationParts = {
 			category,

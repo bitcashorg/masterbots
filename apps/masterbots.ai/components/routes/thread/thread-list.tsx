@@ -24,7 +24,11 @@
 import ThreadComponent from '@/components/routes/thread/thread-component'
 import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeletons'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useThread } from '@/lib/hooks/use-thread'
+import { useSonner } from '@/lib/hooks/useSonner'
+import { getThread } from '@/services/hasura'
 import type { Thread } from 'mb-genql'
+import { useEffect, useState } from 'react'
 
 export default function ThreadList({
 	loading,
@@ -45,6 +49,9 @@ export default function ThreadList({
 		activeCategory,
 		activeChatbot,
 	} = useSidebar()
+	const { activeThread, setActiveThread, setIsOpenPopup } = useThread()
+	const [loadingThread, setLoadingThread] = useState(false)
+	const { customSonner } = useSonner()
 
 	const filteredThreads = threads.filter(
 		(thread) =>
@@ -63,9 +70,55 @@ export default function ThreadList({
 			(activeChatbot && thread.chatbot.chatbotId === activeChatbot.chatbotId),
 	)
 
+	const activateThreadPopup = async (thread: Thread) => {
+		try {
+			setLoadingThread(true)
+
+			const fullThread = await getThread(thread.threadId)
+			if (!fullThread) return
+
+			setActiveThread(fullThread as Thread)
+			setIsOpenPopup(true)
+		} catch (error) {
+			console.error('Error activating thread popup:', error)
+			customSonner({ type: 'error', text: 'Error activating thread popup' })
+		}
+
+		setLoadingThread(false)
+	}
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: I only need to run this effect when the activeThread changes
+	useEffect(() => {
+		if (activeThread) return
+		const pathname = window.location.pathname
+		const pathNameParts = pathname.split('/')
+		const [
+			,
+			_base,
+			_category,
+			_domain,
+			_chatbot,
+			threadSlug,
+			threadQuestionSlug,
+		] = pathNameParts
+
+		console.log('pathNameParts', pathNameParts)
+
+		const thread = filteredThreads.find((thread) =>
+			thread.messages.find(
+				(message) =>
+					message.slug === threadSlug || message.slug === threadQuestionSlug,
+			),
+		)
+		if (thread && (threadQuestionSlug || threadSlug)) {
+			console.log('scrolling to', threadQuestionSlug)
+			activateThreadPopup(thread)
+		}
+	}, [activeThread])
+
 	return (
 		<>
-			{loading
+			{loading || loadingThread
 				? [1, 2, 3, 4, 5].map((pos) => (
 						<ThreadItemSkeleton key={`thread-skeleton-${pos}`} />
 					))
