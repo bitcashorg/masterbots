@@ -6,78 +6,98 @@ import { nanoid } from '@/lib/utils'
 import type { ChatbotMetadata, ChatbotMetadataExamples } from '@/types/types'
 import type { Message } from 'ai'
 import { uniq } from 'lodash'
+import { appConfig } from 'mb-env'
 import type { Chatbot } from 'mb-genql'
 
+// * This function creates the prompt for the AI improvement process with the following question
+export function followingQuestionsImprovementPrompt(
+	userQuestion: string,
+	improvementPrompt: string,
+	allMessages: Message[],
+) {
+	return [
+		`Here are a list of questions that may be relevant for you to understand my chain of thoughts: [${getAllUserMessagesAsStringArray(
+			uniq(allMessages),
+		)}].`,
+		improvementPrompt,
+		`**Important Guidelines:**
+- Use the list of questions to clarify word selection, but keep your main focus on the User Question and please try incredibly hard to make your best guess only using the words: "${userQuestion}".
+- Make sure you output the rewritten question without any additional explanations in the original language.`,
+	].join('\n\n')
+}
+
 // * This function creates the prompt for the AI improvement process
-export function createImprovementPrompt(content: string): string {
-  return (
-    'You are a highly specialized, multidisciplinary polyglot expert assistant and master of emotional intelligence that combines competencies across linguistics, language, culture, communication, psychology, copywriting and NLP to very concisely summarize the question based on intent to less than 49 words: "' +
-    content +
-    '".\n\n' +
-    '**Important Guidelines:**' +
-    '- Make sure you output the rewritten question without any additional explanations in the original language.\n\n'
-  )
+export function createImprovementPrompt({
+	content,
+	allUserMessages,
+}: {
+	content: string
+	allUserMessages: Message[]
+}): string {
+	const prompt = `You are a highly specialized, multidisciplinary polyglot expert assistant and master of emotional intelligence that combines competencies across linguistics, language, culture, communication, psychology, copywriting and NLP to very concisely summarize the question based on intent to less than 49 words:	[**User Question:** ${content}"].`
+	const finalPrompt = followingQuestionsImprovementPrompt(
+		content,
+		prompt,
+		allUserMessages,
+	)
+
+	if (appConfig.features.devMode) {
+		console.info(
+			'Here we see the prompt that is being sent to the LLM for the improvement process below:',
+		)
+		console.log(
+			'createImprovementPrompt::prompt with final followingQuestions',
+			finalPrompt,
+		)
+	}
+
+	return finalPrompt
 }
 
 // * This function creates the prompt for the AI chatbot metadata subtraction process
 export function createChatbotMetadataPrompt(
-  chatbotMetadata: ChatbotMetadata,
-  userPrompt: string,
+	chatbotMetadata: ChatbotMetadata,
+	userPrompt: string,
 ): string {
-  const categories = Object.keys(chatbotMetadata.categories)
-  const tags = chatbotMetadata.tags
-  return (
-    '<expertise>\n' +
-    `You are an expert in the field of ${chatbotMetadata.domainName}. Your task is to identify the most relevant categories, sub-categories, and tags for the following user question:` +
-    '\n</expertise>\n' +
-    '\n<context>\n' +
-    '\n## Categories and their sub-categories:\n' +
-    categories
-      .map(
-        (category, index) =>
-          `${index + 1}. ${category}:
+	const categories = Object.keys(chatbotMetadata.categories)
+	const tags = chatbotMetadata.tags
+	return `<expertise>\nYou are an expert in the field of ${chatbotMetadata.domainName}. Your task is to identify the most relevant categories, sub-categories, and tags for the following user question:\n</expertise>\n\n<context>\n\n## Categories and their sub-categories:\n${categories
+		.map(
+			(category, index) =>
+				`${index + 1}. ${category}:
       - Sub-categories: ${(chatbotMetadata.categories[category as keyof typeof chatbotMetadata.categories] as unknown as string[]).join(', ')}.`,
-      )
-      .join('\n') +
-    '\n\n## Tags:\n- ' +
-    tags.join('. - ') +
-    '.\n</context>\n' +
-    '\n<instruction>\n' +
-    '- Ensure the selected categories, sub-categories, and tags are highly relevant to the user question.\n' +
-    '- At least one category, one sub-category and one tag must be selected.\n' +
-    '- Provide the labels and values in the exact format as requested.\n' +
-    '- Keep the values concise and relevant to the question.\n' +
-    '</instruction>\n' +
-    '\n<question>\n' +
-    userPrompt +
-    '\n</question>'
-  )
+		)
+		.join(
+			'\n',
+		)}\n\n## Tags:\n- ${tags.join('. - ')}.\n</context>\n\n<instruction>\n- Ensure the selected categories, sub-categories, and tags are highly relevant to the user question.\n- At least one category, one sub-category and one tag must be selected.\n- Provide the labels and values in the exact format as requested.\n- Keep the values concise and relevant to the question.\n</instruction>\n\n<question>\n${userPrompt}\n</question>`
 }
 
 export function createBotConfigurationPrompt(chatbot: Chatbot) {
-  return (
-    '\n<instructions>\n' +
-    [
-      chatbot.complexityEnum?.prompt,
-      chatbot.toneEnum?.prompt,
-      chatbot.typeEnum?.prompt,
-      chatbot.lengthEnum?.prompt,
-    ].join(' ') +
-    '\n</instructions>\n'
-  )
+	return `\n<instructions>\n${[
+		chatbot.complexityEnum?.prompt,
+		chatbot.toneEnum?.prompt,
+		chatbot.typeEnum?.prompt,
+		chatbot.lengthEnum?.prompt,
+	].join(' ')}\n</instructions>\n`
 }
 
-export function followingQuestionsPrompt(userContent: string, allMessages: Message[]) {
-  // return `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
-  return `Here are a list of questions that may be relevant for you to understand my chain of thoughts: [${getAllUserMessagesAsStringArray(
-    uniq(allMessages),
-  )}].  Now please answer the following question: ${userContent}`
+export function followingQuestionsPrompt(
+	userContent: string,
+	allMessages: Message[],
+) {
+	// return `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
+	return `Here are a list of questions that may be relevant for you to understand my chain of thoughts: [${getAllUserMessagesAsStringArray(
+		uniq(allMessages),
+	)}].  Now please answer the following question: ${userContent}`
 }
 
-export function userPersonalityPrompt(userPromptType: string, allMessages: Message[]) {
-  const userMessages = getAllUserMessagesAsStringArray(allMessages)
+export function userPersonalityPrompt(
+	userPromptType: string,
+	allMessages: Message[],
+) {
+	const userMessages = getAllUserMessagesAsStringArray(allMessages)
 
-  const basePrompt = `Given a user's thread history: "${userMessages}".
+	const basePrompt = `Given a user's thread history: "${userMessages}".
 
     Analyze their post patterns to generate insights about this user by considering:
     - Common themes and topics in their posts
@@ -86,130 +106,84 @@ export function userPersonalityPrompt(userPromptType: string, allMessages: Messa
     - Question patterns and engagement style
 
     ${
-      userPromptType === 'bio'
-        ? `Return a concise 2 sentence or 340 characters long  bio highlighting their key interests and personality.
+			userPromptType === 'bio'
+				? `Return a concise 2 sentence or 340 characters long  bio highlighting their key interests and personality.
          The bio should be engaging, personal and include relevant emojis if appropriate.
 
          Example bio format:
          "Health enthusiast on a journey of wellness discovery. Passionate about understanding
          the human body and exploring ways to maintain optimal health. Always eager to learn
          more about medical knowledge and preventive care. 🌱💪"`
-        : `Return their primary topic of interest based on frequency and engagement pattern.
+				: `Return their primary topic of interest based on frequency and engagement pattern.
          Format: "TOPIC". If the topic is unclear, return "unclear".`
-    }`
+		}`
 
-  return basePrompt
+	return basePrompt
 }
 
 export function examplesPrompt(chatbotMetadata: ChatbotMetadataExamples) {
-  return `<instructions>
+	return [
+		`<instructions>
   Provide answers directly, omitting any labels like 'Questions', 'Answers', or 'Examples.'.
-  </instructions>` + chatbotMetadata?.tagExamples?.length
-    ? `<examples>
+  </instructions>`,
+		chatbotMetadata?.tagExamples?.length > 0
+			? `<examples>
   ${chatbotMetadata.tagExamples
-    .map(
-      (e, index) => `## Example ${index + 1}
-    <question>
-    ${e.prompt}
-    </question>
-    <answer>
-    ${e.response}
-    </answer>`,
-    )
-    .join('\n\n')}
+		.map(
+			(e, index) => `## Example ${index + 1}
+	<question>
+	${e.prompt}
+	</question>
+	<answer>
+	${e.response}
+	</answer>`,
+		)
+		.join('\n\n')}
     </examples>`
-    : ''
-}
-
-interface WithExamples {
-  categoryExamples: Example[]
-  tagExamples: Example[]
-  allMessages: Message[]
-  currentQuestion: string
+			: '',
+	].join('\n')
 }
 
 interface Example {
-  prompt: string
-  response: string
-}
-
-// ! Not in use...
-export function withExamples({
-  categoryExamples,
-  tagExamples,
-  allMessages,
-  currentQuestion,
-}: WithExamples): string {
-  let prompt = ''
-  if (allMessages.length > 0) {
-    prompt = `First, think about this thread of questions and answers:
-[${getAllUserMessagesAsStringArray(allMessages)}]
-`
-  }
-  prompt += `
-Now you'll need to respond to this question ${currentQuestion}.`
-  if (categoryExamples.length !== 0 || tagExamples.length !== 0) {
-    prompt += `I have some examples of how similar questions have been answered in the past:
-Examples:
-----
-`
-  }
-
-  for (let i = 0; i < tagExamples.length; i++) {
-    prompt += 'Example Question:\n'
-    prompt += tagExamples[i].prompt + '\n'
-
-    prompt += 'Example Answer:\n'
-    prompt += tagExamples[i].response + '\n'
-
-    prompt += '\n----\n'
-  }
-
-  for (let i = 0; i < categoryExamples.length; i++) {
-    prompt += 'Example Question:\n'
-    prompt += categoryExamples[i].prompt + '\n'
-
-    prompt += 'Example Answer:\n'
-    prompt += categoryExamples[i].response + '\n'
-
-    prompt += '\n----\n'
-  }
-
-  prompt += `OK, so following the same pattern, how would you answer the question: ${currentQuestion}`
-
-  return prompt
+	prompt: string
+	response: string
 }
 
 export function setDefaultUserPreferencesPrompt(chatbot: Chatbot): Message {
-  return {
-    id: 'instructions-' + nanoid(10),
-    role: 'system',
-    content: createBotConfigurationPrompt(chatbot),
-    createdAt: new Date(),
-  }
+	return {
+		id: `instructions-${nanoid(10)}`,
+		role: 'system',
+		content: createBotConfigurationPrompt(chatbot),
+		createdAt: new Date(),
+	}
 }
 
 export function setOutputInstructionPrompt(userContent: string): Message {
-  return {
-    id: 'output-instructions-' + nanoid(10),
-    role: 'system',
-    content: '\n<output_instructions>\n' +
-    'Use different heading levels (e.g., H1, H2, H3) and punctuation for better readability. ' +
-    'Use lists when necessary for clarity and organization. ' +
-    'If relevant or for comparisons, include tables to further structure information and aid comprehension.' +
-    'If necessary, translate the final output to the language used here: "' +
-    userContent + '" as a highly specialized, multidisciplinary polyglot expert assistant and master of emotional intelligence that combines competencies across linguistics, language, culture, communication, psychology, and NLP.' +
-    '\n</output_instructions>\n',
-    createdAt: new Date(),
-  }
+	return {
+		id: `output-instructions-${nanoid(10)}`,
+		role: 'system',
+		content: `
+	<output_instructions>
+	- Use different heading levels (e.g., H1, H2, H3) and punctuation for better readability.
+	- Use lists when necessary for clarity and organization.
+	- Analyze the content (attachments) given by the user as context; infer its structure based on the provided data.
+	- If relevant or for comparisons, include tables to further structure information and aid comprehension.
+	- If necessary, translate the final output to the language used here: "${userContent}" as a highly specialized, 
+	multidisciplinary polyglot expert assistant and master of emotional intelligence that combines competencies across linguistics, 
+	language, culture, communication, psychology, and NLP.
+	- Remember to include the unique insight.
+	</output_instructions>
+	`,
+		createdAt: new Date(),
+	}
 }
 
 export function setDefaultPrompt(userPrompt?: string) {
-  return {
-    language: '',
-    originalText: userPrompt || '',
-    improvedText: '',
-    translatedText: '',
-    improved: undefined,
-  }
+	return {
+		language: '',
+		originalText: userPrompt || '',
+		improvedText: '',
+		translatedText: '',
+		improved: undefined,
+	}
 }

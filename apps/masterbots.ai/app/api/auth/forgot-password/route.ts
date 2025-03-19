@@ -1,102 +1,102 @@
 'use server'
 
+import crypto from 'node:crypto'
 import { sendPasswordResetEmail } from '@/lib/email'
 import { getHasuraClient } from 'mb-lib'
 import { type NextRequest, NextResponse } from 'next/server'
-import crypto from 'node:crypto'
 
 // * Add explicit runtime configuration
 // export const runtime = 'edge'
 
 export async function POST(req: NextRequest) {
-  const { email } = await req.json()
+	const { email } = await req.json()
 
-  if (!email) {
-    return NextResponse.json({ error: 'Email is required' }, { status: 400 })
-  }
+	if (!email) {
+		return NextResponse.json({ error: 'Email is required' }, { status: 400 })
+	}
 
-  const client = getHasuraClient()
+	const client = getHasuraClient()
 
-  // * Checks if user exists
-  const { user } = await client.query({
-    user: {
-      __args: {
-        where: {
-          email: {
-            _eq: email
-          }
-        }
-      },
-      userId: true,
-      email: true
-    }
-  })
+	// * Checks if user exists
+	const { user } = await client.query({
+		user: {
+			__args: {
+				where: {
+					email: {
+						_eq: email,
+					},
+				},
+			},
+			userId: true,
+			email: true,
+		},
+	})
 
-  if (!user.length) {
-    return NextResponse.json(
-      {
-        message:
-          'If an account with that email exists, we have sent a password reset link'
-      },
-      { status: 200 }
-    )
-  }
+	if (!user.length) {
+		return NextResponse.json(
+			{
+				message:
+					'If an account with that email exists, we have sent a password reset link',
+			},
+			{ status: 200 },
+		)
+	}
 
-  // * Generates reset token
-  const resetToken = crypto.randomBytes(32).toString('base64url')
-  const resetTokenExpiry = new Date(Date.now() + 3600000) // 1 hour from now
+	// * Generates reset token
+	const resetToken = crypto.randomBytes(32).toString('base64url')
+	const resetTokenExpiry = new Date(Date.now() + 3600000) // 1 hour from now
 
-  try {
-    const result = await client.mutation({
-      insertToken: {
-        __args: {
-          objects: [
-            {
-              token: resetToken,
-              tokenExpiry: resetTokenExpiry
-            }
-          ]
-        },
-        returning: {
-          token: true,
-          tokenExpiry: true
-        }
-      },
-      insertUserToken: {
-        __args: {
-          objects: [
-            {
-              userId: user[0].userId,
-              token: resetToken
-            }
-          ]
-        },
-        returning: {
-          userId: true,
-          token: true
-        }
-      }
-    })
+	try {
+		const result = await client.mutation({
+			insertToken: {
+				__args: {
+					objects: [
+						{
+							token: resetToken,
+							tokenExpiry: resetTokenExpiry,
+						},
+					],
+				},
+				returning: {
+					token: true,
+					tokenExpiry: true,
+				},
+			},
+			insertUserToken: {
+				__args: {
+					objects: [
+						{
+							userId: user[0].userId,
+							token: resetToken,
+						},
+					],
+				},
+				returning: {
+					userId: true,
+					token: true,
+				},
+			},
+		})
 
-    if (
-      !result.insertToken?.returning.length ||
-      !result.insertUserToken?.returning.length
-    ) {
-      throw new Error('Failed to insert token')
-    }
+		if (
+			!result.insertToken?.returning.length ||
+			!result.insertUserToken?.returning.length
+		) {
+			throw new Error('Failed to insert token')
+		}
 
-    // * Send password reset email
-    await sendPasswordResetEmail(email, resetToken)
+		// * Send password reset email
+		await sendPasswordResetEmail(email, resetToken)
 
-    return NextResponse.json(
-      { message: 'Password reset email sent' },
-      { status: 200 }
-    )
-  } catch (error) {
-    console.error('Error initiating password reset:', error)
-    return NextResponse.json(
-      { error: 'An error occurred while sending the reset email' },
-      { status: 500 }
-    )
-  }
+		return NextResponse.json(
+			{ message: 'Password reset email sent' },
+			{ status: 200 },
+		)
+	} catch (error) {
+		console.error('Error initiating password reset:', error)
+		return NextResponse.json(
+			{ error: 'An error occurred while sending the reset email' },
+			{ status: 500 },
+		)
+	}
 }
