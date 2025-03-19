@@ -1,5 +1,6 @@
+import rehypeMathJax from 'rehype-mathjax'
 import remarkGfm from 'remark-gfm'
-import remarkMath from 'remark-math'
+import remarkRehype from 'remark-rehype'
 import { CodeBlock } from '../ui/codeblock'
 import { MemoizedReactMarkdown } from './markdown'
 
@@ -7,7 +8,7 @@ export function ShortMessage({ content }: { content: string }) {
 	return (
 		<MemoizedReactMarkdown
 			className="break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
-			remarkPlugins={[remarkGfm, remarkMath]}
+			remarkPlugins={[remarkGfm, rehypeMathJax, remarkRehype]}
 			components={{
 				// @ts-ignore
 				p({ children }) {

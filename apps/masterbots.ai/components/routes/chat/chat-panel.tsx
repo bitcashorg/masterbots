@@ -128,13 +128,7 @@ export function ChatPanel({
 
 						{/* Right side controls */}
 						<div className="flex items-center gap-3.5">
-							<ButtonScrollToBottom
-								scrollToBottom={scrollToBottom}
-								isAtBottom={isAtBottom}
-								className={hiddenAnimationClasses}
-								textClassName={hiddenAnimationItemClasses}
-							/>
-							{showReload && (isLoading || isPreProcessing) ? (
+							{showReload && (isLoading || isPreProcessing) && (
 								<>
 									{loadingState !== 'finished' && (
 										<LoadingIndicator state={loadingState} />
@@ -150,41 +144,44 @@ export function ChatPanel({
 										</Button>
 									)}
 								</>
-							) : (
-								messages?.length >= 2 && (
-									<>
-										<Button
-											variant="outline"
-											size="icon"
-											className={hiddenAnimationClasses}
-											onClick={() => reload()}
-										>
-											<IconRefresh className="transition-all" />
-											<span className={hiddenAnimationItemClasses}>
-												Regenerate response
-											</span>
-										</Button>
-										{id && title && (
-											<>
-												<Button
-													variant="outline"
-													onClick={() => setShareDialogOpen(true)}
-												>
-													<IconShare className="mr-2" />
-													Share
-												</Button>
-												<ChatShareDialog
-													onCopy={() => setShareDialogOpen(false)}
-													chat={{
-														id,
-														title,
-														messages,
-													}}
-												/>
-											</>
-										)}
-									</>
-								)
+							)}
+							<ButtonScrollToBottom
+								scrollToBottom={scrollToBottom}
+								isAtBottom={isAtBottom}
+								className={hiddenAnimationClasses}
+								textClassName={hiddenAnimationItemClasses}
+							/>
+							{messages?.length >= 2 && (
+								<Button
+									variant="outline"
+									size="icon"
+									className={hiddenAnimationClasses}
+									onClick={() => reload()}
+								>
+									<IconRefresh className="transition-all" />
+									<span className={hiddenAnimationItemClasses}>
+										Regenerate response
+									</span>
+								</Button>
+							)}
+							{id && title && (
+								<>
+									<Button
+										variant="outline"
+										onClick={() => setShareDialogOpen(true)}
+									>
+										<IconShare className="mr-2" />
+										Share
+									</Button>
+									<ChatShareDialog
+										onCopy={() => setShareDialogOpen(false)}
+										chat={{
+											id,
+											title,
+											messages,
+										}}
+									/>
+								</>
 							)}
 						</div>
 					</div>

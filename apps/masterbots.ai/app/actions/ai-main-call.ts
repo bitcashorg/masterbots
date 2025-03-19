@@ -25,10 +25,16 @@ import type {
 	JSONResponseStream,
 } from '@/types/types'
 import { createAnthropic } from '@ai-sdk/anthropic'
-import { createGroq, groq } from '@ai-sdk/groq'
+import { createGroq } from '@ai-sdk/groq'
 import { createOpenAI } from '@ai-sdk/openai'
-import { type Message, smoothStream, streamObject, streamText } from 'ai'
-import { extractReasoningMiddleware, wrapLanguageModel } from 'ai'
+import {
+	type Message,
+	extractReasoningMiddleware,
+	smoothStream,
+	streamObject,
+	streamText,
+	wrapLanguageModel,
+} from 'ai'
 import { createStreamableValue } from 'ai/rsc'
 import { appConfig } from 'mb-env'
 import type OpenAI from 'openai'
@@ -347,7 +353,7 @@ export async function createResponseStream(
 					model: anthropicModel,
 					messages: coreMessages,
 					temperature: 0.3,
-					maxTokens: 300,
+					// maxTokens: 300,
 					tools,
 					maxRetries: 2,
 				})
@@ -362,7 +368,7 @@ export async function createResponseStream(
 					model: perplexityModel,
 					messages: coreMessages,
 					temperature: 0.3,
-					maxTokens: 1000,
+					// maxTokens: 1000,
 					tools,
 					maxRetries: 2,
 				})
@@ -377,7 +383,7 @@ export async function createResponseStream(
 					model: deepseekModel,
 					messages: coreMessages,
 					temperature: 0.3, // DeepSeek works well with lower temperature for reasoning
-					maxTokens: 2000, // DeepSeek can handle longer contexts
+					// maxTokens: 2000, // DeepSeek can handle longer contexts
 					tools,
 					maxRetries: 2,
 				})
@@ -392,7 +398,7 @@ export async function createResponseStream(
 					model: groqModel,
 					messages: coreMessages,
 					temperature: 0.2, //? Groq DeepSeek works well with lower temperature
-					maxTokens: 2000,
+					// maxTokens: 2000,
 					tools,
 					maxRetries: 2,
 				})

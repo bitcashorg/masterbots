@@ -27,48 +27,52 @@ import type { SocialFollowing, User } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import router from 'next/router'
-import { type ChangeEvent, useEffect, useState } from 'react'
+import { type ChangeEvent, useEffect, useMemo, useState } from 'react'
 import { EmptyState } from './empty-state'
 
 interface UserCardProps {
 	user: User | null
 	loading?: boolean
 }
-export function UserCard({ user, loading }: UserCardProps) {
+export function UserCard({ user: userProps, loading }: UserCardProps) {
 	const { isSameUser, updateUserInfo } = useProfile()
-	const isOwner = isSameUser(user?.userId)
+	const isOwner = isSameUser(userProps?.userId)
 	const { selectedModel, clientType } = useModel()
 	const [isLoading, setIsLoading] = useState(false)
 	const [generateType, setGenerateType] = useState<string | undefined>('')
-	const [bio, setBio] = useState<string | null | undefined>(user?.bio)
+	const [bio, setBio] = useState<string | null | undefined>(userProps?.bio)
 	const [favoriteTopic, setFavoriteTopic] = useState<string | null | undefined>(
-		user?.favouriteTopic,
+		userProps?.favouriteTopic,
 	)
 	const [userProfilePicture, setUserProfilePicture] = useState<
 		string | null | undefined
-	>(user?.profilePicture)
+	>(userProps?.profilePicture)
 	const [isUploadingImage, setIsUploadingImage] = useState(false)
 	const { uploadFilesCloudinary, error: cloudinaryError } =
 		useUploadImagesCloudinary()
 	const { data: session } = useSession()
-	const [userData, setUserData] = useState<User | null>(user)
+	const [userData, setUserData] = useState<User | null>(userProps)
 	const [isFollowLoading, setIsFollowLoading] = useState(false)
 	const { customSonner } = useSonner()
 	const [displayedBio, setDisplayedBio] = useState<string>('')
 
-	const userQuestions = (user?.threads || [])
-		.map((thread) => {
-			if (!thread.messages?.length) {
-				return null
-			}
-			return {
-				id: thread.threadId,
-				content: thread.messages[0].content,
-				createdAt: new Date(),
-				role: 'user' as Message['role'],
-			}
-		})
-		.filter(Boolean) as Message[]
+	const userQuestions = useMemo(
+		() =>
+			(userProps?.threads || [])
+				.map((thread) => {
+					if (!thread.messages?.length) {
+						return null
+					}
+					return {
+						id: thread.threadId,
+						content: thread.messages[0].content,
+						createdAt: new Date(),
+						role: 'user' as Message['role'],
+					}
+				})
+				.filter(Boolean) as Message[],
+		[userProps],
+	)
 	const [lastMessage, setLastMessage] = useState<string | null>(null)
 
 	const { append } = useChat({
@@ -163,11 +167,11 @@ export function UserCard({ user, loading }: UserCardProps) {
 	useEffect(() => {
 		handleUpdateUserInfo()
 
-		if (user?.profilePicture && !userProfilePicture) {
-			console.log('user.profilePicture', user.profilePicture)
-			updateUserProfilePicture(user.profilePicture)
+		if (userData?.profilePicture && !userProfilePicture) {
+			console.log('user.profilePicture', userData.profilePicture)
+			updateUserProfilePicture(userData.profilePicture)
 		}
-	}, [lastMessage, generateType, user?.profilePicture])
+	}, [lastMessage, generateType, userProps?.profilePicture])
 
 	const generateBio = (type: string) => {
 		try {
@@ -204,17 +208,6 @@ export function UserCard({ user, loading }: UserCardProps) {
 		}
 	}, [])
 
-	const updateUserData = () => {
-		setBio(user?.bio)
-		setFavoriteTopic(user?.favouriteTopic)
-		setUserData(user)
-	}
-
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	useEffect(() => {
-		updateUserData()
-	}, [user])
-
 	const handleFollowUser = async () => {
 		if (isFollowLoading) return
 		try {
@@ -226,7 +219,7 @@ export function UserCard({ user, loading }: UserCardProps) {
 			}
 			setIsFollowLoading(true)
 			const followerId = session.user?.id
-			const followeeId = user?.userId
+			const followeeId = userData?.userId
 			if (!followerId || !followeeId) {
 				customSonner({ type: 'error', text: 'Invalid user data' })
 				return
@@ -271,7 +264,7 @@ export function UserCard({ user, loading }: UserCardProps) {
 				})
 				customSonner({
 					type: 'success',
-					text: `You are now following ${user?.username}`,
+					text: `You are now following ${userData?.username}`,
 				})
 			} else {
 				setUserData((prevUser) => {
@@ -288,7 +281,7 @@ export function UserCard({ user, loading }: UserCardProps) {
 				})
 				customSonner({
 					type: 'success',
-					text: `You have unfollowed ${user?.username}`,
+					text: `You have unfollowed ${userData?.username}`,
 				})
 			}
 		} catch (error) {
@@ -337,19 +330,19 @@ export function UserCard({ user, loading }: UserCardProps) {
 					<ChatChatbotDetailsSkeleton />
 				</div>
 			)}
-			{!user && !loading && <EmptyState />}
-			{user && !loading && (
+			{!userData && !loading && <EmptyState />}
+			{userData && !loading && (
 				<>
 					{/* Profile Name */}
 					<div className="px-5 pb-2 pt-7 flex flex-col gap-2.5">
 						<h2 className="text-xl font-semibold capitalize md:text-2xl">
-							{user?.username}
+							{userData?.username}
 						</h2>
-						{user?.threads?.length > 0 && (
+						{userData?.threads && userData?.threads?.length > 0 && (
 							<div className="items-center space-x-1 md:hidden flex">
 								<BotIcon className="w-4 h-4" />
 								<span className="">Threads:</span>
-								<span className="text-gray-500">{user?.threads?.length}</span>
+								<span className="text-gray-500">{userData.threads.length}</span>
 							</div>
 						)}
 
@@ -418,11 +411,13 @@ export function UserCard({ user, loading }: UserCardProps) {
 					{/* Stats Section */}
 					<div className="flex md:flex-row flex-col md:justify-between p-6">
 						<div className="space-y-1 pt-5">
-							{user?.threads?.length > 0 && (
+							{userData?.threads && userData.threads.length > 0 && (
 								<div className="md:flex  items-center space-x-1 hidden">
 									<BotIcon className="w-4 h-4" />
 									<span className="">Threads:</span>
-									<span className="text-gray-500">{user?.threads?.length}</span>
+									<span className="text-gray-500">
+										{userData.threads?.length}
+									</span>
 								</div>
 							)}
 
@@ -463,7 +458,7 @@ export function UserCard({ user, loading }: UserCardProps) {
 									onClick={handleFollowUser}
 									variant={'ghost'}
 									aria-label={`${followed ? 'Unfollow' : 'Follow'} ${
-										user?.username
+										userData?.username
 									}`}
 									aria-busy={isFollowLoading}
 									className="px-10 py-1 text-sm text-white  rounded-md bg-[#BE17E8] hover:bg-[#BE17E8] dark:bg-[#83E56A] dark:hover:bg-[#83E56A] dark:text-black transition-colors"
@@ -509,7 +504,7 @@ export function UserCard({ user, loading }: UserCardProps) {
 											? userProfilePicture
 											: 'https://api.dicebear.com/9.x/identicon/svg?seed=default_masterbots_ai_user_avatar'
 									}
-									alt={`Profile picture of ${user.username}`}
+									alt={`Profile picture of ${userData.username}`}
 									height={136}
 									width={136}
 									priority

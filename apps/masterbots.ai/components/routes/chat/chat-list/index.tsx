@@ -50,7 +50,8 @@ export function ChatList({
 	const [userAttachments, setUserAttachments] = React.useState<
 		FileAttachment[]
 	>([])
-	const { isNewResponse, activeThread } = useThread()
+	const { isNewResponse, activeThread, setActiveThread, setIsOpenPopup } =
+		useThread()
 	const [_, getUserAttachments] = useAsyncFn(async () => {
 		const attachments = await getAllItems()
 		setUserAttachments(attachments as FileAttachment[])
