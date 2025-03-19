@@ -9,6 +9,14 @@ type CardProps =
 	  }
 	| undefined
 
+type USER = {
+	id: string
+	image: string
+	name: string
+	email: string
+	hasuraJwt: string
+}
+
 interface PaymentContextProps {
 	card: CardProps | null
 	loading: boolean
@@ -23,13 +31,7 @@ interface PaymentContextProps {
 	handleSetError: (error: any) => void
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	paymentIntent: any
-	user: {
-		id: string
-		image: string
-		name: string
-		email: string
-		hasuraJwt: string
-	}
+	user: USER
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	handleSetUser: (user: any) => void
 	handleSetLoading: (loading: boolean) => void
@@ -60,9 +62,9 @@ export function usePayment() {
 }
 
 export function PaymentProvider({ children }: PaymentProviderProps) {
-	const [card, setCard] = useState(null)
+	const [card, setCard] = useState<CardProps | null>(null)
 	const [loading, setLoading] = useState(false)
-	const [plan, setPlan] = useState(null)
+	const [plan, setPlan] = useState<StripePlan | null | undefined>(null)
 	const [error, setError] = useState('')
 	const [paymentIntent, setPaymentIntent] = useState('')
 	const [user, setUser] = useState({
@@ -85,12 +87,10 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 	const handleSetLoading = (loading: boolean) => {
 		setLoading(loading)
 	}
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	const handlePlan = (plan: any) => {
+	const handlePlan = (plan: StripePlan | undefined) => {
 		setPlan(plan)
 	}
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	const handleSetCard = (payment: any) => {
+	const handleSetCard = (payment: CardProps) => {
 		setCard(payment)
 	}
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
@@ -102,8 +102,7 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 	const handleSetError = (error: any) => {
 		setError(error)
 	}
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	const handleSetUser = (user: any) => {
+	const handleSetUser = (user: USER) => {
 		setUser(user)
 	}
 

@@ -59,23 +59,28 @@ export default function BrowseSpecificThreadList({
 		setThreads((prevState) => [...prevState, ...moreThreads])
 		setCount(moreThreads.length)
 		setLoading(false)
-		setStoreThreads(moreThreads)
+		setStoreThreads((prevState) => [...prevState, ...moreThreads])
 	}
+
+	const debouncedSearch = React.useMemo(
+		() =>
+			debounce((term) => {
+				if (!term) {
+					setThreads(storeThreads)
+				} else {
+					const searchResult = storeThreads.filter((thread) =>
+						searchThreadContent(thread, term),
+					)
+					setThreads(searchResult)
+				}
+				setLoading(false)
+			}, 230),
+		[storeThreads],
+	)
 
 	const verifyKeyword = () => {
 		setLoading(true)
-
-		if (!keyword) {
-			setThreads(threads)
-		} else {
-			debounce(() => {
-				const searchResult = storeThreads.filter((thread: Thread) =>
-					searchThreadContent(thread, keyword),
-				)
-				setThreads(searchResult)
-			}, 230)()
-		}
-		setLoading(false)
+		debouncedSearch(keyword)
 	}
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>

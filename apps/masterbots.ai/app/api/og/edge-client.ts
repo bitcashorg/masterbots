@@ -90,7 +90,7 @@ export async function getChatbotForOG(chatbotId: UUID) {
                   category {
                     name
                   }
-                }l
+                }
               }
             }
           `,

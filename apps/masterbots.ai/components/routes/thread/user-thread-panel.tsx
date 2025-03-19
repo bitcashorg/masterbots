@@ -51,7 +51,7 @@ import type { Thread, User } from 'mb-genql'
 import type { Session } from 'next-auth'
 import { useSession } from 'next-auth/react'
 import { useParams, usePathname, useSearchParams } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useAsync, useSetState } from 'react-use'
 
 // TODO: this is a hard to understand file since it tries to focus in too many different aspects
@@ -296,30 +296,36 @@ export default function UserThreadPanel({
 	const searchInputContainerClassName =
 		'flex justify-between py-5 lg:max-w-full'
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	const debouncedSearch = useMemo(
+		() =>
+			debounce((term) => {
+				if (!term) {
+					setState({
+						threads,
+						count: threads.length,
+						totalThreads: threads.length,
+					})
+				} else {
+					const searchResult = storeThreads.filter((thread: Thread) =>
+						searchThreadContent(thread, term),
+					)
+					setState({
+						threads: searchResult,
+						count: searchResult.length,
+						totalThreads: threads.length,
+					})
+				}
+				setLoading(false)
+			}, 230),
+		[storeThreads, threads],
+	)
+
 	const verifyKeyword = () => {
 		setLoading(true)
-
-		if (!searchTerm) {
-			setState({
-				threads,
-				count: threads.length,
-				totalThreads: threads.length,
-			})
-		} else {
-			debounce(() => {
-				const searchResult = storeThreads.filter((thread: Thread) =>
-					searchThreadContent(thread, searchTerm),
-				)
-				setState({
-					threads: searchResult,
-					count: searchResult.length,
-					totalThreads: threads.length,
-				})
-			}, 230)()
-		}
-
-		setLoading(false)
+		debouncedSearch(searchTerm)
 	}
+
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (searchTerm) {
