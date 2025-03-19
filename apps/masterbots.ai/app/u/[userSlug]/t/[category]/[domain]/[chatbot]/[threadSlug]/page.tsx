@@ -19,7 +19,6 @@ export default async function ThreadPage(props: ThreadPageProps) {
 	const params = await props.params
 	const thread = await getThread({
 		threadSlug: params.threadSlug,
-		domain: params.domain,
 		jwt: '',
 	})
 	const session = await getServerSession()

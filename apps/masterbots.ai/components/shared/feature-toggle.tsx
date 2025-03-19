@@ -83,6 +83,7 @@ export function FeatureToggle({
 									<div
 										className={`${colorClasses.iconBg} rounded-full -m-[4px] mr-1 p-0.5`}
 									>
+										{/* biome-ignore lint/suspicious/noExplicitAny: <explanation> */}
 										{React.cloneElement(activeIcon as React.ReactElement<any>, {
 											className: `size-6 ${colorClasses.iconText}`,
 										})}
@@ -97,6 +98,7 @@ export function FeatureToggle({
 							),
 							uncheck: (
 								<>
+									{/* biome-ignore lint/suspicious/noExplicitAny: <explanation> */}
 									{React.cloneElement(icon as React.ReactElement<any>, {
 										className: 'opacity-65 size-6',
 									})}

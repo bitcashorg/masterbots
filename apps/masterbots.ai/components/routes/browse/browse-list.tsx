@@ -31,7 +31,8 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { searchThreadContent } from '@/lib/search'
 import { getRouteType } from '@/lib/utils'
 import { getBrowseThreads } from '@/services/hasura'
-import { debounce, isEqual } from 'lodash'
+import { debounce } from 'lodash'
+import { appConfig } from 'mb-env'
 import type { Chatbot, Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import React, { useEffect } from 'react'
@@ -170,6 +171,12 @@ export default function BrowseList({
 		setIsOpenPopup(true)
 	}
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	React.useEffect(() => {
+		// if (isEqual(threads, filteredThreads)) return
+		verifyKeyword()
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [keyword, threads])
 	// biome-ignore lint/correctness/useExhaustiveDependencies: I only need to run this effect when the activeThread changes
 	useEffect(() => {
 		if (activeThread) return
@@ -212,7 +219,13 @@ export default function BrowseList({
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
-		if (isEqual(threads, filteredThreads)) return
+		if (appConfig.features.devMode) {
+			console.log('🟡 Filtering Threads', {
+				threads,
+				filteredThreads,
+			})
+		}
+		// if (isEqual(threads, filteredThreads)) return
 
 		verifyKeyword()
 		// eslint-disable-next-line react-hooks/exhaustive-deps

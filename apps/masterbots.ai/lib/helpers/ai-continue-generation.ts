@@ -38,6 +38,7 @@ export interface ContinueAIGenerationOptions {
 	// biome-ignore lint/suspicious/noConfusingVoidType: <void is being included in the return type>
 	customSonner: (params: CustomSonnerParams) => string | number | void
 	devMode: boolean
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	chatConfig?: Record<string, any>
 	maxAttempts?: number
 }

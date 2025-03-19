@@ -20,6 +20,7 @@ export function createMbClient({
 		url: endpoints[env || 'prod'].replace('http', 'ws'),
 	})
 	const client = createClient({
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		fetcher: async (operation: any) => {
 			const headers = {
 				'Cache-Control': 'no-cache',
@@ -36,7 +37,7 @@ export function createMbClient({
 						(operation as GraphqlOperation).query.replaceAll('"', ''),
 					),
 				)
-
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 			let fetchResponse: Promise<any> = Promise.resolve()
 
 			try {

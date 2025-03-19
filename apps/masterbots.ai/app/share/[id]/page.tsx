@@ -21,6 +21,7 @@ export async function generateMetadata({
 }
 
 export default async function SharePage({ params }: SharePageProps) {
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	const chat: any = { sharePath: '', title: '' } //await getSharedChat(params.id)
 
 	if (!chat || !chat?.sharePath) {
