@@ -9,6 +9,7 @@ export function ShortMessage({ content }: { content: string }) {
 			className="break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
 			remarkPlugins={[remarkGfm, remarkMath]}
 			components={{
+				// @ts-ignore
 				p({ children }) {
 					return (
 						<p className="mb-2 last:mb-0 whitespace-pre-line">{children}</p>
@@ -24,9 +25,6 @@ export function ShortMessage({ content }: { content: string }) {
 								<span className="mt-1 cursor-default animate-pulse">▍</span>
 							)
 						}
-
-						// @ts-ignore
-						children[0] = (children[0] as string).replace('`▍`', '▍')
 					}
 
 					const match = /language-(\w+)/.exec(className || '')

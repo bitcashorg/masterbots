@@ -45,6 +45,11 @@ tasks:
     cmds:
       - docker compose down -v --remove-orphans
 
+  # Stop the hasura backend
+  stop:
+    cmds:
+      - docker compose stop
+
   # Apply the hasura migrations
   migrate:
     cmds:

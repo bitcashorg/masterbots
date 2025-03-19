@@ -4106,6 +4106,8 @@ type Message {
   prompt: String
   role: String!
   slug: String!
+  thinking: String
+  thinkingTraces: [String!]
 
   """
   An object relationship
@@ -4182,6 +4184,8 @@ input MessageBoolExp {
   prompt: StringComparisonExp
   role: StringComparisonExp
   slug: StringComparisonExp
+  thinking: StringComparisonExp
+  thinkingTraces: StringArrayComparisonExp
   thread: ThreadBoolExp
   threadId: UuidComparisonExp
 }
@@ -4242,6 +4246,8 @@ input MessageInsertInput {
   prompt: String
   role: String
   slug: String
+  thinking: String
+  thinkingTraces: [String!]
   thread: ThreadObjRelInsertInput
   threadId: uuid
 }
@@ -4257,6 +4263,8 @@ type MessageMaxFields {
   prompt: String
   role: String
   slug: String
+  thinking: String
+  thinkingTraces: [String!]
   threadId: uuid
 }
 
@@ -4271,6 +4279,8 @@ input MessageMaxOrderBy {
   prompt: OrderBy
   role: OrderBy
   slug: OrderBy
+  thinking: OrderBy
+  thinkingTraces: OrderBy
   threadId: OrderBy
 }
 
@@ -4285,6 +4295,8 @@ type MessageMinFields {
   prompt: String
   role: String
   slug: String
+  thinking: String
+  thinkingTraces: [String!]
   threadId: uuid
 }
 
@@ -4299,6 +4311,8 @@ input MessageMinOrderBy {
   prompt: OrderBy
   role: OrderBy
   slug: OrderBy
+  thinking: OrderBy
+  thinkingTraces: OrderBy
   threadId: OrderBy
 }
 
@@ -4353,6 +4367,8 @@ input MessageOrderBy {
   prompt: OrderBy
   role: OrderBy
   slug: OrderBy
+  thinking: OrderBy
+  thinkingTraces: OrderBy
   thread: ThreadOrderBy
   threadId: OrderBy
 }
@@ -4419,6 +4435,16 @@ enum MessageSelectColumn {
   """
   column name
   """
+  thinking
+
+  """
+  column name
+  """
+  thinkingTraces
+
+  """
+  column name
+  """
   threadId
 }
 
@@ -4434,6 +4460,8 @@ input MessageSetInput {
   prompt: String
   role: String
   slug: String
+  thinking: String
+  thinkingTraces: [String!]
   threadId: uuid
 }
 
@@ -4464,6 +4492,8 @@ input MessageStreamCursorValueInput {
   prompt: String
   role: String
   slug: String
+  thinking: String
+  thinkingTraces: [String!]
   threadId: uuid
 }
 
@@ -4749,6 +4779,16 @@ enum MessageUpdateColumn {
   column name
   """
   slug
+
+  """
+  column name
+  """
+  thinking
+
+  """
+  column name
+  """
+  thinkingTraces
 
   """
   column name
@@ -7901,6 +7941,30 @@ order by variance() on columns of table "social_following"
 """
 input SocialFollowingVarianceOrderBy {
   followeeIdChatbot: OrderBy
+}
+
+"""
+Boolean expression to compare columns of type "String". All fields are combined with logical 'AND'.
+"""
+input StringArrayComparisonExp {
+  """
+  is the array contained in the given array value
+  """
+  _containedIn: [String!]
+
+  """
+  does the array contain the given value
+  """
+  _contains: [String!]
+  _eq: [String!]
+  _gt: [String!]
+  _gte: [String!]
+  _in: [[String!]!]
+  _isNull: Boolean
+  _lt: [String!]
+  _lte: [String!]
+  _neq: [String!]
+  _nin: [[String!]!]
 }
 
 """
