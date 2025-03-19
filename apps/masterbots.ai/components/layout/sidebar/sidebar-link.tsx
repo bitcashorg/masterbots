@@ -33,7 +33,7 @@ export default function SidebarLink({
 	const pathname = usePathname()
 	const isPublic = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
 	const routeType = getRouteType(pathname)
-	const { username } = useParams()
+	const { userSlug } = useParams()
 	const { isOpenPopup, activeThread, setIsOpenPopup, setActiveThread } =
 		useThread()
 
@@ -81,7 +81,7 @@ export default function SidebarLink({
 						urlType: 'userTopicThreadListUrl',
 						navigationParams: {
 							type: 'user',
-							usernameSlug: username as string,
+							usernameSlug: userSlug as string,
 							category: category.name,
 						} as UserTopicThreadListUrlParams,
 					})
@@ -232,7 +232,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
 		const pathname = usePathname()
 		const isPublic = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
 		const routeType = getRouteType(pathname)
-		const { username, domain } = useParams()
+		const { userSlug, domain } = useParams()
 		const { setIsOpenPopup, setActiveThread } = useThread()
 
 		const canonicalDomain = getCanonicalDomain(chatbot.name)
@@ -257,7 +257,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
 						urlType: 'userChatbotThreadListUrl',
 						navigationParams: {
 							type: 'user',
-							usernameSlug: username as string,
+							usernameSlug: userSlug as string,
 							category: category.name,
 							domain: chatbotDomain,
 							chatbot: chatbot.name,
@@ -291,7 +291,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
 			page === 'profile'
 				? urlBuilders.userChatbotThreadListUrl({
 						type: 'user',
-						usernameSlug: username as string,
+						usernameSlug: userSlug as string,
 						category: category.name,
 						domain: chatbotDomain,
 						chatbot: chatbot?.name,

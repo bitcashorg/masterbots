@@ -1,16 +1,20 @@
 import { ChatMessageActions } from '@/components/routes/chat/chat-message-actions'
 import { MemoizedReactMarkdown } from '@/components/shared/markdown'
 import { CodeBlock } from '@/components/ui/codeblock'
-import { getTextFromChildren } from '@/lib/chat-clickable-text'
+import {
+	cleanClickableText,
+	extractFollowUpContext,
+	getTextFromChildren,
+} from '@/lib/chat-clickable-text'
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { cn } from '@/lib/utils'
 import type { ChatMessageProps } from '@/types/types'
 import type { Message } from 'ai'
-import { appConfig } from 'mb-env'
 import type { Message as MBMessage } from 'mb-genql'
 import React from 'react'
+import rehypeMathJax from 'rehype-mathjax'
 import remarkGfm from 'remark-gfm'
-import remarkMath from 'remark-math'
+import remarkRehype from 'remark-rehype'
 
 // extract reasoning content
 export function extractReasoningContent(
@@ -80,16 +84,10 @@ export function ReasoningChatMessage({
 
 	// Handler for clickable text elements.
 	const handleClickableClick = (clickableText: string) => {
-		if (appConfig.features.devMode) {
-			console.info(
-				'Feature Temporarily Disabled. Reason: Redundant function in relation of the LLM model answer. We might need to clean this.',
-			)
-		}
-		return null
-		// const context = extractFollowUpContext(message.content, clickableText)
-		// const cleanedText = cleanClickableText(context)
-		// const followUpPrompt = `Explain more in-depth and in detail about "${clickableText}"? ${cleanedText}`
-		// sendMessageFromResponse?.(followUpPrompt)
+		const context = extractFollowUpContext(message.content, clickableText)
+		const cleanedText = cleanClickableText(context)
+		const followUpPrompt = `Explain more in-depth and in detail about "${clickableText}"? ${cleanedText}`
+		sendMessageFromResponse?.(followUpPrompt)
 	}
 
 	return (
@@ -112,7 +110,7 @@ export function ReasoningChatMessage({
 										fill="currentColor"
 									/>
 								</svg>
-								AI Reasoning Process
+								AI Thinking Process
 							</span>
 						</div>
 						{/* Always show reasoning content - no collapsible UI */}
@@ -132,7 +130,7 @@ export function ReasoningChatMessage({
 					</div>
 					<MemoizedReactMarkdown
 						className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
-						remarkPlugins={[remarkGfm, remarkMath]}
+						remarkPlugins={[remarkGfm, rehypeMathJax, remarkRehype]}
 						components={{
 							// Process paragraph nodes.
 							// @ts-ignore

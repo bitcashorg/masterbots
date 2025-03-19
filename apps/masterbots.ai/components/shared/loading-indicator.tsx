@@ -1,5 +1,4 @@
 import { cn } from '@/lib/utils'
-import * as React from 'react'
 
 interface LoadingIndicatorProps {
 	state?: string
@@ -38,7 +37,7 @@ export function LoadingIndicator({ state }: LoadingIndicatorProps) {
 	}
 
 	return (
-		<div className="flex items-center justify-between gap-4">
+		<div className="flex items-center justify-between gap-4 whitespace-nowrap">
 			<div
 				className={cn(
 					'text-xs font-medium py-1 px-2 rounded-full transition-all',
