@@ -16,7 +16,7 @@ import type { UseChatHelpers } from 'ai/react'
 import { BrainIcon, GlobeIcon, GraduationCap } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import type { Chatbot } from 'mb-genql'
-import React, { useCallback, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 export interface ChatPanelProps
 	extends Pick<
@@ -90,7 +90,7 @@ export function ChatPanel({
 				{/* Header Section */}
 				<div className="flex flex-col items-center justify-between w-full px-2 py-3.5 space-y-2 bg-background md:flex-row md:space-y-0">
 					<div className="flex items-center justify-between w-full gap-4 mx-2">
-						<div className="flex items-center px-4 space-x-6 overflow-x-auto scrollbar-thin">
+						<div className="flex items-center space-x-6 w-full max-w-[60%] overflow-y-hidden scrollbar scrollbar-thin">
 							{/* Feature Toggles */}
 							<FeatureToggle
 								id="powerUp"

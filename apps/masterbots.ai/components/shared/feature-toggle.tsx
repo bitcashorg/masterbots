@@ -72,7 +72,7 @@ export function FeatureToggle({
 						value={isActive ? 'checked' : 'unchecked'}
 						onClick={() => onChange(!isActive)}
 						className={cn(
-							'transition-all delay-100 size-auto inline-flex items-center gap-1.5 border-muted p-0.5 rounded-full',
+							'transition-all delay-100 size-auto inline-flex items-center gap-1.5 border-muted p-1 rounded-full overflow-hidden',
 							isActive
 								? `${colorClasses.border} ${colorClasses.background}`
 								: '',
@@ -81,7 +81,7 @@ export function FeatureToggle({
 							check: (
 								<>
 									<div
-										className={`${colorClasses.iconBg} rounded-full -m-[2px] mr-1 p-0.5`}
+										className={`${colorClasses.iconBg} rounded-full -m-[4px] mr-1 p-0.5`}
 									>
 										{React.cloneElement(activeIcon as React.ReactElement<any>, {
 											className: `size-6 ${colorClasses.iconText}`,
