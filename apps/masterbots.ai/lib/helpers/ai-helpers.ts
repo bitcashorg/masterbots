@@ -12,9 +12,11 @@ import {
 	type Attachment,
 	type CoreMessage,
 	type ImagePart,
+	type Message,
 	type TextPart,
 	generateId,
 } from 'ai'
+import type { Message as MBMessage } from 'mb-genql'
 import type OpenAI from 'openai'
 
 // * This function gets the model client type
@@ -31,7 +33,9 @@ export function getModelClientType(model: AIModels) {
 		case AIModels.WordWare:
 			return 'WordWare'
 		case AIModels.DeepSeekR1:
-			return 'DeepSeek' // Add this case
+			return 'DeepSeek'
+		case AIModels.DeepSeekGroq:
+			return 'GroqDeepSeek'
 		default:
 			throw new Error('Unsupported model specified')
 	}
@@ -82,16 +86,15 @@ export function setStreamerPayload(
 					}) as Anthropic.MessageParam,
 			)
 		case 'DeepSeek':
+		case 'GroqDeepSeek':
 			return payload.map((message) => {
 				if (message.role === 'assistant') {
 					const content = message.content as string
-					// Extract any existing reasoning if present
 					const reasoningMatch = content.match(/<think>(.*?)<\/think>/s)
 					const answerMatch = content.match(/<answer>(.*?)<\/answer>/s)
 
 					return {
 						...message,
-						// If content already has think/answer tags, use those, otherwise add reasoning field
 						content: answerMatch ? content : `<answer>${content}</answer>`,
 						reasoning: reasoningMatch
 							? reasoningMatch[1]
@@ -251,4 +254,13 @@ export const mbObjectSchema = {
 	examples: examplesSchema,
 	tool: toolSchema,
 	grammarLanguageImprover: languageGammarSchema,
+}
+
+//? Helper function to check if a message has reasoning
+export function hasReasoning(message: Message & Partial<MBMessage>): boolean {
+	return Boolean(
+		message.reasoning ||
+			message.parts?.some((part) => part.type === 'reasoning') ||
+			message?.thinking,
+	)
 }

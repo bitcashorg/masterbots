@@ -919,6 +919,8 @@ export interface Message {
   prompt: Scalars["String"] | null;
   role: Scalars["String"];
   slug: Scalars["String"];
+  thinking: Scalars["String"] | null;
+  thinkingTraces: Scalars["String"][] | null;
   /** An object relationship */
   thread: Thread | null;
   threadId: Scalars["uuid"] | null;
@@ -955,6 +957,8 @@ export interface MessageMaxFields {
   prompt: Scalars["String"] | null;
   role: Scalars["String"] | null;
   slug: Scalars["String"] | null;
+  thinking: Scalars["String"] | null;
+  thinkingTraces: Scalars["String"][] | null;
   threadId: Scalars["uuid"] | null;
   __typename: "MessageMaxFields";
 }
@@ -968,6 +972,8 @@ export interface MessageMinFields {
   prompt: Scalars["String"] | null;
   role: Scalars["String"] | null;
   slug: Scalars["String"] | null;
+  thinking: Scalars["String"] | null;
+  thinkingTraces: Scalars["String"][] | null;
   threadId: Scalars["uuid"] | null;
   __typename: "MessageMinFields";
 }
@@ -991,6 +997,8 @@ export type MessageSelectColumn =
   | "prompt"
   | "role"
   | "slug"
+  | "thinking"
+  | "thinkingTraces"
   | "threadId";
 
 /** columns and relationships of "message_type_enum" */
@@ -1058,6 +1066,8 @@ export type MessageUpdateColumn =
   | "prompt"
   | "role"
   | "slug"
+  | "thinking"
+  | "thinkingTraces"
   | "threadId";
 
 /** columns and relationships of "models_enum" */
@@ -6040,6 +6050,8 @@ export interface MessageGenqlSelection {
   prompt?: boolean | number;
   role?: boolean | number;
   slug?: boolean | number;
+  thinking?: boolean | number;
+  thinkingTraces?: boolean | number;
   /** An object relationship */
   thread?: ThreadGenqlSelection;
   threadId?: boolean | number;
@@ -6112,6 +6124,8 @@ export interface MessageBoolExp {
   prompt?: StringComparisonExp | null;
   role?: StringComparisonExp | null;
   slug?: StringComparisonExp | null;
+  thinking?: StringComparisonExp | null;
+  thinkingTraces?: StringArrayComparisonExp | null;
   thread?: ThreadBoolExp | null;
   threadId?: UuidComparisonExp | null;
 }
@@ -6144,6 +6158,8 @@ export interface MessageInsertInput {
   prompt?: Scalars["String"] | null;
   role?: Scalars["String"] | null;
   slug?: Scalars["String"] | null;
+  thinking?: Scalars["String"] | null;
+  thinkingTraces?: Scalars["String"][] | null;
   thread?: ThreadObjRelInsertInput | null;
   threadId?: Scalars["uuid"] | null;
 }
@@ -6157,6 +6173,8 @@ export interface MessageMaxFieldsGenqlSelection {
   prompt?: boolean | number;
   role?: boolean | number;
   slug?: boolean | number;
+  thinking?: boolean | number;
+  thinkingTraces?: boolean | number;
   threadId?: boolean | number;
   __typename?: boolean | number;
   __scalar?: boolean | number;
@@ -6171,6 +6189,8 @@ export interface MessageMaxOrderBy {
   prompt?: OrderBy | null;
   role?: OrderBy | null;
   slug?: OrderBy | null;
+  thinking?: OrderBy | null;
+  thinkingTraces?: OrderBy | null;
   threadId?: OrderBy | null;
 }
 
@@ -6183,6 +6203,8 @@ export interface MessageMinFieldsGenqlSelection {
   prompt?: boolean | number;
   role?: boolean | number;
   slug?: boolean | number;
+  thinking?: boolean | number;
+  thinkingTraces?: boolean | number;
   threadId?: boolean | number;
   __typename?: boolean | number;
   __scalar?: boolean | number;
@@ -6197,6 +6219,8 @@ export interface MessageMinOrderBy {
   prompt?: OrderBy | null;
   role?: OrderBy | null;
   slug?: OrderBy | null;
+  thinking?: OrderBy | null;
+  thinkingTraces?: OrderBy | null;
   threadId?: OrderBy | null;
 }
 
@@ -6237,6 +6261,8 @@ export interface MessageOrderBy {
   prompt?: OrderBy | null;
   role?: OrderBy | null;
   slug?: OrderBy | null;
+  thinking?: OrderBy | null;
+  thinkingTraces?: OrderBy | null;
   thread?: ThreadOrderBy | null;
   threadId?: OrderBy | null;
 }
@@ -6262,6 +6288,8 @@ export interface MessageSetInput {
   prompt?: Scalars["String"] | null;
   role?: Scalars["String"] | null;
   slug?: Scalars["String"] | null;
+  thinking?: Scalars["String"] | null;
+  thinkingTraces?: Scalars["String"][] | null;
   threadId?: Scalars["uuid"] | null;
 }
 
@@ -6283,6 +6311,8 @@ export interface MessageStreamCursorValueInput {
   prompt?: Scalars["String"] | null;
   role?: Scalars["String"] | null;
   slug?: Scalars["String"] | null;
+  thinking?: Scalars["String"] | null;
+  thinkingTraces?: Scalars["String"][] | null;
   threadId?: Scalars["uuid"] | null;
 }
 
@@ -8561,6 +8591,23 @@ export interface SocialFollowingVarianceFieldsGenqlSelection {
 /** order by variance() on columns of table "social_following" */
 export interface SocialFollowingVarianceOrderBy {
   followeeIdChatbot?: OrderBy | null;
+}
+
+/** Boolean expression to compare columns of type "String". All fields are combined with logical 'AND'. */
+export interface StringArrayComparisonExp {
+  /** is the array contained in the given array value */
+  _containedIn?: Scalars["String"][] | null;
+  /** does the array contain the given value */
+  _contains?: Scalars["String"][] | null;
+  _eq?: Scalars["String"][] | null;
+  _gt?: Scalars["String"][] | null;
+  _gte?: Scalars["String"][] | null;
+  _in?: Scalars["String"][][] | null;
+  _isNull?: Scalars["Boolean"] | null;
+  _lt?: Scalars["String"][] | null;
+  _lte?: Scalars["String"][] | null;
+  _neq?: Scalars["String"][] | null;
+  _nin?: Scalars["String"][][] | null;
 }
 
 /** Boolean expression to compare columns of type "String". All fields are combined with logical 'AND'. */
@@ -17368,6 +17415,8 @@ export const enumMessageSelectColumn = {
   prompt: "prompt" as const,
   role: "role" as const,
   slug: "slug" as const,
+  thinking: "thinking" as const,
+  thinkingTraces: "thinkingTraces" as const,
   threadId: "threadId" as const,
 };
 
@@ -17392,6 +17441,8 @@ export const enumMessageUpdateColumn = {
   prompt: "prompt" as const,
   role: "role" as const,
   slug: "slug" as const,
+  thinking: "thinking" as const,
+  thinkingTraces: "thinkingTraces" as const,
   threadId: "threadId" as const,
 };
 

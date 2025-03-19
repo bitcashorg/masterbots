@@ -1,23 +1,22 @@
-import type { UseChatHelpers } from 'ai/react'
-import { GlobeIcon } from 'lucide-react'
-import { appConfig } from 'mb-env'
-import type { Chatbot } from 'mb-genql'
-import * as React from 'react'
+'use client'
 
 import { ChatShareDialog } from '@/components/routes/chat/chat-share-dialog'
 import { PromptForm } from '@/components/routes/chat/prompt-form'
 import { ButtonScrollToBottom } from '@/components/shared/button-scroll-to-bottom'
-import { FontSizeSelector } from '@/components/shared/font-size-selector'
+import { FeatureToggle } from '@/components/shared/feature-toggle'
+import { LoadingIndicator } from '@/components/shared/loading-indicator'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import { IconRefresh, IconShare, IconStop } from '@/components/ui/icons'
-import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
-import { Switch } from '@/components/ui/switch'
+import { useDeepThinking } from '@/lib/hooks/use-deep-thinking'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn } from '@/lib/utils'
 import type { Message as AiMessage } from 'ai'
+import type { UseChatHelpers } from 'ai/react'
+import { BrainIcon, GlobeIcon, GraduationCap } from 'lucide-react'
+import { appConfig } from 'mb-env'
+import type { Chatbot } from 'mb-genql'
+import { useCallback, useState } from 'react'
 
 export interface ChatPanelProps
 	extends Pick<
@@ -54,21 +53,32 @@ export function ChatPanel({
 }: ChatPanelProps) {
 	const { isOpenPopup, loadingState, webSearch, setWebSearch } = useThread()
 	const { isPowerUp, togglePowerUp } = usePowerUp()
-	const [shareDialogOpen, setShareDialogOpen] = React.useState(false)
-	const webSearchRef = React.useRef(null)
+	const { isDeepThinking, toggleDeepThinking } = useDeepThinking()
+	const [shareDialogOpen, setShareDialogOpen] = useState(false)
 
 	const isPreProcessing = Boolean(
 		loadingState?.match(/processing|digesting|polishing/),
 	)
-	const hiddenAnimationClassNames =
+	const hiddenAnimationClasses =
 		'p-2 gap-0 w-auto relative overflow-hidden [&:hover_span]:opacity-100 [&:hover_span]:w-auto [&:hover_span]:duration-300 [&:hover_svg]:mr-2 [&:hover_span]:transition-all'
-	const hiddenAnimationItemClassNames =
+	const hiddenAnimationItemClasses =
 		'transition-all w-[0px] opacity-0 whitespace-nowrap duration-300'
+
+	const prepareMessageOptions = useCallback(
+		(chatOptions: any) => ({
+			...chatOptions,
+			powerUp: isPowerUp,
+			reasoning: isDeepThinking,
+			webSearch: webSearch,
+		}),
+		[isPowerUp, isDeepThinking, webSearch],
+	)
 
 	return (
 		<div
 			className={cn(
 				'z-[2] fixed inset-x-0 bottom-0 w-full',
+				'pb-4',
 				'animate-in duration-300 ease-in-out',
 				'bg-gradient-to-b from-background/50 to-background',
 				'dark:from-background/0 dark:to-background/80',
@@ -80,66 +90,39 @@ export function ChatPanel({
 				{/* Header Section */}
 				<div className="flex flex-col items-center justify-between w-full px-2 py-3.5 space-y-2 bg-background md:flex-row md:space-y-0">
 					<div className="flex items-center justify-between w-full gap-4 mx-2">
-						<div className="flex items-center space-x-4">
-							{/* Power-Up Switch */}
-							<div className="flex md:flex-row flex-col items-center space-x-2 gap-y-2 cursor-pointer">
-								<Switch
-									id="power-up"
-									checked={isPowerUp}
-									onCheckedChange={togglePowerUp}
-									className="h-4 w-9 [&>span]:size-3.5"
-								/>
-								<Label
-									htmlFor="power-up"
-									className="text-xs md:text-sm font-normal cursor-pointer"
-								>
-									Power-Up
-								</Label>
-							</div>
+						<div className="flex items-center space-x-6 w-full max-w-[60%] overflow-y-hidden scrollbar scrollbar-thin">
+							{/* Feature Toggles */}
+							<FeatureToggle
+								id="powerUp"
+								name="Deep Expertise"
+								icon={<GraduationCap />}
+								activeIcon={<GraduationCap />}
+								isActive={isPowerUp}
+								onChange={togglePowerUp}
+								activeColor="yellow"
+							/>
+
+							<FeatureToggle
+								id="reasoning"
+								name="Deep Thinking"
+								icon={<BrainIcon />}
+								activeIcon={<BrainIcon />}
+								isActive={isDeepThinking}
+								onChange={toggleDeepThinking}
+								activeColor="green"
+							/>
 
 							{appConfig.features.webSearch && (
-								<>
-									<Separator orientation="vertical" className="h-6" />
-									{/* Web Search Checkbox */}
-									<Checkbox
-										custom
-										name="webSearch"
-										id="webSearch"
-										value={webSearch ? 'checked' : 'unchecked'}
-										ref={webSearchRef}
-										onClick={(value) => setWebSearch(!value)}
-										className="transition-all delay-100 h-auto w-auto inline-flex items-center gap-2 border-muted p-0.5 data-[state=checked]:border-accent/50 data-[state=checked]:bg-accent/25 rounded-full"
-										checkboxconfig={{
-											check: (
-												<>
-													<div className="bg-accent rounded-full -m-[2px] mr-1 p-0.5">
-														<GlobeIcon className="size-7 text-accent-foreground" />
-													</div>
-													<Label
-														htmlFor="webSearch"
-														className="mr-2 text-xs leading-none text-nowrap"
-													>
-														Web search enabled
-													</Label>
-												</>
-											),
-											uncheck: (
-												<>
-													<GlobeIcon className="opacity-75 size-7" />
-													<span className="sr-only">Web search disabled</span>
-												</>
-											),
-										}}
-									/>
-								</>
+								<FeatureToggle
+									id="webSearch"
+									name="Web Search"
+									icon={<GlobeIcon />}
+									activeIcon={<GlobeIcon />}
+									isActive={webSearch}
+									onChange={setWebSearch}
+									activeColor="cyan"
+								/>
 							)}
-
-							<Separator orientation="vertical" className="h-6" />
-
-							{/* Font Size Selector */}
-							<div className="flex items-center">
-								<FontSizeSelector />
-							</div>
 						</div>
 
 						{/* Right side controls */}
@@ -147,18 +130,13 @@ export function ChatPanel({
 							<ButtonScrollToBottom
 								scrollToBottom={scrollToBottom}
 								isAtBottom={isAtBottom}
-								className={hiddenAnimationClassNames}
-								textClassName={hiddenAnimationItemClassNames}
+								className={hiddenAnimationClasses}
+								textClassName={hiddenAnimationItemClasses}
 							/>
 							{showReload && (isLoading || isPreProcessing) ? (
 								<>
 									{loadingState !== 'finished' && (
-										<div className="flex items-center justify-between gap-4">
-											<b className="text-xs drop-shadow-lg">{loadingState}</b>
-											<div className="flex items-center justify-center w-full size-4">
-												<div className="size-3 border-2 border-gray-200 rounded-full animate-ping" />
-											</div>
-										</div>
+										<LoadingIndicator state={loadingState} />
 									)}
 									{isLoading && (
 										<Button
@@ -177,11 +155,11 @@ export function ChatPanel({
 										<Button
 											variant="outline"
 											size="icon"
-											className={hiddenAnimationClassNames}
+											className={hiddenAnimationClasses}
 											onClick={() => reload()}
 										>
 											<IconRefresh className="transition-all" />
-											<span className={hiddenAnimationItemClassNames}>
+											<span className={hiddenAnimationItemClasses}>
 												Regenerate response
 											</span>
 										</Button>
@@ -231,7 +209,7 @@ export function ChatPanel({
 									content: value,
 									role: 'user',
 								},
-								chatOptions,
+								prepareMessageOptions(chatOptions),
 							)
 						}}
 						// biome-ignore lint/complexity/noExtraBooleanCast: <explanation>

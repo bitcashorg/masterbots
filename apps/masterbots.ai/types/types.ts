@@ -5,6 +5,7 @@ import type { UserRole } from 'mb-drizzle'
 import type {
 	Chatbot,
 	Example,
+	Message as MBMessage,
 	Prompt,
 	SocialFollowing,
 	Thread,
@@ -17,7 +18,6 @@ import type {
 	ToolCall,
 } from 'openai/resources/beta/threads/runs/steps.mjs'
 import type React from 'react'
-import type { Element } from 'react-markdown/lib/ast-to-react'
 import type Stripe from 'stripe'
 
 // * Chat types
@@ -209,6 +209,7 @@ export type AiClientType =
 	| 'Perplexity'
 	| 'WordWare'
 	| 'DeepSeek'
+	| 'GroqDeepSeek'
 
 export type JSONResponseStream = {
 	model: string
@@ -284,11 +285,12 @@ export interface PageProps {
 }
 
 export interface ChatMessageProps extends React.ComponentProps<'div'> {
-	message: Message
+	message: Message & Partial<MBMessage>
 	sendMessageFromResponse?: (message: string) => void
 	chatbot?: Chatbot
 	actionRequired?: boolean
 	webSearchResults?: WebSearchResult[]
+	isGenerating?: boolean
 }
 
 //* Reference result manipulations props

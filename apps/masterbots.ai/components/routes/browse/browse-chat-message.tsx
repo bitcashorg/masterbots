@@ -51,11 +51,13 @@ export function BrowseChatMessage({
 					className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 !max-w-5xl"
 					remarkPlugins={[remarkGfm, remarkMath]}
 					components={{
+						// @ts-ignore
 						p({ children }) {
 							return (
 								<p className="mb-2 whitespace-pre-line last:mb-0">{children}</p>
 							)
 						},
+						// @ts-ignore
 						ol({ children }) {
 							return (
 								<ol className="text-left list-decimal list-inside">
@@ -63,11 +65,13 @@ export function BrowseChatMessage({
 								</ol>
 							)
 						},
+						// @ts-ignore
 						ul({ children }) {
 							return (
 								<ul className="text-left list-disc list-inside">{children}</ul>
 							)
 						},
+						// @ts-ignore
 						code({
 							node,
 							inline = false,
@@ -86,9 +90,6 @@ export function BrowseChatMessage({
 										<span className="mt-1 cursor-default animate-pulse">▍</span>
 									)
 								}
-
-								// @ts-ignore
-								children[0] = (children[0] as string).replace('`▍`', '▍')
 							}
 
 							const match = /language-(\w+)/.exec(className || '')

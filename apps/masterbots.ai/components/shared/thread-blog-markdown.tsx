@@ -9,9 +9,11 @@ export function ThreadBlogMarkDown({ content }: { content: string }) {
 			className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
 			remarkPlugins={[remarkGfm, remarkMath]}
 			components={{
+				// @ts-ignore
 				p({ children }) {
 					return <p className="whitespace-pre-line">{children}</p>
 				},
+				// @ts-ignore
 				li({ children }) {
 					return (
 						<li className="list-disc list-inside text-left [&_p]:inline-block [&_p]:m-0 [&_p]:w-[97%] [&_p]:align-text-top">
@@ -19,14 +21,17 @@ export function ThreadBlogMarkDown({ content }: { content: string }) {
 						</li>
 					)
 				},
+				// @ts-ignore
 				ol({ children }) {
 					return (
 						<ol className="list-decimal list-inside text-left">{children}</ol>
 					)
 				},
+				// @ts-ignore
 				ul({ children }) {
 					return <ul className="list-disc list-inside text-left">{children}</ul>
 				},
+				// @ts-ignore
 				a({ node, children, ...props }) {
 					return (
 						<a
