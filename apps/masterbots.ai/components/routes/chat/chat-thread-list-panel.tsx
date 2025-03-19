@@ -3,7 +3,5 @@
 import { Chat } from '@/components/routes/chat/chat'
 
 export default function ChatThreadListPanel() {
-  return (
-    <Chat />
-  )
+	return <Chat />
 }

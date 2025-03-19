@@ -31,6 +31,9 @@ insert_permissions:
         - message_id
         - prompt
         - role
+        - slug
+        - thinking
+        - thinking_traces
         - thread_id
     comment: ""
   - role: user
@@ -42,12 +45,15 @@ insert_permissions:
       columns:
         - augmented_from
         - content
-        - role
         - created_at
         - examples
         - message_id
         - prompt
         - role
+        - role
+        - slug
+        - thinking
+        - thinking_traces
         - thread_id
     comment: ""
 select_permissions:
@@ -60,9 +66,13 @@ select_permissions:
         - examples
         - message_id
         - prompt
-        - thread_id
         - role
+        - slug
+        - thinking
+        - thinking_traces
+        - thread_id
       filter: {}
+      allow_aggregations: true
     comment: ""
   - role: moderator
     permission:
@@ -74,21 +84,29 @@ select_permissions:
         - message_id
         - prompt
         - role
+        - slug
+        - thinking
+        - thinking_traces
         - thread_id
       filter: {}
+      allow_aggregations: true
     comment: ""
   - role: user
     permission:
       columns:
         - augmented_from
         - content
-        - role
         - created_at
         - examples
         - message_id
         - prompt
+        - role
+        - slug
+        - thinking
+        - thinking_traces
         - thread_id
       filter: {}
+      allow_aggregations: true
     comment: ""
 delete_permissions:
   - role: moderator
