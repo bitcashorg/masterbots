@@ -30,7 +30,7 @@ interface DialogWizardProps {
 	dialogOpen: boolean
 	headerTitle: string
 	handleCloseWizard: () => void
-	errorComponent?: JSX.Element
+	errorComponent?: React.ReactElement
 }
 const animationStepProps = {
 	initial: { opacity: 0, x: 200 },
@@ -69,7 +69,7 @@ function Content({
 	steps,
 	dialogOpen,
 }: {
-	errorComponent?: JSX.Element
+	errorComponent?: React.ReactElement
 	steps: WizardStep[]
 	dialogOpen: boolean
 }) {

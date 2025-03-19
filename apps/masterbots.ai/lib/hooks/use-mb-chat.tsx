@@ -12,7 +12,11 @@ import {
 	aiExampleClassification,
 	processUserMessage,
 } from '@/lib/helpers/ai-classification'
-import { cleanPrompt } from '@/lib/helpers/ai-helpers'
+import {
+	continueAIGeneration,
+	shouldContinueGeneration,
+} from '@/lib/helpers/ai-continue-generation'
+import { cleanPrompt, hasReasoning } from '@/lib/helpers/ai-helpers'
 import {
 	type FileAttachment,
 	getUserIndexedDBKeys,
@@ -120,6 +124,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	 * */
 	const userAndAssistantMessages: AiMessage[] = activeThread
 		? messagesFromDB.map((m) => ({
+				...m,
 				id: m.messageId,
 				role: m.role as AiMessage['role'],
 				content: m.content,
@@ -235,6 +240,31 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						text: `Ai generation finished, reason: ${options.finishReason}`,
 					})
 				}
+
+				//? Check if we should continue the generation based on the finish reason
+				if (shouldContinueGeneration(options.finishReason)) {
+					if (appConfig.features.devMode) {
+						customSonner({
+							type: 'info',
+							text: `Generation was cut off (${options.finishReason}). Attempting to continue...`,
+						})
+					}
+
+					//? Try to continue the AI generation
+					const continuedContent = await continueAIGeneration(message, append, {
+						setLoadingState,
+						customSonner,
+						devMode: appConfig.features.devMode,
+						chatConfig: useChatConfig.body,
+						maxAttempts: 2,
+					})
+
+					if (continuedContent) {
+						// Override the message content with the continued content
+						message.content = continuedContent
+					}
+				}
+
 				if (options.finishReason === 'error') {
 					customSonner({
 						type: 'error',
@@ -248,8 +278,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 							userId: session?.user.id,
 						})
 					}
+
+					return
 				}
 
+				// Continue with your existing message saving logic
 				const aiChatThreadId = resolveThreadId({
 					isContinuousThread,
 					randomThreadId: randomThreadId.current,
@@ -297,12 +330,22 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				let userMessageSlug = toSlug(curatedPreUserMessageSlug)
 				let userSlugCheck = await doesMessageSlugExist(userMessageSlug)
 
+				// Create a throttled version of the slug check function outside the loop to avoid creating a new function
+				// on each iteration, increase performance and infinite loop prevention.
+				const throttledCheckSlug = throttle(async (baseSlug, sequence) => {
+					const newSlug = toSlug(`${baseSlug} ${sequence}`)
+					return await doesMessageSlugExist(newSlug)
+				}, 250)
+
 				// If user message slug already exists, append a counter
 				while (userSlugCheck.exists) {
 					userMessageSlug = toSlug(
 						`${curatedPreUserMessageSlug} ${userSlugCheck.sequence + 1}`,
 					)
-					userSlugCheck = await doesMessageSlugExist(userMessageSlug)
+					userSlugCheck = await throttledCheckSlug(
+						curatedPreUserMessageSlug,
+						userSlugCheck.sequence + 1,
+					)
 				}
 
 				// We need to check for a unique slug for assistant message as well
@@ -315,7 +358,10 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					assistantMessageSlug = toSlug(
 						`${message.content} ${assistantSlugCheck.sequence + 1}`,
 					)
-					assistantSlugCheck = await doesMessageSlugExist(assistantMessageSlug)
+					assistantSlugCheck = await throttledCheckSlug(
+						message.content,
+						assistantSlugCheck.sequence + 1,
+					)
 				}
 
 				const [
@@ -332,6 +378,13 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					},
 					{
 						...newBaseMessage,
+						...(hasReasoning(message)
+							? {
+									thinking:
+										message.parts?.find((msg) => msg.type === 'reasoning')
+											?.reasoning || message.reasoning,
+								}
+							: {}),
 						messageId: assistantMessageId,
 						slug: assistantMessageSlug,
 						role: 'assistant',
@@ -422,7 +475,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	 * All messages coming from DB and continuing the chat, omitting the system prompts to provide to the LLM context.
 	 */
 	const allMessages = uniqBy(
-		initialMessages?.concat(messages).concat(
+		initialMessages?.concat(messages)?.concat(
 			activeThread?.messages?.map((msg) => ({
 				...msg,
 				id: msg.messageId,
@@ -643,12 +696,16 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				chatMetadata,
 				customSonner,
 			})
+			// eslint-disable-next-line react-hooks/exhaustive-deps
 		}, [chatbot, isPowerUp])
 
 	const appendAsContinuousThread = async (
 		userMessage: AiMessage | CreateMessage,
 	) => {
-		const optimisticUserMessage = { ...userMessage, id: randomThreadId.current }
+		const optimisticUserMessage = {
+			...userMessage,
+			id: randomThreadId.current,
+		}
 
 		await appendWithMbContextPrompts(optimisticUserMessage)
 

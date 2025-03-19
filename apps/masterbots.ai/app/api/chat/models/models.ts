@@ -6,4 +6,5 @@ export enum AIModels {
 	llama3_7b = 'llama-3-sonar-large-32k-online',
 	WordWare = 'wordware-ai',
 	DeepSeekR1 = 'deepseek-r1',
+	DeepSeekGroq = 'deepseek-r1-distill-llama-70b',
 }

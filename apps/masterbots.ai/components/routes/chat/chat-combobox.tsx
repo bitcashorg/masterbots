@@ -24,6 +24,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from '@/components/ui/popover'
+import { useDeepThinking } from '@/lib/hooks/use-deep-thinking'
 import { useModel } from '@/lib/hooks/use-model'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { cn } from '@/lib/utils'
@@ -39,7 +40,11 @@ const models = [
 	{ label: 'llama3_8', value: AIModels.llama3_8b, logo: <IconLlama /> },
 	{ label: 'llama3_7', value: AIModels.llama3_7b, logo: <IconLlama /> },
 	{ label: 'WordWare', value: AIModels.WordWare, logo: <IconWordware /> },
-	{ label: 'DeepSeek R1', value: AIModels.DeepSeekR1, logo: <IconDeepSeek /> },
+	{
+		label: 'DeepSeek',
+		value: AIModels.DeepSeekGroq,
+		logo: 'MB',
+	},
 ]
 
 //* ChatCombobox provides a popover for AI model selection and triggers model change based on user choice.
@@ -48,7 +53,18 @@ export function ChatCombobox() {
 	const [open, setOpen] = React.useState(false)
 	const [value, setValue] = React.useState(selectedModel as string)
 	const { isPowerUp } = usePowerUp()
+	const { isDeepThinking } = useDeepThinking()
 	const isDevEnv = process.env.NEXT_PUBLIC_APP_ENV !== 'prod'
+
+	React.useEffect(() => {
+		setValue(selectedModel as string)
+	}, [selectedModel])
+
+	const getButtonVariant = () => {
+		if (isDeepThinking) return 'deepThinking'
+		if (isPowerUp) return 'powerUp'
+		return 'outline'
+	}
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
@@ -60,7 +76,7 @@ export function ChatCombobox() {
 					className={cn(
 						buttonVariants({
 							size: 'sm',
-							variant: isPowerUp ? 'powerUp' : 'outline',
+							variant: getButtonVariant(),
 						}),
 						'absolute left-[8px] top-[8px] size-8 rounded-full p-0 sm:left-[14px]',
 					)}
