@@ -36,7 +36,9 @@ export default async function BotThreadsPage(props: PageProps) {
 			) : (
 				''
 			)}
-			<BrowseSearchInput />
+			<div className="px-6">
+				<BrowseSearchInput />
+			</div>
 			<BrowseSpecificThreadList
 				initialThreads={threads}
 				PAGE_SIZE={PAGE_SIZE}
