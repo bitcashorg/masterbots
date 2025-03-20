@@ -94,6 +94,7 @@ export default function UserThreadPanel({
 	const { userSlug, category, chatbot } = params
 	const continuousThreadId = searchParams.get('continuousThreadId')
 	const [storeThreads, setStoreThreads] = useState<Thread[]>(initialThreads)
+	const isPublic = !/^\/(?:c|u)(?:\/|$)/.test(usePathname())
 	const fetchIdRef = useRef<number>(0)
 
 	const userWithSlug = useAsync(async () => {
@@ -169,6 +170,7 @@ export default function UserThreadPanel({
 	) => {
 		const thread = await getThread({
 			threadId: continuousThreadId,
+			isPersonal: !isPublic,
 			jwt: session.user?.hasuraJwt,
 		})
 
