@@ -1,9 +1,10 @@
 import { BrowseThreadBlog } from '@/components/routes/browse/browse-thread-blog'
-import { getThread } from '@/services/hasura'
+import { generateMbMetadata } from '@/lib/metadata'
+import { getCanonicalDomain, urlBuilders } from '@/lib/url'
+import { getCategory, getThread } from '@/services/hasura'
 import type { User } from 'mb-genql'
+import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
-
-export { generateMbMetadata as generateMetadata } from '@/lib/metadata'
 
 interface ThreadPageProps {
 	params: Promise<{
@@ -35,4 +36,29 @@ export default async function ThreadQuestionPage(props: ThreadPageProps) {
 			user={session?.user as unknown as User}
 		/>
 	)
+}
+
+export async function generateMetadata(
+	props: ThreadPageProps,
+): Promise<Metadata> {
+	// Get base metadata from the shared function
+	const baseMetadata = await generateMbMetadata(props)
+	const params = await props.params
+	// Add or override with your custom link tags
+	const chatbotName = params.chatbot
+	const topic = await getCategory({ chatbotName })
+	const domain = getCanonicalDomain(chatbotName)
+	return {
+		...baseMetadata,
+		alternates: {
+			canonical: urlBuilders.threadUrl({
+				type: 'public',
+				category: topic.name,
+				domain,
+				chatbot: chatbotName,
+				threadSlug: params.threadSlug as string,
+			}),
+			// TODO: Add languages when languages are enabled.
+		},
+	}
 }

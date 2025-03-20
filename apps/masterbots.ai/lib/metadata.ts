@@ -72,7 +72,7 @@ export async function generateMbMetadata({
 	params,
 }: {
 	params: PageProps['params']
-}): Promise<Metadata | undefined> {
+}): Promise<Metadata> {
 	const paramsObject = await params
 
 	let thread: Thread | undefined
