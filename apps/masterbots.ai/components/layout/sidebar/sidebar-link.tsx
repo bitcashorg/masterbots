@@ -8,11 +8,10 @@ import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { cn, getRouteType } from '@/lib/utils'
 import type {
 	ChatbotThreadListUrlParams,
-	TopicThreadListUrlParams,
 	UserChatbotThreadListUrlParams,
-	UserTopicThreadListUrlParams,
 } from '@/types/url'
 import type { Category, Chatbot } from 'mb-genql'
+import { toSlug } from 'mb-lib'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams, usePathname, useRouter } from 'next/navigation'
@@ -60,52 +59,12 @@ export default function SidebarLink({
 			if (activeThread) setActiveThread(null)
 			if (isFilterMode) return
 
-			// This is not working... we have a delay with the state and it is not updating the activeCategory state properly hence, the 2nd time closing the category is not working
-			let newCategory =
-				activeCategory === category.categoryId ||
-				activeThread?.chatbot.categories[0].categoryId === category.categoryId
-					? null
-					: category.categoryId
-
 			setExpandedCategories((prev) =>
 				prev.includes(category.categoryId) ? [] : [category.categoryId],
 			)
 			setActiveChatbot(null)
-
-			if (!newCategory && page !== 'profile') {
-				router.push('/')
-			} else if (!newCategory && page === 'profile') {
-				navigateTo({
-					urlType: 'profilesUrl',
-					navigationParams: {
-						type: 'user',
-						usernameSlug: userSlug as string,
-					},
-				})
-			}
-
-			if (page === 'profile' && newCategory) {
-				// ? Only the profile user has a sidebar
-				navigateTo({
-					urlType: 'userTopicThreadListUrl',
-					navigationParams: {
-						type: 'user',
-						usernameSlug: userSlug as string,
-						category: category.name,
-					} as UserTopicThreadListUrlParams,
-				})
-			} else if (newCategory) {
-				navigateTo({
-					urlType: 'topicThreadListUrl',
-					navigationParams: {
-						type: isPublic ? 'public' : 'personal',
-						category: category.name,
-					} as TopicThreadListUrlParams,
-				})
-			}
-
 			setActiveCategory((prevCategory) => {
-				newCategory =
+				const newCategory =
 					category.categoryId === prevCategory
 						? null // clicking the same category turns it off
 						: category.categoryId
@@ -113,7 +72,7 @@ export default function SidebarLink({
 				return newCategory
 			})
 		},
-		[category, isFilterMode, isOpenPopup, activeThread, activeCategory],
+		[router, category, isFilterMode, isOpenPopup, activeThread, activeCategory],
 	)
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -202,13 +161,44 @@ export default function SidebarLink({
 		)
 	}
 
+	// Create a constant for the URL using urlBuilders
+	const categoryUrl = React.useMemo(() => {
+		if (!category) return ''
+
+		const isNewCategory = category.categoryId !== activeCategory
+
+		if (isPublic) {
+			// For public routes
+			return category.categoryId && activeCategory !== category.categoryId
+				? `/${toSlug(category.name)}`
+				: '/'
+		}
+		if (page === 'profile') {
+			// For profile pages
+			return category.categoryId && isNewCategory
+				? urlBuilders.userTopicThreadListUrl({
+						type: 'user',
+						usernameSlug: userSlug as string,
+						category: category.name,
+					})
+				: urlBuilders.profilesUrl({
+						type: 'user',
+						usernameSlug: userSlug as string,
+					})
+		}
+		// For personal routes
+		return category.categoryId && isNewCategory
+			? urlBuilders.topicThreadListUrl({
+					type: isPublic ? 'public' : 'personal',
+					category: category.name,
+				})
+			: '/c'
+	}, [category, activeCategory, isPublic, page, userSlug])
+
 	return (
 		<div className={cn('flex flex-col mb-2')} data-route={routeType}>
-			{/* biome-ignore lint/a11y/useButtonType: <explanation> */}
-			<button
-				role="menuitem"
-				aria-expanded={isActive}
-				aria-controls={`category-${category.name}`}
+			<Link
+				href={categoryUrl}
 				className={cn(
 					'flex items-center p-4 w-full text-left sidebar-gradient',
 					isActive && 'selected',
@@ -218,9 +208,13 @@ export default function SidebarLink({
 					e.stopPropagation()
 					handleClickCategory(e)
 				}}
+				role="menuitem"
+				aria-expanded={isActive}
+				aria-controls={`category-${category.name}`}
+				prefetch
 			>
 				{categoryContent}
-			</button>
+			</Link>
 			{childrenContent}
 		</div>
 	)
