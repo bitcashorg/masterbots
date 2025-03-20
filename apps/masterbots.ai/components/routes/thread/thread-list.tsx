@@ -28,8 +28,8 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { useSonner } from '@/lib/hooks/useSonner'
 import { getThread } from '@/services/hasura'
 import type { Thread } from 'mb-genql'
-import { useState } from 'react'
-import { useAsync } from 'react-use'
+import { useEffect, useState } from 'react'
+import { useAsyncFn } from 'react-use'
 
 export default function ThreadList({
 	loading,
@@ -85,7 +85,7 @@ export default function ThreadList({
 		}
 	}
 
-	useAsync(async () => {
+	const [, getOpeningActiveThread] = useAsyncFn(async () => {
 		if (activeThread) return
 		const pathname = window.location.pathname
 		const pathNameParts = pathname.split('/')
@@ -98,6 +98,8 @@ export default function ThreadList({
 			threadSlug,
 			threadQuestionSlug,
 		] = pathNameParts
+
+		if (!threadSlug) return
 
 		const thread = await getThread({
 			threadSlug,
@@ -114,6 +116,11 @@ export default function ThreadList({
 
 		console.log('scrolling to', threadQuestionSlug)
 		activateThreadPopup(thread)
+	}, [activeThread])
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
+		getOpeningActiveThread()
 	}, [activeThread])
 
 	return (

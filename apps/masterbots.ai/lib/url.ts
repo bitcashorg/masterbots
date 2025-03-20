@@ -41,10 +41,12 @@ export const decodeQuery = (input: string): string => {
 export const getCanonicalDomain = (chatbotName: string) => {
 	try {
 		return (
-			canonicalChatbotDomains.find(
-				(cChatbot) => cChatbot.name === chatbotName.toLocaleLowerCase(),
-			)?.value || '/'
-		).split('/')[1]
+			(
+				canonicalChatbotDomains.find(
+					(cChatbot) => cChatbot.name === chatbotName.toLocaleLowerCase(),
+				)?.value || '/'
+			).split('/')[1] || 'prompt'
+		)
 	} catch (error) {
 		console.error('Error getting canonical domain:', error)
 		return 'prompt'
