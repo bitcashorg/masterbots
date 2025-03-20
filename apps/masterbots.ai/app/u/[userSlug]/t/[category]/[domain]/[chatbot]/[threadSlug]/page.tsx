@@ -1,4 +1,5 @@
 import { BrowseThreadBlog } from '@/components/routes/browse/browse-thread-blog'
+import { botNames } from '@/lib/constants/bots-names'
 import { generateMbMetadata } from '@/lib/metadata'
 import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { getCategory, getThread } from '@/services/hasura'
@@ -44,7 +45,7 @@ export async function generateMetadata(
 	const baseMetadata = await generateMbMetadata(props)
 	const params = await props.params
 	// Add or override with your custom link tags
-	const chatbotName = params.chatbot
+	const chatbotName = (await botNames).get(params.chatbot as string) || ''
 	const topic = await getCategory({ chatbotName })
 	const domain = getCanonicalDomain(chatbotName)
 	return {

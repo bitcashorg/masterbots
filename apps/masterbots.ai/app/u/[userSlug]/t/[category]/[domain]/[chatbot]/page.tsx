@@ -71,7 +71,7 @@ export default async function ProfileChatBot(props: PageProps) {
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
 	const params = await props.params
-	const chatbotName = params.chatbot as string
+	const chatbotName = (await botNames).get(params.chatbot as string) || ''
 	const chatbot = await getChatbot({
 		chatbotName,
 		jwt: '',
@@ -85,7 +85,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 		ogImageUrl: `${process.env.BASE_URL || ''}/api/og?chatbotId=${chatbot.chatbotId}`,
 		twitterCard: 'summary_large_image',
 	}
-	const domain = getCanonicalDomain(chatbotName as string)
+	const domain = getCanonicalDomain(params.chatbot as string)
 	return {
 		...generateMetadataFromSEO(seoData, params),
 		alternates: {
