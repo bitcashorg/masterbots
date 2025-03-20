@@ -7,17 +7,10 @@ import {
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
-import { Toggle } from '@/components/ui/toggle'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { cn } from '@/lib/utils'
 import type { PreferenceSectionProps } from '@/types/types'
-import {
-	AArrowDown,
-	AArrowUp,
-	MessageSquareX,
-	Plus,
-	UserRoundX,
-} from 'lucide-react'
+import { AArrowDown, AArrowUp, Plus } from 'lucide-react'
 import { PreferenceItemTitle } from './preference-item'
 
 export function PreferenceSection({
@@ -36,7 +29,7 @@ export function PreferenceSection({
 						<CardContent className="px-4 py-8 flex flex-col justify-center items-center gap-y-4 w-full">
 							{items.map((item, idx) => (
 								<div
-									key={idx}
+									key={item.title}
 									className={cn(
 										'flex justify-between items-center gap-x-5 px-4 border-b border-mirage pb-5 w-full',
 										idx === items.length - 1 ? 'border-none' : '',

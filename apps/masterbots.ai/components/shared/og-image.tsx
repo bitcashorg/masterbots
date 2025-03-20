@@ -1,5 +1,6 @@
 import OgBgImage from '@/components/shared/og-bg-image'
 interface OgImageProps {
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	thread: any
 	question: string
 	answer: string
@@ -135,6 +136,7 @@ export default function OgImage({
 							style={{
 								color: isLightTheme ? '#17171b' : '#ffff',
 								fontSize: '34px',
+								lineHeight: 1,
 								marginLeft: '15px',
 								marginTop: '40px',
 								textTransform: 'lowercase',

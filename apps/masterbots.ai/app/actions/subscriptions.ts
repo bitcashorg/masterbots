@@ -61,8 +61,10 @@ export async function getSubscriptionPlans({
 		handleSetStripePublishKey(data.stripe_publishable)
 		handleSetStripeSecret(data.stripeSecret)
 
-		data.plans = data.plans.filter((plan: any) => plan.unit_amount !== 0)
+		data.plans = data.plans.filter((plan: PlanList) => plan.unit_amount !== 0)
 		// show the plans in ascending order
+
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		data.plans.sort((a: any, b: any) => b.unit_amount - a.unit_amount)
 
 		plans = data.plans as PlanList[]
@@ -118,8 +120,11 @@ export async function getPromptDetails(promptId: string) {
 		if (!response.ok) {
 			throw new Error(data.error || 'Failed to fetch prompt details')
 		}
+
 		inputs = data.inputs.reduce(
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 			(acc: any, input: { label: any }) => ({
+				// biome-ignore lint/performance/noAccumulatingSpread: <explanation>
 				...acc,
 				[input.label]: '',
 			}),
@@ -138,6 +143,8 @@ export async function runWordWarePrompt({
 	inputs,
 }: {
 	promptId: string
+
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	inputs: Record<string, any>
 }) {
 	let fullResponse = ''

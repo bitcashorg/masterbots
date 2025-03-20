@@ -80,6 +80,7 @@ export function InnerCheckout({ prev, next }: WizardStepProps) {
 			handleSetLoading(false)
 			window.history.pushState({}, '', `/u/s/subs/${paymentIntent.id}`)
 			next()
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		} catch (error: any) {
 			console.error('Error confirm payment intent:', error)
 			handleSetLoading(false)

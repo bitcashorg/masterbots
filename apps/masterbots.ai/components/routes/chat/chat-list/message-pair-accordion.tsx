@@ -69,7 +69,7 @@ export function MessagePairAccordion({
 	const toggleThreadQuestionUrl = useCallback((isOpen: boolean) => {
 		setIsAccordionFocused(isOpen)
 		// console.log('window.location.pathname.split', window.location.pathname.split('/'))
-		const [, base, category, domain, chatbot, threadSlug, threadQuestionSlug] =
+		const [, _base, category, domain, chatbot, threadSlug, threadQuestionSlug] =
 			window.location.pathname.split('/')
 		const navigationParts = {
 			category,

@@ -334,6 +334,7 @@ export async function getThread({
 	threadSlug,
 	threadQuestionSlug,
 	domain,
+	isPersonal = false,
 	jwt,
 	signal,
 }: Partial<GetThreadParams>) {
@@ -407,6 +408,10 @@ export async function getThread({
 						...(threadQuestionSlug
 							? { messages: { slug: { _eq: threadQuestionSlug } } }
 							: {}),
+						...(!isPersonal && {
+							isPublic: { _eq: true },
+							isApproved: { _eq: true },
+						}),
 					},
 				},
 			},
@@ -668,6 +673,9 @@ export async function getBrowseThreads({
 				},
 				threads: {
 					threadId: true,
+				},
+				metadata: {
+					domainName: true,
 				},
 				...everything,
 			},

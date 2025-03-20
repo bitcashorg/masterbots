@@ -9,29 +9,37 @@ type CardProps =
 	  }
 	| undefined
 
+type USER = {
+	id: string
+	image: string
+	name: string
+	email: string
+	hasuraJwt: string
+}
+
 interface PaymentContextProps {
 	card: CardProps | null
 	loading: boolean
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	error: any
 	plan: StripePlan | null | undefined
 	handlePlan: (plan: StripePlan | undefined) => void
 	handleSetCard: (card: CardProps) => void
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	handlePaymentIntent: (paymentIntent: any) => void
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	handleSetError: (error: any) => void
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	paymentIntent: any
-	user: {
-		id: string
-		image: string
-		name: string
-		email: string
-		hasuraJwt: string
-	}
+	user: USER
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	handleSetUser: (user: any) => void
 	handleSetLoading: (loading: boolean) => void
 	handleSetConfirmationToken: (confirmationToken: string | undefined) => void
-	confirmationToken: string
+	confirmationToken: string | undefined
 	secret: string
 	handleSetSecret: (secret: string) => void
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	handleDeleteCustomer: (email: string) => Promise<any>
 	stripeSecret: string
 	handleSetStripeSecret: (stripeSecret: string) => void
@@ -54,9 +62,9 @@ export function usePayment() {
 }
 
 export function PaymentProvider({ children }: PaymentProviderProps) {
-	const [card, setCard] = useState(null)
+	const [card, setCard] = useState<CardProps | null>(null)
 	const [loading, setLoading] = useState(false)
-	const [plan, setPlan] = useState(null)
+	const [plan, setPlan] = useState<StripePlan | null | undefined>(null)
 	const [error, setError] = useState('')
 	const [paymentIntent, setPaymentIntent] = useState('')
 	const [user, setUser] = useState({
@@ -66,7 +74,9 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 		email: '',
 		hasuraJwt: '',
 	})
-	const [confirmationToken, setConfirmationToken] = useState<any>('')
+	const [confirmationToken, setConfirmationToken] = useState<
+		string | undefined
+	>('')
 	const [secret, setSecret] = useState<string>('')
 	const [stripeSecret, setStripeSecret] = useState<string>('')
 	const [stripePublishkey, setStripePublishKey] = useState<string>('')
@@ -77,20 +87,22 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 	const handleSetLoading = (loading: boolean) => {
 		setLoading(loading)
 	}
-	const handlePlan = (plan: any) => {
+	const handlePlan = (plan: StripePlan | undefined) => {
 		setPlan(plan)
 	}
-	const handleSetCard = (payment: any) => {
+	const handleSetCard = (payment: CardProps) => {
 		setCard(payment)
 	}
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	const handlePaymentIntent = (paymentIntent: any) => {
 		setPaymentIntent(paymentIntent)
 	}
 
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	const handleSetError = (error: any) => {
 		setError(error)
 	}
-	const handleSetUser = (user: any) => {
+	const handleSetUser = (user: USER) => {
 		setUser(user)
 	}
 

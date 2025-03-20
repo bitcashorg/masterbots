@@ -60,45 +60,60 @@ export default function SidebarLink({
 			if (activeThread) setActiveThread(null)
 			if (isFilterMode) return
 
+			// This is not working... we have a delay with the state and it is not updating the activeCategory state properly hence, the 2nd time closing the category is not working
+			let newCategory =
+				activeCategory === category.categoryId ||
+				activeThread?.chatbot.categories[0].categoryId === category.categoryId
+					? null
+					: category.categoryId
+
 			setExpandedCategories((prev) =>
 				prev.includes(category.categoryId) ? [] : [category.categoryId],
 			)
-			// TODO: Pasar estos side-effect a una nueva función que se llame handleCategoryClick para sí evitar errores de hidratación y actualización de estado
-			// ! Asegurarse que no estamos repitiendo este patrón con otro setState...
-			setActiveCategory((prev) => {
-				setActiveChatbot(null)
+			setActiveChatbot(null)
 
-				const newCategory =
-					prev === category.categoryId ? null : category.categoryId
+			if (!newCategory && page !== 'profile') {
+				router.push('/')
+			} else if (!newCategory && page === 'profile') {
+				navigateTo({
+					urlType: 'profilesUrl',
+					navigationParams: {
+						type: 'user',
+						usernameSlug: userSlug as string,
+					},
+				})
+			}
 
-				if (!newCategory) {
-					router.push('/')
-				}
-
+			if (page === 'profile' && newCategory) {
 				// ? Only the profile user has a sidebar
-				if (page === 'profile' && newCategory) {
-					navigateTo({
-						urlType: 'userTopicThreadListUrl',
-						navigationParams: {
-							type: 'user',
-							usernameSlug: userSlug as string,
-							category: category.name,
-						} as UserTopicThreadListUrlParams,
-					})
-				} else if (newCategory) {
-					navigateTo({
-						urlType: 'topicThreadListUrl',
-						navigationParams: {
-							type: isPublic ? 'public' : 'personal',
-							category: category.name,
-						} as TopicThreadListUrlParams,
-					})
-				}
+				navigateTo({
+					urlType: 'userTopicThreadListUrl',
+					navigationParams: {
+						type: 'user',
+						usernameSlug: userSlug as string,
+						category: category.name,
+					} as UserTopicThreadListUrlParams,
+				})
+			} else if (newCategory) {
+				navigateTo({
+					urlType: 'topicThreadListUrl',
+					navigationParams: {
+						type: isPublic ? 'public' : 'personal',
+						category: category.name,
+					} as TopicThreadListUrlParams,
+				})
+			}
+
+			setActiveCategory((prevCategory) => {
+				newCategory =
+					category.categoryId === prevCategory
+						? null // clicking the same category turns it off
+						: category.categoryId
 
 				return newCategory
 			})
 		},
-		[router, isPublic, category, isFilterMode],
+		[category, isFilterMode, isOpenPopup, activeThread, activeCategory],
 	)
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -125,6 +140,8 @@ export default function SidebarLink({
 		},
 		[category.categoryId, category.chatbots],
 	)
+
+	// TODO: Create a guard in a useEffect to fetch the current category by grabbing the category param and fgetch the category to update the activeCategory state
 
 	const isActive = activeCategory === category.categoryId
 	const isSelected = selectedCategories.includes(category.categoryId)
