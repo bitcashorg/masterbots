@@ -100,13 +100,13 @@ export default function PlanCard({
 							{plan.product.description
 								?.split(/\*\*(.*?)\*\*/g)
 								.map((text, index) =>
-									index % 2 === 0 ? text : <strong key={index}>{text}</strong>,
+									index % 2 === 0 ? text : <strong key={text}>{text}</strong>,
 								)
 								.filter(Boolean)}
 						</p>
 						<ul className="pl-5 list-disc">
 							{plan.product.marketing_features.map((feature, index) => (
-								<li key={`feature-${index}`}>
+								<li key={`feature-${feature.name}`}>
 									{/* // Grab content that it is between ** ** and make it bold */}
 									{feature.name
 										?.split(/\*\*(.*?)\*\*/g)
@@ -114,7 +114,7 @@ export default function PlanCard({
 											index % 2 === 0 ? (
 												text
 											) : (
-												<strong key={index}>{text}</strong>
+												<strong key={text}>{text}</strong>
 											),
 										)
 										.filter(Boolean)}

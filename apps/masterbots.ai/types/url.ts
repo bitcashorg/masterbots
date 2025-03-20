@@ -57,7 +57,7 @@ export type ProfilesThreadUrlUserParams = ProfilesUrlParams<
 	'type' | 'usernameSlug' | 'category' | 'domain' | 'chatbot' | 'threadSlug'
 >
 export type ProfilesThreadUrlChatbotParams = ProfilesUrlParams<
-	'type' | 'domain' | 'chatbot' | 'threadSlug'
+	'type' | 'chatbot' | 'threadSlug'
 >
 export type ProfilesThreadQuestionUrlUserParams = ProfilesUrlParams<
 	| 'type'

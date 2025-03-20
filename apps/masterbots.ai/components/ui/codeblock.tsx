@@ -5,11 +5,15 @@ import { IconCheck, IconCopy, IconDownload } from '@/components/ui/icons'
 import { useCopyToClipboard } from '@/lib/hooks/use-copy-to-clipboard'
 import { cn } from '@/lib/utils'
 import { type FC, memo } from 'react'
-import { Prism as SyntaxHighlighterComponent } from 'react-syntax-highlighter'
+import {
+	Prism as SyntaxHighlighterComponent,
+	type SyntaxHighlighterProps,
+} from 'react-syntax-highlighter'
 import { coldarkDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 
 // Use type assertion to fix React version incompatibility
-const SyntaxHighlighter = SyntaxHighlighterComponent as any
+const SyntaxHighlighter =
+	SyntaxHighlighterComponent as unknown as React.ComponentType<SyntaxHighlighterProps>
 
 interface Props {
 	language: string

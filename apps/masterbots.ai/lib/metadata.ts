@@ -31,6 +31,7 @@ interface PageSEO extends Metadata {
 
 export const generateMetadataFromSEO = async (
 	pageSeo: PageSEO,
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	params: Record<string, any>,
 ): Promise<Metadata> => {
 	const paramKeys = Object.keys(params) as Array<keyof typeof params>

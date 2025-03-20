@@ -8,7 +8,7 @@ import { redirect } from 'next/navigation'
 export { generateMbMetadata as generateMetadata } from '@/lib/metadata'
 
 export default async function BrowseCategoryPage(props: {
-	params: Promise<{ category: string; slug: string }>
+	params: Promise<{ category: string; userSlug: string }>
 }) {
 	const params = await props.params
 	const session = await getServerSession(authOptions)
@@ -18,7 +18,7 @@ export default async function BrowseCategoryPage(props: {
 		(category) => toSlug(category.name) === params.category,
 	)
 
-	const slug = params.slug
+	const slug = params.userSlug
 	const { user, error } = await getUserBySlug({
 		slug,
 		isSameUser: session?.user.slug === slug,
@@ -37,5 +37,5 @@ export default async function BrowseCategoryPage(props: {
 			</div>
 		)
 
-	return redirect(`/u/${params.slug}/t/${params.category}`)
+	return redirect(`/u/${slug}/t/${params.category}`)
 }

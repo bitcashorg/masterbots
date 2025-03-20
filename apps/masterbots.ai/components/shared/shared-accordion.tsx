@@ -1,5 +1,6 @@
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
+import { getCanonicalDomain } from '@/lib/url'
 import { cn } from '@/lib/utils'
 import { getThread } from '@/services/hasura'
 import { ChevronDown } from 'lucide-react'
@@ -81,9 +82,6 @@ export function SharedAccordion({
 		activeThread !== null &&
 		thread?.threadId !== activeThread?.threadId
 	const shouldBeDisabled = disabled || isAnotherThreadOpen
-
-	// Handle profile page routing
-	const profilePage = /^\/u\/[^/]+\/t(?:\/|$)/.test(pathname)
 	const isMainThread = !isOpenPopup
 
 	// Mobile scroll handling
@@ -167,7 +165,14 @@ export function SharedAccordion({
 	const handleClick = async (e: React.MouseEvent) => {
 		e.stopPropagation()
 
-		if (isMainThread && thread && !profilePage) {
+		// Handle profile page routing
+		const profilePage = /^\/u\/[^/]+\/t(?:\/|$)/.test(pathname)
+		// Handle bot page routing i.e.: /b/:chatbotName
+		const botProfile = /^\/b\/[^/]+(?:\/|$)/.test(pathname)
+		const category = thread?.chatbot?.categories[0]?.category?.name
+		const chatbot = thread?.chatbot?.name
+
+		if (isMainThread && thread && !profilePage && !botProfile) {
 			setLoading(true)
 			// Open modal for both variants
 			await updateActiveThread()
@@ -176,9 +181,8 @@ export function SharedAccordion({
 			// Profile page navigation
 			setIsOpenPopup(false)
 			setActiveThread(null)
-			const category = thread?.chatbot?.categories[0]?.category?.name
-			const chatbot = thread?.chatbot?.name
 			const slug = params.userSlug as string
+			const canonicalDomain = getCanonicalDomain(chatbot || '')
 
 			if (!category || !chatbot || !slug) {
 				console.error('Missing required navigation parameters')
@@ -186,13 +190,32 @@ export function SharedAccordion({
 			}
 
 			navigateTo({
-				urlType: 'userTopicThreadListUrl',
+				urlType: 'profilesThreadUrl',
 				navigationParams: {
 					type: 'user',
 					usernameSlug: slug,
 					category: category,
+					domain: canonicalDomain,
 					chatbot: chatbot,
-					domain: thread?.chatbot?.metadata[0]?.domainName || '',
+					threadSlug: thread?.slug || (params.threadSlug as string),
+				},
+			})
+		} else if (botProfile) {
+			// Bot profile page navigation
+			setIsOpenPopup(false)
+			setActiveThread(null)
+
+			if (!category || !chatbot) {
+				console.error('Missing required navigation parameters')
+				return
+			}
+
+			navigateTo({
+				urlType: 'profilesThreadUrl',
+				navigationParams: {
+					type: 'chatbot',
+					chatbot: chatbot,
+					threadSlug: thread?.slug || (params.threadSlug as string),
 				},
 			})
 		} else {

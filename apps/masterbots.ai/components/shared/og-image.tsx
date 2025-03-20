@@ -1,5 +1,6 @@
 import OgBgImage from '@/components/shared/og-bg-image'
 interface OgImageProps {
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	thread: any
 	question: string
 	answer: string
