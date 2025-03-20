@@ -19,6 +19,7 @@ import {
 import { IconSpinner } from '@/components/ui/icons'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { useSonner } from '@/lib/hooks/useSonner'
+import { urlBuilders } from '@/lib/url'
 import { cn } from '@/lib/utils'
 import { Eye, EyeOff, MoreVertical, Trash } from 'lucide-react'
 import type { Thread } from 'mb-genql'
@@ -40,7 +41,11 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
 	const title = thread?.messages[0]?.content ?? 'Untitled'
 	const text =
 		thread?.messages[1]?.content.substring(0, 100) ?? 'No description found...'
-	const url = `/b/${toSlug(thread.chatbot.categories[0].category.name)}/${thread.threadId}`
+	const url = urlBuilders.profilesThreadUrl({
+		type: 'chatbot',
+		chatbot: toSlug(thread.chatbot.name),
+		threadSlug: thread.slug,
+	})
 	const [isDeleteOpen, setIsDeleteOpen] = useState(false)
 	const [isDeleting, setIsDeleting] = useState(false)
 	const { customSonner } = useSonner()

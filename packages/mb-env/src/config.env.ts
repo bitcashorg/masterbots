@@ -13,6 +13,7 @@ export const appConfig = {
 			process.env.NEXT_PUBLIC_MAX_FILE_SIZE || '10485760',
 			10,
 		),
+		topLoader: process.env.NEXT_PUBLIC_FEATURE_TOP_LOADER === 'true',
 	},
 	enableAuth: {
 		google: process.env.NEXT_PUBLIC_GOOGLE_AUTH === 'true',

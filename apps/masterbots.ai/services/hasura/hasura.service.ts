@@ -787,6 +787,7 @@ export async function getBrowseThreads({
 
 export async function getMessages({
 	threadId,
+	threadQuestionSlug,
 	limit,
 	offset,
 	jwt,
@@ -797,7 +798,10 @@ export async function getMessages({
 		message: {
 			...everything,
 			__args: {
-				where: { threadId: { _eq: threadId } },
+				where: {
+					...(threadId ? { threadId: { _eq: threadId } } : {}),
+					...(threadQuestionSlug ? { slug: { _eq: threadQuestionSlug } } : {}),
+				},
 				orderBy: [{ createdAt: 'ASC' }],
 				...(limit
 					? {
