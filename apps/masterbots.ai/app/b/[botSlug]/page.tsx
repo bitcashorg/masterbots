@@ -64,9 +64,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 		title: chatbot?.name || '',
 		description: chatbot?.description || '',
 		ogType: 'website',
-		ogImageUrl: chatbot?.threads?.[0]?.threadId
-			? `${process.env.BASE_URL || ''}/api/og?threadId=${chatbot.threads[0].threadId}`
-			: `${process.env.BASE_URL || ''}/api/og`,
+		ogImageUrl: `${process.env.BASE_URL || ''}/api/og?chatbotId=${chatbot.chatbotId}`,
 		twitterCard: 'summary_large_image',
 	}
 	const domain = getCanonicalDomain(chatbotName as string)
