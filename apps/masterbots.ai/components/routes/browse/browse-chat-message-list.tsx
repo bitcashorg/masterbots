@@ -38,7 +38,7 @@ export function BrowseChatMessageList({
 	const { name: categoryName } = chatbot?.categories[0]?.category || {
 		name: '',
 	}
-	const { name: chatBotName } = chatbot || { name: '' }
+	const chatbotName = chatbot?.name
 
 	const setMessagePairs = (messages: Message[]) => {
 		if (messages.length) {
@@ -54,7 +54,7 @@ export function BrowseChatMessageList({
 		setMessagePairs(messages)
 	}, [messages])
 
-	const canonicalDomain = getCanonicalDomain(chatBotName)
+	const canonicalDomain = getCanonicalDomain(chatbotName || 'prompt')
 
 	return (
 		<>
@@ -82,7 +82,7 @@ export function BrowseChatMessageList({
 						type: 'personal',
 						category: categoryName,
 						domain: canonicalDomain,
-						chatbot: chatBotName,
+						chatbot: chatbotName as string,
 					})}?continuousThreadId=${threadId}`}
 				>
 					Continue Thread
