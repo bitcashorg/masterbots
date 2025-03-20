@@ -21,22 +21,72 @@ export function DeepThinkingProvider({
 	const [isDeepThinking, setIsDeepThinking] = React.useState(false)
 	const { changeModel, selectedModel } = useModel()
 
-	const previousModelRef = React.useRef<string>(selectedModel)
+	const previousModelRef = React.useRef<string>(AIModels.Default)
+	const updatingRef = React.useRef(false)
+
+	React.useEffect(() => {
+		if (updatingRef.current) return
+
+		if (isDeepThinking && selectedModel !== AIModels.DeepSeekGroq) {
+			console.log('DeepThinking Effect 1: Activated, switching to DeepSeek')
+			updatingRef.current = true
+			changeModel(AIModels.DeepSeekGroq)
+			setTimeout(() => {
+				updatingRef.current = false
+			}, 100)
+		}
+	}, [isDeepThinking, selectedModel, changeModel])
+
+	React.useEffect(() => {
+		if (updatingRef.current) return
+
+		if (!isDeepThinking && selectedModel === AIModels.DeepSeekGroq) {
+			const modelToRestore = previousModelRef.current || AIModels.Default
+			console.log(
+				'DeepThinking Effect 2: Deactivated, restoring model:',
+				modelToRestore,
+			)
+			updatingRef.current = true
+			changeModel(modelToRestore as AIModels)
+			setTimeout(() => {
+				updatingRef.current = false
+			}, 100)
+		}
+	}, [isDeepThinking, selectedModel, changeModel])
+
+	React.useEffect(() => {
+		if (updatingRef.current) return
+
+		if (selectedModel === AIModels.DeepSeekGroq && !isDeepThinking) {
+			console.log(
+				'DeepThinking Effect 3: DeepSeek model detected, activating Deep Thinking UI',
+			)
+			updatingRef.current = true
+			setIsDeepThinking(true)
+			setTimeout(() => {
+				updatingRef.current = false
+			}, 100)
+		} else if (selectedModel !== AIModels.DeepSeekGroq && isDeepThinking) {
+			console.log(
+				'DeepThinking Effect 4: Model is not DeepSeek, deactivating Deep Thinking UI',
+			)
+			updatingRef.current = true
+			setIsDeepThinking(false)
+			setTimeout(() => {
+				updatingRef.current = false
+			}, 100)
+		}
+	}, [selectedModel, isDeepThinking])
 
 	const toggleDeepThinking = React.useCallback(() => {
-		setIsDeepThinking((prev) => {
-			const newState = !prev
+		if (!isDeepThinking && selectedModel !== AIModels.DeepSeekGroq) {
+			previousModelRef.current = selectedModel
+			console.log('DeepThinking Toggle: Saving previous model:', selectedModel)
+		}
 
-			if (newState) {
-				previousModelRef.current = selectedModel
-				changeModel(AIModels.DeepSeekGroq)
-			} else {
-				changeModel(previousModelRef.current as AIModels)
-			}
-
-			return newState
-		})
-	}, [selectedModel, changeModel])
+		console.log('DeepThinking Toggle: Changing state to', !isDeepThinking)
+		setIsDeepThinking((prevState) => !prevState)
+	}, [selectedModel, isDeepThinking])
 
 	return (
 		<DeepThinkingContext.Provider

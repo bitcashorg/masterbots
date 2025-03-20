@@ -109,7 +109,10 @@ export function ChatPanel({
 								icon={<BrainIcon />}
 								activeIcon={<BrainIcon />}
 								isActive={isDeepThinking}
-								onChange={toggleDeepThinking}
+								onChange={() => {
+									console.log('ChatPanel: Toggle Deep Thinking')
+									toggleDeepThinking()
+								}}
 								activeColor="green"
 							/>
 
@@ -120,7 +123,10 @@ export function ChatPanel({
 									icon={<GlobeIcon />}
 									activeIcon={<GlobeIcon />}
 									isActive={webSearch}
-									onChange={setWebSearch}
+									onChange={(newValue) => {
+										console.log('ChatPanel: Toggle Web Search:', newValue)
+										setWebSearch(newValue)
+									}}
 									activeColor="cyan"
 								/>
 							)}
