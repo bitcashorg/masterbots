@@ -7,17 +7,10 @@ import {
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
-import { Toggle } from '@/components/ui/toggle'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { cn } from '@/lib/utils'
 import type { PreferenceSectionProps } from '@/types/types'
-import {
-	AArrowDown,
-	AArrowUp,
-	MessageSquareX,
-	Plus,
-	UserRoundX,
-} from 'lucide-react'
+import { AArrowDown, AArrowUp, Plus } from 'lucide-react'
 import { PreferenceItemTitle } from './preference-item'
 
 export function PreferenceSection({
