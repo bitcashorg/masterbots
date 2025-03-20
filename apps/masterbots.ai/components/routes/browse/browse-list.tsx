@@ -28,14 +28,16 @@ import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { useBrowse } from '@/lib/hooks/use-browse'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
+import { useSonner } from '@/lib/hooks/useSonner'
 import { searchThreadContent } from '@/lib/search'
 import { getRouteType } from '@/lib/utils'
-import { getBrowseThreads } from '@/services/hasura'
+import { getBrowseThreads, getThread } from '@/services/hasura'
 import { debounce } from 'lodash'
 import { appConfig } from 'mb-env'
 import type { Chatbot, Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import React, { useEffect } from 'react'
+import { useAsync } from 'react-use'
 
 export default function BrowseList({
 	initialThreads,
@@ -62,6 +64,7 @@ export default function BrowseList({
 		setActiveCategory,
 	} = useSidebar()
 	const { data: session } = useSession()
+	const { customSonner } = useSonner()
 	const userId = session?.user?.id
 	const threads =
 		threadState && initialThreads && threadState.length > initialThreads.length
@@ -177,8 +180,8 @@ export default function BrowseList({
 		verifyKeyword()
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [keyword, threads])
-	// biome-ignore lint/correctness/useExhaustiveDependencies: I only need to run this effect when the activeThread changes
-	useEffect(() => {
+
+	useAsync(async () => {
 		if (activeThread) return
 		const pathname = window.location.pathname
 		const pathNameParts = pathname.split('/')
@@ -195,19 +198,22 @@ export default function BrowseList({
 			chatbotProfileThreadSlug,
 			chatbotProfileThreadQuestionSlug,
 		] = pathNameParts
-		const thread = threads.find((thread) =>
-			thread.messages.find(
-				(message) =>
-					message.slug === threadQuestionSlug ||
-					message.slug === chatbotProfileThreadQuestionSlug,
-			),
-		)
+		const thread = await getThread({
+			threadSlug: threadSlug || chatbotProfileThreadSlug,
+		})
+
+		if (!thread) {
+			customSonner({
+				type: 'error',
+				text: 'Error finding the thread that you were looking for.',
+			})
+			return
+		}
 		if (
-			thread &&
-			((threadQuestionSlug && isPublic) ||
-				(chatbotProfileThreadQuestionSlug && isProfile) ||
-				(threadSlug && isPublic) ||
-				(chatbotProfileThreadSlug && isProfile))
+			(threadQuestionSlug && isPublic) ||
+			(chatbotProfileThreadQuestionSlug && isProfile) ||
+			(threadSlug && isPublic) ||
+			(chatbotProfileThreadSlug && isProfile)
 		) {
 			console.log(
 				'scrolling to',
