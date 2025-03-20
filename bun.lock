@@ -76,7 +76,7 @@
         "next": "15.2.2",
         "next-auth": "4.24.10",
         "next-themes": "0.4.4",
-        "nextjs-toploader": "1.6.12",
+        "nextjs-toploader": "2.6.12",
         "nodemailer": "^6.10.0",
         "openai": "4.79.3",
         "react": "19.0.0",
@@ -1606,7 +1606,7 @@
 
     "next-tick": ["next-tick@1.1.0", "", {}, "sha512-CXdUiJembsNjuToQvxayPZF9Vqht7hewsvy2sOWafLvi2awflj9mOC6bHIg50orX8IJvWKY9wYQ/zB2kogPslQ=="],
 
-    "nextjs-toploader": ["nextjs-toploader@1.6.12", "", { "dependencies": { "nprogress": "^0.2.0", "prop-types": "^15.8.1" }, "peerDependencies": { "next": ">= 6.0.0", "react": ">= 16.0.0", "react-dom": ">= 16.0.0" } }, "sha512-nbun5lvVjlKnxLQlahzZ55nELVEduqoEXT03KCHnsEYJnFpI/3BaIzpMyq/v8C7UGU2NfxQmjq6ldZ310rsDqA=="],
+    "nextjs-toploader": ["nextjs-toploader@2.6.12", "", { "dependencies": { "nprogress": "^0.2.0", "prop-types": "^15.8.1" }, "peerDependencies": { "next": ">= 6.0.0", "react": ">= 16.0.0", "react-dom": ">= 16.0.0" } }, "sha512-HaCbJ74xcKVlOf+TJCfK4pwTJrVWHHFK7QrnTwKxqRyLImocbLdaCJ64ZAmV0Df6iaME3pPy+Hgmb+Lec5YRYw=="],
 
     "node-addon-api": ["node-addon-api@5.1.0", "", {}, "sha512-eh0GgfEkpnoWDq+VY8OyvYhFEzBk6jIYbRKdIlyTiAXIVJ8PyBaKb0rp7oDtoddbdoHWhq8wwr+XZ81F1rpNdA=="],
 

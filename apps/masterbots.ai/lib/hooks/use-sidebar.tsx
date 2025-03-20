@@ -292,6 +292,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 			return window.history.replaceState(window.history.state, '', url)
 		}
 
+		router.prefetch(url)
 		return router.push(url, { scroll: false })
 	}
 
