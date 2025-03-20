@@ -34,7 +34,6 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 
 	const handleToggleThreads = () => {
 		if (!sameUser) return
-		console.log('isThreadsOpen', !isThreadsOpen)
 		setIsThreadsOpen(!isThreadsOpen)
 		setActiveCategory(null)
 		setActiveChatbot(null)

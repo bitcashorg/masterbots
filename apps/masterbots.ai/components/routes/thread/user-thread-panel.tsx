@@ -67,10 +67,10 @@ export default function UserThreadPanel({
 	page?: string
 }) {
 	const params = useParams<{
+		userSlug?: string
 		category?: string
 		chatbot?: string
-		threadId?: string
-		slug?: string
+		threadSlug?: string
 	}>()
 	const { data: session } = useSession()
 	const { activeCategory, activeChatbot, setActiveChatbot } = useSidebar()
@@ -91,19 +91,19 @@ export default function UserThreadPanel({
 	} = useThreadVisibility()
 	const [searchTerm, setSearchTerm] = useState<string>('')
 	const searchParams = useSearchParams()
-	const { slug, category, chatbot } = params
+	const { userSlug, category, chatbot } = params
 	const continuousThreadId = searchParams.get('continuousThreadId')
 	const [storeThreads, setStoreThreads] = useState<Thread[]>(initialThreads)
 	const fetchIdRef = useRef<number>(0)
 
 	const userWithSlug = useAsync(async () => {
-		if (!slug) return { user: null }
+		if (!userSlug) return { user: userProps }
 		const result = await getUserBySlug({
-			slug,
-			isSameUser: session?.user?.slug === slug,
+			slug: userSlug,
+			isSameUser: session?.user?.slug === userSlug,
 		})
 		return result
-	}, [slug])
+	}, [userSlug])
 
 	const prevPathRef = useRef('')
 	const pathname = usePathname()
@@ -120,7 +120,7 @@ export default function UserThreadPanel({
 
 	const fetchBrowseThreads = async () => {
 		try {
-			if (!slug) return []
+			if (!userSlug) return []
 			const user = userWithSlug.value?.user
 			if (!user) return []
 			return await getBrowseThreads({
@@ -211,7 +211,7 @@ export default function UserThreadPanel({
 		state.threads.length > initialThreads.length || isAdminMode || searchTerm
 			? state.threads
 			: initialThreads
-	const allthreads = threads
+
 	const completeLoading = (load: boolean) => {
 		setLoading(load)
 	}
