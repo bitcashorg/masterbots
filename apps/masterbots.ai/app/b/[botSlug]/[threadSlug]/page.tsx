@@ -34,7 +34,6 @@ export default async function ChatbotThreadArticlePage(props: PageProps) {
 	const params = await props.params
 	const thread = await getThread({
 		threadSlug: params.threadSlug,
-		domain: params.domain,
 		jwt: '',
 	})
 

@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils'
 import { GoogleAnalytics } from '@next/third-parties/google'
 import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
+import { appConfig } from 'mb-env'
 import type { Metadata } from 'next'
 import NextTopLoader from 'nextjs-toploader'
 
@@ -19,7 +20,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
 					GeistMono.variable,
 				)}
 			>
-				<NextTopLoader color="#1ED761" initialPosition={0.2} />
+				{appConfig.features.topLoader && (
+					<NextTopLoader color="#1ED761" initialPosition={0.2} />
+				)}
 				<Providers
 					attribute="class"
 					defaultTheme="system"

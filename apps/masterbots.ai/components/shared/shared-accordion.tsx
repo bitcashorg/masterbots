@@ -149,13 +149,15 @@ export function SharedAccordion({
 		setLoading(false)
 		setCurrentRequest(null)
 
+		const canonicalDomain = getCanonicalDomain(fullThread?.chatbot?.name || '')
+
 		navigateTo({
 			urlType: 'threadUrl',
 			shallow: true,
 			navigationParams: {
 				type: isPublic ? 'public' : 'personal',
 				category: fullThread?.chatbot?.categories[0]?.category?.name || 'AI',
-				domain: fullThread?.chatbot?.metadata[0]?.domainName || 'General',
+				domain: canonicalDomain,
 				chatbot: fullThread?.chatbot?.name || 'Masterbots',
 				threadSlug: fullThread?.slug || (params.threadSlug as string),
 			},

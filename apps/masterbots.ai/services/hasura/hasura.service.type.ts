@@ -77,7 +77,8 @@ export interface GetChatbotsParams {
 }
 
 export interface GetMessagesParams extends GetHasuraClientParams {
-	threadId: string
+	threadId?: string
+	threadQuestionSlug?: string
 	limit?: number
 	offset?: number
 }
