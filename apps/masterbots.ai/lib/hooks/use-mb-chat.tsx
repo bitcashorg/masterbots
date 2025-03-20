@@ -403,16 +403,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					isNewChat: false,
 				})
 
+				const newSearchParams = new URLSearchParams(searchParams.toString())
+
 				if (isContinuousThread) {
 					// Remove continuousThreadId search param
-					const newSearchParams = new URLSearchParams(searchParams.toString())
 					newSearchParams.delete('continuousThreadId')
-					window.history.replaceState(
-						null,
-						'',
-						`${window.location.pathname}?${newSearchParams.toString()}`,
-					)
-
 					setIsContinuousThread(false)
 				}
 				setIsNewResponse(false)
@@ -420,7 +415,21 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				setActiveTool(undefined)
 
 				throttle(async () => {
-					await updateActiveThread()
+					const thread = await updateActiveThread()
+					console.log('thread', thread)
+					if (isNewChat || isContinuousThread) {
+						navigateTo({
+							urlType: 'threadUrl',
+							shallow: true,
+							navigationParams: {
+								type: 'personal',
+								category: activeChatbot?.categories[0].category.name || '',
+								domain: activeChatbot?.metadata[0].domainName || '',
+								chatbot: activeChatbot?.name || '',
+								threadSlug: thread.slug,
+							},
+						})
+					}
 				}, 250)()
 			} catch (error) {
 				console.error('Error saving new message: ', error)
@@ -712,18 +721,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 		await appendWithMbContextPrompts(optimisticUserMessage)
 
-		navigateTo({
-			urlType: 'threadUrl',
-			shallow: true,
-			navigationParams: {
-				type: 'personal',
-				category: activeChatbot?.categories[0].category.name || '',
-				domain: activeChatbot?.metadata[0].domainName || '',
-				chatbot: activeChatbot?.name || '',
-				threadSlug: activeThread?.slug || '',
-			},
-		})
-
 		return null
 	}
 
@@ -777,7 +774,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					threadId: threadId as string,
 					slug,
 					chatbotId: chatbot.chatbotId,
-					parentThreadId: isContinuousThread ? threadId : undefined,
+					parentThreadId: isContinuousThread
+						? recentSearchParams.get('continuousThreadId') || threadId
+						: undefined,
 					jwt: session?.user?.hasuraJwt,
 					isPublic: activeChatbot?.name !== 'BlankBot',
 				})
