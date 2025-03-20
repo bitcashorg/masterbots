@@ -131,7 +131,7 @@ export function createMbClient({
 		clearCache: () => {
 			responseCache.clear()
 		},
-		invalidateCache: (operation: GraphqlOperation | GraphqlOperation[]) => {
+		invalidateCache: (operation?: GraphqlOperation | GraphqlOperation[]) => {
 			if (operation) {
 				const cacheKey = getCacheKey(operation, jwt || '')
 				responseCache.delete(cacheKey)
