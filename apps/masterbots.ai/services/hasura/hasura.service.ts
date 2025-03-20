@@ -669,6 +669,9 @@ export async function getBrowseThreads({
 				threads: {
 					threadId: true,
 				},
+				metadata: {
+					domainName: true,
+				},
 				...everything,
 			},
 			messages: {

@@ -190,6 +190,7 @@ export async function processWithAi(
 		const response = await createResponseStream(clientType, {
 			model: AIModels.Default,
 			messages: processedMessages,
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		} as any)
 
 		if (!response.body) {
@@ -281,6 +282,7 @@ async function readStreamResponse(body: ReadableStream): Promise<string> {
 }
 
 function handleImprovementError(
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	error: any,
 	originalContent: string,
 	clientType?: AiClientType,

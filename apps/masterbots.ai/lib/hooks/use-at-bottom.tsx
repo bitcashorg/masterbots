@@ -2,6 +2,7 @@ import type { MotionValue } from 'framer-motion'
 import { useEffect, useState } from 'react'
 
 interface Props {
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	ref: any
 	scrollY: MotionValue<number>
 }

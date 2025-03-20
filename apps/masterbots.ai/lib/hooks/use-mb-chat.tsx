@@ -219,6 +219,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 		setMessages,
 	} = useChat({
 		...useChatConfig,
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		async onResponse(response: any) {
 			if (response.status >= 400) {
 				customSonner({ type: 'error', text: response.statusText })
@@ -232,6 +233,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				}
 			}
 		},
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		async onFinish(message: OpenAi.Message, options: any) {
 			try {
 				if (appConfig.features.devMode) {
@@ -449,6 +451,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 			setActiveTool(toolCall as AiToolCall)
 		},
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		async onError(error: any) {
 			console.error('Error in chat: ', error)
 

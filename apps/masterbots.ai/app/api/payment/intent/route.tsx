@@ -71,8 +71,10 @@ export async function POST(req: NextRequest) {
 		const errorMessage =
 			error instanceof Error ? error.message : 'An unexpected error occurred'
 		const statusCode =
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 			error instanceof Error && (error as any).raw?.statusCode
-				? (error as any).raw.statusCode
+				? // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+					(error as any).raw.statusCode
 				: 500
 
 		return new Response(JSON.stringify({ error: errorMessage }), {
@@ -152,8 +154,10 @@ export async function DELETE(req: NextRequest) {
 		const errorMessage =
 			error instanceof Error ? error.message : 'An unexpected error occurred'
 		const statusCode =
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 			error instanceof Error && (error as any).raw?.statusCode
-				? (error as any).raw.statusCode
+				? // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+					(error as any).raw.statusCode
 				: 500
 
 		return new Response(JSON.stringify({ error: errorMessage }), {

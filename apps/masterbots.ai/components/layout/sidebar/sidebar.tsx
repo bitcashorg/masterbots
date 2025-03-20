@@ -8,7 +8,10 @@ import { cn } from '@/lib/utils'
 import { usePathname } from 'next/navigation'
 import React from 'react'
 
-export function Sidebar({ className }: React.ComponentProps<'div'>) {
+export function Sidebar({
+	className,
+	page,
+}: React.ComponentProps<'div'> & { page?: string }) {
 	const { isSidebarOpen, isLoading } = useSidebar()
 	const prevPathRef = React.useRef(usePathname())
 	const pathname = usePathname()
@@ -45,7 +48,7 @@ export function Sidebar({ className }: React.ComponentProps<'div'>) {
 			>
 				<SidebarHeader />
 				<div className="pt-4 pb-20 h-full scrollbar">
-					<SidebarCategoryGeneral />
+					<SidebarCategoryGeneral page={page} />
 				</div>
 			</aside>
 		</>
