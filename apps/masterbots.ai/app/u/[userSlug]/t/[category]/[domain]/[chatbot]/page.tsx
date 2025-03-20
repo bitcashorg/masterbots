@@ -2,17 +2,19 @@ import { authOptions } from '@/auth'
 import { UserThreadList } from '@/components/routes/profile/user-thread-list'
 import { botNames } from '@/lib/constants/bots-names'
 import { PAGE_SM_SIZE } from '@/lib/constants/hasura'
+import { generateMetadataFromSEO } from '@/lib/metadata'
+import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import {
 	getBrowseThreads,
+	getChatbot,
 	getThreads,
 	getUserBySlug,
 } from '@/services/hasura/hasura.service'
 import type { PageProps } from '@/types/types'
 import type { User } from 'mb-genql'
+import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 import { Suspense } from 'react'
-
-export { generateMbMetadata as generateMetadata } from '@/lib/metadata'
 
 export default async function ProfileChatBot(props: PageProps) {
 	const params = await props.params
@@ -65,4 +67,35 @@ export default async function ProfileChatBot(props: PageProps) {
 			<UserThreadList user={user as User} threads={threads} />
 		</Suspense>
 	)
+}
+
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
+	const params = await props.params
+	const chatbotName = params.chatbot as string
+	const chatbot = await getChatbot({
+		chatbotName,
+		jwt: '',
+		threads: true,
+	})
+
+	const seoData = {
+		title: chatbot?.name || '',
+		description: chatbot?.description || '',
+		ogType: 'website',
+		ogImageUrl: `${process.env.BASE_URL || ''}/api/og?chatbotId=${chatbot.chatbotId}`,
+		twitterCard: 'summary_large_image',
+	}
+	const domain = getCanonicalDomain(chatbotName as string)
+	return {
+		...generateMetadataFromSEO(seoData, params),
+		alternates: {
+			canonical: urlBuilders.chatbotThreadListUrl({
+				type: 'public',
+				category: chatbot.categories?.[0]?.category?.name || 'AI',
+				domain,
+				chatbot: chatbotName as string,
+			}),
+			// TODO: Add languages when languages are enabled.
+		},
+	}
 }
