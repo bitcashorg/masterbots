@@ -335,14 +335,12 @@ export default function UserThreadPanel({
 
 	return (
 		<>
-			{!loading &&
-				(threads.length !== 0 || searchTerm) &&
-				!isContinuousThread && (
-					<div className={searchInputContainerClassName}>
-						<ThreadSearchInput setThreads={setState} onSearch={setSearchTerm} />
-					</div>
-				)}
-			{loading && (
+			{!isContinuousThread && (threads.length !== 0 || searchTerm) && (
+				<div className={searchInputContainerClassName}>
+					<ThreadSearchInput setThreads={setState} onSearch={setSearchTerm} />
+				</div>
+			)}
+			{loading && threads.length === 0 && !searchTerm && (
 				<div className={searchInputContainerClassName}>
 					<div className="relative w-full max-w-[900px] mx-auto flex items-center justify-center">
 						<Skeleton className="w-full mx-auto h-12 rounded-full flex absolute" />
