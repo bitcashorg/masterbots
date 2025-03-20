@@ -37,7 +37,7 @@ import { appConfig } from 'mb-env'
 import type { Chatbot, Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import React, { useEffect } from 'react'
-import { useAsync } from 'react-use'
+import { useAsyncFn } from 'react-use'
 
 export default function BrowseList({
 	initialThreads,
@@ -181,7 +181,7 @@ export default function BrowseList({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [keyword, threads])
 
-	useAsync(async () => {
+	const [, getOpeningActiveThread] = useAsyncFn(async () => {
 		if (activeThread) return
 		const pathname = window.location.pathname
 		const pathNameParts = pathname.split('/')
@@ -191,6 +191,9 @@ export default function BrowseList({
 
 		const [, _category, _domain, _chatbot, threadSlug, threadQuestionSlug] =
 			pathNameParts
+
+		if (!threadSlug) return
+
 		const [
 			,
 			_chatbotProfileRootBase,
@@ -221,6 +224,11 @@ export default function BrowseList({
 			)
 			activateThreadPopup(thread)
 		}
+	}, [activeThread])
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
+		getOpeningActiveThread()
 	}, [activeThread])
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>

@@ -131,6 +131,7 @@ export function SharedAccordion({
 	}, [isOpenPopup, activeThread, thread, open])
 
 	const updateActiveThread = async () => {
+		if (!thread) return
 		// Cancel any in-flight request
 		currentRequest?.abort()
 		const abortController = new AbortController()
@@ -138,7 +139,8 @@ export function SharedAccordion({
 		setCurrentRequest(abortController)
 
 		const fullThread = await getThread({
-			threadId: thread?.threadId,
+			threadId: thread.threadId,
+			isPersonal: !isPublic,
 			jwt: session?.user?.hasuraJwt,
 			signal: abortController.signal,
 		})
