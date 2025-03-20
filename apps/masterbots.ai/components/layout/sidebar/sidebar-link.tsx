@@ -15,7 +15,7 @@ import { toSlug } from 'mb-lib'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams, usePathname, useRouter } from 'next/navigation'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 interface SidebarLinkProps {
 	category: Category
@@ -41,7 +41,6 @@ export default function SidebarLink({
 		activeCategory,
 		selectedCategories,
 		expandedCategories,
-		navigateTo,
 		setActiveChatbot,
 		setActiveCategory,
 		setSelectedChatbots,
@@ -143,26 +142,8 @@ export default function SidebarLink({
 		</div>
 	)
 
-	if (isPublic || isFilterMode) {
-		return (
-			<div className={cn('flex flex-col mb-2')} data-route={routeType}>
-				{/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
-				<div
-					className={cn(
-						'flex items-center p-4 cursor-pointer sidebar-gradient',
-						isActive && 'selected',
-					)}
-					onClick={handleClickCategory}
-				>
-					{categoryContent}
-				</div>
-				{childrenContent}
-			</div>
-		)
-	}
-
 	// Create a constant for the URL using urlBuilders
-	const categoryUrl = React.useMemo(() => {
+	const categoryUrl = useMemo(() => {
 		if (!category) return ''
 
 		const isNewCategory = category.categoryId !== activeCategory
@@ -194,6 +175,24 @@ export default function SidebarLink({
 				})
 			: '/c'
 	}, [category, activeCategory, isPublic, page, userSlug])
+
+	if (isPublic || isFilterMode) {
+		return (
+			<div className={cn('flex flex-col mb-2')} data-route={routeType}>
+				{/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
+				<div
+					className={cn(
+						'flex items-center p-4 cursor-pointer sidebar-gradient',
+						isActive && 'selected',
+					)}
+					onClick={handleClickCategory}
+				>
+					{categoryContent}
+				</div>
+				{childrenContent}
+			</div>
+		)
+	}
 
 	return (
 		<div className={cn('flex flex-col mb-2')} data-route={routeType}>
