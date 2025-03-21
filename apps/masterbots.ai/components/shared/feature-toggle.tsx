@@ -67,9 +67,7 @@ export function FeatureToggle({
 		if (processingRef.current) return
 
 		processingRef.current = true
-		console.log(
-			`FeatureToggle (${name}): changint to ${isActive} a ${!isActive}`,
-		)
+		console.log(`FeatureToggle (${name}): moving to ${isActive} a ${!isActive}`)
 
 		try {
 			onChange(!isActive)
