@@ -65,7 +65,6 @@ export function ChatPanel({
 		'transition-all w-[0px] opacity-0 whitespace-nowrap duration-300'
 
 	const prepareMessageOptions = useCallback(
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		(chatOptions: any) => ({
 			...chatOptions,
 			powerUp: isPowerUp,
@@ -109,7 +108,10 @@ export function ChatPanel({
 								icon={<BrainIcon />}
 								activeIcon={<BrainIcon />}
 								isActive={isDeepThinking}
-								onChange={toggleDeepThinking}
+								onChange={() => {
+									console.log('ChatPanel: Toggle Deep Thinking')
+									toggleDeepThinking()
+								}}
 								activeColor="green"
 							/>
 
@@ -120,7 +122,10 @@ export function ChatPanel({
 									icon={<GlobeIcon />}
 									activeIcon={<GlobeIcon />}
 									isActive={webSearch}
-									onChange={setWebSearch}
+									onChange={(newValue) => {
+										console.log('ChatPanel: Toggle Web Search:', newValue)
+										setWebSearch(newValue)
+									}}
 									activeColor="cyan"
 								/>
 							)}

@@ -1,7 +1,5 @@
 'use client'
 
-//* ChatCombobox component allows users to select an AI model, with interactive dropdown and visual indicators.
-
 import { AIModels } from '@/app/api/chat/models/models'
 import { Button, buttonVariants } from '@/components/ui/button'
 import {
@@ -32,7 +30,6 @@ import { CheckIcon } from '@radix-ui/react-icons'
 import { appConfig } from 'mb-env'
 import * as React from 'react'
 
-//* Model options available in the combobox, each with label, value, and logo icon.
 const models = [
 	{ label: 'GPT-4o', value: AIModels.Default, logo: 'MB' },
 	{ label: 'GPT-4', value: AIModels.GPT4, logo: <IconOpenAI /> },
@@ -43,27 +40,57 @@ const models = [
 	{
 		label: 'DeepSeek',
 		value: AIModels.DeepSeekGroq,
-		logo: 'MB',
+		logo: <IconDeepSeek />,
 	},
 ]
 
-//* ChatCombobox provides a popover for AI model selection and triggers model change based on user choice.
 export function ChatCombobox() {
 	const { selectedModel, changeModel } = useModel()
 	const [open, setOpen] = React.useState(false)
-	const [value, setValue] = React.useState(selectedModel as string)
 	const { isPowerUp } = usePowerUp()
-	const { isDeepThinking } = useDeepThinking()
+	const { isDeepThinking, toggleDeepThinking } = useDeepThinking()
 	const isDevEnv = process.env.NEXT_PUBLIC_APP_ENV !== 'prod'
 
-	React.useEffect(() => {
-		setValue(selectedModel as string)
-	}, [selectedModel])
+	const processingSelectionRef = React.useRef(false)
 
 	const getButtonVariant = () => {
 		if (isDeepThinking) return 'deepThinking'
 		if (isPowerUp) return 'powerUp'
 		return 'outline'
+	}
+
+	const getModelLogo = () => {
+		const model = models.find((m) => m.value === selectedModel)
+		return model?.logo || <IconOpenAI />
+	}
+
+	const handleModelSelect = (modelValue: string) => {
+		if (!appConfig.features.devMode || processingSelectionRef.current) return
+
+		processingSelectionRef.current = true
+		setOpen(false)
+
+		setTimeout(() => {
+			try {
+				if (modelValue === AIModels.DeepSeekGroq) {
+					console.log('Combobox: Selecting DeepSeek')
+					if (!isDeepThinking) {
+						console.log('Combobox: Activating Deep Thinking')
+						toggleDeepThinking()
+					}
+				} else if (modelValue !== AIModels.DeepSeekGroq && isDeepThinking) {
+					console.log('Combobox: Deactivating Deep Thinking')
+					toggleDeepThinking()
+				} else if (modelValue !== AIModels.DeepSeekGroq && !isDeepThinking) {
+					console.log('Combobox: Changing model to', modelValue)
+					changeModel(modelValue as AIModels)
+				}
+			} finally {
+				setTimeout(() => {
+					processingSelectionRef.current = false
+				}, 150)
+			}
+		}, 100)
 	}
 
 	return (
@@ -81,41 +108,32 @@ export function ChatCombobox() {
 						'absolute left-[8px] top-[8px] size-8 rounded-full p-0 sm:left-[14px]',
 					)}
 				>
-					{/* Renders the selected model's logo or default icon */}
-					{value ? (
-						models.find((model) => model.value === value)?.logo
-					) : selectedModel === AIModels.Default ? (
-						<IconOpenAI />
-					) : (
-						<IconClaude />
-					)}
+					{getModelLogo()}
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent className="w-[100px] p-0">
+			<PopoverContent className="w-[180px] p-0">
 				<Command>
 					<CommandInput placeholder="Model..." className="h-9" />
 					<CommandEmpty>No model found.</CommandEmpty>
 					<CommandGroup>
 						<CommandList>
-							{/* Render models only in dev or local environments, otherwise show default */}
 							{isDevEnv ? (
 								models.map((model) => (
 									<CommandItem
 										key={model.value}
 										value={model.value}
-										onSelect={(currentValue) => {
-											if (appConfig.features.devMode) {
-												setValue(currentValue === value ? '' : currentValue)
-												changeModel(currentValue as AIModels)
-											}
-											setOpen(false) // Closes the popover after selection.
-										}}
+										onSelect={handleModelSelect}
 									>
+										<span className="flex items-center justify-center mr-2">
+											{model.logo}
+										</span>
 										{model.label}
 										<CheckIcon
 											className={cn(
 												'ml-auto size-4 text-emerald-500',
-												value === model.value ? 'opacity-100' : 'opacity-0',
+												selectedModel === model.value
+													? 'opacity-100'
+													: 'opacity-0',
 											)}
 										/>
 									</CommandItem>
@@ -125,7 +143,6 @@ export function ChatCombobox() {
 									key={AIModels.Default}
 									value={AIModels.Default}
 									onSelect={() => {
-										setValue(AIModels.Default)
 										changeModel(AIModels.Default)
 										setOpen(false)
 									}}
@@ -134,7 +151,9 @@ export function ChatCombobox() {
 									<CheckIcon
 										className={cn(
 											'ml-auto size-4 text-emerald-500',
-											value === AIModels.Default ? 'opacity-100' : 'opacity-0',
+											selectedModel === AIModels.Default
+												? 'opacity-100'
+												: 'opacity-0',
 										)}
 									/>
 								</CommandItem>
