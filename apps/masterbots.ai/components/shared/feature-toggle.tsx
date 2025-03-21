@@ -86,7 +86,7 @@ export function FeatureToggle({
 						custom
 						name={id}
 						id={id}
-						value={isActive ? 'checked' : 'unchecked'}
+						checked={isActive}
 						onClick={handleToggle}
 						className={cn(
 							'transition-all delay-100 size-auto inline-flex items-center gap-1.5 border-muted p-1 rounded-full overflow-hidden',
