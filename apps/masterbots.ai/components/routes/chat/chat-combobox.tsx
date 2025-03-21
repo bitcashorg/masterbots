@@ -31,7 +31,7 @@ import { appConfig } from 'mb-env'
 import * as React from 'react'
 
 const models = [
-	{ label: 'GPT-4o', value: AIModels.Default, logo: <IconOpenAI /> },
+	{ label: 'GPT-4o', value: AIModels.Default, logo: 'MB' },
 	{ label: 'GPT-4', value: AIModels.GPT4, logo: <IconOpenAI /> },
 	{ label: 'Claude3', value: AIModels.Claude3, logo: <IconClaude /> },
 	{ label: 'llama3_8', value: AIModels.llama3_8b, logo: <IconLlama /> },
