@@ -1,4 +1,5 @@
 import { BrowseThread } from '@/components/routes/browse/browse-thread'
+import { ErrorComponent } from '@/components/shared/error'
 import { botNames } from '@/lib/constants/bots-names'
 import { generateMbMetadata } from '@/lib/metadata'
 import { getCanonicalDomain, urlBuilders } from '@/lib/url'
@@ -40,7 +41,10 @@ export default async function ChatbotThreadQuestionArticlePage(
 	})
 
 	if (!thread) {
-		throw new Error('Bot Thread not found')
+		// create a 404 page and return to home page
+		return (
+			<ErrorComponent message="The thread that you were looking for either doesn't exist or is not available." />
+		)
 	}
 
 	return <BrowseThread thread={thread} />

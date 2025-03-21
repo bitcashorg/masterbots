@@ -19,7 +19,6 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 	const pathname = usePathname()
 	const openSidebar = pathname.includes('/t')
 	const [isThreadsOpen, setIsThreadsOpen] = useState(openSidebar)
-	const location = useLocation()
 	const { userSlug } = useParams()
 	const { isSidebarOpen, toggleSidebar, setActiveCategory, setActiveChatbot } =
 		useSidebar()
@@ -79,7 +78,7 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 								className={cn(
 									'flex w-full items-center justify-between px-4 py-3',
 									'hover:bg-gray-200 dark:hover:bg-mirage transition-colors duration-200',
-									isThreadsOpen || location.pathname?.includes('/t/')
+									isThreadsOpen || openSidebar
 										? 'bg-gray-200 dark:bg-mirage'
 										: '',
 								)}
