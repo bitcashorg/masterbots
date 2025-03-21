@@ -106,7 +106,7 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 							</Link>
 							<div
 								className={cn(
-									'overflow-y-auto scrollbar transition-all duration-300 w-[300px] lg:w-[250px] xl:w-[300px]',
+									'overflow-y-auto w-full scrollbar transition-all duration-300 max-w-[300px]',
 									{
 										'border dark:border-b-mirage border-b-gray-200':
 											isThreadsOpen,
@@ -162,11 +162,11 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 					'flex flex-col w-full h-full  lg:w-[calc(100%-250px)] xl:w-[calc(100%-300px)]',
 				)}
 			>
-				<div className="flex flex-col w-full gap-10 pt-5 mx-auto flex-grow ">
+				<div className="flex flex-col w-full gap-10 pt-5 mb-10 mx-auto flex-grow ">
 					{children}
 				</div>
-				<div className="sticky bottom-0 w-full left-0 z-10 dark:bg-black bg-white">
-					<FooterCT className="flex justify-start items-center text-center" />
+				<div className="fixed bottom-0 w-full left-0 z-10 dark:bg-black bg-white">
+					<FooterCT />
 				</div>
 			</section>
 		</div>
