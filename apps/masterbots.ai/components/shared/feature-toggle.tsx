@@ -61,6 +61,23 @@ export function FeatureToggle({
 	const colorClasses = activeColorClasses[activeColor]
 	const tooltipMessage = `${name}`
 
+	const processingRef = React.useRef(false)
+
+	const handleToggle = React.useCallback(() => {
+		if (processingRef.current) return
+
+		processingRef.current = true
+		console.log(`FeatureToggle (${name}): moving to ${isActive} a ${!isActive}`)
+
+		try {
+			onChange(!isActive)
+		} finally {
+			setTimeout(() => {
+				processingRef.current = false
+			}, 300)
+		}
+	}, [isActive, onChange, name])
+
 	return (
 		<Tooltip>
 			<TooltipTrigger asChild>
@@ -69,8 +86,8 @@ export function FeatureToggle({
 						custom
 						name={id}
 						id={id}
-						value={isActive ? 'checked' : 'unchecked'}
-						onClick={() => onChange(!isActive)}
+						checked={isActive}
+						onClick={handleToggle}
 						className={cn(
 							'transition-all delay-100 size-auto inline-flex items-center gap-1.5 border-muted p-1 rounded-full overflow-hidden',
 							isActive

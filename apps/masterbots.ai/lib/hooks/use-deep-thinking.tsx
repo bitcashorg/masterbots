@@ -1,3 +1,4 @@
+// use-deep-thinking.tsx
 'use client'
 
 import { AIModels } from '@/app/api/chat/models/models'
@@ -18,33 +19,48 @@ export function DeepThinkingProvider({
 }: {
 	children: React.ReactNode
 }) {
-	const [isDeepThinking, setIsDeepThinking] = React.useState(false)
 	const { changeModel, selectedModel } = useModel()
 
-	const previousModelRef = React.useRef<string>(selectedModel)
+	const [mounted, setMounted] = React.useState(false)
+	React.useEffect(() => {
+		setMounted(true)
+	}, [])
+
+	const isDeepThinking = mounted && selectedModel === AIModels.DeepSeekGroq
+
+	const previousModelRef = React.useRef<string>(AIModels.Default)
+
+	React.useEffect(() => {
+		if (selectedModel !== AIModels.DeepSeekGroq) {
+			previousModelRef.current = selectedModel
+			console.log(
+				'DeepThinking: Updated previous model reference to:',
+				selectedModel,
+			)
+		}
+	}, [selectedModel])
 
 	const toggleDeepThinking = React.useCallback(() => {
-		setIsDeepThinking((prev) => {
-			const newState = !prev
+		console.log('DeepThinking Toggle: Current is', isDeepThinking)
+		if (!isDeepThinking) {
+			previousModelRef.current = selectedModel
+			changeModel(AIModels.DeepSeekGroq)
+		} else {
+			const modelToRestore = previousModelRef.current || AIModels.Default
+			changeModel(modelToRestore as AIModels)
+		}
+	}, [isDeepThinking, changeModel, selectedModel])
 
-			if (newState) {
-				previousModelRef.current = selectedModel
-				changeModel(AIModels.DeepSeekGroq)
-			} else {
-				changeModel(previousModelRef.current as AIModels)
-			}
-
-			return newState
-		})
-	}, [selectedModel, changeModel])
+	const value = React.useMemo(
+		() => ({
+			isDeepThinking,
+			toggleDeepThinking,
+		}),
+		[isDeepThinking, toggleDeepThinking],
+	)
 
 	return (
-		<DeepThinkingContext.Provider
-			value={{
-				isDeepThinking,
-				toggleDeepThinking,
-			}}
-		>
+		<DeepThinkingContext.Provider value={value}>
 			{children}
 		</DeepThinkingContext.Provider>
 	)
