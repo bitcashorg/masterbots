@@ -5,9 +5,7 @@ import { generateMbMetadata } from '@/lib/metadata'
 import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { getCategory, getThread } from '@/services/hasura'
 import type { PageProps } from '@/types/types'
-import { ChevronLeft } from 'lucide-react'
 import type { Metadata } from 'next'
-import Link from 'next/link'
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
 	// Get base metadata from the shared function
@@ -49,18 +47,5 @@ export default async function ChatbotThreadQuestionArticlePage(
 		)
 	}
 
-	return (
-		<>
-			<div className="max-w-[600px] mx-auto mb-4">
-				<Link
-					href="/"
-					className="flex items-center leading-none gap-2 text-white/80 dark:text-[#09090BC3] hover:text-white dark:hover:text-[#09090B]"
-				>
-					<ChevronLeft className="size-4" />
-					<span>Back </span>
-				</Link>
-			</div>
-			{/* <BrowseThread thread={thread} /> */}
-		</>
-	)
+	return <BrowseThread thread={thread} />
 }
