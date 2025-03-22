@@ -21,10 +21,8 @@ const buttonVariants = cva(
 				link: 'text-primary underline-offset-4 shadow-none hover:underline',
 				icon: 'flex size-8 shrink-0 select-none items-center justify-center border shadow cursor-pointer',
 				sideBarProfile: 'bg-transparent border-0 shadow-none justify-start',
-				powerUp:
-					'border border-input animate-pulse-yellow bg-yellow-400 text-black transition-all duration-200 ease-in-out shadow-[0_0_20px_#f5be0b] hover:bg-yellow-500',
-				deepThinking:
-					'border border-input animate-pulse-green bg-green-400 text-black transition-all duration-200 ease-in-out shadow-[0_0_20px_#f5be0b] hover:bg-green-500',
+				powerUp: 'border border-input',
+				deepThinking: 'border border-input',
 			},
 			size: {
 				default: 'h-8 px-4 py-2',

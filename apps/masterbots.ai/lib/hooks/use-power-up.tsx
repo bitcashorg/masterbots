@@ -15,7 +15,11 @@ export function PowerUpProvider({ children }: { children: React.ReactNode }) {
 	const [isPowerUp, setIsPowerUp] = React.useState(false)
 
 	const togglePowerUp = React.useCallback(() => {
-		setIsPowerUp((prev) => !prev)
+		setIsPowerUp((prev) => {
+			const newState = !prev
+			console.log('PowerUp: changing to: ', newState)
+			return newState
+		})
 	}, [])
 
 	return (
