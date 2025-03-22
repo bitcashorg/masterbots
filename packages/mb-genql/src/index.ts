@@ -42,10 +42,20 @@ export function createMbClient({
 				'Content-Type': 'application/json',
 				...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
 				...(adminSecret ? { 'x-hasura-admin-secret': adminSecret } : {}),
+				...(enableCache
+					? {
+							// Add a header to indicate cache should be used
+							'X-Enable-GraphQL-Cache': 'true',
+							// Add a header for cache TTL (in milliseconds)
+							'X-GraphQL-Cache-TTL': cacheTTL.toString(),
+						}
+					: {}),
 			}
 
 			// Create a unique key for this request
-			const cacheKey = getCacheKey(operation, jwt || '')
+			// And get both key formats
+			const localCacheKey = getCacheKey(operation, jwt || '')
+			const swCacheKey = createSwCacheKey(operation)
 
 			if (debug) {
 				console.log(
@@ -56,34 +66,19 @@ export function createMbClient({
 				)
 			}
 
-			// If caching is enabled, check for cached response or in-flight request
-			if (enableCache) {
-				// Check if we have a cached response that's still valid
-				const cachedResponse = responseCache.get(cacheKey)
-				if (
-					cachedResponse &&
-					Date.now() - cachedResponse.timestamp < cacheTTL
-				) {
-					return cachedResponse.data
-				}
-
-				// Check if there's already an in-flight request for this query
-				const existingRequest = inflightRequests.get(cacheKey)
-				if (existingRequest) {
-					console.log('returning existing request')
-					return existingRequest
-				}
+			// Always track in-flight requests to deduplicate them
+			// This is important even with SW cache since SW doesn't deduplicate concurrent requests
+			const existingRequest = inflightRequests.get(swCacheKey)
+			if (existingRequest) {
+				console.log('Returning existing in-flight request')
+				return existingRequest
 			}
 
-			// Create the fetch request
-			// Create an AbortController based on the operation.query
+			// Create an AbortController
 			const controller = new AbortController()
 
-			// const timeoutId = setTimeout(() => {
-			// 	controller.abort();
-			// }, cacheTTL);
-
-			// Fetch the data
+			// In browser environments with SW support, we can rely more on the SW cache
+			// but still need in-memory for in-flight request deduplication
 			const fetchPromise = fetch(endpoints[env || 'prod'], {
 				method: 'POST',
 				headers,
@@ -93,33 +88,31 @@ export function createMbClient({
 			})
 				.then((response) => response.json())
 				.then((data) => {
-					// Cache the successful response if caching is enabled
-					if (enableCache) {
-						responseCache.set(cacheKey, {
+					// Only cache in-memory if service worker is not available
+					if (
+						enableCache &&
+						(typeof navigator === 'undefined' ||
+							!('serviceWorker' in navigator))
+					) {
+						// Store in local cache using our local cache key
+						responseCache.set(localCacheKey, {
 							data,
 							timestamp: Date.now(),
 						})
-						// Remove from in-flight requests
-						inflightRequests.delete(cacheKey)
 					}
+					// Always remove from in-flight requests
+					inflightRequests.delete(swCacheKey)
 					return data
 				})
 				.catch((error) => {
 					// Remove from in-flight requests on error
-					if (enableCache) {
-						inflightRequests.delete(cacheKey)
-					}
+					inflightRequests.delete(swCacheKey)
 					console.error('Error in graphql fetcher', error)
 					throw error
 				})
-			// .finally(() => {
-			// 	clearTimeout(timeoutId);
-			// })
 
-			// Track this request if caching is enabled
-			if (enableCache) {
-				inflightRequests.set(cacheKey, fetchPromise)
-			}
+			// Track this request to prevent duplicates
+			inflightRequests.set(swCacheKey, fetchPromise)
 
 			return fetchPromise
 		},
@@ -129,17 +122,55 @@ export function createMbClient({
 		subscribe,
 		...client,
 		clearCache: () => {
+			// Clear local in-memory cache
 			responseCache.clear()
+
+			// Clear service worker cache
+			if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+				navigator.serviceWorker.ready.then((registration) => {
+					registration.active?.postMessage({
+						type: 'INVALIDATE_CACHE',
+					})
+				})
+			}
 		},
+
 		invalidateCache: (operation?: GraphqlOperation | GraphqlOperation[]) => {
-			if (operation) {
-				const cacheKey = getCacheKey(operation, jwt || '')
-				responseCache.delete(cacheKey)
-			} else {
-				responseCache.clear()
+			if (!operation) return
+			// Create a cache key that exactly matches the service worker's format
+			const swCacheKey = createSwCacheKey(operation)
+
+			// For local cache, use the same format as getCacheKey
+			const localCacheKey = getCacheKey(operation, jwt || '')
+
+			// Clear local cache
+			responseCache.delete(localCacheKey)
+
+			// Clear service worker cache for this query with the correct key format
+			if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+				navigator.serviceWorker.ready.then((registration) => {
+					registration.active?.postMessage({
+						type: 'INVALIDATE_CACHE',
+						key: swCacheKey,
+					})
+				})
 			}
 		},
 	}
+}
+
+// Improved hash function - replace current one
+function hashCode(str: string): number {
+	// djb2 hash algorithm - matches the service worker implementation
+	let hash = 5381
+
+	for (let i = 0; i < str.length; i++) {
+		// (hash * 33) ^ char
+		hash = ((hash << 5) + hash) ^ str.charCodeAt(i)
+	}
+
+	// Convert to unsigned 32-bit integer - matches SW implementation
+	return hash >>> 0
 }
 
 // Generate a unique key for caching based on the operation and auth
@@ -147,22 +178,33 @@ function getCacheKey(
 	operation: GraphqlOperation | GraphqlOperation[],
 	authToken: string,
 ): string {
-	// Include variables and query in the key
-	const operationString = JSON.stringify(operation)
 	// Include a hash of the auth token to invalidate cache when auth changes
 	const authHash = authToken ? String(hashCode(authToken)) : 'noauth'
-	return `${authHash}:${operationString}`
+
+	if (Array.isArray(operation)) {
+		// For batched operations - also create SW-compatible key format
+		const query = operation.map((op) => op.query).join('')
+		const variables = operation.map((op) => op.variables || {})
+		return `${authHash}:batch:${hashCode(query)}:${JSON.stringify(variables)}`
+	}
+	// For single operations - create SW-compatible key format
+	const query = operation.query
+	const variables = operation.variables || {}
+	return `${authHash}:${hashCode(query)}:${JSON.stringify(variables)}`
 }
 
-// Simple hash function for strings
-function hashCode(str: string): number {
-	let hash = 0
-	for (let i = 0; i < str.length; i++) {
-		const char = str.charCodeAt(i)
-		hash = (hash << 5) - hash + char
-		hash = hash & hash // Convert to 32bit integer
+// Add helper function to create service worker compatible keys
+function createSwCacheKey(
+	operation: GraphqlOperation | GraphqlOperation[],
+): string {
+	if (Array.isArray(operation)) {
+		// Format matches the service worker's batch operation key format
+		const query = operation.map((op) => op.query).join('')
+		const variables = operation.map((op) => op.variables || {})
+		return `graphql_batch_${hashCode(query)}_${JSON.stringify(variables)}`
 	}
-	return hash
+	// Format matches the service worker's single operation key format
+	return `graphql_${hashCode(operation.query)}_${JSON.stringify(operation.variables || {})}`
 }
 
 export interface MbClient extends Client {

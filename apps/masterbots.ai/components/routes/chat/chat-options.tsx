@@ -158,13 +158,15 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
 							</Button>
 						</DropdownMenuItem>
 					)}
-					{/* Share thread option */}
-					<DropdownMenuItem
-						className="flex-col items-start"
-						onSelect={(event) => event.preventDefault()}
-					>
-						<ShareButton url={url} />
-					</DropdownMenuItem>
+					{/* Share thread option: This always show in public and profiles due they are already approved and public but for personal chat isn't... */}
+					{thread?.isApproved && thread?.isPublic && (
+						<DropdownMenuItem
+							className="flex-col items-start"
+							onSelect={(event) => event.preventDefault()}
+						>
+							<ShareButton url={url} />
+						</DropdownMenuItem>
+					)}
 					{/* Delete thread option (only for thread owner) */}
 					{isUser && (
 						<>
