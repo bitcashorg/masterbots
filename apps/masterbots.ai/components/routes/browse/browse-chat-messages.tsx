@@ -16,11 +16,12 @@
 import BrowseChatbotDetails from '@/components/routes/browse/browse-chatbot-details'
 import { BrowseThreadBlog } from '@/components/routes/browse/browse-thread-blog'
 import { ExternalLink } from '@/components/shared/external-link'
-import { buttonVariants } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { urlBuilders } from '@/lib/url'
 import { cn } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
 import type * as AI from 'ai'
+import { ChevronLeft } from 'lucide-react'
 import type { Chatbot, Message, User } from 'mb-genql'
 import Link from 'next/link'
 import React from 'react'
@@ -108,6 +109,15 @@ export function BrowseChatMessages({
 			) : (
 				''
 			)}
+			<div className=" lg:p-10  mt-4 ml-2 lg:mt-0 pb-0 mx-auto">
+				<Link
+					href={`/b/${chatBotName?.toLowerCase()}`}
+					className="flex items-center leading-none gap-2 dark:text-white/80 text-[#09090BC3] dark:hover:text-white hover:text-[#09090B]"
+				>
+					<ChevronLeft className="size-4" />
+					<span>Back </span>
+				</Link>
+			</div>
 			<div className="flex flex-col max-w-screen-lg px-4 mx-auto mt-8 gap-y-4">
 				{parentThreadTitle && (
 					<p>
