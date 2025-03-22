@@ -3,7 +3,7 @@
 // Default cache TTL (5 minutes)
 const CONFIG_CACHE_TTL = 5 * 60 * 1000
 const CACHE_NAME = 'graphql-cache-v1'
-const DEBUG = false
+const DEBUG = true
 
 // Helper to log only in debug mode
 function log(...args) {
@@ -120,7 +120,7 @@ self.addEventListener('fetch', (event) => {
 				const cacheTime = cachedResponse.headers.get('cache-time')
 				const ttlHeaders = event.request.headers.get('X-GraphQL-Cache-TTL')
 				const ttl = ttlHeaders
-					? Number.parseInt(customTtl, 10)
+					? Number.parseInt(ttlHeaders, 10)
 					: CONFIG_CACHE_TTL
 
 				if (cacheTime && Date.now() - Number.parseInt(cacheTime) < ttl) {
