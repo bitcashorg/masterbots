@@ -3,9 +3,12 @@ import { getCategory, getThread } from '@/services/hasura'
 import type { PageProps } from '@/types/types'
 import type { Metadata } from 'next'
 
+import { ErrorComponent } from '@/components/shared/error'
 import { botNames } from '@/lib/constants/bots-names'
 import { generateMbMetadata } from '@/lib/metadata'
 import { getCanonicalDomain, urlBuilders } from '@/lib/url'
+import Image from 'next/image'
+import Link from 'next/link'
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
 	// Get base metadata from the shared function
@@ -34,12 +37,14 @@ export default async function ChatbotThreadArticlePage(props: PageProps) {
 	const params = await props.params
 	const thread = await getThread({
 		threadSlug: params.threadSlug,
-		domain: params.domain,
 		jwt: '',
 	})
 
 	if (!thread) {
-		throw new Error('Bot Thread not found')
+		// create a 404 page and return to home page
+		return (
+			<ErrorComponent message="The thread that you were looking for either doesn't exist or is not available." />
+		)
 	}
 
 	return <BrowseThread thread={thread} />

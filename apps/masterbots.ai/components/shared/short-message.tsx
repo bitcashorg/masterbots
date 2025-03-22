@@ -18,14 +18,9 @@ export function ShortMessage({ content }: { content: string }) {
 				},
 				// @ts-ignore
 				code({ node, inline, className, children, ...props }) {
-					// @ts-ignore
-					if (children.length) {
-						// @ts-ignore
-						if (children[0] === '▍') {
-							return (
-								<span className="mt-1 cursor-default animate-pulse">▍</span>
-							)
-						}
+					const childrenText = String(children)
+					if (childrenText?.startsWith('▍')) {
+						return <span className="mt-1 cursor-default animate-pulse">▍</span>
 					}
 
 					const match = /language-(\w+)/.exec(className || '')

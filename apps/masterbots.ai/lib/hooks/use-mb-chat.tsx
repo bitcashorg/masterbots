@@ -27,6 +27,7 @@ import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
+import { getCanonicalDomain } from '@/lib/url'
 import {
 	createThread,
 	deleteThread,
@@ -418,13 +419,16 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					const thread = await updateActiveThread()
 					console.log('thread', thread)
 					if (isNewChat || isContinuousThread) {
+						const canonicalDomain = getCanonicalDomain(
+							activeChatbot?.name || 'blankbot',
+						)
 						navigateTo({
 							urlType: 'threadUrl',
 							shallow: true,
 							navigationParams: {
 								type: 'personal',
 								category: activeChatbot?.categories[0].category.name || '',
-								domain: activeChatbot?.metadata[0].domainName || '',
+								domain: canonicalDomain,
 								chatbot: activeChatbot?.name || '',
 								threadSlug: thread.slug,
 							},
@@ -498,6 +502,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	)
 		.filter(Boolean)
 		.filter((m) => m.role !== 'system')
+		.sort(
+			(a, b) =>
+				new Date(a?.createdAt || '').getTime() -
+				new Date(b?.createdAt || '').getTime(),
+		)
 
 	useEffect(() => {
 		// Resetting the chat when the popup is closed

@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils'
 import type { ChatMessageProps } from '@/types/types'
 import type { Message } from 'ai'
 import type { Message as MBMessage } from 'mb-genql'
-import React from 'react'
+import React, { useState } from 'react'
 import rehypeMathJax from 'rehype-mathjax'
 import remarkGfm from 'remark-gfm'
 import remarkRehype from 'remark-rehype'
@@ -76,6 +76,8 @@ export function ReasoningChatMessage({
 	actionRequired = true,
 	...props
 }: ChatMessageProps) {
+	const [isReasoningCollapsed, setIsReasoningCollapsed] = useState(!true)
+
 	// Extract reasoning from message
 	const reasoningContent = extractReasoningContent(message)
 	// Clean the message content and update the message object.
@@ -90,14 +92,18 @@ export function ReasoningChatMessage({
 		sendMessageFromResponse?.(followUpPrompt)
 	}
 
+	const toggleReasoning = () => {
+		setIsReasoningCollapsed(!isReasoningCollapsed)
+	}
+
 	return (
 		<div className={cn('group relative flex items-start p-1')} {...props}>
 			<div className="flex-1 pr-1 space-y-6 overflow-hidden">
 				{/* First show the reasoning part (if available) */}
 				{reasoningContent && (
-					<div className="mb-4">
-						<div className="mb-2">
-							<span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300">
+					<>
+						<div className="flex items-center justify-between py-2">
+							<span className="inline-flex items-center px-3 py-1 text-xs font-medium text-purple-800 bg-purple-100 rounded dark:bg-purple-800 dark:text-purple-100">
 								{/* biome-ignore lint/a11y/noSvgWithoutTitle: <explanation> */}
 								<svg
 									className="mr-1 size-3"
@@ -112,19 +118,87 @@ export function ReasoningChatMessage({
 								</svg>
 								AI Thinking Process
 							</span>
+							{/* biome-ignore lint/a11y/useButtonType: <explanation> */}
+							<button
+								onClick={toggleReasoning}
+								className="flex items-center px-3 py-1 space-x-1 text-xs font-medium transition-colors border rounded bg-slate-200 hover:bg-slate-300 text-slate-700 border-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-200 dark:border-slate-600 focus:outline-none"
+							>
+								{isReasoningCollapsed ? (
+									<>
+										{/* biome-ignore lint/a11y/noSvgWithoutTitle: <explanation> */}
+										<svg
+											className="w-3 h-3 mr-1"
+											viewBox="0 0 24 24"
+											fill="none"
+											xmlns="http://www.w3.org/2000/svg"
+											aria-label="Expand Reasoning"
+										>
+											<path
+												d="M19 9L12 16L5 9"
+												stroke="currentColor"
+												strokeWidth="2"
+												strokeLinecap="round"
+												strokeLinejoin="round"
+											/>
+										</svg>
+										<span>Show Full Reasoning</span>
+									</>
+								) : (
+									<>
+										{/* biome-ignore lint/a11y/noSvgWithoutTitle: <explanation> */}
+										<svg
+											className="mr-1 size-3"
+											viewBox="0 0 24 24"
+											fill="none"
+											xmlns="http://www.w3.org/2000/svg"
+											aria-label="Collapse Reasoning"
+										>
+											<path
+												d="M5 15L12 8L19 15"
+												stroke="currentColor"
+												strokeWidth="2"
+												strokeLinecap="round"
+												strokeLinejoin="round"
+											/>
+										</svg>
+										<span>Collapse Reasoning</span>
+									</>
+								)}
+							</button>
 						</div>
-						{/* Always show reasoning content - no collapsible UI */}
-						<div className="p-4 border rounded-lg bg-slate-900/90 border-purple-500/20">
-							<pre className="text-xs md:text-sm whitespace-pre-wrap font-mono p-4 rounded-md overflow-auto max-h-[400px] bg-gradient-to-b from-slate-800 to-slate-900 text-slate-300 border border-slate-700/50">
-								{reasoningContent}
-							</pre>
-						</div>
-					</div>
+						{isReasoningCollapsed ? (
+							<div className="px-4 py-2 mb-4 ml-3 text-sm italic border-l-4 text-slate-500 dark:text-slate-400 border-purple-500/40 dark:border-purple-800/40 bg-slate-100/50 dark:bg-slate-800/20">
+								{reasoningContent
+									?.split('\n')
+									.filter((line) => line.trim())
+									.slice(0, 2)
+									.map((line, i) => (
+										<div key={i} className="truncate">
+											{line.trim().substring(0, 120)}
+											{line.length > 120 && '...'}
+										</div>
+									))}
+								{(reasoningContent?.split('\n').filter((line) => line.trim())
+									.length || 0) > 2 && (
+									<div className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+										+ more reasoning details...
+									</div>
+								)}
+							</div>
+						) : (
+							<div className="px-6 py-4 mb-4 border-l-4 rounded-r-lg bg-slate-100/80 dark:bg-slate-800/30 border-purple-500/60 dark:border-purple-800/60">
+								<pre className="font-mono text-xs whitespace-pre-wrap text-slate-700 dark:text-slate-300 md:text-sm">
+									{reasoningContent}
+								</pre>
+							</div>
+						)}
+						<div className="w-full h-px my-3 bg-slate-200 dark:bg-slate-700/30" />
+					</>
 				)}
 
-				<div className="mt-4">
+				<div>
 					<div className="mb-2">
-						<span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+						<span className="inline-flex items-center px-3 py-1 text-xs font-medium text-blue-800 bg-blue-100 rounded dark:bg-blue-700 dark:text-blue-100">
 							Final Answer
 						</span>
 					</div>
@@ -241,16 +315,11 @@ export function ReasoningChatMessage({
 							// Process code blocks.
 							// @ts-ignore
 							code({ inline, className, children, ...props }) {
-								// @ts-ignore
-								if (children.length) {
-									// @ts-ignore
-									if (children[0] === '▍') {
-										return (
-											<span className="mt-1 cursor-default animate-pulse">
-												▍
-											</span>
-										)
-									}
+								const childrenText = String(children)
+								if (childrenText?.startsWith('▍')) {
+									return (
+										<span className="mt-1 cursor-default animate-pulse">▍</span>
+									)
 								}
 
 								const match = /language-(\w+)/.exec(className || '')

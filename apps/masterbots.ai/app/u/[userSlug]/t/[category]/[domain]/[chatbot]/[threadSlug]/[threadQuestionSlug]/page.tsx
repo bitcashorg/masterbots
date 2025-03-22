@@ -1,4 +1,5 @@
 import { BrowseThreadBlog } from '@/components/routes/browse/browse-thread-blog'
+import { ErrorComponent } from '@/components/shared/error'
 import { botNames } from '@/lib/constants/bots-names'
 import { generateMbMetadata } from '@/lib/metadata'
 import { getCanonicalDomain, urlBuilders } from '@/lib/url'
@@ -21,13 +22,14 @@ export default async function ThreadQuestionPage(props: ThreadPageProps) {
 	const params = await props.params
 	const thread = await getThread({
 		threadSlug: params.threadSlug,
-		domain: params.domain,
 		jwt: '',
 	})
 	const session = await getServerSession()
 
 	if (!thread) {
-		return <div>Thread not found</div>
+		return (
+			<ErrorComponent message="The thread that you were looking for either doesn't exist or is not available." />
+		)
 	}
 	const { threadId } = thread
 
