@@ -2,7 +2,6 @@
 
 // Default cache TTL (5 minutes)
 const CONFIG_CACHE_TTL = 5 * 60 * 1000
-const CONFIG_ENABLE_CACHE = process.env.ENABLE_GRAPHQL_CACHE === 'true'
 const CACHE_NAME = 'graphql-cache-v1'
 const DEBUG = false
 
@@ -84,7 +83,7 @@ function isGraphQLQuery(body) {
 // Main fetch event handler
 self.addEventListener('fetch', (event) => {
 	// Do cache if feature is enabled
-	if (!CONFIG_ENABLE_CACHE) {
+	if (!event.request.headers.get('X-Enable-GraphQL-Cache')) {
 		return
 	}
 
