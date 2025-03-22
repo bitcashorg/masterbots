@@ -502,6 +502,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	)
 		.filter(Boolean)
 		.filter((m) => m.role !== 'system')
+		.sort(
+			(a, b) =>
+				new Date(a?.createdAt || '').getTime() -
+				new Date(b?.createdAt || '').getTime(),
+		)
 
 	useEffect(() => {
 		// Resetting the chat when the popup is closed

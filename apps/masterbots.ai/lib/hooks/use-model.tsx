@@ -27,21 +27,32 @@ interface ModelProviderProps {
 }
 
 export function ModelProvider({ children }: ModelProviderProps) {
-	const [selectedModel, setSelectedModel] = React.useState(AIModels.Default) // OpenIA as default model
-	const [clientType, setClientType] = React.useState('')
+	const [selectedModel, setSelectedModel] = React.useState(AIModels.Default)
+	const [clientType, setClientType] = React.useState(
+		getModelClientType(AIModels.Default),
+	)
 
-	const updateSelectedModel = () => {
-		setClientType(getModelClientType(selectedModel))
-	}
-
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	React.useEffect(() => {
-		updateSelectedModel()
+		setClientType(getModelClientType(selectedModel))
+		console.log(
+			'Model updated to:',
+			selectedModel,
+			'ClientType:',
+			getModelClientType(selectedModel),
+		)
 	}, [selectedModel])
 
-	const changeModel = (model: AIModels) => {
-		setSelectedModel(model)
-	}
+	const changeModel = React.useCallback((model: AIModels) => {
+		if (model && Object.values(AIModels).includes(model)) {
+			console.log('Changing model to:', model)
+			setSelectedModel(model)
+		} else {
+			console.warn(
+				`Invalid model: ${model}, using default: ${AIModels.Default}`,
+			)
+			setSelectedModel(AIModels.Default)
+		}
+	}, [])
 
 	return (
 		<ModelContext.Provider value={{ selectedModel, changeModel, clientType }}>

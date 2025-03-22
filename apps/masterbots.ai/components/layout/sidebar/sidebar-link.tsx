@@ -11,7 +11,6 @@ import type {
 	UserChatbotThreadListUrlParams,
 } from '@/types/url'
 import type { Category, Chatbot } from 'mb-genql'
-import { toSlug } from 'mb-lib'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams, usePathname, useRouter } from 'next/navigation'
@@ -148,12 +147,6 @@ export default function SidebarLink({
 
 		const isNewCategory = category.categoryId !== activeCategory
 
-		if (isPublic) {
-			// For public routes
-			return category.categoryId && activeCategory !== category.categoryId
-				? `/${toSlug(category.name)}`
-				: '/'
-		}
 		if (page === 'profile') {
 			// For profile pages
 			return category.categoryId && isNewCategory
@@ -167,16 +160,19 @@ export default function SidebarLink({
 						usernameSlug: userSlug as string,
 					})
 		}
+
+		const fallbackUrl = isPublic ? '/' : '/c'
+
 		// For personal routes
 		return category.categoryId && isNewCategory
 			? urlBuilders.topicThreadListUrl({
 					type: isPublic ? 'public' : 'personal',
 					category: category.name,
 				})
-			: '/c'
+			: fallbackUrl
 	}, [category, activeCategory, isPublic, page, userSlug])
 
-	if (isPublic || isFilterMode) {
+	if (isFilterMode) {
 		return (
 			<div className={cn('flex flex-col mb-2')} data-route={routeType}>
 				{/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
