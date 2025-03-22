@@ -208,8 +208,8 @@ function ThreadPopUpCardHeader({
 	}, [messages, isBrowseView])
 
 	const threadTitleChunks = threadTitle?.split(/\s/g)
-	const threadTitleHeading = threadTitleChunks?.slice(0, 32).join(' ')
-	const threadTitleSubHeading = threadTitleChunks?.slice(32).join(' ')
+	const threadTitleHeading = threadTitleChunks?.slice(0, 49).join(' ')
+	const threadTitleSubHeading = threadTitleChunks?.slice(49).join(' ')
 
 	return (
 		<div className="relative rounded-t-[8px] px-[32px] py-[20px] dark:bg-[#1E293B] bg-[#E4E4E7]">

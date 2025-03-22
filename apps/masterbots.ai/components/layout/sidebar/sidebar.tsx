@@ -40,7 +40,7 @@ export function Sidebar({
 				data-state={isSidebarOpen ? 'open' : 'closed'}
 				className={cn(
 					className,
-					'size-full flex flex-col z-40',
+					'h-full flex flex-col z-40',
 					!isBrowse
 						? 'bg-[#fae8ff] dark:bg-[#000000]' // For /c routes only
 						: 'bg-[#eeffea] dark:bg-[#000000]', // For other routes

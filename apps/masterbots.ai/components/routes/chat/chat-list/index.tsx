@@ -75,12 +75,16 @@ export function ChatList({
 	const effectiveContainerRef = externalContainerRef || chatListRef
 	const effectiveThreadRef = messageContainerRef
 
-	const chatMessages = (messages || activeThread?.messages || []).sort(
-		(a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-	)
-	const previousChatMessages = (activeThread?.thread?.messages || []).sort(
-		(a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-	)
+	// ! Temporary fix for the chat messages... Must be related with the thread title:
+	// ? Related Issue: The last question shows as Thread Title when it should be the first
+	const chatMessages = messages || activeThread?.messages || []
+	// .sort(
+	// 	(a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+	// )
+	const previousChatMessages = activeThread?.thread?.messages || []
+	// .sort(
+	// 	(a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+	// )
 
 	const { isNearBottom } = useMBScroll({
 		containerRef: effectiveContainerRef,

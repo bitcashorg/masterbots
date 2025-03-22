@@ -1,6 +1,7 @@
 import '@/app/globals.css'
 import { Header } from '@/components/layout/header/header'
 import { Providers } from '@/components/layout/providers'
+import { ServiceWorkerRegistration } from '@/components/layout/service-worker-registration'
 import { Toaster } from '@/components/ui/sonner'
 import { cn } from '@/lib/utils'
 import { GoogleAnalytics } from '@next/third-parties/google'
@@ -20,6 +21,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 					GeistMono.variable,
 				)}
 			>
+				<ServiceWorkerRegistration />
 				{appConfig.features.topLoader && (
 					<NextTopLoader color="#1ED761" initialPosition={0.2} />
 				)}

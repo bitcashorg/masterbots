@@ -145,7 +145,7 @@ export function ChatPanel({
 											className="bg-background"
 										>
 											<IconStop className="mr-2" />
-											Stop generating
+											Stop
 										</Button>
 									)}
 								</>
