@@ -65,6 +65,7 @@ export function ChatPanel({
 		'transition-all w-[0px] opacity-0 whitespace-nowrap duration-300'
 
 	const prepareMessageOptions = useCallback(
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		(chatOptions: any) => ({
 			...chatOptions,
 			powerUp: isPowerUp,

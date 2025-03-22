@@ -173,7 +173,7 @@ export function ReasoningChatMessage({
 									.filter((line) => line.trim())
 									.slice(0, 2)
 									.map((line, i) => (
-										<div key={i} className="truncate">
+										<div key={line} className="truncate">
 											{line.trim().substring(0, 120)}
 											{line.length > 120 && '...'}
 										</div>
