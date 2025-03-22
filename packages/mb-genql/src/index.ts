@@ -48,6 +48,7 @@ export function createMbClient({
 							'X-Enable-GraphQL-Cache': 'true',
 							// Add a header for cache TTL (in milliseconds)
 							'X-GraphQL-Cache-TTL': cacheTTL.toString(),
+							'cache-time': new Date().getTime().toString(),
 						}
 					: {}),
 			}
