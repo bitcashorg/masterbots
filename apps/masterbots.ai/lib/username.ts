@@ -2,7 +2,7 @@ import { type ZodSchema, z } from 'zod'
 
 export const UsernameSchema: ZodSchema<string> = z
 	.string()
-	.min(11, { message: 'Username must be at least 11 characters long.' })
+	.min(10, { message: 'Username must be at least 11 characters long.' })
 	.max(20, { message: 'Username must not exceed 20 characters.' })
 	.regex(/^[a-z0-9_]*$/, {
 		message:

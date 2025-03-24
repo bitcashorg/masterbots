@@ -52,8 +52,13 @@ export async function POST(req: NextRequest) {
 		// * Generate unique username if needed
 		let foundFreeUsername = false
 		let newUsername = generateUsername(username)
+		let sequence = 0
 
 		while (!foundFreeUsername) {
+			if (sequence > 0) {
+				newUsername = `${newUsername}${sequence}`
+			}
+
 			const { user } = await client.query({
 				user: {
 					__args: {
@@ -70,6 +75,8 @@ export async function POST(req: NextRequest) {
 			} else {
 				newUsername = generateUsername(username)
 			}
+
+			sequence++
 		}
 
 		// * Hash password
