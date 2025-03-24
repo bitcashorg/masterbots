@@ -4,6 +4,7 @@ import crypto from 'node:crypto'
 import { sendEmailVerification } from '@/lib/email'
 import { generateUsername } from '@/lib/username'
 import bcryptjs from 'bcryptjs'
+import { appConfig } from 'mb-env'
 import { getHasuraClient, toSlug } from 'mb-lib'
 import { type NextRequest, NextResponse } from 'next/server'
 
@@ -83,29 +84,49 @@ export async function POST(req: NextRequest) {
 		const salt = await bcryptjs.genSalt(10)
 		const hashedPassword = await bcryptjs.hash(password, salt)
 
-		// * Generate verification token
-		const verificationToken = crypto.randomBytes(32).toString('hex')
-		const tokenExpiry = new Date()
-		tokenExpiry.setDate(tokenExpiry.getDate() + 15) // 15 days to verify
-
-		// * Insert new user
-		const { insertUserOne } = await client.mutation({
-			insertUserOne: {
-				__args: {
-					object: {
-						email,
-						username: newUsername,
-						slug: toSlug(newUsername),
-						password: hashedPassword,
-						profilePicture: `https://api.dicebear.com/9.x/identicon/svg?seed=${newUsername}`,
-						dateJoined: new Date().toISOString(),
+		try {
+			// * Insert new user
+			const { insertUserOne } = await client.mutation({
+				insertUserOne: {
+					__args: {
+						object: {
+							email,
+							username: newUsername,
+							slug: toSlug(newUsername),
+							password: hashedPassword,
+							profilePicture: `https://api.dicebear.com/9.x/identicon/svg?seed=${newUsername}`,
+							dateJoined: new Date().toISOString(),
+						},
 					},
+					userId: true,
 				},
-				userId: true,
-			},
-		})
+			})
 
-		if (insertUserOne) {
+			if (!insertUserOne) {
+				throw new Error(
+					'Failed to create your account, either the email or username is already taken.',
+				)
+			}
+
+			if (!appConfig.features.enableVerificationEmail) {
+				console.info(
+					'🔵 Verification email is disabled. Skipping email verification.',
+				)
+				return NextResponse.json(
+					{
+						message: 'User created successfully. Now logging you in...',
+						userId: insertUserOne.userId,
+						requiresVerification: false,
+					},
+					{ status: 201 },
+				)
+			}
+
+			// * Generate verification token
+			const verificationToken = crypto.randomBytes(32).toString('hex')
+			const tokenExpiry = new Date()
+			tokenExpiry.setDate(tokenExpiry.getDate() + 15) // 15 days to verify
+
 			// * First create the token
 			const { insertTokenOne } = await client.mutation({
 				insertTokenOne: {
@@ -137,25 +158,31 @@ export async function POST(req: NextRequest) {
 
 				// * Send verification email
 				await sendEmailVerification(email, verificationToken)
-
-				return NextResponse.json(
-					{
-						message:
-							'User created successfully. Please check your email to verify your account.',
-						userId: insertUserOne.userId,
-						requiresVerification: true,
-					},
-					{ status: 201 },
-				)
 			}
-		}
 
-		return NextResponse.json(
-			{ error: 'Failed to create user' },
-			{ status: 500 },
-		)
+			return NextResponse.json(
+				{
+					message:
+						'User created successfully. Please check your email to verify your account.',
+					userId: insertUserOne.userId,
+					requiresVerification: true,
+				},
+				{ status: 201 },
+			)
+		} catch (error) {
+			console.error('Error creating user:', error)
+			return NextResponse.json(
+				{ error: (error as Error).message },
+				{ status: 500 },
+			)
+		}
 	} catch (error) {
 		console.error('Error creating user:', error)
-		return NextResponse.json({ error: 'An error occurred' }, { status: 500 })
+		return NextResponse.json(
+			{
+				error: 'An error occurred while attempting to create your new account.',
+			},
+			{ status: 500 },
+		)
 	}
 }
