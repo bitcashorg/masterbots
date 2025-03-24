@@ -13,6 +13,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
 	const { email, password, username } = await req.json()
+	let newUsername = username.toLowerCase()
 
 	if (!email || !password) {
 		return NextResponse.json(
@@ -29,7 +30,10 @@ export async function POST(req: NextRequest) {
 			user: {
 				__args: {
 					where: {
-						_or: [{ email: { _eq: email } }, { username: { _eq: username } }],
+						_or: [
+							{ email: { _eq: email } },
+							{ username: { _eq: newUsername } },
+						],
 					},
 				},
 				username: true,
@@ -37,7 +41,7 @@ export async function POST(req: NextRequest) {
 			},
 		})
 
-		if (user.length && user[0].username === username) {
+		if (user.length && user[0].username === newUsername) {
 			return NextResponse.json(
 				{ error: 'Username is already taken' },
 				{ status: 409 },
@@ -52,7 +56,7 @@ export async function POST(req: NextRequest) {
 
 		// * Generate unique username if needed
 		let foundFreeUsername = false
-		let newUsername = generateUsername(username)
+		newUsername = generateUsername(username)
 		let sequence = 0
 
 		while (!foundFreeUsername) {
