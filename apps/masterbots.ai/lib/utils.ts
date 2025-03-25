@@ -328,7 +328,10 @@ export function getRouteType(pathname: string | null): RouteType {
 	}
 
 	// ? Check for pro routes
-	if (normalizedPath.startsWith('/pro/') || (normalizedPath.startsWith('/pro') && normalizedPath !== 'prompt')) {
+	if (
+		normalizedPath.startsWith('/pro/') ||
+		(normalizedPath.startsWith('/pro') && normalizedPath !== 'prompt')
+	) {
 		return 'pro'
 	}
 
