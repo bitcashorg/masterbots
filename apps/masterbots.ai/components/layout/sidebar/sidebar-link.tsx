@@ -109,6 +109,7 @@ export function SidebarLink({
 
 	const isActive = activeCategory === category.categoryId
 	const isSelected = selectedCategories.includes(category.categoryId)
+	const isPro = routeType === 'pro'
 
 	const categoryContent = (
 		<>
@@ -168,16 +169,16 @@ export function SidebarLink({
 					})
 		}
 
-		const fallbackUrl = isPublic ? '/' : '/c'
+		const fallbackUrl = isPro ? '/pro' : isPublic ? '/' : '/c'
 
 		// For personal routes
 		return category.categoryId && isNewCategory
 			? urlBuilders.topicThreadListUrl({
-					type: isPublic ? 'public' : 'personal',
+					type: isPro ? 'pro' : isPublic ? 'public' : 'personal',
 					category: category.name,
 				})
 			: fallbackUrl
-	}, [category, activeCategory, isPublic, page, userSlug])
+	}, [category, activeCategory, isPublic, page, userSlug, isPro])
 
 	if (isFilterMode) {
 		return (

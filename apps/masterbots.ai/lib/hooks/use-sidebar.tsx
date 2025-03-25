@@ -113,7 +113,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 		if (
 			(prevPath.current !== pathname &&
 				pathParts[1] !== prevPathParts[1] &&
-				pathParts[1] === 'c') ||
+				(pathParts[1] === 'c' || pathParts[1] === 'pro')) ||
 			(selectedCategories.length === 0 && selectedChatbots.length === 0)
 		) {
 			setSelectedCategories(categoriesObj.categoriesId)
@@ -159,8 +159,8 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 		if (!pathname || !categories) return
 		const [
 			,
-			publicTopicSlugOrBasePath, // c or :category
-			personalProfilesTopicSlugOrDomainSlug, // :category or :domain
+			publicProTopicSlugOrBasePath, // c, pro or :category
+			personalProProfilesTopicSlugOrDomainSlug, // :category or :domain
 			domainSlugOrPublicChatbotSlug, // :domain or :chatbot
 			personalChatbotSlugProfileTopicOrThreadSlug, // :topic, :chatbot or :threadSlug
 			_personalProfilesThreadSlugProfileDomainOrPublicTheadQuestionSlug, // :threadSlug or :threadQuestionSlug
@@ -171,9 +171,8 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 
 		const category = categories?.categoriesChatbots.find(
 			(cat) =>
-				toSlug(cat.name) === personalChatbotSlugProfileTopicOrThreadSlug ||
-				toSlug(cat.name) === personalProfilesTopicSlugOrDomainSlug ||
-				toSlug(cat.name) === publicTopicSlugOrBasePath,
+				toSlug(cat.name) === personalProProfilesTopicSlugOrDomainSlug ||
+				toSlug(cat.name) === publicProTopicSlugOrBasePath,
 		)
 		if (category) {
 			setActiveCategory(category.categoryId)

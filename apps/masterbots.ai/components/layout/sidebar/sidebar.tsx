@@ -42,7 +42,7 @@ export function Sidebar({
 					className,
 					'h-full flex flex-col z-40',
 					!isBrowse
-						? 'bg-[#fae8ff] dark:bg-[#000000]' // For /c routes only
+						? 'bg-[#fae8ff] dark:bg-[#000000]' // For /c and /pro routes only
 						: 'bg-[#eeffea] dark:bg-[#000000]', // For other routes
 				)}
 			>

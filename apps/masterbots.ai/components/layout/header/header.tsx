@@ -138,14 +138,7 @@ export function Header() {
 						})}
 					/>
 					{appConfig.features.devMode && (
-						<HeaderLink
-							href="/c/p"
-							onClick={resetNavigation}
-							text="Pro"
-							className={cn({
-								'hidden sm:flex': routeType !== 'pro',
-							})}
-						/>
+						<HeaderLink href="/pro" onClick={resetNavigation} text="Pro" />
 					)}
 				</div>
 			</div>

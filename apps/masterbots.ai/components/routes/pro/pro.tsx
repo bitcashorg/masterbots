@@ -1,6 +1,5 @@
 'use client'
 
-import { useWorkspace } from '@/lib/hooks/use-workspace'
 import { Chat } from '@/components/routes/chat/chat'
 import { ChatPanel } from '@/components/routes/chat/chat-panel'
 import { WorkspacePanel } from '@/components/routes/workspace/workspace-panel'
@@ -9,6 +8,7 @@ import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
+import { useWorkspace } from '@/lib/hooks/use-workspace'
 import type { ChatProps } from '@/types/types'
 import type { Chatbot } from 'mb-genql'
 import { useParams, usePathname } from 'next/navigation'
@@ -149,7 +149,7 @@ export function Pro({
               : scrollToBottom
           }
           id={params.threadId || isNewChat ? threadId : activeThread?.threadId}
-          title={activeThread?.title}
+          title={activeThread?.messages[0].content}
           chatbot={chatbot}
           isAtBottom={
             params.threadId
