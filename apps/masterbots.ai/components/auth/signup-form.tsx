@@ -65,37 +65,37 @@ export default function SignUpForm() {
 
 			const data = await response.json()
 
-			if (response.ok) {
-				// Success - auto-login instead of showing verification notice
-				customSonner({
-					type: 'success',
-					text: 'Account created successfully! Logging you in...',
-				})
-
-				// Perform automatic login with the new credentials
-				const loginResult = await signIn('credentials', {
-					email: state.email,
-					password: state.password,
-					redirect: false,
-				})
-
-				if (loginResult?.error) {
-					console.error('Auto-login failed:', loginResult.error)
-					customSonner({
-						type: 'error',
-						text: 'Account created but login failed. Please try signing in manually.',
-					})
-					router.push('/auth/signin')
-				} else {
-					// Successfully logged in, redirect to home
-					router.push('/')
-				}
-			} else {
-				customSonner({ type: 'error', text: data.error || 'Failed to sign up' })
+			if (!response.ok) {
+				throw new Error(data.error || data.message || 'Failed to sign up')
 			}
+
+			setState((prev) => ({ ...prev, showVerificationNotice: true }))
+			customSonner({
+				type: 'success',
+				text: data.message,
+			})
+
+			const loginResult = await signIn('credentials', {
+				email: state.email,
+				password: state.password,
+				redirect: false,
+			})
+
+			if (loginResult?.error) {
+				console.error('Auto-login failed:', loginResult.error)
+				customSonner({
+					type: 'error',
+					text: 'Account created but login failed. Please try signing in manually.',
+				})
+				router.push('/auth/signin')
+				throw new Error(loginResult.error)
+			}
+
+			customSonner({ type: 'success', text: 'You are now logged in!' })
+			router.push('/')
 		} catch (error) {
 			console.error(error)
-			customSonner({ type: 'error', text: 'An unexpected error occurred' })
+			customSonner({ type: 'error', text: (error as Error).message })
 		} finally {
 			setState((prev) => ({ ...prev, isLoading: false }))
 		}
@@ -122,7 +122,7 @@ export default function SignUpForm() {
 					id="username"
 					name="username"
 					type="text"
-					placeholder="john_doe28"
+					placeholder="john_doe123"
 					value={state.username}
 					onChange={handleInputChange}
 				/>
@@ -135,7 +135,7 @@ export default function SignUpForm() {
 					id="email"
 					name="email"
 					type="email"
-					placeholder="m@example.com"
+					placeholder="john.doe@example.com"
 					required
 					value={state.email}
 					onChange={handleInputChange}

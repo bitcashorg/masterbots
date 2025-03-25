@@ -54,6 +54,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 		}
 	}, [activeProject])
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const value = React.useMemo(
 		() => ({
 			isWorkspaceActive,
@@ -67,11 +68,8 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 		}),
 		[
 			isWorkspaceActive,
-			toggleWorkspace,
 			activeProject,
-			setActiveProject,
 			activeDocument,
-			setActiveDocument,
 			projectList,
 			documentList,
 		],

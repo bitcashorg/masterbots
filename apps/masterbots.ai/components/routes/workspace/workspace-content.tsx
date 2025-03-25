@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import { SaveIcon } from 'lucide-react'
-import * as React from 'react'
+import { useEffect, useState } from 'react'
 
 interface WorkspaceSection {
 	id: string
@@ -26,7 +26,7 @@ export function WorkspaceContent({
 	isLoading = false,
 }: WorkspaceContentProps) {
 	// Mock document sections - in a real implementation, fetch these from an API
-	const [sections, setSections] = React.useState<WorkspaceSection[]>([
+	const [sections, setSections] = useState<WorkspaceSection[]>([
 		{
 			id: '1',
 			title: 'Introduction',
@@ -59,10 +59,11 @@ export function WorkspaceContent({
 		},
 	])
 
-	const [activeSection, setActiveSection] = React.useState<string | null>(null)
-	const [editableContent, setEditableContent] = React.useState<string>('')
+	const [activeSection, setActiveSection] = useState<string | null>(null)
+	const [editableContent, setEditableContent] = useState<string>('')
 
-	React.useEffect(() => {
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
 		// Reset active section when document changes
 		setActiveSection(null)
 		setEditableContent('')
@@ -137,6 +138,7 @@ export function WorkspaceContent({
 					<div className="space-y-1">
 						{sections.map((section) => (
 							<button
+								type="button"
 								key={section.id}
 								onClick={() => handleSectionClick(section.id)}
 								className={cn(
