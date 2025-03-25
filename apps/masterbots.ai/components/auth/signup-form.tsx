@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { useSonner } from '@/lib/hooks/useSonner'
 import { isPasswordStrong, verifyPassword } from '@/lib/password'
 import { Eye, EyeOff } from 'lucide-react'
+import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import type React from 'react'
 import { useState } from 'react'
@@ -18,7 +19,6 @@ interface SignupState {
 	username: string
 	passwordVerify: string
 	isLoading: boolean
-	showVerificationNotice: boolean
 	showPassword: boolean
 	showPasswordVerify: boolean
 }
@@ -30,7 +30,6 @@ export default function SignUpForm() {
 		username: '',
 		passwordVerify: '',
 		isLoading: false,
-		showVerificationNotice: false,
 		showPassword: false,
 		showPasswordVerify: false,
 	})
@@ -67,11 +66,30 @@ export default function SignUpForm() {
 			const data = await response.json()
 
 			if (response.ok) {
-				setState((prev) => ({ ...prev, showVerificationNotice: true }))
+				// Success - auto-login instead of showing verification notice
 				customSonner({
 					type: 'success',
-					text: 'Account created successfully! Please check your email to verify your account.',
+					text: 'Account created successfully! Logging you in...',
 				})
+				
+				// Perform automatic login with the new credentials
+				const loginResult = await signIn('credentials', {
+					email: state.email,
+					password: state.password,
+					redirect: false,
+				})
+				
+				if (loginResult?.error) {
+					console.error('Auto-login failed:', loginResult.error)
+					customSonner({ 
+						type: 'error', 
+						text: 'Account created but login failed. Please try signing in manually.' 
+					})
+					router.push('/auth/signin')
+				} else {
+					// Successfully logged in, redirect to home
+					router.push('/')
+				}
 			} else {
 				customSonner({ type: 'error', text: data.error || 'Failed to sign up' })
 			}
@@ -94,25 +112,7 @@ export default function SignUpForm() {
 		setState((prev) => ({ ...prev, [field]: !prev[field] }))
 	}
 
-	if (state.showVerificationNotice) {
-		return (
-			<div className="space-y-4 text-center">
-				<h2 className="text-2xl font-bold">Verify Your Email</h2>
-				<p>
-					We&apos;ve sent a verification link to <strong>{state.email}</strong>
-				</p>
-				<p className="text-sm text-gray-600">
-					Please check your email and click the verification link to activate
-					your account. The verification link will expire in 15 days.
-				</p>
-				<div className="pt-4">
-					<Button variant="outline" onClick={() => router.push('/auth/signin')}>
-						Go to Sign In
-					</Button>
-				</div>
-			</div>
-		)
-	}
+	// We've removed the verification notice since users are now automatically logged in
 
 	return (
 		<form onSubmit={handleSubmit} className="space-y-4">

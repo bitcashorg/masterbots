@@ -76,12 +76,7 @@ export async function POST(req: NextRequest) {
 		const salt = await bcryptjs.genSalt(10)
 		const hashedPassword = await bcryptjs.hash(password, salt)
 
-		// * Generate verification token
-		const verificationToken = crypto.randomBytes(32).toString('hex')
-		const tokenExpiry = new Date()
-		tokenExpiry.setDate(tokenExpiry.getDate() + 15) // 15 days to verify
-
-		// * Insert new user
+		// * Insert new user with isVerified=true (bypass email verification)
 		const { insertUserOne } = await client.mutation({
 			insertUserOne: {
 				__args: {
@@ -92,6 +87,8 @@ export async function POST(req: NextRequest) {
 						password: hashedPassword,
 						profilePicture: `https://api.dicebear.com/9.x/identicon/svg?seed=${newUsername}`,
 						dateJoined: new Date().toISOString(),
+						isVerified: true, // Set as verified directly
+						lastLogin: new Date().toISOString(), // Set initial login timestamp
 					},
 				},
 				userId: true,
@@ -99,48 +96,19 @@ export async function POST(req: NextRequest) {
 		})
 
 		if (insertUserOne) {
-			// * First create the token
-			const { insertTokenOne } = await client.mutation({
-				insertTokenOne: {
-					__args: {
-						object: {
-							token: verificationToken,
-							tokenExpiry: tokenExpiry.toISOString(),
-						},
-					},
-					token: true,
-					tokenExpiry: true,
+			// Skip email verification and simply return success with credentials
+			// This allows the frontend to auto-login after signup
+			return NextResponse.json(
+				{
+					message: 'User created successfully.',
+					userId: insertUserOne.userId,
+					requiresVerification: false, // No verification needed
+					username: newUsername,
+					email: email,
+					success: true,
 				},
-			})
-
-			if (insertTokenOne) {
-				// * Then create the user-token relationship
-				await client.mutation({
-					insertUserTokenOne: {
-						__args: {
-							object: {
-								userId: insertUserOne.userId,
-								token: verificationToken,
-							},
-						},
-						userId: true,
-						token: true,
-					},
-				})
-
-				// * Send verification email
-				await sendEmailVerification(email, verificationToken)
-
-				return NextResponse.json(
-					{
-						message:
-							'User created successfully. Please check your email to verify your account.',
-						userId: insertUserOne.userId,
-						requiresVerification: true,
-					},
-					{ status: 201 },
-				)
-			}
+				{ status: 201 },
+			)
 		}
 
 		return NextResponse.json(
