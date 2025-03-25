@@ -122,7 +122,7 @@ export function Header() {
 						text="Public"
 					/>
 					{appConfig.features.devMode && (
-						<HeaderLink href="/c/p" onClick={resetNavigation} text="Pro" />
+						<HeaderLink href="/pro" onClick={resetNavigation} text="Pro" />
 					)}
 				</div>
 			</div>

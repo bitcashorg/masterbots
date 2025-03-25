@@ -2,20 +2,19 @@
 
 import { FeatureToggle } from '@/components/shared/feature-toggle'
 import { Button } from '@/components/ui/button'
-import { IconRefresh, IconDocumentText } from '@/components/ui/icons'
 import { useDeepThinking } from '@/lib/hooks/use-deep-thinking'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
 import { cn } from '@/lib/utils'
-import { BrainIcon, FileEditIcon, GlobeIcon, GraduationCap } from 'lucide-react'
+import { BrainIcon, FileEditIcon, GlobeIcon, GraduationCap, NotepadTextIcon } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import type { Chatbot } from 'mb-genql'
-import { useCallback, useState } from 'react'
-import { WorkspaceForm } from './workspace-form'
+import { useCallback } from 'react'
 import { WorkspaceContent } from './workspace-content'
-import { WorkspaceProjectSelect } from './workspace-project-select'
 import { WorkspaceDocumentSelect } from './workspace-document-select'
+import { WorkspaceForm } from './workspace-form'
+import { WorkspaceProjectSelect } from './workspace-project-select'
 
 export interface WorkspacePanelProps {
   scrollToBottom: () => void
@@ -65,7 +64,7 @@ export function WorkspacePanel({
   if (!isPro) {
     return (
       <div className="flex flex-col items-center justify-center h-[300px] p-6 border rounded-lg">
-        <IconDocumentText className="h-16 w-16 mb-4 text-muted-foreground" />
+        <NotepadTextIcon className="h-16 w-16 mb-4 text-muted-foreground" />
         <h3 className="text-xl font-semibold mb-2">Pro Feature Only</h3>
         <p className="text-center text-muted-foreground mb-4">
           Workspace editing is available exclusively for Pro users.
@@ -164,7 +163,7 @@ export function WorkspacePanel({
         {/* Workspace Content or Chat Form Section */}
         <div
           className={cn(
-            'relative flex flex-col w-full',
+            'fixed flex flex-col w-full',
             'p-2 sm:px-4 space-y-2 sm:space-y-4',
             'border-t shadow-lg bg-background',
             'dark:border-zinc-800 border-zinc-200',

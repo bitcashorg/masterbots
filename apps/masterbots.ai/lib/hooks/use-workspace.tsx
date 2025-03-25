@@ -18,7 +18,7 @@ const WorkspaceContext = React.createContext<WorkspaceContextType | undefined>(
 )
 
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
-  const [isWorkspaceActive, setIsWorkspaceActive] = React.useState(false)
+  const [isWorkspaceActive, setIsWorkspaceActive] = React.useState(true)
   const [activeProject, setActiveProject] = React.useState<string | null>(null)
   const [activeDocument, setActiveDocument] = React.useState<string | null>(null)
   
