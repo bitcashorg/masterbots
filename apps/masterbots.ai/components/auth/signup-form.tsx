@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { useSonner } from '@/lib/hooks/useSonner'
 import { isPasswordStrong, verifyPassword } from '@/lib/password'
 import { Eye, EyeOff } from 'lucide-react'
+import { appConfig } from 'mb-env'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import type React from 'react'
@@ -21,6 +22,7 @@ interface SignupState {
 	isLoading: boolean
 	showPassword: boolean
 	showPasswordVerify: boolean
+	showVerificationNotice: boolean
 }
 
 export default function SignUpForm() {
@@ -32,6 +34,7 @@ export default function SignUpForm() {
 		isLoading: false,
 		showPassword: false,
 		showPasswordVerify: false,
+		showVerificationNotice: false,
 	})
 	const { customSonner } = useSonner()
 	const router = useRouter()
@@ -114,6 +117,28 @@ export default function SignUpForm() {
 	}
 
 	// We've removed the verification notice since users are now automatically logged in
+	if (
+		state.showVerificationNotice &&
+		appConfig.features.enableVerificationEmail
+	) {
+		return (
+			<div className="space-y-4 text-center">
+				<h2 className="text-2xl font-bold">Verify Your Email</h2>
+				<p>
+					We&apos;ve sent a verification link to <strong>{state.email}</strong>
+				</p>
+				<p className="text-sm text-gray-600">
+					Please check your email and click the verification link to activate
+					your account. The verification link will expire in 15 days.
+				</p>
+				<div className="pt-4">
+					<Button variant="outline" onClick={() => router.push('/auth/signin')}>
+						Go to Sign In
+					</Button>
+				</div>
+			</div>
+		)
+	}
 
 	return (
 		<form onSubmit={handleSubmit} className="space-y-4">
