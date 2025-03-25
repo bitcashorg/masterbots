@@ -71,19 +71,19 @@ export default function SignUpForm() {
 					type: 'success',
 					text: 'Account created successfully! Logging you in...',
 				})
-				
+
 				// Perform automatic login with the new credentials
 				const loginResult = await signIn('credentials', {
 					email: state.email,
 					password: state.password,
 					redirect: false,
 				})
-				
+
 				if (loginResult?.error) {
 					console.error('Auto-login failed:', loginResult.error)
-					customSonner({ 
-						type: 'error', 
-						text: 'Account created but login failed. Please try signing in manually.' 
+					customSonner({
+						type: 'error',
+						text: 'Account created but login failed. Please try signing in manually.',
 					})
 					router.push('/auth/signin')
 				} else {

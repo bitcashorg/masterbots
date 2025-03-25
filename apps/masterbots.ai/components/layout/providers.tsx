@@ -62,9 +62,5 @@ export function Providers({ children, ...props }: ProvidersProps) {
 }
 
 export function ProChatProviders({ children }: { children: React.ReactNode }) {
-	return (
-		<WorkspaceProvider>
-			{children}
-		</WorkspaceProvider>
-	)
+	return <WorkspaceProvider>{children}</WorkspaceProvider>
 }
