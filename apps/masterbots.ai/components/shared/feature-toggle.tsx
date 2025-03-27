@@ -108,9 +108,7 @@ export function FeatureToggle({
 									<Label
 										htmlFor={id}
 										className="mr-1.5 text-xs leading-none text-nowrap"
-									>
-										{name}
-									</Label>
+									/>
 								</>
 							),
 							uncheck: (

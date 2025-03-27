@@ -10,6 +10,7 @@ import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { cn } from '@/lib/utils'
 import type { ChatMessageProps } from '@/types/types'
 import type { Message } from 'ai'
+import { ChevronsDownUp } from 'lucide-react'
 import type { Message as MBMessage } from 'mb-genql'
 import React, { useState } from 'react'
 import rehypeMathJax from 'rehype-mathjax'
@@ -116,54 +117,14 @@ export function ReasoningChatMessage({
 										fill="currentColor"
 									/>
 								</svg>
-								AI Thinking Process
+								Reasoning
 							</span>
 							{/* biome-ignore lint/a11y/useButtonType: <explanation> */}
 							<button
 								onClick={toggleReasoning}
 								className="flex items-center px-3 py-1 space-x-1 text-xs font-medium transition-colors border rounded bg-slate-200 hover:bg-slate-300 text-slate-700 border-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-200 dark:border-slate-600 focus:outline-none"
 							>
-								{isReasoningCollapsed ? (
-									<>
-										{/* biome-ignore lint/a11y/noSvgWithoutTitle: <explanation> */}
-										<svg
-											className="w-3 h-3 mr-1"
-											viewBox="0 0 24 24"
-											fill="none"
-											xmlns="http://www.w3.org/2000/svg"
-											aria-label="Expand Reasoning"
-										>
-											<path
-												d="M19 9L12 16L5 9"
-												stroke="currentColor"
-												strokeWidth="2"
-												strokeLinecap="round"
-												strokeLinejoin="round"
-											/>
-										</svg>
-										<span>Show Full Reasoning</span>
-									</>
-								) : (
-									<>
-										{/* biome-ignore lint/a11y/noSvgWithoutTitle: <explanation> */}
-										<svg
-											className="mr-1 size-3"
-											viewBox="0 0 24 24"
-											fill="none"
-											xmlns="http://www.w3.org/2000/svg"
-											aria-label="Collapse Reasoning"
-										>
-											<path
-												d="M5 15L12 8L19 15"
-												stroke="currentColor"
-												strokeWidth="2"
-												strokeLinecap="round"
-												strokeLinejoin="round"
-											/>
-										</svg>
-										<span>Collapse Reasoning</span>
-									</>
-								)}
+								<ChevronsDownUp className="size-3" />
 							</button>
 						</div>
 						{isReasoningCollapsed ? (
@@ -199,7 +160,7 @@ export function ReasoningChatMessage({
 				<div>
 					<div className="mb-2">
 						<span className="inline-flex items-center px-3 py-1 text-xs font-medium text-blue-800 bg-blue-100 rounded dark:bg-blue-700 dark:text-blue-100">
-							Final Answer
+							Answer
 						</span>
 					</div>
 					<MemoizedReactMarkdown
