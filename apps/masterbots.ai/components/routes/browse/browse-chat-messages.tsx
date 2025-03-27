@@ -109,7 +109,7 @@ export function BrowseChatMessages({
 			) : (
 				''
 			)}
-			<div className=" lg:p-10  mt-4 ml-2 lg:mt-0 pb-0 mx-auto">
+			<div className="sticky top-0 lg:p-10  mt-4 ml-2 lg:mt-0 pb-0 mx-auto bg-gray-50 dark:bg-zinc-900 z-10">
 				<Link
 					href={`/b/${chatBotName?.toLowerCase()}`}
 					className="flex items-center leading-none gap-2 dark:text-white/80 text-[#09090BC3] dark:hover:text-white hover:text-[#09090B]"
