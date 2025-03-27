@@ -2,15 +2,18 @@ import { authOptions } from '@/auth'
 import ChatThreadListPanel from '@/components/routes/chat/chat-thread-list-panel'
 import Subscription from '@/components/routes/subscription/subscription'
 import ThreadPanel from '@/components/routes/thread/thread-panel'
+import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { generateMetadataFromSEO } from '@/lib/metadata'
-import { getThreads } from '@/services/hasura'
-import type { PageProps } from '@/types/types'
-import { isTokenExpired } from 'mb-lib'
+import { getCategories, getThreads } from '@/services/hasura'
+import { isTokenExpired, toSlug } from 'mb-lib'
 import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 
-export default async function IndexPage() {
+export default async function ChatCategoryPage(props: {
+	params: Promise<{ category: string }>
+}) {
+	const params = await props.params
 	const session = await getServerSession(authOptions)
 
 	// NOTE: maybe we should use same expiration time
@@ -20,11 +23,16 @@ export default async function IndexPage() {
 		redirect('/auth/signin')
 	}
 
+	const categories = await getCategories()
+	const category = categories.find(
+		(category) => toSlug(category.name) === params.category,
+	)
 	const threads = await getThreads({
 		jwt,
 		userId: session?.user.id,
+		categoryId: category?.categoryId,
+		limit: PAGE_SIZE,
 	})
-
 	const user = {
 		email: session.user.email || '',
 		name: session.user.name || '',
@@ -33,20 +41,26 @@ export default async function IndexPage() {
 	return (
 		<>
 			<ThreadPanel threads={threads} />
-			<ChatThreadListPanel />
+			<ChatThreadListPanel variant="pro" />
 			<Subscription user={user} />
 		</>
 	)
 }
 
-export async function generateMetadata(props: PageProps): Promise<Metadata> {
+export async function generateMetadata(props: {
+	params: Promise<{ category: string }>
+}): Promise<Metadata> {
 	const params = await props.params
+	const categories = await getCategories()
+	const category = categories.find(
+		(category) => toSlug(category.name) === params.category,
+	)
+
 	const seoData = {
-		title: 'Pro page',
-		description:
-			'Masterbots Subscription plans, Subscribe to our service and stay updated',
+		title: category?.name || '',
+		description: `Please select a bot from the ${category?.name} category to start the conversation.`,
 		ogType: 'website',
-		ogImageUrl: '',
+		ogImageUrl: `${process.env.BASE_URL}/api/og`,
 		twitterCard: 'summary',
 	}
 

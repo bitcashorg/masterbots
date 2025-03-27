@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { useSonner } from '@/lib/hooks/useSonner'
 import { isPasswordStrong, verifyPassword } from '@/lib/password'
 import { Eye, EyeOff } from 'lucide-react'
+import { appConfig } from 'mb-env'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import type React from 'react'
@@ -19,9 +20,9 @@ interface SignupState {
 	username: string
 	passwordVerify: string
 	isLoading: boolean
-	showVerificationNotice: boolean
 	showPassword: boolean
 	showPasswordVerify: boolean
+	showVerificationNotice: boolean
 }
 
 export default function SignUpForm() {
@@ -31,9 +32,9 @@ export default function SignUpForm() {
 		username: '',
 		passwordVerify: '',
 		isLoading: false,
-		showVerificationNotice: false,
 		showPassword: false,
 		showPasswordVerify: false,
+		showVerificationNotice: false,
 	})
 	const { customSonner } = useSonner()
 	const router = useRouter()
@@ -114,7 +115,11 @@ export default function SignUpForm() {
 		setState((prev) => ({ ...prev, [field]: !prev[field] }))
 	}
 
-	if (state.showVerificationNotice) {
+	// We've removed the verification notice since users are now automatically logged in
+	if (
+		state.showVerificationNotice &&
+		appConfig.features.enableVerificationEmail
+	) {
 		return (
 			<div className="space-y-4 text-center">
 				<h2 className="text-2xl font-bold">Verify Your Email</h2>
