@@ -182,7 +182,6 @@ export function SharedAccordion({
 			await updateActiveThread()
 			setIsOpenPopup(true)
 		} else if (profilePage) {
-			// Profile page navigation
 			setIsOpenPopup(false)
 			setActiveThread(null)
 			const slug = params.userSlug as string
