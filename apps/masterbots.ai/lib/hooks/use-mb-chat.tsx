@@ -525,11 +525,32 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	)
 		.filter(Boolean)
 		.filter((m) => m.role !== 'system')
-		.sort(
-			(a, b) =>
-				new Date(a?.createdAt || '').getTime() -
-				new Date(b?.createdAt || '').getTime(),
-		)
+		.sort((a, b) => {
+			// Extract timestamps, defaulting to 0 if missing
+			const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+			const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+
+			// If timestamps are different, use them for sorting (chronological order)
+			if (timeA !== timeB) {
+				return timeA - timeB
+			}
+
+			// If timestamps are the same or both missing:
+			// 1. Find previous message(s) to determine conversation flow and
+			// 2. Ensure assistant message appears after its corresponding user message
+			if (a.role === 'assistant' && b.role === 'assistant') {
+				// If both are assistant messages, maintain chronological order and
+				// ensures multiple assistant messages appear in the correct sequence
+				return timeA - timeB || 0
+			}
+
+			// Keep user messages before assistant messages when timestamps are identical
+			if (a.role === 'user' && b.role === 'assistant') return -1
+			if (a.role === 'assistant' && b.role === 'user') return 1
+
+			// If both have the same role, maintain original order
+			return 0
+		})
 
 	useEffect(() => {
 		// Resetting the chat when the popup is closed
