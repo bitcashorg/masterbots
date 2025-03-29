@@ -1,7 +1,7 @@
 'use client'
 
+import { ChatMessage } from '@/components/routes/chat/chat-message'
 import { ChatShareDialog } from '@/components/routes/chat/chat-share-dialog'
-import { PromptForm } from '@/components/routes/chat/prompt-form'
 import { ButtonScrollToBottom } from '@/components/shared/button-scroll-to-bottom'
 import { FeatureToggle } from '@/components/shared/feature-toggle'
 import { LoadingIndicator } from '@/components/shared/loading-indicator'
@@ -10,13 +10,14 @@ import { IconRefresh, IconShare, IconStop } from '@/components/ui/icons'
 import { useDeepThinking } from '@/lib/hooks/use-deep-thinking'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useThread } from '@/lib/hooks/use-thread'
+import { useWorkspace } from '@/lib/hooks/use-workspace'
 import { cn } from '@/lib/utils'
 import type { Message as AiMessage } from 'ai'
 import type { UseChatHelpers } from 'ai/react'
-import { BrainIcon, GlobeIcon, GraduationCap } from 'lucide-react'
+import { BrainIcon, FileEditIcon, GlobeIcon, GraduationCap } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import type { Chatbot } from 'mb-genql'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 export interface ChatPanelProps
 	extends Pick<
@@ -32,6 +33,8 @@ export interface ChatPanelProps
 	isAtBottom?: boolean
 	className?: string
 	messages: AiMessage[]
+	// Optional prop to control workspace toggle from parent
+	onToggleWorkspace?: () => void
 }
 
 export function ChatPanel({
@@ -50,10 +53,12 @@ export function ChatPanel({
 	isAtBottom,
 	scrollToBottom,
 	className,
+	onToggleWorkspace,
 }: ChatPanelProps) {
 	const { isOpenPopup, loadingState, webSearch, setWebSearch } = useThread()
 	const { isPowerUp, togglePowerUp } = usePowerUp()
 	const { isDeepThinking, toggleDeepThinking } = useDeepThinking()
+	const { isWorkspaceActive, toggleWorkspace } = useWorkspace()
 	const [shareDialogOpen, setShareDialogOpen] = useState(false)
 
 	const isPreProcessing = Boolean(
@@ -74,6 +79,17 @@ export function ChatPanel({
 		[isPowerUp, isDeepThinking, webSearch],
 	)
 
+	// Display the chat messages with the correct components
+	const renderMessages = () => {
+		return messages.map((message, index) => (
+			<ChatMessage
+				key={message.id || `message-${index}`}
+				message={message}
+				onCreateDocument={message.onCreateDocument}
+			/>
+		))
+	}
+
 	return (
 		<div
 			className={cn(
@@ -87,6 +103,16 @@ export function ChatPanel({
 			)}
 		>
 			<div className="relative w-full mx-auto">
+				{/* Message Display Area */}
+				<div
+					className="px-4 py-2 space-y-4 mx-auto max-w-screen-lg"
+					// Add a stable container ID to prevent message conflicts
+					id="chat-messages-container"
+				>
+					{/* Message list container */}
+					<div>{renderMessages()}</div>
+				</div>
+
 				{/* Header Section */}
 				<div className="flex flex-col items-center justify-between w-full px-2 py-3.5 space-y-2 bg-background md:flex-row md:space-y-0">
 					<div className="flex items-center justify-between w-full gap-4 mx-2">
@@ -129,6 +155,17 @@ export function ChatPanel({
 									activeColor="cyan"
 								/>
 							)}
+
+							{/* Workspace Toggle */}
+							<FeatureToggle
+								id="workspace"
+								name="Workspace"
+								icon={<FileEditIcon />}
+								activeIcon={<FileEditIcon />}
+								isActive={isWorkspaceActive}
+								onChange={onToggleWorkspace || toggleWorkspace}
+								activeColor="cyan"
+							/>
 						</div>
 
 						{/* Right side controls */}
@@ -203,25 +240,62 @@ export function ChatPanel({
 						'min-h-[64px] sm:min-h-[80px]',
 					)}
 				>
-					<PromptForm
-						onSubmit={async (value, chatOptions) => {
+					<form
+						className="relative flex flex-col w-full px-4 py-2"
+						onSubmit={async (e) => {
+							e.preventDefault()
+							if (!input?.trim() || isLoading || isPreProcessing) return
+
 							scrollToBottom()
 							await append(
 								{
 									id,
-									content: value,
+									content: input,
 									role: 'user',
 								},
-								prepareMessageOptions(chatOptions),
+								prepareMessageOptions({}),
 							)
+							setInput('')
 						}}
-						// biome-ignore lint/complexity/noExtraBooleanCast: <explanation>
-						disabled={isLoading || !Boolean(chatbot) || isPreProcessing}
-						input={input}
-						setInput={setInput}
-						isLoading={isLoading || isPreProcessing}
-						placeholder={placeholder}
-					/>
+					>
+						<div className="relative flex w-full gap-2 sm:gap-4">
+							<textarea
+								tabIndex={0}
+								rows={1}
+								value={input}
+								onChange={(e) => setInput(e.target.value)}
+								placeholder={placeholder}
+								spellCheck={false}
+								className="min-h-[60px] w-full resize-none bg-background px-3 py-3 sm:text-sm border rounded-md"
+								disabled={isLoading || !Boolean(chatbot) || isPreProcessing}
+							/>
+							<button
+								type="submit"
+								className="shrink-0 h-10 w-10 rounded-md bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-50"
+								disabled={
+									isLoading ||
+									!input.trim() ||
+									!Boolean(chatbot) ||
+									isPreProcessing
+								}
+								aria-label="Send message"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="16"
+									height="16"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+									strokeWidth="2"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+								>
+									<path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z" />
+								</svg>
+							</button>
+						</div>
+					</form>
 				</div>
 			</div>
 		</div>

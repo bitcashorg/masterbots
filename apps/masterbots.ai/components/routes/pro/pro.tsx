@@ -10,9 +10,10 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
 import type { ChatProps } from '@/types/types'
+import type { Message } from 'ai'
 import type { Chatbot } from 'mb-genql'
 import { useParams, usePathname } from 'next/navigation'
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 
 export interface ProComponentProps extends ChatProps {
 	isPro?: boolean
@@ -60,7 +61,15 @@ export function Pro({
 	const pathname = usePathname()
 	const prevPathname = React.useRef(pathname)
 
-	const { isWorkspaceActive } = useWorkspace()
+	const {
+		isWorkspaceActive,
+		setIsWorkspaceActive,
+		toggleWorkspace,
+		activeProject,
+		activeDocument,
+		documentContent,
+		createDocumentFromMessage,
+	} = useWorkspace()
 
 	const { isNearBottom, smoothScrollToBottom, scrollToTop } = useMBScroll({
 		containerRef,
@@ -109,6 +118,17 @@ export function Pro({
 		return `Continue This Chat with ${chatbot.name}`
 	}
 
+	const handleCreateDocument = useCallback(
+		(message: Message) => {
+			// Use the enhanced document creation function from context
+			// This handles setting the project, active document, and activating workspace mode
+			if (message && message.content) {
+				createDocumentFromMessage(message.content)
+			}
+		},
+		[createDocumentFromMessage],
+	)
+
 	const resetState = () => {
 		setIsOpenPopup(false)
 		setActiveThread(null)
@@ -151,65 +171,108 @@ export function Pro({
 		)
 	}
 
-	return (
-		<>
-			{isWorkspaceActive ? (
-				<WorkspacePanel
-					className={`${activeThread || activeChatbot ? '' : 'hidden'} ${chatPanelClassName}`}
-					scrollToBottom={
-						isOpenPopup && isPopup && scrollToBottomOfPopup
-							? scrollToBottomOfPopup
-							: scrollToBottom
+	// This is the solution: use distinct rendering rather than fragments
+	// By returning directly we avoid multiple renders
+	if (isWorkspaceActive) {
+		return (
+			<WorkspacePanel
+				className={`${activeThread || activeChatbot ? '' : 'hidden'} ${chatPanelClassName}`}
+				scrollToBottom={
+					isOpenPopup && isPopup && scrollToBottomOfPopup
+						? scrollToBottomOfPopup
+						: scrollToBottom
+				}
+				id={params.threadId || isNewChat ? threadId : activeThread?.threadId}
+				title={activeThread?.messages[0]?.content || ''}
+				chatbot={chatbot}
+				isAtBottom={
+					params.threadId
+						? isNearBottom
+						: isPopup
+							? Boolean(isAtBottomOfPopup)
+							: isAtBottomOfSection
+				}
+				isLoading={isLoading}
+				isPro={isPro}
+				stop={stop}
+				append={
+					isContinuousThread
+						? appendAsContinuousThread
+						: appendWithMbContextPrompts
+				}
+				reload={reload}
+				messages={allMessages.map((msg) => ({
+					...msg,
+					onCreateDocument:
+						msg.role === 'assistant' ? handleCreateDocument : undefined,
+				}))}
+				input={input}
+				setInput={setInput}
+				placeholder={
+					chatbot
+						? chatSearchMessage(isNewChat, isContinuousThread, allMessages)
+						: ''
+				}
+				showReload={!isNewChat}
+				onCreateDocument={async () => {
+					if (activeThread && allMessages.length > 0) {
+						// Find the latest assistant message, if any
+						const lastAssistantMessage = [...allMessages]
+							.reverse()
+							.find((m) => m.role === 'assistant')
+
+						if (lastAssistantMessage) {
+							handleCreateDocument(lastAssistantMessage)
+						}
 					}
-					id={params.threadId || isNewChat ? threadId : activeThread?.threadId}
-					title={activeThread?.messages[0].content}
-					chatbot={chatbot}
-					isAtBottom={
-						params.threadId
-							? isNearBottom
-							: isPopup
-								? Boolean(isAtBottomOfPopup)
-								: isAtBottomOfSection
-					}
-					isLoading={isLoading}
-					isPro={isPro}
-				/>
-			) : (
-				<ChatPanel
-					className={`${activeThread || activeChatbot ? '' : 'hidden'} ${chatPanelClassName}`}
-					scrollToBottom={
-						isOpenPopup && isPopup && scrollToBottomOfPopup
-							? scrollToBottomOfPopup
-							: scrollToBottom
-					}
-					id={params.threadId || isNewChat ? threadId : activeThread?.threadId}
-					isLoading={isLoading}
-					stop={stop}
-					append={
-						isContinuousThread
-							? appendAsContinuousThread
-							: appendWithMbContextPrompts
-					}
-					reload={reload}
-					messages={allMessages}
-					input={input}
-					setInput={setInput}
-					chatbot={chatbot}
-					placeholder={
-						chatbot
-							? chatSearchMessage(isNewChat, isContinuousThread, allMessages)
-							: ''
-					}
-					showReload={!isNewChat}
-					isAtBottom={
-						params.threadId
-							? isNearBottom
-							: isPopup
-								? Boolean(isAtBottomOfPopup)
-								: isAtBottomOfSection
-					}
-				/>
-			)}
-		</>
-	)
+				}}
+				onSelectTemplate={async (templateId) => {
+					console.log(`Selected template: ${templateId}`)
+				}}
+				onToggleWorkspace={toggleWorkspace}
+			/>
+		)
+	} else {
+		return (
+			<ChatPanel
+				className={`${activeThread || activeChatbot ? '' : 'hidden'} ${chatPanelClassName}`}
+				scrollToBottom={
+					isOpenPopup && isPopup && scrollToBottomOfPopup
+						? scrollToBottomOfPopup
+						: scrollToBottom
+				}
+				id={params.threadId || isNewChat ? threadId : activeThread?.threadId}
+				isLoading={isLoading}
+				stop={stop}
+				append={
+					isContinuousThread
+						? appendAsContinuousThread
+						: appendWithMbContextPrompts
+				}
+				reload={reload}
+				messages={allMessages.map((msg) => ({
+					...msg,
+					onCreateDocument:
+						msg.role === 'assistant' ? handleCreateDocument : undefined,
+				}))}
+				input={input}
+				setInput={setInput}
+				chatbot={chatbot}
+				placeholder={
+					chatbot
+						? chatSearchMessage(isNewChat, isContinuousThread, allMessages)
+						: ''
+				}
+				showReload={!isNewChat}
+				isAtBottom={
+					params.threadId
+						? isNearBottom
+						: isPopup
+							? Boolean(isAtBottomOfPopup)
+							: isAtBottomOfSection
+				}
+				onToggleWorkspace={toggleWorkspace}
+			/>
+		)
+	}
 }

@@ -9,6 +9,8 @@ import {
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { cn } from '@/lib/utils'
 import type { ChatMessageProps, WebSearchResult } from '@/types/types'
+import type { Message } from 'ai'
+import { useMemo } from 'react'
 import React, { useState } from 'react'
 import rehypeMathJax from 'rehype-mathjax'
 import remarkGfm from 'remark-gfm'
@@ -71,14 +73,19 @@ const preprocessChildren = (children: React.ReactNode): React.ReactNode => {
  * @param webSearchResults The web search results.
  * @returns The chat message component.
  */
+export interface ExtendedChatMessageProps extends ChatMessageProps {
+	onCreateDocument?: (message: Message) => void
+}
+
 export function ChatMessage({
 	message,
 	sendMessageFromResponse,
 	chatbot,
 	actionRequired = true,
 	webSearchResults = [],
+	onCreateDocument,
 	...props
-}: ChatMessageProps) {
+}: ExtendedChatMessageProps) {
 	// Clean the message content and update the message object.
 	const content = cleanPrompt(message.content)
 	const cleanMessage = { ...message, content }
@@ -262,7 +269,7 @@ export function ChatMessage({
 							}
 							return (
 								<CodeBlock
-									key={Math.random()}
+									key={match?.[1] || 'code'}
 									language={match?.[1] || ''}
 									value={String(children).replace(/\n$/, '')}
 									{...props}
@@ -274,8 +281,13 @@ export function ChatMessage({
 					{cleanMessage.content}
 				</MemoizedReactMarkdown>
 
-				{actionRequired && (
-					<ChatMessageActions className="md:!right-0" message={message} />
+				{(actionRequired || message.role === 'assistant') && (
+					<ChatMessageActions
+						className="md:!right-0"
+						message={message}
+						onCreateDocument={onCreateDocument}
+						showCreateDocument={message.role === 'assistant'}
+					/>
 				)}
 
 				<ReferencesSection />

@@ -13,10 +13,11 @@ import {
 	GlobeIcon,
 	GraduationCap,
 	NotepadTextIcon,
+	SendIcon,
 } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import type { Chatbot } from 'mb-genql'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { WorkspaceContent } from './workspace-content'
 import { WorkspaceDocumentSelect } from './workspace-document-select'
 import { WorkspaceForm } from './workspace-form'
@@ -31,6 +32,20 @@ export interface WorkspacePanelProps {
 	className?: string
 	isLoading?: boolean
 	isPro?: boolean
+	// Chat props
+	stop?: () => void
+	append?: (message: any, options?: any) => Promise<void>
+	reload?: () => Promise<void>
+	messages?: any[]
+	input?: string
+	setInput?: (value: string) => void
+	placeholder?: string
+	showReload?: boolean
+	// Workspace props
+	onCreateDocument?: () => Promise<void>
+	onSelectTemplate?: (templateId: string) => Promise<void>
+	// Toggle prop to manage workspace state from parent
+	onToggleWorkspace?: () => void
 }
 
 export function WorkspacePanel({
@@ -42,6 +57,20 @@ export function WorkspacePanel({
 	className,
 	isLoading = false,
 	isPro = true,
+	// Chat props
+	stop,
+	append,
+	reload,
+	messages = [],
+	input = '',
+	setInput = () => {},
+	placeholder = '',
+	showReload = true,
+	// Workspace props
+	onCreateDocument = async () => {},
+	onSelectTemplate = async () => {},
+	// Toggle prop
+	onToggleWorkspace,
 }: WorkspacePanelProps) {
 	const { isOpenPopup, loadingState, webSearch, setWebSearch } = useThread()
 	const { isPowerUp, togglePowerUp } = usePowerUp()
@@ -62,10 +91,87 @@ export function WorkspacePanel({
 	const hiddenAnimationItemClasses =
 		'transition-all w-[0px] opacity-0 whitespace-nowrap duration-300'
 
-	const handleAIAssist = useCallback(() => {
-		// Logic to handle AI assistance with the current document section
-		console.log('AI assist requested for document:', activeDocument)
-	}, [activeDocument])
+	// Active section in the document being edited
+	const [activeSection, setActiveSection] = useState<string | null>(null)
+
+	const handleAIAssist = useCallback(
+		async (promptText: string, sectionId?: string) => {
+			// Logic to handle AI assistance with the current document section
+			console.log('AI assist requested:', {
+				document: activeDocument,
+				section: sectionId || activeSection,
+				prompt: promptText,
+			})
+
+			// In a real implementation, this would call an API to get AI assistance
+			// For now, we'll just log the request
+			if (append) {
+				await append(
+					{
+						id,
+						content: promptText,
+						role: 'user',
+					},
+					{
+						powerUp: isPowerUp,
+						reasoning: isDeepThinking,
+						webSearch: webSearch,
+						workspace: {
+							documentId: activeDocument,
+							sectionId: sectionId || activeSection,
+							projectId: activeProject,
+						},
+					},
+				)
+			}
+		},
+		[
+			activeDocument,
+			activeProject,
+			activeSection,
+			append,
+			id,
+			isPowerUp,
+			isDeepThinking,
+			webSearch,
+		],
+	)
+
+	const handleSectionSelect = useCallback((sectionId: string) => {
+		setActiveSection(sectionId)
+	}, [])
+
+	const handleCreateDocument = useCallback(async () => {
+		// In a real implementation, this would call an API to create a document
+		console.log('Creating new document in project:', activeProject)
+
+		// Call custom handler if provided
+		await onCreateDocument()
+	}, [activeProject, onCreateDocument])
+
+	const handleSelectTemplate = useCallback(
+		async (templateId: string) => {
+			// In a real implementation, this would call an API to apply a template
+			console.log('Applying template to document:', {
+				templateId,
+				document: activeDocument,
+			})
+
+			// Call custom handler if provided
+			await onSelectTemplate(templateId)
+		},
+		[activeDocument, onSelectTemplate],
+	)
+
+	const prepareMessageOptions = useCallback(
+		(chatOptions?: any) => ({
+			...(chatOptions || {}),
+			powerUp: isPowerUp,
+			reasoning: isDeepThinking,
+			webSearch: webSearch,
+		}),
+		[isPowerUp, isDeepThinking, webSearch],
+	)
 
 	if (!isPro) {
 		return (
@@ -133,18 +239,16 @@ export function WorkspacePanel({
 								/>
 							)}
 
-							{/* Workspace Toggle - positioned on the opposite side */}
-							<div className="ml-auto">
-								<FeatureToggle
-									id="workspace"
-									name="Workspace"
-									icon={<FileEditIcon />}
-									activeIcon={<FileEditIcon />}
-									isActive={isWorkspaceActive}
-									onChange={toggleWorkspace}
-									activeColor="cyan"
-								/>
-							</div>
+							{/* Workspace Toggle - positioned with other toggles */}
+							<FeatureToggle
+								id="workspace"
+								name="Workspace"
+								icon={<FileEditIcon />}
+								activeIcon={<FileEditIcon />}
+								isActive={isWorkspaceActive}
+								onChange={onToggleWorkspace || toggleWorkspace}
+								activeColor="cyan"
+							/>
 						</div>
 
 						{/* Project and Document Selection - only show when workspace is active */}
@@ -166,7 +270,7 @@ export function WorkspacePanel({
 					</div>
 				</div>
 
-				{/* Workspace Content or Chat Form Section */}
+				{/* Workspace Content or Chat Input Section */}
 				<div
 					className={cn(
 						'fixed flex flex-col w-full',
@@ -183,16 +287,86 @@ export function WorkspacePanel({
 								projectName={activeProject}
 								documentName={activeDocument}
 								isLoading={isLoading}
+								onSectionSelect={handleSectionSelect}
+								onCreateDocument={handleCreateDocument}
+								onSelectTemplate={handleSelectTemplate}
 							/>
 							<WorkspaceForm
 								onAIAssist={handleAIAssist}
+								onSubmit={async (value, options) => {
+									scrollToBottom()
+									if (append) {
+										await append(
+											{
+												id,
+												content: value,
+												role: 'user',
+											},
+											prepareMessageOptions(options),
+										)
+									}
+								}}
+								activeSection={activeSection}
 								disabled={!activeProject || !activeDocument || isLoading}
+								input={input}
+								setInput={setInput}
+								placeholder={
+									activeSection
+										? 'How should I improve this section?'
+										: 'Ask a question about this document...'
+								}
+								isLoading={isLoading}
 							/>
 						</>
 					) : (
-						<div className="flex items-center justify-center p-4 text-muted-foreground">
-							Toggle Workspace mode to edit documents
-						</div>
+						<>
+							{/* Chat input form when workspace is not active */}
+							{append && (
+								<form
+									className="relative flex flex-col w-full px-4 py-2"
+									onSubmit={async (e) => {
+										e.preventDefault()
+										if (!input.trim() || isLoading) return
+
+										scrollToBottom()
+										await append(
+											{
+												id,
+												content: input,
+												role: 'user',
+											},
+											{
+												powerUp: isPowerUp,
+												reasoning: isDeepThinking,
+												webSearch: webSearch,
+											},
+										)
+										setInput('')
+									}}
+								>
+									<div className="relative flex w-full gap-2 sm:gap-4">
+										<textarea
+											tabIndex={0}
+											rows={1}
+											value={input}
+											onChange={(e) => setInput(e.target.value)}
+											placeholder={placeholder || 'Type your message...'}
+											spellCheck={false}
+											className="min-h-[60px] w-full resize-none bg-background px-3 py-3 sm:text-sm border rounded-md"
+											disabled={isLoading}
+										/>
+										<button
+											type="submit"
+											className="shrink-0 h-10 w-10 rounded-md bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-50"
+											disabled={isLoading || !input.trim()}
+											aria-label="Send message"
+										>
+											<SendIcon className="h-5 w-5" />
+										</button>
+									</div>
+								</form>
+							)}
+						</>
 					)}
 				</div>
 			</div>

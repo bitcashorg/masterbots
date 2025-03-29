@@ -242,6 +242,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
 		const { userSlug, domain } = useParams()
 		const { setIsOpenPopup, setActiveThread } = useThread()
 
+		const isPro = routeType === 'pro'
 		const canonicalDomain = getCanonicalDomain(chatbot.name)
 		// * Default to prompt when no metadata found... Special case for BlankBot
 		const chatbotDomain = canonicalDomain || (domain as string) || 'prompt'
@@ -275,7 +276,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
 				return navigateTo({
 					urlType: 'chatbotThreadListUrl',
 					navigationParams: {
-						type: isPublic ? 'public' : 'personal',
+						type: isPro ? 'pro' : isPublic ? 'public' : 'personal',
 						category: category.name,
 						domain: chatbotDomain,
 						chatbot: chatbot.name,
@@ -304,7 +305,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
 						chatbot: chatbot?.name,
 					})
 				: urlBuilders.chatbotThreadListUrl({
-						type: isPublic ? 'public' : 'personal',
+						type: isPro ? 'pro' : isPublic ? 'public' : 'personal',
 						category: category.name,
 						domain: chatbotDomain,
 						chatbot: chatbot?.name,
