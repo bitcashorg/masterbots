@@ -72,7 +72,10 @@ export function memoizedMarkdownComponents(props?: {
 			const text = getTextFromChildren(children)
 			return (
 				<h1
-					className="mb-2 text-2xl font-bold cursor-pointer clickable-heading"
+					className={cn(
+						'mb-2 text-2xl font-bold cursor-pointer',
+						handleClickableClick && 'clickable-list-heading',
+					)}
 					{...(handleClickableClick && {
 						onClick: () => handleClickableClick(text),
 					})}
@@ -86,7 +89,10 @@ export function memoizedMarkdownComponents(props?: {
 			const text = getTextFromChildren(children)
 			return (
 				<h2
-					className="mb-2 text-xl font-bold cursor-pointer clickable-heading"
+					className={cn(
+						'mb-2 text-xl font-bold cursor-pointer',
+						handleClickableClick && 'clickable-list-heading',
+					)}
 					{...(handleClickableClick && {
 						onClick: () => handleClickableClick(text),
 					})}
@@ -100,7 +106,10 @@ export function memoizedMarkdownComponents(props?: {
 			const text = getTextFromChildren(children)
 			return (
 				<h3
-					className="mb-2 text-lg font-bold cursor-pointer clickable-heading"
+					className={cn(
+						'mb-2 text-lg font-bold cursor-pointer',
+						handleClickableClick && 'clickable-list-heading',
+					)}
 					{...(handleClickableClick && {
 						onClick: () => handleClickableClick(text),
 					})}
@@ -121,11 +130,15 @@ export function memoizedMarkdownComponents(props?: {
 		// List handling.
 		// @ts-ignore
 		ul({ children }) {
-			return <ul className="ml-2 space-y-2 list-disc">{children}</ul>
+			return (
+				<ul className="pl-0 md:pl-4 ml-2 space-y-2 list-disc">{children}</ul>
+			)
 		},
 		// @ts-ignore
 		ol({ children }) {
-			return <ol className="ml-2 space-y-2 list-decimal">{children}</ol>
+			return (
+				<ol className="pl-0 md:pl-4 ml-2 space-y-2 list-decimal">{children}</ol>
+			)
 		},
 		// @ts-ignore
 		li({ children }) {
@@ -140,9 +153,9 @@ export function memoizedMarkdownComponents(props?: {
 			return (
 				<li
 					className={cn(
-						'ml-4',
+						'pl-0 md:pl-4 ml-4',
 						hasNestedList && 'mt-2',
-						'clickable-list-heading',
+						handleClickableClick && 'clickable-list-heading',
 					)}
 					{...(handleClickableClick && {
 						onClick: () => handleClickableClick(text),
