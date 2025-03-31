@@ -122,7 +122,7 @@ export function Pro({
 		(message: Message) => {
 			// Use the enhanced document creation function from context
 			// This handles setting the project, active document, and activating workspace mode
-			if (message && message.content) {
+			if (message?.content) {
 				createDocumentFromMessage(message.content)
 			}
 		},
@@ -195,11 +195,13 @@ export function Pro({
 				isLoading={isLoading}
 				isPro={isPro}
 				stop={stop}
+				// @ts-ignore
 				append={
 					isContinuousThread
 						? appendAsContinuousThread
 						: appendWithMbContextPrompts
 				}
+				// @ts-ignore
 				reload={reload}
 				messages={allMessages.map((msg) => ({
 					...msg,
@@ -232,47 +234,47 @@ export function Pro({
 				onToggleWorkspace={toggleWorkspace}
 			/>
 		)
-	} else {
-		return (
-			<ChatPanel
-				className={`${activeThread || activeChatbot ? '' : 'hidden'} ${chatPanelClassName}`}
-				scrollToBottom={
-					isOpenPopup && isPopup && scrollToBottomOfPopup
-						? scrollToBottomOfPopup
-						: scrollToBottom
-				}
-				id={params.threadId || isNewChat ? threadId : activeThread?.threadId}
-				isLoading={isLoading}
-				stop={stop}
-				append={
-					isContinuousThread
-						? appendAsContinuousThread
-						: appendWithMbContextPrompts
-				}
-				reload={reload}
-				messages={allMessages.map((msg) => ({
-					...msg,
-					onCreateDocument:
-						msg.role === 'assistant' ? handleCreateDocument : undefined,
-				}))}
-				input={input}
-				setInput={setInput}
-				chatbot={chatbot}
-				placeholder={
-					chatbot
-						? chatSearchMessage(isNewChat, isContinuousThread, allMessages)
-						: ''
-				}
-				showReload={!isNewChat}
-				isAtBottom={
-					params.threadId
-						? isNearBottom
-						: isPopup
-							? Boolean(isAtBottomOfPopup)
-							: isAtBottomOfSection
-				}
-				onToggleWorkspace={toggleWorkspace}
-			/>
-		)
 	}
+
+	return (
+		<ChatPanel
+			className={`${activeThread || activeChatbot ? '' : 'hidden'} ${chatPanelClassName}`}
+			scrollToBottom={
+				isOpenPopup && isPopup && scrollToBottomOfPopup
+					? scrollToBottomOfPopup
+					: scrollToBottom
+			}
+			id={params.threadId || isNewChat ? threadId : activeThread?.threadId}
+			isLoading={isLoading}
+			stop={stop}
+			append={
+				isContinuousThread
+					? appendAsContinuousThread
+					: appendWithMbContextPrompts
+			}
+			reload={reload}
+			messages={allMessages.map((msg) => ({
+				...msg,
+				onCreateDocument:
+					msg.role === 'assistant' ? handleCreateDocument : undefined,
+			}))}
+			input={input}
+			setInput={setInput}
+			chatbot={chatbot}
+			placeholder={
+				chatbot
+					? chatSearchMessage(isNewChat, isContinuousThread, allMessages)
+					: ''
+			}
+			showReload={!isNewChat}
+			isAtBottom={
+				params.threadId
+					? isNearBottom
+					: isPopup
+						? Boolean(isAtBottomOfPopup)
+						: isAtBottomOfSection
+			}
+			onToggleWorkspace={toggleWorkspace}
+		/>
+	)
 }

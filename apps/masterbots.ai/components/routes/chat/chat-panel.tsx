@@ -12,12 +12,13 @@ import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
 import { cn } from '@/lib/utils'
+import { EnterIcon } from '@radix-ui/react-icons'
 import type { Message as AiMessage } from 'ai'
 import type { UseChatHelpers } from 'ai/react'
 import { BrainIcon, FileEditIcon, GlobeIcon, GraduationCap } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import type { Chatbot } from 'mb-genql'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 export interface ChatPanelProps
 	extends Pick<
@@ -85,7 +86,15 @@ export function ChatPanel({
 			<ChatMessage
 				key={message.id || `message-${index}`}
 				message={message}
-				onCreateDocument={message.onCreateDocument}
+				onCreateDocument={(props) => {
+					// Handle document creation
+					console.log('ChatPanel: Create document', props)
+					// @ts-ignore
+					if (props.onCreateDocument) {
+						// @ts-ignore
+						props.onCreateDocument()
+					}
+				}}
 			/>
 		))
 	}
@@ -267,32 +276,17 @@ export function ChatPanel({
 								placeholder={placeholder}
 								spellCheck={false}
 								className="min-h-[60px] w-full resize-none bg-background px-3 py-3 sm:text-sm border rounded-md"
-								disabled={isLoading || !Boolean(chatbot) || isPreProcessing}
+								disabled={isLoading || !chatbot || isPreProcessing}
 							/>
 							<button
 								type="submit"
 								className="shrink-0 h-10 w-10 rounded-md bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-50"
 								disabled={
-									isLoading ||
-									!input.trim() ||
-									!Boolean(chatbot) ||
-									isPreProcessing
+									isLoading || !input.trim() || !chatbot || isPreProcessing
 								}
 								aria-label="Send message"
 							>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="16"
-									height="16"
-									fill="none"
-									viewBox="0 0 24 24"
-									stroke="currentColor"
-									strokeWidth="2"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-								>
-									<path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z" />
-								</svg>
+								<EnterIcon className="size-4" />
 							</button>
 						</div>
 					</form>

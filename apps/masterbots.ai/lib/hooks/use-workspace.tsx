@@ -23,7 +23,7 @@ interface WorkspaceContextType {
 	setActiveDocument: (document: string | null) => void
 	documentContent: Record<string, DocumentData>
 	setDocumentContent: (documentId: string, content: DocumentData) => void
-	createDocumentFromMessage: (content: string) => void
+	createDocumentFromMessage: (content: string, useUnassigned?: boolean) => void
 	projectList: string[]
 	documentList: Record<string, string[]>
 }

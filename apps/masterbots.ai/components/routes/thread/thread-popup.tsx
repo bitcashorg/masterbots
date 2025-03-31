@@ -28,10 +28,7 @@ import {
 } from '@/components/ui/popover'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
-import {
-	type FileAttachment,
-	useFileAttachments,
-} from '@/lib/hooks/use-chat-attachments'
+import { useFileAttachments } from '@/lib/hooks/use-chat-attachments'
 import { useDeepThinking } from '@/lib/hooks/use-deep-thinking'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
@@ -42,6 +39,7 @@ import { useWorkspace } from '@/lib/hooks/use-workspace'
 import { getCanonicalDomain } from '@/lib/url'
 import { cn, getRouteType, nanoid } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
+import { EnterIcon } from '@radix-ui/react-icons'
 import type { Message as AiMessage, ChatRequestOptions } from 'ai'
 import {
 	BrainIcon,
@@ -72,7 +70,8 @@ export function ThreadPopup({ className }: { className?: string }) {
 		setActiveThread,
 		setShouldRefreshThreads,
 	} = useThread()
-	const [{ allMessages, isLoading }, { sendMessageFromResponse }] = useMBChat()
+	const [{ allMessages, isLoading }, { sendMessageFromResponse, append }] =
+		useMBChat()
 	const [browseMessages, setBrowseMessages] = useState<Message[]>([])
 	const popupContentRef = useRef<HTMLDivElement | null>(null)
 	const threadRef = useRef<HTMLDivElement | null>(null)
@@ -180,9 +179,11 @@ export function ThreadPopup({ className }: { className?: string }) {
 
 			// Prepare chat options with toggles and attachments
 			const chatOptions: ChatRequestOptions = {
-				powerUp: isPowerUp,
-				reasoning: isDeepThinking,
-				webSearch: webSearch,
+				body: {
+					powerUp: isPowerUp,
+					reasoning: isDeepThinking,
+					webSearch: webSearch,
+				},
 			}
 
 			// Add attachments if present
@@ -191,7 +192,14 @@ export function ThreadPopup({ className }: { className?: string }) {
 			}
 
 			// Send message with options
-			sendMessageFromResponse(inputValue, chatOptions)
+			append(
+				{
+					role: 'user',
+					content: inputValue,
+					createdAt: new Date(),
+				},
+				chatOptions,
+			)
 
 			// Clear input and attachments
 			setInputValue('')
@@ -241,18 +249,27 @@ export function ThreadPopup({ className }: { className?: string }) {
 		if (inputValue.trim() && selectedSection) {
 			// Prepare chat options with toggles and workspace section info
 			const chatOptions: ChatRequestOptions = {
-				powerUp: isPowerUp,
-				reasoning: isDeepThinking,
-				webSearch: webSearch,
-				workspace: {
-					documentId: activeDocument,
-					sectionId: selectedSection,
-					projectId: activeProject,
+				body: {
+					powerUp: isPowerUp,
+					reasoning: isDeepThinking,
+					webSearch: webSearch,
+					workspace: {
+						documentId: activeDocument,
+						sectionId: selectedSection,
+						projectId: activeProject,
+					},
 				},
 			}
 
 			// Send message with options
-			sendMessageFromResponse(inputValue, chatOptions)
+			append(
+				{
+					role: 'user',
+					content: inputValue,
+					createdAt: new Date(),
+				},
+				chatOptions,
+			)
 
 			// Clear input
 			setInputValue('')
@@ -510,80 +527,68 @@ export function ThreadPopup({ className }: { className?: string }) {
 													{/* Attachment button - Only show for chat mode */}
 													{!isWorkspaceActive && (
 														<Popover>
-															<PopoverTrigger asChild>
-																<div
-																	role="button"
-																	tabIndex={0}
-																	onClick={(e) => {
-																		e.currentTarget
-																			.querySelector('input')
-																			?.click()
-																	}}
-																	onKeyDown={(e) => {
-																		if (e.key === 'Enter' || e.key === ' ') {
-																			e.currentTarget
-																				.querySelector('input')
-																				?.click()
-																		}
-																	}}
-																	className="h-10 w-10 rounded-md hover:bg-accent hover:text-accent-foreground flex items-center justify-center cursor-pointer relative"
-																>
-																	<Input
-																		onChange={
-																			fileAttachmentActions.handleFileSelect
-																		}
-																		tabIndex={-1}
-																		id={`file-attachments-${formId}`}
-																		className="absolute opacity-0 size-full !cursor-pointer p-0 disabled:opacity-0"
-																		accept="image/*,text/*"
-																		type="file"
-																		disabled={Boolean(
-																			userData.userAttachments?.length,
-																		)}
-																		multiple
-																	/>
-																	<PaperclipIcon className="p-0.5 z-0 cursor-pointer" />
-																</div>
+															<PopoverTrigger
+																onClick={(e) => {
+																	e.currentTarget
+																		.querySelector('input')
+																		?.click()
+																}}
+																className="h-10 w-10 rounded-md hover:bg-accent hover:text-accent-foreground flex items-center justify-center cursor-pointer relative"
+															>
+																<Input
+																	onChange={
+																		fileAttachmentActions.handleFileSelect
+																	}
+																	tabIndex={-1}
+																	id={`file-attachments-${formId}`}
+																	className="absolute opacity-0 size-full !cursor-pointer p-0 disabled:opacity-0"
+																	accept="image/*,text/*"
+																	type="file"
+																	disabled={Boolean(
+																		userData.userAttachments?.length,
+																	)}
+																	multiple
+																/>
+																<PaperclipIcon className="p-0.5 z-0 cursor-pointer" />
 															</PopoverTrigger>
 															<PopoverContent className="w-[320px]">
 																<Command>
 																	<CommandGroup>
 																		<CommandList className="overflow-hidden w-full p-0">
-																			{userData.userAttachments?.length > 0 && (
-																				<Accordion type="single" collapsible>
-																					<AccordionItem
-																						value={`user-attachments-${formId}`}
-																					>
-																						<AccordionTrigger className="sticky top-0 p-2">
-																							<SaveIcon className="size-4" />{' '}
-																							Saved Attachments (
-																							{userData.userAttachments
-																								.length || 0}
-																							)
-																						</AccordionTrigger>
-																						<AccordionContent className="scrollbar h-full max-h-[200px] md:max-h-[300px] w-full">
-																							<UserAttachments
-																								attachments={userData.userAttachments.map(
-																									(
-																										attachment: FileAttachment,
-																									) => ({
-																										...attachment,
-																										isSelected:
-																											attachments.some(
-																												(a) =>
-																													a.id ===
-																													attachment.id,
-																											),
-																									}),
-																								)}
-																								onChange={
-																									fileAttachmentActions.toggleAttachmentSelection
-																								}
-																							/>
-																						</AccordionContent>
-																					</AccordionItem>
-																				</Accordion>
-																			)}
+																			{userData.userAttachments &&
+																				userData.userAttachments.length > 0 && (
+																					<Accordion type="single" collapsible>
+																						<AccordionItem
+																							value={`user-attachments-${formId}`}
+																						>
+																							<AccordionTrigger className="sticky top-0 p-2">
+																								<SaveIcon className="size-4" />{' '}
+																								Saved Attachments (
+																								{userData.userAttachments
+																									.length || 0}
+																								)
+																							</AccordionTrigger>
+																							<AccordionContent className="scrollbar h-full max-h-[200px] md:max-h-[300px] w-full">
+																								<UserAttachments
+																									attachments={userData.userAttachments
+																										.map((attachment) => ({
+																											...attachment,
+																											isSelected:
+																												attachments.some(
+																													(a) =>
+																														a.id ===
+																														attachment.id,
+																												),
+																										}))
+																										.filter(Boolean)}
+																									onChange={
+																										fileAttachmentActions.toggleAttachmentSelection
+																									}
+																								/>
+																							</AccordionContent>
+																						</AccordionItem>
+																					</Accordion>
+																				)}
 
 																			<CommandItem
 																				asChild
@@ -617,19 +622,7 @@ export function ThreadPopup({ className }: { className?: string }) {
 														}
 														aria-label="Send message"
 													>
-														<svg
-															xmlns="http://www.w3.org/2000/svg"
-															width="16"
-															height="16"
-															fill="none"
-															viewBox="0 0 24 24"
-															stroke="currentColor"
-															strokeWidth="2"
-															strokeLinecap="round"
-															strokeLinejoin="round"
-														>
-															<path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z" />
-														</svg>
+														<EnterIcon className="size-4" />
 													</button>
 												</div>
 											</form>
