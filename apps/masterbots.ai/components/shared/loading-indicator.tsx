@@ -1,3 +1,4 @@
+import { useDevice } from '@/lib/hooks/use-device'
 import { cn } from '@/lib/utils'
 
 interface LoadingIndicatorProps {
@@ -5,12 +6,14 @@ interface LoadingIndicatorProps {
 }
 
 export function LoadingIndicator({ state }: LoadingIndicatorProps) {
-	//? Helper function to get the loading message based on state
+	const { isMobile } = useDevice()
+
+	//? Helper function to get the loading message based on state and device
 	const getLoadingMessage = (state?: string) => {
 		if (!state) return ''
 
-		//* Map states to user-friendly messages
-		const messages: Record<string, string> = {
+		//* Map states to user-friendly messages for desktop
+		const desktopMessages: Record<string, string> = {
 			processing: 'Processing your request...',
 			digesting: 'Analyzing your query...',
 			polishing: 'Polishing the response...',
@@ -20,7 +23,20 @@ export function LoadingIndicator({ state }: LoadingIndicatorProps) {
 			finished: 'Completed',
 		}
 
-		return messages[state] || state
+		//* Shorter messages for mobile devices
+		const mobileMessages: Record<string, string> = {
+			processing: 'Processing...',
+			digesting: 'Analyzing...',
+			polishing: 'Polishing...',
+			generating: 'Generating...',
+			continuing: 'Continuing...',
+			reasoning: 'Reasoning...',
+			finished: 'Done',
+		}
+
+		return isMobile
+			? mobileMessages[state] || state
+			: desktopMessages[state] || state
 	}
 
 	const getPulseStyle = (state?: string) => {

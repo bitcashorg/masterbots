@@ -69,7 +69,7 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 					<div className="flex flex-col space-y-1 font-Geist">
 						{/* Threads Accordion */}
 						<div className="rounded-lg">
-							<Link
+							{/* <Link
 								href={urlBuilders.profilesUrl({
 									type: 'user',
 									usernameSlug: userSlug as string,
@@ -102,7 +102,7 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 										isThreadsOpen ? 'rotate-90' : 'rotate-0',
 									)}
 								/>
-							</Link>
+							</Link> */}
 							<div
 								className={cn(
 									'overflow-y-auto w-full scrollbar transition-all duration-300 max-w-[300px]',

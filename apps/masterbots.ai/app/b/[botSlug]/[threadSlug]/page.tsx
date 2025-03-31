@@ -7,8 +7,6 @@ import { ErrorComponent } from '@/components/shared/error'
 import { botNames } from '@/lib/constants/bots-names'
 import { generateMbMetadata } from '@/lib/metadata'
 import { getCanonicalDomain, urlBuilders } from '@/lib/url'
-import Image from 'next/image'
-import Link from 'next/link'
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
 	// Get base metadata from the shared function

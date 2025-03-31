@@ -182,7 +182,6 @@ export function SharedAccordion({
 			await updateActiveThread()
 			setIsOpenPopup(true)
 		} else if (profilePage) {
-			// Profile page navigation
 			setIsOpenPopup(false)
 			setActiveThread(null)
 			const slug = params.userSlug as string
@@ -323,24 +322,28 @@ export function SharedAccordion({
 				)}
 				id={props.id}
 			>
-				{Array.isArray(children) && children[0]}
-				{!open && Array.isArray(children) && children[1]}
-				<ChevronDown
-					{...(handleTrigger
-						? {
-								onClick: (e) => {
-									e.stopPropagation()
-									handleTrigger()
-								},
-							}
-						: {})}
-					className={cn(
-						'absolute size-4 -right-4 top-4 shrink-0 mr-8 transition-transform duration-200',
-						open ? '' : '-rotate-90',
-						arrowClass,
-						disabled && 'hidden',
-					)}
-				/>
+				<div className="flex w-full">
+					<span className="flex flex-col w-full">
+						{Array.isArray(children) && children[0]}
+						{!open && Array.isArray(children) && children[1]}
+					</span>
+					<ChevronDown
+						{...(handleTrigger
+							? {
+									onClick: (e) => {
+										e.stopPropagation()
+										handleTrigger()
+									},
+								}
+							: {})}
+						className={cn(
+							'ml-auto min-w-4 max-w-4 h-9 transition-transform duration-200',
+							open ? '' : '-rotate-90',
+							arrowClass,
+							disabled && 'hidden',
+						)}
+					/>
+				</div>
 				{loading && (
 					<div className="absolute inset-0 bg-accent/5 rounded-lg backdrop-blur-[1px] animate-pulse" />
 				)}

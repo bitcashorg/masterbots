@@ -32,7 +32,7 @@ export default function SignInForm() {
 		if (result?.error) {
 			setErrorMessage('Invalid email or password. Please try again')
 		} else {
-			router.push('/')
+			router.push('/c')
 		}
 	}
 

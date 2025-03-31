@@ -716,7 +716,7 @@ function ThreadPopUpCardHeader({
 	const threadTitleSubHeading = threadTitleChunks?.slice(49).join(' ')
 
 	return (
-		<div className="relative rounded-t-[8px] px-[32px] py-[20px] dark:bg-[#1E293B] bg-[#E4E4E7]">
+		<div className="relative rounded-t-[8px] px-4 md:px-[32px] py-[20px] dark:bg-[#1E293B] bg-[#E4E4E7]">
 			<div className="flex items-center justify-between gap-6">
 				<div className="items-center block overflow-y-auto whitespace-pre-line max-h-28 scrollbar small-thumb">
 					{threadTitle ? (

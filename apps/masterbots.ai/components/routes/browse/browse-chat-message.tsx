@@ -24,8 +24,8 @@
  */
 
 import { MemoizedReactMarkdown } from '@/components/shared/markdown'
-import { CodeBlock } from '@/components/ui/codeblock'
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
+import { memoizedMarkdownComponents } from '@/lib/memoized-markdown-components'
 import { cn } from '@/lib/utils'
 import type { Message } from 'ai'
 import type { Chatbot } from 'mb-genql'
@@ -51,65 +51,7 @@ export function BrowseChatMessage({
 				<MemoizedReactMarkdown
 					className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 !max-w-5xl"
 					remarkPlugins={[remarkGfm, rehypeMathJax, remarkRehype]}
-					components={{
-						// @ts-ignore
-						p({ children }) {
-							return (
-								<p className="mb-2 whitespace-pre-line last:mb-0">{children}</p>
-							)
-						},
-						// @ts-ignore
-						ol({ children }) {
-							return (
-								<ol className="text-left list-decimal list-inside">
-									{children}
-								</ol>
-							)
-						},
-						// @ts-ignore
-						ul({ children }) {
-							return (
-								<ul className="text-left list-disc list-inside">{children}</ul>
-							)
-						},
-						// @ts-ignore
-						code({
-							node,
-							inline = false,
-							className,
-							children,
-							...props
-						}: React.HTMLAttributes<HTMLElement> & {
-							node: unknown
-							inline?: boolean
-						}) {
-							const childrenText = String(children)
-							if (childrenText?.startsWith('▍')) {
-								return (
-									<span className="mt-1 cursor-default animate-pulse">▍</span>
-								)
-							}
-
-							const match = /language-(\w+)/.exec(className || '')
-
-							if (inline) {
-								return (
-									<code className={className} {...props}>
-										{children}
-									</code>
-								)
-							}
-
-							return (
-								<CodeBlock
-									key={Math.random()}
-									language={match?.[1] || ''}
-									value={String(children).replace(/\n$/, '')}
-									{...props}
-								/>
-							)
-						},
-					}}
+					components={memoizedMarkdownComponents()}
 				>
 					{cleanMessage.content}
 				</MemoizedReactMarkdown>

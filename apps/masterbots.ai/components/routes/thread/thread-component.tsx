@@ -70,7 +70,7 @@ export default function ThreadComponent({
 					'[&[data-state=open]]:rounded-t-[8px]',
 					'[&[data-state=closed]>div>span>span]:line-clamp-2',
 				)}
-				arrowClass="size-5 top-[calc(33.33%-1.25rem)] bottom-0 transform translate-y-[100%]"
+				arrowClass="min-w-5 max-w-5"
 				thread={thread}
 				variant="browse"
 			>
