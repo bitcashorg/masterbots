@@ -1,6 +1,6 @@
 'use client'
 
-import { Markdown } from '@/components/shared/markdown'
+import { MemoizedReactMarkdown } from '@/components/shared/markdown'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
@@ -8,6 +8,7 @@ import { CheckIcon, EditIcon, PlusIcon, SaveIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import { useWorkspace } from '@/lib/hooks/use-workspace'
+import { memoizedMarkdownComponents } from '@/lib/memoized-markdown-components'
 
 interface WorkspaceSection {
 	id: string
@@ -191,7 +192,8 @@ export function WorkspaceContent({
 	const { documentContent, setDocumentContent } = useWorkspace()
 
 	// Initialize document when project/document changes
-	useEffect(() => {
+	// biome-ignore lint/correctness/useExhaustiveDependencies: we don't need to re-run this effect on every render
+		useEffect(() => {
 		if (projectName && documentName) {
 			// Check if we already have content for this document
 			if (documentContent[documentName]) {
@@ -513,9 +515,18 @@ export function WorkspaceContent({
 						<div className="space-y-6 p-2">
 							{sections.map((section) => (
 								<div
+									// biome-ignore lint/a11y/useSemanticElements: role is enough for this scenario
+									role="button"
 									key={section.id}
 									className="group relative hover:bg-muted/20 rounded-md p-2 cursor-pointer transition-colors"
 									onClick={() => handleSectionClick(section.id)}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter' || e.key === ' ') {
+											handleSectionClick(section.id);
+										}
+									}}
+									tabIndex={0}
+									aria-label={`Edit ${section.type} section`}
 								>
 									{section.type === 'h1' && (
 										<h1 className="text-3xl font-bold">{section.content}</h1>
@@ -534,7 +545,11 @@ export function WorkspaceContent({
 									{(section.type === 'ul' ||
 										section.type === 'ol' ||
 										section.type === 'code') && (
-										<Markdown content={section.content} />
+										<MemoizedReactMarkdown
+											components={memoizedMarkdownComponents()}
+										>
+											{section.content}
+										</MemoizedReactMarkdown>
 									)}
 									<Button
 										size="sm"
