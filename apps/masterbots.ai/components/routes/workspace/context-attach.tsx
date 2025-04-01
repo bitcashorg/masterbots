@@ -9,7 +9,6 @@ import {
 	AccordionTrigger,
 } from '@/components/ui/accordion'
 import { Button, buttonVariants } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { Command, CommandGroup, CommandList } from '@/components/ui/command'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -187,7 +186,7 @@ export default function ContextAttach() {
 	}
 
 	return (
-		<Card className="w-full p-4 relative">
+		<div className="w-full p-4 relative">
 			<form ref={formRef} id={`file-workspace-attachments-form--${formId}`}>
 				{isDragging && (
 					<div className="absolute inset-0 flex items-center justify-center bg-muted/50">
@@ -303,34 +302,37 @@ export default function ContextAttach() {
 						</AccordionTrigger>
 
 						<AccordionContent className="p-4">
-							<div className="bg-muted p-4 rounded-lg">
-								<div className="mb-2">
-									<span className="font-medium">Background Information</span>
+							<div className="bg-muted p-4 rounded-lg space-y-4">
+								<div>
+									<Label htmlFor="context-input">
+										Add Background Information
+									</Label>
+									<Textarea
+										id="context-input"
+										placeholder="You can also add any specific details or requirements that you want to consider while providing their response..."
+										className="mt-2 min-h-[120px] outline-muted-foreground/50 hover:outline-muted-foreground/50"
+									/>
 								</div>
-
-								<div className="space-y-4">
-									<div>
-										{attachments.length > 0 && (
-											<div className="mt-4">
-												<span className="font-medium">
-													Selected Attachments
-												</span>
-												<AttachmentsDisplay
-													isDragging={isDragging}
-													attachments={attachments}
-													onRemove={fileAttachmentActions.removeAttachment}
-												/>
-											</div>
-										)}
-										<Label htmlFor="context-input">
-											Add context information
-										</Label>
-										<Textarea
-											id="context-input"
-											placeholder="Enter background information and additional details here..."
-											className="mt-2 min-h-[120px] outline-muted-foreground/50 hover:outline-muted-foreground/50"
-										/>
-									</div>
+								<div className="mb-2">
+									<span className="font-medium">Attachments</span>
+									{attachments.length > 0 ? (
+										<div className="mt-4">
+											<span className="font-medium">
+												Selected {attachments.length}
+											</span>
+											<AttachmentsDisplay
+												isDragging={isDragging}
+												attachments={attachments}
+												onRemove={fileAttachmentActions.removeAttachment}
+											/>
+										</div>
+									) : (
+										<p className="text-sm text-muted-foreground">
+											Provide any relevant attachments as additional information
+											that will help the Masterbot understand the context of
+											your request.
+										</p>
+									)}
 								</div>
 							</div>
 						</AccordionContent>
@@ -462,6 +464,6 @@ export default function ContextAttach() {
 					</AccordionItem>
 				</Accordion>
 			</form>
-		</Card>
+		</div>
 	)
 }

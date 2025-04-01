@@ -7,6 +7,7 @@ import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
 import { cn } from '@/lib/utils'
+import type { ChatRequestOptions } from 'ai'
 import {
 	BrainIcon,
 	FileEditIcon,
@@ -34,7 +35,7 @@ export interface WorkspacePanelProps {
 	isPro?: boolean
 	// Chat props
 	stop?: () => void
-	append?: (message: any, options?: any) => Promise<void>
+	append?: (message: any, options?: ChatRequestOptions) => Promise<void>
 	reload?: () => Promise<void>
 	messages?: any[]
 	input?: string
@@ -113,13 +114,15 @@ export function WorkspacePanel({
 						role: 'user',
 					},
 					{
-						powerUp: isPowerUp,
-						reasoning: isDeepThinking,
-						webSearch: webSearch,
-						workspace: {
-							documentId: activeDocument,
-							sectionId: sectionId || activeSection,
-							projectId: activeProject,
+						body: {
+							powerUp: isPowerUp,
+							reasoning: isDeepThinking,
+							webSearch: webSearch,
+							workspace: {
+								documentId: activeDocument,
+								sectionId: sectionId || activeSection,
+								projectId: activeProject,
+							},
 						},
 					},
 				)
