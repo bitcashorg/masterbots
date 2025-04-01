@@ -5,6 +5,7 @@ import { Chat } from '@/components/routes/chat/chat'
 import { ChatList } from '@/components/routes/chat/chat-list'
 import { AttachmentsDisplay } from '@/components/routes/chat/prompt-form/attachments-display'
 import { UserAttachments } from '@/components/routes/chat/prompt-form/user-attachments'
+import ContextAttach from '@/components/routes/workspace/context-attach'
 import { FeatureToggle } from '@/components/shared/feature-toggle'
 import {
 	Accordion,
@@ -49,6 +50,7 @@ import {
 	GraduationCap,
 	PaperclipIcon,
 	SaveIcon,
+	WandIcon,
 } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import type { Chatbot, Message } from 'mb-genql'
@@ -610,6 +612,22 @@ export function ThreadPopup({ className }: { className?: string }) {
 															</PopoverContent>
 														</Popover>
 													)}
+
+													<Popover>
+														<PopoverTrigger asChild>
+															<Button
+																type="button"
+																size="icon"
+																variant="outline"
+																className="shrink-0"
+															>
+																<WandIcon className="size-5" />
+															</Button>
+														</PopoverTrigger>
+														<PopoverContent className="w-[720px]">
+															<ContextAttach />
+														</PopoverContent>
+													</Popover>
 
 													{/* Submit button */}
 													<button

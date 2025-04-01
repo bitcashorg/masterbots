@@ -193,7 +193,7 @@ export function WorkspaceContent({
 
 	// Initialize document when project/document changes
 	// biome-ignore lint/correctness/useExhaustiveDependencies: we don't need to re-run this effect on every render
-		useEffect(() => {
+	useEffect(() => {
 		if (projectName && documentName) {
 			// Check if we already have content for this document
 			if (documentContent[documentName]) {
@@ -316,7 +316,7 @@ export function WorkspaceContent({
 			if (!documentName) {
 				// This would typically be handled by the parent component
 				// but we'll prepare the data here
-				const newDocTitle = template.name + '-' + Date.now()
+				const newDocTitle = `${template.name}-${Date.now()}`
 
 				// If document gets created, update context with template data
 				const newDocument = {
@@ -367,6 +367,15 @@ export function WorkspaceContent({
 							key={template.id}
 							className="border rounded-lg p-4 hover:border-primary cursor-pointer transition-colors"
 							onClick={() => handleSelectTemplate(template.id)}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter' || e.key === ' ') {
+									handleSelectTemplate(template.id)
+								}
+							}}
+							tabIndex={0}
+							// biome-ignore lint/a11y/useSemanticElements: having the role here is fine
+							role="button"
+							aria-label={`Select ${template.name} template`}
 						>
 							<h3 className="font-medium mb-2">{template.name}</h3>
 							<p className="text-sm text-muted-foreground">
@@ -508,6 +517,7 @@ export function WorkspaceContent({
 								onChange={handleContentChange}
 								className="w-full h-[300px] p-3 border rounded-md focus:outline-none focus:ring-2 resize-none"
 								placeholder="Enter content here..."
+								// biome-ignore lint/a11y/noAutofocus: <explanation>
 								autoFocus
 							/>
 						</div>
@@ -522,7 +532,7 @@ export function WorkspaceContent({
 									onClick={() => handleSectionClick(section.id)}
 									onKeyDown={(e) => {
 										if (e.key === 'Enter' || e.key === ' ') {
-											handleSectionClick(section.id);
+											handleSectionClick(section.id)
 										}
 									}}
 									tabIndex={0}

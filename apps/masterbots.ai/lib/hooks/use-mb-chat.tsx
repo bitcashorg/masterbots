@@ -686,7 +686,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 		const defaultUserMessage: Partial<Message> = {
 			content: cleanPrompt(userMessage.content),
 			role: 'user',
-			id: uniqueMessageId, // Use id for better React key stability
+			// id: uniqueMessageId, // Use id for better React key stability
 			messageId: uniqueMessageId,
 			createdAt: new Date().toISOString(),
 			augmentedFrom: null,

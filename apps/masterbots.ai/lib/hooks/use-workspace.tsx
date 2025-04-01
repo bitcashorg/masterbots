@@ -130,6 +130,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 	)
 
 	// Create a new document from message content
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const createDocumentFromMessage = React.useCallback(
 		(content: string, useUnassigned = false) => {
 			// Use the Unassigned project for AI response documents if specified, otherwise

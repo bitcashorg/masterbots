@@ -41,7 +41,11 @@ export function Providers({ children, ...props }: ProvidersProps) {
 												<ThreadSearchProvider>
 													<ThreadProvider>
 														<ThreadVisibilityProvider>
-															<MBChatProvider>{children}</MBChatProvider>
+															<MBChatProvider>
+																<WorkspaceProvider>
+																	{children}
+																</WorkspaceProvider>
+															</MBChatProvider>
 														</ThreadVisibilityProvider>
 													</ThreadProvider>
 												</ThreadSearchProvider>
@@ -59,5 +63,5 @@ export function Providers({ children, ...props }: ProvidersProps) {
 }
 
 export function ProChatProviders({ children }: { children: React.ReactNode }) {
-	return <WorkspaceProvider>{children}</WorkspaceProvider>
+	return children
 }

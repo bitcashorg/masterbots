@@ -1,6 +1,8 @@
 'use client'
 
+import ContextAttach from '@/components/routes/workspace/context-attach'
 import { Button } from '@/components/ui/button'
+import { PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Textarea } from '@/components/ui/textarea'
 import {
 	Tooltip,
@@ -9,11 +11,10 @@ import {
 } from '@/components/ui/tooltip'
 import { useEnterSubmit } from '@/lib/hooks/use-enter-submit'
 import { cn } from '@/lib/utils'
+import { Popover } from '@radix-ui/react-popover'
 import {
 	BrainIcon,
 	GlobeIcon,
-	LayoutIcon,
-	MessageSquareIcon,
 	SendIcon,
 	SparklesIcon,
 	WandIcon,
@@ -60,6 +61,7 @@ export function WorkspaceForm({
 		}
 	}, [])
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const handleAIAssist = React.useCallback(async () => {
 		if (disabled || !input.trim() || !onAIAssist) return
 
@@ -82,6 +84,7 @@ export function WorkspaceForm({
 		isWebSearchActive,
 	])
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const handleSubmit = React.useCallback(
 		async (e: React.FormEvent) => {
 			e.preventDefault()
@@ -159,7 +162,7 @@ export function WorkspaceForm({
 								className="ml-auto h-8 px-3"
 								onClick={() => {
 									if (!input) {
-										setInput(`Rewrite this section to be more engaging.`)
+										setInput('Rewrite this section to be more engaging.')
 									} else {
 										handleAIAssist()
 									}
@@ -212,6 +215,23 @@ export function WorkspaceForm({
 							<TooltipContent side="top">Apply AI to document</TooltipContent>
 						</Tooltip>
 					)}
+					<Popover>
+						<PopoverTrigger asChild>
+							<Button
+								type="button"
+								size="icon"
+								variant="outline"
+								disabled={disabled || isLoading || !input.trim()}
+								onClick={() => setInput('')}
+								className="shrink-0"
+							>
+								<WandIcon className="size-5" />
+							</Button>
+						</PopoverTrigger>
+						<PopoverContent className="w-[340px]">
+							<ContextAttach />
+						</PopoverContent>
+					</Popover>
 					<Tooltip>
 						<TooltipTrigger asChild>
 							<Button
@@ -220,7 +240,7 @@ export function WorkspaceForm({
 								disabled={disabled || isLoading || !input.trim()}
 								className="shrink-0"
 							>
-								<SendIcon className="h-5 w-5" />
+								<SendIcon className="size-5" />
 							</Button>
 						</TooltipTrigger>
 						<TooltipContent side="top">Send message</TooltipContent>
