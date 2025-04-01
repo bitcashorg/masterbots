@@ -1,5 +1,4 @@
 import type { ChatRequestOptions, CreateMessage, Message } from 'ai'
-/* eslint-disable no-unused-vars */
 import { nanoid } from 'nanoid'
 
 /**
@@ -13,13 +12,13 @@ export function shouldContinueGeneration(finishReason: string): boolean {
 	return incompleteReasons.includes(finishReason)
 }
 
-// Define the types to match your application's types
+//? Define the types to match your application's types
 export type CustomSonnerParams = {
 	type: 'success' | 'error' | 'info'
 	text: string
 }
 
-//* Define the type for your ChatLoadingState
+//? Define the type for your ChatLoadingState
 export type ChatLoadingState =
 	| 'processing'
 	| 'digesting'
@@ -33,12 +32,10 @@ export type ChatLoadingState =
  * Configuration options for AI continuation
  */
 export interface ContinueAIGenerationOptions {
-	// biome-ignore lint/suspicious/noExplicitAny: <we are using any in the meantime>
 	setLoadingState: (state: any) => void
-	// biome-ignore lint/suspicious/noConfusingVoidType: <void is being included in the return type>
+	// biome-ignore lint/suspicious/noConfusingVoidType: <explanation>
 	customSonner: (params: CustomSonnerParams) => string | number | void
 	devMode: boolean
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	chatConfig?: Record<string, any>
 	maxAttempts?: number
 }
@@ -46,13 +43,13 @@ export interface ContinueAIGenerationOptions {
 /**
  * Attempts to continue an incomplete AI generation
  * @param incompleteMessage - The message that was cut off
- * @param append - The function to append a new message
+ * @param continuationFn - Function to get continuation text
  * @param options - Configuration options
  * @returns A promise resolving to the continued message content or null if failed
  */
 export async function continueAIGeneration(
 	incompleteMessage: Message,
-	append: (
+	continuationFn: (
 		message: Message | CreateMessage,
 		options?: ChatRequestOptions,
 	) => Promise<string | null | undefined>,
@@ -82,7 +79,7 @@ export async function continueAIGeneration(
 
 			setLoadingState('continuing')
 
-			//* continuation prompt flow - using different strategies based on the attempt number
+			//? Continuation prompt flow - using different strategies based on the attempt number
 			let continuationPrompt: CreateMessage
 
 			if (attempts === 1) {
@@ -106,7 +103,7 @@ export async function continueAIGeneration(
 				const referenceLength = Math.min(
 					100,
 					Math.floor(continuedContent.length * 0.1),
-				) //? Use the last 10% of the message, with a max of 100 characters
+				)
 				continuationPrompt = {
 					id: nanoid(),
 					role: 'user',
@@ -123,18 +120,19 @@ export async function continueAIGeneration(
 				},
 			}
 
-			//* small delay between attempts to avoid rate limits
+			//? Small delay between attempts to avoid rate limits
 			await new Promise((resolve) => setTimeout(resolve, 1000))
 
-			//* Try to continue the generation
-			const newContent = await append(continuationPrompt, continuationOptions)
+			//? Try to continue the generation using the provided continuation function
+			const newContent = await continuationFn(
+				continuationPrompt,
+				continuationOptions,
+			)
 
-			//* combines it with the previous content
+			//? If we got new content, combine it with the previous content
 			if (newContent) {
-				//? Update the continued content
-				continuedContent = `${continuedContent} ${newContent}`
-
-				//* Checks if we have enough content
+				continuedContent = `${continuedContent.trim()} ${newContent.trim()}`
+				// Check if we have enough content to consider this a successful continuation
 				if (newContent.length > 20) {
 					if (devMode) {
 						customSonner({
@@ -147,7 +145,7 @@ export async function continueAIGeneration(
 			}
 		}
 
-		//* feedback to user if we couldn't get enough content
+		//? If we couldn't get enough content after all attempts
 		customSonner({
 			type: 'info',
 			text: 'Could not complete the full response after multiple attempts.',
