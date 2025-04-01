@@ -65,6 +65,7 @@ export function ChatPanel({
 		'transition-all w-[0px] opacity-0 whitespace-nowrap duration-300'
 
 	const prepareMessageOptions = useCallback(
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		(chatOptions: any) => ({
 			...chatOptions,
 			powerUp: isPowerUp,
@@ -124,7 +125,7 @@ export function ChatPanel({
 									isActive={webSearch}
 									onChange={(newValue) => {
 										console.log('ChatPanel: Toggle Web Search:', newValue)
-										setWebSearch(newValue)
+										setWebSearch()
 									}}
 									activeColor="cyan"
 								/>
@@ -145,7 +146,6 @@ export function ChatPanel({
 											className="bg-background"
 										>
 											<IconStop className="mr-2" />
-											Stop
 										</Button>
 									)}
 								</>
@@ -164,9 +164,7 @@ export function ChatPanel({
 									onClick={() => reload()}
 								>
 									<IconRefresh className="transition-all" />
-									<span className={hiddenAnimationItemClasses}>
-										Regenerate response
-									</span>
+									<span className={hiddenAnimationItemClasses}>Regenerate</span>
 								</Button>
 							)}
 							{id && title && (
