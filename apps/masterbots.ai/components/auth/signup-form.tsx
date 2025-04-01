@@ -94,7 +94,7 @@ export default function SignUpForm() {
 			}
 
 			customSonner({ type: 'success', text: 'You are now logged in!' })
-			router.push('/')
+			router.push('/c')
 		} catch (error) {
 			console.error(error)
 			customSonner({ type: 'error', text: (error as Error).message })

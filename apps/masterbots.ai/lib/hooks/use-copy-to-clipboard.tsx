@@ -13,6 +13,7 @@ export function useCopyToClipboard({
 
 	const copyToClipboard = (value: string) => {
 		if (typeof window === 'undefined' || !navigator.clipboard?.writeText) {
+			console.log('Clipboard API not available')
 			return
 		}
 

@@ -120,8 +120,8 @@ export function ThreadPopup({ className }: { className?: string }) {
 										sendMessageFromResponse(message)
 									}}
 									chatbot={activeThread?.chatbot || (activeChatbot as Chatbot)}
-									chatContentClass="!border-x-gray-300 !px-[16px] !mx-0 max-h-[none] dark:!border-x-mirage"
-									className="max-w-full !px-[32px] !mx-0"
+									chatContentClass="!border-x-gray-300 md:px-[16px] !mx-0 max-h-[none] dark:!border-x-mirage"
+									className="max-w-full md:px-[32px] !mx-0"
 									chatArrowClass="!right-0 !mr-0"
 									chatTitleClass="!px-[11px]"
 								/>
@@ -212,7 +212,7 @@ function ThreadPopUpCardHeader({
 	const threadTitleSubHeading = threadTitleChunks?.slice(49).join(' ')
 
 	return (
-		<div className="relative rounded-t-[8px] px-[32px] py-[20px] dark:bg-[#1E293B] bg-[#E4E4E7]">
+		<div className="relative rounded-t-[8px] px-4 md:px-[32px] py-[20px] dark:bg-[#1E293B] bg-[#E4E4E7]">
 			<div className="flex items-center justify-between gap-6">
 				<div className="items-center block overflow-y-auto whitespace-pre-line max-h-28 scrollbar small-thumb">
 					{threadTitle ? (

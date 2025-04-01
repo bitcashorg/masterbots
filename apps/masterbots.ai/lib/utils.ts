@@ -305,7 +305,7 @@ export function numberShortener(number: number): string {
  * @returns 'chat' | 'public' | ''
  */
 
-type RouteType = 'chat' | 'public' | 'profile'
+type RouteType = 'chat' | 'public' | 'profile' | 'pro'
 
 export function getRouteType(pathname: string | null): RouteType {
 	if (!pathname || pathname === '/') return 'public'
