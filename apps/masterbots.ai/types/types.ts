@@ -296,6 +296,7 @@ export interface ChatMessageProps extends React.ComponentProps<'div'> {
 	actionRequired?: boolean
 	webSearchResults?: WebSearchResult[]
 	isGenerating?: boolean
+	onCreateDocument?: (message: Message) => void
 }
 
 //* Reference result manipulations props
