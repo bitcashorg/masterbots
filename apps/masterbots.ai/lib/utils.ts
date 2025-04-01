@@ -327,6 +327,14 @@ export function getRouteType(pathname: string | null): RouteType {
 		return 'profile'
 	}
 
+	// ? Check for pro routes
+	if (
+		normalizedPath.startsWith('/pro/') ||
+		(normalizedPath.startsWith('/pro') && normalizedPath !== 'prompt')
+	) {
+		return 'pro'
+	}
+
 	// ? Check for public routes
 	const publicRoutes = [/^\/$/, /^\/[^/]+\/[^/]+$/, /^\/[^/]+\/[^/]+\/[^/]+$/]
 	if (publicRoutes.some((route) => route.test(normalizedPath))) {

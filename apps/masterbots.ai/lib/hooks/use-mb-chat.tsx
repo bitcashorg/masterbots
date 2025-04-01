@@ -680,10 +680,14 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 		setIsNewResponse(true)
 		updateNewThread()
 
+		// Generate a truly unique ID that incorporates timestamp to prevent overlaps
+		const uniqueMessageId = `${randomThreadId.current}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+
 		const defaultUserMessage: Partial<Message> = {
 			content: cleanPrompt(userMessage.content),
 			role: 'user',
-			messageId: randomThreadId.current,
+			// id: uniqueMessageId, // Use id for better React key stability
+			messageId: uniqueMessageId,
 			createdAt: new Date().toISOString(),
 			augmentedFrom: null,
 			examples: [],

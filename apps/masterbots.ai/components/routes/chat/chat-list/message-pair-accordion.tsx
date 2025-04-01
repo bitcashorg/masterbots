@@ -18,6 +18,7 @@ export function MessagePairAccordion({
 	isNewResponse,
 	type,
 	userAttachments,
+	onCreateDocument,
 	...props
 }: {
 	pair: MessagePair
@@ -30,6 +31,7 @@ export function MessagePairAccordion({
 	chatContentClass?: string
 	userAttachments: FileAttachment[]
 	sendMessageFn?: (message: string) => void
+	onCreateDocument?: (message: any) => void
 }) {
 	const { activeThread } = useThread()
 	const { navigateTo } = useSidebar()
@@ -221,6 +223,7 @@ export function MessagePairAccordion({
 									actionRequired={false}
 									message={message}
 									sendMessageFromResponse={props.sendMessageFn}
+									onCreateDocument={onCreateDocument}
 								/>
 							</Fragment>
 						))

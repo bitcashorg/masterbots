@@ -8,6 +8,7 @@ import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { memoizedMarkdownComponents } from '@/lib/memoized-markdown-components'
 import { cn } from '@/lib/utils'
 import type { ChatMessageProps, WebSearchResult } from '@/types/types'
+import type { Message } from 'ai'
 import { useState } from 'react'
 import rehypeMathJax from 'rehype-mathjax'
 import remarkGfm from 'remark-gfm'
@@ -23,14 +24,19 @@ import remarkRehype from 'remark-rehype'
  * @param webSearchResults The web search results.
  * @returns The chat message component.
  */
+export interface ExtendedChatMessageProps extends ChatMessageProps {
+	onCreateDocument?: (message: Message) => void
+}
+
 export function ChatMessage({
 	message,
 	sendMessageFromResponse,
 	chatbot,
 	actionRequired = true,
 	webSearchResults = [],
+	onCreateDocument,
 	...props
-}: ChatMessageProps) {
+}: ExtendedChatMessageProps) {
 	// Clean the message content and update the message object.
 	const content = cleanPrompt(message.content)
 	const cleanMessage = { ...message, content }
@@ -97,8 +103,13 @@ export function ChatMessage({
 					{cleanMessage.content}
 				</MemoizedReactMarkdown>
 
-				{actionRequired && (
-					<ChatMessageActions className="md:!right-0" message={message} />
+				{(actionRequired || message.role === 'assistant') && (
+					<ChatMessageActions
+						className="md:!right-0"
+						message={message}
+						onCreateDocument={onCreateDocument}
+						showCreateDocument={message.role === 'assistant'}
+					/>
 				)}
 
 				<ReferencesSection />

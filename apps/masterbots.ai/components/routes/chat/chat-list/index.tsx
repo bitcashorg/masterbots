@@ -31,6 +31,7 @@ export interface ChatList {
 	containerRef?: React.RefObject<HTMLDivElement | null>
 	isLoadingMessages?: boolean
 	sendMessageFn?: (message: string) => void
+	onCreateDocument?: (message: Message) => void
 }
 
 export function ChatList({
@@ -43,6 +44,7 @@ export function ChatList({
 	chatArrowClass,
 	containerRef: externalContainerRef,
 	sendMessageFn,
+	onCreateDocument,
 }: ChatList) {
 	const { data: session } = useSession()
 	const indexedDBKeys = getUserIndexedDBKeys(session?.user?.id)
@@ -162,6 +164,7 @@ export function ChatList({
 					chatContentClass={chatContentClass}
 					sendMessageFn={sendMessageFn}
 					userAttachments={userAttachments as FileAttachment[]}
+					onCreateDocument={onCreateDocument}
 				/>
 			</div>
 		</div>

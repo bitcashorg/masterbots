@@ -26,6 +26,7 @@ export function MessagePairs({
 	chatContentClass,
 	sendMessageFn,
 	userAttachments,
+	onCreateDocument,
 }: {
 	isThread: boolean
 	messagesData: MessagePairsData
@@ -35,6 +36,7 @@ export function MessagePairs({
 	chatArrowClass?: string
 	chatContentClass?: string
 	sendMessageFn?: (message: string) => void
+	onCreateDocument?: (message: any) => void
 }) {
 	const { isNewResponse } = useThread()
 

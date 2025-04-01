@@ -218,6 +218,11 @@ export type JSONResponseStream = {
 	previewToken?: string
 	isPowerUp?: boolean
 	webSearch?: boolean
+	workspace?: {
+		documentId: string
+		sectionId: string
+		projectId: string
+	}
 	stream?: boolean
 	temperature?: number
 	maxTokens?: number
@@ -291,6 +296,7 @@ export interface ChatMessageProps extends React.ComponentProps<'div'> {
 	actionRequired?: boolean
 	webSearchResults?: WebSearchResult[]
 	isGenerating?: boolean
+	onCreateDocument?: (message: Message) => void
 }
 
 //* Reference result manipulations props
