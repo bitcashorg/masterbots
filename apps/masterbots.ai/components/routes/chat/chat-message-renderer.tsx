@@ -1,17 +1,14 @@
 import { ChatMessage } from '@/components/routes/chat/chat-message'
 import { ReasoningChatMessage } from '@/components/routes/chat/reasoning/reasoning-chat-message'
 import { hasReasoning } from '@/lib/helpers/ai-helpers'
+import { Loader2 } from 'lucide-react'
 
 type MessageRendererProps = {
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	message: any
 	actionRequired?: boolean
 	sendMessageFromResponse?: (message: string) => void
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	chatbot?: any
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	webSearchResults?: any[]
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	[key: string]: any
 }
 
@@ -23,32 +20,39 @@ export function MessageRenderer({
 	webSearchResults = [],
 	...props
 }: MessageRendererProps) {
-	//? Determine if the message has reasoning content
 	const messageHasReasoning = hasReasoning(message)
 
-	//? Render the appropriate component based on whether reasoning exists
-	if (messageHasReasoning) {
+	//? Shared props of both components
+	const commonProps = {
+		message,
+		actionRequired: message.isContinuing ? false : actionRequired, //! Actions are disabled while continuing
+		sendMessageFromResponse,
+		chatbot,
+		webSearchResults,
+		...props,
+	}
+
+	//? Show a loading state when the message is continuing
+	if (message.isContinuing) {
 		return (
-			<ReasoningChatMessage
-				message={message}
-				actionRequired={actionRequired}
-				sendMessageFromResponse={sendMessageFromResponse}
-				chatbot={chatbot}
-				webSearchResults={webSearchResults}
-				{...props}
-			/>
+			<div className="flex flex-col space-y-2">
+				{messageHasReasoning ? (
+					<ReasoningChatMessage {...commonProps} />
+				) : (
+					<ChatMessage {...commonProps} />
+				)}
+				<div className="flex items-center pl-10 mt-2 space-x-2 text-sm text-gray-500 animate-pulse">
+					<Loader2 className="w-4 h-4 animate-spin" />
+					<span>Completing message content...</span>
+				</div>
+			</div>
 		)
 	}
 
-	//? Render the standard message component
-	return (
-		<ChatMessage
-			message={message}
-			actionRequired={actionRequired}
-			sendMessageFromResponse={sendMessageFromResponse}
-			chatbot={chatbot}
-			webSearchResults={webSearchResults}
-			{...props}
-		/>
-	)
+	//? Render standard message components
+	if (messageHasReasoning) {
+		return <ReasoningChatMessage {...commonProps} />
+	}
+
+	return <ChatMessage {...commonProps} />
 }

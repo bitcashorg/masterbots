@@ -13,7 +13,7 @@ import {
 	removeSurroundingQuotes,
 } from '@/lib/utils'
 import { userFollowOrUnfollow } from '@/services/hasura/hasura.service'
-import { type Message, useChat } from 'ai/react'
+import { type Message, useChat } from '@ai-sdk/react'
 import {
 	BookUser,
 	BotIcon,
@@ -339,7 +339,7 @@ export function UserCard({ user: userProps, loading }: UserCardProps) {
 							{userData?.username}
 						</h2>
 						{userData?.threads && userData?.threads?.length > 0 && (
-							<div className="items-center space-x-1 md:hidden flex">
+							<div className="flex items-center space-x-1 md:hidden">
 								<BotIcon className="w-4 h-4" />
 								<span className="">Threads:</span>
 								<span className="text-gray-500">{userData.threads.length}</span>
@@ -409,10 +409,10 @@ export function UserCard({ user: userProps, loading }: UserCardProps) {
 					</div>
 
 					{/* Stats Section */}
-					<div className="flex md:flex-row flex-col md:justify-between p-6">
-						<div className="space-y-1 pt-5">
+					<div className="flex flex-col p-6 md:flex-row md:justify-between">
+						<div className="pt-5 space-y-1">
 							{userData?.threads && userData.threads.length > 0 && (
-								<div className="md:flex  items-center space-x-1 hidden">
+								<div className="items-center hidden space-x-1 md:flex">
 									<BotIcon className="w-4 h-4" />
 									<span className="">Threads:</span>
 									<span className="text-gray-500">
@@ -451,7 +451,7 @@ export function UserCard({ user: userProps, loading }: UserCardProps) {
               </p> */}
 						</div>
 
-						<div className="flex flex-col items-center space-y-3  md:mt-0 mt-7">
+						<div className="flex flex-col items-center space-y-3 md:mt-0 mt-7">
 							{!isOwner && (
 								<Button
 									disabled={isFollowLoading}
@@ -494,8 +494,8 @@ export function UserCard({ user: userProps, loading }: UserCardProps) {
 					</div>
 
 					{/* Profile Image and Follow Button Section */}
-					<div className="absolute origin-top-right md:top-6 top-3 md:right-6 right-3 flex flex-col items-center space-y-3">
-						<div className="relative md:size-32  size-24">
+					<div className="absolute flex flex-col items-center space-y-3 origin-top-right md:top-6 top-3 md:right-6 right-3">
+						<div className="relative md:size-32 size-24">
 							<div className="absolute inset-0 border-4 border-[#BE17E8] dark:border-[#83E56A] rounded-full dark:bg-[#131316] bg-white overflow-hidden">
 								<Image
 									className="object-cover transition-opacity duration-300 rounded-full select-none size-full ring-1 ring-zinc-100/10 hover:opacity-80"

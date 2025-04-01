@@ -57,6 +57,8 @@ export type ChatLoadingState =
 	| 'polishing'
 	| 'ready'
 	| 'finished'
+	| 'continuing'
+
 
 export type CleanPromptResult = {
 	language: string
