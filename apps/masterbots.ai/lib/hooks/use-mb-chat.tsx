@@ -27,12 +27,10 @@ import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
-import { getCanonicalDomain } from '@/lib/url'
+import { generateUniqueSlug, getCanonicalDomain } from '@/lib/url'
 import {
 	createThread,
 	deleteThread,
-	doesMessageSlugExist,
-	doesThreadSlugExist,
 	getThread,
 	saveNewMessage,
 } from '@/services/hasura'
@@ -43,17 +41,16 @@ import type {
 	ChatbotMetadataClassification,
 	ChatbotMetadataExamples,
 } from '@/types/types'
+import { type UseChatOptions, useChat } from '@ai-sdk/react'
 import type * as OpenAi from 'ai'
 import type {
 	Message as AiMessage,
 	ChatRequestOptions,
 	CreateMessage,
 } from 'ai'
-import { type UseChatOptions, useChat } from '@ai-sdk/react'
 import { throttle, uniqBy } from 'lodash'
 import { appConfig } from 'mb-env'
 import type { Chatbot, Message, Thread } from 'mb-genql'
-import { toSlug } from 'mb-lib'
 import { nanoid } from 'nanoid'
 import { useSession } from 'next-auth/react'
 import { useParams, useSearchParams } from 'next/navigation'
@@ -249,7 +246,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 				if (isNewChat) {
 					await deleteThread({
-						threadId: activeThread?.threadId,
+						threadId,
 						jwt: session?.user?.hasuraJwt,
 						userId: session?.user.id,
 					})
@@ -275,7 +272,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 					if (isNewChat) {
 						await deleteThread({
-							threadId: activeThread?.threadId,
+							threadId,
 							jwt: session?.user?.hasuraJwt,
 							userId: session?.user.id,
 						})
@@ -445,43 +442,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						'',
 					)
 
-				// Check and get unique slugs for both messages
-				let userMessageSlug = toSlug(curatedPreUserMessageSlug)
-				let userSlugCheck = await doesMessageSlugExist(userMessageSlug)
-
-				// Create a throttled version of the slug check function outside the loop to avoid creating a new function
-				// on each iteration, increase performance and infinite loop prevention.
-				const throttledCheckSlug = throttle(async (baseSlug, sequence) => {
-					const newSlug = toSlug(`${baseSlug} ${sequence}`)
-					return await doesMessageSlugExist(newSlug)
-				}, 250)
-
-				// If user message slug already exists, append a counter
-				while (userSlugCheck.exists) {
-					userMessageSlug = toSlug(
-						`${curatedPreUserMessageSlug} ${userSlugCheck.sequence + 1}`,
-					)
-					userSlugCheck = await throttledCheckSlug(
-						curatedPreUserMessageSlug,
-						userSlugCheck.sequence + 1,
-					)
-				}
-
-				// We need to check for a unique slug for assistant message as well
-				let assistantMessageSlug = toSlug(message.content)
-				let assistantSlugCheck =
-					await doesMessageSlugExist(assistantMessageSlug)
-
-				// If assistant message slug already exists, append a counter
-				while (assistantSlugCheck.exists) {
-					assistantMessageSlug = toSlug(
-						`${message.content} ${assistantSlugCheck.sequence + 1}`,
-					)
-					assistantSlugCheck = await throttledCheckSlug(
-						message.content,
-						assistantSlugCheck.sequence + 1,
-					)
-				}
+				// Generate unique slugs for both messages
+				const userMessageSlug = await generateUniqueSlug(
+					curatedPreUserMessageSlug,
+				)
+				const assistantMessageSlug = await generateUniqueSlug(message.content)
 
 				const [
 					newUserMessage,
@@ -561,7 +526,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 				if (isNewChat) {
 					await deleteThread({
-						threadId: activeThread?.threadId,
+						threadId,
 						jwt: session?.user?.hasuraJwt,
 						userId: session?.user.id,
 					})
@@ -595,7 +560,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 			if (isNewChat) {
 				await deleteThread({
-					threadId: activeThread?.threadId,
+					threadId,
 					jwt: session?.user?.hasuraJwt,
 					userId: session?.user.id,
 				})
@@ -659,6 +624,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 		updateNewThread()
 	}, [activeThread, isOpenPopup])
 
+	console.log('randomThreadId.current', randomThreadId.current)
+	console.log('threadId', threadId)
+
 	const resetState = () => {
 		setState({
 			isInitLoaded: false,
@@ -696,7 +664,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 		if (!thread) {
 			thread = await getThread({
-				threadId: isContinuousThread ? randomThreadId.current : threadId,
+				threadId,
+				isPersonal: true,
 				jwt: session?.user?.hasuraJwt,
 			})
 		}
@@ -875,7 +844,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 		const fullMessage = bulletContent
 
 		appendWithMbContextPrompts({
-			id: activeThread?.threadId,
+			id: threadId,
 			content: fullMessage,
 			role: 'user',
 		})
@@ -910,17 +879,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				((!allMessages.length && isNewChat) || isContinuingThread) &&
 				chatbot
 			) {
-				let slug = toSlug(userContentRef.current)
-				let slugCheck = await doesThreadSlugExist(slug)
-
-				while (slugCheck.exists) {
-					slug = toSlug(`${userContentRef.current} ${slugCheck.sequence + 1}`)
-					slugCheck = await doesThreadSlugExist(slug)
-				}
+				const threadSlug = await generateUniqueSlug(userContentRef.current)
 
 				await createThread({
-					threadId: threadId as string,
-					slug,
+					threadId,
+					slug: threadSlug,
 					chatbotId: chatbot.chatbotId,
 					parentThreadId: isContinuingThread
 						? (continuousThreadId as string)

@@ -379,6 +379,7 @@ export async function getThread({
 						},
 						__scalar: true,
 					},
+					slug: true,
 					user: {
 						username: true,
 					},
