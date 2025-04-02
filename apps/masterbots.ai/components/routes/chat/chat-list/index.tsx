@@ -7,6 +7,7 @@ import {
 import {
 	type FileAttachment,
 	getUserIndexedDBKeys,
+	useFileAttachments,
 } from '@/lib/hooks/use-chat-attachments'
 import { useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
@@ -44,32 +45,17 @@ export function ChatList({
 	containerRef: externalContainerRef,
 	sendMessageFn,
 }: ChatList) {
-	const { data: session } = useSession()
-	const indexedDBKeys = getUserIndexedDBKeys(session?.user?.id)
-	const { getAllItems } = useIndexedDB(indexedDBKeys)
-	const [userAttachments, setUserAttachments] = React.useState<
-		FileAttachment[]
-	>([])
-	const { isNewResponse, activeThread, setActiveThread, setIsOpenPopup } =
-		useThread()
-	const [_, getUserAttachments] = useAsyncFn(async () => {
-		const attachments = await getAllItems()
-		setUserAttachments(attachments as FileAttachment[])
-
-		return attachments
-	}, [session, messages])
+	const { isNewResponse, activeThread } = useThread()
+	const [
+		{
+			userData: { userAttachments },
+		},
+	] = useFileAttachments()
 	const [pairs, setPairs] = React.useState<MessagePair[]>([])
 	const [previousConversationPairs, setPreviousConversationPairs] =
 		React.useState<MessagePair[]>([])
 	const chatListRef = useRef<HTMLDivElement>(null)
 	const messageContainerRef = useRef<HTMLDivElement>(null)
-
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	useEffect(() => {
-		if (session) {
-			getUserAttachments()
-		}
-	}, [session, activeThread])
 
 	//? Uses the external ref if provided, otherwise it uses our internal refs
 	const effectiveContainerRef = externalContainerRef || chatListRef

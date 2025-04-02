@@ -624,9 +624,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 		updateNewThread()
 	}, [activeThread, isOpenPopup])
 
-	console.log('randomThreadId.current', randomThreadId.current)
-	console.log('threadId', threadId)
-
 	const resetState = () => {
 		setState({
 			isInitLoaded: false,
