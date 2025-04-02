@@ -59,7 +59,6 @@ export type ChatLoadingState =
 	| 'finished'
 	| 'continuing'
 
-
 export type CleanPromptResult = {
 	language: string
 	originalText: string
