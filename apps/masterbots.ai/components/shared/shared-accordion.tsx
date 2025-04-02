@@ -272,7 +272,7 @@ export function SharedAccordion({
 		<div
 			ref={accordionRef}
 			className={cn(
-				'relative transition-all duration-300',
+				'relative w-full transition-all duration-300',
 				className,
 				// Browse variant specific styles
 				variant === 'browse' &&
@@ -323,10 +323,10 @@ export function SharedAccordion({
 				id={props.id}
 			>
 				<div className="flex w-full">
-					<span className="flex flex-col w-full">
+					<div className="flex flex-col w-full">
 						{Array.isArray(children) && children[0]}
 						{!open && Array.isArray(children) && children[1]}
-					</span>
+					</div>
 					<ChevronDown
 						{...(handleTrigger
 							? {

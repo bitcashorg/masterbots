@@ -7,7 +7,7 @@ import { MemoizedReactMarkdown } from './markdown'
 export function ShortMessage({ content }: { content: string }) {
 	return (
 		<MemoizedReactMarkdown
-			className="break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
+			className="break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 line-clamp-3"
 			remarkPlugins={[remarkGfm, rehypeMathJax, remarkRehype]}
 			components={memoizedMarkdownComponents()}
 		>

@@ -21,6 +21,7 @@
  */
 
 import BrowseListItem from '@/components/routes/browse/browse-list-item'
+import ThreadComponent from '@/components/routes/thread/thread-component'
 import { NoResults } from '@/components/shared/no-results-card'
 import { BrowseListSkeleton } from '@/components/shared/skeletons/browse-list-skeleton'
 import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeletons'
@@ -252,9 +253,9 @@ export default function BrowseList({
 	return (
 		<div className="flex flex-col w-full gap-3 py-5">
 			{filteredThreads.length > 0 ? (
-				<>
+				<ul className="flex flex-col size-full gap-3 pb-5">
 					{filteredThreads.map((thread: Thread, key) => (
-						<BrowseListItem
+						<ThreadComponent
 							thread={thread}
 							key={thread.threadId}
 							loading={loading}
@@ -264,7 +265,7 @@ export default function BrowseList({
 						/>
 					))}
 					{loading && <ThreadItemSkeleton />}
-				</>
+				</ul>
 			) : (
 				hasInitialized &&
 				!loading && (

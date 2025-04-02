@@ -7,12 +7,17 @@ import { ChatbotAvatar } from '@/components/shared/chatbot-avatar'
 import { SharedAccordion } from '@/components/shared/shared-accordion'
 import { ShortMessage } from '@/components/shared/short-message'
 import { Badge } from '@/components/ui/badge'
+import { buttonVariants } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { cn, getRouteType } from '@/lib/utils'
+import { EyeOpenIcon } from '@radix-ui/react-icons'
+import { EyeClosed } from 'lucide-react'
 import type { Thread } from 'mb-genql'
+import Image from 'next/image'
+import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useRef } from 'react'
 
@@ -62,7 +67,7 @@ export default function ThreadComponent({
 					'!pt-0 !border-b-[3px] max-h-[70vh] scrollbar !border-l-[3px]',
 				)}
 				triggerClass={cn(
-					'gap-1.5 py-3',
+					'gap-2.5 py-3',
 					'dark:border-b-mirage border-b-iron',
 					'sticky top-0 z-[1] dark:hover:bg-mirage hover:bg-gray-300',
 					'dark:bg-[#18181b] bg-[#f4f4f5]',
@@ -75,7 +80,7 @@ export default function ThreadComponent({
 				variant="browse"
 			>
 				{/* Thread Title */}
-				<div className="px-[11px] flex justify-between items-center w-full gap-3">
+				<div className="pl-2.5 flex justify-between items-start w-full gap-3">
 					<span className="inline-flex items-center gap-3 text-left">
 						<ChatbotAvatar thread={thread} />
 						<span className="whitespace-pre-line">
@@ -85,21 +90,49 @@ export default function ThreadComponent({
 						</span>
 					</span>
 					{/* Thread Options */}
-					<div className="flex gap-3 items-center justify-center pl-2 pr-4 sm:pl-4 sm:pr-8">
+					<div className="flex gap-1.5 items-center justify-center">
 						{routeType === 'chat' && (
 							<Badge
 								variant="outline"
-								className={cn({
-									// Light mode accent color...
-									'bg-[#BE17E8] text-white':
-										thread.isApproved && thread.isPublic,
-									// Woodsmoke
-									'bg-[#09090B] text-white':
-										thread.isApproved && !thread.isPublic,
-								})}
+								className={cn(
+									'p-0.5 text-white/50 bg-transparent border-transparent',
+									{
+										// green public
+										'text-[#82e46a]': thread.isApproved && thread.isPublic,
+										// purple private
+										'text-[#be16e8]': thread.isApproved && !thread.isPublic,
+									},
+								)}
 							>
-								{thread.isPublic ? 'Public' : 'Private'}
+								{/* {thread.isPublic ? 'Public' : 'Private'} */}
+								{thread.isPublic ? (
+									<EyeOpenIcon className="size-4" />
+								) : (
+									<EyeClosed className="size-4" />
+								)}
 							</Badge>
+						)}
+						{routeType === 'public' && (
+							<Link
+								className={cn(
+									'size-8 sm:size-10',
+									buttonVariants({
+										variant: 'icon',
+										size: 'icon',
+										radius: 'full',
+									}),
+								)}
+								href={`/profile/${thread.user?.slug}`}
+								prefetch
+							>
+								<Image
+									className="transition-opacity duration-300 rounded-full select-none hover:opacity-80"
+									src={thread.user?.profilePicture || '/images/robohash1.png'}
+									alt={thread.user?.username ?? 'Avatar'}
+									height={42}
+									width={42}
+								/>
+							</Link>
 						)}
 						<ChatOptions threadId={thread.threadId} thread={thread} isBrowse />
 					</div>
@@ -108,7 +141,7 @@ export default function ThreadComponent({
 				{/* Thread Description */}
 				<div className="overflow-hidden text-sm text-left opacity-50">
 					{thread.messages.filter((m) => m.role !== 'user')?.[0]?.content ? (
-						<div className="flex-1 px-[8px] pb-3 space-y-2 overflow-hidden">
+						<div className="flex-1 px-2.5 pb-3 space-y-2 overflow-hidden">
 							<ShortMessage
 								content={
 									thread.messages.filter((m) => m.role !== 'user')[0].content

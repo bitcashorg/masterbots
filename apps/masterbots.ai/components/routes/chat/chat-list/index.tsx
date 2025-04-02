@@ -135,7 +135,7 @@ export function ChatList({
 	return (
 		<div
 			ref={effectiveContainerRef}
-			className={cn('relative max-w-3xl px-4 mx-auto', className, {
+			className={cn('relative max-w-3xl px-2.5 mx-auto', className, {
 				'flex flex-col gap-3': isThread,
 			})}
 		>
