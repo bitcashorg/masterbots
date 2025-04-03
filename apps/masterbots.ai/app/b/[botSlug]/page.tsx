@@ -21,7 +21,7 @@ export default async function BotThreadsPage(props: PageProps) {
 	if (!chatbot) throw new Error(`Chatbot ${chatbotName} not found`)
 
 	// session will always be defined
-	const threads = await getBrowseThreads({
+	const { threads } = await getBrowseThreads({
 		chatbotName,
 		limit: PAGE_SIZE,
 	})

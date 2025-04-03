@@ -6,10 +6,8 @@ import {
 } from '@/components/routes/chat/chat-list/message-pairs'
 import {
 	type FileAttachment,
-	getUserIndexedDBKeys,
 	useFileAttachments,
 } from '@/lib/hooks/use-chat-attachments'
-import { useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useThread } from '@/lib/hooks/use-thread'
 import type { MessagePair } from '@/lib/threads'
@@ -17,9 +15,7 @@ import { cn, createMessagePairs } from '@/lib/utils'
 import type { Message } from 'ai'
 import { isEqual } from 'lodash'
 import type { Chatbot } from 'mb-genql'
-import { useSession } from 'next-auth/react'
 import React, { useEffect, useRef } from 'react'
-import { useAsyncFn } from 'react-use'
 
 export interface ChatList {
 	messages?: Message[]
@@ -79,7 +75,9 @@ export function ChatList({
 		hasMore: false,
 		isLast: true,
 		loading: isLoadingMessages,
-		loadMore: () => {},
+		loadMore: () => {
+			console.log('loading more!')
+		},
 	})
 
 	useEffect(() => {

@@ -323,26 +323,28 @@ export function SharedAccordion({
 				id={props.id}
 			>
 				<div className="flex w-full">
-					<div className="flex flex-col w-full">
+					<div className="flex w-full flex-col-reverse sm:flex-row">
 						{Array.isArray(children) && children[0]}
 						{!open && Array.isArray(children) && children[1]}
 					</div>
-					<ChevronDown
-						{...(handleTrigger
-							? {
-									onClick: (e) => {
-										e.stopPropagation()
-										handleTrigger()
-									},
-								}
-							: {})}
-						className={cn(
-							'ml-auto min-w-4 max-w-4 h-9 transition-transform duration-200',
-							open ? '' : '-rotate-90',
-							arrowClass,
-							disabled && 'hidden',
-						)}
-					/>
+					{!isPublic && (
+						<ChevronDown
+							{...(handleTrigger
+								? {
+										onClick: (e) => {
+											e.stopPropagation()
+											handleTrigger()
+										},
+									}
+								: {})}
+							className={cn(
+								'ml-auto min-w-4 max-w-4 h-9 transition-transform duration-200',
+								open ? '' : '-rotate-90',
+								arrowClass,
+								disabled && 'hidden',
+							)}
+						/>
+					)}
 				</div>
 				{loading && (
 					<div className="absolute inset-0 bg-accent/5 rounded-lg backdrop-blur-[1px] animate-pulse" />
