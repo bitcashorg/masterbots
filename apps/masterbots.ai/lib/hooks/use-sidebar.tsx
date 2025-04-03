@@ -157,31 +157,38 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 
 	React.useEffect(() => {
 		if (!pathname || !categories) return
-		// ? "/:root/:categorySlug/:domainSlug/:chatbotSlug"
-		const [_rootPath, basePath, categorySlug, _domainSlug, chatbotSlug] =
-			pathname.split('/')
+		const [
+			,
+			publicTopicSlugOrBasePath, // c or :category
+			personalProfilesTopicSlugOrDomainSlug, // :category or :domain
+			domainSlugOrPublicChatbotSlug, // :domain or :chatbot
+			personalChatbotSlugOrThreadSlug, // :chatbot or :threadSlug
+			_personalProfilesThreadSlugOrPublicTheadQuestionSlug, // :threadSlug or :threadQuestionSlug
+			..._rest
+		] = pathname.split('/')
 
-		if (categories && basePath === 'c') {
-			const category = categories?.categoriesChatbots.find(
-				(cat) => toSlug(cat.name) === categorySlug,
-			)
+		const category = categories?.categoriesChatbots.find(
+			(cat) =>
+				toSlug(cat.name) === personalProfilesTopicSlugOrDomainSlug ||
+				toSlug(cat.name) === publicTopicSlugOrBasePath,
+		)
+		if (category) {
+			setActiveCategory(category.categoryId)
+			setExpandedCategories([category.categoryId])
 
-			if (category) {
-				setActiveCategory(category.categoryId)
-				setExpandedCategories([category.categoryId])
-
-				if (chatbotSlug) {
-					const chatbot = category.chatbots.find(
-						(c) => c.chatbot.name.toLowerCase() === chatbotSlug,
-					)
-					if (chatbot) {
-						setActiveChatbot(chatbot.chatbot)
-					} else {
-						setActiveChatbot(null)
-					}
+			if (domainSlugOrPublicChatbotSlug || personalChatbotSlugOrThreadSlug) {
+				const chatbot = category.chatbots.find(
+					(c) =>
+						c.chatbot.name.toLowerCase() === personalChatbotSlugOrThreadSlug ||
+						c.chatbot.name.toLowerCase() === domainSlugOrPublicChatbotSlug,
+				)
+				if (chatbot) {
+					setActiveChatbot(chatbot.chatbot)
 				} else {
 					setActiveChatbot(null)
 				}
+			} else {
+				setActiveChatbot(null)
 			}
 		}
 	}, [pathname, categories])
@@ -285,6 +292,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 			return window.history.replaceState(window.history.state, '', url)
 		}
 
+		router.prefetch(url)
 		return router.push(url, { scroll: false })
 	}
 

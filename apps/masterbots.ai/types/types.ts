@@ -94,6 +94,7 @@ export interface StripePlan extends Stripe.Plan, Stripe.Plan.Tier {
 		aggregate_usage: Stripe.Plan.AggregateUsage
 		usage_type: Stripe.Plan.UsageType
 		// ? Plans are returning null
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		meter: any
 		trial_period_days: number | null
 	}
@@ -392,6 +393,7 @@ export type PreferenceItemType = {
 	title: string
 	description: string
 	type?: string
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	props?: Record<string, any>
 	defaultChecked?: boolean
 	icon?: React.ElementType

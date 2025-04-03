@@ -105,6 +105,7 @@ export async function improveMessage(
 	},
 	clientType: AiClientType,
 	model: string,
+	retryCount = 0,
 ): Promise<CleanPromptResult> {
 	const messageImprovementPrompt = createImprovementPrompt(userPrompt)
 
@@ -123,10 +124,17 @@ export async function improveMessage(
 			!result.improved &&
 			(result.originalText === result.improvedText || !result.improvedText)
 		) {
+			if (retryCount >= 2) {
+				console.warn(
+					'AI did not modify the text or returned invalid result. Returning original text.',
+				)
+				return setDefaultPrompt(result.originalText)
+			}
+
 			console.warn(
 				'AI did not modify the text or returned invalid result. Recursively executing improved prompt.',
 			)
-			return await improveMessage(userPrompt, clientType, model)
+			return await improveMessage(userPrompt, clientType, model, retryCount + 1)
 		}
 
 		return result
@@ -190,6 +198,7 @@ export async function processWithAi(
 		const response = await createResponseStream(clientType, {
 			model: AIModels.Default,
 			messages: processedMessages,
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		} as any)
 
 		if (!response.body) {
@@ -281,6 +290,7 @@ async function readStreamResponse(body: ReadableStream): Promise<string> {
 }
 
 function handleImprovementError(
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	error: any,
 	originalContent: string,
 	clientType?: AiClientType,

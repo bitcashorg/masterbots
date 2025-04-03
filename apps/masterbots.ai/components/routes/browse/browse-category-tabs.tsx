@@ -74,6 +74,7 @@ export function BrowseCategoryTabs({
 			{categories.map((category, key) => (
 				<BrowseCategoryButton
 					id={`browse-category-tab__${category.categoryId}`}
+					// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
 					key={key}
 					onClick={() => setActiveTab(category.categoryId)}
 					category={category}

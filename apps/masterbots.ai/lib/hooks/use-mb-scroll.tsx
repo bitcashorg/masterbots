@@ -133,7 +133,6 @@ export function useMBScroll({
 	}, [threadRef, scrollBehavior, scrollDelay])
 
 	// Auto-scroll to bottom when new content arrives
-	// biome-ignore lint/correctness/useExhaustiveDependencies: Not required here
 	// useEffect(() => {
 	//   if (isNewContent && !isNearBottom) {
 	//     smoothScrollToBottom()

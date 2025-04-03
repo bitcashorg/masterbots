@@ -19,12 +19,11 @@ const defaultContent = {
 			categories: [{ category: { name: 'AI' } }],
 		},
 	},
-	question:
-		'Elevating AI Beyond ChatGPT: Specialized Chatbots, Social Sharing and User-Friendly Innovation',
+	question: 'Masterbots AI',
 	answer:
-		'Elevating AI Beyond ChatGPT: Specialized Chatbots, Social Sharing and User-Friendly Innovation',
+		'Deploy with our domain-specific Masterbots, dedicated experts in your field. Each Masterbot is purpose-built for its role, delivering focused knowledge and specialized interactions beyond what generic AI solutions can offer.',
 	username: 'Masterbots',
-	user_avatar: `${process.env.NEXT_PUBLIC_BASE_URL}/images/masterbots.png`,
+	user_avatar: `${process.env.NEXT_PUBLIC_BASE_URL}/images/robohash1.png`,
 	isLightTheme: false,
 }
 
@@ -45,30 +44,28 @@ export async function GET(req: NextRequest) {
 			? (rawChatbotId as UUID)
 			: null
 
-		if (!threadId) {
-			return new ImageResponse(
-				<OGImage {...defaultContent} />,
-				IMAGE_DIMENSIONS,
-			)
-		}
 		// TODO: Update this to use mb-genql package
-		const { thread }: { thread: Thread[] } = await getThreadForOG(threadId)
+		const { thread }: { thread: Thread[] } = await getThreadForOG(
+			threadId as UUID,
+		)
 
 		// Initialize chatbot data
 		let chatbotData: { chatbot: Chatbot[] } = { chatbot: [] }
+
 		if (chatbotId) {
 			chatbotData = await getChatbotForOG(chatbotId)
 		}
 		const { chatbot } = chatbotData
 
 		if (chatbot?.length) {
+			const { name, avatar, metadata, threads, description } = chatbot[0]
 			return new ImageResponse(
 				<OGImage
-					thread={chatbot[0].threads[0]}
-					question={chatbot[0].name}
-					answer={chatbot[0]?.description || ''}
-					user_avatar={chatbot[0]?.avatar || ''}
-					username={chatbot[0].metadata[0]?.domainName || 'General'}
+					thread={threads[0]}
+					question={name}
+					answer={description || ''}
+					user_avatar={avatar || ''}
+					username={metadata[0]?.domainName || 'Prompt'}
 					isLightTheme={false}
 				/>,
 				IMAGE_DIMENSIONS,
@@ -90,13 +87,12 @@ export async function GET(req: NextRequest) {
 					(rawThreadQuestionSlug && m.slug === rawThreadQuestionSlug) ||
 					m.role === 'user',
 			)?.content || 'not found'
-		const questionSlugIndex = threadData?.messages.findIndex(
-			(m) => m.slug === rawThreadQuestionSlug,
-		)
-		const answer = !questionSlugIndex
-			? threadData?.messages?.find((m) => m.role === 'assistant')?.content ||
-				'not found'
-			: threadData?.messages[questionSlugIndex + 1]?.content || 'not found' // next message after the question is (and should be) the assistant response
+		const answer =
+			threadData?.messages?.find(
+				(m) =>
+					(rawThreadQuestionSlug && m.slug === rawThreadQuestionSlug) ||
+					m.role === 'assistant',
+			)?.content || 'not found' // next message after the question is (and should be) the assistant response
 		const username = threadData?.user?.username || 'Anonymous'
 		const user_avatar = threadData?.user?.profilePicture || ''
 

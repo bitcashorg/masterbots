@@ -29,6 +29,7 @@ import { useSonner } from '@/lib/hooks/useSonner'
 import { getThread } from '@/services/hasura'
 import type { Thread } from 'mb-genql'
 import { useEffect, useState } from 'react'
+import { useAsyncFn } from 'react-use'
 
 export default function ThreadList({
 	loading,
@@ -74,10 +75,7 @@ export default function ThreadList({
 		try {
 			setLoadingThread(true)
 
-			const fullThread = await getThread(thread.threadId)
-			if (!fullThread) return
-
-			setActiveThread(fullThread as Thread)
+			setActiveThread(thread)
 			setIsOpenPopup(true)
 		} catch (error) {
 			console.error('Error activating thread popup:', error)
@@ -87,8 +85,7 @@ export default function ThreadList({
 		}
 	}
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: I only need to run this effect when the activeThread changes
-	useEffect(() => {
+	const [, getOpeningActiveThread] = useAsyncFn(async () => {
 		if (activeThread) return
 		const pathname = window.location.pathname
 		const pathNameParts = pathname.split('/')
@@ -102,16 +99,28 @@ export default function ThreadList({
 			threadQuestionSlug,
 		] = pathNameParts
 
-		const thread = filteredThreads.find((thread) =>
-			thread.messages.find(
-				(message) =>
-					message.slug === threadSlug || message.slug === threadQuestionSlug,
-			),
-		)
-		if (thread && (threadQuestionSlug || threadSlug)) {
-			console.log('scrolling to', threadQuestionSlug)
-			activateThreadPopup(thread)
+		if (!threadSlug) return
+
+		const thread = await getThread({
+			threadSlug,
+			isPersonal: true,
+		})
+
+		if (!thread) {
+			customSonner({
+				type: 'error',
+				text: 'Error finding the thread that you were looking for.',
+			})
+			return
 		}
+
+		console.log('scrolling to', threadQuestionSlug)
+		activateThreadPopup(thread)
+	}, [activeThread])
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
+		getOpeningActiveThread()
 	}, [activeThread])
 
 	return (

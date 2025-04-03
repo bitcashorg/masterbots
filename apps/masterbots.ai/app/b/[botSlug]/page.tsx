@@ -1,4 +1,5 @@
 import BrowseChatbotDetails from '@/components/routes/browse/browse-chatbot-details'
+import { BrowseSearchInput } from '@/components/routes/browse/browse-search-input'
 import BrowseSpecificThreadList from '@/components/routes/browse/browse-specific-thread-list'
 import { botNames } from '@/lib/constants/bots-names'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
@@ -35,6 +36,9 @@ export default async function BotThreadsPage(props: PageProps) {
 			) : (
 				''
 			)}
+			<div className="px-6">
+				<BrowseSearchInput />
+			</div>
 			<BrowseSpecificThreadList
 				initialThreads={threads}
 				PAGE_SIZE={PAGE_SIZE}
@@ -60,9 +64,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 		title: chatbot?.name || '',
 		description: chatbot?.description || '',
 		ogType: 'website',
-		ogImageUrl: chatbot?.threads?.[0]?.threadId
-			? `${process.env.BASE_URL || ''}/api/og?threadId=${chatbot.threads[0].threadId}`
-			: `${process.env.BASE_URL || ''}/api/og`,
+		ogImageUrl: `${process.env.BASE_URL || ''}/api/og?chatbotId=${chatbot.chatbotId}`,
 		twitterCard: 'summary_large_image',
 	}
 	const domain = getCanonicalDomain(chatbotName as string)

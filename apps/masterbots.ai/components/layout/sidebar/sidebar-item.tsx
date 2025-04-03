@@ -81,6 +81,7 @@ export function SidebarItem({ index, chat, children }: SidebarItemProps) {
 						{shouldAnimate ? (
 							chat.title.split('').map((character, index) => (
 								<motion.span
+									// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
 									key={index}
 									variants={{
 										initial: {

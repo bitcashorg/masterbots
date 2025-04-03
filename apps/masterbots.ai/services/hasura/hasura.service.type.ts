@@ -25,6 +25,7 @@ export interface GetThreadParams extends HasuraServiceParams {
 	threadSlug: string | null
 	threadId?: string | null
 	threadQuestionSlug?: string | null
+	isPersonal?: boolean
 	signal?: AbortController['signal']
 }
 
@@ -76,7 +77,8 @@ export interface GetChatbotsParams {
 }
 
 export interface GetMessagesParams extends GetHasuraClientParams {
-	threadId: string
+	threadId?: string
+	threadQuestionSlug?: string
 	limit?: number
 	offset?: number
 }

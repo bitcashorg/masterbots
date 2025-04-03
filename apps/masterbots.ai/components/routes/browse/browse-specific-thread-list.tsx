@@ -20,9 +20,13 @@
  */
 
 import BrowseListItem from '@/components/routes/browse/browse-list-item'
+import { NoResults } from '@/components/shared/no-results-card'
+import { useBrowse } from '@/lib/hooks/use-browse'
+import { searchThreadContent } from '@/lib/search'
 import { getBrowseThreads } from '@/services/hasura'
+import { debounce } from 'lodash'
 import type { Thread } from 'mb-genql'
-import React from 'react'
+import React, { useEffect } from 'react'
 
 export default function BrowseSpecificThreadList({
 	initialThreads,
@@ -38,6 +42,9 @@ export default function BrowseSpecificThreadList({
 	const [threads, setThreads] = React.useState<Thread[]>(initialThreads)
 	const [loading, setLoading] = React.useState<boolean>(false)
 	const [count, setCount] = React.useState<number>(initialThreads.length)
+	const [storeThreads, setStoreThreads] =
+		React.useState<Thread[]>(initialThreads)
+	const { keyword } = useBrowse()
 
 	const loadMore = async () => {
 		console.log('🟡 Loading More Content')
@@ -52,7 +59,36 @@ export default function BrowseSpecificThreadList({
 		setThreads((prevState) => [...prevState, ...moreThreads])
 		setCount(moreThreads.length)
 		setLoading(false)
+		setStoreThreads((prevState) => [...prevState, ...moreThreads])
 	}
+
+	const debouncedSearch = React.useMemo(
+		() =>
+			debounce((term) => {
+				if (!term) {
+					setThreads(storeThreads)
+				} else {
+					const searchResult = storeThreads.filter((thread) =>
+						searchThreadContent(thread, term),
+					)
+					setThreads(searchResult)
+				}
+				setLoading(false)
+			}, 230),
+		[storeThreads],
+	)
+
+	const verifyKeyword = () => {
+		setLoading(true)
+		debouncedSearch(keyword)
+	}
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
+		if (keyword) {
+			verifyKeyword()
+		}
+	}, [keyword])
 
 	return (
 		<div className="flex flex-col max-w-screen-lg px-4 mx-auto mt-8 gap-y-4">
@@ -60,6 +96,7 @@ export default function BrowseSpecificThreadList({
 				<BrowseListItem
 					pageType={pageType}
 					thread={thread}
+					// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
 					key={key}
 					loading={loading}
 					loadMore={loadMore}
@@ -67,6 +104,8 @@ export default function BrowseSpecificThreadList({
 					isLast={key === threads.length - 1}
 				/>
 			))}
+
+			{threads.length === 0 && !loading && keyword && <NoResults />}
 		</div>
 	)
 }

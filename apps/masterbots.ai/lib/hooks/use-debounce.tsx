@@ -17,7 +17,6 @@ export function useDebounce<T extends (...args: any[]) => void>(
 		}
 	}, [])
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	return useCallback(
 		(...args: Parameters<T>) => {
 			if (timeoutRef.current) {
