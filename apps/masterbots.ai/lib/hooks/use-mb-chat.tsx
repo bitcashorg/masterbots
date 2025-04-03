@@ -263,7 +263,30 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					})
 				}
 
-				//? Early check of errors
+				//? Check if we should continue the generation based on the finish reason
+				if (shouldContinueGeneration(options.finishReason)) {
+					if (appConfig.features.devMode) {
+						customSonner({
+							type: 'info',
+							text: `Generation was cut off (${options.finishReason}). Attempting to continue...`,
+						})
+					}
+
+					//? Try to continue the AI generation
+					const continuedContent = await continueAIGeneration(message, append, {
+						setLoadingState,
+						customSonner,
+						devMode: appConfig.features.devMode,
+						chatConfig: useChatConfig.body,
+						maxAttempts: 2,
+					})
+
+					if (continuedContent) {
+						// Override the message content with the continued content
+						message.content = continuedContent
+					}
+				}
+
 				if (options.finishReason === 'error') {
 					customSonner({
 						type: 'error',
@@ -272,7 +295,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 					if (isNewChat) {
 						await deleteThread({
-							threadId,
+							threadId: activeThread?.threadId,
 							jwt: session?.user?.hasuraJwt,
 							userId: session?.user.id,
 						})
@@ -281,123 +304,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					return
 				}
 
-				const needsContinuation = shouldContinueGeneration(options.finishReason)
-				let finalContent = message.content
-
-				//?  Continuation before database save
-				if (needsContinuation) {
-					if (appConfig.features.devMode) {
-						customSonner({
-							type: 'info',
-							text: `Generation was cut off (${options.finishReason}). Attempting to continue...`,
-						})
-					}
-
-					setLoadingState('continuing')
-
-					//? Creates an UI-only state that shows a continuation indicator for the user
-					const updatedMessages = [...messages]
-					const lastMessageIndex = updatedMessages.findIndex(
-						(m) => m.id === message.id,
-					)
-
-					if (lastMessageIndex !== -1) {
-						//? Set one flag to indicate this message is being continued
-						updatedMessages[lastMessageIndex] = {
-							...updatedMessages[lastMessageIndex],
-							content: `${message.content} ...`,
-						}
-						setMessages(updatedMessages)
-					}
-
-					//? Gets the continuation without adding it to the UI chat history
-					const continuedContent = await continueAIGeneration(
-						message,
-						async (promptMessage, options) => {
-							//? Uses a direct API call instead of the append function to avoid adding to the UI
-							try {
-								const response = await fetch('/api/chat', {
-									method: 'POST',
-									headers: {
-										'Content-Type': 'application/json',
-									},
-									body: JSON.stringify({
-										messages: [
-											...systemPrompts,
-											...messages.filter((m) => m.id !== message.id), // Exclude the cut-off message
-											promptMessage,
-										],
-										id: threadId,
-										model: selectedModel,
-										clientType,
-										webSearch,
-										isPowerUp,
-										isContinuation: true,
-									}),
-								})
-
-								if (!response.ok) {
-									throw new Error('Failed to continue generation')
-								}
-
-								//? Parse the streamed response
-								const reader = response.body?.getReader()
-								let result = ''
-
-								if (reader) {
-									while (true) {
-										const { done, value } = await reader.read()
-										if (done) break
-
-										//? Process the chunk to extract the text content
-										const chunk = new TextDecoder().decode(value)
-										const lines = chunk.split('\n')
-
-										for (const line of lines) {
-											const match = line.match(/^0:"(.*)"$/)
-											if (match) {
-												result += match[1]
-											}
-										}
-									}
-								}
-
-								return result
-							} catch (error) {
-								console.error('Error continuing generation:', error)
-								return null
-							}
-						},
-						{
-							setLoadingState,
-							customSonner,
-							devMode: appConfig.features.devMode,
-							chatConfig: useChatConfig.body,
-							maxAttempts: 2,
-						},
-					)
-
-					//? Update the final content with the continued content
-					if (continuedContent) {
-						finalContent = continuedContent
-
-						//? Updates the message in the UI to reflect the complete content
-						const updatedMessages = [...messages]
-						const lastMessageIndex = updatedMessages.findIndex(
-							(m) => m.id === message.id,
-						)
-
-						if (lastMessageIndex !== -1) {
-							updatedMessages[lastMessageIndex] = {
-								...updatedMessages[lastMessageIndex],
-								content: finalContent,
-							}
-							setMessages(updatedMessages)
-						}
-					}
-				}
-
-				//? Save the complete message to the database
+				// Continue with your existing message saving logic
 				const aiChatThreadId = resolveThreadId({
 					isContinuousThread,
 					randomThreadId: randomThreadId.current,
@@ -472,7 +379,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						messageId: assistantMessageId,
 						slug: assistantMessageSlug,
 						role: 'assistant',
-						content: finalContent, // final content including continuation
+						content: message.content, // content including continuation
 						createdAt: new Date(Date.now() + 1000).toISOString(),
 					},
 				]

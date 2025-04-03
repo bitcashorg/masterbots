@@ -1,4 +1,5 @@
 import type { ChatRequestOptions, CreateMessage, Message } from 'ai'
+/* eslint-disable no-unused-vars */
 import { nanoid } from 'nanoid'
 
 /**
@@ -12,13 +13,13 @@ export function shouldContinueGeneration(finishReason: string): boolean {
 	return incompleteReasons.includes(finishReason)
 }
 
-//? Define the types to match your application's types
+// Define the types to match your application's types
 export type CustomSonnerParams = {
 	type: 'success' | 'error' | 'info'
 	text: string
 }
 
-//? Define the type for your ChatLoadingState
+//* Define the type for your ChatLoadingState
 export type ChatLoadingState =
 	| 'processing'
 	| 'digesting'
@@ -32,10 +33,12 @@ export type ChatLoadingState =
  * Configuration options for AI continuation
  */
 export interface ContinueAIGenerationOptions {
+	// biome-ignore lint/suspicious/noExplicitAny: <we are using any in the meantime>
 	setLoadingState: (state: any) => void
-	// biome-ignore lint/suspicious/noConfusingVoidType: <explanation>
+	// biome-ignore lint/suspicious/noConfusingVoidType: <void is being included in the return type>
 	customSonner: (params: CustomSonnerParams) => string | number | void
 	devMode: boolean
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	chatConfig?: Record<string, any>
 	maxAttempts?: number
 }
@@ -43,13 +46,13 @@ export interface ContinueAIGenerationOptions {
 /**
  * Attempts to continue an incomplete AI generation
  * @param incompleteMessage - The message that was cut off
- * @param continuationFn - Function to get continuation text
+ * @param append - The function to append a new message
  * @param options - Configuration options
  * @returns A promise resolving to the continued message content or null if failed
  */
 export async function continueAIGeneration(
 	incompleteMessage: Message,
-	continuationFn: (
+	append: (
 		message: Message | CreateMessage,
 		options?: ChatRequestOptions,
 	) => Promise<string | null | undefined>,
@@ -79,19 +82,11 @@ export async function continueAIGeneration(
 
 			setLoadingState('continuing')
 
-			//? Continuation prompt flow - using different strategies based on the attempt number
+			//* continuation prompt flow - using different strategies based on the attempt number
 			let continuationPrompt: CreateMessage
 
 			if (attempts === 1) {
 				//? First attempt: simple continuation request
-				continuationPrompt = {
-					id: nanoid(),
-					role: 'user',
-					content:
-						'Please continue your previous response without repeating any information.',
-				}
-			} else if (attempts === 2) {
-				//? Second attempt: be more explicit about what we need
 				continuationPrompt = {
 					id: nanoid(),
 					role: 'user',
@@ -103,7 +98,7 @@ export async function continueAIGeneration(
 				const referenceLength = Math.min(
 					100,
 					Math.floor(continuedContent.length * 0.1),
-				)
+				) //? Use the last 10% of the message, with a max of 100 characters
 				continuationPrompt = {
 					id: nanoid(),
 					role: 'user',
@@ -120,19 +115,18 @@ export async function continueAIGeneration(
 				},
 			}
 
-			//? Small delay between attempts to avoid rate limits
+			//* small delay between attempts to avoid rate limits
 			await new Promise((resolve) => setTimeout(resolve, 1000))
 
-			//? Try to continue the generation using the provided continuation function
-			const newContent = await continuationFn(
-				continuationPrompt,
-				continuationOptions,
-			)
+			//* Try to continue the generation
+			const newContent = await append(continuationPrompt, continuationOptions)
 
-			//? If we got new content, combine it with the previous content
+			//* combines it with the previous content
 			if (newContent) {
-				continuedContent = `${continuedContent.trim()} ${newContent.trim()}`
-				// Check if we have enough content to consider this a successful continuation
+				//? Update the continued content
+				continuedContent = `${continuedContent} ${newContent}`
+
+				//* Checks if we have enough content
 				if (newContent.length > 20) {
 					if (devMode) {
 						customSonner({
@@ -145,7 +139,7 @@ export async function continueAIGeneration(
 			}
 		}
 
-		//? If we couldn't get enough content after all attempts
+		//* feedback to user if we couldn't get enough content
 		customSonner({
 			type: 'info',
 			text: 'Could not complete the full response after multiple attempts.',
