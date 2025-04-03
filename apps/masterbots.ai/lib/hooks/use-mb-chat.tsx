@@ -27,6 +27,7 @@ import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
+import { getCanonicalDomain } from '@/lib/url'
 import {
 	createThread,
 	deleteThread,
@@ -96,7 +97,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	const { isPowerUp } = usePowerUp()
 	// console.log('[HOOK] webSearch', webSearch)
 
-	const params = useParams<{ chatbot: string; threadId: string }>()
+	const params = useParams<{ chatbot: string; threadSlug: string }>()
 	const { selectedModel, clientType } = useModel()
 
 	// const initialIsNewChat = Boolean(isContinuousThread || !activeThread?.messages.length)
@@ -171,7 +172,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	)
 	const threadId = isContinuousThread
 		? randomThreadId.current
-		: params.threadId || activeThread?.threadId || randomThreadId.current
+		: activeThread?.threadId || randomThreadId.current
 	const chatbot = activeThread?.chatbot || activeChatbot
 
 	const resolveThreadId = (params: {
@@ -183,7 +184,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 		const { isContinuousThread, randomThreadId, threadId, activeThreadId } =
 			params
 		if (isContinuousThread) return randomThreadId
-		if (params.threadId || isNewChat) return threadId
+		if (isNewChat) return threadId
 		return activeThreadId
 	}
 
@@ -192,16 +193,38 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	const dbKeys = getUserIndexedDBKeys(session?.user?.id)
 	const indexedDBActions = useIndexedDB(dbKeys)
 
+	/**
+	 * Custom function to check if the current URL has a specific search param. This has been created as this due to the fact that
+	 * the `useSearchParams` hook does not update the URL when the page is reloaded and nextjs/react is unable to know the latest state
+	 * even though that we pass it and check.
+	 *
+	 *
+	 * @returns The check and params objects to check what are the current search params. It can be expanded in the future to check for more params.
+	 */
+	const getCurrentSearchParams = () => {
+		const recentSearchParams = new URLSearchParams(window.location.search)
+		const continuousThreadId = recentSearchParams.get('continuousThreadId')
+
+		return {
+			checks: {
+				isContinuingThread: Boolean(continuousThreadId),
+			},
+			params: {
+				continuousThreadId: continuousThreadId,
+			},
+		}
+	}
+
 	const useChatConfig: Partial<UseChatOptions> = {
 		initialMessages,
-		id: params.threadId || threadId,
+		id: threadId,
 		// TODO: Check this experimental feature: https://sdk.vercel.ai/docs/reference/ai-sdk-ui/use-chat#experimental_prepare-request-body
 		// ? We might need it depending what the AI returns to us and what kind of data it has... this is might be useful for:
 		// ? - Web Search (Tool + Global)
 		// ? - Any additional tool with multiple steps or user decisions and react according to them...
 		// experimental_prepareRequestBody
 		body: {
-			id: params.threadId || threadId,
+			id: threadId,
 			model: selectedModel,
 			clientType,
 			webSearch,
@@ -219,19 +242,21 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 		setMessages,
 	} = useChat({
 		...useChatConfig,
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		async onResponse(response: any) {
 			if (response.status >= 400) {
 				customSonner({ type: 'error', text: response.statusText })
 
 				if (isNewChat) {
 					await deleteThread({
-						threadId: params?.threadId ?? activeThread?.threadId,
+						threadId: activeThread?.threadId,
 						jwt: session?.user?.hasuraJwt,
 						userId: session?.user.id,
 					})
 				}
 			}
 		},
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		async onFinish(message: OpenAi.Message, options: any) {
 			try {
 				if (appConfig.features.devMode) {
@@ -273,7 +298,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 					if (isNewChat) {
 						await deleteThread({
-							threadId: params?.threadId ?? activeThread?.threadId,
+							threadId: activeThread?.threadId,
 							jwt: session?.user?.hasuraJwt,
 							userId: session?.user.id,
 						})
@@ -401,16 +426,12 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					isNewChat: false,
 				})
 
-				if (isContinuousThread) {
-					// Remove continuousThreadId search param
-					const newSearchParams = new URLSearchParams(searchParams.toString())
-					newSearchParams.delete('continuousThreadId')
-					window.history.replaceState(
-						null,
-						'',
-						`${window.location.pathname}?${newSearchParams.toString()}`,
-					)
+				const newSearchParams = new URLSearchParams(searchParams.toString())
+				const { checks } = getCurrentSearchParams()
 
+				if (checks.isContinuingThread) {
+					// Remove continuousThreadId search param
+					newSearchParams.delete('continuousThreadId')
 					setIsContinuousThread(false)
 				}
 				setIsNewResponse(false)
@@ -418,7 +439,24 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				setActiveTool(undefined)
 
 				throttle(async () => {
-					await updateActiveThread()
+					const thread = await updateActiveThread()
+					console.log('thread', thread)
+					if (isNewChat || isContinuousThread) {
+						const canonicalDomain = getCanonicalDomain(
+							activeChatbot?.name || 'blankbot',
+						)
+						navigateTo({
+							urlType: 'threadUrl',
+							shallow: true,
+							navigationParams: {
+								type: 'personal',
+								category: activeChatbot?.categories[0].category.name || '',
+								domain: canonicalDomain,
+								chatbot: activeChatbot?.name || '',
+								threadSlug: thread.slug,
+							},
+						})
+					}
 				}, 250)()
 			} catch (error) {
 				console.error('Error saving new message: ', error)
@@ -429,7 +467,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 				if (isNewChat) {
 					await deleteThread({
-						threadId: params?.threadId ?? activeThread?.threadId,
+						threadId: activeThread?.threadId,
 						jwt: session?.user?.hasuraJwt,
 						userId: session?.user.id,
 					})
@@ -449,6 +487,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 			setActiveTool(toolCall as AiToolCall)
 		},
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		async onError(error: any) {
 			console.error('Error in chat: ', error)
 
@@ -462,7 +501,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 			if (isNewChat) {
 				await deleteThread({
-					threadId: params?.threadId ?? activeThread?.threadId,
+					threadId: activeThread?.threadId,
 					jwt: session?.user?.hasuraJwt,
 					userId: session?.user.id,
 				})
@@ -486,6 +525,32 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	)
 		.filter(Boolean)
 		.filter((m) => m.role !== 'system')
+		.sort((a, b) => {
+			// Extract timestamps, defaulting to 0 if missing
+			const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+			const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+
+			// If timestamps are different, use them for sorting (chronological order)
+			if (timeA !== timeB) {
+				return timeA - timeB
+			}
+
+			// If timestamps are the same or both missing:
+			// 1. Find previous message(s) to determine conversation flow and
+			// 2. Ensure assistant message appears after its corresponding user message
+			if (a.role === 'assistant' && b.role === 'assistant') {
+				// If both are assistant messages, maintain chronological order and
+				// ensures multiple assistant messages appear in the correct sequence
+				return timeA - timeB || 0
+			}
+
+			// Keep user messages before assistant messages when timestamps are identical
+			if (a.role === 'user' && b.role === 'assistant') return -1
+			if (a.role === 'assistant' && b.role === 'user') return 1
+
+			// If both have the same role, maintain original order
+			return 0
+		})
 
 	useEffect(() => {
 		// Resetting the chat when the popup is closed
@@ -709,18 +774,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 		await appendWithMbContextPrompts(optimisticUserMessage)
 
-		navigateTo({
-			urlType: 'threadUrl',
-			shallow: true,
-			navigationParams: {
-				type: 'personal',
-				category: activeChatbot?.categories[0].category.name || '',
-				domain: activeChatbot?.metadata[0].domainName || '',
-				chatbot: activeChatbot?.name || '',
-				threadSlug: activeThread?.slug || '',
-			},
-		})
-
 		return null
 	}
 
@@ -728,7 +781,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 		const fullMessage = bulletContent
 
 		appendWithMbContextPrompts({
-			id: params?.threadId || activeThread?.threadId,
+			id: activeThread?.threadId,
 			content: fullMessage,
 			role: 'user',
 		})
@@ -744,9 +797,10 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	) => {
 		try {
 			const chatbotMetadata = await getMetadataLabels()
-			// ? Hydration issues is causing the continuing thread to update until the 2nd attempt after it gets updated to false and the react state to get the latest searchParam in the client... These hydration issues might be related to the client components trying to update the state before the server response is ready or the client doesn't catch-up on time the react states... Maybe removing the hydration warning we might now... 🤔
-			const recentSearchParams = new URLSearchParams(window.location.search)
-			const isContinuingThread = recentSearchParams.has('continuousThreadId')
+			const {
+				checks: { isContinuingThread },
+				params: { continuousThreadId },
+			} = getCurrentSearchParams()
 
 			if (appConfig.features.devMode) {
 				console.info(
@@ -774,7 +828,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					threadId: threadId as string,
 					slug,
 					chatbotId: chatbot.chatbotId,
-					parentThreadId: isContinuousThread ? threadId : undefined,
+					parentThreadId: isContinuingThread
+						? (continuousThreadId as string)
+						: undefined,
 					jwt: session?.user?.hasuraJwt,
 					isPublic: activeChatbot?.name !== 'BlankBot',
 				})

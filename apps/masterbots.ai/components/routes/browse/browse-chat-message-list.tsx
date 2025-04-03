@@ -16,9 +16,9 @@ import { ExternalLink } from '@/components/shared/external-link'
 import { SharedAccordion } from '@/components/shared/shared-accordion'
 import { buttonVariants } from '@/components/ui/button'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { cn, createMessagePairs, getRouteType } from '@/lib/utils'
 import type { Chatbot, Message, User } from 'mb-genql'
-import { toSlug } from 'mb-lib'
 import { useParams, usePathname } from 'next/navigation'
 import React, { useCallback, useEffect } from 'react'
 
@@ -38,7 +38,7 @@ export function BrowseChatMessageList({
 	const { name: categoryName } = chatbot?.categories[0]?.category || {
 		name: '',
 	}
-	const { name: chatBotName } = chatbot || { name: '' }
+	const chatbotName = chatbot?.name
 
 	const setMessagePairs = (messages: Message[]) => {
 		if (messages.length) {
@@ -53,6 +53,8 @@ export function BrowseChatMessageList({
 	useEffect(() => {
 		setMessagePairs(messages)
 	}, [messages])
+
+	const canonicalDomain = getCanonicalDomain(chatbotName || 'prompt')
 
 	return (
 		<>
@@ -76,7 +78,12 @@ export function BrowseChatMessageList({
 						buttonVariants({ size: 'xl', radius: 'full' }),
 						'text-xl hover:no-underline',
 					)}
-					href={`/c/${toSlug(categoryName)}/${toSlug(chatBotName)}?continuousThreadId=${threadId}`}
+					href={`${urlBuilders.chatbotThreadListUrl({
+						type: 'personal',
+						category: categoryName,
+						domain: canonicalDomain,
+						chatbot: chatbotName as string,
+					})}?continuousThreadId=${threadId}`}
 				>
 					Continue Thread
 				</ExternalLink>

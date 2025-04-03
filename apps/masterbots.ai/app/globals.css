@@ -346,7 +346,7 @@
 		width: 100%;
 		animation: animate-in 300ms ease-in-out;
 		position: relative;
-		padding: 1.5rem 2rem;
+		padding: 0.5rem 2rem;
 		text-align: center;
 
 		@media (min-width: 1024px) {

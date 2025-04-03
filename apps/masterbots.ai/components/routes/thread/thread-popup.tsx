@@ -6,6 +6,7 @@ import { ChatList } from '@/components/routes/chat/chat-list'
 import { Button } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
 import { Skeleton } from '@/components/ui/skeleton'
+import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
@@ -16,7 +17,7 @@ import { getMessages } from '@/services/hasura'
 import type { Message as AiMessage } from 'ai'
 import type { Chatbot, Message } from 'mb-genql'
 import { useParams, usePathname } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 export function ThreadPopup({ className }: { className?: string }) {
 	const { activeChatbot } = useSidebar()
@@ -119,8 +120,8 @@ export function ThreadPopup({ className }: { className?: string }) {
 										sendMessageFromResponse(message)
 									}}
 									chatbot={activeThread?.chatbot || (activeChatbot as Chatbot)}
-									chatContentClass="!border-x-gray-300 !px-[16px] !mx-0 max-h-[none] dark:!border-x-mirage"
-									className="max-w-full !px-[32px] !mx-0"
+									chatContentClass="!border-x-gray-300 md:px-[16px] !mx-0 max-h-[none] dark:!border-x-mirage"
+									className="max-w-full md:px-[32px] !mx-0"
 									chatArrowClass="!right-0 !mr-0"
 									chatTitleClass="!px-[11px]"
 								/>
@@ -183,17 +184,35 @@ function ThreadPopUpCardHeader({
 	}
 
 	// Handle different message structures for browse and chat views
-	const threadTitle = isBrowseView
-		? (messages[0] as Message)?.content
-		: (messages.filter((m) => (m as AiMessage).role === 'user')[0] as AiMessage)
-				?.content
+	const threadTitle = useMemo(() => {
+		try {
+			return cleanPrompt(
+				isBrowseView
+					? (messages[0] as Message)?.content
+					: (
+							messages.filter(
+								(m) => (m as AiMessage).role === 'user',
+							)[0] as AiMessage
+						)?.content,
+			)
+		} catch (e) {
+			// console.error('Error cleaning thread title:', e)
+			return isBrowseView
+				? (messages[0] as Message)?.content
+				: (
+						messages.filter(
+							(m) => (m as AiMessage).role === 'user',
+						)[0] as AiMessage
+					)?.content
+		}
+	}, [messages, isBrowseView])
 
 	const threadTitleChunks = threadTitle?.split(/\s/g)
-	const threadTitleHeading = threadTitleChunks?.slice(0, 32).join(' ')
-	const threadTitleSubHeading = threadTitleChunks?.slice(32).join(' ')
+	const threadTitleHeading = threadTitleChunks?.slice(0, 49).join(' ')
+	const threadTitleSubHeading = threadTitleChunks?.slice(49).join(' ')
 
 	return (
-		<div className="relative rounded-t-[8px] px-[32px] py-[20px] dark:bg-[#1E293B] bg-[#E4E4E7]">
+		<div className="relative rounded-t-[8px] px-4 md:px-[32px] py-[20px] dark:bg-[#1E293B] bg-[#E4E4E7]">
 			<div className="flex items-center justify-between gap-6">
 				<div className="items-center block overflow-y-auto whitespace-pre-line max-h-28 scrollbar small-thumb">
 					{threadTitle ? (

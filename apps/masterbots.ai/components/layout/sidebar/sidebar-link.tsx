@@ -8,15 +8,13 @@ import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { cn, getRouteType } from '@/lib/utils'
 import type {
 	ChatbotThreadListUrlParams,
-	TopicThreadListUrlParams,
 	UserChatbotThreadListUrlParams,
-	UserTopicThreadListUrlParams,
 } from '@/types/url'
 import type { Category, Chatbot } from 'mb-genql'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams, usePathname, useRouter } from 'next/navigation'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 interface SidebarLinkProps {
 	category: Category
@@ -42,7 +40,6 @@ export default function SidebarLink({
 		activeCategory,
 		selectedCategories,
 		expandedCategories,
-		navigateTo,
 		setActiveChatbot,
 		setActiveCategory,
 		setSelectedChatbots,
@@ -63,42 +60,17 @@ export default function SidebarLink({
 			setExpandedCategories((prev) =>
 				prev.includes(category.categoryId) ? [] : [category.categoryId],
 			)
-			// TODO: Pasar estos side-effect a una nueva función que se llame handleCategoryClick para sí evitar errores de hidratación y actualización de estado
-			// ! Asegurarse que no estamos repitiendo este patrón con otro setState...
-			setActiveCategory((prev) => {
-				setActiveChatbot(null)
-
+			setActiveChatbot(null)
+			setActiveCategory((prevCategory) => {
 				const newCategory =
-					prev === category.categoryId ? null : category.categoryId
-
-				if (!newCategory) {
-					router.push('/')
-				}
-
-				// ? Only the profile user has a sidebar
-				if (page === 'profile' && newCategory) {
-					navigateTo({
-						urlType: 'userTopicThreadListUrl',
-						navigationParams: {
-							type: 'user',
-							usernameSlug: userSlug as string,
-							category: category.name,
-						} as UserTopicThreadListUrlParams,
-					})
-				} else if (newCategory) {
-					navigateTo({
-						urlType: 'topicThreadListUrl',
-						navigationParams: {
-							type: isPublic ? 'public' : 'personal',
-							category: category.name,
-						} as TopicThreadListUrlParams,
-					})
-				}
+					category.categoryId === prevCategory
+						? null // clicking the same category turns it off
+						: category.categoryId
 
 				return newCategory
 			})
 		},
-		[router, isPublic, category, isFilterMode],
+		[router, category, isFilterMode, isOpenPopup, activeThread, activeCategory],
 	)
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -125,6 +97,8 @@ export default function SidebarLink({
 		},
 		[category.categoryId, category.chatbots],
 	)
+
+	// TODO: Create a guard in a useEffect to fetch the current category by grabbing the category param and fgetch the category to update the activeCategory state
 
 	const isActive = activeCategory === category.categoryId
 	const isSelected = selectedCategories.includes(category.categoryId)
@@ -167,7 +141,38 @@ export default function SidebarLink({
 		</div>
 	)
 
-	if (isPublic || isFilterMode) {
+	// Create a constant for the URL using urlBuilders
+	const categoryUrl = useMemo(() => {
+		if (!category) return ''
+
+		const isNewCategory = category.categoryId !== activeCategory
+
+		if (page === 'profile') {
+			// For profile pages
+			return category.categoryId && isNewCategory
+				? urlBuilders.userTopicThreadListUrl({
+						type: 'user',
+						usernameSlug: userSlug as string,
+						category: category.name,
+					})
+				: urlBuilders.profilesUrl({
+						type: 'user',
+						usernameSlug: userSlug as string,
+					})
+		}
+
+		const fallbackUrl = isPublic ? '/' : '/c'
+
+		// For personal routes
+		return category.categoryId && isNewCategory
+			? urlBuilders.topicThreadListUrl({
+					type: isPublic ? 'public' : 'personal',
+					category: category.name,
+				})
+			: fallbackUrl
+	}, [category, activeCategory, isPublic, page, userSlug])
+
+	if (isFilterMode) {
 		return (
 			<div className={cn('flex flex-col mb-2')} data-route={routeType}>
 				{/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
@@ -187,11 +192,8 @@ export default function SidebarLink({
 
 	return (
 		<div className={cn('flex flex-col mb-2')} data-route={routeType}>
-			{/* biome-ignore lint/a11y/useButtonType: <explanation> */}
-			<button
-				role="menuitem"
-				aria-expanded={isActive}
-				aria-controls={`category-${category.name}`}
+			<Link
+				href={categoryUrl}
 				className={cn(
 					'flex items-center p-4 w-full text-left sidebar-gradient',
 					isActive && 'selected',
@@ -201,9 +203,13 @@ export default function SidebarLink({
 					e.stopPropagation()
 					handleClickCategory(e)
 				}}
+				role="menuitem"
+				aria-expanded={isActive}
+				aria-controls={`category-${category.name}`}
+				prefetch
 			>
 				{categoryContent}
-			</button>
+			</Link>
 			{childrenContent}
 		</div>
 	)
@@ -235,6 +241,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
 		const { userSlug, domain } = useParams()
 		const { setIsOpenPopup, setActiveThread } = useThread()
 
+		const isPro = routeType === 'pro'
 		const canonicalDomain = getCanonicalDomain(chatbot.name)
 		// * Default to prompt when no metadata found... Special case for BlankBot
 		const chatbotDomain = canonicalDomain || (domain as string) || 'prompt'
@@ -268,7 +275,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
 				return navigateTo({
 					urlType: 'chatbotThreadListUrl',
 					navigationParams: {
-						type: isPublic ? 'public' : 'personal',
+						type: isPro ? 'pro' : isPublic ? 'public' : 'personal',
 						category: category.name,
 						domain: chatbotDomain,
 						chatbot: chatbot.name,
@@ -297,7 +304,7 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
 						chatbot: chatbot?.name,
 					})
 				: urlBuilders.chatbotThreadListUrl({
-						type: isPublic ? 'public' : 'personal',
+						type: isPro ? 'pro' : isPublic ? 'public' : 'personal',
 						category: category.name,
 						domain: chatbotDomain,
 						chatbot: chatbot?.name,

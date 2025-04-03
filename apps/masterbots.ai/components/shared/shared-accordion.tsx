@@ -1,5 +1,6 @@
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
+import { getCanonicalDomain } from '@/lib/url'
 import { cn } from '@/lib/utils'
 import { getThread } from '@/services/hasura'
 import { ChevronDown } from 'lucide-react'
@@ -81,9 +82,6 @@ export function SharedAccordion({
 		activeThread !== null &&
 		thread?.threadId !== activeThread?.threadId
 	const shouldBeDisabled = disabled || isAnotherThreadOpen
-
-	// Handle profile page routing
-	const profilePage = /^\/u\/[^/]+\/t(?:\/|$)/.test(pathname)
 	const isMainThread = !isOpenPopup
 
 	// Mobile scroll handling
@@ -133,6 +131,7 @@ export function SharedAccordion({
 	}, [isOpenPopup, activeThread, thread, open])
 
 	const updateActiveThread = async () => {
+		if (!thread) return
 		// Cancel any in-flight request
 		currentRequest?.abort()
 		const abortController = new AbortController()
@@ -140,7 +139,8 @@ export function SharedAccordion({
 		setCurrentRequest(abortController)
 
 		const fullThread = await getThread({
-			threadId: thread?.threadId,
+			threadId: thread.threadId,
+			isPersonal: !isPublic,
 			jwt: session?.user?.hasuraJwt,
 			signal: abortController.signal,
 		})
@@ -149,13 +149,15 @@ export function SharedAccordion({
 		setLoading(false)
 		setCurrentRequest(null)
 
+		const canonicalDomain = getCanonicalDomain(fullThread?.chatbot?.name || '')
+
 		navigateTo({
 			urlType: 'threadUrl',
 			shallow: true,
 			navigationParams: {
 				type: isPublic ? 'public' : 'personal',
 				category: fullThread?.chatbot?.categories[0]?.category?.name || 'AI',
-				domain: fullThread?.chatbot?.metadata[0]?.domainName || 'General',
+				domain: canonicalDomain,
 				chatbot: fullThread?.chatbot?.name || 'Masterbots',
 				threadSlug: fullThread?.slug || (params.threadSlug as string),
 			},
@@ -167,18 +169,23 @@ export function SharedAccordion({
 	const handleClick = async (e: React.MouseEvent) => {
 		e.stopPropagation()
 
-		if (isMainThread && thread && !profilePage) {
+		// Handle profile page routing
+		const profilePage = /^\/u\/[^/]+\/t(?:\/|$)/.test(pathname)
+		// Handle bot page routing i.e.: /b/:chatbotName
+		const botProfile = /^\/b\/[^/]+(?:\/|$)/.test(pathname)
+		const category = thread?.chatbot?.categories[0]?.category?.name
+		const chatbot = thread?.chatbot?.name
+
+		if (isMainThread && thread && !profilePage && !botProfile) {
 			setLoading(true)
 			// Open modal for both variants
 			await updateActiveThread()
 			setIsOpenPopup(true)
 		} else if (profilePage) {
-			// Profile page navigation
 			setIsOpenPopup(false)
 			setActiveThread(null)
-			const category = thread?.chatbot?.categories[0]?.category?.name
-			const chatbot = thread?.chatbot?.name
 			const slug = params.userSlug as string
+			const canonicalDomain = getCanonicalDomain(chatbot || '')
 
 			if (!category || !chatbot || !slug) {
 				console.error('Missing required navigation parameters')
@@ -186,13 +193,32 @@ export function SharedAccordion({
 			}
 
 			navigateTo({
-				urlType: 'userTopicThreadListUrl',
+				urlType: 'profilesThreadUrl',
 				navigationParams: {
 					type: 'user',
 					usernameSlug: slug,
 					category: category,
+					domain: canonicalDomain,
 					chatbot: chatbot,
-					domain: thread?.chatbot?.metadata[0]?.domainName || '',
+					threadSlug: thread?.slug || (params.threadSlug as string),
+				},
+			})
+		} else if (botProfile) {
+			// Bot profile page navigation
+			setIsOpenPopup(false)
+			setActiveThread(null)
+
+			if (!category || !chatbot) {
+				console.error('Missing required navigation parameters')
+				return
+			}
+
+			navigateTo({
+				urlType: 'profilesThreadUrl',
+				navigationParams: {
+					type: 'chatbot',
+					chatbot: chatbot,
+					threadSlug: thread?.slug || (params.threadSlug as string),
 				},
 			})
 		} else {
@@ -296,24 +322,28 @@ export function SharedAccordion({
 				)}
 				id={props.id}
 			>
-				{Array.isArray(children) && children[0]}
-				{!open && Array.isArray(children) && children[1]}
-				<ChevronDown
-					{...(handleTrigger
-						? {
-								onClick: (e) => {
-									e.stopPropagation()
-									handleTrigger()
-								},
-							}
-						: {})}
-					className={cn(
-						'absolute size-4 -right-4 top-4 shrink-0 mr-8 transition-transform duration-200',
-						open ? '' : '-rotate-90',
-						arrowClass,
-						disabled && 'hidden',
-					)}
-				/>
+				<div className="flex w-full">
+					<span className="flex flex-col w-full">
+						{Array.isArray(children) && children[0]}
+						{!open && Array.isArray(children) && children[1]}
+					</span>
+					<ChevronDown
+						{...(handleTrigger
+							? {
+									onClick: (e) => {
+										e.stopPropagation()
+										handleTrigger()
+									},
+								}
+							: {})}
+						className={cn(
+							'ml-auto min-w-4 max-w-4 h-9 transition-transform duration-200',
+							open ? '' : '-rotate-90',
+							arrowClass,
+							disabled && 'hidden',
+						)}
+					/>
+				</div>
 				{loading && (
 					<div className="absolute inset-0 bg-accent/5 rounded-lg backdrop-blur-[1px] animate-pulse" />
 				)}

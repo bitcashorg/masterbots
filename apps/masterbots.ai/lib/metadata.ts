@@ -31,6 +31,7 @@ interface PageSEO extends Metadata {
 
 export const generateMetadataFromSEO = async (
 	pageSeo: PageSEO,
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	params: Record<string, any>,
 ): Promise<Metadata> => {
 	const paramKeys = Object.keys(params) as Array<keyof typeof params>
@@ -71,7 +72,7 @@ export async function generateMbMetadata({
 	params,
 }: {
 	params: PageProps['params']
-}): Promise<Metadata | undefined> {
+}): Promise<Metadata> {
 	const paramsObject = await params
 
 	let thread: Thread | undefined

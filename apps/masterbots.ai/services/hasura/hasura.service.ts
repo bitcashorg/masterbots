@@ -334,6 +334,7 @@ export async function getThread({
 	threadSlug,
 	threadQuestionSlug,
 	domain,
+	isPersonal = false,
 	jwt,
 	signal,
 }: Partial<GetThreadParams>) {
@@ -407,6 +408,10 @@ export async function getThread({
 						...(threadQuestionSlug
 							? { messages: { slug: { _eq: threadQuestionSlug } } }
 							: {}),
+						...(!isPersonal && {
+							isPublic: { _eq: true },
+							isApproved: { _eq: true },
+						}),
 					},
 				},
 			},
@@ -669,6 +674,9 @@ export async function getBrowseThreads({
 				threads: {
 					threadId: true,
 				},
+				metadata: {
+					domainName: true,
+				},
 				...everything,
 			},
 			messages: {
@@ -779,6 +787,7 @@ export async function getBrowseThreads({
 
 export async function getMessages({
 	threadId,
+	threadQuestionSlug,
 	limit,
 	offset,
 	jwt,
@@ -789,7 +798,10 @@ export async function getMessages({
 		message: {
 			...everything,
 			__args: {
-				where: { threadId: { _eq: threadId } },
+				where: {
+					...(threadId ? { threadId: { _eq: threadId } } : {}),
+					...(threadQuestionSlug ? { slug: { _eq: threadQuestionSlug } } : {}),
+				},
 				orderBy: [{ createdAt: 'ASC' }],
 				...(limit
 					? {

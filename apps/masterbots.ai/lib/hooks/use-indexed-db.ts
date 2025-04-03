@@ -1,4 +1,5 @@
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
+import { appConfig } from 'mb-env'
 import { useEffect, useRef, useState } from 'react'
 
 const DEFAULT_DB_NAME = 'masterbots_attachments_indexed_db'
@@ -13,8 +14,9 @@ export function useIndexedDB({
 	const db = dbRef.current
 
 	const onMountSuccess = (event: Event) => {
-		if (mounted) return
-		console.log('IndexedDB opened successfully')
+		if (appConfig.features.devMode) {
+			console.info('IndexedDB opened successfully')
+		}
 		dbRef.current = (event.target as IDBOpenDBRequest).result
 		setMounted(true)
 	}

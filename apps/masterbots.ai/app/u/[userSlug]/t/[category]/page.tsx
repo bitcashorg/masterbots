@@ -13,7 +13,7 @@ import { getServerSession } from 'next-auth'
 export { generateMbMetadata as generateMetadata } from '@/lib/metadata'
 
 export default async function BrowseCategoryPage(props: {
-	params: Promise<{ category: string; slug: string }>
+	params: Promise<{ category: string; userSlug: string }>
 }) {
 	const params = await props.params
 	const session = await getServerSession(authOptions)
@@ -23,7 +23,7 @@ export default async function BrowseCategoryPage(props: {
 		(category) => toSlug(category.name) === params.category,
 	)
 
-	const slug = params.slug
+	const slug = params.userSlug
 	const { user, error } = await getUserBySlug({
 		slug,
 		isSameUser: session?.user.slug === slug,
@@ -44,7 +44,7 @@ export default async function BrowseCategoryPage(props: {
 	if (!user)
 		return (
 			<div className="text-center p-4">
-				User <strong>{params.slug}</strong> not found
+				User <strong>{slug}</strong> not found
 			</div>
 		)
 
