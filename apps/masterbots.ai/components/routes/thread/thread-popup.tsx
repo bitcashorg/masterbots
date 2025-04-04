@@ -59,7 +59,9 @@ export function ThreadPopup({ className }: { className?: string }) {
 	}, [activeThread?.threadId])
 
 	const routeType = getRouteType(pathname)
-	const isBrowseView = routeType === 'public' && activeThread?.threadId
+	const isBrowseView =
+		routeType === 'public' ||
+		(routeType === 'profile' && activeThread?.threadId)
 
 	return (
 		<div
@@ -166,16 +168,16 @@ function ThreadPopUpCardHeader({
 		)
 		setIsOpenPopup(!isOpenPopup)
 
-		navigateTo({
-			urlType: 'chatbotThreadListUrl',
-			shallow: true,
-			navigationParams: {
-				type: isPublic ? 'public' : 'personal',
-				category: activeThread?.chatbot?.categories?.[0]?.category?.name || '',
-				domain: canonicalDomain,
-				chatbot: activeThread?.chatbot?.name || '',
-			},
-		})
+		// navigateTo({
+		// 	urlType: 'chatbotThreadListUrl',
+		// 	shallow: true,
+		// 	navigationParams: {
+		// 		type: isPublic ? 'public' : 'personal',
+		// 		category: activeThread?.chatbot?.categories?.[0]?.category?.name || '',
+		// 		domain: canonicalDomain,
+		// 		chatbot: activeThread?.chatbot?.name || '',
+		// 	},
+		// })
 
 		// ! Required to close the threads popup and show the thread list. Without this, the thread accordion will remain open.
 		// ? We have to signal the use-thread-panel component to re-fetch the threads list when the activeThread is closed.

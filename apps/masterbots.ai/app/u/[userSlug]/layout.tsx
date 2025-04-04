@@ -1,5 +1,7 @@
 import { Hero } from '@/components/layout/profile/hero'
 import { ProfileSidebar } from '@/components/layout/profile/profile-page-sidebar'
+import { ThreadPopup } from '@/components/routes/thread/thread-popup'
+import { useThread } from '@/lib/hooks/use-thread'
 import { getUserBySlug } from '@/services/hasura'
 import type { PageProps } from '@/types/types'
 import type { User } from 'mb-genql'
@@ -15,7 +17,7 @@ export default async function ProfilePageLayout({
 }: ProfileLayoutProps) {
 	const session = await getServerSession()
 	const { userSlug } = await params
-	const { user, error } = await getUserBySlug({
+	const { user } = await getUserBySlug({
 		slug: userSlug as string,
 		isSameUser: session?.user.slug === userSlug,
 	})
