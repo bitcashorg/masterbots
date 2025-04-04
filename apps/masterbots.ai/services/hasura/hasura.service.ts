@@ -480,6 +480,55 @@ export async function saveNewMessage({
 	}
 }
 
+/**
+ * Updates a message's content by messageId
+ * @param params - The parameters for updating the message
+ * @returns A promise that resolves to a success status and optional error message
+ */
+export async function updateMessage({
+	messageId,
+	content,
+	thinking,
+	jwt,
+}: {
+	messageId: string
+	content: string
+	thinking?: string
+	jwt?: string
+}): Promise<{ success: boolean; error?: string }> {
+	try {
+		if (!jwt) {
+			throw new Error('Authentication required for message update')
+		}
+
+		const client = getHasuraClient({ jwt })
+
+		const updateData: Record<string, any> = { content }
+		if (thinking !== undefined) {
+			updateData.thinking = thinking
+		}
+
+		await client.mutation({
+			updateMessage: {
+				__args: {
+					where: { messageId: { _eq: messageId } },
+					_set: updateData,
+				},
+				returning: {
+					messageId: true,
+					content: true,
+					thinking: true,
+				},
+			},
+		})
+
+		return { success: true }
+	} catch (error) {
+		console.error('Error updating message:', error)
+		return { success: false, error: (error as Error).message }
+	}
+}
+
 export async function upsertUser({
 	adminSecret,
 	username,
