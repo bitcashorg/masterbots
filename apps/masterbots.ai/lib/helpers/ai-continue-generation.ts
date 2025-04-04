@@ -1,5 +1,4 @@
 import type { ChatRequestOptions, CreateMessage, Message } from 'ai'
-/* eslint-disable no-unused-vars */
 import { nanoid } from 'nanoid'
 
 /**
@@ -8,26 +7,15 @@ import { nanoid } from 'nanoid'
  * @returns boolean indicating whether generation should be continued
  */
 export function shouldContinueGeneration(finishReason: string): boolean {
-	// Reasons that might indicate incomplete generations
+	//? Reasons that might indicate incomplete generations
 	const incompleteReasons = ['length', 'content-filter', 'error', 'unknown']
 	return incompleteReasons.includes(finishReason)
 }
 
-// Define the types to match your application's types
 export type CustomSonnerParams = {
 	type: 'success' | 'error' | 'info'
 	text: string
 }
-
-//* Define the type for your ChatLoadingState
-export type ChatLoadingState =
-	| 'processing'
-	| 'digesting'
-	| 'polishing'
-	| 'generating'
-	| 'continuing'
-	| 'finished'
-	| undefined
 
 /**
  * Configuration options for AI continuation

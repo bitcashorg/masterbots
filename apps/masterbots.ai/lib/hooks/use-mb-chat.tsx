@@ -263,8 +263,13 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					})
 				}
 
+				// biome-ignore lint/style/useConst: <explanation>
+				let finalMessage = { ...message }
+				// biome-ignore lint/style/useConst: <explanation>
+				let needsContinuation = shouldContinueGeneration(options.finishReason)
+
 				//? Check if we should continue the generation based on the finish reason
-				if (shouldContinueGeneration(options.finishReason)) {
+				if (needsContinuation) {
 					if (appConfig.features.devMode) {
 						customSonner({
 							type: 'info',
@@ -283,7 +288,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 					if (continuedContent) {
 						// Override the message content with the continued content
-						message.content = continuedContent
+						finalMessage.content = continuedContent
 					}
 				}
 
@@ -369,17 +374,17 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					},
 					{
 						...newBaseMessage,
-						...(hasReasoning(message)
+						...(hasReasoning(finalMessage)
 							? {
 									thinking:
-										message.parts?.find((msg) => msg.type === 'reasoning')
-											?.reasoning || message.reasoning,
+										finalMessage.parts?.find((msg) => msg.type === 'reasoning')
+											?.reasoning || finalMessage.reasoning,
 								}
 							: {}),
 						messageId: assistantMessageId,
 						slug: assistantMessageSlug,
 						role: 'assistant',
-						content: message.content, // content including continuation
+						content: finalMessage.content, // content including continuation
 						createdAt: new Date(Date.now() + 1000).toISOString(),
 					},
 				]
