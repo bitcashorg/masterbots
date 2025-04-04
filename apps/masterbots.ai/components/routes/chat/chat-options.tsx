@@ -102,6 +102,13 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
 			</AlertDialogContent>
 		</AlertDialog>
 	)
+	console.log('ChatOptions', {
+		thread: {
+			isApproved: thread?.isApproved,
+			isPublic: thread?.isPublic,
+		},
+	})
+
 	return (
 		<div className="flex items-center gap-4 sm:gap-3 pt-[3px]">
 			<AlertDialogue deleteDialogOpen={isDeleteOpen} />
@@ -159,14 +166,13 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
 						</DropdownMenuItem>
 					)}
 					{/* Share thread option: This always show in public and profiles due they are already approved and public but for personal chat isn't... */}
-					{thread?.isApproved && thread?.isPublic && (
-						<DropdownMenuItem
-							className="flex-col items-start"
-							onSelect={(event) => event.preventDefault()}
-						>
-							<ShareButton url={url} />
-						</DropdownMenuItem>
-					)}
+					<DropdownMenuItem
+						className="flex-col items-start"
+						onSelect={(event) => event.preventDefault()}
+						disabled={!thread?.isApproved && !thread?.isPublic}
+					>
+						<ShareButton url={url} />
+					</DropdownMenuItem>
 					{/* Delete thread option (only for thread owner) */}
 					{isUser && (
 						<>

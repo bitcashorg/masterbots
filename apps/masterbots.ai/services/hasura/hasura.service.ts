@@ -741,6 +741,8 @@ export async function getBrowseThreads({
 					},
 				},
 			},
+			isApproved: true,
+			isPublic: true,
 			__scalar: true,
 			__args: {
 				orderBy: [{ createdAt: 'DESC' }],

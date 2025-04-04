@@ -313,7 +313,7 @@ export function SharedAccordion({
 						'dark:border-b-mirage border-b-gray-300 shadow-lg transform-gpu backdrop-blur-sm',
 					!isNestedThread &&
 						!open &&
-						'dark:hover:border-b-mirage hover:border-b-gray-300 [&>div>div>button]:!hidden',
+						'dark:hover:border-b-mirage hover:border-b-gray-300',
 					isNestedThread &&
 						open &&
 						'bg-gray-200/90 dark:bg-gray-800/90 !hover:rounded-t-none',
@@ -327,7 +327,7 @@ export function SharedAccordion({
 						{Array.isArray(children) && children[0]}
 						{!open && Array.isArray(children) && children[1]}
 					</div>
-					{!isPublic && (
+					{activeThread && (
 						<ChevronDown
 							{...(handleTrigger
 								? {
@@ -361,7 +361,7 @@ export function SharedAccordion({
 			{/* Accordion content */}
 			<div
 				className={cn(
-					'text-sm transition-all border relative',
+					'text-sm transition-all border relative duration-300',
 					!isNestedThread &&
 						open &&
 						'animate-accordion-down dark:bg-[#18181B]/75 bg-white/75 dark:border-b-mirage border-b-gray-300 !border-t-transparent last-of-type:rounded-b-lg shadow-lg backdrop-blur-sm',

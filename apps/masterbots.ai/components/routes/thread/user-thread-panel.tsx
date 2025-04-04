@@ -58,11 +58,13 @@ import { useAsync, useSetState } from 'react-use'
 // in only one file, instead of relying on reusable hooks for each context. It should be refactored.
 export default function UserThreadPanel({
 	threads: initialThreads = [],
+	count: initialCount = 0,
 	user: userProps,
 	page,
 }: {
 	user?: User
 	threads?: Thread[]
+	count?: number
 	showSearch?: boolean
 	page?: string
 }) {

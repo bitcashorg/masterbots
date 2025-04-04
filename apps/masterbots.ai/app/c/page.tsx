@@ -22,7 +22,7 @@ export default async function IndexPage() {
 	}
 
 	const role = session.user.role as RoleTypes
-	const threads = await getThreads({
+	const { threads, count } = await getThreads({
 		jwt,
 		userId: session.user.id,
 		limit: PAGE_SIZE,
@@ -35,8 +35,7 @@ export default async function IndexPage() {
 					<AdminModeToggle />
 				</div>
 			)}
-
-			<ThreadPanel threads={threads} />
+			<ThreadPanel threads={threads} count={count} />
 			<ChatThreadListPanel />
 		</>
 	)

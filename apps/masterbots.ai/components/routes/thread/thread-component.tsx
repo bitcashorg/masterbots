@@ -4,10 +4,13 @@ import { AdminModeApprove } from '@/components/routes/chat/admin-mode-approve'
 import { ChatOptions } from '@/components/routes/chat/chat-options'
 import { ChatbotAvatar } from '@/components/shared/chatbot-avatar'
 import { SharedAccordion } from '@/components/shared/shared-accordion'
-import { ShortMessage } from '@/components/shared/short-message'
 import { Badge } from '@/components/ui/badge'
-import { buttonVariants } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
@@ -66,9 +69,16 @@ export default function ThreadComponent({
 			}),
 		[],
 	)
+	// green and purple
+	const bgColor = isPublic ? 'be16e8' : '82e46a'
+	// console.log('thread.user?.profilePicture', thread.user?.profilePicture)
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const threadThumbnail = useMemo(
-		() => `https://robohash.org/${thread?.slug || threadId}?bgset=bg2`,
+		() =>
+			`https://robohash.org/${thread?.user?.username || threadId}?bgset=bg2`,
+		// () =>
+		// 	thread.user?.profilePicture||
+		// 	`https://api.dicebear.com/9.x/notionists-neutral/svg?seed=${thread.slug}&backgroundColor=${bgColor},ffdfbf&backgroundType=gradientLinear&backgroundRotation=40`,
 		[],
 	)
 
@@ -91,112 +101,73 @@ export default function ThreadComponent({
 				thread={thread}
 				variant="browse"
 			>
-				<div className="flex flex-col w-full py-3">
-					{/* Thread Title */}
-					<div className="px-2.5 flex justify-between items-start w-full gap-3">
-						<div className="flex flex-col gap-2 w-full">
-							<ChatbotAvatar thread={thread} />
-							<span className="flex-inline text-left whitespace-pre-line line-clamp-5 sm:line-clamp-4">
-								{thread.messages.filter((m) => m.role === 'user')[0]
-									?.content || (
-									<Skeleton className="w-[140px] md:w-[280px] max-w-[80%] h-[20px]" />
-								)}
-							</span>
-						</div>
-						{/* Thread Options */}
-						{routeType === 'chat' && (
-							<div className="flex gap-1.5 items-start justify-center group">
-								<Badge
-									variant="outline"
-									className={cn(
-										'p-0.5 text-white/50 bg-transparent border-transparent',
-										{
-											// green public
-											'text-[#82e46a]': thread.isApproved && thread.isPublic,
-											// purple private
-											'text-[#be16e8]': thread.isApproved && !thread.isPublic,
-										},
-									)}
-								>
-									{/* {thread.isPublic ? 'Public' : 'Private'} */}
-									{thread.isPublic ? (
-										<EyeOpenIcon className="size-4" />
-									) : (
-										<EyeClosed className="size-4" />
-									)}
-								</Badge>
-								<ChatOptions
-									threadId={thread.threadId}
-									thread={thread}
-									isBrowse
-								/>
-							</div>
+				<div className="flex w-full gap-2 text-left px-2.5 py-2 overflow-x-hidden">
+					<ChatbotAvatar thread={thread} />
+					<span className="w-full text-left whitespace-pre-line line-clamp-2">
+						{thread.messages.filter((m) => m.role === 'user')[0]?.content || (
+							<Skeleton className="w-[140px] md:w-[280px] max-w-[80%] h-[20px]" />
 						)}
-					</div>
-
-					<div className="flex gap-4 mt-auto">
-						{/* Thread Description */}
-						<div className="overflow-hidden text-sm text-left opacity-50">
-							{thread.messages.filter((m) => m.role !== 'user')?.[0]
-								?.content ? (
-								<div className="flex-1 px-2.5 pb-3 space-y-2 overflow-hidden">
-									<ShortMessage
-										content={
-											thread.messages.filter((m) => m.role !== 'user')[0]
-												.content
-										}
-									/>
-								</div>
-							) : (
-								''
+					</span>
+				</div>
+				<div className="ml-auto flex gap-1.5 items-start justify-center group">
+					{/* Thread Options */}
+					{routeType === 'chat' && (
+						<Badge
+							variant="outline"
+							className={cn(
+								'p-0.5 text-white/50 bg-transparent border-transparent my-2',
+								{
+									// green public
+									'text-[#82e46a]': thread.isApproved && thread.isPublic,
+									// purple private
+									'text-[#be16e8]': thread.isApproved && !thread.isPublic,
+								},
 							)}
-						</div>
-						{routeType === 'public' && (
-							<div className="flex gap-1.5 items-start justify-center group">
+						>
+							{/* {thread.isPublic ? 'Public' : 'Private'} */}
+							{thread.isPublic ? (
+								<EyeOpenIcon className="size-4" />
+							) : (
+								<EyeClosed className="size-4" />
+							)}
+						</Badge>
+					)}
+					<ChatOptions
+						threadId={thread.threadId}
+						thread={thread}
+						isBrowse={isPublic}
+					/>
+					<Tooltip>
+						<TooltipTrigger>
+							{routeType === 'public' && (
 								<Link
-									className="ml-auto transition-all flex items-start leading-[1.6rem] gap-2 text-sm text-foreground/50 w-max hover:text-foreground hover:[&_img]:opacity-100"
+									className="flex transition-all w-16 h-full opacity-100 hover:opacity-80"
 									href={userProfileUrl}
+									onClick={(e) => {
+										e.stopPropagation()
+									}}
 									prefetch
 								>
-									by
-									<picture className="min-w-8 md:min-w-10 size-8 sm:size-10">
-										<Image
-											className={cn(
-												'bg-background size-8 sm:size-10 opacity-80 duration-300 select-none',
-												buttonVariants({
-													variant: 'icon',
-													size: 'icon',
-													radius: 'full',
-												}),
-											)}
-											src={
-												thread.user?.profilePicture || '/images/robohash1.png'
-											}
-											alt={thread.user?.username ?? 'Avatar'}
-											height={42}
-											width={42}
-										/>
-									</picture>
+									<Image
+										className="object-cover size-full rounded-r-lg"
+										src={threadThumbnail}
+										alt={thread.slug}
+										width={72}
+										height={72}
+									/>
 								</Link>
-								<ChatOptions
-									threadId={thread.threadId}
-									thread={thread}
-									isBrowse
-								/>
-							</div>
-						)}
-					</div>
+							)}
+						</TooltipTrigger>
+						<TooltipContent
+							className="bg-background px-2.5 py-1.5 rounded-lg"
+							id={`chatbot-avatar-tooltip-${thread.chatbot.name || 'Default BotAvatar'}`}
+							side="top"
+							align="end"
+						>
+							Go to {thread.user?.username}
+						</TooltipContent>
+					</Tooltip>
 				</div>
-				<picture className="transition-all relative h-[100px] sm:w-[160px] sm:min-h-[140px] sm:h-full rounded-r-lg opacity-50">
-					<Image
-						className="size-full object-cover rounded-t-lg sm:rounded-tl-none sm:rounded-r-lg"
-						src={threadThumbnail}
-						alt={thread.chatbot?.name || 'Default BotAvatar'}
-						width={160}
-						height={140}
-						priority
-					/>
-				</picture>
 			</SharedAccordion>
 
 			{/* Admin Mode Approve */}
