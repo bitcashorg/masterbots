@@ -30,18 +30,20 @@ import React, { useEffect } from 'react'
 
 export default function BrowseSpecificThreadList({
 	initialThreads,
+	initialCount,
 	query,
 	PAGE_SIZE,
 	pageType = '',
 }: {
 	query: { [key: string]: string | undefined }
 	initialThreads: Thread[]
+	initialCount: number
 	PAGE_SIZE: number
 	pageType?: string
 }) {
 	const [threads, setThreads] = React.useState<Thread[]>(initialThreads)
 	const [loading, setLoading] = React.useState<boolean>(false)
-	const [count, setCount] = React.useState<number>(initialThreads.length)
+	const [count, setCount] = React.useState<number>(initialCount)
 	const [storeThreads, setStoreThreads] =
 		React.useState<Thread[]>(initialThreads)
 	const { keyword } = useBrowse()
@@ -50,14 +52,14 @@ export default function BrowseSpecificThreadList({
 		console.log('🟡 Loading More Content')
 		setLoading(true)
 
-		const moreThreads = await getBrowseThreads({
+		const { threads: moreThreads, count } = await getBrowseThreads({
 			...query,
 			limit: PAGE_SIZE,
 			offset: threads.length,
 		})
 
 		setThreads((prevState) => [...prevState, ...moreThreads])
-		setCount(moreThreads.length)
+		setCount(count)
 		setLoading(false)
 		setStoreThreads((prevState) => [...prevState, ...moreThreads])
 	}
@@ -91,7 +93,7 @@ export default function BrowseSpecificThreadList({
 	}, [keyword])
 
 	return (
-		<div className="flex flex-col max-w-screen-lg px-4 mx-auto mt-8 gap-y-4">
+		<div className="flex flex-col max-w-screen-xl px-4 mx-auto mt-8 gap-y-4">
 			{threads.map((thread: Thread, key) => (
 				<BrowseListItem
 					pageType={pageType}

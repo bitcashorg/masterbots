@@ -32,7 +32,7 @@ export function BrowseSearchInput() {
 	}
 
 	return (
-		<form className="relative w-full  mx-auto max-w-screen-lg flex items-center justify-center pt-5 lg:px-6">
+		<form className="relative w-full  mx-auto max-w-screen-xl flex items-center justify-center pt-5 lg:px-6">
 			<div className="relative w-full">
 				<div className="absolute inset-0 transition-opacity duration-300 rounded-full opacity-0 group-focus-within:opacity-100">
 					<div className="absolute inset-0 rounded-full bg-gradient-to-r dark:from-[#83E56A]/5 dark:to-[#83E56A]/5 from-[#BE17E8]/5 to-[#BE17E8]/5 blur-lg animate-pulse" />

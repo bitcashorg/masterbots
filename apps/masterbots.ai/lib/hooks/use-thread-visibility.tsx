@@ -102,7 +102,7 @@ export function ThreadVisibilityProvider({
 			})
 
 			if (fetchedThreads) {
-				setThreads(fetchedThreads)
+				setThreads(fetchedThreads.threads)
 			}
 		} catch (error) {
 			console.error('Error fetching threads:', error)

@@ -1,5 +1,6 @@
 //? Component for approving threads in admin mode
 
+import { Button } from '@/components/ui/button'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { ShieldCheck } from 'lucide-react'
 import { useState } from 'react'
@@ -26,17 +27,18 @@ export function AdminModeApprove({ threadId }: AdminModeApproveProps) {
 	}
 
 	return (
-		<div className="bg-[#BE17E81A] py-3 flex justify-between w-full border-t border-[#BE17E8] px-2">
-			<ShieldCheck className="size-4 mr-2 text-[#BE17E8]" />
-			{/* biome-ignore lint/a11y/useButtonType: <explanation> */}
-			<button
+		<div className="transition-all scale-[0.98] hover:scale-[0.99] bg-[#BE17E81A] flex justify-between w-full border-t border-[#BE17E8] -mt-2 rounded-b-lg">
+			<Button
 				aria-label="Approve thread"
 				disabled={isLoading}
 				onClick={approveThread}
-				className="font-semibold text-purple-500"
+				variant="ghost"
+				size="lg"
+				className="w-full flex justify-between font-semibold text-[#BE17E8] rounded-t-none rounded-b-lg"
 			>
+				<ShieldCheck className="size-4 mr-2" />
 				{isLoading ? 'Approving...' : 'Approve'}
-			</button>
+			</Button>
 			{error && <p className="mt-2 text-red-500">{error}</p>}
 		</div>
 	)

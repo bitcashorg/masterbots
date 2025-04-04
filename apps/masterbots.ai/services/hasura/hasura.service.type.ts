@@ -16,6 +16,7 @@ export interface GetThreadsParams extends HasuraServiceParams {
 	categoryId?: number | null
 	domain?: string | null
 	keyword?: string
+	isAdminMode?: boolean
 	limit?: number
 	offset?: number
 }

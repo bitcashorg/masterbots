@@ -1,5 +1,7 @@
 import { canonicalChatbotDomains } from '@/lib/constants/canonical-domains'
 import { domainSlugs } from '@/lib/constants/domain-slugs'
+import { nanoid } from '@/lib/utils'
+import { doesMessageSlugExist } from '@/services/hasura'
 import type {
 	ChatbotThreadListUrlParams,
 	ProfilesThreadQuestionUrlChatbotParams,
@@ -14,6 +16,7 @@ import type {
 	UserChatbotThreadListUrlParams,
 	UserTopicThreadListUrlParams,
 } from '@/types/url'
+import { throttle } from 'lodash'
 import { toSlug } from 'mb-lib'
 import { wordsToRemove } from 'mb-lib/src/constants/slug-seo-words'
 import { type ZodSchema, z } from 'zod'
@@ -506,7 +509,7 @@ export const urlBuilders = {
 	}: ProfilesThreadUrlUserParams | ProfilesThreadUrlChatbotParams): string {
 		try {
 			if (!chatbot || !threadSlug) {
-				const mainEntries = { chatbot, domain, threadSlug }
+				const mainEntries = { chatbot, threadSlug }
 				const missing = Object.entries(mainEntries)
 					.filter(([_, value]) => !value)
 					.map(([key]) => key)
@@ -640,3 +643,33 @@ export const urlBuilders = {
 		}
 	},
 } as const
+
+// Function to generate a unique slug with retries
+export async function generateUniqueSlug(
+	baseContent: string,
+	maxAttempts = 10,
+): Promise<string> {
+	const throttleDoesMessageSlugExist = throttle(doesMessageSlugExist, 150)
+	const baseSlug = toSlug(baseContent)
+	let finalSlug = baseSlug
+	let attempt = 0
+
+	// First try with the base slug
+	let slugCheck = await doesMessageSlugExist(finalSlug)
+
+	// If it exists, try with incremental suffixes
+	while (slugCheck.exists && attempt < maxAttempts) {
+		attempt++
+		// Just add a sequential number suffix
+		finalSlug = toSlug(`${baseContent} ${slugCheck.sequence + 1}`)
+		slugCheck = await throttleDoesMessageSlugExist(finalSlug)
+	}
+
+	// If we still couldn't get a unique slug after max attempts, add a short random suffix
+	if (slugCheck.exists) {
+		// Use a shorter nanoid for better readability
+		finalSlug = toSlug(`${baseContent.substring(0, 40)} ${nanoid(6)}`)
+	}
+
+	return finalSlug
+}

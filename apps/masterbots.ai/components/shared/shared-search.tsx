@@ -136,7 +136,7 @@ export function ThreadSearchInput({
 	return (
 		<div
 			className={cn(
-				'relative w-full max-w-[900px] mx-auto flex items-center justify-center',
+				'relative w-full max-w-screen-xl mx-auto flex items-center justify-center',
 				{ 'pt-5': isBrowseView },
 				className,
 			)}

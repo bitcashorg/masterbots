@@ -17,7 +17,13 @@ export default async function BrowseCategoryPage(props: {
 }) {
 	const params = await props.params
 	const session = await getServerSession(authOptions)
-	let threads: Thread[] = []
+	let threads: {
+		threads: Thread[]
+		count: number
+	} = {
+		threads: [],
+		count: 0,
+	}
 	const categories = await getCategories()
 	const category = categories.find(
 		(category) => toSlug(category.name) === params.category,
@@ -69,11 +75,14 @@ export default async function BrowseCategoryPage(props: {
 			})
 		} catch (error) {
 			console.error('Failed to fetch threads:', error)
-			return []
+			return {
+				threads: [],
+				count: 0,
+			}
 		}
 	}
 
 	threads = await fetchThreads()
 
-	return <UserThreadList user={user as User} threads={threads} />
+	return <UserThreadList user={user as User} threads={threads.threads} />
 }

@@ -67,7 +67,7 @@ export function ThreadPopup({ className }: { className?: string }) {
 				'size-full bg-background/80 dark:bg-background/80',
 				'lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)]',
 				'flex justify-center items-center fixed top-16',
-				'h-[calc(100vh-4rem)] backdrop-blur-sm ease-in-out duration-500 z-[9]',
+				'h-[calc(100vh-4rem)] backdrop-blur-sm ease-in-out duration-500 z-40',
 				'transition-all',
 				isOpenPopup ? 'animate-fade-in' : 'animate-fade-out',
 				className,
@@ -75,7 +75,7 @@ export function ThreadPopup({ className }: { className?: string }) {
 		>
 			<div
 				className={cn(
-					'flex flex-col z-10 rounded-lg duration-500 ease-in-out fixed',
+					'flex flex-col z-50 rounded-lg duration-500 ease-in-out fixed',
 					'h-full max-h-[90%] max-w-[1032px] w-[95%]',
 					'dark:border-mirage border-iron border bg-background dark:bg-background',
 					'transition-opacity',
@@ -100,7 +100,7 @@ export function ThreadPopup({ className }: { className?: string }) {
 					<div ref={threadRef}>
 						{isBrowseView ? (
 							// Browse view
-							<div className="px-8 py-4">
+							<div className="px-2.5 md:px-8 py-4">
 								<BrowseChatMessageList
 									chatbot={activeThread?.chatbot}
 									user={activeThread?.user || undefined}
@@ -123,7 +123,7 @@ export function ThreadPopup({ className }: { className?: string }) {
 									chatContentClass="!border-x-gray-300 md:px-[16px] !mx-0 max-h-[none] dark:!border-x-mirage"
 									className="max-w-full md:px-[32px] !mx-0"
 									chatArrowClass="!right-0 !mr-0"
-									chatTitleClass="!px-[11px]"
+									chatTitleClass="!px-2.5"
 								/>
 
 								<Chat
@@ -212,7 +212,7 @@ function ThreadPopUpCardHeader({
 	const threadTitleSubHeading = threadTitleChunks?.slice(49).join(' ')
 
 	return (
-		<div className="relative rounded-t-[8px] px-4 md:px-[32px] py-[20px] dark:bg-[#1E293B] bg-[#E4E4E7]">
+		<div className="relative rounded-t-[8px] px-2.5 md:px-[32px] py-[20px] dark:bg-[#1E293B] bg-[#E4E4E7]">
 			<div className="flex items-center justify-between gap-6">
 				<div className="items-center block overflow-y-auto whitespace-pre-line max-h-28 scrollbar small-thumb">
 					{threadTitle ? (

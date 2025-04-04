@@ -82,6 +82,7 @@ export const authOptions: NextAuthOptions = {
 						slug: user[0].slug || toSlug(user[0].username),
 					}
 				} catch (error) {
+					console.error('Error during authentication:', error)
 					throw new Error('Authentication failed')
 				}
 			},

@@ -11,14 +11,20 @@ import {
 	getUserBySlug,
 } from '@/services/hasura/hasura.service'
 import type { PageProps } from '@/types/types'
-import type { User } from 'mb-genql'
+import type { Thread, User } from 'mb-genql'
 import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 import { Suspense } from 'react'
 
 export default async function ProfileChatBot(props: PageProps) {
 	const params = await props.params
-	let threads = []
+	let threads: {
+		threads: Thread[]
+		count: number
+	} = {
+		threads: [],
+		count: 0,
+	}
 	const { userSlug, category, chatbot } = params
 	const session = await getServerSession(authOptions)
 	const jwt = session ? session.user?.hasuraJwt : ''
@@ -56,7 +62,10 @@ export default async function ProfileChatBot(props: PageProps) {
 			})
 		} catch (error) {
 			console.error('Failed to fetch threads:', error)
-			return []
+			return {
+				threads: [],
+				count: 0,
+			}
 		}
 	}
 
@@ -64,7 +73,7 @@ export default async function ProfileChatBot(props: PageProps) {
 
 	return (
 		<Suspense fallback={null}>
-			<UserThreadList user={user as User} threads={threads} />
+			<UserThreadList user={user as User} threads={threads.threads} />
 		</Suspense>
 	)
 }

@@ -27,7 +27,7 @@ import { useEffect, useState } from 'react'
 export default function BrowseChatbotDetails({ user }: { user?: User | null }) {
 	const [threadNum, setThreadNum] = useState(0)
 	const getThreadByUserName = async () => {
-		const threads = await getBrowseThreads({
+		const { threads } = await getBrowseThreads({
 			slug: user?.slug,
 		})
 		setThreadNum(threads.length)

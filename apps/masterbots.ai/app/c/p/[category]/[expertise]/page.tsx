@@ -3,7 +3,7 @@ export default async function BrowseProExpertisePage(props: {
 }) {
 	const params = await props.params
 	return (
-		<div className="max-w-screen-lg pb-10 mx-auto w-full">
+		<div className="max-w-screen-xl pb-10 mx-auto w-full">
 			/c/p/{params.category}/{params.expertise}
 		</div>
 	)
