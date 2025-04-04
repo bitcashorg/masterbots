@@ -151,17 +151,17 @@ export function SharedAccordion({
 
 		const canonicalDomain = getCanonicalDomain(fullThread?.chatbot?.name || '')
 
-		navigateTo({
-			urlType: 'threadUrl',
-			shallow: true,
-			navigationParams: {
-				type: isPublic ? 'public' : 'personal',
-				category: fullThread?.chatbot?.categories[0]?.category?.name || 'AI',
-				domain: canonicalDomain,
-				chatbot: fullThread?.chatbot?.name || 'Masterbots',
-				threadSlug: fullThread?.slug || (params.threadSlug as string),
-			},
-		})
+		// navigateTo({
+		// 	urlType: 'threadUrl',
+		// 	shallow: true,
+		// 	navigationParams: {
+		// 		type: isPublic ? 'public' : 'personal',
+		// 		category: fullThread?.chatbot?.categories[0]?.category?.name || 'AI',
+		// 		domain: canonicalDomain,
+		// 		chatbot: fullThread?.chatbot?.name || 'Masterbots',
+		// 		threadSlug: fullThread?.slug || (params.threadSlug as string),
+		// 	},
+		// })
 
 		return thread
 	}
@@ -180,10 +180,11 @@ export function SharedAccordion({
 			setLoading(true)
 			// Open modal for both variants
 			await updateActiveThread()
+			// console.log("Reach here")
 			setIsOpenPopup(true)
 		} else if (profilePage) {
-			setIsOpenPopup(false)
-			setActiveThread(null)
+			// setIsOpenPopup(false)
+			// setActiveThread(null)
 			const slug = params.userSlug as string
 			const canonicalDomain = getCanonicalDomain(chatbot || '')
 
@@ -192,17 +193,22 @@ export function SharedAccordion({
 				return
 			}
 
-			navigateTo({
-				urlType: 'profilesThreadUrl',
-				navigationParams: {
-					type: 'user',
-					usernameSlug: slug,
-					category: category,
-					domain: canonicalDomain,
-					chatbot: chatbot,
-					threadSlug: thread?.slug || (params.threadSlug as string),
-				},
-			})
+			// navigateTo({
+			// 	urlType: 'profilesThreadUrl',
+			// 	navigationParams: {
+			// 		type: 'user',
+			// 		usernameSlug: slug,
+			// 		category: category,
+			// 		domain: canonicalDomain,
+			// 		chatbot: chatbot,
+			// 		threadSlug: thread?.slug || (params.threadSlug as string),
+			// 	},
+			// })
+			setLoading(true)
+			// Open modal for both variants
+			await updateActiveThread()
+			// setActiveThread(activeThread)
+			setIsOpenPopup(true)
 		} else if (botProfile) {
 			// Bot profile page navigation
 			setIsOpenPopup(false)
