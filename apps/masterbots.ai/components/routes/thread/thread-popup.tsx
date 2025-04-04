@@ -67,7 +67,7 @@ export function ThreadPopup({ className }: { className?: string }) {
 				'size-full bg-background/80 dark:bg-background/80',
 				'lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)]',
 				'flex justify-center items-center fixed top-16',
-				'h-[calc(100vh-4rem)] backdrop-blur-sm ease-in-out duration-500 z-[9]',
+				'h-[calc(100vh-4rem)] backdrop-blur-sm ease-in-out duration-500 z-40',
 				'transition-all',
 				isOpenPopup ? 'animate-fade-in' : 'animate-fade-out',
 				className,
@@ -75,7 +75,7 @@ export function ThreadPopup({ className }: { className?: string }) {
 		>
 			<div
 				className={cn(
-					'flex flex-col z-10 rounded-lg duration-500 ease-in-out fixed',
+					'flex flex-col z-50 rounded-lg duration-500 ease-in-out fixed',
 					'h-full max-h-[90%] max-w-[1032px] w-[95%]',
 					'dark:border-mirage border-iron border bg-background dark:bg-background',
 					'transition-opacity',

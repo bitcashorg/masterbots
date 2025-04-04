@@ -966,8 +966,10 @@ export async function updateThreadVisibility({
 					where: { threadId: { _eq: threadId } },
 					_set: { isPublic },
 				},
-				threadId: true,
-				isPublic: true,
+				returning: {
+					threadId: true,
+					isPublic: true,
+				},
 			},
 		})
 		return { success: true }
@@ -991,8 +993,10 @@ export async function approveThread({
 					where: { threadId: { _eq: threadId } },
 					_set: { isApproved: true },
 				},
-				threadId: true,
-				isApproved: true,
+				returning: {
+					threadId: true,
+					isApproved: true,
+				},
 			},
 		})
 		return { success: true }
@@ -1094,9 +1098,14 @@ export async function getUnapprovedThreads({ jwt }: { jwt: string }) {
 					limit: 2,
 				},
 			},
+			user: {
+				slug: true,
+				username: true,
+				profilePicture: true,
+			},
 			isApproved: true,
 			isPublic: true,
-			...everything,
+			__scalar: true,
 		},
 	})
 

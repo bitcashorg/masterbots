@@ -3,6 +3,7 @@
 import { buttonVariants } from '@/components/ui/button'
 import { Tooltip } from '@/components/ui/tooltip'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { cn, getRouteType } from '@/lib/utils'
 import { TooltipContent, TooltipTrigger } from '@radix-ui/react-tooltip'
 import type { Thread } from 'mb-genql'
@@ -13,6 +14,7 @@ import { usePathname } from 'next/navigation'
 
 export function ChatbotAvatar({ thread }: { thread: Thread }) {
 	const { activeChatbot } = useSidebar()
+	const { isAdminMode } = useThreadVisibility()
 	const pathname = usePathname()
 	const routeType = getRouteType(pathname)
 
@@ -22,7 +24,7 @@ export function ChatbotAvatar({ thread }: { thread: Thread }) {
 	return (
 		<Tooltip>
 			<TooltipTrigger>
-				{routeType === 'public' ? (
+				{routeType === 'public' || isAdminMode ? (
 					<Link
 						href={`/b/${toSlug(thread.chatbot?.name)}`}
 						className="transition-all flex items-start leading-[1.6rem] gap-2 text-sm text-foreground/50 w-max hover:text-foreground"
@@ -67,7 +69,7 @@ export function ChatbotAvatar({ thread }: { thread: Thread }) {
 			</TooltipTrigger>
 			<TooltipContent
 				className="bg-background px-2.5 py-1.5 rounded-lg"
-				id={`chatbot-avatar-tooltip-${thread.chatbot.name || 'Default BotAvatar'}`}
+				id={`profile-avatar-tooltip-${thread.user?.username || 'Default Profile'}`}
 				side="top"
 				align="start"
 			>
