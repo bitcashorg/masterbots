@@ -161,23 +161,63 @@ function ThreadPopUpCardHeader({
 	const pathname = usePathname()
 	const params = useParams()
 	const isPublic = getRouteType(pathname) === 'public'
+	const isProfile = getRouteType(pathname) === 'profile'
+	const isBot = getRouteType(pathname) === 'bot'
 
 	const onClose = () => {
 		const canonicalDomain = getCanonicalDomain(
 			activeThread?.chatbot?.name || '',
 		)
 		setIsOpenPopup(!isOpenPopup)
+		setActiveThread(null)
 
-		// navigateTo({
-		// 	urlType: 'chatbotThreadListUrl',
-		// 	shallow: true,
-		// 	navigationParams: {
-		// 		type: isPublic ? 'public' : 'personal',
-		// 		category: activeThread?.chatbot?.categories?.[0]?.category?.name || '',
-		// 		domain: canonicalDomain,
-		// 		chatbot: activeThread?.chatbot?.name || '',
-		// 	},
-		// })
+		if (isProfile) {
+			const slug = params.slug as string
+			navigateTo({
+				urlType: 'profilesUrl',
+				shallow: true,
+				navigationParams: {
+					type: 'user',
+					domain: canonicalDomain,
+					chatbot: activeThread?.chatbot?.name || '',
+					usernameSlug: slug,
+				},
+			})
+
+			setActiveThread(null)
+			setShouldRefreshThreads(true)
+
+			return
+		}
+
+		if (isBot) {
+			navigateTo({
+				urlType: 'chatbotThreadListUrl',
+				shallow: true,
+				navigationParams: {
+					domain: canonicalDomain,
+					chatbot: activeThread?.chatbot?.name || '',
+					type: isPublic ? 'public' : 'personal',
+					category:
+						activeThread?.chatbot?.categories?.[0]?.category?.name || '',
+				},
+			})
+
+			setActiveThread(null)
+			setShouldRefreshThreads(true)
+			return
+		}
+
+		navigateTo({
+			urlType: 'chatbotThreadListUrl',
+			shallow: true,
+			navigationParams: {
+				type: isPublic ? 'public' : 'personal',
+				category: activeThread?.chatbot?.categories?.[0]?.category?.name || '',
+				domain: canonicalDomain,
+				chatbot: activeThread?.chatbot?.name || '',
+			},
+		})
 
 		// ! Required to close the threads popup and show the thread list. Without this, the thread accordion will remain open.
 		// ? We have to signal the use-thread-panel component to re-fetch the threads list when the activeThread is closed.

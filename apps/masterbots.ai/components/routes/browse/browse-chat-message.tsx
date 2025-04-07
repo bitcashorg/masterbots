@@ -44,7 +44,7 @@ export function BrowseChatMessage({
 	...props
 }: ChatMessageProps) {
 	const cleanMessage = { ...message, content: cleanPrompt(message.content) }
-
+	console.log('cleanMessage', cleanMessage)
 	return (
 		<div className={cn('group relative my-4 flex items-start')} {...props}>
 			<div className="flex-1 space-y-2 overflow-hidden md:ml-4">
