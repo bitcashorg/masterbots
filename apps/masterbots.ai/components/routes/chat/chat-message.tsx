@@ -36,15 +36,6 @@ export function ChatMessage({
 	const content = cleanPrompt(message.content)
 	const cleanMessage = { ...message, content }
 	const [references, setReferences] = useState<WebSearchResult[]>([])
-	const [currentContent, setCurrentContent] = useState(content)
-
-
-	//? Update the current content when the message content changes (during continuation)
-	useEffect(() => {
-		if (content !== currentContent) {
-			setCurrentContent(content)
-		}
-	}, [content, currentContent])
 	
 	// Handler for clickable text elements.
 	const handleClickableClick = (clickableText: string) => {
