@@ -8,7 +8,7 @@ import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { memoizedMarkdownComponents } from '@/lib/memoized-markdown-components'
 import { cn } from '@/lib/utils'
 import type { ChatMessageProps, WebSearchResult } from '@/types/types'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import rehypeMathJax from 'rehype-mathjax'
 import remarkGfm from 'remark-gfm'
 import remarkRehype from 'remark-rehype'
@@ -36,7 +36,16 @@ export function ChatMessage({
 	const content = cleanPrompt(message.content)
 	const cleanMessage = { ...message, content }
 	const [references, setReferences] = useState<WebSearchResult[]>([])
+	const [currentContent, setCurrentContent] = useState(content)
 
+
+	//? Update the current content when the message content changes (during continuation)
+	useEffect(() => {
+		if (content !== currentContent) {
+			setCurrentContent(content)
+		}
+	}, [content, currentContent])
+	
 	// Handler for clickable text elements.
 	const handleClickableClick = (clickableText: string) => {
 		const context = extractFollowUpContext(message.content, clickableText)
