@@ -358,6 +358,7 @@ export async function getThread({
 	threadSlug,
 	threadQuestionSlug,
 	domain,
+	isSEO = false,
 	isPersonal = false,
 	jwt,
 	signal,
@@ -435,10 +436,11 @@ export async function getThread({
 						...(threadQuestionSlug
 							? { messages: { slug: { _eq: threadQuestionSlug } } }
 							: {}),
-						...(!isPersonal && {
-							isPublic: { _eq: true },
-							isApproved: { _eq: true },
-						}),
+						...(!isPersonal &&
+							!isSEO && {
+								isPublic: { _eq: true },
+								isApproved: { _eq: true },
+							}),
 					},
 				},
 			},
