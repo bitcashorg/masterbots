@@ -639,4 +639,30 @@ export const urlBuilders = {
 			return '/'
 		}
 	},
+
+	// * 5. URL for the chatbot profile page
+	chatbotProfileUrl({
+		domain,
+		chatbot,
+	}: {
+		domain: string
+		chatbot: string
+	}): string {
+		try {
+			if (!domain || !chatbot) {
+				const mainEntries = { domain, chatbot }
+				const missing = Object.entries(mainEntries)
+					.filter(([_, value]) => !value)
+					.map(([key]) => key)
+					.join(', ')
+
+				console.error(`Missing required parameters for profile URL: ${missing}`)
+				return '/'
+			}
+			return ['', 'b', toSlug(chatbot), normalizeDomainSlug(domain)].join('/')
+		} catch (error) {
+			console.error('Error constructing profile URL:', error)
+			return '/'
+		}
+	},
 } as const

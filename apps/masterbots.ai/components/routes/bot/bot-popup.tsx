@@ -1,0 +1,8 @@
+'use client'
+import { useThread } from '@/lib/hooks/use-thread'
+import { ThreadPopup } from '../thread/thread-popup'
+
+export function BotPopup() {
+	const { isOpenPopup } = useThread()
+	return <ThreadPopup className={isOpenPopup ? '' : 'hidden'} />
+}

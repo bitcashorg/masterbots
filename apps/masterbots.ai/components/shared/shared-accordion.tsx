@@ -229,7 +229,6 @@ export function SharedAccordion({
 			})
 		} else if (isMainThread && botProfile) {
 			// Bot profile page navigation
-
 			if (appConfig.features.ProfileNBotPageHasPopup) {
 				setLoading(true)
 				await updateActiveThread()

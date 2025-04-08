@@ -61,7 +61,8 @@ export function ThreadPopup({ className }: { className?: string }) {
 	const routeType = getRouteType(pathname)
 	const isBrowseView =
 		routeType === 'public' ||
-		(routeType === 'profile' && activeThread?.threadId)
+		routeType === 'profile' ||
+		(routeType === 'bot' && activeThread?.threadId)
 
 	return (
 		<div
@@ -172,7 +173,7 @@ function ThreadPopUpCardHeader({
 		setActiveThread(null)
 
 		if (isProfile) {
-			const slug = params.slug as string
+			const slug = params.userSlug as string
 			navigateTo({
 				urlType: 'profilesUrl',
 				shallow: true,
@@ -181,25 +182,22 @@ function ThreadPopUpCardHeader({
 					domain: canonicalDomain,
 					chatbot: activeThread?.chatbot?.name || '',
 					usernameSlug: slug,
+					category:
+						activeThread?.chatbot?.categories?.[0]?.category?.name || '',
 				},
 			})
-
 			setActiveThread(null)
 			setShouldRefreshThreads(true)
-
 			return
 		}
 
 		if (isBot) {
 			navigateTo({
-				urlType: 'chatbotThreadListUrl',
+				urlType: 'chatbotProfileUrl',
 				shallow: true,
 				navigationParams: {
 					domain: canonicalDomain,
 					chatbot: activeThread?.chatbot?.name || '',
-					type: isPublic ? 'public' : 'personal',
-					category:
-						activeThread?.chatbot?.categories?.[0]?.category?.name || '',
 				},
 			})
 
