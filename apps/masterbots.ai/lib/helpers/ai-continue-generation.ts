@@ -1,8 +1,8 @@
 import { updateMessage } from '@/services/hasura'
+import type { ContinueAIGenerationOptions } from '@/types/types'
 import type { ChatRequestOptions, CreateMessage, Message } from 'ai'
 import { nanoid } from 'nanoid'
 import { hasReasoning } from './ai-helpers'
-import type { ContinueAIGenerationOptions } from '@/types/types'
 
 export function shouldContinueGeneration(finishReason: string): boolean {
 	//? Reasons that might indicate incomplete generations

@@ -36,7 +36,7 @@ export function ChatMessage({
 	const content = cleanPrompt(message.content)
 	const cleanMessage = { ...message, content }
 	const [references, setReferences] = useState<WebSearchResult[]>([])
-	
+
 	// Handler for clickable text elements.
 	const handleClickableClick = (clickableText: string) => {
 		const context = extractFollowUpContext(message.content, clickableText)

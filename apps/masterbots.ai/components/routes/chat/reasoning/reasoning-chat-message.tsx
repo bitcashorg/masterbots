@@ -134,10 +134,10 @@ export function ReasoningChatMessage({
 						{cleanMessage.content}
 					</MemoizedReactMarkdown>
 					{isContinuing && (
-					<div className="text-sm italic text-slate-500 dark:text-slate-400 animate-pulse">
-						Continuing response...
-					</div>
-				)}
+						<div className="text-sm italic text-slate-500 dark:text-slate-400 animate-pulse">
+							Continuing response...
+						</div>
+					)}
 					{actionRequired && (
 						<ChatMessageActions className="md:!right-0" message={message} />
 					)}

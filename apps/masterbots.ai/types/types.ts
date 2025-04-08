@@ -292,7 +292,7 @@ export interface ChatMessageProps extends React.ComponentProps<'div'> {
 	actionRequired?: boolean
 	webSearchResults?: WebSearchResult[]
 	isGenerating?: boolean
-	isContinuing? : boolean,
+	isContinuing?: boolean
 }
 
 //* Reference result manipulations props
