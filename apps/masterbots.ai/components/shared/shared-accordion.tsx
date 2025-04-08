@@ -66,7 +66,6 @@ export function SharedAccordion({
 
 	const pathname = usePathname()
 	const params = useParams()
-	const router = useRouter()
 	const accordionRef = useRef<HTMLDivElement>(null)
 	const isPublic = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
 	// Handle profile page routing
