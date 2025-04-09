@@ -9,6 +9,7 @@ import type { Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
+import { useInView } from 'react-intersection-observer'
 
 interface SharedAccordionProps
 	extends Omit<React.ComponentProps<'div'>, 'onToggle'> {
@@ -88,6 +89,16 @@ export function SharedAccordion({
 	const shouldBeDisabled = disabled || isAnotherThreadOpen
 	const isMainThread = !isOpenPopup
 
+	const { ref, inView: isHeroInView } = useInView({
+		threshold: 0.1,
+	})
+
+	useEffect(() => {
+		const heroElement = document.getElementById('hero-section')
+		if (heroElement) {
+			ref(heroElement)
+		}
+	}, [ref])
 	// Mobile scroll handling
 	useEffect(() => {
 		if (variant === 'browse') {
@@ -199,10 +210,17 @@ export function SharedAccordion({
 			setIsOpenPopup(true)
 		} else if (isMainThread && profilePage) {
 			if (appConfig.features.ProfileNBotPageHasPopup) {
+				const offset = 400 // How much to scroll down
+				const scrollContainer = document.getElementById('thread-scroll-section')
+				if (isHeroInView && scrollContainer) {
+					scrollContainer.scrollBy({
+						top: offset,
+						behavior: 'smooth',
+					})
+				}
 				setLoading(true)
 				await updateActiveThread()
 				setIsOpenPopup(true)
-
 				return
 			}
 
@@ -229,6 +247,14 @@ export function SharedAccordion({
 		} else if (isMainThread && botProfile) {
 			// Bot profile page navigation
 			if (appConfig.features.ProfileNBotPageHasPopup) {
+				const offset = 400 // How much to scroll down
+				const scrollContainer = document.getElementById('thread-scroll-section')
+				if (isHeroInView && scrollContainer) {
+					scrollContainer.scrollBy({
+						top: offset,
+						behavior: 'smooth',
+					})
+				}
 				setLoading(true)
 				await updateActiveThread()
 				setIsOpenPopup(true)

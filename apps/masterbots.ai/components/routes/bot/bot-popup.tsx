@@ -4,5 +4,9 @@ import { ThreadPopup } from '../thread/thread-popup'
 
 export function BotPopup() {
 	const { isOpenPopup } = useThread()
-	return <ThreadPopup className={isOpenPopup ? '' : 'hidden'} />
+	return (
+		<div className="flex justify-center items-center w-full h-full z-10">
+			<ThreadPopup className={isOpenPopup ? '' : 'hidden'} />
+		</div>
+	)
 }
