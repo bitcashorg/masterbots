@@ -4,8 +4,10 @@ import { appConfig } from 'mb-env'
 import { toast } from 'sonner'
 
 export type CustomSonnerProps = {
-	type?: 'success' | 'error' | 'info'
+	type?: 'success' | 'error' | 'info' | 'continue'
 	text?: string | null
+	actionOnClick?: () => void
+	actionLabel?: string
 }
 
 /**
@@ -38,7 +40,12 @@ import { appConfig } from '../../../../packages/mb-env/src/config.env';
  */
 
 export function useSonner() {
-	const customSonner = ({ type = 'success', text }: CustomSonnerProps) => {
+	const customSonner = ({
+		type = 'success',
+		text,
+		actionLabel,
+		actionOnClick,
+	}: CustomSonnerProps) => {
 		const toastConfigs = {
 			success: {
 				title: 'Success',
@@ -60,6 +67,13 @@ export function useSonner() {
 				button: <X className="size-3" />,
 				icon: <Info color="#388DE2" size={18} />,
 			},
+			continue: {
+				title: 'Continue',
+				text: text ?? 'Your conversation has been continued.',
+				// TODO: When the button is clicked and there is a undo action, the toast should be dismissed and the action should be triggered.
+				button: <X className="size-3" />,
+				icon: <Info color="#9b16c7" size={18} />,
+			},
 		}
 
 		return toast.custom(
@@ -69,7 +83,7 @@ export function useSonner() {
 					<div
 						className={cn(
 							'md:w-[23.125rem] w-full border rounded-lg p-3 relative dark:bg-[#09090B] bg-[#ffff]',
-							styles[type],
+							styles[type as keyof typeof styles],
 						)}
 					>
 						<div className="flex items-center gap-2">
@@ -82,7 +96,19 @@ export function useSonner() {
 							{config.text}
 						</p>
 
-						<div className="absolute inset-y-0 right-3 flex items-center">
+						<div className="absolute inset-y-0 flex items-center right-3">
+							{actionLabel && actionOnClick && (
+								<button
+									className="border dark:border-[#27272A] border-[#E4E4E7] rounded-md py-1.5 px-3 text-sm dark:text-[#fafafa] text-[#09090B] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+									type="button"
+									onClick={() => {
+										toast.dismiss(t)
+										actionOnClick()
+									}}
+								>
+									{actionLabel}
+								</button>
+							)}
 							<button
 								className="border dark:border-[#27272A] border-[#E4E4E7] rounded-md py-1.5 px-2 text-sm dark:text-[#fafafa] text-[#09090B]"
 								type="button"
@@ -106,4 +132,5 @@ const styles = {
 	success: 'border-[#83E56A]',
 	error: 'border-[#F93333]',
 	info: 'border-[#388DE2]',
+	continue: 'border-[#9b16c7]',
 }

@@ -58,11 +58,13 @@ import { useAsync, useSetState } from 'react-use'
 // in only one file, instead of relying on reusable hooks for each context. It should be refactored.
 export default function UserThreadPanel({
 	threads: initialThreads = [],
+	count: initialCount = 0,
 	user: userProps,
 	page,
 }: {
 	user?: User
 	threads?: Thread[]
+	count?: number
 	showSearch?: boolean
 	page?: string
 }) {
@@ -93,7 +95,7 @@ export default function UserThreadPanel({
 	const searchParams = useSearchParams()
 	const { userSlug, category, chatbot } = params
 	const continuousThreadId = searchParams.get('continuousThreadId')
-	const [storeThreads, setStoreThreads] = useState<Thread[]>(initialThreads)
+	const [adminThreads, setAdminThreads] = useState<Thread[]>(initialThreads)
 	const isPublic = !/^\/(?:c|u)(?:\/|$)/.test(usePathname())
 	const fetchIdRef = useRef<number>(0)
 
@@ -121,9 +123,17 @@ export default function UserThreadPanel({
 
 	const fetchBrowseThreads = async () => {
 		try {
-			if (!userSlug) return []
+			if (!userSlug)
+				return {
+					threads: [],
+					count: 0,
+				}
 			const user = userWithSlug.value?.user
-			if (!user) return []
+			if (!user)
+				return {
+					threads: [],
+					count: 0,
+				}
 			return await getBrowseThreads({
 				userId: user.userId,
 				categoryId: activeCategory,
@@ -132,14 +142,20 @@ export default function UserThreadPanel({
 			})
 		} catch (error) {
 			console.error('Failed to fetch threads:', error)
-			return []
+			return {
+				threads: [],
+				count: 0,
+			}
 		}
 	}
 
 	const loadMore = async () => {
 		console.log('🟡 Loading More Content')
 		setLoading(true)
-		let moreThreads: Thread[] = []
+		let moreThreads: { threads: Thread[]; count: number } = {
+			threads: [],
+			count: 0,
+		}
 		const userOnSlug = userWithSlug.value?.user
 		const isOwnProfile = session?.user?.id === userOnSlug?.userId
 		if ((page === 'profile' && !session?.user) || !isOwnProfile) {
@@ -152,14 +168,12 @@ export default function UserThreadPanel({
 				limit: PAGE_SM_SIZE,
 				categoryId: activeCategory,
 				chatbotName: activeChatbot?.name,
+				isAdminMode,
 			})
 		}
-		setState({
-			threads: moreThreads ? [...threads, ...moreThreads] : threads,
-			count: threads.length,
-		})
-		setStoreThreads(
-			moreThreads ? [...storeThreads, ...moreThreads] : storeThreads,
+		setState(moreThreads)
+		setAdminThreads(
+			moreThreads ? [...adminThreads, ...moreThreads.threads] : adminThreads,
 		)
 		setLoading(false)
 	}
@@ -200,7 +214,7 @@ export default function UserThreadPanel({
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (isAdminMode) {
-			setStoreThreads(hookThreads)
+			setAdminThreads(hookThreads)
 			setState({
 				threads: hookThreads,
 				totalThreads: hookThreads.length,
@@ -236,7 +250,7 @@ export default function UserThreadPanel({
 			const userOnSlug = userWithSlug.value?.user
 			const isOwnProfile = session?.user?.id === userOnSlug?.userId
 			if (!session?.user || (!isOwnProfile && page === 'profile')) {
-				const newThreads = await fetchBrowseThreads()
+				const { threads: newThreads } = await fetchBrowseThreads()
 
 				setState({
 					threads: newThreads,
@@ -249,12 +263,13 @@ export default function UserThreadPanel({
 
 			const currentFetchId = Date.now() // Generate a unique identifier for the current fetch
 			fetchIdRef.current = currentFetchId
-			const newThreads = await getThreads({
+			const { threads: newThreads, count } = await getThreads({
 				jwt: session?.user?.hasuraJwt,
 				userId: session?.user.id,
 				limit: PAGE_SIZE,
 				categoryId: activeCategory,
 				chatbotName: activeChatbot?.name,
+				isAdminMode,
 			})
 
 			// Check if the fetchId matches the current fetchId stored in the ref
@@ -263,7 +278,7 @@ export default function UserThreadPanel({
 				setState({
 					threads: newThreads,
 					totalThreads: threads?.length,
-					count: threads?.length,
+					count,
 				})
 			}
 		} catch (error) {
@@ -309,7 +324,7 @@ export default function UserThreadPanel({
 						totalThreads: threads.length,
 					})
 				} else {
-					const searchResult = storeThreads.filter((thread: Thread) =>
+					const searchResult = adminThreads.filter((thread: Thread) =>
 						searchThreadContent(thread, term),
 					)
 					setState({
@@ -320,7 +335,7 @@ export default function UserThreadPanel({
 				}
 				setLoading(false)
 			}, 230),
-		[storeThreads, threads],
+		[adminThreads, threads],
 	)
 
 	const verifyKeyword = () => {
@@ -344,7 +359,7 @@ export default function UserThreadPanel({
 			)}
 			{loading && threads.length === 0 && !searchTerm && (
 				<div className={searchInputContainerClassName}>
-					<div className="relative w-full max-w-[900px] mx-auto flex items-center justify-center">
+					<div className="relative w-full max-w-screen-xl mx-auto flex items-center justify-center">
 						<Skeleton className="w-full mx-auto h-12 rounded-full flex absolute" />
 						<Skeleton className="size-6 rounded-full mr-auto ml-3 bg-foreground/10" />
 					</div>

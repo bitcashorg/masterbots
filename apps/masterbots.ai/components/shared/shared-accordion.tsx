@@ -1,5 +1,6 @@
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
+import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { getCanonicalDomain } from '@/lib/url'
 import { cn } from '@/lib/utils'
 import { getThread } from '@/services/hasura'
@@ -62,6 +63,7 @@ export function SharedAccordion({
 	const [currentRequest, setCurrentRequest] = useState<AbortController | null>(
 		null,
 	)
+	const { isAdminMode } = useThreadVisibility()
 
 	const pathname = usePathname()
 	const params = useParams()
@@ -272,7 +274,7 @@ export function SharedAccordion({
 		<div
 			ref={accordionRef}
 			className={cn(
-				'relative transition-all duration-300',
+				'relative w-full transition-all duration-300',
 				className,
 				// Browse variant specific styles
 				variant === 'browse' &&
@@ -313,7 +315,7 @@ export function SharedAccordion({
 						'dark:border-b-mirage border-b-gray-300 shadow-lg transform-gpu backdrop-blur-sm',
 					!isNestedThread &&
 						!open &&
-						'dark:hover:border-b-mirage hover:border-b-gray-300 [&>div>div>button]:!hidden',
+						'dark:hover:border-b-mirage hover:border-b-gray-300',
 					isNestedThread &&
 						open &&
 						'bg-gray-200/90 dark:bg-gray-800/90 !hover:rounded-t-none',
@@ -323,26 +325,28 @@ export function SharedAccordion({
 				id={props.id}
 			>
 				<div className="flex w-full">
-					<span className="flex flex-col w-full">
+					<div className="flex w-full flex-col-reverse sm:flex-row">
 						{Array.isArray(children) && children[0]}
 						{!open && Array.isArray(children) && children[1]}
-					</span>
-					<ChevronDown
-						{...(handleTrigger
-							? {
-									onClick: (e) => {
-										e.stopPropagation()
-										handleTrigger()
-									},
-								}
-							: {})}
-						className={cn(
-							'ml-auto min-w-4 max-w-4 h-9 transition-transform duration-200',
-							open ? '' : '-rotate-90',
-							arrowClass,
-							disabled && 'hidden',
-						)}
-					/>
+					</div>
+					{activeThread && (
+						<ChevronDown
+							{...(handleTrigger
+								? {
+										onClick: (e) => {
+											e.stopPropagation()
+											handleTrigger()
+										},
+									}
+								: {})}
+							className={cn(
+								'ml-auto min-w-4 max-w-4 h-9 transition-transform duration-200',
+								open ? '' : '-rotate-90',
+								arrowClass,
+								disabled && 'hidden',
+							)}
+						/>
+					)}
 				</div>
 				{loading && (
 					<div className="absolute inset-0 bg-accent/5 rounded-lg backdrop-blur-[1px] animate-pulse" />
@@ -359,7 +363,7 @@ export function SharedAccordion({
 			{/* Accordion content */}
 			<div
 				className={cn(
-					'text-sm transition-all border relative',
+					'text-sm transition-all border relative duration-300',
 					!isNestedThread &&
 						open &&
 						'animate-accordion-down dark:bg-[#18181B]/75 bg-white/75 dark:border-b-mirage border-b-gray-300 !border-t-transparent last-of-type:rounded-b-lg shadow-lg backdrop-blur-sm',

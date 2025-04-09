@@ -26,7 +26,7 @@ export default async function ChatCategoryPage(props: {
 	const category = categories.find(
 		(category) => toSlug(category.name) === params.category,
 	)
-	const threads = await getThreads({
+	const { threads, count } = await getThreads({
 		jwt,
 		userId: session?.user.id,
 		categoryId: category?.categoryId,
@@ -35,7 +35,7 @@ export default async function ChatCategoryPage(props: {
 
 	return (
 		<>
-			<ThreadPanel threads={threads} />
+			<ThreadPanel threads={threads} count={count} />
 			<ChatThreadListPanel />
 		</>
 	)
