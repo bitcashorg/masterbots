@@ -1,9 +1,9 @@
 'use client'
 
-import { BrowseChatMessageList } from '@/components/routes/browse/browse-chat-message-list'
 import { Chat } from '@/components/routes/chat/chat'
 import { ChatList } from '@/components/routes/chat/chat-list'
-import { Button } from '@/components/ui/button'
+import { ExternalLink } from '@/components/shared/external-link'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { IconClose } from '@/components/ui/icons'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
@@ -11,19 +11,16 @@ import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
-import { getCanonicalDomain } from '@/lib/url'
+import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { cn, getRouteType } from '@/lib/utils'
-import { getMessages } from '@/services/hasura'
 import type { Message as AiMessage } from 'ai'
-import type { Chatbot, Message } from 'mb-genql'
+import type { Message } from 'mb-genql'
 import { useParams, usePathname } from 'next/navigation'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef } from 'react'
 
 export function ThreadPopup({ className }: { className?: string }) {
-	const { activeChatbot } = useSidebar()
 	const { isOpenPopup, activeThread, isNewResponse } = useThread()
 	const [{ allMessages, isLoading }, { sendMessageFromResponse }] = useMBChat()
-	const [browseMessages, setBrowseMessages] = useState<Message[]>([])
 	const popupContentRef = useRef<HTMLDivElement | null>(null)
 	const threadRef = useRef<HTMLDivElement | null>(null)
 	const pathname = usePathname()
@@ -44,22 +41,10 @@ export function ThreadPopup({ className }: { className?: string }) {
 		}
 	}
 
-	// Fetch browse messages when activeThread changes
-	useEffect(() => {
-		const fetchBrowseMessages = async () => {
-			if (activeThread?.threadId) {
-				const messages = await getMessages({ threadId: activeThread.threadId })
-				setBrowseMessages(messages)
-			}
-		}
-
-		if (activeThread?.threadId) {
-			fetchBrowseMessages()
-		}
-	}, [activeThread?.threadId])
-
 	const routeType = getRouteType(pathname)
 	const isBrowseView = routeType === 'public' && activeThread?.threadId
+	const chatbotName = activeThread?.chatbot.name
+	const canonicalDomain = getCanonicalDomain(chatbotName || 'prompt')
 
 	return (
 		<div
@@ -82,7 +67,7 @@ export function ThreadPopup({ className }: { className?: string }) {
 				)}
 			>
 				<ThreadPopUpCardHeader
-					messages={isBrowseView ? browseMessages : allMessages}
+					messages={allMessages}
 					isBrowseView={isBrowseView}
 				/>
 
@@ -98,41 +83,46 @@ export function ThreadPopup({ className }: { className?: string }) {
 					)}
 				>
 					<div ref={threadRef}>
+						<ChatList
+							isThread={false}
+							messages={allMessages}
+							isLoadingMessages={isLoading}
+							sendMessageFn={(message: string) => {
+								scrollToBottom()
+								sendMessageFromResponse(message)
+							}}
+							chatContentClass="!border-x-gray-300 md:px-[16px] !mx-0 max-h-[none] dark:!border-x-mirage"
+							className="max-w-full md:px-[32px] !mx-0"
+							chatArrowClass="!right-0 !mr-0"
+							chatTitleClass="!px-2.5"
+						/>
 						{isBrowseView ? (
-							// Browse view
-							<div className="px-2.5 md:px-8 py-4">
-								<BrowseChatMessageList
-									chatbot={activeThread?.chatbot}
-									user={activeThread?.user || undefined}
-									messages={browseMessages}
-									threadId={activeThread?.threadId}
-								/>
+							<div className="pt-6 text-center border-t border-t-iron dark:border-t-mirage mt-12 mb-5 lg:mt-20">
+								<ExternalLink
+									className={cn(
+										buttonVariants({ size: 'xl', radius: 'full' }),
+										'text-xl hover:no-underline',
+									)}
+									href={`${urlBuilders.chatbotThreadListUrl({
+										type: 'personal',
+										category:
+											activeThread?.chatbot?.categories?.[0]?.category?.name ||
+											'',
+										domain: canonicalDomain,
+										chatbot: chatbotName as string,
+									})}?continuousThreadId=${activeThread?.threadId}`}
+								>
+									Continue Thread
+								</ExternalLink>
 							</div>
 						) : (
 							// Chat view
-							<>
-								<ChatList
-									isThread={false}
-									messages={allMessages}
-									isLoadingMessages={isLoading}
-									sendMessageFn={(message: string) => {
-										scrollToBottom()
-										sendMessageFromResponse(message)
-									}}
-									chatbot={activeThread?.chatbot || (activeChatbot as Chatbot)}
-									chatContentClass="!border-x-gray-300 md:px-[16px] !mx-0 max-h-[none] dark:!border-x-mirage"
-									className="max-w-full md:px-[32px] !mx-0"
-									chatArrowClass="!right-0 !mr-0"
-									chatTitleClass="!px-2.5"
-								/>
-
-								<Chat
-									isPopup
-									chatPanelClassName="!pl-0 rounded-b-[8px] overflow-hidden !absolute"
-									scrollToBottomOfPopup={scrollToBottom}
-									isAtBottom={isNearBottom}
-								/>
-							</>
+							<Chat
+								isPopup
+								chatPanelClassName="!pl-0 rounded-b-[8px] overflow-hidden !absolute"
+								scrollToBottomOfPopup={scrollToBottom}
+								isAtBottom={isNearBottom}
+							/>
 						)}
 					</div>
 				</div>
@@ -185,27 +175,32 @@ function ThreadPopUpCardHeader({
 
 	// Handle different message structures for browse and chat views
 	const threadTitle = useMemo(() => {
+		const currentThreadTitle = isBrowseView
+			? (messages[0] as Message)?.content
+			: (
+					messages.filter(
+						(m) => (m as AiMessage).role === 'user',
+					)[0] as AiMessage
+				)?.content
+		const previousThreadTitle = isBrowseView
+			? (activeThread?.thread?.messages[0] as Message)?.content
+			: (
+					activeThread?.thread?.messages?.filter(
+						(m) => m && m.role === 'user',
+					)[0] as Message
+				)?.content
+		// ? Since we are checking if the activeThread has a parentThread (thread), we are OK
+		// ? to use check and destructure the way we did here.
+		const threadTitle = activeThread?.thread
+			? previousThreadTitle
+			: currentThreadTitle
 		try {
-			return cleanPrompt(
-				isBrowseView
-					? (messages[0] as Message)?.content
-					: (
-							messages.filter(
-								(m) => (m as AiMessage).role === 'user',
-							)[0] as AiMessage
-						)?.content,
-			)
+			return cleanPrompt(threadTitle)
 		} catch (e) {
 			// console.error('Error cleaning thread title:', e)
-			return isBrowseView
-				? (messages[0] as Message)?.content
-				: (
-						messages.filter(
-							(m) => (m as AiMessage).role === 'user',
-						)[0] as AiMessage
-					)?.content
+			return threadTitle
 		}
-	}, [messages, isBrowseView])
+	}, [messages, activeThread, isBrowseView])
 
 	const threadTitleChunks = threadTitle?.split(/\s/g)
 	const threadTitleHeading = threadTitleChunks?.slice(0, 49).join(' ')

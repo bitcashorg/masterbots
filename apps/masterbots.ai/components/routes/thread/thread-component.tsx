@@ -6,6 +6,11 @@ import { ProfileAvatar } from '@/components/routes/thread/profile-avatar'
 import { ChatbotAvatar } from '@/components/shared/chatbot-avatar'
 import { SharedAccordion } from '@/components/shared/shared-accordion'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
@@ -44,12 +49,16 @@ export default function ThreadComponent({
 		loadMore,
 	})
 
-	const threadId = thread.threadId
 	const handleAccordionToggle = (isOpen: boolean) => {
 		if (isOpen) {
 			scrollToTop()
 		}
 	}
+
+	const threadId = thread.threadId
+	const threadTitle = (
+		thread.thread ? thread.thread.messages : thread.messages
+	).filter((m) => m.role === 'user')[0]?.content
 
 	return (
 		<li ref={threadRef} className="w-full px-0">
@@ -73,12 +82,22 @@ export default function ThreadComponent({
 				<div className="flex w-full gap-2 text-left px-2.5 py-2 overflow-x-hidden">
 					<ChatbotAvatar thread={thread} />
 					<span className="w-full text-left whitespace-pre-line line-clamp-2">
-						{thread.messages.filter((m) => m.role === 'user')[0]?.content || (
+						{threadTitle || (
 							<Skeleton className="w-[140px] md:w-[280px] max-w-[80%] h-[20px]" />
 						)}
 					</span>
 				</div>
 				<div className="ml-auto flex gap-1.5 items-start justify-center group">
+					{thread.thread && (
+						<Tooltip>
+							<TooltipTrigger className="transition-all opacity-30 hover:opacity-100 focus-within:opacity-100 mt-2.5 px-1.5 py-0.5 w-auto text-[10px] font-medium rounded-md bg-accent text-accent-foreground">
+								previous
+							</TooltipTrigger>
+							<TooltipContent>
+								Started from a previous thread conversation.
+							</TooltipContent>
+						</Tooltip>
+					)}
 					<ChatOptions
 						threadId={thread.threadId}
 						thread={thread}

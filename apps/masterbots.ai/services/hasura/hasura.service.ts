@@ -334,6 +334,16 @@ export async function getThreads({
 					followeeIdChatbot: true,
 				},
 			},
+			thread: {
+				threadId: true,
+				messages: {
+					__scalar: true,
+					__args: {
+						orderBy: [{ createdAt: 'ASC' }],
+						limit: 2,
+					},
+				},
+			},
 			isApproved: true,
 			isPublic: true,
 			__scalar: true,
