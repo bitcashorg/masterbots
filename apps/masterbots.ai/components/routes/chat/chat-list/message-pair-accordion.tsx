@@ -114,12 +114,9 @@ export function MessagePairAccordion({
 		}
 	}, [])
 
-	const shouldShowFirstUserMessage = !(
-		!isThread &&
-		index === 0 &&
-		activeThread?.thread &&
-		isPrevious
-	)
+	const shouldShowFirstUserMessage = activeThread?.thread
+		? !(!isThread && !index && isPrevious)
+		: !(!isThread && !index)
 
 	return (
 		<SharedAccordion
@@ -143,11 +140,13 @@ export function MessagePairAccordion({
 					'sticky top-0 md:-top-10 z-[1] px-3 [&[data-state=open]]:rounded-t-[8px]':
 						isThread,
 					'px-[calc(32px-0.25rem)]': !isThread,
-					hidden: !isThread && index === 0 && isPrevious, // Style differences for previous vs current messages
+					hidden: !isThread && !index && isPrevious, // Style differences for previous vs current messages
 					'dark:bg-[#1d283a9a] bg-iron !border-l-[transparent] [&[data-state=open]]:!bg-gray-400/50 dark:[&[data-state=open]]:!bg-mirage':
-						!isPrevious,
+						!isPrevious && !isThread && index,
 					'bg-accent/10 dark:bg-accent/10 hover:bg-accent/30 hover:dark:bg-accent/30 border-l-accent/10 dark:border-l-accent/10 [&[data-state=open]]:!bg-accent/30 dark:[&[data-state=open]]:!bg-accent/30':
 						isPrevious,
+					'bg-transparent dark:bg-transparent w-auto h-auto px-4 py-0 border-none ml-auto z-10':
+						!isThread && !index && !activeThread?.thread,
 				},
 				props.chatTitleClass,
 			)}
@@ -155,7 +154,8 @@ export function MessagePairAccordion({
 				{
 					// Border styling differences
 					'!border-l-accent/20': isPrevious,
-					'!border-l-transparent': !isPrevious,
+					'!border-l-transparent': !isPrevious && !isThread && index,
+					'-mt-6': isAccordionFocused && !isThread && !index,
 				},
 				props.chatContentClass,
 			)}
@@ -165,10 +165,12 @@ export function MessagePairAccordion({
 			{shouldShowFirstUserMessage && (
 				<div className={cn('flex flex-col items-start gap-2')}>
 					<MessageRenderer actionRequired={false} message={pair.userMessage} />
-					<AttachmentCards
-						userAttachments={userAttachments}
-						isAccordionFocused={isAccordionFocused}
-					/>
+					{!isThread && index !== 0 && (
+						<AttachmentCards
+							userAttachments={userAttachments}
+							isAccordionFocused={isAccordionFocused}
+						/>
+					)}
 				</div>
 			)}
 			{/* Thread Description */}
@@ -196,24 +198,11 @@ export function MessagePairAccordion({
 					props.chatContentClass,
 				)}
 			>
-				{/* Thread Title with indicator for previous messages */}
+				{/* Thread Title with indicator for previous (continuous) messages */}
 				{isPrevious && index === 0 ? (
-					<>
-						<span className="absolute top-1 -left-3 md:-left-5 px-1.5 py-0.5 text-[10px] font-medium rounded-md bg-accent text-accent-foreground">
-							Previous Thread
-						</span>
-						<div className="pb-3 mt-4 overflow-hidden opacity-50">
-							Continued from a previous thread
-							{activeThread?.thread?.user?.username ? (
-								<>
-									{' made by '}
-									<b>&ldquo;{activeThread?.thread?.user?.username}&rdquo;</b>.
-								</>
-							) : (
-								'.'
-							)}
-						</div>
-					</>
+					<span className="w-auto ml-1 px-1.5 py-1 text-[10px] font-medium rounded-md bg-accent text-accent-foreground">
+						Continuous Thread
+					</span>
 				) : (
 					''
 				)}
