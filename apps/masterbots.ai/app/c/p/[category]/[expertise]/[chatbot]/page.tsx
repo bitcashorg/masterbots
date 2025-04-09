@@ -35,12 +35,13 @@ export default async function BrowseProBotPage(props: {
 	if (!userId) {
 		throw new Error('User ID is missing.')
 	}
-	const threads = await getThreads({ chatbotName, jwt, userId })
+	const { threads, count } = await getThreads({ chatbotName, jwt, userId })
 
 	return (
 		<>
 			<ThreadPanel
 				threads={threads}
+				count={count}
 				// search={searchParams}
 			/>{' '}
 			<ChatChatbot chatbot={chatbot} />

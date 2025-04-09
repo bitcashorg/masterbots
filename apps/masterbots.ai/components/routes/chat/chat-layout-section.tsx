@@ -31,7 +31,7 @@ export function ChatLayoutSection({ children }: { children: React.ReactNode }) {
 				'scrollbar',
 			)}
 		>
-			<div className="flex flex-col w-full max-w-screen-lg gap-10 px-4 pt-5 mx-auto h-full md:px-10">
+			<div className="flex flex-col w-full max-w-screen-xl gap-10 px-4 pt-5 mx-auto h-full md:px-10">
 				{children}
 			</div>
 

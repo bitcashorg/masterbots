@@ -27,14 +27,13 @@ import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
-import { getCanonicalDomain } from '@/lib/url'
+import { generateUniqueSlug, getCanonicalDomain } from '@/lib/url'
 import {
 	createThread,
 	deleteThread,
-	doesMessageSlugExist,
-	doesThreadSlugExist,
 	getThread,
 	saveNewMessage,
+	updateMessage,
 } from '@/services/hasura'
 import type { SaveNewMessageParams } from '@/services/hasura/hasura.service.type'
 import type {
@@ -43,17 +42,16 @@ import type {
 	ChatbotMetadataClassification,
 	ChatbotMetadataExamples,
 } from '@/types/types'
+import { type UseChatOptions, useChat } from '@ai-sdk/react'
 import type * as OpenAi from 'ai'
 import type {
 	Message as AiMessage,
 	ChatRequestOptions,
 	CreateMessage,
 } from 'ai'
-import { type UseChatOptions, useChat } from '@ai-sdk/react'
 import { throttle, uniqBy } from 'lodash'
 import { appConfig } from 'mb-env'
 import type { Chatbot, Message, Thread } from 'mb-genql'
-import { toSlug } from 'mb-lib'
 import { nanoid } from 'nanoid'
 import { useSession } from 'next-auth/react'
 import { useParams, useSearchParams } from 'next/navigation'
@@ -249,7 +247,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 				if (isNewChat) {
 					await deleteThread({
-						threadId: activeThread?.threadId,
+						threadId,
 						jwt: session?.user?.hasuraJwt,
 						userId: session?.user.id,
 					})
@@ -266,7 +264,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					})
 				}
 
-				//? Early check of errors
+				// biome-ignore lint/style/useConst: <explanation>
+				let finalMessage = { ...message }
+				// biome-ignore lint/style/useConst: <explanation>
+				let needsContinuation = shouldContinueGeneration(options.finishReason)
+
 				if (options.finishReason === 'error') {
 					customSonner({
 						type: 'error',
@@ -284,123 +286,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					return
 				}
 
-				const needsContinuation = shouldContinueGeneration(options.finishReason)
-				let finalContent = message.content
-
-				//?  Continuation before database save
-				if (needsContinuation) {
-					if (appConfig.features.devMode) {
-						customSonner({
-							type: 'info',
-							text: `Generation was cut off (${options.finishReason}). Attempting to continue...`,
-						})
-					}
-
-					setLoadingState('continuing')
-
-					//? Creates an UI-only state that shows a continuation indicator for the user
-					const updatedMessages = [...messages]
-					const lastMessageIndex = updatedMessages.findIndex(
-						(m) => m.id === message.id,
-					)
-
-					if (lastMessageIndex !== -1) {
-						//? Set one flag to indicate this message is being continued
-						updatedMessages[lastMessageIndex] = {
-							...updatedMessages[lastMessageIndex],
-							content: `${message.content} ...`,
-						}
-						setMessages(updatedMessages)
-					}
-
-					//? Gets the continuation without adding it to the UI chat history
-					const continuedContent = await continueAIGeneration(
-						message,
-						async (promptMessage, options) => {
-							//? Uses a direct API call instead of the append function to avoid adding to the UI
-							try {
-								const response = await fetch('/api/chat', {
-									method: 'POST',
-									headers: {
-										'Content-Type': 'application/json',
-									},
-									body: JSON.stringify({
-										messages: [
-											...systemPrompts,
-											...messages.filter((m) => m.id !== message.id), // Exclude the cut-off message
-											promptMessage,
-										],
-										id: threadId,
-										model: selectedModel,
-										clientType,
-										webSearch,
-										isPowerUp,
-										isContinuation: true,
-									}),
-								})
-
-								if (!response.ok) {
-									throw new Error('Failed to continue generation')
-								}
-
-								//? Parse the streamed response
-								const reader = response.body?.getReader()
-								let result = ''
-
-								if (reader) {
-									while (true) {
-										const { done, value } = await reader.read()
-										if (done) break
-
-										//? Process the chunk to extract the text content
-										const chunk = new TextDecoder().decode(value)
-										const lines = chunk.split('\n')
-
-										for (const line of lines) {
-											const match = line.match(/^0:"(.*)"$/)
-											if (match) {
-												result += match[1]
-											}
-										}
-									}
-								}
-
-								return result
-							} catch (error) {
-								console.error('Error continuing generation:', error)
-								return null
-							}
-						},
-						{
-							setLoadingState,
-							customSonner,
-							devMode: appConfig.features.devMode,
-							chatConfig: useChatConfig.body,
-							maxAttempts: 2,
-						},
-					)
-
-					//? Update the final content with the continued content
-					if (continuedContent) {
-						finalContent = continuedContent
-
-						//? Updates the message in the UI to reflect the complete content
-						const updatedMessages = [...messages]
-						const lastMessageIndex = updatedMessages.findIndex(
-							(m) => m.id === message.id,
-						)
-
-						if (lastMessageIndex !== -1) {
-							updatedMessages[lastMessageIndex] = {
-								...updatedMessages[lastMessageIndex],
-								content: finalContent,
-							}
-							setMessages(updatedMessages)
-						}
-					}
-				}
-
-				//? Save the complete message to the database
 				const aiChatThreadId = resolveThreadId({
 					isContinuousThread,
 					randomThreadId: randomThreadId.current,
@@ -438,6 +323,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					threadId: aiChatThreadId ?? '',
 					jwt: session?.user?.hasuraJwt,
 				}
+
 				const curatedPreUserMessageSlug = userContentRef.current
 					.toLocaleLowerCase()
 					.replace(
@@ -445,44 +331,22 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						'',
 					)
 
-				// Check and get unique slugs for both messages
-				let userMessageSlug = toSlug(curatedPreUserMessageSlug)
-				let userSlugCheck = await doesMessageSlugExist(userMessageSlug)
+				// Generate unique slugs for both messages
+				const userMessageSlug = await generateUniqueSlug(
+					curatedPreUserMessageSlug,
+				)
+				const assistantMessageSlug = await generateUniqueSlug(message.content)
 
-				// Create a throttled version of the slug check function outside the loop to avoid creating a new function
-				// on each iteration, increase performance and infinite loop prevention.
-				const throttledCheckSlug = throttle(async (baseSlug, sequence) => {
-					const newSlug = toSlug(`${baseSlug} ${sequence}`)
-					return await doesMessageSlugExist(newSlug)
-				}, 250)
+				//? assistant message with reasoning information
+				const assistantMessageThinking = hasReasoning(finalMessage)
+					? {
+							thinking:
+								finalMessage.parts?.find((msg) => msg.type === 'reasoning')
+									?.reasoning || finalMessage.reasoning,
+						}
+					: {}
 
-				// If user message slug already exists, append a counter
-				while (userSlugCheck.exists) {
-					userMessageSlug = toSlug(
-						`${curatedPreUserMessageSlug} ${userSlugCheck.sequence + 1}`,
-					)
-					userSlugCheck = await throttledCheckSlug(
-						curatedPreUserMessageSlug,
-						userSlugCheck.sequence + 1,
-					)
-				}
-
-				// We need to check for a unique slug for assistant message as well
-				let assistantMessageSlug = toSlug(message.content)
-				let assistantSlugCheck =
-					await doesMessageSlugExist(assistantMessageSlug)
-
-				// If assistant message slug already exists, append a counter
-				while (assistantSlugCheck.exists) {
-					assistantMessageSlug = toSlug(
-						`${message.content} ${assistantSlugCheck.sequence + 1}`,
-					)
-					assistantSlugCheck = await throttledCheckSlug(
-						message.content,
-						assistantSlugCheck.sequence + 1,
-					)
-				}
-
+				// Create new messages and save them to the database
 				const [
 					newUserMessage,
 					newAssistantMessage,
@@ -497,24 +361,63 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					},
 					{
 						...newBaseMessage,
-						...(hasReasoning(message)
-							? {
-									thinking:
-										message.parts?.find((msg) => msg.type === 'reasoning')
-											?.reasoning || message.reasoning,
-								}
-							: {}),
+						...assistantMessageThinking,
 						messageId: assistantMessageId,
 						slug: assistantMessageSlug,
 						role: 'assistant',
-						content: finalContent, // final content including continuation
+						content: finalMessage.content,
 						createdAt: new Date(Date.now() + 1000).toISOString(),
 					},
 				]
+
 				await Promise.all([
 					saveNewMessage(newUserMessage),
 					saveNewMessage(newAssistantMessage),
 				])
+
+				//? Check if we need to continue generation due to cut-off reasons
+				if (needsContinuation) {
+					if (appConfig.features.devMode) {
+						customSonner({
+							type: 'info',
+							text: `Generation was cut off (${options.finishReason}). Attempting to continue...`,
+						})
+					}
+
+					//?  Message object for updateMessage
+					const messageForContinuation = {
+						...finalMessage,
+						messageId: assistantMessageId,
+						...assistantMessageThinking,
+					}
+
+					//? Try to continue the AI generation
+					const continuedContent = await continueAIGeneration(
+						messageForContinuation,
+						append,
+						{
+							setLoadingState,
+							customSonner,
+							devMode: appConfig.features.devMode,
+							chatConfig: useChatConfig.body,
+							maxAttempts: 2,
+							jwt: session?.user?.hasuraJwt,
+						},
+					)
+
+					if (continuedContent) {
+						//?  Update the message in the database with continued content
+						await updateMessage({
+							messageId: assistantMessageId,
+							content: continuedContent,
+							thinking: assistantMessageThinking.thinking,
+							jwt: session?.user?.hasuraJwt,
+						})
+
+						//? Updates the final message
+						finalMessage.content = continuedContent
+					}
+				}
 
 				setState({
 					isNewChat: false,
@@ -561,7 +464,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 				if (isNewChat) {
 					await deleteThread({
-						threadId: activeThread?.threadId,
+						threadId,
 						jwt: session?.user?.hasuraJwt,
 						userId: session?.user.id,
 					})
@@ -595,7 +498,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 			if (isNewChat) {
 				await deleteThread({
-					threadId: activeThread?.threadId,
+					threadId,
 					jwt: session?.user?.hasuraJwt,
 					userId: session?.user.id,
 				})
@@ -696,7 +599,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 		if (!thread) {
 			thread = await getThread({
-				threadId: isContinuousThread ? randomThreadId.current : threadId,
+				threadId,
+				isPersonal: true,
 				jwt: session?.user?.hasuraJwt,
 			})
 		}
@@ -875,7 +779,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 		const fullMessage = bulletContent
 
 		appendWithMbContextPrompts({
-			id: activeThread?.threadId,
+			id: threadId,
 			content: fullMessage,
 			role: 'user',
 		})
@@ -910,17 +814,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				((!allMessages.length && isNewChat) || isContinuingThread) &&
 				chatbot
 			) {
-				let slug = toSlug(userContentRef.current)
-				let slugCheck = await doesThreadSlugExist(slug)
-
-				while (slugCheck.exists) {
-					slug = toSlug(`${userContentRef.current} ${slugCheck.sequence + 1}`)
-					slugCheck = await doesThreadSlugExist(slug)
-				}
+				const threadSlug = await generateUniqueSlug(userContentRef.current)
 
 				await createThread({
-					threadId: threadId as string,
-					slug,
+					threadId,
+					slug: threadSlug,
 					chatbotId: chatbot.chatbotId,
 					parentThreadId: isContinuingThread
 						? (continuousThreadId as string)

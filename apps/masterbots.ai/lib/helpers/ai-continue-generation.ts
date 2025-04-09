@@ -1,55 +1,18 @@
+import { updateMessage } from '@/services/hasura'
+import type { ContinueAIGenerationOptions } from '@/types/types'
 import type { ChatRequestOptions, CreateMessage, Message } from 'ai'
 import { nanoid } from 'nanoid'
+import { hasReasoning } from './ai-helpers'
 
-/**
- * Determines if AI generation should be continued based on the finish reason
- * @param finishReason - The reason why the AI generation stopped
- * @returns boolean indicating whether generation should be continued
- */
 export function shouldContinueGeneration(finishReason: string): boolean {
-	// Reasons that might indicate incomplete generations
+	//? Reasons that might indicate incomplete generations
 	const incompleteReasons = ['length', 'content-filter', 'error', 'unknown']
 	return incompleteReasons.includes(finishReason)
 }
 
-//? Define the types to match your application's types
-export type CustomSonnerParams = {
-	type: 'success' | 'error' | 'info'
-	text: string
-}
-
-//? Define the type for your ChatLoadingState
-export type ChatLoadingState =
-	| 'processing'
-	| 'digesting'
-	| 'polishing'
-	| 'generating'
-	| 'continuing'
-	| 'finished'
-	| undefined
-
-/**
- * Configuration options for AI continuation
- */
-export interface ContinueAIGenerationOptions {
-	setLoadingState: (state: any) => void
-	// biome-ignore lint/suspicious/noConfusingVoidType: <explanation>
-	customSonner: (params: CustomSonnerParams) => string | number | void
-	devMode: boolean
-	chatConfig?: Record<string, any>
-	maxAttempts?: number
-}
-
-/**
- * Attempts to continue an incomplete AI generation
- * @param incompleteMessage - The message that was cut off
- * @param continuationFn - Function to get continuation text
- * @param options - Configuration options
- * @returns A promise resolving to the continued message content or null if failed
- */
 export async function continueAIGeneration(
 	incompleteMessage: Message,
-	continuationFn: (
+	append: (
 		message: Message | CreateMessage,
 		options?: ChatRequestOptions,
 	) => Promise<string | null | undefined>,
@@ -61,10 +24,12 @@ export async function continueAIGeneration(
 		devMode,
 		chatConfig = {},
 		maxAttempts = 3,
+		jwt,
 	} = options
 
 	let attempts = 0
 	let continuedContent = incompleteMessage.content
+	const messageId = incompleteMessage.id
 
 	try {
 		while (attempts < maxAttempts) {
@@ -79,7 +44,7 @@ export async function continueAIGeneration(
 
 			setLoadingState('continuing')
 
-			//? Continuation prompt flow - using different strategies based on the attempt number
+			//* continuation prompt flow - using different strategies based on the attempt number
 			let continuationPrompt: CreateMessage
 
 			if (attempts === 1) {
@@ -120,32 +85,61 @@ export async function continueAIGeneration(
 				},
 			}
 
-			//? Small delay between attempts to avoid rate limits
+			//* small delay between attempts to avoid rate limits
 			await new Promise((resolve) => setTimeout(resolve, 1000))
 
-			//? Try to continue the generation using the provided continuation function
-			const newContent = await continuationFn(
-				continuationPrompt,
-				continuationOptions,
-			)
+			//* Try to continue the generation
+			const newContent = await append(continuationPrompt, continuationOptions)
 
-			//? If we got new content, combine it with the previous content
+			//* If we got new content, update the message in the database
 			if (newContent) {
-				continuedContent = `${continuedContent.trim()} ${newContent.trim()}`
-				// Check if we have enough content to consider this a successful continuation
-				if (newContent.length > 20) {
+				//? Combine original content with the new content
+				const updatedContent = `${continuedContent} ${newContent}`
+
+				//? Determine if we have thinking content to update
+				const thinkingContent = hasReasoning(incompleteMessage)
+					? {
+							thinking:
+								incompleteMessage.parts?.find((msg) => msg.type === 'reasoning')
+									?.reasoning || incompleteMessage.reasoning,
+						}
+					: undefined
+
+				//? Update the message in the database
+				const result = await updateMessage({
+					messageId,
+					content: updatedContent,
+					thinking: thinkingContent?.thinking,
+					jwt,
+				})
+
+				if (result.success) {
+					//? Update content reference
+					continuedContent = updatedContent
+
 					if (devMode) {
 						customSonner({
 							type: 'success',
-							text: `Successfully continued AI generation on attempt ${attempts}`,
+							text: `Successfully continued and updated message on attempt ${attempts}`,
 						})
 					}
-					return continuedContent
+
+					//? If we got enough new content, consider it successful
+					if (newContent.length > 20) {
+						return continuedContent
+					}
+				} else {
+					if (devMode) {
+						customSonner({
+							type: 'error',
+							text: `Failed to update message: ${result.error}`,
+						})
+					}
 				}
 			}
 		}
 
-		//? If we couldn't get enough content after all attempts
+		//* feedback to user if we couldn't get enough content
 		customSonner({
 			type: 'info',
 			text: 'Could not complete the full response after multiple attempts.',

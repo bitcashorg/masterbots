@@ -16,7 +16,7 @@
 import BrowseChatbotDetails from '@/components/routes/browse/browse-chatbot-details'
 import { BrowseThreadBlog } from '@/components/routes/browse/browse-thread-blog'
 import { ExternalLink } from '@/components/shared/external-link'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { urlBuilders } from '@/lib/url'
 import { cn } from '@/lib/utils'
 import { getMessages } from '@/services/hasura'
@@ -118,7 +118,7 @@ export function BrowseChatMessages({
 					<span>Back </span>
 				</Link>
 			</div>
-			<div className="flex flex-col max-w-screen-lg px-4 mx-auto mt-8 gap-y-4">
+			<div className="flex flex-col max-w-screen-xl px-4 mx-auto mt-8 gap-y-4">
 				{parentThreadTitle && (
 					<p>
 						This thread is an extension of the original content from the parent

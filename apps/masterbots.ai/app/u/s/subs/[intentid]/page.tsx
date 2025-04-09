@@ -26,7 +26,7 @@ export default async function IndexPage(props: IndexPageProps) {
 		redirect('/auth/signin')
 	}
 
-	const threads = await getBrowseThreads({
+	const { threads } = await getBrowseThreads({
 		userId: session?.user.id,
 		limit: 1,
 	})

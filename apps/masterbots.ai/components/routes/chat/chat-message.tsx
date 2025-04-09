@@ -6,8 +6,9 @@ import {
 } from '@/lib/chat-clickable-text'
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { memoizedMarkdownComponents } from '@/lib/memoized-markdown-components'
-import { cn } from '@/lib/utils'
+import { cn, getRouteType } from '@/lib/utils'
 import type { ChatMessageProps, WebSearchResult } from '@/types/types'
+import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import rehypeMathJax from 'rehype-mathjax'
 import remarkGfm from 'remark-gfm'
@@ -29,8 +30,12 @@ export function ChatMessage({
 	chatbot,
 	actionRequired = true,
 	webSearchResults = [],
+	isContinuing = false,
 	...props
 }: ChatMessageProps) {
+	const pathname = usePathname()
+	const routeType = getRouteType(pathname)
+	const isBrowseView = routeType === 'public'
 	// Clean the message content and update the message object.
 	const content = cleanPrompt(message.content)
 	const cleanMessage = { ...message, content }
@@ -89,13 +94,23 @@ export function ChatMessage({
 				<MemoizedReactMarkdown
 					className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
 					remarkPlugins={[remarkGfm, rehypeMathJax, remarkRehype]}
-					components={memoizedMarkdownComponents({
-						handleClickableClick,
-						shouldPreProcessChildren: true,
-					})}
+					components={memoizedMarkdownComponents(
+						!isBrowseView
+							? {
+									handleClickableClick,
+									shouldPreProcessChildren: true,
+								}
+							: undefined,
+					)}
 				>
 					{cleanMessage.content}
 				</MemoizedReactMarkdown>
+
+				{isContinuing && (
+					<div className="text-sm italic text-slate-500 dark:text-slate-400 animate-pulse">
+						Continuing response...
+					</div>
+				)}
 
 				{actionRequired && (
 					<ChatMessageActions className="md:!right-0" message={message} />

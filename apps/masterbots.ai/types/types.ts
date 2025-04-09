@@ -59,7 +59,6 @@ export type ChatLoadingState =
 	| 'finished'
 	| 'continuing'
 
-
 export type CleanPromptResult = {
 	language: string
 	originalText: string
@@ -293,6 +292,7 @@ export interface ChatMessageProps extends React.ComponentProps<'div'> {
 	actionRequired?: boolean
 	webSearchResults?: WebSearchResult[]
 	isGenerating?: boolean
+	isContinuing?: boolean
 }
 
 //* Reference result manipulations props
@@ -406,4 +406,21 @@ export type PreferenceSectionProps = {
 	title: string
 	items: PreferenceItemType[]
 	variant?: 'default' | 'danger'
+}
+
+export type CustomSonnerParams = {
+	type: 'success' | 'error' | 'info'
+	text: string
+}
+
+export interface ContinueAIGenerationOptions {
+	// biome-ignore lint/suspicious/noExplicitAny: <we are using any in the meantime>
+	setLoadingState: (state: any) => void
+	// biome-ignore lint/suspicious/noConfusingVoidType: <void is being included in the return type>
+	customSonner: (params: CustomSonnerParams) => string | number | void
+	devMode: boolean
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	chatConfig?: Record<string, any>
+	maxAttempts?: number
+	jwt?: string // JWT for authentication
 }
