@@ -16,7 +16,13 @@ export default async function ProfilePage(props: {
 	params: PageProps['params']
 }) {
 	const params = await props.params
-	let threads: Thread[] = []
+	let threadsResults: {
+		threads: Thread[]
+		count: number
+	} = {
+		threads: [],
+		count: 0,
+	}
 	const slug = params.userSlug as string
 
 	const session = await getServerSession(authOptions)
@@ -57,13 +63,16 @@ export default async function ProfilePage(props: {
 			})
 		} catch (error) {
 			console.error('Failed to fetch threads:', error)
-			return []
+			return {
+				threads: [],
+				count: 0,
+			}
 		}
 	}
 
-	threads = await fetchThreads()
+	threadsResults = await fetchThreads()
 
-	return <UserThreadList user={user as User} threads={threads} />
+	return <UserThreadList user={user as User} threads={threadsResults.threads} />
 }
 
 export async function generateMetadata(props: {

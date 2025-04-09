@@ -20,7 +20,7 @@ export default async function IndexPage() {
 		redirect('/auth/signin')
 	}
 
-	const threads = await getThreads({
+	const { threads, count } = await getThreads({
 		jwt,
 		userId: session?.user.id,
 	})
@@ -32,7 +32,7 @@ export default async function IndexPage() {
 
 	return (
 		<>
-			<ThreadPanel threads={threads} />
+			<ThreadPanel threads={threads} count={count} />
 			<ChatThreadListPanel />
 			<Subscription user={user} />
 		</>
