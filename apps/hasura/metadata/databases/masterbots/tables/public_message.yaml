@@ -108,6 +108,24 @@ select_permissions:
       filter: {}
       allow_aggregations: true
     comment: ""
+update_permissions:
+  - role: moderator
+    permission:
+      columns:
+        - content
+      filter: {}
+      check: null
+    comment: ""
+  - role: user
+    permission:
+      columns:
+        - content
+      filter:
+        thread:
+          user_id:
+            _eq: X-Hasura-User-Id
+      check: null
+    comment: ""
 delete_permissions:
   - role: moderator
     permission:

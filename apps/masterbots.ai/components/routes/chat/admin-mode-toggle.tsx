@@ -10,22 +10,25 @@ export function AdminModeToggle() {
 	const { isAdminMode, handleToggleAdminMode } = useThreadVisibility()
 
 	return (
-		<Button
-			variant={isAdminMode ? 'destructive' : 'secondary'}
-			onClick={handleToggleAdminMode}
-			className="flex items-center justify-center px-4 py-2 transition-all duration-300 rounded-md shadow-md"
-		>
-			{isAdminMode ? (
-				<>
-					<ShieldX className="w-5 h-5 mr-2" />
-					Disable Admin Mode
-				</>
-			) : (
-				<>
-					<ShieldCheck className="w-5 h-5 mr-2" />
-					Enable Admin Mode
-				</>
-			)}
-		</Button>
+		<>
+			<Button
+				variant={isAdminMode ? 'destructive' : 'secondary'}
+				onClick={handleToggleAdminMode}
+				size="xl"
+				className="flex items-center justify-center transition-all duration-300 rounded-md shadow-md"
+			>
+				{isAdminMode ? (
+					<>
+						<ShieldX className="w-5 h-5 mr-2" />
+						Disable Admin Mode
+					</>
+				) : (
+					<>
+						<ShieldCheck className="w-5 h-5 mr-2" />
+						Enable Admin Mode
+					</>
+				)}
+			</Button>
+		</>
 	)
 }

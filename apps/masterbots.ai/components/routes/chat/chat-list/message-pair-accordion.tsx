@@ -69,13 +69,14 @@ export function MessagePairAccordion({
 	const toggleThreadQuestionUrl = useCallback((isOpen: boolean) => {
 		setIsAccordionFocused(isOpen)
 		// console.log('window.location.pathname.split', window.location.pathname.split('/'))
-		const [, _base, category, domain, chatbot, threadSlug, threadQuestionSlug] =
+		// ? Chat Thread URL
+		const [, base, category, domain, chatbot, threadSlug, threadQuestionSlug] =
 			window.location.pathname.split('/')
 		const navigationParts = {
-			category,
-			domain,
-			chatbot,
-			threadSlug,
+			category: isPublic ? base : category,
+			domain: isPublic ? category : domain,
+			chatbot: isPublic ? domain : chatbot,
+			threadSlug: isPublic ? chatbot : threadSlug,
 			threadQuestionSlug: pair.userMessage.slug,
 		}
 
@@ -113,6 +114,13 @@ export function MessagePairAccordion({
 		}
 	}, [])
 
+	const shouldShowFirstUserMessage = !(
+		!isThread &&
+		index === 0 &&
+		activeThread?.thread &&
+		isPrevious
+	)
+
 	return (
 		<SharedAccordion
 			defaultState={
@@ -135,7 +143,7 @@ export function MessagePairAccordion({
 					'sticky top-0 md:-top-10 z-[1] px-3 [&[data-state=open]]:rounded-t-[8px]':
 						isThread,
 					'px-[calc(32px-0.25rem)]': !isThread,
-					hidden: !isThread && index === 0, // Style differences for previous vs current messages
+					hidden: !isThread && index === 0 && isPrevious, // Style differences for previous vs current messages
 					'dark:bg-[#1d283a9a] bg-iron !border-l-[transparent] [&[data-state=open]]:!bg-gray-400/50 dark:[&[data-state=open]]:!bg-mirage':
 						!isPrevious,
 					'bg-accent/10 dark:bg-accent/10 hover:bg-accent/30 hover:dark:bg-accent/30 border-l-accent/10 dark:border-l-accent/10 [&[data-state=open]]:!bg-accent/30 dark:[&[data-state=open]]:!bg-accent/30':
@@ -154,10 +162,7 @@ export function MessagePairAccordion({
 			onToggle={toggleThreadQuestionUrl}
 			variant="chat"
 		>
-			{/* Thread Title with indicator for previous messages */}
-			{!isThread && index === 0 ? (
-				''
-			) : (
+			{shouldShowFirstUserMessage && (
 				<div className={cn('flex flex-col items-start gap-2')}>
 					<MessageRenderer actionRequired={false} message={pair.userMessage} />
 					<AttachmentCards
@@ -191,17 +196,22 @@ export function MessagePairAccordion({
 					props.chatContentClass,
 				)}
 			>
+				{/* Thread Title with indicator for previous messages */}
 				{isPrevious && index === 0 ? (
 					<>
-						<span className="absolute top-1 -left-5 px-1.5 py-0.5 text-[10px] font-medium rounded-md bg-accent text-accent-foreground">
+						<span className="absolute top-1 -left-3 md:-left-5 px-1.5 py-0.5 text-[10px] font-medium rounded-md bg-accent text-accent-foreground">
 							Previous Thread
 						</span>
 						<div className="pb-3 mt-4 overflow-hidden opacity-50">
-							Continued from{' '}
-							<b>&ldquo;{pair.userMessage.content.trim()}&rdquo;</b> thread
-							{activeThread?.thread?.user?.username
-								? `, by ${activeThread?.thread?.user?.username}.`
-								: '.'}
+							Continued from a previous thread
+							{activeThread?.thread?.user?.username ? (
+								<>
+									{' made by '}
+									<b>&ldquo;{activeThread?.thread?.user?.username}&rdquo;</b>.
+								</>
+							) : (
+								'.'
+							)}
 						</div>
 					</>
 				) : (

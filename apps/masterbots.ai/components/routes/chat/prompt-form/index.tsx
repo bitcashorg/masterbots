@@ -180,6 +180,8 @@ export function PromptForm({
 		...attachment,
 		isSelected: attachments.some((a) => a.id === attachment.id),
 	}))
+	// Returns true if the user has selected any attachment that is related to the selected thread
+	const userHasRelatedAttachment = Boolean(userAttachments.length)
 
 	return (
 		<motion.form
@@ -232,38 +234,29 @@ export function PromptForm({
 
 				<div className="absolute flex flex-col-reverse gap-1.5 sm:flex-row sm:gap-3 right-[8px] top-[8px] sm:right-[14px]">
 					<Popover>
-						<PopoverTrigger asChild>
-							<div
-								// biome-ignore lint/a11y/useSemanticElements: We need to use a div with role button due we have an input inside. An input inside of a button element is not allowed and accessible.
-								role="button"
-								tabIndex={0}
-								onClick={(e) => {
-									e.currentTarget.querySelector('input')?.click()
-								}}
-								onKeyDown={(e) => {
-									if (e.key === 'Enter' || e.key === ' ') {
-										e.currentTarget.querySelector('input')?.click()
-									}
-								}}
+						<PopoverTrigger
+							className={cn(
+								buttonVariants({ variant: 'ghost', size: 'icon' }),
+								'relative cursor-pointer',
+							)}
+							onClick={(e) => {
+								if (userHasRelatedAttachment) return
+								e.currentTarget.querySelector('input')?.click()
+							}}
+						>
+							<Input
+								onChange={fileAttachmentActions.handleFileSelect}
+								tabIndex={-1}
+								id={`file-attachments-${formId}`}
 								className={cn(
-									buttonVariants({ variant: 'ghost', size: 'icon' }),
-									'relative cursor-pointer',
+									'absolute opacity-0 size-full !cursor-pointer p-0 disabled:opacity-0',
 								)}
-							>
-								<Input
-									onChange={fileAttachmentActions.handleFileSelect}
-									tabIndex={-1}
-									id={`file-attachments-${formId}`}
-									className={cn(
-										'absolute opacity-0 size-full !cursor-pointer p-0 disabled:opacity-0',
-									)}
-									accept="image/*,text/*"
-									type="file"
-									disabled={Boolean(userAttachments.length)}
-									multiple
-								/>
-								<PaperclipIcon className="p-0.5 z-0 cursor-pointer" />
-							</div>
+								accept="image/*,text/*"
+								type="file"
+								disabled={userHasRelatedAttachment}
+								multiple
+							/>
+							<PaperclipIcon className="p-0.5 z-0 cursor-pointer" />
 						</PopoverTrigger>
 						<PopoverContent className="w-[320px]">
 							<Command>
