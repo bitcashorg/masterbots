@@ -23,106 +23,99 @@ export async function continueAIGeneration(
 		customSonner,
 		devMode,
 		chatConfig = {},
-		maxAttempts = 3,
 		jwt,
 		startContinuation,
 		endContinuation,
 	} = options
 
-	// Start continuation UI state
+	//? Start continuation UI state
 	startContinuation(incompleteMessage.id, incompleteMessage.content)
 
-	let attempts = 0
 	let continuedContent = incompleteMessage.content
 	const messageId = incompleteMessage.id
-	let isSuccessful = false
 
 	try {
-		while (attempts < maxAttempts && !isSuccessful) {
-			attempts++
+		if (devMode) {
+			customSonner({
+				type: 'continue',
+				text: 'Continuing AI generation',
+			})
+		}
 
-			if (devMode) {
-				customSonner({
-					type: 'continue',
-					text: `Continuing AI generation (attempt ${attempts}/${maxAttempts})`,
-				})
-			}
+		setLoadingState('continuing')
 
-			setLoadingState('continuing')
+		const continuationPrompt: CreateMessage = {
+			id: nanoid(),
+			role: 'system',
+			content:
+				'Your response was cut off. Please continue from where you left off.',
+		}
 
-			const continuationPrompt: CreateMessage = {
-				id: nanoid(),
-				role: 'system',
-				content:
-					'Please continue your previous response without repeating any information.',
-			}
+		const continuationOptions: ChatRequestOptions = {
+			body: {
+				...chatConfig,
+				isContinuation: true,
+				continuationAttempt: 1,
+				previousResponse: continuedContent,
+			},
+		}
 
-			const continuationOptions: ChatRequestOptions = {
-				body: {
-					...chatConfig,
-					isContinuation: true,
-					continuationAttempt: attempts,
-					previousResponse: continuedContent,
-				},
-			}
+		//? Small delay to avoid rate limits
+		await new Promise((resolve) => setTimeout(resolve, 1000))
 
-			// Small delay to avoid rate limits
-			await new Promise((resolve) => setTimeout(resolve, 1000))
+		//? Append the continuation prompt to get new content
+		const newContent = await append(continuationPrompt, continuationOptions)
 
-			// Try to continue the generation
-			const newContent = await append(continuationPrompt, continuationOptions)
+		if (newContent) {
+			//? Combine original content with the new content
+			const updatedContent = `${continuedContent} ${newContent}`
 
-			// If we got new content, update the message in the database
-			if (newContent) {
-				// Combine original content with the new content
-				const updatedContent = `${continuedContent} ${newContent}`
-
-				// Determine if we have thinking content to update
-				const thinkingContent = hasReasoning(incompleteMessage)
-					? {
-							thinking:
-								incompleteMessage.parts?.find((msg) => msg.type === 'reasoning')
-									?.reasoning || incompleteMessage.reasoning,
-						}
-					: undefined
-
-				const result = await updateMessage({
-					messageId,
-					content: updatedContent,
-					thinking: thinkingContent?.thinking,
-					jwt,
-				})
-
-				if (result.success) {
-					continuedContent = updatedContent
-
-					if (devMode) {
-						customSonner({
-							type: 'continue',
-							text: `Successfully continued and updated message on attempt ${attempts}`,
-						})
+			//? Determine if we have thinking content to update
+			const thinkingContent = hasReasoning(incompleteMessage)
+				? {
+						thinking:
+							incompleteMessage.parts?.find((msg) => msg.type === 'reasoning')
+								?.reasoning || incompleteMessage.reasoning,
 					}
+				: undefined
 
-					isSuccessful = true
-				} else {
-					if (devMode) {
-						customSonner({
-							type: 'error',
-							text: `Failed to update message: ${result.error}`,
-						})
-					}
+			const result = await updateMessage({
+				messageId,
+				content: updatedContent,
+				thinking: thinkingContent?.thinking,
+				jwt,
+			})
+
+			if (result.success) {
+				continuedContent = updatedContent
+
+				if (devMode) {
+					customSonner({
+						type: 'continue',
+						text: 'Successfully continued and updated message',
+					})
 				}
+			} else {
+				if (devMode) {
+					customSonner({
+						type: 'error',
+						text: `Failed to update message: ${result.error}`,
+					})
+				}
+
+				customSonner({
+					type: 'info',
+					text: 'Could not complete the full response.',
+				})
 			}
+		} else {
+			customSonner({
+				type: 'info',
+				text: 'Could not generate additional content to complete the response.',
+			})
 		}
 
 		endContinuation()
-
-		if (!isSuccessful) {
-			customSonner({
-				type: 'info',
-				text: 'Could not complete the full response after multiple attempts.',
-			})
-		}
 
 		return continuedContent
 	} catch (error) {
