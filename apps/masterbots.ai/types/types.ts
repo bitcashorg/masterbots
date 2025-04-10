@@ -409,7 +409,7 @@ export type PreferenceSectionProps = {
 }
 
 export type CustomSonnerParams = {
-	type: 'success' | 'error' | 'info'
+	type: 'success' | 'error' | 'info' | 'continue'
 	text: string
 }
 

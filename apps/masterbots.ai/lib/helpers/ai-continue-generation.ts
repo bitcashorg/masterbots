@@ -29,18 +29,21 @@ export async function continueAIGeneration(
 		endContinuation,
 	} = options
 
+	// Start continuation UI state
 	startContinuation(incompleteMessage.id, incompleteMessage.content)
+	
 	let attempts = 0
 	let continuedContent = incompleteMessage.content
 	const messageId = incompleteMessage.id
+	let isSuccessful = false
 
 	try {
-		while (attempts < maxAttempts) {
+		while (attempts < maxAttempts && !isSuccessful) {
 			attempts++
 
 			if (devMode) {
 				customSonner({
-					type: 'info',
+					type: 'continue',
 					text: `Continuing AI generation (attempt ${attempts}/${maxAttempts})`,
 				})
 			}
@@ -54,7 +57,7 @@ export async function continueAIGeneration(
 				//? First attempt: simple continuation request
 				continuationPrompt = {
 					id: nanoid(),
-					role: 'user',
+					role: 'system',
 					content:
 						'Please continue your previous response without repeating any information.',
 				}
@@ -62,7 +65,7 @@ export async function continueAIGeneration(
 				//? Second attempt: be more explicit about what we need
 				continuationPrompt = {
 					id: nanoid(),
-					role: 'user',
+					role: 'system',
 					content:
 						'Your previous response was cut off. Please continue exactly where you left off without summarizing or repeating what you already said.',
 				}
@@ -74,7 +77,7 @@ export async function continueAIGeneration(
 				)
 				continuationPrompt = {
 					id: nanoid(),
-					role: 'user',
+					role: 'system',
 					content: `I need the rest of your explanation. Your last message ended with: "${continuedContent.slice(-referenceLength)}". Please continue from there.`,
 				}
 			}
@@ -122,15 +125,14 @@ export async function continueAIGeneration(
 
 					if (devMode) {
 						customSonner({
-							type: 'success',
+							type: 'continue',
 							text: `Successfully continued and updated message on attempt ${attempts}`,
 						})
 					}
 
 					//? If we got enough new content, consider it successful
 					if (newContent.length > 20) {
-						endContinuation()
-						return continuedContent
+						isSuccessful = true;
 					}
 				} else {
 					if (devMode) {
@@ -143,13 +145,15 @@ export async function continueAIGeneration(
 			}
 		}
 
-		//* feedback to user if we couldn't get enough content
-		customSonner({
-			type: 'info',
-			text: 'Could not complete the full response after multiple attempts.',
-		})
-
 		endContinuation()
+		
+		if (!isSuccessful) {
+			customSonner({
+				type: 'info',
+				text: 'Could not complete the full response after multiple attempts.',
+			})
+		}
+
 		return continuedContent
 	} catch (error) {
 		console.error('Failed to continue AI generation:', error)
