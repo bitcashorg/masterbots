@@ -129,6 +129,7 @@ export async function continueAIGeneration(
 
 					//? If we got enough new content, consider it successful
 					if (newContent.length > 20) {
+						endContinuation()
 						return continuedContent
 					}
 				} else {
