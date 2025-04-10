@@ -43,7 +43,7 @@ export async function continueAIGeneration(
 
 			if (devMode) {
 				customSonner({
-					type: 'info',
+					type: 'continue',
 					text: `Continuing AI generation (attempt ${attempts}/${maxAttempts})`,
 				})
 			}
@@ -98,7 +98,7 @@ export async function continueAIGeneration(
 
 					if (devMode) {
 						customSonner({
-							type: 'success',
+							type: 'continue',
 							text: `Successfully continued and updated message on attempt ${attempts}`,
 						})
 					}
