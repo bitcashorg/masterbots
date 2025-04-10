@@ -25,8 +25,11 @@ export async function continueAIGeneration(
 		chatConfig = {},
 		maxAttempts = 3,
 		jwt,
+		startContinuation,
+		endContinuation,
 	} = options
 
+	startContinuation(incompleteMessage.id, incompleteMessage.content)
 	let attempts = 0
 	let continuedContent = incompleteMessage.content
 	const messageId = incompleteMessage.id
@@ -145,6 +148,7 @@ export async function continueAIGeneration(
 			text: 'Could not complete the full response after multiple attempts.',
 		})
 
+		endContinuation()
 		return continuedContent
 	} catch (error) {
 		console.error('Failed to continue AI generation:', error)
@@ -153,6 +157,7 @@ export async function continueAIGeneration(
 			text: 'Failed to continue the Masterbot response. Please try again.',
 		})
 		setLoadingState('finished')
+		endContinuation()
 		return null
 	}
 }

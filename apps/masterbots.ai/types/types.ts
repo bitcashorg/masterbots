@@ -414,13 +414,14 @@ export type CustomSonnerParams = {
 }
 
 export interface ContinueAIGenerationOptions {
-	// biome-ignore lint/suspicious/noExplicitAny: <we are using any in the meantime>
 	setLoadingState: (state: any) => void
-	// biome-ignore lint/suspicious/noConfusingVoidType: <void is being included in the return type>
+	// biome-ignore lint/suspicious/noConfusingVoidType: <explanation>
 	customSonner: (params: CustomSonnerParams) => string | number | void
 	devMode: boolean
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	chatConfig?: Record<string, any>
 	maxAttempts?: number
-	jwt?: string // JWT for authentication
-}
+	jwt?: string
+	// Add these two new properties
+	startContinuation: (messageId: string, originalContent: string) => void
+	endContinuation: () => void
+  }

@@ -14,7 +14,6 @@ type MessageRendererProps = {
 	webSearchResults?: any[]
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	[key: string]: any
-	isContinuing?: boolean
 }
 
 export function MessageRenderer({
@@ -23,7 +22,6 @@ export function MessageRenderer({
 	sendMessageFromResponse,
 	chatbot,
 	webSearchResults = [],
-	isContinuing = false,
 	...props
 }: MessageRendererProps) {
 	//? Determine if the message has reasoning content
@@ -38,7 +36,6 @@ export function MessageRenderer({
 				sendMessageFromResponse={sendMessageFromResponse}
 				chatbot={chatbot}
 				webSearchResults={webSearchResults}
-				isContinuing={isContinuing}
 				{...props}
 			/>
 		)
@@ -52,7 +49,6 @@ export function MessageRenderer({
 			sendMessageFromResponse={sendMessageFromResponse}
 			chatbot={chatbot}
 			webSearchResults={webSearchResults}
-			isContinuing={isContinuing}
 			{...props}
 		/>
 	)
