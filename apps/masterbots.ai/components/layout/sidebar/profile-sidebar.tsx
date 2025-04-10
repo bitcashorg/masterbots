@@ -68,7 +68,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
 			<SheetTrigger
 				className={cn(
 					buttonVariants({ variant: 'ghost', radius: 'full' }),
-					'relative block-inline h-full p-2 rounded-full md:hidden',
+					'block h-full p-2 rounded-full md:hidden',
 				)}
 			>
 				{user?.image ? (

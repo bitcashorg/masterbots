@@ -96,7 +96,7 @@ export function ChatMessage({
 					className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
 					remarkPlugins={[remarkGfm, rehypeMathJax, remarkRehype]}
 					components={memoizedMarkdownComponents(
-						!isBrowseView || !isProfileView
+						!(isBrowseView || isProfileView)
 							? {
 									handleClickableClick,
 									shouldPreProcessChildren: true,

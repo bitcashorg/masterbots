@@ -119,7 +119,7 @@ export function MessagePairAccordion({
 		}
 	}, [])
 
-	const shouldShowFirstUserMessage = activeThread?.thread
+	const shouldShowUserMessage = activeThread?.thread
 		? !(!isThread && !index && isPrevious)
 		: !(!isThread && !index)
 
@@ -153,7 +153,7 @@ export function MessagePairAccordion({
 						isPrevious,
 					'bg-transparent dark:bg-transparent w-auto h-auto px-4 py-0 border-none ml-auto':
 						!isThread && !index && !activeThread?.thread,
-					// || !shouldShowFirstUserMessage,
+					// || !shouldShowUserMessage,
 				},
 				props.chatTitleClass,
 			)}
@@ -169,7 +169,7 @@ export function MessagePairAccordion({
 			onToggle={toggleThreadQuestionUrl}
 			variant="chat"
 		>
-			{shouldShowFirstUserMessage && (
+			{shouldShowUserMessage && (
 				<div className={cn('flex flex-col items-start gap-2')}>
 					<MessageRenderer actionRequired={false} message={pair.userMessage} />
 					{!isThread && index !== 0 && (
