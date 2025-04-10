@@ -79,7 +79,7 @@ export default function ThreadComponent({
 				thread={thread}
 				variant="browse"
 			>
-				<div className="flex w-full gap-2 text-left px-2.5 py-2 overflow-x-hidden">
+				<div className="flex w-full gap-2 text-left pr-2.5 sm:pl-2.5 py-2 overflow-x-hidden">
 					<ChatbotAvatar thread={thread} />
 					<span className="w-full text-left whitespace-pre-line line-clamp-2">
 						{threadTitle || (
