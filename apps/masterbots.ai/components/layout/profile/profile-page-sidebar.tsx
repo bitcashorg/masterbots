@@ -108,7 +108,7 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 							</Link> */}
 							<div
 								className={cn(
-									'overflow-y-auto w-full scrollbar transition-all duration-300 max-w-[300px]',
+									'overflow-y-auto w-full scrollbar transition-all duration-300 max-w-[300px] max-h-[650px]  ',
 									{
 										'border dark:border-b-mirage border-b-gray-200':
 											isThreadsOpen,
