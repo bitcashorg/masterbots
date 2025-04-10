@@ -28,7 +28,7 @@ export async function continueAIGeneration(
 		endContinuation,
 	} = options
 
-	//? Start continuation UI state
+	//* Start continuation UI state
 	startContinuation(incompleteMessage.id, incompleteMessage.content)
 
 	let continuedContent = incompleteMessage.content
@@ -44,11 +44,17 @@ export async function continueAIGeneration(
 
 		setLoadingState('continuing')
 
+		//* Last ~100 characters or 10% of the content, whichever is less
+		const referenceLength = Math.min(
+			100,
+			Math.floor(continuedContent.length * 0.1),
+		)
+		const contextSnippet = continuedContent.slice(-referenceLength)
+
 		const continuationPrompt: CreateMessage = {
 			id: nanoid(),
 			role: 'system',
-			content:
-				'Response was cut off. Please continue from where you left off.',
+			content: `Your previous response was cut off. Here is the last part of your message: "${contextSnippet}". Please continue from exactly where you left off without repeating any information.`,
 		}
 
 		const continuationOptions: ChatRequestOptions = {
@@ -60,17 +66,17 @@ export async function continueAIGeneration(
 			},
 		}
 
-		//? Small delay to avoid rate limits
+		//* Small delay to avoid rate limits
 		await new Promise((resolve) => setTimeout(resolve, 1000))
 
-		//? Append the continuation prompt to get new content
+		//* Append the continuation prompt to get new content
 		const newContent = await append(continuationPrompt, continuationOptions)
 
 		if (newContent) {
-			//? Combine original content with the new content
+			//* Combine original content with the new content
 			const updatedContent = `${continuedContent} ${newContent}`
 
-			//? Determine if we have thinking content to update
+			//* Determine if we have thinking content to update
 			const thinkingContent = hasReasoning(incompleteMessage)
 				? {
 						thinking:
@@ -103,6 +109,7 @@ export async function continueAIGeneration(
 					})
 				}
 
+				//* Show info message about failure to continue
 				customSonner({
 					type: 'info',
 					text: 'Could not complete the full response.',
