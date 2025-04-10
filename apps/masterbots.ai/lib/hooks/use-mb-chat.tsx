@@ -404,7 +404,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 							customSonner,
 							devMode: appConfig.features.devMode,
 							chatConfig: useChatConfig.body,
-							maxAttempts: 1,
+							maxAttempts: 3,
 							jwt: session?.user?.hasuraJwt,
 							startContinuation,
 							endContinuation,
@@ -412,7 +412,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					)
 
 					if (continuedContent) {
-						console.log('Updating message with continued content 👀')
 						//?  Update the message in the database with continued content
 						await updateMessage({
 							messageId: assistantMessageId,
@@ -420,6 +419,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 							thinking: assistantMessageThinking.thinking,
 							jwt: session?.user?.hasuraJwt,
 						})
+						console.log('Updating message with continued content 👀', continuedContent)
 
 						//? Updates the final message
 						finalMessage.content = continuedContent
