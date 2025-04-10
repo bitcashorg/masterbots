@@ -65,6 +65,8 @@ import {
 } from 'react'
 import { useSetState } from 'react-use'
 import { useSonner } from './useSonner'
+import { useContinuation } from './use-continuation'
+
 
 export function useMBChat(): MBChatHookCallback {
 	const context = useContext(MBChatContext)
@@ -93,6 +95,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	const { isContinuousThread, setIsContinuousThread } = useThreadVisibility()
 	const { customSonner } = useSonner()
 	const { isPowerUp } = usePowerUp()
+	const { startContinuation, endContinuation } = useContinuation()
+
 	// console.log('[HOOK] webSearch', webSearch)
 
 	const params = useParams<{ chatbot: string; threadSlug: string }>()
@@ -400,8 +404,10 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 							customSonner,
 							devMode: appConfig.features.devMode,
 							chatConfig: useChatConfig.body,
-							maxAttempts: 2,
+							maxAttempts: 3,
 							jwt: session?.user?.hasuraJwt,
+							startContinuation,
+							endContinuation,
 						},
 					)
 
@@ -413,6 +419,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 							thinking: assistantMessageThinking.thinking,
 							jwt: session?.user?.hasuraJwt,
 						})
+						console.log('Updating message with continued content 👀', continuedContent)
 
 						//? Updates the final message
 						finalMessage.content = continuedContent

@@ -23,127 +23,106 @@ export async function continueAIGeneration(
 		customSonner,
 		devMode,
 		chatConfig = {},
-		maxAttempts = 3,
 		jwt,
+		startContinuation,
+		endContinuation,
 	} = options
 
-	let attempts = 0
+	//* Start continuation UI state
+	startContinuation(incompleteMessage.id, incompleteMessage.content)
+
 	let continuedContent = incompleteMessage.content
 	const messageId = incompleteMessage.id
 
 	try {
-		while (attempts < maxAttempts) {
-			attempts++
-
-			if (devMode) {
-				customSonner({
-					type: 'info',
-					text: `Continuing AI generation (attempt ${attempts}/${maxAttempts})`,
-				})
-			}
-
-			setLoadingState('continuing')
-
-			//* continuation prompt flow - using different strategies based on the attempt number
-			let continuationPrompt: CreateMessage
-
-			if (attempts === 1) {
-				//? First attempt: simple continuation request
-				continuationPrompt = {
-					id: nanoid(),
-					role: 'user',
-					content:
-						'Please continue your previous response without repeating any information.',
-				}
-			} else if (attempts === 2) {
-				//? Second attempt: be more explicit about what we need
-				continuationPrompt = {
-					id: nanoid(),
-					role: 'user',
-					content:
-						'Your previous response was cut off. Please continue exactly where you left off without summarizing or repeating what you already said.',
-				}
-			} else {
-				//? Final attempt: provides a specific reference point with dynamic length
-				const referenceLength = Math.min(
-					100,
-					Math.floor(continuedContent.length * 0.1),
-				)
-				continuationPrompt = {
-					id: nanoid(),
-					role: 'user',
-					content: `I need the rest of your explanation. Your last message ended with: "${continuedContent.slice(-referenceLength)}". Please continue from there.`,
-				}
-			}
-
-			const continuationOptions: ChatRequestOptions = {
-				body: {
-					...chatConfig,
-					isContinuation: true,
-					continuationAttempt: attempts,
-					previousResponse: continuedContent,
-				},
-			}
-
-			//* small delay between attempts to avoid rate limits
-			await new Promise((resolve) => setTimeout(resolve, 1000))
-
-			//* Try to continue the generation
-			const newContent = await append(continuationPrompt, continuationOptions)
-
-			//* If we got new content, update the message in the database
-			if (newContent) {
-				//? Combine original content with the new content
-				const updatedContent = `${continuedContent} ${newContent}`
-
-				//? Determine if we have thinking content to update
-				const thinkingContent = hasReasoning(incompleteMessage)
-					? {
-							thinking:
-								incompleteMessage.parts?.find((msg) => msg.type === 'reasoning')
-									?.reasoning || incompleteMessage.reasoning,
-						}
-					: undefined
-
-				//? Update the message in the database
-				const result = await updateMessage({
-					messageId,
-					content: updatedContent,
-					thinking: thinkingContent?.thinking,
-					jwt,
-				})
-
-				if (result.success) {
-					//? Update content reference
-					continuedContent = updatedContent
-
-					if (devMode) {
-						customSonner({
-							type: 'success',
-							text: `Successfully continued and updated message on attempt ${attempts}`,
-						})
-					}
-
-					//? If we got enough new content, consider it successful
-					if (newContent.length > 20) {
-						return continuedContent
-					}
-				} else {
-					if (devMode) {
-						customSonner({
-							type: 'error',
-							text: `Failed to update message: ${result.error}`,
-						})
-					}
-				}
-			}
+		if (devMode) {
+			customSonner({
+				type: 'continue',
+				text: 'Continuing AI generation',
+			})
 		}
 
-		//* feedback to user if we couldn't get enough content
-		customSonner({
-			type: 'info',
-			text: 'Could not complete the full response after multiple attempts.',
-		})
+		setLoadingState('continuing')
+
+		//* Last ~100 characters or 10% of the content, whichever is less
+		const referenceLength = Math.min(
+			100,
+			Math.floor(continuedContent.length * 0.1),
+		)
+		const contextSnippet = continuedContent.slice(-referenceLength)
+
+		const continuationPrompt: CreateMessage = {
+			id: nanoid(),
+			role: 'system',
+			content: `Your previous response was cut off. Here is the last part of your message: "${contextSnippet}". Please continue from exactly where you left off without repeating any information.`,
+		}
+
+		const continuationOptions: ChatRequestOptions = {
+			body: {
+				...chatConfig,
+				isContinuation: true,
+				continuationAttempt: 1,
+				previousResponse: continuedContent,
+			},
+		}
+
+		//* Small delay to avoid rate limits
+		await new Promise((resolve) => setTimeout(resolve, 1000))
+
+		//* Append the continuation prompt to get new content
+		const newContent = await append(continuationPrompt, continuationOptions)
+
+		if (newContent) {
+			//* Combine original content with the new content
+			const updatedContent = `${continuedContent} ${newContent}`
+
+			//* Determine if we have thinking content to update
+			const thinkingContent = hasReasoning(incompleteMessage)
+				? {
+						thinking:
+							incompleteMessage.parts?.find((msg) => msg.type === 'reasoning')
+								?.reasoning || incompleteMessage.reasoning,
+					}
+				: undefined
+
+			const result = await updateMessage({
+				messageId,
+				content: updatedContent,
+				thinking: thinkingContent?.thinking,
+				jwt,
+			})
+
+			if (result.success) {
+				continuedContent = updatedContent
+
+				if (devMode) {
+					customSonner({
+						type: 'continue',
+						text: 'Successfully continued and updated message',
+					})
+				}
+			} else {
+				if (devMode) {
+					customSonner({
+						type: 'error',
+						text: `Failed to update message: ${result.error}`,
+					})
+				}
+
+				//* Show info message about failure to continue
+				customSonner({
+					type: 'info',
+					text: 'Could not complete the full response.',
+				})
+			}
+		} else {
+			customSonner({
+				type: 'info',
+				text: 'Could not generate additional content to complete the response.',
+			})
+		}
+
+		endContinuation()
 
 		return continuedContent
 	} catch (error) {
@@ -153,6 +132,9 @@ export async function continueAIGeneration(
 			text: 'Failed to continue the Masterbot response. Please try again.',
 		})
 		setLoadingState('finished')
+
+		endContinuation()
+
 		return null
 	}
 }
