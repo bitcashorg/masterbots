@@ -46,7 +46,7 @@ export async function continueAIGeneration(
 
 		const continuationPrompt: CreateMessage = {
 			id: nanoid(),
-			role: 'system',
+			role: 'user',
 			content:
 				'Your response was cut off. Please continue from where you left off.',
 		}
