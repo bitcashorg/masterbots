@@ -120,6 +120,7 @@ export default function ThreadList({
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
+		if (activeThread) return
 		getOpeningActiveThread()
 	}, [activeThread])
 

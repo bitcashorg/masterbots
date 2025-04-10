@@ -36,6 +36,7 @@ export function ChatMessage({
 	const pathname = usePathname()
 	const routeType = getRouteType(pathname)
 	const isBrowseView = routeType === 'public'
+	const isProfileView = routeType === 'profile'
 	// Clean the message content and update the message object.
 	const content = cleanPrompt(message.content)
 	const cleanMessage = { ...message, content }
@@ -95,7 +96,7 @@ export function ChatMessage({
 					className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
 					remarkPlugins={[remarkGfm, rehypeMathJax, remarkRehype]}
 					components={memoizedMarkdownComponents(
-						!isBrowseView
+						!isBrowseView || !isProfileView
 							? {
 									handleClickableClick,
 									shouldPreProcessChildren: true,

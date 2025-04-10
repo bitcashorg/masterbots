@@ -2,6 +2,11 @@ import { AttachmentCards } from '@/components/routes/chat/chat-list/attachment-c
 import { MessageRenderer } from '@/components/routes/chat/chat-message-renderer'
 import { SharedAccordion } from '@/components/shared/shared-accordion'
 import { ShortMessage } from '@/components/shared/short-message'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from '@/components/ui/tooltip'
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
@@ -135,18 +140,20 @@ export function MessagePairAccordion({
 				isPrevious && 'bg-accent/25 rounded-[8px] border-l-accent/20',
 			)}
 			triggerClass={cn(
-				'py-[0.4375rem]',
+				'py-[0.4375rem] z-10',
 				{
 					'sticky top-0 md:-top-10 z-[1] px-3 [&[data-state=open]]:rounded-t-[8px]':
 						isThread,
 					'px-[calc(32px-0.25rem)]': !isThread,
+					// TODO: Discuss with team to see continuing thread first question toggle...
 					hidden: !isThread && !index && isPrevious, // Style differences for previous vs current messages
 					'dark:bg-[#1d283a9a] bg-iron !border-l-[transparent] [&[data-state=open]]:!bg-gray-400/50 dark:[&[data-state=open]]:!bg-mirage':
 						!isPrevious && !isThread && index,
 					'bg-accent/10 dark:bg-accent/10 hover:bg-accent/30 hover:dark:bg-accent/30 border-l-accent/10 dark:border-l-accent/10 [&[data-state=open]]:!bg-accent/30 dark:[&[data-state=open]]:!bg-accent/30':
 						isPrevious,
-					'bg-transparent dark:bg-transparent w-auto h-auto px-4 py-0 border-none ml-auto z-10':
+					'bg-transparent dark:bg-transparent w-auto h-auto px-4 py-0 border-none ml-auto':
 						!isThread && !index && !activeThread?.thread,
+					// || !shouldShowFirstUserMessage,
 				},
 				props.chatTitleClass,
 			)}
@@ -200,9 +207,23 @@ export function MessagePairAccordion({
 			>
 				{/* Thread Title with indicator for previous (continuous) messages */}
 				{isPrevious && index === 0 ? (
-					<span className="w-auto ml-1 px-1.5 py-1 text-[10px] font-medium rounded-md bg-accent text-accent-foreground">
-						Continuous Thread
-					</span>
+					<Tooltip>
+						<TooltipTrigger className="transition-all opacity-100 hover:opacity-70 focus-within:opacity-100 mt-2.5 px-1.5 py-0.5 w-auto text-xs font-medium rounded-md bg-accent text-accent-foreground">
+							continuing
+						</TooltipTrigger>
+						<TooltipContent
+							className="whitespace-pre-line"
+							side="bottom"
+							align="start"
+						>
+							Continuing a thread conversation,{'\n'}originally from{' '}
+							{activeThread?.thread ? (
+								<b>{activeThread?.thread.user?.username}</b>
+							) : (
+								'.'
+							)}
+						</TooltipContent>
+					</Tooltip>
 				) : (
 					''
 				)}
