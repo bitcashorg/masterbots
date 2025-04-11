@@ -1,6 +1,5 @@
 'use client'
 
-import BrowseListItem from '@/components/routes/browse/browse-list-item'
 /**
  * UserThreadPanel Component
  *
@@ -32,7 +31,6 @@ import ChatChatbotDetails from '@/components/routes/chat/chat-chatbot-details'
 import ThreadList from '@/components/routes/thread/thread-list'
 import { NoResults } from '@/components/shared/no-results-card'
 import { ThreadSearchInput } from '@/components/shared/shared-search'
-import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeletons'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PAGE_SIZE, PAGE_SM_SIZE } from '@/lib/constants/hasura'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
@@ -373,34 +371,13 @@ export default function UserThreadPanel({
 				{showChatbotDetails ? (
 					<ChatChatbotDetails />
 				) : (
-					<>
-						{page === 'profile' ? (
-							<div className="flex flex-col py-5">
-								{threads.map((thread: Thread) => (
-									<BrowseListItem
-										thread={thread}
-										key={thread.threadId}
-										loading={loading}
-										loadMore={loadMore}
-										hasMore={count === PAGE_SIZE}
-										isLast={
-											thread.threadId === threads[threads.length - 1].threadId
-										}
-										pageType={page}
-									/>
-								))}
-								{loading && <ThreadItemSkeleton />}
-							</div>
-						) : (
-							<ThreadList
-								threads={threads}
-								loading={loading}
-								count={count}
-								pageSize={PAGE_SIZE}
-								loadMore={loadMore}
-							/>
-						)}
-					</>
+					<ThreadList
+						threads={threads}
+						loading={loading}
+						count={count}
+						pageSize={PAGE_SIZE}
+						loadMore={loadMore}
+					/>
 				)}
 				{showNoResults && (
 					<NoResults
