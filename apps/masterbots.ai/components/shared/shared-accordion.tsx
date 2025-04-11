@@ -5,10 +5,12 @@ import { getCanonicalDomain } from '@/lib/url'
 import { cn } from '@/lib/utils'
 import { getThread } from '@/services/hasura'
 import { ChevronDown } from 'lucide-react'
+import { appConfig } from 'mb-env'
 import type { Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
+import { useInView } from 'react-intersection-observer'
 
 interface SharedAccordionProps
 	extends Omit<React.ComponentProps<'div'>, 'onToggle'> {
@@ -67,9 +69,12 @@ export function SharedAccordion({
 
 	const pathname = usePathname()
 	const params = useParams()
-	const router = useRouter()
 	const accordionRef = useRef<HTMLDivElement>(null)
 	const isPublic = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
+	// Handle profile page routing
+	const profilePage = /^\/u\/[^/]+\/t(?:\/|$)/.test(pathname)
+	// Handle bot page routing i.e.: /b/:chatbotName
+	const botProfile = /^\/b\/[^/]+(?:\/|$)/.test(pathname)
 
 	// State initialization
 	const [open, setOpen] = useState(
@@ -86,6 +91,16 @@ export function SharedAccordion({
 	const shouldBeDisabled = disabled || isAnotherThreadOpen
 	const isMainThread = !isOpenPopup
 
+	const { ref, inView: isHeroInView } = useInView({
+		threshold: 0.1,
+	})
+
+	useEffect(() => {
+		const heroElement = document.getElementById('hero-section')
+		if (heroElement) {
+			ref(heroElement)
+		}
+	}, [ref])
 	// Mobile scroll handling
 	useEffect(() => {
 		if (variant === 'browse') {
@@ -153,28 +168,39 @@ export function SharedAccordion({
 
 		const canonicalDomain = getCanonicalDomain(fullThread?.chatbot?.name || '')
 
-		navigateTo({
-			urlType: 'threadUrl',
-			shallow: true,
-			navigationParams: {
-				type: isPublic ? 'public' : 'personal',
-				category: fullThread?.chatbot?.categories[0]?.category?.name || 'AI',
-				domain: canonicalDomain,
-				chatbot: fullThread?.chatbot?.name || 'Masterbots',
-				threadSlug: fullThread?.slug || (params.threadSlug as string),
-			},
-		})
+		if (profilePage) {
+			const slug = params.userSlug as string
+			navigateTo({
+				urlType: 'profilesThreadUrl',
+				shallow: true,
+				navigationParams: {
+					type: 'user',
+					usernameSlug: slug,
+					category: fullThread?.chatbot?.categories[0]?.category?.name || 'AI',
+					domain: canonicalDomain,
+					chatbot: fullThread?.chatbot?.name || 'Masterbots',
+					threadSlug: fullThread?.slug || (params.threadSlug as string),
+				},
+			})
+		} else {
+			navigateTo({
+				urlType: 'threadUrl',
+				shallow: true,
+				navigationParams: {
+					type: isPublic ? 'public' : 'personal',
+					category: fullThread?.chatbot?.categories[0]?.category?.name || 'AI',
+					domain: canonicalDomain,
+					chatbot: fullThread?.chatbot?.name || 'Masterbots',
+					threadSlug: fullThread?.slug || (params.threadSlug as string),
+				},
+			})
+		}
 
 		return thread
 	}
 
 	const handleClick = async (e: React.MouseEvent) => {
 		e.stopPropagation()
-
-		// Handle profile page routing
-		const profilePage = /^\/u\/[^/]+\/t(?:\/|$)/.test(pathname)
-		// Handle bot page routing i.e.: /b/:chatbotName
-		const botProfile = /^\/b\/[^/]+(?:\/|$)/.test(pathname)
 		const category = thread?.chatbot?.categories[0]?.category?.name
 		const chatbot = thread?.chatbot?.name
 
@@ -182,8 +208,24 @@ export function SharedAccordion({
 			setLoading(true)
 			// Open modal for both variants
 			await updateActiveThread()
+			// console.log("Reach here")
 			setIsOpenPopup(true)
-		} else if (profilePage) {
+		} else if (isMainThread && profilePage) {
+			if (appConfig.features.ProfileNBotPageHasPopup) {
+				const offset = 400 // How much to scroll down
+				const scrollContainer = document.getElementById('thread-scroll-section')
+				if (isHeroInView && scrollContainer) {
+					scrollContainer.scrollBy({
+						top: offset,
+						behavior: 'smooth',
+					})
+				}
+				setLoading(true)
+				await updateActiveThread()
+				setIsOpenPopup(true)
+				return
+			}
+
 			setIsOpenPopup(false)
 			setActiveThread(null)
 			const slug = params.userSlug as string
@@ -193,7 +235,6 @@ export function SharedAccordion({
 				console.error('Missing required navigation parameters')
 				return
 			}
-
 			navigateTo({
 				urlType: 'profilesThreadUrl',
 				navigationParams: {
@@ -205,8 +246,24 @@ export function SharedAccordion({
 					threadSlug: thread?.slug || (params.threadSlug as string),
 				},
 			})
-		} else if (botProfile) {
+		} else if (isMainThread && botProfile) {
 			// Bot profile page navigation
+			if (appConfig.features.ProfileNBotPageHasPopup) {
+				const offset = 400 // How much to scroll down
+				const scrollContainer = document.getElementById('thread-scroll-section')
+				if (isHeroInView && scrollContainer) {
+					scrollContainer.scrollBy({
+						top: offset,
+						behavior: 'smooth',
+					})
+				}
+				setLoading(true)
+				await updateActiveThread()
+				setIsOpenPopup(true)
+
+				return
+			}
+
 			setIsOpenPopup(false)
 			setActiveThread(null)
 
@@ -231,7 +288,6 @@ export function SharedAccordion({
 
 	const toggle = () => {
 		if (shouldBeDisabled) return
-
 		setOpen((prevOpen) => {
 			const newState = !prevOpen
 

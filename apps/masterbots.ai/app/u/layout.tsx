@@ -9,7 +9,10 @@ export default async function ProfileLayout({ children }: BrowseLayoutProps) {
 		<BrowseProvider>
 			{/* <NextTopLoader color="#1ED761" initialPosition={0.2} /> */}
 			<main className="flex flex-col h-[calc(100vh-theme(spacing.16))]">
-				<section className="w-full overflow-auto group scrollbar">
+				<section
+					className="w-full overflow-auto group scrollbar"
+					id="thread-scroll-section"
+				>
 					{children}
 				</section>
 			</main>
