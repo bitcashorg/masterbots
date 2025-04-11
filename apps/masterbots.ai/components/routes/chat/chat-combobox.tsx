@@ -16,7 +16,7 @@ import {
 	IconLlama,
 	IconOpenAI,
 	IconWordware,
-	IconGoogle
+	IconGemini
 } from '@/components/ui/icons'
 import {
 	Popover,
@@ -46,7 +46,7 @@ const models = [
 	{
 		label: 'Gemini',
 		value: AIModels.Gemini,
-		logo: <IconGoogle />,
+		logo: <IconGemini />,
 	  },
 ]
 
