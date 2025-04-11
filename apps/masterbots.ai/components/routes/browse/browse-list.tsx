@@ -276,7 +276,7 @@ export default function BrowseList({
 	return (
 		<div className="flex flex-col w-full gap-3 py-5">
 			{filteredThreads.length > 0 ? (
-				<ul className="flex flex-col size-full gap-3 pb-5">
+				<ul className="flex flex-col size-full gap-3 pb-36">
 					{filteredThreads.map((thread: Thread, key) => (
 						<ThreadComponent
 							thread={thread}

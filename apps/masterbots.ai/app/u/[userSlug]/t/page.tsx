@@ -72,7 +72,13 @@ export default async function ProfilePage(props: {
 
 	threadsResults = await fetchThreads()
 
-	return <UserThreadList user={user as User} threads={threadsResults.threads} />
+	return (
+		<UserThreadList
+			user={user as User}
+			count={threadsResults.count}
+			threads={threadsResults.threads}
+		/>
+	)
 }
 
 export async function generateMetadata(props: {

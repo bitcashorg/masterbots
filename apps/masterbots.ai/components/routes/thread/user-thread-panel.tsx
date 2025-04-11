@@ -117,26 +117,16 @@ export default function UserThreadPanel({
 		count: 0,
 		totalThreads: 0,
 	})
-	const { count, totalThreads } = state
+	const { totalThreads } = state
 
 	const fetchBrowseThreads = async () => {
 		try {
-			if (!userSlug)
-				return {
-					threads: [],
-					count: 0,
-				}
-			const user = userWithSlug.value?.user
-			if (!user)
-				return {
-					threads: [],
-					count: 0,
-				}
 			return await getBrowseThreads({
-				userId: user.userId,
+				userId: userWithSlug.value?.user?.userId,
 				categoryId: activeCategory,
 				chatbotName: activeChatbot?.name,
-				limit: PAGE_SM_SIZE,
+				offset: threads.length,
+				limit: PAGE_SIZE,
 			})
 		} catch (error) {
 			console.error('Failed to fetch threads:', error)
@@ -169,7 +159,14 @@ export default function UserThreadPanel({
 				isAdminMode,
 			})
 		}
-		setState(moreThreads)
+		setState((prevState) => {
+			const newThreads = [...prevState.threads, ...(moreThreads?.threads || [])]
+			return {
+				threads: newThreads,
+				count: moreThreads.count,
+				totalThreads: newThreads.length,
+			}
+		})
 		setAdminThreads(
 			moreThreads ? [...adminThreads, ...moreThreads.threads] : adminThreads,
 		)
@@ -221,6 +218,10 @@ export default function UserThreadPanel({
 		}
 	}, [hookThreads])
 
+	const count =
+		state.count > initialCount || isAdminMode || searchTerm
+			? state.count
+			: initialCount
 	const threads =
 		state.threads.length > initialThreads.length || isAdminMode || searchTerm
 			? state.threads
@@ -364,7 +365,7 @@ export default function UserThreadPanel({
 				</div>
 			)}
 			<ul
-				className={cn('flex flex-col size-full gap-3 pb-5', {
+				className={cn('flex flex-col size-full gap-3 pb-36', {
 					'items-center justify-center': showNoResults || showChatbotDetails,
 				})}
 			>
@@ -374,9 +375,8 @@ export default function UserThreadPanel({
 					<ThreadList
 						threads={threads}
 						loading={loading}
-						count={count}
-						pageSize={PAGE_SIZE}
 						loadMore={loadMore}
+						count={count}
 					/>
 				)}
 				{showNoResults && (
