@@ -200,8 +200,6 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 	 *
 	 * @param {number} chatbotId - The ID of the chatbot to toggle selection for.
 	 */
-
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const toggleChatbotSelection = React.useCallback(
 		(chatbotId: number) => {
 			setSelectedChatbots((prev) =>
@@ -241,42 +239,6 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 									.includes(id),
 						),
 			)
-
-			setSelectedCategories((prevSelectedCategories) => {
-				const relatedCategories = categoriesChatbots.filter((category) =>
-					category.chatbots.some((chatbot) => chatbot.chatbotId === chatbotId),
-				)
-
-				const relatedCategoryIds = relatedCategories.map(
-					(cat) => cat.categoryId,
-				)
-				const isChecking = !selectedChatbots.includes(chatbotId)
-
-				if (isChecking) {
-					// Add only new related categories
-					const newCategories = relatedCategoryIds.filter(
-						(id) => !prevSelectedCategories.includes(id),
-					)
-					return [...prevSelectedCategories, ...newCategories]
-				}
-				// Remove a category only if this is the last selected chatbot in it
-				return prevSelectedCategories.filter((categoryId) => {
-					const category = categoriesChatbots.find(
-						(cat) => cat.categoryId === categoryId,
-					)
-					if (!category) return true // not related, keep
-
-					if (!relatedCategoryIds.includes(categoryId)) return true // not related to this chatbot
-
-					const otherSelected = category.chatbots.some(
-						(chatbot) =>
-							chatbot.chatbotId !== chatbotId &&
-							selectedChatbots.includes(chatbot.chatbotId),
-					)
-
-					return otherSelected // keep if other chatbots still selected
-				})
-			})
 		},
 		[categories],
 	)
