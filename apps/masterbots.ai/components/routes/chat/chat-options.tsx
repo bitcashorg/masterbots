@@ -34,7 +34,7 @@ interface ChatOptionsProps {
 	isBrowse: boolean
 }
 
-export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
+export function ChatOptions({ threadId, thread }: ChatOptionsProps) {
 	const { toggleVisibility, isSameUser, initiateDeleteThread } =
 		useThreadVisibility()
 	const isUser = isSameUser(thread)
@@ -58,6 +58,8 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
 		const result = await initiateDeleteThread(threadId)
 		if (result?.success) {
 			customSonner({ type: 'success', text: result.message })
+			// Reload the page to reflect the changes
+			window.location.reload()
 		} else {
 			customSonner({ type: 'error', text: result?.error })
 		}
@@ -102,6 +104,7 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
 			</AlertDialogContent>
 		</AlertDialog>
 	)
+
 	return (
 		<div className="flex items-center gap-4 sm:gap-3 pt-[3px]">
 			<AlertDialogue deleteDialogOpen={isDeleteOpen} />
@@ -122,66 +125,97 @@ export function ChatOptions({ threadId, thread, isBrowse }: ChatOptionsProps) {
 				<DropdownMenuContent
 					sideOffset={8}
 					align="end"
-					className="w-[160px] sm:w-[180px] px-0"
+					className="flex flex-col min-w-[160px] sm:w-[180px] px-0"
 				>
 					{/* Toggle thread visibility option (only for thread owner) */}
 					{isUser && (
-						<DropdownMenuItem
-							className="flex-col items-start"
-							onSelect={(event) => event.preventDefault()}
-						>
-							<Button
-								onClick={async (e) => {
-									e.stopPropagation()
-									try {
-										await toggleVisibility(!thread?.isPublic, threadId)
-										thread.isPublic = !thread?.isPublic
-									} catch (error) {
-										console.error('Failed to update thread visibility:', error)
-									}
-								}}
-								variant={'ghost'}
-								size={'sm'}
-								className="flex justify-between w-full"
+						<>
+							{!thread.isApproved && (
+								<DropdownMenuItem
+									className="flex-col items-center text-foreground/50 whitespace-nowrap px-1.5"
+									onSelect={(event) => event.preventDefault()}
+								>
+									Pending public approval
+								</DropdownMenuItem>
+							)}
+							<DropdownMenuItem
+								className="flex w-full p-0 rounded-none"
+								onClick={(event) => event.preventDefault()}
 							>
-								{thread?.isPublic ? (
-									<>
-										<EyeOff className="w-4 h-4" />
-										<span className="font-light">Make private</span>
-									</>
-								) : (
-									<>
-										<Eye className="w-4 h-4" />
-										<span>Make public</span>
-									</>
-								)}
-							</Button>
-						</DropdownMenuItem>
+								<Button
+									type="button"
+									variant="ghost"
+									radius="none"
+									size="lg"
+									className="flex justify-between w-full px-4 rounded-none"
+									onClick={async (event) => {
+										event.stopPropagation()
+										try {
+											await toggleVisibility(!thread?.isPublic, threadId)
+											thread.isPublic = !thread?.isPublic
+										} catch (error) {
+											console.error(
+												'Failed to update thread visibility:',
+												error,
+											)
+										}
+									}}
+								>
+									{thread?.isPublic ? (
+										<>
+											<EyeOff className="w-4 h-4" />
+											<span className="font-light">Make private</span>
+										</>
+									) : (
+										<>
+											<Eye className="w-4 h-4" />
+											<span>Make public</span>
+										</>
+									)}
+								</Button>
+							</DropdownMenuItem>
+						</>
 					)}
 					{/* Share thread option: This always show in public and profiles due they are already approved and public but for personal chat isn't... */}
-					{thread?.isApproved && thread?.isPublic && (
-						<DropdownMenuItem
-							className="flex-col items-start"
-							onSelect={(event) => event.preventDefault()}
-						>
-							<ShareButton url={url} />
-						</DropdownMenuItem>
-					)}
+					<DropdownMenuItem
+						className="flex w-full p-0 rounded-none disabled:cursor-not-allowed"
+						onClick={(event) => event.preventDefault()}
+						disabled={!thread?.isApproved || !thread?.isPublic}
+					>
+						<ShareButton
+							url={url}
+							disabled={!thread?.isApproved || !thread?.isPublic}
+						/>
+					</DropdownMenuItem>
 					{/* Delete thread option (only for thread owner) */}
 					{isUser && (
 						<>
 							<DropdownMenuSeparator />
 							<DropdownMenuItem
-								className="text-xs"
-								onSelect={(event) => event.preventDefault()}
+								className="flex w-full p-0 rounded-none"
+								onSelect={(event) => {
+									event.preventDefault()
+									event.stopPropagation()
+									setIsDeleteOpen(true)
+								}}
 							>
 								<Button
-									variant={'ghost'}
-									size={'sm'}
-									className="flex justify-between w-full text-red-400"
-									onClick={(e) => {
-										e.stopPropagation()
-										setIsDeleteOpen(true)
+									type="button"
+									variant="destructive"
+									radius="none"
+									size="lg"
+									className="flex justify-between w-full px-4 rounded-none"
+									onClick={async (event) => {
+										event.stopPropagation()
+										try {
+											await toggleVisibility(!thread?.isPublic, threadId)
+											thread.isPublic = !thread?.isPublic
+										} catch (error) {
+											console.error(
+												'Failed to update thread visibility:',
+												error,
+											)
+										}
 									}}
 								>
 									<Trash className="w-4 h-4" />

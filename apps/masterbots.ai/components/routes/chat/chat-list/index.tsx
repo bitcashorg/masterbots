@@ -6,9 +6,8 @@ import {
 } from '@/components/routes/chat/chat-list/message-pairs'
 import {
 	type FileAttachment,
-	getUserIndexedDBKeys,
+	useFileAttachments,
 } from '@/lib/hooks/use-chat-attachments'
-import { useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useThread } from '@/lib/hooks/use-thread'
 import type { MessagePair } from '@/lib/threads'
@@ -16,9 +15,7 @@ import { cn, createMessagePairs } from '@/lib/utils'
 import type { Message } from 'ai'
 import { isEqual } from 'lodash'
 import type { Chatbot } from 'mb-genql'
-import { useSession } from 'next-auth/react'
 import React, { useEffect, useRef } from 'react'
-import { useAsyncFn } from 'react-use'
 
 export interface ChatList {
 	messages?: Message[]
@@ -44,32 +41,17 @@ export function ChatList({
 	containerRef: externalContainerRef,
 	sendMessageFn,
 }: ChatList) {
-	const { data: session } = useSession()
-	const indexedDBKeys = getUserIndexedDBKeys(session?.user?.id)
-	const { getAllItems } = useIndexedDB(indexedDBKeys)
-	const [userAttachments, setUserAttachments] = React.useState<
-		FileAttachment[]
-	>([])
-	const { isNewResponse, activeThread, setActiveThread, setIsOpenPopup } =
-		useThread()
-	const [_, getUserAttachments] = useAsyncFn(async () => {
-		const attachments = await getAllItems()
-		setUserAttachments(attachments as FileAttachment[])
-
-		return attachments
-	}, [session, messages])
+	const { isNewResponse, activeThread } = useThread()
+	const [
+		{
+			userData: { userAttachments },
+		},
+	] = useFileAttachments()
 	const [pairs, setPairs] = React.useState<MessagePair[]>([])
 	const [previousConversationPairs, setPreviousConversationPairs] =
 		React.useState<MessagePair[]>([])
 	const chatListRef = useRef<HTMLDivElement>(null)
 	const messageContainerRef = useRef<HTMLDivElement>(null)
-
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	useEffect(() => {
-		if (session) {
-			getUserAttachments()
-		}
-	}, [session, activeThread])
 
 	//? Uses the external ref if provided, otherwise it uses our internal refs
 	const effectiveContainerRef = externalContainerRef || chatListRef
@@ -93,7 +75,9 @@ export function ChatList({
 		hasMore: false,
 		isLast: true,
 		loading: isLoadingMessages,
-		loadMore: () => {},
+		loadMore: () => {
+			console.log('loading more!')
+		},
 	})
 
 	useEffect(() => {
@@ -149,7 +133,7 @@ export function ChatList({
 	return (
 		<div
 			ref={effectiveContainerRef}
-			className={cn('relative max-w-3xl px-4 mx-auto', className, {
+			className={cn('relative max-w-3xl px-2.5 mx-auto', className, {
 				'flex flex-col gap-3': isThread,
 			})}
 		>

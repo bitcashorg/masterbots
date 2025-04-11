@@ -20,7 +20,7 @@
  * - count: A number representing the total number of threads fetched.
  */
 
-import BrowseListItem from '@/components/routes/browse/browse-list-item'
+import ThreadComponent from '@/components/routes/thread/thread-component'
 import { NoResults } from '@/components/shared/no-results-card'
 import { BrowseListSkeleton } from '@/components/shared/skeletons/browse-list-skeleton'
 import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeletons'
@@ -32,7 +32,7 @@ import { useSonner } from '@/lib/hooks/useSonner'
 import { searchThreadContent } from '@/lib/search'
 import { getRouteType } from '@/lib/utils'
 import { getBrowseThreads, getThread } from '@/services/hasura'
-import { debounce } from 'lodash'
+import { debounce, isEqual } from 'lodash'
 import { appConfig } from 'mb-env'
 import type { Chatbot, Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
@@ -41,20 +41,24 @@ import { useAsyncFn } from 'react-use'
 
 export default function BrowseList({
 	initialThreads,
+	initialCount,
 	categoryId,
 	chatbot,
 }: {
 	initialThreads?: Thread[]
+	initialCount?: number
 	categoryId?: number
 	chatbot?: Chatbot
 }) {
-	const { keyword } = useBrowse()
+	const { keyword, changeKeyword } = useBrowse()
 	const { activeThread, setActiveThread, setIsOpenPopup } = useThread()
-	const [threadState, setThreadState] = React.useState<Thread[]>([])
+	const [threadState, setThreadState] = React.useState<Thread[]>(
+		initialThreads || [],
+	)
 	const [hasInitialized, setHasInitialized] = React.useState(false)
 	const [filteredThreads, setFilteredThreads] = React.useState<Thread[]>([])
 	const [loading, setLoading] = React.useState<boolean>(false)
-	const [count, setCount] = React.useState<number>(0)
+	const [countState, setCount] = React.useState<number>(0)
 	const {
 		selectedCategories,
 		selectedChatbots,
@@ -63,6 +67,8 @@ export default function BrowseList({
 		setActiveChatbot,
 		setActiveCategory,
 	} = useSidebar()
+	const prevSelectedCategories = React.useRef<number[]>(selectedCategories)
+	const prevSelectedChatbots = React.useRef<number[]>(selectedChatbots)
 	const { data: session } = useSession()
 	const { customSonner } = useSonner()
 	const userId = session?.user?.id
@@ -70,6 +76,7 @@ export default function BrowseList({
 		threadState && initialThreads && threadState.length > initialThreads.length
 			? threadState
 			: initialThreads || []
+	const count = countState || initialCount || 0
 
 	const fetchThreads = async ({
 		categoriesId,
@@ -80,9 +87,9 @@ export default function BrowseList({
 		chatbotsId: number[]
 		keyword: string
 	}) => {
-		setLoading(true) // ? Seting loading before fetch
+		setLoading(true) // ? Setting loading before fetch
 		try {
-			const threads = await getBrowseThreads({
+			const { threads, count } = await getBrowseThreads({
 				...(activeCategory !== null ||
 				activeChatbot !== null ||
 				chatbot ||
@@ -102,7 +109,7 @@ export default function BrowseList({
 			})
 			setThreadState(threads)
 			setFilteredThreads(threads)
-			setCount(threads.length)
+			setCount(count)
 			setHasInitialized(true) // ? Setting hasInitialized after fetch preventing NoResults from showing
 		} catch (error) {
 			console.error('Error fetching threads:', error)
@@ -130,18 +137,26 @@ export default function BrowseList({
 		console.log('🟡 Loading More Content')
 		setLoading(true)
 
-		const moreThreads = await getBrowseThreads({
+		const { threads: moreThreads, count } = await getBrowseThreads({
 			categoriesId: selectedCategories,
 			offset: threads.length,
 			limit: PAGE_SIZE,
 		})
 
 		setThreadState((prevState) => [...prevState, ...moreThreads])
-		setCount(moreThreads.length)
+		setCount(count)
 		setLoading(false)
 	}
 
 	const verifyPath = () => {
+		// we update the prevSelectedCategories and prevSelectedChatbots to trigger the useEffect
+		// to check whether the selected threads has changed or not.
+		if (prevSelectedCategories.current !== selectedCategories) {
+			prevSelectedCategories.current = selectedCategories
+		}
+		if (prevSelectedChatbots.current !== selectedChatbots) {
+			prevSelectedChatbots.current = selectedChatbots
+		}
 		if (chatbot) {
 			setActiveChatbot(chatbot)
 		}
@@ -154,6 +169,14 @@ export default function BrowseList({
 	useEffect(() => {
 		if ((chatbot || categoryId) && !activeCategory && !activeChatbot) {
 			verifyPath()
+			return
+		}
+
+		if (
+			isEqual(selectedCategories, prevSelectedCategories.current) &&
+			isEqual(selectedChatbots, prevSelectedChatbots.current)
+		) {
+			return
 		}
 
 		fetchThreads({
@@ -173,13 +196,6 @@ export default function BrowseList({
 		setActiveThread(thread as Thread)
 		setIsOpenPopup(true)
 	}
-
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	React.useEffect(() => {
-		// if (isEqual(threads, filteredThreads)) return
-		verifyKeyword()
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [keyword, threads])
 
 	const [, getOpeningActiveThread] = useAsyncFn(async () => {
 		if (activeThread) return
@@ -252,22 +268,23 @@ export default function BrowseList({
 	return (
 		<div className="flex flex-col w-full gap-3 py-5">
 			{filteredThreads.length > 0 ? (
-				<>
+				<ul className="flex flex-col size-full gap-3 pb-5">
 					{filteredThreads.map((thread: Thread, key) => (
-						<BrowseListItem
+						<ThreadComponent
 							thread={thread}
 							key={thread.threadId}
 							loading={loading}
 							loadMore={loadMore}
-							hasMore={count === PAGE_SIZE}
+							hasMore={count > threads.length}
 							isLast={key === filteredThreads.length - 1}
 						/>
 					))}
 					{loading && <ThreadItemSkeleton />}
-				</>
+				</ul>
 			) : (
 				hasInitialized &&
-				!loading && (
+				!loading &&
+				!filteredThreads.length && (
 					<NoResults searchTerm={keyword} totalItems={threads.length} />
 				)
 			)}

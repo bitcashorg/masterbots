@@ -1,55 +1,15 @@
+import { updateMessage } from '@/services/hasura'
+import type { ContinueAIGenerationOptions } from '@/types/types'
 import type { ChatRequestOptions, CreateMessage, Message } from 'ai'
-/* eslint-disable no-unused-vars */
 import { nanoid } from 'nanoid'
+import { hasReasoning } from './ai-helpers'
 
-/**
- * Determines if AI generation should be continued based on the finish reason
- * @param finishReason - The reason why the AI generation stopped
- * @returns boolean indicating whether generation should be continued
- */
 export function shouldContinueGeneration(finishReason: string): boolean {
-	// Reasons that might indicate incomplete generations
+	//? Reasons that might indicate incomplete generations
 	const incompleteReasons = ['length', 'content-filter', 'error', 'unknown']
 	return incompleteReasons.includes(finishReason)
 }
 
-// Define the types to match your application's types
-export type CustomSonnerParams = {
-	type: 'success' | 'error' | 'info'
-	text: string
-}
-
-//* Define the type for your ChatLoadingState
-export type ChatLoadingState =
-	| 'processing'
-	| 'digesting'
-	| 'polishing'
-	| 'generating'
-	| 'continuing'
-	| 'finished'
-	| undefined
-
-/**
- * Configuration options for AI continuation
- */
-export interface ContinueAIGenerationOptions {
-	// biome-ignore lint/suspicious/noExplicitAny: <we are using any in the meantime>
-	setLoadingState: (state: any) => void
-	// biome-ignore lint/suspicious/noConfusingVoidType: <void is being included in the return type>
-	customSonner: (params: CustomSonnerParams) => string | number | void
-	devMode: boolean
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	chatConfig?: Record<string, any>
-	maxAttempts?: number
-}
-
-/**
- * Attempts to continue an incomplete AI generation
- * @param incompleteMessage - The message that was cut off
- * @param append - The function to append a new message
- * @param options - Configuration options
- * @returns A promise resolving to the continued message content or null if failed
- */
 export async function continueAIGeneration(
 	incompleteMessage: Message,
 	append: (
@@ -64,10 +24,12 @@ export async function continueAIGeneration(
 		devMode,
 		chatConfig = {},
 		maxAttempts = 3,
+		jwt,
 	} = options
 
 	let attempts = 0
 	let continuedContent = incompleteMessage.content
+	const messageId = incompleteMessage.id
 
 	try {
 		while (attempts < maxAttempts) {
@@ -106,7 +68,7 @@ export async function continueAIGeneration(
 				const referenceLength = Math.min(
 					100,
 					Math.floor(continuedContent.length * 0.1),
-				) //? Use the last 10% of the message, with a max of 100 characters
+				)
 				continuationPrompt = {
 					id: nanoid(),
 					role: 'user',
@@ -129,20 +91,50 @@ export async function continueAIGeneration(
 			//* Try to continue the generation
 			const newContent = await append(continuationPrompt, continuationOptions)
 
-			//* combines it with the previous content
+			//* If we got new content, update the message in the database
 			if (newContent) {
-				//? Update the continued content
-				continuedContent = `${continuedContent} ${newContent}`
+				//? Combine original content with the new content
+				const updatedContent = `${continuedContent} ${newContent}`
 
-				//* Checks if we have enough content
-				if (newContent.length > 20) {
+				//? Determine if we have thinking content to update
+				const thinkingContent = hasReasoning(incompleteMessage)
+					? {
+							thinking:
+								incompleteMessage.parts?.find((msg) => msg.type === 'reasoning')
+									?.reasoning || incompleteMessage.reasoning,
+						}
+					: undefined
+
+				//? Update the message in the database
+				const result = await updateMessage({
+					messageId,
+					content: updatedContent,
+					thinking: thinkingContent?.thinking,
+					jwt,
+				})
+
+				if (result.success) {
+					//? Update content reference
+					continuedContent = updatedContent
+
 					if (devMode) {
 						customSonner({
 							type: 'success',
-							text: `Successfully continued AI generation on attempt ${attempts}`,
+							text: `Successfully continued and updated message on attempt ${attempts}`,
 						})
 					}
-					return continuedContent
+
+					//? If we got enough new content, consider it successful
+					if (newContent.length > 20) {
+						return continuedContent
+					}
+				} else {
+					if (devMode) {
+						customSonner({
+							type: 'error',
+							text: `Failed to update message: ${result.error}`,
+						})
+					}
 				}
 			}
 		}
