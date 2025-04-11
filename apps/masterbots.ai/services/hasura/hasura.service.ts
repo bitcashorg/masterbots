@@ -515,6 +515,7 @@ export async function updateMessage({
 
 		const client = getHasuraClient({ jwt })
 
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		const updateData: Record<string, any> = { content }
 		if (thinking !== undefined) {
 			updateData.thinking = thinking
