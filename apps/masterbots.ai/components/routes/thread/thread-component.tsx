@@ -91,11 +91,10 @@ export default function ThreadComponent({
 					{thread.thread && (
 						<Tooltip>
 							<TooltipTrigger className="transition-all opacity-30 hover:opacity-100 focus-within:opacity-100 mt-2.5 px-1.5 py-0.5 w-auto text-[10px] font-medium rounded-md bg-accent text-accent-foreground">
-								continuing
+								Continued
 							</TooltipTrigger>
-							<TooltipContent className="whitespace-pre-line">
-								Continuing a thread conversation,{'\n'}originally from{' '}
-								<b>{thread.thread.user?.username}</b>.
+							<TooltipContent>
+								Continued thread from <b>{thread.thread.user?.username}</b>.
 							</TooltipContent>
 						</Tooltip>
 					)}

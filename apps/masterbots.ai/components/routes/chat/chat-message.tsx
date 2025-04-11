@@ -41,13 +41,18 @@ export function ChatMessage({
 	const content = cleanPrompt(message.content)
 	const cleanMessage = { ...message, content }
 	const [references, setReferences] = useState<WebSearchResult[]>([])
+	const [clicked, setClicked] = useState(false)
 
 	// Handler for clickable text elements.
 	const handleClickableClick = (clickableText: string) => {
+		if (clicked) return
+		setClicked(true)
 		const context = extractFollowUpContext(message.content, clickableText)
 		const cleanedText = cleanClickableText(context)
 		const followUpPrompt = `Explain more in-depth and in detail about "${clickableText}"? ${cleanedText}`
-		sendMessageFromResponse?.(followUpPrompt)
+		sendMessageFromResponse?.(followUpPrompt, () => {
+			setClicked(false)
+		})
 	}
 
 	// References section component.
