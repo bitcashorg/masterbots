@@ -201,7 +201,6 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 	 * @param {number} chatbotId - The ID of the chatbot to toggle selection for.
 	 */
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const toggleChatbotSelection = React.useCallback(
 		(chatbotId: number) => {
 			setSelectedChatbots((prev) =>
