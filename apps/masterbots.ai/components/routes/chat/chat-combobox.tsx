@@ -16,6 +16,7 @@ import {
 	IconLlama,
 	IconOpenAI,
 	IconWordware,
+	IconGoogle
 } from '@/components/ui/icons'
 import {
 	Popover,
@@ -42,6 +43,11 @@ const models = [
 		value: AIModels.DeepSeekGroq,
 		logo: <IconDeepSeek />,
 	},
+	{
+		label: 'Gemini',
+		value: AIModels.Gemini,
+		logo: <IconGoogle />,
+	  },
 ]
 
 export function ChatCombobox() {

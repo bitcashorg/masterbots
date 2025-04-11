@@ -211,6 +211,7 @@ export type AiClientType =
 	| 'WordWare'
 	| 'DeepSeek'
 	| 'GroqDeepSeek'
+	| 'Gemini'
 
 export type JSONResponseStream = {
 	model: string
