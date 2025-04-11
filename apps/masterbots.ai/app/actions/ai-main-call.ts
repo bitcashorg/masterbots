@@ -39,6 +39,7 @@ import { createStreamableValue } from 'ai/rsc'
 import { appConfig } from 'mb-env'
 import type OpenAI from 'openai'
 import type { ZodType, z } from 'zod'
+import { createGoogleGenerativeAI } from '@ai-sdk/google'
 
 const OPEN_AI_ENV_CONFIG = {
 	TOP_P: process.env.OPENAI_TOP_P
@@ -94,6 +95,17 @@ export async function initializePerplexity(apiKey: string) {
 		apiKey,
 		baseURL: 'https://api.perplexity.ai',
 		compatibility: 'compatible',
+	})
+}
+
+const initializeGoogle = (apiKey: string) => {
+	if (!apiKey) {
+		throw new Error(
+			'GOOGLE_GENERATIVE_AI_API_KEY is not defined in environment variables',
+		)
+	}
+	return createGoogleGenerativeAI({
+		apiKey,
 	})
 }
 
@@ -409,6 +421,26 @@ export async function createResponseStream(
 					// maxTokens: 2000,
 					tools,
 					maxRetries: 2,
+				})
+				break
+			}
+			case 'Gemini': {
+				const googleAI = initializeGoogle(
+					previewToken || (process.env.GOOGLE_GENERATIVE_AI_API_KEY as string),
+				)
+				const googleModel = googleAI(model)
+				response = await streamText({
+					model: googleModel,
+					messages: coreMessages,
+					temperature: 0.3,
+					tools,
+					maxRetries: 2,
+					providerOptions: {
+						google: {
+							//? Enables web search
+							useSearchGrounding: webSearch || false,
+						},
+					},
 				})
 				break
 			}
