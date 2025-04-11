@@ -2,7 +2,6 @@
 
 import { buttonVariants } from '@/components/ui/button'
 import { Tooltip } from '@/components/ui/tooltip'
-import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { cn, getRouteType } from '@/lib/utils'
 import { TooltipContent, TooltipTrigger } from '@radix-ui/react-tooltip'
@@ -13,13 +12,9 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 export function ChatbotAvatar({ thread }: { thread: Thread }) {
-	const { activeChatbot } = useSidebar()
 	const { isAdminMode } = useThreadVisibility()
 	const pathname = usePathname()
 	const routeType = getRouteType(pathname)
-
-	if (routeType !== 'public' && (activeChatbot || !thread.chatbot?.avatar))
-		return null
 
 	return (
 		<Tooltip>

@@ -336,6 +336,11 @@ export async function getThreads({
 			},
 			thread: {
 				threadId: true,
+				user: {
+					username: true,
+					profilePicture: true,
+					slug: true,
+				},
 				messages: {
 					__scalar: true,
 					__args: {

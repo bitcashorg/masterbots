@@ -18,9 +18,11 @@ function HeaderLink({
 	noActiveColor,
 	text,
 	onClick,
+	className,
 }: {
 	href: string
 	text: string
+	className?: string
 	noActiveColor?: boolean
 	onClick: (event: React.MouseEvent) => void
 }) {
@@ -43,11 +45,16 @@ function HeaderLink({
 
 	return (
 		<Button
-			className={cn('-ml-1 transition-all', {
-				[`${routeColour}`]: isActive && !noActiveColor,
-			})}
+			className={cn(
+				'-ml-1 transition-all',
+				{
+					[`${routeColour}`]: isActive && !noActiveColor,
+				},
+				className,
+			)}
 			onClick={onClick}
 			variant="link"
+			size="sm"
 			asChild
 		>
 			<Link href={href}>{text}</Link>
@@ -95,6 +102,9 @@ export function Header() {
 	//   })
 	// }
 
+	const pathname = usePathname()
+	const routeType = getRouteType(pathname)
+
 	return (
 		<header className="sticky top-0 z-50 flex items-center justify-between w-full h-16 px-4 border-b shrink-0 bg-gradient-to-b from-background/10 via-background/50 to-background/80 backdrop-blur-xl">
 			<div className="flex items-center">
@@ -108,21 +118,34 @@ export function Header() {
 					text="MB"
 				/>
 
+				<IconSeparator className="size-6 text-muted-foreground/50" />
 				{/* Navigation links - Hidden on mobile */}
-				<div className="hidden md:flex lg:items-center">
-					<IconSeparator className="size-6 text-muted-foreground/50" />
+				<div className="flex items-center gap-1 ml-2.5">
 					<HeaderLink
 						href={personalUrl}
 						onClick={resetNavigation}
 						text="Chat"
+						className={cn({
+							'hidden sm:flex': routeType !== 'chat',
+						})}
 					/>
 					<HeaderLink
 						href={publicUrl}
 						onClick={resetNavigation}
 						text="Public"
+						className={cn({
+							'hidden sm:flex': routeType !== 'public',
+						})}
 					/>
 					{appConfig.features.devMode && (
-						<HeaderLink href="/c/p" onClick={resetNavigation} text="Pro" />
+						<HeaderLink
+							href="/c/p"
+							onClick={resetNavigation}
+							text="Pro"
+							className={cn({
+								'hidden sm:flex': routeType !== 'pro',
+							})}
+						/>
 					)}
 				</div>
 			</div>

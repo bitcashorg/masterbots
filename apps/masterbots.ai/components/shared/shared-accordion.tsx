@@ -325,7 +325,7 @@ export function SharedAccordion({
 				id={props.id}
 			>
 				<div className="flex w-full">
-					<div className="flex w-full flex-col-reverse sm:flex-row">
+					<div className="flex w-full">
 						{Array.isArray(children) && children[0]}
 						{!open && Array.isArray(children) && children[1]}
 					</div>

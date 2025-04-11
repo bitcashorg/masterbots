@@ -18,7 +18,7 @@ import { Suspense } from 'react'
 
 export default async function ProfileChatBot(props: PageProps) {
 	const params = await props.params
-	let threads: {
+	let threadsResult: {
 		threads: Thread[]
 		count: number
 	} = {
@@ -69,11 +69,15 @@ export default async function ProfileChatBot(props: PageProps) {
 		}
 	}
 
-	threads = await fetchThreads()
+	threadsResult = await fetchThreads()
 
 	return (
 		<Suspense fallback={null}>
-			<UserThreadList user={user as User} threads={threads.threads} />
+			<UserThreadList
+				user={user as User}
+				count={threadsResult.count}
+				threads={threadsResult.threads}
+			/>
 		</Suspense>
 	)
 }

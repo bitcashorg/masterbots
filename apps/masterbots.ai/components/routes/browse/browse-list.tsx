@@ -193,10 +193,17 @@ export default function BrowseList({
 	])
 
 	const activateThreadPopup = (thread: Thread) => {
-		setActiveThread(thread as Thread)
+		// ? WHY SPREAD OPERATORS?! ... Ask me why if curious 😊 -Andler
+		setActiveThread({
+			...thread,
+			thread: {
+				...thread.thread,
+			},
+		} as Thread)
 		setIsOpenPopup(true)
 	}
 
+	// TODO: Make a utility function for this. Same as in the thread-list.tsx
 	const [, getOpeningActiveThread] = useAsyncFn(async () => {
 		if (activeThread) return
 		const pathname = window.location.pathname
@@ -244,6 +251,7 @@ export default function BrowseList({
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
+		if (activeThread) return
 		getOpeningActiveThread()
 	}, [activeThread])
 
@@ -268,7 +276,7 @@ export default function BrowseList({
 	return (
 		<div className="flex flex-col w-full gap-3 py-5">
 			{filteredThreads.length > 0 ? (
-				<ul className="flex flex-col size-full gap-3 pb-5">
+				<ul className="flex flex-col size-full gap-3 pb-36">
 					{filteredThreads.map((thread: Thread, key) => (
 						<ThreadComponent
 							thread={thread}
