@@ -141,9 +141,9 @@ export function MessagePairAccordion({
 	const shouldShowUserMessage = activeThread?.thread
 		? !(!isThread && !index && isPrevious)
 		: !(!isThread && !index)
-	// ? Case for when there is more than one message and we want to hide the first message
-	// (!index && arrayLength <= 1)
 	const defaultAccordionState =
+		// ? Case for when there is more than one message and we want to hide the first message
+		// (!index && arrayLength <= 1)
 		// ? Case for when we have the first message in the conversation or last and both are not previous
 		((!index || index === arrayLength - 1) && !isPrevious) ||
 		// ? Case for when we have the first message in the previous conversation
