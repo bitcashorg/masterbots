@@ -29,7 +29,7 @@ export function getUserIndexedDBKeys(userId?: string) {
 }
 
 export function useFileAttachments(
-	formRef: React.RefObject<HTMLFormElement | null>,
+	formRef?: React.RefObject<HTMLFormElement | null>,
 ): [
 	{
 		isDragging: boolean

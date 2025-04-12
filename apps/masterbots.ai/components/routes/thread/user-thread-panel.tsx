@@ -1,6 +1,5 @@
 'use client'
 
-import BrowseListItem from '@/components/routes/browse/browse-list-item'
 /**
  * UserThreadPanel Component
  *
@@ -32,7 +31,6 @@ import ChatChatbotDetails from '@/components/routes/chat/chat-chatbot-details'
 import ThreadList from '@/components/routes/thread/thread-list'
 import { NoResults } from '@/components/shared/no-results-card'
 import { ThreadSearchInput } from '@/components/shared/shared-search'
-import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeletons'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PAGE_SIZE, PAGE_SM_SIZE } from '@/lib/constants/hasura'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
@@ -58,11 +56,13 @@ import { useAsync, useSetState } from 'react-use'
 // in only one file, instead of relying on reusable hooks for each context. It should be refactored.
 export default function UserThreadPanel({
 	threads: initialThreads = [],
+	count: initialCount = 0,
 	user: userProps,
 	page,
 }: {
 	user?: User
 	threads?: Thread[]
+	count?: number
 	showSearch?: boolean
 	page?: string
 }) {
@@ -93,7 +93,7 @@ export default function UserThreadPanel({
 	const searchParams = useSearchParams()
 	const { userSlug, category, chatbot } = params
 	const continuousThreadId = searchParams.get('continuousThreadId')
-	const [storeThreads, setStoreThreads] = useState<Thread[]>(initialThreads)
+	const [adminThreads, setAdminThreads] = useState<Thread[]>(initialThreads)
 	const isPublic = !/^\/(?:c|u)(?:\/|$)/.test(usePathname())
 	const fetchIdRef = useRef<number>(0)
 
@@ -117,29 +117,33 @@ export default function UserThreadPanel({
 		count: 0,
 		totalThreads: 0,
 	})
-	const { count, totalThreads } = state
+	const { totalThreads } = state
 
 	const fetchBrowseThreads = async () => {
 		try {
-			if (!userSlug) return []
-			const user = userWithSlug.value?.user
-			if (!user) return []
 			return await getBrowseThreads({
-				userId: user.userId,
+				userId: userWithSlug.value?.user?.userId,
 				categoryId: activeCategory,
 				chatbotName: activeChatbot?.name,
-				limit: PAGE_SM_SIZE,
+				offset: threads.length,
+				limit: PAGE_SIZE,
 			})
 		} catch (error) {
 			console.error('Failed to fetch threads:', error)
-			return []
+			return {
+				threads: [],
+				count: 0,
+			}
 		}
 	}
 
 	const loadMore = async () => {
 		console.log('🟡 Loading More Content')
 		setLoading(true)
-		let moreThreads: Thread[] = []
+		let moreThreads: { threads: Thread[]; count: number } = {
+			threads: [],
+			count: 0,
+		}
 		const userOnSlug = userWithSlug.value?.user
 		const isOwnProfile = session?.user?.id === userOnSlug?.userId
 		if ((page === 'profile' && !session?.user) || !isOwnProfile) {
@@ -152,14 +156,19 @@ export default function UserThreadPanel({
 				limit: PAGE_SM_SIZE,
 				categoryId: activeCategory,
 				chatbotName: activeChatbot?.name,
+				isAdminMode,
 			})
 		}
-		setState({
-			threads: moreThreads ? [...threads, ...moreThreads] : threads,
-			count: threads.length,
+		setState((prevState) => {
+			const newThreads = [...prevState.threads, ...(moreThreads?.threads || [])]
+			return {
+				threads: newThreads,
+				count: moreThreads.count,
+				totalThreads: newThreads.length,
+			}
 		})
-		setStoreThreads(
-			moreThreads ? [...storeThreads, ...moreThreads] : storeThreads,
+		setAdminThreads(
+			moreThreads ? [...adminThreads, ...moreThreads.threads] : adminThreads,
 		)
 		setLoading(false)
 	}
@@ -200,7 +209,7 @@ export default function UserThreadPanel({
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (isAdminMode) {
-			setStoreThreads(hookThreads)
+			setAdminThreads(hookThreads)
 			setState({
 				threads: hookThreads,
 				totalThreads: hookThreads.length,
@@ -209,6 +218,10 @@ export default function UserThreadPanel({
 		}
 	}, [hookThreads])
 
+	const count =
+		state.count > initialCount || isAdminMode || searchTerm
+			? state.count
+			: initialCount
 	const threads =
 		state.threads.length > initialThreads.length || isAdminMode || searchTerm
 			? state.threads
@@ -236,7 +249,7 @@ export default function UserThreadPanel({
 			const userOnSlug = userWithSlug.value?.user
 			const isOwnProfile = session?.user?.id === userOnSlug?.userId
 			if (!session?.user || (!isOwnProfile && page === 'profile')) {
-				const newThreads = await fetchBrowseThreads()
+				const { threads: newThreads } = await fetchBrowseThreads()
 
 				setState({
 					threads: newThreads,
@@ -249,12 +262,13 @@ export default function UserThreadPanel({
 
 			const currentFetchId = Date.now() // Generate a unique identifier for the current fetch
 			fetchIdRef.current = currentFetchId
-			const newThreads = await getThreads({
+			const { threads: newThreads, count } = await getThreads({
 				jwt: session?.user?.hasuraJwt,
 				userId: session?.user.id,
 				limit: PAGE_SIZE,
 				categoryId: activeCategory,
 				chatbotName: activeChatbot?.name,
+				isAdminMode,
 			})
 
 			// Check if the fetchId matches the current fetchId stored in the ref
@@ -263,7 +277,7 @@ export default function UserThreadPanel({
 				setState({
 					threads: newThreads,
 					totalThreads: threads?.length,
-					count: threads?.length,
+					count,
 				})
 			}
 		} catch (error) {
@@ -309,7 +323,7 @@ export default function UserThreadPanel({
 						totalThreads: threads.length,
 					})
 				} else {
-					const searchResult = storeThreads.filter((thread: Thread) =>
+					const searchResult = adminThreads.filter((thread: Thread) =>
 						searchThreadContent(thread, term),
 					)
 					setState({
@@ -320,7 +334,7 @@ export default function UserThreadPanel({
 				}
 				setLoading(false)
 			}, 230),
-		[storeThreads, threads],
+		[adminThreads, threads],
 	)
 
 	const verifyKeyword = () => {
@@ -344,48 +358,26 @@ export default function UserThreadPanel({
 			)}
 			{loading && threads.length === 0 && !searchTerm && (
 				<div className={searchInputContainerClassName}>
-					<div className="relative w-full max-w-[900px] mx-auto flex items-center justify-center">
+					<div className="relative w-full max-w-screen-xl mx-auto flex items-center justify-center">
 						<Skeleton className="w-full mx-auto h-12 rounded-full flex absolute" />
 						<Skeleton className="size-6 rounded-full mr-auto ml-3 bg-foreground/10" />
 					</div>
 				</div>
 			)}
 			<ul
-				className={cn('flex flex-col size-full gap-3 pb-5', {
+				className={cn('flex flex-col size-full gap-3 pb-36', {
 					'items-center justify-center': showNoResults || showChatbotDetails,
 				})}
 			>
 				{showChatbotDetails ? (
 					<ChatChatbotDetails />
 				) : (
-					<>
-						{page === 'profile' ? (
-							<div className="flex flex-col py-5">
-								{threads.map((thread: Thread) => (
-									<BrowseListItem
-										thread={thread}
-										key={thread.threadId}
-										loading={loading}
-										loadMore={loadMore}
-										hasMore={count === PAGE_SIZE}
-										isLast={
-											thread.threadId === threads[threads.length - 1].threadId
-										}
-										pageType={page}
-									/>
-								))}
-								{loading && <ThreadItemSkeleton />}
-							</div>
-						) : (
-							<ThreadList
-								threads={threads}
-								loading={loading}
-								count={count}
-								pageSize={PAGE_SIZE}
-								loadMore={loadMore}
-							/>
-						)}
-					</>
+					<ThreadList
+						threads={threads}
+						loading={loading}
+						loadMore={loadMore}
+						count={count}
+					/>
 				)}
 				{showNoResults && (
 					<NoResults

@@ -35,13 +35,11 @@ export default function ThreadList({
 	loading,
 	loadMore,
 	count,
-	pageSize,
 	threads,
 }: {
 	threads: Thread[]
 	loading: boolean
 	count: number
-	pageSize: number
 	loadMore: () => void
 }) {
 	const {
@@ -120,25 +118,33 @@ export default function ThreadList({
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
+		if (activeThread) return
 		getOpeningActiveThread()
 	}, [activeThread])
 
+	if (loadingThread) {
+		return (
+			<>
+				{[1, 2, 3, 4, 5].map((pos) => (
+					<ThreadItemSkeleton key={`thread-skeleton-${pos}`} />
+				))}
+			</>
+		)
+	}
+
 	return (
 		<>
-			{loading || loadingThread
-				? [1, 2, 3, 4, 5].map((pos) => (
-						<ThreadItemSkeleton key={`thread-skeleton-${pos}`} />
-					))
-				: filteredThreads?.map((thread, key) => (
-						<ThreadComponent
-							key={thread.threadId}
-							thread={thread}
-							loading={loading}
-							loadMore={loadMore}
-							hasMore={count === pageSize}
-							isLast={key === threads.length - 1}
-						/>
-					))}
+			{filteredThreads?.map((thread, key) => (
+				<ThreadComponent
+					key={thread.threadId}
+					thread={thread}
+					loading={loading}
+					loadMore={loadMore}
+					hasMore={count > filteredThreads.length}
+					isLast={key === filteredThreads.length - 1}
+				/>
+			))}
+			{loading && <ThreadItemSkeleton />}
 		</>
 	)
 }

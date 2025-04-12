@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { ChatMessage } from '@/components/routes/chat/chat-message'
 import { ReasoningChatMessage } from '@/components/routes/chat/reasoning/reasoning-chat-message'
 import { hasReasoning } from '@/lib/helpers/ai-helpers'
@@ -6,13 +7,14 @@ type MessageRendererProps = {
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	message: any
 	actionRequired?: boolean
-	sendMessageFromResponse?: (message: string) => void
+	sendMessageFromResponse?: (message: string, callback?: () => void) => void
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	chatbot?: any
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	webSearchResults?: any[]
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	[key: string]: any
+	isContinuing?: boolean
 }
 
 export function MessageRenderer({
@@ -21,6 +23,7 @@ export function MessageRenderer({
 	sendMessageFromResponse,
 	chatbot,
 	webSearchResults = [],
+	isContinuing = false,
 	...props
 }: MessageRendererProps) {
 	//? Determine if the message has reasoning content
@@ -35,6 +38,7 @@ export function MessageRenderer({
 				sendMessageFromResponse={sendMessageFromResponse}
 				chatbot={chatbot}
 				webSearchResults={webSearchResults}
+				isContinuing={isContinuing}
 				{...props}
 			/>
 		)
@@ -48,6 +52,7 @@ export function MessageRenderer({
 			sendMessageFromResponse={sendMessageFromResponse}
 			chatbot={chatbot}
 			webSearchResults={webSearchResults}
+			isContinuing={isContinuing}
 			{...props}
 		/>
 	)

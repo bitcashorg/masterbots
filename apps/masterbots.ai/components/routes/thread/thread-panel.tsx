@@ -20,10 +20,16 @@ import UserThreadPanel from '@/components/routes/thread/user-thread-panel'
 import type { Thread } from 'mb-genql'
 import { Suspense } from 'react'
 
-export default function ThreadPanel({ threads }: { threads?: Thread[] }) {
+export default function ThreadPanel({
+	threads,
+	count,
+}: {
+	threads?: Thread[]
+	count?: number
+}) {
 	return (
 		<Suspense fallback={null}>
-			<UserThreadPanel threads={threads} showSearch />
+			<UserThreadPanel threads={threads} count={count} showSearch />
 		</Suspense>
 	)
 }

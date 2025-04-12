@@ -86,7 +86,7 @@ export async function generateMbMetadata({
 
 	try {
 		const { threadSlug, threadQuestionSlug } = paramsObject
-		thread = (await getThread({ threadSlug, jwt: '' })) as Thread
+		thread = (await getThread({ threadSlug, isSEO: true })) as Thread
 
 		const firstQuestion =
 			thread?.messages.find(
