@@ -1,6 +1,5 @@
 'use client'
 
-import BrowseListItem from '@/components/routes/browse/browse-list-item'
 /**
  * UserThreadPanel Component
  *
@@ -32,7 +31,6 @@ import ChatChatbotDetails from '@/components/routes/chat/chat-chatbot-details'
 import ThreadList from '@/components/routes/thread/thread-list'
 import { NoResults } from '@/components/shared/no-results-card'
 import { ThreadSearchInput } from '@/components/shared/shared-search'
-import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeletons'
 import { Skeleton } from '@/components/ui/skeleton'
 import { PAGE_SIZE, PAGE_SM_SIZE } from '@/lib/constants/hasura'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
@@ -119,26 +117,16 @@ export default function UserThreadPanel({
 		count: 0,
 		totalThreads: 0,
 	})
-	const { count, totalThreads } = state
+	const { totalThreads } = state
 
 	const fetchBrowseThreads = async () => {
 		try {
-			if (!userSlug)
-				return {
-					threads: [],
-					count: 0,
-				}
-			const user = userWithSlug.value?.user
-			if (!user)
-				return {
-					threads: [],
-					count: 0,
-				}
 			return await getBrowseThreads({
-				userId: user.userId,
+				userId: userWithSlug.value?.user?.userId,
 				categoryId: activeCategory,
 				chatbotName: activeChatbot?.name,
-				limit: PAGE_SM_SIZE,
+				offset: threads.length,
+				limit: PAGE_SIZE,
 			})
 		} catch (error) {
 			console.error('Failed to fetch threads:', error)
@@ -171,7 +159,14 @@ export default function UserThreadPanel({
 				isAdminMode,
 			})
 		}
-		setState(moreThreads)
+		setState((prevState) => {
+			const newThreads = [...prevState.threads, ...(moreThreads?.threads || [])]
+			return {
+				threads: newThreads,
+				count: moreThreads.count,
+				totalThreads: newThreads.length,
+			}
+		})
 		setAdminThreads(
 			moreThreads ? [...adminThreads, ...moreThreads.threads] : adminThreads,
 		)
@@ -223,6 +218,10 @@ export default function UserThreadPanel({
 		}
 	}, [hookThreads])
 
+	const count =
+		state.count > initialCount || isAdminMode || searchTerm
+			? state.count
+			: initialCount
 	const threads =
 		state.threads.length > initialThreads.length || isAdminMode || searchTerm
 			? state.threads
@@ -366,41 +365,19 @@ export default function UserThreadPanel({
 				</div>
 			)}
 			<ul
-				className={cn('flex flex-col size-full gap-3 pb-5', {
+				className={cn('flex flex-col size-full gap-3 pb-36', {
 					'items-center justify-center': showNoResults || showChatbotDetails,
 				})}
 			>
 				{showChatbotDetails ? (
 					<ChatChatbotDetails />
 				) : (
-					<>
-						{page === 'profile' ? (
-							<div className="flex flex-col py-5">
-								{threads.map((thread: Thread) => (
-									<BrowseListItem
-										thread={thread}
-										key={thread.threadId}
-										loading={loading}
-										loadMore={loadMore}
-										hasMore={count === PAGE_SIZE}
-										isLast={
-											thread.threadId === threads[threads.length - 1].threadId
-										}
-										pageType={page}
-									/>
-								))}
-								{loading && <ThreadItemSkeleton />}
-							</div>
-						) : (
-							<ThreadList
-								threads={threads}
-								loading={loading}
-								count={count}
-								pageSize={PAGE_SIZE}
-								loadMore={loadMore}
-							/>
-						)}
-					</>
+					<ThreadList
+						threads={threads}
+						loading={loading}
+						loadMore={loadMore}
+						count={count}
+					/>
 				)}
 				{showNoResults && (
 					<NoResults
