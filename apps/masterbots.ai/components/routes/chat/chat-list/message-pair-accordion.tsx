@@ -138,7 +138,7 @@ export function MessagePairAccordion({
 		[],
 	)
 
-	const shouldShowUserMessage = activeThread?.thread
+	const shouldShowUserMessage = activeThread?.thread?.messages
 		? !(!isThread && !index && isPrevious)
 		: !(!isThread && !index)
 	const defaultAccordionState =
@@ -184,7 +184,10 @@ export function MessagePairAccordion({
 					// Adding padding for the rest of messages
 					'pt-6': !(
 						(isAccordionFocused && !isThread && !index && isPrevious) ||
-						(isAccordionFocused && !isThread && !index && !activeThread?.thread)
+						(isAccordionFocused &&
+							!isThread &&
+							!index &&
+							!activeThread?.thread?.messages)
 					),
 				},
 				props.chatContentClass,

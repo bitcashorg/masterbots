@@ -182,16 +182,18 @@ function ThreadPopUpCardHeader({
 						(m) => (m as AiMessage).role === 'user',
 					)[0] as AiMessage
 				)?.content
-		const previousThreadTitle = isBrowseView
-			? (activeThread?.thread?.messages[0] as Message)?.content
-			: (
-					activeThread?.thread?.messages?.filter(
-						(m) => m && m.role === 'user',
-					)[0] as Message
-				)?.content
+		const previousThreadTitle = activeThread?.thread?.messages
+			? isBrowseView
+				? (activeThread.thread.messages[0] as Message)?.content
+				: (
+						activeThread?.thread?.messages?.filter(
+							(m) => m && m.role === 'user',
+						)[0] as Message
+					)?.content
+			: ''
 		// ? Since we are checking if the activeThread has a parentThread (thread), we are OK
 		// ? to use check and destructure the way we did here.
-		const threadTitle = activeThread?.thread
+		const threadTitle = activeThread?.thread?.messages
 			? previousThreadTitle
 			: currentThreadTitle
 		try {
