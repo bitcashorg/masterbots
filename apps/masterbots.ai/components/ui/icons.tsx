@@ -853,7 +853,6 @@ function IconDeepSeek({ className, ...props }: React.ComponentProps<'svg'>) {
 	)
 }
 
-
 export {
 	IconArrowDown,
 	IconArrowElbow,

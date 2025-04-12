@@ -25,6 +25,7 @@ import type {
 	JSONResponseStream,
 } from '@/types/types'
 import { createAnthropic } from '@ai-sdk/anthropic'
+import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { createGroq } from '@ai-sdk/groq'
 import { createOpenAI } from '@ai-sdk/openai'
 import {
@@ -39,7 +40,6 @@ import { createStreamableValue } from 'ai/rsc'
 import { appConfig } from 'mb-env'
 import type OpenAI from 'openai'
 import type { ZodType, z } from 'zod'
-import { createGoogleGenerativeAI } from '@ai-sdk/google'
 
 const OPEN_AI_ENV_CONFIG = {
 	TOP_P: process.env.OPENAI_TOP_P
