@@ -13,10 +13,10 @@ import {
 import {
 	IconClaude,
 	IconDeepSeek,
+	IconGemini,
 	IconLlama,
 	IconOpenAI,
 	IconWordware,
-	IconGemini
 } from '@/components/ui/icons'
 import {
 	Popover,
@@ -47,7 +47,7 @@ const models = [
 		label: 'Gemini',
 		value: AIModels.Gemini,
 		logo: <IconGemini />,
-	  },
+	},
 ]
 
 export function ChatCombobox() {

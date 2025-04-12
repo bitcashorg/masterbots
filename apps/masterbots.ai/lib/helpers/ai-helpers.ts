@@ -37,7 +37,7 @@ export function getModelClientType(model: AIModels) {
 		case AIModels.DeepSeekGroq:
 			return 'GroqDeepSeek'
 		case AIModels.Gemini:
-      		return 'Gemini'
+			return 'Gemini'
 		default:
 			throw new Error('Unsupported model specified')
 	}
