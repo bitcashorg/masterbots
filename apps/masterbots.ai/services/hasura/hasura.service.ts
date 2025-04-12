@@ -520,7 +520,10 @@ export async function updateMessage({
 
 		const client = getHasuraClient({ jwt })
 
-		const updateData: Record<string, any> = { content }
+		const updateData: Record<'content' | 'thinking', string | undefined> = {
+			content,
+			thinking,
+		}
 		if (thinking !== undefined) {
 			updateData.thinking = thinking
 		}
