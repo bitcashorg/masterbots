@@ -13,6 +13,7 @@ import {
 import {
 	IconClaude,
 	IconDeepSeek,
+	IconGemini,
 	IconLlama,
 	IconOpenAI,
 	IconWordware,
@@ -41,6 +42,11 @@ const models = [
 		label: 'DeepSeek',
 		value: AIModels.DeepSeekGroq,
 		logo: <IconDeepSeek />,
+	},
+	{
+		label: 'Gemini',
+		value: AIModels.Gemini,
+		logo: <IconGemini />,
 	},
 ]
 

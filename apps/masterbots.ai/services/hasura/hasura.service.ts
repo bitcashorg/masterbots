@@ -11,6 +11,7 @@ import {
 	type Chatbot,
 	type MbClient,
 	type Message,
+	type OrderBy,
 	type Thread,
 	type User,
 	createMbClient,
@@ -254,20 +255,60 @@ export async function getThreads({
 	userId,
 	domain,
 	jwt,
+	isAdminMode,
 	limit,
 	offset,
 }: GetThreadsParams) {
 	const client = getHasuraClient({ jwt })
 
-	const { thread } = await client.query({
+	const threadsArguments = {
+		orderBy: [{ createdAt: 'DESC' as OrderBy }],
+		limit: limit ? limit : 20,
+		...(offset
+			? {
+					offset,
+				}
+			: {}),
+		...(chatbotName || categoryId
+			? {
+					where: {
+						chatbot: {
+							...(chatbotName
+								? {
+										name: { _eq: chatbotName },
+									}
+								: {}),
+							...(categoryId
+								? { categories: { categoryId: { _eq: categoryId } } }
+								: {}),
+							...(domain
+								? {
+										metadata: {
+											domainName: {
+												_ilike: `%${domain.replace(/-/g, ' ')}%`,
+											},
+										},
+									}
+								: {}),
+						},
+						...(userId ? { userId: { _eq: userId } } : {}),
+					},
+				}
+			: userId
+				? { where: { userId: { _eq: userId } } }
+				: isAdminMode
+					? { isApproved: { _eq: false } }
+					: {}),
+	}
+
+	const { thread, threadAggregate } = await client.query({
 		thread: {
 			chatbot: {
-				...everything,
 				categories: {
 					category: {
-						...everything,
+						__scalar: true,
 					},
-					...everything,
+					__scalar: true,
 				},
 				threads: {
 					threadId: true,
@@ -275,58 +316,56 @@ export async function getThreads({
 				prompts: {
 					prompt: everything,
 				},
+				__scalar: true,
 			},
 			messages: {
-				...everything,
+				__scalar: true,
 				__args: {
 					orderBy: [{ createdAt: 'ASC' }],
 					limit: 2,
 				},
 			},
+			user: {
+				username: true,
+				profilePicture: true,
+				slug: true,
+				followers: {
+					followerId: true,
+					followeeIdChatbot: true,
+				},
+			},
+			thread: {
+				threadId: true,
+				user: {
+					username: true,
+					profilePicture: true,
+					slug: true,
+				},
+				messages: {
+					__scalar: true,
+					__args: {
+						orderBy: [{ createdAt: 'ASC' }],
+						limit: 2,
+					},
+				},
+			},
 			isApproved: true,
 			isPublic: true,
-			...everything,
-			__args: {
-				orderBy: [{ createdAt: 'DESC' }],
-				limit: limit ? limit : 20,
-				...(offset
-					? {
-							offset,
-						}
-					: {}),
-				...(chatbotName || categoryId
-					? {
-							where: {
-								chatbot: {
-									...(chatbotName
-										? {
-												name: { _eq: chatbotName },
-											}
-										: {}),
-									...(categoryId
-										? { categories: { categoryId: { _eq: categoryId } } }
-										: {}),
-									...(domain
-										? {
-												metadata: {
-													domainName: {
-														_ilike: `%${domain.replace(/-/g, ' ')}%`,
-													},
-												},
-											}
-										: {}),
-								},
-								...(userId ? { userId: { _eq: userId } } : {}),
-							},
-						}
-					: userId
-						? { where: { userId: { _eq: userId } } }
-						: {}),
+			__scalar: true,
+			__args: threadsArguments,
+		},
+		threadAggregate: {
+			aggregate: {
+				count: true,
 			},
+			__args: threadsArguments,
 		},
 	})
 
-	return thread as Thread[]
+	return {
+		threads: thread as Thread[],
+		count: threadAggregate.aggregate?.count || 0,
+	}
 }
 
 export async function getThread({
@@ -334,6 +373,7 @@ export async function getThread({
 	threadSlug,
 	threadQuestionSlug,
 	domain,
+	isSEO = false,
 	isPersonal = false,
 	jwt,
 	signal,
@@ -379,8 +419,11 @@ export async function getThread({
 						},
 						__scalar: true,
 					},
+					slug: true,
 					user: {
 						username: true,
+						profilePicture: true,
+						slug: true,
 					},
 				},
 				messages: {
@@ -408,10 +451,11 @@ export async function getThread({
 						...(threadQuestionSlug
 							? { messages: { slug: { _eq: threadQuestionSlug } } }
 							: {}),
-						...(!isPersonal && {
-							isPublic: { _eq: true },
-							isApproved: { _eq: true },
-						}),
+						...(!isPersonal &&
+							!isSEO && {
+								isPublic: { _eq: true },
+								isApproved: { _eq: true },
+							}),
 					},
 				},
 			},
@@ -450,6 +494,54 @@ export async function saveNewMessage({
 	} catch (error) {
 		console.error('Error saving new message:', error)
 		throw new Error('Failed to save new message.')
+	}
+}
+
+/**
+ * Updates a message's content by messageId
+ * @param params - The parameters for updating the message
+ * @returns A promise that resolves to a success status and optional error message
+ */
+export async function updateMessage({
+	messageId,
+	content,
+	thinking,
+	jwt,
+}: {
+	messageId: string
+	content: string
+	thinking?: string
+	jwt?: string
+}): Promise<{ success: boolean; error?: string }> {
+	try {
+		if (!jwt) {
+			throw new Error('Authentication required for message update')
+		}
+
+		const client = getHasuraClient({ jwt })
+		const updateData: Record<'content' | 'thinking', string | undefined> = {
+			content,
+			thinking,
+		}
+
+		await client.mutation({
+			updateMessage: {
+				__args: {
+					where: { messageId: { _eq: messageId } },
+					_set: updateData,
+				},
+				returning: {
+					messageId: true,
+					content: true,
+					thinking: true,
+				},
+			},
+		})
+
+		return { success: true }
+	} catch (error) {
+		console.error('Error updating message:', error)
+		return { success: false, error: (error as Error).message }
 	}
 }
 
@@ -650,23 +742,16 @@ export async function getBrowseThreads({
 		isApproved: { _eq: true },
 	}
 
-	const { thread: allThreads } = await client.query({
+	const { thread: allThreads, threadAggregate } = await client.query({
 		thread: {
-			__args: {
-				orderBy: [{ createdAt: 'DESC' }],
-				where: baseWhereConditions,
-				limit: (limit || 30) * 2,
-				offset: offset || 0,
-			},
-			threadId: true,
 			chatbot: {
 				chatbotId: true,
 				name: true,
 				categories: {
 					category: {
-						...everything,
+						__scalar: true,
 					},
-					...everything,
+					__scalar: true,
 				},
 				followers: {
 					followerId: true,
@@ -677,7 +762,7 @@ export async function getBrowseThreads({
 				metadata: {
 					domainName: true,
 				},
-				...everything,
+				__scalar: true,
 			},
 			messages: {
 				messageId: true,
@@ -707,14 +792,41 @@ export async function getBrowseThreads({
 					followerId: true,
 				},
 			},
+			thread: {
+				__scalar: true,
+				user: {
+					username: true,
+					profilePicture: true,
+					slug: true,
+				},
+				messages: {
+					__scalar: true,
+					__args: {
+						limit: 2,
+					},
+				},
+			},
 			isApproved: true,
 			isPublic: true,
-			userId: true,
 			__scalar: true,
+			__args: {
+				orderBy: [{ createdAt: 'DESC' }],
+				where: baseWhereConditions,
+				limit: (limit || 30) * 2,
+				offset: offset || 0,
+			},
+		},
+		threadAggregate: {
+			aggregate: {
+				count: true,
+			},
+			__args: {
+				where: baseWhereConditions,
+			},
 		},
 	})
 
-	if (!allThreads) return []
+	if (!allThreads) return { threads: [], count: 0 }
 
 	const threads = allThreads as Thread[]
 
@@ -782,7 +894,10 @@ export async function getBrowseThreads({
 			organicIndex++
 		}
 	}
-	return interweavedThreads
+	return {
+		threads: interweavedThreads,
+		count: threadAggregate.aggregate?.count || 0,
+	}
 }
 
 export async function getMessages({
@@ -916,8 +1031,10 @@ export async function updateThreadVisibility({
 					where: { threadId: { _eq: threadId } },
 					_set: { isPublic },
 				},
-				threadId: true,
-				isPublic: true,
+				returning: {
+					threadId: true,
+					isPublic: true,
+				},
 			},
 		})
 		return { success: true }
@@ -941,8 +1058,10 @@ export async function approveThread({
 					where: { threadId: { _eq: threadId } },
 					_set: { isApproved: true },
 				},
-				threadId: true,
-				isApproved: true,
+				returning: {
+					threadId: true,
+					isApproved: true,
+				},
 			},
 		})
 		return { success: true }
@@ -1044,9 +1163,14 @@ export async function getUnapprovedThreads({ jwt }: { jwt: string }) {
 					limit: 2,
 				},
 			},
+			user: {
+				slug: true,
+				username: true,
+				profilePicture: true,
+			},
 			isApproved: true,
 			isPublic: true,
-			...everything,
+			__scalar: true,
 		},
 	})
 

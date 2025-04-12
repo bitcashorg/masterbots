@@ -2,7 +2,7 @@ import BrowseList from '@/components/routes/browse/browse-list'
 import { BrowseSearchInput } from '@/components/routes/browse/browse-search-input'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { generateMetadataFromSEO } from '@/lib/metadata'
-import { getCategories, getThreads } from '@/services/hasura'
+import { getBrowseThreads, getCategories } from '@/services/hasura'
 import { toSlug } from 'mb-lib'
 import type { Metadata } from 'next'
 
@@ -14,20 +14,23 @@ export default async function BrowseCategoryPage(props: {
 	const category = categories.find(
 		(category) => toSlug(category.name) === params.category,
 	)
-	const threads = await getThreads({
+	const { threads, count } = await getBrowseThreads({
 		categoryId: category?.categoryId,
 		limit: PAGE_SIZE,
-		jwt: '',
 	})
 
 	return (
-		<div className="w-full max-w-screen-lg pb-10 mx-auto">
+		<div className="w-full max-w-screen-xl pb-10 mx-auto">
 			{/* <BrowseCategoryTabs
         initialCategory={params.category}
         categories={categories}
       /> */}
 			<BrowseSearchInput />
-			<BrowseList initialThreads={threads} categoryId={category?.categoryId} />
+			<BrowseList
+				initialThreads={threads}
+				categoryId={category?.categoryId}
+				initialCount={count}
+			/>
 		</div>
 	)
 }

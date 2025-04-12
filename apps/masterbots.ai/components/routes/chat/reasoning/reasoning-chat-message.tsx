@@ -34,9 +34,11 @@ export function ReasoningChatMessage({
 	message,
 	sendMessageFromResponse,
 	actionRequired = true,
+	isContinuing = false,
 	...props
 }: ChatMessageProps) {
 	const [isReasoningCollapsed, setIsReasoningCollapsed] = useState(!true)
+	const [clicked, setClicked] = useState(false)
 
 	// Extract reasoning from message
 	const reasoningContent = extractReasoningContent(message)
@@ -46,10 +48,14 @@ export function ReasoningChatMessage({
 
 	// Handler for clickable text elements.
 	const handleClickableClick = (clickableText: string) => {
+		if (clicked) return
+		setClicked(true)
 		const context = extractFollowUpContext(message.content, clickableText)
 		const cleanedText = cleanClickableText(context)
 		const followUpPrompt = `Explain more in-depth and in detail about "${clickableText}"? ${cleanedText}`
-		sendMessageFromResponse?.(followUpPrompt)
+		sendMessageFromResponse?.(followUpPrompt, () => {
+			setClicked(false)
+		})
 	}
 
 	const toggleReasoning = () => {
@@ -132,6 +138,11 @@ export function ReasoningChatMessage({
 					>
 						{cleanMessage.content}
 					</MemoizedReactMarkdown>
+					{isContinuing && (
+						<div className="text-sm italic text-slate-500 dark:text-slate-400 animate-pulse">
+							Continuing response...
+						</div>
+					)}
 					{actionRequired && (
 						<ChatMessageActions className="md:!right-0" message={message} />
 					)}

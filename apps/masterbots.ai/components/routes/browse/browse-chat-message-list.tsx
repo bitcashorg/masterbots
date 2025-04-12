@@ -16,6 +16,7 @@ import { ExternalLink } from '@/components/shared/external-link'
 import { SharedAccordion } from '@/components/shared/shared-accordion'
 import { buttonVariants } from '@/components/ui/button'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useThread } from '@/lib/hooks/use-thread'
 import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { cn, createMessagePairs, getRouteType } from '@/lib/utils'
 import type { Chatbot, Message, User } from 'mb-genql'
@@ -110,6 +111,8 @@ export function BrowseMessagePairs({
 	chatbot?: Chatbot
 }) {
 	const { navigateTo } = useSidebar()
+	const { activeThread } = useThread()
+	const hasPrevious = activeThread?.thread
 	const pathname = usePathname()
 	const params = useParams()
 	const isPublic = getRouteType(pathname) === 'public'
@@ -187,6 +190,13 @@ export function BrowseMessagePairs({
 		}
 	}, [])
 
+	const shouldShowFirstUserMessage = !(
+		!isThread &&
+		index === 0 &&
+		activeThread?.thread &&
+		hasPrevious
+	)
+
 	return (
 		<SharedAccordion
 			defaultState={true}
@@ -209,7 +219,7 @@ export function BrowseMessagePairs({
 			<div
 				className={cn(
 					'relative flex items-center font-normal md:text-lg transition-all size-full gap-3 pr-4',
-					index === 0 && !isThread && 'hidden',
+					{ hidden: !isThread && index === 0 && !hasPrevious },
 				)}
 			>
 				<div className={cn('break-all px-1 text-left')}>

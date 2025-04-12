@@ -1,13 +1,16 @@
 'use client'
 
 import { AdminModeApprove } from '@/components/routes/chat/admin-mode-approve'
-import { ChatList } from '@/components/routes/chat/chat-list'
 import { ChatOptions } from '@/components/routes/chat/chat-options'
+import { ProfileAvatar } from '@/components/routes/thread/profile-avatar'
 import { ChatbotAvatar } from '@/components/shared/chatbot-avatar'
 import { SharedAccordion } from '@/components/shared/shared-accordion'
-import { ShortMessage } from '@/components/shared/short-message'
-import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
@@ -46,15 +49,19 @@ export default function ThreadComponent({
 		loadMore,
 	})
 
-	const threadId = thread.threadId
 	const handleAccordionToggle = (isOpen: boolean) => {
 		if (isOpen) {
 			scrollToTop()
 		}
 	}
 
+	const threadId = thread.threadId
+	const threadTitle = (
+		thread.thread ? thread.thread.messages : thread.messages
+	).filter((m) => m.role === 'user')[0]?.content
+
 	return (
-		<li ref={threadRef}>
+		<li ref={threadRef} className="w-full px-0">
 			<SharedAccordion
 				onToggle={handleAccordionToggle}
 				className="relative"
@@ -62,83 +69,47 @@ export default function ThreadComponent({
 					'!pt-0 !border-b-[3px] max-h-[70vh] scrollbar !border-l-[3px]',
 				)}
 				triggerClass={cn(
-					'gap-1.5 py-3',
+					'gap-2.5',
 					'dark:border-b-mirage border-b-iron',
 					'sticky top-0 z-[1] dark:hover:bg-mirage hover:bg-gray-300',
 					'dark:bg-[#18181b] bg-[#f4f4f5]',
-					'[&[data-state=open]]:!bg-gray-300 dark:[&[data-state=open]]:!bg-mirage',
-					'[&[data-state=open]]:rounded-t-[8px]',
-					'[&[data-state=closed]>div>span>span]:line-clamp-2',
+					'hover:[&_picture]:opacity-100',
 				)}
 				arrowClass="min-w-5 max-w-5"
 				thread={thread}
 				variant="browse"
 			>
-				{/* Thread Title */}
-				<div className="px-[11px] flex justify-between items-center w-full gap-3">
-					<span className="inline-flex items-center gap-3 text-left">
-						<ChatbotAvatar thread={thread} />
-						<span className="whitespace-pre-line">
-							{thread.messages.filter((m) => m.role === 'user')[0]?.content || (
-								<Skeleton className="w-[280px] h-[20px]" />
-							)}
-						</span>
-					</span>
-					{/* Thread Options */}
-					<div className="flex gap-3 items-center justify-center pl-2 pr-4 sm:pl-4 sm:pr-8">
-						{routeType === 'chat' && (
-							<Badge
-								variant="outline"
-								className={cn({
-									// Light mode accent color...
-									'bg-[#BE17E8] text-white':
-										thread.isApproved && thread.isPublic,
-									// Woodsmoke
-									'bg-[#09090B] text-white':
-										thread.isApproved && !thread.isPublic,
-								})}
-							>
-								{thread.isPublic ? 'Public' : 'Private'}
-							</Badge>
+				<div className="flex w-full gap-2 text-left pr-2.5 sm:pl-2.5 py-2 overflow-x-hidden">
+					<ChatbotAvatar thread={thread} />
+					<span className="w-full text-left whitespace-pre-line line-clamp-2">
+						{threadTitle || (
+							<Skeleton className="w-[140px] md:w-[280px] max-w-[80%] h-[20px]" />
 						)}
-						<ChatOptions threadId={thread.threadId} thread={thread} isBrowse />
-					</div>
+					</span>
 				</div>
-
-				{/* Thread Description */}
-				<div className="overflow-hidden text-sm text-left opacity-50">
-					{thread.messages.filter((m) => m.role !== 'user')?.[0]?.content ? (
-						<div className="flex-1 px-[8px] pb-3 space-y-2 overflow-hidden">
-							<ShortMessage
-								content={
-									thread.messages.filter((m) => m.role !== 'user')[0].content
-								}
-							/>
-						</div>
-					) : (
-						''
+				<div className="ml-auto flex gap-1.5 items-start justify-center group">
+					{thread.thread && (
+						<Tooltip>
+							<TooltipTrigger className="transition-all items-center leading-none opacity-30 hover:opacity-100 focus-within:opacity-100 mt-2.5 px-1.5 py-0.5 w-auto text-[10px] font-medium rounded-md bg-accent text-accent-foreground">
+								Continued
+							</TooltipTrigger>
+							<TooltipContent>
+								Continued thread from <b>{thread.thread.user?.username}</b>.
+							</TooltipContent>
+						</Tooltip>
 					)}
-				</div>
-
-				{/* Thread Content */}
-				<div
-					ref={contentRef}
-					className="overflow-y-auto max-h-[calc(70vh-100px)]"
-				>
-					<ChatList
-						className="max-w-full !px-0"
-						isThread={false}
-						chatbot={thread.chatbot}
-						containerRef={contentRef}
-						isLoadingMessages={loading}
+					<ChatOptions
+						threadId={thread.threadId}
+						thread={thread}
+						isBrowse={isPublic}
 					/>
+					<ProfileAvatar thread={thread} />
 				</div>
 			</SharedAccordion>
-
 			{/* Admin Mode Approve */}
-			{isAdminMode && !thread.isApproved && (
-				<AdminModeApprove threadId={threadId} />
-			)}
+			{isAdminMode && <AdminModeApprove threadId={threadId} />}
+
+			<div ref={contentRef} className="w-full h-0" />
 		</li>
 	)
 }
