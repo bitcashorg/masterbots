@@ -205,17 +205,9 @@ export function ChatOptions({ threadId, thread }: ChatOptionsProps) {
 									radius="none"
 									size="lg"
 									className="flex justify-between w-full px-4 rounded-none"
-									onClick={async (event) => {
+									onClick={(event) => {
 										event.stopPropagation()
-										try {
-											await toggleVisibility(!thread?.isPublic, threadId)
-											thread.isPublic = !thread?.isPublic
-										} catch (error) {
-											console.error(
-												'Failed to update thread visibility:',
-												error,
-											)
-										}
+										setIsDeleteOpen(true)
 									}}
 								>
 									<Trash className="w-4 h-4" />

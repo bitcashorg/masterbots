@@ -336,6 +336,11 @@ export async function getThreads({
 			},
 			thread: {
 				threadId: true,
+				user: {
+					username: true,
+					profilePicture: true,
+					slug: true,
+				},
 				messages: {
 					__scalar: true,
 					__args: {
@@ -514,11 +519,9 @@ export async function updateMessage({
 		}
 
 		const client = getHasuraClient({ jwt })
-
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-		const updateData: Record<string, any> = { content }
-		if (thinking !== undefined) {
-			updateData.thinking = thinking
+		const updateData: Record<'content' | 'thinking', string | undefined> = {
+			content,
+			thinking,
 		}
 
 		await client.mutation({

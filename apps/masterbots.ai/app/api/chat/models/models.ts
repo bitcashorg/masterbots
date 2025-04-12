@@ -7,4 +7,5 @@ export enum AIModels {
 	WordWare = 'wordware-ai',
 	DeepSeekR1 = 'deepseek-r1',
 	DeepSeekGroq = 'deepseek-r1-distill-llama-70b',
+	Gemini = 'gemini-2.0-flash',
 }

@@ -4,6 +4,7 @@ import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { getCanonicalDomain } from '@/lib/url'
 import { cn } from '@/lib/utils'
 import { getThread } from '@/services/hasura'
+import { AnimatePresence, motion } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import type { Thread } from 'mb-genql'
@@ -158,11 +159,20 @@ export function SharedAccordion({
 		const fullThread = await getThread({
 			threadId: thread.threadId,
 			isPersonal: !isPublic,
-			jwt: session?.user?.hasuraJwt,
+			jwt: !isPublic ? session?.user?.hasuraJwt : '',
 			signal: abortController.signal,
 		})
 
-		setActiveThread(fullThread || null)
+		setActiveThread(
+			fullThread
+				? ({
+						...fullThread,
+						thread: {
+							...fullThread.thread,
+						},
+					} as Thread)
+				: null,
+		)
 		setLoading(false)
 		setCurrentRequest(null)
 
@@ -381,7 +391,7 @@ export function SharedAccordion({
 				id={props.id}
 			>
 				<div className="flex w-full">
-					<div className="flex w-full flex-col-reverse sm:flex-row">
+					<div className="flex w-full">
 						{Array.isArray(children) && children[0]}
 						{!open && Array.isArray(children) && children[1]}
 					</div>
@@ -417,22 +427,26 @@ export function SharedAccordion({
 			</button>
 
 			{/* Accordion content */}
-			<div
-				className={cn(
-					'text-sm transition-all border relative duration-300',
-					!isNestedThread &&
-						open &&
-						'animate-accordion-down dark:bg-[#18181B]/75 bg-white/75 dark:border-b-mirage border-b-gray-300 !border-t-transparent last-of-type:rounded-b-lg shadow-lg backdrop-blur-sm',
-					isNestedThread &&
-						open &&
-						'animate-accordion-down dark:bg-[#18181B]/50 bg-white/50 dark:border-b-mirage border-b-gray-300/10 !border-t-transparent last-of-type:rounded-b-lg',
-					!open &&
-						'overflow-hidden animate-accordion-up h-0 border-transparent',
-					contentClass,
+			<AnimatePresence initial={false}>
+				{open && (
+					<motion.div
+						className={cn(
+							'text-sm border relative',
+							!isNestedThread &&
+								'dark:bg-[#18181B]/75 bg-white/75 dark:border-b-mirage border-b-gray-300 !border-t-transparent last-of-type:rounded-b-lg shadow-lg backdrop-blur-sm',
+							isNestedThread &&
+								'dark:bg-[#18181B]/50 bg-white/50 dark:border-b-mirage border-b-gray-300/10 !border-t-transparent last-of-type:rounded-b-lg',
+							contentClass,
+						)}
+						initial={{ height: 0, opacity: 0, marginTop: 0 }}
+						animate={{ height: 'auto', opacity: 1, marginTop: -24 }}
+						exit={{ height: 0, opacity: 0, marginTop: 0 }}
+						transition={{ duration: 0.3, ease: 'easeInOut' }}
+					>
+						{Array.isArray(children) && children[2]}
+					</motion.div>
 				)}
-			>
-				{Array.isArray(children) && children[2]}
-			</div>
+			</AnimatePresence>
 
 			{variant === 'browse' && !isNestedThread && !open && (
 				<div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-800 to-transparent opacity-30" />

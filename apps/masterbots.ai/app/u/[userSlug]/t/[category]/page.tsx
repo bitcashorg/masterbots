@@ -17,7 +17,7 @@ export default async function BrowseCategoryPage(props: {
 }) {
 	const params = await props.params
 	const session = await getServerSession(authOptions)
-	let threads: {
+	let threadsResult: {
 		threads: Thread[]
 		count: number
 	} = {
@@ -82,7 +82,13 @@ export default async function BrowseCategoryPage(props: {
 		}
 	}
 
-	threads = await fetchThreads()
+	threadsResult = await fetchThreads()
 
-	return <UserThreadList user={user as User} threads={threads.threads} />
+	return (
+		<UserThreadList
+			user={user as User}
+			count={threadsResult.count}
+			threads={threadsResult.threads}
+		/>
+	)
 }

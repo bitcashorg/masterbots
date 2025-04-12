@@ -7,7 +7,7 @@ type MessageRendererProps = {
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	message: any
 	actionRequired?: boolean
-	sendMessageFromResponse?: (message: string) => void
+	sendMessageFromResponse?: (message: string, callback?: () => void) => void
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	chatbot?: any
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
