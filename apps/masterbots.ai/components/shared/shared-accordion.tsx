@@ -144,11 +144,20 @@ export function SharedAccordion({
 		const fullThread = await getThread({
 			threadId: thread.threadId,
 			isPersonal: !isPublic,
-			jwt: session?.user?.hasuraJwt,
+			jwt: !isPublic ? session?.user?.hasuraJwt : '',
 			signal: abortController.signal,
 		})
 
-		setActiveThread(fullThread || null)
+		setActiveThread(
+			fullThread
+				? ({
+						...fullThread,
+						thread: {
+							...fullThread.thread,
+						},
+					} as Thread)
+				: null,
+		)
 		setLoading(false)
 		setCurrentRequest(null)
 

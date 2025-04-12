@@ -209,7 +209,7 @@ export function MessagePairAccordion({
 								<TooltipTrigger className="absolute z-20 flex items-center leading-none transition-all opacity-100 hover:opacity-70 focus-within:opacity-100 mt-2.5 px-1.5 py-0.5 w-auto text-xs font-medium rounded-md bg-accent text-accent-foreground">
 									Continued
 								</TooltipTrigger>
-								<TooltipContent className="z-20" side="bottom" align="start">
+								<TooltipContent className="z-20" side="top" align="start">
 									Continued thread from{' '}
 									<b>{activeThread?.thread?.user?.username}</b>.
 								</TooltipContent>
