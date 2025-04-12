@@ -2,11 +2,17 @@ import { AttachmentCards } from '@/components/routes/chat/chat-list/attachment-c
 import { MessageRenderer } from '@/components/routes/chat/chat-message-renderer'
 import { SharedAccordion } from '@/components/shared/shared-accordion'
 import { ShortMessage } from '@/components/shared/short-message'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from '@/components/ui/tooltip'
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import type { MessagePair } from '@/lib/threads'
 import { cn, getRouteType } from '@/lib/utils'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useParams, usePathname } from 'next/navigation'
 import { Fragment, useCallback, useEffect, useState } from 'react'
 
@@ -34,7 +40,9 @@ export function MessagePairAccordion({
 	const { activeThread } = useThread()
 	const { navigateTo } = useSidebar()
 	const isPrevious = type === 'previous'
-	const [isAccordionFocused, setIsAccordionFocused] = useState<boolean>(false)
+	const [isAccordionFocused, setIsAccordionFocused] = useState<boolean>(
+		!index && !isThread,
+	)
 	const params = useParams()
 	const pathname = usePathname()
 	const isPublic = getRouteType(pathname) === 'public'
@@ -66,71 +74,85 @@ export function MessagePairAccordion({
 	}, [params])
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	const toggleThreadQuestionUrl = useCallback((isOpen: boolean) => {
-		setIsAccordionFocused(isOpen)
-		// console.log('window.location.pathname.split', window.location.pathname.split('/'))
-		// ? Chat Thread URL
-		const [, base, category, domain, chatbot, threadSlug, threadQuestionSlug] =
-			window.location.pathname.split('/')
-		const navigationParts = {
-			category: isPublic ? base : category,
-			domain: isPublic ? category : domain,
-			chatbot: isPublic ? domain : chatbot,
-			threadSlug: isPublic ? chatbot : threadSlug,
-			threadQuestionSlug: pair.userMessage.slug,
-		}
+	const toggleThreadQuestionUrl = useCallback(
+		(isOpen: boolean, isFirstQuestion: boolean) => {
+			if (!isFirstQuestion) {
+				setIsAccordionFocused(isOpen)
+				return
+			}
+			setIsAccordionFocused(isOpen)
+			// console.log('window.location.pathname.split', window.location.pathname.split('/'))
+			// ? Chat Thread URL
+			const [
+				,
+				base,
+				category,
+				domain,
+				chatbot,
+				threadSlug,
+				threadQuestionSlug,
+			] = window.location.pathname.split('/')
+			const navigationParts = {
+				category: isPublic ? base : category,
+				domain: isPublic ? category : domain,
+				chatbot: isPublic ? domain : chatbot,
+				threadSlug: isPublic ? chatbot : threadSlug,
+				threadQuestionSlug: pair.userMessage.slug,
+			}
 
-		if (!threadQuestionSlug && isOpen) {
-			// console.log('navigateTo threadQuestionUrl', navigationParts)
-			navigateTo({
-				urlType: isProfile ? 'profilesThreadQuestionUrl' : 'threadQuestionUrl',
-				shallow: true,
-				navigationParams: isProfile
-					? {
-							type: 'chatbot',
-							...navigationParts,
-						}
-					: {
-							type: isPublic ? 'public' : 'personal',
-							...navigationParts,
-						},
-			})
-		}
-		if (threadQuestionSlug && !isOpen) {
-			// console.log('navigateTo threadUrl', navigationParts)
-			navigateTo({
-				urlType: isProfile ? 'profilesThreadUrl' : 'threadUrl',
-				shallow: true,
-				navigationParams: isProfile
-					? {
-							type: 'chatbot',
-							...navigationParts,
-						}
-					: {
-							type: isPublic ? 'public' : 'personal',
-							...navigationParts,
-						},
-			})
-		}
-	}, [])
-
-	const shouldShowFirstUserMessage = !(
-		!isThread &&
-		index === 0 &&
-		activeThread?.thread &&
-		isPrevious
+			if (!threadQuestionSlug && isOpen) {
+				// console.log('navigateTo threadQuestionUrl', navigationParts)
+				navigateTo({
+					urlType: isProfile
+						? 'profilesThreadQuestionUrl'
+						: 'threadQuestionUrl',
+					shallow: true,
+					navigationParams: isProfile
+						? {
+								type: 'chatbot',
+								...navigationParts,
+							}
+						: {
+								type: isPublic ? 'public' : 'personal',
+								...navigationParts,
+							},
+				})
+			}
+			if (threadQuestionSlug && !isOpen) {
+				// console.log('navigateTo threadUrl', navigationParts)
+				navigateTo({
+					urlType: isProfile ? 'profilesThreadUrl' : 'threadUrl',
+					shallow: true,
+					navigationParams: isProfile
+						? {
+								type: 'chatbot',
+								...navigationParts,
+							}
+						: {
+								type: isPublic ? 'public' : 'personal',
+								...navigationParts,
+							},
+				})
+			}
+		},
+		[],
 	)
+
+	const shouldShowUserMessage = activeThread?.thread
+		? !(!isThread && !index && isPrevious)
+		: !(!isThread && !index)
+	const defaultAccordionState =
+		// ? Case for when there is more than one message and we want to hide the first message
+		// (!index && arrayLength <= 1)
+		// ? Case for when we have the first message in the conversation or last and both are not previous
+		((!index || index === arrayLength - 1) && !isPrevious) ||
+		// ? Case for when we have the first message in the previous conversation
+		(!index && isPrevious)
 
 	return (
 		<SharedAccordion
-			defaultState={
-				// ? Case for when there is more than one message and we want to hide the first message
-				// (!index && arrayLength <= 1)
-				// ? Case for when we have the first message in the conversation or last and both are not previous
-				((!index || index === arrayLength - 1) && !isPrevious) ||
-				// ? Case for when we have the first message in the previous conversation
-				(!index && isPrevious)
-			}
+			defaultState={defaultAccordionState}
+			isOpen={isAccordionFocused || defaultAccordionState}
 			id={pair.userMessage.slug}
 			className={cn(
 				{ relative: isThread },
@@ -138,16 +160,19 @@ export function MessagePairAccordion({
 				isPrevious && 'bg-accent/25 rounded-[8px] border-l-accent/20',
 			)}
 			triggerClass={cn(
-				'py-[0.4375rem]',
+				'py-[0.4375rem] z-10 ease-in-out',
 				{
 					'sticky top-0 md:-top-10 z-[1] px-3 [&[data-state=open]]:rounded-t-[8px]':
 						isThread,
 					'px-[calc(32px-0.25rem)]': !isThread,
-					hidden: !isThread && index === 0 && isPrevious, // Style differences for previous vs current messages
 					'dark:bg-[#1d283a9a] bg-iron !border-l-[transparent] [&[data-state=open]]:!bg-gray-400/50 dark:[&[data-state=open]]:!bg-mirage':
-						!isPrevious,
-					'bg-accent/10 dark:bg-accent/10 hover:bg-accent/30 hover:dark:bg-accent/30 border-l-accent/10 dark:border-l-accent/10 [&[data-state=open]]:!bg-accent/30 dark:[&[data-state=open]]:!bg-accent/30':
+						!isPrevious && !isThread && index,
+					'bg-[#EAB3F7] dark:bg-[#3B5A35] hover:bg-[#E090F3] hover:dark:bg-[#4C7A41] border-l-[#EAB3F7] dark:border-l-[#3B5A35] [&[data-state=open]]:!bg-[#E090F3] dark:[&[data-state=open]]:!bg-[#4C7A41]':
 						isPrevious,
+					'bg-transparent dark:bg-transparent w-auto h-auto px-4 py-0 border-none ml-auto':
+						!shouldShowUserMessage,
+					'w-full justify-between':
+						!shouldShowUserMessage && isPrevious && !isAccordionFocused,
 				},
 				props.chatTitleClass,
 			)}
@@ -155,22 +180,60 @@ export function MessagePairAccordion({
 				{
 					// Border styling differences
 					'!border-l-accent/20': isPrevious,
-					'!border-l-transparent': !isPrevious,
+					'!border-l-transparent': !isPrevious && !isThread && index,
+					// Adding padding for the rest of messages
+					'pt-6': !(
+						(isAccordionFocused && !isThread && !index && isPrevious) ||
+						(isAccordionFocused && !isThread && !index && !activeThread?.thread)
+					),
 				},
 				props.chatContentClass,
 			)}
-			onToggle={toggleThreadQuestionUrl}
+			onToggle={(isOpen) => toggleThreadQuestionUrl(isOpen, !index)}
 			variant="chat"
 		>
-			{shouldShowFirstUserMessage && (
-				<div className={cn('flex flex-col items-start gap-2')}>
-					<MessageRenderer actionRequired={false} message={pair.userMessage} />
-					<AttachmentCards
-						userAttachments={userAttachments}
-						isAccordionFocused={isAccordionFocused}
-					/>
-				</div>
-			)}
+			<div className={cn('flex flex-col items-start gap-2')}>
+				<AnimatePresence initial={false}>
+					{!isAccordionFocused &&
+					isPrevious &&
+					!shouldShowUserMessage &&
+					defaultAccordionState ? (
+						<motion.span
+							initial={{ opacity: 0, y: -10 }}
+							animate={{ opacity: 1, y: 0 }}
+							exit={{ opacity: 0, y: -10, zIndex: -1 }}
+							transition={{ duration: 0.2, ease: 'easeInOut' }}
+							key={`first-question-tooltip-${pair.userMessage.slug}`}
+						>
+							<Tooltip>
+								<TooltipTrigger className="absolute z-20 flex items-center leading-none transition-all opacity-100 hover:opacity-70 focus-within:opacity-100 mt-2.5 px-1.5 py-0.5 w-auto text-xs font-medium rounded-md bg-accent text-accent-foreground">
+									Continued
+								</TooltipTrigger>
+								<TooltipContent className="z-20" side="top" align="start">
+									Continued thread from{' '}
+									<b>{activeThread?.thread?.user?.username}</b>.
+								</TooltipContent>
+							</Tooltip>
+						</motion.span>
+					) : (
+						''
+					)}
+				</AnimatePresence>
+				{shouldShowUserMessage && (
+					<>
+						<MessageRenderer
+							actionRequired={false}
+							message={pair.userMessage}
+						/>
+						{!isThread && index !== 0 && (
+							<AttachmentCards
+								userAttachments={userAttachments}
+								isAccordionFocused={isAccordionFocused}
+							/>
+						)}
+					</>
+				)}
+			</div>
 			{/* Thread Description */}
 			{isThread ? (
 				<div className="opacity-50 pb-3 overflow-hidden text-sm mt-[0.375rem]">
@@ -196,24 +259,17 @@ export function MessagePairAccordion({
 					props.chatContentClass,
 				)}
 			>
-				{/* Thread Title with indicator for previous messages */}
+				{/* Thread Title with indicator for previous (continuous) messages */}
 				{isPrevious && index === 0 ? (
-					<>
-						<span className="absolute top-1 -left-3 md:-left-5 px-1.5 py-0.5 text-[10px] font-medium rounded-md bg-accent text-accent-foreground">
-							Previous Thread
-						</span>
-						<div className="pb-3 mt-4 overflow-hidden opacity-50">
-							Continued from a previous thread
-							{activeThread?.thread?.user?.username ? (
-								<>
-									{' made by '}
-									<b>&ldquo;{activeThread?.thread?.user?.username}&rdquo;</b>.
-								</>
-							) : (
-								'.'
-							)}
-						</div>
-					</>
+					<Tooltip>
+						<TooltipTrigger className="transition-all opacity-100 hover:opacity-70 focus-within:opacity-100 mt-2.5 px-1.5 py-0.5 w-auto text-xs font-medium rounded-md bg-accent text-accent-foreground">
+							Continued
+						</TooltipTrigger>
+						<TooltipContent side="bottom" align="start">
+							Continued thread from{' '}
+							<b>{activeThread?.thread?.user?.username}</b>.
+						</TooltipContent>
+					</Tooltip>
 				) : (
 					''
 				)}

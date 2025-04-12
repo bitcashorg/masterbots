@@ -80,6 +80,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 		isOpenPopup,
 		activeThread,
 		webSearch,
+		loadingState,
 		setWebSearch,
 		setActiveThread,
 		setIsNewResponse,
@@ -775,14 +776,17 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 		return null
 	}
 
-	const sendMessageFromResponse = async (bulletContent: string) => {
+	const sendMessageFromResponse = async (
+		bulletContent: string,
+		callback?: () => void,
+	) => {
 		const fullMessage = bulletContent
 
-		appendWithMbContextPrompts({
+		await appendWithMbContextPrompts({
 			id: threadId,
 			content: fullMessage,
 			role: 'user',
-		})
+		}).finally(callback)
 	}
 
 	const toggleWebSearch = () => {
@@ -952,7 +956,10 @@ export type MBChatHookActions = {
 	appendAsContinuousThread: (
 		userMessage: OpenAi.UIMessage | CreateMessage,
 	) => Promise<string | null | undefined>
-	sendMessageFromResponse: (bulletContent: string) => void
+	sendMessageFromResponse: (
+		bulletContent: string,
+		callback?: () => void,
+	) => void
 	append: (
 		message: OpenAi.UIMessage | CreateMessage,
 		chatRequestOptions?: ChatRequestOptions,

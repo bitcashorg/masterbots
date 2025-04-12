@@ -5,7 +5,7 @@ import { Button, buttonVariants } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn } from '@/lib/utils'
-import { LogOut } from 'lucide-react'
+import { ChevronLeftIcon, LogOut } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import { toSlugWithUnderScore } from 'mb-lib'
 import type { Session } from 'next-auth'
@@ -68,7 +68,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
 			<SheetTrigger
 				className={cn(
 					buttonVariants({ variant: 'ghost', radius: 'full' }),
-					'block h-full p-2 rounded-full md:hidden',
+					'relative inline-block h-full p-2 rounded-full md:hidden',
 				)}
 			>
 				{user?.image ? (
@@ -86,6 +86,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
 					</div>
 				)}
 				<span className="sr-only">{user?.name}</span>
+				<ChevronLeftIcon className="absolute size-3 mt-auto -right-1 top-1.5" />
 			</SheetTrigger>
 			<SheetContent side="right" className="w-[300px] sm:w-[400px] p-0">
 				<div className="flex flex-col h-full">

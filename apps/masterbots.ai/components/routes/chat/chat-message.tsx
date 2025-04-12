@@ -36,17 +36,23 @@ export function ChatMessage({
 	const pathname = usePathname()
 	const routeType = getRouteType(pathname)
 	const isBrowseView = routeType === 'public'
+	const isProfileView = routeType === 'profile'
 	// Clean the message content and update the message object.
 	const content = cleanPrompt(message.content)
 	const cleanMessage = { ...message, content }
 	const [references, setReferences] = useState<WebSearchResult[]>([])
+	const [clicked, setClicked] = useState(false)
 
 	// Handler for clickable text elements.
 	const handleClickableClick = (clickableText: string) => {
+		if (clicked) return
+		setClicked(true)
 		const context = extractFollowUpContext(message.content, clickableText)
 		const cleanedText = cleanClickableText(context)
 		const followUpPrompt = `Explain more in-depth and in detail about "${clickableText}"? ${cleanedText}`
-		sendMessageFromResponse?.(followUpPrompt)
+		sendMessageFromResponse?.(followUpPrompt, () => {
+			setClicked(false)
+		})
 	}
 
 	// References section component.
@@ -95,7 +101,7 @@ export function ChatMessage({
 					className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
 					remarkPlugins={[remarkGfm, rehypeMathJax, remarkRehype]}
 					components={memoizedMarkdownComponents(
-						!isBrowseView
+						!(isBrowseView || isProfileView)
 							? {
 									handleClickableClick,
 									shouldPreProcessChildren: true,

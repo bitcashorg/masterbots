@@ -288,7 +288,7 @@ export interface PageProps {
 
 export interface ChatMessageProps extends React.ComponentProps<'div'> {
 	message: Message & Partial<MBMessage>
-	sendMessageFromResponse?: (message: string) => void
+	sendMessageFromResponse?: (message: string, callback?: () => void) => void
 	chatbot?: Chatbot
 	actionRequired?: boolean
 	webSearchResults?: WebSearchResult[]
@@ -315,7 +315,7 @@ export interface ClickableTextProps {
 	node?: Element
 	webSearchResults?: WebSearchResult[]
 	onReferenceFound?: (ref: WebSearchResult) => void
-	sendMessageFromResponse?: (message: string) => void
+	sendMessageFromResponse?: (message: string, callback?: () => void) => void
 	parentContext?: string
 }
 // * Drizzle Admin types
