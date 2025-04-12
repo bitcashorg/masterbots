@@ -139,11 +139,9 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
 	const setActiveThread: React.Dispatch<React.SetStateAction<Thread | null>> = (
 		value,
 	) => {
-		setState((prev) => ({
-			...prev,
-			activeThread:
-				typeof value === 'function' ? value(prev.activeThread) : value,
-		}))
+		setState({
+			activeThread: typeof value === 'function' ? value(activeThread) : value,
+		})
 	}
 
 	const setShouldRefreshThreads: React.Dispatch<
