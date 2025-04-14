@@ -55,7 +55,8 @@ export function ChatCombobox() {
 	const [open, setOpen] = React.useState(false)
 	const { isPowerUp } = usePowerUp()
 	const { isDeepThinking, toggleDeepThinking } = useDeepThinking()
-	const isDevEnv = process.env.NEXT_PUBLIC_APP_ENV !== 'prod'
+	// TODO: Add subscription check to enable/disable this feature along with the feature flag
+	const isMultiModelEnabled = appConfig.features.multiModel
 
 	const processingSelectionRef = React.useRef(false)
 
@@ -123,7 +124,7 @@ export function ChatCombobox() {
 					<CommandEmpty>No model found.</CommandEmpty>
 					<CommandGroup>
 						<CommandList>
-							{isDevEnv ? (
+							{isMultiModelEnabled ? (
 								models.map((model) => (
 									<CommandItem
 										key={model.value}
