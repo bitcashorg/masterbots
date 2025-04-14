@@ -23,12 +23,13 @@ import type OpenAI from 'openai'
 export function getModelClientType(model: AIModels) {
 	switch (model) {
 		case AIModels.GPT4_1:
+		case AIModels.GPT4o:
 		case AIModels.Default:
 			return 'OpenAI'
 		case AIModels.Claude3:
 			return 'Anthropic'
-		case AIModels.Llama3_7b:
-		case AIModels.Llama3_8b:
+		case AIModels.llama3_7b:
+		case AIModels.llama3_8b:
 			return 'Perplexity'
 		case AIModels.WordWare:
 			return 'WordWare'
@@ -37,6 +38,8 @@ export function getModelClientType(model: AIModels) {
 		case AIModels.DeepSeekGroq:
 			return 'GroqDeepSeek'
 		case AIModels.Gemini:
+		case AIModels.Gemini_pro:
+		case AIModels.Gemini_lite:
 			return 'Gemini'
 		default:
 			throw new Error('Unsupported model specified')

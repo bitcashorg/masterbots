@@ -32,12 +32,14 @@ import { appConfig } from 'mb-env'
 import * as React from 'react'
 
 const models = [
-	{ label: 'GPT-4.1-mini', value: AIModels.Default, logo: 'MB' },
+	{ label: 'Default', value: AIModels.Default, logo: 'MB' },
 	{ label: 'GPT-4.1', value: AIModels.GPT4_1, logo: <IconOpenAI /> },
+	{ label: 'GPT-4o mini', value: AIModels.GPT4o, logo: <IconOpenAI /> },
+
 
 	{ label: 'Claude3', value: AIModels.Claude3, logo: <IconClaude /> },
-	{ label: 'llama3-8', value: AIModels.Llama3_8b, logo: <IconLlama /> },
-	{ label: 'llama3-7', value: AIModels.Llama3_7b, logo: <IconLlama /> },
+	{ label: 'llama3-8', value: AIModels.llama3_8b, logo: <IconLlama /> },
+	{ label: 'llama3-7', value: AIModels.llama3_7b, logo: <IconLlama /> },
 	{ label: 'WordWare', value: AIModels.WordWare, logo: <IconWordware /> },
 	{
 		label: 'DeepSeek',
@@ -51,12 +53,12 @@ const models = [
 	},
 	{
 		label: 'Gemini Pro',
-		value: AIModels.Gemini,
+		value: AIModels.Gemini_pro,
 		logo: <IconGemini />,
 	},
 	{
 		label: 'Gemini_Lite',
-		value: AIModels.Gemini,
+		value: AIModels.Gemini_lite,
 		logo: <IconGemini />,
 	},
 ]
