@@ -1,4 +1,5 @@
 import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
+import { useModel } from '@/lib/hooks/use-model'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useSonner } from '@/lib/hooks/useSonner'
 import type * as OpenAi from 'ai'
@@ -75,6 +76,7 @@ export function useFileAttachments(
 		attachments: [],
 	})
 	const { customSonner } = useSonner()
+	const { selectedModel } = useModel()
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: We only required to update this fn every time we receive a new state of attachments
 	const addAttachment = useCallback(
@@ -184,9 +186,12 @@ export function useFileAttachments(
 			validAttachments = dataTransfer.items
 		}
 
-		const validFiles = Array.from(validAttachments).filter(
-			(file) => file.type.startsWith('image/') || file.type.startsWith('text/'),
-		)
+		const validFiles = Array.from(validAttachments).filter((file) => {
+			if (selectedModel.match(/(DeepSeekR1|DeepSeekGroq)/)) {
+				return file.type.startsWith('text/')
+			}
+			return file.type.startsWith('image/') || file.type.startsWith('text/')
+		})
 		console.log('Files to process (the validFiles) --> ', validFiles)
 		for (const file of validFiles) {
 			addAttachment(file)

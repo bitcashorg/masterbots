@@ -58,6 +58,7 @@ import {
 } from '@/lib/hooks/use-chat-attachments'
 import { useEnterSubmit } from '@/lib/hooks/use-enter-submit'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
+import { useModel } from '@/lib/hooks/use-model'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn, nanoid } from '@/lib/utils'
@@ -98,6 +99,7 @@ export function PromptForm({
 	}>()
 	const [{ attachments, isDragging, userData }, fileAttachmentActions] =
 		useFileAttachments(formRef)
+	const { selectedModel } = useModel()
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: not required
 	React.useEffect(() => {
@@ -251,7 +253,11 @@ export function PromptForm({
 								className={cn(
 									'absolute opacity-0 size-full !cursor-pointer p-0 disabled:opacity-0',
 								)}
-								accept="image/*,text/*"
+								accept={
+									selectedModel.match(/(DeepSeekR1|DeepSeekGroq)/)
+										? 'text/*'
+										: 'image/*,text/*'
+								}
 								type="file"
 								disabled={userHasRelatedAttachment}
 								multiple

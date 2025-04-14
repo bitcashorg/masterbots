@@ -112,7 +112,7 @@ export function BrowseMessagePairs({
 }) {
 	const { navigateTo } = useSidebar()
 	const { activeThread } = useThread()
-	const hasPrevious = activeThread?.thread
+	const hasPrevious = activeThread?.thread?.messages
 	const pathname = usePathname()
 	const params = useParams()
 	const isPublic = getRouteType(pathname) === 'public'

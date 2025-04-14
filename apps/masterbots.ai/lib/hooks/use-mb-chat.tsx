@@ -854,7 +854,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 			let previousAiUserMessages: AiMessage[] = []
 
-			if (activeThread?.thread) {
+			if (activeThread?.thread?.messages) {
 				previousAiUserMessages = activeThread.thread.messages
 					.map((msg) => ({
 						id: msg.messageId,
