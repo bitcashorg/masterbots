@@ -4,6 +4,7 @@ export const appConfig = {
 		devMode: process.env.NEXT_PUBLIC_DEV_MODE === 'true',
 		experimentalAiConfig:
 			process.env.NEXT_PUBLIC_FEATURE_EXPERIMENTAL_AI_CONFIG === 'true',
+		multiModel: process.env.NEXT_PUBLIC_FEATURE_MULTI_MODEL_SELECTOR !== 'true',
 		webSearch: process.env.NEXT_PUBLIC_FEATURE_WEB_SEARCH === 'true',
 		maxAttachments: Number.parseInt(
 			process.env.NEXT_PUBLIC_MAX_ATTACHMENTS || '10',
