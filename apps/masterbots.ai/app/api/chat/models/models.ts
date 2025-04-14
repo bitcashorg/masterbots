@@ -1,7 +1,6 @@
 export enum AIModels {
-	Default = 'gpt-4o-mini',
+	Default = 'gpt-4.1-mini',
 	GPT4_1 = 'gpt-4.1-2025-04-14',
-	GPT_4_1_mini = 'gpt-4.1-mini',
 	Claude3 = 'claude-3-5-haiku-20241022',
 	Llama3_8b = 'llama-3-sonar-small-32k-online',
 	Llama3_7b = 'llama-3-sonar-large-32k-online',
