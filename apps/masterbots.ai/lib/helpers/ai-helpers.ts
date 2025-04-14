@@ -22,13 +22,13 @@ import type OpenAI from 'openai'
 // * This function gets the model client type
 export function getModelClientType(model: AIModels) {
 	switch (model) {
-		case AIModels.GPT4:
+		case AIModels.GPT4_1:
 		case AIModels.Default:
 			return 'OpenAI'
 		case AIModels.Claude3:
 			return 'Anthropic'
-		case AIModels.llama3_7b:
-		case AIModels.llama3_8b:
+		case AIModels.Llama3_7b:
+		case AIModels.Llama3_8b:
 			return 'Perplexity'
 		case AIModels.WordWare:
 			return 'WordWare'
