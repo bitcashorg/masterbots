@@ -7,7 +7,7 @@ import type { ChatbotMetadata, ChatbotMetadataExamples } from '@/types/types'
 import type { Message } from 'ai'
 import { uniq } from 'lodash'
 import { appConfig } from 'mb-env'
-import type { Chatbot } from 'mb-genql'
+import type { Chatbot, Message as MessageDB } from 'mb-genql'
 
 // * This function creates the prompt for the AI improvement process with the following question
 export function followingQuestionsImprovementPrompt(
@@ -83,12 +83,44 @@ export function createBotConfigurationPrompt(chatbot: Chatbot) {
 
 export function followingQuestionsPrompt(
 	userContent: string,
-	allMessages: Message[],
+	allMessages: Required<Partial<MessageDB[]>>,
+	clickedContentId?: string,
 ) {
+	const questions = uniq(allMessages.filter((msg) => Boolean(msg?.messageId)))
+	const responseIndex = questions.findIndex(
+		(q) => q.messageId === clickedContentId,
+	)
+	const hasResponseIndex = responseIndex !== -1
+	const previousQuestionsString = getAllUserMessagesAsStringArray(
+		hasResponseIndex ? questions : questions.slice(0, -1),
+	)
+	const lastQuestionString = hasResponseIndex
+		? questions[responseIndex - 1]?.content || ''
+		: questions.filter((m) => m.role === 'user').pop()?.content || ''
+	const lastResponseString =
+		questions
+			.filter(
+				(m) =>
+					m.messageId === clickedContentId ||
+					(m.role === 'assistant' && !clickedContentId),
+			)
+			.pop()?.content || ''
+
 	// return `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
-	return `Here are a list of questions that may be relevant for you to understand my chain of thoughts: [${getAllUserMessagesAsStringArray(
-		uniq(allMessages),
-	)}].  Now please answer the following question: ${userContent}`
+	return `Here are a list of questions that may be relevant for you to understand my chain of thoughts:
+<previous_questions>
+	[${previousQuestionsString}]
+</previous_questions>
+
+This is the last question and last response made:
+<last_question>
+	${lastQuestionString}
+</last_question>,
+<last_response>
+	${lastResponseString}
+</last_response>
+
+Now please answer the following question: ${userContent}`
 }
 
 export function userPersonalityPrompt(

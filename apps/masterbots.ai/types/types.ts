@@ -288,7 +288,10 @@ export interface PageProps {
 
 export interface ChatMessageProps extends React.ComponentProps<'div'> {
 	message: Message & Partial<MBMessage>
-	sendMessageFromResponse?: (message: string, callback?: () => void) => void
+	sendMessageFromResponse?: (
+		messageData: SendMessageFromResponseMessageData,
+		callback?: () => void,
+	) => void
 	chatbot?: Chatbot
 	actionRequired?: boolean
 	webSearchResults?: WebSearchResult[]
@@ -315,7 +318,10 @@ export interface ClickableTextProps {
 	node?: Element
 	webSearchResults?: WebSearchResult[]
 	onReferenceFound?: (ref: WebSearchResult) => void
-	sendMessageFromResponse?: (message: string, callback?: () => void) => void
+	sendMessageFromResponse?: (
+		messageData: SendMessageFromResponseMessageData,
+		callback?: () => void,
+	) => void
 	parentContext?: string
 }
 // * Drizzle Admin types
@@ -424,4 +430,9 @@ export interface ContinueAIGenerationOptions {
 	chatConfig?: Record<string, any>
 	maxAttempts?: number
 	jwt?: string // JWT for authentication
+}
+
+export type SendMessageFromResponseMessageData = {
+	bulletContent: string
+	messageId: string
 }
