@@ -87,20 +87,24 @@ export function followingQuestionsPrompt(
 	clickedContentId?: string,
 ) {
 	const questions = uniq(allMessages.filter((msg) => Boolean(msg?.messageId)))
-	console.log('questions', questions)
-	const previousQuestionsString = getAllUserMessagesAsStringArray(
-		questions.slice(0, -1),
+	const responseIndex = questions.findIndex(
+		(q) => q.messageId === clickedContentId,
 	)
-	const lastQuestionString =
+	const hasResponseIndex = responseIndex !== -1
+	const previousQuestionsString = getAllUserMessagesAsStringArray(
+		hasResponseIndex ? questions : questions.slice(0, -1),
+	)
+	const lastQuestionString = hasResponseIndex
+		? questions[responseIndex - 1]?.content || ''
+		: questions.filter((m) => m.role === 'user').pop()?.content || ''
+	const lastResponseString =
 		questions
 			.filter(
 				(m) =>
 					m.messageId === clickedContentId ||
-					(m.role === 'user' && !clickedContentId),
+					(m.role === 'assistant' && !clickedContentId),
 			)
 			.pop()?.content || ''
-	const lastResponseString =
-		questions.filter((m) => m.role === 'assistant').pop()?.content || ''
 
 	// return `First, think about the following questions and requests: [${getAllUserMessagesAsStringArray(
 	return `Here are a list of questions that may be relevant for you to understand my chain of thoughts:
