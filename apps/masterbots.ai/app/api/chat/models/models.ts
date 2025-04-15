@@ -1,4 +1,3 @@
-
 export enum AIModels {
 	Default = 'gpt-4.1-mini-2025-04-14',
 	GPT4_1 = 'gpt-4.1-2025-04-14',
