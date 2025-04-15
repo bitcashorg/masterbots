@@ -57,7 +57,7 @@ const models = [
 		logo: <IconGemini />,
 	},
 	{
-		label: 'Gemini_Lite',
+		label: 'Gemini Lite',
 		value: AIModels.Gemini_lite,
 		logo: <IconGemini />,
 	},
