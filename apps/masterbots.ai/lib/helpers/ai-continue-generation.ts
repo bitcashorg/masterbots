@@ -1,7 +1,6 @@
 import { updateMessage } from '@/services/hasura'
 import type { ContinueAIGenerationOptions } from '@/types/types'
 import type { ChatRequestOptions, CreateMessage, Message } from 'ai'
-import { nanoid } from 'nanoid'
 import { hasReasoning } from './ai-helpers'
 
 export function shouldContinueGeneration(finishReason: string): boolean {
@@ -26,11 +25,11 @@ export async function continueAIGeneration(
 		jwt,
 		startContinuation,
 		endContinuation,
+		systemPrompts = [],
 	} = options
 
-	//* Start continuation UI state
+	//? Start continuation UI state
 	startContinuation(incompleteMessage.id, incompleteMessage.content)
-
 	let continuedContent = incompleteMessage.content
 	const messageId = incompleteMessage.id
 
@@ -44,86 +43,101 @@ export async function continueAIGeneration(
 
 		setLoadingState('continuing')
 
-		//* Last ~100 characters or 10% of the content, whichever is less
+		//? Last ~100 characters or 10% of the content, whichever is less
 		const referenceLength = Math.min(
 			100,
 			Math.floor(continuedContent.length * 0.1),
 		)
 		const contextSnippet = continuedContent.slice(-referenceLength)
 
-		const continuationPrompt: CreateMessage = {
-			id: nanoid(),
-			role: 'system',
-			content: `Your previous response was cut off. Here is the last part of your message: "${contextSnippet}". Please continue from exactly where you left off without repeating any information.`,
-		}
+		//? Determine if we have thinking content
+		const thinkingContent = hasReasoning(incompleteMessage)
+			? incompleteMessage.parts?.find((msg) => msg.type === 'reasoning')
+					?.reasoning || incompleteMessage.reasoning
+			: undefined
 
-		const continuationOptions: ChatRequestOptions = {
-			body: {
-				...chatConfig,
-				isContinuation: true,
-				continuationAttempt: 1,
-				previousResponse: continuedContent,
+		//? Call directly to the continuation endpoint
+		const response = await fetch('/api/chat/continue', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: jwt ? `Bearer ${jwt}` : '',
 			},
+			body: JSON.stringify({
+				messageId,
+				previousContent: continuedContent,
+				contextSnippet,
+				systemPrompts, //? Send any system prompts needed for context
+				chatConfig,
+				thinking: thinkingContent,
+			}),
+		})
+
+		if (!response.ok) {
+			throw new Error(`Continuation API call failed: ${response.status}`)
 		}
 
-		//* Small delay to avoid rate limits
-		await new Promise((resolve) => setTimeout(resolve, 1000))
+		const { continuationText, success } = await response.json()
 
-		//* Append the continuation prompt to get new content
-		const newContent = await append(continuationPrompt, continuationOptions)
+		if (success && continuationText) {
+			//? Combine original content with new content
+			const updatedContent = `${continuedContent} ${continuationText}`
 
-		if (newContent) {
-			//* Combine original content with the new content
-			const updatedContent = `${continuedContent} ${newContent}`
+			//? Retry mechanism for database updates
+			let retryCount = 0
+			let updateSuccess = false
 
-			//* Determine if we have thinking content to update
-			const thinkingContent = hasReasoning(incompleteMessage)
-				? {
-						thinking:
-							incompleteMessage.parts?.find((msg) => msg.type === 'reasoning')
-								?.reasoning || incompleteMessage.reasoning,
+			while (retryCount < 3 && !updateSuccess) {
+				try {
+					//? Small delay before retrying (increases with each attempt)
+					if (retryCount > 0) {
+						await new Promise(resolve => setTimeout(resolve, 500 * retryCount))
 					}
-				: undefined
 
-			const result = await updateMessage({
-				messageId,
-				content: updatedContent,
-				thinking: thinkingContent?.thinking,
-				jwt,
-			})
-
-			if (result.success) {
-				continuedContent = updatedContent
-
-				if (devMode) {
-					customSonner({
-						type: 'continue',
-						text: 'Successfully continued and updated message',
+					const result = await updateMessage({
+						messageId,
+						content: updatedContent,
+						thinking: thinkingContent,
+						jwt,
 					})
-				}
-			} else {
-				if (devMode) {
-					customSonner({
-						type: 'error',
-						text: `Failed to update message: ${result.error}`,
-					})
-				}
 
-				//* Show info message about failure to continue
-				customSonner({
-					type: 'info',
-					text: 'Could not complete the full response.',
-				})
+					updateSuccess = result.success
+					if (updateSuccess) {
+						continuedContent = updatedContent
+						if (devMode) {
+							customSonner({
+								type: 'continue',
+								text: `Successfully continued and updated message (attempt ${retryCount + 1})`,
+							})
+						}
+						break
+					}
+				} catch (err) {
+					console.error(`Update attempt ${retryCount + 1} failed:`, err)
+				}
+				retryCount++
+			}
+
+			//? If database update failed but we have the content, back it up locally
+			if (!updateSuccess) {
+				try {
+					localStorage.setItem(`continued-${messageId}`, updatedContent)
+					customSonner({
+						type: 'info',
+						text: 'Continuation successful but not saved to database. Content backed up locally.',
+					})
+				} catch (err) {
+					console.error('Failed to back up continued content:', err)
+				}
 			}
 		} else {
 			customSonner({
-				type: 'info',
+				type: 'continue',
 				text: 'Could not generate additional content to complete the response.',
 			})
 		}
 
 		endContinuation()
-
 		return continuedContent
 	} catch (error) {
 		console.error('Failed to continue AI generation:', error)
@@ -132,9 +146,7 @@ export async function continueAIGeneration(
 			text: 'Failed to continue the Masterbot response. Please try again.',
 		})
 		setLoadingState('finished')
-
 		endContinuation()
-
 		return null
 	}
 }

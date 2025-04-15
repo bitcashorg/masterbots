@@ -67,7 +67,6 @@ import { useSetState } from 'react-use'
 import { useSonner } from './useSonner'
 import { useContinuation } from './use-continuation'
 
-
 export function useMBChat(): MBChatHookCallback {
 	const context = useContext(MBChatContext)
 	if (!context) {
@@ -268,10 +267,18 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					})
 				}
 
-				// biome-ignore lint/style/useConst: <explanation>
-				let finalMessage = { ...message }
-				// biome-ignore lint/style/useConst: <explanation>
-				let needsContinuation = shouldContinueGeneration(options.finishReason)
+				// Check if continuation is already in progress
+				// eslint-disable-next-line react-hooks/rules-of-hooks
+				const { state: continuationState } = useContinuation()
+				const isContinuationAlreadyInProgress = continuationState.isContinuing
+
+				// Copy the message into finalMessage
+				const finalMessage = { ...message }
+
+				// Determine if we need to continue generation, only if not already in progress
+				const needsContinuation =
+					!isContinuationAlreadyInProgress &&
+					shouldContinueGeneration(options.finishReason)
 
 				if (options.finishReason === 'error') {
 					customSonner({
@@ -408,6 +415,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 							jwt: session?.user?.hasuraJwt,
 							startContinuation,
 							endContinuation,
+							systemPrompts: systemPrompts,
 						},
 					)
 
@@ -419,7 +427,10 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 							thinking: assistantMessageThinking.thinking,
 							jwt: session?.user?.hasuraJwt,
 						})
-						console.log('Updating message with continued content 👀', continuedContent)
+						console.log(
+							'Updating message with continued content 👀',
+							continuedContent,
+						)
 
 						//? Updates the final message
 						finalMessage.content = continuedContent

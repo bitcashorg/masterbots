@@ -424,4 +424,5 @@ export interface ContinueAIGenerationOptions {
 	// Add these two new properties
 	startContinuation: (messageId: string, originalContent: string) => void
 	endContinuation: () => void
+	systemPrompts?: Message[]
   }
