@@ -12,6 +12,7 @@ import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useThread } from '@/lib/hooks/use-thread'
 import type { MessagePair } from '@/lib/threads'
 import { cn, createMessagePairs } from '@/lib/utils'
+import type { SendMessageFromResponseMessageData } from '@/types/types'
 import type { Message } from 'ai'
 import { isEqual } from 'lodash'
 import type { Chatbot } from 'mb-genql'
@@ -27,7 +28,10 @@ export interface ChatList {
 	chatArrowClass?: string
 	containerRef?: React.RefObject<HTMLDivElement | null>
 	isLoadingMessages?: boolean
-	sendMessageFn?: (message: string) => void
+	sendMessageFn?: (
+		messageData: SendMessageFromResponseMessageData,
+		callback?: () => void,
+	) => void
 }
 
 export function ChatList({

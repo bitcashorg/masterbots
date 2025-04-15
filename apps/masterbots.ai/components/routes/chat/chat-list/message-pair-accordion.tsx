@@ -12,6 +12,7 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import type { MessagePair } from '@/lib/threads'
 import { cn, getRouteType } from '@/lib/utils'
+import type { SendMessageFromResponseMessageData } from '@/types/types'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useParams, usePathname } from 'next/navigation'
 import { Fragment, useCallback, useEffect, useState } from 'react'
@@ -35,7 +36,10 @@ export function MessagePairAccordion({
 	chatTitleClass?: string
 	chatContentClass?: string
 	userAttachments: FileAttachment[]
-	sendMessageFn?: (message: string) => void
+	sendMessageFn?: (
+		messageData: SendMessageFromResponseMessageData,
+		callback?: () => void,
+	) => void
 }) {
 	const { activeThread } = useThread()
 	const { navigateTo } = useSidebar()

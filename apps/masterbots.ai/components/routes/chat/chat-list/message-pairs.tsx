@@ -3,6 +3,7 @@ import { MessagePairAccordion } from '@/components/routes/chat/chat-list/message
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import { useThread } from '@/lib/hooks/use-thread'
 import type { MessagePair } from '@/lib/threads'
+import type { SendMessageFromResponseMessageData } from '@/types/types'
 import { Separator } from '@radix-ui/react-dropdown-menu'
 import type { Chatbot } from 'mb-genql'
 import { Fragment, useMemo } from 'react'
@@ -35,7 +36,10 @@ export function MessagePairs({
 	chatArrowClass?: string
 	chatContentClass?: string
 	isBrowseView?: boolean
-	sendMessageFn?: (message: string) => void
+	sendMessageFn?: (
+		messageData: SendMessageFromResponseMessageData,
+		callback?: () => void,
+	) => void
 }) {
 	const { isNewResponse } = useThread()
 
