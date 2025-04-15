@@ -89,7 +89,7 @@ export function followingQuestionsPrompt(
 	const questions = uniq(allMessages.filter((msg) => Boolean(msg?.messageId)))
 	console.log('questions', questions)
 	const previousQuestionsString = getAllUserMessagesAsStringArray(
-		questions.slice(0, questions.length - 2),
+		questions.slice(0, -1),
 	)
 	const lastQuestionString =
 		questions
