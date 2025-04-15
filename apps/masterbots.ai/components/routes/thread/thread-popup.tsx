@@ -42,7 +42,10 @@ export function ThreadPopup({ className }: { className?: string }) {
 	}
 
 	const routeType = getRouteType(pathname)
-	const isBrowseView = routeType === 'public' && activeThread?.threadId
+	const isBrowseView =
+		routeType === 'public' ||
+		routeType === 'profile' ||
+		(routeType === 'bot' && activeThread?.threadId)
 	const chatbotName = activeThread?.chatbot.name
 	const canonicalDomain = getCanonicalDomain(chatbotName || 'prompt')
 
@@ -149,12 +152,49 @@ function ThreadPopUpCardHeader({
 	const pathname = usePathname()
 	const params = useParams()
 	const isPublic = getRouteType(pathname) === 'public'
+	const isProfile = getRouteType(pathname) === 'profile'
+	const isBot = getRouteType(pathname) === 'bot'
 
 	const onClose = () => {
 		const canonicalDomain = getCanonicalDomain(
 			activeThread?.chatbot?.name || '',
 		)
 		setIsOpenPopup(!isOpenPopup)
+		setActiveThread(null)
+
+		if (isProfile) {
+			const slug = params.userSlug as string
+			navigateTo({
+				urlType: 'profilesUrl',
+				shallow: true,
+				navigationParams: {
+					type: 'user',
+					domain: canonicalDomain,
+					chatbot: activeThread?.chatbot?.name || '',
+					usernameSlug: slug,
+					category:
+						activeThread?.chatbot?.categories?.[0]?.category?.name || '',
+				},
+			})
+			setActiveThread(null)
+			setShouldRefreshThreads(true)
+			return
+		}
+
+		if (isBot) {
+			navigateTo({
+				urlType: 'chatbotProfileUrl',
+				shallow: true,
+				navigationParams: {
+					domain: canonicalDomain,
+					chatbot: activeThread?.chatbot?.name || '',
+				},
+			})
+
+			setActiveThread(null)
+			setShouldRefreshThreads(true)
+			return
+		}
 
 		navigateTo({
 			urlType: 'chatbotThreadListUrl',
