@@ -13,6 +13,7 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { cn, getRouteType } from '@/lib/utils'
+import type { SendMessageFromResponseMessageData } from '@/types/types'
 import type { Message as AiMessage } from 'ai'
 import type { Message } from 'mb-genql'
 import { useParams, usePathname } from 'next/navigation'
@@ -87,9 +88,12 @@ export function ThreadPopup({ className }: { className?: string }) {
 							isThread={false}
 							messages={allMessages}
 							isLoadingMessages={isLoading}
-							sendMessageFn={(message: string) => {
+							sendMessageFn={(
+								messageData: SendMessageFromResponseMessageData,
+								callback?: () => void,
+							) => {
 								scrollToBottom()
-								sendMessageFromResponse(message)
+								sendMessageFromResponse(messageData, callback)
 							}}
 							chatContentClass="!border-x-gray-300 md:px-[16px] !mx-0 max-h-[none] dark:!border-x-mirage"
 							className="max-w-full md:px-[32px] !mx-0"
