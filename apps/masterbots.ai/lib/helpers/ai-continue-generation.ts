@@ -1,7 +1,6 @@
 import { updateMessage } from '@/services/hasura'
 import type { ContinueAIGenerationOptions } from '@/types/types'
 import type { ChatRequestOptions, CreateMessage, Message } from 'ai'
-import { nanoid } from 'nanoid'
 import { hasReasoning } from './ai-helpers'
 
 export function shouldContinueGeneration(finishReason: string): boolean {
@@ -23,128 +22,122 @@ export async function continueAIGeneration(
 		customSonner,
 		devMode,
 		chatConfig = {},
-		maxAttempts = 3,
 		jwt,
+		startContinuation,
+		endContinuation,
+		systemPrompts = [],
 	} = options
 
-	let attempts = 0
+	//? Start continuation UI state
+	startContinuation(incompleteMessage.id, incompleteMessage.content)
 	let continuedContent = incompleteMessage.content
 	const messageId = incompleteMessage.id
 
 	try {
-		while (attempts < maxAttempts) {
-			attempts++
-
-			if (devMode) {
-				customSonner({
-					type: 'info',
-					text: `Continuing AI generation (attempt ${attempts}/${maxAttempts})`,
-				})
-			}
-
-			setLoadingState('continuing')
-
-			//* continuation prompt flow - using different strategies based on the attempt number
-			let continuationPrompt: CreateMessage
-
-			if (attempts === 1) {
-				//? First attempt: simple continuation request
-				continuationPrompt = {
-					id: nanoid(),
-					role: 'user',
-					content:
-						'Please continue your previous response without repeating any information.',
-				}
-			} else if (attempts === 2) {
-				//? Second attempt: be more explicit about what we need
-				continuationPrompt = {
-					id: nanoid(),
-					role: 'user',
-					content:
-						'Your previous response was cut off. Please continue exactly where you left off without summarizing or repeating what you already said.',
-				}
-			} else {
-				//? Final attempt: provides a specific reference point with dynamic length
-				const referenceLength = Math.min(
-					100,
-					Math.floor(continuedContent.length * 0.1),
-				)
-				continuationPrompt = {
-					id: nanoid(),
-					role: 'user',
-					content: `I need the rest of your explanation. Your last message ended with: "${continuedContent.slice(-referenceLength)}". Please continue from there.`,
-				}
-			}
-
-			const continuationOptions: ChatRequestOptions = {
-				body: {
-					...chatConfig,
-					isContinuation: true,
-					continuationAttempt: attempts,
-					previousResponse: continuedContent,
-				},
-			}
-
-			//* small delay between attempts to avoid rate limits
-			await new Promise((resolve) => setTimeout(resolve, 1000))
-
-			//* Try to continue the generation
-			const newContent = await append(continuationPrompt, continuationOptions)
-
-			//* If we got new content, update the message in the database
-			if (newContent) {
-				//? Combine original content with the new content
-				const updatedContent = `${continuedContent} ${newContent}`
-
-				//? Determine if we have thinking content to update
-				const thinkingContent = hasReasoning(incompleteMessage)
-					? {
-							thinking:
-								incompleteMessage.parts?.find((msg) => msg.type === 'reasoning')
-									?.reasoning || incompleteMessage.reasoning,
-						}
-					: undefined
-
-				//? Update the message in the database
-				const result = await updateMessage({
-					messageId,
-					content: updatedContent,
-					thinking: thinkingContent?.thinking,
-					jwt,
-				})
-
-				if (result.success) {
-					//? Update content reference
-					continuedContent = updatedContent
-
-					if (devMode) {
-						customSonner({
-							type: 'success',
-							text: `Successfully continued and updated message on attempt ${attempts}`,
-						})
-					}
-
-					//? If we got enough new content, consider it successful
-					if (newContent.length > 20) {
-						return continuedContent
-					}
-				} else {
-					if (devMode) {
-						customSonner({
-							type: 'error',
-							text: `Failed to update message: ${result.error}`,
-						})
-					}
-				}
-			}
+		if (devMode) {
+			customSonner({
+				type: 'continue',
+				text: 'Continuing AI generation',
+			})
 		}
 
-		//* feedback to user if we couldn't get enough content
-		customSonner({
-			type: 'info',
-			text: 'Could not complete the full response after multiple attempts.',
+		setLoadingState('continuing')
+
+		//? Last ~100 characters or 10% of the content, whichever is less
+		const referenceLength = Math.min(
+			100,
+			Math.floor(continuedContent.length * 0.1),
+		)
+		const contextSnippet = continuedContent.slice(-referenceLength)
+
+		//? Determine if we have thinking content
+		const thinkingContent = hasReasoning(incompleteMessage)
+			? incompleteMessage.parts?.find((msg) => msg.type === 'reasoning')
+					?.reasoning || incompleteMessage.reasoning
+			: undefined
+
+		//? Call directly to the continuation endpoint
+		const response = await fetch('/api/chat/continue', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: jwt ? `Bearer ${jwt}` : '',
+			},
+			body: JSON.stringify({
+				messageId,
+				previousContent: continuedContent,
+				contextSnippet,
+				systemPrompts, //? Send any system prompts needed for context
+				chatConfig,
+				thinking: thinkingContent,
+			}),
 		})
 
+		if (!response.ok) {
+			throw new Error(`Continuation API call failed: ${response.status}`)
+		}
+
+		const { continuationText, success } = await response.json()
+
+		if (success && continuationText) {
+			//? Combine original content with new content
+			const updatedContent = `${continuedContent} ${continuationText}`
+
+			//? Retry mechanism for database updates
+			let retryCount = 0
+			let updateSuccess = false
+
+			while (retryCount < 3 && !updateSuccess) {
+				try {
+					//? Small delay before retrying (increases with each attempt)
+					if (retryCount > 0) {
+						await new Promise(resolve => setTimeout(resolve, 500 * retryCount))
+					}
+
+					const result = await updateMessage({
+						messageId,
+						content: updatedContent,
+						thinking: thinkingContent,
+						jwt,
+					})
+
+					updateSuccess = result.success
+					if (updateSuccess) {
+						continuedContent = updatedContent
+						if (devMode) {
+							customSonner({
+								type: 'continue',
+								text: `Successfully continued and updated message (attempt ${retryCount + 1})`,
+							})
+						}
+						break
+					}
+				} catch (err) {
+					console.error(`Update attempt ${retryCount + 1} failed:`, err)
+				}
+				retryCount++
+			}
+
+			//? If database update failed but we have the content, back it up locally
+			if (!updateSuccess) {
+				try {
+					localStorage.setItem(`continued-${messageId}`, updatedContent)
+					customSonner({
+						type: 'info',
+						text: 'Continuation successful but not saved to database. Content backed up locally.',
+					})
+				} catch (err) {
+					console.error('Failed to back up continued content:', err)
+				}
+			}
+		} else {
+			customSonner({
+				type: 'continue',
+				text: 'Could not generate additional content to complete the response.',
+			})
+		}
+
+		endContinuation()
 		return continuedContent
 	} catch (error) {
 		console.error('Failed to continue AI generation:', error)
@@ -153,6 +146,7 @@ export async function continueAIGeneration(
 			text: 'Failed to continue the Masterbot response. Please try again.',
 		})
 		setLoadingState('finished')
+		endContinuation()
 		return null
 	}
 }

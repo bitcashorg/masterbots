@@ -1,7 +1,9 @@
 import { ChatLoadingState } from '@/components/routes/chat/chat-list/chat-loading-state'
 import { MessagePairAccordion } from '@/components/routes/chat/chat-list/message-pair-accordion'
+import { MessageContinuationLoader } from '@/components/routes/chat/continuation-loader'
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import { useThread } from '@/lib/hooks/use-thread'
+import { useContinuation } from '@/lib/hooks/use-continuation'
 import type { MessagePair } from '@/lib/threads'
 import { Separator } from '@radix-ui/react-dropdown-menu'
 import type { Chatbot } from 'mb-genql'
@@ -38,8 +40,9 @@ export function MessagePairs({
 	sendMessageFn?: (message: string) => void
 }) {
 	const { isNewResponse } = useThread()
+	const { isMessageBeingContinued } = useContinuation()
 
-	// Memoize previous pairs processing
+	//? Memoize previous pairs processing
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const previousPairsElements = useMemo(() => {
 		const { userMessages, assistantMessages } = messagesData.previous
@@ -53,20 +56,33 @@ export function MessagePairs({
 					(attachment as FileAttachment).messageIds?.includes(userMessage.id),
 				) || []
 
+			//? Check if any of the assistant messages in this pair is being continued
+			const isContinuing = chatGptMessage.some((msg) =>
+				isMessageBeingContinued(msg.id),
+			)
+
 			return (
-				<MessagePairAccordion
+				<Fragment
 					key={`${userMessage.createdAt}-${chatGptMessage[0]?.id ?? 'pending'}`}
-					pair={pair}
-					isThread={isThread}
-					index={index}
-					arrayLength={userMessages.length}
-					isNewResponse={isNewResponse}
-					type="previous"
-					sendMessageFn={sendMessageFn}
-					chatTitleClass={chatTitleClass}
-					userAttachments={filteredUserAttachments}
-					chatContentClass={chatContentClass}
-				/>
+				>
+					<MessagePairAccordion
+						pair={pair}
+						isThread={isThread}
+						index={index}
+						arrayLength={userMessages.length}
+						isNewResponse={isNewResponse}
+						type="previous"
+						sendMessageFn={sendMessageFn}
+						chatTitleClass={chatTitleClass}
+						userAttachments={filteredUserAttachments}
+						chatContentClass={chatContentClass}
+					/>
+					{isContinuing && (
+						<div className="mt-2 mb-4 ml-4 md:ml-8">
+							<MessageContinuationLoader />
+						</div>
+					)}
+				</Fragment>
 			)
 		})
 	}, [
@@ -76,9 +92,10 @@ export function MessagePairs({
 		isNewResponse,
 		chatTitleClass,
 		chatContentClass,
+		isMessageBeingContinued,
 	])
 
-	// Memoize current pairs processing
+	//? Memoize current pairs processing
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const currentPairsElements = useMemo(() => {
 		const { userMessages, assistantMessages } = messagesData.current
@@ -94,6 +111,11 @@ export function MessagePairs({
 					userAttachments?.filter((attachment) =>
 						(attachment as FileAttachment).messageIds?.includes(userMessage.id),
 					) || []
+
+				//? Check if any of the assistant messages in this pair is being continued
+				const isContinuing = chatGptMessage.some((msg) =>
+					isMessageBeingContinued(msg.id),
+				)
 
 				return (
 					<Fragment
@@ -111,7 +133,14 @@ export function MessagePairs({
 							sendMessageFn={sendMessageFn}
 							userAttachments={filteredUserAttachments}
 						/>
-						{userMessages.length > 1 && index === userMessages.length - 1 ? (
+						{isContinuing && (
+							<div className="mt-2 mb-4 ml-4 md:ml-8">
+								<MessageContinuationLoader />
+							</div>
+						)}
+						{userMessages.length > 1 &&
+						index === userMessages.length - 1 &&
+						!isContinuing ? (
 							<ChatLoadingState key="chat-loading-state" />
 						) : null}
 					</Fragment>
@@ -125,6 +154,7 @@ export function MessagePairs({
 		isNewResponse,
 		chatTitleClass,
 		chatContentClass,
+		isMessageBeingContinued,
 	])
 
 	const showSeparator =
