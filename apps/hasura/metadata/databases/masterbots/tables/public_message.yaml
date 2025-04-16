@@ -8,6 +8,15 @@ object_relationships:
   - name: messageTypeEnum
     using:
       foreign_key_constraint_on: role
+  - name: modelType
+    using:
+      manual_configuration:
+        column_mapping:
+          model: name
+        insertion_order: null
+        remote_table:
+          name: models_enum
+          schema: public
   - name: thread
     using:
       foreign_key_constraint_on: thread_id

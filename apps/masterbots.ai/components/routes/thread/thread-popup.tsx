@@ -13,6 +13,7 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { cn, getRouteType } from '@/lib/utils'
+import type { SendMessageFromResponseMessageData } from '@/types/types'
 import type { Message as AiMessage } from 'ai'
 import type { Message } from 'mb-genql'
 import { useParams, usePathname } from 'next/navigation'
@@ -42,7 +43,10 @@ export function ThreadPopup({ className }: { className?: string }) {
 	}
 
 	const routeType = getRouteType(pathname)
-	const isBrowseView = routeType === 'public' && activeThread?.threadId
+	const isBrowseView =
+		routeType === 'public' ||
+		routeType === 'profile' ||
+		(routeType === 'bot' && activeThread?.threadId)
 	const chatbotName = activeThread?.chatbot.name
 	const canonicalDomain = getCanonicalDomain(chatbotName || 'prompt')
 
@@ -87,9 +91,12 @@ export function ThreadPopup({ className }: { className?: string }) {
 							isThread={false}
 							messages={allMessages}
 							isLoadingMessages={isLoading}
-							sendMessageFn={(message: string) => {
+							sendMessageFn={(
+								messageData: SendMessageFromResponseMessageData,
+								callback?: () => void,
+							) => {
 								scrollToBottom()
-								sendMessageFromResponse(message)
+								sendMessageFromResponse(messageData, callback)
 							}}
 							chatContentClass="!border-x-gray-300 md:px-[16px] !mx-0 max-h-[none] dark:!border-x-mirage"
 							className="max-w-full md:px-[32px] !mx-0"
@@ -149,12 +156,49 @@ function ThreadPopUpCardHeader({
 	const pathname = usePathname()
 	const params = useParams()
 	const isPublic = getRouteType(pathname) === 'public'
+	const isProfile = getRouteType(pathname) === 'profile'
+	const isBot = getRouteType(pathname) === 'bot'
 
 	const onClose = () => {
 		const canonicalDomain = getCanonicalDomain(
 			activeThread?.chatbot?.name || '',
 		)
 		setIsOpenPopup(!isOpenPopup)
+		setActiveThread(null)
+
+		if (isProfile) {
+			const slug = params.userSlug as string
+			navigateTo({
+				urlType: 'profilesUrl',
+				shallow: true,
+				navigationParams: {
+					type: 'user',
+					domain: canonicalDomain,
+					chatbot: activeThread?.chatbot?.name || '',
+					usernameSlug: slug,
+					category:
+						activeThread?.chatbot?.categories?.[0]?.category?.name || '',
+				},
+			})
+			setActiveThread(null)
+			setShouldRefreshThreads(true)
+			return
+		}
+
+		if (isBot) {
+			navigateTo({
+				urlType: 'chatbotProfileUrl',
+				shallow: true,
+				navigationParams: {
+					domain: canonicalDomain,
+					chatbot: activeThread?.chatbot?.name || '',
+				},
+			})
+
+			setActiveThread(null)
+			setShouldRefreshThreads(true)
+			return
+		}
 
 		navigateTo({
 			urlType: 'chatbotThreadListUrl',

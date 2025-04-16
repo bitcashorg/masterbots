@@ -22,7 +22,8 @@ import type OpenAI from 'openai'
 // * This function gets the model client type
 export function getModelClientType(model: AIModels) {
 	switch (model) {
-		case AIModels.GPT4:
+		case AIModels.GPT4_1:
+		case AIModels.GPT4o:
 		case AIModels.Default:
 			return 'OpenAI'
 		case AIModels.Claude3:
@@ -37,6 +38,8 @@ export function getModelClientType(model: AIModels) {
 		case AIModels.DeepSeekGroq:
 			return 'GroqDeepSeek'
 		case AIModels.Gemini:
+		case AIModels.Gemini_pro:
+		case AIModels.Gemini_lite:
 			return 'Gemini'
 		default:
 			throw new Error('Unsupported model specified')
@@ -190,8 +193,10 @@ export async function fetchPromptDetails(promptId: string) {
 }
 export function cleanPrompt(str: string) {
 	const markers = [
-		'].  Now please answer the following question: ',
-		']. Now please answer the following question: ',
+		`
+
+Now please answer the following question: `,
+		'Now please answer the following question: ',
 	]
 	let extracted = str
 

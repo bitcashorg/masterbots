@@ -145,7 +145,11 @@ export function BrowseMessagePairs({
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const toggleThreadQuestionUrl = useCallback((isOpen: boolean) => {
-		// console.log('window.location.pathname.split', window.location.pathname.split('/'))
+		console.log(
+			'window.location.pathname.split',
+			window.location.pathname.split('/'),
+		)
+
 		const [, category, domain, chatbot, threadSlug, threadQuestionSlug] =
 			window.location.pathname.split('/')
 		const navigationParts = {
@@ -156,6 +160,10 @@ export function BrowseMessagePairs({
 			threadQuestionSlug: pair.userMessage.slug,
 		}
 
+		console.log({
+			threadQuestionSlug,
+			isOpen,
+		})
 		if (!threadQuestionSlug && isOpen) {
 			console.log('navigateTo threadQuestionUrl', navigationParts)
 			navigateTo({
@@ -213,7 +221,6 @@ export function BrowseMessagePairs({
 			triggerClass="dark:border-b-mirage border-b-gray-300 py-[0.625rem] px-2 md:px-4 xl:px-11 gap-4"
 			arrowClass="mt-[0.625rem] right-[calc(47px-1rem)] translate-x-[50%]"
 			id={pair.userMessage.slug}
-			onToggle={toggleThreadQuestionUrl}
 		>
 			{/* Thread Title */}
 			<div
