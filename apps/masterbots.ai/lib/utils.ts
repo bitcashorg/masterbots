@@ -370,6 +370,7 @@ export function isContinuationMessage(content: React.ReactNode): boolean {
 		'continue from where you left off',
 		'please finish your response',
 		'continue your explanation',
+		'Your previous response was cut off. Please continue exactly where you left off without summarizing or repeating what you already said'
 	]
 	return continuationPhrases.some((phrase) => contentStr.includes(phrase))
 }

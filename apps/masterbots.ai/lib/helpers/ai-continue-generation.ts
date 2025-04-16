@@ -33,7 +33,7 @@ export async function continueAIGeneration(
 			id: nanoid(),
 			role: 'user',
 			content:
-				'Please complete your previous response from where you left off.',
+				'Your previous response was cut off. Please continue exactly where you left off without summarizing or repeating what you already said.',
 		}
 
 		const continuationOptions: ChatRequestOptions = {
