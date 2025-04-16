@@ -408,7 +408,7 @@ export function SharedAccordion({
 								</span>
 							</div>
 						) : (
-							// Original title rendering
+							//* Original title rendering
 							Array.isArray(children) && children[0]
 						)}
 						{!open && Array.isArray(children) && children[1]}
