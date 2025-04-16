@@ -54,6 +54,7 @@ export async function continueAIGeneration(
 					text: 'Successfully continued the response',
 				})
 			}
+			setLoadingState('finished')
 			return newContent
 		}
 	} catch (error) {
