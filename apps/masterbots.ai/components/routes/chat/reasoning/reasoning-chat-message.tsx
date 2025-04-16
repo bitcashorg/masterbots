@@ -52,10 +52,16 @@ export function ReasoningChatMessage({
 		setClicked(true)
 		const context = extractFollowUpContext(message.content, clickableText)
 		const cleanedText = cleanClickableText(context)
-		const followUpPrompt = `Explain more in-depth and in detail about "${clickableText}"? ${cleanedText}`
-		sendMessageFromResponse?.(followUpPrompt, () => {
-			setClicked(false)
-		})
+		const bulletContent = `Explain more in-depth and in detail about "${clickableText}"? ${cleanedText}`
+		sendMessageFromResponse?.(
+			{
+				bulletContent,
+				messageId: message.messageId,
+			},
+			() => {
+				setClicked(false)
+			},
+		)
 	}
 
 	const toggleReasoning = () => {

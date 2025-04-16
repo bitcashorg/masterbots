@@ -41,6 +41,7 @@ import type {
 	AiToolCall,
 	ChatbotMetadataClassification,
 	ChatbotMetadataExamples,
+	SendMessageFromResponseMessageData,
 } from '@/types/types'
 import { type UseChatOptions, useChat } from '@ai-sdk/react'
 import type * as OpenAi from 'ai'
@@ -189,6 +190,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 	const searchParams = useSearchParams()
 	const messageAttachments = useRef<FileAttachment[]>([])
+	const clickedContentRef = useRef<string>('')
 	const dbKeys = getUserIndexedDBKeys(session?.user?.id)
 	const indexedDBActions = useIndexedDB(dbKeys)
 
@@ -470,6 +472,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						userId: session?.user.id,
 					})
 				}
+			} finally {
+				// ? resetting refs
+				clickedContentRef.current = ''
 			}
 		},
 		// @ts-ignore
@@ -496,6 +501,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 			setLoadingState(undefined)
 			setActiveTool(undefined)
 			setIsNewResponse(false)
+
+			clickedContentRef.current = ''
 
 			if (isNewChat) {
 				await deleteThread({
@@ -777,10 +784,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	}
 
 	const sendMessageFromResponse = async (
-		bulletContent: string,
+		{ bulletContent, messageId }: SendMessageFromResponseMessageData,
 		callback?: () => void,
 	) => {
 		const fullMessage = bulletContent
+		clickedContentRef.current = messageId
 
 		await appendWithMbContextPrompts({
 			id: threadId,
@@ -875,7 +883,10 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						? userContentRef.current // improved user message
 						: followingQuestionsPrompt(
 								userContentRef.current,
-								previousAiUserMessages.concat(allMessages),
+								previousAiUserMessages.concat(
+									allMessages,
+								) as unknown as Message[],
+								clickedContentRef.current,
 							),
 				},
 				chatMessagesOptions,
@@ -957,7 +968,7 @@ export type MBChatHookActions = {
 		userMessage: OpenAi.UIMessage | CreateMessage,
 	) => Promise<string | null | undefined>
 	sendMessageFromResponse: (
-		bulletContent: string,
+		messageData: SendMessageFromResponseMessageData,
 		callback?: () => void,
 	) => void
 	append: (

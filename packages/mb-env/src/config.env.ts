@@ -17,6 +17,8 @@ export const appConfig = {
 		topLoader: process.env.NEXT_PUBLIC_FEATURE_TOP_LOADER === 'true',
 		enableVerificationEmail:
 			process.env.NEXT_PUBLIC_ENABLE_VERIFICATION_EMAIL === 'true',
+		ProfileNBotPageHasPopup:
+			process.env.NEXT_PUBLIC_PROFILE_N_BOT_PAGE_HAS_POPUP === 'true',
 	},
 	enableAuth: {
 		google: process.env.NEXT_PUBLIC_GOOGLE_AUTH === 'true',
