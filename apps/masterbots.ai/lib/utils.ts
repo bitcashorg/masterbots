@@ -360,11 +360,16 @@ export function getRouteColor(
 	}
 }
 
-// export function isContinuationMessage(content: React.ReactNode): boolean {
-// 	if (!content) return false
+export function isContinuationMessage(content: React.ReactNode): boolean {
+	if (!content) return false
+	const contentStr = String(content).toLowerCase()
 
-// 	const contentStr = content.toString()
-// 	return contentStr.includes(
-// 		'Please continue',
-// 	)
-// }
+	const continuationPhrases = [
+		'please continue your previous response',
+		'please complete your previous response',
+		'continue from where you left off',
+		'please finish your response',
+		'continue your explanation',
+	]
+	return continuationPhrases.some((phrase) => contentStr.includes(phrase))
+}
