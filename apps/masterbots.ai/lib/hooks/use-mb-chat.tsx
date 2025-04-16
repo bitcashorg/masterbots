@@ -422,23 +422,23 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 					if (continuedContent) {
 
-						// //? Generate a new ID for the continuation message
-						const continuationMessageId = crypto.randomUUID()
+						// // //? Generate a new ID for the continuation message
+						// const continuationMessageId = crypto.randomUUID()
 
-						// //? Mark that the continuation has been completed
-						continueActions.endContinuation(continuationMessageId)
-						// //TODO:  B--check if this one is correct i believe the onfishing will already do this by default
-						await saveNewMessage({
-							...newBaseMessage,
-							messageId: continuationMessageId,
-							slug: await generateUniqueSlug(continuedContent),
-							role: 'assistant',
-							content: continuedContent,
-							createdAt: new Date(Date.now() + 2000).toISOString(),
-							augmentedFrom: assistantMessageId, // Assuming augmentedFrom is a field in MessageInsertInput
-						  })
-						// Override the message content with the continued content
-						message.content = continuedContent
+						// // //? Mark that the continuation has been completed
+						// continueActions.endContinuation(continuationMessageId)
+						// // //TODO:  B--check if this one is correct i believe the onfishing will already do this by default
+						// await saveNewMessage({
+						// 	...newBaseMessage,
+						// 	messageId: continuationMessageId,
+						// 	slug: await generateUniqueSlug(continuedContent),
+						// 	role: 'assistant',
+						// 	content: continuedContent,
+						// 	createdAt: new Date(Date.now() + 2000).toISOString(),
+						// 	augmentedFrom: assistantMessageId, // Assuming augmentedFrom is a field in MessageInsertInput
+						//   })
+						// // Override the message content with the continued content
+						// message.content = continuedContent
 					} else {
 						//? Reset the continuation state if no content was generated
 						continueActions.resetContinuation()
