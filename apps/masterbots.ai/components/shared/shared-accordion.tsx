@@ -3,7 +3,7 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { getCanonicalDomain } from '@/lib/url'
-import { cn } from '@/lib/utils'
+import { cn, isContinuationMessage } from '@/lib/utils'
 import { getThread } from '@/services/hasura'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
@@ -394,14 +394,8 @@ export function SharedAccordion({
 			>
 				<div className="flex w-full">
 					<div className="flex w-full">
-						{/* Check if this thread is a continuation based on its relation to the original message */}
-						{continuationState.isContinuing &&
-						thread?.threadId &&
-						((continuationState.originalMessageId &&
-							continuationState.originalMessageId === thread.threadId) ||
-							(thread.parentThreadId &&
-								thread.parentThreadId ===
-									continuationState.originalMessageId)) ? (
+						{/* Check if the message is a continuation based on its content */}
+						{Array.isArray(children) && isContinuationMessage(children[0]) ? (
 							<div className="px-4 py-3 text-sm font-medium">
 								<span className="italic text-gray-500 dark:text-gray-400">
 									(continued...)

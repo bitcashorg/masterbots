@@ -359,3 +359,10 @@ export function getRouteColor(
 			return ''
 	}
 }
+
+export function isContinuationMessage(content: React.ReactNode): boolean {
+	if (!content) return false;
+	
+	const contentStr = content.toString();
+	return contentStr.includes('Please continue your previous response without repeating any information');
+  }
