@@ -1,8 +1,6 @@
-import { updateMessage } from '@/services/hasura'
 import type { ContinueAIGenerationOptions } from '@/types/types'
 import type { ChatRequestOptions, CreateMessage, Message } from 'ai'
 import { nanoid } from 'nanoid'
-import { hasReasoning } from './ai-helpers'
 
 export function shouldContinueGeneration(finishReason: string): boolean {
 	//? Reasons that might indicate incomplete generations
@@ -24,15 +22,13 @@ export async function continueAIGeneration(
 		devMode,
 		chatConfig = {},
 		maxAttempts = 3,
-		jwt,
 	} = options
 
 	let attempts = 0
-	let continuedContent = incompleteMessage.content
-	const messageId = incompleteMessage.id
+	let continuedContent: string | null = null
 
 	try {
-		while (attempts < maxAttempts) {
+		while (attempts < maxAttempts && !continuedContent) {
 			attempts++
 
 			if (devMode) {
@@ -67,12 +63,12 @@ export async function continueAIGeneration(
 				//? Final attempt: provides a specific reference point with dynamic length
 				const referenceLength = Math.min(
 					100,
-					Math.floor(continuedContent.length * 0.1),
+					Math.floor(incompleteMessage.content.length * 0.1),
 				)
 				continuationPrompt = {
 					id: nanoid(),
 					role: 'user',
-					content: `I need the rest of your explanation. Your last message ended with: "${continuedContent.slice(-referenceLength)}". Please continue from there.`,
+					content: `I need the rest of your explanation. Your last message ended with: "${incompleteMessage.content.slice(-referenceLength)}". Please continue from there.`,
 				}
 			}
 
@@ -81,7 +77,7 @@ export async function continueAIGeneration(
 					...chatConfig,
 					isContinuation: true,
 					continuationAttempt: attempts,
-					previousResponse: continuedContent,
+					previousResponse: incompleteMessage.content,
 				},
 			}
 
@@ -91,59 +87,28 @@ export async function continueAIGeneration(
 			//* Try to continue the generation
 			const newContent = await append(continuationPrompt, continuationOptions)
 
-			//* If we got new content, update the message in the database
-			if (newContent) {
-				//? Combine original content with the new content
-				const updatedContent = `${continuedContent} ${newContent}`
+			//* If we got new content with sufficient length, consider it successful
+			if (newContent && newContent.length > 20) {
+				continuedContent = newContent
 
-				//? Determine if we have thinking content to update
-				const thinkingContent = hasReasoning(incompleteMessage)
-					? {
-							thinking:
-								incompleteMessage.parts?.find((msg) => msg.type === 'reasoning')
-									?.reasoning || incompleteMessage.reasoning,
-						}
-					: undefined
-
-				//? Update the message in the database
-				const result = await updateMessage({
-					messageId,
-					content: updatedContent,
-					thinking: thinkingContent?.thinking,
-					jwt,
-				})
-
-				if (result.success) {
-					//? Update content reference
-					continuedContent = updatedContent
-
-					if (devMode) {
-						customSonner({
-							type: 'success',
-							text: `Successfully continued and updated message on attempt ${attempts}`,
-						})
-					}
-
-					//? If we got enough new content, consider it successful
-					if (newContent.length > 20) {
-						return continuedContent
-					}
-				} else {
-					if (devMode) {
-						customSonner({
-							type: 'error',
-							text: `Failed to update message: ${result.error}`,
-						})
-					}
+				if (devMode) {
+					customSonner({
+						type: 'success',
+						text: `Successfully continued on attempt ${attempts}`,
+					})
 				}
+
+				break
 			}
 		}
 
-		//* feedback to user if we couldn't get enough content
-		customSonner({
-			type: 'info',
-			text: 'Could not complete the full response after multiple attempts.',
-		})
+		if (!continuedContent) {
+			//* feedback to user if we couldn't get enough content
+			customSonner({
+				type: 'info',
+				text: 'Could not complete the full response after multiple attempts.',
+			})
+		}
 
 		return continuedContent
 	} catch (error) {

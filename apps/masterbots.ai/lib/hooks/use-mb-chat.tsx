@@ -66,6 +66,7 @@ import {
 } from 'react'
 import { useSetState } from 'react-use'
 import { useSonner } from './useSonner'
+import { useContinue } from './use-continue'
 
 export function useMBChat(): MBChatHookCallback {
 	const context = useContext(MBChatContext)
@@ -96,6 +97,12 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	const { customSonner } = useSonner()
 	const { isPowerUp } = usePowerUp()
 	// console.log('[HOOK] webSearch', webSearch)
+	const continueContext = useContinue()
+	const useContinueInstance = useRef(continueContext)
+
+	useEffect(() => {
+		useContinueInstance.current = continueContext
+	}, [continueContext])
 
 	const params = useParams<{ chatbot: string; threadSlug: string }>()
 	const { selectedModel, clientType } = useModel()
@@ -269,8 +276,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 				// biome-ignore lint/style/useConst: <explanation>
 				let finalMessage = { ...message }
-				// biome-ignore lint/style/useConst: <explanation>
-				let needsContinuation = shouldContinueGeneration(options.finishReason)
+				// Check if generation should be continued
+				const needsContinuation = shouldContinueGeneration(options.finishReason)
 
 				if (options.finishReason === 'error') {
 					customSonner({
@@ -373,28 +380,34 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					},
 				]
 
+				//? Save the messages to the database
 				await Promise.all([
 					saveNewMessage(newUserMessage),
 					saveNewMessage(newAssistantMessage),
 				])
 
-				//? Check if we need to continue generation due to cut-off reasons
 				if (needsContinuation) {
+					const [continueState, continueActions] = useContinueInstance.current
+
 					if (appConfig.features.devMode) {
 						customSonner({
 							type: 'info',
-							text: `Generation was cut off (${options.finishReason}). Attempting to continue...`,
+							text: `Generation was cut off (${options.finishReason}). Starting continuation...`,
 						})
 					}
 
-					//?  Message object for updateMessage
+					//? Start the continuation process
+					continueActions.startContinuation(assistantMessageId)
+
+					// Message object for continuation
 					const messageForContinuation = {
 						...finalMessage,
+						id: assistantMessageId,
 						messageId: assistantMessageId,
 						...assistantMessageThinking,
 					}
 
-					//? Try to continue the AI generation
+					//? Try to continue the AI generation without updating the message in Hasura
 					const continuedContent = await continueAIGeneration(
 						messageForContinuation,
 						append,
@@ -404,21 +417,30 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 							devMode: appConfig.features.devMode,
 							chatConfig: useChatConfig.body,
 							maxAttempts: 2,
-							jwt: session?.user?.hasuraJwt,
 						},
 					)
 
 					if (continuedContent) {
-						//?  Update the message in the database with continued content
-						await updateMessage({
-							messageId: assistantMessageId,
-							content: continuedContent,
-							thinking: assistantMessageThinking.thinking,
-							jwt: session?.user?.hasuraJwt,
-						})
+						//? Generate a new ID for the continuation message
+						const continuationMessageId = crypto.randomUUID()
 
-						//? Updates the final message
-						finalMessage.content = continuedContent
+						//? Mark that the continuation has been completed
+						continueActions.endContinuation(continuationMessageId)
+
+						// Save the continuation as a new message in the database 
+						//TODO:  B--check if this one is correct i believe the onfishing will already do this by default
+						await saveNewMessage({
+							...newBaseMessage,
+							messageId: continuationMessageId,
+							slug: await generateUniqueSlug(continuedContent),
+							role: 'assistant',
+							content: continuedContent,
+							createdAt: new Date(Date.now() + 2000).toISOString(),
+							augmentedFrom: assistantMessageId, // Assuming augmentedFrom is a field in MessageInsertInput
+						  })
+					} else {
+						//? Reset the continuation state if no content was generated
+						continueActions.resetContinuation()
 					}
 				}
 
