@@ -397,7 +397,7 @@ export function SharedAccordion({
 						{/* Conditionally render the title based on continuation state */}
 						{continuationState.isContinuing &&
 						thread?.threadId &&
-						thread.threadId === continuationState.originalMessageId ? (
+						thread.threadId === continuationState.continuationMessageId ? (
 							<div className="px-4 py-3 text-sm font-medium">
 								<span className="italic text-gray-500 dark:text-gray-400">
 									(continued...)
