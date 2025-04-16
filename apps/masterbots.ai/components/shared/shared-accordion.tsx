@@ -3,7 +3,7 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { getCanonicalDomain } from '@/lib/url'
-import { cn, isContinuationMessage } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import { getThread } from '@/services/hasura'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
@@ -69,6 +69,7 @@ export function SharedAccordion({
 	)
 	const { isAdminMode } = useThreadVisibility()
 	const [continuationState] = useContinue()
+
 
 	const pathname = usePathname()
 	const params = useParams()
@@ -394,17 +395,8 @@ export function SharedAccordion({
 			>
 				<div className="flex w-full">
 					<div className="flex w-full">
-						{/* Check if this thread is a continuation based on its relation to the original message */}
-						{Array.isArray(children) && isContinuationMessage(children[0]) ? (
-							<div className="px-4 py-3 text-sm font-medium">
-								<span className="italic text-gray-500 dark:text-gray-400">
-									(continued...)
-								</span>
-							</div>
-						) : (
-							// Original title rendering
-							Array.isArray(children) && children[0]
-						)}
+						{/* Thread tittle are created here and are always the first child */}
+						{Array.isArray(children) && children[0]}
 						{!open && Array.isArray(children) && children[1]}
 					</div>
 					{activeThread && (
