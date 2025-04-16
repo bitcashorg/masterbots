@@ -12,10 +12,7 @@ import {
 	aiExampleClassification,
 	processUserMessage,
 } from '@/lib/helpers/ai-classification'
-import {
-	continueAIGeneration,
-	shouldContinueGeneration,
-} from '@/lib/helpers/ai-continue-generation'
+
 import { cleanPrompt, hasReasoning } from '@/lib/helpers/ai-helpers'
 import {
 	type FileAttachment,
@@ -266,11 +263,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						text: `Ai generation finished, reason: ${options.finishReason}`,
 					})
 				}
-
-				// biome-ignore lint/style/useConst: <explanation>
-				let finalMessage = { ...message }
-				// biome-ignore lint/style/useConst: <explanation>
-				let needsContinuation = shouldContinueGeneration(options.finishReason)
+				const finalMessage = { ...message }
 
 				if (options.finishReason === 'error') {
 					customSonner({
@@ -377,50 +370,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					saveNewMessage(newUserMessage),
 					saveNewMessage(newAssistantMessage),
 				])
-
-				//? Check if we need to continue generation due to cut-off reasons
-				if (needsContinuation) {
-					if (appConfig.features.devMode) {
-						customSonner({
-							type: 'info',
-							text: `Generation was cut off (${options.finishReason}). Attempting to continue...`,
-						})
-					}
-
-					//?  Message object for updateMessage
-					const messageForContinuation = {
-						...finalMessage,
-						messageId: assistantMessageId,
-						...assistantMessageThinking,
-					}
-
-					//? Try to continue the AI generation
-					const continuedContent = await continueAIGeneration(
-						messageForContinuation,
-						append,
-						{
-							setLoadingState,
-							customSonner,
-							devMode: appConfig.features.devMode,
-							chatConfig: useChatConfig.body,
-							maxAttempts: 2,
-							jwt: session?.user?.hasuraJwt,
-						},
-					)
-
-					if (continuedContent) {
-						//?  Update the message in the database with continued content
-						await updateMessage({
-							messageId: assistantMessageId,
-							content: continuedContent,
-							thinking: assistantMessageThinking.thinking,
-							jwt: session?.user?.hasuraJwt,
-						})
-
-						//? Updates the final message
-						finalMessage.content = continuedContent
-					}
-				}
 
 				setState({
 					isNewChat: false,
