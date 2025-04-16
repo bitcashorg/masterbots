@@ -41,6 +41,7 @@ export async function continueAIGeneration(
 				...chatConfig,
 				isContinuation: true,
 				previousResponse: incompleteMessage.content,
+				isContinuationMessage: true,
 			},
 		}
 
@@ -57,6 +58,8 @@ export async function continueAIGeneration(
 			setLoadingState('finished')
 			return newContent
 		}
+
+		return null
 	} catch (error) {
 		console.error('Failed to continue AI generation:', error)
 		customSonner({
