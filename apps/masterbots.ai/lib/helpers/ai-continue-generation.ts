@@ -15,102 +15,47 @@ export async function continueAIGeneration(
 		options?: ChatRequestOptions,
 	) => Promise<string | null | undefined>,
 	options: ContinueAIGenerationOptions,
-): Promise<string | null> {
-	const {
-		setLoadingState,
-		customSonner,
-		devMode,
-		chatConfig = {},
-		maxAttempts = 3,
-	} = options
-
-	let attempts = 0
-	let continuedContent: string | null = null
+): Promise<string | null | undefined> {
+	const { setLoadingState, customSonner, devMode, chatConfig = {} } = options
 
 	try {
-		while (attempts < maxAttempts && !continuedContent) {
-			attempts++
-
-			if (devMode) {
-				customSonner({
-					type: 'info',
-					text: `Continuing AI generation (attempt ${attempts}/${maxAttempts})`,
-				})
-			}
-
-			setLoadingState('continuing')
-
-			//* continuation prompt flow - using different strategies based on the attempt number
-			let continuationPrompt: CreateMessage
-
-			if (attempts === 1) {
-				//? First attempt: simple continuation request
-				continuationPrompt = {
-					id: nanoid(),
-					role: 'user',
-					content:
-						'Please continue your previous response without repeating any information.',
-				}
-			} else if (attempts === 2) {
-				//? Second attempt: be more explicit about what we need
-				continuationPrompt = {
-					id: nanoid(),
-					role: 'user',
-					content:
-						'Your previous response was cut off. Please continue exactly where you left off without summarizing or repeating what you already said.',
-				}
-			} else {
-				//? Final attempt: provides a specific reference point with dynamic length
-				const referenceLength = Math.min(
-					100,
-					Math.floor(incompleteMessage.content.length * 0.1),
-				)
-				continuationPrompt = {
-					id: nanoid(),
-					role: 'user',
-					content: `I need the rest of your explanation. Your last message ended with: "${incompleteMessage.content.slice(-referenceLength)}". Please continue from there.`,
-				}
-			}
-
-			const continuationOptions: ChatRequestOptions = {
-				body: {
-					...chatConfig,
-					isContinuation: true,
-					continuationAttempt: attempts,
-					previousResponse: incompleteMessage.content,
-				},
-			}
-
-			//* small delay between attempts to avoid rate limits
-			await new Promise((resolve) => setTimeout(resolve, 1000))
-
-			//* Try to continue the generation
-			const newContent = await append(continuationPrompt, continuationOptions)
-
-			//* If we got new content with sufficient length, consider it successful
-			if (newContent && newContent.length > 20) {
-				continuedContent = newContent
-
-				if (devMode) {
-					customSonner({
-						type: 'success',
-						text: `Successfully continued on attempt ${attempts}`,
-					})
-				}
-
-				break
-			}
-		}
-
-		if (!continuedContent) {
-			//* feedback to user if we couldn't get enough content
+		if (devMode) {
 			customSonner({
 				type: 'info',
-				text: 'Could not complete the full response after multiple attempts.',
+				text: 'Continuing AI generation...',
 			})
 		}
 
-		return continuedContent
+		setLoadingState('continuing')
+
+		//? Simple continuation prompt
+		const continuationPrompt: CreateMessage = {
+			id: nanoid(),
+			role: 'user',
+			content:
+				'Please continue your previous response without repeating any information.',
+		}
+
+		const continuationOptions: ChatRequestOptions = {
+			body: {
+				...chatConfig,
+				isContinuation: true,
+				previousResponse: incompleteMessage.content,
+			},
+		}
+
+		//? Try to continue the generation
+		const newContent = await append(continuationPrompt, continuationOptions)
+
+		if (newContent && newContent.length > 0) {
+			if (devMode) {
+				customSonner({
+					type: 'success',
+					text: 'Successfully continued the response',
+				})
+			}
+			return newContent
+		}
 	} catch (error) {
 		console.error('Failed to continue AI generation:', error)
 		customSonner({
