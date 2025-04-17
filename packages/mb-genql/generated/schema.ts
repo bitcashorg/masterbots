@@ -907,6 +907,7 @@ export interface Message {
   content: Scalars["String"];
   createdAt: Scalars["timestamptz"];
   examples: Scalars["jsonb"] | null;
+  isContinued: Scalars["Boolean"] | null;
   /** An object relationship */
   message: Message | null;
   messageId: Scalars["uuid"];
@@ -916,8 +917,12 @@ export interface Message {
   messages: Message[];
   /** An aggregate relationship */
   messagesAggregate: MessageAggregate;
+  model: Scalars["String"] | null;
+  /** An object relationship */
+  modelType: ModelsEnum | null;
   prompt: Scalars["String"] | null;
   role: Scalars["String"];
+  shortLink: Scalars["String"] | null;
   slug: Scalars["String"];
   thinking: Scalars["String"] | null;
   thinkingTraces: Scalars["String"][] | null;
@@ -946,6 +951,7 @@ export interface MessageAggregateFields {
 export type MessageConstraint =
   | "message_id_key"
   | "message_pkey"
+  | "message_short_link_key"
   | "message_slug_unique";
 
 /** aggregate max on columns */
@@ -954,8 +960,10 @@ export interface MessageMaxFields {
   content: Scalars["String"] | null;
   createdAt: Scalars["timestamptz"] | null;
   messageId: Scalars["uuid"] | null;
+  model: Scalars["String"] | null;
   prompt: Scalars["String"] | null;
   role: Scalars["String"] | null;
+  shortLink: Scalars["String"] | null;
   slug: Scalars["String"] | null;
   thinking: Scalars["String"] | null;
   thinkingTraces: Scalars["String"][] | null;
@@ -969,8 +977,10 @@ export interface MessageMinFields {
   content: Scalars["String"] | null;
   createdAt: Scalars["timestamptz"] | null;
   messageId: Scalars["uuid"] | null;
+  model: Scalars["String"] | null;
   prompt: Scalars["String"] | null;
   role: Scalars["String"] | null;
+  shortLink: Scalars["String"] | null;
   slug: Scalars["String"] | null;
   thinking: Scalars["String"] | null;
   thinkingTraces: Scalars["String"][] | null;
@@ -993,13 +1003,24 @@ export type MessageSelectColumn =
   | "content"
   | "createdAt"
   | "examples"
+  | "isContinued"
   | "messageId"
+  | "model"
   | "prompt"
   | "role"
+  | "shortLink"
   | "slug"
   | "thinking"
   | "thinkingTraces"
   | "threadId";
+
+/** select "messageAggregateBoolExpBool_andArgumentsColumns" columns of table "message" */
+export type MessageSelectColumnMessageAggregateBoolExpBool_andArgumentsColumns =
+  "isContinued";
+
+/** select "messageAggregateBoolExpBool_orArgumentsColumns" columns of table "message" */
+export type MessageSelectColumnMessageAggregateBoolExpBool_orArgumentsColumns =
+  "isContinued";
 
 /** columns and relationships of "message_type_enum" */
 export interface MessageTypeEnum {
@@ -1062,9 +1083,12 @@ export type MessageUpdateColumn =
   | "content"
   | "createdAt"
   | "examples"
+  | "isContinued"
   | "messageId"
+  | "model"
   | "prompt"
   | "role"
+  | "shortLink"
   | "slug"
   | "thinking"
   | "thinkingTraces"
@@ -2122,6 +2146,7 @@ export interface Thread {
   /** An object relationship */
   modelsEnum: ModelsEnum;
   parentThreadId: Scalars["uuid"] | null;
+  shortLink: Scalars["String"] | null;
   slug: Scalars["String"];
   /** An object relationship */
   thread: Thread | null;
@@ -2170,6 +2195,7 @@ export interface ThreadAvgFields {
 export type ThreadConstraint =
   | "thread_id_key"
   | "thread_pkey"
+  | "thread_short_link_key"
   | "thread_slug_unique";
 
 /** aggregate max on columns */
@@ -2177,6 +2203,7 @@ export interface ThreadMaxFields {
   chatbotId: Scalars["Int"] | null;
   createdAt: Scalars["timestamptz"] | null;
   parentThreadId: Scalars["uuid"] | null;
+  shortLink: Scalars["String"] | null;
   slug: Scalars["String"] | null;
   threadId: Scalars["uuid"] | null;
   updatedAt: Scalars["timestamptz"] | null;
@@ -2189,6 +2216,7 @@ export interface ThreadMinFields {
   chatbotId: Scalars["Int"] | null;
   createdAt: Scalars["timestamptz"] | null;
   parentThreadId: Scalars["uuid"] | null;
+  shortLink: Scalars["String"] | null;
   slug: Scalars["String"] | null;
   threadId: Scalars["uuid"] | null;
   updatedAt: Scalars["timestamptz"] | null;
@@ -2214,6 +2242,7 @@ export type ThreadSelectColumn =
   | "isPublic"
   | "model"
   | "parentThreadId"
+  | "shortLink"
   | "slug"
   | "threadId"
   | "updatedAt"
@@ -2264,6 +2293,7 @@ export type ThreadUpdateColumn =
   | "isPublic"
   | "model"
   | "parentThreadId"
+  | "shortLink"
   | "slug"
   | "threadId"
   | "updatedAt"
@@ -6012,6 +6042,7 @@ export interface MessageGenqlSelection {
       }
     | boolean
     | number;
+  isContinued?: boolean | number;
   /** An object relationship */
   message?: MessageGenqlSelection;
   messageId?: boolean | number;
@@ -6047,8 +6078,12 @@ export interface MessageGenqlSelection {
       where?: MessageBoolExp | null;
     };
   };
+  model?: boolean | number;
+  /** An object relationship */
+  modelType?: ModelsEnumGenqlSelection;
   prompt?: boolean | number;
   role?: boolean | number;
+  shortLink?: boolean | number;
   slug?: boolean | number;
   thinking?: boolean | number;
   thinkingTraces?: boolean | number;
@@ -6068,6 +6103,8 @@ export interface MessageAggregateGenqlSelection {
 }
 
 export interface MessageAggregateBoolExp {
+  bool_and?: messageAggregateBoolExpBool_and | null;
+  bool_or?: messageAggregateBoolExpBool_or | null;
   count?: messageAggregateBoolExpCount | null;
 }
 
@@ -6116,13 +6153,17 @@ export interface MessageBoolExp {
   content?: StringComparisonExp | null;
   createdAt?: TimestamptzComparisonExp | null;
   examples?: JsonbComparisonExp | null;
+  isContinued?: BooleanComparisonExp | null;
   message?: MessageBoolExp | null;
   messageId?: UuidComparisonExp | null;
   messageTypeEnum?: MessageTypeEnumBoolExp | null;
   messages?: MessageBoolExp | null;
   messagesAggregate?: MessageAggregateBoolExp | null;
+  model?: StringComparisonExp | null;
+  modelType?: ModelsEnumBoolExp | null;
   prompt?: StringComparisonExp | null;
   role?: StringComparisonExp | null;
+  shortLink?: StringComparisonExp | null;
   slug?: StringComparisonExp | null;
   thinking?: StringComparisonExp | null;
   thinkingTraces?: StringArrayComparisonExp | null;
@@ -6151,12 +6192,16 @@ export interface MessageInsertInput {
   content?: Scalars["String"] | null;
   createdAt?: Scalars["timestamptz"] | null;
   examples?: Scalars["jsonb"] | null;
+  isContinued?: Scalars["Boolean"] | null;
   message?: MessageObjRelInsertInput | null;
   messageId?: Scalars["uuid"] | null;
   messageTypeEnum?: MessageTypeEnumObjRelInsertInput | null;
   messages?: MessageArrRelInsertInput | null;
+  model?: Scalars["String"] | null;
+  modelType?: ModelsEnumObjRelInsertInput | null;
   prompt?: Scalars["String"] | null;
   role?: Scalars["String"] | null;
+  shortLink?: Scalars["String"] | null;
   slug?: Scalars["String"] | null;
   thinking?: Scalars["String"] | null;
   thinkingTraces?: Scalars["String"][] | null;
@@ -6170,8 +6215,10 @@ export interface MessageMaxFieldsGenqlSelection {
   content?: boolean | number;
   createdAt?: boolean | number;
   messageId?: boolean | number;
+  model?: boolean | number;
   prompt?: boolean | number;
   role?: boolean | number;
+  shortLink?: boolean | number;
   slug?: boolean | number;
   thinking?: boolean | number;
   thinkingTraces?: boolean | number;
@@ -6186,8 +6233,10 @@ export interface MessageMaxOrderBy {
   content?: OrderBy | null;
   createdAt?: OrderBy | null;
   messageId?: OrderBy | null;
+  model?: OrderBy | null;
   prompt?: OrderBy | null;
   role?: OrderBy | null;
+  shortLink?: OrderBy | null;
   slug?: OrderBy | null;
   thinking?: OrderBy | null;
   thinkingTraces?: OrderBy | null;
@@ -6200,8 +6249,10 @@ export interface MessageMinFieldsGenqlSelection {
   content?: boolean | number;
   createdAt?: boolean | number;
   messageId?: boolean | number;
+  model?: boolean | number;
   prompt?: boolean | number;
   role?: boolean | number;
+  shortLink?: boolean | number;
   slug?: boolean | number;
   thinking?: boolean | number;
   thinkingTraces?: boolean | number;
@@ -6216,8 +6267,10 @@ export interface MessageMinOrderBy {
   content?: OrderBy | null;
   createdAt?: OrderBy | null;
   messageId?: OrderBy | null;
+  model?: OrderBy | null;
   prompt?: OrderBy | null;
   role?: OrderBy | null;
+  shortLink?: OrderBy | null;
   slug?: OrderBy | null;
   thinking?: OrderBy | null;
   thinkingTraces?: OrderBy | null;
@@ -6254,12 +6307,16 @@ export interface MessageOrderBy {
   content?: OrderBy | null;
   createdAt?: OrderBy | null;
   examples?: OrderBy | null;
+  isContinued?: OrderBy | null;
   message?: MessageOrderBy | null;
   messageId?: OrderBy | null;
   messageTypeEnum?: MessageTypeEnumOrderBy | null;
   messagesAggregate?: MessageAggregateOrderBy | null;
+  model?: OrderBy | null;
+  modelType?: ModelsEnumOrderBy | null;
   prompt?: OrderBy | null;
   role?: OrderBy | null;
+  shortLink?: OrderBy | null;
   slug?: OrderBy | null;
   thinking?: OrderBy | null;
   thinkingTraces?: OrderBy | null;
@@ -6284,9 +6341,12 @@ export interface MessageSetInput {
   content?: Scalars["String"] | null;
   createdAt?: Scalars["timestamptz"] | null;
   examples?: Scalars["jsonb"] | null;
+  isContinued?: Scalars["Boolean"] | null;
   messageId?: Scalars["uuid"] | null;
+  model?: Scalars["String"] | null;
   prompt?: Scalars["String"] | null;
   role?: Scalars["String"] | null;
+  shortLink?: Scalars["String"] | null;
   slug?: Scalars["String"] | null;
   thinking?: Scalars["String"] | null;
   thinkingTraces?: Scalars["String"][] | null;
@@ -6307,9 +6367,12 @@ export interface MessageStreamCursorValueInput {
   content?: Scalars["String"] | null;
   createdAt?: Scalars["timestamptz"] | null;
   examples?: Scalars["jsonb"] | null;
+  isContinued?: Scalars["Boolean"] | null;
   messageId?: Scalars["uuid"] | null;
+  model?: Scalars["String"] | null;
   prompt?: Scalars["String"] | null;
   role?: Scalars["String"] | null;
+  shortLink?: Scalars["String"] | null;
   slug?: Scalars["String"] | null;
   thinking?: Scalars["String"] | null;
   thinkingTraces?: Scalars["String"][] | null;
@@ -9235,6 +9298,7 @@ export interface ThreadGenqlSelection {
   /** An object relationship */
   modelsEnum?: ModelsEnumGenqlSelection;
   parentThreadId?: boolean | number;
+  shortLink?: boolean | number;
   slug?: boolean | number;
   /** An object relationship */
   thread?: ThreadGenqlSelection;
@@ -9366,6 +9430,7 @@ export interface ThreadBoolExp {
   model?: ModelsEnumEnumComparisonExp | null;
   modelsEnum?: ModelsEnumBoolExp | null;
   parentThreadId?: UuidComparisonExp | null;
+  shortLink?: StringComparisonExp | null;
   slug?: StringComparisonExp | null;
   thread?: ThreadBoolExp | null;
   threadId?: UuidComparisonExp | null;
@@ -9393,6 +9458,7 @@ export interface ThreadInsertInput {
   model?: ModelsEnumEnum | null;
   modelsEnum?: ModelsEnumObjRelInsertInput | null;
   parentThreadId?: Scalars["uuid"] | null;
+  shortLink?: Scalars["String"] | null;
   slug?: Scalars["String"] | null;
   thread?: ThreadObjRelInsertInput | null;
   threadId?: Scalars["uuid"] | null;
@@ -9407,6 +9473,7 @@ export interface ThreadMaxFieldsGenqlSelection {
   chatbotId?: boolean | number;
   createdAt?: boolean | number;
   parentThreadId?: boolean | number;
+  shortLink?: boolean | number;
   slug?: boolean | number;
   threadId?: boolean | number;
   updatedAt?: boolean | number;
@@ -9420,6 +9487,7 @@ export interface ThreadMaxOrderBy {
   chatbotId?: OrderBy | null;
   createdAt?: OrderBy | null;
   parentThreadId?: OrderBy | null;
+  shortLink?: OrderBy | null;
   slug?: OrderBy | null;
   threadId?: OrderBy | null;
   updatedAt?: OrderBy | null;
@@ -9431,6 +9499,7 @@ export interface ThreadMinFieldsGenqlSelection {
   chatbotId?: boolean | number;
   createdAt?: boolean | number;
   parentThreadId?: boolean | number;
+  shortLink?: boolean | number;
   slug?: boolean | number;
   threadId?: boolean | number;
   updatedAt?: boolean | number;
@@ -9444,6 +9513,7 @@ export interface ThreadMinOrderBy {
   chatbotId?: OrderBy | null;
   createdAt?: OrderBy | null;
   parentThreadId?: OrderBy | null;
+  shortLink?: OrderBy | null;
   slug?: OrderBy | null;
   threadId?: OrderBy | null;
   updatedAt?: OrderBy | null;
@@ -9486,6 +9556,7 @@ export interface ThreadOrderBy {
   model?: OrderBy | null;
   modelsEnum?: ModelsEnumOrderBy | null;
   parentThreadId?: OrderBy | null;
+  shortLink?: OrderBy | null;
   slug?: OrderBy | null;
   thread?: ThreadOrderBy | null;
   threadId?: OrderBy | null;
@@ -9510,6 +9581,7 @@ export interface ThreadSetInput {
   isPublic?: Scalars["Boolean"] | null;
   model?: ModelsEnumEnum | null;
   parentThreadId?: Scalars["uuid"] | null;
+  shortLink?: Scalars["String"] | null;
   slug?: Scalars["String"] | null;
   threadId?: Scalars["uuid"] | null;
   updatedAt?: Scalars["timestamptz"] | null;
@@ -9569,6 +9641,7 @@ export interface ThreadStreamCursorValueInput {
   isPublic?: Scalars["Boolean"] | null;
   model?: ModelsEnumEnum | null;
   parentThreadId?: Scalars["uuid"] | null;
+  shortLink?: Scalars["String"] | null;
   slug?: Scalars["String"] | null;
   threadId?: Scalars["uuid"] | null;
   updatedAt?: Scalars["timestamptz"] | null;
@@ -10925,6 +10998,20 @@ export interface exampleAggregateBoolExpCount {
   distinct?: Scalars["Boolean"] | null;
   filter?: ExampleBoolExp | null;
   predicate: IntComparisonExp;
+}
+
+export interface messageAggregateBoolExpBool_and {
+  arguments: MessageSelectColumnMessageAggregateBoolExpBool_andArgumentsColumns;
+  distinct?: Scalars["Boolean"] | null;
+  filter?: MessageBoolExp | null;
+  predicate: BooleanComparisonExp;
+}
+
+export interface messageAggregateBoolExpBool_or {
+  arguments: MessageSelectColumnMessageAggregateBoolExpBool_orArgumentsColumns;
+  distinct?: Scalars["Boolean"] | null;
+  filter?: MessageBoolExp | null;
+  predicate: BooleanComparisonExp;
 }
 
 export interface messageAggregateBoolExpCount {
@@ -17403,6 +17490,7 @@ export const enumLengthEnumUpdateColumn = {
 export const enumMessageConstraint = {
   message_id_key: "message_id_key" as const,
   message_pkey: "message_pkey" as const,
+  message_short_link_key: "message_short_link_key" as const,
   message_slug_unique: "message_slug_unique" as const,
 };
 
@@ -17411,14 +17499,27 @@ export const enumMessageSelectColumn = {
   content: "content" as const,
   createdAt: "createdAt" as const,
   examples: "examples" as const,
+  isContinued: "isContinued" as const,
   messageId: "messageId" as const,
+  model: "model" as const,
   prompt: "prompt" as const,
   role: "role" as const,
+  shortLink: "shortLink" as const,
   slug: "slug" as const,
   thinking: "thinking" as const,
   thinkingTraces: "thinkingTraces" as const,
   threadId: "threadId" as const,
 };
+
+export const enumMessageSelectColumnMessageAggregateBoolExpBoolAndArgumentsColumns =
+  {
+    isContinued: "isContinued" as const,
+  };
+
+export const enumMessageSelectColumnMessageAggregateBoolExpBoolOrArgumentsColumns =
+  {
+    isContinued: "isContinued" as const,
+  };
 
 export const enumMessageTypeEnumConstraint = {
   message_type_enum_pkey: "message_type_enum_pkey" as const,
@@ -17437,9 +17538,12 @@ export const enumMessageUpdateColumn = {
   content: "content" as const,
   createdAt: "createdAt" as const,
   examples: "examples" as const,
+  isContinued: "isContinued" as const,
   messageId: "messageId" as const,
+  model: "model" as const,
   prompt: "prompt" as const,
   role: "role" as const,
+  shortLink: "shortLink" as const,
   slug: "slug" as const,
   thinking: "thinking" as const,
   thinkingTraces: "thinkingTraces" as const,
@@ -17635,6 +17739,7 @@ export const enumTagEnumUpdateColumn = {
 export const enumThreadConstraint = {
   thread_id_key: "thread_id_key" as const,
   thread_pkey: "thread_pkey" as const,
+  thread_short_link_key: "thread_short_link_key" as const,
   thread_slug_unique: "thread_slug_unique" as const,
 };
 
@@ -17646,6 +17751,7 @@ export const enumThreadSelectColumn = {
   isPublic: "isPublic" as const,
   model: "model" as const,
   parentThreadId: "parentThreadId" as const,
+  shortLink: "shortLink" as const,
   slug: "slug" as const,
   threadId: "threadId" as const,
   updatedAt: "updatedAt" as const,
@@ -17674,6 +17780,7 @@ export const enumThreadUpdateColumn = {
   isPublic: "isPublic" as const,
   model: "model" as const,
   parentThreadId: "parentThreadId" as const,
+  shortLink: "shortLink" as const,
   slug: "slug" as const,
   threadId: "threadId" as const,
   updatedAt: "updatedAt" as const,
