@@ -13,7 +13,7 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { cn } from '@/lib/utils'
 import type { Message as AiMessage } from 'ai'
 import type { UseChatHelpers } from 'ai/react'
-import { BrainIcon, GlobeIcon, GraduationCap } from 'lucide-react'
+import { BrainIcon, ChevronsLeftRightEllipsis, GlobeIcon, GraduationCap, Workflow } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import type { Chatbot } from 'mb-genql'
 import { useCallback, useState } from 'react'
@@ -65,7 +65,7 @@ export function ChatPanel({
 	const handleContinueGeneration = async () => {
 		await appendWithMbContextPrompts({
 			id: crypto.randomUUID(),
-			role: 'user',
+			role: 'system',
 			content: CONTINUE_GENERATION_PROMPT,
 		})
 
@@ -183,8 +183,8 @@ export function ChatPanel({
 									)}
 									onClick={() => handleContinueGeneration()}
 								>
-									<IconRefresh className="transition-all" />
-									<span className={hiddenAnimationItemClasses}>Continue</span>
+									<ChevronsLeftRightEllipsis className="transition-all" />
+									<span className={hiddenAnimationItemClasses}>Continue message</span>
 								</Button>
 							)}
 							{id && title && (

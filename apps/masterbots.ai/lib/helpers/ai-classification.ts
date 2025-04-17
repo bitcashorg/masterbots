@@ -8,6 +8,7 @@ import type {
 	ExampleMetadata,
 } from '@/types/types'
 import type { Message } from 'ai'
+import { CONTINUE_GENERATION_PROMPT } from '../constants/prompts'
 
 export async function aiExampleClassification({
 	chatMetadata,
@@ -144,6 +145,15 @@ export async function processUserMessage(
 	model: string,
 ): Promise<{ content: string; error?: Error }> {
 	try {
+		if (
+			userPrompt.content.trim().toLowerCase() ===
+			CONTINUE_GENERATION_PROMPT.toLowerCase()
+		) {
+			//? Skip improvement for continuation prompts
+			console.log('Continuation prompt detected, skipping improvement')
+			return { content: CONTINUE_GENERATION_PROMPT }
+		}
+
 		const improved = await improveMessage(userPrompt, clientType, model)
 
 		const processedContent = improved.improvedText || improved.originalText
