@@ -47,6 +47,7 @@ export function ThreadPopup({ className }: { className?: string }) {
 		routeType === 'public' ||
 		routeType === 'profile' ||
 		(routeType === 'bot' && activeThread?.threadId)
+	const isBotView = routeType === 'bot'
 	const chatbotName = activeThread?.chatbot.name
 	const canonicalDomain = getCanonicalDomain(chatbotName || 'prompt')
 
@@ -54,7 +55,9 @@ export function ThreadPopup({ className }: { className?: string }) {
 		<div
 			className={cn(
 				'size-full bg-background/80 dark:bg-background/80',
-				'lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)]',
+				isBotView
+					? ''
+					: 'lg:max-w-[calc(100%-250px)] xl:max-w-[calc(100%-300px)]',
 				'flex justify-center items-center fixed top-16',
 				'h-[calc(100vh-4rem)] backdrop-blur-sm ease-in-out duration-500 z-40',
 				'transition-all',

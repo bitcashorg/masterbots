@@ -42,7 +42,7 @@ export function ProfileAvatar({ thread }: { thread: Thread }) {
 	return (
 		<Tooltip>
 			<TooltipTrigger>
-				{(routeType === 'public' || isAdminMode) && (
+				{(routeType.match(/(public|bot)/) || isAdminMode) && (
 					<Link
 						className="flex transition-all w-16 h-full opacity-100 hover:opacity-80"
 						href={userProfileUrl}

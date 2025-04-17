@@ -1,6 +1,4 @@
-import BrowseChatbotDetails from '@/components/routes/browse/browse-chatbot-details'
-import { BrowseSearchInput } from '@/components/routes/browse/browse-search-input'
-import BrowseSpecificThreadList from '@/components/routes/browse/browse-specific-thread-list'
+import { BotProfileThreadSection } from '@/components/routes/bot/bot-profile-thread-section'
 import { botNames } from '@/lib/constants/bots-names'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { generateMetadataFromSEO } from '@/lib/metadata'
@@ -27,28 +25,11 @@ export default async function BotThreadsPage(props: PageProps) {
 	})
 
 	return (
-		<div className="w-full">
-			{chatbot ? (
-				<BrowseChatbotDetails
-					chatbot={chatbot}
-					variant={chatbot.name ? 'selected' : 'default'}
-				/>
-			) : (
-				''
-			)}
-			<div className="px-6">
-				<BrowseSearchInput />
-			</div>
-			<BrowseSpecificThreadList
-				initialThreads={threads}
-				initialCount={count}
-				PAGE_SIZE={PAGE_SIZE}
-				query={{
-					chatbotName,
-				}}
-				pageType="bot"
-			/>
-		</div>
+		<BotProfileThreadSection
+			threads={threads}
+			count={count}
+			chatbot={chatbot}
+		/>
 	)
 }
 
