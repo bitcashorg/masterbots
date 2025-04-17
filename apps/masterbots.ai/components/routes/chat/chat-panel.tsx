@@ -17,6 +17,7 @@ import { BrainIcon, GlobeIcon, GraduationCap } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import type { Chatbot } from 'mb-genql'
 import { useCallback, useState } from 'react'
+import { useContinueGeneration } from '@/lib/hooks/use-continue-generation'
 
 export interface ChatPanelProps
 	extends Pick<
@@ -55,6 +56,8 @@ export function ChatPanel({
 	const { isPowerUp, togglePowerUp } = usePowerUp()
 	const { isDeepThinking, toggleDeepThinking } = useDeepThinking()
 	const [shareDialogOpen, setShareDialogOpen] = useState(false)
+	const { isCutOff, continueGeneration, lastFinishReason } =
+		useContinueGeneration()
 
 	const isPreProcessing = Boolean(
 		loadingState?.match(/processing|digesting|polishing/),
@@ -160,11 +163,16 @@ export function ChatPanel({
 								<Button
 									variant="outline"
 									size="icon"
-									className={hiddenAnimationClasses}
-									onClick={() => reload()}
+									className={cn(
+										hiddenAnimationClasses,
+										isCutOff && 'bg-yellow-500/10 hover:bg-yellow-500/20 border-yellow-500/30 text-yellow-500'
+									)}
+									onClick={() => (isCutOff ? continueGeneration() : reload())}
 								>
 									<IconRefresh className="transition-all" />
-									<span className={hiddenAnimationItemClasses}>Regenerate</span>
+									<span className={hiddenAnimationItemClasses}>
+										{isCutOff ? 'Continue' : 'Regenerate'}
+									</span>
 								</Button>
 							)}
 							{id && title && (

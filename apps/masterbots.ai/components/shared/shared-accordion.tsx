@@ -12,6 +12,7 @@ import { useSession } from 'next-auth/react'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
+import { CONTINUE_GENERATION_PROMPT } from '@/lib/constants/prompts'
 
 interface SharedAccordionProps
 	extends Omit<React.ComponentProps<'div'>, 'onToggle'> {
@@ -392,7 +393,15 @@ export function SharedAccordion({
 			>
 				<div className="flex w-full">
 					<div className="flex w-full">
-						{Array.isArray(children) && children[0]}
+						{/* //! children[0] is the title, children[1] is the description that we are not longer using  */}
+						{Array.isArray(children) && (
+							<div className="select-text">
+								{typeof children[0] === 'string' &&
+								children[0].includes(CONTINUE_GENERATION_PROMPT)
+									? '(continued...)'
+									: children[0]}
+							</div>
+						)}
 						{!open && Array.isArray(children) && children[1]}
 					</div>
 					{activeThread && (

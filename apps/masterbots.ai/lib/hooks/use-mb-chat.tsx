@@ -63,6 +63,10 @@ import {
 } from 'react'
 import { useSetState } from 'react-use'
 import { useSonner } from './useSonner'
+import {
+	ContinueGenerationProvider,
+	useContinueGeneration,
+} from '@/lib/hooks/use-continue-generation'
 
 export function useMBChat(): MBChatHookCallback {
 	const context = useContext(MBChatContext)
@@ -92,6 +96,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	const { isContinuousThread, setIsContinuousThread } = useThreadVisibility()
 	const { customSonner } = useSonner()
 	const { isPowerUp } = usePowerUp()
+	const { setIsCutOff, setLastFinishReason } = useContinueGeneration()
 	// console.log('[HOOK] webSearch', webSearch)
 
 	const params = useParams<{ chatbot: string; threadSlug: string }>()
@@ -265,6 +270,18 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				}
 				const finalMessage = { ...message }
 
+				//? Check if the generation was cut off
+				const isCutOff = ['length', 'content-filter', 'unknown'].includes(
+					options.finishReason,
+				)
+				setIsCutOff(isCutOff)
+				setLastFinishReason(options.finishReason)
+				if (isCutOff) {
+					customSonner({
+						type: 'info',
+						text: 'The AI generation was cut off. Click on "Continue" to finish the response.',
+					})
+				}
 				if (options.finishReason === 'error') {
 					customSonner({
 						type: 'error',
@@ -884,7 +901,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				},
 			]}
 		>
-			{children}
+			<ContinueGenerationProvider append={appendWithMbContextPrompts}>
+				{children}
+			</ContinueGenerationProvider>
 		</MBChatContext.Provider>
 	)
 }

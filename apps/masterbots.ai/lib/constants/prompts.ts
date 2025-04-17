@@ -219,3 +219,5 @@ export function setDefaultPrompt(userPrompt?: string) {
 		improved: undefined,
 	}
 }
+
+export const CONTINUE_GENERATION_PROMPT = 'Continue from where you cut off'
