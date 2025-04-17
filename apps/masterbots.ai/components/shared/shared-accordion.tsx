@@ -1,3 +1,4 @@
+import { CONTINUE_GENERATION_PROMPT } from '@/lib/constants/prompts'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
@@ -12,7 +13,6 @@ import { useSession } from 'next-auth/react'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
-import { CONTINUE_GENERATION_PROMPT } from '@/lib/constants/prompts'
 
 interface SharedAccordionProps
 	extends Omit<React.ComponentProps<'div'>, 'onToggle'> {
@@ -397,7 +397,9 @@ export function SharedAccordion({
 						{Array.isArray(children) && (
 							<div className="select-text">
 								{typeof children[0] === 'string' &&
-								children[0].toLowerCase().includes(CONTINUE_GENERATION_PROMPT.toLowerCase())
+								children[0]
+									.toLowerCase()
+									.includes(CONTINUE_GENERATION_PROMPT.toLowerCase())
 									? '(continued...)'
 									: children[0]}
 							</div>

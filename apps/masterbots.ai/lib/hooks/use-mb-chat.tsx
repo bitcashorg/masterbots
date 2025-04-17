@@ -18,6 +18,10 @@ import {
 	type FileAttachment,
 	getUserIndexedDBKeys,
 } from '@/lib/hooks/use-chat-attachments'
+import {
+	ContinueGenerationProvider,
+	useContinueGeneration,
+} from '@/lib/hooks/use-continue-generation'
 import { useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useModel } from '@/lib/hooks/use-model'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
@@ -63,10 +67,6 @@ import {
 } from 'react'
 import { useSetState } from 'react-use'
 import { useSonner } from './useSonner'
-import {
-	ContinueGenerationProvider,
-	useContinueGeneration,
-} from '@/lib/hooks/use-continue-generation'
 
 export function useMBChat(): MBChatHookCallback {
 	const context = useContext(MBChatContext)

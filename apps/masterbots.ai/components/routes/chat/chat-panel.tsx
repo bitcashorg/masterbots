@@ -7,7 +7,10 @@ import { FeatureToggle } from '@/components/shared/feature-toggle'
 import { LoadingIndicator } from '@/components/shared/loading-indicator'
 import { Button } from '@/components/ui/button'
 import { IconRefresh, IconShare, IconStop } from '@/components/ui/icons'
+import { CONTINUE_GENERATION_PROMPT } from '@/lib/constants/prompts'
+import { useContinueGeneration } from '@/lib/hooks/use-continue-generation'
 import { useDeepThinking } from '@/lib/hooks/use-deep-thinking'
+import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn } from '@/lib/utils'
@@ -23,9 +26,6 @@ import {
 import { appConfig } from 'mb-env'
 import type { Chatbot } from 'mb-genql'
 import { useCallback, useState } from 'react'
-import { useContinueGeneration } from '@/lib/hooks/use-continue-generation'
-import { useMBChat } from '@/lib/hooks/use-mb-chat'
-import { CONTINUE_GENERATION_PROMPT } from '@/lib/constants/prompts'
 
 export interface ChatPanelProps
 	extends Pick<

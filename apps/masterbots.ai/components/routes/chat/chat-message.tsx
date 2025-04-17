@@ -118,7 +118,6 @@ export function ChatMessage({
 					{cleanMessage.content}
 				</MemoizedReactMarkdown>
 
-
 				{actionRequired && (
 					<ChatMessageActions className="md:!right-0" message={message} />
 				)}

@@ -41,8 +41,8 @@ export function Providers({ children, ...props }: ProvidersProps) {
 												<ThreadSearchProvider>
 													<ThreadProvider>
 														<ThreadVisibilityProvider>
-														<ContinueGenerationProvider>
-															<MBChatProvider>{children}</MBChatProvider>
+															<ContinueGenerationProvider>
+																<MBChatProvider>{children}</MBChatProvider>
 															</ContinueGenerationProvider>
 														</ThreadVisibilityProvider>
 													</ThreadProvider>

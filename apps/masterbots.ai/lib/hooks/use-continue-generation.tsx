@@ -1,7 +1,10 @@
 'use client'
 
-import { createContext, useContext, useState, useRef } from 'react'
-import {CONTINUE_GENERATION_PROMPT, CONTINUE_GENERATION_PROMPT_2} from '@/lib/constants/prompts';
+import {
+	CONTINUE_GENERATION_PROMPT,
+	CONTINUE_GENERATION_PROMPT_2,
+} from '@/lib/constants/prompts'
+import { createContext, useContext, useRef, useState } from 'react'
 interface ContinueGenerationContextType {
 	isCutOff: boolean
 	setIsCutOff: (value: boolean) => void
@@ -43,7 +46,9 @@ export function ContinueGenerationProvider({
 
 	//? Get appropriate continuation prompt based on continuation count
 	const getContinuationPrompt = () => {
-		return continuationCountRef.current <= 1 ? CONTINUE_GENERATION_PROMPT : CONTINUE_GENERATION_PROMPT_2
+		return continuationCountRef.current <= 1
+			? CONTINUE_GENERATION_PROMPT
+			: CONTINUE_GENERATION_PROMPT_2
 	}
 
 	return (
