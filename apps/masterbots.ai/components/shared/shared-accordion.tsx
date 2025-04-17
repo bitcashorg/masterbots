@@ -9,7 +9,7 @@ import { ChevronDown } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import type { Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
-import { useParams, usePathname, useRouter } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 
@@ -221,7 +221,7 @@ export function SharedAccordion({
 			// console.log("Reach here")
 			setIsOpenPopup(true)
 		} else if (isMainThread && profilePage) {
-			if (appConfig.features.ProfileNBotPageHasPopup) {
+			if (appConfig.features.profileNBotPageHasPopup) {
 				const offset = 400 // How much to scroll down
 				const scrollContainer = document.getElementById('thread-scroll-section')
 				if (isHeroInView && scrollContainer) {
@@ -258,7 +258,7 @@ export function SharedAccordion({
 			})
 		} else if (isMainThread && botProfile) {
 			// Bot profile page navigation
-			if (appConfig.features.ProfileNBotPageHasPopup) {
+			if (appConfig.features.profileNBotPageHasPopup) {
 				const offset = 400 // How much to scroll down
 				const scrollContainer = document.getElementById('thread-scroll-section')
 				if (isHeroInView && scrollContainer) {

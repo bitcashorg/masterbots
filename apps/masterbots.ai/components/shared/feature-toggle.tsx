@@ -88,9 +88,9 @@ export function FeatureToggle({
 						checked={isActive}
 						onClick={handleToggle}
 						className={cn(
-							"inline-flex items-center p-1 overflow-hidden transition-all delay-100 rounded-full size-auto",
+							'inline-flex items-center p-1 overflow-hidden transition-all delay-100 rounded-full size-auto',
 							isActive && colorClasses.border,
-							isActive && colorClasses.background
+							isActive && colorClasses.background,
 						)}
 						checkboxconfig={{
 							check: (
