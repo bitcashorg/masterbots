@@ -88,13 +88,13 @@ export function FeatureToggle({
 						checked={isActive}
 						onClick={handleToggle}
 						className={cn(
-							"inline-flex items-center p-1 overflow-hidden transition-all delay-100 rounded-full size-auto",
+							'inline-flex items-center p-1 overflow-hidden transition-all delay-100 rounded-full size-auto',
 							isActive && colorClasses.border,
-							isActive && colorClasses.background
+							isActive && colorClasses.background,
 						)}
 						checkboxconfig={{
 							check: (
-								<div className="rounded-full p-0.5">
+								<div className="rounded-full">
 									{/* biome-ignore lint/suspicious/noExplicitAny: <explanation> */}
 									{React.cloneElement(activeIcon as React.ReactElement<any>, {
 										className: cn(
