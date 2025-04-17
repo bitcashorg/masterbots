@@ -17,6 +17,7 @@ import {
 	type Attribute,
 	ThemeProvider as NextThemesProvider,
 } from 'next-themes'
+import { ContinueProvider } from '@/lib/hooks/use-continue';
 
 type ProvidersProps = {
 	children: React.ReactNode
@@ -40,7 +41,9 @@ export function Providers({ children, ...props }: ProvidersProps) {
 												<ThreadSearchProvider>
 													<ThreadProvider>
 														<ThreadVisibilityProvider>
+															<ContinueProvider>
 															<MBChatProvider>{children}</MBChatProvider>
+															</ContinueProvider>
 														</ThreadVisibilityProvider>
 													</ThreadProvider>
 												</ThreadSearchProvider>

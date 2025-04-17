@@ -1,3 +1,4 @@
+import { useContinue } from '@/lib/hooks/use-continue'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
@@ -67,6 +68,8 @@ export function SharedAccordion({
 		null,
 	)
 	const { isAdminMode } = useThreadVisibility()
+	const [continuationState] = useContinue()
+
 
 	const pathname = usePathname()
 	const params = useParams()
@@ -392,6 +395,7 @@ export function SharedAccordion({
 			>
 				<div className="flex w-full">
 					<div className="flex w-full">
+						{/* Thread tittle are created here and are always the first child */}
 						{Array.isArray(children) && children[0]}
 						{!open && Array.isArray(children) && children[1]}
 					</div>
