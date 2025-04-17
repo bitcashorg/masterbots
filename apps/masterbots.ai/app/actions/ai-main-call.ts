@@ -359,7 +359,7 @@ export async function createResponseStream(
 				if (appConfig.features.experimentalAiConfig) {
 					// @ts-ignore: It does exist in the config
 					openAiStreamConfig.experimental_transform = smoothStream({
-						delayInMs: 30,
+						delayInMs: appConfig.features.experimentalStreamDelayMs,
 						chunking: 'line',
 					})
 				}
