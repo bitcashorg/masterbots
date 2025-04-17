@@ -94,7 +94,7 @@ export function FeatureToggle({
 						)}
 						checkboxconfig={{
 							check: (
-								<div className="rounded-full p-0.5">
+								<div className="rounded-full">
 									{/* biome-ignore lint/suspicious/noExplicitAny: <explanation> */}
 									{React.cloneElement(activeIcon as React.ReactElement<any>, {
 										className: cn(

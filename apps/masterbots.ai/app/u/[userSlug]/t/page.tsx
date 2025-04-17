@@ -91,7 +91,7 @@ export async function generateMetadata(props: {
 		title: user?.username || '',
 		description: user?.username || '',
 		ogType: 'website',
-		ogImageUrl: user ? `/api/og/user/${encodeURIComponent(user.username)}` : '',
+		ogImageUrl: user ? `/api/og?userSlug=${params.userSlug}` : '',
 		twitterCard: 'summary_large_image',
 	}
 

@@ -32,6 +32,7 @@ import ThreadList from '@/components/routes/thread/thread-list'
 import { NoResults } from '@/components/shared/no-results-card'
 import { ThreadSearchInput } from '@/components/shared/shared-search'
 import { Skeleton } from '@/components/ui/skeleton'
+import { botNames } from '@/lib/constants/bots-names'
 import { PAGE_SIZE, PAGE_SM_SIZE } from '@/lib/constants/hasura'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
@@ -40,11 +41,12 @@ import { searchThreadContent } from '@/lib/search'
 import { cn } from '@/lib/utils'
 import {
 	getBrowseThreads,
+	getCategory,
 	getThread,
 	getThreads,
 	getUserBySlug,
 } from '@/services/hasura'
-import { debounce } from 'lodash'
+import { debounce, uniqBy } from 'lodash'
 import type { Thread, User } from 'mb-genql'
 import type { Session } from 'next-auth'
 import { useSession } from 'next-auth/react'
@@ -70,6 +72,7 @@ export default function UserThreadPanel({
 		userSlug?: string
 		category?: string
 		chatbot?: string
+		botSlug?: string
 		threadSlug?: string
 	}>()
 	const { data: session } = useSession()
@@ -91,7 +94,7 @@ export default function UserThreadPanel({
 	} = useThreadVisibility()
 	const [searchTerm, setSearchTerm] = useState<string>('')
 	const searchParams = useSearchParams()
-	const { userSlug, category, chatbot } = params
+	const { userSlug, category, chatbot, botSlug } = params
 	const continuousThreadId = searchParams.get('continuousThreadId')
 	const [adminThreads, setAdminThreads] = useState<Thread[]>(initialThreads)
 	const isPublic = !/^\/(?:c|u)(?:\/|$)/.test(usePathname())
@@ -119,13 +122,24 @@ export default function UserThreadPanel({
 	})
 	const { totalThreads } = state
 
-	const fetchBrowseThreads = async () => {
+	const fetchBrowseThreads = async ({
+		offset = 0,
+	}: {
+		offset?: number
+	} = {}) => {
 		try {
+			const botSlugs = await botNames
+			const chatbotName =
+				botSlugs.get(chatbot as string) || botSlugs.get(botSlug as string) || ''
+			const categoryResponse = await getCategory({
+				chatbotName,
+			})
+
 			return await getBrowseThreads({
 				userId: userWithSlug.value?.user?.userId,
-				categoryId: activeCategory,
-				chatbotName: activeChatbot?.name,
-				offset: threads.length,
+				categoryId: activeCategory || categoryResponse?.categoryId,
+				chatbotName: activeChatbot?.name || chatbotName,
+				offset,
 				limit: PAGE_SIZE,
 			})
 		} catch (error) {
@@ -147,7 +161,9 @@ export default function UserThreadPanel({
 		const userOnSlug = userWithSlug.value?.user
 		const isOwnProfile = session?.user?.id === userOnSlug?.userId
 		if ((page === 'profile' && !session?.user) || !isOwnProfile) {
-			moreThreads = await fetchBrowseThreads()
+			moreThreads = await fetchBrowseThreads({
+				offset: threads.length,
+			})
 		} else {
 			moreThreads = await getThreads({
 				jwt: session?.user?.hasuraJwt as string,
@@ -160,7 +176,10 @@ export default function UserThreadPanel({
 			})
 		}
 		setState((prevState) => {
-			const newThreads = [...prevState.threads, ...(moreThreads?.threads || [])]
+			const newThreads = uniqBy(
+				[...prevState.threads, ...(moreThreads?.threads || [])],
+				'threadId',
+			)
 			return {
 				threads: newThreads,
 				count: moreThreads.count,
@@ -218,6 +237,17 @@ export default function UserThreadPanel({
 		}
 	}, [hookThreads])
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: This effect should run only when the pathname changes (component unmount)
+	useEffect(() => {
+		return () => {
+			setActiveChatbot(null)
+			setActiveThread(null)
+			setIsOpenPopup(false)
+			setShouldRefreshThreads(false)
+			setSearchTerm('')
+		}
+	}, [])
+
 	const count =
 		state.count > initialCount || isAdminMode || searchTerm
 			? state.count
@@ -260,14 +290,21 @@ export default function UserThreadPanel({
 				return
 			}
 
+			const botSlugs = await botNames
+			const chatbotName =
+				botSlugs.get(chatbot as string) || botSlugs.get(botSlug as string) || ''
+			const categoryResponse = await getCategory({
+				chatbotName,
+			})
 			const currentFetchId = Date.now() // Generate a unique identifier for the current fetch
 			fetchIdRef.current = currentFetchId
+
 			const { threads: newThreads, count } = await getThreads({
 				jwt: session?.user?.hasuraJwt,
 				userId: session?.user.id,
 				limit: PAGE_SIZE,
-				categoryId: activeCategory,
-				chatbotName: activeChatbot?.name,
+				categoryId: categoryResponse?.categoryId || activeCategory,
+				chatbotName: chatbotName || activeChatbot?.name,
 				isAdminMode,
 			})
 

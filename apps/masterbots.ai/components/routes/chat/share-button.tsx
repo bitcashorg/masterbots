@@ -43,7 +43,7 @@ export function ShareButton({ url, ...props }: ShareButtonProps) {
 			// biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
 			let content
 			const { data, error } = await generateShortLink(url)
-			if (data !== null) {
+			if (data?.shortLink) {
 				content = data.shortLink
 			} else {
 				content = process.env.NEXT_PUBLIC_BASE_URL + url

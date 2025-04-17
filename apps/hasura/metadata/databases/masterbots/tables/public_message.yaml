@@ -37,9 +37,12 @@ insert_permissions:
         - content
         - created_at
         - examples
+        - isContinued
         - message_id
+        - model
         - prompt
         - role
+        - short_link
         - slug
         - thinking
         - thinking_traces
@@ -56,10 +59,12 @@ insert_permissions:
         - content
         - created_at
         - examples
+        - isContinued
         - message_id
+        - model
         - prompt
         - role
-        - role
+        - short_link
         - slug
         - thinking
         - thinking_traces
@@ -73,9 +78,12 @@ select_permissions:
         - content
         - created_at
         - examples
+        - isContinued
         - message_id
+        - model
         - prompt
         - role
+        - short_link
         - slug
         - thinking
         - thinking_traces
@@ -90,9 +98,12 @@ select_permissions:
         - content
         - created_at
         - examples
+        - isContinued
         - message_id
+        - model
         - prompt
         - role
+        - short_link
         - slug
         - thinking
         - thinking_traces
@@ -107,9 +118,12 @@ select_permissions:
         - content
         - created_at
         - examples
+        - isContinued
         - message_id
+        - model
         - prompt
         - role
+        - short_link
         - slug
         - thinking
         - thinking_traces
@@ -122,6 +136,7 @@ update_permissions:
     permission:
       columns:
         - content
+        - short_link
       filter: {}
       check: null
     comment: ""
@@ -129,6 +144,7 @@ update_permissions:
     permission:
       columns:
         - content
+        - short_link
       filter:
         thread:
           user_id:

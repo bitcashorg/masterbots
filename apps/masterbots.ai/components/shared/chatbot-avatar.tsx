@@ -19,7 +19,7 @@ export function ChatbotAvatar({ thread }: { thread: Thread }) {
 	return (
 		<Tooltip>
 			<TooltipTrigger asChild>
-				{routeType === 'public' || isAdminMode ? (
+				{routeType.match(/(public|profile)/) || isAdminMode ? (
 					<Link
 						href={`/b/${toSlug(thread.chatbot?.name)}`}
 						className="transition-all flex items-start leading-[1.6rem] gap-2 text-sm text-foreground/50 w-max hover:text-foreground"

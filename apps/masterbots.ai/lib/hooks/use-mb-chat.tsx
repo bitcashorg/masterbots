@@ -170,7 +170,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const initialMessages: AiMessage[] = useMemo(
 		() => systemPrompts.concat(userAndAssistantMessages),
-		[activeChatbot],
+		[activeChatbot, activeThread],
 	)
 	const threadId = isContinuousThread
 		? randomThreadId.current
