@@ -33,8 +33,6 @@ export function BotProfileThreadSection({
 					page="profile"
 				/>
 			</div>
-			{/* 
-			<ThreadPopup className={isOpenPopup ? '' : 'hidden'} /> */}
 		</div>
 	)
 }
