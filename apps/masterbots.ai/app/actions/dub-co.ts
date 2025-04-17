@@ -1,6 +1,11 @@
 'use server'
 
-import { getMessages, getThread } from '@/services/hasura'
+import {
+	getMessages,
+	getThread,
+	updateMessageShortLink,
+	updateThreadShortLink,
+} from '@/services/hasura'
 import axios from 'axios'
 import { cookies } from 'next/headers'
 
@@ -14,12 +19,16 @@ export async function generateShortLink(path: string) {
 			pathParts[pathParts.length - 1]
 		const thread = await getThread({ threadSlug })
 		const messages = await getMessages({ threadQuestionSlug })
-		// TODO: Create shortLink for thread and messages
-		// const threadShortLink = thread?.shortLink
-		// const messagesShortLink = messages?.shortLink
-		// if (threadShortLink || messagesShortLink) {
-		// 	return threadShortLink || messagesShortLink
-		// }
+		const threadShortLink = thread?.shortLink
+		const messagesShortLink = messages[0]?.shortLink
+		if (threadShortLink || messagesShortLink) {
+			return {
+				data: {
+					shortLink: threadShortLink || messagesShortLink || '',
+				},
+				error: null,
+			}
+		}
 		const resolved: DubShareLinkResponse = await axios
 			.post(
 				`https://api.dub.co/links?workspaceId=${process.env.DUB_WORKSPACE_ID}`,
@@ -37,6 +46,17 @@ export async function generateShortLink(path: string) {
 			.then((res) => res.data)
 
 		if (!resolved) throw new Error('Failed to generate short link')
+		if (threadQuestionSlug) {
+			await updateMessageShortLink({
+				slug: threadQuestionSlug,
+				shortLink: resolved.shortLink,
+			})
+		} else {
+			await updateThreadShortLink({
+				slug: threadSlug,
+				shortLink: resolved.shortLink,
+			})
+		}
 
 		return {
 			data: {

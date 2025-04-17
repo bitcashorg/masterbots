@@ -50,6 +50,7 @@ export interface CreateThreadParams extends HasuraServiceParams {
 	slug: string
 	userId: string
 	isPublic?: boolean
+	shortLink?: string
 	parentThreadId?: string
 }
 

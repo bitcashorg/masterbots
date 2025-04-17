@@ -4032,6 +4032,7 @@ type Message {
     """
     path: String
   ): jsonb
+  isContinued: Boolean
 
   """
   An object relationship
@@ -4103,8 +4104,15 @@ type Message {
     """
     where: MessageBoolExp
   ): MessageAggregate!
+  model: String
+
+  """
+  An object relationship
+  """
+  modelType: ModelsEnum
   prompt: String
   role: String!
+  shortLink: String
   slug: String!
   thinking: String
   thinkingTraces: [String!]
@@ -4125,6 +4133,8 @@ type MessageAggregate {
 }
 
 input MessageAggregateBoolExp {
+  bool_and: messageAggregateBoolExpBool_and
+  bool_or: messageAggregateBoolExpBool_or
   count: messageAggregateBoolExpCount
 }
 
@@ -4176,13 +4186,17 @@ input MessageBoolExp {
   content: StringComparisonExp
   createdAt: TimestamptzComparisonExp
   examples: JsonbComparisonExp
+  isContinued: BooleanComparisonExp
   message: MessageBoolExp
   messageId: UuidComparisonExp
   messageTypeEnum: MessageTypeEnumBoolExp
   messages: MessageBoolExp
   messagesAggregate: MessageAggregateBoolExp
+  model: StringComparisonExp
+  modelType: ModelsEnumBoolExp
   prompt: StringComparisonExp
   role: StringComparisonExp
+  shortLink: StringComparisonExp
   slug: StringComparisonExp
   thinking: StringComparisonExp
   thinkingTraces: StringArrayComparisonExp
@@ -4203,6 +4217,11 @@ enum MessageConstraint {
   unique or primary key constraint on columns "slug", "message_id"
   """
   message_pkey
+
+  """
+  unique or primary key constraint on columns "short_link"
+  """
+  message_short_link_key
 
   """
   unique or primary key constraint on columns "slug"
@@ -4239,12 +4258,16 @@ input MessageInsertInput {
   content: String
   createdAt: timestamptz
   examples: jsonb
+  isContinued: Boolean
   message: MessageObjRelInsertInput
   messageId: uuid
   messageTypeEnum: MessageTypeEnumObjRelInsertInput
   messages: MessageArrRelInsertInput
+  model: String
+  modelType: ModelsEnumObjRelInsertInput
   prompt: String
   role: String
+  shortLink: String
   slug: String
   thinking: String
   thinkingTraces: [String!]
@@ -4260,8 +4283,10 @@ type MessageMaxFields {
   content: String
   createdAt: timestamptz
   messageId: uuid
+  model: String
   prompt: String
   role: String
+  shortLink: String
   slug: String
   thinking: String
   thinkingTraces: [String!]
@@ -4276,8 +4301,10 @@ input MessageMaxOrderBy {
   content: OrderBy
   createdAt: OrderBy
   messageId: OrderBy
+  model: OrderBy
   prompt: OrderBy
   role: OrderBy
+  shortLink: OrderBy
   slug: OrderBy
   thinking: OrderBy
   thinkingTraces: OrderBy
@@ -4292,8 +4319,10 @@ type MessageMinFields {
   content: String
   createdAt: timestamptz
   messageId: uuid
+  model: String
   prompt: String
   role: String
+  shortLink: String
   slug: String
   thinking: String
   thinkingTraces: [String!]
@@ -4308,8 +4337,10 @@ input MessageMinOrderBy {
   content: OrderBy
   createdAt: OrderBy
   messageId: OrderBy
+  model: OrderBy
   prompt: OrderBy
   role: OrderBy
+  shortLink: OrderBy
   slug: OrderBy
   thinking: OrderBy
   thinkingTraces: OrderBy
@@ -4360,12 +4391,16 @@ input MessageOrderBy {
   content: OrderBy
   createdAt: OrderBy
   examples: OrderBy
+  isContinued: OrderBy
   message: MessageOrderBy
   messageId: OrderBy
   messageTypeEnum: MessageTypeEnumOrderBy
   messagesAggregate: MessageAggregateOrderBy
+  model: OrderBy
+  modelType: ModelsEnumOrderBy
   prompt: OrderBy
   role: OrderBy
+  shortLink: OrderBy
   slug: OrderBy
   thinking: OrderBy
   thinkingTraces: OrderBy
@@ -4415,7 +4450,17 @@ enum MessageSelectColumn {
   """
   column name
   """
+  isContinued
+
+  """
+  column name
+  """
   messageId
+
+  """
+  column name
+  """
+  model
 
   """
   column name
@@ -4426,6 +4471,11 @@ enum MessageSelectColumn {
   column name
   """
   role
+
+  """
+  column name
+  """
+  shortLink
 
   """
   column name
@@ -4449,6 +4499,26 @@ enum MessageSelectColumn {
 }
 
 """
+select "messageAggregateBoolExpBool_andArgumentsColumns" columns of table "message"
+"""
+enum MessageSelectColumnMessageAggregateBoolExpBool_andArgumentsColumns {
+  """
+  column name
+  """
+  isContinued
+}
+
+"""
+select "messageAggregateBoolExpBool_orArgumentsColumns" columns of table "message"
+"""
+enum MessageSelectColumnMessageAggregateBoolExpBool_orArgumentsColumns {
+  """
+  column name
+  """
+  isContinued
+}
+
+"""
 input type for updating data in table "message"
 """
 input MessageSetInput {
@@ -4456,9 +4526,12 @@ input MessageSetInput {
   content: String
   createdAt: timestamptz
   examples: jsonb
+  isContinued: Boolean
   messageId: uuid
+  model: String
   prompt: String
   role: String
+  shortLink: String
   slug: String
   thinking: String
   thinkingTraces: [String!]
@@ -4488,9 +4561,12 @@ input MessageStreamCursorValueInput {
   content: String
   createdAt: timestamptz
   examples: jsonb
+  isContinued: Boolean
   messageId: uuid
+  model: String
   prompt: String
   role: String
+  shortLink: String
   slug: String
   thinking: String
   thinkingTraces: [String!]
@@ -4763,7 +4839,17 @@ enum MessageUpdateColumn {
   """
   column name
   """
+  isContinued
+
+  """
+  column name
+  """
   messageId
+
+  """
+  column name
+  """
+  model
 
   """
   column name
@@ -4774,6 +4860,11 @@ enum MessageUpdateColumn {
   column name
   """
   role
+
+  """
+  column name
+  """
+  shortLink
 
   """
   column name
@@ -8949,6 +9040,7 @@ type Thread {
   """
   modelsEnum: ModelsEnum!
   parentThreadId: uuid
+  shortLink: String
   slug: String!
 
   """
@@ -9117,6 +9209,7 @@ input ThreadBoolExp {
   model: ModelsEnumEnumComparisonExp
   modelsEnum: ModelsEnumBoolExp
   parentThreadId: UuidComparisonExp
+  shortLink: StringComparisonExp
   slug: StringComparisonExp
   thread: ThreadBoolExp
   threadId: UuidComparisonExp
@@ -9140,6 +9233,11 @@ enum ThreadConstraint {
   unique or primary key constraint on columns "slug", "thread_id"
   """
   thread_pkey
+
+  """
+  unique or primary key constraint on columns "short_link"
+  """
+  thread_short_link_key
 
   """
   unique or primary key constraint on columns "slug"
@@ -9168,6 +9266,7 @@ input ThreadInsertInput {
   model: ModelsEnumEnum
   modelsEnum: ModelsEnumObjRelInsertInput
   parentThreadId: uuid
+  shortLink: String
   slug: String
   thread: ThreadObjRelInsertInput
   threadId: uuid
@@ -9184,6 +9283,7 @@ type ThreadMaxFields {
   chatbotId: Int
   createdAt: timestamptz
   parentThreadId: uuid
+  shortLink: String
   slug: String
   threadId: uuid
   updatedAt: timestamptz
@@ -9197,6 +9297,7 @@ input ThreadMaxOrderBy {
   chatbotId: OrderBy
   createdAt: OrderBy
   parentThreadId: OrderBy
+  shortLink: OrderBy
   slug: OrderBy
   threadId: OrderBy
   updatedAt: OrderBy
@@ -9210,6 +9311,7 @@ type ThreadMinFields {
   chatbotId: Int
   createdAt: timestamptz
   parentThreadId: uuid
+  shortLink: String
   slug: String
   threadId: uuid
   updatedAt: timestamptz
@@ -9223,6 +9325,7 @@ input ThreadMinOrderBy {
   chatbotId: OrderBy
   createdAt: OrderBy
   parentThreadId: OrderBy
+  shortLink: OrderBy
   slug: OrderBy
   threadId: OrderBy
   updatedAt: OrderBy
@@ -9279,6 +9382,7 @@ input ThreadOrderBy {
   model: OrderBy
   modelsEnum: ModelsEnumOrderBy
   parentThreadId: OrderBy
+  shortLink: OrderBy
   slug: OrderBy
   thread: ThreadOrderBy
   threadId: OrderBy
@@ -9334,6 +9438,11 @@ enum ThreadSelectColumn {
   column name
   """
   parentThreadId
+
+  """
+  column name
+  """
+  shortLink
 
   """
   column name
@@ -9407,6 +9516,7 @@ input ThreadSetInput {
   isPublic: Boolean
   model: ModelsEnumEnum
   parentThreadId: uuid
+  shortLink: String
   slug: String
   threadId: uuid
   updatedAt: timestamptz
@@ -9481,6 +9591,7 @@ input ThreadStreamCursorValueInput {
   isPublic: Boolean
   model: ModelsEnumEnum
   parentThreadId: uuid
+  shortLink: String
   slug: String
   threadId: uuid
   updatedAt: timestamptz
@@ -9539,6 +9650,11 @@ enum ThreadUpdateColumn {
   column name
   """
   parentThreadId
+
+  """
+  column name
+  """
+  shortLink
 
   """
   column name
@@ -11814,6 +11930,20 @@ input exampleAggregateBoolExpCount {
 }
 
 scalar jsonb
+
+input messageAggregateBoolExpBool_and {
+  arguments: MessageSelectColumnMessageAggregateBoolExpBool_andArgumentsColumns!
+  distinct: Boolean
+  filter: MessageBoolExp
+  predicate: BooleanComparisonExp!
+}
+
+input messageAggregateBoolExpBool_or {
+  arguments: MessageSelectColumnMessageAggregateBoolExpBool_orArgumentsColumns!
+  distinct: Boolean
+  filter: MessageBoolExp
+  predicate: BooleanComparisonExp!
+}
 
 input messageAggregateBoolExpCount {
   arguments: [MessageSelectColumn!]

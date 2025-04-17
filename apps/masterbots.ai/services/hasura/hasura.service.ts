@@ -475,6 +475,65 @@ export async function getThread({
 	}
 }
 
+export async function updateThreadShortLink({
+	slug,
+	shortLink,
+}: Partial<CreateThreadParams>) {
+	const client = getHasuraClient({})
+	const { updateThread } = await client.mutation({
+		updateThread: {
+			__args: {
+				where: { slug: { _eq: slug } },
+				_set: {
+					shortLink,
+				},
+			},
+			returning: {
+				slug: true,
+				shortLink: true,
+			},
+			affectedRows: true,
+		},
+	})
+
+	if (!updateThread) {
+		throw new Error('Failed to update thread')
+	}
+
+	return updateThread.returning[0] as Thread
+}
+
+export async function updateMessageShortLink({
+	slug,
+	shortLink,
+}: {
+	slug: string
+	shortLink: string
+}) {
+	const client = getHasuraClient({})
+	const { updateMessage } = await client.mutation({
+		updateMessage: {
+			__args: {
+				where: { slug: { _eq: slug } },
+				_set: {
+					shortLink,
+				},
+			},
+			returning: {
+				messageId: true,
+				shortLink: true,
+			},
+			affectedRows: true,
+		},
+	})
+
+	if (!updateMessage) {
+		throw new Error('Failed to update message')
+	}
+
+	return updateMessage.returning[0] as Message
+}
+
 export async function saveNewMessage({
 	jwt,
 	...object
