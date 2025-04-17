@@ -179,17 +179,12 @@ export function ChatPanel({
 									size="icon"
 									className={cn(
 										hiddenAnimationClasses,
-										isCutOff &&
-											'bg-yellow-500/10 hover:bg-yellow-500/20 border-yellow-500/30 text-yellow-500',
+										'bg-yellow-500/10 hover:bg-yellow-500/20 border-yellow-500/30 text-yellow-500',
 									)}
-									onClick={() =>
-										isCutOff ? handleContinueGeneration() : reload()
-									}
+									onClick={() => handleContinueGeneration()}
 								>
 									<IconRefresh className="transition-all" />
-									<span className={hiddenAnimationItemClasses}>
-										{isCutOff ? 'Continue' : 'Regenerate'}
-									</span>
+									<span className={hiddenAnimationItemClasses}>Continue</span>
 								</Button>
 							)}
 							{id && title && (

@@ -220,4 +220,4 @@ export function setDefaultPrompt(userPrompt?: string) {
 	}
 }
 
-export const CONTINUE_GENERATION_PROMPT = 'Continue from where you cut off'
+export const CONTINUE_GENERATION_PROMPT = 'Please continue your explanation from where you left off.'

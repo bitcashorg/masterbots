@@ -397,7 +397,7 @@ export function SharedAccordion({
 						{Array.isArray(children) && (
 							<div className="select-text">
 								{typeof children[0] === 'string' &&
-								children[0].includes(CONTINUE_GENERATION_PROMPT)
+								children[0].toLowerCase().includes(CONTINUE_GENERATION_PROMPT.toLowerCase())
 									? '(continued...)'
 									: children[0]}
 							</div>
