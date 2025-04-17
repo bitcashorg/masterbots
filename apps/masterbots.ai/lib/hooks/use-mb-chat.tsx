@@ -271,9 +271,12 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				const finalMessage = { ...message }
 
 				//? Check if the generation was cut off
-				const isCutOff = ['length', 'content-filter', 'unknown'].includes(
-					options.finishReason,
-				)
+				const isCutOff = [
+					'length',
+					'content-filter',
+					'error',
+					'unknown',
+				].includes(options.finishReason)
 				setIsCutOff(isCutOff)
 				setLastFinishReason(options.finishReason)
 				if (isCutOff) {
@@ -901,9 +904,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				},
 			]}
 		>
-			<ContinueGenerationProvider append={appendWithMbContextPrompts}>
-				{children}
-			</ContinueGenerationProvider>
+			{children}
 		</MBChatContext.Provider>
 	)
 }

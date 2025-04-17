@@ -1,9 +1,6 @@
 'use client'
 
 import { createContext, useContext, useState } from 'react'
-import type { Message } from 'ai'
-import { CONTINUE_GENERATION_PROMPT } from '@/lib/constants/prompts'
-
 interface ContinueGenerationContextType {
 	isCutOff: boolean
 	setIsCutOff: (value: boolean) => void
@@ -28,28 +25,15 @@ export function useContinueGeneration() {
 
 export function ContinueGenerationProvider({
 	children,
-	append,
 }: {
 	children: React.ReactNode
-	append: (
-		message: Message,
-		options?: any,
-	) => Promise<string | null | undefined>
 }) {
 	const [isCutOff, setIsCutOff] = useState(false)
 	const [lastFinishReason, setLastFinishReason] = useState<string | null>(null)
 
 	//? Function to handle continuing generation
 	const continueGeneration = async () => {
-		if (!isCutOff) return
-
-		//? Send a message to continue the generation
-		await append({
-			id: crypto.randomUUID(),
-			role: 'user',
-			content: CONTINUE_GENERATION_PROMPT,
-		})
-
+		console.log('Continue generation function called')
 		//? Reset the cut-off state
 		setIsCutOff(false)
 	}

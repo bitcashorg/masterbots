@@ -18,6 +18,8 @@ import { appConfig } from 'mb-env'
 import type { Chatbot } from 'mb-genql'
 import { useCallback, useState } from 'react'
 import { useContinueGeneration } from '@/lib/hooks/use-continue-generation'
+import { useMBChat } from '@/lib/hooks/use-mb-chat'
+import { CONTINUE_GENERATION_PROMPT } from '@/lib/constants/prompts'
 
 export interface ChatPanelProps
 	extends Pick<
@@ -58,6 +60,18 @@ export function ChatPanel({
 	const [shareDialogOpen, setShareDialogOpen] = useState(false)
 	const { isCutOff, continueGeneration, lastFinishReason } =
 		useContinueGeneration()
+	const [, { appendWithMbContextPrompts }] = useMBChat()
+
+	const handleContinueGeneration = async () => {
+		await appendWithMbContextPrompts({
+			id: crypto.randomUUID(),
+			role: 'user',
+			content: CONTINUE_GENERATION_PROMPT,
+		})
+
+		//? Call the context's function to reset state
+		continueGeneration()
+	}
 
 	const isPreProcessing = Boolean(
 		loadingState?.match(/processing|digesting|polishing/),
@@ -165,9 +179,12 @@ export function ChatPanel({
 									size="icon"
 									className={cn(
 										hiddenAnimationClasses,
-										isCutOff && 'bg-yellow-500/10 hover:bg-yellow-500/20 border-yellow-500/30 text-yellow-500'
+										isCutOff &&
+											'bg-yellow-500/10 hover:bg-yellow-500/20 border-yellow-500/30 text-yellow-500',
 									)}
-									onClick={() => (isCutOff ? continueGeneration() : reload())}
+									onClick={() =>
+										isCutOff ? handleContinueGeneration() : reload()
+									}
 								>
 									<IconRefresh className="transition-all" />
 									<span className={hiddenAnimationItemClasses}>
