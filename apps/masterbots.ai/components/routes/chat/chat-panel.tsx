@@ -64,37 +64,20 @@ export function ChatPanel({
 	const { isPowerUp, togglePowerUp } = usePowerUp()
 	const { isDeepThinking, toggleDeepThinking } = useDeepThinking()
 	const [shareDialogOpen, setShareDialogOpen] = useState(false)
-	const { isCutOff, continueGeneration, manualContinueGeneration } =
-		useContinueGeneration()
+	const { getContinuationPrompt, continueGeneration } = useContinueGeneration()
 	const [, { appendWithMbContextPrompts }] = useMBChat()
 
 	const handleContinueGeneration = async () => {
-		await appendWithMbContextPrompts({
-			id: crypto.randomUUID(),
-			role: 'system',
-			content: CONTINUE_GENERATION_PROMPT,
-		})
+		const continuationPrompt = getContinuationPrompt()
 
-		//? Call the context's function to reset state
-		continueGeneration()
-	}
-
-	const handleManualContinueGeneration = async () => {
 		await appendWithMbContextPrompts({
 			id: crypto.randomUUID(),
 			role: 'user',
-			content: CONTINUE_GENERATION_PROMPT,
+			content: continuationPrompt,
 		})
 
-		//? Call the manual function
-		manualContinueGeneration()
-	}
-
-	const handleContinuation = () => {
-		if (isCutOff) {
-			return handleContinueGeneration()
-		}
-		return handleManualContinueGeneration()
+		//? funtion call for continue generation flow
+		continueGeneration()
 	}
 
 	const isPreProcessing = Boolean(
@@ -205,7 +188,7 @@ export function ChatPanel({
 										hiddenAnimationClasses,
 										'bg-yellow-500/10 hover:bg-yellow-500/20 border-yellow-500/30 text-yellow-500',
 									)}
-									onClick={() => handleContinuation()}
+									onClick={() => handleContinueGeneration()}
 								>
 									<ChevronsLeftRightEllipsis className="transition-all" />
 									<span className={hiddenAnimationItemClasses}>

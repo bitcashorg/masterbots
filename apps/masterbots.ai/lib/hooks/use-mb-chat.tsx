@@ -96,7 +96,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	const { isContinuousThread, setIsContinuousThread } = useThreadVisibility()
 	const { customSonner } = useSonner()
 	const { isPowerUp } = usePowerUp()
-	const { setIsCutOff, setLastFinishReason } = useContinueGeneration()
+	const { setIsCutOff } = useContinueGeneration()
 	// console.log('[HOOK] webSearch', webSearch)
 
 	const params = useParams<{ chatbot: string; threadSlug: string }>()
@@ -278,10 +278,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					'unknown',
 				].includes(options.finishReason)
 				setIsCutOff(isCutOff)
-				setLastFinishReason(options.finishReason)
 				if (isCutOff) {
 					customSonner({
-						type: 'info',
+						type: 'continue',
 						text: 'The AI generation was cut off. Click on "Continue" to finish the response.',
 					})
 				}

@@ -1,13 +1,14 @@
 'use client'
 
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useState, useRef } from 'react'
+import {CONTINUE_GENERATION_PROMPT, CONTINUE_GENERATION_PROMPT_2} from '@/lib/constants/prompts';
 interface ContinueGenerationContextType {
 	isCutOff: boolean
 	setIsCutOff: (value: boolean) => void
 	continueGeneration: () => Promise<void>
-	manualContinueGeneration: () => Promise<void>
-	lastFinishReason: string | null
-	setLastFinishReason: (reason: string | null) => void
+	isContinuing: boolean
+	continuationCount: number
+	getContinuationPrompt: () => string
 }
 
 const ContinueGenerationContext = createContext<
@@ -30,17 +31,19 @@ export function ContinueGenerationProvider({
 	children: React.ReactNode
 }) {
 	const [isCutOff, setIsCutOff] = useState(false)
-	const [lastFinishReason, setLastFinishReason] = useState<string | null>(null)
+	const [isContinuing, setIsContinuing] = useState(false)
+	const continuationCountRef = useRef(0)
 
-	//? Function to handle continuing generation
+	//? Function for continuing generation
 	const continueGeneration = async () => {
 		console.log('Continue generation function called')
-		setIsCutOff(false)
+		setIsContinuing(true)
+		continuationCountRef.current += 1
 	}
 
-	//? Function for manual continuation (user-initiated)
-	const manualContinueGeneration = async () => {
-		console.log('Manual continue generation function called')
+	//? Get appropriate continuation prompt based on continuation count
+	const getContinuationPrompt = () => {
+		return continuationCountRef.current <= 1 ? CONTINUE_GENERATION_PROMPT : CONTINUE_GENERATION_PROMPT_2
 	}
 
 	return (
@@ -49,9 +52,9 @@ export function ContinueGenerationProvider({
 				isCutOff,
 				setIsCutOff,
 				continueGeneration,
-				manualContinueGeneration,
-				lastFinishReason,
-				setLastFinishReason,
+				isContinuing,
+				continuationCount: continuationCountRef.current,
+				getContinuationPrompt,
 			}}
 		>
 			{children}
