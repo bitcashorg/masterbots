@@ -64,7 +64,6 @@ insert_permissions:
         - model
         - prompt
         - role
-        - role
         - short_link
         - slug
         - thinking
