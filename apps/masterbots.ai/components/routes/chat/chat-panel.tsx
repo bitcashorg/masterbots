@@ -13,7 +13,13 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { cn } from '@/lib/utils'
 import type { Message as AiMessage } from 'ai'
 import type { UseChatHelpers } from 'ai/react'
-import { BrainIcon, ChevronsLeftRightEllipsis, GlobeIcon, GraduationCap, Workflow } from 'lucide-react'
+import {
+	BrainIcon,
+	ChevronsLeftRightEllipsis,
+	GlobeIcon,
+	GraduationCap,
+	Workflow,
+} from 'lucide-react'
 import { appConfig } from 'mb-env'
 import type { Chatbot } from 'mb-genql'
 import { useCallback, useState } from 'react'
@@ -58,7 +64,7 @@ export function ChatPanel({
 	const { isPowerUp, togglePowerUp } = usePowerUp()
 	const { isDeepThinking, toggleDeepThinking } = useDeepThinking()
 	const [shareDialogOpen, setShareDialogOpen] = useState(false)
-	const { isCutOff, continueGeneration, lastFinishReason } =
+	const { isCutOff, continueGeneration, manualContinueGeneration } =
 		useContinueGeneration()
 	const [, { appendWithMbContextPrompts }] = useMBChat()
 
@@ -71,6 +77,24 @@ export function ChatPanel({
 
 		//? Call the context's function to reset state
 		continueGeneration()
+	}
+
+	const handleManualContinueGeneration = async () => {
+		await appendWithMbContextPrompts({
+			id: crypto.randomUUID(),
+			role: 'user',
+			content: CONTINUE_GENERATION_PROMPT,
+		})
+
+		//? Call the manual function
+		manualContinueGeneration()
+	}
+
+	const handleContinuation = () => {
+		if (isCutOff) {
+			return handleContinueGeneration()
+		}
+		return handleManualContinueGeneration()
 	}
 
 	const isPreProcessing = Boolean(
@@ -181,10 +205,12 @@ export function ChatPanel({
 										hiddenAnimationClasses,
 										'bg-yellow-500/10 hover:bg-yellow-500/20 border-yellow-500/30 text-yellow-500',
 									)}
-									onClick={() => handleContinueGeneration()}
+									onClick={() => handleContinuation()}
 								>
 									<ChevronsLeftRightEllipsis className="transition-all" />
-									<span className={hiddenAnimationItemClasses}>Continue message</span>
+									<span className={hiddenAnimationItemClasses}>
+										Continue message
+									</span>
 								</Button>
 							)}
 							{id && title && (

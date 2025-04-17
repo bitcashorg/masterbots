@@ -5,6 +5,7 @@ interface ContinueGenerationContextType {
 	isCutOff: boolean
 	setIsCutOff: (value: boolean) => void
 	continueGeneration: () => Promise<void>
+	manualContinueGeneration: () => Promise<void>
 	lastFinishReason: string | null
 	setLastFinishReason: (reason: string | null) => void
 }
@@ -34,8 +35,12 @@ export function ContinueGenerationProvider({
 	//? Function to handle continuing generation
 	const continueGeneration = async () => {
 		console.log('Continue generation function called')
-		//? Reset the cut-off state
 		setIsCutOff(false)
+	}
+
+	//? Function for manual continuation (user-initiated)
+	const manualContinueGeneration = async () => {
+		console.log('Manual continue generation function called')
 	}
 
 	return (
@@ -44,6 +49,7 @@ export function ContinueGenerationProvider({
 				isCutOff,
 				setIsCutOff,
 				continueGeneration,
+				manualContinueGeneration,
 				lastFinishReason,
 				setLastFinishReason,
 			}}
