@@ -16,6 +16,7 @@ import { ExternalLink } from '@/components/shared/external-link'
 import { SharedAccordion } from '@/components/shared/shared-accordion'
 import { buttonVariants } from '@/components/ui/button'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useThread } from '@/lib/hooks/use-thread'
 import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { cn, createMessagePairs, getRouteType } from '@/lib/utils'
 import type { Chatbot, Message, User } from 'mb-genql'
@@ -110,6 +111,8 @@ export function BrowseMessagePairs({
 	chatbot?: Chatbot
 }) {
 	const { navigateTo } = useSidebar()
+	const { activeThread } = useThread()
+	const hasPrevious = activeThread?.thread?.messages
 	const pathname = usePathname()
 	const params = useParams()
 	const isPublic = getRouteType(pathname) === 'public'
@@ -142,7 +145,11 @@ export function BrowseMessagePairs({
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const toggleThreadQuestionUrl = useCallback((isOpen: boolean) => {
-		// console.log('window.location.pathname.split', window.location.pathname.split('/'))
+		console.log(
+			'window.location.pathname.split',
+			window.location.pathname.split('/'),
+		)
+
 		const [, category, domain, chatbot, threadSlug, threadQuestionSlug] =
 			window.location.pathname.split('/')
 		const navigationParts = {
@@ -153,6 +160,10 @@ export function BrowseMessagePairs({
 			threadQuestionSlug: pair.userMessage.slug,
 		}
 
+		console.log({
+			threadQuestionSlug,
+			isOpen,
+		})
 		if (!threadQuestionSlug && isOpen) {
 			console.log('navigateTo threadQuestionUrl', navigationParts)
 			navigateTo({
@@ -187,6 +198,13 @@ export function BrowseMessagePairs({
 		}
 	}, [])
 
+	const shouldShowFirstUserMessage = !(
+		!isThread &&
+		index === 0 &&
+		activeThread?.thread &&
+		hasPrevious
+	)
+
 	return (
 		<SharedAccordion
 			defaultState={true}
@@ -203,13 +221,12 @@ export function BrowseMessagePairs({
 			triggerClass="dark:border-b-mirage border-b-gray-300 py-[0.625rem] px-2 md:px-4 xl:px-11 gap-4"
 			arrowClass="mt-[0.625rem] right-[calc(47px-1rem)] translate-x-[50%]"
 			id={pair.userMessage.slug}
-			onToggle={toggleThreadQuestionUrl}
 		>
 			{/* Thread Title */}
 			<div
 				className={cn(
 					'relative flex items-center font-normal md:text-lg transition-all size-full gap-3 pr-4',
-					index === 0 && !isThread && 'hidden',
+					{ hidden: !isThread && index === 0 && !hasPrevious },
 				)}
 			>
 				<div className={cn('break-all px-1 text-left')}>

@@ -3,7 +3,7 @@ import { BrowseSearchInput } from '@/components/routes/browse/browse-search-inpu
 import { botNames } from '@/lib/constants/bots-names'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { generateMetadataFromSEO } from '@/lib/metadata'
-import { getChatbot, getThreads } from '@/services/hasura'
+import { getBrowseThreads, getChatbot } from '@/services/hasura'
 import type { Metadata } from 'next'
 
 export default async function BrowseCategoryChatbotPage(props: {
@@ -18,10 +18,13 @@ export default async function BrowseCategoryChatbotPage(props: {
 
 	if (!chatbot) throw new Error(`Chatbot ${chatbotName} not found`)
 
-	const threads = await getThreads({ chatbotName, limit: PAGE_SIZE, jwt: '' })
+	const { threads, count } = await getBrowseThreads({
+		chatbotName,
+		limit: PAGE_SIZE,
+	})
 
 	return (
-		<div className="w-full max-w-screen-lg pb-10 mx-auto">
+		<div className="w-full max-w-screen-xl pb-10 mx-auto">
 			{/* <BrowseCategoryTabs
         initialCategory={params.category}
         categories={categories}
@@ -31,6 +34,7 @@ export default async function BrowseCategoryChatbotPage(props: {
 				categoryId={chatbot.categories[0].categoryId}
 				chatbot={chatbot}
 				initialThreads={threads}
+				initialCount={count}
 			/>
 		</div>
 	)

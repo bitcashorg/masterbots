@@ -22,7 +22,7 @@ export default async function IndexPage() {
 	}
 
 	const role = session.user.role as RoleTypes
-	const threads = await getThreads({
+	const { threads, count } = await getThreads({
 		jwt,
 		userId: session.user.id,
 		limit: PAGE_SIZE,
@@ -31,12 +31,12 @@ export default async function IndexPage() {
 	return (
 		<>
 			{isAdminOrModeratorRole(role) && (
-				<div className="flex justify-center">
+				// TODO: Improve sticky, stops being sticky after 100vh position
+				<div className="flex sticky top-4 z-10 justify-center">
 					<AdminModeToggle />
 				</div>
 			)}
-
-			<ThreadPanel threads={threads} />
+			<ThreadPanel threads={threads} count={count} />
 			<ChatThreadListPanel />
 		</>
 	)

@@ -1,4 +1,5 @@
 import OGImage from '@/components/shared/og-image'
+import { getUserBySlug } from '@/services/hasura'
 import type { UUID } from '@/types/types'
 import type { Chatbot, Thread } from 'mb-genql'
 import { ImageResponse } from 'next/og'
@@ -8,17 +9,17 @@ export const runtime = 'edge'
 
 const IMAGE_DIMENSIONS = {
 	width: 1200,
-	height: 700,
+	height: 630,
 }
 
 const defaultContent = {
 	thread: {
 		chatbot: {
 			name: 'Masterbots',
-			avatar: `${process.env.NEXT_PUBLIC_BASE_URL}/images/masterbots.png`,
+			avatar: `${process.env.NEXT_PUBLIC_BASE_URL}/masterbots_og.png`,
 			categories: [{ category: { name: 'AI' } }],
 		},
-	},
+	} as Partial<Thread>,
 	question: 'Masterbots AI',
 	answer:
 		'Deploy with our domain-specific Masterbots, dedicated experts in your field. Each Masterbot is purpose-built for its role, delivering focused knowledge and specialized interactions beyond what generic AI solutions can offer.',
@@ -32,6 +33,7 @@ export async function GET(req: NextRequest) {
 		const { searchParams } = req.nextUrl
 		const rawThreadId = searchParams.get('threadId')
 		const rawChatbotId = searchParams.get('chatbotId')
+		const rawUserSlug = searchParams.get('userSlug')
 		const rawThreadQuestionSlug = searchParams.get('threadQuestionSlug')
 		const threadId = rawThreadId?.match(
 			/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
@@ -43,11 +45,48 @@ export async function GET(req: NextRequest) {
 		)
 			? (rawChatbotId as UUID)
 			: null
+		const defaultOgImage = new ImageResponse(
+			<OGImage {...defaultContent} />,
+			IMAGE_DIMENSIONS,
+		)
+
+		if (rawUserSlug) {
+			const { user: userData } = await getUserBySlug({
+				slug: rawUserSlug,
+				isSameUser: false,
+			})
+
+			if (!userData) {
+				return defaultOgImage
+			}
+
+			return new ImageResponse(
+				<OGImage
+					thread={defaultContent.thread}
+					question={userData.username}
+					answer={userData.bio || ''}
+					username={`${userData.followers.length} followers`}
+					user_avatar={userData.profilePicture || ''}
+					isLightTheme={false}
+				/>,
+				IMAGE_DIMENSIONS,
+			)
+		}
+
+		if (!threadId && !chatbotId) {
+			// Use metadata when thread not found
+			return defaultOgImage
+		}
 
 		// TODO: Update this to use mb-genql package
 		const { thread }: { thread: Thread[] } = await getThreadForOG(
 			threadId as UUID,
 		)
+
+		if (!thread?.length && !chatbotId) {
+			// Use metadata when thread not found
+			return defaultOgImage
+		}
 
 		// Initialize chatbot data
 		let chatbotData: { chatbot: Chatbot[] } = { chatbot: [] }
@@ -68,14 +107,6 @@ export async function GET(req: NextRequest) {
 					username={metadata[0]?.domainName || 'Prompt'}
 					isLightTheme={false}
 				/>,
-				IMAGE_DIMENSIONS,
-			)
-		}
-
-		if (!thread?.length) {
-			// Use metadata when thread not found
-			return new ImageResponse(
-				<OGImage {...defaultContent} />,
 				IMAGE_DIMENSIONS,
 			)
 		}

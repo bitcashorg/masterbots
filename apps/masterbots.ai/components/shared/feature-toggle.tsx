@@ -1,7 +1,6 @@
 'use client'
 
 import { Checkbox } from '@/components/ui/checkbox'
-import { Label } from '@/components/ui/label'
 import {
 	Tooltip,
 	TooltipContent,
@@ -30,20 +29,20 @@ const activeColorClasses: Record<
 	}
 > = {
 	yellow: {
-		border: 'data-[state=checked]:border-yellow-400/50',
-		background: 'data-[state=checked]:bg-yellow-400/25',
+		border: 'data-[state=checked]:border-yellow-400',
+		background: 'data-[state=checked]:bg-yellow-400/50',
 		iconBg: 'bg-yellow-400',
 		iconText: 'text-yellow-50',
 	},
 	green: {
-		border: 'data-[state=checked]:border-green-400/50',
-		background: 'data-[state=checked]:bg-green-400/25',
+		border: 'data-[state=checked]:border-green-400',
+		background: 'data-[state=checked]:bg-green-400/50',
 		iconBg: 'bg-green-400',
 		iconText: 'text-green-50',
 	},
 	cyan: {
-		border: 'data-[state=checked]:border-cyan-400/50',
-		background: 'data-[state=checked]:bg-cyan-400/25',
+		border: 'data-[state=checked]:border-cyan-400',
+		background: 'data-[state=checked]:bg-cyan-400/50',
 		iconBg: 'bg-cyan-400',
 		iconText: 'text-cyan-50',
 	},
@@ -89,33 +88,28 @@ export function FeatureToggle({
 						checked={isActive}
 						onClick={handleToggle}
 						className={cn(
-							'transition-all delay-100 size-auto inline-flex items-center gap-1.5 border-muted p-1 rounded-full overflow-hidden',
-							isActive
-								? `${colorClasses.border} ${colorClasses.background}`
-								: '',
+							'inline-flex items-center p-1 overflow-hidden transition-all delay-100 rounded-full size-auto',
+							isActive && colorClasses.border,
+							isActive && colorClasses.background,
 						)}
 						checkboxconfig={{
 							check: (
-								<>
-									<div
-										className={`${colorClasses.iconBg} rounded-full -m-[4px] mr-1 p-0.5`}
-									>
-										{/* biome-ignore lint/suspicious/noExplicitAny: <explanation> */}
-										{React.cloneElement(activeIcon as React.ReactElement<any>, {
-											className: `size-6 ${colorClasses.iconText}`,
-										})}
-									</div>
-									<Label
-										htmlFor={id}
-										className="mr-1.5 text-xs leading-none text-nowrap"
-									/>
-								</>
+								<div className="rounded-full">
+									{/* biome-ignore lint/suspicious/noExplicitAny: <explanation> */}
+									{React.cloneElement(activeIcon as React.ReactElement<any>, {
+										className: cn(
+											'size-6',
+											isActive ? 'text-black dark:text-white' : 'opacity-65',
+										),
+									})}
+									<span className="sr-only">{name} enabled</span>
+								</div>
 							),
 							uncheck: (
 								<>
 									{/* biome-ignore lint/suspicious/noExplicitAny: <explanation> */}
 									{React.cloneElement(icon as React.ReactElement<any>, {
-										className: 'opacity-65 size-6',
+										className: 'opacity-65 size-6 text-black dark:text-white',
 									})}
 									<span className="sr-only">{name} disabled</span>
 								</>

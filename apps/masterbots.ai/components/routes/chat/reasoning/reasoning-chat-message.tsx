@@ -37,6 +37,7 @@ export function ReasoningChatMessage({
 	...props
 }: ChatMessageProps) {
 	const [isReasoningCollapsed, setIsReasoningCollapsed] = useState(!true)
+	const [clicked, setClicked] = useState(false)
 
 	// Extract reasoning from message
 	const reasoningContent = extractReasoningContent(message)
@@ -46,10 +47,20 @@ export function ReasoningChatMessage({
 
 	// Handler for clickable text elements.
 	const handleClickableClick = (clickableText: string) => {
+		if (clicked) return
+		setClicked(true)
 		const context = extractFollowUpContext(message.content, clickableText)
 		const cleanedText = cleanClickableText(context)
-		const followUpPrompt = `Explain more in-depth and in detail about "${clickableText}"? ${cleanedText}`
-		sendMessageFromResponse?.(followUpPrompt)
+		const bulletContent = `Explain more in-depth and in detail about "${clickableText}"? ${cleanedText}`
+		sendMessageFromResponse?.(
+			{
+				bulletContent,
+				messageId: message.messageId,
+			},
+			() => {
+				setClicked(false)
+			},
+		)
 	}
 
 	const toggleReasoning = () => {

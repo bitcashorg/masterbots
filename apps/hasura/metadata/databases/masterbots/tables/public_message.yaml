@@ -8,6 +8,15 @@ object_relationships:
   - name: messageTypeEnum
     using:
       foreign_key_constraint_on: role
+  - name: modelType
+    using:
+      manual_configuration:
+        column_mapping:
+          model: name
+        insertion_order: null
+        remote_table:
+          name: models_enum
+          schema: public
   - name: thread
     using:
       foreign_key_constraint_on: thread_id
@@ -28,9 +37,12 @@ insert_permissions:
         - content
         - created_at
         - examples
+        - isContinued
         - message_id
+        - model
         - prompt
         - role
+        - short_link
         - slug
         - thinking
         - thinking_traces
@@ -47,10 +59,12 @@ insert_permissions:
         - content
         - created_at
         - examples
+        - isContinued
         - message_id
+        - model
         - prompt
         - role
-        - role
+        - short_link
         - slug
         - thinking
         - thinking_traces
@@ -64,9 +78,12 @@ select_permissions:
         - content
         - created_at
         - examples
+        - isContinued
         - message_id
+        - model
         - prompt
         - role
+        - short_link
         - slug
         - thinking
         - thinking_traces
@@ -81,9 +98,12 @@ select_permissions:
         - content
         - created_at
         - examples
+        - isContinued
         - message_id
+        - model
         - prompt
         - role
+        - short_link
         - slug
         - thinking
         - thinking_traces
@@ -98,15 +118,38 @@ select_permissions:
         - content
         - created_at
         - examples
+        - isContinued
         - message_id
+        - model
         - prompt
         - role
+        - short_link
         - slug
         - thinking
         - thinking_traces
         - thread_id
       filter: {}
       allow_aggregations: true
+    comment: ""
+update_permissions:
+  - role: moderator
+    permission:
+      columns:
+        - content
+        - short_link
+      filter: {}
+      check: null
+    comment: ""
+  - role: user
+    permission:
+      columns:
+        - content
+        - short_link
+      filter:
+        thread:
+          user_id:
+            _eq: X-Hasura-User-Id
+      check: null
     comment: ""
 delete_permissions:
   - role: moderator
