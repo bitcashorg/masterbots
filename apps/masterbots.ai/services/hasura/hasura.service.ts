@@ -102,7 +102,10 @@ export async function doesMessageSlugExist(slug: string) {
 	}
 }
 
-export async function getCategories(userId?: string) {
+export async function getCategories(
+	userId?: string,
+	isProfileOrPublic?: boolean,
+) {
 	const client = getHasuraClient({})
 	const { category } = await client.query({
 		category: {
@@ -131,31 +134,43 @@ export async function getCategories(userId?: string) {
 					...chatbotEnumFieldsFragment,
 				},
 				__scalar: true,
-				__args: userId
-					? {
-							where: {
-								chatbot: {
-									threads: {
-										userId: { _eq: userId },
-									},
-								},
-							},
-						}
-					: {},
+				__args: {
+					where: {
+						_and: [
+							userId
+								? {
+										chatbot: {
+											threads: {
+												userId: { _eq: userId },
+												isPublic: { _eq: true },
+												isApproved: { _eq: true },
+											},
+										},
+									}
+								: {},
+						],
+					},
+				},
 			},
 			__scalar: true,
 			__args: {
-				where: userId
-					? {
-							chatbots: {
-								chatbot: {
-									threads: {
-										userId: { _eq: userId },
+				where: {
+					_and: [
+						userId
+							? {
+									chatbots: {
+										chatbot: {
+											threads: {
+												userId: { _eq: userId },
+												isPublic: { _eq: true },
+												isApproved: { _eq: true },
+											},
+										},
 									},
-								},
-							},
-						}
-					: {},
+								}
+							: {},
+					],
+				},
 			},
 		},
 	})

@@ -16,7 +16,7 @@ export default function FooterCT({
 		nonFooterTag ? (
 			<div
 				className={cn(
-					"max-h-[64px] whitespace-break-spaces text-xs font-semibold font-['Geist_Mono'] flex justify-center items-center opacity-50",
+					'max-h-[64px] whitespace-break-spaces text-xs leading-none font-semibold flex justify-center items-center opacity-50',
 					fixed && 'opacity-100 fixed w-full z-40 bottom-0 bg-accent',
 				)}
 			>
@@ -25,7 +25,7 @@ export default function FooterCT({
 		) : (
 			<footer
 				className={cn(
-					"max-h-[64px] whitespace-pre-wrap text-xs font-semibold font-['Geist_Mono'] contents justify-center items-center opacity-50 dark:text-[#83E56A] text-[#BE17E8]",
+					'max-h-[64px] whitespace-pre-wrap text-xs leading-none font-semibold contents justify-center items-center opacity-50 dark:text-[#83E56A] text-[#BE17E8]',
 					fixed && 'opacity-100 fixed w-full z-40 bottom-0 bg-accent',
 				)}
 			>
