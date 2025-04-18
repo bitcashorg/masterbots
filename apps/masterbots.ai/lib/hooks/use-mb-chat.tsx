@@ -12,15 +12,16 @@ import {
 	aiExampleClassification,
 	processUserMessage,
 } from '@/lib/helpers/ai-classification'
-import {
-	continueAIGeneration,
-	shouldContinueGeneration,
-} from '@/lib/helpers/ai-continue-generation'
+
 import { cleanPrompt, hasReasoning } from '@/lib/helpers/ai-helpers'
 import {
 	type FileAttachment,
 	getUserIndexedDBKeys,
 } from '@/lib/hooks/use-chat-attachments'
+import {
+	ContinueGenerationProvider,
+	useContinueGeneration,
+} from '@/lib/hooks/use-continue-generation'
 import { useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useModel } from '@/lib/hooks/use-model'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
@@ -95,6 +96,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	const { isContinuousThread, setIsContinuousThread } = useThreadVisibility()
 	const { customSonner } = useSonner()
 	const { isPowerUp } = usePowerUp()
+	const { setIsCutOff } = useContinueGeneration()
 	// console.log('[HOOK] webSearch', webSearch)
 
 	const params = useParams<{ chatbot: string; threadSlug: string }>()
@@ -266,12 +268,22 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						text: `Ai generation finished, reason: ${options.finishReason}`,
 					})
 				}
+				const finalMessage = { ...message }
 
-				// biome-ignore lint/style/useConst: <explanation>
-				let finalMessage = { ...message }
-				// biome-ignore lint/style/useConst: <explanation>
-				let needsContinuation = shouldContinueGeneration(options.finishReason)
-
+				//? Check if the generation was cut off
+				const isCutOff = [
+					'length',
+					'content-filter',
+					'error',
+					'unknown',
+				].includes(options.finishReason)
+				setIsCutOff(isCutOff)
+				if (isCutOff) {
+					customSonner({
+						type: 'continue',
+						text: 'The AI generation was cut off. Click on "Continue" to finish the response.',
+					})
+				}
 				if (options.finishReason === 'error') {
 					customSonner({
 						type: 'error',
@@ -377,50 +389,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					saveNewMessage(newUserMessage),
 					saveNewMessage(newAssistantMessage),
 				])
-
-				//? Check if we need to continue generation due to cut-off reasons
-				if (needsContinuation) {
-					if (appConfig.features.devMode) {
-						customSonner({
-							type: 'info',
-							text: `Generation was cut off (${options.finishReason}). Attempting to continue...`,
-						})
-					}
-
-					//?  Message object for updateMessage
-					const messageForContinuation = {
-						...finalMessage,
-						messageId: assistantMessageId,
-						...assistantMessageThinking,
-					}
-
-					//? Try to continue the AI generation
-					const continuedContent = await continueAIGeneration(
-						messageForContinuation,
-						append,
-						{
-							setLoadingState,
-							customSonner,
-							devMode: appConfig.features.devMode,
-							chatConfig: useChatConfig.body,
-							maxAttempts: 2,
-							jwt: session?.user?.hasuraJwt,
-						},
-					)
-
-					if (continuedContent) {
-						//?  Update the message in the database with continued content
-						await updateMessage({
-							messageId: assistantMessageId,
-							content: continuedContent,
-							thinking: assistantMessageThinking.thinking,
-							jwt: session?.user?.hasuraJwt,
-						})
-
-						//? Updates the final message
-						finalMessage.content = continuedContent
-					}
-				}
 
 				setState({
 					isNewChat: false,

@@ -2,6 +2,7 @@
 
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { AccessibilityProvider } from '@/lib/hooks/use-accessibility'
+import { ContinueGenerationProvider } from '@/lib/hooks/use-continue-generation'
 import { DeepThinkingProvider } from '@/lib/hooks/use-deep-thinking'
 import { MBChatProvider } from '@/lib/hooks/use-mb-chat'
 import { ModelProvider } from '@/lib/hooks/use-model'
@@ -40,7 +41,9 @@ export function Providers({ children, ...props }: ProvidersProps) {
 												<ThreadSearchProvider>
 													<ThreadProvider>
 														<ThreadVisibilityProvider>
-															<MBChatProvider>{children}</MBChatProvider>
+															<ContinueGenerationProvider>
+																<MBChatProvider>{children}</MBChatProvider>
+															</ContinueGenerationProvider>
 														</ThreadVisibilityProvider>
 													</ThreadProvider>
 												</ThreadSearchProvider>

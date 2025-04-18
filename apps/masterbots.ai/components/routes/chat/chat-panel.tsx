@@ -7,13 +7,22 @@ import { FeatureToggle } from '@/components/shared/feature-toggle'
 import { LoadingIndicator } from '@/components/shared/loading-indicator'
 import { Button } from '@/components/ui/button'
 import { IconRefresh, IconShare, IconStop } from '@/components/ui/icons'
+import { CONTINUE_GENERATION_PROMPT } from '@/lib/constants/prompts'
+import { useContinueGeneration } from '@/lib/hooks/use-continue-generation'
 import { useDeepThinking } from '@/lib/hooks/use-deep-thinking'
+import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn } from '@/lib/utils'
 import type { Message as AiMessage } from 'ai'
 import type { UseChatHelpers } from 'ai/react'
-import { BrainIcon, GlobeIcon, GraduationCap } from 'lucide-react'
+import {
+	BrainIcon,
+	ChevronsLeftRightEllipsis,
+	GlobeIcon,
+	GraduationCap,
+	Workflow,
+} from 'lucide-react'
 import { appConfig } from 'mb-env'
 import type { Chatbot } from 'mb-genql'
 import { useCallback, useState } from 'react'
@@ -55,6 +64,21 @@ export function ChatPanel({
 	const { isPowerUp, togglePowerUp } = usePowerUp()
 	const { isDeepThinking, toggleDeepThinking } = useDeepThinking()
 	const [shareDialogOpen, setShareDialogOpen] = useState(false)
+	const { getContinuationPrompt, continueGeneration } = useContinueGeneration()
+	const [, { appendWithMbContextPrompts }] = useMBChat()
+
+	const handleContinueGeneration = async () => {
+		const continuationPrompt = getContinuationPrompt()
+
+		await appendWithMbContextPrompts({
+			id: crypto.randomUUID(),
+			role: 'user',
+			content: continuationPrompt,
+		})
+
+		//? funtion call for continue generation flow
+		continueGeneration()
+	}
 
 	const isPreProcessing = Boolean(
 		loadingState?.match(/processing|digesting|polishing/),
@@ -160,11 +184,16 @@ export function ChatPanel({
 								<Button
 									variant="outline"
 									size="icon"
-									className={hiddenAnimationClasses}
-									onClick={() => reload()}
+									className={cn(
+										hiddenAnimationClasses,
+										'bg-yellow-500/10 hover:bg-yellow-500/20 border-yellow-500/30 text-yellow-500',
+									)}
+									onClick={() => handleContinueGeneration()}
 								>
-									<IconRefresh className="transition-all" />
-									<span className={hiddenAnimationItemClasses}>Regenerate</span>
+									<ChevronsLeftRightEllipsis className="transition-all" />
+									<span className={hiddenAnimationItemClasses}>
+										Continue message
+									</span>
 								</Button>
 							)}
 							{id && title && (

@@ -4,6 +4,10 @@ export const appConfig = {
 		devMode: process.env.NEXT_PUBLIC_DEV_MODE === 'true',
 		experimentalAiConfig:
 			process.env.NEXT_PUBLIC_FEATURE_EXPERIMENTAL_AI_CONFIG === 'true',
+		experimentalStreamDelayMs: Number.parseInt(
+			process.env.NEXT_PUBLIC_EXPERIMENTAL_STREAM_DELAY_MS || '10',
+			10,
+		),
 		multiModel: process.env.NEXT_PUBLIC_FEATURE_MULTI_MODEL_SELECTOR === 'true',
 		webSearch: process.env.NEXT_PUBLIC_FEATURE_WEB_SEARCH === 'true',
 		maxAttachments: Number.parseInt(

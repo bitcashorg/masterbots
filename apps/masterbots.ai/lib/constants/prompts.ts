@@ -219,3 +219,8 @@ export function setDefaultPrompt(userPrompt?: string) {
 		improved: undefined,
 	}
 }
+
+export const CONTINUE_GENERATION_PROMPT =
+	'Please continue from where you left off in your previous response and only show the continuation part in this current response.'
+export const CONTINUE_GENERATION_PROMPT_2 =
+	'Please continue your previous response without repeating any information.'
