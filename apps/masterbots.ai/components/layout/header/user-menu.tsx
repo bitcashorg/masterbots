@@ -34,6 +34,7 @@ function truncateUsername(username: string | null | undefined, maxLength = 10) {
 }
 
 export function UserMenu({ user }: UserMenuProps) {
+	console.log('user', user)
 	return (
 		<div className="items-center justify-between hidden md:block">
 			<DropdownMenu>
