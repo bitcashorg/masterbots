@@ -102,10 +102,7 @@ export async function doesMessageSlugExist(slug: string) {
 	}
 }
 
-export async function getCategories(
-	userId?: string,
-	isProfileOrPublic?: boolean,
-) {
+export async function getCategories(userId?: string) {
 	const client = getHasuraClient({})
 	const { category } = await client.query({
 		category: {
