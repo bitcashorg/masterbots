@@ -200,6 +200,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 	 *
 	 * @param {number} chatbotId - The ID of the chatbot to toggle selection for.
 	 */
+
 	const toggleChatbotSelection = React.useCallback(
 		(chatbotId: number) => {
 			setSelectedChatbots((prev) =>
@@ -208,37 +209,49 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 					: [...prev, chatbotId],
 			)
 			const categoriesChatbots = categories ? categories.categoriesChatbots : []
-			setSelectedCategories((prev) =>
-				categoriesChatbots
-					.filter((category) =>
-						category.chatbots.some(
-							(chatbot) => chatbot.chatbotId === chatbotId,
-						),
-					)
+			// setSelectedCategories((prev) =>
+			// 	categoriesChatbots
+			// 		.filter((category) =>
+			// 			category.chatbots.some(
+			// 				(chatbot) => chatbot.chatbotId === chatbotId,
+			// 			),
+			// 		)
+			// 		.map((category) => category.categoryId)
+			// 		.filter((id) => !prev.includes(id)).length
+			// 		? [
+			// 				...prev,
+			// 				...categoriesChatbots
+			// 					.filter((category) =>
+			// 						category.chatbots.some(
+			// 							(chatbot) => chatbot.chatbotId === chatbotId,
+			// 						),
+			// 					)
+			// 					.map((category) => category.categoryId),
+			// 			]
+			// 		: prev.filter(
+			// 				(id) =>
+			// 					!categoriesChatbots
+			// 						.filter((category) =>
+			// 							category.chatbots.some(
+			// 								(chatbot) => chatbot.chatbotId === chatbotId,
+			// 							),
+			// 						)
+			// 						.map((category) => category.categoryId)
+			// 						.includes(id),
+			// 			),
+			// )
+
+			setSelectedCategories((prevSelectedCategories) => {
+				const relatedCategories = categoriesChatbots.filter((category) =>
+					category.chatbots.some((chatbot) => chatbot.chatbotId === chatbotId),
+				)
+
+				const newCategoryIds = relatedCategories
 					.map((category) => category.categoryId)
-					.filter((id) => !prev.includes(id)).length
-					? [
-							...prev,
-							...categoriesChatbots
-								.filter((category) =>
-									category.chatbots.some(
-										(chatbot) => chatbot.chatbotId === chatbotId,
-									),
-								)
-								.map((category) => category.categoryId),
-						]
-					: prev.filter(
-							(id) =>
-								!categoriesChatbots
-									.filter((category) =>
-										category.chatbots.some(
-											(chatbot) => chatbot.chatbotId === chatbotId,
-										),
-									)
-									.map((category) => category.categoryId)
-									.includes(id),
-						),
-			)
+					.filter((id) => !prevSelectedCategories.includes(id))
+
+				return [...prevSelectedCategories, ...newCategoryIds]
+			})
 		},
 		[categories],
 	)

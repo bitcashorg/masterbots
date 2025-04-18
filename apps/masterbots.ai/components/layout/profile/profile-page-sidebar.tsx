@@ -1,8 +1,10 @@
 'use client'
 
+import { ThreadPopup } from '@/components/routes/thread/thread-popup'
 import { IconCaretRight } from '@/components/ui/icons'
 import { useProfile } from '@/lib/hooks/use-profile'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
+import { useThread } from '@/lib/hooks/use-thread'
 import { urlBuilders } from '@/lib/url'
 import { cn } from '@/lib/utils'
 import { MessagesSquare, ReceiptIcon, Settings } from 'lucide-react'
@@ -22,6 +24,7 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 	const { userSlug } = useParams()
 	const { isSidebarOpen, toggleSidebar, setActiveCategory, setActiveChatbot } =
 		useSidebar()
+	const { sectionRef, isOpenPopup } = useThread()
 	const { currentUser, isSameUser } = useProfile()
 	const { data: session } = useSession()
 	const { value: user } = useAsync(async () => {
@@ -105,7 +108,7 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 							</Link> */}
 							<div
 								className={cn(
-									'overflow-y-auto w-full scrollbar transition-all duration-300 max-w-[300px]',
+									'overflow-y-auto w-full scrollbar transition-all duration-300 max-w-[300px] max-h-[650px]  ',
 									{
 										'border dark:border-b-mirage border-b-gray-200':
 											isThreadsOpen,
@@ -167,6 +170,7 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 				<div className="fixed bottom-0 w-full left-0 z-10 dark:bg-black bg-white">
 					<FooterCT />
 				</div>
+				<ThreadPopup className={isOpenPopup ? '' : 'hidden'} />
 			</section>
 		</div>
 	)

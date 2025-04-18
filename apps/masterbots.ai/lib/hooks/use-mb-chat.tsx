@@ -12,29 +12,29 @@ import {
 	aiExampleClassification,
 	processUserMessage,
 } from '@/lib/helpers/ai-classification'
-import {
-	continueAIGeneration,
-	shouldContinueGeneration,
-} from '@/lib/helpers/ai-continue-generation'
+
 import { cleanPrompt, hasReasoning } from '@/lib/helpers/ai-helpers'
 import {
 	type FileAttachment,
 	getUserIndexedDBKeys,
 } from '@/lib/hooks/use-chat-attachments'
+import {
+	ContinueGenerationProvider,
+	useContinueGeneration,
+} from '@/lib/hooks/use-continue-generation'
 import { useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useModel } from '@/lib/hooks/use-model'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
-import { getCanonicalDomain } from '@/lib/url'
+import { generateUniqueSlug, getCanonicalDomain } from '@/lib/url'
 import {
 	createThread,
 	deleteThread,
-	doesMessageSlugExist,
-	doesThreadSlugExist,
 	getThread,
 	saveNewMessage,
+	updateMessage,
 } from '@/services/hasura'
 import type { SaveNewMessageParams } from '@/services/hasura/hasura.service.type'
 import type {
@@ -42,18 +42,18 @@ import type {
 	AiToolCall,
 	ChatbotMetadataClassification,
 	ChatbotMetadataExamples,
+	SendMessageFromResponseMessageData,
 } from '@/types/types'
+import { type UseChatOptions, useChat } from '@ai-sdk/react'
 import type * as OpenAi from 'ai'
 import type {
 	Message as AiMessage,
 	ChatRequestOptions,
 	CreateMessage,
 } from 'ai'
-import { type UseChatOptions, useChat } from 'ai/react'
 import { throttle, uniqBy } from 'lodash'
 import { appConfig } from 'mb-env'
 import type { Chatbot, Message, Thread } from 'mb-genql'
-import { toSlug } from 'mb-lib'
 import { nanoid } from 'nanoid'
 import { useSession } from 'next-auth/react'
 import { useParams, useSearchParams } from 'next/navigation'
@@ -82,6 +82,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 		isOpenPopup,
 		activeThread,
 		webSearch,
+		loadingState,
 		setWebSearch,
 		setActiveThread,
 		setIsNewResponse,
@@ -95,6 +96,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	const { isContinuousThread, setIsContinuousThread } = useThreadVisibility()
 	const { customSonner } = useSonner()
 	const { isPowerUp } = usePowerUp()
+	const { setIsCutOff } = useContinueGeneration()
 	// console.log('[HOOK] webSearch', webSearch)
 
 	const params = useParams<{ chatbot: string; threadSlug: string }>()
@@ -168,7 +170,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const initialMessages: AiMessage[] = useMemo(
 		() => systemPrompts.concat(userAndAssistantMessages),
-		[activeChatbot],
+		[activeChatbot, activeThread],
 	)
 	const threadId = isContinuousThread
 		? randomThreadId.current
@@ -190,6 +192,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 	const searchParams = useSearchParams()
 	const messageAttachments = useRef<FileAttachment[]>([])
+	const clickedContentRef = useRef<string>('')
 	const dbKeys = getUserIndexedDBKeys(session?.user?.id)
 	const indexedDBActions = useIndexedDB(dbKeys)
 
@@ -249,7 +252,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 				if (isNewChat) {
 					await deleteThread({
-						threadId: activeThread?.threadId,
+						threadId,
 						jwt: session?.user?.hasuraJwt,
 						userId: session?.user.id,
 					})
@@ -265,31 +268,22 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						text: `Ai generation finished, reason: ${options.finishReason}`,
 					})
 				}
+				const finalMessage = { ...message }
 
-				//? Check if we should continue the generation based on the finish reason
-				if (shouldContinueGeneration(options.finishReason)) {
-					if (appConfig.features.devMode) {
-						customSonner({
-							type: 'info',
-							text: `Generation was cut off (${options.finishReason}). Attempting to continue...`,
-						})
-					}
-
-					//? Try to continue the AI generation
-					const continuedContent = await continueAIGeneration(message, append, {
-						setLoadingState,
-						customSonner,
-						devMode: appConfig.features.devMode,
-						chatConfig: useChatConfig.body,
-						maxAttempts: 2,
+				//? Check if the generation was cut off
+				const isCutOff = [
+					'length',
+					'content-filter',
+					'error',
+					'unknown',
+				].includes(options.finishReason)
+				setIsCutOff(isCutOff)
+				if (isCutOff) {
+					customSonner({
+						type: 'continue',
+						text: 'The AI generation was cut off. Click on "Continue" to finish the response.',
 					})
-
-					if (continuedContent) {
-						// Override the message content with the continued content
-						message.content = continuedContent
-					}
 				}
-
 				if (options.finishReason === 'error') {
 					customSonner({
 						type: 'error',
@@ -307,13 +301,13 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					return
 				}
 
-				// Continue with your existing message saving logic
 				const aiChatThreadId = resolveThreadId({
 					isContinuousThread,
 					randomThreadId: randomThreadId.current,
 					threadId,
 					activeThreadId: activeThread?.threadId,
 				})
+
 				const userMessageId = crypto.randomUUID()
 				const assistantMessageId = crypto.randomUUID()
 
@@ -344,6 +338,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					threadId: aiChatThreadId ?? '',
 					jwt: session?.user?.hasuraJwt,
 				}
+
 				const curatedPreUserMessageSlug = userContentRef.current
 					.toLocaleLowerCase()
 					.replace(
@@ -351,44 +346,22 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						'',
 					)
 
-				// Check and get unique slugs for both messages
-				let userMessageSlug = toSlug(curatedPreUserMessageSlug)
-				let userSlugCheck = await doesMessageSlugExist(userMessageSlug)
+				// Generate unique slugs for both messages
+				const userMessageSlug = await generateUniqueSlug(
+					curatedPreUserMessageSlug,
+				)
+				const assistantMessageSlug = await generateUniqueSlug(message.content)
 
-				// Create a throttled version of the slug check function outside the loop to avoid creating a new function
-				// on each iteration, increase performance and infinite loop prevention.
-				const throttledCheckSlug = throttle(async (baseSlug, sequence) => {
-					const newSlug = toSlug(`${baseSlug} ${sequence}`)
-					return await doesMessageSlugExist(newSlug)
-				}, 250)
+				//? assistant message with reasoning information
+				const assistantMessageThinking = hasReasoning(finalMessage)
+					? {
+							thinking:
+								finalMessage.parts?.find((msg) => msg.type === 'reasoning')
+									?.reasoning || finalMessage.reasoning,
+						}
+					: {}
 
-				// If user message slug already exists, append a counter
-				while (userSlugCheck.exists) {
-					userMessageSlug = toSlug(
-						`${curatedPreUserMessageSlug} ${userSlugCheck.sequence + 1}`,
-					)
-					userSlugCheck = await throttledCheckSlug(
-						curatedPreUserMessageSlug,
-						userSlugCheck.sequence + 1,
-					)
-				}
-
-				// We need to check for a unique slug for assistant message as well
-				let assistantMessageSlug = toSlug(message.content)
-				let assistantSlugCheck =
-					await doesMessageSlugExist(assistantMessageSlug)
-
-				// If assistant message slug already exists, append a counter
-				while (assistantSlugCheck.exists) {
-					assistantMessageSlug = toSlug(
-						`${message.content} ${assistantSlugCheck.sequence + 1}`,
-					)
-					assistantSlugCheck = await throttledCheckSlug(
-						message.content,
-						assistantSlugCheck.sequence + 1,
-					)
-				}
-
+				// Create new messages and save them to the database
 				const [
 					newUserMessage,
 					newAssistantMessage,
@@ -403,20 +376,15 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					},
 					{
 						...newBaseMessage,
-						...(hasReasoning(message)
-							? {
-									thinking:
-										message.parts?.find((msg) => msg.type === 'reasoning')
-											?.reasoning || message.reasoning,
-								}
-							: {}),
+						...assistantMessageThinking,
 						messageId: assistantMessageId,
 						slug: assistantMessageSlug,
 						role: 'assistant',
-						content: message.content,
+						content: finalMessage.content,
 						createdAt: new Date(Date.now() + 1000).toISOString(),
 					},
 				]
+
 				await Promise.all([
 					saveNewMessage(newUserMessage),
 					saveNewMessage(newAssistantMessage),
@@ -467,11 +435,14 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 				if (isNewChat) {
 					await deleteThread({
-						threadId: activeThread?.threadId,
+						threadId,
 						jwt: session?.user?.hasuraJwt,
 						userId: session?.user.id,
 					})
 				}
+			} finally {
+				// ? resetting refs
+				clickedContentRef.current = ''
 			}
 		},
 		// @ts-ignore
@@ -499,9 +470,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 			setActiveTool(undefined)
 			setIsNewResponse(false)
 
+			clickedContentRef.current = ''
+
 			if (isNewChat) {
 				await deleteThread({
-					threadId: activeThread?.threadId,
+					threadId,
 					jwt: session?.user?.hasuraJwt,
 					userId: session?.user.id,
 				})
@@ -602,7 +575,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 		if (!thread) {
 			thread = await getThread({
-				threadId: isContinuousThread ? randomThreadId.current : threadId,
+				threadId,
+				isPersonal: true,
 				jwt: session?.user?.hasuraJwt,
 			})
 		}
@@ -625,7 +599,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 		let previousAiUserMessages: AiMessage[] = []
 
-		if (activeThread?.thread) {
+		if (activeThread?.thread?.messages) {
 			previousAiUserMessages = activeThread.thread.messages
 				.map((msg) => ({
 					id: msg.messageId,
@@ -777,14 +751,18 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 		return null
 	}
 
-	const sendMessageFromResponse = async (bulletContent: string) => {
+	const sendMessageFromResponse = async (
+		{ bulletContent, messageId }: SendMessageFromResponseMessageData,
+		callback?: () => void,
+	) => {
 		const fullMessage = bulletContent
+		clickedContentRef.current = messageId
 
-		appendWithMbContextPrompts({
-			id: activeThread?.threadId,
+		await appendWithMbContextPrompts({
+			id: threadId,
 			content: fullMessage,
 			role: 'user',
-		})
+		}).finally(callback)
 	}
 
 	const toggleWebSearch = () => {
@@ -816,17 +794,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				((!allMessages.length && isNewChat) || isContinuingThread) &&
 				chatbot
 			) {
-				let slug = toSlug(userContentRef.current)
-				let slugCheck = await doesThreadSlugExist(slug)
-
-				while (slugCheck.exists) {
-					slug = toSlug(`${userContentRef.current} ${slugCheck.sequence + 1}`)
-					slugCheck = await doesThreadSlugExist(slug)
-				}
+				const threadSlug = await generateUniqueSlug(userContentRef.current)
 
 				await createThread({
-					threadId: threadId as string,
-					slug,
+					threadId,
+					slug: threadSlug,
 					chatbotId: chatbot.chatbotId,
 					parentThreadId: isContinuingThread
 						? (continuousThreadId as string)
@@ -858,7 +830,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 			let previousAiUserMessages: AiMessage[] = []
 
-			if (activeThread?.thread) {
+			if (activeThread?.thread?.messages) {
 				previousAiUserMessages = activeThread.thread.messages
 					.map((msg) => ({
 						id: msg.messageId,
@@ -879,7 +851,10 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						? userContentRef.current // improved user message
 						: followingQuestionsPrompt(
 								userContentRef.current,
-								previousAiUserMessages.concat(allMessages),
+								previousAiUserMessages.concat(
+									allMessages,
+								) as unknown as Message[],
+								clickedContentRef.current,
 							),
 				},
 				chatMessagesOptions,
@@ -960,7 +935,10 @@ export type MBChatHookActions = {
 	appendAsContinuousThread: (
 		userMessage: OpenAi.UIMessage | CreateMessage,
 	) => Promise<string | null | undefined>
-	sendMessageFromResponse: (bulletContent: string) => void
+	sendMessageFromResponse: (
+		messageData: SendMessageFromResponseMessageData,
+		callback?: () => void,
+	) => void
 	append: (
 		message: OpenAi.UIMessage | CreateMessage,
 		chatRequestOptions?: ChatRequestOptions,

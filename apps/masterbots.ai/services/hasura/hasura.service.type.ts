@@ -16,6 +16,7 @@ export interface GetThreadsParams extends HasuraServiceParams {
 	categoryId?: number | null
 	domain?: string | null
 	keyword?: string
+	isAdminMode?: boolean
 	limit?: number
 	offset?: number
 }
@@ -26,6 +27,7 @@ export interface GetThreadParams extends HasuraServiceParams {
 	threadId?: string | null
 	threadQuestionSlug?: string | null
 	isPersonal?: boolean
+	isSEO?: boolean
 	signal?: AbortController['signal']
 }
 
@@ -48,6 +50,7 @@ export interface CreateThreadParams extends HasuraServiceParams {
 	slug: string
 	userId: string
 	isPublic?: boolean
+	shortLink?: string
 	parentThreadId?: string
 }
 

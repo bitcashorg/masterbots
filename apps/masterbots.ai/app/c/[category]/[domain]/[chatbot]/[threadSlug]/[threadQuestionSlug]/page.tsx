@@ -40,7 +40,7 @@ export default async function BotThreadPopUpQuestionPage(props: {
 		throw new Error('User ID is missing.')
 	}
 
-	const threads = await getThreads({
+	const { threads, count } = await getThreads({
 		chatbotName,
 		jwt: jwt as string,
 		userId,
@@ -49,7 +49,7 @@ export default async function BotThreadPopUpQuestionPage(props: {
 
 	return (
 		<>
-			<ThreadPanel threads={threads} />
+			<ThreadPanel threads={threads} count={count} />
 			<ChatChatbot chatbot={chatbot} />
 		</>
 	)

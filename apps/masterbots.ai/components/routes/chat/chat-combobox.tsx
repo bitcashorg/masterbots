@@ -13,6 +13,7 @@ import {
 import {
 	IconClaude,
 	IconDeepSeek,
+	IconGemini,
 	IconLlama,
 	IconOpenAI,
 	IconWordware,
@@ -31,16 +32,33 @@ import { appConfig } from 'mb-env'
 import * as React from 'react'
 
 const models = [
-	{ label: 'GPT-4o', value: AIModels.Default, logo: 'MB' },
-	{ label: 'GPT-4', value: AIModels.GPT4, logo: <IconOpenAI /> },
+	{ label: 'Default', value: AIModels.Default, logo: 'MB' },
+	{ label: 'GPT-4.1', value: AIModels.GPT4_1, logo: <IconOpenAI /> },
+	{ label: 'GPT-4o mini', value: AIModels.GPT4o, logo: <IconOpenAI /> },
+
 	{ label: 'Claude3', value: AIModels.Claude3, logo: <IconClaude /> },
-	{ label: 'llama3_8', value: AIModels.llama3_8b, logo: <IconLlama /> },
-	{ label: 'llama3_7', value: AIModels.llama3_7b, logo: <IconLlama /> },
+	{ label: 'llama3-8', value: AIModels.llama3_8b, logo: <IconLlama /> },
+	{ label: 'llama3-7', value: AIModels.llama3_7b, logo: <IconLlama /> },
 	{ label: 'WordWare', value: AIModels.WordWare, logo: <IconWordware /> },
 	{
 		label: 'DeepSeek',
 		value: AIModels.DeepSeekGroq,
 		logo: <IconDeepSeek />,
+	},
+	{
+		label: 'Gemini',
+		value: AIModels.Gemini,
+		logo: <IconGemini />,
+	},
+	{
+		label: 'Gemini Pro',
+		value: AIModels.Gemini_pro,
+		logo: <IconGemini />,
+	},
+	{
+		label: 'Gemini Lite',
+		value: AIModels.Gemini_lite,
+		logo: <IconGemini />,
 	},
 ]
 
@@ -49,7 +67,8 @@ export function ChatCombobox() {
 	const [open, setOpen] = React.useState(false)
 	const { isPowerUp } = usePowerUp()
 	const { isDeepThinking, toggleDeepThinking } = useDeepThinking()
-	const isDevEnv = process.env.NEXT_PUBLIC_APP_ENV !== 'prod'
+	// TODO: Add subscription check to enable/disable this feature along with the feature flag
+	const isMultiModelEnabled = appConfig.features.multiModel
 
 	const processingSelectionRef = React.useRef(false)
 
@@ -117,7 +136,7 @@ export function ChatCombobox() {
 					<CommandEmpty>No model found.</CommandEmpty>
 					<CommandGroup>
 						<CommandList>
-							{isDevEnv ? (
+							{isMultiModelEnabled ? (
 								models.map((model) => (
 									<CommandItem
 										key={model.value}

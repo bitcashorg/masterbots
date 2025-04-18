@@ -1,12 +1,17 @@
+/* eslint-disable no-unused-vars */
 import { ChatMessage } from '@/components/routes/chat/chat-message'
 import { ReasoningChatMessage } from '@/components/routes/chat/reasoning/reasoning-chat-message'
 import { hasReasoning } from '@/lib/helpers/ai-helpers'
+import type { SendMessageFromResponseMessageData } from '@/types/types'
 
 type MessageRendererProps = {
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	message: any
 	actionRequired?: boolean
-	sendMessageFromResponse?: (message: string) => void
+	sendMessageFromResponse?: (
+		messageData: SendMessageFromResponseMessageData,
+		callback?: () => void,
+	) => void
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	chatbot?: any
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>

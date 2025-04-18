@@ -23,16 +23,16 @@
  */
 
 import { generateShortLink } from '@/app/actions'
-import { Button } from '@/components/ui/button'
+import { Button, type ButtonProps } from '@/components/ui/button'
 import { AnimatePresence } from 'framer-motion'
 import { LucideCheck, LucideLoader2, LucideX, Share2 } from 'lucide-react'
 import { useState } from 'react'
 
-interface ShareButtonProps {
+interface ShareButtonProps extends ButtonProps {
 	url: string
 }
 
-export function ShareButton({ url }: ShareButtonProps) {
+export function ShareButton({ url, ...props }: ShareButtonProps) {
 	const [status, setStatus] = useState<
 		'default' | 'loading' | 'copied' | 'error'
 	>('default')
@@ -43,7 +43,7 @@ export function ShareButton({ url }: ShareButtonProps) {
 			// biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
 			let content
 			const { data, error } = await generateShortLink(url)
-			if (data !== null) {
+			if (data?.shortLink) {
 				content = data.shortLink
 			} else {
 				content = process.env.NEXT_PUBLIC_BASE_URL + url
@@ -73,13 +73,14 @@ export function ShareButton({ url }: ShareButtonProps) {
 	return (
 		<Button
 			type="button"
-			variant={'ghost'}
-			size={'sm'}
-			className="flex justify-between w-full"
+			variant="ghost"
+			size="lg"
+			className="flex justify-between w-full px-4 rounded-none"
 			onClick={(e) => {
 				e.stopPropagation()
 				copyToClipboard()
 			}}
+			{...props}
 		>
 			<AnimatePresence>{iconsMap[status]}</AnimatePresence>
 			<span>Share</span>

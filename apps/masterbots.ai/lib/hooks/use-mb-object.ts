@@ -1,6 +1,6 @@
 import { mbObjectSchema } from '@/lib/helpers/ai-helpers'
 import type { MBObjectHook } from '@/types/types'
-import { experimental_useObject as useObject } from 'ai/react'
+import { experimental_useObject as useObject } from '@ai-sdk/react'
 
 // ? https://sdk.vercel.ai/docs/reference/ai-sdk-ui/use-object#experimental_useobject
 export function useMBObject({ schema }: MBObjectHook) {

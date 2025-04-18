@@ -28,7 +28,10 @@ export function BrowseChatbotDesktopDetails({
 	const followed = isFollowed({ followers, userId: session?.user?.id || '' })
 
 	return (
-		<div className="hidden md:block w-full relative bg-left-bottom bg-[url('/hero-bg.png')] bg-no-repeat py-6">
+		<div
+			className="hidden md:block w-full relative bg-left-bottom bg-[url('/hero-bg.png')] bg-no-repeat py-6"
+			id="hero-section"
+		>
 			<div className="absolute inset-0 z-0 bg-gradient-to-l from-mirage via-[#6A0D826E]/80 to-[#9412B5BF] dark:via-[#66B252BF]/80 dark:to-[#83E56A6B]/80" />
 			<div className="relative z-10">
 				<div className="max-w-[600px] mx-auto mb-4">

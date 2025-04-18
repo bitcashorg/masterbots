@@ -1,7 +1,7 @@
 import OgBgImage from '@/components/shared/og-bg-image'
+import type { Thread } from 'mb-genql'
 interface OgImageProps {
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	thread: any
+	thread?: Partial<Thread>
 	question: string
 	answer: string
 	username: string | undefined
@@ -46,20 +46,26 @@ export default function OgImage({
 						marginRight: '20px',
 					}}
 				>
-					<p
-						style={{
-							fontWeight: 'bold',
-							marginBottom: '0px',
-							fontSize: 32,
-							color: isLightTheme ? '#17171b' : '#ffff',
-						}}
-					>
-						{thread.chatbot.name}
-					</p>
-					<p style={{ color: '#ef4444', fontSize: '18px', marginTop: '0px' }}>
-						{' '}
-						{thread.chatbot.categories[0]?.category.name}
-					</p>
+					{thread?.chatbot ? (
+						<>
+							<p
+								style={{
+									fontWeight: 'bold',
+									marginBottom: '0px',
+									fontSize: 32,
+									color: isLightTheme ? '#17171b' : '#ffff',
+								}}
+							>
+								{thread.chatbot.name}
+							</p>
+							<p
+								style={{ color: '#ef4444', fontSize: '18px', marginTop: '0px' }}
+							>
+								{' '}
+								{thread.chatbot.categories[0]?.category.name}
+							</p>
+						</>
+					) : null}
 					<h1
 						style={{
 							fontSize: '64px',
@@ -146,7 +152,7 @@ export default function OgImage({
 						</p>
 					</div>
 				</div>
-				{thread.chatbot.avatar ? (
+				{thread?.chatbot?.avatar ? (
 					<div style={{ display: 'flex' }}>
 						<div
 							style={{

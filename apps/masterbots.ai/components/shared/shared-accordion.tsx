@@ -1,13 +1,18 @@
+import { CONTINUE_GENERATION_PROMPT } from '@/lib/constants/prompts'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
+import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { getCanonicalDomain } from '@/lib/url'
 import { cn } from '@/lib/utils'
 import { getThread } from '@/services/hasura'
+import { AnimatePresence, motion } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
+import { appConfig } from 'mb-env'
 import type { Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
-import { useParams, usePathname, useRouter } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
+import { useInView } from 'react-intersection-observer'
 
 interface SharedAccordionProps
 	extends Omit<React.ComponentProps<'div'>, 'onToggle'> {
@@ -62,12 +67,16 @@ export function SharedAccordion({
 	const [currentRequest, setCurrentRequest] = useState<AbortController | null>(
 		null,
 	)
+	const { isAdminMode } = useThreadVisibility()
 
 	const pathname = usePathname()
 	const params = useParams()
-	const router = useRouter()
 	const accordionRef = useRef<HTMLDivElement>(null)
 	const isPublic = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
+	// Handle profile page routing
+	const profilePage = /^\/u\/[^/]+\/t(?:\/|$)/.test(pathname)
+	// Handle bot page routing i.e.: /b/:chatbotName
+	const botProfile = /^\/b\/[^/]+(?:\/|$)/.test(pathname)
 
 	// State initialization
 	const [open, setOpen] = useState(
@@ -84,6 +93,16 @@ export function SharedAccordion({
 	const shouldBeDisabled = disabled || isAnotherThreadOpen
 	const isMainThread = !isOpenPopup
 
+	const { ref, inView: isHeroInView } = useInView({
+		threshold: 0.1,
+	})
+
+	useEffect(() => {
+		const heroElement = document.getElementById('hero-section')
+		if (heroElement) {
+			ref(heroElement)
+		}
+	}, [ref])
 	// Mobile scroll handling
 	useEffect(() => {
 		if (variant === 'browse') {
@@ -141,38 +160,58 @@ export function SharedAccordion({
 		const fullThread = await getThread({
 			threadId: thread.threadId,
 			isPersonal: !isPublic,
-			jwt: session?.user?.hasuraJwt,
+			jwt: !isPublic ? session?.user?.hasuraJwt : '',
 			signal: abortController.signal,
 		})
 
-		setActiveThread(fullThread || null)
+		setActiveThread(
+			fullThread
+				? ({
+						...fullThread,
+						thread: {
+							...fullThread.thread,
+						},
+					} as Thread)
+				: null,
+		)
 		setLoading(false)
 		setCurrentRequest(null)
 
 		const canonicalDomain = getCanonicalDomain(fullThread?.chatbot?.name || '')
 
-		navigateTo({
-			urlType: 'threadUrl',
-			shallow: true,
-			navigationParams: {
-				type: isPublic ? 'public' : 'personal',
-				category: fullThread?.chatbot?.categories[0]?.category?.name || 'AI',
-				domain: canonicalDomain,
-				chatbot: fullThread?.chatbot?.name || 'Masterbots',
-				threadSlug: fullThread?.slug || (params.threadSlug as string),
-			},
-		})
+		if (profilePage) {
+			const slug = params.userSlug as string
+			navigateTo({
+				urlType: 'profilesThreadUrl',
+				shallow: true,
+				navigationParams: {
+					type: 'user',
+					usernameSlug: slug,
+					category: fullThread?.chatbot?.categories[0]?.category?.name || 'AI',
+					domain: canonicalDomain,
+					chatbot: fullThread?.chatbot?.name || 'Masterbots',
+					threadSlug: fullThread?.slug || (params.threadSlug as string),
+				},
+			})
+		} else {
+			navigateTo({
+				urlType: 'threadUrl',
+				shallow: true,
+				navigationParams: {
+					type: isPublic ? 'public' : 'personal',
+					category: fullThread?.chatbot?.categories[0]?.category?.name || 'AI',
+					domain: canonicalDomain,
+					chatbot: fullThread?.chatbot?.name || 'Masterbots',
+					threadSlug: fullThread?.slug || (params.threadSlug as string),
+				},
+			})
+		}
 
 		return thread
 	}
 
 	const handleClick = async (e: React.MouseEvent) => {
 		e.stopPropagation()
-
-		// Handle profile page routing
-		const profilePage = /^\/u\/[^/]+\/t(?:\/|$)/.test(pathname)
-		// Handle bot page routing i.e.: /b/:chatbotName
-		const botProfile = /^\/b\/[^/]+(?:\/|$)/.test(pathname)
 		const category = thread?.chatbot?.categories[0]?.category?.name
 		const chatbot = thread?.chatbot?.name
 
@@ -180,8 +219,24 @@ export function SharedAccordion({
 			setLoading(true)
 			// Open modal for both variants
 			await updateActiveThread()
+			// console.log("Reach here")
 			setIsOpenPopup(true)
-		} else if (profilePage) {
+		} else if (isMainThread && profilePage) {
+			if (appConfig.features.profileNBotPageHasPopup) {
+				const offset = 400 // How much to scroll down
+				const scrollContainer = document.getElementById('thread-scroll-section')
+				if (isHeroInView && scrollContainer) {
+					scrollContainer.scrollBy({
+						top: offset,
+						behavior: 'smooth',
+					})
+				}
+				setLoading(true)
+				await updateActiveThread()
+				setIsOpenPopup(true)
+				return
+			}
+
 			setIsOpenPopup(false)
 			setActiveThread(null)
 			const slug = params.userSlug as string
@@ -191,7 +246,6 @@ export function SharedAccordion({
 				console.error('Missing required navigation parameters')
 				return
 			}
-
 			navigateTo({
 				urlType: 'profilesThreadUrl',
 				navigationParams: {
@@ -203,8 +257,24 @@ export function SharedAccordion({
 					threadSlug: thread?.slug || (params.threadSlug as string),
 				},
 			})
-		} else if (botProfile) {
+		} else if (isMainThread && botProfile) {
 			// Bot profile page navigation
+			if (appConfig.features.profileNBotPageHasPopup) {
+				const offset = 400 // How much to scroll down
+				const scrollContainer = document.getElementById('thread-scroll-section')
+				if (isHeroInView && scrollContainer) {
+					scrollContainer.scrollBy({
+						top: offset,
+						behavior: 'smooth',
+					})
+				}
+				setLoading(true)
+				await updateActiveThread()
+				setIsOpenPopup(true)
+
+				return
+			}
+
 			setIsOpenPopup(false)
 			setActiveThread(null)
 
@@ -229,7 +299,6 @@ export function SharedAccordion({
 
 	const toggle = () => {
 		if (shouldBeDisabled) return
-
 		setOpen((prevOpen) => {
 			const newState = !prevOpen
 
@@ -272,7 +341,7 @@ export function SharedAccordion({
 		<div
 			ref={accordionRef}
 			className={cn(
-				'relative transition-all duration-300',
+				'relative w-full transition-all duration-300',
 				className,
 				// Browse variant specific styles
 				variant === 'browse' &&
@@ -313,7 +382,7 @@ export function SharedAccordion({
 						'dark:border-b-mirage border-b-gray-300 shadow-lg transform-gpu backdrop-blur-sm',
 					!isNestedThread &&
 						!open &&
-						'dark:hover:border-b-mirage hover:border-b-gray-300 [&>div>div>button]:!hidden',
+						'dark:hover:border-b-mirage hover:border-b-gray-300',
 					isNestedThread &&
 						open &&
 						'bg-gray-200/90 dark:bg-gray-800/90 !hover:rounded-t-none',
@@ -323,26 +392,38 @@ export function SharedAccordion({
 				id={props.id}
 			>
 				<div className="flex w-full">
-					<span className="flex flex-col w-full">
-						{Array.isArray(children) && children[0]}
-						{!open && Array.isArray(children) && children[1]}
-					</span>
-					<ChevronDown
-						{...(handleTrigger
-							? {
-									onClick: (e) => {
-										e.stopPropagation()
-										handleTrigger()
-									},
-								}
-							: {})}
-						className={cn(
-							'ml-auto min-w-4 max-w-4 h-9 transition-transform duration-200',
-							open ? '' : '-rotate-90',
-							arrowClass,
-							disabled && 'hidden',
+					<div className="flex w-full">
+						{/* //! children[0] is the title, children[1] is the description that we are not longer using  */}
+						{Array.isArray(children) && (
+							<div className="select-text">
+								{typeof children[0] === 'string' &&
+								children[0]
+									.toLowerCase()
+									.includes(CONTINUE_GENERATION_PROMPT.toLowerCase())
+									? '(continued...)'
+									: children[0]}
+							</div>
 						)}
-					/>
+						{!open && Array.isArray(children) && children[1]}
+					</div>
+					{activeThread && (
+						<ChevronDown
+							{...(handleTrigger
+								? {
+										onClick: (e) => {
+											e.stopPropagation()
+											handleTrigger()
+										},
+									}
+								: {})}
+							className={cn(
+								'ml-auto min-w-4 max-w-4 h-9 transition-transform duration-200',
+								open ? '' : '-rotate-90',
+								arrowClass,
+								disabled && 'hidden',
+							)}
+						/>
+					)}
 				</div>
 				{loading && (
 					<div className="absolute inset-0 bg-accent/5 rounded-lg backdrop-blur-[1px] animate-pulse" />
@@ -357,22 +438,26 @@ export function SharedAccordion({
 			</button>
 
 			{/* Accordion content */}
-			<div
-				className={cn(
-					'text-sm transition-all border relative',
-					!isNestedThread &&
-						open &&
-						'animate-accordion-down dark:bg-[#18181B]/75 bg-white/75 dark:border-b-mirage border-b-gray-300 !border-t-transparent last-of-type:rounded-b-lg shadow-lg backdrop-blur-sm',
-					isNestedThread &&
-						open &&
-						'animate-accordion-down dark:bg-[#18181B]/50 bg-white/50 dark:border-b-mirage border-b-gray-300/10 !border-t-transparent last-of-type:rounded-b-lg',
-					!open &&
-						'overflow-hidden animate-accordion-up h-0 border-transparent',
-					contentClass,
+			<AnimatePresence initial={false}>
+				{open && (
+					<motion.div
+						className={cn(
+							'text-sm border relative',
+							!isNestedThread &&
+								'dark:bg-[#18181B]/75 bg-white/75 dark:border-b-mirage border-b-gray-300 !border-t-transparent last-of-type:rounded-b-lg shadow-lg backdrop-blur-sm',
+							isNestedThread &&
+								'dark:bg-[#18181B]/50 bg-white/50 dark:border-b-mirage border-b-gray-300/10 !border-t-transparent last-of-type:rounded-b-lg',
+							contentClass,
+						)}
+						initial={{ height: 0, opacity: 0, marginTop: 0 }}
+						animate={{ height: 'auto', opacity: 1, marginTop: -24 }}
+						exit={{ height: 0, opacity: 0, marginTop: 0 }}
+						transition={{ duration: 0.3, ease: 'easeInOut' }}
+					>
+						{Array.isArray(children) && children[2]}
+					</motion.div>
 				)}
-			>
-				{Array.isArray(children) && children[2]}
-			</div>
+			</AnimatePresence>
 
 			{variant === 'browse' && !isNestedThread && !open && (
 				<div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-800 to-transparent opacity-30" />
