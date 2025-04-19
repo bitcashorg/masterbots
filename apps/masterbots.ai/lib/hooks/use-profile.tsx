@@ -89,6 +89,14 @@ export function ProfileProvider({ children }: ProfileProviderProps) {
 				topic,
 				profilePicture,
 			})
+			setCurrentUser((prevUser) => {
+				if (!prevUser) return null
+				return {
+					...prevUser,
+					bio: bio || prevUser.bio || '',
+					profilePicture: profilePicture || prevUser.profilePicture,
+				}
+			})
 		} catch (error) {
 			console.error('Failed to update user info', error)
 			customSonner({ type: 'error', text: 'Failed to update user info' })
