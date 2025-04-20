@@ -13,6 +13,7 @@ import { useProfile } from '@/lib/hooks/use-profile'
 import { urlBuilders } from '@/lib/url'
 import { cn } from '@/lib/utils'
 import { getUserInfoFromBrowse } from '@/services/hasura'
+import type { User } from 'mb-genql'
 import { toSlugWithUnderScore } from 'mb-lib'
 import type { Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
@@ -37,23 +38,19 @@ function truncateUsername(username: string | null | undefined, maxLength = 10) {
 }
 
 export function UserMenu({ user }: UserMenuProps) {
-	const [data, setData] = React.useState<any | null>(null)
+	const [data, setData] = React.useState<User | null>(null)
 
-	const { currentUser } = useProfile()
-	// React.useEffect(() => {
-	// 	const fetchUser = async () => {
-	// 		const res = getUserInfoFromBrowse((await user).slug as string);
-	// 		const userData = await res;
-	// 		if (userData) {
-	// 			setData(userData);
-	// 		}
-	// 	}
-	// 	fetchUser()
-	// }, [user])
+	React.useEffect(() => {
+		const fetchUser = async () => {
+			const res = getUserInfoFromBrowse((await user).slug as string)
+			const userData = await res
+			if (userData) {
+				setData(userData as User)
+			}
+		}
+		fetchUser()
+	}, [user])
 
-	console.log('currentUser:', currentUser)
-
-	console.log('User data:', data)
 	return (
 		<div className="items-center justify-between hidden md:block">
 			<DropdownMenu>
