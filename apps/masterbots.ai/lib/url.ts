@@ -16,6 +16,7 @@ import type {
 	UserChatbotThreadListUrlParams,
 	UserTopicThreadListUrlParams,
 } from '@/types/url'
+import { appConfig } from 'mb-env'
 import { toSlug } from 'mb-lib'
 import { wordsToRemove } from 'mb-lib/src/constants/slug-seo-words'
 import { type ZodSchema, z } from 'zod'
@@ -694,9 +695,11 @@ export async function generateUniqueSlug(
 		return finalSlug
 	}
 
-	console.log(
-		`[generateUniqueSlug] Base slug "${finalSlug}" exists (sequence: ${slugCheck.sequence}). Attempting alternatives.`,
-	)
+	if (appConfig.features.devMode) {
+		console.log(
+			`[generateUniqueSlug] Base slug "${finalSlug}" exists (sequence: ${slugCheck.sequence}). Attempting alternatives.`,
+		)
+	}
 	// Initial call to the recursive function starting with attempt 1
 	// Pass the sequence number found during the initial check
 	slugCheck = await findUniqueSlugRecursive(
@@ -710,9 +713,11 @@ export async function generateUniqueSlug(
 
 	// If max attempts reached and slug still exists, resort to nanoid
 	if (slugCheck.exists) {
-		console.warn(
-			`[generateUniqueSlug] Max attempts (${maxAttempts}) reached. Using nanoid fallback.`,
-		)
+		if (appConfig.features.devMode) {
+			console.warn(
+				`[generateUniqueSlug] Max attempts (${maxAttempts}) reached. Using nanoid fallback.`,
+			)
+		}
 		// Call the recursive nanoid fallback function
 		const maxNanoidAttempts = 5
 		slugCheck = await findUniqueSlugRecursive(
@@ -726,9 +731,11 @@ export async function generateUniqueSlug(
 
 		if (slugCheck.exists) {
 			// ! Extremely unlikely scenario
-			console.error(
-				`[generateUniqueSlug] Failed to generate unique slug even with nanoid after ${maxNanoidAttempts} attempts. Returning last generated slug: ${finalSlug}`,
-			)
+			if (appConfig.features.devMode) {
+				console.error(
+					`[generateUniqueSlug] Failed to generate unique slug even with nanoid after ${maxNanoidAttempts} attempts. Returning last generated slug: ${finalSlug}`,
+				)
+			}
 			// Return the last generated slug
 			return finalSlug
 		}
@@ -764,10 +771,12 @@ async function findUniqueSlugRecursive(
 		true,
 	)
 	const slugCheck = await delayDoesSlugExist(currentSlug)
-	console.log(
-		`[generateUniqueSlug] Recursive attempt ${attempt}: Slug "${currentSlug}" check result:`,
-		slugCheck,
-	)
+	if (appConfig.features.devMode) {
+		console.log(
+			`[generateUniqueSlug] Recursive attempt ${attempt}: Slug "${currentSlug}" check result:`,
+			slugCheck,
+		)
+	}
 
 	if (!slugCheck.exists) {
 		return {
@@ -776,9 +785,11 @@ async function findUniqueSlugRecursive(
 		}
 	}
 
-	console.log(
-		`[generateUniqueSlug] Slug "${currentSlug}" exists. Proceeding to attempt ${withNanoid ? attempt + 1 : sequence + 1 + attempt}.`,
-	)
+	if (appConfig.features.devMode) {
+		console.log(
+			`[generateUniqueSlug] Slug "${currentSlug}" exists. Proceeding to attempt ${withNanoid ? attempt + 1 : sequence + 1 + attempt}.`,
+		)
+	}
 	return findUniqueSlugRecursive(
 		baseSlug,
 		sequence,
