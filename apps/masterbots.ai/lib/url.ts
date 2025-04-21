@@ -726,6 +726,7 @@ export async function generateUniqueSlug(
 			1, // Start nanoid attempts from 1
 			maxNanoidAttempts,
 			delayDoesSlugExist,
+			true, // Use nanoid
 		)
 		finalSlug = slugCheck.slug
 
