@@ -18,10 +18,7 @@ import {
 	type FileAttachment,
 	getUserIndexedDBKeys,
 } from '@/lib/hooks/use-chat-attachments'
-import {
-	ContinueGenerationProvider,
-	useContinueGeneration,
-} from '@/lib/hooks/use-continue-generation'
+import { useContinueGeneration } from '@/lib/hooks/use-continue-generation'
 import { useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useModel } from '@/lib/hooks/use-model'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
@@ -34,7 +31,6 @@ import {
 	deleteThread,
 	getThread,
 	saveNewMessage,
-	updateMessage,
 } from '@/services/hasura'
 import type { SaveNewMessageParams } from '@/services/hasura/hasura.service.type'
 import type {
@@ -349,8 +345,12 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				// Generate unique slugs for both messages
 				const userMessageSlug = await generateUniqueSlug(
 					curatedPreUserMessageSlug,
+					'message',
 				)
-				const assistantMessageSlug = await generateUniqueSlug(message.content)
+				const assistantMessageSlug = await generateUniqueSlug(
+					message.content,
+					'message',
+				)
 
 				//? assistant message with reasoning information
 				const assistantMessageThinking = hasReasoning(finalMessage)
