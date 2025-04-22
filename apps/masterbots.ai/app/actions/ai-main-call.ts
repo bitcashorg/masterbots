@@ -358,7 +358,10 @@ export async function createResponseStream(
 
 				if (appConfig.features.experimentalAiConfig) {
 					// @ts-ignore: It does exist in the config
-					openAiStreamConfig.experimental_transform = smoothStream()
+					openAiStreamConfig.experimental_transform = smoothStream({
+						delayInMs: appConfig.features.experimentalStreamDelayMs,
+						chunking: 'line',
+					})
 				}
 
 				// Check this -> https://sdk.vercel.ai/docs/reference/ai-sdk-core/stream-text#messages.core-user-message.role

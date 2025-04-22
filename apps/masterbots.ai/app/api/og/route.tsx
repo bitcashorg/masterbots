@@ -9,14 +9,14 @@ export const runtime = 'edge'
 
 const IMAGE_DIMENSIONS = {
 	width: 1200,
-	height: 700,
+	height: 630,
 }
 
 const defaultContent = {
 	thread: {
 		chatbot: {
 			name: 'Masterbots',
-			avatar: `${process.env.NEXT_PUBLIC_BASE_URL}/images/masterbots.png`,
+			avatar: `${process.env.NEXT_PUBLIC_BASE_URL}/masterbots_og.png`,
 			categories: [{ category: { name: 'AI' } }],
 		},
 	} as Partial<Thread>,
