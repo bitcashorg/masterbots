@@ -25,6 +25,7 @@ import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
+import { logErrorToSentry } from '@/lib/sentry'
 import { generateUniqueSlug, getCanonicalDomain } from '@/lib/url'
 import {
 	createThread,
@@ -275,12 +276,36 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				].includes(options.finishReason)
 				setIsCutOff(isCutOff)
 				if (isCutOff) {
+					logErrorToSentry('Error saving new message', {
+						error: new Error(
+							'The AI generation was cut off. Click on "Continue" to finish the response.',
+						),
+						message: 'Ai failed to finish generate the message.',
+						level: 'warning',
+						extra: {
+							threadSlug: activeThread?.slug,
+							userId: session?.user.id,
+							chatbotName: activeChatbot?.name,
+							attachments: messageAttachments.current,
+						},
+					})
 					customSonner({
 						type: 'continue',
 						text: 'The AI generation was cut off. Click on "Continue" to finish the response.',
 					})
 				}
 				if (options.finishReason === 'error') {
+					logErrorToSentry('Error saving new message', {
+						error: new Error('Error saving new message'),
+						message: 'Failed to save the Masterbot message.',
+						level: 'warning',
+						extra: {
+							threadSlug: activeThread?.slug,
+							userId: session?.user.id,
+							chatbotName: activeChatbot?.name,
+							attachments: messageAttachments.current,
+						},
+					})
 					customSonner({
 						type: 'error',
 						text: 'Failed to finish communication with the Masterbot. Please try again.',
@@ -428,6 +453,17 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				}, 250)()
 			} catch (error) {
 				console.error('Error saving new message: ', error)
+				logErrorToSentry('Error saving new message', {
+					error,
+					message: 'Failed to save the Masterbot message.',
+					level: 'error',
+					extra: {
+						threadSlug: activeThread?.slug,
+						userId: session?.user.id,
+						chatbotName: activeChatbot?.name,
+						attachments: messageAttachments.current,
+					},
+				})
 				customSonner({
 					type: 'error',
 					text: 'Failed to save the Masterbot message. Please try again.',
@@ -461,7 +497,17 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		async onError(error: any) {
 			console.error('Error in chat: ', error)
-
+			logErrorToSentry('Error in the chat', {
+				error,
+				message: 'Failed to complete chat.',
+				level: 'error',
+				extra: {
+					threadSlug: activeThread?.slug,
+					userId: session?.user.id,
+					chatbotName: activeChatbot?.name,
+					attachments: messageAttachments.current,
+				},
+			})
 			customSonner({
 				type: 'error',
 				text: 'Failed to send message. Please try again.',
