@@ -681,7 +681,14 @@ export async function createThread({
 	const { insertThreadOne } = await client.mutation({
 		insertThreadOne: {
 			__args: {
-				object: { threadId, chatbotId, isPublic, parentThreadId, slug, model },
+				// TODO: Uncomment the model when FE model is done. BE is ready.
+				object: {
+					threadId,
+					chatbotId,
+					isPublic,
+					parentThreadId,
+					slug /* model */,
+				},
 			},
 			threadId: true,
 			slug: true,

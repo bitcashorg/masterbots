@@ -1,4 +1,4 @@
-import type { MessageInsertInput, ModelsEnumEnum } from 'mb-genql'
+import type { MessageInsertInput, ThreadInsertInput } from 'mb-genql'
 
 export type GetHasuraClientParams = {
 	jwt?: string
@@ -44,15 +44,13 @@ export interface UpsertUserParams {
 	adminSecret: string
 }
 
-export interface CreateThreadParams extends HasuraServiceParams {
+export interface CreateThreadParams
+	extends HasuraServiceParams,
+		ThreadInsertInput {
 	chatbotId: number
 	threadId: string
 	slug: string
 	userId: string
-	model: ModelsEnumEnum
-	isPublic?: boolean
-	shortLink?: string
-	parentThreadId?: string
 }
 
 export interface GetChatbotParams extends HasuraServiceParams {
