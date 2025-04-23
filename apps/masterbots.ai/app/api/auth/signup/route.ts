@@ -31,11 +31,7 @@ export async function POST(req: NextRequest) {
 			user: {
 				__args: {
 					where: {
-						_or: [
-							{ email: { _eq: email } },
-							// * Skipping username check for now (leading false errors)
-							// { username: { _eq: newUsername } },
-						],
+						_or: [{ email: { _eq: email } }],
 					},
 				},
 				username: true,
@@ -43,12 +39,6 @@ export async function POST(req: NextRequest) {
 			},
 		})
 
-		if (user.length && user[0].email === email) {
-			return NextResponse.json(
-				{ error: 'Username is already taken' },
-				{ status: 409 },
-			)
-		}
 		if (user.length && user[0].email === email) {
 			return NextResponse.json(
 				{ error: 'Email is already registered' },
