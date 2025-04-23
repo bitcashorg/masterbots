@@ -1,7 +1,7 @@
 import { canonicalChatbotDomains } from '@/lib/constants/canonical-domains'
 import { domainSlugs } from '@/lib/constants/domain-slugs'
-import { nanoid } from '@/lib/utils'
-import { doesMessageSlugExist } from '@/services/hasura'
+import { delayFetch, nanoid } from '@/lib/utils'
+import { doesMessageSlugExist, doesThreadSlugExist } from '@/services/hasura'
 import type {
 	ChatbotThreadListUrlParams,
 	ProfilesThreadQuestionUrlChatbotParams,
@@ -16,7 +16,7 @@ import type {
 	UserChatbotThreadListUrlParams,
 	UserTopicThreadListUrlParams,
 } from '@/types/url'
-import { throttle } from 'lodash'
+import { appConfig } from 'mb-env'
 import { toSlug } from 'mb-lib'
 import { wordsToRemove } from 'mb-lib/src/constants/slug-seo-words'
 import { type ZodSchema, z } from 'zod'
@@ -670,32 +670,132 @@ export const urlBuilders = {
 	},
 } as const
 
-// Function to generate a unique slug with retries
+// Function to generate a unique slug with retries using an iterative approach
 export async function generateUniqueSlug(
 	baseContent: string,
+	type: 'thread' | 'message' = 'thread',
 	maxAttempts = 10,
 ): Promise<string> {
-	const throttleDoesMessageSlugExist = throttle(doesMessageSlugExist, 150)
-	const baseSlug = toSlug(baseContent)
+	const doesSlugExistFn =
+		type === 'thread' ? doesThreadSlugExist : doesMessageSlugExist
+	// Delay the existence check function to avoid overwhelming the backend
+	const delayDoesSlugExist = async (slug: string) => {
+		await delayFetch(200)
+		return await doesSlugExistFn(slug)
+	}
+	const contentSubstring = baseContent.substring(0, 48) // Limit base content length
+	const baseSlug = toSlug(contentSubstring)
+
 	let finalSlug = baseSlug
-	let attempt = 0
+	// Initial check for the base slug
+	let slugCheck = await doesSlugExistFn(finalSlug)
 
-	// First try with the base slug
-	let slugCheck = await doesMessageSlugExist(finalSlug)
-
-	// If it exists, try with incremental suffixes
-	while (slugCheck.exists && attempt < maxAttempts) {
-		attempt++
-		// Just add a sequential number suffix
-		finalSlug = toSlug(`${baseContent} ${slugCheck.sequence + 1}`)
-		slugCheck = await throttleDoesMessageSlugExist(finalSlug)
+	// ? If the base slug is unique, return immediately
+	if (!slugCheck.exists) {
+		return finalSlug
 	}
 
-	// If we still couldn't get a unique slug after max attempts, add a short random suffix
+	if (appConfig.features.devMode) {
+		console.log(
+			`[generateUniqueSlug] Base slug "${finalSlug}" exists (sequence: ${slugCheck.sequence}). Attempting alternatives.`,
+		)
+	}
+	// Initial call to the recursive function starting with attempt 1
+	// Pass the sequence number found during the initial check
+	slugCheck = await findUniqueSlugRecursive(
+		baseSlug,
+		slugCheck.sequence, // Use the sequence from the initial check
+		1, // Start attempts from 1
+		maxAttempts,
+		delayDoesSlugExist,
+	)
+	finalSlug = slugCheck.slug
+
+	// If max attempts reached and slug still exists, resort to nanoid
 	if (slugCheck.exists) {
-		// Use a shorter nanoid for better readability
-		finalSlug = toSlug(`${baseContent.substring(0, 40)} ${nanoid(6)}`)
+		if (appConfig.features.devMode) {
+			console.warn(
+				`[generateUniqueSlug] Max attempts (${maxAttempts}) reached. Using nanoid fallback.`,
+			)
+		}
+		// Call the recursive nanoid fallback function
+		const maxNanoidAttempts = 5
+		slugCheck = await findUniqueSlugRecursive(
+			baseSlug,
+			slugCheck.sequence, // Use the sequence from the initial check
+			1, // Start nanoid attempts from 1
+			maxNanoidAttempts,
+			delayDoesSlugExist,
+			true, // Use nanoid
+		)
+		finalSlug = slugCheck.slug
+
+		if (slugCheck.exists) {
+			// ! Extremely unlikely scenario
+			if (appConfig.features.devMode) {
+				console.error(
+					`[generateUniqueSlug] Failed to generate unique slug even with nanoid after ${maxNanoidAttempts} attempts. Returning last generated slug: ${finalSlug}`,
+				)
+			}
+			// Return the last generated slug
+			return finalSlug
+		}
 	}
 
+	console.log(`[generateUniqueSlug] Final unique slug: "${finalSlug}"`)
 	return finalSlug
+}
+
+// Define the recursive helper function
+async function findUniqueSlugRecursive(
+	baseSlug: string,
+	sequence: number,
+	attempt: number,
+	maxAttempts: number,
+	delayDoesSlugExist: (
+		slug: string,
+	) => Promise<{ exists: boolean; slug: string; sequence: number }>,
+	withNanoid = false,
+): Promise<{ exists: boolean; slug: string; sequence: number }> {
+	// If max attempts reached, we try one more time before falling back to nanoid
+	if (attempt > maxAttempts) {
+		const lastAttemptedSlug = toSlug(
+			`${baseSlug} ${withNanoid ? nanoid(6) : sequence + attempt - 1}`,
+			true,
+		)
+		// We need one last check here to be sure before nanoid fallback
+		return await delayDoesSlugExist(lastAttemptedSlug)
+	}
+
+	const currentSlug = toSlug(
+		`${baseSlug} ${withNanoid ? nanoid(6) : sequence + 1 + attempt}`,
+		true,
+	)
+	const slugCheck = await delayDoesSlugExist(currentSlug)
+	if (appConfig.features.devMode) {
+		console.log(
+			`[generateUniqueSlug] Recursive attempt ${attempt}: Slug "${currentSlug}" check result:`,
+			slugCheck,
+		)
+	}
+
+	if (!slugCheck.exists) {
+		return {
+			...slugCheck,
+			slug: currentSlug,
+		}
+	}
+
+	if (appConfig.features.devMode) {
+		console.log(
+			`[generateUniqueSlug] Slug "${currentSlug}" exists. Proceeding to attempt ${withNanoid ? attempt + 1 : sequence + 1 + attempt}.`,
+		)
+	}
+	return findUniqueSlugRecursive(
+		baseSlug,
+		sequence,
+		attempt + 1,
+		maxAttempts,
+		delayDoesSlugExist,
+	)
 }
