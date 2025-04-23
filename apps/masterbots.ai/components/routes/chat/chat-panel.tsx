@@ -76,6 +76,7 @@ export function ChatPanel({
 
 		//? funtion call for continue generation flow
 		continueGeneration()
+		//? reseting the states
 		setIsCutOff(false)
 		setIsContinuing(false)
 	}
