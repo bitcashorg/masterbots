@@ -12,6 +12,7 @@ interface ContinueGenerationContextType {
 	isContinuing: boolean
 	continuationCount: number
 	getContinuationPrompt: () => string
+	setIsContinuing: (value: boolean) => void
 }
 
 const ContinueGenerationContext = createContext<
@@ -46,7 +47,7 @@ export function ContinueGenerationProvider({
 
 	//? Get appropriate continuation prompt based on continuation count
 	const getContinuationPrompt = () => {
-		return continuationCountRef.current <= 1
+		return continuationCountRef.current === 0
 			? CONTINUE_GENERATION_PROMPT
 			: CONTINUE_GENERATION_PROMPT_2
 	}
@@ -57,6 +58,7 @@ export function ContinueGenerationProvider({
 				isCutOff,
 				setIsCutOff,
 				continueGeneration,
+				setIsContinuing,
 				isContinuing,
 				continuationCount: continuationCountRef.current,
 				getContinuationPrompt,

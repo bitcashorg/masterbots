@@ -8,7 +8,7 @@ import type {
 	ExampleMetadata,
 } from '@/types/types'
 import type { Message } from 'ai'
-import { CONTINUE_GENERATION_PROMPT } from '../constants/prompts'
+import {CONTINUE_GENERATION_PROMPT, CONTINUE_GENERATION_PROMPT_2} from '@/lib/constants/prompts'
 
 export async function aiExampleClassification({
 	chatMetadata,
@@ -147,7 +147,8 @@ export async function processUserMessage(
 	try {
 		if (
 			userPrompt.content.trim().toLowerCase() ===
-			CONTINUE_GENERATION_PROMPT.toLowerCase()
+				CONTINUE_GENERATION_PROMPT.toLowerCase() ||
+			CONTINUE_GENERATION_PROMPT_2.toLowerCase()
 		) {
 			//? Skip improvement for continuation prompts
 			console.log('Continuation prompt detected, skipping improvement')

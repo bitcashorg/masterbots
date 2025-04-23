@@ -1,4 +1,4 @@
-import { CONTINUE_GENERATION_PROMPT } from '@/lib/constants/prompts'
+import { CONTINUE_GENERATION_PROMPT, CONTINUE_GENERATION_PROMPT_2 } from '@/lib/constants/prompts'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
@@ -399,7 +399,10 @@ export function SharedAccordion({
 								{typeof children[0] === 'string' &&
 								children[0]
 									.toLowerCase()
-									.includes(CONTINUE_GENERATION_PROMPT.toLowerCase())
+									.includes(
+										CONTINUE_GENERATION_PROMPT.toLowerCase() ||
+											CONTINUE_GENERATION_PROMPT_2.toLowerCase(),
+									)
 									? '(continued...)'
 									: children[0]}
 							</div>
