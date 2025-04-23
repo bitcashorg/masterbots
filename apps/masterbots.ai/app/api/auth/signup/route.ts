@@ -3,6 +3,7 @@
 import crypto from 'node:crypto'
 import { sendEmailVerification } from '@/lib/email'
 import { generateUsername } from '@/lib/username'
+import { delayFetch } from '@/lib/utils'
 import bcryptjs from 'bcryptjs'
 import { appConfig } from 'mb-env'
 import { getHasuraClient, toSlug } from 'mb-lib'
@@ -25,14 +26,15 @@ export async function POST(req: NextRequest) {
 	const client = getHasuraClient()
 
 	try {
-		// * Check if user exists
+		// * Check if user email exists
 		const { user } = await client.query({
 			user: {
 				__args: {
 					where: {
 						_or: [
 							{ email: { _eq: email } },
-							{ username: { _eq: newUsername } },
+							// * Skipping username check for now (leading false errors)
+							// { username: { _eq: newUsername } },
 						],
 					},
 				},
@@ -41,7 +43,7 @@ export async function POST(req: NextRequest) {
 			},
 		})
 
-		if (user.length && user[0].username === newUsername) {
+		if (user.length && user[0].email === email) {
 			return NextResponse.json(
 				{ error: 'Username is already taken' },
 				{ status: 409 },
@@ -64,6 +66,7 @@ export async function POST(req: NextRequest) {
 				newUsername = `${newUsername}${sequence}`
 			}
 
+			await delayFetch(100)
 			const { user } = await client.query({
 				user: {
 					__args: {
@@ -98,7 +101,8 @@ export async function POST(req: NextRequest) {
 							username: newUsername,
 							slug: toSlug(newUsername),
 							password: hashedPassword,
-							profilePicture: `https://api.dicebear.com/9.x/identicon/svg?seed=${newUsername}`,
+							// profilePicture: `https://api.dicebear.com/9.x/identicon/svg?seed=${newUsername}`,
+							profilePicture: `https://robohash.org/${newUsername}?bgset=bg2`,
 							dateJoined: new Date().toISOString(),
 						},
 					},
