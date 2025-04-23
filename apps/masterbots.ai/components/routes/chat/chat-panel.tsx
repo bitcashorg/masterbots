@@ -6,8 +6,7 @@ import { ButtonScrollToBottom } from '@/components/shared/button-scroll-to-botto
 import { FeatureToggle } from '@/components/shared/feature-toggle'
 import { LoadingIndicator } from '@/components/shared/loading-indicator'
 import { Button } from '@/components/ui/button'
-import { IconRefresh, IconShare, IconStop } from '@/components/ui/icons'
-import { CONTINUE_GENERATION_PROMPT } from '@/lib/constants/prompts'
+import { IconShare, IconStop } from '@/components/ui/icons'
 import { useContinueGeneration } from '@/lib/hooks/use-continue-generation'
 import { useDeepThinking } from '@/lib/hooks/use-deep-thinking'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
@@ -21,7 +20,6 @@ import {
 	ChevronsLeftRightEllipsis,
 	GlobeIcon,
 	GraduationCap,
-	Workflow,
 } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import type { Chatbot } from 'mb-genql'
@@ -223,7 +221,7 @@ export function ChatPanel({
 				<div
 					className={cn(
 						'relative flex flex-col w-full',
-						'p-2 sm:px-4 space-y-2 sm:space-y-4',
+						'p-2 md:px-4 space-y-2 sm:space-y-4',
 						'border-t shadow-lg bg-background',
 						'dark:border-zinc-800 border-zinc-200',
 						isOpenPopup ? 'dark:border-mirage border-iron' : '',

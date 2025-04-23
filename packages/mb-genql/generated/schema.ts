@@ -1123,7 +1123,19 @@ export interface ModelsEnumAggregateFields {
 /** unique or primary key constraints on table "models_enum" */
 export type ModelsEnumConstraint = "models_enum_pkey" | "models_enum_value_key";
 
-export type ModelsEnumEnum = "ANTHROPIC" | "OPENAI" | "PERPLEXITY" | "WORDWARE";
+export type ModelsEnumEnum =
+  | "CLAUDE__3_7__SONNET"
+  | "DEEPSEEK"
+  | "GEMINI__2_5__FLASH"
+  | "GEMINI__2_5__PRO"
+  | "GEMINI__FLASH__LITE"
+  | "GROQDEEPSEEK"
+  | "OPENAI"
+  | "OPENAI__4_1__MINI"
+  | "OPENAI__4_1__NANO"
+  | "OPENAI__O4__MINI"
+  | "PERPLEXITY"
+  | "PERPLEXITY__LARGE";
 
 /** aggregate max on columns */
 export interface ModelsEnumMaxFields {
@@ -17556,10 +17568,18 @@ export const enumModelsEnumConstraint = {
 };
 
 export const enumModelsEnumEnum = {
-  ANTHROPIC: "ANTHROPIC" as const,
+  CLAUDE__3_7__SONNET: "CLAUDE__3_7__SONNET" as const,
+  DEEPSEEK: "DEEPSEEK" as const,
+  GEMINI__2_5__FLASH: "GEMINI__2_5__FLASH" as const,
+  GEMINI__2_5__PRO: "GEMINI__2_5__PRO" as const,
+  GEMINI__FLASH__LITE: "GEMINI__FLASH__LITE" as const,
+  GROQDEEPSEEK: "GROQDEEPSEEK" as const,
   OPENAI: "OPENAI" as const,
+  OPENAI__4_1__MINI: "OPENAI__4_1__MINI" as const,
+  OPENAI__4_1__NANO: "OPENAI__4_1__NANO" as const,
+  OPENAI__O4__MINI: "OPENAI__O4__MINI" as const,
   PERPLEXITY: "PERPLEXITY" as const,
-  WORDWARE: "WORDWARE" as const,
+  PERPLEXITY__LARGE: "PERPLEXITY__LARGE" as const,
 };
 
 export const enumModelsEnumSelectColumn = {

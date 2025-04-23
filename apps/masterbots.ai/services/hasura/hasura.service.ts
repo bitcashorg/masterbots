@@ -670,6 +670,7 @@ export async function upsertUser({
 export async function createThread({
 	chatbotId,
 	threadId,
+	model,
 	slug,
 	jwt,
 	userId,
@@ -680,7 +681,7 @@ export async function createThread({
 	const { insertThreadOne } = await client.mutation({
 		insertThreadOne: {
 			__args: {
-				object: { threadId, chatbotId, isPublic, parentThreadId, slug },
+				object: { threadId, chatbotId, isPublic, parentThreadId, slug, model },
 			},
 			threadId: true,
 			slug: true,
