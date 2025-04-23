@@ -680,7 +680,7 @@ export async function generateUniqueSlug(
 		type === 'thread' ? doesThreadSlugExist : doesMessageSlugExist
 	// Delay the existence check function to avoid overwhelming the backend
 	const delayDoesSlugExist = async (slug: string) => {
-		await delayFetch(200)
+		await delayFetch(250)
 		return await doesSlugExistFn(slug)
 	}
 	const contentSubstring = baseContent.substring(0, 48) // Limit base content length
@@ -688,7 +688,7 @@ export async function generateUniqueSlug(
 
 	let finalSlug = baseSlug
 	// Initial check for the base slug
-	let slugCheck = await doesSlugExistFn(finalSlug)
+	let slugCheck = await delayDoesSlugExist(finalSlug)
 
 	// ? If the base slug is unique, return immediately
 	if (!slugCheck.exists) {

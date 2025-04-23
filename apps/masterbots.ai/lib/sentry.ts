@@ -51,8 +51,20 @@ export function logErrorToSentry(
 ): void {
 	const { error, message, level = 'error', extra = {}, tags = {} } = options
 
+	// Map Sentry level to console method
+	const consoleMethodMap: Record<Sentry.SeverityLevel, keyof Console> = {
+		fatal: 'error',
+		error: 'error',
+		warning: 'warn',
+		log: 'log',
+		info: 'info',
+		debug: 'debug',
+	}
+	const consoleMethod = consoleMethodMap[level] || 'log' // Default to 'log' if level is somehow unexpected
+
 	// Optional: Log locally for immediate visibility during development/debugging
-	console.error(`[${APP_NAME}] Log [${title}]:`, message || error, {
+	// @ts-ignore
+	console[consoleMethod](`[${APP_NAME}] Log [${title}]:`, message || error, {
 		level,
 		extra,
 		tags,
