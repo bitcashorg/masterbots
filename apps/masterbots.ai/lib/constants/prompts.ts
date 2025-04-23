@@ -34,7 +34,7 @@ export function createImprovementPrompt({
 	content: string
 	allUserMessages: Message[]
 }): string {
-	const prompt = `You are a highly specialized, multidisciplinary polyglot expert assistant and master of emotional intelligence that combines competencies across linguistics, language, culture, communication, psychology, copywriting and NLP to very concisely summarize the question or statement based on intent to less than 49 words: [**User Question:** ${content}"].`
+	const prompt = `You are a highly specialized, multidisciplinary polyglot expert assistant and master of emotional intelligence that combines competencies across linguistics, language, culture, communication, psychology, copywriting and NLP to very concisely summarize the question or statement based on intent to less than 49 words:    [**User Question or Statement:** ${content}"].`
 	const finalPrompt = followingQuestionsImprovementPrompt(
 		content,
 		prompt,

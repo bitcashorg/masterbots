@@ -148,7 +148,8 @@ export async function processUserMessage(
 		if (
 			userPrompt.content.trim().toLowerCase() ===
 				CONTINUE_GENERATION_PROMPT.toLowerCase() ||
-			CONTINUE_GENERATION_PROMPT_2.toLowerCase()
+			userPrompt.content.trim().toLowerCase() ===
+				CONTINUE_GENERATION_PROMPT_2.toLowerCase()
 		) {
 			//? Skip improvement for continuation prompts
 			console.log('Continuation prompt detected, skipping improvement')
