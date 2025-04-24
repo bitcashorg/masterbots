@@ -32,10 +32,9 @@ export function ProfileAvatar({ thread }: { thread: Thread }) {
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const threadThumbnail = useMemo(
-		() => `https://robohash.org/${thread?.user?.username}?bgset=bg2`,
-		// () =>
-		// 	thread.user?.profilePicture||
-		// 	`https://api.dicebear.com/9.x/notionists-neutral/svg?seed=${thread.slug}&backgroundColor=${bgColor},ffdfbf&backgroundType=gradientLinear&backgroundRotation=40`,
+		() =>
+			thread?.user?.profilePicture ||
+			`https://robohash.org/${thread?.user?.username}?bgset=bg2`,
 		[],
 	)
 
