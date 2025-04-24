@@ -2,8 +2,10 @@
 
 import { Checkbox } from '@/components/ui/checkbox'
 import { IconCaretRight } from '@/components/ui/icons'
+import { useBrowse } from '@/lib/hooks/use-browse'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
+import { useThreadSearch } from '@/lib/hooks/use-thread-search'
 import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { cn, getRouteType } from '@/lib/utils'
 import type {
@@ -34,6 +36,8 @@ export default function SidebarLink({
 	const { userSlug } = useParams()
 	const { isOpenPopup, activeThread, setIsOpenPopup, setActiveThread } =
 		useThread()
+	const { setSearchTerm } = useThreadSearch()
+	const { changeKeyword } = useBrowse()
 
 	const {
 		activeChatbot,
@@ -52,6 +56,9 @@ export default function SidebarLink({
 	const handleClickCategory = useCallback(
 		(e: React.MouseEvent) => {
 			e.stopPropagation()
+
+			setSearchTerm('')
+			changeKeyword('')
 
 			if (isOpenPopup) setIsOpenPopup(false)
 			if (activeThread) setActiveThread(null)
@@ -240,6 +247,8 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
 		const routeType = getRouteType(pathname)
 		const { userSlug, domain } = useParams()
 		const { setIsOpenPopup, setActiveThread } = useThread()
+		const { setSearchTerm } = useThreadSearch()
+		const { changeKeyword } = useBrowse()
 
 		const isPro = routeType === 'pro'
 		const canonicalDomain = getCanonicalDomain(chatbot.name)
@@ -254,6 +263,8 @@ const ChatbotComponent: React.FC<ChatbotComponentProps> = React.memo(
 			(e: React.MouseEvent) => {
 				e.preventDefault()
 
+				setSearchTerm('')
+				changeKeyword('')
 				setIsOpenPopup(false)
 				setActiveThread(null)
 				setActiveChatbot(chatbot)
