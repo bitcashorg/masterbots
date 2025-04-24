@@ -291,5 +291,5 @@ export function verifyDuplicateMessage(message: Partial<MBMessage>) {
 	}
 
 	// Filter out system prompts and messages with empty content
-	return message.content ? message.content : false
+	return message.content || false
 }
