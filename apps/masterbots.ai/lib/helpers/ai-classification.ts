@@ -1,4 +1,8 @@
 import { improveMessage } from '@/app/actions'
+import {
+	CONTINUE_GENERATION_PROMPT,
+	CONTINUE_GENERATION_PROMPT_2,
+} from '@/lib/constants/prompts'
 import type { CustomSonnerProps } from '@/lib/hooks/useSonner'
 import { fetchDomainExamples, fetchDomainTags } from '@/services/hasura'
 import type {
@@ -8,7 +12,6 @@ import type {
 	ExampleMetadata,
 } from '@/types/types'
 import type { Message } from 'ai'
-import {CONTINUE_GENERATION_PROMPT, CONTINUE_GENERATION_PROMPT_2} from '@/lib/constants/prompts'
 
 export async function aiExampleClassification({
 	chatMetadata,

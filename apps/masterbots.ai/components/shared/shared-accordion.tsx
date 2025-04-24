@@ -1,4 +1,7 @@
-import { CONTINUE_GENERATION_PROMPT, CONTINUE_GENERATION_PROMPT_2 } from '@/lib/constants/prompts'
+import {
+	CONTINUE_GENERATION_PROMPT,
+	CONTINUE_GENERATION_PROMPT_2,
+} from '@/lib/constants/prompts'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
