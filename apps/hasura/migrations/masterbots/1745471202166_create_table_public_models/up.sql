@@ -1,5 +1,5 @@
 -- Create a new enum type for model types
-CREATE TYPE model_type AS ENUM ('free', 'payed', 'pro');
+CREATE TYPE model_type AS ENUM ('free', 'paid', 'pro');
 
 -- Create the models table
 CREATE TABLE public.models (
@@ -25,11 +25,11 @@ INSERT INTO public.models (model, enabled, type) VALUES
     ('Perplexity', false, 'free'),
     ('DeepSeek', false, 'free'),
     ('GroqDeepSeek', true, 'free'),
-    ('OpenAI__4_1', true, 'payed'),
-    ('OpenAI__o4__mini', true, 'payed'),
-    ('Gemini__2_5__Pro', true, 'payed')
-    ('Claude__3_7__Sonnet', true, 'payed'),
-    ('Perplexity__Large', false, 'payed'),
+    ('OpenAI__4_1', true, 'paid'),
+    ('OpenAI__o4__mini', true, 'paid'),
+    ('Gemini__2_5__Pro', true, 'paid'),
+    ('Claude__3_7__Sonnet', true, 'paid'),
+    ('Perplexity__Large', false, 'paid')
 ON CONFLICT ("model") DO NOTHING;
 
 -- Add index to models_enum table

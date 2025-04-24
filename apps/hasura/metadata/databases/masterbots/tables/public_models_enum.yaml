@@ -3,13 +3,14 @@ table:
   schema: public
 is_enum: true
 object_relationships:
-  - name: model
+  - name: model_data
     using:
-      foreign_key_constraint_on:
-        column: model
-        table:
+      manual_configuration:
+        remote_table:
           name: models
           schema: public
+        column_mapping:
+          value: model
 array_relationships:
   - name: threads
     using:
