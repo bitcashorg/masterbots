@@ -15,6 +15,7 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { cn } from '@/lib/utils'
 import type { Message as AiMessage } from 'ai'
 import type { UseChatHelpers } from 'ai/react'
+import { ca } from 'date-fns/locale'
 import {
 	BrainIcon,
 	ChevronsLeftRightEllipsis,
@@ -24,6 +25,7 @@ import {
 import { appConfig } from 'mb-env'
 import type { Chatbot } from 'mb-genql'
 import { useCallback, useState } from 'react'
+import { logErrorToSentry } from '@/lib/sentry'
 
 export interface ChatPanelProps
 	extends Pick<
@@ -62,20 +64,45 @@ export function ChatPanel({
 	const { isPowerUp, togglePowerUp } = usePowerUp()
 	const { isDeepThinking, toggleDeepThinking } = useDeepThinking()
 	const [shareDialogOpen, setShareDialogOpen] = useState(false)
-	const { getContinuationPrompt, continueGeneration } = useContinueGeneration()
+	const {
+		getContinuationPrompt,
+		continueGeneration,
+		setIsCutOff,
+		setIsContinuing,
+	} = useContinueGeneration()
 	const [, { appendWithMbContextPrompts }] = useMBChat()
 
 	const handleContinueGeneration = async () => {
 		const continuationPrompt = getContinuationPrompt()
 
-		await appendWithMbContextPrompts({
-			id: crypto.randomUUID(),
-			role: 'user',
-			content: continuationPrompt,
-		})
+		try {
+			await appendWithMbContextPrompts({
+				// id: crypto.randomUUID(),
+				role: 'user',
+				content: continuationPrompt,
+			})
+			await continueGeneration()
+		} catch (error) {
+			console.error('Error during continuation flow:', error)
 
-		//? funtion call for continue generation flow
-		continueGeneration()
+			logErrorToSentry('Continuation generation failed', {
+				error,
+				message: 'Failed to generate continuation for the response.',
+				level: 'error',
+				extra: {
+					continuationPrompt,
+					chatbotName: chatbot?.name,
+				},
+				tags: {
+					feature: 'continuation-flow',
+					component: 'ChatPanel',
+				},
+			})
+		} finally {
+			//? Reset states
+			setIsCutOff(false)
+			setIsContinuing(false)
+		}
 	}
 
 	const isPreProcessing = Boolean(
