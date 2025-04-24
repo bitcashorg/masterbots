@@ -276,16 +276,20 @@ export function hasReasoning(message: Message & Partial<MBMessage>): boolean {
 	)
 }
 
+// ? allMessages.uniqBy callback for the use-mb-chat.ts hook
 export function verifyDuplicateMessage(message: Partial<MBMessage>) {
 	const whitelistContent = [
 		CONTINUE_GENERATION_PROMPT,
 		CONTINUE_GENERATION_PROMPT_2,
 	]
 
+	// Mutate and show the message if it is a continue generation prompt
 	if (message.content && whitelistContent.includes(message.content)) {
-		message.content = 'Continue...'
+		message.content = '(continue...)'
+
+		return message
 	}
 
 	// Filter out system prompts and messages with empty content
-	return message.content ? message : false
+	return message.content ? message.content : false
 }
