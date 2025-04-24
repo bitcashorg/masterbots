@@ -285,8 +285,6 @@ export function verifyDuplicateMessage(message: Partial<MBMessage>) {
 
 	// Mutate and show the message if it is a continue generation prompt
 	if (message.content && whitelistContent.includes(message.content)) {
-		message.content = '(continued...)'
-
 		return message
 	}
 
