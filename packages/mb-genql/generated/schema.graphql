@@ -5039,9 +5039,34 @@ enum ModelsEnumConstraint {
 
 enum ModelsEnumEnum {
   """
-  claude3_haiku
+  claude-3-7-sonnet-20250219
   """
-  ANTHROPIC
+  CLAUDE__3_7__SONNET
+
+  """
+  deepseek-r1
+  """
+  DEEPSEEK
+
+  """
+  gemini-2.5-flash-preview-04-17
+  """
+  GEMINI__2_5__FLASH
+
+  """
+  gemini-2.5-pro-preview-03-25
+  """
+  GEMINI__2_5__PRO
+
+  """
+  gemini_2_0_flash_lite
+  """
+  GEMINI__FLASH__LITE
+
+  """
+  deepseek-r1-distill-llama-70b
+  """
+  GROQDEEPSEEK
 
   """
   gpt-4o-mini
@@ -5049,14 +5074,29 @@ enum ModelsEnumEnum {
   OPENAI
 
   """
+  gpt-4.1-mini-2025-04-14
+  """
+  OPENAI__4_1__MINI
+
+  """
+  gpt-4.1-nano-2025-04-14
+  """
+  OPENAI__4_1__NANO
+
+  """
+  o4-mini-2025-04-16
+  """
+  OPENAI__O4__MINI
+
+  """
   llama3_7B
   """
   PERPLEXITY
 
   """
-  wordware
+  llama-3-sonar-large-32k-online
   """
-  WORDWARE
+  PERPLEXITY__LARGE
 }
 
 """

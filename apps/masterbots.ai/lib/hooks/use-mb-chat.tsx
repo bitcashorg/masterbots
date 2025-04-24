@@ -18,23 +18,20 @@ import {
 	type FileAttachment,
 	getUserIndexedDBKeys,
 } from '@/lib/hooks/use-chat-attachments'
-import {
-	ContinueGenerationProvider,
-	useContinueGeneration,
-} from '@/lib/hooks/use-continue-generation'
+import { useContinueGeneration } from '@/lib/hooks/use-continue-generation'
 import { useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useModel } from '@/lib/hooks/use-model'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
+import { logErrorToSentry } from '@/lib/sentry'
 import { generateUniqueSlug, getCanonicalDomain } from '@/lib/url'
 import {
 	createThread,
 	deleteThread,
 	getThread,
 	saveNewMessage,
-	updateMessage,
 } from '@/services/hasura'
 import type { SaveNewMessageParams } from '@/services/hasura/hasura.service.type'
 import type {
@@ -279,12 +276,36 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				].includes(options.finishReason)
 				setIsCutOff(isCutOff)
 				if (isCutOff) {
+					logErrorToSentry('Generation was cut off', {
+						error: new Error(
+							'The AI generation was cut off. Click on "Continue" to finish the response.',
+						),
+						message: 'Ai failed to finish generate the message.',
+						level: 'warning',
+						extra: {
+							threadSlug: activeThread?.slug,
+							userId: session?.user.id,
+							chatbotName: activeChatbot?.name,
+							attachments: messageAttachments.current,
+						},
+					})
 					customSonner({
 						type: 'continue',
 						text: 'The AI generation was cut off. Click on "Continue" to finish the response.',
 					})
 				}
 				if (options.finishReason === 'error') {
+					logErrorToSentry('Error saving new message', {
+						error: new Error('Error saving new message'),
+						message: 'Failed to save the Masterbot message.',
+						level: 'warning',
+						extra: {
+							threadSlug: activeThread?.slug,
+							userId: session?.user.id,
+							chatbotName: activeChatbot?.name,
+							attachments: messageAttachments.current,
+						},
+					})
 					customSonner({
 						type: 'error',
 						text: 'Failed to finish communication with the Masterbot. Please try again.',
@@ -349,8 +370,12 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				// Generate unique slugs for both messages
 				const userMessageSlug = await generateUniqueSlug(
 					curatedPreUserMessageSlug,
+					'message',
 				)
-				const assistantMessageSlug = await generateUniqueSlug(message.content)
+				const assistantMessageSlug = await generateUniqueSlug(
+					message.content,
+					'message',
+				)
 
 				//? assistant message with reasoning information
 				const assistantMessageThinking = hasReasoning(finalMessage)
@@ -371,6 +396,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						messageId: userMessageId,
 						slug: userMessageSlug,
 						role: 'user',
+						// TODO: Uncomment when model FE is ready. BE is ready. @bran18
+						// model: selectedModel,
 						content: userContentRef.current,
 						createdAt: new Date().toISOString(),
 					},
@@ -380,6 +407,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						messageId: assistantMessageId,
 						slug: assistantMessageSlug,
 						role: 'assistant',
+						// TODO: Uncomment when model FE is ready. BE is ready. @bran18
+						// model: selectedModel,
 						content: finalMessage.content,
 						createdAt: new Date(Date.now() + 1000).toISOString(),
 					},
@@ -428,6 +457,17 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				}, 250)()
 			} catch (error) {
 				console.error('Error saving new message: ', error)
+				logErrorToSentry('Error saving new message', {
+					error,
+					message: 'Failed to save the Masterbot message.',
+					level: 'error',
+					extra: {
+						threadSlug: activeThread?.slug,
+						userId: session?.user.id,
+						chatbotName: activeChatbot?.name,
+						attachments: messageAttachments.current,
+					},
+				})
 				customSonner({
 					type: 'error',
 					text: 'Failed to save the Masterbot message. Please try again.',
@@ -461,7 +501,17 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		async onError(error: any) {
 			console.error('Error in chat: ', error)
-
+			logErrorToSentry('Error in the chat', {
+				error,
+				message: 'Failed to complete chat.',
+				level: 'error',
+				extra: {
+					threadSlug: activeThread?.slug,
+					userId: session?.user.id,
+					chatbotName: activeChatbot?.name,
+					attachments: messageAttachments.current,
+				},
+			})
 			customSonner({
 				type: 'error',
 				text: 'Failed to send message. Please try again.',
@@ -800,6 +850,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					threadId,
 					slug: threadSlug,
 					chatbotId: chatbot.chatbotId,
+					// TODO: Uncomment when model FE is ready. BE is ready. @bran18
+					// model: selectedModel || 'OPENAI__4_1__MINI',
 					parentThreadId: isContinuingThread
 						? (continuousThreadId as string)
 						: undefined,
