@@ -12,24 +12,21 @@ CREATE TABLE public.models (
 );
 COMMENT ON TABLE public.models IS E'LLMs tracking for web display';
 
--- Add index for the foreign key
-CREATE INDEX idx_models_model ON "public"."models" ("model");
-
 -- Seed the models table with initial values from models_enum
 INSERT INTO public.models (model, enabled, type) VALUES
-    ('openAi', true, 'free'),
-    ('OpenAI__4_1__nano', true, 'free'),
-    ('OpenAI__4_1__mini', true, 'free'),
-    ('Gemini__2_5__Flash', true, 'free'),
-    ('Gemini__Flash__Lite', false, 'free'),
-    ('Perplexity', false, 'free'),
-    ('DeepSeek', false, 'free'),
-    ('GroqDeepSeek', true, 'free'),
-    ('OpenAI__4_1', true, 'paid'),
-    ('OpenAI__o4__mini', true, 'paid'),
-    ('Gemini__2_5__Pro', true, 'paid'),
-    ('Claude__3_7__Sonnet', true, 'paid'),
-    ('Perplexity__Large', false, 'paid')
+    ('gpt-4.1-mini-2025-04-14', true, 'free'),
+    ('gpt-4.1-nano-2025-04-14', true, 'free'),
+    ('gemini-2.5-flash-preview-04-17', true, 'free'),
+    ('deepseek-r1-distill-llama-70b', true, 'free'),
+    ('deepseek-r1', false, 'free'),
+    ('gpt-4o-mini', false, 'free'),
+    ('llama3_7B', false, 'free'),
+    ('gpt-4.1-2025-04-14', true, 'paid'),
+    ('o4-mini-2025-04-16', true, 'paid'),
+    ('claude-3-7-sonnet-20250219', true, 'paid'),
+    ('gemini-2.5-pro-preview-03-25', true, 'paid'),
+    ('gemini_2_0_flash_lite', false, 'free'),
+    ('llama-3-sonar-large-32k-online', false, 'paid')
 ON CONFLICT ("model") DO NOTHING;
 
 -- Add index to models_enum table
