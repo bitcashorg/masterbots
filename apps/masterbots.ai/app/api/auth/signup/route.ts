@@ -14,7 +14,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
 	const { email, password, username } = await req.json()
-	let newUsername = username.toLowerCase()
+	let newUsername = username || email.split('@')[0]
 
 	if (!email || !password) {
 		return NextResponse.json(
@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
 
 		// * Generate unique username if needed
 		let foundFreeUsername = false
-		newUsername = generateUsername(username)
+		newUsername = generateUsername(newUsername)
 		let sequence = 0
 
 		while (!foundFreeUsername) {
@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
 			if (!user.length) {
 				foundFreeUsername = true
 			} else {
-				newUsername = generateUsername(username)
+				newUsername = generateUsername(newUsername)
 			}
 
 			sequence++
