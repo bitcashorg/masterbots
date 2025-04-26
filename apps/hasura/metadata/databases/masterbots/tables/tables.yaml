@@ -9,6 +9,7 @@
 - "!include public_length_enum.yaml"
 - "!include public_message.yaml"
 - "!include public_message_type_enum.yaml"
+- "!include public_models.yaml"
 - "!include public_models_enum.yaml"
 - "!include public_preference.yaml"
 - "!include public_prompt.yaml"

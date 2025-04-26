@@ -85,7 +85,8 @@ export function getPasswordStrengthColor(strength: number): string {
 
 export function isPasswordStrong(password: string): boolean {
 	const strength = calculatePasswordStrength(password)
-	return strength >= 4 // Require at least a "Strong" password
+	// ? Reducing to moderate strength for better UX and average user
+	return strength >= 3 // Require at least a "Moderate" password
 }
 
 export function validatePassword(
@@ -105,12 +106,12 @@ export function verifyPassword(e: React.FocusEvent<HTMLInputElement>): void {
 	const form = new FormData(e.currentTarget.form as HTMLFormElement)
 	const password = form.get('password') as string
 	const passwordVerify = e.target.value
+	const doesPasswordMatch =
+		password && passwordVerify && password === passwordVerify
 
-	if (passwordVerify && password !== passwordVerify) {
-		e.target.setCustomValidity('Passwords do not match')
-	} else {
-		e.target.setCustomValidity('')
-	}
+	e.target.setCustomValidity(doesPasswordMatch ? '' : 'Passwords do not match')
+
+	if (!passwordVerify || e.relatedTarget?.id === 'password') return
 
 	e.target.reportValidity()
 }

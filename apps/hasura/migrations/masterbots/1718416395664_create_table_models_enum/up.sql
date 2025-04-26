@@ -7,6 +7,7 @@ INSERT INTO public.models_enum (name, value) VALUES
     ('openAi','gpt-4o-mini'),
     ('OpenAI__4_1__mini','gpt-4.1-mini-2025-04-14'),
     ('OpenAI__4_1__nano','gpt-4.1-nano-2025-04-14'),
+    ('OpenAI__4_1', 'gpt-4.1-2025-04-14'),
     ('OpenAI__o4__mini','o4-mini-2025-04-16'),
     ('Claude__3_7__Sonnet','claude-3-7-sonnet-20250219'),
     ('Perplexity','llama3_7B'),
