@@ -24,7 +24,7 @@ import type { Message as MBMessage } from 'mb-genql'
 import type OpenAI from 'openai'
 
 // * This function gets the model client type
-export function getModelClientType(model: AIModels) {
+export function getModelClientType(model: string): AiClientType {
 	switch (model) {
 		case AIModels.GPT4_1:
 		case AIModels.GPT4o:

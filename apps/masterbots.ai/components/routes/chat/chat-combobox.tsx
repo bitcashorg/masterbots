@@ -9,6 +9,7 @@ import {
 	CommandInput,
 	CommandItem,
 	CommandList,
+	CommandSeparator,
 } from '@/components/ui/command'
 import {
 	IconClaude,
@@ -30,44 +31,27 @@ import { cn } from '@/lib/utils'
 import { CheckIcon } from '@radix-ui/react-icons'
 import { appConfig } from 'mb-env'
 import * as React from 'react'
+import { Loader2 } from 'lucide-react'
 
-const models = [
-	{ label: 'Default', value: AIModels.Default, logo: 'MB' },
-	{ label: 'GPT-4.1', value: AIModels.GPT4_1, logo: <IconOpenAI /> },
-	{ label: 'GPT-4o mini', value: AIModels.GPT4o, logo: <IconOpenAI /> },
-
-	{ label: 'Claude3', value: AIModels.Claude3, logo: <IconClaude /> },
-	{ label: 'llama3-8', value: AIModels.llama3_8b, logo: <IconLlama /> },
-	{ label: 'llama3-7', value: AIModels.llama3_7b, logo: <IconLlama /> },
-	{ label: 'WordWare', value: AIModels.WordWare, logo: <IconWordware /> },
-	{
-		label: 'DeepSeek',
-		value: AIModels.DeepSeekGroq,
-		logo: <IconDeepSeek />,
-	},
-	{
-		label: 'Gemini',
-		value: AIModels.Gemini,
-		logo: <IconGemini />,
-	},
-	{
-		label: 'Gemini Pro',
-		value: AIModels.Gemini_pro,
-		logo: <IconGemini />,
-	},
-	{
-		label: 'Gemini Lite',
-		value: AIModels.Gemini_lite,
-		logo: <IconGemini />,
-	},
-]
+// Function to get model icon based on model name
+const getModelIcon = (modelName: string) => {
+	if (modelName.includes('gpt') || modelName.includes('o4'))
+		return <IconOpenAI />
+	if (modelName.includes('claude')) return <IconClaude />
+	if (modelName.includes('llama')) return <IconLlama />
+	if (modelName.includes('deepseek')) return <IconDeepSeek />
+	if (modelName.includes('gemini')) return <IconGemini />
+	if (modelName.includes('wordware')) return <IconWordware />
+	return 'MB' // Default logo text
+}
 
 export function ChatCombobox() {
-	const { selectedModel, changeModel } = useModel()
+	const { selectedModel, changeModel, models, isLoading } = useModel()
 	const [open, setOpen] = React.useState(false)
 	const { isPowerUp } = usePowerUp()
 	const { isDeepThinking, toggleDeepThinking } = useDeepThinking()
-	// TODO: Add subscription check to enable/disable this feature along with the feature flag
+
+	//? Feature flag for multi-model
 	const isMultiModelEnabled = appConfig.features.multiModel
 
 	const processingSelectionRef = React.useRef(false)
@@ -79,8 +63,12 @@ export function ChatCombobox() {
 	}
 
 	const getModelLogo = () => {
-		const model = models.find((m) => m.value === selectedModel)
-		return model?.logo || <IconOpenAI />
+		if (isLoading) {
+			return <Loader2 className="size-4 animate-spin" />
+		}
+
+		const model = models.find((m) => m.model === selectedModel)
+		return model ? getModelIcon(model.model) : <IconOpenAI />
 	}
 
 	const handleModelSelect = (modelValue: string) => {
@@ -91,18 +79,18 @@ export function ChatCombobox() {
 
 		setTimeout(() => {
 			try {
-				if (modelValue === AIModels.DeepSeekGroq) {
+				if (modelValue.includes('deepseek-r1-distill-llama-70b')) {
 					console.log('Combobox: Selecting DeepSeek')
 					if (!isDeepThinking) {
 						console.log('Combobox: Activating Deep Thinking')
 						toggleDeepThinking()
 					}
-				} else if (modelValue !== AIModels.DeepSeekGroq && isDeepThinking) {
+				} else if (modelValue.includes('deepseek') && isDeepThinking) {
 					console.log('Combobox: Deactivating Deep Thinking')
 					toggleDeepThinking()
-				} else if (modelValue !== AIModels.DeepSeekGroq && !isDeepThinking) {
+				} else if (!modelValue.includes('deepseek') && !isDeepThinking) {
 					console.log('Combobox: Changing model to', modelValue)
-					changeModel(modelValue as AIModels)
+					changeModel(modelValue)
 				}
 			} finally {
 				setTimeout(() => {
@@ -111,6 +99,20 @@ export function ChatCombobox() {
 			}
 		}, 100)
 	}
+
+	//? Group models by type and availability
+	const freeEnabledModels = models.filter(
+		(m) => m.type.toLowerCase() === 'free' && m.enabled,
+	)
+	const paidEnabledModels = models.filter((m) => m.type === 'paid' && m.enabled)
+	const disabledModels = models.filter((m) => !m.enabled)
+
+	console.log('Model counts:', {
+		total: models.length,
+		freeEnabled: freeEnabledModels.length,
+		paidEnabled: paidEnabledModels.length,
+		disabled: disabledModels.length,
+	})
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
@@ -130,55 +132,126 @@ export function ChatCombobox() {
 					{getModelLogo()}
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent className="w-[180px] p-0">
+			<PopoverContent className="w-[200px] p-0">
 				<Command>
-					<CommandInput placeholder="Model..." className="h-9" />
+					<CommandInput
+						placeholder="Search models..."
+						className="h-9"
+						value=""
+					/>
 					<CommandEmpty>No model found.</CommandEmpty>
-					<CommandGroup>
+
+					{isLoading ? (
+						<div className="py-6 text-center">
+							<Loader2 className="mx-auto mb-2 size-5 animate-spin text-muted-foreground" />
+							<p className="text-sm text-muted-foreground">Loading models...</p>
+						</div>
+					) : (
 						<CommandList>
 							{isMultiModelEnabled ? (
-								models.map((model) => (
-									<CommandItem
-										key={model.value}
-										value={model.value}
-										onSelect={handleModelSelect}
-									>
-										<span className="flex items-center justify-center mr-2">
-											{model.logo}
-										</span>
-										{model.label}
-										<CheckIcon
-											className={cn(
-												'ml-auto size-4 text-emerald-500',
-												selectedModel === model.value
-													? 'opacity-100'
-													: 'opacity-0',
-											)}
-										/>
-									</CommandItem>
-								))
+								<>
+									{freeEnabledModels.length > 0 && (
+										<CommandGroup heading="Free Models">
+											{freeEnabledModels.map((model) => (
+												<CommandItem
+													key={model.model}
+													value={model.model}
+													onSelect={() => handleModelSelect(model.model)}
+												>
+													<span className="flex items-center justify-center mr-2">
+														{getModelIcon(model.model)}
+													</span>
+													<span className="flex-1 truncate">
+														{model.model_data?.name || model.model}
+													</span>
+													<CheckIcon
+														className={cn(
+															'ml-auto size-4 text-emerald-500',
+															selectedModel === model.model
+																? 'opacity-100'
+																: 'opacity-0',
+														)}
+													/>
+												</CommandItem>
+											))}
+										</CommandGroup>
+									)}
+
+									{paidEnabledModels.length > 0 && (
+										<>
+											{freeEnabledModels.length > 0 && <CommandSeparator />}
+											<CommandGroup heading="Premium Models">
+												{paidEnabledModels.map((model) => (
+													<CommandItem
+														key={model.model}
+														value={model.model}
+														onSelect={() => handleModelSelect(model.model)}
+													>
+														<span className="flex items-center justify-center mr-2">
+															{getModelIcon(model.model)}
+														</span>
+														<span className="flex-1 truncate">
+															{model.model_data?.name || model.model}
+														</span>
+														<CheckIcon
+															className={cn(
+																'ml-auto size-4 text-emerald-500',
+																selectedModel === model.model
+																	? 'opacity-100'
+																	: 'opacity-0',
+															)}
+														/>
+													</CommandItem>
+												))}
+											</CommandGroup>
+										</>
+									)}
+
+									{disabledModels.length > 0 && (
+										<>
+											{(freeEnabledModels.length > 0 ||
+												paidEnabledModels.length > 0) && <CommandSeparator />}
+											<CommandGroup heading="Unavailable Models">
+												{disabledModels.map((model) => (
+													<CommandItem
+														key={model.model}
+														value={model.model}
+														className="opacity-60"
+														disabled
+													>
+														<span className="flex items-center justify-center mr-2">
+															{getModelIcon(model.model)}
+														</span>
+														<span className="flex-1 truncate">
+															{model.model_data?.name || model.model}
+														</span>
+														<span className="ml-auto text-xs text-muted-foreground">
+															{model.type === 'paid' ? 'PRO' : 'Disabled'}
+														</span>
+													</CommandItem>
+												))}
+											</CommandGroup>
+										</>
+									)}
+								</>
 							) : (
-								<CommandItem
-									key={AIModels.Default}
-									value={AIModels.Default}
-									onSelect={() => {
-										changeModel(AIModels.Default)
-										setOpen(false)
-									}}
-								>
-									Masterbot&apos;s Model
-									<CheckIcon
-										className={cn(
-											'ml-auto size-4 text-emerald-500',
-											selectedModel === AIModels.Default
-												? 'opacity-100'
-												: 'opacity-0',
-										)}
-									/>
-								</CommandItem>
+								<CommandGroup>
+									<CommandItem
+										value="default"
+										onSelect={() => {
+											const defaultModel =
+												models.find((m) => m.enabled)?.model || AIModels.Default
+											changeModel(defaultModel)
+											setOpen(false)
+										}}
+									>
+										Masterbot&apos;s Model
+										<CheckIcon className="ml-auto opacity-100 size-4 text-emerald-500" />
+									</CommandItem>
+								</CommandGroup>
 							)}
 						</CommandList>
-					</CommandGroup>
+					)}
 				</Command>
 			</PopoverContent>
 		</Popover>

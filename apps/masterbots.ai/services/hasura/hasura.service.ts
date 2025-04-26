@@ -1742,3 +1742,33 @@ export async function fetchDomainTags({
 		return null
 	}
 }
+
+//? This function fetches all models from the database
+export async function getModels() {
+	try {
+		const client = getHasuraClient({})
+		console.log('Fetching models from Hasura...')
+
+		const result = await client.query({
+			models: {
+				__typename: true,
+				model: true,
+				enabled: true,
+				type: true,
+				model_data: {
+					name: true,
+					value: true,
+				},
+				__args: {
+					orderBy: [{ type: 'ASC' }, { enabled: 'DESC' }, { model: 'ASC' }],
+				},
+			},
+		})
+
+		console.log('Models fetched:', result.models)
+		return result.models
+	} catch (error) {
+		console.error('Error fetching models:', error)
+		return []
+	}
+}
