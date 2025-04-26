@@ -24,15 +24,15 @@ interface SidebarLinkProps {
 	page?: string
 }
 
-export default function SidebarLink({
+export function SidebarLink({
 	category,
 	isFilterMode,
 	page,
 }: SidebarLinkProps) {
 	const router = useRouter()
 	const pathname = usePathname()
-	const isPublic = !/^\/(?:c|u)(?:\/|$)/.test(pathname)
 	const routeType = getRouteType(pathname)
+	const isPublic = routeType === 'public'
 	const { userSlug } = useParams()
 	const { isOpenPopup, activeThread, setIsOpenPopup, setActiveThread } =
 		useThread()
