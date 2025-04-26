@@ -687,7 +687,8 @@ export async function createThread({
 					chatbotId,
 					isPublic,
 					parentThreadId,
-					slug /* model */,
+					slug,
+					model
 				},
 			},
 			threadId: true,
@@ -1751,17 +1752,13 @@ export async function getModels() {
 
 		const result = await client.query({
 			models: {
-				__typename: true,
-				model: true,
 				enabled: true,
-				type: true,
+				model: true,
 				model_data: {
 					name: true,
 					value: true,
 				},
-				__args: {
-					orderBy: [{ type: 'ASC' }, { enabled: 'DESC' }, { model: 'ASC' }],
-				},
+				type: true,
 			},
 		})
 

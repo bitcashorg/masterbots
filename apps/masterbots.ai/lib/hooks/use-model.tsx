@@ -12,7 +12,6 @@ import {
 	type ReactNode,
 } from 'react'
 
-// Define the Model interface based on your schema
 interface ModelData {
 	model: string
 	enabled: boolean
@@ -103,7 +102,7 @@ export function ModelProvider({ children }: ModelProviderProps) {
 
 	const changeModel = useCallback(
 		(model: string) => {
-			// Verify the model exists in our database and is enabled
+			//? Verify the model exists in our database and is enabled
 			const modelData = models.find((m) => m.model === model)
 
 			if (modelData?.enabled) {
