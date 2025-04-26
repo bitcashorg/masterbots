@@ -170,10 +170,18 @@ export default function SignUpForm() {
 						id="password"
 						name="password"
 						type={state.showPassword ? 'text' : 'password'}
-						min="8"
+						min={8}
+						minLength={8}
 						required
 						value={state.password}
 						onChange={handleInputChange}
+						onBlur={(e) => {
+							e.target.validity.tooShort &&
+								customSonner({
+									type: 'error',
+									text: 'Password must be at least 8 characters long',
+								})
+						}}
 						className="pr-10"
 					/>
 					<button

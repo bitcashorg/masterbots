@@ -4925,9 +4925,82 @@ input MessageUpdates {
 }
 
 """
+Boolean expression to compare columns of type "model_type". All fields are combined with logical 'AND'.
+"""
+input ModelTypeComparisonExp {
+  _eq: model_type
+  _gt: model_type
+  _gte: model_type
+  _in: [model_type!]
+  _isNull: Boolean
+  _lt: model_type
+  _lte: model_type
+  _neq: model_type
+  _nin: [model_type!]
+}
+
+"""
+LLMs tracking for web display
+"""
+type Models {
+  enabled: Boolean!
+  model: String!
+
+  """
+  An object relationship
+  """
+  model_data: ModelsEnum!
+  type: model_type!
+}
+
+"""
+aggregated selection of "models"
+"""
+type ModelsAggregate {
+  aggregate: ModelsAggregateFields
+  nodes: [Models!]!
+}
+
+"""
+aggregate fields of "models"
+"""
+type ModelsAggregateFields {
+  count(columns: [ModelsSelectColumn!], distinct: Boolean): Int!
+  max: ModelsMaxFields
+  min: ModelsMinFields
+}
+
+"""
+Boolean expression to filter rows from the table "models". All fields are combined with a logical 'AND'.
+"""
+input ModelsBoolExp {
+  _and: [ModelsBoolExp!]
+  _not: ModelsBoolExp
+  _or: [ModelsBoolExp!]
+  enabled: BooleanComparisonExp
+  model: StringComparisonExp
+  model_data: ModelsEnumBoolExp
+  type: ModelTypeComparisonExp
+}
+
+"""
+unique or primary key constraints on table "models"
+"""
+enum ModelsConstraint {
+  """
+  unique or primary key constraint on columns "model"
+  """
+  models_pkey
+}
+
+"""
 columns and relationships of "models_enum"
 """
 type ModelsEnum {
+  """
+  An object relationship
+  """
+  model_data: Models
   name: String!
 
   """
@@ -5016,6 +5089,7 @@ input ModelsEnumBoolExp {
   _and: [ModelsEnumBoolExp!]
   _not: ModelsEnumBoolExp
   _or: [ModelsEnumBoolExp!]
+  model_data: ModelsBoolExp
   name: StringComparisonExp
   threads: ThreadBoolExp
   threadsAggregate: ThreadAggregateBoolExp
@@ -5039,9 +5113,34 @@ enum ModelsEnumConstraint {
 
 enum ModelsEnumEnum {
   """
-  claude3_haiku
+  claude-3-7-sonnet-20250219
   """
-  ANTHROPIC
+  CLAUDE__3_7__SONNET
+
+  """
+  deepseek-r1
+  """
+  DEEPSEEK
+
+  """
+  gemini-2.5-flash-preview-04-17
+  """
+  GEMINI__2_5__FLASH
+
+  """
+  gemini-2.5-pro-preview-03-25
+  """
+  GEMINI__2_5__PRO
+
+  """
+  gemini_2_0_flash_lite
+  """
+  GEMINI__FLASH__LITE
+
+  """
+  deepseek-r1-distill-llama-70b
+  """
+  GROQDEEPSEEK
 
   """
   gpt-4o-mini
@@ -5049,14 +5148,34 @@ enum ModelsEnumEnum {
   OPENAI
 
   """
+  gpt-4.1-2025-04-14
+  """
+  OPENAI__4_1
+
+  """
+  gpt-4.1-mini-2025-04-14
+  """
+  OPENAI__4_1__MINI
+
+  """
+  gpt-4.1-nano-2025-04-14
+  """
+  OPENAI__4_1__NANO
+
+  """
+  o4-mini-2025-04-16
+  """
+  OPENAI__O4__MINI
+
+  """
   llama3_7B
   """
   PERPLEXITY
 
   """
-  wordware
+  llama-3-sonar-large-32k-online
   """
-  WORDWARE
+  PERPLEXITY__LARGE
 }
 
 """
@@ -5074,6 +5193,7 @@ input ModelsEnumEnumComparisonExp {
 input type for inserting data into table "models_enum"
 """
 input ModelsEnumInsertInput {
+  model_data: ModelsObjRelInsertInput
   name: String
   threads: ThreadArrRelInsertInput
   value: String
@@ -5135,6 +5255,7 @@ input ModelsEnumOnConflict {
 Ordering options when selecting data from "models_enum".
 """
 input ModelsEnumOrderBy {
+  model_data: ModelsOrderBy
   name: OrderBy
   threadsAggregate: ThreadAggregateOrderBy
   value: OrderBy
@@ -5218,6 +5339,170 @@ input ModelsEnumUpdates {
   filter the rows which have to be updated
   """
   where: ModelsEnumBoolExp!
+}
+
+"""
+input type for inserting data into table "models"
+"""
+input ModelsInsertInput {
+  enabled: Boolean
+  model: String
+  model_data: ModelsEnumObjRelInsertInput
+  type: model_type
+}
+
+"""
+aggregate max on columns
+"""
+type ModelsMaxFields {
+  model: String
+  type: model_type
+}
+
+"""
+aggregate min on columns
+"""
+type ModelsMinFields {
+  model: String
+  type: model_type
+}
+
+"""
+response of any mutation on the table "models"
+"""
+type ModelsMutationResponse {
+  """
+  number of rows affected by the mutation
+  """
+  affectedRows: Int!
+
+  """
+  data from the rows affected by the mutation
+  """
+  returning: [Models!]!
+}
+
+"""
+input type for inserting object relation for remote table "models"
+"""
+input ModelsObjRelInsertInput {
+  data: ModelsInsertInput!
+
+  """
+  upsert condition
+  """
+  onConflict: ModelsOnConflict
+}
+
+"""
+on_conflict condition type for table "models"
+"""
+input ModelsOnConflict {
+  constraint: ModelsConstraint!
+  updateColumns: [ModelsUpdateColumn!]! = []
+  where: ModelsBoolExp
+}
+
+"""
+Ordering options when selecting data from "models".
+"""
+input ModelsOrderBy {
+  enabled: OrderBy
+  model: OrderBy
+  model_data: ModelsEnumOrderBy
+  type: OrderBy
+}
+
+"""
+primary key columns input for table: models
+"""
+input ModelsPkColumnsInput {
+  model: String!
+}
+
+"""
+select columns of table "models"
+"""
+enum ModelsSelectColumn {
+  """
+  column name
+  """
+  enabled
+
+  """
+  column name
+  """
+  model
+
+  """
+  column name
+  """
+  type
+}
+
+"""
+input type for updating data in table "models"
+"""
+input ModelsSetInput {
+  enabled: Boolean
+  model: String
+  type: model_type
+}
+
+"""
+Streaming cursor of the table "models"
+"""
+input ModelsStreamCursorInput {
+  """
+  Stream column input with initial value
+  """
+  initialValue: ModelsStreamCursorValueInput!
+
+  """
+  cursor ordering
+  """
+  ordering: CursorOrdering
+}
+
+"""
+Initial value of the column from where the streaming should start
+"""
+input ModelsStreamCursorValueInput {
+  enabled: Boolean
+  model: String
+  type: model_type
+}
+
+"""
+update columns of table "models"
+"""
+enum ModelsUpdateColumn {
+  """
+  column name
+  """
+  enabled
+
+  """
+  column name
+  """
+  model
+
+  """
+  column name
+  """
+  type
+}
+
+input ModelsUpdates {
+  """
+  sets the columns of the filtered rows to the given values
+  """
+  _set: ModelsSetInput
+
+  """
+  filter the rows which have to be updated
+  """
+  where: ModelsBoolExp!
 }
 
 """
@@ -11952,6 +12237,8 @@ input messageAggregateBoolExpCount {
   predicate: IntComparisonExp!
 }
 
+scalar model_type
+
 """
 mutation root
 """
@@ -12120,6 +12407,21 @@ type mutation_root {
   delete single row from the table: "message_type_enum"
   """
   deleteMessageTypeEnumByPk(value: String!): MessageTypeEnum
+
+  """
+  delete data from the table: "models"
+  """
+  deleteModels(
+    """
+    filter the rows which have to be deleted
+    """
+    where: ModelsBoolExp!
+  ): ModelsMutationResponse
+
+  """
+  delete single row from the table: "models"
+  """
+  deleteModelsByPk(model: String!): Models
 
   """
   delete data from the table: "models_enum"
@@ -12691,6 +12993,21 @@ type mutation_root {
   ): MessageTypeEnum
 
   """
+  insert data into the table: "models"
+  """
+  insertModels(
+    """
+    the rows to be inserted
+    """
+    objects: [ModelsInsertInput!]!
+
+    """
+    upsert condition
+    """
+    onConflict: ModelsOnConflict
+  ): ModelsMutationResponse
+
+  """
   insert data into the table: "models_enum"
   """
   insertModelsEnum(
@@ -12719,6 +13036,21 @@ type mutation_root {
     """
     onConflict: ModelsEnumOnConflict
   ): ModelsEnum
+
+  """
+  insert a single row into the table: "models"
+  """
+  insertModelsOne(
+    """
+    the row to be inserted
+    """
+    object: ModelsInsertInput!
+
+    """
+    upsert condition
+    """
+    onConflict: ModelsOnConflict
+  ): Models
 
   """
   insert data into the table: "preference"
@@ -13697,6 +14029,32 @@ type mutation_root {
   ): [MessageTypeEnumMutationResponse]
 
   """
+  update data of the table: "models"
+  """
+  updateModels(
+    """
+    sets the columns of the filtered rows to the given values
+    """
+    _set: ModelsSetInput
+
+    """
+    filter the rows which have to be updated
+    """
+    where: ModelsBoolExp!
+  ): ModelsMutationResponse
+
+  """
+  update single row of the table: "models"
+  """
+  updateModelsByPk(
+    """
+    sets the columns of the filtered rows to the given values
+    """
+    _set: ModelsSetInput
+    pkColumns: ModelsPkColumnsInput!
+  ): Models
+
+  """
   update data of the table: "models_enum"
   """
   updateModelsEnum(
@@ -13731,6 +14089,16 @@ type mutation_root {
     """
     updates: [ModelsEnumUpdates!]!
   ): [ModelsEnumMutationResponse]
+
+  """
+  update multiples rows of table: "models"
+  """
+  updateModelsMany(
+    """
+    updates to execute, in order
+    """
+    updates: [ModelsUpdates!]!
+  ): [ModelsMutationResponse]
 
   """
   update data of the table: "preference"
@@ -15086,6 +15454,71 @@ type query_root {
   fetch data from the table: "message_type_enum" using primary key columns
   """
   messageTypeEnumByPk(value: String!): MessageTypeEnum
+
+  """
+  fetch data from the table: "models"
+  """
+  models(
+    """
+    distinct select on columns
+    """
+    distinctOn: [ModelsSelectColumn!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    orderBy: [ModelsOrderBy!]
+
+    """
+    filter the rows returned
+    """
+    where: ModelsBoolExp
+  ): [Models!]!
+
+  """
+  fetch aggregated fields from the table: "models"
+  """
+  modelsAggregate(
+    """
+    distinct select on columns
+    """
+    distinctOn: [ModelsSelectColumn!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    orderBy: [ModelsOrderBy!]
+
+    """
+    filter the rows returned
+    """
+    where: ModelsBoolExp
+  ): ModelsAggregate!
+
+  """
+  fetch data from the table: "models" using primary key columns
+  """
+  modelsByPk(model: String!): Models
 
   """
   fetch data from the table: "models_enum"
@@ -17085,6 +17518,71 @@ type subscription_root {
   ): [MessageTypeEnum!]!
 
   """
+  fetch data from the table: "models"
+  """
+  models(
+    """
+    distinct select on columns
+    """
+    distinctOn: [ModelsSelectColumn!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    orderBy: [ModelsOrderBy!]
+
+    """
+    filter the rows returned
+    """
+    where: ModelsBoolExp
+  ): [Models!]!
+
+  """
+  fetch aggregated fields from the table: "models"
+  """
+  modelsAggregate(
+    """
+    distinct select on columns
+    """
+    distinctOn: [ModelsSelectColumn!]
+
+    """
+    limit the number of rows returned
+    """
+    limit: Int
+
+    """
+    skip the first n rows. Use only with order_by
+    """
+    offset: Int
+
+    """
+    sort the rows by one or more columns
+    """
+    orderBy: [ModelsOrderBy!]
+
+    """
+    filter the rows returned
+    """
+    where: ModelsBoolExp
+  ): ModelsAggregate!
+
+  """
+  fetch data from the table: "models" using primary key columns
+  """
+  modelsByPk(model: String!): Models
+
+  """
   fetch data from the table: "models_enum"
   """
   modelsEnum(
@@ -17168,6 +17666,26 @@ type subscription_root {
     """
     where: ModelsEnumBoolExp
   ): [ModelsEnum!]!
+
+  """
+  fetch data from the table in a streaming manner: "models"
+  """
+  modelsStream(
+    """
+    maximum number of rows returned in a single batch
+    """
+    batchSize: Int!
+
+    """
+    cursor to stream the results returned by the query
+    """
+    cursor: [ModelsStreamCursorInput]!
+
+    """
+    filter the rows returned
+    """
+    where: ModelsBoolExp
+  ): [Models!]!
 
   """
   fetch data from the table: "preference"

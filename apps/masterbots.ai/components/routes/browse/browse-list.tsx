@@ -211,12 +211,10 @@ export default function BrowseList({
 		// console.log('window.location.pathname.split', pathname.split('/'))
 		const isPublic = getRouteType(pathname) === 'public'
 		const isProfile = getRouteType(pathname) === 'profile'
+		const isBotProfile = getRouteType(pathname) === 'bot'
 
 		const [, _category, _domain, _chatbot, threadSlug, threadQuestionSlug] =
 			pathNameParts
-
-		if (!threadSlug) return
-
 		const [
 			,
 			_chatbotProfileRootBase,
@@ -224,6 +222,34 @@ export default function BrowseList({
 			chatbotProfileThreadSlug,
 			chatbotProfileThreadQuestionSlug,
 		] = pathNameParts
+		const [
+			,
+			_userProfileRootBase,
+			_userSlug,
+			_userThreadRootBase,
+			_userCategory,
+			_userDomain,
+			_userChatbot,
+			userThreadSlug,
+			userThreadQuestionSlug,
+		] = pathNameParts
+
+		console.log('pathname', {
+			pathNameParts,
+			isPublic,
+			isProfile,
+			isBotProfile,
+		})
+
+		if (isPublic && !threadSlug && !threadQuestionSlug) return
+		if (
+			isBotProfile &&
+			!chatbotProfileThreadSlug &&
+			!chatbotProfileThreadQuestionSlug
+		)
+			return
+		if (isProfile && !userThreadSlug && !userThreadQuestionSlug) return
+
 		const thread = await getThread({
 			threadSlug: threadSlug || chatbotProfileThreadSlug,
 		})

@@ -13,7 +13,11 @@ import {
 	processUserMessage,
 } from '@/lib/helpers/ai-classification'
 
-import { cleanPrompt, hasReasoning } from '@/lib/helpers/ai-helpers'
+import {
+	cleanPrompt,
+	hasReasoning,
+	verifyDuplicateMessage,
+} from '@/lib/helpers/ai-helpers'
 import {
 	type FileAttachment,
 	getUserIndexedDBKeys,
@@ -276,7 +280,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				].includes(options.finishReason)
 				setIsCutOff(isCutOff)
 				if (isCutOff) {
-					logErrorToSentry('Error saving new message', {
+					logErrorToSentry('Generation was cut off', {
 						error: new Error(
 							'The AI generation was cut off. Click on "Continue" to finish the response.',
 						),
@@ -396,6 +400,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						messageId: userMessageId,
 						slug: userMessageSlug,
 						role: 'user',
+						// TODO: Uncomment when model FE is ready. BE is ready. @bran18
+						// model: selectedModel,
 						content: userContentRef.current,
 						createdAt: new Date().toISOString(),
 					},
@@ -405,6 +411,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						messageId: assistantMessageId,
 						slug: assistantMessageSlug,
 						role: 'assistant',
+						// TODO: Uncomment when model FE is ready. BE is ready. @bran18
+						// model: selectedModel,
 						content: finalMessage.content,
 						createdAt: new Date(Date.now() + 1000).toISOString(),
 					},
@@ -540,7 +548,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				role: msg.role as 'data' | 'system' | 'user' | 'assistant',
 			})) || [],
 		),
-		'content',
+		verifyDuplicateMessage,
 	)
 		.filter(Boolean)
 		.filter((m) => m.role !== 'system')
@@ -718,7 +726,10 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 			isBlocked: false,
 			isPublic: activeChatbot?.name !== 'BlankBot',
 			// @ts-ignore
-			messages: uniqBy([...allMessages, defaultUserMessage], 'content'),
+			messages: uniqBy(
+				[...allMessages, defaultUserMessage],
+				verifyDuplicateMessage,
+			),
 			thread: isContinuousThread ? activeThread?.thread || null : null,
 			userId: session?.user.id,
 		}
@@ -846,6 +857,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					threadId,
 					slug: threadSlug,
 					chatbotId: chatbot.chatbotId,
+					// TODO: Uncomment when model FE is ready. BE is ready. @bran18
+					// model: selectedModel || 'OPENAI__4_1__MINI',
 					parentThreadId: isContinuingThread
 						? (continuousThreadId as string)
 						: undefined,
@@ -864,7 +877,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						content: examplesPrompt(chatbotMetadata),
 					},
 				],
-				'content',
+				verifyDuplicateMessage,
 			)
 			setMessages(chatMessagesToAppend)
 

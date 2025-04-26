@@ -3,6 +3,7 @@
 import crypto from 'node:crypto'
 import { sendEmailVerification } from '@/lib/email'
 import { generateUsername } from '@/lib/username'
+import { delayFetch } from '@/lib/utils'
 import bcryptjs from 'bcryptjs'
 import { appConfig } from 'mb-env'
 import { getHasuraClient, toSlug } from 'mb-lib'
@@ -13,7 +14,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
 	const { email, password, username } = await req.json()
-	let newUsername = username.toLowerCase()
+	let newUsername = username || email.split('@')[0]
 
 	if (!email || !password) {
 		return NextResponse.json(
@@ -25,15 +26,12 @@ export async function POST(req: NextRequest) {
 	const client = getHasuraClient()
 
 	try {
-		// * Check if user exists
+		// * Check if user email exists
 		const { user } = await client.query({
 			user: {
 				__args: {
 					where: {
-						_or: [
-							{ email: { _eq: email } },
-							{ username: { _eq: newUsername } },
-						],
+						_or: [{ email: { _eq: email } }],
 					},
 				},
 				username: true,
@@ -41,12 +39,6 @@ export async function POST(req: NextRequest) {
 			},
 		})
 
-		if (user.length && user[0].username === newUsername) {
-			return NextResponse.json(
-				{ error: 'Username is already taken' },
-				{ status: 409 },
-			)
-		}
 		if (user.length && user[0].email === email) {
 			return NextResponse.json(
 				{ error: 'Email is already registered' },
@@ -56,7 +48,7 @@ export async function POST(req: NextRequest) {
 
 		// * Generate unique username if needed
 		let foundFreeUsername = false
-		newUsername = generateUsername(username)
+		newUsername = generateUsername(newUsername)
 		let sequence = 0
 
 		while (!foundFreeUsername) {
@@ -64,6 +56,7 @@ export async function POST(req: NextRequest) {
 				newUsername = `${newUsername}${sequence}`
 			}
 
+			await delayFetch(100)
 			const { user } = await client.query({
 				user: {
 					__args: {
@@ -78,7 +71,7 @@ export async function POST(req: NextRequest) {
 			if (!user.length) {
 				foundFreeUsername = true
 			} else {
-				newUsername = generateUsername(username)
+				newUsername = generateUsername(newUsername)
 			}
 
 			sequence++
@@ -98,7 +91,8 @@ export async function POST(req: NextRequest) {
 							username: newUsername,
 							slug: toSlug(newUsername),
 							password: hashedPassword,
-							profilePicture: `https://api.dicebear.com/9.x/identicon/svg?seed=${newUsername}`,
+							// profilePicture: `https://api.dicebear.com/9.x/identicon/svg?seed=${newUsername}`,
+							profilePicture: `https://robohash.org/${newUsername}?bgset=bg2`,
 							dateJoined: new Date().toISOString(),
 						},
 					},

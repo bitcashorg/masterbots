@@ -6,13 +6,13 @@ import { ButtonScrollToBottom } from '@/components/shared/button-scroll-to-botto
 import { FeatureToggle } from '@/components/shared/feature-toggle'
 import { LoadingIndicator } from '@/components/shared/loading-indicator'
 import { Button } from '@/components/ui/button'
-import { IconRefresh, IconShare, IconStop } from '@/components/ui/icons'
-import { CONTINUE_GENERATION_PROMPT } from '@/lib/constants/prompts'
+import { IconShare, IconStop } from '@/components/ui/icons'
 import { useContinueGeneration } from '@/lib/hooks/use-continue-generation'
 import { useDeepThinking } from '@/lib/hooks/use-deep-thinking'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useThread } from '@/lib/hooks/use-thread'
+import { logErrorToSentry } from '@/lib/sentry'
 import { cn } from '@/lib/utils'
 import type { Message as AiMessage } from 'ai'
 import type { UseChatHelpers } from 'ai/react'
@@ -21,7 +21,6 @@ import {
 	ChevronsLeftRightEllipsis,
 	GlobeIcon,
 	GraduationCap,
-	Workflow,
 } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import type { Chatbot } from 'mb-genql'
@@ -64,20 +63,45 @@ export function ChatPanel({
 	const { isPowerUp, togglePowerUp } = usePowerUp()
 	const { isDeepThinking, toggleDeepThinking } = useDeepThinking()
 	const [shareDialogOpen, setShareDialogOpen] = useState(false)
-	const { getContinuationPrompt, continueGeneration } = useContinueGeneration()
+	const {
+		getContinuationPrompt,
+		continueGeneration,
+		setIsCutOff,
+		setIsContinuing,
+	} = useContinueGeneration()
 	const [, { appendWithMbContextPrompts }] = useMBChat()
 
 	const handleContinueGeneration = async () => {
 		const continuationPrompt = getContinuationPrompt()
 
-		await appendWithMbContextPrompts({
-			id: crypto.randomUUID(),
-			role: 'user',
-			content: continuationPrompt,
-		})
+		try {
+			await appendWithMbContextPrompts({
+				// id: crypto.randomUUID(),
+				role: 'user',
+				content: continuationPrompt,
+			})
+			await continueGeneration()
+		} catch (error) {
+			console.error('Error during continuation flow:', error)
 
-		//? funtion call for continue generation flow
-		continueGeneration()
+			logErrorToSentry('Continuation generation failed', {
+				error,
+				message: 'Failed to generate continuation for the response.',
+				level: 'error',
+				extra: {
+					continuationPrompt,
+					chatbotName: chatbot?.name,
+				},
+				tags: {
+					feature: 'continuation-flow',
+					component: 'ChatPanel',
+				},
+			})
+		} finally {
+			//? Reset states
+			setIsCutOff(false)
+			setIsContinuing(false)
+		}
 	}
 
 	const isPreProcessing = Boolean(
@@ -223,7 +247,7 @@ export function ChatPanel({
 				<div
 					className={cn(
 						'relative flex flex-col w-full',
-						'p-2 sm:px-4 space-y-2 sm:space-y-4',
+						'p-2 md:px-4 space-y-2 sm:space-y-4',
 						'border-t shadow-lg bg-background',
 						'dark:border-zinc-800 border-zinc-200',
 						isOpenPopup ? 'dark:border-mirage border-iron' : '',

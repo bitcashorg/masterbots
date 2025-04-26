@@ -123,7 +123,7 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 		prevPath.current = pathname
 
 		return categoriesObj
-	}, [pathname])
+	}, [pathname, prevPath.current, userSlug])
 
 	const [isSidebarOpen, setSidebarOpen] = React.useState(false)
 	const [isLoading, setLoading] = React.useState(true)

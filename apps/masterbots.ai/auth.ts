@@ -1,3 +1,4 @@
+import { generateUsername } from '@/lib/username'
 import bcrypt from 'bcryptjs'
 import { setCookie } from 'cookies-next'
 import type { User } from 'mb-genql'
@@ -214,7 +215,9 @@ export const authOptions: NextAuthOptions = {
 								object: {
 									slug,
 									email: user.email,
-									username: user.name,
+									username: generateUsername(
+										user.email?.split('@')[0] || user.name || '',
+									),
 									profilePicture: user.image,
 									// You might want to generate a random password here
 									password: bcrypt.hashSync(

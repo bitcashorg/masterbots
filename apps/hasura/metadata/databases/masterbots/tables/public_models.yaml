@@ -1,0 +1,7 @@
+table:
+  name: models
+  schema: public
+object_relationships:
+  - name: model_data
+    using:
+      foreign_key_constraint_on: model

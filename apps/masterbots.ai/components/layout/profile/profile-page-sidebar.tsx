@@ -1,30 +1,31 @@
 'use client'
 
 import { ThreadPopup } from '@/components/routes/thread/thread-popup'
-import { IconCaretRight } from '@/components/ui/icons'
 import { useProfile } from '@/lib/hooks/use-profile'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
-import { urlBuilders } from '@/lib/url'
 import { cn } from '@/lib/utils'
-import { MessagesSquare, ReceiptIcon, Settings } from 'lucide-react'
+import { ReceiptIcon, Settings } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { useAsync, useLocation } from 'react-use'
+import { useAsync } from 'react-use'
 import FooterCT from '../footer/footer-ct'
 import Sidebar from '../sidebar/sidebar'
 
-export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
+export const UserProfileSidebar = ({
+	children,
+}: {
+	children: React.ReactNode
+}) => {
 	const pathname = usePathname()
 	const openSidebar = pathname.includes('/t')
-	const [isThreadsOpen, setIsThreadsOpen] = useState(openSidebar)
+	const [isThreadsOpen] = useState(openSidebar)
 	const { userSlug } = useParams()
-	const { isSidebarOpen, toggleSidebar, setActiveCategory, setActiveChatbot } =
-		useSidebar()
-	const { sectionRef, isOpenPopup } = useThread()
+	const { isSidebarOpen, toggleSidebar } = useSidebar()
+	const { isOpenPopup } = useThread()
 	const { currentUser, isSameUser } = useProfile()
 	const { data: session } = useSession()
 	const { value: user } = useAsync(async () => {
@@ -34,12 +35,12 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 
 	const sameUser = isSameUser(user?.userId)
 
-	const handleToggleThreads = () => {
-		if (!sameUser) return
-		setIsThreadsOpen(!isThreadsOpen)
-		setActiveCategory(null)
-		setActiveChatbot(null)
-	}
+	// const handleToggleThreads = () => {
+	// 	if (!sameUser) return
+	// 	setIsThreadsOpen(!isThreadsOpen)
+	// 	setActiveCategory(null)
+	// 	setActiveChatbot(null)
+	// }
 
 	return (
 		<div className={cn('transition-all relative w-full flex h-full')}>
@@ -60,9 +61,9 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 			{/* Sidebar */}
 			<aside
 				className={cn(
-					'fixed lg:sticky z-[70] top-0 h-[100vh] ', // Changed to sticky and match parent height
+					'fixed lg:sticky z-[70] top-[64px] sm:top-0 h-full max-h-[calc(100vh-64px)] ', // Changed to sticky and match parent height
 					'w-[18.75rem] bg-gray-50 dark:bg-black border-r',
-					'lg:transform-none lg:transition-none',
+					'transition-all',
 					isSidebarOpen
 						? 'translate-x-0'
 						: '-translate-x-full lg:translate-x-0',
@@ -108,9 +109,9 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 							</Link> */}
 							<div
 								className={cn(
-									'overflow-y-auto w-full scrollbar transition-all duration-300 max-w-[300px] max-h-[650px]  ',
+									'overflow-y-auto w-full scrollbar transition-all duration-300 max-w-[300px] max-h-[calc(100vh-464px)]  ',
 									{
-										'border dark:border-b-mirage border-b-gray-200':
+										'border-b dark:border-b-mirage border-b-gray-200':
 											isThreadsOpen,
 										'max-h-0': !isThreadsOpen,
 										'border-b-none': !sameUser,
@@ -170,7 +171,7 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 				<div className="fixed bottom-0 w-full left-0 z-10 dark:bg-black bg-white">
 					<FooterCT />
 				</div>
-				<ThreadPopup className={isOpenPopup ? '' : 'hidden'} />
+				{isOpenPopup && <ThreadPopup />}
 			</section>
 		</div>
 	)
