@@ -15,14 +15,17 @@ import { useAsync } from 'react-use'
 import FooterCT from '../footer/footer-ct'
 import Sidebar from '../sidebar/sidebar'
 
-export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
+export const UserProfileSidebar = ({
+	children,
+}: {
+	children: React.ReactNode
+}) => {
 	const pathname = usePathname()
 	const openSidebar = pathname.includes('/t')
-	const [isThreadsOpen, setIsThreadsOpen] = useState(openSidebar)
+	const [isThreadsOpen] = useState(openSidebar)
 	const { userSlug } = useParams()
-	const { isSidebarOpen, toggleSidebar, setActiveCategory, setActiveChatbot } =
-		useSidebar()
-	const { sectionRef, isOpenPopup } = useThread()
+	const { isSidebarOpen, toggleSidebar } = useSidebar()
+	const { isOpenPopup } = useThread()
 	const { currentUser, isSameUser } = useProfile()
 	const { data: session } = useSession()
 	const { value: user } = useAsync(async () => {
@@ -32,12 +35,12 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 
 	const sameUser = isSameUser(user?.userId)
 
-	const handleToggleThreads = () => {
-		if (!sameUser) return
-		setIsThreadsOpen(!isThreadsOpen)
-		setActiveCategory(null)
-		setActiveChatbot(null)
-	}
+	// const handleToggleThreads = () => {
+	// 	if (!sameUser) return
+	// 	setIsThreadsOpen(!isThreadsOpen)
+	// 	setActiveCategory(null)
+	// 	setActiveChatbot(null)
+	// }
 
 	return (
 		<div className={cn('transition-all relative w-full flex h-full')}>
@@ -58,7 +61,7 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 			{/* Sidebar */}
 			<aside
 				className={cn(
-					'fixed lg:sticky z-[70] top-[64px] sm:top-0 h-[calc(100vh-64px)] ', // Changed to sticky and match parent height
+					'fixed lg:sticky z-[70] top-[64px] sm:top-0 h-full max-h-[calc(100vh-64px)] ', // Changed to sticky and match parent height
 					'w-[18.75rem] bg-gray-50 dark:bg-black border-r',
 					'transition-all',
 					isSidebarOpen
@@ -168,7 +171,7 @@ export const ProfileSidebar = ({ children }: { children: React.ReactNode }) => {
 				<div className="fixed bottom-0 w-full left-0 z-10 dark:bg-black bg-white">
 					<FooterCT />
 				</div>
-				<ThreadPopup className={isOpenPopup ? '' : 'hidden'} />
+				{isOpenPopup && <ThreadPopup />}
 			</section>
 		</div>
 	)

@@ -1,6 +1,6 @@
 'use client'
 
-import SidebarLink from '@/components/layout/sidebar/sidebar-link'
+import { SidebarLink } from '@/components/layout/sidebar/sidebar-link'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 
 export function SidebarCategoryGeneral({ page }: { page?: string }) {
