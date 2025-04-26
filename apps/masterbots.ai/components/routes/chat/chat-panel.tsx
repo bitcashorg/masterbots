@@ -16,7 +16,6 @@ import { logErrorToSentry } from '@/lib/sentry'
 import { cn } from '@/lib/utils'
 import type { Message as AiMessage } from 'ai'
 import type { UseChatHelpers } from 'ai/react'
-import { ca } from 'date-fns/locale'
 import {
 	BrainIcon,
 	ChevronsLeftRightEllipsis,
