@@ -1,8 +1,14 @@
 import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from '@/components/ui/tooltip'
+import {
 	calculatePasswordStrength,
 	getPasswordStrengthColor,
 	getPasswordStrengthLabel,
 } from '@/lib/password'
+import { InfoIcon } from 'lucide-react'
 
 interface PasswordStrengthMeterProps {
 	password: string
@@ -31,8 +37,22 @@ export function PasswordStrengthMeter({
 					}}
 				/>
 			</div>
-			<p role="presentation" className="mt-1 text-sm text-neutral-400">
-				Password Strength: <span className="font-medium">{label}</span>
+			<p
+				role="presentation"
+				className="flex gap-1.5 mt-1 text-sm text-neutral-400"
+			>
+				Password Strength:{' '}
+				<span className="font-medium flex">
+					{label}
+					<Tooltip>
+						<TooltipTrigger className="ml-1 mb-auto" asChild>
+							<InfoIcon className="size-3 text-link" />
+						</TooltipTrigger>
+						<TooltipContent className="whitespace-pre-line">
+							{'Password Minimum Length:\n8 characters'}
+						</TooltipContent>
+					</Tooltip>
+				</span>
 			</p>
 		</div>
 	)

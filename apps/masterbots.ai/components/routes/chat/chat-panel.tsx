@@ -12,10 +12,10 @@ import { useDeepThinking } from '@/lib/hooks/use-deep-thinking'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useThread } from '@/lib/hooks/use-thread'
+import { logErrorToSentry } from '@/lib/sentry'
 import { cn } from '@/lib/utils'
 import type { Message as AiMessage } from 'ai'
 import type { UseChatHelpers } from 'ai/react'
-import { ca } from 'date-fns/locale'
 import {
 	BrainIcon,
 	ChevronsLeftRightEllipsis,
@@ -25,7 +25,6 @@ import {
 import { appConfig } from 'mb-env'
 import type { Chatbot } from 'mb-genql'
 import { useCallback, useState } from 'react'
-import { logErrorToSentry } from '@/lib/sentry'
 
 export interface ChatPanelProps
 	extends Pick<

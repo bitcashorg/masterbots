@@ -13,7 +13,11 @@ import {
 	processUserMessage,
 } from '@/lib/helpers/ai-classification'
 
-import { cleanPrompt, hasReasoning } from '@/lib/helpers/ai-helpers'
+import {
+	cleanPrompt,
+	hasReasoning,
+	verifyDuplicateMessage,
+} from '@/lib/helpers/ai-helpers'
 import {
 	type FileAttachment,
 	getUserIndexedDBKeys,
@@ -544,7 +548,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				role: msg.role as 'data' | 'system' | 'user' | 'assistant',
 			})) || [],
 		),
-		'content',
+		verifyDuplicateMessage,
 	)
 		.filter(Boolean)
 		.filter((m) => m.role !== 'system')
@@ -722,7 +726,10 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 			isBlocked: false,
 			isPublic: activeChatbot?.name !== 'BlankBot',
 			// @ts-ignore
-			messages: uniqBy([...allMessages, defaultUserMessage], 'content'),
+			messages: uniqBy(
+				[...allMessages, defaultUserMessage],
+				verifyDuplicateMessage,
+			),
 			thread: isContinuousThread ? activeThread?.thread || null : null,
 			userId: session?.user.id,
 		}
@@ -870,7 +877,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						content: examplesPrompt(chatbotMetadata),
 					},
 				],
-				'content',
+				verifyDuplicateMessage,
 			)
 			setMessages(chatMessagesToAppend)
 

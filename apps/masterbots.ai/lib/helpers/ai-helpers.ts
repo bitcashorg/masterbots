@@ -1,5 +1,9 @@
 import { AIModels } from '@/app/api/chat/models/models'
 import {
+	CONTINUE_GENERATION_PROMPT,
+	CONTINUE_GENERATION_PROMPT_2,
+} from '@/lib/constants/prompts'
+import {
 	examplesSchema,
 	languageGammarSchema,
 	metadataSchema,
@@ -270,4 +274,20 @@ export function hasReasoning(message: Message & Partial<MBMessage>): boolean {
 			message.parts?.some((part) => part.type === 'reasoning') ||
 			message?.thinking,
 	)
+}
+
+// ? allMessages.uniqBy callback for the use-mb-chat.ts hook
+export function verifyDuplicateMessage(message: Partial<MBMessage>) {
+	const whitelistContent = [
+		CONTINUE_GENERATION_PROMPT,
+		CONTINUE_GENERATION_PROMPT_2,
+	]
+
+	// Mutate and show the message if it is a continue generation prompt
+	if (message.content && whitelistContent.includes(message.content)) {
+		return message
+	}
+
+	// Filter out system prompts and messages with empty content
+	return message.content || false
 }
