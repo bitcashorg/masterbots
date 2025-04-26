@@ -35,7 +35,7 @@ export function ChatLayoutSection({ children }: { children: React.ReactNode }) {
 				{children}
 			</div>
 
-			<ThreadPopup className={isOpenPopup ? '' : 'hidden'} />
+			{isOpenPopup && <ThreadPopup />}
 		</section>
 	)
 }

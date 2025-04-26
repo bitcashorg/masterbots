@@ -1,5 +1,9 @@
 import { ChatLoadingState } from '@/components/routes/chat/chat-list/chat-loading-state'
 import { MessagePairAccordion } from '@/components/routes/chat/chat-list/message-pair-accordion'
+import {
+	CONTINUE_GENERATION_PROMPT,
+	CONTINUE_GENERATION_PROMPT_2,
+} from '@/lib/constants/prompts'
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import { useThread } from '@/lib/hooks/use-thread'
 import type { MessagePair } from '@/lib/threads'
@@ -43,6 +47,11 @@ export function MessagePairs({
 }) {
 	const { isNewResponse } = useThread()
 
+	// @AndlerRL
+	// ! Previous and Current messages mapping are the same. The only difference is the type of message (previous or current)
+	// ! This is a temporary solution until we can refactor the code to use a single mapping function
+	// ? Whenever we get more 💰💰💰
+
 	// Memoize previous pairs processing
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const previousPairsElements = useMemo(() => {
@@ -51,6 +60,13 @@ export function MessagePairs({
 		return userMessages.map((userMessage, index) => {
 			const chatGptMessage = assistantMessages[index] || []
 			const pair = { userMessage, chatGptMessage }
+
+			if (
+				userMessage.content.includes(CONTINUE_GENERATION_PROMPT) ||
+				userMessage.content.includes(CONTINUE_GENERATION_PROMPT_2)
+			) {
+				userMessage.content = '(continued...)'
+			}
 
 			const filteredUserAttachments =
 				userAttachments?.filter((attachment) =>
@@ -91,6 +107,13 @@ export function MessagePairs({
 			.map((userMessage, index) => {
 				const chatGptMessage = assistantMessages[index] || []
 				const pair = { userMessage, chatGptMessage }
+
+				if (
+					userMessage.content.includes(CONTINUE_GENERATION_PROMPT) ||
+					userMessage.content.includes(CONTINUE_GENERATION_PROMPT_2)
+				) {
+					userMessage.content = '(continued...)'
+				}
 
 				if (!chatGptMessage[0] || !userMessage) return null
 

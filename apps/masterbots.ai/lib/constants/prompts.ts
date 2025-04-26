@@ -34,7 +34,7 @@ export function createImprovementPrompt({
 	content: string
 	allUserMessages: Message[]
 }): string {
-	const prompt = `You are a highly specialized, multidisciplinary polyglot expert assistant and master of emotional intelligence that combines competencies across linguistics, language, culture, communication, psychology, copywriting and NLP to very concisely summarize the question based on intent to less than 49 words:	[**User Question:** ${content}"].`
+	const prompt = `You are a highly specialized, multidisciplinary polyglot expert assistant and master of emotional intelligence that combines competencies across linguistics, language, culture, communication, psychology, copywriting and NLP to very concisely summarize the question or statement based on intent to less than 49 words:    [**User Question or Statement:** ${content}"].`
 	const finalPrompt = followingQuestionsImprovementPrompt(
 		content,
 		prompt,
@@ -221,6 +221,6 @@ export function setDefaultPrompt(userPrompt?: string) {
 }
 
 export const CONTINUE_GENERATION_PROMPT =
-	'Please continue from where you left off in your previous response and only show the continuation part in this current response.'
+	'Continue your response exactly where you left off.  Only add new information without repeating what you previously wrote.  Skip the preamble and only show the continuation part.'
 export const CONTINUE_GENERATION_PROMPT_2 =
-	'Please continue your previous response without repeating any information.'
+	'Kindly continue your response without repeating any information.'

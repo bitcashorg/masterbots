@@ -9,6 +9,7 @@ export type Scalars = {
   Int: number;
   String: string;
   jsonb: any;
+  model_type: any;
   numeric: any;
   timestamptz: any;
   user_role: any;
@@ -1094,8 +1095,38 @@ export type MessageUpdateColumn =
   | "thinkingTraces"
   | "threadId";
 
+/** LLMs tracking for web display */
+export interface Models {
+  enabled: Scalars["Boolean"];
+  model: Scalars["String"];
+  /** An object relationship */
+  model_data: ModelsEnum;
+  type: Scalars["model_type"];
+  __typename: "Models";
+}
+
+/** aggregated selection of "models" */
+export interface ModelsAggregate {
+  aggregate: ModelsAggregateFields | null;
+  nodes: Models[];
+  __typename: "ModelsAggregate";
+}
+
+/** aggregate fields of "models" */
+export interface ModelsAggregateFields {
+  count: Scalars["Int"];
+  max: ModelsMaxFields | null;
+  min: ModelsMinFields | null;
+  __typename: "ModelsAggregateFields";
+}
+
+/** unique or primary key constraints on table "models" */
+export type ModelsConstraint = "models_pkey";
+
 /** columns and relationships of "models_enum" */
 export interface ModelsEnum {
+  /** An object relationship */
+  model_data: Models | null;
   name: Scalars["String"];
   /** An array relationship */
   threads: Thread[];
@@ -1123,7 +1154,20 @@ export interface ModelsEnumAggregateFields {
 /** unique or primary key constraints on table "models_enum" */
 export type ModelsEnumConstraint = "models_enum_pkey" | "models_enum_value_key";
 
-export type ModelsEnumEnum = "ANTHROPIC" | "OPENAI" | "PERPLEXITY" | "WORDWARE";
+export type ModelsEnumEnum =
+  | "CLAUDE__3_7__SONNET"
+  | "DEEPSEEK"
+  | "GEMINI__2_5__FLASH"
+  | "GEMINI__2_5__PRO"
+  | "GEMINI__FLASH__LITE"
+  | "GROQDEEPSEEK"
+  | "OPENAI"
+  | "OPENAI__4_1"
+  | "OPENAI__4_1__MINI"
+  | "OPENAI__4_1__NANO"
+  | "OPENAI__O4__MINI"
+  | "PERPLEXITY"
+  | "PERPLEXITY__LARGE";
 
 /** aggregate max on columns */
 export interface ModelsEnumMaxFields {
@@ -1153,6 +1197,35 @@ export type ModelsEnumSelectColumn = "name" | "value";
 
 /** update columns of table "models_enum" */
 export type ModelsEnumUpdateColumn = "name" | "value";
+
+/** aggregate max on columns */
+export interface ModelsMaxFields {
+  model: Scalars["String"] | null;
+  type: Scalars["model_type"] | null;
+  __typename: "ModelsMaxFields";
+}
+
+/** aggregate min on columns */
+export interface ModelsMinFields {
+  model: Scalars["String"] | null;
+  type: Scalars["model_type"] | null;
+  __typename: "ModelsMinFields";
+}
+
+/** response of any mutation on the table "models" */
+export interface ModelsMutationResponse {
+  /** number of rows affected by the mutation */
+  affectedRows: Scalars["Int"];
+  /** data from the rows affected by the mutation */
+  returning: Models[];
+  __typename: "ModelsMutationResponse";
+}
+
+/** select columns of table "models" */
+export type ModelsSelectColumn = "enabled" | "model" | "type";
+
+/** update columns of table "models" */
+export type ModelsUpdateColumn = "enabled" | "model" | "type";
 
 /** column ordering options */
 export type OrderBy =
@@ -2756,6 +2829,10 @@ export interface mutation_root {
   deleteMessageTypeEnum: MessageTypeEnumMutationResponse | null;
   /** delete single row from the table: "message_type_enum" */
   deleteMessageTypeEnumByPk: MessageTypeEnum | null;
+  /** delete data from the table: "models" */
+  deleteModels: ModelsMutationResponse | null;
+  /** delete single row from the table: "models" */
+  deleteModelsByPk: Models | null;
   /** delete data from the table: "models_enum" */
   deleteModelsEnum: ModelsEnumMutationResponse | null;
   /** delete single row from the table: "models_enum" */
@@ -2862,10 +2939,14 @@ export interface mutation_root {
   insertMessageTypeEnum: MessageTypeEnumMutationResponse | null;
   /** insert a single row into the table: "message_type_enum" */
   insertMessageTypeEnumOne: MessageTypeEnum | null;
+  /** insert data into the table: "models" */
+  insertModels: ModelsMutationResponse | null;
   /** insert data into the table: "models_enum" */
   insertModelsEnum: ModelsEnumMutationResponse | null;
   /** insert a single row into the table: "models_enum" */
   insertModelsEnumOne: ModelsEnum | null;
+  /** insert a single row into the table: "models" */
+  insertModelsOne: Models | null;
   /** insert data into the table: "preference" */
   insertPreference: PreferenceMutationResponse | null;
   /** insert a single row into the table: "preference" */
@@ -2992,12 +3073,18 @@ export interface mutation_root {
   updateMessageTypeEnumByPk: MessageTypeEnum | null;
   /** update multiples rows of table: "message_type_enum" */
   updateMessageTypeEnumMany: (MessageTypeEnumMutationResponse | null)[] | null;
+  /** update data of the table: "models" */
+  updateModels: ModelsMutationResponse | null;
+  /** update single row of the table: "models" */
+  updateModelsByPk: Models | null;
   /** update data of the table: "models_enum" */
   updateModelsEnum: ModelsEnumMutationResponse | null;
   /** update single row of the table: "models_enum" */
   updateModelsEnumByPk: ModelsEnum | null;
   /** update multiples rows of table: "models_enum" */
   updateModelsEnumMany: (ModelsEnumMutationResponse | null)[] | null;
+  /** update multiples rows of table: "models" */
+  updateModelsMany: (ModelsMutationResponse | null)[] | null;
   /** update data of the table: "preference" */
   updatePreference: PreferenceMutationResponse | null;
   /** update single row of the table: "preference" */
@@ -3156,6 +3243,12 @@ export interface query_root {
   messageTypeEnumAggregate: MessageTypeEnumAggregate;
   /** fetch data from the table: "message_type_enum" using primary key columns */
   messageTypeEnumByPk: MessageTypeEnum | null;
+  /** fetch data from the table: "models" */
+  models: Models[];
+  /** fetch aggregated fields from the table: "models" */
+  modelsAggregate: ModelsAggregate;
+  /** fetch data from the table: "models" using primary key columns */
+  modelsByPk: Models | null;
   /** fetch data from the table: "models_enum" */
   modelsEnum: ModelsEnum[];
   /** fetch aggregated fields from the table: "models_enum" */
@@ -3342,6 +3435,12 @@ export interface subscription_root {
   messageTypeEnumByPk: MessageTypeEnum | null;
   /** fetch data from the table in a streaming manner: "message_type_enum" */
   messageTypeEnumStream: MessageTypeEnum[];
+  /** fetch data from the table: "models" */
+  models: Models[];
+  /** fetch aggregated fields from the table: "models" */
+  modelsAggregate: ModelsAggregate;
+  /** fetch data from the table: "models" using primary key columns */
+  modelsByPk: Models | null;
   /** fetch data from the table: "models_enum" */
   modelsEnum: ModelsEnum[];
   /** fetch aggregated fields from the table: "models_enum" */
@@ -3350,6 +3449,8 @@ export interface subscription_root {
   modelsEnumByPk: ModelsEnum | null;
   /** fetch data from the table in a streaming manner: "models_enum" */
   modelsEnumStream: ModelsEnum[];
+  /** fetch data from the table in a streaming manner: "models" */
+  modelsStream: Models[];
   /** fetch data from the table: "preference" */
   preference: Preference[];
   /** fetch aggregated fields from the table: "preference" */
@@ -6548,8 +6649,70 @@ export interface MessageUpdates {
   where: MessageBoolExp;
 }
 
+/** Boolean expression to compare columns of type "model_type". All fields are combined with logical 'AND'. */
+export interface ModelTypeComparisonExp {
+  _eq?: Scalars["model_type"] | null;
+  _gt?: Scalars["model_type"] | null;
+  _gte?: Scalars["model_type"] | null;
+  _in?: Scalars["model_type"][] | null;
+  _isNull?: Scalars["Boolean"] | null;
+  _lt?: Scalars["model_type"] | null;
+  _lte?: Scalars["model_type"] | null;
+  _neq?: Scalars["model_type"] | null;
+  _nin?: Scalars["model_type"][] | null;
+}
+
+/** LLMs tracking for web display */
+export interface ModelsGenqlSelection {
+  enabled?: boolean | number;
+  model?: boolean | number;
+  /** An object relationship */
+  model_data?: ModelsEnumGenqlSelection;
+  type?: boolean | number;
+  __typename?: boolean | number;
+  __scalar?: boolean | number;
+}
+
+/** aggregated selection of "models" */
+export interface ModelsAggregateGenqlSelection {
+  aggregate?: ModelsAggregateFieldsGenqlSelection;
+  nodes?: ModelsGenqlSelection;
+  __typename?: boolean | number;
+  __scalar?: boolean | number;
+}
+
+/** aggregate fields of "models" */
+export interface ModelsAggregateFieldsGenqlSelection {
+  count?:
+    | {
+        __args: {
+          columns?: ModelsSelectColumn[] | null;
+          distinct?: Scalars["Boolean"] | null;
+        };
+      }
+    | boolean
+    | number;
+  max?: ModelsMaxFieldsGenqlSelection;
+  min?: ModelsMinFieldsGenqlSelection;
+  __typename?: boolean | number;
+  __scalar?: boolean | number;
+}
+
+/** Boolean expression to filter rows from the table "models". All fields are combined with a logical 'AND'. */
+export interface ModelsBoolExp {
+  _and?: ModelsBoolExp[] | null;
+  _not?: ModelsBoolExp | null;
+  _or?: ModelsBoolExp[] | null;
+  enabled?: BooleanComparisonExp | null;
+  model?: StringComparisonExp | null;
+  model_data?: ModelsEnumBoolExp | null;
+  type?: ModelTypeComparisonExp | null;
+}
+
 /** columns and relationships of "models_enum" */
 export interface ModelsEnumGenqlSelection {
+  /** An object relationship */
+  model_data?: ModelsGenqlSelection;
   name?: boolean | number;
   /** An array relationship */
   threads?: ThreadGenqlSelection & {
@@ -6616,6 +6779,7 @@ export interface ModelsEnumBoolExp {
   _and?: ModelsEnumBoolExp[] | null;
   _not?: ModelsEnumBoolExp | null;
   _or?: ModelsEnumBoolExp[] | null;
+  model_data?: ModelsBoolExp | null;
   name?: StringComparisonExp | null;
   threads?: ThreadBoolExp | null;
   threadsAggregate?: ThreadAggregateBoolExp | null;
@@ -6633,6 +6797,7 @@ export interface ModelsEnumEnumComparisonExp {
 
 /** input type for inserting data into table "models_enum" */
 export interface ModelsEnumInsertInput {
+  model_data?: ModelsObjRelInsertInput | null;
   name?: Scalars["String"] | null;
   threads?: ThreadArrRelInsertInput | null;
   value?: Scalars["String"] | null;
@@ -6680,6 +6845,7 @@ export interface ModelsEnumOnConflict {
 
 /** Ordering options when selecting data from "models_enum". */
 export interface ModelsEnumOrderBy {
+  model_data?: ModelsOrderBy | null;
   name?: OrderBy | null;
   threadsAggregate?: ThreadAggregateOrderBy | null;
   value?: OrderBy | null;
@@ -6715,6 +6881,96 @@ export interface ModelsEnumUpdates {
   _set?: ModelsEnumSetInput | null;
   /** filter the rows which have to be updated */
   where: ModelsEnumBoolExp;
+}
+
+/** input type for inserting data into table "models" */
+export interface ModelsInsertInput {
+  enabled?: Scalars["Boolean"] | null;
+  model?: Scalars["String"] | null;
+  model_data?: ModelsEnumObjRelInsertInput | null;
+  type?: Scalars["model_type"] | null;
+}
+
+/** aggregate max on columns */
+export interface ModelsMaxFieldsGenqlSelection {
+  model?: boolean | number;
+  type?: boolean | number;
+  __typename?: boolean | number;
+  __scalar?: boolean | number;
+}
+
+/** aggregate min on columns */
+export interface ModelsMinFieldsGenqlSelection {
+  model?: boolean | number;
+  type?: boolean | number;
+  __typename?: boolean | number;
+  __scalar?: boolean | number;
+}
+
+/** response of any mutation on the table "models" */
+export interface ModelsMutationResponseGenqlSelection {
+  /** number of rows affected by the mutation */
+  affectedRows?: boolean | number;
+  /** data from the rows affected by the mutation */
+  returning?: ModelsGenqlSelection;
+  __typename?: boolean | number;
+  __scalar?: boolean | number;
+}
+
+/** input type for inserting object relation for remote table "models" */
+export interface ModelsObjRelInsertInput {
+  data: ModelsInsertInput;
+  /** upsert condition */
+  onConflict?: ModelsOnConflict | null;
+}
+
+/** on_conflict condition type for table "models" */
+export interface ModelsOnConflict {
+  constraint: ModelsConstraint;
+  updateColumns?: ModelsUpdateColumn[];
+  where?: ModelsBoolExp | null;
+}
+
+/** Ordering options when selecting data from "models". */
+export interface ModelsOrderBy {
+  enabled?: OrderBy | null;
+  model?: OrderBy | null;
+  model_data?: ModelsEnumOrderBy | null;
+  type?: OrderBy | null;
+}
+
+/** primary key columns input for table: models */
+export interface ModelsPkColumnsInput {
+  model: Scalars["String"];
+}
+
+/** input type for updating data in table "models" */
+export interface ModelsSetInput {
+  enabled?: Scalars["Boolean"] | null;
+  model?: Scalars["String"] | null;
+  type?: Scalars["model_type"] | null;
+}
+
+/** Streaming cursor of the table "models" */
+export interface ModelsStreamCursorInput {
+  /** Stream column input with initial value */
+  initialValue: ModelsStreamCursorValueInput;
+  /** cursor ordering */
+  ordering?: CursorOrdering | null;
+}
+
+/** Initial value of the column from where the streaming should start */
+export interface ModelsStreamCursorValueInput {
+  enabled?: Scalars["Boolean"] | null;
+  model?: Scalars["String"] | null;
+  type?: Scalars["model_type"] | null;
+}
+
+export interface ModelsUpdates {
+  /** sets the columns of the filtered rows to the given values */
+  _set?: ModelsSetInput | null;
+  /** filter the rows which have to be updated */
+  where: ModelsBoolExp;
 }
 
 /** Boolean expression to compare columns of type "numeric". All fields are combined with logical 'AND'. */
@@ -11144,6 +11400,17 @@ export interface mutation_rootGenqlSelection {
   deleteMessageTypeEnumByPk?: MessageTypeEnumGenqlSelection & {
     __args: { value: Scalars["String"] };
   };
+  /** delete data from the table: "models" */
+  deleteModels?: ModelsMutationResponseGenqlSelection & {
+    __args: {
+      /** filter the rows which have to be deleted */
+      where: ModelsBoolExp;
+    };
+  };
+  /** delete single row from the table: "models" */
+  deleteModelsByPk?: ModelsGenqlSelection & {
+    __args: { model: Scalars["String"] };
+  };
   /** delete data from the table: "models_enum" */
   deleteModelsEnum?: ModelsEnumMutationResponseGenqlSelection & {
     __args: {
@@ -11516,6 +11783,15 @@ export interface mutation_rootGenqlSelection {
       onConflict?: MessageTypeEnumOnConflict | null;
     };
   };
+  /** insert data into the table: "models" */
+  insertModels?: ModelsMutationResponseGenqlSelection & {
+    __args: {
+      /** the rows to be inserted */
+      objects: ModelsInsertInput[];
+      /** upsert condition */
+      onConflict?: ModelsOnConflict | null;
+    };
+  };
   /** insert data into the table: "models_enum" */
   insertModelsEnum?: ModelsEnumMutationResponseGenqlSelection & {
     __args: {
@@ -11532,6 +11808,15 @@ export interface mutation_rootGenqlSelection {
       object: ModelsEnumInsertInput;
       /** upsert condition */
       onConflict?: ModelsEnumOnConflict | null;
+    };
+  };
+  /** insert a single row into the table: "models" */
+  insertModelsOne?: ModelsGenqlSelection & {
+    __args: {
+      /** the row to be inserted */
+      object: ModelsInsertInput;
+      /** upsert condition */
+      onConflict?: ModelsOnConflict | null;
     };
   };
   /** insert data into the table: "preference" */
@@ -12120,6 +12405,23 @@ export interface mutation_rootGenqlSelection {
       updates: MessageTypeEnumUpdates[];
     };
   };
+  /** update data of the table: "models" */
+  updateModels?: ModelsMutationResponseGenqlSelection & {
+    __args: {
+      /** sets the columns of the filtered rows to the given values */
+      _set?: ModelsSetInput | null;
+      /** filter the rows which have to be updated */
+      where: ModelsBoolExp;
+    };
+  };
+  /** update single row of the table: "models" */
+  updateModelsByPk?: ModelsGenqlSelection & {
+    __args: {
+      /** sets the columns of the filtered rows to the given values */
+      _set?: ModelsSetInput | null;
+      pkColumns: ModelsPkColumnsInput;
+    };
+  };
   /** update data of the table: "models_enum" */
   updateModelsEnum?: ModelsEnumMutationResponseGenqlSelection & {
     __args: {
@@ -12142,6 +12444,13 @@ export interface mutation_rootGenqlSelection {
     __args: {
       /** updates to execute, in order */
       updates: ModelsEnumUpdates[];
+    };
+  };
+  /** update multiples rows of table: "models" */
+  updateModelsMany?: ModelsMutationResponseGenqlSelection & {
+    __args: {
+      /** updates to execute, in order */
+      updates: ModelsUpdates[];
     };
   };
   /** update data of the table: "preference" */
@@ -12943,6 +13252,38 @@ export interface query_rootGenqlSelection {
   messageTypeEnumByPk?: MessageTypeEnumGenqlSelection & {
     __args: { value: Scalars["String"] };
   };
+  /** fetch data from the table: "models" */
+  models?: ModelsGenqlSelection & {
+    __args?: {
+      /** distinct select on columns */
+      distinctOn?: ModelsSelectColumn[] | null;
+      /** limit the number of rows returned */
+      limit?: Scalars["Int"] | null;
+      /** skip the first n rows. Use only with order_by */
+      offset?: Scalars["Int"] | null;
+      /** sort the rows by one or more columns */
+      orderBy?: ModelsOrderBy[] | null;
+      /** filter the rows returned */
+      where?: ModelsBoolExp | null;
+    };
+  };
+  /** fetch aggregated fields from the table: "models" */
+  modelsAggregate?: ModelsAggregateGenqlSelection & {
+    __args?: {
+      /** distinct select on columns */
+      distinctOn?: ModelsSelectColumn[] | null;
+      /** limit the number of rows returned */
+      limit?: Scalars["Int"] | null;
+      /** skip the first n rows. Use only with order_by */
+      offset?: Scalars["Int"] | null;
+      /** sort the rows by one or more columns */
+      orderBy?: ModelsOrderBy[] | null;
+      /** filter the rows returned */
+      where?: ModelsBoolExp | null;
+    };
+  };
+  /** fetch data from the table: "models" using primary key columns */
+  modelsByPk?: ModelsGenqlSelection & { __args: { model: Scalars["String"] } };
   /** fetch data from the table: "models_enum" */
   modelsEnum?: ModelsEnumGenqlSelection & {
     __args?: {
@@ -14000,6 +14341,38 @@ export interface subscription_rootGenqlSelection {
       where?: MessageTypeEnumBoolExp | null;
     };
   };
+  /** fetch data from the table: "models" */
+  models?: ModelsGenqlSelection & {
+    __args?: {
+      /** distinct select on columns */
+      distinctOn?: ModelsSelectColumn[] | null;
+      /** limit the number of rows returned */
+      limit?: Scalars["Int"] | null;
+      /** skip the first n rows. Use only with order_by */
+      offset?: Scalars["Int"] | null;
+      /** sort the rows by one or more columns */
+      orderBy?: ModelsOrderBy[] | null;
+      /** filter the rows returned */
+      where?: ModelsBoolExp | null;
+    };
+  };
+  /** fetch aggregated fields from the table: "models" */
+  modelsAggregate?: ModelsAggregateGenqlSelection & {
+    __args?: {
+      /** distinct select on columns */
+      distinctOn?: ModelsSelectColumn[] | null;
+      /** limit the number of rows returned */
+      limit?: Scalars["Int"] | null;
+      /** skip the first n rows. Use only with order_by */
+      offset?: Scalars["Int"] | null;
+      /** sort the rows by one or more columns */
+      orderBy?: ModelsOrderBy[] | null;
+      /** filter the rows returned */
+      where?: ModelsBoolExp | null;
+    };
+  };
+  /** fetch data from the table: "models" using primary key columns */
+  modelsByPk?: ModelsGenqlSelection & { __args: { model: Scalars["String"] } };
   /** fetch data from the table: "models_enum" */
   modelsEnum?: ModelsEnumGenqlSelection & {
     __args?: {
@@ -14043,6 +14416,17 @@ export interface subscription_rootGenqlSelection {
       cursor: (ModelsEnumStreamCursorInput | null)[];
       /** filter the rows returned */
       where?: ModelsEnumBoolExp | null;
+    };
+  };
+  /** fetch data from the table in a streaming manner: "models" */
+  modelsStream?: ModelsGenqlSelection & {
+    __args: {
+      /** maximum number of rows returned in a single batch */
+      batchSize: Scalars["Int"];
+      /** cursor to stream the results returned by the query */
+      cursor: (ModelsStreamCursorInput | null)[];
+      /** filter the rows returned */
+      where?: ModelsBoolExp | null;
     };
   };
   /** fetch data from the table: "preference" */
@@ -15774,6 +16158,30 @@ export const isMessageTypeEnumMutationResponse = (
   return MessageTypeEnumMutationResponse_possibleTypes.includes(obj.__typename);
 };
 
+const Models_possibleTypes: string[] = ["Models"];
+export const isModels = (obj?: { __typename?: any } | null): obj is Models => {
+  if (!obj?.__typename) throw new Error('__typename is missing in "isModels"');
+  return Models_possibleTypes.includes(obj.__typename);
+};
+
+const ModelsAggregate_possibleTypes: string[] = ["ModelsAggregate"];
+export const isModelsAggregate = (
+  obj?: { __typename?: any } | null,
+): obj is ModelsAggregate => {
+  if (!obj?.__typename)
+    throw new Error('__typename is missing in "isModelsAggregate"');
+  return ModelsAggregate_possibleTypes.includes(obj.__typename);
+};
+
+const ModelsAggregateFields_possibleTypes: string[] = ["ModelsAggregateFields"];
+export const isModelsAggregateFields = (
+  obj?: { __typename?: any } | null,
+): obj is ModelsAggregateFields => {
+  if (!obj?.__typename)
+    throw new Error('__typename is missing in "isModelsAggregateFields"');
+  return ModelsAggregateFields_possibleTypes.includes(obj.__typename);
+};
+
 const ModelsEnum_possibleTypes: string[] = ["ModelsEnum"];
 export const isModelsEnum = (
   obj?: { __typename?: any } | null,
@@ -15830,6 +16238,35 @@ export const isModelsEnumMutationResponse = (
   if (!obj?.__typename)
     throw new Error('__typename is missing in "isModelsEnumMutationResponse"');
   return ModelsEnumMutationResponse_possibleTypes.includes(obj.__typename);
+};
+
+const ModelsMaxFields_possibleTypes: string[] = ["ModelsMaxFields"];
+export const isModelsMaxFields = (
+  obj?: { __typename?: any } | null,
+): obj is ModelsMaxFields => {
+  if (!obj?.__typename)
+    throw new Error('__typename is missing in "isModelsMaxFields"');
+  return ModelsMaxFields_possibleTypes.includes(obj.__typename);
+};
+
+const ModelsMinFields_possibleTypes: string[] = ["ModelsMinFields"];
+export const isModelsMinFields = (
+  obj?: { __typename?: any } | null,
+): obj is ModelsMinFields => {
+  if (!obj?.__typename)
+    throw new Error('__typename is missing in "isModelsMinFields"');
+  return ModelsMinFields_possibleTypes.includes(obj.__typename);
+};
+
+const ModelsMutationResponse_possibleTypes: string[] = [
+  "ModelsMutationResponse",
+];
+export const isModelsMutationResponse = (
+  obj?: { __typename?: any } | null,
+): obj is ModelsMutationResponse => {
+  if (!obj?.__typename)
+    throw new Error('__typename is missing in "isModelsMutationResponse"');
+  return ModelsMutationResponse_possibleTypes.includes(obj.__typename);
 };
 
 const Preference_possibleTypes: string[] = ["Preference"];
@@ -17550,16 +17987,29 @@ export const enumMessageUpdateColumn = {
   threadId: "threadId" as const,
 };
 
+export const enumModelsConstraint = {
+  models_pkey: "models_pkey" as const,
+};
+
 export const enumModelsEnumConstraint = {
   models_enum_pkey: "models_enum_pkey" as const,
   models_enum_value_key: "models_enum_value_key" as const,
 };
 
 export const enumModelsEnumEnum = {
-  ANTHROPIC: "ANTHROPIC" as const,
+  CLAUDE__3_7__SONNET: "CLAUDE__3_7__SONNET" as const,
+  DEEPSEEK: "DEEPSEEK" as const,
+  GEMINI__2_5__FLASH: "GEMINI__2_5__FLASH" as const,
+  GEMINI__2_5__PRO: "GEMINI__2_5__PRO" as const,
+  GEMINI__FLASH__LITE: "GEMINI__FLASH__LITE" as const,
+  GROQDEEPSEEK: "GROQDEEPSEEK" as const,
   OPENAI: "OPENAI" as const,
+  OPENAI__4_1: "OPENAI__4_1" as const,
+  OPENAI__4_1__MINI: "OPENAI__4_1__MINI" as const,
+  OPENAI__4_1__NANO: "OPENAI__4_1__NANO" as const,
+  OPENAI__O4__MINI: "OPENAI__O4__MINI" as const,
   PERPLEXITY: "PERPLEXITY" as const,
-  WORDWARE: "WORDWARE" as const,
+  PERPLEXITY__LARGE: "PERPLEXITY__LARGE" as const,
 };
 
 export const enumModelsEnumSelectColumn = {
@@ -17570,6 +18020,18 @@ export const enumModelsEnumSelectColumn = {
 export const enumModelsEnumUpdateColumn = {
   name: "name" as const,
   value: "value" as const,
+};
+
+export const enumModelsSelectColumn = {
+  enabled: "enabled" as const,
+  model: "model" as const,
+  type: "type" as const,
+};
+
+export const enumModelsUpdateColumn = {
+  enabled: "enabled" as const,
+  model: "model" as const,
+  type: "type" as const,
 };
 
 export const enumOrderBy = {

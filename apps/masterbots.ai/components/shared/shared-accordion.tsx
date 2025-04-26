@@ -1,4 +1,3 @@
-import { CONTINUE_GENERATION_PROMPT } from '@/lib/constants/prompts'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
@@ -395,14 +394,7 @@ export function SharedAccordion({
 					<div className="flex w-full">
 						{/* //! children[0] is the title, children[1] is the description that we are not longer using  */}
 						{Array.isArray(children) && (
-							<div className="select-text">
-								{typeof children[0] === 'string' &&
-								children[0]
-									.toLowerCase()
-									.includes(CONTINUE_GENERATION_PROMPT.toLowerCase())
-									? '(continued...)'
-									: children[0]}
-							</div>
+							<div className="select-text">{children[0]}</div>
 						)}
 						{!open && Array.isArray(children) && children[1]}
 					</div>

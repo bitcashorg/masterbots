@@ -48,7 +48,9 @@ export function ThreadPopup({ className }: { className?: string }) {
 		routeType === 'profile' ||
 		(routeType === 'bot' && activeThread?.threadId)
 	const isBotView = routeType === 'bot'
-	const chatbotName = activeThread?.chatbot.name
+	const threadCategory = activeThread?.chatbot.categories?.[0]?.category
+		?.name as string
+	const chatbotName = activeThread?.chatbot?.name as string
 	const canonicalDomain = getCanonicalDomain(chatbotName || 'prompt')
 
 	return (
@@ -115,9 +117,7 @@ export function ThreadPopup({ className }: { className?: string }) {
 									)}
 									href={`${urlBuilders.chatbotThreadListUrl({
 										type: 'personal',
-										category:
-											activeThread?.chatbot?.categories?.[0]?.category?.name ||
-											'',
+										category: threadCategory,
 										domain: canonicalDomain,
 										chatbot: chatbotName as string,
 									})}?continuousThreadId=${activeThread?.threadId}`}
