@@ -6,11 +6,12 @@ object_relationships:
   - name: model_data
     using:
       manual_configuration:
+        column_mapping:
+          value: model
+        insertion_order: null
         remote_table:
           name: models
           schema: public
-        column_mapping:
-          value: model
 array_relationships:
   - name: threads
     using:
