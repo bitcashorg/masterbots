@@ -22,14 +22,15 @@ export interface ModelData {
  * Returns the appropriate icon component based on the model name
  */
 export const getModelIcon = (modelName: string): ReactNode => {
-	if (modelName.includes('gpt') || modelName.includes('o4'))
-		return <IconOpenAI />
-	if (modelName.includes('claude')) return <IconClaude />
-	if (modelName.includes('llama')) return <IconLlama />
-	if (modelName.includes('deepseek')) return <IconDeepSeek />
-	if (modelName.includes('gemini')) return <IconGemini />
-	if (modelName.includes('wordware')) return <IconWordware />
-	return 'MB' // Default logo text
+	const model = modelName.toLowerCase()
+	if (model.includes('gpt') || model.includes('openai')) return <IconOpenAI />
+	if (model.includes('claude')) return <IconClaude />
+	if (model.includes('llama')) return <IconLlama />
+	if (model.includes('deepseek') || model.includes('groq'))
+		return <IconDeepSeek />
+	if (model.includes('gemini')) return <IconGemini />
+	if (model.includes('wordware')) return <IconWordware />
+	return 'MB' //? Default logo text
 }
 
 /**
@@ -40,7 +41,9 @@ export const groupModels = (models: ModelData[]) => {
 		freeEnabledModels: models.filter(
 			(m) => m.type.toLowerCase() === 'free' && m.enabled,
 		),
-		paidEnabledModels: models.filter((m) => m.type === 'paid' && m.enabled),
+		paidEnabledModels: models.filter(
+			(m) => m.type.toLocaleLowerCase() === "paid" && m.enabled,
+		),
 		disabledModels: models.filter((m) => !m.enabled),
 	}
 }
