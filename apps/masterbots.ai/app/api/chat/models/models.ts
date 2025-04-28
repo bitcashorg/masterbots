@@ -8,6 +8,7 @@ export enum AIModels {
 	Perplexity = 'llama3_7B',
 	Perplexity_Large = 'llama-3-sonar-large-32k-online',
 	DeepSeek = 'deepseek-r1',
+	DeepSeekGroq = 'deepseek-r1-distill-llama-70b',
 	GroqDeepSeek = 'deepseek-r1-distill-llama-70b',
 	Gemini_Flash_Lite = 'gemini_2_0_flash_lite',
 	Default = 'gpt-4.1-mini-2025-04-14', //!  OpenAI_4_1_mini
