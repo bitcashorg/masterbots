@@ -11,16 +11,7 @@ import {
 	useCallback,
 	type ReactNode,
 } from 'react'
-
-interface ModelData {
-	model: string
-	enabled: boolean
-	type: string
-	model_data: {
-		name: string
-		value: string
-	}
-}
+import { findDefaultModel, type ModelData } from '@/lib/models'
 
 interface ModelContextProps {
 	selectedModel: string
@@ -28,6 +19,7 @@ interface ModelContextProps {
 	changeModel: (model: string) => void
 	models: ModelData[]
 	isLoading: boolean
+	error: Error | null
 }
 
 const ModelContext = createContext<ModelContextProps | undefined>(undefined)
@@ -51,53 +43,54 @@ export function ModelProvider({ children }: ModelProviderProps) {
 	)
 	const [models, setModels] = useState<ModelData[]>([])
 	const [isLoading, setIsLoading] = useState<boolean>(true)
+	const [error, setError] = useState<Error | null>(null)
 
-	//? Fetch models from Hasura
+	//* Fetch models from Hasura
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		const fetchModels = async () => {
 			try {
 				setIsLoading(true)
+				setError(null)
 				const fetchedModels = await getModels()
-				console.log('Raw models from API:', fetchedModels)
 
-				if (fetchedModels && fetchedModels.length > 0) {
+				if (
+					fetchedModels &&
+					Array.isArray(fetchedModels) &&
+					fetchedModels.length > 0
+				) {
 					setModels(fetchedModels as ModelData[])
-					console.log('Models set in state:', fetchedModels)
 
-					//? If selected model isn't in the list or is disabled, reset to first available model
-					const currentModelExists = fetchedModels.some(
-						(m: ModelData) => m.model === selectedModel && m.enabled,
+					//? Set default model if needed
+					const defaultModelValue = findDefaultModel(
+						fetchedModels as ModelData[],
+						selectedModel,
 					)
-
-					if (!currentModelExists) {
-						//? Find first enabled model
-						const defaultModel = fetchedModels.find((m: ModelData) => m.enabled)
-						if (defaultModel) {
-							setSelectedModel(defaultModel.model)
-						}
-					} else {
-						console.warn('No models returned from API call')
+					if (defaultModelValue && defaultModelValue !== selectedModel) {
+						setSelectedModel(defaultModelValue)
 					}
+				} else {
+					console.warn('No models returned from API call')
+					setError(new Error('No models available'))
 				}
 			} catch (error) {
 				console.error('Error fetching models:', error)
+				setError(
+					error instanceof Error ? error : new Error('Failed to fetch models'),
+				)
 			} finally {
 				setIsLoading(false)
 			}
 		}
 
 		fetchModels()
-	}, [selectedModel])
+	}, [])
 
 	//? Update client type when selected model changes
 	useEffect(() => {
-		setClientType(getModelClientType(selectedModel))
-		console.log(
-			'Model updated to:',
-			selectedModel,
-			'ClientType:',
-			getModelClientType(selectedModel),
-		)
+		const newClientType = getModelClientType(selectedModel)
+		setClientType(newClientType)
+		console.log('Model updated:', selectedModel, 'ClientType:', newClientType)
 	}, [selectedModel])
 
 	const changeModel = useCallback(
@@ -131,6 +124,7 @@ export function ModelProvider({ children }: ModelProviderProps) {
 				clientType,
 				models,
 				isLoading,
+				error,
 			}}
 		>
 			{children}
