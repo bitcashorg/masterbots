@@ -688,7 +688,7 @@ export async function createThread({
 					isPublic,
 					parentThreadId,
 					slug,
-					model
+					model,
 				},
 			},
 			threadId: true,

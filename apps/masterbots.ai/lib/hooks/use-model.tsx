@@ -2,16 +2,16 @@
 
 import { AIModels } from '@/app/api/chat/models/models'
 import { getModelClientType } from '@/lib/helpers/ai-helpers'
+import { type ModelData, findDefaultModel } from '@/lib/models'
 import { getModels } from '@/services/hasura'
 import {
+	type ReactNode,
+	createContext,
+	useCallback,
+	useContext,
 	useEffect,
 	useState,
-	createContext,
-	useContext,
-	useCallback,
-	type ReactNode,
 } from 'react'
-import { findDefaultModel, type ModelData } from '@/lib/models'
 
 interface ModelContextProps {
 	selectedModel: string

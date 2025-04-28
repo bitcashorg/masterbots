@@ -42,7 +42,7 @@ export const groupModels = (models: ModelData[]) => {
 			(m) => m.type.toLowerCase() === 'free' && m.enabled,
 		),
 		paidEnabledModels: models.filter(
-			(m) => m.type.toLocaleLowerCase() === "paid" && m.enabled,
+			(m) => m.type.toLocaleLowerCase() === 'paid' && m.enabled,
 		),
 		disabledModels: models.filter((m) => !m.enabled),
 	}

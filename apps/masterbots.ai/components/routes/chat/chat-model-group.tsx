@@ -1,13 +1,13 @@
 'use client'
 
-import { CheckIcon } from '@radix-ui/react-icons'
 import {
 	CommandGroup,
 	CommandItem,
 	CommandSeparator,
 } from '@/components/ui/command'
+import { type ModelData, getModelIcon } from '@/lib/models'
 import { cn } from '@/lib/utils'
-import { getModelIcon, type ModelData } from '@/lib/models'
+import { CheckIcon } from '@radix-ui/react-icons'
 
 interface ModelGroupProps {
 	heading: string

@@ -1,15 +1,17 @@
 'use client'
 
 import { AIModels } from '@/app/api/chat/models/models'
+import { ModelGroup } from '@/components/routes/chat/chat-model-group'
 import { Button, buttonVariants } from '@/components/ui/button'
 import {
 	Command,
 	CommandEmpty,
 	CommandGroup,
 	CommandInput,
-	CommandList,
 	CommandItem,
+	CommandList,
 } from '@/components/ui/command'
+import { IconOpenAI } from '@/components/ui/icons'
 import {
 	Popover,
 	PopoverContent,
@@ -18,14 +20,12 @@ import {
 import { useDeepThinking } from '@/lib/hooks/use-deep-thinking'
 import { useModel } from '@/lib/hooks/use-model'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
+import { getModelIcon, groupModels } from '@/lib/models'
 import { cn } from '@/lib/utils'
+import { CheckIcon } from '@radix-ui/react-icons'
+import { Loader2 } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import * as React from 'react'
-import { Loader2 } from 'lucide-react'
-import { CheckIcon } from '@radix-ui/react-icons'
-import { ModelGroup } from '@/components/routes/chat/chat-model-group'
-import { getModelIcon, groupModels } from '@/lib/models'
-import { IconOpenAI } from '@/components/ui/icons'
 
 export function ChatCombobox() {
 	const { selectedModel, changeModel, models, isLoading } = useModel()
