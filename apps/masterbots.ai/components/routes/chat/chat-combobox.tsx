@@ -1,6 +1,7 @@
 'use client'
 
 import { AIModels } from '@/app/api/chat/models/models'
+import { ModelGroup } from '@/components/routes/chat/chat-model-group'
 import { Button, buttonVariants } from '@/components/ui/button'
 import {
 	Command,
@@ -10,14 +11,7 @@ import {
 	CommandItem,
 	CommandList,
 } from '@/components/ui/command'
-import {
-	IconClaude,
-	IconDeepSeek,
-	IconGemini,
-	IconLlama,
-	IconOpenAI,
-	IconWordware,
-} from '@/components/ui/icons'
+import { IconOpenAI } from '@/components/ui/icons'
 import {
 	Popover,
 	PopoverContent,
@@ -26,51 +20,28 @@ import {
 import { useDeepThinking } from '@/lib/hooks/use-deep-thinking'
 import { useModel } from '@/lib/hooks/use-model'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
+import { getModelIcon, groupModels } from '@/lib/models'
 import { cn } from '@/lib/utils'
 import { CheckIcon } from '@radix-ui/react-icons'
+import { Loader2 } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import * as React from 'react'
 
-const models = [
-	{ label: 'Default', value: AIModels.Default, logo: 'MB' },
-	{ label: 'GPT-4.1', value: AIModels.GPT4_1, logo: <IconOpenAI /> },
-	{ label: 'GPT-4o mini', value: AIModels.GPT4o, logo: <IconOpenAI /> },
-
-	{ label: 'Claude3', value: AIModels.Claude3, logo: <IconClaude /> },
-	{ label: 'llama3-8', value: AIModels.llama3_8b, logo: <IconLlama /> },
-	{ label: 'llama3-7', value: AIModels.llama3_7b, logo: <IconLlama /> },
-	{ label: 'WordWare', value: AIModels.WordWare, logo: <IconWordware /> },
-	{
-		label: 'DeepSeek',
-		value: AIModels.DeepSeekGroq,
-		logo: <IconDeepSeek />,
-	},
-	{
-		label: 'Gemini',
-		value: AIModels.Gemini,
-		logo: <IconGemini />,
-	},
-	{
-		label: 'Gemini Pro',
-		value: AIModels.Gemini_pro,
-		logo: <IconGemini />,
-	},
-	{
-		label: 'Gemini Lite',
-		value: AIModels.Gemini_lite,
-		logo: <IconGemini />,
-	},
-]
-
 export function ChatCombobox() {
-	const { selectedModel, changeModel } = useModel()
+	const { selectedModel, changeModel, models, isLoading } = useModel()
 	const [open, setOpen] = React.useState(false)
 	const { isPowerUp } = usePowerUp()
 	const { isDeepThinking, toggleDeepThinking } = useDeepThinking()
-	// TODO: Add subscription check to enable/disable this feature along with the feature flag
+
+	//? Feature flag for multi-model
 	const isMultiModelEnabled = appConfig.features.multiModel
 
+	//? Process selection ref to prevent double-clicks
 	const processingSelectionRef = React.useRef(false)
+
+	//? Group models by type and availability
+	const { freeEnabledModels, paidEnabledModels, disabledModels } =
+		groupModels(models)
 
 	const getButtonVariant = () => {
 		if (isDeepThinking) return 'deepThinking'
@@ -79,8 +50,12 @@ export function ChatCombobox() {
 	}
 
 	const getModelLogo = () => {
-		const model = models.find((m) => m.value === selectedModel)
-		return model?.logo || <IconOpenAI />
+		if (isLoading) {
+			return <Loader2 className="size-4 animate-spin" />
+		}
+
+		const model = models.find((m) => m.model === selectedModel)
+		return model ? getModelIcon(model.model) : <IconOpenAI />
 	}
 
 	const handleModelSelect = (modelValue: string) => {
@@ -91,18 +66,14 @@ export function ChatCombobox() {
 
 		setTimeout(() => {
 			try {
-				if (modelValue === AIModels.DeepSeekGroq) {
-					console.log('Combobox: Selecting DeepSeek')
+				if (modelValue.includes('deepseek-r1-distill-llama-70b')) {
 					if (!isDeepThinking) {
-						console.log('Combobox: Activating Deep Thinking')
 						toggleDeepThinking()
 					}
-				} else if (modelValue !== AIModels.DeepSeekGroq && isDeepThinking) {
-					console.log('Combobox: Deactivating Deep Thinking')
+				} else if (modelValue.includes('deepseek') && isDeepThinking) {
 					toggleDeepThinking()
-				} else if (modelValue !== AIModels.DeepSeekGroq && !isDeepThinking) {
-					console.log('Combobox: Changing model to', modelValue)
-					changeModel(modelValue as AIModels)
+				} else if (!modelValue.includes('deepseek') && !isDeepThinking) {
+					changeModel(modelValue)
 				}
 			} finally {
 				setTimeout(() => {
@@ -130,55 +101,69 @@ export function ChatCombobox() {
 					{getModelLogo()}
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent className="w-[180px] p-0">
+			<PopoverContent className="w-[200px] p-0">
 				<Command>
-					<CommandInput placeholder="Model..." className="h-9" />
+					<CommandInput
+						placeholder="Search models..."
+						className="h-9"
+						value=""
+					/>
 					<CommandEmpty>No model found.</CommandEmpty>
-					<CommandGroup>
+
+					{isLoading ? (
+						<div className="py-6 text-center">
+							<Loader2 className="mx-auto mb-2 size-5 animate-spin text-muted-foreground" />
+							<p className="text-sm text-muted-foreground">Loading models...</p>
+						</div>
+					) : (
 						<CommandList>
 							{isMultiModelEnabled ? (
-								models.map((model) => (
-									<CommandItem
-										key={model.value}
-										value={model.value}
+								<>
+									<ModelGroup
+										heading="Free Models"
+										models={freeEnabledModels}
+										selectedModel={selectedModel}
 										onSelect={handleModelSelect}
-									>
-										<span className="flex items-center justify-center mr-2">
-											{model.logo}
-										</span>
-										{model.label}
-										<CheckIcon
-											className={cn(
-												'ml-auto size-4 text-emerald-500',
-												selectedModel === model.value
-													? 'opacity-100'
-													: 'opacity-0',
-											)}
-										/>
-									</CommandItem>
-								))
-							) : (
-								<CommandItem
-									key={AIModels.Default}
-									value={AIModels.Default}
-									onSelect={() => {
-										changeModel(AIModels.Default)
-										setOpen(false)
-									}}
-								>
-									Masterbot&apos;s Model
-									<CheckIcon
-										className={cn(
-											'ml-auto size-4 text-emerald-500',
-											selectedModel === AIModels.Default
-												? 'opacity-100'
-												: 'opacity-0',
-										)}
 									/>
-								</CommandItem>
+
+									<ModelGroup
+										heading="Premium Models"
+										models={paidEnabledModels}
+										selectedModel={selectedModel}
+										onSelect={handleModelSelect}
+										showSeparator={freeEnabledModels.length > 0}
+									/>
+
+									<ModelGroup
+										heading="Unavailable Models"
+										models={disabledModels}
+										selectedModel={selectedModel}
+										onSelect={handleModelSelect}
+										showSeparator={
+											freeEnabledModels.length > 0 ||
+											paidEnabledModels.length > 0
+										}
+										disabled
+									/>
+								</>
+							) : (
+								<CommandGroup>
+									<CommandItem
+										value="default"
+										onSelect={() => {
+											const defaultModel =
+												models.find((m) => m.enabled)?.model || AIModels.Default
+											changeModel(defaultModel)
+											setOpen(false)
+										}}
+									>
+										Masterbot&apos;s Model
+										<CheckIcon className="ml-auto opacity-100 size-4 text-emerald-500" />
+									</CommandItem>
+								</CommandGroup>
 							)}
 						</CommandList>
-					</CommandGroup>
+					)}
 				</Command>
 			</PopoverContent>
 		</Popover>

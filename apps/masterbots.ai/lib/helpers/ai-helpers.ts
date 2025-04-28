@@ -23,33 +23,31 @@ import {
 import type { Message as MBMessage } from 'mb-genql'
 import type OpenAI from 'openai'
 
+// TODO: this funtion will need to be refactor to use the model_enum coming from hasure isntead of AiClientType
 // * This function gets the model client type
-export function getModelClientType(model: AIModels) {
-	switch (model) {
-		case AIModels.GPT4_1:
-		case AIModels.GPT4o:
-		case AIModels.Default:
-			return 'OpenAI'
-		case AIModels.Claude3:
-			return 'Anthropic'
-		case AIModels.llama3_7b:
-		case AIModels.llama3_8b:
-			return 'Perplexity'
-		case AIModels.WordWare:
-			return 'WordWare'
-		case AIModels.DeepSeekR1:
-			return 'DeepSeek'
-		case AIModels.DeepSeekGroq:
-			return 'GroqDeepSeek'
-		case AIModels.Gemini:
-		case AIModels.Gemini_pro:
-		case AIModels.Gemini_lite:
-			return 'Gemini'
-		default:
-			throw new Error('Unsupported model specified')
+export function getModelClientType(model: string): AiClientType {
+	const modelLower = model.toLowerCase()
+	if (modelLower.includes('gpt') || modelLower.includes('o4-mini')) {
+		return 'OpenAI'
 	}
+	if (modelLower.includes('claude')) {
+		return 'Anthropic'
+	}
+	if (modelLower.includes('llama') || modelLower.includes('sonar')) {
+		return 'Perplexity'
+	}
+	if (modelLower.includes('deepseek') && modelLower.includes('distill')) {
+		return 'GroqDeepSeek'
+	}
+	if (modelLower.includes('deepseek')) {
+		return 'DeepSeek'
+	}
+	if (modelLower.includes('gemini')) {
+		return 'Gemini'
+	}
+	console.error(`Unsupported model specified: ${model}`)
+	throw new Error('Unsupported model specified')
 }
-
 // * This function creates the payload for the AI response
 export function createPayload(
 	json: { id: string },
@@ -82,8 +80,6 @@ export function setStreamerPayload(
 	payload: OpenAI.ChatCompletionMessageParam[],
 ): OpenAI.ChatCompletionMessageParam[] | Anthropic.MessageParam[] {
 	switch (model) {
-		case 'WordWare':
-			return payload
 		case 'Anthropic':
 			return payload.map(
 				(message, index) =>
