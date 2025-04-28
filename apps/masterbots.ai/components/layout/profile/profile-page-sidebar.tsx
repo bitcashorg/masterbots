@@ -26,10 +26,11 @@ export const UserProfileSidebar = ({
 	const { userSlug } = useParams()
 	const { isSidebarOpen, toggleSidebar } = useSidebar()
 	const { isOpenPopup } = useThread()
-	const { currentUser, isSameUser } = useProfile()
+	const { currentUser, isSameUser, getUserInfo } = useProfile()
 	const { data: session } = useSession()
 	const { value: user } = useAsync(async () => {
-		if (currentUser === null) return null
+		await getUserInfo(userSlug as string)
+		// if (currentUser === null) return null
 		return currentUser
 	}, [userSlug, currentUser])
 
@@ -41,7 +42,6 @@ export const UserProfileSidebar = ({
 	// 	setActiveCategory(null)
 	// 	setActiveChatbot(null)
 	// }
-
 	return (
 		<div className={cn('transition-all relative w-full flex h-full')}>
 			{/* Overlay for mobile */}
@@ -121,24 +121,23 @@ export const UserProfileSidebar = ({
 								<Sidebar page="profile" />
 							</div>
 						</div>
-						{sameUser &&
-							session?.user.hasuraJwt &&
-							appConfig.features.devMode && (
-								<>
-									<Link
-										//
-										href={`/u/${userSlug}/s/pref`}
-										className={cn(
-											'flex items-center space-x-2 px-4 py-3',
-											'hover:bg-gray-200 dark:hover:bg-mirage transition-colors duration-200',
-											location.pathname?.includes('/s/pref')
-												? 'bg-gray-200 dark:bg-mirage'
-												: '',
-										)}
-									>
-										<Settings className="w-5 h-5" />
-										<span>Preferences</span>
-									</Link>
+						{sameUser && session?.user.hasuraJwt && (
+							<>
+								<Link
+									//
+									href={`/u/${userSlug}/s/pref`}
+									className={cn(
+										'flex items-center space-x-2 px-4 py-3',
+										'hover:bg-gray-200 dark:hover:bg-mirage transition-colors duration-200',
+										location.pathname?.includes('/s/pref')
+											? 'bg-gray-200 dark:bg-mirage'
+											: '',
+									)}
+								>
+									<Settings className="w-5 h-5" />
+									<span>Preferences</span>
+								</Link>
+								{appConfig.features.devMode && (
 									<Link
 										//
 										href={`/u/${userSlug}/s/subs`}
@@ -153,8 +152,9 @@ export const UserProfileSidebar = ({
 										<ReceiptIcon className="w-5 h-5" />
 										<span>Subscriptions</span>
 									</Link>
-								</>
-							)}
+								)}
+							</>
+						)}
 					</div>
 				</nav>
 			</aside>

@@ -1,3 +1,4 @@
+'use client'
 import {
 	Accordion,
 	AccordionContent,
@@ -18,6 +19,11 @@ export function PreferenceSection({
 	items,
 	variant,
 }: PreferenceSectionProps) {
+	function executeButton(buttonText: string) {
+		return () => {
+			alert(`Button ${buttonText} clicked!`)
+		}
+	}
 	return (
 		<Accordion key={title} type="single" collapsible defaultValue="1">
 			<AccordionItem value="1" className="border-none">
@@ -77,7 +83,10 @@ export function PreferenceSection({
 										<Plus className="cursor-pointer" />
 									)}
 									{item.type === 'dangerButton' && (
-										<Button className="bg-transparent border border-destructive text-destructive p-2 text-sm min-h-9">
+										<Button
+											onClick={() => executeButton(item.buttonText ?? '')}
+											className="bg-transparent border border-destructive text-destructive p-2 text-sm min-h-9"
+										>
 											{'icon' in item && item.icon && (
 												<item.icon className="mr-1 size-4" />
 											)}
