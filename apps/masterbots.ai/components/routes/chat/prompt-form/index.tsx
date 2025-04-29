@@ -254,7 +254,7 @@ export function PromptForm({
 									'absolute opacity-0 size-full !cursor-pointer p-0 disabled:opacity-0',
 								)}
 								accept={
-									selectedModel.match(/(DeepSeekR1|DeepSeekGroq)/)
+									selectedModel.match(/(DeepSeekR1|GroqDeepSeek)/)
 										? 'text/*'
 										: 'image/*,text/*'
 								}
@@ -267,7 +267,7 @@ export function PromptForm({
 						<PopoverContent className="w-[320px]">
 							<Command>
 								<CommandGroup>
-									<CommandList className="overflow-hidden w-full p-0">
+									<CommandList className="w-full p-0 overflow-hidden">
 										<Accordion type="single" collapsible>
 											<AccordionItem value={`user-attachments-${formId}`}>
 												<AccordionTrigger className="sticky top-0 p-2">
