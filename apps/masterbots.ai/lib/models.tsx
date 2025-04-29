@@ -23,14 +23,23 @@ export interface ModelData {
  */
 export const getModelIcon = (modelName: string): ReactNode => {
 	const model = modelName.toLowerCase()
-	if (model.includes('gpt') || model.includes('openai')) return <IconOpenAI />
-	if (model.includes('claude')) return <IconClaude />
-	if (model.includes('llama')) return <IconLlama />
-	if (model.includes('deepseek') || model.includes('groq'))
-		return <IconDeepSeek />
-	if (model.includes('gemini')) return <IconGemini />
-	if (model.includes('wordware')) return <IconWordware />
+	if (model.startsWith('gpt') || model.startsWith('openai'))
+		return <IconOpenAI />
+	if (model.startsWith('claude')) return <IconClaude />
+	if (model.startsWith('llama')) return <IconLlama />
+	if (model.startsWith('deepseek')) return <IconDeepSeek />
+	if (model.startsWith('groq')) return <IconDeepSeek />
+	if (model.startsWith('gemini')) return <IconGemini />
+	if (model.startsWith('wordware')) return <IconWordware />
 	return 'MB' //? Default logo text
+}
+
+export function formatModelName(modelName: string): string {
+	return modelName
+		.replace(/__/g, ' ') // Replace double underscores with spaces
+		.replace(/_\./g, '.') // Replace underscore before dots
+		.replace(/_/g, '.') // Replace remaining underscores with dots
+		.trim() // Trim any leading/trailing whitespace
 }
 
 /**
