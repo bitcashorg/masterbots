@@ -26,12 +26,12 @@ export function DeepThinkingProvider({
 		setMounted(true)
 	}, [])
 
-	const isDeepThinking = mounted && selectedModel === AIModels.DeepSeekGroq
+	const isDeepThinking = mounted && selectedModel === AIModels.GroqDeepSeek
 
 	const previousModelRef = React.useRef<string>(AIModels.Default)
 
 	React.useEffect(() => {
-		if (selectedModel !== AIModels.DeepSeekGroq) {
+		if (selectedModel !== AIModels.GroqDeepSeek) {
 			previousModelRef.current = selectedModel
 			console.log(
 				'DeepThinking: Updated previous model reference to:',
@@ -44,7 +44,7 @@ export function DeepThinkingProvider({
 		console.log('DeepThinking Toggle: Current is', isDeepThinking)
 		if (!isDeepThinking) {
 			previousModelRef.current = selectedModel
-			changeModel(AIModels.DeepSeekGroq)
+			changeModel(AIModels.GroqDeepSeek)
 		} else {
 			const modelToRestore = previousModelRef.current || AIModels.Default
 			changeModel(modelToRestore as AIModels)
