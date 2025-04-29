@@ -687,7 +687,8 @@ export async function createThread({
 					chatbotId,
 					isPublic,
 					parentThreadId,
-					slug /* model */,
+					slug,
+					model,
 				},
 			},
 			threadId: true,
@@ -1740,5 +1741,31 @@ export async function fetchDomainTags({
 	} catch (error) {
 		console.error('Error fetching tags:', error)
 		return null
+	}
+}
+
+//? This function fetches all models from the database
+export async function getModels() {
+	try {
+		const client = getHasuraClient({})
+		console.log('Fetching models from Hasura...')
+
+		const result = await client.query({
+			models: {
+				enabled: true,
+				model: true,
+				model_data: {
+					name: true,
+					value: true,
+				},
+				type: true,
+			},
+		})
+
+		console.log('Models fetched:', result.models)
+		return result.models
+	} catch (error) {
+		console.error('Error fetching models:', error)
+		return []
 	}
 }
