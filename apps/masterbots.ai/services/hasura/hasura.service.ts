@@ -1751,6 +1751,7 @@ export async function updateUserDeletionRequest({
 	userId: string
 	jwt: string
 }): Promise<{ success: boolean; error?: string }> {
+	x
 	try {
 		if (!jwt) {
 			throw new Error('Authentication required to update user deletion request')
