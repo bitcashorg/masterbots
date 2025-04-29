@@ -42,10 +42,15 @@ export function UserMenu({ user }: UserMenuProps) {
 
 	React.useEffect(() => {
 		const fetchUser = async () => {
-			const res = getUserInfoFromBrowse((await user).slug as string)
-			const userData = await res
-			if (userData) {
-				setData(userData as User)
+			if (!user?.slug) return
+			try {
+				const res = getUserInfoFromBrowse(user.slug as string)
+				const userData = await res
+				if (userData) {
+					setData(userData as User)
+				}
+			} catch (error) {
+				console.error('Failed to fetch user data:', error)
 			}
 		}
 		fetchUser()
