@@ -843,6 +843,8 @@ function IconDeepSeek({ className, ...props }: React.ComponentProps<'svg'>) {
 			viewBox="0 0 24 24"
 			fill="currentColor"
 			fillRule="evenodd"
+			height="1em"
+			width="1em"
 			style={{ flex: 'none', lineHeight: '1' }}
 			className={cn('size-4', className)}
 			{...props}

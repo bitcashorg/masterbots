@@ -5,7 +5,7 @@ import {
 	CommandItem,
 	CommandSeparator,
 } from '@/components/ui/command'
-import { type ModelData, getModelIcon } from '@/lib/models'
+import { type ModelData, formatModelName, getModelIcon } from '@/lib/models'
 import { cn } from '@/lib/utils'
 import { CheckIcon } from '@radix-ui/react-icons'
 
@@ -44,7 +44,7 @@ export function ModelGroup({
 							{getModelIcon(model.model)}
 						</span>
 						<span className="flex-1 truncate">
-							{model.model_data?.name || model.model}
+							{formatModelName(model.model_data?.name || model.model)}
 						</span>
 						{disabled ? (
 							<span className="ml-auto text-xs text-muted-foreground">
