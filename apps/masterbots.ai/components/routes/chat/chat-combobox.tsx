@@ -7,7 +7,6 @@ import {
 	Command,
 	CommandEmpty,
 	CommandGroup,
-	CommandInput,
 	CommandItem,
 	CommandList,
 } from '@/components/ui/command'
@@ -103,11 +102,6 @@ export function ChatCombobox() {
 			</PopoverTrigger>
 			<PopoverContent className="w-[200px] p-0">
 				<Command>
-					<CommandInput
-						placeholder="Search models..."
-						className="h-9"
-						value=""
-					/>
 					<CommandEmpty>No model found.</CommandEmpty>
 
 					{isLoading ? (
@@ -132,18 +126,6 @@ export function ChatCombobox() {
 										selectedModel={selectedModel}
 										onSelect={handleModelSelect}
 										showSeparator={freeEnabledModels.length > 0}
-									/>
-
-									<ModelGroup
-										heading="Unavailable Models"
-										models={disabledModels}
-										selectedModel={selectedModel}
-										onSelect={handleModelSelect}
-										showSeparator={
-											freeEnabledModels.length > 0 ||
-											paidEnabledModels.length > 0
-										}
-										disabled
 									/>
 								</>
 							) : (
