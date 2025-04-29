@@ -1742,3 +1742,37 @@ export async function fetchDomainTags({
 		return null
 	}
 }
+
+// update user deletion_requested_at with the current date
+export async function updateUserDeletionRequest({
+	userId,
+	jwt,
+}: {
+	userId: string
+	jwt: string
+}): Promise<{ success: boolean; error?: string }> {
+	try {
+		if (!jwt) {
+			throw new Error('Authentication required to update user deletion request')
+		}
+
+		const client = getHasuraClient({ jwt })
+		await client.mutation({
+			updateUserByPk: {
+				__args: {
+					pkColumns: { userId },
+					_set: { deletion_requested_at: new Date().toISOString() },
+				},
+				returning: {
+					userId: true,
+					deletion_requested_at: true,
+				},
+			},
+		})
+
+		return { success: true }
+	} catch (error) {
+		console.error('Error updating user deletion request:', error)
+		return { success: false, error: (error as Error).message }
+	}
+}
