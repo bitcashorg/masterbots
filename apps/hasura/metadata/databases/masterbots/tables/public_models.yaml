@@ -5,3 +5,28 @@ object_relationships:
   - name: model_data
     using:
       foreign_key_constraint_on: model
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - enabled
+        - model
+        - type
+      filter: {}
+    comment: ""
+  - role: moderator
+    permission:
+      columns:
+        - enabled
+        - model
+        - type
+      filter: {}
+    comment: ""
+  - role: user
+    permission:
+      columns:
+        - enabled
+        - model
+        - type
+      filter: {}
+    comment: ""

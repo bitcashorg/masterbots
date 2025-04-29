@@ -401,7 +401,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						slug: userMessageSlug,
 						role: 'user',
 						// TODO: Uncomment when model FE is ready. BE is ready. @bran18
-						// model: selectedModel,
+						model: selectedModel,
 						content: userContentRef.current,
 						createdAt: new Date().toISOString(),
 					},
@@ -412,7 +412,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						slug: assistantMessageSlug,
 						role: 'assistant',
 						// TODO: Uncomment when model FE is ready. BE is ready. @bran18
-						// model: selectedModel,
+						model: selectedModel,
 						content: finalMessage.content,
 						createdAt: new Date(Date.now() + 1000).toISOString(),
 					},
@@ -858,7 +858,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					slug: threadSlug,
 					chatbotId: chatbot.chatbotId,
 					// TODO: Uncomment when model FE is ready. BE is ready. @bran18
-					// model: selectedModel || 'OPENAI__4_1__MINI',
+					// model: selectedModel,
 					parentThreadId: isContinuingThread
 						? (continuousThreadId as string)
 						: undefined,
