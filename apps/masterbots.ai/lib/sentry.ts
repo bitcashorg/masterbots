@@ -4,6 +4,7 @@ interface LogErrorOptions {
 	error: Error | unknown // The error object or value
 	message?: string // Optional descriptive message
 	level?: Sentry.SeverityLevel // Severity level (e.g., 'error', 'warning', 'info', 'debug')
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	extra?: Record<string, any> // Additional context data
 	tags?: Record<string, string | number | boolean> // Tags for categorization
 }
