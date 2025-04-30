@@ -1,4 +1,3 @@
-import { AIModels } from '@/app/api/chat/models/models'
 import {
 	CONTINUE_GENERATION_PROMPT,
 	CONTINUE_GENERATION_PROMPT_2,
