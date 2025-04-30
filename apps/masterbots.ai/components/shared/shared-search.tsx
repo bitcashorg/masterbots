@@ -89,7 +89,7 @@ export function ThreadSearchInput({
 		} else if (activeCategory && activeCategory !== previousCategory.current) {
 			previousCategory.current = activeCategory
 			const getCategoryLabel = await getCategory({ categoryId: activeCategory })
-			setSearchPlaceholder(`${getCategoryLabel.name.toLowerCase()} category`)
+			setSearchPlaceholder(`${getCategoryLabel.name.toLowerCase()} topic`)
 		}
 	}
 
@@ -163,7 +163,7 @@ export function ThreadSearchInput({
 						onChange={(e) => handleSearch(e.target.value)}
 						placeholder={
 							customPlaceholder ||
-							`Search all messages in ${searchPlaceholder ? searchPlaceholder : 'any category'}...`
+							`Search all messages in ${searchPlaceholder ? searchPlaceholder : 'any topic'}...`
 						}
 						className={cn(
 							'w-full px-12 py-6',
