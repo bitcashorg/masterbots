@@ -5,9 +5,10 @@ import {
 	CommandItem,
 	CommandSeparator,
 } from '@/components/ui/command'
-import { type ModelData, getModelIcon } from '@/lib/models'
+import { type ModelData, formatModelName, getModelIcon } from '@/lib/models'
 import { cn } from '@/lib/utils'
 import { CheckIcon } from '@radix-ui/react-icons'
+import { appConfig } from 'mb-env'
 
 interface ModelGroupProps {
 	heading: string
@@ -28,6 +29,10 @@ export function ModelGroup({
 }: ModelGroupProps) {
 	if (models.length === 0) return null
 
+	if (appConfig.features.devMode) {
+		console.log('ModelGroup models:', models)
+	}
+
 	return (
 		<>
 			{showSeparator && <CommandSeparator />}
@@ -44,7 +49,7 @@ export function ModelGroup({
 							{getModelIcon(model.model)}
 						</span>
 						<span className="flex-1 truncate">
-							{model.model_data?.name || model.model}
+							{formatModelName(model.model_data?.name || model.model)}
 						</span>
 						{disabled ? (
 							<span className="ml-auto text-xs text-muted-foreground">
@@ -53,7 +58,7 @@ export function ModelGroup({
 						) : (
 							<CheckIcon
 								className={cn(
-									'ml-auto size-4 text-emerald-500',
+									'ml-auto size-5 text-emerald-500',
 									selectedModel === model.model ? 'opacity-100' : 'opacity-0',
 								)}
 							/>

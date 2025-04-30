@@ -1,4 +1,3 @@
-import { AIModels } from '@/app/api/chat/models/models'
 import {
 	CONTINUE_GENERATION_PROMPT,
 	CONTINUE_GENERATION_PROMPT_2,
@@ -33,16 +32,13 @@ export function getModelClientType(model: string): AiClientType {
 	if (modelLower.includes('claude')) {
 		return 'Anthropic'
 	}
-	if (modelLower.includes('llama') || modelLower.includes('sonar')) {
-		return 'Perplexity'
-	}
-	if (modelLower.includes('deepseek') && modelLower.includes('distill')) {
+	// if (modelLower.includes('llama') || modelLower.includes('sonar')) {
+	// 	return 'Perplexity'
+	// }
+	if (modelLower.startsWith('deepseek')) {
 		return 'GroqDeepSeek'
 	}
-	if (modelLower.includes('deepseek')) {
-		return 'DeepSeek'
-	}
-	if (modelLower.includes('gemini')) {
+	if (modelLower.startsWith('gemini')) {
 		return 'Gemini'
 	}
 	console.error(`Unsupported model specified: ${model}`)
@@ -90,7 +86,7 @@ export function setStreamerPayload(
 						content: message.content,
 					}) as Anthropic.MessageParam,
 			)
-		case 'DeepSeek':
+		// case 'DeepSeek':
 		case 'GroqDeepSeek':
 			return payload.map((message) => {
 				if (message.role === 'assistant') {

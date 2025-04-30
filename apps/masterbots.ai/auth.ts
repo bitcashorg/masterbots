@@ -208,6 +208,11 @@ export const authOptions: NextAuthOptions = {
 
 				if (!signedUser || signedUser.length === 0) {
 					const slug = toSlug(user.name as string)
+					const username = generateUsername(
+						user.email?.split('@')[0] || user.name || '',
+					)
+					const profilePicture =
+						user.image || `https://robohash.org/${username}?bgset=bg2`
 					// Create new user in your database
 					const { insertUserOne: newUser } = await client.mutation({
 						insertUserOne: {
@@ -215,10 +220,8 @@ export const authOptions: NextAuthOptions = {
 								object: {
 									slug,
 									email: user.email,
-									username: generateUsername(
-										user.email?.split('@')[0] || user.name || '',
-									),
-									profilePicture: user.image,
+									username,
+									profilePicture,
 									// You might want to generate a random password here
 									password: bcrypt.hashSync(
 										Math.random().toString(36).slice(-8),

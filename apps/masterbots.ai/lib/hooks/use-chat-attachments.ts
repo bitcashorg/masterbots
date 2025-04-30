@@ -187,7 +187,7 @@ export function useFileAttachments(
 		}
 
 		const validFiles = Array.from(validAttachments).filter((file) => {
-			if (selectedModel.match(/(DeepSeekR1|DeepSeekGroq)/)) {
+			if (selectedModel.match(/(DeepSeekR1|GroqDeepSeek)/)) {
 				return file.type.startsWith('text/')
 			}
 			return file.type.startsWith('image/') || file.type.startsWith('text/')
