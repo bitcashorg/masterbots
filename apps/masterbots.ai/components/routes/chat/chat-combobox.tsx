@@ -79,7 +79,7 @@ export function ChatCombobox() {
 	}
 
 	const handleModelSelect = (modelValue: string) => {
-		if (!appConfig.features.devMode || processingSelectionRef.current) return
+		if (processingSelectionRef.current) return
 
 		processingSelectionRef.current = true
 		setOpen(false)
