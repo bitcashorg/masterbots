@@ -1281,6 +1281,7 @@ export async function getUserBySlug({
 				slug: true,
 				bio: true,
 				favouriteTopic: true,
+				proUserSubscriptionId: true,
 				threads: {
 					__args: {
 						where: isSameUser

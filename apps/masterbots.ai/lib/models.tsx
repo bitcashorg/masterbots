@@ -37,7 +37,6 @@ export const getModelIcon = (modelName: string): ReactNode => {
 export function formatModelName(modelName: string): string {
 	return modelName
 		.replace(/__/g, ' ') // Replace double underscores with spaces
-		.replace(/_\./g, '.') // Replace underscore before dots
 		.replace(/_/g, '.') // Replace remaining underscores with dots
 		.trim() // Trim any leading/trailing whitespace
 }

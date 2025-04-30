@@ -21,16 +21,37 @@ import { useModel } from '@/lib/hooks/use-model'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { getModelIcon, groupModels } from '@/lib/models'
 import { cn } from '@/lib/utils'
+import { getUserBySlug } from '@/services/hasura'
 import { CheckIcon } from '@radix-ui/react-icons'
 import { Loader2 } from 'lucide-react'
 import { appConfig } from 'mb-env'
+import { useSession } from 'next-auth/react'
 import * as React from 'react'
+import { useAsync } from 'react-use'
 
 export function ChatCombobox() {
 	const { selectedModel, changeModel, models, isLoading } = useModel()
 	const [open, setOpen] = React.useState(false)
 	const { isPowerUp } = usePowerUp()
 	const { isDeepThinking, toggleDeepThinking } = useDeepThinking()
+	const { data: session } = useSession()
+	const {
+		error: errorUserData,
+		loading: loadingUserData,
+		value: userData,
+	} = useAsync(async () => {
+		if (!session?.user?.hasuraJwt) return null
+		const userResults = await getUserBySlug({
+			slug: session?.user.slug || '',
+			isSameUser: true,
+		})
+
+		if (userResults.error) {
+			throw new Error(userResults.error)
+		}
+
+		return userResults.user
+	}, [session?.user?.hasuraJwt])
 
 	//? Feature flag for multi-model
 	const isMultiModelEnabled = appConfig.features.multiModel
@@ -82,6 +103,10 @@ export function ChatCombobox() {
 		}, 100)
 	}
 
+	const areProModelsDisabled =
+		!appConfig.features.devMode &&
+		(loadingUserData || !userData?.proUserSubscriptionId)
+
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
 			<PopoverTrigger asChild>
@@ -101,7 +126,7 @@ export function ChatCombobox() {
 				</Button>
 			</PopoverTrigger>
 			<PopoverContent className="w-[200px] p-0">
-				<Command>
+				<Command className="scrollbar">
 					<CommandEmpty>No model found.</CommandEmpty>
 
 					{isLoading ? (
@@ -110,7 +135,7 @@ export function ChatCombobox() {
 							<p className="text-sm text-muted-foreground">Loading models...</p>
 						</div>
 					) : (
-						<CommandList>
+						<CommandList className="scrollbar">
 							{isMultiModelEnabled ? (
 								<>
 									<ModelGroup
@@ -126,6 +151,7 @@ export function ChatCombobox() {
 										selectedModel={selectedModel}
 										onSelect={handleModelSelect}
 										showSeparator={freeEnabledModels.length > 0}
+										disabled={areProModelsDisabled}
 									/>
 								</>
 							) : (
