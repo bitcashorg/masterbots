@@ -892,7 +892,7 @@ export async function getBrowseThreads({
 			__args: {
 				orderBy: [{ createdAt: 'DESC' }],
 				where: baseWhereConditions,
-				limit: (limit || 30) * 2,
+				limit: limit || 30,
 				offset: offset || 0,
 			},
 		},

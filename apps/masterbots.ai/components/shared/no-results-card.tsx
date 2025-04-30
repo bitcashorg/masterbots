@@ -1,11 +1,10 @@
 import {
 	Card,
-	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card'
-import { Filter, SearchX } from 'lucide-react'
+import { Filter, MessageSquareXIcon, SearchX } from 'lucide-react'
 import { NoResultsSkeleton } from './skeletons/no-results-skeleton'
 
 interface NoResultsProps {
@@ -25,14 +24,24 @@ export function NoResults({
 		return <NoResultsSkeleton />
 	}
 
+	const noMoreThreads = customMessage
+		?.toLocaleLowerCase()
+		.includes('no more threads')
+	const defaultNoResultsIcon = searchTerm ? (
+		<SearchX className="size-12 text-muted-foreground" />
+	) : (
+		<Filter className="size-12 text-muted-foreground" />
+	)
+	const noResultsIcon = noMoreThreads ? (
+		<MessageSquareXIcon className="size-12 text-muted-foreground" />
+	) : (
+		defaultNoResultsIcon
+	)
+
 	return (
-		<Card className="bg-transparent border-none shadow-none">
+		<Card className="bg-transparent border-none shadow-none mt-10">
 			<CardHeader className="flex flex-col items-center gap-2">
-				{searchTerm ? (
-					<SearchX className="size-12 text-muted-foreground" />
-				) : (
-					<Filter className="size-12 text-muted-foreground" />
-				)}
+				{noResultsIcon}
 				<CardTitle className="text-xl">No results found</CardTitle>
 				<CardDescription className="text-center">
 					{customMessage ||
