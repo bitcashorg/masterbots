@@ -7,7 +7,6 @@ import {
 	AccordionItem,
 	AccordionTrigger,
 } from '@/components/ui/accordion'
-import { IconCaretRight } from '@/components/ui/icons'
 import { useProfile } from '@/lib/hooks/use-profile'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
@@ -70,7 +69,7 @@ export const UserProfileSidebar = ({
 			{/* Sidebar */}
 			<aside
 				className={cn(
-					'fixed lg:sticky z-[70] top-[64px] sm:top-0 h-[calc(100vh-64px)] max-h-[calc(100vh-64px)]', // Changed to sticky and match parent height
+					'transition-all fixed lg:sticky z-[70] top-[64px] lg:top-0 h-[calc(100vh-64px)] max-h-[calc(100vh-64px)]', // Changed to sticky and match parent height
 					'w-[18.75rem] bg-gray-50 dark:bg-black border-r',
 					'transition-all',
 					isSidebarOpen
