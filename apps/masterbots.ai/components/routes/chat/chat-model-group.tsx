@@ -8,6 +8,7 @@ import {
 import { type ModelData, formatModelName, getModelIcon } from '@/lib/models'
 import { cn } from '@/lib/utils'
 import { CheckIcon } from '@radix-ui/react-icons'
+import { appConfig } from 'mb-env'
 
 interface ModelGroupProps {
 	heading: string
@@ -27,6 +28,10 @@ export function ModelGroup({
 	disabled = false,
 }: ModelGroupProps) {
 	if (models.length === 0) return null
+
+	if (appConfig.features.devMode) {
+		console.log('ModelGroup models:', models)
+	}
 
 	return (
 		<>
@@ -53,7 +58,7 @@ export function ModelGroup({
 						) : (
 							<CheckIcon
 								className={cn(
-									'ml-auto size-4 text-emerald-500',
+									'ml-auto size-5 text-emerald-500',
 									selectedModel === model.model ? 'opacity-100' : 'opacity-0',
 								)}
 							/>

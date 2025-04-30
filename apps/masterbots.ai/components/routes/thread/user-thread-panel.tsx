@@ -436,7 +436,7 @@ export default function UserThreadPanel({
 						count={count}
 					/>
 				)}
-				{(showNoResults || totalThreads === count) && (
+				{(showNoResults || (totalThreads === count && threads.length > 0)) && (
 					<NoResults
 						searchTerm={searchTerm}
 						totalItems={totalThreads}
