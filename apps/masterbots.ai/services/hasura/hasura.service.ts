@@ -892,7 +892,7 @@ export async function getBrowseThreads({
 			__args: {
 				orderBy: [{ createdAt: 'DESC' }],
 				where: baseWhereConditions,
-				limit: (limit || 30) * 2,
+				limit: limit || 30,
 				offset: offset || 0,
 			},
 		},
@@ -1281,6 +1281,7 @@ export async function getUserBySlug({
 				slug: true,
 				bio: true,
 				favouriteTopic: true,
+				proUserSubscriptionId: true,
 				threads: {
 					__args: {
 						where: isSameUser
