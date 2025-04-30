@@ -37,9 +37,7 @@ export function LoginButton({
       ) : showGithubIcon ? (
         <IconGitHub className="mr-2" />
       ) : null} */}
-			{text === 'Login with Google' && (
-				<IconGoogle className="fill-foreground stroke-foreground size-5" />
-			)}
+			<IconGoogle className="fill-foreground stroke-foreground size-5" />
 			{text}
 		</Button>
 	)
