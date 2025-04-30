@@ -126,7 +126,7 @@ export function ChatCombobox() {
 				</Button>
 			</PopoverTrigger>
 			<PopoverContent className="w-[200px] p-0">
-				<Command className="scrollbar">
+				<Command>
 					<CommandEmpty>No model found.</CommandEmpty>
 
 					{isLoading ? (
