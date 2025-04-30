@@ -41,7 +41,6 @@ import { searchThreadContent } from '@/lib/search'
 import { cn } from '@/lib/utils'
 import {
 	getBrowseThreads,
-	getCategories,
 	getCategory,
 	getThread,
 	getThreads,
@@ -78,7 +77,12 @@ export default function UserThreadPanel({
 		threadSlug?: string
 	}>()
 	const { data: session } = useSession()
-	const { activeCategory, activeChatbot, setActiveChatbot } = useSidebar()
+	const {
+		activeCategory,
+		activeChatbot,
+		selectedCategories,
+		setActiveChatbot,
+	} = useSidebar()
 	const {
 		isOpenPopup,
 		activeThread,
@@ -139,10 +143,9 @@ export default function UserThreadPanel({
 			if (activeCategory) {
 				browseThreadGetParams.categoryId = activeCategory
 			} else {
-				const categoriesResponse = await getCategories()
-
-				const categoriesId = categoriesResponse.map((cat) => cat.categoryId)
-				browseThreadGetParams.categoriesId = categoriesId
+				// By default, it would fetch all the categories but since the userId is in the params,
+				// it will return threads that are only related to the user.
+				browseThreadGetParams.categoriesId = selectedCategories
 			}
 
 			if (chatbot || botSlug) {
