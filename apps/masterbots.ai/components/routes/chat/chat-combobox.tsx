@@ -29,6 +29,8 @@ import { useSession } from 'next-auth/react'
 import * as React from 'react'
 import { useAsync } from 'react-use'
 
+const WHITELIST_USERS = appConfig.features.proWhitelistUsers
+
 export function ChatCombobox() {
 	const { selectedModel, changeModel, models, isLoading } = useModel()
 	const [open, setOpen] = React.useState(false)
@@ -105,7 +107,9 @@ export function ChatCombobox() {
 
 	const areProModelsDisabled =
 		!appConfig.features.devMode &&
-		(loadingUserData || !userData?.proUserSubscriptionId)
+		(loadingUserData ||
+			!userData?.proUserSubscriptionId ||
+			!WHITELIST_USERS.includes(userData?.slug))
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
