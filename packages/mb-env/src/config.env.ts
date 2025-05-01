@@ -35,4 +35,14 @@ export const appConfig = {
 	database: {
 		url: process.env.DATABASE_URL || '',
 	},
+	ads: {
+		googleAds: {
+			clientId: process.env.NEXT_PUBLIC_GOOGLE_ADS_CLIENT_ID || '',
+			enabled: process.env.NEXT_PUBLIC_GOOGLE_ADS_ENABLED === 'true',
+		},
+		twitterAds: {
+			campaignId: process.env.NEXT_PUBLIC_TWITTER_ADS_CAMPAIGN_ID || 'pngjn',
+			enabled: process.env.NEXT_PUBLIC_TWITTER_ADS_ENABLED === 'true',
+		},
+	},
 }
