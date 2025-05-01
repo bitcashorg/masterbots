@@ -14,7 +14,6 @@ import { urlBuilders } from '@/lib/url'
 import { cn } from '@/lib/utils'
 import { MessagesSquareIcon, ReceiptIcon, Settings } from 'lucide-react'
 import { appConfig } from 'mb-env'
-import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
 import { useState } from 'react'
@@ -34,12 +33,16 @@ export const UserProfileSidebar = ({
 	const { isSidebarOpen, toggleSidebar, setActiveCategory, setActiveChatbot } =
 		useSidebar()
 	const { isOpenPopup } = useThread()
-	const { currentUser, isSameUser } = useProfile()
-	const { data: session } = useSession()
+	const { getUserInfo, isSameUser } = useProfile()
 	const { value: user } = useAsync(async () => {
-		if (currentUser === null) return null
-		return currentUser
-	}, [userSlug, currentUser])
+		const { user, error } = await getUserInfo(userSlug as string)
+
+		if (error) {
+			throw new Error(error)
+		}
+
+		return user
+	}, [userSlug])
 
 	const handleToggleThreads = () => {
 		if (!sameUser) return
@@ -79,16 +82,16 @@ export const UserProfileSidebar = ({
 			>
 				<nav className="flex-1 h-full flex flex-col space-y-1 font-Geist">
 					{/* Threads Accordion */}
-					<div className="h-full">
-						{/* User Pref is getting close. Enabling for devMode ONLY */}
-						{sameUser && appConfig.features.devMode ? (
+					{/* User Pref is getting close. Enabling for devMode ONLY */}
+					{sameUser && appConfig.features.devMode ? (
+						<>
 							<Accordion type="single" collapsible defaultValue="threads">
 								<AccordionItem value="threads">
 									<AccordionTrigger
 										className={cn(
-											'flex w-full items-center justify-between px-4 py-3',
+											'flex items-center gap-2 px-4 py-3',
 											'hover:bg-gray-200 dark:hover:bg-mirage transition-colors duration-200',
-											isThreadsOpen || openSidebar
+											location.pathname?.includes(`/u/${userSlug}/t`)
 												? 'bg-gray-200 dark:bg-mirage'
 												: '',
 										)}
@@ -116,49 +119,41 @@ export const UserProfileSidebar = ({
 											</div>
 										</Link>
 									</AccordionTrigger>
-									<AccordionContent className="px-0 pt-0 pb-10 scrollbar max-h-[calc(100vh-64px)]">
+									<AccordionContent className="px-0 p-0 scrollbar min-h-[49.5vh] max-h-[calc(100vh-64px)]">
 										<Sidebar page="profile" />
 									</AccordionContent>
 								</AccordionItem>
 							</Accordion>
-						) : (
-							<Sidebar page="profile" />
-						)}
-					</div>
-					{sameUser &&
-						session?.user.hasuraJwt &&
-						appConfig.features.devMode && (
-							<>
-								<Link
-									//
-									href={`/u/${userSlug}/s/pref`}
-									className={cn(
-										'flex items-center gap-2 px-4 py-3',
-										'hover:bg-gray-200 dark:hover:bg-mirage transition-colors duration-200',
-										location.pathname?.includes('/s/pref')
-											? 'bg-gray-200 dark:bg-mirage'
-											: '',
-									)}
-								>
-									<Settings className="w-5 h-5" />
-									<span>Preferences</span>
-								</Link>
-								<Link
-									//
-									href={`/u/${userSlug}/s/subs`}
-									className={cn(
-										'flex items-center gap-2 px-4 py-3',
-										'hover:bg-gray-200 dark:hover:bg-mirage transition-colors duration-200',
-										location.pathname?.includes('/s/subs')
-											? 'bg-gray-200 dark:bg-mirage'
-											: '',
-									)}
-								>
-									<ReceiptIcon className="w-5 h-5" />
-									<span>Subscriptions</span>
-								</Link>
-							</>
-						)}
+							<Link
+								href={`/u/${userSlug}/s/pref`}
+								className={cn(
+									'flex items-center gap-2 px-4 py-3',
+									'hover:bg-gray-200 dark:hover:bg-mirage transition-colors duration-200',
+									location.pathname?.includes('/s/pref')
+										? 'bg-gray-200 dark:bg-mirage'
+										: '',
+								)}
+							>
+								<Settings className="w-5 h-5" />
+								Preferences
+							</Link>
+							<Link
+								href={`/u/${userSlug}/s/subs`}
+								className={cn(
+									'flex items-center gap-2 px-4 py-3',
+									'hover:bg-gray-200 dark:hover:bg-mirage transition-colors duration-200',
+									location.pathname?.includes('/s/subs')
+										? 'bg-gray-200 dark:bg-mirage'
+										: '',
+								)}
+							>
+								<ReceiptIcon className="w-5 h-5" />
+								Subscriptions
+							</Link>
+						</>
+					) : (
+						<Sidebar page="profile" />
+					)}
 				</nav>
 			</aside>
 
