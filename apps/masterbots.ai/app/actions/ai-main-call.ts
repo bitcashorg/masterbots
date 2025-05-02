@@ -359,12 +359,12 @@ export async function createResponseStream(
 							maxRetries: 2,
 							tools,
 							temperature: 1,
-							providerOptions: {
-								openai: {
-									reasoningEffort: 'low',
-									reasoningSummary: 'auto',
-								},
-							},
+							// providerOptions: {
+							// 	openai: {
+							// 		reasoningEffort: 'low',
+							// 		reasoningSummary: 'auto',
+							// 	},
+							// },
 						}
 					: {
 							temperature: OPEN_AI_ENV_CONFIG.TEMPERATURE,
