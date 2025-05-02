@@ -16,7 +16,7 @@ import rehypeMathJax from 'rehype-mathjax'
 import remarkGfm from 'remark-gfm'
 import remarkRehype from 'remark-rehype'
 
-// extract reasoning content
+//? extract reasoning content
 export function extractReasoningContent(
 	message: Message & Partial<MBMessage>,
 ): string | null | undefined {
@@ -27,7 +27,7 @@ export function extractReasoningContent(
 		if (reasoningPart) return reasoningPart.reasoning
 	}
 
-	return message?.reasoning || message.thinking
+	return message.thinking
 }
 
 export function ReasoningChatMessage({
