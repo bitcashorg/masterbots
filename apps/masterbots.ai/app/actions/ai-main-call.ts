@@ -348,7 +348,6 @@ export async function createResponseStream(
 			case 'OpenAI': {
 				const openaiModel = initializeOpenAi(model)
 				const isReasoningModel = model.startsWith('o4-mini')
-
 				const modelToUse = openaiModel
 
 				//* For OpenAI reasoning models, we don't need the middleware approach reasoning comes through the reasoningSummary option
@@ -356,16 +355,16 @@ export async function createResponseStream(
 				const openAiStreamConfig = isReasoningModel
 					? {
 							messages: coreMessages,
-							model: openaiModel,
+							model: modelToUse,
 							maxRetries: 2,
 							tools,
 							temperature: 1,
-							providerOptions: {
-								openai: {
-									reasoningEffort: 'medium',
-									reasoningSummary: 'auto',
-								},
-							},
+							// providerOptions: {
+							// 	openai: {
+							// 		reasoningEffort: 'low',
+							// 		reasoningSummary: 'auto',
+							// 	},
+							// },
 						}
 					: {
 							temperature: OPEN_AI_ENV_CONFIG.TEMPERATURE,
@@ -474,7 +473,7 @@ export async function createResponseStream(
 			sendReasoning:
 				clientType === 'DeepSeek' ||
 				clientType === 'GroqDeepSeek' ||
-				(clientType === 'OpenAI' && model.startsWith('o4-mini')),
+				(clientType === 'OpenAI' && model.includes('o4-mini')),
 			getErrorMessage(error) {
 				if (error instanceof Error) return error.message
 				return 'Failed to process the request'

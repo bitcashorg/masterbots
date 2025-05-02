@@ -4,31 +4,15 @@ import {
 	cleanClickableText,
 	extractFollowUpContext,
 } from '@/lib/chat-clickable-text'
-import { cleanPrompt } from '@/lib/helpers/ai-helpers'
+import { cleanPrompt, extractReasoningContent } from '@/lib/helpers/ai-helpers'
 import { memoizedMarkdownComponents } from '@/lib/memoized-markdown-components'
 import { cn } from '@/lib/utils'
 import type { ChatMessageProps } from '@/types/types'
-import type { Message } from 'ai'
 import { ChevronsDownUp } from 'lucide-react'
-import type { Message as MBMessage } from 'mb-genql'
 import { useState } from 'react'
 import rehypeMathJax from 'rehype-mathjax'
 import remarkGfm from 'remark-gfm'
 import remarkRehype from 'remark-rehype'
-
-//? extract reasoning content
-export function extractReasoningContent(
-	message: Message & Partial<MBMessage>,
-): string | null | undefined {
-	if (message.parts?.length) {
-		const reasoningPart = message.parts.find(
-			(part) => part.type === 'reasoning',
-		)
-		if (reasoningPart) return reasoningPart.reasoning
-	}
-
-	return message.thinking
-}
 
 export function ReasoningChatMessage({
 	message,
@@ -38,14 +22,13 @@ export function ReasoningChatMessage({
 }: ChatMessageProps) {
 	const [isReasoningCollapsed, setIsReasoningCollapsed] = useState(!true)
 	const [clicked, setClicked] = useState(false)
-
-	// Extract reasoning from message
+	//? Extract reasoning from message
 	const reasoningContent = extractReasoningContent(message)
-	// Clean the message content and update the message object.
+	//? Clean the message content and update the message object.
 	const content = cleanPrompt(message.content)
 	const cleanMessage = { ...message, content }
 
-	// Handler for clickable text elements.
+	//? Handler for clickable text elements.
 	const handleClickableClick = (clickableText: string) => {
 		if (clicked) return
 		setClicked(true)

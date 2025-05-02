@@ -98,10 +98,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	const { customSonner } = useSonner()
 	const { isPowerUp } = usePowerUp()
 	const { setIsCutOff } = useContinueGeneration()
-	// console.log('[HOOK] webSearch', webSearch)
-
 	const params = useParams<{ chatbot: string; threadSlug: string }>()
 	const { selectedModel, clientType } = useModel()
+
 
 	// const initialIsNewChat = Boolean(isContinuousThread || !activeThread?.messages.length)
 	const [{ messagesFromDB, isNewChat }, setState] = useSetState<{
@@ -384,9 +383,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				//? assistant message with reasoning information
 				const assistantMessageThinking = hasReasoning(finalMessage)
 					? {
-							thinking:
-								finalMessage.parts?.find((msg) => msg.type === 'reasoning')
-									?.reasoning || finalMessage.reasoning,
+							thinking: finalMessage.parts?.find(
+								(msg) => msg.type === 'reasoning',
+							)?.reasoning,
 						}
 					: {}
 
