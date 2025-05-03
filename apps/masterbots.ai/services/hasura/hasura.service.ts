@@ -1278,6 +1278,7 @@ export async function getUserBySlug({
 				userId: true,
 				username: true,
 				profilePicture: true,
+				email: true,
 				slug: true,
 				bio: true,
 				favouriteTopic: true,

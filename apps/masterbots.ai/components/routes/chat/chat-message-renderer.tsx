@@ -39,7 +39,6 @@ export function MessageRenderer({
 				actionRequired={actionRequired}
 				sendMessageFromResponse={sendMessageFromResponse}
 				chatbot={chatbot}
-				webSearchResults={webSearchResults}
 				{...props}
 			/>
 		)
