@@ -5,12 +5,19 @@ import { Button, buttonVariants } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { cn } from '@/lib/utils'
-import { ChevronLeftIcon, LogOut } from 'lucide-react'
+import {
+	ChevronLeftIcon,
+	ChevronRightIcon,
+	LogOut,
+	ReceiptIcon,
+	SettingsIcon,
+} from 'lucide-react'
 import { appConfig } from 'mb-env'
 import { toSlugWithUnderScore } from 'mb-lib'
 import type { Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useState } from 'react'
 
@@ -30,10 +37,8 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
 	const { setActiveCategory, setActiveChatbot } = useSidebar()
 	const router = useRouter()
 
-	const handleNavigation = (path: string) => {
+	const handleNavigation = () => {
 		setIsOpen(false)
-		router.push(path)
-
 		// TODO: This is a temporary fix to reset the active category and chatbot. Consider to update the navigation according to the active category and chatbot.
 		setActiveCategory(null)
 		setActiveChatbot(null)
@@ -91,11 +96,12 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
 			<SheetContent side="right" className="w-[300px] sm:w-[400px] p-0">
 				<div className="flex flex-col h-full">
 					{/* Profile Header */}
-					<div className="p-4 border-b">
+					<div className="border-b mt-10">
 						<Button
 							onClick={goToProfile}
 							variant="sideBarProfile"
 							size="sideBarProfile"
+							className="p-4 rounded-none"
 						>
 							{user?.image ? (
 								<Image
@@ -111,63 +117,94 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
 									{user?.name ? getUserInitials(user?.name) : null}
 								</div>
 							)}
-							<div className="space-y-1">
+							<div className="flex flex-col gap-1 items-start">
 								<p className="text-sm font-medium">{user?.name}</p>
 								<p className="text-xs text-muted-foreground">{user?.email}</p>
 							</div>
+							<ChevronRightIcon className="ml-auto size-4" />
 						</Button>
 					</div>
 
 					{/* Navigation Links - Only visible on mobile */}
-					<nav className="flex flex-col p-4 lg:hidden">
-						<Button
-							variant="ghost"
-							className="justify-start w-full text-sm"
-							onClick={() => handleNavigation('/c')}
+					<nav className="flex h-full flex-col p-4 lg:hidden">
+						<Link
+							href="/c"
+							onClick={handleNavigation}
+							className={cn(
+								buttonVariants({ variant: 'ghost' }),
+								'justify-start w-full text-sm py-4',
+							)}
 						>
 							Chat
-						</Button>
+						</Link>
 
-						<Button
-							variant="ghost"
-							className="justify-start w-full text-sm"
-							onClick={() => handleNavigation('/')}
+						<Link
+							href="/"
+							onClick={handleNavigation}
+							className={cn(
+								buttonVariants({ variant: 'ghost' }),
+								'justify-start w-full text-sm py-4',
+							)}
 						>
 							Public
-						</Button>
+						</Link>
 
 						{appConfig.features.devMode && (
-							<>
-								<Button
-									variant="ghost"
-									className="justify-start w-full text-sm"
-									onClick={() => handleNavigation('/c/p')}
-								>
-									Pro
-								</Button>
-								<Button
-									variant="ghost"
-									className="justify-start w-full text-sm"
-									onClick={() => handleNavigation('/wordware')}
-								>
-									Ww
-								</Button>
-							</>
+							<Link
+								href="/c/p"
+								onClick={handleNavigation}
+								className={cn(
+									buttonVariants({ variant: 'ghost' }),
+									'justify-start w-full text-sm py-4',
+								)}
+							>
+								Pro
+							</Link>
 						)}
+						{/* Logout Button */}
+						<div className="flex flex-col items-center justify-between py-4 mt-auto border-t">
+							<ThemeToggle className="px-2 py-4" onClick={handleNavigation} />
+							{appConfig.features.devMode && (
+								<>
+									<Link
+										href={`/u/${user.slug}/s/pref`}
+										onClick={handleNavigation}
+										className={cn(
+											buttonVariants({
+												variant: 'ghost',
+											}),
+											'flex w-full gap-4 justify-between px-2 py-4 text-sm',
+										)}
+									>
+										Preferences
+										<SettingsIcon className="size-4" />
+									</Link>
+									<Link
+										href={`/u/${user.slug}/s/subs`}
+										onClick={handleNavigation}
+										className={cn(
+											buttonVariants({
+												variant: 'ghost',
+											}),
+											'flex w-full gap-4 justify-between px-2 py-4 text-sm',
+										)}
+									>
+										Subscriptions
+										<ReceiptIcon className="size-4" />
+									</Link>
+								</>
+							)}
+							<hr className="w-full border-t my-4" />
+							<Button
+								variant="ghost"
+								className="flex w-full gap-4 justify-between px-2 py-4 text-sm"
+								onClick={handleLogout}
+							>
+								Log Out
+								<LogOut className="size-4" />
+							</Button>
+						</div>
 					</nav>
-
-					{/* Logout Button */}
-					<div className="flex items-center justify-between p-4 mt-auto border-t">
-						<Button
-							variant="ghost"
-							className="justify-start text-sm"
-							onClick={handleLogout}
-						>
-							<LogOut className="mr-2 size-4" />
-							Log Out
-						</Button>
-						<ThemeToggle />
-					</div>
 				</div>
 			</SheetContent>
 		</Sheet>

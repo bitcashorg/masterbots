@@ -47,9 +47,9 @@ export function Sidebar({
 				)}
 			>
 				<SidebarHeader />
-				<div className="pt-4 pb-20 size-full scrollbar">
+				<nav className="pt-4 pb-20 size-full scrollbar">
 					<SidebarCategoryGeneral page={page} />
-				</div>
+				</nav>
 			</aside>
 		</>
 	)
