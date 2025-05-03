@@ -132,7 +132,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
 							onClick={handleNavigation}
 							className={cn(
 								buttonVariants({ variant: 'ghost' }),
-								'justify-start w-full text-sm py-4',
+								'justify-start w-full text-sm py-4 px-2',
 							)}
 						>
 							Chat
@@ -143,7 +143,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
 							onClick={handleNavigation}
 							className={cn(
 								buttonVariants({ variant: 'ghost' }),
-								'justify-start w-full text-sm py-4',
+								'justify-start w-full text-sm py-4 px-2',
 							)}
 						>
 							Public
@@ -155,7 +155,7 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
 								onClick={handleNavigation}
 								className={cn(
 									buttonVariants({ variant: 'ghost' }),
-									'justify-start w-full text-sm py-4',
+									'justify-start w-full text-sm py-4 px-2',
 								)}
 							>
 								Pro
