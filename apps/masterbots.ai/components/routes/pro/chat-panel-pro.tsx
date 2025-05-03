@@ -194,34 +194,129 @@ export function ChatPanelPro({
 	// Document type state
 	const [documentType, setDocumentType] = useState<'text' | 'image' | 'spreadsheet'>('text')
 	
-	// Initialize filteredDocumentList as null to force the useEffect to run on mount
-	const [filteredDocumentList, setFilteredDocumentList] = useState<Record<string, string[]> | null>(null)
+	// Initialize with textDocuments directly, not null
+	const [filteredDocumentList, setFilteredDocumentList] = useState<Record<string, string[]>>(textDocuments)
 	
-	// Effect to initialize filteredDocumentList on mount and update on document type change
+	// Log initial textDocuments for debugging
+	console.log("Initial textDocuments:", textDocuments)
+	console.log("Campaign A docs:", textDocuments['Campaign A'])
+	
+	// Effect to update document list when document type changes
 	useEffect(() => {
-		// Default to textDocuments if filteredDocumentList is null (initial mount)
-		if (filteredDocumentList === null || documentType === 'text') {
-			console.log("Setting text documents:", Object.keys(textDocuments))
-			setFilteredDocumentList(textDocuments)
+		console.log(`Document type changed to ${documentType}`)
+		
+		// Deep validation check for document sources
+		const validateDocSource = (source, sourceName) => {
+			if (!source) {
+				console.log(`${sourceName} is null or undefined`);
+				return false;
+			}
+			
+			const keys = Object.keys(source);
+			console.log(`${sourceName} contains ${keys.length} project keys:`, keys);
+			
+			// Check for Campaign A specifically since it's mentioned in the bug
+			if ('Campaign A' in source) {
+				const campaignDocs = source['Campaign A'];
+				console.log(`Campaign A ${sourceName} docs:`, campaignDocs);
+				if (!campaignDocs || campaignDocs.length === 0) {
+					console.log(`Warning: Campaign A has no documents in ${sourceName}`);
+				}
+			} else {
+				console.log(`Warning: Campaign A not found in ${sourceName}`);
+			}
+			
+			return true;
+		};
+		
+		// Validate all document sources
+		validateDocSource(textDocuments, 'textDocuments');
+		validateDocSource(imageDocuments, 'imageDocuments');
+		validateDocSource(spreadsheetDocuments, 'spreadsheetDocuments');
+		
+		// Create a new filtered document list based on the type
+		let newFilteredList = null;
+		
+		if (documentType === 'text') {
+			console.log("Setting text documents");
+			newFilteredList = textDocuments ? {...textDocuments} : {};
 		} else if (documentType === 'image') {
-			console.log("Setting image documents:", Object.keys(imageDocuments))
-			setFilteredDocumentList(imageDocuments)
+			console.log("Setting image documents");
+			newFilteredList = imageDocuments ? {...imageDocuments} : {};
 		} else if (documentType === 'spreadsheet') {
-			console.log("Setting spreadsheet documents:", Object.keys(spreadsheetDocuments))
-			setFilteredDocumentList(spreadsheetDocuments)
+			console.log("Setting spreadsheet documents");
+			newFilteredList = spreadsheetDocuments ? {...spreadsheetDocuments} : {};
 		}
-	}, [documentType, textDocuments, imageDocuments, spreadsheetDocuments, filteredDocumentList])
+		
+		// Validate the new filtered list before setting it
+		console.log("New filtered document list:", newFilteredList);
+		console.log("Does new list contain Campaign A?", newFilteredList && 'Campaign A' in newFilteredList);
+		if (newFilteredList && 'Campaign A' in newFilteredList) {
+			console.log("Campaign A docs in new list:", newFilteredList['Campaign A']);
+		}
+		
+		// Finally update the state with a guaranteed new reference
+		setFilteredDocumentList(prev => {
+			// Only update if there's an actual change to avoid unnecessary re-renders
+			const prevKeys = prev ? Object.keys(prev).sort().join(',') : '';
+			const newKeys = newFilteredList ? Object.keys(newFilteredList).sort().join(',') : '';
+			
+			if (prevKeys === newKeys && prev && newFilteredList) {
+				// Check if the actual document lists differ for any project
+				const projectsChanged = Object.keys(newFilteredList).some(project => {
+					const prevDocs = prev[project] || [];
+					const newDocs = newFilteredList[project] || [];
+					
+					if (prevDocs.length !== newDocs.length) return true;
+					
+					// Check each document
+					return prevDocs.some((doc, i) => doc !== newDocs[i]);
+				});
+				
+				if (!projectsChanged) {
+					console.log("Document lists are identical, not updating state to avoid re-renders");
+					return prev;
+				}
+			}
+			
+			console.log("Document lists changed, updating state");
+			return newFilteredList || {};
+		});
+	}, [documentType, textDocuments, imageDocuments, spreadsheetDocuments])
 	
 	// Separate effect for document reset to avoid infinite loops
 	// Only runs when document type actually changes
 	const previousDocTypeRef = useRef(documentType);
 	useEffect(() => {
 		if (previousDocTypeRef.current !== documentType) {
+			console.log(`Document type changed from ${previousDocTypeRef.current} to ${documentType}`);
+			
 			// Only reset if document type has changed
-			setActiveDocument(null);
+			if (activeDocument) {
+				console.log(`Resetting active document from ${activeDocument} to null due to document type change`);
+				setActiveDocument(null);
+			}
+			
+			// Check if current project has documents in the new type
+			if (activeProject) {
+				let newDocs;
+				if (documentType === 'text') {
+					newDocs = textDocuments && textDocuments[activeProject];
+				} else if (documentType === 'image') {
+					newDocs = imageDocuments && imageDocuments[activeProject];
+				} else if (documentType === 'spreadsheet') {
+					newDocs = spreadsheetDocuments && spreadsheetDocuments[activeProject];
+				}
+				
+				console.log(`Project ${activeProject} ${newDocs ? 'has' : 'does not have'} documents in the ${documentType} category`);
+				if (newDocs && newDocs.length > 0) {
+					console.log(`Available ${documentType} documents for ${activeProject}:`, newDocs);
+				}
+			}
+			
 			previousDocTypeRef.current = documentType;
 		}
-	}, [documentType, setActiveDocument])
+	}, [documentType, setActiveDocument, activeDocument, activeProject, textDocuments, imageDocuments, spreadsheetDocuments])
 
 	// Use departmentList as departmentsByOrg since they contain the same data
 	const departmentsByOrg = departmentList
@@ -319,28 +414,209 @@ export function ChatPanelPro({
 	)
 	
 	// Memoize document options to prevent unnecessary re-renders
+	const documentOptionsRef = useRef([]);
+	const prevProjectRef = useRef('');
+	const prevFilteredDocsRef = useRef(null);
+	const prevDocumentTypeRef = useRef('');
+	const optionsKeyRef = useRef(0);
+	
 	const documentOptions = useMemo(() => {
+		// Generate a unique key for this render to track when this memo runs
+		const renderKey = ++optionsKeyRef.current;
+		
+		// Always create a new array reference to ensure proper updates
+		const result = [];
+		const previousOptions = documentOptionsRef.current;
+		
+		// Debug logging with render key to track exact execution
+		console.log(`[${renderKey}] documentOptions useMemo running for project="${activeProject}" with documentType="${documentType}"`);
+		
+		// Track changes in dependencies from previous render
+		const projectChanged = prevProjectRef.current !== activeProject;
+		const documentTypeChanged = prevDocumentTypeRef.current !== documentType;
+		const filteredListChanged = filteredDocumentList !== prevFilteredDocsRef.current;
+		
+		console.log(`[${renderKey}] Changes detected:`, {
+			projectChanged,
+			documentTypeChanged,
+			filteredListChanged,
+			previousProject: prevProjectRef.current,
+			previousDocType: prevDocumentTypeRef.current
+		});
+		
+		// Deep debug of available document sources
+		const debugData = {
+			renderKey,
+			activeProject,
+			documentType,
+			previousOptionCount: previousOptions.length,
+			filteredDocumentListAvailable: Boolean(filteredDocumentList),
+			filteredDocumentListKeys: filteredDocumentList ? Object.keys(filteredDocumentList) : 'null',
+			projectInFilteredList: activeProject && filteredDocumentList ? activeProject in filteredDocumentList : false,
+			textDocumentsAvailable: Boolean(textDocuments),
+			textDocumentsKeys: textDocuments ? Object.keys(textDocuments) : 'null',
+			projectInTextDocs: activeProject && textDocuments ? activeProject in textDocuments : false,
+			imageDocumentsAvailable: Boolean(imageDocuments),
+			imageDocumentsKeys: imageDocuments ? Object.keys(imageDocuments) : 'null',
+			projectInImageDocs: activeProject && imageDocuments ? activeProject in imageDocuments : false,
+			spreadsheetDocumentsAvailable: Boolean(spreadsheetDocuments),
+			spreadsheetDocumentsKeys: spreadsheetDocuments ? Object.keys(spreadsheetDocuments) : 'null',
+			projectInSpreadsheetDocs: activeProject && spreadsheetDocuments ? activeProject in spreadsheetDocuments : false
+		};
+		
+		console.log(`[${renderKey}] documentOptions detailed debug data:`, debugData);
+		
 		// Check if activeProject is valid
 		if (!activeProject) {
-			return [];
+			console.log(`[${renderKey}] documentOptions: No active project, returning empty array`);
+			documentOptionsRef.current = result;
+			prevProjectRef.current = activeProject || '';
+			prevFilteredDocsRef.current = filteredDocumentList;
+			prevDocumentTypeRef.current = documentType;
+			return result;
 		}
 		
-		// If filteredDocumentList is null, use textDocuments as fallback
-		const documentSource = filteredDocumentList || textDocuments;
+		// Special advanced logging for Campaign A
+		if (activeProject === 'Campaign A') {
+			console.log(`[${renderKey}] ===== CAMPAIGN A DETAILED DEBUG =====`);
+			console.log(`[${renderKey}] Document type: ${documentType}`);
+			console.log(`[${renderKey}] Previous document type: ${prevDocumentTypeRef.current}`);
+			console.log(`[${renderKey}] Document type changed: ${documentTypeChanged}`);
+			
+			// Log each document source for Campaign A
+			const campaignASources = {
+				textDocs: textDocuments && 'Campaign A' in textDocuments ? [...textDocuments['Campaign A']] : [],
+				imageDocs: imageDocuments && 'Campaign A' in imageDocuments ? [...imageDocuments['Campaign A']] : [],
+				spreadsheetDocs: spreadsheetDocuments && 'Campaign A' in spreadsheetDocuments ? [...spreadsheetDocuments['Campaign A']] : [],
+				filteredDocs: filteredDocumentList && 'Campaign A' in filteredDocumentList ? [...filteredDocumentList['Campaign A']] : []
+			};
+			
+			console.log(`[${renderKey}] Campaign A available sources:`, campaignASources);
+			
+			// Compare with previous options
+			if (activeProject === prevProjectRef.current && !documentTypeChanged && !filteredListChanged) {
+				console.log(`[${renderKey}] Campaign A: No changes in dependencies, checking for content changes`);
+				
+				// Get the current source that would be used
+				let currentSource = null;
+				if (filteredDocumentList && 'Campaign A' in filteredDocumentList) {
+					currentSource = filteredDocumentList['Campaign A'];
+				} else if (documentType === 'text' && textDocuments && 'Campaign A' in textDocuments) {
+					currentSource = textDocuments['Campaign A'];
+				} else if (documentType === 'image' && imageDocuments && 'Campaign A' in imageDocuments) {
+					currentSource = imageDocuments['Campaign A'];
+				} else if (documentType === 'spreadsheet' && spreadsheetDocuments && 'Campaign A' in spreadsheetDocuments) {
+					currentSource = spreadsheetDocuments['Campaign A'];
+				}
+				
+				// Compare with previous options
+				const contentChanged = !currentSource || !documentOptionsRef.current || 
+					currentSource.length !== documentOptionsRef.current.length ||
+					currentSource.some((doc, i) => doc !== documentOptionsRef.current[i]);
+					
+				console.log(`[${renderKey}] Campaign A: Content changed: ${contentChanged}`);
+			}
+		}
 		
-		// Check if documentSource is valid
-		if (!documentSource) {
+		// Always get a fresh document source based on current state
+		// This guarantees we use the latest data, even if references haven't changed
+		let documentSource = {};
+		
+		// We'll always create a new object to ensure proper reference change
+		if (filteredDocumentList) {
+			// Create a deep copy to ensure new reference
+			documentSource = Object.entries(filteredDocumentList).reduce((acc, [key, value]) => {
+				acc[key] = Array.isArray(value) ? [...value] : value;
+				return acc;
+			}, {});
+			
+			console.log(`[${renderKey}] Using filteredDocumentList for ${documentType} documents (copied)`);
+		} else if (documentType === 'text' && textDocuments) {
+			// Create a deep copy of textDocuments
+			documentSource = Object.entries(textDocuments).reduce((acc, [key, value]) => {
+				acc[key] = Array.isArray(value) ? [...value] : value;
+				return acc;
+			}, {});
+			
+			console.log(`[${renderKey}] Using textDocuments as fallback (copied)`);
+		} else if (documentType === 'image' && imageDocuments) {
+			// Create a deep copy of imageDocuments
+			documentSource = Object.entries(imageDocuments).reduce((acc, [key, value]) => {
+				acc[key] = Array.isArray(value) ? [...value] : value;
+				return acc;
+			}, {});
+			
+			console.log(`[${renderKey}] Using imageDocuments as fallback (copied)`);
+		} else if (documentType === 'spreadsheet' && spreadsheetDocuments) {
+			// Create a deep copy of spreadsheetDocuments
+			documentSource = Object.entries(spreadsheetDocuments).reduce((acc, [key, value]) => {
+				acc[key] = Array.isArray(value) ? [...value] : value;
+				return acc;
+			}, {});
+			
+			console.log(`[${renderKey}] Using spreadsheetDocuments as fallback (copied)`);
+		}
+		
+		// Check if documentSource is valid and contains data
+		if (Object.keys(documentSource).length === 0) {
+			console.log(`[${renderKey}] documentOptions: No document source available, returning empty array`);
+			documentOptionsRef.current = [];
+			prevProjectRef.current = activeProject;
+			prevFilteredDocsRef.current = filteredDocumentList;
+			prevDocumentTypeRef.current = documentType;
 			return [];
 		}
 		
 		// Check if the project exists in the document source
 		if (!(activeProject in documentSource)) {
+			console.log(`[${renderKey}] documentOptions: Project "${activeProject}" not found in document source, returning empty array`);
+			documentOptionsRef.current = [];
+			prevProjectRef.current = activeProject;
+			prevFilteredDocsRef.current = filteredDocumentList;
+			prevDocumentTypeRef.current = documentType;
 			return [];
 		}
 		
-		// Return the document list for this project, or an empty array if it's undefined
-		return documentSource[activeProject] || [];
-	}, [activeProject, filteredDocumentList, textDocuments])
+		// Get documents for this project and create a new array
+		// This guarantees a new reference even if the content is the same
+		const projectDocs = documentSource[activeProject] || [];
+		const newOptions = [...projectDocs];
+		
+		console.log(`[${renderKey}] documentOptions: Found ${newOptions.length} documents for project "${activeProject}":`, newOptions);
+		
+		// Check if options have changed
+		if (previousOptions.length !== newOptions.length) {
+			console.log(`[${renderKey}] documentOptions: Option count changed from ${previousOptions.length} to ${newOptions.length}`);
+		} else {
+			const hasChanged = previousOptions.some((opt, i) => opt !== newOptions[i]);
+			console.log(`[${renderKey}] documentOptions: Options ${hasChanged ? 'have changed' : 'are unchanged'}`);
+		}
+		
+		// Create a unique key for these options
+		const optionsKey = `${activeProject}-${documentType}-${renderKey}`;
+		console.log(`[${renderKey}] documentOptions: Generated options key: ${optionsKey}`);
+		
+		// Save for comparison in next render
+		documentOptionsRef.current = newOptions;
+		prevProjectRef.current = activeProject;
+		prevFilteredDocsRef.current = filteredDocumentList;
+		prevDocumentTypeRef.current = documentType;
+		
+		// Log the final result for transparency
+		console.log(`[${renderKey}] documentOptions: Returning ${newOptions.length} options with key ${optionsKey}`);
+		
+		return newOptions;
+	}, [
+		// Dependencies that should trigger recalculation
+		activeProject, 
+		filteredDocumentList, 
+		textDocuments, 
+		imageDocuments, 
+		spreadsheetDocuments, 
+		documentType, 
+		// Include a key to force updates when document type changes
+		`${documentType}` 
+	])
 
 	return (
 		<>
