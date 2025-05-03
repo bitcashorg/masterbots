@@ -193,24 +193,24 @@ export function ChatPanelPro({
 	
 	// Document type state
 	const [documentType, setDocumentType] = useState<'text' | 'image' | 'spreadsheet'>('text')
-	const [filteredDocumentList, setFilteredDocumentList] = useState<Record<string, string[]>>(textDocuments)
 	
-	// Update document list based on selected type (without resetting document)
+	// Initialize filteredDocumentList as null to force the useEffect to run on mount
+	const [filteredDocumentList, setFilteredDocumentList] = useState<Record<string, string[]> | null>(null)
+	
+	// Effect to initialize filteredDocumentList on mount and update on document type change
 	useEffect(() => {
-		switch (documentType) {
-			case 'text':
-				setFilteredDocumentList(textDocuments)
-				break
-			case 'image':
-				setFilteredDocumentList(imageDocuments)
-				break
-			case 'spreadsheet':
-				setFilteredDocumentList(spreadsheetDocuments)
-				break
-			default:
-				setFilteredDocumentList(textDocuments)
+		// Default to textDocuments if filteredDocumentList is null (initial mount)
+		if (filteredDocumentList === null || documentType === 'text') {
+			console.log("Setting text documents:", Object.keys(textDocuments))
+			setFilteredDocumentList(textDocuments)
+		} else if (documentType === 'image') {
+			console.log("Setting image documents:", Object.keys(imageDocuments))
+			setFilteredDocumentList(imageDocuments)
+		} else if (documentType === 'spreadsheet') {
+			console.log("Setting spreadsheet documents:", Object.keys(spreadsheetDocuments))
+			setFilteredDocumentList(spreadsheetDocuments)
 		}
-	}, [documentType, textDocuments, imageDocuments, spreadsheetDocuments])
+	}, [documentType, textDocuments, imageDocuments, spreadsheetDocuments, filteredDocumentList])
 	
 	// Separate effect for document reset to avoid infinite loops
 	// Only runs when document type actually changes
@@ -325,19 +325,22 @@ export function ChatPanelPro({
 			return [];
 		}
 		
-		// Check if filteredDocumentList is valid
-		if (!filteredDocumentList) {
+		// If filteredDocumentList is null, use textDocuments as fallback
+		const documentSource = filteredDocumentList || textDocuments;
+		
+		// Check if documentSource is valid
+		if (!documentSource) {
 			return [];
 		}
 		
-		// Check if the project exists in the filtered document list
-		if (!(activeProject in filteredDocumentList)) {
+		// Check if the project exists in the document source
+		if (!(activeProject in documentSource)) {
 			return [];
 		}
 		
 		// Return the document list for this project, or an empty array if it's undefined
-		return filteredDocumentList[activeProject] || [];
-	}, [activeProject, filteredDocumentList])
+		return documentSource[activeProject] || [];
+	}, [activeProject, filteredDocumentList, textDocuments])
 
 	return (
 		<>

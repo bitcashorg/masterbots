@@ -24,15 +24,31 @@ export function WorkspaceDocumentSelect({
 	disabled = false,
 	className,
 }: WorkspaceDocumentSelectProps) {
+	// Ensure options is always an array
+	const safeOptions = Array.isArray(options) ? options : []
+	
+	// Debug logging to show available options
+	console.debug('[WorkspaceDocumentSelect] Available options:', safeOptions)
+	
+	// Determine if there are any options available
+	const hasOptions = safeOptions.length > 0
+	
+	// Disable the select when there are no options available
+	const isDisabled = disabled || !hasOptions
+	
 	return (
 		<div className={cn('flex items-center', className)}>
-			<Select value={value || ''} onValueChange={onChange} disabled={disabled}>
+			<Select 
+				value={value || ''} 
+				onValueChange={onChange} 
+				disabled={isDisabled}
+			>
 				<SelectTrigger className="w-[200px]">
-					<SelectValue placeholder={Array.isArray(options) && options.length > 0 ? "Select Document" : "---"} />
+					<SelectValue placeholder={hasOptions ? "Select Document" : "---"} />
 				</SelectTrigger>
 				<SelectContent>
-					{Array.isArray(options) && options.length > 0 ? (
-						options.map((option) => (
+					{hasOptions ? (
+						safeOptions.map((option) => (
 							<SelectItem key={option} value={option}>
 								{option}
 							</SelectItem>
