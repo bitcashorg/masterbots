@@ -452,12 +452,12 @@ export function ChatPanelPro({
 
 					{/* Workspace Section (conditionally shown) */}
 					{isWorkspaceActive && (
-						<div className="w-full border-t border-zinc-200 dark:border-zinc-800 bg-background">
+						<div className="w-full h-[calc(100vh-220px)] bg-background">
 							<WorkspaceContent
 								projectName={activeProject}
 								documentName={activeDocument}
 								isLoading={isLoading}
-								className="max-h-[360px] overflow-auto"
+								className="h-full overflow-auto"
 							/>
 						</div>
 					)}
@@ -473,19 +473,19 @@ export function ChatPanelPro({
 							'min-h-[64px] sm:min-h-[80px]',
 						)}
 					>
-						{isWorkspaceActive ? (
-							<WorkspaceForm
-								onAIAssist={() => {
+						<PromptForm
+							onSubmit={async (value, chatOptions) => {
+								if (isWorkspaceActive) {
+									// In workspace mode, use input for editing the document
 									console.log(
 										'AI assist requested for document:',
 										activeDocument,
+										'with query:',
+										value
 									)
-								}}
-								disabled={!activeProject || !activeDocument || isLoading}
-							/>
-						) : (
-							<PromptForm
-								onSubmit={async (value, chatOptions) => {
+									// Here we would handle the workspace edit operation
+								} else {
+									// In chat mode, use normal append behavior
 									scrollToBottom()
 									await append(
 										{
@@ -495,15 +495,23 @@ export function ChatPanelPro({
 										},
 										prepareMessageOptions(chatOptions),
 									)
-								}}
-								// biome-ignore lint/complexity/noExtraBooleanCast: <explanation>
-								disabled={isLoading || !Boolean(chatbot) || isPreProcessing}
-								input={input}
-								setInput={setInput}
-								isLoading={isLoading || isPreProcessing}
-								placeholder={placeholder}
-							/>
-						)}
+								}
+							}}
+							// biome-ignore lint/complexity/noExtraBooleanCast: <explanation>
+							disabled={
+								(isWorkspaceActive && (!activeProject || !activeDocument)) || 
+								isLoading || 
+								(!isWorkspaceActive && !Boolean(chatbot)) || 
+								isPreProcessing
+							}
+							input={input}
+							setInput={setInput}
+							isLoading={isLoading || isPreProcessing}
+							placeholder={isWorkspaceActive 
+								? "Ask questions or request edits to your document..." 
+								: placeholder
+							}
+						/>
 					</div>
 				</div>
 			</div>
