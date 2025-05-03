@@ -191,39 +191,52 @@ export function ChatPanelPro({
 		setDocumentContent,
 	} = useWorkspace()
 	
-	// Document type state
+	// Document type state with ref for tracking changes
 	const [documentType, setDocumentType] = useState<'text' | 'image' | 'spreadsheet'>('text')
 	
-	// Initialize with textDocuments directly, not null
-	const [filteredDocumentList, setFilteredDocumentList] = useState<Record<string, string[]>>(textDocuments)
+	// Ref to track document type to ensure proper updates
+	const documentTypeRef = useRef<'text' | 'image' | 'spreadsheet'>('text')
 	
-	// Log initial textDocuments for debugging
-	console.log("Initial textDocuments:", textDocuments)
-	console.log("Campaign A docs:", textDocuments['Campaign A'])
+	// Initialize with deep copy of textDocuments, not just reference
+	const [filteredDocumentList, setFilteredDocumentList] = useState<Record<string, string[]>>(() => {
+		console.log("[INIT] Creating initial deep copy of textDocuments")
+		return textDocuments ? JSON.parse(JSON.stringify(textDocuments)) : {}
+	})
 	
-	// Effect to update document list when document type changes
+	// Log initial textDocuments for debugging with better formatting
+	console.log("[INIT] Initial textDocuments:", JSON.stringify(textDocuments, null, 2))
+	console.log("[INIT] Campaign A docs:", textDocuments && 'Campaign A' in textDocuments ? 
+		JSON.stringify(textDocuments['Campaign A'], null, 2) : "Not found")
+	
+	// Effect to update document list when document type changes - improved implementation
 	useEffect(() => {
-		console.log(`Document type changed to ${documentType}`)
+		// Generate a unique ID for this effect run to trace in logs
+		const effectId = Math.random().toString(36).substring(2, 8)
+		console.log(`[${effectId}] Document type changed from ${documentTypeRef.current} to ${documentType}`)
 		
-		// Deep validation check for document sources
+		// Update ref immediately to prevent race conditions
+		documentTypeRef.current = documentType
+		
+		// Deep validation check for document sources with improved logging
 		const validateDocSource = (source, sourceName) => {
 			if (!source) {
-				console.log(`${sourceName} is null or undefined`);
+				console.log(`[${effectId}] ${sourceName} is null or undefined`);
 				return false;
 			}
 			
 			const keys = Object.keys(source);
-			console.log(`${sourceName} contains ${keys.length} project keys:`, keys);
+			console.log(`[${effectId}] ${sourceName} contains ${keys.length} project keys:`, keys);
 			
 			// Check for Campaign A specifically since it's mentioned in the bug
 			if ('Campaign A' in source) {
 				const campaignDocs = source['Campaign A'];
-				console.log(`Campaign A ${sourceName} docs:`, campaignDocs);
-				if (!campaignDocs || campaignDocs.length === 0) {
-					console.log(`Warning: Campaign A has no documents in ${sourceName}`);
+				console.log(`[${effectId}] Campaign A ${sourceName} docs:`, 
+					Array.isArray(campaignDocs) ? [...campaignDocs] : campaignDocs);
+				if (!campaignDocs || !Array.isArray(campaignDocs) || campaignDocs.length === 0) {
+					console.log(`[${effectId}] Warning: Campaign A has no documents in ${sourceName}`);
 				}
 			} else {
-				console.log(`Warning: Campaign A not found in ${sourceName}`);
+				console.log(`[${effectId}] Warning: Campaign A not found in ${sourceName}`);
 			}
 			
 			return true;
@@ -234,66 +247,83 @@ export function ChatPanelPro({
 		validateDocSource(imageDocuments, 'imageDocuments');
 		validateDocSource(spreadsheetDocuments, 'spreadsheetDocuments');
 		
-		// Create a new filtered document list based on the type
-		let newFilteredList = null;
+		// Create a new filtered document list based on the type using deep copy
+		let newFilteredList: Record<string, string[]> | null = null;
+		
+		// Deep copy function to ensure reference changes
+		const deepCopy = (obj: Record<string, string[]> | null | undefined): Record<string, string[]> => {
+			if (!obj) return {};
+			// Use JSON methods for deep copy to ensure new references for all nested arrays
+			return JSON.parse(JSON.stringify(obj));
+		};
 		
 		if (documentType === 'text') {
-			console.log("Setting text documents");
-			newFilteredList = textDocuments ? {...textDocuments} : {};
+			console.log(`[${effectId}] Setting text documents (deep copy)`);
+			newFilteredList = deepCopy(textDocuments);
 		} else if (documentType === 'image') {
-			console.log("Setting image documents");
-			newFilteredList = imageDocuments ? {...imageDocuments} : {};
+			console.log(`[${effectId}] Setting image documents (deep copy)`);
+			newFilteredList = deepCopy(imageDocuments);
 		} else if (documentType === 'spreadsheet') {
-			console.log("Setting spreadsheet documents");
-			newFilteredList = spreadsheetDocuments ? {...spreadsheetDocuments} : {};
+			console.log(`[${effectId}] Setting spreadsheet documents (deep copy)`);
+			newFilteredList = deepCopy(spreadsheetDocuments);
+		}
+		
+		// Special debugging for text documents
+		if (documentType === 'text') {
+			console.log(`[${effectId}] TEXT DOCUMENT SOURCE CHECK:`);
+			console.log(`[${effectId}] Original textDocuments reference:`, textDocuments);
+			console.log(`[${effectId}] New filtered list reference:`, newFilteredList);
+			
+			// Check for reference equality
+			console.log(`[${effectId}] References are ${newFilteredList === textDocuments ? 'SAME' : 'DIFFERENT'}`);
+			
+			// Deep check for Campaign A
+			if (textDocuments && 'Campaign A' in textDocuments && newFilteredList && 'Campaign A' in newFilteredList) {
+				console.log(`[${effectId}] Campaign A arrays are ${
+					textDocuments['Campaign A'] === newFilteredList['Campaign A'] ? 'SAME' : 'DIFFERENT'
+				} references`);
+			}
 		}
 		
 		// Validate the new filtered list before setting it
-		console.log("New filtered document list:", newFilteredList);
-		console.log("Does new list contain Campaign A?", newFilteredList && 'Campaign A' in newFilteredList);
-		if (newFilteredList && 'Campaign A' in newFilteredList) {
-			console.log("Campaign A docs in new list:", newFilteredList['Campaign A']);
-		}
+		console.log(`[${effectId}] New filtered document list keys:`, 
+			newFilteredList ? Object.keys(newFilteredList) : 'null');
+		console.log(`[${effectId}] Does new list contain Campaign A?`, 
+			newFilteredList && 'Campaign A' in newFilteredList);
 		
-		// Finally update the state with a guaranteed new reference
-		setFilteredDocumentList(prev => {
-			// Only update if there's an actual change to avoid unnecessary re-renders
-			const prevKeys = prev ? Object.keys(prev).sort().join(',') : '';
-			const newKeys = newFilteredList ? Object.keys(newFilteredList).sort().join(',') : '';
-			
-			if (prevKeys === newKeys && prev && newFilteredList) {
-				// Check if the actual document lists differ for any project
-				const projectsChanged = Object.keys(newFilteredList).some(project => {
-					const prevDocs = prev[project] || [];
-					const newDocs = newFilteredList[project] || [];
-					
-					if (prevDocs.length !== newDocs.length) return true;
-					
-					// Check each document
-					return prevDocs.some((doc, i) => doc !== newDocs[i]);
-				});
-				
-				if (!projectsChanged) {
-					console.log("Document lists are identical, not updating state to avoid re-renders");
-					return prev;
-				}
-			}
-			
-			console.log("Document lists changed, updating state");
-			return newFilteredList || {};
-		});
+		if (newFilteredList && 'Campaign A' in newFilteredList) {
+			console.log(`[${effectId}] Campaign A docs in new list:`, [...newFilteredList['Campaign A']]);
+		}
+		 
+		// Always force a new reference to guarantee re-renders
+		setFilteredDocumentList(newFilteredList || {});
+		
+		// Force a re-render by triggering state update at the end of this effect
+		const forceUpdate = setTimeout(() => {
+			console.log(`[${effectId}] Forcing update to ensure re-render`);
+			setFilteredDocumentList(prev => {
+				// Create a new object reference with the same content
+				return {...prev};
+			});
+		}, 0);
+		
+		// Clean up timeout on unmount
+		return () => clearTimeout(forceUpdate);
 	}, [documentType, textDocuments, imageDocuments, spreadsheetDocuments])
 	
 	// Separate effect for document reset to avoid infinite loops
 	// Only runs when document type actually changes
 	const previousDocTypeRef = useRef(documentType);
 	useEffect(() => {
+		// Generate a unique ID for this effect run
+		const effectId = Math.random().toString(36).substring(2, 8)
+		
 		if (previousDocTypeRef.current !== documentType) {
-			console.log(`Document type changed from ${previousDocTypeRef.current} to ${documentType}`);
+			console.log(`[${effectId}] Document type changed from ${previousDocTypeRef.current} to ${documentType}`);
 			
 			// Only reset if document type has changed
 			if (activeDocument) {
-				console.log(`Resetting active document from ${activeDocument} to null due to document type change`);
+				console.log(`[${effectId}] Resetting active document from ${activeDocument} to null due to document type change`);
 				setActiveDocument(null);
 			}
 			
@@ -308,9 +338,9 @@ export function ChatPanelPro({
 					newDocs = spreadsheetDocuments && spreadsheetDocuments[activeProject];
 				}
 				
-				console.log(`Project ${activeProject} ${newDocs ? 'has' : 'does not have'} documents in the ${documentType} category`);
+				console.log(`[${effectId}] Project ${activeProject} ${newDocs ? 'has' : 'does not have'} documents in the ${documentType} category`);
 				if (newDocs && newDocs.length > 0) {
-					console.log(`Available ${documentType} documents for ${activeProject}:`, newDocs);
+					console.log(`[${effectId}] Available ${documentType} documents for ${activeProject}:`, [...newDocs]);
 				}
 			}
 			
@@ -413,209 +443,197 @@ export function ChatPanelPro({
 		[isPowerUp, isDeepThinking, webSearch],
 	)
 	
-	// Memoize document options to prevent unnecessary re-renders
-	const documentOptionsRef = useRef([]);
-	const prevProjectRef = useRef('');
-	const prevFilteredDocsRef = useRef(null);
-	const prevDocumentTypeRef = useRef('');
-	const optionsKeyRef = useRef(0);
+	// Memoize document options with improved reference tracking
+	const documentOptionsRef = useRef<string[]>([]);
+	const prevProjectRef = useRef<string>('');
+	const prevFilteredDocsRef = useRef<Record<string, string[]> | null>(null);
+	const prevDocumentTypeRef = useRef<string>('');
+	const renderCountRef = useRef<number>(0);
+	
+	// Force this memo to run again when document type changes
+	const documentTypeVersion = useRef<number>(0);
+	useEffect(() => {
+		// Increment version to force documentOptions to recalculate
+		documentTypeVersion.current++;
+		console.log(`[DOCTYPE] Document type changed to ${documentType}, incrementing version to ${documentTypeVersion.current}`);
+	}, [documentType]);
 	
 	const documentOptions = useMemo(() => {
-		// Generate a unique key for this render to track when this memo runs
-		const renderKey = ++optionsKeyRef.current;
+		// Track render count to help debug re-renders
+		const renderCount = ++renderCountRef.current;
+		const docTypeVersion = documentTypeVersion.current;
 		
-		// Always create a new array reference to ensure proper updates
-		const result = [];
-		const previousOptions = documentOptionsRef.current;
+		// Always create a new empty array for our result
+		const result: string[] = [];
 		
-		// Debug logging with render key to track exact execution
-		console.log(`[${renderKey}] documentOptions useMemo running for project="${activeProject}" with documentType="${documentType}"`);
+		// Store previous options for comparison
+		const previousOptions = [...documentOptionsRef.current];
+		
+		// Log detailed execution info
+		console.log(`[DOCS:${renderCount}:v${docTypeVersion}] documentOptions calculating for project="${activeProject}" with type="${documentType}"`);
 		
 		// Track changes in dependencies from previous render
 		const projectChanged = prevProjectRef.current !== activeProject;
 		const documentTypeChanged = prevDocumentTypeRef.current !== documentType;
-		const filteredListChanged = filteredDocumentList !== prevFilteredDocsRef.current;
 		
-		console.log(`[${renderKey}] Changes detected:`, {
+		// Create a unique tag for these logs
+		const logPrefix = `[DOCS:${renderCount}:v${docTypeVersion}]`;
+		
+		// Log all changes
+		console.log(`${logPrefix} Changes detected:`, {
+			renderCount,
+			docTypeVersion,
 			projectChanged,
 			documentTypeChanged,
-			filteredListChanged,
 			previousProject: prevProjectRef.current,
 			previousDocType: prevDocumentTypeRef.current
 		});
 		
-		// Deep debug of available document sources
-		const debugData = {
-			renderKey,
-			activeProject,
-			documentType,
-			previousOptionCount: previousOptions.length,
-			filteredDocumentListAvailable: Boolean(filteredDocumentList),
-			filteredDocumentListKeys: filteredDocumentList ? Object.keys(filteredDocumentList) : 'null',
-			projectInFilteredList: activeProject && filteredDocumentList ? activeProject in filteredDocumentList : false,
-			textDocumentsAvailable: Boolean(textDocuments),
-			textDocumentsKeys: textDocuments ? Object.keys(textDocuments) : 'null',
-			projectInTextDocs: activeProject && textDocuments ? activeProject in textDocuments : false,
-			imageDocumentsAvailable: Boolean(imageDocuments),
-			imageDocumentsKeys: imageDocuments ? Object.keys(imageDocuments) : 'null',
-			projectInImageDocs: activeProject && imageDocuments ? activeProject in imageDocuments : false,
-			spreadsheetDocumentsAvailable: Boolean(spreadsheetDocuments),
-			spreadsheetDocumentsKeys: spreadsheetDocuments ? Object.keys(spreadsheetDocuments) : 'null',
-			projectInSpreadsheetDocs: activeProject && spreadsheetDocuments ? activeProject in spreadsheetDocuments : false
-		};
+		// Deep debug logging for text documents specifically
+		if (documentType === 'text') {
+			console.log(`${logPrefix} TEXT DOCUMENT DETAILED DEBUG`);
+			console.log(`${logPrefix} filteredDocumentList:`, filteredDocumentList);
+			console.log(`${logPrefix} textDocuments:`, textDocuments);
+			
+			// Check if Campaign A exists in text documents
+			if (textDocuments && 'Campaign A' in textDocuments) {
+				console.log(`${logPrefix} Campaign A found in textDocuments with ${textDocuments['Campaign A'].length} documents`);
+				console.log(`${logPrefix} Campaign A texts:`, JSON.stringify(textDocuments['Campaign A']));
+			} else {
+				console.log(`${logPrefix} Campaign A NOT found in textDocuments`);
+			}
+			
+			// Check if Campaign A exists in filtered documents
+			if (filteredDocumentList && 'Campaign A' in filteredDocumentList) {
+				console.log(`${logPrefix} Campaign A found in filteredDocumentList with ${filteredDocumentList['Campaign A'].length} documents`);
+				console.log(`${logPrefix} Campaign A filtered:`, JSON.stringify(filteredDocumentList['Campaign A']));
+			} else {
+				console.log(`${logPrefix} Campaign A NOT found in filteredDocumentList`);
+			}
+		}
 		
-		console.log(`[${renderKey}] documentOptions detailed debug data:`, debugData);
-		
-		// Check if activeProject is valid
+		// Exit early if we don't have an active project
 		if (!activeProject) {
-			console.log(`[${renderKey}] documentOptions: No active project, returning empty array`);
+			console.log(`${logPrefix} No active project, returning empty array`);
+			// Update references for next comparison
 			documentOptionsRef.current = result;
-			prevProjectRef.current = activeProject || '';
+			prevProjectRef.current = '';
 			prevFilteredDocsRef.current = filteredDocumentList;
 			prevDocumentTypeRef.current = documentType;
 			return result;
 		}
 		
-		// Special advanced logging for Campaign A
-		if (activeProject === 'Campaign A') {
-			console.log(`[${renderKey}] ===== CAMPAIGN A DETAILED DEBUG =====`);
-			console.log(`[${renderKey}] Document type: ${documentType}`);
-			console.log(`[${renderKey}] Previous document type: ${prevDocumentTypeRef.current}`);
-			console.log(`[${renderKey}] Document type changed: ${documentTypeChanged}`);
-			
-			// Log each document source for Campaign A
-			const campaignASources = {
-				textDocs: textDocuments && 'Campaign A' in textDocuments ? [...textDocuments['Campaign A']] : [],
-				imageDocs: imageDocuments && 'Campaign A' in imageDocuments ? [...imageDocuments['Campaign A']] : [],
-				spreadsheetDocs: spreadsheetDocuments && 'Campaign A' in spreadsheetDocuments ? [...spreadsheetDocuments['Campaign A']] : [],
-				filteredDocs: filteredDocumentList && 'Campaign A' in filteredDocumentList ? [...filteredDocumentList['Campaign A']] : []
-			};
-			
-			console.log(`[${renderKey}] Campaign A available sources:`, campaignASources);
-			
-			// Compare with previous options
-			if (activeProject === prevProjectRef.current && !documentTypeChanged && !filteredListChanged) {
-				console.log(`[${renderKey}] Campaign A: No changes in dependencies, checking for content changes`);
-				
-				// Get the current source that would be used
-				let currentSource = null;
-				if (filteredDocumentList && 'Campaign A' in filteredDocumentList) {
-					currentSource = filteredDocumentList['Campaign A'];
-				} else if (documentType === 'text' && textDocuments && 'Campaign A' in textDocuments) {
-					currentSource = textDocuments['Campaign A'];
-				} else if (documentType === 'image' && imageDocuments && 'Campaign A' in imageDocuments) {
-					currentSource = imageDocuments['Campaign A'];
-				} else if (documentType === 'spreadsheet' && spreadsheetDocuments && 'Campaign A' in spreadsheetDocuments) {
-					currentSource = spreadsheetDocuments['Campaign A'];
-				}
-				
-				// Compare with previous options
-				const contentChanged = !currentSource || !documentOptionsRef.current || 
-					currentSource.length !== documentOptionsRef.current.length ||
-					currentSource.some((doc, i) => doc !== documentOptionsRef.current[i]);
-					
-				console.log(`[${renderKey}] Campaign A: Content changed: ${contentChanged}`);
+		// Get proper document source based on type - ALWAYS create fresh copies
+		let documentSource: Record<string, string[]> = {};
+		let sourceDescription = "";
+		
+		// Create a deep copy function that guarantees new references
+		const deepCopySource = (source: Record<string, string[]> | null | undefined): Record<string, string[]> => {
+			if (!source) return {};
+			// Using JSON methods ensures complete reference changes at all levels
+			try {
+				return JSON.parse(JSON.stringify(source));
+			} catch (e) {
+				console.error(`${logPrefix} Error during deep copy:`, e);
+				return {};
+			}
+		};
+		
+		// For text documents, we ALWAYS want to use a fresh copy to ensure rerenders
+		if (documentType === 'text') {
+			// Special handling for text documents to ensure fresh references
+			if (textDocuments) {
+				documentSource = deepCopySource(textDocuments);
+				sourceDescription = "direct text documents (deep copied)";
+			} else {
+				console.log(`${logPrefix} Warning: Text documents source is missing!`);
+				documentSource = {};
+				sourceDescription = "empty (no text documents available)";
+			}
+		} 
+		// For other document types, use the filtered list first, then fallback
+		else {
+			if (filteredDocumentList && Object.keys(filteredDocumentList).length > 0) {
+				documentSource = deepCopySource(filteredDocumentList);
+				sourceDescription = `filtered ${documentType} documents`;
+			} else if (documentType === 'image' && imageDocuments) {
+				documentSource = deepCopySource(imageDocuments);
+				sourceDescription = "direct image documents";
+			} else if (documentType === 'spreadsheet' && spreadsheetDocuments) {
+				documentSource = deepCopySource(spreadsheetDocuments);
+				sourceDescription = "direct spreadsheet documents";
+			} else {
+				console.log(`${logPrefix} Warning: No document source found for type ${documentType}`);
+				documentSource = {};
+				sourceDescription = `empty (no ${documentType} documents available)`;
 			}
 		}
 		
-		// Always get a fresh document source based on current state
-		// This guarantees we use the latest data, even if references haven't changed
-		let documentSource = {};
+		console.log(`${logPrefix} Using document source: ${sourceDescription}`);
+		console.log(`${logPrefix} Document source keys:`, Object.keys(documentSource));
 		
-		// We'll always create a new object to ensure proper reference change
-		if (filteredDocumentList) {
-			// Create a deep copy to ensure new reference
-			documentSource = Object.entries(filteredDocumentList).reduce((acc, [key, value]) => {
-				acc[key] = Array.isArray(value) ? [...value] : value;
-				return acc;
-			}, {});
-			
-			console.log(`[${renderKey}] Using filteredDocumentList for ${documentType} documents (copied)`);
-		} else if (documentType === 'text' && textDocuments) {
-			// Create a deep copy of textDocuments
-			documentSource = Object.entries(textDocuments).reduce((acc, [key, value]) => {
-				acc[key] = Array.isArray(value) ? [...value] : value;
-				return acc;
-			}, {});
-			
-			console.log(`[${renderKey}] Using textDocuments as fallback (copied)`);
-		} else if (documentType === 'image' && imageDocuments) {
-			// Create a deep copy of imageDocuments
-			documentSource = Object.entries(imageDocuments).reduce((acc, [key, value]) => {
-				acc[key] = Array.isArray(value) ? [...value] : value;
-				return acc;
-			}, {});
-			
-			console.log(`[${renderKey}] Using imageDocuments as fallback (copied)`);
-		} else if (documentType === 'spreadsheet' && spreadsheetDocuments) {
-			// Create a deep copy of spreadsheetDocuments
-			documentSource = Object.entries(spreadsheetDocuments).reduce((acc, [key, value]) => {
-				acc[key] = Array.isArray(value) ? [...value] : value;
-				return acc;
-			}, {});
-			
-			console.log(`[${renderKey}] Using spreadsheetDocuments as fallback (copied)`);
-		}
-		
-		// Check if documentSource is valid and contains data
-		if (Object.keys(documentSource).length === 0) {
-			console.log(`[${renderKey}] documentOptions: No document source available, returning empty array`);
-			documentOptionsRef.current = [];
-			prevProjectRef.current = activeProject;
-			prevFilteredDocsRef.current = filteredDocumentList;
-			prevDocumentTypeRef.current = documentType;
-			return [];
-		}
-		
-		// Check if the project exists in the document source
+		// Exit early if the project doesn't exist in our source
 		if (!(activeProject in documentSource)) {
-			console.log(`[${renderKey}] documentOptions: Project "${activeProject}" not found in document source, returning empty array`);
-			documentOptionsRef.current = [];
+			console.log(`${logPrefix} Project "${activeProject}" not found in document source, returning empty array`);
+			// Update references for next comparison
+			documentOptionsRef.current = result;
 			prevProjectRef.current = activeProject;
 			prevFilteredDocsRef.current = filteredDocumentList;
 			prevDocumentTypeRef.current = documentType;
-			return [];
+			return result;
 		}
 		
-		// Get documents for this project and create a new array
-		// This guarantees a new reference even if the content is the same
+		// Get documents for this project and create a NEW array (crucial for references)
 		const projectDocs = documentSource[activeProject] || [];
 		const newOptions = [...projectDocs];
 		
-		console.log(`[${renderKey}] documentOptions: Found ${newOptions.length} documents for project "${activeProject}":`, newOptions);
+		console.log(`${logPrefix} Found ${newOptions.length} documents for project "${activeProject}":`, newOptions);
 		
-		// Check if options have changed
-		if (previousOptions.length !== newOptions.length) {
-			console.log(`[${renderKey}] documentOptions: Option count changed from ${previousOptions.length} to ${newOptions.length}`);
-		} else {
-			const hasChanged = previousOptions.some((opt, i) => opt !== newOptions[i]);
-			console.log(`[${renderKey}] documentOptions: Options ${hasChanged ? 'have changed' : 'are unchanged'}`);
+		// Determine if anything has changed
+		let hasChanged = true;
+		
+		if (previousOptions.length === newOptions.length) {
+			// Check if the array contents are the same
+			const contentUnchanged = !newOptions.some((doc, i) => doc !== previousOptions[i]);
+			if (contentUnchanged && !projectChanged && !documentTypeChanged) {
+				hasChanged = false;
+			}
 		}
 		
-		// Create a unique key for these options
-		const optionsKey = `${activeProject}-${documentType}-${renderKey}`;
-		console.log(`[${renderKey}] documentOptions: Generated options key: ${optionsKey}`);
+		// Force a new reference if document type has changed
+		if (documentTypeChanged) {
+			console.log(`${logPrefix} Document type changed - forcing new references`);
+			hasChanged = true;
+		}
 		
-		// Save for comparison in next render
+		// Even if no change is detected, ALWAYS return a new array reference for text documents
+		// This is crucial to fix the bug where text document selection doesn't work
+		if (documentType === 'text') {
+			console.log(`${logPrefix} Type is 'text' - always returning fresh array regardless of changes`);
+			hasChanged = true;
+		}
+		
+		// Log whether options have changed
+		console.log(`${logPrefix} Options ${hasChanged ? 'HAVE CHANGED' : 'remain unchanged'}`);
+		console.log(`${logPrefix} Returning ${newOptions.length} options for "${activeProject}", hasChanged=${hasChanged}`);
+		
+		// Always update our refs for the next comparison
 		documentOptionsRef.current = newOptions;
 		prevProjectRef.current = activeProject;
 		prevFilteredDocsRef.current = filteredDocumentList;
 		prevDocumentTypeRef.current = documentType;
 		
-		// Log the final result for transparency
-		console.log(`[${renderKey}] documentOptions: Returning ${newOptions.length} options with key ${optionsKey}`);
-		
 		return newOptions;
 	}, [
 		// Dependencies that should trigger recalculation
-		activeProject, 
-		filteredDocumentList, 
-		textDocuments, 
-		imageDocuments, 
-		spreadsheetDocuments, 
-		documentType, 
-		// Include a key to force updates when document type changes
-		`${documentType}` 
+		activeProject,
+		filteredDocumentList,
+		textDocuments,
+		imageDocuments,
+		spreadsheetDocuments,
+		documentType,
+		// Include version to force updates when document type changes
+		documentTypeVersion.current
 	])
 
 	return (
