@@ -320,9 +320,23 @@ export function ChatPanelPro({
 	
 	// Memoize document options to prevent unnecessary re-renders
 	const documentOptions = useMemo(() => {
-		return activeProject && filteredDocumentList && filteredDocumentList[activeProject]
-			? filteredDocumentList[activeProject]
-			: []
+		// Check if activeProject is valid
+		if (!activeProject) {
+			return [];
+		}
+		
+		// Check if filteredDocumentList is valid
+		if (!filteredDocumentList) {
+			return [];
+		}
+		
+		// Check if the project exists in the filtered document list
+		if (!(activeProject in filteredDocumentList)) {
+			return [];
+		}
+		
+		// Return the document list for this project, or an empty array if it's undefined
+		return filteredDocumentList[activeProject] || [];
 	}, [activeProject, filteredDocumentList])
 
 	return (
@@ -603,7 +617,7 @@ export function ChatPanelPro({
 											setActiveDocument(newDoc)
 										}}
 										options={documentOptions}
-										disabled={!activeProject}
+										disabled={!activeProject || documentOptions.length === 0}
 									/>
 								</div>
 							</div>

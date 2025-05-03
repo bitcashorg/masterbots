@@ -28,7 +28,7 @@ export function WorkspaceDocumentSelect({
 		<div className={cn('flex items-center', className)}>
 			<Select value={value || ''} onValueChange={onChange} disabled={disabled}>
 				<SelectTrigger className="w-[200px]">
-					<SelectValue placeholder="Select Document" />
+					<SelectValue placeholder={Array.isArray(options) && options.length > 0 ? "Select Document" : "---"} />
 				</SelectTrigger>
 				<SelectContent>
 					{Array.isArray(options) && options.length > 0 ? (
