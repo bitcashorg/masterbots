@@ -151,19 +151,6 @@ export function ChatPanel({
 								activeColor="yellow"
 							/>
 
-							<FeatureToggle
-								id="reasoning"
-								name="Deep Thinking"
-								icon={<BrainIcon />}
-								activeIcon={<BrainIcon />}
-								isActive={isDeepThinking}
-								onChange={() => {
-									console.log('ChatPanel: Toggle Deep Thinking')
-									toggleDeepThinking()
-								}}
-								activeColor="green"
-							/>
-
 							{appConfig.features.webSearch && (
 								<FeatureToggle
 									id="webSearch"
