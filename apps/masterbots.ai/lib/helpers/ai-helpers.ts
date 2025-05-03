@@ -259,15 +259,6 @@ export const mbObjectSchema = {
 	grammarLanguageImprover: languageGammarSchema,
 }
 
-//? Helper function to check if a message has reasoning
-export function hasReasoning(message: Message & Partial<MBMessage>): boolean {
-	return Boolean(
-		message.reasoning ||
-			message.parts?.some((part) => part.type === 'reasoning') ||
-			message?.thinking,
-	)
-}
-
 // ? allMessages.uniqBy callback for the use-mb-chat.ts hook
 export function verifyDuplicateMessage(message: Partial<MBMessage>) {
 	const whitelistContent = [
@@ -282,4 +273,26 @@ export function verifyDuplicateMessage(message: Partial<MBMessage>) {
 
 	// Filter out system prompts and messages with empty content
 	return message.content || false
+}
+
+//? Check if the message has reasoning content
+export function hasReasoning(message: Message & Partial<MBMessage>): boolean {
+	return Boolean(
+		message.parts?.some((part) => part.type === 'reasoning') ||
+			message?.thinking,
+	)
+}
+
+//? Extract reasoning content from any format
+export function extractReasoningContent(
+	message: Message & Partial<MBMessage>,
+): string | null | undefined {
+	if (message.parts?.length) {
+		const reasoningPart = message.parts.find(
+			(part) => part.type === 'reasoning',
+		)
+
+		if (reasoningPart) return reasoningPart.reasoning
+	}
+	return message.thinking
 }
