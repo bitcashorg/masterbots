@@ -33,7 +33,7 @@ export function ChatCombobox() {
 	const { selectedModel, changeModel, models, isLoading } = useModel()
 	const [open, setOpen] = React.useState(false)
 	const { isPowerUp } = usePowerUp()
-	const { isDeepThinking, toggleDeepThinking } = useDeepThinking()
+	const { isDeepThinking } = useDeepThinking()
 	const { data: session } = useSession()
 	const {
 		error: errorUserData,
@@ -86,15 +86,7 @@ export function ChatCombobox() {
 
 		setTimeout(() => {
 			try {
-				if (modelValue.includes('deepseek-r1-distill-llama-70b')) {
-					if (!isDeepThinking) {
-						toggleDeepThinking()
-					}
-				} else if (modelValue.includes('deepseek') && isDeepThinking) {
-					toggleDeepThinking()
-				} else if (!modelValue.includes('deepseek') && !isDeepThinking) {
-					changeModel(modelValue)
-				}
+				changeModel(modelValue)
 			} finally {
 				setTimeout(() => {
 					processingSelectionRef.current = false

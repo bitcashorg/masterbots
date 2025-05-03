@@ -347,14 +347,33 @@ export async function createResponseStream(
 		switch (clientType) {
 			case 'OpenAI': {
 				const openaiModel = initializeOpenAi(model)
-				const openAiStreamConfig = {
-					temperature: OPEN_AI_ENV_CONFIG.TEMPERATURE,
-					topP: OPEN_AI_ENV_CONFIG.TOP_P,
-					messages: coreMessages,
-					model: openaiModel,
-					maxRetries: 2,
-					tools,
-				}
+				const isReasoningModel = model.startsWith('o4-mini')
+				const modelToUse = openaiModel
+
+				//* For OpenAI reasoning models, we don't need the middleware approach reasoning comes through the reasoningSummary option
+
+				const openAiStreamConfig = isReasoningModel
+					? {
+							messages: coreMessages,
+							model: modelToUse,
+							maxRetries: 2,
+							tools,
+							temperature: 1,
+							// providerOptions: {
+							// 	openai: {
+							// 		reasoningEffort: 'low',
+							// 		reasoningSummary: 'auto',
+							// 	},
+							// },
+						}
+					: {
+							temperature: OPEN_AI_ENV_CONFIG.TEMPERATURE,
+							topP: OPEN_AI_ENV_CONFIG.TOP_P,
+							messages: coreMessages,
+							model: modelToUse,
+							maxRetries: 2,
+							tools,
+						}
 
 				if (appConfig.features.experimentalAiConfig) {
 					// @ts-ignore: It does exist in the config
@@ -363,8 +382,6 @@ export async function createResponseStream(
 						chunking: 'line',
 					})
 				}
-
-				// Check this -> https://sdk.vercel.ai/docs/reference/ai-sdk-core/stream-text#messages.core-user-message.role
 				response = await streamText(openAiStreamConfig)
 				break
 			}
@@ -453,7 +470,10 @@ export async function createResponseStream(
 
 		// @ts-ignore
 		const dataStreamResponse = response.toDataStreamResponse({
-			sendReasoning: clientType === 'DeepSeek' || clientType === 'GroqDeepSeek',
+			sendReasoning:
+				clientType === 'DeepSeek' ||
+				clientType === 'GroqDeepSeek' ||
+				(clientType === 'OpenAI' && model.includes('o4-mini')),
 			getErrorMessage(error) {
 				if (error instanceof Error) return error.message
 				return 'Failed to process the request'
