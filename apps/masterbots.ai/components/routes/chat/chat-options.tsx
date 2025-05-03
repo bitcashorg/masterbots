@@ -21,12 +21,11 @@ import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { useSonner } from '@/lib/hooks/useSonner'
 import { urlBuilders } from '@/lib/url'
 import { cn } from '@/lib/utils'
-import { Eye, EyeOff, MoreVertical, Trash } from 'lucide-react'
+import { Eye, EyeOff, MoreVertical, Share2, Trash } from 'lucide-react'
 import type { Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import type React from 'react'
 import { useState } from 'react'
-import { ShareButton } from './share-button'
 
 interface ChatOptionsProps {
 	threadId: string
@@ -139,80 +138,67 @@ export function ChatOptions({ threadId, thread }: ChatOptionsProps) {
 								</DropdownMenuItem>
 							)}
 							<DropdownMenuItem
-								className="flex w-full p-0 rounded-none"
-								onClick={(event) => event.preventDefault()}
+								className="flex justify-between w-full px-4 rounded-none hover:bg-accent"
+								onSelect={async (event) => {
+									event.preventDefault()
+									try {
+										await toggleVisibility(!thread?.isPublic, threadId)
+										thread.isPublic = !thread?.isPublic
+									} catch (error) {
+										console.error('Failed to update thread visibility:', error)
+									}
+								}}
 							>
-								<Button
-									type="button"
-									variant="ghost"
-									radius="none"
-									size="lg"
-									className="flex justify-between w-full px-4 rounded-none"
-									onClick={async (event) => {
-										event.stopPropagation()
-										try {
-											await toggleVisibility(!thread?.isPublic, threadId)
-											thread.isPublic = !thread?.isPublic
-										} catch (error) {
-											console.error(
-												'Failed to update thread visibility:',
-												error,
-											)
-										}
-									}}
-								>
-									{thread?.isPublic ? (
-										<>
-											<EyeOff className="w-4 h-4" />
-											<span className="font-light">Make private</span>
-										</>
-									) : (
-										<>
-											<Eye className="w-4 h-4" />
-											<span>Make public</span>
-										</>
-									)}
-								</Button>
+								{thread?.isPublic ? (
+									<>
+										<EyeOff className="w-4 h-4" />
+										<span className="font-light">Make private</span>
+									</>
+								) : (
+									<>
+										<Eye className="w-4 h-4" />
+										<span>Make public</span>
+									</>
+								)}
 							</DropdownMenuItem>
 						</>
 					)}
 					{/* Share thread option: This always show in public and profiles due they are already approved and public but for personal chat isn't... */}
-					<DropdownMenuItem
-						className="flex w-full p-0 rounded-none disabled:cursor-not-allowed"
-						onClick={(event) => event.preventDefault()}
-						disabled={!thread?.isApproved || !thread?.isPublic}
-					>
-						<ShareButton
-							url={url}
-							disabled={!thread?.isApproved || !thread?.isPublic}
-						/>
-					</DropdownMenuItem>
+					{thread?.isApproved && thread?.isPublic ? (
+						<DropdownMenuItem
+							className="flex justify-between w-full px-4 rounded-none hover:bg-accent"
+							onSelect={(event) => {
+								event.preventDefault()
+								navigator.clipboard.writeText(
+									process.env.NEXT_PUBLIC_BASE_URL + url,
+								)
+							}}
+						>
+							<Share2 className="w-4 h-4" />
+							<span>Share</span>
+						</DropdownMenuItem>
+					) : (
+						<DropdownMenuItem
+							className="flex justify-between w-full px-4 rounded-none text-muted-foreground"
+							disabled
+						>
+							<Share2 className="w-4 h-4 opacity-50" />
+							<span>Share</span>
+						</DropdownMenuItem>
+					)}
 					{/* Delete thread option (only for thread owner) */}
 					{isUser && (
 						<>
 							<DropdownMenuSeparator />
 							<DropdownMenuItem
-								className="flex w-full p-0 rounded-none"
+								className="flex justify-between w-full px-4 rounded-none text-destructive hover:text-destructive hover:bg-destructive/10"
 								onSelect={(event) => {
 									event.preventDefault()
-									event.stopPropagation()
 									setIsDeleteOpen(true)
 								}}
 							>
-								<Button
-									type="button"
-									variant="destructive"
-									radius="none"
-									size="lg"
-									className="flex justify-between w-full px-4 rounded-none"
-									onClick={(event) => {
-										event.stopPropagation()
-										setIsDeleteOpen(true)
-									}}
-								>
-									<Trash className="w-4 h-4" />
-									<span>Delete</span>
-								</Button>
+								<Trash className="w-4 h-4" />
+								<span>Delete</span>
 							</DropdownMenuItem>
 						</>
 					)}

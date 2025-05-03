@@ -30,11 +30,17 @@ export function WorkspaceProjectSelect({
 					<SelectValue placeholder="Select Project" />
 				</SelectTrigger>
 				<SelectContent>
-					{options.map((option) => (
-						<SelectItem key={option} value={option}>
-							{option}
-						</SelectItem>
-					))}
+					{Array.isArray(options) && options.length > 0 ? (
+						options.map((option) => (
+							<SelectItem key={option} value={option}>
+								{option}
+							</SelectItem>
+						))
+					) : (
+						<div className="px-2 py-4 text-center text-sm text-muted-foreground">
+							No options available
+						</div>
+					)}
 				</SelectContent>
 			</Select>
 		</div>

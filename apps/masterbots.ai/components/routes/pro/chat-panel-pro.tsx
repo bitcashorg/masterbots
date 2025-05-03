@@ -3,8 +3,10 @@
 import { ChatShareDialog } from '@/components/routes/chat/chat-share-dialog'
 import { PromptForm } from '@/components/routes/chat/prompt-form'
 import { WorkspaceContent } from '@/components/routes/workspace/workspace-content'
+import { WorkspaceDepartmentSelect } from '@/components/routes/workspace/workspace-department-select'
 import { WorkspaceDocumentSelect } from '@/components/routes/workspace/workspace-document-select'
 import { WorkspaceForm } from '@/components/routes/workspace/workspace-form'
+import { WorkspaceOrganizationSelect } from '@/components/routes/workspace/workspace-organization-select'
 import { WorkspaceProjectSelect } from '@/components/routes/workspace/workspace-project-select'
 import { ButtonScrollToBottom } from '@/components/shared/button-scroll-to-bottom'
 import { FeatureToggle } from '@/components/shared/feature-toggle'
@@ -160,14 +162,24 @@ export function ChatPanelPro({
 	const {
 		isWorkspaceActive,
 		toggleWorkspace,
+		activeOrganization,
+		setActiveOrganization,
+		activeDepartment,
+		setActiveDepartment,
 		activeProject,
 		setActiveProject,
 		activeDocument,
 		setActiveDocument,
+		organizationList,
+		departmentList,
 		projectList,
 		documentList,
+		projectsByDept,
 		setDocumentContent,
 	} = useWorkspace()
+
+	// Use departmentList as departmentsByOrg since they contain the same data
+	const departmentsByOrg = departmentList
 
 	const handleContinueGeneration = async () => {
 		const continuationPrompt = getContinuationPrompt()
@@ -278,103 +290,92 @@ export function ChatPanelPro({
 					{/* Header Section */}
 					<div className="flex flex-col items-center justify-between w-full px-2 py-3.5 space-y-2 bg-background md:flex-row md:space-y-0">
 						<div className="flex items-center justify-between w-full gap-4 mx-2">
-							<div className="flex items-center space-x-6 w-full max-w-[60%] overflow-y-hidden scrollbar scrollbar-thin">
-								{/* Chat Feature Toggles - always shown */}
-								<FeatureToggle
-									id="powerUp"
-									name="Deep Expertise"
-									icon={<GraduationCap />}
-									activeIcon={<GraduationCap />}
-									isActive={isPowerUp}
-									onChange={togglePowerUp}
-									activeColor="yellow"
-								/>
-
-								<FeatureToggle
-									id="reasoning"
-									name="Deep Thinking"
-									icon={<BrainIcon />}
-									activeIcon={<BrainIcon />}
-									isActive={isDeepThinking}
-									onChange={() => {
-										console.log('ChatPanelPro: Toggle Deep Thinking')
-										toggleDeepThinking()
-									}}
-									activeColor="green"
-								/>
-
-								{appConfig.features.webSearch && (
+							{!isWorkspaceActive && (
+								<div className="flex items-center space-x-6 w-full max-w-[60%] overflow-y-hidden scrollbar scrollbar-thin">
+									{/* Chat Feature Toggles - shown in header when workspace is inactive */}
 									<FeatureToggle
-										id="webSearch"
-										name="Web Search"
-										icon={<GlobeIcon />}
-										activeIcon={<GlobeIcon />}
-										isActive={webSearch}
-										onChange={(newValue) => {
-											console.log(
-												'ChatPanelPro: Toggle Web Search:',
-												newValue,
-											)
-											setWebSearch()
-										}}
-										activeColor="cyan"
+										id="powerUp"
+										name="Deep Expertise"
+										icon={<GraduationCap />}
+										activeIcon={<GraduationCap />}
+										isActive={isPowerUp}
+										onChange={togglePowerUp}
+										activeColor="yellow"
 									/>
-								)}
 
-								{/* Workspace Toggle - now in toolbar with other toggles */}
-								{appConfig.features.devMode && (
 									<FeatureToggle
-										id="workspace"
-										name="Workspace"
-										icon={<FileEditIcon />}
-										activeIcon={<FileEditIcon />}
-										isActive={isWorkspaceActive}
-										onChange={toggleWorkspace}
-										activeColor="cyan"
-									/>
-								)}
-
-								{/* Convert to Document Button - only shown when workspace is inactive */}
-								{!isWorkspaceActive && messages.length > 0 && appConfig.features.devMode && (
-									<Button
-										variant="ghost"
-										size="icon"
-										title="Convert Last Message to Document"
-										onClick={() => {
-											// Find the last assistant message
-											const lastAssistantMessage = [...messages]
-												.reverse()
-												.find((m) => m.role === 'assistant')
-
-											if (lastAssistantMessage && lastAssistantMessage.id) {
-												handleOpenConvertDialog(lastAssistantMessage.id)
-											}
+										id="reasoning"
+										name="Deep Thinking"
+										icon={<BrainIcon />}
+										activeIcon={<BrainIcon />}
+										isActive={isDeepThinking}
+										onChange={() => {
+											console.log('ChatPanelPro: Toggle Deep Thinking')
+											toggleDeepThinking()
 										}}
-										className="text-muted-foreground hover:text-primary relative group"
-									>
-										<FileTextIcon className="h-4 w-4" />
-										<span className="sr-only">Convert Last Message</span>
-										<span className="absolute whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity right-full mr-2 text-xs bg-background border rounded px-1 py-0.5">
-											Convert Message
-										</span>
-									</Button>
-								)}
-							</div>
+										activeColor="green"
+									/>
 
-							{/* Project and Document selectors */}
+									{appConfig.features.webSearch && (
+										<FeatureToggle
+											id="webSearch"
+											name="Web Search"
+											icon={<GlobeIcon />}
+											activeIcon={<GlobeIcon />}
+											isActive={webSearch}
+											onChange={(newValue) => {
+												console.log(
+													'ChatPanelPro: Toggle Web Search:',
+													newValue,
+												)
+												setWebSearch()
+											}}
+											activeColor="cyan"
+										/>
+									)}
+
+									{appConfig.features.devMode && (
+										<FeatureToggle
+											id="workspace"
+											name="Workspace"
+											icon={<FileEditIcon />}
+											activeIcon={<FileEditIcon />}
+											isActive={isWorkspaceActive}
+											onChange={toggleWorkspace}
+											activeColor="cyan"
+										/>
+									)}
+
+									{/* Convert to Document Button - only shown when workspace is inactive */}
+									{messages.length > 0 && appConfig.features.devMode && (
+										<Button
+											variant="ghost"
+											size="icon"
+											title="Convert Last Message to Document"
+											onClick={() => {
+												// Find the last assistant message
+												const lastAssistantMessage = [...messages]
+													.reverse()
+													.find((m) => m.role === 'assistant')
+
+												if (lastAssistantMessage && lastAssistantMessage.id) {
+													handleOpenConvertDialog(lastAssistantMessage.id)
+												}
+											}}
+											className="text-muted-foreground hover:text-primary relative group"
+										>
+											<FileTextIcon className="h-4 w-4" />
+											<span className="sr-only">Convert Last Message</span>
+											<span className="absolute whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity right-full mr-2 text-xs bg-background border rounded px-1 py-0.5">
+												Convert Message
+											</span>
+										</Button>
+									)}
+								</div>
+							)}
 							{isWorkspaceActive && (
-								<div className="flex items-center gap-4">
-									<WorkspaceProjectSelect
-										value={activeProject}
-										onChange={setActiveProject}
-										options={projectList}
-									/>
-									<WorkspaceDocumentSelect
-										value={activeDocument}
-										onChange={setActiveDocument}
-										options={activeProject ? documentList[activeProject] : []}
-										disabled={!activeProject}
-									/>
+								<div className="flex-grow">
+									{/* Empty div to maintain header layout */}
 								</div>
 							)}
 
@@ -396,12 +397,14 @@ export function ChatPanelPro({
 										)}
 									</>
 								)}
-								<ButtonScrollToBottom
-									scrollToBottom={scrollToBottom}
-									isAtBottom={isAtBottom}
-									className={hiddenAnimationClasses}
-									textClassName={hiddenAnimationItemClasses}
-								/>
+								{!isWorkspaceActive && (
+									<ButtonScrollToBottom
+										scrollToBottom={scrollToBottom}
+										isAtBottom={isAtBottom}
+										className={hiddenAnimationClasses}
+										textClassName={hiddenAnimationItemClasses}
+									/>
+								)}
 								{!isWorkspaceActive && messages?.length >= 2 && (
 									<Button
 										variant="outline"
@@ -443,12 +446,92 @@ export function ChatPanelPro({
 
 					{/* Workspace Section (conditionally shown) */}
 					{isWorkspaceActive && (
-						<div className="w-full h-[calc(100vh-220px)] bg-background">
+						<div className="w-full h-[calc(100vh-220px)] bg-background border rounded-md shadow-sm">
+							{/* Organization/Department/Project/Document selectors at top right of workspace */}
+							<div className="flex justify-end p-2 bg-background">
+								<div className="flex items-center gap-4">
+									<WorkspaceOrganizationSelect
+										value={activeOrganization}
+										onChange={(newOrg) => {
+											// Skip if the value hasn't actually changed
+											if (newOrg === activeOrganization) {
+												console.log('Organization unchanged, skipping update')
+												return
+											}
+											console.log('Setting org to:', newOrg)
+											setActiveOrganization(newOrg)
+										}}
+										options={organizationList || []}
+									/>
+									<WorkspaceDepartmentSelect
+										value={activeDepartment}
+										onChange={(newDept) => {
+											// Skip if the value hasn't actually changed
+											if (newDept === activeDepartment) {
+												console.log('Department unchanged, skipping update')
+												return
+											}
+											console.log('Setting dept to:', newDept)
+											setActiveDepartment(newDept)
+										}}
+										options={
+											activeOrganization &&
+											departmentsByOrg &&
+											departmentsByOrg[activeOrganization]
+												? departmentsByOrg[activeOrganization]
+												: []
+										}
+										disabled={!activeOrganization}
+									/>
+									<WorkspaceProjectSelect
+										value={activeProject}
+										onChange={(newProj) => {
+											// Skip if the value hasn't actually changed
+											if (newProj === activeProject) {
+												console.log('Project unchanged, skipping update')
+												return
+											}
+											console.log('Setting project to:', newProj)
+											setActiveProject(newProj)
+										}}
+										options={
+											activeOrganization &&
+											activeDepartment &&
+											projectsByDept &&
+											projectsByDept[activeOrganization] &&
+											projectsByDept[activeOrganization][activeDepartment]
+												? projectsByDept[activeOrganization][activeDepartment]
+												: []
+										}
+										disabled={!activeDepartment}
+									/>
+									<WorkspaceDocumentSelect
+										value={activeDocument}
+										onChange={(newDoc) => {
+											// Skip if the value hasn't actually changed
+											if (newDoc === activeDocument) {
+												console.log('Document unchanged, skipping update')
+												return
+											}
+											console.log('Setting document to:', newDoc)
+											setActiveDocument(newDoc)
+										}}
+										options={
+											activeProject &&
+											documentList &&
+											documentList[activeProject]
+												? documentList[activeProject]
+												: []
+										}
+										disabled={!activeProject}
+									/>
+								</div>
+							</div>
 							<WorkspaceContent
 								projectName={activeProject}
 								documentName={activeDocument}
 								isLoading={isLoading}
-								className="h-full overflow-auto"
+								className="h-[calc(100%-48px)] overflow-auto"
 							/>
 						</div>
 					)}
@@ -457,52 +540,109 @@ export function ChatPanelPro({
 					<div
 						className={cn(
 							'relative flex flex-col w-full',
-							'p-2 md:px-4 space-y-2 sm:space-y-4',
+							'pt-3 pb-2 px-2 md:px-4 space-y-2 sm:space-y-2',
 							'border-t shadow-lg bg-background',
 							'dark:border-zinc-800 border-zinc-200',
 							isOpenPopup ? 'dark:border-mirage border-iron' : '',
 							'min-h-[64px] sm:min-h-[80px]',
 						)}
 					>
-						<PromptForm
-							onSubmit={async (value, chatOptions) => {
-								if (isWorkspaceActive) {
-									// In workspace mode, use input for editing the document
-									console.log(
-										'AI assist requested for document:',
-										activeDocument,
-										'with query:',
-										value
-									)
-									// Here we would handle the workspace edit operation
-								} else {
-									// In chat mode, use normal append behavior
-									scrollToBottom()
-									await append(
-										{
-											id,
-											content: value,
-											role: 'user',
-										},
-										prepareMessageOptions(chatOptions),
-									)
+						{/* Feature Toggle Toolbar - shown here only when workspace is active */}
+						{isWorkspaceActive && (
+							<div className="flex items-center space-x-6 border-b dark:border-zinc-800 border-zinc-200 pb-[10px] pt-0 -mx-4 px-4 w-[calc(100%+2rem)] mb-0">
+								<FeatureToggle
+									id="powerUp"
+									name="Deep Expertise"
+									icon={<GraduationCap />}
+									activeIcon={<GraduationCap />}
+									isActive={isPowerUp}
+									onChange={togglePowerUp}
+									activeColor="yellow"
+								/>
+
+								<FeatureToggle
+									id="reasoning"
+									name="Deep Thinking"
+									icon={<BrainIcon />}
+									activeIcon={<BrainIcon />}
+									isActive={isDeepThinking}
+									onChange={() => {
+										console.log('ChatPanelPro: Toggle Deep Thinking')
+										toggleDeepThinking()
+									}}
+									activeColor="green"
+								/>
+
+								{appConfig.features.webSearch && (
+									<FeatureToggle
+										id="webSearch"
+										name="Web Search"
+										icon={<GlobeIcon />}
+										activeIcon={<GlobeIcon />}
+										isActive={webSearch}
+										onChange={(newValue) => {
+											console.log('ChatPanelPro: Toggle Web Search:', newValue)
+											setWebSearch()
+										}}
+										activeColor="cyan"
+									/>
+								)}
+
+								{appConfig.features.devMode && (
+									<FeatureToggle
+										id="workspace"
+										name="Workspace"
+										icon={<FileEditIcon />}
+										activeIcon={<FileEditIcon />}
+										isActive={isWorkspaceActive}
+										onChange={toggleWorkspace}
+										activeColor="cyan"
+									/>
+								)}
+							</div>
+						)}
+						<div className="mt-[1px]">
+							<PromptForm
+								onSubmit={async (value, chatOptions) => {
+									if (isWorkspaceActive) {
+										// In workspace mode, use input for editing the document
+										console.log(
+											'AI assist requested for document:',
+											activeDocument,
+											'with query:',
+											value,
+										)
+										// Here we would handle the workspace edit operation
+									} else {
+										// In chat mode, use normal append behavior
+										scrollToBottom()
+										await append(
+											{
+												id,
+												content: value,
+												role: 'user',
+											},
+											prepareMessageOptions(chatOptions),
+										)
+									}
+								}}
+								// biome-ignore lint/complexity/noExtraBooleanCast: <explanation>
+								disabled={
+									(isWorkspaceActive && (!activeProject || !activeDocument)) ||
+									isLoading ||
+									(!isWorkspaceActive && !Boolean(chatbot)) ||
+									isPreProcessing
 								}
-							}}
-							// biome-ignore lint/complexity/noExtraBooleanCast: <explanation>
-							disabled={
-								(isWorkspaceActive && (!activeProject || !activeDocument)) || 
-								isLoading || 
-								(!isWorkspaceActive && !Boolean(chatbot)) || 
-								isPreProcessing
-							}
-							input={input}
-							setInput={setInput}
-							isLoading={isLoading || isPreProcessing}
-							placeholder={isWorkspaceActive 
-								? "Ask questions or request edits to your document..." 
-								: placeholder
-							}
-						/>
+								input={input}
+								setInput={setInput}
+								isLoading={isLoading || isPreProcessing}
+								placeholder={
+									isWorkspaceActive
+										? 'Ask questions or request edits to your document...'
+										: placeholder
+								}
+							/>
+						</div>
 					</div>
 				</div>
 			</div>
