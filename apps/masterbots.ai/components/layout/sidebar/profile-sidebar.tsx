@@ -13,7 +13,6 @@ import {
 	SettingsIcon,
 } from 'lucide-react'
 import { appConfig } from 'mb-env'
-import { toSlugWithUnderScore } from 'mb-lib'
 import type { Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
 import Image from 'next/image'
@@ -59,13 +58,10 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
 		(e: React.MouseEvent) => {
 			e.preventDefault()
 			e.stopPropagation()
-			const userSlug = toSlugWithUnderScore(user.name || '')
-			if (userSlug) {
-				setIsOpen(false)
-				router.push(`/u/${userSlug}/t`)
-			}
+			setIsOpen(false)
+			router.push(`/u/${user.slug}/t`)
 		},
-		[router, user.name],
+		[router, user.slug],
 	)
 
 	return (
