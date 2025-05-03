@@ -279,92 +279,85 @@ export function ChatPanelPro({
 					<div className="flex flex-col items-center justify-between w-full px-2 py-3.5 space-y-2 bg-background md:flex-row md:space-y-0">
 						<div className="flex items-center justify-between w-full gap-4 mx-2">
 							<div className="flex items-center space-x-6 w-full max-w-[60%] overflow-y-hidden scrollbar scrollbar-thin">
-								{/* Show different controls based on workspace mode */}
-								{!isWorkspaceActive ? (
-									<>
-										{/* Chat Feature Toggles - only shown when workspace is inactive */}
-										<FeatureToggle
-											id="powerUp"
-											name="Deep Expertise"
-											icon={<GraduationCap />}
-											activeIcon={<GraduationCap />}
-											isActive={isPowerUp}
-											onChange={togglePowerUp}
-											activeColor="yellow"
-										/>
+								{/* Chat Feature Toggles - always shown */}
+								<FeatureToggle
+									id="powerUp"
+									name="Deep Expertise"
+									icon={<GraduationCap />}
+									activeIcon={<GraduationCap />}
+									isActive={isPowerUp}
+									onChange={togglePowerUp}
+									activeColor="yellow"
+								/>
 
-										<FeatureToggle
-											id="reasoning"
-											name="Deep Thinking"
-											icon={<BrainIcon />}
-											activeIcon={<BrainIcon />}
-											isActive={isDeepThinking}
-											onChange={() => {
-												console.log('ChatPanelPro: Toggle Deep Thinking')
-												toggleDeepThinking()
-											}}
-											activeColor="green"
-										/>
+								<FeatureToggle
+									id="reasoning"
+									name="Deep Thinking"
+									icon={<BrainIcon />}
+									activeIcon={<BrainIcon />}
+									isActive={isDeepThinking}
+									onChange={() => {
+										console.log('ChatPanelPro: Toggle Deep Thinking')
+										toggleDeepThinking()
+									}}
+									activeColor="green"
+								/>
 
-										{appConfig.features.webSearch && (
-											<FeatureToggle
-												id="webSearch"
-												name="Web Search"
-												icon={<GlobeIcon />}
-												activeIcon={<GlobeIcon />}
-												isActive={webSearch}
-												onChange={(newValue) => {
-													console.log(
-														'ChatPanelPro: Toggle Web Search:',
-														newValue,
-													)
-													setWebSearch()
-												}}
-												activeColor="cyan"
-											/>
-										)}
-									</>
-								) : null}
+								{appConfig.features.webSearch && (
+									<FeatureToggle
+										id="webSearch"
+										name="Web Search"
+										icon={<GlobeIcon />}
+										activeIcon={<GlobeIcon />}
+										isActive={webSearch}
+										onChange={(newValue) => {
+											console.log(
+												'ChatPanelPro: Toggle Web Search:',
+												newValue,
+											)
+											setWebSearch()
+										}}
+										activeColor="cyan"
+									/>
+								)}
 
-								{/* Workspace Toggle - always shown */}
+								{/* Workspace Toggle - now in toolbar with other toggles */}
 								{appConfig.features.devMode && (
-									<>
-										<FeatureToggle
-											id="workspace"
-											name="Workspace"
-											icon={<FileEditIcon />}
-											activeIcon={<FileEditIcon />}
-											isActive={isWorkspaceActive}
-											onChange={toggleWorkspace}
-											activeColor="cyan"
-										/>
+									<FeatureToggle
+										id="workspace"
+										name="Workspace"
+										icon={<FileEditIcon />}
+										activeIcon={<FileEditIcon />}
+										isActive={isWorkspaceActive}
+										onChange={toggleWorkspace}
+										activeColor="cyan"
+									/>
+								)}
 
-										{/* Convert to Document Button - only shown when workspace is inactive */}
-										{!isWorkspaceActive && messages.length > 0 && (
-											<Button
-												variant="ghost"
-												size="icon"
-												title="Convert Last Message to Document"
-												onClick={() => {
-													// Find the last assistant message
-													const lastAssistantMessage = [...messages]
-														.reverse()
-														.find((m) => m.role === 'assistant')
+								{/* Convert to Document Button - only shown when workspace is inactive */}
+								{!isWorkspaceActive && messages.length > 0 && appConfig.features.devMode && (
+									<Button
+										variant="ghost"
+										size="icon"
+										title="Convert Last Message to Document"
+										onClick={() => {
+											// Find the last assistant message
+											const lastAssistantMessage = [...messages]
+												.reverse()
+												.find((m) => m.role === 'assistant')
 
-													if (lastAssistantMessage && lastAssistantMessage.id) {
-														handleOpenConvertDialog(lastAssistantMessage.id)
-													}
-												}}
-												className="text-muted-foreground hover:text-primary relative group"
-											>
-												<FileTextIcon className="h-4 w-4" />
-												<span className="sr-only">Convert Last Message</span>
-												<span className="absolute whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity right-full mr-2 text-xs bg-background border rounded px-1 py-0.5">
-													Convert Message
-												</span>
-											</Button>
-										)}
-									</>
+											if (lastAssistantMessage && lastAssistantMessage.id) {
+												handleOpenConvertDialog(lastAssistantMessage.id)
+											}
+										}}
+										className="text-muted-foreground hover:text-primary relative group"
+									>
+										<FileTextIcon className="h-4 w-4" />
+										<span className="sr-only">Convert Last Message</span>
+										<span className="absolute whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity right-full mr-2 text-xs bg-background border rounded px-1 py-0.5">
+											Convert Message
+										</span>
+									</Button>
 								)}
 							</div>
 
@@ -385,68 +378,66 @@ export function ChatPanelPro({
 								</div>
 							)}
 
-							{/* Right side controls - only shown when workspace is inactive */}
-							{!isWorkspaceActive && (
-								<div className="flex items-center gap-3.5">
-									{showReload && (isLoading || isPreProcessing) && (
-										<>
-											{loadingState !== 'finished' && (
-												<LoadingIndicator state={loadingState} />
-											)}
-											{isLoading && (
-												<Button
-													variant="outline"
-													onClick={stop}
-													className="bg-background"
-												>
-													<IconStop className="mr-2" />
-												</Button>
-											)}
-										</>
-									)}
-									<ButtonScrollToBottom
-										scrollToBottom={scrollToBottom}
-										isAtBottom={isAtBottom}
-										className={hiddenAnimationClasses}
-										textClassName={hiddenAnimationItemClasses}
-									/>
-									{messages?.length >= 2 && (
-										<Button
-											variant="outline"
-											size="icon"
-											className={cn(
-												hiddenAnimationClasses,
-												'bg-yellow-500/10 hover:bg-yellow-500/20 border-yellow-500/30 text-yellow-500',
-											)}
-											onClick={() => handleContinueGeneration()}
-										>
-											<ChevronsLeftRightEllipsis className="transition-all" />
-											<span className={hiddenAnimationItemClasses}>
-												Continue message
-											</span>
-										</Button>
-									)}
-									{id && title && (
-										<>
+							{/* Right side controls - always shown */}
+							<div className="flex items-center gap-3.5">
+								{showReload && (isLoading || isPreProcessing) && (
+									<>
+										{loadingState !== 'finished' && (
+											<LoadingIndicator state={loadingState} />
+										)}
+										{isLoading && (
 											<Button
 												variant="outline"
-												onClick={() => setShareDialogOpen(true)}
+												onClick={stop}
+												className="bg-background"
 											>
-												<IconShare className="mr-2" />
-												Share
+												<IconStop className="mr-2" />
 											</Button>
-											<ChatShareDialog
-												onCopy={() => setShareDialogOpen(false)}
-												chat={{
-													id,
-													title,
-													messages,
-												}}
-											/>
-										</>
-									)}
-								</div>
-							)}
+										)}
+									</>
+								)}
+								<ButtonScrollToBottom
+									scrollToBottom={scrollToBottom}
+									isAtBottom={isAtBottom}
+									className={hiddenAnimationClasses}
+									textClassName={hiddenAnimationItemClasses}
+								/>
+								{!isWorkspaceActive && messages?.length >= 2 && (
+									<Button
+										variant="outline"
+										size="icon"
+										className={cn(
+											hiddenAnimationClasses,
+											'bg-yellow-500/10 hover:bg-yellow-500/20 border-yellow-500/30 text-yellow-500',
+										)}
+										onClick={() => handleContinueGeneration()}
+									>
+										<ChevronsLeftRightEllipsis className="transition-all" />
+										<span className={hiddenAnimationItemClasses}>
+											Continue message
+										</span>
+									</Button>
+								)}
+								{!isWorkspaceActive && id && title && (
+									<>
+										<Button
+											variant="outline"
+											onClick={() => setShareDialogOpen(true)}
+										>
+											<IconShare className="mr-2" />
+											Share
+										</Button>
+										<ChatShareDialog
+											onCopy={() => setShareDialogOpen(false)}
+											chat={{
+												id,
+												title,
+												messages,
+											}}
+										/>
+									</>
+								)}
+							</div>
 						</div>
 					</div>
 
