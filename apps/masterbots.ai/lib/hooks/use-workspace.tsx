@@ -11,6 +11,12 @@ interface WorkspaceContextType {
 	setActiveDocument: (document: string | null) => void
 	projectList: string[]
 	documentList: Record<string, string[]>
+	documentContent: Record<string, string>
+	setDocumentContent: (
+		project: string,
+		document: string,
+		content: string,
+	) => void
 }
 
 const WorkspaceContext = React.createContext<WorkspaceContextType | undefined>(
@@ -36,6 +42,32 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 			'Document 3.4',
 		],
 	}
+
+	// Initial document content
+	const [documentContent, setDocumentContentState] = React.useState<
+		Record<string, string>
+	>({})
+
+	// Function to set document content
+	const setDocumentContent = React.useCallback(
+		(project: string, document: string, content: string) => {
+			const documentKey = `${project}:${document}`
+			setDocumentContentState((prev) => ({
+				...prev,
+				[documentKey]: content,
+			}))
+
+			// Automatically switch to this project and document
+			setActiveProject(project)
+			setActiveDocument(document)
+
+			// Activate workspace if it's not active
+			if (!isWorkspaceActive) {
+				setIsWorkspaceActive(true)
+			}
+		},
+		[isWorkspaceActive],
+	)
 
 	const toggleWorkspace = React.useCallback(() => {
 		setIsWorkspaceActive((prev) => {
@@ -64,6 +96,8 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 			setActiveDocument,
 			projectList,
 			documentList,
+			documentContent,
+			setDocumentContent,
 		}),
 		[
 			isWorkspaceActive,
@@ -74,6 +108,8 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 			setActiveDocument,
 			projectList,
 			documentList,
+			documentContent,
+			setDocumentContent,
 		],
 	)
 

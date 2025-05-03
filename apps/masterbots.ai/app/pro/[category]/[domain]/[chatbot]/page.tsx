@@ -54,7 +54,7 @@ export default async function BotThreadsPage(props: {
 
 	return (
 		<>
-			<ThreadPanel threads={threads} />
+			<ThreadPanel threads={threads.threads} />
 			<ChatThreadListPanel chatbot={chatbot} variant="pro" />
 			<Subscription user={user} />
 		</>

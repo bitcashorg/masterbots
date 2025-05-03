@@ -1,8 +1,7 @@
 'use client'
 
 import { Chat } from '@/components/routes/chat/chat'
-import { ChatPanel } from '@/components/routes/chat/chat-panel'
-import { WorkspacePanel } from '@/components/routes/workspace/workspace-panel'
+import { ChatPanelPro } from '@/components/routes/pro/chat-panel-pro'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
@@ -149,65 +148,53 @@ export function Pro({
 		)
 	}
 
+	// Handler for converting messages to documents - we'll add this functionality
+	// directly in the Pro component even though we can't hook into the MessageRenderer
+	const handleConvertToDocument = (messageId: string) => {
+		// This function will be available in ChatPanelPro but can only be triggered
+		// by UI elements we control directly, like buttons we add to the panel
+		// For now, we can expose it as a feature the user accesses through the Pro panel
+		console.log('Convert message to document:', messageId)
+		// In a real implementation, we would convert the message to a document here
+	}
+
 	return (
 		<>
-			{isWorkspaceActive ? (
-				<WorkspacePanel
-					className={`${activeThread || activeChatbot ? '' : 'hidden'} ${chatPanelClassName}`}
-					scrollToBottom={
-						isOpenPopup && isPopup && scrollToBottomOfPopup
-							? scrollToBottomOfPopup
-							: scrollToBottom
-					}
-					id={params.threadId || isNewChat ? threadId : activeThread?.threadId}
-					title={activeThread?.messages[0].content}
-					chatbot={chatbot}
-					isAtBottom={
-						params.threadId
-							? isNearBottom
-							: isPopup
-								? Boolean(isAtBottomOfPopup)
-								: isAtBottomOfSection
-					}
-					isLoading={isLoading}
-					isPro={isPro}
-				/>
-			) : (
-				<ChatPanel
-					className={`${activeThread || activeChatbot ? '' : 'hidden'} ${chatPanelClassName}`}
-					scrollToBottom={
-						isOpenPopup && isPopup && scrollToBottomOfPopup
-							? scrollToBottomOfPopup
-							: scrollToBottom
-					}
-					id={params.threadId || isNewChat ? threadId : activeThread?.threadId}
-					isLoading={isLoading}
-					stop={stop}
-					append={
-						isContinuousThread
-							? appendAsContinuousThread
-							: appendWithMbContextPrompts
-					}
-					reload={reload}
-					messages={allMessages}
-					input={input}
-					setInput={setInput}
-					chatbot={chatbot}
-					placeholder={
-						chatbot
-							? chatSearchMessage(isNewChat, isContinuousThread, allMessages)
-							: ''
-					}
-					showReload={!isNewChat}
-					isAtBottom={
-						params.threadId
-							? isNearBottom
-							: isPopup
-								? Boolean(isAtBottomOfPopup)
-								: isAtBottomOfSection
-					}
-				/>
-			)}
+			<ChatPanelPro
+				className={`${activeThread || activeChatbot ? '' : 'hidden'} ${chatPanelClassName}`}
+				scrollToBottom={
+					isOpenPopup && isPopup && scrollToBottomOfPopup
+						? scrollToBottomOfPopup
+						: scrollToBottom
+				}
+				id={params.threadId || isNewChat ? threadId : activeThread?.threadId}
+				isLoading={isLoading}
+				stop={stop}
+				append={
+					isContinuousThread
+						? appendAsContinuousThread
+						: appendWithMbContextPrompts
+				}
+				reload={reload}
+				messages={allMessages}
+				input={input}
+				setInput={setInput}
+				chatbot={chatbot}
+				placeholder={
+					chatbot
+						? chatSearchMessage(isNewChat, isContinuousThread, allMessages)
+						: ''
+				}
+				showReload={!isNewChat}
+				isAtBottom={
+					params.threadId
+						? isNearBottom
+						: isPopup
+							? Boolean(isAtBottomOfPopup)
+							: isAtBottomOfSection
+				}
+				onConvertToDocument={handleConvertToDocument}
+			/>
 		</>
 	)
 }
