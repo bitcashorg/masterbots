@@ -3,6 +3,7 @@
 import { ChatShareDialog } from '@/components/routes/chat/chat-share-dialog'
 import { PromptForm } from '@/components/routes/chat/prompt-form'
 import { WorkspaceContent } from '@/components/routes/workspace/workspace-content'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { WorkspaceDepartmentSelect } from '@/components/routes/workspace/workspace-department-select'
 import { WorkspaceDocumentSelect } from '@/components/routes/workspace/workspace-document-select'
 import { WorkspaceForm } from '@/components/routes/workspace/workspace-form'
@@ -20,6 +21,12 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog'
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { IconShare, IconStop } from '@/components/ui/icons'
 import {
 	Select,
@@ -47,10 +54,13 @@ import {
 	FileTextIcon,
 	GlobeIcon,
 	GraduationCap,
+	ImageIcon,
+	TableIcon,
+	ChevronDownIcon,
 } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import type { Chatbot } from 'mb-genql'
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 
 export interface ChatPanelProProps
 	extends Pick<
@@ -174,9 +184,44 @@ export function ChatPanelPro({
 		departmentList,
 		projectList,
 		documentList,
+		textDocuments,
+		imageDocuments,
+		spreadsheetDocuments,
 		projectsByDept,
 		setDocumentContent,
 	} = useWorkspace()
+	
+	// Document type state
+	const [documentType, setDocumentType] = useState<'text' | 'image' | 'spreadsheet'>('text')
+	const [filteredDocumentList, setFilteredDocumentList] = useState<Record<string, string[]>>(textDocuments)
+	
+	// Update document list based on selected type (without resetting document)
+	useEffect(() => {
+		switch (documentType) {
+			case 'text':
+				setFilteredDocumentList(textDocuments)
+				break
+			case 'image':
+				setFilteredDocumentList(imageDocuments)
+				break
+			case 'spreadsheet':
+				setFilteredDocumentList(spreadsheetDocuments)
+				break
+			default:
+				setFilteredDocumentList(textDocuments)
+		}
+	}, [documentType, textDocuments, imageDocuments, spreadsheetDocuments])
+	
+	// Separate effect for document reset to avoid infinite loops
+	// Only runs when document type actually changes
+	const previousDocTypeRef = useRef(documentType);
+	useEffect(() => {
+		if (previousDocTypeRef.current !== documentType) {
+			// Only reset if document type has changed
+			setActiveDocument(null);
+			previousDocTypeRef.current = documentType;
+		}
+	}, [documentType, setActiveDocument])
 
 	// Use departmentList as departmentsByOrg since they contain the same data
 	const departmentsByOrg = departmentList
@@ -272,6 +317,13 @@ export function ChatPanelPro({
 		}),
 		[isPowerUp, isDeepThinking, webSearch],
 	)
+	
+	// Memoize document options to prevent unnecessary re-renders
+	const documentOptions = useMemo(() => {
+		return activeProject && filteredDocumentList && filteredDocumentList[activeProject]
+			? filteredDocumentList[activeProject]
+			: []
+	}, [activeProject, filteredDocumentList])
 
 	return (
 		<>
@@ -505,6 +557,40 @@ export function ChatPanelPro({
 										}
 										disabled={!activeDepartment}
 									/>
+									{/* Document Type Selector */}
+									<DropdownMenu>
+										<DropdownMenuTrigger asChild>
+											<Button 
+												variant="outline" 
+												className="flex items-center gap-2" 
+												disabled={!activeProject}
+											>
+												{documentType === 'text' && <FileTextIcon className="h-4 w-4" />}
+												{documentType === 'image' && <ImageIcon className="h-4 w-4" />}
+												{documentType === 'spreadsheet' && <TableIcon className="h-4 w-4" />}
+												<span>
+													{documentType === 'text' && 'Text Documents'}
+													{documentType === 'image' && 'Image Documents'}
+													{documentType === 'spreadsheet' && 'Spreadsheets'}
+												</span>
+												<ChevronDownIcon className="h-4 w-4 opacity-70" />
+											</Button>
+										</DropdownMenuTrigger>
+										<DropdownMenuContent align="end">
+											<DropdownMenuItem onClick={() => setDocumentType('text')}>
+												<FileTextIcon className="h-4 w-4 mr-2" />
+												<span>Text Documents</span>
+											</DropdownMenuItem>
+											<DropdownMenuItem onClick={() => setDocumentType('image')}>
+												<ImageIcon className="h-4 w-4 mr-2" />
+												<span>Image Documents</span>
+											</DropdownMenuItem>
+											<DropdownMenuItem onClick={() => setDocumentType('spreadsheet')}>
+												<TableIcon className="h-4 w-4 mr-2" />
+												<span>Spreadsheets</span>
+											</DropdownMenuItem>
+										</DropdownMenuContent>
+									</DropdownMenu>
 									<WorkspaceDocumentSelect
 										value={activeDocument}
 										onChange={(newDoc) => {
@@ -516,13 +602,7 @@ export function ChatPanelPro({
 											console.log('Setting document to:', newDoc)
 											setActiveDocument(newDoc)
 										}}
-										options={
-											activeProject &&
-											documentList &&
-											documentList[activeProject]
-												? documentList[activeProject]
-												: []
-										}
+										options={documentOptions}
 										disabled={!activeProject}
 									/>
 								</div>
@@ -530,6 +610,7 @@ export function ChatPanelPro({
 							<WorkspaceContent
 								projectName={activeProject}
 								documentName={activeDocument}
+								documentType={documentType}
 								isLoading={isLoading}
 								className="h-[calc(100%-48px)] overflow-auto"
 							/>

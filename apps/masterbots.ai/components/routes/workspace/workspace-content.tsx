@@ -19,7 +19,7 @@ import {
 	parseMarkdownSections,
 } from '@/lib/markdown-utils'
 import { cn } from '@/lib/utils'
-import { Clipboard, FileText, PlusIcon, SaveIcon } from 'lucide-react'
+import { Clipboard, FileText, PlusIcon, SaveIcon, Image, Table, FileIcon } from 'lucide-react'
 import * as React from 'react'
 
 interface WorkspaceContentProps {
@@ -27,6 +27,7 @@ interface WorkspaceContentProps {
 	documentName: string | null
 	className?: string
 	isLoading?: boolean
+	documentType?: 'text' | 'image' | 'spreadsheet'
 }
 
 export function WorkspaceContent({
@@ -34,6 +35,7 @@ export function WorkspaceContent({
 	documentName,
 	className,
 	isLoading = false,
+	documentType = 'text'
 }: WorkspaceContentProps) {
 	// Initial document for new documents
 	const initialMarkdown = `# Introduction
@@ -61,6 +63,9 @@ The conclusion summarizes the key points and implications of the project.
 	const savedContent =
 		documentKey && documentContent && documentContent[documentKey]
 
+	// Define document types
+	type DocumentType = 'text' | 'image' | 'spreadsheet';
+
 	// State management
 	const [fullMarkdown, setFullMarkdown] = React.useState<string>(
 		savedContent || initialMarkdown,
@@ -75,12 +80,29 @@ The conclusion summarizes the key points and implications of the project.
 	const [viewMode, setViewMode] = React.useState<'sections' | 'source'>(
 		'sections',
 	)
+	// documentType is now passed as a prop
 
+	// Use a ref to track previous document key to prevent unnecessary resets
+	const prevDocumentKeyRef = React.useRef(documentKey);
+	
 	React.useEffect(() => {
-		// Reset active section when document changes
-		setActiveSection(null)
-		setEditableContent('')
-	}, [projectName, documentName])
+		// Only reset when document actually changes (not on every render)
+		if (documentKey !== prevDocumentKeyRef.current) {
+			setActiveSection(null)
+			setEditableContent('')
+			prevDocumentKeyRef.current = documentKey;
+			
+			// If we have saved content for this document, load it
+			if (savedContent) {
+				setFullMarkdown(savedContent);
+				setSections(parseMarkdownSections(savedContent));
+			} else {
+				// Reset to initial state for new documents
+				setFullMarkdown(initialMarkdown);
+				setSections(parseMarkdownSections(initialMarkdown));
+			}
+		}
+	}, [projectName, documentName, documentKey, savedContent, initialMarkdown])
 
 	const handleSectionClick = (sectionId: string) => {
 		const section = sections.find((s) => s.id === sectionId)
@@ -94,7 +116,7 @@ The conclusion summarizes the key points and implications of the project.
 		setEditableContent(e.target.value)
 	}
 
-	const handleSaveSection = () => {
+	const handleSaveSection = React.useCallback(() => {
 		if (activeSection) {
 			const updatedSections = sections.map((section) =>
 				section.id === activeSection
@@ -107,7 +129,7 @@ The conclusion summarizes the key points and implications of the project.
 			const newMarkdown = combineMarkdownSections(updatedSections)
 			setFullMarkdown(newMarkdown)
 		}
-	}
+	}, [activeSection, editableContent, sections])
 
 	const handleImportPaste = () => {
 		if (!pasteContent.trim()) return
@@ -130,14 +152,13 @@ The conclusion summarizes the key points and implications of the project.
 		setEditableContent('')
 	}
 
-	const handleViewSourceToggle = (fullView: boolean) => {
-		if (fullView) {
-			// When switching to full source view, update the markdown
-			if (activeSection) {
-				handleSaveSection() // Save current section changes first
-			}
+	// Memoize to prevent unnecessary function recreation
+	const handleViewSourceToggle = React.useCallback((fullView: boolean) => {
+		if (fullView && activeSection && editableContent.trim()) {
+			// Only save if there's an active section with content
+			handleSaveSection() // Save current section changes first
 		}
-	}
+	}, [activeSection, editableContent, handleSaveSection])
 
 	if (!projectName || !documentName) {
 		return (
@@ -165,7 +186,7 @@ The conclusion summarizes the key points and implications of the project.
 					{projectName} / {documentName}
 				</h2>
 				<div className="flex items-center gap-2">
-					{activeSection && (
+					{documentType === 'text' && activeSection && (
 						<Button
 							size="sm"
 							variant="outline"
@@ -176,158 +197,161 @@ The conclusion summarizes the key points and implications of the project.
 							Save Section
 						</Button>
 					)}
-					<Dialog
-						open={isImportDialogOpen}
-						onOpenChange={setIsImportDialogOpen}
-					>
-						<DialogTrigger asChild>
-							<Button
-								size="sm"
-								variant="outline"
-								className="flex items-center gap-2"
-							>
-								<Clipboard className="h-4 w-4" />
-								Import Text
-							</Button>
-						</DialogTrigger>
-						<DialogContent>
-							<DialogHeader>
-								<DialogTitle>Import Text</DialogTitle>
-							</DialogHeader>
-							<div className="py-4">
-								<p className="text-sm text-muted-foreground mb-4">
-									Paste your text or markdown. The system will automatically
-									identify and structure sections based on markdown headings. If
-									no headings are detected, it will intelligently create
-									sections from paragraphs.
-								</p>
-								<Textarea
-									value={pasteContent}
-									onChange={(e) => setPasteContent(e.target.value)}
-									placeholder="Paste your text or markdown here..."
-									className="min-h-[300px]"
-								/>
-							</div>
-							<DialogFooter>
-								<Button
-									onClick={handleImportPaste}
-									disabled={!pasteContent.trim()}
-								>
-									Import Document
-								</Button>
-							</DialogFooter>
-						</DialogContent>
-					</Dialog>
 				</div>
 			</div>
 
-			<div className="space-y-4">
-				{/* Simple tab UI without Radix tabs */}
-				<div className="flex space-x-2 border-b">
-					<button
-						onClick={() => {
-							setViewMode('sections')
-							handleViewSourceToggle(false)
-						}}
-						className={cn(
-							'px-4 py-2 border-b-2 transition-colors',
-							viewMode === 'sections'
-								? 'border-primary text-primary font-medium'
-								: 'border-transparent hover:border-gray-300',
-						)}
-					>
-						Section Editor
-					</button>
-					<button
-						onClick={() => {
-							setViewMode('source')
-							handleViewSourceToggle(true)
-						}}
-						className={cn(
-							'px-4 py-2 border-b-2 transition-colors',
-							viewMode === 'source'
-								? 'border-primary text-primary font-medium'
-								: 'border-transparent hover:border-gray-300',
-						)}
-					>
-						Full Source
-					</button>
-				</div>
-
-				{/* Section editor view */}
-				{viewMode === 'sections' && (
-					<div className="grid grid-cols-12 gap-4">
-						{/* Section navigation */}
-						<div className="col-span-3 border rounded-lg p-2 h-[400px] overflow-y-auto">
-							<h3 className="font-medium mb-2 p-2">Document Sections</h3>
-							<div className="space-y-1">
-								{sections.map((section) => (
-									<button
-										key={section.id}
-										onClick={() => handleSectionClick(section.id)}
-										className={cn(
-											'w-full text-left px-3 py-2 rounded-md text-sm flex items-center gap-1',
-											activeSection === section.id
-												? 'bg-primary/10 text-primary font-medium'
-												: 'hover:bg-muted',
-										)}
-									>
-										<span className="whitespace-nowrap overflow-hidden text-ellipsis">
-											{section.title}
-										</span>
-										<span className="text-xs text-muted-foreground ml-1">
-											{`(h${section.level})`}
-										</span>
-									</button>
-								))}
-							</div>
-						</div>
-
-						{/* Content area */}
-						<div className="col-span-9 border rounded-lg p-4 h-[400px] overflow-y-auto">
-							{activeSection ? (
-								<div className="space-y-4">
-									<h3 className="font-semibold">
-										{sections.find((s) => s.id === activeSection)?.title}
-									</h3>
-									<textarea
-										value={editableContent}
-										onChange={handleContentChange}
-										className="w-full h-[300px] p-3 border rounded-md focus:outline-none focus:ring-2 resize-none font-mono text-sm"
-									/>
-								</div>
-							) : (
-								<div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-4">
-									<FileText className="h-12 w-12 opacity-20" />
-									<p>Select a section to edit</p>
-								</div>
-							)}
-						</div>
-					</div>
-				)}
-
-				{/* Source view */}
-				{viewMode === 'source' && (
-					<div className="border rounded-lg p-4">
-						<Textarea
-							value={fullMarkdown}
-							onChange={(e) => {
-								setFullMarkdown(e.target.value)
-								// When source is changed, update sections
-								setSections(parseMarkdownSections(e.target.value))
+			{/* Text Document View */}
+			{documentType === 'text' && (
+				<div className="space-y-4">
+					{/* Simple tab UI without Radix tabs */}
+					<div className="flex space-x-2 border-b">
+						<button
+							onClick={() => {
+								setViewMode('sections')
+								handleViewSourceToggle(false)
 							}}
-							className="min-h-[400px] font-mono text-sm"
-							placeholder="# Document Title..."
-						/>
-						<div className="mt-2 text-xs text-muted-foreground">
-							<p>
-								Edit the full markdown source. Changes will be applied when you
-								switch back to section view.
-							</p>
-						</div>
+							className={cn(
+								'px-4 py-2 border-b-2 transition-colors',
+								viewMode === 'sections'
+									? 'border-primary text-primary font-medium'
+									: 'border-transparent hover:border-gray-300',
+							)}
+						>
+							Section Editor
+						</button>
+						<button
+							onClick={() => {
+								setViewMode('source')
+								handleViewSourceToggle(true)
+							}}
+							className={cn(
+								'px-4 py-2 border-b-2 transition-colors',
+								viewMode === 'source'
+									? 'border-primary text-primary font-medium'
+									: 'border-transparent hover:border-gray-300',
+							)}
+						>
+							Full Source
+						</button>
 					</div>
-				)}
-			</div>
+
+					{/* Section editor view */}
+					{viewMode === 'sections' && (
+						<div className="grid grid-cols-12 gap-4">
+							{/* Section navigation */}
+							<div className="col-span-3 border rounded-lg p-2 h-[400px] overflow-y-auto">
+								<h3 className="font-medium mb-2 p-2">Document Sections</h3>
+								<div className="space-y-1">
+									{sections.map((section) => (
+										<button
+											key={section.id}
+											onClick={() => handleSectionClick(section.id)}
+											className={cn(
+												'w-full text-left px-3 py-2 rounded-md text-sm flex items-center gap-1',
+												activeSection === section.id
+													? 'bg-primary/10 text-primary font-medium'
+													: 'hover:bg-muted',
+											)}
+										>
+											<span className="whitespace-nowrap overflow-hidden text-ellipsis">
+												{section.title}
+											</span>
+											<span className="text-xs text-muted-foreground ml-1">
+												{`(h${section.level})`}
+											</span>
+										</button>
+									))}
+								</div>
+							</div>
+
+							{/* Content area */}
+							<div className="col-span-9 border rounded-lg p-4 h-[400px] overflow-y-auto">
+								{activeSection ? (
+									<div className="space-y-4">
+										<h3 className="font-semibold">
+											{sections.find((s) => s.id === activeSection)?.title}
+										</h3>
+										<textarea
+											value={editableContent}
+											onChange={handleContentChange}
+											className="w-full h-[300px] p-3 border rounded-md focus:outline-none focus:ring-2 resize-none font-mono text-sm"
+										/>
+									</div>
+								) : (
+									<div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-4">
+										<FileText className="h-12 w-12 opacity-20" />
+										<p>Select a section to edit</p>
+									</div>
+								)}
+							</div>
+						</div>
+					)}
+
+					{/* Source view */}
+					{viewMode === 'source' && (
+						<div className="border rounded-lg p-4">
+							<Textarea
+								value={fullMarkdown}
+								onChange={(e) => {
+									setFullMarkdown(e.target.value)
+									// When source is changed, update sections
+									setSections(parseMarkdownSections(e.target.value))
+								}}
+								className="min-h-[400px] font-mono text-sm"
+								placeholder="# Document Title..."
+							/>
+							<div className="mt-2 text-xs text-muted-foreground">
+								<p>
+									Edit the full markdown source. Changes will be applied when you
+									switch back to section view.
+								</p>
+							</div>
+						</div>
+					)}
+				</div>
+			)}
+
+			{/* Image Document View */}
+			{documentType === 'image' && (
+				<div className="border rounded-lg p-6 h-[500px] flex flex-col items-center justify-center gap-4">
+					<Image className="h-20 w-20 opacity-20" />
+					<h3 className="text-xl font-medium">Image Document Editor</h3>
+					<p className="text-muted-foreground text-center max-w-lg">
+						Use AI to generate, edit, and enhance images. Upload existing images or create new ones with detailed text prompts.
+					</p>
+					<div className="grid grid-cols-2 gap-4 mt-4 w-full max-w-2xl">
+						<Button variant="outline" className="h-20 flex flex-col gap-2 items-center justify-center">
+							<PlusIcon className="h-6 w-6" />
+							<span>Generate New Image</span>
+						</Button>
+						<Button variant="outline" className="h-20 flex flex-col gap-2 items-center justify-center">
+							<FileIcon className="h-6 w-6" />
+							<span>Upload Image</span>
+						</Button>
+					</div>
+				</div>
+			)}
+
+			{/* Spreadsheet Document View */}
+			{documentType === 'spreadsheet' && (
+				<div className="border rounded-lg p-6 h-[500px] flex flex-col items-center justify-center gap-4">
+					<Table className="h-20 w-20 opacity-20" />
+					<h3 className="text-xl font-medium">Spreadsheet Editor</h3>
+					<p className="text-muted-foreground text-center max-w-lg">
+						Create and edit data in a structured format. Define tables, create formulas, and visualize data with charts.
+					</p>
+					<div className="grid grid-cols-2 gap-4 mt-4 w-full max-w-2xl">
+						<Button variant="outline" className="h-20 flex flex-col gap-2 items-center justify-center">
+							<PlusIcon className="h-6 w-6" />
+							<span>Create New Table</span>
+						</Button>
+						<Button variant="outline" className="h-20 flex flex-col gap-2 items-center justify-center">
+							<FileIcon className="h-6 w-6" />
+							<span>Import Data</span>
+						</Button>
+					</div>
+				</div>
+			)}
 		</div>
 	)
 }

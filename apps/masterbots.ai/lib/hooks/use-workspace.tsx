@@ -17,6 +17,9 @@ interface WorkspaceContextType {
 	departmentList: Record<string, string[]>
 	projectList: string[]
 	documentList: Record<string, string[]>
+	textDocuments: Record<string, string[]>
+	imageDocuments: Record<string, string[]>
+	spreadsheetDocuments: Record<string, string[]>
 	projectsByDept: Record<string, Record<string, string[]>>
 	documentContent: Record<string, string>
 	setDocumentContent: (
@@ -90,12 +93,12 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 		'Bug Tracking',
 	]
 
-	// Document lists for each project
-	const documentList: Record<string, string[]> = {
+	// Document lists for each project, categorized by type
+	const textDocuments: Record<string, string[]> = {
 		// Company 1 docs
 		'Project 1A': ['Proposal', 'Timeline', 'Budget'],
 		'Project 1B': ['Requirements', 'Specifications'],
-		'Campaign A': ['Creative Brief', 'Assets', 'Schedule'],
+		'Campaign A': ['Creative Brief', 'Schedule'],
 		'Campaign B': ['Market Analysis', 'Audience Segments'],
 		'Product X': ['Features', 'Roadmap', 'Pricing'],
 		'Service Y': ['Service Tiers', 'Implementation Guide'],
@@ -124,6 +127,31 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 		Testing: ['Test Cases', 'QA Process'],
 		'Bug Tracking': ['Current Sprint', 'Backlog'],
 	}
+	
+	const imageDocuments: Record<string, string[]> = {
+		// Sample image documents
+		'Campaign A': ['Assets', 'Banner Images', 'Social Media Graphics'],
+		Branding: ['Logo Variants', 'Brand Illustrations', 'Icon Set'],
+		'UI Mockups': ['Design Concepts', 'Mobile Screens', 'User Flow Diagrams'],
+		'Product X': ['Product Photos', 'Marketing Visuals', 'Infographics'],
+		Frontend: ['UI Components', 'Animation Examples'],
+	}
+	
+	const spreadsheetDocuments: Record<string, string[]> = {
+		// Sample spreadsheet documents
+		'Budget 2024': ['Financial Projections', 'Expense Tracker', 'Investment Calculator'],
+		'Project 1A': ['Project Timeline', 'Resource Allocation', 'Cost Analysis'],
+		'Campaign B': ['Campaign Metrics', 'ROI Calculator', 'Target Demographics'],
+		'Supply Chain': ['Inventory Management', 'Supplier Comparison', 'Shipping Logistics'],
+		Forecasting: ['Sales Projections', 'Growth Models', 'Trend Analysis'],
+	}
+	
+	// Combined document list for backward compatibility
+	const documentList: Record<string, string[]> = {
+		...textDocuments,
+		...imageDocuments,
+		...spreadsheetDocuments
+	}
 
 	// Initial document content
 	const [documentContent, setDocumentContentState] = React.useState<
@@ -140,25 +168,66 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 			}
 
 			const documentKey = `${project}:${document}`
-			setDocumentContentState((prev) => ({
-				...prev,
-				[documentKey]: content,
-			}))
+			
+			// First, check if the content is actually different to avoid unnecessary updates
+			setDocumentContentState((prev) => {
+				// Only update if content is different
+				if (prev[documentKey] === content) {
+					return prev; // No change needed
+				}
+				return {
+					...prev,
+					[documentKey]: content,
+				};
+			})
 
-			// Only update project if it's different to avoid triggering effects unnecessarily
-			if (project !== activeProject) {
-				setActiveProject(project)
-			}
-
-			// Only update document if it's different to avoid triggering effects unnecessarily
-			if (document !== activeDocument) {
-				setActiveDocument(document)
-			}
-
-			// Activate workspace if it's not active
+			// Use a debounced update approach with multiple checks
+			// This prevents cascading updates and infinite loops
+			let updateCancelled = false;
+			
+			// First check if we need to activate the workspace
 			if (!isWorkspaceActive) {
-				setIsWorkspaceActive(true)
+				requestAnimationFrame(() => {
+					if (!updateCancelled) {
+						setIsWorkspaceActive(true);
+					}
+				});
 			}
+			
+			// Batch the navigation updates using requestAnimationFrame
+			const updateNavigationFrame = requestAnimationFrame(() => {
+				if (updateCancelled) return;
+				
+				// Update project if needed, with strict equality check
+				const projectNeedsUpdate = project !== activeProject;
+				if (projectNeedsUpdate) {
+					console.log('Updating active project in setDocumentContent:', project);
+					setActiveProject(project);
+				}
+				
+				// Use nested frame for document update to ensure it happens after project update settles
+				const documentUpdateFrame = requestAnimationFrame(() => {
+					if (updateCancelled) return;
+					
+					// Update document if needed, with strict equality check
+					const documentNeedsUpdate = document !== activeDocument;
+					if (documentNeedsUpdate) {
+						console.log('Updating active document in setDocumentContent:', document);
+						setActiveDocument(document);
+					}
+				});
+				
+				// Clean up document frame on component unmount
+				return () => {
+					cancelAnimationFrame(documentUpdateFrame);
+				};
+			});
+			
+			// Return cleanup function to cancel all pending updates if component unmounts
+			return () => {
+				updateCancelled = true;
+				cancelAnimationFrame(updateNavigationFrame);
+			};
 		},
 		[isWorkspaceActive, activeProject, activeDocument],
 	)
@@ -199,29 +268,28 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 		},
 	}
 
+	// Memoize organization departments to prevent unnecessary recalculations
+	const orgDepts = React.useMemo(() => {
+		if (!activeOrganization || !departmentsByOrg) return null;
+		return departmentsByOrg[activeOrganization] || null;
+	}, [activeOrganization, departmentsByOrg]);
+
 	// When organization changes, set department if needed
 	React.useEffect(() => {
-		// Skip if no organization selected
-		if (!activeOrganization) {
-			console.log('No organization selected, skipping effect')
-			return
-		}
-
-		// Skip if departmentsByOrg isn't loaded yet
-		if (!departmentsByOrg) {
-			console.log('Departments not loaded yet, skipping effect')
+		// Skip if no organization selected or departments not loaded
+		if (!activeOrganization || !orgDepts) {
+			console.log('Organization or departments not available, skipping effect')
 			return
 		}
 
 		console.log('Organization changed to:', activeOrganization)
 
-		// Get departments for the selected organization
-		const orgDepts = departmentsByOrg[activeOrganization]
-
 		// Skip if no departments exist for this organization
-		if (!orgDepts || orgDepts.length === 0) {
+		if (orgDepts.length === 0) {
 			console.log('No departments for this organization')
-			setActiveDepartment(null)
+			if (activeDepartment !== null) {
+				setActiveDepartment(null)
+			}
 			return
 		}
 
@@ -231,46 +299,39 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 
 		// Only update if current department is invalid for this organization
 		if (!isCurrentDeptValid) {
-			console.log('Setting default department for new org')
-			setActiveDepartment(orgDepts[0])
+			// Avoid state update if we already have the default value (prevents loop)
+			const defaultDept = orgDepts[0]
+			if (activeDepartment !== defaultDept) {
+				console.log('Setting default department for new org:', defaultDept)
+				setActiveDepartment(defaultDept)
+			}
 		}
-	}, [activeOrganization, departmentsByOrg])
+	}, [activeOrganization, orgDepts, activeDepartment])
+
+	// Memoize department projects to prevent unnecessary recalculations
+	const deptProjects = React.useMemo(() => {
+		if (!activeOrganization || !activeDepartment || !projectsByDept) return null;
+		const orgProjects = projectsByDept[activeOrganization];
+		if (!orgProjects) return null;
+		return orgProjects[activeDepartment] || null;
+	}, [activeOrganization, activeDepartment, projectsByDept]);
 
 	// When department changes, set default project only if current project is invalid
 	React.useEffect(() => {
+		// Skip if any required data is missing
+		if (!activeDepartment || !activeOrganization || !deptProjects) {
+			console.log('Department change effect: Missing required data')
+			return
+		}
+
 		console.log('Department changed to:', activeDepartment)
 
-		// Skip if no department selected
-		if (!activeDepartment) {
-			console.log('No department selected, skipping effect')
-			return
-		}
-
-		// Skip if no organization selected (should never happen given the cascade)
-		if (!activeOrganization) {
-			console.log('No organization selected, skipping effect')
-			return
-		}
-
-		// Skip if projectsByDept isn't loaded yet
-		if (!projectsByDept) {
-			console.log('Projects not loaded yet, skipping effect')
-			return
-		}
-
-		// Get organization's departments first
-		const orgProjects = projectsByDept[activeOrganization]
-		if (!orgProjects) {
-			console.log('No projects for this organization')
-			setActiveProject(null)
-			return
-		}
-
-		// Get projects for this department
-		const deptProjects = orgProjects[activeDepartment]
-		if (!deptProjects || deptProjects.length === 0) {
+		// Handle case where there are no projects for this department
+		if (deptProjects.length === 0) {
 			console.log('No projects for this department')
-			setActiveProject(null)
+			if (activeProject !== null) {
+				setActiveProject(null)
+			}
 			return
 		}
 
@@ -280,84 +341,110 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 
 		// Only update if current project is invalid for this department
 		if (!isCurrentProjectValid) {
-			console.log('Setting default project for new department')
-			setActiveProject(deptProjects[0])
+			const defaultProject = deptProjects[0]
+			// Avoid unnecessary state update if project is already set to default
+			if (activeProject !== defaultProject) {
+				console.log('Setting default project for new department:', defaultProject)
+				setActiveProject(defaultProject)
+			}
 		}
-	}, [activeOrganization, activeDepartment, projectsByDept])
+	}, [activeOrganization, activeDepartment, deptProjects, activeProject])
+
+	// Memoize project documents to prevent unnecessary recalculations
+	const projectDocs = React.useMemo(() => {
+		if (!activeProject || !documentList) return null;
+		return documentList[activeProject] || null;
+	}, [activeProject, documentList]);
 
 	// When project changes, set default document only if current document is invalid
 	React.useEffect(() => {
-		console.log('Project changed to:', activeProject)
+		// Use requestAnimationFrame to throttle updates and avoid cascading effects
+		const frameId = requestAnimationFrame(() => {
+			// Skip if no project selected or docs not loaded
+			if (!activeProject || !projectDocs) {
+				console.log('Project change effect: Missing required data')
+				return
+			}
 
-		// Skip if no project selected
-		if (!activeProject) {
-			console.log('No project selected, skipping effect')
-			return
-		}
+			console.log('Project changed to:', activeProject)
 
-		// Skip if documentList isn't loaded yet
-		if (!documentList) {
-			console.log('Documents not loaded yet, skipping effect')
-			return
-		}
+			// Handle case where there are no documents for this project
+			if (projectDocs.length === 0) {
+				console.log('No documents for this project')
+				if (activeDocument !== null) {
+					setActiveDocument(null)
+				}
+				return
+			}
 
-		// Get documents for this project
-		const projectDocs = documentList[activeProject]
-		if (!projectDocs || projectDocs.length === 0) {
-			console.log('No documents for this project')
-			setActiveDocument(null)
-			return
-		}
+			// Check if current document is valid for this project
+			const isCurrentDocValid =
+				activeDocument && projectDocs.includes(activeDocument)
 
-		// Check if current document is valid for this project
-		const isCurrentDocValid =
-			activeDocument && projectDocs.includes(activeDocument)
+			// Only update if current document is invalid for this project
+			if (!isCurrentDocValid) {
+				const defaultDoc = projectDocs[0]
+				// Avoid unnecessary state update if document is already set to default
+				if (activeDocument !== defaultDoc) {
+					console.log('Setting default document for new project:', defaultDoc)
+					setActiveDocument(defaultDoc)
+				}
+			}
+		});
 
-		// Only update if current document is invalid for this project
-		if (!isCurrentDocValid) {
-			console.log('Setting default document for new project')
-			setActiveDocument(projectDocs[0])
-		}
-	}, [activeProject, documentList])
+		// Clean up the animation frame on unmount
+		return () => cancelAnimationFrame(frameId);
+	}, [activeProject, projectDocs, activeDocument])
+
+	// Stable reference to state update functions
+	const stableSetters = React.useMemo(() => ({
+		setActiveOrganization,
+		setActiveDepartment,
+		setActiveProject,
+		setActiveDocument,
+		setDocumentContent,
+		toggleWorkspace
+	}), []);
 
 	const value = React.useMemo(
 		() => ({
 			isWorkspaceActive,
-			toggleWorkspace,
+			toggleWorkspace: stableSetters.toggleWorkspace,
 			activeOrganization,
-			setActiveOrganization,
+			setActiveOrganization: stableSetters.setActiveOrganization,
 			activeDepartment,
-			setActiveDepartment,
+			setActiveDepartment: stableSetters.setActiveDepartment,
 			activeProject,
-			setActiveProject,
+			setActiveProject: stableSetters.setActiveProject,
 			activeDocument,
-			setActiveDocument,
+			setActiveDocument: stableSetters.setActiveDocument,
 			organizationList,
 			departmentList,
 			projectList,
 			documentList,
+			textDocuments,
+			imageDocuments,
+			spreadsheetDocuments,
 			projectsByDept,
 			documentContent,
 			setDocumentContent,
 		}),
 		[
 			isWorkspaceActive,
-			toggleWorkspace,
 			activeOrganization,
-			setActiveOrganization,
 			activeDepartment,
-			setActiveDepartment,
 			activeProject,
-			setActiveProject,
 			activeDocument,
-			setActiveDocument,
 			organizationList,
 			departmentList,
 			projectList,
 			documentList,
+			textDocuments,
+			imageDocuments,
+			spreadsheetDocuments,
 			projectsByDept,
 			documentContent,
-			setDocumentContent,
+			stableSetters, // Using stable reference instead of individual functions
 		],
 	)
 
