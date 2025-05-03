@@ -99,7 +99,7 @@ export function ModelProvider({ children }: ModelProviderProps) {
 			const modelData = models.find((m) => m.model === model)
 
 			if (modelData?.enabled) {
-				console.log('Changing model to:', model)
+				console.log('🤖 Changing model to:', model)
 				setSelectedModel(model)
 			} else if (!modelData) {
 				console.warn(
