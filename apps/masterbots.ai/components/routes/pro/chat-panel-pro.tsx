@@ -450,7 +450,19 @@ export function ChatPanelPro({
 						</div>
 					</div>
 
-					{/* Prompt Form or Workspace Section */}
+					{/* Workspace Section (conditionally shown) */}
+					{isWorkspaceActive && (
+						<div className="w-full border-t border-zinc-200 dark:border-zinc-800 bg-background">
+							<WorkspaceContent
+								projectName={activeProject}
+								documentName={activeDocument}
+								isLoading={isLoading}
+								className="max-h-[360px] overflow-auto"
+							/>
+						</div>
+					)}
+
+					{/* Prompt Form (always shown) */}
 					<div
 						className={cn(
 							'relative flex flex-col w-full',
@@ -462,22 +474,15 @@ export function ChatPanelPro({
 						)}
 					>
 						{isWorkspaceActive ? (
-							<>
-								<WorkspaceContent
-									projectName={activeProject}
-									documentName={activeDocument}
-									isLoading={isLoading}
-								/>
-								<WorkspaceForm
-									onAIAssist={() => {
-										console.log(
-											'AI assist requested for document:',
-											activeDocument,
-										)
-									}}
-									disabled={!activeProject || !activeDocument || isLoading}
-								/>
-							</>
+							<WorkspaceForm
+								onAIAssist={() => {
+									console.log(
+										'AI assist requested for document:',
+										activeDocument,
+									)
+								}}
+								disabled={!activeProject || !activeDocument || isLoading}
+							/>
 						) : (
 							<PromptForm
 								onSubmit={async (value, chatOptions) => {

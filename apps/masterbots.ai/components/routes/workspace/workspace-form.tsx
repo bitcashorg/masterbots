@@ -57,7 +57,7 @@ export function WorkspaceForm({
 					rows={1}
 					value={input}
 					onChange={(e) => setInput(e.target.value)}
-					placeholder="Edit content manually or use AI to assist..."
+					placeholder="Ask questions or edit workspace content directly..."
 					spellCheck={false}
 					className="min-h-[60px] w-full resize-none bg-background px-3 py-3 sm:text-sm"
 					disabled={disabled}
