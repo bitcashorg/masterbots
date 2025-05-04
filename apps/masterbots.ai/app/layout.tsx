@@ -9,11 +9,22 @@ import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
 import { appConfig } from 'mb-env'
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import NextTopLoader from 'nextjs-toploader'
 
 export default function RootLayout({ children }: RootLayoutProps) {
 	return (
 		<html lang="en" suppressHydrationWarning>
+			{appConfig.ads.twitterAds.enabled && (
+				<head>
+					<Script id="twitter-pixel">
+						{`!function(e,t,n,s,u,a){e.twq||(s=e.twq=function(){s.exe?s.exe.apply(s,arguments):s.queue.push(arguments);
+	},s.version='1.1',s.queue=[],u=t.createElement(n),u.async=!0,u.src='https://static.ads-twitter.com/uwt.js',
+	a=t.getElementsByTagName(n)[0],a.parentNode.insertBefore(u,a))}(window,document,'script');
+	twq('config','${appConfig.ads.twitterAds.campaignId}');`}
+					</Script>
+				</head>
+			)}
 			<body
 				className={cn(
 					'font-sans antialiased',
@@ -51,7 +62,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 }
 
 export const metadata: Metadata = {
-	metadataBase: new URL(`https://${process.env.VERCEL_URL}`),
+	metadataBase: new URL(`https://${process.env.BASE_URL || ''}`),
 	title: {
 		default: 'Masterbots',
 		template: '%s - Masterbots',
