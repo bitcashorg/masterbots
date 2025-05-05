@@ -1751,7 +1751,6 @@ export async function updateUserDeletionRequest({
 	userId: string
 	jwt: string
 }): Promise<{ success: boolean; error?: string }> {
-	x
 	try {
 		if (!jwt) {
 			throw new Error('Authentication required to update user deletion request')
@@ -1762,7 +1761,7 @@ export async function updateUserDeletionRequest({
 			updateUserByPk: {
 				__args: {
 					pkColumns: { userId },
-					_set: { deletion_requested_at: new Date().toISOString() },
+					_set: { deletionRequestedAt: new Date().toISOString() },
 				},
 				returning: {
 					userId: true,
