@@ -24,6 +24,9 @@ import { AArrowDown, AArrowUp, Plus } from 'lucide-react'
 import { PreferenceItemTitle } from './preference-item'
 
 import { IconSpinner } from '@/components/ui/icons'
+import { useSonner } from '@/lib/hooks/useSonner'
+import { updateUserDeletionRequest } from '@/services/hasura'
+import { useSession } from 'next-auth/react'
 import { useState } from 'react'
 
 export function PreferenceSection({
@@ -34,10 +37,51 @@ export function PreferenceSection({
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 	const [isRemovePending, setIsRemovePending] = useState(false)
 	const [buttonType, setButtonType] = useState('')
+	const { data: session } = useSession()
+	const { customSonner } = useSonner()
+
+	console.log('session', session)
 
 	function executeButton(buttonText: string) {
 		setDeleteDialogOpen(true)
 		setButtonType(buttonText)
+	}
+
+	async function requestUserAccountDelete() {
+		try {
+			const userId = session?.user.id
+			const jwt = session?.user.hasuraJwt
+
+			if (!userId || !jwt) {
+				customSonner({
+					type: 'error',
+					text: 'User must be authenticated to delete account.',
+				})
+				return
+			}
+			const response = await updateUserDeletionRequest({ userId, jwt })
+
+			if (!response.success) {
+				customSonner({
+					type: 'error',
+					text:
+						response.error ||
+						'Unknown error occurred while requesting deletion',
+				})
+				return
+			}
+
+			customSonner({
+				type: 'success',
+				text: 'User account deletion requested successfully.',
+			})
+		} catch (error) {
+			console.error('Failed to request user account deletion:', error)
+			customSonner({
+				type: 'error',
+				text: 'Failed to request user account deletion.',
+			})
+		}
 	}
 
 	function handleDelete() {
