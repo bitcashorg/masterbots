@@ -30,8 +30,8 @@ import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useSonner } from '@/lib/hooks/useSonner'
 import { searchThreadContent } from '@/lib/search'
-import { getRouteType } from '@/lib/utils'
-import { getBrowseThreads, getThread } from '@/services/hasura'
+import { getOpeningActiveThreadHelper } from '@/lib/threads'
+import { getBrowseThreads } from '@/services/hasura'
 import { debounce, isEqual } from 'lodash'
 import { appConfig } from 'mb-env'
 import type { Chatbot, Thread } from 'mb-genql'
@@ -204,76 +204,15 @@ export default function BrowseList({
 	}
 
 	// TODO: Make a utility function for this. Same as in the thread-list.tsx
-	const [, getOpeningActiveThread] = useAsyncFn(async () => {
-		if (activeThread) return
-		const pathname = window.location.pathname
-		const pathNameParts = pathname.split('/')
-		// console.log('window.location.pathname.split', pathname.split('/'))
-		const isPublic = getRouteType(pathname) === 'public'
-		const isProfile = getRouteType(pathname) === 'profile'
-		const isBotProfile = getRouteType(pathname) === 'bot'
-
-		const [, _category, _domain, _chatbot, threadSlug, threadQuestionSlug] =
-			pathNameParts
-		const [
-			,
-			_chatbotProfileRootBase,
-			_chatbotProfileChatbotName,
-			chatbotProfileThreadSlug,
-			chatbotProfileThreadQuestionSlug,
-		] = pathNameParts
-		const [
-			,
-			_userProfileRootBase,
-			_userSlug,
-			_userThreadRootBase,
-			_userCategory,
-			_userDomain,
-			_userChatbot,
-			userThreadSlug,
-			userThreadQuestionSlug,
-		] = pathNameParts
-
-		console.log('pathname', {
-			pathNameParts,
-			isPublic,
-			isProfile,
-			isBotProfile,
-		})
-
-		if (isPublic && !threadSlug && !threadQuestionSlug) return
-		if (
-			isBotProfile &&
-			!chatbotProfileThreadSlug &&
-			!chatbotProfileThreadQuestionSlug
-		)
-			return
-		if (isProfile && !userThreadSlug && !userThreadQuestionSlug) return
-
-		const thread = await getThread({
-			threadSlug: threadSlug || chatbotProfileThreadSlug,
-		})
-
-		if (!thread) {
-			customSonner({
-				type: 'error',
-				text: 'Error finding the thread that you were looking for.',
-			})
-			return
-		}
-		if (
-			(threadQuestionSlug && isPublic) ||
-			(chatbotProfileThreadQuestionSlug && isProfile) ||
-			(threadSlug && isPublic) ||
-			(chatbotProfileThreadSlug && isProfile)
-		) {
-			console.log(
-				'scrolling to',
-				threadQuestionSlug || chatbotProfileThreadQuestionSlug,
-			)
-			activateThreadPopup(thread)
-		}
-	}, [activeThread])
+	const [, getOpeningActiveThread] = useAsyncFn(
+		async () =>
+			getOpeningActiveThreadHelper(
+				activeThread,
+				customSonner,
+				activateThreadPopup,
+			),
+		[activeThread, window.location.pathname],
+	)
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {

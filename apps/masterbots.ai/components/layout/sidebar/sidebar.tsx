@@ -40,16 +40,16 @@ export function Sidebar({
 				data-state={isSidebarOpen ? 'open' : 'closed'}
 				className={cn(
 					className,
-					'h-full flex flex-col z-40',
+					'min-h-[inherit] h-full flex flex-col z-40',
 					!isBrowse
 						? 'bg-[#fae8ff] dark:bg-[#000000]' // For /c routes only
 						: 'bg-[#eeffea] dark:bg-[#000000]', // For other routes
 				)}
 			>
 				<SidebarHeader />
-				<div className="pt-4 pb-20 size-full scrollbar">
+				<nav className="pt-4 pb-20 size-full scrollbar">
 					<SidebarCategoryGeneral page={page} />
-				</div>
+				</nav>
 			</aside>
 		</>
 	)

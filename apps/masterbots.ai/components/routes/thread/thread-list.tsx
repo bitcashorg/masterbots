@@ -26,8 +26,7 @@ import { ThreadItemSkeleton } from '@/components/shared/skeletons/browse-skeleto
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useSonner } from '@/lib/hooks/useSonner'
-import { getRouteType } from '@/lib/utils'
-import { getThread } from '@/services/hasura'
+import { getOpeningActiveThreadHelper } from '@/lib/threads'
 import type { Thread } from 'mb-genql'
 import { useEffect, useState } from 'react'
 import { useAsyncFn } from 'react-use'
@@ -70,7 +69,7 @@ export default function ThreadList({
 			(activeChatbot && thread.chatbot.chatbotId === activeChatbot.chatbotId),
 	)
 
-	const activateThreadPopup = async (thread: Thread) => {
+	const activateThreadPopup = (thread: Thread) => {
 		try {
 			setLoadingThread(true)
 
@@ -84,99 +83,15 @@ export default function ThreadList({
 		}
 	}
 
-	const [, getOpeningActiveThread] = useAsyncFn(async () => {
-		if (activeThread) return
-
-		const pathname = window.location.pathname
-		const pathNameParts = pathname.split('/')
-		const isPublic = getRouteType(pathname) === 'public'
-		const isProfile = getRouteType(pathname) === 'profile'
-		const isBotProfile = getRouteType(pathname) === 'bot'
-		const isPersonal = getRouteType(pathname) === 'chat'
-		const [, _category, _domain, _chatbot, threadSlug, threadQuestionSlug] =
-			pathNameParts
-		const [
-			,
-			_chatbotProfileRootBase,
-			_chatbotProfileChatbotName,
-			chatbotProfileThreadSlug,
-			chatbotProfileThreadQuestionSlug,
-		] = pathNameParts
-		const [
-			,
-			_personalRootBase,
-			_personalCategory,
-			_personalDomain,
-			_personalChatbot,
-			personalThreadSlug,
-			personalThreadQuestionSlug,
-		] = pathNameParts
-		const [
-			,
-			_userProfileRootBase,
-			_userProfileSlug,
-			_userProfileThreadRootBase,
-			_userProfileCategory,
-			_userProfileDomain,
-			_userProfileChatbot,
-			userProfileThreadSlug,
-			userProfileThreadQuestionSlug,
-		] = pathNameParts
-
-		// console.log('pathname', {
-		// 	pathNameParts,
-		// 	isPersonal,
-		// 	isPublic,
-		// 	isProfile,
-		// 	isBotProfile,
-		// })
-
-		if (isPublic && !threadSlug && !threadQuestionSlug) return
-		if (isPersonal && !personalThreadSlug && !personalThreadQuestionSlug) return
-		if (
-			isBotProfile &&
-			!chatbotProfileThreadSlug &&
-			!chatbotProfileThreadQuestionSlug
-		)
-			return
-		if (isProfile && !userProfileThreadSlug && !userProfileThreadQuestionSlug)
-			return
-
-		const thread = await getThread({
-			threadSlug:
-				threadSlug ||
-				personalThreadSlug ||
-				userProfileThreadSlug ||
-				chatbotProfileThreadSlug,
-		})
-
-		if (!thread) {
-			customSonner({
-				type: 'error',
-				text: 'Error finding the thread that you were looking for.',
-			})
-			return
-		}
-		if (
-			(threadQuestionSlug && isPublic) ||
-			(personalThreadQuestionSlug && isPersonal) ||
-			(userProfileThreadQuestionSlug && isProfile) ||
-			(chatbotProfileThreadQuestionSlug && isBotProfile) ||
-			(threadSlug && isPublic) ||
-			(personalThreadSlug && isPersonal) ||
-			(userProfileThreadSlug && isProfile) ||
-			(chatbotProfileThreadSlug && isBotProfile)
-		) {
-			console.log(
-				'scrolling to',
-				threadQuestionSlug ||
-					personalThreadQuestionSlug ||
-					userProfileThreadQuestionSlug ||
-					chatbotProfileThreadQuestionSlug,
-			)
-			activateThreadPopup(thread)
-		}
-	}, [activeThread])
+	const [, getOpeningActiveThread] = useAsyncFn(
+		() =>
+			getOpeningActiveThreadHelper(
+				activeThread,
+				customSonner,
+				activateThreadPopup,
+			),
+		[activeThread, window.location.pathname],
+	)
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {

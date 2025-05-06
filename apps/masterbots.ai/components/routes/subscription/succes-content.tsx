@@ -23,9 +23,12 @@ import type { WizardStepProps } from '@/components/ui/wizard'
 import SuccessAnim from '@/lib/animations/success-green.json'
 import { usePayment } from '@/lib/hooks/use-payment'
 import Lottie from 'lottie-react'
+import { useSession } from 'next-auth/react'
 import Link from 'next/link'
+
 export function SuccessContent({ close }: WizardStepProps) {
 	const { paymentIntent } = usePayment()
+	const { data: session } = useSession()
 
 	const handleClose = () => {
 		close()
@@ -48,7 +51,7 @@ export function SuccessContent({ close }: WizardStepProps) {
 					<Link
 						target="_blank"
 						rel="noopener noreferrer"
-						href={`/u/s/subs/${paymentIntent.id}`}
+						href={`/u/${session?.user.slug}/s/subs/${paymentIntent.id}`}
 						className="text-blue-600"
 					>
 						view receipt online

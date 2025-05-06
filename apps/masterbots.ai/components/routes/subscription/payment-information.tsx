@@ -25,6 +25,8 @@ import type { WizardStepProps } from '@/components/ui/wizard'
 import { usePayment } from '@/lib/hooks/use-payment'
 import { cn } from '@/lib/utils'
 import { PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js'
+import type { User } from 'next-auth'
+import { useSession } from 'next-auth/react'
 import type React from 'react'
 import { useState } from 'react'
 
@@ -32,8 +34,10 @@ export function PaymentInformation({ prev, next }: WizardStepProps) {
 	const stripe = useStripe()
 	const elements = useElements()
 	const [isLoading, handleSetLoading] = useState(false)
-	const { handleSetCard, handleSetError, handleSetConfirmationToken, user } =
+	const { data: session } = useSession()
+	const { handleSetCard, handleSetError, handleSetConfirmationToken } =
 		usePayment()
+	const user = session?.user as User
 
 	const handlePaymentSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()

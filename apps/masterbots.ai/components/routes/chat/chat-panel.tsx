@@ -17,7 +17,6 @@ import { cn } from '@/lib/utils'
 import type { Message as AiMessage } from 'ai'
 import type { UseChatHelpers } from 'ai/react'
 import {
-	BrainIcon,
 	ChevronsLeftRightEllipsis,
 	GlobeIcon,
 	GraduationCap,
@@ -126,7 +125,7 @@ export function ChatPanel({
 	return (
 		<div
 			className={cn(
-				'z-[2] fixed inset-x-0 bottom-0 w-full',
+				'z-20 fixed inset-x-0 bottom-0 w-full',
 				'pb-4',
 				'animate-in duration-300 ease-in-out',
 				'bg-gradient-to-b from-background/50 to-background',
