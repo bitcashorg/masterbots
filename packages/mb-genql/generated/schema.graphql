@@ -10942,6 +10942,7 @@ Table storing information about registered users.
 type User {
   bio: String
   dateJoined: timestamptz!
+  deletionRequestedAt: timestamptz
   email: String!
   favouriteTopic: String
 
@@ -11463,6 +11464,7 @@ input UserBoolExp {
   _or: [UserBoolExp!]
   bio: StringComparisonExp
   dateJoined: TimestamptzComparisonExp
+  deletionRequestedAt: TimestamptzComparisonExp
   email: StringComparisonExp
   favouriteTopic: StringComparisonExp
   followers: SocialFollowingBoolExp
@@ -11525,6 +11527,7 @@ input type for inserting data into table "user"
 input UserInsertInput {
   bio: String
   dateJoined: timestamptz
+  deletionRequestedAt: timestamptz
   email: String
   favouriteTopic: String
   followers: SocialFollowingArrRelInsertInput
@@ -11554,6 +11557,7 @@ aggregate max on columns
 type UserMaxFields {
   bio: String
   dateJoined: timestamptz
+  deletionRequestedAt: timestamptz
   email: String
   favouriteTopic: String
   lastLogin: timestamptz
@@ -11572,6 +11576,7 @@ aggregate min on columns
 type UserMinFields {
   bio: String
   dateJoined: timestamptz
+  deletionRequestedAt: timestamptz
   email: String
   favouriteTopic: String
   lastLogin: timestamptz
@@ -11626,6 +11631,7 @@ Ordering options when selecting data from "user".
 input UserOrderBy {
   bio: OrderBy
   dateJoined: OrderBy
+  deletionRequestedAt: OrderBy
   email: OrderBy
   favouriteTopic: OrderBy
   followersAggregate: SocialFollowingAggregateOrderBy
@@ -11684,6 +11690,11 @@ enum UserSelectColumn {
   column name
   """
   dateJoined
+
+  """
+  column name
+  """
+  deletionRequestedAt
 
   """
   column name
@@ -11757,6 +11768,7 @@ input type for updating data in table "user"
 input UserSetInput {
   bio: String
   dateJoined: timestamptz
+  deletionRequestedAt: timestamptz
   email: String
   favouriteTopic: String
   getFreeMonth: Boolean
@@ -11793,6 +11805,7 @@ Initial value of the column from where the streaming should start
 input UserStreamCursorValueInput {
   bio: String
   dateJoined: timestamptz
+  deletionRequestedAt: timestamptz
   email: String
   favouriteTopic: String
   getFreeMonth: Boolean
@@ -12061,6 +12074,11 @@ enum UserUpdateColumn {
   column name
   """
   dateJoined
+
+  """
+  column name
+  """
+  deletionRequestedAt
 
   """
   column name

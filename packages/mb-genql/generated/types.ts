@@ -5290,6 +5290,7 @@ export default {
     User: {
       bio: [600],
       dateJoined: [837],
+      deletionRequestedAt: [837],
       email: [600],
       favouriteTopic: [600],
       followers: [
@@ -5488,6 +5489,7 @@ export default {
       _or: [771],
       bio: [602],
       dateJoined: [710],
+      deletionRequestedAt: [710],
       email: [602],
       favouriteTopic: [602],
       followers: [572],
@@ -5523,6 +5525,7 @@ export default {
     UserInsertInput: {
       bio: [600],
       dateJoined: [837],
+      deletionRequestedAt: [837],
       email: [600],
       favouriteTopic: [600],
       followers: [569],
@@ -5549,6 +5552,7 @@ export default {
     UserMaxFields: {
       bio: [600],
       dateJoined: [837],
+      deletionRequestedAt: [837],
       email: [600],
       favouriteTopic: [600],
       lastLogin: [837],
@@ -5564,6 +5568,7 @@ export default {
     UserMinFields: {
       bio: [600],
       dateJoined: [837],
+      deletionRequestedAt: [837],
       email: [600],
       favouriteTopic: [600],
       lastLogin: [837],
@@ -5595,6 +5600,7 @@ export default {
     UserOrderBy: {
       bio: [358],
       dateJoined: [358],
+      deletionRequestedAt: [358],
       email: [358],
       favouriteTopic: [358],
       followersAggregate: [568],
@@ -5638,6 +5644,7 @@ export default {
     UserSetInput: {
       bio: [600],
       dateJoined: [837],
+      deletionRequestedAt: [837],
       email: [600],
       favouriteTopic: [600],
       getFreeMonth: [0],
@@ -5661,6 +5668,7 @@ export default {
     UserStreamCursorValueInput: {
       bio: [600],
       dateJoined: [837],
+      deletionRequestedAt: [837],
       email: [600],
       favouriteTopic: [600],
       getFreeMonth: [0],

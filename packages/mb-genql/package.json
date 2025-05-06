@@ -22,7 +22,7 @@
 	"devDependencies": {
 		"@genql/cli": "latest",
 		"@genql/runtime": "latest",
-		"genql": "latest",
+		"genql": "^2.0.1",
 		"tsconfig": "workspace:*"
 	}
 }

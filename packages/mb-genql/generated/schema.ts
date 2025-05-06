@@ -2576,6 +2576,7 @@ export type TypeEnumUpdateColumn = "prompt" | "value";
 export interface User {
   bio: Scalars["String"] | null;
   dateJoined: Scalars["timestamptz"];
+  deletionRequestedAt: Scalars["timestamptz"] | null;
   email: Scalars["String"];
   favouriteTopic: Scalars["String"] | null;
   /** An array relationship */
@@ -2650,6 +2651,7 @@ export type UserConstraint =
 export interface UserMaxFields {
   bio: Scalars["String"] | null;
   dateJoined: Scalars["timestamptz"] | null;
+  deletionRequestedAt: Scalars["timestamptz"] | null;
   email: Scalars["String"] | null;
   favouriteTopic: Scalars["String"] | null;
   lastLogin: Scalars["timestamptz"] | null;
@@ -2667,6 +2669,7 @@ export interface UserMaxFields {
 export interface UserMinFields {
   bio: Scalars["String"] | null;
   dateJoined: Scalars["timestamptz"] | null;
+  deletionRequestedAt: Scalars["timestamptz"] | null;
   email: Scalars["String"] | null;
   favouriteTopic: Scalars["String"] | null;
   lastLogin: Scalars["timestamptz"] | null;
@@ -2693,6 +2696,7 @@ export interface UserMutationResponse {
 export type UserSelectColumn =
   | "bio"
   | "dateJoined"
+  | "deletionRequestedAt"
   | "email"
   | "favouriteTopic"
   | "getFreeMonth"
@@ -2769,6 +2773,7 @@ export type UserTokenUpdateColumn = "token" | "userId";
 export type UserUpdateColumn =
   | "bio"
   | "dateJoined"
+  | "deletionRequestedAt"
   | "email"
   | "favouriteTopic"
   | "getFreeMonth"
@@ -10526,6 +10531,7 @@ export interface TypeEnumUpdates {
 export interface UserGenqlSelection {
   bio?: boolean | number;
   dateJoined?: boolean | number;
+  deletionRequestedAt?: boolean | number;
   email?: boolean | number;
   favouriteTopic?: boolean | number;
   /** An array relationship */
@@ -10815,6 +10821,7 @@ export interface UserBoolExp {
   _or?: UserBoolExp[] | null;
   bio?: StringComparisonExp | null;
   dateJoined?: TimestamptzComparisonExp | null;
+  deletionRequestedAt?: TimestamptzComparisonExp | null;
   email?: StringComparisonExp | null;
   favouriteTopic?: StringComparisonExp | null;
   followers?: SocialFollowingBoolExp | null;
@@ -10850,6 +10857,7 @@ export interface UserBoolExp {
 export interface UserInsertInput {
   bio?: Scalars["String"] | null;
   dateJoined?: Scalars["timestamptz"] | null;
+  deletionRequestedAt?: Scalars["timestamptz"] | null;
   email?: Scalars["String"] | null;
   favouriteTopic?: Scalars["String"] | null;
   followers?: SocialFollowingArrRelInsertInput | null;
@@ -10877,6 +10885,7 @@ export interface UserInsertInput {
 export interface UserMaxFieldsGenqlSelection {
   bio?: boolean | number;
   dateJoined?: boolean | number;
+  deletionRequestedAt?: boolean | number;
   email?: boolean | number;
   favouriteTopic?: boolean | number;
   lastLogin?: boolean | number;
@@ -10895,6 +10904,7 @@ export interface UserMaxFieldsGenqlSelection {
 export interface UserMinFieldsGenqlSelection {
   bio?: boolean | number;
   dateJoined?: boolean | number;
+  deletionRequestedAt?: boolean | number;
   email?: boolean | number;
   favouriteTopic?: boolean | number;
   lastLogin?: boolean | number;
@@ -10937,6 +10947,7 @@ export interface UserOnConflict {
 export interface UserOrderBy {
   bio?: OrderBy | null;
   dateJoined?: OrderBy | null;
+  deletionRequestedAt?: OrderBy | null;
   email?: OrderBy | null;
   favouriteTopic?: OrderBy | null;
   followersAggregate?: SocialFollowingAggregateOrderBy | null;
@@ -10982,6 +10993,7 @@ export interface UserRoleComparisonExp {
 export interface UserSetInput {
   bio?: Scalars["String"] | null;
   dateJoined?: Scalars["timestamptz"] | null;
+  deletionRequestedAt?: Scalars["timestamptz"] | null;
   email?: Scalars["String"] | null;
   favouriteTopic?: Scalars["String"] | null;
   getFreeMonth?: Scalars["Boolean"] | null;
@@ -11009,6 +11021,7 @@ export interface UserStreamCursorInput {
 export interface UserStreamCursorValueInput {
   bio?: Scalars["String"] | null;
   dateJoined?: Scalars["timestamptz"] | null;
+  deletionRequestedAt?: Scalars["timestamptz"] | null;
   email?: Scalars["String"] | null;
   favouriteTopic?: Scalars["String"] | null;
   getFreeMonth?: Scalars["Boolean"] | null;
@@ -18301,6 +18314,7 @@ export const enumUserConstraint = {
 export const enumUserSelectColumn = {
   bio: "bio" as const,
   dateJoined: "dateJoined" as const,
+  deletionRequestedAt: "deletionRequestedAt" as const,
   email: "email" as const,
   favouriteTopic: "favouriteTopic" as const,
   getFreeMonth: "getFreeMonth" as const,
@@ -18333,6 +18347,7 @@ export const enumUserTokenUpdateColumn = {
 export const enumUserUpdateColumn = {
   bio: "bio" as const,
   dateJoined: "dateJoined" as const,
+  deletionRequestedAt: "deletionRequestedAt" as const,
   email: "email" as const,
   favouriteTopic: "favouriteTopic" as const,
   getFreeMonth: "getFreeMonth" as const,

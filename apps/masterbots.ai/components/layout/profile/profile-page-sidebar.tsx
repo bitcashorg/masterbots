@@ -34,21 +34,23 @@ export const UserProfileSidebar = ({
 	const { isSidebarOpen, toggleSidebar, setActiveCategory, setActiveChatbot } =
 		useSidebar()
 	const { isOpenPopup } = useThread()
-	const { currentUser, isSameUser } = useProfile()
+	const { currentUser, isSameUser, getUserInfo } = useProfile()
 	const { data: session } = useSession()
 	const { value: user } = useAsync(async () => {
-		if (currentUser === null) return null
+		await getUserInfo(userSlug as string)
+		// if (currentUser === null) return null
 		return currentUser
 	}, [userSlug, currentUser])
 
+  
+	const sameUser = isSameUser(user?.userId)
+  
 	const handleToggleThreads = () => {
 		if (!sameUser) return
 		setIsThreadOpen(!isThreadsOpen)
 		setActiveCategory(null)
 		setActiveChatbot(null)
 	}
-
-	const sameUser = isSameUser(user?.userId)
 
 	return (
 		<div className={cn('transition-all relative w-full flex h-full')}>
@@ -85,7 +87,7 @@ export const UserProfileSidebar = ({
 							<Accordion type="single" collapsible defaultValue="threads">
 								<AccordionItem value="threads">
 									<AccordionTrigger
-										className={cn(
+                        	className={cn(
 											'flex w-full items-center justify-between px-4 py-3',
 											'hover:bg-gray-200 dark:hover:bg-mirage transition-colors duration-200',
 											isThreadsOpen || openSidebar
