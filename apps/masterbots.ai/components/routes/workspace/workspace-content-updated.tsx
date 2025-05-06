@@ -56,7 +56,7 @@ The conclusion summarizes the key points and implications of the project.
 `
 
 	// Get document content from workspace context
-	const { documentContent, useRichEditor, toggleRichEditor } = useWorkspace()
+	const { documentContent } = useWorkspace()
 
 	// Check if we have content for this document
 	const documentKey =
@@ -81,6 +81,7 @@ The conclusion summarizes the key points and implications of the project.
 	const [viewMode, setViewMode] = React.useState<'sections' | 'source'>(
 		'sections',
 	)
+	const [useYooptaEditor, setUseYooptaEditor] = React.useState<boolean>(false)
 	// documentType is now passed as a prop
 
 	// Use a ref to track previous document key to prevent unnecessary resets
@@ -239,16 +240,16 @@ The conclusion summarizes the key points and implications of the project.
 						{viewMode === 'source' && (
 							<div className="flex items-center ml-auto">
 								<button
-									onClick={toggleRichEditor}
+									onClick={() => setUseYooptaEditor(prev => !prev)}
 									className={cn(
 										"flex items-center gap-1 text-xs px-2 py-1 rounded-md transition-colors",
-										useRichEditor 
+										useYooptaEditor 
 											? "bg-primary/10 text-primary hover:bg-primary/20" 
 											: "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
 									)}
-									title={useRichEditor ? "Switch to plain text editor" : "Switch to rich text editor"}
+									title={useYooptaEditor ? "Switch to plain text editor" : "Switch to rich text editor"}
 								>
-									{useRichEditor ? (
+									{useYooptaEditor ? (
 										<>
 											<Code className="h-3.5 w-3.5" />
 											<span>Plain</span>
@@ -319,7 +320,7 @@ The conclusion summarizes the key points and implications of the project.
 					{/* Source view with Yoopta integration */}
 					{viewMode === 'source' && (
 						<div className="border rounded-lg p-4">
-							{useRichEditor ? (
+							{useYooptaEditor ? (
 								<YooptaMarkdownEditor
 									value={fullMarkdown}
 									onChange={(newValue) => {

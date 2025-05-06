@@ -12,3 +12,5 @@ __dev
 .vercel
 
 bun.lockb
+
+**/.claude/settings.local.json

@@ -19,7 +19,7 @@ import {
 	parseMarkdownSections,
 } from '@/lib/markdown-utils'
 import { cn } from '@/lib/utils'
-import { Clipboard, FileText, PlusIcon, SaveIcon, Image, Table, FileIcon, PencilIcon, Code } from 'lucide-react'
+import { Clipboard, FileText, PlusIcon, SaveIcon, Image, Table, FileIcon } from 'lucide-react'
 import * as React from 'react'
 import { YooptaMarkdownEditor } from './yoopta-editor'
 
@@ -56,7 +56,7 @@ The conclusion summarizes the key points and implications of the project.
 `
 
 	// Get document content from workspace context
-	const { documentContent, useRichEditor, toggleRichEditor } = useWorkspace()
+	const { documentContent } = useWorkspace()
 
 	// Check if we have content for this document
 	const documentKey =
@@ -81,6 +81,7 @@ The conclusion summarizes the key points and implications of the project.
 	const [viewMode, setViewMode] = React.useState<'sections' | 'source'>(
 		'sections',
 	)
+	const [useYooptaEditor, setUseYooptaEditor] = React.useState<boolean>(false)
 	// documentType is now passed as a prop
 
 	// Use a ref to track previous document key to prevent unnecessary resets
@@ -234,34 +235,6 @@ The conclusion summarizes the key points and implications of the project.
 						>
 							Full Source
 						</button>
-						
-						{/* Editor toggle button - shown only when in source view */}
-						{viewMode === 'source' && (
-							<div className="flex items-center ml-auto">
-								<button
-									onClick={toggleRichEditor}
-									className={cn(
-										"flex items-center gap-1 text-xs px-2 py-1 rounded-md transition-colors",
-										useRichEditor 
-											? "bg-primary/10 text-primary hover:bg-primary/20" 
-											: "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-									)}
-									title={useRichEditor ? "Switch to plain text editor" : "Switch to rich text editor"}
-								>
-									{useRichEditor ? (
-										<>
-											<Code className="h-3.5 w-3.5" />
-											<span>Plain</span>
-										</>
-									) : (
-										<>
-											<PencilIcon className="h-3.5 w-3.5" />
-											<span>Rich</span>
-										</>
-									)}
-								</button>
-							</div>
-						)}
 					</div>
 
 					{/* Section editor view */}
@@ -319,7 +292,17 @@ The conclusion summarizes the key points and implications of the project.
 					{/* Source view with Yoopta integration */}
 					{viewMode === 'source' && (
 						<div className="border rounded-lg p-4">
-							{useRichEditor ? (
+							{/* Toggle between Yoopta editor and plain Textarea */}
+							<div className="flex justify-end mb-2">
+								<button 
+									onClick={() => setUseYooptaEditor(prev => !prev)} 
+									className="text-xs px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 transition-colors"
+								>
+									{useYooptaEditor ? 'Switch to Plain Editor' : 'Switch to Rich Editor'}
+								</button>
+							</div>
+							
+							{useYooptaEditor ? (
 								<YooptaMarkdownEditor
 									value={fullMarkdown}
 									onChange={(newValue) => {

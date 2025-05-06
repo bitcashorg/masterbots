@@ -3,7 +3,7 @@
 import { ChatShareDialog } from '@/components/routes/chat/chat-share-dialog'
 import { PromptForm } from '@/components/routes/chat/prompt-form'
 import { WorkspaceContent } from '@/components/routes/workspace/workspace-content'
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { WorkspaceDepartmentSelect } from '@/components/routes/workspace/workspace-department-select'
 import { WorkspaceDocumentSelect } from '@/components/routes/workspace/workspace-document-select'
 import { WorkspaceOrganizationSelect } from '@/components/routes/workspace/workspace-organization-select'
@@ -191,84 +191,50 @@ export function ChatPanelPro({
 	
 	// Document type state
 	const [documentType, setDocumentType] = useState<'text' | 'image' | 'spreadsheet'>('text')
-
-	// Document source based on type with debug logging - always create new reference
+	
+	// Create a simple documentSource that returns the correct document source
 	const documentSource = useMemo(() => {
-		console.log(`[DocSource] Recalculating for type: ${documentType}`);
+		console.log(`[DOC_SOURCE] Creating document source for type: ${documentType}`);
 		
-		// Use JSON parse/stringify for guaranteed deep copy with new references
-		let source;
-		switch(documentType) {
-			case 'text':
-				source = JSON.parse(JSON.stringify(textDocuments));
-				console.log(`[DocSource] Text documents projects:`, Object.keys(source));
-				break;
-			case 'image':
-				source = JSON.parse(JSON.stringify(imageDocuments));
-				console.log(`[DocSource] Image documents projects:`, Object.keys(source));
-				break;
-			case 'spreadsheet':
-				source = JSON.parse(JSON.stringify(spreadsheetDocuments));
-				console.log(`[DocSource] Spreadsheet documents projects:`, Object.keys(source));
-				break;
-			default:
-				source = JSON.parse(JSON.stringify(textDocuments));
-				console.log(`[DocSource] Default text documents projects:`, Object.keys(source));
+		// Always create a new reference by deep copying the source
+		if (documentType === 'text' && textDocuments) {
+			return JSON.parse(JSON.stringify(textDocuments));
+		} else if (documentType === 'image' && imageDocuments) {
+			return JSON.parse(JSON.stringify(imageDocuments));
+		} else if (documentType === 'spreadsheet' && spreadsheetDocuments) {
+			return JSON.parse(JSON.stringify(spreadsheetDocuments));
 		}
 		
-		// Log specific details about current project 
-		if (activeProject) {
-			console.log(`[DocSource] ${documentType} documents for ${activeProject}:`, 
-				source[activeProject] ? source[activeProject] : 'None available');
-		}
-		
-		return source;
-	}, [documentType, textDocuments, imageDocuments, spreadsheetDocuments, activeProject]);
+		// Default fallback
+		return {};
+	}, [documentType, textDocuments, imageDocuments, spreadsheetDocuments]);
 	
-	// When document type changes, reset document selection
-	useEffect(() => {
-		console.log(`[DocTypeChange] Document type changed to: ${documentType}`);
-		// Always reset document selection when type changes
-		setActiveDocument(null);
-	}, [documentType, setActiveDocument]);
-	
-	// Enhanced document options calculation with full logging
+	// Create a simple documentOptions based on the active project
 	const documentOptions = useMemo(() => {
-		// Create unique logging tag to track renders
-		const tag = `[DocOptions:${documentType}:${activeProject || 'none'}]`;
-		console.log(`${tag} Calculating document options`);
+		console.log(`[DOC_OPTIONS] Computing options for project: ${activeProject}, type: ${documentType}`);
 		
-		// If no project selected, return empty array
-		if (!activeProject) {
-			console.log(`${tag} No project selected, returning empty array`);
+		if (!activeProject || !documentSource) {
+			console.log('[DOC_OPTIONS] No active project or document source, returning empty array');
 			return [];
 		}
 		
-		// Get options from document source
-		const options = documentSource[activeProject];
+		const options = documentSource[activeProject] || [];
+		console.log(`[DOC_OPTIONS] Found ${options.length} options for ${activeProject}:`, options);
 		
-		// Debug: Check if this project exists in all document sources
-		console.log(`${tag} Project '${activeProject}' exists in document sources:`, {
-			inTextDocs: !!textDocuments[activeProject],
-			inImageDocs: !!imageDocuments[activeProject],
-			inSpreadsheetDocs: !!spreadsheetDocuments[activeProject],
-			inCurrentTypeSource: !!options,
-			activeOrg: activeOrganization,
-			activeDept: activeDepartment,
-			optionsLength: options ? options.length : 0
-		});
+		// Always return a new array to ensure React detects the change
+		return [...options];
+	}, [activeProject, documentSource, documentType]);
+	
+	// Effect to reset document selection when document type changes
+	useEffect(() => {
+		console.log(`[DOC_RESET] Document type changed to ${documentType}`);
 		
-		// Always create a new array reference
-		const result = options ? [...options] : [];
-		console.log(`${tag} Options for ${activeProject}:`, result);
-		
-		// Additional verification for empty arrays
-		if (!result.length) {
-			console.warn(`${tag} No documents found for project ${activeProject} with type ${documentType}`);
+		// Reset active document when document type changes
+		if (activeDocument) {
+			console.log(`[DOC_RESET] Resetting active document from ${activeDocument} to null`);
+			setActiveDocument(null);
 		}
-		
-		return result;
-	}, [documentType, activeProject, documentSource, textDocuments, imageDocuments, spreadsheetDocuments, activeOrganization, activeDepartment]);
+	}, [documentType, setActiveDocument, activeDocument]);
 
 	// Use departmentList as departmentsByOrg since they contain the same data
 	const departmentsByOrg = departmentList
@@ -600,10 +566,10 @@ export function ChatPanelPro({
 									{/* Document Type Selector */}
 									<DropdownMenu>
 										<DropdownMenuTrigger asChild>
-											<Button
-												size="sm"
-												variant="outline"
-												className="flex items-center gap-2"
+											<Button 
+												variant="outline" 
+												className="flex items-center gap-2" 
+												disabled={!activeProject}
 											>
 												{documentType === 'text' && <FileTextIcon className="h-4 w-4" />}
 												{documentType === 'image' && <ImageIcon className="h-4 w-4" />}
@@ -613,46 +579,37 @@ export function ChatPanelPro({
 													{documentType === 'image' && 'Image Documents'}
 													{documentType === 'spreadsheet' && 'Spreadsheets'}
 												</span>
+												<ChevronDownIcon className="h-4 w-4 opacity-70" />
 											</Button>
 										</DropdownMenuTrigger>
 										<DropdownMenuContent align="end">
-											<DropdownMenuItem onClick={() => {
-												console.log("[DocType] Changing to: text");
-												setDocumentType('text');
-											}}>
+											<DropdownMenuItem onClick={() => setDocumentType('text')}>
 												<FileTextIcon className="h-4 w-4 mr-2" />
 												<span>Text Documents</span>
 											</DropdownMenuItem>
-											<DropdownMenuItem onClick={() => {
-												console.log("[DocType] Changing to: image");
-												setDocumentType('image');
-											}}>
+											<DropdownMenuItem onClick={() => setDocumentType('image')}>
 												<ImageIcon className="h-4 w-4 mr-2" />
 												<span>Image Documents</span>
 											</DropdownMenuItem>
-											<DropdownMenuItem onClick={() => {
-												console.log("[DocType] Changing to: spreadsheet");
-												setDocumentType('spreadsheet');
-											}}>
+											<DropdownMenuItem onClick={() => setDocumentType('spreadsheet')}>
 												<TableIcon className="h-4 w-4 mr-2" />
 												<span>Spreadsheets</span>
 											</DropdownMenuItem>
 										</DropdownMenuContent>
 									</DropdownMenu>
 									<WorkspaceDocumentSelect
-										key={`${documentType}-${activeProject || 'none'}`}
+										key={`${documentType}-${activeProject}`}
 										value={activeDocument}
 										onChange={(newDoc) => {
-											console.log('[DocumentSelect] Selected:', newDoc);
-											setActiveDocument(newDoc);
+											console.log('Setting document to:', newDoc)
+											setActiveDocument(newDoc)
 										}}
 										options={documentOptions}
-										disabled={!activeProject}
+										disabled={!activeProject || documentOptions.length === 0}
 									/>
 								</div>
 							</div>
 							<WorkspaceContent
-								key={`content-${documentType}-${activeProject || 'none'}-${activeDocument || 'none'}`}
 								projectName={activeProject}
 								documentName={activeDocument}
 								documentType={documentType}
