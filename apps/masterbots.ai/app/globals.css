@@ -394,15 +394,18 @@
 	}
 
 	/* Public route styles */
-	[data-route="public"] .sidebar-gradient:hover:not(.selected) {
+	[data-route="public"] .sidebar-gradient:hover:not(.selected),
+	[data-route="profile"] .sidebar-gradient:hover:not(.selected) {
 		background-image: var(--background-public-hover-gradient);
 	}
 
-	[data-route="public"] .sidebar-gradient.selected {
+	[data-route="public"] .sidebar-gradient.selected,
+	[data-route="profile"] .sidebar-gradient.selected {
 		background-image: var(--background-public-gradient);
 	}
 
-	[data-route="public"].btn-gradient:hover {
+	[data-route="public"].btn-gradient:hover,
+	[data-route="profile"].btn-gradient:hover {
 		background-image: var(--background-public-gradient);
 	}
 
@@ -412,7 +415,8 @@
 	[data-route="chat"] .selected-bot-avatar {
 		@apply ring-purple-500;
 	}
-	[data-route="public"] .selected-bot-avatar {
+	[data-route="public"] .selected-bot-avatar,
+	[data-route="profile"] .selected-bot-avatar {
 		@apply ring-green-500;
 	}
 
@@ -420,7 +424,8 @@
 	[data-route="chat"] .selected-bot-text {
 		@apply text-purple-500;
 	}
-	[data-route="public"] .selected-bot-text {
+	[data-route="public"] .selected-bot-text,
+	[data-route="profile"] .selected-bot-text {
 		@apply text-green-500;
 	}
 
@@ -428,7 +433,8 @@
 	[data-route="chat"] .selected-bot-icon {
 		@apply fill-purple-500;
 	}
-	[data-route="public"] .selected-bot-icon {
+	[data-route="public"] .selected-bot-icon,
+	[data-route="profile"] .selected-bot-icon {
 		@apply fill-green-500;
 	}
 
@@ -448,11 +454,13 @@
 	}
 
 	/* Public route styles */
-	[data-route="public"] .sidebar-gradient:hover:not(.selected) {
+	[data-route="public"] .sidebar-gradient:hover:not(.selected),
+	[data-route="profile"] .sidebar-gradient:hover:not(.selected) {
 		background-image: var(--background-public-hover-gradient);
 	}
 
-	[data-route="public"] .sidebar-gradient.selected {
+	[data-route="public"] .sidebar-gradient.selected,
+	[data-route="profile"] .sidebar-gradient.selected {
 		background-image: var(--background-public-gradient);
 	}
 

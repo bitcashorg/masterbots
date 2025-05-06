@@ -1,4 +1,3 @@
-import { AIModels } from '@/app/api/chat/models/models'
 import {
 	CONTINUE_GENERATION_PROMPT,
 	CONTINUE_GENERATION_PROMPT_2,
@@ -23,33 +22,28 @@ import {
 import type { Message as MBMessage } from 'mb-genql'
 import type OpenAI from 'openai'
 
+// TODO: this funtion will need to be refactor to use the model_enum coming from hasure isntead of AiClientType
 // * This function gets the model client type
-export function getModelClientType(model: AIModels) {
-	switch (model) {
-		case AIModels.GPT4_1:
-		case AIModels.GPT4o:
-		case AIModels.Default:
-			return 'OpenAI'
-		case AIModels.Claude3:
-			return 'Anthropic'
-		case AIModels.llama3_7b:
-		case AIModels.llama3_8b:
-			return 'Perplexity'
-		case AIModels.WordWare:
-			return 'WordWare'
-		case AIModels.DeepSeekR1:
-			return 'DeepSeek'
-		case AIModels.DeepSeekGroq:
-			return 'GroqDeepSeek'
-		case AIModels.Gemini:
-		case AIModels.Gemini_pro:
-		case AIModels.Gemini_lite:
-			return 'Gemini'
-		default:
-			throw new Error('Unsupported model specified')
+export function getModelClientType(model: string): AiClientType {
+	const modelLower = model.toLowerCase()
+	if (modelLower.includes('gpt') || modelLower.includes('o4-mini')) {
+		return 'OpenAI'
 	}
+	if (modelLower.includes('claude')) {
+		return 'Anthropic'
+	}
+	// if (modelLower.includes('llama') || modelLower.includes('sonar')) {
+	// 	return 'Perplexity'
+	// }
+	if (modelLower.startsWith('deepseek')) {
+		return 'GroqDeepSeek'
+	}
+	if (modelLower.startsWith('gemini')) {
+		return 'Gemini'
+	}
+	console.error(`Unsupported model specified: ${model}`)
+	throw new Error('Unsupported model specified')
 }
-
 // * This function creates the payload for the AI response
 export function createPayload(
 	json: { id: string },
@@ -82,8 +76,6 @@ export function setStreamerPayload(
 	payload: OpenAI.ChatCompletionMessageParam[],
 ): OpenAI.ChatCompletionMessageParam[] | Anthropic.MessageParam[] {
 	switch (model) {
-		case 'WordWare':
-			return payload
 		case 'Anthropic':
 			return payload.map(
 				(message, index) =>
@@ -94,7 +86,7 @@ export function setStreamerPayload(
 						content: message.content,
 					}) as Anthropic.MessageParam,
 			)
-		case 'DeepSeek':
+		// case 'DeepSeek':
 		case 'GroqDeepSeek':
 			return payload.map((message) => {
 				if (message.role === 'assistant') {
@@ -267,15 +259,6 @@ export const mbObjectSchema = {
 	grammarLanguageImprover: languageGammarSchema,
 }
 
-//? Helper function to check if a message has reasoning
-export function hasReasoning(message: Message & Partial<MBMessage>): boolean {
-	return Boolean(
-		message.reasoning ||
-			message.parts?.some((part) => part.type === 'reasoning') ||
-			message?.thinking,
-	)
-}
-
 // ? allMessages.uniqBy callback for the use-mb-chat.ts hook
 export function verifyDuplicateMessage(message: Partial<MBMessage>) {
 	const whitelistContent = [
@@ -290,4 +273,26 @@ export function verifyDuplicateMessage(message: Partial<MBMessage>) {
 
 	// Filter out system prompts and messages with empty content
 	return message.content || false
+}
+
+//? Check if the message has reasoning content
+export function hasReasoning(message: Message & Partial<MBMessage>): boolean {
+	return Boolean(
+		message.parts?.some((part) => part.type === 'reasoning') ||
+			message?.thinking,
+	)
+}
+
+//? Extract reasoning content from any format
+export function extractReasoningContent(
+	message: Message & Partial<MBMessage>,
+): string | null | undefined {
+	if (message.parts?.length) {
+		const reasoningPart = message.parts.find(
+			(part) => part.type === 'reasoning',
+		)
+
+		if (reasoningPart) return reasoningPart.reasoning
+	}
+	return message.thinking
 }

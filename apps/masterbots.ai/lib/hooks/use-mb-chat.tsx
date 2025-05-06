@@ -98,10 +98,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	const { customSonner } = useSonner()
 	const { isPowerUp } = usePowerUp()
 	const { setIsCutOff } = useContinueGeneration()
-	// console.log('[HOOK] webSearch', webSearch)
-
 	const params = useParams<{ chatbot: string; threadSlug: string }>()
 	const { selectedModel, clientType } = useModel()
+
 
 	// const initialIsNewChat = Boolean(isContinuousThread || !activeThread?.messages.length)
 	const [{ messagesFromDB, isNewChat }, setState] = useSetState<{
@@ -384,9 +383,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				//? assistant message with reasoning information
 				const assistantMessageThinking = hasReasoning(finalMessage)
 					? {
-							thinking:
-								finalMessage.parts?.find((msg) => msg.type === 'reasoning')
-									?.reasoning || finalMessage.reasoning,
+							thinking: finalMessage.parts?.find(
+								(msg) => msg.type === 'reasoning',
+							)?.reasoning,
 						}
 					: {}
 
@@ -401,7 +400,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						slug: userMessageSlug,
 						role: 'user',
 						// TODO: Uncomment when model FE is ready. BE is ready. @bran18
-						// model: selectedModel,
+						model: selectedModel,
 						content: userContentRef.current,
 						createdAt: new Date().toISOString(),
 					},
@@ -412,7 +411,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						slug: assistantMessageSlug,
 						role: 'assistant',
 						// TODO: Uncomment when model FE is ready. BE is ready. @bran18
-						// model: selectedModel,
+						model: selectedModel,
 						content: finalMessage.content,
 						createdAt: new Date(Date.now() + 1000).toISOString(),
 					},
@@ -858,7 +857,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					slug: threadSlug,
 					chatbotId: chatbot.chatbotId,
 					// TODO: Uncomment when model FE is ready. BE is ready. @bran18
-					// model: selectedModel || 'OPENAI__4_1__MINI',
+					// model: selectedModel,
 					parentThreadId: isContinuingThread
 						? (continuousThreadId as string)
 						: undefined,
