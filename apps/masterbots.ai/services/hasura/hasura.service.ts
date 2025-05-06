@@ -1779,6 +1779,7 @@ export async function updateUserDeletionRequest({
 		return { success: false, error: (error as Error).message }
 	}
 }
+
 //? This function fetches all models from the database
 export async function getModels() {
 	try {
