@@ -16,13 +16,13 @@ export function followingQuestionsImprovementPrompt(
 	allMessages: Message[],
 ) {
 	return [
-		`Here are a list of questions that may be relevant for you to understand my chain of thoughts: [${getAllUserMessagesAsStringArray(
+		`Here are a list of questions (and/or statements) that may be relevant for you to understand my chain of thoughts: [${getAllUserMessagesAsStringArray(
 			uniq(allMessages),
 		)}].`,
 		improvementPrompt,
 		`**Important Guidelines:**
-- Use the list of questions to clarify word selection, but keep your main focus on the User Question and please try incredibly hard to make your best guess only using the words: "${userQuestion}".
-- Make sure you output the rewritten question without any additional explanations in the original language.`,
+- Use the list of questions (and/or statements) to clarify word selection, but keep your main focus on the User Question/Statement and please try incredibly hard to make your best guess only using the words: "${userQuestion}".
+- Make sure you output the rewritten question/statement without any additional explanations in the original language.`,
 	].join('\n\n')
 }
 

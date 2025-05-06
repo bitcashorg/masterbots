@@ -208,7 +208,6 @@ export type AiClientType =
 	| 'OpenAI'
 	| 'Anthropic'
 	| 'Perplexity'
-	| 'WordWare'
 	| 'DeepSeek'
 	| 'GroqDeepSeek'
 	| 'Gemini'

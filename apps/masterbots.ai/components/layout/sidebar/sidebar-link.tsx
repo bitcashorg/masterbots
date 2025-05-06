@@ -213,7 +213,7 @@ export function SidebarLink({
 				role="menuitem"
 				aria-expanded={isActive}
 				aria-controls={`category-${category.name}`}
-				prefetch
+				prefetch={false}
 			>
 				{categoryContent}
 			</Link>

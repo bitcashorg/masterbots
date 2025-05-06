@@ -23,6 +23,9 @@ export const appConfig = {
 			process.env.NEXT_PUBLIC_ENABLE_VERIFICATION_EMAIL === 'true',
 		profileNBotPageHasPopup:
 			process.env.NEXT_PUBLIC_PROFILE_N_BOT_PAGE_HAS_POPUP === 'true',
+		proWhitelistUsers: (process.env.NEXT_PUBLIC_PRO_WHITELIST_USERS || '')
+			.split(',')
+			.filter(Boolean),
 	},
 	enableAuth: {
 		google: process.env.NEXT_PUBLIC_GOOGLE_AUTH === 'true',

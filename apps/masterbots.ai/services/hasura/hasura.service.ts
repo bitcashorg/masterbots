@@ -687,7 +687,8 @@ export async function createThread({
 					chatbotId,
 					isPublic,
 					parentThreadId,
-					slug /* model */,
+					slug,
+					model,
 				},
 			},
 			threadId: true,
@@ -891,7 +892,7 @@ export async function getBrowseThreads({
 			__args: {
 				orderBy: [{ createdAt: 'DESC' }],
 				where: baseWhereConditions,
-				limit: (limit || 30) * 2,
+				limit: limit || 30,
 				offset: offset || 0,
 			},
 		},
@@ -1277,9 +1278,11 @@ export async function getUserBySlug({
 				userId: true,
 				username: true,
 				profilePicture: true,
+				email: true,
 				slug: true,
 				bio: true,
 				favouriteTopic: true,
+				proUserSubscriptionId: true,
 				threads: {
 					__args: {
 						where: isSameUser
@@ -1774,5 +1777,30 @@ export async function updateUserDeletionRequest({
 	} catch (error) {
 		console.error('Error updating user deletion request:', error)
 		return { success: false, error: (error as Error).message }
+	}
+}
+//? This function fetches all models from the database
+export async function getModels() {
+	try {
+		const client = getHasuraClient({})
+		console.log('Fetching models from Hasura...')
+
+		const result = await client.query({
+			models: {
+				enabled: true,
+				model: true,
+				model_data: {
+					name: true,
+					value: true,
+				},
+				type: true,
+			},
+		})
+
+		console.log('Models fetched:', result.models)
+		return result.models
+	} catch (error) {
+		console.error('Error fetching models:', error)
+		return []
 	}
 }
