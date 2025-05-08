@@ -1,0 +1,9 @@
+fix: prevent runtime errors in thread list and rich text editor
+
+- Fix "threads.filter is not a function" error by adding array type checks and default values
+- Fix "Cannot read properties of undefined (reading 'elements')" by simplifying Yoopta editor
+- Add fallback implementations with proper error handling
+- Add safe property access with optional chaining
+- Improve error states with more informative UI feedback
+
+These changes improve application stability by preventing runtime errors.

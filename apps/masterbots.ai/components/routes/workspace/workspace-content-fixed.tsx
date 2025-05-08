@@ -13,7 +13,8 @@ import {
 import { cn } from '@/lib/utils'
 import { Clipboard, FileText, PlusIcon, SaveIcon, Image, Table, FileIcon, PencilIcon, Code } from 'lucide-react'
 import * as React from 'react'
-import { YooptaMarkdownEditor } from './use-yoopta-editor'
+// Import commented out to prevent runtime errors
+// import { YooptaMarkdownEditor } from './YooptaShell'
 
 interface WorkspaceContentProps {
 	projectName: string | null
@@ -312,32 +313,20 @@ The conclusion summarizes the key points and implications of the project.
 						</div>
 					)}
 
-					{/* Source view with Yoopta integration */}
+					{/* Source view with text editor only for now */}
 					{viewMode === 'source' && (
 						<div className="border rounded-lg p-4">
-							{useRichEditor ? (
-								<YooptaMarkdownEditor
-									value={fullMarkdown}
-									onChange={(newValue) => {
-										setFullMarkdown(newValue)
-										// When source is changed, update sections
-										setSections(parseMarkdownSections(newValue))
-									}}
-									className="min-h-[400px]"
-									placeholder="# Document Title..."
-								/>
-							) : (
-								<Textarea
-									value={fullMarkdown}
-									onChange={(e) => {
-										setFullMarkdown(e.target.value)
-										// When source is changed, update sections
-										setSections(parseMarkdownSections(e.target.value))
-									}}
-									className="min-h-[400px] font-mono text-sm"
-									placeholder="# Document Title..."
-								/>
-							)}
+							{/* Always use the simple textarea for now to avoid runtime errors */}
+							<Textarea
+								value={fullMarkdown}
+								onChange={(e) => {
+									setFullMarkdown(e.target.value)
+									// When source is changed, update sections
+									setSections(parseMarkdownSections(e.target.value))
+								}}
+								className="min-h-[400px] font-mono text-sm"
+								placeholder="# Document Title..."
+							/>
 							<div className="mt-2 text-xs text-muted-foreground">
 								<p>
 									Edit the full markdown source. Changes will be applied when you
