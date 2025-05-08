@@ -19,9 +19,8 @@ import {
 	parseMarkdownSections,
 } from '@/lib/markdown-utils'
 import { cn } from '@/lib/utils'
-import { Clipboard, FileText, PlusIcon, SaveIcon, Image, Table, FileIcon, PencilIcon, Code } from 'lucide-react'
+import { Clipboard, FileText, PlusIcon, SaveIcon, Image, Table, FileIcon } from 'lucide-react'
 import * as React from 'react'
-import { YooptaMarkdownEditor } from './yoopta-editor'
 
 interface WorkspaceContentProps {
 	projectName: string | null
@@ -56,7 +55,7 @@ The conclusion summarizes the key points and implications of the project.
 `
 
 	// Get document content from workspace context
-	const { documentContent, useRichEditor, toggleRichEditor } = useWorkspace()
+	const { documentContent } = useWorkspace()
 
 	// Check if we have content for this document
 	const documentKey =
@@ -234,34 +233,6 @@ The conclusion summarizes the key points and implications of the project.
 						>
 							Full Source
 						</button>
-						
-						{/* Editor toggle button - shown only when in source view */}
-						{viewMode === 'source' && (
-							<div className="flex items-center ml-auto">
-								<button
-									onClick={toggleRichEditor}
-									className={cn(
-										"flex items-center gap-1 text-xs px-2 py-1 rounded-md transition-colors",
-										useRichEditor 
-											? "bg-primary/10 text-primary hover:bg-primary/20" 
-											: "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-									)}
-									title={useRichEditor ? "Switch to plain text editor" : "Switch to rich text editor"}
-								>
-									{useRichEditor ? (
-										<>
-											<Code className="h-3.5 w-3.5" />
-											<span>Plain</span>
-										</>
-									) : (
-										<>
-											<PencilIcon className="h-3.5 w-3.5" />
-											<span>Rich</span>
-										</>
-									)}
-								</button>
-							</div>
-						)}
 					</div>
 
 					{/* Section editor view */}
@@ -316,32 +287,19 @@ The conclusion summarizes the key points and implications of the project.
 						</div>
 					)}
 
-					{/* Source view with Yoopta integration */}
+					{/* Source view */}
 					{viewMode === 'source' && (
 						<div className="border rounded-lg p-4">
-							{useRichEditor ? (
-								<YooptaMarkdownEditor
-									value={fullMarkdown}
-									onChange={(newValue) => {
-										setFullMarkdown(newValue)
-										// When source is changed, update sections
-										setSections(parseMarkdownSections(newValue))
-									}}
-									className="min-h-[400px]"
-									placeholder="# Document Title..."
-								/>
-							) : (
-								<Textarea
-									value={fullMarkdown}
-									onChange={(e) => {
-										setFullMarkdown(e.target.value)
-										// When source is changed, update sections
-										setSections(parseMarkdownSections(e.target.value))
-									}}
-									className="min-h-[400px] font-mono text-sm"
-									placeholder="# Document Title..."
-								/>
-							)}
+							<Textarea
+								value={fullMarkdown}
+								onChange={(e) => {
+									setFullMarkdown(e.target.value)
+									// When source is changed, update sections
+									setSections(parseMarkdownSections(e.target.value))
+								}}
+								className="min-h-[400px] font-mono text-sm"
+								placeholder="# Document Title..."
+							/>
 							<div className="mt-2 text-xs text-muted-foreground">
 								<p>
 									Edit the full markdown source. Changes will be applied when you

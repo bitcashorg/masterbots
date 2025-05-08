@@ -13,8 +13,6 @@ interface WorkspaceContextType {
 	setActiveProject: (project: string | null) => void
 	activeDocument: string | null
 	setActiveDocument: (document: string | null) => void
-	useRichEditor: boolean
-	toggleRichEditor: () => void
 	organizationList: string[]
 	departmentList: Record<string, string[]>
 	projectList: string[]
@@ -49,8 +47,6 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 	const [activeDocument, setActiveDocument] = React.useState<string | null>(
 		'Proposal',
 	)
-	// State for rich editor toggle preference
-	const [useRichEditor, setUseRichEditor] = React.useState<boolean>(false)
 
 	// Mock data - in a real implementation, this would come from an API or database
 	const organizationList = ['Company 1', 'Company 2', 'Client 1', 'Client 2']
@@ -133,71 +129,21 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 	}
 	
 	const imageDocuments: Record<string, string[]> = {
-		// Company 1
+		// Sample image documents
 		'Campaign A': ['Assets', 'Banner Images', 'Social Media Graphics'],
-		'Campaign B': ['Campaign Visuals', 'Event Photos', 'Ad Mockups'],
-		'Product X': ['Product Photos', 'Marketing Visuals', 'Infographics'],
-		'Service Y': ['Service Illustrations', 'Process Diagrams', 'Testimonial Imagery'],
-		'Project 1A': ['Project Diagrams', 'Team Photos', 'Status Board'],
-		'Project 1B': ['Project Screenshots', 'Whiteboard Photos', 'Client Presentations'],
-		
-		// Company 2
-		'Budget 2024': ['Budget Charts', 'Financial Graphs', 'Expense Snapshots'],
-		'Forecasting': ['Forecast Models', 'Trend Charts', 'Projection Visualizations'],
-		'Recruiting': ['Employee Photos', 'Office Images', 'Team Building Events'],
-		'Training': ['Training Materials', 'Workshop Photos', 'Certification Examples'],
-		'Logistics': ['Delivery Fleet', 'Route Maps', 'Facility Photos'],
-		'Supply Chain': ['Location Photos', 'Warehouse Layout', 'Distribution Maps'],
-		
-		// Client 1
-		'Contracts': ['Signature Pages', 'Contract Templates', 'Legal Diagrams'],
-		'Compliance': ['Compliance Flowcharts', 'Audit Visuals', 'Certification Images'],
-		'Tickets': ['Issue Screenshots', 'Error Captures', 'Resolution Steps'],
-		'Knowledge Base': ['Guide Images', 'Tutorial Screenshots', 'Visual References'],
-		'Onboarding': ['Client Portraits', 'Team Photos', 'Office Tour'],
-		'Integration': ['Architecture Diagrams', 'System Flowcharts', 'API Visualizations'],
-		
-		// Client 2
-		'Branding': ['Logo Variants', 'Brand Illustrations', 'Icon Set'],
+		Branding: ['Logo Variants', 'Brand Illustrations', 'Icon Set'],
 		'UI Mockups': ['Design Concepts', 'Mobile Screens', 'User Flow Diagrams'],
-		'Frontend': ['UI Components', 'Animation Examples', 'Responsive Mockups'],
-		'Backend': ['System Architecture', 'Database Schema Diagrams', 'API Flow Charts'],
-		'Testing': ['Test Case Visuals', 'Bug Report Screenshots', 'QA Process Diagrams'],
-		'Bug Tracking': ['Bug Screenshots', 'Issue Reproduction Steps', 'Visual Evidence']
+		'Product X': ['Product Photos', 'Marketing Visuals', 'Infographics'],
+		Frontend: ['UI Components', 'Animation Examples'],
 	}
 	
 	const spreadsheetDocuments: Record<string, string[]> = {
-		// Company 1
-		'Project 1A': ['Project Timeline', 'Resource Allocation', 'Cost Analysis'],
-		'Project 1B': ['Task Schedule', 'Budget Tracking', 'Milestone Status'],
-		'Campaign A': ['Marketing Budget', 'Performance Metrics', 'A/B Test Results'],
-		'Campaign B': ['ROI Analysis', 'Channel Metrics', 'Audience Engagement'],
-		'Product X': ['Feature Matrix', 'Release Schedule', 'User Adoption Metrics'],
-		'Service Y': ['Service Comparison', 'Pricing Models', 'Customer Retention'],
-		
-		// Company 2
+		// Sample spreadsheet documents
 		'Budget 2024': ['Financial Projections', 'Expense Tracker', 'Investment Calculator'],
-		'Forecasting': ['Sales Projections', 'Growth Models', 'Trend Analysis'],
+		'Project 1A': ['Project Timeline', 'Resource Allocation', 'Cost Analysis'],
+		'Campaign B': ['Campaign Metrics', 'ROI Calculator', 'Target Demographics'],
 		'Supply Chain': ['Inventory Management', 'Supplier Comparison', 'Shipping Logistics'],
-		'Logistics': ['Delivery Planning', 'Cost Optimization', 'Route Efficiency'],
-		'Recruiting': ['Candidate Tracking', 'Interview Scores', 'Hiring Metrics'],
-		'Training': ['Training Schedule', 'Competency Matrix', 'Learning Metrics'],
-		
-		// Client 1
-		'Contracts': ['Rate Cards', 'Service Matrix', 'Payment Schedule'],
-		'Compliance': ['Compliance Matrix', 'Audit Results', 'Control Testing'],
-		'Tickets': ['Issue Tracker', 'Resolution Times', 'Support Metrics'],
-		'Knowledge Base': ['Article Analytics', 'Search Terms', 'Content Calendar'],
-		'Onboarding': ['Implementation Timeline', 'Resource Requirements', 'Success Metrics'],
-		'Integration': ['API Usage Stats', 'System Dependencies', 'Performance Metrics'],
-		
-		// Client 2
-		'UI Mockups': ['Design Feedback', 'Iteration Tracking', 'User Testing Results'],
-		'Branding': ['Brand Asset Inventory', 'Usage Statistics', 'Market Perception Data'],
-		'Frontend': ['Component Status', 'Responsive Testing Data', 'Performance Metrics'],
-		'Backend': ['API Performance', 'Database Metrics', 'Server Utilization'],
-		'Testing': ['Test Case Matrix', 'Coverage Analysis', 'Defect Tracking'],
-		'Bug Tracking': ['Issue Status', 'Resolution Time', 'Regression Metrics']
+		Forecasting: ['Sales Projections', 'Growth Models', 'Trend Analysis'],
 	}
 	
 	// Combined document list for backward compatibility
@@ -292,16 +238,6 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 		setIsWorkspaceActive((prev) => {
 			const newState = !prev
 			console.log('Workspace: changing to: ', newState)
-			return newState
-		})
-	}, [])
-	
-	// Toggle function for rich editor preference
-	const toggleRichEditor = React.useCallback(() => {
-		console.log('Workspace: toggling rich editor preference')
-		setUseRichEditor((prev) => {
-			const newState = !prev
-			console.log('Rich editor: changing to: ', newState)
 			return newState
 		})
 	}, [])
@@ -467,8 +403,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 		setActiveProject,
 		setActiveDocument,
 		setDocumentContent,
-		toggleWorkspace,
-		toggleRichEditor
+		toggleWorkspace
 	}), []);
 
 	const value = React.useMemo(
@@ -483,8 +418,6 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 			setActiveProject: stableSetters.setActiveProject,
 			activeDocument,
 			setActiveDocument: stableSetters.setActiveDocument,
-			useRichEditor,
-			toggleRichEditor: stableSetters.toggleRichEditor,
 			organizationList,
 			departmentList,
 			projectList,
@@ -502,7 +435,6 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 			activeDepartment,
 			activeProject,
 			activeDocument,
-			useRichEditor,
 			organizationList,
 			departmentList,
 			projectList,

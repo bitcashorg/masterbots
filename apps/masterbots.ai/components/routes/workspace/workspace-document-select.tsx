@@ -69,7 +69,7 @@ export function WorkspaceDocumentSelect({
 						))
 					) : (
 						<div className="px-2 py-4 text-center text-sm text-muted-foreground">
-							{disabled ? "Select a project first" : "No documents available for this project"}
+							No documents available
 						</div>
 					)}
 				</SelectContent>
