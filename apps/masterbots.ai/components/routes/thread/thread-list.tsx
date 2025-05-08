@@ -33,15 +33,15 @@ import { useEffect, useState } from 'react'
 import { useAsyncFn } from 'react-use'
 
 export default function ThreadList({
-	loading = false,
-	loadMore = () => {},
-	count = 0,
-	threads = [],
+	loading,
+	loadMore,
+	count,
+	threads,
 }: {
-	threads?: Thread[]
-	loading?: boolean
-	count?: number
-	loadMore?: () => void
+	threads: Thread[]
+	loading: boolean
+	count: number
+	loadMore: () => void
 }) {
 	const {
 		selectedCategories,
@@ -53,23 +53,22 @@ export default function ThreadList({
 	const [loadingThread, setLoadingThread] = useState(false)
 	const { customSonner } = useSonner()
 
-	// Make sure threads is an array before calling filter
-	const filteredThreads = Array.isArray(threads) ? threads.filter(
+	const filteredThreads = threads.filter(
 		(thread) =>
 			!(
 				(selectedCategories.length &&
 					!selectedCategories.includes(
-						thread.chatbot?.categories?.[0]?.categoryId,
+						thread.chatbot.categories[0].categoryId,
 					)) ||
 				(selectedChatbots.length &&
 					!selectedChatbots.includes(thread.chatbotId))
 			) ||
 			(activeCategory &&
-				thread.chatbot?.categories?.some(
+				thread.chatbot.categories.some(
 					({ categoryId }) => activeCategory === categoryId,
 				)) ||
-			(activeChatbot && thread.chatbot?.chatbotId === activeChatbot.chatbotId),
-	) : []
+			(activeChatbot && thread.chatbot.chatbotId === activeChatbot.chatbotId),
+	)
 
 	const activateThreadPopup = async (thread: Thread) => {
 		try {
@@ -195,20 +194,11 @@ export default function ThreadList({
 		)
 	}
 
-	// If no threads to display, show an empty state when not loading
-	if (filteredThreads.length === 0 && !loading) {
-		return (
-			<div className="flex flex-col items-center justify-center p-8 text-muted-foreground">
-				<p>No threads found</p>
-			</div>
-		)
-	}
-
 	return (
 		<>
-			{filteredThreads.map((thread, key) => (
+			{filteredThreads?.map((thread, key) => (
 				<ThreadComponent
-					key={thread.threadId || key}
+					key={thread.threadId}
 					thread={thread}
 					loading={loading}
 					loadMore={loadMore}

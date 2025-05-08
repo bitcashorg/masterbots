@@ -1,6 +1,14 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import {
+	Dialog,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
@@ -13,7 +21,7 @@ import {
 import { cn } from '@/lib/utils'
 import { Clipboard, FileText, PlusIcon, SaveIcon, Image, Table, FileIcon, PencilIcon, Code } from 'lucide-react'
 import * as React from 'react'
-import { YooptaMarkdownEditor } from './use-yoopta-editor'
+import { YooptaMarkdownEditor } from './yoopta-editor'
 
 interface WorkspaceContentProps {
 	projectName: string | null
@@ -95,7 +103,7 @@ The conclusion summarizes the key points and implications of the project.
 				setSections(parseMarkdownSections(initialMarkdown));
 			}
 		}
-	}, [documentKey, savedContent])
+	}, [projectName, documentName, documentKey, savedContent, initialMarkdown])
 
 	const handleSectionClick = (sectionId: string) => {
 		const section = sections.find((s) => s.id === sectionId)
@@ -199,7 +207,6 @@ The conclusion summarizes the key points and implications of the project.
 					{/* Simple tab UI without Radix tabs */}
 					<div className="flex space-x-2 border-b">
 						<button
-							type="button"
 							onClick={() => {
 								setViewMode('sections')
 								handleViewSourceToggle(false)
@@ -214,7 +221,6 @@ The conclusion summarizes the key points and implications of the project.
 							Section Editor
 						</button>
 						<button
-							type="button"
 							onClick={() => {
 								setViewMode('source')
 								handleViewSourceToggle(true)
@@ -233,7 +239,6 @@ The conclusion summarizes the key points and implications of the project.
 						{viewMode === 'source' && (
 							<div className="flex items-center ml-auto">
 								<button
-									type="button"
 									onClick={toggleRichEditor}
 									className={cn(
 										"flex items-center gap-1 text-xs px-2 py-1 rounded-md transition-colors",
@@ -268,7 +273,6 @@ The conclusion summarizes the key points and implications of the project.
 								<div className="space-y-1">
 									{sections.map((section) => (
 										<button
-											type="button"
 											key={section.id}
 											onClick={() => handleSectionClick(section.id)}
 											className={cn(

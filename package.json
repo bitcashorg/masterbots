@@ -42,15 +42,10 @@
 	"workspaces": ["apps/*", "packages/*"],
 	"packageManager": "bun@1.2.0",
 	"dependencies": {
-		"@yoopta/accordion": "^4.9.7",
 		"@yoopta/action-menu-list": "^4.9.7",
-		"@yoopta/blockquote": "^4.9.7",
 		"@yoopta/callout": "^4.9.7",
-		"@yoopta/code": "^4.9.7",
-		"@yoopta/divider": "^4.9.7",
 		"@yoopta/editor": "^4.9.7",
 		"@yoopta/embed": "^4.9.7",
-		"@yoopta/file": "^4.9.7",
 		"@yoopta/headings": "^4.9.7",
 		"@yoopta/image": "^4.9.7",
 		"@yoopta/link": "^4.9.7",
@@ -60,9 +55,8 @@
 		"@yoopta/paragraph": "^4.9.7",
 		"@yoopta/table": "^4.9.7",
 		"@yoopta/toolbar": "^4.9.7",
-		"@yoopta/video": "^4.9.7",
 		"add": "^2.0.6",
-		"slate": "0.102.0",
-		"slate-react": "0.102.0"
+		"slate": "^0.114.0",
+		"slate-react": "^0.114.2"
 	}
 }

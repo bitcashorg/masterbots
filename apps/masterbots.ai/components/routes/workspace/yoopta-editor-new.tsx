@@ -2,19 +2,19 @@
 
 import React, { useMemo, useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
-import YooptaEditor, { createYooptaEditor, type YooptaContentValue, type YooptaOnChangeOptions, type YooptaBlockData } from '@yoopta/editor'
+import YooptaEditor, { createYooptaEditor, YooptaContentValue, type YooptaOnChangeOptions } from '@yoopta/editor'
 import Paragraph from '@yoopta/paragraph'
 import Headings from '@yoopta/headings'
 import Blockquote from '@yoopta/blockquote'
 import Code from '@yoopta/code'
 import Lists from '@yoopta/lists'
 import Divider from '@yoopta/divider'
+import Image from '@yoopta/image'
 import Link from '@yoopta/link'
 import { Bold, Italic, CodeMark, Underline, Strike, Highlight } from '@yoopta/marks'
 import Toolbar, { DefaultToolbarRender } from '@yoopta/toolbar'
 import ActionMenu, { DefaultActionMenuRender } from '@yoopta/action-menu-list'
 import LinkTool, { DefaultLinkToolRender } from '@yoopta/link-tool'
-import type { Descendant } from 'slate'
 
 // Essential plugins for markdown editing
 const PLUGINS = [
@@ -24,6 +24,7 @@ const PLUGINS = [
   Code,
   Lists,
   Divider,
+  Image,
   Link
 ]
 
@@ -46,20 +47,8 @@ const TOOLS = {
   },
 }
 
-// Add this helper function at the top
-const createBlock = (type: string, content: { text: string }[], extra = {}) => ({
-  type,
-  content,
-  id: crypto.randomUUID(),
-  value: content as Descendant[],
-  meta: { order: 0, depth: 0 },
-  ...extra
-} as YooptaBlockData<Descendant>);
-
 // Helper to convert Markdown to Yoopta format - basic implementation
 const markdownToYoopta = (markdown: string): YooptaContentValue => {
-  if (!markdown) return [{ type: 'yoopta-paragraph', content: [{ text: '' }] }] as unknown as YooptaContentValue;
-
   // Split by lines and convert to basic blocks
   const lines = markdown.split('\n')
   const blocks = []
@@ -67,27 +56,44 @@ const markdownToYoopta = (markdown: string): YooptaContentValue => {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim()
     
-    // Skip empty lines but preserve paragraph breaks
-    if (!line) {
-      if (i > 0 && lines[i-1].trim() !== '' && i < lines.length - 1 && lines[i+1].trim() !== '') {
-        blocks.push(createBlock('yoopta-paragraph', [{ text: '' }]));
-      }
-      continue
-    }
+    // Skip empty lines
+    if (!line) continue
     
     // Check for headings
     if (line.startsWith('# ')) {
-      blocks.push(createBlock('yoopta-heading', [{ text: line.substring(2) }], { level: 1 }));
+      blocks.push({
+        type: 'yoopta-heading',
+        level: 1,
+        children: [{ text: line.substring(2) }]
+      })
     } else if (line.startsWith('## ')) {
-      blocks.push(createBlock('yoopta-heading', [{ text: line.substring(3) }], { level: 2 }));
+      blocks.push({
+        type: 'yoopta-heading',
+        level: 2,
+        children: [{ text: line.substring(3) }]
+      })
     } else if (line.startsWith('### ')) {
-      blocks.push(createBlock('yoopta-heading', [{ text: line.substring(4) }], { level: 3 }));
+      blocks.push({
+        type: 'yoopta-heading',
+        level: 3,
+        children: [{ text: line.substring(4) }]
+      })
     } else if (line.startsWith('#### ')) {
-      blocks.push(createBlock('yoopta-heading', [{ text: line.substring(5) }], { level: 4 }));
+      blocks.push({
+        type: 'yoopta-heading',
+        level: 4,
+        children: [{ text: line.substring(5) }]
+      })
     } else if (line.startsWith('> ')) {
-      blocks.push(createBlock('yoopta-blockquote', [{ text: line.substring(2) }]));
+      blocks.push({
+        type: 'yoopta-blockquote',
+        children: [{ text: line.substring(2) }]
+      })
     } else if (line.startsWith('- ') || line.startsWith('* ')) {
-      blocks.push(createBlock('yoopta-unordered-list', [{ text: line.substring(2) }]));
+      blocks.push({
+        type: 'yoopta-unordered-list',
+        children: [{ text: line.substring(2) }]
+      })
     } else if (line.startsWith('```')) {
       // Code block - find the end
       const codeLines = []
@@ -96,17 +102,26 @@ const markdownToYoopta = (markdown: string): YooptaContentValue => {
         codeLines.push(lines[j])
         j++
       }
-      blocks.push(createBlock('yoopta-code', [{ text: codeLines.join('\n') }], { language: 'text' }));
+      blocks.push({
+        type: 'yoopta-code',
+        language: 'text',
+        children: [{ text: codeLines.join('\n') }]
+      })
       i = j // Skip to end of code block
     } else if (line === '---') {
-      blocks.push(createBlock('yoopta-divider', [{ text: '' }]));
+      blocks.push({
+        type: 'yoopta-divider',
+        children: [{ text: '' }]
+      })
     } else {
-      blocks.push(createBlock('yoopta-paragraph', [{ text: line }]));
+      blocks.push({
+        type: 'yoopta-paragraph',
+        children: [{ text: line }]
+      })
     }
   }
   
-  return blocks.length > 0 ? blocks as unknown as YooptaContentValue : 
-    [{ type: 'yoopta-paragraph', content: [{ text: '' }] }] as unknown as YooptaContentValue;
+  return blocks.length > 0 ? blocks : [{ type: 'yoopta-paragraph', children: [{ text: '' }] }]
 }
 
 // Helper to convert Yoopta format to Markdown
@@ -116,30 +131,30 @@ const yooptaToMarkdown = (value: YooptaContentValue): string => {
   }
 
   return value.map(block => {
-    const text = block.content?.map((child: { text: string }) => child.text || '').join('') || ''
+    const text = block.children?.map(child => child.text || '').join('') || ''
     
     switch (block.type) {
-      case 'yoopta-heading': {
-        const level = block.level || 1;
-        return `${'#'.repeat(level)} ${text}`;
-      }
+      case 'yoopta-heading':
+        const level = block.level || 1
+        return `${'#'.repeat(level)} ${text}\n`
       case 'yoopta-blockquote':
-        return `> ${text}`
+        return `> ${text}\n`
       case 'yoopta-code':
-        return `\`\`\`${block.language || ''}\n${text}\n\`\`\``
+        return `\`\`\`${block.language || ''}\n${text}\n\`\`\`\n`
       case 'yoopta-unordered-list':
-        return `- ${text}`
+        return `- ${text}\n`
       case 'yoopta-ordered-list':
-        return `1. ${text}`
+        return `1. ${text}\n`
       case 'yoopta-divider':
-        return '---'
+        return '---\n'
+      case 'yoopta-paragraph':
       default:
-        return text
+        return `${text}\n`
     }
-  }).join('\n\n')
+  }).join('\n')
 }
 
-// Simplified YooptaMarkdownEditor component to avoid runtime errors
+// The enhanced Yoopta Markdown Editor component
 export function YooptaMarkdownEditor({
   value,
   onChange,
@@ -151,29 +166,39 @@ export function YooptaMarkdownEditor({
   className?: string
   placeholder?: string
 }) {
-  const editor = useMemo(() => createYooptaEditor(), []);
-  const yooptaValue = useMemo(() => markdownToYoopta(value), [value]);
+  // Create the editor instance
+  const editor = useMemo(() => createYooptaEditor(), [])
   
-  const handleChange = (newValue: YooptaContentValue) => {
-    const markdown = yooptaToMarkdown(newValue);
-    onChange(markdown);
-  };
+  // Convert the initial markdown to Yoopta format
+  const [editorValue, setEditorValue] = useState<YooptaContentValue>(() => 
+    markdownToYoopta(value)
+  )
+  
+  // Update editor content when value prop changes
+  useEffect(() => {
+    setEditorValue(markdownToYoopta(value))
+  }, [value])
+
+  // Handle changes in the editor
+  const handleChange = (newValue: YooptaContentValue, options: YooptaOnChangeOptions) => {
+    setEditorValue(newValue)
+    
+    // Convert back to markdown and notify parent
+    const markdownValue = yooptaToMarkdown(newValue)
+    onChange(markdownValue)
+  }
 
   return (
     <div className={cn("w-full border rounded-md overflow-hidden", className)}>
-      <div className="bg-gray-100 dark:bg-gray-800 px-4 py-2 text-sm font-medium border-b flex justify-between items-center">
-        <span>Text Editor</span>
-        <span className="text-xs text-green-600 dark:text-green-400">Markdown Mode</span>
-      </div>
-      
       <YooptaEditor
         editor={editor}
-        value={yooptaValue}
-        onChange={handleChange}
         plugins={PLUGINS}
         marks={MARKS}
         tools={TOOLS}
+        value={editorValue}
+        onChange={handleChange}
         placeholder={placeholder}
+        className="min-h-[400px] p-4"
       />
     </div>
   )
