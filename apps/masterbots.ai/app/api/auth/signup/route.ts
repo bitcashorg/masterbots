@@ -94,6 +94,8 @@ export async function POST(req: NextRequest) {
 							// profilePicture: `https://api.dicebear.com/9.x/identicon/svg?seed=${newUsername}`,
 							profilePicture: `https://robohash.org/${newUsername}?bgset=bg2`,
 							dateJoined: new Date().toISOString(),
+							isVerified: true, // Set as verified directly
+							lastLogin: new Date().toISOString(), // Set initial login timestamp
 						},
 					},
 					userId: true,
@@ -125,45 +127,16 @@ export async function POST(req: NextRequest) {
 			const tokenExpiry = new Date()
 			tokenExpiry.setDate(tokenExpiry.getDate() + 15) // 15 days to verify
 
-			// * First create the token
-			const { insertTokenOne } = await client.mutation({
-				insertTokenOne: {
-					__args: {
-						object: {
-							token: verificationToken,
-							tokenExpiry: tokenExpiry.toISOString(),
-						},
-					},
-					token: true,
-					tokenExpiry: true,
-				},
-			})
-
-			if (insertTokenOne) {
-				// * Then create the user-token relationship
-				await client.mutation({
-					insertUserTokenOne: {
-						__args: {
-							object: {
-								userId: insertUserOne.userId,
-								token: verificationToken,
-							},
-						},
-						userId: true,
-						token: true,
-					},
-				})
-
-				// * Send verification email
-				await sendEmailVerification(email, verificationToken)
-			}
-
+			// Skip email verification and simply return success with credentials
+			// This allows the frontend to auto-login after signup
 			return NextResponse.json(
 				{
-					message:
-						'User created successfully. Please check your email to verify your account.',
+					message: 'User created successfully.',
 					userId: insertUserOne.userId,
-					requiresVerification: true,
+					requiresVerification: false, // No verification needed
+					username: newUsername,
+					email: email,
+					success: true,
 				},
 				{ status: 201 },
 			)

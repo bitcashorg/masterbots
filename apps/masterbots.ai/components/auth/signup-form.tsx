@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { useSonner } from '@/lib/hooks/useSonner'
 import { isPasswordStrong, verifyPassword } from '@/lib/password'
 import { Eye, EyeOff } from 'lucide-react'
+import { appConfig } from 'mb-env'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import type React from 'react'
@@ -19,9 +20,9 @@ interface SignupState {
 	username: string
 	passwordVerify: string
 	isLoading: boolean
-	showVerificationNotice: boolean
 	showPassword: boolean
 	showPasswordVerify: boolean
+	showVerificationNotice: boolean
 }
 
 export default function SignUpForm() {
@@ -31,9 +32,9 @@ export default function SignUpForm() {
 		username: '',
 		passwordVerify: '',
 		isLoading: false,
-		showVerificationNotice: false,
 		showPassword: false,
 		showPasswordVerify: false,
+		showVerificationNotice: false,
 	})
 	const { customSonner } = useSonner()
 	const router = useRouter()
@@ -67,34 +68,35 @@ export default function SignUpForm() {
 
 			const data = await response.json()
 
-			if (!response.ok) {
-				throw new Error(data.error || data.message || 'Failed to sign up')
-			}
-
-			setState((prev) => ({ ...prev, showVerificationNotice: true }))
-			customSonner({
-				type: 'success',
-				text: data.message,
-			})
-
-			const loginResult = await signIn('credentials', {
-				email: state.email,
-				password: state.password,
-				redirect: false,
-			})
-
-			if (loginResult?.error) {
-				console.error('Auto-login failed:', loginResult.error)
+			if (response.ok) {
+				// Success - auto-login instead of showing verification notice
 				customSonner({
-					type: 'error',
-					text: 'Account created but login failed. Please try signing in manually.',
+					type: 'success',
+					text: 'Account created successfully! Logging you in...',
 				})
-				router.push('/auth/signin')
-				throw new Error(loginResult.error)
-			}
 
-			customSonner({ type: 'success', text: 'You are now logged in!' })
-			router.push('/c')
+				// Perform automatic login with the new credentials
+				const loginResult = await signIn('credentials', {
+					email: state.email,
+					password: state.password,
+					redirect: false,
+				})
+
+				if (loginResult?.error) {
+					console.error('Auto-login failed:', loginResult.error)
+					customSonner({
+						type: 'error',
+						text: 'Account created but login failed. Please try signing in manually.',
+					})
+					router.push('/auth/signin')
+				} else {
+					// Successfully logged in, redirect to home
+					customSonner({ type: 'success', text: 'You are now logged in!' })
+					router.push('/c')
+				}
+			} else {
+				customSonner({ type: 'error', text: data.error || 'Failed to sign up' })
+			}
 		} catch (error) {
 			console.error(error)
 			customSonner({ type: 'error', text: (error as Error).message })
@@ -114,7 +116,11 @@ export default function SignUpForm() {
 		setState((prev) => ({ ...prev, [field]: !prev[field] }))
 	}
 
-	if (state.showVerificationNotice) {
+	// We've removed the verification notice since users are now automatically logged in
+	if (
+		state.showVerificationNotice &&
+		appConfig.features.enableVerificationEmail
+	) {
 		return (
 			<div className="space-y-4 text-center">
 				<h2 className="text-2xl font-bold">Verify Your Email</h2>

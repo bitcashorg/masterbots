@@ -32,8 +32,8 @@ export default async function IndexPage() {
 
 	return (
 		<>
-			<ThreadPanel threads={threads} count={count} />
-			<ChatThreadListPanel />
+			<ThreadPanel threads={threads} />
+			<ChatThreadListPanel variant="pro" />
 			<Subscription user={user} />
 		</>
 	)
