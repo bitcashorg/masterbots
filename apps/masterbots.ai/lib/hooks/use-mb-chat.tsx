@@ -101,7 +101,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	const params = useParams<{ chatbot: string; threadSlug: string }>()
 	const { selectedModel, clientType } = useModel()
 
-
 	// const initialIsNewChat = Boolean(isContinuousThread || !activeThread?.messages.length)
 	const [{ messagesFromDB, isNewChat }, setState] = useSetState<{
 		isInitLoaded: boolean
