@@ -26,8 +26,6 @@ steps:
         "gcr.io/$PROJECT_ID/$_PROJECT_NAME",
         "--region",
         "us-central1",
-        "--update-annotations",
-        "run.googleapis.com/max-request-body-size=32",
       ]
 options:
   defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET
