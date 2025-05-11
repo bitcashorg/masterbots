@@ -4,6 +4,7 @@ import { LoginButton } from '@/components/shared/login-button'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { getUserByEmail } from '@/services/hasura'
 import { Eye, EyeOff } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import { signIn } from 'next-auth/react'
@@ -32,7 +33,20 @@ export default function SignInForm() {
 		if (result?.error) {
 			setErrorMessage('Invalid email or password. Please try again')
 		} else {
-			router.push('/c')
+			const user = await getUserByEmail({ email: email || '' })
+			if (!user) {
+				setErrorMessage('User not found. Please sign up.')
+				return
+			}
+			if (user.users[0].deletionRequestedAt) {
+				// Redirect to deletion warning page
+				router.push(
+					`/auth/deletion-request?date=${user.users[0].deletionRequestedAt}`,
+				)
+			} else {
+				// Proceed to the dashboard
+				router.push('/c')
+			}
 		}
 	}
 

@@ -22,23 +22,23 @@ export const preferences = [
 	// 		},
 	// 	],
 	// },
-	{
-		title: 'Thread Preferences',
-		items: [
-			{
-				title: 'Always Web Search',
-				description:
-					'Enable web search on every new thread created and on every request by default.',
-				type: 'switch',
-			},
-			{
-				title: 'Always Pro Mode',
-				description:
-					'Enable pro mode on every new thread created and on every request by default.',
-				type: 'switch',
-			},
-		],
-	},
+	// {
+	// 	title: 'Thread Preferences',
+	// 	items: [
+	// 		{
+	// 			title: 'Always Web Search',
+	// 			description:
+	// 				'Enable web search on every new thread created and on every request by default.',
+	// 			type: 'switch',
+	// 		},
+	// 		{
+	// 			title: 'Always Pro Mode',
+	// 			description:
+	// 				'Enable pro mode on every new thread created and on every request by default.',
+	// 			type: 'switch',
+	// 		},
+	// 	],
+	// },
 	// {
 	// 	title: 'Email Notifications',
 	// 	items: [

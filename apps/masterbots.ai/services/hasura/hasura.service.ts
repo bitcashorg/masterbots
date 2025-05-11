@@ -1151,7 +1151,7 @@ export async function approveThread({
 	}
 }
 
-export async function getUserRoleByEmail({
+export async function getUserByEmail({
 	email,
 }: {
 	email: string | null | undefined
@@ -1165,6 +1165,7 @@ export async function getUserRoleByEmail({
 				},
 				role: true,
 				slug: true,
+				deletionRequestedAt: true,
 			},
 		})
 		return { users: user as User[] }
