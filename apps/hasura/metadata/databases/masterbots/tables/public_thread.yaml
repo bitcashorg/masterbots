@@ -153,9 +153,8 @@ update_permissions:
         - updated_at
         - user_id
       filter:
-        thread:
-          user_id:
-            _eq: X-Hasura-User-Id
+        user_id:
+          _eq: X-Hasura-User-Id
       check: {}
     comment: ""
 delete_permissions:
@@ -166,7 +165,6 @@ delete_permissions:
   - role: user
     permission:
       filter:
-        thread:
-          user_id:
-            _eq: X-Hasura-User-Id
+        user_id:
+          _eq: X-Hasura-User-Id
     comment: ""

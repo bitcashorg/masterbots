@@ -397,6 +397,7 @@ export type ControlType =
 	| 'dangerButton'
 	| 'toggleGroup'
 export type PreferenceItemType = {
+	buttonId?: string
 	title: string
 	description: string
 	type?: string

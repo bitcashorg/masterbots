@@ -1189,19 +1189,22 @@ export async function deleteThread({
 		}
 
 		const client = getHasuraClient({ jwt })
-		await client.mutation({
+		const result = await client.mutation({
 			deleteThread: {
 				__args: {
-					where: { threadId: { _eq: threadId }, userId: { _eq: userId } },
-				},
-				returning: {
-					threadId: true,
+					where: {
+						threadId: { _eq: threadId },
+						userId: { _eq: userId },
+					},
 				},
 				affectedRows: true,
 			},
 		})
 
-		return { success: true }
+		if ((result.deleteThread?.affectedRows ?? 0) > 0) {
+			return { success: true }
+		}
+		return { success: false }
 	} catch (error) {
 		console.error('Error deleting thread:', error)
 		return { success: false, error: 'Failed to delete the thread.' }
@@ -1766,16 +1769,57 @@ export async function updateUserDeletionRequest({
 					pkColumns: { userId },
 					_set: { deletionRequestedAt: new Date().toISOString() },
 				},
-				returning: {
-					userId: true,
-					deletion_requested_at: true,
-				},
+				userId: true,
 			},
 		})
 
 		return { success: true }
 	} catch (error) {
 		console.error('Error updating user deletion request:', error)
+		return { success: false, error: (error as Error).message }
+	}
+}
+
+// a function to delete all users messages and threads
+export async function deleteUserMessagesAndThreads({
+	userId,
+	jwt,
+}: {
+	userId: string
+	jwt: string
+}): Promise<{ success: boolean; error?: string }> {
+	try {
+		if (!jwt) {
+			throw new Error(
+				'Authentication required to delete user messages and threads',
+			)
+		}
+
+		const client = getHasuraClient({ jwt })
+
+		// First, delete all messages associated with the user's threads
+		await client.mutation({
+			deleteMessage: {
+				__args: {
+					where: { thread: { userId: { _eq: userId } } },
+				},
+				affectedRows: true,
+			},
+		})
+
+		// Then, delete all the user's threads
+		await client.mutation({
+			deleteThread: {
+				__args: {
+					where: { userId: { _eq: userId } },
+				},
+				affectedRows: true,
+			},
+		})
+
+		return { success: true }
+	} catch (error) {
+		console.error('Error deleting user messages and threads:', error)
 		return { success: false, error: (error as Error).message }
 	}
 }

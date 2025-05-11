@@ -96,6 +96,7 @@ export const preferences = [
 				type: 'dangerButton',
 				icon: UserRoundX,
 				buttonText: 'Delete Account',
+				buttonId: 'delete_account',
 			},
 			{
 				title: 'Delete All My Public Threads',
@@ -104,6 +105,7 @@ export const preferences = [
 				type: 'dangerButton',
 				icon: MessageSquareX,
 				buttonText: 'Delete Threads',
+				buttonId: 'delete_threads',
 			},
 		],
 	},

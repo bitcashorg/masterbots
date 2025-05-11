@@ -25,7 +25,10 @@ import { PreferenceItemTitle } from './preference-item'
 
 import { IconSpinner } from '@/components/ui/icons'
 import { useSonner } from '@/lib/hooks/useSonner'
-import { updateUserDeletionRequest } from '@/services/hasura'
+import {
+	deleteUserMessagesAndThreads,
+	updateUserDeletionRequest,
+} from '@/services/hasura'
 import { useSession } from 'next-auth/react'
 import { useState } from 'react'
 
@@ -39,8 +42,6 @@ export function PreferenceSection({
 	const [buttonType, setButtonType] = useState('')
 	const { data: session } = useSession()
 	const { customSonner } = useSonner()
-
-	console.log('session', session)
 
 	function executeButton(buttonText: string) {
 		setDeleteDialogOpen(true)
@@ -70,25 +71,66 @@ export function PreferenceSection({
 				})
 				return
 			}
-
 			customSonner({
 				type: 'success',
 				text: 'User account deletion requested successfully.',
 			})
+			setDeleteDialogOpen(false)
 		} catch (error) {
 			console.error('Failed to request user account deletion:', error)
 			customSonner({
 				type: 'error',
 				text: 'Failed to request user account deletion.',
 			})
+			setDeleteDialogOpen(false)
+		}
+	}
+
+	async function handleDeleteThreads() {
+		try {
+			const userId = session?.user.id
+			const jwt = session?.user.hasuraJwt
+
+			if (!userId || !jwt) {
+				customSonner({
+					type: 'error',
+					text: 'User must be authenticated to delete threads.',
+				})
+				return
+			}
+			const response = await deleteUserMessagesAndThreads({ userId, jwt })
+
+			if (!response.success) {
+				customSonner({
+					type: 'error',
+					text:
+						response.error ||
+						'Unknown error occurred while requesting deletion',
+				})
+				return
+			}
+			customSonner({
+				type: 'success',
+				text: 'User threads deletion  successfully.',
+			})
+			setDeleteDialogOpen(false)
+		} catch (error) {
+			console.error("Failed to delete user's threads", error)
+			customSonner({ type: 'error', text: "Failed to delete user's threads." })
+			setDeleteDialogOpen(false)
 		}
 	}
 
 	function handleDelete() {
-		// Handle delete action here
-		alert('Delete action executed!')
-		alert(buttonType)
-		setDeleteDialogOpen(false)
+		setIsRemovePending(true)
+		if (buttonType === 'delete_account') {
+			requestUserAccountDelete()
+		}
+
+		if (buttonType === 'delete_threads') {
+			handleDeleteThreads()
+		}
+		setIsRemovePending(false)
 	}
 	return (
 		<>
@@ -176,7 +218,7 @@ export function PreferenceSection({
 										)}
 										{item.type === 'dangerButton' && (
 											<Button
-												onClick={() => executeButton(item.buttonText ?? '')}
+												onClick={() => executeButton(item.buttonId ?? '')}
 												className="bg-transparent border border-destructive text-destructive p-2 text-sm min-h-9"
 											>
 												{'icon' in item && item.icon && (

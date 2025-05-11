@@ -180,6 +180,7 @@ update_permissions:
     permission:
       columns:
         - bio
+        - deletion_requested_at
         - favourite_topic
         - get_free_month
         - last_login

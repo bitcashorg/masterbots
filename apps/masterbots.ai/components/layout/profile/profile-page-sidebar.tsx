@@ -40,7 +40,7 @@ export const UserProfileSidebar = ({
 		await getUserInfo(userSlug as string)
 		// if (currentUser === null) return null
 		return currentUser
-	}, [userSlug, currentUser])
+	}, [userSlug])
 
 	const sameUser = isSameUser(user?.userId)
 
@@ -126,24 +126,23 @@ export const UserProfileSidebar = ({
 							<Sidebar page="profile" />
 						)}
 					</div>
-					{sameUser &&
-						session?.user.hasuraJwt &&
-						appConfig.features.devMode && (
-							<>
-								<Link
-									//
-									href={`/u/${userSlug}/s/pref`}
-									className={cn(
-										'flex items-center gap-2 px-4 py-3',
-										'hover:bg-gray-200 dark:hover:bg-mirage transition-colors duration-200',
-										location.pathname?.includes('/s/pref')
-											? 'bg-gray-200 dark:bg-mirage'
-											: '',
-									)}
-								>
-									<Settings className="w-5 h-5" />
-									<span>Preferences</span>
-								</Link>
+					{sameUser && session?.user.hasuraJwt && (
+						<>
+							<Link
+								//
+								href={`/u/${userSlug}/s/pref`}
+								className={cn(
+									'flex items-center gap-2 px-4 py-3',
+									'hover:bg-gray-200 dark:hover:bg-mirage transition-colors duration-200',
+									location.pathname?.includes('/s/pref')
+										? 'bg-gray-200 dark:bg-mirage'
+										: '',
+								)}
+							>
+								<Settings className="w-5 h-5" />
+								<span>Preferences</span>
+							</Link>
+							{appConfig.features.devMode && (
 								<Link
 									//
 									href={`/u/${userSlug}/s/subs`}
@@ -158,8 +157,9 @@ export const UserProfileSidebar = ({
 									<ReceiptIcon className="w-5 h-5" />
 									<span>Subscriptions</span>
 								</Link>
-							</>
-						)}
+							)}
+						</>
+					)}
 				</nav>
 			</aside>
 
