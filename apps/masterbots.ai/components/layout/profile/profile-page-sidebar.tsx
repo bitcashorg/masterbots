@@ -38,7 +38,7 @@ export const UserProfileSidebar = ({
 	const { data: session } = useSession()
 	const { value: user } = useAsync(async () => {
 		await getUserInfo(userSlug as string)
-		// if (currentUser === null) return null
+		if (currentUser === null) return null
 		return currentUser
 	}, [userSlug, currentUser])
 

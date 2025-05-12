@@ -125,13 +125,18 @@ export function PreferenceSection({
 	function handleDelete() {
 		setIsRemovePending(true)
 		if (buttonType === 'delete_account') {
-			requestUserAccountDelete()
+			requestUserAccountDelete().finally(() => {
+				setIsRemovePending(false)
+			})
+			return
 		}
 
 		if (buttonType === 'delete_threads') {
-			handleDeleteThreads()
+			handleDeleteThreads().finally(() => {
+				setIsRemovePending(false)
+			})
+			return
 		}
-		setIsRemovePending(false)
 	}
 	return (
 		<>
