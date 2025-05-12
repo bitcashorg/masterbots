@@ -40,7 +40,7 @@ export const UserProfileSidebar = ({
 		await getUserInfo(userSlug as string)
 		// if (currentUser === null) return null
 		return currentUser
-	}, [userSlug])
+	}, [userSlug, currentUser])
 
 	const sameUser = isSameUser(user?.userId)
 
@@ -80,7 +80,7 @@ export const UserProfileSidebar = ({
 			>
 				<nav className="flex-1 h-full flex flex-col space-y-1 font-Geist">
 					{/* Threads Accordion */}
-					<div className="h-full">
+					<div className="">
 						{/* User Pref is getting close. Enabling for devMode ONLY */}
 						{sameUser && appConfig.features.devMode ? (
 							<Accordion type="single" collapsible defaultValue="threads">
