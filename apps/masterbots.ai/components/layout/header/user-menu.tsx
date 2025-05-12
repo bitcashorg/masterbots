@@ -126,37 +126,35 @@ export function UserMenu({ user }: UserMenuProps) {
 						<DropdownMenuItem className="flex items-center justify-between w-full">
 							<ThemeToggle />
 						</DropdownMenuItem>
+						<DropdownMenuItem className="flex items-center justify-between w-full">
+							<Link
+								href={`/u/${user.slug}/s/pref`}
+								className={cn(
+									buttonVariants({
+										variant: 'ghost',
+									}),
+									'flex w-full gap-4 justify-between px-0 text-sm',
+								)}
+							>
+								Preferences
+								<SettingsIcon className="size-4" />
+							</Link>
+						</DropdownMenuItem>
 						{appConfig.features.devMode && (
-							<>
-								<DropdownMenuItem className="flex items-center justify-between w-full">
-									<Link
-										href={`/u/${user.slug}/s/pref`}
-										className={cn(
-											buttonVariants({
-												variant: 'ghost',
-											}),
-											'flex w-full gap-4 justify-between px-0 text-sm',
-										)}
-									>
-										Preferences
-										<SettingsIcon className="size-4" />
-									</Link>
-								</DropdownMenuItem>
-								<DropdownMenuItem className="flex items-center justify-between w-full">
-									<Link
-										href={`/u/${user.slug}/s/subs`}
-										className={cn(
-											buttonVariants({
-												variant: 'ghost',
-											}),
-											'flex w-full gap-4 justify-between px-0 text-sm',
-										)}
-									>
-										Subscriptions
-										<ReceiptIcon className="size-4" />
-									</Link>
-								</DropdownMenuItem>
-							</>
+							<DropdownMenuItem className="flex items-center justify-between w-full">
+								<Link
+									href={`/u/${user.slug}/s/subs`}
+									className={cn(
+										buttonVariants({
+											variant: 'ghost',
+										}),
+										'flex w-full gap-4 justify-between px-0 text-sm',
+									)}
+								>
+									Subscriptions
+									<ReceiptIcon className="size-4" />
+								</Link>
+							</DropdownMenuItem>
 						)}
 					</DropdownMenuGroup>
 					<DropdownMenuSeparator />

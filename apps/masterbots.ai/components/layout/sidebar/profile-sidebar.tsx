@@ -160,35 +160,33 @@ export function ProfileSidebar({ user }: ProfileSidebarProps) {
 						{/* Logout Button */}
 						<div className="flex flex-col items-center justify-between py-4 mt-auto border-t">
 							<ThemeToggle className="px-2 py-4" onClick={handleNavigation} />
+							<Link
+								href={`/u/${user.slug}/s/pref`}
+								onClick={handleNavigation}
+								className={cn(
+									buttonVariants({
+										variant: 'ghost',
+									}),
+									'flex w-full gap-4 justify-between px-2 py-4 text-sm',
+								)}
+							>
+								Preferences
+								<SettingsIcon className="size-4" />
+							</Link>
 							{appConfig.features.devMode && (
-								<>
-									<Link
-										href={`/u/${user.slug}/s/pref`}
-										onClick={handleNavigation}
-										className={cn(
-											buttonVariants({
-												variant: 'ghost',
-											}),
-											'flex w-full gap-4 justify-between px-2 py-4 text-sm',
-										)}
-									>
-										Preferences
-										<SettingsIcon className="size-4" />
-									</Link>
-									<Link
-										href={`/u/${user.slug}/s/subs`}
-										onClick={handleNavigation}
-										className={cn(
-											buttonVariants({
-												variant: 'ghost',
-											}),
-											'flex w-full gap-4 justify-between px-2 py-4 text-sm',
-										)}
-									>
-										Subscriptions
-										<ReceiptIcon className="size-4" />
-									</Link>
-								</>
+								<Link
+									href={`/u/${user.slug}/s/subs`}
+									onClick={handleNavigation}
+									className={cn(
+										buttonVariants({
+											variant: 'ghost',
+										}),
+										'flex w-full gap-4 justify-between px-2 py-4 text-sm',
+									)}
+								>
+									Subscriptions
+									<ReceiptIcon className="size-4" />
+								</Link>
 							)}
 							<hr className="w-full border-t my-4" />
 							<Button
