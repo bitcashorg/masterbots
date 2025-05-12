@@ -1151,7 +1151,7 @@ export async function approveThread({
 	}
 }
 
-export async function getUserRoleByEmail({
+export async function getUserByEmail({
 	email,
 }: {
 	email: string | null | undefined
@@ -1165,6 +1165,8 @@ export async function getUserRoleByEmail({
 				},
 				role: true,
 				slug: true,
+				deletionRequestedAt: true,
+				email: true,
 			},
 		})
 		return { users: user as User[] }
@@ -1189,19 +1191,22 @@ export async function deleteThread({
 		}
 
 		const client = getHasuraClient({ jwt })
-		await client.mutation({
+		const result = await client.mutation({
 			deleteThread: {
 				__args: {
-					where: { threadId: { _eq: threadId }, userId: { _eq: userId } },
-				},
-				returning: {
-					threadId: true,
+					where: {
+						threadId: { _eq: threadId },
+						userId: { _eq: userId },
+					},
 				},
 				affectedRows: true,
 			},
 		})
 
-		return { success: true }
+		if ((result.deleteThread?.affectedRows ?? 0) > 0) {
+			return { success: true }
+		}
+		return { success: false }
 	} catch (error) {
 		console.error('Error deleting thread:', error)
 		return { success: false, error: 'Failed to delete the thread.' }
@@ -1743,6 +1748,89 @@ export async function fetchDomainTags({
 	} catch (error) {
 		console.error('Error fetching tags:', error)
 		return null
+	}
+}
+
+// update user deletion_requested_at with the current date
+export async function updateUserDeletionRequest({
+	userId,
+	jwt,
+	reset = false,
+}: {
+	userId: string
+	jwt: string
+	reset?: boolean
+}): Promise<{ success: boolean; error?: string }> {
+	try {
+		if (!jwt) {
+			throw new Error('Authentication required to update user deletion request')
+		}
+
+		const client = getHasuraClient({ jwt })
+		await client.mutation({
+			updateUserByPk: {
+				__args: {
+					pkColumns: { userId },
+					_set: {
+						deletionRequestedAt: reset ? null : new Date().toISOString(),
+					},
+				},
+				userId: true,
+			},
+		})
+
+		return { success: true }
+	} catch (error) {
+		console.error('Error updating user deletion request:', error)
+		return { success: false, error: (error as Error).message }
+	}
+}
+
+// a function to delete all users messages and threads
+export async function deleteUserMessagesAndThreads({
+	userId,
+	jwt,
+}: {
+	userId: string
+	jwt: string
+}): Promise<{ success: boolean; error?: string }> {
+	try {
+		if (!jwt) {
+			throw new Error(
+				'Authentication required to delete user messages and threads',
+			)
+		}
+
+		const client = getHasuraClient({ jwt })
+
+		// First, delete all messages associated with the user's threads
+		// Then, delete all the user's threads
+		const whereArgDeleteObject = {
+			thread: {
+				userId: { _eq: userId },
+				isPublic: { _eq: true },
+				isApproved: { _eq: true },
+			},
+		}
+		await client.mutation({
+			deleteMessage: {
+				__args: {
+					where: whereArgDeleteObject,
+				},
+				affectedRows: true,
+			},
+			deleteThread: {
+				__args: {
+					where: whereArgDeleteObject,
+				},
+				affectedRows: true,
+			},
+		})
+
+		return { success: true }
+	} catch (error) {
+		console.error('Error deleting user messages and threads:', error)
+		return { success: false, error: (error as Error).message }
 	}
 }
 

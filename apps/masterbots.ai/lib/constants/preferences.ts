@@ -1,14 +1,15 @@
+import type { PreferenceItemType } from '@/types/types'
 import { MessageSquareX, UserRoundX } from 'lucide-react'
 
 export const preferences = [
 	{
 		title: 'General',
 		items: [
-			{
-				title: 'Preferred Language',
-				description: 'Receive emails about new products, features, and more.',
-				type: 'switch',
-			},
+			// {
+			// 	title: 'Preferred Language',
+			// 	description: 'Receive emails about new products, features, and more.',
+			// 	type: 'switch',
+			// },
 			{
 				title: 'Masterbots Theme',
 				description: 'Change the default theme for the Masterbots site.',
@@ -20,7 +21,7 @@ export const preferences = [
 					'Change overall font-size website (does not change your browser font-size).',
 				type: 'toggleGroup',
 			},
-		],
+		] as PreferenceItemType[],
 	},
 	{
 		title: 'Thread Preferences',
@@ -37,55 +38,55 @@ export const preferences = [
 					'Enable pro mode on every new thread created and on every request by default.',
 				type: 'switch',
 			},
-		],
+		] as PreferenceItemType[],
 	},
-	{
-		title: 'Email Notifications',
-		items: [
-			{
-				title: 'Marketing emails',
-				description: 'Receive emails about new products, features, and more.',
-				type: 'switch',
-			},
-			{
-				title: 'Security emails',
-				description: 'Receive emails about your account security.',
-				type: 'switch',
-				defaultChecked: true,
-			},
-		],
-	},
-	{
-		title: 'Advance Configuration',
-		items: [
-			{
-				title: 'Configure My Threads',
-				description:
-					'Enable to give a unique touch to all your chatbots on any domain category!',
-				type: 'switch',
-				defaultChecked: true,
-			},
-			{
-				title: 'Set new configuration',
-				description:
-					'Create a new configuration for tone, style, length and complexity.',
-				type: 'button',
-			},
-			{
-				title: 'Configure My Chatbots',
-				description:
-					'Enable to narrow the configuration for your chatbots to give your unique touch.',
-				type: 'switch',
-				defaultChecked: true,
-			},
-			{
-				title: 'Set new configuration',
-				description:
-					'Create a new configuration for tone, style, length and complexity.',
-				type: 'button',
-			},
-		],
-	},
+	// {
+	// 	title: 'Email Notifications',
+	// 	items: [
+	// 		{
+	// 			title: 'Marketing emails',
+	// 			description: 'Receive emails about new products, features, and more.',
+	// 			type: 'switch',
+	// 		},
+	// 		{
+	// 			title: 'Security emails',
+	// 			description: 'Receive emails about your account security.',
+	// 			type: 'switch',
+	// 			defaultChecked: true,
+	// 		},
+	// 	] as PreferenceItemType[],
+	// },
+	// {
+	// 	title: 'Advance Configuration',
+	// 	items: [
+	// 		{
+	// 			title: 'Configure My Threads',
+	// 			description:
+	// 				'Enable to give a unique touch to all your chatbots on any domain category!',
+	// 			type: 'switch',
+	// 			defaultChecked: true,
+	// 		},
+	// 		{
+	// 			title: 'Set new configuration',
+	// 			description:
+	// 				'Create a new configuration for tone, style, length and complexity.',
+	// 			type: 'button',
+	// 		},
+	// 		{
+	// 			title: 'Configure My Chatbots',
+	// 			description:
+	// 				'Enable to narrow the configuration for your chatbots to give your unique touch.',
+	// 			type: 'switch',
+	// 			defaultChecked: true,
+	// 		},
+	// 		{
+	// 			title: 'Set new configuration',
+	// 			description:
+	// 				'Create a new configuration for tone, style, length and complexity.',
+	// 			type: 'button',
+	// 		},
+	// 	] as PreferenceItemType[],
+	// },
 	{
 		title: 'Danger Zone',
 		items: [
@@ -96,6 +97,7 @@ export const preferences = [
 				type: 'dangerButton',
 				icon: UserRoundX,
 				buttonText: 'Delete Account',
+				buttonId: 'delete_account',
 			},
 			{
 				title: 'Delete All My Public Threads',
@@ -104,7 +106,8 @@ export const preferences = [
 				type: 'dangerButton',
 				icon: MessageSquareX,
 				buttonText: 'Delete Threads',
+				buttonId: 'delete_threads',
 			},
-		],
+		] as PreferenceItemType[],
 	},
-]
+] as const

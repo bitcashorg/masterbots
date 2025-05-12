@@ -142,7 +142,7 @@ export function ThreadVisibilityProvider({
 			return {
 				success: false,
 				message: deleteT.error || 'Failed to delete thread',
-				error: deleteT.error || 'An unknown error occurred',
+				error: deleteT.error || 'Failed to delete thread',
 			}
 		} catch (error) {
 			console.error('Error deleting thread:', error)
