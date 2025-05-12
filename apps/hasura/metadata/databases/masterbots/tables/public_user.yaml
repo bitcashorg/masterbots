@@ -83,6 +83,7 @@ insert_permissions:
       check: {}
       columns:
         - bio
+        - deletion_requested_at
         - email
         - favourite_topic
         - get_free_month
@@ -101,6 +102,7 @@ select_permissions:
       columns:
         - bio
         - date_joined
+        - deletion_requested_at
         - email
         - favourite_topic
         - last_login
@@ -118,6 +120,7 @@ select_permissions:
       columns:
         - bio
         - date_joined
+        - deletion_requested_at
         - email
         - favourite_topic
         - get_free_month
@@ -138,6 +141,7 @@ select_permissions:
       columns:
         - bio
         - date_joined
+        - deletion_requested_at
         - email
         - favourite_topic
         - get_free_month
