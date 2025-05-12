@@ -1,5 +1,7 @@
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
-import { extractBetweenMarkers } from '@/lib/utils'
+import type { useSonner } from '@/lib/hooks/useSonner'
+import { extractBetweenMarkers, getRouteType } from '@/lib/utils'
+import { getThread } from '@/services/hasura'
 import type * as AI from 'ai'
 import type { Message, Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
@@ -46,4 +48,117 @@ export function getThreadLink({
 	return chat
 		? `/c/${toSlug(thread.chatbot.name)}/${thread.threadId}`
 		: `/${toSlug(thread.chatbot.categories[0]?.category.name)}/${thread.threadId}`
+}
+
+export async function getOpeningActiveThreadHelper(
+	currentActiveThread: Thread | null,
+	sonner: ReturnType<typeof useSonner>['customSonner'],
+	activatePopup: (thread: Thread) => void,
+) {
+	if (currentActiveThread) return
+
+	const pathname = window.location.pathname
+	const pathNameParts = pathname.split('/')
+	const routeType = getRouteType(pathname)
+	const isPublic = routeType === 'public'
+	const isProfile = routeType === 'profile'
+	const isBotProfile = routeType === 'bot'
+	const isPersonal = routeType === 'chat'
+
+	// ? We repeat the pathname parts here to make it simple to read
+	// ? We could use a switch case here, but it would be more verbose
+	// ? We could also use a map to store the values, but it would be less readable
+	// ? and much less if with regex
+	// ... you get the idea. 😁
+	const [
+		,
+		_publicCategory,
+		_publicDomain,
+		_publicChatbot,
+		publicThreadSlug,
+		publicThreadQuestionSlug,
+	] = pathNameParts
+	const [
+		,
+		_chatbotProfileRootBase,
+		_chatbotProfileChatbotName,
+		chatbotProfileThreadSlug,
+		chatbotProfileThreadQuestionSlug,
+	] = pathNameParts
+	const [
+		,
+		_personalRootBase,
+		_personalCategory,
+		_personalDomain,
+		_personalChatbot,
+		personalThreadSlug,
+		personalThreadQuestionSlug,
+	] = pathNameParts
+	const [
+		,
+		_userProfileRootBase,
+		_userProfileSlug,
+		_userProfileThreadRootBase,
+		_userProfileCategory,
+		_userProfileDomain,
+		_userProfileChatbot,
+		userProfileThreadSlug,
+		userProfileThreadQuestionSlug,
+	] = pathNameParts
+
+	// console.log('pathname', {
+	// 	pathNameParts,
+	// 	isPersonal,
+	// 	isPublic,
+	// 	isProfile,
+	// 	isBotProfile,
+	// })
+
+	if (isPublic && !publicThreadSlug && !publicThreadQuestionSlug) return
+	if (isPersonal && !personalThreadSlug && !personalThreadQuestionSlug) return
+	if (
+		isBotProfile &&
+		!chatbotProfileThreadSlug &&
+		!chatbotProfileThreadQuestionSlug
+	)
+		return
+	if (isProfile && !userProfileThreadSlug && !userProfileThreadQuestionSlug)
+		return
+
+	const threadSlug =
+		((isPublic && publicThreadSlug) ??
+			(isPersonal && personalThreadSlug) ??
+			(isProfile && userProfileThreadSlug) ??
+			(isBotProfile && chatbotProfileThreadSlug)) ||
+		''
+	const thread = await getThread({
+		threadSlug,
+	})
+
+	if (!thread) {
+		sonner({
+			type: 'error',
+			text: 'Error finding the thread that you were looking for.',
+		})
+		return
+	}
+	if (
+		(publicThreadQuestionSlug && isPublic) ||
+		(personalThreadQuestionSlug && isPersonal) ||
+		(userProfileThreadQuestionSlug && isProfile) ||
+		(chatbotProfileThreadQuestionSlug && isBotProfile) ||
+		(publicThreadSlug && isPublic) ||
+		(personalThreadSlug && isPersonal) ||
+		(userProfileThreadSlug && isProfile) ||
+		(chatbotProfileThreadSlug && isBotProfile)
+	) {
+		console.log(
+			'scrolling to',
+			publicThreadQuestionSlug ||
+				personalThreadQuestionSlug ||
+				userProfileThreadQuestionSlug ||
+				chatbotProfileThreadQuestionSlug,
+		)
+		await activatePopup(thread)
+	}
 }
