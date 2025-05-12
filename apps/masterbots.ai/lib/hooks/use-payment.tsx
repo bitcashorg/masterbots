@@ -31,9 +31,6 @@ interface PaymentContextProps {
 	handleSetError: (error: any) => void
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	paymentIntent: any
-	user: USER
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	handleSetUser: (user: any) => void
 	handleSetLoading: (loading: boolean) => void
 	handleSetConfirmationToken: (confirmationToken: string | undefined) => void
 	confirmationToken: string | undefined
@@ -67,13 +64,6 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 	const [plan, setPlan] = useState<StripePlan | null | undefined>(null)
 	const [error, setError] = useState('')
 	const [paymentIntent, setPaymentIntent] = useState('')
-	const [user, setUser] = useState({
-		id: '',
-		image: '',
-		name: '',
-		email: '',
-		hasuraJwt: '',
-	})
 	const [confirmationToken, setConfirmationToken] = useState<
 		string | undefined
 	>('')
@@ -101,9 +91,6 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	const handleSetError = (error: any) => {
 		setError(error)
-	}
-	const handleSetUser = (user: USER) => {
-		setUser(user)
 	}
 
 	const handleSetSecret = (secret: string) => {
@@ -139,7 +126,6 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 			value={{
 				plan,
 				card,
-				user,
 				error,
 				secret,
 				loading,
@@ -148,7 +134,6 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 				stripeSecret,
 				stripePublishkey,
 				handlePlan,
-				handleSetUser,
 				handleSetCard,
 				handleSetError,
 				handleSetSecret,
