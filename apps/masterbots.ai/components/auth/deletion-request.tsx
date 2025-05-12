@@ -57,7 +57,7 @@ export function DeletionRequest({
 
 	return (
 		<Dialog open={true} onOpenChange={() => console.log('Dialog closed')}>
-			<DialogContent className="flex flex-col rounded-sm max-h-screen md:min-h-[540px] w-full md:w-11/12 p-0 md:max-w-2xl z-50 bg-gray-100 dark:bg-[#27272A] border border-iron dark:border-mirage overflow-y-auto">
+			<DialogContent className="flex flex-col rounded-sm max-h-screen md:min-h-[540px] w-full md:w-11/12 p-0 m-4 md:max-w-2xl z-50 bg-gray-100 dark:bg-[#27272A] border border-iron dark:border-mirage overflow-y-auto">
 				{/* Centered Main Content */}
 				<div className="flex flex-col items-center justify-center min-h-[500px] p-10">
 					<h2 className="text-2xl mb-4">Account Deletion Requested</h2>

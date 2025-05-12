@@ -38,10 +38,11 @@ export async function GET() {
 		)
 	}
 
-	// Step 2: Delete threads
+	// Step 2: Delete threads and user
 	let deletedThreads = 0
+	let deletedUsers = 0
 	try {
-		const threadMutation = await client.mutation({
+		const { deleteThread, deleteUser } = await client.mutation({
 			deleteThread: {
 				__args: {
 					where: {
@@ -50,20 +51,6 @@ export async function GET() {
 				},
 				affectedRows: true,
 			},
-		})
-		deletedThreads = threadMutation?.deleteThread?.affectedRows || 0
-	} catch (error) {
-		console.error('Error deleting threads:', error)
-		return NextResponse.json(
-			{ error: 'Failed to delete threads' },
-			{ status: 500 },
-		)
-	}
-
-	// Step 3: Delete users
-	let deletedUsers = 0
-	try {
-		const userMutation = await client.mutation({
 			deleteUser: {
 				__args: {
 					where: {
@@ -73,11 +60,12 @@ export async function GET() {
 				affectedRows: true,
 			},
 		})
-		deletedUsers = userMutation.deleteUser?.affectedRows || 0
+		deletedThreads = deleteThread?.affectedRows || 0
+		deletedUsers = deleteUser?.affectedRows || 0
 	} catch (error) {
-		console.error('Error deleting users:', error)
+		console.error('Error deleting threads and/or user:', error)
 		return NextResponse.json(
-			{ error: 'Failed to delete users' },
+			{ error: 'Failed to delete threads and/or user' },
 			{ status: 500 },
 		)
 	}

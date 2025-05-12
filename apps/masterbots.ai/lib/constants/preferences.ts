@@ -1,44 +1,45 @@
+import type { PreferenceItemType } from '@/types/types'
 import { MessageSquareX, UserRoundX } from 'lucide-react'
 
 export const preferences = [
-	// {
-	// 	title: 'General',
-	// 	items: [
-	// 		{
-	// 			title: 'Preferred Language',
-	// 			description: 'Receive emails about new products, features, and more.',
-	// 			type: 'switch',
-	// 		},
-	// 		{
-	// 			title: 'Masterbots Theme',
-	// 			description: 'Change the default theme for the Masterbots site.',
-	// 			type: 'switch',
-	// 		},
-	// 		{
-	// 			title: 'Default Font Size',
-	// 			description:
-	// 				'Change overall font-size website (does not change your browser font-size).',
-	// 			type: 'toggleGroup',
-	// 		},
-	// 	],
-	// },
-	// {
-	// 	title: 'Thread Preferences',
-	// 	items: [
-	// 		{
-	// 			title: 'Always Web Search',
-	// 			description:
-	// 				'Enable web search on every new thread created and on every request by default.',
-	// 			type: 'switch',
-	// 		},
-	// 		{
-	// 			title: 'Always Pro Mode',
-	// 			description:
-	// 				'Enable pro mode on every new thread created and on every request by default.',
-	// 			type: 'switch',
-	// 		},
-	// 	],
-	// },
+	{
+		title: 'General',
+		items: [
+			// {
+			// 	title: 'Preferred Language',
+			// 	description: 'Receive emails about new products, features, and more.',
+			// 	type: 'switch',
+			// },
+			{
+				title: 'Masterbots Theme',
+				description: 'Change the default theme for the Masterbots site.',
+				type: 'switch',
+			},
+			{
+				title: 'Default Font Size',
+				description:
+					'Change overall font-size website (does not change your browser font-size).',
+				type: 'toggleGroup',
+			},
+		] as PreferenceItemType[],
+	},
+	{
+		title: 'Thread Preferences',
+		items: [
+			{
+				title: 'Always Web Search',
+				description:
+					'Enable web search on every new thread created and on every request by default.',
+				type: 'switch',
+			},
+			{
+				title: 'Always Pro Mode',
+				description:
+					'Enable pro mode on every new thread created and on every request by default.',
+				type: 'switch',
+			},
+		] as PreferenceItemType[],
+	},
 	// {
 	// 	title: 'Email Notifications',
 	// 	items: [
@@ -53,7 +54,7 @@ export const preferences = [
 	// 			type: 'switch',
 	// 			defaultChecked: true,
 	// 		},
-	// 	],
+	// 	] as PreferenceItemType[],
 	// },
 	// {
 	// 	title: 'Advance Configuration',
@@ -84,7 +85,7 @@ export const preferences = [
 	// 				'Create a new configuration for tone, style, length and complexity.',
 	// 			type: 'button',
 	// 		},
-	// 	],
+	// 	] as PreferenceItemType[],
 	// },
 	{
 		title: 'Danger Zone',
@@ -107,6 +108,6 @@ export const preferences = [
 				buttonText: 'Delete Threads',
 				buttonId: 'delete_threads',
 			},
-		],
+		] as PreferenceItemType[],
 	},
-]
+] as const

@@ -1804,20 +1804,24 @@ export async function deleteUserMessagesAndThreads({
 		const client = getHasuraClient({ jwt })
 
 		// First, delete all messages associated with the user's threads
+		// Then, delete all the user's threads
+		const whereArgDeleteObject = {
+			thread: {
+				userId: { _eq: userId },
+				isPublic: { _eq: true },
+				isApproved: { _eq: true },
+			},
+		}
 		await client.mutation({
 			deleteMessage: {
 				__args: {
-					where: { thread: { userId: { _eq: userId } } },
+					where: whereArgDeleteObject,
 				},
 				affectedRows: true,
 			},
-		})
-
-		// Then, delete all the user's threads
-		await client.mutation({
 			deleteThread: {
 				__args: {
-					where: { userId: { _eq: userId } },
+					where: whereArgDeleteObject,
 				},
 				affectedRows: true,
 			},
