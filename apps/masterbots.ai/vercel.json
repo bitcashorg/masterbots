@@ -3,6 +3,10 @@
 		{
 			"path": "/api/cron/unverified-users",
 			"schedule": "0 0 * * *"
+		},
+		{
+			"path": "/api/cron/delete-requested-accounts",
+			"schedule": "0 3 * * *"
 		}
 	],
 	"redirects": [

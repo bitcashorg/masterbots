@@ -63,7 +63,6 @@ export function UserMenu({ user }: UserMenuProps) {
 		}
 		fetchUser()
 	}, [user])
-
 	return (
 		<div className="items-center justify-between hidden md:block">
 			<DropdownMenu open={open} onOpenChange={setOpen}>
