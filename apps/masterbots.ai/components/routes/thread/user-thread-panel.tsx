@@ -108,12 +108,12 @@ export default function UserThreadPanel({
 
 	const userWithSlug = useAsync(async () => {
 		if (!userSlug) return { user: userProps }
-		const result = await getUserBySlug({
-			slug: userSlug,
-			isSameUser: session?.user?.slug === userSlug,
-		})
-		return result
-	}, [userSlug])
+		// const result = await getUserBySlug({
+		// 	slug: userSlug,
+		// 	isSameUser: session?.user?.slug === userSlug,
+		// })
+		return null
+	}, [])
 
 	const prevPathRef = useRef('')
 	const pathname = usePathname()

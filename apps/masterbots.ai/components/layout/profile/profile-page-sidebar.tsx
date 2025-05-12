@@ -34,12 +34,22 @@ export const UserProfileSidebar = ({
 	const { isSidebarOpen, toggleSidebar, setActiveCategory, setActiveChatbot } =
 		useSidebar()
 	const { isOpenPopup } = useThread()
-	const { currentUser, isSameUser } = useProfile()
+	const { currentUser, isSameUser, getUserInfo } = useProfile()
 	const { data: session } = useSession()
-	const { value: user } = useAsync(async () => {
-		if (currentUser === null) return null
-		return currentUser
-	}, [userSlug, currentUser])
+	const [user, setUser] = useState(currentUser)
+
+	useAsync(async () => {
+		if (!userSlug) return currentUser || null
+		try {
+			const userInfo = await getUserInfo(userSlug as string)
+			if (userInfo) setUser(userInfo.user)
+		} catch (error) {
+			console.error('Failed to fetch user info:', error)
+			return currentUser
+		}
+	}, [userSlug, pathname])
+
+	const sameUser = isSameUser(user?.userId)
 
 	const handleToggleThreads = () => {
 		if (!sameUser) return
@@ -47,8 +57,6 @@ export const UserProfileSidebar = ({
 		setActiveCategory(null)
 		setActiveChatbot(null)
 	}
-
-	const sameUser = isSameUser(user?.userId)
 
 	return (
 		<div className={cn('transition-all relative w-full flex h-full')}>
@@ -79,7 +87,7 @@ export const UserProfileSidebar = ({
 			>
 				<nav className="flex-1 h-full flex flex-col space-y-1 font-Geist">
 					{/* Threads Accordion */}
-					<div className="h-full">
+					<div className="">
 						{/* User Pref is getting close. Enabling for devMode ONLY */}
 						{sameUser && appConfig.features.devMode ? (
 							<Accordion type="single" collapsible defaultValue="threads">
@@ -125,24 +133,23 @@ export const UserProfileSidebar = ({
 							<Sidebar page="profile" />
 						)}
 					</div>
-					{sameUser &&
-						session?.user.hasuraJwt &&
-						appConfig.features.devMode && (
-							<>
-								<Link
-									//
-									href={`/u/${userSlug}/s/pref`}
-									className={cn(
-										'flex items-center gap-2 px-4 py-3',
-										'hover:bg-gray-200 dark:hover:bg-mirage transition-colors duration-200',
-										location.pathname?.includes('/s/pref')
-											? 'bg-gray-200 dark:bg-mirage'
-											: '',
-									)}
-								>
-									<Settings className="w-5 h-5" />
-									<span>Preferences</span>
-								</Link>
+					{sameUser && session?.user.hasuraJwt && (
+						<>
+							<Link
+								//
+								href={`/u/${userSlug}/s/pref`}
+								className={cn(
+									'flex items-center gap-2 px-4 py-3',
+									'hover:bg-gray-200 dark:hover:bg-mirage transition-colors duration-200',
+									location.pathname?.includes('/s/pref')
+										? 'bg-gray-200 dark:bg-mirage'
+										: '',
+								)}
+							>
+								<Settings className="w-5 h-5" />
+								<span>Preferences</span>
+							</Link>
+							{appConfig.features.devMode && (
 								<Link
 									//
 									href={`/u/${userSlug}/s/subs`}
@@ -157,8 +164,9 @@ export const UserProfileSidebar = ({
 									<ReceiptIcon className="w-5 h-5" />
 									<span>Subscriptions</span>
 								</Link>
-							</>
-						)}
+							)}
+						</>
+					)}
 				</nav>
 			</aside>
 
