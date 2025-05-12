@@ -36,11 +36,18 @@ export const UserProfileSidebar = ({
 	const { isOpenPopup } = useThread()
 	const { currentUser, isSameUser, getUserInfo } = useProfile()
 	const { data: session } = useSession()
-	const { value: user } = useAsync(async () => {
-		await getUserInfo(userSlug as string)
-		if (currentUser === null) return null
-		return currentUser
-	}, [userSlug, currentUser])
+	const [user, setUser] = useState(currentUser)
+
+	useAsync(async () => {
+		if (!userSlug) return currentUser || null
+		try {
+			const userInfo = await getUserInfo(userSlug as string)
+			if (userInfo) setUser(userInfo.user)
+		} catch (error) {
+			console.error('Failed to fetch user info:', error)
+			return currentUser
+		}
+	}, [userSlug, pathname])
 
 	const sameUser = isSameUser(user?.userId)
 
