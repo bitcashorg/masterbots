@@ -16,21 +16,21 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { IconSpinner } from '@/components/ui/icons'
 import { Switch } from '@/components/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { cn } from '@/lib/utils'
-import type { PreferenceSectionProps } from '@/types/types'
-import { AArrowDown, AArrowUp, Plus } from 'lucide-react'
-import { PreferenceItemTitle } from './preference-item'
-
-import { IconSpinner } from '@/components/ui/icons'
 import { useSonner } from '@/lib/hooks/useSonner'
+import { cn } from '@/lib/utils'
 import {
 	deleteUserMessagesAndThreads,
 	updateUserDeletionRequest,
 } from '@/services/hasura'
+import type { PreferenceSectionProps } from '@/types/types'
+import { AArrowDown, AArrowUp, Plus } from 'lucide-react'
+import { signOut } from 'next-auth/react'
 import { useSession } from 'next-auth/react'
 import { useState } from 'react'
+import { PreferenceItemTitle } from './preference-item'
 
 export function PreferenceSection({
 	title,
@@ -75,6 +75,7 @@ export function PreferenceSection({
 				type: 'success',
 				text: 'User account deletion requested successfully.',
 			})
+			signOut({ callbackUrl: '/' })
 			setDeleteDialogOpen(false)
 		} catch (error) {
 			console.error('Failed to request user account deletion:', error)
@@ -139,11 +140,13 @@ export function PreferenceSection({
 					<AlertDialogHeader>
 						<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
 						<AlertDialogDescription>
-							{buttonType === 'Delete Account'
-								? 'This will permanently delete  all your personal data and all your conversations and threads from our servers.'
-								: buttonType === 'Delete Threads'
-									? 'This will permanently delete all your published threads and all your related content of your public threads from our servers.'
-									: 'This will permanently delete your chat message and remove yourdata from our servers.'}
+							{buttonType === 'delete_account'
+								? 'This will permanently delete  all your personal data and all your conversations and threads from our servers after 30 days'
+								: ''}
+
+							{buttonType === 'delete_threads'
+								? 'This will permanently delete all your published threads and all your related content of your public threads from our servers.'
+								: ''}
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>

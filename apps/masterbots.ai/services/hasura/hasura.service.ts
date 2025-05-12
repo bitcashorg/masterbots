@@ -1166,6 +1166,7 @@ export async function getUserByEmail({
 				role: true,
 				slug: true,
 				deletionRequestedAt: true,
+				email: true,
 			},
 		})
 		return { users: user as User[] }
@@ -1754,9 +1755,11 @@ export async function fetchDomainTags({
 export async function updateUserDeletionRequest({
 	userId,
 	jwt,
+	reset = false,
 }: {
 	userId: string
 	jwt: string
+	reset?: boolean
 }): Promise<{ success: boolean; error?: string }> {
 	try {
 		if (!jwt) {
@@ -1768,7 +1771,9 @@ export async function updateUserDeletionRequest({
 			updateUserByPk: {
 				__args: {
 					pkColumns: { userId },
-					_set: { deletionRequestedAt: new Date().toISOString() },
+					_set: {
+						deletionRequestedAt: reset ? null : new Date().toISOString(),
+					},
 				},
 				userId: true,
 			},

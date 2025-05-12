@@ -11,47 +11,59 @@ import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { IconSpinner } from '../ui/icons'
+import { DeletionRequest } from './deletion-request'
 
 export default function SignInForm() {
 	const router = useRouter()
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
 	const [showPassword, setShowPassword] = useState(false)
+	const [isLoading, setIsLoading] = useState(false)
+	const [openRequestModal, setOpenRequestModal] = useState(false)
+	const [date, setDate] = useState<string | number | Date>('')
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
-		const form = new FormData(e.currentTarget as HTMLFormElement)
-		const email = form.get('email') as string
-		const password = form.get('password') as string
+		setIsLoading(true)
+		try {
+			const form = new FormData(e.currentTarget as HTMLFormElement)
+			const email = form.get('email') as string
+			const password = form.get('password') as string
 
-		setErrorMessage(null)
-		const result = await signIn('credentials', {
-			email,
-			password,
-			redirect: false,
-		})
+			setErrorMessage(null)
+			const result = await signIn('credentials', {
+				email,
+				password,
+				redirect: false,
+			})
 
-		if (result?.error) {
-			setErrorMessage('Invalid email or password. Please try again')
-		} else {
-			const user = await getUserByEmail({ email: email || '' })
-			if (!user) {
-				setErrorMessage('User not found. Please sign up.')
-				return
-			}
-			if (user.users[0].deletionRequestedAt) {
-				// Redirect to deletion warning page
-				router.push(
-					`/auth/deletion-request?date=${user.users[0].deletionRequestedAt}`,
-				)
+			if (result?.error) {
+				setErrorMessage('Invalid email or password. Please try again')
 			} else {
-				// Proceed to the dashboard
-				router.push('/c')
+				const user = await getUserByEmail({ email: email || '' })
+				if (!user) {
+					setErrorMessage('User not found. Please sign up.')
+					return
+				}
+				if (user.users[0].deletionRequestedAt) {
+					setDate(user.users[0].deletionRequestedAt)
+					setOpenRequestModal(true)
+				} else {
+					// Proceed to the dashboard
+					router.push('/c')
+				}
 			}
+		} catch (error) {
+			console.error('Error during sign-in:', error)
+			setErrorMessage('An error occurred. Please try again later.')
+		} finally {
+			setIsLoading(false)
 		}
 	}
 
 	return (
 		<form onSubmit={handleSubmit} className="space-y-4">
+			{openRequestModal ? <DeletionRequest deletionDate={date} /> : null}
 			{errorMessage && <div className="text-red-600">{errorMessage}</div>}
 			<div className="space-y-2">
 				<Label htmlFor="email" variant="required">
@@ -86,8 +98,8 @@ export default function SignInForm() {
 					</button>
 				</div>
 			</div>
-			<Button type="submit" className="w-full">
-				Sign In
+			<Button type="submit" className="w-full" disabled={isLoading}>
+				Sign In {isLoading && <IconSpinner className="ml-2 animate-spin" />}
 			</Button>
 			<Link
 				href="/auth/forgot-password"
