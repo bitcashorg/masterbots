@@ -315,7 +315,11 @@ export function extractImageFiles(files: any[] | undefined) {
 export function hasImageGeneration(
 	message: Message & Partial<MBMessage>,
 ): boolean {
-	return Boolean(message.parts?.some((part) => part.type === 'file'))
+	return Boolean(
+		message.parts?.some(
+			(part) => part.type === 'file' && part.mimeType.startsWith('image/'),
+		),
+	)
 }
 
 //? Extract image content from any format
@@ -323,7 +327,9 @@ export function extractImageContent(
 	message: Message & Partial<MBMessage>,
 ): any[] | null | undefined {
 	if (message.parts?.length) {
-		return message.parts.filter((part) => part.type === 'file')
+		return message.parts.filter(
+			(part) => part.type === 'file' && part.mimeType.startsWith('image/'),
+		)
 	}
 	return null
 }

@@ -32,7 +32,7 @@ export function GeneratedImage({
 			)}
 			<div className="relative w-full max-w-3xl mx-auto aspect-video">
 				<Image
-					src={base64}
+					src={`data:${mimeType};base64,${base64}`}
 					alt={alt}
 					fill
 					className="object-contain"
