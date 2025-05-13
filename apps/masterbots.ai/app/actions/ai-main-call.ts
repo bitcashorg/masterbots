@@ -459,6 +459,7 @@ export async function createResponseStream(
 						google: {
 							//? Enables web search
 							useSearchGrounding: webSearch || false,
+							responseModalities: ['TEXT', 'IMAGE'],
 						},
 					},
 				})
