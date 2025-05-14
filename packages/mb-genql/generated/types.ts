@@ -2606,6 +2606,7 @@ export default {
       chatbot: [54],
       chatbotId: [243],
       complexityEnum: [175],
+      deepExpertise: [0],
       favorite: [0],
       lengthEnum: [247],
       preferenceId: [243],
@@ -2617,6 +2618,7 @@ export default {
       typeEnum: [749],
       user: [768],
       userId: [840],
+      webSearch: [0],
       __typename: [600],
     },
     PreferenceAggregate: {
@@ -2686,6 +2688,7 @@ export default {
       chatbot: [62],
       chatbotId: [244],
       complexityEnum: [178],
+      deepExpertise: [1],
       favorite: [1],
       lengthEnum: [250],
       preferenceId: [244],
@@ -2697,6 +2700,7 @@ export default {
       typeEnum: [752],
       user: [771],
       userId: [812],
+      webSearch: [1],
       __typename: [600],
     },
     PreferenceConstraint: {},
@@ -2709,6 +2713,7 @@ export default {
       chatbot: [151],
       chatbotId: [243],
       complexityEnum: [184],
+      deepExpertise: [0],
       favorite: [0],
       lengthEnum: [256],
       preferenceId: [243],
@@ -2720,6 +2725,7 @@ export default {
       typeEnum: [758],
       user: [777],
       userId: [840],
+      webSearch: [0],
       __typename: [600],
     },
     PreferenceMaxFields: {
@@ -2777,6 +2783,7 @@ export default {
       chatbot: [153],
       chatbotId: [358],
       complexityEnum: [186],
+      deepExpertise: [358],
       favorite: [358],
       lengthEnum: [258],
       preferenceId: [358],
@@ -2788,6 +2795,7 @@ export default {
       typeEnum: [760],
       user: [779],
       userId: [358],
+      webSearch: [358],
       __typename: [600],
     },
     PreferencePkColumnsInput: {
@@ -2800,6 +2808,7 @@ export default {
     PreferenceSelectColumnPreferenceAggregateBoolExpBool_orArgumentsColumns: {},
     PreferenceSetInput: {
       chatbotId: [243],
+      deepExpertise: [0],
       favorite: [0],
       preferenceId: [243],
       preferredComplexity: [600],
@@ -2807,6 +2816,7 @@ export default {
       preferredTone: [600],
       preferredType: [600],
       userId: [840],
+      webSearch: [0],
       __typename: [600],
     },
     PreferenceStddevFields: {
@@ -2846,6 +2856,7 @@ export default {
     },
     PreferenceStreamCursorValueInput: {
       chatbotId: [243],
+      deepExpertise: [0],
       favorite: [0],
       preferenceId: [243],
       preferredComplexity: [600],
@@ -2853,6 +2864,7 @@ export default {
       preferredTone: [600],
       preferredType: [600],
       userId: [840],
+      webSearch: [0],
       __typename: [600],
     },
     PreferenceSumFields: {

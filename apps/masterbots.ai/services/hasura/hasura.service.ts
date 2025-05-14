@@ -1336,6 +1336,11 @@ export async function getUserBySlug({
 						username: true,
 					},
 				},
+
+				preferences: {
+					webSearch: true,
+					deepExpertise: true,
+				},
 			},
 		} as const)
 

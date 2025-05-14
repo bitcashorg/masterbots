@@ -28,32 +28,37 @@ insert_permissions:
           _eq: X-Hasura-User-Id
       columns:
         - chatbot_id
+        - deep_expertise
         - favorite
         - preferred_complexity
         - preferred_length
         - preferred_tone
         - preferred_type
         - user_id
+        - web_search
     comment: ""
 select_permissions:
   - role: moderator
     permission:
       columns:
-        - favorite
         - chatbot_id
+        - deep_expertise
+        - favorite
         - preference_id
         - preferred_complexity
         - preferred_length
         - preferred_tone
         - preferred_type
         - user_id
+        - web_search
       filter: {}
     comment: ""
   - role: user
     permission:
       columns:
-        - favorite
         - chatbot_id
+        - deep_expertise
+        - favorite
         - preference_id
         - preferred_complexity
         - preferred_length

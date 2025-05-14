@@ -13,7 +13,7 @@ import {
 	mbObjectSchema,
 	setStreamerPayload,
 } from '@/lib/helpers/ai-helpers'
-import { aiTools } from '@/lib/helpers/ai-schemas'
+import type { aiTools } from '@/lib/helpers/ai-schemas'
 import { fetchChatbotMetadata } from '@/services/hasura'
 import type {
 	AiClientType,
@@ -23,11 +23,12 @@ import type {
 	ClassifyQuestionParams,
 	CleanPromptResult,
 	JSONResponseStream,
+	StreamTextParams,
 } from '@/types/types'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { createGroq } from '@ai-sdk/groq'
-import { createOpenAI } from '@ai-sdk/openai'
+import { createOpenAI, openai } from '@ai-sdk/openai'
 import {
 	type Message,
 	extractReasoningMiddleware,
@@ -327,15 +328,15 @@ export async function createResponseStream(
 		isPowerUp,
 	} = json
 	const messages = setStreamerPayload(clientType, rawMessages || [])
-
-	const tools: Partial<typeof aiTools> = {
+	const tools: StreamTextParams['tools'] = {
 		// ? Temp disabling ICL as tool. Using direct ICL integration to main prompt instead. Might be enabled later.
 		// chatbotMetadataExamples: aiTools.chatbotMetadataExamples
 	}
 
-	// console.log('[SERVER] webSearch', webSearch)
-
-	if (webSearch) tools.webSearch = aiTools.webSearch
+	if (webSearch) {
+		// biome-ignore lint/suspicious/noExplicitAny: It is broken in the ai-sdk
+		tools.webSearch = openai.tools.webSearchPreview as any
+	}
 
 	try {
 		let response: ReturnType<typeof streamText>
@@ -371,6 +372,7 @@ export async function createResponseStream(
 							topP: OPEN_AI_ENV_CONFIG.TOP_P,
 							messages: coreMessages,
 							model: modelToUse,
+							//? This is a workaround for the OpenAI API to not return the reasoning
 							maxRetries: 2,
 							tools,
 						}

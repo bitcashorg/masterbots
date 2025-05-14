@@ -1,6 +1,6 @@
 import type { mbObjectSchema } from '@/lib/helpers/ai-helpers'
 import type { WordWareFlowPaths } from '@/types/wordware-flows.types'
-import type { Message } from 'ai'
+import type { Message, streamText } from 'ai'
 import type { UserRole } from 'mb-drizzle'
 import type {
 	Chatbot,
@@ -195,15 +195,6 @@ export type ChatbotMetadataHeaders = {
 
 export type ReturnFetchChatbotMetadata = ChatbotMetadata | null
 
-export type CoreMessage = {
-	id: string
-	content: string
-	user: {
-		id: string
-		name: string
-	}
-}
-
 export type AiClientType =
 	| 'OpenAI'
 	| 'Anthropic'
@@ -226,15 +217,7 @@ export type JSONResponseStream = {
 }
 
 // ? New type for streamText function parameters if needed
-export type StreamTextParams = {
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	model: any // ? Replace 'any' with the correct type from the SDK if available
-	messages: CoreMessage[]
-	temperature?: number
-	maxTokens?: number
-	topP?: number
-	frequencyPenalty?: number
-}
+export type StreamTextParams = Parameters<typeof streamText>[0]
 
 // * Next-auth types
 declare module 'next-auth' {
