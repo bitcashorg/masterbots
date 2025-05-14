@@ -296,3 +296,40 @@ export function extractReasoningContent(
 	}
 	return message.thinking
 }
+
+// ? Extract image files from the message
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+export function extractImageFiles(files: any[] | undefined) {
+	if (!files || !Array.isArray(files)) return []
+
+	return files
+		.filter((file) => file.mimeType?.startsWith("image/"))
+		.map((file) => ({
+			base64: file.base64,
+			uint8Array: file.uint8Array,
+			mimeType: file.mimeType,
+		}))
+}
+
+//? Check if a message contains image files
+export function hasImageGeneration(
+	message: Message & Partial<MBMessage>,
+): boolean {
+	return Boolean(
+		message.parts?.some(
+			(part) => part.type === 'file' && part.mimeType.startsWith('image/'),
+		),
+	)
+}
+
+//? Extract image content from any format
+export function extractImageContent(
+	message: Message & Partial<MBMessage>,
+): any[] | null | undefined {
+	if (message.parts?.length) {
+		return message.parts.filter(
+			(part) => part.type === 'file' && part.mimeType.startsWith('image/'),
+		)
+	}
+	return null
+}

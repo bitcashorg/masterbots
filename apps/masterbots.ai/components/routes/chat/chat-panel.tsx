@@ -25,6 +25,7 @@ import { appConfig } from 'mb-env'
 import type { Chatbot } from 'mb-genql'
 import { useCallback, useState } from 'react'
 
+
 export interface ChatPanelProps
 	extends Pick<
 		UseChatHelpers,
