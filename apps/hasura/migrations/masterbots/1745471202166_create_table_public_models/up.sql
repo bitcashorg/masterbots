@@ -27,6 +27,7 @@ INSERT INTO public.models (model, enabled, type) VALUES
     ('gemini-2.5-pro-preview-03-25', true, 'paid'),
     ('gemini_2_0_flash_lite', false, 'free'),
     ('llama-3-sonar-large-32k-online', false, 'paid')
+    ('gemini-2.0-flash-exp', true, 'paid')
 ON CONFLICT ("model") DO NOTHING;
 
 -- Add index to models_enum table
