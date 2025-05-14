@@ -113,7 +113,7 @@ export function UserMenu({ user }: UserMenuProps) {
 										? user.slug
 										: toSlugWithUnderScore(user?.name || ''),
 								})}
-								className="text-xs w-full"
+								className="w-full text-xs"
 							>
 								<div className="font-medium">{user?.name}</div>
 								<div className="text-zinc-500">{user?.email}</div>
@@ -128,13 +128,19 @@ export function UserMenu({ user }: UserMenuProps) {
 						</DropdownMenuItem>
 						<DropdownMenuItem className="flex items-center justify-between w-full">
 							<Link
-								href={`/u/${user.slug}/s/pref`}
+								href={appConfig.features.devMode ? `/u/${user.slug}/s/pref` : '#'}
 								className={cn(
 									buttonVariants({
 										variant: 'ghost',
 									}),
 									'flex w-full gap-4 justify-between px-0 text-sm',
+									!appConfig.features.devMode && 'opacity-50 cursor-not-allowed'
 								)}
+								onClick={(e) => {
+									if (!appConfig.features.devMode) {
+										e.preventDefault()
+									}
+								}}
 							>
 								Preferences
 								<SettingsIcon className="size-4" />
@@ -165,7 +171,7 @@ export function UserMenu({ user }: UserMenuProps) {
 									callbackUrl: '/',
 								})
 							}
-							className="flex w-full gap-4 justify-between px-2 text-sm cursor-pointer"
+							className="flex justify-between w-full gap-4 px-2 text-sm cursor-pointer"
 						>
 							Log Out
 							<LogOutIcon className="size-4" />

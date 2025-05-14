@@ -459,7 +459,12 @@ export async function createResponseStream(
 						google: {
 							//? Enables web search
 							useSearchGrounding: webSearch || false,
-							responseModalities: ['TEXT', 'IMAGE'],
+							//? Only enable response modalities for Gemini 2.0 Flash
+							...(model === 'gemini-2.0-flash-exp'
+								? {
+										responseModalities: ['TEXT', 'IMAGE'],
+									}
+								: {}),
 						},
 					},
 				})
