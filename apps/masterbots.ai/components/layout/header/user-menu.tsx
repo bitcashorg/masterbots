@@ -100,7 +100,7 @@ export function UserMenu({ user }: UserMenuProps) {
 						// This would dispatch the event that we are clicking on,
 						// making this function to call and close the menu ;)
 						// JS Events FTW! - Andler
-						e.target.dispatchEvent(e as unknown as Event)
+						e.currentTarget.dispatchEvent(e as unknown as Event)
 						setOpen(false)
 					}}
 				>
@@ -128,22 +128,13 @@ export function UserMenu({ user }: UserMenuProps) {
 						</DropdownMenuItem>
 						<DropdownMenuItem className="flex items-center justify-between w-full">
 							<Link
-								href={
-									appConfig.features.devMode ? `/u/${user.slug}/s/pref` : '#'
-								}
+								href={`/u/${user.slug}/s/pref`}
 								className={cn(
 									buttonVariants({
 										variant: 'ghost',
 									}),
 									'flex w-full gap-4 justify-between px-0 text-sm',
-									!appConfig.features.devMode &&
-										'opacity-50 cursor-not-allowed',
 								)}
-								onClick={(e) => {
-									if (!appConfig.features.devMode) {
-										e.preventDefault()
-									}
-								}}
 							>
 								Preferences
 								<SettingsIcon className="size-4" />
