@@ -12,7 +12,11 @@ import {
 } from '@/lib/helpers/ai-helpers'
 import { memoizedMarkdownComponents } from '@/lib/memoized-markdown-components'
 import { cn, getRouteType } from '@/lib/utils'
-import type { ChatMessageProps, WebSearchResult } from '@/types/types'
+import type {
+	ChatMessageProps,
+	MessageWithExamples,
+	WebSearchResult,
+} from '@/types/types'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import rehypeMathJax from 'rehype-mathjax'
@@ -107,21 +111,32 @@ export function ChatMessage({
 
 	//? Images section component
 	const ImagesSection = () => {
-		if (!hasImageGeneration(message)) return null
+		if (!hasImageGeneration(message as MessageWithExamples)) return null
 
-		const images = extractImageContent(message)
-		if (!images || images.length === 0) return null
+		const images = extractImageContent(message as MessageWithExamples)
+		if (!images || images.length === 0) {
+			console.log('No images extracted from message parts:', message.parts)
+			return null
+		}
+
+		console.log('Extracted images:', images)
 
 		return (
 			<div className="mt-4 space-y-4">
-				{images.map((image, i) => (
-					<GeneratedImage
-						key={`image-${i}`}
-						base64={image.base64}
-						mimeType={image.mimeType}
-						alt={`AI generated image ${i + 1}`}
-					/>
-				))}
+				{images.map((image, i) => {
+					if (!image.base64) {
+						console.warn(`Image ${i} has no base64 data`)
+						return null
+					}
+					return (
+						<GeneratedImage
+							key={`image-${i}`}
+							base64={image.base64}
+							mimeType={image.mimeType || 'image/png'}
+							alt={`AI generated image ${i + 1}`}
+						/>
+					)
+				})}
 			</div>
 		)
 	}

@@ -174,7 +174,7 @@ export function PreferenceSection({
 					</AccordionTrigger>
 					<AccordionContent>
 						<Card className="bg-transparent border-mirage">
-							<CardContent className="px-4 py-8 flex flex-col justify-center items-center gap-y-4 w-full">
+							<CardContent className="flex flex-col items-center justify-center w-full px-4 py-8 gap-y-4">
 								{items.map((item, idx) => (
 									<div
 										key={item.title}
@@ -192,14 +192,16 @@ export function PreferenceSection({
 												defaultChecked={
 													'defaultChecked' in item ? item.defaultChecked : false
 												}
-												className="data-[state=unchecked]:bg-mirage data-[state=checked]:bg-mirage [&>span[data-state=unchecked]]:bg-[#71717A] [&>span[data-state=checked]]:bg-accent"
+												disabled={true}
+												className="data-[state=unchecked]:bg-mirage data-[state=checked]:bg-mirage [&>span[data-state=unchecked]]:bg-[#71717A] [&>span[data-state=checked]]:bg-accent opacity-50"
 											/>
 										)}
 										{item.type === 'toggleGroup' && (
 											<ToggleGroup
 												type="single"
 												defaultValue="b"
-												className="gap-0 border rounded-full border-mirage h-7"
+												disabled={true}
+												className="gap-0 border rounded-full opacity-50 border-mirage h-7"
 											>
 												<ToggleGroupItem
 													value="a"
@@ -222,12 +224,12 @@ export function PreferenceSection({
 											</ToggleGroup>
 										)}
 										{item.type === 'button' && (
-											<Plus className="cursor-pointer" />
+											<Plus className="opacity-50 cursor-not-allowed" />
 										)}
 										{item.type === 'dangerButton' && (
 											<Button
 												onClick={() => executeButton(item.buttonId ?? '')}
-												className="bg-transparent border border-destructive text-destructive p-2 text-sm min-h-9"
+												className="p-2 text-sm bg-transparent border border-destructive text-destructive min-h-9"
 											>
 												{'icon' in item && item.icon && (
 													<item.icon className="mr-1 size-4" />

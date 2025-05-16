@@ -449,18 +449,26 @@ export async function createResponseStream(
 					previewToken || (process.env.GOOGLE_GENERATIVE_AI_API_KEY as string),
 				)
 				const googleModel = googleAI(model)
+
+				//? Adjust configuration for Gemini 2.0 Flash Exp image generation
+				const isGemini2FlashExp = model === 'gemini-2.0-flash-exp'
+				console.log('isGemini2FlashExp -> 🤖 ', isGemini2FlashExp)
+
+				//? If using Gemini 2.0 Flash Exp, only use user messages
+				const adjustedMessages = isGemini2FlashExp
+					? coreMessages.filter((msg) => msg.role === 'user')
+					: coreMessages
+
 				response = await streamText({
 					model: googleModel,
-					messages: coreMessages,
+					messages: adjustedMessages,
 					temperature: 0.3,
 					tools,
 					maxRetries: 2,
 					providerOptions: {
 						google: {
-							//? Enables web search
 							useSearchGrounding: webSearch || false,
-							//? Only enable response modalities for Gemini 2.0 Flash
-							...(model === 'gemini-2.0-flash-exp'
+							...(model.endsWith('flash-exp')
 								? {
 										responseModalities: ['TEXT', 'IMAGE'],
 									}
