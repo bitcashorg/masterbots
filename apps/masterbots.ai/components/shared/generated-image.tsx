@@ -1,7 +1,7 @@
-import { useState } from 'react'
-import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-import { Loader2, Download } from 'lucide-react'
+import { Download, Loader2 } from 'lucide-react'
+import Image from 'next/image'
+import { useState } from 'react'
 
 interface GeneratedImageProps {
 	base64: string
