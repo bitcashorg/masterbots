@@ -303,7 +303,7 @@ export function extractImageFiles(files: any[] | undefined) {
 	if (!files || !Array.isArray(files)) return []
 
 	return files
-		.filter((file) => file.mimeType?.startsWith("image/"))
+		.filter((file) => file.mimeType?.startsWith('image/'))
 		.map((file) => ({
 			base64: file.base64,
 			uint8Array: file.uint8Array,

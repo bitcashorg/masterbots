@@ -126,13 +126,14 @@ export async function getOpeningActiveThreadHelper(
 		return
 
 	const threadSlug =
-		((isPublic && publicThreadSlug) ??
-			(isPersonal && personalThreadSlug) ??
-			(isProfile && userProfileThreadSlug) ??
-			(isBotProfile && chatbotProfileThreadSlug)) ||
+		(isPublic && publicThreadSlug) ||
+		(isPersonal && personalThreadSlug) ||
+		(isProfile && userProfileThreadSlug) ||
+		(isBotProfile && chatbotProfileThreadSlug) ||
 		''
 	const thread = await getThread({
 		threadSlug,
+		isPersonal,
 	})
 
 	if (!thread) {
@@ -143,14 +144,11 @@ export async function getOpeningActiveThreadHelper(
 		return
 	}
 	if (
-		(publicThreadQuestionSlug && isPublic) ||
-		(personalThreadQuestionSlug && isPersonal) ||
-		(userProfileThreadQuestionSlug && isProfile) ||
-		(chatbotProfileThreadQuestionSlug && isBotProfile) ||
-		(publicThreadSlug && isPublic) ||
-		(personalThreadSlug && isPersonal) ||
-		(userProfileThreadSlug && isProfile) ||
-		(chatbotProfileThreadSlug && isBotProfile)
+		(isPublic && (publicThreadQuestionSlug || publicThreadSlug)) ||
+		(isProfile && (userProfileThreadQuestionSlug || userProfileThreadSlug)) ||
+		(isPersonal && (personalThreadQuestionSlug || personalThreadSlug)) ||
+		(isBotProfile &&
+			(chatbotProfileThreadQuestionSlug || chatbotProfileThreadSlug))
 	) {
 		console.log(
 			'scrolling to',

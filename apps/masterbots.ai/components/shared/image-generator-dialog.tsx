@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
 	Dialog,
@@ -19,6 +18,7 @@ import {
 import { createImageGenerationPrompt } from '@/lib/constants/prompts'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { ImageIcon } from 'lucide-react'
+import { useState } from 'react'
 
 // TODO:  Use this image generation dialog base for the pro version.
 
