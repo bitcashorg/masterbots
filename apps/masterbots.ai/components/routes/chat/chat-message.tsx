@@ -110,18 +110,29 @@ export function ChatMessage({
 		if (!hasImageGeneration(message)) return null
 
 		const images = extractImageContent(message)
-		if (!images || images.length === 0) return null
+		if (!images || images.length === 0) {
+			console.log('No images extracted from message parts:', message.parts)
+			return null
+		}
+
+		console.log('Extracted images:', images)
 
 		return (
 			<div className="mt-4 space-y-4">
-				{images.map((image, i) => (
-					<GeneratedImage
-						key={`image-${i}`}
-						base64={image.base64}
-						mimeType={image.mimeType}
-						alt={`AI generated image ${i + 1}`}
-					/>
-				))}
+				{images.map((image, i) => {
+					if (!image.base64) {
+						console.warn(`Image ${i} has no base64 data`)
+						return null
+					}
+					return (
+						<GeneratedImage
+							key={`image-${i}`}
+							base64={image.base64}
+							mimeType={image.mimeType || 'image/png'}
+							alt={`AI generated image ${i + 1}`}
+						/>
+					)
+				})}
 			</div>
 		)
 	}

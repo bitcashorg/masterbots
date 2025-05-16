@@ -17,6 +17,7 @@ import {
 	type ImagePart,
 	type Message,
 	type TextPart,
+	type FilePart,
 	generateId,
 } from 'ai'
 import type { Message as MBMessage } from 'mb-genql'
@@ -303,7 +304,7 @@ export function extractImageFiles(files: any[] | undefined) {
 	if (!files || !Array.isArray(files)) return []
 
 	return files
-		.filter((file) => file.mimeType?.startsWith("image/"))
+		.filter((file) => file.mimeType?.startsWith('image/'))
 		.map((file) => ({
 			base64: file.base64,
 			uint8Array: file.uint8Array,
@@ -312,24 +313,56 @@ export function extractImageFiles(files: any[] | undefined) {
 }
 
 //? Check if a message contains image files
-export function hasImageGeneration(
-	message: Message & Partial<MBMessage>,
-): boolean {
-	return Boolean(
-		message.parts?.some(
-			(part) => part.type === 'file' && part.mimeType.startsWith('image/'),
-		),
+export function hasImageGeneration(message: Message): boolean {
+	if (!message.parts || !Array.isArray(message.parts)) {
+		return false
+	}
+
+	return message.parts.some(
+		(part) => part.type === 'file' && part.mimeType?.startsWith('image/'),
 	)
 }
 
-//? Extract image content from any format
 export function extractImageContent(
-	message: Message & Partial<MBMessage>,
-): any[] | null | undefined {
-	if (message.parts?.length) {
-		return message.parts.filter(
-			(part) => part.type === 'file' && part.mimeType.startsWith('image/'),
-		)
+	message: Message,
+): { base64: string; mimeType: string }[] {
+	if (!message.parts || !Array.isArray(message.parts)) {
+		console.log('No parts found in message:', message)
+		return []
 	}
-	return null
+
+	// Filter for parts that are of type 'file' and have image mime types
+	const imageParts = message.parts.filter(
+		(part) => part.type === 'file' && part.mimeType?.startsWith('image/'),
+	)
+
+	if (imageParts.length === 0) {
+		console.log('No image parts found in message parts:', message.parts)
+		return []
+	}
+
+	console.log('Found image parts:', imageParts)
+
+	return imageParts.map((part) => {
+		const filePart = part as FilePart
+		if (!filePart.data) {
+			console.warn('Image part has no data:', filePart)
+			return { base64: '', mimeType: filePart.mimeType || 'image/png' }
+		}
+
+		//? For image parts, the data should be the base64 string
+		const base64Data =
+			typeof filePart.data === 'string'
+				? filePart.data
+				: filePart.data instanceof URL
+					? filePart.data.toString()
+					: filePart.data instanceof Uint8Array
+						? Buffer.from(filePart.data).toString('base64')
+						: ''
+
+		return {
+			base64: base64Data,
+			mimeType: filePart.mimeType || 'image/png',
+		}
+	})
 }
