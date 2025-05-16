@@ -7,7 +7,7 @@ import {
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
 import { memoizedMarkdownComponents } from '@/lib/memoized-markdown-components'
 import { cn, getRouteType } from '@/lib/utils'
-import type { ChatMessageProps, WebSearchResult } from '@/types/types'
+import type { ChatMessageProps, WebSearchResult, MessageWithExamples } from '@/types/types'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import rehypeMathJax from 'rehype-mathjax'
@@ -107,9 +107,9 @@ export function ChatMessage({
 
 	//? Images section component
 	const ImagesSection = () => {
-		if (!hasImageGeneration(message)) return null
+		if (!hasImageGeneration(message as MessageWithExamples)) return null
 
-		const images = extractImageContent(message)
+		const images = extractImageContent(message as MessageWithExamples)
 		if (!images || images.length === 0) {
 			console.log('No images extracted from message parts:', message.parts)
 			return null
