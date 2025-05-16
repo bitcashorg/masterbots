@@ -278,11 +278,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 							mimeType: string
 							fileName: string
 						}) => ({
-							type: 'image',
-							base64: file.base64,
-							uint8Array: file.uint8Array,
+							type: 'file',
+							data: file.base64,
 							mimeType: file.mimeType,
-							fileName: file.fileName,
 						}),
 					)
 					if (appConfig.features.devMode) {
@@ -435,9 +433,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						model: selectedModel,
 						content: finalMessage.content,
 						createdAt: new Date(Date.now() + 1000).toISOString(),
-						// TODO: Uncomment when BE is ready for image gen files. @bran18 and @andlerdev
-						// files:
-						// 	finalMessage.parts?.filter((part) => part.type === 'file') || [],
+						examples: finalMessage.parts?.filter((part) => part.type === 'file') || [],
 					},
 				]
 

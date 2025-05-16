@@ -22,6 +22,7 @@ import {
 } from 'ai'
 import type { Message as MBMessage } from 'mb-genql'
 import type OpenAI from 'openai'
+import type { MessageWithExamples, StoredImagePart } from '@/types/types'
 
 // TODO: this funtion will need to be refactor to use the model_enum coming from hasure isntead of AiClientType
 // * This function gets the model client type
@@ -312,57 +313,44 @@ export function extractImageFiles(files: any[] | undefined) {
 		}))
 }
 
-//? Check if a message contains image files
-export function hasImageGeneration(message: Message): boolean {
-	if (!message.parts || !Array.isArray(message.parts)) {
-		return false
+export function hasImageGeneration(message: MessageWithExamples): boolean {
+	if (!message.examples || !Array.isArray(message.examples)) {
+		return false;
 	}
 
-	return message.parts.some(
-		(part) => part.type === 'file' && part.mimeType?.startsWith('image/'),
-	)
+	return message.examples.some(
+		(part: StoredImagePart) => part.type === 'file' || part.type === 'image'
+	);
 }
 
 export function extractImageContent(
-	message: Message,
+	message: MessageWithExamples
 ): { base64: string; mimeType: string }[] {
-	if (!message.parts || !Array.isArray(message.parts)) {
-		console.log('No parts found in message:', message)
-		return []
+	if (!message.examples || !Array.isArray(message.examples)) {
+		console.log('No examples found in message:', message);
+		return [];
 	}
 
-	// Filter for parts that are of type 'file' and have image mime types
-	const imageParts = message.parts.filter(
-		(part) => part.type === 'file' && part.mimeType?.startsWith('image/'),
-	)
+	const imageParts = message.examples.filter(
+		(part: StoredImagePart) => part.type === 'file' || part.type === 'image'
+	);
 
 	if (imageParts.length === 0) {
-		console.log('No image parts found in message parts:', message.parts)
-		return []
+		console.log('No image parts found in message examples:', message.examples);
+		return [];
 	}
 
-	console.log('Found image parts:', imageParts)
+	console.log('Found image parts:', imageParts);
 
-	return imageParts.map((part) => {
-		const filePart = part as FilePart
-		if (!filePart.data) {
-			console.warn('Image part has no data:', filePart)
-			return { base64: '', mimeType: filePart.mimeType || 'image/png' }
+	return imageParts.map((part: StoredImagePart) => {
+		if (!part.data) {
+			console.warn('Image part has no data:', part);
+			return { base64: '', mimeType: part.mimeType || 'image/png' };
 		}
-
-		//? For image parts, the data should be the base64 string
-		const base64Data =
-			typeof filePart.data === 'string'
-				? filePart.data
-				: filePart.data instanceof URL
-					? filePart.data.toString()
-					: filePart.data instanceof Uint8Array
-						? Buffer.from(filePart.data).toString('base64')
-						: ''
 
 		return {
-			base64: base64Data,
-			mimeType: filePart.mimeType || 'image/png',
-		}
-	})
+			base64: part.data,
+			mimeType: part.mimeType || 'image/png',
+		};
+	});
 }
