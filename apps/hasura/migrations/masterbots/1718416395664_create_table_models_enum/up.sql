@@ -16,5 +16,6 @@ INSERT INTO public.models_enum (name, value) VALUES
     ('GroqDeepSeek','deepseek-r1-distill-llama-70b'),
     ('Gemini__Flash__Lite','gemini_2_0_flash_lite'),
     ('Gemini__2_5__Flash','gemini-2.5-flash-preview-04-17'),
-    ('Gemini__2_5__Pro','gemini-2.5-pro-preview-03-25')
+    ('Gemini__2_5__Pro','gemini-2.5-pro-preview-03-25'),
+    ('Gemini__2_0__Flash','gemini-2.0-flash-exp')
 ON CONFLICT (name) DO UPDATE SET value = EXCLUDED.value;

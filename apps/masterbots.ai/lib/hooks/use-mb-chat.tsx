@@ -101,7 +101,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	const params = useParams<{ chatbot: string; threadSlug: string }>()
 	const { selectedModel, clientType } = useModel()
 
-
 	// const initialIsNewChat = Boolean(isContinuousThread || !activeThread?.messages.length)
 	const [{ messagesFromDB, isNewChat }, setState] = useSetState<{
 		isInitLoaded: boolean
@@ -270,6 +269,30 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				}
 				const finalMessage = { ...message }
 
+				//? Handle generated image files if present
+				if (options.files && options.files.length > 0) {
+					finalMessage.parts = options.files.map(
+						(file: {
+							base64: string
+							uint8Array: Uint8Array
+							mimeType: string
+							fileName: string
+						}) => ({
+							type: 'image',
+							base64: file.base64,
+							uint8Array: file.uint8Array,
+							mimeType: file.mimeType,
+							fileName: file.fileName,
+						}),
+					)
+					if (appConfig.features.devMode) {
+						customSonner({
+							type: 'info',
+							text: 'Generated image(s)',
+						})
+					}
+				}
+
 				//? Check if the generation was cut off
 				const isCutOff = [
 					'length',
@@ -324,7 +347,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 					return
 				}
-
 				const aiChatThreadId = resolveThreadId({
 					isContinuousThread,
 					randomThreadId: randomThreadId.current,
@@ -410,10 +432,12 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						messageId: assistantMessageId,
 						slug: assistantMessageSlug,
 						role: 'assistant',
-						// TODO: Uncomment when model FE is ready. BE is ready. @bran18
 						model: selectedModel,
 						content: finalMessage.content,
 						createdAt: new Date(Date.now() + 1000).toISOString(),
+						// TODO: Uncomment when BE is ready for image gen files. @bran18 and @andlerdev
+						// files:
+						// 	finalMessage.parts?.filter((part) => part.type === 'file') || [],
 					},
 				]
 

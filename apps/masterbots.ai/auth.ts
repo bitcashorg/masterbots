@@ -21,7 +21,7 @@ import {
 } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import Google from 'next-auth/providers/google'
-import { getUserRoleByEmail } from './services/hasura'
+import { getUserByEmail } from './services/hasura'
 
 //* NextAuth configuration strategy with multiprovider options
 export const authOptions: NextAuthOptions = {
@@ -103,7 +103,7 @@ export const authOptions: NextAuthOptions = {
 				//* Add user role to the token when signing in with Google
 				if (account?.provider === 'google') {
 					const email = user.email
-					const userRoleResult = await getUserRoleByEmail({ email })
+					const userRoleResult = await getUserByEmail({ email })
 					if (userRoleResult.users.length > 0) {
 						token.role = userRoleResult.users[0]?.role || 'user'
 						token.slug = userRoleResult.users[0]?.slug

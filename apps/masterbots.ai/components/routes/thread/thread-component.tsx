@@ -108,7 +108,6 @@ export default function ThreadComponent({
 			</SharedAccordion>
 			{/* Admin Mode Approve */}
 			{isAdminMode && <AdminModeApprove threadId={threadId} />}
-
 			<div ref={contentRef} className="w-full h-0" />
 		</li>
 	)
