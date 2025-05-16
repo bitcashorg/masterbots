@@ -128,7 +128,7 @@ export function UserMenu({ user }: UserMenuProps) {
 						</DropdownMenuItem>
 						<DropdownMenuItem className="flex items-center justify-between w-full">
 							<Link
-								href="/u/${user.slug}/s/pref"
+								href={`/u/${user.slug}/s/pref`}
 								className={cn(
 									buttonVariants({
 										variant: 'ghost',
