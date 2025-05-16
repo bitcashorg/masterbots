@@ -224,3 +224,17 @@ export const CONTINUE_GENERATION_PROMPT =
 	'Continue your response exactly where you left off.  Only add new information without repeating what you previously wrote.  Skip the preamble and only show the continuation part.'
 export const CONTINUE_GENERATION_PROMPT_2 =
 	'Kindly continue your response without repeating any information.'
+
+// TODO: Use this image generation prompt for the pro version.
+export const IMAGE_GENERATION_PROMPT_TEMPLATE =
+	'Generate an image of {description}. Make it {style} style with {details}.'
+
+export function createImageGenerationPrompt(
+	description: string,
+	style: string,
+	details: string,
+) {
+	return IMAGE_GENERATION_PROMPT_TEMPLATE.replace('{description}', description)
+		.replace('{style}', style)
+		.replace('{details}', details)
+}

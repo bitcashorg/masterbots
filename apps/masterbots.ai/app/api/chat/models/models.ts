@@ -10,6 +10,7 @@ export enum AIModels {
 	DeepSeek = 'deepseek-r1',
 	DeepSeekGroq = 'deepseek-r1-distill-llama-70b',
 	GroqDeepSeek = 'deepseek-r1-distill-llama-70b',
-	Gemini_Flash_Lite = 'gemini_2_0_flash_lite',
+	Gemini_Flash_Lite = 'gemini-2.0-flash-lite',
+	Gemini_Flash_Pro = 'gemini-2.0-flash-exp',
 	Default = 'gpt-4.1-mini-2025-04-14', //!  OpenAI_4_1_mini
 }

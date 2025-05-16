@@ -20,7 +20,8 @@ const buttonVariants = cva(
 				ghost: 'shadow-none hover:bg-muted hover:text-muted-foreground',
 				link: 'text-primary underline-offset-4 shadow-none hover:underline',
 				icon: 'flex size-8 shrink-0 select-none items-center justify-center border shadow cursor-pointer',
-				sideBarProfile: 'bg-transparent border-0 shadow-none justify-start',
+				sideBarProfile:
+					'bg-transparent border-0 shadow-none justify-start hover:bg-muted hover:text-muted-foreground',
 				powerUp: 'border border-input',
 				deepThinking: 'border border-input',
 			},

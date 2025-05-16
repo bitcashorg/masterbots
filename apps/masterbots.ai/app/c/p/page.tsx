@@ -25,16 +25,11 @@ export default async function IndexPage() {
 		userId: session?.user.id,
 	})
 
-	const user = {
-		email: session.user.email || '',
-		name: session.user.name || '',
-	}
-
 	return (
 		<>
 			<ThreadPanel threads={threads} count={count} />
 			<ChatThreadListPanel />
-			<Subscription user={user} />
+			<Subscription />
 		</>
 	)
 }
