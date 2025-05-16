@@ -433,7 +433,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						model: selectedModel,
 						content: finalMessage.content,
 						createdAt: new Date(Date.now() + 1000).toISOString(),
-						examples: finalMessage.parts?.filter((part) => part.type === 'file') || [],
+						examples:
+							finalMessage.parts?.filter((part) => part.type === 'file') || [],
 					},
 				]
 

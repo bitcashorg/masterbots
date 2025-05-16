@@ -1,23 +1,27 @@
 import { ChatMessageActions } from '@/components/routes/chat/chat-message-actions'
+import { GeneratedImage } from '@/components/shared/generated-image'
 import { MemoizedReactMarkdown } from '@/components/shared/markdown'
 import {
 	cleanClickableText,
 	extractFollowUpContext,
 } from '@/lib/chat-clickable-text'
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
+import {
+	extractImageContent,
+	hasImageGeneration,
+} from '@/lib/helpers/ai-helpers'
 import { memoizedMarkdownComponents } from '@/lib/memoized-markdown-components'
 import { cn, getRouteType } from '@/lib/utils'
-import type { ChatMessageProps, WebSearchResult, MessageWithExamples } from '@/types/types'
+import type {
+	ChatMessageProps,
+	MessageWithExamples,
+	WebSearchResult,
+} from '@/types/types'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import rehypeMathJax from 'rehype-mathjax'
 import remarkGfm from 'remark-gfm'
 import remarkRehype from 'remark-rehype'
-import { GeneratedImage } from '@/components/shared/generated-image'
-import {
-	hasImageGeneration,
-	extractImageContent,
-} from '@/lib/helpers/ai-helpers'
 
 /**
  * Displays a chat message with clickable text elements.

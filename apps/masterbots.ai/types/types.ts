@@ -437,11 +437,11 @@ export type SendMessageFromResponseMessageData = {
 }
 
 export interface StoredImagePart {
-	type: 'file' | 'image';
-	data: string;
-	mimeType: string;
+	type: 'file' | 'image'
+	data: string
+	mimeType: string
 }
 
 export type MessageWithExamples = MBMessage & {
-	examples?: StoredImagePart[];
+	examples?: StoredImagePart[]
 }

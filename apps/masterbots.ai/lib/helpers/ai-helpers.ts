@@ -9,20 +9,20 @@ import {
 	toolSchema,
 } from '@/lib/helpers/ai-schemas'
 import type { AiClientType, CleanPromptResult } from '@/types/types'
+import type { MessageWithExamples, StoredImagePart } from '@/types/types'
 import type { StreamEntry } from '@/types/wordware-flows.types'
 import type Anthropic from '@anthropic-ai/sdk'
 import {
 	type Attachment,
 	type CoreMessage,
+	type FilePart,
 	type ImagePart,
 	type Message,
 	type TextPart,
-	type FilePart,
 	generateId,
 } from 'ai'
 import type { Message as MBMessage } from 'mb-genql'
 import type OpenAI from 'openai'
-import type { MessageWithExamples, StoredImagePart } from '@/types/types'
 
 // TODO: this funtion will need to be refactor to use the model_enum coming from hasure isntead of AiClientType
 // * This function gets the model client type
@@ -315,42 +315,42 @@ export function extractImageFiles(files: any[] | undefined) {
 
 export function hasImageGeneration(message: MessageWithExamples): boolean {
 	if (!message.examples || !Array.isArray(message.examples)) {
-		return false;
+		return false
 	}
 
 	return message.examples.some(
-		(part: StoredImagePart) => part.type === 'file' || part.type === 'image'
-	);
+		(part: StoredImagePart) => part.type === 'file' || part.type === 'image',
+	)
 }
 
 export function extractImageContent(
-	message: MessageWithExamples
+	message: MessageWithExamples,
 ): { base64: string; mimeType: string }[] {
 	if (!message.examples || !Array.isArray(message.examples)) {
-		console.log('No examples found in message:', message);
-		return [];
+		console.log('No examples found in message:', message)
+		return []
 	}
 
 	const imageParts = message.examples.filter(
-		(part: StoredImagePart) => part.type === 'file' || part.type === 'image'
-	);
+		(part: StoredImagePart) => part.type === 'file' || part.type === 'image',
+	)
 
 	if (imageParts.length === 0) {
-		console.log('No image parts found in message examples:', message.examples);
-		return [];
+		console.log('No image parts found in message examples:', message.examples)
+		return []
 	}
 
-	console.log('Found image parts:', imageParts);
+	console.log('Found image parts:', imageParts)
 
 	return imageParts.map((part: StoredImagePart) => {
 		if (!part.data) {
-			console.warn('Image part has no data:', part);
-			return { base64: '', mimeType: part.mimeType || 'image/png' };
+			console.warn('Image part has no data:', part)
+			return { base64: '', mimeType: part.mimeType || 'image/png' }
 		}
 
 		return {
 			base64: part.data,
 			mimeType: part.mimeType || 'image/png',
-		};
-	});
+		}
+	})
 }
