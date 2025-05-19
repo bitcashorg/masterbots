@@ -53,6 +53,7 @@ import { useSession } from 'next-auth/react'
 import { useParams, usePathname, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useAsync, useSetState } from 'react-use'
+import { EmptyState } from '../profile/empty-state'
 
 // TODO: this is a hard to understand file since it tries to focus in too many different aspects
 // in only one file, instead of relying on reusable hooks for each context. It should be refactored.
@@ -396,6 +397,8 @@ export default function UserThreadPanel({
 		}
 	}, [searchTerm])
 
+	console.log('userProps', userProps)
+
 	return (
 		<>
 			{!isContinuousThread && (threads.length !== 0 || searchTerm) && (
@@ -417,7 +420,14 @@ export default function UserThreadPanel({
 				})}
 			>
 				{showChatbotDetails ? (
-					<ChatChatbotDetails />
+					page === 'profile' ? (
+						<EmptyState
+							title="No Threads Available"
+							description={`There are no threads available for ${userProps?.username} yet.`}
+						/>
+					) : (
+						<ChatChatbotDetails />
+					)
 				) : (
 					<ThreadList
 						threads={threads}
