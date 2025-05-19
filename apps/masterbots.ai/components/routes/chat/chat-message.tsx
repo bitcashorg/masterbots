@@ -18,7 +18,7 @@ import type {
 	WebSearchResult,
 } from '@/types/types'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import rehypeMathJax from 'rehype-mathjax'
 import remarkGfm from 'remark-gfm'
 import remarkRehype from 'remark-rehype'
@@ -110,7 +110,7 @@ export function ChatMessage({
 	}
 
 	//? Images section component
-	const ImagesSection = () => {
+	const ImagesSection = useMemo(() => {
 		if (!hasImageGeneration(message as MessageWithExamples)) return null
 
 		const images = extractImageContent(message as MessageWithExamples)
@@ -128,9 +128,11 @@ export function ChatMessage({
 						console.warn(`Image ${i} has no base64 data`)
 						return null
 					}
+					//? Create a stable key based on the image content
+					const imageKey = `${message.messageId}-${image.base64.slice(0, 32)}`
 					return (
 						<GeneratedImage
-							key={`image-${i}`}
+							key={imageKey}
 							base64={image.base64}
 							mimeType={image.mimeType || 'image/png'}
 							alt={`AI generated image ${i + 1}`}
@@ -139,7 +141,7 @@ export function ChatMessage({
 				})}
 			</div>
 		)
-	}
+	}, [message])
 
 	return (
 		<div className={cn('group relative flex items-start p-1')} {...props}>
@@ -159,7 +161,7 @@ export function ChatMessage({
 					{cleanMessage.content}
 				</MemoizedReactMarkdown>
 
-				<ImagesSection />
+				{ImagesSection}
 
 				{actionRequired && (
 					<ChatMessageActions className="md:!right-0" message={message} />
