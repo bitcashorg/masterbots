@@ -347,14 +347,33 @@ export async function createResponseStream(
 		switch (clientType) {
 			case 'OpenAI': {
 				const openaiModel = initializeOpenAi(model)
-				const openAiStreamConfig = {
-					temperature: OPEN_AI_ENV_CONFIG.TEMPERATURE,
-					topP: OPEN_AI_ENV_CONFIG.TOP_P,
-					messages: coreMessages,
-					model: openaiModel,
-					maxRetries: 2,
-					tools,
-				}
+				const isReasoningModel = model.startsWith('o4-mini')
+				const modelToUse = openaiModel
+
+				//* For OpenAI reasoning models, we don't need the middleware approach reasoning comes through the reasoningSummary option
+
+				const openAiStreamConfig = isReasoningModel
+					? {
+							messages: coreMessages,
+							model: modelToUse,
+							maxRetries: 2,
+							tools,
+							temperature: 1,
+							// providerOptions: {
+							// 	openai: {
+							// 		reasoningEffort: 'low',
+							// 		reasoningSummary: 'auto',
+							// 	},
+							// },
+						}
+					: {
+							temperature: OPEN_AI_ENV_CONFIG.TEMPERATURE,
+							topP: OPEN_AI_ENV_CONFIG.TOP_P,
+							messages: coreMessages,
+							model: modelToUse,
+							maxRetries: 2,
+							tools,
+						}
 
 				if (appConfig.features.experimentalAiConfig) {
 					// @ts-ignore: It does exist in the config
@@ -363,8 +382,6 @@ export async function createResponseStream(
 						chunking: 'line',
 					})
 				}
-
-				// Check this -> https://sdk.vercel.ai/docs/reference/ai-sdk-core/stream-text#messages.core-user-message.role
 				response = await streamText(openAiStreamConfig)
 				break
 			}
@@ -432,16 +449,30 @@ export async function createResponseStream(
 					previewToken || (process.env.GOOGLE_GENERATIVE_AI_API_KEY as string),
 				)
 				const googleModel = googleAI(model)
+
+				//? Adjust configuration for Gemini 2.0 Flash Exp image generation
+				const isGemini2FlashExp = model === 'gemini-2.0-flash-exp'
+				console.log('isGemini2FlashExp -> 🤖 ', isGemini2FlashExp)
+
+				//? If using Gemini 2.0 Flash Exp, only use user messages
+				const adjustedMessages = isGemini2FlashExp
+					? coreMessages.filter((msg) => msg.role === 'user')
+					: coreMessages
+
 				response = await streamText({
 					model: googleModel,
-					messages: coreMessages,
+					messages: adjustedMessages,
 					temperature: 0.3,
 					tools,
 					maxRetries: 2,
 					providerOptions: {
 						google: {
-							//? Enables web search
 							useSearchGrounding: webSearch || false,
+							...(model.endsWith('flash-exp')
+								? {
+										responseModalities: ['TEXT', 'IMAGE'],
+									}
+								: {}),
 						},
 					},
 				})
@@ -453,7 +484,10 @@ export async function createResponseStream(
 
 		// @ts-ignore
 		const dataStreamResponse = response.toDataStreamResponse({
-			sendReasoning: clientType === 'DeepSeek' || clientType === 'GroqDeepSeek',
+			sendReasoning:
+				clientType === 'DeepSeek' ||
+				clientType === 'GroqDeepSeek' ||
+				(clientType === 'OpenAI' && model.includes('o4-mini')),
 			getErrorMessage(error) {
 				if (error instanceof Error) return error.message
 				return 'Failed to process the request'

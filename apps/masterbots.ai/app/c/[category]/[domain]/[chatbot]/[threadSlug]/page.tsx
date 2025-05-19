@@ -3,6 +3,7 @@ import { ChatChatbot } from '@/components/routes/chat/chat-chatbot'
 import ThreadPanel from '@/components/routes/thread/thread-panel'
 import { botNames } from '@/lib/constants/bots-names'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
+import { type RoleTypes, isAdminOrModeratorRole } from '@/lib/utils'
 import { getChatbot, getThreads } from '@/services/hasura'
 import { isTokenExpired } from 'mb-lib'
 import { getServerSession } from 'next-auth'
@@ -39,7 +40,7 @@ export default async function BotThreadPopUpPage(props: {
 	if (!userId) {
 		throw new Error('User ID is missing.')
 	}
-
+	const role = session.user.role as RoleTypes
 	const { threads, count } = await getThreads({
 		chatbotName,
 		jwt: jwt as string,
@@ -49,7 +50,11 @@ export default async function BotThreadPopUpPage(props: {
 
 	return (
 		<>
-			<ThreadPanel threads={threads} count={count} />
+			<ThreadPanel
+				threads={threads}
+				count={count}
+				isAdminMode={isAdminOrModeratorRole(role)}
+			/>
 			<ChatChatbot chatbot={chatbot} />
 		</>
 	)

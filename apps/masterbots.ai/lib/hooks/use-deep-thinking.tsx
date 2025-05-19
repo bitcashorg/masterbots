@@ -1,4 +1,3 @@
-// use-deep-thinking.tsx
 'use client'
 
 import { AIModels } from '@/app/api/chat/models/models'
@@ -14,6 +13,8 @@ const DeepThinkingContext = React.createContext<
 	DeepThinkingContextType | undefined
 >(undefined)
 
+const REASONING_MODELS = [AIModels.GroqDeepSeek, AIModels.OpenAI_o4_mini]
+
 export function DeepThinkingProvider({
 	children,
 }: {
@@ -21,35 +22,58 @@ export function DeepThinkingProvider({
 }) {
 	const { changeModel, selectedModel } = useModel()
 
+	const [enabled, setEnabled] = React.useState(false)
+
+	//? Track the model selected when deep thinking was enabled
+	const [reasoningModel, setReasoningModel] = React.useState<string | null>(
+		null,
+	)
+
+	//? Store the previous model to restore when disabling deep thinking
+	const previousModelRef = React.useRef<string>(AIModels.Default)
+
 	const [mounted, setMounted] = React.useState(false)
 	React.useEffect(() => {
 		setMounted(true)
 	}, [])
 
-	const isDeepThinking = mounted && selectedModel === AIModels.DeepSeekGroq
-
-	const previousModelRef = React.useRef<string>(AIModels.Default)
+	// Check if the current model is a reasoning model
+	const isDeepThinking = mounted && enabled
 
 	React.useEffect(() => {
-		if (selectedModel !== AIModels.DeepSeekGroq) {
+		// If deep thinking is disabled, update the previous model reference
+		if (!enabled) {
 			previousModelRef.current = selectedModel
-			console.log(
-				'DeepThinking: Updated previous model reference to:',
-				selectedModel,
-			)
 		}
-	}, [selectedModel])
+	}, [selectedModel, enabled])
 
 	const toggleDeepThinking = React.useCallback(() => {
-		console.log('DeepThinking Toggle: Current is', isDeepThinking)
-		if (!isDeepThinking) {
+		if (!enabled) {
 			previousModelRef.current = selectedModel
-			changeModel(AIModels.DeepSeekGroq)
+
+			if (REASONING_MODELS.includes(selectedModel as AIModels)) {
+				setEnabled(true)
+				setReasoningModel(selectedModel)
+				return
+			}
+			let targetModel: string
+			if (selectedModel.startsWith('o4-mini')) {
+				targetModel = AIModels.OpenAI_o4_mini
+			} else {
+				targetModel = AIModels.GroqDeepSeek
+			}
+
+			setReasoningModel(targetModel)
+			changeModel(targetModel)
+			setEnabled(true)
 		} else {
+			//? Disable deep thinking - restore previous model
 			const modelToRestore = previousModelRef.current || AIModels.Default
 			changeModel(modelToRestore as AIModels)
+			setEnabled(false)
+			setReasoningModel(null)
 		}
-	}, [isDeepThinking, changeModel, selectedModel])
+	}, [enabled, changeModel, selectedModel])
 
 	const value = React.useMemo(
 		() => ({
@@ -58,7 +82,6 @@ export function DeepThinkingProvider({
 		}),
 		[isDeepThinking, toggleDeepThinking],
 	)
-
 	return (
 		<DeepThinkingContext.Provider value={value}>
 			{children}

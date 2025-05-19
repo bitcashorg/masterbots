@@ -7,7 +7,6 @@ import {
 	Command,
 	CommandEmpty,
 	CommandGroup,
-	CommandInput,
 	CommandItem,
 	CommandList,
 } from '@/components/ui/command'
@@ -22,16 +21,39 @@ import { useModel } from '@/lib/hooks/use-model'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { getModelIcon, groupModels } from '@/lib/models'
 import { cn } from '@/lib/utils'
+import { getUserBySlug } from '@/services/hasura'
 import { CheckIcon } from '@radix-ui/react-icons'
 import { Loader2 } from 'lucide-react'
 import { appConfig } from 'mb-env'
+import { useSession } from 'next-auth/react'
 import * as React from 'react'
+import { useAsync } from 'react-use'
+
+const WHITELIST_USERS = appConfig.features.proWhitelistUsers
 
 export function ChatCombobox() {
 	const { selectedModel, changeModel, models, isLoading } = useModel()
 	const [open, setOpen] = React.useState(false)
 	const { isPowerUp } = usePowerUp()
-	const { isDeepThinking, toggleDeepThinking } = useDeepThinking()
+	const { isDeepThinking } = useDeepThinking()
+	const { data: session } = useSession()
+	const {
+		error: errorUserData,
+		loading: loadingUserData,
+		value: userData,
+	} = useAsync(async () => {
+		if (!session?.user?.hasuraJwt) return null
+		const userResults = await getUserBySlug({
+			slug: session?.user.slug || '',
+			isSameUser: true,
+		})
+
+		if (userResults.error) {
+			throw new Error(userResults.error)
+		}
+
+		return userResults.user
+	}, [session?.user?.hasuraJwt])
 
 	//? Feature flag for multi-model
 	const isMultiModelEnabled = appConfig.features.multiModel
@@ -59,22 +81,14 @@ export function ChatCombobox() {
 	}
 
 	const handleModelSelect = (modelValue: string) => {
-		if (!appConfig.features.devMode || processingSelectionRef.current) return
+		if (processingSelectionRef.current) return
 
 		processingSelectionRef.current = true
 		setOpen(false)
 
 		setTimeout(() => {
 			try {
-				if (modelValue.includes('deepseek-r1-distill-llama-70b')) {
-					if (!isDeepThinking) {
-						toggleDeepThinking()
-					}
-				} else if (modelValue.includes('deepseek') && isDeepThinking) {
-					toggleDeepThinking()
-				} else if (!modelValue.includes('deepseek') && !isDeepThinking) {
-					changeModel(modelValue)
-				}
+				changeModel(modelValue)
 			} finally {
 				setTimeout(() => {
 					processingSelectionRef.current = false
@@ -82,6 +96,12 @@ export function ChatCombobox() {
 			}
 		}, 100)
 	}
+
+	const areProModelsDisabled =
+		!appConfig.features.devMode &&
+		(loadingUserData ||
+			!userData?.proUserSubscriptionId ||
+			!WHITELIST_USERS.includes(userData?.email))
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
@@ -103,11 +123,6 @@ export function ChatCombobox() {
 			</PopoverTrigger>
 			<PopoverContent className="w-[200px] p-0">
 				<Command>
-					<CommandInput
-						placeholder="Search models..."
-						className="h-9"
-						value=""
-					/>
 					<CommandEmpty>No model found.</CommandEmpty>
 
 					{isLoading ? (
@@ -116,7 +131,7 @@ export function ChatCombobox() {
 							<p className="text-sm text-muted-foreground">Loading models...</p>
 						</div>
 					) : (
-						<CommandList>
+						<CommandList className="scrollbar">
 							{isMultiModelEnabled ? (
 								<>
 									<ModelGroup
@@ -132,18 +147,7 @@ export function ChatCombobox() {
 										selectedModel={selectedModel}
 										onSelect={handleModelSelect}
 										showSeparator={freeEnabledModels.length > 0}
-									/>
-
-									<ModelGroup
-										heading="Unavailable Models"
-										models={disabledModels}
-										selectedModel={selectedModel}
-										onSelect={handleModelSelect}
-										showSeparator={
-											freeEnabledModels.length > 0 ||
-											paidEnabledModels.length > 0
-										}
-										disabled
+										disabled={areProModelsDisabled}
 									/>
 								</>
 							) : (

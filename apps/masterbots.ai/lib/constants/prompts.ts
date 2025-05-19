@@ -16,13 +16,13 @@ export function followingQuestionsImprovementPrompt(
 	allMessages: Message[],
 ) {
 	return [
-		`Here are a list of questions that may be relevant for you to understand my chain of thoughts: [${getAllUserMessagesAsStringArray(
+		`Here are a list of questions (and/or statements) that may be relevant for you to understand my chain of thoughts: [${getAllUserMessagesAsStringArray(
 			uniq(allMessages),
 		)}].`,
 		improvementPrompt,
 		`**Important Guidelines:**
-- Use the list of questions to clarify word selection, but keep your main focus on the User Question and please try incredibly hard to make your best guess only using the words: "${userQuestion}".
-- Make sure you output the rewritten question without any additional explanations in the original language.`,
+- Use the list of questions (and/or statements) to clarify word selection, but keep your main focus on the User Question/Statement and please try incredibly hard to make your best guess only using the words: "${userQuestion}".
+- Make sure you output the rewritten question/statement without any additional explanations in the original language.`,
 	].join('\n\n')
 }
 
@@ -224,3 +224,17 @@ export const CONTINUE_GENERATION_PROMPT =
 	'Continue your response exactly where you left off.  Only add new information without repeating what you previously wrote.  Skip the preamble and only show the continuation part.'
 export const CONTINUE_GENERATION_PROMPT_2 =
 	'Kindly continue your response without repeating any information.'
+
+// TODO: Use this image generation prompt for the pro version.
+export const IMAGE_GENERATION_PROMPT_TEMPLATE =
+	'Generate an image of {description}. Make it {style} style with {details}.'
+
+export function createImageGenerationPrompt(
+	description: string,
+	style: string,
+	details: string,
+) {
+	return IMAGE_GENERATION_PROMPT_TEMPLATE.replace('{description}', description)
+		.replace('{style}', style)
+		.replace('{details}', details)
+}

@@ -48,7 +48,7 @@ export function ProfileAvatar({ thread }: { thread: Thread }) {
 						onClick={(e) => {
 							e.stopPropagation()
 						}}
-						prefetch
+						prefetch={false}
 					>
 						<Image
 							className="object-cover size-full rounded-r-lg"

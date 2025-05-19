@@ -3,6 +3,7 @@
 import { UserMenu } from '@/components/layout/header/user-menu'
 import { ProfileSidebar } from '@/components/layout/sidebar/profile-sidebar'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { isTokenExpired } from 'mb-lib'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
@@ -13,7 +14,7 @@ export function UserLogin() {
 	const { data: session, status } = useSession()
 
 	if (status === 'loading') {
-		return <div>Loading...</div>
+		return <Skeleton className="h-6 w-24" />
 	}
 
 	if (status === 'authenticated' && session?.user) {

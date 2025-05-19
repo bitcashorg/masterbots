@@ -397,6 +397,7 @@ export type ControlType =
 	| 'dangerButton'
 	| 'toggleGroup'
 export type PreferenceItemType = {
+	buttonId?: string
 	title: string
 	description: string
 	type?: string
@@ -433,4 +434,14 @@ export interface ContinueAIGenerationOptions {
 export type SendMessageFromResponseMessageData = {
 	bulletContent: string
 	messageId: string
+}
+
+export interface StoredImagePart {
+	type: 'file' | 'image'
+	data: string
+	mimeType: string
+}
+
+export type MessageWithExamples = MBMessage & {
+	examples?: StoredImagePart[]
 }

@@ -10,7 +10,6 @@ export async function GET() {
 		const now = new Date()
 		const fifteenDaysAgo = new Date(now)
 		fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15)
-
 		const fourteenDaysAgo = new Date(now)
 		fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14)
 

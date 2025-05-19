@@ -98,7 +98,6 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 			if (error) throw error
 			userId = user ? user?.userId : null
 		}
-
 		const categories = await getCategories(userId)
 		const categoriesObj = {
 			categoriesChatbots: categories || [],
@@ -162,13 +161,16 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 			publicTopicSlugOrBasePath, // c or :category
 			personalProfilesTopicSlugOrDomainSlug, // :category or :domain
 			domainSlugOrPublicChatbotSlug, // :domain or :chatbot
-			personalChatbotSlugOrThreadSlug, // :chatbot or :threadSlug
-			_personalProfilesThreadSlugOrPublicTheadQuestionSlug, // :threadSlug or :threadQuestionSlug
-			..._rest
+			personalChatbotSlugProfileTopicOrThreadSlug, // :topic, :chatbot or :threadSlug
+			_personalProfilesThreadSlugProfileDomainOrPublicTheadQuestionSlug, // :threadSlug or :threadQuestionSlug
+			profileChatbot, // :chatbot
+			_profileThreadSlug, // :threadSlug
+			_profileThreadQuestionSlug, // :threadQuestionSlug
 		] = pathname.split('/')
 
 		const category = categories?.categoriesChatbots.find(
 			(cat) =>
+				toSlug(cat.name) === personalChatbotSlugProfileTopicOrThreadSlug ||
 				toSlug(cat.name) === personalProfilesTopicSlugOrDomainSlug ||
 				toSlug(cat.name) === publicTopicSlugOrBasePath,
 		)
@@ -176,10 +178,16 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 			setActiveCategory(category.categoryId)
 			setExpandedCategories([category.categoryId])
 
-			if (domainSlugOrPublicChatbotSlug || personalChatbotSlugOrThreadSlug) {
+			if (
+				domainSlugOrPublicChatbotSlug ||
+				personalChatbotSlugProfileTopicOrThreadSlug ||
+				profileChatbot
+			) {
 				const chatbot = category.chatbots.find(
 					(c) =>
-						c.chatbot.name.toLowerCase() === personalChatbotSlugOrThreadSlug ||
+						c.chatbot.name.toLowerCase() === profileChatbot ||
+						c.chatbot.name.toLowerCase() ===
+							personalChatbotSlugProfileTopicOrThreadSlug ||
 						c.chatbot.name.toLowerCase() === domainSlugOrPublicChatbotSlug,
 				)
 				if (chatbot) {
