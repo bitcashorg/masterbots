@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { Download, Loader2 } from 'lucide-react'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 interface GeneratedImageProps {
 	base64: string
@@ -16,6 +16,14 @@ export function GeneratedImage({
 }: GeneratedImageProps) {
 	const [isLoading, setIsLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
+
+	//? Reset loading state when base64 changes
+	useEffect(() => {
+		if (base64) {
+			setIsLoading(true)
+			setError(null)
+		}
+	}, [base64])
 
 	if (!base64) return null
 
