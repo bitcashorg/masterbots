@@ -130,7 +130,10 @@ export function ChatMessage({
 					}
 					return (
 						<GeneratedImage
-							key={`image-${i}`}
+							key={`image-${
+								// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+								i
+							}`}
 							base64={image.base64}
 							mimeType={image.mimeType || 'image/png'}
 							alt={`AI generated image ${i + 1}`}
