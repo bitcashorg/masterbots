@@ -4,6 +4,7 @@ import ThreadPanel from '@/components/routes/thread/thread-panel'
 import { botNames } from '@/lib/constants/bots-names'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { generateMetadataFromSEO } from '@/lib/metadata'
+import { type RoleTypes, isAdminOrModeratorRole } from '@/lib/utils'
 import { getChatbot, getThreads } from '@/services/hasura'
 import { isTokenExpired } from 'mb-lib'
 import type { Metadata } from 'next'
@@ -39,7 +40,7 @@ export default async function BotThreadsPage(props: {
 	if (!userId) {
 		throw new Error('User ID is missing.')
 	}
-
+	const role = session.user.role as RoleTypes
 	const { threads, count } = await getThreads({
 		chatbotName,
 		jwt: jwt as string,
@@ -49,7 +50,11 @@ export default async function BotThreadsPage(props: {
 
 	return (
 		<>
-			<ThreadPanel threads={threads} count={count} />
+			<ThreadPanel
+				threads={threads}
+				count={count}
+				isAdminMode={isAdminOrModeratorRole(role)}
+			/>
 			<ChatChatbot chatbot={chatbot} />
 		</>
 	)

@@ -16,7 +16,6 @@ export interface GetThreadsParams extends HasuraServiceParams {
 	categoryId?: number | null
 	domain?: string | null
 	keyword?: string
-	isAdminMode?: boolean
 	limit?: number
 	offset?: number
 }
@@ -70,6 +69,7 @@ export interface GetBrowseThreadsParams {
 	limit?: number
 	offset?: number
 	followedUserId?: string
+	isAdminMode?: boolean
 }
 
 export interface GetChatbotsParams {

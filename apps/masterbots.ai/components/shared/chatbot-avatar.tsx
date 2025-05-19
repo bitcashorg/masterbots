@@ -26,7 +26,7 @@ export function ChatbotAvatar({ thread }: { thread: Thread }) {
 						onClick={(e) => {
 							e.stopPropagation()
 						}}
-						prefetch
+						prefetch={false}
 					>
 						<picture className="min-w-8 md:min-w-10 size-8 sm:size-10">
 							<Image

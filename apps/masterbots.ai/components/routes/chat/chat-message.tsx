@@ -1,13 +1,22 @@
 import { ChatMessageActions } from '@/components/routes/chat/chat-message-actions'
+import { GeneratedImage } from '@/components/shared/generated-image'
 import { MemoizedReactMarkdown } from '@/components/shared/markdown'
 import {
 	cleanClickableText,
 	extractFollowUpContext,
 } from '@/lib/chat-clickable-text'
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
+import {
+	extractImageContent,
+	hasImageGeneration,
+} from '@/lib/helpers/ai-helpers'
 import { memoizedMarkdownComponents } from '@/lib/memoized-markdown-components'
 import { cn, getRouteType } from '@/lib/utils'
-import type { ChatMessageProps, WebSearchResult } from '@/types/types'
+import type {
+	ChatMessageProps,
+	MessageWithExamples,
+	WebSearchResult,
+} from '@/types/types'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import rehypeMathJax from 'rehype-mathjax'
@@ -42,7 +51,7 @@ export function ChatMessage({
 	const [references, setReferences] = useState<WebSearchResult[]>([])
 	const [clicked, setClicked] = useState(false)
 
-	// Handler for clickable text elements.
+	//? Handler for clickable text elements.
 	const handleClickableClick = (clickableText: string) => {
 		if (clicked) return
 		setClicked(true)
@@ -61,7 +70,7 @@ export function ChatMessage({
 		)
 	}
 
-	// References section component.
+	//? References section component.
 	const ReferencesSection = () => {
 		if (references.length === 0) return null
 
@@ -100,6 +109,38 @@ export function ChatMessage({
 		)
 	}
 
+	//? Images section component
+	const ImagesSection = () => {
+		if (!hasImageGeneration(message as MessageWithExamples)) return null
+
+		const images = extractImageContent(message as MessageWithExamples)
+		if (!images || images.length === 0) {
+			console.log('No images extracted from message parts:', message.parts)
+			return null
+		}
+
+		console.log('Extracted images:', images)
+
+		return (
+			<div className="mt-4 space-y-4">
+				{images.map((image, i) => {
+					if (!image.base64) {
+						console.warn(`Image ${i} has no base64 data`)
+						return null
+					}
+					return (
+						<GeneratedImage
+							key={`image-${i}`}
+							base64={image.base64}
+							mimeType={image.mimeType || 'image/png'}
+							alt={`AI generated image ${i + 1}`}
+						/>
+					)
+				})}
+			</div>
+		)
+	}
+
 	return (
 		<div className={cn('group relative flex items-start p-1')} {...props}>
 			<div className="flex-1 pr-1 space-y-2 overflow-hidden">
@@ -117,6 +158,8 @@ export function ChatMessage({
 				>
 					{cleanMessage.content}
 				</MemoizedReactMarkdown>
+
+				<ImagesSection />
 
 				{actionRequired && (
 					<ChatMessageActions className="md:!right-0" message={message} />

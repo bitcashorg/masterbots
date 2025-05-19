@@ -33,7 +33,7 @@ import { NoResults } from '@/components/shared/no-results-card'
 import { ThreadSearchInput } from '@/components/shared/shared-search'
 import { Skeleton } from '@/components/ui/skeleton'
 import { botNames } from '@/lib/constants/bots-names'
-import { PAGE_SIZE, PAGE_SM_SIZE } from '@/lib/constants/hasura'
+import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
@@ -44,8 +44,8 @@ import {
 	getCategory,
 	getThread,
 	getThreads,
-	getUserBySlug,
 } from '@/services/hasura'
+import type { GetBrowseThreadsParams } from '@/services/hasura/hasura.service.type'
 import { debounce, uniqBy } from 'lodash'
 import type { Thread, User } from 'mb-genql'
 import type { Session } from 'next-auth'
@@ -76,7 +76,12 @@ export default function UserThreadPanel({
 		threadSlug?: string
 	}>()
 	const { data: session } = useSession()
-	const { activeCategory, activeChatbot, setActiveChatbot } = useSidebar()
+	const {
+		activeCategory,
+		activeChatbot,
+		selectedCategories,
+		setActiveChatbot,
+	} = useSidebar()
 	const {
 		isOpenPopup,
 		activeThread,
@@ -89,7 +94,7 @@ export default function UserThreadPanel({
 	const {
 		isContinuousThread,
 		setIsContinuousThread,
-		threads: hookThreads,
+		threadsState: threadVisibilityState,
 		isAdminMode,
 	} = useThreadVisibility()
 	const [searchTerm, setSearchTerm] = useState<string>('')
@@ -99,16 +104,6 @@ export default function UserThreadPanel({
 	const [adminThreads, setAdminThreads] = useState<Thread[]>(initialThreads)
 	const isPublic = !/^\/(?:c|u)(?:\/|$)/.test(usePathname())
 	const fetchIdRef = useRef<number>(0)
-
-	const userWithSlug = useAsync(async () => {
-		if (!userSlug) return { user: userProps }
-		const result = await getUserBySlug({
-			slug: userSlug,
-			isSameUser: session?.user?.slug === userSlug,
-		})
-		return result
-	}, [userSlug])
-
 	const prevPathRef = useRef('')
 	const pathname = usePathname()
 	const [state, setState] = useSetState<{
@@ -128,20 +123,31 @@ export default function UserThreadPanel({
 		offset?: number
 	} = {}) => {
 		try {
-			const botSlugs = await botNames
-			const chatbotName =
-				botSlugs.get(chatbot as string) || botSlugs.get(botSlug as string) || ''
-			const categoryResponse = await getCategory({
-				chatbotName,
-			})
-
-			return await getBrowseThreads({
-				userId: userWithSlug.value?.user?.userId,
-				categoryId: activeCategory || categoryResponse?.categoryId,
-				chatbotName: activeChatbot?.name || chatbotName,
+			const browseThreadGetParams: GetBrowseThreadsParams = {
 				offset,
 				limit: PAGE_SIZE,
-			})
+				isAdminMode,
+			}
+
+			if (activeCategory) {
+				browseThreadGetParams.categoryId = activeCategory
+			} else {
+				// By default, it would fetch all the categories but since the userId is in the params,
+				// it will return threads that are only related to the user.
+				browseThreadGetParams.categoriesId = selectedCategories
+			}
+			if (chatbot || botSlug) {
+				const botSlugs = await botNames
+				const chatbotName =
+					botSlugs.get(chatbot as string) || botSlugs.get(botSlug as string)
+
+				browseThreadGetParams.chatbotName = chatbotName
+			}
+			if (userSlug && userProps) {
+				browseThreadGetParams.userId = userProps.userId
+			}
+
+			return await getBrowseThreads(browseThreadGetParams)
 		} catch (error) {
 			console.error('Failed to fetch threads:', error)
 			return {
@@ -152,15 +158,18 @@ export default function UserThreadPanel({
 	}
 
 	const loadMore = async () => {
+		if (totalThreads === count) return
 		console.log('🟡 Loading More Content')
 		setLoading(true)
+
 		let moreThreads: { threads: Thread[]; count: number } = {
 			threads: [],
 			count: 0,
 		}
-		const userOnSlug = userWithSlug.value?.user
-		const isOwnProfile = session?.user?.id === userOnSlug?.userId
-		if ((page === 'profile' && !session?.user) || !isOwnProfile) {
+
+		const isOwnProfile = session?.user?.id === userProps?.userId
+
+		if (isAdminMode || (page === 'profile' && !isOwnProfile)) {
 			moreThreads = await fetchBrowseThreads({
 				offset: threads.length,
 			})
@@ -169,22 +178,20 @@ export default function UserThreadPanel({
 				jwt: session?.user?.hasuraJwt as string,
 				userId: session?.user.id as string,
 				offset: threads.length,
-				limit: PAGE_SM_SIZE,
+				limit: PAGE_SIZE,
 				categoryId: activeCategory,
 				chatbotName: activeChatbot?.name,
-				isAdminMode,
 			})
 		}
-		setState((prevState) => {
-			const newThreads = uniqBy(
-				[...prevState.threads, ...(moreThreads?.threads || [])],
-				'threadId',
-			)
-			return {
-				threads: newThreads,
-				count: moreThreads.count,
-				totalThreads: newThreads.length,
-			}
+
+		const newThreads = uniqBy(
+			[...threads, ...(moreThreads?.threads || [])],
+			'threadId',
+		)
+
+		setState({
+			threads: newThreads,
+			totalThreads: newThreads.length,
 		})
 		setAdminThreads(
 			moreThreads ? [...adminThreads, ...moreThreads.threads] : adminThreads,
@@ -228,14 +235,16 @@ export default function UserThreadPanel({
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (isAdminMode) {
-			setAdminThreads(hookThreads)
+			// * This is the first time we are loading the threads as admin
+			// * The switch to admin mode is triggered by the user and we need to fetch the threads
+			setAdminThreads(threadVisibilityState.threads)
 			setState({
-				threads: hookThreads,
-				totalThreads: hookThreads.length,
-				count: hookThreads.length,
+				threads: threadVisibilityState.threads,
+				totalThreads: threadVisibilityState.threads.length,
+				count: threadVisibilityState.count,
 			})
 		}
-	}, [hookThreads])
+	}, [threadVisibilityState])
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: This effect should run only when the pathname changes (component unmount)
 	useEffect(() => {
@@ -276,20 +285,18 @@ export default function UserThreadPanel({
 
 		try {
 			setLoading(true)
-			const userOnSlug = userWithSlug.value?.user
-			const isOwnProfile = session?.user?.id === userOnSlug?.userId
-			if (!session?.user || (!isOwnProfile && page === 'profile')) {
-				const { threads: newThreads } = await fetchBrowseThreads()
+			const isOwnProfile = session?.user?.id === userProps?.userId
+			if (isAdminMode || (page === 'profile' && !isOwnProfile)) {
+				const { threads: newThreads, count } = await fetchBrowseThreads()
 
 				setState({
 					threads: newThreads,
-					totalThreads: threads?.length,
-					count: threads?.length,
+					totalThreads: threads?.length + newThreads.length,
+					count,
 				})
 				setLoading(false)
 				return
 			}
-
 			const botSlugs = await botNames
 			const chatbotName =
 				botSlugs.get(chatbot as string) || botSlugs.get(botSlug as string) || ''
@@ -300,12 +307,11 @@ export default function UserThreadPanel({
 			fetchIdRef.current = currentFetchId
 
 			const { threads: newThreads, count } = await getThreads({
-				jwt: session?.user?.hasuraJwt,
+				jwt: session?.user?.hasuraJwt as string,
 				userId: session?.user.id,
 				limit: PAGE_SIZE,
 				categoryId: categoryResponse?.categoryId || activeCategory,
 				chatbotName: chatbotName || activeChatbot?.name,
-				isAdminMode,
 			})
 
 			// Check if the fetchId matches the current fetchId stored in the ref
@@ -313,7 +319,7 @@ export default function UserThreadPanel({
 				// If it matches, update the threads state
 				setState({
 					threads: newThreads,
-					totalThreads: threads?.length,
+					totalThreads: threads?.length + newThreads.length,
 					count,
 				})
 			}
@@ -337,13 +343,17 @@ export default function UserThreadPanel({
 		)
 
 		if (hasThreadListChanged) handleThreadsChange()
-	}, [threads, isOpenPopup, pathname, shouldRefreshThreads])
+	}, [isOpenPopup, pathname, shouldRefreshThreads])
 
 	const customMessage = activeChatbot
 		? `No threads available for ${activeChatbot.name}`
 		: activeCategory
 			? 'No threads available in the selected category'
 			: 'Start a conversation to create your first thread'
+	const noResultsMessage =
+		totalThreads === count
+			? 'This is the end of all. No more threads available.'
+			: customMessage
 	const showNoResults = !loading && searchTerm && threads.length === 0
 	const showChatbotDetails = !loading && !searchTerm && !threads.length
 	const searchInputContainerClassName =
@@ -355,9 +365,9 @@ export default function UserThreadPanel({
 			debounce((term) => {
 				if (!term) {
 					setState({
-						threads,
-						count: threads.length,
 						totalThreads: threads.length,
+						threads,
+						count,
 					})
 				} else {
 					const searchResult = adminThreads.filter((thread: Thread) =>
@@ -402,7 +412,7 @@ export default function UserThreadPanel({
 				</div>
 			)}
 			<ul
-				className={cn('flex flex-col size-full gap-3 pb-36', {
+				className={cn('flex flex-col size-full gap-3 !pb-36', {
 					'items-center justify-center': showNoResults || showChatbotDetails,
 				})}
 			>
@@ -416,11 +426,14 @@ export default function UserThreadPanel({
 						count={count}
 					/>
 				)}
+				{totalThreads === count && threads.length > 0 && !loading && (
+					<hr className="w-full border-t-2 border-t-foreground/15 mt-12" />
+				)}
 				{showNoResults && (
 					<NoResults
 						searchTerm={searchTerm}
 						totalItems={totalThreads}
-						customMessage={customMessage}
+						customMessage={noResultsMessage}
 					/>
 				)}
 			</ul>

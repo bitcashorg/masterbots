@@ -1,13 +1,18 @@
 'use client'
+import { botNames } from '@/lib/constants/bots-names'
+import { PAGE_SIZE } from '@/lib/constants/hasura'
+import { useSidebar } from '@/lib/hooks/use-sidebar'
 import {
 	approveThread,
 	deleteThread,
+	getBrowseThreads,
 	getThreads,
-	getUnapprovedThreads,
 	updateThreadVisibility,
 } from '@/services/hasura'
+import type { GetBrowseThreadsParams } from '@/services/hasura/hasura.service.type'
 import type { Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
+import { useParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { useSonner } from './useSonner'
 
@@ -19,14 +24,17 @@ interface DeleteThreadResponse {
 
 interface ThreadVisibilityContextProps {
 	isPublic: boolean
-	toggleVisibility: (newIsPublic: boolean, threadId: string) => Promise<void>
-	threads: Thread[]
-	isSameUser: (thread: Thread) => boolean
-	initiateDeleteThread: (threadId: string) => Promise<DeleteThreadResponse>
-	handleToggleAdminMode: () => void
-	adminApproveThread: (threadId: string) => void
+	threadsState: {
+		threads: Thread[]
+		count: number
+	}
 	isAdminMode: boolean
 	isContinuousThread: boolean
+	isSameUser: (thread: Thread) => boolean
+	toggleVisibility: (newIsPublic: boolean, threadId: string) => Promise<void>
+	adminApproveThread: (threadId: string) => void
+	initiateDeleteThread: (threadId: string) => Promise<DeleteThreadResponse>
+	handleToggleAdminMode: () => void
 	setIsContinuousThread: React.Dispatch<React.SetStateAction<boolean>>
 }
 
@@ -54,11 +62,19 @@ export function ThreadVisibilityProvider({
 	children,
 }: ThreadVisibilityProviderProps) {
 	const [isPublic, setIsPublic] = useState(false)
-	const [threads, setThreads] = useState<Thread[]>([])
+	const [threadsState, setThreads] = useState<{
+		threads: Thread[]
+		count: number
+	}>({
+		threads: [],
+		count: 0,
+	})
 	const [isAdminMode, setIsAdminMode] = React.useState<boolean>(false)
 	const [isContinuousThread, setIsContinuousThread] =
 		React.useState<boolean>(false)
 	const { customSonner } = useSonner()
+	const { activeCategory, selectedCategories } = useSidebar()
+	const params = useParams()
 
 	const session = useSession()
 	const jwt = session?.data?.user?.hasuraJwt
@@ -102,7 +118,7 @@ export function ThreadVisibilityProvider({
 			})
 
 			if (fetchedThreads) {
-				setThreads(fetchedThreads.threads)
+				setThreads(fetchedThreads)
 			}
 		} catch (error) {
 			console.error('Error fetching threads:', error)
@@ -142,7 +158,7 @@ export function ThreadVisibilityProvider({
 			return {
 				success: false,
 				message: deleteT.error || 'Failed to delete thread',
-				error: deleteT.error || 'An unknown error occurred',
+				error: deleteT.error || 'Failed to delete thread',
 			}
 		} catch (error) {
 			console.error('Error deleting thread:', error)
@@ -160,7 +176,27 @@ export function ThreadVisibilityProvider({
 				customSonner({ type: 'error', text: 'Authentication required' })
 				return
 			}
-			const unapprovedThreads = await getUnapprovedThreads({ jwt })
+			const browseThreadGetParams: GetBrowseThreadsParams = {
+				offset: 0,
+				limit: PAGE_SIZE,
+				isAdminMode: true,
+			}
+			const { chatbot, botSlug } = params
+			if (activeCategory) {
+				browseThreadGetParams.categoryId = activeCategory
+			} else {
+				// By default, it would fetch all the categories but since the userId is in the params,
+				// it will return threads that are only related to the user.
+				browseThreadGetParams.categoriesId = selectedCategories
+			}
+			if (chatbot || botSlug) {
+				const botSlugs = await botNames
+				const chatbotName =
+					botSlugs.get(chatbot as string) || botSlugs.get(botSlug as string)
+
+				browseThreadGetParams.chatbotName = chatbotName
+			}
+			const unapprovedThreads = await getBrowseThreads(browseThreadGetParams)
 			setThreads(unapprovedThreads)
 		} catch (error) {
 			console.error('Error fetching unapproved threads:', error)
@@ -205,7 +241,7 @@ export function ThreadVisibilityProvider({
 		<ThreadVisibilityContext.Provider
 			value={{
 				isPublic,
-				threads,
+				threadsState,
 				isAdminMode,
 				isContinuousThread,
 				isSameUser,

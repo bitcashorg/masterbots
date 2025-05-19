@@ -32,6 +32,7 @@ import type { WizardStepProps } from '@/components/ui/wizard'
 import { usePayment } from '@/lib/hooks/use-payment'
 import { getCurrentOrTargetDate } from '@/lib/utils'
 import { useElements, useStripe } from '@stripe/react-stripe-js'
+import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
@@ -42,6 +43,7 @@ export function InnerCheckout({ prev, next }: WizardStepProps) {
 	const elements = useElements()
 	const { handleSetError, confirmationToken, secret, handlePaymentIntent } =
 		usePayment()
+	const { data: session } = useSession()
 
 	const [mounted, setMounted] = useState(false)
 
@@ -78,7 +80,11 @@ export function InnerCheckout({ prev, next }: WizardStepProps) {
 
 			handlePaymentIntent(paymentIntent)
 			handleSetLoading(false)
-			window.history.pushState({}, '', `/u/s/subs/${paymentIntent.id}`)
+			window.history.pushState(
+				{},
+				'',
+				`/u/${session?.user.slug}/s/subs/${paymentIntent.id}`,
+			)
 			next()
 			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		} catch (error: any) {
