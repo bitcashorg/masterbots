@@ -35,10 +35,11 @@ import {
 	streamObject,
 	streamText,
 	wrapLanguageModel,
+	experimental_generateImage as generateImage,
 } from 'ai'
 import { createStreamableValue } from 'ai/rsc'
 import { appConfig } from 'mb-env'
-import type OpenAI from 'openai'
+import OpenAI from 'openai'
 import type { ZodType, z } from 'zod'
 
 const OPEN_AI_ENV_CONFIG = {
@@ -318,13 +319,13 @@ export async function createResponseStream(
 	json: JSONResponseStream,
 	req?: Request,
 ) {
-	// TODO: Integrate powerUp mode into the response stream whenever required.
 	const {
 		model,
 		messages: rawMessages,
 		previewToken,
 		webSearch,
 		isPowerUp,
+		isImageGeneration,
 	} = json
 	const messages = setStreamerPayload(clientType, rawMessages || [])
 
@@ -332,8 +333,6 @@ export async function createResponseStream(
 		// ? Temp disabling ICL as tool. Using direct ICL integration to main prompt instead. Might be enabled later.
 		// chatbotMetadataExamples: aiTools.chatbotMetadataExamples
 	}
-
-	// console.log('[SERVER] webSearch', webSearch)
 
 	if (webSearch) tools.webSearch = aiTools.webSearch
 
@@ -343,6 +342,33 @@ export async function createResponseStream(
 		const coreMessages = convertToCoreMessages(
 			messages as OpenAI.ChatCompletionMessageParam[],
 		)
+
+		// Handle image generation
+		if (isImageGeneration && clientType === 'OpenAI') {
+			const openai = new OpenAI({
+				apiKey: process.env.OPENAI_API_KEY,
+			})
+			const lastMessage = coreMessages[coreMessages.length - 1]
+			const prompt = typeof lastMessage.content === 'string' ? lastMessage.content : ''
+			
+			const response = await openai.images.generate({
+				model: model,
+				prompt,
+				size: '1024x1024',
+				quality: 'standard',
+				style: 'natural',
+			})
+
+			return new Response(
+				JSON.stringify({
+					type: 'image',
+					data: response.data[0].b64_json,
+				}),
+				{
+					headers: { 'Content-Type': 'application/json' },
+				},
+			)
+		}
 
 		switch (clientType) {
 			case 'OpenAI': {

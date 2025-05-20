@@ -20,10 +20,12 @@ import {
 	ChevronsLeftRightEllipsis,
 	GlobeIcon,
 	GraduationCap,
+	ImageIcon,
 } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import type { Chatbot } from 'mb-genql'
 import { useCallback, useState } from 'react'
+import { useImageGeneration } from '@/lib/hooks/use-image'
 
 export interface ChatPanelProps
 	extends Pick<
@@ -61,6 +63,7 @@ export function ChatPanel({
 	const { isOpenPopup, loadingState, webSearch, setWebSearch } = useThread()
 	const { isPowerUp, togglePowerUp } = usePowerUp()
 	const { isDeepThinking, toggleDeepThinking } = useDeepThinking()
+	const { isImageGenerationEnabled, toggleImageGeneration } = useImageGeneration()
 	const [shareDialogOpen, setShareDialogOpen] = useState(false)
 	const {
 		getContinuationPrompt,
@@ -164,6 +167,16 @@ export function ChatPanel({
 									activeColor="cyan"
 								/>
 							)}
+
+							<FeatureToggle
+								id="imageGeneration"
+								name="Image Generation"
+								icon={<ImageIcon />}
+								activeIcon={<ImageIcon />}
+								isActive={isImageGenerationEnabled}
+								onChange={toggleImageGeneration}
+								activeColor="green"
+							/>
 						</div>
 
 						{/* Right side controls */}
