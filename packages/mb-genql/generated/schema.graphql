@@ -5133,6 +5133,11 @@ enum ModelsEnumEnum {
   GEMINI__2_5__PRO
 
   """
+  gemini-2.0-flash-exp
+  """
+  GEMINI__FLASH__IMG
+
+  """
   gemini_2_0_flash_lite
   """
   GEMINI__FLASH__LITE
@@ -5161,6 +5166,21 @@ enum ModelsEnumEnum {
   gpt-4.1-nano-2025-04-14
   """
   OPENAI__4_1__NANO
+
+  """
+  dall-e-2
+  """
+  OPENAI__DALLE__2
+
+  """
+  dall-e-3
+  """
+  OPENAI__DALLE__3
+
+  """
+  gpt-image-1
+  """
+  OPENAI__IMG
 
   """
   o4-mini-2025-04-16
