@@ -19,6 +19,6 @@ INSERT INTO public.models_enum (name, value) VALUES
     ('Gemini__2_5__Pro','gemini-2.5-pro-preview-03-25'),
     ('Gemini__Flash__IMG','gemini-2.0-flash-exp'),
     ('OpenAI__IMG','gpt-image-1'),
-    ('OpenAI__Dall-e__2','dall-e-2'),
-    ('OpenAI__Dall-e__3','dall-e-3')
+    ('OpenAI__Dalle__2','dall-e-2'),
+    ('OpenAI__Dalle__3','dall-e-3')
 ON CONFLICT (name) DO UPDATE SET value = EXCLUDED.value;
