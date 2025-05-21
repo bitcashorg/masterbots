@@ -23,13 +23,16 @@ import { useSonner } from '@/lib/hooks/useSonner'
 import { cn } from '@/lib/utils'
 import {
 	deleteUserMessagesAndThreads,
+	updatePreferences,
 	updateUserDeletionRequest,
 } from '@/services/hasura'
 import type { PreferenceSectionProps } from '@/types/types'
 import { AArrowDown, AArrowUp, Plus } from 'lucide-react'
+import type { PreferenceSetInput } from 'mb-genql'
 import { signOut } from 'next-auth/react'
 import { useSession } from 'next-auth/react'
 import { useState } from 'react'
+import { useAsyncFn } from 'react-use'
 import { PreferenceItemTitle } from './preference-item'
 
 export function PreferenceSection({
@@ -138,6 +141,67 @@ export function PreferenceSection({
 			return
 		}
 	}
+
+	const [_modeData, toggleMode] = useAsyncFn(
+		async (preferencesSet: PreferenceSetInput) => {
+			if (!session?.user) throw new Error('No user session found. Aborting...')
+
+			const preferencesUpdate = await updatePreferences({
+				jwt: session?.user.hasuraJwt,
+				userId: session?.user.id,
+				preferencesSet,
+			})
+
+			if (!preferencesUpdate.data) {
+				customSonner({
+					type: 'error',
+					text: 'Failed to update your preferences. Please try again later.',
+				})
+				throw new Error('Failed to complete action')
+			}
+
+			console.log('preferencesUpdate', preferencesUpdate)
+			return preferencesUpdate
+		},
+		[session?.user],
+	)
+
+	const checkSwitchChange = async ({
+		switchName,
+		checked,
+	}: {
+		switchName: 'deep-expertise' | 'web-search'
+		checked: boolean
+	}) => {
+		const toggleModeOptions: PreferenceSetInput = {}
+
+		switch (switchName) {
+			case 'deep-expertise':
+				toggleModeOptions.deepExpertise = checked
+				break
+			case 'web-search':
+				toggleModeOptions.webSearch = checked
+				break
+			default:
+				break
+		}
+
+		const toggleModeResults = await toggleMode(toggleModeOptions)
+
+		if (toggleModeResults.error) {
+			customSonner({
+				type: 'error',
+				text: 'Failed to update your preferences. Please try again later.',
+			})
+			return
+		}
+
+		customSonner({
+			type: 'success',
+			text: `Now ${switchName.replace('-', ' ')} is ${checked ? 'enabled' : 'disabled'} by default.`,
+		})
+	}
+
 	return (
 		<>
 			<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -193,6 +257,9 @@ export function PreferenceSection({
 													'defaultChecked' in item ? item.defaultChecked : false
 												}
 												className="data-[state=unchecked]:bg-mirage data-[state=checked]:bg-mirage [&>span[data-state=unchecked]]:bg-[#71717A] [&>span[data-state=checked]]:bg-accent"
+												name={item.props?.switchName}
+												id={item.props?.switchId}
+												onCheckedChange={checkSwitchChange}
 											/>
 										)}
 										{item.type === 'toggleGroup' && (
