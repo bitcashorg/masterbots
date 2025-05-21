@@ -1,5 +1,4 @@
 import { authOptions } from '@/auth'
-import { AdminModeToggle } from '@/components/routes/chat/admin-mode-toggle'
 import ChatThreadListPanel from '@/components/routes/chat/chat-thread-list-panel'
 import ThreadPanel from '@/components/routes/thread/thread-panel'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
@@ -30,13 +29,11 @@ export default async function IndexPage() {
 
 	return (
 		<>
-			{isAdminOrModeratorRole(role) && (
-				// TODO: Improve sticky, stops being sticky after 100vh position
-				<div className="flex sticky top-4 z-10 justify-center">
-					<AdminModeToggle />
-				</div>
-			)}
-			<ThreadPanel threads={threads} count={count} />
+			<ThreadPanel
+				threads={threads}
+				count={count}
+				isAdminMode={isAdminOrModeratorRole(role)}
+			/>
 			<ChatThreadListPanel />
 		</>
 	)

@@ -100,7 +100,7 @@ export function UserMenu({ user }: UserMenuProps) {
 						// This would dispatch the event that we are clicking on,
 						// making this function to call and close the menu ;)
 						// JS Events FTW! - Andler
-						e.target.dispatchEvent(e as unknown as Event)
+						e.currentTarget.dispatchEvent(e as unknown as Event)
 						setOpen(false)
 					}}
 				>
@@ -113,7 +113,7 @@ export function UserMenu({ user }: UserMenuProps) {
 										? user.slug
 										: toSlugWithUnderScore(user?.name || ''),
 								})}
-								className="text-xs w-full"
+								className="w-full text-xs"
 							>
 								<div className="font-medium">{user?.name}</div>
 								<div className="text-zinc-500">{user?.email}</div>
@@ -165,7 +165,7 @@ export function UserMenu({ user }: UserMenuProps) {
 									callbackUrl: '/',
 								})
 							}
-							className="flex w-full gap-4 justify-between px-2 text-sm cursor-pointer"
+							className="flex justify-between w-full gap-4 px-2 text-sm cursor-pointer"
 						>
 							Log Out
 							<LogOutIcon className="size-4" />

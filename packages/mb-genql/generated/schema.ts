@@ -1159,12 +1159,16 @@ export type ModelsEnumEnum =
   | "DEEPSEEK"
   | "GEMINI__2_5__FLASH"
   | "GEMINI__2_5__PRO"
+  | "GEMINI__FLASH__IMG"
   | "GEMINI__FLASH__LITE"
   | "GROQDEEPSEEK"
   | "OPENAI"
   | "OPENAI__4_1"
   | "OPENAI__4_1__MINI"
   | "OPENAI__4_1__NANO"
+  | "OPENAI__DALLE__2"
+  | "OPENAI__DALLE__3"
+  | "OPENAI__IMG"
   | "OPENAI__O4__MINI"
   | "PERPLEXITY"
   | "PERPLEXITY__LARGE";
@@ -18032,12 +18036,16 @@ export const enumModelsEnumEnum = {
   DEEPSEEK: "DEEPSEEK" as const,
   GEMINI__2_5__FLASH: "GEMINI__2_5__FLASH" as const,
   GEMINI__2_5__PRO: "GEMINI__2_5__PRO" as const,
+  GEMINI__FLASH__IMG: "GEMINI__FLASH__IMG" as const,
   GEMINI__FLASH__LITE: "GEMINI__FLASH__LITE" as const,
   GROQDEEPSEEK: "GROQDEEPSEEK" as const,
   OPENAI: "OPENAI" as const,
   OPENAI__4_1: "OPENAI__4_1" as const,
   OPENAI__4_1__MINI: "OPENAI__4_1__MINI" as const,
   OPENAI__4_1__NANO: "OPENAI__4_1__NANO" as const,
+  OPENAI__DALLE__2: "OPENAI__DALLE__2" as const,
+  OPENAI__DALLE__3: "OPENAI__DALLE__3" as const,
+  OPENAI__IMG: "OPENAI__IMG" as const,
   OPENAI__O4__MINI: "OPENAI__O4__MINI" as const,
   PERPLEXITY: "PERPLEXITY" as const,
   PERPLEXITY__LARGE: "PERPLEXITY__LARGE" as const,

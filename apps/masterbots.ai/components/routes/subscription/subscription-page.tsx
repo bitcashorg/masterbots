@@ -16,7 +16,7 @@ export function SubscriptionPageComponent() {
 	}
 
 	return (
-		<div className="max-w-screen-xl pb-10 mx-auto w-full">
+		<div className="w-full max-w-screen-xl pb-10 mx-auto">
 			<div className="flex flex-col items-center justify-center w-full gap-5 pt-10">
 				<h1 className="text-2xl font-bold">Subscriptions</h1>
 				<p className="text-sm text-muted-foreground">
@@ -24,18 +24,20 @@ export function SubscriptionPageComponent() {
 				</p>
 			</div>
 
-			{/* Add your subscription management components here */}
 			<div className="flex flex-col items-center justify-center w-full gap-5 pt-10">
-				{/* Example subscription management component */}
-				{/* <SubscriptionManagementComponent /> */}
-				<p className="text-sm text-muted-foreground">No subscriptions found.</p>
-
-				<Button
-					className="w-full max-w-xs"
-					onClick={handleOpenSubscriptionSteps}
-				>
-					Create Subscription
-				</Button>
+				<div className="flex flex-col items-center w-full max-w-md gap-2 p-6 border rounded-lg">
+					<h2 className="text-xl font-semibold">Free Plan</h2>
+					<p className="text-sm text-center text-muted-foreground">
+						You are currently on the Free plan. Upgrade to Pro for more
+						features.
+					</p>
+					<Button
+						className="w-full max-w-xs mt-4"
+						onClick={handleOpenSubscriptionSteps}
+					>
+						Upgrade to Pro
+					</Button>
+				</div>
 
 				{openSubscriptionSteps && <Subscription />}
 			</div>

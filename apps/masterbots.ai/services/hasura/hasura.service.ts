@@ -269,20 +269,11 @@ export async function getThreads({
 	userId,
 	domain,
 	jwt,
-	isAdminMode,
 	limit,
 	offset,
 }: GetThreadsParams) {
 	const client = getHasuraClient({ jwt })
-
-	const threadsArguments = {
-		orderBy: [{ createdAt: 'DESC' as OrderBy }],
-		limit: limit ? limit : 20,
-		...(offset
-			? {
-					offset,
-				}
-			: {}),
+	const baseThreadsArguments = {
 		...(chatbotName || categoryId
 			? {
 					where: {
@@ -310,9 +301,7 @@ export async function getThreads({
 				}
 			: userId
 				? { where: { userId: { _eq: userId } } }
-				: isAdminMode
-					? { isApproved: { _eq: false } }
-					: {}),
+				: {}),
 	}
 
 	const { thread, threadAggregate } = await client.query({
@@ -366,13 +355,22 @@ export async function getThreads({
 			isApproved: true,
 			isPublic: true,
 			__scalar: true,
-			__args: threadsArguments,
+			__args: {
+				orderBy: [{ createdAt: 'DESC' as OrderBy }],
+				limit: limit ? limit : 20,
+				...(offset
+					? {
+							offset,
+						}
+					: {}),
+				...baseThreadsArguments,
+			},
 		},
 		threadAggregate: {
 			aggregate: {
 				count: true,
 			},
-			__args: threadsArguments,
+			__args: baseThreadsArguments,
 		},
 	})
 
@@ -767,6 +765,7 @@ export async function getBrowseThreads({
 	limit,
 	offset,
 	slug,
+	isAdminMode,
 	followedUserId,
 }: GetBrowseThreadsParams) {
 	const client = getHasuraClient({})
@@ -820,8 +819,14 @@ export async function getBrowseThreads({
 					},
 				}
 			: {}),
-		isPublic: { _eq: true },
-		isApproved: { _eq: true },
+		...(isAdminMode
+			? {
+					isApproved: { _eq: false },
+				}
+			: {
+					isPublic: { _eq: true },
+					isApproved: { _eq: true },
+				}),
 	}
 
 	const { thread: allThreads, threadAggregate } = await client.query({

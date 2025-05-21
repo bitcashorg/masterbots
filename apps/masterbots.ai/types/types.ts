@@ -417,3 +417,13 @@ export type SendMessageFromResponseMessageData = {
 	bulletContent: string
 	messageId: string
 }
+
+export interface StoredImagePart {
+	type: 'file' | 'image'
+	data: string
+	mimeType: string
+}
+
+export type MessageWithExamples = MBMessage & {
+	examples?: StoredImagePart[]
+}

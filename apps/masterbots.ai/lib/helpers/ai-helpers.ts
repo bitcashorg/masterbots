@@ -9,11 +9,13 @@ import {
 	toolSchema,
 } from '@/lib/helpers/ai-schemas'
 import type { AiClientType, CleanPromptResult } from '@/types/types'
+import type { MessageWithExamples, StoredImagePart } from '@/types/types'
 import type { StreamEntry } from '@/types/wordware-flows.types'
 import type Anthropic from '@anthropic-ai/sdk'
 import {
 	type Attachment,
 	type CoreMessage,
+	type FilePart,
 	type ImagePart,
 	type Message,
 	type TextPart,
@@ -295,4 +297,60 @@ export function extractReasoningContent(
 		if (reasoningPart) return reasoningPart.reasoning
 	}
 	return message.thinking
+}
+
+// ? Extract image files from the message
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+export function extractImageFiles(files: any[] | undefined) {
+	if (!files || !Array.isArray(files)) return []
+
+	return files
+		.filter((file) => file.mimeType?.startsWith('image/'))
+		.map((file) => ({
+			base64: file.base64,
+			uint8Array: file.uint8Array,
+			mimeType: file.mimeType,
+		}))
+}
+
+export function hasImageGeneration(message: MessageWithExamples): boolean {
+	if (!message.examples || !Array.isArray(message.examples)) {
+		return false
+	}
+
+	return message.examples.some(
+		(part: StoredImagePart) => part.type === 'file' || part.type === 'image',
+	)
+}
+
+export function extractImageContent(
+	message: MessageWithExamples,
+): { base64: string; mimeType: string }[] {
+	if (!message.examples || !Array.isArray(message.examples)) {
+		console.log('No examples found in message:', message)
+		return []
+	}
+
+	const imageParts = message.examples.filter(
+		(part: StoredImagePart) => part.type === 'file' || part.type === 'image',
+	)
+
+	if (imageParts.length === 0) {
+		console.log('No image parts found in message examples:', message.examples)
+		return []
+	}
+
+	console.log('Found image parts:', imageParts)
+
+	return imageParts.map((part: StoredImagePart) => {
+		if (!part.data) {
+			console.warn('Image part has no data:', part)
+			return { base64: '', mimeType: part.mimeType || 'image/png' }
+		}
+
+		return {
+			base64: part.data,
+			mimeType: part.mimeType || 'image/png',
+		}
+	})
 }
