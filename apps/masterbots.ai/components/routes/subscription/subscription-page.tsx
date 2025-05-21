@@ -223,7 +223,7 @@ export function SubscriptionPageComponent() {
 									<p className="text-sm text-muted-foreground">
 										Due on{' '}
 										{new Date(
-											subscriptionData.subscription.current_period_start * 1000,
+											subscriptionData.subscription.current_period_end * 1000,
 										).toLocaleDateString()}
 									</p>
 								</div>
