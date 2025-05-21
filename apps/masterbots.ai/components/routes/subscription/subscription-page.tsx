@@ -82,6 +82,38 @@ export function SubscriptionPageComponent() {
 				</p>
 			</motion.div>
 
+			{/* Pro Plan Benefits - shown for non-subscribed users */}
+			{!plan && (
+				<motion.div
+					variants={itemVariants}
+					className="flex flex-col items-center w-full max-w-2xl gap-4 p-8 mx-auto mt-4 transition-shadow duration-300 border shadow-sm rounded-xl hover:shadow-md bg-card"
+				>
+					<h2 className="text-2xl font-semibold text-foreground">
+						Pro Plan Benefits
+					</h2>
+					<div className="w-full space-y-6">
+						{proBenefits.map((benefit, index) => (
+							<motion.div
+								key={index}
+								className="flex items-start space-x-4 group"
+								whileHover={{ x: 5 }}
+								transition={{ type: 'spring', stiffness: 300 }}
+							>
+								<div className="w-3 h-3 mt-2 rounded-full bg-primary" />
+								<div className="space-y-1">
+									<h3 className="text-lg font-medium transition-colors text-foreground group-hover:text-primary">
+										{benefit.title}
+									</h3>
+									<p className="text-sm text-muted-foreground">
+										{benefit.description}
+									</p>
+								</div>
+							</motion.div>
+						))}
+					</div>
+				</motion.div>
+			)}
+
 			<motion.div
 				variants={containerVariants}
 				initial="hidden"
@@ -170,36 +202,6 @@ export function SubscriptionPageComponent() {
 							</Button>
 						</div>
 					)}
-				</motion.div>
-
-				{/* Pro Plan Benefits */}
-				<motion.div
-					variants={itemVariants}
-					className="flex flex-col items-center w-full max-w-2xl gap-4 p-8 transition-shadow duration-300 border shadow-sm rounded-xl hover:shadow-md bg-card"
-				>
-					<h2 className="text-2xl font-semibold text-foreground">
-						Pro Plan Benefits
-					</h2>
-					<div className="w-full space-y-6">
-						{proBenefits.map((benefit, index) => (
-							<motion.div
-								key={index}
-								className="flex items-start space-x-4 group"
-								whileHover={{ x: 5 }}
-								transition={{ type: 'spring', stiffness: 300 }}
-							>
-								<div className="w-3 h-3 mt-2 rounded-full bg-primary" />
-								<div className="space-y-1">
-									<h3 className="text-lg font-medium transition-colors text-foreground group-hover:text-primary">
-										{benefit.title}
-									</h3>
-									<p className="text-sm text-muted-foreground">
-										{benefit.description}
-									</p>
-								</div>
-							</motion.div>
-						))}
-					</div>
 				</motion.div>
 
 				{/* Transaction History */}
