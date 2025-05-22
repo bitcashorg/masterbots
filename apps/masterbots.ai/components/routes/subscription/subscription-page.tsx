@@ -52,19 +52,19 @@ export function SubscriptionPageComponent() {
 
 	const proBenefits = [
 		{
-			title: 'Professional Tools',
+			title: 'Advanced AI Capabilities',
 			description:
-				'Access to professional tools as image generation, web search, working documents',
+				'Generate stunning images, search the web in real-time, create and edit documents, and access cutting-edge AI tools that streamline your workflow and boost productivity',
 		},
 		{
-			title: 'Premium Models',
+			title: 'Latest AI Models First',
 			description:
-				'Access to all the premium models that are disponible out there, plus all the ones that we include in the future',
+				"Get instant access to the most advanced AI models including GPT-4.1, Claude, Gemini, and emerging models as soon as they're released - all with priority access",
 		},
 		{
-			title: 'All-in-One Platform',
+			title: 'One Subscription, Unlimited AI',
 			description:
-				'Have all the AI models in one place, not extra payments in different platforms, just one subscription that unleash all the power of AI',
+				'Replace multiple AI subscriptions with one powerful platform. Save hundreds monthly while accessing ChatGPT advanced models, Claude Pro, Gemini advanced, and more - all in one place',
 		},
 	]
 
@@ -81,38 +81,6 @@ export function SubscriptionPageComponent() {
 					Manage your subscriptions and payment methods here.
 				</p>
 			</motion.div>
-
-			{/* Pro Plan Benefits - shown for non-subscribed users */}
-			{!plan && (
-				<motion.div
-					variants={itemVariants}
-					className="flex flex-col items-center w-full max-w-2xl gap-4 p-8 mx-auto mt-4 transition-shadow duration-300 border shadow-sm rounded-xl hover:shadow-md bg-card"
-				>
-					<h2 className="text-2xl font-semibold text-foreground">
-						Pro Plan Benefits
-					</h2>
-					<div className="w-full space-y-6">
-						{proBenefits.map((benefit, index) => (
-							<motion.div
-								key={index}
-								className="flex items-start space-x-4 group"
-								whileHover={{ x: 5 }}
-								transition={{ type: 'spring', stiffness: 300 }}
-							>
-								<div className="w-3 h-3 mt-2 rounded-full bg-primary" />
-								<div className="space-y-1">
-									<h3 className="text-lg font-medium transition-colors text-foreground group-hover:text-primary">
-										{benefit.title}
-									</h3>
-									<p className="text-sm text-muted-foreground">
-										{benefit.description}
-									</p>
-								</div>
-							</motion.div>
-						))}
-					</div>
-				</motion.div>
-			)}
 
 			<motion.div
 				variants={containerVariants}
@@ -166,6 +134,38 @@ export function SubscriptionPageComponent() {
 						</div>
 					)}
 				</motion.div>
+
+				{/* Pro Plan Benefits - shown for non-subscribed users */}
+				{!plan && (
+					<motion.div
+						variants={itemVariants}
+						className="flex flex-col items-center w-full max-w-2xl gap-4 p-8 transition-shadow duration-300 border shadow-sm rounded-xl hover:shadow-md bg-card"
+					>
+						<h2 className="text-2xl font-semibold text-foreground">
+							Pro Plan Benefits
+						</h2>
+						<div className="w-full space-y-6">
+							{proBenefits.map((benefit, index) => (
+								<motion.div
+									key={index}
+									className="flex items-start space-x-4 group"
+									whileHover={{ x: 5 }}
+									transition={{ type: 'spring', stiffness: 300 }}
+								>
+									<div className="w-3 h-3 mt-2 rounded-full bg-primary" />
+									<div className="space-y-1">
+										<h3 className="text-lg font-medium transition-colors text-foreground group-hover:text-primary">
+											{benefit.title}
+										</h3>
+										<p className="text-sm text-muted-foreground">
+											{benefit.description}
+										</p>
+									</div>
+								</motion.div>
+							))}
+						</div>
+					</motion.div>
+				)}
 
 				{/* Payment Method Section */}
 				<motion.div
