@@ -25,7 +25,7 @@ export default async function ProfilePageLayout({
 			<NextTopLoader color="#1ED761" initialPosition={0.2} />
 			<Hero user={user as User} />
 			<UserProfileSidebar>
-				<div className="px-4 md:px-10 h-full">{children}</div>
+				<div className="h-full px-4 md:px-10">{children}</div>
 			</UserProfileSidebar>
 		</main>
 	)
