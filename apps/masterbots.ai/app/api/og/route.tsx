@@ -1,6 +1,6 @@
 import OGImage from '@/components/shared/og-image'
+import { uuidRegex } from '@/lib/utils'
 import { getUserBySlug } from '@/services/hasura'
-import type { UUID } from '@/types/types'
 import type { Chatbot, Thread } from 'mb-genql'
 import { ImageResponse } from 'next/og'
 import type { NextRequest } from 'next/server'
@@ -65,15 +65,17 @@ export async function GET(req: NextRequest) {
 			)
 		}
 
-		if (!threadId && !chatbotId) {
-			// Use metadata when thread not found
+		if (
+			!threadId ||
+			(threadId && !uuidRegex.test(threadId)) ||
+			!chatbotId ||
+			(chatbotId && !uuidRegex.test(chatbotId))
+		) {
 			return defaultOgImage
 		}
 
 		// TODO: Update this to use mb-genql package
-		const { thread }: { thread: Thread[] } = await getThreadForOG(
-			threadId as UUID,
-		)
+		const { thread }: { thread: Thread[] } = await getThreadForOG(threadId)
 
 		if (!thread?.length && !chatbotId) {
 			// Use metadata when thread not found
