@@ -123,6 +123,7 @@ export type Subscription = {
 		}
 	}
 	current_period_start: number
+	current_period_end: number
 	status: string
 }
 
@@ -141,6 +142,7 @@ export const initialStateSubscription = {
 		},
 	},
 	current_period_start: 0,
+	current_period_end: 0,
 	status: '',
 }
 

@@ -119,8 +119,6 @@ export function ChatMessage({
 			return null
 		}
 
-		console.log('Extracted images:', images)
-
 		return (
 			<div className="mt-4 space-y-4">
 				{images.map((image, i) => {
