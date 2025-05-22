@@ -397,8 +397,6 @@ export default function UserThreadPanel({
 		}
 	}, [searchTerm])
 
-	console.log('userProps', userProps)
-
 	return (
 		<>
 			{!isContinuousThread && (threads.length !== 0 || searchTerm) && (

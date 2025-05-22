@@ -1,4 +1,3 @@
-import { getHasuraClient } from 'mb-lib'
 import slugify from 'slugify'
 import { slugWordExtension, wordsToRemove } from '../constants'
 
