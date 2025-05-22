@@ -28,13 +28,11 @@ import { appConfig } from 'mb-env'
 import { useSession } from 'next-auth/react'
 import * as React from 'react'
 import { useAsync } from 'react-use'
-import { useImageGeneration } from '@/lib/hooks/use-image'
 
 const WHITELIST_USERS = appConfig.features.proWhitelistUsers
 
 export function ChatCombobox() {
 	const { selectedModel, changeModel, models, isLoading } = useModel()
-	const { isImageGenerationEnabled } = useImageGeneration()
 	const [open, setOpen] = React.useState(false)
 	const { isPowerUp } = usePowerUp()
 	const { isDeepThinking } = useDeepThinking()
@@ -63,30 +61,8 @@ export function ChatCombobox() {
 	//? Process selection ref to prevent double-clicks
 	const processingSelectionRef = React.useRef(false)
 
-	const IMAGE_MODELS = [
-		{
-			model: 'dall-e-3',
-			enabled: true,
-			type: 'free',
-			model_data: {
-				name: 'DALL-E 3',
-				value: 'dall-e-3'
-			}
-		},
-		{
-			model: 'dall-e-2',
-			enabled: true,
-			type: 'free',
-			model_data: {
-				name: 'DALL-E 2',
-				value: 'dall-e-2'
-			}
-		}
-	]
-
 	//? Group models by type and availability
-	const { freeEnabledModels, paidEnabledModels, disabledModels } =
-		groupModels(isImageGenerationEnabled ? IMAGE_MODELS : models)
+	const { freeEnabledModels, paidEnabledModels, disabledModels } = groupModels(models)
 
 	const getButtonVariant = () => {
 		if (isDeepThinking) return 'deepThinking'
