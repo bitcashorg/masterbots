@@ -207,7 +207,8 @@ export const authOptions: NextAuthOptions = {
 				signedUser = currentUser
 
 				if (!signedUser || signedUser.length === 0) {
-					const slug = toSlug(user.name as string)
+					const timestamp = Date.now().toString(36)
+					const slug = `${toSlug(user.name as string)}-${timestamp}`
 					const username = generateUsername(
 						user.email?.split('@')[0] || user.name || '',
 					)
