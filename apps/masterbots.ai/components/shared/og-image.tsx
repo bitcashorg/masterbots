@@ -16,6 +16,13 @@ export default function OgImage({
 	user_avatar,
 	isLightTheme,
 }: OgImageProps) {
+	console.log('OG IMG Props', {
+		question,
+		answer,
+		username,
+		user_avatar,
+		isLightTheme,
+	})
 	return (
 		<div
 			style={{
@@ -51,18 +58,26 @@ export default function OgImage({
 							<p
 								style={{
 									fontWeight: 'bold',
+									display: 'flex',
+									flexDirection: 'column',
+									marginTop: '0px',
 									marginBottom: '0px',
 									fontSize: 32,
 									color: isLightTheme ? '#17171b' : '#ffff',
 								}}
 							>
+								<span
+									style={{
+										color: '#ef4444',
+										fontSize: '18px',
+										marginTop: '0px',
+										left: '0px',
+									}}
+								>
+									{' '}
+									{thread.chatbot.categories[0]?.category.name}
+								</span>
 								{thread.chatbot.name}
-							</p>
-							<p
-								style={{ color: '#ef4444', fontSize: '18px', marginTop: '0px' }}
-							>
-								{' '}
-								{thread.chatbot.categories[0]?.category.name}
 							</p>
 						</>
 					) : null}
@@ -100,7 +115,7 @@ export default function OgImage({
 						style={{
 							display: 'flex',
 							alignItems: 'center',
-							marginTop: '20px',
+							marginTop: '42px',
 						}}
 					>
 						{user_avatar ? (
@@ -144,7 +159,6 @@ export default function OgImage({
 								fontSize: '34px',
 								lineHeight: 1,
 								marginLeft: '15px',
-								marginTop: '40px',
 								textTransform: 'lowercase',
 							}}
 						>
@@ -172,7 +186,7 @@ export default function OgImage({
 									width: '300px',
 									height: '300px',
 									borderRadius: '50%',
-									zIndex: '1px', // Ensure the image is above the SVG
+									zIndex: 1, // Ensure the image is above the SVG
 								}}
 								src={thread.chatbot.avatar}
 							/>

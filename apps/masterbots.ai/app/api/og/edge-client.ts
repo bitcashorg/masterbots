@@ -1,8 +1,7 @@
-import type { UUID } from '@/types/types'
 import { endpoints } from 'mb-env'
 
 // TODO: Update this to use mb-genql package
-export async function getThreadForOG(threadId: UUID) {
+export async function getThreadForOG(threadId: string) {
 	const env = process.env.NEXT_PUBLIC_APP_ENV
 	if (!env || !['prod', 'test', 'local'].includes(env)) {
 		throw new Error('Invalid environment configuration')
@@ -60,7 +59,7 @@ export async function getThreadForOG(threadId: UUID) {
 	}
 }
 
-export async function getChatbotForOG(chatbotId: UUID) {
+export async function getChatbotForOG(chatbotId: string) {
 	const env = process.env.NEXT_PUBLIC_APP_ENV
 	if (!env || !['prod', 'test', 'local'].includes(env)) {
 		throw new Error('Invalid environment configuration')

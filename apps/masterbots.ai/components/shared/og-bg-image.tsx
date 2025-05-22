@@ -11,7 +11,7 @@ export default function OgBgImage({ isLightTheme }: { isLightTheme: boolean }) {
 			}}
 		>
 			<svg width="100%" height="100%" viewBox="0 0 1200 630" fill="none">
-				<title>OG Background Image</title>
+				<title style={{ display: 'none' }}>OG Image BG</title>
 				<g clip-path="url(#clip0_1009_12)">
 					<path
 						d="M1111 -184H111V816H1111V-184Z"
