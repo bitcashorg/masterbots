@@ -350,8 +350,7 @@ export async function createResponseStream(
 				apiKey: process.env.OPENAI_API_KEY,
 			})
 			const lastMessage = coreMessages[coreMessages.length - 1]
-			const prompt =
-				typeof lastMessage.content === 'string' ? lastMessage.content : ''
+			const prompt = typeof lastMessage.content === 'string' ? lastMessage.content : ''
 
 			try {
 				const { image } = await generateImage({
@@ -363,7 +362,18 @@ export async function createResponseStream(
 				// Format the response to match the AI SDK's expected format
 				const stream = new ReadableStream({
 					start(controller) {
-						const response = {
+						// First send the initial message
+						const initialResponse = {
+							id: crypto.randomUUID(),
+							role: 'assistant',
+							content: '',
+						}
+						controller.enqueue(
+							new TextEncoder().encode(`data: ${JSON.stringify(initialResponse)}\n\n`),
+						)
+
+						// Then send the image data
+						const imageResponse = {
 							id: crypto.randomUUID(),
 							role: 'assistant',
 							content: '',
@@ -376,14 +386,18 @@ export async function createResponseStream(
 							],
 						}
 						controller.enqueue(
-							new TextEncoder().encode(`data: ${JSON.stringify(response)}\n\n`),
+							new TextEncoder().encode(`data: ${JSON.stringify(imageResponse)}\n\n`),
 						)
 						controller.close()
 					},
 				})
 
 				return new Response(stream, {
-					headers: { 'Content-Type': 'text/event-stream' },
+					headers: { 
+						'Content-Type': 'text/event-stream',
+						'Cache-Control': 'no-cache',
+						'Connection': 'keep-alive',
+					},
 				})
 			} catch (error: unknown) {
 				if (error instanceof NoImageGeneratedError) {
