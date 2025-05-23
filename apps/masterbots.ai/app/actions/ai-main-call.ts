@@ -362,17 +362,7 @@ export async function createResponseStream(
 				// Format the response to match the AI SDK's expected format
 				const stream = new ReadableStream({
 					start(controller) {
-						// First send the initial message
-						const initialResponse = {
-							id: crypto.randomUUID(),
-							role: 'assistant',
-							content: '',
-						}
-						controller.enqueue(
-							new TextEncoder().encode(`data: ${JSON.stringify(initialResponse)}\n\n`),
-						)
-
-						// Then send the image data
+						// Send a single message with the image data
 						const imageResponse = {
 							id: crypto.randomUUID(),
 							role: 'assistant',
