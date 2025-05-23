@@ -210,21 +210,18 @@ export type AiClientType =
 	| 'OpenAI'
 	| 'Anthropic'
 	| 'Perplexity'
-	| 'DeepSeek'
 	| 'GroqDeepSeek'
+	| 'DeepSeek'
 	| 'Gemini'
+	| 'OpenAI_Image'
 
 export type JSONResponseStream = {
 	model: string
-	id?: string
 	messages?: OpenAI.ChatCompletionMessageParam[]
 	previewToken?: string
-	isPowerUp?: boolean
 	webSearch?: boolean
-	stream?: boolean
-	temperature?: number
-	maxTokens?: number
-	chatbot?: Pick<Chatbot, 'categories' | 'chatbotId'>
+	isPowerUp?: boolean
+	isImageGeneration?: boolean
 }
 
 // ? New type for streamText function parameters if needed

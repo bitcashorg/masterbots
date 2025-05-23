@@ -98,6 +98,16 @@ export function ModelProvider({ children }: ModelProviderProps) {
 			//? Verify the model exists in our database and is enabled
 			const modelData = models.find((m) => m.model === model)
 
+			console.log('Attempting to change model:', {
+				requestedModel: model,
+				foundModel: modelData,
+				isEnabled: modelData?.enabled,
+				availableModels: models.map((m) => ({
+					model: m.model,
+					enabled: m.enabled,
+				})),
+			})
+
 			if (modelData?.enabled) {
 				console.log('🤖 Changing model to:', model)
 				setSelectedModel(model)

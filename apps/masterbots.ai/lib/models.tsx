@@ -26,7 +26,8 @@ export const getModelIcon = (modelName: string): ReactNode => {
 	if (
 		model.startsWith('openai') ||
 		model.startsWith('gpt') ||
-		model.startsWith('o4-mini')
+		model.startsWith('o4-mini') ||
+		model.startsWith('dall-e')
 	)
 		return <IconOpenAI />
 	if (model.startsWith('claude')) return <IconClaude />

@@ -30,7 +30,9 @@ import { createGroq } from '@ai-sdk/groq'
 import { createOpenAI } from '@ai-sdk/openai'
 import {
 	type Message,
+	NoImageGeneratedError,
 	extractReasoningMiddleware,
+	experimental_generateImage as generateImage,
 	smoothStream,
 	streamObject,
 	streamText,
@@ -318,13 +320,13 @@ export async function createResponseStream(
 	json: JSONResponseStream,
 	req?: Request,
 ) {
-	// TODO: Integrate powerUp mode into the response stream whenever required.
 	const {
 		model,
 		messages: rawMessages,
 		previewToken,
 		webSearch,
 		isPowerUp,
+		isImageGeneration,
 	} = json
 	const messages = setStreamerPayload(clientType, rawMessages || [])
 
@@ -332,8 +334,6 @@ export async function createResponseStream(
 		// ? Temp disabling ICL as tool. Using direct ICL integration to main prompt instead. Might be enabled later.
 		// chatbotMetadataExamples: aiTools.chatbotMetadataExamples
 	}
-
-	// console.log('[SERVER] webSearch', webSearch)
 
 	if (webSearch) tools.webSearch = aiTools.webSearch
 
@@ -343,6 +343,62 @@ export async function createResponseStream(
 		const coreMessages = convertToCoreMessages(
 			messages as OpenAI.ChatCompletionMessageParam[],
 		)
+
+		// Handle image generation
+		if (isImageGeneration && clientType === 'OpenAI') {
+			const openaiProvider = createOpenAI({
+				apiKey: process.env.OPENAI_API_KEY,
+			})
+			const lastMessage = coreMessages[coreMessages.length - 1]
+			const prompt = typeof lastMessage.content === 'string' ? lastMessage.content : ''
+
+			try {
+				const { image } = await generateImage({
+					model: openaiProvider.image(model),
+					prompt,
+					size: '1024x1024',
+				})
+
+				// Format the response to match the AI SDK's expected format
+				const stream = new ReadableStream({
+					start(controller) {
+						// Send a single message with the image data
+						const imageResponse = {
+							id: crypto.randomUUID(),
+							role: 'assistant',
+							content: '',
+							parts: [
+								{
+									type: 'file',
+									data: image.base64,
+									mimeType: 'image/png',
+								},
+							],
+						}
+						controller.enqueue(
+							new TextEncoder().encode(`data: ${JSON.stringify(imageResponse)}\n\n`),
+						)
+						controller.close()
+					},
+				})
+
+				return new Response(stream, {
+					headers: { 
+						'Content-Type': 'text/event-stream',
+						'Cache-Control': 'no-cache',
+						'Connection': 'keep-alive',
+					},
+				})
+			} catch (error: unknown) {
+				if (error instanceof NoImageGeneratedError) {
+					console.error('Image generation failed:', {
+						cause: error.cause,
+						responses: error.responses,
+					})
+				}
+				throw error
+			}
+		}
 
 		switch (clientType) {
 			case 'OpenAI': {

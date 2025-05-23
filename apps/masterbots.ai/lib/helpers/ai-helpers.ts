@@ -28,7 +28,11 @@ import type OpenAI from 'openai'
 // * This function gets the model client type
 export function getModelClientType(model: string): AiClientType {
 	const modelLower = model.toLowerCase()
-	if (modelLower.includes('gpt') || modelLower.includes('o4-mini')) {
+	if (
+		modelLower.includes('gpt') ||
+		modelLower.includes('o4-mini') ||
+		modelLower.includes('dall-e')
+	) {
 		return 'OpenAI'
 	}
 	if (modelLower.includes('claude')) {
