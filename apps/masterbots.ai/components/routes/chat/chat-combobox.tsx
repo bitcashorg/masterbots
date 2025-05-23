@@ -62,7 +62,8 @@ export function ChatCombobox() {
 	const processingSelectionRef = React.useRef(false)
 
 	//? Group models by type and availability
-	const { freeEnabledModels, paidEnabledModels, disabledModels } = groupModels(models)
+	const { freeEnabledModels, paidEnabledModels, disabledModels } =
+		groupModels(models)
 
 	const getButtonVariant = () => {
 		if (isDeepThinking) return 'deepThinking'

@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { IconShare, IconStop } from '@/components/ui/icons'
 import { useContinueGeneration } from '@/lib/hooks/use-continue-generation'
 import { useDeepThinking } from '@/lib/hooks/use-deep-thinking'
+import { useImageGeneration } from '@/lib/hooks/use-image'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useThread } from '@/lib/hooks/use-thread'
@@ -25,7 +26,6 @@ import {
 import { appConfig } from 'mb-env'
 import type { Chatbot } from 'mb-genql'
 import { useCallback, useState } from 'react'
-import { useImageGeneration } from '@/lib/hooks/use-image'
 
 export interface ChatPanelProps
 	extends Pick<
@@ -63,7 +63,8 @@ export function ChatPanel({
 	const { isOpenPopup, loadingState, webSearch, setWebSearch } = useThread()
 	const { isPowerUp, togglePowerUp } = usePowerUp()
 	const { isDeepThinking, toggleDeepThinking } = useDeepThinking()
-	const { isImageGenerationEnabled, toggleImageGeneration } = useImageGeneration()
+	const { isImageGenerationEnabled, toggleImageGeneration } =
+		useImageGeneration()
 	const [shareDialogOpen, setShareDialogOpen] = useState(false)
 	const {
 		getContinuationPrompt,
