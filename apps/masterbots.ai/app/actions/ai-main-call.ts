@@ -375,9 +375,9 @@ export async function createResponseStream(
 								},
 							],
 						}
-						controller.enqueue(
-							new TextEncoder().encode(`data: ${JSON.stringify(imageResponse)}\n\n`),
-						)
+						// Format the response as a data event
+						const data = `data: ${JSON.stringify(imageResponse)}\n\n`
+						controller.enqueue(new TextEncoder().encode(data))
 						controller.close()
 					},
 				})
