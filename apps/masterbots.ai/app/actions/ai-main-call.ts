@@ -30,16 +30,17 @@ import { createGroq } from '@ai-sdk/groq'
 import { createOpenAI } from '@ai-sdk/openai'
 import {
 	type Message,
+	NoImageGeneratedError,
 	extractReasoningMiddleware,
+	experimental_generateImage as generateImage,
 	smoothStream,
 	streamObject,
 	streamText,
 	wrapLanguageModel,
-	experimental_generateImage as generateImage,
 } from 'ai'
 import { createStreamableValue } from 'ai/rsc'
 import { appConfig } from 'mb-env'
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 import type { ZodType, z } from 'zod'
 
 const OPEN_AI_ENV_CONFIG = {
@@ -345,29 +346,54 @@ export async function createResponseStream(
 
 		// Handle image generation
 		if (isImageGeneration && clientType === 'OpenAI') {
-			const openai = new OpenAI({
+			const openaiProvider = createOpenAI({
 				apiKey: process.env.OPENAI_API_KEY,
 			})
 			const lastMessage = coreMessages[coreMessages.length - 1]
-			const prompt = typeof lastMessage.content === 'string' ? lastMessage.content : ''
-			
-			const response = await openai.images.generate({
-				model: model,
-				prompt,
-				size: '1024x1024',
-				quality: 'standard',
-				style: 'natural',
-			})
+			const prompt =
+				typeof lastMessage.content === 'string' ? lastMessage.content : ''
 
-			return new Response(
-				JSON.stringify({
-					type: 'image',
-					data: response.data[0].b64_json,
-				}),
-				{
-					headers: { 'Content-Type': 'application/json' },
-				},
-			)
+			try {
+				const { image } = await generateImage({
+					model: openaiProvider.image(model),
+					prompt,
+					size: '1024x1024',
+				})
+
+				// Format the response to match the AI SDK's expected format
+				const stream = new ReadableStream({
+					start(controller) {
+						const response = {
+							id: crypto.randomUUID(),
+							role: 'assistant',
+							content: '',
+							parts: [
+								{
+									type: 'file',
+									data: image.base64,
+									mimeType: 'image/png',
+								},
+							],
+						}
+						controller.enqueue(
+							new TextEncoder().encode(`data: ${JSON.stringify(response)}\n\n`),
+						)
+						controller.close()
+					},
+				})
+
+				return new Response(stream, {
+					headers: { 'Content-Type': 'text/event-stream' },
+				})
+			} catch (error: unknown) {
+				if (error instanceof NoImageGeneratedError) {
+					console.error('Image generation failed:', {
+						cause: error.cause,
+						responses: error.responses,
+					})
+				}
+				throw error
+			}
 		}
 
 		switch (clientType) {

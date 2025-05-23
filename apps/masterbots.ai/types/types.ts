@@ -210,9 +210,10 @@ export type AiClientType =
 	| 'OpenAI'
 	| 'Anthropic'
 	| 'Perplexity'
-	| 'DeepSeek'
 	| 'GroqDeepSeek'
+	| 'DeepSeek'
 	| 'Gemini'
+	| 'OpenAI_Image'
 
 export type JSONResponseStream = {
 	model: string

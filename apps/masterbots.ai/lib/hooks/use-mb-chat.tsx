@@ -13,6 +13,7 @@ import {
 	processUserMessage,
 } from '@/lib/helpers/ai-classification'
 
+import { AIModels } from '@/app/api/chat/models/models'
 import {
 	cleanPrompt,
 	hasReasoning,
@@ -220,45 +221,14 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	const useChatConfig: Partial<UseChatOptions> = {
 		initialMessages,
 		id: threadId,
-		// TODO: Check this experimental feature: https://sdk.vercel.ai/docs/reference/ai-sdk-ui/use-chat#experimental_prepare-request-body
-		// ? We might need it depending what the AI returns to us and what kind of data it has... this is might be useful for:
-		// ? - Web Search (Tool + Global)
-		// ? - Any additional tool with multiple steps or user decisions and react according to them...
-		// experimental_prepareRequestBody
 		body: {
 			id: threadId,
 			model: selectedModel,
 			clientType,
 			webSearch,
 			isPowerUp,
+			isImageGeneration: selectedModel === AIModels.OpenAI_Image_Generation,
 		},
-	}
-	const {
-		input,
-		messages,
-		isLoading,
-		stop,
-		append,
-		reload,
-		setInput,
-		setMessages,
-	} = useChat({
-		...useChatConfig,
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-		async onResponse(response: any) {
-			if (response.status >= 400) {
-				customSonner({ type: 'error', text: response.statusText })
-
-				if (isNewChat) {
-					await deleteThread({
-						threadId,
-						jwt: session?.user?.hasuraJwt,
-						userId: session?.user.id,
-					})
-				}
-			}
-		},
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		async onFinish(message: OpenAi.Message, options: any) {
 			try {
 				if (appConfig.features.devMode) {
@@ -318,6 +288,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						text: 'The AI generation was cut off. Click on "Continue" to finish the response.',
 					})
 				}
+
 				if (options.finishReason === 'error') {
 					logErrorToSentry('Error saving new message', {
 						error: new Error('Error saving new message'),
@@ -345,6 +316,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 					return
 				}
+
 				const aiChatThreadId = resolveThreadId({
 					isContinuousThread,
 					randomThreadId: randomThreadId.current,
@@ -419,7 +391,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						messageId: userMessageId,
 						slug: userMessageSlug,
 						role: 'user',
-						// TODO: Uncomment when model FE is ready. BE is ready. @bran18
 						model: selectedModel,
 						content: userContentRef.current,
 						createdAt: new Date().toISOString(),
@@ -480,33 +451,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					}
 				}, 250)()
 			} catch (error) {
-				console.error('Error saving new message: ', error)
-				logErrorToSentry('Error saving new message', {
-					error,
-					message: 'Failed to save the Masterbot message.',
-					level: 'error',
-					extra: {
-						threadSlug: activeThread?.slug,
-						userId: session?.user.id,
-						chatbotName: activeChatbot?.name,
-						attachments: messageAttachments.current,
-					},
-				})
-				customSonner({
-					type: 'error',
-					text: 'Failed to save the Masterbot message. Please try again.',
-				})
-
-				if (isNewChat) {
-					await deleteThread({
-						threadId,
-						jwt: session?.user?.hasuraJwt,
-						userId: session?.user.id,
-					})
-				}
-			} finally {
-				// ? resetting refs
-				clickedContentRef.current = ''
+				console.error('Error in onFinish:', error)
+				throw error
 			}
 		},
 		// @ts-ignore
@@ -552,6 +498,32 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					jwt: session?.user?.hasuraJwt,
 					userId: session?.user.id,
 				})
+			}
+		},
+	}
+
+	const {
+		input,
+		messages,
+		isLoading,
+		stop,
+		append,
+		reload,
+		setInput,
+		setMessages,
+	} = useChat({
+		...useChatConfig,
+		async onResponse(response: any) {
+			if (response.status >= 400) {
+				customSonner({ type: 'error', text: response.statusText })
+
+				if (isNewChat) {
+					await deleteThread({
+						threadId,
+						jwt: session?.user?.hasuraJwt,
+						userId: session?.user.id,
+					})
+				}
 			}
 		},
 	})
