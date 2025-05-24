@@ -1,7 +1,7 @@
 import type { mbObjectSchema } from '@/lib/helpers/ai-helpers'
 import type { WordWareFlowPaths } from '@/types/wordware-flows.types'
-import type { Message } from 'ai'
-import type { UserRole } from 'mb-drizzle'
+import type { Message, streamText } from 'ai'
+import type { userRole } from 'mb-drizzle'
 import type {
 	Chatbot,
 	Example,
@@ -197,15 +197,6 @@ export type ChatbotMetadataHeaders = {
 
 export type ReturnFetchChatbotMetadata = ChatbotMetadata | null
 
-export type CoreMessage = {
-	id: string
-	content: string
-	user: {
-		id: string
-		name: string
-	}
-}
-
 export type AiClientType =
 	| 'OpenAI'
 	| 'Anthropic'
@@ -228,15 +219,7 @@ export type JSONResponseStream = {
 }
 
 // ? New type for streamText function parameters if needed
-export type StreamTextParams = {
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	model: any // ? Replace 'any' with the correct type from the SDK if available
-	messages: CoreMessage[]
-	temperature?: number
-	maxTokens?: number
-	topP?: number
-	frequencyPenalty?: number
-}
+export type StreamTextParams = Parameters<typeof streamText>[0]
 
 // * Next-auth types
 declare module 'next-auth' {
@@ -330,7 +313,7 @@ export type AdminUserUpdate = {
 	isVerified?: boolean
 	proUserSubscriptionId?: string
 	getFreeMonth?: boolean
-	role?: (typeof UserRole)[keyof typeof UserRole]
+	role?: 'admin' | 'user' | 'moderator' | 'anonymous'
 }
 
 // * Chatbot details types
@@ -403,8 +386,7 @@ export type PreferenceItemType = {
 	title: string
 	description: string
 	type?: string
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	props?: Record<string, any>
+	props?: Record<string, string>
 	defaultChecked?: boolean
 	icon?: React.ElementType
 	buttonText?: string
