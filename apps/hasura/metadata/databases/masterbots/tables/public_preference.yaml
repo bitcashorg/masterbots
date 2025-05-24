@@ -48,9 +48,25 @@ insert_permissions:
         - web_search
     comment: ""
 select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - chatbot_id
+        - deep_expertise
+        - favorite
+        - preference_id
+        - preferred_complexity
+        - preferred_length
+        - preferred_tone
+        - preferred_type
+        - user_id
+        - web_search
+      filter: {}
+    comment: ""
   - role: moderator
     permission:
       columns:
+        - chatbot_id
         - deep_expertise
         - favorite
         - preference_id
@@ -65,6 +81,7 @@ select_permissions:
   - role: user
     permission:
       columns:
+        - chatbot_id
         - deep_expertise
         - favorite
         - preference_id
