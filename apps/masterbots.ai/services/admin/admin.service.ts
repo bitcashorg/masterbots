@@ -1,6 +1,5 @@
-import type { AdminUserUpdate } from '@/types/types'
 import { and, eq, isNull } from 'drizzle-orm'
-import type { PgInsertValue } from 'drizzle-orm/pg-core'
+import type { PgInsertValue, PgTableWithColumns } from 'drizzle-orm/pg-core'
 import { db, preference, user, userRole } from 'mb-drizzle'
 import { getServerSession } from 'next-auth'
 
@@ -32,7 +31,10 @@ async function verifyUserExists(userId: string) {
 	return userData
 }
 
-async function updateUser(userId: string, data: AdminUserUpdate) {
+async function updateUser(
+	userId: string,
+	data: Partial<typeof user.$inferSelect>,
+) {
 	await verifyAdmin()
 	await verifyUserExists(userId)
 

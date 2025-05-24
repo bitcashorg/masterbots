@@ -69,8 +69,8 @@ export type CleanPromptResult = {
 export type ServerActionResult<Result> = Promise<
 	| Result
 	| {
-		error: string
-	}
+			error: string
+	  }
 >
 
 // * Prompt types
@@ -152,10 +152,10 @@ export type ChatbotMetadata = {
 	domainName: string
 	tags: string[]
 	categories:
-	| Record<string, string>[]
-	| {
-		[key: string]: string
-	}[]
+		| Record<string, string>[]
+		| {
+				[key: string]: string
+		  }[]
 }
 
 export type ChatbotMetadataClassification = {
@@ -313,7 +313,7 @@ export type AdminUserUpdate = {
 	isVerified?: boolean
 	proUserSubscriptionId?: string
 	getFreeMonth?: boolean
-	role?: (typeof userRole)[keyof typeof userRole]
+	role?: 'admin' | 'user' | 'moderator' | 'anonymous'
 }
 
 // * Chatbot details types
