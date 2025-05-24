@@ -5133,6 +5133,11 @@ enum ModelsEnumEnum {
   GEMINI__2_5__PRO
 
   """
+  gemini-2.0-flash-exp
+  """
+  GEMINI__FLASH__IMG
+
+  """
   gemini_2_0_flash_lite
   """
   GEMINI__FLASH__LITE
@@ -5161,6 +5166,21 @@ enum ModelsEnumEnum {
   gpt-4.1-nano-2025-04-14
   """
   OPENAI__4_1__NANO
+
+  """
+  dall-e-2
+  """
+  OPENAI__DALLE__2
+
+  """
+  dall-e-3
+  """
+  OPENAI__DALLE__3
+
+  """
+  gpt-image-1
+  """
+  OPENAI__IMG
 
   """
   o4-mini-2025-04-16
@@ -5562,13 +5582,14 @@ type Preference {
   """
   An object relationship
   """
-  chatbot: Chatbot!
-  chatbotId: Int!
+  chatbot: Chatbot
+  chatbotId: Int
 
   """
   An object relationship
   """
   complexityEnum: ComplexityEnum!
+  deepExpertise: Boolean
   favorite: Boolean
 
   """
@@ -5596,6 +5617,7 @@ type Preference {
   """
   user: User
   userId: uuid
+  webSearch: Boolean
 }
 
 """
@@ -5684,6 +5706,7 @@ input PreferenceBoolExp {
   chatbot: ChatbotBoolExp
   chatbotId: IntComparisonExp
   complexityEnum: ComplexityEnumBoolExp
+  deepExpertise: BooleanComparisonExp
   favorite: BooleanComparisonExp
   lengthEnum: LengthEnumBoolExp
   preferenceId: IntComparisonExp
@@ -5695,12 +5718,18 @@ input PreferenceBoolExp {
   typeEnum: TypeEnumBoolExp
   user: UserBoolExp
   userId: UuidComparisonExp
+  webSearch: BooleanComparisonExp
 }
 
 """
 unique or primary key constraints on table "preference"
 """
 enum PreferenceConstraint {
+  """
+  unique or primary key constraint on columns "user_id"
+  """
+  preference_user_id_key
+
   """
   unique or primary key constraint on columns "preference_id"
   """
@@ -5722,6 +5751,7 @@ input PreferenceInsertInput {
   chatbot: ChatbotObjRelInsertInput
   chatbotId: Int
   complexityEnum: ComplexityEnumObjRelInsertInput
+  deepExpertise: Boolean
   favorite: Boolean
   lengthEnum: LengthEnumObjRelInsertInput
   preferenceId: Int
@@ -5733,6 +5763,7 @@ input PreferenceInsertInput {
   typeEnum: TypeEnumObjRelInsertInput
   user: UserObjRelInsertInput
   userId: uuid
+  webSearch: Boolean
 }
 
 """
@@ -5803,6 +5834,18 @@ type PreferenceMutationResponse {
 }
 
 """
+input type for inserting object relation for remote table "preference"
+"""
+input PreferenceObjRelInsertInput {
+  data: PreferenceInsertInput!
+
+  """
+  upsert condition
+  """
+  onConflict: PreferenceOnConflict
+}
+
+"""
 on_conflict condition type for table "preference"
 """
 input PreferenceOnConflict {
@@ -5818,6 +5861,7 @@ input PreferenceOrderBy {
   chatbot: ChatbotOrderBy
   chatbotId: OrderBy
   complexityEnum: ComplexityEnumOrderBy
+  deepExpertise: OrderBy
   favorite: OrderBy
   lengthEnum: LengthEnumOrderBy
   preferenceId: OrderBy
@@ -5829,6 +5873,7 @@ input PreferenceOrderBy {
   typeEnum: TypeEnumOrderBy
   user: UserOrderBy
   userId: OrderBy
+  webSearch: OrderBy
 }
 
 """
@@ -5846,6 +5891,11 @@ enum PreferenceSelectColumn {
   column name
   """
   chatbotId
+
+  """
+  column name
+  """
+  deepExpertise
 
   """
   column name
@@ -5881,6 +5931,11 @@ enum PreferenceSelectColumn {
   column name
   """
   userId
+
+  """
+  column name
+  """
+  webSearch
 }
 
 """
@@ -5890,7 +5945,17 @@ enum PreferenceSelectColumnPreferenceAggregateBoolExpBool_andArgumentsColumns {
   """
   column name
   """
+  deepExpertise
+
+  """
+  column name
+  """
   favorite
+
+  """
+  column name
+  """
+  webSearch
 }
 
 """
@@ -5900,7 +5965,17 @@ enum PreferenceSelectColumnPreferenceAggregateBoolExpBool_orArgumentsColumns {
   """
   column name
   """
+  deepExpertise
+
+  """
+  column name
+  """
   favorite
+
+  """
+  column name
+  """
+  webSearch
 }
 
 """
@@ -5908,6 +5983,7 @@ input type for updating data in table "preference"
 """
 input PreferenceSetInput {
   chatbotId: Int
+  deepExpertise: Boolean
   favorite: Boolean
   preferenceId: Int
   preferredComplexity: String
@@ -5915,6 +5991,7 @@ input PreferenceSetInput {
   preferredTone: String
   preferredType: String
   userId: uuid
+  webSearch: Boolean
 }
 
 """
@@ -5985,6 +6062,7 @@ Initial value of the column from where the streaming should start
 """
 input PreferenceStreamCursorValueInput {
   chatbotId: Int
+  deepExpertise: Boolean
   favorite: Boolean
   preferenceId: Int
   preferredComplexity: String
@@ -5992,6 +6070,7 @@ input PreferenceStreamCursorValueInput {
   preferredTone: String
   preferredType: String
   userId: uuid
+  webSearch: Boolean
 }
 
 """
@@ -6018,6 +6097,11 @@ enum PreferenceUpdateColumn {
   column name
   """
   chatbotId
+
+  """
+  column name
+  """
+  deepExpertise
 
   """
   column name
@@ -6053,6 +6137,11 @@ enum PreferenceUpdateColumn {
   column name
   """
   userId
+
+  """
+  column name
+  """
+  webSearch
 }
 
 input PreferenceUpdates {
@@ -11072,6 +11161,11 @@ type User {
   password: String!
 
   """
+  An object relationship
+  """
+  preference: Preference
+
+  """
   An array relationship
   """
   preferences(
@@ -11476,6 +11570,7 @@ input UserBoolExp {
   isVerified: BooleanComparisonExp
   lastLogin: TimestamptzComparisonExp
   password: StringComparisonExp
+  preference: PreferenceBoolExp
   preferences: PreferenceBoolExp
   preferencesAggregate: PreferenceAggregateBoolExp
   proUserSubscriptionId: StringComparisonExp
@@ -11537,6 +11632,7 @@ input UserInsertInput {
   isVerified: Boolean
   lastLogin: timestamptz
   password: String
+  preference: PreferenceObjRelInsertInput
   preferences: PreferenceArrRelInsertInput
   proUserSubscriptionId: String
   profilePicture: String
@@ -11641,6 +11737,7 @@ input UserOrderBy {
   isVerified: OrderBy
   lastLogin: OrderBy
   password: OrderBy
+  preference: PreferenceOrderBy
   preferencesAggregate: PreferenceAggregateOrderBy
   proUserSubscriptionId: OrderBy
   profilePicture: OrderBy

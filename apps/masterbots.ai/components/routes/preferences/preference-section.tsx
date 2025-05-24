@@ -23,13 +23,15 @@ import { useSonner } from '@/lib/hooks/useSonner'
 import { cn } from '@/lib/utils'
 import {
 	deleteUserMessagesAndThreads,
+	updatePreferences,
 	updateUserDeletionRequest,
 } from '@/services/hasura'
 import type { PreferenceSectionProps } from '@/types/types'
 import { AArrowDown, AArrowUp, Plus } from 'lucide-react'
-import { signOut } from 'next-auth/react'
-import { useSession } from 'next-auth/react'
+import type { PreferenceSetInput } from 'mb-genql'
+import { signOut, useSession } from 'next-auth/react'
 import { useState } from 'react'
+import { useAsyncFn } from 'react-use'
 import { PreferenceItemTitle } from './preference-item'
 
 export function PreferenceSection({
@@ -138,6 +140,67 @@ export function PreferenceSection({
 			return
 		}
 	}
+
+	const [_modeData, toggleMode] = useAsyncFn(
+		async (preferencesSet: PreferenceSetInput) => {
+			if (!session?.user) throw new Error('No user session found. Aborting...')
+
+			const preferencesUpdate = await updatePreferences({
+				jwt: session?.user.hasuraJwt,
+				userId: session?.user.id,
+				preferencesSet,
+			})
+
+			if (!preferencesUpdate.data) {
+				customSonner({
+					type: 'error',
+					text: 'Failed to update your preferences. Please try again later.',
+				})
+				throw new Error('Failed to complete action')
+			}
+
+			console.log('preferencesUpdate', preferencesUpdate)
+			return preferencesUpdate
+		},
+		[session?.user],
+	)
+
+	const checkSwitchChange = async ({
+		switchName,
+		checked,
+	}: {
+		switchName: 'deep-expertise' | 'web-search'
+		checked: boolean
+	}) => {
+		const toggleModeOptions: PreferenceSetInput = {}
+
+		switch (switchName) {
+			case 'deep-expertise':
+				toggleModeOptions.deepExpertise = checked
+				break
+			case 'web-search':
+				toggleModeOptions.webSearch = checked
+				break
+			default:
+				break
+		}
+
+		const toggleModeResults = await toggleMode(toggleModeOptions)
+
+		if (toggleModeResults.error) {
+			customSonner({
+				type: 'error',
+				text: 'Failed to update your preferences. Please try again later.',
+			})
+			return
+		}
+
+		customSonner({
+			type: 'success',
+			text: `Now ${switchName.replace('-', ' ')} is ${checked ? 'enabled' : 'disabled'} by default.`,
+		})
+	}
+
 	return (
 		<>
 			<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -174,7 +237,7 @@ export function PreferenceSection({
 					</AccordionTrigger>
 					<AccordionContent>
 						<Card className="bg-transparent border-mirage">
-							<CardContent className="px-4 py-8 flex flex-col justify-center items-center gap-y-4 w-full">
+							<CardContent className="flex flex-col items-center justify-center w-full px-4 py-8 gap-y-4">
 								{items.map((item, idx) => (
 									<div
 										key={item.title}
@@ -193,13 +256,24 @@ export function PreferenceSection({
 													'defaultChecked' in item ? item.defaultChecked : false
 												}
 												className="data-[state=unchecked]:bg-mirage data-[state=checked]:bg-mirage [&>span[data-state=unchecked]]:bg-[#71717A] [&>span[data-state=checked]]:bg-accent"
+												name={item.props?.switchName}
+												id={item.props?.switchId}
+												onCheckedChange={(checked) =>
+													checkSwitchChange({
+														checked,
+														switchName: item.props?.switchName as
+															| 'deep-expertise'
+															| 'web-search',
+													})
+												}
 											/>
 										)}
 										{item.type === 'toggleGroup' && (
 											<ToggleGroup
 												type="single"
 												defaultValue="b"
-												className="gap-0 border rounded-full border-mirage h-7"
+												disabled={true}
+												className="gap-0 border rounded-full opacity-50 border-mirage h-7"
 											>
 												<ToggleGroupItem
 													value="a"
@@ -222,12 +296,12 @@ export function PreferenceSection({
 											</ToggleGroup>
 										)}
 										{item.type === 'button' && (
-											<Plus className="cursor-pointer" />
+											<Plus className="opacity-50 cursor-not-allowed" />
 										)}
 										{item.type === 'dangerButton' && (
 											<Button
 												onClick={() => executeButton(item.buttonId ?? '')}
-												className="bg-transparent border border-destructive text-destructive p-2 text-sm min-h-9"
+												className="p-2 text-sm bg-transparent border border-destructive text-destructive min-h-9"
 											>
 												{'icon' in item && item.icon && (
 													<item.icon className="mr-1 size-4" />
