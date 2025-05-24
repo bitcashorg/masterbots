@@ -12,6 +12,8 @@ import {
 	type MbClient,
 	type Message,
 	type OrderBy,
+	type PreferenceInsertInput,
+	type PreferenceSetInput,
 	type Thread,
 	type User,
 	createMbClient,
@@ -1341,6 +1343,10 @@ export async function getUserBySlug({
 						username: true,
 					},
 				},
+
+				preferences: {
+					__scalar: true,
+				},
 			},
 		} as const)
 
@@ -1862,5 +1868,86 @@ export async function getModels() {
 	} catch (error) {
 		console.error('Error fetching models:', error)
 		return []
+	}
+}
+
+export async function updatePreferences({
+	jwt,
+	userId,
+	preferencesSet,
+}: {
+	jwt: string
+	userId: string
+	preferencesSet: PreferenceSetInput
+}) {
+	try {
+		const client = getHasuraClient({ jwt })
+		const { updatePreference } = await client.mutation({
+			updatePreference: {
+				__args: {
+					where: {
+						userId: {
+							_eq: userId,
+						},
+					},
+					_set: preferencesSet,
+				},
+				userId: true,
+				preferences: true,
+			},
+		})
+
+		if (!updatePreference)
+			throw new Error(
+				'Failed to fetch and/or update preferences. No rows returned.',
+			)
+
+		return {
+			data: updatePreference,
+			error: null,
+		}
+	} catch (error) {
+		console.error('Failed to update user preferences ——>', error)
+		return {
+			data: null,
+			error: (error as Error).message,
+		}
+	}
+}
+
+export async function insertPreferencesByUserId({
+	jwt,
+	preferencesSet,
+}: {
+	jwt?: string
+	preferencesSet: PreferenceInsertInput
+}) {
+	try {
+		const client = getHasuraClient({ jwt })
+		const { insertPreferenceOne } = await client.mutation({
+			insertPreferenceOne: {
+				__args: {
+					object: preferencesSet,
+				},
+				userId: true,
+				preferences: true,
+			},
+		})
+
+		if (!insertPreferenceOne)
+			throw new Error(
+				'Failed to fetch and/or update preferences. No rows returned.',
+			)
+
+		return {
+			data: insertPreferenceOne,
+			error: null,
+		}
+	} catch (error) {
+		console.error('Failed to update user preferences by user ID:', error)
+		return {
+			data: null,
+			error: (error as Error).message,
+		}
 	}
 }

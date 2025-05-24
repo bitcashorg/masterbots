@@ -24,6 +24,11 @@
 
 import { generateShortLink } from '@/app/actions'
 import { Button, type ButtonProps } from '@/components/ui/button'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { AnimatePresence } from 'framer-motion'
 import { LucideCheck, LucideLoader2, LucideX, Share2 } from 'lucide-react'
 import { useState } from 'react'
@@ -71,19 +76,35 @@ export function ShareButton({ url, ...props }: ShareButtonProps) {
 	}
 
 	return (
-		<Button
-			type="button"
-			variant="ghost"
-			size="lg"
-			className="flex justify-between w-full px-4 rounded-none"
-			onClick={(e) => {
-				e.stopPropagation()
-				copyToClipboard()
-			}}
-			{...props}
-		>
-			<AnimatePresence>{iconsMap[status]}</AnimatePresence>
-			<span>Share</span>
-		</Button>
+		<>
+			<Tooltip
+				open={status !== 'default' && status !== 'loading'}
+				delayDuration={240}
+			>
+				<TooltipTrigger asChild>
+					<Button
+						type="button"
+						variant="ghost"
+						size="lg"
+						className="flex justify-between w-full px-4 rounded-none"
+						onClick={(e) => {
+							e.stopPropagation()
+							copyToClipboard()
+						}}
+						{...props}
+					>
+						<AnimatePresence>{iconsMap[status]}</AnimatePresence>
+						<span>Share</span>
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>
+					{status === 'copied'
+						? 'Link copied to clipboard!'
+						: status === 'error'
+							? 'Failed to copy link'
+							: 'Click to copy share link'}
+				</TooltipContent>
+			</Tooltip>
+		</>
 	)
 }
