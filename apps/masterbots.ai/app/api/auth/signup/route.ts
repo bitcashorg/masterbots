@@ -4,6 +4,7 @@ import crypto from 'node:crypto'
 import { sendEmailVerification } from '@/lib/email'
 import { generateUsername } from '@/lib/username'
 import { delayFetch } from '@/lib/utils'
+import { insertAdminUserPreferences } from '@/services/admin/admin.service'
 import bcryptjs from 'bcryptjs'
 import { appConfig } from 'mb-env'
 import { getHasuraClient, toSlug } from 'mb-lib'
@@ -103,6 +104,26 @@ export async function POST(req: NextRequest) {
 			if (!insertUserOne) {
 				throw new Error(
 					'Failed to create your account, either the email or username is already taken.',
+				)
+			}
+
+			const insertPreferenceResults = await insertAdminUserPreferences({
+				userId: insertUserOne.userId,
+				preferencesSet: {
+					// * Default preferences
+					webSearch: false,
+					deepExpertise: false,
+					preferredComplexity: 'general',
+					preferredLength: 'detailed',
+					preferredTone: 'neutral',
+					preferredType: 'mix',
+				},
+			})
+
+			if (!insertPreferenceResults) {
+				// console.error('Failed to create your account ——> ', error)
+				throw new Error(
+					'Failed to create your account, an error occurred while creating your profile.',
 				)
 			}
 
