@@ -1,7 +1,7 @@
 import type { mbObjectSchema } from '@/lib/helpers/ai-helpers'
 import type { WordWareFlowPaths } from '@/types/wordware-flows.types'
 import type { Message, streamText } from 'ai'
-import type { UserRole } from 'mb-drizzle'
+import type { userRole } from 'mb-drizzle'
 import type {
 	Chatbot,
 	Example,
@@ -69,8 +69,8 @@ export type CleanPromptResult = {
 export type ServerActionResult<Result> = Promise<
 	| Result
 	| {
-			error: string
-	  }
+		error: string
+	}
 >
 
 // * Prompt types
@@ -152,10 +152,10 @@ export type ChatbotMetadata = {
 	domainName: string
 	tags: string[]
 	categories:
-		| Record<string, string>[]
-		| {
-				[key: string]: string
-		  }[]
+	| Record<string, string>[]
+	| {
+		[key: string]: string
+	}[]
 }
 
 export type ChatbotMetadataClassification = {
@@ -313,7 +313,7 @@ export type AdminUserUpdate = {
 	isVerified?: boolean
 	proUserSubscriptionId?: string
 	getFreeMonth?: boolean
-	role?: (typeof UserRole)[keyof typeof UserRole]
+	role?: (typeof userRole)[keyof typeof userRole]
 }
 
 // * Chatbot details types
