@@ -1,102 +1,119 @@
 import type { AdminUserUpdate } from '@/types/types'
 import { and, eq, isNull } from 'drizzle-orm'
-import { type UserRole, db, users } from 'mb-drizzle'
+import type { PgInsertValue } from 'drizzle-orm/pg-core'
+import { type UserRole, db, preference, user } from 'mb-drizzle'
 import { getServerSession } from 'next-auth'
 
 const ADMIN_DOMAINS = ['masterbots.ai', 'mbots.ai', 'bitcash.org'] as const
 
 async function verifyAdmin() {
-	const session = await getServerSession()
-	const email = session?.user?.email
+  const session = await getServerSession()
+  const email = session?.user?.email
 
-	if (!email) {
-		throw new Error('Unauthorized: No user session found')
-	}
+  if (!email) {
+    throw new Error('Unauthorized: No user session found')
+  }
 
-	const domain = email.split('@')[1]
-	if (!ADMIN_DOMAINS.includes(domain as (typeof ADMIN_DOMAINS)[number])) {
-		throw new Error('Unauthorized: Admin access required')
-	}
+  const domain = email.split('@')[1]
+  if (!ADMIN_DOMAINS.includes(domain as (typeof ADMIN_DOMAINS)[number])) {
+    throw new Error('Unauthorized: Admin access required')
+  }
 }
 
 async function verifyUserExists(userId: string) {
-	const user = await db.query.users.findFirst({
-		where: eq(users.userId, userId),
-	})
+  const userData = await db.query.user.findFirst({
+    where: eq(user.userId, userId)
+  })
 
-	if (!user) {
-		throw new Error(`User not found with ID: ${userId}`)
-	}
+  if (!userData) {
+    throw new Error(`User not found with ID: ${userId}`)
+  }
 
-	return user
+  return userData
 }
 
 async function updateUser(userId: string, data: AdminUserUpdate) {
-	await verifyAdmin()
-	await verifyUserExists(userId)
+  await verifyAdmin()
+  await verifyUserExists(userId)
 
-	return await db
-		.update(users)
-		.set(data)
-		.where(eq(users.userId, userId))
-		.returning()
+  return await db
+    .update(user)
+    .set(data)
+    .where(eq(user.userId, userId))
+    .returning()
 }
 
 export async function blockUser(userId: string) {
-	return updateUser(userId, { isBlocked: true })
+  return updateUser(userId, { isBlocked: true })
 }
 
 export async function unblockUser(userId: string) {
-	return updateUser(userId, { isBlocked: false })
+  return updateUser(userId, { isBlocked: false })
 }
 
 export async function updateSubscription(
-	userId: string,
-	subscriptionId: string | null,
+  userId: string,
+  subscriptionId: string | null
 ) {
-	return updateUser(userId, {
-		proUserSubscriptionId: subscriptionId || '',
-		getFreeMonth: false,
-	})
+  return updateUser(userId, {
+    proUserSubscriptionId: subscriptionId || '',
+    getFreeMonth: false
+  })
 }
 
 export async function setFreeMonth(userId: string) {
-	await verifyAdmin()
-	const user = await verifyUserExists(userId)
+  await verifyAdmin()
+  const user = await verifyUserExists(userId)
 
-	if (user.proUserSubscriptionId) {
-		throw new Error('Cannot grant free month to user with active subscription')
-	}
+  if (user.proUserSubscriptionId) {
+    throw new Error('Cannot grant free month to user with active subscription')
+  }
 
-	return await db
-		.update(users)
-		.set({ getFreeMonth: true })
-		.where(and(eq(users.userId, userId), isNull(users.proUserSubscriptionId)))
-		.returning()
+  return await db
+    .update(user)
+    .set({ getFreeMonth: true })
+    .where(and(eq(user.userId, userId), isNull(user.proUserSubscriptionId)))
+    .returning()
 }
 
 export async function updateLastLogin(userId: string) {
-	await verifyUserExists(userId)
+  await verifyUserExists(userId)
 
-	return await db
-		.update(users)
-		.set({ lastLogin: new Date() })
-		.where(eq(users.userId, userId))
-		.returning()
+  return await db
+    .update(user)
+    .set({ lastLogin: new Date() })
+    .where(eq(user.userId, userId))
+    .returning()
 }
 
 export async function getBlockedUsers() {
-	await verifyAdmin()
-	return db.query.users.findMany({
-		where: eq(users.isBlocked, true),
-	})
+  await verifyAdmin()
+  return db.query.user.findMany({
+    where: eq(user.isBlocked, true)
+  })
 }
 
 export async function getUsersByRole(
-	role: (typeof UserRole)[keyof typeof UserRole],
+  role: (typeof UserRole)[keyof typeof UserRole]
 ) {
-	await verifyAdmin()
-	return db.query.users.findMany({
-		where: eq(users.role, role),
-	})
+  await verifyAdmin()
+  return db.query.user.findMany({
+    where: eq(user.role, role)
+  })
+}
+
+export async function insertAdminUserPreferences({
+  userId,
+  preferencesSet
+}: {
+  userId: string
+  preferencesSet: PgInsertValue<typeof preference>
+}) {
+  await verifyAdmin()
+  await verifyUserExists(userId)
+
+  return await db
+    .insert(preference)
+    .values({ ...preferencesSet })
+    .returning()
 }

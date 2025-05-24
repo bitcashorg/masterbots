@@ -8,179 +8,202 @@ import bcryptjs from 'bcryptjs'
 import { appConfig } from 'mb-env'
 import { getHasuraClient, toSlug } from 'mb-lib'
 import { type NextRequest, NextResponse } from 'next/server'
+import { insertPreferencesByUserId } from '@/services/hasura'
+import { insertAdminUserPreferences } from '@/services/admin/admin.service'
 
 // * Add explicit runtime configuration
 // export const runtime = 'edge'
 
 export async function POST(req: NextRequest) {
-	const { email, password, username } = await req.json()
-	let newUsername = username || email.split('@')[0]
+  const { email, password, username } = await req.json()
+  let newUsername = username || email.split('@')[0]
 
-	if (!email || !password) {
-		return NextResponse.json(
-			{ error: 'Missing email or password' },
-			{ status: 400 },
-		)
-	}
+  if (!email || !password) {
+    return NextResponse.json(
+      { error: 'Missing email or password' },
+      { status: 400 }
+    )
+  }
 
-	const client = getHasuraClient()
+  const client = getHasuraClient()
 
-	try {
-		// * Check if user email exists
-		const { user } = await client.query({
-			user: {
-				__args: {
-					where: {
-						_or: [{ email: { _eq: email } }],
-					},
-				},
-				username: true,
-				email: true,
-			},
-		})
+  try {
+    // * Check if user email exists
+    const { user } = await client.query({
+      user: {
+        __args: {
+          where: {
+            _or: [{ email: { _eq: email } }]
+          }
+        },
+        username: true,
+        email: true
+      }
+    })
 
-		if (user.length && user[0].email === email) {
-			return NextResponse.json(
-				{ error: 'Email is already registered' },
-				{ status: 409 },
-			)
-		}
+    if (user.length && user[0].email === email) {
+      return NextResponse.json(
+        { error: 'Email is already registered' },
+        { status: 409 }
+      )
+    }
 
-		// * Generate unique username if needed
-		let foundFreeUsername = false
-		newUsername = generateUsername(newUsername)
-		let sequence = 0
+    // * Generate unique username if needed
+    let foundFreeUsername = false
+    newUsername = generateUsername(newUsername)
+    let sequence = 0
 
-		while (!foundFreeUsername) {
-			if (sequence > 0) {
-				newUsername = `${newUsername}${sequence}`
-			}
+    while (!foundFreeUsername) {
+      if (sequence > 0) {
+        newUsername = `${newUsername}${sequence}`
+      }
 
-			await delayFetch(100)
-			const { user } = await client.query({
-				user: {
-					__args: {
-						where: {
-							username: { _eq: newUsername },
-						},
-					},
-					username: true,
-				},
-			})
+      await delayFetch(100)
+      const { user } = await client.query({
+        user: {
+          __args: {
+            where: {
+              username: { _eq: newUsername }
+            }
+          },
+          username: true
+        }
+      })
 
-			if (!user.length) {
-				foundFreeUsername = true
-			} else {
-				newUsername = generateUsername(newUsername)
-			}
+      if (!user.length) {
+        foundFreeUsername = true
+      } else {
+        newUsername = generateUsername(newUsername)
+      }
 
-			sequence++
-		}
+      sequence++
+    }
 
-		// * Hash password
-		const salt = await bcryptjs.genSalt(10)
-		const hashedPassword = await bcryptjs.hash(password, salt)
+    // * Hash password
+    const salt = await bcryptjs.genSalt(10)
+    const hashedPassword = await bcryptjs.hash(password, salt)
 
-		try {
-			// * Insert new user
-			const { insertUserOne } = await client.mutation({
-				insertUserOne: {
-					__args: {
-						object: {
-							email,
-							username: newUsername,
-							slug: toSlug(newUsername),
-							password: hashedPassword,
-							// profilePicture: `https://api.dicebear.com/9.x/identicon/svg?seed=${newUsername}`,
-							profilePicture: `https://robohash.org/${newUsername}?bgset=bg2`,
-							dateJoined: new Date().toISOString(),
-						},
-					},
-					userId: true,
-				},
-			})
+    try {
+      // * Insert new user
+      const { insertUserOne } = await client.mutation({
+        insertUserOne: {
+          __args: {
+            object: {
+              email,
+              username: newUsername,
+              slug: toSlug(newUsername),
+              password: hashedPassword,
+              // profilePicture: `https://api.dicebear.com/9.x/identicon/svg?seed=${newUsername}`,
+              profilePicture: `https://robohash.org/${newUsername}?bgset=bg2`,
+              dateJoined: new Date().toISOString()
+            }
+          },
+          userId: true
+        }
+      })
 
-			if (!insertUserOne) {
-				throw new Error(
-					'Failed to create your account, either the email or username is already taken.',
-				)
-			}
+      if (!insertUserOne) {
+        throw new Error(
+          'Failed to create your account, either the email or username is already taken.'
+        )
+      }
 
-			if (!appConfig.features.enableVerificationEmail) {
-				console.info(
-					'🔵 Verification email is disabled. Skipping email verification.',
-				)
-				return NextResponse.json(
-					{
-						message: 'User created successfully. Now logging you in...',
-						userId: insertUserOne.userId,
-						requiresVerification: false,
-					},
-					{ status: 201 },
-				)
-			}
+      const insertPreferenceResults = await insertAdminUserPreferences({
+        userId: insertUserOne.userId,
+        preferencesSet: {
+          webSearch: false,
+          deepExpertise: false,
+          // * Default preferences
+          preferredComplexity: 'default',
+          preferredLength: 'default',
+          preferredTone: 'default',
+          preferredType: 'default',
+          chatbotId: 0
+        }
+      })
 
-			// * Generate verification token
-			const verificationToken = crypto.randomBytes(32).toString('hex')
-			const tokenExpiry = new Date()
-			tokenExpiry.setDate(tokenExpiry.getDate() + 15) // 15 days to verify
+      if (!insertPreferenceResults) {
+        // console.error('Failed to create your account ——> ', error)
+        throw new Error(
+          'Failed to create your account, an error occurred while creating your profile.'
+        )
+      }
 
-			// * First create the token
-			const { insertTokenOne } = await client.mutation({
-				insertTokenOne: {
-					__args: {
-						object: {
-							token: verificationToken,
-							tokenExpiry: tokenExpiry.toISOString(),
-						},
-					},
-					token: true,
-					tokenExpiry: true,
-				},
-			})
+      if (!appConfig.features.enableVerificationEmail) {
+        console.info(
+          '🔵 Verification email is disabled. Skipping email verification.'
+        )
+        return NextResponse.json(
+          {
+            message: 'User created successfully. Now logging you in...',
+            userId: insertUserOne.userId,
+            requiresVerification: false
+          },
+          { status: 201 }
+        )
+      }
 
-			if (insertTokenOne) {
-				// * Then create the user-token relationship
-				await client.mutation({
-					insertUserTokenOne: {
-						__args: {
-							object: {
-								userId: insertUserOne.userId,
-								token: verificationToken,
-							},
-						},
-						userId: true,
-						token: true,
-					},
-				})
+      // * Generate verification token
+      const verificationToken = crypto.randomBytes(32).toString('hex')
+      const tokenExpiry = new Date()
+      tokenExpiry.setDate(tokenExpiry.getDate() + 15) // 15 days to verify
 
-				// * Send verification email
-				await sendEmailVerification(email, verificationToken)
-			}
+      // * First create the token
+      const { insertTokenOne } = await client.mutation({
+        insertTokenOne: {
+          __args: {
+            object: {
+              token: verificationToken,
+              tokenExpiry: tokenExpiry.toISOString()
+            }
+          },
+          token: true,
+          tokenExpiry: true
+        }
+      })
 
-			return NextResponse.json(
-				{
-					message:
-						'User created successfully. Please check your email to verify your account.',
-					userId: insertUserOne.userId,
-					requiresVerification: true,
-				},
-				{ status: 201 },
-			)
-		} catch (error) {
-			console.error('Error creating user:', error)
-			return NextResponse.json(
-				{ error: (error as Error).message },
-				{ status: 500 },
-			)
-		}
-	} catch (error) {
-		console.error('Error creating user:', error)
-		return NextResponse.json(
-			{
-				error: 'An error occurred while attempting to create your new account.',
-			},
-			{ status: 500 },
-		)
-	}
+      if (insertTokenOne) {
+        // * Then create the user-token relationship
+        await client.mutation({
+          insertUserTokenOne: {
+            __args: {
+              object: {
+                userId: insertUserOne.userId,
+                token: verificationToken
+              }
+            },
+            userId: true,
+            token: true
+          }
+        })
+
+        // * Send verification email
+        await sendEmailVerification(email, verificationToken)
+      }
+
+      return NextResponse.json(
+        {
+          message:
+            'User created successfully. Please check your email to verify your account.',
+          userId: insertUserOne.userId,
+          requiresVerification: true
+        },
+        { status: 201 }
+      )
+    } catch (error) {
+      console.error('Error creating user:', error)
+      return NextResponse.json(
+        { error: (error as Error).message },
+        { status: 500 }
+      )
+    }
+  } catch (error) {
+    console.error('Error creating user:', error)
+    return NextResponse.json(
+      {
+        error: 'An error occurred while attempting to create your new account.'
+      },
+      { status: 500 }
+    )
+  }
 }

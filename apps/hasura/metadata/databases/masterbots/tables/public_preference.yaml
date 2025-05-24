@@ -21,11 +21,23 @@ object_relationships:
     using:
       foreign_key_constraint_on: user_id
 insert_permissions:
+  - role: moderator
+    permission:
+      check: {}
+      columns:
+        - chatbot_id
+        - deep_expertise
+        - favorite
+        - preferred_complexity
+        - preferred_length
+        - preferred_tone
+        - preferred_type
+        - user_id
+        - web_search
+    comment: ""
   - role: user
     permission:
-      check:
-        user_id:
-          _eq: X-Hasura-User-Id
+      check: {}
       columns:
         - chatbot_id
         - deep_expertise
@@ -65,7 +77,37 @@ select_permissions:
         - preferred_tone
         - preferred_type
         - user_id
+        - web_search
+      filter: {}
+    comment: ""
+update_permissions:
+  - role: moderator
+    permission:
+      columns:
+        - chatbot_id
+        - deep_expertise
+        - favorite
+        - preferred_complexity
+        - preferred_length
+        - preferred_tone
+        - preferred_type
+        - web_search
+      filter: {}
+      check: null
+    comment: ""
+  - role: user
+    permission:
+      columns:
+        - chatbot_id
+        - deep_expertise
+        - favorite
+        - preferred_complexity
+        - preferred_length
+        - preferred_tone
+        - preferred_type
+        - web_search
       filter:
         user_id:
           _eq: X-Hasura-User-Id
+      check: null
     comment: ""
