@@ -1243,8 +1243,8 @@ export type OrderBy =
 /** This table stores user-specific preferences for quick access when they interact with a chatbot. */
 export interface Preference {
   /** An object relationship */
-  chatbot: Chatbot;
-  chatbotId: Scalars["Int"];
+  chatbot: Chatbot | null;
+  chatbotId: Scalars["Int"] | null;
   /** An object relationship */
   complexityEnum: ComplexityEnum;
   deepExpertise: Scalars["Boolean"] | null;
@@ -1298,7 +1298,9 @@ export interface PreferenceAvgFields {
 }
 
 /** unique or primary key constraints on table "preference" */
-export type PreferenceConstraint = "user_chatbot_preference_pkey";
+export type PreferenceConstraint =
+  | "preference_user_id_key"
+  | "user_chatbot_preference_pkey";
 
 /** aggregate max on columns */
 export interface PreferenceMaxFields {
@@ -2602,6 +2604,8 @@ export interface User {
   isVerified: Scalars["Boolean"] | null;
   lastLogin: Scalars["timestamptz"] | null;
   password: Scalars["String"];
+  /** An object relationship */
+  preference: Preference | null;
   /** An array relationship */
   preferences: Preference[];
   /** An aggregate relationship */
@@ -7211,6 +7215,13 @@ export interface PreferenceMutationResponseGenqlSelection {
   __scalar?: boolean | number;
 }
 
+/** input type for inserting object relation for remote table "preference" */
+export interface PreferenceObjRelInsertInput {
+  data: PreferenceInsertInput;
+  /** upsert condition */
+  onConflict?: PreferenceOnConflict | null;
+}
+
 /** on_conflict condition type for table "preference" */
 export interface PreferenceOnConflict {
   constraint: PreferenceConstraint;
@@ -10621,6 +10632,8 @@ export interface UserGenqlSelection {
   isVerified?: boolean | number;
   lastLogin?: boolean | number;
   password?: boolean | number;
+  /** An object relationship */
+  preference?: PreferenceGenqlSelection;
   /** An array relationship */
   preferences?: PreferenceGenqlSelection & {
     __args?: {
@@ -10855,6 +10868,7 @@ export interface UserBoolExp {
   isVerified?: BooleanComparisonExp | null;
   lastLogin?: TimestamptzComparisonExp | null;
   password?: StringComparisonExp | null;
+  preference?: PreferenceBoolExp | null;
   preferences?: PreferenceBoolExp | null;
   preferencesAggregate?: PreferenceAggregateBoolExp | null;
   proUserSubscriptionId?: StringComparisonExp | null;
@@ -10889,6 +10903,7 @@ export interface UserInsertInput {
   isVerified?: Scalars["Boolean"] | null;
   lastLogin?: Scalars["timestamptz"] | null;
   password?: Scalars["String"] | null;
+  preference?: PreferenceObjRelInsertInput | null;
   preferences?: PreferenceArrRelInsertInput | null;
   proUserSubscriptionId?: Scalars["String"] | null;
   profilePicture?: Scalars["String"] | null;
@@ -10979,6 +10994,7 @@ export interface UserOrderBy {
   isVerified?: OrderBy | null;
   lastLogin?: OrderBy | null;
   password?: OrderBy | null;
+  preference?: PreferenceOrderBy | null;
   preferencesAggregate?: PreferenceAggregateOrderBy | null;
   proUserSubscriptionId?: OrderBy | null;
   profilePicture?: OrderBy | null;
@@ -18083,6 +18099,7 @@ export const enumOrderBy = {
 };
 
 export const enumPreferenceConstraint = {
+  preference_user_id_key: "preference_user_id_key" as const,
   user_chatbot_preference_pkey: "user_chatbot_preference_pkey" as const,
 };
 

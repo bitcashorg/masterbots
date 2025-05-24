@@ -25,7 +25,6 @@ insert_permissions:
     permission:
       check: {}
       columns:
-        - chatbot_id
         - deep_expertise
         - favorite
         - preferred_complexity
@@ -39,7 +38,6 @@ insert_permissions:
     permission:
       check: {}
       columns:
-        - chatbot_id
         - deep_expertise
         - favorite
         - preferred_complexity
@@ -53,7 +51,6 @@ select_permissions:
   - role: moderator
     permission:
       columns:
-        - chatbot_id
         - deep_expertise
         - favorite
         - preference_id
@@ -68,7 +65,6 @@ select_permissions:
   - role: user
     permission:
       columns:
-        - chatbot_id
         - deep_expertise
         - favorite
         - preference_id
@@ -84,7 +80,6 @@ update_permissions:
   - role: moderator
     permission:
       columns:
-        - chatbot_id
         - deep_expertise
         - favorite
         - preferred_complexity
@@ -98,7 +93,6 @@ update_permissions:
   - role: user
     permission:
       columns:
-        - chatbot_id
         - deep_expertise
         - favorite
         - preferred_complexity

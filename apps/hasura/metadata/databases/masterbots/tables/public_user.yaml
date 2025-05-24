@@ -1,6 +1,14 @@
 table:
   name: user
   schema: public
+object_relationships:
+  - name: preference
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: preference
+          schema: public
 array_relationships:
   - name: followers
     using:

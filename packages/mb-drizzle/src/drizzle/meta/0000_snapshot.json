@@ -1,1783 +1,1783 @@
 {
-  "id": "00000000-0000-0000-0000-000000000000",
-  "prevId": "",
-  "version": "7",
-  "dialect": "postgresql",
-  "tables": {
-    "public.category": {
-      "name": "category",
-      "schema": "",
-      "columns": {
-        "category_id": {
-          "name": "category_id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "category_name_key": {
-          "columns": ["name"],
-          "nullsNotDistinct": false,
-          "name": "category_name_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.chatbot": {
-      "name": "chatbot",
-      "schema": "",
-      "columns": {
-        "chatbot_id": {
-          "name": "chatbot_id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "avatar": {
-          "name": "avatar",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_by": {
-          "name": "created_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "default_tone": {
-          "name": "default_tone",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "default_length": {
-          "name": "default_length",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "default_type": {
-          "name": "default_type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "default_complexity": {
-          "name": "default_complexity",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "chatbot_default_complexity_fkey": {
-          "name": "chatbot_default_complexity_fkey",
-          "tableFrom": "chatbot",
-          "tableTo": "complexity_enum",
-          "schemaTo": "public",
-          "columnsFrom": ["default_complexity"],
-          "columnsTo": ["value"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        },
-        "chatbot_default_length_fkey": {
-          "name": "chatbot_default_length_fkey",
-          "tableFrom": "chatbot",
-          "tableTo": "length_enum",
-          "schemaTo": "public",
-          "columnsFrom": ["default_length"],
-          "columnsTo": ["value"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        },
-        "chatbot_default_tone_fkey": {
-          "name": "chatbot_default_tone_fkey",
-          "tableFrom": "chatbot",
-          "tableTo": "tone_enum",
-          "schemaTo": "public",
-          "columnsFrom": ["default_tone"],
-          "columnsTo": ["value"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        },
-        "chatbot_default_type_fkey": {
-          "name": "chatbot_default_type_fkey",
-          "tableFrom": "chatbot",
-          "tableTo": "type_enum",
-          "schemaTo": "public",
-          "columnsFrom": ["default_type"],
-          "columnsTo": ["value"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "chatbot_name_key": {
-          "columns": ["name"],
-          "nullsNotDistinct": false,
-          "name": "chatbot_name_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.message_type_enum": {
-      "name": "message_type_enum",
-      "schema": "",
-      "columns": {
-        "value": {
-          "name": "value",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.prompt": {
-      "name": "prompt",
-      "schema": "",
-      "columns": {
-        "content": {
-          "name": "content",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "type": {
-          "name": "type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "prompt_id": {
-          "name": "prompt_id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "prompt_name": {
-          "name": "prompt_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "prompt_type_fkey": {
-          "name": "prompt_type_fkey",
-          "tableFrom": "prompt",
-          "tableTo": "prompt_type_enum",
-          "schemaTo": "public",
-          "columnsFrom": ["type"],
-          "columnsTo": ["value"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "prompt_prompt_id_key": {
-          "columns": ["prompt_id"],
-          "nullsNotDistinct": false,
-          "name": "prompt_prompt_id_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.prompt_type_enum": {
-      "name": "prompt_type_enum",
-      "schema": "",
-      "columns": {
-        "value": {
-          "name": "value",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.complexity_enum": {
-      "name": "complexity_enum",
-      "schema": "",
-      "columns": {
-        "value": {
-          "name": "value",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "prompt": {
-          "name": "prompt",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.length_enum": {
-      "name": "length_enum",
-      "schema": "",
-      "columns": {
-        "value": {
-          "name": "value",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "prompt": {
-          "name": "prompt",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.tone_enum": {
-      "name": "tone_enum",
-      "schema": "",
-      "columns": {
-        "value": {
-          "name": "value",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "prompt": {
-          "name": "prompt",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.type_enum": {
-      "name": "type_enum",
-      "schema": "",
-      "columns": {
-        "value": {
-          "name": "value",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "prompt": {
-          "name": "prompt",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.preference": {
-      "name": "preference",
-      "schema": "",
-      "columns": {
-        "preference_id": {
-          "name": "preference_id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "chatbot_id": {
-          "name": "chatbot_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "preferred_tone": {
-          "name": "preferred_tone",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "preferred_length": {
-          "name": "preferred_length",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "preferred_type": {
-          "name": "preferred_type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "preferred_complexity": {
-          "name": "preferred_complexity",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "favorite": {
-          "name": "favorite",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "web_search": {
-          "name": "web_search",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
-        },
-        "deep_expertise": {
-          "name": "deep_expertise",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "user_chatbot_preference_chatbot_id_fkey": {
-          "name": "user_chatbot_preference_chatbot_id_fkey",
-          "tableFrom": "preference",
-          "tableTo": "chatbot",
-          "schemaTo": "public",
-          "columnsFrom": ["chatbot_id"],
-          "columnsTo": ["chatbot_id"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        },
-        "user_chatbot_preference_preferred_complexity_fkey": {
-          "name": "user_chatbot_preference_preferred_complexity_fkey",
-          "tableFrom": "preference",
-          "tableTo": "complexity_enum",
-          "schemaTo": "public",
-          "columnsFrom": ["preferred_complexity"],
-          "columnsTo": ["value"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        },
-        "user_chatbot_preference_preferred_length_fkey": {
-          "name": "user_chatbot_preference_preferred_length_fkey",
-          "tableFrom": "preference",
-          "tableTo": "length_enum",
-          "schemaTo": "public",
-          "columnsFrom": ["preferred_length"],
-          "columnsTo": ["value"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        },
-        "user_chatbot_preference_preferred_tone_fkey": {
-          "name": "user_chatbot_preference_preferred_tone_fkey",
-          "tableFrom": "preference",
-          "tableTo": "tone_enum",
-          "schemaTo": "public",
-          "columnsFrom": ["preferred_tone"],
-          "columnsTo": ["value"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        },
-        "user_chatbot_preference_preferred_type_fkey": {
-          "name": "user_chatbot_preference_preferred_type_fkey",
-          "tableFrom": "preference",
-          "tableTo": "type_enum",
-          "schemaTo": "public",
-          "columnsFrom": ["preferred_type"],
-          "columnsTo": ["value"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        },
-        "user_chatbot_preference_user_id_fkey": {
-          "name": "user_chatbot_preference_user_id_fkey",
-          "tableFrom": "preference",
-          "tableTo": "user",
-          "schemaTo": "public",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["user_id"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "preference_user_id_key": {
-          "columns": ["user_id"],
-          "nullsNotDistinct": false,
-          "name": "preference_user_id_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.referral": {
-      "name": "referral",
-      "schema": "",
-      "columns": {
-        "referral_code": {
-          "name": "referral_code",
-          "type": "varchar(6)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "referrer_id": {
-          "name": "referrer_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "referral_user_id_fkey": {
-          "name": "referral_user_id_fkey",
-          "tableFrom": "referral",
-          "tableTo": "user",
-          "schemaTo": "public",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["user_id"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "referral_referrer_id_fkey": {
-          "name": "referral_referrer_id_fkey",
-          "tableFrom": "referral",
-          "tableTo": "user",
-          "schemaTo": "public",
-          "columnsFrom": ["referrer_id"],
-          "columnsTo": ["user_id"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.user": {
-      "name": "user",
-      "schema": "",
-      "columns": {
-        "username": {
-          "name": "username",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "email": {
-          "name": "email",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "password": {
-          "name": "password",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "date_joined": {
-          "name": "date_joined",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "last_login": {
-          "name": "last_login",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "profile_picture": {
-          "name": "profile_picture",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "uuid_generate_v4()"
-        },
-        "slug": {
-          "name": "slug",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "get_free_month": {
-          "name": "get_free_month",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
-        },
-        "pro_user_subscription_id": {
-          "name": "pro_user_subscription_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "''"
-        },
-        "is_blocked": {
-          "name": "is_blocked",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
-        },
-        "is_verified": {
-          "name": "is_verified",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
-        },
-        "role": {
-          "name": "role",
-          "type": "user_role",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'user'"
-        },
-        "bio": {
-          "name": "bio",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "favourite_topic": {
-          "name": "favourite_topic",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "deletion_requested_at": {
-          "name": "deletion_requested_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "idx_users_role": {
-          "name": "idx_users_role",
-          "columns": [
-            {
-              "expression": "role",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "enum_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "user_username_key": {
-          "columns": ["username"],
-          "nullsNotDistinct": false,
-          "name": "user_username_key"
-        },
-        "user_email_key": {
-          "columns": ["email"],
-          "nullsNotDistinct": false,
-          "name": "user_email_key"
-        },
-        "unique_slug": {
-          "columns": ["slug"],
-          "nullsNotDistinct": false,
-          "name": "unique_slug"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.models_enum": {
-      "name": "models_enum",
-      "schema": "",
-      "columns": {
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "value": {
-          "name": "value",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "idx_models_enum_value": {
-          "name": "idx_models_enum_value",
-          "columns": [
-            {
-              "expression": "value",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "models_enum_value_key": {
-          "columns": ["value"],
-          "nullsNotDistinct": false,
-          "name": "models_enum_value_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.example": {
-      "name": "example",
-      "schema": "",
-      "columns": {
-        "example_id": {
-          "name": "example_id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "prompt": {
-          "name": "prompt",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "response": {
-          "name": "response",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "domain": {
-          "name": "domain",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "category": {
-          "name": "category",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "subcategory": {
-          "name": "subcategory",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "tags": {
-          "name": "tags",
-          "type": "uuid[]",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "metadata": {
-          "name": "metadata",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "added": {
-          "name": "added",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "example_domain_category_subcategory_fkey": {
-          "name": "example_domain_category_subcategory_fkey",
-          "tableFrom": "example",
-          "tableTo": "subcategory_enum",
-          "schemaTo": "public",
-          "columnsFrom": ["domain", "category", "subcategory"],
-          "columnsTo": ["name", "category", "domain"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.domain_enum": {
-      "name": "domain_enum",
-      "schema": "",
-      "columns": {
-        "name": {
-          "name": "name",
-          "type": "varchar",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "added": {
-          "name": "added",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.token": {
-      "name": "token",
-      "schema": "",
-      "columns": {
-        "token": {
-          "name": "token",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "token_expiry": {
-          "name": "token_expiry",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.tag_enum": {
-      "name": "tag_enum",
-      "schema": "",
-      "columns": {
-        "name": {
-          "name": "name",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "domain": {
-          "name": "domain",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "frequency": {
-          "name": "frequency",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "tag_id": {
-          "name": "tag_id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "tag_enum_domain_fkey": {
-          "name": "tag_enum_domain_fkey",
-          "tableFrom": "tag_enum",
-          "tableTo": "domain_enum",
-          "schemaTo": "public",
-          "columnsFrom": ["domain"],
-          "columnsTo": ["name"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "tag_enum_name_domain_key": {
-          "columns": ["name", "domain"],
-          "nullsNotDistinct": false,
-          "name": "tag_enum_name_domain_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.social_following": {
-      "name": "social_following",
-      "schema": "",
-      "columns": {
-        "follower_id": {
-          "name": "follower_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "followee_id": {
-          "name": "followee_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "followee_id_chatbot": {
-          "name": "followee_id_chatbot",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "idx_social_following_followee": {
-          "name": "idx_social_following_followee",
-          "columns": [
-            {
-              "expression": "followee_id",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "uuid_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "idx_social_following_follower": {
-          "name": "idx_social_following_follower",
-          "columns": [
-            {
-              "expression": "follower_id",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "uuid_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "social_following_follower_id_fkey": {
-          "name": "social_following_follower_id_fkey",
-          "tableFrom": "social_following",
-          "tableTo": "user",
-          "schemaTo": "public",
-          "columnsFrom": ["follower_id"],
-          "columnsTo": ["user_id"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        },
-        "social_following_followee_id_fkey": {
-          "name": "social_following_followee_id_fkey",
-          "tableFrom": "social_following",
-          "tableTo": "user",
-          "schemaTo": "public",
-          "columnsFrom": ["followee_id"],
-          "columnsTo": ["user_id"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        },
-        "social_following_followee_id_chatbot_fkey": {
-          "name": "social_following_followee_id_chatbot_fkey",
-          "tableFrom": "social_following",
-          "tableTo": "chatbot",
-          "schemaTo": "public",
-          "columnsFrom": ["followee_id_chatbot"],
-          "columnsTo": ["chatbot_id"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {
-        "social_following_check": {
-          "name": "social_following_check",
-          "value": "follower_id <> followee_id"
-        }
-      },
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.models": {
-      "name": "models",
-      "schema": "",
-      "columns": {
-        "model": {
-          "name": "model",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "enabled": {
-          "name": "enabled",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "type": {
-          "name": "type",
-          "type": "model_type",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'free'"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "models_model_fkey": {
-          "name": "models_model_fkey",
-          "tableFrom": "models",
-          "tableTo": "models_enum",
-          "schemaTo": "public",
-          "columnsFrom": ["model"],
-          "columnsTo": ["value"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.chatbot_category": {
-      "name": "chatbot_category",
-      "schema": "",
-      "columns": {
-        "chatbot_id": {
-          "name": "chatbot_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "category_id": {
-          "name": "category_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "chatbot_category_category_id_fkey": {
-          "name": "chatbot_category_category_id_fkey",
-          "tableFrom": "chatbot_category",
-          "tableTo": "category",
-          "schemaTo": "public",
-          "columnsFrom": ["category_id"],
-          "columnsTo": ["category_id"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        },
-        "chatbot_category_chatbot_id_fkey": {
-          "name": "chatbot_category_chatbot_id_fkey",
-          "tableFrom": "chatbot_category",
-          "tableTo": "chatbot",
-          "schemaTo": "public",
-          "columnsFrom": ["chatbot_id"],
-          "columnsTo": ["chatbot_id"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        }
-      },
-      "compositePrimaryKeys": {
-        "chatbot_category_pkey": {
-          "name": "chatbot_category_pkey",
-          "columns": ["chatbot_id", "category_id"]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.prompt_chatbot": {
-      "name": "prompt_chatbot",
-      "schema": "",
-      "columns": {
-        "prompt_id": {
-          "name": "prompt_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "chabot_id": {
-          "name": "chabot_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "prompt_chatbot_chabot_id_fkey": {
-          "name": "prompt_chatbot_chabot_id_fkey",
-          "tableFrom": "prompt_chatbot",
-          "tableTo": "chatbot",
-          "schemaTo": "public",
-          "columnsFrom": ["chabot_id"],
-          "columnsTo": ["chatbot_id"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        },
-        "prompt_chatbot_prompt_id_fkey": {
-          "name": "prompt_chatbot_prompt_id_fkey",
-          "tableFrom": "prompt_chatbot",
-          "tableTo": "prompt",
-          "schemaTo": "public",
-          "columnsFrom": ["prompt_id"],
-          "columnsTo": ["prompt_id"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        }
-      },
-      "compositePrimaryKeys": {
-        "prompt_chatbot_pkey": {
-          "name": "prompt_chatbot_pkey",
-          "columns": ["prompt_id", "chabot_id"]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.prompt_user": {
-      "name": "prompt_user",
-      "schema": "",
-      "columns": {
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "prompt_id": {
-          "name": "prompt_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "prompt_user_user_id_fkey": {
-          "name": "prompt_user_user_id_fkey",
-          "tableFrom": "prompt_user",
-          "tableTo": "user",
-          "schemaTo": "public",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["user_id"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        },
-        "prompt_user_prompt_id_fkey": {
-          "name": "prompt_user_prompt_id_fkey",
-          "tableFrom": "prompt_user",
-          "tableTo": "prompt",
-          "schemaTo": "public",
-          "columnsFrom": ["prompt_id"],
-          "columnsTo": ["prompt_id"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        }
-      },
-      "compositePrimaryKeys": {
-        "prompt_user_pkey": {
-          "name": "prompt_user_pkey",
-          "columns": ["user_id", "prompt_id"]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.user_token": {
-      "name": "user_token",
-      "schema": "",
-      "columns": {
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "token": {
-          "name": "token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "user_token_token_fkey": {
-          "name": "user_token_token_fkey",
-          "tableFrom": "user_token",
-          "tableTo": "token",
-          "schemaTo": "public",
-          "columnsFrom": ["token"],
-          "columnsTo": ["token"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        },
-        "user_token_user_id_fkey": {
-          "name": "user_token_user_id_fkey",
-          "tableFrom": "user_token",
-          "tableTo": "user",
-          "schemaTo": "public",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["user_id"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        }
-      },
-      "compositePrimaryKeys": {
-        "user_token_pkey": {
-          "name": "user_token_pkey",
-          "columns": ["user_id", "token"]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.chatbot_domain": {
-      "name": "chatbot_domain",
-      "schema": "",
-      "columns": {
-        "chatbot_id": {
-          "name": "chatbot_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "domain_name": {
-          "name": "domain_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "chatbot_domain_domain_name_fkey": {
-          "name": "chatbot_domain_domain_name_fkey",
-          "tableFrom": "chatbot_domain",
-          "tableTo": "domain_enum",
-          "schemaTo": "public",
-          "columnsFrom": ["domain_name"],
-          "columnsTo": ["name"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        },
-        "chatbot_domain_chatbot_id_fkey": {
-          "name": "chatbot_domain_chatbot_id_fkey",
-          "tableFrom": "chatbot_domain",
-          "tableTo": "chatbot",
-          "schemaTo": "public",
-          "columnsFrom": ["chatbot_id"],
-          "columnsTo": ["chatbot_id"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        }
-      },
-      "compositePrimaryKeys": {
-        "chatbot_domain_pkey": {
-          "name": "chatbot_domain_pkey",
-          "columns": ["chatbot_id", "domain_name"]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.category_enum": {
-      "name": "category_enum",
-      "schema": "",
-      "columns": {
-        "name": {
-          "name": "name",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "domain": {
-          "name": "domain",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "added": {
-          "name": "added",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "category_enum_domain_fkey": {
-          "name": "category_enum_domain_fkey",
-          "tableFrom": "category_enum",
-          "tableTo": "domain_enum",
-          "schemaTo": "public",
-          "columnsFrom": ["domain"],
-          "columnsTo": ["name"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        }
-      },
-      "compositePrimaryKeys": {
-        "category_enum_pkey": {
-          "name": "category_enum_pkey",
-          "columns": ["name", "domain"]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.subcategory_enum": {
-      "name": "subcategory_enum",
-      "schema": "",
-      "columns": {
-        "name": {
-          "name": "name",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "category": {
-          "name": "category",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "domain": {
-          "name": "domain",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "added": {
-          "name": "added",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "subcategory_enum_category_domain_fkey": {
-          "name": "subcategory_enum_category_domain_fkey",
-          "tableFrom": "subcategory_enum",
-          "tableTo": "category_enum",
-          "schemaTo": "public",
-          "columnsFrom": ["category", "domain"],
-          "columnsTo": ["name", "domain"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        }
-      },
-      "compositePrimaryKeys": {
-        "subcategory_enum_pkey": {
-          "name": "subcategory_enum_pkey",
-          "columns": ["name", "category", "domain"]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.thread": {
-      "name": "thread",
-      "schema": "",
-      "columns": {
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "chatbot_id": {
-          "name": "chatbot_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "thread_id": {
-          "name": "thread_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "is_public": {
-          "name": "is_public",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": true
-        },
-        "model": {
-          "name": "model",
-          "type": "varchar(30)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'openAi'"
-        },
-        "is_approved": {
-          "name": "is_approved",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
-        },
-        "is_blocked": {
-          "name": "is_blocked",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
-        },
-        "parent_thread_id": {
-          "name": "parent_thread_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "slug": {
-          "name": "slug",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "short_link": {
-          "name": "short_link",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "thread_chatbot_id_fkey": {
-          "name": "thread_chatbot_id_fkey",
-          "tableFrom": "thread",
-          "tableTo": "chatbot",
-          "schemaTo": "public",
-          "columnsFrom": ["chatbot_id"],
-          "columnsTo": ["chatbot_id"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        },
-        "thread_user_id_fkey": {
-          "name": "thread_user_id_fkey",
-          "tableFrom": "thread",
-          "tableTo": "user",
-          "schemaTo": "public",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["user_id"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "fk_model": {
-          "name": "fk_model",
-          "tableFrom": "thread",
-          "tableTo": "models_enum",
-          "schemaTo": "public",
-          "columnsFrom": ["model"],
-          "columnsTo": ["name"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "thread_parent_thread_id_fkey": {
-          "name": "thread_parent_thread_id_fkey",
-          "tableFrom": "thread",
-          "tableTo": "thread",
-          "schemaTo": "public",
-          "columnsFrom": ["parent_thread_id"],
-          "columnsTo": ["thread_id"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        }
-      },
-      "compositePrimaryKeys": {
-        "thread_pkey": {
-          "name": "thread_pkey",
-          "columns": ["thread_id", "slug"]
-        }
-      },
-      "uniqueConstraints": {
-        "thread_id_key": {
-          "columns": ["thread_id"],
-          "nullsNotDistinct": false,
-          "name": "thread_id_key"
-        },
-        "thread_slug_unique": {
-          "columns": ["slug"],
-          "nullsNotDistinct": false,
-          "name": "thread_slug_unique"
-        },
-        "thread_short_link_key": {
-          "columns": ["short_link"],
-          "nullsNotDistinct": false,
-          "name": "thread_short_link_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.message": {
-      "name": "message",
-      "schema": "",
-      "columns": {
-        "content": {
-          "name": "content",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "role": {
-          "name": "role",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "message_id": {
-          "name": "message_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "thread_id": {
-          "name": "thread_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "prompt": {
-          "name": "prompt",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "augmented_from": {
-          "name": "augmented_from",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "examples": {
-          "name": "examples",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "slug": {
-          "name": "slug",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "thinking": {
-          "name": "thinking",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "thinking_traces": {
-          "name": "thinking_traces",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "isContinued": {
-          "name": "isContinued",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
-        },
-        "model": {
-          "name": "model",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "short_link": {
-          "name": "short_link",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "message_type_fkey": {
-          "name": "message_type_fkey",
-          "tableFrom": "message",
-          "tableTo": "message_type_enum",
-          "schemaTo": "public",
-          "columnsFrom": ["role"],
-          "columnsTo": ["value"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        },
-        "message_augmented_from_fkey": {
-          "name": "message_augmented_from_fkey",
-          "tableFrom": "message",
-          "tableTo": "message",
-          "schemaTo": "public",
-          "columnsFrom": ["augmented_from"],
-          "columnsTo": ["message_id"],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        },
-        "message_thread_id_fkey": {
-          "name": "message_thread_id_fkey",
-          "tableFrom": "message",
-          "tableTo": "thread",
-          "schemaTo": "public",
-          "columnsFrom": ["thread_id"],
-          "columnsTo": ["thread_id"],
-          "onDelete": "cascade",
-          "onUpdate": "restrict"
-        }
-      },
-      "compositePrimaryKeys": {
-        "message_pkey": {
-          "name": "message_pkey",
-          "columns": ["message_id", "slug"]
-        }
-      },
-      "uniqueConstraints": {
-        "message_id_key": {
-          "columns": ["message_id"],
-          "nullsNotDistinct": false,
-          "name": "message_id_key"
-        },
-        "message_slug_unique": {
-          "columns": ["slug"],
-          "nullsNotDistinct": false,
-          "name": "message_slug_unique"
-        },
-        "message_short_link_key": {
-          "columns": ["short_link"],
-          "nullsNotDistinct": false,
-          "name": "message_short_link_key"
-        }
-      },
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    }
-  },
-  "enums": {
-    "public.model_type": {
-      "name": "model_type",
-      "values": ["free", "paid", "pro"],
-      "schema": "public"
-    },
-    "public.user_role": {
-      "name": "user_role",
-      "values": ["admin", "user", "moderator", "anonymous"],
-      "schema": "public"
-    }
-  },
-  "schemas": {},
-  "sequences": {},
-  "roles": {},
-  "policies": {},
-  "views": {},
-  "_meta": {
-    "schemas": {},
-    "tables": {},
-    "columns": {}
-  },
-  "internal": {
-    "tables": {
-      "example": {
-        "columns": {
-          "tags": {
-            "isArray": true,
-            "dimensions": 1,
-            "rawType": "uuid"
-          }
-        }
-      },
-      "message": {
-        "columns": {
-          "thinking_traces": {
-            "isArray": true,
-            "dimensions": 1,
-            "rawType": "text"
-          }
-        }
-      }
-    }
-  }
+	"id": "00000000-0000-0000-0000-000000000000",
+	"prevId": "",
+	"version": "7",
+	"dialect": "postgresql",
+	"tables": {
+		"public.category": {
+			"name": "category",
+			"schema": "",
+			"columns": {
+				"category_id": {
+					"name": "category_id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"name": {
+					"name": "name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"category_name_key": {
+					"columns": ["name"],
+					"nullsNotDistinct": false,
+					"name": "category_name_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.chatbot": {
+			"name": "chatbot",
+			"schema": "",
+			"columns": {
+				"chatbot_id": {
+					"name": "chatbot_id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"name": {
+					"name": "name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"description": {
+					"name": "description",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"avatar": {
+					"name": "avatar",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"created_by": {
+					"name": "created_by",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"default_tone": {
+					"name": "default_tone",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"default_length": {
+					"name": "default_length",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"default_type": {
+					"name": "default_type",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"default_complexity": {
+					"name": "default_complexity",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"chatbot_default_complexity_fkey": {
+					"name": "chatbot_default_complexity_fkey",
+					"tableFrom": "chatbot",
+					"tableTo": "complexity_enum",
+					"schemaTo": "public",
+					"columnsFrom": ["default_complexity"],
+					"columnsTo": ["value"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				},
+				"chatbot_default_length_fkey": {
+					"name": "chatbot_default_length_fkey",
+					"tableFrom": "chatbot",
+					"tableTo": "length_enum",
+					"schemaTo": "public",
+					"columnsFrom": ["default_length"],
+					"columnsTo": ["value"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				},
+				"chatbot_default_tone_fkey": {
+					"name": "chatbot_default_tone_fkey",
+					"tableFrom": "chatbot",
+					"tableTo": "tone_enum",
+					"schemaTo": "public",
+					"columnsFrom": ["default_tone"],
+					"columnsTo": ["value"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				},
+				"chatbot_default_type_fkey": {
+					"name": "chatbot_default_type_fkey",
+					"tableFrom": "chatbot",
+					"tableTo": "type_enum",
+					"schemaTo": "public",
+					"columnsFrom": ["default_type"],
+					"columnsTo": ["value"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"chatbot_name_key": {
+					"columns": ["name"],
+					"nullsNotDistinct": false,
+					"name": "chatbot_name_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.message_type_enum": {
+			"name": "message_type_enum",
+			"schema": "",
+			"columns": {
+				"value": {
+					"name": "value",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.prompt": {
+			"name": "prompt",
+			"schema": "",
+			"columns": {
+				"content": {
+					"name": "content",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"type": {
+					"name": "type",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"prompt_id": {
+					"name": "prompt_id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"prompt_name": {
+					"name": "prompt_name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"prompt_type_fkey": {
+					"name": "prompt_type_fkey",
+					"tableFrom": "prompt",
+					"tableTo": "prompt_type_enum",
+					"schemaTo": "public",
+					"columnsFrom": ["type"],
+					"columnsTo": ["value"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"prompt_prompt_id_key": {
+					"columns": ["prompt_id"],
+					"nullsNotDistinct": false,
+					"name": "prompt_prompt_id_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.prompt_type_enum": {
+			"name": "prompt_type_enum",
+			"schema": "",
+			"columns": {
+				"value": {
+					"name": "value",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.complexity_enum": {
+			"name": "complexity_enum",
+			"schema": "",
+			"columns": {
+				"value": {
+					"name": "value",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"prompt": {
+					"name": "prompt",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.length_enum": {
+			"name": "length_enum",
+			"schema": "",
+			"columns": {
+				"value": {
+					"name": "value",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"prompt": {
+					"name": "prompt",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.tone_enum": {
+			"name": "tone_enum",
+			"schema": "",
+			"columns": {
+				"value": {
+					"name": "value",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"prompt": {
+					"name": "prompt",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.type_enum": {
+			"name": "type_enum",
+			"schema": "",
+			"columns": {
+				"value": {
+					"name": "value",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"prompt": {
+					"name": "prompt",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.preference": {
+			"name": "preference",
+			"schema": "",
+			"columns": {
+				"preference_id": {
+					"name": "preference_id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"chatbot_id": {
+					"name": "chatbot_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"preferred_tone": {
+					"name": "preferred_tone",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"preferred_length": {
+					"name": "preferred_length",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"preferred_type": {
+					"name": "preferred_type",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"preferred_complexity": {
+					"name": "preferred_complexity",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"favorite": {
+					"name": "favorite",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"user_id": {
+					"name": "user_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"web_search": {
+					"name": "web_search",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": false,
+					"default": false
+				},
+				"deep_expertise": {
+					"name": "deep_expertise",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": false,
+					"default": false
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"user_chatbot_preference_chatbot_id_fkey": {
+					"name": "user_chatbot_preference_chatbot_id_fkey",
+					"tableFrom": "preference",
+					"tableTo": "chatbot",
+					"schemaTo": "public",
+					"columnsFrom": ["chatbot_id"],
+					"columnsTo": ["chatbot_id"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				},
+				"user_chatbot_preference_preferred_complexity_fkey": {
+					"name": "user_chatbot_preference_preferred_complexity_fkey",
+					"tableFrom": "preference",
+					"tableTo": "complexity_enum",
+					"schemaTo": "public",
+					"columnsFrom": ["preferred_complexity"],
+					"columnsTo": ["value"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				},
+				"user_chatbot_preference_preferred_length_fkey": {
+					"name": "user_chatbot_preference_preferred_length_fkey",
+					"tableFrom": "preference",
+					"tableTo": "length_enum",
+					"schemaTo": "public",
+					"columnsFrom": ["preferred_length"],
+					"columnsTo": ["value"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				},
+				"user_chatbot_preference_preferred_tone_fkey": {
+					"name": "user_chatbot_preference_preferred_tone_fkey",
+					"tableFrom": "preference",
+					"tableTo": "tone_enum",
+					"schemaTo": "public",
+					"columnsFrom": ["preferred_tone"],
+					"columnsTo": ["value"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				},
+				"user_chatbot_preference_preferred_type_fkey": {
+					"name": "user_chatbot_preference_preferred_type_fkey",
+					"tableFrom": "preference",
+					"tableTo": "type_enum",
+					"schemaTo": "public",
+					"columnsFrom": ["preferred_type"],
+					"columnsTo": ["value"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				},
+				"user_chatbot_preference_user_id_fkey": {
+					"name": "user_chatbot_preference_user_id_fkey",
+					"tableFrom": "preference",
+					"tableTo": "user",
+					"schemaTo": "public",
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["user_id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"preference_user_id_key": {
+					"columns": ["user_id"],
+					"nullsNotDistinct": false,
+					"name": "preference_user_id_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.referral": {
+			"name": "referral",
+			"schema": "",
+			"columns": {
+				"referral_code": {
+					"name": "referral_code",
+					"type": "varchar(6)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"user_id": {
+					"name": "user_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"referrer_id": {
+					"name": "referrer_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"referral_user_id_fkey": {
+					"name": "referral_user_id_fkey",
+					"tableFrom": "referral",
+					"tableTo": "user",
+					"schemaTo": "public",
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["user_id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"referral_referrer_id_fkey": {
+					"name": "referral_referrer_id_fkey",
+					"tableFrom": "referral",
+					"tableTo": "user",
+					"schemaTo": "public",
+					"columnsFrom": ["referrer_id"],
+					"columnsTo": ["user_id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.user": {
+			"name": "user",
+			"schema": "",
+			"columns": {
+				"username": {
+					"name": "username",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"email": {
+					"name": "email",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"password": {
+					"name": "password",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"date_joined": {
+					"name": "date_joined",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"last_login": {
+					"name": "last_login",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "now()"
+				},
+				"profile_picture": {
+					"name": "profile_picture",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"user_id": {
+					"name": "user_id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "uuid_generate_v4()"
+				},
+				"slug": {
+					"name": "slug",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"get_free_month": {
+					"name": "get_free_month",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": false,
+					"default": false
+				},
+				"pro_user_subscription_id": {
+					"name": "pro_user_subscription_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "''"
+				},
+				"is_blocked": {
+					"name": "is_blocked",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": false,
+					"default": false
+				},
+				"is_verified": {
+					"name": "is_verified",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": false,
+					"default": false
+				},
+				"role": {
+					"name": "role",
+					"type": "user_role",
+					"typeSchema": "public",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "'user'"
+				},
+				"bio": {
+					"name": "bio",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"favourite_topic": {
+					"name": "favourite_topic",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"deletion_requested_at": {
+					"name": "deletion_requested_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {
+				"idx_users_role": {
+					"name": "idx_users_role",
+					"columns": [
+						{
+							"expression": "role",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "enum_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"user_username_key": {
+					"columns": ["username"],
+					"nullsNotDistinct": false,
+					"name": "user_username_key"
+				},
+				"user_email_key": {
+					"columns": ["email"],
+					"nullsNotDistinct": false,
+					"name": "user_email_key"
+				},
+				"unique_slug": {
+					"columns": ["slug"],
+					"nullsNotDistinct": false,
+					"name": "unique_slug"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.models_enum": {
+			"name": "models_enum",
+			"schema": "",
+			"columns": {
+				"name": {
+					"name": "name",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"value": {
+					"name": "value",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {
+				"idx_models_enum_value": {
+					"name": "idx_models_enum_value",
+					"columns": [
+						{
+							"expression": "value",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "text_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"models_enum_value_key": {
+					"columns": ["value"],
+					"nullsNotDistinct": false,
+					"name": "models_enum_value_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.example": {
+			"name": "example",
+			"schema": "",
+			"columns": {
+				"example_id": {
+					"name": "example_id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"prompt": {
+					"name": "prompt",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"response": {
+					"name": "response",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"domain": {
+					"name": "domain",
+					"type": "varchar",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"category": {
+					"name": "category",
+					"type": "varchar",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"subcategory": {
+					"name": "subcategory",
+					"type": "varchar",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"tags": {
+					"name": "tags",
+					"type": "uuid[]",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"metadata": {
+					"name": "metadata",
+					"type": "jsonb",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"added": {
+					"name": "added",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"example_domain_category_subcategory_fkey": {
+					"name": "example_domain_category_subcategory_fkey",
+					"tableFrom": "example",
+					"tableTo": "subcategory_enum",
+					"schemaTo": "public",
+					"columnsFrom": ["domain", "category", "subcategory"],
+					"columnsTo": ["name", "category", "domain"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.domain_enum": {
+			"name": "domain_enum",
+			"schema": "",
+			"columns": {
+				"name": {
+					"name": "name",
+					"type": "varchar",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"added": {
+					"name": "added",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.token": {
+			"name": "token",
+			"schema": "",
+			"columns": {
+				"token": {
+					"name": "token",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"token_expiry": {
+					"name": "token_expiry",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.tag_enum": {
+			"name": "tag_enum",
+			"schema": "",
+			"columns": {
+				"name": {
+					"name": "name",
+					"type": "varchar",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"domain": {
+					"name": "domain",
+					"type": "varchar",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"frequency": {
+					"name": "frequency",
+					"type": "numeric",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"tag_id": {
+					"name": "tag_id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"tag_enum_domain_fkey": {
+					"name": "tag_enum_domain_fkey",
+					"tableFrom": "tag_enum",
+					"tableTo": "domain_enum",
+					"schemaTo": "public",
+					"columnsFrom": ["domain"],
+					"columnsTo": ["name"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"tag_enum_name_domain_key": {
+					"columns": ["name", "domain"],
+					"nullsNotDistinct": false,
+					"name": "tag_enum_name_domain_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.social_following": {
+			"name": "social_following",
+			"schema": "",
+			"columns": {
+				"follower_id": {
+					"name": "follower_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"followee_id": {
+					"name": "followee_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"followee_id_chatbot": {
+					"name": "followee_id_chatbot",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {
+				"idx_social_following_followee": {
+					"name": "idx_social_following_followee",
+					"columns": [
+						{
+							"expression": "followee_id",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "uuid_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"idx_social_following_follower": {
+					"name": "idx_social_following_follower",
+					"columns": [
+						{
+							"expression": "follower_id",
+							"asc": true,
+							"nulls": "last",
+							"opclass": "uuid_ops",
+							"isExpression": false
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"social_following_follower_id_fkey": {
+					"name": "social_following_follower_id_fkey",
+					"tableFrom": "social_following",
+					"tableTo": "user",
+					"schemaTo": "public",
+					"columnsFrom": ["follower_id"],
+					"columnsTo": ["user_id"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				},
+				"social_following_followee_id_fkey": {
+					"name": "social_following_followee_id_fkey",
+					"tableFrom": "social_following",
+					"tableTo": "user",
+					"schemaTo": "public",
+					"columnsFrom": ["followee_id"],
+					"columnsTo": ["user_id"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				},
+				"social_following_followee_id_chatbot_fkey": {
+					"name": "social_following_followee_id_chatbot_fkey",
+					"tableFrom": "social_following",
+					"tableTo": "chatbot",
+					"schemaTo": "public",
+					"columnsFrom": ["followee_id_chatbot"],
+					"columnsTo": ["chatbot_id"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {
+				"social_following_check": {
+					"name": "social_following_check",
+					"value": "follower_id <> followee_id"
+				}
+			},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.models": {
+			"name": "models",
+			"schema": "",
+			"columns": {
+				"model": {
+					"name": "model",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"enabled": {
+					"name": "enabled",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": false
+				},
+				"type": {
+					"name": "type",
+					"type": "model_type",
+					"typeSchema": "public",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "'free'"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"models_model_fkey": {
+					"name": "models_model_fkey",
+					"tableFrom": "models",
+					"tableTo": "models_enum",
+					"schemaTo": "public",
+					"columnsFrom": ["model"],
+					"columnsTo": ["value"],
+					"onDelete": "cascade",
+					"onUpdate": "cascade"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.chatbot_category": {
+			"name": "chatbot_category",
+			"schema": "",
+			"columns": {
+				"chatbot_id": {
+					"name": "chatbot_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"category_id": {
+					"name": "category_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"chatbot_category_category_id_fkey": {
+					"name": "chatbot_category_category_id_fkey",
+					"tableFrom": "chatbot_category",
+					"tableTo": "category",
+					"schemaTo": "public",
+					"columnsFrom": ["category_id"],
+					"columnsTo": ["category_id"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				},
+				"chatbot_category_chatbot_id_fkey": {
+					"name": "chatbot_category_chatbot_id_fkey",
+					"tableFrom": "chatbot_category",
+					"tableTo": "chatbot",
+					"schemaTo": "public",
+					"columnsFrom": ["chatbot_id"],
+					"columnsTo": ["chatbot_id"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				}
+			},
+			"compositePrimaryKeys": {
+				"chatbot_category_pkey": {
+					"name": "chatbot_category_pkey",
+					"columns": ["chatbot_id", "category_id"]
+				}
+			},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.prompt_chatbot": {
+			"name": "prompt_chatbot",
+			"schema": "",
+			"columns": {
+				"prompt_id": {
+					"name": "prompt_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"chabot_id": {
+					"name": "chabot_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"prompt_chatbot_chabot_id_fkey": {
+					"name": "prompt_chatbot_chabot_id_fkey",
+					"tableFrom": "prompt_chatbot",
+					"tableTo": "chatbot",
+					"schemaTo": "public",
+					"columnsFrom": ["chabot_id"],
+					"columnsTo": ["chatbot_id"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				},
+				"prompt_chatbot_prompt_id_fkey": {
+					"name": "prompt_chatbot_prompt_id_fkey",
+					"tableFrom": "prompt_chatbot",
+					"tableTo": "prompt",
+					"schemaTo": "public",
+					"columnsFrom": ["prompt_id"],
+					"columnsTo": ["prompt_id"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				}
+			},
+			"compositePrimaryKeys": {
+				"prompt_chatbot_pkey": {
+					"name": "prompt_chatbot_pkey",
+					"columns": ["prompt_id", "chabot_id"]
+				}
+			},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.prompt_user": {
+			"name": "prompt_user",
+			"schema": "",
+			"columns": {
+				"user_id": {
+					"name": "user_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"prompt_id": {
+					"name": "prompt_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"prompt_user_user_id_fkey": {
+					"name": "prompt_user_user_id_fkey",
+					"tableFrom": "prompt_user",
+					"tableTo": "user",
+					"schemaTo": "public",
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["user_id"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				},
+				"prompt_user_prompt_id_fkey": {
+					"name": "prompt_user_prompt_id_fkey",
+					"tableFrom": "prompt_user",
+					"tableTo": "prompt",
+					"schemaTo": "public",
+					"columnsFrom": ["prompt_id"],
+					"columnsTo": ["prompt_id"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				}
+			},
+			"compositePrimaryKeys": {
+				"prompt_user_pkey": {
+					"name": "prompt_user_pkey",
+					"columns": ["user_id", "prompt_id"]
+				}
+			},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.user_token": {
+			"name": "user_token",
+			"schema": "",
+			"columns": {
+				"user_id": {
+					"name": "user_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"token": {
+					"name": "token",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"user_token_token_fkey": {
+					"name": "user_token_token_fkey",
+					"tableFrom": "user_token",
+					"tableTo": "token",
+					"schemaTo": "public",
+					"columnsFrom": ["token"],
+					"columnsTo": ["token"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				},
+				"user_token_user_id_fkey": {
+					"name": "user_token_user_id_fkey",
+					"tableFrom": "user_token",
+					"tableTo": "user",
+					"schemaTo": "public",
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["user_id"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				}
+			},
+			"compositePrimaryKeys": {
+				"user_token_pkey": {
+					"name": "user_token_pkey",
+					"columns": ["user_id", "token"]
+				}
+			},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.chatbot_domain": {
+			"name": "chatbot_domain",
+			"schema": "",
+			"columns": {
+				"chatbot_id": {
+					"name": "chatbot_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"domain_name": {
+					"name": "domain_name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"chatbot_domain_domain_name_fkey": {
+					"name": "chatbot_domain_domain_name_fkey",
+					"tableFrom": "chatbot_domain",
+					"tableTo": "domain_enum",
+					"schemaTo": "public",
+					"columnsFrom": ["domain_name"],
+					"columnsTo": ["name"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				},
+				"chatbot_domain_chatbot_id_fkey": {
+					"name": "chatbot_domain_chatbot_id_fkey",
+					"tableFrom": "chatbot_domain",
+					"tableTo": "chatbot",
+					"schemaTo": "public",
+					"columnsFrom": ["chatbot_id"],
+					"columnsTo": ["chatbot_id"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				}
+			},
+			"compositePrimaryKeys": {
+				"chatbot_domain_pkey": {
+					"name": "chatbot_domain_pkey",
+					"columns": ["chatbot_id", "domain_name"]
+				}
+			},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.category_enum": {
+			"name": "category_enum",
+			"schema": "",
+			"columns": {
+				"name": {
+					"name": "name",
+					"type": "varchar",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"domain": {
+					"name": "domain",
+					"type": "varchar",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"added": {
+					"name": "added",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"category_enum_domain_fkey": {
+					"name": "category_enum_domain_fkey",
+					"tableFrom": "category_enum",
+					"tableTo": "domain_enum",
+					"schemaTo": "public",
+					"columnsFrom": ["domain"],
+					"columnsTo": ["name"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				}
+			},
+			"compositePrimaryKeys": {
+				"category_enum_pkey": {
+					"name": "category_enum_pkey",
+					"columns": ["name", "domain"]
+				}
+			},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.subcategory_enum": {
+			"name": "subcategory_enum",
+			"schema": "",
+			"columns": {
+				"name": {
+					"name": "name",
+					"type": "varchar",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"category": {
+					"name": "category",
+					"type": "varchar",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"domain": {
+					"name": "domain",
+					"type": "varchar",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"added": {
+					"name": "added",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"subcategory_enum_category_domain_fkey": {
+					"name": "subcategory_enum_category_domain_fkey",
+					"tableFrom": "subcategory_enum",
+					"tableTo": "category_enum",
+					"schemaTo": "public",
+					"columnsFrom": ["category", "domain"],
+					"columnsTo": ["name", "domain"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				}
+			},
+			"compositePrimaryKeys": {
+				"subcategory_enum_pkey": {
+					"name": "subcategory_enum_pkey",
+					"columns": ["name", "category", "domain"]
+				}
+			},
+			"uniqueConstraints": {},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.thread": {
+			"name": "thread",
+			"schema": "",
+			"columns": {
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"chatbot_id": {
+					"name": "chatbot_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"thread_id": {
+					"name": "thread_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"user_id": {
+					"name": "user_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"is_public": {
+					"name": "is_public",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": false,
+					"default": true
+				},
+				"model": {
+					"name": "model",
+					"type": "varchar(30)",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "'openAi'"
+				},
+				"is_approved": {
+					"name": "is_approved",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": false,
+					"default": false
+				},
+				"is_blocked": {
+					"name": "is_blocked",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": false,
+					"default": false
+				},
+				"parent_thread_id": {
+					"name": "parent_thread_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"slug": {
+					"name": "slug",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"short_link": {
+					"name": "short_link",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"thread_chatbot_id_fkey": {
+					"name": "thread_chatbot_id_fkey",
+					"tableFrom": "thread",
+					"tableTo": "chatbot",
+					"schemaTo": "public",
+					"columnsFrom": ["chatbot_id"],
+					"columnsTo": ["chatbot_id"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				},
+				"thread_user_id_fkey": {
+					"name": "thread_user_id_fkey",
+					"tableFrom": "thread",
+					"tableTo": "user",
+					"schemaTo": "public",
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["user_id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"fk_model": {
+					"name": "fk_model",
+					"tableFrom": "thread",
+					"tableTo": "models_enum",
+					"schemaTo": "public",
+					"columnsFrom": ["model"],
+					"columnsTo": ["name"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"thread_parent_thread_id_fkey": {
+					"name": "thread_parent_thread_id_fkey",
+					"tableFrom": "thread",
+					"tableTo": "thread",
+					"schemaTo": "public",
+					"columnsFrom": ["parent_thread_id"],
+					"columnsTo": ["thread_id"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				}
+			},
+			"compositePrimaryKeys": {
+				"thread_pkey": {
+					"name": "thread_pkey",
+					"columns": ["thread_id", "slug"]
+				}
+			},
+			"uniqueConstraints": {
+				"thread_id_key": {
+					"columns": ["thread_id"],
+					"nullsNotDistinct": false,
+					"name": "thread_id_key"
+				},
+				"thread_slug_unique": {
+					"columns": ["slug"],
+					"nullsNotDistinct": false,
+					"name": "thread_slug_unique"
+				},
+				"thread_short_link_key": {
+					"columns": ["short_link"],
+					"nullsNotDistinct": false,
+					"name": "thread_short_link_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		},
+		"public.message": {
+			"name": "message",
+			"schema": "",
+			"columns": {
+				"content": {
+					"name": "content",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"role": {
+					"name": "role",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"message_id": {
+					"name": "message_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"thread_id": {
+					"name": "thread_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"prompt": {
+					"name": "prompt",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"augmented_from": {
+					"name": "augmented_from",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"examples": {
+					"name": "examples",
+					"type": "jsonb",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"slug": {
+					"name": "slug",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"thinking": {
+					"name": "thinking",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"thinking_traces": {
+					"name": "thinking_traces",
+					"type": "text[]",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"isContinued": {
+					"name": "isContinued",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": false,
+					"default": false
+				},
+				"model": {
+					"name": "model",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"short_link": {
+					"name": "short_link",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"message_type_fkey": {
+					"name": "message_type_fkey",
+					"tableFrom": "message",
+					"tableTo": "message_type_enum",
+					"schemaTo": "public",
+					"columnsFrom": ["role"],
+					"columnsTo": ["value"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				},
+				"message_augmented_from_fkey": {
+					"name": "message_augmented_from_fkey",
+					"tableFrom": "message",
+					"tableTo": "message",
+					"schemaTo": "public",
+					"columnsFrom": ["augmented_from"],
+					"columnsTo": ["message_id"],
+					"onDelete": "restrict",
+					"onUpdate": "restrict"
+				},
+				"message_thread_id_fkey": {
+					"name": "message_thread_id_fkey",
+					"tableFrom": "message",
+					"tableTo": "thread",
+					"schemaTo": "public",
+					"columnsFrom": ["thread_id"],
+					"columnsTo": ["thread_id"],
+					"onDelete": "cascade",
+					"onUpdate": "restrict"
+				}
+			},
+			"compositePrimaryKeys": {
+				"message_pkey": {
+					"name": "message_pkey",
+					"columns": ["message_id", "slug"]
+				}
+			},
+			"uniqueConstraints": {
+				"message_id_key": {
+					"columns": ["message_id"],
+					"nullsNotDistinct": false,
+					"name": "message_id_key"
+				},
+				"message_slug_unique": {
+					"columns": ["slug"],
+					"nullsNotDistinct": false,
+					"name": "message_slug_unique"
+				},
+				"message_short_link_key": {
+					"columns": ["short_link"],
+					"nullsNotDistinct": false,
+					"name": "message_short_link_key"
+				}
+			},
+			"checkConstraints": {},
+			"policies": {},
+			"isRLSEnabled": false
+		}
+	},
+	"enums": {
+		"public.model_type": {
+			"name": "model_type",
+			"values": ["free", "paid", "pro"],
+			"schema": "public"
+		},
+		"public.user_role": {
+			"name": "user_role",
+			"values": ["admin", "user", "moderator", "anonymous"],
+			"schema": "public"
+		}
+	},
+	"schemas": {},
+	"sequences": {},
+	"roles": {},
+	"policies": {},
+	"views": {},
+	"_meta": {
+		"schemas": {},
+		"tables": {},
+		"columns": {}
+	},
+	"internal": {
+		"tables": {
+			"example": {
+				"columns": {
+					"tags": {
+						"isArray": true,
+						"dimensions": 1,
+						"rawType": "uuid"
+					}
+				}
+			},
+			"message": {
+				"columns": {
+					"thinking_traces": {
+						"isArray": true,
+						"dimensions": 1,
+						"rawType": "text"
+					}
+				}
+			}
+		}
+	}
 }

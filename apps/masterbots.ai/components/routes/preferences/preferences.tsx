@@ -7,7 +7,8 @@ import { PreferenceSection } from './preference-section'
 export function Preferences() {
 	const filteredPreferences = preferences.filter(
 		(section) =>
-			(section.title === 'General' && appConfig.features.devMode) ||
+			(section.title.match(/(General|Thread Preferences)/) &&
+				appConfig.features.devMode) ||
 			section.title === 'Danger Zone',
 	)
 	return (

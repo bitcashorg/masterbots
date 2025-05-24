@@ -5582,8 +5582,8 @@ type Preference {
   """
   An object relationship
   """
-  chatbot: Chatbot!
-  chatbotId: Int!
+  chatbot: Chatbot
+  chatbotId: Int
 
   """
   An object relationship
@@ -5726,6 +5726,11 @@ unique or primary key constraints on table "preference"
 """
 enum PreferenceConstraint {
   """
+  unique or primary key constraint on columns "user_id"
+  """
+  preference_user_id_key
+
+  """
   unique or primary key constraint on columns "preference_id"
   """
   user_chatbot_preference_pkey
@@ -5826,6 +5831,18 @@ type PreferenceMutationResponse {
   data from the rows affected by the mutation
   """
   returning: [Preference!]!
+}
+
+"""
+input type for inserting object relation for remote table "preference"
+"""
+input PreferenceObjRelInsertInput {
+  data: PreferenceInsertInput!
+
+  """
+  upsert condition
+  """
+  onConflict: PreferenceOnConflict
 }
 
 """
@@ -11144,6 +11161,11 @@ type User {
   password: String!
 
   """
+  An object relationship
+  """
+  preference: Preference
+
+  """
   An array relationship
   """
   preferences(
@@ -11548,6 +11570,7 @@ input UserBoolExp {
   isVerified: BooleanComparisonExp
   lastLogin: TimestamptzComparisonExp
   password: StringComparisonExp
+  preference: PreferenceBoolExp
   preferences: PreferenceBoolExp
   preferencesAggregate: PreferenceAggregateBoolExp
   proUserSubscriptionId: StringComparisonExp
@@ -11609,6 +11632,7 @@ input UserInsertInput {
   isVerified: Boolean
   lastLogin: timestamptz
   password: String
+  preference: PreferenceObjRelInsertInput
   preferences: PreferenceArrRelInsertInput
   proUserSubscriptionId: String
   profilePicture: String
@@ -11713,6 +11737,7 @@ input UserOrderBy {
   isVerified: OrderBy
   lastLogin: OrderBy
   password: OrderBy
+  preference: PreferenceOrderBy
   preferencesAggregate: PreferenceAggregateOrderBy
   proUserSubscriptionId: OrderBy
   profilePicture: OrderBy
