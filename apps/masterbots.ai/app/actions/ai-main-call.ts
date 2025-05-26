@@ -344,49 +344,55 @@ export async function createResponseStream(
 			messages as OpenAI.ChatCompletionMessageParam[],
 		)
 
-		// Handle image generation
+		//? Handle OpenAI image generation
 		if (isImageGeneration && clientType === 'OpenAI') {
 			const openaiProvider = createOpenAI({
 				apiKey: process.env.OPENAI_API_KEY,
 			})
 			const lastMessage = coreMessages[coreMessages.length - 1]
-			const prompt = typeof lastMessage.content === 'string' ? lastMessage.content : ''
+			const prompt =
+				typeof lastMessage.content === 'string' ? lastMessage.content : ''
 
 			try {
 				const { image } = await generateImage({
 					model: openaiProvider.image(model),
 					prompt,
 					size: '1024x1024',
+					// TODO: Add image advance generation options inside providerOptions
 				})
 
-				// Format the response to match the AI SDK's expected format
+				//? Data stream response using the AI SDK Image generation format
 				const stream = new ReadableStream({
 					start(controller) {
-						// Send a single message with the image data
-						const imageResponse = {
-							id: crypto.randomUUID(),
-							role: 'assistant',
-							content: '',
-							parts: [
+						// Send the finish message with the image data
+						const finishData = {
+							finishReason: 'stop',
+							usage: {
+								promptTokens: 0,
+								completionTokens: 0,
+							},
+							files: [
 								{
-									type: 'file',
-									data: image.base64,
+									base64: image.base64,
+									uint8Array: image.uint8Array,
 									mimeType: 'image/png',
+									fileName: `generated-${Date.now()}.png`,
 								},
 							],
 						}
-						// Format the response as a data event
-						const data = `data: ${JSON.stringify(imageResponse)}\n\n`
-						controller.enqueue(new TextEncoder().encode(data))
+
+						//? Format as data stream event
+						controller.enqueue(
+							new TextEncoder().encode(`d:${JSON.stringify(finishData)}\n`),
+						)
 						controller.close()
 					},
 				})
 
 				return new Response(stream, {
-					headers: { 
+					headers: {
 						'Content-Type': 'text/event-stream',
-						'Cache-Control': 'no-cache',
-						'Connection': 'keep-alive',
+						'X-Vercel-AI-Data-Stream': 'v1',
 					},
 				})
 			} catch (error: unknown) {
@@ -394,6 +400,21 @@ export async function createResponseStream(
 					console.error('Image generation failed:', {
 						cause: error.cause,
 						responses: error.responses,
+					})
+					// Return error in data stream format
+					const errorStream = new ReadableStream({
+						start(controller) {
+							controller.enqueue(
+								new TextEncoder().encode(`3:"Image generation failed"\n`),
+							)
+							controller.close()
+						},
+					})
+					return new Response(errorStream, {
+						headers: {
+							'Content-Type': 'text/event-stream',
+							'X-Vercel-AI-Data-Stream': 'v1',
+						},
 					})
 				}
 				throw error
