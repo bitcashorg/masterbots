@@ -115,7 +115,10 @@ export function ChatMessage({
 
 		const images = extractImageContent(message as MessageWithExamples)
 		if (!images || images.length === 0) {
-			console.log('No images extracted from message parts:', message.parts)
+			console.log('No images extracted from message:', {
+				examples: message.examples,
+				parts: message.parts,
+			})
 			return null
 		}
 
@@ -127,7 +130,7 @@ export function ChatMessage({
 						return null
 					}
 					//? Create a stable key based on the image content
-					const imageKey = `${message.messageId}-${image.base64.slice(0, 32)}`
+					const imageKey = `${message.messageId}-${image.base64.slice(0, 32)}-${i}`
 					return (
 						<GeneratedImage
 							key={imageKey}

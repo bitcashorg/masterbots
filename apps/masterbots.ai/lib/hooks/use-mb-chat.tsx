@@ -238,10 +238,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 					})
 				}
 				const finalMessage = { ...message }
+				let imageExamples: any[] = []
 
 				//? Handle generated image files if present
 				if (options.files && options.files.length > 0) {
-					finalMessage.parts = options.files.map(
+					imageExamples = options.files.map(
 						(file: {
 							base64: string
 							uint8Array: Uint8Array
@@ -250,9 +251,10 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						}) => ({
 							type: 'file',
 							data: file.base64,
-							mimeType: file.mimeType,
+							mimeType: file.mimeType || 'image/png',
 						}),
 					)
+
 					if (appConfig.features.devMode) {
 						customSonner({
 							type: 'info',
@@ -381,7 +383,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						}
 					: {}
 
-				// Create new messages and save them to the database
+				//? Create new messages and save them to the database
 				const [
 					newUserMessage,
 					newAssistantMessage,
@@ -405,7 +407,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						content: finalMessage.content,
 						createdAt: new Date(Date.now() + 1000).toISOString(),
 						examples:
-							finalMessage.parts?.filter((part) => part.type === 'file') || [],
+							finalMessage.parts?.filter((part) => part.type !== 'file') ||
+							imageExamples ||
+							[],
 					},
 				]
 

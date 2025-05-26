@@ -318,43 +318,48 @@ export function extractImageFiles(files: any[] | undefined) {
 }
 
 export function hasImageGeneration(message: MessageWithExamples): boolean {
-	if (!message.examples || !Array.isArray(message.examples)) {
-		return false
-	}
+	//? Check OpenAI format (examples)
+	const hasExampleImages =
+		message.examples?.some((part: any) => part.type === 'file' && part.data) ??
+		false
 
-	return message.examples.some(
-		(part: StoredImagePart) => part.type === 'file' || part.type === 'image',
-	)
+	//? Check Gemini format (parts)
+	const hasPartImages =
+		message.examples?.some((part: any) => part.type === 'file' && part.data) ??
+		false
+
+	return hasExampleImages || hasPartImages
 }
 
-export function extractImageContent(
-	message: MessageWithExamples,
-): { base64: string; mimeType: string }[] {
-	if (!message.examples || !Array.isArray(message.examples)) {
-		console.log('No examples found in message:', message)
-		return []
+export function extractImageContent(message: MessageWithExamples) {
+	const images: Array<{
+		base64: string
+		mimeType?: string
+	}> = []
+
+	//? Handle OpenAI format - images stored in message.examples
+	if (message.examples && Array.isArray(message.examples)) {
+		for (const part of message.examples) {
+			if (part.type === 'file' && part.data) {
+				images.push({
+					base64: part.data,
+					mimeType: part.mimeType || 'image/png'
+				})
+			}
+		}
 	}
 
-	const imageParts = message.examples.filter(
-		(part: StoredImagePart) => part.type === 'file' || part.type === 'image',
-	)
-
-	if (imageParts.length === 0) {
-		console.log('No image parts found in message examples:', message.examples)
-		return []
+	//? Handle Gemini format - images stored in message.parts
+	if (message.examples && Array.isArray(message.examples)) {
+		for (const part of message.examples) {
+			if (part.type === 'file' && part.data) {
+				images.push({
+					base64: part.data,
+					mimeType: part.mimeType || 'image/png',
+				})
+			}
+		}
 	}
 
-	console.log('Found image parts:', imageParts)
-
-	return imageParts.map((part: StoredImagePart) => {
-		if (!part.data) {
-			console.warn('Image part has no data:', part)
-			return { base64: '', mimeType: part.mimeType || 'image/png' }
-		}
-
-		return {
-			base64: part.data,
-			mimeType: part.mimeType || 'image/png',
-		}
-	})
+	return images
 }
