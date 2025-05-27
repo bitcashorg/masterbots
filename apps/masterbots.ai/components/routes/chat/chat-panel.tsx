@@ -2,9 +2,9 @@
 
 import { ChatShareDialog } from '@/components/routes/chat/chat-share-dialog'
 import { PromptForm } from '@/components/routes/chat/prompt-form'
-import { ImageGeneratorDialog } from '@/components/shared/image-generator-dialog'
 import { ButtonScrollToBottom } from '@/components/shared/button-scroll-to-bottom'
 import { FeatureToggle } from '@/components/shared/feature-toggle'
+import { ImageGeneratorDialog } from '@/components/shared/image-generator-dialog'
 import { LoadingIndicator } from '@/components/shared/loading-indicator'
 import { Button } from '@/components/ui/button'
 import { IconShare, IconStop } from '@/components/ui/icons'

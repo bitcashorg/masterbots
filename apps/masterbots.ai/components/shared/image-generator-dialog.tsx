@@ -24,7 +24,9 @@ export function ImageGeneratorDialog({ onClose }: { onClose?: () => void }) {
 	const [isOpen, setIsOpen] = useState(false)
 	const [description, setDescription] = useState('')
 	const [quality, setQuality] = useState<'standard' | 'hd'>('standard')
-	const [size, setSize] = useState<'1024x1024' | '1792x1024' | '1024x1792'>('1024x1024')
+	const [size, setSize] = useState<'1024x1024' | '1792x1024' | '1024x1792'>(
+		'1024x1024',
+	)
 
 	const handleGenerate = () => {
 		if (!description.trim()) return
@@ -74,7 +76,10 @@ export function ImageGeneratorDialog({ onClose }: { onClose?: () => void }) {
 					</div>
 					<div className="space-y-2">
 						<Label htmlFor="quality">Quality</Label>
-						<Select value={quality} onValueChange={(v) => setQuality(v as 'standard' | 'hd')}>
+						<Select
+							value={quality}
+							onValueChange={(v) => setQuality(v as 'standard' | 'hd')}
+						>
 							<SelectTrigger>
 								<SelectValue placeholder="Quality" />
 							</SelectTrigger>
@@ -86,7 +91,12 @@ export function ImageGeneratorDialog({ onClose }: { onClose?: () => void }) {
 					</div>
 					<div className="space-y-2">
 						<Label htmlFor="size">Size</Label>
-						<Select value={size} onValueChange={(v) => setSize(v as '1024x1024' | '1792x1024' | '1024x1792')}>
+						<Select
+							value={size}
+							onValueChange={(v) =>
+								setSize(v as '1024x1024' | '1792x1024' | '1024x1792')
+							}
+						>
 							<SelectTrigger>
 								<SelectValue placeholder="Size" />
 							</SelectTrigger>
