@@ -204,6 +204,7 @@ export type AiClientType =
 	| 'DeepSeek'
 	| 'GroqDeepSeek'
 	| 'Gemini'
+	| 'OpenAIImage'
 
 export type JSONResponseStream = {
 	model: string
@@ -216,6 +217,11 @@ export type JSONResponseStream = {
 	temperature?: number
 	maxTokens?: number
 	chatbot?: Pick<Chatbot, 'categories' | 'chatbotId'>
+	imageGeneration?: boolean
+	style?: string
+	aspectRatio?: string
+	quality?: 'standard' | 'hd'
+	size?: '1024x1024' | '1792x1024' | '1024x1792' | '256x256' | '512x512' | '1536x1024' | '1024x1536'
 }
 
 // ? New type for streamText function parameters if needed
@@ -428,4 +434,11 @@ export interface StoredImagePart {
 
 export type MessageWithExamples = MBMessage & {
 	examples?: StoredImagePart[]
+}
+
+export interface ImageGenerationOptions {
+	imageGeneration?: boolean
+	style?: string
+	aspectRatio?: string
+	quality?: 'standard' | 'hd'
 }

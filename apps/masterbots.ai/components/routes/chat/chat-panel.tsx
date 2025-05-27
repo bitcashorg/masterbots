@@ -2,6 +2,7 @@
 
 import { ChatShareDialog } from '@/components/routes/chat/chat-share-dialog'
 import { PromptForm } from '@/components/routes/chat/prompt-form'
+import { ImageGeneratorDialog } from '@/components/shared/image-generator-dialog'
 import { ButtonScrollToBottom } from '@/components/shared/button-scroll-to-bottom'
 import { FeatureToggle } from '@/components/shared/feature-toggle'
 import { LoadingIndicator } from '@/components/shared/loading-indicator'
@@ -9,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { IconShare, IconStop } from '@/components/ui/icons'
 import { useContinueGeneration } from '@/lib/hooks/use-continue-generation'
 import { useDeepThinking } from '@/lib/hooks/use-deep-thinking'
+import { useImageGeneration } from '@/lib/hooks/use-image-generation'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useThread } from '@/lib/hooks/use-thread'
@@ -20,6 +22,7 @@ import {
 	ChevronsLeftRightEllipsis,
 	GlobeIcon,
 	GraduationCap,
+	ImageIcon,
 } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import type { Chatbot } from 'mb-genql'
@@ -61,6 +64,7 @@ export function ChatPanel({
 	const { isOpenPopup, loadingState, webSearch, setWebSearch } = useThread()
 	const { isPowerUp, togglePowerUp } = usePowerUp()
 	const { isDeepThinking, toggleDeepThinking } = useDeepThinking()
+	const { isImageGeneration, toggleImageGeneration } = useImageGeneration()
 	const [shareDialogOpen, setShareDialogOpen] = useState(false)
 	const {
 		getContinuationPrompt,
@@ -118,8 +122,9 @@ export function ChatPanel({
 			powerUp: isPowerUp,
 			reasoning: isDeepThinking,
 			webSearch: webSearch,
+			imageGeneration: isImageGeneration,
 		}),
-		[isPowerUp, isDeepThinking, webSearch],
+		[isPowerUp, isDeepThinking, webSearch, isImageGeneration],
 	)
 
 	return (
@@ -150,7 +155,7 @@ export function ChatPanel({
 								activeColor="yellow"
 							/>
 
-							{appConfig.features.webSearch && (
+							{appConfig.features.webSearch && !isImageGeneration && (
 								<FeatureToggle
 									id="webSearch"
 									name="Web Search"
@@ -164,6 +169,16 @@ export function ChatPanel({
 									activeColor="cyan"
 								/>
 							)}
+
+							<FeatureToggle
+								id="imageGeneration"
+								name="Image Generation"
+								icon={<ImageIcon />}
+								activeIcon={<ImageIcon />}
+								isActive={isImageGeneration}
+								onChange={toggleImageGeneration}
+								activeColor="green"
+							/>
 						</div>
 
 						{/* Right side controls */}
@@ -190,7 +205,7 @@ export function ChatPanel({
 								className={hiddenAnimationClasses}
 								textClassName={hiddenAnimationItemClasses}
 							/>
-							{messages?.length >= 2 && (
+							{messages?.length >= 2 && !isImageGeneration && (
 								<Button
 									variant="outline"
 									size="icon"
@@ -240,25 +255,29 @@ export function ChatPanel({
 						'min-h-[64px] sm:min-h-[80px]',
 					)}
 				>
-					<PromptForm
-						onSubmit={async (value, chatOptions) => {
-							scrollToBottom()
-							await append(
-								{
-									id,
-									content: value,
-									role: 'user',
-								},
-								prepareMessageOptions(chatOptions),
-							)
-						}}
-						// biome-ignore lint/complexity/noExtraBooleanCast: <explanation>
-						disabled={isLoading || !Boolean(chatbot) || isPreProcessing}
-						input={input}
-						setInput={setInput}
-						isLoading={isLoading || isPreProcessing}
-						placeholder={placeholder}
-					/>
+					{isImageGeneration ? (
+						<ImageGeneratorDialog onClose={toggleImageGeneration} />
+					) : (
+						<PromptForm
+							onSubmit={async (value, chatOptions) => {
+								scrollToBottom()
+								await append(
+									{
+										id,
+										content: value,
+										role: 'user',
+									},
+									prepareMessageOptions(chatOptions),
+								)
+							}}
+							// biome-ignore lint/complexity/noExtraBooleanCast: <explanation>
+							disabled={isLoading || !Boolean(chatbot) || isPreProcessing}
+							input={input}
+							setInput={setInput}
+							isLoading={isLoading || isPreProcessing}
+							placeholder={placeholder}
+						/>
+					)}
 				</div>
 			</div>
 		</div>

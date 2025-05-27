@@ -15,31 +15,39 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
-import { createImageGenerationPrompt } from '@/lib/constants/prompts'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { ImageIcon } from 'lucide-react'
 import { useState } from 'react'
 
-// TODO:  Use this image generation dialog base for the pro version.
-
-export function ImageGeneratorDialog() {
+export function ImageGeneratorDialog({ onClose }: { onClose?: () => void }) {
 	const [{ input }, { appendWithMbContextPrompts, setInput }] = useMBChat()
 	const [isOpen, setIsOpen] = useState(false)
 	const [description, setDescription] = useState('')
-	const [style, setStyle] = useState('photorealistic')
-	const [details, setDetails] = useState('high detail')
+	const [quality, setQuality] = useState<'standard' | 'hd'>('standard')
+	const [size, setSize] = useState<'1024x1024' | '1792x1024' | '1024x1792'>('1024x1024')
 
 	const handleGenerate = () => {
 		if (!description.trim()) return
 
-		const prompt = createImageGenerationPrompt(description, style, details)
+		const prompt = description
 		setInput(prompt)
-		appendWithMbContextPrompts({
-			role: 'user',
-			content: prompt,
-		})
+
+		appendWithMbContextPrompts(
+			{
+				role: 'user',
+				content: prompt,
+			},
+			{
+				data: {
+					imageGeneration: true,
+					quality,
+					size,
+				},
+			},
+		)
 
 		setIsOpen(false)
+		onClose?.()
 	}
 
 	return (
@@ -52,52 +60,40 @@ export function ImageGeneratorDialog() {
 			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Generate an Image</DialogTitle>
+					<DialogTitle>Generate an Image (gpt-image-1)</DialogTitle>
 				</DialogHeader>
 				<div className="py-4 space-y-4">
 					<div className="space-y-2">
 						<Label htmlFor="description">Description</Label>
 						<Input
 							id="description"
-							placeholder="A cat wearing a space suit on the moon"
+							placeholder="A highly detailed image of a futuristic city at sunset"
 							value={description}
 							onChange={(e) => setDescription(e.target.value)}
 						/>
 					</div>
 					<div className="space-y-2">
-						<Label htmlFor="style">Style</Label>
-						<Select value={style} onValueChange={setStyle}>
+						<Label htmlFor="quality">Quality</Label>
+						<Select value={quality} onValueChange={(v) => setQuality(v as 'standard' | 'hd')}>
 							<SelectTrigger>
-								<SelectValue placeholder="Style" />
+								<SelectValue placeholder="Quality" />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="photorealistic">Photorealistic</SelectItem>
-								<SelectItem value="cartoon">Cartoon</SelectItem>
-								<SelectItem value="anime">Anime</SelectItem>
-								<SelectItem value="oil painting">Oil Painting</SelectItem>
-								<SelectItem value="watercolor">Watercolor</SelectItem>
-								<SelectItem value="sketch">Sketch</SelectItem>
-								<SelectItem value="3D render">3D Render</SelectItem>
-								<SelectItem value="pixel art">Pixel Art</SelectItem>
+								<SelectItem value="standard">Standard</SelectItem>
+								<SelectItem value="hd">HD</SelectItem>
 							</SelectContent>
 						</Select>
 					</div>
 					<div className="space-y-2">
-						<Label htmlFor="details">Details</Label>
-						<Select value={details} onValueChange={setDetails}>
+						<Label htmlFor="size">Size</Label>
+						<Select value={size} onValueChange={(v) => setSize(v as '1024x1024' | '1792x1024' | '1024x1792')}>
 							<SelectTrigger>
-								<SelectValue placeholder="Details" />
+								<SelectValue placeholder="Size" />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="high detail">High Detail</SelectItem>
-								<SelectItem value="low detail">Low Detail</SelectItem>
-								<SelectItem value="cinematic lighting">
-									Cinematic Lighting
-								</SelectItem>
-								<SelectItem value="dramatic lighting">
-									Dramatic Lighting
-								</SelectItem>
-								<SelectItem value="soft lighting">Soft Lighting</SelectItem>
+								<SelectItem value="1024x1024">Square (1024x1024)</SelectItem>
+								<SelectItem value="1792x1024">Landscape (1792x1024)</SelectItem>
+								<SelectItem value="1024x1792">Portrait (1024x1792)</SelectItem>
 							</SelectContent>
 						</Select>
 					</div>

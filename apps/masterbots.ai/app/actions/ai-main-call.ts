@@ -36,6 +36,7 @@ import {
 	streamObject,
 	streamText,
 	wrapLanguageModel,
+	experimental_generateImage as generateImage
 } from 'ai'
 import { createStreamableValue } from 'ai/rsc'
 import { appConfig } from 'mb-env'
@@ -326,6 +327,10 @@ export async function createResponseStream(
 		previewToken,
 		webSearch,
 		isPowerUp,
+		imageGeneration,
+		style,
+		quality,
+		size
 	} = json
 	const messages = setStreamerPayload(clientType, rawMessages || [])
 	const tools: StreamTextParams['tools'] = {
@@ -447,6 +452,43 @@ export async function createResponseStream(
 					maxRetries: 2,
 				})
 				break
+			}
+			case 'OpenAIImage': {
+				const openaiImageModel = openai.image('gpt-image-1')
+				// Assuming the prompt is the last user message
+				const lastUserMessage = coreMessages.filter(m => m.role === 'user').pop()
+				if (!lastUserMessage || typeof lastUserMessage.content !== 'string') {
+					throw new Error('No valid user prompt found for image generation.')
+				}
+				const imageResult = await generateImage({
+					model: openaiImageModel,
+					prompt: lastUserMessage.content as string,
+					size: size as '1024x1024' | '1536x1024' | '1024x1536',
+					n: 1,
+					providerOptions: {
+						openai: {
+							quality: quality as 'standard' | 'hd'
+						}
+					}
+				})
+
+				// Create a stream from the image data
+				const imageStream = new ReadableStream({
+					start(controller) {
+						// Emit the image data as a JSON object with a specific type, similar to how text chunks are handled.
+						// This ensures the client-side logic (e.g., useChat) can parse it correctly.
+						const imagePayload = {
+							type: 'image', // Custom type to identify image data
+							content: imageResult.image.base64, // Send base64 data
+							mimeType: 'image/png' // Assuming PNG, adjust if other types are possible
+						};
+						controller.enqueue(`data: ${JSON.stringify(imagePayload)}\n\n`);
+						controller.close();
+					}
+				});
+				return new Response(imageStream, {
+					headers: { 'Content-Type': 'text/event-stream' },
+				});
 			}
 			case 'Gemini': {
 				const googleAI = initializeGoogle(
