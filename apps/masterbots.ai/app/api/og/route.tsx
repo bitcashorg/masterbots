@@ -1,5 +1,5 @@
 import OGImage from '@/components/shared/og-image'
-import { uuidRegex } from '@/lib/utils'
+import { uuidRegex } from '@/lib/regexp'
 import { getUserBySlug } from '@/services/hasura'
 import type { Chatbot, Thread } from 'mb-genql'
 import { ImageResponse } from 'next/og'
