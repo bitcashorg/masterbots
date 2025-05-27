@@ -41,8 +41,7 @@ export const generateMetadataFromSEO = async (
 	const ogImageUrlDefault = '/masterbots_og.png'
 	// Dynamic default canonical: The params should return in order of the URL
 	const canonical = ['', ...paramKeys.map((key) => params[key])].join('/')
-
-	return {
+	const data = {
 		title: pageSeo.title || '',
 		description: pageSeo.description || '',
 		metadataBase: new URL(process.env.BASE_URL || 'https://masterbots.ai'),
@@ -51,9 +50,7 @@ export const generateMetadataFromSEO = async (
 			title: pageSeo.title,
 			description: pageSeo.description,
 			url: currentUrl,
-			images: pageSeo.ogImageUrl
-				? [{ url: pageSeo.ogImageUrl }]
-				: [ogImageUrlDefault],
+			images: pageSeo.ogImageUrl ? [pageSeo.ogImageUrl] : [ogImageUrlDefault],
 		},
 		twitter: {
 			card: pageSeo.twitterCard as TwitterCard,
@@ -66,6 +63,8 @@ export const generateMetadataFromSEO = async (
 			canonical,
 		},
 	}
+
+	return data
 }
 
 export async function generateMbMetadata({
@@ -97,11 +96,11 @@ export async function generateMbMetadata({
 		const threadQuestionSlugIndex = thread?.messages.findIndex(
 			(m) => m.slug === threadQuestionSlug,
 		)
-		const firstResponse = !threadQuestionSlugIndex
-			? thread?.messages.find((m) => m.role === 'assistant')?.content ||
-				'not found'
-			: thread?.messages[threadQuestionSlugIndex + 1]?.content || 'not found' // next message after the question is (and should be) the assistant response
-
+		const firstResponse =
+			threadQuestionSlugIndex === -1
+				? thread?.messages.find((m) => m.role === 'assistant')?.content ||
+					'not found'
+				: thread?.messages[threadQuestionSlugIndex + 1]?.content || 'not found' // next message after the question is (and should be) the assistant response
 		const firstResponseTruncated =
 			firstResponse.length > 200 ? firstResponse.slice(0, 200) : firstResponse
 
@@ -118,7 +117,7 @@ export async function generateMbMetadata({
 			title: firstQuestion,
 			publishedAt: thread?.updatedAt,
 			summary: firstResponseTruncated,
-			image: `${process.env.BASE_URL}/api/og?threadId=${thread?.threadId}&threadQuestionSlug=${threadQuestionSlug}`,
+			image: `${process.env.BASE_URL}/api/og?threadId=${thread?.threadId}${threadQuestionSlug ? `&threadQuestionSlug=${threadQuestionSlug}` : ''}`,
 			pathname: threadUrl,
 		}
 	} catch (error) {
@@ -138,8 +137,7 @@ export async function generateMbMetadata({
 	]
 		.filter(Boolean)
 		.join('/')
-
-	return {
+	const seoData = {
 		title: data.title,
 		description: data.summary,
 		metadataBase: new URL(process.env.BASE_URL || 'https://masterbots.ai'),
@@ -150,11 +148,7 @@ export async function generateMbMetadata({
 			type: 'article',
 			publishedTime: data.publishedAt,
 			url: currentUrl,
-			images: [
-				{
-					url: data.image,
-				},
-			],
+			images: [data.image],
 		},
 		twitter: {
 			card: 'summary_large_image',
@@ -167,6 +161,8 @@ export async function generateMbMetadata({
 			canonical,
 		},
 	}
+
+	return seoData
 }
 
 export const defaultContent = {
