@@ -4,6 +4,7 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { AccessibilityProvider } from '@/lib/hooks/use-accessibility'
 import { ContinueGenerationProvider } from '@/lib/hooks/use-continue-generation'
 import { DeepThinkingProvider } from '@/lib/hooks/use-deep-thinking'
+import { ImageGenerationProvider } from '@/lib/hooks/use-image-generation'
 import { MBChatProvider } from '@/lib/hooks/use-mb-chat'
 import { ModelProvider } from '@/lib/hooks/use-model'
 import { PaymentProvider } from '@/lib/hooks/use-payment'
@@ -42,7 +43,9 @@ export function Providers({ children, ...props }: ProvidersProps) {
 													<ThreadProvider>
 														<ThreadVisibilityProvider>
 															<ContinueGenerationProvider>
-																<MBChatProvider>{children}</MBChatProvider>
+																<ImageGenerationProvider>
+																	<MBChatProvider>{children}</MBChatProvider>
+																</ImageGenerationProvider>
 															</ContinueGenerationProvider>
 														</ThreadVisibilityProvider>
 													</ThreadProvider>

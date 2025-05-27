@@ -10,6 +10,7 @@ import {
 	extractImageContent,
 	hasImageGeneration,
 } from '@/lib/helpers/ai-helpers'
+import { useImageGeneration } from '@/lib/hooks/use-image-generation'
 import { memoizedMarkdownComponents } from '@/lib/memoized-markdown-components'
 import { cn, getRouteType } from '@/lib/utils'
 import type {
@@ -24,7 +25,7 @@ import remarkGfm from 'remark-gfm'
 import remarkRehype from 'remark-rehype'
 
 /**
- * Displays a chat message with clickable text elements.
+ * Displays a chat message with clickable text elements and image generation support.
  *
  * @param message The chat message object.
  * @param sendMessageFromResponse The function to send a message from the response.
@@ -45,6 +46,8 @@ export function ChatMessage({
 	const routeType = getRouteType(pathname)
 	const isBrowseView = routeType === 'public'
 	const isProfileView = routeType === 'profile'
+	const { isImageGeneration } = useImageGeneration()
+
 	// Clean the message content and update the message object.
 	const content = cleanPrompt(message.content)
 	const cleanMessage = { ...message, content }
@@ -109,7 +112,7 @@ export function ChatMessage({
 		)
 	}
 
-	//? Images section component
+	//? Images section component with enhanced support for generated images
 	const ImagesSection = useMemo(() => {
 		if (!hasImageGeneration(message as MessageWithExamples)) return null
 
@@ -121,6 +124,14 @@ export function ChatMessage({
 
 		return (
 			<div className="mt-4 space-y-4">
+				{/* Show generated image header for image generation mode */}
+				{isImageGeneration && message.role === 'assistant' && (
+					<div className="flex items-center gap-2 mb-2 text-purple-700 dark:text-purple-300">
+						<div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" />
+						<span className="text-sm font-medium">Generated Image</span>
+					</div>
+				)}
+
 				{images.map((image, i) => {
 					if (!image.base64) {
 						console.warn(`Image ${i} has no base64 data`)
@@ -129,35 +140,58 @@ export function ChatMessage({
 					//? Create a stable key based on the image content
 					const imageKey = `${message.messageId}-${image.base64.slice(0, 32)}`
 					return (
-						<GeneratedImage
+						<div
 							key={imageKey}
-							base64={image.base64}
-							mimeType={image.mimeType || 'image/png'}
-							alt={`AI generated image ${i + 1}`}
-						/>
+							className={cn(
+								isImageGeneration && message.role === 'assistant'
+									? 'border-2 border-purple-200 dark:border-purple-700 rounded-xl p-2 bg-gradient-to-br from-purple-50/30 to-pink-50/30 dark:from-purple-950/20 dark:to-pink-950/20'
+									: '',
+							)}
+						>
+							<GeneratedImage
+								base64={image.base64}
+								mimeType={image.mimeType || 'image/png'}
+								alt={
+									isImageGeneration
+										? 'AI Generated Image'
+										: `AI generated image ${i + 1}`
+								}
+							/>
+						</div>
 					)
 				})}
 			</div>
 		)
-	}, [message])
+	}, [message, isImageGeneration])
+
+	// Determine if this is an image generation response
+	const isImageResponse =
+		isImageGeneration &&
+		message.role === 'assistant' &&
+		hasImageGeneration(message as MessageWithExamples)
 
 	return (
 		<div className={cn('group relative flex items-start p-1')} {...props}>
 			<div className="flex-1 pr-1 space-y-2 overflow-hidden">
-				<MemoizedReactMarkdown
-					className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
-					remarkPlugins={[remarkGfm, rehypeMathJax, remarkRehype]}
-					components={memoizedMarkdownComponents(
-						!(isBrowseView || isProfileView)
-							? {
-									handleClickableClick,
-									shouldPreProcessChildren: true,
-								}
-							: undefined,
-					)}
-				>
-					{cleanMessage.content}
-				</MemoizedReactMarkdown>
+				{/* Only show markdown content if it's not just an image response or has actual content */}
+				{(!isImageResponse ||
+					(message.content &&
+						message.content.trim() !== 'Here is your generated image:')) && (
+					<MemoizedReactMarkdown
+						className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
+						remarkPlugins={[remarkGfm, rehypeMathJax, remarkRehype]}
+						components={memoizedMarkdownComponents(
+							!(isBrowseView || isProfileView)
+								? {
+										handleClickableClick,
+										shouldPreProcessChildren: true,
+									}
+								: undefined,
+						)}
+					>
+						{cleanMessage.content}
+					</MemoizedReactMarkdown>
+				)}
 
 				{ImagesSection}
 
