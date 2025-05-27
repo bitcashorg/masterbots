@@ -32,11 +32,11 @@ import { createOpenAI, openai } from '@ai-sdk/openai'
 import {
 	type Message,
 	extractReasoningMiddleware,
+	experimental_generateImage as generateImage,
 	smoothStream,
 	streamObject,
 	streamText,
 	wrapLanguageModel,
-	experimental_generateImage as generateImage
 } from 'ai'
 import { createStreamableValue } from 'ai/rsc'
 import { appConfig } from 'mb-env'
@@ -330,7 +330,7 @@ export async function createResponseStream(
 		imageGeneration,
 		style,
 		quality,
-		size
+		size,
 	} = json
 	const messages = setStreamerPayload(clientType, rawMessages || [])
 	const tools: StreamTextParams['tools'] = {
@@ -455,8 +455,9 @@ export async function createResponseStream(
 			}
 			case 'OpenAIImage': {
 				const openaiImageModel = openai.image('gpt-image-1')
-				// Assuming the prompt is the last user message
-				const lastUserMessage = coreMessages.filter(m => m.role === 'user').pop()
+				const lastUserMessage = coreMessages
+					.filter((m) => m.role === 'user')
+					.pop()
 				if (!lastUserMessage || typeof lastUserMessage.content !== 'string') {
 					throw new Error('No valid user prompt found for image generation.')
 				}
@@ -467,9 +468,9 @@ export async function createResponseStream(
 					n: 1,
 					providerOptions: {
 						openai: {
-							quality: quality as 'standard' | 'hd'
-						}
-					}
+							quality: quality as 'standard' | 'hd',
+						},
+					},
 				})
 
 				// Create a stream from the image data
@@ -480,15 +481,15 @@ export async function createResponseStream(
 						const imagePayload = {
 							type: 'image', // Custom type to identify image data
 							content: imageResult.image.base64, // Send base64 data
-							mimeType: 'image/png' // Assuming PNG, adjust if other types are possible
-						};
-						controller.enqueue(`data: ${JSON.stringify(imagePayload)}\n\n`);
-						controller.close();
-					}
-				});
+							mimeType: 'image/png', // Assuming PNG, adjust if other types are possible
+						}
+						controller.enqueue(`data: ${JSON.stringify(imagePayload)}\n\n`)
+						controller.close()
+					},
+				})
 				return new Response(imageStream, {
 					headers: { 'Content-Type': 'text/event-stream' },
-				});
+				})
 			}
 			case 'Gemini': {
 				const googleAI = initializeGoogle(
