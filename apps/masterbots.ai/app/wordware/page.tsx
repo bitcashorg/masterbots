@@ -35,5 +35,5 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 		twitterCard: 'summary',
 	}
 
-	return generateMetadataFromSEO(seoData, params)
+	return await generateMetadataFromSEO(seoData, params)
 }
