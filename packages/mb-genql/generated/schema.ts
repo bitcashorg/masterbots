@@ -1243,10 +1243,11 @@ export type OrderBy =
 /** This table stores user-specific preferences for quick access when they interact with a chatbot. */
 export interface Preference {
   /** An object relationship */
-  chatbot: Chatbot;
-  chatbotId: Scalars["Int"];
+  chatbot: Chatbot | null;
+  chatbotId: Scalars["Int"] | null;
   /** An object relationship */
   complexityEnum: ComplexityEnum;
+  deepExpertise: Scalars["Boolean"] | null;
   favorite: Scalars["Boolean"] | null;
   /** An object relationship */
   lengthEnum: LengthEnum;
@@ -1262,6 +1263,7 @@ export interface Preference {
   /** An object relationship */
   user: User | null;
   userId: Scalars["uuid"] | null;
+  webSearch: Scalars["Boolean"] | null;
   __typename: "Preference";
 }
 
@@ -1296,7 +1298,9 @@ export interface PreferenceAvgFields {
 }
 
 /** unique or primary key constraints on table "preference" */
-export type PreferenceConstraint = "user_chatbot_preference_pkey";
+export type PreferenceConstraint =
+  | "preference_user_id_key"
+  | "user_chatbot_preference_pkey";
 
 /** aggregate max on columns */
 export interface PreferenceMaxFields {
@@ -1334,21 +1338,23 @@ export interface PreferenceMutationResponse {
 /** select columns of table "preference" */
 export type PreferenceSelectColumn =
   | "chatbotId"
+  | "deepExpertise"
   | "favorite"
   | "preferenceId"
   | "preferredComplexity"
   | "preferredLength"
   | "preferredTone"
   | "preferredType"
-  | "userId";
+  | "userId"
+  | "webSearch";
 
 /** select "preferenceAggregateBoolExpBool_andArgumentsColumns" columns of table "preference" */
 export type PreferenceSelectColumnPreferenceAggregateBoolExpBool_andArgumentsColumns =
-  "favorite";
+  "deepExpertise" | "favorite" | "webSearch";
 
 /** select "preferenceAggregateBoolExpBool_orArgumentsColumns" columns of table "preference" */
 export type PreferenceSelectColumnPreferenceAggregateBoolExpBool_orArgumentsColumns =
-  "favorite";
+  "deepExpertise" | "favorite" | "webSearch";
 
 /** aggregate stddev on columns */
 export interface PreferenceStddevFields {
@@ -1381,13 +1387,15 @@ export interface PreferenceSumFields {
 /** update columns of table "preference" */
 export type PreferenceUpdateColumn =
   | "chatbotId"
+  | "deepExpertise"
   | "favorite"
   | "preferenceId"
   | "preferredComplexity"
   | "preferredLength"
   | "preferredTone"
   | "preferredType"
-  | "userId";
+  | "userId"
+  | "webSearch";
 
 /** aggregate varPop on columns */
 export interface PreferenceVarPopFields {
@@ -2596,6 +2604,8 @@ export interface User {
   isVerified: Scalars["Boolean"] | null;
   lastLogin: Scalars["timestamptz"] | null;
   password: Scalars["String"];
+  /** An object relationship */
+  preference: Preference | null;
   /** An array relationship */
   preferences: Preference[];
   /** An aggregate relationship */
@@ -7002,6 +7012,7 @@ export interface PreferenceGenqlSelection {
   chatbotId?: boolean | number;
   /** An object relationship */
   complexityEnum?: ComplexityEnumGenqlSelection;
+  deepExpertise?: boolean | number;
   favorite?: boolean | number;
   /** An object relationship */
   lengthEnum?: LengthEnumGenqlSelection;
@@ -7017,6 +7028,7 @@ export interface PreferenceGenqlSelection {
   /** An object relationship */
   user?: UserGenqlSelection;
   userId?: boolean | number;
+  webSearch?: boolean | number;
   __typename?: boolean | number;
   __scalar?: boolean | number;
 }
@@ -7104,6 +7116,7 @@ export interface PreferenceBoolExp {
   chatbot?: ChatbotBoolExp | null;
   chatbotId?: IntComparisonExp | null;
   complexityEnum?: ComplexityEnumBoolExp | null;
+  deepExpertise?: BooleanComparisonExp | null;
   favorite?: BooleanComparisonExp | null;
   lengthEnum?: LengthEnumBoolExp | null;
   preferenceId?: IntComparisonExp | null;
@@ -7115,6 +7128,7 @@ export interface PreferenceBoolExp {
   typeEnum?: TypeEnumBoolExp | null;
   user?: UserBoolExp | null;
   userId?: UuidComparisonExp | null;
+  webSearch?: BooleanComparisonExp | null;
 }
 
 /** input type for incrementing numeric columns in table "preference" */
@@ -7128,6 +7142,7 @@ export interface PreferenceInsertInput {
   chatbot?: ChatbotObjRelInsertInput | null;
   chatbotId?: Scalars["Int"] | null;
   complexityEnum?: ComplexityEnumObjRelInsertInput | null;
+  deepExpertise?: Scalars["Boolean"] | null;
   favorite?: Scalars["Boolean"] | null;
   lengthEnum?: LengthEnumObjRelInsertInput | null;
   preferenceId?: Scalars["Int"] | null;
@@ -7139,6 +7154,7 @@ export interface PreferenceInsertInput {
   typeEnum?: TypeEnumObjRelInsertInput | null;
   user?: UserObjRelInsertInput | null;
   userId?: Scalars["uuid"] | null;
+  webSearch?: Scalars["Boolean"] | null;
 }
 
 /** aggregate max on columns */
@@ -7199,6 +7215,13 @@ export interface PreferenceMutationResponseGenqlSelection {
   __scalar?: boolean | number;
 }
 
+/** input type for inserting object relation for remote table "preference" */
+export interface PreferenceObjRelInsertInput {
+  data: PreferenceInsertInput;
+  /** upsert condition */
+  onConflict?: PreferenceOnConflict | null;
+}
+
 /** on_conflict condition type for table "preference" */
 export interface PreferenceOnConflict {
   constraint: PreferenceConstraint;
@@ -7211,6 +7234,7 @@ export interface PreferenceOrderBy {
   chatbot?: ChatbotOrderBy | null;
   chatbotId?: OrderBy | null;
   complexityEnum?: ComplexityEnumOrderBy | null;
+  deepExpertise?: OrderBy | null;
   favorite?: OrderBy | null;
   lengthEnum?: LengthEnumOrderBy | null;
   preferenceId?: OrderBy | null;
@@ -7222,6 +7246,7 @@ export interface PreferenceOrderBy {
   typeEnum?: TypeEnumOrderBy | null;
   user?: UserOrderBy | null;
   userId?: OrderBy | null;
+  webSearch?: OrderBy | null;
 }
 
 /** primary key columns input for table: preference */
@@ -7232,6 +7257,7 @@ export interface PreferencePkColumnsInput {
 /** input type for updating data in table "preference" */
 export interface PreferenceSetInput {
   chatbotId?: Scalars["Int"] | null;
+  deepExpertise?: Scalars["Boolean"] | null;
   favorite?: Scalars["Boolean"] | null;
   preferenceId?: Scalars["Int"] | null;
   preferredComplexity?: Scalars["String"] | null;
@@ -7239,6 +7265,7 @@ export interface PreferenceSetInput {
   preferredTone?: Scalars["String"] | null;
   preferredType?: Scalars["String"] | null;
   userId?: Scalars["uuid"] | null;
+  webSearch?: Scalars["Boolean"] | null;
 }
 
 /** aggregate stddev on columns */
@@ -7294,6 +7321,7 @@ export interface PreferenceStreamCursorInput {
 /** Initial value of the column from where the streaming should start */
 export interface PreferenceStreamCursorValueInput {
   chatbotId?: Scalars["Int"] | null;
+  deepExpertise?: Scalars["Boolean"] | null;
   favorite?: Scalars["Boolean"] | null;
   preferenceId?: Scalars["Int"] | null;
   preferredComplexity?: Scalars["String"] | null;
@@ -7301,6 +7329,7 @@ export interface PreferenceStreamCursorValueInput {
   preferredTone?: Scalars["String"] | null;
   preferredType?: Scalars["String"] | null;
   userId?: Scalars["uuid"] | null;
+  webSearch?: Scalars["Boolean"] | null;
 }
 
 /** aggregate sum on columns */
@@ -10603,6 +10632,8 @@ export interface UserGenqlSelection {
   isVerified?: boolean | number;
   lastLogin?: boolean | number;
   password?: boolean | number;
+  /** An object relationship */
+  preference?: PreferenceGenqlSelection;
   /** An array relationship */
   preferences?: PreferenceGenqlSelection & {
     __args?: {
@@ -10837,6 +10868,7 @@ export interface UserBoolExp {
   isVerified?: BooleanComparisonExp | null;
   lastLogin?: TimestamptzComparisonExp | null;
   password?: StringComparisonExp | null;
+  preference?: PreferenceBoolExp | null;
   preferences?: PreferenceBoolExp | null;
   preferencesAggregate?: PreferenceAggregateBoolExp | null;
   proUserSubscriptionId?: StringComparisonExp | null;
@@ -10871,6 +10903,7 @@ export interface UserInsertInput {
   isVerified?: Scalars["Boolean"] | null;
   lastLogin?: Scalars["timestamptz"] | null;
   password?: Scalars["String"] | null;
+  preference?: PreferenceObjRelInsertInput | null;
   preferences?: PreferenceArrRelInsertInput | null;
   proUserSubscriptionId?: Scalars["String"] | null;
   profilePicture?: Scalars["String"] | null;
@@ -10961,6 +10994,7 @@ export interface UserOrderBy {
   isVerified?: OrderBy | null;
   lastLogin?: OrderBy | null;
   password?: OrderBy | null;
+  preference?: PreferenceOrderBy | null;
   preferencesAggregate?: PreferenceAggregateOrderBy | null;
   proUserSubscriptionId?: OrderBy | null;
   profilePicture?: OrderBy | null;
@@ -18065,11 +18099,13 @@ export const enumOrderBy = {
 };
 
 export const enumPreferenceConstraint = {
+  preference_user_id_key: "preference_user_id_key" as const,
   user_chatbot_preference_pkey: "user_chatbot_preference_pkey" as const,
 };
 
 export const enumPreferenceSelectColumn = {
   chatbotId: "chatbotId" as const,
+  deepExpertise: "deepExpertise" as const,
   favorite: "favorite" as const,
   preferenceId: "preferenceId" as const,
   preferredComplexity: "preferredComplexity" as const,
@@ -18077,20 +18113,26 @@ export const enumPreferenceSelectColumn = {
   preferredTone: "preferredTone" as const,
   preferredType: "preferredType" as const,
   userId: "userId" as const,
+  webSearch: "webSearch" as const,
 };
 
 export const enumPreferenceSelectColumnPreferenceAggregateBoolExpBoolAndArgumentsColumns =
   {
+    deepExpertise: "deepExpertise" as const,
     favorite: "favorite" as const,
+    webSearch: "webSearch" as const,
   };
 
 export const enumPreferenceSelectColumnPreferenceAggregateBoolExpBoolOrArgumentsColumns =
   {
+    deepExpertise: "deepExpertise" as const,
     favorite: "favorite" as const,
+    webSearch: "webSearch" as const,
   };
 
 export const enumPreferenceUpdateColumn = {
   chatbotId: "chatbotId" as const,
+  deepExpertise: "deepExpertise" as const,
   favorite: "favorite" as const,
   preferenceId: "preferenceId" as const,
   preferredComplexity: "preferredComplexity" as const,
@@ -18098,6 +18140,7 @@ export const enumPreferenceUpdateColumn = {
   preferredTone: "preferredTone" as const,
   preferredType: "preferredType" as const,
   userId: "userId" as const,
+  webSearch: "webSearch" as const,
 };
 
 export const enumPromptChatbotConstraint = {

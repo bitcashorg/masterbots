@@ -51,7 +51,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 	}
 	const domain = getCanonicalDomain(chatbotName as string)
 	return {
-		...generateMetadataFromSEO(seoData, params),
+		...(await generateMetadataFromSEO(seoData, params)),
 		alternates: {
 			canonical: urlBuilders.chatbotThreadListUrl({
 				type: 'public',

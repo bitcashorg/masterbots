@@ -15,6 +15,7 @@ import {
 import { userFollowOrUnfollow } from '@/services/hasura/hasura.service'
 import { type Message, useChat } from '@ai-sdk/react'
 import {
+	BadgeCheck,
 	BookUser,
 	BotIcon,
 	ImagePlus,
@@ -335,8 +336,11 @@ export function UserCard({ user: userProps, loading }: UserCardProps) {
 				<>
 					{/* Profile Name */}
 					<div className="px-5 pb-2 pt-7 flex flex-col gap-2.5">
-						<h2 className="text-xl font-semibold capitalize md:text-2xl">
-							{userData?.username}
+						<h2 className="flex items-center gap-2 text-xl font-semibold md:text-2xl">
+							@{userData?.username?.toLowerCase()}
+							{userData?.proUserSubscriptionId && (
+								<BadgeCheck className="size-5 text-[#BE17E8] dark:text-[#83E56A]" />
+							)}
 						</h2>
 						{userData?.threads && userData?.threads?.length > 0 && (
 							<div className="flex items-center space-x-1 md:hidden">

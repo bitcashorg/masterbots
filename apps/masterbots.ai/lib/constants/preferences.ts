@@ -14,12 +14,20 @@ export const preferences = [
 				title: 'Masterbots Theme',
 				description: 'Change the default theme for the Masterbots site.',
 				type: 'switch',
+				props: {
+					switchId: 'theme',
+					switchName: 'theme',
+				},
 			},
 			{
 				title: 'Default Font Size',
 				description:
 					'Change overall font-size website (does not change your browser font-size).',
 				type: 'toggleGroup',
+				props: {
+					switchId: 'font-size',
+					switchName: 'font-size',
+				},
 			},
 		] as PreferenceItemType[],
 	},
@@ -31,12 +39,20 @@ export const preferences = [
 				description:
 					'Enable web search on every new thread created and on every request by default.',
 				type: 'switch',
+				props: {
+					switchId: 'web-search',
+					switchName: 'web-search',
+				},
 			},
 			{
 				title: 'Always Pro Mode',
 				description:
 					'Enable pro mode on every new thread created and on every request by default.',
 				type: 'switch',
+				props: {
+					switchId: 'deep-expertise',
+					switchName: 'deep-expertise',
+				},
 			},
 		] as PreferenceItemType[],
 	},
