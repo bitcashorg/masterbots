@@ -20,7 +20,7 @@
  * Props:
  * - user: An object containing the user's email and name
  */
-import { checkIfCustomerHasActiveSub } from '@/app/actions/subscriptions'
+import { checkIfCustomerHasActiveSub } from '@/app/actions/subscriptions.actions'
 import { Checkout } from '@/components/routes/subscription/checkout'
 import { WrappedPaymentInformation } from '@/components/routes/subscription/payment-information'
 import { Plans } from '@/components/routes/subscription/plans'

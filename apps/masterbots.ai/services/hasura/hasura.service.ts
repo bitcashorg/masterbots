@@ -60,50 +60,6 @@ function getHasuraClient({ jwt, adminSecret, signal }: GetHasuraClientParams) {
 	})
 }
 
-export async function doesThreadSlugExist(slug: string) {
-	const client = getHasuraClient({})
-	const { thread } = await client.query({
-		thread: {
-			slug: true,
-			__args: {
-				where: {
-					slug: {
-						_eq: slug,
-					},
-				},
-			},
-		},
-	})
-	return {
-		exists: thread.length > 0,
-		slug: thread[0]?.slug,
-		sequence:
-			Number.parseFloat(thread[0]?.slug.split('-').pop() as string) || 0,
-	}
-}
-
-export async function doesMessageSlugExist(slug: string) {
-	const client = getHasuraClient({})
-	const { message } = await client.query({
-		message: {
-			slug: true,
-			__args: {
-				where: {
-					slug: {
-						_eq: slug,
-					},
-				},
-			},
-		},
-	})
-	return {
-		exists: message.length > 0,
-		slug: message[0]?.slug,
-		sequence:
-			Number.parseFloat(message[0]?.slug.split('-').pop() as string) || 0,
-	}
-}
-
 export async function getCategories(userId?: string) {
 	const client = getHasuraClient({})
 	const { category } = await client.query({
