@@ -1,6 +1,6 @@
 'use client'
 
-import { fetchPayment } from '@/app/actions/subscriptions'
+import { fetchPayment } from '@/app/actions/subscriptions.actions'
 import Subscription from '@/components/routes/subscription/subscription'
 import { Button } from '@/components/ui/button'
 import { IconArrowRight, IconCreditCard, IconHelp } from '@/components/ui/icons'
