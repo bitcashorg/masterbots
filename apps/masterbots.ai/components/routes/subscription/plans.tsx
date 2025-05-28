@@ -23,7 +23,7 @@
  * - goTo: Function to navigate to a specific step in the wizard
  */
 
-import { getSubscriptionPlans } from '@/app/actions/subscriptions'
+import { getSubscriptionPlans } from '@/app/actions/subscriptions.actions'
 import PlanCard from '@/components/routes/subscription/plan-card'
 import { IconArrowRightNoFill } from '@/components/ui/icons'
 import { usePayment } from '@/lib/hooks/use-payment'
