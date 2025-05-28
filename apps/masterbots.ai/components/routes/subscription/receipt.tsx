@@ -21,7 +21,7 @@
  * Props:
  * - intentid: The payment intent ID used to fetch payment details
  */
-import { fetchPayment } from '@/app/actions/subscriptions'
+import { fetchPayment } from '@/app/actions/subscriptions.actions'
 import { IconCreditCard, IconHelp } from '@/components/ui/icons'
 import { getDate } from '@/lib/utils'
 import Link from 'next/link'
