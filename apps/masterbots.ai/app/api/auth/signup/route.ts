@@ -1,10 +1,10 @@
 'use server'
 
 import crypto from 'node:crypto'
+import { insertAdminUserPreferences } from '@/app/actions/admin.actions'
 import { sendEmailVerification } from '@/lib/email'
 import { generateUsername } from '@/lib/username'
 import { delayFetch } from '@/lib/utils'
-import { insertAdminUserPreferences } from '@/services/admin/admin.service'
 import bcryptjs from 'bcryptjs'
 import { appConfig } from 'mb-env'
 import { getHasuraClient, toSlug } from 'mb-lib'
