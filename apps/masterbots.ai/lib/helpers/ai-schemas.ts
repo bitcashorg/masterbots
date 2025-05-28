@@ -1,4 +1,4 @@
-import { ChatbotMetadataTool, getWebSearchTool } from '@/app/actions'
+import { ChatbotMetadataTool } from '@/app/actions'
 import { z } from 'zod'
 
 // ? schema output for webSearch (Non-WordWare)
@@ -12,20 +12,20 @@ export const webSearch = z.object({
 })
 
 export const aiTools = {
-	webSearch: {
-		description:
-			'Use to conduct a web search to gather relevant information based on the user query. ' +
-			'Ensure the search results and sources are returned in the specified format and links. ' +
-			'**Adhere strictly to any provided output examples.**',
-		parameters: z.object({
-			query: z
-				.string()
-				.describe(
-					`The search query to use for retrieving results as of ${new Date()}.`,
-				),
-		}),
-		execute: getWebSearchTool,
-	},
+	// webSearch: {
+	// 	description:
+	// 		'Use to conduct a web search to gather relevant information based on the user query. ' +
+	// 		'Ensure the search results and sources are returned in the specified format and links. ' +
+	// 		'**Adhere strictly to any provided output examples.**',
+	// 	parameters: z.object({
+	// 		query: z
+	// 			.string()
+	// 			.describe(
+	// 				`The search query to use for retrieving results as of ${new Date()}.`,
+	// 			),
+	// 	}),
+	// 	execute: getWebSearchTool,
+	// },
 	chatbotMetadataExamples: {
 		description:
 			'Fetch metadata for a specified chatbot and user content to support Retrieval-Augmented Generation and In-Context Learning.',
