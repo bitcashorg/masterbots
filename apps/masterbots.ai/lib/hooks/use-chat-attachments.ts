@@ -1,3 +1,4 @@
+import { MAX_HEIGHT, MAX_WIDTH } from '@/lib/constants/hasura'
 import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useModel } from '@/lib/hooks/use-model'
 import { useThread } from '@/lib/hooks/use-thread'
@@ -115,25 +116,84 @@ export function useFileAttachments(
 				return
 			}
 
-			reader.onload = () => {
+			reader.onload = (readerEvent) => {
+				const event = readerEvent.target || reader
 				// Creating an base64 string from the file content
 				const attachmentUrl =
-					typeof reader.result === 'string'
-						? reader.result
-						: Buffer.from(reader.result as ArrayBuffer).toString('base64')
+					typeof event.result === 'string'
+						? event.result
+						: Buffer.from(event.result as ArrayBuffer).toString('base64')
 				const newAttachment: FileAttachment = {
 					id: nanoid(16),
 					name: attachmentFile?.name || '',
 					size: attachmentFile?.size || 0,
 					contentType: attachmentFile?.type || '',
-					content: reader.result,
+					// * Raw content can be a string or an ArrayBuffer
+					content: event.result,
+					// * Compressed URL to the attachment
 					url: attachmentUrl,
 					isSelected: true,
 					messageIds: [],
 				}
-				setState((prev) => ({
-					attachments: [...prev.attachments, newAttachment],
-				}))
+
+				// ? We pass the new attachment as prop to ensure the latest attachment is always added
+				const updateAttachments = (updateNewAttachment: FileAttachment) => {
+					const updatedAttachments = [...state.attachments, updateNewAttachment]
+
+					setState({ attachments: updatedAttachments })
+				}
+
+				if (newAttachment.contentType.startsWith('image/')) {
+					const img = new Image()
+					img.src = attachmentUrl
+					img.onload = () => {
+						const canvas = document.createElement('canvas')
+						const ctx = canvas.getContext('2d')
+
+						if (!ctx) {
+							console.error('Failed to get canvas context')
+							updateAttachments(newAttachment)
+							return
+						}
+
+						let width = img.width
+						let height = img.height
+						// Calculate the new dimensions while maintaining aspect ratio
+						if (width > height) {
+							if (width > MAX_WIDTH) {
+								height *= MAX_WIDTH / width
+								width = MAX_WIDTH
+							}
+						} else {
+							if (height > MAX_HEIGHT) {
+								width *= MAX_HEIGHT / height
+								height = MAX_HEIGHT
+							}
+						}
+						canvas.width = width
+						canvas.height = height
+						// Draw the image on the canvas
+						ctx.drawImage(img, 0, 0, width, height)
+						// Compress the image and convert to JPEG format
+						canvas.toBlob(
+							(blob) => {
+								if (!blob) {
+									console.error('Failed to compress image')
+									updateAttachments(newAttachment)
+									return
+								}
+								// Update the attachment URL with the compressed image
+								newAttachment.url = URL.createObjectURL(blob)
+							},
+							'image/jpeg',
+							0.9,
+						) // 0.9 is the quality parameter (0 to 1)
+
+						updateAttachments(newAttachment)
+					}
+				} else {
+					updateAttachments(newAttachment)
+				}
 			}
 
 			if (appConfig.features.devMode) {

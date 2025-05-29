@@ -1,4 +1,7 @@
+import { getUserThreadsMetadata, updateThreadMetadata } from '@/app/actions'
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
+import { Attachment } from 'ai'
+import { message } from 'mb-drizzle'
 import { appConfig } from 'mb-env'
 import { useEffect, useRef, useState } from 'react'
 
@@ -19,6 +22,9 @@ export function useIndexedDB({
 		}
 		dbRef.current = (event.target as IDBOpenDBRequest).result
 		setMounted(true)
+
+		// check if we have records in the store to update user threads metadata
+		getAllItems()
 	}
 
 	const onUpgradeNeeded = (event: IDBVersionChangeEvent) => {
@@ -78,16 +84,59 @@ export function useIndexedDB({
 		})
 	}
 
-	const getAllItems = (): Promise<IndexedDBItem[]> => {
-		return new Promise((resolve, reject) => {
+	const getAllItems = async (): Promise<IndexedDBItem[]> => {
+		return await new Promise((resolve, reject) => {
 			if (!db) return reject('Database not initialized')
 			const transaction = db.transaction(storeName, 'readonly')
 
 			const store = transaction.objectStore(storeName)
 			const request = store.getAll()
 
-			request.onsuccess = () => {
-				resolve(request.result)
+			request.onsuccess = async () => {
+				const attachments = request.result as IndexedDBItem[]
+				resolve(attachments)
+
+				if (appConfig.features.devMode) {
+					console.info('IndexedDB records:', attachments)
+				}
+
+				for (const attachment of attachments) {
+					for (const messageId of attachment.messageIds as string[]) {
+						const thread = await getUserThreadsMetadata(messageId)
+
+						if (!thread) {
+							if (appConfig.features.devMode) {
+								console.warn(
+									`No thread found for messageId: ${messageId}, skipping attachment update`,
+									attachment,
+								)
+							}
+							continue
+						}
+
+						const doesThreadMetadataExist = (
+							thread?.metadata as ThreadMetadata
+						)?.attachments?.some((att) => att.id === attachment.id)
+						if (doesThreadMetadataExist) {
+							if (appConfig.features.devMode) {
+								console.info(
+									'Attachment already exists in thread metadata, skipping update',
+									attachment,
+								)
+							}
+							continue
+						}
+
+						const newAttachments = (
+							(thread.metadata as ThreadMetadata)?.attachments || []
+						).filter((att) => att.id !== attachment.id)
+						newAttachments.push(attachment)
+
+						await updateThreadMetadata(thread.threadId, {
+							attachments: newAttachments,
+						})
+					}
+				}
 			}
 
 			request.onerror = () => {
@@ -115,3 +164,4 @@ export function useIndexedDB({
 }
 
 export type IndexedDBItem = FileAttachment | Record<string, unknown>
+export type ThreadMetadata = Record<string, IndexedDBItem[]>
