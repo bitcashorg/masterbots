@@ -171,6 +171,15 @@ function ThreadPopUpCardHeader({
 
 		if (isProfile) {
 			const slug = params.userSlug as string
+			console.log({
+				domain: canonicalDomain,
+				chatbot: activeThread?.chatbot?.name || '',
+				usernameSlug: slug,
+				category: activeThread?.chatbot?.categories?.[0]?.category?.name || '',
+				type: 'user',
+				urlType: 'profilesUrl',
+				shallow: true,
+			})
 			navigateTo({
 				urlType: 'profilesUrl',
 				shallow: true,

@@ -42,26 +42,12 @@ export default async function ThreadPage(props: ThreadPageProps) {
 		)
 	}
 
-	// This can be resuse later for  the blog view
-	// const { threadId } = thread
-	// const profileUrl = `/u/${params.userSlug}/t/${category}/${getCanonicalDomain(chatBotName)}/${chatbot}`
-
-	//Get threads for the user  similar to profile user/category/chatbot page
-
-	let threadsResult: {
-		threads: Thread[]
-		count: number
-	} = {
-		threads: [],
-		count: 0,
-	}
-
 	const jwt = session ? session.user?.hasuraJwt : ''
-	const { user, error } = await getUserBySlug({
+	const { user } = await getUserBySlug({
 		isSameUser: session?.user.slug === userSlug,
 		slug: userSlug as string,
 	})
-	if (!user) return <div>No user found</div>
+	if (!user) return <ErrorComponent message="User not found" />
 
 	const chatbotName = (await botNames).get(chatbot as string)
 	if (!chatbotName) {
@@ -97,26 +83,9 @@ export default async function ThreadPage(props: ThreadPageProps) {
 		}
 	}
 
-	threadsResult = await fetchThreads()
+	const threadsResult = await fetchThreads()
 
 	return (
-		// This can be resuse later for  the blog view
-		// <div className="w-full">
-		// 	<div className="sticky top-0 lg:p-10  mt-4 ml-2 lg:mt-0 pb-0 mx-auto bg-gray-50 dark:bg-zinc-900 z-10">
-		// 		<Link
-		// 			href={profileUrl}
-		// 			className="flex items-center leading-none gap-2 dark:text-white/80 text-[#09090BC3] dark:hover:text-white hover:text-[#09090B]"
-		// 		>
-		// 			<ChevronLeft className="size-4" />
-		// 			<span>Back </span>
-		// 		</Link>
-		// 	</div>
-		// 	<BrowseThreadBlog
-		// 		threadId={threadId}
-		// 		user={session?.user as unknown as User}
-		// 	/>
-		// </div>
-
 		<Suspense fallback={null}>
 			<UserThreadList
 				user={user as User}
