@@ -343,8 +343,6 @@ export function SharedAccordion({
 			return newState
 		})
 	}
-
-	console.log('hapeinig here', thread?.threadId, activeThread?.threadId)
 	return (
 		<div
 			ref={accordionRef}

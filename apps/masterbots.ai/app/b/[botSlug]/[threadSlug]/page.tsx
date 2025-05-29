@@ -9,7 +9,6 @@ import type { PageProps } from '@/types/types'
 import type { Metadata } from 'next'
 
 import { BotProfileThreadSection } from '@/components/routes/bot/bot-profile-thread-section'
-import { ErrorComponent } from '@/components/shared/error'
 import { botNames } from '@/lib/constants/bots-names'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { generateMbMetadata } from '@/lib/metadata'
