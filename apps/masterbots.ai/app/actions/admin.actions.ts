@@ -1,3 +1,5 @@
+'use server'
+
 import { and, eq, isNull } from 'drizzle-orm'
 import type { PgInsertValue, PgTableWithColumns } from 'drizzle-orm/pg-core'
 import { db, preference, user, userRole } from 'mb-drizzle'
