@@ -1907,3 +1907,32 @@ export async function insertPreferencesByUserId({
 		}
 	}
 }
+
+export async function getThreadMetadataBySlug({
+	slug,
+	jwt,
+}: {
+	slug: string
+	jwt?: string
+}): Promise<{ thread: Thread | null; error?: string }> {
+	try {
+		const client = getHasuraClient({ jwt })
+		const { thread } = await client.query({
+			thread: {
+				__args: {
+					where: { slug: { _eq: slug } },
+				},
+				metadata: true,
+			},
+		})
+
+		if (!thread || thread.length === 0) {
+			return { thread: null, error: 'Thread not found' }
+		}
+
+		return { thread: thread[0] as Thread, error: undefined }
+	} catch (error) {
+		console.error('Error fetching thread metadata by slug:', error)
+		return { thread: null, error: (error as Error).message }
+	}
+}

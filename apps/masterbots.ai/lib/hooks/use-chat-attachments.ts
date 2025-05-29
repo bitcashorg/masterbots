@@ -1,8 +1,8 @@
-import { MAX_HEIGHT, MAX_WIDTH } from '@/lib/constants/hasura'
 import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useModel } from '@/lib/hooks/use-model'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useSonner } from '@/lib/hooks/useSonner'
+import { getThreadMetadataBySlug } from '@/services/hasura'
 import type * as OpenAi from 'ai'
 import { appConfig } from 'mb-env'
 import { nanoid } from 'nanoid'
@@ -60,15 +60,6 @@ export function useFileAttachments(
 	const { activeThread } = useThread()
 	const dbKeys = getUserIndexedDBKeys(session?.user?.id)
 	const { mounted, ...indexedDBActions } = useIndexedDB(dbKeys)
-	const {
-		value: userAttachments,
-		loading,
-		error,
-	} = useAsync(async () => {
-		if (!mounted) return
-		return await indexedDBActions.getAllItems()
-	}, [session?.user, mounted, activeThread])
-
 	const [state, setState] = useSetState<{
 		isDragging: boolean
 		attachments: FileAttachment[]
@@ -76,6 +67,44 @@ export function useFileAttachments(
 		isDragging: false,
 		attachments: [],
 	})
+	const {
+		value: userAttachments,
+		loading,
+		error,
+	} = useAsync(async () => {
+		if (!mounted || !session?.user) return
+		const indexedDBAttachments = await indexedDBActions.getAllItems()
+		if (appConfig.features.devMode) {
+			console.info(
+				'IndexedDB attachments retrieved successfully',
+				indexedDBAttachments,
+			)
+		}
+		if (!indexedDBAttachments && activeThread) {
+			const { thread, error } = await getThreadMetadataBySlug({
+				jwt: session.user.hasuraJwt,
+				slug: activeThread.slug,
+			})
+
+			if (error) {
+				console.error('Failed to retrieve metadata', error)
+				throw new Error('Failed to retrieve metadata')
+			}
+			if (!thread?.metadata) {
+				console.warn('No thread found with the given slug')
+				return []
+			}
+
+			for (const attachment of thread.metadata.attachments) {
+				const item = {
+					...attachment,
+					isSelected: false,
+				}
+				indexedDBActions.addItem(item)
+			}
+		}
+	}, [session?.user, mounted, activeThread, state.attachments])
+
 	const { customSonner } = useSonner()
 	const { selectedModel } = useModel()
 
@@ -116,7 +145,12 @@ export function useFileAttachments(
 				return
 			}
 
-			reader.onload = (readerEvent) => {
+			reader.onload = async (readerEvent) => {
+				if (!attachmentFile) {
+					console.error('No file selected or file is not valid')
+					return
+				}
+
 				const event = readerEvent.target || reader
 				// Creating an base64 string from the file content
 				const attachmentUrl =
@@ -135,65 +169,9 @@ export function useFileAttachments(
 					isSelected: true,
 					messageIds: [],
 				}
+				const updatedAttachments = [...state.attachments, newAttachment]
 
-				// ? We pass the new attachment as prop to ensure the latest attachment is always added
-				const updateAttachments = (updateNewAttachment: FileAttachment) => {
-					const updatedAttachments = [...state.attachments, updateNewAttachment]
-
-					setState({ attachments: updatedAttachments })
-				}
-
-				if (newAttachment.contentType.startsWith('image/')) {
-					const img = new Image()
-					img.src = attachmentUrl
-					img.onload = () => {
-						const canvas = document.createElement('canvas')
-						const ctx = canvas.getContext('2d')
-
-						if (!ctx) {
-							console.error('Failed to get canvas context')
-							updateAttachments(newAttachment)
-							return
-						}
-
-						let width = img.width
-						let height = img.height
-						// Calculate the new dimensions while maintaining aspect ratio
-						if (width > height) {
-							if (width > MAX_WIDTH) {
-								height *= MAX_WIDTH / width
-								width = MAX_WIDTH
-							}
-						} else {
-							if (height > MAX_HEIGHT) {
-								width *= MAX_HEIGHT / height
-								height = MAX_HEIGHT
-							}
-						}
-						canvas.width = width
-						canvas.height = height
-						// Draw the image on the canvas
-						ctx.drawImage(img, 0, 0, width, height)
-						// Compress the image and convert to JPEG format
-						canvas.toBlob(
-							(blob) => {
-								if (!blob) {
-									console.error('Failed to compress image')
-									updateAttachments(newAttachment)
-									return
-								}
-								// Update the attachment URL with the compressed image
-								newAttachment.url = URL.createObjectURL(blob)
-							},
-							'image/jpeg',
-							0.9,
-						) // 0.9 is the quality parameter (0 to 1)
-
-						updateAttachments(newAttachment)
-					}
-				} else {
-					updateAttachments(newAttachment)
-				}
+				return setState({ attachments: updatedAttachments })
 			}
 
 			if (appConfig.features.devMode) {

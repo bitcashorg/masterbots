@@ -1,6 +1,9 @@
 import { getUserThreadsMetadata, updateThreadMetadata } from '@/app/actions'
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
+import { useUploadImagesCloudinary } from '@/lib/hooks/use-cloudinary-upload'
+import { logErrorToSentry } from '@/lib/sentry'
 import { Attachment } from 'ai'
+import { isEqual, uniqBy } from 'lodash'
 import { message } from 'mb-drizzle'
 import { appConfig } from 'mb-env'
 import { useEffect, useRef, useState } from 'react'
@@ -14,6 +17,10 @@ export function useIndexedDB({
 }) {
 	const dbRef = useRef<IDBDatabase | null>(null)
 	const [mounted, setMounted] = useState(false)
+	const [remoteThreadMetadata, setRemoteThreadMetadata] = useState<
+		IndexedDBItem[]
+	>([])
+	const { uploadFilesCloudinary } = useUploadImagesCloudinary()
 	const db = dbRef.current
 
 	const onMountSuccess = (event: Event) => {
@@ -100,7 +107,17 @@ export function useIndexedDB({
 					console.info('IndexedDB records:', attachments)
 				}
 
-				for (const attachment of attachments) {
+				if (isEqual(remoteThreadMetadata, attachments)) {
+					if (appConfig.features.devMode) {
+						console.info(
+							'No changes in IndexedDB records, skipping remote thread metadata update',
+							remoteThreadMetadata,
+						)
+					}
+					return
+				}
+
+				for (const attachment of attachments as FileAttachment[]) {
 					for (const messageId of attachment.messageIds as string[]) {
 						const thread = await getUserThreadsMetadata(messageId)
 
@@ -127,14 +144,72 @@ export function useIndexedDB({
 							continue
 						}
 
-						const newAttachments = (
+						const newAttachments =
 							(thread.metadata as ThreadMetadata)?.attachments || []
-						).filter((att) => att.id !== attachment.id)
-						newAttachments.push(attachment)
+						const base64Hash = (attachment.content as string).split(',')[1]
+						const attachmentContentBlob =
+							typeof attachment.content === 'string'
+								? atob(base64Hash)
+								: new Uint8Array(attachment.content as ArrayBuffer).reduce(
+										(data, byte) => data + String.fromCharCode(byte),
+										'',
+									)
+						const attachmentConfig = {
+							type: attachment.contentType,
+						}
+						const attachmentContentArray = new Uint8Array(
+							attachmentContentBlob.length,
+						)
 
-						await updateThreadMetadata(thread.threadId, {
-							attachments: newAttachments,
+						// Convert the string content to a Uint8Array
+						for (let i = 0; i < attachmentContentBlob.length; i++) {
+							attachmentContentArray[i] = attachmentContentBlob.charCodeAt(i)
+						}
+						const attachmentBlob = new Blob(
+							[attachmentContentArray],
+							attachmentConfig,
+						)
+						const attachmentFile = new File(
+							[attachmentBlob],
+							attachment.name,
+							attachmentConfig,
+						)
+						const uploadResults = await uploadFilesCloudinary(attachmentFile, {
+							transformation: 'c_scale,w_1280,h_1280',
+							uploadPreset: 'ml_default',
+							folder: `masterbots/${thread.slug}`,
 						})
+
+						if (!uploadResults.success || !uploadResults.data) {
+							console.error(
+								'Failed to upload file to Cloudinary',
+								attachment,
+								uploadResults.error,
+							)
+							logErrorToSentry(
+								(uploadResults.error as Error)?.message ||
+									'Failed to upload file to Cloudinary',
+								{
+									error: uploadResults.error,
+									message: 'Failed to complete chat.',
+									level: 'error',
+									extra: {
+										attachmentName: attachment.name,
+										attachmentContentType: attachment.contentType,
+										attachmentMessageIds: attachment.messageIds,
+										threadSlug: thread.slug,
+									},
+								},
+							)
+						} else {
+							attachment.url = uploadResults.data.secure_url
+						}
+
+						newAttachments.push(attachment)
+						await updateThreadMetadata(thread.threadId, {
+							attachments: uniqBy(newAttachments, 'id'),
+						})
+						setRemoteThreadMetadata(newAttachments)
 					}
 				}
 			}

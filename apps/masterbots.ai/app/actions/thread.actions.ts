@@ -35,6 +35,7 @@ export async function getUserThreadsMetadata(messageId: string) {
 	const results = await db
 		.select({
 			threadId: thread.threadId,
+			slug: thread.slug,
 			metadata: thread.metadata,
 		})
 		.from(thread)

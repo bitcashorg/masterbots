@@ -32,7 +32,7 @@ export const appConfig = {
 	},
 	cloudinary: {
 		url: `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
-		upload_preset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || '',
+		uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || '',
 		transformation: process.env.NEXT_PUBLIC_CLOUDINARY_TRANSFORMATION || '',
 	},
 	database: {
