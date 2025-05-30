@@ -19,7 +19,7 @@ import {
 import { IconSpinner } from '@/components/ui/icons'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { useSonner } from '@/lib/hooks/useSonner'
-import { urlBuilders } from '@/lib/url'
+import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { cn } from '@/lib/utils'
 import { Eye, EyeOff, MoreVertical, Trash } from 'lucide-react'
 import type { Thread } from 'mb-genql'
@@ -41,10 +41,15 @@ export function ChatOptions({ threadId, thread }: ChatOptionsProps) {
 	const title = thread?.messages[0]?.content ?? 'Untitled'
 	const text =
 		thread?.messages[1]?.content.substring(0, 100) ?? 'No description found...'
+	const canonicalDomain = getCanonicalDomain(thread?.chatbot?.name || '')
+
 	const url = urlBuilders.profilesThreadUrl({
-		type: 'chatbot',
-		chatbot: toSlug(thread.chatbot.name),
+		type: 'user',
 		threadSlug: thread.slug,
+		category: thread.chatbot.categories[0]?.category.name,
+		chatbot: toSlug(thread.chatbot.name),
+		usernameSlug: thread?.user?.slug,
+		domain: canonicalDomain,
 	})
 	const [isDeleteOpen, setIsDeleteOpen] = useState(false)
 	const [isDeleting, setIsDeleting] = useState(false)
