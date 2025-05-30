@@ -1,10 +1,16 @@
 import { BrowseThread } from '@/components/routes/browse/browse-thread'
-import { getCategory, getThread } from '@/services/hasura'
+import {
+	getBrowseThreads,
+	getCategory,
+	getChatbot,
+	getThread,
+} from '@/services/hasura'
 import type { PageProps } from '@/types/types'
 import type { Metadata } from 'next'
 
-import { ErrorComponent } from '@/components/shared/error'
+import { BotProfileThreadSection } from '@/components/routes/bot/bot-profile-thread-section'
 import { botNames } from '@/lib/constants/bots-names'
+import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { generateMbMetadata } from '@/lib/metadata'
 import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 
@@ -33,17 +39,27 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 
 export default async function ChatbotThreadArticlePage(props: PageProps) {
 	const params = await props.params
-	const thread = await getThread({
-		threadSlug: params.threadSlug,
+
+	const chatbotName = (await botNames).get(params.botSlug as string)
+
+	const chatbot = await getChatbot({
+		chatbotName,
 		jwt: '',
+		threads: true,
+	})
+	if (!chatbot) throw new Error(`Chatbot ${chatbotName} not found`)
+
+	// session will always be defined
+	const { threads, count } = await getBrowseThreads({
+		chatbotName,
+		limit: PAGE_SIZE,
 	})
 
-	if (!thread) {
-		// create a 404 page and return to home page
-		return (
-			<ErrorComponent message="The thread that you were looking for either doesn't exist or is not available." />
-		)
-	}
-
-	return <BrowseThread thread={thread} />
+	return (
+		<BotProfileThreadSection
+			threads={threads}
+			count={count}
+			chatbot={chatbot}
+		/>
+	)
 }
