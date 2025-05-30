@@ -1,7 +1,9 @@
 /* eslint-disable no-unused-vars */
 import { ChatMessage } from '@/components/routes/chat/chat-message'
 import { ReasoningChatMessage } from '@/components/routes/chat/reasoning/reasoning-chat-message'
+import { ImageMessageComponent } from '@/components/shared/image-message'
 import { hasReasoning } from '@/lib/helpers/ai-helpers'
+import { isImageMessage } from '@/types/types'
 import type { SendMessageFromResponseMessageData } from '@/types/types'
 
 type MessageRendererProps = {
@@ -30,6 +32,17 @@ export function MessageRenderer({
 }: MessageRendererProps) {
 	//? Determine if the message has reasoning content
 	const messageHasReasoning = hasReasoning(message)
+
+	//? Check if the message is an image message
+	if (isImageMessage(message)) {
+		return (
+			<ImageMessageComponent
+				message={message}
+				actionRequired={actionRequired}
+				{...props}
+			/>
+		)
+	}
 
 	//? Render the appropriate component based on whether reasoning exists
 	if (messageHasReasoning) {
