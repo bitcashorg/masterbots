@@ -6,7 +6,8 @@
 	"types": "./src/index.ts",
 	"scripts": {
 		"generate": "drizzle-kit generate",
-		"push": "drizzle-kit push:pg",
+		"push": "drizzle-kit push",
+		"pull": "drizzle-kit pull",
 		"studio": "drizzle-kit studio",
 		"migrate": "bun ./src/migrate.ts"
 	},

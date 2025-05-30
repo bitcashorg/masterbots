@@ -71,8 +71,11 @@ export function AttachmentsDisplay({
 				<ul className="flex flex-nowrap gap-2 px-2 py-1 mb-2 scrollbar w-full">
 					{attachments.map((attachment) => {
 						const { id, url, name, contentType } = attachment as FileAttachment
+						console.log('attachment', attachment)
 						const base64Hash = url.split(',')[1]
-						const readableTextContent = atob(base64Hash)
+						const readableTextContent = contentType.includes('image')
+							? ''
+							: atob(base64Hash)
 
 						return (
 							<motion.li

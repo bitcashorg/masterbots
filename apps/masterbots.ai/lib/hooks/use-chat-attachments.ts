@@ -2,6 +2,7 @@ import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
 import { useModel } from '@/lib/hooks/use-model'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useSonner } from '@/lib/hooks/useSonner'
+import { getThreadMetadataBySlug } from '@/services/hasura'
 import type * as OpenAi from 'ai'
 import { appConfig } from 'mb-env'
 import { nanoid } from 'nanoid'
@@ -59,15 +60,6 @@ export function useFileAttachments(
 	const { activeThread } = useThread()
 	const dbKeys = getUserIndexedDBKeys(session?.user?.id)
 	const { mounted, ...indexedDBActions } = useIndexedDB(dbKeys)
-	const {
-		value: userAttachments,
-		loading,
-		error,
-	} = useAsync(async () => {
-		if (!mounted) return
-		return await indexedDBActions.getAllItems()
-	}, [session?.user, mounted, activeThread])
-
 	const [state, setState] = useSetState<{
 		isDragging: boolean
 		attachments: FileAttachment[]
@@ -75,6 +67,44 @@ export function useFileAttachments(
 		isDragging: false,
 		attachments: [],
 	})
+	const {
+		value: userAttachments,
+		loading,
+		error,
+	} = useAsync(async () => {
+		if (!mounted || !session?.user) return
+		const indexedDBAttachments = await indexedDBActions.getAllItems()
+		if (appConfig.features.devMode) {
+			console.info(
+				'IndexedDB attachments retrieved successfully',
+				indexedDBAttachments,
+			)
+		}
+		if (!indexedDBAttachments && activeThread) {
+			const { thread, error } = await getThreadMetadataBySlug({
+				jwt: session.user.hasuraJwt,
+				slug: activeThread.slug,
+			})
+
+			if (error) {
+				console.error('Failed to retrieve metadata', error)
+				throw new Error('Failed to retrieve metadata')
+			}
+			if (!thread?.metadata) {
+				console.warn('No thread found with the given slug')
+				return []
+			}
+
+			for (const attachment of thread.metadata.attachments) {
+				const item = {
+					...attachment,
+					isSelected: false,
+				}
+				indexedDBActions.addItem(item)
+			}
+		}
+	}, [session?.user, mounted, activeThread, state.attachments])
+
 	const { customSonner } = useSonner()
 	const { selectedModel } = useModel()
 
@@ -115,25 +145,33 @@ export function useFileAttachments(
 				return
 			}
 
-			reader.onload = () => {
+			reader.onload = async (readerEvent) => {
+				if (!attachmentFile) {
+					console.error('No file selected or file is not valid')
+					return
+				}
+
+				const event = readerEvent.target || reader
 				// Creating an base64 string from the file content
 				const attachmentUrl =
-					typeof reader.result === 'string'
-						? reader.result
-						: Buffer.from(reader.result as ArrayBuffer).toString('base64')
+					typeof event.result === 'string'
+						? event.result
+						: Buffer.from(event.result as ArrayBuffer).toString('base64')
 				const newAttachment: FileAttachment = {
 					id: nanoid(16),
 					name: attachmentFile?.name || '',
 					size: attachmentFile?.size || 0,
 					contentType: attachmentFile?.type || '',
-					content: reader.result,
+					// * Raw content can be a string or an ArrayBuffer
+					content: event.result,
+					// * Compressed URL to the attachment
 					url: attachmentUrl,
 					isSelected: true,
 					messageIds: [],
 				}
-				setState((prev) => ({
-					attachments: [...prev.attachments, newAttachment],
-				}))
+				const updatedAttachments = [...state.attachments, newAttachment]
+
+				return setState({ attachments: updatedAttachments })
 			}
 
 			if (appConfig.features.devMode) {

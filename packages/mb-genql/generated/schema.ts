@@ -2227,6 +2227,7 @@ export interface Thread {
   messages: Message[];
   /** An aggregate relationship */
   messagesAggregate: MessageAggregate;
+  metadata: Scalars["jsonb"] | null;
   model: ModelsEnumEnum;
   /** An object relationship */
   modelsEnum: ModelsEnum;
@@ -2325,6 +2326,7 @@ export type ThreadSelectColumn =
   | "isApproved"
   | "isBlocked"
   | "isPublic"
+  | "metadata"
   | "model"
   | "parentThreadId"
   | "shortLink"
@@ -2376,6 +2378,7 @@ export type ThreadUpdateColumn =
   | "isApproved"
   | "isBlocked"
   | "isPublic"
+  | "metadata"
   | "model"
   | "parentThreadId"
   | "shortLink"
@@ -9588,6 +9591,15 @@ export interface ThreadGenqlSelection {
       where?: MessageBoolExp | null;
     };
   };
+  metadata?:
+    | {
+        __args: {
+          /** JSON select path */
+          path?: Scalars["String"] | null;
+        };
+      }
+    | boolean
+    | number;
   model?: boolean | number;
   /** An object relationship */
   modelsEnum?: ModelsEnumGenqlSelection;
@@ -9689,6 +9701,11 @@ export interface ThreadAggregateOrderBy {
   variance?: ThreadVarianceOrderBy | null;
 }
 
+/** append existing jsonb value of filtered columns with new jsonb value */
+export interface ThreadAppendInput {
+  metadata?: Scalars["jsonb"] | null;
+}
+
 /** input type for inserting array relation for remote table "thread" */
 export interface ThreadArrRelInsertInput {
   data: ThreadInsertInput[];
@@ -9721,6 +9738,7 @@ export interface ThreadBoolExp {
   isPublic?: BooleanComparisonExp | null;
   messages?: MessageBoolExp | null;
   messagesAggregate?: MessageAggregateBoolExp | null;
+  metadata?: JsonbComparisonExp | null;
   model?: ModelsEnumEnumComparisonExp | null;
   modelsEnum?: ModelsEnumBoolExp | null;
   parentThreadId?: UuidComparisonExp | null;
@@ -9733,6 +9751,21 @@ export interface ThreadBoolExp {
   updatedAt?: TimestamptzComparisonExp | null;
   user?: UserBoolExp | null;
   userId?: UuidComparisonExp | null;
+}
+
+/** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+export interface ThreadDeleteAtPathInput {
+  metadata?: Scalars["String"][] | null;
+}
+
+/** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+export interface ThreadDeleteElemInput {
+  metadata?: Scalars["Int"] | null;
+}
+
+/** delete key/value pair or string element. key/value pairs are matched based on their key value */
+export interface ThreadDeleteKeyInput {
+  metadata?: Scalars["String"] | null;
 }
 
 /** input type for incrementing numeric columns in table "thread" */
@@ -9749,6 +9782,7 @@ export interface ThreadInsertInput {
   isBlocked?: Scalars["Boolean"] | null;
   isPublic?: Scalars["Boolean"] | null;
   messages?: MessageArrRelInsertInput | null;
+  metadata?: Scalars["jsonb"] | null;
   model?: ModelsEnumEnum | null;
   modelsEnum?: ModelsEnumObjRelInsertInput | null;
   parentThreadId?: Scalars["uuid"] | null;
@@ -9847,6 +9881,7 @@ export interface ThreadOrderBy {
   isBlocked?: OrderBy | null;
   isPublic?: OrderBy | null;
   messagesAggregate?: MessageAggregateOrderBy | null;
+  metadata?: OrderBy | null;
   model?: OrderBy | null;
   modelsEnum?: ModelsEnumOrderBy | null;
   parentThreadId?: OrderBy | null;
@@ -9866,6 +9901,11 @@ export interface ThreadPkColumnsInput {
   threadId: Scalars["uuid"];
 }
 
+/** prepend existing jsonb value of filtered columns with new jsonb value */
+export interface ThreadPrependInput {
+  metadata?: Scalars["jsonb"] | null;
+}
+
 /** input type for updating data in table "thread" */
 export interface ThreadSetInput {
   chatbotId?: Scalars["Int"] | null;
@@ -9873,6 +9913,7 @@ export interface ThreadSetInput {
   isApproved?: Scalars["Boolean"] | null;
   isBlocked?: Scalars["Boolean"] | null;
   isPublic?: Scalars["Boolean"] | null;
+  metadata?: Scalars["jsonb"] | null;
   model?: ModelsEnumEnum | null;
   parentThreadId?: Scalars["uuid"] | null;
   shortLink?: Scalars["String"] | null;
@@ -9933,6 +9974,7 @@ export interface ThreadStreamCursorValueInput {
   isApproved?: Scalars["Boolean"] | null;
   isBlocked?: Scalars["Boolean"] | null;
   isPublic?: Scalars["Boolean"] | null;
+  metadata?: Scalars["jsonb"] | null;
   model?: ModelsEnumEnum | null;
   parentThreadId?: Scalars["uuid"] | null;
   shortLink?: Scalars["String"] | null;
@@ -9955,8 +9997,18 @@ export interface ThreadSumOrderBy {
 }
 
 export interface ThreadUpdates {
+  /** append existing jsonb value of filtered columns with new jsonb value */
+  _append?: ThreadAppendInput | null;
+  /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+  _deleteAtPath?: ThreadDeleteAtPathInput | null;
+  /** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+  _deleteElem?: ThreadDeleteElemInput | null;
+  /** delete key/value pair or string element. key/value pairs are matched based on their key value */
+  _deleteKey?: ThreadDeleteKeyInput | null;
   /** increments the numeric columns with given value of the filtered values */
   _inc?: ThreadIncInput | null;
+  /** prepend existing jsonb value of filtered columns with new jsonb value */
+  _prepend?: ThreadPrependInput | null;
   /** sets the columns of the filtered rows to the given values */
   _set?: ThreadSetInput | null;
   /** filter the rows which have to be updated */
@@ -12737,8 +12789,18 @@ export interface mutation_rootGenqlSelection {
   /** update data of the table: "thread" */
   updateThread?: ThreadMutationResponseGenqlSelection & {
     __args: {
+      /** append existing jsonb value of filtered columns with new jsonb value */
+      _append?: ThreadAppendInput | null;
+      /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+      _deleteAtPath?: ThreadDeleteAtPathInput | null;
+      /** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+      _deleteElem?: ThreadDeleteElemInput | null;
+      /** delete key/value pair or string element. key/value pairs are matched based on their key value */
+      _deleteKey?: ThreadDeleteKeyInput | null;
       /** increments the numeric columns with given value of the filtered values */
       _inc?: ThreadIncInput | null;
+      /** prepend existing jsonb value of filtered columns with new jsonb value */
+      _prepend?: ThreadPrependInput | null;
       /** sets the columns of the filtered rows to the given values */
       _set?: ThreadSetInput | null;
       /** filter the rows which have to be updated */
@@ -12748,8 +12810,18 @@ export interface mutation_rootGenqlSelection {
   /** update single row of the table: "thread" */
   updateThreadByPk?: ThreadGenqlSelection & {
     __args: {
+      /** append existing jsonb value of filtered columns with new jsonb value */
+      _append?: ThreadAppendInput | null;
+      /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+      _deleteAtPath?: ThreadDeleteAtPathInput | null;
+      /** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+      _deleteElem?: ThreadDeleteElemInput | null;
+      /** delete key/value pair or string element. key/value pairs are matched based on their key value */
+      _deleteKey?: ThreadDeleteKeyInput | null;
       /** increments the numeric columns with given value of the filtered values */
       _inc?: ThreadIncInput | null;
+      /** prepend existing jsonb value of filtered columns with new jsonb value */
+      _prepend?: ThreadPrependInput | null;
       /** sets the columns of the filtered rows to the given values */
       _set?: ThreadSetInput | null;
       pkColumns: ThreadPkColumnsInput;
@@ -18275,6 +18347,7 @@ export const enumThreadSelectColumn = {
   isApproved: "isApproved" as const,
   isBlocked: "isBlocked" as const,
   isPublic: "isPublic" as const,
+  metadata: "metadata" as const,
   model: "model" as const,
   parentThreadId: "parentThreadId" as const,
   shortLink: "shortLink" as const,
@@ -18304,6 +18377,7 @@ export const enumThreadUpdateColumn = {
   isApproved: "isApproved" as const,
   isBlocked: "isBlocked" as const,
   isPublic: "isPublic" as const,
+  metadata: "metadata" as const,
   model: "model" as const,
   parentThreadId: "parentThreadId" as const,
   shortLink: "shortLink" as const,

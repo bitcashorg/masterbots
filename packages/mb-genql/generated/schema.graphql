@@ -9407,6 +9407,12 @@ type Thread {
     """
     where: MessageBoolExp
   ): MessageAggregate!
+  metadata(
+    """
+    JSON select path
+    """
+    path: String
+  ): jsonb
   model: ModelsEnumEnum!
 
   """
@@ -9540,6 +9546,13 @@ input ThreadAggregateOrderBy {
 }
 
 """
+append existing jsonb value of filtered columns with new jsonb value
+"""
+input ThreadAppendInput {
+  metadata: jsonb
+}
+
+"""
 input type for inserting array relation for remote table "thread"
 """
 input ThreadArrRelInsertInput {
@@ -9580,6 +9593,7 @@ input ThreadBoolExp {
   isPublic: BooleanComparisonExp
   messages: MessageBoolExp
   messagesAggregate: MessageAggregateBoolExp
+  metadata: JsonbComparisonExp
   model: ModelsEnumEnumComparisonExp
   modelsEnum: ModelsEnumBoolExp
   parentThreadId: UuidComparisonExp
@@ -9620,6 +9634,27 @@ enum ThreadConstraint {
 }
 
 """
+delete the field or element with specified path (for JSON arrays, negative integers count from the end)
+"""
+input ThreadDeleteAtPathInput {
+  metadata: [String!]
+}
+
+"""
+delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array
+"""
+input ThreadDeleteElemInput {
+  metadata: Int
+}
+
+"""
+delete key/value pair or string element. key/value pairs are matched based on their key value
+"""
+input ThreadDeleteKeyInput {
+  metadata: String
+}
+
+"""
 input type for incrementing numeric columns in table "thread"
 """
 input ThreadIncInput {
@@ -9637,6 +9672,7 @@ input ThreadInsertInput {
   isBlocked: Boolean
   isPublic: Boolean
   messages: MessageArrRelInsertInput
+  metadata: jsonb
   model: ModelsEnumEnum
   modelsEnum: ModelsEnumObjRelInsertInput
   parentThreadId: uuid
@@ -9753,6 +9789,7 @@ input ThreadOrderBy {
   isBlocked: OrderBy
   isPublic: OrderBy
   messagesAggregate: MessageAggregateOrderBy
+  metadata: OrderBy
   model: OrderBy
   modelsEnum: ModelsEnumOrderBy
   parentThreadId: OrderBy
@@ -9772,6 +9809,13 @@ primary key columns input for table: thread
 input ThreadPkColumnsInput {
   slug: String!
   threadId: uuid!
+}
+
+"""
+prepend existing jsonb value of filtered columns with new jsonb value
+"""
+input ThreadPrependInput {
+  metadata: jsonb
 }
 
 """
@@ -9802,6 +9846,11 @@ enum ThreadSelectColumn {
   column name
   """
   isPublic
+
+  """
+  column name
+  """
+  metadata
 
   """
   column name
@@ -9888,6 +9937,7 @@ input ThreadSetInput {
   isApproved: Boolean
   isBlocked: Boolean
   isPublic: Boolean
+  metadata: jsonb
   model: ModelsEnumEnum
   parentThreadId: uuid
   shortLink: String
@@ -9963,6 +10013,7 @@ input ThreadStreamCursorValueInput {
   isApproved: Boolean
   isBlocked: Boolean
   isPublic: Boolean
+  metadata: jsonb
   model: ModelsEnumEnum
   parentThreadId: uuid
   shortLink: String
@@ -10018,6 +10069,11 @@ enum ThreadUpdateColumn {
   """
   column name
   """
+  metadata
+
+  """
+  column name
+  """
   model
 
   """
@@ -10053,9 +10109,34 @@ enum ThreadUpdateColumn {
 
 input ThreadUpdates {
   """
+  append existing jsonb value of filtered columns with new jsonb value
+  """
+  _append: ThreadAppendInput
+
+  """
+  delete the field or element with specified path (for JSON arrays, negative integers count from the end)
+  """
+  _deleteAtPath: ThreadDeleteAtPathInput
+
+  """
+  delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array
+  """
+  _deleteElem: ThreadDeleteElemInput
+
+  """
+  delete key/value pair or string element. key/value pairs are matched based on their key value
+  """
+  _deleteKey: ThreadDeleteKeyInput
+
+  """
   increments the numeric columns with given value of the filtered values
   """
   _inc: ThreadIncInput
+
+  """
+  prepend existing jsonb value of filtered columns with new jsonb value
+  """
+  _prepend: ThreadPrependInput
 
   """
   sets the columns of the filtered rows to the given values
@@ -14588,9 +14669,34 @@ type mutation_root {
   """
   updateThread(
     """
+    append existing jsonb value of filtered columns with new jsonb value
+    """
+    _append: ThreadAppendInput
+
+    """
+    delete the field or element with specified path (for JSON arrays, negative integers count from the end)
+    """
+    _deleteAtPath: ThreadDeleteAtPathInput
+
+    """
+    delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array
+    """
+    _deleteElem: ThreadDeleteElemInput
+
+    """
+    delete key/value pair or string element. key/value pairs are matched based on their key value
+    """
+    _deleteKey: ThreadDeleteKeyInput
+
+    """
     increments the numeric columns with given value of the filtered values
     """
     _inc: ThreadIncInput
+
+    """
+    prepend existing jsonb value of filtered columns with new jsonb value
+    """
+    _prepend: ThreadPrependInput
 
     """
     sets the columns of the filtered rows to the given values
@@ -14608,9 +14714,34 @@ type mutation_root {
   """
   updateThreadByPk(
     """
+    append existing jsonb value of filtered columns with new jsonb value
+    """
+    _append: ThreadAppendInput
+
+    """
+    delete the field or element with specified path (for JSON arrays, negative integers count from the end)
+    """
+    _deleteAtPath: ThreadDeleteAtPathInput
+
+    """
+    delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array
+    """
+    _deleteElem: ThreadDeleteElemInput
+
+    """
+    delete key/value pair or string element. key/value pairs are matched based on their key value
+    """
+    _deleteKey: ThreadDeleteKeyInput
+
+    """
     increments the numeric columns with given value of the filtered values
     """
     _inc: ThreadIncInput
+
+    """
+    prepend existing jsonb value of filtered columns with new jsonb value
+    """
+    _prepend: ThreadPrependInput
 
     """
     sets the columns of the filtered rows to the given values
