@@ -1,4 +1,5 @@
 import {
+	getAllUserThreadMetadata,
 	getUserThreadsMetadata,
 	updateThreadMetadata,
 	uploadAttachmentToBucket,
@@ -7,7 +8,7 @@ import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import { useUploadImagesCloudinary } from '@/lib/hooks/use-cloudinary-upload'
 import { logErrorToSentry } from '@/lib/sentry'
 import { Attachment } from 'ai'
-import { isEqual, uniqBy } from 'lodash'
+import { isEqual, merge, uniqBy } from 'lodash'
 import { message } from 'mb-drizzle'
 import { appConfig } from 'mb-env'
 import { Thread } from 'mb-genql'
@@ -27,8 +28,6 @@ export function useIndexedDB({
 	const [remoteThreadMetadata, setRemoteThreadMetadata] = useState<
 		IndexedDBItem[]
 	>([])
-	const { uploadFilesCloudinary } = useUploadImagesCloudinary()
-	const db = dbRef.current
 
 	const onMountSuccess = (event: Event) => {
 		if (appConfig.features.devMode) {
@@ -38,7 +37,7 @@ export function useIndexedDB({
 		setMounted(true)
 
 		// check if we have records in the store to update user threads metadata
-		getAllItems()
+		// getAllItems()
 	}
 
 	const onUpgradeNeeded = (event: IDBVersionChangeEvent) => {
@@ -53,6 +52,7 @@ export function useIndexedDB({
 	}
 
 	const resetState = () => {
+		const db = dbRef.current
 		setMounted(false)
 		if (db) {
 			db.close()
@@ -75,6 +75,7 @@ export function useIndexedDB({
 	}, [dbName, storeName])
 
 	const addItem = (item: IndexedDBItem) => {
+		const db = dbRef.current
 		if (!db) return
 		const transaction = db.transaction(storeName, 'readwrite')
 		const store = transaction.objectStore(storeName)
@@ -83,6 +84,7 @@ export function useIndexedDB({
 
 	const getItem = (id: IDBValidKey): Promise<IndexedDBItem> => {
 		return new Promise((resolve, reject) => {
+			const db = dbRef.current
 			if (!db) return reject('Database not initialized')
 			const transaction = db.transaction(storeName, 'readonly')
 			const store = transaction.objectStore(storeName)
@@ -100,6 +102,7 @@ export function useIndexedDB({
 
 	const getAllItems = async (): Promise<IndexedDBItem[]> => {
 		return await new Promise((resolve, reject) => {
+			const db = dbRef.current
 			if (!db) return reject('Database not initialized')
 			const transaction = db.transaction(storeName, 'readonly')
 
@@ -113,49 +116,56 @@ export function useIndexedDB({
 					console.info('IndexedDB records:', attachments)
 				}
 
-				if (isEqual(remoteThreadMetadata, attachments)) {
+				let newAttachments: IndexedDBItem[] = attachments
+				const currentUserMetadata = await getAllUserThreadMetadata()
+
+				if (isEqual(newAttachments, currentUserMetadata)) {
 					if (appConfig.features.devMode) {
-						console.info(
-							'No changes in IndexedDB records, skipping remote thread metadata update',
-							remoteThreadMetadata,
-						)
+						console.warn('No update required. Local is sync with remote')
 					}
-					return resolve(attachments)
+					return resolve(newAttachments)
 				}
 
-				let newAttachments: IndexedDBItem[] = attachments
-
-				for (const attachment of attachments as FileAttachment[]) {
+				for (const attachment of newAttachments as FileAttachment[]) {
 					const thread = await getUserThreadsMetadata(attachment.messageIds)
 
 					if (!thread) {
 						if (appConfig.features.devMode) {
 							console.warn(
 								`No thread found for messageId: ${attachment.messageIds}, skipping attachment update`,
-								attachment,
+								attachment.id,
+								attachment.name,
 							)
 						}
 						continue
 					}
 
-					const doesThreadMetadataExist = (
-						thread?.metadata as ThreadMetadata
-					)?.attachments?.some((att) => att.id === attachment.id)
+					const remoteMetadataAttachments = (thread?.metadata as ThreadMetadata)
+						?.attachments
+					const doesThreadMetadataExist = remoteMetadataAttachments?.some(
+						(att) => att.id === attachment.id,
+					)
 
 					// If the attachment already exists in the thread metadata, skip updating it
 					if (doesThreadMetadataExist) {
 						if (appConfig.features.devMode) {
-							console.info(
+							console.warn(
 								'Attachment already exists in thread metadata, skipping update',
-								attachment,
+								attachment.id,
+								attachment.name,
 							)
 						}
 						continue
 					}
 
 					// Ensuring remote would have the latest attachments related messageIds
-					newAttachments = (
-						(thread.metadata as ThreadMetadata)?.attachments || []
+					newAttachments = uniqBy(
+						[
+							...((thread.metadata as ThreadMetadata | null)?.attachments ||
+								[]),
+							...newAttachments,
+						],
+						'id',
 					).map((att) => {
 						if (att.id === attachment.id) {
 							att.messageIds = attachment.messageIds
@@ -163,25 +173,32 @@ export function useIndexedDB({
 						return att
 					})
 
-					const { data: uploadAttachmentData } = await fetchJson<{
-						data: FileAttachment | null
-						error: string | null
-					}>('/api/attachments/upload', {
-						method: 'POST',
-						body: JSON.stringify({
-							attachment,
-							thread,
-						}),
-						headers: {
-							'Content-Type': 'application/json',
-						},
-					})
+					try {
+						const { data: uploadAttachmentData } = await fetchJson<{
+							data: FileAttachment | null
+							error: string | null
+						}>('/api/attachments/upload', {
+							method: 'POST',
+							body: JSON.stringify({
+								attachment,
+								thread,
+							}),
+							headers: {
+								'Content-Type': 'application/json',
+							},
+						})
 
-					if (uploadAttachmentData) {
-						attachment.url = uploadAttachmentData.url
-						attachment.size = uploadAttachmentData.size
-						attachment.contentType = uploadAttachmentData.contentType
-						attachment.name = uploadAttachmentData.name
+						if (uploadAttachmentData) {
+							attachment.url = uploadAttachmentData.url
+							attachment.size = uploadAttachmentData.size
+							attachment.contentType = uploadAttachmentData.contentType
+							attachment.name = uploadAttachmentData.name
+						}
+					} catch (error) {
+						console.error(
+							'Failed to upload the attachment to the bucket: ',
+							error,
+						)
 					}
 
 					newAttachments.push(attachment)
@@ -191,7 +208,29 @@ export function useIndexedDB({
 				}
 
 				setRemoteThreadMetadata(newAttachments)
-				resolve(newAttachments)
+
+				// If new attachments are not equal from remote/local
+				if (!isEqual(attachments, newAttachments)) {
+					console.log(
+						'Detected attachments not equal with new attachments hence, either the new attachments or local has to be updates',
+						{
+							newAttachments: {
+								length: newAttachments.length,
+								msgIds: newAttachments.map(
+									(att) => (att.messageIds as string[]).length,
+								),
+							},
+							attachments: {
+								length: attachments.length,
+								msgIds: attachments.map(
+									(att) => (att.messageIds as string[]).length,
+								),
+							},
+						},
+					)
+				}
+
+				return resolve(newAttachments)
 			}
 
 			request.onerror = () => {
@@ -201,6 +240,7 @@ export function useIndexedDB({
 	}
 
 	const updateItem = (id: string, updatedItem: IndexedDBItem) => {
+		const db = dbRef.current
 		if (!db) return
 		const transaction = db.transaction(storeName, 'readwrite')
 		const store = transaction.objectStore(storeName)
@@ -209,6 +249,7 @@ export function useIndexedDB({
 	}
 
 	const deleteItem = (id: number) => {
+		const db = dbRef.current
 		if (!db) return
 		const transaction = db.transaction(storeName, 'readwrite')
 		const store = transaction.objectStore(storeName)

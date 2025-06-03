@@ -1,8 +1,9 @@
 'use server'
 
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
+import type { ThreadMetadata } from '@/lib/hooks/use-indexed-db'
 import { Storage } from '@google-cloud/storage'
-import { eq, inArray } from 'drizzle-orm'
+import { eq, inArray, isNotNull } from 'drizzle-orm'
 import { db, message, thread } from 'mb-drizzle'
 import { appConfig } from 'mb-env'
 
@@ -48,6 +49,23 @@ export async function getUserThreadsMetadata(messageIds: string[]) {
 	if (results.length === 0) return null
 
 	return results[0]
+}
+
+export async function getAllUserThreadMetadata() {
+	const results = await db
+		.select({
+			metadata: thread.metadata,
+		})
+		.from(thread)
+		.where(isNotNull(thread.metadata))
+
+	if (results.length === 0) return null
+
+	const metadata = results.flatMap(
+		(result) => (result.metadata as ThreadMetadata).attachments,
+	)
+
+	return metadata
 }
 
 export async function updateThreadMetadata(
@@ -97,6 +115,26 @@ export async function uploadAttachmentToBucket({
 	const storage = new Storage({
 		projectId: appConfig.features.storageProjectId,
 	})
+	console.log('Initializing Google Cloud Storage client', {
+		projectId: appConfig.features.storageProjectId,
+		bucketName: appConfig.features.storageBucketName,
+	})
+	const [buckets] = await storage.getBuckets()
+
+	console.log(
+		' Available buckets:',
+		buckets.map((b) => b.name),
+	)
+
+	if (
+		!buckets.some(
+			(bucket) => bucket.name === appConfig.features.storageBucketName,
+		)
+	) {
+		throw new Error(
+			`Storage bucket ${appConfig.features.storageBucketName} does not exist`,
+		)
+	}
 	const bucket = storage.bucket(appConfig.features.storageBucketName)
 	const fileUpload = bucket.file(bucketKey)
 

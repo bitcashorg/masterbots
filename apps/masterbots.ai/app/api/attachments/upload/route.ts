@@ -39,7 +39,6 @@ export async function POST(request: Request) {
 			}),
 		)
 	} catch (error) {
-		console.error('Failed to upload file to Bucket', attachment)
 		logErrorToSentry(
 			(error as Error)?.message || 'Failed to upload file to Bucket',
 			{

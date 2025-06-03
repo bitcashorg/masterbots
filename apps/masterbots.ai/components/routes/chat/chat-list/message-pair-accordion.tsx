@@ -45,7 +45,7 @@ export function MessagePairAccordion({
 	const { navigateTo } = useSidebar()
 	const isPrevious = type === 'previous'
 	const [isAccordionFocused, setIsAccordionFocused] = useState<boolean>(
-		!index && !isThread,
+		!isThread,
 	)
 	const params = useParams()
 	const pathname = usePathname()
@@ -227,18 +227,7 @@ export function MessagePairAccordion({
 					)}
 				</AnimatePresence>
 				{shouldShowUserMessage && (
-					<>
-						<MessageRenderer
-							actionRequired={false}
-							message={pair.userMessage}
-						/>
-						{!isThread && index !== 0 && (
-							<AttachmentCards
-								userAttachments={userAttachments}
-								isAccordionFocused={isAccordionFocused}
-							/>
-						)}
-					</>
+					<MessageRenderer actionRequired={false} message={pair.userMessage} />
 				)}
 			</div>
 			{/* Thread Description */}
@@ -283,7 +272,7 @@ export function MessagePairAccordion({
 				{pair.chatGptMessage.length > 0
 					? pair.chatGptMessage.map((message) => (
 							<Fragment key={message.id}>
-								{index === 0 && !isThread && (
+								{!isThread && (
 									<AttachmentCards
 										userAttachments={userAttachments}
 										isAccordionFocused={isAccordionFocused}

@@ -1,10 +1,18 @@
 'use client'
 
 import { ThreadPopup } from '@/components/routes/thread/thread-popup'
+import {
+	Breadcrumb,
+	BreadcrumbItem,
+	BreadcrumbLink,
+	BreadcrumbList,
+	BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb'
 import { useProfile } from '@/lib/hooks/use-profile'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
 import { useThread } from '@/lib/hooks/use-thread'
 import { cn } from '@/lib/utils'
+import { DotIcon } from 'lucide-react'
 import { useParams, usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { useAsync } from 'react-use'
@@ -89,16 +97,23 @@ export const UserProfileSidebar = ({
 				})}
 			>
 				{!isMainProfilePage && (
-					<nav className="flex items-center px-4 py-2 text-sm text-gray-600 dark:text-gray-400">
-						<a
-							href={`/u/${userSlug}/t`}
-							className="hover:underline text-blue-500 dark:text-blue-400"
-						>
-							profile
-						</a>
-						<span className="mx-2 font-black text-base leading-none">·</span>
-						{currentPage}
-					</nav>
+					<Breadcrumb className="px-4 py-2">
+						<BreadcrumbList>
+							<BreadcrumbItem>
+								<BreadcrumbLink href={`/u/${userSlug}/t`}>
+									Profile
+								</BreadcrumbLink>
+							</BreadcrumbItem>
+							<BreadcrumbSeparator>
+								<DotIcon className="size-5" />
+							</BreadcrumbSeparator>
+							<BreadcrumbItem>
+								<BreadcrumbLink href="#" className="capitalize">
+									{currentPage}
+								</BreadcrumbLink>
+							</BreadcrumbItem>
+						</BreadcrumbList>
+					</Breadcrumb>
 				)}
 				<div className="flex flex-col w-full gap-10 pt-5 mb-10 mx-auto flex-grow ">
 					{children}

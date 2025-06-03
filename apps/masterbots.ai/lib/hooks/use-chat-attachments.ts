@@ -57,7 +57,7 @@ export function useFileAttachments(
 	},
 ] {
 	const { data: session } = useSession()
-	const { activeThread } = useThread()
+	const { activeThread, isOpenPopup } = useThread()
 	const dbKeys = getUserIndexedDBKeys(session?.user?.id)
 	const { mounted, ...indexedDBActions } = useIndexedDB(dbKeys)
 	const [state, setState] = useSetState<{
@@ -82,7 +82,7 @@ export function useFileAttachments(
 			)
 		}
 		return indexedDBAttachments
-	}, [session?.user, mounted, activeThread?.messages, state.attachments])
+	}, [session?.user, mounted, activeThread])
 
 	const { customSonner } = useSonner()
 	const { selectedModel } = useModel()

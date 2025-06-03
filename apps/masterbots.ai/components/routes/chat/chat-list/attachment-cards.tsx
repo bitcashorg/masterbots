@@ -1,4 +1,15 @@
+import { Button } from '@/components/ui/button'
 import { Card, CardDescription, CardTitle } from '@/components/ui/card'
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog'
 import {
 	Tooltip,
 	TooltipContent,
@@ -7,7 +18,7 @@ import {
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import { cn } from '@/lib/utils'
 import { AnimatePresence, type MotionProps, motion } from 'framer-motion'
-import { FileIcon } from 'lucide-react'
+import { FileIcon, Maximize2Icon, Minimize2Icon } from 'lucide-react'
 import Image from 'next/image'
 
 export const cardSlideUpShowAnimationProps: MotionProps = {
@@ -63,26 +74,90 @@ export function AttachmentCards({
 													</div>
 												)}
 											</CardTitle>
-											<Tooltip>
-												<TooltipTrigger asChild>
-													<CardDescription
-														className={cn(
-															'transition duration-300 absolute truncate bottom-0 px-3 py-1.5 w-full text-center bg-accent text-accent-foreground rounded-b-lg',
-															isAccordionFocused ? 'text-sm' : 'text-xs',
-														)}
+											<CardDescription
+												className={cn(
+													'transition duration-300 absolute bottom-0 w-full text-center bg-accent text-accent-foreground rounded-b-lg flex px-2 gap-1 items-center justify-between',
+													isAccordionFocused ? 'text-sm' : 'text-xs',
+												)}
+											>
+												<Tooltip>
+													<TooltipTrigger className="w-full py-1.5">
+														<span className="inline-block items-center align-middle truncate max-w-[62%]">
+															{name}
+														</span>{' '}
+														| {(attachment.size / 1024 / 1024).toFixed(2)}MB
+													</TooltipTrigger>
+													<TooltipContent
+														sideOffset={5}
+														side="top"
+														align="center"
+														className="px-2 py-1"
 													>
 														{name}
-													</CardDescription>
-												</TooltipTrigger>
-												<TooltipContent
-													sideOffset={5}
-													side="top"
-													align="center"
-													className="px-2 py-1"
-												>
-													{name}
-												</TooltipContent>
-											</Tooltip>
+													</TooltipContent>
+												</Tooltip>
+												<Dialog>
+													<DialogTrigger className="w-12" asChild>
+														<Button
+															variant="ghost"
+															size="icon"
+															radius="full"
+															className="py-1.5 h-auto"
+														>
+															<Maximize2Icon className="size-4" />
+														</Button>
+													</DialogTrigger>
+													<DialogContent className="min-w-[66vw] max-h-[90vh]">
+														<DialogTitle hidden>
+															User attachment file {name}
+														</DialogTitle>
+														<DialogDescription className="relative size-full max-h-[calc(90vh-48px)]">
+															<DialogClose asChild>
+																<Button
+																	type="button"
+																	variant="ghost"
+																	size="icon"
+																	radius="full"
+																	className="z-10 absolute right-4 top-4 bg-background/50"
+																>
+																	<Minimize2Icon className="size-4" />
+																</Button>
+															</DialogClose>
+															{contentType?.includes('image') ? (
+																<picture className="block size-full border rounded-sm border-foreground/20">
+																	<Image
+																		src={url}
+																		alt={name}
+																		loading="lazy"
+																		className="relative w-full max-h-full rounded-sm object-contain"
+																		width={1920}
+																		height={0}
+																	/>
+																</picture>
+															) : (
+																// text render from base64 string
+																<>
+																	{attachment.content ? (
+																		<pre className="size-full scrollbar p-4 border rounded-sm border-foreground/20 bg-muted">
+																			{typeof window !== 'undefined'
+																				? window.atob(
+																						(
+																							attachment.content as string
+																						).split(',')[1] || '',
+																					)
+																				: ''}
+																		</pre>
+																	) : null}
+																</>
+															)}
+														</DialogDescription>
+														<DialogFooter className="fixed -bottom-10 flex items-center !justify-center text-center w-full">
+															{name} |{' '}
+															{(attachment.size / 1024 / 1024).toFixed(2)}MB
+														</DialogFooter>
+													</DialogContent>
+												</Dialog>
+											</CardDescription>
 										</Card>
 									</motion.div>
 								)
