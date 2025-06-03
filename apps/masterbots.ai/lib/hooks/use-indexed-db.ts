@@ -1,4 +1,8 @@
-import { getUserThreadsMetadata, updateThreadMetadata } from '@/app/actions'
+import {
+	getUserThreadsMetadata,
+	updateThreadMetadata,
+	uploadAttachmentToBucket,
+} from '@/app/actions'
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import { useUploadImagesCloudinary } from '@/lib/hooks/use-cloudinary-upload'
 import { logErrorToSentry } from '@/lib/sentry'
@@ -6,7 +10,10 @@ import { Attachment } from 'ai'
 import { isEqual, uniqBy } from 'lodash'
 import { message } from 'mb-drizzle'
 import { appConfig } from 'mb-env'
+import { Thread } from 'mb-genql'
+import { fetchJson } from 'mb-lib'
 import { useEffect, useRef, useState } from 'react'
+import { thread } from '../../../../packages/mb-drizzle/src/drizzle/schema'
 
 const DEFAULT_DB_NAME = 'masterbots_attachments_indexed_db'
 const DEFAULT_STORE_NAME = 'masterbots_attachments_store'
@@ -101,7 +108,6 @@ export function useIndexedDB({
 
 			request.onsuccess = async () => {
 				const attachments = request.result as IndexedDBItem[]
-				resolve(attachments)
 
 				if (appConfig.features.devMode) {
 					console.info('IndexedDB records:', attachments)
@@ -114,104 +120,78 @@ export function useIndexedDB({
 							remoteThreadMetadata,
 						)
 					}
-					return
+					return resolve(attachments)
 				}
+
+				let newAttachments: IndexedDBItem[] = attachments
 
 				for (const attachment of attachments as FileAttachment[]) {
-					for (const messageId of attachment.messageIds as string[]) {
-						const thread = await getUserThreadsMetadata(messageId)
+					const thread = await getUserThreadsMetadata(attachment.messageIds)
 
-						if (!thread) {
-							if (appConfig.features.devMode) {
-								console.warn(
-									`No thread found for messageId: ${messageId}, skipping attachment update`,
-									attachment,
-								)
-							}
-							continue
-						}
-
-						const doesThreadMetadataExist = (
-							thread?.metadata as ThreadMetadata
-						)?.attachments?.some((att) => att.id === attachment.id)
-						if (doesThreadMetadataExist) {
-							if (appConfig.features.devMode) {
-								console.info(
-									'Attachment already exists in thread metadata, skipping update',
-									attachment,
-								)
-							}
-							continue
-						}
-
-						const newAttachments =
-							(thread.metadata as ThreadMetadata)?.attachments || []
-						const base64Hash = (attachment.content as string).split(',')[1]
-						const attachmentContentBlob =
-							typeof attachment.content === 'string'
-								? atob(base64Hash)
-								: new Uint8Array(attachment.content as ArrayBuffer).reduce(
-										(data, byte) => data + String.fromCharCode(byte),
-										'',
-									)
-						const attachmentConfig = {
-							type: attachment.contentType,
-						}
-						const attachmentContentArray = new Uint8Array(
-							attachmentContentBlob.length,
-						)
-
-						// Convert the string content to a Uint8Array
-						for (let i = 0; i < attachmentContentBlob.length; i++) {
-							attachmentContentArray[i] = attachmentContentBlob.charCodeAt(i)
-						}
-						const attachmentBlob = new Blob(
-							[attachmentContentArray],
-							attachmentConfig,
-						)
-						const attachmentFile = new File(
-							[attachmentBlob],
-							attachment.name,
-							attachmentConfig,
-						)
-						const uploadResults = await uploadFilesCloudinary(attachmentFile, {
-							transformation: 'c_scale,w_1280,h_1280',
-							uploadPreset: 'ml_default',
-							folder: `masterbots/${thread.slug}`,
-						})
-
-						if (!uploadResults.success || !uploadResults.data) {
-							console.error(
-								'Failed to upload file to Cloudinary',
+					if (!thread) {
+						if (appConfig.features.devMode) {
+							console.warn(
+								`No thread found for messageId: ${attachment.messageIds}, skipping attachment update`,
 								attachment,
-								uploadResults.error,
 							)
-							logErrorToSentry(
-								(uploadResults.error as Error)?.message ||
-									'Failed to upload file to Cloudinary',
-								{
-									error: uploadResults.error,
-									message: 'Failed to complete chat.',
-									level: 'error',
-									extra: {
-										attachmentName: attachment.name,
-										attachmentContentType: attachment.contentType,
-										attachmentMessageIds: attachment.messageIds,
-										threadSlug: thread.slug,
-									},
-								},
-							)
-						} else {
-							attachment.url = uploadResults.data.secure_url
 						}
-
-						newAttachments.push(attachment)
-						await updateThreadMetadata(thread.threadId, {
-							attachments: uniqBy(newAttachments, 'id'),
-						})
-						setRemoteThreadMetadata(newAttachments)
+						continue
 					}
+
+					const doesThreadMetadataExist = (
+						thread?.metadata as ThreadMetadata
+					)?.attachments?.some((att) => att.id === attachment.id)
+
+					// If the attachment already exists in the thread metadata, skip updating it
+					if (doesThreadMetadataExist) {
+						if (appConfig.features.devMode) {
+							console.info(
+								'Attachment already exists in thread metadata, skipping update',
+								attachment,
+							)
+						}
+						continue
+					}
+
+					// Ensuring remote would have the latest attachments related messageIds
+					newAttachments = (
+						(thread.metadata as ThreadMetadata)?.attachments || []
+					).map((att) => {
+						if (att.id === attachment.id) {
+							att.messageIds = attachment.messageIds
+						}
+						return att
+					})
+
+					const { data: uploadAttachmentData } = await fetchJson<{
+						data: FileAttachment | null
+						error: string | null
+					}>('/api/attachments/upload', {
+						method: 'POST',
+						body: JSON.stringify({
+							attachment,
+							thread,
+						}),
+						headers: {
+							'Content-Type': 'application/json',
+						},
+					})
+
+					if (uploadAttachmentData) {
+						attachment.url = uploadAttachmentData.url
+						attachment.size = uploadAttachmentData.size
+						attachment.contentType = uploadAttachmentData.contentType
+						attachment.name = uploadAttachmentData.name
+					}
+
+					newAttachments.push(attachment)
+					await updateThreadMetadata(thread.threadId, {
+						attachments: uniqBy(newAttachments, 'id'),
+					})
 				}
+
+				setRemoteThreadMetadata(newAttachments)
+				resolve(newAttachments)
 			}
 
 			request.onerror = () => {

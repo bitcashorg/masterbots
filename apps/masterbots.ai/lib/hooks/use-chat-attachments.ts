@@ -72,7 +72,8 @@ export function useFileAttachments(
 		loading,
 		error,
 	} = useAsync(async () => {
-		if (!mounted || !session?.user) return
+		if (!mounted)
+			return (activeThread?.metadata?.attachments || []) as IndexedDBItem[]
 		const indexedDBAttachments = await indexedDBActions.getAllItems()
 		if (appConfig.features.devMode) {
 			console.info(
@@ -80,30 +81,8 @@ export function useFileAttachments(
 				indexedDBAttachments,
 			)
 		}
-		if (!indexedDBAttachments && activeThread) {
-			const { thread, error } = await getThreadMetadataBySlug({
-				jwt: session.user.hasuraJwt,
-				slug: activeThread.slug,
-			})
-
-			if (error) {
-				console.error('Failed to retrieve metadata', error)
-				throw new Error('Failed to retrieve metadata')
-			}
-			if (!thread?.metadata) {
-				console.warn('No thread found with the given slug')
-				return []
-			}
-
-			for (const attachment of thread.metadata.attachments) {
-				const item = {
-					...attachment,
-					isSelected: false,
-				}
-				indexedDBActions.addItem(item)
-			}
-		}
-	}, [session?.user, mounted, activeThread, state.attachments])
+		return indexedDBAttachments
+	}, [session?.user, mounted, activeThread?.messages, state.attachments])
 
 	const { customSonner } = useSonner()
 	const { selectedModel } = useModel()
@@ -115,7 +94,20 @@ export function useFileAttachments(
 			let attachmentFile: File | null = file as File
 
 			if (file instanceof DataTransferItem) {
-				attachmentFile = file.getAsFile()
+				const fileData = file.getAsFile()
+
+				if (!fileData) {
+					console.error('File is not valid')
+					return
+				}
+
+				const fileName = fileData.name.split('.')[0]
+				const fileExtension = fileData.name.split('.').pop() || 'txt'
+				attachmentFile = new File(
+					[fileData],
+					`${fileName}-${nanoid(8)}.${fileExtension}`,
+					{ type: fileData.type },
+				)
 			}
 
 			if (

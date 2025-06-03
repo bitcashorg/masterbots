@@ -184,7 +184,11 @@ export function PromptForm({
 	}))
 	// Returns true if the user has selected any attachment that is related to the selected thread
 	const userHasRelatedAttachment = Boolean(userAttachments.length)
-
+	console.log(
+		`User has related attachment: ${userHasRelatedAttachment}`,
+		userAttachments.length,
+		attachments.length,
+	)
 	return (
 		<motion.form
 			id={`prompt-form-${formId}`}

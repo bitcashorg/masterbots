@@ -18,6 +18,8 @@ export const appConfig = {
 			process.env.NEXT_PUBLIC_MAX_FILE_SIZE || '10485760',
 			10,
 		),
+		storageBucketName: process.env.GCS_BUCKET_NAME || '',
+		storageProjectId: process.env.GCS_PROJECT_ID || '',
 		topLoader: process.env.NEXT_PUBLIC_FEATURE_TOP_LOADER === 'true',
 		enableVerificationEmail:
 			process.env.NEXT_PUBLIC_ENABLE_VERIFICATION_EMAIL === 'true',
