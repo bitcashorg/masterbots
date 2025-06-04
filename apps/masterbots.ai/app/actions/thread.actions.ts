@@ -4,6 +4,7 @@ import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import type { ThreadMetadata } from '@/lib/hooks/use-indexed-db'
 import { Storage } from '@google-cloud/storage'
 import { eq, inArray, isNotNull } from 'drizzle-orm'
+import { uniqBy } from 'lodash'
 import { db, message, thread } from 'mb-drizzle'
 import { appConfig } from 'mb-env'
 
@@ -69,16 +70,64 @@ export async function getAllUserThreadMetadata() {
 }
 
 export async function updateThreadMetadata(
-	threadId: string,
-	metadata: Record<string, unknown>,
+	messagesIds: string[],
+	metadata: Record<string, FileAttachment[]>,
 ) {
-	const result = await db
-		.update(thread)
-		.set({ metadata })
-		.where(eq(thread.threadId, threadId))
-		.returning()
+	// First, select the threadIds that need to be updated
+	const threadsToUpdate = await db
+		.selectDistinct({
+			threadId: message.threadId,
+			messageId: message.messageId,
+		})
+		.from(message)
+		.where(inArray(message.messageId, messagesIds))
 
-	return result[0]
+	if (threadsToUpdate.length === 0) {
+		console.error(
+			'No threads found for the provided message IDs. Cannot update metadata.',
+		)
+		return {
+			threads: [],
+			attachments: {},
+		}
+	}
+
+	const threadsDataIds = threadsToUpdate.map(
+		(t) => [t.threadId as string, t.messageId] as const,
+	)
+
+	const attachments: Record<string, FileAttachment[]> = {}
+
+	let result: (typeof thread.$inferSelect)[] = []
+
+	for (const [threadId, messageId] of threadsDataIds) {
+		const relatedThreadAttachments = metadata.attachments.filter((att) =>
+			att.messageIds.includes(messageId),
+		)
+
+		// Then, update the threads using the selected threadIds
+		result = [
+			...result,
+			...(await db
+				.update(thread)
+				.set({
+					metadata: {
+						attachments: relatedThreadAttachments,
+					},
+				})
+				.where(eq(thread.threadId, threadId))
+				.returning()),
+		]
+
+		attachments[threadId] = relatedThreadAttachments
+	}
+
+	result = uniqBy(result, 'threadId')
+
+	return {
+		threads: result,
+		attachments,
+	}
 }
 
 export async function uploadAttachmentToBucket({

@@ -91,7 +91,7 @@ export function useFileAttachments(
 	const addAttachment = useCallback(
 		(file: DataTransferItem | File) => {
 			const reader = new FileReader()
-			let attachmentFile: File | null = file as File
+			const attachmentFile: File | null = file as File
 
 			if (file instanceof DataTransferItem) {
 				const fileData = file.getAsFile()
@@ -100,14 +100,6 @@ export function useFileAttachments(
 					console.error('File is not valid')
 					return
 				}
-
-				const fileName = fileData.name.split('.')[0]
-				const fileExtension = fileData.name.split('.').pop() || 'txt'
-				attachmentFile = new File(
-					[fileData],
-					`${fileName}-${nanoid(8)}.${fileExtension}`,
-					{ type: fileData.type },
-				)
 			}
 
 			if (
@@ -236,12 +228,43 @@ export function useFileAttachments(
 			(item) => item.kind !== 'string',
 		)
 
-		if (isValidItems) {
-			event.stopPropagation()
-			event.preventDefault()
-
-			handleValidFiles(items)
+		if (!isValidItems) {
+			console.error('Invalid pasted items')
+			return
 		}
+
+		event.stopPropagation()
+		event.preventDefault()
+
+		const newItems = Array.from(items).map((item) => {
+			return {
+				...item,
+				getAsFile: () => {
+					const currentFile = item.getAsFile()
+					if (!currentFile) {
+						console.error('No file found in the pasted item')
+						return null
+					}
+					const fileName = currentFile.name.split('.')[0]
+					const fileExtension = currentFile.name.split('.').pop() || 'txt'
+					return new File(
+						[currentFile],
+						`${fileName}-${nanoid(8)}.${fileExtension}`,
+						{ type: currentFile.type },
+					)
+				},
+			}
+		})
+		const dataTransfer = new DataTransfer()
+
+		for (const item of newItems) {
+			const file = item.getAsFile()
+			if (file) {
+				dataTransfer.items.add(file)
+			}
+		}
+
+		handleValidFiles(dataTransfer.items)
 	}, [])
 
 	const handleDragOver = (event: React.DragEvent<HTMLFormElement>) => {

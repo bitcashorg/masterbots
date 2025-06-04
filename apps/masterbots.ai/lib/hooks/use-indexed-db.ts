@@ -116,13 +116,15 @@ export function useIndexedDB({
 					console.info('IndexedDB records:', attachments)
 				}
 
-				let newAttachments: IndexedDBItem[] = attachments
+				let newAttachments: FileAttachment[] = attachments as FileAttachment[]
 				const currentUserMetadata = await getAllUserThreadMetadata()
-
+				console.log('currentUserMetadata', currentUserMetadata)
+				console.log('newAttachments', newAttachments)
 				if (isEqual(newAttachments, currentUserMetadata)) {
 					if (appConfig.features.devMode) {
 						console.warn('No update required. Local is sync with remote')
 					}
+					setRemoteThreadMetadata(newAttachments)
 					return resolve(newAttachments)
 				}
 
@@ -202,11 +204,16 @@ export function useIndexedDB({
 					}
 
 					newAttachments.push(attachment)
-					await updateThreadMetadata(thread.threadId, {
-						attachments: uniqBy(newAttachments, 'id'),
-					})
+					newAttachments = uniqBy(newAttachments, 'id')
 				}
 
+				const messagesIds = newAttachments.flatMap(
+					(att) => (att as FileAttachment).messageIds,
+				)
+				const metadataUpdateResults = await updateThreadMetadata(messagesIds, {
+					attachments: newAttachments,
+				})
+				console.log('metadataUpdateResults', metadataUpdateResults)
 				setRemoteThreadMetadata(newAttachments)
 
 				// If new attachments are not equal from remote/local
@@ -260,4 +267,4 @@ export function useIndexedDB({
 }
 
 export type IndexedDBItem = FileAttachment | Record<string, unknown>
-export type ThreadMetadata = Record<string, IndexedDBItem[]>
+export type ThreadMetadata = Record<string, FileAttachment[]>

@@ -1,3 +1,4 @@
+import { AttachmentDialog } from '@/components/routes/chat/attachment-dialog'
 import { Button } from '@/components/ui/button'
 import {
 	Popover,
@@ -26,31 +27,6 @@ export function AttachmentsDisplay({
 	attachments: FileAttachment[]
 	onRemove: (id: string) => void
 }) {
-	const toggleFullScreen = (e: React.MouseEvent) => {
-		e.stopPropagation()
-
-		const $tooltipParent =
-			e.currentTarget.closest('figure')?.parentElement?.parentElement
-		const $figureParent = e.currentTarget.closest('figure')?.parentElement
-		const $maximizeIcon = e.currentTarget.querySelector('#maximize-icon')
-		const $minimizeIcon = e.currentTarget.querySelector('#minimize-icon')
-
-		if ($figureParent && $tooltipParent) {
-			$tooltipParent.classList.toggle('flex')
-			$tooltipParent.classList.toggle('fixed')
-			$tooltipParent.classList.toggle('inset-0')
-			$tooltipParent.classList.toggle('top-[66px]')
-			$tooltipParent.classList.toggle('z-50')
-			$tooltipParent.classList.toggle('p-4')
-			$tooltipParent.classList.toggle('bg-black/10')
-			$tooltipParent.classList.toggle('items-center')
-			$tooltipParent.classList.toggle('justify-center')
-			$figureParent.classList.toggle('size-[720px]')
-			$maximizeIcon?.classList.toggle('hidden')
-			$minimizeIcon?.classList.toggle('hidden')
-		}
-	}
-
 	return (
 		<AnimatePresence>
 			{isDragging && (
@@ -116,29 +92,16 @@ export function AttachmentsDisplay({
 										sideOffset={5}
 										side="top"
 										align="center"
-										className={cn('size-[320px]')}
+										className={cn('relative size-[320px]')}
 									>
-										<figure className="relative flex items-center rounded-lg size-full">
-											<Button
-												variant="ghost"
-												size="icon"
-												className="absolute top-2 right-2 z-20"
-												onClick={toggleFullScreen}
-											>
-												<span className="sr-only">Toggle Fullscreen</span>
-												<Maximize2Icon className="size-5" id="maximize-icon" />
-												<Minimize2Icon
-													className="size-5 hidden"
-													id="minimize-icon"
-												/>
-											</Button>
+										<figure className="flex items-center rounded-lg size-full">
 											{contentType.includes('image') ? (
 												<Image
 													src={url}
 													alt={name}
 													width={224}
 													height={224}
-													className="w-full h-auto rounded-lg"
+													className="w-full h-auto max-h-full rounded-lg"
 												/>
 											) : (
 												<pre className="text-xs whitespace-pre-wrap scrollbar size-full bg-muted p-2">
@@ -146,6 +109,10 @@ export function AttachmentsDisplay({
 												</pre>
 											)}
 										</figure>
+										<AttachmentDialog
+											attachment={attachment}
+											absolutePosition
+										/>
 									</PopoverContent>
 								</Popover>
 							</motion.li>
