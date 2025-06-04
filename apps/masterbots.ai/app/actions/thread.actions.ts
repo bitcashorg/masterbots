@@ -100,10 +100,19 @@ export async function updateThreadMetadata(
 
 	let result: (typeof thread.$inferSelect)[] = []
 
+	let previousThreadId: string | null = null
+
 	for (const [threadId, messageId] of threadsDataIds) {
-		const relatedThreadAttachments = metadata.attachments.filter((att) =>
+		let relatedThreadAttachments = metadata.attachments.filter((att) =>
 			att.messageIds.includes(messageId),
 		)
+
+		if (previousThreadId === threadId) {
+			relatedThreadAttachments.push(...(attachments[threadId] || []))
+		}
+
+		previousThreadId = threadId
+		relatedThreadAttachments = uniqBy(relatedThreadAttachments, 'id')
 
 		// Then, update the threads using the selected threadIds
 		result = [
@@ -163,6 +172,10 @@ export async function uploadAttachmentToBucket({
 
 	const storage = new Storage({
 		projectId: appConfig.features.storageProjectId,
+		credentials: {
+			client_email: appConfig.features.storageClientEmail,
+			private_key: appConfig.features.storageSecretAccessKey,
+		},
 	})
 	console.log('Initializing Google Cloud Storage client', {
 		projectId: appConfig.features.storageProjectId,
@@ -195,13 +208,14 @@ export async function uploadAttachmentToBucket({
 			threadSlug,
 		},
 		resumable: false,
-		public: true,
+		// public: true,
 	})
 
+	const expires = Date.now() + 1000 * 60 * 60 * 24 * 7 // 7 days
 	const [signedUrl] = await fileUpload.getSignedUrl({
 		version: 'v4',
 		action: 'read',
-		expires: '01-01-2500', // Set a far future expiration date
+		expires,
 	})
 
 	return {
@@ -211,5 +225,6 @@ export async function uploadAttachmentToBucket({
 		url: signedUrl,
 		size: byteSize,
 		content: bucketKey, // Store the bucket key instead of the content
+		expires: new Date(expires).toISOString(),
 	}
 }

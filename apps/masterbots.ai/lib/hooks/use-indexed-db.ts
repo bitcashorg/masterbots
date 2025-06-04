@@ -7,8 +7,9 @@ import {
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import { useUploadImagesCloudinary } from '@/lib/hooks/use-cloudinary-upload'
 import { logErrorToSentry } from '@/lib/sentry'
+import { prepareThreadAttachmentCheck } from '@/lib/threads'
 import { Attachment } from 'ai'
-import { isEqual, merge, uniqBy } from 'lodash'
+import { isEqual, merge, pick, uniqBy } from 'lodash'
 import { message } from 'mb-drizzle'
 import { appConfig } from 'mb-env'
 import { Thread } from 'mb-genql'
@@ -118,9 +119,13 @@ export function useIndexedDB({
 
 				let newAttachments: FileAttachment[] = attachments as FileAttachment[]
 				const currentUserMetadata = await getAllUserThreadMetadata()
-				console.log('currentUserMetadata', currentUserMetadata)
-				console.log('newAttachments', newAttachments)
-				if (isEqual(newAttachments, currentUserMetadata)) {
+				const newAttachmentCheck = prepareThreadAttachmentCheck(newAttachments)
+				const currentAttachmentCheck =
+					prepareThreadAttachmentCheck(currentUserMetadata)
+				// console.log('currentAttachmentCheck', currentAttachmentCheck)
+				// console.log('newAttachmentCheck', newAttachmentCheck)
+				// console.log('isEqual(newAttachmentCheck, currentAttachmentCheck)', isEqual(newAttachmentCheck, currentAttachmentCheck))
+				if (isEqual(newAttachmentCheck, currentAttachmentCheck)) {
 					if (appConfig.features.devMode) {
 						console.warn('No update required. Local is sync with remote')
 					}
@@ -145,7 +150,9 @@ export function useIndexedDB({
 					const remoteMetadataAttachments = (thread?.metadata as ThreadMetadata)
 						?.attachments
 					const doesThreadMetadataExist = remoteMetadataAttachments?.some(
-						(att) => att.id === attachment.id,
+						(att) =>
+							att.id === attachment.id &&
+							att.messageIds.length === attachment.messageIds.length,
 					)
 
 					// If the attachment already exists in the thread metadata, skip updating it
@@ -170,7 +177,10 @@ export function useIndexedDB({
 						'id',
 					).map((att) => {
 						if (att.id === attachment.id) {
-							att.messageIds = attachment.messageIds
+							return {
+								...att,
+								messageIds: attachment.messageIds,
+							}
 						}
 						return att
 					})

@@ -20,6 +20,7 @@ export type FileAttachment = {
 	content: string | ArrayBuffer | null
 	// The URL of the attachment. It can either be a URL to a hosted file or a Data URL.
 	url: string
+	expires: string
 	isSelected?: boolean
 }
 
@@ -152,6 +153,7 @@ export function useFileAttachments(
 					url: attachmentUrl,
 					isSelected: true,
 					messageIds: [],
+					expires: new Date().toISOString(),
 				}
 				const updatedAttachments = [...state.attachments, newAttachment]
 

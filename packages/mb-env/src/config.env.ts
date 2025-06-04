@@ -20,6 +20,11 @@ export const appConfig = {
 		),
 		storageBucketName: process.env.GCS_BUCKET_NAME || '',
 		storageProjectId: process.env.GCS_PROJECT_ID || '',
+		storageClientEmail: process.env.GCS_CLIENT_EMAIL || '',
+		storageSecretAccessKey: (process.env.GCS_SECRET_ACCESS_KEY || '').replace(
+			/\\n/g,
+			'\n',
+		),
 		topLoader: process.env.NEXT_PUBLIC_FEATURE_TOP_LOADER === 'true',
 		enableVerificationEmail:
 			process.env.NEXT_PUBLIC_ENABLE_VERIFICATION_EMAIL === 'true',
