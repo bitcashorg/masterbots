@@ -154,7 +154,7 @@ export function PromptForm({
 			// ? I might not need to destructure it here... maybe it is capable to read the FileList directly
 			const fileAttachments: (Attachment & { id: string })[] = []
 			for (const attachment of attachments) {
-				if (!attachment.url) return
+				if (!attachment.content) return
 
 				fileAttachments.push(attachment)
 			}

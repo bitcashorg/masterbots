@@ -17,7 +17,7 @@ export type FileAttachment = {
 	contentType: string
 	messageIds: string[]
 	// The raw content of the attachment. It can either be a string or an ArrayBuffer.
-	content: string | ArrayBuffer | null
+	content: string | ArrayBuffer
 	// The URL of the attachment. It can either be a URL to a hosted file or a Data URL.
 	url: string
 	expires: string
@@ -58,7 +58,7 @@ export function useFileAttachments(
 	},
 ] {
 	const { data: session } = useSession()
-	const { activeThread, isOpenPopup } = useThread()
+	const { activeThread } = useThread()
 	const dbKeys = getUserIndexedDBKeys(session?.user?.id)
 	const { mounted, ...indexedDBActions } = useIndexedDB(dbKeys)
 	const [state, setState] = useSetState<{
@@ -83,7 +83,7 @@ export function useFileAttachments(
 			)
 		}
 		return indexedDBAttachments
-	}, [session?.user, mounted, activeThread])
+	}, [session?.user, mounted, activeThread, state.attachments])
 
 	const { customSonner } = useSonner()
 	const { selectedModel } = useModel()
@@ -131,12 +131,17 @@ export function useFileAttachments(
 			}
 
 			reader.onload = async (readerEvent) => {
+				const event = readerEvent.target || reader
+
 				if (!attachmentFile) {
 					console.error('No file selected or file is not valid')
 					return
 				}
+				if (!event || !event.result) {
+					console.error('File reading failed or no result found')
+					return
+				}
 
-				const event = readerEvent.target || reader
 				// Creating an base64 string from the file content
 				const attachmentUrl =
 					typeof event.result === 'string'
