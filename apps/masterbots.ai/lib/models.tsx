@@ -23,7 +23,11 @@ export interface ModelData {
  */
 export const getModelIcon = (modelName: string): ReactNode => {
 	const model = modelName.toLowerCase()
-	if (model.startsWith('gpt') || model.startsWith('openai'))
+	if (
+		model.startsWith('openai') ||
+		model.startsWith('gpt') ||
+		model.startsWith('o4-mini')
+	)
 		return <IconOpenAI />
 	if (model.startsWith('claude')) return <IconClaude />
 	if (model.startsWith('llama')) return <IconLlama />

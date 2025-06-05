@@ -23,6 +23,9 @@ export const appConfig = {
 			process.env.NEXT_PUBLIC_ENABLE_VERIFICATION_EMAIL === 'true',
 		profileNBotPageHasPopup:
 			process.env.NEXT_PUBLIC_PROFILE_N_BOT_PAGE_HAS_POPUP === 'true',
+		proWhitelistUsers: (process.env.NEXT_PUBLIC_PRO_WHITELIST_USERS || '')
+			.split(',')
+			.filter(Boolean),
 	},
 	enableAuth: {
 		google: process.env.NEXT_PUBLIC_GOOGLE_AUTH === 'true',
@@ -34,5 +37,15 @@ export const appConfig = {
 	},
 	database: {
 		url: process.env.DATABASE_URL || '',
+	},
+	ads: {
+		googleAds: {
+			clientId: process.env.NEXT_PUBLIC_GOOGLE_ADS_CLIENT_ID || '',
+			enabled: process.env.NEXT_PUBLIC_GOOGLE_ADS_ENABLED === 'true',
+		},
+		twitterAds: {
+			campaignId: process.env.NEXT_PUBLIC_TWITTER_ADS_CAMPAIGN_ID || 'pngjn',
+			enabled: process.env.NEXT_PUBLIC_TWITTER_ADS_ENABLED === 'true',
+		},
 	},
 }

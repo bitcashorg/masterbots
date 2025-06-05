@@ -25,16 +25,11 @@ export default async function IndexPage() {
 		userId: session?.user.id,
 	})
 
-	const user = {
-		email: session.user.email || '',
-		name: session.user.name || '',
-	}
-
 	return (
 		<>
-			<ThreadPanel threads={threads} />
+			<ThreadPanel threads={threads} count={count} />
 			<ChatThreadListPanel variant="pro" />
-			<Subscription user={user} />
+			<Subscription />
 		</>
 	)
 }
@@ -50,5 +45,5 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 		twitterCard: 'summary',
 	}
 
-	return generateMetadataFromSEO(seoData, params)
+	return await generateMetadataFromSEO(seoData, params)
 }

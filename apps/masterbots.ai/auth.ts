@@ -21,7 +21,7 @@ import {
 } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import Google from 'next-auth/providers/google'
-import { getUserRoleByEmail } from './services/hasura'
+import { getUserByEmail, insertPreferencesByUserId } from './services/hasura'
 
 //* NextAuth configuration strategy with multiprovider options
 export const authOptions: NextAuthOptions = {
@@ -103,7 +103,7 @@ export const authOptions: NextAuthOptions = {
 				//* Add user role to the token when signing in with Google
 				if (account?.provider === 'google') {
 					const email = user.email
-					const userRoleResult = await getUserRoleByEmail({ email })
+					const userRoleResult = await getUserByEmail({ email })
 					if (userRoleResult.users.length > 0) {
 						token.role = userRoleResult.users[0]?.role || 'user'
 						token.slug = userRoleResult.users[0]?.slug
@@ -160,6 +160,9 @@ export const authOptions: NextAuthOptions = {
 						secure: process.env.NODE_ENV === 'production', //* Optional secure flag for production
 						sameSite: 'strict', //! Prevent CSRF attacks
 					})
+
+					//* Ensure user preferences exist in the database
+					await ensureUserPreferences(token.id as string)
 				} catch (error) {
 					console.error('Error generating or verifying Hasura JWT:', error)
 					throw error
@@ -192,55 +195,58 @@ export const authOptions: NextAuthOptions = {
 			if (account?.provider === 'google') {
 				const client = getHasuraClient()
 
-				let signedUser: Pick<User, 'userId'>[]
-
 				// Check if user exists, if not, create a new user
-				const { user: currentUser } = await client.query({
-					user: {
-						__args: {
-							where: { email: { _eq: user.email } },
+				let signedUser: Pick<User, 'userId'> | null = await client
+					.query({
+						user: {
+							__args: {
+								where: { email: { _eq: user.email } },
+							},
+							userId: true,
 						},
-						userId: true,
-					},
-				})
+					})
+					.then((res) => res.user[0] || null)
 
-				signedUser = currentUser
-
-				if (!signedUser || signedUser.length === 0) {
-					const slug = toSlug(user.name as string)
+				if (!signedUser?.userId) {
+					const timestamp = Date.now().toString(36)
+					const slug = `${toSlug(user.name as string)}-${timestamp}`
 					const username = generateUsername(
 						user.email?.split('@')[0] || user.name || '',
 					)
 					const profilePicture =
 						user.image || `https://robohash.org/${username}?bgset=bg2`
+
 					// Create new user in your database
-					const { insertUserOne: newUser } = await client.mutation({
-						insertUserOne: {
-							__args: {
-								object: {
-									slug,
-									email: user.email,
-									username,
-									profilePicture,
-									// You might want to generate a random password here
-									password: bcrypt.hashSync(
-										Math.random().toString(36).slice(-8),
-										10,
-									),
+					signedUser = await client
+						.mutation({
+							insertUserOne: {
+								__args: {
+									object: {
+										slug,
+										email: user.email,
+										username,
+										profilePicture,
+										// You might want to generate a random password here
+										password: bcrypt.hashSync(
+											Math.random().toString(36).slice(-8),
+											10,
+										),
+									},
 								},
+								userId: true,
 							},
-							userId: true,
-						},
-					})
+						})
+						.then((res) => res.insertUserOne)
 
-					if (!newUser) {
-						throw new Error('Failed to create user')
+					if (!signedUser) {
+						throw new Error('Failed to register the user to Masterbots')
 					}
-					signedUser = [newUser]
 				}
-
-				user.id = signedUser[0]?.userId || user.id
+				user.id = signedUser?.userId || user.id
 			}
+
+			//* Ensure user preferences exist in the database
+			await ensureUserPreferences(user.id as string)
 
 			return true
 		},
@@ -259,4 +265,41 @@ export function auth(
 		| []
 ) {
 	return getServerSession(...args, authOptions)
+}
+
+async function ensureUserPreferences(userId: string) {
+	const preference = await getHasuraClient()
+		.query({
+			preference: {
+				__args: {
+					where: { userId: { _eq: userId } },
+				},
+				userId: true,
+			},
+		})
+		.then((res) => res.preference[0] || null)
+
+	if (!preference) {
+		// * Create default user preferences
+		const { data: preference, error } = await insertPreferencesByUserId({
+			preferencesSet: {
+				// * Default preferences
+				userId: userId,
+				webSearch: false,
+				deepExpertise: false,
+				preferredComplexity: 'general',
+				preferredLength: 'detailed',
+				preferredTone: 'neutral',
+				preferredType: 'mix',
+			},
+		})
+
+		if (!error && !preference) {
+			console.error('Failed to create your account ——> ', error)
+			throw new Error(
+				'Failed to create your account, an error occurred while creating your profile.',
+			)
+		}
+		console.log('user profile created: ', preference)
+	}
 }

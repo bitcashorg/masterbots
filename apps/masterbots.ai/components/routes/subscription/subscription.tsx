@@ -20,7 +20,7 @@
  * Props:
  * - user: An object containing the user's email and name
  */
-import { checkIfCustomerHasActiveSub } from '@/app/actions/subscriptions'
+import { checkIfCustomerHasActiveSub } from '@/app/actions/subscriptions.actions'
 import { Checkout } from '@/components/routes/subscription/checkout'
 import { WrappedPaymentInformation } from '@/components/routes/subscription/payment-information'
 import { Plans } from '@/components/routes/subscription/plans'
@@ -29,6 +29,8 @@ import { ErrorContent } from '@/components/shared/error-content'
 import type { WizardStep } from '@/components/ui/wizard'
 import DialogWizard from '@/components/ui/wizard'
 import { usePayment } from '@/lib/hooks/use-payment'
+import type { Session } from 'next-auth'
+import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useAsync } from 'react-use'
 
@@ -39,14 +41,13 @@ const steps: WizardStep[] = [
 	{ component: SuccessContent, name: 'Success' },
 ]
 
-export default function Subscription({
-	user,
-}: {
-	user: { email: string; name: string }
-}) {
+export default function Subscription() {
 	const router = useRouter()
+	const { data: session } = useSession()
+	const { email } = (session?.user as Session['user']) || {
+		email: '',
+	}
 	const {
-		handleSetUser,
 		handleDeleteCustomer,
 		handleSetLoading,
 		handleSetError,
@@ -54,14 +55,13 @@ export default function Subscription({
 	} = usePayment()
 
 	const { value: openDialog } = useAsync(
-		async () => await checkIfCustomerHasActiveSub(user.email),
+		async () => await checkIfCustomerHasActiveSub(email),
 	)
-	handleSetUser(user)
 
 	const handleCloseWizard = async () => {
 		if (typeof paymentIntent === 'object' && paymentIntent !== '')
 			return router.push('/c/p')
-		const del = await handleDeleteCustomer(user?.email)
+		const del = await handleDeleteCustomer(email)
 		handleSetLoading(false)
 		handleSetError('')
 		if (del) return router.push('/c')

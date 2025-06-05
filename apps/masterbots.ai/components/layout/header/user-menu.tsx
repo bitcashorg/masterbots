@@ -5,21 +5,28 @@ import { buttonVariants } from '@/components/ui/button'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
+	DropdownMenuGroup,
 	DropdownMenuItem,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useProfile } from '@/lib/hooks/use-profile'
 import { urlBuilders } from '@/lib/url'
 import { cn } from '@/lib/utils'
 import { getUserInfoFromBrowse } from '@/services/hasura'
+import {
+	ChevronRightIcon,
+	LogOutIcon,
+	ReceiptIcon,
+	SettingsIcon,
+} from 'lucide-react'
+import { appConfig } from 'mb-env'
 import type { User } from 'mb-genql'
 import { toSlugWithUnderScore } from 'mb-lib'
 import type { Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
 import Image from 'next/image'
 import Link from 'next/link'
-import React from 'react'
+import React, { useState } from 'react'
 
 export interface UserMenuProps {
 	user: Session['user']
@@ -38,7 +45,8 @@ function truncateUsername(username: string | null | undefined, maxLength = 10) {
 }
 
 export function UserMenu({ user }: UserMenuProps) {
-	const [data, setData] = React.useState<User | null>(null)
+	const [data, setData] = useState<User | null>(null)
+	const [open, setOpen] = useState(false)
 
 	React.useEffect(() => {
 		const fetchUser = async () => {
@@ -55,10 +63,9 @@ export function UserMenu({ user }: UserMenuProps) {
 		}
 		fetchUser()
 	}, [user])
-
 	return (
 		<div className="items-center justify-between hidden md:block">
-			<DropdownMenu>
+			<DropdownMenu open={open} onOpenChange={setOpen}>
 				<DropdownMenuTrigger
 					className={cn(
 						buttonVariants({
@@ -68,7 +75,7 @@ export function UserMenu({ user }: UserMenuProps) {
 						'pl-0',
 					)}
 				>
-					{user?.image ? (
+					{user?.image && data?.profilePicture ? (
 						<Image
 							className="transition-opacity duration-300 rounded-full select-none size-8 bg-background/50 ring-1 ring-zinc-100/10 hover:opacity-80"
 							src={data?.profilePicture ? data.profilePicture : ''}
@@ -77,7 +84,7 @@ export function UserMenu({ user }: UserMenuProps) {
 							width={42}
 						/>
 					) : (
-						<div className="flex items-center justify-center text-xs font-medium uppercase rounded-full select-none size-7 shrink-0 bg-muted/50 text-muted-foreground">
+						<div className="flex items-center justify-center text-sm font-medium uppercase rounded-full select-none size-7 shrink-0 bg-muted/50 text-muted-foreground">
 							{user?.name ? getUserInitials(user?.name) : null}
 						</div>
 					)}
@@ -85,36 +92,85 @@ export function UserMenu({ user }: UserMenuProps) {
 						{user?.name && truncateUsername(user.name)}
 					</span>
 				</DropdownMenuTrigger>
-				<DropdownMenuContent sideOffset={8} align="start" className="w-[180px]">
-					<DropdownMenuItem className="flex-col items-start">
-						<Link
-							href={urlBuilders.profilesUrl({
-								type: 'user',
-								usernameSlug: user?.slug
-									? user.slug
-									: toSlugWithUnderScore(user?.name || ''),
-							})}
-							className="text-xs"
+				<DropdownMenuContent
+					sideOffset={8}
+					align="start"
+					className="w-[200px]"
+					onClick={(e) => {
+						// This would dispatch the event that we are clicking on,
+						// making this function to call and close the menu ;)
+						// JS Events FTW! - Andler
+						e.currentTarget.dispatchEvent(e as unknown as Event)
+						setOpen(false)
+					}}
+				>
+					<DropdownMenuGroup>
+						<DropdownMenuItem className="flex-col items-start justify-center">
+							<Link
+								href={urlBuilders.profilesUrl({
+									type: 'user',
+									usernameSlug: user?.slug
+										? user.slug
+										: toSlugWithUnderScore(user?.name || ''),
+								})}
+								className="w-full text-xs"
+							>
+								<div className="font-medium">{user?.name}</div>
+								<div className="text-zinc-500">{user?.email}</div>
+							</Link>
+							<ChevronRightIcon className="absolute size-3 mt-auto right-2.5 pointer-events-none" />
+						</DropdownMenuItem>
+					</DropdownMenuGroup>
+					<DropdownMenuSeparator />
+					<DropdownMenuGroup>
+						<DropdownMenuItem className="flex items-center justify-between w-full">
+							<ThemeToggle />
+						</DropdownMenuItem>
+						<DropdownMenuItem className="flex items-center justify-between w-full">
+							<Link
+								href={`/u/${user.slug}/s/pref`}
+								className={cn(
+									buttonVariants({
+										variant: 'ghost',
+									}),
+									'flex w-full gap-4 justify-between px-0 text-sm',
+								)}
+							>
+								Preferences
+								<SettingsIcon className="size-4" />
+							</Link>
+						</DropdownMenuItem>
+						{appConfig.features.devMode && (
+							<DropdownMenuItem className="flex items-center justify-between w-full">
+								<Link
+									href={`/u/${user.slug}/s/subs`}
+									className={cn(
+										buttonVariants({
+											variant: 'ghost',
+										}),
+										'flex w-full gap-4 justify-between px-0 text-sm',
+									)}
+								>
+									Subscriptions
+									<ReceiptIcon className="size-4" />
+								</Link>
+							</DropdownMenuItem>
+						)}
+					</DropdownMenuGroup>
+					<DropdownMenuSeparator />
+					<DropdownMenuGroup>
+						<DropdownMenuItem
+							onClick={() =>
+								signOut({
+									callbackUrl: '/',
+								})
+							}
+							className="flex justify-between w-full gap-4 px-2 text-sm cursor-pointer"
 						>
-							<div className="text-xs font-medium">{user?.name}</div>
-							<div className="text-xs text-zinc-500">{user?.email}</div>
-						</Link>
-					</DropdownMenuItem>
-					<DropdownMenuSeparator />
-					<DropdownMenuItem className="w-full">
-						<ThemeToggle />
-					</DropdownMenuItem>
-					<DropdownMenuSeparator />
-					<DropdownMenuItem
-						onClick={() =>
-							signOut({
-								callbackUrl: '/',
-							})
-						}
-						className="text-xs"
-					>
-						Log Out
-					</DropdownMenuItem>
+							Log Out
+							<LogOutIcon className="size-4" />
+						</DropdownMenuItem>
+					</DropdownMenuGroup>
 				</DropdownMenuContent>
 			</DropdownMenu>
 		</div>

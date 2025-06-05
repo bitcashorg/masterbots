@@ -5,6 +5,7 @@ import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { generateMetadataFromSEO } from '@/lib/metadata'
 import { getBrowseThreads, getChatbot } from '@/services/hasura'
 import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 
 export default async function BrowseCategoryChatbotPage(props: {
 	params: Promise<{ category: string; chatbot: string }>
@@ -12,11 +13,15 @@ export default async function BrowseCategoryChatbotPage(props: {
 	const params = await props.params
 	const chatbotName = (await botNames).get(params.chatbot)
 	if (!chatbotName) {
-		throw new Error(`Chatbot name for ${params.chatbot} not found`)
+		console.error(`Chatbot name ${chatbotName} not found`)
+		return notFound()
 	}
 	const chatbot = await getChatbot({ chatbotName, jwt: '' })
 
-	if (!chatbot) throw new Error(`Chatbot ${chatbotName} not found`)
+	if (!chatbot) {
+		console.error(`Chatbot ${chatbotName} not found`)
+		return notFound()
+	}
 
 	const { threads, count } = await getBrowseThreads({
 		chatbotName,
@@ -55,5 +60,5 @@ export async function generateMetadata(props: {
 		twitterCard: 'summary',
 	}
 
-	return generateMetadataFromSEO(seoData, params)
+	return await generateMetadataFromSEO(seoData, params)
 }

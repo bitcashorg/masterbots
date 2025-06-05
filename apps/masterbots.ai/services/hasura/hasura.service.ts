@@ -12,6 +12,8 @@ import {
 	type MbClient,
 	type Message,
 	type OrderBy,
+	type PreferenceInsertInput,
+	type PreferenceSetInput,
 	type Thread,
 	type User,
 	createMbClient,
@@ -56,50 +58,6 @@ function getHasuraClient({ jwt, adminSecret, signal }: GetHasuraClientParams) {
 		debug: process.env.DEBUG === 'true',
 		env: validateMbEnv(process.env.NEXT_PUBLIC_APP_ENV),
 	})
-}
-
-export async function doesThreadSlugExist(slug: string) {
-	const client = getHasuraClient({})
-	const { thread } = await client.query({
-		thread: {
-			slug: true,
-			__args: {
-				where: {
-					slug: {
-						_eq: slug,
-					},
-				},
-			},
-		},
-	})
-	return {
-		exists: thread.length > 0,
-		slug: thread[0]?.slug,
-		sequence:
-			Number.parseFloat(thread[0]?.slug.split('-').pop() as string) || 0,
-	}
-}
-
-export async function doesMessageSlugExist(slug: string) {
-	const client = getHasuraClient({})
-	const { message } = await client.query({
-		message: {
-			slug: true,
-			__args: {
-				where: {
-					slug: {
-						_eq: slug,
-					},
-				},
-			},
-		},
-	})
-	return {
-		exists: message.length > 0,
-		slug: message[0]?.slug,
-		sequence:
-			Number.parseFloat(message[0]?.slug.split('-').pop() as string) || 0,
-	}
 }
 
 export async function getCategories(userId?: string) {
@@ -267,20 +225,11 @@ export async function getThreads({
 	userId,
 	domain,
 	jwt,
-	isAdminMode,
 	limit,
 	offset,
 }: GetThreadsParams) {
 	const client = getHasuraClient({ jwt })
-
-	const threadsArguments = {
-		orderBy: [{ createdAt: 'DESC' as OrderBy }],
-		limit: limit ? limit : 20,
-		...(offset
-			? {
-					offset,
-				}
-			: {}),
+	const baseThreadsArguments = {
 		...(chatbotName || categoryId
 			? {
 					where: {
@@ -308,9 +257,7 @@ export async function getThreads({
 				}
 			: userId
 				? { where: { userId: { _eq: userId } } }
-				: isAdminMode
-					? { isApproved: { _eq: false } }
-					: {}),
+				: {}),
 	}
 
 	const { thread, threadAggregate } = await client.query({
@@ -364,13 +311,22 @@ export async function getThreads({
 			isApproved: true,
 			isPublic: true,
 			__scalar: true,
-			__args: threadsArguments,
+			__args: {
+				orderBy: [{ createdAt: 'DESC' as OrderBy }],
+				limit: limit ? limit : 20,
+				...(offset
+					? {
+							offset,
+						}
+					: {}),
+				...baseThreadsArguments,
+			},
 		},
 		threadAggregate: {
 			aggregate: {
 				count: true,
 			},
-			__args: threadsArguments,
+			__args: baseThreadsArguments,
 		},
 	})
 
@@ -765,6 +721,7 @@ export async function getBrowseThreads({
 	limit,
 	offset,
 	slug,
+	isAdminMode,
 	followedUserId,
 }: GetBrowseThreadsParams) {
 	const client = getHasuraClient({})
@@ -818,8 +775,14 @@ export async function getBrowseThreads({
 					},
 				}
 			: {}),
-		isPublic: { _eq: true },
-		isApproved: { _eq: true },
+		...(isAdminMode
+			? {
+					isApproved: { _eq: false },
+				}
+			: {
+					isPublic: { _eq: true },
+					isApproved: { _eq: true },
+				}),
 	}
 
 	const { thread: allThreads, threadAggregate } = await client.query({
@@ -1151,7 +1114,7 @@ export async function approveThread({
 	}
 }
 
-export async function getUserRoleByEmail({
+export async function getUserByEmail({
 	email,
 }: {
 	email: string | null | undefined
@@ -1165,6 +1128,8 @@ export async function getUserRoleByEmail({
 				},
 				role: true,
 				slug: true,
+				deletionRequestedAt: true,
+				email: true,
 			},
 		})
 		return { users: user as User[] }
@@ -1189,19 +1154,22 @@ export async function deleteThread({
 		}
 
 		const client = getHasuraClient({ jwt })
-		await client.mutation({
+		const result = await client.mutation({
 			deleteThread: {
 				__args: {
-					where: { threadId: { _eq: threadId }, userId: { _eq: userId } },
-				},
-				returning: {
-					threadId: true,
+					where: {
+						threadId: { _eq: threadId },
+						userId: { _eq: userId },
+					},
 				},
 				affectedRows: true,
 			},
 		})
 
-		return { success: true }
+		if ((result.deleteThread?.affectedRows ?? 0) > 0) {
+			return { success: true }
+		}
+		return { success: false }
 	} catch (error) {
 		console.error('Error deleting thread:', error)
 		return { success: false, error: 'Failed to delete the thread.' }
@@ -1278,6 +1246,7 @@ export async function getUserBySlug({
 				userId: true,
 				username: true,
 				profilePicture: true,
+				email: true,
 				slug: true,
 				bio: true,
 				favouriteTopic: true,
@@ -1329,6 +1298,10 @@ export async function getUserBySlug({
 					userByFollowerId: {
 						username: true,
 					},
+				},
+
+				preferences: {
+					__scalar: true,
 				},
 			},
 		} as const)
@@ -1745,6 +1718,89 @@ export async function fetchDomainTags({
 	}
 }
 
+// update user deletion_requested_at with the current date
+export async function updateUserDeletionRequest({
+	userId,
+	jwt,
+	reset = false,
+}: {
+	userId: string
+	jwt: string
+	reset?: boolean
+}): Promise<{ success: boolean; error?: string }> {
+	try {
+		if (!jwt) {
+			throw new Error('Authentication required to update user deletion request')
+		}
+
+		const client = getHasuraClient({ jwt })
+		await client.mutation({
+			updateUserByPk: {
+				__args: {
+					pkColumns: { userId },
+					_set: {
+						deletionRequestedAt: reset ? null : new Date().toISOString(),
+					},
+				},
+				userId: true,
+			},
+		})
+
+		return { success: true }
+	} catch (error) {
+		console.error('Error updating user deletion request:', error)
+		return { success: false, error: (error as Error).message }
+	}
+}
+
+// a function to delete all users messages and threads
+export async function deleteUserMessagesAndThreads({
+	userId,
+	jwt,
+}: {
+	userId: string
+	jwt: string
+}): Promise<{ success: boolean; error?: string }> {
+	try {
+		if (!jwt) {
+			throw new Error(
+				'Authentication required to delete user messages and threads',
+			)
+		}
+
+		const client = getHasuraClient({ jwt })
+
+		// First, delete all messages associated with the user's threads
+		// Then, delete all the user's threads
+		const whereArgDeleteObject = {
+			thread: {
+				userId: { _eq: userId },
+				isPublic: { _eq: true },
+				isApproved: { _eq: true },
+			},
+		}
+		await client.mutation({
+			deleteMessage: {
+				__args: {
+					where: whereArgDeleteObject,
+				},
+				affectedRows: true,
+			},
+			deleteThread: {
+				__args: {
+					where: whereArgDeleteObject,
+				},
+				affectedRows: true,
+			},
+		})
+
+		return { success: true }
+	} catch (error) {
+		console.error('Error deleting user messages and threads:', error)
+		return { success: false, error: (error as Error).message }
+	}
+}
+
 //? This function fetches all models from the database
 export async function getModels() {
 	try {
@@ -1768,5 +1824,86 @@ export async function getModels() {
 	} catch (error) {
 		console.error('Error fetching models:', error)
 		return []
+	}
+}
+
+export async function updatePreferences({
+	jwt,
+	userId,
+	preferencesSet,
+}: {
+	jwt: string
+	userId: string
+	preferencesSet: PreferenceSetInput
+}) {
+	try {
+		const client = getHasuraClient({ jwt })
+		const { updatePreference } = await client.mutation({
+			updatePreference: {
+				__args: {
+					where: {
+						userId: {
+							_eq: userId,
+						},
+					},
+					_set: preferencesSet,
+				},
+				userId: true,
+				preferences: true,
+			},
+		})
+
+		if (!updatePreference)
+			throw new Error(
+				'Failed to fetch and/or update preferences. No rows returned.',
+			)
+
+		return {
+			data: updatePreference,
+			error: null,
+		}
+	} catch (error) {
+		console.error('Failed to update user preferences ——>', error)
+		return {
+			data: null,
+			error: (error as Error).message,
+		}
+	}
+}
+
+export async function insertPreferencesByUserId({
+	jwt,
+	preferencesSet,
+}: {
+	jwt?: string
+	preferencesSet: PreferenceInsertInput
+}) {
+	try {
+		const client = getHasuraClient({ jwt })
+		const { insertPreferenceOne } = await client.mutation({
+			insertPreferenceOne: {
+				__args: {
+					object: preferencesSet,
+				},
+				userId: true,
+				preferences: true,
+			},
+		})
+
+		if (!insertPreferenceOne)
+			throw new Error(
+				'Failed to fetch and/or update preferences. No rows returned.',
+			)
+
+		return {
+			data: insertPreferenceOne,
+			error: null,
+		}
+	} catch (error) {
+		console.error('Failed to update user preferences by user ID:', error)
+		return {
+			data: null,
+			error: (error as Error).message,
+		}
 	}
 }

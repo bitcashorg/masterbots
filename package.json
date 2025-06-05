@@ -24,7 +24,7 @@
 		"@types/node": "^20.17.24",
 		"eslint": "^8.57.1",
 		"eslint-plugin-biome": "^0.9.19",
-		"genql": "latest",
+		"genql": "^2.0.1",
 		"husky": "^9.1.7",
 		"prettier": "^3.3.3"
 	},
@@ -41,5 +41,7 @@
 	},
 	"workspaces": ["apps/*", "packages/*"],
 	"packageManager": "bun@1.2.0",
-	"dependencies": {}
+	"dependencies": {
+		"drizzle-orm": "^0.43.1"
+	}
 }

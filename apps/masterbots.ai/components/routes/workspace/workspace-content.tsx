@@ -19,7 +19,15 @@ import {
 	parseMarkdownSections,
 } from '@/lib/markdown-utils'
 import { cn } from '@/lib/utils'
-import { Clipboard, FileText, PlusIcon, SaveIcon, Image, Table, FileIcon } from 'lucide-react'
+import {
+	Clipboard,
+	FileIcon,
+	FileText,
+	Image,
+	PlusIcon,
+	SaveIcon,
+	Table,
+} from 'lucide-react'
 import * as React from 'react'
 
 interface WorkspaceContentProps {
@@ -35,7 +43,7 @@ export function WorkspaceContent({
 	documentName,
 	className,
 	isLoading = false,
-	documentType = 'text'
+	documentType = 'text',
 }: WorkspaceContentProps) {
 	// Initial document for new documents
 	const initialMarkdown = `# Introduction
@@ -64,7 +72,7 @@ The conclusion summarizes the key points and implications of the project.
 		documentKey && documentContent && documentContent[documentKey]
 
 	// Define document types
-	type DocumentType = 'text' | 'image' | 'spreadsheet';
+	type DocumentType = 'text' | 'image' | 'spreadsheet'
 
 	// State management
 	const [fullMarkdown, setFullMarkdown] = React.useState<string>(
@@ -83,23 +91,23 @@ The conclusion summarizes the key points and implications of the project.
 	// documentType is now passed as a prop
 
 	// Use a ref to track previous document key to prevent unnecessary resets
-	const prevDocumentKeyRef = React.useRef(documentKey);
-	
+	const prevDocumentKeyRef = React.useRef(documentKey)
+
 	React.useEffect(() => {
 		// Only reset when document actually changes (not on every render)
 		if (documentKey !== prevDocumentKeyRef.current) {
 			setActiveSection(null)
 			setEditableContent('')
-			prevDocumentKeyRef.current = documentKey;
-			
+			prevDocumentKeyRef.current = documentKey
+
 			// If we have saved content for this document, load it
 			if (savedContent) {
-				setFullMarkdown(savedContent);
-				setSections(parseMarkdownSections(savedContent));
+				setFullMarkdown(savedContent)
+				setSections(parseMarkdownSections(savedContent))
 			} else {
 				// Reset to initial state for new documents
-				setFullMarkdown(initialMarkdown);
-				setSections(parseMarkdownSections(initialMarkdown));
+				setFullMarkdown(initialMarkdown)
+				setSections(parseMarkdownSections(initialMarkdown))
 			}
 		}
 	}, [projectName, documentName, documentKey, savedContent, initialMarkdown])
@@ -153,12 +161,15 @@ The conclusion summarizes the key points and implications of the project.
 	}
 
 	// Memoize to prevent unnecessary function recreation
-	const handleViewSourceToggle = React.useCallback((fullView: boolean) => {
-		if (fullView && activeSection && editableContent.trim()) {
-			// Only save if there's an active section with content
-			handleSaveSection() // Save current section changes first
-		}
-	}, [activeSection, editableContent, handleSaveSection])
+	const handleViewSourceToggle = React.useCallback(
+		(fullView: boolean) => {
+			if (fullView && activeSection && editableContent.trim()) {
+				// Only save if there's an active section with content
+				handleSaveSection() // Save current section changes first
+			}
+		},
+		[activeSection, editableContent, handleSaveSection],
+	)
 
 	if (!projectName || !documentName) {
 		return (
@@ -302,8 +313,8 @@ The conclusion summarizes the key points and implications of the project.
 							/>
 							<div className="mt-2 text-xs text-muted-foreground">
 								<p>
-									Edit the full markdown source. Changes will be applied when you
-									switch back to section view.
+									Edit the full markdown source. Changes will be applied when
+									you switch back to section view.
 								</p>
 							</div>
 						</div>
@@ -317,14 +328,21 @@ The conclusion summarizes the key points and implications of the project.
 					<Image className="h-20 w-20 opacity-20" />
 					<h3 className="text-xl font-medium">Image Document Editor</h3>
 					<p className="text-muted-foreground text-center max-w-lg">
-						Use AI to generate, edit, and enhance images. Upload existing images or create new ones with detailed text prompts.
+						Use AI to generate, edit, and enhance images. Upload existing images
+						or create new ones with detailed text prompts.
 					</p>
 					<div className="grid grid-cols-2 gap-4 mt-4 w-full max-w-2xl">
-						<Button variant="outline" className="h-20 flex flex-col gap-2 items-center justify-center">
+						<Button
+							variant="outline"
+							className="h-20 flex flex-col gap-2 items-center justify-center"
+						>
 							<PlusIcon className="h-6 w-6" />
 							<span>Generate New Image</span>
 						</Button>
-						<Button variant="outline" className="h-20 flex flex-col gap-2 items-center justify-center">
+						<Button
+							variant="outline"
+							className="h-20 flex flex-col gap-2 items-center justify-center"
+						>
 							<FileIcon className="h-6 w-6" />
 							<span>Upload Image</span>
 						</Button>
@@ -338,14 +356,21 @@ The conclusion summarizes the key points and implications of the project.
 					<Table className="h-20 w-20 opacity-20" />
 					<h3 className="text-xl font-medium">Spreadsheet Editor</h3>
 					<p className="text-muted-foreground text-center max-w-lg">
-						Create and edit data in a structured format. Define tables, create formulas, and visualize data with charts.
+						Create and edit data in a structured format. Define tables, create
+						formulas, and visualize data with charts.
 					</p>
 					<div className="grid grid-cols-2 gap-4 mt-4 w-full max-w-2xl">
-						<Button variant="outline" className="h-20 flex flex-col gap-2 items-center justify-center">
+						<Button
+							variant="outline"
+							className="h-20 flex flex-col gap-2 items-center justify-center"
+						>
 							<PlusIcon className="h-6 w-6" />
 							<span>Create New Table</span>
 						</Button>
-						<Button variant="outline" className="h-20 flex flex-col gap-2 items-center justify-center">
+						<Button
+							variant="outline"
+							className="h-20 flex flex-col gap-2 items-center justify-center"
+						>
 							<FileIcon className="h-6 w-6" />
 							<span>Import Data</span>
 						</Button>

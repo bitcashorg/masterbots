@@ -1,6 +1,14 @@
 table:
   name: user
   schema: public
+object_relationships:
+  - name: preference
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: preference
+          schema: public
 array_relationships:
   - name: followers
     using:
@@ -101,6 +109,7 @@ select_permissions:
       columns:
         - bio
         - date_joined
+        - deletion_requested_at
         - email
         - favourite_topic
         - last_login
@@ -118,6 +127,7 @@ select_permissions:
       columns:
         - bio
         - date_joined
+        - deletion_requested_at
         - email
         - favourite_topic
         - get_free_month
@@ -138,6 +148,7 @@ select_permissions:
       columns:
         - bio
         - date_joined
+        - deletion_requested_at
         - email
         - favourite_topic
         - get_free_month
@@ -161,6 +172,7 @@ update_permissions:
       columns:
         - bio
         - date_joined
+        - deletion_requested_at
         - email
         - favourite_topic
         - get_free_month
@@ -180,6 +192,7 @@ update_permissions:
     permission:
       columns:
         - bio
+        - deletion_requested_at
         - favourite_topic
         - get_free_month
         - last_login

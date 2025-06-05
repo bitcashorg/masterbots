@@ -26,7 +26,7 @@ export function WorkspaceDocumentSelect({
 }: WorkspaceDocumentSelectProps) {
 	// Force a new array for safeOptions to avoid reference issues
 	const safeOptions = Array.isArray(options) ? [...options] : []
-	
+
 	// Enhanced debug logging to show available options and current selection
 	console.log('[WorkspaceDocumentSelect] Rendering with:', {
 		value,
@@ -34,31 +34,31 @@ export function WorkspaceDocumentSelect({
 		options: safeOptions,
 		optionsReference: options, // Log the reference itself
 		disabled,
-		hasOptions: safeOptions.length > 0
+		hasOptions: safeOptions.length > 0,
 	})
-	
+
 	// Determine if there are any options available
 	const hasOptions = safeOptions.length > 0
-	
+
 	// Disable the select when there are no options available
 	const isDisabled = disabled || !hasOptions
-	
+
 	// Create a key based on options to force rerender when options change
 	const optionsKey = safeOptions.join(',') || 'empty'
-	
+
 	return (
 		<div className={cn('flex items-center', className)}>
-			<Select 
+			<Select
 				key={optionsKey}
-				value={value || ''} 
+				value={value || ''}
 				onValueChange={(newValue) => {
-					console.log('[WorkspaceDocumentSelect] Selected document:', newValue);
-					onChange(newValue);
-				}} 
+					console.log('[WorkspaceDocumentSelect] Selected document:', newValue)
+					onChange(newValue)
+				}}
 				disabled={isDisabled}
 			>
 				<SelectTrigger className="w-[200px]">
-					<SelectValue placeholder={hasOptions ? "Select Document" : "---"} />
+					<SelectValue placeholder={hasOptions ? 'Select Document' : '---'} />
 				</SelectTrigger>
 				<SelectContent>
 					{hasOptions ? (

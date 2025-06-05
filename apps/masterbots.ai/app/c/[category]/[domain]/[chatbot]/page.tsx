@@ -4,11 +4,12 @@ import ThreadPanel from '@/components/routes/thread/thread-panel'
 import { botNames } from '@/lib/constants/bots-names'
 import { PAGE_SIZE } from '@/lib/constants/hasura'
 import { generateMetadataFromSEO } from '@/lib/metadata'
+import { type RoleTypes, isAdminOrModeratorRole } from '@/lib/utils'
 import { getChatbot, getThreads } from '@/services/hasura'
 import { isTokenExpired } from 'mb-lib'
 import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
-import { redirect } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 
 export default async function BotThreadsPage(props: {
 	params: Promise<{ category: string; chatbot: string }>
@@ -31,15 +32,19 @@ export default async function BotThreadsPage(props: {
 	}
 	const chatbot = await getChatbot({ chatbotName, jwt: jwt as string })
 
-	if (!chatbot) throw new Error(`Chatbot ${chatbotName} not found`)
+	if (!chatbot) {
+		console.error(`Chatbot ${chatbotName} not found`)
+		return notFound()
+	}
 
 	// session will always be defined
 
 	const userId = session?.user?.id
 	if (!userId) {
-		throw new Error('User ID is missing.')
+		console.error('User ID is missing.')
+		return notFound()
 	}
-
+	const role = session.user.role as RoleTypes
 	const { threads, count } = await getThreads({
 		chatbotName,
 		jwt: jwt as string,
@@ -49,7 +54,11 @@ export default async function BotThreadsPage(props: {
 
 	return (
 		<>
-			<ThreadPanel threads={threads} count={count} />
+			<ThreadPanel
+				threads={threads}
+				count={count}
+				isAdminMode={isAdminOrModeratorRole(role)}
+			/>
 			<ChatChatbot chatbot={chatbot} />
 		</>
 	)
@@ -70,5 +79,5 @@ export async function generateMetadata(props: {
 		twitterCard: 'summary',
 	}
 
-	return generateMetadataFromSEO(seoData, params)
+	return await generateMetadataFromSEO(seoData, params)
 }

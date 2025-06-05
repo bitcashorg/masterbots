@@ -127,7 +127,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 		Testing: ['Test Cases', 'QA Process'],
 		'Bug Tracking': ['Current Sprint', 'Backlog'],
 	}
-	
+
 	const imageDocuments: Record<string, string[]> = {
 		// Sample image documents
 		'Campaign A': ['Assets', 'Banner Images', 'Social Media Graphics'],
@@ -136,21 +136,29 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 		'Product X': ['Product Photos', 'Marketing Visuals', 'Infographics'],
 		Frontend: ['UI Components', 'Animation Examples'],
 	}
-	
+
 	const spreadsheetDocuments: Record<string, string[]> = {
 		// Sample spreadsheet documents
-		'Budget 2024': ['Financial Projections', 'Expense Tracker', 'Investment Calculator'],
+		'Budget 2024': [
+			'Financial Projections',
+			'Expense Tracker',
+			'Investment Calculator',
+		],
 		'Project 1A': ['Project Timeline', 'Resource Allocation', 'Cost Analysis'],
 		'Campaign B': ['Campaign Metrics', 'ROI Calculator', 'Target Demographics'],
-		'Supply Chain': ['Inventory Management', 'Supplier Comparison', 'Shipping Logistics'],
+		'Supply Chain': [
+			'Inventory Management',
+			'Supplier Comparison',
+			'Shipping Logistics',
+		],
 		Forecasting: ['Sales Projections', 'Growth Models', 'Trend Analysis'],
 	}
-	
+
 	// Combined document list for backward compatibility
 	const documentList: Record<string, string[]> = {
 		...textDocuments,
 		...imageDocuments,
-		...spreadsheetDocuments
+		...spreadsheetDocuments,
 	}
 
 	// Initial document content
@@ -168,66 +176,69 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 			}
 
 			const documentKey = `${project}:${document}`
-			
+
 			// First, check if the content is actually different to avoid unnecessary updates
 			setDocumentContentState((prev) => {
 				// Only update if content is different
 				if (prev[documentKey] === content) {
-					return prev; // No change needed
+					return prev // No change needed
 				}
 				return {
 					...prev,
 					[documentKey]: content,
-				};
+				}
 			})
 
 			// Use a debounced update approach with multiple checks
 			// This prevents cascading updates and infinite loops
-			let updateCancelled = false;
-			
+			let updateCancelled = false
+
 			// First check if we need to activate the workspace
 			if (!isWorkspaceActive) {
 				requestAnimationFrame(() => {
 					if (!updateCancelled) {
-						setIsWorkspaceActive(true);
+						setIsWorkspaceActive(true)
 					}
-				});
+				})
 			}
-			
+
 			// Batch the navigation updates using requestAnimationFrame
 			const updateNavigationFrame = requestAnimationFrame(() => {
-				if (updateCancelled) return;
-				
+				if (updateCancelled) return
+
 				// Update project if needed, with strict equality check
-				const projectNeedsUpdate = project !== activeProject;
+				const projectNeedsUpdate = project !== activeProject
 				if (projectNeedsUpdate) {
-					console.log('Updating active project in setDocumentContent:', project);
-					setActiveProject(project);
+					console.log('Updating active project in setDocumentContent:', project)
+					setActiveProject(project)
 				}
-				
+
 				// Use nested frame for document update to ensure it happens after project update settles
 				const documentUpdateFrame = requestAnimationFrame(() => {
-					if (updateCancelled) return;
-					
+					if (updateCancelled) return
+
 					// Update document if needed, with strict equality check
-					const documentNeedsUpdate = document !== activeDocument;
+					const documentNeedsUpdate = document !== activeDocument
 					if (documentNeedsUpdate) {
-						console.log('Updating active document in setDocumentContent:', document);
-						setActiveDocument(document);
+						console.log(
+							'Updating active document in setDocumentContent:',
+							document,
+						)
+						setActiveDocument(document)
 					}
-				});
-				
+				})
+
 				// Clean up document frame on component unmount
 				return () => {
-					cancelAnimationFrame(documentUpdateFrame);
-				};
-			});
-			
+					cancelAnimationFrame(documentUpdateFrame)
+				}
+			})
+
 			// Return cleanup function to cancel all pending updates if component unmounts
 			return () => {
-				updateCancelled = true;
-				cancelAnimationFrame(updateNavigationFrame);
-			};
+				updateCancelled = true
+				cancelAnimationFrame(updateNavigationFrame)
+			}
 		},
 		[isWorkspaceActive, activeProject, activeDocument],
 	)
@@ -270,9 +281,9 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 
 	// Memoize organization departments to prevent unnecessary recalculations
 	const orgDepts = React.useMemo(() => {
-		if (!activeOrganization || !departmentsByOrg) return null;
-		return departmentsByOrg[activeOrganization] || null;
-	}, [activeOrganization, departmentsByOrg]);
+		if (!activeOrganization || !departmentsByOrg) return null
+		return departmentsByOrg[activeOrganization] || null
+	}, [activeOrganization, departmentsByOrg])
 
 	// When organization changes, set department if needed
 	React.useEffect(() => {
@@ -310,11 +321,11 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 
 	// Memoize department projects to prevent unnecessary recalculations
 	const deptProjects = React.useMemo(() => {
-		if (!activeOrganization || !activeDepartment || !projectsByDept) return null;
-		const orgProjects = projectsByDept[activeOrganization];
-		if (!orgProjects) return null;
-		return orgProjects[activeDepartment] || null;
-	}, [activeOrganization, activeDepartment, projectsByDept]);
+		if (!activeOrganization || !activeDepartment || !projectsByDept) return null
+		const orgProjects = projectsByDept[activeOrganization]
+		if (!orgProjects) return null
+		return orgProjects[activeDepartment] || null
+	}, [activeOrganization, activeDepartment, projectsByDept])
 
 	// When department changes, set default project only if current project is invalid
 	React.useEffect(() => {
@@ -344,7 +355,10 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 			const defaultProject = deptProjects[0]
 			// Avoid unnecessary state update if project is already set to default
 			if (activeProject !== defaultProject) {
-				console.log('Setting default project for new department:', defaultProject)
+				console.log(
+					'Setting default project for new department:',
+					defaultProject,
+				)
 				setActiveProject(defaultProject)
 			}
 		}
@@ -352,9 +366,9 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 
 	// Memoize project documents to prevent unnecessary recalculations
 	const projectDocs = React.useMemo(() => {
-		if (!activeProject || !documentList) return null;
-		return documentList[activeProject] || null;
-	}, [activeProject, documentList]);
+		if (!activeProject || !documentList) return null
+		return documentList[activeProject] || null
+	}, [activeProject, documentList])
 
 	// When project changes, set default document only if current document is invalid
 	React.useEffect(() => {
@@ -390,21 +404,24 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 					setActiveDocument(defaultDoc)
 				}
 			}
-		});
+		})
 
 		// Clean up the animation frame on unmount
-		return () => cancelAnimationFrame(frameId);
+		return () => cancelAnimationFrame(frameId)
 	}, [activeProject, projectDocs, activeDocument])
 
 	// Stable reference to state update functions
-	const stableSetters = React.useMemo(() => ({
-		setActiveOrganization,
-		setActiveDepartment,
-		setActiveProject,
-		setActiveDocument,
-		setDocumentContent,
-		toggleWorkspace
-	}), []);
+	const stableSetters = React.useMemo(
+		() => ({
+			setActiveOrganization,
+			setActiveDepartment,
+			setActiveProject,
+			setActiveDocument,
+			setDocumentContent,
+			toggleWorkspace,
+		}),
+		[],
+	)
 
 	const value = React.useMemo(
 		() => ({

@@ -98,8 +98,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	const { customSonner } = useSonner()
 	const { isPowerUp } = usePowerUp()
 	const { setIsCutOff } = useContinueGeneration()
-	// console.log('[HOOK] webSearch', webSearch)
-
 	const params = useParams<{ chatbot: string; threadSlug: string }>()
 	const { selectedModel, clientType } = useModel()
 
@@ -271,6 +269,28 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				}
 				const finalMessage = { ...message }
 
+				//? Handle generated image files if present
+				if (options.files && options.files.length > 0) {
+					finalMessage.parts = options.files.map(
+						(file: {
+							base64: string
+							uint8Array: Uint8Array
+							mimeType: string
+							fileName: string
+						}) => ({
+							type: 'file',
+							data: file.base64,
+							mimeType: file.mimeType,
+						}),
+					)
+					if (appConfig.features.devMode) {
+						customSonner({
+							type: 'info',
+							text: 'Generated image(s)',
+						})
+					}
+				}
+
 				//? Check if the generation was cut off
 				const isCutOff = [
 					'length',
@@ -307,7 +327,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 							threadSlug: activeThread?.slug,
 							userId: session?.user.id,
 							chatbotName: activeChatbot?.name,
-							attachments: messageAttachments.current,
+							attachments: messageAttachments.current.map((att) => ({
+								name: att.name,
+								size: att.size,
+								contentType: att.contentType,
+							})),
 						},
 					})
 					customSonner({
@@ -325,7 +349,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 					return
 				}
-
 				const aiChatThreadId = resolveThreadId({
 					isContinuousThread,
 					randomThreadId: randomThreadId.current,
@@ -350,6 +373,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						}))
 					: []
 
+				// TODO: Add thread metadata here and keep the local copy for optimizations if doable...
 				for (const attachment of newAttachments) {
 					try {
 						indexedDBActions.updateItem(attachment.id, attachment)
@@ -370,58 +394,71 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						/(explain more in-depth and in detail about |explain more in depth and in detail about |explain more in-depth about |explain more in depth about |can you provide a detailed explanation of )/g,
 						'',
 					)
-
-				// Generate unique slugs for both messages
-				const userMessageSlug = await generateUniqueSlug(
-					curatedPreUserMessageSlug,
-					'message',
-				)
-				const assistantMessageSlug = await generateUniqueSlug(
-					message.content,
-					'message',
-				)
-
-				//? assistant message with reasoning information
+				// ? assistant message with reasoning information
 				const assistantMessageThinking = hasReasoning(finalMessage)
 					? {
-							thinking:
-								finalMessage.parts?.find((msg) => msg.type === 'reasoning')
-									?.reasoning || finalMessage.reasoning,
+							thinking: finalMessage.parts?.find(
+								(msg) => msg.type === 'reasoning',
+							)?.reasoning,
 						}
 					: {}
+				const uploadNewMessages = async () => {
+					// Generate unique slugs for both messages
+					const userMessageSlug = await generateUniqueSlug(
+						curatedPreUserMessageSlug,
+						'message',
+					)
+					const assistantMessageSlug = await generateUniqueSlug(
+						message.content,
+						'message',
+					)
 
-				// Create new messages and save them to the database
-				const [
-					newUserMessage,
-					newAssistantMessage,
-				]: Partial<SaveNewMessageParams>[] = [
-					{
-						...newBaseMessage,
-						messageId: userMessageId,
-						slug: userMessageSlug,
-						role: 'user',
-						// TODO: Uncomment when model FE is ready. BE is ready. @bran18
-						model: selectedModel,
-						content: userContentRef.current,
-						createdAt: new Date().toISOString(),
-					},
-					{
-						...newBaseMessage,
-						...assistantMessageThinking,
-						messageId: assistantMessageId,
-						slug: assistantMessageSlug,
-						role: 'assistant',
-						// TODO: Uncomment when model FE is ready. BE is ready. @bran18
-						model: selectedModel,
-						content: finalMessage.content,
-						createdAt: new Date(Date.now() + 1000).toISOString(),
-					},
-				]
+					// Create new messages and save them to the database
+					const [
+						newUserMessage,
+						newAssistantMessage,
+					]: Partial<SaveNewMessageParams>[] = [
+						{
+							...newBaseMessage,
+							messageId: userMessageId,
+							slug: userMessageSlug,
+							role: 'user',
+							model: selectedModel,
+							content: userContentRef.current,
+							createdAt: new Date().toISOString(),
+						},
+						{
+							...newBaseMessage,
+							...assistantMessageThinking,
+							messageId: assistantMessageId,
+							slug: assistantMessageSlug,
+							role: 'assistant',
+							model: selectedModel,
+							content: finalMessage.content,
+							createdAt: new Date(Date.now() + 1000).toISOString(),
+							examples:
+								finalMessage.parts?.filter((part) => part.type === 'file') ||
+								[],
+						},
+					]
 
-				await Promise.all([
-					saveNewMessage(newUserMessage),
-					saveNewMessage(newAssistantMessage),
-				])
+					return await Promise.all([
+						saveNewMessage(newUserMessage),
+						saveNewMessage(newAssistantMessage),
+					])
+				}
+
+				try {
+					uploadNewMessages()
+				} catch (error) {
+					console.error('Error generating message slugs: ', error)
+
+					// ? If the error is due to duplicate key value, we retry the upload one more time to do the recursive check again
+					// ! This might be an edge case now that we use drizzle for this query, but it is still a good practice to handle this error
+					if ((error as Error).message.includes('duplicate key value')) {
+						uploadNewMessages()
+					}
+				}
 
 				setState({
 					isNewChat: false,

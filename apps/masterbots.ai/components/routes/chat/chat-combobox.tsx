@@ -29,11 +29,13 @@ import { useSession } from 'next-auth/react'
 import * as React from 'react'
 import { useAsync } from 'react-use'
 
+const WHITELIST_USERS = appConfig.features.proWhitelistUsers
+
 export function ChatCombobox() {
 	const { selectedModel, changeModel, models, isLoading } = useModel()
 	const [open, setOpen] = React.useState(false)
 	const { isPowerUp } = usePowerUp()
-	const { isDeepThinking, toggleDeepThinking } = useDeepThinking()
+	const { isDeepThinking } = useDeepThinking()
 	const { data: session } = useSession()
 	const {
 		error: errorUserData,
@@ -86,15 +88,7 @@ export function ChatCombobox() {
 
 		setTimeout(() => {
 			try {
-				if (modelValue.includes('deepseek-r1-distill-llama-70b')) {
-					if (!isDeepThinking) {
-						toggleDeepThinking()
-					}
-				} else if (modelValue.includes('deepseek') && isDeepThinking) {
-					toggleDeepThinking()
-				} else if (!modelValue.includes('deepseek') && !isDeepThinking) {
-					changeModel(modelValue)
-				}
+				changeModel(modelValue)
 			} finally {
 				setTimeout(() => {
 					processingSelectionRef.current = false
@@ -105,7 +99,9 @@ export function ChatCombobox() {
 
 	const areProModelsDisabled =
 		!appConfig.features.devMode &&
-		(loadingUserData || !userData?.proUserSubscriptionId)
+		(loadingUserData ||
+			!userData?.proUserSubscriptionId ||
+			!WHITELIST_USERS.includes(userData?.email))
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>

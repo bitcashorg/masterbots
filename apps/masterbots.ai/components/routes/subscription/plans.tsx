@@ -23,12 +23,14 @@
  * - goTo: Function to navigate to a specific step in the wizard
  */
 
-import { getSubscriptionPlans } from '@/app/actions/subscriptions'
+import { getSubscriptionPlans } from '@/app/actions/subscriptions.actions'
 import PlanCard from '@/components/routes/subscription/plan-card'
 import { IconArrowRightNoFill } from '@/components/ui/icons'
 import { usePayment } from '@/lib/hooks/use-payment'
 import { cn } from '@/lib/utils'
 import type { PlansPros } from '@/types/types'
+import type { Session } from 'next-auth'
+import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import type React from 'react'
 import { useState } from 'react'
@@ -40,7 +42,6 @@ export function Plans({ next, goTo }: PlansPros) {
 		handleSetSecret,
 		secret,
 		plan,
-		user,
 		loading,
 		handleSetLoading,
 		handleDeleteCustomer,
@@ -48,6 +49,11 @@ export function Plans({ next, goTo }: PlansPros) {
 		handleSetStripePublishKey,
 		handleSetStripeSecret,
 	} = usePayment()
+	const { data: session } = useSession()
+	const { name, email } = (session?.user as Session['user']) || {
+		name: '',
+		email: '',
+	}
 
 	const [selectedPlan, setSelectedPlan] = useState(plan?.duration || 'free')
 	const router = useRouter()
@@ -64,7 +70,7 @@ export function Plans({ next, goTo }: PlansPros) {
 	}
 
 	const handleCloseWizard = async () => {
-		const del = await handleDeleteCustomer(user.email)
+		const del = await handleDeleteCustomer(email)
 		if (del) return router.push('/c')
 	}
 
@@ -112,8 +118,8 @@ export function Plans({ next, goTo }: PlansPros) {
 				automatic_payment_methods: {
 					enabled: true,
 				},
-				email: user.email,
-				name: user.name,
+				email,
+				name: name as string,
 			}
 			await handleSubscription(data)
 			handleSetLoading(false)

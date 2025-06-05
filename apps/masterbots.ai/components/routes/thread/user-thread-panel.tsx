@@ -44,7 +44,6 @@ import {
 	getCategory,
 	getThread,
 	getThreads,
-	getUserBySlug,
 } from '@/services/hasura'
 import type { GetBrowseThreadsParams } from '@/services/hasura/hasura.service.type'
 import { debounce, uniqBy } from 'lodash'
@@ -54,6 +53,7 @@ import { useSession } from 'next-auth/react'
 import { useParams, usePathname, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useAsync, useSetState } from 'react-use'
+import { EmptyState } from '../profile/empty-state'
 
 // TODO: this is a hard to understand file since it tries to focus in too many different aspects
 // in only one file, instead of relying on reusable hooks for each context. It should be refactored.
@@ -95,7 +95,7 @@ export default function UserThreadPanel({
 	const {
 		isContinuousThread,
 		setIsContinuousThread,
-		threads: hookThreads,
+		threadsState: threadVisibilityState,
 		isAdminMode,
 	} = useThreadVisibility()
 	const [searchTerm, setSearchTerm] = useState<string>('')
@@ -105,16 +105,6 @@ export default function UserThreadPanel({
 	const [adminThreads, setAdminThreads] = useState<Thread[]>(initialThreads)
 	const isPublic = !/^\/(?:c|u)(?:\/|$)/.test(usePathname())
 	const fetchIdRef = useRef<number>(0)
-
-	const userWithSlug = useAsync(async () => {
-		if (!userSlug) return { user: userProps }
-		const result = await getUserBySlug({
-			slug: userSlug,
-			isSameUser: session?.user?.slug === userSlug,
-		})
-		return result
-	}, [userSlug])
-
 	const prevPathRef = useRef('')
 	const pathname = usePathname()
 	const [state, setState] = useSetState<{
@@ -135,9 +125,9 @@ export default function UserThreadPanel({
 	} = {}) => {
 		try {
 			const browseThreadGetParams: GetBrowseThreadsParams = {
-				userId: userWithSlug.value?.user?.userId,
 				offset,
 				limit: PAGE_SIZE,
+				isAdminMode,
 			}
 
 			if (activeCategory) {
@@ -147,7 +137,6 @@ export default function UserThreadPanel({
 				// it will return threads that are only related to the user.
 				browseThreadGetParams.categoriesId = selectedCategories
 			}
-
 			if (chatbot || botSlug) {
 				const botSlugs = await botNames
 				const chatbotName =
@@ -155,8 +144,9 @@ export default function UserThreadPanel({
 
 				browseThreadGetParams.chatbotName = chatbotName
 			}
-
-			console.log('browseThreadGetParams', browseThreadGetParams)
+			if (userSlug && userProps) {
+				browseThreadGetParams.userId = userProps.userId
+			}
 
 			return await getBrowseThreads(browseThreadGetParams)
 		} catch (error) {
@@ -172,13 +162,15 @@ export default function UserThreadPanel({
 		if (totalThreads === count) return
 		console.log('🟡 Loading More Content')
 		setLoading(true)
+
 		let moreThreads: { threads: Thread[]; count: number } = {
 			threads: [],
 			count: 0,
 		}
-		const userOnSlug = userWithSlug.value?.user
-		const isOwnProfile = session?.user?.id === userOnSlug?.userId
-		if ((page === 'profile' && !session?.user) || !isOwnProfile) {
+
+		const isOwnProfile = session?.user?.id === userProps?.userId
+
+		if (isAdminMode || (page === 'profile' && !isOwnProfile)) {
 			moreThreads = await fetchBrowseThreads({
 				offset: threads.length,
 			})
@@ -190,7 +182,6 @@ export default function UserThreadPanel({
 				limit: PAGE_SIZE,
 				categoryId: activeCategory,
 				chatbotName: activeChatbot?.name,
-				isAdminMode,
 			})
 		}
 
@@ -198,6 +189,7 @@ export default function UserThreadPanel({
 			[...threads, ...(moreThreads?.threads || [])],
 			'threadId',
 		)
+
 		setState({
 			threads: newThreads,
 			totalThreads: newThreads.length,
@@ -244,14 +236,16 @@ export default function UserThreadPanel({
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (isAdminMode) {
-			setAdminThreads(hookThreads)
+			// * This is the first time we are loading the threads as admin
+			// * The switch to admin mode is triggered by the user and we need to fetch the threads
+			setAdminThreads(threadVisibilityState.threads)
 			setState({
-				threads: hookThreads,
-				totalThreads: hookThreads.length,
-				count: hookThreads.length,
+				threads: threadVisibilityState.threads,
+				totalThreads: threadVisibilityState.threads.length,
+				count: threadVisibilityState.count,
 			})
 		}
-	}, [hookThreads])
+	}, [threadVisibilityState])
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: This effect should run only when the pathname changes (component unmount)
 	useEffect(() => {
@@ -292,20 +286,18 @@ export default function UserThreadPanel({
 
 		try {
 			setLoading(true)
-			const userOnSlug = userWithSlug.value?.user
-			const isOwnProfile = session?.user?.id === userOnSlug?.userId
-			if (!session?.user || (!isOwnProfile && page === 'profile')) {
-				const { threads: newThreads } = await fetchBrowseThreads()
+			const isOwnProfile = session?.user?.id === userProps?.userId
+			if (isAdminMode || (page === 'profile' && !isOwnProfile)) {
+				const { threads: newThreads, count } = await fetchBrowseThreads()
 
 				setState({
 					threads: newThreads,
-					totalThreads: threads?.length,
-					count: threads?.length,
+					totalThreads: threads?.length + newThreads.length,
+					count,
 				})
 				setLoading(false)
 				return
 			}
-
 			const botSlugs = await botNames
 			const chatbotName =
 				botSlugs.get(chatbot as string) || botSlugs.get(botSlug as string) || ''
@@ -316,12 +308,11 @@ export default function UserThreadPanel({
 			fetchIdRef.current = currentFetchId
 
 			const { threads: newThreads, count } = await getThreads({
-				jwt: session?.user?.hasuraJwt,
+				jwt: session?.user?.hasuraJwt as string,
 				userId: session?.user.id,
 				limit: PAGE_SIZE,
 				categoryId: categoryResponse?.categoryId || activeCategory,
 				chatbotName: chatbotName || activeChatbot?.name,
-				isAdminMode,
 			})
 
 			// Check if the fetchId matches the current fetchId stored in the ref
@@ -329,7 +320,7 @@ export default function UserThreadPanel({
 				// If it matches, update the threads state
 				setState({
 					threads: newThreads,
-					totalThreads: threads?.length,
+					totalThreads: threads?.length + newThreads.length,
 					count,
 				})
 			}
@@ -422,12 +413,19 @@ export default function UserThreadPanel({
 				</div>
 			)}
 			<ul
-				className={cn('flex flex-col size-full gap-3 pb-36', {
+				className={cn('flex flex-col size-full gap-3 !pb-36', {
 					'items-center justify-center': showNoResults || showChatbotDetails,
 				})}
 			>
 				{showChatbotDetails ? (
-					<ChatChatbotDetails />
+					page === 'profile' ? (
+						<EmptyState
+							title="No Threads Available"
+							description={`There are no threads available for ${userProps?.username} yet.`}
+						/>
+					) : (
+						<ChatChatbotDetails />
+					)
 				) : (
 					<ThreadList
 						threads={threads}
@@ -436,7 +434,10 @@ export default function UserThreadPanel({
 						count={count}
 					/>
 				)}
-				{(showNoResults || (totalThreads === count && threads.length > 0)) && (
+				{totalThreads === count && threads.length > 0 && !loading && (
+					<hr className="w-full border-t-2 border-t-foreground/15 mt-12" />
+				)}
+				{showNoResults && (
 					<NoResults
 						searchTerm={searchTerm}
 						totalItems={totalThreads}

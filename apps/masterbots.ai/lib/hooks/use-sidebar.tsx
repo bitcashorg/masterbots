@@ -98,7 +98,6 @@ export function SidebarProvider({ children }: SidebarProviderProps) {
 			if (error) throw error
 			userId = user ? user?.userId : null
 		}
-
 		const categories = await getCategories(userId)
 		const categoriesObj = {
 			categoriesChatbots: categories || [],
