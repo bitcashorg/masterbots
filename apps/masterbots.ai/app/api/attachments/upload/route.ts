@@ -27,7 +27,7 @@ export async function POST(request: Request) {
 
 		if (appConfig.features.devMode) {
 			console.info(
-				'Attachment uploaded successfully to Cloudinary',
+				'Attachment uploaded successfully to gCloud Bucket:',
 				uploadResults,
 			)
 		}

@@ -177,10 +177,6 @@ export async function uploadAttachmentToBucket({
 			private_key: appConfig.features.storageSecretAccessKey,
 		},
 	})
-	console.log('Initializing Google Cloud Storage client', {
-		projectId: appConfig.features.storageProjectId,
-		bucketName: appConfig.features.storageBucketName,
-	})
 	const bucket = storage.bucket(appConfig.features.storageBucketName)
 	const fileUpload = bucket.file(bucketKey)
 

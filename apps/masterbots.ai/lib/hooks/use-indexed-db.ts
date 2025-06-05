@@ -133,6 +133,48 @@ export function useIndexedDB({
 					return resolve(newAttachments)
 				}
 
+				if (
+					currentUserMetadata &&
+					currentUserMetadata.length > newAttachments.length
+				) {
+					// This means that the remote has more attachments than local hence, the user is on a new browser or device
+					if (appConfig.features.devMode) {
+						console.warn(
+							'Remote has more attachments than local, updating local attachments',
+						)
+					}
+
+					const downloadedAttachments: FileAttachment[] = []
+
+					for (const attachment of currentUserMetadata) {
+						const response = await fetch(attachment.url)
+						if (!response.ok)
+							throw new Error(`Failed to fetch ${attachment.name} from GCS`)
+
+						const blob = await response.blob()
+						const base64 = await new Promise<string>((resolve, reject) => {
+							const reader = new FileReader()
+							reader.onloadend = () => resolve(reader.result as string)
+							reader.onerror = reject
+							reader.readAsDataURL(blob) // This includes the MIME type automatically
+						})
+						const downloadedAttachment: FileAttachment = {
+							...attachment,
+							content: base64,
+						}
+
+						try {
+							updateItem(downloadedAttachment.id, downloadedAttachment)
+						} catch (error) {
+							addItem(downloadedAttachment)
+						}
+
+						downloadedAttachments.push(downloadedAttachment)
+					}
+
+					return resolve(downloadedAttachments)
+				}
+
 				for (const attachment of newAttachments as FileAttachment[]) {
 					const thread = await getUserThreadsMetadata(attachment.messageIds)
 
