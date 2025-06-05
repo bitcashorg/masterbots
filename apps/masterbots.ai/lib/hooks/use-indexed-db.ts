@@ -200,20 +200,26 @@ export function useIndexedDB({
 							},
 						})
 
-						if (uploadAttachmentData) {
-							attachment.url = uploadAttachmentData.url
-							attachment.size = uploadAttachmentData.size
-							attachment.contentType = uploadAttachmentData.contentType
-							attachment.name = uploadAttachmentData.name
+						if (!uploadAttachmentData) {
+							throw new Error('Failed to upload attachment, no data returned')
 						}
+						newAttachments = newAttachments.map((att) => {
+							if (att.id === attachment.id) {
+								return {
+									...att,
+									...uploadAttachmentData,
+								}
+							}
+							return att
+						})
 					} catch (error) {
 						console.error(
 							'Failed to upload the attachment to the bucket: ',
 							error,
 						)
+						newAttachments.push(attachment)
 					}
 
-					newAttachments.push(attachment)
 					newAttachments = uniqBy(newAttachments, 'id')
 				}
 

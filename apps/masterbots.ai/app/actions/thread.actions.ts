@@ -181,22 +181,6 @@ export async function uploadAttachmentToBucket({
 		projectId: appConfig.features.storageProjectId,
 		bucketName: appConfig.features.storageBucketName,
 	})
-	const [buckets] = await storage.getBuckets()
-
-	console.log(
-		' Available buckets:',
-		buckets.map((b) => b.name),
-	)
-
-	if (
-		!buckets.some(
-			(bucket) => bucket.name === appConfig.features.storageBucketName,
-		)
-	) {
-		throw new Error(
-			`Storage bucket ${appConfig.features.storageBucketName} does not exist`,
-		)
-	}
 	const bucket = storage.bucket(appConfig.features.storageBucketName)
 	const fileUpload = bucket.file(bucketKey)
 
