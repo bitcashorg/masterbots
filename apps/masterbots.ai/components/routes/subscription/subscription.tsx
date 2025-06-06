@@ -64,14 +64,14 @@ export default function Subscription() {
 		const del = await handleDeleteCustomer(email)
 		handleSetLoading(false)
 		handleSetError('')
-		if (del) return router.push('/c')
+		// if (del) return router.push('/c')
 	}
 
 	return (
 		<div className="flex items-center justify-center">
 			<DialogWizard
 				handleCloseWizard={handleCloseWizard}
-				dialogOpen={Boolean(openDialog)}
+				dialogOpen={!Boolean(openDialog)}
 				steps={steps}
 				headerTitle="Masterbots Subscription plans"
 				errorComponent={<ErrorContent />}

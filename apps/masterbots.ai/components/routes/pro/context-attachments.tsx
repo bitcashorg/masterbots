@@ -1,22 +1,22 @@
 'use client'
 
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
 } from '@/components/ui/accordion'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import {
-  ClipboardList,
-  Download,
-  FileText,
-  GraduationCap,
-  Presentation,
-  Upload,
+	ClipboardList,
+	Download,
+	FileText,
+	GraduationCap,
+	Presentation,
+	Upload,
 } from 'lucide-react'
 import type * as React from 'react'
 

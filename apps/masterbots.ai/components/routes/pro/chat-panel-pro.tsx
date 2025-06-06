@@ -5,7 +5,6 @@ import { PromptForm } from '@/components/routes/chat/prompt-form'
 import { WorkspaceContent } from '@/components/routes/workspace/workspace-content'
 import { WorkspaceDepartmentSelect } from '@/components/routes/workspace/workspace-department-select'
 import { WorkspaceDocumentSelect } from '@/components/routes/workspace/workspace-document-select'
-import { WorkspaceForm } from '@/components/routes/workspace/workspace-form'
 import { WorkspaceOrganizationSelect } from '@/components/routes/workspace/workspace-organization-select'
 import { WorkspaceProjectSelect } from '@/components/routes/workspace/workspace-project-select'
 import { ButtonScrollToBottom } from '@/components/shared/button-scroll-to-bottom'
@@ -18,7 +17,6 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from '@/components/ui/dialog'
 import {
 	DropdownMenu,
@@ -38,14 +36,19 @@ import { Textarea } from '@/components/ui/textarea'
 import { useContinueGeneration } from '@/lib/hooks/use-continue-generation'
 import { useDeepThinking } from '@/lib/hooks/use-deep-thinking'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
+import { useModel } from '@/lib/hooks/use-model'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
-import { createStructuredMarkdown } from '@/lib/markdown-utils'
+import {
+	combineMarkdownSections,
+	createStructuredMarkdown,
+	parseMarkdownSections,
+} from '@/lib/markdown-utils'
 import { logErrorToSentry } from '@/lib/sentry'
 import { cn } from '@/lib/utils'
+import { type UseChatHelpers, useChat } from '@ai-sdk/react'
 import type { Message as AiMessage } from 'ai'
-import type { UseChatHelpers } from 'ai/react'
 import {
 	BrainIcon,
 	ChevronDownIcon,
@@ -59,8 +62,8 @@ import {
 } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import type { Chatbot } from 'mb-genql'
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { useCallback } from 'react'
+import { nanoid } from 'nanoid'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 export interface ChatPanelProProps
 	extends Pick<
@@ -90,15 +93,8 @@ export interface ChatPanelProProps
 }
 
 export function ChatPanelPro({
-	id,
 	title,
 	isLoading,
-	stop,
-	append,
-	reload,
-	input,
-	setInput,
-	messages,
 	chatbot,
 	placeholder,
 	showReload = true,
@@ -121,6 +117,15 @@ export function ChatPanelPro({
 	const { isPowerUp, togglePowerUp } = usePowerUp()
 	const { isDeepThinking, toggleDeepThinking } = useDeepThinking()
 	const [shareDialogOpen, setShareDialogOpen] = useState(false)
+	const { selectedModel, clientType } = useModel()
+	const { append, messages, reload, setInput, input, id } = useChat({
+		id: nanoid(),
+		body: {
+			id: nanoid(),
+			model: selectedModel,
+			clientType,
+		},
+	})
 
 	// Use either external state (if provided) or local state for conversion dialog
 	const [localConvertDialogOpen, setLocalConvertDialogOpen] = useState(false)
@@ -168,6 +173,14 @@ export function ChatPanelPro({
 		setIsCutOff,
 		setIsContinuing,
 	} = useContinueGeneration()
+
+	// Workspace processing state
+	const [workspaceProcessingState, setWorkspaceProcessingState] = useState<
+		'idle' | 'analyzing' | 'generating' | 'updating'
+	>('idle')
+	const [activeWorkspaceSection, setActiveWorkspaceSection] = useState<
+		string | null
+	>(null)
 	const [, { appendWithMbContextPrompts }] = useMBChat()
 	const {
 		isWorkspaceActive,
@@ -188,6 +201,7 @@ export function ChatPanelPro({
 		imageDocuments,
 		spreadsheetDocuments,
 		projectsByDept,
+		documentContent,
 		setDocumentContent,
 	} = useWorkspace()
 
@@ -231,7 +245,10 @@ export function ChatPanelPro({
 		documentTypeRef.current = documentType
 
 		// Deep validation check for document sources with improved logging
-		const validateDocSource = (source, sourceName) => {
+		const validateDocSource = (
+			source: Record<string, string[]> | null,
+			sourceName: string,
+		) => {
 			if (!source) {
 				console.log(`[${effectId}] ${sourceName} is null or undefined`)
 				return false
@@ -453,7 +470,7 @@ export function ChatPanelPro({
 	const handleOpenConvertDialog = (messageId: string) => {
 		const message = messages.find((m) => m.id === messageId)
 		if (message) {
-			setSelectedMessageId(messageId)
+			setLocalSelectedMessageId(messageId)
 			setConvertedText(message.content)
 			setTargetProject(projectList[0] || null)
 			setTargetDocument(null)
@@ -483,7 +500,7 @@ export function ChatPanelPro({
 
 		// Close dialog and reset
 		setConvertDialogOpen(false)
-		setSelectedMessageId(null)
+		setLocalSelectedMessageId(null)
 		setConvertedText('')
 		setTargetProject(null)
 		setTargetDocument(null)
@@ -507,6 +524,256 @@ export function ChatPanelPro({
 		}),
 		[isPowerUp, isDeepThinking, webSearch],
 	)
+
+	// Function to get workspace-specific loading messages
+	const getWorkspaceLoadingMessage = (state: string | null) => {
+		if (workspaceProcessingState === 'analyzing') {
+			return activeWorkspaceSection
+				? 'Analyzing focused section context...'
+				: 'Analyzing document context...'
+		}
+		if (workspaceProcessingState === 'generating') {
+			return activeWorkspaceSection
+				? 'Generating section update...'
+				: 'Generating content...'
+		}
+		if (workspaceProcessingState === 'updating') {
+			return activeWorkspaceSection
+				? 'Updating focused section...'
+				: 'Updating document...'
+		}
+		return 'Processing...'
+	}
+
+	// Function to create meta prompt with document context and chatbot expertise
+	const createDocumentMetaPrompt = (
+		userPrompt: string,
+		documentContent: string,
+		activeSection: string | null,
+	) => {
+		const sections = parseMarkdownSections(documentContent)
+		const sectionsContext = sections
+			.map(
+				(section) =>
+					`## ${section.title} (Level ${section.level})\n${section.content}\n`,
+			)
+			.join('\n')
+
+		const focusedSection = activeSection
+			? sections.find((s) => s.id === activeSection)
+			: null
+		const focusContext = focusedSection
+			? `\n\nCURRENT FOCUS SECTION:\n## ${focusedSection.title}\n${focusedSection.content}`
+			: ''
+
+		// Add chatbot expertise if available
+		let chatbotExpertise = ''
+		if (chatbot?.prompts && chatbot.prompts.length > 0) {
+			const expertisePrompts = chatbot.prompts
+				.filter((p) => p.prompt.type === 'prompt')
+				.map((p) => `<expertise>\n${p.prompt.content}\n</expertise>`)
+				.join('\n\n')
+
+			const instructionPrompts = chatbot.prompts
+				.filter((p) => p.prompt.type === 'instruction')
+				.map((p) => `<instructions>\n${p.prompt.content}\n</instructions>`)
+				.join('\n\n')
+
+			chatbotExpertise = `\n\nCHATBOT EXPERTISE:\n${expertisePrompts}\n\n${instructionPrompts}\n`
+		}
+
+		// Add output instructions
+		const outputInstructions = `
+<output_instructions>
+- Use different heading levels (e.g., H1, H2, H3) and punctuation for better readability.
+- Use lists when necessary for clarity and organization.
+- Maintain the document's style and tone
+- For editing requests, provide the updated content that should replace the existing section
+- Ensure your response is clear and actionable
+- Focus specifically on document editing and content improvement
+</output_instructions>`
+
+		return `You are an expert document editor and content creator working with specialized chatbot expertise.${chatbotExpertise}
+
+DOCUMENT CONTEXT:
+${sectionsContext}${focusContext}
+
+USER REQUEST: ${userPrompt}
+
+${outputInstructions}
+
+INSTRUCTIONS:
+1. Apply your specialized expertise to the document editing task
+2. Analyze the user's request in the context of the provided document
+3. If the user is asking to edit a specific section, focus your response on that section
+4. If the user is asking general questions, provide answers based on the full document context
+5. For editing requests, provide the updated content that should replace the existing section
+6. Maintain the document's style and tone while applying your expertise
+
+Please provide your response now:`
+	}
+
+	// Function to handle workspace document editing
+	const handleWorkspaceEdit = async (userPrompt: string, chatOptions: any) => {
+		console.log('🚀 handleWorkspaceEdit called with:', {
+			userPrompt,
+			activeProject,
+			activeDocument,
+		})
+
+		if (!activeProject || !activeDocument) {
+			console.error('❌ No active project or document selected')
+			return
+		}
+
+		console.log('📝 Setting analyzing state...')
+		setWorkspaceProcessingState('analyzing')
+
+		try {
+			// Get current document content
+			const documentKey = `${activeProject}:${activeDocument}`
+			const currentContent = documentContent?.[documentKey] || ''
+
+			console.log('📄 Document content length:', currentContent.length)
+
+			// Use the currently focused section from WorkspaceContent
+			const activeSection = activeWorkspaceSection
+			console.log('🎯 Active section:', activeSection)
+
+			// Create meta prompt with document context and chatbot expertise
+			const metaPrompt = createDocumentMetaPrompt(
+				userPrompt,
+				currentContent,
+				activeSection,
+			)
+			console.log('🤖 Meta prompt created, length:', metaPrompt.length)
+
+			setWorkspaceProcessingState('generating')
+
+			console.log('🔄 Using raw append for workspace-specific handling...')
+
+			// Set up a custom message handler that will capture the AI response
+			// and apply it directly to the document without showing in chat UI
+			const accumulatedResponse = ''
+			const isFirstChunk = true
+
+			// Prepare options with custom onFinish to handle document updates
+			const workspaceOptions = {
+				...prepareMessageOptions(chatOptions),
+				onFinish: (message: any) => {
+					console.log('🏁 AI response finished:', message)
+					// Process the complete response for document updates
+					handleDocumentUpdate(
+						accumulatedResponse,
+						activeSection,
+						currentContent,
+						documentKey,
+					)
+				},
+			}
+
+			// Call the AI with the meta prompt using raw append
+			const result = await append(
+				{
+					id: id || crypto.randomUUID(),
+					content: metaPrompt,
+					role: 'user',
+				},
+				workspaceOptions,
+			)
+
+			console.log('✅ Workspace edit initiated successfully', result)
+		} catch (error) {
+			console.error('❌ Error in workspace edit:', error)
+			setWorkspaceProcessingState('idle')
+		}
+	}
+
+	// Helper function to handle document updates from AI responses
+	const handleDocumentUpdate = (
+		aiResponse: string,
+		activeSection: string | null,
+		currentContent: string,
+		documentKey: string,
+	) => {
+		console.log('📝 Processing document update:', {
+			responseLength: aiResponse.length,
+			activeSection,
+			documentKey,
+		})
+
+		setWorkspaceProcessingState('updating')
+
+		try {
+			// Parse the current document into sections
+			const sections = parseMarkdownSections(currentContent)
+
+			// If there's an active section, try to update that specific section
+			if (activeSection && sections.length > 0) {
+				const sectionIndex = sections.findIndex((s) => s.id === activeSection)
+				if (sectionIndex !== -1) {
+					// Update the specific section with AI response
+					const updatedSections = [...sections]
+
+					// Check if AI response is a complete replacement or just content
+					if (aiResponse.includes('#')) {
+						// AI provided structured content - parse and merge
+						const aiSections = parseMarkdownSections(aiResponse)
+						if (aiSections.length === 1) {
+							// Single section response - replace the target section
+							updatedSections[sectionIndex] = {
+								...updatedSections[sectionIndex],
+								content: aiSections[0].content,
+								title:
+									aiSections[0].title || updatedSections[sectionIndex].title,
+							}
+						} else {
+							// Multiple sections - insert after current section
+							updatedSections.splice(sectionIndex + 1, 0, ...aiSections)
+						}
+					} else {
+						// Plain text response - update section content
+						updatedSections[sectionIndex] = {
+							...updatedSections[sectionIndex],
+							content: aiResponse,
+						}
+					}
+
+					// Reconstruct the document
+					const newMarkdown = combineMarkdownSections(updatedSections)
+					if (activeProject && activeDocument) {
+						setDocumentContent(activeProject, activeDocument, newMarkdown)
+					}
+				} else {
+					// Section not found, append to document
+					const updatedContent = `${currentContent}\n\n## AI Update\n\n${aiResponse}`
+					if (activeProject && activeDocument) {
+						setDocumentContent(activeProject, activeDocument, updatedContent)
+					}
+				}
+			} else {
+				// No active section - handle as full document update
+				if (aiResponse.includes('#') && aiResponse.includes('\n')) {
+					// AI provided structured content - use it as new document content
+					if (activeProject && activeDocument) {
+						setDocumentContent(activeProject, activeDocument, aiResponse)
+					}
+				} else {
+					// Plain text response - append to document
+					const updatedContent = `${currentContent}\n\n## AI Update\n\n${aiResponse}`
+					if (activeProject && activeDocument) {
+						setDocumentContent(activeProject, activeDocument, updatedContent)
+					}
+				}
+			}
+
+			console.log('✅ Document updated successfully')
+			setWorkspaceProcessingState('idle')
+		} catch (error) {
+			console.error('❌ Error updating document:', error)
+			setWorkspaceProcessingState('idle')
+		}
+	}
 
 	// Memoize document options with improved reference tracking
 	const documentOptionsRef = useRef<string[]>([])
@@ -851,6 +1118,11 @@ export function ChatPanelPro({
 										{loadingState !== 'finished' && (
 											<LoadingIndicator state={loadingState} />
 										)}
+										{isWorkspaceActive && isLoading && (
+											<div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-md">
+												{getWorkspaceLoadingMessage(loadingState || null)}
+											</div>
+										)}
 										{isLoading && (
 											<Button
 												variant="outline"
@@ -1036,6 +1308,7 @@ export function ChatPanelPro({
 								documentType={documentType}
 								isLoading={isLoading}
 								className="h-[calc(100%-48px)] overflow-auto"
+								onActiveSectionChange={setActiveWorkspaceSection}
 							/>
 						</div>
 					)}
@@ -1108,17 +1381,26 @@ export function ChatPanelPro({
 						<div className="mt-[1px]">
 							<PromptForm
 								onSubmit={async (value, chatOptions) => {
+									console.log('🎯 PromptForm onSubmit called:', {
+										value,
+										isWorkspaceActive,
+										activeProject,
+										activeDocument,
+										appendFunction: typeof append,
+									})
+
 									if (isWorkspaceActive) {
 										// In workspace mode, use input for editing the document
 										console.log(
-											'AI assist requested for document:',
+											'🏢 Workspace mode: AI assist requested for document:',
 											activeDocument,
 											'with query:',
 											value,
 										)
-										// Here we would handle the workspace edit operation
+										await handleWorkspaceEdit(value, chatOptions)
 									} else {
 										// In chat mode, use normal append behavior
+										console.log('💬 Chat mode: using normal append')
 										scrollToBottom()
 										await append(
 											{
@@ -1134,12 +1416,17 @@ export function ChatPanelPro({
 								disabled={
 									(isWorkspaceActive && (!activeProject || !activeDocument)) ||
 									isLoading ||
+									workspaceProcessingState !== 'idle' ||
 									(!isWorkspaceActive && !Boolean(chatbot)) ||
 									isPreProcessing
 								}
 								input={input}
 								setInput={setInput}
-								isLoading={isLoading || isPreProcessing}
+								isLoading={
+									isLoading ||
+									isPreProcessing ||
+									workspaceProcessingState !== 'idle'
+								}
 								placeholder={
 									isWorkspaceActive
 										? 'Ask questions or request edits to your document...'

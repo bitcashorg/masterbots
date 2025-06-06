@@ -36,7 +36,7 @@ import type React from 'react'
 import { useState } from 'react'
 import { useAsync } from 'react-use'
 
-export function Plans({ next, goTo }: PlansPros) {
+export function Plans({ next, goTo, close }: PlansPros) {
 	const {
 		handlePlan,
 		handleSetSecret,
@@ -70,8 +70,9 @@ export function Plans({ next, goTo }: PlansPros) {
 	}
 
 	const handleCloseWizard = async () => {
+		close()
 		const del = await handleDeleteCustomer(email)
-		if (del) return router.push('/c')
+		// if (del) return router.push('/c')
 	}
 
 	const handleSubscription = async (plan: {

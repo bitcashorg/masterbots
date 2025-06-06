@@ -36,6 +36,7 @@ interface WorkspaceContentProps {
 	className?: string
 	isLoading?: boolean
 	documentType?: 'text' | 'image' | 'spreadsheet'
+	onActiveSectionChange?: (sectionId: string | null) => void
 }
 
 export function WorkspaceContent({
@@ -44,6 +45,7 @@ export function WorkspaceContent({
 	className,
 	isLoading = false,
 	documentType = 'text',
+	onActiveSectionChange,
 }: WorkspaceContentProps) {
 	// Initial document for new documents
 	const initialMarkdown = `# Introduction
@@ -99,6 +101,8 @@ The conclusion summarizes the key points and implications of the project.
 			setActiveSection(null)
 			setEditableContent('')
 			prevDocumentKeyRef.current = documentKey
+			// Notify parent that no section is active
+			onActiveSectionChange?.(null)
 
 			// If we have saved content for this document, load it
 			if (savedContent) {
@@ -110,13 +114,22 @@ The conclusion summarizes the key points and implications of the project.
 				setSections(parseMarkdownSections(initialMarkdown))
 			}
 		}
-	}, [projectName, documentName, documentKey, savedContent, initialMarkdown])
+	}, [
+		projectName,
+		documentName,
+		documentKey,
+		savedContent,
+		initialMarkdown,
+		onActiveSectionChange,
+	])
 
 	const handleSectionClick = (sectionId: string) => {
 		const section = sections.find((s) => s.id === sectionId)
 		if (section) {
 			setActiveSection(sectionId)
 			setEditableContent(section.content)
+			// Notify parent component about active section change
+			onActiveSectionChange?.(sectionId)
 		}
 	}
 

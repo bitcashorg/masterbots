@@ -15,6 +15,7 @@ interface WorkspaceProjectSelectProps {
 	onChange: (value: string) => void
 	options: string[]
 	className?: string
+	disabled?: boolean
 }
 
 export function WorkspaceProjectSelect({
@@ -22,10 +23,11 @@ export function WorkspaceProjectSelect({
 	onChange,
 	options,
 	className,
+	disabled = false,
 }: WorkspaceProjectSelectProps) {
 	return (
 		<div className={cn('flex items-center', className)}>
-			<Select value={value || ''} onValueChange={onChange}>
+			<Select value={value || ''} onValueChange={onChange} disabled={disabled}>
 				<SelectTrigger className="w-[180px]">
 					<SelectValue placeholder="Select Project" />
 				</SelectTrigger>
