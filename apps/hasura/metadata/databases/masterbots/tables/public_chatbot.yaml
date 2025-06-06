@@ -61,6 +61,8 @@ select_permissions:
   - role: anonymous
     permission:
       columns:
+        - is_pro
+        - pro_exclusive
         - chatbot_id
         - avatar
         - created_by
@@ -76,6 +78,8 @@ select_permissions:
   - role: moderator
     permission:
       columns:
+        - is_pro
+        - pro_exclusive
         - chatbot_id
         - avatar
         - created_by
@@ -91,6 +95,8 @@ select_permissions:
   - role: user
     permission:
       columns:
+        - is_pro
+        - pro_exclusive
         - chatbot_id
         - avatar
         - created_by

@@ -1,3 +1,4 @@
+import { ShareButton } from '@/components/routes/chat/share-button'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -8,7 +9,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -26,7 +27,6 @@ import type { Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 import type React from 'react'
 import { useState } from 'react'
-import { ShareButton } from './share-button'
 
 interface ChatOptionsProps {
 	threadId: string
@@ -144,40 +144,28 @@ export function ChatOptions({ threadId, thread }: ChatOptionsProps) {
 								</DropdownMenuItem>
 							)}
 							<DropdownMenuItem
-								className="flex w-full p-0 rounded-none"
-								onClick={(event) => event.preventDefault()}
+								className="flex justify-between w-full px-4 rounded-none hover:bg-accent"
+								onSelect={async (event) => {
+									event.preventDefault()
+									try {
+										await toggleVisibility(!thread?.isPublic, threadId)
+										thread.isPublic = !thread?.isPublic
+									} catch (error) {
+										console.error('Failed to update thread visibility:', error)
+									}
+								}}
 							>
-								<Button
-									type="button"
-									variant="ghost"
-									radius="none"
-									size="lg"
-									className="flex justify-between w-full px-4 rounded-none"
-									onClick={async (event) => {
-										event.stopPropagation()
-										try {
-											await toggleVisibility(!thread?.isPublic, threadId)
-											thread.isPublic = !thread?.isPublic
-										} catch (error) {
-											console.error(
-												'Failed to update thread visibility:',
-												error,
-											)
-										}
-									}}
-								>
-									{thread?.isPublic ? (
-										<>
-											<EyeOff className="w-4 h-4" />
-											<span className="font-light">Make private</span>
-										</>
-									) : (
-										<>
-											<Eye className="w-4 h-4" />
-											<span>Make public</span>
-										</>
-									)}
-								</Button>
+								{thread?.isPublic ? (
+									<>
+										<EyeOff className="w-4 h-4" />
+										<span className="font-light">Make private</span>
+									</>
+								) : (
+									<>
+										<Eye className="w-4 h-4" />
+										<span>Make public</span>
+									</>
+								)}
 							</DropdownMenuItem>
 						</>
 					)}
@@ -195,27 +183,14 @@ export function ChatOptions({ threadId, thread }: ChatOptionsProps) {
 						<>
 							<DropdownMenuSeparator />
 							<DropdownMenuItem
-								className="flex w-full p-0 rounded-none"
+								className="flex justify-between w-full px-4 rounded-none text-destructive hover:text-destructive hover:bg-destructive/10"
 								onSelect={(event) => {
 									event.preventDefault()
-									event.stopPropagation()
 									setIsDeleteOpen(true)
 								}}
 							>
-								<Button
-									type="button"
-									variant="destructive"
-									radius="none"
-									size="lg"
-									className="flex justify-between w-full px-4 rounded-none"
-									onClick={(event) => {
-										event.stopPropagation()
-										setIsDeleteOpen(true)
-									}}
-								>
-									<Trash className="w-4 h-4" />
-									<span>Delete</span>
-								</Button>
+								<Trash className="w-4 h-4" />
+								<span>Delete</span>
 							</DropdownMenuItem>
 						</>
 					)}
