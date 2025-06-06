@@ -46,6 +46,10 @@ const DialogWizard: React.FC<DialogWizardProps> = ({
 	handleCloseWizard,
 	errorComponent,
 }) => {
+	const { isDialogOpen } = useWizard(steps, dialogOpen)
+
+	if (!isDialogOpen || !dialogOpen) return null
+
 	return (
 		<Dialog open={dialogOpen} onOpenChange={handleCloseWizard}>
 			<DialogContent className="flex flex-col  rounded-sm max-h-screen md:min-h-[540px] w-full md:w-11/12 p-0 md:max-w-2xl z-50 bg-gray-100 dark:bg-[#27272A] border border-iron dark:border-mirage overflow-y-auto ">
@@ -74,10 +78,8 @@ function Content({
 	dialogOpen: boolean
 }) {
 	const { error, loading } = usePayment()
-	const { close, Next, Prev, goTo, lastStep, currentStep } = useWizard(
-		steps,
-		dialogOpen,
-	)
+	const { close, Next, Prev, goTo, isDialogOpen, lastStep, currentStep } =
+		useWizard(steps, dialogOpen)
 	const defaultErrorComponent = () => <div>{error}</div>
 	const ErrorComponent = errorComponent
 		? () => errorComponent

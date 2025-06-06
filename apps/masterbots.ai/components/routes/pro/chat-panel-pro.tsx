@@ -40,8 +40,8 @@ import { useModel } from '@/lib/hooks/use-model'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
+import { useWorkspaceChat } from '@/lib/hooks/use-workspace-chat'
 import {
-	combineMarkdownSections,
 	createStructuredMarkdown,
 	parseMarkdownSections,
 } from '@/lib/markdown-utils'
@@ -174,13 +174,15 @@ export function ChatPanelPro({
 		setIsContinuing,
 	} = useContinueGeneration()
 
-	// Workspace processing state
-	const [workspaceProcessingState, setWorkspaceProcessingState] = useState<
-		'idle' | 'analyzing' | 'generating' | 'updating'
-	>('idle')
-	const [activeWorkspaceSection, setActiveWorkspaceSection] = useState<
-		string | null
-	>(null)
+	// Use workspace chat hook for workspace-specific functionality
+	const {
+		workspaceProcessingState,
+		setWorkspaceProcessingState,
+		activeWorkspaceSection,
+		setActiveWorkspaceSection,
+		handleWorkspaceEdit: workspaceHandleEdit,
+		handleDocumentUpdate: workspaceHandleDocumentUpdate,
+	} = useWorkspaceChat()
 	const [, { appendWithMbContextPrompts }] = useMBChat()
 	const {
 		isWorkspaceActive,
@@ -398,13 +400,13 @@ export function ChatPanelPro({
 
 			// Check if current project has documents in the new type
 			if (activeProject) {
-				let newDocs
+				let newDocs: string[] | undefined
 				if (documentType === 'text') {
-					newDocs = textDocuments && textDocuments[activeProject]
+					newDocs = textDocuments?.[activeProject]
 				} else if (documentType === 'image') {
-					newDocs = imageDocuments && imageDocuments[activeProject]
+					newDocs = imageDocuments?.[activeProject]
 				} else if (documentType === 'spreadsheet') {
-					newDocs = spreadsheetDocuments && spreadsheetDocuments[activeProject]
+					newDocs = spreadsheetDocuments?.[activeProject]
 				}
 
 				console.log(
@@ -611,168 +613,6 @@ INSTRUCTIONS:
 6. Maintain the document's style and tone while applying your expertise
 
 Please provide your response now:`
-	}
-
-	// Function to handle workspace document editing
-	const handleWorkspaceEdit = async (userPrompt: string, chatOptions: any) => {
-		console.log('🚀 handleWorkspaceEdit called with:', {
-			userPrompt,
-			activeProject,
-			activeDocument,
-		})
-
-		if (!activeProject || !activeDocument) {
-			console.error('❌ No active project or document selected')
-			return
-		}
-
-		console.log('📝 Setting analyzing state...')
-		setWorkspaceProcessingState('analyzing')
-
-		try {
-			// Get current document content
-			const documentKey = `${activeProject}:${activeDocument}`
-			const currentContent = documentContent?.[documentKey] || ''
-
-			console.log('📄 Document content length:', currentContent.length)
-
-			// Use the currently focused section from WorkspaceContent
-			const activeSection = activeWorkspaceSection
-			console.log('🎯 Active section:', activeSection)
-
-			// Create meta prompt with document context and chatbot expertise
-			const metaPrompt = createDocumentMetaPrompt(
-				userPrompt,
-				currentContent,
-				activeSection,
-			)
-			console.log('🤖 Meta prompt created, length:', metaPrompt.length)
-
-			setWorkspaceProcessingState('generating')
-
-			console.log('🔄 Using raw append for workspace-specific handling...')
-
-			// Set up a custom message handler that will capture the AI response
-			// and apply it directly to the document without showing in chat UI
-			const accumulatedResponse = ''
-			const isFirstChunk = true
-
-			// Prepare options with custom onFinish to handle document updates
-			const workspaceOptions = {
-				...prepareMessageOptions(chatOptions),
-				onFinish: (message: any) => {
-					console.log('🏁 AI response finished:', message)
-					// Process the complete response for document updates
-					handleDocumentUpdate(
-						accumulatedResponse,
-						activeSection,
-						currentContent,
-						documentKey,
-					)
-				},
-			}
-
-			// Call the AI with the meta prompt using raw append
-			const result = await append(
-				{
-					id: id || crypto.randomUUID(),
-					content: metaPrompt,
-					role: 'user',
-				},
-				workspaceOptions,
-			)
-
-			console.log('✅ Workspace edit initiated successfully', result)
-		} catch (error) {
-			console.error('❌ Error in workspace edit:', error)
-			setWorkspaceProcessingState('idle')
-		}
-	}
-
-	// Helper function to handle document updates from AI responses
-	const handleDocumentUpdate = (
-		aiResponse: string,
-		activeSection: string | null,
-		currentContent: string,
-		documentKey: string,
-	) => {
-		console.log('📝 Processing document update:', {
-			responseLength: aiResponse.length,
-			activeSection,
-			documentKey,
-		})
-
-		setWorkspaceProcessingState('updating')
-
-		try {
-			// Parse the current document into sections
-			const sections = parseMarkdownSections(currentContent)
-
-			// If there's an active section, try to update that specific section
-			if (activeSection && sections.length > 0) {
-				const sectionIndex = sections.findIndex((s) => s.id === activeSection)
-				if (sectionIndex !== -1) {
-					// Update the specific section with AI response
-					const updatedSections = [...sections]
-
-					// Check if AI response is a complete replacement or just content
-					if (aiResponse.includes('#')) {
-						// AI provided structured content - parse and merge
-						const aiSections = parseMarkdownSections(aiResponse)
-						if (aiSections.length === 1) {
-							// Single section response - replace the target section
-							updatedSections[sectionIndex] = {
-								...updatedSections[sectionIndex],
-								content: aiSections[0].content,
-								title:
-									aiSections[0].title || updatedSections[sectionIndex].title,
-							}
-						} else {
-							// Multiple sections - insert after current section
-							updatedSections.splice(sectionIndex + 1, 0, ...aiSections)
-						}
-					} else {
-						// Plain text response - update section content
-						updatedSections[sectionIndex] = {
-							...updatedSections[sectionIndex],
-							content: aiResponse,
-						}
-					}
-
-					// Reconstruct the document
-					const newMarkdown = combineMarkdownSections(updatedSections)
-					if (activeProject && activeDocument) {
-						setDocumentContent(activeProject, activeDocument, newMarkdown)
-					}
-				} else {
-					// Section not found, append to document
-					const updatedContent = `${currentContent}\n\n## AI Update\n\n${aiResponse}`
-					if (activeProject && activeDocument) {
-						setDocumentContent(activeProject, activeDocument, updatedContent)
-					}
-				}
-			} else {
-				// No active section - handle as full document update
-				if (aiResponse.includes('#') && aiResponse.includes('\n')) {
-					// AI provided structured content - use it as new document content
-					if (activeProject && activeDocument) {
-						setDocumentContent(activeProject, activeDocument, aiResponse)
-					}
-				} else {
-					// Plain text response - append to document
-					const updatedContent = `${currentContent}\n\n## AI Update\n\n${aiResponse}`
-					if (activeProject && activeDocument) {
-						setDocumentContent(activeProject, activeDocument, updatedContent)
-					}
-				}
-			}
-
-			console.log('✅ Document updated successfully')
-			setWorkspaceProcessingState('idle')
-		} catch (error) {
-			console.error('❌ Error updating document:', error)
-			setWorkspaceProcessingState('idle')
-		}
 	}
 
 	// Memoize document options with improved reference tracking
@@ -1001,8 +841,6 @@ Please provide your response now:`
 		imageDocuments,
 		spreadsheetDocuments,
 		documentType,
-		// Include version to force updates when document type changes
-		documentTypeVersion.current,
 	])
 
 	return (
@@ -1090,7 +928,7 @@ Please provide your response now:`
 													.reverse()
 													.find((m) => m.role === 'assistant')
 
-												if (lastAssistantMessage && lastAssistantMessage.id) {
+												if (lastAssistantMessage?.id) {
 													handleOpenConvertDialog(lastAssistantMessage.id)
 												}
 											}}
@@ -1390,14 +1228,26 @@ Please provide your response now:`
 									})
 
 									if (isWorkspaceActive) {
-										// In workspace mode, use input for editing the document
+										// In workspace mode, use the workspace chat hook
 										console.log(
 											'🏢 Workspace mode: AI assist requested for document:',
 											activeDocument,
 											'with query:',
 											value,
 										)
-										await handleWorkspaceEdit(value, chatOptions)
+
+										// Get current document content for meta prompt
+										const documentKey = `${activeProject}:${activeDocument}`
+										const currentContent = documentContent?.[documentKey] || ''
+
+										// Create meta prompt with document context
+										const metaPrompt = createDocumentMetaPrompt(
+											value,
+											currentContent,
+											activeWorkspaceSection,
+										)
+
+										await workspaceHandleEdit(value, metaPrompt)
 									} else {
 										// In chat mode, use normal append behavior
 										console.log('💬 Chat mode: using normal append')
@@ -1412,11 +1262,11 @@ Please provide your response now:`
 										)
 									}
 								}}
-								// biome-ignore lint/complexity/noExtraBooleanCast: <explanation>
 								disabled={
 									(isWorkspaceActive && (!activeProject || !activeDocument)) ||
 									isLoading ||
 									workspaceProcessingState !== 'idle' ||
+									// biome-ignore lint/complexity/noExtraBooleanCast: <explanation>
 									(!isWorkspaceActive && !Boolean(chatbot)) ||
 									isPreProcessing
 								}
@@ -1446,7 +1296,12 @@ Please provide your response now:`
 					</DialogHeader>
 					<div className="grid gap-4 py-4">
 						<div className="grid grid-cols-4 items-center gap-4">
-							<label className="text-right text-sm font-medium">Project</label>
+							<label
+								htmlFor="convert-project-select"
+								className="text-right text-sm font-medium"
+							>
+								Project
+							</label>
 							<div className="col-span-3">
 								<Select
 									value={targetProject || ''}
@@ -1455,7 +1310,7 @@ Please provide your response now:`
 										setTargetDocument(null) // Reset document when project changes
 									}}
 								>
-									<SelectTrigger>
+									<SelectTrigger id="convert-project-select">
 										<SelectValue placeholder="Select a project" />
 									</SelectTrigger>
 									<SelectContent>
@@ -1469,14 +1324,19 @@ Please provide your response now:`
 							</div>
 						</div>
 						<div className="grid grid-cols-4 items-center gap-4">
-							<label className="text-right text-sm font-medium">Document</label>
+							<label
+								htmlFor="convert-document-select"
+								className="text-right text-sm font-medium"
+							>
+								Document
+							</label>
 							<div className="col-span-3">
 								<Select
 									value={targetDocument || ''}
 									onValueChange={(value) => setTargetDocument(value || null)}
 									disabled={!targetProject}
 								>
-									<SelectTrigger>
+									<SelectTrigger id="convert-document-select">
 										<SelectValue placeholder="Select a document" />
 									</SelectTrigger>
 									<SelectContent>
@@ -1491,11 +1351,15 @@ Please provide your response now:`
 							</div>
 						</div>
 						<div className="grid grid-cols-4 items-start gap-4">
-							<label className="text-right text-sm font-medium pt-2">
+							<label
+								htmlFor="convert-content-textarea"
+								className="text-right text-sm font-medium pt-2"
+							>
 								Content
 							</label>
 							<div className="col-span-3">
 								<Textarea
+									id="convert-content-textarea"
 									value={convertedText}
 									onChange={(e) => setConvertedText(e.target.value)}
 									className="min-h-[200px]"

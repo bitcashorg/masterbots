@@ -71,7 +71,7 @@ export default function Subscription() {
 		<div className="flex items-center justify-center">
 			<DialogWizard
 				handleCloseWizard={handleCloseWizard}
-				dialogOpen={!Boolean(openDialog)}
+				dialogOpen={!openDialog}
 				steps={steps}
 				headerTitle="Masterbots Subscription plans"
 				errorComponent={<ErrorContent />}

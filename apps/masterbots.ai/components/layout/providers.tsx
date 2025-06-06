@@ -14,6 +14,7 @@ import { ThreadProvider } from '@/lib/hooks/use-thread'
 import { ThreadSearchProvider } from '@/lib/hooks/use-thread-search'
 import { ThreadVisibilityProvider } from '@/lib/hooks/use-thread-visibility'
 import { WorkspaceProvider } from '@/lib/hooks/use-workspace'
+import { WorkspaceChatProvider } from '@/lib/hooks/use-workspace-chat'
 import { SessionProvider } from 'next-auth/react'
 import {
 	type Attribute,
@@ -62,5 +63,9 @@ export function Providers({ children, ...props }: ProvidersProps) {
 }
 
 export function ProChatProviders({ children }: { children: React.ReactNode }) {
-	return <WorkspaceProvider>{children}</WorkspaceProvider>
+	return (
+		<WorkspaceProvider>
+			<WorkspaceChatProvider>{children}</WorkspaceChatProvider>
+		</WorkspaceProvider>
+	)
 }

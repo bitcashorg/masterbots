@@ -71,7 +71,7 @@ export function Plans({ next, goTo, close }: PlansPros) {
 
 	const handleCloseWizard = async () => {
 		close()
-		const del = await handleDeleteCustomer(email)
+		// const del = await handleDeleteCustomer(email)
 		// if (del) return router.push('/c')
 	}
 

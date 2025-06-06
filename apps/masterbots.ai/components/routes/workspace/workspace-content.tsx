@@ -1,17 +1,10 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import {
-	Dialog,
-	DialogContent,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { useWorkspace } from '@/lib/hooks/use-workspace'
+import { useWorkspaceChat } from '@/lib/hooks/use-workspace-chat'
 import {
 	type MarkdownSection,
 	combineMarkdownSections,
@@ -20,7 +13,6 @@ import {
 } from '@/lib/markdown-utils'
 import { cn } from '@/lib/utils'
 import {
-	Clipboard,
 	FileIcon,
 	FileText,
 	Image,
@@ -91,6 +83,8 @@ The conclusion summarizes the key points and implications of the project.
 		'sections',
 	)
 	// documentType is now passed as a prop
+	// Use workspace chat hook for workspace-specific functionality
+	const { messages } = useWorkspaceChat()
 
 	// Use a ref to track previous document key to prevent unnecessary resets
 	const prevDocumentKeyRef = React.useRef(documentKey)
@@ -114,14 +108,29 @@ The conclusion summarizes the key points and implications of the project.
 				setSections(parseMarkdownSections(initialMarkdown))
 			}
 		}
-	}, [
-		projectName,
-		documentName,
-		documentKey,
-		savedContent,
-		initialMarkdown,
-		onActiveSectionChange,
-	])
+	}, [documentKey, savedContent, onActiveSectionChange])
+
+	// Effect to handle external document content updates (e.g., from workspace chat)
+	React.useEffect(() => {
+		if (savedContent && savedContent !== fullMarkdown) {
+			console.log(
+				'📝 External document update detected, updating workspace content',
+			)
+			setFullMarkdown(savedContent)
+			setSections(parseMarkdownSections(savedContent))
+
+			// If there's an active section, update its content to reflect changes
+			if (activeSection) {
+				const updatedSections = parseMarkdownSections(savedContent)
+				const newActiveSection = updatedSections.find(
+					(s) => s.id === activeSection,
+				)
+				if (newActiveSection) {
+					setEditableContent(newActiveSection.content)
+				}
+			}
+		}
+	}, [savedContent, fullMarkdown, activeSection])
 
 	const handleSectionClick = (sectionId: string) => {
 		const section = sections.find((s) => s.id === sectionId)
