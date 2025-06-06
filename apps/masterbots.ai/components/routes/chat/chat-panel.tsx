@@ -71,6 +71,9 @@ export function ChatPanel({
 	const [, { appendWithMbContextPrompts }] = useMBChat()
 
 	const handleContinueGeneration = async () => {
+		if (formDisabled) {
+			return
+		}
 		const continuationPrompt = getContinuationPrompt()
 
 		try {
@@ -106,6 +109,7 @@ export function ChatPanel({
 	const isPreProcessing = Boolean(
 		loadingState?.match(/processing|digesting|polishing/),
 	)
+	const formDisabled = isLoading || !chatbot || isPreProcessing
 	const hiddenAnimationClasses =
 		'p-2 gap-0 w-auto relative overflow-hidden [&:hover_span]:opacity-100 [&:hover_span]:w-auto [&:hover_span]:duration-300 [&:hover_svg]:mr-2 [&:hover_span]:transition-all'
 	const hiddenAnimationItemClasses =
@@ -252,8 +256,7 @@ export function ChatPanel({
 								prepareMessageOptions(chatOptions),
 							)
 						}}
-						// biome-ignore lint/complexity/noExtraBooleanCast: <explanation>
-						disabled={isLoading || !Boolean(chatbot) || isPreProcessing}
+						disabled={formDisabled}
 						input={input}
 						setInput={setInput}
 						isLoading={isLoading || isPreProcessing}
