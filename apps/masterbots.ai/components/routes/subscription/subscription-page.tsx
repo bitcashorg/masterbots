@@ -145,9 +145,9 @@ export function SubscriptionPageComponent() {
 							Pro Plan Benefits
 						</h2>
 						<div className="w-full space-y-6">
-							{proBenefits.map((benefit, index) => (
+							{proBenefits.map((benefit) => (
 								<motion.div
-									key={index}
+									key={benefit.title}
 									className="flex items-start space-x-4 group"
 									whileHover={{ x: 5 }}
 									transition={{ type: 'spring', stiffness: 300 }}
