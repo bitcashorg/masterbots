@@ -1,4 +1,5 @@
 import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
+import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useModel } from '@/lib/hooks/use-model'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useSonner } from '@/lib/hooks/useSonner'
@@ -61,6 +62,7 @@ export function useFileAttachments(
 	const { activeThread } = useThread()
 	const dbKeys = getUserIndexedDBKeys(session?.user?.id)
 	const { mounted, ...indexedDBActions } = useIndexedDB(dbKeys)
+	const [{ isLoading }] = useMBChat()
 	const [state, setState] = useSetState<{
 		isDragging: boolean
 		attachments: FileAttachment[]
@@ -73,8 +75,9 @@ export function useFileAttachments(
 		loading,
 		error,
 	} = useAsync(async () => {
-		if (!mounted)
+		if (!mounted || isLoading || !session?.user) {
 			return (activeThread?.metadata?.attachments || []) as IndexedDBItem[]
+		}
 		const indexedDBAttachments = await indexedDBActions.getAllItems()
 		if (appConfig.features.devMode) {
 			console.info(
@@ -83,7 +86,7 @@ export function useFileAttachments(
 			)
 		}
 		return indexedDBAttachments
-	}, [session?.user, mounted, activeThread, state.attachments])
+	}, [session?.user, mounted, activeThread, isLoading])
 
 	const { customSonner } = useSonner()
 	const { selectedModel } = useModel()

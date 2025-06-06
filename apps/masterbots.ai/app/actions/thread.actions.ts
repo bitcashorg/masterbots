@@ -71,7 +71,7 @@ export async function getAllUserThreadMetadata() {
 
 export async function updateThreadMetadata(
 	messagesIds: string[],
-	metadata: Record<string, FileAttachment[]>,
+	metadata: ThreadMetadata,
 ) {
 	// First, select the threadIds that need to be updated
 	const threadsToUpdate = await db
@@ -96,7 +96,7 @@ export async function updateThreadMetadata(
 		(t) => [t.threadId as string, t.messageId] as const,
 	)
 
-	const attachments: Record<string, FileAttachment[]> = {}
+	const attachments: ThreadMetadata = {}
 
 	let result: (typeof thread.$inferSelect)[] = []
 
