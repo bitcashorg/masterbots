@@ -726,11 +726,22 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 		userContentRef.current = content
 	}
 
+	const isPreProcessing = Boolean(
+		loadingState?.match(/processing|digesting|polishing/),
+	)
+	const formDisabled = isLoading || !chatbot || isPreProcessing
+
 	// we extend append function to add our system prompts
 	const appendWithMbContextPrompts = async (
 		userMessage: AiMessage | CreateMessage,
 		chatRequestOptions?: ChatRequestOptions,
 	): Promise<string | null | undefined> => {
+		if (formDisabled) {
+			console.info(
+				'Form is disabled while processing, skipping submit of new message.',
+			)
+			return
+		}
 		if (!session?.user || !chatbot) {
 			console.error('User is not logged in or session expired.')
 			customSonner({
@@ -790,7 +801,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 			)
 		}
 
-		await appendNewMessage(userMessage, chatRequestOptions)
+		return await appendNewMessage(userMessage, chatRequestOptions)
 	}
 
 	const getMetadataLabels =
@@ -900,7 +911,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						? (continuousThreadId as string)
 						: undefined,
 					jwt: session?.user?.hasuraJwt,
-					isPublic: activeChatbot?.name !== 'BlankBot',
 				})
 			}
 
