@@ -57,14 +57,14 @@ export async function GET(req: NextRequest) {
 			return new ImageResponse(
 				<OGImage
 					thread={defaultContent.thread}
-					question={userData.username}
+					question={`@${userData.username.toLocaleLowerCase().replace(/\s/g, '_')}`}
 					answer={userData.bio || ''}
 					username={
 						userData.followers.length
 							? `${userData.followers.length} followers`
-							: ''
+							: 'bot explorer'
 					}
-					user_avatar={''}
+					user_avatar={defaultContent.user_avatar}
 					isLightTheme={false}
 				/>,
 				IMAGE_DIMENSIONS,
