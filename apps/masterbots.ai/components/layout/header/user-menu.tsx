@@ -78,7 +78,7 @@ export function UserMenu({ user }: UserMenuProps) {
 					{user?.image && data?.profilePicture ? (
 						<Image
 							className="transition-opacity duration-300 rounded-full select-none size-8 bg-background/50 ring-1 ring-zinc-100/10 hover:opacity-80"
-							src={data?.profilePicture ? data.profilePicture : ''}
+							src={(user?.image || data?.profilePicture) as string}
 							alt={user.name ?? 'Avatar'}
 							height={42}
 							width={42}
