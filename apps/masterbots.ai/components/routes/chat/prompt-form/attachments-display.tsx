@@ -8,9 +8,8 @@ import {
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import { cn } from '@/lib/utils'
 import { AnimatePresence, type MotionProps, motion } from 'framer-motion'
-import { FileIcon, Maximize2Icon, Minimize2Icon, XIcon } from 'lucide-react'
+import { FileIcon, XIcon } from 'lucide-react'
 import Image from 'next/image'
-import type React from 'react'
 
 export const cardSlideDownShowAnimationProps: MotionProps = {
 	initial: { opacity: 0, y: -5 },
@@ -47,7 +46,6 @@ export function AttachmentsDisplay({
 				<ul className="flex flex-nowrap gap-2 px-2 py-1 mb-2 scrollbar w-full">
 					{attachments.map((attachment) => {
 						const { id, url, name, contentType } = attachment as FileAttachment
-						console.log('attachment', attachment)
 						const base64Hash = url.split(',')[1]
 						const readableTextContent = contentType.includes('image')
 							? ''

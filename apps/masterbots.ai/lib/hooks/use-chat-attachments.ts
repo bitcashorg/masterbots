@@ -3,7 +3,6 @@ import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useModel } from '@/lib/hooks/use-model'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useSonner } from '@/lib/hooks/useSonner'
-import { getThreadMetadataBySlug } from '@/services/hasura'
 import type * as OpenAi from 'ai'
 import { appConfig } from 'mb-env'
 import { nanoid } from 'nanoid'
@@ -95,15 +94,13 @@ export function useFileAttachments(
 	const addAttachment = useCallback(
 		(file: DataTransferItem | File) => {
 			const reader = new FileReader()
-			const attachmentFile: File | null = file as File
+			let processedFile: File | null = null
 
-			if (file instanceof DataTransferItem) {
-				const fileData = file.getAsFile()
+			processedFile = file instanceof DataTransferItem ? file.getAsFile() : file
 
-				if (!fileData) {
-					console.error('File is not valid')
-					return
-				}
+			if (!processedFile) {
+				console.error('File is not valid or could not be retrieved')
+				return
 			}
 
 			if (
@@ -122,8 +119,7 @@ export function useFileAttachments(
 
 			if (
 				appConfig.features.maxFileSize &&
-				attachmentFile?.size &&
-				attachmentFile.size > appConfig.features.maxFileSize
+				processedFile.size > appConfig.features.maxFileSize // processedFile is guaranteed non-null here
 			) {
 				console.error('File size exceeds the limit')
 				customSonner({
@@ -136,10 +132,8 @@ export function useFileAttachments(
 			reader.onload = async (readerEvent) => {
 				const event = readerEvent.target || reader
 
-				if (!attachmentFile) {
-					console.error('No file selected or file is not valid')
-					return
-				}
+				// processedFile is captured from the outer scope. It's already confirmed to be a File
+				// by the checks before reader.readAsDataURL(processedFile) was called.
 				if (!event || !event.result) {
 					console.error('File reading failed or no result found')
 					return
@@ -152,9 +146,9 @@ export function useFileAttachments(
 						: Buffer.from(event.result as ArrayBuffer).toString('base64')
 				const newAttachment: FileAttachment = {
 					id: nanoid(16),
-					name: attachmentFile?.name || '',
-					size: attachmentFile?.size || 0,
-					contentType: attachmentFile?.type || '',
+					name: processedFile.name || '', // Use processedFile
+					size: processedFile.size || 0, // Use processedFile
+					contentType: processedFile.type || '', // Use processedFile
 					// * Raw content can be a string or an ArrayBuffer
 					content: event.result,
 					// * Compressed URL to the attachment
@@ -163,18 +157,24 @@ export function useFileAttachments(
 					messageIds: [],
 					expires: new Date().toISOString(),
 				}
-				const updatedAttachments = [...state.attachments, newAttachment]
 
-				return setState({ attachments: updatedAttachments })
+				return setState((prevState) => ({
+					attachments: [...prevState.attachments, newAttachment],
+				}))
+			}
+
+			reader.onerror = () => {
+				console.error('FileReader error:', reader.error)
+				customSonner({
+					type: 'error',
+					text: 'Error reading file.',
+				})
 			}
 
 			if (appConfig.features.devMode) {
-				console.info('Final attachmentFile --> ', attachmentFile)
+				console.info('Final processedFile --> ', processedFile)
 			}
-
-			if (!attachmentFile) return
-
-			reader.readAsDataURL(attachmentFile)
+			reader.readAsDataURL(processedFile)
 		},
 		[state.attachments],
 	)
