@@ -16,13 +16,13 @@ export default function OgImage({
 	user_avatar,
 	isLightTheme,
 }: OgImageProps) {
-	console.log('OG IMG Props', {
-		question,
-		answer,
-		username,
-		user_avatar,
-		isLightTheme,
-	})
+	// console.log('OG IMG Props', {
+	// 	question,
+	// 	answer,
+	// 	username,
+	// 	user_avatar,
+	// 	isLightTheme,
+	// })
 	return (
 		<div
 			style={{
@@ -32,7 +32,8 @@ export default function OgImage({
 				alignItems: 'flex-start',
 				justifyContent: 'flex-start',
 				backgroundColor: isLightTheme ? '#ffff' : '#17171b',
-				padding: '40px',
+				paddingBlock: '20px',
+				paddingInline: '40px',
 				color: isLightTheme ? '#17171b' : '#ffff',
 			}}
 		>
@@ -42,6 +43,7 @@ export default function OgImage({
 					display: 'flex',
 					height: '100%',
 					alignItems: 'center',
+					justifyContent: 'space-between',
 					width: '100%',
 				}}
 			>
@@ -50,6 +52,7 @@ export default function OgImage({
 						flex: '1',
 						display: 'flex',
 						flexDirection: 'column',
+						gap: '16px',
 						marginRight: '20px',
 					}}
 				>
@@ -61,7 +64,7 @@ export default function OgImage({
 									display: 'flex',
 									flexDirection: 'column',
 									marginTop: '0px',
-									marginBottom: '0px',
+									marginBottom: 'auto',
 									fontSize: 32,
 									color: isLightTheme ? '#17171b' : '#ffff',
 								}}
@@ -115,7 +118,7 @@ export default function OgImage({
 						style={{
 							display: 'flex',
 							alignItems: 'center',
-							marginTop: '42px',
+							marginTop: 'auto',
 						}}
 					>
 						{user_avatar ? (
@@ -172,6 +175,7 @@ export default function OgImage({
 							style={{
 								backgroundColor: '#1E293B',
 								display: 'flex',
+								minWidth: '300px',
 								width: '300px',
 								height: '300px',
 								borderRadius: '50%',
