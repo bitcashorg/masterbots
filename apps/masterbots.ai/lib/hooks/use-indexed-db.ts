@@ -2,20 +2,13 @@ import {
 	getAllUserThreadMetadata,
 	getUserThreadsMetadata,
 	updateThreadMetadata,
-	uploadAttachmentToBucket,
 } from '@/app/actions'
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
-import { useUploadImagesCloudinary } from '@/lib/hooks/use-cloudinary-upload'
-import { logErrorToSentry } from '@/lib/sentry'
 import { prepareThreadAttachmentCheck } from '@/lib/threads'
-import { Attachment } from 'ai'
-import { isEqual, merge, pick, uniqBy } from 'lodash'
-import { message } from 'mb-drizzle'
+import { isEqual, uniqBy } from 'lodash'
 import { appConfig } from 'mb-env'
-import { Thread } from 'mb-genql'
 import { fetchJson } from 'mb-lib'
 import { useEffect, useRef, useState } from 'react'
-import { thread } from '../../../../packages/mb-drizzle/src/drizzle/schema'
 
 const DEFAULT_DB_NAME = 'masterbots_attachments_indexed_db'
 const DEFAULT_STORE_NAME = 'masterbots_attachments_store'
@@ -101,8 +94,8 @@ export function useIndexedDB({
 		})
 	}
 
-	const getAllItems = async (): Promise<IndexedDBItem[]> => {
-		return await new Promise((resolve, reject) => {
+	const getAllItems = (): Promise<IndexedDBItem[]> => {
+		return new Promise((resolve, reject) => {
 			const db = dbRef.current
 			if (!db) return reject('Database not initialized')
 			const transaction = db.transaction(storeName, 'readonly')
@@ -122,9 +115,7 @@ export function useIndexedDB({
 				const newAttachmentCheck = prepareThreadAttachmentCheck(newAttachments)
 				const currentAttachmentCheck =
 					prepareThreadAttachmentCheck(currentUserMetadata)
-				// console.log('currentAttachmentCheck', currentAttachmentCheck)
-				// console.log('newAttachmentCheck', newAttachmentCheck)
-				// console.log('isEqual(newAttachmentCheck, currentAttachmentCheck)', isEqual(newAttachmentCheck, currentAttachmentCheck))
+
 				if (isEqual(newAttachmentCheck, currentAttachmentCheck)) {
 					if (appConfig.features.devMode) {
 						console.warn('No update required. Local is sync with remote')
