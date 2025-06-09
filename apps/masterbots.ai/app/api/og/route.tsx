@@ -16,11 +16,11 @@ const IMAGE_DIMENSIONS = {
 const defaultContent = {
 	thread: {
 		chatbot: {
-			name: 'Masterbots',
+			name: 'masterbots',
 			avatar: `${process.env.BASE_URL}/masterbots_og.png`,
 			categories: [{ category: { name: 'AI' } }],
 		},
-	} as Partial<Thread>,
+	} as Partial<Thread> & { chatbot: Partial<Chatbot> },
 	question: 'Masterbots AI',
 	answer:
 		'Deploy with our Masterbots, dedicated experts in your field. Each Masterbot is built to deliver focused knowledge and specialized interactions superior to generic AI solutions.',
@@ -52,13 +52,19 @@ export async function GET(req: NextRequest) {
 				return defaultOgImage
 			}
 
+			defaultContent.thread.chatbot.avatar = userData.profilePicture || ''
+
 			return new ImageResponse(
 				<OGImage
 					thread={defaultContent.thread}
-					question={userData.username}
+					question={`@${userData.username.toLocaleLowerCase().replace(/\s/g, '_')}`}
 					answer={userData.bio || ''}
-					username={`${userData.followers.length} followers`}
-					user_avatar={userData.profilePicture || ''}
+					username={
+						userData.followers.length
+							? `${userData.followers.length} followers`
+							: 'bot explorer'
+					}
+					user_avatar={defaultContent.user_avatar}
 					isLightTheme={false}
 				/>,
 				IMAGE_DIMENSIONS,
