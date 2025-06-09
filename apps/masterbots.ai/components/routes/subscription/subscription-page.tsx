@@ -1,6 +1,6 @@
 'use client'
 
-import { fetchPayment } from '@/app/actions/subscriptions'
+import { fetchPayment } from '@/app/actions/subscriptions.actions'
 import Subscription from '@/components/routes/subscription/subscription'
 import { Button } from '@/components/ui/button'
 import { IconArrowRight, IconCreditCard, IconHelp } from '@/components/ui/icons'
@@ -145,9 +145,9 @@ export function SubscriptionPageComponent() {
 							Pro Plan Benefits
 						</h2>
 						<div className="w-full space-y-6">
-							{proBenefits.map((benefit, index) => (
+							{proBenefits.map((benefit) => (
 								<motion.div
-									key={index}
+									key={benefit.title}
 									className="flex items-start space-x-4 group"
 									whileHover={{ x: 5 }}
 									transition={{ type: 'spring', stiffness: 300 }}

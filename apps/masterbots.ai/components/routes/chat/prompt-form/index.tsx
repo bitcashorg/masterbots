@@ -154,7 +154,7 @@ export function PromptForm({
 			// ? I might not need to destructure it here... maybe it is capable to read the FileList directly
 			const fileAttachments: (Attachment & { id: string })[] = []
 			for (const attachment of attachments) {
-				if (!attachment.url) return
+				if (!attachment.content) return
 
 				fileAttachments.push(attachment)
 			}
@@ -184,7 +184,11 @@ export function PromptForm({
 	}))
 	// Returns true if the user has selected any attachment that is related to the selected thread
 	const userHasRelatedAttachment = Boolean(userAttachments.length)
-
+	// console.log(
+	// 	`User has related attachment: ${userHasRelatedAttachment}`,
+	// 	userAttachments.length,
+	// 	attachments.length,
+	// )
 	return (
 		<motion.form
 			id={`prompt-form-${formId}`}

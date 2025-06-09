@@ -16,13 +16,16 @@ export function useUploadImagesCloudinary() {
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<Error | null>(null)
 
-	const uploadFilesCloudinary = async (file: File): Promise<UploadResult> => {
+	const uploadFilesCloudinary = async (
+		file: File,
+		options?: CloudinaryUploadOptions,
+	): Promise<UploadResult> => {
 		try {
 			setLoading(true)
 			setError(null)
 
 			// Validate file type and size
-			if (!file.type.startsWith('image/')) {
+			if (!file.type.startsWith('image/') && !options?.allFiles) {
 				throw new Error('Please upload only image files')
 			}
 
@@ -35,11 +38,20 @@ export function useUploadImagesCloudinary() {
 
 			const formData = new FormData()
 			formData.append('file', file)
-			formData.append('upload_preset', appConfig.cloudinary.upload_preset)
-			formData.append('folder', 'masterbots/user_profile_img_uploads')
+			formData.append(
+				'upload_preset',
+				options?.uploadPreset || appConfig.cloudinary.uploadPreset,
+			)
+			formData.append(
+				'folder',
+				options?.folder || 'masterbots/user_profile_img_uploads',
+			)
 
 			if (appConfig.cloudinary.transformation) {
-				formData.append('transformation', appConfig.cloudinary.transformation)
+				formData.append(
+					'transformation',
+					options?.transformation || appConfig.cloudinary.transformation,
+				)
 			}
 
 			const response = await fetch(appConfig.cloudinary.url, {
@@ -77,4 +89,14 @@ export function useUploadImagesCloudinary() {
 		loading,
 		error,
 	}
+}
+
+export interface CloudinaryUploadOptions {
+	transformation?: string
+	uploadPreset?: string
+	folder?: string
+	/**
+	 * If true, allows uploading non-image files
+	 */
+	allFiles?: boolean
 }

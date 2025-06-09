@@ -60,50 +60,6 @@ function getHasuraClient({ jwt, adminSecret, signal }: GetHasuraClientParams) {
 	})
 }
 
-export async function doesThreadSlugExist(slug: string) {
-	const client = getHasuraClient({})
-	const { thread } = await client.query({
-		thread: {
-			slug: true,
-			__args: {
-				where: {
-					slug: {
-						_eq: slug,
-					},
-				},
-			},
-		},
-	})
-	return {
-		exists: thread.length > 0,
-		slug: thread[0]?.slug,
-		sequence:
-			Number.parseFloat(thread[0]?.slug.split('-').pop() as string) || 0,
-	}
-}
-
-export async function doesMessageSlugExist(slug: string) {
-	const client = getHasuraClient({})
-	const { message } = await client.query({
-		message: {
-			slug: true,
-			__args: {
-				where: {
-					slug: {
-						_eq: slug,
-					},
-				},
-			},
-		},
-	})
-	return {
-		exists: message.length > 0,
-		slug: message[0]?.slug,
-		sequence:
-			Number.parseFloat(message[0]?.slug.split('-').pop() as string) || 0,
-	}
-}
-
 export async function getCategories(userId?: string) {
 	const client = getHasuraClient({})
 	const { category } = await client.query({
@@ -675,7 +631,7 @@ export async function createThread({
 	jwt,
 	userId,
 	parentThreadId,
-	isPublic = true,
+	isPublic = false,
 }: Partial<CreateThreadParams>) {
 	const client = getHasuraClient({ jwt })
 	const { insertThreadOne } = await client.mutation({
@@ -765,11 +721,11 @@ export async function getBrowseThreads({
 	limit,
 	offset,
 	slug,
-	isAdminMode,
+	isAdminMode = false,
 	followedUserId,
 }: GetBrowseThreadsParams) {
 	const client = getHasuraClient({})
-
+	const baseLimit = limit || 20
 	const baseWhereConditions = {
 		...(categoryId
 			? {
@@ -819,14 +775,8 @@ export async function getBrowseThreads({
 					},
 				}
 			: {}),
-		...(isAdminMode
-			? {
-					isApproved: { _eq: false },
-				}
-			: {
-					isPublic: { _eq: true },
-					isApproved: { _eq: true },
-				}),
+		isPublic: { _eq: true },
+		isApproved: { _eq: !isAdminMode },
 	}
 
 	const { thread: allThreads, threadAggregate } = await client.query({
@@ -899,7 +849,7 @@ export async function getBrowseThreads({
 			__args: {
 				orderBy: [{ createdAt: 'DESC' }],
 				where: baseWhereConditions,
-				limit: limit || 30,
+				limit: baseLimit,
 				offset: offset || 0,
 			},
 		},
@@ -958,14 +908,14 @@ export async function getBrowseThreads({
 	while (
 		(followingIndex < followingThreads.length ||
 			organicIndex < organicThreads.length) &&
-		interweavedThreads.length < (limit || 30)
+		interweavedThreads.length < baseLimit
 	) {
 		// Add up to 4 following threads
 		for (
 			let i = 0;
-			i < 4 &&
+			i < baseLimit - organicThreads.length &&
 			followingIndex < followingThreads.length &&
-			interweavedThreads.length < (limit || 30);
+			interweavedThreads.length < baseLimit;
 			i++
 		) {
 			interweavedThreads.push(followingThreads[followingIndex])
@@ -975,7 +925,7 @@ export async function getBrowseThreads({
 		// Add 1 organic thread if available
 		if (
 			organicIndex < organicThreads.length &&
-			interweavedThreads.length < (limit || 30)
+			interweavedThreads.length < baseLimit
 		) {
 			interweavedThreads.push(organicThreads[organicIndex])
 			organicIndex++
@@ -1949,5 +1899,34 @@ export async function insertPreferencesByUserId({
 			data: null,
 			error: (error as Error).message,
 		}
+	}
+}
+
+export async function getThreadMetadataBySlug({
+	slug,
+	jwt,
+}: {
+	slug: string
+	jwt?: string
+}): Promise<{ thread: Thread | null; error?: string }> {
+	try {
+		const client = getHasuraClient({ jwt })
+		const { thread } = await client.query({
+			thread: {
+				__args: {
+					where: { slug: { _eq: slug } },
+				},
+				metadata: true,
+			},
+		})
+
+		if (!thread || thread.length === 0) {
+			return { thread: null, error: 'Thread not found' }
+		}
+
+		return { thread: thread[0] as Thread, error: undefined }
+	} catch (error) {
+		console.error('Error fetching thread metadata by slug:', error)
+		return { thread: null, error: (error as Error).message }
 	}
 }
