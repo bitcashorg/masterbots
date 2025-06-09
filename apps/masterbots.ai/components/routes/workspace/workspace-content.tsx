@@ -239,6 +239,7 @@ The conclusion summarizes the key points and implications of the project.
 					{/* Simple tab UI without Radix tabs */}
 					<div className="flex space-x-2 border-b">
 						<button
+							type="button"
 							onClick={() => {
 								setViewMode('sections')
 								handleViewSourceToggle(false)
@@ -253,6 +254,7 @@ The conclusion summarizes the key points and implications of the project.
 							Section Editor
 						</button>
 						<button
+							type="button"
 							onClick={() => {
 								setViewMode('source')
 								handleViewSourceToggle(true)
@@ -270,13 +272,14 @@ The conclusion summarizes the key points and implications of the project.
 
 					{/* Section editor view */}
 					{viewMode === 'sections' && (
-						<div className="grid grid-cols-12 gap-4">
+						<div className="h-[calc(100%-64px)] grid grid-cols-12 gap-4">
 							{/* Section navigation */}
-							<div className="col-span-3 border rounded-lg p-2 h-[400px] overflow-y-auto">
+							<div className="col-span-3 border rounded-lg p-2 h-full overflow-y-auto">
 								<h3 className="font-medium mb-2 p-2">Document Sections</h3>
 								<div className="space-y-1">
 									{sections.map((section) => (
 										<button
+											type="button"
 											key={section.id}
 											onClick={() => handleSectionClick(section.id)}
 											className={cn(
@@ -298,16 +301,16 @@ The conclusion summarizes the key points and implications of the project.
 							</div>
 
 							{/* Content area */}
-							<div className="col-span-9 border rounded-lg p-4 h-[400px] overflow-y-auto">
+							<div className="col-span-9 border rounded-lg p-4 h-full overflow-y-auto">
 								{activeSection ? (
-									<div className="space-y-4">
+									<div className="space-y-4 h-[calc(100%-64px)]">
 										<h3 className="font-semibold">
 											{sections.find((s) => s.id === activeSection)?.title}
 										</h3>
 										<textarea
 											value={editableContent}
 											onChange={handleContentChange}
-											className="w-full h-[300px] p-3 border rounded-md focus:outline-none focus:ring-2 resize-none font-mono text-sm"
+											className="size-full p-3 border rounded-md focus:outline-none focus:ring-2 resize-none font-mono text-sm"
 										/>
 									</div>
 								) : (
@@ -322,7 +325,7 @@ The conclusion summarizes the key points and implications of the project.
 
 					{/* Source view */}
 					{viewMode === 'source' && (
-						<div className="border rounded-lg p-4">
+						<div className="h-[calc(100%-64px)] border rounded-lg p-4">
 							<Textarea
 								value={fullMarkdown}
 								onChange={(e) => {
@@ -330,7 +333,7 @@ The conclusion summarizes the key points and implications of the project.
 									// When source is changed, update sections
 									setSections(parseMarkdownSections(e.target.value))
 								}}
-								className="min-h-[400px] font-mono text-sm"
+								className="min-h-[400px] h-[94%] font-mono text-sm"
 								placeholder="# Document Title..."
 							/>
 							<div className="mt-2 text-xs text-muted-foreground">
