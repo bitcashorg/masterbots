@@ -603,6 +603,7 @@ export const thread = pgTable(
 		parentThreadId: uuid('parent_thread_id'),
 		slug: text().notNull(),
 		shortLink: text('short_link'),
+		metadata: jsonb(),
 	},
 	(table) => [
 		foreignKey({

@@ -12,3 +12,5 @@ __dev
 .vercel
 
 bun.lockb
+
+gcp-serv-acct-key.json

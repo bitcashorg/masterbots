@@ -1,4 +1,4 @@
-import * as adminService from '@/services/admin/admin.service'
+import * as adminService from '@/app/actions/admin.actions'
 import { z } from 'zod'
 
 type ActionHandler<T> = (data: T) => Promise<unknown>

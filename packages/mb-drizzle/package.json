@@ -6,12 +6,12 @@
 	"types": "./src/index.ts",
 	"scripts": {
 		"generate": "drizzle-kit generate",
-		"push": "drizzle-kit push:pg",
+		"push": "drizzle-kit push",
+		"pull": "drizzle-kit pull",
 		"studio": "drizzle-kit studio",
 		"migrate": "bun ./src/migrate.ts"
 	},
 	"dependencies": {
-		"drizzle-orm": "^0.43.1",
 		"pg": "^8.16.0",
 		"mb-env": "workspace:*"
 	},

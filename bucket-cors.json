@@ -1,0 +1,13 @@
+[
+	{
+		"origin": [
+			"http://localhost:3000",
+			"https://masterbots.ai",
+			"https://dev.masterbots.ai",
+			"https://masterbots-*-bitcash.vercel.app"
+		],
+		"method": ["GET"],
+		"responseHeader": ["Content-Type"],
+		"maxAgeSeconds": 30000
+	}
+]
