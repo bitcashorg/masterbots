@@ -24,7 +24,7 @@ export const generateUsername = (name: string): string => {
 	let username = name.toLowerCase().replace(/([^a-z0-9]|\+)/g, '_')
 
 	if (username.length < 6) {
-		username += `${generateRandomNumber(4)}`
+		username += `_${generateRandomNumber(6 - username.length)}` // Ensure minimum length of 6 characters
 	}
 	// * After generating a username, we validate it using the UsernameSchema if the other case happens and it is very long.
 	if (username.length > 16) {
