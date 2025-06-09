@@ -26,8 +26,16 @@ interface WorkspaceChatContextType {
 	activeWorkspaceSection: string | null
 	setActiveWorkspaceSection: (section: string | null) => void
 
+	// Cursor position tracking
+	cursorPosition: number
+	setCursorPosition: (position: number) => void
+
 	// Main workspace edit function
-	handleWorkspaceEdit: (userPrompt: string, metaPrompt: string) => Promise<void>
+	handleWorkspaceEdit: (
+		userPrompt: string,
+		metaPrompt: string,
+		cursorPosition?: number,
+	) => Promise<void>
 
 	// Document update function
 	handleDocumentUpdate: (
@@ -35,6 +43,7 @@ interface WorkspaceChatContextType {
 		activeSection: string | null,
 		currentContent: string,
 		documentKey: string,
+		cursorPosition?: number,
 	) => void
 }
 
@@ -52,6 +61,7 @@ export function WorkspaceChatProvider({
 		activeDocument,
 		setDocumentContent,
 		isWorkspaceActive,
+		documentContent,
 	} = useWorkspace()
 
 	// Workspace processing state
@@ -60,6 +70,7 @@ export function WorkspaceChatProvider({
 	const [activeWorkspaceSection, setActiveWorkspaceSection] = React.useState<
 		string | null
 	>(null)
+	const [cursorPosition, setCursorPosition] = React.useState<number>(0)
 	const { selectedModel, clientType } = useModel()
 	// Raw useChat hook for workspace mode
 	const { messages, isLoading, error, append } = useChat({
@@ -73,22 +84,20 @@ export function WorkspaceChatProvider({
 		keepLastMessageOnError: false,
 		onFinish: (message) => {
 			console.log(
-				'🎯 onFinish triggered in workspace context:',
+				'✅ onFinish: AI response complete, handling persistence and cleanup:',
 				message.content?.substring(0, 100),
 			)
-			const documentKey = `${activeProject}:${activeDocument}`
-			// Get the current document content at the time of response
-			const currentContent =
-				document.querySelector(`[data-document-key="${documentKey}"]`)
-					?.textContent || ''
 
-			// Process the AI response for document update
-			handleDocumentUpdate(
-				message.content,
-				activeWorkspaceSection,
-				currentContent,
-				documentKey,
-			)
+			// Reset processing state
+			setWorkspaceProcessingState('idle')
+
+			// TODO: Here we can add logic for:
+			// - Saving final document state to database
+			// - Document versioning
+			// - Analytics/tracking
+			// - Any cleanup operations
+
+			console.log('✅ onFinish: Workspace ready for next request')
 		},
 	})
 
@@ -99,11 +108,13 @@ export function WorkspaceChatProvider({
 			activeSection: string | null,
 			currentContent: string,
 			documentKey: string,
+			cursorPosition?: number,
 		) => {
 			console.log('📝 Processing document update:', {
 				responseLength: aiResponse.length,
 				activeSection,
 				documentKey,
+				cursorPosition,
 			})
 
 			setWorkspaceProcessingState('updating')
@@ -118,6 +129,7 @@ export function WorkspaceChatProvider({
 					if (sectionIndex !== -1) {
 						// Update the specific section with AI response
 						const updatedSections = [...sections]
+						const currentSection = updatedSections[sectionIndex]
 
 						// Check if AI response is a complete replacement or just content
 						if (aiResponse.includes('#')) {
@@ -136,10 +148,24 @@ export function WorkspaceChatProvider({
 								updatedSections.splice(sectionIndex + 1, 0, ...aiSections)
 							}
 						} else {
-							// Plain text response - update section content
-							updatedSections[sectionIndex] = {
-								...updatedSections[sectionIndex],
-								content: aiResponse,
+							// Plain text response - insert at cursor position if available
+							if (cursorPosition !== undefined && cursorPosition >= 0) {
+								const beforeCursor = currentSection.content.substring(
+									0,
+									cursorPosition,
+								)
+								const afterCursor =
+									currentSection.content.substring(cursorPosition)
+								updatedSections[sectionIndex] = {
+									...currentSection,
+									content: `${beforeCursor}${aiResponse}${afterCursor}`,
+								}
+							} else {
+								// No cursor position, append to section content
+								updatedSections[sectionIndex] = {
+									...updatedSections[sectionIndex],
+									content: `${currentSection.content}\n\n${aiResponse}`,
+								}
 							}
 						}
 
@@ -156,8 +182,16 @@ export function WorkspaceChatProvider({
 						}
 					}
 				} else {
-					// No active section - handle as full document update
-					if (aiResponse.includes('#') && aiResponse.includes('\n')) {
+					// No active section - handle as full document update or cursor position in source
+					if (cursorPosition !== undefined && cursorPosition >= 0) {
+						// Insert at cursor position in full document
+						const beforeCursor = currentContent.substring(0, cursorPosition)
+						const afterCursor = currentContent.substring(cursorPosition)
+						const updatedContent = `${beforeCursor}${aiResponse}${afterCursor}`
+						if (activeProject && activeDocument) {
+							setDocumentContent(activeProject, activeDocument, updatedContent)
+						}
+					} else if (aiResponse.includes('#') && aiResponse.includes('\n')) {
 						// AI provided structured content - use it as new document content
 						if (activeProject && activeDocument) {
 							setDocumentContent(activeProject, activeDocument, aiResponse)
@@ -183,7 +217,7 @@ export function WorkspaceChatProvider({
 
 	// Main workspace edit function
 	const handleWorkspaceEdit = React.useCallback(
-		async (userPrompt: string, metaPrompt: string) => {
+		async (userPrompt: string, metaPrompt: string, cursorPosition?: number) => {
 			console.log('🚀 handleWorkspaceEdit called with:', {
 				userPrompt,
 				activeProject,
@@ -241,6 +275,8 @@ export function WorkspaceChatProvider({
 			setWorkspaceProcessingState,
 			activeWorkspaceSection,
 			setActiveWorkspaceSection,
+			cursorPosition,
+			setCursorPosition,
 			handleWorkspaceEdit,
 			handleDocumentUpdate,
 		}),
@@ -250,6 +286,7 @@ export function WorkspaceChatProvider({
 			error,
 			workspaceProcessingState,
 			activeWorkspaceSection,
+			cursorPosition,
 			handleWorkspaceEdit,
 			handleDocumentUpdate,
 		],

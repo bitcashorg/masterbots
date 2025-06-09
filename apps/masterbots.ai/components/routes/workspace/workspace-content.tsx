@@ -57,7 +57,7 @@ The conclusion summarizes the key points and implications of the project.
 `
 
 	// Get document content from workspace context
-	const { documentContent } = useWorkspace()
+	const { documentContent, setDocumentContent } = useWorkspace()
 
 	// Check if we have content for this document
 	const documentKey =
@@ -82,12 +82,29 @@ The conclusion summarizes the key points and implications of the project.
 	const [viewMode, setViewMode] = React.useState<'sections' | 'source'>(
 		'sections',
 	)
+	// Cursor position tracking for precise AI output placement
+	const [cursorPosition, setCursorPosition] = React.useState<number>(0)
+	const sectionTextareaRef = React.useRef<HTMLTextAreaElement>(null)
+	const sourceTextareaRef = React.useRef<HTMLTextAreaElement>(null)
+	// Track if user is actively typing to prevent cursor jumps
+	const isUserTypingRef = React.useRef<boolean>(false)
+	const userTypingTimeoutRef = React.useRef<NodeJS.Timeout | null>(null)
 	// documentType is now passed as a prop
 	// Use workspace chat hook for workspace-specific functionality
-	const { messages } = useWorkspaceChat()
+	const { messages, setCursorPosition: setGlobalCursorPosition } =
+		useWorkspaceChat()
 
 	// Use a ref to track previous document key to prevent unnecessary resets
 	const prevDocumentKeyRef = React.useRef(documentKey)
+
+	// Cleanup timeout on unmount
+	React.useEffect(() => {
+		return () => {
+			if (userTypingTimeoutRef.current) {
+				clearTimeout(userTypingTimeoutRef.current)
+			}
+		}
+	}, [])
 
 	React.useEffect(() => {
 		// Only reset when document actually changes (not on every render)
@@ -112,7 +129,11 @@ The conclusion summarizes the key points and implications of the project.
 
 	// Effect to handle external document content updates (e.g., from workspace chat)
 	React.useEffect(() => {
-		if (savedContent && savedContent !== fullMarkdown) {
+		if (
+			savedContent &&
+			savedContent !== fullMarkdown &&
+			!isUserTypingRef.current
+		) {
 			console.log(
 				'📝 External document update detected, updating workspace content',
 			)
@@ -126,11 +147,44 @@ The conclusion summarizes the key points and implications of the project.
 					(s) => s.id === activeSection,
 				)
 				if (newActiveSection) {
+					// Store current cursor position before updating content
+					const currentCursor = sectionTextareaRef.current?.selectionStart || 0
 					setEditableContent(newActiveSection.content)
+					// Restore cursor position after content update
+					React.startTransition(() => {
+						setTimeout(() => {
+							if (sectionTextareaRef.current && !isUserTypingRef.current) {
+								const newPosition = Math.min(
+									currentCursor,
+									newActiveSection.content.length,
+								)
+								sectionTextareaRef.current.setSelectionRange(
+									newPosition,
+									newPosition,
+								)
+								sectionTextareaRef.current.focus()
+							}
+						}, 0)
+					})
 				}
+			} else if (viewMode === 'source') {
+				// If in source view, preserve cursor position in full source
+				const currentCursor = sourceTextareaRef.current?.selectionStart || 0
+				React.startTransition(() => {
+					setTimeout(() => {
+						if (sourceTextareaRef.current && !isUserTypingRef.current) {
+							const newPosition = Math.min(currentCursor, savedContent.length)
+							sourceTextareaRef.current.setSelectionRange(
+								newPosition,
+								newPosition,
+							)
+							sourceTextareaRef.current.focus()
+						}
+					}, 0)
+				})
 			}
 		}
-	}, [savedContent, fullMarkdown, activeSection])
+	}, [savedContent, fullMarkdown, activeSection, viewMode])
 
 	const handleSectionClick = (sectionId: string) => {
 		const section = sections.find((s) => s.id === sectionId)
@@ -142,9 +196,42 @@ The conclusion summarizes the key points and implications of the project.
 		}
 	}
 
+	// Mark user as typing to prevent external updates from interfering
+	const markUserTyping = React.useCallback(() => {
+		isUserTypingRef.current = true
+		// Clear existing timeout
+		if (userTypingTimeoutRef.current) {
+			clearTimeout(userTypingTimeoutRef.current)
+		}
+		// Set timeout to mark user as no longer typing after 1 second of inactivity
+		userTypingTimeoutRef.current = setTimeout(() => {
+			isUserTypingRef.current = false
+		}, 1000)
+	}, [])
+
 	const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+		markUserTyping()
 		setEditableContent(e.target.value)
+		// Track cursor position for precise AI output placement
+		const position = e.target.selectionStart || 0
+		setCursorPosition(position)
+		setGlobalCursorPosition(position)
 	}
+
+	// Handle cursor position tracking on focus and selection change
+	const handleCursorPositionChange = React.useCallback(
+		(
+			e:
+				| React.FocusEvent<HTMLTextAreaElement>
+				| React.MouseEvent<HTMLTextAreaElement>,
+		) => {
+			const target = e.target as HTMLTextAreaElement
+			const position = target.selectionStart || 0
+			setCursorPosition(position)
+			setGlobalCursorPosition(position)
+		},
+		[setGlobalCursorPosition],
+	)
 
 	const handleSaveSection = React.useCallback(() => {
 		if (activeSection) {
@@ -158,8 +245,36 @@ The conclusion summarizes the key points and implications of the project.
 			// Regenerate the full markdown to keep it in sync
 			const newMarkdown = combineMarkdownSections(updatedSections)
 			setFullMarkdown(newMarkdown)
+
+			// Save to workspace context
+			if (projectName && documentName) {
+				setDocumentContent(projectName, documentName, newMarkdown)
+			}
 		}
-	}, [activeSection, editableContent, sections])
+	}, [
+		activeSection,
+		editableContent,
+		sections,
+		projectName,
+		documentName,
+		setDocumentContent,
+	])
+
+	// Debounced save for full source changes
+	const debouncedSaveFullSource = React.useCallback(
+		React.useMemo(() => {
+			let timeoutId: NodeJS.Timeout
+			return (content: string) => {
+				clearTimeout(timeoutId)
+				timeoutId = setTimeout(() => {
+					if (projectName && documentName && content) {
+						setDocumentContent(projectName, documentName, content)
+					}
+				}, 500) // 500ms debounce
+			}
+		}, [projectName, documentName, setDocumentContent]),
+		[projectName, documentName, setDocumentContent],
+	)
 
 	const handleImportPaste = () => {
 		if (!pasteContent.trim()) return
@@ -186,11 +301,22 @@ The conclusion summarizes the key points and implications of the project.
 	const handleViewSourceToggle = React.useCallback(
 		(fullView: boolean) => {
 			if (fullView && activeSection && editableContent.trim()) {
-				// Only save if there's an active section with content
-				handleSaveSection() // Save current section changes first
+				// Save current section changes before switching to source view
+				handleSaveSection()
+			} else if (!fullView && projectName && documentName) {
+				// Save full source changes before switching to section view
+				setDocumentContent(projectName, documentName, fullMarkdown)
 			}
 		},
-		[activeSection, editableContent, handleSaveSection],
+		[
+			activeSection,
+			editableContent,
+			handleSaveSection,
+			projectName,
+			documentName,
+			setDocumentContent,
+			fullMarkdown,
+		],
 	)
 
 	if (!projectName || !documentName) {
@@ -308,8 +434,17 @@ The conclusion summarizes the key points and implications of the project.
 											{sections.find((s) => s.id === activeSection)?.title}
 										</h3>
 										<textarea
+											ref={sectionTextareaRef}
 											value={editableContent}
 											onChange={handleContentChange}
+											onFocus={handleCursorPositionChange}
+											onClick={handleCursorPositionChange}
+											onKeyUp={(e) => {
+												const position =
+													(e.target as HTMLTextAreaElement).selectionStart || 0
+												setCursorPosition(position)
+												setGlobalCursorPosition(position)
+											}}
 											className="size-full p-3 border rounded-md focus:outline-none focus:ring-2 resize-none font-mono text-sm"
 										/>
 									</div>
@@ -327,11 +462,28 @@ The conclusion summarizes the key points and implications of the project.
 					{viewMode === 'source' && (
 						<div className="h-[calc(100%-64px)] border rounded-lg p-4">
 							<Textarea
+								ref={sourceTextareaRef}
 								value={fullMarkdown}
 								onChange={(e) => {
-									setFullMarkdown(e.target.value)
+									markUserTyping()
+									const newValue = e.target.value
+									setFullMarkdown(newValue)
 									// When source is changed, update sections
-									setSections(parseMarkdownSections(e.target.value))
+									setSections(parseMarkdownSections(newValue))
+									// Track cursor position
+									const position = e.target.selectionStart || 0
+									setCursorPosition(position)
+									setGlobalCursorPosition(position)
+									// Save changes with debounce
+									debouncedSaveFullSource(newValue)
+								}}
+								onFocus={handleCursorPositionChange}
+								onClick={handleCursorPositionChange}
+								onKeyUp={(e) => {
+									const position =
+										(e.target as HTMLTextAreaElement).selectionStart || 0
+									setCursorPosition(position)
+									setGlobalCursorPosition(position)
 								}}
 								className="min-h-[400px] h-[94%] font-mono text-sm"
 								placeholder="# Document Title..."

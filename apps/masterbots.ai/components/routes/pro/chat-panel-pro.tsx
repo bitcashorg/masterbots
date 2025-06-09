@@ -180,6 +180,7 @@ export function ChatPanelPro({
 		setWorkspaceProcessingState,
 		activeWorkspaceSection,
 		setActiveWorkspaceSection,
+		cursorPosition: workspaceCursorPosition,
 		handleWorkspaceEdit: workspaceHandleEdit,
 		handleDocumentUpdate: workspaceHandleDocumentUpdate,
 	} = useWorkspaceChat()
@@ -1247,7 +1248,11 @@ Please provide your response now:`
 											activeWorkspaceSection,
 										)
 
-										await workspaceHandleEdit(value, metaPrompt)
+										await workspaceHandleEdit(
+											value,
+											metaPrompt,
+											workspaceCursorPosition,
+										)
 									} else {
 										// In chat mode, use normal append behavior
 										console.log('💬 Chat mode: using normal append')
