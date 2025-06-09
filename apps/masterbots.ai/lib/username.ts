@@ -2,8 +2,8 @@ import { type ZodSchema, z } from 'zod'
 
 export const UsernameSchema: ZodSchema<string> = z
 	.string()
-	.min(10, { message: 'Username must be at least 10 characters long.' })
-	.max(20, { message: 'Username must not exceed 20 characters.' })
+	.min(6, { message: 'Username must be at least 6 characters long.' })
+	.max(16, { message: 'Username must not exceed 16 characters.' })
 	.regex(/^[a-z0-9_]*$/, {
 		message:
 			'Username must contain only lowercase letters, numbers, and underscores.',
@@ -19,16 +19,16 @@ export const generateRandomNumber = (length: number): string => {
 
 // Function to generate a username from an OAuth profile name
 export const generateUsername = (name: string): string => {
-	if (!name) return `user_${generateRandomNumber(6)}`
+	if (!name) return `user${generateRandomNumber(4)}`
 
 	let username = name.toLowerCase().replace(/([^a-z0-9]|\+)/g, '_')
 
-	if (username.length < 10) {
-		username += `_${generateRandomNumber(7)}`
+	if (username.length < 6) {
+		username += `${generateRandomNumber(4)}`
 	}
 	// * After generating a username, we validate it using the UsernameSchema if the other case happens and it is very long.
-	if (username.length > 20) {
-		username = username.substring(0, 20)
+	if (username.length > 16) {
+		username = username.substring(0, 16)
 	}
 
 	return UsernameSchema.parse(username)
