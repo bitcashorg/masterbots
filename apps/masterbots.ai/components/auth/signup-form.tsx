@@ -142,9 +142,13 @@ export default function SignUpForm() {
 					id="username"
 					name="username"
 					type="text"
-					placeholder="john_doe123"
+					placeholder="johnd23"
 					value={state.username}
 					onChange={handleInputChange}
+					minLength={6}
+					maxLength={16}
+					title="Username must be 6-16 characters long and can only contain lowercase letters, numbers, and underscores."
+					pattern="^[a-z0-9_]{6,16}$"
 				/>
 			</div>
 			<div className="space-y-2">
