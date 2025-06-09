@@ -18,6 +18,13 @@ export const appConfig = {
 			process.env.NEXT_PUBLIC_MAX_FILE_SIZE || '10485760',
 			10,
 		),
+		storageBucketName: process.env.GCS_BUCKET_NAME || '',
+		storageProjectId: process.env.GCS_PROJECT_ID || '',
+		storageClientEmail: process.env.GCS_CLIENT_EMAIL || '',
+		storageSecretAccessKey: (process.env.GCS_SECRET_ACCESS_KEY || '').replace(
+			/\\n/g,
+			'\n',
+		),
 		topLoader: process.env.NEXT_PUBLIC_FEATURE_TOP_LOADER === 'true',
 		enableVerificationEmail:
 			process.env.NEXT_PUBLIC_ENABLE_VERIFICATION_EMAIL === 'true',
@@ -32,7 +39,7 @@ export const appConfig = {
 	},
 	cloudinary: {
 		url: `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
-		upload_preset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || '',
+		uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || '',
 		transformation: process.env.NEXT_PUBLIC_CLOUDINARY_TRANSFORMATION || '',
 	},
 	database: {
