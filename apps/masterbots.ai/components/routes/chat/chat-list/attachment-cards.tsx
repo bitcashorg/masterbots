@@ -1,4 +1,16 @@
+import { AttachmentDialog } from '@/components/routes/chat/attachment-dialog'
+import { Button } from '@/components/ui/button'
 import { Card, CardDescription, CardTitle } from '@/components/ui/card'
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog'
 import {
 	Tooltip,
 	TooltipContent,
@@ -7,7 +19,7 @@ import {
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import { cn } from '@/lib/utils'
 import { AnimatePresence, type MotionProps, motion } from 'framer-motion'
-import { FileIcon } from 'lucide-react'
+import { FileIcon, Maximize2Icon, Minimize2Icon } from 'lucide-react'
 import Image from 'next/image'
 
 export const cardSlideUpShowAnimationProps: MotionProps = {
@@ -63,26 +75,30 @@ export function AttachmentCards({
 													</div>
 												)}
 											</CardTitle>
-											<Tooltip>
-												<TooltipTrigger asChild>
-													<CardDescription
-														className={cn(
-															'transition duration-300 absolute truncate bottom-0 px-3 py-1.5 w-full text-center bg-accent text-accent-foreground rounded-b-lg',
-															isAccordionFocused ? 'text-sm' : 'text-xs',
-														)}
+											<CardDescription
+												className={cn(
+													'transition duration-300 absolute bottom-0 w-full text-center bg-accent text-accent-foreground rounded-b-lg flex px-2 gap-1 items-center justify-between',
+													isAccordionFocused ? 'text-sm' : 'text-xs',
+												)}
+											>
+												<Tooltip>
+													<TooltipTrigger className="w-full py-1.5">
+														<span className="inline-block items-center align-middle truncate max-w-[66%]">
+															{name}
+														</span>{' '}
+														| {(attachment.size / 1024 / 1024).toFixed(2)}MB
+													</TooltipTrigger>
+													<TooltipContent
+														sideOffset={5}
+														side="top"
+														align="center"
+														className="px-2 py-1"
 													>
 														{name}
-													</CardDescription>
-												</TooltipTrigger>
-												<TooltipContent
-													sideOffset={5}
-													side="top"
-													align="center"
-													className="px-2 py-1"
-												>
-													{name}
-												</TooltipContent>
-											</Tooltip>
+													</TooltipContent>
+												</Tooltip>
+												<AttachmentDialog attachment={attachment} />
+											</CardDescription>
 										</Card>
 									</motion.div>
 								)

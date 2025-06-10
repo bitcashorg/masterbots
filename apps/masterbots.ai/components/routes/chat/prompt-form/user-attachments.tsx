@@ -38,9 +38,9 @@ export function UserAttachments({
 							<div className="size-10 flex flex-shrink-0 items-center justify-center bg-muted rounded">
 								{attachmentType?.includes('image') ? (
 									<Image
-										src={attachment.url}
 										width={40}
 										height={40}
+										src={attachment.url}
 										alt={attachment.name}
 										className="size-10 object-cover rounded"
 									/>

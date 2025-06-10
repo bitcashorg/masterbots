@@ -181,7 +181,7 @@ export function SidebarLink({
 
 	if (isFilterMode) {
 		return (
-			<div className={cn('flex flex-col mb-2')} data-route={routeType}>
+			<div className={cn('flex flex-col mb-0.5')} data-route={routeType}>
 				{/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
 				<div
 					className={cn(
@@ -198,7 +198,7 @@ export function SidebarLink({
 	}
 
 	return (
-		<div className={cn('flex flex-col mb-2')} data-route={routeType}>
+		<div className={cn('flex flex-col mb-0.5')} data-route={routeType}>
 			<Link
 				href={categoryUrl}
 				className={cn(
