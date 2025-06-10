@@ -255,23 +255,23 @@ export function ChatPanel({
 						<ImageGenerator />
 					) : (
 						<PromptForm
-						onSubmit={async (value, chatOptions) => {
-							scrollToBottom()
-							await append(
-								{
-									id,
-									content: value,
-									role: 'user',
-								},
-								prepareMessageOptions(chatOptions),
-							)
-						}}
-						disabled={formDisabled}
-						input={input}
-						setInput={setInput}
-						isLoading={isLoading || isPreProcessing}
-						placeholder={placeholder}
-					/>
+							onSubmit={async (value, chatOptions) => {
+								scrollToBottom()
+								await append(
+									{
+										id,
+										content: value,
+										role: 'user',
+									},
+									prepareMessageOptions(chatOptions),
+								)
+							}}
+							disabled={formDisabled}
+							input={input}
+							setInput={setInput}
+							isLoading={isLoading || isPreProcessing}
+							placeholder={placeholder}
+						/>
 					)}
 				</div>
 			</div>
