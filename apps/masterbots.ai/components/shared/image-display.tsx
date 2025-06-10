@@ -168,14 +168,18 @@ export function ImageDisplay({
 						className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center cursor-pointer min-h-[100dvh] w-screen"
 						onClick={() => setIsZoomed(false)}
 					>
-						{/* eslint-disable-next-line @next/next/no-img-element */}
-						{/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
-						<Image
-							src={formattedImageData}
-							alt={alt}
-							className="max-h-[90dvh] max-w-[90vw] object-contain"
+						<button
+							type="button"
+							className="max-h-[90dvh] max-w-[90vw] bg-transparent border-none p-0"
 							onClick={(e) => e.stopPropagation()}
-						/>
+						>
+							{/* eslint-disable-next-line @next/next/no-img-element */}
+							<img
+								src={formattedImageData}
+								alt={alt}
+								className="max-h-[90dvh] max-w-[90vw] object-contain"
+							/>
+						</button>
 					</div>,
 					document.body,
 				)}

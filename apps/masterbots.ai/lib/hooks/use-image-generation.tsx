@@ -15,7 +15,6 @@ import { useMBChat } from './use-mb-chat'
  * Hook for managing image generation
  */
 export function useImageGeneration(): UseImageGenerationReturn {
-	// State management
 	const [generatedImage, setGeneratedImage] = useState<GeneratedImage | null>(
 		null,
 	)
@@ -24,7 +23,7 @@ export function useImageGeneration(): UseImageGenerationReturn {
 	const [isLoading, setIsLoading] = useState(false)
 	const [activePrompt, setActivePrompt] = useState('')
 
-	// Get chat functions
+	//* Get chat functions
 	const [, { append }] = useMBChat()
 
 	/**
@@ -49,11 +48,11 @@ export function useImageGeneration(): UseImageGenerationReturn {
 				setIsLoading(true)
 				setError(null)
 
-				// Initialize timing with start time
+				//* Initialize timing with start time
 				const startTime = Date.now()
 				setTiming({ startTime })
 
-				// Call the API to generate the image
+				//*  API call to generate images
 				const request: GenerateImageRequest = {
 					prompt,
 					modelId,
@@ -73,7 +72,7 @@ export function useImageGeneration(): UseImageGenerationReturn {
 					throw new Error(data.error || `Server error: ${response.status}`)
 				}
 
-				// Update timing
+				//* Timing update
 				const completionTime = Date.now()
 				const elapsed = completionTime - startTime
 				setTiming({
@@ -86,7 +85,7 @@ export function useImageGeneration(): UseImageGenerationReturn {
 					`Successful image response [modelId=${modelId}, elapsed=${elapsed}ms]`,
 				)
 
-				// Create generated image object
+				//* Create generated image object
 				const imageObject: GeneratedImage = {
 					id: nanoid(),
 					prompt,
@@ -96,7 +95,6 @@ export function useImageGeneration(): UseImageGenerationReturn {
 					provider: 'openai',
 				}
 
-				// Update state
 				setGeneratedImage(imageObject)
 			} catch (err) {
 				console.error(`Error [modelId=${modelId}]:`, err)
@@ -119,11 +117,10 @@ export function useImageGeneration(): UseImageGenerationReturn {
 	const addImageToChat = useCallback(() => {
 		if (!generatedImage) return
 
-		// Create image message and append to chat
+		//* Create image message and append to chat
 		const imageMessage = imageHelpers.createImageMessage(generatedImage)
 		append(imageMessage)
 
-		// Reset state after adding to chat
 		resetState()
 	}, [generatedImage, append, resetState])
 

@@ -2,6 +2,7 @@ import type { GenerateImageRequest } from '@/types/types'
 import { openai } from '@ai-sdk/openai'
 import { experimental_generateImage as generateImage } from 'ai'
 import { type NextRequest, NextResponse } from 'next/server'
+import OpenAI from 'openai'
 
 /**
  * Maximum execution time (55 seconds, slightly less than the Edge runtime limit)
@@ -53,13 +54,48 @@ export async function POST(req: NextRequest) {
 		const startstamp = performance.now()
 
 		// * Generate image
-		const generatePromise = generateImage({
-			model: openai.image(modelId),
-			prompt,
-			size: DEFAULT_IMAGE_SIZE,
-			seed: Math.floor(Math.random() * 1000000),
-		}).then(({ image, warnings }) => {
-			// * Log warnings if any
+		const generatePromise = (async () => {
+			if (modelId === 'gpt-image-1') {
+				//? OpenAI API directly until the AI SDK supports it stablely
+				const openaiClient = new OpenAI()
+				const response = await openaiClient.images.generate({
+					model: modelId,
+					prompt,
+					size: DEFAULT_IMAGE_SIZE,
+				})
+
+				// console.log('OpenAI response:', JSON.stringify(response, null, 2)) //? Uncomment to debug response
+
+				//* Get the image data from response
+				const imageData = response.data[0]
+				if (!imageData) {
+					console.error('OpenAI response data:', response.data)
+					throw new Error('No image data returned from OpenAI')
+				}
+
+				return {
+					image: imageData.b64_json || imageData.url,
+					warnings: [],
+				}
+			}
+
+			//? AI SDK for DALL-E models
+			const result = await generateImage({
+				model: openai.image(modelId),
+				prompt,
+				size: DEFAULT_IMAGE_SIZE,
+				seed: Math.floor(Math.random() * 1000000),
+				providerOptions: {
+					openai: {
+						response_format: 'b64_json',
+					},
+				},
+			})
+			return {
+				image: result.image.base64,
+				warnings: result.warnings,
+			}
+		})().then(({ image, warnings }) => {
 			if (warnings?.length > 0) {
 				console.warn(
 					`Warnings [requestId=${requestId}, model=${modelId}]: `,
@@ -76,7 +112,7 @@ export async function POST(req: NextRequest) {
 
 			//* Return image data
 			return {
-				image: image.base64,
+				image,
 			}
 		})
 
@@ -88,7 +124,6 @@ export async function POST(req: NextRequest) {
 			status: 'image' in result ? 200 : 500,
 		})
 	} catch (error) {
-		// Log error details but return a generic message
 		console.error(`Error generating image [requestId=${requestId}]: `, error)
 
 		return NextResponse.json(

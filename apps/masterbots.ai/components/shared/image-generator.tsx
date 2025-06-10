@@ -162,10 +162,17 @@ export function ImageGenerator() {
 
 					{/* Loading state */}
 					{isLoading && (
-						<div className="my-8 text-center">
-							<Progress className="w-8 h-8 mx-auto mb-4" />
-							<p className="text-muted-foreground">
-								Generating your image... This may take up to 30 seconds.
+						<div className="my-8 text-center animate-fade-in">
+							<div className="relative mx-auto mb-4 size-16">
+								{/* Outer spinning ring */}
+								<div className="absolute inset-0 border-4 rounded-full border-primary/20" />
+								<div className="absolute inset-0 border-4 rounded-full border-t-primary animate-spin" />
+
+								{/* Inner pulsing circle */}
+								<div className="absolute rounded-full inset-2 bg-primary/10 animate-pulse" />
+							</div>
+							<p className="text-muted-foreground animate-fade-in">
+								Generating your image... This may take up to 60 seconds.
 							</p>
 						</div>
 					)}
