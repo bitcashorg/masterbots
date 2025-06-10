@@ -9,11 +9,11 @@ import { useChat } from '@ai-sdk/react'
 import { nanoid } from 'nanoid'
 import * as React from 'react'
 import { useWorkspace } from './use-workspace'
+import type { ChatRequestOptions } from 'ai'
+import { useSonner } from '@/lib/hooks/useSonner'
 
-interface WorkspaceChatContextType {
+interface WorkspaceChatContextType extends Partial<ReturnType<typeof useChat>> {
 	// Chat state
-	messages: any[]
-	isLoading: boolean
 	error: Error | undefined
 
 	// Workspace processing state
@@ -72,24 +72,54 @@ export function WorkspaceChatProvider({
 	>(null)
 	const [cursorPosition, setCursorPosition] = React.useState<number>(0)
 	const { selectedModel, clientType } = useModel()
+	const { customSonner } = useSonner()
+
+	// Create a stable chat ID that persists across renders
+	const chatId = React.useMemo(() => nanoid(), [])
+
 	// Raw useChat hook for workspace mode
-	const { messages, isLoading, error, append } = useChat({
-		id: nanoid(),
+	const { messages, isLoading, error, append, input, setInput } = useChat({
+		id: chatId,
 		body: {
-			id: nanoid(),
+			id: chatId,
 			model: selectedModel,
 			clientType,
 		},
-		// Don't persist workspace messages to avoid interfering with thread chat
-		keepLastMessageOnError: false,
-		onFinish: (message) => {
+		onResponse(response) {
+			if (response.status === 401) {
+				customSonner({ type: 'error', text: response.statusText })
+			} else if (!response.ok) {
+				customSonner({ type: 'error', text: 'Failed to process request' })
+			}
+		},
+		onError(error) {
+			console.error('❌ Error in workspace chat:', error)
+			customSonner({ type: 'error', text: 'An error occurred' })
+		},
+		async onFinish(message) {
 			console.log(
 				'✅ onFinish: AI response complete, handling persistence and cleanup:',
 				message.content?.substring(0, 100),
 			)
 
+			// const documentKey = `${activeProject}:${activeDocument}`
+			// // Get the current document content at the time of response
+			// const currentContent =
+			// 	document.querySelector(`[data-document-key="${documentKey}"]`)
+			// 		?.textContent || ''
+
+			// // Process the AI response for document update
+			// handleDocumentUpdate(
+			// 	message.content,
+			// 	activeWorkspaceSection,
+			// 	currentContent,
+			// 	documentKey,
+			// )
+
 			// Reset processing state
 			setWorkspaceProcessingState('idle')
+			// Note: Live updates are handled in workspace-content.tsx via messages array
+			// This onFinish event is only for persistence and cleanup operations
 
 			// TODO: Here we can add logic for:
 			// - Saving final document state to database
@@ -100,6 +130,8 @@ export function WorkspaceChatProvider({
 			console.log('✅ onFinish: Workspace ready for next request')
 		},
 	})
+
+	console.log('🔄 WorkspaceChatProvider messages:', messages)
 
 	// Document update function
 	const handleDocumentUpdate = React.useCallback(
@@ -216,84 +248,79 @@ export function WorkspaceChatProvider({
 	)
 
 	// Main workspace edit function
-	const handleWorkspaceEdit = React.useCallback(
-		async (userPrompt: string, metaPrompt: string, cursorPosition?: number) => {
-			console.log('🚀 handleWorkspaceEdit called with:', {
-				userPrompt,
-				activeProject,
-				activeDocument,
-			})
-
-			if (!activeProject || !activeDocument) {
-				console.error('❌ No active project or document selected')
-				return
-			}
-
-			console.log('📝 Setting analyzing state...')
-			setWorkspaceProcessingState('analyzing')
-
-			try {
-				// Get current document content for context
-				const documentKey = `${activeProject}:${activeDocument}`
-
-				console.log('📄 Document context:', {
-					documentKey,
-					activeSection: activeWorkspaceSection,
-				})
-
-				// Set generating state before making API call
-				setWorkspaceProcessingState('generating')
-
-				// Use raw append with workspace-specific onFinish callback
-				await append({
-					id: crypto.randomUUID(),
-					content: metaPrompt,
-					role: 'user',
-				})
-
-				console.log('✅ Workspace edit initiated successfully')
-			} catch (error) {
-				console.error('❌ Error in workspace edit:', error)
-				setWorkspaceProcessingState('idle')
-			}
-		},
-		[
+	const handleWorkspaceEdit = async (
+		userPrompt: string,
+		metaPrompt: string,
+		cursorPosition?: number,
+	) => {
+		console.log('🚀 handleWorkspaceEdit called with:', {
+			userPrompt,
 			activeProject,
 			activeDocument,
-			activeWorkspaceSection,
-			append,
-			handleDocumentUpdate,
-		],
-	)
+		})
 
-	const value = React.useMemo(
-		() => ({
-			messages,
-			isLoading,
-			error,
-			workspaceProcessingState,
-			setWorkspaceProcessingState,
-			activeWorkspaceSection,
-			setActiveWorkspaceSection,
-			cursorPosition,
-			setCursorPosition,
-			handleWorkspaceEdit,
-			handleDocumentUpdate,
-		}),
-		[
-			messages,
-			isLoading,
-			error,
-			workspaceProcessingState,
-			activeWorkspaceSection,
-			cursorPosition,
-			handleWorkspaceEdit,
-			handleDocumentUpdate,
-		],
-	)
+		if (!activeProject || !activeDocument) {
+			console.error('❌ No active project or document selected')
+			return
+		}
+
+		console.log('📝 Setting analyzing state...')
+		setWorkspaceProcessingState('analyzing')
+
+		try {
+			// Get current document content for context
+			const documentKey = `${activeProject}:${activeDocument}`
+
+			console.log('📄 Document context:', {
+				documentKey,
+				activeSection: activeWorkspaceSection,
+			})
+
+			// set the cursor position if provided
+			if (cursorPosition !== undefined && cursorPosition >= 0) {
+				setCursorPosition(cursorPosition)
+			} else {
+				// Default to 0 if no cursor position is provided
+				setCursorPosition(0)
+			}
+
+			// Set generating state before making API call
+			setWorkspaceProcessingState('generating')
+
+			// Use raw append with workspace-specific onFinish callback
+			await append({
+				id: nanoid(),
+				content: metaPrompt,
+				role: 'user',
+				createdAt: new Date(),
+			})
+
+			console.log('✅ Workspace edit initiated successfully')
+		} catch (error) {
+			console.error('❌ Error in workspace edit:', error)
+			setWorkspaceProcessingState('idle')
+		}
+	}
 
 	return (
-		<WorkspaceChatContext.Provider value={value}>
+		<WorkspaceChatContext.Provider
+			value={{
+				append,
+				setInput,
+				setCursorPosition,
+				handleWorkspaceEdit,
+				handleDocumentUpdate,
+				setActiveWorkspaceSection,
+				setWorkspaceProcessingState,
+				input,
+				error,
+				messages,
+				isLoading,
+				cursorPosition,
+				workspaceProcessingState,
+				activeWorkspaceSection,
+			}}
+		>
 			{children}
 		</WorkspaceChatContext.Provider>
 	)

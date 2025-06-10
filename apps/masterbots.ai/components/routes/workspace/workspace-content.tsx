@@ -1,5 +1,6 @@
 'use client'
 
+import * as React from 'react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
@@ -20,7 +21,6 @@ import {
 	SaveIcon,
 	Table,
 } from 'lucide-react'
-import * as React from 'react'
 
 interface WorkspaceContentProps {
 	projectName: string | null
@@ -127,6 +127,129 @@ The conclusion summarizes the key points and implications of the project.
 		}
 	}, [documentKey, savedContent, onActiveSectionChange])
 
+	// Track the last assistant message to detect new AI responses
+	const lastAssistantMessage = React.useMemo(() => {
+		return messages?.filter((m) => m.role === 'assistant').pop()
+	}, [messages])
+
+	console.log('lastAssistantMessage', lastAssistantMessage)
+	console.log('isUserTypingRef.current', isUserTypingRef.current)
+
+	// Effect to handle live updates when new AI messages arrive during streaming
+	React.useEffect(() => {
+		if (!projectName || !documentName) {
+			console.warn('⚠️ No project or document selected, skipping live update')
+			return
+		}
+		console.log('lastAssistantMessage effect triggered', lastAssistantMessage)
+		if (lastAssistantMessage && !isUserTypingRef.current) {
+			// If we have a new assistant message and user is not typing, update content
+			console.log(
+				'🤖 New assistant message detected, updating workspace content live',
+			)
+
+			// Get the AI response content
+			const aiResponse = lastAssistantMessage.content
+			if (!aiResponse || aiResponse.trim() === '') {
+				return
+			}
+
+			// Get current document content
+			const documentKey =
+				projectName && documentName ? `${projectName}:${documentName}` : null
+			const currentContent =
+				documentKey && documentContent && documentContent[documentKey]
+
+			if (!currentContent) {
+				return
+			}
+
+			// Parse the current document into sections
+			const currentSections = parseMarkdownSections(currentContent)
+
+			// If there's an active section, try to update that specific section
+			if (activeSection && currentSections.length > 0) {
+				const sectionIndex = currentSections.findIndex(
+					(s) => s.id === activeSection,
+				)
+				if (sectionIndex !== -1) {
+					console.log('📝 Updating active section with AI response')
+					// Update the specific section with AI response
+					const updatedSections = [...currentSections]
+					const currentSection = updatedSections[sectionIndex]
+
+					// Check if AI response is a complete replacement or just content
+					if (aiResponse.includes('#')) {
+						// AI provided structured content - parse and merge
+						const aiSections = parseMarkdownSections(aiResponse)
+						if (aiSections.length === 1) {
+							// Single section response - replace the target section
+							updatedSections[sectionIndex] = {
+								...updatedSections[sectionIndex],
+								content: aiSections[0].content,
+								title:
+									aiSections[0].title || updatedSections[sectionIndex].title,
+							}
+						} else {
+							// Multiple sections - insert after current section
+							updatedSections.splice(sectionIndex + 1, 0, ...aiSections)
+						}
+					} else {
+						// Plain text response - insert at cursor position if available
+						if (cursorPosition >= 0) {
+							const beforeCursor = currentSection.content.substring(
+								0,
+								cursorPosition,
+							)
+							const afterCursor =
+								currentSection.content.substring(cursorPosition)
+							updatedSections[sectionIndex] = {
+								...currentSection,
+								content: `${beforeCursor}${aiResponse}${afterCursor}`,
+							}
+						} else {
+							// No cursor position, append to section content
+							updatedSections[sectionIndex] = {
+								...updatedSections[sectionIndex],
+								content: `${currentSection.content}\n\n${aiResponse}`,
+							}
+						}
+					}
+
+					// Reconstruct the document and update
+					const newMarkdown = combineMarkdownSections(updatedSections)
+					setDocumentContent(projectName, documentName, newMarkdown)
+				}
+			} else if (viewMode === 'source') {
+				// Handle full source view updates
+				console.log('📝 Updating full source view with AI response')
+				if (cursorPosition >= 0) {
+					// Insert at cursor position in full document
+					const beforeCursor = currentContent.substring(0, cursorPosition)
+					const afterCursor = currentContent.substring(cursorPosition)
+					const updatedContent = `${beforeCursor}${aiResponse}${afterCursor}`
+					setDocumentContent(projectName, documentName, updatedContent)
+				} else if (aiResponse.includes('#') && aiResponse.includes('\n')) {
+					// AI provided structured content - use it as new document content
+					setDocumentContent(projectName, documentName, aiResponse)
+				} else {
+					// Plain text response - append to document
+					const updatedContent = `${currentContent}\n\n## AI Update\n\n${aiResponse}`
+					setDocumentContent(projectName, documentName, updatedContent)
+				}
+			}
+		}
+	}, [
+		lastAssistantMessage,
+		projectName,
+		documentName,
+		documentContent,
+		setDocumentContent,
+		activeSection,
+		cursorPosition,
+		viewMode,
+	])
+
 	// Effect to handle external document content updates (e.g., from workspace chat)
 	React.useEffect(() => {
 		if (
@@ -211,8 +334,7 @@ The conclusion summarizes the key points and implications of the project.
 
 	const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
 		markUserTyping()
-		setEditableContent(e.target.value)
-		// Track cursor position for precise AI output placement
+		setEditableContent(e.target.value) // Track cursor position for precise AI output placement
 		const position = e.target.selectionStart || 0
 		setCursorPosition(position)
 		setGlobalCursorPosition(position)
@@ -261,20 +383,17 @@ The conclusion summarizes the key points and implications of the project.
 	])
 
 	// Debounced save for full source changes
-	const debouncedSaveFullSource = React.useCallback(
-		React.useMemo(() => {
-			let timeoutId: NodeJS.Timeout
-			return (content: string) => {
-				clearTimeout(timeoutId)
-				timeoutId = setTimeout(() => {
-					if (projectName && documentName && content) {
-						setDocumentContent(projectName, documentName, content)
-					}
-				}, 500) // 500ms debounce
-			}
-		}, [projectName, documentName, setDocumentContent]),
-		[projectName, documentName, setDocumentContent],
-	)
+	const debouncedSaveFullSource = React.useCallback(() => {
+		let timeoutId: NodeJS.Timeout
+		return (content: string) => {
+			clearTimeout(timeoutId)
+			timeoutId = setTimeout(() => {
+				if (projectName && documentName && content) {
+					setDocumentContent(projectName, documentName, content)
+				}
+			}, 500) // 500ms debounce
+		}
+	}, [projectName, documentName, setDocumentContent])
 
 	const handleImportPaste = () => {
 		if (!pasteContent.trim()) return
@@ -361,7 +480,7 @@ The conclusion summarizes the key points and implications of the project.
 
 			{/* Text Document View */}
 			{documentType === 'text' && (
-				<div className="space-y-4">
+				<div className="space-y-4 h-full">
 					{/* Simple tab UI without Radix tabs */}
 					<div className="flex space-x-2 border-b">
 						<button
@@ -473,9 +592,8 @@ The conclusion summarizes the key points and implications of the project.
 									// Track cursor position
 									const position = e.target.selectionStart || 0
 									setCursorPosition(position)
-									setGlobalCursorPosition(position)
-									// Save changes with debounce
-									debouncedSaveFullSource(newValue)
+									setGlobalCursorPosition(position) // Save changes with debounce
+									debouncedSaveFullSource()(newValue)
 								}}
 								onFocus={handleCursorPositionChange}
 								onClick={handleCursorPositionChange}

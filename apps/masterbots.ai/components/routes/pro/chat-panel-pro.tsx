@@ -94,6 +94,7 @@ export interface ChatPanelProProps
 
 export function ChatPanelPro({
 	title,
+	id,
 	isLoading,
 	chatbot,
 	placeholder,
@@ -117,15 +118,6 @@ export function ChatPanelPro({
 	const { isPowerUp, togglePowerUp } = usePowerUp()
 	const { isDeepThinking, toggleDeepThinking } = useDeepThinking()
 	const [shareDialogOpen, setShareDialogOpen] = useState(false)
-	const { selectedModel, clientType } = useModel()
-	const { append, messages, reload, setInput, input, id } = useChat({
-		id: nanoid(),
-		body: {
-			id: nanoid(),
-			model: selectedModel,
-			clientType,
-		},
-	})
 
 	// Use either external state (if provided) or local state for conversion dialog
 	const [localConvertDialogOpen, setLocalConvertDialogOpen] = useState(false)
@@ -176,7 +168,11 @@ export function ChatPanelPro({
 
 	// Use workspace chat hook for workspace-specific functionality
 	const {
+		input: workspaceInput,
+		append: workspaceAppend,
+		messages: workspaceMessages,
 		workspaceProcessingState,
+		setInput: setWorkspaceInput,
 		setWorkspaceProcessingState,
 		activeWorkspaceSection,
 		setActiveWorkspaceSection,
@@ -184,6 +180,8 @@ export function ChatPanelPro({
 		handleWorkspaceEdit: workspaceHandleEdit,
 		handleDocumentUpdate: workspaceHandleDocumentUpdate,
 	} = useWorkspaceChat()
+
+	console.log('🔄 ChatPanelPro workspaceMessages:', workspaceMessages)
 	const [, { appendWithMbContextPrompts }] = useMBChat()
 	const {
 		isWorkspaceActive,
@@ -220,21 +218,21 @@ export function ChatPanelPro({
 	const [filteredDocumentList, setFilteredDocumentList] = useState<
 		Record<string, string[]>
 	>(() => {
-		console.log('[INIT] Creating initial deep copy of textDocuments')
+		// console.log('[INIT] Creating initial deep copy of textDocuments')
 		return textDocuments ? JSON.parse(JSON.stringify(textDocuments)) : {}
 	})
 
 	// Log initial textDocuments for debugging with better formatting
-	console.log(
-		'[INIT] Initial textDocuments:',
-		JSON.stringify(textDocuments, null, 2),
-	)
-	console.log(
-		'[INIT] Campaign A docs:',
-		textDocuments && 'Campaign A' in textDocuments
-			? JSON.stringify(textDocuments['Campaign A'], null, 2)
-			: 'Not found',
-	)
+	// console.log(
+	// 	`[INIT] Initial textDocuments:`,
+	// 	JSON.stringify(textDocuments, null, 2),
+	// )
+	// console.log(
+	// 	'[INIT] Campaign A docs:',
+	// 	textDocuments && 'Campaign A' in textDocuments
+	// 		? JSON.stringify(textDocuments['Campaign A'], null, 2)
+	// 		: 'Not found',
+	// )
 
 	// Effect to update document list when document type changes - improved implementation
 	useEffect(() => {
@@ -441,7 +439,7 @@ export function ChatPanelPro({
 
 		try {
 			await appendWithMbContextPrompts({
-				// id: crypto.randomUUID(),
+				id: chatId,
 				role: 'user',
 				content: continuationPrompt,
 			})
@@ -471,7 +469,7 @@ export function ChatPanelPro({
 
 	// Open the convert dialog for a specific message
 	const handleOpenConvertDialog = (messageId: string) => {
-		const message = messages.find((m) => m.id === messageId)
+		const message = workspaceMessages?.find((m) => m.id === messageId)
 		if (message) {
 			setLocalSelectedMessageId(messageId)
 			setConvertedText(message.content)
@@ -844,6 +842,10 @@ Please provide your response now:`
 		documentType,
 	])
 
+	const chatId = useMemo(() => {
+		return id || `chat-panel-${nanoid(16)}`
+	}, [id])
+
 	return (
 		<>
 			<div
@@ -918,30 +920,32 @@ Please provide your response now:`
 									)}
 
 									{/* Convert to Document Button - only shown when workspace is inactive */}
-									{messages.length > 0 && appConfig.features.devMode && (
-										<Button
-											variant="ghost"
-											size="icon"
-											title="Convert Last Message to Document"
-											onClick={() => {
-												// Find the last assistant message
-												const lastAssistantMessage = [...messages]
-													.reverse()
-													.find((m) => m.role === 'assistant')
+									{workspaceMessages &&
+										workspaceMessages.length > 0 &&
+										appConfig.features.devMode && (
+											<Button
+												variant="ghost"
+												size="icon"
+												title="Convert Last Message to Document"
+												onClick={() => {
+													// Find the last assistant message
+													const lastAssistantMessage = [...workspaceMessages]
+														.reverse()
+														.find((m) => m.role === 'assistant')
 
-												if (lastAssistantMessage?.id) {
-													handleOpenConvertDialog(lastAssistantMessage.id)
-												}
-											}}
-											className="text-muted-foreground hover:text-primary relative group"
-										>
-											<FileTextIcon className="h-4 w-4" />
-											<span className="sr-only">Convert Last Message</span>
-											<span className="absolute whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity right-full mr-2 text-xs bg-background border rounded px-1 py-0.5">
-												Convert Message
-											</span>
-										</Button>
-									)}
+													if (lastAssistantMessage?.id) {
+														handleOpenConvertDialog(lastAssistantMessage.id)
+													}
+												}}
+												className="text-muted-foreground hover:text-primary relative group"
+											>
+												<FileTextIcon className="h-4 w-4" />
+												<span className="sr-only">Convert Last Message</span>
+												<span className="absolute whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity right-full mr-2 text-xs bg-background border rounded px-1 py-0.5">
+													Convert Message
+												</span>
+											</Button>
+										)}
 								</div>
 							)}
 							{isWorkspaceActive && (
@@ -981,23 +985,25 @@ Please provide your response now:`
 										textClassName={hiddenAnimationItemClasses}
 									/>
 								)}
-								{!isWorkspaceActive && messages?.length >= 2 && (
-									<Button
-										variant="outline"
-										size="icon"
-										className={cn(
-											hiddenAnimationClasses,
-											'bg-yellow-500/10 hover:bg-yellow-500/20 border-yellow-500/30 text-yellow-500',
-										)}
-										onClick={() => handleContinueGeneration()}
-									>
-										<ChevronsLeftRightEllipsis className="transition-all" />
-										<span className={hiddenAnimationItemClasses}>
-											Continue message
-										</span>
-									</Button>
-								)}
-								{!isWorkspaceActive && id && title && (
+								{!isWorkspaceActive &&
+									workspaceMessages &&
+									workspaceMessages.length >= 2 && (
+										<Button
+											variant="outline"
+											size="icon"
+											className={cn(
+												hiddenAnimationClasses,
+												'bg-yellow-500/10 hover:bg-yellow-500/20 border-yellow-500/30 text-yellow-500',
+											)}
+											onClick={() => handleContinueGeneration()}
+										>
+											<ChevronsLeftRightEllipsis className="transition-all" />
+											<span className={hiddenAnimationItemClasses}>
+												Continue message
+											</span>
+										</Button>
+									)}
+								{!isWorkspaceActive && chatId && title && (
 									<>
 										<Button
 											variant="outline"
@@ -1009,9 +1015,9 @@ Please provide your response now:`
 										<ChatShareDialog
 											onCopy={() => setShareDialogOpen(false)}
 											chat={{
-												id,
+												id: chatId,
 												title,
-												messages,
+												messages: workspaceMessages || [],
 											}}
 										/>
 									</>
@@ -1225,7 +1231,7 @@ Please provide your response now:`
 										isWorkspaceActive,
 										activeProject,
 										activeDocument,
-										appendFunction: typeof append,
+										appendFunction: typeof workspaceAppend,
 									})
 
 									if (isWorkspaceActive) {
@@ -1253,15 +1259,16 @@ Please provide your response now:`
 											metaPrompt,
 											workspaceCursorPosition,
 										)
-									} else {
-										// In chat mode, use normal append behavior
-										console.log('💬 Chat mode: using normal append')
+									} else if (workspaceAppend) {
+										// In chat mode, use normal workspaceAppend behavior
+										console.log('💬 Chat mode: using normal workspaceAppend')
 										scrollToBottom()
-										await append(
+										await workspaceAppend(
 											{
-												id,
+												id: chatId,
 												content: value,
 												role: 'user',
+												createdAt: new Date(),
 											},
 											prepareMessageOptions(chatOptions),
 										)
@@ -1275,8 +1282,8 @@ Please provide your response now:`
 									(!isWorkspaceActive && !Boolean(chatbot)) ||
 									isPreProcessing
 								}
-								input={input}
-								setInput={setInput}
+								input={workspaceInput || ''}
+								setInput={setWorkspaceInput || (() => {})}
 								isLoading={
 									isLoading ||
 									isPreProcessing ||
