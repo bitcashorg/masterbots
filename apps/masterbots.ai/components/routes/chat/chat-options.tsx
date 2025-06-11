@@ -105,7 +105,6 @@ export function ChatOptions({ threadId, thread, pair }: ChatOptionsProps) {
 						console.error('Chatbot is undefined, cannot update activeThread.')
 					}
 				}
-				// window.location.reload();
 			} else {
 				customSonner({ type: 'error', text: result?.error })
 			}
