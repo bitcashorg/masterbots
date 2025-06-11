@@ -22,6 +22,10 @@ export function useImageGeneration(): UseImageGenerationReturn {
 	const [timing, setTiming] = useState<ImageTiming>({})
 	const [isLoading, setIsLoading] = useState(false)
 	const [activePrompt, setActivePrompt] = useState('')
+	const [isEditMode, setIsEditMode] = useState(false)
+	const [previousImage, setPreviousImage] = useState<GeneratedImage | null>(
+		null,
+	)
 
 	//* Get chat functions
 	const [, { append }] = useMBChat()
@@ -35,6 +39,8 @@ export function useImageGeneration(): UseImageGenerationReturn {
 		setTiming({})
 		setIsLoading(false)
 		setActivePrompt('')
+		setIsEditMode(false)
+		setPreviousImage(null)
 	}, [])
 
 	/**
@@ -56,9 +62,16 @@ export function useImageGeneration(): UseImageGenerationReturn {
 				const request: GenerateImageRequest = {
 					prompt,
 					modelId,
+					...(isEditMode &&
+						previousImage && {
+							previousImage: previousImage.base64,
+							editMode: true,
+						}),
 				}
 
-				console.log(`Generate image request [modelId=${modelId}]`)
+				console.log(
+					`Generate image request [modelId=${modelId}, editMode=${isEditMode}]`,
+				)
 
 				const response = await fetch('/api/generate-images', {
 					method: 'POST',
@@ -108,21 +121,30 @@ export function useImageGeneration(): UseImageGenerationReturn {
 				setIsLoading(false)
 			}
 		},
-		[],
+		[isEditMode, previousImage],
 	)
 
 	/**
-	 * Add the generated image to the chat
+	 * Add the generated image to the chat or enter edit mode
 	 */
-	const addImageToChat = useCallback(() => {
-		if (!generatedImage) return
+	const addImageToChat = useCallback(
+		(mode: 'chat' | 'edit' = 'chat') => {
+			if (!generatedImage) return
 
-		//* Create image message and append to chat
-		const imageMessage = imageHelpers.createImageMessage(generatedImage)
-		append(imageMessage)
-
-		resetState()
-	}, [generatedImage, append, resetState])
+			if (mode === 'chat') {
+				//* Create image message and append to chat
+				const imageMessage = imageHelpers.createImageMessage(generatedImage)
+				append(imageMessage)
+				resetState()
+			} else {
+				//* Enter edit mode with current image as reference
+				setPreviousImage(generatedImage)
+				setIsEditMode(true)
+				setActivePrompt(generatedImage.prompt)
+			}
+		},
+		[generatedImage, append, resetState],
+	)
 
 	return {
 		generatedImage,
@@ -130,6 +152,7 @@ export function useImageGeneration(): UseImageGenerationReturn {
 		timing,
 		isLoading,
 		activePrompt,
+		isEditMode,
 		generateImage,
 		resetState,
 		addImageToChat,

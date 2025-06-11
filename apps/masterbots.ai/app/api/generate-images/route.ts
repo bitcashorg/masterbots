@@ -36,12 +36,16 @@ export async function POST(req: NextRequest) {
 	const requestId = Math.random().toString(36).substring(7)
 	let prompt: string
 	let modelId: string
+	let previousImage: string | undefined
+	let editMode: boolean | undefined
 
 	try {
 		// * Parse request body
 		const body = (await req.json()) as GenerateImageRequest
 		prompt = body.prompt
 		modelId = body.modelId
+		previousImage = body.previousImage
+		editMode = body.editMode
 
 		// * Validate request parameters
 		if (!prompt || !modelId) {
@@ -85,6 +89,10 @@ export async function POST(req: NextRequest) {
 				prompt,
 				size: DEFAULT_IMAGE_SIZE,
 				seed: Math.floor(Math.random() * 1000000),
+				...(editMode && previousImage && {
+					image: previousImage,
+					mask: previousImage,
+				}),
 				providerOptions: {
 					openai: {
 						response_format: 'b64_json',

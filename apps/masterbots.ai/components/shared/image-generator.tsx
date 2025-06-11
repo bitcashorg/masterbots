@@ -36,6 +36,7 @@ export function ImageGenerator() {
 		error,
 		timing,
 		isLoading,
+		isEditMode,
 		generateImage,
 		addImageToChat,
 		resetState,
@@ -58,10 +59,12 @@ export function ImageGenerator() {
 		}
 	}
 
-	//? Add to chat and return to text mode
-	const handleAddToChat = () => {
-		addImageToChat()
-		disableImageGeneration()
+	//? Enter edit mode
+	const handleEditImage = () => {
+		if (generatedImage) {
+			setPrompt(generatedImage.prompt)
+			addImageToChat('edit')
+		}
 	}
 
 	//? Create a new image
@@ -73,9 +76,13 @@ export function ImageGenerator() {
 	return (
 		<div className="w-full max-w-4xl px-4 pt-4 pb-20 mx-auto">
 			<div className="mb-8">
-				<h2 className="mb-2 text-2xl font-semibold">Image Generation</h2>
+				<h2 className="mb-2 text-2xl font-semibold">
+					{isEditMode ? 'Edit Image' : 'Image Generation'}
+				</h2>
 				<p className="text-muted-foreground">
-					Generate images from text prompts using OpenAI&apos;s image models.
+					{isEditMode
+						? 'Modify your image by updating the prompt below.'
+						: "Generate images from text prompts using OpenAI's image models."}
 				</p>
 			</div>
 
@@ -90,8 +97,10 @@ export function ImageGenerator() {
 
 			{/* Image display */}
 			{generatedImage && (
-				<div className="mb-8">
-					<div className="max-w-md mx-auto">
+				<div className={cn('mb-8', isEditMode && 'max-w-sm mx-auto')}>
+					<div
+						className={cn('mx-auto', isEditMode ? 'max-w-[300px]' : 'max-w-md')}
+					>
 						<ImageDisplay
 							imageData={generatedImage.base64}
 							modelId={generatedImage.modelId}
@@ -100,20 +109,25 @@ export function ImageGenerator() {
 						/>
 					</div>
 
-					<div className="flex justify-center gap-4 mt-6">
+					<div className="flex justify-center gap-4 mt-4">
 						<Button variant="outline" onClick={handleCreateNew}>
 							Create New
 						</Button>
-						<Button onClick={handleAddToChat}>Add to Chat</Button>
+						<Button onClick={handleEditImage}>
+							{isEditMode ? 'Update Image' : 'Edit Image'}
+						</Button>
 					</div>
 				</div>
 			)}
 
-			{/* Input form */}
-			{!generatedImage && (
+			{/* Input form - Show when no image or in edit mode */}
+			{(!generatedImage || isEditMode) && (
 				<>
 					{/* Model selection */}
-					<div className="flex flex-wrap gap-2 mb-4">
+					<div className={cn(
+						"flex flex-wrap gap-2 mb-4",
+						isEditMode && "max-w-2xl mx-auto justify-center"
+					)}>
 						{IMAGE_MODELS.map((model) => (
 							<Button
 								key={model.id}
@@ -129,13 +143,22 @@ export function ImageGenerator() {
 					</div>
 
 					{/* Prompt input */}
-					<div className="p-4 mb-4 bg-zinc-50 rounded-xl">
+					<div
+						className={cn(
+							'p-4 mb-4 bg-zinc-50 rounded-xl',
+							isEditMode && 'max-w-2xl mx-auto',
+						)}
+					>
 						<div className="flex flex-col gap-3">
 							<Textarea
 								value={prompt}
 								onChange={(e) => setPrompt(e.target.value)}
 								onKeyDown={handleKeyDown}
-								placeholder="Describe the image you want to generate..."
+								placeholder={
+									isEditMode
+										? 'Describe the changes you want to make to the image...'
+										: 'Describe the image you want to generate...'
+								}
 								rows={3}
 								className="text-base bg-transparent border-none p-0 resize-none placeholder:text-zinc-500 text-[#111111] focus-visible:ring-0 focus-visible:ring-offset-0"
 								disabled={isLoading}
@@ -172,7 +195,9 @@ export function ImageGenerator() {
 								<div className="absolute rounded-full inset-2 bg-primary/10 animate-pulse" />
 							</div>
 							<p className="text-muted-foreground animate-fade-in">
-								Generating your image... This may take up to 60 seconds.
+								{isEditMode
+									? 'Updating your image... This may take up to 60 seconds.'
+									: 'Generating your image... This may take up to 60 seconds.'}
 							</p>
 						</div>
 					)}

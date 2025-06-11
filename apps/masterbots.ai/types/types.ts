@@ -444,6 +444,8 @@ export type OpenAIImageModel = 'dall-e-2' | 'dall-e-3' | 'gpt-image-1'
 export interface GenerateImageRequest {
 	prompt: string
 	modelId: OpenAIImageModel
+	previousImage?: string // base64 of the previous image
+	editMode?: boolean
 }
 
 // Image generation response payload
@@ -598,6 +600,11 @@ export interface UseImageGenerationReturn {
 	activePrompt: string
 
 	/**
+	 * Whether the component is in edit mode
+	 */
+	isEditMode: boolean
+
+	/**
 	 * Generate an image with the given prompt and model
 	 */
 	generateImage: (prompt: string, modelId: OpenAIImageModel) => Promise<void>
@@ -608,7 +615,7 @@ export interface UseImageGenerationReturn {
 	resetState: () => void
 
 	/**
-	 * Add the generated image to the chat
+	 * generated image to the chat or enter edit mode
 	 */
-	addImageToChat: () => void
+	addImageToChat: (mode?: 'chat' | 'edit') => void
 }
