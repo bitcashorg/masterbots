@@ -1812,8 +1812,6 @@ export async function getModels() {
 				type: true,
 			},
 		})
-
-		console.log('Models fetched:', result.models)
 		return result.models
 	} catch (error) {
 		console.error('Error fetching models:', error)
@@ -1928,5 +1926,42 @@ export async function getThreadMetadataBySlug({
 	} catch (error) {
 		console.error('Error fetching thread metadata by slug:', error)
 		return { thread: null, error: (error as Error).message }
+	}
+}
+
+export const deleteMessages = async (
+	messageIds: string[],
+	jwt: string | undefined,
+) => {
+	try {
+		if (!jwt) {
+			throw new Error('Authentication required for thread deletion')
+		}
+
+		const client = getHasuraClient({ jwt })
+		const res = await client.mutation({
+			deleteMessage: {
+				__args: {
+					where: {
+						messageId: { _in: messageIds },
+					},
+				},
+				affectedRows: true,
+				returning: {
+					messageId: true,
+				},
+			},
+		})
+
+		if ((res.deleteMessage?.affectedRows ?? 0) > 0) {
+			return { success: true }
+		}
+		return { success: false }
+	} catch (error) {
+		console.error('Failed to delete messages:', error)
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : 'Unknown error',
+		}
 	}
 }
