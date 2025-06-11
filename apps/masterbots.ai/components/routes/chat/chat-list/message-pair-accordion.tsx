@@ -156,10 +156,6 @@ export function MessagePairAccordion({
 		((!index || index === arrayLength - 1) && !isPrevious) ||
 		// ? Case for when we have the first message in the previous conversation
 		(!index && isPrevious)
-	console.log(
-		'activeThread?.thread?.messages::',
-		activeThread?.thread?.messages,
-	)
 
 	return (
 		<SharedAccordion

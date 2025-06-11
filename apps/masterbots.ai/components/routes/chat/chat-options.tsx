@@ -79,11 +79,12 @@ export function ChatOptions({ threadId, thread, pair }: ChatOptionsProps) {
 		setIsDeleteOpen(false)
 	}
 
-	const HandleDeleteMessage = async (
+	const handleDeleteMessage = async (
 		e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
 	) => {
 		e.preventDefault()
 		setIsDeleting(true)
+
 		const messageIds = pair
 			? [pair.userMessage.id, ...pair.chatGptMessage.map((msg) => msg.id)]
 			: []
@@ -143,7 +144,7 @@ export function ChatOptions({ threadId, thread, pair }: ChatOptionsProps) {
 						onClick={(e) => {
 							e.stopPropagation()
 							if (isSubThread && pair) {
-								HandleDeleteMessage(e)
+								handleDeleteMessage(e)
 							} else {
 								handleDelete(e)
 							}
