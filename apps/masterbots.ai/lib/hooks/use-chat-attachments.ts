@@ -85,7 +85,7 @@ export function useFileAttachments(
 			)
 		}
 		return indexedDBAttachments
-	}, [session?.user, mounted, activeThread, isLoading])
+	}, [session?.user, mounted, isLoading])
 
 	const { customSonner } = useSonner()
 	const { selectedModel } = useModel()
