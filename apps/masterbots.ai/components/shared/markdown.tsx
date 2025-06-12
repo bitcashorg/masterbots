@@ -17,6 +17,7 @@ function transformLatexBlocks(markdown: string) {
 		})
 }
 
+// @eslint-disable-next-line react/display-name
 export const MemoizedReactMarkdown: FC<Options> = memo(
 	(props) => (
 		<ReactMarkdown
