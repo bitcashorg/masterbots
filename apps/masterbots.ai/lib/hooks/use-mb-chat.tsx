@@ -772,7 +772,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 			createdAt: new Date().toISOString(),
 			isApproved: false,
 			isBlocked: false,
-			isPublic: activeChatbot?.name !== 'BlankBot',
 			// @ts-ignore
 			messages: uniqBy(
 				[...allMessages, defaultUserMessage],
