@@ -1,8 +1,10 @@
 import { cleanPrompt } from '@/lib/helpers/ai-helpers'
+import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import type { useSonner } from '@/lib/hooks/useSonner'
 import { extractBetweenMarkers, getRouteType } from '@/lib/utils'
 import { getThread } from '@/services/hasura'
 import type * as AI from 'ai'
+import { pick } from 'lodash'
 import type { Message, Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
 
@@ -159,4 +161,16 @@ export async function getOpeningActiveThreadHelper(
 		)
 		await activatePopup(thread)
 	}
+}
+
+export function prepareThreadAttachmentCheck(
+	attachments: FileAttachment[] | null,
+) {
+	return (
+		attachments
+			?.map((att) => ({
+				...pick(att, ['id', 'name', 'messageIds', 'size']),
+			}))
+			.sort((a, b) => a.size - b.size) || []
+	)
 }

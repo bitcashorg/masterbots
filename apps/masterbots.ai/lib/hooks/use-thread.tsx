@@ -2,12 +2,12 @@
 
 import { useMBScroll } from '@/lib/hooks/use-mb-scroll'
 import { useSidebar } from '@/lib/hooks/use-sidebar'
-import { getChatbots, getChatbotsCount } from '@/services/hasura'
+import { getChatbots, getChatbotsCount, getUserBySlug } from '@/services/hasura'
 import type { AiToolCall, ChatLoadingState } from '@/types/types'
 import type { Chatbot, Thread } from 'mb-genql'
 import { useSession } from 'next-auth/react'
 import * as React from 'react'
-import { useSetState } from 'react-use'
+import { useAsync, useSetState } from 'react-use'
 
 interface ThreadContext {
 	webSearch: boolean
@@ -48,6 +48,24 @@ interface ThreadProviderProps {
 
 export function ThreadProvider({ children }: ThreadProviderProps) {
 	const { activeCategory, activeChatbot } = useSidebar()
+	const { data: session } = useSession()
+	const {
+		value: userData,
+		loading,
+		error,
+	} = useAsync(async () => {
+		if (!session?.user.slug) return
+
+		const { user } = await getUserBySlug({
+			slug: session.user.slug,
+			isSameUser: true,
+		})
+		setState({
+			webSearch: user?.preferences[0].webSearch ?? false,
+		})
+		return user
+	}, [session?.user.slug])
+
 	const [
 		{
 			isAdminMode,
@@ -76,7 +94,7 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
 		activeThread: null as Thread | null,
 		isNewResponse: false,
 		isOpenPopup: false,
-		webSearch: false,
+		webSearch: userData?.preferences[0].webSearch ?? false,
 		shouldRefreshThreads: false,
 		randomChatbot: null as Chatbot | null,
 		loadingState: undefined,
@@ -85,7 +103,6 @@ export function ThreadProvider({ children }: ThreadProviderProps) {
 
 	const sectionRef = React.useRef<HTMLElement | null>(null)
 	const threadRef = React.useRef<HTMLElement | null>(null)
-	const { data: session } = useSession()
 
 	const { isNearBottom: isAtBottomOfSection, isNearBottom } = useMBScroll({
 		containerRef: sectionRef,

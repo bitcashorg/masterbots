@@ -1,10 +1,11 @@
 import OGImage from '@/components/shared/og-image'
+import { uuidRegex } from '@/lib/regexp'
 import { getUserBySlug } from '@/services/hasura'
-import type { UUID } from '@/types/types'
 import type { Chatbot, Thread } from 'mb-genql'
 import { ImageResponse } from 'next/og'
 import type { NextRequest } from 'next/server'
 import { getChatbotForOG, getThreadForOG } from './edge-client'
+
 export const runtime = 'edge'
 
 const IMAGE_DIMENSIONS = {
@@ -15,44 +16,35 @@ const IMAGE_DIMENSIONS = {
 const defaultContent = {
 	thread: {
 		chatbot: {
-			name: 'Masterbots',
-			avatar: `${process.env.NEXT_PUBLIC_BASE_URL}/masterbots_og.png`,
+			name: 'masterbots',
+			avatar: `${process.env.BASE_URL}/masterbots_og.png`,
 			categories: [{ category: { name: 'AI' } }],
 		},
-	} as Partial<Thread>,
+	} as Partial<Thread> & { chatbot: Partial<Chatbot> },
 	question: 'Masterbots AI',
 	answer:
-		'Deploy with our domain-specific Masterbots, dedicated experts in your field. Each Masterbot is purpose-built for its role, delivering focused knowledge and specialized interactions beyond what generic AI solutions can offer.',
+		'Deploy with our Masterbots, dedicated experts in your field. Each Masterbot is built to deliver focused knowledge and specialized interactions superior to generic AI solutions.',
 	username: 'Masterbots',
-	user_avatar: `${process.env.NEXT_PUBLIC_BASE_URL}/images/robohash1.png`,
+	user_avatar: `${process.env.BASE_URL}/images/robohash1.png`,
 	isLightTheme: false,
 }
 
 export async function GET(req: NextRequest) {
 	try {
 		const { searchParams } = req.nextUrl
-		const rawThreadId = searchParams.get('threadId')
-		const rawChatbotId = searchParams.get('chatbotId')
-		const rawUserSlug = searchParams.get('userSlug')
-		const rawThreadQuestionSlug = searchParams.get('threadQuestionSlug')
-		const threadId = rawThreadId?.match(
-			/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
-		)
-			? (rawThreadId as UUID)
-			: null
-		const chatbotId = rawChatbotId?.match(
-			/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
-		)
-			? (rawChatbotId as UUID)
-			: null
+		console.log('searchParams for og:', searchParams.toString())
+		const threadId = searchParams.get('threadId')
+		const chatbotId = searchParams.get('chatbotId')
+		const userSlug = searchParams.get('userSlug')
+		const threadQuestionSlug = searchParams.get('threadQuestionSlug')
 		const defaultOgImage = new ImageResponse(
 			<OGImage {...defaultContent} />,
 			IMAGE_DIMENSIONS,
 		)
 
-		if (rawUserSlug) {
+		if (userSlug) {
 			const { user: userData } = await getUserBySlug({
-				slug: rawUserSlug,
+				slug: userSlug,
 				isSameUser: false,
 			})
 
@@ -60,28 +52,36 @@ export async function GET(req: NextRequest) {
 				return defaultOgImage
 			}
 
+			defaultContent.thread.chatbot.avatar = userData.profilePicture || ''
+
 			return new ImageResponse(
 				<OGImage
 					thread={defaultContent.thread}
-					question={userData.username}
+					question={`@${userData.username.toLocaleLowerCase().replace(/\s/g, '_')}`}
 					answer={userData.bio || ''}
-					username={`${userData.followers.length} followers`}
-					user_avatar={userData.profilePicture || ''}
+					username={
+						userData.followers.length
+							? `${userData.followers.length} followers`
+							: 'bot explorer'
+					}
+					user_avatar={defaultContent.user_avatar}
 					isLightTheme={false}
 				/>,
 				IMAGE_DIMENSIONS,
 			)
 		}
 
-		if (!threadId && !chatbotId) {
-			// Use metadata when thread not found
+		if (
+			!threadId ||
+			(threadId && !uuidRegex.test(threadId)) ||
+			!chatbotId ||
+			(chatbotId && !uuidRegex.test(chatbotId))
+		) {
 			return defaultOgImage
 		}
 
 		// TODO: Update this to use mb-genql package
-		const { thread }: { thread: Thread[] } = await getThreadForOG(
-			threadId as UUID,
-		)
+		const { thread }: { thread: Thread[] } = await getThreadForOG(threadId)
 
 		if (!thread?.length && !chatbotId) {
 			// Use metadata when thread not found
@@ -115,13 +115,13 @@ export async function GET(req: NextRequest) {
 		const question =
 			threadData?.messages?.find(
 				(m) =>
-					(rawThreadQuestionSlug && m.slug === rawThreadQuestionSlug) ||
+					(threadQuestionSlug && m.slug === threadQuestionSlug) ||
 					m.role === 'user',
 			)?.content || 'not found'
 		const answer =
 			threadData?.messages?.find(
 				(m) =>
-					(rawThreadQuestionSlug && m.slug === rawThreadQuestionSlug) ||
+					(threadQuestionSlug && m.slug === threadQuestionSlug) ||
 					m.role === 'assistant',
 			)?.content || 'not found' // next message after the question is (and should be) the assistant response
 		const username = threadData?.user?.username || 'Anonymous'

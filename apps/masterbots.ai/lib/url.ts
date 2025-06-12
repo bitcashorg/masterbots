@@ -1,7 +1,7 @@
+import { doesMessageSlugExist, doesThreadSlugExist } from '@/app/actions'
 import { canonicalChatbotDomains } from '@/lib/constants/canonical-domains'
 import { domainSlugs } from '@/lib/constants/domain-slugs'
 import { delayFetch, nanoid } from '@/lib/utils'
-import { doesMessageSlugExist, doesThreadSlugExist } from '@/services/hasura'
 import type {
 	ChatbotThreadListUrlParams,
 	ProfilesThreadQuestionUrlChatbotParams,

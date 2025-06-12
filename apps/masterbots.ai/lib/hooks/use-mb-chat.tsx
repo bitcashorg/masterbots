@@ -278,11 +278,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 							mimeType: string
 							fileName: string
 						}) => ({
-							type: 'image',
-							base64: file.base64,
-							uint8Array: file.uint8Array,
+							type: 'file',
+							data: file.base64,
 							mimeType: file.mimeType,
-							fileName: file.fileName,
 						}),
 					)
 					if (appConfig.features.devMode) {
@@ -329,7 +327,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 							threadSlug: activeThread?.slug,
 							userId: session?.user.id,
 							chatbotName: activeChatbot?.name,
-							attachments: messageAttachments.current,
+							attachments: messageAttachments.current.map((att) => ({
+								name: att.name,
+								size: att.size,
+								contentType: att.contentType,
+							})),
 						},
 					})
 					customSonner({
@@ -371,6 +373,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						}))
 					: []
 
+				// TODO: Add thread metadata here and keep the local copy for optimizations if doable...
 				for (const attachment of newAttachments) {
 					try {
 						indexedDBActions.updateItem(attachment.id, attachment)
@@ -391,18 +394,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						/(explain more in-depth and in detail about |explain more in depth and in detail about |explain more in-depth about |explain more in depth about |can you provide a detailed explanation of )/g,
 						'',
 					)
-
-				// Generate unique slugs for both messages
-				const userMessageSlug = await generateUniqueSlug(
-					curatedPreUserMessageSlug,
-					'message',
-				)
-				const assistantMessageSlug = await generateUniqueSlug(
-					message.content,
-					'message',
-				)
-
-				//? assistant message with reasoning information
+				// ? assistant message with reasoning information
 				const assistantMessageThinking = hasReasoning(finalMessage)
 					? {
 							thinking: finalMessage.parts?.find(
@@ -410,41 +402,63 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 							)?.reasoning,
 						}
 					: {}
+				const uploadNewMessages = async () => {
+					// Generate unique slugs for both messages
+					const userMessageSlug = await generateUniqueSlug(
+						curatedPreUserMessageSlug,
+						'message',
+					)
+					const assistantMessageSlug = await generateUniqueSlug(
+						message.content,
+						'message',
+					)
 
-				// Create new messages and save them to the database
-				const [
-					newUserMessage,
-					newAssistantMessage,
-				]: Partial<SaveNewMessageParams>[] = [
-					{
-						...newBaseMessage,
-						messageId: userMessageId,
-						slug: userMessageSlug,
-						role: 'user',
-						// TODO: Uncomment when model FE is ready. BE is ready. @bran18
-						model: selectedModel,
-						content: userContentRef.current,
-						createdAt: new Date().toISOString(),
-					},
-					{
-						...newBaseMessage,
-						...assistantMessageThinking,
-						messageId: assistantMessageId,
-						slug: assistantMessageSlug,
-						role: 'assistant',
-						model: selectedModel,
-						content: finalMessage.content,
-						createdAt: new Date(Date.now() + 1000).toISOString(),
-						// TODO: Uncomment when BE is ready for image gen files. @bran18 and @andlerdev
-						// files:
-						// 	finalMessage.parts?.filter((part) => part.type === 'file') || [],
-					},
-				]
+					// Create new messages and save them to the database
+					const [
+						newUserMessage,
+						newAssistantMessage,
+					]: Partial<SaveNewMessageParams>[] = [
+						{
+							...newBaseMessage,
+							messageId: userMessageId,
+							slug: userMessageSlug,
+							role: 'user',
+							model: selectedModel,
+							content: userContentRef.current,
+							createdAt: new Date().toISOString(),
+						},
+						{
+							...newBaseMessage,
+							...assistantMessageThinking,
+							messageId: assistantMessageId,
+							slug: assistantMessageSlug,
+							role: 'assistant',
+							model: selectedModel,
+							content: finalMessage.content,
+							createdAt: new Date(Date.now() + 1000).toISOString(),
+							examples:
+								finalMessage.parts?.filter((part) => part.type === 'file') ||
+								[],
+						},
+					]
 
-				await Promise.all([
-					saveNewMessage(newUserMessage),
-					saveNewMessage(newAssistantMessage),
-				])
+					return await Promise.all([
+						saveNewMessage(newUserMessage),
+						saveNewMessage(newAssistantMessage),
+					])
+				}
+
+				try {
+					uploadNewMessages()
+				} catch (error) {
+					console.error('Error generating message slugs: ', error)
+
+					// ? If the error is due to duplicate key value, we retry the upload one more time to do the recursive check again
+					// ! This might be an edge case now that we use drizzle for this query, but it is still a good practice to handle this error
+					if ((error as Error).message.includes('duplicate key value')) {
+						uploadNewMessages()
+					}
+				}
 
 				setState({
 					isNewChat: false,
@@ -712,11 +726,22 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 		userContentRef.current = content
 	}
 
+	const isPreProcessing = Boolean(
+		loadingState?.match(/processing|digesting|polishing/),
+	)
+	const formDisabled = isLoading || !chatbot || isPreProcessing
+
 	// we extend append function to add our system prompts
 	const appendWithMbContextPrompts = async (
 		userMessage: AiMessage | CreateMessage,
 		chatRequestOptions?: ChatRequestOptions,
 	): Promise<string | null | undefined> => {
+		if (formDisabled) {
+			console.info(
+				'Form is disabled while processing, skipping submit of new message.',
+			)
+			return
+		}
 		if (!session?.user || !chatbot) {
 			console.error('User is not logged in or session expired.')
 			customSonner({
@@ -776,7 +801,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 			)
 		}
 
-		await appendNewMessage(userMessage, chatRequestOptions)
+		return await appendNewMessage(userMessage, chatRequestOptions)
 	}
 
 	const getMetadataLabels =
@@ -886,7 +911,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						? (continuousThreadId as string)
 						: undefined,
 					jwt: session?.user?.hasuraJwt,
-					isPublic: activeChatbot?.name !== 'BlankBot',
 				})
 			}
 

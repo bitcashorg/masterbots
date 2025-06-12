@@ -13,7 +13,7 @@ export function SidebarCategoryGeneral({ page }: { page?: string }) {
 			</div>
 		)
 	return (
-		<ul className="min-h-inherit space-y-2">
+		<ul className="min-h-inherit space-y-0">
 			{filteredCategories.map((category) => (
 				<li key={category.categoryId}>
 					<SidebarLink

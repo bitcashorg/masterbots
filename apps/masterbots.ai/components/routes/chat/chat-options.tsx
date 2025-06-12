@@ -19,7 +19,7 @@ import {
 import { IconSpinner } from '@/components/ui/icons'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { useSonner } from '@/lib/hooks/useSonner'
-import { urlBuilders } from '@/lib/url'
+import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { cn } from '@/lib/utils'
 import { Eye, EyeOff, MoreVertical, Trash } from 'lucide-react'
 import type { Thread } from 'mb-genql'
@@ -41,10 +41,15 @@ export function ChatOptions({ threadId, thread }: ChatOptionsProps) {
 	const title = thread?.messages[0]?.content ?? 'Untitled'
 	const text =
 		thread?.messages[1]?.content.substring(0, 100) ?? 'No description found...'
+	const canonicalDomain = getCanonicalDomain(thread?.chatbot?.name || '')
+
 	const url = urlBuilders.profilesThreadUrl({
-		type: 'chatbot',
-		chatbot: toSlug(thread.chatbot.name),
+		type: 'user',
 		threadSlug: thread.slug,
+		category: thread.chatbot.categories[0]?.category.name,
+		chatbot: toSlug(thread.chatbot.name),
+		usernameSlug: thread?.user?.slug,
+		domain: canonicalDomain,
 	})
 	const [isDeleteOpen, setIsDeleteOpen] = useState(false)
 	const [isDeleting, setIsDeleting] = useState(false)
@@ -130,7 +135,7 @@ export function ChatOptions({ threadId, thread }: ChatOptionsProps) {
 					{/* Toggle thread visibility option (only for thread owner) */}
 					{isUser && (
 						<>
-							{!thread.isApproved && (
+							{!thread.isApproved && thread.isPublic && (
 								<DropdownMenuItem
 									className="flex-col items-center text-foreground/50 whitespace-nowrap px-1.5"
 									onSelect={(event) => event.preventDefault()}
@@ -176,17 +181,15 @@ export function ChatOptions({ threadId, thread }: ChatOptionsProps) {
 							</DropdownMenuItem>
 						</>
 					)}
-					{/* Share thread option: This always show in public and profiles due they are already approved and public but for personal chat isn't... */}
-					<DropdownMenuItem
-						className="flex w-full p-0 rounded-none disabled:cursor-not-allowed"
-						onClick={(event) => event.preventDefault()}
-						disabled={!thread?.isApproved || !thread?.isPublic}
-					>
-						<ShareButton
-							url={url}
-							disabled={!thread?.isApproved || !thread?.isPublic}
-						/>
-					</DropdownMenuItem>
+					{thread?.isApproved && thread?.isPublic && (
+						/* Share thread option: This always show in public and profiles due they are already approved and public but for personal chat isn't... */
+						<DropdownMenuItem
+							className="flex w-full p-0 rounded-none disabled:cursor-not-allowed"
+							onClick={(event) => event.preventDefault()}
+						>
+							<ShareButton url={url} />
+						</DropdownMenuItem>
+					)}
 					{/* Delete thread option (only for thread owner) */}
 					{isUser && (
 						<>

@@ -1,6 +1,8 @@
-import type { AdminUserUpdate } from '@/types/types'
+'use server'
+
 import { and, eq, isNull } from 'drizzle-orm'
-import { type UserRole, db, users } from 'mb-drizzle'
+import type { PgInsertValue, PgTableWithColumns } from 'drizzle-orm/pg-core'
+import { db, preference, user, userRole } from 'mb-drizzle'
 import { getServerSession } from 'next-auth'
 
 const ADMIN_DOMAINS = ['masterbots.ai', 'mbots.ai', 'bitcash.org'] as const
@@ -20,25 +22,28 @@ async function verifyAdmin() {
 }
 
 async function verifyUserExists(userId: string) {
-	const user = await db.query.users.findFirst({
-		where: eq(users.userId, userId),
+	const userData = await db.query.user.findFirst({
+		where: eq(user.userId, userId),
 	})
 
-	if (!user) {
+	if (!userData) {
 		throw new Error(`User not found with ID: ${userId}`)
 	}
 
-	return user
+	return userData
 }
 
-async function updateUser(userId: string, data: AdminUserUpdate) {
+async function updateUser(
+	userId: string,
+	data: Partial<typeof user.$inferSelect>,
+) {
 	await verifyAdmin()
 	await verifyUserExists(userId)
 
 	return await db
-		.update(users)
+		.update(user)
 		.set(data)
-		.where(eq(users.userId, userId))
+		.where(eq(user.userId, userId))
 		.returning()
 }
 
@@ -62,16 +67,16 @@ export async function updateSubscription(
 
 export async function setFreeMonth(userId: string) {
 	await verifyAdmin()
-	const user = await verifyUserExists(userId)
+	const userData = await verifyUserExists(userId)
 
-	if (user.proUserSubscriptionId) {
+	if (userData.proUserSubscriptionId) {
 		throw new Error('Cannot grant free month to user with active subscription')
 	}
 
 	return await db
-		.update(users)
+		.update(user)
 		.set({ getFreeMonth: true })
-		.where(and(eq(users.userId, userId), isNull(users.proUserSubscriptionId)))
+		.where(and(eq(user.userId, userId), isNull(user.proUserSubscriptionId)))
 		.returning()
 }
 
@@ -79,24 +84,38 @@ export async function updateLastLogin(userId: string) {
 	await verifyUserExists(userId)
 
 	return await db
-		.update(users)
-		.set({ lastLogin: new Date() })
-		.where(eq(users.userId, userId))
+		.update(user)
+		.set({ lastLogin: new Date().toISOString() })
+		.where(eq(user.userId, userId))
 		.returning()
 }
 
 export async function getBlockedUsers() {
 	await verifyAdmin()
-	return db.query.users.findMany({
-		where: eq(users.isBlocked, true),
+	return db.query.user.findMany({
+		where: eq(user.isBlocked, true),
 	})
 }
 
 export async function getUsersByRole(
-	role: (typeof UserRole)[keyof typeof UserRole],
+	role: 'admin' | 'user' | 'moderator' | 'anonymous',
 ) {
 	await verifyAdmin()
-	return db.query.users.findMany({
-		where: eq(users.role, role),
+	return db.query.user.findMany({
+		where: eq(user.role, role),
 	})
+}
+
+export async function insertAdminUserPreferences({
+	userId,
+	preferencesSet,
+}: {
+	userId: string
+	preferencesSet: PgInsertValue<typeof preference>
+}) {
+	await verifyUserExists(userId)
+	return await db
+		.insert(preference)
+		.values({ ...preferencesSet })
+		.returning()
 }
