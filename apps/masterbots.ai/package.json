@@ -19,6 +19,7 @@
 		"@ai-sdk/google": "^1.2.10",
 		"@ai-sdk/groq": "^1.1.14",
 		"@ai-sdk/openai": "1.2.5",
+		"@ai-sdk/perplexity": "^1.1.9",
 		"@anthropic-ai/sdk": "^0.39.0",
 		"@auth/core": "^0.34.2",
 		"@blockmatic/hooks-utils": "^3.0.0",

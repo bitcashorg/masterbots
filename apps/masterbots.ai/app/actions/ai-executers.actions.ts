@@ -1,8 +1,17 @@
 'use server'
 
 import type { aiTools } from '@/lib/helpers/ai-schemas'
+import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
+import type { AiClientType } from '@/types/types'
+import { anthropic } from '@ai-sdk/anthropic'
+import { deepseek } from '@ai-sdk/deepseek'
+import { google } from '@ai-sdk/google'
+import { openai } from '@ai-sdk/openai'
+import { perplexity } from '@ai-sdk/perplexity'
+import { generateObject, generateText, tool } from 'ai'
 import { appConfig } from 'mb-env'
-import type { z } from 'zod'
+import type OpenAI from 'openai'
+import { z } from 'zod'
 import { getChatbotMetadata } from '.'
 
 const { WORDWARE_API_KEY } = process.env
@@ -46,6 +55,184 @@ export async function ChatbotMetadataTool({
 			error: 'Internal Server Error while fetching chatbot metadata',
 		})
 	}
+}
+
+// Web search tool definition
+const webSearchTool = tool({
+	description: 'Search the web for current information on a given topic',
+	parameters: z.object({
+		query: z.string().describe('The search query to execute'),
+	}),
+	execute: async ({ query }) => {
+		try {
+			// Use a web search API (you can replace this with your preferred search service)
+			const response = await fetch('https://api.tavily.com/search', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${process.env.TAVILY_API_KEY}`,
+				},
+				body: JSON.stringify({
+					query,
+					max_results: 5,
+					include_answer: true,
+				}),
+			})
+
+			if (!response.ok) {
+				throw new Error(`Search API error: ${response.statusText}`)
+			}
+
+			const data = await response.json()
+
+			return {
+				results: data.results || [],
+				answer: data.answer || '',
+			}
+		} catch (error) {
+			console.error('Web search error:', error)
+			return {
+				results: [],
+				answer: 'Unable to perform web search at this time.',
+				error: error instanceof Error ? error.message : 'Unknown error',
+			}
+		}
+	},
+})
+
+// Enhanced AI executor with web search support
+export async function executeAIWithWebSearch({
+	model,
+	clientType,
+	messages,
+	webSearch = false,
+	systemPrompt,
+	userPrompt,
+	temperature = 0.7,
+	maxTokens = 4000,
+}: {
+	model: string
+	clientType: AiClientType
+	messages: (OpenAI.ChatCompletionMessageParam & {
+		experimental_attachments?: FileAttachment[]
+	})[]
+	webSearch?: boolean
+	systemPrompt?: string
+	userPrompt?: string
+	temperature?: number
+	maxTokens?: number
+}) {
+	// Get the appropriate model instance
+	const modelInstance = getModelInstance(clientType, model)
+
+	// Prepare tools array
+	const tools = webSearch ? { webSearch: webSearchTool } : undefined
+
+	// Format messages for the AI SDK
+	const formattedMessages = formatMessagesForAI(
+		messages,
+		systemPrompt,
+		userPrompt,
+	)
+
+	try {
+		if (webSearch) {
+			// Use generateText with tools for web search capability
+			const result = await generateText({
+				model: modelInstance,
+				messages: formattedMessages,
+				tools,
+				maxSteps: 3, // Allow multiple tool calls
+				temperature,
+				maxTokens,
+				onStepFinish: (step) => {
+					console.log('Step finished:', step.stepType)
+					if (step.toolCalls?.length) {
+						console.log('Tool calls:', step.toolCalls)
+					}
+				},
+			})
+
+			return {
+				text: result.text,
+				usage: result.usage,
+				steps: result.steps,
+				toolCalls: result.steps?.flatMap((step) => step.toolCalls || []),
+			}
+		}
+
+		// Regular generateText without tools
+		const result = await generateText({
+			model: modelInstance,
+			messages: formattedMessages,
+			temperature,
+			maxTokens,
+		})
+
+		return {
+			text: result.text,
+			usage: result.usage,
+		}
+	} catch (error) {
+		console.error('AI execution error:', error)
+		throw error
+	}
+}
+
+// Helper function to get model instance based on client type
+function getModelInstance(clientType: AiClientType, model: string) {
+	switch (clientType) {
+		case 'OpenAI':
+			return openai(model)
+		case 'Anthropic':
+			return anthropic(model)
+		case 'Gemini':
+			return google(model)
+		case 'DeepSeek':
+		case 'GroqDeepSeek':
+			return deepseek(model)
+		case 'Perplexity':
+			return perplexity(model)
+		default:
+			throw new Error(`Unsupported client type: ${clientType}`)
+	}
+}
+
+// Helper function to format messages for AI SDK
+function formatMessagesForAI(
+	messages: (OpenAI.ChatCompletionMessageParam & {
+		experimental_attachments?: FileAttachment[]
+	})[],
+	systemPrompt?: string,
+	userPrompt?: string,
+) {
+	const formattedMessages = []
+
+	// Add system prompt if provided
+	if (systemPrompt) {
+		formattedMessages.push({
+			role: 'system' as const,
+			content: systemPrompt,
+		})
+	}
+
+	// Add existing messages
+	formattedMessages.push(
+		...messages.map((msg) => ({
+			role: msg.role as 'user' | 'assistant' | 'system',
+			content: msg.content,
+		})),
+	)
+
+	// Add user prompt if provided
+	if (userPrompt) {
+		formattedMessages.push({
+			role: 'user' as const,
+			content: userPrompt,
+		})
+	}
+
+	return formattedMessages
 }
 
 // ! TODO: Remove this function when the new web search tool is fully implemented.
