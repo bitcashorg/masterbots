@@ -83,13 +83,18 @@ export function createBotConfigurationPrompt(chatbot: Chatbot) {
 
 export function followingQuestionsPrompt(
 	userContent: string,
-	allMessages: Required<Partial<MessageDB[]>>,
+	allMessages: Required<Partial<(MessageDB & { id?: string })[]>>,
 	clickedContentId?: string,
 ) {
-	const questions = uniq(allMessages.filter((msg) => Boolean(msg?.messageId)))
-	const responseIndex = questions.findIndex(
-		(q) => q.messageId === clickedContentId,
+	// ! Whe check for both messageId and Id because the messages can come from different sources, like the database or the AI response...
+	// ! We must resolve this in the future, to normalize messages with "id" always but for now, we will keep it like this.
+	const questions = uniq(
+		allMessages.filter((msg) => Boolean(msg?.messageId || msg?.id)),
 	)
+	const responseIndex = questions.findIndex(
+		(q) => q?.messageId === clickedContentId || q?.id === clickedContentId,
+	)
+	console.log('followingQuestionsPrompt::questions', questions)
 	const hasResponseIndex = responseIndex !== -1
 	const previousQuestionsString = getAllUserMessagesAsStringArray(
 		hasResponseIndex ? questions : questions.slice(0, -1),

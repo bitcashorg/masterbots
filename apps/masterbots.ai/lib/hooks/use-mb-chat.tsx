@@ -729,7 +729,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	const isPreProcessing = Boolean(
 		loadingState?.match(/processing|digesting|polishing/),
 	)
-	const formDisabled = isLoading || !chatbot || isPreProcessing
+	const formDisabled = !chatbot || isPreProcessing
 
 	// we extend append function to add our system prompts
 	const appendWithMbContextPrompts = async (
@@ -883,6 +883,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				checks: { isContinuingThread },
 				params: { continuousThreadId },
 			} = getCurrentSearchParams()
+			const isNewThread =
+				((!allMessages.length && isNewChat) || isContinuingThread) && chatbot
 
 			if (appConfig.features.devMode) {
 				console.info(
@@ -892,12 +894,13 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				console.log('allMessages --> ', allMessages)
 				console.log('activeThread --> ', activeThread)
 				console.log('isContinuousThread --> ', isContinuingThread)
+				console.log(
+					'isNewThread (combining set of conditions when threads are created and continuing conversation in the same user session) --> ',
+					isNewThread,
+				)
 			}
 
-			if (
-				((!allMessages.length && isNewChat) || isContinuingThread) &&
-				chatbot
-			) {
+			if (isNewThread) {
 				const threadSlug = await generateUniqueSlug(userContentRef.current)
 
 				await createThread({
@@ -952,7 +955,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 			const appendResponse = await append(
 				{
 					...userMessage,
-					content: isNewChat
+					content: isNewThread
 						? userContentRef.current // improved user message
 						: followingQuestionsPrompt(
 								userContentRef.current,
