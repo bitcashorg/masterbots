@@ -133,6 +133,8 @@ export function useIndexedDB({
 					}
 
 					const downloadedAttachments: FileAttachment[] = []
+					// Mark attachments as being processed
+					const remoteProcessingIds: string[] = []
 
 					for (const attachment of currentUserMetadata) {
 						const response = await fetch(attachment.url)
@@ -176,9 +178,6 @@ export function useIndexedDB({
 								!processedAttachmentIds.includes(att.id),
 						)
 
-						// Mark attachments as being processed
-						const remoteProcessingIds: string[] = []
-
 						for (const attachment of attachmentsToProcess) {
 							processingAttachmentsRef.current.add(attachment.id)
 							remoteProcessingIds.push(attachment.id)
@@ -191,6 +190,10 @@ export function useIndexedDB({
 						]
 
 						setProcessedAttachmentIds(updatedProcessedIds)
+					}
+
+					for (const id of remoteProcessingIds) {
+						processingAttachmentsRef.current.delete(id)
 					}
 
 					return resolve(downloadedAttachments)
