@@ -17,13 +17,17 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { IconSpinner } from '@/components/ui/icons'
+import { useThread } from '@/lib/hooks/use-thread'
 import { useThreadVisibility } from '@/lib/hooks/use-thread-visibility'
 import { useSonner } from '@/lib/hooks/useSonner'
+import type { MessagePair } from '@/lib/threads'
 import { getCanonicalDomain, urlBuilders } from '@/lib/url'
 import { cn } from '@/lib/utils'
+import { deleteMessages, getThread } from '@/services/hasura'
 import { Eye, EyeOff, MoreVertical, Trash } from 'lucide-react'
 import type { Thread } from 'mb-genql'
 import { toSlug } from 'mb-lib'
+import { useSession } from 'next-auth/react'
 import type React from 'react'
 import { useState } from 'react'
 import { ShareButton } from './share-button'
@@ -32,16 +36,16 @@ interface ChatOptionsProps {
 	threadId: string
 	thread: Thread
 	isBrowse: boolean
+	pair?: MessagePair
 }
 
-export function ChatOptions({ threadId, thread }: ChatOptionsProps) {
+export function ChatOptions({ threadId, thread, pair }: ChatOptionsProps) {
 	const { toggleVisibility, isSameUser, initiateDeleteThread } =
 		useThreadVisibility()
 	const isUser = isSameUser(thread)
-	const title = thread?.messages[0]?.content ?? 'Untitled'
-	const text =
-		thread?.messages[1]?.content.substring(0, 100) ?? 'No description found...'
 	const canonicalDomain = getCanonicalDomain(thread?.chatbot?.name || '')
+	const session = useSession()
+	const jwt = session?.data?.user?.hasuraJwt
 
 	const url = urlBuilders.profilesThreadUrl({
 		type: 'user',
@@ -54,6 +58,9 @@ export function ChatOptions({ threadId, thread }: ChatOptionsProps) {
 	const [isDeleteOpen, setIsDeleteOpen] = useState(false)
 	const [isDeleting, setIsDeleting] = useState(false)
 	const { customSonner } = useSonner()
+	const { activeThread, setActiveThread } = useThread()
+
+	const isSubThread = pair && pair !== undefined
 
 	const handleDelete = async (
 		e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
@@ -67,6 +74,44 @@ export function ChatOptions({ threadId, thread }: ChatOptionsProps) {
 			window.location.reload()
 		} else {
 			customSonner({ type: 'error', text: result?.error })
+		}
+		setIsDeleting(false)
+		setIsDeleteOpen(false)
+	}
+
+	const handleDeleteMessage = async (
+		e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+	) => {
+		e.preventDefault()
+		setIsDeleting(true)
+
+		const messageIds = pair
+			? [pair.userMessage.id, ...pair.chatGptMessage.map((msg) => msg.id)]
+			: []
+		try {
+			const result = await deleteMessages(messageIds, jwt)
+			if (result?.success) {
+				customSonner({ type: 'success', text: 'Messages deleted successfully' })
+				// Reload the page to reflect the changes
+				const threadId = activeThread?.threadId || ''
+				const thread = await getThread({ threadId, jwt })
+				if (thread) {
+					if (activeThread) {
+						setActiveThread({
+							...activeThread,
+							messages: thread.messages,
+							chatbot: thread.chatbot,
+						})
+					} else {
+						console.error('Chatbot is undefined, cannot update activeThread.')
+					}
+				}
+			} else {
+				customSonner({ type: 'error', text: result?.error })
+			}
+		} catch (error) {
+			console.error('Error deleting messages:', error)
+			customSonner({ type: 'error', text: 'Failed to delete messages' })
 		}
 		setIsDeleting(false)
 		setIsDeleteOpen(false)
@@ -98,7 +143,11 @@ export function ChatOptions({ threadId, thread }: ChatOptionsProps) {
 					<AlertDialogAction
 						onClick={(e) => {
 							e.stopPropagation()
-							handleDelete(e)
+							if (isSubThread && pair) {
+								handleDeleteMessage(e)
+							} else {
+								handleDelete(e)
+							}
 						}}
 						className={cn(buttonVariants({ variant: 'destructive' }))}
 					>
@@ -109,6 +158,10 @@ export function ChatOptions({ threadId, thread }: ChatOptionsProps) {
 			</AlertDialogContent>
 		</AlertDialog>
 	)
+
+	// console.log({
+	// 	"The Pair here": pair
+	// })
 
 	return (
 		<div className="flex items-center gap-4 sm:gap-3 pt-[3px]">
@@ -133,7 +186,7 @@ export function ChatOptions({ threadId, thread }: ChatOptionsProps) {
 					className="flex flex-col min-w-[160px] sm:w-[180px] px-0"
 				>
 					{/* Toggle thread visibility option (only for thread owner) */}
-					{isUser && (
+					{isUser && !isSubThread && (
 						<>
 							{!thread.isApproved && thread.isPublic && (
 								<DropdownMenuItem
