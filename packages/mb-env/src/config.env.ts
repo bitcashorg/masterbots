@@ -10,6 +10,8 @@ export const appConfig = {
 		),
 		multiModel: process.env.NEXT_PUBLIC_FEATURE_MULTI_MODEL_SELECTOR === 'true',
 		webSearch: process.env.NEXT_PUBLIC_FEATURE_WEB_SEARCH === 'true',
+		imageGeneration:
+			process.env.NEXT_PUBLIC_FEATURE_IMAGE_GENERATION === 'true',
 		maxAttachments: Number.parseInt(
 			process.env.NEXT_PUBLIC_MAX_ATTACHMENTS || '10',
 			10,

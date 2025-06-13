@@ -4,11 +4,14 @@ import { ChatShareDialog } from '@/components/routes/chat/chat-share-dialog'
 import { PromptForm } from '@/components/routes/chat/prompt-form'
 import { ButtonScrollToBottom } from '@/components/shared/button-scroll-to-bottom'
 import { FeatureToggle } from '@/components/shared/feature-toggle'
+import { ImageGenerationToggle } from '@/components/shared/feature-toggle-image'
+import { ImageGenerator } from '@/components/shared/image-generator'
 import { LoadingIndicator } from '@/components/shared/loading-indicator'
 import { Button } from '@/components/ui/button'
 import { IconShare, IconStop } from '@/components/ui/icons'
 import { useContinueGeneration } from '@/lib/hooks/use-continue-generation'
 import { useDeepThinking } from '@/lib/hooks/use-deep-thinking'
+import { useImageToggle } from '@/lib/hooks/use-image-toggler'
 import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useThread } from '@/lib/hooks/use-thread'
@@ -69,6 +72,7 @@ export function ChatPanel({
 		setIsContinuing,
 	} = useContinueGeneration()
 	const [, { appendWithMbContextPrompts }] = useMBChat()
+	const { isImageGeneration } = useImageToggle()
 
 	const handleContinueGeneration = async () => {
 		if (formDisabled) {
@@ -153,6 +157,8 @@ export function ChatPanel({
 								onChange={togglePowerUp}
 								activeColor="yellow"
 							/>
+							{/* Image Generation Toggle */}
+							{appConfig.features.imageGeneration && <ImageGenerationToggle />}
 
 							{appConfig.features.webSearch && (
 								<FeatureToggle
@@ -244,24 +250,29 @@ export function ChatPanel({
 						'min-h-[64px] sm:min-h-[80px]',
 					)}
 				>
-					<PromptForm
-						onSubmit={async (value, chatOptions) => {
-							scrollToBottom()
-							await append(
-								{
-									id,
-									content: value,
-									role: 'user',
-								},
-								prepareMessageOptions(chatOptions),
-							)
-						}}
-						disabled={formDisabled}
-						input={input}
-						setInput={setInput}
-						isLoading={isLoading || isPreProcessing}
-						placeholder={placeholder}
-					/>
+					{/* Conditionally render image generator or prompt form */}
+					{isImageGeneration ? (
+						<ImageGenerator />
+					) : (
+						<PromptForm
+							onSubmit={async (value, chatOptions) => {
+								scrollToBottom()
+								await append(
+									{
+										id,
+										content: value,
+										role: 'user',
+									},
+									prepareMessageOptions(chatOptions),
+								)
+							}}
+							disabled={formDisabled}
+							input={input}
+							setInput={setInput}
+							isLoading={isLoading || isPreProcessing}
+							placeholder={placeholder}
+						/>
+					)}
 				</div>
 			</div>
 		</div>

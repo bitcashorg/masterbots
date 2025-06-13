@@ -17,6 +17,7 @@ import {
 	TooltipTrigger,
 } from '@/components/ui/tooltip'
 import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
+import { useThread } from '@/lib/hooks/use-thread'
 import { cn } from '@/lib/utils'
 import { AnimatePresence, type MotionProps, motion } from 'framer-motion'
 import { FileIcon, Maximize2Icon, Minimize2Icon } from 'lucide-react'

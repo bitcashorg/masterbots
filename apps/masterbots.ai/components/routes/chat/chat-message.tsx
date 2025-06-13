@@ -19,9 +19,6 @@ import type {
 } from '@/types/types'
 import { usePathname } from 'next/navigation'
 import { useMemo, useState } from 'react'
-import rehypeMathJax from 'rehype-mathjax'
-import remarkGfm from 'remark-gfm'
-import remarkRehype from 'remark-rehype'
 
 /**
  * Displays a chat message with clickable text elements.
@@ -146,7 +143,6 @@ export function ChatMessage({
 			<div className="flex-1 pr-1 space-y-2 overflow-hidden">
 				<MemoizedReactMarkdown
 					className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
-					remarkPlugins={[remarkGfm, rehypeMathJax, remarkRehype]}
 					components={memoizedMarkdownComponents(
 						!(isBrowseView || isProfileView)
 							? {
