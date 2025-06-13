@@ -66,7 +66,7 @@ export function SharedAccordion({
 	const [currentRequest, setCurrentRequest] = useState<AbortController | null>(
 		null,
 	)
-	const { isAdminMode } = useThreadVisibility()
+	// const { isAdminMode } = useThreadVisibility()
 
 	const pathname = usePathname()
 	const params = useParams()
@@ -192,6 +192,15 @@ export function SharedAccordion({
 					threadSlug: fullThread?.slug || (params.threadSlug as string),
 				},
 			})
+		} else if (botProfile) {
+			navigateTo({
+				urlType: 'profilesThreadUrl',
+				navigationParams: {
+					type: 'chatbot',
+					chatbot: fullThread?.chatbot?.name || 'Masterbots',
+					threadSlug: fullThread?.slug || (params.threadSlug as string),
+				},
+			})
 		} else {
 			navigateTo({
 				urlType: 'threadUrl',
@@ -281,7 +290,6 @@ export function SharedAccordion({
 				console.error('Missing required navigation parameters')
 				return
 			}
-
 			navigateTo({
 				urlType: 'profilesThreadUrl',
 				navigationParams: {
@@ -335,7 +343,6 @@ export function SharedAccordion({
 			return newState
 		})
 	}
-
 	return (
 		<div
 			ref={accordionRef}

@@ -8,6 +8,7 @@ import {
 	metadataSchema,
 	toolSchema,
 } from '@/lib/helpers/ai-schemas'
+import type { FileAttachment } from '@/lib/hooks/use-chat-attachments'
 import type { AiClientType, CleanPromptResult } from '@/types/types'
 import type { MessageWithExamples, StoredImagePart } from '@/types/types'
 import type { StreamEntry } from '@/types/wordware-flows.types'
@@ -114,7 +115,7 @@ export function setStreamerPayload(
 // * This function converts the messages to the core messages
 export function convertToCoreMessages(
 	messages: (OpenAI.ChatCompletionMessageParam & {
-		experimental_attachments?: Attachment[]
+		experimental_attachments?: FileAttachment[]
 	})[],
 ): CoreMessage[] {
 	const coreMessages: CoreMessage[] = []
@@ -136,14 +137,14 @@ export function convertToCoreMessages(
 			coreMessages.push({
 				role: msg.role as 'user' | 'system' | 'assistant',
 				content: experimental_attachments.map((attachment) => {
-					const { contentType, url } = attachment
+					const { contentType, content } = attachment
 					const isImageType = contentType?.includes('image')
 					const attachmentType = isImageType ? 'image' : 'text'
 
 					if (attachmentType === 'image') {
 						return {
 							type: attachmentType,
-							image: url,
+							image: content,
 						} as ImagePart
 					}
 
@@ -151,9 +152,12 @@ export function convertToCoreMessages(
 					// ? data content should be processed as below or as ArrayBuffer
 					// return {
 					//   type: 'file',
-					//   data: url,
+					//   data: content,
 					// } as FilePart
-					const base64Hash = url.split(',')[1]
+					const base64Hash =
+						typeof content === 'string'
+							? content.split(',')[1]
+							: Buffer.from(content).toString('base64')
 					const textContent = atob(base64Hash)
 					return {
 						type: attachmentType,
@@ -274,7 +278,8 @@ export function verifyDuplicateMessage(message: Partial<MBMessage>) {
 	}
 
 	// Filter out system prompts and messages with empty content
-	return message.slug || message.content || false
+	return message.content
+	// return message.slug || message.content
 }
 
 //? Check if the message has reasoning content

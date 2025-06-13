@@ -6,7 +6,7 @@ import type * as OpenAi from 'ai'
 import { appConfig } from 'mb-env'
 import { nanoid } from 'nanoid'
 import { useSession } from 'next-auth/react'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useAsync, useSetState } from 'react-use'
 
 export type FileAttachment = {
@@ -16,9 +16,10 @@ export type FileAttachment = {
 	contentType: string
 	messageIds: string[]
 	// The raw content of the attachment. It can either be a string or an ArrayBuffer.
-	content: string | ArrayBuffer | null
+	content: string | ArrayBuffer
 	// The URL of the attachment. It can either be a URL to a hosted file or a Data URL.
 	url: string
+	expires: string
 	isSelected?: boolean
 }
 
@@ -59,15 +60,6 @@ export function useFileAttachments(
 	const { activeThread } = useThread()
 	const dbKeys = getUserIndexedDBKeys(session?.user?.id)
 	const { mounted, ...indexedDBActions } = useIndexedDB(dbKeys)
-	const {
-		value: userAttachments,
-		loading,
-		error,
-	} = useAsync(async () => {
-		if (!mounted) return
-		return await indexedDBActions.getAllItems()
-	}, [session?.user, mounted, activeThread])
-
 	const [state, setState] = useSetState<{
 		isDragging: boolean
 		attachments: FileAttachment[]
@@ -75,6 +67,44 @@ export function useFileAttachments(
 		isDragging: false,
 		attachments: [],
 	})
+	const currentRequestId = useRef<string | null>(null)
+	const {
+		value: userAttachments,
+		loading,
+		error,
+	} = useAsync(async () => {
+		if (!mounted || !session?.user) {
+			return (activeThread?.metadata?.attachments || []) as IndexedDBItem[]
+		}
+
+		const requestId = nanoid(8)
+		currentRequestId.current = requestId
+
+		if (appConfig.features.devMode) {
+			console.info(`Starting user attachments request: ${requestId}`)
+		}
+
+		const indexedDBAttachments = await indexedDBActions.getAllItems()
+
+		// Check if this request is still current
+		if (currentRequestId.current !== requestId) {
+			if (appConfig.features.devMode) {
+				console.info(`Request ${requestId} was superseded, ignoring results`)
+			}
+			return (activeThread?.metadata?.attachments || []) as IndexedDBItem[]
+		}
+
+		if (appConfig.features.devMode) {
+			console.info(
+				`IndexedDB attachments retrieved successfully for request: ${requestId}`,
+				indexedDBAttachments,
+			)
+		}
+
+		currentRequestId.current = null
+		return indexedDBAttachments
+	}, [session?.user, mounted, activeThread?.metadata?.attachments])
+
 	const { customSonner } = useSonner()
 	const { selectedModel } = useModel()
 
@@ -82,10 +112,13 @@ export function useFileAttachments(
 	const addAttachment = useCallback(
 		(file: DataTransferItem | File) => {
 			const reader = new FileReader()
-			let attachmentFile: File | null = file as File
+			let processedFile: File | null = null
 
-			if (file instanceof DataTransferItem) {
-				attachmentFile = file.getAsFile()
+			processedFile = file instanceof DataTransferItem ? file.getAsFile() : file
+
+			if (!processedFile) {
+				console.error('File is not valid or could not be retrieved')
+				return
 			}
 
 			if (
@@ -104,8 +137,7 @@ export function useFileAttachments(
 
 			if (
 				appConfig.features.maxFileSize &&
-				attachmentFile?.size &&
-				attachmentFile.size > appConfig.features.maxFileSize
+				processedFile.size > appConfig.features.maxFileSize // processedFile is guaranteed non-null here
 			) {
 				console.error('File size exceeds the limit')
 				customSonner({
@@ -115,34 +147,52 @@ export function useFileAttachments(
 				return
 			}
 
-			reader.onload = () => {
+			reader.onload = async (readerEvent) => {
+				const event = readerEvent.target || reader
+
+				// processedFile is captured from the outer scope. It's already confirmed to be a File
+				// by the checks before reader.readAsDataURL(processedFile) was called.
+				if (!event || !event.result) {
+					console.error('File reading failed or no result found')
+					return
+				}
+
 				// Creating an base64 string from the file content
 				const attachmentUrl =
-					typeof reader.result === 'string'
-						? reader.result
-						: Buffer.from(reader.result as ArrayBuffer).toString('base64')
+					typeof event.result === 'string'
+						? event.result
+						: Buffer.from(event.result as ArrayBuffer).toString('base64')
 				const newAttachment: FileAttachment = {
 					id: nanoid(16),
-					name: attachmentFile?.name || '',
-					size: attachmentFile?.size || 0,
-					contentType: attachmentFile?.type || '',
-					content: reader.result,
+					name: processedFile.name || '', // Use processedFile
+					size: processedFile.size || 0, // Use processedFile
+					contentType: processedFile.type || '', // Use processedFile
+					// * Raw content can be a string or an ArrayBuffer
+					content: event.result,
+					// * Compressed URL to the attachment
 					url: attachmentUrl,
 					isSelected: true,
 					messageIds: [],
+					expires: new Date().toISOString(),
 				}
-				setState((prev) => ({
-					attachments: [...prev.attachments, newAttachment],
+
+				return setState((prevState) => ({
+					attachments: [...prevState.attachments, newAttachment],
 				}))
 			}
 
-			if (appConfig.features.devMode) {
-				console.info('Final attachmentFile --> ', attachmentFile)
+			reader.onerror = () => {
+				console.error('FileReader error:', reader.error)
+				customSonner({
+					type: 'error',
+					text: 'Error reading file.',
+				})
 			}
 
-			if (!attachmentFile) return
-
-			reader.readAsDataURL(attachmentFile)
+			if (appConfig.features.devMode) {
+				console.info('Final processedFile --> ', processedFile)
+			}
+			reader.readAsDataURL(processedFile)
 		},
 		[state.attachments],
 	)
@@ -206,12 +256,43 @@ export function useFileAttachments(
 			(item) => item.kind !== 'string',
 		)
 
-		if (isValidItems) {
-			event.stopPropagation()
-			event.preventDefault()
-
-			handleValidFiles(items)
+		if (!isValidItems) {
+			console.error('Invalid pasted items')
+			return
 		}
+
+		event.stopPropagation()
+		event.preventDefault()
+
+		const newItems = Array.from(items).map((item) => {
+			return {
+				...item,
+				getAsFile: () => {
+					const currentFile = item.getAsFile()
+					if (!currentFile) {
+						console.error('No file found in the pasted item')
+						return null
+					}
+					const fileName = currentFile.name.split('.')[0]
+					const fileExtension = currentFile.name.split('.').pop() || 'txt'
+					return new File(
+						[currentFile],
+						`${fileName}-${nanoid(8)}.${fileExtension}`,
+						{ type: currentFile.type },
+					)
+				},
+			}
+		})
+		const dataTransfer = new DataTransfer()
+
+		for (const item of newItems) {
+			const file = item.getAsFile()
+			if (file) {
+				dataTransfer.items.add(file)
+			}
+		}
+
+		handleValidFiles(dataTransfer.items)
 	}, [])
 
 	const handleDragOver = (event: React.DragEvent<HTMLFormElement>) => {

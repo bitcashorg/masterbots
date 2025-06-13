@@ -55,6 +55,7 @@ import type {
 import { throttle, uniqBy } from 'lodash'
 import { appConfig } from 'mb-env'
 import type { Chatbot, Message, Thread } from 'mb-genql'
+import { toSlug } from 'mb-lib'
 import { nanoid } from 'nanoid'
 import { useSession } from 'next-auth/react'
 import { useParams, useSearchParams } from 'next/navigation'
@@ -449,14 +450,14 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				}
 
 				try {
-					uploadNewMessages()
+					await uploadNewMessages()
 				} catch (error) {
 					console.error('Error generating message slugs: ', error)
 
 					// ? If the error is due to duplicate key value, we retry the upload one more time to do the recursive check again
 					// ! This might be an edge case now that we use drizzle for this query, but it is still a good practice to handle this error
 					if ((error as Error).message.includes('duplicate key value')) {
-						uploadNewMessages()
+						await uploadNewMessages()
 					}
 				}
 
@@ -479,7 +480,11 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				throttle(async () => {
 					const thread = await updateActiveThread()
 					console.log('thread', thread)
-					if (isNewChat || isContinuousThread) {
+					if (
+						isNewChat ||
+						isContinuousThread ||
+						(thread.messages.length > 0 && thread.messages.length <= 2)
+					) {
 						const canonicalDomain = getCanonicalDomain(
 							activeChatbot?.name || 'blankbot',
 						)
@@ -495,7 +500,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 							},
 						})
 					}
-				}, 250)()
+				}, 0)()
 			} catch (error) {
 				console.error('Error saving new message: ', error)
 				logErrorToSentry('Error saving new message', {
@@ -578,13 +583,15 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 	 * All messages coming from DB and continuing the chat, omitting the system prompts to provide to the LLM context.
 	 */
 	const allMessages = uniqBy(
-		initialMessages?.concat(messages)?.concat(
-			activeThread?.messages?.map((msg) => ({
-				...msg,
-				id: msg.messageId,
-				role: msg.role as 'data' | 'system' | 'user' | 'assistant',
-			})) || [],
-		),
+		(initialMessages as Array<Message & AiMessage>)
+			?.concat(messages as Array<Message & AiMessage>)
+			?.concat(
+				activeThread?.messages?.map((msg) => ({
+					...msg,
+					id: msg.messageId,
+					role: msg.role as 'data' | 'system' | 'user' | 'assistant',
+				})) || [],
+			),
 		verifyDuplicateMessage,
 	)
 		.filter(Boolean)
@@ -658,10 +665,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 		return isNewChatState
 	}
 
-	const updateActiveThread = async (
-		newThread?: Thread | null,
-		clean?: boolean,
-	) => {
+	const updateActiveThread = async (newThread?: Thread | null) => {
 		let thread = newThread
 
 		if (!thread) {
@@ -712,25 +716,33 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 		// console.log('thread::tunninUserContent  --> ', thread)
 		if (thread) {
-			updateActiveThread(
-				{
-					...thread,
-					messages: thread.messages.filter(
-						(m) => m.content !== userPrompt.content,
-					),
-				},
-				true,
-			)
+			updateActiveThread({
+				...thread,
+				messages: thread.messages.filter(
+					(m) => m.content !== userPrompt.content,
+				),
+			})
 		}
 
 		userContentRef.current = content
 	}
+
+	const isPreProcessing = Boolean(
+		loadingState?.match(/processing|digesting|polishing/),
+	)
+	const formDisabled = !chatbot || isPreProcessing
 
 	// we extend append function to add our system prompts
 	const appendWithMbContextPrompts = async (
 		userMessage: AiMessage | CreateMessage,
 		chatRequestOptions?: ChatRequestOptions,
 	): Promise<string | null | undefined> => {
+		if (formDisabled) {
+			console.info(
+				'Form is disabled while processing, skipping submit of new message.',
+			)
+			return
+		}
 		if (!session?.user || !chatbot) {
 			console.error('User is not logged in or session expired.')
 			customSonner({
@@ -746,7 +758,9 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 		updateNewThread()
 
 		const defaultUserMessage: Partial<Message> = {
+			...userMessage,
 			content: cleanPrompt(userMessage.content),
+			slug: toSlug(userMessage.content),
 			role: 'user',
 			messageId: randomThreadId.current,
 			createdAt: new Date().toISOString(),
@@ -755,25 +769,34 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 			threadId,
 		}
 		const optimisticThread: Thread = {
+			...activeThread,
 			threadId,
 			chatbotId: chatbot?.chatbotId,
 			chatbot,
 			createdAt: new Date().toISOString(),
 			isApproved: false,
 			isBlocked: false,
-			isPublic: activeChatbot?.name !== 'BlankBot',
 			// @ts-ignore
 			messages: uniqBy(
 				[...allMessages, defaultUserMessage],
 				verifyDuplicateMessage,
 			),
+			metadata: {
+				attachments: uniqBy(
+					messageAttachments.current
+						.map((attach) => ({
+							...attach,
+							messageIds: [randomThreadId.current], // Attach to the optimistic message
+						}))
+						.concat(activeThread?.metadata?.attachments || []),
+					'id',
+				),
+			},
 			thread: isContinuousThread ? activeThread?.thread || null : null,
 			userId: session?.user.id,
 		}
 
-		const thread = await updateActiveThread(
-			isNewChat || isContinuousThread ? optimisticThread : undefined,
-		)
+		const thread = await updateActiveThread(optimisticThread)
 
 		if (!isOpenPopup) {
 			setIsOpenPopup(true)
@@ -790,7 +813,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 			)
 		}
 
-		await appendNewMessage(userMessage, chatRequestOptions)
+		return await appendNewMessage(userMessage, chatRequestOptions)
 	}
 
 	const getMetadataLabels =
@@ -873,6 +896,8 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				checks: { isContinuingThread },
 				params: { continuousThreadId },
 			} = getCurrentSearchParams()
+			const isNewThread =
+				((!allMessages.length && isNewChat) || isContinuingThread) && chatbot
 
 			if (appConfig.features.devMode) {
 				console.info(
@@ -882,12 +907,13 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 				console.log('allMessages --> ', allMessages)
 				console.log('activeThread --> ', activeThread)
 				console.log('isContinuousThread --> ', isContinuingThread)
+				console.log(
+					'isNewThread (combining set of conditions when threads are created and continuing conversation in the same user session) --> ',
+					isNewThread,
+				)
 			}
 
-			if (
-				((!allMessages.length && isNewChat) || isContinuingThread) &&
-				chatbot
-			) {
+			if (isNewThread) {
 				const threadSlug = await generateUniqueSlug(userContentRef.current)
 
 				await createThread({
@@ -900,7 +926,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						? (continuousThreadId as string)
 						: undefined,
 					jwt: session?.user?.hasuraJwt,
-					isPublic: activeChatbot?.name !== 'BlankBot',
 				})
 			}
 
@@ -943,7 +968,7 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 			const appendResponse = await append(
 				{
 					...userMessage,
-					content: isNewChat
+					content: isNewThread
 						? userContentRef.current // improved user message
 						: followingQuestionsPrompt(
 								userContentRef.current,
