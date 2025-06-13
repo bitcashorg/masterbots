@@ -42,6 +42,7 @@
 	"workspaces": ["apps/*", "packages/*"],
 	"packageManager": "bun@1.2.0",
 	"dependencies": {
-		"drizzle-orm": "^0.43.1"
+		"drizzle-orm": "^0.43.1",
+		"rehype-katex": "^7.0.1"
 	}
 }

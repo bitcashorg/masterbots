@@ -231,7 +231,7 @@ export function MessagePairAccordion({
 					)}
 				</AnimatePresence>
 
-				<div className="ml-auto flex gap-1.5 items-start justify-center group">
+				<div className="flex  w-full items-start justify-between">
 					{shouldShowUserMessage && (
 						<MessageRenderer
 							actionRequired={false}
