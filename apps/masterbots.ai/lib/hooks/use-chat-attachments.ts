@@ -1,5 +1,4 @@
 import { type IndexedDBItem, useIndexedDB } from '@/lib/hooks/use-indexed-db'
-import { useMBChat } from '@/lib/hooks/use-mb-chat'
 import { useModel } from '@/lib/hooks/use-model'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useSonner } from '@/lib/hooks/useSonner'
@@ -7,7 +6,7 @@ import type * as OpenAi from 'ai'
 import { appConfig } from 'mb-env'
 import { nanoid } from 'nanoid'
 import { useSession } from 'next-auth/react'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useAsync, useSetState } from 'react-use'
 
 export type FileAttachment = {
@@ -61,7 +60,6 @@ export function useFileAttachments(
 	const { activeThread } = useThread()
 	const dbKeys = getUserIndexedDBKeys(session?.user?.id)
 	const { mounted, ...indexedDBActions } = useIndexedDB(dbKeys)
-	const [{ isLoading }] = useMBChat()
 	const [state, setState] = useSetState<{
 		isDragging: boolean
 		attachments: FileAttachment[]
@@ -69,23 +67,43 @@ export function useFileAttachments(
 		isDragging: false,
 		attachments: [],
 	})
+	const currentRequestId = useRef<string | null>(null)
 	const {
 		value: userAttachments,
 		loading,
 		error,
 	} = useAsync(async () => {
-		if (!mounted || isLoading || !session?.user) {
+		if (!mounted || !session?.user) {
 			return (activeThread?.metadata?.attachments || []) as IndexedDBItem[]
 		}
+
+		const requestId = nanoid(8)
+		currentRequestId.current = requestId
+
+		if (appConfig.features.devMode) {
+			console.info(`Starting user attachments request: ${requestId}`)
+		}
+
 		const indexedDBAttachments = await indexedDBActions.getAllItems()
+
+		// Check if this request is still current
+		if (currentRequestId.current !== requestId) {
+			if (appConfig.features.devMode) {
+				console.info(`Request ${requestId} was superseded, ignoring results`)
+			}
+			return (activeThread?.metadata?.attachments || []) as IndexedDBItem[]
+		}
+
 		if (appConfig.features.devMode) {
 			console.info(
-				'IndexedDB attachments retrieved successfully',
+				`IndexedDB attachments retrieved successfully for request: ${requestId}`,
 				indexedDBAttachments,
 			)
 		}
+
+		currentRequestId.current = null
 		return indexedDBAttachments
-	}, [session?.user, mounted, activeThread, isLoading])
+	}, [session?.user, mounted, activeThread?.metadata?.attachments])
 
 	const { customSonner } = useSonner()
 	const { selectedModel } = useModel()
