@@ -74,7 +74,7 @@ export function useFileAttachments(
 		error,
 	} = useAsync(async () => {
 		if (!mounted || !session?.user) {
-			return activeThread?.metadata?.attachments || ([] as IndexedDBItem[])
+			return (activeThread?.metadata?.attachments || []) as IndexedDBItem[]
 		}
 
 		const requestId = nanoid(8)
@@ -91,7 +91,7 @@ export function useFileAttachments(
 			if (appConfig.features.devMode) {
 				console.info(`Request ${requestId} was superseded, ignoring results`)
 			}
-			return activeThread?.metadata?.attachments || ([] as IndexedDBItem[])
+			return (activeThread?.metadata?.attachments || []) as IndexedDBItem[]
 		}
 
 		if (appConfig.features.devMode) {

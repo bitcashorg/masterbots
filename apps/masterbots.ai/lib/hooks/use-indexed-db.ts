@@ -174,17 +174,17 @@ export function useIndexedDB({
 						)
 
 						// Mark attachments as being processed
-						const newProcessingIds: string[] = []
+						const remoteProcessingIds: string[] = []
 
 						for (const attachment of attachmentsToProcess) {
 							processingAttachmentsRef.current.add(attachment.id)
-							newProcessingIds.push(attachment.id)
+							remoteProcessingIds.push(attachment.id)
 						}
 
 						// Update processed attachments in localStorage
 						const updatedProcessedIds = [
 							...processedAttachmentIds,
-							...newProcessingIds,
+							...remoteProcessingIds,
 						]
 
 						setProcessedAttachmentIds(updatedProcessedIds)
