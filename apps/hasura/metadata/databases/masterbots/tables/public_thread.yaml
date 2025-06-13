@@ -75,6 +75,7 @@ select_permissions:
         - is_approved
         - is_blocked
         - is_public
+        - metadata
         - model
         - parent_thread_id
         - short_link
@@ -93,6 +94,7 @@ select_permissions:
         - is_approved
         - is_blocked
         - is_public
+        - metadata
         - model
         - parent_thread_id
         - short_link
@@ -111,6 +113,7 @@ select_permissions:
         - is_approved
         - is_blocked
         - is_public
+        - metadata
         - model
         - parent_thread_id
         - short_link
@@ -166,7 +169,6 @@ delete_permissions:
   - role: user
     permission:
       filter:
-        thread:
-          user_id:
-            _eq: X-Hasura-User-Id
+        user_id:
+          _eq: X-Hasura-User-Id
     comment: ""

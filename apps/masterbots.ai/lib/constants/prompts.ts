@@ -5,7 +5,7 @@ import { getAllUserMessagesAsStringArray } from '@/lib/threads'
 import { nanoid } from '@/lib/utils'
 import type { ChatbotMetadata, ChatbotMetadataExamples } from '@/types/types'
 import type { Message } from 'ai'
-import { uniq } from 'lodash'
+import { uniq, uniqBy } from 'lodash'
 import { appConfig } from 'mb-env'
 import type { Chatbot, Message as MessageDB } from 'mb-genql'
 
@@ -83,12 +83,17 @@ export function createBotConfigurationPrompt(chatbot: Chatbot) {
 
 export function followingQuestionsPrompt(
 	userContent: string,
-	allMessages: Required<Partial<MessageDB[]>>,
+	allMessages: Array<MessageDB & { id?: string }>,
 	clickedContentId?: string,
 ) {
-	const questions = uniq(allMessages.filter((msg) => Boolean(msg?.messageId)))
+	// ! Whe check for both messageId and Id because the messages can come from different sources, like the database or the AI response...
+	// ! We must resolve this in the future, to normalize messages with "id" always but for now, we will keep it like this.
+	const questions = uniqBy(
+		allMessages.filter((msg) => msg?.messageId || msg?.id),
+		(msg) => msg?.messageId || msg?.id,
+	)
 	const responseIndex = questions.findIndex(
-		(q) => q.messageId === clickedContentId,
+		(q) => q?.messageId === clickedContentId || q?.id === clickedContentId,
 	)
 	const hasResponseIndex = responseIndex !== -1
 	const previousQuestionsString = getAllUserMessagesAsStringArray(

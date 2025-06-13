@@ -631,7 +631,7 @@ export async function createThread({
 	jwt,
 	userId,
 	parentThreadId,
-	isPublic = true,
+	isPublic = false,
 }: Partial<CreateThreadParams>) {
 	const client = getHasuraClient({ jwt })
 	const { insertThreadOne } = await client.mutation({
@@ -721,11 +721,11 @@ export async function getBrowseThreads({
 	limit,
 	offset,
 	slug,
-	isAdminMode,
+	isAdminMode = false,
 	followedUserId,
 }: GetBrowseThreadsParams) {
 	const client = getHasuraClient({})
-
+	const baseLimit = limit || 20
 	const baseWhereConditions = {
 		...(categoryId
 			? {
@@ -775,14 +775,8 @@ export async function getBrowseThreads({
 					},
 				}
 			: {}),
-		...(isAdminMode
-			? {
-					isApproved: { _eq: false },
-				}
-			: {
-					isPublic: { _eq: true },
-					isApproved: { _eq: true },
-				}),
+		isPublic: { _eq: true },
+		isApproved: { _eq: !isAdminMode },
 	}
 
 	const { thread: allThreads, threadAggregate } = await client.query({
@@ -855,7 +849,7 @@ export async function getBrowseThreads({
 			__args: {
 				orderBy: [{ createdAt: 'DESC' }],
 				where: baseWhereConditions,
-				limit: limit || 30,
+				limit: baseLimit,
 				offset: offset || 0,
 			},
 		},
@@ -914,14 +908,14 @@ export async function getBrowseThreads({
 	while (
 		(followingIndex < followingThreads.length ||
 			organicIndex < organicThreads.length) &&
-		interweavedThreads.length < (limit || 30)
+		interweavedThreads.length < baseLimit
 	) {
 		// Add up to 4 following threads
 		for (
 			let i = 0;
-			i < 4 &&
+			i < baseLimit - organicThreads.length &&
 			followingIndex < followingThreads.length &&
-			interweavedThreads.length < (limit || 30);
+			interweavedThreads.length < baseLimit;
 			i++
 		) {
 			interweavedThreads.push(followingThreads[followingIndex])
@@ -931,7 +925,7 @@ export async function getBrowseThreads({
 		// Add 1 organic thread if available
 		if (
 			organicIndex < organicThreads.length &&
-			interweavedThreads.length < (limit || 30)
+			interweavedThreads.length < baseLimit
 		) {
 			interweavedThreads.push(organicThreads[organicIndex])
 			organicIndex++
@@ -1818,8 +1812,6 @@ export async function getModels() {
 				type: true,
 			},
 		})
-
-		console.log('Models fetched:', result.models)
 		return result.models
 	} catch (error) {
 		console.error('Error fetching models:', error)
@@ -1904,6 +1896,72 @@ export async function insertPreferencesByUserId({
 		return {
 			data: null,
 			error: (error as Error).message,
+		}
+	}
+}
+
+export async function getThreadMetadataBySlug({
+	slug,
+	jwt,
+}: {
+	slug: string
+	jwt?: string
+}): Promise<{ thread: Thread | null; error?: string }> {
+	try {
+		const client = getHasuraClient({ jwt })
+		const { thread } = await client.query({
+			thread: {
+				__args: {
+					where: { slug: { _eq: slug } },
+				},
+				metadata: true,
+			},
+		})
+
+		if (!thread || thread.length === 0) {
+			return { thread: null, error: 'Thread not found' }
+		}
+
+		return { thread: thread[0] as Thread, error: undefined }
+	} catch (error) {
+		console.error('Error fetching thread metadata by slug:', error)
+		return { thread: null, error: (error as Error).message }
+	}
+}
+
+export const deleteMessages = async (
+	messageIds: string[],
+	jwt: string | undefined,
+) => {
+	try {
+		if (!jwt) {
+			throw new Error('Authentication required for thread deletion')
+		}
+
+		const client = getHasuraClient({ jwt })
+		const res = await client.mutation({
+			deleteMessage: {
+				__args: {
+					where: {
+						messageId: { _in: messageIds },
+					},
+				},
+				affectedRows: true,
+				returning: {
+					messageId: true,
+				},
+			},
+		})
+
+		if ((res.deleteMessage?.affectedRows ?? 0) > 0) {
+			return { success: true }
+		}
+		return { success: false }
+	} catch (error) {
+		console.error('Failed to delete messages:', error)
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : 'Unknown error',
 		}
 	}
 }

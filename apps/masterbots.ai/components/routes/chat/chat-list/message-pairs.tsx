@@ -45,7 +45,7 @@ export function MessagePairs({
 		callback?: () => void,
 	) => void
 }) {
-	const { isNewResponse } = useThread()
+	const { isNewResponse, activeThread } = useThread()
 
 	// @AndlerRL
 	// ! Previous and Current messages mapping are the same. The only difference is the type of message (previous or current)
@@ -69,7 +69,10 @@ export function MessagePairs({
 			}
 
 			const filteredUserAttachments =
-				userAttachments?.filter((attachment) =>
+				(userAttachments.length
+					? userAttachments
+					: (activeThread?.metadata?.attachments as FileAttachment[])
+				)?.filter((attachment) =>
 					(attachment as FileAttachment).messageIds?.includes(userMessage.id),
 				) || []
 

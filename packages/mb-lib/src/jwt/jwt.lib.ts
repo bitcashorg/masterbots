@@ -176,8 +176,8 @@ export function isTokenExpired(token: string) {
 		const currentUnixTime = Math.floor(Date.now() / 1000)
 		const isExpired = decodedToken.exp < currentUnixTime
 
-		if (appConfig.features.devMode) {
-			console.log('Token expiration status:', isExpired ? 'Expired' : 'Valid')
+		if (appConfig.features.devMode && isExpired) {
+			console.log('Token expiration status is Expired')
 		}
 
 		return isExpired

@@ -6,13 +6,13 @@ import { Button } from '@/components/ui/button'
 import { IconArrowRight, IconCreditCard, IconHelp } from '@/components/ui/icons'
 import { usePayment } from '@/lib/hooks/use-payment'
 import { cn } from '@/lib/utils'
-import { motion } from 'framer-motion'
+import { type MotionProps, MotionStyle, motion } from 'framer-motion'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useState } from 'react'
 import { useAsync } from 'react-use'
 
-const containerVariants = {
+const containerVariants: MotionProps['variants'] = {
 	hidden: { opacity: 0 },
 	visible: {
 		opacity: 1,
@@ -22,7 +22,7 @@ const containerVariants = {
 	},
 }
 
-const itemVariants = {
+const itemVariants: MotionProps['variants'] = {
 	hidden: { y: 20, opacity: 0 },
 	visible: {
 		y: 0,
@@ -145,9 +145,9 @@ export function SubscriptionPageComponent() {
 							Pro Plan Benefits
 						</h2>
 						<div className="w-full space-y-6">
-							{proBenefits.map((benefit, index) => (
+							{proBenefits.map((benefit) => (
 								<motion.div
-									key={index}
+									key={benefit.title}
 									className="flex items-start space-x-4 group"
 									whileHover={{ x: 5 }}
 									transition={{ type: 'spring', stiffness: 300 }}

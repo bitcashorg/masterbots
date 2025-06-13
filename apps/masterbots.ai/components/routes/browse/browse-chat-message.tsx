@@ -29,9 +29,6 @@ import { memoizedMarkdownComponents } from '@/lib/memoized-markdown-components'
 import { cn } from '@/lib/utils'
 import type { Message } from 'ai'
 import type { Chatbot } from 'mb-genql'
-import rehypeMathJax from 'rehype-mathjax'
-import remarkGfm from 'remark-gfm'
-import remarkRehype from 'remark-rehype'
 
 export interface ChatMessageProps {
 	message: Message
@@ -49,7 +46,6 @@ export function BrowseChatMessage({
 			<div className="flex-1 space-y-2 overflow-hidden md:ml-4">
 				<MemoizedReactMarkdown
 					className="min-w-full prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 !max-w-5xl"
-					remarkPlugins={[remarkGfm, rehypeMathJax, remarkRehype]}
 					components={memoizedMarkdownComponents()}
 				>
 					{cleanMessage.content}

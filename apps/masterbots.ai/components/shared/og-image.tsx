@@ -16,13 +16,13 @@ export default function OgImage({
 	user_avatar,
 	isLightTheme,
 }: OgImageProps) {
-	console.log('OG IMG Props', {
-		question,
-		answer,
-		username,
-		user_avatar,
-		isLightTheme,
-	})
+	// console.log('OG IMG Props', {
+	// 	question,
+	// 	answer,
+	// 	username,
+	// 	user_avatar,
+	// 	isLightTheme,
+	// })
 	return (
 		<div
 			style={{
@@ -32,7 +32,7 @@ export default function OgImage({
 				alignItems: 'flex-start',
 				justifyContent: 'flex-start',
 				backgroundColor: isLightTheme ? '#ffff' : '#17171b',
-				padding: '40px',
+				padding: 0,
 				color: isLightTheme ? '#17171b' : '#ffff',
 			}}
 		>
@@ -42,7 +42,10 @@ export default function OgImage({
 					display: 'flex',
 					height: '100%',
 					alignItems: 'center',
+					justifyContent: 'space-between',
 					width: '100%',
+					padding: '42px 64px',
+					gap: '32px',
 				}}
 			>
 				<div
@@ -50,7 +53,8 @@ export default function OgImage({
 						flex: '1',
 						display: 'flex',
 						flexDirection: 'column',
-						marginRight: '20px',
+						gap: '16px',
+						height: '100%',
 					}}
 				>
 					{thread?.chatbot ? (
@@ -61,7 +65,7 @@ export default function OgImage({
 									display: 'flex',
 									flexDirection: 'column',
 									marginTop: '0px',
-									marginBottom: '0px',
+									marginBottom: 'auto',
 									fontSize: 32,
 									color: isLightTheme ? '#17171b' : '#ffff',
 								}}
@@ -81,41 +85,51 @@ export default function OgImage({
 							</p>
 						</>
 					) : null}
-					<h1
+
+					<div
 						style={{
-							fontSize: '64px',
-							lineHeight: '75px',
-							color: isLightTheme ? '#17171b' : '#ffff',
-							overflow: 'hidden',
-							textOverflow: 'ellipsis',
-							display: '-webkit-box',
-							WebkitLineClamp: 2,
-							WebkitBoxOrient: 'vertical',
-							maxHeight: '3.6em',
+							display: 'flex',
+							flexDirection: 'column',
+							marginTop: 'auto',
+							marginBottom: 'auto',
 						}}
 					>
-						{question}
-					</h1>
-					<p
-						style={{
-							fontSize: '24px',
-							color: isLightTheme ? '#17171b' : '#ffff',
-							overflow: 'hidden',
-							textOverflow: 'ellipsis',
-							display: '-webkit-box',
-							WebkitLineClamp: 3,
-							WebkitBoxOrient: 'vertical',
-							maxHeight: '96px',
-						}}
-					>
-						{answer}
-					</p>
+						<h1
+							style={{
+								fontSize: '64px',
+								lineHeight: 1.15,
+								color: isLightTheme ? '#17171b' : '#ffff',
+								overflow: 'hidden',
+								textOverflow: 'ellipsis',
+								display: '-webkit-box',
+								WebkitLineClamp: 2,
+								WebkitBoxOrient: 'vertical',
+								maxHeight: '3.6em',
+							}}
+						>
+							{question}
+						</h1>
+						<p
+							style={{
+								fontSize: '24px',
+								color: isLightTheme ? '#17171b' : '#ffff',
+								overflow: 'hidden',
+								textOverflow: 'ellipsis',
+								display: '-webkit-box',
+								WebkitLineClamp: 3,
+								WebkitBoxOrient: 'vertical',
+								maxHeight: '96px',
+							}}
+						>
+							{answer}
+						</p>
+					</div>
 
 					<div
 						style={{
 							display: 'flex',
 							alignItems: 'center',
-							marginTop: '42px',
+							marginTop: 'auto',
 						}}
 					>
 						{user_avatar ? (
@@ -123,8 +137,8 @@ export default function OgImage({
 								alt=""
 								style={{
 									objectFit: 'cover',
-									width: '50px',
-									height: '50px',
+									width: '42px',
+									height: '42px',
 									borderRadius: '50%',
 									border: '2px solid #388DE2',
 								}}
@@ -133,8 +147,8 @@ export default function OgImage({
 						) : (
 							<div
 								style={{
-									width: '70px',
-									height: '70px',
+									width: '42px',
+									height: '42px',
 									borderRadius: '50%',
 									backgroundColor: '#388DE2',
 									display: 'flex',
@@ -146,17 +160,19 @@ export default function OgImage({
 									style={{
 										color: isLightTheme ? '#17171b' : '#ffff',
 										fontSize: '34px',
+										fontWeight: 'bold',
+										lineHeight: 1,
 										textTransform: 'lowercase',
 									}}
 								>
-									{username?.charAt(0)}
+									{username?.replace('@', '')?.charAt(0) || ''}
 								</p>
 							</div>
 						)}
 						<p
 							style={{
 								color: isLightTheme ? '#17171b' : '#ffff',
-								fontSize: '34px',
+								fontSize: '26px',
 								lineHeight: 1,
 								marginLeft: '15px',
 								textTransform: 'lowercase',
@@ -172,6 +188,7 @@ export default function OgImage({
 							style={{
 								backgroundColor: '#1E293B',
 								display: 'flex',
+								minWidth: '300px',
 								width: '300px',
 								height: '300px',
 								borderRadius: '50%',

@@ -50,26 +50,26 @@
 		--font-size-base: 1rem;
 
 		--background-public-gradient: linear-gradient(
-			180deg,
-			rgba(115, 201, 97, 0.2) 0%,
-			rgba(122, 214, 104, 0.4) 100%
+			170deg,
+			rgba(115, 201, 97, 0.2) 16%,
+			rgba(122, 214, 104, 0.4) 133%
 		);
 		--background-public-hover-gradient: linear-gradient(
-			-180deg,
-			rgba(113, 199, 96, 0.1) 0%,
-			rgba(117, 205, 99, 0.3) 100%
+			-170deg,
+			rgba(113, 199, 96, 0.1) 16%,
+			rgba(117, 205, 99, 0.3) 133%
 		);
 
 		/* Public route gradients */
 		--background-chat-gradient: linear-gradient(
-			180deg,
-			rgba(155, 22, 232, 0.2) 0%,
-			rgba(190, 22, 232, 0.53) 100%
+			170deg,
+			rgba(155, 22, 232, 0.2) 16%,
+			rgba(190, 22, 232, 0.53) 133%
 		);
 		--background-chat-hover-gradient: linear-gradient(
-			-180deg,
-			rgba(166, 22, 232, 0.1) 0%,
-			rgba(190, 22, 232, 0.3) 100%
+			-170deg,
+			rgba(166, 22, 232, 0.1) 16%,
+			rgba(190, 22, 232, 0.3) 133%
 		);
 
 		/* Component route colors */
@@ -122,26 +122,26 @@
 		--tertiary-foreground: 0 0% 98%;
 
 		--background-public-gradient: linear-gradient(
-			180deg,
-			rgba(115, 201, 97, 0.2) 0%,
-			rgba(122, 214, 104, 0.4) 100%
+			170deg,
+			rgba(115, 201, 97, 0.2) 16%,
+			rgba(122, 214, 104, 0.4) 133%
 		);
 		--background-public-hover-gradient: linear-gradient(
-			-180deg,
-			rgba(113, 199, 96, 0.1) 0%,
-			rgba(117, 205, 99, 0.3) 100%
+			-170deg,
+			rgba(113, 199, 96, 0.1) 16%,
+			rgba(117, 205, 99, 0.3) 133%
 		);
 
 		/* Public route gradients */
 		--background-chat-gradient: linear-gradient(
-			180deg,
-			rgba(155, 22, 232, 0.2) 0%,
-			rgba(190, 22, 232, 0.53) 100%
+			170deg,
+			rgba(155, 22, 232, 0.2) 16%,
+			rgba(190, 22, 232, 0.53) 133%
 		);
 		--background-chat-hover-gradient: linear-gradient(
-			-180deg,
-			rgba(166, 22, 232, 0.1) 0%,
-			rgba(190, 22, 232, 0.3) 100%
+			-170deg,
+			rgba(166, 22, 232, 0.1) 16%,
+			rgba(190, 22, 232, 0.3) 133%
 		);
 
 		/* Component route colors */
