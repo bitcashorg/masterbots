@@ -165,6 +165,9 @@ export function useIndexedDB({
 								downloadedAttachment.name,
 							)
 						}
+
+						downloadedAttachments.push(downloadedAttachment)
+
 						const attachmentsToProcess = (
 							downloadedAttachments as FileAttachment[]
 						).filter(
@@ -188,7 +191,6 @@ export function useIndexedDB({
 						]
 
 						setProcessedAttachmentIds(updatedProcessedIds)
-						downloadedAttachments.push(downloadedAttachment)
 					}
 
 					return resolve(downloadedAttachments)
