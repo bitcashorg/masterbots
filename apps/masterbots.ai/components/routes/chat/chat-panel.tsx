@@ -158,7 +158,7 @@ export function ChatPanel({
 								activeColor="yellow"
 							/>
 							{/* Image Generation Toggle */}
-							<ImageGenerationToggle />
+							{appConfig.features.imageGeneration && <ImageGenerationToggle />}
 
 							{appConfig.features.webSearch && (
 								<FeatureToggle
