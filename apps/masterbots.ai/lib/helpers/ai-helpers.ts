@@ -278,7 +278,8 @@ export function verifyDuplicateMessage(message: Partial<MBMessage>) {
 	}
 
 	// Filter out system prompts and messages with empty content
-	return message.slug || message.content || false
+	return message.content
+	// return message.slug || message.content
 }
 
 //? Check if the message has reasoning content

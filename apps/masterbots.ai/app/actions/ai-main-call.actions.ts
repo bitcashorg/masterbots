@@ -341,7 +341,7 @@ export async function createResponseStream(
 	try {
 		let response: ReturnType<typeof streamText>
 
-		const coreMessages = convertToCoreMessages(
+		const coreMessages = await convertToCoreMessages(
 			messages as OpenAI.ChatCompletionMessageParam[],
 		)
 

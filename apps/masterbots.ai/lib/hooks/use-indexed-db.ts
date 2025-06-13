@@ -9,6 +9,7 @@ import { isEqual, uniqBy } from 'lodash'
 import { appConfig } from 'mb-env'
 import { fetchJson } from 'mb-lib'
 import { useEffect, useRef, useState } from 'react'
+import { useLocalStorage } from './use-local-storage'
 
 const DEFAULT_DB_NAME = 'masterbots_attachments_indexed_db'
 const DEFAULT_STORE_NAME = 'masterbots_attachments_store'
@@ -18,10 +19,11 @@ export function useIndexedDB({
 	storeName = DEFAULT_STORE_NAME,
 }) {
 	const dbRef = useRef<IDBDatabase | null>(null)
+	const processingAttachmentsRef = useRef<Set<string>>(new Set())
 	const [mounted, setMounted] = useState(false)
-	const [remoteThreadMetadata, setRemoteThreadMetadata] = useState<
-		IndexedDBItem[]
-	>([])
+	const [processedAttachmentIds, setProcessedAttachmentIds] = useLocalStorage<
+		string[]
+	>('masterbots_processed_attachments', [])
 
 	const onMountSuccess = (event: Event) => {
 		if (appConfig.features.devMode) {
@@ -106,10 +108,6 @@ export function useIndexedDB({
 			request.onsuccess = async () => {
 				const attachments = request.result as IndexedDBItem[]
 
-				if (appConfig.features.devMode) {
-					console.info('IndexedDB records:', attachments)
-				}
-
 				let newAttachments: FileAttachment[] = attachments as FileAttachment[]
 				const currentUserMetadata = await getAllUserThreadMetadata()
 				const newAttachmentCheck = prepareThreadAttachmentCheck(newAttachments)
@@ -120,7 +118,6 @@ export function useIndexedDB({
 					if (appConfig.features.devMode) {
 						console.warn('No update required. Local is sync with remote')
 					}
-					setRemoteThreadMetadata(newAttachments)
 					return resolve(newAttachments)
 				}
 
@@ -160,133 +157,204 @@ export function useIndexedDB({
 							addItem(downloadedAttachment)
 						}
 
+						// Update the localhost and ref state
+						if (appConfig.features.devMode) {
+							console.info(
+								'Updated attachment in IndexedDB:',
+								downloadedAttachment.id,
+								downloadedAttachment.name,
+							)
+						}
+						const attachmentsToProcess = (
+							downloadedAttachments as FileAttachment[]
+						).filter(
+							(att) =>
+								!processingAttachmentsRef.current.has(att.id) &&
+								!processedAttachmentIds.includes(att.id),
+						)
+
+						// Mark attachments as being processed
+						const newProcessingIds: string[] = []
+
+						for (const attachment of attachmentsToProcess) {
+							processingAttachmentsRef.current.add(attachment.id)
+							newProcessingIds.push(attachment.id)
+						}
+
+						// Update processed attachments in localStorage
+						const updatedProcessedIds = [
+							...processedAttachmentIds,
+							...newProcessingIds,
+						]
+
+						setProcessedAttachmentIds(updatedProcessedIds)
 						downloadedAttachments.push(downloadedAttachment)
 					}
 
 					return resolve(downloadedAttachments)
 				}
 
-				for (const attachment of newAttachments as FileAttachment[]) {
-					const thread = await getUserThreadsMetadata(attachment.messageIds)
+				// Filter out attachments that are currently being processed or already processed
+				const attachmentsToProcess = (
+					newAttachments as FileAttachment[]
+				).filter(
+					(attachment) =>
+						!processingAttachmentsRef.current.has(attachment.id) &&
+						!processedAttachmentIds.includes(attachment.id),
+				)
 
-					if (!thread) {
-						if (appConfig.features.devMode) {
-							console.warn(
-								`No thread found for messageId: ${attachment.messageIds}, skipping attachment update`,
-								attachment.id,
-								attachment.name,
-							)
-						}
-						continue
+				if (attachmentsToProcess.length === 0) {
+					if (appConfig.features.devMode) {
+						console.info('No new attachments to process')
 					}
+					return resolve(newAttachments)
+				}
 
-					const remoteMetadataAttachments = (thread?.metadata as ThreadMetadata)
-						?.attachments
-					const doesThreadMetadataExist = remoteMetadataAttachments?.some(
-						(att) =>
-							att.id === attachment.id &&
-							att.messageIds.length === attachment.messageIds.length,
-					)
+				// Mark attachments as being processed
+				const newProcessingIds: string[] = []
 
-					// If the attachment already exists in the thread metadata, skip updating it
-					if (doesThreadMetadataExist) {
-						if (appConfig.features.devMode) {
-							console.warn(
-								'Attachment already exists in thread metadata, skipping update',
-								attachment.id,
-								attachment.name,
-							)
-						}
-						continue
-					}
+				try {
+					for (const attachment of attachmentsToProcess) {
+						processingAttachmentsRef.current.add(attachment.id)
+						newProcessingIds.push(attachment.id)
+						const thread = await getUserThreadsMetadata(attachment.messageIds)
 
-					// Ensuring remote would have the latest attachments related messageIds
-					newAttachments = uniqBy(
-						[
-							...((thread.metadata as ThreadMetadata | null)?.attachments ||
-								[]),
-							...newAttachments,
-						],
-						'id',
-					).map((att) => {
-						if (att.id === attachment.id) {
-							return {
-								...att,
-								messageIds: attachment.messageIds,
+						if (!thread) {
+							if (appConfig.features.devMode) {
+								console.warn(
+									`No thread found for messageId: ${attachment.messageIds}, skipping attachment update`,
+									attachment.id,
+									attachment.name,
+								)
 							}
+							continue
 						}
-						return att
-					})
 
-					try {
-						const { data: uploadAttachmentData } = await fetchJson<{
-							data: FileAttachment | null
-							error: string | null
-						}>('/api/attachments/upload', {
-							method: 'POST',
-							body: JSON.stringify({
-								attachment,
-								thread,
-							}),
-							headers: {
-								'Content-Type': 'application/json',
-							},
-						})
+						const remoteMetadataAttachments = (
+							thread?.metadata as ThreadMetadata
+						)?.attachments
+						const doesThreadMetadataExist = remoteMetadataAttachments?.some(
+							(att) =>
+								att.id === attachment.id &&
+								att.messageIds.length === attachment.messageIds.length,
+						)
 
-						if (!uploadAttachmentData) {
-							throw new Error('Failed to upload attachment, no data returned')
+						// If the attachment already exists in the thread metadata, skip updating it
+						if (doesThreadMetadataExist) {
+							if (appConfig.features.devMode) {
+								console.warn(
+									'Attachment already exists in thread metadata, skipping update',
+									attachment.id,
+									attachment.name,
+								)
+							}
+							continue
 						}
-						newAttachments = newAttachments.map((att) => {
+
+						// Ensuring remote would have the latest attachments related messageIds
+						newAttachments = uniqBy(
+							[
+								...((thread.metadata as ThreadMetadata | null)?.attachments ||
+									[]),
+								...newAttachments,
+							],
+							'id',
+						).map((att) => {
 							if (att.id === attachment.id) {
 								return {
 									...att,
-									...uploadAttachmentData,
+									messageIds: attachment.messageIds,
 								}
 							}
 							return att
 						})
-					} catch (error) {
-						console.error(
-							'Failed to upload the attachment to the bucket: ',
-							error,
-						)
-						newAttachments.push(attachment)
+
+						try {
+							const { data: uploadAttachmentData } = await fetchJson<{
+								data: FileAttachment | null
+								error: string | null
+							}>('/api/attachments/upload', {
+								method: 'POST',
+								body: JSON.stringify({
+									attachment,
+									thread,
+								}),
+								headers: {
+									'Content-Type': 'application/json',
+								},
+							})
+
+							if (!uploadAttachmentData) {
+								throw new Error('Failed to upload attachment, no data returned')
+							}
+							newAttachments = newAttachments.map((att) => {
+								if (att.id === attachment.id) {
+									return {
+										...att,
+										...uploadAttachmentData,
+									}
+								}
+								return att
+							})
+						} catch (error) {
+							console.error(
+								'Failed to upload the attachment to the bucket: ',
+								error,
+							)
+							newAttachments.push(attachment)
+						}
+
+						newAttachments = uniqBy(newAttachments, 'id')
 					}
 
-					newAttachments = uniqBy(newAttachments, 'id')
-				}
+					// Update processed attachments in localStorage
+					const updatedProcessedIds = [
+						...processedAttachmentIds,
+						...newProcessingIds,
+					]
+					setProcessedAttachmentIds(updatedProcessedIds)
 
-				const messagesIds = newAttachments.flatMap(
-					(att) => (att as FileAttachment).messageIds,
-				)
-				const metadataUpdateResults = await updateThreadMetadata(messagesIds, {
-					attachments: newAttachments,
-				})
-				console.log('metadataUpdateResults', metadataUpdateResults)
-				setRemoteThreadMetadata(newAttachments)
-
-				// If new attachments are not equal from remote/local
-				if (!isEqual(attachments, newAttachments)) {
-					console.log(
-						'Detected attachments not equal with new attachments hence, either the new attachments or local has to be updates',
+					const messagesIds = newAttachments.flatMap(
+						(att) => (att as FileAttachment).messageIds,
+					)
+					const metadataUpdateResults = await updateThreadMetadata(
+						messagesIds,
 						{
-							newAttachments: {
-								length: newAttachments.length,
-								msgIds: newAttachments.map(
-									(att) => (att.messageIds as string[]).length,
-								),
-							},
-							attachments: {
-								length: attachments.length,
-								msgIds: attachments.map(
-									(att) => (att.messageIds as string[]).length,
-								),
-							},
+							attachments: newAttachments,
 						},
 					)
+					console.log('metadataUpdateResults', metadataUpdateResults)
+
+					// If new attachments are not equal from remote/local
+					if (!isEqual(attachments, newAttachments)) {
+						console.log(
+							'Detected attachments not equal with new attachments hence, either the new attachments or local has to be updates',
+							{
+								newAttachments: {
+									length: newAttachments.length,
+									msgIds: newAttachments.map(
+										(att) => (att.messageIds as string[]).length,
+									),
+								},
+								attachments: {
+									length: attachments.length,
+									msgIds: attachments.map(
+										(att) => (att.messageIds as string[]).length,
+									),
+								},
+							},
+						)
+					}
+
+					return resolve(newAttachments)
+				} finally {
+					// Clear processing state
+					for (const id of newProcessingIds) {
+						processingAttachmentsRef.current.delete(id)
+					}
 				}
 
-				return resolve(newAttachments)
+				// return resolve(newAttachments)
 			}
 
 			request.onerror = () => {

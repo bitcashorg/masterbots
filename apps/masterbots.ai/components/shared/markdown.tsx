@@ -3,7 +3,6 @@ import ReactMarkdown, { type Options } from 'react-markdown'
 import rehypeKatex from 'rehype-katex'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
-import remarkRehype from 'remark-rehype'
 
 import 'katex/dist/katex.min.css'
 
@@ -21,11 +20,7 @@ function transformLatexBlocks(markdown: string) {
 export const MemoizedReactMarkdown: FC<Options> = memo(
 	(props) => (
 		<ReactMarkdown
-			remarkPlugins={[
-				remarkGfm,
-				[remarkMath, { singleDollarTextMath: false }],
-				remarkRehype,
-			]}
+			remarkPlugins={[remarkGfm, [remarkMath, { singleDollarTextMath: false }]]}
 			rehypePlugins={[
 				[rehypeKatex, { strict: false, output: 'htmlAndMathml' }],
 			]}
