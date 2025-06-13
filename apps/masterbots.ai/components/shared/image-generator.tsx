@@ -124,10 +124,12 @@ export function ImageGenerator() {
 			{(!generatedImage || isEditMode) && (
 				<>
 					{/* Model selection */}
-					<div className={cn(
-						"flex flex-wrap gap-2 mb-4",
-						isEditMode && "max-w-2xl mx-auto justify-center"
-					)}>
+					<div
+						className={cn(
+							'flex flex-wrap gap-2 mb-4',
+							isEditMode && 'max-w-2xl mx-auto justify-center',
+						)}
+					>
 						{IMAGE_MODELS.map((model) => (
 							<Button
 								key={model.id}

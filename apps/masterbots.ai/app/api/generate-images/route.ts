@@ -89,10 +89,11 @@ export async function POST(req: NextRequest) {
 				prompt,
 				size: DEFAULT_IMAGE_SIZE,
 				seed: Math.floor(Math.random() * 1000000),
-				...(editMode && previousImage && {
-					image: previousImage,
-					mask: previousImage,
-				}),
+				...(editMode &&
+					previousImage && {
+						image: previousImage,
+						mask: previousImage,
+					}),
 				providerOptions: {
 					openai: {
 						response_format: 'b64_json',
