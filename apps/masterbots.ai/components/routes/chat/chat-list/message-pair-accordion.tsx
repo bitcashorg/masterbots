@@ -48,11 +48,11 @@ export function MessagePairAccordion({
 	const isPrevious = type === 'previous'
 	const defaultAccordionState =
 		// ? Case to show only the last message in the conversation and it is not previous
-		(index === arrayLength - 1 && !isPrevious) ||
-		// ? Case for when we have the first message in the conversation or last and both are not previous
-		// ((!index || index === arrayLength - 1) && !isPrevious) ||
-		// ? Case for when we have the first message in the previous conversation
-		(!index && isPrevious)
+		index === arrayLength - 1 && !isPrevious
+	// ? Case for when we have the first message in the conversation or last and both are not previous
+	// ((!index || index === arrayLength - 1) && !isPrevious) ||
+	// ? Case for when we have the first message in the previous conversation
+	// (!index && isPrevious)
 
 	const [isAccordionFocused, setIsAccordionFocused] = useState<boolean>(
 		defaultAccordionState,
