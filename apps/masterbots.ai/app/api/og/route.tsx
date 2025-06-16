@@ -17,14 +17,14 @@ const defaultContent = {
 	thread: {
 		chatbot: {
 			name: 'masterbots',
-			avatar: `${process.env.BASE_URL}/masterbots_og.png`,
+			// avatar: `${process.env.BASE_URL}/masterbots_og.png`,
+			avatar: `${process.env.BASE_URL}/images/mb-logo-short-round.png`,
 			categories: [{ category: { name: 'AI' } }],
 		},
 	} as Partial<Thread> & { chatbot: Partial<Chatbot> },
-	question: 'Masterbots AI',
-	answer:
-		'Deploy with our Masterbots, dedicated experts in your field. Each Masterbot is built to deliver focused knowledge and specialized interactions superior to generic AI solutions.',
-	username: 'Masterbots',
+	question: 'MasterbotsAI',
+	answer: 'Where your Ai expertise goes public',
+	username: '@masterbotsai',
 	user_avatar: `${process.env.BASE_URL}/images/robohash1.png`,
 	isLightTheme: false,
 }
