@@ -17,8 +17,8 @@ const defaultContent = {
 	thread: {
 		chatbot: {
 			name: 'masterbots',
-			// avatar: `${process.env.BASE_URL}/masterbots_og.png`,
-			avatar: `${process.env.BASE_URL}/images/mb-logo-short-round.png`,
+			avatar: `${process.env.BASE_URL}/masterbots_og.png`,
+			// avatar: `${process.env.BASE_URL}/images/mb-logo-short-round.png`,
 			categories: [{ category: { name: 'AI' } }],
 		},
 	} as Partial<Thread> & { chatbot: Partial<Chatbot> },
