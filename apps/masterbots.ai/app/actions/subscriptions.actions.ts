@@ -85,7 +85,7 @@ export async function getSubscriptionPlans({
 						name: feature,
 					})),
 				},
-				unit_amount: plan.price * 100, //? Convert to cents
+				unit_amount: Math.round(plan.price * 100),
 				recurring: {
 					interval: plan.duration,
 					trial_period_days: 0,
@@ -105,7 +105,7 @@ export async function getSubscriptionPlans({
 				description: plan.features_title,
 				marketing_features: plan.features.map((feature) => ({ name: feature })),
 			},
-			unit_amount: plan.price * 100, //? Convert to cents
+			unit_amount: Math.round(plan.price * 100),
 			recurring: {
 				interval: plan.duration,
 				trial_period_days: 0,

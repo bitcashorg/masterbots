@@ -53,6 +53,7 @@ export function Plans({ next, goTo }: PlansPros) {
 		handleSetPromoCode,
 		handleSetPromoApplied,
 		handleValidatePromoCode,
+		promoCodeId,
 	} = usePayment()
 	const { data: session } = useSession()
 	const { name, email } = (session?.user as Session['user']) || {
@@ -107,7 +108,7 @@ export function Plans({ next, goTo }: PlansPros) {
 			},
 			body: JSON.stringify({
 				...plan,
-				promotion_code: promoApplied ? promoCode : undefined,
+				promotion_code: promoApplied ? promoCodeId : undefined,
 			}),
 		})
 		const { error, client_secret } = await response.json()
@@ -142,7 +143,7 @@ export function Plans({ next, goTo }: PlansPros) {
 				},
 				email,
 				name: name as string,
-				promotion_code: promoApplied ? promoCode : undefined,
+				promotion_code: promoApplied ? promoCodeId : undefined,
 			}
 			await handleSubscription(data)
 			handleSetLoading(false)

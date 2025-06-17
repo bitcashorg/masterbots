@@ -44,11 +44,13 @@ interface PaymentContextProps {
 	handleSetStripePublishKey: (stripePublishkey: string) => void
 	promoCode: string
 	promoApplied: boolean
+	promoCodeId: string | undefined
 	handleSetPromoCode: (code: string) => void
 	handleSetPromoApplied: (applied: boolean) => void
+	handleSetPromoCodeId: (id: string | undefined) => void
 	handleValidatePromoCode: (
 		code: string,
-	) => Promise<{ valid: boolean; error?: string }>
+	) => Promise<{ valid: boolean; error?: string; promotionCodeId?: string }>
 }
 
 const PaymentContext = createContext<PaymentContextProps | undefined>(undefined)
@@ -80,6 +82,7 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 	//? Promotion code state
 	const [promoCode, setPromoCode] = useState('')
 	const [promoApplied, setPromoApplied] = useState(false)
+	const [promoCodeId, setPromoCodeId] = useState<string | undefined>(undefined)
 
 	const handleSetConfirmationToken = (token: string | undefined) => {
 		setConfirmationToken(token)
@@ -140,6 +143,10 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 		setPromoApplied(applied)
 	}
 
+	const handleSetPromoCodeId = (id: string | undefined) => {
+		setPromoCodeId(id)
+	}
+
 	const handleValidatePromoCode = async (code: string) => {
 		try {
 			const response = await fetch('/api/payment/validate-promo', {
@@ -151,6 +158,9 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 			})
 
 			const data = await response.json()
+			if (data.valid && data.promotionCodeId) {
+				handleSetPromoCodeId(data.promotionCodeId)
+			}
 			return data
 		} catch (error) {
 			console.error('Error validating promotion code:', error)
@@ -172,6 +182,7 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 				stripePublishkey,
 				promoCode,
 				promoApplied,
+				promoCodeId,
 				handlePlan,
 				handleSetCard,
 				handleSetError,
@@ -184,6 +195,7 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 				handleSetConfirmationToken,
 				handleSetPromoCode,
 				handleSetPromoApplied,
+				handleSetPromoCodeId,
 				handleValidatePromoCode,
 			}}
 		>
