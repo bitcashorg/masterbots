@@ -46,6 +46,7 @@ export function ChatOptions({ threadId, thread, pair }: ChatOptionsProps) {
 	const canonicalDomain = getCanonicalDomain(thread?.chatbot?.name || '')
 	const session = useSession()
 	const jwt = session?.data?.user?.hasuraJwt
+	const [isPublic, setIsPublic] = useState(thread.isPublic)
 
 	const isSubThread = pair && pair !== undefined
 	const url = urlBuilders.profilesThreadUrl({
@@ -209,8 +210,20 @@ export function ChatOptions({ threadId, thread, pair }: ChatOptionsProps) {
 									onClick={async (event) => {
 										event.stopPropagation()
 										try {
-											await toggleVisibility(!thread?.isPublic, threadId)
-											thread.isPublic = !thread?.isPublic
+											const toggleResults = await toggleVisibility(
+												!isPublic,
+												threadId,
+											)
+
+											if (toggleResults.error) {
+												customSonner({
+													type: 'error',
+													text: toggleResults.error,
+												})
+												return
+											}
+
+											setIsPublic(toggleResults.isPublic)
 										} catch (error) {
 											console.error(
 												'Failed to update thread visibility:',
@@ -219,7 +232,7 @@ export function ChatOptions({ threadId, thread, pair }: ChatOptionsProps) {
 										}
 									}}
 								>
-									{thread?.isPublic ? (
+									{isPublic ? (
 										<>
 											<EyeOff className="w-4 h-4" />
 											<span className="font-light">Make private</span>
