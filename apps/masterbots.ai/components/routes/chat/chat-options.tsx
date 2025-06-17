@@ -214,15 +214,7 @@ export function ChatOptions({ threadId, thread, pair }: ChatOptionsProps) {
 												!isPublic,
 												threadId,
 											)
-
-											if (toggleResults.error) {
-												customSonner({
-													type: 'error',
-													text: toggleResults.error,
-												})
-												return
-											}
-
+											if (toggleResults.error) return
 											setIsPublic(toggleResults.isPublic)
 										} catch (error) {
 											console.error(

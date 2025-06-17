@@ -97,24 +97,29 @@ export function ThreadVisibilityProvider({
 				jwt,
 			})
 
-			if (updateThreadResponse.success) {
-				setIsPublic(newIsPublic)
-				customSonner({
-					type: 'success',
-					text: `Thread is now ${newIsPublic ? 'public' : 'private'}!`,
-				})
-
-				isPublic = newIsPublic
+			if (!updateThreadResponse.success) {
+				throw new Error(
+					updateThreadResponse.error ||
+						'Failed to update thread visibility.\nTry again later.',
+				)
 			}
+
+			setIsPublic(newIsPublic)
+			customSonner({
+				type: 'success',
+				text: `Thread is now ${newIsPublic ? 'public' : 'private'}!`,
+			})
+
+			isPublic = newIsPublic
 		} catch (err) {
 			console.error('Failed to update thread visibility:', err)
-			customSonner({
-				type: 'error',
-				text: 'Failed to update the thread visibility. Try again later.',
-			})
 			error =
 				(err as Error)?.message ||
 				'An unknown error occurred while updating thread visibility.'
+			customSonner({
+				type: 'error',
+				text: error,
+			})
 		}
 
 		return {
