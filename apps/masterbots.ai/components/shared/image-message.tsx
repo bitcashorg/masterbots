@@ -23,7 +23,7 @@ export function ImageMessageComponent({
 
 	return (
 		<div
-			className={cn('group relative flex items-start p-1', className)}
+			className={cn('group relative flex items-start p-1 w-full', className)}
 			{...props}
 		>
 			<div className="flex-1 pr-1 space-y-4 overflow-hidden">
