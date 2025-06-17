@@ -31,7 +31,10 @@ interface ThreadVisibilityContextProps {
 	isAdminMode: boolean
 	isContinuousThread: boolean
 	isSameUser: (thread: Thread) => boolean
-	toggleVisibility: (newIsPublic: boolean, threadId: string) => Promise<void>
+	toggleVisibility: (
+		newIsPublic: boolean,
+		threadId: string,
+	) => Promise<{ isPublic: boolean; error: string }>
 	adminApproveThread: (threadId: string) => void
 	initiateDeleteThread: (threadId: string) => Promise<DeleteThreadResponse>
 	handleToggleAdminMode: () => void
@@ -85,6 +88,8 @@ export function ThreadVisibilityProvider({
 	}, [jwt])
 
 	const toggleVisibility = async (newIsPublic: boolean, threadId: string) => {
+		let isPublic = !newIsPublic // original value is inverted
+		let error = ''
 		try {
 			const updateThreadResponse = await updateThreadVisibility({
 				isPublic: newIsPublic,
@@ -98,13 +103,23 @@ export function ThreadVisibilityProvider({
 					type: 'success',
 					text: `Thread is now ${newIsPublic ? 'public' : 'private'}!`,
 				})
+
+				isPublic = newIsPublic
 			}
-		} catch (error) {
-			console.error('Failed to update thread visibility:', error)
+		} catch (err) {
+			console.error('Failed to update thread visibility:', err)
 			customSonner({
 				type: 'error',
 				text: 'Failed to update the thread visibility. Try again later.',
 			})
+			error =
+				(err as Error)?.message ||
+				'An unknown error occurred while updating thread visibility.'
+		}
+
+		return {
+			isPublic,
+			error,
 		}
 	}
 
