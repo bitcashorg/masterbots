@@ -1,4 +1,5 @@
 import { parseWordwareResponse } from '@/components/shared/wordware-chat'
+import { plans as fallbackPlans } from '@/lib/utils'
 import {
 	type Card,
 	type PlanList,
@@ -55,19 +56,61 @@ export async function getSubscriptionPlans({
 			stripe_publishable: string
 			error?: string
 		} = await response.json()
-		// remove the free plan from the list
+
 		handleSetStripePublishKey(data.stripe_publishable)
 		handleSetStripeSecret(data.stripeSecret)
 
+		// Filter out free plans and sort by price
 		data.plans = data.plans.filter((plan: PlanList) => plan.unit_amount !== 0)
-		// show the plans in ascending order
+		data.plans.sort((a: PlanList, b: PlanList) => {
+			const amountA = a.unit_amount ?? 0
+			const amountB = b.unit_amount ?? 0
+			return amountB - amountA
+		})
 
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-		data.plans.sort((a: any, b: any) => b.unit_amount - a.unit_amount)
-
-		plans = data.plans as PlanList[]
+		//? If we have plans from Stripe, we use them
+		if (data.plans.length > 0) {
+			plans = data.plans as PlanList[]
+		} else {
+			//? Fallback to utility plans if no Stripe plans are available
+			console.warn('No plans found in Stripe, using fallback plans')
+			plans = fallbackPlans.map((plan) => ({
+				id: plan.id,
+				active: true,
+				created: Date.now(),
+				product: {
+					name: `${plan.duration.charAt(0).toUpperCase() + plan.duration.slice(1)} Plan`,
+					description: plan.features_title,
+					marketing_features: plan.features.map((feature) => ({
+						name: feature,
+					})),
+				},
+				unit_amount: plan.price * 100, //? Convert to cents
+				recurring: {
+					interval: plan.duration,
+					trial_period_days: 0,
+				},
+			})) as PlanList[]
+		}
 	} catch (error) {
 		console.error('Error fetching plans:', error)
+		//? If there's an error, use fallback plans
+		console.warn('Error fetching plans from Stripe, using fallback plans')
+		plans = fallbackPlans.map((plan) => ({
+			id: plan.id,
+			active: true,
+			created: Date.now(),
+			product: {
+				name: `${plan.duration.charAt(0).toUpperCase() + plan.duration.slice(1)} Plan`,
+				description: plan.features_title,
+				marketing_features: plan.features.map((feature) => ({ name: feature })),
+			},
+			unit_amount: plan.price * 100, //? Convert to cents
+			recurring: {
+				interval: plan.duration,
+				trial_period_days: 0,
+			},
+		})) as PlanList[]
 	}
 
 	return plans

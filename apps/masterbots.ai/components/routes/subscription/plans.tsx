@@ -48,6 +48,11 @@ export function Plans({ next, goTo }: PlansPros) {
 		handleSetError,
 		handleSetStripePublishKey,
 		handleSetStripeSecret,
+		promoCode,
+		promoApplied,
+		handleSetPromoCode,
+		handleSetPromoApplied,
+		handleValidatePromoCode,
 	} = usePayment()
 	const { data: session } = useSession()
 	const { name, email } = (session?.user as Session['user']) || {
@@ -56,6 +61,7 @@ export function Plans({ next, goTo }: PlansPros) {
 	}
 
 	const [selectedPlan, setSelectedPlan] = useState(plan?.duration || 'free')
+	const [showPromoInput, setShowPromoInput] = useState(false)
 	const router = useRouter()
 	const { value: plans, loading: loadingPlans } = useAsync(
 		async () =>
@@ -74,19 +80,35 @@ export function Plans({ next, goTo }: PlansPros) {
 		if (del) return router.push('/c')
 	}
 
+	const handlePromoCodeSubmit = async (e: React.FormEvent) => {
+		e.preventDefault()
+		const { valid, error } = await handleValidatePromoCode(promoCode)
+
+		if (valid) {
+			handleSetPromoApplied(true)
+			setShowPromoInput(false)
+		} else {
+			handleSetError(error || 'Invalid promotion code')
+		}
+	}
+
 	const handleSubscription = async (plan: {
 		planId: string | undefined
 		trialPeriodDays: number
 		automatic_payment_methods: { enabled: boolean }
 		email: string
 		name: string
+		promotion_code?: string
 	}) => {
 		const response = await fetch('/api/payment/intent', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify(plan),
+			body: JSON.stringify({
+				...plan,
+				promotion_code: promoApplied ? promoCode : undefined,
+			}),
 		})
 		const { error, client_secret } = await response.json()
 		if (client_secret) {
@@ -120,6 +142,7 @@ export function Plans({ next, goTo }: PlansPros) {
 				},
 				email,
 				name: name as string,
+				promotion_code: promoApplied ? promoCode : undefined,
 			}
 			await handleSubscription(data)
 			handleSetLoading(false)
@@ -137,9 +160,7 @@ export function Plans({ next, goTo }: PlansPros) {
 			<div className="pt-2 mb-3 text-center">
 				<span className="font-bold text-[16px]">
 					Subscribe using{' '}
-					<span className="dark:text-[#635BFF]  text-[#625af5]">
-						Stripe
-					</span>{' '}
+					<span className="dark:text-[#635BFF]  text-[#625af5]">Stripe</span>
 				</span>
 			</div>
 			<div className="flex flex-col justify-center px-4 space-y-3 size-full">
@@ -190,7 +211,7 @@ export function Plans({ next, goTo }: PlansPros) {
 							<div className="flex flex-col items-end justify-end">
 								<span
 									className={cn(
-										'h-3.5 w-3.5 rounded-full border-[3px] border-border/80',
+										'size-3.5 rounded-full border-[3px] border-border/80',
 										selectedPlan === 'free' ? 'bg-tertiary ' : 'bg-mirage',
 									)}
 								/>
@@ -226,15 +247,43 @@ export function Plans({ next, goTo }: PlansPros) {
 						))}
 				</div>
 				<div>
-					<a
-						href="#referral"
-						className="text-[16px] flex items-center space-x-2 mb-5"
-					>
-						<span>
-							I have a&nbsp;<strong> Referral Code</strong>{' '}
-						</span>
-						<IconArrowRightNoFill className="w-5 h-5 mt-2" />
-					</a>
+					{!showPromoInput ? (
+						<button
+							type="button"
+							onClick={() => setShowPromoInput(true)}
+							className="text-[16px] flex items-center space-x-2 mb-5"
+						>
+							<span>
+								I have a&nbsp;<strong>Promotion Code</strong>{' '}
+							</span>
+							<IconArrowRightNoFill className="w-5 h-5 mt-2" />
+						</button>
+					) : (
+						<form onSubmit={handlePromoCodeSubmit} className="mb-5">
+							<div className="flex items-center space-x-2">
+								<input
+									type="text"
+									value={promoCode}
+									onChange={(e) =>
+										handleSetPromoCode(e.target.value.toUpperCase())
+									}
+									placeholder="Enter promotion code"
+									className="px-3 py-2 border rounded-lg dark:bg-black dark:border-gray-700"
+								/>
+								<button
+									type="submit"
+									className="px-4 py-2 text-white bg-black rounded-lg dark:bg-white dark:text-black"
+								>
+									Apply
+								</button>
+							</div>
+						</form>
+					)}
+					{promoApplied && (
+						<div className="p-3 mb-5 text-sm text-green-600 bg-green-100 rounded-lg dark:bg-green-900 dark:text-green-200">
+							Promotion code applied! You&apos;ll get 7 days free trial.
+						</div>
+					)}
 				</div>
 			</div>
 
