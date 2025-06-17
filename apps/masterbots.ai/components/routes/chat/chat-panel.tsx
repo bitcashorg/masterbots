@@ -26,6 +26,7 @@ import {
 } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import type { Chatbot } from 'mb-genql'
+import { useSession } from 'next-auth/react'
 import { useCallback, useState } from 'react'
 
 export interface ChatPanelProps
@@ -43,6 +44,8 @@ export interface ChatPanelProps
 	className?: string
 	messages: AiMessage[]
 }
+
+const WHITELIST_USERS = appConfig.features.proWhitelistUsers
 
 export function ChatPanel({
 	id,
@@ -73,6 +76,7 @@ export function ChatPanel({
 	} = useContinueGeneration()
 	const [, { appendWithMbContextPrompts }] = useMBChat()
 	const { isImageGeneration } = useImageToggle()
+	const { data: session } = useSession()
 
 	const handleContinueGeneration = async () => {
 		if (formDisabled) {
@@ -158,7 +162,10 @@ export function ChatPanel({
 								activeColor="yellow"
 							/>
 							{/* Image Generation Toggle */}
-							{appConfig.features.imageGeneration && <ImageGenerationToggle />}
+							{appConfig.features.imageGeneration &&
+								WHITELIST_USERS.includes(session?.user?.email || '') && (
+									<ImageGenerationToggle />
+								)}
 
 							{appConfig.features.webSearch && (
 								<FeatureToggle

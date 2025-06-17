@@ -114,7 +114,13 @@ export function useIndexedDB({
 				const currentAttachmentCheck =
 					prepareThreadAttachmentCheck(currentUserMetadata)
 
-				if (isEqual(newAttachmentCheck, currentAttachmentCheck)) {
+				if (
+					isEqual(newAttachmentCheck, currentAttachmentCheck) &&
+					isEqual(
+						newAttachmentCheck.map((att) => att.messageIds),
+						currentAttachmentCheck.map((att) => att.messageIds),
+					)
+				) {
 					if (appConfig.features.devMode) {
 						console.warn('No update required. Local is sync with remote')
 					}
@@ -204,8 +210,11 @@ export function useIndexedDB({
 					newAttachments as FileAttachment[]
 				).filter(
 					(attachment) =>
-						!processingAttachmentsRef.current.has(attachment.id) &&
-						!processedAttachmentIds.includes(attachment.id),
+						attachment.messageIds.length !==
+							currentUserMetadata?.find((att) => att.id === attachment.id)
+								?.messageIds.length ||
+						(!processingAttachmentsRef.current.has(attachment.id) &&
+							!processedAttachmentIds.includes(attachment.id)),
 				)
 
 				if (attachmentsToProcess.length === 0) {
@@ -257,14 +266,11 @@ export function useIndexedDB({
 						}
 
 						// Ensuring remote would have the latest attachments related messageIds
-						newAttachments = uniqBy(
-							[
-								...((thread.metadata as ThreadMetadata | null)?.attachments ||
-									[]),
-								...newAttachments,
-							],
-							'id',
-						).map((att) => {
+						newAttachments = [
+							...((thread.metadata as ThreadMetadata | null)?.attachments ||
+								[]),
+							...newAttachments,
+						].map((att) => {
 							if (att.id === attachment.id) {
 								return {
 									...att,
@@ -328,12 +334,14 @@ export function useIndexedDB({
 							attachments: newAttachments,
 						},
 					)
-					console.log('metadataUpdateResults', metadataUpdateResults)
 
+					if (appConfig.features.devMode) {
+						console.log('metadataUpdateResults', metadataUpdateResults)
+					}
 					// If new attachments are not equal from remote/local
 					if (!isEqual(attachments, newAttachments)) {
 						console.log(
-							'Detected attachments not equal with new attachments hence, either the new attachments or local has to be updates',
+							'Detected attachments not equal with new attachments hence, either the new attachments or local has to be updates. Remote has a url, local a base64 hash.',
 							{
 								newAttachments: {
 									length: newAttachments.length,
