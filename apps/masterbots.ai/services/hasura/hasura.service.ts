@@ -1063,7 +1063,7 @@ export async function updateThreadVisibility({
 }): Promise<{ success: boolean; error?: string }> {
 	try {
 		const client = getHasuraClient({ jwt })
-		await client.mutation({
+		const updateThreadResponse = await client.mutation({
 			updateThread: {
 				__args: {
 					where: { threadId: { _eq: threadId } },
@@ -1075,7 +1075,9 @@ export async function updateThreadVisibility({
 				},
 			},
 		})
-		return { success: true }
+		return {
+			success: Boolean(updateThreadResponse.updateThread?.returning?.length),
+		}
 	} catch (error) {
 		return { success: false, error: (error as Error).message }
 	}
