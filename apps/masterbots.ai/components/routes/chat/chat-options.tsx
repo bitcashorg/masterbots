@@ -210,8 +210,20 @@ export function ChatOptions({ threadId, thread, pair }: ChatOptionsProps) {
 									onClick={async (event) => {
 										event.stopPropagation()
 										try {
-											await toggleVisibility(!isPublic, threadId)
-											setIsPublic(!isPublic)
+											const toggleResults = await toggleVisibility(
+												!isPublic,
+												threadId,
+											)
+
+											if (toggleResults.error) {
+												customSonner({
+													type: 'error',
+													text: toggleResults.error,
+												})
+												return
+											}
+
+											setIsPublic(toggleResults.isPublic)
 										} catch (error) {
 											console.error(
 												'Failed to update thread visibility:',
