@@ -312,7 +312,7 @@ export async function getThreads({
 			isPublic: true,
 			__scalar: true,
 			__args: {
-				orderBy: [{ createdAt: 'DESC' as OrderBy }],
+				orderBy: [{ updatedAt: 'DESC' }],
 				limit: limit ? limit : 20,
 				...(offset
 					? {
@@ -847,7 +847,7 @@ export async function getBrowseThreads({
 			isPublic: true,
 			__scalar: true,
 			__args: {
-				orderBy: [{ createdAt: 'DESC' }],
+				orderBy: [{ updatedAt: 'DESC' }],
 				where: baseWhereConditions,
 				limit: baseLimit,
 				offset: offset || 0,
@@ -1007,6 +1007,7 @@ export async function getUserInfoFromBrowse(slug: string) {
 		user: {
 			username: true,
 			profilePicture: true,
+			bio: true,
 			__args: {
 				where: {
 					slug: {

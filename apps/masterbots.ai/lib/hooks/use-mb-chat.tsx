@@ -964,19 +964,21 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 
 			setLoadingState('generating')
 			messageAttachments.current =
-				chatMessagesOptions?.experimental_attachments as FileAttachment[]
+				(chatMessagesOptions?.experimental_attachments ||
+					[]) as FileAttachment[]
 			const appendResponse = await append(
 				{
 					...userMessage,
-					content: isNewThread
-						? userContentRef.current // improved user message
-						: followingQuestionsPrompt(
-								userContentRef.current,
-								previousAiUserMessages.concat(
-									allMessages,
-								) as unknown as Message[],
-								clickedContentRef.current,
-							),
+					content:
+						!allMessages.length && isNewChat && chatbot
+							? userContentRef.current // improved user message
+							: followingQuestionsPrompt(
+									userContentRef.current,
+									previousAiUserMessages.concat(
+										allMessages,
+									) as unknown as Message[],
+									clickedContentRef.current,
+								),
 				},
 				chatMessagesOptions,
 			)

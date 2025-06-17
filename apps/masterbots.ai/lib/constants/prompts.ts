@@ -101,7 +101,11 @@ export function followingQuestionsPrompt(
 	)
 	const lastQuestionString = hasResponseIndex
 		? questions[responseIndex - 1]?.content || ''
-		: questions.filter((m) => m.role === 'user').pop()?.content || ''
+		: questions.filter((m) => m.role === 'user').pop()?.content || '' // ! ————BUG FOUND————
+	// ! The lastResponseString doesn't show up on the first continuous response—which is
+	// ! creating a new thread based on another thread from public threads)
+	// ! This is because the last response is not part of the questions array, so we need to handle it differently(?)
+	// ? Checking further... -Andler
 	const lastResponseString =
 		questions
 			.filter(

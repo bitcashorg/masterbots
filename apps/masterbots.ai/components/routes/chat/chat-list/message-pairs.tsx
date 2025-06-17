@@ -34,7 +34,7 @@ export function MessagePairs({
 }: {
 	isThread: boolean
 	messagesData: MessagePairsData
-	userAttachments: FileAttachment[]
+	userAttachments?: FileAttachment[]
 	chatbot?: Chatbot
 	chatTitleClass?: string
 	chatArrowClass?: string
@@ -69,7 +69,7 @@ export function MessagePairs({
 			}
 
 			const filteredUserAttachments =
-				(userAttachments.length
+				(userAttachments?.length
 					? userAttachments
 					: (activeThread?.metadata?.attachments as FileAttachment[])
 				)?.filter((attachment) =>
