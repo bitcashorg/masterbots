@@ -88,7 +88,7 @@ export function ThreadVisibilityProvider({
 	}, [jwt])
 
 	const toggleVisibility = async (newIsPublic: boolean, threadId: string) => {
-		let isPublic = null
+		let isPublic = !newIsPublic // original value is inverted
 		let error = ''
 		try {
 			const updateThreadResponse = await updateThreadVisibility({
