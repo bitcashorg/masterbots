@@ -62,7 +62,11 @@ export function ChatMessage({
 				messageId: message.messageId,
 			},
 			() => {
-				setClicked(false)
+				// ? Adding delay to avoid instant re-clicks and state reset callbacks
+				const timeout = setTimeout(() => {
+					setClicked(false)
+					clearTimeout(timeout)
+				}, 1250)
 			},
 		)
 	}

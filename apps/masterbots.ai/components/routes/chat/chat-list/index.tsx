@@ -152,7 +152,7 @@ export function ChatList({
 					chatArrowClass={chatArrowClass}
 					chatContentClass={chatContentClass}
 					sendMessageFn={sendMessageFn}
-					userAttachments={userAttachments as FileAttachment[]}
+					userAttachments={userAttachments as FileAttachment[] | undefined}
 				/>
 			</div>
 		</div>
