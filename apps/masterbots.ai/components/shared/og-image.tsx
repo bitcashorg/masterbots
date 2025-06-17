@@ -203,7 +203,7 @@ export default function OgImage({
 									width: '300px',
 									height: '300px',
 									borderRadius: '50%',
-									zIndex: 1, // Ensure the image is above the SVG
+									zIndex: '1', // Ensure the image is above the SVG
 								}}
 								src={thread.chatbot.avatar}
 							/>
