@@ -5,9 +5,9 @@ import { type NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
 
 /**
- * Maximum execution time (55 seconds, slightly less than the Edge runtime limit)
+ * Maximum execution time (2 minutes)
  */
-const TIMEOUT_MILLIS = 55 * 1000
+const TIMEOUT_MILLIS = 2 * 60 * 1000
 
 /**
  * Default image size for OpenAI models
