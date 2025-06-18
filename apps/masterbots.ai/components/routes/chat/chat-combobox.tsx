@@ -99,8 +99,9 @@ export function ChatCombobox() {
 
 	const areProModelsDisabled =
 		loadingUserData ||
-		!userData?.proUserSubscriptionId ||
-		!WHITELIST_USERS.includes(userData?.email)
+		!(userData?.proUserSubscriptionId
+			? userData?.proUserSubscriptionId
+			: WHITELIST_USERS.includes(userData?.email || ''))
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>

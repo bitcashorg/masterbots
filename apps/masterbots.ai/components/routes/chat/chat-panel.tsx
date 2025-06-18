@@ -154,11 +154,9 @@ export function ChatPanel({
 		[isPowerUp, isDeepThinking, webSearch],
 	)
 
-	const isUserWhitelisted =
-		!userData?.proUserSubscriptionId ||
-		(WHITELIST_USERS.includes(userData?.email || '') && (
-			<ImageGenerationToggle />
-		))
+	const isUserWhitelisted = userData?.proUserSubscriptionId
+		? userData?.proUserSubscriptionId
+		: WHITELIST_USERS.includes(userData?.email || '')
 
 	return (
 		<div
