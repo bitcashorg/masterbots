@@ -247,7 +247,6 @@ export function MessagePairAccordion({
 							pair={pair}
 						/>
 					)}
-					{isAccordionFocused}
 				</div>
 			</div>
 			{/* Thread Description */}
