@@ -10,6 +10,11 @@ import OpenAI from 'openai'
 const TIMEOUT_MILLIS = 2 * 60 * 1000
 
 /**
+ * Export maxDuration for Vercel serverless function timeout
+ */
+export const maxDuration = 120 // seconds
+
+/**
  * Default image size for OpenAI models
  */
 const DEFAULT_IMAGE_SIZE = '1024x1024'
