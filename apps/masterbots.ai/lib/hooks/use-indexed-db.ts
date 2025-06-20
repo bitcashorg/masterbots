@@ -206,15 +206,14 @@ export function useIndexedDB({
 				}
 
 				// Filter out attachments that are currently being processed or already processed
-				const attachmentsToProcess = (
-					newAttachments as FileAttachment[]
-				).filter(
-					(attachment) =>
-						attachment.messageIds.length !==
-							currentUserMetadata?.find((att) => att.id === attachment.id)
-								?.messageIds.length ||
-						(!processingAttachmentsRef.current.has(attachment.id) &&
-							!processedAttachmentIds.includes(attachment.id)),
+				const filterAttachments = (attachment: FileAttachment) =>
+					attachment.messageIds.length !==
+						currentUserMetadata?.find((att) => att.id === attachment.id)
+							?.messageIds.length ||
+					(!processingAttachmentsRef.current.has(attachment.id) &&
+						!processedAttachmentIds.includes(attachment.id))
+				let attachmentsToProcess = (newAttachments as FileAttachment[]).filter(
+					filterAttachments,
 				)
 
 				if (attachmentsToProcess.length === 0) {
@@ -325,19 +324,82 @@ export function useIndexedDB({
 					]
 					setProcessedAttachmentIds(updatedProcessedIds)
 
-					const messagesIds = newAttachments.flatMap(
+					// * Creating a new version of attachments to process for metadata update
+					// * This is to ensure that we only update the thread metadata with the new attachments metadata refs
+					attachmentsToProcess = (newAttachments as FileAttachment[]).filter(
+						filterAttachments,
+					)
+					const messagesIds = attachmentsToProcess.flatMap(
 						(att) => (att as FileAttachment).messageIds,
 					)
-					const metadataUpdateResults = await updateThreadMetadata(
-						messagesIds,
-						{
-							attachments: newAttachments,
-						},
+
+					// Log the payload bytes size
+					const payloadSize = new TextEncoder().encode(
+						JSON.stringify({ attachments: attachmentsToProcess, messagesIds }),
+					).length
+					console.log(
+						`Updating thread metadata with ${attachmentsToProcess.length} attachments, total payload size: ${payloadSize} bytes`,
 					)
 
-					if (appConfig.features.devMode) {
-						console.log('metadataUpdateResults', metadataUpdateResults)
+					if (payloadSize > 4.4e6) {
+						console.warn(
+							'Payload size exceeds 4.4MB, splitting the update into smaller chunks',
+						)
+						const MAX_CHUNK_SIZE = 4.4e6 // 4.4MB in bytes
+						const chunks: FileAttachment[][] = []
+						let currentChunk: FileAttachment[] = []
+						let currentChunkSize = 0
+
+						for (const attachment of attachmentsToProcess) {
+							const attachmentSize = new TextEncoder().encode(
+								JSON.stringify(attachment),
+							).length
+							if (
+								currentChunkSize + attachmentSize > MAX_CHUNK_SIZE &&
+								currentChunk.length > 0
+							) {
+								chunks.push(currentChunk)
+								currentChunk = []
+								currentChunkSize = 0
+							}
+							currentChunk.push(attachment)
+							currentChunkSize += attachmentSize
+						}
+						if (currentChunk.length > 0) {
+							chunks.push(currentChunk)
+						}
+
+						const metadataUpdateResults = await Promise.all(
+							chunks.map((chunk) =>
+								updateThreadMetadata(
+									chunk.flatMap((att) => (att as FileAttachment).messageIds),
+									{
+										attachments: chunk,
+									},
+								),
+							),
+						)
+						if (appConfig.features.devMode) {
+							console.log(
+								'metadataUpdateResults ——> chunk strategy',
+								metadataUpdateResults,
+							)
+						}
+					} else {
+						const metadataUpdateResults = await updateThreadMetadata(
+							messagesIds,
+							{
+								attachments: attachmentsToProcess,
+							},
+						)
+						if (appConfig.features.devMode) {
+							console.log(
+								'metadataUpdateResults ——> no chunk strategy',
+								metadataUpdateResults,
+							)
+						}
 					}
+
 					// If new attachments are not equal from remote/local
 					if (!isEqual(attachments, newAttachments)) {
 						console.log(

@@ -7,6 +7,7 @@ import { eq, inArray, isNotNull } from 'drizzle-orm'
 import { uniqBy } from 'lodash'
 import { db, message, thread } from 'mb-drizzle'
 import { appConfig } from 'mb-env'
+import { metadata } from '../layout'
 
 export async function doesMessageSlugExist(slug: string) {
 	const results = await db
@@ -101,18 +102,39 @@ export async function updateThreadMetadata(
 	let result: (typeof thread.$inferSelect)[] = []
 
 	let previousThreadId: string | null = null
+	let currentThread: Partial<typeof thread.$inferSelect>[] | null = null
 
 	for (const [threadId, messageId] of threadsDataIds) {
 		let relatedThreadAttachments = metadata.attachments.filter((att) =>
 			att.messageIds.includes(messageId),
 		)
 
-		if (previousThreadId === threadId) {
+		const isSameThread = previousThreadId === threadId
+
+		// Fetch current thread metadata to get existing attachments
+		currentThread = isSameThread
+			? currentThread
+			: await db
+					.select({ metadata: thread.metadata })
+					.from(thread)
+					.where(eq(thread.threadId, threadId))
+					.limit(1)
+
+		const existingAttachments = currentThread?.length
+			? (currentThread[0]?.metadata as ThreadMetadata)?.attachments || []
+			: []
+
+		if (isSameThread) {
 			relatedThreadAttachments.push(...(attachments[threadId] || []))
 		}
 
+		// Merge existing attachments with new ones, prioritizing new attachments
+		relatedThreadAttachments = uniqBy(
+			[...relatedThreadAttachments, ...existingAttachments],
+			'id',
+		)
+
 		previousThreadId = threadId
-		relatedThreadAttachments = uniqBy(relatedThreadAttachments, 'id')
 
 		// Then, update the threads using the selected threadIds
 		result = [
@@ -127,15 +149,25 @@ export async function updateThreadMetadata(
 				.where(eq(thread.threadId, threadId))
 				.returning()),
 		]
+		currentThread = [
+			{
+				...(currentThread ? currentThread[0] : {}),
+				metadata: {
+					attachments: relatedThreadAttachments,
+				},
+			},
+		]
 
-		attachments[threadId] = relatedThreadAttachments
+		// attachments[threadId] = relatedThreadAttachments
 	}
 
 	result = uniqBy(result, 'threadId')
 
 	return {
-		threads: result,
-		attachments,
+		success: true,
+		message: 'Thread metadata updated successfully',
+		// threads: result,
+		// attachments,
 	}
 }
 
