@@ -340,12 +340,12 @@ export function useIndexedDB({
 					console.log(
 						`Updating thread metadata with ${attachmentsToProcess.length} attachments, total payload size: ${payloadSize} bytes`,
 					)
+					const MAX_CHUNK_SIZE = 4e6 // 4MB in bytes
 
-					if (payloadSize > 4.4e6) {
+					if (payloadSize > MAX_CHUNK_SIZE) {
 						console.warn(
-							'Payload size exceeds 4.4MB, splitting the update into smaller chunks',
+							`Payload size exceeds ${MAX_CHUNK_SIZE / 1e6}MB, splitting the update into smaller chunks`,
 						)
-						const MAX_CHUNK_SIZE = 4.4e6 // 4.4MB in bytes
 						const chunks: FileAttachment[][] = []
 						let currentChunk: FileAttachment[] = []
 						let currentChunkSize = 0

@@ -7,7 +7,6 @@ import { eq, inArray, isNotNull } from 'drizzle-orm'
 import { uniqBy } from 'lodash'
 import { db, message, thread } from 'mb-drizzle'
 import { appConfig } from 'mb-env'
-import { metadata } from '../layout'
 
 export async function doesMessageSlugExist(slug: string) {
 	const results = await db
@@ -157,8 +156,6 @@ export async function updateThreadMetadata(
 				},
 			},
 		]
-
-		// attachments[threadId] = relatedThreadAttachments
 	}
 
 	result = uniqBy(result, 'threadId')
@@ -166,8 +163,6 @@ export async function updateThreadMetadata(
 	return {
 		success: true,
 		message: 'Thread metadata updated successfully',
-		// threads: result,
-		// attachments,
 	}
 }
 
