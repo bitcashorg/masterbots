@@ -42,6 +42,15 @@ interface PaymentContextProps {
 	handleSetStripeSecret: (stripeSecret: string) => void
 	stripePublishkey: string
 	handleSetStripePublishKey: (stripePublishkey: string) => void
+	promoCode: string
+	promoApplied: boolean
+	promoCodeId: string | undefined
+	handleSetPromoCode: (code: string) => void
+	handleSetPromoApplied: (applied: boolean) => void
+	handleSetPromoCodeId: (id: string | undefined) => void
+	handleValidatePromoCode: (
+		code: string,
+	) => Promise<{ valid: boolean; error?: string; promotionCodeId?: string }>
 }
 
 const PaymentContext = createContext<PaymentContextProps | undefined>(undefined)
@@ -70,6 +79,10 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 	const [secret, setSecret] = useState<string>('')
 	const [stripeSecret, setStripeSecret] = useState<string>('')
 	const [stripePublishkey, setStripePublishKey] = useState<string>('')
+	//? Promotion code state
+	const [promoCode, setPromoCode] = useState('')
+	const [promoApplied, setPromoApplied] = useState(false)
+	const [promoCodeId, setPromoCodeId] = useState<string | undefined>(undefined)
 
 	const handleSetConfirmationToken = (token: string | undefined) => {
 		setConfirmationToken(token)
@@ -121,6 +134,40 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 		setStripePublishKey(stripePublishkey)
 	}
 
+	//? Promotion code handlers
+	const handleSetPromoCode = (code: string) => {
+		setPromoCode(code)
+	}
+
+	const handleSetPromoApplied = (applied: boolean) => {
+		setPromoApplied(applied)
+	}
+
+	const handleSetPromoCodeId = (id: string | undefined) => {
+		setPromoCodeId(id)
+	}
+
+	const handleValidatePromoCode = async (code: string) => {
+		try {
+			const response = await fetch('/api/payment/validate-promo', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ promoCode: code }),
+			})
+
+			const data = await response.json()
+			if (data.valid && data.promotionCodeId) {
+				handleSetPromoCodeId(data.promotionCodeId)
+			}
+			return data
+		} catch (error) {
+			console.error('Error validating promotion code:', error)
+			return { valid: false, error: 'Error validating promotion code' }
+		}
+	}
+
 	return (
 		<PaymentContext.Provider
 			value={{
@@ -133,6 +180,9 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 				confirmationToken,
 				stripeSecret,
 				stripePublishkey,
+				promoCode,
+				promoApplied,
+				promoCodeId,
 				handlePlan,
 				handleSetCard,
 				handleSetError,
@@ -143,6 +193,10 @@ export function PaymentProvider({ children }: PaymentProviderProps) {
 				handleSetStripeSecret,
 				handleSetStripePublishKey,
 				handleSetConfirmationToken,
+				handleSetPromoCode,
+				handleSetPromoApplied,
+				handleSetPromoCodeId,
+				handleValidatePromoCode,
 			}}
 		>
 			{children}
