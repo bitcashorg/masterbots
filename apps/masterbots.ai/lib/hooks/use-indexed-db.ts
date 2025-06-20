@@ -369,7 +369,7 @@ export function useIndexedDB({
 							chunks.push(currentChunk)
 						}
 
-						const metadataUpdateResults = await Promise.all(
+						const metadataUpdateResults = await Promise.allSettled(
 							chunks.map((chunk) =>
 								updateThreadMetadata(
 									chunk.flatMap((att) => (att as FileAttachment).messageIds),
@@ -379,12 +379,17 @@ export function useIndexedDB({
 								),
 							),
 						)
-						if (appConfig.features.devMode) {
-							console.log(
-								'metadataUpdateResults ——> chunk strategy',
-								metadataUpdateResults,
-							)
-						}
+						const failedChunks = metadataUpdateResults.filter(
+							(result) => result.status === 'rejected',
+						)
+						console.info(
+							failedChunks.length > 0
+								? 'Some chunks failed to update metadata:'
+								: 'All chunks updated metadata successfully  ——> chunk strategy.',
+							{
+								failedChunks,
+							},
+						)
 					} else {
 						const metadataUpdateResults = await updateThreadMetadata(
 							messagesIds,
