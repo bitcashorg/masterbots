@@ -84,12 +84,8 @@ export function MessagePairAccordion({
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const toggleThreadQuestionUrl = useCallback(
 		(isOpen: boolean, isFirstQuestion: boolean) => {
-			if (!isFirstQuestion) {
-				setIsAccordionFocused(isOpen)
-				return
-			}
+			if (isFirstQuestion) return
 			setIsAccordionFocused(isOpen)
-			// console.log('window.location.pathname.split', window.location.pathname.split('/'))
 			// ? Chat Thread URL
 			const [
 				,
@@ -109,7 +105,6 @@ export function MessagePairAccordion({
 			}
 
 			if (!threadQuestionSlug && isOpen) {
-				// console.log('navigateTo threadQuestionUrl', navigationParts)
 				navigateTo({
 					urlType: isProfile
 						? 'profilesThreadQuestionUrl'
@@ -127,7 +122,6 @@ export function MessagePairAccordion({
 				})
 			}
 			if (threadQuestionSlug && !isOpen) {
-				// console.log('navigateTo threadUrl', navigationParts)
 				navigateTo({
 					urlType: isProfile ? 'profilesThreadUrl' : 'threadUrl',
 					shallow: true,
@@ -143,7 +137,7 @@ export function MessagePairAccordion({
 				})
 			}
 		},
-		[],
+		[pair.userMessage.slug],
 	)
 
 	const shouldShowUserMessage = activeThread?.thread?.messages
@@ -230,8 +224,7 @@ export function MessagePairAccordion({
 						''
 					)}
 				</AnimatePresence>
-
-				<div className="flex  w-full items-start justify-between">
+				<div className="w-full ml-auto flex gap-1.5 items-start justify-between group">
 					{shouldShowUserMessage && (
 						<MessageRenderer
 							actionRequired={false}
