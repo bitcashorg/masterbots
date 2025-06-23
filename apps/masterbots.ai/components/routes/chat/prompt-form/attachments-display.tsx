@@ -21,10 +21,12 @@ export function AttachmentsDisplay({
 	isDragging,
 	attachments,
 	onRemove,
+	onUpdate,
 }: {
 	isDragging: boolean
 	attachments: FileAttachment[]
 	onRemove: (id: string) => void
+	onUpdate: (id: string, attachment: Partial<FileAttachment>) => void
 }) {
 	return (
 		<AnimatePresence>
@@ -102,13 +104,14 @@ export function AttachmentsDisplay({
 													className="w-full h-auto max-h-full rounded-lg"
 												/>
 											) : (
-												<pre className="text-xs whitespace-pre-wrap scrollbar size-full bg-muted p-2">
+												<pre className="size-full scrollbar p-2 border rounded-sm border-foreground/20 bg-muted text-sm whitespace-pre-wrap">
 													{readableTextContent}
 												</pre>
 											)}
 										</figure>
 										<AttachmentDialog
 											attachment={attachment}
+											updateAttachment={onUpdate}
 											absolutePosition
 										/>
 									</PopoverContent>

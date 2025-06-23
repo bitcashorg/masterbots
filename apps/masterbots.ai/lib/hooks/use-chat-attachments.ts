@@ -3,6 +3,7 @@ import { useModel } from '@/lib/hooks/use-model'
 import { useThread } from '@/lib/hooks/use-thread'
 import { useSonner } from '@/lib/hooks/useSonner'
 import type * as OpenAi from 'ai'
+import { uniqBy } from 'lodash'
 import { appConfig } from 'mb-env'
 import { nanoid } from 'nanoid'
 import { useSession } from 'next-auth/react'
@@ -44,6 +45,8 @@ export function useFileAttachments(
 	},
 	{
 		addAttachment: (file: DataTransferItem | File) => void
+		addAttachmentObject: (attachment: FileAttachment) => void
+		updateAttachment: (id: string, updatedData: Partial<FileAttachment>) => void
 		handleFileSelect: (event: React.ChangeEvent<HTMLInputElement>) => void
 		removeAttachment: (id: string) => void
 		clearAttachments: () => void
@@ -57,7 +60,7 @@ export function useFileAttachments(
 	},
 ] {
 	const { data: session } = useSession()
-	const { activeThread } = useThread()
+	const { activeThread, loadingState } = useThread()
 	const dbKeys = getUserIndexedDBKeys(session?.user?.id)
 	const { mounted, ...indexedDBActions } = useIndexedDB(dbKeys)
 	const [state, setState] = useSetState<{
@@ -73,7 +76,7 @@ export function useFileAttachments(
 		loading,
 		error,
 	} = useAsync(async () => {
-		if (!mounted || !session?.user) {
+		if (!mounted || !session?.user || (loadingState && activeThread)) {
 			return (activeThread?.metadata?.attachments || []) as IndexedDBItem[]
 		}
 
@@ -103,10 +106,16 @@ export function useFileAttachments(
 
 		currentRequestId.current = null
 		return indexedDBAttachments
-	}, [session?.user, mounted, activeThread?.metadata?.attachments])
+	}, [session?.user, activeThread, loadingState])
 
 	const { customSonner } = useSonner()
 	const { selectedModel } = useModel()
+
+	const addAttachmentObject = (attachment: FileAttachment) => {
+		setState((prevState) => ({
+			attachments: uniqBy([...prevState.attachments, attachment], 'id'),
+		}))
+	}
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: We only required to update this fn every time we receive a new state of attachments
 	const addAttachment = useCallback(
@@ -197,6 +206,18 @@ export function useFileAttachments(
 		[state.attachments],
 	)
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: We only required to update this fn every time we receive a new state of attachments
+	const updateAttachment = useCallback(
+		(id: string, updatedData: Partial<FileAttachment>) => {
+			setState((prev) => ({
+				attachments: prev.attachments.map((attachment) =>
+					attachment.id === id ? { ...attachment, ...updatedData } : attachment,
+				),
+			}))
+		},
+		[state.attachments],
+	)
+
 	const removeAttachment = (id: string) =>
 		setState((prev) => ({
 			attachments: prev.attachments.filter(
@@ -256,8 +277,34 @@ export function useFileAttachments(
 			(item) => item.kind !== 'string',
 		)
 
+		// * We check if there are any valid items in the pasted data that is a file or an image (not a string)
+		// * If we don't have any valid items, we will then check if the items are strings
+		// * and if so, we will create a text file with the content of the string and add it as an attachment
+		// ? If there are no valid items, we will log an error and return
 		if (!isValidItems) {
 			console.error('Invalid pasted items')
+
+			for (const item of items) {
+				if (item.kind === 'string') {
+					event.stopPropagation()
+					event.preventDefault()
+
+					console.warn('Pasted item is a string, not a file:', item)
+					item.getAsString((str) => {
+						// Roughly check if the string has more than 49 words
+						// This is a very basic check, we might want to improve it
+						if (str.split(' ').length <= 49) return
+						addAttachment(
+							new File([str], `pasted-context-${nanoid(8)}.txt`, {
+								type: 'text/plain',
+							}),
+						)
+					})
+				} else {
+					console.warn('Pasted item is not a valid file:', item)
+				}
+			}
+
 			return
 		}
 
@@ -431,9 +478,11 @@ export function useFileAttachments(
 		},
 		{
 			addAttachment,
+			updateAttachment,
 			handleFileSelect,
 			removeAttachment,
 			clearAttachments,
+			addAttachmentObject,
 			attachFilesToMessage,
 			toggleAttachmentSelection,
 			onDragOver: handleDragOver,

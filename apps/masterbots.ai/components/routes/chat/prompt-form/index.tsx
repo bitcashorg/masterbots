@@ -24,6 +24,7 @@
  * - Shows clear placeholder text for user guidance
  */
 
+import { AttachmentDialog } from '@/components/routes/chat/attachment-dialog'
 import { ChatCombobox } from '@/components/routes/chat/chat-combobox'
 import { AttachmentsDisplay } from '@/components/routes/chat/prompt-form/attachments-display'
 import { UserAttachments } from '@/components/routes/chat/prompt-form/user-attachments'
@@ -64,8 +65,16 @@ import { useThread } from '@/lib/hooks/use-thread'
 import { cn, nanoid } from '@/lib/utils'
 import type { Attachment, ChatRequestOptions } from 'ai'
 import type { UseChatHelpers } from 'ai/react'
+import { id } from 'date-fns/locale'
 import { motion } from 'framer-motion'
-import { FilePlusIcon, PaperclipIcon, SaveIcon } from 'lucide-react'
+import {
+	BookPlusIcon,
+	FilePlusIcon,
+	PaperclipIcon,
+	PlusIcon,
+	SaveIcon,
+} from 'lucide-react'
+import { appConfig } from 'mb-env'
 import { useParams } from 'next/navigation'
 import * as React from 'react'
 import Textarea from 'react-textarea-autosize'
@@ -76,6 +85,20 @@ export interface PromptProps
 	isLoading: boolean
 	placeholder: string
 	disabled?: boolean
+}
+
+const DEFAULT_TEXT_FILE_CONTENT = `# Context for the conversation
+This file can contain any relevant information that will help the chatbot understand the context of the conversation. You can add links, notes, or any other text-based content that you think is important.`
+const DEFAULT_TEXT_FILE_BASE64_CONTENT = `data:text/plain;base64,${btoa(DEFAULT_TEXT_FILE_CONTENT)}`
+const DEFAULT_FILE_ATTACHMENT: FileAttachment = {
+	id: nanoid(16),
+	name: 'Thread Context.txt',
+	url: DEFAULT_TEXT_FILE_BASE64_CONTENT,
+	contentType: 'text/plain',
+	content: DEFAULT_TEXT_FILE_BASE64_CONTENT,
+	messageIds: [],
+	expires: new Date().toISOString(),
+	size: DEFAULT_TEXT_FILE_CONTENT.length,
 }
 
 export function PromptForm({
@@ -100,6 +123,9 @@ export function PromptForm({
 	const [{ attachments, isDragging, userData }, fileAttachmentActions] =
 		useFileAttachments(formRef)
 	const { selectedModel } = useModel()
+	const threadContextFileRef = React.useRef<FileAttachment>(
+		DEFAULT_FILE_ATTACHMENT,
+	)
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: not required
 	React.useEffect(() => {
@@ -141,6 +167,42 @@ export function PromptForm({
 		$input.click()
 		$input.setAttribute('disabled', '')
 	}
+
+	const triggerNewTextFileDialog = (e: React.MouseEvent) => {
+		// Create a proper File object from the text content
+		const attachmentContextFileName = attachments.some(
+			(attch) => attch.name === 'Thread Context.txt',
+		)
+			? `Thread Context (${attachments.filter((attch) => attch.name.includes('Thread Context')).length + 1}).txt`
+			: 'Thread Context.txt'
+		// Use the existing file handler to process the file
+		const newAttachmentObject = {
+			...DEFAULT_FILE_ATTACHMENT,
+			id:
+				attachmentContextFileName !== DEFAULT_FILE_ATTACHMENT.name
+					? nanoid(16)
+					: DEFAULT_FILE_ATTACHMENT.id,
+			name: attachmentContextFileName,
+			expires: new Date().toISOString(),
+			size: new Blob([DEFAULT_TEXT_FILE_CONTENT]).size,
+		}
+		fileAttachmentActions.addAttachmentObject(newAttachmentObject)
+	}
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: not required
+	React.useEffect(() => {
+		if (attachments.length > 0) {
+			const threadContextFiles = attachments
+				.filter((attch) => attch.name.includes('Thread Context'))
+				.sort((a, b) => {
+					// Sort by the latest thread context file first
+					const aCount = Number(a.name.match(/\((\d+)\)/)?.[1] || '0')
+					const bCount = Number(b.name.match(/\((\d+)\)/)?.[1] || '0')
+					return bCount - aCount
+				})
+			threadContextFileRef.current = threadContextFiles[0] || null
+		}
+	}, [triggerNewTextFileDialog])
 
 	const submitPrompt = async (e: React.FormEvent) => {
 		e.preventDefault()
@@ -204,6 +266,7 @@ export function PromptForm({
 				isDragging={isDragging}
 				attachments={attachments}
 				onRemove={fileAttachmentActions.removeAttachment}
+				onUpdate={fileAttachmentActions.updateAttachment}
 			/>
 			<div
 				className={cn(
@@ -246,11 +309,12 @@ export function PromptForm({
 								'relative cursor-pointer',
 							)}
 							onClick={(e) => {
-								if (userHasRelatedAttachment) return
-								e.currentTarget.querySelector('input')?.click()
+								return
+								// if (userHasRelatedAttachment) return
+								// e.currentTarget.querySelector('input')?.click()
 							}}
 						>
-							<Input
+							{/* <Input
 								onChange={fileAttachmentActions.handleFileSelect}
 								tabIndex={-1}
 								id={`file-attachments-${formId}`}
@@ -265,7 +329,7 @@ export function PromptForm({
 								type="file"
 								disabled={userHasRelatedAttachment}
 								multiple
-							/>
+							/> */}
 							<PaperclipIcon className="p-0.5 z-0 cursor-pointer" />
 						</PopoverTrigger>
 						<PopoverContent className="w-[320px]">
@@ -289,27 +353,62 @@ export function PromptForm({
 											</AccordionItem>
 										</Accordion>
 
-										<CommandItem asChild className="bg-transparent">
-											<Button
-												variant="outline"
-												size="lg"
-												className="w-full mt-4 mb-1 cursor-pointer"
-												onClick={triggerNativeFileInput}
+										<CommandGroup
+											className="[&>div]:flex [&>div]:w-full [&>div]:gap-1 mt-4 mb-1"
+											heading="Add Thread Attachments"
+										>
+											<CommandItem
+												asChild
+												className="flex w-full bg-transparent"
 											>
-												<FilePlusIcon className="size-4" />
-												Add Attachments
-											</Button>
-										</CommandItem>
-										{/* <CommandItem>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={fileAttachmentActions.clearAttachments}
-                        disabled={!attachments.length}
-                      >
-                        Clear Attachments
-                      </Button>
-                    </CommandItem> */}
+												<Button
+													variant="outline"
+													size="lg"
+													className="w-full cursor-pointer px-2"
+													onClick={triggerNativeFileInput}
+													title={
+														selectedModel.match(/(DeepSeekR1|GroqDeepSeek)/)
+															? 'Add text files only'
+															: 'Add image or text files'
+													}
+												>
+													<FilePlusIcon className="size-4" />
+													New File(s)
+												</Button>
+											</CommandItem>
+											<CommandItem
+												asChild
+												className="flex w-full bg-transparent"
+											>
+												<AttachmentDialog
+													attachment={threadContextFileRef.current}
+													updateAttachment={
+														fileAttachmentActions.updateAttachment
+													}
+													triggerComponent={
+														<Button
+															variant="outline"
+															size="lg"
+															className="w-full cursor-pointer px-2"
+															onClick={triggerNewTextFileDialog}
+														>
+															<BookPlusIcon className="size-4" />
+															New Context
+														</Button>
+													}
+												/>
+											</CommandItem>
+											{/* <CommandItem>
+												<Button
+													variant="ghost"
+													size="sm"
+													onClick={fileAttachmentActions.clearAttachments}
+													disabled={!attachments.length}
+												>
+													Clear Attachments
+												</Button>
+											</CommandItem> */}
+										</CommandGroup>
 									</CommandList>
 								</CommandGroup>
 							</Command>

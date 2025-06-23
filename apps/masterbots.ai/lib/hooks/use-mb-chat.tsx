@@ -374,7 +374,6 @@ export function MBChatProvider({ children }: { children: React.ReactNode }) {
 						}))
 					: []
 
-				// TODO: Add thread metadata here and keep the local copy for optimizations if doable...
 				for (const attachment of newAttachments) {
 					try {
 						indexedDBActions.updateItem(attachment.id, attachment)
