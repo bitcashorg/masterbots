@@ -17,6 +17,7 @@ import { usePowerUp } from '@/lib/hooks/use-power-up'
 import { useThread } from '@/lib/hooks/use-thread'
 import { logErrorToSentry } from '@/lib/sentry'
 import { cn } from '@/lib/utils'
+import { getUserBySlug } from '@/services/hasura'
 import type { Message as AiMessage } from 'ai'
 import type { UseChatHelpers } from 'ai/react'
 import {
@@ -26,7 +27,9 @@ import {
 } from 'lucide-react'
 import { appConfig } from 'mb-env'
 import type { Chatbot } from 'mb-genql'
+import { useSession } from 'next-auth/react'
 import { useCallback, useState } from 'react'
+import { useAsync } from 'react-use'
 
 export interface ChatPanelProps
 	extends Pick<
@@ -43,6 +46,8 @@ export interface ChatPanelProps
 	className?: string
 	messages: AiMessage[]
 }
+
+const WHITELIST_USERS = appConfig.features.proWhitelistUsers
 
 export function ChatPanel({
 	id,
@@ -73,6 +78,25 @@ export function ChatPanel({
 	} = useContinueGeneration()
 	const [, { appendWithMbContextPrompts }] = useMBChat()
 	const { isImageGeneration } = useImageToggle()
+	const { data: session } = useSession()
+
+	const {
+		error: errorUserData,
+		loading: loadingUserData,
+		value: userData,
+	} = useAsync(async () => {
+		if (!session?.user?.hasuraJwt) return null
+		const userResults = await getUserBySlug({
+			slug: session?.user.slug || '',
+			isSameUser: true,
+		})
+
+		if (userResults.error) {
+			throw new Error(userResults.error)
+		}
+
+		return userResults.user
+	}, [session?.user?.hasuraJwt])
 
 	const handleContinueGeneration = async () => {
 		if (formDisabled) {
@@ -130,6 +154,10 @@ export function ChatPanel({
 		[isPowerUp, isDeepThinking, webSearch],
 	)
 
+	const isUserWhitelisted = userData?.proUserSubscriptionId
+		? userData?.proUserSubscriptionId
+		: WHITELIST_USERS.includes(userData?.email || '')
+
 	return (
 		<div
 			className={cn(
@@ -158,7 +186,9 @@ export function ChatPanel({
 								activeColor="yellow"
 							/>
 							{/* Image Generation Toggle */}
-							{appConfig.features.imageGeneration && <ImageGenerationToggle />}
+							{appConfig.features.imageGeneration && isUserWhitelisted && (
+								<ImageGenerationToggle />
+							)}
 
 							{appConfig.features.webSearch && (
 								<FeatureToggle

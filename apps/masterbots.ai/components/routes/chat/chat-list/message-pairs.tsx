@@ -34,7 +34,7 @@ export function MessagePairs({
 }: {
 	isThread: boolean
 	messagesData: MessagePairsData
-	userAttachments: FileAttachment[]
+	userAttachments?: FileAttachment[]
 	chatbot?: Chatbot
 	chatTitleClass?: string
 	chatArrowClass?: string

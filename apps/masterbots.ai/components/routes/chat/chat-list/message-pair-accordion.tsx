@@ -46,8 +46,16 @@ export function MessagePairAccordion({
 	const { activeThread } = useThread()
 	const { navigateTo } = useSidebar()
 	const isPrevious = type === 'previous'
+	const defaultAccordionState =
+		// ? Case to show only the last message in the conversation and it is not previous
+		index === arrayLength - 1 && !isPrevious
+	// ? Case for when we have the first message in the conversation or last and both are not previous
+	// ((!index || index === arrayLength - 1) && !isPrevious) ||
+	// ? Case for when we have the first message in the previous conversation
+	// (!index && isPrevious)
+
 	const [isAccordionFocused, setIsAccordionFocused] = useState<boolean>(
-		!isThread,
+		defaultAccordionState,
 	)
 	const params = useParams()
 	const pathname = usePathname()
@@ -143,18 +151,11 @@ export function MessagePairAccordion({
 	const shouldShowUserMessage = activeThread?.thread?.messages
 		? !(!isThread && !index && isPrevious)
 		: !(!isThread && !index)
-	const defaultAccordionState =
-		// ? Case for when there is more than one message and we want to hide the first message
-		// (!index && arrayLength <= 1)
-		// ? Case for when we have the first message in the conversation or last and both are not previous
-		((!index || index === arrayLength - 1) && !isPrevious) ||
-		// ? Case for when we have the first message in the previous conversation
-		(!index && isPrevious)
 
 	return (
 		<SharedAccordion
 			defaultState={defaultAccordionState}
-			isOpen={isAccordionFocused || defaultAccordionState}
+			isOpen={isAccordionFocused}
 			id={pair.userMessage.slug}
 			className={cn(
 				{ relative: isThread },
