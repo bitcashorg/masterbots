@@ -314,7 +314,7 @@ export function PromptForm({
 								// e.currentTarget.querySelector('input')?.click()
 							}}
 						>
-							{/* <Input
+							<Input
 								onChange={fileAttachmentActions.handleFileSelect}
 								tabIndex={-1}
 								id={`file-attachments-${formId}`}
@@ -327,34 +327,36 @@ export function PromptForm({
 										: 'image/*,text/*'
 								}
 								type="file"
-								disabled={userHasRelatedAttachment}
+								disabled
 								multiple
-							/> */}
+							/>
 							<PaperclipIcon className="p-0.5 z-0 cursor-pointer" />
 						</PopoverTrigger>
 						<PopoverContent className="w-[320px]">
 							<Command>
 								<CommandGroup>
 									<CommandList className="w-full p-0 overflow-hidden">
-										<Accordion type="single" collapsible>
-											<AccordionItem value={`user-attachments-${formId}`}>
-												<AccordionTrigger className="sticky top-0 p-2">
-													<SaveIcon className="size-4" /> Saved Attachments (
-													{userAttachments?.length || 0})
-												</AccordionTrigger>
-												<AccordionContent className="scrollbar h-full max-h-[200px] md:max-h-[300px] w-full">
-													<UserAttachments
-														attachments={selectedUserAttachments}
-														onChange={
-															fileAttachmentActions.toggleAttachmentSelection
-														}
-													/>
-												</AccordionContent>
-											</AccordionItem>
-										</Accordion>
+										{userHasRelatedAttachment && (
+											<Accordion type="single" className="mb-4" collapsible>
+												<AccordionItem value={`user-attachments-${formId}`}>
+													<AccordionTrigger className="sticky top-0 p-2">
+														<SaveIcon className="size-4" /> Saved Attachments (
+														{userAttachments?.length || 0})
+													</AccordionTrigger>
+													<AccordionContent className="scrollbar h-full max-h-[200px] md:max-h-[300px] w-full">
+														<UserAttachments
+															attachments={selectedUserAttachments}
+															onChange={
+																fileAttachmentActions.toggleAttachmentSelection
+															}
+														/>
+													</AccordionContent>
+												</AccordionItem>
+											</Accordion>
+										)}
 
 										<CommandGroup
-											className="[&>div]:flex [&>div]:w-full [&>div]:gap-1 mt-4 mb-1"
+											className="[&>div]:flex [&>div]:w-full [&>div]:gap-1 mb-1"
 											heading="Add Thread Attachments"
 										>
 											<CommandItem

@@ -28,7 +28,7 @@ export function AttachmentDialog({
 	triggerComponent,
 }: {
 	attachment: FileAttachment | null
-	updateAttachment: (id: string, attachment: Partial<FileAttachment>) => void
+	updateAttachment?: (id: string, attachment: Partial<FileAttachment>) => void
 	absolutePosition?: boolean
 	triggerComponent?: React.ReactNode
 }) {
@@ -57,7 +57,7 @@ export function AttachmentDialog({
 					const newContent = `data:${newContentType};base64,${base64Content}`
 					const byteSize = new Blob([newContent]).size
 
-					updateAttachment(id, {
+					updateAttachment?.(id, {
 						content: newContent,
 						contentType: newContentType,
 						name: newName,
@@ -118,43 +118,45 @@ export function AttachmentDialog({
 						<>
 							{content ? (
 								<AnimatePresence>
-									<div className="flex w-full gap-1.5 items-center mb-2">
-										<Button
-											type="button"
-											variant="outline"
-											size="icon"
-											radius="full"
-											className="z-10 bg-background/50"
-											onClick={toggleContentEditable}
-										>
-											{contentEditable ? (
-												<>
-													<SaveIcon className="size-4" />
-												</>
-											) : (
-												<EditIcon className="size-4" />
-											)}
-										</Button>
-										{contentEditable && (
-											<motion.button
-												initial={{ opacity: 0 }}
-												animate={{ opacity: 1 }}
-												exit={{ opacity: 0 }}
-												transition={{ duration: 0.14 }}
-												key="cancel-edit-button"
+									{updateAttachment && (
+										<div className="flex w-full gap-1.5 items-center mb-2">
+											<Button
 												type="button"
-												className={buttonVariants({
-													variant: 'destructive',
-													size: 'icon',
-												})}
-												onClick={() => {
-													setContentEditable(false)
-												}}
+												variant="outline"
+												size="icon"
+												radius="full"
+												className="z-10 bg-background/50"
+												onClick={toggleContentEditable}
 											>
-												<XIcon className="size-4" />
-											</motion.button>
-										)}
-									</div>
+												{contentEditable ? (
+													<>
+														<SaveIcon className="size-4" />
+													</>
+												) : (
+													<EditIcon className="size-4" />
+												)}
+											</Button>
+											{contentEditable && (
+												<motion.button
+													initial={{ opacity: 0 }}
+													animate={{ opacity: 1 }}
+													exit={{ opacity: 0 }}
+													transition={{ duration: 0.14 }}
+													key="cancel-edit-button"
+													type="button"
+													className={buttonVariants({
+														variant: 'destructive',
+														size: 'icon',
+													})}
+													onClick={() => {
+														setContentEditable(false)
+													}}
+												>
+													<XIcon className="size-4" />
+												</motion.button>
+											)}
+										</div>
+									)}
 									<pre
 										className="w-full min-h-[80vh] max-h-full scrollbar p-2 border rounded-sm border-foreground/20 bg-muted text-sm whitespace-pre-wrap"
 										title={`attachment-content-${id}`}
