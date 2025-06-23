@@ -32,9 +32,9 @@ export function AttachmentDialog({
 	absolutePosition?: boolean
 	triggerComponent?: React.ReactNode
 }) {
+	const [contentEditable, setContentEditable] = useState(false)
 	if (!attachment) return null
 	const { id, name, url, contentType, content } = attachment
-	const [contentEditable, setContentEditable] = useState(false)
 
 	const toggleContentEditable = () => {
 		setContentEditable((prev) => {
