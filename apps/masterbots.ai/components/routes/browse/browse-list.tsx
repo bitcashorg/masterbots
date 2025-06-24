@@ -122,6 +122,10 @@ export default function BrowseList({
 		if (!keyword) {
 			setFilteredThreads(threads)
 		} else {
+			setLoading(true)
+			// Use debounce to prevent excessive calls to searchThreadContent
+			// This will wait for 230ms after the last keystroke before executing the search
+			// This is useful for performance, especially with large datasets
 			debounce(() => {
 				// Use our searchThreadContent function instead of just title search
 				setFilteredThreads(
@@ -129,6 +133,7 @@ export default function BrowseList({
 						searchThreadContent(thread, keyword),
 					),
 				)
+				setLoading(false)
 			}, 230)()
 		}
 	}
@@ -139,6 +144,8 @@ export default function BrowseList({
 
 		const { threads: moreThreads, count } = await getBrowseThreads({
 			categoriesId: selectedCategories,
+			chatbotsId: selectedChatbots,
+			keyword,
 			offset: threads.length,
 			limit: PAGE_SIZE,
 		})
@@ -230,6 +237,7 @@ export default function BrowseList({
 		}
 		// if (isEqual(threads, filteredThreads)) return
 
+		// TODO: Add fetch threads with keyword
 		verifyKeyword()
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [keyword, threads])
